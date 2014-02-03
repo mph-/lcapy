@@ -1,0 +1,55 @@
+This module supports simple linear circuit analysis based on the
+following ideal components:
+
+V independent voltage source
+I independent current source
+R resistor
+C capacitor
+L inductor
+
+These components are converted to s-domain models and so capacitor and
+inductor components can be specified with initial voltage and
+currents, respectively, to model transient responses.
+
+The components are represented by either Thevenin or Norton one-port
+networks with the following attributes:
+
+Zoc open-circuit impedance
+Ysc short-circuit admittance
+Voc open-circuit voltage
+Isc short-circuit current
+
+Components can either be connected in series (+) or parallel (|).
+
+Components can be connected to form two-port networks.  Methods are
+provided to determine transfer responses between the ports.
+
+The component values can be specified numerically or symbolically
+using strings, for example,
+
+from mcircuit import V, R, L, C
+
+R1 = R('R_1') 
+L1 = L('L_1')
+
+a = V(10) + R1 + L1
+
+Here a is the name of the network with a 10 V voltage source in series
+with R1 and L1.
+
+The open circuit voltage across the network can be printed with:
+print(a.Voc)
+=> 10/s
+
+The time domain response is given by:
+print(a.Voc.transientresponse())
+=> 10*Heaviside(t)
+
+The short circuit current through the network can be printed with:
+print(a.Isc)
+=> 10/(L_1*s**2 + R_1*s)
+
+The time domain response is given by:
+print(a.Isc.transientresponse())
+=> 10*Heaviside(t)/R_1 - 10*exp(-R_1*t/L_1)*Heaviside(t)/R_1
+
