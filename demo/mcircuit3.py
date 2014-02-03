@@ -1,5 +1,5 @@
-#import msignal.mcircuit as mc
-from msignal.mcircuit import R, L, C
+#import mcircuit as mc
+from mcircuit import R, L, C
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 

@@ -1,4 +1,4 @@
-from msignal.mcircuit import V, R, L, C
+from mcircuit import V, R, L, C
 import sympy as sym
 
 R1 = R('R') 

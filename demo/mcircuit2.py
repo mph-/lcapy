@@ -1,4 +1,4 @@
-from msignal.mcircuit import R, L, C
+from mcircuit import R, L, C
 
 Za = R(1)
 Zb = R(1)

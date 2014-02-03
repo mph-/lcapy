@@ -1,4 +1,4 @@
-from msignal.mcircuit import Opamp, R, C, Series
+from mcircuit import Opamp, R, C, Series
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 

@@ -1,4 +1,4 @@
-from msignal.mcircuit import *
+from mcircuit import *
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 

@@ -1,4 +1,4 @@
-from msignal.mcircuit import IdealTransformer
+from mcircuit import IdealTransformer
 
 a = IdealTransformer(10)
 

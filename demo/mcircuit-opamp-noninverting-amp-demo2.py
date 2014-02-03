@@ -1,4 +1,4 @@
-from msignal.mcircuit import Opamp, R, Series
+from mcircuit import Opamp, R, Series
 
 # Create simple non-inverting amplifier
 Rf = 1000

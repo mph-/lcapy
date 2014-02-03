@@ -1,5 +1,5 @@
 from __future__ import division
-from msignal.mcircuit import R, L, C
+from mcircuit import R, L, C
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 

@@ -1,4 +1,4 @@
-from msignal.mcircuit import Opamp, R, Series
+from mcircuit import Opamp, R, Series
 
 # Create simple inverting amplifier
 Rf = 1000
