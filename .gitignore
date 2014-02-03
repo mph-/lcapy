@@ -1,0 +1,15 @@
+*.mrs*
+*.pyc
+*.pyo
+*.swp
+*~
+*#
+.#*
+\#*
+.coverage
+unit_tests/coverage
+*.pdf
+*.m
+*.bak
+*.aux
+*.log
