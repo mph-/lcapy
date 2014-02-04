@@ -378,12 +378,15 @@ class _Val(object):
         pqr = sym.assemble_partfrac_list(pfd).doit()
 
         terms = []
+        sum = 0
         for t in pqr.as_ordered_terms():
             numer, denom = t.as_numer_denom()
             numer = sym.simplify(numer)
-            terms.append(sym.simplify(numer / denom))
+            term = sym.simplify(numer / denom)
+            terms.append(term)
+            sum = sum + term
 
-        return self.__class__(sym.Add(terms), simplify=False)
+        return self.__class__(sum, simplify=False)
 
 
     def as_PZK(self):
@@ -520,11 +523,9 @@ class _Val(object):
         return inverse_laplace_transform(val, self.s, self.t)
 
 
-    def _transientresponse2(self, t):
+    def _transientresponse(self, t):
 
-        from sympy import factorial
-
-        P = self.poles()
+        from math import factorial
 
         P, R, Q = self.PRQ()
   
@@ -558,6 +559,7 @@ class _Val(object):
     def transientresponse(self, t=None):
         """Evaluate transient (impulse) response"""
         
+        self._transientresponse(t)
         if t != None:
             try:
                 print('Attempting fast inverse Laplace transform...')
