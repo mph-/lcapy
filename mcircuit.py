@@ -176,6 +176,102 @@ def WyeDelta(Z1, Z2, Z3):
     return (Z2 * Z3 / ZZ, Z1 * Z3 / ZZ, Z1 * Z2 / ZZ)
 
 
+def poles(expr, var):
+    numer, denom = expr.as_numer_denom()
+    poles = sym.roots(sym.Poly(denom, var))
+    return poles
+
+
+def residues(expr, var):
+
+    N, D = expr._as_ND()
+
+    Q, M = N.div(D)
+
+    expr = M / D
+
+    P = poles(expr, var)
+    F = []
+    R = []
+    for p in P:
+        
+        # Number of occurrences of the pole.
+        N = P[p]
+
+        D = var - p
+
+        if N == 1:
+            tmp = expr * D
+            F.append(D)
+            R.append(sym.limit(tmp, var, p))
+            continue
+
+        # Handle repeated poles.
+        expr2 = expr * D ** N
+        for n in range(1, N + 1):
+            m = N - n
+            F.append(D ** n)
+            R.append(sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m))
+
+    return F, R, Q
+
+
+def partfrac(expr, var):
+
+    F, R, Q = residues(expr, var)
+
+    expr = Q
+    for f, r in zip(F, R):
+        expr = expr + r / f
+
+    return expr
+
+
+def _as_ND(expr, var):
+    
+    numer, denom = expr.as_numer_denom()
+    N = sym.Poly(numer, var)
+    D = sym.Poly(denom, var)
+    
+    return N, D
+
+
+def invLT(expr, var, t):
+
+    N, D = _as_ND(expr, var)
+
+    Q, M = N.div(D)
+
+    if Q:
+        print('Warning: Impulse response has impulses and/or derivatives of impulses.')
+
+    expr = M / D
+
+    P = poles(expr, var)
+    result = 0
+    for p in P:
+        
+        # Number of occurrences of the pole.
+        N = P[p]
+
+        D = var - p
+
+        if N == 1:
+            tmp = expr * D
+            R = sym.limit(tmp, var, p)
+            result += R * sym.exp(p * t)
+            continue
+
+        # Handle repeated poles.
+        expr2 = expr * D ** N
+        for n in range(1, N + 1):
+            m = N - n
+            R = sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m)
+            result += R * sym.exp(p * t) * t**m
+
+    return result * sym.Heaviside(t)
+
+
 class _Val(object):
     
     s, t, f = sym.symbols('s t f')
@@ -337,18 +433,12 @@ class _Val(object):
 
     def poles(self):
         
-        expr = self.expr
-        numer, denom = expr.as_numer_denom()
-        return sym.roots(sym.Poly(denom, self.s))
+        return poles(self.expr, self.s)
 
 
     def residues(self):
         
-        expr = self.expr
-        numer, denom = expr.as_numer_denom()
-        poles = sym.roots(sym.Poly(denom, self.s))
-        # TODO: repeated poles?
-        return [sym.residue(expr, self.s, p) for p in poles]
+        return residues(self.expr, self.s)
 
 
     def as_transfer_function(self):
@@ -368,28 +458,41 @@ class _Val(object):
         return self.__class__(sym.Mul(k0, *(zz + pp)), simplify=False)
 
 
-    def as_PQR(self):
-        
-        expr = self.expr
-        var = self.s
-        
-        pfd = sym.apart_list(expr)
-        # Use doit to evaluate roots.
-        pqr = sym.assemble_partfrac_list(pfd).doit()
+    @property
+    def PRQ(self):
 
-        terms = []
-        sum = 0
-        for t in pqr.as_ordered_terms():
-            numer, denom = t.as_numer_denom()
-            numer = sym.simplify(numer)
-            term = sym.simplify(numer / denom)
-            terms.append(term)
-            sum = sum + term
-
-        return self.__class__(sum, simplify=False)
+        return self.__class__(partfrac(self.expr, self.s), simplify=False)
 
 
-    def as_PZK(self):
+    # The sympy residue function gives bogus results
+    #@property
+    # def PRQ(self):
+    #
+    #     expr = self.expr
+    #     var = self.s
+    #    
+    #     pfd = sym.apart_list(expr)
+    #     # Use doit to evaluate roots.
+    #     pqr = sym.assemble_partfrac_list(pfd).doit()
+    #
+    #     sum = 0
+    #     for t in pqr.as_ordered_terms():
+    #         numer, denom = t.as_numer_denom()
+    #         numer = sym.simplify(numer)
+    #         N = sym.Poly(numer, var)
+    #         D = sym.Poly(denom, var)
+    #         LC = D.LC()
+    #         D = D / LC
+    #         N = N / LC
+    #         term = N / D
+    #         sum = sum + term
+    #
+    #     return self.__class__(sum, simplify=False)
+
+
+
+    @property
+    def PZK(self):
         
         expr = self.expr
         var = self.s
@@ -408,14 +511,14 @@ class _Val(object):
         return self.__class__(sym.Mul(K, *(zz + pp)), simplify=False)
 
 
+    def _as_ND(self):
+        
+        return _as_ND(self.expr, self.s)
+
+
     def split_strictly_proper(self):
         
-        expr = self.expr
-        var = self.s
-
-        numer, denom = expr.as_numer_denom()
-        N = sym.Poly(numer, self.s)
-        D = sym.Poly(denom, self.s)
+        N, D = self._as_ND()
 
         Q, M = N.div(D)
 
@@ -426,16 +529,14 @@ class _Val(object):
         """Extract rational function numerator and denominator poynomials"""
         
         val = self.val.cancel()
-        N, D = val.as_numer_denom()
-        
-        Np = sym.Poly(N, self.s)
-        Dp = sym.Poly(D, self.s)
+
+        N, D = self._as_ND()
 
         from scipy import poly1d
-        N = poly1d([float(x) for x in Np.all_coeffs()])
-        D = poly1d([float(x) for x in Dp.all_coeffs()])
+        Np = poly1d([float(x) for x in N.all_coeffs()])
+        Dp = poly1d([float(x) for x in D.all_coeffs()])
 
-        return N, D
+        return Np, Dp
 
     
     def mrf(self):
@@ -444,46 +545,6 @@ class _Val(object):
         
         N, D = self._ratfun()
         return MRF(N.c, D.c)
-
-
-    def PRQ(self):
-        """P, R, Q = rf.PRQ()
-        
-        P poles
-        R residues
-        Q direct terms"""
-
-        from scipy.signal import residue
-
-        # sympy cannot solve roots for multivariate expressions
-        # so there is no disadvantage doing this with numpy.
-
-        N, D = self._ratfun()
-
-        if len(D.r):
-            R, P, Q = residue(N.c, D.c)
-            return P, R, Q
-        # No roots for denominator so have no poles.
-        return [], [], N.c / D.c
-
-
-    def PZK(self):
-        """P, Z, K = rf.PZK()
-        
-        P poles
-        Z zeros
-        K constant scale factor
-        
-        rf = K \prod_m (s - Z_m) / \prod_n (s - P_n)"""
-    
-        N, D = self._ratfun()
-
-        # .r calculates roots of polynomial.
-        P = D.r
-        Z = N.r
-        K = N.c[0] / D.c[0]
-
-        return P, Z, K
 
 
     def pprint(self):
@@ -514,59 +575,24 @@ class _Val(object):
             warn('Expression not a rational function')
             
         try:
-            # Try splitting into partial fractions.
-            val = val.as_PQR()
+            result = invLT(self.expr, self.s, self.t)
         except:
-            pass
+
+            try:
+                # Try splitting into partial fractions.
+                val = val.PRQ
+            except:
+                pass
         
-        # This barfs when needing to generate Dirac deltas
-        return inverse_laplace_transform(val, self.s, self.t)
+            # This barfs when needing to generate Dirac deltas
+            result = inverse_laplace_transform(val, self.s, self.t)
 
-
-    def _transientresponse(self, t):
-
-        from math import factorial
-
-        P, R, Q = self.PRQ()
-  
-        if warn and (Q != 0.0).any():
-            print('Warning: Impulse response has impulses and/or derivatives of impulses.')
-
-        NP = len(P)
-        if NP == 0:
-            return t * 0
-  
-        # Sort the poles.
-        indx = P.argsort()
-        PS = P[indx]
-        RS = R[indx]
-
-        h = np.zeros(t.shape)
-
-        n = 0
-        while n < NP:
-            # Find out many times this pole is repeated.
-            mp = np.where(PS == PS[n])[0]
-            NM = len(mp)
-            
-            for m in range(NM):
-                h = h + RS[n] / factorial(m) * t ** m * np.exp(PS[n] * t) * (t >= 0)        
-                n = n + 1
-
-        return h.real
+        return result
 
 
     def transientresponse(self, t=None):
         """Evaluate transient (impulse) response"""
         
-        self._transientresponse(t)
-        if t != None:
-            try:
-                print('Attempting fast inverse Laplace transform...')
-                return self._transientresponse(t)
-            except:
-                pass            
-
         expr = self.inverselaplace()
         if t == None:
             return expr
