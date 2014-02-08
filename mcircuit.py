@@ -182,9 +182,15 @@ def poles(expr, var):
     return poles
 
 
+def zeros(expr, var):
+    numer, denom = expr.as_numer_denom()
+    zeros = sym.roots(sym.Poly(numer, var))
+    return zeros
+
+
 def residues(expr, var):
 
-    N, D = expr._as_ND()
+    N, D = _as_ratfun_parts(expr, var)
 
     Q, M = N.div(D)
 
@@ -218,17 +224,25 @@ def residues(expr, var):
 
 def partfrac(expr, var):
 
-    F, R, Q = residues(expr, var)
+    ratfun, delay = _as_ratfun_delay(expr, var)
+
+    F, R, Q = residues(ratfun, var)
 
     expr = Q
     for f, r in zip(F, R):
         expr = expr + r / f
 
+    if delay != 0:
+        expr *= sym.exp(-var * delay)
+
     return expr
 
 
-def _as_ND(expr, var):
+def _as_ratfun_parts(expr, var):
     
+    if not expr.is_rational_function():
+        raise ValueError('Expression not a rational function')
+
     numer, denom = expr.as_numer_denom()
     N = sym.Poly(numer, var)
     D = sym.Poly(denom, var)
@@ -236,19 +250,72 @@ def _as_ND(expr, var):
     return N, D
 
 
+def _as_ratfun_delay(expr, var):
+    
+    F = expr.as_ordered_factors()
+
+    delay = sym.sympify(0)
+    ratfun = sym.sympify(1)
+    for f in F:
+        b, e = f.as_base_exp()
+        if b == sym.E and e.is_polynomial(var):
+            p = sym.Poly(e, var)
+            c = p.all_coeffs()
+            if p.degree() == 1:
+                delay -= c[0]
+                if c[1] != 0:
+                    ratfun *= sym.exp(c[1])
+                continue
+
+        ratfun *= f
+            
+    if not ratfun.is_rational_function():
+        raise ValueError('Expression not a product of rational function and exponential')
+
+    return ratfun, delay
+
+
+def PZK(expr, var):
+
+    ratfun, delay = _as_ratfun_delay(expr, var)
+
+    N, D = _as_ratfun_parts(ratfun, var)
+
+    zeros = sym.roots(N)
+    poles = sym.roots(D)
+    K = N.LC() / D.LC()
+    if delay != 0:
+        K = K * sym.exp(var * delay)
+    
+    zz = [(var - z) for z in zeros]
+    pp = [1 / (var - p) for p in poles]
+        
+    return sym.Mul(K, *(zz + pp))
+
+
 def invLT(expr, var, t):
 
-    N, D = _as_ND(expr, var)
+    ratfun, delay = _as_ratfun_delay(expr, var)
+
+    N, D = _as_ratfun_parts(ratfun, var)
 
     Q, M = N.div(D)
 
+    result1 = 0
+
+    # Delayed time.
+    td = t - delay
+
     if Q:
         print('Warning: Impulse response has impulses and/or derivatives of impulses.')
-
+        C = Q.all_coeffs()
+        for n, c in enumerate(C):
+            result1 += c * sym.diff(sym.DiracDelta(td), t, len(C) - n - 1)
+        
     expr = M / D
 
     P = poles(expr, var)
-    result = 0
+    result2 = 0
     for p in P:
         
         # Number of occurrences of the pole.
@@ -259,7 +326,7 @@ def invLT(expr, var, t):
         if N == 1:
             tmp = expr * D
             R = sym.limit(tmp, var, p)
-            result += R * sym.exp(p * t)
+            result2 += R * sym.exp(p * td)
             continue
 
         # Handle repeated poles.
@@ -267,9 +334,9 @@ def invLT(expr, var, t):
         for n in range(1, N + 1):
             m = N - n
             R = sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m)
-            result += R * sym.exp(p * t) * t**m
+            result2 += R * sym.exp(p * td) * td**(n - 1)
 
-    return result * sym.Heaviside(t)
+    return result1 + result2 * sym.Heaviside(td)
 
 
 class _Val(object):
@@ -426,9 +493,7 @@ class _Val(object):
 
     def zeros(self):
         
-        expr = self.expr
-        numer, denom = expr.as_numer_denom()
-        return sym.roots(sym.Poly(numer, self.s))
+        return zeros(self.expr, self.s)
 
 
     def poles(self):
@@ -459,14 +524,14 @@ class _Val(object):
 
 
     @property
-    def PRQ(self):
+    def partfrac(self):
 
         return self.__class__(partfrac(self.expr, self.s), simplify=False)
 
 
     # The sympy residue function gives bogus results
     #@property
-    # def PRQ(self):
+    # def partfrac(self):
     #
     #     expr = self.expr
     #     var = self.s
@@ -494,57 +559,36 @@ class _Val(object):
     @property
     def PZK(self):
         
-        expr = self.expr
-        var = self.s
+        return self.__class__(PZK(self.expr, self.s), simplify=False)
 
-        # TODO, extract delay and reapply at end
-        numer, denom = expr.as_numer_denom()
-        N = sym.Poly(numer, self.s)
-        D = sym.Poly(denom, self.s)
-        zeros = sym.roots(N)
-        poles = sym.roots(D)
-        K = N.LC() / D.LC()
 
-        zz = [(var - z) for z in zeros]
-        pp = [1 / (var - p) for p in poles]
+    def _as_ratfun_parts(self):
         
-        return self.__class__(sym.Mul(K, *(zz + pp)), simplify=False)
-
-
-    def _as_ND(self):
-        
-        return _as_ND(self.expr, self.s)
+        return _as_ratfun_parts(self.expr, self.s)
 
 
     def split_strictly_proper(self):
         
-        N, D = self._as_ND()
+        N, D = self._as_ratfun_parts()
 
         Q, M = N.div(D)
 
         return Q.as_expr(), M / D
 
 
-    def _ratfun(self):
-        """Extract rational function numerator and denominator poynomials"""
-        
+    def mrf(self):
+
+        from mrf import MRF
+
         val = self.val.cancel()
 
-        N, D = self._as_ND()
+        N, D = self._as_ratfun_parts()
 
         from scipy import poly1d
         Np = poly1d([float(x) for x in N.all_coeffs()])
         Dp = poly1d([float(x) for x in D.all_coeffs()])
-
-        return Np, Dp
-
-    
-    def mrf(self):
-
-        from mrf import MRF
         
-        N, D = self._ratfun()
-        return MRF(N.c, D.c)
+        return MRF(Np.c, Dp.c)
 
 
     def pprint(self):
@@ -569,23 +613,20 @@ class _Val(object):
         
         print('Determining inverse Laplace transform...')
 
-        val = self.val
+        expr = self.expr
         
-        if not val.is_rational_function():
-            warn('Expression not a rational function')
-            
         try:
             result = invLT(self.expr, self.s, self.t)
         except:
 
             try:
                 # Try splitting into partial fractions.
-                val = val.PRQ
+                expr = expr.partfrac
             except:
                 pass
         
             # This barfs when needing to generate Dirac deltas
-            result = inverse_laplace_transform(val, self.s, self.t)
+            result = inverse_laplace_transform(expr, self.s, self.t)
 
         return result
 
