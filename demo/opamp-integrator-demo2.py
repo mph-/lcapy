@@ -9,7 +9,7 @@ Ri = 50
 a = Opamp()
 
 # Connect V+ to ground.
-b = a.shortcircuit(1)
+b = a.short_circuit(1)
 
 # Add feedback capacitor.
 c = b.bridge(C(Cf))

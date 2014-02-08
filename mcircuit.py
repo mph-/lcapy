@@ -678,18 +678,26 @@ class _Val(object):
             response = np.array([complex(func(t1)) for t1 in t])
             # The following does not work if all the sympy functions are not
             # converted to numpy functions.
-            #response = func(t)
+            # response = func(t)
             
         except NameError:
             raise RuntimeError('Cannot compute inverse Laplace transform')
         
-        return response
+        # The result should be real so quietly remove any imaginary
+        # component.
+        return response.real
     
     
     def impulse_response(self, t=None):
         """Evaluate transient (impulse) response"""
         
         return self.transient_response(t)
+
+
+    def step_response(self, t=None):
+        """Evaluate step response"""
+        
+        return (self / self.s).transient_response(t)
     
     
     def frequency_response(self, f=None):
@@ -2552,7 +2560,7 @@ class TwoPort(object):
         return Thevenin(_Z(foo.Z2oc), foo.V2oc)
 
 
-    def shortcircuit(self, port=2):
+    def short_circuit(self, port=2):
         """Apply a short-circuit to specified port and return a
         one-port object"""
 
@@ -2563,7 +2571,7 @@ class TwoPort(object):
         return Norton(_Y(Y), _I(I))
 
 
-    def opencircuit(self, port=2):
+    def open_circuit(self, port=2):
         """Apply a open-circuit to specified port and return a
         one-port object"""
 
@@ -3631,10 +3639,10 @@ class ThreePort(object):
         """Connect one-port in parallel to specified port and return a
         two-port object"""
 
-        return self.attach_parallel(T, port).opencircuit(port)
+        return self.attach_parallel(T, port).open_circuit(port)
 
 
-    def shortcircuit(self, port=2):
+    def short_circuit(self, port=2):
         """Apply a short-circuit to specified port and return a
         two-port object"""
 
@@ -3651,7 +3659,7 @@ class ThreePort(object):
         return TwoPortZModel(Y.Z, _V(Voc[0]), _V(Voc[1]))
         
 
-    def opencircuit(self, port=2):
+    def open_circuit(self, port=2):
         """Apply a open-circuit to specified port and return a
         two-port object"""
 

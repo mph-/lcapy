@@ -10,10 +10,14 @@ t = np.linspace(0, 10, 1000)
 
 fig = figure()
 ax = fig.add_subplot(111)
-ax.plot(t, a.Isc.transientresponse(t), linewidth=2)
+ax.plot(t, a.Isc.transient_response(t), linewidth=2)
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Current (A)')
 ax.grid(True)
+
+sym.pprint(sym.Eq(sym.sympify('I_sc'), H))
+
+sym.pprint(sym.Eq(sym.sympify('i_sc'), inverse_laplace(H, s, t)))
 
 show()
 
