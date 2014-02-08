@@ -175,19 +175,33 @@ def WyeDelta(Z1, Z2, Z3):
     return (Z2 * Z3 / ZZ, Z1 * Z3 / ZZ, Z1 * Z2 / ZZ)
 
 
-def poles(expr, var):
+def poles(expr, var=None):
+
+    if hasattr(expr, 'expr'):
+        expr = expr.expr
+        var = expr.s
+
     numer, denom = expr.as_numer_denom()
     poles = sym.roots(sym.Poly(denom, var))
     return poles
 
 
-def zeros(expr, var):
+def zeros(expr, var=None):
+
+    if hasattr(expr, 'expr'):
+        expr = expr.expr
+        var = expr.s
+
     numer, denom = expr.as_numer_denom()
     zeros = sym.roots(sym.Poly(numer, var))
     return zeros
 
 
-def residues(expr, var):
+def residues(expr, var=None):
+
+    if hasattr(expr, 'expr'):
+        expr = expr.expr
+        var = expr.s
 
     N, D = _as_ratfun_parts(expr, var)
 
@@ -221,7 +235,11 @@ def residues(expr, var):
     return F, R, Q
 
 
-def partfrac(expr, var):
+def partfrac(expr, var=None):
+
+    if hasattr(expr, 'expr'):
+        expr = expr.expr
+        var = expr.s
 
     ratfun, delay = _as_ratfun_delay(expr, var)
 
@@ -274,7 +292,11 @@ def _as_ratfun_delay(expr, var):
     return ratfun, delay
 
 
-def PZK(expr, var):
+def PZK(expr, var=None):
+
+    if hasattr(expr, 'expr'):
+        expr = expr.expr
+        var = expr.s
 
     ratfun, delay = _as_ratfun_delay(expr, var)
 
@@ -292,7 +314,7 @@ def PZK(expr, var):
     return sym.Mul(K, *(zz + pp))
 
 
-def ZPK(expr, var):
+def ZPK(expr, var=None):
     
     return PZK(expr, var)
 
@@ -359,12 +381,20 @@ def inverse_laplace(expr, s, t):
     return result
 
 
-def initial_value(expr, var):
+def initial_value(expr, var=None):
+
+    if hasattr(expr, 'expr'):
+        expr = expr.expr
+        var = expr.s
 
     return sym.limit(expr * var, var, sym.oo)
 
 
-def final_value(expr, var):
+def final_value(expr, var=None):
+
+    if hasattr(expr, 'expr'):
+        expr = expr.expr
+        var = expr.s
 
     return sym.limit(expr * var, var, 0)
 
@@ -396,6 +426,11 @@ class _Val(object):
     def __str__(self):
 
         return self.val.__str__()
+
+
+    def __repr__(self):
+
+        return '%s(%s)' % (self.__class__.__name__, self.val.__str__())
 
     
     def __neg__(self):
