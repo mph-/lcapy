@@ -53,27 +53,27 @@ class McircuitsTester(unittest.TestCase):
         a = Shunt(R(10) + V(5))
         self.assertEqual(a.Z1oc, 10, "Z1oc incorrect.")
         self.assertEqual(a.Z2oc, 10, "Z2oc incorrect.")
-        self.assertEqual(a.V2oc.mrf(), MRF(5, (1, 0)), "V2oc incorrect.")
+        self.assertEqual(a.V2oc, 5 / s, "V2oc incorrect.")
         print(a.I2sc)
-        self.assertEqual(a.I2sc.mrf(), MRF(0.5, (1, 0)), "I2sc incorrect.")
-        self.assertEqual(a.V1oc.mrf(), MRF(5, (1, 0)), "V1oc incorrect.")
-        self.assertEqual(a.I1sc.mrf(), MRF(0.5, (1, 0)), "I1sc incorrect.")
+        self.assertEqual(a.I2sc, 0.5 / s, "I2sc incorrect.")
+        self.assertEqual(a.V1oc, 5 / s, "V1oc incorrect.")
+        self.assertEqual(a.I1sc, 0.5 / s, "I1sc incorrect.")
 
         b = a.chain(Shunt(R(30)))
-        self.assertEqual(b.Z1oc.mrf(), MRF(7.5, 1), "Z1oc incorrect.")
-        self.assertEqual(b.Z2oc.mrf(), MRF(7.5, 1), "Z2oc incorrect.")
-        self.assertEqual(b.V2oc.mrf(), MRF(3.75, (1, 0)), "V2oc incorrect.")
-        self.assertEqual(b.I2sc.mrf(), MRF(0.5, (1, 0)), "I2sc incorrect.")
-        self.assertEqual(b.V1oc.mrf(), MRF(3.75, (1, 0)), "V1oc incorrect.")
-        self.assertEqual(b.I1sc.mrf(), MRF(0.5, (1, 0)), "I1sc incorrect.")
+        self.assertEqual(b.Z1oc, 7.5, "Z1oc incorrect.")
+        self.assertEqual(b.Z2oc, 7.5, "Z2oc incorrect.")
+        self.assertEqual(b.V2oc, 3.75 / s, "V2oc incorrect.")
+        self.assertEqual(b.I2sc, 0.5 / s, "I2sc incorrect.")
+        self.assertEqual(b.V1oc, 3.75 / s, "V1oc incorrect.")
+        self.assertEqual(b.I1sc, 0.5 / s, "I1sc incorrect.")
 
         c = a.chain(Series(R(30)))
         self.assertEqual(c.Z1oc, 10, "Z1oc incorrect.")
-        self.assertEqual(c.Z2oc.mrf(), MRF(40, 1), "Z2oc incorrect.")
-        self.assertEqual(c.V1oc.mrf(), MRF(5, (1, 0)), "V1oc incorrect.")
-        self.assertEqual(c.V2oc.mrf(), MRF(5, (1, 0)), "V2oc incorrect.")
-        self.assertEqual(c.I1sc.mrf(), MRF(-0.5, (1, 0)), "I1sc incorrect.")
-        self.assertEqual(c.I2sc.mrf(), MRF(0, (1, 0)), "I2sc incorrect.")
+        self.assertEqual(c.Z2oc, 40, "Z2oc incorrect.")
+        self.assertEqual(c.V1oc, 5 / s, "V1oc incorrect.")
+        self.assertEqual(c.V2oc, 5 / s, "V2oc incorrect.")
+        self.assertEqual(c.I1sc, -0.5 / s, "I1sc incorrect.")
+        self.assertEqual(c.I2sc, 0 / s, "I2sc incorrect.")
 
         d = Shunt(R(10)).chain(Series(R(30)))
 
@@ -84,13 +84,12 @@ class McircuitsTester(unittest.TestCase):
         """
         a = Series(R(10) + V(5))
         self.assertEqual(a.Y1sc, 0.1, "Y1sc incorrect.")
-        self.assertEqual(a.Y1sc.mrf(), MRF(1, 10), "Y1sc incorrect.")
-        self.assertEqual(a.Y2sc.mrf(), MRF(1, 10), "Y2sc incorrect.")
+        self.assertEqual(a.Y2sc, 0.1, "Y2sc incorrect.")
         print(a.V1oc)
-        self.assertEqual(a.V1oc.mrf(), MRF(5, (1, 0)), "V1oc incorrect.")
-        self.assertEqual(a.V2oc.mrf(), MRF(5, (1, 0)), "V2oc incorrect.")
-        self.assertEqual(a.I1sc.mrf(), MRF(0.5, (1, 0)), "I1sc incorrect.")
-        self.assertEqual(a.I2sc.mrf(), MRF(-0.5, (1, 0)), "I2sc incorrect.")
+        self.assertEqual(a.V1oc, 5 / s, "V1oc incorrect.")
+        self.assertEqual(a.V2oc, 5 / s, "V2oc incorrect.")
+        self.assertEqual(a.I1sc, 0.5 / s, "I1sc incorrect.")
+        self.assertEqual(a.I2sc, -0.5 / s, "I2sc incorrect.")
 
 
     def test_LSection(self):
@@ -99,48 +98,48 @@ class McircuitsTester(unittest.TestCase):
         """
         a = LSection(R(10), R(30))
 
-        self.assertEqual(a.Vgain12.mrf(), MRF(0.75, 1), "Vgain12 incorrect.")
-        self.assertEqual(a.Igain12.mrf(), MRF(-1, 1), "Igain12 incorrect.")
-        self.assertEqual(a.Z1oc.mrf(), MRF(40, 1), "Z1oc incorrect.")
-        self.assertEqual(a.Z2oc.mrf(), MRF(30, 1), "Z2oc incorrect.")
+        self.assertEqual(a.Vgain12, 0.75, "Vgain12 incorrect.")
+        self.assertEqual(a.Igain12, -1, "Igain12 incorrect.")
+        self.assertEqual(a.Z1oc, 40, "Z1oc incorrect.")
+        self.assertEqual(a.Z2oc, 30, "Z2oc incorrect.")
         self.assertEqual(a.Z1sc, 10, "Z1sc incorrect.")
-        self.assertEqual(a.Z2sc.mrf(), MRF(7.5, 1), "Z2sc incorrect.")
-        self.assertEqual(a.Vgain(1, 2).mrf(), MRF(0.75, 1), "Vgain 1->2 incorrect.")
-        self.assertEqual(a.Vgain(2, 1).mrf(), MRF(1, 1), "Vgain 2->1 incorrect.")
-        self.assertEqual(a.Igain(1, 2).mrf(), MRF(-1, 1), "Igain 1->2 incorrect.")
-        self.assertEqual(a.Igain(2, 1).mrf(), MRF(-0.75, 1), "Igain 2->1 incorrect.")
-        self.assertEqual(a.Vresponse(V(1), 1, 2).mrf(), MRF(0.75, (1, 0)), "Vresponse 1->2 incorrect.")
-        self.assertEqual(a.Vresponse(V(1), 2, 1).mrf(), MRF(1, (1, 0)), "Vresponse 2->1 incorrect.")
-        self.assertEqual(a.Iresponse(I(1), 1, 2).mrf(), MRF(-1, (1, 0)), "Iresponse 1->2 incorrect.")
-        self.assertEqual(a.Iresponse(I(1), 2, 1).mrf(), MRF(-0.75, (1, 0)), "Iresponse 2->1 incorrect.")
+        self.assertEqual(a.Z2sc, 7.5, "Z2sc incorrect.")
+        self.assertEqual(a.Vgain(1, 2), 0.75, "Vgain 1->2 incorrect.")
+        self.assertEqual(a.Vgain(2, 1), 1, "Vgain 2->1 incorrect.")
+        self.assertEqual(a.Igain(1, 2), -1, "Igain 1->2 incorrect.")
+        self.assertEqual(a.Igain(2, 1), -0.75, "Igain 2->1 incorrect.")
+        self.assertEqual(a.Vresponse(V(1), 1, 2), 0.75 / s, "Vresponse 1->2 incorrect.")
+        self.assertEqual(a.Vresponse(V(1), 2, 1), 1 / s, "Vresponse 2->1 incorrect.")
+        self.assertEqual(a.Iresponse(I(1), 1, 2), -1 / s, "Iresponse 1->2 incorrect.")
+        self.assertEqual(a.Iresponse(I(1), 2, 1), -0.75 / s, "Iresponse 2->1 incorrect.")
 
         b = a.load(R(30))
         self.assertEqual(type(b), Thevenin, "type incorrect.")
-        self.assertEqual(b.Z.mrf(), MRF(25, 1), "R loaded Z incorrect.")
-        self.assertEqual(b.V.mrf(), MRF(0, 1), "R loaded V incorrect.")
+        self.assertEqual(b.Z, 25, "R loaded Z incorrect.")
+        self.assertEqual(b.V, 0, "R loaded V incorrect.")
 
         c = a.load(R(30) + V(5))
         self.assertEqual(type(b), Thevenin, "type incorrect.")
-        self.assertEqual(c.Z.mrf(), MRF(25, 1), "T loaded Z incorrect.")
-        self.assertEqual(c.V.mrf(), MRF(2.5, (1, 0)), "T loaded V incorrect.")
+        self.assertEqual(c.Z, 25, "T loaded Z incorrect.")
+        self.assertEqual(c.V, 2.5 / s, "T loaded V incorrect.")
 
 
         d = LSection(R(10), R(30) + V(6))
-        self.assertEqual(d.Vgain12.mrf(), MRF(0.75, 1), "Vgain12 incorrect.")
-        self.assertEqual(d.Igain12.mrf(), MRF(-1, 1), "Igain12 incorrect.")
-        self.assertEqual(d.Z1oc.mrf(), MRF(40, 1), "Z1oc incorrect.")
-        self.assertEqual(d.Z2oc.mrf(), MRF(30, 1), "Z2oc incorrect.")
-        self.assertEqual(d.V1oc.mrf(), MRF(6, (1, 0)), "V1oc incorrect.")
-        self.assertEqual(d.V2oc.mrf(), MRF(6, (1, 0)), "V2oc incorrect.")
-        self.assertEqual(d.I1sc.mrf(), MRF(0, (1, 0)), "I2sc incorrect.")
-        self.assertEqual(d.I2sc.mrf(), MRF(-0.2, (1, 0)), "I2sc incorrect.")
+        self.assertEqual(d.Vgain12, 0.75, "Vgain12 incorrect.")
+        self.assertEqual(d.Igain12, -1, "Igain12 incorrect.")
+        self.assertEqual(d.Z1oc, 40, "Z1oc incorrect.")
+        self.assertEqual(d.Z2oc, 30, "Z2oc incorrect.")
+        self.assertEqual(d.V1oc, 6 / s, "V1oc incorrect.")
+        self.assertEqual(d.V2oc, 6 / s, "V2oc incorrect.")
+        self.assertEqual(d.I1sc, 0 / s, "I2sc incorrect.")
+        self.assertEqual(d.I2sc, -0.2 / s, "I2sc incorrect.")
         
 
         e = d.chain(Series(R(10)))
-        self.assertEqual(e.Z1oc.mrf(), MRF(40, 1), "Z1oc incorrect.")
-        self.assertEqual(e.Z2oc.mrf(), MRF(40, 1), "Z2oc incorrect.")
-        self.assertEqual(e.Vgain12.mrf(), MRF(0.75, 1), "Vgain12 incorrect.")
-        self.assertEqual(e.Igain12.mrf(), MRF(-0.75, 1), "Igain12 incorrect.")
+        self.assertEqual(e.Z1oc, 40, "Z1oc incorrect.")
+        self.assertEqual(e.Z2oc, 40, "Z2oc incorrect.")
+        self.assertEqual(e.Vgain12, 0.75, "Vgain12 incorrect.")
+        self.assertEqual(e.Igain12, -0.75, "Igain12 incorrect.")
 
 
     def test_Shunt_parallel(self):
@@ -150,10 +149,10 @@ class McircuitsTester(unittest.TestCase):
 
         a = Shunt(R(10) + V(5))
         b = a.chain(Shunt(R(30)))
-        self.assertEqual(b.Z1oc.mrf(), MRF(7.5, 1), "Z1oc incorrect.")
-        self.assertEqual(b.Z2oc.mrf(), MRF(7.5, 1), "Z2oc incorrect.")
-        self.assertEqual(b.V1oc.mrf(), MRF(3.75, (1, 0)), "V1oc incorrect.")
-        self.assertEqual(b.V2oc.mrf(), MRF(3.75, (1, 0)), "V2oc incorrect.")
+        self.assertEqual(b.Z1oc, 7.5, "Z1oc incorrect.")
+        self.assertEqual(b.Z2oc, 7.5, "Z2oc incorrect.")
+        self.assertEqual(b.V1oc, 3.75 / s, "V1oc incorrect.")
+        self.assertEqual(b.V2oc, 3.75 / s, "V2oc incorrect.")
 
 
     def test_Series_series(self):
@@ -163,10 +162,10 @@ class McircuitsTester(unittest.TestCase):
 
         a = Series(R(10) + V(5))
         b = a.chain(Series(R(30)))
-        self.assertEqual(b.Y1sc.mrf(), MRF(0.025, 1), "Y1sc incorrect.")
-        self.assertEqual(b.Y2sc.mrf(), MRF(0.025, 1), "Y2sc incorrect.")
-        self.assertEqual(b.I1sc.mrf(), MRF(-0.125, (1, 0)), "I1sc incorrect.")
-        self.assertEqual(b.I2sc.mrf(), MRF(0.125, (1, 0)), "I2sc incorrect.")
+        self.assertEqual(b.Y1sc, 0.025, "Y1sc incorrect.")
+        self.assertEqual(b.Y2sc, 0.025, "Y2sc incorrect.")
+        self.assertEqual(b.I1sc, -0.125 / s, "I1sc incorrect.")
+        self.assertEqual(b.I2sc, 0.125 / s, "I2sc incorrect.")
 
         c = a.chain(a)
 
@@ -181,7 +180,7 @@ class McircuitsTester(unittest.TestCase):
         b = a.load(R(30))
 
         self.assertEqual(type(b), Thevenin, "type incorrect.")
-        self.assertEqual(b.Z.mrf(), MRF(7.5, 1), "Shunt loaded R incorrect Z.")
+        self.assertEqual(b.Z, 7.5, "Shunt loaded R incorrect Z.")
         
 
     def test_opencircuit(self):
@@ -194,7 +193,7 @@ class McircuitsTester(unittest.TestCase):
 
         self.assertEqual(type(b), Thevenin, "type incorrect.")
         self.assertEqual(b.Z, 10, "incorrect Z.")
-        self.assertEqual(b.V.mrf(), MRF(5, (1, 0)), "incorrect V.")
+        self.assertEqual(b.V, 5 / s, "incorrect V.")
 
 
     def test_shortcircuit(self):
@@ -207,7 +206,7 @@ class McircuitsTester(unittest.TestCase):
 
         self.assertEqual(type(b), Norton, "type incorrect.")
         self.assertEqual(b.Z, 10, "incorrect Z.")
-        self.assertEqual(b.V.mrf(), MRF(5, (1, 0)), "incorrect V.")
+        self.assertEqual(b.V, 5 / s, "incorrect V.")
 
 
     def test_LSection_models(self):
