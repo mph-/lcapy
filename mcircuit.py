@@ -522,6 +522,13 @@ class _Expr(object):
         return self.val == x.val
 
 
+    def __ne__(self, x):
+        """Inequality"""
+
+        x = _Expr(x)
+        return self.val != x.val
+
+
     def parallel(self, x):
         """Parallel combination"""
         
@@ -868,6 +875,27 @@ class OnePort(object):
         return self.I
 
 
+    def lsection(self, N):
+        """Create L section"""
+
+        if not issubclass(N.__class__, OnePort):
+            raise TypeError('Argument not ', OnePort)
+
+        return LSection(self, N)
+
+
+    def tsection(self, N1, N2):
+        """Create T section"""
+
+        if not issubclass(N1.__class__, OnePort):
+            raise TypeError('Argument not ', OnePort)
+
+        if not issubclass(N2.__class__, OnePort):
+            raise TypeError('Argument not ', OnePort)
+
+        return TSection(self, N1, N2)
+
+
 class Norton(OnePort):
     """Norton (Y) model
 
@@ -1151,12 +1179,22 @@ class R(Thevenin):
         super (R, self).__init__(Zs.R(Rval))
 
 
+    def __repr__(self):
+
+        return '%s(%s)' % (self.__class__.__name__, self.Z.__str__())
+
+
 class G(Norton):
     """Conductance"""
 
     def __init__(self, Gval):
     
         super (G, self).__init__(Ys.G(Gval))
+
+
+    def __repr__(self):
+
+        return '%s(%s)' % (self.__class__.__name__, self.Y.__str__())
 
 
 class L(Thevenin):
@@ -1167,12 +1205,30 @@ class L(Thevenin):
         super (L, self).__init__(Zs.L(Lval), - Vs(Lval) * Vs(i0))
 
 
+    def __repr__(self):
+
+        if self.I != 0:
+            return '%s(%s, %s)' % (self.__class__.__name__, (self.Z / self.Z.s).__str__(), (-self.I * self.I.s).__str__())
+        else:
+            return '%s(%s)' % (self.__class__.__name__, (self.Z / self.Z.s).__str__())
+
+
 class C(Thevenin):
     """Capacitor"""
 
     def __init__(self, Cval, v0=0.0):
     
         super (C, self).__init__(Zs.C(Cval), Vs(v0).integrate())
+
+
+    def __repr__(self):
+
+        
+        if self.V != 0:
+            return '%s(%s, %s)' % (self.__class__.__name__, (self.Y / self.Y.s).__str__(), (self.V * self.V.s).__str__())
+        else:
+            return '%s(%s)' % (self.__class__.__name__, (self.Y / self.Y.s).__str__())
+
 
 
 class Xtal(Thevenin):
