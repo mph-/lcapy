@@ -115,7 +115,7 @@ print('Developed charge %.1f pC for voltage %.1f mV' % (Qo * 1e12, Vo * 1e3))
 a = TSection(L(m2p), L(m1p), C(Sm) + R(Rm)).chain(IdealTransformer(1 / alpha)).chain(Shunt(C(C0)))
 
 f = np.logspace(1, 5, 1000)
-Av = a.Vgain12.freqresponse(f)
+Av = a.Vgain12.frequency_response(f)
 AvdB = 20 * np.log10(abs(Av))
 
 fig = figure()

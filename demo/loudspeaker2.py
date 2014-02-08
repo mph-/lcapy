@@ -30,7 +30,7 @@ a = Series(R(Re) + L(Le)).chain(IdealTransformer(1 / Bl))
 b = a.chain(Shunt(R(1 / Rms) | C(Mms) | L(Cms)))
 
 f = np.logspace(0, 5, 2000)
-Zin = b.opencircuit(2).Z.freqresponse(f)
+Zin = b.opencircuit(2).Z.frequency_response(f)
 
 fig = figure()
 ax = fig.add_subplot(111)

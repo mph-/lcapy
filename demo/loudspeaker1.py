@@ -30,7 +30,7 @@ a = Series(R(Re) + L(Le)).chain(IdealGyrator(Bl))
 b = a.chain(Series(R(Rms) + L(Mms) + C(Cms)))
 
 f = np.logspace(0, np.log10(20e3), 2000)
-Zin = b.shortcircuit(2).Z.freqresponse(f)
+Zin = b.shortcircuit(2).Z.frequency_response(f)
 
 fig = figure()
 ax = fig.add_subplot(111)

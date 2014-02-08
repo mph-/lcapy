@@ -8,7 +8,7 @@ t = np.linspace(0, 10, 1000)
 
 fig = figure()
 ax = fig.add_subplot(111)
-ax.plot(t, a.V.impulseresponse(t), linewidth=2)
+ax.plot(t, a.V.impulse_response(t), linewidth=2)
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Voltage (V)')
 ax.grid(True)

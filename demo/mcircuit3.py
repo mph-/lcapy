@@ -29,7 +29,7 @@ H = ZC_i.parallel(ZC_b).chain_divider(Zxtal, ZC_a, ZR_lim, ZC_o, ZR_o)
 
 fig = figure()
 ax = fig.add_subplot(111)
-Hf = H.freqresponse(f)
+Hf = H.frequency_response(f)
 ax.semilogx(f, np.angle(Hf) / np.pi * 180)
 ax.grid(True)
 
@@ -38,7 +38,7 @@ H = ZC_a.chain_divider(ZR_lim)
 
 fig = figure()
 ax = fig.add_subplot(111)
-Hf = H.freqresponse(f)
+Hf = H.frequency_response(f)
 ax.semilogx(f, np.angle(Hf) / np.pi * 180)
 ax.grid(True)
 

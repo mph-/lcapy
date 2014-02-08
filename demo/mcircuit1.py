@@ -14,7 +14,7 @@ f = np.logspace(6, 8, 1000)
 
 fig = figure()
 ax = fig.add_subplot(111)
-Zf = xtal.Z.freqresponse(f)
+Zf = xtal.Z.frequency_response(f)
 ax.loglog(f, abs(Zf))
 ax.grid(True)
 

@@ -25,14 +25,14 @@ f = np.logspace(6, 8, 2000)
 
 fig = figure()
 ax = fig.add_subplot(111)
-Hf = H.freqresponse(f)
+Hf = H.frequency_response(f)
 ax.semilogx(f, np.angle(Hf) / np.pi * 180)
 ax.grid(True)
 
 
 fig = figure()
 ax = fig.add_subplot(111)
-Hf = H.freqresponse(f)
+Hf = H.frequency_response(f)
 ax.semilogx(f, abs(Hf))
 ax.grid(True)
 

@@ -24,7 +24,7 @@ f = np.logspace(1, 8, 1000)
 
 fig = figure()
 ax = fig.add_subplot(111)
-Zf = d.Vtransfer.freqresponse(f)
+Zf = d.Vtransfer.frequency_response(f)
 ax.loglog(f, abs(Zf))
 ax.grid(True)
 

@@ -121,7 +121,6 @@ from __future__ import division
 from warnings import warn
 import numpy as np
 import sympy as sym
-from sympy.integrals.transforms import inverse_laplace_transform
 from sympy.utilities.lambdify import lambdify
 
 
@@ -293,7 +292,12 @@ def PZK(expr, var):
     return sym.Mul(K, *(zz + pp))
 
 
-def invLT(expr, var, t):
+def ZPK(expr, var):
+    
+    return PZK(expr, var)
+
+
+def _inverse_laplace(expr, var, t):
 
     ratfun, delay = _as_ratfun_delay(expr, var)
 
@@ -337,6 +341,32 @@ def invLT(expr, var, t):
             result2 += R * sym.exp(p * td) * td**(n - 1)
 
     return result1 + result2 * sym.Heaviside(td)
+
+
+def inverse_laplace(expr, s, t):
+
+    try:
+        result = _inverse_laplace(expr, s, t)
+    except:
+        
+        # Try splitting into partial fractions to help sympy.
+        expr = partfrac(expr, s)
+
+        # This barfs when needing to generate Dirac deltas
+        from sympy.integrals.transforms import inverse_laplace_transform
+        result = inverse_laplace_transform(expr, s, t)
+
+    return result
+
+
+def initial_value(expr, var):
+
+    return sym.limit(expr * var, var, sym.oo)
+
+
+def final_value(expr, var):
+
+    return sym.limit(expr * var, var, 0)
 
 
 class _Val(object):
@@ -555,11 +585,28 @@ class _Val(object):
     #     return self.__class__(sum, simplify=False)
 
 
-
     @property
     def PZK(self):
         
-        return self.__class__(PZK(self.expr, self.s), simplify=False)
+        return self.__class__(ZPK(self.expr, self.s), simplify=False)
+
+
+    @property
+    def ZPK(self):
+        
+        return self.__class__(ZPK(self.expr, self.s), simplify=False)
+
+
+    @property
+    def initial_value(self):
+        
+        return initial_value(self.expr, self.s)
+
+
+    @property
+    def final_value(self):
+        
+        return final_value(self.expr, self.s)
 
 
     def _as_ratfun_parts(self):
@@ -608,33 +655,17 @@ class _Val(object):
         return self.__class__(val)
     
     
-    def inverselaplace(self):
+    def inverse_laplace(self):
         """Attempt inverse Laplace transform"""
         
         print('Determining inverse Laplace transform...')
-
-        expr = self.expr
-        
-        try:
-            result = invLT(self.expr, self.s, self.t)
-        except:
-
-            try:
-                # Try splitting into partial fractions.
-                expr = expr.partfrac
-            except:
-                pass
-        
-            # This barfs when needing to generate Dirac deltas
-            result = inverse_laplace_transform(expr, self.s, self.t)
-
-        return result
+        return inverse_laplace(self.expr, self.s, self.t)
 
 
-    def transientresponse(self, t=None):
+    def transient_response(self, t=None):
         """Evaluate transient (impulse) response"""
         
-        expr = self.inverselaplace()
+        expr = self.inverse_laplace()
         if t == None:
             return expr
 
@@ -655,13 +686,13 @@ class _Val(object):
         return response
     
     
-    def impulseresponse(self, t=None):
+    def impulse_response(self, t=None):
         """Evaluate transient (impulse) response"""
         
-        return self.transientresponse(t)
+        return self.transient_response(t)
     
     
-    def freqresponse(self, f=None):
+    def frequency_response(self, f=None):
         """Evaluate frequency response"""
         
         expr = self.val.subs(self.s, sym.I * 2 * sym.pi * self.f)

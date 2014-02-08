@@ -16,8 +16,8 @@ ZCb = C(20e-12)
 H = ZCb.divider(xtal).H
 
 f = np.logspace(6, 8, 2000)
-Hf = H.freqresponse(f)
-Zfxtal = xtal.Z.freqresponse(f)
+Hf = H.frequency_response(f)
+Zfxtal = xtal.Z.frequency_response(f)
 
 fig = figure()
 ax = fig.add_subplot(111)
