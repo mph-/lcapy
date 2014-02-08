@@ -51,7 +51,7 @@ desired.  This would avoid the inversion of singular matrices. The
 downside is that each object would require methods to generate each
 type of two-port model.
 
-The original implementation stored _Val as rational functions (using
+The original implementation stored _Expr as rational functions (using
 MRF class).  This is much faster, avoids symbolic inverse Laplace
 transforms, but does not handle delays and symbolic component values.
 
@@ -399,7 +399,7 @@ def final_value(expr, var=None):
     return sym.limit(expr * var, var, 0)
 
 
-class _Val(object):
+class _Expr(object):
     
     s, t, f = sym.symbols('s t f')
     
@@ -411,7 +411,7 @@ class _Val(object):
     
     def __init__(self, val, simplify=True, real=False):
         
-        if isinstance(val, _Val):
+        if isinstance(val, _Expr):
             val = val.val
             
         if real and isinstance(val, str):
@@ -442,70 +442,70 @@ class _Val(object):
     def __rdiv__(self, x):
         """Reverse divide"""
 
-        x = _Val(x)
+        x = _Expr(x)
         return self.__class__(x.val / self.val)
 
 
     def __rtruediv__(self, x):
         """Reverse true divide"""
             
-        x = _Val(x)
+        x = _Expr(x)
         return self.__class__(x.val / self.val)
 
 
     def __mul__(self, x):
         """Multiply"""
         
-        x = _Val(x)
+        x = _Expr(x)
         return self.__class__(self.val * x.val)
 
 
     def __rmul__(self, x):
         """Reverse multiply"""
         
-        x = _Val(x)
+        x = _Expr(x)
         return self.__class__(self.val * x.val)
 
 
     def __div__(self, x):
         """Divide"""
 
-        x = _Val(x)
+        x = _Expr(x)
         return self.__class__(self.val / x.val)
 
 
     def __truediv__(self, x):
         """True divide"""
 
-        x = _Val(x)
+        x = _Expr(x)
         return self.__class__(self.val / x.val)
     
 
     def __add__(self, x):
         """Add"""
         
-        x = _Val(x)
+        x = _Expr(x)
         return self.__class__(self.val + x.val)
     
 
     def __radd__(self, x):
         """Reverse add"""
         
-        x = _Val(x)
+        x = _Expr(x)
         return self.__class__(self.val + x.val)
     
     
     def __rsub__(self, x):
         """Reverse subtract"""
         
-        x = _Val(x)
+        x = _Expr(x)
         return self.__class__(x.val - self.val)
     
 
     def __sub__(self, x):
         """Subtract"""
         
-        x = _Val(x)
+        x = _Expr(x)
         return self.__class__(self.val - x.val)
     
     
@@ -518,14 +518,14 @@ class _Val(object):
     def __eq__(self, x):
         """Equality"""
 
-        x = _Val(x)
+        x = _Expr(x)
         return self.val == x.val
 
 
     def parallel(self, x):
         """Parallel combination"""
         
-        x = _Val(x)
+        x = _Expr(x)
         return self.__class__(self.val * x.val / (self.val + x.val))
     
     
@@ -748,85 +748,85 @@ class _Val(object):
 
 
 
-class _Z(_Val):
+class Z(_Expr):
     """s-domain impedance value"""
 
     @classmethod
     def C(cls, Cval):
     
-        Cval = _Val(Cval, real=True)
+        Cval = _Expr(Cval, real=True)
         return cls(1 / Cval).integrate()
 
 
     @classmethod
     def G(cls, Gval):
     
-        Gval = _Val(Gval, real=True)
+        Gval = _Expr(Gval, real=True)
         return cls(1 / Gval)
 
 
     @classmethod
     def L(cls, Lval):
     
-        Lval = _Val(Lval, real=True)
+        Lval = _Expr(Lval, real=True)
         return cls(Lval).differentiate()
 
 
     @classmethod
     def R(cls, Rval):
     
-        Rval = _Val(Rval, real=True)
+        Rval = _Expr(Rval, real=True)
         return cls(Rval)
 
 
-class _Y(_Val):
+class Y(_Expr):
     """s-domain admittance value"""
     
 
     @classmethod
     def C(cls, Cval):
     
-        Cval = _Val(Cval, real=True)
+        Cval = _Expr(Cval, real=True)
         return cls(Cval).differentiate()
 
 
     @classmethod
     def G(cls, Gval):
     
-        Gval = _Val(Gval, real=True)
+        Gval = _Expr(Gval, real=True)
         return cls(Gval)
 
 
     @classmethod
     def L(cls, Lval):
     
-        Lval = _Val(Lval, real=True)
+        Lval = _Expr(Lval, real=True)
         return cls(1 / Lval).integrate()
 
 
     @classmethod
     def R(cls, Rval):
     
-        Rval = _Val(Rval, real=True)
+        Rval = _Expr(Rval, real=True)
         return cls(1 / Rval)
 
 
-class _V(_Val):
+class Vs(_Expr):
     """s-domain voltage"""
     pass
 
 
-class _I(_Val):
+class Is(_Expr):
     """s-domain current"""
     pass
 
 
-class _Av(_Val):
+class _Av(_Expr):
     """s-domain voltage ratio"""
     pass
 
 
-class _Ai(_Val):
+class _Ai(_Expr):
     """s-domain current ratio"""
     pass
 
@@ -887,25 +887,25 @@ class Norton(OnePort):
      +                V1                 -
     """
 
-    def __init__(self, Yval, Ival=_I(0)):
+    def __init__(self, Yval, Ival=Is(0)):
 
         #print('<N> Y:', Yval, 'I:', Ival)
-        if not isinstance(Yval, _Y):
-            raise ValueError('Yval not _Y')
-        if not isinstance(Ival, _I):
-            raise ValueError('Ival not _I')
+        if not isinstance(Yval, Y):
+            raise ValueError('Yval not Y')
+        if not isinstance(Ival, Is):
+            raise ValueError('Ival not Is')
         self.Y = Yval
         self.I = Ival
 
 
     @property
     def Z(self):    
-        return _Z(1 / self.Y)
+        return Z(1 / self.Y)
 
 
     @property
     def V(self):    
-        return _V(self.I / self.Y)
+        return Vs(self.I / self.Y)
 
 
     def __repr__(self):
@@ -964,25 +964,25 @@ class Thevenin(OnePort):
     """
 
 
-    def __init__(self, Zval, Vval=_V(0)):
+    def __init__(self, Zval, Vval=Vs(0)):
 
         #print('<T> Z:', Zval, 'V:', Vval)
-        if not isinstance(Zval, _Z):
-            raise ValueError('Zval not _Z')
-        if not isinstance(Vval, _V):
-            raise ValueError('Vval not _V')
+        if not isinstance(Zval, Z):
+            raise ValueError('Zval not Z')
+        if not isinstance(Vval, Vs):
+            raise ValueError('Vval not Vs')
         self.Z = Zval
         self.V = Vval
 
 
     @property
     def Y(self):    
-        return _Y(1 / self.Z)
+        return Y(1 / self.Z)
 
 
     @property
     def I(self):    
-        return _I(self.V / self.Z)
+        return Is(self.V / self.Z)
 
 
     def __repr__(self):
@@ -1002,7 +1002,7 @@ class Thevenin(OnePort):
 
     def norton(self):
 
-        return Norton(self.Y, _I(self.V / self.Z))
+        return Norton(self.Y, Is(self.V / self.Z))
 
 
     def thevenin(self):
@@ -1148,7 +1148,7 @@ class R(Thevenin):
 
     def __init__(self, Rval):
     
-        super (R, self).__init__(_Z.R(Rval))
+        super (R, self).__init__(Z.R(Rval))
 
 
 class G(Norton):
@@ -1156,7 +1156,7 @@ class G(Norton):
 
     def __init__(self, Gval):
     
-        super (G, self).__init__(_Y.G(Gval))
+        super (G, self).__init__(Y.G(Gval))
 
 
 class L(Thevenin):
@@ -1164,7 +1164,7 @@ class L(Thevenin):
 
     def __init__(self, Lval, i0=0.0):
     
-        super (L, self).__init__(_Z.L(Lval), - _V(Lval) * _V(i0))
+        super (L, self).__init__(Z.L(Lval), - Vs(Lval) * Vs(i0))
 
 
 class C(Thevenin):
@@ -1172,7 +1172,7 @@ class C(Thevenin):
 
     def __init__(self, Cval, v0=0.0):
     
-        super (C, self).__init__(_Z.C(Cval), _V(v0).integrate())
+        super (C, self).__init__(Z.C(Cval), Vs(v0).integrate())
 
 
 class Xtal(Thevenin):
@@ -1210,7 +1210,7 @@ class V(Thevenin):
 
     def __init__(self, Vval):
     
-        super (V, self).__init__(_Z(0), _V(Vval).integrate())
+        super (V, self).__init__(Z(0), Vs(Vval).integrate())
 
 
     def __str__(self):
@@ -1232,13 +1232,13 @@ class V(Thevenin):
 
     def thevenin(self):
 
-        return Thevenin(_Z(0), self.V)
+        return Thevenin(Z(0), self.V)
 
 
     def norton(self):
 
         warn('Converting a voltage source to a Norton network is dodgy...')
-        return Norton(_Y(1 / _Z(0)), self.I)
+        return Norton(Y(1 / Z(0)), self.I)
 
 
 class I(Norton):
@@ -1246,7 +1246,7 @@ class I(Norton):
 
     def __init__(self, Ival):
     
-        super (I, self).__init__(_Y(0), _I(Ival).integrate())
+        super (I, self).__init__(Y(0), Is(Ival).integrate())
 
 
     def __str__(self):
@@ -1269,16 +1269,16 @@ class I(Norton):
     def thevenin(self):
 
         warn('Converting a current source to a Thevenin network is dodgy...')
-        return Thevenin(_Z(1 / _Y(0)), self.V)
+        return Thevenin(Z(1 / Y(0)), self.V)
 
 
     def norton(self):
 
-        return Norton(_Y(0), self.I)
+        return Norton(Y(0), self.I)
 
 
 
-class _Vector(sym.Matrix):
+class Vsector(sym.Matrix):
 
     # Unlike numpy.ndarray, the sympy.Matrix runs all the elements
     # through sympify, creating sympy objects and thus losing the
@@ -1287,14 +1287,14 @@ class _Vector(sym.Matrix):
     def __new__ (cls, *args):
 
         if len(args) == 2:
-            return super (_Vector, cls).__new__(cls, (args[0], args[1]))
+            return super (Vsector, cls).__new__(cls, (args[0], args[1]))
 
-        return super (_Vector, cls).__new__(cls, *args)
+        return super (Vsector, cls).__new__(cls, *args)
 
 
     def __getitem__(self, key):
 
-        item = super (_Vector, self).__getitem__(key)
+        item = super (Vsector, self).__getitem__(key)
 
         if isinstance(key, int):
             return self._typewrap(item)
@@ -1302,24 +1302,24 @@ class _Vector(sym.Matrix):
         return item
 
 
-class _VVector(_Vector):
+class VsVector(Vsector):
     
-    _typewrap = _V
+    _typewrap = Vs
 
 
-class _IVector(_Vector):
+class IsVector(Vsector):
     
-    _typewrap = _I
+    _typewrap = Is
 
 
-class _YVector(_Vector):
+class YVector(Vsector):
 
-    _typewrap = _Y
+    _typewrap = Y
 
 
-class _ZVector(_Vector):
+class ZVector(Vsector):
 
-    _typewrap = _Z
+    _typewrap = Z
 
 
 class _TwoPortMatrix(sym.Matrix):
@@ -1451,14 +1451,14 @@ class AMatrix(_TwoPortMatrix):
     def Z1oc(self):
         """open-circuit input impedance"""
         # Z11
-        return _Z(self.A11 / self.A21)
+        return Z(self.A11 / self.A21)
 
 
     @classmethod
     def Zseries(cls, Zval):
 
-        if not isinstance(Zval, _Z):
-            raise ValueError('Zval not _Z')            
+        if not isinstance(Zval, Z):
+            raise ValueError('Zval not Z')            
 
         return cls(1, Zval, 0, 1)
 
@@ -1466,8 +1466,8 @@ class AMatrix(_TwoPortMatrix):
     @classmethod
     def Yseries(cls, Yval):
 
-        if not isinstance(Yval, _Y):
-            raise ValueError('Yval not _Y')            
+        if not isinstance(Yval, Y):
+            raise ValueError('Yval not Y')            
 
         return cls(1, 1 / Yval, 0, 1)
 
@@ -1475,8 +1475,8 @@ class AMatrix(_TwoPortMatrix):
     @classmethod
     def Yshunt(cls, Yval):
 
-        if not isinstance(Yval, _Y):
-            raise ValueError('Yval not _Y')            
+        if not isinstance(Yval, Y):
+            raise ValueError('Yval not Y')            
 
         return cls(1, 0, Yval, 1)
 
@@ -1484,8 +1484,8 @@ class AMatrix(_TwoPortMatrix):
     @classmethod
     def Zshunt(cls, Zval):
 
-        if not isinstance(Zval, _Z):
-            raise ValueError('Zval not _Z')            
+        if not isinstance(Zval, Z):
+            raise ValueError('Zval not Z')            
 
         return cls(1, 0, 1 / Zval, 1)
 
@@ -1608,14 +1608,14 @@ class BMatrix(_TwoPortMatrix):
     def Z1oc(self):
         """open-circuit input impedance"""
         # Z11
-        return _Z(-self.B22 / self.B21)
+        return Z(-self.B22 / self.B21)
 
 
     @classmethod
     def Zseries(cls, Zval):
 
-        if not isinstance(Zval, _Z):
-            raise ValueError('Zval not _Z')            
+        if not isinstance(Zval, Z):
+            raise ValueError('Zval not Z')            
 
         return cls(1, -Zval, 0, 1)
 
@@ -1623,8 +1623,8 @@ class BMatrix(_TwoPortMatrix):
     @classmethod
     def Yseries(cls, Yval):
 
-        if not isinstance(Yval, _Y):
-            raise ValueError('Yval not _Y')            
+        if not isinstance(Yval, Y):
+            raise ValueError('Yval not Y')            
 
         return cls(1, -1 / Yval, 0, 1)
 
@@ -1632,8 +1632,8 @@ class BMatrix(_TwoPortMatrix):
     @classmethod
     def Yshunt(cls, Yval):
 
-        if not isinstance(Yval, _Y):
-            raise ValueError('Yval not _Y')            
+        if not isinstance(Yval, Y):
+            raise ValueError('Yval not Y')            
 
         return cls(1, 0, -Yval, 1)
 
@@ -1641,8 +1641,8 @@ class BMatrix(_TwoPortMatrix):
     @classmethod
     def Zshunt(cls, Zval):
 
-        if not isinstance(Zval, _Z):
-            raise ValueError('Zval not _Z')            
+        if not isinstance(Zval, Z):
+            raise ValueError('Zval not Z')            
 
         return cls(1, 0, -1 / Zval, 1)
 
@@ -1662,10 +1662,10 @@ class BMatrix(_TwoPortMatrix):
             Yin = 1e-9
             Zout = 1e-9
 
-        Af = _Val(Af)
-        Ar = _Val(Ar)
-        Yin = _Val(Yin)
-        Zout = _Val(Zout)
+        Af = _Expr(Af)
+        Ar = _Expr(Ar)
+        Yin = _Expr(Yin)
+        Zout = _Expr(Zout)
 
         # This should be defined with a G matrix
         # 
@@ -1704,10 +1704,10 @@ class BMatrix(_TwoPortMatrix):
             Zin = 1e-9
             Yout = 1e-9
 
-        Af = _Val(Af)
-        Ar = _Val(Ar)
-        Zin = _Val(Zin)
-        Yout = _Val(Yout)
+        Af = _Expr(Af)
+        Ar = _Expr(Ar)
+        Zin = _Expr(Zin)
+        Yout = _Expr(Yout)
 
         # This should be defined with a H matrix
         # 
@@ -1731,25 +1731,25 @@ class BMatrix(_TwoPortMatrix):
     @classmethod
     def voltage_differentiator(cls, Av=1):
         
-        return cls.voltage_amplifier(_Val(Av).differentiate())
+        return cls.voltage_amplifier(_Expr(Av).differentiate())
 
 
     @classmethod
     def voltage_integrator(cls, Av):
         
-        return cls.voltage_amplifier(_Val(Av).integrate())
+        return cls.voltage_amplifier(_Expr(Av).integrate())
 
 
     @classmethod
     def current_differentiator(cls, Av):
         
-        return cls.current_amplifier(_Val(Av).differentiate())
+        return cls.current_amplifier(_Expr(Av).differentiate())
 
 
     @classmethod
     def current_integrator(cls, Av):
         
-        return cls.current_amplifier(_Val(Av).integrate())
+        return cls.current_amplifier(_Expr(Av).integrate())
 
 
     @classmethod
@@ -1963,7 +1963,7 @@ class YMatrix(_TwoPortMatrix):
 
     @property
     def Ysc(self):
-        return _YVector(self.Y[0, 0], self.Y[1, 1])
+        return YVector(self.Y[0, 0], self.Y[1, 1])
 
 
     @property
@@ -2031,7 +2031,7 @@ class ZMatrix(_TwoPortMatrix):
 
     @property
     def Zoc(self):
-        return _ZVector(self.Z[0, 0], self.Z[1, 1])
+        return ZVector(self.Z[0, 0], self.Z[1, 1])
 
 
     @property
@@ -2163,50 +2163,50 @@ class TwoPort(object):
 
     @property
     def V1h(self):    
-        return _V(-self.V2b / self.B.B11)
+        return Vs(-self.V2b / self.B.B11)
 
 
     @property
     def I2h(self):    
-        return _I(-self.V2b * self.B.B21 / self.B.B11) - self.I2b
+        return Is(-self.V2b * self.B.B21 / self.B.B11) - self.I2b
 
 
     @property
     def I1y(self):    
-        return _I(-self.V2b / self.B.B12)
+        return Is(-self.V2b / self.B.B12)
 
 
     @property
     def I2y(self):    
-        return _I(self.V2b * self.B.B22 / self.B.B12) - self.I2b
+        return Is(self.V2b * self.B.B22 / self.B.B12) - self.I2b
 
 
     @property
     def V1z(self):    
-        return _V(-self.I2b / self.B.B21)
+        return Vs(-self.I2b / self.B.B21)
 
 
     @property
     def V2z(self):    
-        return self.V2b - _V(self.I2b * self.B.B11 / self.B.B21)
+        return self.V2b - Vs(self.I2b * self.B.B11 / self.B.B21)
 
 
     @property
     def Yoc(self):    
         """Return admittance vector with ports open circuit"""
-        return _YVector(_Y(1 / self.Z1oc), _Y(1 / self.Z2oc))
+        return YVector(Y(1 / self.Z1oc), Y(1 / self.Z2oc))
 
 
     @property
     def Y1oc(self):    
         """Return input impedance with the output port open circuit"""
-        return _Z(1 / self.Z1oc)
+        return Z(1 / self.Z1oc)
 
 
     @property
     def Y2oc(self):    
         """Return output impedance with the input port open circuit"""
-        return _Y(1 / self.Z2oc)
+        return Y(1 / self.Z2oc)
 
 
     @property
@@ -2218,13 +2218,13 @@ class TwoPort(object):
     @property
     def Y1sc(self):    
         """Return input admittance with output port short circuit"""
-        return _Y(self.Ysc[0])
+        return Y(self.Ysc[0])
 
 
     @property
     def Y2sc(self):    
         """Return output admittance with output port short circuit"""
-        return _Y(self.Ysc[1])
+        return Y(self.Ysc[1])
 
 
     @property
@@ -2236,31 +2236,31 @@ class TwoPort(object):
     @property
     def Z1oc(self):    
         """Return input impedance with the output port open circuit"""
-        return _Z(self.Zoc[0])
+        return Z(self.Zoc[0])
 
 
     @property
     def Z2oc(self):    
         """Return output impedance with the input port open circuit"""
-        return _Z(self.Zoc[1])
+        return Z(self.Zoc[1])
 
 
     @property
     def Zsc(self):    
         """Return impedance vector with ports short circuit"""
-        return _ZVector(_Z(1 / self.Y1sc), _Z(1 / self.Y2sc))
+        return ZVector(Z(1 / self.Y1sc), Z(1 / self.Y2sc))
 
 
     @property
     def Z1sc(self):    
         """Return input impedance with the output port short circuit"""
-        return _Z(1 / self.Y1sc)
+        return Z(1 / self.Y1sc)
 
 
     @property
     def Z2sc(self):    
         """Return output impedance with the input port short circuit"""
-        return _Z(1 / self.Y2sc)
+        return Z(1 / self.Y2sc)
 
 
     @property
@@ -2311,7 +2311,7 @@ class TwoPort(object):
         p1 = inport - 1
         p2 = outport - 1
 
-        return _V(self.Voc[p2] + (V - self.Voc[p1]) * self.Z[p2, p1] / self.Z[p1, p1])
+        return Vs(self.Voc[p2] + (V - self.Voc[p1]) * self.Z[p2, p1] / self.Z[p1, p1])
 
 
     def Iresponse(self, I, inport=1, outport=2):
@@ -2327,7 +2327,7 @@ class TwoPort(object):
         Y = self.Y
         Isc = self.Isc
                 
-        return _I(Isc[p2] + Y[p2, p1] / Y[p1, p1] * (I - Isc[p1]))
+        return Is(Isc[p2] + Y[p2, p1] / Y[p1, p1] * (I - Isc[p1]))
 
 
     @property
@@ -2338,14 +2338,14 @@ class TwoPort(object):
         Z21 = 1 / A21 = -|B| / B21
         """
 
-        return _Z(self.Z.Z21)
+        return Z(self.Z.Z21)
 
 
     def Ztrans(self, inport=1, outport=2):
         """Return transimpedance for specified ports with internal
         sources zero"""
 
-        return _Z(self.Z[outport - 1, inport - 1])
+        return Z(self.Z[outport - 1, inport - 1])
 
 
     @property
@@ -2356,50 +2356,50 @@ class TwoPort(object):
          Y21 = -1 / A12 = |B| / B12
          """
 
-        return _Y(self.Y.Y21)
+        return Y(self.Y.Y21)
 
 
     def Ytrans(self, inport=1, outport=2):
         """Return transadmittance for specified ports with internal
         sources zero"""
 
-        return _Y(self.Y[outport - 1, inport - 1])
+        return Y(self.Y[outport - 1, inport - 1])
 
 
     @property
     def V1oc(self):    
         """Return V1 with all ports open-circuited (i.e., I1 = I2 = 0)"""
-        return _V(self.Voc[0])
+        return Vs(self.Voc[0])
 
 
     @property
     def V2oc(self):    
         """Return V2 with all ports open-circuited (i.e., I1 = I2 = 0)"""
-        return _V(self.Voc[1])
+        return Vs(self.Voc[1])
 
 
     @property
     def I1sc(self):    
         """Return I1 with all ports short-circuited, i.e, V1 = V2 = 0"""
-        return _I(self.Isc[0])
+        return Is(self.Isc[0])
 
 
     @property
     def I2sc(self):    
         """Return I2 with all ports short-circuited, i.e, V1 = V2 = 0"""
-        return _I(self.Isc[1])
+        return Is(self.Isc[1])
 
 
     @property
     def Voc(self):    
         """Return voltage vector with all ports open-circuited (i.e., In = 0)"""
-        return _VVector(self.V1z, self.V2z)
+        return VsVector(self.V1z, self.V2z)
 
 
     @property
     def Isc(self):    
         """Return current vector with all ports short-circuited (i.e., V1 = V2 = 0)"""
-        return _IVector(self.I1y, self.I2y)
+        return IsVector(self.I1y, self.I2y)
 
 
     def __str__(self):
@@ -2455,7 +2455,7 @@ class TwoPort(object):
         foo = B * np.matrix((-self.V2b, self.I2b)).T
 
         B2 = B * self.B
-        return TwoPortBModel(B2, V2b=_V(foo[0, 0]) + x.V2b, I2b=_I(foo[1, 0]) + x.I2b)
+        return TwoPortBModel(B2, V2b=Vs(foo[0, 0]) + x.V2b, I2b=Is(foo[1, 0]) + x.I2b)
 
 
     def append(self, x):
@@ -2582,7 +2582,7 @@ class TwoPort(object):
             raise TypeError('Argument not ', OnePort)
 
         foo = self.chain(Shunt(T))
-        return Thevenin(_Z(foo.Z1oc), foo.V1oc)
+        return Thevenin(Z(foo.Z1oc), foo.V1oc)
 
 
     def source(self, T):
@@ -2592,7 +2592,7 @@ class TwoPort(object):
             raise TypeError('Argument not ', OnePort)
 
         foo = Shunt(T).chain(self)
-        return Thevenin(_Z(foo.Z2oc), foo.V2oc)
+        return Thevenin(Z(foo.Z2oc), foo.V2oc)
 
 
     def short_circuit(self, port=2):
@@ -2603,7 +2603,7 @@ class TwoPort(object):
         Y = self.Y[1 - p, 1 - p]
         I = self.Isc[1 - p]
 
-        return Norton(_Y(Y), _I(I))
+        return Norton(Y(Y), Is(I))
 
 
     def open_circuit(self, port=2):
@@ -2614,7 +2614,7 @@ class TwoPort(object):
         Z = self.Z[1 - p, 1 - p]
         V = self.Voc[1 - p]
 
-        return Thevenin(_Z(Z), _V(V))
+        return Thevenin(Z(Z), Vs(V))
 
 
 class TwoPortBModel(TwoPort):
@@ -2674,23 +2674,23 @@ class TwoPortBModel(TwoPort):
     # problem, however, they cannot be extended to three or more ports.
     #
 
-    def __init__(self, B, V2b=_V(0), I2b=_I(0)):
+    def __init__(self, B, V2b=Vs(0), I2b=Is(0)):
 
         if issubclass(B.__class__, TwoPortBModel):
-            B, V2b, I2b = B._M, B._V2b, B._I2b, 
+            B, V2b, I2b = B._M, B.Vs2b, B.Is2b, 
 
         if not isinstance(B, BMatrix):
             raise ValueError('B not BMatrix')
 
-        if not isinstance(V2b, _V):
-            raise ValueError('V2b not _V')
+        if not isinstance(V2b, Vs):
+            raise ValueError('V2b not Vs')
 
-        if not isinstance(I2b, _I):
-            raise ValueError('I2b not _I')
+        if not isinstance(I2b, Is):
+            raise ValueError('I2b not Is')
         
         self._M = B
-        self._V2b = V2b
-        self._I2b = I2b
+        self.Vs2b = V2b
+        self.Is2b = I2b
 
 
     def __str__(self):
@@ -2706,42 +2706,42 @@ class TwoPortBModel(TwoPort):
 
     @property
     def I2b(self):    
-        return self._I2b
+        return self.Is2b
 
 
     @property
     def V2b(self):    
-        return self._V2b
+        return self.Vs2b
 
 
     @property
     def V1h(self):    
-        return _V(-self.V2b / self.B.B11)
+        return Vs(-self.V2b / self.B.B11)
 
 
     @property
     def I2h(self):    
-        return _I(-self.V2b * self.B.B21 / self.B.B11) - self.I2b
+        return Is(-self.V2b * self.B.B21 / self.B.B11) - self.I2b
 
 
     @property
     def I1y(self):    
-        return _I(-self.V2b / self.B.B12)
+        return Is(-self.V2b / self.B.B12)
 
 
     @property
     def I2y(self):    
-        return _I(self.V2b * self.B.B22 / self.B.B12) - self.I2b
+        return Is(self.V2b * self.B.B22 / self.B.B12) - self.I2b
 
 
     @property
     def V1z(self):    
-        return _V(-self.I2b / self.B.B21)
+        return Vs(-self.I2b / self.B.B21)
 
 
     @property
     def V2z(self):    
-        return self.V2b - _V(self.I2b * self.B.B11 / self.B.B21)
+        return self.V2b - Vs(self.I2b * self.B.B11 / self.B.B21)
 
 
     def Vgain(self, inport=1, outport=2):
@@ -2800,23 +2800,23 @@ class TwoPortHModel(TwoPort):
     +-  -+     +-        -+   +-  -+     +-   -+ 
     """
 
-    def __init__(self, H, V1h=_V(0), I2h=_I(0)):
+    def __init__(self, H, V1h=Vs(0), I2h=Is(0)):
 
         if issubclass(H.__class__, TwoPortHModel):
-            H, V1h, I2h = H._M, H._V1h, H._I2h, 
+            H, V1h, I2h = H._M, H.Vs1h, H.Is2h, 
 
         if not isinstance(H, HMatrix):
             raise ValueError('H not HMatrix')
 
-        if not isinstance(V1h, _V):
-            raise ValueError('V1h not _V')
+        if not isinstance(V1h, Vs):
+            raise ValueError('V1h not Vs')
 
-        if not isinstance(I2h, _I):
-            raise ValueError('I2h not _I')
+        if not isinstance(I2h, Is):
+            raise ValueError('I2h not Is')
         
         self._M = H
-        self._V1h = V1h
-        self._I2h = I2h
+        self.Vs1h = V1h
+        self.Is2h = I2h
 
 
     def __str__(self):
@@ -2834,24 +2834,24 @@ class TwoPortHModel(TwoPort):
     def V2b(self):    
         """Return V2b"""
 
-        return _V(self.V1h / self.H.H12)
+        return Vs(self.V1h / self.H.H12)
 
 
     @property
     def I2b(self):    
         """Return I2b"""
 
-        return _I(self.H.H22 / self.H.H12 * self.V1h) - self.I2h
+        return Is(self.H.H22 / self.H.H12 * self.V1h) - self.I2h
 
 
     @property
     def V1h(self):    
-        return self._V1h
+        return self.Vs1h
 
 
     @property
     def I2h(self):    
-        return self._I2h
+        return self.Is2h
 
 
     def Vgain(self, inport=1, outport=2):
@@ -2912,27 +2912,27 @@ class TwoPortYModel(TwoPort):
 
     """
 
-    def __init__(self, Y, I1y=_I(0), I2y=_I(0)):
+    def __init__(self, Y, I1y=Is(0), I2y=Is(0)):
 
         if issubclass(Y.__class__, TwoPortYModel):
-            Y, I1y, I2y = Y._M, Y._I1y, Y._I2y
+            Y, I1y, I2y = Y._M, Y.Is1y, Y.Is2y
 
         if not isinstance(Y, YMatrix):
             raise ValueError('Y not YMatrix')
 
-        if not isinstance(I1y, _I):
-            raise ValueError('I1y not _I')
-        if not isinstance(I2y, _I):
-            raise ValueError('I2y not _I')
+        if not isinstance(I1y, Is):
+            raise ValueError('I1y not Is')
+        if not isinstance(I2y, Is):
+            raise ValueError('I2y not Is')
         
         self._M = Y
-        self._I1y = I1y
-        self._I2y = I2y
+        self.Is1y = I1y
+        self.Is2y = I2y
 
 
     def __str__(self):
 
-        return self.Y.__str__() + '\n\n' + _strpair('I1y', self._I1y, 'I2y', self._I2y)
+        return self.Y.__str__() + '\n\n' + _strpair('I1y', self.Is1y, 'I2y', self.Is2y)
 
 
     @property
@@ -2943,22 +2943,22 @@ class TwoPortYModel(TwoPort):
 
     @property
     def I2b(self):    
-        return _I(-self.I1y * self.Y.Y11 * self.Y.Y22 / self.Y.Y12) - self.I2y
+        return Is(-self.I1y * self.Y.Y11 * self.Y.Y22 / self.Y.Y12) - self.I2y
 
 
     @property
     def V2b(self):    
-        return _V(self.I1y * self.Y.Y11 / self.Y.Y22)
+        return Vs(self.I1y * self.Y.Y11 / self.Y.Y22)
 
 
     @property
     def I1y(self):    
-        return self._I1y
+        return self.Is1y
 
 
     @property
     def I2y(self):    
-        return self._I2y
+        return self.Is2y
 
         
 
@@ -2987,27 +2987,27 @@ class TwoPortZModel(TwoPort):
 
     """
         
-    def __init__(self, Z, V1z=_V(0), V2z=_V(0)):
+    def __init__(self, Z, V1z=Vs(0), V2z=Vs(0)):
 
         if issubclass(Z.__class__, TwoPortZModel):
-            Z, V1z, V2z = Z._M, Z._V1z, Z._V2z
+            Z, V1z, V2z = Z._M, Z.Vs1z, Z.Vs2z
 
         if not isinstance(Z, ZMatrix):
             raise ValueError('Z not ZMatrix')
 
-        if not isinstance(V1z, _V):
-            raise ValueError('V1z not _V')
-        if not isinstance(V2z, _V):
-            raise ValueError('V2z not _V')
+        if not isinstance(V1z, Vs):
+            raise ValueError('V1z not Vs')
+        if not isinstance(V2z, Vs):
+            raise ValueError('V2z not Vs')
         
         self._M = Z
-        self._V1z = V1z
-        self._V2z = V2z
+        self.Vs1z = V1z
+        self.Vs2z = V2z
 
 
     def __str__(self):
 
-        return self.Z.__str__() + '\n\n' + _strpair('V1z', self._V1z, 'V2z', self._V2z)
+        return self.Z.__str__() + '\n\n' + _strpair('V1z', self.Vs1z, 'V2z', self.Vs2z)
 
 
     @property
@@ -3018,36 +3018,36 @@ class TwoPortZModel(TwoPort):
 
     @property
     def I2b(self):    
-        return _I(self.V1z / self.Z.Z12)
+        return Is(self.V1z / self.Z.Z12)
 
 
     @property
     def V2b(self):    
-        return self.V2z - _V(self.V1z * self.Z.Z22 / self.Z.Z12)
+        return self.V2z - Vs(self.V1z * self.Z.Z22 / self.Z.Z12)
 
 
     @property
     def I1y(self):    
         
         Zdet = self.Z.det()
-        return _I(-self.V1z * self.Z.Z22 / Zdet - self.V2z * self.Z.Z12 / Zdet)
+        return Is(-self.V1z * self.Z.Z22 / Zdet - self.V2z * self.Z.Z12 / Zdet)
 
 
     @property
     def I2y(self):    
 
         Zdet = self.Z.det()
-        return _I(self.V1z * self.Z.Z21 / Zdet - self.V2z * self.Z.Z11 / Zdet)
+        return Is(self.V1z * self.Z.Z21 / Zdet - self.V2z * self.Z.Z11 / Zdet)
 
 
     @property
     def V1z(self):    
-        return self._V1z
+        return self.Vs1z
 
 
     @property
     def V2z(self):    
-        return self._V2z
+        return self.Vs2z
 
 
     def Vgain(self, inport=1, outport=2):
@@ -3112,7 +3112,7 @@ class Shunt(TwoPortBModel):
          -----+----
          """
 
-        super (Shunt, self).__init__(BMatrix.Yshunt(T1.Y), V2b=_V(0), I2b=_I(T1.I))
+        super (Shunt, self).__init__(BMatrix.Yshunt(T1.Y), V2b=Vs(0), I2b=Is(T1.I))
 
 
 class IdealTransformer(TwoPortBModel):
@@ -3450,22 +3450,22 @@ class ThreePort(object):
 
     """
 
-    def __init__(self, Z, Vz=_VVector((0, 0, 0))):
+    def __init__(self, Z, Vz=VsVector((0, 0, 0))):
 
         if not isinstance(Z, ZMatrix3):
             raise ValueError('Z not ZMatrix3')
 
-        if not isinstance(Vz, _VVector):
-            raise ValueError('Vz not _VVector')
+        if not isinstance(Vz, VsVector):
+            raise ValueError('Vz not VsVector')
 
         self._M = Z
-        self._Vz = Vz
+        self.Vsz = Vz
 
 
     @property
     def Voc(self):    
         """Return voltage vector with all ports open-circuited (i.e., In = 0)"""
-        return self._Vz
+        return self.Vsz
 
 
     @property
@@ -3474,7 +3474,7 @@ class ThreePort(object):
         Y = self.Y
         Voc = self.Voc
 
-        Isc = _IVector([Voc[m] * Y[m, m] for m in range(len(Voc))])
+        Isc = IsVector([Voc[m] * Y[m, m] for m in range(len(Voc))])
         return Isc
 
 
@@ -3494,28 +3494,28 @@ class ThreePort(object):
     def Yoc(self):    
         """Return admittance vector with ports open circuit"""
         Z = self.Z
-        return _YVector([1 / Z[m, m] for m in range(Z.shape[0])])
+        return YVector([1 / Z[m, m] for m in range(Z.shape[0])])
 
 
     @property
     def Ysc(self):    
         """Return admittance vector with ports short circuit"""
         Y = self.Y
-        return _YVector([Y[m, m] for m in range(Y.shape[0])])
+        return YVector([Y[m, m] for m in range(Y.shape[0])])
 
 
     @property
     def Zoc(self):    
         """Return impedance vector with ports open circuit"""
         Z = self.Z
-        return _ZVector([Z[m, m] for m in range(Z.shape[0])])
+        return ZVector([Z[m, m] for m in range(Z.shape[0])])
 
 
     @property
     def Zsc(self):    
         """Return impedance vector with ports short circuit"""
         Y = self.Y
-        return _ZVector([1 / Y[m, m] for m in range(Y.shape[0])])
+        return ZVector([1 / Y[m, m] for m in range(Y.shape[0])])
 
 
     def portcheck(self, port):
@@ -3562,7 +3562,7 @@ class ThreePort(object):
         p1 = inport - 1
         p2 = outport - 1
 
-        return _V(self.Voc[p2] + (V - self.Voc[p1]) * self.Z[p2, p1] / self.Z[p1, p1])
+        return Vs(self.Voc[p2] + (V - self.Voc[p1]) * self.Z[p2, p1] / self.Z[p1, p1])
 
 
     def Iresponse(self, I, inport=1, outport=2):
@@ -3578,7 +3578,7 @@ class ThreePort(object):
         Y = self.Y
         Isc = self.Isc
                 
-        return _I(Isc[p2] + (I - Isc[p1]) * Y[p2, p1] / Y[p1, p1])
+        return Is(Isc[p2] + (I - Isc[p1]) * Y[p2, p1] / Y[p1, p1])
 
 
     def attach_parallel(self, T, port=2):
@@ -3596,7 +3596,7 @@ class ThreePort(object):
         Isc = self.Isc
         Isc[p] += T.Isc
         Z = Y.Z
-        Voc = _VVector([_V(Isc[m] * Z[m, m]) for m in range(len(Isc))])
+        Voc = VsVector([Vs(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Z, Voc)
 
 
@@ -3626,7 +3626,7 @@ class ThreePort(object):
         Isc[p1] -= T.Isc
         Isc[p2] += T.Isc
         Z = Y.Z
-        Voc = _VVector([_V(Isc[m] * Z[m, m]) for m in range(len(Isc))])
+        Voc = VsVector([Vs(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Y.Z, Voc)
 
     
@@ -3646,7 +3646,7 @@ class ThreePort(object):
         Y = self.Y + x.Y
         Isc = self.Isc + x.Isc
         Z = Y.Z
-        Voc = _VVector([_V(Isc[m] * Z[m, m]) for m in range(len(Isc))])
+        Voc = VsVector([Vs(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Z, Voc)
 
 
@@ -3691,7 +3691,7 @@ class ThreePort(object):
         Voc = self.Voc.copy()
         Voc.row_del(port - 1)
 
-        return TwoPortZModel(Y.Z, _V(Voc[0]), _V(Voc[1]))
+        return TwoPortZModel(Y.Z, Vs(Voc[0]), Vs(Voc[1]))
         
 
     def open_circuit(self, port=2):
@@ -3707,7 +3707,7 @@ class ThreePort(object):
         Voc = self.Voc.copy()
         Voc.row_del(port - 1)
 
-        return TwoPortZModel(Z, _V(Voc[0]), _V(Voc[1]))
+        return TwoPortZModel(Z, Vs(Voc[0]), Vs(Voc[1]))
 
 
 
@@ -3765,8 +3765,8 @@ def test():
     print(mZ2)
     print(mZ3)
 
-    a = AMatrix.Zseries(_Z(10))
-    b = AMatrix.Zshunt(_Z(20))
+    a = AMatrix.Zseries(Z(10))
+    b = AMatrix.Zshunt(Z(20))
     c = a.chain(b)
 
     print(c)
