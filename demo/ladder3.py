@@ -29,7 +29,7 @@ f = np.logspace(6, 8, 2000)
 Ztot = ZR_f + ZR_lim + Zxtal
 
 # Use delta to wye transform.
-H = ZC_i.parallel(ZC_a).chain_divider(ZR_f * Zxtal / Ztot, ZR_lim * Zxtal / Ztot + ZC_b, ZR_f * ZR_lim / Ztot)
+H = ZC_i.parallel(ZC_a).ladder(ZR_f * Zxtal / Ztot, ZR_lim * Zxtal / Ztot + ZC_b, ZR_f * ZR_lim / Ztot)
 
 fig = figure()
 ax = fig.add_subplot(111)

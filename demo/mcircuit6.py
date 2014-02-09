@@ -19,7 +19,7 @@ ZC_b = C(20e-12)
 
 ZR_f = R(1e6)
 
-H = ZC_b.divider(Zxtal.parallel(ZR_f))
+H = ZC_b.lsection(Zxtal.parallel(ZR_f))
 
 f = np.logspace(6, 8, 2000)
 

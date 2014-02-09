@@ -878,8 +878,14 @@ class OnePort(object):
         return self.I
 
 
+    def ladder(self, *args):
+        """Create ladder network"""
+
+        return Ladder(self, *args)
+
+
     def lsection(self, N):
-        """Create L section"""
+        """Create L section (voltage divider)"""
 
         if not issubclass(N.__class__, OnePort):
             raise TypeError('Argument not ', OnePort)
@@ -3372,6 +3378,39 @@ class LSection(TwoPortBModel):
          """
 
         super (LSection, self).__init__(Series(T1).chain(Shunt(T2)))
+
+
+
+class Ladder(TwoPortBModel):
+
+    def __init__(self, T1, *args):
+        """
+        
+        Create ladder network with alternating Series and Shunt
+        networks chained
+
+           +---------+       +---------+       
+         --+   T1    +---+---+ args[1] +---
+           +---------+   |   +---------+   
+                       +-+-+             
+                       |   |             
+                       |   | args[0]             
+                       |   |             
+                       +-+-+             
+                         |               
+         ----------------+-----------------
+         """
+
+        N = Series(T1)
+
+        for m, arg in enumerate(args):
+            
+            if m & 1:
+                N = N.chain(Series(arg))
+            else:
+                N = N.chain(Shunt(arg))            
+
+        super (Ladder, self).__init__(N)
 
 
 class GeneralTxLine(TwoPortBModel):

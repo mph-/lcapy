@@ -25,7 +25,8 @@ ZR_lim = R(1000)
 f = np.logspace(6, 8, 2000)
 
 
-H = ZC_i.parallel(ZC_b).chain_divider(Zxtal, ZC_a, ZR_lim, ZC_o, ZR_o)
+N1 = ZC_i.parallel(ZC_b).ladder(Zxtal, ZC_a, ZR_lim, ZC_o, ZR_o)
+H = N1.Vtransfer
 
 fig = figure()
 ax = fig.add_subplot(111)
@@ -33,8 +34,8 @@ Hf = H.frequency_response(f)
 ax.semilogx(f, np.angle(Hf) / np.pi * 180)
 ax.grid(True)
 
-
-H = ZC_a.chain_divider(ZR_lim)
+N2 = ZC_a.ladder(ZR_lim)
+H = N2.Vtransfer
 
 fig = figure()
 ax = fig.add_subplot(111)

@@ -13,7 +13,7 @@ xtal = Xtal(C_0, R_1, L_1, C_1)
 
 ZCb = C(20e-12)
 
-H = ZCb.divider(xtal).H
+H = ZCb.lsection(xtal).H
 
 f = np.logspace(6, 8, 2000)
 Hf = H.frequency_response(f)

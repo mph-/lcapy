@@ -7,7 +7,7 @@ ZC = C(40e-12)
 ZL = L(0.06e-4)
 ZR = R(10)
 
-H = ZC.divider(ZR + ZL)
+H = ZC.lsection(ZR + ZL)
 
 f = np.logspace(6, 8, 2000)
 
