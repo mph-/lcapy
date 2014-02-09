@@ -3361,6 +3361,62 @@ class TSection(TwoPortBModel):
         super (TSection, self).__init__(Series(OP1).chain(Shunt(OP2)).chain(Series(OP3)))
 
 
+
+class TwinTSection(TwoPortBModel):
+
+    def __init__(self, OP1a, OP2a, OP3a, OP1b, OP2b, OP3b):
+        """
+              +---------+       +---------+       
+           +--+   OP1a  +---+---+   OP3a  +--+
+           |  +---------+   |   +---------+  |
+           |              +-+-+              |
+           |              |   |              |
+           |              |OP2a              |
+           |              |   |              |
+           |              +-+-+              |
+           |                |                |
+           |                v                |
+           |  +---------+       +---------+  |    
+         --+--+   OP1b  +---+---+   OP3b  +--+--
+              +---------+   |   +---------+   
+                          +-+-+             
+                          |   |             
+                          |OP2b             
+                          |   |             
+                          +-+-+             
+                            |               
+         -------------------+--------------------
+
+         """
+
+        super (TwinTSection, self).__init__(TSection(OP1a, OP2a, OP3a).parallel(TSection(OP1b, OP2b, OP3b)))
+
+
+
+class BridgedTSection(TwoPortBModel):
+
+    def __init__(self, OP1, OP2, OP3, OP4):
+        """
+                       +---------+       
+           +-----------+   OP4   +-----------+
+           |           +---------+           |
+           |                                 |
+           |  +---------+       +---------+  |    
+         --+--+   OP1b  +---+---+   OP3b  +--+--
+              +---------+   |   +---------+   
+                          +-+-+             
+                          |   |             
+                          |OP2b             
+                          |   |             
+                          +-+-+             
+                            |               
+         -------------------+--------------------
+
+         """
+
+        super (TwinTSection, self).__init__(TSection(OP1, OP2, OP3).parallel(Series(OP4)))
+
+
 class PiSection(TwoPortBModel):
 
     def __init__(self, OP1, OP2, OP3):
@@ -3496,12 +3552,6 @@ class TxLine(GeneralTxLine):
         Z0 = sym.sqrt(Z / Y)
 
         super (TxLine, self).__init__(Z0, gamma, l)
-
-
-    # Topologies: series, parallel, L (voltage divider), C, T (Y), H
-    # (balanced-T) , Pi (Delta), box, bridge, lattice, bridged-T,
-    # twin-T, unbalanced ladder, balanced ladder, anti-ladder
-
 
 
 class _ThreePortMatrix(sym.Matrix):
