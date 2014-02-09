@@ -58,6 +58,8 @@ transforms, but does not handle delays and symbolic component values.
 TODO: Perhaps don't store R, V, I, as one-ports?  Or perhaps have a
 source-free one-port class?
 
+TODO: Fix handling of buffered two ports (amplifier / delay).
+
 Copyright 2014 Michael Hayes, UCECE
 """
 
@@ -589,6 +591,13 @@ class _Expr(object):
         return self.__class__(self.val / self.s)
     
     
+    def delay(self, T):
+        """Apply delay of T seconds by multiplying by exp(-s T)"""
+        
+        T = _Expr(T)
+        return self.__class__(self.val * sym.exp(-T * self.s))
+
+
     def zeros(self):
         
         return zeros(self.expr, self.s)
@@ -3260,6 +3269,15 @@ class IdealVoltageAmplifier(TwoPortBModel):
     def __init__(self, Av=1):
 
         super (IdealVoltageAmplifier, self).__init__(BMatrix.voltage_amplifier(Av))
+
+
+class IdealDelay(TwoPortBModel):
+    """Ideal buffered delay"""
+
+    def __init__(self, delay=0):
+
+        delay = _Expr(delay)
+        super (IdealDelay, self).__init__(BMatrix.voltage_amplifier(sym.exp(-delay * delay.s)))
 
 
 class IdealVoltageDifferentiator(TwoPortBModel):
