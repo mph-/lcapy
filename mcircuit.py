@@ -178,8 +178,8 @@ def WyeDelta(Z1, Z2, Z3):
 def poles(expr, var=None):
 
     if hasattr(expr, 'expr'):
-        expr = expr.expr
         var = expr.s
+        expr = expr.expr
 
     numer, denom = expr.as_numer_denom()
     poles = sym.roots(sym.Poly(denom, var))
@@ -189,8 +189,8 @@ def poles(expr, var=None):
 def zeros(expr, var=None):
 
     if hasattr(expr, 'expr'):
-        expr = expr.expr
         var = expr.s
+        expr = expr.expr
 
     numer, denom = expr.as_numer_denom()
     zeros = sym.roots(sym.Poly(numer, var))
@@ -200,8 +200,8 @@ def zeros(expr, var=None):
 def residues(expr, var=None):
 
     if hasattr(expr, 'expr'):
-        expr = expr.expr
         var = expr.s
+        expr = expr.expr
 
     N, D = _as_ratfun_parts(expr, var)
 
@@ -236,10 +236,14 @@ def residues(expr, var=None):
 
 
 def partfrac(expr, var=None):
+    """Convert rational function into partial fraction form (standard form).
+
+    See also canonical, general, and ZPK"""
+
 
     if hasattr(expr, 'expr'):
-        expr = expr.expr
         var = expr.s
+        expr = expr.expr
 
     ratfun, delay = _as_ratfun_delay(expr, var)
 
@@ -292,31 +296,51 @@ def _as_ratfun_delay(expr, var):
     return ratfun, delay
 
 
-def canonical(expr, var=None):
+def general(expr, var=None):
+    """Convert rational function into general form.
+
+    See also canonical, partfrac, and ZPK"""
 
     if hasattr(expr, 'expr'):
-        expr = expr.expr
         var = expr.s
+        expr = expr.expr
+
+    return sym.cancel(expr, var)
+
+
+
+def canonical(expr, var=None):
+    """Convert rational function into canonical form.
+
+    See also general, partfrac, and ZPK"""
+
+
+    if hasattr(expr, 'expr'):
+        var = expr.s
+        expr = expr.expr
 
     ratfun, delay = _as_ratfun_delay(expr, var)
 
     N, D = _as_ratfun_parts(ratfun, var)
 
-    LC = D.LC()
-    D = D / LC
-    N = N / LC
-    
+    K = N.LC() / D.LC()
     if delay != 0:
-        return N / D * sym.exp(var * delay)
+        K = K * sym.exp(var * delay)
 
-    return N / D
+    D = D / D.LC()
+    N = N / N.LC()
+    
+    return K * (N / D)
 
 
 def ZPK(expr, var=None):
+    """Convert rational function into ZPK form.
+
+    See also canonical, general, and partfrac"""
 
     if hasattr(expr, 'expr'):
-        expr = expr.expr
         var = expr.s
+        expr = expr.expr
 
     ratfun, delay = _as_ratfun_delay(expr, var)
 
@@ -382,6 +406,7 @@ def _inverse_laplace(expr, var, t):
 
 
 def inverse_laplace(expr, s, t):
+    """Determine inverse Laplace transform of expression"""
 
     try:
         result = _inverse_laplace(expr, s, t)
@@ -400,8 +425,8 @@ def inverse_laplace(expr, s, t):
 def initial_value(expr, var=None):
 
     if hasattr(expr, 'expr'):
-        expr = expr.expr
         var = expr.s
+        expr = expr.expr
 
     return sym.limit(expr * var, var, sym.oo)
 
@@ -409,8 +434,8 @@ def initial_value(expr, var=None):
 def final_value(expr, var=None):
 
     if hasattr(expr, 'expr'):
-        expr = expr.expr
         var = expr.s
+        expr = expr.expr
 
     return sym.limit(expr * var, var, 0)
 
@@ -580,48 +605,38 @@ class _Expr(object):
 
 
     @property
-    def partfrac(self):
-
-        return self.__class__(partfrac(self.expr, self.s), simplify=False)
-
-
-    # The sympy residue function gives bogus results
-    #@property
-    # def partfrac(self):
-    #
-    #     expr = self.expr
-    #     var = self.s
-    #    
-    #     pfd = sym.apart_list(expr)
-    #     # Use doit to evaluate roots.
-    #     pqr = sym.assemble_partfrac_list(pfd).doit()
-    #
-    #     sum = 0
-    #     for t in pqr.as_ordered_terms():
-    #         numer, denom = t.as_numer_denom()
-    #         numer = sym.simplify(numer)
-    #         N = sym.Poly(numer, var)
-    #         D = sym.Poly(denom, var)
-    #         LC = D.LC()
-    #         D = D / LC
-    #         N = N / LC
-    #         term = N / D
-    #         sum = sum + term
-    #
-    #     return self.__class__(sum, simplify=False)
-
-
-    @property
     def canonical(self):
         """Convert rational function to canonical form with unity
-        highest power of denominator"""
+        highest power of denominator.
+
+        See also general, partfrac, and ZPK"""
         
         return self.__class__(canonical(self.expr, self.s), simplify=False)
 
 
     @property
+    def general(self):
+        """Convert rational function to general form
+
+        See also canonical, partfrac, and ZPK"""
+        
+        return self.__class__(general(self.expr, self.s), simplify=False)
+
+
+    @property
+    def partfrac(self):
+        """Convert rational function into partial fraction form.
+
+        See also canonical, general, and ZPK"""
+
+        return self.__class__(partfrac(self.expr, self.s), simplify=False)
+
+
+    @property
     def ZPK(self):
-        """Convert to pole-zero-gain (PZK) form"""
+        """Convert to pole-zero-gain (PZK) form.
+        
+        See also canonical, general, and partfrac"""
         
         return self.__class__(ZPK(self.expr, self.s), simplify=False)
 
