@@ -832,12 +832,12 @@ class Is(_Expr):
     pass
 
 
-class _Av(_Expr):
+class Avs(_Expr):
     """s-domain voltage ratio"""
     pass
 
 
-class _Ai(_Expr):
+class Ais(_Expr):
     """s-domain current ratio"""
     pass
 
@@ -2409,22 +2409,11 @@ class TwoPort(object):
         return Is(Isc[p2] + Y[p2, p1] / Y[p1, p1] * (I - Isc[p1]))
 
 
-    @property
-    def Ztrans12(self):
-        """Return V2 / I1 for I2 = 0 (forward transimpedance) with
-        internal sources zero
-
-        Z21 = 1 / A21 = -|B| / B21
-        """
-
-        return Zs(self.Z.Z21)
-
-
-    def Ztrans(self, inport=1, outport=2):
-        """Return transimpedance for specified ports with internal
+    def Ytrans(self, inport=1, outport=2):
+        """Return transadmittance for specified ports with internal
         sources zero"""
 
-        return Zs(self.Z[outport - 1, inport - 1])
+        return Ys(self.Y[outport - 1, inport - 1])
 
 
     @property
@@ -2438,11 +2427,43 @@ class TwoPort(object):
         return Ys(self.Y.Y21)
 
 
-    def Ytrans(self, inport=1, outport=2):
-        """Return transadmittance for specified ports with internal
+    @property
+    def Ytransfer(self):
+        """Return I2 / V1 for V2 = 0 (forward transadmittance) with
+         internal sources zero.  This is an alias for Ytrans12.
+
+         Y21 = -1 / A12 = |B| / B12
+         """
+
+        return self.Ytrans12
+
+
+    def Ztrans(self, inport=1, outport=2):
+        """Return transimpedance for specified ports with internal
         sources zero"""
 
-        return Ys(self.Y[outport - 1, inport - 1])
+        return Zs(self.Z[outport - 1, inport - 1])
+
+
+    def Ztrans12(self):
+        """Return V2 / I1 for I2 = 0 (forward transimpedance) with
+        internal sources zero
+
+        Z21 = 1 / A21 = -|B| / B21
+        """
+
+        return Zs(self.Z.Z21)
+
+
+    @property
+    def Ztransfer(self):
+        """Return V2 / I1 for I2 = 0 (forward transimpedance) with
+        internal sources zero.  This is an alias for Ztrans12.
+
+        Z21 = 1 / A21 = -|B| / B21
+        """
+
+        return self.Ztrans12
 
 
     @property
@@ -2831,11 +2852,11 @@ class TwoPortBModel(TwoPort):
         # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12 / Y11
 
         if inport == outport:
-            return _Av(1)
+            return Avs(1)
         if inport == 1 and outport == 2:
-            return _Av(1 / self.A.A11)
+            return Avs(1 / self.A.A11)
         if inport == 2 and outport == 1:
-            return _Av(1 / self.B.B11)
+            return Avs(1 / self.B.B11)
         raise ValueError('bad port values')
 
 
@@ -2847,11 +2868,11 @@ class TwoPortBModel(TwoPort):
         # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12 / Y22
 
         if inport == outport:
-            return _Ai(1)
+            return Ais(1)
         if inport == 1 and outport == 2:
-            return _Ai(-1 / self.A.A22)
+            return Ais(-1 / self.A.A22)
         if inport == 2 and outport == 1:
-            return _Ai(-1 / self.B.B22)
+            return Ais(-1 / self.B.B22)
         raise ValueError('bad port values')
 
 
@@ -2941,11 +2962,11 @@ class TwoPortHModel(TwoPort):
         # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12/Y11
 
         if inport == outport:
-            return _Av(1)
+            return Avs(1)
         if inport == 1 and outport == 2:
-            return _Av(self.G.G21)
+            return Avs(self.G.G21)
         if inport == 2 and outport == 1:
-            return _Av(self.H.H12)
+            return Avs(self.H.H12)
         raise ValueError('bad port values')
 
 
@@ -2957,11 +2978,11 @@ class TwoPortHModel(TwoPort):
         # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12/Y22
 
         if inport == outport:
-            return _Ai(1)
+            return Ais(1)
         if inport == 1 and outport == 2:
-            return _Ai(self.H.H21)
+            return Ais(self.H.H21)
         if inport == 2 and outport == 1:
-            return _Ai(self.G.G12)
+            return Ais(self.G.G12)
         raise ValueError('bad port values')
 
     
@@ -3137,11 +3158,11 @@ class TwoPortZModel(TwoPort):
         # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12/Y11
 
         if inport == outport:
-            return _Av(1)
+            return Avs(1)
         if inport == 1 and outport == 2:
-            return _Av(self.Z.Z21 / self.Z.Z11)
+            return Avs(self.Z.Z21 / self.Z.Z11)
         if inport == 2 and outport == 1:
-            return _Av(self.Z.Z12 / self.Z.Z22)
+            return Avs(self.Z.Z12 / self.Z.Z22)
         raise ValueError('bad port values')
 
 
@@ -3153,11 +3174,11 @@ class TwoPortZModel(TwoPort):
         # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12/Y22
 
         if inport == outport:
-            return _Ai(1)
+            return Ais(1)
         if inport == 1 and outport == 2:
-            return _Ai(-self.Z.Z21 / self.Z.Z22)
+            return Ais(-self.Z.Z21 / self.Z.Z22)
         if inport == 2 and outport == 1:
-            return _Ai(-self.Z.Z12 / self.Z.Z11)
+            return Ais(-self.Z.Z12 / self.Z.Z11)
         raise ValueError('bad port values')
 
 
@@ -3646,7 +3667,7 @@ class ThreePort(object):
         p1 = inport - 1
         p2 = outport - 1
 
-        return _Av(self.Z[p2, p1] / self.Z[p1, p1])
+        return Avs(self.Z[p2, p1] / self.Z[p1, p1])
 
 
     def Igain(self, inport=1, outport=2):
@@ -3661,7 +3682,7 @@ class ThreePort(object):
 
         Y = self.Y
 
-        return _Ai(self.Y[p2, p1] / self.Y[p1, p1])
+        return Ais(self.Y[p2, p1] / self.Y[p1, p1])
 
 
     def Vresponse(self, V, inport=1, outport=2):
