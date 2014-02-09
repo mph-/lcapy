@@ -819,12 +819,12 @@ class Ys(_Expr):
 
 
 class Vs(_Expr):
-    """s-domain voltage"""
+    """s-domain voltage (units V s / radian)"""
     pass
 
 
 class Is(_Expr):
-    """s-domain current"""
+    """s-domain current (units A s / radian)"""
     pass
 
 
@@ -836,7 +836,6 @@ class _Av(_Expr):
 class _Ai(_Expr):
     """s-domain current ratio"""
     pass
-
 
 
 class OnePort(object):
@@ -1253,7 +1252,7 @@ class FerriteBead(Thevenin):
         """Create a ferrite bead (lossy inductor)
 
         This is modelled as a series resistor (Rs) connected 
-        to parallel R, L, C network (Rp, Lp, Cp).
+        to a parallel R, L, C network (Rp, Lp, Cp).
         """
 
         ferrite = R(Rs) + (R(Rp) + L(Lp) + C(Cp))
@@ -1262,11 +1261,18 @@ class FerriteBead(Thevenin):
 
 
 class V(Thevenin):
-    """Voltage source"""
+    """Voltage source (note a voltage source of voltage V1 has
+    a s domain voltage of V1 / s."""
 
     def __init__(self, Vval):
+        """Create voltage source with voltage Vval V."""
     
         super (V, self).__init__(Zs(0), Vs(Vval).integrate())
+
+
+    def __repr__(self):
+
+        return '%s(%s)' % (self.__class__.__name__, (self.V * self.V.s).__str__())
 
 
     def __str__(self):
@@ -1298,11 +1304,18 @@ class V(Thevenin):
 
 
 class I(Norton):
-    """Current source"""
+    """Current source (note a current source of current I1 has
+    a s domain current of I1 / s."""
 
     def __init__(self, Ival):
+        """Create current source with current Ival A."""
     
         super (I, self).__init__(Ys(0), Is(Ival).integrate())
+
+
+    def __repr__(self):
+
+        return '%s(%s)' % (self.__class__.__name__, (self.I * self.I.s).__str__())
 
 
     def __str__(self):
