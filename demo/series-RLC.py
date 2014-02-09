@@ -15,9 +15,6 @@ ax.set_xlabel('Time (s)')
 ax.set_ylabel('Current (A)')
 ax.grid(True)
 
-sym.pprint(sym.Eq(sym.sympify('I_sc'), H))
-
-sym.pprint(sym.Eq(sym.sympify('i_sc'), inverse_laplace(H, s, t)))
 
 show()
 

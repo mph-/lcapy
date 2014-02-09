@@ -292,7 +292,7 @@ def _as_ratfun_delay(expr, var):
     return ratfun, delay
 
 
-def PZK(expr, var=None):
+def canonical(expr, var=None):
 
     if hasattr(expr, 'expr'):
         expr = expr.expr
@@ -302,21 +302,37 @@ def PZK(expr, var=None):
 
     N, D = _as_ratfun_parts(ratfun, var)
 
-    zeros = sym.roots(N)
-    poles = sym.roots(D)
-    K = N.LC() / D.LC()
-    if delay != 0:
-        K = K * sym.exp(var * delay)
+    LC = D.LC()
+    D = D / LC
+    N = N / LC
     
-    zz = [(var - z) for z in zeros]
-    pp = [1 / (var - p) for p in poles]
-        
-    return sym.Mul(K, *(zz + pp))
+    if delay != 0:
+        return N / D * sym.exp(var * delay)
+
+    return N / D
 
 
 def ZPK(expr, var=None):
-    
-    return PZK(expr, var)
+
+    if hasattr(expr, 'expr'):
+        expr = expr.expr
+        var = expr.s
+
+    ratfun, delay = _as_ratfun_delay(expr, var)
+
+    N, D = _as_ratfun_parts(ratfun, var)
+
+    K = N.LC() / D.LC()
+    if delay != 0:
+        K = K * sym.exp(var * delay)
+
+    zeros = sym.roots(N)
+    zz = [(var - z) for z in zeros]
+
+    poles = sym.roots(D)
+    pp = [1 / (var - p) for p in poles]
+        
+    return sym.Mul(K, *(zz + pp))
 
 
 def _inverse_laplace(expr, var, t):
@@ -548,21 +564,6 @@ class _Expr(object):
         return self.__class__(self.val / self.s)
     
     
-    def canonical(self):
-        """Convert rational function to canonical form with unity
-        highest power of denominator"""
-        
-        val = self.val.cancel()
-        n, d = val.as_numer_denom()
-        
-        d = sym.Poly(d, self.s)
-        LC = d.LC()
-        d = d / LC
-        n = n / LC
-        
-        return self.__class__(n / d)
-
-
     def zeros(self):
         
         return zeros(self.expr, self.s)
@@ -576,23 +577,6 @@ class _Expr(object):
     def residues(self):
         
         return residues(self.expr, self.s)
-
-
-    def as_transfer_function(self):
-        
-        expr = self.expr
-        var = self.s
-
-        k0 = expr.subs(var, 0)
-        expr = expr / k0
-        numer, denom = expr.as_numer_denom()
-        zeros = sym.roots(sym.Poly(numer, self.s))
-        zz = [(1 - var / z) for z in zeros]
-        
-        poles = sym.roots(sym.Poly(denom, self.s))
-        pp = [1 / (1 - var / p) for p in poles]
-        
-        return self.__class__(sym.Mul(k0, *(zz + pp)), simplify=False)
 
 
     @property
@@ -628,25 +612,30 @@ class _Expr(object):
 
 
     @property
-    def PZK(self):
+    def canonical(self):
+        """Convert rational function to canonical form with unity
+        highest power of denominator"""
         
-        return self.__class__(ZPK(self.expr, self.s), simplify=False)
+        return self.__class__(canonical(self.expr, self.s), simplify=False)
 
 
     @property
     def ZPK(self):
+        """Convert to pole-zero-gain (PZK) form"""
         
         return self.__class__(ZPK(self.expr, self.s), simplify=False)
 
 
     @property
     def initial_value(self):
+        """Determine value at t = 0"""
         
         return initial_value(self.expr, self.s)
 
 
     @property
     def final_value(self):
+        """Determine value at t = oo"""
         
         return final_value(self.expr, self.s)
 
@@ -682,12 +671,12 @@ class _Expr(object):
 
     def pprint(self):
         """Pretty print"""
-        sym.pprint(self.canonical().val)
+        sym.pprint(self.val)
 
 
     def pretty(self):
         """Make pretty string"""
-        return sym.pretty(self.canonical().val)
+        return sym.pretty(self.val)
 
 
     def simplify(self):
