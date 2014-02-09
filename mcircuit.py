@@ -879,30 +879,30 @@ class OnePort(object):
 
 
     def ladder(self, *args):
-        """Create ladder network"""
+        """Create (unbalanced) ladder network"""
 
         return Ladder(self, *args)
 
 
-    def lsection(self, N):
+    def lsection(self, OP2):
         """Create L section (voltage divider)"""
 
-        if not issubclass(N.__class__, OnePort):
+        if not issubclass(OP2.__class__, OnePort):
             raise TypeError('Argument not ', OnePort)
 
-        return LSection(self, N)
+        return LSection(self, OP2)
 
 
-    def tsection(self, N1, N2):
+    def tsection(self, OP2, OP3):
         """Create T section"""
 
-        if not issubclass(N1.__class__, OnePort):
+        if not issubclass(OP2.__class__, OnePort):
             raise TypeError('Argument not ', OnePort)
 
-        if not issubclass(N2.__class__, OnePort):
+        if not issubclass(OP3.__class__, OnePort):
             raise TypeError('Argument not ', OnePort)
 
-        return TSection(self, N1, N2)
+        return TSection(self, OP2, OP3)
 
 
 class Norton(OnePort):
@@ -3184,35 +3184,35 @@ class TwoPortZModel(TwoPort):
 
 class Series(TwoPortBModel):
 
-    def __init__(self, T1):
+    def __init__(self, OP1):
         """
            +---------+   
-         --+   T1    +---
+         --+   OP1   +---
            +---------+   
 
          ----------------
          """
 
-        super (Series, self).__init__(BMatrix.Zseries(T1.Z), V2b=T1.V)
+        super (Series, self).__init__(BMatrix.Zseries(OP1.Z), V2b=OP1.V)
 
 
 class Shunt(TwoPortBModel):
 
-    def __init__(self, T1):
+    def __init__(self, OP1):
         """
                  
          -----+----
               |    
             +-+-+  
             |   |  
-            |T1 |  
+            |OP1|  
             |   |  
             +-+-+  
               |    
          -----+----
          """
 
-        super (Shunt, self).__init__(BMatrix.Yshunt(T1.Y), V2b=Vs(0), I2b=Is(T1.I))
+        super (Shunt, self).__init__(BMatrix.Yshunt(OP1.Y), V2b=Vs(0), I2b=Is(OP1.I))
 
 
 class IdealTransformer(TwoPortBModel):
@@ -3339,14 +3339,14 @@ class OpampDifferentiator(TwoPortBModel):
 
 class TSection(TwoPortBModel):
 
-    def __init__(self, T1, T2, T3):
+    def __init__(self, OP1, OP2, OP3):
         """
            +---------+       +---------+       
-         --+   T1    +---+---+   T3    +---
+         --+   OP1   +---+---+   OP3   +---
            +---------+   |   +---------+   
                        +-+-+             
                        |   |             
-                       |T2 |             
+                       |OP2|             
                        |   |             
                        +-+-+             
                          |               
@@ -3358,19 +3358,19 @@ class TSection(TwoPortBModel):
 
          """
 
-        super (TSection, self).__init__(Series(T1).chain(Shunt(T2)).chain(Series(T3)))
+        super (TSection, self).__init__(Series(OP1).chain(Shunt(OP2)).chain(Series(OP3)))
 
 
 class PiSection(TwoPortBModel):
 
-    def __init__(self, T1, T2, T3):
+    def __init__(self, OP1, OP2, OP3):
         """
                   +---------+       
-        -----+----+   T2    +---+-----
+        -----+----+   OP2    +---+-----
              |    +---------+   |  
            +-+-+              +-+-+
            |   |              |   |
-           |T1 |              |T3 |
+           |OP1|              |OP3|
            |   |              |   |
            +-+-+              +-+-+                       
              |                  |
@@ -3378,40 +3378,40 @@ class PiSection(TwoPortBModel):
 
         """
 
-        super (PiSection, self).__init__(Shunt(T1).chain(Series(T2)).chain(Shunt(T3)))
+        super (PiSection, self).__init__(Shunt(OP1).chain(Series(OP2)).chain(Shunt(OP3)))
 
 
 
 class LSection(TwoPortBModel):
 
-    def __init__(self, T1, T2):
+    def __init__(self, OP1, OP2):
         """
            +---------+       
-         --+   T1    +---+----
+         --+   OP1   +---+----
            +---------+   |   
                        +-+-+ 
                        |   | 
-                       |T2 | 
+                       |OP2 | 
                        |   | 
                        +-+-+ 
                          |   
          ----------------+----
          """
 
-        super (LSection, self).__init__(Series(T1).chain(Shunt(T2)))
+        super (LSection, self).__init__(Series(OP1).chain(Shunt(OP2)))
 
 
 
 class Ladder(TwoPortBModel):
 
-    def __init__(self, T1, *args):
+    def __init__(self, OP1, *args):
         """
         
-        Create ladder network with alternating Series and Shunt
+        Create (unbalanced) ladder network with alternating Series and Shunt
         networks chained
 
            +---------+       +---------+       
-         --+   T1    +---+---+ args[1] +---
+         --+   OP1   +---+---+ args[1] +---
            +---------+   |   +---------+   
                        +-+-+             
                        |   |             
@@ -3422,16 +3422,16 @@ class Ladder(TwoPortBModel):
          ----------------+-----------------
          """
 
-        N = Series(T1)
+        TP = Series(OP1)
 
         for m, arg in enumerate(args):
             
             if m & 1:
-                N = N.chain(Series(arg))
+                TP = TP.chain(Series(arg))
             else:
-                N = N.chain(Shunt(arg))            
+                TP = TP.chain(Shunt(arg))            
 
-        super (Ladder, self).__init__(N)
+        super (Ladder, self).__init__(TP)
 
 
 class GeneralTxLine(TwoPortBModel):
