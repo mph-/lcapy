@@ -199,6 +199,33 @@ def zeros(expr, var=None):
     return zeros
 
 
+def residue(expr, var, pole, poles):
+
+    # Remove pole from list of poles; sym.cancel
+    # doesn't always work, for example, for complex poles.
+    poles2 = poles.copy()
+    poles2[pole] -= 1
+
+    numer, denom = expr.as_numer_denom()
+    D = sym.Poly(denom, var)
+    K = D.LC()
+
+    D = [(var - p) ** poles2[p] for p in poles2]
+    denom = sym.Mul(K, *D)
+
+    d = sym.limit(denom, var, pole)
+
+    if d != 0:
+        tmp = numer / denom
+        return sym.limit(tmp, var, pole)
+
+    print("Trying l'hopital's rule")
+    tmp = numer / denom
+    tmp = sym.diff(tmp, var)
+    
+    return sym.limit(tmp, var, pole)
+
+
 def residues(expr, var=None):
 
     if hasattr(expr, 'expr'):
@@ -219,19 +246,18 @@ def residues(expr, var=None):
         # Number of occurrences of the pole.
         N = P[p]
 
-        D = var - p
+        f = var - p
 
         if N == 1:
-            tmp = expr * D
-            F.append(D)
-            R.append(sym.limit(tmp, var, p))
+            F.append(f)
+            R.append(residue(expr, var, p, P))
             continue
 
         # Handle repeated poles.
-        expr2 = expr * D ** N
+        expr2 = expr * f ** N
         for n in range(1, N + 1):
             m = N - n
-            F.append(D ** n)
+            F.append(f ** n)
             R.append(sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m))
 
     return F, R, Q
@@ -241,7 +267,6 @@ def partfrac(expr, var=None):
     """Convert rational function into partial fraction form (standard form).
 
     See also canonical, general, and ZPK"""
-
 
     if hasattr(expr, 'expr'):
         var = expr.s
@@ -261,8 +286,12 @@ def partfrac(expr, var=None):
     return expr
 
 
-def _as_ratfun_parts(expr, var):
+def _as_ratfun_parts(expr, var=None):
     
+    if hasattr(expr, 'expr'):
+        var = expr.s
+        expr = expr.expr
+
     if not expr.is_rational_function():
         raise ValueError('Expression not a rational function')
 
@@ -273,8 +302,12 @@ def _as_ratfun_parts(expr, var):
     return N, D
 
 
-def _as_ratfun_delay(expr, var):
+def _as_ratfun_delay(expr, var=None):
     
+    if hasattr(expr, 'expr'):
+        var = expr.s
+        expr = expr.expr
+
     F = expr.as_ordered_factors()
 
     delay = sym.sympify(0)
@@ -389,20 +422,19 @@ def _inverse_laplace(expr, var, t):
         # Number of occurrences of the pole.
         N = P[p]
 
-        D = var - p
+        f = var - p
 
         if N == 1:
-            tmp = expr * D
-            R = sym.limit(tmp, var, p)
-            result2 += R * sym.exp(p * td)
+            r = residue(expr, var, p, P)
+            result2 += r * sym.exp(p * td)
             continue
 
         # Handle repeated poles.
-        expr2 = expr * D ** N
+        expr2 = expr * f ** N
         for n in range(1, N + 1):
             m = N - n
-            R = sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m)
-            result2 += R * sym.exp(p * td) * td**(n - 1)
+            r = sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m)
+            result2 += r * sym.exp(p * td) * td**(n - 1)
 
     return result1 + result2 * sym.Heaviside(td)
 
