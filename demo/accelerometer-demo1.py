@@ -51,7 +51,7 @@ m2 = mt - m1 - mx
 m1p = m1 + mx / 2
 m2p = m2 + mx / 2
 
-# Compliance (m/N)
+# Piezo compliance (m/N)
 Sm = 1 / (m1p * (2 * np.pi * f0)**2)
 Sm = 1 / ((2 * np.pi * f0)**2 * m1p - alpha**2 / C0)
 

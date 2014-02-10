@@ -1581,11 +1581,15 @@ class AMatrix(_TwoPortMatrix):
     @classmethod
     def transformer(cls, alpha):
 
+        alpha = _Expr(alpha)
+
         return cls(1 / alpha, 0, 0, alpha)        
 
 
     @classmethod
     def gyrator(cls, R):
+
+        R = _Expr(R)
 
         return cls(0, R, 1 / R, 0)        
 
@@ -1843,11 +1847,15 @@ class BMatrix(_TwoPortMatrix):
     @classmethod
     def transformer(cls, alpha):
 
+        alpha = _Expr(alpha)
+
         return cls(alpha, 0, 0, 1 / alpha)        
 
 
     @classmethod
     def gyrator(cls, R):
+
+        R = _Expr(R)
 
         return cls(0, R, 1 / R, 0)        
 
