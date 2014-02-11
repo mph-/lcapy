@@ -358,12 +358,14 @@ def canonical(expr, var=None):
 
     N, D = _as_ratfun_parts(ratfun, var)
 
-    K = N.LC() / D.LC()
+    K = sym.cancel(N.LC() / D.LC())
+    sym.pprint(K)
     if delay != 0:
         K = K * sym.exp(var * delay)
 
-    D = D / D.LC()
-    N = N / N.LC()
+    # Divide by leading coefficient
+    N = N.monic()
+    D = D.monic()
     
     return K * (N / D)
 
@@ -381,7 +383,7 @@ def ZPK(expr, var=None):
 
     N, D = _as_ratfun_parts(ratfun, var)
 
-    K = N.LC() / D.LC()
+    K = sym.cancel(N.LC() / D.LC())
     if delay != 0:
         K = K * sym.exp(var * delay)
 
