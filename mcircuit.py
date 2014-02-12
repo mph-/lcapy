@@ -1356,6 +1356,46 @@ class FerriteBead(Thevenin):
         super (Xtal, self).__init__(ferrite.Z, xtal.V)
 
 
+class Y(Norton):
+    """General admittance."""
+
+    
+    @property
+    def I(self):
+        return Is(0)
+
+
+    def __init__(self, Y):
+        """Create admittance."""
+    
+        self.Y = _Expr(Y)
+
+
+    def __repr__(self):
+
+        return '%s(%s)' % (self.__class__.__name__, self.Y.__str__())
+
+
+class Z(Thevenin):
+    """General impedance."""
+
+    
+    @property
+    def V(self):
+        return Vs(0)
+
+
+    def __init__(self, Z):
+        """Create impedance."""
+    
+        self.Z = _Expr(Z)
+
+
+    def __repr__(self):
+
+        return '%s(%s)' % (self.__class__.__name__, self.Z.__str__())
+
+
 class V(Thevenin):
     """Voltage source (note a voltage source of voltage V1 has
     a s domain voltage of V1 / s."""
