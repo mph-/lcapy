@@ -1226,60 +1226,103 @@ class Load(object):
 class R(Thevenin):
     """Resistor"""
 
+    @property
+    def Z(self):
+        return Zs.R(self.R)
+
+
+    @property
+    def V(self):
+        return Vs(0)
+
+
     def __init__(self, Rval):
     
-        super (R, self).__init__(Zs.R(Rval))
+        self.R = _Expr(Rval)
 
 
     def __repr__(self):
 
-        return '%s(%s)' % (self.__class__.__name__, self.Z.__str__())
+        return '%s(%s)' % (self.__class__.__name__, self.R.__str__())
 
 
 class G(Norton):
     """Conductance"""
 
+    @property
+    def Z(self):
+        return Zs.G(self.G)
+
+
+    @property
+    def V(self):
+        return Vs(0)
+
+
     def __init__(self, Gval):
     
-        super (G, self).__init__(Ys.G(Gval))
+        self.G = _Expr(Gval)
 
 
     def __repr__(self):
 
-        return '%s(%s)' % (self.__class__.__name__, self.Y.__str__())
+        return '%s(%s)' % (self.__class__.__name__, self.G.__str__())
 
 
 class L(Thevenin):
     """Inductor"""
 
+
+    @property
+    def Z(self):
+        return Zs.L(self.L)
+
+    
+    @property
+    def V(self):
+        return Vs(-self.i0 * self.L)
+
+
     def __init__(self, Lval, i0=0.0):
     
-        super (L, self).__init__(Zs.L(Lval), - Vs(Lval) * Vs(i0))
+        self.L = _Expr(Lval)
+        self.i0 = _Expr(i0)
 
 
     def __repr__(self):
 
-        if self.I != 0:
-            return '%s(%s, %s)' % (self.__class__.__name__, (self.Z / self.Z.s).__str__(), (-self.I * self.I.s).__str__())
+        if self.i0 != 0:
+            return '%s(%s, %s)' % (self.__class__.__name__, self.L.__str__(), self.i0.__str__())
         else:
-            return '%s(%s)' % (self.__class__.__name__, (self.Z / self.Z.s).__str__())
+            return '%s(%s)' % (self.__class__.__name__, self.L.__str__())
 
 
 class C(Thevenin):
     """Capacitor"""
 
+
+    @property
+    def Z(self):
+        return Zs.C(self.C)
+
+    
+    @property
+    def V(self):
+        return Vs(self.v0).integrate()
+        
+
     def __init__(self, Cval, v0=0.0):
     
-        super (C, self).__init__(Zs.C(Cval), Vs(v0).integrate())
+        self.C = _Expr(Cval)
+        self.v0 = _Expr(v0)
 
 
     def __repr__(self):
-
         
-        if self.V != 0:
-            return '%s(%s, %s)' % (self.__class__.__name__, (self.Y / self.Y.s).__str__(), (self.V * self.V.s).__str__())
+        if self.v0 != 0:
+            return '%s(%s, %s)' % (self.__class__.__name__, self.C.__str__(), self.v0.__str__())
         else:
-            return '%s(%s)' % (self.__class__.__name__, (self.Y / self.Y.s).__str__())
+            return '%s(%s)' % (self.__class__.__name__, self.C.__str__())
 
 
 
@@ -1317,15 +1360,25 @@ class V(Thevenin):
     """Voltage source (note a voltage source of voltage V1 has
     a s domain voltage of V1 / s."""
 
-    def __init__(self, Vval):
-        """Create voltage source with voltage Vval V."""
+    @property
+    def Z(self):
+        return Zs(0)
+
     
-        super (V, self).__init__(Zs(0), Vs(Vval).integrate())
+    @property
+    def V(self):
+        return Vs(self.v.integrate())
+
+
+    def __init__(self, v):
+        """Create voltage source with voltage v V."""
+    
+        self.v = _Expr(v)
 
 
     def __repr__(self):
 
-        return '%s(%s)' % (self.__class__.__name__, (self.V * self.V.s).__str__())
+        return '%s(%s)' % (self.__class__.__name__, self.v.__str__())
 
 
     def __str__(self):
@@ -1360,15 +1413,25 @@ class I(Norton):
     """Current source (note a current source of current I1 has
     a s domain current of I1 / s."""
 
-    def __init__(self, Ival):
-        """Create current source with current Ival A."""
+    @property
+    def Y(self):
+        return Ys(0)
+
     
-        super (I, self).__init__(Ys(0), Is(Ival).integrate())
+    @property
+    def I(self):
+        return Is(self.i.integrate())
+
+
+    def __init__(self, i):
+        """Create current source with current i A."""
+    
+        self.i = _Expr(i)
 
 
     def __repr__(self):
 
-        return '%s(%s)' % (self.__class__.__name__, (self.I * self.I.s).__str__())
+        return '%s(%s)' % (self.__class__.__name__, self.i.__str__())
 
 
     def __str__(self):
