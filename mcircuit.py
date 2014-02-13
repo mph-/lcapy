@@ -476,6 +476,47 @@ def final_value(expr, var=None):
     return sym.limit(expr * var, var, 0)
 
 
+class Container(object):
+    
+    def __init__(self, val1, val2):
+
+        self.val1 = val1
+        self.val2 = val2
+    
+
+    def __repr__(self):
+
+        return '%s(%s, %s)' % (self.__class__.__name__, self.val1.__repr__(), self.val2.__repr__()) 
+
+
+    def __str__(self):
+
+        return '%s %s %s' % (self.val1.__repr__(), self.op, self.val2.__repr__()) 
+
+
+class Par(Container):
+
+    op = '|'
+
+    def eval(self):
+
+        return self.val1.parallel(self.val2)
+
+
+    def simplify(self):
+
+        return self.eval().simplify()
+
+
+class Ser(Container):
+
+    op = '+'
+
+    def eval(self):
+
+        return self.val1.series(self.val2)
+
+
 class _Expr(object):
     
     s, t, f = sym.symbols('s t f')
