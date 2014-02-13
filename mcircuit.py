@@ -507,7 +507,7 @@ class _Expr(object):
 
     def __repr__(self):
 
-        return '%s(%s)' % (self.__class__.__name__, self.val.__str__())
+        return '%s(%s)' % (self.__class__.__name__, self.val)
 
     
     def __neg__(self):
@@ -1307,7 +1307,7 @@ class R(Thevenin):
 
     def __repr__(self):
 
-        return '%s(%s)' % (self.__class__.__name__, self.R.__str__())
+        return '%s(%s)' % (self.__class__.__name__, self.R)
 
 
 class G(Norton):
@@ -1330,7 +1330,7 @@ class G(Norton):
 
     def __repr__(self):
 
-        return '%s(%s)' % (self.__class__.__name__, self.G.__str__())
+        return '%s(%s)' % (self.__class__.__name__, self.G)
 
 
 class L(Thevenin):
@@ -1356,9 +1356,9 @@ class L(Thevenin):
     def __repr__(self):
 
         if self.i0 != 0:
-            return '%s(%s, %s)' % (self.__class__.__name__, self.L.__str__(), self.i0.__str__())
+            return '%s(%s, %s)' % (self.__class__.__name__, self.L, self.i0)
         else:
-            return '%s(%s)' % (self.__class__.__name__, self.L.__str__())
+            return '%s(%s)' % (self.__class__.__name__, self.L)
 
 
 class C(Thevenin):
@@ -1384,9 +1384,9 @@ class C(Thevenin):
     def __repr__(self):
         
         if self.v0 != 0:
-            return '%s(%s, %s)' % (self.__class__.__name__, self.C.__str__(), self.v0.__str__())
+            return '%s(%s, %s)' % (self.__class__.__name__, self.C, self.v0)
         else:
-            return '%s(%s)' % (self.__class__.__name__, self.C.__str__())
+            return '%s(%s)' % (self.__class__.__name__, self.C)
 
 
 
@@ -1408,6 +1408,12 @@ class Xtal(Thevenin):
         xtal = (R(R1) + L(L1) + C(C1)) | C(C0)
 
         super (Xtal, self).__init__(xtal.Z, xtal.V)
+
+
+    def __repr__(self):
+        
+        return '%s(%s, %s, %s, %s)' % (self.__class__.__name__, self.C0, self.R1, self.L1, self.C1)
+
 
 
 class FerriteBead(Thevenin):
@@ -1442,7 +1448,7 @@ class Y(Norton):
 
     def __repr__(self):
 
-        return '%s(%s)' % (self.__class__.__name__, self.Y.__str__())
+        return '%s(%s)' % (self.__class__.__name__, self.Y)
 
 
 class Z(Thevenin):
@@ -1462,7 +1468,7 @@ class Z(Thevenin):
 
     def __repr__(self):
 
-        return '%s(%s)' % (self.__class__.__name__, self.Z.__str__())
+        return '%s(%s)' % (self.__class__.__name__, self.Z)
 
 
 class V(Thevenin):
@@ -1487,7 +1493,7 @@ class V(Thevenin):
 
     def __repr__(self):
 
-        return '%s(%s)' % (self.__class__.__name__, self.v.__str__())
+        return '%s(%s)' % (self.__class__.__name__, self.v)
 
 
     def parallel(self, x):
@@ -1532,7 +1538,7 @@ class I(Norton):
 
     def __repr__(self):
 
-        return '%s(%s)' % (self.__class__.__name__, self.i.__str__())
+        return '%s(%s)' % (self.__class__.__name__, self.i)
 
 
     def series(self, x):
