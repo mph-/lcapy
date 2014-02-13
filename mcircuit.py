@@ -1351,6 +1351,11 @@ class R(Thevenin):
         return '%s(%s)' % (self.__class__.__name__, self.R)
 
 
+    def __str__(self):
+        
+        return self.__repr__()
+
+
 class G(Norton):
     """Conductance"""
 
@@ -1372,6 +1377,11 @@ class G(Norton):
     def __repr__(self):
 
         return '%s(%s)' % (self.__class__.__name__, self.G)
+
+
+    def __str__(self):
+        
+        return self.__repr__()
 
 
 class L(Thevenin):
@@ -1402,6 +1412,11 @@ class L(Thevenin):
             return '%s(%s)' % (self.__class__.__name__, self.L)
 
 
+    def __str__(self):
+        
+        return self.__repr__()
+
+
 class C(Thevenin):
     """Capacitor"""
 
@@ -1430,46 +1445,9 @@ class C(Thevenin):
             return '%s(%s)' % (self.__class__.__name__, self.C)
 
 
-
-class Xtal(Thevenin):
-    """Crystal"""
-
-    def __init__(self, C0, R1, L1, C1):
-        """Create a crystal using a Butterworth van Dyke model;
-        harmonic resonances are not modelled
-
-        This is modelled as a series R, L, C circuit in parallel
-        with C0."""
-
-        self.C0 = _Expr(C0)
-        self.R1 = _Expr(R1)
-        self.L1 = _Expr(L1)
-        self.C1 = _Expr(C1)
-    
-        xtal = (R(R1) + L(L1) + C(C1)) | C(C0)
-
-        super (Xtal, self).__init__(xtal.Z, xtal.V)
-
-
-    def __repr__(self):
+    def __str__(self):
         
-        return '%s(%s, %s, %s, %s)' % (self.__class__.__name__, self.C0, self.R1, self.L1, self.C1)
-
-
-
-class FerriteBead(Thevenin):
-    """Ferrite bead"""
-
-    def __init__(self, Rs, Rp, Cp, Lp):
-        """Create a ferrite bead (lossy inductor)
-
-        This is modelled as a series resistor (Rs) connected 
-        to a parallel R, L, C network (Rp, Lp, Cp).
-        """
-
-        ferrite = R(Rs) + (R(Rp) + L(Lp) + C(Cp))
-
-        super (Xtal, self).__init__(ferrite.Z, xtal.V)
+        return self.__repr__()
 
 
 class Y(Norton):
@@ -1492,6 +1470,11 @@ class Y(Norton):
         return '%s(%s)' % (self.__class__.__name__, self.Y)
 
 
+    def __str__(self):
+        
+        return self.__repr__()
+
+
 class Z(Thevenin):
     """General impedance."""
 
@@ -1510,6 +1493,11 @@ class Z(Thevenin):
     def __repr__(self):
 
         return '%s(%s)' % (self.__class__.__name__, self.Z)
+
+
+    def __str__(self):
+        
+        return self.__repr__()
 
 
 class V(Thevenin):
@@ -1535,6 +1523,11 @@ class V(Thevenin):
     def __repr__(self):
 
         return '%s(%s)' % (self.__class__.__name__, self.v)
+
+
+    def __str__(self):
+        
+        return self.__repr__()
 
 
     def parallel(self, x):
@@ -1582,6 +1575,11 @@ class I(Norton):
         return '%s(%s)' % (self.__class__.__name__, self.i)
 
 
+    def __str__(self):
+        
+        return self.__repr__()
+
+
     def series(self, x):
 
         if isinstance(x, I):
@@ -1601,6 +1599,46 @@ class I(Norton):
 
         return Norton(Ys(0), self.I)
 
+
+class Xtal(Thevenin):
+    """Crystal"""
+
+    def __init__(self, C0, R1, L1, C1):
+        """Create a crystal using a Butterworth van Dyke model;
+        harmonic resonances are not modelled
+
+        This is modelled as a series R, L, C circuit in parallel
+        with C0."""
+
+        self.C0 = _Expr(C0)
+        self.R1 = _Expr(R1)
+        self.L1 = _Expr(L1)
+        self.C1 = _Expr(C1)
+    
+        xtal = (R(R1) + L(L1) + C(C1)) | C(C0)
+
+        super (Xtal, self).__init__(xtal.Z, xtal.V)
+
+
+    def __repr__(self):
+        
+        return '%s(%s, %s, %s, %s)' % (self.__class__.__name__, self.C0, self.R1, self.L1, self.C1)
+
+
+
+class FerriteBead(Thevenin):
+    """Ferrite bead"""
+
+    def __init__(self, Rs, Rp, Cp, Lp):
+        """Create a ferrite bead (lossy inductor)
+
+        This is modelled as a series resistor (Rs) connected 
+        to a parallel R, L, C network (Rp, Lp, Cp).
+        """
+
+        ferrite = R(Rs) + (R(Rp) + L(Lp) + C(Cp))
+
+        super (Xtal, self).__init__(ferrite.Z, xtal.V)
 
 
 class Vsector(sym.Matrix):
