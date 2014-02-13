@@ -801,6 +801,20 @@ class _Expr(object):
         return np.array([func(f1) for f1 in f])
 
 
+    def decompose(self):
+
+        ratfun, delay = _as_ratfun_delay(self.expr, self.s)
+        
+        N, D = _as_ratfun_parts(ratfun, self.s)
+
+        return N, D, delay
+
+    
+    @property
+    def _is_const(self):
+
+        return self.expr.is_number
+
 
 class Zs(_Expr):
     """s-domain impedance value"""
@@ -1031,6 +1045,31 @@ class Norton(OnePort):
             raise ValueError('Unhandled type ', type(x))            
 
 
+    def simplify(self):
+
+        if self.Y._is_const and self.I == 0:
+            return G(self.Y)
+
+        i = self.I * self.I.s
+        if self.Y == 0 and i._is_const:
+            return I(i)
+
+        v = self.V * self.V.s
+        if self.Z == 0 and v._is_const:
+            return V(v)
+
+        y = self.Y * self.Y.s
+        z = self.Z * self.Z.s
+
+        if z._is_const and v._is_const:
+            return C(1 / z, v)
+
+        if y._is_const and i._is_const:
+            return L(1 / y, i)
+
+        return self.copy()
+
+
 class Thevenin(OnePort):
     """Thevenin (Z) model
 
@@ -1077,7 +1116,7 @@ class Thevenin(OnePort):
 
     def pretty(self):
 
-        return _pretty_strpair('Y', self.Y, 'I', self.I)
+        return _pretty_strpair('Z', self.Z, 'V', self.V)
 
 
     def norton(self):
@@ -1215,6 +1254,31 @@ class Thevenin(OnePort):
         return Load(self.parallel(x).V, self.series(x).I)
 
 
+    def simplify(self):
+
+        if self.Z._is_const and self.V == 0:
+            return R(self.Z)
+
+        v = self.V * self.V.s
+        if self.Z == 0 and v._is_const:
+            return V(v)
+
+        i = self.I * self.I.s
+        if self.Y == 0 and i._is_const:
+            return I(i)
+
+        y = self.Y * self.Y.s
+        z = self.Z * self.Z.s
+
+        if z._is_const and v._is_const:
+            return C(1 / z, v)
+
+        if y._is_const and i._is_const:
+            return L(1 / y, i)
+
+        return self.copy()
+
+
 class Load(object):
 
     def __init__(self, Vval, Ival):
@@ -1335,6 +1399,11 @@ class Xtal(Thevenin):
 
         This is modelled as a series R, L, C circuit in parallel
         with C0."""
+
+        self.C0 = _Expr(C0)
+        self.R1 = _Expr(R1)
+        self.L1 = _Expr(L1)
+        self.C1 = _Expr(C1)
     
         xtal = (R(R1) + L(L1) + C(C1)) | C(C0)
 
@@ -1421,21 +1490,13 @@ class V(Thevenin):
         return '%s(%s)' % (self.__class__.__name__, self.v.__str__())
 
 
-    def __str__(self):
-        
-        return self.V.__str__()
-
-
-    def series(self, x):
-
-        if isinstance(x, V):
-            return V(self.V + x.V)
-        return super (V, self).series(x)
-
-
     def parallel(self, x):
 
-        raise ValueError('Cannot connect voltage source in parallel.')
+        if isinstance(x, V):
+            raise ValueError('Cannot connect voltage sources in parallel.')
+
+        # This should be independent of x
+        return super (V, self).parallel(x)
 
 
     def thevenin(self):
@@ -1474,21 +1535,13 @@ class I(Norton):
         return '%s(%s)' % (self.__class__.__name__, self.i.__str__())
 
 
-    def __str__(self):
-        
-        return self.I.__str__()
-
-
-    def parallel(self, x):
-
-        if isinstance(x, I):
-            return I(self.I + x.I)
-        return super (I, self).parallel(x)
-
-
     def series(self, x):
 
-        raise ValueError('Cannot connect current source in series.')
+        if isinstance(x, I):
+            raise ValueError('Cannot connect current sources in series.')
+
+        # This should be independent of x
+        return super (V, self).series(x)
 
 
     def thevenin(self):
