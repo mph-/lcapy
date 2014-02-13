@@ -1067,6 +1067,9 @@ class Norton(OnePort):
         if y._is_const and i._is_const:
             return L(1 / y, i)
 
+        if self.I == 0:
+            return Y(self.Y)
+
         return self
 
 
@@ -1275,6 +1278,9 @@ class Thevenin(OnePort):
 
         if y._is_const and i._is_const:
             return L(1 / y, i)
+
+        if self.V == 0:
+            return Z(self.Z)
 
         return self
 
