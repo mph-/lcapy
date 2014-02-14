@@ -491,7 +491,16 @@ class Container(object):
 
     def __str__(self):
 
-        return '%s %s %s' % (self.val1.__str__(), self.op, self.val2.__str__()) 
+        val1str = self.val1.__str__()
+        if isinstance(self.val1, Container) and self.val1.__class__ != self.__class__:
+            val1str = '(' + val1str + ')'
+
+        val2str = self.val2.__str__()
+        if isinstance(self.val2, Container) and self.val2.__class__ != self.__class__:
+            val2str = '(' + val2str + ')'
+
+
+        return '%s %s %s' % (val1str, self.op, val2str) 
 
 
     def simplify(self, deep=True):
