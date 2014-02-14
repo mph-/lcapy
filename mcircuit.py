@@ -524,42 +524,22 @@ class ParSer(object):
 
     @property
     def Zoc(self):    
-        return self.eval().Z
+        return self.Z
 
 
     @property
     def Voc(self):    
-        return self.eval().V
+        return self.V
 
 
     @property
     def Ysc(self):    
-        return self.eval().Y
+        return self.Y
 
 
     @property
     def Isc(self):    
-        return self.eval().I
-
-
-    @property
-    def Z(self):    
-        return self.eval().Z
-
-
-    @property
-    def V(self):    
-        return self.eval().V
-
-
-    @property
-    def Y(self):    
-        return self.eval().Y
-
-
-    @property
-    def I(self):    
-        return self.eval().I
+        return self.I
 
 
     def check(self):
@@ -644,16 +624,34 @@ class Par(ParSer):
 
     op = '|'
 
-    def eval(self):
 
-        if hasattr(self, '_eval'):
-            return self._eval
+    @property
+    def Z(self):    
+        return 1 / self.Y
 
-        result = self.args[0].eval().parallel(self.args[1].eval())
-        for m in range(2, len(self.args)):
-            result = result.parallel(self.args[m].eval())            
 
-        self._eval = result
+    @property
+    def V(self):    
+        return self.I * self.Z
+
+
+    @property
+    def Y(self):    
+
+        result = 0
+        for arg in self.args:
+            result += arg.Y
+
+        return result
+
+
+    @property
+    def I(self):    
+
+        result = 0
+        for arg in self.args:
+            result += arg.I
+
         return result
 
 
@@ -661,16 +659,34 @@ class Ser(ParSer):
 
     op = '+'
 
-    def eval(self):
 
-        if hasattr(self, '_eval'):
-            return self._eval
+    @property
+    def Y(self):    
+        return 1 / self.Z
 
-        result = self.args[0].series(self.args[1].eval())
-        for m in range(2, len(self.args)):
-            result = result.series(self.args[m])            
 
-        self._eval = result
+    @property
+    def I(self):    
+        return self.V / self.Z
+
+
+    @property
+    def Z(self):    
+
+        result = 0
+        for arg in self.args:
+            result += arg.Z
+
+        return result
+
+
+    @property
+    def V(self):    
+
+        result = 0
+        for arg in self.args:
+            result += arg.V
+
         return result
 
 
