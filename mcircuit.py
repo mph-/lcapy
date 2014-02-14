@@ -494,9 +494,22 @@ class Container(object):
         return '%s %s %s' % (self.val1.__repr__(), self.op, self.val2.__repr__()) 
 
 
-    def simplify(self):
+    def simplify(self, deep=True):
 
-        if self.val1.__class__== self.val2.__class__:
+        val1 = self.val1
+        val2 = self.val2
+        if deep:
+            new = False
+            if isinstance(val1, Container):
+                val1 = val1.simplify(deep)
+                new = True
+            if isinstance(val2, Container):
+                val2 = val2.simplify(deep)
+                new = True
+            if new:
+                self = self.__class__(val1, val2)
+
+        if val1.__class__== self.val2.__class__:
             return self.eval().simplify()
         else:
             return self

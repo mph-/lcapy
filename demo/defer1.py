@@ -34,12 +34,3 @@ print(c)
 print(c.simplify())
 
 
-a = V(1)
-
-b = V(3)
-
-c = Par(a, b)
-
-print(c)
-
-print(c.simplify())
