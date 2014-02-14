@@ -481,6 +481,8 @@ class ParSer(object):
     def __init__(self, *args):
 
         self.args = args
+
+        self.check()
     
 
     def __repr__(self):
@@ -506,6 +508,73 @@ class ParSer(object):
                 str += ' %s ' % self.op
 
         return str
+
+
+    def __add__(self, x):
+        """Series combination"""
+
+        return self.series(x)
+
+
+    def __or__(self, x):
+        """Parallel combination"""
+
+        return self.parallel(x)
+
+
+    @property
+    def Zoc(self):    
+        return self.eval().Z
+
+
+    @property
+    def Voc(self):    
+        return self.eval().V
+
+
+    @property
+    def Ysc(self):    
+        return self.eval().Y
+
+
+    @property
+    def Isc(self):    
+        return self.eval().I
+
+
+    @property
+    def Z(self):    
+        return self.eval().Z
+
+
+    @property
+    def V(self):    
+        return self.eval().V
+
+
+    @property
+    def Y(self):    
+        return self.eval().Y
+
+
+    @property
+    def I(self):    
+        return self.eval().I
+
+
+    def check(self):
+
+        args = list(self.args)
+        for n, arg1 in enumerate(args):
+
+            for arg2 in args[n+1:]:
+
+                if isinstance(self, Par):
+                    if isinstance(arg1, V) and isinstance(arg2, V):
+                        print('Warning: voltage sources connected in parallel %s and %s' % (arg1, arg2))
+                elif isinstance(self, Ser):
+                    if isinstance(arg1, I) and isinstance(arg2, I):
+                        print('Warning: current sources connected in series %s and %s' % (arg1, arg2))
 
 
     def simplify(self, deep=True):
@@ -577,9 +646,14 @@ class Par(ParSer):
 
     def eval(self):
 
-        result = self.args[0].parallel(self.args[1])
+        if hasattr(self, '_eval'):
+            return self._eval
+
+        result = self.args[0].eval().parallel(self.args[1].eval())
         for m in range(2, len(self.args)):
-            result = result.parallel(self.args[m])            
+            result = result.parallel(self.args[m].eval())            
+
+        self._eval = result
         return result
 
 
@@ -589,9 +663,14 @@ class Ser(ParSer):
 
     def eval(self):
 
-        result = self.args[0].series(self.args[1])
+        if hasattr(self, '_eval'):
+            return self._eval
+
+        result = self.args[0].series(self.args[1].eval())
         for m in range(2, len(self.args)):
             result = result.series(self.args[m])            
+
+        self._eval = result
         return result
 
 
