@@ -491,7 +491,7 @@ class Container(object):
 
     def __str__(self):
 
-        return '%s %s %s' % (self.val1.__repr__(), self.op, self.val2.__repr__()) 
+        return '%s %s %s' % (self.val1.__str__(), self.op, self.val2.__str__()) 
 
 
     def simplify(self, deep=True):
