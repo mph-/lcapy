@@ -494,6 +494,14 @@ class Container(object):
         return '%s %s %s' % (self.val1.__repr__(), self.op, self.val2.__repr__()) 
 
 
+    def simplify(self):
+
+        if self.val1.__class__== self.val2.__class__:
+            return self.eval().simplify()
+        else:
+            return self
+
+
 class Par(Container):
 
     op = '|'
@@ -501,11 +509,6 @@ class Par(Container):
     def eval(self):
 
         return self.val1.parallel(self.val2)
-
-
-    def simplify(self):
-
-        return self.eval().simplify()
 
 
 class Ser(Container):

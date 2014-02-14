@@ -4,7 +4,7 @@ a = C(1)
 
 b = L(3)
 
-c = Par(a, b)
+c = Ser(a, b)
 
 print(c)
 
@@ -16,7 +16,7 @@ d = C(1)
 
 e = C(3)
 
-f = Par(d, e)
+f = Ser(d, e)
 
 print(f)
 
@@ -27,7 +27,7 @@ a = V(1)
 
 b = L(3)
 
-c = Par(a, b)
+c = Ser(a, b)
 
 print(c)
 
@@ -38,7 +38,7 @@ a = V(1)
 
 b = V(3)
 
-c = Par(a, b)
+c = Ser(a, b)
 
 print(c)
 
