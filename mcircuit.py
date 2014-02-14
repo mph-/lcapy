@@ -558,7 +558,10 @@ class ParSer(object):
 
 
     def simplify(self, deep=True):
-        
+        """Perform simple simplifications, such as parallel resistors,
+        series inductors, etc., rather than collapsing to a Thevenin
+        or Norton network."""
+
         # Simplify args (recursively) and combine operators if have
         # Par(Par(A, B), C) etc.
         new = False
@@ -618,6 +621,18 @@ class ParSer(object):
             self = self.__class__(*args)
 
         return self
+
+
+    def thevenin(self):
+        """Simplify to a Thevenin network"""
+
+        return Ser(self.V, self.Z)
+
+
+    def norton(self):
+        """Simplify to a Norton network"""
+
+        return Par(self.I, self.Y)
 
 
 class Par(ParSer):
