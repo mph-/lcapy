@@ -537,12 +537,20 @@ class ParSer(object):
             arg1 = args[n]
             if arg1 == None:
                 continue
+            if isinstance(arg1, ParSer):
+                continue
 
             for m in range(n + 1, len(args)): 
 
                 arg2 = args[m]                
                 if arg2 == None:
                     continue
+                if isinstance(arg2, ParSer):
+                    continue
+
+                # TODO, think how to simplify things such as
+                # Par(Ser(V1, R1), Ser(R2, V2)).
+                # Could do Thevenin/Norton transformations.
 
                 if arg1.__class__ == arg2.__class__:
                     tmp = self.__class__(arg1, arg2)
@@ -585,6 +593,7 @@ class Ser(ParSer):
         for m in range(2, len(self.args)):
             result = result.series(self.args[m])            
         return result
+
 
 class _Expr(object):
     
