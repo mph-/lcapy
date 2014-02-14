@@ -476,9 +476,12 @@ def final_value(expr, var=None):
     return sym.limit(expr * var, var, 0)
 
 
-class Container(object):
+class ParSer(object):
     
     def __init__(self, val1, val2):
+
+        # TODO handle Par(R1, R2, R3) etc but do not collapse
+        # unless simplify required.
 
         self.val1 = val1
         self.val2 = val2
@@ -492,11 +495,11 @@ class Container(object):
     def __str__(self):
 
         val1str = self.val1.__str__()
-        if isinstance(self.val1, Container) and self.val1.__class__ != self.__class__:
+        if isinstance(self.val1, ParSer) and self.val1.__class__ != self.__class__:
             val1str = '(' + val1str + ')'
 
         val2str = self.val2.__str__()
-        if isinstance(self.val2, Container) and self.val2.__class__ != self.__class__:
+        if isinstance(self.val2, ParSer) and self.val2.__class__ != self.__class__:
             val2str = '(' + val2str + ')'
 
 
@@ -504,27 +507,32 @@ class Container(object):
 
 
     def simplify(self, deep=True):
+        
+        # TODO, need to handle cases such as:
+        # Par(Par(A, B), Par(A, A))
+        # Par(Par(A, B), Par(A, B))
+        #
 
         val1 = self.val1
         val2 = self.val2
         if deep:
             new = False
-            if isinstance(val1, Container):
+            if isinstance(val1, ParSer):
                 val1 = val1.simplify(deep)
                 new = True
-            if isinstance(val2, Container):
+            if isinstance(val2, ParSer):
                 val2 = val2.simplify(deep)
                 new = True
             if new:
                 self = self.__class__(val1, val2)
 
-        if val1.__class__== self.val2.__class__:
+        if val1.__class__ == self.val2.__class__:
             return self.eval().simplify()
         else:
             return self
 
 
-class Par(Container):
+class Par(ParSer):
 
     op = '|'
 
@@ -533,7 +541,7 @@ class Par(Container):
         return self.val1.parallel(self.val2)
 
 
-class Ser(Container):
+class Ser(ParSer):
 
     op = '+'
 
