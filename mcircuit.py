@@ -510,11 +510,8 @@ class ParSer(object):
 
     def simplify(self, deep=True):
         
-        # TODO, need to handle cases such as:
-        # Par(Par(A, B), Par(A, A))
-        # Par(Par(A, B), Par(A, B))
-        #
-
+        # Simplify args (recursively) and combine operators if have
+        # Par(Par(A, B), C) etc.
         new = False
         newargs = []
         for m, arg in enumerate(self.args):
@@ -531,12 +528,39 @@ class ParSer(object):
         if new:
             self = self.__class__(*newargs)
 
-        return self
+        # Scan arg list looking for compatible combinations.
+        # Could special case the common case of two args.
+        new = False
+        args = list(self.args)
+        for n in range(len(args)):
 
-        # if val1.__class__ == self.val2.__class__:
-        #     return self.eval().simplify()
-        # else:
-        #     return self
+            arg1 = args[n]
+            if arg1 == None:
+                continue
+
+            for m in range(n + 1, len(args)): 
+
+                arg2 = args[m]                
+                if arg2 == None:
+                    continue
+
+                if arg1.__class__ == arg2.__class__:
+                    tmp = self.__class__(arg1, arg2)
+                    newarg = tmp.eval().simplify()
+                    #print('Combining', arg1, arg2, 'to', newarg)
+                    args[m] = None
+                    arg1 = newarg
+                    new = True
+
+            args[n] = arg1
+            
+        if new:
+            args = [arg for arg in args if arg != None]
+            if len(args) == 1:
+                return args[0]
+            self = self.__class__(*args)
+
+        return self
 
 
 class Par(ParSer):
@@ -548,6 +572,7 @@ class Par(ParSer):
         result = self.args[0].parallel(self.args[1])
         for m in range(2, len(self.args)):
             result = result.parallel(self.args[m])            
+        return result
 
 
 class Ser(ParSer):
@@ -556,10 +581,10 @@ class Ser(ParSer):
 
     def eval(self):
 
-        result = self.args[0].serial(self.args[1])
+        result = self.args[0].series(self.args[1])
         for m in range(2, len(self.args)):
-            result = result.serial(self.args[m])            
-
+            result = result.series(self.args[m])            
+        return result
 
 class _Expr(object):
     
