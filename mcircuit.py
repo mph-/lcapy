@@ -478,32 +478,34 @@ def final_value(expr, var=None):
 
 class ParSer(object):
     
-    def __init__(self, val1, val2):
+    def __init__(self, *args):
 
-        # TODO handle Par(R1, R2, R3) etc but do not collapse
-        # unless simplify required.
-
-        self.val1 = val1
-        self.val2 = val2
+        self.args = args
     
 
     def __repr__(self):
 
-        return '%s(%s, %s)' % (self.__class__.__name__, self.val1.__repr__(), self.val2.__repr__()) 
+        argsrepr = ', '.join([arg.__repr__() for arg in self.args])
+
+        return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
 
     def __str__(self):
 
-        val1str = self.val1.__str__()
-        if isinstance(self.val1, ParSer) and self.val1.__class__ != self.__class__:
-            val1str = '(' + val1str + ')'
+        str = ''
 
-        val2str = self.val2.__str__()
-        if isinstance(self.val2, ParSer) and self.val2.__class__ != self.__class__:
-            val2str = '(' + val2str + ')'
+        for m, arg in enumerate(self.args):
+            argstr = arg.__str__()
 
+            if isinstance(arg, ParSer) and arg.__class__ != self.__class__:
+                argstr = '(' + argstr + ')'
 
-        return '%s %s %s' % (val1str, self.op, val2str) 
+            str += argstr
+
+            if m != len(self.args) - 1:
+                str += ' %s ' % self.op
+
+        return str
 
 
     def simplify(self, deep=True):
@@ -513,23 +515,28 @@ class ParSer(object):
         # Par(Par(A, B), Par(A, B))
         #
 
-        val1 = self.val1
-        val2 = self.val2
-        if deep:
-            new = False
-            if isinstance(val1, ParSer):
-                val1 = val1.simplify(deep)
-                new = True
-            if isinstance(val2, ParSer):
-                val2 = val2.simplify(deep)
-                new = True
-            if new:
-                self = self.__class__(val1, val2)
+        new = False
+        newargs = []
+        for m, arg in enumerate(self.args):
+            if isinstance(arg, ParSer):
+                arg = arg.simplify(deep)
+                new = True            
+                if arg.__class__ == self.__class__:
+                    newargs.extend(arg.args)
+                else:
+                    newargs.append(arg)
+            else:
+                newargs.append(arg)                
 
-        if val1.__class__ == self.val2.__class__:
-            return self.eval().simplify()
-        else:
-            return self
+        if new:
+            self = self.__class__(*newargs)
+
+        return self
+
+        # if val1.__class__ == self.val2.__class__:
+        #     return self.eval().simplify()
+        # else:
+        #     return self
 
 
 class Par(ParSer):
@@ -538,7 +545,9 @@ class Par(ParSer):
 
     def eval(self):
 
-        return self.val1.parallel(self.val2)
+        result = self.args[0].parallel(self.args[1])
+        for m in range(2, len(self.args)):
+            result = result.parallel(self.args[m])            
 
 
 class Ser(ParSer):
@@ -547,7 +556,9 @@ class Ser(ParSer):
 
     def eval(self):
 
-        return self.val1.series(self.val2)
+        result = self.args[0].serial(self.args[1])
+        for m in range(2, len(self.args)):
+            result = result.serial(self.args[m])            
 
 
 class _Expr(object):
