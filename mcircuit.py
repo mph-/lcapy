@@ -1083,6 +1083,25 @@ class ParSer(OnePort):
     def combine(self, arg1, arg2):
 
         if arg1.__class__ != arg2.__class__:
+            if self.__class__ == Ser:
+                if isinstance(arg1, V) and arg1.V == 0:
+                    return arg2
+                if isinstance(arg2, V) and arg2.V == 0:
+                    return arg1
+                if isinstance(arg1, Z) and arg1.Z == 0:
+                    return arg2
+                if isinstance(arg2, Z) and arg2.Z == 0:
+                    return arg1
+            if self.__class__ == Par:
+                if isinstance(arg1, I) and arg1.I == 0:
+                    return arg2
+                if isinstance(arg2, I) and arg2.I == 0:
+                    return arg1
+                if isinstance(arg1, Y) and arg1.Y == 0:
+                    return arg2
+                if isinstance(arg2, Y) and arg2.Y == 0:
+                    return arg1
+
             return None
 
         if self.__class__ == Ser:
