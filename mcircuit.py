@@ -1096,38 +1096,6 @@ class ParSer(OnePort):
         return str
 
 
-    def __add__(self, x):
-        """Series combination"""
-
-        return Ser(self, x)
-
-
-    def __or__(self, x):
-        """Parallel combination"""
-
-        return Par(self, x)
-
-
-    @property
-    def Zoc(self):    
-        return self.Z
-
-
-    @property
-    def Voc(self):    
-        return self.V
-
-
-    @property
-    def Ysc(self):    
-        return self.Y
-
-
-    @property
-    def Isc(self):    
-        return self.I
-
-
     def check(self):
 
         args = list(self.args)
