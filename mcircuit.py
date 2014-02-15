@@ -3231,20 +3231,6 @@ class Chain(TwoPort):
         self.args = args
 
 
-    def __str__(self):
-
-        str = ''
-
-        for m, arg in enumerate(self.args):
-            argstr = arg.__str__()
-
-            str += argstr
-
-            if m != len(self.args) - 1:
-                str += ' * '
-
-        return str
-
 
 class TwoPortBModel(TwoPort):
     """
