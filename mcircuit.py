@@ -1727,11 +1727,6 @@ class Composite(Thevenin):
         return self.expand().V
 
 
-    def __str__(self):
-        
-        return self.__repr__()
-
-
     # This will get subsumed at some stage.
     def pretty(self):
 
@@ -2943,11 +2938,6 @@ class TwoPort(NetObject):
         return IsVector(self.I1y, self.I2y)
 
 
-    def __str__(self):
-
-        return self.A.__str__() + '\n\n' + _strpair('V2b', self.V2b, 'I2b', self.I2b)
-
-
     @property
     def Bmodel(self):
 
@@ -3234,11 +3224,6 @@ class TwoPortBModel(TwoPort):
         self.Is2b = I2b
 
 
-    def __str__(self):
-
-        return self.B.__str__() + '\n\n' + _strpair('V2b', self.V2b, 'I2b', self.I2b)
-
-
     @property
     def B(self):    
         """Return chain matrix"""
@@ -3360,11 +3345,6 @@ class TwoPortHModel(TwoPort):
         self.Is2h = I2h
 
 
-    def __str__(self):
-
-        return self.H.__str__() + '\n\n' + _strpair('V1h', self.V1h, 'I2h', self.I2h)
-
-
     @property
     def H(self):    
         """Return hybrid matrix"""
@@ -3471,11 +3451,6 @@ class TwoPortYModel(TwoPort):
         self.Is2y = I2y
 
 
-    def __str__(self):
-
-        return self.Y.__str__() + '\n\n' + _strpair('I1y', self.Is1y, 'I2y', self.Is2y)
-
-
     @property
     def Y(self):    
         """Return admittance matrix"""
@@ -3544,11 +3519,6 @@ class TwoPortZModel(TwoPort):
         self._M = Z
         self.Vs1z = V1z
         self.Vs2z = V2z
-
-
-    def __str__(self):
-
-        return self.Z.__str__() + '\n\n' + _strpair('V1z', self.Vs1z, 'V2z', self.Vs2z)
 
 
     @property
