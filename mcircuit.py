@@ -3879,9 +3879,9 @@ class TSection(TwoPortBModel):
          [      R2, R2 + R3]
 
          """
-
+        
         super (TSection, self).__init__(Series(OP1).chain(Shunt(OP2)).chain(Series(OP3)))
-
+        self.args = (OP1, OP2, OP3)
 
 
 class TwinTSection(TwoPortBModel):
@@ -3912,7 +3912,7 @@ class TwinTSection(TwoPortBModel):
          """
 
         super (TwinTSection, self).__init__(TSection(OP1a, OP2a, OP3a).parallel(TSection(OP1b, OP2b, OP3b)))
-
+        self.args = (OP1a, OP2a, OP3a, OP1b, OP2b, OP3b)
 
 
 class BridgedTSection(TwoPortBModel):
@@ -3937,6 +3937,7 @@ class BridgedTSection(TwoPortBModel):
          """
 
         super (TwinTSection, self).__init__(TSection(OP1, OP2, OP3).parallel(Series(OP4)))
+        self.args = (OP1, OP2, OP3, OP4)
 
 
 class PiSection(TwoPortBModel):
@@ -3957,7 +3958,7 @@ class PiSection(TwoPortBModel):
         """
 
         super (PiSection, self).__init__(Shunt(OP1).chain(Series(OP2)).chain(Shunt(OP3)))
-
+        self.args = (OP1, OP2, OP3)
 
 
 class LSection(TwoPortBModel):
@@ -4022,8 +4023,10 @@ class GeneralTxLine(TwoPortBModel):
         gamma is the propagation constant (1/m)
         l is the transmission line length (m)
         """
-
-        self.args = (Z0, gamma, l)
+        
+        Z0 = _Expr(Z0)
+        gamma = _Expr(gamma)
+        l = _Expr(l)
 
         H = sym.exp(gamma * l)
 
@@ -4033,6 +4036,7 @@ class GeneralTxLine(TwoPortBModel):
         B22 = 0.5 * (H + 1 / H)
 
         super (GeneralTxLine, self).__init__(BMatrix(B11, B12, B21, B22))
+        self.args = (Z0, gamma, l)
 
 
 class LosslessTxLine(GeneralTxLine):
