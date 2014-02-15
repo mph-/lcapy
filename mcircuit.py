@@ -607,12 +607,18 @@ class _Expr(object):
     def __eq__(self, x):
         """Equality"""
 
+        if x == None:
+            return False
+
         x = _Expr(x)
         return self.val == x.val
 
 
     def __ne__(self, x):
         """Inequality"""
+
+        if x == None:
+            return True
 
         x = _Expr(x)
         return self.val != x.val
