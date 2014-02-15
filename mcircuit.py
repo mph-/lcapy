@@ -617,7 +617,11 @@ class ParSer(object):
     def simplify(self, deep=True):
         """Perform simple simplifications, such as parallel resistors,
         series inductors, etc., rather than collapsing to a Thevenin
-        or Norton network."""
+        or Norton network.
+
+        This does not expand compound components such as crytal
+        or ferrite bead models.  Use expand() first.
+        """
 
         # Simplify args (recursively) and combine operators if have
         # Par(Par(A, B), C) etc.
@@ -680,7 +684,8 @@ class ParSer(object):
 
 
     def expand(self):
-        """Expand compound components into R, L, G, C, V, I"""
+        """Expand compound components such as crystals or ferrite bead
+        models into R, L, G, C, V, I"""
 
         newargs = []
         for m, arg in enumerate(self.args):
