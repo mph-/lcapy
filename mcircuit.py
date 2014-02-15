@@ -1328,11 +1328,6 @@ class Norton(OnePort):
         return Vs(self.I / self.Y)
 
 
-    def pretty(self):
-
-        return _pretty_strpair('Y', self.Y, 'I', self.I)
-
-
     def thevenin(self):
 
         return Thevenin(self.Z, self.V)
@@ -1421,11 +1416,6 @@ class Thevenin(OnePort):
     @property
     def I(self):    
         return Is(self.V / self.Z)
-
-
-    def pretty(self):
-
-        return _pretty_strpair('Z', self.Z, 'V', self.V)
 
 
     def norton(self):
@@ -1731,12 +1721,6 @@ class Composite(Thevenin):
     @property
     def V(self):    
         return self.expand().V
-
-
-    # This will get subsumed at some stage.
-    def pretty(self):
-
-        return self.__str__()
 
 
 class Xtal(Composite):
