@@ -911,7 +911,28 @@ class Ais(_Expr):
     pass
 
 
-class OnePort(object):
+class NetObject(object):
+
+    def __repr__(self):
+
+        if hasattr(self, 'args'):
+            args = self.args
+            # Drop the initial condition for L or C if it is zero.
+            if isinstance(self, (L, C)) and args[1] == 0:
+                args = args[:-1]
+
+            argsrepr = ', '.join([arg.__repr__() for arg in args])
+            return '%s(%s)' % (self.__class__.__name__, argsrepr)
+        else:
+            return '%s()' % (self.__class__.__name__)
+
+
+    def __str__(self):
+        
+        return self.__repr__()
+
+
+class OnePort(NetObject):
 
     # Attributes: Y, Z, V, I
 
@@ -987,13 +1008,6 @@ class ParSer(OnePort):
 
         self.check()
     
-
-    def __repr__(self):
-
-        argsrepr = ', '.join([arg.__repr__() for arg in self.args])
-
-        return '%s(%s)' % (self.__class__.__name__, argsrepr)
-
 
     def __str__(self):
 
@@ -1308,16 +1322,6 @@ class Norton(OnePort):
         return Vs(self.I / self.Y)
 
 
-    def __repr__(self):
-
-        return '%s(%s, %s)' % (self.__class__.__name__, self.Y.__repr__(), self.I.__repr__())
-
-
-    def __str__(self):
-        
-        return _strpair('Y', self.Y, 'I', self.I)
-
-
     def pretty(self):
 
         return _pretty_strpair('Y', self.Y, 'I', self.I)
@@ -1411,16 +1415,6 @@ class Thevenin(OnePort):
     @property
     def I(self):    
         return Is(self.V / self.Z)
-
-
-    def __repr__(self):
-
-        return '%s(%s, %s)' % (self.__class__.__name__, self.Z.__repr__(), self.V.__repr__())
-
-
-    def __str__(self):
-
-        return _strpair('Z', self.Z, 'V', self.V)
 
 
     def pretty(self):
@@ -1602,203 +1596,72 @@ class Load(object):
 class R(Thevenin):
     """Resistor"""
 
-    @property
-    def Z(self):
-        return Zs.R(self.R)
-
-
-    @property
-    def V(self):
-        return Vs(0)
-
-
     def __init__(self, Rval):
     
-        self.R = _Expr(Rval)
-
-
-    def __repr__(self):
-
-        return '%s(%s)' % (self.__class__.__name__, self.R)
-
-
-    def __str__(self):
-        
-        return self.__repr__()
+        super (R, self).__init__(Zs.R(Rval))
+        self.R = Rval
+        self.args = (Rval, )
 
 
 class G(Norton):
     """Conductance"""
 
-    @property
-    def Z(self):
-        return Zs.G(self.G)
-
-
-    @property
-    def V(self):
-        return Vs(0)
-
-
     def __init__(self, Gval):
     
-        self.G = _Expr(Gval)
-
-
-    def __repr__(self):
-
-        return '%s(%s)' % (self.__class__.__name__, self.G)
-
-
-    def __str__(self):
-        
-        return self.__repr__()
+        super (G, self).__init__(Ys.G(Gval))
+        self.G = Gval
+        self.args = (Gval, )
 
 
 class L(Thevenin):
     """Inductor"""
 
-
-    @property
-    def Z(self):
-        return Zs.L(self.L)
-
-    
-    @property
-    def V(self):
-        return Vs(-self.i0 * self.L)
-
-
     def __init__(self, Lval, i0=0.0):
     
-        self.L = _Expr(Lval)
-        self.i0 = _Expr(i0)
-
-
-    def __repr__(self):
-
-        if self.i0 != 0:
-            return '%s(%s, %s)' % (self.__class__.__name__, self.L, self.i0)
-        else:
-            return '%s(%s)' % (self.__class__.__name__, self.L)
-
-
-    def __str__(self):
-        
-        return self.__repr__()
+        super (L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
+        self.L = Lval
+        self.i0 = i0
+        self.args = (Lval, i0)
 
 
 class C(Thevenin):
     """Capacitor"""
 
-
-    @property
-    def Z(self):
-        return Zs.C(self.C)
-
-    
-    @property
-    def V(self):
-        return Vs(self.v0).integrate()
-        
-
     def __init__(self, Cval, v0=0.0):
     
-        self.C = _Expr(Cval)
-        self.v0 = _Expr(v0)
-
-
-    def __repr__(self):
-        
-        if self.v0 != 0:
-            return '%s(%s, %s)' % (self.__class__.__name__, self.C, self.v0)
-        else:
-            return '%s(%s)' % (self.__class__.__name__, self.C)
-
-
-    def __str__(self):
-        
-        return self.__repr__()
+        super (C, self).__init__(Zs.C(Cval), Vs(v0).integrate())
+        self.C = Cval
+        self.v0 = v0
+        self.args = (Cval, v0)
 
 
 class Y(Norton):
     """General admittance."""
 
+    def __init__(self, Yval):
     
-    @property
-    def I(self):
-        return Is(0)
-
-
-    def __init__(self, Y):
-        """Create admittance."""
-    
-        self.Y = _Expr(Y)
-
-
-    def __repr__(self):
-
-        return '%s(%s)' % (self.__class__.__name__, self.Y)
-
-
-    def __str__(self):
-        
-        return self.__repr__()
+        super (Y, self).__init__(Yval)
+        self.args = (Yval, )
 
 
 class Z(Thevenin):
     """General impedance."""
 
+    def __init__(self, Zval):
     
-    @property
-    def V(self):
-        return Vs(0)
-
-
-    def __init__(self, Z):
-        """Create impedance."""
-    
-        self.Z = _Expr(Z)
-
-
-    def __repr__(self):
-
-        return '%s(%s)' % (self.__class__.__name__, self.Z)
-
-
-    def __str__(self):
-        
-        return self.__repr__()
+        super (Z, self).__init__(Zval)
+        self.args = (Zval, )    
 
 
 class V(Thevenin):
-    """Voltage source (note a voltage source of voltage V1 has
-    a s domain voltage of V1 / s."""
-
-    @property
-    def Z(self):
-        return Zs(0)
-
-    
-    @property
-    def V(self):
-        return Vs(self.v.integrate())
-
+    """Voltage source (note a voltage source of voltage v has
+    an s domain voltage of v / s."""
 
     def __init__(self, v):
-        """Create voltage source with voltage v V."""
     
-        self.v = _Expr(v)
-
-
-    def __repr__(self):
-
-        return '%s(%s)' % (self.__class__.__name__, self.v)
-
-
-    def __str__(self):
-        
-        return self.__repr__()
+        super (V, self).__init__(Zs(0), Vs(v).integrate())
+        self.args = (v, )    
+        self.v = v
 
 
     def parallel(self, x):
@@ -1822,33 +1685,14 @@ class V(Thevenin):
 
 
 class I(Norton):
-    """Current source (note a current source of current I1 has
-    a s domain current of I1 / s."""
-
-    @property
-    def Y(self):
-        return Ys(0)
-
-    
-    @property
-    def I(self):
-        return Is(self.i.integrate())
-
+    """Current source (note a current source of current i has
+    an s domain current of i / s."""
 
     def __init__(self, i):
-        """Create current source with current i A."""
     
-        self.i = _Expr(i)
-
-
-    def __repr__(self):
-
-        return '%s(%s)' % (self.__class__.__name__, self.i)
-
-
-    def __str__(self):
-        
-        return self.__repr__()
+        super (I, self).__init__(Ys(0), Is(i).integrate())
+        self.args = (i, )    
+        self.i = i
 
 
     def series(self, x):
@@ -2759,8 +2603,7 @@ class ZMatrix(_TwoPortMatrix):
         return cls.Tsection(Za, Zb, Zc)
 
 
-
-class TwoPort(object):
+class TwoPort(NetObject):
     """
     two-port networks are constrained to have the same current at each
     port (but flowing in opposite directions).  This is called the
@@ -3792,6 +3635,7 @@ class Series(TwoPortBModel):
          """
 
         self.OP = OP
+        self.args = (OP, )
         self._M = BMatrix.Zseries(OP.Z)
         self.Vs2b = OP.V
         self.Is2b = Is(0)
@@ -3819,6 +3663,7 @@ class Shunt(TwoPortBModel):
          """
 
         self.OP = OP
+        self.args = (OP, )
         self._M = BMatrix.Yshunt(OP.Y)
         self.Vs2b = Vs(0)
         self.Is2b = OP.I
@@ -3835,8 +3680,11 @@ class IdealTransformer(TwoPortBModel):
 
     def __init__(self, alpha=1):
 
-
-        super (IdealTransformer, self).__init__(BMatrix.transformer(alpha))
+        self.alpha = _Expr(alpha)
+        self.args = (alpha, )
+        self._M = BMatrix.transformer(alpha)
+        self.Vs2b = Vs(0)
+        self.Is2b = Is(0)
 
 
 class IdealGyrator(TwoPortBModel):
@@ -3848,8 +3696,11 @@ class IdealGyrator(TwoPortBModel):
 
     def __init__(self, R=1):
 
-
-        super (IdealGyrator, self).__init__(BMatrix.gyrator(R))
+        self.R = _Expr(R)
+        self.args = (R, )
+        self._M = BMatrix.gyrator(R)
+        self.Vs2b = Vs(0)
+        self.Is2b = Is(0)
 
 
 class VoltageFollower(TwoPortBModel):
@@ -3857,7 +3708,9 @@ class VoltageFollower(TwoPortBModel):
 
     def __init__(self):
 
-        super (VoltageFollower, self).__init__(BMatrix.voltage_amplifier(1))
+        self._M = BMatrix.voltage_amplifier(1)
+        self.Vs2b = Vs(0)
+        self.Is2b = Is(0)
 
 
 class VoltageAmplifier(TwoPortBModel):
@@ -4078,7 +3931,7 @@ class LSection(TwoPortBModel):
          """
 
         super (LSection, self).__init__(Series(OP1).chain(Shunt(OP2)))
-
+        self.args = (OP1, OP2)
 
 
 class Ladder(TwoPortBModel):
@@ -4101,6 +3954,8 @@ class Ladder(TwoPortBModel):
          ----------------+-----------------
          """
 
+        self.args = (OP1, ) + args
+
         TP = Series(OP1)
 
         for m, arg in enumerate(args):
@@ -4122,8 +3977,7 @@ class GeneralTxLine(TwoPortBModel):
         l is the transmission line length (m)
         """
 
-        if not _symbolic:
-            raise ValueError('Can only implement transmission line symbolically')
+        self.args = (Z0, gamma, l)
 
         H = sym.exp(gamma * l)
 
