@@ -970,7 +970,7 @@ class _Expr(object):
 
     def pprint(self):
         """Pretty print"""
-        sym.pprint(self.val)
+        print(self.pretty())
 
 
     def pretty(self):
@@ -1201,6 +1201,11 @@ class OnePort(object):
             raise TypeError('Argument not ', OnePort)
 
         return TSection(self, OP2, OP3)
+
+
+    def expand(self):
+
+        return self
 
 
 class Norton(OnePort):
@@ -1806,7 +1811,30 @@ class I(Norton):
         return Norton(Ys(0), self.I)
 
 
-class Xtal(Thevenin):
+class Composite(Thevenin):
+
+    @property
+    def Z(self):    
+        return self.expand().Z
+
+
+    @property
+    def V(self):    
+        return self.expand().V
+
+
+    def __str__(self):
+        
+        return self.__repr__()
+
+
+    # This will get subsumed at some stage.
+    def pretty(self):
+
+        return self.__str__()
+
+
+class Xtal(Composite):
     """Crystal"""
 
     def __init__(self, C0, R1, L1, C1):
@@ -1821,9 +1849,10 @@ class Xtal(Thevenin):
         self.L1 = _Expr(L1)
         self.C1 = _Expr(C1)
     
-        xtal = (R(R1) + L(L1) + C(C1)) | C(C0)
-
-        super (Xtal, self).__init__(xtal.Z, xtal.V)
+    
+    def expand(self):
+        
+        return (R(self.R1) + L(self.L1) + C(self.C1)) | C(self.C0)
 
 
     def __repr__(self):
@@ -1832,7 +1861,7 @@ class Xtal(Thevenin):
 
 
 
-class FerriteBead(Thevenin):
+class FerriteBead(Composite):
     """Ferrite bead"""
 
     def __init__(self, Rs, Rp, Cp, Lp):
@@ -1841,10 +1870,21 @@ class FerriteBead(Thevenin):
         This is modelled as a series resistor (Rs) connected 
         to a parallel R, L, C network (Rp, Lp, Cp).
         """
+        
+        self.Rs = _Expr(Rs)
+        self.Rp = _Expr(Rp)
+        self.Cp = _Expr(Cp)
+        self.Lp = _Expr(Lp)
 
-        ferrite = R(Rs) + (R(Rp) + L(Lp) + C(Cp))
 
-        super (Xtal, self).__init__(ferrite.Z, xtal.V)
+    def expand(self):
+
+        return R(self.Rs) + (R(self.Rp) + L(self.Lp) + C(self.Cp))
+
+
+    def __repr__(self):
+        
+        return '%s(%s, %s, %s, %s)' % (self.__class__.__name__, self.Rs, self.Rp, self.Cp, self.Lp)
 
 
 class Vsector(sym.Matrix):
