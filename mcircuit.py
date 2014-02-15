@@ -865,6 +865,25 @@ class Zs(_Expr):
         return cls(Rval)
 
 
+    def cpt(self):
+
+        if self._is_const:
+            return R(self.expr)
+
+        z = self * self.s
+
+        if z._is_const:
+            return C((1 / z).expr)
+
+        z = self / self.s
+
+        if z._is_const:
+            return L(z.expr)
+
+        # Need a combination of components.
+        return self
+
+
 class Ys(_Expr):
     """s-domain admittance value"""
     
@@ -897,14 +916,52 @@ class Ys(_Expr):
         return cls(1 / Rval)
 
 
+    def cpt(self):
+
+        if self._is_const:
+            return G(self.expr)
+
+        y = self * self.s
+
+        if y._is_const:
+            return L((1 / y).expr)
+
+        y = self / self.s
+
+        if y._is_const:
+            return C(y.expr)
+
+        # Need a combination of components.
+        return self
+
+
 class Vs(_Expr):
     """s-domain voltage (units V s / radian)"""
-    pass
+    
+
+    def cpt(self):
+
+        v = self * self.s
+
+        if v._is_const:
+            return V(v.expr)
+
+        # Need a combination of components.
+        return self
 
 
 class Is(_Expr):
     """s-domain current (units A s / radian)"""
-    pass
+    
+    def cpt(self):
+
+        i = self * self.s
+
+        if i._is_const:
+            return I(i.expr)
+
+        # Need a combination of components.
+        return self
 
 
 class Avs(_Expr):
@@ -1092,6 +1149,14 @@ class ParSer(OnePort):
                     return arg2
                 if isinstance(arg2, Z) and arg2.Z == 0:
                     return arg1
+                if isinstance(arg1, Vs) and arg1 == 0:
+                    return arg2
+                if isinstance(arg2, Vs) and arg2 == 0:
+                    return arg1
+                if isinstance(arg1, Zs) and arg1 == 0:
+                    return arg2
+                if isinstance(arg2, Zs) and arg2 == 0:
+                    return arg1
             if self.__class__ == Par:
                 if isinstance(arg1, I) and arg1.I == 0:
                     return arg2
@@ -1100,6 +1165,14 @@ class ParSer(OnePort):
                 if isinstance(arg1, Y) and arg1.Y == 0:
                     return arg2
                 if isinstance(arg2, Y) and arg2.Y == 0:
+                    return arg1
+                if isinstance(arg1, Is) and arg1 == 0:
+                    return arg2
+                if isinstance(arg2, Is) and arg2 == 0:
+                    return arg1
+                if isinstance(arg1, Ys) and arg1 == 0:
+                    return arg2
+                if isinstance(arg2, Ys) and arg2 == 0:
                     return arg1
 
             return None
@@ -1228,13 +1301,18 @@ class ParSer(OnePort):
     def thevenin(self):
         """Simplify to a Thevenin network"""
 
-        return Ser(self.V, self.Z)
+        if self.Y == 0:
+            print('Dodgy transformation to thevenin since Y = 0')
+
+        return Ser(self.Z.cpt(), self.V.cpt())
 
 
     def norton(self):
         """Simplify to a Norton network"""
 
-        return Par(self.I, self.Y)
+        if self.Z == 0:
+            print('Dodgy transformation to norton since Z = 0')
+        return Par(self.Y.cpt(), self.I.cpt())
 
 
 class Par(ParSer):
@@ -1347,16 +1425,6 @@ class Norton(OnePort):
         return Vs(self.I / self.Y)
 
 
-    def thevenin(self):
-
-        return Thevenin(self.Z, self.V)
-
-
-    def norton(self):
-
-        return self
-
-
     def series(self, x):
 
         return self.thevenin().series(x).norton()
@@ -1375,30 +1443,31 @@ class Norton(OnePort):
             raise ValueError('Unhandled type ', type(x))            
 
 
-    def simplify(self):
+    def cpt(self):
+        """Convert to a component, if possible"""
 
         if self.Y._is_const and self.I == 0:
-            return G(self.Y)
+            return G(self.Y.expr)
 
         i = self.I * self.I.s
         if self.Y == 0 and i._is_const:
-            return I(i)
+            return I(i.expr)
 
         v = self.V * self.V.s
         if self.Z == 0 and v._is_const:
-            return V(v)
+            return V(v.expr)
 
         y = self.Y * self.Y.s
         z = self.Z * self.Z.s
 
         if z._is_const and v._is_const:
-            return C(1 / z, v)
+            return C((1 / z).expr, v)
 
         if y._is_const and i._is_const:
-            return L(1 / y, i)
+            return L((1 / y).expr, i)
 
         if self.I == 0:
-            return Y(self.Y)
+            return Y(self.Y.expr)
 
         return self
 
@@ -1435,16 +1504,6 @@ class Thevenin(OnePort):
     @property
     def I(self):    
         return Is(self.V / self.Z)
-
-
-    def norton(self):
-
-        return Norton(self.Y, Is(self.V / self.Z))
-
-
-    def thevenin(self):
-
-        return self
 
 
     def series(self, x):
@@ -1572,30 +1631,31 @@ class Thevenin(OnePort):
         return Load(self.parallel(x).V, self.series(x).I)
 
 
-    def simplify(self):
+    def cpt(self):
+        """Convert to a component, if possible"""
 
         if self.Z._is_const and self.V == 0:
-            return R(self.Z)
+            return R(self.Z.expr)
 
         v = self.V * self.V.s
         if self.Z == 0 and v._is_const:
-            return V(v)
+            return V(v.expr)
 
         i = self.I * self.I.s
         if self.Y == 0 and i._is_const:
-            return I(i)
+            return I(i.expr)
 
         y = self.Y * self.Y.s
         z = self.Z * self.Z.s
 
         if z._is_const and v._is_const:
-            return C(1 / z, v)
+            return C((1 / z).expr, v)
 
         if y._is_const and i._is_const:
-            return L(1 / y, i)
+            return L((1 / y).expr, i)
 
         if self.V == 0:
-            return Z(self.Z)
+            return Z(self.Z.expr)
 
         return self
 
