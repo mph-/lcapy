@@ -984,7 +984,13 @@ class NetObject(object):
             if isinstance(self, (L, C)) and args[1] == 0:
                 args = args[:-1]
 
-            argsrepr = ', '.join([arg.__repr__() for arg in args])
+            modargs = []
+            for arg in args:
+                if isinstance(arg, _Expr):
+                    arg = arg.expr
+            modargs.append(arg)
+
+            argsrepr = ', '.join([arg.__repr__() for arg in modargs])
             return '%s(%s)' % (self.__class__.__name__, argsrepr)
         else:
             return '%s()' % (self.__class__.__name__)
@@ -1673,6 +1679,7 @@ class R(Thevenin):
 
     def __init__(self, Rval):
     
+        Rval = _Expr(Rval)
         super (R, self).__init__(Zs.R(Rval))
         self.R = Rval
         self.args = (Rval, )
@@ -1683,6 +1690,7 @@ class G(Norton):
 
     def __init__(self, Gval):
     
+        Gval = _Expr(Gval)
         super (G, self).__init__(Ys.G(Gval))
         self.G = Gval
         self.args = (Gval, )
@@ -1693,6 +1701,8 @@ class L(Thevenin):
 
     def __init__(self, Lval, i0=0.0):
     
+        Lval = _Expr(Lval)
+        i0 = _Expr(i0)
         super (L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
         self.L = Lval
         self.i0 = i0
@@ -1704,6 +1714,8 @@ class C(Thevenin):
 
     def __init__(self, Cval, v0=0.0):
     
+        Cval = _Expr(Cval)
+        v0 = _Expr(v0)
         super (C, self).__init__(Zs.C(Cval), Vs(v0).integrate())
         self.C = Cval
         self.v0 = v0
@@ -1715,6 +1727,7 @@ class Y(Norton):
 
     def __init__(self, Yval):
     
+        Yval = _Expr(Yval)
         super (Y, self).__init__(Yval)
         self.args = (Yval, )
 
@@ -1724,6 +1737,7 @@ class Z(Thevenin):
 
     def __init__(self, Zval):
     
+        Zval = _Expr(Zval)
         super (Z, self).__init__(Zval)
         self.args = (Zval, )    
 
@@ -1734,6 +1748,7 @@ class V(Thevenin):
 
     def __init__(self, v):
     
+        v = _Expr(v)
         super (V, self).__init__(Zs(0), Vs(v).integrate())
         self.args = (v, )    
         self.v = v
@@ -1765,6 +1780,7 @@ class I(Norton):
 
     def __init__(self, i):
     
+        i = _Expr(i)
         super (I, self).__init__(Ys(0), Is(i).integrate())
         self.args = (i, )    
         self.i = i
@@ -1816,17 +1832,12 @@ class Xtal(Composite):
         self.R1 = _Expr(R1)
         self.L1 = _Expr(L1)
         self.C1 = _Expr(C1)
+        self.args = (self.C0, self.R1, self.L1, self.C1)
     
     
     def expand(self):
         
         return (R(self.R1) + L(self.L1) + C(self.C1)) | C(self.C0)
-
-
-    def __repr__(self):
-        
-        return '%s(%s, %s, %s, %s)' % (self.__class__.__name__, self.C0, self.R1, self.L1, self.C1)
-
 
 
 class FerriteBead(Composite):
@@ -1843,16 +1854,12 @@ class FerriteBead(Composite):
         self.Rp = _Expr(Rp)
         self.Cp = _Expr(Cp)
         self.Lp = _Expr(Lp)
+        self.args = (self.Rs, self.Rp, self.Cp, self.Lp)
 
 
     def expand(self):
 
         return R(self.Rs) + (R(self.Rp) + L(self.Lp) + C(self.Cp))
-
-
-    def __repr__(self):
-        
-        return '%s(%s, %s, %s, %s)' % (self.__class__.__name__, self.Rs, self.Rp, self.Cp, self.Lp)
 
 
 class Vsector(sym.Matrix):
