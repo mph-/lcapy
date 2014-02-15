@@ -119,6 +119,18 @@ Copyright 2014 Michael Hayes, UCECE
 # matrix.  However, things will go wrong when we transform to the Y or
 # Z matrix for specific cases.
 
+
+# Cauer's first form consists of a ladder of shunt capacitors and series inductors (useful for low-pass filters)
+#
+# Cauer's second form consists of a ladder of series capacitors and shunt inductors (useful for high-pass filters)
+#
+# Foster's first form consists of parallel connected LC resonators (useful for band-pass filters)
+#
+# Foster's second form consists of series connected LC anti-resonators (useful for band-stop filters)
+
+
+
+
 from __future__ import division
 from warnings import warn
 import numpy as np
@@ -513,13 +525,13 @@ class ParSer(object):
     def __add__(self, x):
         """Series combination"""
 
-        return self.series(x)
+        return Ser(self, x)
 
 
     def __or__(self, x):
         """Parallel combination"""
 
-        return self.parallel(x)
+        return Par(self, x)
 
 
     @property
@@ -1135,13 +1147,13 @@ class OnePort(object):
     def __add__(self, x):
         """Series combination"""
 
-        return self.series(x)
+        return Ser(self, x)
 
 
     def __or__(self, x):
         """Parallel combination"""
 
-        return self.parallel(x)
+        return Par(self, x)
 
 
     @property
