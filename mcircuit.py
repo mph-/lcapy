@@ -3224,14 +3224,6 @@ class TwoPort(NetObject):
         return Thevenin(Zs(Z), Vs(V))
 
 
-class Chain(TwoPort):
-
-    def __init__(self, *args):
-
-        self.args = args
-
-
-
 class TwoPortBModel(TwoPort):
     """
             +-------------------+    +------+
@@ -3675,6 +3667,38 @@ class TwoPortZModel(TwoPort):
         if inport == 2 and outport == 1:
             return Ais(-self.Z.Z12 / self.Z.Z11)
         raise ValueError('bad port values')
+
+
+class Chain(TwoPortBModel):
+
+    def __init__(self, *args):
+
+        self.args = args
+
+        for arg in args:
+            if not issubclass(arg.__class__, TwoPort):
+                raise TypeError('Argument %s not TwoPort' % arg)
+
+        # The voltage and current sources can be transformed from the
+        # input of a network to its output using:
+        # 
+        # +-   -+     +-       -+   +-   -+
+        # | V2b |  =  | B11  B12|   |-V1a |
+        # | I2b |     | B21  B22|   | I1a |
+        # +-   -+     +-       -+   +-   -+            
+        #
+        # where the positive connection of V1a is connected to the input pin.
+
+        arg1 = args[-1]
+        B = arg1.B
+        foo = np.matrix((-arg1.V2b, arg1.I2b)).T
+        
+        for arg in reversed(args[0:-1]):
+            
+            foo += arg.B * np.matrix((-arg.V2b, arg.I2b)).T
+            B = B * arg.B
+
+        super (Chain, self).__init__(B, Vs(foo[0, 0]), Is(foo[1, 0]))
 
 
 class Series(TwoPortBModel):
