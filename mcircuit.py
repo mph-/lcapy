@@ -3048,21 +3048,7 @@ class TwoPort(NetObject):
         if not issubclass(x.__class__, TwoPort):
             raise TypeError('Argument not', TwoPort)
 
-        # The voltage and current sources can be transformed from the
-        # input of a network to its output using:
-        # 
-        # +-   +     +-       -+   +-  -+
-        # | V2b |  =  | B11  B12|   |-Vi |
-        # | I2b |     | B21  B22|   | Ii |
-        # +-  -+     +-       -+   +-  -+            
-        #
-        # where the positive connection of Vi is connected to the input pin.
-
-        B = x.B
-        foo = B * np.matrix((-self.V2b, self.I2b)).T
-
-        B2 = B * self.B
-        return TwoPortBModel(B2, V2b=Vs(foo[0, 0]) + x.V2b, I2b=Is(foo[1, 0]) + x.I2b)
+        return Chain(self, x)
 
 
     def append(self, x):
