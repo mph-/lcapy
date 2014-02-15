@@ -488,295 +488,6 @@ def final_value(expr, var=None):
     return sym.limit(expr * var, var, 0)
 
 
-class ParSer(object):
-
-    def __init__(self, *args):
-
-        self.args = args
-
-        self.check()
-    
-
-    def __repr__(self):
-
-        argsrepr = ', '.join([arg.__repr__() for arg in self.args])
-
-        return '%s(%s)' % (self.__class__.__name__, argsrepr)
-
-
-    def __str__(self):
-
-        str = ''
-
-        for m, arg in enumerate(self.args):
-            argstr = arg.__str__()
-
-            if isinstance(arg, ParSer) and arg.__class__ != self.__class__:
-                argstr = '(' + argstr + ')'
-
-            str += argstr
-
-            if m != len(self.args) - 1:
-                str += ' %s ' % self.op
-
-        return str
-
-
-    def __add__(self, x):
-        """Series combination"""
-
-        return Ser(self, x)
-
-
-    def __or__(self, x):
-        """Parallel combination"""
-
-        return Par(self, x)
-
-
-    @property
-    def Zoc(self):    
-        return self.Z
-
-
-    @property
-    def Voc(self):    
-        return self.V
-
-
-    @property
-    def Ysc(self):    
-        return self.Y
-
-
-    @property
-    def Isc(self):    
-        return self.I
-
-
-    def check(self):
-
-        args = list(self.args)
-        for n, arg1 in enumerate(args):
-
-            for arg2 in args[n+1:]:
-
-                if isinstance(self, Par):
-                    if isinstance(arg1, V) and isinstance(arg2, V):
-                        print('Warning: voltage sources connected in parallel %s and %s' % (arg1, arg2))
-                elif isinstance(self, Ser):
-                    if isinstance(arg1, I) and isinstance(arg2, I):
-                        print('Warning: current sources connected in series %s and %s' % (arg1, arg2))
-
-
-    def combine(self, arg1, arg2):
-
-        if arg1.__class__ != arg2.__class__:
-            return None
-
-        if self.__class__ == Ser:
-            if isinstance(arg1, I):
-                return None
-            if isinstance(arg1, V):
-                return V(arg1.v + arg2.v)
-            if isinstance(arg1, R):
-                return R(arg1.R + arg2.R)
-            if isinstance(arg1, L):
-                # The currents should be the same!
-                if arg1.i0 != arg2.i0:
-                    print('Warning, series inductors with different initial currents!')
-                return L(arg1.L + arg2.L, arg1.i0)
-            if isinstance(arg1, G):
-                return G(arg1.G * arg2.G / (arg1.G + arg2.G))
-            if isinstance(arg1, C):
-                return C(arg1.C * arg2.C / (arg1.C + arg2.C), arg1.v0 + arg2.v0)
-            return None
-            
-        elif self.__class__ == Par:
-            if isinstance(arg1, V):
-                return None
-            if isinstance(arg1, I):
-                return I(arg1.i + arg2.i)
-            if isinstance(arg1, G):
-                return G(arg1.G + arg2.G)
-            if isinstance(arg1, C):
-                # The voltages should be the same!
-                if arg1.v0 != arg2.v0:
-                    print('Warning, parallel capacitors with different initial voltages!')
-                return C(arg1.C + arg2.C, arg1.v0)
-            if isinstance(arg1, R):
-                return R(arg1.R * arg2.R / (arg1.R + arg2.R))
-            if isinstance(arg1, L):
-                return L(arg1.L * arg2.L / (arg1.L + arg2.L), arg1.i0 + arg2.i0)
-            return None
-
-        else:
-            raise Error('Undefined class')
-            
-    
-    def simplify(self, deep=True):
-        """Perform simple simplifications, such as parallel resistors,
-        series inductors, etc., rather than collapsing to a Thevenin
-        or Norton network.
-
-        This does not expand compound components such as crytal
-        or ferrite bead models.  Use expand() first.
-        """
-
-        # Simplify args (recursively) and combine operators if have
-        # Par(Par(A, B), C) etc.
-        new = False
-        newargs = []
-        for m, arg in enumerate(self.args):
-            if isinstance(arg, ParSer):
-                arg = arg.simplify(deep)
-                new = True            
-                if arg.__class__ == self.__class__:
-                    newargs.extend(arg.args)
-                else:
-                    newargs.append(arg)
-            else:
-                newargs.append(arg)                
-
-        if new:
-            self = self.__class__(*newargs)
-
-        # Scan arg list looking for compatible combinations.
-        # Could special case the common case of two args.
-        new = False
-        args = list(self.args)
-        for n in range(len(args)):
-
-            arg1 = args[n]
-            if arg1 == None:
-                continue
-            if isinstance(arg1, ParSer):
-                continue
-
-            for m in range(n + 1, len(args)): 
-
-                arg2 = args[m]                
-                if arg2 == None:
-                    continue
-                if isinstance(arg2, ParSer):
-                    continue
-
-                # TODO, think how to simplify things such as
-                # Par(Ser(V1, R1), Ser(R2, V2)).
-                # Could do Thevenin/Norton transformations.
-
-                newarg = self.combine(arg1, arg2)
-                if newarg != None:
-                    #print('Combining', arg1, arg2, 'to', newarg)
-                    args[m] = None
-                    arg1 = newarg
-                    new = True
-
-            args[n] = arg1
-            
-        if new:
-            args = [arg for arg in args if arg != None]
-            if len(args) == 1:
-                return args[0]
-            self = self.__class__(*args)
-
-        return self
-
-
-    def expand(self):
-        """Expand compound components such as crystals or ferrite bead
-        models into R, L, G, C, V, I"""
-
-        newargs = []
-        for m, arg in enumerate(self.args):
-            newarg = arg.expand()
-            newargs.append(newarg)
-
-        return self.__class__(*newargs)
-
-
-    def thevenin(self):
-        """Simplify to a Thevenin network"""
-
-        return Ser(self.V, self.Z)
-
-
-    def norton(self):
-        """Simplify to a Norton network"""
-
-        return Par(self.I, self.Y)
-
-
-class Par(ParSer):
-
-    op = '|'
-
-
-    @property
-    def Z(self):    
-        return 1 / self.Y
-
-
-    @property
-    def V(self):    
-        return self.I * self.Z
-
-
-    @property
-    def Y(self):    
-
-        result = 0
-        for arg in self.args:
-            result += arg.Y
-
-        return result
-
-
-    @property
-    def I(self):    
-
-        result = 0
-        for arg in self.args:
-            result += arg.I
-
-        return result
-
-
-class Ser(ParSer):
-
-    op = '+'
-
-
-    @property
-    def Y(self):    
-        return 1 / self.Z
-
-
-    @property
-    def I(self):    
-        return self.V / self.Z
-
-
-    @property
-    def Z(self):    
-
-        result = 0
-        for arg in self.args:
-            result += arg.Z
-
-        return result
-
-
-    @property
-    def V(self):    
-
-        result = 0
-        for arg in self.args:
-            result += arg.V
-
-        return result
-
-
 class _Expr(object):
     
     s, t, f = sym.symbols('s t f')
@@ -1266,6 +977,295 @@ class OnePort(object):
     def expand(self):
 
         return self
+
+
+class ParSer(OnePort):
+
+    def __init__(self, *args):
+
+        self.args = args
+
+        self.check()
+    
+
+    def __repr__(self):
+
+        argsrepr = ', '.join([arg.__repr__() for arg in self.args])
+
+        return '%s(%s)' % (self.__class__.__name__, argsrepr)
+
+
+    def __str__(self):
+
+        str = ''
+
+        for m, arg in enumerate(self.args):
+            argstr = arg.__str__()
+
+            if isinstance(arg, ParSer) and arg.__class__ != self.__class__:
+                argstr = '(' + argstr + ')'
+
+            str += argstr
+
+            if m != len(self.args) - 1:
+                str += ' %s ' % self.op
+
+        return str
+
+
+    def __add__(self, x):
+        """Series combination"""
+
+        return Ser(self, x)
+
+
+    def __or__(self, x):
+        """Parallel combination"""
+
+        return Par(self, x)
+
+
+    @property
+    def Zoc(self):    
+        return self.Z
+
+
+    @property
+    def Voc(self):    
+        return self.V
+
+
+    @property
+    def Ysc(self):    
+        return self.Y
+
+
+    @property
+    def Isc(self):    
+        return self.I
+
+
+    def check(self):
+
+        args = list(self.args)
+        for n, arg1 in enumerate(args):
+
+            for arg2 in args[n+1:]:
+
+                if isinstance(self, Par):
+                    if isinstance(arg1, V) and isinstance(arg2, V):
+                        print('Warning: voltage sources connected in parallel %s and %s' % (arg1, arg2))
+                elif isinstance(self, Ser):
+                    if isinstance(arg1, I) and isinstance(arg2, I):
+                        print('Warning: current sources connected in series %s and %s' % (arg1, arg2))
+
+
+    def combine(self, arg1, arg2):
+
+        if arg1.__class__ != arg2.__class__:
+            return None
+
+        if self.__class__ == Ser:
+            if isinstance(arg1, I):
+                return None
+            if isinstance(arg1, V):
+                return V(arg1.v + arg2.v)
+            if isinstance(arg1, R):
+                return R(arg1.R + arg2.R)
+            if isinstance(arg1, L):
+                # The currents should be the same!
+                if arg1.i0 != arg2.i0:
+                    print('Warning, series inductors with different initial currents!')
+                return L(arg1.L + arg2.L, arg1.i0)
+            if isinstance(arg1, G):
+                return G(arg1.G * arg2.G / (arg1.G + arg2.G))
+            if isinstance(arg1, C):
+                return C(arg1.C * arg2.C / (arg1.C + arg2.C), arg1.v0 + arg2.v0)
+            return None
+            
+        elif self.__class__ == Par:
+            if isinstance(arg1, V):
+                return None
+            if isinstance(arg1, I):
+                return I(arg1.i + arg2.i)
+            if isinstance(arg1, G):
+                return G(arg1.G + arg2.G)
+            if isinstance(arg1, C):
+                # The voltages should be the same!
+                if arg1.v0 != arg2.v0:
+                    print('Warning, parallel capacitors with different initial voltages!')
+                return C(arg1.C + arg2.C, arg1.v0)
+            if isinstance(arg1, R):
+                return R(arg1.R * arg2.R / (arg1.R + arg2.R))
+            if isinstance(arg1, L):
+                return L(arg1.L * arg2.L / (arg1.L + arg2.L), arg1.i0 + arg2.i0)
+            return None
+
+        else:
+            raise Error('Undefined class')
+            
+    
+    def simplify(self, deep=True):
+        """Perform simple simplifications, such as parallel resistors,
+        series inductors, etc., rather than collapsing to a Thevenin
+        or Norton network.
+
+        This does not expand compound components such as crytal
+        or ferrite bead models.  Use expand() first.
+        """
+
+        # Simplify args (recursively) and combine operators if have
+        # Par(Par(A, B), C) etc.
+        new = False
+        newargs = []
+        for m, arg in enumerate(self.args):
+            if isinstance(arg, ParSer):
+                arg = arg.simplify(deep)
+                new = True            
+                if arg.__class__ == self.__class__:
+                    newargs.extend(arg.args)
+                else:
+                    newargs.append(arg)
+            else:
+                newargs.append(arg)                
+
+        if new:
+            self = self.__class__(*newargs)
+
+        # Scan arg list looking for compatible combinations.
+        # Could special case the common case of two args.
+        new = False
+        args = list(self.args)
+        for n in range(len(args)):
+
+            arg1 = args[n]
+            if arg1 == None:
+                continue
+            if isinstance(arg1, ParSer):
+                continue
+
+            for m in range(n + 1, len(args)): 
+
+                arg2 = args[m]                
+                if arg2 == None:
+                    continue
+                if isinstance(arg2, ParSer):
+                    continue
+
+                # TODO, think how to simplify things such as
+                # Par(Ser(V1, R1), Ser(R2, V2)).
+                # Could do Thevenin/Norton transformations.
+
+                newarg = self.combine(arg1, arg2)
+                if newarg != None:
+                    #print('Combining', arg1, arg2, 'to', newarg)
+                    args[m] = None
+                    arg1 = newarg
+                    new = True
+
+            args[n] = arg1
+            
+        if new:
+            args = [arg for arg in args if arg != None]
+            if len(args) == 1:
+                return args[0]
+            self = self.__class__(*args)
+
+        return self
+
+
+    def expand(self):
+        """Expand compound components such as crystals or ferrite bead
+        models into R, L, G, C, V, I"""
+
+        newargs = []
+        for m, arg in enumerate(self.args):
+            newarg = arg.expand()
+            newargs.append(newarg)
+
+        return self.__class__(*newargs)
+
+
+    def thevenin(self):
+        """Simplify to a Thevenin network"""
+
+        return Ser(self.V, self.Z)
+
+
+    def norton(self):
+        """Simplify to a Norton network"""
+
+        return Par(self.I, self.Y)
+
+
+class Par(ParSer):
+
+    op = '|'
+
+
+    @property
+    def Z(self):    
+        return Zs(1 / self.Y)
+
+
+    @property
+    def V(self):    
+        return Vs(self.I * self.Z)
+
+
+    @property
+    def Y(self):    
+
+        result = 0
+        for arg in self.args:
+            result += arg.Y
+
+        return result
+
+
+    @property
+    def I(self):    
+
+        result = 0
+        for arg in self.args:
+            result += arg.I
+
+        return result
+
+
+class Ser(ParSer):
+
+    op = '+'
+
+
+    @property
+    def Y(self):    
+        return Ys(1 / self.Z)
+
+
+    @property
+    def I(self):    
+        return Is(self.V / self.Z)
+
+
+    @property
+    def Z(self):    
+
+        result = 0
+        for arg in self.args:
+            result += arg.Z
+
+        return result
+
+
+    @property
+    def V(self):    
+
+        result = 0
+        for arg in self.args:
+            result += arg.V
+
+        return result
 
 
 class Norton(OnePort):
@@ -3782,35 +3782,51 @@ class TwoPortZModel(TwoPort):
 
 class Series(TwoPortBModel):
 
-    def __init__(self, OP1):
+    def __init__(self, OP):
         """
            +---------+   
-         --+   OP1   +---
+         --+   OP    +---
            +---------+   
 
          ----------------
          """
 
-        super (Series, self).__init__(BMatrix.Zseries(OP1.Z), V2b=OP1.V)
+        self.OP = OP
+        self._M = BMatrix.Zseries(OP.Z)
+        self.Vs2b = OP.V
+        self.Is2b = Is(0)
+
+
+    def __repr__(self):
+
+        return '%s(%s)' % (self.__class__.__name__, self.OP)
 
 
 class Shunt(TwoPortBModel):
 
-    def __init__(self, OP1):
+    def __init__(self, OP):
         """
                  
          -----+----
               |    
             +-+-+  
             |   |  
-            |OP1|  
+            |OP |  
             |   |  
             +-+-+  
               |    
          -----+----
          """
 
-        super (Shunt, self).__init__(BMatrix.Yshunt(OP1.Y), V2b=Vs(0), I2b=Is(OP1.I))
+        self.OP = OP
+        self._M = BMatrix.Yshunt(OP.Y)
+        self.Vs2b = Vs(0)
+        self.Is2b = OP.I
+
+
+    def __repr__(self):
+
+        return '%s(%s)' % (self.__class__.__name__, self.OP)
 
 
 class IdealTransformer(TwoPortBModel):

@@ -87,7 +87,6 @@ class McircuitsTester(unittest.TestCase):
         """
         a = R(10) + L(5)
         self.assertEqual(a.Z, 5 * s + 10, "Z incorrect.")
-        self.assertEqual(type(a), Thevenin, "type incorrect.")
 
 
     def test_R_parallel_R(self):
