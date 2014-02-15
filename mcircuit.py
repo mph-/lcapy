@@ -679,6 +679,17 @@ class ParSer(object):
         return self
 
 
+    def expand(self):
+        """Expand compound components into R, L, G, C, V, I"""
+
+        newargs = []
+        for m, arg in enumerate(self.args):
+            newarg = arg.expand()
+            newargs.append(newarg)
+
+        return self.__class__(*newargs)
+
+
     def thevenin(self):
         """Simplify to a Thevenin network"""
 
