@@ -988,7 +988,7 @@ class NetObject(object):
             for arg in args:
                 if isinstance(arg, _Expr):
                     arg = arg.expr
-            modargs.append(arg)
+                modargs.append(arg)
 
             argsrepr = ', '.join([arg.__repr__() for arg in modargs])
             return '%s(%s)' % (self.__class__.__name__, argsrepr)
@@ -3222,6 +3222,28 @@ class TwoPort(NetObject):
         V = self.Voc[1 - p]
 
         return Thevenin(Zs(Z), Vs(V))
+
+
+class Chain(TwoPort):
+
+    def __init__(self, *args):
+
+        self.args = args
+
+
+    def __str__(self):
+
+        str = ''
+
+        for m, arg in enumerate(self.args):
+            argstr = arg.__str__()
+
+            str += argstr
+
+            if m != len(self.args) - 1:
+                str += ' * '
+
+        return str
 
 
 class TwoPortBModel(TwoPort):
