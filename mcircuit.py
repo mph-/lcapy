@@ -3472,38 +3472,6 @@ class TwoPortGModel(TwoPort):
         return self._I2g
 
 
-    def Vgain(self, inport=1, outport=2):
-        """Return voltage gain for specified ports with internal
-        sources zero"""
-
-        # Av  = G21 = 1 / A11 = -|B| / B22 = Z21 / Z11 =  Y21 / Y22
-        # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12 / Y11
-
-        if inport == outport:
-            return Avs(1)
-        if inport == 1 and outport == 2:
-            return Avs(self.G.G21)
-        if inport == 2 and outport == 1:
-            return Avs(self.H.H12)
-        raise ValueError('bad port values')
-
-
-    def Igain(self, inport=1, outport=2):
-        """Return current gain for specified ports with internal
-        sources zero"""
-
-        # Ai  = H21 = -1 / A22 = -|B| / B11 = -Z21 / Z22 = Y21 / Y11
-        # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12 / Y22
-
-        if inport == outport:
-            return Ais(1)
-        if inport == 1 and outport == 2:
-            return Ais(self.H.H21)
-        if inport == 2 and outport == 1:
-            return Ais(self.G.G12)
-        raise ValueError('bad port values')
-
-    
 class TwoPortHModel(TwoPort):
     """
          +------+   +-------------------+    
@@ -3575,38 +3543,6 @@ class TwoPortHModel(TwoPort):
     @property
     def I2h(self):    
         return self._I2h
-
-
-    def Vgain(self, inport=1, outport=2):
-        """Return voltage gain for specified ports with internal
-        sources zero"""
-
-        # Av  = G21 = 1 / A11 = -|B| / B22 = Z21 / Z11 =  Y21 / Y22
-        # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12 / Y11
-
-        if inport == outport:
-            return Avs(1)
-        if inport == 1 and outport == 2:
-            return Avs(self.G.G21)
-        if inport == 2 and outport == 1:
-            return Avs(self.H.H12)
-        raise ValueError('bad port values')
-
-
-    def Igain(self, inport=1, outport=2):
-        """Return current gain for specified ports with internal
-        sources zero"""
-
-        # Ai  = H21 = -1 / A22 = -|B| / B11 = -Z21 / Z22 = Y21 / Y11
-        # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12 / Y22
-
-        if inport == outport:
-            return Ais(1)
-        if inport == 1 and outport == 2:
-            return Ais(self.H.H21)
-        if inport == 2 and outport == 1:
-            return Ais(self.G.G12)
-        raise ValueError('bad port values')
 
 
 class TwoPortYModel(TwoPort):
@@ -3761,38 +3697,6 @@ class TwoPortZModel(TwoPort):
     @property
     def V2z(self):    
         return self._V2z
-
-
-    def Vgain(self, inport=1, outport=2):
-        """Return voltage gain for specified ports with internal
-        sources zero"""
-
-        # Av  = G21 = 1 / A11 = -|B| / B22 = Z21 / Z11 =  Y21 / Y22
-        # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12 / Y11
-
-        if inport == outport:
-            return Avs(1)
-        if inport == 1 and outport == 2:
-            return Avs(self.Z21 / self.Z11)
-        if inport == 2 and outport == 1:
-            return Avs(self.Z12 / self.Z22)
-        raise ValueError('bad port values')
-
-
-    def Igain(self, inport=1, outport=2):
-        """Return current gain for specified ports with internal
-        sources zero"""
-
-        # Ai  = H21 = -1 / A22 = -|B| / B11 = -Z21 / Z22 = Y21 / Y11
-        # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12 / Y22
-
-        if inport == outport:
-            return Ais(1)
-        if inport == 1 and outport == 2:
-            return Ais(-self.Z21 / self.Z22)
-        if inport == 2 and outport == 1:
-            return Ais(-self.Z12 / self.Z11)
-        raise ValueError('bad port values')
 
 
 class Chain(TwoPortBModel):
