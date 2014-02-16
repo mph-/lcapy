@@ -3852,6 +3852,15 @@ class TSection(TwoPortBModel):
         self.args = (OP1, OP2, OP3)
 
 
+    def Pisection(self):
+
+        ZV = WyeDelta(self.args[0].Z, self.args[1].Z, self.args[2].Z)
+        VV = WyeDelta(self.args[0].V, self.args[1].V, self.args[2].V)
+        OPV = [Thevenin(*OP).cpt() for OP in zip(ZV, VV)]
+
+        return PiSection(*OPV)
+
+
 class TwinTSection(TwoPortBModel):
 
     def __init__(self, OP1a, OP2a, OP3a, OP1b, OP2b, OP3b):
@@ -3927,6 +3936,14 @@ class PiSection(TwoPortBModel):
 
         super (PiSection, self).__init__(Shunt(OP1).chain(Series(OP2)).chain(Shunt(OP3)))
         self.args = (OP1, OP2, OP3)
+
+
+    def Tsection(self):
+
+        ZV = DeltaWye(self.args[0].Z, self.args[1].Z, self.args[2].Z)
+        VV = DeltaWye(self.args[0].V, self.args[1].V, self.args[2].V)
+        OPV = [Thevenin(OP[0], OP[1]).cpt() for OP in zip(ZV, VV)]
+        return TSection(*OPV)
 
 
 class LSection(TwoPortBModel):
