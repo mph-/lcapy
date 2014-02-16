@@ -3696,6 +3696,7 @@ class TwoPortZModel(TwoPort):
 
 
 class Chain(TwoPortBModel):
+    """Connect two-port networks in a chain (aka cascade)"""
 
     def __init__(self, *args):
 
@@ -3715,7 +3716,7 @@ class Chain(TwoPortBModel):
 
         arg1 = args[-1]
         B = arg1.B
-        foo = np.matrix((-arg1.V2b, arg1.I2b)).T
+        foo = np.matrix((arg1.V2b, arg1.I2b)).T
         
         for arg in reversed(args[0:-1]):
             
@@ -3727,6 +3728,7 @@ class Chain(TwoPortBModel):
 
 
 class Par2(TwoPortYModel):
+    """Connect two-port networks in parallel"""
 
     def __init__(self, *args):
 
@@ -3748,6 +3750,8 @@ class Par2(TwoPortYModel):
 
 
 class Ser2(TwoPortZModel):
+    """Connect two-port networks in series (note this is unusual and can
+    break the port condition)"""
 
     def __init__(self, *args):
 
@@ -3769,6 +3773,8 @@ class Ser2(TwoPortZModel):
 
 
 class Hybrid2(TwoPortHModel):
+    """Connect two-port networks in hybrid configuration (inputs in
+    series, outputs in parallel)"""
 
     def __init__(self, *args):
 
@@ -3789,6 +3795,8 @@ class Hybrid2(TwoPortHModel):
 
 
 class InverseHybrid2(TwoPortGModel):
+    """Connect two-port networks in inverse hybrid configuration (outputs in
+    series, inputs in parallel)"""
 
     def __init__(self, *args):
 
@@ -3809,6 +3817,11 @@ class InverseHybrid2(TwoPortGModel):
 
 
 class Series(TwoPortBModel):
+    """
+    Two-port comprising a single one-port in series configuration
+
+    Note, this has a singular Y matrix.
+    """
 
     def __init__(self, OP):
         """
@@ -3817,8 +3830,6 @@ class Series(TwoPortBModel):
            +---------+   
 
          ----------------
-
-         Note, this has a singular Y matrix.
          """
 
         self.OP = OP
@@ -3829,6 +3840,12 @@ class Series(TwoPortBModel):
 
 
 class Shunt(TwoPortBModel):
+    """
+    Two-port comprising a single one-port in shunt configuration
+
+    Note, this has a singular Z matrix.
+    
+    """
 
     def __init__(self, OP):
         """
@@ -3843,7 +3860,6 @@ class Shunt(TwoPortBModel):
               |    
          -----+----
 
-         Note, this has a singular Z matrix.
          """
 
         self.OP = OP

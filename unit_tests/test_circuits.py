@@ -141,23 +141,20 @@ class McircuitsTester(unittest.TestCase):
         self.assertEqual(a.Z1oc, 10, "Z1oc incorrect.")
         self.assertEqual(a.Z2oc, 10, "Z2oc incorrect.")
         self.assertEqual(a.V2oc, 5 / s, "V2oc incorrect.")
-        print(a.I2sc)
-        self.assertEqual(a.I2sc, 0.5 / s, "I2sc incorrect.")
         self.assertEqual(a.V1oc, 5 / s, "V1oc incorrect.")
-        self.assertEqual(a.I1sc, 0.5 / s, "I1sc incorrect.")
+        # Cannot determine I1sc, I2sc, Ymn
 
         b = a.chain(Shunt(R(30)))
         self.assertEqual(b.Z1oc, 7.5, "Z1oc incorrect.")
         self.assertEqual(b.Z2oc, 7.5, "Z2oc incorrect.")
         self.assertEqual(b.V2oc, 3.75 / s, "V2oc incorrect.")
-        self.assertEqual(b.I2sc, 0.5 / s, "I2sc incorrect.")
         self.assertEqual(b.V1oc, 3.75 / s, "V1oc incorrect.")
-        self.assertEqual(b.I1sc, 0.5 / s, "I1sc incorrect.")
 
         c = a.chain(Series(R(30)))
         self.assertEqual(c.Z1oc, 10, "Z1oc incorrect.")
         self.assertEqual(c.Z2oc, 40, "Z2oc incorrect.")
         self.assertEqual(c.V1oc, 5 / s, "V1oc incorrect.")
+        print(c.V2oc)
         self.assertEqual(c.V2oc, 5 / s, "V2oc incorrect.")
         self.assertEqual(c.I1sc, -0.5 / s, "I1sc incorrect.")
         self.assertEqual(c.I2sc, 0 / s, "I2sc incorrect.")
@@ -172,11 +169,9 @@ class McircuitsTester(unittest.TestCase):
         a = Series(R(10) + V(5))
         self.assertEqual(a.Y1sc, 0.1, "Y1sc incorrect.")
         self.assertEqual(a.Y2sc, 0.1, "Y2sc incorrect.")
-        print(a.V1oc)
-        self.assertEqual(a.V1oc, 5 / s, "V1oc incorrect.")
-        self.assertEqual(a.V2oc, 5 / s, "V2oc incorrect.")
         self.assertEqual(a.I1sc, 0.5 / s, "I1sc incorrect.")
         self.assertEqual(a.I2sc, -0.5 / s, "I2sc incorrect.")
+        # Cannot determine V1oc, V2oc, Zmn
 
 
     def test_LSection(self):
