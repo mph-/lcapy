@@ -3716,11 +3716,6 @@ class Series(TwoPortBModel):
         self.Is2b = Is(0)
 
 
-    def __repr__(self):
-
-        return '%s(%s)' % (self.__class__.__name__, self.OP)
-
-
 class Shunt(TwoPortBModel):
 
     def __init__(self, OP):
@@ -3744,11 +3739,6 @@ class Shunt(TwoPortBModel):
         self.Is2b = OP.I
 
 
-    def __repr__(self):
-
-        return '%s(%s)' % (self.__class__.__name__, self.OP)
-
-
 class IdealTransformer(TwoPortBModel):
     """Ideal transformer voltage gain alpha, current gain 1 / alpha"""
 
@@ -3768,7 +3758,6 @@ class IdealGyrator(TwoPortBModel):
     A gyrator converts a voltage to current and a current to voltage.
     Cascaded gyrators act like a transformer"""
 
-
     def __init__(self, R=1):
 
         self.R = _Expr(R)
@@ -3783,6 +3772,7 @@ class VoltageFollower(TwoPortBModel):
 
     def __init__(self):
 
+        self.args = ()
         self._M = BMatrix.voltage_amplifier(1)
         self.Vs2b = Vs(0)
         self.Is2b = Is(0)
@@ -3793,15 +3783,23 @@ class VoltageAmplifier(TwoPortBModel):
 
     def __init__(self, Av=1, Af=0, Yin=0, Zout=0):
 
+        Av = _Expr(Av)
+        Af = _Expr(Af)
+        Yin = _Expr(Yin)
+        Zout = _Expr(Zout)
+
+        self.args = (Av, Af, Yin, Zout)
         super (VoltageAmplifier, self).__init__(BMatrix.voltage_amplifier(Av, Af, Yin, Zout))
 
 
-class IdealVoltageAmplifier(TwoPortBModel):
+class IdealVoltageAmplifier(VoltageAmplifier):
     """Ideal voltage amplifier"""
 
     def __init__(self, Av=1):
 
-        super (IdealVoltageAmplifier, self).__init__(BMatrix.voltage_amplifier(Av))
+        Av = _Expr(Av)
+        super (IdealVoltageAmplifier, self).__init__(BMatrix.voltage_differentiator(Av))
+        self.args = (Av, )
 
 
 class IdealDelay(TwoPortBModel):
@@ -3811,6 +3809,7 @@ class IdealDelay(TwoPortBModel):
 
         delay = _Expr(delay)
         super (IdealDelay, self).__init__(BMatrix.voltage_amplifier(sym.exp(-delay * delay.s)))
+        self.args = (delay, )
 
 
 class IdealVoltageDifferentiator(TwoPortBModel):
@@ -3818,7 +3817,9 @@ class IdealVoltageDifferentiator(TwoPortBModel):
 
     def __init__(self, Av=1):
 
+        Av = _Expr(Av)
         super (IdealVoltageDifferentiator, self).__init__(BMatrix.voltage_differentiator(Av))
+        self.args = (Av, )
 
 
 class IdealVoltageIntegrator(TwoPortBModel):
@@ -3826,7 +3827,9 @@ class IdealVoltageIntegrator(TwoPortBModel):
 
     def __init__(self, Av=1):
 
+        Av = _Expr(Av)
         super (IdealVoltageIntegrator, self).__init__(BMatrix.voltage_integrator(Av))
+        self.args = (Av, )
 
 
 class CurrentFollower(TwoPortBModel):
@@ -3835,6 +3838,7 @@ class CurrentFollower(TwoPortBModel):
     def __init__(self):
 
         super (CurrentFollower, self).__init__(BMatrix.current_amplifier(1))
+        self.args = ()
 
 
 class IdealCurrentAmplifier(TwoPortBModel):
@@ -3842,23 +3846,29 @@ class IdealCurrentAmplifier(TwoPortBModel):
 
     def __init__(self, Ai=1):
 
+        Ai = _Expr(Ai)
         super (IdealCurrentAmplifier, self).__init__(BMatrix.current_amplifier(Ai))
+        self.args = (Ai, )
 
 
 class IdealCurrentDifferentiator(TwoPortBModel):
     """Ideal Current differentiator"""
 
-    def __init__(self, Av=1):
+    def __init__(self, Ai=1):
 
-        super (IdealCurrentDifferentiator, self).__init__(BMatrix.current_differentiator(Av))
+        Ai = _Expr(Ai)
+        super (IdealCurrentDifferentiator, self).__init__(BMatrix.current_differentiator(Ai))
+        self.args = (Ai, )
 
 
 class IdealCurrentIntegrator(TwoPortBModel):
     """Ideal Current integrator"""
 
-    def __init__(self, Av=1):
+    def __init__(self, Ai=1):
 
-        super (IdealCurrentIntegrator, self).__init__(BMatrix.current_integrator(Av))
+        Ai = _Expr(Ai)
+        super (IdealCurrentIntegrator, self).__init__(BMatrix.current_integrator(Ai))
+        self.args = (Ai, )
 
 
 class OpampInverter(TwoPortBModel):
@@ -3866,8 +3876,11 @@ class OpampInverter(TwoPortBModel):
 
     def __init__(self, R1, R2):
 
+        R1 = _Expr(R1)
+        R2 = _Expr(R2)
         # FIXME for initial voltages.
         super (OpampInverter, self).__init__(AMatrix(-R1.Z / R2.Z, 0, -1 / R2.Z, 0).B)
+        self.args = (R1, R2)
 
 
 class OpampIntegrator(TwoPortBModel):
@@ -3875,8 +3888,11 @@ class OpampIntegrator(TwoPortBModel):
 
     def __init__(self, R1, C1):
 
+        R1 = _Expr(R1)
+        C1 = _Expr(C1)
         # FIXME for initial voltages.
         super (OpampIntegrator, self).__init__(AMatrix(-R1.Z / C1.Z, 0, -1 / C1.Z, 0).B)
+        self.args = (R1, C1)
 
 
 class OpampDifferentiator(TwoPortBModel):
@@ -3884,8 +3900,11 @@ class OpampDifferentiator(TwoPortBModel):
 
     def __init__(self, R1, C1):
 
+        R1 = _Expr(R1)
+        C1 = _Expr(C1)
         # FIXME for initial voltages.
         super (OpampDifferentiator, self).__init__(AMatrix(-R1.Z * C1.Z, 0, -R1.Z, 0).B)
+        self.args = (R1, C1)
 
 
 class TSection(TwoPortBModel):
