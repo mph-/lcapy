@@ -3072,22 +3072,14 @@ class TwoPort(NetObject):
         return Hybrid2(self, x)
 
 
-    def inversehybrid(self, x, port=None):
+    def inverse_hybrid(self, x, port=None):
         """Return the model with, x, in inverse hybrid connection
         (parallel input, series output)"""
 
         if issubclass(x.__class__, OnePort):
             raise NotImplementedError('TODO')
 
-        if not issubclass(x.__class__, TwoPort):
-            raise TypeError('Argument not ', TwoPort)
-        
-        raise NotImplementedError('TODO GModel')
-
-        V1g = self.V1g + x.V1g
-        I2g = self.I2g + x.I2g
-        G = self.G + x.G
-        return TwoPortGModel(G, V1g, I2g)
+        return InverseHybrid2(self, x)
 
 
     # Other operations: swapping the input terminals negates the A matrix.
@@ -3684,6 +3676,26 @@ class Hybrid2(TwoPortHModel):
             H += arg.H            
 
         super (Hybrid2, self).__init__(H, V1h, I2h)
+
+
+class InverseHybrid2(TwoPortGModel):
+
+    def __init__(self, *args):
+
+        self.args = args
+        self._check_twoport_args()
+
+        arg = args[0]
+        I1g = arg.I1g
+        V2g = arg.V2g
+        G = arg.G
+
+        for arg in args[1:]:
+            I1g += arg.I1g
+            V2g += arg.V2g
+            G += arg.G            
+
+        super (Hybrid2, self).__init__(G, I1g, V2g)
 
 
 class Series(TwoPortBModel):
