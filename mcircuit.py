@@ -1761,19 +1761,8 @@ class I(Norton):
         return Norton(Ys(0), self.I)
 
 
-class Composite(Thevenin):
 
-    @property
-    def Z(self):    
-        return self.expand().Z
-
-
-    @property
-    def V(self):    
-        return self.expand().V
-
-
-class Xtal(Composite):
+class Xtal(Thevenin):
     """Crystal"""
 
     def __init__(self, C0, R1, L1, C1):
@@ -1789,13 +1778,16 @@ class Xtal(Composite):
         self.C1 = _Expr(C1)
         self.args = (self.C0, self.R1, self.L1, self.C1)
     
+        N = self.expand()
+        super (Xtal, self).__init__(N.Z, N.V)
     
+
     def expand(self):
         
         return (R(self.R1) + L(self.L1) + C(self.C1)) | C(self.C0)
 
 
-class FerriteBead(Composite):
+class FerriteBead(Thevenin):
     """Ferrite bead"""
 
     def __init__(self, Rs, Rp, Cp, Lp):
@@ -1810,6 +1802,9 @@ class FerriteBead(Composite):
         self.Cp = _Expr(Cp)
         self.Lp = _Expr(Lp)
         self.args = (self.Rs, self.Rp, self.Cp, self.Lp)
+
+        N = self.expand()
+        super (Xtal, self).__init__(N.Z, N.V)
 
 
     def expand(self):
