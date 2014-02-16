@@ -1899,6 +1899,124 @@ class _TwoPortMatrix(sym.Matrix):
         return ZMatrix(self.Y.inv())
 
 
+    @property
+    def A11(self):
+        return self.A[0, 0]
+
+
+    @property
+    def A12(self):
+        return self.A[0, 1]
+
+
+    @property
+    def A21(self):
+        return self.A[1, 0]
+
+
+    @property
+    def A22(self):
+        return self.A[1, 1]
+
+
+    @property
+    def B11(self):
+        return self.B[0, 0]
+
+
+    @property
+    def B12(self):
+        return self.B[0, 1]
+
+
+    @property
+    def B21(self):
+        return self.B[1, 0]
+
+
+    @property
+    def B22(self):
+        return self.B[1, 1]
+
+
+    @property
+    def G11(self):
+        return self.G[0, 0]
+
+
+    @property
+    def G12(self):
+        return self.G[0, 1]
+
+
+    @property
+    def G21(self):
+        return self.G[1, 0]
+
+
+    @property
+    def G22(self):
+        return self.G[1, 1]
+
+    @property
+    def H11(self):
+        return self.H[0, 0]
+
+
+    @property
+    def H12(self):
+        return self.H[0, 1]
+
+
+    @property
+    def H21(self):
+        return self.H[1, 0]
+
+
+    @property
+    def H22(self):
+        return self.H[1, 1]
+
+
+    @property
+    def Y11(self):
+        return self.Y[0, 0]
+
+
+    @property
+    def Y12(self):
+        return self.Y[0, 1]
+
+
+    @property
+    def Y21(self):
+        return self.Y[1, 0]
+
+
+    @property
+    def Y22(self):
+        return self.Y[1, 1]
+
+
+    @property
+    def Z11(self):
+        return self.Z[0, 0]
+
+
+    @property
+    def Z12(self):
+        return self.Z[0, 1]
+
+
+    @property
+    def Z21(self):
+        return self.Z[1, 0]
+
+
+    @property
+    def Z22(self):
+        return self.Z[1, 1]
+
 
 class AMatrix(_TwoPortMatrix):
     """
@@ -1918,30 +2036,9 @@ class AMatrix(_TwoPortMatrix):
     """
 
     @property
-    def A11(self):
-        return self[0, 0]
-
-
-    @property
-    def A12(self):
-        return self[0, 1]
-
-
-    @property
-    def A21(self):
-        return self[1, 0]
-
-
-    @property
-    def A22(self):
-        return self[1, 1]
-
-
-    @property
     def A(self):
         # Perhaps we should make a copy?
         return self
-
 
     @property
     def B(self):
@@ -2086,26 +2183,6 @@ class BMatrix(_TwoPortMatrix):
     """
 
     @property
-    def B11(self):
-        return self[0, 0]
-
-
-    @property
-    def B12(self):
-        return self[0, 1]
-
-
-    @property
-    def B21(self):
-        return self[1, 0]
-
-
-    @property
-    def B22(self):
-        return self[1, 1]
-
-
-    @property
     def A(self):
         # Inverse
         det = self.det()
@@ -2121,7 +2198,7 @@ class BMatrix(_TwoPortMatrix):
     @property
     def G(self):
 
-        return HMatrix(-self.B21 / self.B22, -1 / self.B22, self.det() / self.B22, -self.B12 / self.B22)
+        return GMatrix(-self.B21 / self.B22, -1 / self.B22, self.det() / self.B22, -self.B12 / self.B22)
 
 
     @property
@@ -2355,26 +2432,6 @@ class GMatrix(_TwoPortMatrix):
     """
 
     @property
-    def G11(self):
-        return self[0, 0]
-
-
-    @property
-    def G12(self):
-        return self[0, 1]
-
-
-    @property
-    def G21(self):
-        return self[1, 0]
-
-
-    @property
-    def G22(self):
-        return self[1, 1]
-
-
-    @property
     def A(self):
         #return self.H.A
         return AMatrix(1 / self.G21, self.G22 / self.G21, self.G11 / self.G21, self.det() / self.G21)
@@ -2383,7 +2440,7 @@ class GMatrix(_TwoPortMatrix):
     @property
     def B(self):
         #return self.H.B
-        return AMatrix(-self.det() / self.G12, self.G22 / self.G12, self.G11 / self.G12, -1 / self.G12)
+        return BMatrix(-self.det() / self.G12, self.G22 / self.G12, self.G11 / self.G12, -1 / self.G12)
 
 
     @property
@@ -2421,26 +2478,6 @@ class HMatrix(_TwoPortMatrix):
 
     H = inv(G)
     """
-
-    @property
-    def H11(self):
-        return self[0, 0]
-
-
-    @property
-    def H12(self):
-        return self[0, 1]
-
-
-    @property
-    def H21(self):
-        return self[1, 0]
-
-
-    @property
-    def H22(self):
-        return self[1, 1]
-
 
     @property
     def A(self):
@@ -2484,28 +2521,8 @@ class YMatrix(_TwoPortMatrix):
     """
 
     @property
-    def Y11(self):
-        return self[0, 0]
-
-
-    @property
-    def Y12(self):
-        return self[0, 1]
-
-
-    @property
-    def Y21(self):
-        return self[1, 0]
-
-
-    @property
-    def Y22(self):
-        return self[1, 1]
-
-
-    @property
     def Ysc(self):
-        return YVector(self.Y[0, 0], self.Y[1, 1])
+        return YVector(self.Y11, self.Y22)
 
 
     @property
@@ -2552,28 +2569,8 @@ class ZMatrix(_TwoPortMatrix):
     """
 
     @property
-    def Z11(self):
-        return self[0, 0]
-
-
-    @property
-    def Z12(self):
-        return self[0, 1]
-
-
-    @property
-    def Z21(self):
-        return self[1, 0]
-
-
-    @property
-    def Z22(self):
-        return self[1, 1]
-
-
-    @property
     def Zoc(self):
-        return ZVector(self.Z[0, 0], self.Z[1, 1])
+        return ZVector(self.Z11, self.Z22)
 
 
     @property
@@ -2632,6 +2629,125 @@ class TwoPort(NetObject):
 
     """
 
+    @property
+    def A11(self):
+        return self.A[0, 0]
+
+
+    @property
+    def A12(self):
+        return self.A[0, 1]
+
+
+    @property
+    def A21(self):
+        return self.A[1, 0]
+
+
+    @property
+    def A22(self):
+        return self.A[1, 1]
+
+
+    @property
+    def B11(self):
+        return self.B[0, 0]
+
+
+    @property
+    def B12(self):
+        return self.B[0, 1]
+
+
+    @property
+    def B21(self):
+        return self.B[1, 0]
+
+
+    @property
+    def B22(self):
+        return self.B[1, 1]
+
+
+    @property
+    def G11(self):
+        return self.G[0, 0]
+
+
+    @property
+    def G12(self):
+        return self.G[0, 1]
+
+
+    @property
+    def G21(self):
+        return self.G[1, 0]
+
+
+    @property
+    def G22(self):
+        return self.G[1, 1]
+
+    @property
+    def H11(self):
+        return self.H[0, 0]
+
+
+    @property
+    def H12(self):
+        return self.H[0, 1]
+
+
+    @property
+    def H21(self):
+        return self.H[1, 0]
+
+
+    @property
+    def H22(self):
+        return self.H[1, 1]
+
+
+    @property
+    def Y11(self):
+        return self.Y[0, 0]
+
+
+    @property
+    def Y12(self):
+        return self.Y[0, 1]
+
+
+    @property
+    def Y21(self):
+        return self.Y[1, 0]
+
+
+    @property
+    def Y22(self):
+        return self.Y[1, 1]
+
+
+    @property
+    def Z11(self):
+        return self.Z[0, 0]
+
+
+    @property
+    def Z12(self):
+        return self.Z[0, 1]
+
+
+    @property
+    def Z21(self):
+        return self.Z[1, 0]
+
+
+    @property
+    def Z22(self):
+        return self.Z[1, 1]
+
+
     def _check_twoport_args(self):
 
         for arg in self.args:
@@ -2643,8 +2759,8 @@ class TwoPort(NetObject):
     def isbuffered(self):
         """Return true if two-port is buffered, i.e., any load
         on the output has no affect on the input. """
-        #return self.A.A12 == 0 and self.A.A22 == 0
-        return self.B.B12 == 0 and self.B.B22 == 0
+        #return self.A12 == 0 and self.A22 == 0
+        return self.B12 == 0 and self.B22 == 0
 
 
     @property
@@ -2656,21 +2772,21 @@ class TwoPort(NetObject):
     @property
     def issymmetrical(self):
         """Return true if two-port is symmetrical. """
-        return self.B.B11 == self.B.B22
+        return self.B11 == self.B22
 
 
     @property
     def isseries(self):
         """Return true if two-port is a series network. """
-        #return (self.A.A11 == 1) and (self.A.A22 == 1) and (self.A.A21 == 0)
-        return (self.B.B11 == 1) and (self.B.B22 == 1) and (self.B.B21 == 0)
+        #return (self.A11 == 1) and (self.A22 == 1) and (self.A21 == 0)
+        return (self.B11 == 1) and (self.B22 == 1) and (self.B21 == 0)
 
 
     @property
     def isshunt(self):
         """Return true if two-port is a shunt network. """
-        #return (self.A.A11 == 1) and (self.A.A22 == 1) and (self.A.A12 == 0)
-        return (self.B.B11 == 1) and (self.B.B22 == 1) and (self.B.B12 == 0)
+        #return (self.A11 == 1) and (self.A22 == 1) and (self.A12 == 0)
+        return (self.B11 == 1) and (self.B22 == 1) and (self.B12 == 0)
 
 
     @property
@@ -2720,32 +2836,32 @@ class TwoPort(NetObject):
 
     @property
     def V1h(self):    
-        return Vs(-self.V2b / self.B.B11)
+        return Vs(-self.V2b / self.B11)
 
 
     @property
     def I2h(self):    
-        return Is(-self.V2b * self.B.B21 / self.B.B11) - self.I2b
+        return Is(-self.V2b * self.B21 / self.B11) - self.I2b
 
 
     @property
     def I1y(self):    
-        return Is(-self.V2b / self.B.B12)
+        return Is(-self.V2b / self.B12)
 
 
     @property
     def I2y(self):    
-        return Is(self.V2b * self.B.B22 / self.B.B12) - self.I2b
+        return Is(self.V2b * self.B22 / self.B12) - self.I2b
 
 
     @property
     def V1z(self):    
-        return Vs(-self.I2b / self.B.B21)
+        return Vs(-self.I2b / self.B21)
 
 
     @property
     def V2z(self):    
-        return self.V2b - Vs(self.I2b * self.B.B11 / self.B.B21)
+        return self.V2b - Vs(self.I2b * self.B11 / self.B21)
 
 
     @property
@@ -2902,7 +3018,7 @@ class TwoPort(NetObject):
          Y21 = -1 / A12 = |B| / B12
          """
 
-        return Ys(self.Y.Y21)
+        return Ys(self.Y21)
 
 
     @property
@@ -2930,7 +3046,7 @@ class TwoPort(NetObject):
         Z21 = 1 / A21 = -|B| / B21
         """
 
-        return Zs(self.Z.Z21)
+        return Zs(self.Z21)
 
 
     @property
@@ -3241,32 +3357,32 @@ class TwoPortBModel(TwoPort):
 
     @property
     def V1h(self):    
-        return Vs(-self.V2b / self.B.B11)
+        return Vs(-self.V2b / self.B11)
 
 
     @property
     def I2h(self):    
-        return Is(-self.V2b * self.B.B21 / self.B.B11) - self.I2b
+        return Is(-self.V2b * self.B21 / self.B11) - self.I2b
 
 
     @property
     def I1y(self):    
-        return Is(-self.V2b / self.B.B12)
+        return Is(-self.V2b / self.B12)
 
 
     @property
     def I2y(self):    
-        return Is(self.V2b * self.B.B22 / self.B.B12) - self.I2b
+        return Is(self.V2b * self.B22 / self.B12) - self.I2b
 
 
     @property
     def V1z(self):    
-        return Vs(-self.I2b / self.B.B21)
+        return Vs(-self.I2b / self.B21)
 
 
     @property
     def V2z(self):    
-        return self.V2b - Vs(self.I2b * self.B.B11 / self.B.B21)
+        return self.V2b - Vs(self.I2b * self.B11 / self.B21)
 
 
     def Vgain(self, inport=1, outport=2):
@@ -3279,9 +3395,9 @@ class TwoPortBModel(TwoPort):
         if inport == outport:
             return Avs(1)
         if inport == 1 and outport == 2:
-            return Avs(1 / self.A.A11)
+            return Avs(1 / self.A11)
         if inport == 2 and outport == 1:
-            return Avs(1 / self.B.B11)
+            return Avs(1 / self.B11)
         raise ValueError('bad port values')
 
 
@@ -3295,9 +3411,9 @@ class TwoPortBModel(TwoPort):
         if inport == outport:
             return Ais(1)
         if inport == 1 and outport == 2:
-            return Ais(-1 / self.A.A22)
+            return Ais(-1 / self.A22)
         if inport == 2 and outport == 1:
-            return Ais(-1 / self.B.B22)
+            return Ais(-1 / self.B22)
         raise ValueError('bad port values')
 
 
@@ -3360,8 +3476,8 @@ class TwoPortGModel(TwoPort):
         """Return voltage gain for specified ports with internal
         sources zero"""
 
-        # Av  = G21 = 1 / A11 = -|B| / B22 = Z21 / Z11 =  Y21/Y22
-        # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12/Y11
+        # Av  = G21 = 1 / A11 = -|B| / B22 = Z21 / Z11 =  Y21 / Y22
+        # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12 / Y11
 
         if inport == outport:
             return Avs(1)
@@ -3376,8 +3492,8 @@ class TwoPortGModel(TwoPort):
         """Return current gain for specified ports with internal
         sources zero"""
 
-        # Ai  = H21 = -1 / A22 = -|B| / B11 = -Z21 / Z22 = Y21/Y11
-        # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12/Y22
+        # Ai  = H21 = -1 / A22 = -|B| / B11 = -Z21 / Z22 = Y21 / Y11
+        # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12 / Y22
 
         if inport == outport:
             return Ais(1)
@@ -3465,8 +3581,8 @@ class TwoPortHModel(TwoPort):
         """Return voltage gain for specified ports with internal
         sources zero"""
 
-        # Av  = G21 = 1 / A11 = -|B| / B22 = Z21 / Z11 =  Y21/Y22
-        # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12/Y11
+        # Av  = G21 = 1 / A11 = -|B| / B22 = Z21 / Z11 =  Y21 / Y22
+        # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12 / Y11
 
         if inport == outport:
             return Avs(1)
@@ -3481,8 +3597,8 @@ class TwoPortHModel(TwoPort):
         """Return current gain for specified ports with internal
         sources zero"""
 
-        # Ai  = H21 = -1 / A22 = -|B| / B11 = -Z21 / Z22 = Y21/Y11
-        # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12/Y22
+        # Ai  = H21 = -1 / A22 = -|B| / B11 = -Z21 / Z22 = Y21 / Y11
+        # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12 / Y22
 
         if inport == outport:
             return Ais(1)
@@ -3545,12 +3661,12 @@ class TwoPortYModel(TwoPort):
 
     @property
     def I2b(self):    
-        return Is(-self.I1y * self.Y.Y11 * self.Y.Y22 / self.Y.Y12) - self.I2y
+        return Is(-self.I1y * self.Y11 * self.Y22 / self.Y12) - self.I2y
 
 
     @property
     def V2b(self):    
-        return Vs(self.I1y * self.Y.Y11 / self.Y.Y22)
+        return Vs(self.I1y * self.Y11 / self.Y22)
 
 
     @property
@@ -3615,26 +3731,26 @@ class TwoPortZModel(TwoPort):
 
     @property
     def I2b(self):    
-        return Is(self.V1z / self.Z.Z12)
+        return Is(self.V1z / self.Z12)
 
 
     @property
     def V2b(self):    
-        return self.V2z - Vs(self.V1z * self.Z.Z22 / self.Z.Z12)
+        return self.V2z - Vs(self.V1z * self.Z22 / self.Z12)
 
 
     @property
     def I1y(self):    
         
         Zdet = self.Z.det()
-        return Is(-self.V1z * self.Z.Z22 / Zdet - self.V2z * self.Z.Z12 / Zdet)
+        return Is(-self.V1z * self.Z22 / Zdet - self.V2z * self.Z12 / Zdet)
 
 
     @property
     def I2y(self):    
 
         Zdet = self.Z.det()
-        return Is(self.V1z * self.Z.Z21 / Zdet - self.V2z * self.Z.Z11 / Zdet)
+        return Is(self.V1z * self.Z21 / Zdet - self.V2z * self.Z11 / Zdet)
 
 
     @property
@@ -3651,15 +3767,15 @@ class TwoPortZModel(TwoPort):
         """Return voltage gain for specified ports with internal
         sources zero"""
 
-        # Av  = G21 = 1 / A11 = -|B| / B22 = Z21 / Z11 =  Y21/Y22
-        # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12/Y11
+        # Av  = G21 = 1 / A11 = -|B| / B22 = Z21 / Z11 =  Y21 / Y22
+        # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12 / Y11
 
         if inport == outport:
             return Avs(1)
         if inport == 1 and outport == 2:
-            return Avs(self.Z.Z21 / self.Z.Z11)
+            return Avs(self.Z21 / self.Z11)
         if inport == 2 and outport == 1:
-            return Avs(self.Z.Z12 / self.Z.Z22)
+            return Avs(self.Z12 / self.Z22)
         raise ValueError('bad port values')
 
 
@@ -3667,23 +3783,21 @@ class TwoPortZModel(TwoPort):
         """Return current gain for specified ports with internal
         sources zero"""
 
-        # Ai  = H21 = -1 / A22 = -|B| / B11 = -Z21 / Z22 = Y21/Y11
-        # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12/Y22
+        # Ai  = H21 = -1 / A22 = -|B| / B11 = -Z21 / Z22 = Y21 / Y11
+        # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12 / Y22
 
         if inport == outport:
             return Ais(1)
         if inport == 1 and outport == 2:
-            return Ais(-self.Z.Z21 / self.Z.Z22)
+            return Ais(-self.Z21 / self.Z22)
         if inport == 2 and outport == 1:
-            return Ais(-self.Z.Z12 / self.Z.Z11)
+            return Ais(-self.Z12 / self.Z11)
         raise ValueError('bad port values')
 
 
 class Chain(TwoPortBModel):
 
     def __init__(self, *args):
-
-        self.args = args
 
         for arg in args:
             if not issubclass(arg.__class__, TwoPort):
@@ -3709,6 +3823,7 @@ class Chain(TwoPortBModel):
             B = B * arg.B
 
         super (Chain, self).__init__(B, Vs(foo[0, 0]), Is(foo[1, 0]))
+        self.args = args
 
 
 class Par2(TwoPortYModel):
