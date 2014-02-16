@@ -1075,7 +1075,7 @@ class ParSer(OnePort):
 
         self.args = args
 
-        self.check()
+        self._check_args()
     
 
     def __str__(self):
@@ -1096,10 +1096,13 @@ class ParSer(OnePort):
         return str
 
 
-    def check(self):
+    def _check_args(self):
 
         args = list(self.args)
         for n, arg1 in enumerate(args):
+
+            if not isinstance(arg1, OnePort):
+                raise ValueError('%s not a OnePort' % arg1)
 
             for arg2 in args[n+1:]:
 
@@ -1111,7 +1114,7 @@ class ParSer(OnePort):
                         print('Warning: current sources connected in series %s and %s' % (arg1, arg2))
 
 
-    def combine(self, arg1, arg2):
+    def _combine(self, arg1, arg2):
 
         if arg1.__class__ != arg2.__class__:
             if self.__class__ == Ser:
@@ -1123,14 +1126,6 @@ class ParSer(OnePort):
                     return arg2
                 if isinstance(arg2, Z) and arg2.Z == 0:
                     return arg1
-                if isinstance(arg1, Vs) and arg1 == 0:
-                    return arg2
-                if isinstance(arg2, Vs) and arg2 == 0:
-                    return arg1
-                if isinstance(arg1, Zs) and arg1 == 0:
-                    return arg2
-                if isinstance(arg2, Zs) and arg2 == 0:
-                    return arg1
             if self.__class__ == Par:
                 if isinstance(arg1, I) and arg1.I == 0:
                     return arg2
@@ -1139,14 +1134,6 @@ class ParSer(OnePort):
                 if isinstance(arg1, Y) and arg1.Y == 0:
                     return arg2
                 if isinstance(arg2, Y) and arg2.Y == 0:
-                    return arg1
-                if isinstance(arg1, Is) and arg1 == 0:
-                    return arg2
-                if isinstance(arg2, Is) and arg2 == 0:
-                    return arg1
-                if isinstance(arg1, Ys) and arg1 == 0:
-                    return arg2
-                if isinstance(arg2, Ys) and arg2 == 0:
                     return arg1
 
             return None
@@ -1242,7 +1229,7 @@ class ParSer(OnePort):
                 # Par(Ser(V1, R1), Ser(R2, V2)).
                 # Could do Thevenin/Norton transformations.
 
-                newarg = self.combine(arg1, arg2)
+                newarg = self._combine(arg1, arg2)
                 if newarg != None:
                     #print('Combining', arg1, arg2, 'to', newarg)
                     args[m] = None
