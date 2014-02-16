@@ -2708,6 +2708,15 @@ class TwoPort(NetObject):
         """Return impedance matrix"""
         return self._M.Z
 
+    @property
+    def I1g(self):    
+        error('TODO')
+
+
+    @property
+    def V2g(self):    
+        error('TODO')
+
 
     @property
     def V1h(self):    
@@ -3198,7 +3207,7 @@ class TwoPortBModel(TwoPort):
     def __init__(self, B, V2b=Vs(0), I2b=Is(0)):
 
         if issubclass(B.__class__, TwoPortBModel):
-            B, V2b, I2b = B._M, B.Vs2b, B.Is2b, 
+            B, V2b, I2b = B._M, B._V2b, B._I2b, 
 
         if not isinstance(B, BMatrix):
             raise ValueError('B not BMatrix')
@@ -3210,8 +3219,8 @@ class TwoPortBModel(TwoPort):
             raise ValueError('I2b not Is')
         
         self._M = B
-        self.Vs2b = V2b
-        self.Is2b = I2b
+        self._V2b = V2b
+        self._I2b = I2b
 
 
     @property
@@ -3222,12 +3231,12 @@ class TwoPortBModel(TwoPort):
 
     @property
     def I2b(self):    
-        return self.Is2b
+        return self._I2b
 
 
     @property
     def V2b(self):    
-        return self.Vs2b
+        return self._V2b
 
 
     @property
@@ -3292,51 +3301,31 @@ class TwoPortBModel(TwoPort):
         raise ValueError('bad port values')
 
 
-class TwoPortHModel(TwoPort):
+class TwoPortGModel(TwoPort):
     """
-         +------+   +-------------------+    
-     I1  | +  - |   |                   | I2'          I2
-    -->--+  V1h +---+                   +-<-------+-----<--
-         |      |   |    two-port       |         |
-    +    +------+   |    network        | +       |       +
-    V1              |    without        | V2' ---+---+  V2
-    -               |    sources        | -  |   |   |   -
-                    |    represented    |    |  I2h  |    
-                    |    by H matrix    |    |   v   |
-                    |                   |    +---+---+
-                    |                   |        |    
-    ----------------+                   +--------+--------
-                    |                   |
-                    +-------------------+
-
-
-    +-   +     +-        -+   +-  -+     +-   -+
-    | V1 |  =  | H11  H12 |   | I1 |  +  | V1h |
-    | I2 |     | H21  H22 |   | V2 |     | I2h |
-    +-  -+     +-        -+   +-  -+     +-   -+ 
     """
 
-    def __init__(self, H, V1h=Vs(0), I2h=Is(0)):
+    def __init__(self, G, I1g=Is(0), V2g=Vs(0)):
 
-        if issubclass(H.__class__, TwoPortHModel):
-            H, V1h, I2h = H._M, H.Vs1h, H.Is2h, 
+        if issubclass(G.__class__, TwoPortGModel):
+            G, I1g, V2g = G._M, G._I1g, G._V2g
 
-        if not isinstance(H, HMatrix):
-            raise ValueError('H not HMatrix')
+        if not isinstance(G, GMatrix):
+            raise ValueError('G not GMatrix')
 
-        if not isinstance(V1h, Vs):
-            raise ValueError('V1h not Vs')
+        if not isinstance(I1g, Is):
+            raise ValueError('I1g not Is')
 
-        if not isinstance(I2h, Is):
-            raise ValueError('I2h not Is')
+        if not isinstance(V2g, Vs):
+            raise ValueError('V2g not Vs')
         
-        self._M = H
-        self.Vs1h = V1h
-        self.Is2h = I2h
+        self._M = G
+        self._V1g = I1g
+        self._I2g = V2g
 
 
     @property
-    def H(self):    
+    def G(self):    
         """Return hybrid matrix"""
         return self._M
 
@@ -3345,24 +3334,26 @@ class TwoPortHModel(TwoPort):
     def V2b(self):    
         """Return V2b"""
 
-        return Vs(self.V1h / self.H.H12)
+        # FIXME
+        return Vs(self.I1g / self.G.G12)
 
 
     @property
     def I2b(self):    
         """Return I2b"""
 
-        return Is(self.H.H22 / self.H.H12 * self.V1h) - self.I2h
+        # FIXME
+        return Is(self.G.G22 / self.G.G12 * self.I1g) - self.V2g
 
 
     @property
-    def V1h(self):    
-        return self.Vs1h
+    def I1g(self):    
+        return self._V1g
 
 
     @property
-    def I2h(self):    
-        return self.Is2h
+    def V2g(self):    
+        return self._I2g
 
 
     def Vgain(self, inport=1, outport=2):
@@ -3397,6 +3388,111 @@ class TwoPortHModel(TwoPort):
         raise ValueError('bad port values')
 
     
+class TwoPortHModel(TwoPort):
+    """
+         +------+   +-------------------+    
+     I1  | +  - |   |                   | I2'          I2
+    -->--+  V1h +---+                   +-<-------+-----<--
+         |      |   |    two-port       |         |
+    +    +------+   |    network        | +       |       +
+    V1              |    without        | V2' ---+---+  V2
+    -               |    sources        | -  |   |   |   -
+                    |    represented    |    |  I2h  |    
+                    |    by H matrix    |    |   v   |
+                    |                   |    +---+---+
+                    |                   |        |    
+    ----------------+                   +--------+--------
+                    |                   |
+                    +-------------------+
+
+
+    +-   +     +-        -+   +-  -+     +-   -+
+    | V1 |  =  | H11  H12 |   | I1 |  +  | V1h |
+    | I2 |     | H21  H22 |   | V2 |     | I2h |
+    +-  -+     +-        -+   +-  -+     +-   -+ 
+    """
+
+    def __init__(self, H, V1h=Vs(0), I2h=Is(0)):
+
+        if issubclass(H.__class__, TwoPortHModel):
+            H, V1h, I2h = H._M, H._V1h, H._I2h
+
+        if not isinstance(H, HMatrix):
+            raise ValueError('H not HMatrix')
+
+        if not isinstance(V1h, Vs):
+            raise ValueError('V1h not Vs')
+
+        if not isinstance(I2h, Is):
+            raise ValueError('I2h not Is')
+        
+        self._M = H
+        self._V1h = V1h
+        self._I2h = I2h
+
+
+    @property
+    def H(self):    
+        """Return hybrid matrix"""
+        return self._M
+
+
+    @property
+    def V2b(self):    
+        """Return V2b"""
+
+        return Vs(self.V1h / self.H.H12)
+
+
+    @property
+    def I2b(self):    
+        """Return I2b"""
+
+        return Is(self.H.H22 / self.H.H12 * self.V1h) - self.I2h
+
+
+    @property
+    def V1h(self):    
+        return self._V1h
+
+
+    @property
+    def I2h(self):    
+        return self._I2h
+
+
+    def Vgain(self, inport=1, outport=2):
+        """Return voltage gain for specified ports with internal
+        sources zero"""
+
+        # Av  = G21 = 1 / A11 = -|B| / B22 = Z21 / Z11 =  Y21/Y22
+        # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12/Y11
+
+        if inport == outport:
+            return Avs(1)
+        if inport == 1 and outport == 2:
+            return Avs(self.G.G21)
+        if inport == 2 and outport == 1:
+            return Avs(self.H.H12)
+        raise ValueError('bad port values')
+
+
+    def Igain(self, inport=1, outport=2):
+        """Return current gain for specified ports with internal
+        sources zero"""
+
+        # Ai  = H21 = -1 / A22 = -|B| / B11 = -Z21 / Z22 = Y21/Y11
+        # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12/Y22
+
+        if inport == outport:
+            return Ais(1)
+        if inport == 1 and outport == 2:
+            return Ais(self.H.H21)
+        if inport == 2 and outport == 1:
+            return Ais(self.G.G12)
+        raise ValueError('bad port values')
+
+
 class TwoPortYModel(TwoPort):
     """
                      +-------------------+ 
@@ -3426,7 +3522,7 @@ class TwoPortYModel(TwoPort):
     def __init__(self, Y, I1y=Is(0), I2y=Is(0)):
 
         if issubclass(Y.__class__, TwoPortYModel):
-            Y, I1y, I2y = Y._M, Y.Is1y, Y.Is2y
+            Y, I1y, I2y = Y._M, Y._I1y, Y._I2y
 
         if not isinstance(Y, YMatrix):
             raise ValueError('Y not YMatrix')
@@ -3437,8 +3533,8 @@ class TwoPortYModel(TwoPort):
             raise ValueError('I2y not Is')
         
         self._M = Y
-        self.Is1y = I1y
-        self.Is2y = I2y
+        self._I1y = I1y
+        self._I2y = I2y
 
 
     @property
@@ -3459,12 +3555,12 @@ class TwoPortYModel(TwoPort):
 
     @property
     def I1y(self):    
-        return self.Is1y
+        return self._I1y
 
 
     @property
     def I2y(self):    
-        return self.Is2y
+        return self._I2y
 
         
 
@@ -3496,7 +3592,7 @@ class TwoPortZModel(TwoPort):
     def __init__(self, Z, V1z=Vs(0), V2z=Vs(0)):
 
         if issubclass(Z.__class__, TwoPortZModel):
-            Z, V1z, V2z = Z._M, Z.Vs1z, Z.Vs2z
+            Z, V1z, V2z = Z._M, Z._V1z, Z._V2z
 
         if not isinstance(Z, ZMatrix):
             raise ValueError('Z not ZMatrix')
@@ -3507,8 +3603,8 @@ class TwoPortZModel(TwoPort):
             raise ValueError('V2z not Vs')
         
         self._M = Z
-        self.Vs1z = V1z
-        self.Vs2z = V2z
+        self._V1z = V1z
+        self._V2z = V2z
 
 
     @property
@@ -3543,12 +3639,12 @@ class TwoPortZModel(TwoPort):
 
     @property
     def V1z(self):    
-        return self.Vs1z
+        return self._V1z
 
 
     @property
     def V2z(self):    
-        return self.Vs2z
+        return self._V2z
 
 
     def Vgain(self, inport=1, outport=2):
@@ -3712,8 +3808,8 @@ class Series(TwoPortBModel):
         self.OP = OP
         self.args = (OP, )
         self._M = BMatrix.Zseries(OP.Z)
-        self.Vs2b = OP.V
-        self.Is2b = Is(0)
+        self._V2b = OP.V
+        self._I2b = Is(0)
 
 
 class Shunt(TwoPortBModel):
@@ -3735,8 +3831,8 @@ class Shunt(TwoPortBModel):
         self.OP = OP
         self.args = (OP, )
         self._M = BMatrix.Yshunt(OP.Y)
-        self.Vs2b = Vs(0)
-        self.Is2b = OP.I
+        self._V2b = Vs(0)
+        self._I2b = OP.I
 
 
 class IdealTransformer(TwoPortBModel):
@@ -3748,8 +3844,8 @@ class IdealTransformer(TwoPortBModel):
         self.alpha = _Expr(alpha)
         self.args = (alpha, )
         self._M = BMatrix.transformer(alpha)
-        self.Vs2b = Vs(0)
-        self.Is2b = Is(0)
+        self._V2b = Vs(0)
+        self._I2b = Is(0)
 
 
 class IdealGyrator(TwoPortBModel):
@@ -3763,8 +3859,8 @@ class IdealGyrator(TwoPortBModel):
         self.R = _Expr(R)
         self.args = (R, )
         self._M = BMatrix.gyrator(R)
-        self.Vs2b = Vs(0)
-        self.Is2b = Is(0)
+        self._V2b = Vs(0)
+        self._I2b = Is(0)
 
 
 class VoltageFollower(TwoPortBModel):
@@ -3774,8 +3870,8 @@ class VoltageFollower(TwoPortBModel):
 
         self.args = ()
         self._M = BMatrix.voltage_amplifier(1)
-        self.Vs2b = Vs(0)
-        self.Is2b = Is(0)
+        self._V2b = Vs(0)
+        self._I2b = Is(0)
 
 
 class VoltageAmplifier(TwoPortBModel):
@@ -4228,13 +4324,13 @@ class ThreePort(object):
             raise ValueError('Vz not VsVector')
 
         self._M = Z
-        self.Vsz = Vz
+        self._Vz = Vz
 
 
     @property
     def Voc(self):    
         """Return voltage vector with all ports open-circuited (i.e., In = 0)"""
-        return self.Vsz
+        return self._Vz
 
 
     @property
@@ -4497,10 +4593,15 @@ class Opamp(ThreePort):
             |/
 
         Each port voltage, Vn, is referenced to a common ground.
+        Port 1: non-inverting input
+        Port 2: inverting input
+        Port 3: output
 
         """
 
         # If Ro=0, then Z matrix singular.
+
+        Rd, Ro, A, Rp, Rm = [_Expr(arg) for arg in (Rd, Ro, A, Rp, Rm)]
 
         Ra = Rp * (Rd + Rm) / (Rp + Rd + Rm)
         Rb = Rm * (Rd + Rp) / (Rp + Rd + Rm)
@@ -4509,7 +4610,7 @@ class Opamp(ThreePort):
                      (Rd, Rm + Rd, 0),
                      (A * Ra, -A * Rb, Ro)))
         super (Opamp, self).__init__(Z)
-    
+        self.args = (Rd, Ro, A, Rp, Rm)
 
 
 def test():
