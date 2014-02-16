@@ -3069,13 +3069,7 @@ class TwoPort(NetObject):
         if issubclass(x.__class__, OnePort):
             raise NotImplementedError('TODO')
 
-        if not issubclass(x.__class__, TwoPort):
-            raise TypeError('Argument not ', TwoPort)
-        
-        V1h = self.V1h + x.V1h
-        I2h = self.I2h + x.I2h
-        H = self.H + x.H
-        return TwoPortHModel(H, V1h, I2h)
+        return Hybrid2(self, x)
 
 
     def inversehybrid(self, x, port=None):
@@ -3669,7 +3663,27 @@ class Ser2(TwoPortZModel):
             V2z += arg.V2z
             Z += arg.Z            
 
-        super (Par2, self).__init__(Z, V1z, V2z)
+        super (Ser2, self).__init__(Z, V1z, V2z)
+
+
+class Hybrid2(TwoPortHModel):
+
+    def __init__(self, *args):
+
+        self.args = args
+        self._check_twoport_args()
+
+        arg = args[0]
+        V1h = arg.V1h
+        I2h = arg.I2h
+        H = arg.H
+
+        for arg in args[1:]:
+            V1h += arg.V1h
+            I2h += arg.I2h
+            H += arg.H            
+
+        super (Hybrid2, self).__init__(H, V1h, I2h)
 
 
 class Series(TwoPortBModel):
