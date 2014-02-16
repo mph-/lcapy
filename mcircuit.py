@@ -4113,9 +4113,6 @@ class LosslessTxLine(GeneralTxLine):
         l is the transmission line length (m)
         """
 
-        if not _symbolic:
-            raise ValueError('Can only implement transmission line symbolically')
-
         s = sym.Symbol('s')
         gamma = s / c
 
@@ -4132,9 +4129,6 @@ class TxLine(GeneralTxLine):
         C shunt capacitance/metre
         l is the transmission line length
         """
-
-        if not _symbolic:
-            raise ValueError('Can only implement transmission line symbolically')
 
         s = sym.Symbol('s')
 
