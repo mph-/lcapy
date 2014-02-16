@@ -39,12 +39,7 @@ Thus switching to the Y matrix and back to the Z matrix produces a
 bogus result.  The same thing occurs for a series R; this has a
 singular Y matrix.
 
-Perhaps could have Ser and Par classes that store the underlying
-one-ports so that the network can be reconstructed; similar to how
-sympy stores expressions?  These could have internal lists of all the
-networks that are in series or parallel.
-
-It also may be better to defer the choice of the two-port model.  For
+It may be better to defer the choice of the two-port model.  For
 example, a T section would store the three sub-networks rather than
 generating a B matrix.  The appropriate model would be generated when
 desired.  This would avoid the inversion of singular matrices. The
@@ -54,9 +49,6 @@ type of two-port model.
 The original implementation stored _Expr as rational functions (using
 MRF class).  This is much faster, avoids symbolic inverse Laplace
 transforms, but does not handle delays and symbolic component values.
-
-TODO: Perhaps don't store R, V, I, as one-ports?  Or perhaps have a
-source-free one-port class?
 
 TODO: Fix handling of buffered two ports (amplifier / delay).
 
@@ -1820,6 +1812,8 @@ class Vsector(sym.Matrix):
 
     def __new__ (cls, *args):
 
+        args = [sym.simplify(arg) for arg in args]
+
         if len(args) == 2:
             return super (Vsector, cls).__new__(cls, (args[0], args[1]))
 
@@ -1859,6 +1853,8 @@ class ZVector(Vsector):
 class _TwoPortMatrix(sym.Matrix):
 
     def __new__ (cls, *args):
+
+        args = [sym.simplify(arg) for arg in args]
 
         if len(args) == 4:
             return super (_TwoPortMatrix, cls).__new__(cls, ((args[0], args[1]), (args[2], args[3])))
@@ -3323,7 +3319,7 @@ class TwoPortBModel(TwoPort):
     def __init__(self, B, V2b=Vs(0), I2b=Is(0)):
 
         if issubclass(B.__class__, TwoPortBModel):
-            B, V2b, I2b = B._M, B._V2b, B._I2b, 
+            B, V2b, I2b = B._M, B._V2b, B._I2b
 
         if not isinstance(B, BMatrix):
             raise ValueError('B not BMatrix')
@@ -3751,7 +3747,6 @@ class Par2(TwoPortYModel):
         super (Par2, self).__init__(Y, I1y, I2y)
 
 
-
 class Ser2(TwoPortZModel):
 
     def __init__(self, *args):
@@ -3822,6 +3817,8 @@ class Series(TwoPortBModel):
            +---------+   
 
          ----------------
+
+         Note, this has a singular Y matrix.
          """
 
         self.OP = OP
@@ -3845,6 +3842,8 @@ class Shunt(TwoPortBModel):
             +-+-+  
               |    
          -----+----
+
+         Note, this has a singular Z matrix.
          """
 
         self.OP = OP
