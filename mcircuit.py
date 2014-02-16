@@ -1075,7 +1075,7 @@ class ParSer(OnePort):
 
         self.args = args
 
-        self._check_args()
+        self._check_oneport_args()
     
 
     def __str__(self):
@@ -1096,7 +1096,7 @@ class ParSer(OnePort):
         return str
 
 
-    def _check_args(self):
+    def _check_oneport_args(self):
 
         args = list(self.args)
         for n, arg1 in enumerate(args):
@@ -2632,6 +2632,13 @@ class TwoPort(NetObject):
 
     """
 
+    def _check_twoport_args(self):
+
+        for arg in self.args:
+            if not isinstance(arg, TwoPort):
+                raise ValueError('%s not a TwoPort' % arg1)
+
+
     @property
     def isbuffered(self):
         """Return true if two-port is buffered, i.e., any load
@@ -3030,18 +3037,9 @@ class TwoPort(NetObject):
         if issubclass(x.__class__, OnePort):
             raise NotImplementedError('TODO')
 
-        if issubclass(x.__class__, OnePort):
-            raise NotImplementedError('TODO')
-
-        if not issubclass(x.__class__, TwoPort):
-            raise TypeError('Argument not ', TwoPort)
-
         warn('Do you mean chain?  The result of a series combination of two two-ports may be dodgy')
-        
-        V1z = self.V1z + x.V1z
-        V2z = self.V2z + x.V2z
-        Z = self.Z + x.Z
-        return TwoPortZModel(Z, V1z, V2z)
+
+        return Ser2(self, x)
 
 
     def terminate(self, T, port=2):
@@ -3061,13 +3059,7 @@ class TwoPort(NetObject):
         if issubclass(x.__class__, OnePort):
             raise NotImplementedError('TODO')
 
-        if not issubclass(x.__class__, TwoPort):
-            raise TypeError('Argument not ', TwoPort)
-        
-        I1y = self.I1y + x.I1y
-        I2y = self.I2y + x.I2y
-        Y = self.Y + x.Y
-        return TwoPortYModel(Y, I1y, I2y)
+        return Par2(self, x)
 
 
     def hybrid(self, x, port=None):
@@ -3635,6 +3627,49 @@ class Chain(TwoPortBModel):
             B = B * arg.B
 
         super (Chain, self).__init__(B, Vs(foo[0, 0]), Is(foo[1, 0]))
+
+
+class Par2(TwoPortYModel):
+
+    def __init__(self, *args):
+
+        self.args = args
+
+        self._check_twoport_args()
+
+        arg = args[0]
+        I1y = arg.I1y
+        I2y = arg.I2y
+        Y = arg.Y
+
+        for arg in args[1:]:
+            I1y += arg.I1y
+            I2y += arg.I2y
+            Y += arg.Y            
+
+        super (Par2, self).__init__(Y, I1y, I2y)
+
+
+
+class Ser2(TwoPortZModel):
+
+    def __init__(self, *args):
+
+        self.args = args
+
+        self._check_twoport_args()
+
+        arg = args[0]
+        V1z = arg.V1z
+        V2z = arg.V2z
+        Z = arg.Z
+
+        for arg in args[1:]:
+            V1z += arg.V1z
+            V2z += arg.V2z
+            Z += arg.Z            
+
+        super (Par2, self).__init__(Z, V1z, V2z)
 
 
 class Series(TwoPortBModel):
