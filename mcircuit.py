@@ -2047,15 +2047,15 @@ class _TwoPortMatrix(sym.Matrix):
 class AMatrix(_TwoPortMatrix):
     """
     ::
-    +-  -+     +-       -+   +-  -+    
-    | V1 |  =  | A11  A12|   | V2 | 
-    | I1 |     | A21  A22|   |-I2 | 
-    +-  -+     +-       -+   +-  -+    
+       +-  -+     +-       -+   +-  -+    
+       | V1 |  =  | A11  A12|   | V2 | 
+       | I1 |     | A21  A22|   |-I2 | 
+       +-  -+     +-       -+   +-  -+    
 
-           +-         -+
-    units  | 1     ohm |
-           | 1/ohm   1 |
-           +-         -+ 
+              +-         -+
+       units  | 1     ohm |
+              | 1/ohm   1 |
+              +-         -+ 
            
     A buffered two-port has A12 = A22 = 0.
 
@@ -2196,15 +2196,15 @@ class AMatrix(_TwoPortMatrix):
 class BMatrix(_TwoPortMatrix):
     """
     ::
-    +-  -+     +-       -+   +-  -+
-    | V2 |  =  | B11  B12|   | V1 |
-    |-I2 |     | B21  B22|   | I1 |
-    +-  -+     +-       -+   +-  -+
+       +-  -+     +-       -+   +-  -+
+       | V2 |  =  | B11  B12|   | V1 |
+       |-I2 |     | B21  B22|   | I1 |
+       +-  -+     +-       -+   +-  -+
 
-           +-         -+
-    units  | 1     ohm |
-           | 1/ohm   1 |
-           +-         -+ 
+              +-         -+
+       units  | 1     ohm |
+              | 1/ohm   1 |
+              +-         -+ 
 
     B = inv(A)
     """
@@ -2447,15 +2447,15 @@ class GMatrix(_TwoPortMatrix):
     """
 
     ::
-    +-  -+     +-       -+   +-  -+
-    | V2 |  =  | G11  G12|   | I2 |
-    | I1 |     | G21  G22|   | V1 |
-    +-  -+     +-       -+   +-  -+
+       +-  -+     +-       -+   +-  -+
+       | V2 |  =  | G11  G12|   | I2 |
+       | I1 |     | G21  G22|   | V1 |
+       +-  -+     +-       -+   +-  -+
 
-           +-         -+
-    units  | ohm     1 |
-           | 1   1/ohm |
-           +-         -+ 
+              +-         -+
+       units  | ohm     1 |
+              | 1   1/ohm |
+              +-         -+ 
 
     G = inv(H)
     """
@@ -2496,15 +2496,15 @@ class GMatrix(_TwoPortMatrix):
 class HMatrix(_TwoPortMatrix):
     """
     ::
-    +-  -+     +-       -+   +-  -+
-    | V1 |  =  | H11  H12|   | I1 |
-    | I2 |     | H21  H22|   | V2 |
-    +-  -+     +-       -+   +-  -+
+       +-  -+     +-       -+   +-  -+
+       | V1 |  =  | H11  H12|   | I1 |
+       | I2 |     | H21  H22|   | V2 |
+       +-  -+     +-       -+   +-  -+
 
-           +-         -+
-    units  | ohm     1 |
-           | 1   1/ohm |
-           +-         -+ 
+              +-         -+
+       units  | ohm     1 |
+              | 1   1/ohm |
+              +-         -+ 
 
     H = inv(G)
     """
@@ -2538,15 +2538,15 @@ class HMatrix(_TwoPortMatrix):
 class YMatrix(_TwoPortMatrix):
     """
     ::
-    +-  -+     +-       -+   +-  -+
-    | I1 |  =  | Y11  Y12|   | V1 |
-    | I2 |     | Y21  Y22|   | V2 |
-    +-  -+     +-       -+   +-  -+
+       +-  -+     +-       -+   +-  -+
+       | I1 |  =  | Y11  Y12|   | V1 |
+       | I2 |     | Y21  Y22|   | V2 |
+       +-  -+     +-       -+   +-  -+
 
-           +-           -+
-    units  | 1/ohm 1/ohm |
-           | 1/ohm 1/ohm |
-           +-           -+ 
+              +-           -+
+       units  | 1/ohm 1/ohm |
+              | 1/ohm 1/ohm |
+              +-           -+ 
 
     Y = inv(Z)
     """
@@ -2587,15 +2587,15 @@ class YMatrix(_TwoPortMatrix):
 class ZMatrix(_TwoPortMatrix):
     """
     ::
-    +-  -+     +-       -+   +-  -+
-    | V1 |  =  | Z11  Z12|   | I1 |
-    | V2 |     | Z21  Z22|   | I2 |
-    +-  -+     +-       -+   +-  -+
+       +-  -+     +-       -+   +-  -+
+       | V1 |  =  | Z11  Z12|   | I1 |
+       | V2 |     | Z21  Z22|   | I2 |
+       +-  -+     +-       -+   +-  -+
 
-           +-         -+
-    units  | ohm   ohm |
-           | ohm   ohm |
-           +-         -+ 
+              +-         -+
+       units  | ohm   ohm |
+              | ohm   ohm |
+              +-         -+ 
 
     Z = inv(Y)
     """
@@ -4142,12 +4142,10 @@ class TSection(TwoPortBModel):
                          |               
          ----------------+-----------------
 
-         The Z matrix for a resistive T section is
-         [ R1 + R2, R2     ]
-         [      R2, R2 + R3]
-
-         """
-        
+      The Z matrix for a resistive T section is
+      [ R1 + R2, R2     ]
+      [      R2, R2 + R3]
+      """
 
     def __init__(self, OP1, OP2, OP3):
 
