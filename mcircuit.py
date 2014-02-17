@@ -363,7 +363,6 @@ def canonical(expr, var=None):
     N, D = _as_ratfun_parts(ratfun, var)
 
     K = sym.cancel(N.LC() / D.LC())
-    sym.pprint(K)
     if delay != 0:
         K = K * sym.exp(var * delay)
 
@@ -657,7 +656,6 @@ class _Expr(object):
         return residues(self.expr, self.s)
 
 
-    @property
     def canonical(self):
         """Convert rational function to canonical form with unity
         highest power of denominator.
@@ -667,7 +665,6 @@ class _Expr(object):
         return self.__class__(canonical(self.expr, self.s), simplify=False)
 
 
-    @property
     def general(self):
         """Convert rational function to general form
 
@@ -676,7 +673,6 @@ class _Expr(object):
         return self.__class__(general(self.expr, self.s), simplify=False)
 
 
-    @property
     def partfrac(self):
         """Convert rational function into partial fraction form.
 
@@ -685,7 +681,6 @@ class _Expr(object):
         return self.__class__(partfrac(self.expr, self.s), simplify=False)
 
 
-    @property
     def ZPK(self):
         """Convert to pole-zero-gain (PZK) form.
         
@@ -694,14 +689,12 @@ class _Expr(object):
         return self.__class__(ZPK(self.expr, self.s), simplify=False)
 
 
-    @property
     def initial_value(self):
         """Determine value at t = 0"""
         
         return initial_value(self.expr, self.s)
 
 
-    @property
     def final_value(self):
         """Determine value at t = oo"""
         
@@ -994,19 +987,20 @@ class NetObject(object):
 
 
 class OnePort(NetObject):
+    """One-port network"""
 
     # Attributes: Y, Z, V, I
 
-    def __add__(self, x):
+    def __add__(self, OP):
         """Series combination"""
 
-        return Ser(self, x)
+        return Ser(self, OP)
 
 
-    def __or__(self, x):
+    def __or__(self, OP):
         """Parallel combination"""
 
-        return Par(self, x)
+        return Par(self, OP)
 
 
     @property
@@ -1341,6 +1335,7 @@ class Ser(ParSer):
 class Norton(OnePort):
     """Norton (Y) model
 
+    ::
             +-------------------+  
     I1      |                   |      -I1
     -->-+---+        Y          +---+--<--
@@ -1378,22 +1373,22 @@ class Norton(OnePort):
         return Vs(self.I / self.Y)
 
 
-    def series(self, x):
+    def series(self, OP):
 
-        return self.thevenin().series(x).norton()
+        return self.thevenin().series(OP).norton()
 
 
-    def parallel(self, x):
+    def parallel(self, OP):
 
-        if isinstance(x, (C, G, L, R, V, Thevenin)):
-            if x.Z == 0:
+        if isinstance(OP, (C, G, L, R, V, Thevenin)):
+            if OP.Z == 0:
                 raise ValueError('Cannot connect voltage source in parallel.')
-            y = x.norton()
+            y = OP.norton()
             return Norton(self.Y + y.Y, self.I + y.I)
-        elif isinstance(x, (I, Norton)):
-            return Norton(self.Y + x.Y, self.I + x.I)
+        elif isinstance(OP, (I, Norton)):
+            return Norton(self.Y + OP.Y, self.I + OP.I)
         else:
-            raise ValueError('Unhandled type ', type(x))            
+            raise ValueError('Unhandled type ', type(OP))            
 
 
     def cpt(self):
@@ -1428,6 +1423,7 @@ class Norton(OnePort):
 class Thevenin(OnePort):
     """Thevenin (Z) model
 
+    ::
          +------+    +-------------------+  
     I1   | +  - |    |                   | -I1
     -->--+  V   +----+        Z          +--<--
@@ -1459,27 +1455,28 @@ class Thevenin(OnePort):
         return Is(self.V / self.Z)
 
 
-    def series(self, x):
+    def series(self, OP):
 
-        if isinstance(x, (C, G, L, R, V, Thevenin)):
-            return Thevenin(self.Z + x.Z, self.V + x.V)
-        elif isinstance(x, (I, Norton)):
-            if x.Y == 0:
+        if isinstance(OP, (C, G, L, R, V, Thevenin)):
+            return Thevenin(self.Z + OP.Z, self.V + OP.V)
+        elif isinstance(OP, (I, Norton)):
+            if OP.Y == 0:
                 raise ValueError('Cannot connect current source in series.')
-            y = x.thevenin()
+            y = OP.thevenin()
             return Thevenin(self.Z + y.Z, self.V + y.V)
         else:
-            raise ValueError('Unhandled type ', type(x))            
+            raise ValueError('Unhandled type ', type(OP))            
 
 
-    def parallel(self, x):
+    def parallel(self, OP):
 
-        return self.norton().parallel(x).thevenin()
+        return self.norton().parallel(OP).thevenin()
 
 
     def parallel_ladder(self, *args):
         """Add unbalanced ladder network in parallel; alternately in parallel and series.
 
+        ::
           +---------+       +---------+       
        +--+   self  +---+---+   Z1    +---+---
        |  +---------+   |   +---------+   |
@@ -1524,6 +1521,7 @@ class Thevenin(OnePort):
     def parallel_L(self, Z0, Z1):
         """Add L network in parallel.
 
+        ::
           +---------+      +---------+        
        +--+   self  +------+   Z0    +---+----
        |  +---------+      +---------+   |    
@@ -1575,13 +1573,13 @@ class Thevenin(OnePort):
         return (self.parallel(Z0) + Z1).parallel(Z2)
 
 
-    def load(self, x):
+    def load(self, OP):
         """Apply a load and create a Load object that stores the voltage
         across the load and the current through it"""
         
         # This may need some pondering.  What if a Thevenin network is
         # connected?
-        return Load(self.parallel(x).V, self.series(x).I)
+        return Load(self.parallel(OP).V, self.series(OP).I)
 
 
     def cpt(self):
@@ -1636,7 +1634,7 @@ class G(Norton):
     """Conductance"""
 
     def __init__(self, Gval):
-    
+
         Gval = _Expr(Gval)
         super (G, self).__init__(Ys.G(Gval))
         self.G = Gval
@@ -1644,10 +1642,13 @@ class G(Norton):
 
 
 class L(Thevenin):
-    """Inductor"""
+    """Inductor
+
+    Inductance Lval, initial current i0"""
 
     def __init__(self, Lval, i0=0.0):
-    
+
+        
         Lval = _Expr(Lval)
         i0 = _Expr(i0)
         super (L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
@@ -1657,7 +1658,9 @@ class L(Thevenin):
 
 
 class C(Thevenin):
-    """Capacitor"""
+    """Capacitor
+
+    Capacitance Cval, initial voltage v0"""
 
     def __init__(self, Cval, v0=0.0):
     
@@ -1701,13 +1704,13 @@ class V(Thevenin):
         self.v = v
 
 
-    def parallel(self, x):
+    def parallel(self, OP):
 
-        if isinstance(x, V):
+        if isinstance(OP, V):
             raise ValueError('Cannot connect voltage sources in parallel.')
 
-        # This should be independent of x
-        return super (V, self).parallel(x)
+        # This should be independent of OP
+        return super (V, self).parallel(OP)
 
 
     def thevenin(self):
@@ -1733,13 +1736,13 @@ class I(Norton):
         self.i = i
 
 
-    def series(self, x):
+    def series(self, OP):
 
-        if isinstance(x, I):
+        if isinstance(OP, I):
             raise ValueError('Cannot connect current sources in series.')
 
-        # This should be independent of x
-        return super (V, self).series(x)
+        # This should be independent of OP
+        return super (V, self).series(OP)
 
 
     def thevenin(self):
@@ -1755,14 +1758,14 @@ class I(Norton):
 
 
 class Xtal(Thevenin):
-    """Crystal"""
+    """Crystal
+
+    This is modelled as a series R, L, C circuit in parallel
+    with C0 (a Butterworth van Dyke model).  Note,
+    harmonic resonances are not modelled.
+    """
 
     def __init__(self, C0, R1, L1, C1):
-        """Create a crystal using a Butterworth van Dyke model;
-        harmonic resonances are not modelled
-
-        This is modelled as a series R, L, C circuit in parallel
-        with C0."""
 
         self.C0 = _Expr(C0)
         self.R1 = _Expr(R1)
@@ -1780,14 +1783,13 @@ class Xtal(Thevenin):
 
 
 class FerriteBead(Thevenin):
-    """Ferrite bead"""
+    """Ferrite bead (lossy inductor)
+    
+    This is modelled as a series resistor (Rs) connected 
+    to a parallel R, L, C network (Rp, Lp, Cp).
+    """
 
     def __init__(self, Rs, Rp, Cp, Lp):
-        """Create a ferrite bead (lossy inductor)
-
-        This is modelled as a series resistor (Rs) connected 
-        to a parallel R, L, C network (Rp, Lp, Cp).
-        """
         
         self.Rs = _Expr(Rs)
         self.Rp = _Expr(Rp)
@@ -2016,6 +2018,7 @@ class _TwoPortMatrix(sym.Matrix):
 
 class AMatrix(_TwoPortMatrix):
     """
+    ::
     +-  -+     +-       -+   +-  -+    
     | V1 |  =  | A11  A12|   | V2 | 
     | I1 |     | A21  A22|   |-I2 | 
@@ -2025,7 +2028,7 @@ class AMatrix(_TwoPortMatrix):
     units  | 1     ohm |
            | 1/ohm   1 |
            +-         -+ 
-
+           
     A buffered two-port has A12 = A22 = 0.
 
     A = inv(B)
@@ -2151,19 +2154,20 @@ class AMatrix(_TwoPortMatrix):
         return cls.Zshunt(Z1).chain(cls.Lsection(Z2, Z3))
 
 
-    def chain(self, x):
+    def chain(self, OP):
 
-        return self * x
+        return self * OP
 
 
-    def cascade(self, x):
+    def cascade(self, OP):
 
-        return self.chain(x)
+        return self.chain(OP)
 
 
 
 class BMatrix(_TwoPortMatrix):
     """
+    ::
     +-  -+     +-       -+   +-  -+
     | V2 |  =  | B11  B12|   | V1 |
     |-I2 |     | B21  B22|   | I1 |
@@ -2173,7 +2177,6 @@ class BMatrix(_TwoPortMatrix):
     units  | 1     ohm |
            | 1/ohm   1 |
            +-         -+ 
-
 
     B = inv(A)
     """
@@ -2401,19 +2404,21 @@ class BMatrix(_TwoPortMatrix):
         return cls.Zshunt(Z1).chain(cls.Lsection(Z2, Z3))
 
 
-    def chain(self, x):
+    def chain(self, TP):
 
         # Note reverse order compared to AMatrix.
-        return x * self
+        return TP * self
 
 
-    def cascade(self, x):
+    def cascade(self, TP):
 
-        return self.chain(x)
+        return self.chain(TP)
 
 
 class GMatrix(_TwoPortMatrix):
     """
+
+    ::
     +-  -+     +-       -+   +-  -+
     | V2 |  =  | G11  G12|   | I2 |
     | I1 |     | G21  G22|   | V1 |
@@ -2462,6 +2467,7 @@ class GMatrix(_TwoPortMatrix):
 
 class HMatrix(_TwoPortMatrix):
     """
+    ::
     +-  -+     +-       -+   +-  -+
     | V1 |  =  | H11  H12|   | I1 |
     | I2 |     | H21  H22|   | V2 |
@@ -2503,6 +2509,7 @@ class HMatrix(_TwoPortMatrix):
 
 class YMatrix(_TwoPortMatrix):
     """
+    ::
     +-  -+     +-       -+   +-  -+
     | I1 |  =  | Y11  Y12|   | V1 |
     | I2 |     | Y21  Y22|   | V2 |
@@ -2551,6 +2558,7 @@ class YMatrix(_TwoPortMatrix):
 
 class ZMatrix(_TwoPortMatrix):
     """
+    ::
     +-  -+     +-       -+   +-  -+
     | V1 |  =  | Z11  Z12|   | I1 |
     | V2 |     | Z21  Z22|   | I2 |
@@ -2619,10 +2627,9 @@ class ZMatrix(_TwoPortMatrix):
 
 class TwoPort(NetObject):
     """
-    two-port networks are constrained to have the same current at each
-    port (but flowing in opposite directions).  This is called the
-    port condition.
-
+    General class to two-port networks.  Two-port networks are
+    constrained to have the same current at each port (but flowing in
+    opposite directions).  This is called the port condition.
     """
 
     @property
@@ -3135,120 +3142,120 @@ class TwoPort(NetObject):
         return TwoPortZModel(self.Z, self.V1z, self.V2z)
 
 
-    def chain(self, x):
-        """Return the model with, x, appended (cascade or chain connection)"""
+    def chain(self, TP):
+        """Return the model with, TP, appended (cascade or chain connection)"""
 
-        if not issubclass(x.__class__, TwoPort):
+        if not issubclass(TP.__class__, TwoPort):
             raise TypeError('Argument not', TwoPort)
 
-        return Chain(self, x)
+        return Chain(self, TP)
 
 
-    def append(self, x):
-        """Return the model with, x, appended"""
+    def append(self, TP):
+        """Return the model with, TP, appended"""
 
-        return self.chain(x)
-
-
-    def prepend(self, x):
-        """Return the model with, x, prepended"""
-
-        return x.chain(self)
+        return self.chain(TP)
 
 
-    def cascade(self, x):
-        """Return the model with, x, appended"""
+    def prepend(self, TP):
+        """Return the model with, TP, prepended"""
 
-        return self.chain(x)
+        return TP.chain(self)
 
 
-    def series(self, x, port=None):
-        """Return the model with, x, in series.
+    def cascade(self, TP):
+        """Return the model with, TP, appended"""
+
+        return self.chain(TP)
+
+
+    def series(self, TP, port=None):
+        """Return the model with, TP, in series.
 
          In general, this is tricky to ensure that the port condition
          is valid.  The common ground connection of the first two-port
          shorts out the top of the T of the second two-port.
          """
 
-        if issubclass(x.__class__, OnePort):
+        if issubclass(TP.__class__, OnePort):
             raise NotImplementedError('TODO')
 
         warn('Do you mean chain?  The result of a series combination of two two-ports may be dodgy')
 
-        return Ser2(self, x)
+        return Ser2(self, TP)
 
 
-    def terminate(self, T, port=2):
-        """Connect one-port in parallel to specified port and return a Thevenin
+    def terminate(self, OP, port=2):
+        """Connect one-port in parallel to specified port and return a OPhevenin
         (one-port) object"""
 
         if port == 1:
-            return self.source(T)
+            return self.source(OP)
         if port == 2:
-            return self.load(T)
+            return self.load(OP)
         raise ValueError('Invalid port ' + port)
 
 
-    def parallel(self, x, port=None):
-        """Return the model with, x, in parallel"""
+    def parallel(self, TP, port=None):
+        """Return the model with, TP, in parallel"""
 
-        if issubclass(x.__class__, OnePort):
+        if issubclass(TP.__class__, OnePort):
             raise NotImplementedError('TODO')
 
-        return Par2(self, x)
+        return Par2(self, TP)
 
 
-    def hybrid(self, x, port=None):
-        """Return the model with, x, in hybrid connection (series
+    def hybrid(self, TP, port=None):
+        """Return the model with, TP, in hybrid connection (series
         input, parallel output)"""
 
-        if issubclass(x.__class__, OnePort):
+        if issubclass(TP.__class__, OnePort):
             raise NotImplementedError('TODO')
 
-        return Hybrid2(self, x)
+        return Hybrid2(self, TP)
 
 
-    def inverse_hybrid(self, x, port=None):
-        """Return the model with, x, in inverse hybrid connection
+    def inverse_hybrid(self, TP, port=None):
+        """Return the model with, TP, in inverse hybrid connection
         (parallel input, series output)"""
 
-        if issubclass(x.__class__, OnePort):
+        if issubclass(TP.__class__, OnePort):
             raise NotImplementedError('TODO')
 
-        return InverseHybrid2(self, x)
+        return InverseHybrid2(self, TP)
 
 
     # Other operations: swapping the input terminals negates the A matrix.
     # switching ports.
 
 
-    def bridge(self, T):
+    def bridge(self, TP):
         """Bridge the ports with a one-port element"""
 
-        if not issubclass(T.__class__, OnePort):
+        if not issubclass(TP.__class__, OnePort):
             raise TypeError('Argument not ', OnePort)
 
         # FIXME
-        return self.parallel(Series(T))
+        return self.parallel(Series(TP))
 
 
-    def load(self, T):
+    def load(self, TP):
         """Apply a one-port load and return a Thevenin (one-port) object"""
 
-        if not issubclass(T.__class__, OnePort):
+        if not issubclass(TP.__class__, OnePort):
             raise TypeError('Argument not ', OnePort)
 
-        foo = self.chain(Shunt(T))
+        foo = self.chain(Shunt(TP))
         return Thevenin(Zs(foo.Z1oc), foo.V1oc)
 
 
-    def source(self, T):
+    def source(self, TP):
         """Apply a one-port source and return a Thevenin (one-port) object"""
 
-        if not issubclass(T.__class__, OnePort):
+        if not issubclass(TP.__class__, OnePort):
             raise TypeError('Argument not ', OnePort)
 
-        foo = Shunt(T).chain(self)
+        foo = Shunt(TP).chain(self)
         return Thevenin(Zs(foo.Z2oc), foo.V2oc)
 
 
@@ -3276,6 +3283,7 @@ class TwoPort(NetObject):
 
 class TwoPortBModel(TwoPort):
     """
+    ::
             +-------------------+    +------+
      I1     |                   | I2'| -  + |          I2
     -->-----+                   +-<--+  V2b +----+-----<--
@@ -3485,6 +3493,7 @@ class TwoPortGModel(TwoPort):
 
 class TwoPortHModel(TwoPort):
     """
+    ::
          +------+   +-------------------+    
      I1  | +  - |   |                   | I2'          I2
     -->--+  V1h +---+                   +-<-------+-----<--
@@ -3558,6 +3567,7 @@ class TwoPortHModel(TwoPort):
 
 class TwoPortYModel(TwoPort):
     """
+    ::
                      +-------------------+ 
      I1              |                   | I2'           I2
     -->----+---------+                   +-<-------+-----<--
@@ -3579,7 +3589,6 @@ class TwoPortYModel(TwoPort):
     +-  -+     +-        -+   +-  -+     +-   -+ 
 
     Ymn = Im / Vn for Vm = 0
-
     """
 
     def __init__(self, Y, I1y=Is(0), I2y=Is(0)):
@@ -3629,7 +3638,7 @@ class TwoPortYModel(TwoPort):
 
 class TwoPortZModel(TwoPort):
     """
-
+    ::
          +------+    +-------------------+    +------+
     I1   | +  - | I1'|                   | I2'| -  + |  I2
     -->--+  V1z +-->-+                   +-<--+  V2z +--<--
@@ -3877,18 +3886,18 @@ class InverseHybrid2(TwoPortGModel):
 class Series(TwoPortBModel):
     """
     Two-port comprising a single one-port in series configuration
+    ::
 
-    Note, this has a singular Y matrix.
-    """
-
-    def __init__(self, OP):
-        """
            +---------+   
          --+   OP    +---
            +---------+   
 
          ----------------
-         """
+
+    Note, this has a singular Y matrix.
+    """
+
+    def __init__(self, OP):
 
         self.OP = OP
         self.args = (OP, )
@@ -3900,14 +3909,7 @@ class Series(TwoPortBModel):
 class Shunt(TwoPortBModel):
     """
     Two-port comprising a single one-port in shunt configuration
-
-    Note, this has a singular Z matrix.
-    
-    """
-
-    def __init__(self, OP):
-        """
-                 
+    ::
          -----+----
               |    
             +-+-+  
@@ -3918,7 +3920,10 @@ class Shunt(TwoPortBModel):
               |    
          -----+----
 
-         """
+    Note, this has a singular Z matrix.
+    """
+
+    def __init__(self, OP):
 
         self.OP = OP
         self.args = (OP, )
@@ -4096,9 +4101,8 @@ class OpampDifferentiator(TwoPortBModel):
 
 
 class TSection(TwoPortBModel):
-
-    def __init__(self, OP1, OP2, OP3):
-        """
+    """T (Y) section
+    ::
            +---------+       +---------+       
          --+   OP1   +---+---+   OP3   +---
            +---------+   |   +---------+   
@@ -4116,6 +4120,9 @@ class TSection(TwoPortBModel):
 
          """
         
+
+    def __init__(self, OP1, OP2, OP3):
+
         super (TSection, self).__init__(Series(OP1).chain(Shunt(OP2)).chain(Series(OP3)))
         self.args = (OP1, OP2, OP3)
 
@@ -4130,9 +4137,8 @@ class TSection(TwoPortBModel):
 
 
 class TwinTSection(TwoPortBModel):
-
-    def __init__(self, OP1a, OP2a, OP3a, OP1b, OP2b, OP3b):
-        """
+    """Twin T section
+    ::
               +---------+       +---------+       
            +--+   OP1a  +---+---+   OP3a  +--+
            |  +---------+   |   +---------+  |
@@ -4155,15 +4161,16 @@ class TwinTSection(TwoPortBModel):
          -------------------+--------------------
 
          """
+    
+    def __init__(self, OP1a, OP2a, OP3a, OP1b, OP2b, OP3b):
 
         super (TwinTSection, self).__init__(TSection(OP1a, OP2a, OP3a).parallel(TSection(OP1b, OP2b, OP3b)))
         self.args = (OP1a, OP2a, OP3a, OP1b, OP2b, OP3b)
 
 
 class BridgedTSection(TwoPortBModel):
-
-    def __init__(self, OP1, OP2, OP3, OP4):
-        """
+    """Bridged T section
+        ::
                        +---------+       
            +-----------+   OP4   +-----------+
            |           +---------+           |
@@ -4181,14 +4188,15 @@ class BridgedTSection(TwoPortBModel):
 
          """
 
+    def __init__(self, OP1, OP2, OP3, OP4):
+
         super (TwinTSection, self).__init__(TSection(OP1, OP2, OP3).parallel(Series(OP4)))
         self.args = (OP1, OP2, OP3, OP4)
 
 
 class PiSection(TwoPortBModel):
-
-    def __init__(self, OP1, OP2, OP3):
-        """
+    """Pi (delta) section
+    ::
                   +---------+       
         -----+----+   OP2    +---+-----
              |    +---------+   |  
@@ -4201,6 +4209,8 @@ class PiSection(TwoPortBModel):
         -----+------------------+-----
 
         """
+
+    def __init__(self, OP1, OP2, OP3):
 
         super (PiSection, self).__init__(Shunt(OP1).chain(Series(OP2)).chain(Shunt(OP3)))
         self.args = (OP1, OP2, OP3)
@@ -4215,33 +4225,30 @@ class PiSection(TwoPortBModel):
 
 
 class LSection(TwoPortBModel):
-
-    def __init__(self, OP1, OP2):
-        """
+    """L Section
+    ::
            +---------+       
          --+   OP1   +---+----
            +---------+   |   
                        +-+-+ 
                        |   | 
-                       |OP2 | 
+                       |OP2| 
                        |   | 
                        +-+-+ 
                          |   
          ----------------+----
          """
 
+    def __init__(self, OP1, OP2):
+
         super (LSection, self).__init__(Series(OP1).chain(Shunt(OP2)))
         self.args = (OP1, OP2)
 
 
 class Ladder(TwoPortBModel):
-
-    def __init__(self, OP1, *args):
-        """
-        
-        Create (unbalanced) ladder network with alternating Series and Shunt
-        networks chained
-
+    """(Unbalanced) ladder network with alternating Series and Shunt
+    networks chained
+    ::
            +---------+       +---------+       
          --+   OP1   +---+---+ args[1] +---
            +---------+   |   +---------+   
@@ -4253,6 +4260,8 @@ class Ladder(TwoPortBModel):
                          |               
          ----------------+-----------------
          """
+
+    def __init__(self, OP1, *args):
 
         self.args = (OP1, ) + args
 
@@ -4269,13 +4278,14 @@ class Ladder(TwoPortBModel):
 
 
 class GeneralTxLine(TwoPortBModel):
+    """General transmission line
+
+    Z0 is the (real) characteristic impedance (ohms)
+    gamma is the propagation constant (1/m)
+    l is the transmission line length (m)
+    """
 
     def __init__(self, Z0, gamma, l):
-        """
-        Z0 is the (real) characteristic impedance (ohms)
-        gamma is the propagation constant (1/m)
-        l is the transmission line length (m)
-        """
         
         Z0 = _Expr(Z0)
         gamma = _Expr(gamma)
@@ -4293,13 +4303,13 @@ class GeneralTxLine(TwoPortBModel):
 
 
 class LosslessTxLine(GeneralTxLine):
-
-    def __init__(self, Z0, c=1.5e8, l=1):
-        """
+    """Losslees transmission line
         Z0 is the (real) characteristic impedance (ohms)
         c is the propagation speed (m/s)
         l is the transmission line length (m)
         """
+
+    def __init__(self, Z0, c=1.5e8, l=1):
 
         s = sym.Symbol('s')
         gamma = s / c
@@ -4308,15 +4318,16 @@ class LosslessTxLine(GeneralTxLine):
 
 
 class TxLine(GeneralTxLine):
+    """Transmission line
 
+    R series resistance/metre
+    L series inductance/metre
+    G shunt conductance/metre
+    C shunt capacitance/metre
+    l is the transmission line length
+    """
+    
     def __init__(self, R, L, G, C, l=1):
-        """
-        R series resistance/metre
-        L series inductance/metre
-        G shunt conductance/metre
-        C shunt capacitance/metre
-        l is the transmission line length
-        """
 
         s = sym.Symbol('s')
 
@@ -4475,7 +4486,7 @@ class ThreePort(object):
         return ZVector([1 / Y[m, m] for m in range(Y.shape[0])])
 
 
-    def portcheck(self, port):
+    def _portcheck(self, port):
 
         if port not in (1, 2, 3):
             raise ValueError('Invalid port ' + port)
@@ -4485,8 +4496,8 @@ class ThreePort(object):
         """Return voltage gain for specified ports with internal
         sources zero"""
 
-        self.portcheck(inport)
-        self.portcheck(outport)
+        self._portcheck(inport)
+        self._portcheck(outport)
 
         p1 = inport - 1
         p2 = outport - 1
@@ -4498,8 +4509,8 @@ class ThreePort(object):
         """Return voltage gain for specified ports with internal
         sources zero"""
 
-        self.portcheck(inport)
-        self.portcheck(outport)
+        self._portcheck(inport)
+        self._portcheck(outport)
 
         p1 = inport - 1
         p2 = outport - 1
@@ -4513,8 +4524,8 @@ class ThreePort(object):
         """Return voltage response for specified applied voltage and
         specified ports"""
 
-        self.portcheck(inport)
-        self.portcheck(outport)
+        self._portcheck(inport)
+        self._portcheck(outport)
 
         p1 = inport - 1
         p2 = outport - 1
@@ -4526,8 +4537,8 @@ class ThreePort(object):
         """Return current response for specified current voltage and
         specified ports"""
 
-        self.portcheck(inport)
-        self.portcheck(outport)
+        self._portcheck(inport)
+        self._portcheck(outport)
 
         p1 = inport - 1
         p2 = outport - 1
@@ -4538,33 +4549,33 @@ class ThreePort(object):
         return Is(Isc[p2] + (I - Isc[p1]) * Y[p2, p1] / Y[p1, p1])
 
 
-    def attach_parallel(self, T, port=2):
+    def attach_parallel(self, OP, port=2):
         """Attach one-port in parallel to specified port"""
 
-        if not issubclass(T.__class__, OnePort):
+        if not issubclass(OP.__class__, OnePort):
             raise TypeError('Argument not ', OnePort)
 
-        self.portcheck(port)
+        self._portcheck(port)
 
         p = port - 1
 
         Y = self.Y
-        Y[p, p] += T.Y
+        Y[p, p] += OP.Y
         Isc = self.Isc
-        Isc[p] += T.Isc
+        Isc[p] += OP.Isc
         Z = Y.Z
         Voc = VsVector([Vs(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Z, Voc)
 
 
-    def bridge(self, T, inport=1, outport=2):
+    def bridge(self, OP, inport=1, outport=2):
         """Bridge the specified ports with a one-port element"""
 
-        self.portcheck(inport)
-        self.portcheck(outport)
+        self._portcheck(inport)
+        self._portcheck(outport)
 
         # Create two-port series element.
-        s = Series(T)
+        s = Series(OP)
         
         # The impedance matrix for a series element is infinite.
 
@@ -4580,58 +4591,58 @@ class ThreePort(object):
 
         Y = self.Y + Y3
         Isc = self.Isc
-        Isc[p1] -= T.Isc
-        Isc[p2] += T.Isc
+        Isc[p1] -= OP.Isc
+        Isc[p2] += OP.Isc
         Z = Y.Z
         Voc = VsVector([Vs(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Y.Z, Voc)
 
     
-    def parallel(self, x, port=None):
-        """Return the model with, x, in parallel"""
+    def parallel(self, MP, port=None):
+        """Return the model with, MP, in parallel"""
 
-        if issubclass(x.__class__, OnePort):
-            return self.attach_parallel(x, port)
+        if issubclass(MP.__class__, OnePort):
+            return self.attach_parallel(MP, port)
 
-        if issubclass(x.__class__, TwoPort):
+        if issubclass(MP.__class__, TwoPort):
             # We could special case a series or shunt network here.
             raise NotImplementedError('TODO')
 
-        if not issubclass(x.__class__, ThreePort):
+        if not issubclass(MP.__class__, ThreePort):
             raise TypeError('Argument not ', ThreePort)
         
-        Y = self.Y + x.Y
-        Isc = self.Isc + x.Isc
+        Y = self.Y + MP.Y
+        Isc = self.Isc + MP.Isc
         Z = Y.Z
         Voc = VsVector([Vs(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Z, Voc)
 
 
-    def series(self, x, port=None):
-        """Return the model with, x, in series"""
+    def series(self, MP, port=None):
+        """Return the model with, MP, in series"""
 
-        if issubclass(x.__class__, OnePort):
+        if issubclass(MP.__class__, OnePort):
             raise NotImplementedError('TODO')
 
-        if issubclass(x.__class__, TwoPort):
+        if issubclass(MP.__class__, TwoPort):
             raise NotImplementedError('TODO')
 
-        if not issubclass(x.__class__, ThreePort):
+        if not issubclass(MP.__class__, ThreePort):
             raise TypeError('Argument not ', ThreePort)
         
         warn('Will this ever work?')
 
-        Z = self.Z + x.Z
-        Voc = self.Voc + x.Voc
+        Z = self.Z + MP.Z
+        Voc = self.Voc + MP.Voc
     
         return ThreePort(Z, Voc)
 
 
-    def terminate(self, T, port=2):
+    def terminate(self, OP, port=2):
         """Connect one-port in parallel to specified port and return a
         two-port object"""
 
-        return self.attach_parallel(T, port).open_circuit(port)
+        return self.attach_parallel(OP, port).open_circuit(port)
 
 
     def short_circuit(self, port=2):
@@ -4669,9 +4680,7 @@ class ThreePort(object):
 
 
 class Opamp(ThreePort):
-
-    def __init__(self, Rd=1e9, Ro=1e-6, A=100000, Rp=1e9, Rm=1e9):
-        """
+    """
             |\
             |  \
         1 --+ +  \
@@ -4690,6 +4699,8 @@ class Opamp(ThreePort):
         Port 3: output
 
         """
+
+    def __init__(self, Rd=1e9, Ro=1e-6, A=100000, Rp=1e9, Rm=1e9):
 
         # If Ro=0, then Z matrix singular.
 

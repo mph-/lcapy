@@ -7,14 +7,14 @@ b = a.load(R(5))
 
 
 print('general')
-pprint(b.V.general)
+pprint(b.V.general())
 
 print('canonical')
-pprint(b.V.canonical)
+pprint(b.V.canonical())
 
 print('ZPK')
-pprint(b.V.ZPK)
+pprint(b.V.ZPK())
 
 print('partfrac')
-pprint(b.V.partfrac)
+pprint(b.V.partfrac())
 

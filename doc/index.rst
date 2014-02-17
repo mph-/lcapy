@@ -12,30 +12,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-
-.. automodule:: mcircuit
-   :members:
-
-
-.. autoclass:: R
-
-.. autoclass:: G
-
-.. autoclass:: L
-
-.. autoclass:: C
-
-.. autoclass:: V
-
-.. autoclass:: I
-
-
-.. autoclass:: OnePort
-   :members:
-
-
-.. autoclass:: TwoPort
-   :members:
+   tutorial.rst
+   api.rst
 
 
 Indices and tables

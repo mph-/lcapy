@@ -8,9 +8,9 @@ a = LSection(R1, C1 | L1)
 
 Av = a.Vtransfer
 
-pprint(Av.canonical)
+pprint(Av.canonical())
 
-pprint(Av.ZPK)
+pprint(Av.ZPK())
 
 pprint(Av.poles())
 
