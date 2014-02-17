@@ -1,12 +1,12 @@
 from mcircuit import *
-from numpy import linspace
+from numpy import logspace
+from matplotlib.pyplot import figure, savefig, show
 
 N = V(20) + R(5) + C(10)
 
-t = linspace(0, 100, 400)
+t = np.linspace(0, 100, 1000)
 isc = N.Isc.transient_response(t)
 
-from matplotlib.pyplot import figure, savefig, show
 fig = figure()
 ax = fig.add_subplot(111)
 ax.plot(t, isc, linewidth=2)
@@ -15,4 +15,4 @@ ax.set_ylabel('Current (A)')
 ax.grid(True)
 show()
 
-savefig('series-RLC1-isc.png')
+savefig('series-VRC1-isc.png')

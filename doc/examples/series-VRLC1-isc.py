@@ -15,7 +15,7 @@ ax.set_xlabel('Time (s)')
 ax.set_ylabel('Current (A)')
 ax.grid(True)
 
-savefig('series-VRLC1-Isc.png')
+savefig('series-VRLC1-isc.png')
 
 show()
 

@@ -288,6 +288,16 @@ Then the transient response can be plotted.  For example,
    >>> ax.grid(True)
    >>> show()
 
-.. image:: examples/series-RLC1-isc.png
+.. image:: examples/series-VRC1-isc.png
    :width: 15cm
+
+
+Here's a complete example Python script of the short-circuit current
+through underdamped series RLC network:
+
+.. literalinclude:: examples/series-VRLC1-isc.py
+
+.. image:: examples/series-VRLC1-isc.png
+   :width: 15cm
+
 
