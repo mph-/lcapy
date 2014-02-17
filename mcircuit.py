@@ -961,29 +961,39 @@ class Ais(_Expr):
 
 class NetObject(object):
 
+    def _tweak_args(self):
+
+        if not hasattr(self, 'args'):
+            return ()
+
+        args = self.args
+            # Drop the initial condition for L or C if it is zero.
+        if isinstance(self, (L, C)) and args[1] == 0:
+            args = args[:-1]
+            
+        modargs = []
+        for arg in args:
+            if isinstance(arg, _Expr):
+                arg = arg.expr
+            modargs.append(arg)
+        return modargs
+
+
     def __repr__(self):
 
-        if hasattr(self, 'args'):
-            args = self.args
-            # Drop the initial condition for L or C if it is zero.
-            if isinstance(self, (L, C)) and args[1] == 0:
-                args = args[:-1]
-
-            modargs = []
-            for arg in args:
-                if isinstance(arg, _Expr):
-                    arg = arg.expr
-                modargs.append(arg)
-
-            argsrepr = ', '.join([arg.__repr__() for arg in modargs])
-            return '%s(%s)' % (self.__class__.__name__, argsrepr)
-        else:
-            return '%s()' % (self.__class__.__name__)
+        argsrepr = ', '.join([arg.__repr__() for arg in self._tweak_args()])
+        return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
 
     def __str__(self):
         
         return self.__repr__()
+
+
+    def pretty(self):
+
+        argsrepr = ', '.join([sym.pretty(arg) for arg in self._tweak_args()])
+        return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
 
 class OnePort(NetObject):
@@ -1070,6 +1080,24 @@ class ParSer(OnePort):
 
         for m, arg in enumerate(self.args):
             argstr = arg.__str__()
+
+            if isinstance(arg, ParSer) and arg.__class__ != self.__class__:
+                argstr = '(' + argstr + ')'
+
+            str += argstr
+
+            if m != len(self.args) - 1:
+                str += ' %s ' % self.op
+
+        return str
+
+
+    def pretty(self):
+
+        str = ''
+
+        for m, arg in enumerate(self.args):
+            argstr = arg.pretty()
 
             if isinstance(arg, ParSer) and arg.__class__ != self.__class__:
                 argstr = '(' + argstr + ')'
