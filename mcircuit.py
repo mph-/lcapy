@@ -2823,6 +2823,18 @@ class TwoPort(NetObject):
         """Return impedance matrix"""
         return self._M.Z
 
+
+    @property
+    def I1a(self):    
+        return Is(-self.V2b / self.B12)
+
+
+    @property
+    def V1a(self):    
+        # CHECKME
+        return Vs(-self.I2b / self.B21)
+
+
     @property
     def I1g(self):    
         return Is(-self.I2b / self.B22)
