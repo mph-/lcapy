@@ -3186,7 +3186,7 @@ class TwoPort(NetObject):
 
 
     def terminate(self, OP, port=2):
-        """Connect one-port in parallel to specified port and return a OPhevenin
+        """Connect one-port in parallel to specified port and return a Thevenin
         (one-port) object"""
 
         if port == 1:
