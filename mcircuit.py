@@ -2746,6 +2746,9 @@ class TwoPort(NetObject):
 
     def _check_twoport_args(self):
 
+        if len(args) != 2:
+            raise Error('Only two args supported for %s' % self.__class__.__name__)
+
         for arg in self.args:
             if not isinstance(arg, TwoPort):
                 raise ValueError('%s not a TwoPort' % arg1)
@@ -2822,12 +2825,12 @@ class TwoPort(NetObject):
 
     @property
     def I1g(self):    
-        error('TODO')
+        return Is(-self.I2b / self.B22)
 
 
     @property
     def V2g(self):    
-        error('TODO')
+        return Vs(self.V2b - self.B12 / self.B22 * self.I2b)
 
 
     @property
@@ -3718,6 +3721,8 @@ class Chain(TwoPortBModel):
         B = arg1.B
         foo = np.matrix((arg1.V2b, arg1.I2b)).T
         
+        # FIXME for V2b, I2b.
+
         for arg in reversed(args[0:-1]):
             
             foo += arg.B * np.matrix((-arg.V2b, arg.I2b)).T
@@ -3725,6 +3730,18 @@ class Chain(TwoPortBModel):
 
         super (Chain, self).__init__(B, Vs(foo[0, 0]), Is(foo[1, 0]))
         self.args = args
+
+
+    def simplify(self):
+
+        if isinstance(self.args[0], Shunt) and isinstance(self.args[1], Shunt):
+            return Shunt((self.args[0].args[0] | self.args[1].args[0]).simplify())
+
+        if isinstance(self.args[0], Series) and isinstance(self.args[1], Series):
+            return Series((self.args[0].args[0] + self.args[1].args[0]).simplify())
+        
+        return self
+
 
 
 class Par2(TwoPortYModel):
@@ -3735,6 +3752,12 @@ class Par2(TwoPortYModel):
         self.args = args
 
         self._check_twoport_args()
+
+        # This will fail with a Shunt as an argument since it does
+        # not have a valid Y model.
+        # We can special case this.
+        if isinstance(args[0], Shunt) or isinstance(args[1], Shunt):
+            print('Warning: need to handle a Shunt in parallel')
 
         arg = args[0]
         I1y = arg.I1y
@@ -3749,6 +3772,17 @@ class Par2(TwoPortYModel):
         super (Par2, self).__init__(Y, I1y, I2y)
 
 
+    def simplify(self):
+
+        if isinstance(self.args[0], Shunt) and isinstance(self.args[1], Shunt):
+            return Shunt((self.args[0].args[0] | self.args[1].args[0]).simplify())
+
+        if isinstance(self.args[0], Series) and isinstance(self.args[1], Series):
+            return Series((self.args[0].args[0] | self.args[1].args[0]).simplify())
+        
+        return self
+
+
 class Ser2(TwoPortZModel):
     """Connect two-port networks in series (note this is unusual and can
     break the port condition)"""
@@ -3758,6 +3792,10 @@ class Ser2(TwoPortZModel):
         self.args = args
 
         self._check_twoport_args()
+
+        # Need to be more rigorous.
+        if isinstance(self.args[1], (Series, LSection, TSection)):
+            print('Warning: This can violate the port condition')
 
         arg = args[0]
         V1z = arg.V1z
@@ -3770,6 +3808,14 @@ class Ser2(TwoPortZModel):
             Z += arg.Z            
 
         super (Ser2, self).__init__(Z, V1z, V2z)
+
+
+    def simplify(self):
+
+        if isinstance(self.args[0], Shunt) and isinstance(self.args[1], Shunt):
+            return Shunt((self.args[0].args[0] + self.args[1].args[0]).simplify())
+
+        return self
 
 
 class Hybrid2(TwoPortHModel):
