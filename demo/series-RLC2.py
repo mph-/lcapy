@@ -10,7 +10,7 @@ f = np.linspace(0, 1000, 1000)
 
 fig = figure()
 ax = fig.add_subplot(111)
-ax.plot(f, abs(Z.frequency_response(f)), linewidth=2)
+ax.plot(f, abs(a.Z.frequency_response(f)), linewidth=2)
 ax.set_xlabel('Frequency (Hz)')
 ax.set_ylabel('Impedance (ohms)')
 ax.grid(True)
