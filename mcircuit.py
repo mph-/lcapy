@@ -1012,6 +1012,12 @@ class NetObject(object):
         argsrepr = ', '.join([sym.pretty(arg) for arg in self._tweak_args()])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
+    
+    def simplify(self):
+
+        return self
+
+
 
 class OnePort(NetObject):
     """One-port network"""
