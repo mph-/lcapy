@@ -250,12 +250,14 @@ Then the frequency response can be plotted.  For example,
    :width: 15cm
 
 
-Here's a complete example Python script:
+Here's a complete example Python script to plot the impedance of a
+series R-L-C network:
+
+.. literalinclude:: examples/series-RLC3-Z.py
+
 
 .. image:: examples/series-RLC3-Z.png
    :width: 15cm
-
-.. literalinclude:: examples/series-RLC3-Z.py
 
 
 Simple transient analysis
@@ -339,12 +341,38 @@ Then the transient response can be plotted.  For example,
 
 
 Here's a complete example Python script of the short-circuit current
-through underdamped series RLC network:
+through an underdamped series RLC network:
 
 .. literalinclude:: examples/series-VRLC1-isc.py
 
 .. image:: examples/series-VRLC1-isc.png
    :width: 15cm
+
+
+
+Transformations
+===============
+
+A one-port network can be represented as a Thevenin network (a series
+combination of a voltage source and an impedance) or as a Norton
+network (a parallel combination of a current source and an
+admittance).
+
+Here's an example of a Thevenin to Norton transformation:
+
+   >>> from mcircuit import *
+   >>> T = V(10) + R(5)
+   >>> N = T.norton()
+   >>> pprint(N)
+   G(1/5) | I(2)
+
+Similarly, here's an example of a Norton to Thevenin transformation:
+
+   >>> from mcircuit import *
+   >>> N = I(10) | R(5)
+   >>> T = N.thevenin()
+   >>> pprint(T)
+   R(5) + V(50)
 
 
 
@@ -354,6 +382,7 @@ Two-port networks
 The basic circuit elements are one-port networks.  They can be
 combined to create a two-port network.  The simplest two-port is a
 shunt::
+
          -----+----
               |    
             +-+-+  
@@ -425,3 +454,59 @@ series one-port.
    >>> N = Series(R('R_1')).chain(Shunt(R('R_2')))
    >>> pprint(N.Vtransfer)
    R_2/(R_1 + R_2)
+
+
+
+Two-port matrices
+=================
+
+Two-port networks can be represented by six two by two matrices, A, B,
+G, H, Y, Z.  Each has their own merits (see
+http://en.wikipedia.org/wiki/Two-port_network).
+
+Consider an L section comprised of two resistors:
+   >>> from mcircuit import *
+   >>> N = LSection(R('R_1'), R('R_2')))
+
+The different matrix representations can be shown using:
+   >>> pprint(N.A)
+   ⎡R₁ + R₂    ⎤
+   ⎢───────  R₁⎥
+   ⎢   R₂      ⎥
+   ⎢           ⎥
+   ⎢  1        ⎥
+   ⎢  ──     1 ⎥
+   ⎣  R₂       ⎦
+   >>> pprint(N.B)
+   ⎡ 1    -R₁  ⎤
+   ⎢           ⎥
+   ⎢-1   R₁    ⎥
+   ⎢───  ── + 1⎥
+   ⎣ R₂  R₂    ⎦
+   >>> pprint(N.G)
+   ⎡   1       -R₂  ⎤
+   ⎢───────  ───────⎥
+   ⎢R₁ + R₂  R₁ + R₂⎥
+   ⎢                ⎥
+   ⎢   R₂     R₁⋅R₂ ⎥
+   ⎢───────  ───────⎥
+   ⎣R₁ + R₂  R₁ + R₂⎦
+   >>> pprint(N.H)
+   ⎡R₁  1 ⎤
+   ⎢      ⎥
+   ⎢    1 ⎥
+   ⎢-1  ──⎥
+   ⎣    R₂⎦
+   >>> pprint(N.Y)
+   ⎡1      -1   ⎤
+   ⎢──     ───  ⎥
+   ⎢R₁      R₁  ⎥
+   ⎢            ⎥
+   ⎢-1   R₁ + R₂⎥
+   ⎢───  ───────⎥
+   ⎣ R₁   R₁⋅R₂ ⎦
+   >>>pprint(N.Z)
+   ⎡R₁ + R₂  R₂⎤
+   ⎢           ⎥
+   ⎣  R₂     R₂⎦
+
