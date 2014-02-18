@@ -979,6 +979,23 @@ class NetObject(object):
         return modargs
 
 
+    def _check_oneport_args(self):
+
+        for arg1 in self.args:
+            if not isinstance(arg1, OnePort):
+                raise ValueError('%s not a OnePort' % arg1)
+
+
+    def _check_twoport_args(self):
+
+        # This is an interim measure until Par2, Ser2, etc. generalised.
+        if len(self.args) != 2:
+            raise Error('Only two args supported for %s' % self.__class__.__name__)
+        for arg1 in self.args:
+            if not isinstance(arg1, TwoPort):
+                raise ValueError('%s not a TwoPort' % arg1)
+
+
     def __repr__(self):
 
         argsrepr = ', '.join([arg.__repr__() for arg in self._tweak_args()])
@@ -1067,13 +1084,6 @@ class OnePort(NetObject):
 
 class ParSer(OnePort):
 
-    def __init__(self, *args):
-
-        self.args = args
-
-        self._check_oneport_args()
-    
-
     def __str__(self):
 
         str = ''
@@ -1087,7 +1097,7 @@ class ParSer(OnePort):
             str += argstr
 
             if m != len(self.args) - 1:
-                str += ' %s ' % self.op
+                str += ' %s ' % self._operator
 
         return str
 
@@ -1105,27 +1115,9 @@ class ParSer(OnePort):
             str += argstr
 
             if m != len(self.args) - 1:
-                str += ' %s ' % self.op
+                str += ' %s ' % self._operator
 
         return str
-
-
-    def _check_oneport_args(self):
-
-        args = list(self.args)
-        for n, arg1 in enumerate(args):
-
-            if not isinstance(arg1, OnePort):
-                raise ValueError('%s not a OnePort' % arg1)
-
-            for arg2 in args[n+1:]:
-
-                if isinstance(self, Par):
-                    if isinstance(arg1, V) and isinstance(arg2, V):
-                        print('Warning: voltage sources connected in parallel %s and %s' % (arg1, arg2))
-                elif isinstance(self, Ser):
-                    if isinstance(arg1, I) and isinstance(arg2, I):
-                        print('Warning: current sources connected in series %s and %s' % (arg1, arg2))
 
 
     def _combine(self, arg1, arg2):
@@ -1292,7 +1284,18 @@ class ParSer(OnePort):
 
 class Par(ParSer):
 
-    op = '|'
+    _operator = '|'
+
+
+    def __init__(self, *args):
+
+        self.args = args
+        self._check_oneport_args()
+    
+        for n, arg1 in enumerate(self.args):
+            for arg2 in self.args[n+1:]:
+                if isinstance(arg1, V) and isinstance(arg2, V):
+                    print('Warning: voltage sources connected in parallel %s and %s' % (arg1, arg2))
 
 
     @property
@@ -1327,7 +1330,18 @@ class Par(ParSer):
 
 class Ser(ParSer):
 
-    op = '+'
+    _operator = '+'
+
+
+    def __init__(self, *args):
+
+        self.args = args
+        self._check_oneport_args()
+    
+        for n, arg1 in enumerate(self.args):
+            for arg2 in self.args[n+1:]:
+                if isinstance(arg1, I) and isinstance(arg2, I):
+                    print('Warning: current sources connected in series %s and %s' % (arg1, arg2))
 
 
     @property
@@ -2779,16 +2793,6 @@ class TwoPort(NetObject):
         return self.Z[1, 1]
 
 
-    def _check_twoport_args(self):
-
-        if len(args) != 2:
-            raise Error('Only two args supported for %s' % self.__class__.__name__)
-
-        for arg in self.args:
-            if not isinstance(arg, TwoPort):
-                raise ValueError('%s not a TwoPort' % arg1)
-
-
     @property
     def isbuffered(self):
         """Return true if two-port is buffered, i.e., any load
@@ -3752,9 +3756,8 @@ class Chain(TwoPortBModel):
 
     def __init__(self, *args):
 
-        for arg in args:
-            if not issubclass(arg.__class__, TwoPort):
-                raise TypeError('Argument %s not TwoPort' % arg)
+        self.args = args
+        self._check_twoport_args()
 
         # The voltage and current sources can be transformed from the
         # input of a network to its output using:
@@ -3778,7 +3781,6 @@ class Chain(TwoPortBModel):
             B = B * arg.B
 
         super (Chain, self).__init__(B, Vs(foo[0, 0]), Is(foo[1, 0]))
-        self.args = args
 
 
     def simplify(self):
@@ -3799,7 +3801,6 @@ class Par2(TwoPortYModel):
     def __init__(self, *args):
 
         self.args = args
-
         self._check_twoport_args()
 
         # This will fail with a Shunt as an argument since it does
@@ -3839,7 +3840,6 @@ class Ser2(TwoPortZModel):
     def __init__(self, *args):
 
         self.args = args
-
         self._check_twoport_args()
 
         # Need to be more rigorous.
@@ -3929,6 +3929,7 @@ class Series(TwoPortBModel):
 
         self.OP = OP
         self.args = (OP, )
+        self._check_oneport_args()
         self._M = BMatrix.Zseries(OP.Z)
         self._V2b = OP.V
         self._I2b = Is(0)
@@ -3955,6 +3956,7 @@ class Shunt(TwoPortBModel):
 
         self.OP = OP
         self.args = (OP, )
+        self._check_oneport_args()
         self._M = BMatrix.Yshunt(OP.Y)
         self._V2b = Vs(0)
         self._I2b = OP.I
@@ -4149,8 +4151,9 @@ class TSection(TwoPortBModel):
 
     def __init__(self, OP1, OP2, OP3):
 
-        super (TSection, self).__init__(Series(OP1).chain(Shunt(OP2)).chain(Series(OP3)))
         self.args = (OP1, OP2, OP3)
+        self._check_oneport_args()
+        super (TSection, self).__init__(Series(OP1).chain(Shunt(OP2)).chain(Series(OP3)))
 
 
     def Pisection(self):
@@ -4190,8 +4193,10 @@ class TwinTSection(TwoPortBModel):
     
     def __init__(self, OP1a, OP2a, OP3a, OP1b, OP2b, OP3b):
 
-        super (TwinTSection, self).__init__(TSection(OP1a, OP2a, OP3a).parallel(TSection(OP1b, OP2b, OP3b)))
         self.args = (OP1a, OP2a, OP3a, OP1b, OP2b, OP3b)
+        self._check_oneport_args()
+
+        super (TwinTSection, self).__init__(TSection(OP1a, OP2a, OP3a).parallel(TSection(OP1b, OP2b, OP3b)))
 
 
 class BridgedTSection(TwoPortBModel):
@@ -4216,8 +4221,10 @@ class BridgedTSection(TwoPortBModel):
 
     def __init__(self, OP1, OP2, OP3, OP4):
 
-        super (TwinTSection, self).__init__(TSection(OP1, OP2, OP3).parallel(Series(OP4)))
         self.args = (OP1, OP2, OP3, OP4)
+        self._check_oneport_args()
+
+        super (TwinTSection, self).__init__(TSection(OP1, OP2, OP3).parallel(Series(OP4)))
 
 
 class PiSection(TwoPortBModel):
@@ -4267,8 +4274,10 @@ class LSection(TwoPortBModel):
 
     def __init__(self, OP1, OP2):
 
-        super (LSection, self).__init__(Series(OP1).chain(Shunt(OP2)))
         self.args = (OP1, OP2)
+        self._check_oneport_args()
+
+        super (LSection, self).__init__(Series(OP1).chain(Shunt(OP2)))
 
 
 class Ladder(TwoPortBModel):
@@ -4290,6 +4299,7 @@ class Ladder(TwoPortBModel):
     def __init__(self, OP1, *args):
 
         self.args = (OP1, ) + args
+        self._check_oneport_args()
 
         TP = Series(OP1)
 

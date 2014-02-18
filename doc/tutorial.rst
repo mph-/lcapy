@@ -510,3 +510,7 @@ The different matrix representations can be shown using:
    ⎢           ⎥
    ⎣  R₂     R₂⎦
 
+
+Note, some of the two-port matrices cannot represent a network.  For
+example, a series impedance has a non specified Z matrix and a shunt
+impedance has a non specified Y matrix.
