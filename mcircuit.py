@@ -4338,6 +4338,10 @@ class Ladder(TwoPortBModel):
             return TSection(*self.args)
         return self
 
+        # A Ladder of voltage sources and current sources
+        # collapses to a single Lsection comprised of the total
+        # voltage and total current.
+
 
 class GeneralTxLine(TwoPortBModel):
     """General transmission line
