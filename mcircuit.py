@@ -1853,7 +1853,7 @@ class FerriteBead(Thevenin):
         return R(self.Rs) + (R(self.Rp) + L(self.Lp) + C(self.Cp))
 
 
-class Vsector(sym.Matrix):
+class Vector(sym.Matrix):
 
     # Unlike numpy.ndarray, the sympy.Matrix runs all the elements
     # through sympify, creating sympy objects and thus losing the
@@ -1864,14 +1864,14 @@ class Vsector(sym.Matrix):
         args = [sym.simplify(arg) for arg in args]
 
         if len(args) == 2:
-            return super (Vsector, cls).__new__(cls, (args[0], args[1]))
+            return super (Vector, cls).__new__(cls, (args[0], args[1]))
 
-        return super (Vsector, cls).__new__(cls, *args)
+        return super (Vector, cls).__new__(cls, *args)
 
 
     def __getitem__(self, key):
 
-        item = super (Vsector, self).__getitem__(key)
+        item = super (Vector, self).__getitem__(key)
 
         if isinstance(key, int):
             return self._typewrap(item)
@@ -1879,22 +1879,22 @@ class Vsector(sym.Matrix):
         return item
 
 
-class VsVector(Vsector):
+class VsVector(Vector):
     
     _typewrap = Vs
 
 
-class IsVector(Vsector):
+class IsVector(Vector):
     
     _typewrap = Is
 
 
-class YVector(Vsector):
+class YVector(Vector):
 
     _typewrap = Ys
 
 
-class ZVector(Vsector):
+class ZVector(Vector):
 
     _typewrap = Zs
 
