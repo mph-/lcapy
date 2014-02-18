@@ -1018,7 +1018,6 @@ class NetObject(object):
         return self
 
 
-
 class OnePort(NetObject):
     """One-port network"""
 
@@ -3319,6 +3318,16 @@ class TwoPort(NetObject):
         return Thevenin(Zs(Z), Vs(V))
 
 
+    def simplify(self):
+
+        if self.B == sym.eye(2):
+            # Have a pair of wires... perhaps could simplify
+            # to an LSection comprised of a V and I but 
+            # may have a weird voltage expression.
+            pass
+        return self
+
+
 class TwoPortBModel(TwoPort):
     """
     ::
@@ -4317,6 +4326,17 @@ class Ladder(TwoPortBModel):
                 TP = TP.chain(Shunt(arg))            
 
         super (Ladder, self).__init__(TP)
+
+
+    def simplify(self):
+
+        if len(self.args) == 1:
+            return Series(self.args[0])
+        elif len(self.args) == 2:
+            return LSection(*self.args)
+        elif len(self.args) == 3:
+            return TSection(*self.args)
+        return self
 
 
 class GeneralTxLine(TwoPortBModel):
