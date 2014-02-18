@@ -39,6 +39,52 @@ Preliminaries
   >>> ipython --pylab
 
 
+Simple circuit elements
+=======================
+
+The basic circuit elements are two-terminal (one-port) devices:
+
+- V voltage source
+
+- I current source
+
+- R resistance
+
+- C capacitance
+
+- L inductance
+
+These are augmented by:
+
+- G conductance
+
+- Y admittance
+
+- Z impedance
+
+
+Here are some examples of their creation:
+
+   >>> from mcircuit import *
+   >>> R1 = R(10)
+   >>> C1 = C(10e-6)
+   >>> L1 = L('L_1')
+
+Here a symbolic inductance is created (using the Python string
+notation).  In each case, a reference to the circuit element object is
+stored in a Python variable.  These can be printed using `print` or
+`pprint` (pretty print), for example,
+
+   >>> print(R1)
+   R(10)
+   >>> print(C1)
+   print(C)
+   C(1.00000000000000e-6)
+   >>> print(L1)
+   L(L_1)
+   >>> pprint(L1)
+   L(L₁)
+
 
 
 Simple circuit element combinations
@@ -301,3 +347,81 @@ through underdamped series RLC network:
    :width: 15cm
 
 
+
+Two-port networks
+=================
+
+The basic circuit elements are one-port networks.  They can be
+combined to create a two-port network.  The simplest two-port is a
+shunt::
+         -----+----
+              |    
+            +-+-+  
+            |   |  
+            |OP |  
+            |   |  
+            +-+-+  
+              |    
+         -----+----
+
+A more interesting two-port network is an L section (voltage divider)::
+
+           +---------+       
+         --+   OP1   +---+----
+           +---------+   |   
+                       +-+-+ 
+                       |   | 
+                       |OP2| 
+                       |   | 
+                       +-+-+ 
+                         |   
+         ----------------+----
+
+This is comprised from any two one-port networks.  For example,
+   >>> from mcircuit import *
+   >>> R1 = R('R_1')
+   >>> R2 = R('R_2')
+   >>> N = LSection(R1, R2)
+   >>> pprint(N.Vtransfer)
+   R_2/(R_1 + R_2)
+
+Here `N.Vtransfer` determines the forward voltage transfer function
+`V_2(s) / V_1(s)`.
+
+The open-circuit input impedance can be found using:
+   >>> pprint(N.Z1oc)
+   R₁ + R₂
+
+The open-circuit output impedance can be found using:
+   >>> pprint(N.Z2oc)
+   R₂
+
+The short-circuit input admittance can be found using:
+   >>> pprint(N.Y1sc)
+   1 
+   ──
+   R₁
+
+The short-circuit output admittance can be found using:
+   >>> pprint(N.Y2sc)
+   R₁ + R₂
+   ───────
+    R₁⋅R₂ 
+
+
+Two-port combinations
+=====================
+
+Two-port networks can be combined in series, parallel, series at the
+input with parallel at the output (hybrid), parallel at the input with
+series at the output (inverse hybrid), but the most common is the
+chain or cascade.  This connects the output of the first two-port to
+the input of the second two-port.
+
+For example, an L section can be created by chaining a shunt to a
+series one-port.
+
+   >>> from mcircuit import *
+   >>> N = Series(R('R_1')).chain(Shunt(R('R_2')))
+   >>> pprint(N.Vtransfer)
+   R_2/(R_1 + R_2)

@@ -48,6 +48,7 @@ Two-port circuit configurations
 
 .. autoclass:: TwinTSection
 
+.. autoclass:: Ladder
 
 
 .. autoclass:: OnePort
