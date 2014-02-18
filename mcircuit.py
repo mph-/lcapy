@@ -1873,9 +1873,9 @@ class Vector(sym.Matrix):
 
         item = super (Vector, self).__getitem__(key)
 
-        if isinstance(key, int):
+        if isinstance(key, int) and hasattr(self, '_typewrap'):
             return self._typewrap(item)
-        warn('Returning sympy object')
+
         return item
 
 
@@ -3769,30 +3769,20 @@ class TwoPortZModel(TwoPort):
 class Chain(TwoPortBModel):
     """Connect two-port networks in a chain (aka cascade)"""
 
+    
     def __init__(self, *args):
 
         self.args = args
         self._check_twoport_args()
 
-        # The voltage and current sources can be transformed from the
-        # input of a network to its output using:
-        # 
-        # +-   -+     +-       -+   +-   -+
-        # | V2b |  =  | B11  B12|   |-V1a |
-        # | I2b |     | B21  B22|   | I1a |
-        # +-   -+     +-       -+   +-   -+            
-        #
-        # where the positive connection of V1a is connected to the input pin.
-
         arg1 = args[-1]
         B = arg1.B
-        foo = np.matrix((arg1.V2b, arg1.I2b)).T
-        
-        # FIXME for V2b, I2b.
 
+        foo = Vector(arg1.V2b, arg1.I2b)
+        
         for arg in reversed(args[0:-1]):
             
-            foo += arg.B * np.matrix((-arg.V2b, arg.I2b)).T
+            foo += B * Vector(arg.V2b, arg.I2b)
             B = B * arg.B
 
         super (Chain, self).__init__(B, Vs(foo[0, 0]), Is(foo[1, 0]))
