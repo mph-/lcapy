@@ -484,7 +484,7 @@ class sExpr(object):
     
     s, t, f = sym.symbols('s t f')
     
-    
+
     @property
     def expr(self):    
         return self.val
@@ -523,70 +523,70 @@ class sExpr(object):
     def __rdiv__(self, x):
         """Reverse divide"""
 
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.__class__(x.val / self.val)
 
 
     def __rtruediv__(self, x):
         """Reverse true divide"""
             
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.__class__(x.val / self.val)
 
 
     def __mul__(self, x):
         """Multiply"""
         
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.__class__(self.val * x.val)
 
 
     def __rmul__(self, x):
         """Reverse multiply"""
         
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.__class__(self.val * x.val)
 
 
     def __div__(self, x):
         """Divide"""
 
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.__class__(self.val / x.val)
 
 
     def __truediv__(self, x):
         """True divide"""
 
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.__class__(self.val / x.val)
     
 
     def __add__(self, x):
         """Add"""
         
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.__class__(self.val + x.val)
     
 
     def __radd__(self, x):
         """Reverse add"""
         
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.__class__(self.val + x.val)
     
     
     def __rsub__(self, x):
         """Reverse subtract"""
         
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.__class__(x.val - self.val)
     
 
     def __sub__(self, x):
         """Subtract"""
         
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.__class__(self.val - x.val)
     
     
@@ -602,7 +602,7 @@ class sExpr(object):
         if x == None:
             return False
 
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.val == x.val
 
 
@@ -612,14 +612,14 @@ class sExpr(object):
         if x == None:
             return True
 
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.val != x.val
 
 
     def parallel(self, x):
         """Parallel combination"""
         
-        x = sExpr(x)
+        x = self.__class__(x)
         return self.__class__(self.val * x.val / (self.val + x.val))
     
     
@@ -638,7 +638,7 @@ class sExpr(object):
     def delay(self, T):
         """Apply delay of T seconds by multiplying by exp(-s T)"""
         
-        T = sExpr(T)
+        T = self.__class__(T)
         return self.__class__(self.val * sym.exp(-T * self.s))
 
 
@@ -821,14 +821,15 @@ class sExpr(object):
 
 
 class cExpr(sExpr):
-    """Constant expression or symbol"""
-    
-    def __init__(self, val, simplify=True, real=False):
-        
-        super (cExpr, self).__init__(val, simplify, real)
+    """constant expression or symbol"""
 
-        if not self.val.is_Symbol and not self.val.is_constant():
-            raise ValueError('%s not a constant or symbol' % val)
+    def __init__(self, val):
+        
+        if not isinstance(val, (cExpr, int, float, str)):
+            print(type(val))
+            raise ValueError('%s not int, float, or str' % val)
+
+        super (cExpr, self).__init__(val, False, True)
 
 
 class Zs(sExpr):
@@ -837,28 +838,24 @@ class Zs(sExpr):
     @classmethod
     def C(cls, Cval):
     
-        Cval = cExpr(Cval, real=True)
         return cls(1 / Cval).integrate()
 
 
     @classmethod
     def G(cls, Gval):
     
-        Gval = cExpr(Gval, real=True)
         return cls(1 / Gval)
 
 
     @classmethod
     def L(cls, Lval):
     
-        Lval = cExpr(Lval, real=True)
         return cls(Lval).differentiate()
 
 
     @classmethod
     def R(cls, Rval):
     
-        Rval = cExpr(Rval, real=True)
         return cls(Rval)
 
 
@@ -888,28 +885,24 @@ class Ys(sExpr):
     @classmethod
     def C(cls, Cval):
     
-        Cval = cExpr(Cval, real=True)
         return cls(Cval).differentiate()
 
 
     @classmethod
     def G(cls, Gval):
     
-        Gval = cExpr(Gval, real=True)
         return cls(Gval)
 
 
     @classmethod
     def L(cls, Lval):
     
-        Lval = cExpr(Lval, real=True)
         return cls(1 / Lval).integrate()
 
 
     @classmethod
     def R(cls, Rval):
     
-        Rval = cExpr(Rval, real=True)
         return cls(1 / Rval)
 
 
@@ -1707,7 +1700,6 @@ class L(Thevenin):
 
     def __init__(self, Lval, i0=0.0):
 
-        
         Lval = cExpr(Lval)
         i0 = cExpr(i0)
         super (L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
