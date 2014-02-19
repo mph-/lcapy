@@ -46,7 +46,7 @@ desired.  This would avoid the inversion of singular matrices. The
 downside is that each object would require methods to generate each
 type of two-port model.
 
-The original implementation stored _Expr as rational functions (using
+The original implementation stored sExpr as rational functions (using
 MRF class).  This is much faster, avoids symbolic inverse Laplace
 transforms, but does not handle delays and symbolic component values.
 
@@ -479,7 +479,7 @@ def final_value(expr, var=None):
     return sym.limit(expr * var, var, 0)
 
 
-class _Expr(object):
+class sExpr(object):
     
     s, t, f = sym.symbols('s t f')
     
@@ -491,7 +491,7 @@ class _Expr(object):
     
     def __init__(self, val, simplify=True, real=False):
         
-        if isinstance(val, _Expr):
+        if isinstance(val, sExpr):
             val = val.val
             
         if real and isinstance(val, str):
@@ -522,70 +522,70 @@ class _Expr(object):
     def __rdiv__(self, x):
         """Reverse divide"""
 
-        x = _Expr(x)
+        x = sExpr(x)
         return self.__class__(x.val / self.val)
 
 
     def __rtruediv__(self, x):
         """Reverse true divide"""
             
-        x = _Expr(x)
+        x = sExpr(x)
         return self.__class__(x.val / self.val)
 
 
     def __mul__(self, x):
         """Multiply"""
         
-        x = _Expr(x)
+        x = sExpr(x)
         return self.__class__(self.val * x.val)
 
 
     def __rmul__(self, x):
         """Reverse multiply"""
         
-        x = _Expr(x)
+        x = sExpr(x)
         return self.__class__(self.val * x.val)
 
 
     def __div__(self, x):
         """Divide"""
 
-        x = _Expr(x)
+        x = sExpr(x)
         return self.__class__(self.val / x.val)
 
 
     def __truediv__(self, x):
         """True divide"""
 
-        x = _Expr(x)
+        x = sExpr(x)
         return self.__class__(self.val / x.val)
     
 
     def __add__(self, x):
         """Add"""
         
-        x = _Expr(x)
+        x = sExpr(x)
         return self.__class__(self.val + x.val)
     
 
     def __radd__(self, x):
         """Reverse add"""
         
-        x = _Expr(x)
+        x = sExpr(x)
         return self.__class__(self.val + x.val)
     
     
     def __rsub__(self, x):
         """Reverse subtract"""
         
-        x = _Expr(x)
+        x = sExpr(x)
         return self.__class__(x.val - self.val)
     
 
     def __sub__(self, x):
         """Subtract"""
         
-        x = _Expr(x)
+        x = sExpr(x)
         return self.__class__(self.val - x.val)
     
     
@@ -601,7 +601,7 @@ class _Expr(object):
         if x == None:
             return False
 
-        x = _Expr(x)
+        x = sExpr(x)
         return self.val == x.val
 
 
@@ -611,14 +611,14 @@ class _Expr(object):
         if x == None:
             return True
 
-        x = _Expr(x)
+        x = sExpr(x)
         return self.val != x.val
 
 
     def parallel(self, x):
         """Parallel combination"""
         
-        x = _Expr(x)
+        x = sExpr(x)
         return self.__class__(self.val * x.val / (self.val + x.val))
     
     
@@ -637,7 +637,7 @@ class _Expr(object):
     def delay(self, T):
         """Apply delay of T seconds by multiplying by exp(-s T)"""
         
-        T = _Expr(T)
+        T = sExpr(T)
         return self.__class__(self.val * sym.exp(-T * self.s))
 
 
@@ -819,34 +819,34 @@ class _Expr(object):
         return self.expr.is_number
 
 
-class Zs(_Expr):
+class Zs(sExpr):
     """s-domain impedance value"""
 
     @classmethod
     def C(cls, Cval):
     
-        Cval = _Expr(Cval, real=True)
+        Cval = sExpr(Cval, real=True)
         return cls(1 / Cval).integrate()
 
 
     @classmethod
     def G(cls, Gval):
     
-        Gval = _Expr(Gval, real=True)
+        Gval = sExpr(Gval, real=True)
         return cls(1 / Gval)
 
 
     @classmethod
     def L(cls, Lval):
     
-        Lval = _Expr(Lval, real=True)
+        Lval = sExpr(Lval, real=True)
         return cls(Lval).differentiate()
 
 
     @classmethod
     def R(cls, Rval):
     
-        Rval = _Expr(Rval, real=True)
+        Rval = sExpr(Rval, real=True)
         return cls(Rval)
 
 
@@ -869,35 +869,35 @@ class Zs(_Expr):
         return self
 
 
-class Ys(_Expr):
+class Ys(sExpr):
     """s-domain admittance value"""
     
 
     @classmethod
     def C(cls, Cval):
     
-        Cval = _Expr(Cval, real=True)
+        Cval = sExpr(Cval, real=True)
         return cls(Cval).differentiate()
 
 
     @classmethod
     def G(cls, Gval):
     
-        Gval = _Expr(Gval, real=True)
+        Gval = sExpr(Gval, real=True)
         return cls(Gval)
 
 
     @classmethod
     def L(cls, Lval):
     
-        Lval = _Expr(Lval, real=True)
+        Lval = sExpr(Lval, real=True)
         return cls(1 / Lval).integrate()
 
 
     @classmethod
     def R(cls, Rval):
     
-        Rval = _Expr(Rval, real=True)
+        Rval = sExpr(Rval, real=True)
         return cls(1 / Rval)
 
 
@@ -920,7 +920,7 @@ class Ys(_Expr):
         return self
 
 
-class Vs(_Expr):
+class Vs(sExpr):
     """s-domain voltage (units V s / radian)"""
     
 
@@ -935,7 +935,7 @@ class Vs(_Expr):
         return self
 
 
-class Is(_Expr):
+class Is(sExpr):
     """s-domain current (units A s / radian)"""
     
     def cpt(self):
@@ -949,12 +949,12 @@ class Is(_Expr):
         return self
 
 
-class Avs(_Expr):
+class Avs(sExpr):
     """s-domain voltage ratio"""
     pass
 
 
-class Ais(_Expr):
+class Ais(sExpr):
     """s-domain current ratio"""
     pass
 
@@ -973,7 +973,7 @@ class NetObject(object):
             
         modargs = []
         for arg in args:
-            if isinstance(arg, _Expr):
+            if isinstance(arg, sExpr):
                 arg = arg.expr
             modargs.append(arg)
         return modargs
@@ -1671,7 +1671,7 @@ class R(Thevenin):
 
     def __init__(self, Rval):
     
-        Rval = _Expr(Rval)
+        Rval = sExpr(Rval)
         super (R, self).__init__(Zs.R(Rval))
         self.R = Rval
         self.args = (Rval, )
@@ -1682,7 +1682,7 @@ class G(Norton):
 
     def __init__(self, Gval):
 
-        Gval = _Expr(Gval)
+        Gval = sExpr(Gval)
         super (G, self).__init__(Ys.G(Gval))
         self.G = Gval
         self.args = (Gval, )
@@ -1696,8 +1696,8 @@ class L(Thevenin):
     def __init__(self, Lval, i0=0.0):
 
         
-        Lval = _Expr(Lval)
-        i0 = _Expr(i0)
+        Lval = sExpr(Lval)
+        i0 = sExpr(i0)
         super (L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
         self.L = Lval
         self.i0 = i0
@@ -1711,8 +1711,8 @@ class C(Thevenin):
 
     def __init__(self, Cval, v0=0.0):
     
-        Cval = _Expr(Cval)
-        v0 = _Expr(v0)
+        Cval = sExpr(Cval)
+        v0 = sExpr(v0)
         super (C, self).__init__(Zs.C(Cval), Vs(v0).integrate())
         self.C = Cval
         self.v0 = v0
@@ -1724,7 +1724,7 @@ class Y(Norton):
 
     def __init__(self, Yval):
     
-        Yval = _Expr(Yval)
+        Yval = sExpr(Yval)
         super (Y, self).__init__(Yval)
         self.args = (Yval, )
 
@@ -1734,7 +1734,7 @@ class Z(Thevenin):
 
     def __init__(self, Zval):
     
-        Zval = _Expr(Zval)
+        Zval = sExpr(Zval)
         super (Z, self).__init__(Zval)
         self.args = (Zval, )    
 
@@ -1745,7 +1745,7 @@ class V(Thevenin):
 
     def __init__(self, v):
     
-        v = _Expr(v)
+        v = sExpr(v)
         super (V, self).__init__(Zs(0), Vs(v).integrate())
         self.args = (v, )    
         self.v = v
@@ -1777,7 +1777,7 @@ class I(Norton):
 
     def __init__(self, i):
     
-        i = _Expr(i)
+        i = sExpr(i)
         super (I, self).__init__(Ys(0), Is(i).integrate())
         self.args = (i, )    
         self.i = i
@@ -1814,10 +1814,10 @@ class Xtal(Thevenin):
 
     def __init__(self, C0, R1, L1, C1):
 
-        self.C0 = _Expr(C0)
-        self.R1 = _Expr(R1)
-        self.L1 = _Expr(L1)
-        self.C1 = _Expr(C1)
+        self.C0 = sExpr(C0)
+        self.R1 = sExpr(R1)
+        self.L1 = sExpr(L1)
+        self.C1 = sExpr(C1)
         self.args = (self.C0, self.R1, self.L1, self.C1)
     
         N = self.expand()
@@ -1838,10 +1838,10 @@ class FerriteBead(Thevenin):
 
     def __init__(self, Rs, Rp, Cp, Lp):
         
-        self.Rs = _Expr(Rs)
-        self.Rp = _Expr(Rp)
-        self.Cp = _Expr(Cp)
-        self.Lp = _Expr(Lp)
+        self.Rs = sExpr(Rs)
+        self.Rp = sExpr(Rp)
+        self.Cp = sExpr(Cp)
+        self.Lp = sExpr(Lp)
         self.args = (self.Rs, self.Rp, self.Cp, self.Lp)
 
         N = self.expand()
@@ -1946,120 +1946,145 @@ class _TwoPortMatrix(sym.Matrix):
 
     @property
     def A11(self):
+        """Open-circuit inverse voltage ratio"""
         return self.A[0, 0]
 
 
     @property
     def A12(self):
+        """Negative short-circuit transfer impedance"""
         return self.A[0, 1]
 
 
     @property
     def A21(self):
+        """Negative short-circuit inverse current ratio"""
         return self.A[1, 0]
 
 
     @property
     def A22(self):
+        """Open circuit transfer admittance"""
         return self.A[1, 1]
 
 
     @property
     def B11(self):
+        """Open-circuit voltage gain"""
         return self.B[0, 0]
 
 
     @property
     def B12(self):
+        """Negative short-circuit transfer impedance"""
         return self.B[0, 1]
 
 
     @property
     def B21(self):
+        """Negative short-circuit current gain"""
         return self.B[1, 0]
 
 
     @property
     def B22(self):
+        """Open-circuit transfer admittance"""
         return self.B[1, 1]
 
 
     @property
     def G11(self):
+        """Open-circuit input admittance"""
         return self.G[0, 0]
 
 
     @property
     def G12(self):
+        """Short-circuit reverse current gain"""
         return self.G[0, 1]
 
 
     @property
     def G21(self):
+        """Open-circuit forward voltage gain"""
         return self.G[1, 0]
 
 
     @property
     def G22(self):
+        """Short-circuit output impedance"""
         return self.G[1, 1]
+
 
     @property
     def H11(self):
+        """Short-circuit input impedance"""
         return self.H[0, 0]
 
 
     @property
     def H12(self):
+        """Open-circuit reverse voltage gain"""
         return self.H[0, 1]
 
 
     @property
     def H21(self):
+        """Short-circuit forward current gain"""
         return self.H[1, 0]
 
 
     @property
     def H22(self):
+        """Open-circuit output admittance"""
         return self.H[1, 1]
 
 
     @property
     def Y11(self):
+        """Short-circuit input admittance"""
         return self.Y[0, 0]
 
 
     @property
     def Y12(self):
+        """Short-circuit reverse transfer admittance"""
         return self.Y[0, 1]
 
 
     @property
     def Y21(self):
+        """Short-circuit transfer admittance"""
         return self.Y[1, 0]
 
 
     @property
     def Y22(self):
+        """Short-circuit output admittance"""
         return self.Y[1, 1]
 
 
     @property
     def Z11(self):
+        """Open-cicuit input impedance"""
         return self.Z[0, 0]
 
 
     @property
     def Z12(self):
+        """Open-cicuit transfer impedance"""
         return self.Z[0, 1]
 
 
     @property
     def Z21(self):
+        """Open-cicuit reverse transfer impedance"""
         return self.Z[1, 0]
 
 
     @property
     def Z22(self):
+        """Open-cicuit output impedance"""
         return self.Z[1, 1]
 
 
@@ -2170,7 +2195,7 @@ class AMatrix(_TwoPortMatrix):
     @classmethod
     def transformer(cls, alpha):
 
-        alpha = _Expr(alpha)
+        alpha = sExpr(alpha)
 
         return cls(1 / alpha, 0, 0, alpha)        
 
@@ -2178,7 +2203,7 @@ class AMatrix(_TwoPortMatrix):
     @classmethod
     def gyrator(cls, R):
 
-        R = _Expr(R)
+        R = sExpr(R)
 
         return cls(0, R, 1 / R, 0)        
 
@@ -2323,10 +2348,10 @@ class BMatrix(_TwoPortMatrix):
             Yin = 1e-9
             Zout = 1e-9
 
-        Af = _Expr(Af)
-        Ar = _Expr(Ar)
-        Yin = _Expr(Yin)
-        Zout = _Expr(Zout)
+        Af = sExpr(Af)
+        Ar = sExpr(Ar)
+        Yin = sExpr(Yin)
+        Zout = sExpr(Zout)
 
         # This should be defined with a G matrix
         # 
@@ -2365,10 +2390,10 @@ class BMatrix(_TwoPortMatrix):
             Zin = 1e-9
             Yout = 1e-9
 
-        Af = _Expr(Af)
-        Ar = _Expr(Ar)
-        Zin = _Expr(Zin)
-        Yout = _Expr(Yout)
+        Af = sExpr(Af)
+        Ar = sExpr(Ar)
+        Zin = sExpr(Zin)
+        Yout = sExpr(Yout)
 
         # This should be defined with a H matrix
         # 
@@ -2392,31 +2417,31 @@ class BMatrix(_TwoPortMatrix):
     @classmethod
     def voltage_differentiator(cls, Av=1):
         
-        return cls.voltage_amplifier(_Expr(Av).differentiate())
+        return cls.voltage_amplifier(sExpr(Av).differentiate())
 
 
     @classmethod
     def voltage_integrator(cls, Av):
         
-        return cls.voltage_amplifier(_Expr(Av).integrate())
+        return cls.voltage_amplifier(sExpr(Av).integrate())
 
 
     @classmethod
     def current_differentiator(cls, Av):
         
-        return cls.current_amplifier(_Expr(Av).differentiate())
+        return cls.current_amplifier(sExpr(Av).differentiate())
 
 
     @classmethod
     def current_integrator(cls, Av):
         
-        return cls.current_amplifier(_Expr(Av).integrate())
+        return cls.current_amplifier(sExpr(Av).integrate())
 
 
     @classmethod
     def transformer(cls, alpha):
 
-        alpha = _Expr(alpha)
+        alpha = sExpr(alpha)
 
         return cls(alpha, 0, 0, 1 / alpha)        
 
@@ -2424,7 +2449,7 @@ class BMatrix(_TwoPortMatrix):
     @classmethod
     def gyrator(cls, R):
 
-        R = _Expr(R)
+        R = sExpr(R)
 
         return cls(0, R, 1 / R, 0)        
 
@@ -3973,7 +3998,7 @@ class IdealTransformer(TwoPortBModel):
 
     def __init__(self, alpha=1):
 
-        self.alpha = _Expr(alpha)
+        self.alpha = sExpr(alpha)
         self.args = (alpha, )
         self._M = BMatrix.transformer(alpha)
         self._V2b = Vs(0)
@@ -3988,7 +4013,7 @@ class IdealGyrator(TwoPortBModel):
 
     def __init__(self, R=1):
 
-        self.R = _Expr(R)
+        self.R = sExpr(R)
         self.args = (R, )
         self._M = BMatrix.gyrator(R)
         self._V2b = Vs(0)
@@ -4011,10 +4036,10 @@ class VoltageAmplifier(TwoPortBModel):
 
     def __init__(self, Av=1, Af=0, Yin=0, Zout=0):
 
-        Av = _Expr(Av)
-        Af = _Expr(Af)
-        Yin = _Expr(Yin)
-        Zout = _Expr(Zout)
+        Av = sExpr(Av)
+        Af = sExpr(Af)
+        Yin = sExpr(Yin)
+        Zout = sExpr(Zout)
 
         self.args = (Av, Af, Yin, Zout)
         super (VoltageAmplifier, self).__init__(BMatrix.voltage_amplifier(Av, Af, Yin, Zout))
@@ -4025,7 +4050,7 @@ class IdealVoltageAmplifier(VoltageAmplifier):
 
     def __init__(self, Av=1):
 
-        Av = _Expr(Av)
+        Av = sExpr(Av)
         super (IdealVoltageAmplifier, self).__init__(BMatrix.voltage_differentiator(Av))
         self.args = (Av, )
 
@@ -4035,7 +4060,7 @@ class IdealDelay(TwoPortBModel):
 
     def __init__(self, delay=0):
 
-        delay = _Expr(delay)
+        delay = sExpr(delay)
         super (IdealDelay, self).__init__(BMatrix.voltage_amplifier(sym.exp(-delay * delay.s)))
         self.args = (delay, )
 
@@ -4045,7 +4070,7 @@ class IdealVoltageDifferentiator(TwoPortBModel):
 
     def __init__(self, Av=1):
 
-        Av = _Expr(Av)
+        Av = sExpr(Av)
         super (IdealVoltageDifferentiator, self).__init__(BMatrix.voltage_differentiator(Av))
         self.args = (Av, )
 
@@ -4055,7 +4080,7 @@ class IdealVoltageIntegrator(TwoPortBModel):
 
     def __init__(self, Av=1):
 
-        Av = _Expr(Av)
+        Av = sExpr(Av)
         super (IdealVoltageIntegrator, self).__init__(BMatrix.voltage_integrator(Av))
         self.args = (Av, )
 
@@ -4074,7 +4099,7 @@ class IdealCurrentAmplifier(TwoPortBModel):
 
     def __init__(self, Ai=1):
 
-        Ai = _Expr(Ai)
+        Ai = sExpr(Ai)
         super (IdealCurrentAmplifier, self).__init__(BMatrix.current_amplifier(Ai))
         self.args = (Ai, )
 
@@ -4084,7 +4109,7 @@ class IdealCurrentDifferentiator(TwoPortBModel):
 
     def __init__(self, Ai=1):
 
-        Ai = _Expr(Ai)
+        Ai = sExpr(Ai)
         super (IdealCurrentDifferentiator, self).__init__(BMatrix.current_differentiator(Ai))
         self.args = (Ai, )
 
@@ -4094,7 +4119,7 @@ class IdealCurrentIntegrator(TwoPortBModel):
 
     def __init__(self, Ai=1):
 
-        Ai = _Expr(Ai)
+        Ai = sExpr(Ai)
         super (IdealCurrentIntegrator, self).__init__(BMatrix.current_integrator(Ai))
         self.args = (Ai, )
 
@@ -4104,8 +4129,8 @@ class OpampInverter(TwoPortBModel):
 
     def __init__(self, R1, R2):
 
-        R1 = _Expr(R1)
-        R2 = _Expr(R2)
+        R1 = sExpr(R1)
+        R2 = sExpr(R2)
         # FIXME for initial voltages.
         super (OpampInverter, self).__init__(AMatrix(-R1.Z / R2.Z, 0, -1 / R2.Z, 0).B)
         self.args = (R1, R2)
@@ -4116,8 +4141,8 @@ class OpampIntegrator(TwoPortBModel):
 
     def __init__(self, R1, C1):
 
-        R1 = _Expr(R1)
-        C1 = _Expr(C1)
+        R1 = sExpr(R1)
+        C1 = sExpr(C1)
         # FIXME for initial voltages.
         super (OpampIntegrator, self).__init__(AMatrix(-R1.Z / C1.Z, 0, -1 / C1.Z, 0).B)
         self.args = (R1, C1)
@@ -4128,8 +4153,8 @@ class OpampDifferentiator(TwoPortBModel):
 
     def __init__(self, R1, C1):
 
-        R1 = _Expr(R1)
-        C1 = _Expr(C1)
+        R1 = sExpr(R1)
+        C1 = sExpr(C1)
         # FIXME for initial voltages.
         super (OpampDifferentiator, self).__init__(AMatrix(-R1.Z * C1.Z, 0, -R1.Z, 0).B)
         self.args = (R1, C1)
@@ -4343,9 +4368,9 @@ class GeneralTxLine(TwoPortBModel):
 
     def __init__(self, Z0, gamma, l):
         
-        Z0 = _Expr(Z0)
-        gamma = _Expr(gamma)
-        l = _Expr(l)
+        Z0 = sExpr(Z0)
+        gamma = sExpr(gamma)
+        l = sExpr(l)
 
         H = sym.exp(gamma * l)
 
@@ -4760,7 +4785,7 @@ class Opamp(ThreePort):
 
         # If Ro=0, then Z matrix singular.
 
-        Rd, Ro, A, Rp, Rm = [_Expr(arg) for arg in (Rd, Ro, A, Rp, Rm)]
+        Rd, Ro, A, Rp, Rm = [sExpr(arg) for arg in (Rd, Ro, A, Rp, Rm)]
 
         Ra = Rp * (Rd + Rm) / (Rp + Rd + Rm)
         Rb = Rm * (Rd + Rp) / (Rp + Rd + Rm)
