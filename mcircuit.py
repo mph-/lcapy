@@ -480,6 +480,7 @@ def final_value(expr, var=None):
 
 
 class sExpr(object):
+    """s-domain expression or symbol"""
     
     s, t, f = sym.symbols('s t f')
     
@@ -819,34 +820,45 @@ class sExpr(object):
         return self.expr.is_number
 
 
+class cExpr(sExpr):
+    """Constant expression or symbol"""
+    
+    def __init__(self, val, simplify=True, real=False):
+        
+        super (cExpr, self).__init__(val, simplify, real)
+
+        if not self.val.is_Symbol and not self.val.is_constant():
+            raise ValueError('%s not a constant or symbol' % val)
+
+
 class Zs(sExpr):
     """s-domain impedance value"""
 
     @classmethod
     def C(cls, Cval):
     
-        Cval = sExpr(Cval, real=True)
+        Cval = cExpr(Cval, real=True)
         return cls(1 / Cval).integrate()
 
 
     @classmethod
     def G(cls, Gval):
     
-        Gval = sExpr(Gval, real=True)
+        Gval = cExpr(Gval, real=True)
         return cls(1 / Gval)
 
 
     @classmethod
     def L(cls, Lval):
     
-        Lval = sExpr(Lval, real=True)
+        Lval = cExpr(Lval, real=True)
         return cls(Lval).differentiate()
 
 
     @classmethod
     def R(cls, Rval):
     
-        Rval = sExpr(Rval, real=True)
+        Rval = cExpr(Rval, real=True)
         return cls(Rval)
 
 
@@ -876,28 +888,28 @@ class Ys(sExpr):
     @classmethod
     def C(cls, Cval):
     
-        Cval = sExpr(Cval, real=True)
+        Cval = cExpr(Cval, real=True)
         return cls(Cval).differentiate()
 
 
     @classmethod
     def G(cls, Gval):
     
-        Gval = sExpr(Gval, real=True)
+        Gval = cExpr(Gval, real=True)
         return cls(Gval)
 
 
     @classmethod
     def L(cls, Lval):
     
-        Lval = sExpr(Lval, real=True)
+        Lval = cExpr(Lval, real=True)
         return cls(1 / Lval).integrate()
 
 
     @classmethod
     def R(cls, Rval):
     
-        Rval = sExpr(Rval, real=True)
+        Rval = cExpr(Rval, real=True)
         return cls(1 / Rval)
 
 
@@ -1671,7 +1683,7 @@ class R(Thevenin):
 
     def __init__(self, Rval):
     
-        Rval = sExpr(Rval)
+        Rval = cExpr(Rval)
         super (R, self).__init__(Zs.R(Rval))
         self.R = Rval
         self.args = (Rval, )
@@ -1682,7 +1694,7 @@ class G(Norton):
 
     def __init__(self, Gval):
 
-        Gval = sExpr(Gval)
+        Gval = cExpr(Gval)
         super (G, self).__init__(Ys.G(Gval))
         self.G = Gval
         self.args = (Gval, )
@@ -1696,8 +1708,8 @@ class L(Thevenin):
     def __init__(self, Lval, i0=0.0):
 
         
-        Lval = sExpr(Lval)
-        i0 = sExpr(i0)
+        Lval = cExpr(Lval)
+        i0 = cExpr(i0)
         super (L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
         self.L = Lval
         self.i0 = i0
@@ -1711,8 +1723,8 @@ class C(Thevenin):
 
     def __init__(self, Cval, v0=0.0):
     
-        Cval = sExpr(Cval)
-        v0 = sExpr(v0)
+        Cval = cExpr(Cval)
+        v0 = cExpr(v0)
         super (C, self).__init__(Zs.C(Cval), Vs(v0).integrate())
         self.C = Cval
         self.v0 = v0
@@ -1745,7 +1757,7 @@ class V(Thevenin):
 
     def __init__(self, v):
     
-        v = sExpr(v)
+        v = cExpr(v)
         super (V, self).__init__(Zs(0), Vs(v).integrate())
         self.args = (v, )    
         self.v = v
@@ -1777,7 +1789,7 @@ class I(Norton):
 
     def __init__(self, i):
     
-        i = sExpr(i)
+        i = cExpr(i)
         super (I, self).__init__(Ys(0), Is(i).integrate())
         self.args = (i, )    
         self.i = i
@@ -1814,10 +1826,10 @@ class Xtal(Thevenin):
 
     def __init__(self, C0, R1, L1, C1):
 
-        self.C0 = sExpr(C0)
-        self.R1 = sExpr(R1)
-        self.L1 = sExpr(L1)
-        self.C1 = sExpr(C1)
+        self.C0 = cExpr(C0)
+        self.R1 = cExpr(R1)
+        self.L1 = cExpr(L1)
+        self.C1 = cExpr(C1)
         self.args = (self.C0, self.R1, self.L1, self.C1)
     
         N = self.expand()
@@ -1838,10 +1850,10 @@ class FerriteBead(Thevenin):
 
     def __init__(self, Rs, Rp, Cp, Lp):
         
-        self.Rs = sExpr(Rs)
-        self.Rp = sExpr(Rp)
-        self.Cp = sExpr(Cp)
-        self.Lp = sExpr(Lp)
+        self.Rs = cExpr(Rs)
+        self.Rp = cExpr(Rp)
+        self.Cp = cExpr(Cp)
+        self.Lp = cExpr(Lp)
         self.args = (self.Rs, self.Rp, self.Cp, self.Lp)
 
         N = self.expand()
@@ -2195,7 +2207,7 @@ class AMatrix(_TwoPortMatrix):
     @classmethod
     def transformer(cls, alpha):
 
-        alpha = sExpr(alpha)
+        alpha = cExpr(alpha)
 
         return cls(1 / alpha, 0, 0, alpha)        
 
@@ -2203,7 +2215,7 @@ class AMatrix(_TwoPortMatrix):
     @classmethod
     def gyrator(cls, R):
 
-        R = sExpr(R)
+        R = cExpr(R)
 
         return cls(0, R, 1 / R, 0)        
 
@@ -2441,7 +2453,7 @@ class BMatrix(_TwoPortMatrix):
     @classmethod
     def transformer(cls, alpha):
 
-        alpha = sExpr(alpha)
+        alpha = cExpr(alpha)
 
         return cls(alpha, 0, 0, 1 / alpha)        
 
@@ -2449,7 +2461,7 @@ class BMatrix(_TwoPortMatrix):
     @classmethod
     def gyrator(cls, R):
 
-        R = sExpr(R)
+        R = cExpr(R)
 
         return cls(0, R, 1 / R, 0)        
 
@@ -3998,7 +4010,7 @@ class IdealTransformer(TwoPortBModel):
 
     def __init__(self, alpha=1):
 
-        self.alpha = sExpr(alpha)
+        self.alpha = cExpr(alpha)
         self.args = (alpha, )
         self._M = BMatrix.transformer(alpha)
         self._V2b = Vs(0)
@@ -4013,7 +4025,7 @@ class IdealGyrator(TwoPortBModel):
 
     def __init__(self, R=1):
 
-        self.R = sExpr(R)
+        self.R = cExpr(R)
         self.args = (R, )
         self._M = BMatrix.gyrator(R)
         self._V2b = Vs(0)
@@ -4060,7 +4072,7 @@ class IdealDelay(TwoPortBModel):
 
     def __init__(self, delay=0):
 
-        delay = sExpr(delay)
+        delay = cExpr(delay)
         super (IdealDelay, self).__init__(BMatrix.voltage_amplifier(sym.exp(-delay * delay.s)))
         self.args = (delay, )
 
@@ -4129,8 +4141,8 @@ class OpampInverter(TwoPortBModel):
 
     def __init__(self, R1, R2):
 
-        R1 = sExpr(R1)
-        R2 = sExpr(R2)
+        R1 = cExpr(R1)
+        R2 = cExpr(R2)
         # FIXME for initial voltages.
         super (OpampInverter, self).__init__(AMatrix(-R1.Z / R2.Z, 0, -1 / R2.Z, 0).B)
         self.args = (R1, R2)
@@ -4141,8 +4153,8 @@ class OpampIntegrator(TwoPortBModel):
 
     def __init__(self, R1, C1):
 
-        R1 = sExpr(R1)
-        C1 = sExpr(C1)
+        R1 = cExpr(R1)
+        C1 = cExpr(C1)
         # FIXME for initial voltages.
         super (OpampIntegrator, self).__init__(AMatrix(-R1.Z / C1.Z, 0, -1 / C1.Z, 0).B)
         self.args = (R1, C1)
@@ -4153,8 +4165,8 @@ class OpampDifferentiator(TwoPortBModel):
 
     def __init__(self, R1, C1):
 
-        R1 = sExpr(R1)
-        C1 = sExpr(C1)
+        R1 = cExpr(R1)
+        C1 = cExpr(C1)
         # FIXME for initial voltages.
         super (OpampDifferentiator, self).__init__(AMatrix(-R1.Z * C1.Z, 0, -R1.Z, 0).B)
         self.args = (R1, C1)
@@ -4370,7 +4382,7 @@ class GeneralTxLine(TwoPortBModel):
         
         Z0 = sExpr(Z0)
         gamma = sExpr(gamma)
-        l = sExpr(l)
+        l = cExpr(l)
 
         H = sym.exp(gamma * l)
 
@@ -4785,7 +4797,7 @@ class Opamp(ThreePort):
 
         # If Ro=0, then Z matrix singular.
 
-        Rd, Ro, A, Rp, Rm = [sExpr(arg) for arg in (Rd, Ro, A, Rp, Rm)]
+        Rd, Ro, A, Rp, Rm = [cExpr(arg) for arg in (Rd, Ro, A, Rp, Rm)]
 
         Ra = Rp * (Rd + Rm) / (Rp + Rd + Rm)
         Rb = Rm * (Rd + Rp) / (Rp + Rd + Rm)
