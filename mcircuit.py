@@ -169,6 +169,14 @@ def pretty(expr):
         return sym.pretty(expr)
 
 
+def latex(expr):
+
+    if hasattr(expr, 'latex'):
+        return expr.latex()
+    else:
+        return sym.latex(expr)
+
+
 def DeltaWye(Z1, Z2, Z3):
 
     ZZ = (Z1 * Z2 + Z2 * Z3 + Z3 * Z1)
@@ -741,6 +749,11 @@ class sExpr(object):
         return sym.pretty(self.val)
 
 
+    def latex(self):
+        """Make latex string"""
+        return sym.latex(self.val)
+
+
     def simplify(self):
         """Simplify"""
         # Not sure if this is needed; perhaps use canonical?
@@ -1017,6 +1030,12 @@ class NetObject(object):
         argsrepr = ', '.join([sym.pretty(arg) for arg in self._tweak_args()])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
+
+    def latex(self):
+
+        argsrepr = ', '.join([sym.latex(arg) for arg in self._tweak_args()])
+        return '\\mathrm{%s}(%s)' % (self.__class__.__name__, argsrepr)
+
     
     def simplify(self):
 
@@ -1118,6 +1137,24 @@ class ParSer(OnePort):
 
         for m, arg in enumerate(self.args):
             argstr = arg.pretty()
+
+            if isinstance(arg, ParSer) and arg.__class__ != self.__class__:
+                argstr = '(' + argstr + ')'
+
+            str += argstr
+
+            if m != len(self.args) - 1:
+                str += ' %s ' % self._operator
+
+        return str
+
+
+    def latex(self):
+
+        str = ''
+
+        for m, arg in enumerate(self.args):
+            argstr = arg.latex()
 
             if isinstance(arg, ParSer) and arg.__class__ != self.__class__:
                 argstr = '(' + argstr + ')'
