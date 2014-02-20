@@ -129,6 +129,32 @@ import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 
+def _guess_var(expr, var):
+
+    if hasattr(expr, 'expr'):
+        return expr.expr, expr.s
+
+    if var != None:
+        return expr, var
+
+    if not expr.is_rational_function():
+        raise ValueError('Expression not a rational function')
+
+    numer, denom = expr.as_numer_denom()
+    try:
+        P = sym.Poly(numer)
+        if P.gens != ():
+            return expr, P.gens[0]
+    except:
+        pass
+
+    try:
+        P = sym.Poly(denom)
+        if P.gens != ():
+            return expr, P.gens[0]
+    except:
+        raise Error('Cannot determine polynomial variable')
+
 
 def _mrffmt(prefix, arg):
     
@@ -191,9 +217,7 @@ def WyeDelta(Z1, Z2, Z3):
 
 def poles(expr, var=None):
 
-    if hasattr(expr, 'expr'):
-        var = expr.s
-        expr = expr.expr
+    expr, var = _guess_var(expr, var)
 
     numer, denom = expr.as_numer_denom()
     poles = sym.roots(sym.Poly(denom, var))
@@ -202,9 +226,7 @@ def poles(expr, var=None):
 
 def zeros(expr, var=None):
 
-    if hasattr(expr, 'expr'):
-        var = expr.s
-        expr = expr.expr
+    expr, var = _guess_var(expr, var)
 
     numer, denom = expr.as_numer_denom()
     zeros = sym.roots(sym.Poly(numer, var))
@@ -240,9 +262,7 @@ def residue(expr, var, pole, poles):
 
 def residues(expr, var=None):
 
-    if hasattr(expr, 'expr'):
-        var = expr.s
-        expr = expr.expr
+    expr, var = _guess_var(expr, var)
 
     N, D = _as_ratfun_parts(expr, var)
 
@@ -280,15 +300,13 @@ def partfrac(expr, var=None):
 
     See also canonical, general, and ZPK"""
 
-    if hasattr(expr, 'expr'):
-        var = expr.s
-        expr = expr.expr
+    expr, var = _guess_var(expr, var)
 
     ratfun, delay = _as_ratfun_delay(expr, var)
 
     F, R, Q = residues(ratfun, var)
 
-    expr = Q
+    expr = Q.as_expr()
     for f, r in zip(F, R):
         expr = expr + r / f
 
@@ -300,9 +318,7 @@ def partfrac(expr, var=None):
 
 def _as_ratfun_parts(expr, var=None):
     
-    if hasattr(expr, 'expr'):
-        var = expr.s
-        expr = expr.expr
+    expr, var = _guess_var(expr, var)
 
     if not expr.is_rational_function():
         raise ValueError('Expression not a rational function')
@@ -316,9 +332,7 @@ def _as_ratfun_parts(expr, var=None):
 
 def _as_ratfun_delay(expr, var=None):
     
-    if hasattr(expr, 'expr'):
-        var = expr.s
-        expr = expr.expr
+    expr, var = _guess_var(expr, var)
 
     F = expr.as_ordered_factors()
 
@@ -348,9 +362,7 @@ def general(expr, var=None):
 
     See also canonical, partfrac, and ZPK"""
 
-    if hasattr(expr, 'expr'):
-        var = expr.s
-        expr = expr.expr
+    expr, var = _guess_var(expr, var)
 
     return sym.cancel(expr, var)
 
@@ -361,10 +373,7 @@ def canonical(expr, var=None):
 
     See also general, partfrac, and ZPK"""
 
-
-    if hasattr(expr, 'expr'):
-        var = expr.s
-        expr = expr.expr
+    expr, var = _guess_var(expr, var)
 
     ratfun, delay = _as_ratfun_delay(expr, var)
 
@@ -386,9 +395,7 @@ def ZPK(expr, var=None):
 
     See also canonical, general, and partfrac"""
 
-    if hasattr(expr, 'expr'):
-        var = expr.s
-        expr = expr.expr
+    expr, var = _guess_var(expr, var)
 
     ratfun, delay = _as_ratfun_delay(expr, var)
 
