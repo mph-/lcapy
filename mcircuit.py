@@ -522,6 +522,12 @@ class sExpr(object):
         return '%s(%s)' % (self.__class__.__name__, self.val)
 
     
+    def __abs__(self):
+        """Absolute value"""
+        
+        return self.__class__(abs(self.val))
+
+
     def __neg__(self):
         """Negation"""
         
@@ -598,6 +604,13 @@ class sExpr(object):
         return self.__class__(self.val - x.val)
     
     
+    def __pow__(self, x):
+        """Pow"""
+        
+        x = self.__class__(x)
+        return self.__class__(self.val ** x.val)
+
+
     def __or__(self, x):
         """Parallel combination"""
         
