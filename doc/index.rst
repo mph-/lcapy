@@ -13,6 +13,7 @@ Contents:
    :maxdepth: 2
 
    tutorial.rst
+   circuits.rst
    api.rst
 
 

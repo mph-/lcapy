@@ -157,7 +157,6 @@ Finally, here's an example of a parallel combination of capacitors
 Impedances
 ==========
 
-
 Let's consider a series R-L-C network
 
    >>> from mcircuit import *
