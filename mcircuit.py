@@ -406,10 +406,10 @@ def ZPK(expr, var=None):
         K = K * sym.exp(var * delay)
 
     zeros = sym.roots(N)
-    zz = [(var - z) for z in zeros]
+    zz = [(var - z) ** zeros[z] for z in zeros]
 
     poles = sym.roots(D)
-    pp = [1 / (var - p) for p in poles]
+    pp = [1 / (var - p) ** poles[p] for p in poles]
         
     return sym.Mul(K, *(zz + pp))
 
