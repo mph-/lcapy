@@ -565,3 +565,75 @@ Similarly, the zeros can be found using the zeros function:
    >>> zeros(H)
    {-5: 1, 4: 1}
 
+Mcircuit can also handle rational functions with a delay, for example,
+
+
+Inverse Laplace transforms
+==========================
+
+Mcircuit can perform inverse Laplace transforms.   Here's an example for
+a strictly proper rational function:
+
+   >>> from mcircuit import *
+   >>> s = sExpr.s
+   >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
+   >>> pprint(partfrac(H))
+     35      30 
+   ───── - ─────
+   s + 3   s + 2
+   >>> pprint(inverse_laplace(H))
+   ⎛      -2⋅t       -3⋅t⎞             
+   ⎝- 30⋅ℯ     + 35⋅ℯ    ⎠⋅Heaviside(t)
+
+The Heaviside function is the unit step.
+
+When the rational function is not strictly proper, the inverse Laplace
+transform has Dirac deltas (and derivatives of Dirac deltas):
+
+   >>> from mcircuit import *
+   >>> s = sExpr.s
+   >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
+   >>> pprint(partfrac(H)) 
+        70      90 
+   5 + ───── - ─────
+       s + 3   s + 2
+   >>> pprint(inverse_laplace(H))
+   ⎛      -2⋅t       -3⋅t⎞                               
+   ⎝- 90⋅ℯ     + 70⋅ℯ    ⎠⋅Heaviside(t) + 5⋅DiracDelta(t)
+
+
+Here's another example of a strictly proper rational function with a
+repeated pole:
+
+   >>> from mcircuit import *
+   >>> s = sExpr.s
+   >>> H = 5 * (s + 5) / ((s + 3) * (s + 3))
+   >>> pprint(ZPK(H))
+   5⋅(s + 5)
+   ─────────
+           2
+    (s + 3) 
+   >>> pprint(partfrac(H))
+     5        10   
+   ───── + ────────
+   s + 3          2
+           (s + 3) 
+   >>> pprint(inverse_laplace(H))
+   ⎛      -3⋅t      -3⋅t⎞             
+   ⎝10⋅t⋅ℯ     + 5⋅ℯ    ⎠⋅Heaviside(t)
+
+
+Rational functions with delays can also be handled:
+
+   >>> from mcircuit import *
+   >>> from sympy import symbols
+   >>> s, T = sym.symbols('s T')
+   >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * sym.exp(-s * T)
+   >>> pprint(partfrac(H))
+   ⎛      70      90 ⎞  -T⋅s
+   ⎜5 + ───── - ─────⎟⋅ℯ    
+   ⎝    s + 3   s + 2⎠      
+   >>> pprint(inverse_laplace(H))
+   ⎛      2⋅T - 2⋅t       3⋅T - 3⋅t⎞                                         
+   ⎝- 90⋅ℯ          + 70⋅ℯ         ⎠⋅Heaviside(-T + t) + 5⋅DiracDelta(-T + t)
+
