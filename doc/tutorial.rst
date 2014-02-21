@@ -514,3 +514,54 @@ The different matrix representations can be shown using:
 Note, some of the two-port matrices cannot represent a network.  For
 example, a series impedance has a non specified Z matrix and a shunt
 impedance has a non specified Y matrix.
+
+
+Partial Fraction Analysis
+=========================
+
+Mcircuit can be used for converting rational functions into partial
+fraction form.  Here's an example:
+
+   >>> from mcircuit import *
+   >>>
+   >>> s = sExpr.s
+   >>>
+   >>> G = 1 / (s**2 + 5 * s + 6)
+   >>>
+   >>> pprint(partfrac(G))
+      1       1  
+   - ───── + ─────
+     s + 3   s + 2
+
+Here's an example of a not strictly proper rational function,
+
+   >>> from mcircuit import *
+   >>>
+   >>> s = sExpr.s
+   >>>
+   >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6)
+   >>>
+   >>> pprint(partfrac(H))
+         70      90 
+   5 + ───── - ─────
+       s + 3   s + 2
+
+The rational function can also be printed in ZPK form:
+
+   >>> pprint(ZPK(H))
+   5⋅(s - 4)⋅(s + 5)
+   ─────────────────
+    (s + 2)⋅(s + 3) 
+
+Here it is obvious that the poles are -2 and -3.  These can also be found using the poles function:
+
+   >>> poles(H)
+   {-3: 1, -2: 1}
+
+Here the number after the colon indicates how many times the pole is repeated.
+
+Similarly, the zeros can be found using the zeros function:
+
+   >>> zeros(H)
+   {-5: 1, 4: 1}
+

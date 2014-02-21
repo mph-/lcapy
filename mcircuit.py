@@ -137,8 +137,8 @@ def _guess_var(expr, var):
     if var != None:
         return expr, var
 
-    if not expr.is_rational_function():
-        raise ValueError('Expression not a rational function')
+    #if not expr.is_rational_function():
+    #    raise ValueError('Expression not a rational function')
 
     numer, denom = expr.as_numer_denom()
     try:
@@ -428,7 +428,6 @@ def _inverse_laplace(expr, var, t):
     td = t - delay
 
     if Q:
-        print('Warning: Impulse response has impulses and/or derivatives of impulses.')
         C = Q.all_coeffs()
         for n, c in enumerate(C):
             result1 += c * sym.diff(sym.DiracDelta(td), t, len(C) - n - 1)
@@ -459,8 +458,12 @@ def _inverse_laplace(expr, var, t):
     return result1 + result2 * sym.Heaviside(td)
 
 
-def inverse_laplace(expr, s, t):
+def inverse_laplace(expr, s=None, t=None):
     """Determine inverse Laplace transform of expression"""
+
+    expr, s = _guess_var(expr, s)
+    if t == None:
+        t = sym.symbols('t')
 
     try:
         result = _inverse_laplace(expr, s, t)
@@ -3082,7 +3085,7 @@ class TwoPort(NetObject):
         """Return V2 / V1 for I2 = 0 (forward voltage gain) with
         internal sources zero
 
-        Av = G21 = 1 / A11 = -|B| / B22 = Z21 / Z11 =  Y21 / Y22
+        Av = G21 = 1 / A11 = -det(B) / B22 = Z21 / Z11 =  Y21 / Y22
         """
 
         return self.Vgain(1, 2)
@@ -3101,7 +3104,7 @@ class TwoPort(NetObject):
         """Return I2 / I1 for V2 = 0 (forward current gain) with
         internal sources zero
 
-        Ai = H21 = -1 / A22 = -|B| / B11 = -Z21 / Z22 = Y21 / Y11
+        Ai = H21 = -1 / A22 = -det(B) / B11 = -Z21 / Z22 = Y21 / Y11
         """
 
         return self.Igain(1, 2)
@@ -3156,7 +3159,7 @@ class TwoPort(NetObject):
         """Return I2 / V1 for V2 = 0 (forward transadmittance) with
          internal sources zero
 
-         Y21 = -1 / A12 = |B| / B12
+         Y21 = -1 / A12 = det(B) / B12
          """
 
         return Ys(self.Y21)
@@ -3167,7 +3170,7 @@ class TwoPort(NetObject):
         """Return I2 / V1 for V2 = 0 (forward transadmittance) with
          internal sources zero.  This is an alias for Ytrans12.
 
-         Y21 = -1 / A12 = |B| / B12
+         Y21 = -1 / A12 = det(B) / B12
          """
 
         return self.Ytrans12
@@ -3184,7 +3187,7 @@ class TwoPort(NetObject):
         """Return V2 / I1 for I2 = 0 (forward transimpedance) with
         internal sources zero
 
-        Z21 = 1 / A21 = -|B| / B21
+        Z21 = 1 / A21 = -det(B) / B21
         """
 
         return Zs(self.Z21)
@@ -3195,7 +3198,7 @@ class TwoPort(NetObject):
         """Return V2 / I1 for I2 = 0 (forward transimpedance) with
         internal sources zero.  This is an alias for Ztrans12.
 
-        Z21 = 1 / A21 = -|B| / B21
+        Z21 = 1 / A21 = -det(B) / B21
         """
 
         return self.Ztrans12
@@ -3541,7 +3544,7 @@ class TwoPortBModel(TwoPort):
         """Return voltage gain for specified ports with internal
         sources zero"""
 
-        # Av  = G21 = 1 / A11 = -|B| / B22 = Z21 / Z11 =  Y21 / Y22
+        # Av  = G21 = 1 / A11 = -det(B) / B22 = Z21 / Z11 =  Y21 / Y22
         # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12 / Y11
 
         if inport == outport:
@@ -3557,7 +3560,7 @@ class TwoPortBModel(TwoPort):
         """Return current gain for specified ports with internal
          sources zero"""
 
-        # Ai  = H21 = -1 / A22 = -|B| / B11 = -Z21 / Z22 = Y21 / Y11
+        # Ai  = H21 = -1 / A22 = -det(B) / B11 = -Z21 / Z22 = Y21 / Y11
         # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12 / Y22
 
         if inport == outport:
@@ -4030,6 +4033,7 @@ class Shunt(TwoPortBModel):
     """
     Two-port comprising a single one-port in shunt configuration
     ::
+
          -----+----
               |    
             +-+-+  
@@ -4224,6 +4228,7 @@ class OpampDifferentiator(TwoPortBModel):
 class TSection(TwoPortBModel):
     """T (Y) section
     ::
+
            +---------+       +---------+       
          --+   OP1   +---+---+   OP3   +---
            +---------+   |   +---------+   
@@ -4259,6 +4264,7 @@ class TSection(TwoPortBModel):
 class TwinTSection(TwoPortBModel):
     """Twin T section
     ::
+
               +---------+       +---------+       
            +--+   OP1a  +---+---+   OP3a  +--+
            |  +---------+   |   +---------+  |
@@ -4293,6 +4299,7 @@ class TwinTSection(TwoPortBModel):
 class BridgedTSection(TwoPortBModel):
     """Bridged T section
         ::
+
                        +---------+       
            +-----------+   OP4   +-----------+
            |           +---------+           |
@@ -4321,6 +4328,7 @@ class BridgedTSection(TwoPortBModel):
 class PiSection(TwoPortBModel):
     """Pi (delta) section
     ::
+
                   +---------+       
         -----+----+   OP2    +---+-----
              |    +---------+   |  
@@ -4351,6 +4359,7 @@ class PiSection(TwoPortBModel):
 class LSection(TwoPortBModel):
     """L Section
     ::
+
            +---------+       
          --+   OP1   +---+----
            +---------+   |   
@@ -4375,6 +4384,7 @@ class Ladder(TwoPortBModel):
     """(Unbalanced) ladder network with alternating Series and Shunt
     networks chained
     ::
+
            +---------+       +---------+       
          --+   OP1   +---+---+ args[1] +---
            +---------+   |   +---------+   
