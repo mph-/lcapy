@@ -2,15 +2,15 @@ from mcircuit import *
 
 s = sExpr.s
 
-g = 1 / (s**2 + 5 * s + 6)
+G = 1 / (s**2 + 5 * s + 6)
 
-pprint(g)
-pprint(partfrac(g))
+pprint(G)
+pprint(partfrac(G))
 
 
-h = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6)
+H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6)
 
-pprint(h)
-pprint(ZPK(h))
-pprint(partfrac(h))
+pprint(H)
+pprint(ZPK(H))
+pprint(partfrac(H))
 
