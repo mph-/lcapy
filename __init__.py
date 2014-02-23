@@ -3,8 +3,7 @@ Mcircuit is a Python library for linear circuit analysis.  It uses SymPy
 for symbolic mathematics.
 """
 
-#from __future__ import absolute_import, print_function
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 __version__ = "0.1-git"
 
@@ -17,4 +16,4 @@ else:  # Python 3
 
 del sys
 
-from mcircuit import *
+from .mcircuit import *
