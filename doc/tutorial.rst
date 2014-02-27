@@ -568,7 +568,6 @@ Mcircuit can also handle rational functions with a delay.
 
 
 
-
 Inverse Laplace transforms
 ==========================
 

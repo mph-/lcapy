@@ -215,15 +215,36 @@ def WyeDelta(Z1, Z2, Z3):
     return (Z2 * Z3 / ZZ, Z1 * Z3 / ZZ, Z1 * Z2 / ZZ)
 
 
-def tf(numer, denom=1):
+def tf(numer, denom=1, var=None):
     """Create a transfer function from lists of the coefficient
     for the numerator and denominator"""
 
-    s = sym.symbols('s')
-    N = sym.Poly(numer, s)
-    D = sym.Poly(denom, s)
+    if var == None:
+        var = sym.symbols('s')
+    N = sym.Poly(numer, var)
+    D = sym.Poly(denom, var)
 
     return N / D
+
+
+def zp2tf(zeros, poles, K=1, var=None):
+    """Create a transfer function from lists of zeros and poles, 
+    and from a constant gain."""
+
+    if var == None:
+        var = sym.symbols('s')
+
+    if isinstance(zeros, (tuple, list)):
+        zz = [(var - z) for z in zeros]
+    else:
+        zz = [(var - z) ** zeros[z] for z in zeros]
+
+    if isinstance(zeros, (tuple, list)):
+        pp = [1 / (var - p) for p in poles]
+    else:
+        pp = [1 / (var - p) ** poles[p] for p in poles]
+        
+    return sym.Mul(K, *(zz + pp))
 
 
 def poles(expr, var=None):
@@ -417,12 +438,9 @@ def ZPK(expr, var=None):
         K = K * sym.exp(var * delay)
 
     zeros = sym.roots(N)
-    zz = [(var - z) ** zeros[z] for z in zeros]
-
     poles = sym.roots(D)
-    pp = [1 / (var - p) ** poles[p] for p in poles]
-        
-    return sym.Mul(K, *(zz + pp))
+
+    return zp2tf(zeros, poles, K, var)
 
 
 def _inverse_laplace(expr, var, t):
