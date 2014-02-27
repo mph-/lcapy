@@ -1082,6 +1082,18 @@ class OnePort(NetObject):
         return Par(self, OP)
 
 
+    def series(self, OP):
+        """Series combination"""
+
+        return Ser(self, OP)
+
+
+    def parallel(self, OP):
+        """Parallel combination"""
+
+        return Par(self, OP)
+
+
     @property
     def Zoc(self):    
         return self.Z
@@ -1127,6 +1139,15 @@ class OnePort(NetObject):
             raise TypeError('Argument not ', OnePort)
 
         return TSection(self, OP2, OP3)
+
+
+    def load(self, OP):
+        """Apply a load and create a Load object that stores the voltage
+        across the load and the current through it"""
+        
+        # This may need some pondering.  What if a Thevenin network is
+        # connected?
+        return Load(self.parallel(OP).V, self.series(OP).I)
 
 
     def expand(self):
@@ -1685,15 +1706,6 @@ class Thevenin(OnePort):
         return (self.parallel(Z0) + Z1).parallel(Z2)
 
 
-    def load(self, OP):
-        """Apply a load and create a Load object that stores the voltage
-        across the load and the current through it"""
-        
-        # This may need some pondering.  What if a Thevenin network is
-        # connected?
-        return Load(self.parallel(OP).V, self.series(OP).I)
-
-
     def cpt(self):
         """Convert to a component, if possible"""
 
@@ -1925,7 +1937,7 @@ class Vector(sym.Matrix):
 
     def __new__ (cls, *args):
 
-        args = [sym.simplify(arg) for arg in args]
+        args = [sym.sympify(arg) for arg in args]
 
         if len(args) == 2:
             return super (Vector, cls).__new__(cls, (args[0], args[1]))
