@@ -554,6 +554,18 @@ or symbolically:
    1.0⋅s  + 0.05⋅s
 
 
+In each case, parameters can be expressed numerically or symbolically, for example,
+
+   >>> from mcircuit import *
+   >>>
+   >>> H4 = zp2tf(['z_1'], ['p_1', 'p_2'])
+   >>> pprint(H4)
+          s - z₁      
+   ───────────────────
+   (-p₁ + s)⋅(-p₂ + s)
+
+
+
 Partial Fraction Analysis
 =========================
 

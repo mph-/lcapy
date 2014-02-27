@@ -234,6 +234,9 @@ def zp2tf(zeros, poles, K=1, var=None):
     if var == None:
         var = sym.symbols('s')
 
+    zeros = sym.sympify(zeros)
+    poles = sym.sympify(poles)
+
     if isinstance(zeros, (tuple, list)):
         zz = [(var - z) for z in zeros]
     else:
