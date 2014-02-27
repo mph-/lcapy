@@ -515,6 +515,45 @@ example, a series impedance has a non specified Z matrix and a shunt
 impedance has a non specified Y matrix.
 
 
+Transfer Functions
+==================
+
+Transfer functions can be created in a similar manner to Matlab,
+either using lists of numerator and denominator coefficients:
+
+    >>> from mcircuit import *
+    >>>
+    >>> H1 = tf(0.001, [1, 0.05, 0])
+    >>> pprint(H1)
+        0.001     
+   ───────────────
+        2         
+   1.0⋅s  + 0.05⋅s
+
+from lists of poles and zeros (and optional gain):
+
+   >>> from mcircuit import *
+   >>>
+   >>> H2 = zp2tf([], [0, -0.05])
+   >>> pprint(H2)
+        0.001     
+   ───────────────
+        2         
+   1.0⋅s  + 0.05⋅s
+
+or symbolically:
+
+   >>> from mcircuit import *
+   >>>
+   >>> s = tf('s')
+   >>> H3 = 0.001 / (s**2 + 0.05 * s)
+   >>> pprint(H3)
+        0.001     
+   ───────────────
+        2         
+   1.0⋅s  + 0.05⋅s
+
+
 Partial Fraction Analysis
 =========================
 
