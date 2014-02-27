@@ -215,6 +215,17 @@ def WyeDelta(Z1, Z2, Z3):
     return (Z2 * Z3 / ZZ, Z1 * Z3 / ZZ, Z1 * Z2 / ZZ)
 
 
+def tf(numer, denom=1):
+    """Create a transfer function from lists of the coefficient
+    for the numerator and denominator"""
+
+    s = sym.symbols('s')
+    N = sym.Poly(numer, s)
+    D = sym.Poly(denom, s)
+
+    return N / D
+
+
 def poles(expr, var=None):
 
     expr, var = _guess_var(expr, var)

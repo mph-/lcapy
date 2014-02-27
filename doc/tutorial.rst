@@ -564,7 +564,9 @@ Similarly, the zeros can be found using the zeros function:
    >>> zeros(H)
    {-5: 1, 4: 1}
 
-Mcircuit can also handle rational functions with a delay, for example,
+Mcircuit can also handle rational functions with a delay.
+
+
 
 
 Inverse Laplace transforms
