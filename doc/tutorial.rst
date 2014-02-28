@@ -526,9 +526,9 @@ either using lists of numerator and denominator coefficients:
     >>> H1 = tf(0.001, [1, 0.05, 0])
     >>> pprint(H1)
         0.001     
-   ───────────────
-        2         
-   1.0⋅s  + 0.05⋅s
+    ───────────────
+         2         
+    1.0⋅s  + 0.05⋅s
 
 from lists of poles and zeros (and optional gain):
 
