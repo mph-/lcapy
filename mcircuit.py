@@ -198,13 +198,13 @@ def tf(numer, denom=1, var=None):
     N = sym.Poly(numer, var)
     D = sym.Poly(denom, var)
 
-    return N / D
+    return sExpr(N / D)
 
 
-def zp2tf(zeros, poles, K=1, var=None):
+def _zp2tf(zeros, poles, K=1, var=None):
     """Create a transfer function from lists of zeros and poles, 
     and from a constant gain."""
-
+    
     if var == None:
         var = sym.symbols('s')
 
@@ -222,6 +222,13 @@ def zp2tf(zeros, poles, K=1, var=None):
         pp = [1 / (var - p) ** poles[p] for p in poles]
         
     return sym.Mul(K, *(zz + pp))
+
+
+def zp2tf(zeros, poles, K=1, var=None):
+    """Create a transfer function from lists of zeros and poles, 
+    and from a constant gain."""
+
+    return sExpr(_zp2tf(zeros, poles, K, var))
 
 
 def poles(expr, var=None):
@@ -417,7 +424,7 @@ def ZPK(expr, var=None):
     zeros = sym.roots(N)
     poles = sym.roots(D)
 
-    return zp2tf(zeros, poles, K, var)
+    return _zp2tf(zeros, poles, K, var)
 
 
 def _inverse_laplace(expr, var, t):
