@@ -156,32 +156,6 @@ def _guess_var(expr, var):
         raise Error('Cannot determine polynomial variable')
 
 
-def _mrffmt(prefix, arg):
-    
-    prefix += ' = '
-    str = arg.__str__()
-    pad = ' ' * len(prefix)
-    return prefix + str.replace('\n', '\n' + pad)
-    
-
-def _strpair(prefix1, arg1, prefix2, arg2):
-
-    return '%s\n\n%s' % (_mrffmt(prefix1, arg1), _mrffmt(prefix2, arg2))
-
-
-def _pretty_fmt(prefix, arg):
-    
-    if hasattr(arg, 'val'):
-        arg = arg.val
-
-    return sym.pretty(sym.Eq(sym.Symbol(prefix), arg))
-
-
-def _pretty_strpair(prefix1, arg1, prefix2, arg2):
-
-    return '%s\n\n%s' % (_pretty_fmt(prefix1, arg1), _pretty_fmt(prefix2, arg2))
-
-
 def pprint(expr):
 
     print(pretty(expr))
