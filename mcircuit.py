@@ -1,4 +1,6 @@
 """
+Mcircuit 0.01
+
 This module supports simple linear circuit analysis based on the
 following ideal components:
 
@@ -22,35 +24,45 @@ Isc short-circuit current
 
 Components can either be connected in series (+) or parallel (|).
 
-Components can be connected to form two-port networks.  Methods are
+One-port networks can be connected to form two-port networks.  Methods are
 provided to determine transfer responses.
-
-Note, the currents or voltages may cancel and thus a Norton or
-Thevenin network may collapse to a pure impedance.  However, the
-impedance cannot cancel causing the collapse to a voltage or current
-source.
 
 To print the rational functions in canonical form (with the highest
 power of s in the denominator with a unity coefficient), use
 print(x.canonical()) or x.pprint() for pretty printing.
+
+For additional documentation, see the Mcircuit tutorial.
+
+Limitations:
+1. Non-linear components cannot be modelled (apart from a linearisation around a bias point).
+
+2. High order systems can go crazy.
+
+3. Some two-ports generate singular matrices.
+
+
+Todo: 
+1. Fix handling of buffered two ports (amplifier / delay).
+
+2. Automatic drawing of networks?
+
+3. Net-list input.
+
+4. Circuit analysis by solving simulataneous equations.  The
+difficulty is that high order systems are likely to get out of hand.
+
+5. Defer the choice of the two-port model.  For example, a T section
+would store the three sub-networks rather than generating a B matrix.
+The appropriate model would be generated when desired.  This would
+avoid the inversion of singular matrices. The downside is that each
+object would require methods to generate each type of two-port model.
 
 Some multiport networks, such as a shunt R, have a singular Z matrix.
 Thus switching to the Y matrix and back to the Z matrix produces a
 bogus result.  The same thing occurs for a series R; this has a
 singular Y matrix.
 
-It may be better to defer the choice of the two-port model.  For
-example, a T section would store the three sub-networks rather than
-generating a B matrix.  The appropriate model would be generated when
-desired.  This would avoid the inversion of singular matrices. The
-downside is that each object would require methods to generate each
-type of two-port model.
 
-The original implementation stored sExpr as rational functions (using
-MRF class).  This is much faster, avoids symbolic inverse Laplace
-transforms, but does not handle delays and symbolic component values.
-
-TODO: Fix handling of buffered two ports (amplifier / delay).
 
 Copyright 2014 Michael Hayes, UCECE
 """
