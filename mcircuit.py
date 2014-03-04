@@ -33,6 +33,7 @@ print(x.canonical()) or x.pprint() for pretty printing.
 
 For additional documentation, see the Mcircuit tutorial.
 
+
 Limitations:
 1. Non-linear components cannot be modelled (apart from a linearisation around a bias point).
 
