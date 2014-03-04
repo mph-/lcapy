@@ -53,3 +53,5 @@ The time domain response is given by:
 print(a.Isc.transientresponse())
 => 10*Heaviside(t)/R_1 - 10*exp(-R_1*t/L_1)*Heaviside(t)/R_1
 
+
+For additional documentation, see the Mcircuit tutorial.
