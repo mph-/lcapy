@@ -1,3 +1,5 @@
+# SCApy  Symbolic Circuit Analysis in Python
+
 from mcircuit import V, I, R, L, C, G
 import sympy as sym
 
@@ -59,8 +61,7 @@ class Element(object):
 
 class Netlist(object):
 
-
-    def __init__(self, filename):
+    def __init__(self, filename=None):
 
         self.elements = []
         self.nodes = {}
@@ -68,48 +69,39 @@ class Netlist(object):
         self.current_sources = []
         self.RLC = []
 
+        if filename != None:
+            self.netfile_add(filename)
+
+
+    def netfile_add(self, filename):    
+
         file = open(filename, 'r')
         
         lines = file.readlines()
 
         for line in lines:
-            
-            parts = line.strip().split(' ')
-            
-            elt = Element(*parts)
-            self.elements.append(elt)
-            
-            if elt.is_V: 
-                self.voltage_sources.append(elt)
-            if elt.is_I: 
-                self.current_sources.append(elt)
-            if elt.is_RLC: 
-                self.RLC.append(elt)
-
-        for elt in self.elements:
-            self._node_add(elt.node1, elt)
-            self._node_add(elt.node2, elt)
-
         
-        if not self.nodes.has_key('0'):
-            print('No ground node 0')
-
-        self.nodemap = [0]
-        self.revnodemap = {'0' : 0}
-        for n, node in enumerate(sorted(self.nodes.keys())):
-            if node == '0':
-                continue
-            self.nodemap.append(node)
-            self.revnodemap[node] = n
-
-        self.num_nodes = len(self.nodemap) - 1
-
-        # Assign mapped node numbers
-        for elt in self.elements:
-            elt.n1 = self.revnodemap[elt.node1] - 1
-            elt.n2 = self.revnodemap[elt.node2] - 1
+            self.net_add(line)
 
 
+    def net_add(self, line):
+
+        parts = line.strip().split(' ')
+        
+        elt = Element(*parts)
+        self.elements.append(elt)
+        
+        if elt.is_V: 
+            self.voltage_sources.append(elt)
+        if elt.is_I: 
+            self.current_sources.append(elt)
+        if elt.is_RLC: 
+            self.RLC.append(elt)
+
+        self._node_add(elt.node1, elt)
+        self._node_add(elt.node2, elt)
+        
+        
     def _node_add(self, node, elt):
 
         if not self.nodes.has_key(node):
@@ -150,35 +142,97 @@ class Netlist(object):
         return I
 
 
-    def V_vector_make(self):
+    def C_matrix_make(self):
 
-        VV = sym.zeros(self.num_nodes, 1)
+        C = sym.zeros(len(self.voltage_sources), self.num_nodes)
 
-        for n, node in enumerate(self.nodemap[1:]):        
-            VV[n] = V('V' + node)
+        for m, Vs in enumerate(self.voltage_sources):
+            for n in range(self.num_nodes):
+                if Vs.n1 == n:
+                    C[m, n] = 1
+                elif Vs.n2 == n:
+                    C[m, n] = -1
 
-        return VV
+        return C
+
+
+    def D_matrix_make(self):
+
+        D = sym.zeros(len(self.voltage_sources), len(self.voltage_sources))
+
+        # Add dependent voltage sources here (VCVS and CCVS)
+        return D
+
+
+    def E_vector_make(self):
+
+        E = sym.zeros(len(self.voltage_sources), 1)
+
+        for m, Vs in enumerate(self.voltage_sources):
+            E[m] = Vs.cpt.V
+            
+        return E
 
 
     def analyse(self):
 
+        if not self.nodes.has_key('0'):
+            print('No ground node 0')
+
+        self.nodemap = [0]
+        self.revnodemap = {'0' : 0}
+        for n, node in enumerate(sorted(self.nodes.keys())):
+            if node == '0':
+                continue
+            self.nodemap.append(node)
+            self.revnodemap[node] = n
+
+        self.num_nodes = len(self.nodemap) - 1
+
+        # Assign mapped node numbers
+        for elt in self.elements:
+            elt.n1 = self.revnodemap[elt.node1] - 1
+            elt.n2 = self.revnodemap[elt.node2] - 1
+
+
         self.G = self.G_matrix_make()
+        self.C = self.C_matrix_make()
+        self.B = self.C.T
+        self.D = self.D_matrix_make()
+        self.E = self.E_vector_make()
 
         self.I = self.I_vector_make()
-        self.V = self.V_vector_make()
 
-        self.Vresult = sym.simplify(self.G.inv() * self.I);        
+        # Augment the admittance matrix and known current vector.
+        G = self.G.row_join(self.B).col_join(self.C.row_join(self.D))
+        I = self.I.col_join(self.E)
+
+        # Solve for the nodal voltages.
+        self.Vresult = sym.simplify(G.inv() * I);        
 
         Vresults = {}
         for n, node in enumerate(self.nodemap[1:]):        
             Vresults[node] = self.Vresult[n]
-        return Vresults
+
+        Iresults = {}
+        for m, Vs in enumerate(self.voltage_sources):
+            Iresults['I' + Vs.name] = self.Vresult[m + self.num_nodes]
+
+        return Vresults, Iresults
 
 
-def test():
+class Circuit(Netlist):
 
-    a = Netlist('net2.net')
+    def __init__(self, circuitname):
 
-    a.analyse()
+        self.circuitname = circuitname
+        super (Circuit, self).__init__()
 
-    return a
+
+def test(netfilename='net2.net'):
+
+    a = Netlist(netfilename)
+
+    return a.analyse(), a
+
+

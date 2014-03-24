@@ -17,3 +17,4 @@ else:  # Python 3
 del sys
 
 from .mcircuit import *
+from .netlist import *
