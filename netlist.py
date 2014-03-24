@@ -1,6 +1,7 @@
-from mcircuit import V, I, R, L, C
+from mcircuit import V, I, R, L, C, G
 import sympy as sym
 
+# Implement modified nodal analysis (MNA)
 
 class Element(object):
 
@@ -21,6 +22,8 @@ class Element(object):
             cpt = I(val)
         elif self.kind == 'R':
             cpt = R(val)
+        elif self.kind == 'G':
+            cpt = G(val)
         elif self.kind == 'L':
             cpt = L(val)
         elif self.kind == 'C':
@@ -39,19 +42,19 @@ class Element(object):
     @property
     def is_V(self):
         
-        return self.kind == 'V'
+        return isinstance(self.cpt, V)
 
 
     @property
     def is_I(self):
         
-        return self.kind == 'I'
+        return isinstance(self.cpt, I)
 
 
     @property
     def is_RLC(self):
         
-        return self.kind in ('R', 'L', 'C')
+        return isinstance(self.cpt, (R, G, L, C))
 
 
 class Netlist(object):
