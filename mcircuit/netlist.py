@@ -1,3 +1,38 @@
+"""
+This module provides circuit analysis using modified nodal analysis
+(MNA).
+
+The circuit is described using netlists, similar to SPICE, but with
+arbitrary node names (except for the ground node which is labelled 0).
+The netlists can be loaded from a file or created at run-time.  For
+example:
+
+>>> from mcircuit import pprint, Circuit
+>>> cct = Circuit('Voltage divider')
+>>> cct.net_add('V_s fred 0') 
+>>> cct.net_add('R_a fred 1') 
+>>> cct.net_add('R_b 1 0') 
+>>> cct.analyse()
+>>> pprint(cct.V)
+>>> pprint(cct.I)
+
+cct.V is a directory of the nodal voltages.  cct.I is a directory of
+the currents through independent voltage sources.  The directory keys
+are the node names.  If the nodes are not integers, they need to
+specified as strings:
+
+>>> pprint(cct.V['fred'])
+>>> pprint(cct.V[1])
+
+
+Todo: 
+1. Support dependent sources.
+
+
+
+Copyright 2014 Michael Hayes, UCECE
+"""
+
 # SCApy  Symbolic Circuit Analysis in Python
 
 from mcircuit import V, I, R, L, C, G, Is, Vs, pprint
