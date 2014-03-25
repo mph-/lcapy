@@ -42,9 +42,9 @@ import sympy as sym
 
 class Element(object):
 
-    def __init__(self, name, node1, node2, val=None):
 
-        
+    def __init__(self, cpt, node1, node2, name=''):
+
         def node(name):
             
             # Convert to integer if possible
@@ -54,37 +54,15 @@ class Element(object):
                 node = name
             return node
 
+        self.cpt = cpt
         self.name = name
         self.node1 = node(node1)
         self.node2 = node(node2)
-        self.val = val
-
-        if val == None:
-            val = self.name
-
-        kind = name[0]
-
-        if kind == 'V':
-            cpt = V(val)
-        elif kind == 'I':
-            cpt = I(val)
-        elif kind == 'R':
-            cpt = R(val)
-        elif kind == 'G':
-            cpt = G(val)
-        elif kind == 'L':
-            cpt = L(val)
-        elif kind == 'C':
-            cpt = C(val)
-        else:
-            raise(ValueError, 'Unknown component kind for %s' % name)
-
-        self.cpt = cpt
 
 
     def __repr__(self):
 
-        return 'Element(%s, %s, %s, %s)' % (self.name, self.node1, self.node2, self.val)
+        return 'Element(%s, %s, %s, %s)' % (self.cpt, self.node1, self.node2, self.name)
 
 
     @property
@@ -103,6 +81,41 @@ class Element(object):
     def is_RLC(self):
         
         return isinstance(self.cpt, (R, G, L, C))
+
+
+class NetElement(Element):
+
+    def __init__(self, name, node1, node2, val=None):
+
+        self.val = val
+        if val == None:
+            val = name
+
+        kind = name[0]
+
+        if kind == 'V':
+            cpt = V(val)
+        elif kind == 'A':
+            cpt = V(0)
+        elif kind == 'I':
+            cpt = I(val)
+        elif kind == 'R':
+            cpt = R(val)
+        elif kind == 'G':
+            cpt = G(val)
+        elif kind == 'L':
+            cpt = L(val)
+        elif kind == 'C':
+            cpt = C(val)
+        else:
+            raise(ValueError, 'Unknown component kind for %s' % name)
+
+        super (NetElement, self).__init__(cpt, node1, node2, name)
+
+
+    def __repr__(self):
+
+        return 'NetElement(%s, %s, %s, %s)' % (self.name, self.node1, self.node2, self.val)
 
 
 class Netlist(object):
@@ -142,11 +155,8 @@ class Netlist(object):
         self.nodes[node].append(elt)
 
 
-    def net_add(self, line):
+    def _elt_add(self, elt):
 
-        parts = line.split(' ')
-        
-        elt = Element(*parts)
         self.elements.append(elt)
         
         if elt.is_V: 
@@ -158,6 +168,22 @@ class Netlist(object):
 
         self._node_add(elt.node1, elt)
         self._node_add(elt.node2, elt)
+        
+
+    def net_add(self, line):
+
+        parts = line.split(' ')
+        
+        elt = NetElement(*parts)
+
+        self._elt_add(elt)
+
+
+    def add(self, cpt, node1, node2):
+
+        elt = Element(cpt, node1, node2)
+
+        self._elt_add(elt)
         
         
     def G_matrix_make(self):
