@@ -47,12 +47,7 @@ Todo:
 
 2. Automatic drawing of networks?
 
-3. Net-list input.
-
-4. Circuit analysis by solving simulataneous equations.  The
-difficulty is that high order systems are likely to get out of hand.
-
-5. Defer the choice of the two-port model.  For example, a T section
+3. Defer the choice of the two-port model.  For example, a T section
 would store the three sub-networks rather than generating a B matrix.
 The appropriate model would be generated when desired.  This would
 avoid the inversion of singular matrices. The downside is that each
@@ -842,6 +837,9 @@ class sExpr(object):
             
         except NameError:
             raise RuntimeError('Cannot compute inverse Laplace transform')
+
+        except AttributeError:
+            raise RuntimeError('Cannot compute inverse Laplace transform, probably have undefined symbols')
         
         # The result should be real so quietly remove any imaginary
         # component.
@@ -892,9 +890,9 @@ class cExpr(sExpr):
 
     def __init__(self, val):
         
-        if not isinstance(val, (cExpr, int, float, str)):
-            print(type(val))
-            raise ValueError('%s not int, float, or str' % val)
+        # FIXME for expressions of cExpr
+        if False and not isinstance(val, (cExpr, int, float, str)):
+            raise ValueError('%s of type %s not int, float, or str' % (val, type(val)))
 
         super (cExpr, self).__init__(val, False, True)
 
