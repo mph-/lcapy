@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name = 'mcircuit',
-    version = '0.1.0',
+    version = '0.1.0zs',
     description = 'Linear circuit analysis',
     author = 'Michael Hayes',
     requires = [ 'sympy', 'numpy' ],

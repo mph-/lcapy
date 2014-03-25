@@ -5,7 +5,7 @@ for symbolic mathematics.
 
 from __future__ import absolute_import, print_function
 
-__version__ = "0.1-git"
+__version__ = "0.2-git"
 
 import sys
 if sys.version_info[0] == 2 and sys.version_info[1] < 6:

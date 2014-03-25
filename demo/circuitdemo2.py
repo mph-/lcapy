@@ -1,5 +1,4 @@
-from mcircuit import pprint
-from netlist import Circuit
+from mcircuit import pprint, Circuit
 
 cct = Circuit('Voltage divider')
 
