@@ -9,26 +9,37 @@ class Element(object):
 
     def __init__(self, name, node1, node2, val=None):
 
-        self.kind = name[0]
+        
+        def node(name):
+            
+            # Convert to integer if possible
+            try:
+                node = int(name)
+            except:
+                node = name
+            return node
+
         self.name = name
-        self.node1 = node1
-        self.node2 = node2
+        self.node1 = node(node1)
+        self.node2 = node(node2)
         self.val = val
 
         if val == None:
             val = self.name
 
-        if self.kind == 'V':
+        kind = name[0]
+
+        if kind == 'V':
             cpt = V(val)
-        elif self.kind == 'I':
+        elif kind == 'I':
             cpt = I(val)
-        elif self.kind == 'R':
+        elif kind == 'R':
             cpt = R(val)
-        elif self.kind == 'G':
+        elif kind == 'G':
             cpt = G(val)
-        elif self.kind == 'L':
+        elif kind == 'L':
             cpt = L(val)
-        elif self.kind == 'C':
+        elif kind == 'C':
             cpt = C(val)
         else:
             raise(ValueError, 'Unknown component kind for %s' % name)
@@ -69,6 +80,9 @@ class Netlist(object):
         self.current_sources = []
         self.RLC = []
 
+        self.V = {}
+        self.I = {}
+
         if filename != None:
             self.netfile_add(filename)
 
@@ -80,13 +94,22 @@ class Netlist(object):
         lines = file.readlines()
 
         for line in lines:
-        
-            self.net_add(line)
+            # Skip comments
+            if line[0] in ('#', '%'):
+                continue
+            self.net_add(line.strip())
+
+
+    def _node_add(self, node, elt):
+
+        if not self.nodes.has_key(node):
+            self.nodes[node] = []
+        self.nodes[node].append(elt)
 
 
     def net_add(self, line):
 
-        parts = line.strip().split(' ')
+        parts = line.split(' ')
         
         elt = Element(*parts)
         self.elements.append(elt)
@@ -102,13 +125,6 @@ class Netlist(object):
         self._node_add(elt.node2, elt)
         
         
-    def _node_add(self, node, elt):
-
-        if not self.nodes.has_key(node):
-            self.nodes[node] = []
-        self.nodes[node].append(elt)
-
-
     def G_matrix_make(self):
 
         G = sym.zeros(self.num_nodes, self.num_nodes)
@@ -129,28 +145,15 @@ class Netlist(object):
         return G
 
 
-    def I_vector_make(self):
-
-        I = sym.zeros(self.num_nodes, 1)
-
-        for n in range(self.num_nodes):
-            for m, Is in enumerate(self.current_sources):
-                if Is.n1 == n:
-                    I[n] = I[n] - Is.cpt.I
-                elif Is.n2 == n:
-                    I[n] = I[n] + Is.cpt.I
-        return I
-
-
     def C_matrix_make(self):
 
         C = sym.zeros(len(self.voltage_sources), self.num_nodes)
 
-        for m, Vs in enumerate(self.voltage_sources):
+        for m, elt in enumerate(self.voltage_sources):
             for n in range(self.num_nodes):
-                if Vs.n1 == n:
+                if elt.n1 == n:
                     C[m, n] = 1
-                elif Vs.n2 == n:
+                elif elt.n2 == n:
                     C[m, n] = -1
 
         return C
@@ -164,61 +167,78 @@ class Netlist(object):
         return D
 
 
+    def I_vector_make(self):
+
+        I = sym.zeros(self.num_nodes, 1)
+
+        for n in range(self.num_nodes):
+            for m, elt in enumerate(self.current_sources):
+                if elt.n1 == n:
+                    I[n] = I[n] - elt.cpt.I
+                elif elt.n2 == n:
+                    I[n] = I[n] + elt.cpt.I
+        return I
+
+
     def E_vector_make(self):
 
         E = sym.zeros(len(self.voltage_sources), 1)
 
-        for m, Vs in enumerate(self.voltage_sources):
-            E[m] = Vs.cpt.V
+        for m, elt in enumerate(self.voltage_sources):
+            E[m] = elt.cpt.V
             
         return E
 
 
     def analyse(self):
 
-        if not self.nodes.has_key('0'):
+        if not self.nodes.has_key(0):
             print('No ground node 0')
 
         self.nodemap = [0]
-        self.revnodemap = {'0' : 0}
+        self.revnodemap = {0 : 0}
         for n, node in enumerate(sorted(self.nodes.keys())):
-            if node == '0':
+            if node == 0:
                 continue
             self.nodemap.append(node)
             self.revnodemap[node] = n
 
         self.num_nodes = len(self.nodemap) - 1
 
-        # Assign mapped node numbers
+        # Assign mapped node numbers.  Note, ground is node -1.
         for elt in self.elements:
             elt.n1 = self.revnodemap[elt.node1] - 1
             elt.n2 = self.revnodemap[elt.node2] - 1
 
+        # Compute matrices
+        G = self.G_matrix_make()
+        C = self.C_matrix_make()
+        B = C.T
+        D = self.D_matrix_make()
 
-        self.G = self.G_matrix_make()
-        self.C = self.C_matrix_make()
-        self.B = self.C.T
-        self.D = self.D_matrix_make()
-        self.E = self.E_vector_make()
+        # Augment the admittance matrix
+        G = G.row_join(B).col_join(C.row_join(D))
 
-        self.I = self.I_vector_make()
+        E = self.E_vector_make()
+        I = self.I_vector_make()
 
-        # Augment the admittance matrix and known current vector.
-        G = self.G.row_join(self.B).col_join(self.C.row_join(self.D))
-        I = self.I.col_join(self.E)
+        # Augment the known current vector with known voltage sources
+        I = I.col_join(E)
 
-        # Solve for the nodal voltages.
-        self.Vresult = sym.simplify(G.inv() * I);        
+        # Solve for the nodal voltages
+        results = sym.simplify(G.inv() * I);        
 
-        Vresults = {}
+        # Create dictionary of node voltages
+        self.V = {}
         for n, node in enumerate(self.nodemap[1:]):        
-            Vresults[node] = self.Vresult[n]
+            self.V[node] = results[n]
 
-        Iresults = {}
-        for m, Vs in enumerate(self.voltage_sources):
-            Iresults['I' + Vs.name] = self.Vresult[m + self.num_nodes]
+        # Create dictionary of currents through voltage sources
+        self.I = {}
+        for m, elt in enumerate(self.voltage_sources):
+            self.I[elt.name] = results[m + self.num_nodes]
 
-        return Vresults, Iresults
+        return self.V, self.I
 
 
 class Circuit(Netlist):
@@ -231,8 +251,10 @@ class Circuit(Netlist):
 
 def test(netfilename='net2.net'):
 
-    a = Netlist(netfilename)
+    a = Circuit('Test 2', netfilename)
 
-    return a.analyse(), a
+    a.analyse()
+
+    return a
 
 
