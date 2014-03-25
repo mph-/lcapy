@@ -1,6 +1,6 @@
 # SCApy  Symbolic Circuit Analysis in Python
 
-from mcircuit import V, I, R, L, C, G
+from mcircuit import V, I, R, L, C, G, Is, Vs
 import sympy as sym
 
 # Implement modified nodal analysis (MNA)
@@ -231,12 +231,12 @@ class Netlist(object):
         # Create dictionary of node voltages
         self.V = {}
         for n, node in enumerate(self.nodemap[1:]):        
-            self.V[node] = results[n]
+            self.V[node] = Vs(results[n])
 
         # Create dictionary of currents through voltage sources
         self.I = {}
         for m, elt in enumerate(self.voltage_sources):
-            self.I[elt.name] = results[m + self.num_nodes]
+            self.I[elt.name] = Is(results[m + self.num_nodes])
 
         return self.V, self.I
 

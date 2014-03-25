@@ -798,6 +798,11 @@ class sExpr(object):
         return sym.pretty(self.val)
 
 
+    def _pretty(self, arg):
+        """Make pretty string"""
+        return sym.pretty(self.val)
+
+
     def latex(self):
         """Make latex string"""
         return sym.latex(self.val)
