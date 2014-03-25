@@ -1,6 +1,6 @@
 # SCApy  Symbolic Circuit Analysis in Python
 
-from mcircuit import V, I, R, L, C, G, Is, Vs
+from mcircuit import V, I, R, L, C, G, Is, Vs, pprint
 import sympy as sym
 
 # Implement modified nodal analysis (MNA)
@@ -249,12 +249,19 @@ class Circuit(Netlist):
         super (Circuit, self).__init__()
 
 
-def test(netfilename='net2.net'):
+def test():
 
-    a = Circuit('Test 2', netfilename)
+    cct = Circuit('Test')
 
-    a.analyse()
+    cct.net_add('V_s fred 0') 
+    cct.net_add('R_a fred bert') 
+    cct.net_add('R_b bert 0') 
+    cct.analyse()
+    
+    pprint(cct.V)
+    
+    pprint(cct.I)
 
-    return a
+    return cct
 
 
