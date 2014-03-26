@@ -134,8 +134,7 @@ class Netlist(object):
 
     def __init__(self, filename=None):
 
-        self.elements = []
-        self.symbols = {}
+        self.elements = {}
         self.nodes = {}
         self.voltage_sources = []
         self.current_sources = []
@@ -147,6 +146,11 @@ class Netlist(object):
 
         if filename != None:
             self.netfile_add(filename)
+
+
+    def __getitem__(self, key):
+
+        return self.elements[key]
 
 
     def netfile_add(self, filename):    
@@ -164,7 +168,7 @@ class Netlist(object):
 
     def netlist(self):
 
-        return '\n'.join([elt.__str__() for elt in self.elements])
+        return '\n'.join([elt.__str__() for elt in self.elements.values()])
 
 
     def _node_add(self, node, elt):
@@ -176,20 +180,11 @@ class Netlist(object):
 
     def _elt_add(self, elt):
 
-        if self.symbols.has_key(elt.name):
-            raise ValueError('TODO: Component %s should be updated' % elt.name)     
+        if self.elements.has_key(elt.name):
+            print('Overriding component %s' % elt.name)     
             # Need to search lists and update component.
            
-        self.symbols[elt.name] = elt
-
-        self.elements.append(elt)
-        
-        if elt.is_V: 
-            self.voltage_sources.append(elt)
-        if elt.is_I: 
-            self.current_sources.append(elt)
-        if elt.is_RLC: 
-            self.RLC.append(elt)
+        self.elements[elt.name] = elt
 
         self._node_add(elt.node1, elt)
         self._node_add(elt.node2, elt)
@@ -304,9 +299,23 @@ class Netlist(object):
         self.num_nodes = len(self.nodemap) - 1
 
         # Assign mapped node numbers.  Note, ground is node -1.
-        for elt in self.elements:
+        for elt in self.elements.values():
             elt.n1 = self.revnodemap[elt.node1] - 1
             elt.n2 = self.revnodemap[elt.node2] - 1
+
+        self.voltage_sources = []
+        self.current_sources = []
+        self.RLC = []
+        for elt in self.elements.values():
+            if elt.is_V: 
+                self.voltage_sources.append(elt)
+            elif elt.is_I: 
+                self.current_sources.append(elt)
+            elif elt.is_RLC: 
+                self.RLC.append(elt)
+            else:
+                raise ValueError('Unhandled element %s' % elt.name)
+
 
         # Compute matrices
         G = self.G_matrix_make()
