@@ -688,3 +688,41 @@ Rational functions with delays can also be handled:
    ⎛      2⋅T - 2⋅t       3⋅T - 3⋅t⎞                                         
    ⎝- 90⋅ℯ          + 70⋅ℯ         ⎠⋅Heaviside(-T + t) + 5⋅DiracDelta(-T + t)
 
+
+
+Circuit analysis
+================
+
+The nodal voltages for a linear circuit can be found using Modified
+Nodal Analysis (MNA).  This requires the circuit toplogy be entered as
+a netlist.  This describes each component, its name, value, and the
+nodes it is connected to.  This netlist can be read from a file or
+created dynamically, for example
+
+   >>> from mcircuit import pprint, Circuit
+   >>> cct = Circuit('Voltage divider')
+   >>> cct.net_add('Vs 1 0 10') 
+   >>> cct.net_add('Ra 1 2 3e3') 
+   >>> cct.net_add('Rb 2 0 1e3') 
+
+This creates a circuit comprised of a 10\,V voltage source connected
+to two resistors in series.  The node named 0 denotes the ground which
+the other voltages are referenced to.
+
+The circuit is analysed using:
+   >>> cct.analyse()
+and this creates a directory of the node voltages that can indexed using the node name.  For example,
+   >>> cct.V[1]
+   10.0
+   ────
+    s  
+   >>> cct.V[2]
+   2.5
+   ───
+    s 
+
+Notice, how the displayed voltages are Laplace domain voltages.  The
+transient voltages can be determined using an inverse Laplace transform:
+   >>> pprint(cct.V[1].inverse_laplace())
+   10.0⋅Heaviside(t)
+

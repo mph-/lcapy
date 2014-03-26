@@ -135,6 +135,7 @@ class Netlist(object):
     def __init__(self, filename=None):
 
         self.elements = []
+        self.symbols = {}
         self.nodes = {}
         self.voltage_sources = []
         self.current_sources = []
@@ -174,6 +175,11 @@ class Netlist(object):
 
 
     def _elt_add(self, elt):
+
+        if self.symbols.haskey(elt.name):
+            raise ValueError('There is already a component called %s' % elt.name)
+                               
+        self.symbols[elt.name] = elt
 
         self.elements.append(elt)
         
