@@ -1835,7 +1835,7 @@ class Y(Norton):
 
     def __init__(self, Yval):
     
-        Yval = sExpr(Yval)
+        Yval = Ys(Yval)
         super (Y, self).__init__(Yval)
         self.args = (Yval, )
 
@@ -1845,7 +1845,7 @@ class Z(Thevenin):
 
     def __init__(self, Zval):
     
-        Zval = sExpr(Zval)
+        Zval = Zs(Zval)
         super (Z, self).__init__(Zval)
         self.args = (Zval, )    
 

@@ -312,6 +312,8 @@ class Netlist(object):
             elif elt.is_I: 
                 self.current_sources.append(elt)
             elif elt.is_RLC: 
+                if elt.cpt.V != 0.0:
+                    print('Ignoring initial voltage on %s' % elt.name)
                 self.RLC.append(elt)
             else:
                 raise ValueError('Unhandled element %s' % elt.name)
