@@ -177,8 +177,9 @@ class Netlist(object):
     def _elt_add(self, elt):
 
         if self.symbols.has_key(elt.name):
-            raise ValueError('There is already a component called %s' % elt.name)
-                               
+            raise ValueError('TODO: Component %s should be updated' % elt.name)     
+            # Need to search lists and update component.
+           
         self.symbols[elt.name] = elt
 
         self.elements.append(elt)
@@ -310,20 +311,21 @@ class Netlist(object):
         # Compute matrices
         G = self.G_matrix_make()
         C = self.C_matrix_make()
+        # This is not the case when there are dependent voltage sources
         B = C.T
         D = self.D_matrix_make()
 
-        # Augment the admittance matrix
-        G = G.row_join(B).col_join(C.row_join(D))
+        # Augment the admittance matrix to form A matrix
+        A = G.row_join(B).col_join(C.row_join(D))
 
         E = self.E_vector_make()
         I = self.I_vector_make()
 
         # Augment the known current vector with known voltage sources
-        I = I.col_join(E)
+        Z = I.col_join(E)
 
         # Solve for the nodal voltages
-        results = sym.simplify(G.inv() * I);        
+        results = sym.simplify(A.inv() * Z);        
 
         # Create dictionary of node voltages
         self.V = {}
