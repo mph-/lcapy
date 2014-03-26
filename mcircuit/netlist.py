@@ -200,9 +200,13 @@ class Netlist(object):
 
 
     def add(self, cpt, node1, node2, name=None):
+        """Add generic one-port component to netlist"""
 
         if name == None and hasattr(cpt.args[0], 'name'):
             name = cpt.args[0].name
+
+        # Try to to collapse a composite component to a single component.
+        cpt = cpt.simplify().cpt()
 
         kind = type(cpt).__name__
         if not self.cpt_counts.has_key(kind):
