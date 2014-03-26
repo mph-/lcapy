@@ -176,7 +176,7 @@ class Netlist(object):
 
     def _elt_add(self, elt):
 
-        if self.symbols.haskey(elt.name):
+        if self.symbols.has_key(elt.name):
             raise ValueError('There is already a component called %s' % elt.name)
                                
         self.symbols[elt.name] = elt
