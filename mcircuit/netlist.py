@@ -60,13 +60,12 @@ class Element(object):
 
         self.cpt = cpt
         self.name = name
-        self.node1 = node(node1)
-        self.node2 = node(node2)
+        self.nodes = (node(node1), node(node2))
 
 
     def __repr__(self):
 
-        return 'Element(%s, %s, %s, %s)' % (self.cpt, self.node1, self.node2, self.name)
+        return 'Element(%s, %s, %s, %s)' % (self.cpt, self.nodes[0], self.nodes[1], self.name)
 
 
     def __str__(self):
@@ -74,9 +73,9 @@ class Element(object):
         val = self.cpt.args[0]
 
         if val.is_symbol:
-            return '%s %s %s' % (self.name, self.node1, self.node2)            
+            return '%s %s %s' % (self.name, self.nodes[0], self.nodes[1])            
 
-        return '%s %s %s %s' % (self.name, self.node1, self.node2, val.expr)
+        return '%s %s %s %s' % (self.name, self.nodes[0], self.nodes[1], val.expr)
 
 
     @property
@@ -127,7 +126,7 @@ class NetElement(Element):
 
     def __repr__(self):
 
-        return 'NetElement(%s, %s, %s, %s)' % (self.name, self.node1, self.node2, self.val)
+        return 'NetElement(%s, %s, %s, %s)' % (self.name, self.nodes[0], self.nodes[1], self.val)
 
 
 class Netlist(object):
@@ -186,8 +185,8 @@ class Netlist(object):
            
         self.elements[elt.name] = elt
 
-        self._node_add(elt.node1, elt)
-        self._node_add(elt.node2, elt)
+        self._node_add(elt.nodes[0], elt)
+        self._node_add(elt.nodes[1], elt)
         
 
     def net_add(self, line):
@@ -304,8 +303,8 @@ class Netlist(object):
 
         # Assign mapped node numbers.  Note, ground is node -1.
         for elt in self.elements.values():
-            elt.n1 = self.revnodemap[elt.node1] - 1
-            elt.n2 = self.revnodemap[elt.node2] - 1
+            elt.n1 = self.revnodemap[elt.nodes[0]] - 1
+            elt.n2 = self.revnodemap[elt.nodes[1]] - 1
 
         self.voltage_sources = []
         self.current_sources = []
