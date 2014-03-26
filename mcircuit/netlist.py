@@ -289,7 +289,7 @@ class Netlist(object):
     def analyse(self):
 
         if not self.nodes.has_key(0):
-            print('No ground node 0')
+            raise ValueError('Nothing connected to ground node 0')
 
         self.nodemap = [0]
         self.revnodemap = {0 : 0}
@@ -317,6 +317,8 @@ class Netlist(object):
             elif elt.is_RLC: 
                 if elt.cpt.V != 0.0:
                     print('Ignoring initial voltage on %s' % elt.name)
+                    # Could use Norton model and split element into
+                    # admittance in parallel with current source.
                 self.RLC.append(elt)
             else:
                 raise ValueError('Unhandled element %s' % elt.name)
