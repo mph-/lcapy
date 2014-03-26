@@ -726,3 +726,46 @@ transient voltages can be determined using an inverse Laplace transform:
    >>> pprint(cct.V[1].inverse_laplace())
    10.0⋅Heaviside(t)
 
+
+Currents can be determined by connecting an ammeter component.  This
+is just a voltage source with zero volts.  For example,
+
+   >>> cct = Circuit('Current measurement')
+   >>> cct.net_add('Vs 1 0 10') 
+   >>> cct.net_add('Ra 1 2 100') 
+   >>> cct.net_add('A1 2 0') 
+   >>> cct.analyse()
+   >>> pprint(cct.I['A1'])
+   0.1
+   ───
+    s  
+
+The I attribute is a directory of the currents through all the
+independent voltage sources in the circuit, including the ammeter.  In
+the above example, the same current is found through the voltage
+source Vs:
+
+   >>> pprint(cct.I['Vs'])
+   0.1
+   ───
+    s  
+
+Since Mcircuit uses SymPy, circuit analysis can be performed
+symbolically.  This can be achieved by not specifying a component
+value.  Mcircuit, will then create a symbol using the component name.
+
+   >>> cct = Circuit('Series V R C')
+   >>> cct.net_add('Vs 1 0') 
+   >>> cct.net_add('R1 1 2') 
+   >>> cct.net_add('C1 2 0') 
+   >>> cct.analyse()
+   >>> pprint(cct.V[2])
+        Vs     
+   ────────────
+          2    
+   C₁⋅R₁⋅s  + s
+   >>> : pprint(cct.V[2].inverse_laplace())
+   ⎛          -t  ⎞             
+   ⎜         ─────⎟             
+   ⎜         C₁⋅R₁⎟             
+   ⎝Vs - Vs⋅ℯ     ⎠⋅Heaviside(t)
