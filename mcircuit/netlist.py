@@ -43,7 +43,7 @@ import sympy as sym
 class Element(object):
 
 
-    def __init__(self, cpt, node1, node2, name=''):
+    def __init__(self, cpt, node1, node2, name):
 
         def node(name):
             
@@ -54,6 +54,10 @@ class Element(object):
                 node = name
             return node
 
+        if not isinstance(cpt, (R, G, L, C, V, I)):
+            raise ValueError('Adding component %s that is not R, G, L, C, V, I' % cpt)
+
+
         self.cpt = cpt
         self.name = name
         self.node1 = node(node1)
@@ -63,6 +67,16 @@ class Element(object):
     def __repr__(self):
 
         return 'Element(%s, %s, %s, %s)' % (self.cpt, self.node1, self.node2, self.name)
+
+
+    def __str__(self):
+
+        val = self.cpt.args[0]
+
+        if val.is_symbol:
+            return '%s %s %s' % (self.name, self.node1, self.node2)            
+
+        return '%s %s %s %s' % (self.name, self.node1, self.node2, val.expr)
 
 
     @property
@@ -92,23 +106,21 @@ class NetElement(Element):
             val = name
 
         kind = name[0]
+        # An ammeter looks like a piece of wire so make a zero volt voltage source
+        # so we can find the current through it.
+        if kind == 'A':
+            kind = 'V'
+            val = 0
+        
+        # Allowable one-ports; this could be extended to Y, Z, etc.
+        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'I' : I}
+        try:
+            foo = OPS[kind]
 
-        if kind == 'V':
-            cpt = V(val)
-        elif kind == 'A':
-            cpt = V(0)
-        elif kind == 'I':
-            cpt = I(val)
-        elif kind == 'R':
-            cpt = R(val)
-        elif kind == 'G':
-            cpt = G(val)
-        elif kind == 'L':
-            cpt = L(val)
-        elif kind == 'C':
-            cpt = C(val)
-        else:
+        except KeyError:
             raise(ValueError, 'Unknown component kind for %s' % name)
+
+        cpt = foo(val)
 
         super (NetElement, self).__init__(cpt, node1, node2, name)
 
@@ -130,6 +142,7 @@ class Netlist(object):
 
         self.V = {}
         self.I = {}
+        self.cpt_counts = {'R' : 0, 'G' : 0, 'C' : 0, 'L' : 0, 'V' : 0, 'I' : 0}
 
         if filename != None:
             self.netfile_add(filename)
@@ -146,6 +159,11 @@ class Netlist(object):
             if line[0] in ('#', '%'):
                 continue
             self.net_add(line.strip())
+
+
+    def netlist(self):
+
+        return '\n'.join([elt.__str__() for elt in self.elements])
 
 
     def _node_add(self, node, elt):
@@ -179,9 +197,21 @@ class Netlist(object):
         self._elt_add(elt)
 
 
-    def add(self, cpt, node1, node2):
+    def add(self, cpt, node1, node2, name=None):
 
-        elt = Element(cpt, node1, node2)
+        if name == None and hasattr(cpt.args[0], 'name'):
+            name = cpt.args[0].name
+
+        kind = type(cpt).__name__
+        if not self.cpt_counts.has_key(kind):
+            raise ValueError('Adding component %s that is not R, G, L, C, V, I' % cpt)
+
+        if name == None:
+            # Automatically generate unique name if one has not been specified
+            self.cpt_counts[kind] = self.cpt_counts[kind] + 1
+            name = '%s__%s' % (kind, self.cpt_counts[kind])
+
+        elt = Element(cpt, node1, node2, name)
 
         self._elt_add(elt)
         
