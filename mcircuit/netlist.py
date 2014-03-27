@@ -286,7 +286,11 @@ class Netlist(object):
         return E
 
 
-    def analyse(self):
+    def analyse(self, mode='transient'):
+        """mode either AC, DC, or transient"""
+
+        if mode not in ('AC', 'DC', 'transient'):
+            raise ValueError('Invalid analysis mode %s, must be AC, DC, transient' % mode)
 
         if not self.nodes.has_key(0):
             raise ValueError('Nothing connected to ground node 0')
@@ -342,6 +346,17 @@ class Netlist(object):
 
         # Solve for the nodal voltages
         results = sym.simplify(A.inv() * Z);        
+
+        s, omega = sym.symbols('s omega')
+
+        if mode in ('AC', 'DC'):
+            results = results * s
+
+        if mode == 'AC':
+            results = results.subs(s, sym.I * omega)
+
+        if mode == 'DC':
+            results = results.subs(s, 0)
 
         # Create dictionary of node voltages
         self.V = {}
