@@ -35,7 +35,7 @@ Copyright 2014 Michael Hayes, UCECE
 
 # SCApy  Symbolic Circuit Analysis in Python
 
-from mcircuit import V, I, R, L, C, G, Is, Vs, pprint
+from mcircuit import V, I, R, L, C, G, Vac, Iac, Is, Vs, pprint
 import sympy as sym
 
 # Implement modified nodal analysis (MNA)
@@ -54,7 +54,7 @@ class Element(object):
                 node = name
             return node
 
-        if not isinstance(cpt, (R, G, L, C, V, I)):
+        if not isinstance(cpt, (R, G, L, C, V, I, Vac, Iac)):
             raise ValueError('Adding component %s that is not R, G, L, C, V, I' % cpt)
 
 
@@ -98,35 +98,41 @@ class Element(object):
 
 class NetElement(Element):
 
-    def __init__(self, name, node1, node2, val=None):
+    def __init__(self, name, node1, node2, *args):
 
-        self.val = val
-        if val == None:
-            val = name
+        self.args = args
+
+        if len(args) == 0:
+            args = (name, )
 
         kind = name[0]
+        # Handle Vac, Iac
+        if len(name) > 3 and name[1:3] == 'ac':
+            kind = name[0:3]
+
         # An ammeter looks like a piece of wire so make a zero volt voltage source
         # so we can find the current through it.
         if kind == 'A':
             kind = 'V'
-            val = 0
+            args = (0, )
         
         # Allowable one-ports; this could be extended to Y, Z, etc.
-        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'I' : I}
+        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'I' : I, 'Vac' : Vac, 'Iac' : Iac}
         try:
             foo = OPS[kind]
 
         except KeyError:
             raise(ValueError, 'Unknown component kind for %s' % name)
 
-        cpt = foo(val)
+        cpt = foo(*args)
 
         super (NetElement, self).__init__(cpt, node1, node2, name)
 
 
     def __repr__(self):
 
-        return 'NetElement(%s, %s, %s, %s)' % (self.name, self.nodes[0], self.nodes[1], self.val)
+        str = ', '.join(arg.__str__() for arg in [self.name] + list(self.nodes) + list(self.args))
+        return 'NetElement(%s)' % str
 
 
 class Netlist(object):
@@ -361,8 +367,8 @@ class Netlist(object):
             results = results.subs(s, sym.I * omega)
 
         elif mode == 'DC':
-            # This a better hack...  It will only work for DC
-            # voltage and current sources.
+            # This a better hack...  It will only work if all
+            # voltage and current sources are DC.
             results = results.subs(s, sym.I * omega)
             results = results.subs(s, 0)
 
