@@ -1424,7 +1424,7 @@ class Par(ParSer):
         for n, arg1 in enumerate(self.args):
             for arg2 in self.args[n+1:]:
                 if isinstance(arg1, V) and isinstance(arg2, V):
-                    print('Warning: voltage sources connected in parallel %s and %s' % (arg1, arg2))
+                    raise ValueError('Voltage sources connected in parallel %s and %s' % (arg1, arg2))
 
 
     @property
@@ -1470,7 +1470,7 @@ class Ser(ParSer):
         for n, arg1 in enumerate(self.args):
             for arg2 in self.args[n+1:]:
                 if isinstance(arg1, I) and isinstance(arg2, I):
-                    print('Warning: current sources connected in series %s and %s' % (arg1, arg2))
+                    raise ValueError('Current sources connected in series %s and %s' % (arg1, arg2))
 
 
     @property
