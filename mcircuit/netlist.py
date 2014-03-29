@@ -81,13 +81,13 @@ class Element(object):
     @property
     def is_V(self):
         
-        return isinstance(self.cpt, V)
+        return isinstance(self.cpt, (V, Vac))
 
 
     @property
     def is_I(self):
         
-        return isinstance(self.cpt, I)
+        return isinstance(self.cpt, (I, Iac))
 
 
     @property
