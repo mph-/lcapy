@@ -1425,7 +1425,10 @@ class Par(ParSer):
             for arg2 in self.args[n+1:]:
                 if isinstance(arg1, V) and isinstance(arg2, V):
                     raise ValueError('Voltage sources connected in parallel %s and %s' % (arg1, arg2))
-
+                if isinstance(arg1, V) or isinstance(arg2, V):
+                    # Should simplify by removing redundant component to
+                    # save later grief with Norton or Thevenin transformation.
+                    print('Warn: parallel connection with voltage source: %s and %s' % (arg1, arg2))
 
     @property
     def Z(self):    
@@ -1471,6 +1474,10 @@ class Ser(ParSer):
             for arg2 in self.args[n+1:]:
                 if isinstance(arg1, I) and isinstance(arg2, I):
                     raise ValueError('Current sources connected in series %s and %s' % (arg1, arg2))
+                if isinstance(arg1, I) or isinstance(arg2, I):
+                    # Should simplify by removing redundant component to
+                    # save later grief with Norton or Thevenin transformation.
+                    print('Warn: series connection with current source: %s and %s' % (arg1, arg2))
 
 
     @property
