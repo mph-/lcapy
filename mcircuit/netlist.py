@@ -353,9 +353,17 @@ class Netlist(object):
             results = results * s
 
         if mode == 'AC':
+            # This a horrible interim hack...  Let's assume we are not
+            # interested in the DC case; in this case DC voltage and current
+            # sources zero at frequencies other than DC.
+            # We should really only scale generic voltage or current sources
+            # by s.
             results = results.subs(s, sym.I * omega)
 
-        if mode == 'DC':
+        elif mode == 'DC':
+            # This a better hack...  It will only work for DC
+            # voltage and current sources.
+            results = results.subs(s, sym.I * omega)
             results = results.subs(s, 0)
 
         # Create dictionary of node voltages

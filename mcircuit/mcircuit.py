@@ -137,6 +137,9 @@ import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 
+
+s = sym.symbols('s')
+
 def _guess_var(expr, var):
 
     if hasattr(expr, 'expr'):
