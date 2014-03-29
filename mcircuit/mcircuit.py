@@ -500,7 +500,7 @@ def inverse_laplace(expr, s=None, t=None):
         from sympy.integrals.transforms import inverse_laplace_transform
         result = inverse_laplace_transform(expr, s, t)
 
-    return result
+    return result.simplify()
 
 
 def initial_value(expr, var=None):
@@ -1398,7 +1398,7 @@ class ParSer(OnePort):
         """Simplify to a Thevenin network"""
 
         if self.Y == 0:
-            print('Dodgy transformation to thevenin since Y = 0')
+            print('Dodgy Norton to Thevenin transformation since Y = 0')
 
         return Ser(self.Z.cpt(), self.V.cpt())
 
@@ -1407,7 +1407,7 @@ class ParSer(OnePort):
         """Simplify to a Norton network"""
 
         if self.Z == 0:
-            print('Dodgy transformation to norton since Z = 0')
+            print('Dodgy Thevenin to Norton transformation since Z = 0')
         return Par(self.Y.cpt(), self.I.cpt())
 
 
@@ -1855,7 +1855,7 @@ class Z(Thevenin):
 
 class V(Thevenin):
     """Voltage source (note a voltage source of voltage v has
-    an s domain voltage of v / s."""
+    an s domain voltage of v / s)."""
 
     def __init__(self, v):
     
@@ -1865,29 +1865,9 @@ class V(Thevenin):
         self.v = v
 
 
-    def parallel(self, OP):
-
-        if isinstance(OP, V):
-            raise ValueError('Cannot connect voltage sources in parallel.')
-
-        # This should be independent of OP
-        return super (V, self).parallel(OP)
-
-
-    def thevenin(self):
-
-        return Thevenin(Zs(0), self.V)
-
-
-    def norton(self):
-
-        warn('Converting a voltage source to a Norton network is dodgy...')
-        return Norton(Ys(1 / Zs(0)), self.I)
-
-
 class I(Norton):
     """Current source (note a current source of current i has
-    an s domain current of i / s."""
+    an s domain current of i / s)."""
 
     def __init__(self, i):
     
@@ -1897,25 +1877,34 @@ class I(Norton):
         self.i = i
 
 
-    def series(self, OP):
+class Vac(Thevenin):
+    """AC voltage source."""
 
-        if isinstance(OP, I):
-            raise ValueError('Cannot connect current sources in series.')
+    def __init__(self, V, f, phi=0.0):
+    
+        V = cExpr(V)
+        f = cExpr(f)
+        phi = cExpr(phi)
+        
+        # Note, cos(-pi / 2) is not quite zero.
 
-        # This should be independent of OP
-        return super (V, self).series(OP)
+        omega = 2 * sym.pi * f
+        super (Vac, self).__init__(Zs(0), Vs((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
+        self.args = (V, f, phi)    
 
 
-    def thevenin(self):
+class Iac(Norton):
+    """AC current source."""
 
-        warn('Converting a current source to a Thevenin network is dodgy...')
-        return Thevenin(Zs(1 / Ys(0)), self.V)
-
-
-    def norton(self):
-
-        return Norton(Ys(0), self.I)
-
+    def __init__(self, I, f, phi=0.0):
+    
+        I = cExpr(I)
+        f = cExpr(f)
+        phi = cExpr(phi)
+        
+        omega = 2 * sym.pi * f
+        super (Iac, self).__init__(Ys(0), Is((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
+        self.args = (I, f, phi)    
 
 
 class Xtal(Thevenin):
