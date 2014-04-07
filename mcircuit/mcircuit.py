@@ -200,25 +200,20 @@ def WyeDelta(Z1, Z2, Z3):
     return (Z2 * Z3 / ZZ, Z1 * Z3 / ZZ, Z1 * Z2 / ZZ)
 
 
-def tf(numer, denom=1, var=None):
+def tf(numer, denom=1, var=s):
     """Create a transfer function from lists of the coefficient
     for the numerator and denominator"""
 
-    if var == None:
-        var = sym.symbols('s')
     N = sym.Poly(numer, var)
     D = sym.Poly(denom, var)
 
     return sExpr(N / D)
 
 
-def _zp2tf(zeros, poles, K=1, var=None):
+def _zp2tf(zeros, poles, K=1, var=s):
     """Create a transfer function from lists of zeros and poles, 
     and from a constant gain."""
     
-    if var == None:
-        var = sym.symbols('s')
-
     zeros = sym.sympify(zeros)
     poles = sym.sympify(poles)
 
@@ -525,7 +520,7 @@ class sExpr(object):
     """s-domain expression or symbol"""
     
     s, t, f = sym.symbols('s t f')
-    
+
 
     @property
     def expr(self):    
@@ -4510,7 +4505,6 @@ class LosslessTxLine(GeneralTxLine):
 
     def __init__(self, Z0, c=1.5e8, l=1):
 
-        s = sym.Symbol('s')
         gamma = s / c
 
         super (LosslessTxLine, self).__init__(Z0, gamma, l)
@@ -4527,8 +4521,6 @@ class TxLine(GeneralTxLine):
     """
     
     def __init__(self, R, L, G, C, l=1):
-
-        s = sym.Symbol('s')
 
         Z = R + s * L
         Y = G + s * C
