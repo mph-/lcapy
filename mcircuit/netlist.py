@@ -94,13 +94,8 @@ class Element(object):
 
     def __str__(self):
 
-        val = self.cpt.args[0]
-        nodesstr = ' '.join(['%s' % node for node in self.nodes])
-
-        if not val.is_constant:
-            return '%s %s' % (self.name, nodesstr)            
-
-        return '%s %s %s' % (self.name, nodesstr, val.expr)
+        # return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes + self.cpt.args])
+        return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes + self.args])
 
 
     @property
