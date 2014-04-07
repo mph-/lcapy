@@ -35,53 +35,76 @@ Copyright 2014 Michael Hayes, UCECE
 
 # SCApy  Symbolic Circuit Analysis in Python
 
-from mcircuit import V, I, R, L, C, G, Vac, Iac, Is, Vs, pprint
+from mcircuit import V, I, R, L, C, G, Vac, Iac, Is, Vs, pprint, cExpr
 import sympy as sym
 
 # Implement modified nodal analysis (MNA)
+
+def _node(name):
+            
+    # Convert to integer if possible
+    try:
+        node = int(name)
+    except:
+        node = name
+    return node
+
+
+class CS(object):
+    """Controlled source"""
+
+    def __init__(self, node1, node2, arg):
+
+        self.args = (node1, node2, arg)    
+        self.cnodes = (_node(node1), _node(node2))
+        self.arg = arg
+
+
+class VCVS(CS):
+    """Voltage controlled voltage source."""
+
+    def __init__(self, node1, node2, A):
+    
+        A = cExpr(A)
+        super (VCVS, self).__init__(node1, node2, A)
+        self.V = 0
+
 
 class Element(object):
 
 
     def __init__(self, cpt, node1, node2, name):
 
-        def node(name):
-            
-            # Convert to integer if possible
-            try:
-                node = int(name)
-            except:
-                node = name
-            return node
-
-        if not isinstance(cpt, (R, G, L, C, V, I, Vac, Iac)):
-            raise ValueError('Adding component %s that is not R, G, L, C, V, I' % cpt)
+        if not isinstance(cpt, (R, G, L, C, V, I, Vac, Iac, VCVS)):
+            raise ValueError('Adding component %s that is not R, G, L, C, V, I, VCVS' % cpt)
 
 
         self.cpt = cpt
         self.name = name
-        self.nodes = (node(node1), node(node2))
+        self.nodes = (_node(node1), _node(node2))
 
 
     def __repr__(self):
 
-        return 'Element(%s, %s, %s, %s)' % (self.cpt, self.nodes[0], self.nodes[1], self.name)
+        nodesstr = ', '.join(['%s' % node for node in self.nodes])
+        return 'Element(%s, %s, %s)' % (self.cpt, nodesstr, self.name)
 
 
     def __str__(self):
 
         val = self.cpt.args[0]
+        nodesstr = ' '.join(['%s' % node for node in self.nodes])
 
         if val.is_symbol:
-            return '%s %s %s' % (self.name, self.nodes[0], self.nodes[1])            
+            return '%s %s' % (self.name, nodesstr)            
 
-        return '%s %s %s %s' % (self.name, self.nodes[0], self.nodes[1], val.expr)
+        return '%s %s %s' % (self.name, nodesstr, val.expr)
 
 
     @property
     def is_V(self):
         
-        return isinstance(self.cpt, (V, Vac))
+        return isinstance(self.cpt, (V, Vac, VCVS))
 
 
     @property
@@ -117,7 +140,7 @@ class NetElement(Element):
             args = (0, )
         
         # Allowable one-ports; this could be extended to Y, Z, etc.
-        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'I' : I, 'Vac' : Vac, 'Iac' : Iac}
+        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'I' : I, 'Vac' : Vac, 'Iac' : Iac, 'E' : VCVS}
         try:
             foo = OPS[kind]
 
@@ -215,7 +238,7 @@ class Netlist(object):
 
         kind = type(cpt).__name__
         if not self.cpt_counts.has_key(kind):
-            raise ValueError('Adding component %s that is not R, G, L, C, V, I' % cpt)
+            raise ValueError('Adding unknown component %s' % cpt)
 
         if name == None:
             # Automatically generate unique name if one has not been specified
@@ -247,7 +270,7 @@ class Netlist(object):
         return G
 
 
-    def C_matrix_make(self):
+    def B_matrix_make(self):
 
         C = sym.zeros(len(self.voltage_sources), self.num_nodes)
 
@@ -257,6 +280,26 @@ class Netlist(object):
                     C[m, n] = 1
                 elif elt.n2 == n:
                     C[m, n] = -1
+
+        return C.T
+
+
+    def C_matrix_make(self):
+
+        C = self.B_matrix_make().T
+
+        for m, elt in enumerate(self.voltage_sources):
+            if not isinstance(elt.cpt, VCVS):
+                continue
+            n1 = self.revnodemap[elt.cpt.cnodes[0]] - 1
+            n2 = self.revnodemap[elt.cpt.cnodes[0]] - 1
+            A = elt.cpt.arg
+            
+            for n in range(self.num_nodes):
+                if n1 == n:
+                    C[m, n] -= A
+                elif n2 == n:
+                    C[m, n] += A
 
         return C
 
@@ -290,6 +333,19 @@ class Netlist(object):
             E[m] = elt.cpt.V
             
         return E
+
+
+    def A_matrix_make(self):
+
+        G = self.G_matrix_make()
+        B = self.B_matrix_make()
+        C = self.C_matrix_make()
+        D = self.D_matrix_make()
+
+        # Augment the admittance matrix to form A matrix
+        A = G.row_join(B).col_join(C.row_join(D))
+
+        return A
 
 
     def analyse(self, mode='transient'):
@@ -335,17 +391,10 @@ class Netlist(object):
 
 
         # Compute matrices
-        G = self.G_matrix_make()
-        C = self.C_matrix_make()
-        # This is not the case when there are dependent voltage sources
-        B = C.T
-        D = self.D_matrix_make()
+        A = self.A_matrix_make()
 
-        # Augment the admittance matrix to form A matrix
-        A = G.row_join(B).col_join(C.row_join(D))
-
-        E = self.E_vector_make()
         I = self.I_vector_make()
+        E = self.E_vector_make()
 
         # Augment the known current vector with known voltage sources
         Z = I.col_join(E)
