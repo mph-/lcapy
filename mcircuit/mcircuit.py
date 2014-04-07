@@ -537,11 +537,12 @@ class sExpr(object):
         if isinstance(val, sExpr):
             val = val.val
             
-        if real and isinstance(val, str):
+        if real and isinstance(val, str) and not val[0].isdigit():
             val = sym.symbols(val, real=True)
+        val = sym.sympify(val)
 
         if simplify:
-            val = sym.sympify(val).cancel()
+            val = val.cancel()
 
         self.val = val
 
@@ -883,15 +884,15 @@ class sExpr(object):
 
     
     @property
-    def is_const(self):
+    def is_number(self):
 
         return self.expr.is_number
 
 
     @property
-    def is_symbol(self):
+    def is_constant(self):
 
-        return isinstance(self.expr, sym.Symbol)
+        return self.expr.is_constant()
 
 
 class cExpr(sExpr):
@@ -903,7 +904,7 @@ class cExpr(sExpr):
         if False and not isinstance(val, (cExpr, int, float, str)):
             raise ValueError('%s of type %s not int, float, or str' % (val, type(val)))
 
-        super (cExpr, self).__init__(val, False, True)
+        super (cExpr, self).__init__(val, simplify=False, real=True)
 
 
 class Zs(sExpr):
@@ -935,17 +936,17 @@ class Zs(sExpr):
 
     def cpt(self):
 
-        if self.is_const:
+        if self.is_number:
             return R(self.expr)
 
         z = self * self.s
 
-        if z.is_const:
+        if z.is_number:
             return C((1 / z).expr)
 
         z = self / self.s
 
-        if z.is_const:
+        if z.is_number:
             return L(z.expr)
 
         # Need a combination of components.
@@ -982,17 +983,17 @@ class Ys(sExpr):
 
     def cpt(self):
 
-        if self.is_const:
+        if self.is_number:
             return G(self.expr)
 
         y = self * self.s
 
-        if y.is_const:
+        if y.is_number:
             return L((1 / y).expr)
 
         y = self / self.s
 
-        if y.is_const:
+        if y.is_number:
             return C(y.expr)
 
         # Need a combination of components.
@@ -1007,7 +1008,7 @@ class Vs(sExpr):
 
         v = self * self.s
 
-        if v.is_const:
+        if v.is_number:
             return V(v.expr)
 
         # Need a combination of components.
@@ -1021,7 +1022,7 @@ class Is(sExpr):
 
         i = self * self.s
 
-        if i.is_const:
+        if i.is_number:
             return I(i.expr)
 
         # Need a combination of components.
@@ -1572,24 +1573,24 @@ class Norton(OnePort):
     def cpt(self):
         """Convert to a component, if possible"""
 
-        if self.Y.is_const and self.I == 0:
+        if self.Y.is_number and self.I == 0:
             return G(self.Y.expr)
 
         i = self.I * self.I.s
-        if self.Y == 0 and i.is_const:
+        if self.Y == 0 and i.is_number:
             return I(i.expr)
 
         v = self.V * self.V.s
-        if self.Z == 0 and v.is_const:
+        if self.Z == 0 and v.is_number:
             return V(v.expr)
 
         y = self.Y * self.Y.s
         z = self.Z * self.Z.s
 
-        if z.is_const and v.is_const:
+        if z.is_number and v.is_number:
             return C((1 / z).expr, v)
 
-        if y.is_const and i.is_const:
+        if y.is_number and i.is_number:
             return L((1 / y).expr, i)
 
         if self.I == 0:
@@ -1754,24 +1755,24 @@ class Thevenin(OnePort):
     def cpt(self):
         """Convert to a component, if possible"""
 
-        if self.Z.is_const and self.V == 0:
+        if self.Z.is_number and self.V == 0:
             return R(self.Z.expr)
 
         v = self.V * self.V.s
-        if self.Z == 0 and v.is_const:
+        if self.Z == 0 and v.is_number:
             return V(v.expr)
 
         i = self.I * self.I.s
-        if self.Y == 0 and i.is_const:
+        if self.Y == 0 and i.is_number:
             return I(i.expr)
 
         y = self.Y * self.Y.s
         z = self.Z * self.Z.s
 
-        if z.is_const and v.is_const:
+        if z.is_number and v.is_number:
             return C((1 / z).expr, v)
 
-        if y.is_const and i.is_const:
+        if y.is_number and i.is_number:
             return L((1 / y).expr, i)
 
         if self.V == 0:

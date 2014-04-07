@@ -56,6 +56,7 @@ class CS(object):
     def __init__(self, node1, node2, arg):
 
         self.args = (node1, node2, arg)    
+        # Controlling nodes
         self.cnodes = (_node(node1), _node(node2))
         self.arg = arg
 
@@ -67,6 +68,7 @@ class VCVS(CS):
     
         A = cExpr(A)
         super (VCVS, self).__init__(node1, node2, A)
+        # No independent component.
         self.V = 0
 
 
@@ -95,7 +97,7 @@ class Element(object):
         val = self.cpt.args[0]
         nodesstr = ' '.join(['%s' % node for node in self.nodes])
 
-        if val.is_symbol:
+        if not val.is_constant:
             return '%s %s' % (self.name, nodesstr)            
 
         return '%s %s %s' % (self.name, nodesstr, val.expr)
