@@ -292,7 +292,7 @@ class Netlist(object):
             if not isinstance(elt.cpt, VCVS):
                 continue
             n1 = self.revnodemap[elt.cpt.cnodes[0]] - 1
-            n2 = self.revnodemap[elt.cpt.cnodes[0]] - 1
+            n2 = self.revnodemap[elt.cpt.cnodes[1]] - 1
             A = elt.cpt.arg
             
             for n in range(self.num_nodes):
