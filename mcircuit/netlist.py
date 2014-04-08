@@ -94,7 +94,6 @@ class Element(object):
 
     def __str__(self):
 
-        # return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes + self.cpt.args])
         return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes + self.args])
 
 
@@ -247,7 +246,7 @@ class Netlist(object):
         self._elt_add(elt)
         
         
-    def G_matrix_make(self):
+    def G_matrix(self):
 
         G = sym.zeros(self.num_nodes, self.num_nodes)
 
@@ -267,7 +266,7 @@ class Netlist(object):
         return G
 
 
-    def B_matrix_make(self):
+    def B_matrix(self):
 
         C = sym.zeros(len(self.voltage_sources), self.num_nodes)
 
@@ -281,9 +280,9 @@ class Netlist(object):
         return C.T
 
 
-    def C_matrix_make(self):
+    def C_matrix(self):
 
-        C = self.B_matrix_make().T
+        C = self.B_matrix().T
 
         for m, elt in enumerate(self.voltage_sources):
             if not isinstance(elt.cpt, VCVS):
@@ -301,7 +300,7 @@ class Netlist(object):
         return C
 
 
-    def D_matrix_make(self):
+    def D_matrix(self):
 
         D = sym.zeros(len(self.voltage_sources), len(self.voltage_sources))
 
@@ -309,7 +308,20 @@ class Netlist(object):
         return D
 
 
-    def I_vector_make(self):
+    def A_matrix(self):
+
+        G = self.G_matrix()
+        B = self.B_matrix()
+        C = self.C_matrix()
+        D = self.D_matrix()
+
+        # Augment the admittance matrix to form A matrix
+        A = G.row_join(B).col_join(C.row_join(D))
+
+        return A
+
+
+    def I_vector(self):
 
         I = sym.zeros(self.num_nodes, 1)
 
@@ -322,7 +334,7 @@ class Netlist(object):
         return I
 
 
-    def E_vector_make(self):
+    def E_vector(self):
 
         E = sym.zeros(len(self.voltage_sources), 1)
 
@@ -332,17 +344,14 @@ class Netlist(object):
         return E
 
 
-    def A_matrix_make(self):
+    def Z_vector(self):
 
-        G = self.G_matrix_make()
-        B = self.B_matrix_make()
-        C = self.C_matrix_make()
-        D = self.D_matrix_make()
+        I = self.I_vector()
+        E = self.E_vector()
 
-        # Augment the admittance matrix to form A matrix
-        A = G.row_join(B).col_join(C.row_join(D))
-
-        return A
+        # Augment the known current vector with known voltage sources
+        Z = I.col_join(E)
+        return Z
 
 
     def analyse(self, mode='transient'):
@@ -387,14 +396,8 @@ class Netlist(object):
                 raise ValueError('Unhandled element %s' % elt.name)
 
 
-        # Compute matrices
-        A = self.A_matrix_make()
-
-        I = self.I_vector_make()
-        E = self.E_vector_make()
-
-        # Augment the known current vector with known voltage sources
-        Z = I.col_join(E)
+        A = self.A_matrix()
+        Z = self.Z_vector()
 
         # Solve for the nodal voltages
         results = sym.simplify(A.inv() * Z);        
