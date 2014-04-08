@@ -177,6 +177,11 @@ class Netlist(object):
         return self.elements[key]
 
 
+    def nodeindex(self, node):
+        """Return node index; ground is -1"""
+        return self.revnodemap[node] - 1
+
+
     def netfile_add(self, filename):    
 
         file = open(filename, 'r')
@@ -251,8 +256,8 @@ class Netlist(object):
         G = sym.zeros(self.num_nodes, self.num_nodes)
 
         for elt in self.RLC:
-            n1 = elt.n1
-            n2 = elt.n2
+            n1 = self.nodeindex(elt.nodes[0])
+            n2 = self.nodeindex(elt.nodes[1])
             Y = elt.cpt.Y
 
             if n1 >= 0 and n2 >= 0:
@@ -271,11 +276,12 @@ class Netlist(object):
         C = sym.zeros(len(self.voltage_sources), self.num_nodes)
 
         for m, elt in enumerate(self.voltage_sources):
-            for n in range(self.num_nodes):
-                if elt.n1 == n:
-                    C[m, n] = 1
-                elif elt.n2 == n:
-                    C[m, n] = -1
+            n1 = self.nodeindex(elt.nodes[0])
+            n2 = self.nodeindex(elt.nodes[1])
+            if n1 >= 0:
+                C[m, n1] = 1
+            if n2 >= 0:
+                C[m, n2] = -1
 
         return C.T
 
@@ -287,15 +293,14 @@ class Netlist(object):
         for m, elt in enumerate(self.voltage_sources):
             if not isinstance(elt.cpt, VCVS):
                 continue
-            n1 = self.revnodemap[elt.cpt.cnodes[0]] - 1
-            n2 = self.revnodemap[elt.cpt.cnodes[1]] - 1
+            n1 = self.nodeindex(elt.cpt.cnodes[0])
+            n2 = self.nodeindex(elt.cpt.cnodes[1])
             A = elt.cpt.arg
             
-            for n in range(self.num_nodes):
-                if n1 == n:
-                    C[m, n] -= A
-                elif n2 == n:
-                    C[m, n] += A
+            if n1 >= 0:
+                C[m, n1] -= A
+            if n2 >= 0:
+                C[m, n2] += A
 
         return C
 
@@ -327,9 +332,11 @@ class Netlist(object):
 
         for n in range(self.num_nodes):
             for m, elt in enumerate(self.current_sources):
-                if elt.n1 == n:
+                n1 = self.nodeindex(elt.nodes[0])
+                n2 = self.nodeindex(elt.nodes[1])
+                if n1 == n:
                     I[n] = I[n] - elt.cpt.I
-                elif elt.n2 == n:
+                elif n2 == n:
                     I[n] = I[n] + elt.cpt.I
         return I
 
@@ -372,11 +379,6 @@ class Netlist(object):
             self.revnodemap[node] = n
 
         self.num_nodes = len(self.nodemap) - 1
-
-        # Assign mapped node numbers.  Note, ground is node -1.
-        for elt in self.elements.values():
-            elt.n1 = self.revnodemap[elt.nodes[0]] - 1
-            elt.n2 = self.revnodemap[elt.nodes[1]] - 1
 
         self.voltage_sources = []
         self.current_sources = []
