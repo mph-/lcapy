@@ -1,6 +1,4 @@
 """
-Lcapy 0.1.0
-
 This module supports simple linear circuit analysis based on the
 following ideal components:
 
