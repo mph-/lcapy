@@ -1,4 +1,36 @@
-This module supports simple linear circuit analysis based on the
+Lcapy is an experimental Python module for teaching linear circuit
+analysis.  It uses SymPy for symbolic mathematics.
+
+Lcapy can analyse circuits described with netlists using modified
+nodal analysis.  See lcapy.netlist
+
+Alternatively, Lcapy can analyse networks and circuits formed by
+combining one, two, and three port networks.
+
+
+Circuit analysis
+----------------
+
+The circuit is described using netlists, similar to SPICE, but with
+arbitrary node names (except for the ground node which is labelled 0).
+The netlists can be loaded from a file or created at run-time.  For
+example:
+
+   >>> from lcapy import pprint, Circuit
+   >>> cct = Circuit('Voltage divider')
+   >>> cct.net_add('V_s fred 0') 
+   >>> cct.net_add('R_a fred 1') 
+   >>> cct.net_add('R_b 1 0') 
+   >>> cct.analyse()
+   >>> pprint(cct.V[1])
+   >>> pprint(cct.V['fred'])
+
+
+One-port networks
+-----------------
+
+One-port networks can be created by series and parallel combinations
+of other one-port networks.  The primitive one-port networks are the
 following ideal components:
 
 V independent voltage source
@@ -19,39 +51,50 @@ Ysc short-circuit admittance
 Voc open-circuit voltage
 Isc short-circuit current
 
-Components can either be connected in series (+) or parallel (|).
-
-Components can be connected to form two-port networks.  Methods are
-provided to determine transfer responses between the ports.
-
 The component values can be specified numerically or symbolically
 using strings, for example,
 
 from lcapy import V, R, L, C
 
-R1 = R('R_1') 
-L1 = L('L_1')
+   >>> R1 = R('R_1') 
+   >>> L1 = L('L_1')
+   >>> a = V(10) + R1 + L1
 
-a = V(10) + R1 + L1
-
-Here a is the name of the network with a 10 V voltage source in series
-with R1 and L1.
+Here a is the name of the network formed with a 10 V voltage source in
+series with R1 and L1.
 
 The open circuit voltage across the network can be printed with:
-print(a.Voc)
-=> 10/s
+   >>> print(a.Voc)
+   10/s
 
 The time domain response is given by:
-print(a.Voc.transientresponse())
-=> 10*Heaviside(t)
+   >>> print(a.Voc.transientresponse())
+   10*Heaviside(t)
 
 The short circuit current through the network can be printed with:
-print(a.Isc)
-=> 10/(L_1*s**2 + R_1*s)
+   >>> print(a.Isc)
+   10/(L_1*s**2 + R_1*s)
 
 The time domain response is given by:
-print(a.Isc.transientresponse())
-=> 10*Heaviside(t)/R_1 - 10*exp(-R_1*t/L_1)*Heaviside(t)/R_1
+   >>> print(a.Isc.transientresponse())
+   10*Heaviside(t)/R_1 - 10*exp(-R_1*t/L_1)*Heaviside(t)/R_1
 
+
+Two-port networks
+-----------------
+
+One-port networks can be combined to form two-port networks.  Methods
+are provided to determine transfer responses between the ports.
+
+Here's an example of creating a voltage divider (L section)
+
+   >>> a = Lsection(R('R_1'), R('R_2'))
+
+
+Documention
+-----------
 
 For additional documentation, see the Lcapy tutorial.
+
+
+Copyright 2014 Michael Hayes, UCECE

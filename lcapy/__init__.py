@@ -2,10 +2,10 @@
 Lcapy is a Python library for linear circuit analysis.  It uses SymPy
 for symbolic mathematics.
 
-It can analyse circuits described with netlists using modified nodal
+Lcapy can analyse circuits described with netlists using modified nodal
 analysis.  See lcapy.netlist
 
-Alternatively, it can analyse networks and circuits formed by
+Alternatively, Lcapy can analyse networks and circuits formed by
 combining one, two, and three port networks.
 
 Copyright 2014 Michael Hayes, UCECE
