@@ -1,4 +1,4 @@
-from mcircuit import R, L, C, Xtal, pprint
+from lcapy import R, L, C, Xtal, pprint
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 

@@ -1,4 +1,4 @@
-from mcircuit import *
+from lcapy import *
 
 s = sExpr.s
 

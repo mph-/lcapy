@@ -1,5 +1,5 @@
-#import mcircuit as mc
-from mcircuit import R, L, C
+#import lcapy as mc
+from lcapy import R, L, C
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 

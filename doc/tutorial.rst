@@ -6,7 +6,7 @@ Tutorial
 Introduction
 ============
 
-mcircuit is a set of circuit analysis classes for Python.  It will
+lcapy is a set of circuit analysis classes for Python.  It will
 only solve linear, time invariant networks.  In other words, networks
 comprised of basic circuit elements (R, L, C, etc.) that do not vary
 with time.
@@ -14,7 +14,7 @@ with time.
 It does not support non-linear devices such as diodes or transistors
 although it does support simple opamps without saturation.
 
-Mcircuit uses Sympy (symbolic Python) for its values and expressions
+Lcapy uses Sympy (symbolic Python) for its values and expressions
 and thus the circuit analysis can be performed symbolically.  See http://docs.sympy.org/latest/tutorial/index.html for the SymPy tutorial.
 
 Internally, the circuit components are stored using their s-domain
@@ -26,7 +26,7 @@ transform for transient response analysis.
 Preliminaries
 =============
 
-- You will need to install mcircuit.  Currently, this a single Python
+- You will need to install lcapy.  Currently, this a single Python
   file so you just need to copy it to your working directory or set
   your `PYTHON_PATH` environment variable to find its directory.
 
@@ -65,7 +65,7 @@ These are augmented by:
 
 Here are some examples of their creation:
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> R1 = R(10)
    >>> C1 = C(10e-6)
    >>> L1 = L('L_1')
@@ -92,7 +92,7 @@ Simple circuit element combinations
 
 Here's an example of resistors in series
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> R1 = R(10)
    >>> R2 = R(5)
    >>> Rtot = R1 + R2
@@ -112,7 +112,7 @@ single resistor equivalent.
 Here's an example of a parallel combination of resistors.  Note that
 the parallel operator is `|` instead of the usual `||`.
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> Rtot = R(10) | R(5)
    >>> print(Rtot)
    R(10) | R(5)
@@ -121,7 +121,7 @@ the parallel operator is `|` instead of the usual `||`.
 
 The result can be performed symbolically, for example,
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> Rtot = R('R_1') | R('R_2')
    >>> print(Rtot)
    R(R_1) | R(R_2)
@@ -134,7 +134,7 @@ Notice the difference between `print` and `pprint` (pretty print).
 
 Here's another example using inductors in series
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> L1 = L(10)
    >>> L2 = L(5)
    >>> Ltot = L1 + L2
@@ -146,7 +146,7 @@ Here's another example using inductors in series
 
 Finally, here's an example of a parallel combination of capacitors
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> Ctot = C(10) | C(5)
    >>> pprint(Ctot)
    C(10) | C(5)
@@ -159,7 +159,7 @@ Impedances
 
 Let's consider a series R-L-C network
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> N = R(5) + L(20) + C(10)
    >>> pprint(N)
    R(5) + L(20) + C(10)
@@ -193,7 +193,7 @@ function in monic form (with unity leading coefficient).
 
 The corresponding parallel R-L-C network yields
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> N = R(5) | L(20) | C(10)
    >>> pprint(N)
    R(5) | L(20) | C(10)
@@ -228,7 +228,7 @@ of the impedance `N.Z`.
 The frequency response can be evaluated numerically by specifying a
 vector of time values.
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> from numpy import logspace
    >>> N = V(20) + R(5) + C(10)
    >>> f = linspace(0, 4, 400)
@@ -264,7 +264,7 @@ Simple transient analysis
 
 Let's consider a series R-C network in series with a voltage source
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> N = V(20) + R(5) + C(10)
    >>> pprint(N)
    V(20) + R(5) + C(10)
@@ -293,7 +293,7 @@ exponential response multiplied by the ubiquitous unit step.
 
 Of course, this could have been done symbolically,
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> N = V('V_1') + R('R_1') + C('C_1')
    >>> pprint(N)
    V(V₁) + R(R₁) + C(C₁)
@@ -318,7 +318,7 @@ Of course, this could have been done symbolically,
 The transient response can be evaluated numerically by specifying a
 vector of time values.
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> from numpy import linspace
    >>> N = V(20) + R(5) + C(10)
    >>> t = linspace(0, 100, 400)
@@ -359,7 +359,7 @@ admittance).
 
 Here's an example of a Thevenin to Norton transformation:
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> T = V(10) + R(5)
    >>> N = T.norton()
    >>> pprint(N)
@@ -367,7 +367,7 @@ Here's an example of a Thevenin to Norton transformation:
 
 Similarly, here's an example of a Norton to Thevenin transformation:
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> N = I(10) | R(5)
    >>> T = N.thevenin()
    >>> pprint(T)
@@ -406,7 +406,7 @@ A more interesting two-port network is an L section (voltage divider)::
          ----------------+----
 
 This is comprised from any two one-port networks.  For example,
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> R1 = R('R_1')
    >>> R2 = R('R_2')
    >>> N = LSection(R1, R2)
@@ -449,7 +449,7 @@ the input of the second two-port.
 For example, an L section can be created by chaining a shunt to a
 series one-port.
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> N = Series(R('R_1')).chain(Shunt(R('R_2')))
    >>> pprint(N.Vtransfer)
    R_2/(R_1 + R_2)
@@ -464,7 +464,7 @@ G, H, Y, Z.  Each has their own merits (see
 http://en.wikipedia.org/wiki/Two-port_network).
 
 Consider an L section comprised of two resistors:
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> N = LSection(R('R_1'), R('R_2')))
 
 The different matrix representations can be shown using:
@@ -521,7 +521,7 @@ Transfer Functions
 Transfer functions can be created in a similar manner to Matlab,
 either using lists of numerator and denominator coefficients:
 
-    >>> from mcircuit import *
+    >>> from lcapy import *
     >>>
     >>> H1 = tf(0.001, [1, 0.05, 0])
     >>> pprint(H1)
@@ -532,7 +532,7 @@ either using lists of numerator and denominator coefficients:
 
 from lists of poles and zeros (and optional gain):
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>>
    >>> H2 = zp2tf([], [0, -0.05])
    >>> pprint(H2)
@@ -543,7 +543,7 @@ from lists of poles and zeros (and optional gain):
 
 or symbolically:
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>>
    >>> s = tf('s')
    >>> H3 = 0.001 / (s**2 + 0.05 * s)
@@ -556,7 +556,7 @@ or symbolically:
 
 In each case, parameters can be expressed numerically or symbolically, for example,
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>>
    >>> H4 = zp2tf(['z_1'], ['p_1', 'p_2'])
    >>> pprint(H4)
@@ -569,10 +569,10 @@ In each case, parameters can be expressed numerically or symbolically, for examp
 Partial Fraction Analysis
 =========================
 
-Mcircuit can be used for converting rational functions into partial
+Lcapy can be used for converting rational functions into partial
 fraction form.  Here's an example:
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>>
    >>> s = sExpr.s
    >>>
@@ -585,7 +585,7 @@ fraction form.  Here's an example:
 
 Here's an example of a not strictly proper rational function,
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>>
    >>> s = sExpr.s
    >>>
@@ -615,17 +615,17 @@ Similarly, the zeros can be found using the zeros function:
    >>> zeros(H)
    {-5: 1, 4: 1}
 
-Mcircuit can also handle rational functions with a delay.
+Lcapy can also handle rational functions with a delay.
 
 
 
 Inverse Laplace transforms
 ==========================
 
-Mcircuit can perform inverse Laplace transforms.   Here's an example for
+Lcapy can perform inverse Laplace transforms.   Here's an example for
 a strictly proper rational function:
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> s = sExpr.s
    >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
    >>> pprint(partfrac(H))
@@ -641,7 +641,7 @@ The Heaviside function is the unit step.
 When the rational function is not strictly proper, the inverse Laplace
 transform has Dirac deltas (and derivatives of Dirac deltas):
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> s = sExpr.s
    >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
    >>> pprint(partfrac(H)) 
@@ -656,7 +656,7 @@ transform has Dirac deltas (and derivatives of Dirac deltas):
 Here's another example of a strictly proper rational function with a
 repeated pole:
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> s = sExpr.s
    >>> H = 5 * (s + 5) / ((s + 3) * (s + 3))
    >>> pprint(ZPK(H))
@@ -676,7 +676,7 @@ repeated pole:
 
 Rational functions with delays can also be handled:
 
-   >>> from mcircuit import *
+   >>> from lcapy import *
    >>> from sympy import symbols
    >>> s, T = sym.symbols('s T')
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * sym.exp(-s * T)
@@ -699,7 +699,7 @@ a netlist.  This describes each component, its name, value, and the
 nodes it is connected to.  This netlist can be read from a file or
 created dynamically, for example
 
-   >>> from mcircuit import pprint, Circuit
+   >>> from lcapy import pprint, Circuit
    >>> cct = Circuit('Voltage divider')
    >>> cct.net_add('Vs 1 0 10') 
    >>> cct.net_add('Ra 1 2 3e3') 
@@ -723,6 +723,7 @@ and this creates a directory of the node voltages that can indexed using the nod
 
 Notice, how the displayed voltages are Laplace domain voltages.  The
 transient voltages can be determined using an inverse Laplace transform:
+
    >>> pprint(cct.V[1].inverse_laplace())
    10.0⋅Heaviside(t)
 
@@ -750,9 +751,9 @@ source Vs:
    ───
     s  
 
-Since Mcircuit uses SymPy, circuit analysis can be performed
+Since Lcapy uses SymPy, circuit analysis can be performed
 symbolically.  This can be achieved by not specifying a component
-value.  Mcircuit, will then create a symbol using the component name.
+value.  Lcapy, will then create a symbol using the component name.
 
    >>> cct = Circuit('Series V R C')
    >>> cct.net_add('Vs 1 0') 

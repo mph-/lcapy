@@ -1,17 +1,17 @@
-from mcircuit import *
+from lcapy import *
 import unittest
 import sympy as sym
 from msignal.mrf import MRF
 
 s = sym.var('s')
 
-class McircuitsTester(unittest.TestCase):
-    """Unit tests for mcircuits
+class LcapysTester(unittest.TestCase):
+    """Unit tests for lcapys
 
     """
 
     def test_R(self):
-        """Mcircuits: check R
+        """Lcapys: check R
 
         """
         a = R(10)
@@ -19,7 +19,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_L(self):
-        """Mcircuits: check L
+        """Lcapys: check L
 
         """
         a = L(10, 5)
@@ -28,7 +28,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_C(self):
-        """Mcircuits: check C
+        """Lcapys: check C
 
         """
         a = C(10, 5)
@@ -38,7 +38,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_R_series_R(self):
-        """Mcircuits: check R + R
+        """Lcapys: check R + R
 
         """
         a = R(10) + R(5)
@@ -49,7 +49,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_L_series_L(self):
-        """Mcircuits: check L + L
+        """Lcapys: check L + L
 
         """
         a = L(10) + L(5)
@@ -60,7 +60,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_C_series_C(self):
-        """Mcircuits: check C + C
+        """Lcapys: check C + C
 
         """
         a = C(10) + C(15)
@@ -71,7 +71,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_V_series_V(self):
-        """Mcircuits: check V + V
+        """Lcapys: check V + V
 
         """
         a = V(10) + V(5)
@@ -82,7 +82,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_R_series_L(self):
-        """Mcircuits: check R + L
+        """Lcapys: check R + L
 
         """
         a = R(10) + L(5)
@@ -90,7 +90,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_R_parallel_R(self):
-        """Mcircuits: check R | R
+        """Lcapys: check R | R
 
         """
         a = R(10) | R(15)
@@ -101,7 +101,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_L_parallel_L(self):
-        """Mcircuits: check L | L
+        """Lcapys: check L | L
 
         """
         a = L(10) | L(15)
@@ -112,7 +112,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_C_parallel_C(self):
-        """Mcircuits: check C | C
+        """Lcapys: check C | C
 
         """
         a = C(10) | C(15)
@@ -123,7 +123,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_I_parallel_I(self):
-        """Mcircuits: check I | I
+        """Lcapys: check I | I
 
         """
         a = I(10) | I(5)
@@ -134,7 +134,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_Shunt(self):
-        """Mcircuits: check Shunt
+        """Lcapys: check Shunt
 
         """
         a = Shunt(R(10) + V(5))
@@ -163,7 +163,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_Series(self):
-        """Mcircuits: check Series
+        """Lcapys: check Series
 
         """
         a = Series(R(10) + V(5))
@@ -175,7 +175,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_LSection(self):
-        """Mcircuits: check LSection
+        """Lcapys: check LSection
 
         """
         a = LSection(R(10), R(30))
@@ -225,7 +225,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_Shunt_parallel(self):
-        """Mcircuits: check Shunts in parallel
+        """Lcapys: check Shunts in parallel
 
         """
 
@@ -238,7 +238,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_Series_series(self):
-        """Mcircuits: check Series in series
+        """Lcapys: check Series in series
 
         """
 
@@ -254,7 +254,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_load(self):
-        """Mcircuits: check load
+        """Lcapys: check load
 
         """
 
@@ -266,7 +266,7 @@ class McircuitsTester(unittest.TestCase):
         
 
     def test_open_circuit(self):
-        """Mcircuits: check open_circuit
+        """Lcapys: check open_circuit
 
         """
 
@@ -279,7 +279,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_short_circuit(self):
-        """Mcircuits: check short_circuit
+        """Lcapys: check short_circuit
 
         """
 
@@ -292,7 +292,7 @@ class McircuitsTester(unittest.TestCase):
 
 
     def test_LSection_models(self):
-        """Mcircuits: check LSection models
+        """Lcapys: check LSection models
 
         """
         a = LSection(R(10) + V(5), R(20))

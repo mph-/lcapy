@@ -1,4 +1,4 @@
-from mcircuit import R, L, C, Xtal, pprint
+from lcapy import R, L, C, Xtal, pprint
 
 xtal = Xtal('C_0', 'R_1', 'L_1', 'C_1')
 pprint(xtal)

@@ -1,4 +1,4 @@
-from mcircuit import *
+from lcapy import *
 
 a = V(1)
 b = C(2)

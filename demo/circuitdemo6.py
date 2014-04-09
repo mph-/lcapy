@@ -1,4 +1,4 @@
-from mcircuit import pprint, Circuit
+from lcapy import pprint, Circuit
 
 cct = Circuit('Non-inverting opamp')
 

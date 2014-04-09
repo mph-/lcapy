@@ -1,4 +1,4 @@
-from mcircuit import *
+from lcapy import *
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 

@@ -2,7 +2,7 @@
 API
 ===
 
-.. automodule:: mcircuit
+.. automodule:: lcapy
    :members:
 
 

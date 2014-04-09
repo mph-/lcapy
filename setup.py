@@ -2,15 +2,15 @@
 
 from distutils.core import setup
 
-setup(name = 'mcircuit',
+setup(name = 'lcapy',
     version = '0.2.0',
     description = 'Linear circuit analysis',
     author = 'Michael Hayes',
     requires = [ 'sympy', 'numpy' ],
     author_email = 'michael.hayes@canterbury.ac.nz',
-    url = 'https://github.com/mph-/mcircuit',
-    download_url = 'https://github.com/mph-/mcircuit',
-    py_modules = [ 'mcircuit.mcircuit', 'mcircuit.netlist' ],
+    url = 'https://github.com/mph-/lcapy',
+    download_url = 'https://github.com/mph-/lcapy',
+    py_modules = [ 'lcapy.mcircuit', 'lcapy.netlist' ],
     scripts = [ ],
     classifiers=[
         'Development Status :: 4 - Beta',

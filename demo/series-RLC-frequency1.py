@@ -1,4 +1,4 @@
-from mcircuit import *
+from lcapy import *
 from numpy import logspace
 from matplotlib.pyplot import figure, savefig, show
 

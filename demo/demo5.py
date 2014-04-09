@@ -1,4 +1,4 @@
-from mcircuit import V, R, L, C, LSection, Shunt
+from lcapy import V, R, L, C, LSection, Shunt
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 

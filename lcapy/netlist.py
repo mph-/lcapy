@@ -7,7 +7,7 @@ arbitrary node names (except for the ground node which is labelled 0).
 The netlists can be loaded from a file or created at run-time.  For
 example:
 
->>> from mcircuit import pprint, Circuit
+>>> from lcapy import pprint, Circuit
 >>> cct = Circuit('Voltage divider')
 >>> cct.net_add('V_s fred 0') 
 >>> cct.net_add('R_a fred 1') 
@@ -35,7 +35,7 @@ Copyright 2014 Michael Hayes, UCECE
 
 # SCApy  Symbolic Circuit Analysis in Python
 
-from mcircuit import V, I, R, L, C, G, Vac, Iac, Is, Vs, pprint, cExpr
+from lcapy import V, I, R, L, C, G, Vac, Iac, Is, Vs, pprint, cExpr
 import sympy as sym
 
 # Implement modified nodal analysis (MNA)

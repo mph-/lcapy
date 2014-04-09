@@ -1,5 +1,5 @@
 """
-Mcircuit 0.1.0
+Lcapy 0.1.0
 
 This module supports simple linear circuit analysis based on the
 following ideal components:
@@ -31,7 +31,7 @@ To print the rational functions in canonical form (with the highest
 power of s in the denominator with a unity coefficient), use
 print(x.canonical()) or x.pprint() for pretty printing.
 
-For additional documentation, see the Mcircuit tutorial.
+For additional documentation, see the Lcapy tutorial.
 
 
 Limitations:

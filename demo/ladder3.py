@@ -1,6 +1,6 @@
-#import mcircuit as mc
+#import lcapy as mc
 from __future__ import division
-from mcircuit import R, L, C
+from lcapy import R, L, C
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 

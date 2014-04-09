@@ -1,4 +1,4 @@
-from mcircuit import inverse_laplace, partfrac
+from lcapy import inverse_laplace, partfrac
 import sympy as sym
 
 A, B, t, s = sym.symbols('A B t s')

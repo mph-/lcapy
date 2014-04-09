@@ -1,4 +1,4 @@
-from mcircuit import IdealTransformer
+from lcapy import IdealTransformer
 
 a = IdealTransformer(10)
 

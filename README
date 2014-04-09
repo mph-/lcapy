@@ -27,7 +27,7 @@ provided to determine transfer responses between the ports.
 The component values can be specified numerically or symbolically
 using strings, for example,
 
-from mcircuit import V, R, L, C
+from lcapy import V, R, L, C
 
 R1 = R('R_1') 
 L1 = L('L_1')
@@ -54,4 +54,4 @@ print(a.Isc.transientresponse())
 => 10*Heaviside(t)/R_1 - 10*exp(-R_1*t/L_1)*Heaviside(t)/R_1
 
 
-For additional documentation, see the Mcircuit tutorial.
+For additional documentation, see the Lcapy tutorial.

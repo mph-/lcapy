@@ -1,4 +1,4 @@
-from mcircuit import V, R, L, C, pprint
+from lcapy import V, R, L, C, pprint
 
 C1 = C(10)
 C2 = C(20)

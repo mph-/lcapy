@@ -1,4 +1,4 @@
-from mcircuit import *
+from lcapy import *
 from sympy import symbols
 
 s, T = sym.symbols('s T')

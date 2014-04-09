@@ -1,5 +1,5 @@
 from __future__ import division
-from mcircuit import R, L, C, Xtal
+from lcapy import R, L, C, Xtal
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 

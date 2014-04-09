@@ -1,4 +1,4 @@
-from mcircuit import *
+from lcapy import *
 import sympy as sym
 
 s = sym.var('s')

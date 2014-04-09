@@ -1,4 +1,4 @@
-from mcircuit import Opamp, R, Series
+from lcapy import Opamp, R, Series
 
 # Create simple inverting amplifier
 Rf = 1000

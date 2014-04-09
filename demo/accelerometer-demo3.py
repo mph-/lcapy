@@ -1,4 +1,4 @@
-from mcircuit import V, R, L, C, IdealTransformer, Shunt, Series, TSection
+from lcapy import V, R, L, C, IdealTransformer, Shunt, Series, TSection
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show, rcParams
 

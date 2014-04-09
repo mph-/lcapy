@@ -1,4 +1,4 @@
-from mcircuit import inverse_laplace
+from lcapy import inverse_laplace
 import sympy as sym
 
 t, s = sym.symbols('t s')

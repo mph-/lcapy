@@ -1,4 +1,4 @@
-from mcircuit import Opamp, R, C, Series
+from lcapy import Opamp, R, C, Series
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 

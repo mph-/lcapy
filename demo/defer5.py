@@ -1,4 +1,4 @@
-from mcircuit import *
+from lcapy import *
 
 a = Chain(Shunt(R(10)), Series(L(5)))
 

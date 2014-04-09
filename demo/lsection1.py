@@ -1,4 +1,4 @@
-from mcircuit import R, L, C, LSection, pprint, ZPK
+from lcapy import R, L, C, LSection, pprint, ZPK
 
 R1 = R('R_1')
 R2 = R('R_2')
