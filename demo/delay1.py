@@ -7,5 +7,5 @@ H = sym.exp(-10 * s)
 
 sym.pprint(sym.Eq(sym.sympify('H'), H))
 
-sym.pprint(sym.Eq(sym.sympify('h'), inverse_laplace(H, s, t)))
+sym.pprint(sym.Eq(sym.sympify('h'), inverse_laplace(H, t, s)))
 
