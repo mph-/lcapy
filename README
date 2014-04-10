@@ -88,7 +88,17 @@ are provided to determine transfer responses between the ports.
 
 Here's an example of creating a voltage divider (L section)
 
-   >>> a = Lsection(R('R_1'), R('R_2'))
+   >>> a = LSection(R('R_1'), R('R_2'))
+
+
+Limitations
+-----------
+
+1. Non-linear components cannot be modelled (apart from a linearisation around a bias point).
+
+2. High order systems can go crazy.
+
+3. Some two-ports generate singular matrices.
 
 
 Documention

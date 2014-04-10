@@ -24,5 +24,28 @@ else:  # Python 3
 
 del sys
 
-from .mcircuit import *
+
+# List of symbols that get imported with 'from lcapy import *'
+__all__ = []
+
+# Add the modules that get searched to allow 'from lcapy import V'
+# rather then having to specify module, 'from lcapy.oneport import V'
+from . import core
+__all__.extend(core.__all__)
+from .core import *
+
+from . import oneport
+__all__.extend(oneport.__all__)
+from .oneport import *
+
+from . import twoport
+__all__.extend(twoport.__all__)
+from .twoport import *
+
+from . import threeport
+__all__.extend(threeport.__all__)
+from .threeport import *
+
+from . import netlist
+__all__.extend(netlist.__all__)
 from .netlist import *

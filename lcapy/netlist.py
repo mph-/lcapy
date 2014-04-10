@@ -24,21 +24,18 @@ specified as strings:
 >>> pprint(cct.V['fred'])
 >>> pprint(cct.V[1])
 
-
-Todo: 
-1. Support dependent sources.
-
-
-
 Copyright 2014 Michael Hayes, UCECE
 """
 
-# SCApy  Symbolic Circuit Analysis in Python
-
-from lcapy import V, I, R, L, C, G, Vac, Iac, Is, Vs, pprint, cExpr
+from __future__ import division
+from warnings import warn
+from lcapy.core import  pprint, cExpr
+from lcapy.oneport import V, I, R, L, C, G, Vac, Iac, Is, Vs
 import sympy as sym
 
-# Implement modified nodal analysis (MNA)
+
+__all__ = ('Circuit', )
+
 
 def _node(name):
             
