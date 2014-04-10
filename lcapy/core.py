@@ -48,7 +48,7 @@ def _guess_var(expr, var):
         if P.gens != ():
             return expr, P.gens[0]
     except:
-        raise Error('Cannot determine polynomial variable')
+        raise ValueError('Cannot determine polynomial variable')
 
 
 def pprint(expr):
@@ -344,11 +344,21 @@ def _inverse_laplace(expr, var, t):
         # Number of occurrences of the pole.
         N = P[p]
 
+        if N == 0:
+            continue
+
         f = var - p
 
         if N == 1:
             r = residue(expr, var, p, P)
-            result2 += r * sym.exp(p * td)
+
+            pc = p.conjugate()
+            if P.has_key(pc):
+                # Remove conjugate from poles.
+                P[pc] = 0
+                result2 += 2 * sym.re(r) * sym.exp(sym.re(p) * td) * sym.cos(sym.im(p) * td) + 2 * sym.im(r) * sym.exp(sym.re(p) * td) * sym.sin(sym.im(p) * td)
+            else:
+                result2 += r * sym.exp(p * td)
             continue
 
         # Handle repeated poles.
