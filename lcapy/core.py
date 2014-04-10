@@ -20,7 +20,7 @@ from sympy.utilities.lambdify import lambdify
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf', 
            'zp2tf', 'poles', 'zeros', 'residue', 'residues', 'partfrac',
            'general', 'canonical', 'ZPK', 'inverse_laplace', 'initial_value',
-           'final_value', 's')
+           'transient_response', 'response', 'final_value', 's')
 
 s = sym.symbols('s')
 
@@ -317,7 +317,7 @@ def ZPK(expr, var=None):
     return _zp2tf(zeros, poles, K, var)
 
 
-def _inverse_laplace(expr, var, t):
+def _inverse_laplace(expr, t, var):
 
     ratfun, delay = _as_ratfun_delay(expr, var)
 
@@ -371,7 +371,7 @@ def _inverse_laplace(expr, var, t):
     return result1 + result2 * sym.Heaviside(td)
 
 
-def inverse_laplace(expr, s=None, t=None):
+def inverse_laplace(expr, t=None, s=None):
     """Determine inverse Laplace transform of expression"""
 
     expr, s = _guess_var(expr, s)
@@ -379,7 +379,7 @@ def inverse_laplace(expr, s=None, t=None):
         t = sym.symbols('t')
 
     try:
-        result = _inverse_laplace(expr, s, t)
+        result = _inverse_laplace(expr, t, s)
     except:
         
         # Try splitting into partial fractions to help sympy.
@@ -387,9 +387,76 @@ def inverse_laplace(expr, s=None, t=None):
 
         # This barfs when needing to generate Dirac deltas
         from sympy.integrals.transforms import inverse_laplace_transform
-        result = inverse_laplace_transform(expr, s, t)
+        result = inverse_laplace_transform(expr, t, s)
 
     return result
+
+
+def transient_response(expr, t=None, s=None):
+    """Determine transient (impulse) response"""        
+
+    if isinstance(t, sym.Expr):
+        return inverse_laplace(expr, t, s)
+
+    tv = sym.symbols('t')
+
+    texpr = inverse_laplace(expr, tv, s)
+
+    print('Evaluating inverse Laplace transform...')
+        
+    func = lambdify(tv, texpr, ("numpy", "sympy", "math"))
+        
+    try:
+        # FIXME for scalar t
+        response = np.array([complex(func(t1)) for t1 in t])
+        # The following does not work if all the sympy functions are not
+        # converted to numpy functions.
+        # response = func(t)
+            
+    except NameError:
+        raise RuntimeError('Cannot compute inverse Laplace transform')
+
+    except AttributeError:
+        raise RuntimeError('Cannot compute inverse Laplace transform, probably have undefined symbols')
+        
+    # The result should be real so quietly remove any imaginary component.
+    return response.real
+
+
+def response(expr, x, t=None, s=None):
+    """Determine response to excitation x"""        
+
+    expr, s = _guess_var(expr, s)
+
+    ratfun, delay = _as_ratfun_delay(expr, s)
+    N, D = _as_ratfun_parts(ratfun, s)
+    Q, M = N.div(D)
+    expr = M / D
+
+    h = transient_response(expr, t, s)
+    y = np.convolve(x, h)
+
+    if Q:
+        # Handle Dirac Deltas and derivatives.
+        C = Q.all_coeffs()
+        dt = np.diff(t)
+        for n, c in enumerate(C):
+            
+            y += c * x
+
+            x = np.diff(x) / dt
+            x = np.hstack((x, 0))
+
+    if delay != 0.0:
+        td = t - delay
+
+        import scipy.interpolate.interp1d as interp1d
+
+        # Try linear interpolation; should oversample first...
+        f = interp1d(t, y, bounds_error=False, fill_value=0)
+        y = y(td)
+
+    return y
 
 
 def initial_value(expr, var=None):
@@ -707,43 +774,19 @@ class sExpr(object):
         """Attempt inverse Laplace transform"""
         
         print('Determining inverse Laplace transform...')
-        return inverse_laplace(self.expr, self.s, self.t)
+        return inverse_laplace(self.expr, self.t, self.s)
 
 
     def transient_response(self, t=None):
         """Evaluate transient (impulse) response"""
-        
-        expr = self.inverse_laplace()
-        if t == None:
-            return expr
 
-        print('Evaluating inverse Laplace transform...')
-        
-        func = lambdify(self.t, expr, ("numpy", "sympy", "math"))
-        
-        try:
-            # FIXME for scalar t
-            response = np.array([complex(func(t1)) for t1 in t])
-            # The following does not work if all the sympy functions are not
-            # converted to numpy functions.
-            # response = func(t)
-            
-        except NameError:
-            raise RuntimeError('Cannot compute inverse Laplace transform')
-
-        except AttributeError:
-            raise RuntimeError('Cannot compute inverse Laplace transform, probably have undefined symbols')
-        
-        # The result should be real so quietly remove any imaginary
-        # component.
-        return response.real
+        return transient_response(self.expr, self.t, self.s)
     
     
     def impulse_response(self, t=None):
         """Evaluate transient (impulse) response"""
         
         return self.transient_response(t)
-
 
 
     def step_response(self, t=None):
@@ -766,15 +809,8 @@ class sExpr(object):
 
     def response(self, x, t):
         """Evaluate response to input signal x"""
-        
-        h = self.transient_response(t)
-        
-        # TODO: handle impulse response with derivatives of Dirac
-        # deltas.
 
-        y = np.convolve(x, h)
-
-        return y
+        return response(self.expr, x, t, self.s)
 
 
     def decompose(self):

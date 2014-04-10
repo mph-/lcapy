@@ -1,5 +1,4 @@
 from lcapy import *
-from lcapy import Par
 
 a = C(1)
 
