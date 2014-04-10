@@ -389,11 +389,6 @@ def inverse_laplace(expr, s=None, t=None):
         from sympy.integrals.transforms import inverse_laplace_transform
         result = inverse_laplace_transform(expr, s, t)
 
-    # If have complex poles they will be in conjugate pairs
-    # so probably should convert to sin/cos.  If we simplify the result
-    # we will get exp(+a t) terms factored out.  These will blow up
-    # when evaluated numerically.
-
     return result
 
 
