@@ -379,7 +379,12 @@ def inverse_laplace(expr, s=None, t=None):
         from sympy.integrals.transforms import inverse_laplace_transform
         result = inverse_laplace_transform(expr, s, t)
 
-    return result.simplify()
+    # If have complex poles they will be in conjugate pairs
+    # so probably should convert to sin/cos.  If we simplify the result
+    # we will get exp(+a t) terms factored out.  These will blow up
+    # when evaluated numerically.
+
+    return result
 
 
 def initial_value(expr, var=None):
@@ -735,6 +740,7 @@ class sExpr(object):
         return self.transient_response(t)
 
 
+
     def step_response(self, t=None):
         """Evaluate step response"""
         
@@ -751,6 +757,19 @@ class sExpr(object):
         
         func = lambdify(self.f, expr, modules="numpy")
         return np.array([func(f1) for f1 in f])
+
+
+    def response(self, x, t):
+        """Evaluate response to input signal x"""
+        
+        h = self.transient_response(t)
+        
+        # TODO: handle impulse response with derivatives of Dirac
+        # deltas.
+
+        y = np.convolve(x, h)
+
+        return y
 
 
     def decompose(self):
