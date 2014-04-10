@@ -986,4 +986,5 @@ class NetObject(object):
         return self
 
 
-from lcapy.oneport import L, C
+from lcapy.oneport import L, C, R, G, I, V
+

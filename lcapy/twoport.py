@@ -5,7 +5,7 @@ This module supports simple linear two-port networks.
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, Avs, Ais
+from lcapy.core import Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, Avs, Ais, WyeDelta, DeltaWye
 from lcapy.oneport import OnePort, Norton, Thevenin
 
 
@@ -1271,6 +1271,38 @@ class TwoPort(NetObject):
         return Zs(1 / self.Y2sc)
 
 
+    def Vgain(self, inport=1, outport=2):
+        """Return voltage gain for specified ports with internal
+        sources zero"""
+
+        # Av  = G21 = 1 / A11 = -det(B) / B22 = Z21 / Z11 =  Y21 / Y22
+        # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12 / Y11
+
+        if inport == outport:
+            return Avs(1)
+        if inport == 1 and outport == 2:
+            return Avs(1 / self.A11)
+        if inport == 2 and outport == 1:
+            return Avs(1 / self.B11)
+        raise ValueError('bad port values')
+
+
+    def Igain(self, inport=1, outport=2):
+        """Return current gain for specified ports with internal
+         sources zero"""
+
+        # Ai  = H21 = -1 / A22 = -det(B) / B11 = -Z21 / Z22 = Y21 / Y11
+        # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12 / Y22
+
+        if inport == outport:
+            return Ais(1)
+        if inport == 1 and outport == 2:
+            return Ais(-1 / self.A22)
+        if inport == 2 and outport == 1:
+            return Ais(-1 / self.B22)
+        raise ValueError('bad port values')
+
+
     @property
     def Vgain12(self):
         """Return V2 / V1 for I2 = 0 (forward voltage gain) with
@@ -1729,38 +1761,6 @@ class TwoPortBModel(TwoPort):
     @property
     def V2z(self):    
         return self.V2b - Vs(self.I2b * self.B11 / self.B21)
-
-
-    def Vgain(self, inport=1, outport=2):
-        """Return voltage gain for specified ports with internal
-        sources zero"""
-
-        # Av  = G21 = 1 / A11 = -det(B) / B22 = Z21 / Z11 =  Y21 / Y22
-        # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12 / Y11
-
-        if inport == outport:
-            return Avs(1)
-        if inport == 1 and outport == 2:
-            return Avs(1 / self.A11)
-        if inport == 2 and outport == 1:
-            return Avs(1 / self.B11)
-        raise ValueError('bad port values')
-
-
-    def Igain(self, inport=1, outport=2):
-        """Return current gain for specified ports with internal
-         sources zero"""
-
-        # Ai  = H21 = -1 / A22 = -det(B) / B11 = -Z21 / Z22 = Y21 / Y11
-        # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12 / Y22
-
-        if inport == outport:
-            return Ais(1)
-        if inport == 1 and outport == 2:
-            return Ais(-1 / self.A22)
-        if inport == 2 and outport == 1:
-            return Ais(-1 / self.B22)
-        raise ValueError('bad port values')
 
 
 class TwoPortGModel(TwoPort):

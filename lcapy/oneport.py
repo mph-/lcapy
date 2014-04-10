@@ -32,7 +32,7 @@ import sympy as sym
 from lcapy.core import Vs, Is, Zs, Ys, NetObject, cExpr
 
 
-__all__ = ('V', 'I', 'R', 'L', 'C', 'G', 'Vac', 'Iac', 'Norton', 'Thevenin', 'Load', 'Xtal', 'FerriteBead')
+__all__ = ('V', 'I', 'R', 'L', 'C', 'G', 'Vac', 'Iac', 'Norton', 'Thevenin', 'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
 
 
 def _check_oneport_args(args):
