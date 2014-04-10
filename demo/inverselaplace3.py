@@ -1,5 +1,5 @@
 from lcapy import *
-from sympy import symbols
+import sympy as sym
 
 s, T = sym.symbols('s T')
 

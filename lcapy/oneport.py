@@ -32,7 +32,7 @@ import sympy as sym
 from lcapy.core import Vs, Is, Zs, Ys, NetObject, cExpr
 
 
-__all__ = ('V', 'I', 'R', 'L', 'C', 'G', 'Vac', 'Iac', 'Norton', 'Thevenin')
+__all__ = ('V', 'I', 'R', 'L', 'C', 'G', 'Vac', 'Iac', 'Norton', 'Thevenin', 'Load', 'Xtal', 'FerriteBead')
 
 
 def _check_oneport_args(args):
@@ -491,6 +491,14 @@ class Norton(OnePort):
         return Vs(self.I / self.Y)
 
 
+    def thevenin(self):
+        """Simplify to a Thevenin network"""
+
+        if self.Y == 0:
+            print('Dodgy Norton to Thevenin transformation since Y = 0')
+        return Thevenin(self.Z, self.V)
+
+
     def series(self, OP):
 
         return self.thevenin().series(OP).norton()
@@ -571,6 +579,14 @@ class Thevenin(OnePort):
     @property
     def I(self):    
         return Is(self.V / self.Z)
+
+
+    def norton(self):
+        """Simplify to a Norton network"""
+
+        if self.Z == 0:
+            print('Dodgy Thevenin to Norton transformation since Z = 0')
+        return Norton(self.Y, self.I)
 
 
     def series(self, OP):
