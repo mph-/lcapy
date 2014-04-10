@@ -216,11 +216,11 @@ class Netlist(object):
         self._node_add(elt.nodes[1], elt)
         
 
-    def net_add(self, line):
+    def net_add(self, line, *args):
 
         parts = line.split(' ')
         
-        elt = NetElement(*parts)
+        elt = NetElement(*(tuple(parts) + args))
 
         self._elt_add(elt)
 
