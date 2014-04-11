@@ -20,7 +20,7 @@ from sympy.utilities.lambdify import lambdify
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf', 
            'zp2tf', 'poles', 'zeros', 'residue', 'residues', 'partfrac',
            'general', 'canonical', 'ZPK', 'inverse_laplace', 'initial_value',
-           'transient_response', 'response', 'final_value', 's')
+           'transient_response', 'response', 'final_value', 's', 'sExpr')
 
 s = sym.symbols('s')
 
@@ -401,6 +401,8 @@ def transient_response(expr, t=None, s=None):
     tv = sym.symbols('t')
 
     texpr = inverse_laplace(expr, tv, s)
+    if t == None:
+        return texpr
 
     print('Evaluating inverse Laplace transform...')
         
@@ -414,10 +416,10 @@ def transient_response(expr, t=None, s=None):
         # response = func(t)
             
     except NameError:
-        raise RuntimeError('Cannot compute inverse Laplace transform')
+        raise RuntimeError('Cannot evaluate inverse Laplace transform')
 
     except AttributeError:
-        raise RuntimeError('Cannot compute inverse Laplace transform, probably have undefined symbols')
+        raise RuntimeError('Cannot evaluate inverse Laplace transform, probably have undefined symbols, such as Dirac delta')
         
     # The result should be real so quietly remove any imaginary component.
     return response.real
@@ -780,7 +782,7 @@ class sExpr(object):
     def transient_response(self, t=None):
         """Evaluate transient (impulse) response"""
 
-        return transient_response(self.expr, self.t, self.s)
+        return transient_response(self.expr, t, self.s)
     
     
     def impulse_response(self, t=None):

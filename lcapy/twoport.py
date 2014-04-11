@@ -5,7 +5,7 @@ This module supports simple linear two-port networks.
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, Avs, Ais, WyeDelta, DeltaWye
+from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, Avs, Ais, WyeDelta, DeltaWye
 from lcapy.oneport import OnePort, Norton, Thevenin
 
 

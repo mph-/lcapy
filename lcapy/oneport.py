@@ -29,7 +29,7 @@ Copyright 2014 Michael Hayes, UCECE
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import Vs, Is, Zs, Ys, NetObject, cExpr
+from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr
 
 
 __all__ = ('V', 'I', 'R', 'L', 'C', 'G', 'Vac', 'Iac', 'Norton', 'Thevenin', 'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
