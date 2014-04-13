@@ -69,13 +69,24 @@ class VCVS(CS):
         self.V = 0
 
 
+class TF(CS):
+    """Ideal transformer.  T is turns ratio (secondary / primary)"""
+
+    def __init__(self, node1, node2, T):
+    
+        T = cExpr(T)
+        super (TF, self).__init__(node1, node2, T)
+        # No independent component.
+        self.V = 0
+
+
 class Element(object):
 
 
     def __init__(self, cpt, node1, node2, name):
 
-        if not isinstance(cpt, (R, G, L, C, V, I, Vac, Iac, VCVS)):
-            raise ValueError('Adding component %s that is not R, G, L, C, V, I, VCVS' % cpt)
+        if not isinstance(cpt, (R, G, L, C, V, I, Vac, Iac, VCVS, TF)):
+            raise ValueError('Adding component %s that is not R, G, L, C, V, I, VCVS, TF' % cpt)
 
 
         self.cpt = cpt
@@ -97,7 +108,7 @@ class Element(object):
     @property
     def is_V(self):
         
-        return isinstance(self.cpt, (V, Vac, VCVS))
+        return isinstance(self.cpt, (V, Vac, VCVS, TF))
 
 
     @property
@@ -125,6 +136,8 @@ class NetElement(Element):
         # Handle Vac, Iac
         if len(name) > 3 and name[1:3] == 'ac':
             kind = name[0:3]
+        elif len(name) > 2 and name[0:2] == 'TF':
+            kind = name[0:2]
 
         # An ammeter looks like a piece of wire so make a zero volt voltage source
         # so we can find the current through it.
@@ -133,7 +146,7 @@ class NetElement(Element):
             args = (0, )
         
         # Allowable one-ports; this could be extended to Y, Z, etc.
-        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'I' : I, 'Vac' : Vac, 'Iac' : Iac, 'E' : VCVS}
+        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'I' : I, 'Vac' : Vac, 'Iac' : Iac, 'E' : VCVS, 'TF' : TF}
         try:
             foo = OPS[kind]
 
@@ -157,6 +170,7 @@ class Netlist(object):
 
         self.elements = {}
         self.nodes = {}
+        self.num_nodes = 0
         self.voltage_sources = []
         self.current_sources = []
         self.RLC = []
@@ -270,34 +284,56 @@ class Netlist(object):
 
     def B_matrix(self):
 
+        B = sym.zeros(self.num_nodes, len(self.voltage_sources))
+
+        for m, elt in enumerate(self.voltage_sources):
+
+            n1 = self.nodeindex(elt.nodes[0])
+            n2 = self.nodeindex(elt.nodes[1])
+
+            if n1 >= 0:
+                B[n1, m] = 1
+            if n2 >= 0:
+                B[n2, m] = -1
+
+            if isinstance(elt.cpt, TF):
+
+                n3 = self.nodeindex(elt.cpt.cnodes[0])
+                n4 = self.nodeindex(elt.cpt.cnodes[1])
+                T = elt.cpt.arg
+                
+                if n3 >= 0:
+                    B[n3, m] = -T
+                if n4 >= 0:
+                    B[n4, m] = T
+
+        return B
+
+
+    def C_matrix(self):
+
         C = sym.zeros(len(self.voltage_sources), self.num_nodes)
 
         for m, elt in enumerate(self.voltage_sources):
+
             n1 = self.nodeindex(elt.nodes[0])
             n2 = self.nodeindex(elt.nodes[1])
+
             if n1 >= 0:
                 C[m, n1] = 1
             if n2 >= 0:
                 C[m, n2] = -1
 
-        return C.T
+            if isinstance(elt.cpt, (TF, VCVS)):
 
-
-    def C_matrix(self):
-
-        C = self.B_matrix().T
-
-        for m, elt in enumerate(self.voltage_sources):
-            if not isinstance(elt.cpt, VCVS):
-                continue
-            n1 = self.nodeindex(elt.cpt.cnodes[0])
-            n2 = self.nodeindex(elt.cpt.cnodes[1])
-            A = elt.cpt.arg
-            
-            if n1 >= 0:
-                C[m, n1] -= A
-            if n2 >= 0:
-                C[m, n2] += A
+                n3 = self.nodeindex(elt.cpt.cnodes[0])
+                n4 = self.nodeindex(elt.cpt.cnodes[1])
+                A = elt.cpt.arg
+                
+                if n3 >= 0:
+                    C[m, n3] = -A
+                if n4 >= 0:
+                    C[m, n4] = A
 
         return C
 
@@ -306,7 +342,6 @@ class Netlist(object):
 
         D = sym.zeros(len(self.voltage_sources), len(self.voltage_sources))
 
-        # Add dependent voltage sources here (VCVS and CCVS)
         return D
 
 
@@ -365,7 +400,8 @@ class Netlist(object):
             raise ValueError('Invalid analysis mode %s, must be AC, DC, transient' % mode)
 
         if not self.nodes.has_key(0):
-            raise ValueError('Nothing connected to ground node 0')
+            print('Nothing connected to ground node 0')
+            self.nodes[0] = None
 
         self.nodemap = [0]
         self.revnodemap = {0 : 0}
@@ -435,7 +471,7 @@ class Netlist(object):
 
 class Circuit(Netlist):
 
-    def __init__(self, circuitname):
+    def __init__(self, circuitname=''):
 
         self.circuitname = circuitname
         super (Circuit, self).__init__()
