@@ -2,16 +2,16 @@ Lcapy is an experimental Python module for teaching linear circuit
 analysis.  It uses SymPy for symbolic mathematics.
 
 Lcapy can analyse circuits described with netlists using modified
-nodal analysis.  See lcapy.netlist
+nodal analysis.
 
 Alternatively, Lcapy can analyse networks and circuits formed by
-combining one, two, and three port networks.
+combining one, two, and (some) three port networks.
 
 
 Circuit analysis
 ----------------
 
-The circuit is described using netlists, similar to SPICE, but with
+The circuit is described using netlists, similar to SPICE, with
 arbitrary node names (except for the ground node which is labelled 0).
 The netlists can be loaded from a file or created at run-time.  For
 example:
@@ -101,8 +101,8 @@ Limitations
 3. Some two-ports generate singular matrices.
 
 
-Documention
------------
+Documentation
+-------------
 
 For additional documentation, see the Lcapy tutorial.
 
