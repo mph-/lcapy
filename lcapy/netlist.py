@@ -27,6 +27,10 @@ specified as strings:
 Copyright 2014 Michael Hayes, UCECE
 """
 
+# TODO: Add option to defer evaluation and thus keep things symbolic.
+# This will help to simplify results that are not cancelled due to
+# numerical quantisation.
+
 from __future__ import division
 from warnings import warn
 from lcapy.core import  pprint, cExpr
