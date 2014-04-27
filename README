@@ -1,4 +1,4 @@
-Lcapy is an experimental Python module for teaching linear circuit
+Lcapy is an experimental Python package for teaching linear circuit
 analysis.  It uses SymPy for symbolic mathematics.
 
 Lcapy can analyse circuits described with netlists using modified

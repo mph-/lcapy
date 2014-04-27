@@ -6,8 +6,8 @@ Tutorial
 Introduction
 ============
 
-lcapy is a set of circuit analysis classes for Python.  It will
-only solve linear, time invariant networks.  In other words, networks
+lcapy is a Python package for linear circuit analysis.  It will only
+solve linear, time invariant networks.  In other words, networks
 comprised of basic circuit elements (R, L, C, etc.) that do not vary
 with time.
 
@@ -26,13 +26,11 @@ transform for transient response analysis.
 Preliminaries
 =============
 
-- You will need to install lcapy.  Currently, this a single Python
-  file so you just need to copy it to your working directory or set
-  your `PYTHON_PATH` environment variable to find its directory.
-
 - You will also need to install SymPy, see http://docs.sympy.org/latest/install.html.
 
 - For plotting you will need to install matplotlib.
+
+- Lcapy can be installed using sudo python setup.py install
 
 - Then fire up your favourite python interpreter, for example, ipython:
 
