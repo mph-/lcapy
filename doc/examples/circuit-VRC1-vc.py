@@ -1,5 +1,5 @@
 from lcapy import *
-from numpy import logspace
+import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 
 t = np.linspace(0, 0.01, 1000)
