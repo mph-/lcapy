@@ -16,13 +16,15 @@ example:
 >>> pprint(cct.V)
 >>> pprint(cct.I)
 
-cct.V is a directory of the nodal voltages.  cct.I is a directory of
-the currents through independent voltage sources.  The directory keys
-are the node names.  If the nodes are not integers, they need to
-specified as strings:
+cct.V is a directory of the nodal voltages keyed by the node names.
+If the nodes are not integers, they need to specified as strings.
+cct.I is a directory of the currents through the components keyed by
+the component names.  For example,
 
 >>> pprint(cct.V['fred'])
 >>> pprint(cct.V[1])
+>>> pprint(cct.I['R1'])
+
 
 Copyright 2014 Michael Hayes, UCECE
 """
@@ -427,9 +429,11 @@ class Netlist(object):
                 self.current_sources.append(elt)
             elif elt.is_RLC: 
                 if elt.cpt.V != 0.0:
-                    print('Ignoring initial voltage on %s' % elt.name)
-                    # Could use Norton model and split element into
-                    # admittance in parallel with current source.
+                    # Use Norton model and split element into
+                    # admittance in parallel with current source.  The
+                    # element will appear on both current_source and
+                    # RLC lists.
+                    self.current_sources.append(elt)
                 self.RLC.append(elt)
             else:
                 raise ValueError('Unhandled element %s' % elt.name)
@@ -474,8 +478,10 @@ class Netlist(object):
         for m, elt in enumerate(self.current_sources):
             self.I[elt.name] = elt.cpt.I
 
+        # Don't worry about currents due to initial conditions; these
+        # are overwritten below.
         for m, elt in enumerate(self.RLC):
-            self.I[elt.name] = Is((self.V[elt.nodes[0]] - self.V[elt.nodes[1]]) / elt.cpt.Z)
+            self.I[elt.name] = Is(sym.simplify((self.V[elt.nodes[0]] - self.V[elt.nodes[1]] + elt.cpt.V) / elt.cpt.Z))
 
         return self.V, self.I
 
