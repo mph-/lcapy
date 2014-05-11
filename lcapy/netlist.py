@@ -462,13 +462,20 @@ class Netlist(object):
 
         # Create dictionary of node voltages
         self.V = {}
+        self.V[0] = Vs(0)
         for n, node in enumerate(self.nodemap[1:]):        
             self.V[node] = Vs(results[n])
 
-        # Create dictionary of currents through voltage sources
+        # Create dictionary of currents through elements
         self.I = {}
         for m, elt in enumerate(self.voltage_sources):
             self.I[elt.name] = Is(results[m + self.num_nodes])
+
+        for m, elt in enumerate(self.current_sources):
+            self.I[elt.name] = elt.cpt.I
+
+        for m, elt in enumerate(self.RLC):
+            self.I[elt.name] = Is((self.V[elt.nodes[0]] - self.V[elt.nodes[1]]) / elt.cpt.Z)
 
         return self.V, self.I
 
