@@ -23,7 +23,7 @@ print(f)
 print(f.simplify())
 
 
-a = V(1)
+a = Vdc(1)
 
 b = L(3)
 

@@ -15,6 +15,7 @@ from warnings import warn
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
+# Note imports at bottom to avoid circuit dependencies
 
 
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf', 
@@ -950,7 +951,7 @@ class Vs(sExpr):
         v = self * self.s
 
         if v.is_number:
-            return V(v.expr)
+            return Vdc(v.expr)
 
         # Need a combination of components.
         return self
@@ -964,7 +965,7 @@ class Is(sExpr):
         i = self * self.s
 
         if i.is_number:
-            return I(i.expr)
+            return Idc(i.expr)
 
         # Need a combination of components.
         return self
@@ -1029,5 +1030,6 @@ class NetObject(object):
         return self
 
 
-from lcapy.oneport import L, C, R, G, I, V
+from lcapy.oneport import L, C, R, G, I, V, Idc, Vdc
+
 

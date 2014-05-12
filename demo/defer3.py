@@ -14,7 +14,7 @@ print(e)
 print(e.simplify())
 
 
-a = V(1)
+a = Vdc(1)
 b = C(2)
 c = C(3)
 d = C(4)
@@ -27,7 +27,7 @@ print(e.simplify())
 
 
 
-a = V(1)
+a = Vdc(1)
 b = C(2)
 c = C(3)
 d = C(4)
@@ -40,7 +40,7 @@ print(e.simplify())
 
 
 
-a = V(1)
+a = Vdc(1)
 b = C(2)
 c = C(3)
 d = C(4)

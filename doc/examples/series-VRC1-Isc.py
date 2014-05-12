@@ -2,7 +2,7 @@ from lcapy import *
 from numpy import logspace
 from matplotlib.pyplot import figure, savefig, show
 
-N = V(10) + R(10) + C(1e-4)
+N = Vdc(10) + R(10) + C(1e-4)
 
 f = logspace(0, 5, 400)
 Isc = N.Isc.frequency_response(f)

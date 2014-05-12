@@ -71,14 +71,14 @@ class LcapysTester(unittest.TestCase):
 
 
     def test_V_series_V(self):
-        """Lcapys: check V + V
+        """Lcapys: check Vdc + Vdc
 
         """
-        a = V(10) + V(5)
+        a = Vdc(10) + Vdc(5)
         b = a.simplify()
         self.assertEqual(b.v, 15, "V incorrect.")
         self.assertEqual(b.V, 15 / s, "V incorrect.")
-        self.assertEqual(type(b), V, "type incorrect.")
+        self.assertEqual(type(b), Vdc, "type incorrect.")
 
 
     def test_R_series_L(self):
@@ -126,18 +126,18 @@ class LcapysTester(unittest.TestCase):
         """Lcapys: check I | I
 
         """
-        a = I(10) | I(5)
+        a = Idc(10) | Idc(5)
         b = a.simplify()
         self.assertEqual(b.i, 15, "I incorrect.")
         self.assertEqual(b.I, 15 / s, "I incorrect.")
-        self.assertEqual(type(b), I, "type incorrect.")
+        self.assertEqual(type(b), Idc, "type incorrect.")
 
 
     def test_Shunt(self):
         """Lcapys: check Shunt
 
         """
-        a = Shunt(R(10) + V(5))
+        a = Shunt(R(10) + Vdc(5))
         self.assertEqual(a.Z1oc, 10, "Z1oc incorrect.")
         self.assertEqual(a.Z2oc, 10, "Z2oc incorrect.")
         self.assertEqual(a.V2oc, 5 / s, "V2oc incorrect.")
@@ -166,7 +166,7 @@ class LcapysTester(unittest.TestCase):
         """Lcapys: check Series
 
         """
-        a = Series(R(10) + V(5))
+        a = Series(R(10) + Vdc(5))
         self.assertEqual(a.Y1sc, 0.1, "Y1sc incorrect.")
         self.assertEqual(a.Y2sc, 0.1, "Y2sc incorrect.")
         self.assertEqual(a.I1sc, 0.5 / s, "I1sc incorrect.")
@@ -190,23 +190,23 @@ class LcapysTester(unittest.TestCase):
         self.assertEqual(a.Vgain(2, 1), 1, "Vgain 2->1 incorrect.")
         self.assertEqual(a.Igain(1, 2), -1, "Igain 1->2 incorrect.")
         self.assertEqual(a.Igain(2, 1), -0.75, "Igain 2->1 incorrect.")
-        self.assertEqual(a.Vresponse(V(1), 1, 2), 0.75 / s, "Vresponse 1->2 incorrect.")
-        self.assertEqual(a.Vresponse(V(1), 2, 1), 1 / s, "Vresponse 2->1 incorrect.")
-        self.assertEqual(a.Iresponse(I(1), 1, 2), -1 / s, "Iresponse 1->2 incorrect.")
-        self.assertEqual(a.Iresponse(I(1), 2, 1), -0.75 / s, "Iresponse 2->1 incorrect.")
+        self.assertEqual(a.Vresponse(Vdc(1), 1, 2), 0.75 / s, "Vresponse 1->2 incorrect.")
+        self.assertEqual(a.Vresponse(Vdc(1), 2, 1), 1 / s, "Vresponse 2->1 incorrect.")
+        self.assertEqual(a.Iresponse(Idc(1), 1, 2), -1 / s, "Iresponse 1->2 incorrect.")
+        self.assertEqual(a.Iresponse(Idc(1), 2, 1), -0.75 / s, "Iresponse 2->1 incorrect.")
 
         b = a.load(R(30))
         self.assertEqual(type(b), Thevenin, "type incorrect.")
         self.assertEqual(b.Z, 25, "R loaded Z incorrect.")
         self.assertEqual(b.V, 0, "R loaded V incorrect.")
 
-        c = a.load(R(30) + V(5))
+        c = a.load(R(30) + Vdc(5))
         self.assertEqual(type(b), Thevenin, "type incorrect.")
         self.assertEqual(c.Z, 25, "T loaded Z incorrect.")
         self.assertEqual(c.V, 2.5 / s, "T loaded V incorrect.")
 
 
-        d = LSection(R(10), R(30) + V(6))
+        d = LSection(R(10), R(30) + Vdc(6))
         self.assertEqual(d.Vgain12, 0.75, "Vgain12 incorrect.")
         self.assertEqual(d.Igain12, -1, "Igain12 incorrect.")
         self.assertEqual(d.Z1oc, 40, "Z1oc incorrect.")
@@ -229,7 +229,7 @@ class LcapysTester(unittest.TestCase):
 
         """
 
-        a = Shunt(R(10) + V(5))
+        a = Shunt(R(10) + Vdc(5))
         b = a.chain(Shunt(R(30)))
         self.assertEqual(b.Z1oc, 7.5, "Z1oc incorrect.")
         self.assertEqual(b.Z2oc, 7.5, "Z2oc incorrect.")
@@ -242,7 +242,7 @@ class LcapysTester(unittest.TestCase):
 
         """
 
-        a = Series(R(10) + V(5))
+        a = Series(R(10) + Vdc(5))
         b = a.chain(Series(R(30)))
         self.assertEqual(b.Y1sc, 0.025, "Y1sc incorrect.")
         self.assertEqual(b.Y2sc, 0.025, "Y2sc incorrect.")
@@ -258,7 +258,7 @@ class LcapysTester(unittest.TestCase):
 
         """
 
-        a = Shunt(R(10) + V(5))
+        a = Shunt(R(10) + Vdc(5))
         b = a.load(R(30))
 
         self.assertEqual(type(b), Thevenin, "type incorrect.")
@@ -270,7 +270,7 @@ class LcapysTester(unittest.TestCase):
 
         """
 
-        a = Shunt(R(10) + V(5))
+        a = Shunt(R(10) + Vdc(5))
         b = a.open_circuit()
 
         self.assertEqual(type(b), Thevenin, "type incorrect.")
@@ -283,7 +283,7 @@ class LcapysTester(unittest.TestCase):
 
         """
 
-        a = Series(R(10) + V(5))
+        a = Series(R(10) + Vdc(5))
         b = a.short_circuit()
 
         self.assertEqual(type(b), Norton, "type incorrect.")
@@ -295,7 +295,7 @@ class LcapysTester(unittest.TestCase):
         """Lcapys: check LSection models
 
         """
-        a = LSection(R(10) + V(5), R(20))
+        a = LSection(R(10) + Vdc(5), R(20))
 
         self.assertEqual(a.B.B11, 1, "incorrect B11.")
         self.assertEqual(a.B.B12, -10, "incorrect B12.")

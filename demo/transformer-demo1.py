@@ -1,4 +1,4 @@
-from lcapy import IdealTransformer
+from lcapy import IdcdealTransformer
 
 a = IdealTransformer(10)
 

@@ -23,7 +23,7 @@ print(f)
 print(f.simplify())
 
 
-a = V(1)
+a = Vdc(1)
 
 b = L(3)
 
@@ -34,9 +34,9 @@ print(c)
 print(c.simplify())
 
 
-a = V(1)
+a = Vdc(1)
 
-b = V(3)
+b = Vdc(3)
 
 c = Ser(a, b)
 

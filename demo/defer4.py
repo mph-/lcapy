@@ -1,8 +1,8 @@
 from lcapy import *
 
-a = V(1)
+a = Vdc(1)
 b = C(2)
-c = V(3)
+c = Vdc(3)
 d = C(4)
 
 e = Par(Ser(a, b), Ser(c, d))

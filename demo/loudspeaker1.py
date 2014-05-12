@@ -1,7 +1,7 @@
 # This is the same as loudspeaker1.py but using the topology consistent
 # mechanical model.
 
-from lcapy import V, R, L, C, IdealTransformer, Shunt, Series, TSection, IdealGyrator
+from lcapy import Vdc, R, L, C, IdealTransformer, Shunt, Series, TSection, IdealGyrator
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 

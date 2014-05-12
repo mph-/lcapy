@@ -1,9 +1,9 @@
-from lcapy import V, R, L, C
+from lcapy import Vdc, R, L, C
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 
-a1 = (V(5) + L(10))
-a2 = (V(5) + L(10)) | C(1, 5)
+a1 = (Vdc(5) + L(10))
+a2 = (Vdc(5) + L(10)) | C(1, 5)
 b1 = a1.load(R(5))
 b2 = a2.load(R(5))
 

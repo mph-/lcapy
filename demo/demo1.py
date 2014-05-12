@@ -1,8 +1,8 @@
-from lcapy import V, R, L, C
+from lcapy import Vdc, R, L, C
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 
-a = (V(5) + R(10)) | C(1)
+a = (Vdc(5) + R(10)) | C(1)
 
 t = np.linspace(0, 10, 1000)
 

@@ -1,4 +1,4 @@
-from lcapy import V, R, L, C
+from lcapy import Vdc, R, L, C
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 
@@ -13,7 +13,7 @@ Vbody = 5e3
 Cdev = 5e-12
 
 
-a1 = V(Vbody) + C(Cbody) + R(Rbody)
+a1 = Vdc(Vbody) + C(Cbody) + R(Rbody)
 b1 = a1.load(C(Cdev))
 
 t = np.linspace(0, 50e-9, 1000)

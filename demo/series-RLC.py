@@ -1,8 +1,8 @@
-from lcapy import V, R, L, C
+from lcapy import Vdc, R, L, C
 from matplotlib.pyplot import figure, savefig, show
 import numpy as np
 
-a = V(10) + R(0.1) + C(0.4) + L(0.2)
+a = Vdc(10) + R(0.1) + C(0.4) + L(0.2)
 
 a.Isc.pprint()
 

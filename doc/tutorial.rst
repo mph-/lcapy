@@ -228,7 +228,7 @@ vector of time values.
 
    >>> from lcapy import *
    >>> from numpy import logspace
-   >>> N = V(20) + R(5) + C(10)
+   >>> N = Vdc(20) + R(5) + C(10)
    >>> f = linspace(0, 4, 400)
    >>> Isc = N.Isc.frequency_response(f)
 
@@ -260,12 +260,14 @@ series R-L-C network:
 Simple transient analysis
 =========================
 
-Let's consider a series R-C network in series with a voltage source
+Let's consider a series R-C network in series with a DC voltage source
+(well, its not really a DC voltage source but a DC voltage multiplied
+by a unit step)
 
    >>> from lcapy import *
-   >>> N = V(20) + R(5) + C(10)
+   >>> N = Vdc(20) + R(5) + C(10)
    >>> pprint(N)
-   V(20) + R(5) + C(10)
+   Vdc(20) + R(5) + C(10)
    >>> Voc = N.Voc
    >>> pprint(Voc)
    20
@@ -292,9 +294,9 @@ exponential response multiplied by the ubiquitous unit step.
 Of course, this could have been done symbolically,
 
    >>> from lcapy import *
-   >>> N = V('V_1') + R('R_1') + C('C_1')
+   >>> N = Vdc('V_1') + R('R_1') + C('C_1')
    >>> pprint(N)
-   V(V₁) + R(R₁) + C(C₁)
+   Vdc(V₁) + R(R₁) + C(C₁)
    >>> Voc = N.Voc
    >>> pprint(Voc)
    V₁
@@ -318,7 +320,7 @@ vector of time values.
 
    >>> from lcapy import *
    >>> from numpy import linspace
-   >>> N = V(20) + R(5) + C(10)
+   >>> N = Vdc(20) + R(5) + C(10)
    >>> t = linspace(0, 100, 400)
    >>> isc = N.Isc.transient_response(t)
 
@@ -358,18 +360,18 @@ admittance).
 Here's an example of a Thevenin to Norton transformation:
 
    >>> from lcapy import *
-   >>> T = V(10) + R(5)
+   >>> T = Vdc(10) + R(5)
    >>> N = T.norton()
    >>> pprint(N)
-   G(1/5) | I(2)
+   G(1/5) | Idc(2)
 
 Similarly, here's an example of a Norton to Thevenin transformation:
 
    >>> from lcapy import *
-   >>> N = I(10) | R(5)
+   >>> N = Idc(10) | R(5)
    >>> T = N.thevenin()
    >>> pprint(T)
-   R(5) + V(50)
+   R(5) + Vdc(50)
 
 
 

@@ -1,4 +1,4 @@
-from lcapy import V, R, L, C, I, pprint
+from lcapy import Vdc, R, L, C, I, pprint
 
 L1 = L(10)
 L2 = L(20)
@@ -37,8 +37,8 @@ pprint(C4.norton().simplify())
 
 
 
-V1 = V(10)
-V2 = V(20)
+V1 = Vdc(10)
+V2 = Vdc(20)
 
 V3 = V1 + V2
 
@@ -49,8 +49,8 @@ pprint(V3.norton().simplify())
 pprint(V3.thevenin().simplify())
 
 
-I1 = I(10)
-I2 = I(20)
+I1 = Idc(10)
+I2 = Idc(20)
 
 I3 = I1 | I2
 

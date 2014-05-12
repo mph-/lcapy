@@ -36,7 +36,7 @@ Copyright 2014 Michael Hayes, UCECE
 from __future__ import division
 from warnings import warn
 from lcapy.core import  pprint, cExpr
-from lcapy.oneport import V, I, R, L, C, G, Vac, Iac, Is, Vs
+from lcapy.oneport import V, I, R, L, C, G, Vdc, Idc, Vac, Iac, Is, Vs
 import sympy as sym
 
 
@@ -114,13 +114,13 @@ class Element(object):
     @property
     def is_V(self):
         
-        return isinstance(self.cpt, (V, Vac, VCVS, TF))
+        return isinstance(self.cpt, (V, Vdc, Vac, VCVS, TF))
 
 
     @property
     def is_I(self):
         
-        return isinstance(self.cpt, (I, Iac))
+        return isinstance(self.cpt, (I, Idc, Iac))
 
 
     @property
@@ -152,7 +152,8 @@ class NetElement(Element):
             args = (0, )
         
         # Allowable one-ports; this could be extended to Y, Z, etc.
-        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'I' : I, 'Vac' : Vac, 'Iac' : Iac, 'E' : VCVS, 'TF' : TF}
+        # Note V and I map to Vdc and Idc.
+        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : Vdc, 'I' : Idc, 'Vac' : Vac, 'Iac' : Iac, 'E' : VCVS, 'TF' : TF}
         try:
             foo = OPS[kind]
 
@@ -449,8 +450,7 @@ class Netlist(object):
                     # that positive current flows from N1 to N2.
                     from lcapy import s
 
-                    # Hack: multiply current by s since I constructor assumes DC.
-                    newelt = Element(I(elt.cpt.I * s), elt.nodes[1], elt.nodes[0],
+                    newelt = Element(I(elt.cpt.I), elt.nodes[1], elt.nodes[0],
                                      elt.name)
                     self.current_sources.append(newelt)
             else:

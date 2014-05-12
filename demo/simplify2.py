@@ -10,9 +10,9 @@ print(c)
 print(c.simplify())
 
 
-d = Shunt(R(10) + V(10))
+d = Shunt(R(10) + Vdc(10))
 
-e = Shunt(R(5) + V(5))
+e = Shunt(R(5) + Vdc(5))
 
 f = d.chain(e)
 

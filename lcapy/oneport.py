@@ -32,7 +32,7 @@ import sympy as sym
 from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr
 
 
-__all__ = ('V', 'I', 'R', 'L', 'C', 'G', 'Vac', 'Iac', 'Norton', 'Thevenin', 'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
+__all__ = ('V', 'I', 'R', 'L', 'C', 'G', 'Vdc', 'Idc', 'Vac', 'Iac', 'Norton', 'Thevenin', 'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
 
 
 def _check_oneport_args(args):
@@ -216,8 +216,11 @@ class ParSer(OnePort):
         if self.__class__ == Ser:
             if isinstance(arg1, I):
                 return None
+            if isinstance(arg1, Vdc):
+                return Vdc(arg1.v + arg2.v)
+            # Could simplify Vac here if same frequency
             if isinstance(arg1, V):
-                return V(arg1.v + arg2.v)
+                return V(arg1 + arg2)
             if isinstance(arg1, R):
                 return R(arg1.R + arg2.R)
             if isinstance(arg1, L):
@@ -234,8 +237,11 @@ class ParSer(OnePort):
         elif self.__class__ == Par:
             if isinstance(arg1, V):
                 return None
+            if isinstance(arg1, Idc):
+                return Idc(arg1.i + arg2.i)
+            # Could simplify Iac here if same frequency
             if isinstance(arg1, I):
-                return I(arg1.i + arg2.i)
+                return I(arg1 + arg2)
             if isinstance(arg1, G):
                 return G(arg1.G + arg2.G)
             if isinstance(arg1, C):
@@ -525,11 +531,11 @@ class Norton(OnePort):
 
         i = self.I * self.I.s
         if self.Y == 0 and i.is_number:
-            return I(i.expr)
+            return Idc(i.expr)
 
         v = self.V * self.V.s
         if self.Z == 0 and v.is_number:
-            return V(v.expr)
+            return Vdc(v.expr)
 
         y = self.Y * self.Y.s
         z = self.Z * self.Z.s
@@ -715,11 +721,11 @@ class Thevenin(OnePort):
 
         v = self.V * self.V.s
         if self.Z == 0 and v.is_number:
-            return V(v.expr)
+            return Vdc(v.expr)
 
         i = self.I * self.I.s
         if self.Y == 0 and i.is_number:
-            return I(i.expr)
+            return Idc(i.expr)
 
         y = self.Y * self.Y.s
         z = self.Z * self.Z.s
@@ -817,30 +823,28 @@ class Z(Thevenin):
 
 
 class V(Thevenin):
-    """Voltage source (note a voltage source of voltage v has
+    """Arbitrary s-domain voltage source"""
+
+    def __init__(self, Vval):
+    
+        Vval = cExpr(Vval)
+        super (V, self).__init__(Zs(0), Vs(Vval))
+        self.args = (Vval, )    
+
+
+class Vdc(V):
+    """DC voltage source (note a DC voltage source of voltage v has
     an s domain voltage of v / s)."""
 
     def __init__(self, v):
     
         v = cExpr(v)
-        super (V, self).__init__(Zs(0), Vs(v).integrate())
+        super (Vdc, self).__init__(Vs(v).integrate())
         self.args = (v, )    
         self.v = v
 
 
-class I(Norton):
-    """Current source (note a current source of current i has
-    an s domain current of i / s)."""
-
-    def __init__(self, i):
-    
-        i = cExpr(i)
-        super (I, self).__init__(Ys(0), Is(i).integrate())
-        self.args = (i, )    
-        self.i = i
-
-
-class Vac(Thevenin):
+class Vac(V):
     """AC voltage source."""
 
     def __init__(self, V, f, phi=0.0):
@@ -852,8 +856,30 @@ class Vac(Thevenin):
         # Note, cos(-pi / 2) is not quite zero.
 
         omega = 2 * sym.pi * f
-        super (Vac, self).__init__(Zs(0), Vs((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
+        super (Vac, self).__init__(Vs((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
         self.args = (V, f, phi)    
+
+
+class I(Norton):
+    """Arbitrary s-domain current source"""
+
+    def __init__(self, Ival):
+    
+        Ival = cExpr(Ival)
+        super (I, self).__init__(Ys(0), Is(Ival))
+        self.args = (Ival, )    
+
+
+class Idc(I):
+    """DC current source (note a DC current source of current i has
+    an s domain current of i / s)."""
+
+    def __init__(self, i):
+    
+        i = cExpr(i)
+        super (Idc, self).__init__(Is(i).integrate())
+        self.args = (i, )    
+        self.i = i
 
 
 class Iac(Norton):
@@ -866,7 +892,7 @@ class Iac(Norton):
         phi = cExpr(phi)
         
         omega = 2 * sym.pi * f
-        super (Iac, self).__init__(Ys(0), Is((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
+        super (Iac, self).__init__(Is((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
         self.args = (I, f, phi)    
 
 

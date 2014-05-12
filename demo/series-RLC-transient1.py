@@ -1,6 +1,6 @@
 from lcapy import *
 from numpy import linspace
-N = V(20) + R(5) + C(10)
+N = Vdc(20) + R(5) + C(10)
 t = linspace(0, 100, 400)
 isc = N.Isc.transient_response(t)
 
