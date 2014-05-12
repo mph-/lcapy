@@ -2434,7 +2434,7 @@ class TSection(TwoPortBModel):
       The Z matrix for a resistive T section is
       [ R1 + R2, R2     ]
       [      R2, R2 + R3]
-      """
+    """
 
     def __init__(self, OP1, OP2, OP3):
 
@@ -2477,7 +2477,7 @@ class TwinTSection(TwoPortBModel):
                             |               
          -------------------+--------------------
 
-         """
+    """
     
     def __init__(self, OP1a, OP2a, OP3a, OP1b, OP2b, OP3b):
 
@@ -2531,7 +2531,7 @@ class PiSection(TwoPortBModel):
              |                  |
         -----+------------------+-----
 
-        """
+    """
 
     def __init__(self, OP1, OP2, OP3):
 
@@ -2561,7 +2561,7 @@ class LSection(TwoPortBModel):
                        +-+-+ 
                          |   
          ----------------+----
-         """
+    """
 
     def __init__(self, OP1, OP2):
 
@@ -2586,7 +2586,7 @@ class Ladder(TwoPortBModel):
                        +-+-+             
                          |               
          ----------------+-----------------
-         """
+    """
 
     def __init__(self, OP1, *args):
 

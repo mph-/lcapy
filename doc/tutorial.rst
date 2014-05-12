@@ -42,23 +42,31 @@ Simple circuit elements
 
 The basic circuit elements are two-terminal (one-port) devices:
 
-- V voltage source
+- Vdc DC voltage source
 
-- I current source
+- Idc DC current source
+
+- Vac AC voltage source
+
+- Iac AC current source
 
 - R resistance
+
+- G conductance
 
 - C capacitance
 
 - L inductance
 
-These are augmented by:
-
-- G conductance
+These are augmented by generic s-domain components:
 
 - Y admittance
 
 - Z impedance
+
+- V voltage source
+
+- I current source
 
 
 Here are some examples of their creation:
@@ -705,7 +713,7 @@ created dynamically, for example
    >>> cct.net_add('Ra 1 2 3e3') 
    >>> cct.net_add('Rb 2 0 1e3') 
 
-This creates a circuit comprised of a 10\,V voltage source connected
+This creates a circuit comprised of a 10\,V DC voltage source connected
 to two resistors in series.  The node named 0 denotes the ground which
 the other voltages are referenced to.
 
@@ -728,23 +736,9 @@ transient voltages can be determined using an inverse Laplace transform:
    10.0⋅Heaviside(t)
 
 
-Currents can be determined by connecting an ammeter component.  This
-is just a voltage source with zero volts.  For example,
-
-   >>> cct = Circuit('Current measurement')
-   >>> cct.net_add('Vs 1 0 10') 
-   >>> cct.net_add('Ra 1 2 100') 
-   >>> cct.net_add('A1 2 0') 
-   >>> cct.analyse()
-   >>> pprint(cct.I['A1'])
-   0.1
-   ───
-    s  
-
 The I attribute is a directory of the currents through all the
-independent voltage sources in the circuit, including the ammeter.  In
-the above example, the same current is found through the voltage
-source Vs:
+components in the circuit.  For example, the current through the
+voltage source Vs is:
 
    >>> pprint(cct.I['Vs'])
    0.1

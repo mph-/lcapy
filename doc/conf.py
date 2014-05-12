@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# lcapy documentation build configuration file, created by
-# sphinx-quickstart on Mon Feb 17 17:08:01 2014.
+# Lcapy documentation build configuration file, created by
+# sphinx-quickstart on Mon May 12 15:41:43 2014.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -16,7 +16,7 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../lcapy'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -25,7 +25,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.pngmath', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.pngmath']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'lcapy'
+project = u'Lcapy'
 copyright = u'2014, Michael Hayes'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -164,7 +164,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'lcapydoc'
+htmlhelp_basename = 'Lcapydoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -183,7 +183,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'lcapy.tex', u'lcapy Documentation',
+  ('index', 'Lcapy.tex', u'Lcapy Documentation',
    u'Michael Hayes', 'manual'),
 ]
 
@@ -213,7 +213,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'lcapy', u'lcapy Documentation',
+    ('index', 'lcapy', u'Lcapy Documentation',
      [u'Michael Hayes'], 1)
 ]
 
@@ -227,8 +227,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'lcapy', u'lcapy Documentation',
-   u'Michael Hayes', 'lcapy', 'One line description of project.',
+  ('index', 'Lcapy', u'Lcapy Documentation',
+   u'Michael Hayes', 'Lcapy', 'One line description of project.',
    'Miscellaneous'),
 ]
 

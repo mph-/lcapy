@@ -338,9 +338,11 @@ class ThreePort(object):
         return TwoPortZModel(Z, Vs(Voc[0]), Vs(Voc[1]))
 
 
-
 class Opamp(ThreePort):
     """
+    Create an ideal(ish) opamp
+    ::
+        
             |\
             |  \
         1 --+ +  \
@@ -358,7 +360,7 @@ class Opamp(ThreePort):
         Port 2: inverting input
         Port 3: output
 
-        """
+    """
 
     def __init__(self, Rd=1e9, Ro=1e-6, A=100000, Rp=1e9, Rm=1e9):
 
