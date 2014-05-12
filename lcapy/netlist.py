@@ -504,7 +504,7 @@ class Netlist(object):
 
     @property
     def V(self):    
-        """Return dictionary of node voltages"""
+        """Return dictionary of node voltages indexed by node name"""
 
         if not hasattr(self, '_V'):
             self._analyse()
@@ -513,11 +513,24 @@ class Netlist(object):
 
     @property
     def I(self):    
-        """Return dictionary of branch currents"""
+        """Return dictionary of branch currents indexed by component name"""
 
         if not hasattr(self, '_I'):
             self._analyse()
         return self._I
+
+
+    @property
+    def Vd(self):    
+        """Return dictionary of branch voltage differences indexed by component name"""
+        if hasattr(self, '_Vd'):
+            return self._Vd
+
+        self._Vd = {}
+        for elt in self.elements.values():
+            self._Vd[elt.name] = Vs(sym.simplify(self.V[elt.nodes[0]] - self.V[elt.nodes[1]]))
+
+        return self._Vd
 
 
     def Voc(self, n1, n2):
