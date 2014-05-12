@@ -553,6 +553,24 @@ class Netlist(object):
         return I(Isc) | Y(Ys(Isc / Voc))
 
 
+    def Z(self, n1, n2):
+        """Return admittance between nodes n1 and n2"""
+
+        Voc = self.Voc(n1, n2)
+        Isc = self.Isc(n1, n2)
+
+        return Ys(Isc / Voc)
+
+
+    def Z(self, n1, n2):
+        """Return impedance between nodes n1 and n2"""
+
+        Voc = self.Voc(n1, n2)
+        Isc = self.Isc(n1, n2)
+
+        return Zs(Voc / Isc)
+
+
 class Circuit(Netlist):
 
     def __init__(self, circuitname=''):
