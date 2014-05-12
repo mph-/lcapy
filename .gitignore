@@ -13,4 +13,4 @@ unit_tests/coverage
 *.bak
 *.aux
 *.log
-*.png
+

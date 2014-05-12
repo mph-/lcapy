@@ -36,7 +36,7 @@ Copyright 2014 Michael Hayes, UCECE
 from __future__ import division
 from warnings import warn
 from lcapy.core import  pprint, cExpr
-from lcapy.oneport import V, I, R, L, C, G, Vdc, Idc, Vac, Iac, Is, Vs
+from lcapy.oneport import V, I, R, L, C, G, Y, Z, Vdc, Idc, Vac, Iac, Is, Vs, Ys, Zs
 import sympy as sym
 
 
@@ -279,6 +279,13 @@ class Netlist(object):
 
         self._elt_add(elt)
         
+
+    def remove(self, name):
+
+        if name not in self.elements:
+            raise Error('Unknown component: ' + name)
+        self.elements.pop(name)
+        
         
     def G_matrix(self):
 
@@ -414,6 +421,8 @@ class Netlist(object):
     def analyse(self, mode='transient'):
         """mode either AC, DC, or transient"""
 
+        # Should skip analysis if the network is unchanged.
+
         if mode not in ('AC', 'DC', 'transient'):
             raise ValueError('Invalid analysis mode %s, must be AC, DC, transient' % mode)
 
@@ -502,6 +511,46 @@ class Netlist(object):
             self.I[elt.name] = Is(sym.simplify((self.V[elt.nodes[0]] - self.V[elt.nodes[1]] - elt.cpt.V) / elt.cpt.Z))
 
         return self.V, self.I
+
+
+    def Voc(self, n1, n2):
+        """Determine open-circuit voltage between nodes."""
+
+        self.analyse()        
+        return self.V[n1] - self.V[n2]
+
+    
+    def Isc(self, n1, n2):
+        """Determine short-circuit current between nodes."""
+
+        self.net_add('Vshort_', n1, n2, 0)
+        self.analyse()
+
+        Isc = self.I['Vshort_']
+        self.remove('Vshort_')
+
+        # Reevaluate voltages
+        self.analyse()
+        
+        return Isc
+
+
+    def thevenin(self, n1, n2):
+        """Return Thevenin model between nodes n1 and n2"""
+
+        Voc = self.Voc(n1, n2)
+        Isc = self.Isc(n1, n2)
+
+        return V(Voc) + Z(Zs(Voc / Isc))
+
+
+    def norton(self, n1, n2):
+        """Return Norton model between nodes n1 and n2"""
+
+        Voc = self.Voc(n1, n2)
+        Isc = self.Isc(n1, n2)
+
+        return I(Isc) | Y(Ys(Isc / Voc))
 
 
 class Circuit(Netlist):
