@@ -187,25 +187,27 @@ class Netlist(object):
         self.current_sources = []
         self.RLC = []
 
-        self.V = {}
-        self.I = {}
+        self._V = {}
+        self._I = {}
         self.cpt_counts = {'R' : 0, 'G' : 0, 'C' : 0, 'L' : 0, 'V' : 0, 'I' : 0}
 
         if filename != None:
             self.netfile_add(filename)
 
 
-    def __getitem__(self, key):
+    def __getitem__(self, name):
+        """Return component by name"""
 
-        return self.elements[key]
+        return self.elements[name]
 
 
-    def nodeindex(self, node):
+    def _nodeindex(self, node):
         """Return node index; ground is -1"""
         return self.revnodemap[node] - 1
 
 
     def netfile_add(self, filename):    
+        """Add the nets from file with specified filename"""
 
         file = open(filename, 'r')
         
@@ -219,6 +221,7 @@ class Netlist(object):
 
 
     def netlist(self):
+        """Return the current netlist"""
 
         return '\n'.join([elt.__str__() for elt in self.elements.values()])
 
@@ -230,12 +233,21 @@ class Netlist(object):
         self.nodes[node].append(elt)
 
 
+    def _invalidate(self):
+
+        if hasattr(self, '_V'):
+            delattr(self, '_V')
+            delattr(self, '_I')
+
+
     def _elt_add(self, elt):
 
         if self.elements.has_key(elt.name):
             print('Overriding component %s' % elt.name)     
             # Need to search lists and update component.
            
+        self._invalidate()
+
         self.elements[elt.name] = elt
 
         self._node_add(elt.nodes[0], elt)
@@ -281,6 +293,9 @@ class Netlist(object):
         
 
     def remove(self, name):
+        """Remove specified element"""
+
+        self._invalidate()
 
         if name not in self.elements:
             raise Error('Unknown component: ' + name)
@@ -292,8 +307,8 @@ class Netlist(object):
         G = sym.zeros(self.num_nodes, self.num_nodes)
 
         for elt in self.RLC:
-            n1 = self.nodeindex(elt.nodes[0])
-            n2 = self.nodeindex(elt.nodes[1])
+            n1 = self._nodeindex(elt.nodes[0])
+            n2 = self._nodeindex(elt.nodes[1])
             Y = elt.cpt.Y
 
             if n1 >= 0 and n2 >= 0:
@@ -313,8 +328,8 @@ class Netlist(object):
 
         for m, elt in enumerate(self.voltage_sources):
 
-            n1 = self.nodeindex(elt.nodes[0])
-            n2 = self.nodeindex(elt.nodes[1])
+            n1 = self._nodeindex(elt.nodes[0])
+            n2 = self._nodeindex(elt.nodes[1])
 
             if n1 >= 0:
                 B[n1, m] = 1
@@ -323,8 +338,8 @@ class Netlist(object):
 
             if isinstance(elt.cpt, TF):
 
-                n3 = self.nodeindex(elt.cpt.cnodes[0])
-                n4 = self.nodeindex(elt.cpt.cnodes[1])
+                n3 = self._nodeindex(elt.cpt.cnodes[0])
+                n4 = self._nodeindex(elt.cpt.cnodes[1])
                 T = elt.cpt.arg
                 
                 if n3 >= 0:
@@ -341,8 +356,8 @@ class Netlist(object):
 
         for m, elt in enumerate(self.voltage_sources):
 
-            n1 = self.nodeindex(elt.nodes[0])
-            n2 = self.nodeindex(elt.nodes[1])
+            n1 = self._nodeindex(elt.nodes[0])
+            n2 = self._nodeindex(elt.nodes[1])
 
             if n1 >= 0:
                 C[m, n1] = 1
@@ -351,8 +366,8 @@ class Netlist(object):
 
             if isinstance(elt.cpt, (TF, VCVS)):
 
-                n3 = self.nodeindex(elt.cpt.cnodes[0])
-                n4 = self.nodeindex(elt.cpt.cnodes[1])
+                n3 = self._nodeindex(elt.cpt.cnodes[0])
+                n4 = self._nodeindex(elt.cpt.cnodes[1])
                 A = elt.cpt.arg
                 
                 if n3 >= 0:
@@ -389,8 +404,8 @@ class Netlist(object):
 
         for n in range(self.num_nodes):
             for m, elt in enumerate(self.current_sources):
-                n1 = self.nodeindex(elt.nodes[0])
-                n2 = self.nodeindex(elt.nodes[1])
+                n1 = self._nodeindex(elt.nodes[0])
+                n2 = self._nodeindex(elt.nodes[1])
                 if n1 == n:
                     I[n] = I[n] - elt.cpt.I
                 elif n2 == n:
@@ -420,8 +435,6 @@ class Netlist(object):
 
     def analyse(self, mode='transient'):
         """mode either AC, DC, or transient"""
-
-        # Should skip analysis if the network is unchanged.
 
         if mode not in ('AC', 'DC', 'transient'):
             raise ValueError('Invalid analysis mode %s, must be AC, DC, transient' % mode)
@@ -492,31 +505,48 @@ class Netlist(object):
             results = results.subs(s, 0)
 
         # Create dictionary of node voltages
-        self.V = {}
-        self.V[0] = Vs(0)
+        self._V = {}
+        self._V[0] = Vs(0)
         for n, node in enumerate(self.nodemap[1:]):        
-            self.V[node] = Vs(results[n])
+            self._V[node] = Vs(results[n])
 
         # Create dictionary of currents through elements
-        self.I = {}
+        self._I = {}
         for m, elt in enumerate(self.voltage_sources):
-            self.I[elt.name] = Is(results[m + self.num_nodes])
+            self._I[elt.name] = Is(results[m + self.num_nodes])
 
         for m, elt in enumerate(self.current_sources):
-            self.I[elt.name] = elt.cpt.I
+            self._I[elt.name] = elt.cpt.I
 
         # Don't worry about currents due to initial conditions; these
         # are overwritten below.
         for m, elt in enumerate(self.RLC):
-            self.I[elt.name] = Is(sym.simplify((self.V[elt.nodes[0]] - self.V[elt.nodes[1]] - elt.cpt.V) / elt.cpt.Z))
+            self._I[elt.name] = Is(sym.simplify((self._V[elt.nodes[0]] - self._V[elt.nodes[1]] - elt.cpt.V) / elt.cpt.Z))
 
-        return self.V, self.I
+        return self._V, self._I
+
+
+    @property
+    def V(self):    
+        """Return dictionary of node voltages"""
+
+        if not hasattr(self, '_V'):
+            self.analyse()
+        return self._V
+
+
+    @property
+    def I(self):    
+        """Return dictionary of branch currents"""
+
+        if not hasattr(self, '_I'):
+            self.analyse()
+        return self._I
 
 
     def Voc(self, n1, n2):
         """Determine open-circuit voltage between nodes."""
 
-        self.analyse()        
         return self.V[n1] - self.V[n2]
 
     
@@ -524,13 +554,9 @@ class Netlist(object):
         """Determine short-circuit current between nodes."""
 
         self.net_add('Vshort_', n1, n2, 0)
-        self.analyse()
 
         Isc = self.I['Vshort_']
         self.remove('Vshort_')
-
-        # Reevaluate voltages
-        self.analyse()
         
         return Isc
 
@@ -553,7 +579,7 @@ class Netlist(object):
         return I(Isc) | Y(Ys(Isc / Voc))
 
 
-    def Z(self, n1, n2):
+    def Y(self, n1, n2):
         """Return admittance between nodes n1 and n2"""
 
         Voc = self.Voc(n1, n2)
@@ -586,12 +612,9 @@ def test():
     cct.net_add('V_s fred 0') 
     cct.net_add('R_a fred bert') 
     cct.net_add('R_b bert 0') 
-    cct.analyse()
     
     pprint(cct.V)
     
     pprint(cct.I)
 
     return cct
-
-
