@@ -108,7 +108,7 @@ class Element(object):
 
     def __str__(self):
 
-        return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes + self.args])
+        return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes + self.cpt.args])
 
 
     @property
@@ -168,6 +168,11 @@ class NetElement(Element):
 
         str = ', '.join(arg.__str__() for arg in [self.name] + list(self.nodes) + list(self.args))
         return 'NetElement(%s)' % str
+
+
+    def __str__(self):
+
+        return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes + self.args])
 
 
 class Netlist(object):
@@ -237,6 +242,12 @@ class Netlist(object):
         
 
     def net_add(self, line, *args):
+        """The general form is: 'Name N1 N2 args'
+        where N1 is the positive nose and N2 is the negative node.
+
+        A positive current is defined to flow from the positive node
+        to the negative node.
+        """
 
         parts = line.split(' ')
         
@@ -428,13 +439,20 @@ class Netlist(object):
             elif elt.is_I: 
                 self.current_sources.append(elt)
             elif elt.is_RLC: 
-                if elt.cpt.V != 0.0:
-                    # Use Norton model and split element into
-                    # admittance in parallel with current source.  The
-                    # element will appear on both current_source and
-                    # RLC lists.
-                    self.current_sources.append(elt)
                 self.RLC.append(elt)
+                if elt.cpt.V != 0.0:
+                    # To handle initial condition, use Norton model
+                    # and split element into admittance in parallel
+                    # with current source.  The element will appear on
+                    # both current_source and RLC lists.  We need to
+                    # flip the current direction to follow convention
+                    # that positive current flows from N1 to N2.
+                    from lcapy import s
+
+                    # Hack: multiply current by s since I constructor assumes DC.
+                    newelt = Element(I(elt.cpt.I * s), elt.nodes[1], elt.nodes[0],
+                                     elt.name)
+                    self.current_sources.append(newelt)
             else:
                 raise ValueError('Unhandled element %s' % elt.name)
 
@@ -481,7 +499,7 @@ class Netlist(object):
         # Don't worry about currents due to initial conditions; these
         # are overwritten below.
         for m, elt in enumerate(self.RLC):
-            self.I[elt.name] = Is(sym.simplify((self.V[elt.nodes[0]] - self.V[elt.nodes[1]] + elt.cpt.V) / elt.cpt.Z))
+            self.I[elt.name] = Is(sym.simplify((self.V[elt.nodes[0]] - self.V[elt.nodes[1]] - elt.cpt.V) / elt.cpt.Z))
 
         return self.V, self.I
 
