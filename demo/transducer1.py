@@ -16,7 +16,7 @@ cct.net_add('L1 3 2', L1)
 cct.net_add('R1 4 3', R1) 
 cct.net_add('Rr 4 0 0.01') 
 
-cct.analyse()
+
 
 H = cct.V[4] / cct.V[1]
 pprint(H)

@@ -717,9 +717,7 @@ This creates a circuit comprised of a 10\,V DC voltage source connected
 to two resistors in series.  The node named 0 denotes the ground which
 the other voltages are referenced to.
 
-The circuit is analysed using:
-   >>> cct.analyse()
-and this creates a directory of the node voltages that can indexed using the node name.  For example,
+The node voltages are stored in a directory indexed by the node name.  For example,
    >>> cct.V[1]
    10.0
    ────
@@ -736,9 +734,8 @@ transient voltages can be determined using an inverse Laplace transform:
    10.0⋅Heaviside(t)
 
 
-The I attribute is a directory of the currents through all the
-components in the circuit.  For example, the current through the
-voltage source Vs is:
+The branch voltages are stored in a directory indexed by component
+name.  For example, the current through the voltage source Vs is:
 
    >>> pprint(cct.I['Vs'])
    0.1
@@ -753,7 +750,6 @@ value.  Lcapy, will then create a symbol using the component name.
    >>> cct.net_add('Vs 1 0') 
    >>> cct.net_add('R1 1 2') 
    >>> cct.net_add('C1 2 0') 
-   >>> cct.analyse()
    >>> pprint(cct.V[2])
         Vs     
    ────────────
