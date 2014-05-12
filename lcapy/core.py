@@ -657,6 +657,18 @@ class sExpr(object):
         return self.__class__(self.val * sym.exp(-T * self.s))
 
 
+    def subs(self, *args, **kwargs):
+
+        return self.expr.subs(s, *args, **kwargs)        
+
+
+    def omega(self):
+        """Return expression with s = j omega"""
+
+        omega = sym.symbols('omega')
+        return self.subs(sym.I * omega)        
+
+
     def zeros(self):
         
         return zeros(self.expr, self.s)

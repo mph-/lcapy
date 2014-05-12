@@ -433,11 +433,8 @@ class Netlist(object):
         return Z
 
 
-    def analyse(self, mode='transient'):
-        """mode either AC, DC, or transient"""
-
-        if mode not in ('AC', 'DC', 'transient'):
-            raise ValueError('Invalid analysis mode %s, must be AC, DC, transient' % mode)
+    def _analyse(self):
+        """Force reanalysis of network."""
 
         if not self.nodes.has_key(0):
             print('Nothing connected to ground node 0')
@@ -485,25 +482,6 @@ class Netlist(object):
         # Solve for the nodal voltages
         results = sym.simplify(A.inv() * Z);        
 
-        s, omega = sym.symbols('s omega')
-
-        if mode in ('AC', 'DC'):
-            results = results * s
-
-        if mode == 'AC':
-            # This a horrible interim hack...  Let's assume we are not
-            # interested in the DC case; in this case DC voltage and current
-            # sources zero at frequencies other than DC.
-            # We should really only scale generic voltage or current sources
-            # by s.
-            results = results.subs(s, sym.I * omega)
-
-        elif mode == 'DC':
-            # This a better hack...  It will only work if all
-            # voltage and current sources are DC.
-            results = results.subs(s, sym.I * omega)
-            results = results.subs(s, 0)
-
         # Create dictionary of node voltages
         self._V = {}
         self._V[0] = Vs(0)
@@ -523,15 +501,13 @@ class Netlist(object):
         for m, elt in enumerate(self.RLC):
             self._I[elt.name] = Is(sym.simplify((self._V[elt.nodes[0]] - self._V[elt.nodes[1]] - elt.cpt.V) / elt.cpt.Z))
 
-        return self._V, self._I
-
 
     @property
     def V(self):    
         """Return dictionary of node voltages"""
 
         if not hasattr(self, '_V'):
-            self.analyse()
+            self._analyse()
         return self._V
 
 
@@ -540,7 +516,7 @@ class Netlist(object):
         """Return dictionary of branch currents"""
 
         if not hasattr(self, '_I'):
-            self.analyse()
+            self._analyse()
         return self._I
 
 
