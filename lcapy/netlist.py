@@ -187,7 +187,7 @@ class Netlist(object):
         self.current_sources = []
         self.RLC = []
 
-        self._V = {}
+        self._V = {0: Vs(0)}
         self._I = {}
         self.cpt_counts = {'R' : 0, 'G' : 0, 'C' : 0, 'L' : 0, 'V' : 0, 'I' : 0}
 
@@ -483,8 +483,7 @@ class Netlist(object):
         results = sym.simplify(A.inv() * Z);        
 
         # Create dictionary of node voltages
-        self._V = {}
-        self._V[0] = Vs(0)
+        self._V = {0: Vs(0)}
         for n, node in enumerate(self.nodemap[1:]):        
             self._V[node] = Vs(results[n])
 
