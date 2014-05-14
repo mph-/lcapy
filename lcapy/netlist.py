@@ -139,12 +139,6 @@ class NetElement(Element):
         if len(name) > 2 and name[0:2] == 'TF':
             kind = name[0:2]
 
-        # An ammeter looks like a piece of wire so make a zero volt
-        # voltage source so we can find the current through it.
-        if kind == 'A':
-            kind = 'V'
-            args = (0, )
-        
         # Allowable one-ports; this could be extended to Y, Z, etc.
         OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'I' : I, 'E' : VCVS, 'TF' : TF}
    
