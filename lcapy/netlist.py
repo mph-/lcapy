@@ -139,8 +139,30 @@ class NetElement(Element):
         if len(name) > 2 and name[0:2] == 'TF':
             kind = name[0:2]
 
+        # Handle special cases for voltage and current sources.
+        # Perhaps could generalise for impulse, step, ramp sources?
+        if args != ():
+            if kind in ('v', 'V') and args[0] == 'ac':
+                kind = 'Vac'
+            elif kind in ('v', 'V') and args[0] == 'dc':
+                kind = 'Vdc'
+            elif kind in ('i', 'I') and args[0] == 'ac':
+                kind = 'Iac'
+            elif kind in ('i', 'I') and args[0] == 'dc':
+                kind = 'Idc'
+
+            if kind in ('Vdc', 'Vac', 'Idc', 'Iac') and args[0] in ('ac', 'dc'):
+                args = args[1:]
+
+        # For time-domain sources, could add arbitrary expression
+        # such as t * u(t) and then convert with Laplace transform.
+        if kind == 'v':
+            kind = 'Vdc'
+        elif kind == 'i':
+            kind = 'Idc'
+
         # Allowable one-ports; this could be extended to Y, Z, etc.
-        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'I' : I, 'E' : VCVS, 'TF' : TF}
+        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'Vdc' : Vdc, 'Vac' : Vac, 'I' : I, 'Idc' : Idc, 'Iac' : Iac, 'E' : VCVS, 'TF' : TF}
    
         try:
             foo = OPS[kind]
@@ -148,22 +170,11 @@ class NetElement(Element):
         except KeyError:
             raise(ValueError, 'Unknown component kind for %s' % name)
 
-        # Handle special cases for voltage and current sources.
-        # Perhaps could generalise for impulse, step, ramp sources?
-        if foo == V and args[0] == 'ac':
-            foo = Vac
-            args = args[1:]
-        elif foo == V and args[0] == 'dc':
-            foo = Vdc
-            args = args[1:]
-        elif foo == I and args[0] == 'ac':
-            foo = Iac
-            args = args[1:]
-        elif foo == I and args[0] == 'dc':
-            foo = Idc
-            args = args[1:]
-
         if len(args) == 0:
+            # Ensure symbol uppercase for s-domain value.
+            if kind in ('Vdc', 'Vac', 'Idc', 'Iac'):
+                name = name.capitalize()
+            # Use component name for value
             args = (name, )
 
         cpt = foo(*args)

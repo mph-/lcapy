@@ -867,17 +867,25 @@ Component specification
 
    Vname Np Nm dc V
 
+   vname Np Nm V
+
 - DC current sources of current I:
 
    Iname Np Nm dc I
+
+   iname Np Nm I
 
 - AC voltage sources of voltage V, frequency f, and phase p:
 
    Vname Np Nm ac V f p
 
+   vname Np Nm ac V f p
+
 - AC current sources of current I, frequency f, and phase p:
 
    Iname Np Nm ac I p
+
+   iname Np Nm ac I p
 
 - Resistors
 
