@@ -903,5 +903,25 @@ positive current flows from `positive-node` to `negative-node`.  Node
 names can be numeric or symbolic.  The ground node is designated `0`.
 
 
+Other methods
+-------------
 
+   cct.Isc(n1, n2)      Short-circuit s-domain current between nodes n1 and n2.
 
+   cct.Voc(n1, n2)      Open-circuit s-domain voltage between nodes n1 and n2.
+
+   cct.isc(n1, n2)      Short-circuit t-domain current between nodes n1 and n2.
+
+   cct.voc(n1, n2)      Open-circuit t-domain voltage between nodes n1 and n2.
+   
+   cct.Y(n1, n2)        Admittance between nodes n1 and n2.
+  
+   cct.Z(n1, n2)        Impedance between nodes n1 and n2.
+
+   cct.thevenin(n1, n2) Thevenin model between nodes n1 and n2.
+
+   cct.norton(n1, n2)    Norton model between nodes n1 and n2.
+
+   cct.remove(component) Remove component from net list.
+
+   cct.netfile_add(filename) Add netlist from file.

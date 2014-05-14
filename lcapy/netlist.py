@@ -272,8 +272,8 @@ class Netlist(object):
         
 
     def net_add(self, line, *args):
-        """The general form is: 'Name N1 N2 args'
-        where N1 is the positive nose and N2 is the negative node.
+        """The general form is: 'Name Np Nm args'
+        where Np is the positive nose and Nm is the negative node.
 
         A positive current is defined to flow from the positive node
         to the negative node.
@@ -587,13 +587,19 @@ class Netlist(object):
 
 
     def Voc(self, n1, n2):
-        """Determine open-circuit voltage between nodes."""
+        """Return open-circuit s-domain voltage between nodes n1 and n2."""
 
         return self.V[n1] - self.V[n2]
 
+
+    def voc(self, n1, n2):
+        """Return open-circuit t-domain voltage between nodes n1 and n2."""
+
+        return self.Voc(n1, n2).inverse_laplace()
+
     
     def Isc(self, n1, n2):
-        """Determine short-circuit current between nodes."""
+        """Return short-circuit s-domain current between nodes n1 and n2."""
 
         self.net_add('Vshort_', n1, n2, 0)
 
@@ -601,6 +607,12 @@ class Netlist(object):
         self.remove('Vshort_')
         
         return Isc
+
+
+    def isc(self, n1, n2):
+        """Return short-circuit t-domain current between nodes n1 and n2."""
+
+        return self.Isc(n1, n2).inverse_laplace()
 
 
     def thevenin(self, n1, n2):
