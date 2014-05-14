@@ -101,7 +101,7 @@ stored in a Python variable.  These can be printed using `print` or
 
 
 Simple circuit element combinations
-===================================
+-----------------------------------
 
 Here's an example of resistors in series
 
@@ -168,7 +168,7 @@ Finally, here's an example of a parallel combination of capacitors
 
 
 Impedances
-==========
+----------
 
 Let's consider a series R-L-C network
 
@@ -453,7 +453,7 @@ The short-circuit output admittance can be found using:
 
 
 Two-port combinations
-=====================
+---------------------
 
 Two-port networks can be combined in series, parallel, series at the
 input with parallel at the output (hybrid), parallel at the input with
@@ -472,7 +472,7 @@ series one-port.
 
 
 Two-port matrices
-=================
+-----------------
 
 Two-port networks can be represented by six two by two matrices, A, B,
 G, H, Y, Z.  Each has their own merits (see
@@ -686,7 +686,7 @@ Rational functions with delays can also be handled:
 
    >>> from lcapy import *
    >>> from sympy import symbols
-   >>> s, T = sym.symbols('s T')
+   >>> T = sym.symbols('T')
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * sym.exp(-s * T)
    >>> pprint(partfrac(H))
    ⎛      70      90 ⎞  -T⋅s
@@ -716,35 +716,6 @@ created dynamically, for example,
 This creates a circuit comprised of a 10\,V DC voltage source connected
 to two resistors in series.  The node named 0 denotes the ground which
 the other voltages are referenced to.
-
-The general form for a net is:
-
-    component-name positive-node negative-node arg1 [arg2 etc.]
-
-If no args are specified then the component value is assigned a
-symbolic name specified by `component-name`.  Note, positive current
-flows from `positive-node` to `negative-node`.  Node names can be
-numeric or symbolic.   The ground node is designated `0`.
-
-The component type is specified by the first letter(s) of
-`component-name`.  For example,
-
-- `V` voltage source
-
-- `I` current source
-
-- `R` resistor
-
-- `G` conductor
-
-- `C` capacitor
-
-- `L` inductor
-
-- `E` voltage-controlled voltage source (VCVS)
-
-- `TF` ideal transformer
-
 
 The circuit has a number of attributes that can be interrogated to
 find circuit voltages and currents:
@@ -866,43 +837,71 @@ The corresponding impulse response can found from an inverse Laplace transform:
           C₁⋅R₁ 
 
 
-Component specification
------------------------
+Netlist specification
+---------------------
 
-- DC voltage sources of voltage V:
+The general form for a net is:
+
+    component-name positive-node negative-node arg1 [arg2 etc.]
+
+If no args are specified then the component value is assigned a
+symbolic name specified by `component-name`. 
+
+The component type is specified by the first letter(s) of the
+`component-name`.  For example,
+
+- DC voltage source of voltage V:
 
    Vname Np Nm dc V
 
    vname Np Nm V
 
-- DC current sources of current I:
+- DC current source of current I:
 
    Iname Np Nm dc I
 
    iname Np Nm I
 
-- AC voltage sources of voltage V, frequency f, and phase p:
+- AC voltage source of voltage V, frequency f, and phase p:
 
    Vname Np Nm ac V f p
 
    vname Np Nm ac V f p
 
-- AC current sources of current I, frequency f, and phase p:
+- AC current source of current I, frequency f, and phase p:
 
    Iname Np Nm ac I p
 
    iname Np Nm ac I p
 
-- Resistors
+- Resistor:
 
    Rname Np Nm R
 
-- Inductors:
+- Conductor:
+
+   Gname Np Nm G
+
+- Inductor:
 
    Lname Np Nm L i0
 
-- Capacitors:
+- Capacitor:
 
    Cname Np Nm L v0
+
+- Voltage-controlled voltage source (VCVS) of gain H with controlling nodes Nip and Nim:
+
+   Ename Np Nm Nip Nim H
+
+- Ideal transformer of turns ratio a:
+
+   TFname Np Nm a
+
+Np denotes the positive node; Np denotes the negative node.  Note,
+positive current flows from `positive-node` to `negative-node`.  Node
+names can be numeric or symbolic.  The ground node is designated `0`.
+
+
 
 
