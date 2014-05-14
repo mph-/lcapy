@@ -715,7 +715,7 @@ nodes it is connected to.  This netlist can be read from a file or
 created dynamically, for example
 
    >>> from lcapy import pprint, Circuit
-   >>> cct = Circuit('Voltage divider')
+   >>> cct = Circuit()
    >>> cct.net_add('Vs 1 0 10') 
    >>> cct.net_add('Ra 1 2 3e3') 
    >>> cct.net_add('Rb 2 0 1e3') 
@@ -724,7 +724,43 @@ This creates a circuit comprised of a 10\,V DC voltage source connected
 to two resistors in series.  The node named 0 denotes the ground which
 the other voltages are referenced to.
 
-The node voltages are stored in a directory indexed by the node name.  For example,
+The general form for a net is:
+
+    component-name positive-node negative-node value
+
+If `value` is not specified then it is assigned a symbolic name
+specified by `component-name`.
+
+The component type is specified by the first letter(s) of
+`component-name`.  For example,
+
+- V DC voltage source
+
+- Vdc DC voltage source
+
+- Vac AC voltage source
+
+- I DC current source (current flows from `positive-node` to `negative-node`)
+
+- Idc DC current source
+
+- Iac AC current source
+
+- R resistor
+
+- G conductor
+
+- C capacitor
+
+- L inductor
+
+- E voltage-controlled voltage source (VCVS)
+
+- TF ideal transformer
+
+The node voltages are stored in a directory (`V`) indexed by the node name.
+For example,
+
    >>> cct.V[1]
    10.0
    ────
@@ -740,8 +776,7 @@ transient voltages can be determined using an inverse Laplace transform:
    >>> pprint(cct.V[1].inverse_laplace())
    10.0⋅Heaviside(t)
 
-
-The branch voltages are stored in a directory indexed by component
+The branch currents are stored in a directory (`I`) indexed by component
 name.  For example, the current through the voltage source Vs is:
 
    >>> pprint(cct.I['Vs'])
@@ -749,11 +784,20 @@ name.  For example, the current through the voltage source Vs is:
    ───
     s  
 
+The voltage differences across components are stored in a directory (`Vd`)
+indexed by component name.  For example, the voltage difference across the
+resistor Ra is:
+
+   >>> pprint(cct.Vd['Ra'])
+   7.5
+   ───
+    s 
+
 Since Lcapy uses SymPy, circuit analysis can be performed
 symbolically.  This can be achieved by not specifying a component
 value.  Lcapy, will then create a symbol using the component name.
 
-   >>> cct = Circuit('Series V R C')
+   >>> cct = Circuit()
    >>> cct.net_add('Vs 1 0') 
    >>> cct.net_add('R1 1 2') 
    >>> cct.net_add('C1 2 0') 
