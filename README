@@ -55,13 +55,13 @@ Isc short-circuit current
 The component values can be specified numerically or symbolically
 using strings, for example,
 
-from lcapy import V, R, L, C
+from lcapy import Vdc, R, L, C
 
    >>> R1 = R('R_1') 
    >>> L1 = L('L_1')
-   >>> a = V(10) + R1 + L1
+   >>> a = Vdc(10) + R1 + L1
 
-Here a is the name of the network formed with a 10 V voltage source in
+Here a is the name of the network formed with a 10 V DC voltage source in
 series with R1 and L1.
 
 The open circuit voltage across the network can be printed with:
