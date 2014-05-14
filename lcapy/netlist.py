@@ -520,7 +520,7 @@ class Netlist(object):
 
     @property
     def V(self):    
-        """Return dictionary of node voltages indexed by node name"""
+        """Return dictionary of s-domain node voltages indexed by node name"""
 
         if not hasattr(self, '_V'):
             self._analyse()
@@ -529,7 +529,7 @@ class Netlist(object):
 
     @property
     def I(self):    
-        """Return dictionary of branch currents indexed by component name"""
+        """Return dictionary of s-domain branch currents indexed by component name"""
 
         if not hasattr(self, '_I'):
             self._analyse()
@@ -538,7 +538,8 @@ class Netlist(object):
 
     @property
     def Vd(self):    
-        """Return dictionary of branch voltage differences indexed by component name"""
+        """Return dictionary of s-domain branch voltage differences indexed by component name"""
+
         if hasattr(self, '_Vd'):
             return self._Vd
 
@@ -547,6 +548,42 @@ class Netlist(object):
             self._Vd[elt.name] = Vs(sym.simplify(self.V[elt.nodes[0]] - self.V[elt.nodes[1]]))
 
         return self._Vd
+
+
+    @property
+    def v(self):    
+        """Return dictionary of t-domain node voltages indexed by node name"""
+
+        if not hasattr(self, '_v'):
+            self._v = {}
+            for key in self.V:
+                self._v[key] = self.V[key].inverse_laplace()
+
+        return self._v
+
+
+    @property
+    def i(self):    
+        """Return dictionary of t-domain branch currents indexed by component name"""
+
+        if not hasattr(self, '_i'):
+            self._i = {}
+            for key in self.I:
+                self._i[key] = self.I[key].inverse_laplace()
+
+        return self._i
+
+
+    @property
+    def vd(self):    
+        """Return dictionary of t-domain branch voltage differences indexed by component name"""
+
+        if not hasattr(self, '_vd'):
+            self._vd = {}
+            for key in self.Vd:
+                self._vd[key] = self.Vd[key].inverse_laplace()
+
+        return self._vd
 
 
     def Voc(self, n1, n2):

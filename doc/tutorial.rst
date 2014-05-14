@@ -729,24 +729,39 @@ numeric or symbolic.   The ground node is designated `0`.
 The component type is specified by the first letter(s) of
 `component-name`.  For example,
 
-- V voltage source
+- `V` voltage source
 
-- I current source
+- `I` current source
 
-- R resistor
+- `R` resistor
 
-- G conductor
+- `G` conductor
 
-- C capacitor
+- `C` capacitor
 
-- L inductor
+- `L` inductor
 
-- E voltage-controlled voltage source (VCVS)
+- `E` voltage-controlled voltage source (VCVS)
 
-- TF ideal transformer
+- `TF` ideal transformer
 
 
-The node voltages are stored in a directory (`V`) indexed by the node name.
+The circuit has a number of attributes that can be interrogated to
+find circuit voltages and currents:
+
+- `V` s-domain node voltage directory indexed by node name
+
+- `I` s-domain branch current directory indexed by component name
+
+- `Vd` s-domain branch voltage difference directory indexed by component name
+
+- `v` t-domain node voltage directory indexed by node name
+
+- `i` t-domain branch current directory indexed by component name
+
+- `vd` t-domain branch voltage difference directory indexed by component name
+
+
 For example,
 
    >>> cct.V[1]
@@ -764,17 +779,14 @@ transient voltages can be determined using an inverse Laplace transform:
    >>> pprint(cct.V[1].inverse_laplace())
    10.0⋅Heaviside(t)
 
-The branch currents are stored in a directory (`I`) indexed by component
-name.  For example, the current through the voltage source `V1` is:
+Alternatively, 
 
-   >>> pprint(cct.I['V1'])
-   0.1
-   ───
-    s  
+   >>> cct.v[1]
+   10.0⋅Heaviside(t)
 
-The voltage differences across components are stored in a directory (`Vd`)
-indexed by component name.  For example, the voltage difference across the
-resistor Ra is:
+
+For another example, the s-domain voltage difference across the
+resistor Ra can be found using:
 
    >>> pprint(cct.Vd['Ra'])
    7.5

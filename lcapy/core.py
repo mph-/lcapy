@@ -382,7 +382,9 @@ def inverse_laplace(expr, t=None, s=None):
     try:
         result = _inverse_laplace(expr, t, s)
     except:
-        
+
+        print('Determining inverse Laplace transform with sympy...')
+
         # Try splitting into partial fractions to help sympy.
         expr = partfrac(expr, s)
 
@@ -788,7 +790,6 @@ class sExpr(object):
     def inverse_laplace(self):
         """Attempt inverse Laplace transform"""
         
-        print('Determining inverse Laplace transform...')
         return inverse_laplace(self.expr, self.t, self.s)
 
 
