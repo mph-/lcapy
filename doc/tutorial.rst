@@ -723,7 +723,8 @@ The general form for a net is:
 
 If no args are specified then the component value is assigned a
 symbolic name specified by `component-name`.  Note, positive current
-flows from `positive-node` to `negative-node`.
+flows from `positive-node` to `negative-node`.  Node names can be
+numeric or symbolic.   The ground node is designated `0`.
 
 The component type is specified by the first letter(s) of
 `component-name`.  For example,
