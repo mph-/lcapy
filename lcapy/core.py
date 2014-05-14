@@ -354,8 +354,8 @@ def _inverse_laplace(expr, t, var):
             r = residue(expr, var, p, P)
 
             pc = p.conjugate()
-            if P.has_key(pc):
-                # Remove conjugate from poles.
+            if pc != p and P.has_key(pc):
+                # Remove conjugate from poles and process pole with its conjugate
                 P[pc] = 0
                 result2 += 2 * sym.re(r) * sym.exp(sym.re(p) * td) * sym.cos(sym.im(p) * td) + 2 * sym.im(r) * sym.exp(sym.re(p) * td) * sym.sin(sym.im(p) * td)
             else:
