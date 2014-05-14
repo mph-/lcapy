@@ -589,8 +589,6 @@ fraction form.  Here's an example:
 
    >>> from lcapy import *
    >>>
-   >>> s = sExpr.s
-   >>>
    >>> G = 1 / (s**2 + 5 * s + 6)
    >>>
    >>> pprint(partfrac(G))
@@ -601,8 +599,6 @@ fraction form.  Here's an example:
 Here's an example of a not strictly proper rational function,
 
    >>> from lcapy import *
-   >>>
-   >>> s = sExpr.s
    >>>
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6)
    >>>
@@ -641,7 +637,6 @@ Lcapy can perform inverse Laplace transforms.   Here's an example for
 a strictly proper rational function:
 
    >>> from lcapy import *
-   >>> s = sExpr.s
    >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
    >>> pprint(partfrac(H))
      35      30 
@@ -657,7 +652,6 @@ When the rational function is not strictly proper, the inverse Laplace
 transform has Dirac deltas (and derivatives of Dirac deltas):
 
    >>> from lcapy import *
-   >>> s = sExpr.s
    >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
    >>> pprint(partfrac(H)) 
         70      90 
@@ -672,7 +666,6 @@ Here's another example of a strictly proper rational function with a
 repeated pole:
 
    >>> from lcapy import *
-   >>> s = sExpr.s
    >>> H = 5 * (s + 5) / ((s + 3) * (s + 3))
    >>> pprint(ZPK(H))
    5⋅(s + 5)
