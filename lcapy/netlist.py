@@ -135,30 +135,42 @@ class NetElement(Element):
 
         self.args = args
 
-        if len(args) == 0:
-            args = (name, )
-
         kind = name[0]
-        # Handle Vac, Iac
-        if len(name) > 3 and name[1:3] == 'ac':
-            kind = name[0:3]
-        elif len(name) > 2 and name[0:2] == 'TF':
+        if len(name) > 2 and name[0:2] == 'TF':
             kind = name[0:2]
 
-        # An ammeter looks like a piece of wire so make a zero volt voltage source
-        # so we can find the current through it.
+        # An ammeter looks like a piece of wire so make a zero volt
+        # voltage source so we can find the current through it.
         if kind == 'A':
             kind = 'V'
             args = (0, )
         
         # Allowable one-ports; this could be extended to Y, Z, etc.
-        # Note V and I map to Vdc and Idc.
-        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : Vdc, 'I' : Idc, 'Vac' : Vac, 'Iac' : Iac, 'E' : VCVS, 'TF' : TF}
+        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'I' : I, 'E' : VCVS, 'TF' : TF}
+   
         try:
             foo = OPS[kind]
 
         except KeyError:
             raise(ValueError, 'Unknown component kind for %s' % name)
+
+        # Handle special cases for voltage and current sources.
+        # Perhaps could generalise for impulse, step, ramp sources?
+        if foo == V and args[0] == 'ac':
+            foo = Vac
+            args = args[1:]
+        elif foo == V and args[0] == 'dc':
+            foo = Vdc
+            args = args[1:]
+        elif foo == I and args[0] == 'ac':
+            foo = Iac
+            args = args[1:]
+        elif foo == I and args[0] == 'dc':
+            foo = Idc
+            args = args[1:]
+
+        if len(args) == 0:
+            args = (name, )
 
         cpt = foo(*args)
 

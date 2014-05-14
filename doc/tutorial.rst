@@ -712,11 +712,11 @@ The nodal voltages for a linear circuit can be found using Modified
 Nodal Analysis (MNA).  This requires the circuit topology be entered as
 a netlist.  This describes each component, its name, value, and the
 nodes it is connected to.  This netlist can be read from a file or
-created dynamically, for example
+created dynamically, for example,
 
    >>> from lcapy import pprint, Circuit
    >>> cct = Circuit()
-   >>> cct.net_add('Vs 1 0 10') 
+   >>> cct.net_add('V1 1 0 dc 10') 
    >>> cct.net_add('Ra 1 2 3e3') 
    >>> cct.net_add('Rb 2 0 1e3') 
 
@@ -726,25 +726,18 @@ the other voltages are referenced to.
 
 The general form for a net is:
 
-    component-name positive-node negative-node value
+    component-name positive-node negative-node arg1 [arg2 etc.]
 
-If `value` is not specified then it is assigned a symbolic name
-specified by `component-name`.
+If no args are specified then the component value is assigned a
+symbolic name specified by `component-name`.  Note, positive current
+flows from `positive-node` to `negative-node`.
 
 The component type is specified by the first letter(s) of
 `component-name`.  For example,
 
-- V DC voltage source
+- V voltage source
 
-- Vdc DC voltage source
-
-- Vac AC voltage source
-
-- I DC current source (current flows from `positive-node` to `negative-node`)
-
-- Idc DC current source
-
-- Iac AC current source
+- I current source
 
 - R resistor
 
@@ -757,6 +750,7 @@ The component type is specified by the first letter(s) of
 - E voltage-controlled voltage source (VCVS)
 
 - TF ideal transformer
+
 
 The node voltages are stored in a directory (`V`) indexed by the node name.
 For example,
@@ -777,9 +771,9 @@ transient voltages can be determined using an inverse Laplace transform:
    10.0⋅Heaviside(t)
 
 The branch currents are stored in a directory (`I`) indexed by component
-name.  For example, the current through the voltage source Vs is:
+name.  For example, the current through the voltage source `V1` is:
 
-   >>> pprint(cct.I['Vs'])
+   >>> pprint(cct.I['V1'])
    0.1
    ───
     s  
@@ -794,11 +788,12 @@ resistor Ra is:
     s 
 
 Since Lcapy uses SymPy, circuit analysis can be performed
-symbolically.  This can be achieved by not specifying a component
-value.  Lcapy, will then create a symbol using the component name.
+symbolically.  This can be achieved by using symbolic arguments or by
+not specifying a component value.  In the latter case, Lcapy will
+use the component name for its value.  For example,
 
    >>> cct = Circuit()
-   >>> cct.net_add('Vs 1 0') 
+   >>> cct.net_add('V1 1 0 dc Vs') 
    >>> cct.net_add('R1 1 2') 
    >>> cct.net_add('C1 2 0') 
    >>> pprint(cct.V[2])
@@ -811,3 +806,89 @@ value.  Lcapy, will then create a symbol using the component name.
    ⎜         ─────⎟             
    ⎜         C₁⋅R₁⎟             
    ⎝Vs - Vs⋅ℯ     ⎠⋅Heaviside(t)
+
+
+Initial Conditions
+------------------
+
+The initial voltage difference across a capacitor or the initial
+current through an inductor can be specified as the second argument.
+For example,
+
+   >>> cct = Circuit()
+   >>> cct.net_add('V1 1 0 dc Vs') 
+   >>> cct.net_add('C1 2 1 C1 v0') 
+   >>> cct.net_add('L1 2 0 L1 i0') 
+   >>> pprint(cct.V[2])
+   C₁⋅L₁⋅Vs⋅s + C₁⋅L₁⋅s⋅v₀ - L₁⋅i₀
+   ───────────────────────────────
+                    2             
+             C₁⋅L₁⋅s  + 1   
+
+
+Transfer functions
+------------------
+
+Transfer functions can be found from the ratio of two s-domain
+quantities such as voltage or current with zero initial conditions.
+Here's an example using an arbitrary input voltage `V(s)`:
+
+   >>> from lcapy import pprint, Circuit
+   >>> cct = Circuit()
+   >>> cct.net_add('V1 1 0 V(s)') 
+   >>> cct.net_add('R1 1 2') 
+   >>> cct.net_add('C1 2 0') 
+   >>> pprint(cct.V[2])
+       V(s)   
+   ───────────
+   C₁⋅R₁⋅s + 1
+
+   >>> H = cct.V[2] / cct.V[1]
+   >>> pprint(H)
+        1     
+   ───────────
+   C₁⋅R₁⋅s + 1
+
+The corresponding impulse response can found from an inverse Laplace transform:
+
+   >>> pprint(H.inverse_laplace())
+     -t               
+    ─────             
+    C₁⋅R₁             
+   ℯ     ⋅Heaviside(t)
+   ───────────────────
+          C₁⋅R₁ 
+
+
+Component specification
+-----------------------
+
+- DC voltage sources of voltage V:
+
+   Vname Np Nm dc V
+
+- DC current sources of current I:
+
+   Iname Np Nm dc I
+
+- AC voltage sources of voltage V, frequency f, and phase p:
+
+   Vname Np Nm ac V f p
+
+- AC current sources of current I, frequency f, and phase p:
+
+   Iname Np Nm ac I p
+
+- Resistors
+
+   Rname Np Nm R
+
+- Inductors:
+
+   Lname Np Nm L i0
+
+- Capacitors:
+
+   Cname Np Nm L v0
+
+
