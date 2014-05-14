@@ -26,11 +26,18 @@ transform for transient response analysis.
 Preliminaries
 =============
 
-- You will also need to install SymPy, see http://docs.sympy.org/latest/install.html.
+- You will need to install SymPy, see http://docs.sympy.org/latest/install.html.
 
 - For plotting you will need to install matplotlib.
 
-- Lcapy can be installed using sudo python setup.py install
+- Lcapy can be downloaded from https://github.com/mph-/lcapy
+
+  >>> git clone https://github.com/mph-/lcapy
+
+- Lcapy can be installed using:
+
+  >>> cd lcapy
+  >>> sudo python setup.py install
 
 - Then fire up your favourite python interpreter, for example, ipython:
 
@@ -111,7 +118,7 @@ Here `R(10)` creates a 10 ohm resistor and this is assigned to the
 variable `R1`.  Similarly, `R(5)` creates a 5 ohm resistor and this is
 assigned to the variable `R2`.  `Rtot` is the name of the network
 formed by connecting `R1` and `R2` in series.  Calling the `simplify`
-method will simplify the netwrok and combine the resistors into a
+method will simplify the network and combine the resistors into a
 single resistor equivalent.
 
 
@@ -702,7 +709,7 @@ Circuit analysis
 ================
 
 The nodal voltages for a linear circuit can be found using Modified
-Nodal Analysis (MNA).  This requires the circuit toplogy be entered as
+Nodal Analysis (MNA).  This requires the circuit topology be entered as
 a netlist.  This describes each component, its name, value, and the
 nodes it is connected to.  This netlist can be read from a file or
 created dynamically, for example
