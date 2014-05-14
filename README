@@ -21,9 +21,10 @@ example:
    >>> cct.net_add('V_s fred 0') 
    >>> cct.net_add('R_a fred 1') 
    >>> cct.net_add('R_b 1 0') 
-   >>> cct.analyse()
    >>> pprint(cct.V[1])
    >>> pprint(cct.V['fred'])
+   >>> pprint(cct.I['R_a'])
+   >>> pprint(cct.Vd['R_a'])
 
 
 One-port networks
