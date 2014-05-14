@@ -12,6 +12,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   install.rst
    tutorial.rst
    networks.rst
    circuits.rst

@@ -26,18 +26,7 @@ transform for transient response analysis.
 Preliminaries
 =============
 
-- You will need to install SymPy, see http://docs.sympy.org/latest/install.html.
-
-- For plotting you will need to install matplotlib.
-
-- Lcapy can be downloaded from https://github.com/mph-/lcapy
-
-  >>> git clone https://github.com/mph-/lcapy
-
-- Lcapy can be installed using:
-
-  >>> cd lcapy
-  >>> sudo python setup.py install
+- Before you can use Lcapy you need to install the Lcapy package (see :ref:`installation`) or set `PYTHONPATH` to find the Lcapy source files.
 
 - Then fire up your favourite python interpreter, for example, ipython:
 
