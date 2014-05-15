@@ -23,13 +23,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'general', 'canonical', 'ZPK', 'inverse_laplace', 'initial_value',
            'transient_response', 'response', 'final_value', 's', 'sExpr')
 
-#s = sym.symbols('s')
-
-class sExpr(object):
-    """s-domain expression or symbol"""
-    
-    s, t, f = sym.symbols('s t f')
-
+class Expr(object):
 
     @property
     def expr(self):    
@@ -182,115 +176,6 @@ class sExpr(object):
         x = self.__class__(x)
         return self.__class__(self.val * x.val / (self.val + x.val))
     
-    
-    def differentiate(self):
-        """Differentiate (multiply by s)"""
-        
-        return self.__class__(self.val * self.s)
-    
-
-    def integrate(self):
-        """Integrate (divide by s)"""
-        
-        return self.__class__(self.val / self.s)
-    
-    
-    def delay(self, T):
-        """Apply delay of T seconds by multiplying by exp(-s T)"""
-        
-        T = self.__class__(T)
-        return self.__class__(self.val * sym.exp(-T * self.s))
-
-
-    def subs(self, *args, **kwargs):
-        """Substitute symbol in expression"""
-
-        return self.expr.subs(s, *args, **kwargs)        
-
-
-    def omega(self):
-        """Return expression with s = j omega"""
-
-        omega = sym.symbols('omega')
-        return self.subs(sym.I * omega)        
-
-
-    def zeros(self):
-        """Return zeroes of expression"""
-        
-        return zeros(self.expr, self.s)
-
-
-    def poles(self):
-        """Return poles of expression"""
-        
-        return poles(self.expr, self.s)
-
-
-    def residues(self):
-        """Return residues of expression"""
-        
-        return residues(self.expr, self.s)
-
-
-    def canonical(self):
-        """Convert rational function to canonical form with unity
-        highest power of denominator.
-
-        See also general, partfrac, and ZPK"""
-        
-        return self.__class__(canonical(self.expr, self.s), simplify=False)
-
-
-    def general(self):
-        """Convert rational function to general form
-
-        See also canonical, partfrac, and ZPK"""
-        
-        return self.__class__(general(self.expr, self.s), simplify=False)
-
-
-    def partfrac(self):
-        """Convert rational function into partial fraction form.
-
-        See also canonical, general, and ZPK"""
-
-        return self.__class__(partfrac(self.expr, self.s), simplify=False)
-
-
-    def ZPK(self):
-        """Convert to pole-zero-gain (PZK) form.
-        
-        See also canonical, general, and partfrac"""
-        
-        return self.__class__(ZPK(self.expr, self.s), simplify=False)
-
-
-    def initial_value(self):
-        """Determine value at t = 0"""
-        
-        return initial_value(self.expr, self.s)
-
-
-    def final_value(self):
-        """Determine value at t = oo"""
-        
-        return final_value(self.expr, self.s)
-
-
-    def _as_ratfun_parts(self):
-        
-        return _as_ratfun_parts(self.expr, self.s)
-
-
-    def split_strictly_proper(self):
-        
-        N, D = self._as_ratfun_parts()
-
-        Q, M = N.div(D)
-
-        return Q.as_expr(), M / D
-
 
     def pprint(self):
         """Pretty print"""
@@ -309,65 +194,8 @@ class sExpr(object):
 
     def latex(self):
         """Make latex string"""
+
         return sym.latex(self.val)
-
-
-    def simplify(self):
-        """Simplify"""
-        # Not sure if this is needed; perhaps use canonical?
-        val = sym.ratsim(self.val)
-        return self.__class__(val)
-    
-    
-    def inverse_laplace(self):
-        """Attempt inverse Laplace transform"""
-        
-        return inverse_laplace(self.expr, self.t, self.s)
-
-
-    def transient_response(self, t=None):
-        """Evaluate transient (impulse) response"""
-
-        return transient_response(self.expr, t, self.s)
-    
-    
-    def impulse_response(self, t=None):
-        """Evaluate transient (impulse) response"""
-        
-        return self.transient_response(t)
-
-
-    def step_response(self, t=None):
-        """Evaluate step response"""
-        
-        return (self / self.s).transient_response(t)
-    
-    
-    def frequency_response(self, f=None):
-        """Evaluate frequency response"""
-        
-        expr = self.val.subs(self.s, sym.I * 2 * sym.pi * self.f)
-        
-        if f == None:
-            return expr
-        
-        func = lambdify(self.f, expr, modules="numpy")
-        return np.array([func(f1) for f1 in f])
-
-
-    def response(self, x, t):
-        """Evaluate response to input signal x"""
-
-        return response(self.expr, x, t, self.s)
-
-
-    def decompose(self):
-
-        ratfun, delay = _as_ratfun_delay(self.expr, self.s)
-        
-        N, D = _as_ratfun_parts(ratfun, self.s)
-
-        return N, D, delay
 
     
     @property
@@ -380,6 +208,181 @@ class sExpr(object):
     def is_constant(self):
 
         return self.expr.is_constant()
+
+
+
+class sExpr(Expr):
+    """s-domain expression or symbol"""
+    
+    t, f = sym.symbols('s t')
+
+
+    def differentiate(self):
+        """Differentiate (multiply by s)"""
+        
+        return self.__class__(self.val * s)
+    
+
+    def integrate(self):
+        """Integrate (divide by s)"""
+        
+        return self.__class__(self.val / s)
+    
+    
+    def delay(self, T):
+        """Apply delay of T seconds by multiplying by exp(-s T)"""
+        
+        T = self.__class__(T)
+        return self.__class__(self.val * sym.exp(-s * T))
+
+
+    def subs(self, *args, **kwargs):
+        """Substitute symbol for s in expression"""
+
+        return self.expr.subs(s, *args, **kwargs)        
+
+
+    def omega(self):
+        """Return expression with s = j omega"""
+
+        omega = sym.symbols('omega')
+        return self.subs(sym.I * omega)        
+
+
+    def zeros(self):
+        """Return zeroes of expression"""
+        
+        return zeros(self.expr, s)
+
+
+    def poles(self):
+        """Return poles of expression"""
+        
+        return poles(self.expr, s)
+
+
+    def residues(self):
+        """Return residues of expression"""
+        
+        return residues(self.expr, s)
+
+
+    def canonical(self):
+        """Convert rational function to canonical form with unity
+        highest power of denominator.
+
+        See also general, partfrac, and ZPK"""
+        
+        return self.__class__(canonical(self.expr, s), simplify=False)
+
+
+    def general(self):
+        """Convert rational function to general form
+
+        See also canonical, partfrac, and ZPK"""
+        
+        return self.__class__(general(self.expr, s), simplify=False)
+
+
+    def partfrac(self):
+        """Convert rational function into partial fraction form.
+
+        See also canonical, general, and ZPK"""
+
+        return self.__class__(partfrac(self.expr, s), simplify=False)
+
+
+    def ZPK(self):
+        """Convert to pole-zero-gain (PZK) form.
+        
+        See also canonical, general, and partfrac"""
+        
+        return self.__class__(ZPK(self.expr, s), simplify=False)
+
+
+    def initial_value(self):
+        """Determine value at t = 0"""
+        
+        return initial_value(self.expr, s)
+
+
+    def final_value(self):
+        """Determine value at t = oo"""
+        
+        return final_value(self.expr, s)
+
+
+    def _as_ratfun_parts(self):
+        
+        return _as_ratfun_parts(self.expr, s)
+
+
+    def split_strictly_proper(self):
+        
+        N, D = self._as_ratfun_parts()
+
+        Q, M = N.div(D)
+
+        return Q.as_expr(), M / D
+
+
+    def simplify(self):
+        """Simplify"""
+
+        # Not sure if this is needed; perhaps use canonical?
+        val = sym.ratsim(self.val)
+        return self.__class__(val)
+    
+    
+    def inverse_laplace(self):
+        """Attempt inverse Laplace transform"""
+        
+        return inverse_laplace(self.expr, t, s)
+
+
+    def transient_response(self, t=None):
+        """Evaluate transient (impulse) response"""
+
+        return transient_response(self.expr, t, s)
+    
+    
+    def impulse_response(self, t=None):
+        """Evaluate transient (impulse) response"""
+        
+        return self.transient_response(t)
+
+
+    def step_response(self, t=None):
+        """Evaluate step response"""
+        
+        return (self / s).transient_response(t)
+    
+    
+    def frequency_response(self, f=None):
+        """Evaluate frequency response"""
+        
+        expr = self.val.subs(s, sym.I * 2 * sym.pi * self.f)
+        
+        if f == None:
+            return expr
+        
+        func = lambdify(self.f, expr, modules="numpy")
+        return np.array([func(f1) for f1 in f])
+
+
+    def response(self, x, t):
+        """Evaluate response to input signal x"""
+
+        return response(self.expr, x, t, s)
+
+
+    def decompose(self):
+
+        ratfun, delay = _as_ratfun_delay(self.expr, s)
+        
+        N, D = _as_ratfun_parts(ratfun, s)
+
+        return N, D, delay
 
 
 s = sExpr('s')
@@ -842,7 +845,7 @@ def final_value(expr, var=None):
 
 
 class cExpr(sExpr):
-    """constant expression or symbol"""
+    """Constant expression or symbol"""
 
     def __init__(self, val):
         
@@ -885,12 +888,12 @@ class Zs(sExpr):
         if self.is_number:
             return R(self.expr)
 
-        z = self * self.s
+        z = self * s
 
         if z.is_number:
             return C((1 / z).expr)
 
-        z = self / self.s
+        z = self / s
 
         if z.is_number:
             return L(z.expr)
@@ -932,12 +935,12 @@ class Ys(sExpr):
         if self.is_number:
             return G(self.expr)
 
-        y = self * self.s
+        y = self * s
 
         if y.is_number:
             return L((1 / y).expr)
 
-        y = self / self.s
+        y = self / s
 
         if y.is_number:
             return C(y.expr)
@@ -952,7 +955,7 @@ class Vs(sExpr):
 
     def cpt(self):
 
-        v = self * self.s
+        v = self * s
 
         if v.is_number:
             return Vdc(v.expr)
@@ -966,7 +969,7 @@ class Is(sExpr):
     
     def cpt(self):
 
-        i = self * self.s
+        i = self * s
 
         if i.is_number:
             return Idc(i.expr)

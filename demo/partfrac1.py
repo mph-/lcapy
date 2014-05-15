@@ -1,7 +1,5 @@
 from lcapy import *
 
-s = sExpr.s
-
 G = 1 / (s**2 + 5 * s + 6)
 
 pprint(G)
