@@ -858,25 +858,33 @@ The component type is specified by the first letter(s) of the
 
    Vname Np Nm dc V
 
-   vname Np Nm V
+- AC voltage source of voltage V, frequency f, and phase p:
+
+   Vname Np Nm ac V f p
+
+- Arbitrary s-domain voltage source:
+
+   Vname Np Nm Vexpr
+
+- Arbitrary time domain voltage source:
+
+   vname Np Nm vexpr
 
 - DC current source of current I:
 
    Iname Np Nm dc I
 
-   iname Np Nm I
-
-- AC voltage source of voltage V, frequency f, and phase p:
-
-   Vname Np Nm ac V f p
-
-   vname Np Nm ac V f p
-
 - AC current source of current I, frequency f, and phase p:
 
    Iname Np Nm ac I p
 
-   iname Np Nm ac I p
+- Arbitrary s-domain current source:
+
+   Iname Np Nm Iexpr
+
+- Arbitrary time domain current source:
+
+   iname Np Nm iexpr
 
 - Resistor:
 
@@ -905,6 +913,30 @@ The component type is specified by the first letter(s) of the
 Np denotes the positive node; Np denotes the negative node.  Note,
 positive current flows from `positive-node` to `negative-node`.  Node
 names can be numeric or symbolic.  The ground node is designated `0`.
+
+Here's an example of a ramp voltage source (note, the expression cannot have
+spaces in it):
+
+v1 1 0 t*Heaviside(t)
+
+Here's an example of a Dirac Delta voltage source:
+
+v2 1 0 DiracDelta(t)
+
+Here's an example of a cosine current current of amplitude 20 A and frequency f
+
+i1 1 0 20*cos(2*pi*f*t)
+
+Here's an example of a negative exponential current of amplitude 20 A
+and time constant 2 s
+
+i1 1 0 20*exp(-t/4)
+
+Here's another way of specifying a 20 V DC voltage source, this time
+using its Laplace transform:
+
+V1 1 0 20/s
+
 
 
 Other methods

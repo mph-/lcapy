@@ -21,7 +21,8 @@ from sympy.utilities.lambdify import lambdify
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf', 
            'zp2tf', 'poles', 'zeros', 'residue', 'residues', 'partfrac',
            'general', 'canonical', 'ZPK', 'inverse_laplace', 'initial_value',
-           'transient_response', 'response', 'final_value', 's', 'sExpr', 't', 'tExpr')
+           'transient_response', 'response', 'final_value', 's', 'sExpr', 
+           't', 'tExpr', 'cExpr')
 
 class Expr(object):
 
@@ -35,7 +36,7 @@ class Expr(object):
         if isinstance(val, sExpr):
             val = val.val
             
-        if real and isinstance(val, str) and not val[0].isdigit():
+        if real and isinstance(val, str) and val.isalnum() and not val[0].isdigit():
             val = sym.symbols(val, real=True)
         val = sym.sympify(val)
 

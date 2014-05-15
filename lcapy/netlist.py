@@ -140,15 +140,17 @@ class NetElement(Element):
             kind = name[0:2]
 
         # Handle special cases for voltage and current sources.
-        # Perhaps could generalise for impulse, step, ramp sources?
+        # Perhaps could generalise for impulse, step, ramp sources
+        # although these can be specified symbolically, for example,
+        # v1 1 0 t*Heaviside(t)
         if args != ():
-            if kind in ('v', 'V') and args[0] == 'ac':
+            if kind == 'V' and args[0] == 'ac':
                 kind = 'Vac'
-            elif kind in ('v', 'V') and args[0] == 'dc':
+            elif kind == 'V' and args[0] == 'dc':
                 kind = 'Vdc'
-            elif kind in ('i', 'I') and args[0] == 'ac':
+            elif kind == 'I' and args[0] == 'ac':
                 kind = 'Iac'
-            elif kind in ('i', 'I') and args[0] == 'dc':
+            elif kind == 'I' and args[0] == 'dc':
                 kind = 'Idc'
 
             if kind in ('Vdc', 'Vac', 'Idc', 'Iac') and args[0] in ('ac', 'dc'):
