@@ -830,7 +830,7 @@ class V(Thevenin):
 
     def __init__(self, Vval):
     
-        Vval = cExpr(Vval)
+        Vval = sExpr(Vval)
         super (V, self).__init__(Zs(0), Vs(Vval))
         self.args = (Vval, )    
 
@@ -868,7 +868,7 @@ class I(Norton):
 
     def __init__(self, Ival):
     
-        Ival = cExpr(Ival)
+        Ival = sExpr(Ival)
         super (I, self).__init__(Ys(0), Is(Ival))
         self.args = (Ival, )    
 
