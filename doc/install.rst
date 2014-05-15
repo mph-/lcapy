@@ -33,4 +33,6 @@ Lcapy installation for Linux
 
 - If you do not have root access, you can set the environment variable `PYTHONPATH` to find the source files for Lcapy.
 
+- While you are at it, it is worthwhile to install ipython, the interactive python shell
 
+  >>> sudo apt-get install ipython
