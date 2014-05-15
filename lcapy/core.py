@@ -385,7 +385,6 @@ class sExpr(Expr):
         return N, D, delay
 
 
-
 class tExpr(Expr):
     """t-domain expression or symbol"""
 
@@ -475,9 +474,12 @@ def WyeDelta(Z1, Z2, Z3):
     return (Z2 * Z3 / ZZ, Z1 * Z3 / ZZ, Z1 * Z2 / ZZ)
 
 
-def tf(numer, denom=1, var=s):
+def tf(numer, denom=1, var=None):
     """Create a transfer function from lists of the coefficient
     for the numerator and denominator"""
+
+    if var == None:
+        var = sym.symbols('s')
 
     N = sym.Poly(numer, var)
     D = sym.Poly(denom, var)
@@ -485,10 +487,13 @@ def tf(numer, denom=1, var=s):
     return sExpr(N / D)
 
 
-def _zp2tf(zeros, poles, K=1, var=s):
+def _zp2tf(zeros, poles, K=1, var=None):
     """Create a transfer function from lists of zeros and poles, 
     and from a constant gain"""
     
+    if var == None:
+        var = sym.symbols('s')
+
     zeros = sym.sympify(zeros)
     poles = sym.sympify(poles)
 
