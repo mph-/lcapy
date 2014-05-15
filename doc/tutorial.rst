@@ -717,7 +717,7 @@ created dynamically, for example,
    >>> cct.net_add('Ra 1 2 3e3') 
    >>> cct.net_add('Rb 2 0 1e3') 
 
-This creates a circuit comprised of a 10\,V DC voltage source connected
+This creates a circuit comprised of a 10 V DC voltage source connected
 to two resistors in series.  The node named 0 denotes the ground which
 the other voltages are referenced to.
 
