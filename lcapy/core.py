@@ -400,6 +400,18 @@ class tExpr(Expr):
         return sExpr(F)
 
 
+class cExpr(Expr):
+    """Constant expression or symbol"""
+
+    def __init__(self, val):
+        
+        # FIXME for expressions of cExpr
+        if False and not isinstance(val, (cExpr, int, float, str)):
+            raise ValueError('%s of type %s not int, float, or str' % (val, type(val)))
+
+        super (cExpr, self).__init__(val, simplify=False, real=True)
+
+
 s = sExpr('s')
 t = tExpr('t')
 
@@ -859,18 +871,6 @@ def final_value(expr, var=None):
         expr = expr.expr
 
     return sym.limit(expr * var, var, 0)
-
-
-class cExpr(sExpr):
-    """Constant expression or symbol"""
-
-    def __init__(self, val):
-        
-        # FIXME for expressions of cExpr
-        if False and not isinstance(val, (cExpr, int, float, str)):
-            raise ValueError('%s of type %s not int, float, or str' % (val, type(val)))
-
-        super (cExpr, self).__init__(val, simplify=False, real=True)
 
 
 class Zs(sExpr):
