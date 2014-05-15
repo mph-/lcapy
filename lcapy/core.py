@@ -21,7 +21,7 @@ from sympy.utilities.lambdify import lambdify
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf', 
            'zp2tf', 'poles', 'zeros', 'residue', 'residues', 'partfrac',
            'general', 'canonical', 'ZPK', 'inverse_laplace', 'initial_value',
-           'transient_response', 'response', 'final_value', 's', 'sExpr')
+           'transient_response', 'response', 'final_value', 's', 'sExpr', 't', 'tExpr')
 
 class Expr(object):
 
@@ -214,8 +214,7 @@ class Expr(object):
 class sExpr(Expr):
     """s-domain expression or symbol"""
     
-    t, f = sym.symbols('s t')
-
+    var = sym.symbols('s')
 
     def differentiate(self):
         """Differentiate (multiply by s)"""
@@ -337,13 +336,13 @@ class sExpr(Expr):
     def inverse_laplace(self):
         """Attempt inverse Laplace transform"""
         
-        return inverse_laplace(self.expr, t, s)
+        return inverse_laplace(self.expr, t, self.var)
 
 
     def transient_response(self, t=None):
         """Evaluate transient (impulse) response"""
 
-        return transient_response(self.expr, t, s)
+        return transient_response(self.expr, t, self.var)
     
     
     def impulse_response(self, t=None):
@@ -355,42 +354,60 @@ class sExpr(Expr):
     def step_response(self, t=None):
         """Evaluate step response"""
         
-        return (self / s).transient_response(t)
+        return (self / self.var).transient_response(t)
     
     
     def frequency_response(self, f=None):
         """Evaluate frequency response"""
         
-        expr = self.val.subs(s, sym.I * 2 * sym.pi * self.f)
+        fsym = sym.symbols('f')
+
+        expr = self.val.subs(s, sym.I * 2 * sym.pi * fsym)
         
         if f == None:
             return expr
         
-        func = lambdify(self.f, expr, modules="numpy")
+        func = lambdify(fsym, expr, modules="numpy")
         return np.array([func(f1) for f1 in f])
 
 
     def response(self, x, t):
         """Evaluate response to input signal x"""
 
-        return response(self.expr, x, t, s)
+        return response(self.expr, x, t, self.var)
 
 
     def decompose(self):
 
-        ratfun, delay = _as_ratfun_delay(self.expr, s)
+        ratfun, delay = _as_ratfun_delay(self.expr, self.var)
         
-        N, D = _as_ratfun_parts(ratfun, s)
+        N, D = _as_ratfun_parts(ratfun, self.var)
 
         return N, D, delay
 
 
+
+class tExpr(Expr):
+    """t-domain expression or symbol"""
+
+    var = sym.symbols('t')
+
+
+    def laplace(self):
+        """Attempt Laplace transform"""
+        
+        F, a, cond = sym.laplace_transform(self.expr, self.var, s)
+        return sExpr(F)
+
+
 s = sExpr('s')
+t = tExpr('t')
+
 
 def _guess_var(expr, var):
 
     if hasattr(expr, 'expr'):
-        return expr.expr, expr.s
+        return expr.expr, expr.var
 
     if var != None:
         return expr, var
@@ -754,7 +771,7 @@ def inverse_laplace(expr, t=None, s=None):
         from sympy.integrals.transforms import inverse_laplace_transform
         result = inverse_laplace_transform(expr, t, s)
 
-    return result
+    return tExpr(result)
 
 
 def transient_response(expr, t=None, s=None):
