@@ -549,7 +549,6 @@ or symbolically:
 
    >>> from lcapy import *
    >>>
-   >>> s = tf('s')
    >>> H3 = 0.001 / (s**2 + 0.05 * s)
    >>> pprint(H3)
         0.001     
@@ -558,7 +557,8 @@ or symbolically:
    1.0⋅s  + 0.05⋅s
 
 
-In each case, parameters can be expressed numerically or symbolically, for example,
+In each case, parameters can be expressed numerically or symbolically,
+for example,
 
    >>> from lcapy import *
    >>>
@@ -580,7 +580,7 @@ fraction form.  Here's an example:
    >>>
    >>> G = 1 / (s**2 + 5 * s + 6)
    >>>
-   >>> pprint(partfrac(G))
+   >>> pprint(G.partfrac())
       1       1  
    - ───── + ─────
      s + 3   s + 2
@@ -591,28 +591,28 @@ Here's an example of a not strictly proper rational function,
    >>>
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6)
    >>>
-   >>> pprint(partfrac(H))
+   >>> pprint(H.partfrac())
          70      90 
    5 + ───── - ─────
        s + 3   s + 2
 
 The rational function can also be printed in ZPK form:
 
-   >>> pprint(ZPK(H))
+   >>> pprint(H.ZPK())
    5⋅(s - 4)⋅(s + 5)
    ─────────────────
     (s + 2)⋅(s + 3) 
 
 Here it is obvious that the poles are -2 and -3.  These can also be found using the poles function:
 
-   >>> poles(H)
+   >>> H.poles()
    {-3: 1, -2: 1}
 
 Here the number after the colon indicates how many times the pole is repeated.
 
 Similarly, the zeros can be found using the zeros function:
 
-   >>> zeros(H)
+   >>> H.zeros()
    {-5: 1, 4: 1}
 
 Lcapy can also handle rational functions with a delay.
@@ -625,13 +625,13 @@ Inverse Laplace transforms
 Lcapy can perform inverse Laplace transforms.   Here's an example for
 a strictly proper rational function:
 
-   >>> from lcapy import *
+   >>> from lcapy import s, pprint
    >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
-   >>> pprint(partfrac(H))
+   >>> pprint(H.partfrac())
      35      30 
    ───── - ─────
    s + 3   s + 2
-   >>> pprint(inverse_laplace(H))
+   >>> pprint(H.inverse_laplace())
    ⎛      -2⋅t       -3⋅t⎞             
    ⎝- 30⋅ℯ     + 35⋅ℯ    ⎠⋅Heaviside(t)
 
@@ -640,13 +640,13 @@ The Heaviside function is the unit step.
 When the rational function is not strictly proper, the inverse Laplace
 transform has Dirac deltas (and derivatives of Dirac deltas):
 
-   >>> from lcapy import *
+   >>> from lcapy import s, pprint
    >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
-   >>> pprint(partfrac(H)) 
+   >>> pprint(H.partfrac()) 
         70      90 
    5 + ───── - ─────
        s + 3   s + 2
-   >>> pprint(inverse_laplace(H))
+   >>> pprint(H.inverse_laplace())
    ⎛      -2⋅t       -3⋅t⎞                               
    ⎝- 90⋅ℯ     + 70⋅ℯ    ⎠⋅Heaviside(t) + 5⋅DiracDelta(t)
 
@@ -654,37 +654,52 @@ transform has Dirac deltas (and derivatives of Dirac deltas):
 Here's another example of a strictly proper rational function with a
 repeated pole:
 
-   >>> from lcapy import *
+   >>> from lcapy import s, pprint
    >>> H = 5 * (s + 5) / ((s + 3) * (s + 3))
-   >>> pprint(ZPK(H))
+   >>> pprint(H.ZPK())
    5⋅(s + 5)
    ─────────
            2
     (s + 3) 
-   >>> pprint(partfrac(H))
+   >>> pprint(H.partfrac())
      5        10   
    ───── + ────────
    s + 3          2
            (s + 3) 
-   >>> pprint(inverse_laplace(H))
+   >>> pprint(H.inverse_laplace())
    ⎛      -3⋅t      -3⋅t⎞             
    ⎝10⋅t⋅ℯ     + 5⋅ℯ    ⎠⋅Heaviside(t)
 
 
 Rational functions with delays can also be handled:
 
-   >>> from lcapy import *
-   >>> from sympy import symbols
+   >>> from lcapy import s, pprint
+   >>> import sympy as sym
    >>> T = sym.symbols('T')
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * sym.exp(-s * T)
-   >>> pprint(partfrac(H))
+   >>> pprint(H.partfrac())
    ⎛      70      90 ⎞  -T⋅s
    ⎜5 + ───── - ─────⎟⋅ℯ    
    ⎝    s + 3   s + 2⎠      
-   >>> pprint(inverse_laplace(H))
+   >>> pprint(H.inverse_laplace())
    ⎛      2⋅T - 2⋅t       3⋅T - 3⋅t⎞                                         
    ⎝- 90⋅ℯ          + 70⋅ℯ         ⎠⋅Heaviside(-T + t) + 5⋅DiracDelta(-T + t)
 
+
+
+Laplace transforms
+==================
+
+Lcapy can also perform Laplace transforms.   Here's an example:
+
+   >>> from lcapy import t, pprint
+   >>> 
+   >>> v = 10 * t ** 2 + 3 * t
+   >>> pprint(v.laplace())
+   3⋅s + 20
+   ────────
+       3   
+      s   
 
 
 Circuit analysis
