@@ -219,13 +219,13 @@ class sExpr(Expr):
     def differentiate(self):
         """Differentiate (multiply by s)"""
         
-        return self.__class__(self.val * s)
+        return self.__class__(self.val * self.var)
     
 
     def integrate(self):
         """Integrate (divide by s)"""
         
-        return self.__class__(self.val / s)
+        return self.__class__(self.val / self.var)
     
     
     def delay(self, T):
@@ -251,19 +251,19 @@ class sExpr(Expr):
     def zeros(self):
         """Return zeroes of expression"""
         
-        return zeros(self.expr, s)
+        return zeros(self.expr, self.var)
 
 
     def poles(self):
         """Return poles of expression"""
         
-        return poles(self.expr, s)
+        return poles(self.expr, self.var)
 
 
     def residues(self):
         """Return residues of expression"""
         
-        return residues(self.expr, s)
+        return residues(self.expr, self.var)
 
 
     def canonical(self):
@@ -272,7 +272,7 @@ class sExpr(Expr):
 
         See also general, partfrac, and ZPK"""
         
-        return self.__class__(canonical(self.expr, s), simplify=False)
+        return self.__class__(canonical(self.expr, self.var), simplify=False)
 
 
     def general(self):
@@ -280,7 +280,7 @@ class sExpr(Expr):
 
         See also canonical, partfrac, and ZPK"""
         
-        return self.__class__(general(self.expr, s), simplify=False)
+        return self.__class__(general(self.expr, self.var), simplify=False)
 
 
     def partfrac(self):
@@ -288,7 +288,7 @@ class sExpr(Expr):
 
         See also canonical, general, and ZPK"""
 
-        return self.__class__(partfrac(self.expr, s), simplify=False)
+        return self.__class__(partfrac(self.expr, self.var), simplify=False)
 
 
     def ZPK(self):
@@ -296,24 +296,24 @@ class sExpr(Expr):
         
         See also canonical, general, and partfrac"""
         
-        return self.__class__(ZPK(self.expr, s), simplify=False)
+        return self.__class__(ZPK(self.expr, self.var), simplify=False)
 
 
     def initial_value(self):
         """Determine value at t = 0"""
         
-        return initial_value(self.expr, s)
+        return initial_value(self.expr, self.var)
 
 
     def final_value(self):
         """Determine value at t = oo"""
         
-        return final_value(self.expr, s)
+        return final_value(self.expr, self.var)
 
 
     def _as_ratfun_parts(self):
         
-        return _as_ratfun_parts(self.expr, s)
+        return _as_ratfun_parts(self.expr, self.var)
 
 
     def split_strictly_proper(self):
@@ -328,8 +328,7 @@ class sExpr(Expr):
     def simplify(self):
         """Simplify"""
 
-        # Not sure if this is needed; perhaps use canonical?
-        val = sym.ratsim(self.val)
+        val = sym.simplify(self.val)
         return self.__class__(val)
     
     
@@ -632,7 +631,7 @@ def _as_ratfun_delay(expr, var=None):
     
     expr, var = _guess_var(expr, var)
 
-    F = expr.as_ordered_factors()
+    F = sym.factor(expr).as_ordered_factors()
 
     delay = sym.sympify(0)
     ratfun = sym.sympify(1)
