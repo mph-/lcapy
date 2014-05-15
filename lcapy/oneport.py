@@ -29,10 +29,10 @@ Copyright 2014 Michael Hayes, UCECE
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr
+from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr
 
 
-__all__ = ('V', 'I', 'R', 'L', 'C', 'G', 'Y', 'Z', 'Vdc', 'Idc', 'Vac', 'Iac', 'Norton', 'Thevenin', 'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
+__all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z', 'Vdc', 'Idc', 'Vac', 'Iac', 'Norton', 'Thevenin', 'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
 
 
 def _check_oneport_args(args):
@@ -863,6 +863,16 @@ class Vac(V):
         self.args = (V, f, phi)    
 
 
+class v(V):
+    """Arbitrary t-domain voltage source"""
+
+    def __init__(self, vval):
+    
+        Vval = tExpr(vval).laplace()
+        super (V, self).__init__(Zs(0), Vs(Vval))
+        self.args = (vval, )    
+
+
 class I(Norton):
     """Arbitrary s-domain current source"""
 
@@ -897,6 +907,16 @@ class Iac(Norton):
         omega = 2 * sym.pi * f
         super (Iac, self).__init__(Is((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
         self.args = (I, f, phi)    
+
+
+class i(I):
+    """Arbitrary t-domain current source"""
+
+    def __init__(self, ival):
+    
+        Ival = tExpr(ival).laplace()
+        super (I, self).__init__(Zs(0), Is(Ival))
+        self.args = (ival, )    
 
 
 class Xtal(Thevenin):

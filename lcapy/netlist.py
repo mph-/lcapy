@@ -36,7 +36,7 @@ Copyright 2014 Michael Hayes, UCECE
 from __future__ import division
 from warnings import warn
 from lcapy.core import  pprint, cExpr
-from lcapy.oneport import V, I, R, L, C, G, Y, Z, Vdc, Idc, Vac, Iac, Is, Vs, Ys, Zs
+from lcapy.oneport import V, I, v, i, R, L, C, G, Y, Z, Vdc, Idc, Vac, Iac, Is, Vs, Ys, Zs
 import sympy as sym
 
 
@@ -154,15 +154,8 @@ class NetElement(Element):
             if kind in ('Vdc', 'Vac', 'Idc', 'Iac') and args[0] in ('ac', 'dc'):
                 args = args[1:]
 
-        # For time-domain sources, could add arbitrary expression
-        # such as t * u(t) and then convert with Laplace transform.
-        if kind == 'v':
-            kind = 'Vdc'
-        elif kind == 'i':
-            kind = 'Idc'
-
         # Allowable one-ports; this could be extended to Y, Z, etc.
-        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'Vdc' : Vdc, 'Vac' : Vac, 'I' : I, 'Idc' : Idc, 'Iac' : Iac, 'E' : VCVS, 'TF' : TF}
+        OPS = {'R' : R, 'G' : G, 'C' : C, 'L' : L, 'V' : V, 'Vdc' : Vdc, 'Vac' : Vac, 'v' : v, 'I' : I, 'Idc' : Idc, 'Iac' : Iac, 'i' : i, 'E' : VCVS, 'TF' : TF}
    
         try:
             foo = OPS[kind]
