@@ -915,7 +915,7 @@ class i(I):
     def __init__(self, ival):
     
         Ival = tExpr(ival).laplace()
-        super (I, self).__init__(Zs(0), Is(Ival))
+        super (I, self).__init__(Ys(0), Is(Ival))
         self.args = (ival, )    
 
 

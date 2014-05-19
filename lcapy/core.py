@@ -178,19 +178,14 @@ class Expr(object):
         return self.__class__(self.val * x.val / (self.val + x.val))
     
 
-    def pprint(self):
-        """Pretty print"""
-        print(self.pretty())
+    def _pretty(self, arg):
+        """Make pretty string"""
+        return sym.pretty(self.val)
 
 
     def pretty(self):
         """Make pretty string"""
         return sym.pretty(self.val)
-
-
-    def pprintans(self, name):
-        """Pretty print string with LHS name"""
-        print(self.prettyans(name))
 
 
     def prettyans(self, name):
@@ -199,15 +194,26 @@ class Expr(object):
         return sym.pretty(sym.Eq(sym.sympify(name), self.val))
 
 
-    def _pretty(self, arg):
-        """Make pretty string"""
-        return sym.pretty(self.val)
+    def pprint(self):
+        """Pretty print"""
+        print(self.pretty())
+
+
+    def pprintans(self, name):
+        """Pretty print string with LHS name"""
+        print(self.prettyans(name))
 
 
     def latex(self):
         """Make latex string"""
 
         return sym.latex(self.val)
+
+
+    def latexans(self, name):
+        """Print latex string with LHS name"""
+
+        print(sym.latex(sym.Eq(sym.sympify(name), self.val)))
 
     
     @property
