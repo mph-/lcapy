@@ -1,13 +1,11 @@
-from lcapy import inverse_laplace, partfrac
+from lcapy import inverse_laplace, partfrac, t, s
 import sympy as sym
-
-t, s = sym.symbols('t s')
 
 H = (s**2 + 4) / (s**2 + 3 * s + 2)
 
-sym.pprint(sym.Eq(sym.sympify('H'), H))
+H.pprintans('H(s)')
 
-sym.pprint(sym.Eq(sym.sympify('H'), partfrac(H, s)))
+H.partfrac().pprintans('H(s)')
 
-sym.pprint(sym.Eq(sym.sympify('h'), inverse_laplace(H, t, s)))
+H.inverse_laplace().pprintans('h(t)')
 

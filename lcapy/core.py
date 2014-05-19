@@ -188,6 +188,17 @@ class Expr(object):
         return sym.pretty(self.val)
 
 
+    def pprintans(self, name):
+        """Pretty print string with LHS name"""
+        print(self.prettyans(name))
+
+
+    def prettyans(self, name):
+        """Make pretty string with LHS name"""
+
+        return sym.pretty(sym.Eq(sym.sympify(name), self.val))
+
+
     def _pretty(self, arg):
         """Make pretty string"""
         return sym.pretty(self.val)
@@ -237,16 +248,16 @@ class sExpr(Expr):
 
 
     def subs(self, *args, **kwargs):
-        """Substitute symbol for s in expression"""
+        """Substitute symbols in expression"""
 
-        return self.expr.subs(s, *args, **kwargs)        
+        return self.__class__(self.expr.subs(*args, **kwargs))
 
 
     def omega(self):
         """Return expression with s = j omega"""
 
         omega = sym.symbols('omega')
-        return self.subs(sym.I * omega)        
+        return self.subs(s, sym.I * omega)        
 
 
     def zeros(self):
