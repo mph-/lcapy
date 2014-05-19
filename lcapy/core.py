@@ -38,7 +38,7 @@ class Expr(object):
             
         if real and isinstance(val, str) and val.isalnum() and not val[0].isdigit():
             val = sym.symbols(val, real=True)
-        val = sym.sympify(val)
+        val = sym.sympify(val, rational=True)
 
         if simplify:
             val = val.cancel()
