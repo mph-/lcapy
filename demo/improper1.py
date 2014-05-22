@@ -1,5 +1,4 @@
-from lcapy import inverse_laplace, partfrac, t, s
-import sympy as sym
+from lcapy import s
 
 H = (s**2 + 4) / (s**2 + 3 * s + 2)
 

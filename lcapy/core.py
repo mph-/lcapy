@@ -215,7 +215,20 @@ class Expr(object):
 
         print(sym.latex(sym.Eq(sym.sympify(name), self.val)))
 
+
+    def simplify(self):
+        """Simplify"""
+
+        val = sym.simplify(self.val)
+        return self.__class__(val)
     
+
+    def subs(self, *args, **kwargs):
+        """Substitute symbols in expression"""
+
+        return self.__class__(self.expr.subs(*args, **kwargs))
+
+
     @property
     def is_number(self):
 
@@ -251,12 +264,6 @@ class sExpr(Expr):
         
         T = self.__class__(T)
         return self.__class__(self.val * sym.exp(-s * T))
-
-
-    def subs(self, *args, **kwargs):
-        """Substitute symbols in expression"""
-
-        return self.__class__(self.expr.subs(*args, **kwargs))
 
 
     def omega(self):
@@ -343,13 +350,6 @@ class sExpr(Expr):
         return Q.as_expr(), M / D
 
 
-    def simplify(self):
-        """Simplify"""
-
-        val = sym.simplify(self.val)
-        return self.__class__(val)
-    
-    
     def inverse_laplace(self):
         """Attempt inverse Laplace transform"""
         
