@@ -22,7 +22,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'zp2tf', 'poles', 'zeros', 'residue', 'residues', 'partfrac',
            'general', 'canonical', 'ZPK', 'inverse_laplace', 'initial_value',
            'transient_response', 'response', 'final_value', 's', 'sExpr', 
-           't', 'tExpr', 'cExpr')
+           't', 'tExpr', 'cExpr', 'pi')
 
 class Expr(object):
 
@@ -295,7 +295,7 @@ class sExpr(Expr):
         """Convert rational function to canonical form with unity
         highest power of denominator.
 
-        See also general, partfrac, and ZPK"""
+        See also general, partfrac, mixedfrac, and ZPK"""
         
         return self.__class__(canonical(self.expr, self.var), simplify=False)
 
@@ -303,7 +303,7 @@ class sExpr(Expr):
     def general(self):
         """Convert rational function to general form
 
-        See also canonical, partfrac, and ZPK"""
+        See also canonical, partfrac, mixedfrac, and ZPK"""
         
         return self.__class__(general(self.expr, self.var), simplify=False)
 
@@ -311,15 +311,23 @@ class sExpr(Expr):
     def partfrac(self):
         """Convert rational function into partial fraction form.
 
-        See also canonical, general, and ZPK"""
+        See also canonical, mixedfrac, general, and ZPK"""
 
         return self.__class__(partfrac(self.expr, self.var), simplify=False)
+
+
+    def mixedfrac(self):
+        """Convert rational function into mixed fraction form.
+
+        See also canonical, general, partfrac and ZPK"""
+
+        return self.__class__(mixedfrac(self.expr, self.var), simplify=False)
 
 
     def ZPK(self):
         """Convert to pole-zero-gain (PZK) form.
         
-        See also canonical, general, and partfrac"""
+        See also canonical, general, mixedfrac, and partfrac"""
         
         return self.__class__(ZPK(self.expr, self.var), simplify=False)
 
@@ -339,15 +347,6 @@ class sExpr(Expr):
     def _as_ratfun_parts(self):
         
         return _as_ratfun_parts(self.expr, self.var)
-
-
-    def split_strictly_proper(self):
-        
-        N, D = self._as_ratfun_parts()
-
-        Q, M = N.div(D)
-
-        return Q.as_expr(), M / D
 
 
     def inverse_laplace(self):
@@ -430,7 +429,7 @@ class cExpr(Expr):
 
 s = sExpr('s')
 t = tExpr('t')
-
+pi = sym.pi
 
 def _guess_var(expr, var):
 
@@ -615,6 +614,27 @@ def residues(expr, var=None):
     return F, R, Q
 
 
+def mixedfrac(expr, var=None):
+    """Convert rational function into mixed fraction form.
+
+    See also canonical, general, partfrac, and ZPK"""
+
+    expr, var = _guess_var(expr, var)
+
+    ratfun, delay = _as_ratfun_delay(expr, var)
+
+    N, D = _as_ratfun_parts(ratfun, var)
+
+    Q, M = N.div(D)
+
+    expr = Q + M / D
+
+    if delay != 0:
+        expr *= sym.exp(-var * delay)
+
+    return expr
+
+
 def partfrac(expr, var=None):
     """Convert rational function into partial fraction form (standard form).
 
@@ -634,6 +654,7 @@ def partfrac(expr, var=None):
         expr *= sym.exp(-var * delay)
 
     return expr
+
 
 
 def _as_ratfun_parts(expr, var=None):
@@ -680,7 +701,7 @@ def _as_ratfun_delay(expr, var=None):
 def general(expr, var=None):
     """Convert rational function into general form.
 
-    See also canonical, partfrac, and ZPK"""
+    See also canonical, partfrac, mixedfrac, and ZPK"""
 
     expr, var = _guess_var(expr, var)
 
@@ -691,7 +712,7 @@ def general(expr, var=None):
 def canonical(expr, var=None):
     """Convert rational function into canonical form.
 
-    See also general, partfrac, and ZPK"""
+    See also general, partfrac, mixedfrac, and ZPK"""
 
     expr, var = _guess_var(expr, var)
 
@@ -713,7 +734,7 @@ def canonical(expr, var=None):
 def ZPK(expr, var=None):
     """Convert rational function into ZPK form.
 
-    See also canonical, general, and partfrac"""
+    See also canonical, general, partfrac, and mixedfrac"""
 
     expr, var = _guess_var(expr, var)
 
@@ -1077,6 +1098,3 @@ class NetObject(object):
 
 
 from lcapy.oneport import L, C, R, G, I, V, Idc, Vdc
-
-
-
