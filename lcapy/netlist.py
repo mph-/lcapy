@@ -34,7 +34,7 @@ Copyright 2014 Michael Hayes, UCECE
 
 from __future__ import division
 from warnings import warn
-from lcapy.core import  pprint, cExpr
+from lcapy.core import  pprint, cExpr, Avs, Ais, Zs, Ys
 from lcapy.oneport import V, I, v, i, R, L, C, G, Y, Z, Vdc, Idc, Vac, Iac, Is, Vs, Ys, Zs
 from lcapy.twoport import AMatrix
 import sympy as sym
@@ -314,7 +314,7 @@ class Netlist(object):
         self.elements.pop(name)
         
         
-    def G_matrix(self):
+    def _G_matrix(self):
 
         G = sym.zeros(self.num_nodes, self.num_nodes)
 
@@ -334,7 +334,7 @@ class Netlist(object):
         return G
 
 
-    def B_matrix(self):
+    def _B_matrix(self):
 
         B = sym.zeros(self.num_nodes, len(self.voltage_sources))
 
@@ -362,7 +362,7 @@ class Netlist(object):
         return B
 
 
-    def C_matrix(self):
+    def _C_matrix(self):
 
         C = sym.zeros(len(self.voltage_sources), self.num_nodes)
 
@@ -390,19 +390,19 @@ class Netlist(object):
         return C
 
 
-    def D_matrix(self):
+    def _D_matrix(self):
 
         D = sym.zeros(len(self.voltage_sources), len(self.voltage_sources))
 
         return D
 
 
-    def A_matrix(self):
+    def _A_matrix(self):
 
-        G = self.G_matrix()
-        B = self.B_matrix()
-        C = self.C_matrix()
-        D = self.D_matrix()
+        G = self._G_matrix()
+        B = self._B_matrix()
+        C = self._C_matrix()
+        D = self._D_matrix()
 
         # Augment the admittance matrix to form A matrix
         A = G.row_join(B).col_join(C.row_join(D))
@@ -410,7 +410,7 @@ class Netlist(object):
         return A
 
 
-    def I_vector(self):
+    def _I_vector(self):
 
         I = sym.zeros(self.num_nodes, 1)
 
@@ -425,7 +425,7 @@ class Netlist(object):
         return I
 
 
-    def E_vector(self):
+    def _E_vector(self):
 
         E = sym.zeros(len(self.voltage_sources), 1)
 
@@ -435,10 +435,10 @@ class Netlist(object):
         return E
 
 
-    def Z_vector(self):
+    def _Z_vector(self):
 
-        I = self.I_vector()
-        E = self.E_vector()
+        I = self._I_vector()
+        E = self._E_vector()
 
         # Augment the known current vector with known voltage sources
         Z = I.col_join(E)
@@ -488,8 +488,8 @@ class Netlist(object):
                 raise ValueError('Unhandled element %s' % elt.name)
 
 
-        A = self.A_matrix()
-        Z = self.Z_vector()
+        A = self._A_matrix()
+        Z = self._Z_vector()
 
         # Solve for the nodal voltages
         results = sym.simplify(A.inv() * Z);        
@@ -652,11 +652,11 @@ class Netlist(object):
         
         # A11 = V1 / V2 with I2 = 0
         # Apply V1 and measure V2 with port 2 open-circuit
-        A11 = self.Vd['V1_'] / self.Voc(n3, n4)
+        A11 = Avs(self.Vd['V1_'] / self.Voc(n3, n4))
         
         # A12 = V1 / I2 with V2 = 0
         # Apply V1 and measure I2 with port 2 short-circuit
-        A12 = self.Vd['V1_'] / self.Isc(n3, n4)
+        A12 = Zs(self.Vd['V1_'] / self.Isc(n3, n4))
 
         self.remove('V1_')
         
@@ -664,11 +664,11 @@ class Netlist(object):
 
         # A21 = I1 / V2 with I2 = 0
         # Apply I1 and measure I2 with port 2 open-circuit
-        A21 = -self.I['I1_'] / self.Voc(n3, n4)
+        A21 = Ys(-self.I['I1_'] / self.Voc(n3, n4))
 
         # A22 = I1 / I2 with V2 = 0
         # Apply I1 and measure I2 with port 2 short-circuit
-        A22 = -self.I['I1_'] / self.Isc(n3, n4)
+        A22 = Ais(-self.I['I1_'] / self.Isc(n3, n4))
 
         self.remove('I1_')
         return AMatrix(A11, A12, A21, A22)

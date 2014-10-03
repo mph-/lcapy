@@ -1022,6 +1022,7 @@ class TwoPort(NetObject):
     def G22(self):
         return self.G[1, 1]
 
+
     @property
     def H11(self):
         return self.H[0, 0]
