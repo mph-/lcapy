@@ -664,11 +664,11 @@ class Netlist(object):
 
         # A21 = I1 / V2 with I2 = 0
         # Apply I1 and measure I2 with port 2 open-circuit
-        A21 = self.I['I1_'] / self.Voc(n3, n4)
+        A21 = -self.I['I1_'] / self.Voc(n3, n4)
 
         # A22 = I1 / I2 with V2 = 0
         # Apply I1 and measure I2 with port 2 short-circuit
-        A22 = self.I['I1_'] / self.Isc(n3, n4)
+        A22 = -self.I['I1_'] / self.Isc(n3, n4)
 
         self.remove('I1_')
         return AMatrix(A11, A12, A21, A22)
