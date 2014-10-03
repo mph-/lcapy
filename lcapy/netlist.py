@@ -7,23 +7,22 @@ arbitrary node names (except for the ground node which is labelled 0).
 The netlists can be loaded from a file or created at run-time.  For
 example:
 
->>> from lcapy import pprint, Circuit
+>>> from lcapy import Circuit
 >>> cct = Circuit('Voltage divider')
 >>> cct.net_add('V_s fred 0') 
 >>> cct.net_add('R_a fred 1') 
 >>> cct.net_add('R_b 1 0') 
->>> cct.analyse()
->>> pprint(cct.V)
->>> pprint(cct.I)
+>>> cct.V.pprint()
+>>> cct.I.pprint()
 
 cct.V is a directory of the nodal voltages keyed by the node names.
 If the nodes are not integers, they need to specified as strings.
 cct.I is a directory of the currents through the components keyed by
 the component names.  For example,
 
->>> pprint(cct.V['fred'])
->>> pprint(cct.V[1])
->>> pprint(cct.I['R1'])
+>>> cct.V['fred'].pprint()
+>>> cct.V[1].pprint()
+>>> cct.I['R1'].pprint()
 
 
 Copyright 2014 Michael Hayes, UCECE
@@ -37,6 +36,7 @@ from __future__ import division
 from warnings import warn
 from lcapy.core import  pprint, cExpr
 from lcapy.oneport import V, I, v, i, R, L, C, G, Y, Z, Vdc, Idc, Vac, Iac, Is, Vs, Ys, Zs
+from lcapy.twoport import AMatrix
 import sympy as sym
 
 
@@ -644,6 +644,34 @@ class Netlist(object):
         Isc = self.Isc(n1, n2)
 
         return Zs(Voc / Isc)
+
+
+    def Amatrix(self, n1, n2, n3, n4):
+
+        self.net_add('V1_', n1, n2)
+        
+        # A11 = V1 / V2 with I2 = 0
+        # Apply V1 and measure V2 with port 2 open-circuit
+        A11 = self.Vd['V1_'] / self.Voc(n3, n4)
+        
+        # A12 = V1 / I2 with V2 = 0
+        # Apply V1 and measure I2 with port 2 short-circuit
+        A12 = self.Vd['V1_'] / self.Isc(n3, n4)
+
+        self.remove('V1_')
+        
+        self.net_add('I1_', n1, n2)
+
+        # A21 = I1 / V2 with I2 = 0
+        # Apply I1 and measure I2 with port 2 open-circuit
+        A21 = self.I['I1_'] / self.Voc(n3, n4)
+
+        # A22 = I1 / I2 with V2 = 0
+        # Apply I1 and measure I2 with port 2 short-circuit
+        A22 = self.I['I1_'] / self.Isc(n3, n4)
+
+        self.remove('I1_')
+        return AMatrix(A11, A12, A21, A22)
 
 
 class Circuit(Netlist):
