@@ -178,9 +178,16 @@ class Expr(object):
         return self.__class__(self.val * x.val / (self.val + x.val))
     
 
-    def _pretty(self, arg):
+    def _pretty(self, *args, **kwargs):
         """Make pretty string"""
-        return sym.pretty(self.val)
+        
+        # This works in conjunction with Printer._print
+        # It is a hack to allow printing of _Matrix types 
+        # and its elements.
+        expr = self.val
+        printer = args[0]
+
+        return printer._print(expr)
 
 
     def pretty(self):

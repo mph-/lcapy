@@ -108,11 +108,33 @@ def _check_twoport_args(args):
             raise ValueError('%s not a TwoPort' % arg1)
 
 
-class Vector(sym.Matrix):
+class _Matrix(sym.Matrix):
 
     # Unlike numpy.ndarray, the sympy.Matrix runs all the elements
     # through sympify, creating sympy objects and thus losing the
     # original type information and associated methods.
+    # As a hack, we try to wrap elements when they are read
+    # using __getitem__.
+
+    _typewrap = sExpr
+
+
+    def __getitem__(self, key):
+
+        item = super (_Matrix, self).__getitem__(key)
+
+        if hasattr(self, '_typewrap'):
+            return self._typewrap(item)
+
+        return item
+
+
+    def pprint(self):
+
+        return sym.pprint(self)
+
+
+class Vector(_Matrix):
 
     def __new__ (cls, *args):
 
@@ -122,16 +144,6 @@ class Vector(sym.Matrix):
             return super (Vector, cls).__new__(cls, (args[0], args[1]))
 
         return super (Vector, cls).__new__(cls, *args)
-
-
-    def __getitem__(self, key):
-
-        item = super (Vector, self).__getitem__(key)
-
-        if isinstance(key, int) and hasattr(self, '_typewrap'):
-            return self._typewrap(item)
-
-        return item
 
 
 class VsVector(Vector):
@@ -154,7 +166,7 @@ class ZVector(Vector):
     _typewrap = Zs
 
 
-class _TwoPortMatrix(sym.Matrix):
+class _TwoPortMatrix(_Matrix):
 
     def __new__ (cls, *args):
 
@@ -165,10 +177,6 @@ class _TwoPortMatrix(sym.Matrix):
 
         return super (_TwoPortMatrix, cls).__new__(cls, *args)
 
-
-    def pprint(self):
-
-        return sym.pprint(self)
 
     # The following properties are fallbacks when other conversions have
     # not been defined.
@@ -364,6 +372,7 @@ class AMatrix(_TwoPortMatrix):
 
     A = inv(B)
     """
+
 
     @property
     def A(self):
