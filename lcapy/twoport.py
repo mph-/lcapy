@@ -165,7 +165,11 @@ class _TwoPortMatrix(sym.Matrix):
 
         return super (_TwoPortMatrix, cls).__new__(cls, *args)
 
-    
+
+    def pprint(self):
+
+        return sym.pprint(self)
+
     # The following properties are fallbacks when other conversions have
     # not been defined.
 
