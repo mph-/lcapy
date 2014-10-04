@@ -123,6 +123,11 @@ class _Matrix(sym.Matrix):
 
         item = super (_Matrix, self).__getitem__(key)
 
+        # The following line is to handle slicing used
+        # by latex method.
+        if isinstance(item, sym.Matrix):
+            return item
+
         if hasattr(self, '_typewrap'):
             return self._typewrap(item)
 
@@ -132,6 +137,11 @@ class _Matrix(sym.Matrix):
     def pprint(self):
 
         return sym.pprint(self)
+
+
+    def latex(self):
+
+        return sym.latex(self)
 
 
 class Vector(_Matrix):
