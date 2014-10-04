@@ -50,6 +50,8 @@ class Expr(object):
 
         # This gets called if there is no attribute attr for this instance.
         # This used to wrap the methods of the sympy value.
+        # There are probably many methods that we don't want wrapped
+        # such as __reduce_ex__.
 
         if not hasattr(self.val, attr):
             raise AttributeError(
@@ -59,6 +61,12 @@ class Expr(object):
             return self.__class__(getattr(self.val, attr)(*args))
 
         return doit
+
+
+    def __reduce_ex__(self, proto):
+        """For pickling and deepcopy"""
+
+        return type(self), (self.val, ), {}
 
 
     def __str__(self):
