@@ -144,34 +144,34 @@ class _Matrix(sym.Matrix):
         return sym.latex(self)
 
 
-class Vector(_Matrix):
+class _Vector(_Matrix):
 
     def __new__ (cls, *args):
 
         args = [sym.sympify(arg) for arg in args]
 
         if len(args) == 2:
-            return super (Vector, cls).__new__(cls, (args[0], args[1]))
+            return super (_Vector, cls).__new__(cls, (args[0], args[1]))
 
-        return super (Vector, cls).__new__(cls, *args)
+        return super (_Vector, cls).__new__(cls, *args)
 
 
-class VsVector(Vector):
+class VsVector(_Vector):
     
     _typewrap = Vs
 
 
-class IsVector(Vector):
+class IsVector(_Vector):
     
     _typewrap = Is
 
 
-class YVector(Vector):
+class YVector(_Vector):
 
     _typewrap = Ys
 
 
-class ZVector(Vector):
+class ZVector(_Vector):
 
     _typewrap = Zs
 
@@ -388,6 +388,7 @@ class AMatrix(_TwoPortMatrix):
     def A(self):
         # Perhaps we should make a copy?
         return self
+
 
     @property
     def B(self):
@@ -2082,11 +2083,11 @@ class Chain(TwoPortBModel):
         arg1 = args[-1]
         B = arg1.B
 
-        foo = Vector(arg1.V2b, arg1.I2b)
+        foo = _Vector(arg1.V2b, arg1.I2b)
         
         for arg in reversed(args[0:-1]):
             
-            foo += B * Vector(arg.V2b, arg.I2b)
+            foo += B * _Vector(arg.V2b, arg.I2b)
             B = B * arg.B
 
         super (Chain, self).__init__(B, Vs(foo[0, 0]), Is(foo[1, 0]))
