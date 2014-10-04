@@ -36,9 +36,8 @@ from __future__ import division
 from warnings import warn
 from lcapy.core import  pprint, cExpr, Avs, Ais, Zs, Ys
 from lcapy.oneport import V, I, v, i, R, L, C, G, Y, Z, Vdc, Idc, Vac, Iac, Is, Vs, Ys, Zs
-from lcapy.twoport import AMatrix
+from lcapy.twoport import AMatrix, TwoPortBModel
 import sympy as sym
-
 
 __all__ = ('Circuit', )
 
@@ -692,6 +691,39 @@ class Netlist(object):
 
         except ValueError:
             raise ValueError('Cannot create A matrix')
+
+
+    def kill(self):
+        """Return a new circuit with the independent sources killed;
+        i.e., make the voltage sources short-circuits and the current
+        sources open-circuits."""
+
+        new = Circuit()
+
+        for key, elt in self.elements.iteritems():
+            if elt.is_I: 
+                continue
+            if elt.is_V: 
+                elt = NetElement(elt.name, elt.nodes[0], elt.nodes[1], 0)
+            new._elt_add(elt)
+
+        return new
+
+
+    def twoport(self, n1, n2, n3, n4):
+        """Create twoport model from network, where:
+        I1 is the current flowing into n1 and out of n2
+        I2 is the current flowing into n3 and out of n4
+        V1 is V[n1] - V[n2]
+        V2 is V[n3] - V[n4]
+        """        
+
+        V2b = self.Voc(n3, n4)
+        I2b = self.Isc(n3, n4)
+
+        A = self.kill().Amatrix(n1, n2, n3, n4)
+
+        return TwoPortBModel(A.B, V2b, I2b)
 
 
 class Circuit(Netlist):
