@@ -111,6 +111,18 @@ class Element(object):
 
 
     @property
+    def is_independentV(self):
+        
+        return isinstance(self.cpt, (V, Vdc, Vac))
+
+
+    @property
+    def is_independentI(self):
+        
+        return isinstance(self.cpt, (I, Idc, Iac))
+
+
+    @property
     def is_V(self):
         
         return isinstance(self.cpt, (V, Vdc, Vac, VCVS, TF))
@@ -701,9 +713,9 @@ class Netlist(object):
         new = Circuit()
 
         for key, elt in self.elements.iteritems():
-            if elt.is_I: 
+            if elt.is_independentI: 
                 continue
-            if elt.is_V: 
+            if elt.is_independentV: 
                 elt = NetElement(elt.name, elt.nodes[0], elt.nodes[1], 0)
             new._elt_add(elt)
 
