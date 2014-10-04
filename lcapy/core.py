@@ -213,6 +213,18 @@ class Expr(object):
         return printer._print(expr)
 
 
+    def _latex(self, *args, **kwargs):
+        """Make latex string"""
+        
+        # This works in conjunction with LatexPrinter._print
+        # It is a hack to allow printing of _Matrix types 
+        # and its elements.
+        expr = self.val
+        printer = args[0]
+
+        return printer._print(expr)
+
+
     def pretty(self):
         """Make pretty string"""
         return sym.pretty(self.val)
