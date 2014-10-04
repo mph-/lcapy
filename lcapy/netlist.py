@@ -195,8 +195,8 @@ class Netlist(object):
         self.elements = {}
         self.nodes = {}
         self.num_nodes = 0
-        self.voltage_sources = []
-        self.current_sources = []
+        self.voltage_sources = {}
+        self.current_sources = {}
         self.RLC = []
 
         self._V = {0: Vs(0)}
@@ -313,6 +313,12 @@ class Netlist(object):
             raise Error('Unknown component: ' + name)
         self.elements.pop(name)
         
+        if name in self.current_sources:
+            self.current_sources.pop(name)
+
+        if name in self.voltage_sources:
+            self.voltage_sources.pop(name)
+
         
     def _G_matrix(self):
 
@@ -338,7 +344,7 @@ class Netlist(object):
 
         B = sym.zeros(self.num_nodes, len(self.voltage_sources))
 
-        for m, elt in enumerate(self.voltage_sources):
+        for m, elt in enumerate(self.voltage_sources.values()):
 
             n1 = self._nodeindex(elt.nodes[0])
             n2 = self._nodeindex(elt.nodes[1])
@@ -366,7 +372,7 @@ class Netlist(object):
 
         C = sym.zeros(len(self.voltage_sources), self.num_nodes)
 
-        for m, elt in enumerate(self.voltage_sources):
+        for m, elt in enumerate(self.voltage_sources.values()):
 
             n1 = self._nodeindex(elt.nodes[0])
             n2 = self._nodeindex(elt.nodes[1])
@@ -415,7 +421,7 @@ class Netlist(object):
         I = sym.zeros(self.num_nodes, 1)
 
         for n in range(self.num_nodes):
-            for m, elt in enumerate(self.current_sources):
+            for m, elt in enumerate(self.current_sources.values()):
                 n1 = self._nodeindex(elt.nodes[0])
                 n2 = self._nodeindex(elt.nodes[1])
                 if n1 == n:
@@ -429,7 +435,7 @@ class Netlist(object):
 
         E = sym.zeros(len(self.voltage_sources), 1)
 
-        for m, elt in enumerate(self.voltage_sources):
+        for m, elt in enumerate(self.voltage_sources.values()):
             E[m] = elt.cpt.V
             
         return E
@@ -462,14 +468,14 @@ class Netlist(object):
 
         self.num_nodes = len(self.nodemap) - 1
 
-        self.voltage_sources = []
-        self.current_sources = []
+        self.voltage_sources = {}
+        self.current_sources = {}
         self.RLC = []
-        for elt in self.elements.values():
+        for key, elt in self.elements.iteritems():
             if elt.is_V: 
-                self.voltage_sources.append(elt)
+                self.voltage_sources[key] = elt
             elif elt.is_I: 
-                self.current_sources.append(elt)
+                self.current_sources[key] = elt
             elif elt.is_RLC: 
                 self.RLC.append(elt)
                 if elt.cpt.V != 0.0:
@@ -483,7 +489,7 @@ class Netlist(object):
 
                     newelt = Element(I(elt.cpt.I), elt.nodes[1], elt.nodes[0],
                                      elt.name)
-                    self.current_sources.append(newelt)
+                    self.current_sources[key] = newelt
             else:
                 raise ValueError('Unhandled element %s' % elt.name)
 
@@ -501,10 +507,10 @@ class Netlist(object):
 
         # Create dictionary of currents through elements
         self._I = {}
-        for m, elt in enumerate(self.voltage_sources):
+        for m, elt in enumerate(self.voltage_sources.values()):
             self._I[elt.name] = Is(results[m + self.num_nodes])
 
-        for m, elt in enumerate(self.current_sources):
+        for m, elt in enumerate(self.current_sources.values()):
             self._I[elt.name] = elt.cpt.I
 
         # Don't worry about currents due to initial conditions; these
