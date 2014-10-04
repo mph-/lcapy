@@ -203,7 +203,7 @@ class Netlist(object):
         self._I = {}
         self.cpt_counts = {'R' : 0, 'G' : 0, 'C' : 0, 'L' : 0, 'V' : 0, 'I' : 0}
 
-        if filename != None:
+        if filename is not None:
             self.netfile_add(filename)
 
 
@@ -284,7 +284,7 @@ class Netlist(object):
     def add(self, cpt, node1, node2, name=None):
         """Add generic one-port component to netlist"""
 
-        if name == None and hasattr(cpt.args[0], 'name'):
+        if name is None and hasattr(cpt.args[0], 'name'):
             name = cpt.args[0].name
 
         # Try to to collapse a composite component to a single component.
@@ -294,7 +294,7 @@ class Netlist(object):
         if not self.cpt_counts.has_key(kind):
             raise ValueError('Adding unknown component %s' % cpt)
 
-        if name == None:
+        if name is None:
             # Automatically generate unique name if one has not been specified
             self.cpt_counts[kind] = self.cpt_counts[kind] + 1
             name = '%s__%s' % (kind, self.cpt_counts[kind])
@@ -653,6 +653,12 @@ class Netlist(object):
 
 
     def Amatrix(self, n1, n2, n3, n4):
+        """Create A matrix from network, where:
+        I1 is the current flowing into n1 and out of n2
+        I2 is the current flowing into n3 and out of n4
+        V1 is V[n1] - V[n2]
+        V2 is V[n3] - V[n4]
+        """
 
         if self.Voc(n1, n2) != 0 or self.Voc(n3, n4) != 0:
             raise ValueError('Network contains independent sources')

@@ -1,5 +1,5 @@
 """
-This module provides the core functions and classes for Lcapy.
+This module provides the core functions and classes for Lcapy.  
 
 To print the rational functions in canonical form (with the highest
 power of s in the denominator with a unity coefficient), use
@@ -169,7 +169,7 @@ class Expr(object):
     def __eq__(self, x):
         """Equality"""
 
-        if x == None:
+        if x is None:
             return False
 
         x = self.__class__(x)
@@ -179,7 +179,7 @@ class Expr(object):
     def __ne__(self, x):
         """Inequality"""
 
-        if x == None:
+        if x is None:
             return True
 
         x = self.__class__(x)
@@ -389,7 +389,7 @@ class sExpr(Expr):
 
         expr = self.val.subs(s, sym.I * 2 * sym.pi * fsym)
         
-        if f == None:
+        if f is None:
             return expr
         
         func = lambdify(fsym, expr, modules="numpy")
@@ -445,7 +445,7 @@ def _guess_var(expr, var):
     if hasattr(expr, 'expr'):
         return expr.expr, expr.var
 
-    if var != None:
+    if var is not None:
         return expr, var
 
     #if not expr.is_rational_function():
@@ -504,7 +504,7 @@ def tf(numer, denom=1, var=None):
     """Create a transfer function from lists of the coefficient
     for the numerator and denominator"""
 
-    if var == None:
+    if var is None:
         var = sym.symbols('s')
 
     N = sym.Poly(numer, var)
@@ -517,7 +517,7 @@ def _zp2tf(zeros, poles, K=1, var=None):
     """Create a transfer function from lists of zeros and poles, 
     and from a constant gain"""
     
-    if var == None:
+    if var is None:
         var = sym.symbols('s')
 
     zeros = sym.sympify(zeros)
@@ -819,7 +819,7 @@ def inverse_laplace(expr, t=None, s=None):
     """Determine inverse Laplace transform of expression"""
 
     expr, s = _guess_var(expr, s)
-    if t == None:
+    if t is None:
         t = sym.symbols('t')
 
     try:
@@ -847,7 +847,7 @@ def transient_response(expr, t=None, s=None):
     tv = sym.symbols('t')
 
     texpr = inverse_laplace(expr, tv, s)
-    if t == None:
+    if t is None:
         return texpr
 
     print('Evaluating inverse Laplace transform...')

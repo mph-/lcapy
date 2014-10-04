@@ -293,7 +293,7 @@ class ParSer(OnePort):
         for n in range(len(args)):
 
             arg1 = args[n]
-            if arg1 == None:
+            if arg1 is None:
                 continue
             if isinstance(arg1, ParSer):
                 continue
@@ -301,7 +301,7 @@ class ParSer(OnePort):
             for m in range(n + 1, len(args)): 
 
                 arg2 = args[m]                
-                if arg2 == None:
+                if arg2 is None:
                     continue
                 if isinstance(arg2, ParSer):
                     continue
@@ -311,7 +311,7 @@ class ParSer(OnePort):
                 # Could do Thevenin/Norton transformations.
 
                 newarg = self._combine(arg1, arg2)
-                if newarg != None:
+                if newarg is not None:
                     #print('Combining', arg1, arg2, 'to', newarg)
                     args[m] = None
                     arg1 = newarg
@@ -320,7 +320,7 @@ class ParSer(OnePort):
             args[n] = arg1
             
         if new:
-            args = [arg for arg in args if arg != None]
+            args = [arg for arg in args if arg is not None]
             if len(args) == 1:
                 return args[0]
             self = self.__class__(*args)
