@@ -654,6 +654,9 @@ class Netlist(object):
 
     def Amatrix(self, n1, n2, n3, n4):
 
+        if self.Voc(n1, n2) != 0 or self.Voc(n3, n4) != 0:
+            raise ValueError('Network contains independent sources')
+
         try:
 
             self.net_add('V1_', n1, n2)
