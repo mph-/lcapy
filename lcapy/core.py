@@ -330,7 +330,7 @@ class sExpr(Expr):
 
 
     def general(self):
-        """Convert rational function to general form
+        """Convert rational function to general form.
 
         See also canonical, partfrac, mixedfrac, and ZPK"""
         

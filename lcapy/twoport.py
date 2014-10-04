@@ -7,6 +7,7 @@ from warnings import warn
 import sympy as sym
 from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, Avs, Ais, WyeDelta, DeltaWye
 from lcapy.oneport import OnePort, Norton, Thevenin
+from copy import copy
 
 
 # TODO:
@@ -129,7 +130,7 @@ class _Matrix(sym.Matrix):
             return item
 
         if hasattr(self, '_typewrap'):
-            return self._typewrap(item)
+            return self._typewrap(item, simplify=False)
 
         return item
 
@@ -142,6 +143,43 @@ class _Matrix(sym.Matrix):
     def latex(self):
 
         return sym.latex(self)
+
+
+    def _reformat(self, method):
+        """Helper method for reformatting expression"""
+
+        new = copy(self)
+
+        for i in range(self.rows):
+            for j in range(self.cols):
+                new[i, j] = getattr(self[i, j], method)()
+
+        return new
+
+
+    def canonical(self):
+
+        return self._reformat('canonical');
+
+
+    def general(self):
+
+        return self._reformat('general');
+
+
+    def mixedfrac(self):
+
+        return self._reformat('mixedfrac');
+
+
+    def partfrac(self):
+
+        return self._reformat('partfrac');
+
+
+    def ZPK(self):
+
+        return self._reformat('ZPK');
 
 
 class _Vector(_Matrix):
