@@ -663,6 +663,21 @@ class Netlist(object):
         return Zs(Voc / Isc)
 
 
+    def transfer(self, n1, n2, n3, n4):
+        """Create voltage transfer function V2 / V1 where:
+        V1 is V[n1] - V[n2]
+        V2 is V[n3] - V[n4]
+        
+        Note, independent sources are killed."""
+
+        new = self.kill()
+        new.net_add('V1_', n1, n2)
+
+        H = Avs(new.Voc(n3, n4) / new.Vd['V1_'])
+
+        return H
+
+
     def Amatrix(self, n1, n2, n3, n4):
         """Create A matrix from network, where:
         I1 is the current flowing into n1 and out of n2
