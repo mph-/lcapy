@@ -46,6 +46,21 @@ class Expr(object):
         self.val = val
 
 
+    def __getattr__(self, attr):
+
+        # This gets called if there is no attribute attr for this instance.
+        # This used to wrap the methods of the sympy value.
+
+        if not hasattr(self.val, attr):
+            raise AttributeError(
+                "%s has no attribute %s." % (self.__class__.__name__, attr))
+
+        def doit(*args):
+            return self.__class__(getattr(self.val, attr)(*args))
+
+        return doit
+
+
     def __str__(self):
 
         return self.val.__str__()
@@ -221,19 +236,6 @@ class Expr(object):
         """Print latex string with LHS name"""
 
         print(sym.latex(sym.Eq(sym.sympify(name), self.val)))
-
-
-    def simplify(self):
-        """Simplify"""
-
-        val = sym.simplify(self.val)
-        return self.__class__(val)
-    
-
-    def subs(self, *args, **kwargs):
-        """Substitute symbols in expression"""
-
-        return self.__class__(self.expr.subs(*args, **kwargs))
 
 
     @property
