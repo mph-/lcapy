@@ -171,6 +171,11 @@ class ParSer(OnePort):
         return str
 
 
+    def pprint(self):
+
+        print(self.pretty())
+
+
     def latex(self):
 
         str = ''
