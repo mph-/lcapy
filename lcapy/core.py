@@ -1096,19 +1096,32 @@ class NetObject(object):
         for arg in args:
             if isinstance(arg, sExpr):
                 arg = arg.expr
+                
             modargs.append(arg)
         return modargs
 
 
     def __repr__(self):
 
-        argsrepr = ', '.join([arg.__repr__() for arg in self._tweak_args()])
+        def fmt(arg):
+            str = arg.__repr__()
+            if isinstance(arg, sym.Symbol):
+                str = "'" + str + "'"
+            return str
+
+        argsrepr = ', '.join([fmt(arg) for arg in self._tweak_args()])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
 
     def __str__(self):
+
+        def fmt(arg):
+            str = arg.__str__()
+            if isinstance(arg, sym.Symbol):
+                str = "'" + str + "'"
+            return str
         
-        argsrepr = ', '.join([arg.__str__() for arg in self._tweak_args()])
+        argsrepr = ', '.join([fmt(arg) for arg in self._tweak_args()])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
 
