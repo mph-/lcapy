@@ -857,7 +857,7 @@ def inverse_laplace(expr, t=None, s=None):
         from sympy.integrals.transforms import inverse_laplace_transform
         result = inverse_laplace_transform(expr, t, s)
 
-    return tExpr(result)
+    return tExpr(result, simplify=False)
 
 
 def transient_response(expr, t=None, s=None):
