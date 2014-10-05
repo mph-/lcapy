@@ -350,8 +350,14 @@ class ParSer(OnePort):
 
         if self.Y == 0:
             print('Dodgy Norton to Thevenin transformation since Y = 0')
+            
+        Z1, V1 = self.Z.cpt(), self.V.cpt()
+        if not isinstance(Z1, OnePort):
+            Z1 = Z(Z1)
+        if not isinstance(V1, OnePort):
+            V1 = V(V1)
 
-        return Ser(self.Z.cpt(), self.V.cpt())
+        return Ser(Z1, V1)
 
 
     def norton(self):
@@ -359,7 +365,15 @@ class ParSer(OnePort):
 
         if self.Z == 0:
             print('Dodgy Thevenin to Norton transformation since Z = 0')
-        return Par(self.Y.cpt(), self.I.cpt())
+
+
+        Y1, I1 = self.Y.cpt(), self.I.cpt()
+        if not isinstance(Y1, OnePort):
+            Y1 = Y(Y1)
+        if not isinstance(I1, OnePort):
+            I1 = I(I1)
+
+        return Par(Y1, I1)
 
 
 class Par(ParSer):
