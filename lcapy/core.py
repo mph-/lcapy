@@ -1110,7 +1110,7 @@ class NetObject(object):
     def __str__(self):
 
         def fmt(arg):
-            if isinstance(arg, str):
+            if False and isinstance(arg, str):
                 return "'" + arg + "'" 
             return arg.__str__()
         
