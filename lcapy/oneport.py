@@ -757,11 +757,11 @@ class R(Thevenin):
     """Resistor"""
 
     def __init__(self, Rval):
-    
+
+        self.args = (Rval, )
         Rval = cExpr(Rval)
         super (R, self).__init__(Zs.R(Rval))
         self.R = Rval
-        self.args = (Rval, )
 
 
 class G(Norton):
@@ -769,10 +769,10 @@ class G(Norton):
 
     def __init__(self, Gval):
 
+        self.args = (Gval, )
         Gval = cExpr(Gval)
         super (G, self).__init__(Ys.G(Gval))
         self.G = Gval
-        self.args = (Gval, )
 
 
 class L(Thevenin):
@@ -782,12 +782,12 @@ class L(Thevenin):
 
     def __init__(self, Lval, i0=0):
 
+        self.args = (Lval, i0)
         Lval = cExpr(Lval)
         i0 = cExpr(i0)
         super (L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
         self.L = Lval
         self.i0 = i0
-        self.args = (Lval, i0)
 
 
 class C(Thevenin):
@@ -796,33 +796,34 @@ class C(Thevenin):
     Capacitance Cval, initial voltage v0"""
 
     def __init__(self, Cval, v0=0):
-    
+
+        self.args = (Cval, v0)
         Cval = cExpr(Cval)
         v0 = cExpr(v0)
         super (C, self).__init__(Zs.C(Cval), Vs(v0).integrate())
         self.C = Cval
         self.v0 = v0
-        self.args = (Cval, v0)
 
 
 class Y(Norton):
     """General admittance."""
 
     def __init__(self, Yval):
-    
+
+        self.args = (Yval, )    
         Yval = Ys(Yval)
         super (Y, self).__init__(Yval)
-        self.args = (Yval, )
+
 
 
 class Z(Thevenin):
     """General impedance."""
 
     def __init__(self, Zval):
-    
+
+        self.args = (Zval, )    
         Zval = Zs(Zval)
         super (Z, self).__init__(Zval)
-        self.args = (Zval, )    
 
 
 class V(Thevenin):
@@ -830,9 +831,9 @@ class V(Thevenin):
 
     def __init__(self, Vval):
     
+        self.args = (Vval, )    
         Vval = sExpr(Vval)
         super (V, self).__init__(Zs(0), Vs(Vval))
-        self.args = (Vval, )    
 
 
 class Vdc(V):
@@ -841,9 +842,9 @@ class Vdc(V):
 
     def __init__(self, v):
     
+        self.args = (v, )    
         v = cExpr(v)
         super (Vdc, self).__init__(Vs(v).integrate())
-        self.args = (v, )    
         self.v = v
 
 
@@ -851,7 +852,8 @@ class Vac(V):
     """AC voltage source."""
 
     def __init__(self, V, f, phi=0):
-    
+
+        self.args = (V, f, phi)        
         V = cExpr(V)
         f = cExpr(f)
         phi = cExpr(phi)
@@ -860,7 +862,7 @@ class Vac(V):
 
         omega = 2 * sym.pi * f
         super (Vac, self).__init__(Vs((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
-        self.args = (V, f, phi)    
+
 
 
 class v(V):
@@ -868,9 +870,9 @@ class v(V):
 
     def __init__(self, vval):
     
+        self.args = (vval, )    
         Vval = tExpr(vval).laplace()
         super (V, self).__init__(Zs(0), Vs(Vval))
-        self.args = (vval, )    
 
 
 class I(Norton):
@@ -878,9 +880,9 @@ class I(Norton):
 
     def __init__(self, Ival):
     
+        self.args = (Ival, )    
         Ival = sExpr(Ival)
         super (I, self).__init__(Ys(0), Is(Ival))
-        self.args = (Ival, )    
 
 
 class Idc(I):
@@ -888,10 +890,10 @@ class Idc(I):
     an s domain current of i / s)."""
 
     def __init__(self, i):
-    
+
+        self.args = (i, )    
         i = cExpr(i)
         super (Idc, self).__init__(Is(i).integrate())
-        self.args = (i, )    
         self.i = i
 
 
@@ -900,13 +902,14 @@ class Iac(Norton):
 
     def __init__(self, I, f, phi=0):
     
+        self.args = (I, f, phi)    
         I = cExpr(I)
         f = cExpr(f)
         phi = cExpr(phi)
         
         omega = 2 * sym.pi * f
         super (Iac, self).__init__(Is((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
-        self.args = (I, f, phi)    
+
 
 
 class i(I):
@@ -914,9 +917,9 @@ class i(I):
 
     def __init__(self, ival):
     
+        self.args = (ival, )    
         Ival = tExpr(ival).laplace()
         super (I, self).__init__(Ys(0), Is(Ival))
-        self.args = (ival, )    
 
 
 class Xtal(Thevenin):
@@ -929,11 +932,11 @@ class Xtal(Thevenin):
 
     def __init__(self, C0, R1, L1, C1):
 
+        self.args = (C0, R1, L1, C1)
         self.C0 = cExpr(C0)
         self.R1 = cExpr(R1)
         self.L1 = cExpr(L1)
         self.C1 = cExpr(C1)
-        self.args = (self.C0, self.R1, self.L1, self.C1)
     
         N = self.expand()
         super (Xtal, self).__init__(N.Z, N.V)
@@ -952,12 +955,12 @@ class FerriteBead(Thevenin):
     """
 
     def __init__(self, Rs, Rp, Cp, Lp):
-        
+
+        self.args = (Rs, Rp, Cp, Lp)
         self.Rs = cExpr(Rs)
         self.Rp = cExpr(Rp)
         self.Cp = cExpr(Cp)
         self.Lp = cExpr(Lp)
-        self.args = (self.Rs, self.Rp, self.Cp, self.Lp)
 
         N = self.expand()
         super (Xtal, self).__init__(N.Z, N.V)
