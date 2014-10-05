@@ -1108,7 +1108,8 @@ class NetObject(object):
 
     def __str__(self):
         
-        return self.__repr__()
+        argsrepr = ', '.join([arg.__str__() for arg in self._tweak_args()])
+        return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
 
     def pretty(self):

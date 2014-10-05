@@ -264,7 +264,7 @@ class ParSer(OnePort):
         series inductors, etc., rather than collapsing to a Thevenin
         or Norton network.
         
-        This does not expand compound components such as crytal
+        This does not expand compound components such as crystal
         or ferrite bead models.  Use expand() first.
         """
 
