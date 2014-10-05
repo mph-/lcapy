@@ -150,6 +150,8 @@ class NetElement(Element):
         if len(name) > 2 and name[0:2] == 'TF':
             kind = name[0:2]
 
+        # Should check for Vdc1, etc.
+
         # Handle special cases for voltage and current sources.
         # Perhaps could generalise for impulse, step, ramp sources
         # although these can be specified symbolically, for example,
@@ -646,19 +648,25 @@ class Netlist(object):
 
 
     def Y(self, n1, n2):
-        """Return admittance between nodes n1 and n2"""
+        """Return admittance between nodes n1 and n2
+        with independent sources killed."""
 
-        Voc = self.Voc(n1, n2)
-        Isc = self.Isc(n1, n2)
+        new = self.kill()
+
+        Voc = new.Voc(n1, n2)
+        Isc = new.Isc(n1, n2)
 
         return Ys(Isc / Voc)
 
 
     def Z(self, n1, n2):
-        """Return impedance between nodes n1 and n2"""
+        """Return impedance between nodes n1 and n2
+        with independent sources killed."""
 
-        Voc = self.Voc(n1, n2)
-        Isc = self.Isc(n1, n2)
+        new = self.kill()
+
+        Voc = new.Voc(n1, n2)
+        Isc = new.Isc(n1, n2)
 
         return Zs(Voc / Isc)
 
