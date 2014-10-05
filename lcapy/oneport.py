@@ -780,7 +780,7 @@ class L(Thevenin):
 
     Inductance Lval, initial current i0"""
 
-    def __init__(self, Lval, i0=0.0):
+    def __init__(self, Lval, i0=0):
 
         Lval = cExpr(Lval)
         i0 = cExpr(i0)
@@ -795,7 +795,7 @@ class C(Thevenin):
 
     Capacitance Cval, initial voltage v0"""
 
-    def __init__(self, Cval, v0=0.0):
+    def __init__(self, Cval, v0=0):
     
         Cval = cExpr(Cval)
         v0 = cExpr(v0)
@@ -850,7 +850,7 @@ class Vdc(V):
 class Vac(V):
     """AC voltage source."""
 
-    def __init__(self, V, f, phi=0.0):
+    def __init__(self, V, f, phi=0):
     
         V = cExpr(V)
         f = cExpr(f)
@@ -898,7 +898,7 @@ class Idc(I):
 class Iac(Norton):
     """AC current source."""
 
-    def __init__(self, I, f, phi=0.0):
+    def __init__(self, I, f, phi=0):
     
         I = cExpr(I)
         f = cExpr(f)
