@@ -109,7 +109,7 @@ def _check_twoport_args(args):
             raise ValueError('%s not a TwoPort' % arg1)
 
 
-class _Matrix(sym.Matrix):
+class Matrix(sym.Matrix):
 
     # Unlike numpy.ndarray, the sympy.Matrix runs all the elements
     # through sympify, creating sympy objects and thus losing the
@@ -122,7 +122,7 @@ class _Matrix(sym.Matrix):
 
     def __getitem__(self, key):
 
-        item = super (_Matrix, self).__getitem__(key)
+        item = super (Matrix, self).__getitem__(key)
 
         # The following line is to handle slicing used
         # by latex method.
@@ -182,48 +182,48 @@ class _Matrix(sym.Matrix):
         return self._reformat('ZPK');
 
 
-class _Vector(_Matrix):
+class Vector(Matrix):
 
     def __new__ (cls, *args):
 
         args = [sym.sympify(arg) for arg in args]
 
         if len(args) == 2:
-            return super (_Vector, cls).__new__(cls, (args[0], args[1]))
+            return super (Vector, cls).__new__(cls, (args[0], args[1]))
 
-        return super (_Vector, cls).__new__(cls, *args)
+        return super (Vector, cls).__new__(cls, *args)
 
 
-class VsVector(_Vector):
+class VsVector(Vector):
     
     _typewrap = Vs
 
 
-class IsVector(_Vector):
+class IsVector(Vector):
     
     _typewrap = Is
 
 
-class YVector(_Vector):
+class YVector(Vector):
 
     _typewrap = Ys
 
 
-class ZVector(_Vector):
+class ZVector(Vector):
 
     _typewrap = Zs
 
 
-class _TwoPortMatrix(_Matrix):
+class TwoPortMatrix(Matrix):
 
     def __new__ (cls, *args):
 
         args = [sym.simplify(arg) for arg in args]
 
         if len(args) == 4:
-            return super (_TwoPortMatrix, cls).__new__(cls, ((args[0], args[1]), (args[2], args[3])))
+            return super (TwoPortMatrix, cls).__new__(cls, ((args[0], args[1]), (args[2], args[3])))
 
-        return super (_TwoPortMatrix, cls).__new__(cls, *args)
+        return super (TwoPortMatrix, cls).__new__(cls, *args)
 
 
     # The following properties are fallbacks when other conversions have
@@ -403,7 +403,7 @@ class _TwoPortMatrix(_Matrix):
         return self.Z[1, 1]
 
 
-class AMatrix(_TwoPortMatrix):
+class AMatrix(TwoPortMatrix):
     """
     ::
        +-  -+     +-       -+   +-  -+    
@@ -554,7 +554,7 @@ class AMatrix(_TwoPortMatrix):
 
 
 
-class BMatrix(_TwoPortMatrix):
+class BMatrix(TwoPortMatrix):
     """
     ::
        +-  -+     +-       -+   +-  -+
@@ -804,7 +804,7 @@ class BMatrix(_TwoPortMatrix):
         return self.chain(TP)
 
 
-class GMatrix(_TwoPortMatrix):
+class GMatrix(TwoPortMatrix):
     """
 
     ::
@@ -854,7 +854,7 @@ class GMatrix(_TwoPortMatrix):
         return self.H.Z
 
 
-class HMatrix(_TwoPortMatrix):
+class HMatrix(TwoPortMatrix):
     """
     ::
        +-  -+     +-       -+   +-  -+
@@ -896,7 +896,7 @@ class HMatrix(_TwoPortMatrix):
         return ZMatrix(self.det() / self.H22, self.H12 / self.H22, -self.H21 / self.H22, 1 / self.H22)
 
 
-class YMatrix(_TwoPortMatrix):
+class YMatrix(TwoPortMatrix):
     """
     ::
        +-  -+     +-       -+   +-  -+
@@ -945,7 +945,7 @@ class YMatrix(_TwoPortMatrix):
         return ZMatrix(self.Y22 / det, -self.Y12 / det, -self.Y21 / det, self.Y11 / det)
 
 
-class ZMatrix(_TwoPortMatrix):
+class ZMatrix(TwoPortMatrix):
     """
     ::
        +-  -+     +-       -+   +-  -+
@@ -2121,11 +2121,11 @@ class Chain(TwoPortBModel):
         arg1 = args[-1]
         B = arg1.B
 
-        foo = _Vector(arg1.V2b, arg1.I2b)
+        foo = Vector(arg1.V2b, arg1.I2b)
         
         for arg in reversed(args[0:-1]):
             
-            foo += B * _Vector(arg.V2b, arg.I2b)
+            foo += B * Vector(arg.V2b, arg.I2b)
             B = B * arg.B
 
         super (Chain, self).__init__(B, Vs(foo[0, 0]), Is(foo[1, 0]))

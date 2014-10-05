@@ -8,14 +8,14 @@ from lcapy.twoport import VsVector, IsVector, YMatrix, ZMatrix, TwoPortZModel, S
 __all__ = ('Opamp', )
 
 
-class _ThreePortMatrix(sym.Matrix):
+class ThreePortMatrix(sym.Matrix):
 
     def __new__ (cls, *args):
 
         if len(args) == 9:
-            return super (_ThreePortMatrix, cls).__new__(cls, ((args[0], args[1], args[2]), (args[3], args[4], args[5]), (args[6], args[7], args[8])))
+            return super (ThreePortMatrix, cls).__new__(cls, ((args[0], args[1], args[2]), (args[3], args[4], args[5]), (args[6], args[7], args[8])))
 
-        return super (_ThreePortMatrix, cls).__new__(cls, *args)
+        return super (ThreePortMatrix, cls).__new__(cls, *args)
 
 
     @property
@@ -28,7 +28,7 @@ class _ThreePortMatrix(sym.Matrix):
         return YMatrix3(self.Z.inv())
 
 
-class ZMatrix3(_ThreePortMatrix):
+class ZMatrix3(ThreePortMatrix):
     """
     +-  -+     +-             -+   +-  -+
     | V1 |     | Z11  Z12  Z13 |   | I1 |
@@ -45,7 +45,7 @@ class ZMatrix3(_ThreePortMatrix):
         return self
 
 
-class YMatrix3(_ThreePortMatrix):
+class YMatrix3(ThreePortMatrix):
     """
     +-  -+     +-             -+   +-  -+
     | I1 |  =  | Y11  Y12  Y13 |   | V1 |
