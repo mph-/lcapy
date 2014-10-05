@@ -48,10 +48,12 @@ class Expr(object):
 
     def __getattr__(self, attr):
 
-        # This gets called if there is no attribute attr for this instance.
-        # This used to wrap the methods of the sympy value.
+        # This gets called if there is no attribute attr for this
+        # instance.  This used to wrap the methods of the sympy value.
         # There are probably many methods that we don't want wrapped
-        # such as __reduce_ex__.
+        # such as __reduce_ex__.  We can either provide an explict
+        # method or check when wrapping.  Currently, the former
+        # approach is used.
 
         if not hasattr(self.val, attr):
             raise AttributeError(
