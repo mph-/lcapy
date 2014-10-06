@@ -738,8 +738,13 @@ def general(expr, var=None):
 
     expr, var = _guess_var(expr, var)
 
-    return sym.cancel(expr, var)
+    ratfun, delay = _as_ratfun_delay(expr, var)
 
+    result = sym.cancel(ratfun, var)
+    if delay != 0:
+        result = result * sym.exp(var * delay)
+
+    return result
 
 
 def canonical(expr, var=None):
