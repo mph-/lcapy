@@ -22,7 +22,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'zp2tf', 'poles', 'zeros', 'residue', 'residues', 'partfrac',
            'general', 'canonical', 'ZPK', 'inverse_laplace', 'initial_value',
            'transient_response', 'response', 'final_value', 's', 'sExpr', 
-           't', 'tExpr', 'cExpr', 'pi')
+           't', 'tExpr', 'cExpr', 'pi', 'cos', 'sin', 'exp', 'H', 'Dirac')
 
 class Expr(object):
 
@@ -1140,6 +1140,32 @@ class NetObject(object):
     def simplify(self):
 
         return self
+
+
+def sin(expr):
+    
+    return expr.__class__(sym.sin(expr))
+
+
+def cos(expr):
+    
+    return expr.__class__(sym.cos(expr))
+
+
+def exp(expr):
+    
+    return expr.__class__(sym.exp(expr))
+
+
+def H(expr):
+    
+    return expr.__class__(sym.Heaviside(expr))
+
+
+def Dirac(expr):
+    
+    return expr.__class__(sym.Dirac(expr))
+
 
 
 from lcapy.oneport import L, C, R, G, I, V, Idc, Vdc
