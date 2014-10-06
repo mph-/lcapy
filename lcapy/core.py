@@ -257,7 +257,9 @@ class Expr(object):
     def latexans(self, name):
         """Print latex string with LHS name"""
 
-        print(sym.latex(sym.Eq(sym.sympify(name), self.val)))
+        expr = sym.Eq(sym.sympify(name), self.val)
+
+        return sym.latex(expr)
 
 
     @property
