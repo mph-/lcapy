@@ -25,6 +25,8 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            't', 'tExpr', 'cExpr', 'pi', 'cos', 'sin', 'exp', 'H', 'Dirac')
 
 class Expr(object):
+    """Decorator class for sympy classes derived from sympy.Expr"""
+    
 
     @property
     def expr(self):    
@@ -48,27 +50,25 @@ class Expr(object):
 
     def __getattr__(self, attr):
 
-        # This gets called if there is no attribute attr for this
-        # instance.  This used to wrap the methods of the sympy value.
-        # There are probably many methods that we don't want wrapped
-        # such as __reduce_ex__.  We can either provide an explict
-        # method or check when wrapping.  Currently, the former
-        # approach is used.
+        # This gets called if there is no explicit attribute attr for
+        # this instance.  We call the method of the wrapped sympy
+        # class and rewrap the returned value if it is a sympy Expr
+        # object.
 
         if not hasattr(self.val, attr):
             raise AttributeError(
                 "%s has no attribute %s." % (self.__class__.__name__, attr))
 
-        def doit(*args):
-            return self.__class__(getattr(self.val, attr)(*args))
+        def wrap(*args):
 
-        return doit
+            ret = getattr(self.val, attr)(*args)
+            if not isinstance(ret, sym.Expr):
+                return ret
 
+            # Wrap the return value
+            return self.__class__(ret)
 
-    def __reduce_ex__(self, proto):
-        """For pickling and deepcopy"""
-
-        return type(self), (self.val, ), {}
+        return wrap
 
 
     def __str__(self):
