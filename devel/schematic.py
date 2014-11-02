@@ -1,16 +1,17 @@
+from __future__ import print_function
 import numpy as np
 
-def _node(name):
 
-    parts = name.split('.')
-    name = parts[0]
-            
-    # Convert to integer if possible
-    try:
-        node = int(name)
-    except:
-        node = name
-    return node
+class Dnode(object):
+
+    def __init__(self, name, port=False):
+
+        self.name = name
+        self.pos = None
+        self.port = port
+
+        parts = name.split('.')
+        self.primary = len(parts) == 1
 
 
 class NetElement(object):
@@ -22,10 +23,10 @@ class NetElement(object):
             kind = name[0:2]
 
         self.name = name
-        self.nodes = (_node(node1), _node(node2))
         self.symbol = symbol
         self.orientation = orientation
-        self.dnodes = (node1, node2)
+        self.nodes = (node1, node2)
+        self.size = 2
 
 
     def __repr__(self):
@@ -46,7 +47,6 @@ class Schematic(object):
 
         self.elements = {}
         self.nodes = {}
-        self.dnodes = {}
         self.num_nodes = 0
 
         if filename is not None:
@@ -84,18 +84,12 @@ class Schematic(object):
         return '\n'.join([elt.__str__() for elt in self.elements.values()])
 
 
-    def _node_add(self, node, elt):
+
+    def _dnode_add(self, node, elt):
 
         if not self.nodes.has_key(node):
             self.nodes[node] = []
         self.nodes[node].append(elt)
-
-
-    def _dnode_add(self, node, elt):
-
-        if not self.dnodes.has_key(node):
-            self.dnodes[node] = []
-        self.dnodes[node].append(elt)
 
 
     def _elt_add(self, elt):
@@ -106,11 +100,8 @@ class Schematic(object):
            
         self.elements[elt.name] = elt
 
-        self._node_add(elt.nodes[0], elt)
-        self._node_add(elt.nodes[1], elt)
-
-        self._dnode_add(elt.dnodes[0], elt)
-        self._dnode_add(elt.dnodes[1], elt)
+        for dnode in elt.nodes:
+            self._dnode_add(dnode, elt)
         
 
     def net_add(self, line):
@@ -135,26 +126,22 @@ class Schematic(object):
         self._elt_add(elt)
 
 
-    def foo(self):
+    def _positions_calculate(self):
 
-        num_dnodes = len(self.dnodes)
+        num_nodes = len(self.nodes)
 
-        A = np.zeros((num_dnodes, num_dnodes))
-        #bx = np.zeros((num_dnodes, 1))
-        #by = np.zeros((num_dnodes, 1))
-        bx = np.zeros(num_dnodes)
-        by = np.zeros(num_dnodes)
+        A = np.zeros((num_nodes, num_nodes))
+        bx = np.zeros(num_nodes)
+        by = np.zeros(num_nodes)
 
-        dnodelist = list(self.dnodes)
+        dnode_name_list = list(self.nodes)
 
+        # Generate x and y constraint matrices and x and y component size vectors.
         k = 0
         for m, elt in enumerate(self.elements.values()):
-            print elt.name, elt.dnodes
 
-            n1 = elt.dnodes[0]
-            n2 = elt.dnodes[1]
-
-            m1, m2 = dnodelist.index(n1), dnodelist.index(n2)
+            n1, n2 = elt.nodes[0], elt.nodes[1]
+            m1, m2 = dnode_name_list.index(n1), dnode_name_list.index(n2)
 
             if k == 0:
                 # Set first dnode to be arbitrary origin; this gets changed later.
@@ -166,38 +153,90 @@ class Schematic(object):
             A[k, m2] = 1
 
             if elt.orientation == 'right':
-                bx[k] = -1
+                bx[k] = -elt.size
             elif elt.orientation == 'left':
-                bx[k] = 1
+                bx[k] = elt.size
             elif elt.orientation == 'up':
-                by[k] = -1
+                by[k] = -elt.size
             elif elt.orientation == 'down':
-                by[k] = 1
+                by[k] = elt.size
             else:
                 raise ValueError('Unknown orientation %s' % elt.orientation)
             
-            print m1, m2
             k += 1
 
         Apinv = np.linalg.pinv(A)
         x = np.dot(Apinv, bx)
         y = np.dot(Apinv, by)
 
+        # Adjust positions so origin at (0, 0).
         x = x - x.min()
         y = y - y.min()
         
-        print A
+        #print A
         #print bx
         #print by
 
-        pos = np.zeros((num_dnodes, 2))
-        for m in range(num_dnodes):
+        pos = np.zeros((num_nodes, 2))
+        for m in range(num_nodes):
             pos[m][0] = x[m]
             pos[m][1] = y[m]
-            print('%s @ (%.1f, %.1f)' % (dnodelist[m], x[m], y[m]))
+#            print('%s @ (%.1f, %.1f)' % (dnode_name_list[m], x[m], y[m]))
 
-        #print pos
 
+        for m, elt in enumerate(self.elements.values()):
+
+            n1, n2 = elt.nodes[0], elt.nodes[1]
+            m1, m2 = dnode_name_list.index(n1), dnode_name_list.index(n2)
+
+            elt.pos1 = pos[m1]
+            elt.pos2 = pos[m2]
+
+        self.dnode_positions = pos
+        self.dnode_name_list = dnode_name_list
+
+
+    def draw(self, filename=None):
+
+        if not hasattr(self, 'dnode_positions'):
+            self._positions_calculate()
+
+        if filename != None:
+            outfile = open(filename, 'w')
+        else:
+            import sys
+            outfile = sys.stdout
+
+        # Preamble
+        print(r'\begin{tikzpicture}', file=outfile)
+
+        # Write coordinates
+        for m, dnode in enumerate(self.dnode_name_list):
+            print(r'    \coordinate (%s) at (%.1f, %.1f);' % (dnode, self.dnode_positions[m][0], self.dnode_positions[m][1]), file=outfile)
+
+
+        # Draw components
+        for m, elt in enumerate(self.elements.values()):
+
+            cpt = elt.name[0:1]
+
+            # Need to special case port component.
+            if cpt[0] == 'P':
+                continue
+
+            print(r'    \draw (%s) to [%s=$%s$] (%s);' % (elt.nodes[1], cpt, elt.name, elt.nodes[0]))
+
+    
+        # Label primary nodes
+        if False:
+            for m, node in enumerate(self.nodes.values()):
+                if not node.primary:
+                    continue
+                print(r'    \draw {[anchor=south east] (%s) node {%s}};' % (node.name, node.name))
+
+        print(r'\end{tikzpicture}', file=outfile)
+
+        
 
 
 def test():
@@ -214,4 +253,5 @@ def test():
 
     
 sch = test()
-sch.foo()
+sch._positions_calculate()
+sch.draw()
