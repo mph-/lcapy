@@ -44,11 +44,13 @@ class NetElement(object):
         node1 = node1.replace('.', '_')
         node2 = node2.replace('.', '_')
 
+        self.symbol = symbol
+
         if symbol is None:
             symbol = kind + '_{' + id + '}'
 
         self.name = name
-        self.symbol = symbol
+        self.autosymbol = symbol
         self.dir = dir
         self.nodes = (node1, node2)
         self.size = float(size) * 2
@@ -215,6 +217,9 @@ class Schematic(object):
         # Adjust positions so origin at (0, 0).
         x = x - x.min()
         y = y - y.min()
+
+        self.xcentre = x.mean()
+        self.ycentre = y.mean()
         
         #print A
         #print bx
@@ -257,9 +262,11 @@ class Schematic(object):
         return wires
 
 
-    def _make_wires(self, vnode_dir):
+    def _make_wires(self):
 
         wires = []
+
+        vnode_dir = self.vnodes
 
         for m, vnode in enumerate(vnode_dir.values()):
             wires.extend(self._make_wires1(vnode))
@@ -295,15 +302,21 @@ class Schematic(object):
 
             # Need to special case port component.
             if cpt[0] == 'P':
+                if elt.symbol:
+                    dir = '^' if elt.pos1[0] > self.xcentre else ''
+
+                    print(r'    \draw (%s) to [open, v%s=$%s$] (%s);' % (n2, dir, elt.symbol, n1))
+                else:
+                    print(r'    \draw (%s) to [open] (%s);' % (n2, n1))
                 continue
 
             node_str = ''
             if draw_nodes:
                 node_str = self.nodes[n1].symbol + '-' + self.nodes[n2].symbol
 
-            print(r'    \draw (%s) to [%s=$%s$, %s] (%s);' % (n1, cpt, elt.symbol, node_str, n2))
+            print(r'    \draw (%s) to [%s=$%s$, %s] (%s);' % (n1, cpt, elt.autosymbol, node_str, n2))
 
-        wires = self._make_wires(self.vnodes)
+        wires = self._make_wires()
 
         # Draw wires
         for wire in wires:
