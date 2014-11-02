@@ -2,6 +2,34 @@ from __future__ import print_function
 import numpy as np
 
 
+def make_wires1(vnode):
+
+    num_wires = len(vnode) - 1
+    if num_wires == 0:
+        return []
+
+    wires = []
+
+    # TODO: remove overdraw wires...
+    for n in range(num_wires):
+        n1 = vnode.keys()[n]
+        n2 = vnode.keys()[n + 1]
+
+        wires.append(NetElement('W', n1, n2))
+
+    return wires
+
+
+def make_wires(vnode_dir):
+
+    wires = []
+
+    for m, vnode in enumerate(vnode_dir.values()):
+        wires.extend(make_wires1(vnode))
+            
+    return wires
+
+
 class Node(object):
 
     def __init__(self, name):
@@ -261,6 +289,8 @@ class Schematic(object):
         # Draw components
         for m, elt in enumerate(self.elements.values()):
 
+            n1 = elt.nodes[1]
+            n2 = elt.nodes[0]
             cpt = elt.name[0:1]
 
             # Need to special case port component.
@@ -269,27 +299,22 @@ class Schematic(object):
 
             node_str = ''
             if draw_nodes:
-                node_str = self.nodes[elt.nodes[1]].symbol + '-' + self.nodes[elt.nodes[0]].symbol
+                node_str = self.nodes[n1].symbol + '-' + self.nodes[n2].symbol
 
-            print(r'    \draw (%s) to [%s=$%s$, %s] (%s);' % (elt.nodes[1], cpt, elt.symbol, node_str, elt.nodes[0]))
+            print(r'    \draw (%s) to [%s=$%s$, %s] (%s);' % (n1, cpt, elt.symbol, node_str, n2))
 
+        wires = make_wires(self.vnodes)
 
         # Draw wires
-        for m, vnode in enumerate(self.vnodes.values()):
-            num_wires = len(vnode) - 1
-            if num_wires == 0:
-                continue
-            # TODO: remove overdraw wires...
+        for wire in wires:
+            n1 = wire.nodes[1]
+            n2 = wire.nodes[0]
 
-            for n in range(num_wires):
-                n1 = vnode.keys()[n]
-                n2 = vnode.keys()[n + 1]
+            node_str = ''
+            if draw_nodes:
+                node_str = self.nodes[n1].symbol + '-' + self.nodes[n2].symbol
 
-                node_str = ''
-                if draw_nodes:
-                    node_str = self.nodes[n1].symbol + '-' + self.nodes[n2].symbol
-
-                    print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2))
+                print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2))
     
         # Label primary nodes
         if label_nodes:
