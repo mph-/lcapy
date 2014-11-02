@@ -1,5 +1,6 @@
 from __future__ import print_function
 import numpy as np
+import re
 
 
 class Node(object):
@@ -35,11 +36,18 @@ class NetElement(object):
 
     def __init__(self, name, node1, node2, symbol=None, opts=None):
 
-        kind = name[0]
-        id = name[1:]
-        if len(name) > 2 and name[0:2] == 'TF':
-            kind = name[0:2]
-            id = name[2:]
+        # Regular expression alternate matches stop with first match
+        # so need to have longer ones first.
+        cpts = ('R', 'C', 'L', 'Vac', 'Vdc', 'Iac', 'Idc', 'V', 'I',
+                'TF', 'P', 'port', 'W', 'wire')
+
+
+        match = re.match(r'(%s)(\w)' % '|'.join(cpts), name)
+        if not match:
+            raise ValueError('Unknown component %s' % name)
+
+        cpt = match.groups(1)[0]
+        id = match.groups(1)[1]
 
         node1 = node1.replace('.', '_')
         node2 = node2.replace('.', '_')
@@ -47,9 +55,10 @@ class NetElement(object):
         self.symbol = symbol
 
         if symbol is None:
-            symbol = kind + '_{' + id + '}'
+            symbol = cpt + '_{' + id + '}'
 
         self.name = name
+        self.cpt = cpt
         self.autosymbol = symbol
         self.nodes = (node1, node2)
         self.opts = opts
@@ -260,7 +269,7 @@ class Schematic(object):
             n1 = vnode.keys()[n]
             n2 = vnode.keys()[n + 1]
             
-            wires.append(NetElement('W', n1, n2))
+            wires.append(NetElement('W_', n1, n2))
 
         return wires
 
@@ -296,12 +305,17 @@ class Schematic(object):
             print(r'    \coordinate (%s) at (%.1f, %.1f);' % (node, self.node_positions[m][0], self.node_positions[m][1]), file=outfile)
 
 
+        cpt_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 'V' : 'V', 'I' : 'I',
+                   'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
+                   'TF' : 'transformer', 'P' : 'open', 'port' : 'open',
+                   'W' : 'short', 'wire' : 'short'}
+
         # Draw components
         for m, elt in enumerate(self.elements.values()):
 
             n1 = elt.nodes[1]
             n2 = elt.nodes[0]
-            cpt = elt.name[0:1]
+            cpt = cpt_map[elt.cpt]
 
             # Need to special case port component.
             if cpt[0] == 'P':
@@ -314,7 +328,9 @@ class Schematic(object):
                 continue
 
 
-            # Current, voltage, label options
+            # Current, voltage, label options.
+            # It might be better to allow any options and prune out
+            # dir and size.
             opts_str = ''
             for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<', 'l', 'l^', 'l_'):
                 if elt.opts.has_key(opt):
