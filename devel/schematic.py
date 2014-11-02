@@ -23,6 +23,13 @@ class Node(object):
         self.list.append(elt)
 
 
+    @property
+    def symbol(self):
+        
+        return 'o' if self.port else '*'
+
+
+
 class NetElement(object):
 
     def __init__(self, name, node1, node2, symbol=None, orientation='up'):
@@ -200,7 +207,7 @@ class Schematic(object):
         self.node_name_list = node_name_list
 
 
-    def draw(self, filename=None):
+    def draw(self, draw_nodes=True, label_nodes=True, filename=None):
 
         if not hasattr(self, 'node_positions'):
             self._positions_calculate()
@@ -228,11 +235,15 @@ class Schematic(object):
             if cpt[0] == 'P':
                 continue
 
-            print(r'    \draw (%s) to [%s=$%s$] (%s);' % (elt.nodes[1], cpt, elt.name, elt.nodes[0]))
+            node_str = ''
+            if draw_nodes:
+                node_str = self.nodes[elt.nodes[1]].symbol + '-' + self.nodes[elt.nodes[0]].symbol
+
+            print(r'    \draw (%s) to [%s=$%s$, %s] (%s);' % (elt.nodes[1], cpt, elt.name, node_str, elt.nodes[0]))
 
     
         # Label primary nodes
-        if True:
+        if label_nodes:
             for m, node in enumerate(self.nodes.values()):
                 if not node.primary:
                     continue
