@@ -33,7 +33,7 @@ class Node(object):
 
 class NetElement(object):
 
-    def __init__(self, name, node1, node2, symbol=None, dir='up'):
+    def __init__(self, name, node1, node2, symbol=None, dir='up', size=1):
 
         kind = name[0]
         if len(name) > 2 and name[0:2] == 'TF':
@@ -46,7 +46,7 @@ class NetElement(object):
         self.symbol = symbol
         self.dir = dir
         self.nodes = (node1, node2)
-        self.size = 2
+        self.size = float(size) * 2
 
 
     def __repr__(self):
@@ -124,6 +124,26 @@ class Schematic(object):
             self._node_add(node, elt)
         
 
+    def _hints_parse(self, str):
+
+        hints = {'dir' : 'up',
+                 'size' : 1}
+
+        for part in str.split(','):
+            part = part.strip()
+
+            if part in ('up', 'down', 'left', 'right'):
+                hints['dir'] = part
+                continue
+
+            fields = part.split('=')
+            key = fields[0].strip()
+            arg = fields[1].strip() if len(fields) > 1 else ''
+            hints[key] = arg
+
+        return hints
+
+
     def net_add(self, line):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive nose and Nm is the negative node.
@@ -134,15 +154,12 @@ class Schematic(object):
 
         fields = line.split(';')
 
+        str = fields[1] if len(fields) > 1 else ''
+
+        hints = self._hints_parse(str)
+
         parts = fields[0].split(' ')
-
-        # Parse additional drawing hints here
-        if len(fields) == 1:
-            dir = 'up'
-        else:
-            dir = fields[1].strip()
-
-        elt = NetElement(*parts, dir=dir)
+        elt = NetElement(*parts, dir=hints['dir'], size=hints['size'])
 
         self._elt_add(elt)
 
