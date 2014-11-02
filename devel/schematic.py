@@ -36,11 +36,16 @@ class NetElement(object):
     def __init__(self, name, node1, node2, symbol=None, dir='up', size=1):
 
         kind = name[0]
+        id = name[1:]
         if len(name) > 2 and name[0:2] == 'TF':
             kind = name[0:2]
+            id = name[2:]
 
         node1 = node1.replace('.', '_')
         node2 = node2.replace('.', '_')
+
+        if symbol is None:
+            symbol = kind + '_{' + id + '}'
 
         self.name = name
         self.symbol = symbol
@@ -266,7 +271,7 @@ class Schematic(object):
             if draw_nodes:
                 node_str = self.nodes[elt.nodes[1]].symbol + '-' + self.nodes[elt.nodes[0]].symbol
 
-            print(r'    \draw (%s) to [%s=$%s$, %s] (%s);' % (elt.nodes[1], cpt, elt.name, node_str, elt.nodes[0]))
+            print(r'    \draw (%s) to [%s=$%s$, %s] (%s);' % (elt.nodes[1], cpt, elt.symbol, node_str, elt.nodes[0]))
 
 
         # Draw wires
