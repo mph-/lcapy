@@ -251,8 +251,6 @@ class Schematic(object):
 
         print(r'\end{tikzpicture}', file=outfile)
 
-        
-
 
 def test():
     
@@ -264,9 +262,5 @@ def test():
     sch.net_add('C1 3 0; up')
     sch.net_add('P2 2 0.2')
 
+    sch.draw()
     return sch
-
-    
-sch = test()
-sch._positions_calculate()
-sch.draw()
