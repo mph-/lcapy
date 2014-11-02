@@ -33,7 +33,7 @@ class Node(object):
 
 class NetElement(object):
 
-    def __init__(self, name, node1, node2, symbol=None, orientation='up'):
+    def __init__(self, name, node1, node2, symbol=None, dir='up'):
 
         kind = name[0]
         if len(name) > 2 and name[0:2] == 'TF':
@@ -44,7 +44,7 @@ class NetElement(object):
 
         self.name = name
         self.symbol = symbol
-        self.orientation = orientation
+        self.dir = dir
         self.nodes = (node1, node2)
         self.size = 2
 
@@ -138,11 +138,11 @@ class Schematic(object):
 
         # Parse additional drawing hints here
         if len(fields) == 1:
-            orientation = 'up'
+            dir = 'up'
         else:
-            orientation = fields[1].strip()
+            dir = fields[1].strip()
 
-        elt = NetElement(*parts, orientation=orientation)
+        elt = NetElement(*parts, dir=dir)
 
         self._elt_add(elt)
 
@@ -173,16 +173,16 @@ class Schematic(object):
             A[k, m1] = -1
             A[k, m2] = 1
 
-            if elt.orientation == 'right':
+            if elt.dir == 'right':
                 bx[k] = -elt.size
-            elif elt.orientation == 'left':
+            elif elt.dir == 'left':
                 bx[k] = elt.size
-            elif elt.orientation == 'up':
+            elif elt.dir == 'up':
                 by[k] = -elt.size
-            elif elt.orientation == 'down':
+            elif elt.dir == 'down':
                 by[k] = elt.size
             else:
-                raise ValueError('Unknown orientation %s' % elt.orientation)
+                raise ValueError('Unknown dir %s' % elt.dir)
             
             k += 1
 
