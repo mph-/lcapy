@@ -2,16 +2,25 @@ from __future__ import print_function
 import numpy as np
 
 
-class Dnode(object):
+class Node(object):
 
-    def __init__(self, name, port=False):
+    def __init__(self, name):
 
         self.name = name
         self.pos = None
-        self.port = port
-
+        self.port = False
         parts = name.split('.')
         self.primary = len(parts) == 1
+        self.list = []
+
+    
+    def append(self, elt):
+
+        cpt = elt.name[0:1]        
+        if cpt == 'P':
+            self.port = True
+
+        self.list.append(elt)
 
 
 class NetElement(object):
@@ -59,10 +68,6 @@ class Schematic(object):
         return self.elements[name]
 
 
-    def _nodeindex(self, node):
-        """Return node index; ground is -1"""
-        return self.revnodemap[node] - 1
-
 
     def netfile_add(self, filename):    
         """Add the nets from file with specified filename"""
@@ -84,11 +89,10 @@ class Schematic(object):
         return '\n'.join([elt.__str__() for elt in self.elements.values()])
 
 
-
-    def _dnode_add(self, node, elt):
+    def _node_add(self, node, elt):
 
         if not self.nodes.has_key(node):
-            self.nodes[node] = []
+            self.nodes[node] = Node(node)
         self.nodes[node].append(elt)
 
 
@@ -100,8 +104,8 @@ class Schematic(object):
            
         self.elements[elt.name] = elt
 
-        for dnode in elt.nodes:
-            self._dnode_add(dnode, elt)
+        for node in elt.nodes:
+            self._node_add(node, elt)
         
 
     def net_add(self, line):
@@ -134,17 +138,17 @@ class Schematic(object):
         bx = np.zeros(num_nodes)
         by = np.zeros(num_nodes)
 
-        dnode_name_list = list(self.nodes)
+        node_name_list = list(self.nodes)
 
         # Generate x and y constraint matrices and x and y component size vectors.
         k = 0
         for m, elt in enumerate(self.elements.values()):
 
             n1, n2 = elt.nodes[0], elt.nodes[1]
-            m1, m2 = dnode_name_list.index(n1), dnode_name_list.index(n2)
+            m1, m2 = node_name_list.index(n1), node_name_list.index(n2)
 
             if k == 0:
-                # Set first dnode to be arbitrary origin; this gets changed later.
+                # Set first node to be arbitrary origin; this gets changed later.
                 A[k, m1] = 1
                 A[k, m1] = 1
                 k += 1
@@ -181,24 +185,24 @@ class Schematic(object):
         for m in range(num_nodes):
             pos[m][0] = x[m]
             pos[m][1] = y[m]
-#            print('%s @ (%.1f, %.1f)' % (dnode_name_list[m], x[m], y[m]))
+#            print('%s @ (%.1f, %.1f)' % (node_name_list[m], x[m], y[m]))
 
 
         for m, elt in enumerate(self.elements.values()):
 
             n1, n2 = elt.nodes[0], elt.nodes[1]
-            m1, m2 = dnode_name_list.index(n1), dnode_name_list.index(n2)
+            m1, m2 = node_name_list.index(n1), node_name_list.index(n2)
 
             elt.pos1 = pos[m1]
             elt.pos2 = pos[m2]
 
-        self.dnode_positions = pos
-        self.dnode_name_list = dnode_name_list
+        self.node_positions = pos
+        self.node_name_list = node_name_list
 
 
     def draw(self, filename=None):
 
-        if not hasattr(self, 'dnode_positions'):
+        if not hasattr(self, 'node_positions'):
             self._positions_calculate()
 
         if filename != None:
@@ -211,8 +215,8 @@ class Schematic(object):
         print(r'\begin{tikzpicture}', file=outfile)
 
         # Write coordinates
-        for m, dnode in enumerate(self.dnode_name_list):
-            print(r'    \coordinate (%s) at (%.1f, %.1f);' % (dnode, self.dnode_positions[m][0], self.dnode_positions[m][1]), file=outfile)
+        for m, node in enumerate(self.node_name_list):
+            print(r'    \coordinate (%s) at (%.1f, %.1f);' % (node, self.node_positions[m][0], self.node_positions[m][1]), file=outfile)
 
 
         # Draw components
@@ -228,7 +232,7 @@ class Schematic(object):
 
     
         # Label primary nodes
-        if False:
+        if True:
             for m, node in enumerate(self.nodes.values()):
                 if not node.primary:
                     continue
