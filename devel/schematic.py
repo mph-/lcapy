@@ -9,7 +9,8 @@ class Node(object):
         self.name = name
         self.pos = None
         self.port = False
-        parts = name.split('.')
+        parts = name.split('_')
+        self.rootname = parts[0]
         self.primary = len(parts) == 1
         self.list = []
 
@@ -38,6 +39,9 @@ class NetElement(object):
         if len(name) > 2 and name[0:2] == 'TF':
             kind = name[0:2]
 
+        node1 = node1.replace('.', '_')
+        node2 = node2.replace('.', '_')
+
         self.name = name
         self.symbol = symbol
         self.orientation = orientation
@@ -63,7 +67,7 @@ class Schematic(object):
 
         self.elements = {}
         self.nodes = {}
-        self.num_nodes = 0
+        self.vnodes = {}
 
         if filename is not None:
             self.netfile_add(filename)
@@ -73,7 +77,6 @@ class Schematic(object):
         """Return component by name"""
 
         return self.elements[name]
-
 
 
     def netfile_add(self, filename):    
@@ -102,6 +105,12 @@ class Schematic(object):
             self.nodes[node] = Node(node)
         self.nodes[node].append(elt)
 
+        vnode = self.nodes[node].rootname
+        if not self.vnodes.has_key(vnode):
+            self.vnodes[vnode] = {}
+        if not self.vnodes[vnode].has_key(node):
+            self.vnodes[vnode][node] = elt
+
 
     def _elt_add(self, elt):
 
@@ -127,6 +136,7 @@ class Schematic(object):
 
         parts = fields[0].split(' ')
 
+        # Parse additional drawing hints here
         if len(fields) == 1:
             orientation = 'up'
         else:
@@ -241,6 +251,23 @@ class Schematic(object):
 
             print(r'    \draw (%s) to [%s=$%s$, %s] (%s);' % (elt.nodes[1], cpt, elt.name, node_str, elt.nodes[0]))
 
+
+        # Draw wires
+        for m, vnode in enumerate(self.vnodes.values()):
+            num_wires = len(vnode) - 1
+            if num_wires == 0:
+                continue
+            # TODO: remove overdraw wires...
+
+            for n in range(num_wires):
+                n1 = vnode.keys()[n]
+                n2 = vnode.keys()[n + 1]
+
+                node_str = ''
+                if draw_nodes:
+                    node_str = self.nodes[n1].symbol + '-' + self.nodes[n2].symbol
+
+                    print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2))
     
         # Label primary nodes
         if label_nodes:
