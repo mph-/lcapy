@@ -274,7 +274,7 @@ class Schematic(object):
         return wires
 
 
-    def draw(self, draw_nodes=True, label_nodes=True, filename=None):
+    def tikz_draw(self, draw_nodes=True, label_nodes=True, filename=None, args=None):
 
         if not hasattr(self, 'node_positions'):
             self._positions_calculate()
@@ -286,7 +286,8 @@ class Schematic(object):
             outfile = sys.stdout
 
         # Preamble
-        print(r'\begin{tikzpicture}', file=outfile)
+        if args is None: args = ''
+        print(r'\begin{tikzpicture}[%s]' % args, file=outfile)
 
         # Write coordinates
         for m, node in enumerate(self.node_name_list):
@@ -337,6 +338,12 @@ class Schematic(object):
                 print(r'    \draw {[anchor=south east] (%s) node {%s}};' % (node.name, node.name))
 
         print(r'\end{tikzpicture}', file=outfile)
+
+
+    def draw(self, draw_nodes=True, label_nodes=True, filename=None, args=None):
+
+        return self.tikz_draw(draw_nodes=draw_nodes, label_nodes=label_nodes, filename=filename, args=args)
+
 
 
 def test():
