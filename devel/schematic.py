@@ -33,7 +33,7 @@ class Node(object):
 
 class NetElement(object):
 
-    def __init__(self, name, node1, node2, symbol=None, hints=None):
+    def __init__(self, name, node1, node2, symbol=None, opts=None):
 
         kind = name[0]
         id = name[1:]
@@ -52,7 +52,7 @@ class NetElement(object):
         self.name = name
         self.autosymbol = symbol
         self.nodes = (node1, node2)
-        self.hints = hints
+        self.opts = opts
 
 
     def __repr__(self):
@@ -74,6 +74,7 @@ class Schematic(object):
         self.elements = {}
         self.nodes = {}
         self.vnodes = {}
+        self.scale = 2
 
         if filename is not None:
             self.netfile_add(filename)
@@ -130,24 +131,24 @@ class Schematic(object):
             self._node_add(node, elt)
         
 
-    def _hints_parse(self, str):
+    def _opts_parse(self, str):
 
-        hints = {'dir' : 'up',
+        opts = {'dir' : 'up',
                  'size' : 1}
 
         for part in str.split(','):
             part = part.strip()
 
             if part in ('up', 'down', 'left', 'right'):
-                hints['dir'] = part
+                opts['dir'] = part
                 continue
 
             fields = part.split('=')
             key = fields[0].strip()
             arg = fields[1].strip() if len(fields) > 1 else ''
-            hints[key] = arg
+            opts[key] = arg
 
-        return hints
+        return opts
 
 
     def net_add(self, line):
@@ -162,10 +163,10 @@ class Schematic(object):
 
         str = fields[1] if len(fields) > 1 else ''
 
-        hints = self._hints_parse(str)
+        opts = self._opts_parse(str)
 
         parts = fields[0].split(' ')
-        elt = NetElement(*parts, hints=hints)
+        elt = NetElement(*parts, opts=opts)
 
         self._elt_add(elt)
 
@@ -196,8 +197,8 @@ class Schematic(object):
             A[k, m1] = -1
             A[k, m2] = 1
 
-            dir = elt.hints['dir']
-            size = float(elt.hints['size']) * 2
+            dir = elt.opts['dir']
+            size = float(elt.opts['size']) * self.scale
 
             if dir == 'right':
                 bx[k] = -size
@@ -276,7 +277,7 @@ class Schematic(object):
         return wires
 
 
-    def tikz_draw(self, draw_nodes=True, label_nodes=True, filename=None, args=None):
+    def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True, filename=None, args=None):
 
         if not hasattr(self, 'node_positions'):
             self._positions_calculate()
@@ -313,17 +314,24 @@ class Schematic(object):
                     print(r'    \draw (%s) to [open] (%s);' % (n2, n1))
                 continue
 
-            hints_str = ''
-            if elt.hints.has_key('i'):
-                hints_str = 'i=$%s$, ' % elt.hints['i'] 
-            if elt.hints.has_key('i_'):
-                hints_str += 'i_=$%s$, ' % elt.hints['i'] 
+
+            # Current, voltage, label options
+            opts_str = ''
+            for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<', 'l', 'l^', 'l_'):
+                if elt.opts.has_key(opt):
+                    opts_str += '%s=$%s$, ' % (opt, elt.opts[opt])
 
             node_str = ''
             if draw_nodes:
                 node_str = self.nodes[n1].symbol + '-' + self.nodes[n2].symbol
 
-            print(r'    \draw (%s) to [%s=$%s$, %s%s] (%s);' % (n1, cpt, elt.autosymbol, hints_str, node_str, n2))
+               
+            label_str =''
+            if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
+                label_str = '=$%s$' % elt.autosymbol
+            
+
+            print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt, label_str, opts_str, node_str, n2))
 
         wires = self._make_wires()
 
@@ -348,9 +356,11 @@ class Schematic(object):
         print(r'\end{tikzpicture}', file=outfile)
 
 
-    def draw(self, draw_nodes=True, label_nodes=True, filename=None, args=None):
+    def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
+             filename=None, args=None):
 
-        return self.tikz_draw(draw_nodes=draw_nodes, label_nodes=label_nodes, filename=filename, args=args)
+        return self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
+                              label_nodes=label_nodes, filename=filename, args=args)
 
 
 
