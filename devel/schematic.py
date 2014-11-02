@@ -2,34 +2,6 @@ from __future__ import print_function
 import numpy as np
 
 
-def make_wires1(vnode):
-
-    num_wires = len(vnode) - 1
-    if num_wires == 0:
-        return []
-
-    wires = []
-
-    # TODO: remove overdraw wires...
-    for n in range(num_wires):
-        n1 = vnode.keys()[n]
-        n2 = vnode.keys()[n + 1]
-
-        wires.append(NetElement('W', n1, n2))
-
-    return wires
-
-
-def make_wires(vnode_dir):
-
-    wires = []
-
-    for m, vnode in enumerate(vnode_dir.values()):
-        wires.extend(make_wires1(vnode))
-            
-    return wires
-
-
 class Node(object):
 
     def __init__(self, name):
@@ -267,6 +239,34 @@ class Schematic(object):
         self.node_name_list = node_name_list
 
 
+    def _make_wires1(self, vnode):
+
+        num_wires = len(vnode) - 1
+        if num_wires == 0:
+            return []
+
+        wires = []
+
+        # TODO: remove overdraw wires...
+        for n in range(num_wires):
+            n1 = vnode.keys()[n]
+            n2 = vnode.keys()[n + 1]
+            
+            wires.append(NetElement('W', n1, n2))
+
+        return wires
+
+
+    def _make_wires(self, vnode_dir):
+
+        wires = []
+
+        for m, vnode in enumerate(vnode_dir.values()):
+            wires.extend(self._make_wires1(vnode))
+            
+        return wires
+
+
     def draw(self, draw_nodes=True, label_nodes=True, filename=None):
 
         if not hasattr(self, 'node_positions'):
@@ -303,7 +303,7 @@ class Schematic(object):
 
             print(r'    \draw (%s) to [%s=$%s$, %s] (%s);' % (n1, cpt, elt.symbol, node_str, n2))
 
-        wires = make_wires(self.vnodes)
+        wires = self._make_wires(self.vnodes)
 
         # Draw wires
         for wire in wires:
