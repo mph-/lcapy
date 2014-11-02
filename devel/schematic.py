@@ -33,7 +33,7 @@ class Node(object):
 
 class NetElement(object):
 
-    def __init__(self, name, node1, node2, symbol=None, dir='up', size=1):
+    def __init__(self, name, node1, node2, symbol=None, hints=None):
 
         kind = name[0]
         id = name[1:]
@@ -51,9 +51,8 @@ class NetElement(object):
 
         self.name = name
         self.autosymbol = symbol
-        self.dir = dir
         self.nodes = (node1, node2)
-        self.size = float(size) * 2
+        self.hints = hints
 
 
     def __repr__(self):
@@ -166,7 +165,7 @@ class Schematic(object):
         hints = self._hints_parse(str)
 
         parts = fields[0].split(' ')
-        elt = NetElement(*parts, dir=hints['dir'], size=hints['size'])
+        elt = NetElement(*parts, hints=hints)
 
         self._elt_add(elt)
 
@@ -197,16 +196,19 @@ class Schematic(object):
             A[k, m1] = -1
             A[k, m2] = 1
 
-            if elt.dir == 'right':
-                bx[k] = -elt.size
-            elif elt.dir == 'left':
-                bx[k] = elt.size
-            elif elt.dir == 'up':
-                by[k] = -elt.size
-            elif elt.dir == 'down':
-                by[k] = elt.size
+            dir = elt.hints['dir']
+            size = float(elt.hints['size']) * 2
+
+            if dir == 'right':
+                bx[k] = -size
+            elif dir == 'left':
+                bx[k] = size
+            elif dir == 'up':
+                by[k] = -size
+            elif dir == 'down':
+                by[k] = size
             else:
-                raise ValueError('Unknown dir %s' % elt.dir)
+                raise ValueError('Unknown dir %s' % dir)
             
             k += 1
 
@@ -311,11 +313,17 @@ class Schematic(object):
                     print(r'    \draw (%s) to [open] (%s);' % (n2, n1))
                 continue
 
+            hints_str = ''
+            if elt.hints.has_key('i'):
+                hints_str = 'i=$%s$, ' % elt.hints['i'] 
+            if elt.hints.has_key('i_'):
+                hints_str += 'i_=$%s$, ' % elt.hints['i'] 
+
             node_str = ''
             if draw_nodes:
                 node_str = self.nodes[n1].symbol + '-' + self.nodes[n2].symbol
 
-            print(r'    \draw (%s) to [%s=$%s$, %s] (%s);' % (n1, cpt, elt.autosymbol, node_str, n2))
+            print(r'    \draw (%s) to [%s=$%s$, %s%s] (%s);' % (n1, cpt, elt.autosymbol, hints_str, node_str, n2))
 
         wires = self._make_wires()
 
