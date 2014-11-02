@@ -24,13 +24,6 @@ class Node(object):
         self.list.append(elt)
 
 
-    @property
-    def symbol(self):
-        
-        return 'o' if self.port else '*'
-
-
-
 class NetElement(object):
 
     def __init__(self, name, node1, node2, symbol=None, opts=None):
@@ -274,6 +267,7 @@ class Schematic(object):
 
 
     def _make_wires(self):
+        """Create implict wires between common nodes."""
 
         wires = []
 
@@ -285,7 +279,28 @@ class Schematic(object):
         return wires
 
 
-    def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True, filename=None, args=None):
+    def _node_str(self, n1, n2, draw_nodes=True):
+
+        if self.nodes[n1].port:
+            node_str = 'o'
+        else:
+            node_str = '*' if draw_nodes else ''
+            
+        node_str += '-'
+
+        if self.nodes[n2].port:
+            node_str += 'o'
+        else:
+            node_str += '*' if draw_nodes else ''
+
+        if node_str == '-':
+            node_str = ''
+        
+        return node_str
+
+
+    def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
+                  filename=None, args=None):
 
         self._positions_calculate()
 
@@ -335,10 +350,7 @@ class Schematic(object):
                 if elt.opts.has_key(opt):
                     opts_str += '%s=$%s$, ' % (opt, elt.opts[opt])
 
-            node_str = ''
-            if draw_nodes:
-                node_str = self.nodes[n1].symbol + '-' + self.nodes[n2].symbol
-
+            node_str = self._node_str(n1, n2, draw_nodes)
                
             label_str =''
             if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
@@ -354,11 +366,8 @@ class Schematic(object):
             n1 = wire.nodes[1]
             n2 = wire.nodes[0]
 
-            node_str = ''
-            if draw_nodes:
-                node_str = self.nodes[n1].symbol + '-' + self.nodes[n2].symbol
-
-                print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2))
+            node_str = self._node_str(n1, n2, draw_nodes)
+            print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2))
     
         # Label primary nodes
         if label_nodes:
