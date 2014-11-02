@@ -279,8 +279,7 @@ class Schematic(object):
 
     def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True, filename=None, args=None):
 
-        if not hasattr(self, 'node_positions'):
-            self._positions_calculate()
+        self._positions_calculate()
 
         if filename != None:
             outfile = open(filename, 'w')
@@ -357,7 +356,9 @@ class Schematic(object):
 
 
     def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-             filename=None, args=None):
+             filename=None, args=None, scale=2):
+
+        self.scale = scale
 
         return self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
                               label_nodes=label_nodes, filename=filename, args=args)
