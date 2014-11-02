@@ -18,8 +18,7 @@ class Node(object):
     
     def append(self, elt):
 
-        cpt = elt.name[0:1]        
-        if cpt == 'P':
+        if elt.cpt in ('P', 'port', 'open'):
             self.port = True
 
         self.list.append(elt)
@@ -39,7 +38,7 @@ class NetElement(object):
         # Regular expression alternate matches stop with first match
         # so need to have longer ones first.
         cpts = ('R', 'C', 'L', 'Vac', 'Vdc', 'Iac', 'Idc', 'V', 'I',
-                'TF', 'P', 'port', 'W', 'wire')
+                'TF', 'P', 'port', 'W', 'wire', 'transformer', 'short', 'open')
 
 
         match = re.match(r'(%s)(\w)' % '|'.join(cpts), name)
