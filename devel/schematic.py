@@ -132,7 +132,7 @@ class Schematic(object):
             # Skip comments
             if line[0] in ('#', '%'):
                 continue
-            self.net_add(line.strip())
+            self.add(line.strip())
 
 
     def netlist(self):
@@ -185,7 +185,7 @@ class Schematic(object):
         return opts
 
 
-    def net_add(self, line):
+    def add(self, line):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive nose and Nm is the negative node.
 
@@ -472,11 +472,11 @@ def test():
     
     sch = Schematic()
 
-    sch.net_add('P1 1 0.1')
-    sch.net_add('R1 3 1; right')
-    sch.net_add('L1 2 3; right')
-    sch.net_add('C1 3 0; up')
-    sch.net_add('P2 2 0.2')
+    sch.add('P1 1 0.1')
+    sch.add('R1 3 1; right')
+    sch.add('L1 2 3; right')
+    sch.add('C1 3 0; up')
+    sch.add('P2 2 0.2')
 
     sch.draw()
     return sch
