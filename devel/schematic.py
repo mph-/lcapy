@@ -3,6 +3,28 @@ import numpy as np
 import re
 
 
+def longest_path(all_nodes, from_nodes):
+
+    memo = {}
+
+
+    def get_longest(to_node):
+
+        if to_node in memo:
+            return memo[to_node]
+
+        best = 0
+        for from_node in from_nodes[to_node]:
+            best = max(best, get_longest(from_node) + 1)
+
+        memo[to_node] = best
+
+        return best
+
+    length, node = max([(get_longest(to_node), to_node) for to_node in all_nodes])
+    return length, node, memo
+
+
 class Node(object):
 
     def __init__(self, name):
@@ -48,6 +70,9 @@ class NetElement(object):
 
         if symbol is None:
             symbol = cpt + '_{' + id + '}'
+
+        if opts['dir'] is None:
+            opts['dir'] = 'up' if cpt in ('port', 'P') else 'right'
 
         self.name = name
         self.cpt = cpt
@@ -134,7 +159,7 @@ class Schematic(object):
 
     def _opts_parse(self, str):
 
-        opts = {'dir' : 'up',
+        opts = {'dir' : None,
                  'size' : 1}
 
         for part in str.split(','):
@@ -170,6 +195,92 @@ class Schematic(object):
         elt = NetElement(*parts, opts=opts)
 
         self._elt_add(elt)
+
+
+    def bar(self):
+
+        xnodes = {}
+        xnode_map = {}
+        xnode = 0
+        for m, elt in enumerate(self.elements.values()):
+
+            if elt.opts['dir'] not in ('up', 'down'):
+                continue
+
+            n1, n2 = elt.nodes[0], elt.nodes[1]
+
+            if xnode_map.has_key(n1) and xnode_map.has_key(n2) and xnode_map[n1] != xnode_map[n2]:
+                raise ValueError('Conflict for elt %s' % elt)
+                    
+            if not xnode_map.has_key(n1) and not xnode_map.has_key(n2):
+                xnode += 1
+                xnode_map[n1] = xnode
+                xnode_map[n2] = xnode
+                xnodes[xnode] = [n1, n2]
+            elif not xnode_map.has_key(n1):
+                node = xnode_map[n2]
+                xnode_map[n1] = node
+                xnodes[node].append(n1)
+            else:
+                node = xnode_map[n1]
+                xnode_map[n2] = node
+                xnodes[node].append(n2)
+
+        for m, elt in enumerate(self.elements.values()):
+
+            if elt.opts['dir'] in ('up', 'down'):
+                continue
+
+            n1, n2 = elt.nodes[0], elt.nodes[1]
+
+            if not xnode_map.has_key(n1):
+                xnode += 1
+                xnode_map[n1] = xnode
+                xnodes[xnode] = [n1]
+            if not xnode_map.has_key(n2):
+                xnode += 1
+                xnode_map[n2] = xnode
+                xnodes[xnode] = [n2]
+
+        xgraph = {}
+        xrgraph = {}
+        for m in range(xnode + 1):
+            xgraph[m] = []
+            xrgraph[m] = []
+
+        for m, elt in enumerate(self.elements.values()):
+
+            m1, m2 = xnode_map[elt.nodes[0]], xnode_map[elt.nodes[1]]
+
+            if elt.opts['dir'] == 'left':
+                xgraph[m1].append(m2)
+                xrgraph[m2].append(m1)
+            elif elt.opts['dir'] == 'right':
+                xgraph[m2].append(m1)
+                xrgraph[m1].append(m2)
+
+        orphans = []
+        rorphans = []
+        for m in range(1, xnode + 1):
+            if xgraph[m] == []:
+                orphans.append(m)
+            if xrgraph[m] == []:
+                rorphans.append(m)
+        xgraph[0] = rorphans
+        xrgraph[0] = orphans
+
+        if False:
+            print(xgraph)
+            print(xrgraph)
+            print(xnodes)
+            print(xnode_map)
+
+        
+        length, node, memo = longest_path(range(xnode + 1), xgraph)
+        print(length, node, memo)
+
+        length, node, memo = longest_path(range(xnode + 1), xrgraph)
+        print(length, node, memo)
 
 
     def _positions_calculate(self):
@@ -302,6 +413,9 @@ class Schematic(object):
     def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
                   filename=None, args=None):
 
+
+        self.bar()
+        return
         self._positions_calculate()
 
         if filename != None:
