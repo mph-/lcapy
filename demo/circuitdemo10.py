@@ -2,9 +2,9 @@ from lcapy import pprint, Circuit
 
 cct = Circuit('V R C')
 
-cct.net_add('Vs 1 0 dc') 
-cct.net_add('R1 1 2') 
-cct.net_add('C1 2 0 C1 Vc') 
+cct.add('Vs 1 0 dc') 
+cct.add('R1 1 2') 
+cct.add('C1 2 0 C1 Vc') 
 
 pprint(cct.V)
 

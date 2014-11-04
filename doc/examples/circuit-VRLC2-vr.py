@@ -6,10 +6,10 @@ t = np.linspace(0, 0.01, 1000)
 
 cct = Circuit()
 
-cct.net_add('V1 1 0 dc 10')
-cct.net_add('L1 1 2 1e-3')
-cct.net_add('C1 2 3 1e-4')
-cct.net_add('R1 3 0 1')
+cct.add('V1 1 0 dc 10')
+cct.add('L1 1 2 1e-3')
+cct.add('C1 2 3 1e-4')
+cct.add('R1 3 0 1')
 
 Vr = cct.V[3]
 vr = Vr.transient_response(t)

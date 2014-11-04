@@ -10,11 +10,11 @@ C1 = 1e-6
 L1 = 1 / ((2 * np.pi * fr)**2 * C1)
 R1 = 0.1
 
-cct.net_add('Vi 1 0 dc') 
-cct.net_add('C1 2 1', C1) 
-cct.net_add('L1 3 2', L1) 
-cct.net_add('R1 4 3', R1) 
-cct.net_add('Rr 4 0 0.01') 
+cct.add('Vi 1 0 dc') 
+cct.add('C1 2 1', C1) 
+cct.add('L1 3 2', L1) 
+cct.add('R1 4 3', R1) 
+cct.add('Rr 4 0 0.01') 
 
 
 

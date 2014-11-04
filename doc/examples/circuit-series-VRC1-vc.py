@@ -6,9 +6,9 @@ t = np.linspace(0, 0.01, 1000)
 
 cct = Circuit('Series VRC1')
 
-cct.net_add('V1 1 0 dc 20')
-cct.net_add('R1 1 2 10')
-cct.net_add('C1 2 0 1e-4')
+cct.add('V1 1 0 dc 20')
+cct.add('R1 1 2 10')
+cct.add('C1 2 0 1e-4')
 
 
 Vc = cct.V[2]

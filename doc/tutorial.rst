@@ -713,9 +713,9 @@ created dynamically, for example,
 
    >>> from lcapy import pprint, Circuit
    >>> cct = Circuit()
-   >>> cct.net_add('V1 1 0 dc 10') 
-   >>> cct.net_add('Ra 1 2 3e3') 
-   >>> cct.net_add('Rb 2 0 1e3') 
+   >>> cct.add('V1 1 0 dc 10') 
+   >>> cct.add('Ra 1 2 3e3') 
+   >>> cct.add('Rb 2 0 1e3') 
 
 This creates a circuit comprised of a 10 V DC voltage source connected
 to two resistors in series.  The node named 0 denotes the ground which
@@ -774,9 +774,9 @@ not specifying a component value.  In the latter case, Lcapy will
 use the component name for its value.  For example,
 
    >>> cct = Circuit()
-   >>> cct.net_add('V1 1 0 dc Vs') 
-   >>> cct.net_add('R1 1 2') 
-   >>> cct.net_add('C1 2 0') 
+   >>> cct.add('V1 1 0 dc Vs') 
+   >>> cct.add('R1 1 2') 
+   >>> cct.add('C1 2 0') 
    >>> pprint(cct.V[2])
         Vs     
    ────────────
@@ -797,9 +797,9 @@ current through an inductor can be specified as the second argument.
 For example,
 
    >>> cct = Circuit()
-   >>> cct.net_add('V1 1 0 dc Vs') 
-   >>> cct.net_add('C1 2 1 C1 v0') 
-   >>> cct.net_add('L1 2 0 L1 i0') 
+   >>> cct.add('V1 1 0 dc Vs') 
+   >>> cct.add('C1 2 1 C1 v0') 
+   >>> cct.add('L1 2 0 L1 i0') 
    >>> pprint(cct.V[2])
    C₁⋅L₁⋅Vs⋅s + C₁⋅L₁⋅s⋅v₀ - L₁⋅i₀
    ───────────────────────────────
@@ -816,9 +816,9 @@ Here's an example using an arbitrary input voltage `V(s)`:
 
    >>> from lcapy import pprint, Circuit
    >>> cct = Circuit()
-   >>> cct.net_add('V1 1 0 V(s)') 
-   >>> cct.net_add('R1 1 2') 
-   >>> cct.net_add('C1 2 0') 
+   >>> cct.add('V1 1 0 V(s)') 
+   >>> cct.add('R1 1 2') 
+   >>> cct.add('C1 2 0') 
    >>> pprint(cct.V[2])
        V(s)   
    ───────────

@@ -279,22 +279,37 @@ class Netlist(object):
         self._node_add(elt.nodes[1], elt)
         
 
-    def net_add(self, line, *args):
-        """The general form is: 'Name Np Nm args'
+    def add(self, str, *args):
+        """Add a component to the netlist.
+        The general form is: 'Name Np Nm args'
         where Np is the positive nose and Nm is the negative node.
 
         A positive current is defined to flow from the positive node
         to the negative node.
         """
 
-        parts = line.split(' ')
-        
+        parts = str.split(' ')
         elt = NetElement(*(tuple(parts) + args))
-
         self._elt_add(elt)
 
 
-    def add(self, cpt, node1, node2, name=None):
+    def net_add(self, str, *args):
+        """Add a component to the netlist.
+        The general form is: 'Name Np Nm args'
+        where Np is the positive nose and Nm is the negative node.
+
+        A positive current is defined to flow from the positive node
+        to the negative node.
+
+        Note, this method has been superseded by add.
+        """
+
+        parts = str.split(' ')
+        elt = NetElement(*(tuple(parts) + args))
+        self._elt_add(elt)
+
+
+    def cpt_add(self, cpt, node1, node2, name=None):
         """Add generic one-port component to netlist"""
 
         if name is None and hasattr(cpt.args[0], 'name'):
