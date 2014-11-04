@@ -66,7 +66,7 @@ class NetElement(object):
 
         if id is None:
             NetElement.cpt_counter += 1
-            id = '%d' % NetElement.cpt_counter
+            id = '#%d' % NetElement.cpt_counter
             name = cpt + id
 
         node1 = node1.replace('.', '_')
@@ -422,17 +422,6 @@ class Schematic(object):
             n2 = elt.nodes[0]
             cpt = cpt_map[elt.cpt]
 
-            # Need to special case port component.
-            if cpt[0] == 'P':
-                if elt.symbol:
-                    dir = '^' if elt.pos1[0] > self.xcentre else ''
-
-                    print(r'    \draw (%s) to [open, v%s=$%s$] (%s);' % (n2, dir, elt.symbol, n1))
-                else:
-                    print(r'    \draw (%s) to [open] (%s);' % (n2, n1))
-                continue
-
-
             # Current, voltage, label options.
             # It might be better to allow any options and prune out
             # dir and size.
@@ -441,14 +430,14 @@ class Schematic(object):
                 if elt.opts.has_key(opt):
                     opts_str += '%s=$%s$, ' % (opt, elt.opts[opt])
 
-            node_str = self._node_str(n1, n2, draw_nodes)
+            node_str = self._node_str(n2, n1, draw_nodes)
                
             label_str =''
             if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
-                label_str = '=$%s$' % elt.autosymbol
-            
+                if cpt not in ('open', 'short'):
+                    label_str = '=$%s$' % elt.autosymbol
 
-            print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt, label_str, opts_str, node_str, n2))
+            print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n2, cpt, label_str, opts_str, node_str, n1))
 
         wires = self._make_wires()
 
@@ -457,8 +446,8 @@ class Schematic(object):
             n1 = wire.nodes[1]
             n2 = wire.nodes[0]
 
-            node_str = self._node_str(n1, n2, draw_nodes)
-            print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2))
+            node_str = self._node_str(n2, n1, draw_nodes)
+            print(r'    \draw (%s) to [short, %s] (%s);' % (n2, node_str, n1))
     
         # Label primary nodes
         if label_nodes:
