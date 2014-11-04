@@ -47,6 +47,8 @@ class Node(object):
 
 class NetElement(object):
 
+    cpt_counter = 0
+
     def __init__(self, name, node1, node2, symbol=None, opts=None):
 
         # Regular expression alternate matches stop with first match
@@ -55,12 +57,17 @@ class NetElement(object):
                 'TF', 'P', 'port', 'W', 'wire', 'transformer', 'short', 'open')
 
 
-        match = re.match(r'(%s)(\w)' % '|'.join(cpts), name)
+        match = re.match(r'(%s)(\w)?' % '|'.join(cpts), name)
         if not match:
             raise ValueError('Unknown component %s' % name)
 
-        cpt = match.groups(1)[0]
-        id = match.groups(1)[1]
+        cpt = match.groups()[0]
+        id = match.groups()[1]
+
+        if id is None:
+            NetElement.cpt_counter += 1
+            id = '%d' % NetElement.cpt_counter
+            name = cpt + id
 
         node1 = node1.replace('.', '_')
         node2 = node2.replace('.', '_')
@@ -332,11 +339,6 @@ class Schematic(object):
         self.coords = coords
 
 
-    def bar(self):
-        
-        self._positions_calculate()
-
-
     def _make_wires1(self, vnode):
 
         num_wires = len(vnode) - 1
@@ -390,7 +392,6 @@ class Schematic(object):
 
     def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
                   filename=None, args=None):
-
 
         self._positions_calculate()
 
@@ -476,7 +477,6 @@ class Schematic(object):
 
         return self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
                               label_nodes=label_nodes, filename=filename, args=args)
-
 
 
 def test():
