@@ -197,90 +197,111 @@ class Schematic(object):
         self._elt_add(elt)
 
 
-    def bar(self):
 
-        xnodes = {}
-        xnode_map = {}
-        xnode = 0
+    def _make_graphs(self, dirs):
+
+        cnodes = {}
+        cnode_map = {}
+        cnode = 0
+
+        # Use components in orthogonal directions as constraints.  The
+        # nodes of orthogonal components get combined into a
+        # collective node.
         for m, elt in enumerate(self.elements.values()):
-
-            if elt.opts['dir'] not in ('up', 'down'):
+            if elt.opts['dir'] in dirs:
                 continue
 
             n1, n2 = elt.nodes[0], elt.nodes[1]
 
-            if xnode_map.has_key(n1) and xnode_map.has_key(n2) and xnode_map[n1] != xnode_map[n2]:
+            if cnode_map.has_key(n1) and cnode_map.has_key(n2) and cnode_map[n1] != cnode_map[n2]:
                 raise ValueError('Conflict for elt %s' % elt)
                     
-            if not xnode_map.has_key(n1) and not xnode_map.has_key(n2):
-                xnode += 1
-                xnode_map[n1] = xnode
-                xnode_map[n2] = xnode
-                xnodes[xnode] = [n1, n2]
-            elif not xnode_map.has_key(n1):
-                node = xnode_map[n2]
-                xnode_map[n1] = node
-                xnodes[node].append(n1)
+            if not cnode_map.has_key(n1) and not cnode_map.has_key(n2):
+                cnode += 1
+                cnode_map[n1] = cnode
+                cnode_map[n2] = cnode
+                cnodes[cnode] = [n1, n2]
+            elif not cnode_map.has_key(n1):
+                node = cnode_map[n2]
+                cnode_map[n1] = node
+                cnodes[node].append(n1)
             else:
-                node = xnode_map[n1]
-                xnode_map[n2] = node
-                xnodes[node].append(n2)
+                node = cnode_map[n1]
+                cnode_map[n2] = node
+                cnodes[node].append(n2)
 
+
+        # Augment the collective nodes with the other nodes used by
+        # components in the desired directions.
         for m, elt in enumerate(self.elements.values()):
-
-            if elt.opts['dir'] in ('up', 'down'):
+            if elt.opts['dir'] not in dirs:
                 continue
 
             n1, n2 = elt.nodes[0], elt.nodes[1]
 
-            if not xnode_map.has_key(n1):
-                xnode += 1
-                xnode_map[n1] = xnode
-                xnodes[xnode] = [n1]
-            if not xnode_map.has_key(n2):
-                xnode += 1
-                xnode_map[n2] = xnode
-                xnodes[xnode] = [n2]
+            if not cnode_map.has_key(n1):
+                cnode += 1
+                cnode_map[n1] = cnode
+                cnodes[cnode] = [n1]
+            if not cnode_map.has_key(n2):
+                cnode += 1
+                cnode_map[n2] = cnode
+                cnodes[cnode] = [n2]
 
-        xgraph = {}
-        xrgraph = {}
-        for m in range(xnode + 1):
-            xgraph[m] = []
-            xrgraph[m] = []
+
+        # Now form forward and reverse directed graphs using components
+        # in the desired directions.
+        graph = {}
+        rgraph = {}
+        for m in range(cnode + 1):
+            graph[m] = []
+            rgraph[m] = []
 
         for m, elt in enumerate(self.elements.values()):
+            if elt.opts['dir'] not in dirs:
+                continue
 
-            m1, m2 = xnode_map[elt.nodes[0]], xnode_map[elt.nodes[1]]
+            m1, m2 = cnode_map[elt.nodes[0]], cnode_map[elt.nodes[1]]
 
-            if elt.opts['dir'] == 'left':
-                xgraph[m1].append(m2)
-                xrgraph[m2].append(m1)
-            elif elt.opts['dir'] == 'right':
-                xgraph[m2].append(m1)
-                xrgraph[m1].append(m2)
+            if elt.opts['dir'] == dirs[0]:
+                graph[m1].append(m2)
+                rgraph[m2].append(m1)
+            elif elt.opts['dir'] == dirs[1]:
+                graph[m2].append(m1)
+                rgraph[m1].append(m2)
 
+        # Chain all potential start nodes to node 0.
         orphans = []
         rorphans = []
-        for m in range(1, xnode + 1):
-            if xgraph[m] == []:
+        for m in range(1, cnode + 1):
+            if graph[m] == []:
                 orphans.append(m)
-            if xrgraph[m] == []:
+            if rgraph[m] == []:
                 rorphans.append(m)
-        xgraph[0] = rorphans
-        xrgraph[0] = orphans
+        graph[0] = rorphans
+        rgraph[0] = orphans
 
         if False:
-            print(xgraph)
-            print(xrgraph)
-            print(xnodes)
-            print(xnode_map)
+            print(graph)
+            print(rgraph)
+            print(cnodes)
+            print(cnode_map)
 
-        
-        length, node, memo = longest_path(range(xnode + 1), xgraph)
-        print(length, node, memo)
 
-        length, node, memo = longest_path(range(xnode + 1), xrgraph)
-        print(length, node, memo)
+        # Find longest path through the graphs
+        length, node, memo = longest_path(range(cnode + 1), graph)
+        length, node, memor = longest_path(range(cnode + 1), rgraph)
+
+        return graph, rgraph, memo, memor
+
+
+    def bar(self):
+
+        xgraph, xrgraph, xmemo, xmemor = self._make_graphs(('left', 'right'))
+        ygraph, yrgraph, ymemo, ymemor = self._make_graphs(('down', 'up'))
+
+        print(xmemo, xmemor)
+        print(ymemo, ymemor)
 
 
     def _positions_calculate(self):
