@@ -253,15 +253,17 @@ class Schematic(object):
         # in the desired directions.
         graph = {}
         rgraph = {}
-        for m in range(cnode + 1):
-            graph[m] = []
-            rgraph[m] = []
+        print(cnodes.keys())
+        for m in cnodes.values():
+            key = tuple(m)
+            graph[key] = []
+            rgraph[key] = []
 
         for m, elt in enumerate(self.elements.values()):
             if elt.opts['dir'] not in dirs:
                 continue
 
-            m1, m2 = cnode_map[elt.nodes[0]], cnode_map[elt.nodes[1]]
+            m1, m2 = tuple(cnodes[cnode_map[elt.nodes[0]]]), tuple(cnodes[cnode_map[elt.nodes[1]]])
 
             if elt.opts['dir'] == dirs[0]:
                 graph[m1].append(m2)
@@ -273,11 +275,12 @@ class Schematic(object):
         # Chain all potential start nodes to node 0.
         orphans = []
         rorphans = []
-        for m in range(1, cnode + 1):
-            if graph[m] == []:
-                orphans.append(m)
-            if rgraph[m] == []:
-                rorphans.append(m)
+        for m in cnodes.values():
+            key = tuple(m)
+            if graph[key] == []:
+                orphans.append(key)
+            if rgraph[key] == []:
+                rorphans.append(key)
         graph[0] = rorphans
         rgraph[0] = orphans
 
@@ -288,9 +291,12 @@ class Schematic(object):
             print(cnode_map)
 
 
-        # Find longest path through the graphs
-        length, node, memo = longest_path(range(cnode + 1), graph)
-        length, node, memor = longest_path(range(cnode + 1), rgraph)
+        # Find longest path through the graphs.
+        #length, node, memo = longest_path(range(cnode + 1), graph)
+        #length, node, memor = longest_path(range(cnode + 1), rgraph)
+
+        length, node, memo = longest_path(graph.keys(), graph)
+        length, node, memor = longest_path(graph.keys(), rgraph)
 
         return graph, rgraph, memo, memor
 
