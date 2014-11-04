@@ -375,14 +375,14 @@ class Schematic(object):
         if self.nodes[n1].port:
             node_str = 'o'
         else:
-            node_str = '*' if draw_nodes else ''
+            node_str = '*' if draw_nodes and n1.find('_') == - 1 else ''
             
         node_str += '-'
 
         if self.nodes[n2].port:
             node_str += 'o'
         else:
-            node_str += '*' if draw_nodes else ''
+            node_str += '*' if draw_nodes and n2.find('_') == - 1 else ''
 
         if node_str == '-':
             node_str = ''
