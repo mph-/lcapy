@@ -7,15 +7,14 @@ def longest_path(all_nodes, from_nodes):
 
     memo = {}
 
-
     def get_longest(to_node):
 
         if to_node in memo:
             return memo[to_node]
 
         best = 0
-        for from_node in from_nodes[to_node]:
-            best = max(best, get_longest(from_node) + 1)
+        for from_node, size in from_nodes[to_node]:
+            best = max(best, get_longest(from_node) + size)
 
         memo[to_node] = best
 
@@ -265,21 +264,23 @@ class Schematic(object):
 
             m1, m2 = cnode_map[elt.nodes[0]], cnode_map[elt.nodes[1]]
 
+            size = float(elt.opts['size'])
+
             if elt.opts['dir'] == dirs[0]:
-                graph[m1].append(m2)
-                rgraph[m2].append(m1)
+                graph[m1].append((m2, size))
+                rgraph[m2].append((m1, size))
             elif elt.opts['dir'] == dirs[1]:
-                graph[m2].append(m1)
-                rgraph[m1].append(m2)
+                graph[m2].append((m1, size))
+                rgraph[m1].append((m2, size))
 
         # Chain all potential start nodes to node 0.
         orphans = []
         rorphans = []
         for m in range(1, cnode + 1):
             if graph[m] == []:
-                orphans.append(m)
+                orphans.append((m, 0))
             if rgraph[m] == []:
-                rorphans.append(m)
+                rorphans.append((m, 0))
         graph[0] = rorphans
         rgraph[0] = orphans
 
@@ -298,16 +299,17 @@ class Schematic(object):
         posr = {}
         posa = {}
         for cnode in graph.keys():
-            
             if cnode == 0:
                 continue
 
             for node in cnodes[cnode]:
-                pos[node] = length - memo[cnode] - 1
+                pos[node] = length - memo[cnode]
                 posr[node] = memor[cnode]
                 posa[node] = 0.5 * (pos[node] + posr[node])
-            
-        #print(posa)
+        
+        if False:
+            print(pos)
+            print(posr)
         return posa
 
 
@@ -343,7 +345,7 @@ class Schematic(object):
 
         wires = []
 
-        # TODO: remove overdraw wires...
+        # TODO: remove overdrawn wires...
         for n in range(num_wires):
             n1 = vnode.keys()[n]
             n2 = vnode.keys()[n + 1]
