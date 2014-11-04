@@ -71,6 +71,9 @@ class NetElement(object):
         if symbol is None:
             symbol = cpt + '_{' + id + '}'
 
+        if opts is None:
+            opts = {'dir' : None, 'size' : 1}
+
         if opts['dir'] is None:
             opts['dir'] = 'up' if cpt in ('port', 'P') else 'right'
 
@@ -159,8 +162,7 @@ class Schematic(object):
 
     def _opts_parse(self, str):
 
-        opts = {'dir' : None,
-                 'size' : 1}
+        opts = {'dir' : None, 'size' : 1}
 
         for part in str.split(','):
             part = part.strip()
@@ -445,8 +447,7 @@ class Schematic(object):
 
             print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt, label_str, opts_str, node_str, n2))
 
-        #wires = self._make_wires()
-        wires = ()
+        wires = self._make_wires()
 
         # Draw wires
         for wire in wires:
