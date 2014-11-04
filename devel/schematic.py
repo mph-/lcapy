@@ -2,6 +2,18 @@ from __future__ import print_function
 import numpy as np
 import re
 
+# Mapping of component names to circuitikz names. 
+cpt_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 
+           'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
+           'V' : 'V', 'I' : 'I', 'v' : 'V', 'i' : 'I',
+           'TF' : 'transformer', 'P' : 'open', 'port' : 'open',
+           'W' : 'short', 'wire' : 'short'}
+
+# Regular expression alternate matches stop with first match so need
+# to have longer names first.
+cpts = cpt_map.keys()
+cpts.sort(lambda x, y: cmp(len(y), len(x)))
+
 
 def longest_path(all_nodes, from_nodes):
 
@@ -50,12 +62,6 @@ class NetElement(object):
     cpt_counter = 0
 
     def __init__(self, name, node1, node2, symbol=None, opts=None):
-
-        # Regular expression alternate matches stop with first match
-        # so need to have longer ones first.
-        cpts = ('R', 'C', 'L', 'Vac', 'Vdc', 'Iac', 'Idc', 'V', 'I',
-                'TF', 'P', 'port', 'W', 'wire', 'transformer', 'short', 'open')
-
 
         match = re.match(r'(%s)(\w)?' % '|'.join(cpts), name)
         if not match:
@@ -322,6 +328,19 @@ class Schematic(object):
 
     def _positions_calculate(self):
 
+        # The x and y positions of a component node are determined
+        # independently.  The principle is that each component has a
+        # minimum size (usually 1 but changeable with the size option)
+        # but its wires can be stretched.
+
+        # When solving the x position, first nodes that must be
+        # vertically aligned (with the up or down option) are combined
+        # into a set.  Then the left and right options are used to
+        # form a graph.  This graph is traversed to find the longest
+        # path and in the process each node gets assigned the longest
+        # distance from the root of the graph.  To centre components,
+        # a reverse graph is created and the distances are averaged.
+
         xpos = self._make_graphs(('left', 'right'))
         ypos = self._make_graphs(('down', 'up'))
 
@@ -409,11 +428,6 @@ class Schematic(object):
         for coord in self.coords.keys():
             print(r'    \coordinate (%s) at (%.1f, %.1f);' % (coord, self.coords[coord][0], self.coords[coord][1]), file=outfile)
 
-
-        cpt_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 'V' : 'V', 'I' : 'I',
-                   'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
-                   'TF' : 'transformer', 'P' : 'open', 'port' : 'open',
-                   'W' : 'short', 'wire' : 'short'}
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):
