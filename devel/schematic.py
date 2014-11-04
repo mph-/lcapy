@@ -253,17 +253,15 @@ class Schematic(object):
         # in the desired directions.
         graph = {}
         rgraph = {}
-        print(cnodes.keys())
-        for m in cnodes.values():
-            key = tuple(m)
-            graph[key] = []
-            rgraph[key] = []
+        for m in range(cnode + 1):
+            graph[m] = []
+            rgraph[m] = []
 
         for m, elt in enumerate(self.elements.values()):
             if elt.opts['dir'] not in dirs:
                 continue
 
-            m1, m2 = tuple(cnodes[cnode_map[elt.nodes[0]]]), tuple(cnodes[cnode_map[elt.nodes[1]]])
+            m1, m2 = cnode_map[elt.nodes[0]], cnode_map[elt.nodes[1]]
 
             if elt.opts['dir'] == dirs[0]:
                 graph[m1].append(m2)
@@ -275,12 +273,11 @@ class Schematic(object):
         # Chain all potential start nodes to node 0.
         orphans = []
         rorphans = []
-        for m in cnodes.values():
-            key = tuple(m)
-            if graph[key] == []:
-                orphans.append(key)
-            if rgraph[key] == []:
-                rorphans.append(key)
+        for m in range(1, cnode + 1):
+            if graph[m] == []:
+                orphans.append(m)
+            if rgraph[m] == []:
+                rorphans.append(m)
         graph[0] = rorphans
         rgraph[0] = orphans
 
@@ -292,98 +289,48 @@ class Schematic(object):
 
 
         # Find longest path through the graphs.
-        #length, node, memo = longest_path(range(cnode + 1), graph)
-        #length, node, memor = longest_path(range(cnode + 1), rgraph)
-
         length, node, memo = longest_path(graph.keys(), graph)
         length, node, memor = longest_path(graph.keys(), rgraph)
 
-        return graph, rgraph, memo, memor
+        pos = {}
+        posr = {}
+        posa = {}
+        for cnode in graph.keys():
+            
+            if cnode == 0:
+                continue
 
-
-    def bar(self):
-
-        xgraph, xrgraph, xmemo, xmemor = self._make_graphs(('left', 'right'))
-        ygraph, yrgraph, ymemo, ymemor = self._make_graphs(('down', 'up'))
-
-        print(xmemo, xmemor)
-        print(ymemo, ymemor)
+            for node in cnodes[cnode]:
+                pos[node] = length - memo[cnode] - 1
+                posr[node] = memor[cnode]
+                posa[node] = 0.5 * (pos[node] + posr[node])
+            
+        #print(posa)
+        return posa
 
 
     def _positions_calculate(self):
 
-        num_nodes = len(self.nodes)
+        xpos = self._make_graphs(('left', 'right'))
+        ypos = self._make_graphs(('down', 'up'))
 
-        A = np.zeros((num_nodes, num_nodes))
-        bx = np.zeros(num_nodes)
-        by = np.zeros(num_nodes)
+        coords = {}
+        for node in xpos.keys():
+            coords[node] = (xpos[node] * self.scale, ypos[node] * self.scale)
 
-        node_name_list = list(self.nodes)
-
-        # Generate x and y constraint matrices and x and y component size vectors.
-        k = 0
         for m, elt in enumerate(self.elements.values()):
 
             n1, n2 = elt.nodes[0], elt.nodes[1]
-            m1, m2 = node_name_list.index(n1), node_name_list.index(n2)
 
-            if k == 0:
-                # Set first node to be arbitrary origin; this gets changed later.
-                A[k, m1] = 1
-                A[k, m1] = 1
-                k += 1
+            elt.pos1 = coords[n1]
+            elt.pos2 = coords[n2]
 
-            A[k, m1] = -1
-            A[k, m2] = 1
+        self.coords = coords
 
-            dir = elt.opts['dir']
-            size = float(elt.opts['size']) * self.scale
 
-            if dir == 'right':
-                bx[k] = -size
-            elif dir == 'left':
-                bx[k] = size
-            elif dir == 'up':
-                by[k] = -size
-            elif dir == 'down':
-                by[k] = size
-            else:
-                raise ValueError('Unknown dir %s' % dir)
-            
-            k += 1
-
-        Apinv = np.linalg.pinv(A)
-        x = np.dot(Apinv, bx)
-        y = np.dot(Apinv, by)
-
-        # Adjust positions so origin at (0, 0).
-        x = x - x.min()
-        y = y - y.min()
-
-        self.xcentre = x.mean()
-        self.ycentre = y.mean()
+    def bar(self):
         
-        #print A
-        #print bx
-        #print by
-
-        pos = np.zeros((num_nodes, 2))
-        for m in range(num_nodes):
-            pos[m][0] = x[m]
-            pos[m][1] = y[m]
-#            print('%s @ (%.1f, %.1f)' % (node_name_list[m], x[m], y[m]))
-
-
-        for m, elt in enumerate(self.elements.values()):
-
-            n1, n2 = elt.nodes[0], elt.nodes[1]
-            m1, m2 = node_name_list.index(n1), node_name_list.index(n2)
-
-            elt.pos1 = pos[m1]
-            elt.pos2 = pos[m2]
-
-        self.node_positions = pos
-        self.node_name_list = node_name_list
+        self._positions_calculate()
 
 
     def _make_wires1(self, vnode):
@@ -441,8 +388,6 @@ class Schematic(object):
                   filename=None, args=None):
 
 
-        self.bar()
-        return
         self._positions_calculate()
 
         if filename != None:
@@ -456,8 +401,8 @@ class Schematic(object):
         print(r'\begin{tikzpicture}[%s]' % args, file=outfile)
 
         # Write coordinates
-        for m, node in enumerate(self.node_name_list):
-            print(r'    \coordinate (%s) at (%.1f, %.1f);' % (node, self.node_positions[m][0], self.node_positions[m][1]), file=outfile)
+        for coord in self.coords.keys():
+            print(r'    \coordinate (%s) at (%.1f, %.1f);' % (coord, self.coords[coord][0], self.coords[coord][1]), file=outfile)
 
 
         cpt_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 'V' : 'V', 'I' : 'I',
@@ -500,7 +445,8 @@ class Schematic(object):
 
             print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt, label_str, opts_str, node_str, n2))
 
-        wires = self._make_wires()
+        #wires = self._make_wires()
+        wires = ()
 
         # Draw wires
         for wire in wires:
