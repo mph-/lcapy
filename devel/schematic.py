@@ -3,11 +3,11 @@ This module performs schematic drawing using circuitikz from a netlist.
 
 >>> from schematic Schematic
 >>> sch = Schematic()
->>> sch.add('P1 1 0.1; up')
+>>> sch.add('P1 1 0.1; down')
 >>> sch.add('R1 3 1; right')
 >>> sch.add('L1 2 3; right')
->>> sch.add('C1 3 0; up')
->>> sch.add('P2 2 0.2; up')
+>>> sch.add('C1 3 0; down')
+>>> sch.add('P2 2 0.2; down')
 >>> sch.add('W 0 0.1; right')
 >>> sch.add('W 0.2 0.2; right')
 >>> sch.draw()
@@ -133,7 +133,7 @@ class NetElement(object):
             opts['size'] = 1
 
         if opts['dir'] is None:
-            opts['dir'] = 'up' if cpt_type in ('port', 'P') else 'right'
+            opts['dir'] = 'down' if cpt_type in ('port', 'P') else 'right'
 
         self.name = name
         self.cpt_type = cpt_type
@@ -271,7 +271,7 @@ class Schematic(object):
             if elt.opts['dir'] in dirs:
                 continue
 
-            n1, n2 = elt.nodes[0], elt.nodes[1]
+            n1, n2 = elt.nodes
 
             if cnode_map.has_key(n1) and cnode_map.has_key(n2) and cnode_map[n1] != cnode_map[n2]:
                 raise ValueError('Conflict for elt %s' % elt)
@@ -297,7 +297,7 @@ class Schematic(object):
             if elt.opts['dir'] not in dirs:
                 continue
 
-            n1, n2 = elt.nodes[0], elt.nodes[1]
+            n1, n2 = elt.nodes
 
             if not cnode_map.has_key(n1):
                 cnode += 1
@@ -387,8 +387,8 @@ class Schematic(object):
         # distance from the root of the graph.  To centre components,
         # a reverse graph is created and the distances are averaged.
 
-        xpos = self._make_graphs(('left', 'right'))
-        ypos = self._make_graphs(('down', 'up'))
+        xpos = self._make_graphs(('right', 'left'))
+        ypos = self._make_graphs(('up', 'down'))
 
         coords = {}
         for node in xpos.keys():
@@ -396,7 +396,7 @@ class Schematic(object):
 
         for m, elt in enumerate(self.elements.values()):
 
-            n1, n2 = elt.nodes[0], elt.nodes[1]
+            n1, n2 = elt.nodes
 
             elt.pos1 = coords[n1]
             elt.pos2 = coords[n2]
@@ -478,9 +478,12 @@ class Schematic(object):
         # Draw components
         for m, elt in enumerate(self.elements.values()):
 
-            n1 = elt.nodes[1]
-            n2 = elt.nodes[0]
+            n1, n2 = elt.nodes
+
             cpt_type = cpt_type_map[elt.cpt_type]
+
+            if elt.opts['dir'] in ('down', ) and cpt_type in ('V', 'Vdc', 'I', 'Idc'):
+                n1, n2 = n2, n1
 
             # Current, voltage, label options.
             # It might be better to allow any options and prune out
@@ -503,8 +506,7 @@ class Schematic(object):
 
         # Draw wires
         for wire in wires:
-            n1 = wire.nodes[1]
-            n2 = wire.nodes[0]
+            n1, n2 = wire.nodes
 
             node_str = self._node_str(n1, n2, draw_nodes)
             print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2))
@@ -525,7 +527,8 @@ class Schematic(object):
         self.scale = scale
 
         return self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
-                              label_nodes=label_nodes, filename=filename, args=args)
+                              label_nodes=label_nodes, filename=filename,
+                              args=args)
 
 
 def test():
