@@ -1,9 +1,27 @@
+"""
+This module performs schematic drawing using circuitikz from a netlist.
+
+>>> from schematic Schematic
+>>> sch = Schematic()
+>>> sch.add('P1 1 0.1; up')
+>>> sch.add('R1 3 1; right')
+>>> sch.add('L1 2 3; right')
+>>> sch.add('C1 3 0; up')
+>>> sch.add('P2 2 0.2; up')
+>>> sch.add('W 0 0.1; right')
+>>> sch.add('W 0.2 0.2; right')
+>>> sch.draw()
+
+Copyright 2014 Michael Hayes, UCECE
+"""
+
 from __future__ import print_function
 import numpy as np
 import re
 
-# Mapping of component names to circuitikz names. 
-cpt_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 
+# Mapping of component names to circuitikz names.   The keys define
+# the allowable component names.
+cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 
            'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
            'V' : 'V', 'I' : 'I', 'v' : 'V', 'i' : 'I',
            'TF' : 'transformer', 'P' : 'open', 'port' : 'open',
@@ -11,11 +29,16 @@ cpt_map = {'R' : 'R', 'C' : 'C', 'L' : 'L',
 
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
-cpts = cpt_map.keys()
-cpts.sort(lambda x, y: cmp(len(y), len(x)))
+cpt_types = cpt_type_map.keys()
+cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 
 
 def longest_path(all_nodes, from_nodes):
+    """all_nodes is an iterable for all the nodes in the graph, from_nodes
+    is a directory indexed by node that stores a tuple of tuples.  The
+    first tuple element is the parent node and the second element is
+    the minimium size of the component connecting the nodes.
+    """
 
     memo = {}
 
@@ -51,7 +74,7 @@ class Node(object):
     
     def append(self, elt):
 
-        if elt.cpt in ('P', 'port', 'open'):
+        if elt.cpt_type in ('P', 'port', 'open'):
             self.port = True
 
         self.list.append(elt)
@@ -59,21 +82,21 @@ class Node(object):
 
 class NetElement(object):
 
-    cpt_counter = 0
+    cpt_type_counter = 0
 
     def __init__(self, name, node1, node2, symbol=None, opts=None):
 
-        match = re.match(r'(%s)(\w)?' % '|'.join(cpts), name)
+        match = re.match(r'(%s)(\w)?' % '|'.join(cpt_types), name)
         if not match:
             raise ValueError('Unknown component %s' % name)
 
-        cpt = match.groups()[0]
+        cpt_type = match.groups()[0]
         id = match.groups()[1]
 
         if id is None:
-            NetElement.cpt_counter += 1
-            id = '#%d' % NetElement.cpt_counter
-            name = cpt + id
+            NetElement.cpt_type_counter += 1
+            id = '#%d' % NetElement.cpt_type_counter
+            name = cpt_type + id
 
         node1 = node1.replace('.', '_')
         node2 = node2.replace('.', '_')
@@ -81,16 +104,16 @@ class NetElement(object):
         self.symbol = symbol
 
         if symbol is None:
-            symbol = cpt + '_{' + id + '}'
+            symbol = cpt_type + '_{' + id + '}'
 
         if opts is None:
             opts = {'dir' : None, 'size' : 1}
 
         if opts['dir'] is None:
-            opts['dir'] = 'up' if cpt in ('port', 'P') else 'right'
+            opts['dir'] = 'up' if cpt_type in ('port', 'P') else 'right'
 
         self.name = name
-        self.cpt = cpt
+        self.cpt_type = cpt_type
         self.autosymbol = symbol
         self.nodes = (node1, node2)
         self.opts = opts
@@ -434,7 +457,7 @@ class Schematic(object):
 
             n1 = elt.nodes[1]
             n2 = elt.nodes[0]
-            cpt = cpt_map[elt.cpt]
+            cpt_type = cpt_type_map[elt.cpt_type]
 
             # Current, voltage, label options.
             # It might be better to allow any options and prune out
@@ -448,10 +471,10 @@ class Schematic(object):
                
             label_str =''
             if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
-                if cpt not in ('open', 'short'):
+                if cpt_type not in ('open', 'short'):
                     label_str = '=$%s$' % elt.autosymbol
 
-            print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n2, cpt, label_str, opts_str, node_str, n1))
+            print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n2, cpt_type, label_str, opts_str, node_str, n1))
 
         wires = self._make_wires()
 
