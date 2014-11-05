@@ -282,7 +282,7 @@ class Netlist(object):
     def add(self, str, *args):
         """Add a component to the netlist.
         The general form is: 'Name Np Nm args'
-        where Np is the positive nose and Nm is the negative node.
+        where Np is the positive node and Nm is the negative node.
 
         A positive current is defined to flow from the positive node
         to the negative node.
