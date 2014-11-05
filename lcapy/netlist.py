@@ -9,9 +9,9 @@ example:
 
 >>> from lcapy import Circuit
 >>> cct = Circuit('Voltage divider')
->>> cct.net_add('V_s fred 0') 
->>> cct.net_add('R_a fred 1') 
->>> cct.net_add('R_b 1 0') 
+>>> cct.add('V_s fred 0') 
+>>> cct.add('R_a fred 1') 
+>>> cct.add('R_b 1 0') 
 >>> cct.V.pprint()
 >>> cct.I.pprint()
 
@@ -242,7 +242,7 @@ class Netlist(object):
             # Skip comments
             if line[0] in ('#', '%'):
                 continue
-            self.net_add(line.strip())
+            self.add(line.strip())
 
 
     def netlist(self):
@@ -630,7 +630,7 @@ class Netlist(object):
     def Isc(self, n1, n2):
         """Return short-circuit s-domain current between nodes n1 and n2."""
 
-        self.net_add('Vshort_', n1, n2, 0)
+        self.add('Vshort_', n1, n2, 0)
 
         Isc = self.I['Vshort_']
         self.remove('Vshort_')
@@ -694,7 +694,7 @@ class Netlist(object):
         Note, independent sources are killed."""
 
         new = self.kill()
-        new.net_add('V1_', n1, n2)
+        new.add('V1_', n1, n2)
 
         H = Avs(new.Voc(n3, n4) / new.Vd['V1_'])
 
@@ -714,7 +714,7 @@ class Netlist(object):
 
         try:
 
-            self.net_add('V1_', n1, n2)
+            self.add('V1_', n1, n2)
             
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
@@ -726,7 +726,7 @@ class Netlist(object):
             
             self.remove('V1_')
             
-            self.net_add('I1_', n1, n2)
+            self.add('I1_', n1, n2)
             
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
@@ -788,9 +788,9 @@ def test():
 
     cct = Circuit('Test')
 
-    cct.net_add('V_s fred 0') 
-    cct.net_add('R_a fred bert') 
-    cct.net_add('R_b bert 0') 
+    cct.add('V_s fred 0') 
+    cct.add('R_a fred bert') 
+    cct.add('R_b bert 0') 
     
     pprint(cct.V)
     
