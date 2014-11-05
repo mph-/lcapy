@@ -10,7 +10,7 @@ setup(name = 'lcapy',
     author_email = 'michael.hayes@canterbury.ac.nz',
     url = 'https://github.com/mph-/lcapy',
     download_url = 'https://github.com/mph-/lcapy',
-    py_modules = [ 'lcapy.core', 'lcapy.netlist', 'lcapy.oneport', 'lcapy.twoport', 'lcapy.threeport'],
+      py_modules = [ 'lcapy.core', 'lcapy.netlist', 'lcapy.oneport', 'lcapy.twoport', 'lcapy.threeport', 'lcapy.schematic'],
     scripts = [ ],
     classifiers=[
         'Development Status :: 4 - Beta',

@@ -32,7 +32,7 @@ def main (argv=None):
 
     sch = Schematic(args[0])
 
-    sch.draw(label_nodes=options.label_nodes)
+    sch.draw(label_nodes=options.label_nodes, tex=True)
 
     return 0
 

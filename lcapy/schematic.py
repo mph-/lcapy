@@ -19,6 +19,9 @@ from __future__ import print_function
 import numpy as np
 import re
 
+__all__ = ('Schematic', )
+
+
 # Mapping of component names to circuitikz names.   The keys define
 # the allowable component names.
 cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 
@@ -589,18 +592,19 @@ class Schematic(object):
 
 
     def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-             filename=None, args=None, scale=2, sd=False):
+             filename=None, args=None, scale=2, tex=False):
 
         self.scale = scale
 
-        if sd:
+        if tex or (filename is not None and filename.endswith('.tex')):
+            self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
+                           label_nodes=label_nodes, filename=filename,
+                           args=args)            
+        else:
             self.schemdraw_draw(draw_labels=draw_labels, draw_nodes=draw_nodes, 
                                 label_nodes=label_nodes, filename=filename)
-            return
 
-        self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
-                       label_nodes=label_nodes, filename=filename,
-                       args=args)
+
 
 
 def test():
@@ -611,7 +615,6 @@ def test():
     sch.add('R1 1 3; right')
     sch.add('L1 3 2; right')
     sch.add('C1 3 0; down')
-    sch.add('P2 2 0.2')
     sch.add('P2 2 0.2')
     sch.add('W 0.1 0; right')
     sch.add('W 0 0.2; right')
