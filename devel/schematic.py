@@ -27,10 +27,13 @@ cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L',
                 'TF' : 'transformer', 'P' : 'open', 'port' : 'open',
                 'W' : 'short', 'wire' : 'short'}
 
+
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
 cpt_types = cpt_type_map.keys()
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
+
+cpt_type_pattern = re.compile(r'(%s)(\w)?' % '|'.join(cpt_types))
 
 
 def longest_path(all_nodes, from_nodes):
@@ -86,7 +89,8 @@ class NetElement(object):
 
     def __init__(self, name, node1, node2, *args, **opts):
 
-        match = re.match(r'(%s)(\w)?' % '|'.join(cpt_types), name)
+        match = cpt_type_pattern.match(name)
+
         if not match:
             raise ValueError('Unknown component %s' % name)
 
