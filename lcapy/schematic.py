@@ -565,8 +565,6 @@ class Schematic(object):
         # Draw components
         for m, elt in enumerate(self.elements.values()):
 
-            n1, n2 = elt.nodes
-
             cpt_type = cpt_type_map2[elt.cpt_type]
 
             if draw_labels:
@@ -574,6 +572,16 @@ class Schematic(object):
                         label=elt.autolabel)
             else:
                 drw.add(cpt_type, xy=elt.pos1, to=elt.pos2)
+
+        if draw_nodes:
+            for m, node in enumerate(self.nodes.values()):
+                label_str = node.name if draw_labels and node.primary else ''
+                if node.port:
+                    drw.add(e.DOT_OPEN, xy=self.coords[node.name],
+                            label=label_str)
+                elif node.primary:
+                    drw.add(e.DOT, xy=self.coords[node.name], 
+                            label=label_str)
 
         drw.draw()
         if filename is not None:
@@ -586,7 +594,8 @@ class Schematic(object):
         self.scale = scale
 
         if sd:
-            self.schemdraw_draw(draw_labels=draw_labels, filename=filename)
+            self.schemdraw_draw(draw_labels=draw_labels, draw_nodes=draw_nodes, 
+                                label_nodes=label_nodes, filename=filename)
             return
 
         self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
