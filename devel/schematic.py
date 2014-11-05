@@ -484,12 +484,24 @@ class Schematic(object):
 
             if elt.opts['dir'] in ('down', ) and cpt_type in ('V', 'Vdc', 'I', 'Idc'):
                 n1, n2 = n2, n1
+      
+            # If have a left drawn cpt, then switch nodes so that
+            # label defaults to top but then have to switch current
+            # and voltage directions.
+            if elt.opts['dir'] == 'left':
+                n1, n2 = n2, n1
+                if elt.opts.has_key('i'):
+                    elt.opts['i<^'] = elt.opts.pop('i')
+                if elt.opts.has_key('v'):
+                    elt.opts['v_>'] = elt.opts.pop('v')
 
             # Current, voltage, label options.
             # It might be better to allow any options and prune out
             # dir and size.
             opts_str = ''
-            for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<', 'l', 'l^', 'l_'):
+            for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 
+                        'i>_', 'i<_', 'i>^', 'i<^', 
+                        'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<', 'l', 'l^', 'l_'):
                 if elt.opts.has_key(opt):
                     opts_str += '%s=$%s$, ' % (opt, elt.opts[opt])
 
