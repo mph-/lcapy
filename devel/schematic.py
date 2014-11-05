@@ -1,7 +1,7 @@
 """
 This module performs schematic drawing using circuitikz from a netlist.
 
->>> from schematic Schematic
+>>> from lcapy import Schematic
 >>> sch = Schematic()
 >>> sch.add('P1 1 0.1; down')
 >>> sch.add('R1 3 1; right')
@@ -482,7 +482,9 @@ class Schematic(object):
 
             cpt_type = cpt_type_map[elt.cpt_type]
 
-            if elt.opts['dir'] in ('down', ) and cpt_type in ('V', 'Vdc', 'I', 'Idc'):
+            # circuittikz expects the positive node first, except for 
+            # voltage and current sources!
+            if elt.opts['dir'] == 'down' and cpt_type in ('V', 'Vdc', 'I', 'Idc'):
                 n1, n2 = n2, n1
       
             # If have a left drawn cpt, then switch nodes so that
