@@ -22,10 +22,10 @@ import re
 # Mapping of component names to circuitikz names.   The keys define
 # the allowable component names.
 cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 
-           'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
-           'V' : 'V', 'I' : 'I', 'v' : 'V', 'i' : 'I',
-           'TF' : 'transformer', 'P' : 'open', 'port' : 'open',
-           'W' : 'short', 'wire' : 'short'}
+                'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
+                'V' : 'V', 'I' : 'I', 'v' : 'V', 'i' : 'I',
+                'TF' : 'transformer', 'P' : 'open', 'port' : 'open',
+                'W' : 'short', 'wire' : 'short'}
 
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
@@ -84,7 +84,7 @@ class NetElement(object):
 
     cpt_type_counter = 0
 
-    def __init__(self, name, node1, node2, symbol=None, opts=None):
+    def __init__(self, name, node1, node2, *args, **opts):
 
         match = re.match(r'(%s)(\w)?' % '|'.join(cpt_types), name)
         if not match:
@@ -101,20 +101,24 @@ class NetElement(object):
         node1 = node1.replace('.', '_')
         node2 = node2.replace('.', '_')
 
+        symbol = None
         self.symbol = symbol
 
-        if symbol is None:
-            symbol = cpt_type + '_{' + id + '}'
+        autolabel = symbol
+        if autolabel is None:
+            autolabel = cpt_type + '_{' + id + '}'
 
-        if opts is None:
-            opts = {'dir' : None, 'size' : 1}
+        if not opts.has_key('dir'):
+            opts['dir'] = None
+        if not opts.has_key('size'):
+            opts['size'] = 1
 
         if opts['dir'] is None:
             opts['dir'] = 'up' if cpt_type in ('port', 'P') else 'right'
 
         self.name = name
         self.cpt_type = cpt_type
-        self.autosymbol = symbol
+        self.autolabel = autolabel
         self.nodes = (node1, node2)
         self.opts = opts
 
@@ -229,7 +233,7 @@ class Schematic(object):
         opts = self._opts_parse(str)
 
         parts = fields[0].split(' ')
-        elt = NetElement(*parts, opts=opts)
+        elt = NetElement(*parts, **opts)
 
         self._elt_add(elt)
 
@@ -472,7 +476,7 @@ class Schematic(object):
             label_str =''
             if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
                 if cpt_type not in ('open', 'short'):
-                    label_str = '=$%s$' % elt.autosymbol
+                    label_str = '=$%s$' % elt.autolabel
 
             print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n2, cpt_type, label_str, opts_str, node_str, n1))
 
