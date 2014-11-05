@@ -105,12 +105,27 @@ class NetElement(object):
         node1 = node1.replace('.', '_')
         node2 = node2.replace('.', '_')
 
+        cpt_type_orig = cpt_type
+        if args != ():
+            if cpt_type == 'V' and args[0] == 'ac':
+                cpt_type = 'Vac'
+            elif cpt_type == 'V' and args[0] == 'dc':
+                cpt_type = 'Vdc'
+            elif cpt_type == 'I' and args[0] == 'ac':
+                cpt_type = 'Iac'
+            elif cpt_type == 'I' and args[0] == 'dc':
+                cpt_type = 'Idc'
+
+            if cpt_type in ('Vdc', 'Vac', 'Idc', 'Iac') and args[0] in ('ac', 'dc'):
+                args = args[1:]
+
+
         symbol = None
         self.symbol = symbol
 
         autolabel = symbol
         if autolabel is None:
-            autolabel = cpt_type + '_{' + id + '}'
+            autolabel = cpt_type_orig + '_{' + id + '}'
 
         if not opts.has_key('dir'):
             opts['dir'] = None
