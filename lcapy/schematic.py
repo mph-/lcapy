@@ -569,8 +569,11 @@ class Schematic(object):
 
             cpt_type = cpt_type_map2[elt.cpt_type]
 
-            drw.add(cpt_type, xy=elt.pos1, to=elt.pos2, 
-                    label=elt.autolabel)
+            if draw_labels:
+                drw.add(cpt_type, xy=elt.pos1, to=elt.pos2, 
+                        label=elt.autolabel)
+            else:
+                drw.add(cpt_type, xy=elt.pos1, to=elt.pos2)
 
         drw.draw()
         if filename is not None:
@@ -583,11 +586,12 @@ class Schematic(object):
         self.scale = scale
 
         if sd:
-            self.schemdraw_draw()
+            self.schemdraw_draw(draw_labels=draw_labels, filename=filename)
+            return
 
-        return self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
-                              label_nodes=label_nodes, filename=filename,
-                              args=args)
+        self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
+                       label_nodes=label_nodes, filename=filename,
+                       args=args)
 
 
 def test():
