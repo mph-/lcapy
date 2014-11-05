@@ -490,14 +490,14 @@ class Schematic(object):
                 if elt.opts.has_key(opt):
                     opts_str += '%s=$%s$, ' % (opt, elt.opts[opt])
 
-            node_str = self._node_str(n2, n1, draw_nodes)
+            node_str = self._node_str(n1, n2, draw_nodes)
                
             label_str =''
             if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
                 if cpt_type not in ('open', 'short'):
                     label_str = '=$%s$' % elt.autolabel
 
-            print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n2, cpt_type, label_str, opts_str, node_str, n1))
+            print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt_type, label_str, opts_str, node_str, n2))
 
         wires = self._make_wires()
 
@@ -506,8 +506,8 @@ class Schematic(object):
             n1 = wire.nodes[1]
             n2 = wire.nodes[0]
 
-            node_str = self._node_str(n2, n1, draw_nodes)
-            print(r'    \draw (%s) to [short, %s] (%s);' % (n2, node_str, n1))
+            node_str = self._node_str(n1, n2, draw_nodes)
+            print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2))
     
         # Label primary nodes
         if label_nodes:
