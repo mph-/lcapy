@@ -127,6 +127,11 @@ class NetElement(object):
         if autolabel is None:
             autolabel = cpt_type_orig + '_{' + id + '}'
 
+        if cpt_type in ('P', 'port', 'W', 'wire') or autolabel.find('#') != -1:
+            autolabel = ''
+        else:
+            autolabel = '$' + autolabel + '$'
+
         if not opts.has_key('dir'):
             opts['dir'] = None
         if not opts.has_key('size'):
@@ -512,7 +517,7 @@ class Schematic(object):
             label_str =''
             if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
                 if cpt_type not in ('open', 'short'):
-                    label_str = '=$%s$' % elt.autolabel
+                    label_str = '=%s' % elt.autolabel
 
             print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt_type, label_str, opts_str, node_str, n2))
 
@@ -535,10 +540,50 @@ class Schematic(object):
         print(r'\end{tikzpicture}', file=outfile)
 
 
+    def schemdraw_draw(self, draw_labels=True, draw_nodes=True, 
+                       label_nodes=True, filename=None, args=None):
+
+        from SchemDraw import Drawing
+        import SchemDraw.elements as e
+
+        cpt_type_map2 = {'R' : e.RES, 'C' : e.CAP, 'L' : e.INDUCTOR2, 
+                         'Vac' : e.SOURCE_SIN, 'Vdc' : e.SOURCE_V,
+                         'Iac' : e.SOURCE_SIN, 'Idc' : e.SOURCE_I, 
+                         'V' : e.SOURCE_V, 'I' : e.SOURCE_I, 
+                         'v' : e.SOURCE_V, 'i' : e.SOURCE_I,
+                         'P' : e.GAP_LABEL, 'port' : e.GAP_LABEL,
+                         'W' : e.LINE, 'wire' : e.LINE}        
+
+
+        self._positions_calculate()
+
+        # Preamble
+        if args is None: args = ''
+        
+        drw = Drawing()
+
+        # Draw components
+        for m, elt in enumerate(self.elements.values()):
+
+            n1, n2 = elt.nodes
+
+            cpt_type = cpt_type_map2[elt.cpt_type]
+
+            drw.add(cpt_type, xy=elt.pos1, to=elt.pos2, 
+                    label=elt.autolabel)
+
+        drw.draw()
+        if filename is not None:
+            drw.save(filename)
+
+
     def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-             filename=None, args=None, scale=2):
+             filename=None, args=None, scale=2, sd=False):
 
         self.scale = scale
+
+        if sd:
+            self.schemdraw_draw()
 
         return self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
                               label_nodes=label_nodes, filename=filename,
@@ -550,10 +595,13 @@ def test():
     sch = Schematic()
 
     sch.add('P1 1 0.1')
-    sch.add('R1 3 1; right')
-    sch.add('L1 2 3; right')
-    sch.add('C1 3 0; up')
+    sch.add('R1 1 3; right')
+    sch.add('L1 3 2; right')
+    sch.add('C1 3 0; down')
     sch.add('P2 2 0.2')
+    sch.add('P2 2 0.2')
+    sch.add('W 0.1 0; right')
+    sch.add('W 0 0.2; right')
 
     sch.draw()
     return sch
