@@ -102,6 +102,56 @@ Limitations
 3. Some two-ports generate singular matrices.
 
 
+Schematics
+----------
+
+LaTeX schematics can be generated using circuitikz and the Schematic
+class.  Currently, this is independent from Lcapy but uses a similar
+netlist syntax but with additional drawing hints, such as direction
+and size.
+
+   >>> from lcapy import Schematic
+   >>> sch = Schematic()
+   >>> sch.add('P1 1 0.1; down')
+   >>> sch.add('R1 3 1; right')
+   >>> sch.add('L1 2 3; right')
+   >>> sch.add('C1 3 0; down')
+   >>> sch.add('P2 2 0.2; down')
+   >>> sch.add('W 0 0.1; right')
+   >>> sch.add('W 0.2 0.2; right')
+   >>> sch.draw(filename='pic.tex')
+
+In this example, P denotes a port (open-circuit) and W denotes a wire
+(short-circuit).  The drawing hints are separated from the netlist
+arguments by a semicolon.  They are a comma separated list of
+key-value pairs except for directions where the dir keyword is
+optional.  The symbol label can be changed using the l keyword; the
+voltage and current labels are specified with the v and i keywords.
+For example,
+
+   >>> from lcapy import Schematic
+   >>> sch = Schematic()
+   >>> sch.add('V1 1 0; down')
+   >>> sch.add('R1 1 2; left, i=I_1, v=V_{R_1}')
+   >>> sch.add('R2 1 3; right, i=I_2, v=V_{R_2}')
+   >>> sch.add('L1 2 0.1; down, i=I_1, v=V_{L_1}')
+   >>> sch.add('L2 3 0.3; down, i=I_1, v=V_{L_2}')
+   >>> sch.add('W 0 0.3; right')
+   >>> sch.add('W 0 0.1; left')
+   >>> sch.draw(scale=3, filename='pic2.tex')
+
+The drawing direction is with respect to the positive node; i.e., the
+drawing is performed from the positive to the negative node.  Since
+lower voltages are usually lower in a schematic, then the direction of
+voltage sources and ports is usually down.
+
+By default, component (and current) labels are drawn above horizontal
+components and to the right of vertical components.  Voltage labels
+are drawn below horizontal components and to the left of vertical
+components.
+
+
+
 Documentation
 -------------
 
