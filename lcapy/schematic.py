@@ -1,7 +1,7 @@
 """
 This module performs schematic drawing using circuitikz from a netlist.
 
->>> from schematic Schematic
+>>> from lcapy import Schematic
 >>> sch = Schematic()
 >>> sch.add('P1 1 0.1; down')
 >>> sch.add('R1 3 1; right')
