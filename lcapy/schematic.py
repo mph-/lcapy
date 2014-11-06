@@ -455,8 +455,10 @@ class Schematic(object):
 
         from copy import copy
 
+        # Start with implicitly linked nodes.
         lnodes = copy(self.snodes)
 
+        # Then augment with nodes connected by wires.
         for m, elt in enumerate(self.elements.values()):
             if elt.cpt_type not in ('W', 'wire'):
                 continue
