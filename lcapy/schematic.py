@@ -449,6 +449,34 @@ class Schematic(object):
         return self._coords
 
 
+    @property
+    def lnodes(self):
+
+        # This algorithm seems hairy.
+        foo = []
+        for node in self.nodes:
+            foo.append([node])
+
+        print(foo)
+
+        for nodes in self.snodes.values():
+            if len(nodes) < 2:
+                continue
+
+            for node in nodes[1:]:
+
+                for m1, f in enumerate(foo):
+                    if nodes[0] in f:
+                        break
+                
+                for m2, f in enumerate(foo):
+                    if node in f:
+                        foo[m1].extend(foo.pop(m2))
+                        break
+
+        print(foo)
+        
+
     def _make_wires1(self, snode_list):
 
         num_wires = len(snode_list) - 1
