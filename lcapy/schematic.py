@@ -201,6 +201,14 @@ class Schematic(object):
         return '\n'.join([elt.__str__() for elt in self.elements.values()])
 
 
+    def _invalidate(self):
+
+        if hasattr(self, '_xnodes'):
+            delattr(self, '_xnodes')
+            delattr(self, '_ynodes')
+            delattr(self, '_coords')
+
+
     def _node_add(self, node, elt):
 
         if not self.nodes.has_key(node):
@@ -215,6 +223,8 @@ class Schematic(object):
 
 
     def _elt_add(self, elt):
+
+        self._invalidate()
 
         if self.elements.has_key(elt.name):
             print('Overriding component %s' % elt.name)     
@@ -377,7 +387,7 @@ class Schematic(object):
         if False:
             print(pos)
             print(posr)
-        return posa
+        return posa, cnodes
 
 
     def _positions_calculate(self):
@@ -395,12 +405,12 @@ class Schematic(object):
         # distance from the root of the graph.  To centre components,
         # a reverse graph is created and the distances are averaged.
 
-        xpos = self._make_graphs(('right', 'left'))
-        ypos = self._make_graphs(('up', 'down'))
+        xpos, self._xnodes = self._make_graphs(('right', 'left'))
+        ypos, self._ynodes = self._make_graphs(('up', 'down'))
 
         coords = {}
         for node in xpos.keys():
-            coords[node] = (xpos[node] * self.scale, ypos[node] * self.scale)
+            coords[node] = np.array((xpos[node], ypos[node]))
 
         for m, elt in enumerate(self.elements.values()):
 
@@ -409,7 +419,31 @@ class Schematic(object):
             elt.pos1 = coords[n1]
             elt.pos2 = coords[n2]
 
-        self.coords = coords
+        self._coords = coords
+
+
+    @property
+    def xnodes(self):
+
+        if not hasattr(self, '_xnodes'):
+            self._positions_calculate()
+        return self._xnodes
+
+
+    @property
+    def ynodes(self):
+
+        if not hasattr(self, '_ynodes'):
+            self._positions_calculate()
+        return self._ynodes
+
+
+    @property
+    def coords(self):
+
+        if not hasattr(self, '_coords'):
+            self._positions_calculate()
+        return self._coords
 
 
     def _make_wires1(self, vnode):
@@ -480,7 +514,7 @@ class Schematic(object):
 
         # Write coordinates
         for coord in self.coords.keys():
-            print(r'    \coordinate (%s) at (%.1f, %.1f);' % (coord, self.coords[coord][0], self.coords[coord][1]), file=outfile)
+            print(r'    \coordinate (%s) at (%.1f, %.1f);' % (coord, self.coords[coord][0] * self.scale, self.coords[coord][1] * self.scale), file=outfile)
 
 
         # Draw components
@@ -526,7 +560,7 @@ class Schematic(object):
 
         wires = self._make_wires()
 
-        # Draw wires
+        # Draw implict wires
         for wire in wires:
             n1, n2 = wire.nodes
 
@@ -572,19 +606,21 @@ class Schematic(object):
             cpt_type = cpt_type_map2[elt.cpt_type]
 
             if draw_labels:
-                drw.add(cpt_type, xy=elt.pos1, to=elt.pos2, 
+                drw.add(cpt_type, xy=elt.pos1 * self.scale, 
+                        to=elt.pos2 * self.scale, 
                         label=elt.autolabel)
             else:
-                drw.add(cpt_type, xy=elt.pos1, to=elt.pos2)
+                drw.add(cpt_type, xy=elt.pos1 * self.scale,
+                        to=elt.pos2 * self.scale)
 
         if draw_nodes:
             for m, node in enumerate(self.nodes.values()):
                 label_str = node.name if draw_labels and node.primary else ''
                 if node.port:
-                    drw.add(e.DOT_OPEN, xy=self.coords[node.name],
+                    drw.add(e.DOT_OPEN, xy=self.coords[node.name] * self.scale,
                             label=label_str)
                 elif node.primary:
-                    drw.add(e.DOT, xy=self.coords[node.name], 
+                    drw.add(e.DOT, xy=self.coords[node.name] * self.scale, 
                             label=label_str)
 
         drw.draw()
