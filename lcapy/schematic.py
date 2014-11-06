@@ -500,8 +500,6 @@ class Schematic(object):
     def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
                   filename=None, args=None):
 
-        self._positions_calculate()
-
         if filename != None:
             outfile = open(filename, 'w')
         else:
@@ -591,9 +589,6 @@ class Schematic(object):
                          'v' : e.SOURCE_V, 'i' : e.SOURCE_I,
                          'P' : e.GAP_LABEL, 'port' : e.GAP_LABEL,
                          'W' : e.LINE, 'wire' : e.LINE}        
-
-
-        self._positions_calculate()
 
         # Preamble
         if args is None: args = ''
