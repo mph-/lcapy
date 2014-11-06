@@ -105,8 +105,8 @@ class NetElement(object):
             id = '#%d' % NetElement.cpt_type_counter
             name = cpt_type + id
 
-        node1 = node1.replace('.', '_')
-        node2 = node2.replace('.', '_')
+        node1 = node1.strip().replace('.', '_')
+        node2 = node2.strip().replace('.', '_')
 
         cpt_type_orig = cpt_type
         if args != ():
@@ -259,7 +259,7 @@ class Schematic(object):
 
         opts = self._opts_parse(str)
 
-        parts = fields[0].split(' ')
+        parts = re.split(r'[\s]+', fields[0])
         elt = NetElement(*parts, **opts)
 
         self._elt_add(elt)
@@ -522,7 +522,7 @@ class Schematic(object):
                 if cpt_type not in ('open', 'short'):
                     label_str = '=%s' % elt.autolabel
 
-            print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt_type, label_str, opts_str, node_str, n2))
+            print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt_type, label_str, opts_str, node_str, n2), file=outfile)
 
         wires = self._make_wires()
 
@@ -531,14 +531,15 @@ class Schematic(object):
             n1, n2 = wire.nodes
 
             node_str = self._node_str(n1, n2, draw_nodes)
-            print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2))
+            print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2),
+                  file=outfile)
     
         # Label primary nodes
         if label_nodes:
             for m, node in enumerate(self.nodes.values()):
                 if not node.primary:
                     continue
-                print(r'    \draw {[anchor=south east] (%s) node {%s}};' % (node.name, node.name))
+                print(r'    \draw {[anchor=south east] (%s) node {%s}};' % (node.name, node.name), file=outfile)
 
         print(r'\end{tikzpicture}', file=outfile)
 
