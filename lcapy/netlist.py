@@ -268,6 +268,8 @@ class Netlist(object):
         if hasattr(self, '_V'):
             delattr(self, '_V')
             delattr(self, '_I')
+        if hasattr(self, '_node_map'):
+            delattr(self, '_node_map')
 
 
     def _elt_add(self, elt):
@@ -786,8 +788,30 @@ class Netlist(object):
 
 
     @property
+    def node_map(self):
+        """Determine mapping of nodes to common nodes"""
+
+        if hasattr(self, '_node_map'):
+            return self._node_map
+
+        lnodes = self.lnodes
+
+        node_map = {}
+        for node in self.sch.nodes:
+
+            node_map[node] = node
+            for nodes in lnodes:
+                if node in nodes:
+                    # Use first of the linked nodes.
+                    node_map[node] = nodes[0]
+                    break
+        self._node_map = node_map
+
+
+    @property
     def lnodes(self):
-        """Determine linked nodes (both implicitly and explicitly connected)"""
+        """Determine linked nodes (both implicitly and explicitly
+        connected)"""
 
         from copy import deepcopy
 
@@ -815,7 +839,7 @@ class Netlist(object):
         pnodes = []
         for key, nodes in lnodes.iteritems():
             if len(nodes) > 1:
-                pnodes.append(set(nodes))
+                pnodes.append(nodes)
 
         return pnodes
 
