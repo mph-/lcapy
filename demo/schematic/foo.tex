@@ -1,0 +1,19 @@
+\begin{tikzpicture}[]
+    \coordinate (1) at (4.0, 2.0);
+    \coordinate (0) at (2.0, 0.0);
+    \coordinate (3) at (2.0, 2.0);
+    \coordinate (2) at (0.0, 2.0);
+    \coordinate (0_2) at (0.0, 0.0);
+    \coordinate (0_1) at (4.0, 0.0);
+    \draw (2) to [open, v^=$V_2$, o-o] (0_2);
+    \draw (3) to [C=$C_{1}$, *-*] (0);
+    \draw (1) to [open, v=$V_1$, o-o] (0_1);
+    \draw (3) to [R=$R_{1}$, *-o] (1);
+    \draw (2) to [L=$L_{1}$, o-*] (3);
+    \draw (0) to [short, *-o] (0_2);
+    \draw (0_2) to [short, o-o] (0_1);
+    \draw {[anchor=south east] (1) node {1}};
+    \draw {[anchor=south east] (0) node {0}};
+    \draw {[anchor=south east] (3) node {3}};
+    \draw {[anchor=south east] (2) node {2}};
+\end{tikzpicture}
