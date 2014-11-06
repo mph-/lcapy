@@ -13,5 +13,5 @@ sch.add('W2 4_1 4; down, size=0.5')
 
 
 
-sch.draw()
+sch.draw(tex=True)
 

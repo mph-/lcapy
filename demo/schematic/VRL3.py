@@ -10,5 +10,5 @@ sch.add('L2 3 0.3; down, i=I_1, v=V_{L_2}')
 sch.add('W 0 0.3; right')
 sch.add('W 0 0.1; left')
 
-sch.draw(scale=3)
+sch.draw(tex=True, scale=3)
 
