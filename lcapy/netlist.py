@@ -45,14 +45,16 @@ import re
 __all__ = ('Circuit', )
 
 
-def _node(name):
-            
-    # Convert to integer if possible
-    try:
-        node = int(name)
-    except:
-        node = name
-    return node
+class Mdict(dict):
+
+    def __getitem__(self, key):
+
+        # If key is an integer, convert to a string.
+        if isinstance(key, int):
+            key = '%d' % key
+
+        return super (Mdict, self).__getitem__(key)
+
 
 
 class CS(object):
@@ -62,7 +64,7 @@ class CS(object):
 
         self.args = (node1, node2, arg)    
         # Controlling nodes
-        self.cnodes = (_node(node1), _node(node2))
+        self.cnodes = (node1, node2)
         self.arg = arg
 
 
@@ -99,7 +101,7 @@ class Element(object):
 
         self.cpt = cpt
         self.name = name
-        self.nodes = (_node(node1), _node(node2))
+        self.nodes = (node1, node2)
 
 
     def __repr__(self):
@@ -215,7 +217,7 @@ class Netlist(object):
         self.current_sources = {}
         self.RLC = []
 
-        self._V = {0: Vs(0)}
+        self._V = Mdict({'0': Vs(0)})
         self._I = {}
         self.cpt_counts = {'R' : 0, 'G' : 0, 'C' : 0, 'L' : 0, 'V' : 0, 'I' : 0}
 
@@ -233,7 +235,7 @@ class Netlist(object):
 
     def _nodeindex(self, node):
         """Return node index; ground is -1"""
-        return self.revnodemap[node] - 1
+        return self.node_list.index(node) - 1
 
 
     def netfile_add(self, filename):    
@@ -270,6 +272,8 @@ class Netlist(object):
             delattr(self, '_I')
         if hasattr(self, '_node_map'):
             delattr(self, '_node_map')
+        if hasattr(self, '_node_list'):
+            delattr(self, '_node_list')
 
 
     def _elt_add(self, elt):
@@ -493,19 +497,11 @@ class Netlist(object):
     def _analyse(self):
         """Force reanalysis of network."""
 
-        if not self.nodes.has_key(0):
+        if not self.nodes.has_key('0'):
             print('Nothing connected to ground node 0')
-            self.nodes[0] = None
+            self.nodes['0'] = None
 
-        self.nodemap = [0]
-        self.revnodemap = {0 : 0}
-        for n, node in enumerate(sorted(self.nodes.keys())):
-            if node == 0:
-                continue
-            self.nodemap.append(node)
-            self.revnodemap[node] = n
-
-        self.num_nodes = len(self.nodemap) - 1
+        self.num_nodes = len(self.node_list) - 1
 
         self.voltage_sources = {}
         self.current_sources = {}
@@ -540,8 +536,8 @@ class Netlist(object):
         results = sym.simplify(A.inv() * Z);        
 
         # Create dictionary of node voltages
-        self._V = {0: Vs(0)}
-        for n, node in enumerate(self.nodemap[1:]):        
+        self._V = Mdict({'0': Vs(0)})
+        for n, node in enumerate(self.node_list[1:]):        
             self._V[node] = Vs(results[n])
 
         # Create dictionary of currents through elements
@@ -595,7 +591,7 @@ class Netlist(object):
         """Return dictionary of t-domain node voltages indexed by node name"""
 
         if not hasattr(self, '_v'):
-            self._v = {}
+            self._v = Mdict()
             for key in self.V:
                 self._v[key] = self.V[key].inverse_laplace()
 
@@ -641,7 +637,7 @@ class Netlist(object):
     def Isc(self, n1, n2):
         """Return short-circuit s-domain current between nodes n1 and n2."""
 
-        self.add('Vshort_', n1, n2, 0)
+        self.add('Vshort_ %d %d' %(n1, n2), 0)
 
         Isc = self.I['Vshort_']
         self.remove('Vshort_')
@@ -725,7 +721,7 @@ class Netlist(object):
 
         try:
 
-            self.add('V1_', n1, n2)
+            self.add('V1_ %d %d' % (n1, n2))
             
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
@@ -737,7 +733,7 @@ class Netlist(object):
             
             self.remove('V1_')
             
-            self.add('I1_', n1, n2)
+            self.add('I1_ %d %d' % (n1, n2))
             
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
@@ -789,23 +785,49 @@ class Netlist(object):
 
     @property
     def node_map(self):
-        """Determine mapping of nodes to common nodes"""
+        """Determine mapping of nodes to unique nodes of the same potential"""
 
         if hasattr(self, '_node_map'):
             return self._node_map
 
         lnodes = self.lnodes
 
+        # This is a bit of hack relying on the Schematic
+        # implementation's list of nodes.
         node_map = {}
         for node in self.sch.nodes:
 
             node_map[node] = node
             for nodes in lnodes:
                 if node in nodes:
-                    # Use first of the linked nodes.
-                    node_map[node] = nodes[0]
+                    # Use first of the linked nodes unless looking for '0' node
+                    if node == '0':
+                        node_map[node] = nodes[node_map.index[node]]
+                    else:
+                        node_map[node] = nodes[0]
                     break
+
+        if not node_map.has_key('0'):
+            print('Nothing connected to ground node 0')
+            node_map['0'] = '0'
+
         self._node_map = node_map
+        return node_map
+
+
+    @property
+    def node_list(self):
+        """Determine list of unique nodes"""
+
+        if hasattr(self, '_node_list'):
+            return self._node_list
+
+        node_list = list(self.node_map)
+        # Ensure node '0' is first in the list.
+        node_list.insert(0, node_list.pop(node_list.index('0')))
+
+        self._node_list = node_list
+        return node_list
 
 
     @property
@@ -815,7 +837,8 @@ class Netlist(object):
 
         from copy import deepcopy
 
-        # Start with implicitly linked nodes.
+        # Start with implicitly linked nodes.   (This is a bit of hack
+        # relying on the Schematic implementation).
         lnodes = deepcopy(self.sch.snodes)
 
         # Then augment with nodes connected by wires.
