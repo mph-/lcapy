@@ -451,30 +451,35 @@ class Schematic(object):
 
     @property
     def lnodes(self):
+        """Determine linked nodes"""
 
-        # This algorithm seems hairy.
-        foo = []
-        for node in self.nodes:
-            foo.append([node])
+        from copy import copy
 
-        print(foo)
+        lnodes = copy(self.snodes)
 
-        for nodes in self.snodes.values():
-            if len(nodes) < 2:
+        for m, elt in enumerate(self.elements.values()):
+            if elt.cpt_type not in ('W', 'wire'):
                 continue
 
-            for node in nodes[1:]:
+            n1, n2 = elt.nodes
 
-                for m1, f in enumerate(foo):
-                    if nodes[0] in f:
-                        break
-                
-                for m2, f in enumerate(foo):
-                    if node in f:
-                        foo[m1].extend(foo.pop(m2))
-                        break
+            for key1, nodes in lnodes.iteritems():
+                if n1 in nodes:
+                    break;
 
-        print(foo)
+            for key2, nodes in lnodes.iteritems():
+                if n2 in nodes:
+                    break;
+                    
+            lnodes[key1].extend(lnodes.pop(key2))
+
+        # Remove nodes that are not linked.
+        pnodes = []
+        for key, nodes in lnodes.iteritems():
+            if len(nodes) > 1:
+                pnodes.append(set(nodes))
+
+        return pnodes
         
 
     def _make_wires1(self, snode_list):
