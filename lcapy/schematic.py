@@ -168,7 +168,8 @@ class Schematic(object):
 
         self.elements = {}
         self.nodes = {}
-        self.vnodes = {}
+        # Shared nodes (with same voltage)
+        self.snodes = {}
         self.scale = 2
 
         if filename is not None:
@@ -216,10 +217,12 @@ class Schematic(object):
         self.nodes[node].append(elt)
 
         vnode = self.nodes[node].rootname
-        if not self.vnodes.has_key(vnode):
-            self.vnodes[vnode] = {}
-        if not self.vnodes[vnode].has_key(node):
-            self.vnodes[vnode][node] = elt
+
+        if vnode not in self.snodes:
+            self.snodes[vnode] = []
+
+        if node not in self.snodes[vnode]:
+            self.snodes[vnode].append(node)
 
 
     def _elt_add(self, elt):
@@ -446,9 +449,9 @@ class Schematic(object):
         return self._coords
 
 
-    def _make_wires1(self, vnode):
+    def _make_wires1(self, snode_list):
 
-        num_wires = len(vnode) - 1
+        num_wires = len(snode_list) - 1
         if num_wires == 0:
             return []
 
@@ -456,8 +459,8 @@ class Schematic(object):
 
         # TODO: remove overdrawn wires...
         for n in range(num_wires):
-            n1 = vnode.keys()[n]
-            n2 = vnode.keys()[n + 1]
+            n1 = snode_list[n]
+            n2 = snode_list[n + 1]
             
             wires.append(NetElement('W_', n1, n2))
 
@@ -469,10 +472,10 @@ class Schematic(object):
 
         wires = []
 
-        vnode_dir = self.vnodes
+        snode_dir = self.snodes
 
-        for m, vnode in enumerate(vnode_dir.values()):
-            wires.extend(self._make_wires1(vnode))
+        for m, snode_list in enumerate(snode_dir.values()):
+            wires.extend(self._make_wires1(snode_list))
             
         return wires
 
