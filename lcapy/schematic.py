@@ -73,7 +73,7 @@ class Node(object):
         self.pos = None
         self.port = False
         parts = name.split('_')
-        self.rootname = parts[0]
+        self.rootname = parts[0] if name[0] != '_' else name
         self.primary = len(parts) == 1
         self.list = []
 
@@ -258,7 +258,7 @@ class Schematic(object):
         return opts
 
 
-    def add(self, line):
+    def add(self, string):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive nose and Nm is the negative node.
 
@@ -266,11 +266,10 @@ class Schematic(object):
         to the negative node.
         """
 
-        fields = line.split(';')
+        fields = string.split(';')
+        string = fields[1] if len(fields) > 1 else ''
 
-        str = fields[1] if len(fields) > 1 else ''
-
-        opts = self._opts_parse(str)
+        opts = self._opts_parse(string)
 
         parts = re.split(r'[\s]+', fields[0])
         elt = NetElement(*parts, **opts)
@@ -448,41 +447,6 @@ class Schematic(object):
             self._positions_calculate()
         return self._coords
 
-
-    @property
-    def lnodes(self):
-        """Determine linked nodes"""
-
-        from copy import copy
-
-        # Start with implicitly linked nodes.
-        lnodes = copy(self.snodes)
-
-        # Then augment with nodes connected by wires.
-        for m, elt in enumerate(self.elements.values()):
-            if elt.cpt_type not in ('W', 'wire'):
-                continue
-
-            n1, n2 = elt.nodes
-
-            for key1, nodes in lnodes.iteritems():
-                if n1 in nodes:
-                    break;
-
-            for key2, nodes in lnodes.iteritems():
-                if n2 in nodes:
-                    break;
-                    
-            lnodes[key1].extend(lnodes.pop(key2))
-
-        # Remove nodes that are not linked.
-        pnodes = []
-        for key, nodes in lnodes.iteritems():
-            if len(nodes) > 1:
-                pnodes.append(set(nodes))
-
-        return pnodes
-        
 
     def _make_wires1(self, snode_list):
 

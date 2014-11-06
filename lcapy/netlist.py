@@ -785,6 +785,41 @@ class Netlist(object):
         return TwoPortBModel(A.B, V2b, I2b)
 
 
+    @property
+    def lnodes(self):
+        """Determine linked nodes (both implicitly and explicitly connected)"""
+
+        from copy import deepcopy
+
+        # Start with implicitly linked nodes.
+        lnodes = deepcopy(self.sch.snodes)
+
+        # Then augment with nodes connected by wires.
+        for m, elt in enumerate(self.sch.elements.values()):
+            if elt.cpt_type not in ('W', 'wire'):
+                continue
+
+            n1, n2 = elt.nodes
+
+            for key1, nodes in lnodes.iteritems():
+                if n1 in nodes:
+                    break;
+
+            for key2, nodes in lnodes.iteritems():
+                if n2 in nodes:
+                    break;
+                    
+            lnodes[key1].extend(lnodes.pop(key2))
+
+        # Remove nodes that are not linked.
+        pnodes = []
+        for key, nodes in lnodes.iteritems():
+            if len(nodes) > 1:
+                pnodes.append(set(nodes))
+
+        return pnodes
+
+
     def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
              filename=None, args=None, scale=2, tex=False):
 
