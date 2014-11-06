@@ -150,6 +150,7 @@ components and to the right of vertical components.  Voltage labels
 are drawn below horizontal components and to the left of vertical
 components.
 
+Node names containing a dot or underscore are not displayed.
 
 
 Documentation

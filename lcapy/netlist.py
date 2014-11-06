@@ -37,7 +37,10 @@ from warnings import warn
 from lcapy.core import  pprint, cExpr, Avs, Ais, Zs, Ys
 from lcapy.oneport import V, I, v, i, R, L, C, G, Y, Z, Vdc, Idc, Vac, Iac, Is, Vs, Ys, Zs
 from lcapy.twoport import AMatrix, TwoPortBModel
+from schematic import Schematic
 import sympy as sym
+import re
+
 
 __all__ = ('Circuit', )
 
@@ -216,6 +219,8 @@ class Netlist(object):
         self._I = {}
         self.cpt_counts = {'R' : 0, 'G' : 0, 'C' : 0, 'L' : 0, 'V' : 0, 'I' : 0}
 
+        self.sch = Schematic()
+
         if filename is not None:
             self.netfile_add(filename)
 
@@ -279,7 +284,7 @@ class Netlist(object):
         self._node_add(elt.nodes[1], elt)
         
 
-    def add(self, str, *args):
+    def add(self, string, *args):
         """Add a component to the netlist.
         The general form is: 'Name Np Nm args'
         where Np is the positive node and Nm is the negative node.
@@ -288,12 +293,18 @@ class Netlist(object):
         to the negative node.
         """
 
-        parts = str.split(' ')
-        elt = NetElement(*(tuple(parts) + args))
-        self._elt_add(elt)
+        fields = string.split(';')
+
+        parts = re.split(r'[\s]+', fields[0])
+
+        if not parts[0].startswith(('port', 'P', 'wire', 'W')):
+            elt = NetElement(*(tuple(parts) + args))
+            self._elt_add(elt)
+        
+        self.sch.add(string)
 
 
-    def net_add(self, str, *args):
+    def net_add(self, string, *args):
         """Add a component to the netlist.
         The general form is: 'Name Np Nm args'
         where Np is the positive nose and Nm is the negative node.
@@ -304,9 +315,7 @@ class Netlist(object):
         Note, this method has been superseded by add.
         """
 
-        parts = str.split(' ')
-        elt = NetElement(*(tuple(parts) + args))
-        self._elt_add(elt)
+        self.add(string, *args)
 
 
     def cpt_add(self, cpt, node1, node2, name=None):
@@ -774,6 +783,15 @@ class Netlist(object):
         A = self.kill().Amatrix(n1, n2, n3, n4)
 
         return TwoPortBModel(A.B, V2b, I2b)
+
+
+    def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
+             filename=None, args=None, scale=2, tex=False):
+
+        return self.sch.draw(draw_labels=draw_labels, draw_nodes=draw_nodes, 
+                             label_nodes=label_nodes,
+                             filename=filename, args=args, 
+                             scale=scale, tex=tex)
 
 
 class Circuit(Netlist):
