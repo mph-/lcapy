@@ -171,6 +171,7 @@ class Schematic(object):
         # Shared nodes (with same voltage)
         self.snodes = {}
         self.scale = 2
+        self.hints = False
 
         if filename is not None:
             self.netfile_add(filename)
@@ -245,6 +246,8 @@ class Schematic(object):
 
         for part in str.split(','):
             part = part.strip()
+            if part == '':
+                continue
 
             if part in ('up', 'down', 'left', 'right'):
                 opts['dir'] = part
@@ -267,11 +270,13 @@ class Schematic(object):
         """
 
         fields = string.split(';')
-        string = fields[1] if len(fields) > 1 else ''
+        string = fields[1].strip() if len(fields) > 1 else ''
+        if string != '':
+            self.hints = True
 
         opts = self._opts_parse(string)
 
-        parts = re.split(r'[\s]+', fields[0])
+        parts = re.split(r'[\s]+', fields[0].strip())
         elt = NetElement(*parts, **opts)
 
         self._elt_add(elt)
@@ -632,6 +637,10 @@ class Schematic(object):
              filename=None, args=None, scale=2, tex=False):
 
         self.scale = scale
+
+        if not self.hints:
+            raise RuntimeWarning('No schematic drawing hints provided!')
+
 
         if tex or (filename is not None and filename.endswith('.tex')):
             self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
