@@ -95,7 +95,7 @@ class NetElement(object):
         match = cpt_type_pattern.match(name)
 
         if not match:
-            raise ValueError('Unknown component %s' % name)
+            raise ValueError('Unknown schematic component %s' % name)
 
         cpt_type = match.groups()[0]
         id = match.groups()[1]
@@ -502,7 +502,7 @@ class Schematic(object):
     def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
                   filename=None, args=None):
 
-        if filename != None:
+        if filename != None and filename != '':
             outfile = open(filename, 'w')
         else:
             import sys
@@ -596,6 +596,9 @@ class Schematic(object):
         if args is None: args = ''
         
         drw = Drawing()
+
+        # Update element positions
+        self.coords
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):

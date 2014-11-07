@@ -800,9 +800,9 @@ class Netlist(object):
             node_map[node] = node
             for nodes in lnodes:
                 if node in nodes:
-                    # Use first of the linked nodes unless looking for '0' node
-                    if node == '0':
-                        node_map[node] = nodes[node_map.index[node]]
+                    # Use first of the linked nodes unless '0' in list
+                    if '0' in nodes:
+                        node_map[node] = '0'
                     else:
                         node_map[node] = nodes[0]
                     break
