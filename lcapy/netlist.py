@@ -249,7 +249,9 @@ class Netlist(object):
             # Skip comments
             if line[0] in ('#', '%'):
                 continue
-            self.add(line.strip())
+            line = line.strip()
+            if line != '':
+                self.add(line)
 
 
     def netlist(self):
@@ -878,10 +880,9 @@ class Netlist(object):
 
 class Circuit(Netlist):
 
-    def __init__(self, circuitname=''):
+    def __init__(self, filename=None):
 
-        self.circuitname = circuitname
-        super (Circuit, self).__init__()
+        super (Circuit, self).__init__(filename)
 
 
 def test():
