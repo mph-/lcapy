@@ -24,7 +24,7 @@ __all__ = ('Schematic', )
 
 # Mapping of component names to circuitikz names.   The keys define
 # the allowable component names.
-cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 
+cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 'G' : 'G',
                 'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
                 'V' : 'V', 'I' : 'I', 'v' : 'V', 'i' : 'I',
                 'TF' : 'transformer', 'P' : 'open', 'port' : 'open',
@@ -142,6 +142,7 @@ class NetElement(object):
         if not match:
             raise ValueError('Unknown schematic component %s' % name)
 
+        # Circuitikz does not like a . in a name
         if node1.find('.') != -1:
             raise ValueError('Cannot have . in node name %s' % node1)
         if node2.find('.') != -1:
@@ -193,16 +194,15 @@ class NetElement(object):
         if len(args) > 0:
 
             units_map = {'V' : 'V', 'I' : 'A', 'R' : '$\Omega$',
-                         'C' : 'F', 'L' : 'C'}
+                         'G' : 'S', 'C' : 'F', 'L' : 'C'}
 
             try :
-            
                 value = float(args[0])
                 if cpt_type[0] in units_map:
                     autolabel = Units(value, units_map[cpt_type[0]]).latex()
 
             except ValueError:
-                pass
+                autolabel = value
 
         self.name = name
         self.cpt_type = cpt_type
