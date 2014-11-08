@@ -568,7 +568,7 @@ class Schematic(object):
 
 
     def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-                  s_model=False, filename=None, args=None):
+                  filename=None, args=None):
 
         if filename != None and filename != '':
             outfile = open(filename, 'w')
@@ -623,9 +623,6 @@ class Schematic(object):
             if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
                 if cpt_type not in ('open', 'short'):
                     label_str = '=%s' % elt.autolabel
-
-            if s_model and cpt_type in ('R', 'G', 'C', 'L'):
-                cpt_type = 'european resistor'
 
             print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt_type, label_str, opts_str, node_str, n2), file=outfile)
 
@@ -700,7 +697,7 @@ class Schematic(object):
 
 
     def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-             s_model=False, filename=None, args=None, scale=2, tex=False):
+             filename=None, args=None, scale=2, tex=False):
 
         self.scale = scale
 
@@ -711,7 +708,7 @@ class Schematic(object):
         if tex or (filename is not None and filename.endswith('.tex')):
             self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
                            label_nodes=label_nodes, filename=filename,
-                           s_model=s_model, args=args)            
+                           args=args)            
         else:
             self.schemdraw_draw(draw_labels=draw_labels, draw_nodes=draw_nodes, 
                                 label_nodes=label_nodes, filename=filename)
