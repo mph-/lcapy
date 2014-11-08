@@ -1,5 +1,5 @@
 #!/usr/bin/python
-"""schtex V0.1
+"""schtex V0_1
 Copyright (c) 2014 Michael P. Hayes, UC ECE, NZ
 
 Usage: schtex file.sch

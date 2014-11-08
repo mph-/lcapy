@@ -39,6 +39,51 @@ cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 cpt_type_pattern = re.compile(r'(%s)(\w)?' % '|'.join(cpt_types))
 
 
+import math
+
+class Units(object):
+
+    def __init__(self, value, unit=''):
+
+        self.value = value
+        self.unit = unit
+
+    
+    def latex(self, trim=True):
+
+        prefixes = ('f', 'p', 'n', '$\mu$', 'm', '', 'k', 'M', 'G', 'T')
+
+        sfmax = 3
+
+        value = self.value
+        m = math.log10(abs(value))
+        n = int(math.floor(m / 3))
+  
+        k = int(m) - n * 3
+        dp = sfmax - k
+
+        idx = n + 5
+        if idx < 0:
+            idx = 0
+            return '%e\,' % value + self.unit
+        elif idx >= len(prefixes):
+            idx = len(prefixes) - 1
+            return '%e\,' % value + self.unit
+
+        fmt = '%%.%df' % dp            
+
+        n = idx - 5
+        value = value * 10**(-3 * n)
+
+        string = fmt % value 
+
+        if trim:
+            string = string.rstrip('0').rstrip('.')
+            
+        return string + '\,' + prefixes[idx] + self.unit
+
+
+
 def longest_path(all_nodes, from_nodes):
     """all_nodes is an iterable for all the nodes in the graph, from_nodes
     is a directory indexed by node that stores a tuple of tuples.  The
@@ -73,7 +118,7 @@ class Node(object):
         self.pos = None
         self.port = False
         parts = name.split('_')
-        self.rootname = parts[0] if name[0] != '_' else name
+        self.rootname = parts[0]  if name[0] != '_' else name
         self.primary = len(parts) == 1
         self.list = []
 
@@ -96,6 +141,11 @@ class NetElement(object):
 
         if not match:
             raise ValueError('Unknown schematic component %s' % name)
+
+        if node1.find('.') != -1:
+            raise ValueError('Cannot have . in node name %s' % node1)
+        if node2.find('.') != -1:
+            raise ValueError('Cannot have . in node name %s' % node2)
 
         cpt_type = match.groups()[0]
         id = match.groups()[1]
@@ -139,6 +189,20 @@ class NetElement(object):
 
         if opts['dir'] is None:
             opts['dir'] = 'down' if cpt_type in ('port', 'P') else 'right'
+
+        if len(args) > 0:
+
+            units_map = {'V' : 'V', 'I' : 'A', 'R' : '$\Omega$',
+                         'C' : 'F', 'L' : 'C'}
+
+            try :
+            
+                value = float(args[0])
+                if cpt_type[0] in units_map:
+                    autolabel = Units(value, units_map[cpt_type[0]]).latex()
+
+            except ValueError:
+                pass
 
         self.name = name
         self.cpt_type = cpt_type
@@ -610,7 +674,7 @@ class Schematic(object):
             if draw_labels:
                 drw.add(cpt_type, xy=elt.pos1 * self.scale, 
                         to=elt.pos2 * self.scale, 
-                        label=elt.autolabel)
+                        label=elt.autolabel.replace('\\,', ' '))
             else:
                 drw.add(cpt_type, xy=elt.pos1 * self.scale,
                         to=elt.pos2 * self.scale)
