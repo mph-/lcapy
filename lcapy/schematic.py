@@ -197,7 +197,7 @@ class NetElement(object):
             try :
                 value = float(args[0])
                 if cpt_type[0] in units_map:
-                    autolabel = Units(value, r'\mbox{%s}' % units_map[cpt_type[0]]).latex()
+                    autolabel = Units(value, units_map[cpt_type[0]]).latex()
 
             except ValueError:
                 autolabel = args[0]
@@ -621,7 +621,11 @@ class Schematic(object):
             label_str =''
             if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
                 if cpt_type not in ('open', 'short'):
-                    label_str = '=$%s$' % elt.autolabel
+                    label_parts = elt.autolabel.split('\\,')
+                    if len(label_parts) > 1:
+                        label_str = '=$%s\mbox{%s}$' % (label_parts[0], label_parts[1])
+                    else:
+                        label_str = '=$%s$' % label_parts[0]
 
             if cpt_type in ('Y', 'Z'):
                 cpt_type = 'european resistor'
