@@ -257,7 +257,17 @@ class Netlist(object):
     def netlist(self):
         """Return the current netlist"""
 
-        return '\n'.join([elt.__str__() for elt in self.elements.values()])
+        from copy import copy
+
+        lines = ''
+        for key, elt in self.elements.iteritems():
+            newelt = copy(elt)
+            
+            newelt.nodes = tuple([self.node_map[node] for node in elt.nodes])
+
+            lines += newelt.__str__() + '\n'
+
+        return lines
 
 
     def _node_add(self, node, elt):
