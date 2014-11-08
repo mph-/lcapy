@@ -19,12 +19,16 @@ def main (argv=None):
 
     version = __doc__.split('\n')[0]
 
-    parser = OptionParser(usage = '%prog schematic-file', version = version, 
-                          description = __doc__)
+    parser = OptionParser(usage='%prog schematic-file', version=version, 
+                          description=__doc__)
 
-    parser.add_option('--label-nodes', action = 'store_true',
-                      dest = 'label_nodes', default = True,
-                      help = 'label nodes')
+    parser.add_option('--label-nodes', action='store_true',
+                      dest='label_nodes', default=True,
+                      help='label nodes')
+
+    parser.add_option('--s-model', action='store_true',
+                      dest='s_model', default=False,
+                      help='generate s-domain picture')
     
     (options, args) = parser.parse_args()
 
@@ -41,7 +45,8 @@ def main (argv=None):
     infilename = args[0]
     if not infilename.endswith('.tex'):
         sch = Schematic(args[0])
-        sch.draw(label_nodes=options.label_nodes, filename=filename, tex=True)
+        sch.draw(label_nodes=options.label_nodes, s_model=options.s_model,
+                 filename=filename, tex=True)
     else:
         filename = infilename
 
