@@ -202,7 +202,7 @@ class NetElement(object):
                     autolabel = Units(value, units_map[cpt_type[0]]).latex()
 
             except ValueError:
-                autolabel = value
+                autolabel = args[0]
 
         self.name = name
         self.cpt_type = cpt_type
@@ -255,7 +255,9 @@ class Schematic(object):
             # Skip comments
             if line[0] in ('#', '%'):
                 continue
-            self.add(line.strip())
+            line = line.strip()
+            if line != '':
+                self.add(line)
 
 
     def netlist(self):
@@ -550,14 +552,14 @@ class Schematic(object):
         if self.nodes[n1].port:
             node_str = 'o'
         else:
-            node_str = '*' if draw_nodes and n1[0] != '_' and n1.find('.') == - 1 else ''
+            node_str = '*' if draw_nodes and n1.find('_') == - 1 else ''
             
         node_str += '-'
 
         if self.nodes[n2].port:
             node_str += 'o'
         else:
-            node_str += '*' if draw_nodes and n2[0] != '_' and n2.find('.') == - 1 else ''
+            node_str += '*' if draw_nodes and n2.find('_') == - 1 else ''
 
         if node_str == '-':
             node_str = ''
@@ -566,7 +568,7 @@ class Schematic(object):
 
 
     def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-                  filename=None, args=None):
+                  s_model=False, filename=None, args=None):
 
         if filename != None and filename != '':
             outfile = open(filename, 'w')
@@ -621,6 +623,9 @@ class Schematic(object):
             if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
                 if cpt_type not in ('open', 'short'):
                     label_str = '=%s' % elt.autolabel
+
+            if s_model and cpt_type in ('R', 'G', 'C', 'L'):
+                cpt_type = 'european resistor'
 
             print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt_type, label_str, opts_str, node_str, n2), file=outfile)
 
@@ -695,7 +700,7 @@ class Schematic(object):
 
 
     def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-             filename=None, args=None, scale=2, tex=False):
+             s_model=False, filename=None, args=None, scale=2, tex=False):
 
         self.scale = scale
 
@@ -706,7 +711,7 @@ class Schematic(object):
         if tex or (filename is not None and filename.endswith('.tex')):
             self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
                            label_nodes=label_nodes, filename=filename,
-                           args=args)            
+                           s_model=s_model, args=args)            
         else:
             self.schemdraw_draw(draw_labels=draw_labels, draw_nodes=draw_nodes, 
                                 label_nodes=label_nodes, filename=filename)
