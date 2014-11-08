@@ -765,13 +765,22 @@ class Schematic(object):
                     dummy_node = '_dummy%d' % node_counter
                     node_counter += 1
 
+                    opts = {}
+                    opts['dir'] = elt.opts['dir']
+                    opts['size'] = elt.opts['size']
+
                     velt = NetElement('V00%d' % V_counter, dummy_node, elt.nodes[1])
+
                     V_counter += 1
                     new_elt.nodes = (elt.nodes[0], dummy_node)
-                    velt.opts = elt.opts
-                    
+                    velt.opts = opts
+  
                     sch._elt_add(velt)
-                    velt.autolabel = elt.args[1] + '/s'
+                    if cpt_type == 'L':
+                        # FIXME if current negative
+                        velt.autolabel = '-%s%s' % (elt.args[1], label)
+                    else:
+                        velt.autolabel = '%s/s' % elt.args[1]
 
             sch._elt_add(new_elt)
         
