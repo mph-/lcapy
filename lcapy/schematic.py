@@ -28,7 +28,7 @@ cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 'G' : 'G',
                 'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
                 'V' : 'V', 'I' : 'I', 'v' : 'V', 'i' : 'I',
                 'TF' : 'transformer', 'P' : 'open', 'port' : 'open',
-                'W' : 'short', 'wire' : 'short'}
+                'W' : 'short', 'wire' : 'short', 'Z' : 'Z', 'Y' : 'Y'}
 
 
 # Regular expression alternate matches stop with first match so need
@@ -180,8 +180,6 @@ class NetElement(object):
 
         if cpt_type in ('P', 'port', 'W', 'wire') or autolabel.find('#') != -1:
             autolabel = ''
-        else:
-            autolabel = '$' + autolabel + '$'
 
         if not opts.has_key('dir'):
             opts['dir'] = None
@@ -194,12 +192,12 @@ class NetElement(object):
         if len(args) > 0:
 
             units_map = {'V' : 'V', 'I' : 'A', 'R' : '$\Omega$',
-                         'G' : 'S', 'C' : 'F', 'L' : 'C'}
+                         'G' : 'S', 'C' : 'F', 'L' : 'H'}
 
             try :
                 value = float(args[0])
                 if cpt_type[0] in units_map:
-                    autolabel = Units(value, units_map[cpt_type[0]]).latex()
+                    autolabel = Units(value, r'\mbox{%s}' % units_map[cpt_type[0]]).latex()
 
             except ValueError:
                 autolabel = args[0]
@@ -209,6 +207,7 @@ class NetElement(object):
         self.autolabel = autolabel
         self.nodes = (node1, node2)
         self.opts = opts
+        self.args = args
 
 
     def __repr__(self):
@@ -293,7 +292,7 @@ class Schematic(object):
 
         self._invalidate()
 
-        if self.elements.has_key(elt.name):
+        if elt.name in self.elements:
             print('Overriding component %s' % elt.name)     
             # Need to search lists and update component.
            
@@ -622,7 +621,10 @@ class Schematic(object):
             label_str =''
             if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
                 if cpt_type not in ('open', 'short'):
-                    label_str = '=%s' % elt.autolabel
+                    label_str = '=$%s$' % elt.autolabel
+
+            if cpt_type in ('Y', 'Z'):
+                cpt_type = 'european resistor'
 
             print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt_type, label_str, opts_str, node_str, n2), file=outfile)
 
@@ -658,7 +660,8 @@ class Schematic(object):
                          'V' : e.SOURCE_V, 'I' : e.SOURCE_I, 
                          'v' : e.SOURCE_V, 'i' : e.SOURCE_I,
                          'P' : e.GAP_LABEL, 'port' : e.GAP_LABEL,
-                         'W' : e.LINE, 'wire' : e.LINE}        
+                         'W' : e.LINE, 'wire' : e.LINE,
+                         'Y' : e.RBOX, 'Z' : e.RBOX}        
 
         # Preamble
         if args is None: args = ''
@@ -674,12 +677,12 @@ class Schematic(object):
             cpt_type = cpt_type_map2[elt.cpt_type]
 
             if draw_labels:
-                drw.add(cpt_type, xy=elt.pos1 * self.scale, 
-                        to=elt.pos2 * self.scale, 
+                drw.add(cpt_type, xy=elt.pos2 * self.scale, 
+                        to=elt.pos1 * self.scale, 
                         label=elt.autolabel.replace('\\,', ' '))
             else:
-                drw.add(cpt_type, xy=elt.pos1 * self.scale,
-                        to=elt.pos2 * self.scale)
+                drw.add(cpt_type, xy=elt.pos2 * self.scale,
+                        to=elt.pos1 * self.scale)
 
         if draw_nodes:
             for m, node in enumerate(self.nodes.values()):
@@ -697,13 +700,15 @@ class Schematic(object):
 
 
     def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-             filename=None, args=None, scale=2, tex=False):
+             s_model=False, filename=None, args=None, scale=2, tex=False):
 
         self.scale = scale
 
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
 
+        if s_model:
+            self = self.s_model()
 
         if tex or (filename is not None and filename.endswith('.tex')):
             self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
@@ -714,6 +719,59 @@ class Schematic(object):
                                 label_nodes=label_nodes, filename=filename)
 
 
+    def s_model(self):
+
+        from copy import copy
+
+        sch = Schematic()
+
+        sch.hints = self.hints
+
+        Z_counter = 1
+        node_counter = 1
+        V_counter = 1
+
+        for key, elt in self.elements.iteritems():
+            
+            new_elt = copy(elt)
+
+            cpt_type = elt.cpt_type
+
+            label = elt.autolabel.split('\,')[0]
+
+            if cpt_type in ('C', 'L', 'R', 'G'):
+                new_elt.cpt_type = 'Z'
+                Z_counter += 1
+
+            if cpt_type in ('V', 'Vdc'):
+                new_elt.autolabel = '%s/s' % label
+
+            elif cpt_type in ('C', 'L'):
+
+                if cpt_type == 'C':
+                    new_elt.autolabel = '%s/s' % label
+
+                if cpt_type == 'L':
+                    if label.isdigit():
+                        new_elt.autolabel = '%ss' % label
+                    else:
+                        new_elt.autolabel = 's%s' % label
+
+                if len(elt.args) > 1:
+                    dummy_node = '_dummy%d' % node_counter
+                    node_counter += 1
+
+                    velt = NetElement('V00%d' % V_counter, dummy_node, elt.nodes[1])
+                    V_counter += 1
+                    new_elt.nodes = (elt.nodes[0], dummy_node)
+                    velt.opts = elt.opts
+                    
+                    sch._elt_add(velt)
+                    velt.autolabel = elt.args[1] + '/s'
+
+            sch._elt_add(new_elt)
+        
+        return sch
 
 
 def test():
