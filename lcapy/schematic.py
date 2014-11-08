@@ -753,7 +753,10 @@ class Schematic(object):
             elif cpt_type in ('C', 'L'):
 
                 if cpt_type == 'C':
-                    new_elt.autolabel = '%s/s' % label
+                    if label.isdigit():
+                        new_elt.autolabel = '1/%ss' % label
+                    else:
+                        new_elt.autolabel = '1/s%s' % label
 
                 if cpt_type == 'L':
                     if label.isdigit():
