@@ -105,9 +105,6 @@ class NetElement(object):
             id = '#%d' % NetElement.cpt_type_counter
             name = cpt_type + id
 
-        node1 = node1.strip().replace('.', '_')
-        node2 = node2.strip().replace('.', '_')
-
         cpt_type_orig = cpt_type
         if args != ():
             if cpt_type == 'V' and args[0] == 'ac':
@@ -489,14 +486,14 @@ class Schematic(object):
         if self.nodes[n1].port:
             node_str = 'o'
         else:
-            node_str = '*' if draw_nodes and n1.find('_') == - 1 else ''
+            node_str = '*' if draw_nodes and n1[0] != '_' and n1.find('.') == - 1 else ''
             
         node_str += '-'
 
         if self.nodes[n2].port:
             node_str += 'o'
         else:
-            node_str += '*' if draw_nodes and n2.find('_') == - 1 else ''
+            node_str += '*' if draw_nodes and n2[0] != '_' and n2.find('.') == - 1 else ''
 
         if node_str == '-':
             node_str = ''

@@ -235,7 +235,7 @@ class Netlist(object):
 
     def _nodeindex(self, node):
         """Return node index; ground is -1"""
-        return self.node_list.index(node) - 1
+        return self.node_list.index(self.node_map[node]) - 1
 
 
     def netfile_add(self, filename):    
@@ -553,7 +553,8 @@ class Netlist(object):
         # Don't worry about currents due to initial conditions; these
         # are overwritten below.
         for m, elt in enumerate(self.RLC):
-            self._I[elt.name] = Is(sym.simplify((self._V[elt.nodes[0]] - self._V[elt.nodes[1]] - elt.cpt.V) / elt.cpt.Z))
+            n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
+            self._I[elt.name] = Is(sym.simplify((self._V[n1] - self._V[n2] - elt.cpt.V) / elt.cpt.Z))
 
 
     @property
@@ -583,7 +584,8 @@ class Netlist(object):
 
         self._Vd = {}
         for elt in self.elements.values():
-            self._Vd[elt.name] = Vs(sym.simplify(self.V[elt.nodes[0]] - self.V[elt.nodes[1]]))
+            n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
+            self._Vd[elt.name] = Vs(sym.simplify(self.V[n1] - self.V[n2]))
 
         return self._Vd
 
@@ -824,7 +826,8 @@ class Netlist(object):
         if hasattr(self, '_node_list'):
             return self._node_list
 
-        node_list = list(self.node_map)
+        # Remove unique elements
+        node_list = list(set(self.node_map.values()))
         # Ensure node '0' is first in the list.
         node_list.insert(0, node_list.pop(node_list.index('0')))
 
@@ -858,7 +861,8 @@ class Netlist(object):
                 if n2 in nodes:
                     break;
                     
-            lnodes[key1].extend(lnodes.pop(key2))
+            if key1 != key2:
+                lnodes[key1].extend(lnodes.pop(key2))
 
         # Remove nodes that are not linked.
         pnodes = []
