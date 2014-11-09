@@ -247,25 +247,25 @@ class NetElement(object):
     @property
     def is_independentV(self):
         
-        return isinstance(self.cpt, (V, Vdc, Vac))
+        return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep))
 
 
     @property
     def is_independentI(self):
         
-        return isinstance(self.cpt, (I, Idc, Iac))
+        return isinstance(self.cpt, (I, Idc, Iac, Istep, Iacstep))
 
 
     @property
     def is_V(self):
         
-        return isinstance(self.cpt, (V, Vdc, Vac, VCVS, TF))
+        return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep, VCVS, TF))
 
 
     @property
     def is_I(self):
         
-        return isinstance(self.cpt, (I, Idc, Iac))
+        return isinstance(self.cpt, (I, Idc, Iac, Istep, Iacstep))
 
 
     @property
@@ -290,7 +290,6 @@ class Netlist(object):
 
         self._V = Mdict({'0': Vs(0)})
         self._I = {}
-        self.cpt_counts = {'R' : 0, 'G' : 0, 'C' : 0, 'L' : 0, 'V' : 0, 'I' : 0}
 
         if filename is not None:
             self.netfile_add(filename)
@@ -442,6 +441,30 @@ class Netlist(object):
             self.voltage_sources.pop(name)
 
         
+    def _open(self, node1, node2, opts):
+        """Create a dummy open-circuit"""
+
+        if not hasattr(self, '_open_counter'):
+            self._open_counter = 0
+        self._open_counter += 1
+
+        net = 'P#%d %s %s ; %s' % (self._open_counter, node1, node2, opts.format())
+
+        return self.net_parse(net)
+
+
+    def _short(self, node1, node2, opts):
+        """Create a dummy short-circuit"""
+
+        if not hasattr(self, '_short_counter'):
+            self._short_counter = 0
+        self._short_counter += 1
+
+        net = 'W#%d %s %s ; %s' % (self._short_counter, node1, node2, opts.format())
+
+        return self.net_parse(net)
+
+
     def _G_matrix(self):
 
         G = sym.zeros(self.num_nodes, self.num_nodes)
@@ -840,9 +863,9 @@ class Netlist(object):
 
         for key, elt in self.elements.iteritems():
             if elt.is_independentI: 
-                continue
-            if elt.is_independentV: 
-                elt = self._wire(elt.nodes[0], elt.nodes[1], elt.opts)
+                elt = self._open(elt.nodes[0], elt.nodes[1], elt.opts)
+            elif elt.is_independentV: 
+                elt = self._short(elt.nodes[0], elt.nodes[1], elt.opts)
             new._elt_add(elt)
 
         return new
@@ -964,23 +987,7 @@ class Netlist(object):
         return sch
 
 
-    @property
-    def counter(self):
-
-        if not hasattr(self, '_counter'):
-            self._counter = 0
-        self._counter += 1
-        return self._counter
-
-
-    def _wire(self, node1, node2, opts):
-
-        net = 'W00%d %s %s ; %s' % (self.counter, node1, node2, opts.format())
-
-        return self.net_parse(net)
-
-
-    def dc_model(self):
+    def pre_initial_model(self):
         """Generate circuit model for determining the pre-initial conditions."""
 
         from copy import copy
@@ -989,18 +996,19 @@ class Netlist(object):
 
         for key, elt in self.elements.iteritems():
             
-            # Assume initial voltage is zero.
-            if isinstance(elt.cpt, C):
-                continue
+            # Assume initial C voltage and L current is zero.
                 
-            # RTODO: Remove Vstep and Vacstep, Replace Istep and
-            # Iacstep with shorts.  v and i should be evaluated
-            # to determine the value at 0 - eps.
+            if elt.cpt_type in ('V', 'I', 'Vac', 'Iac'):
+                print('Cannot determine pre-initial condition for %s, assuming 0' % elt.name)
 
-            if isinstance(elt.cpt, L):
+            # v and i should be evaluated to determine the value at 0 - eps.
+            if elt.cpt_type in ('v', 'i'):
+                print('Cannot determine pre-initial condition for %s, assuming 0' % elt.name)
 
-                # Replace inductor with a wire assuming initial current is zero.
-                elt = self._wire(elt.nodes[0], elt.nodes[1], elt.opts)
+            if elt.cpt_type in ('C', 'Istep', 'Iacstep', 'I', 'i', 'Iac'):
+                elt = self._open(elt.nodes[0], elt.nodes[1], elt.opts)
+            elif elt.cpt_type in ('L', 'Vstep', 'Vacstep', 'V', 'v', 'Vac'):
+                elt = self._short(elt.nodes[0], elt.nodes[1], elt.opts)
             new_cct._elt_add(elt)
 
         return new_cct

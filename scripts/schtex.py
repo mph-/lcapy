@@ -9,7 +9,7 @@ from __future__ import print_function
 from optparse import OptionParser
 import sys
 import os
-from lcapy import Schematic
+from lcapy import Circuit
 
 
 def main (argv=None):
@@ -28,7 +28,15 @@ def main (argv=None):
 
     parser.add_option('--s-model', action='store_true',
                       dest='s_model', default=False,
-                      help='generate s-domain picture')
+                      help='generate s-domain model schematic')
+
+    parser.add_option('--p-model', action='store_true',
+                      dest='p_model', default=False,
+                      help='generate pre-initial model schematic')
+
+    parser.add_option('--k-model', action='store_true',
+                      dest='k_model', default=False,
+                      help='generate schematic with independet sources killed')
     
     (options, args) = parser.parse_args()
 
@@ -44,8 +52,13 @@ def main (argv=None):
 
     infilename = args[0]
     if not infilename.endswith('.tex'):
-        sch = Schematic(args[0])
-        sch.draw(label_nodes=options.label_nodes, s_model=options.s_model,
+        cct = Circuit(args[0])
+        if options.k_model:
+            cct = cct.kill()
+        if options.p_model:
+            cct = cct.pre_initial_model()
+
+        cct.draw(label_nodes=options.label_nodes, s_model=options.s_model,
                  filename=filename, tex=True)
     else:
         filename = infilename
