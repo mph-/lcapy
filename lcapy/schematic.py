@@ -755,6 +755,13 @@ class Schematic(object):
 
             elif cpt_type in ('C', 'L'):
 
+                new_elt.opts = Opts(elt.opts)
+
+                for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 
+                            'i>_', 'i<_', 'i>^', 'i<^'):
+                    if new_elt.opts.has_key(opt):
+                        new_elt.opts.pop(key)
+
                 if cpt_type == 'C':
                     if label.isdigit():
                         new_elt.autolabel = '1/%ss' % label
@@ -771,15 +778,15 @@ class Schematic(object):
                     dummy_node = '_dummy%d' % node_counter
                     node_counter += 1
 
-                    opts = {}
-                    opts['dir'] = elt.opts['dir']
-                    opts['size'] = elt.opts['size']
-
                     velt = NetElement('V00%d' % V_counter, dummy_node, elt.nodes[1])
 
                     V_counter += 1
                     new_elt.nodes = (elt.nodes[0], dummy_node)
-                    velt.opts = opts
+
+                    velt.opts = Opts(elt.opts)
+                    for opt ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
+                        if velt.opts.has_key(opt):
+                            velt.opts.pop(key)
   
                     sch._elt_add(velt)
                     if cpt_type == 'L':
