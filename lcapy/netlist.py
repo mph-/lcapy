@@ -139,7 +139,7 @@ class Opts(dict):
 
     def format(self):
 
-        return ','.join(['%s=%s' % (key, val) for key, val in self.iteritems()])
+        return ', '.join(['%s=%s' % (key, val) for key, val in self.iteritems()])
 
 
 class Node(object):
@@ -342,7 +342,13 @@ class Netlist(object):
                 if elt.is_dummy:
                     continue
 
-            lines += newelt.__str__() + '\n'
+            line = newelt.__str__()
+            if full:
+                optstr = newelt.opts.format()
+                if optstr != '':
+                    line += ' ; ' + optstr
+
+            lines += line + '\n'
 
         return lines
 
