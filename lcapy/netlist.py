@@ -370,13 +370,9 @@ class Netlist(object):
 
     def _invalidate(self):
 
-        if hasattr(self, '_V'):
-            delattr(self, '_V')
-            delattr(self, '_I')
-        if hasattr(self, '_node_map'):
-            delattr(self, '_node_map')
-        if hasattr(self, '_node_list'):
-            delattr(self, '_node_list')
+        for attr in ('_V', '_I', '_node_map', '_node_list', '_sch'):
+            if hasattr(self, attr):
+                delattr(self, attr)
 
 
     def _elt_add(self, elt):
@@ -951,6 +947,23 @@ class Netlist(object):
         return pnodes
 
 
+    @property
+    def sch(self):
+
+        if hasattr(self, '_sch'):
+            return self._sch
+
+        sch = Schematic()
+
+        netlist = self.netlist(full=True)
+
+        for net in netlist.split('\n')[0:-1]:
+            sch.add(net)
+
+        self._sch = sch
+        return sch
+
+
     def dc_model(self):
 
         from copy import copy
@@ -980,11 +993,11 @@ class Netlist(object):
     def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
              s_model=False, filename=None, args=None, scale=2, tex=False):
 
-        # FIXME
-        return sch.draw(draw_labels=draw_labels, draw_nodes=draw_nodes, 
-                        label_nodes=label_nodes, s_model=s_model,
-                        filename=filename, args=args, 
-                        scale=scale, tex=tex)
+
+        return self.sch.draw(draw_labels=draw_labels, draw_nodes=draw_nodes, 
+                             label_nodes=label_nodes, s_model=s_model,
+                             filename=filename, args=args, 
+                             scale=scale, tex=tex)
 
 
 class Circuit(Netlist):
