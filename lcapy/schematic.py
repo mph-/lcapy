@@ -83,6 +83,39 @@ class Units(object):
         return string + '\,' + prefixes[idx] + self.unit
 
 
+class Opts(dict):
+
+    def _parse(self, string):
+
+        for part in string.split(','):
+            part = part.strip()
+            if part == '':
+                continue
+
+            if part in ('up', 'down', 'left', 'right'):
+                self['dir'] = part
+                continue
+
+            fields = part.split('=')
+            key = fields[0].strip()
+            arg = fields[1].strip() if len(fields) > 1 else ''
+            self[key] = arg
+
+
+    def __init__(self, arg):
+
+        if isinstance(arg, str):
+            self._parse(arg)
+            return
+
+        for key, val in arg.iteritems():
+            self[key] = val
+
+
+    def format(self):
+
+        return ', '.join(['%s=%s' % (key, val) for key, val in self.iteritems()])
+
 
 def longest_path(all_nodes, from_nodes):
     """all_nodes is an iterable for all the nodes in the graph, from_nodes
@@ -206,7 +239,7 @@ class NetElement(object):
         self.cpt_type = cpt_type
         self.autolabel = autolabel
         self.nodes = (node1, node2)
-        self.opts = opts
+        self.opts = Opts(opts)
         self.args = args
 
 
@@ -267,10 +300,9 @@ class Schematic(object):
 
     def _invalidate(self):
 
-        if hasattr(self, '_xnodes'):
-            delattr(self, '_xnodes')
-            delattr(self, '_ynodes')
-            delattr(self, '_coords')
+        for attr in ('_xnodes', '_ynodes', '_coords'):
+            if hasattr(self, attr):
+                delattr(self, attr)
 
 
     def _node_add(self, node, elt):
@@ -302,27 +334,6 @@ class Schematic(object):
             self._node_add(node, elt)
         
 
-    def _opts_parse(self, str):
-
-        opts = {'dir' : None, 'size' : 1}
-
-        for part in str.split(','):
-            part = part.strip()
-            if part == '':
-                continue
-
-            if part in ('up', 'down', 'left', 'right'):
-                opts['dir'] = part
-                continue
-
-            fields = part.split('=')
-            key = fields[0].strip()
-            arg = fields[1].strip() if len(fields) > 1 else ''
-            opts[key] = arg
-
-        return opts
-
-
     def add(self, string):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive nose and Nm is the negative node.
@@ -336,7 +347,7 @@ class Schematic(object):
         if string != '':
             self.hints = True
 
-        opts = self._opts_parse(string)
+        opts = self.Opts(string)
 
         parts = re.split(r'[\s]+', fields[0].strip())
         elt = NetElement(*parts, **opts)
