@@ -347,7 +347,7 @@ class Schematic(object):
         if string != '':
             self.hints = True
 
-        opts = self.Opts(string)
+        opts = Opts(string)
 
         parts = re.split(r'[\s]+', fields[0].strip())
         elt = NetElement(*parts, **opts)

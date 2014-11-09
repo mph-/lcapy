@@ -389,14 +389,7 @@ class Netlist(object):
         self._node_add(elt.nodes[1], elt)
         
 
-    def add(self, string, *args):
-        """Add a component to the netlist.
-        The general form is: 'Name Np Nm args'
-        where Np is the positive node and Nm is the negative node.
-
-        A positive current is defined to flow from the positive node
-        to the negative node.
-        """
+    def net_parse(self, string, *args):
 
         fields = string.split(';')
         string = fields[1].strip() if len(fields) > 1 else ''
@@ -407,6 +400,19 @@ class Netlist(object):
 
         parts = tuple(re.split(r'[\s]+', fields[0].strip()))
         elt = NetElement(*(parts + args), **opts)
+        return elt
+
+
+    def add(self, string, *args):
+        """Add a component to the netlist.
+        The general form is: 'Name Np Nm args'
+        where Np is the positive node and Nm is the negative node.
+
+        A positive current is defined to flow from the positive node
+        to the negative node.
+        """
+
+        elt = self.net_parse(string, *args)
 
         self._elt_add(elt)
 
@@ -841,7 +847,7 @@ class Netlist(object):
             if elt.is_independentI: 
                 continue
             if elt.is_independentV: 
-                elt = NetElement(elt.name, elt.nodes[0], elt.nodes[1], 0)
+                elt = self._wire(elt.nodes[0], elt.nodes[1], elt.opts)
             new._elt_add(elt)
 
         return new
@@ -963,28 +969,44 @@ class Netlist(object):
         return sch
 
 
+    @property
+    def counter(self):
+
+        if not hasattr(self, '_counter'):
+            self._counter = 0
+        self._counter += 1
+        return self._counter
+
+
+    def _wire(self, node1, node2, opts):
+
+        net = 'W00%d %s %s ; %s' % (self.counter, node1, node2, opts.format())
+
+        return self.net_parse(net)
+
+
     def dc_model(self):
+        """Generate circuit model for determining the pre-initial conditions."""
 
         from copy import copy
 
         new_cct = self.__class__()
-
-        wire_counter = 1
 
         for key, elt in self.elements.iteritems():
             
             # Assume initial voltage is zero.
             if isinstance(elt.cpt, C):
                 continue
+                
+            # RTODO: Remove Vstep and Vacstep, Replace Istep and
+            # Iacstep with shorts.  v and i should be evaluated
+            # to determine the value at 0 - eps.
 
             if isinstance(elt.cpt, L):
+
                 # Replace inductor with a wire assuming initial current is zero.
-                net = 'W00%d %s %s ; %s' % (wire_counter, elt.nodes[0], elt.nodes[1],
-                                            elt.opts.format())
-                new_cct.add(net)
-                wire_counter += 1
-            else:
-                new_cct._elt_add(elt)
+                elt = self._wire(elt.nodes[0], elt.nodes[1], elt.opts)
+            new_cct._elt_add(elt)
 
         return new_cct
 
