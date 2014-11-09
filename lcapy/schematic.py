@@ -757,11 +757,6 @@ class Schematic(object):
 
                 new_elt.opts = Opts(elt.opts)
 
-                for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 
-                            'i>_', 'i<_', 'i>^', 'i<^'):
-                    if new_elt.opts.has_key(opt):
-                        new_elt.opts.pop(key)
-
                 if cpt_type == 'C':
                     if label.isdigit():
                         new_elt.autolabel = '1/%ss' % label
@@ -784,9 +779,18 @@ class Schematic(object):
                     new_elt.nodes = (elt.nodes[0], dummy_node)
 
                     velt.opts = Opts(elt.opts)
-                    for opt ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
+
+                    # Strip voltage label.  TODO: show voltage label across
+                    # both components.
+                    for opt in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
+                        if new_elt.opts.has_key(opt):
+                            new_elt.opts.pop(opt)
+
+                    # Strip current label.
+                    for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 
+                                'i>_', 'i<_', 'i>^', 'i<^'):
                         if velt.opts.has_key(opt):
-                            velt.opts.pop(key)
+                            velt.opts.pop(opt)
   
                     sch._elt_add(velt)
                     if cpt_type == 'L':
