@@ -35,7 +35,8 @@ Copyright 2014 Michael Hayes, UCECE
 from __future__ import division
 from warnings import warn
 from lcapy.core import  pprint, cExpr, Avs, Ais, Zs, Ys
-from lcapy.oneport import V, I, v, i, R, L, C, G, Y, Z, Vdc, Idc, Vac, Iac, Is, Vs, Ys, Zs
+from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep, Vacstep, Iacstep
+from lcapy.oneport import R, L, C, G, Y, Z, Is, Vs, Ys, Zs
 from lcapy.twoport import AMatrix, TwoPortBModel
 from schematic import Schematic
 import sympy as sym
@@ -92,7 +93,10 @@ class TF(CS):
 
 
 cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'G' : G,
-                'Vac' : Vac, 'Vdc' : Vdc, 'Iac' : Iac, 'Idc' : Idc, 
+                'Vac' : Vac, 'Vdc' : Vdc, 
+                'Iac' : Iac, 'Idc' : Idc, 
+                'Vacstep' : Vacstep, 'Vstep' : Vstep,
+                'Iacstep' : Iacstep, 'Istep' : Istep, 
                 'V' : V, 'I' : I, 'v' : v, 'i' : i, 'TF' : TF, 
                 'Z' : Z, 'Y' : Y,
                 'P' : 'open', 'port' : 'open',
@@ -196,18 +200,9 @@ class NetElement(object):
 
         cpt_type_orig = cpt_type
         if args != ():
-            if cpt_type == 'V' and args[0] == 'ac':
-                cpt_type = 'Vac'
-            elif cpt_type == 'V' and args[0] == 'dc':
-                cpt_type = 'Vdc'
-            elif cpt_type == 'I' and args[0] == 'ac':
-                cpt_type = 'Iac'
-            elif cpt_type == 'I' and args[0] == 'dc':
-                cpt_type = 'Idc'
-
-            if cpt_type in ('Vdc', 'Vac', 'Idc', 'Iac') and args[0] in ('ac', 'dc'):
+            if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep'):
+                cpt_type = cpt_type + args[0]
                 args = args[1:]
-
 
         self.cpt_type = cpt_type
 

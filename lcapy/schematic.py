@@ -26,6 +26,7 @@ __all__ = ('Schematic', )
 # the allowable component names.
 cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 'G' : 'G',
                 'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
+                'Vacstep' : 'sV', 'Vstep' : 'V', 'Iacstep' : 'sI', 'Istep' : 'I', 
                 'V' : 'V', 'I' : 'I', 'v' : 'V', 'i' : 'I',
                 'TF' : 'transformer', 'P' : 'open', 'port' : 'open',
                 'W' : 'short', 'wire' : 'short', 'Z' : 'Z', 'Y' : 'Y'}
@@ -191,18 +192,9 @@ class NetElement(object):
 
         cpt_type_orig = cpt_type
         if args != ():
-            if cpt_type == 'V' and args[0] == 'ac':
-                cpt_type = 'Vac'
-            elif cpt_type == 'V' and args[0] == 'dc':
-                cpt_type = 'Vdc'
-            elif cpt_type == 'I' and args[0] == 'ac':
-                cpt_type = 'Iac'
-            elif cpt_type == 'I' and args[0] == 'dc':
-                cpt_type = 'Idc'
-
-            if cpt_type in ('Vdc', 'Vac', 'Idc', 'Iac') and args[0] in ('ac', 'dc'):
+            if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep'):
+                cpt_type = cpt_type + args[0]
                 args = args[1:]
-
 
         symbol = None
         self.symbol = symbol

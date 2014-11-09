@@ -32,7 +32,7 @@ import sympy as sym
 from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr
 
 
-__all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z', 'Vdc', 'Idc', 'Vac', 'Iac', 'Norton', 'Thevenin', 'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
+__all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z', 'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac', 'Vacstep', 'Iac', 'Iacstep', 'Norton', 'Thevenin', 'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
 
 
 def _check_oneport_args(args):
@@ -855,20 +855,25 @@ class V(Thevenin):
         super (V, self).__init__(Zs(0), Vs(Vval))
 
 
-class Vdc(V):
-    """DC voltage source (note a DC voltage source of voltage v has
-    an s domain voltage of v / s)."""
+class Vstep(V):
+    """Step voltage source (s domain voltage of v / s)."""
 
     def __init__(self, v):
     
         self.args = (v, )    
         v = cExpr(v)
-        super (Vdc, self).__init__(Vs(v).integrate())
+        super (Vstep, self).__init__(Vs(v).integrate())
         self.v = v
 
 
-class Vac(V):
-    """AC voltage source."""
+class Vdc(Vstep):
+    """DC voltage source (note a DC voltage source of voltage v has
+    an s domain voltage of v / s)."""
+    pass
+
+
+class Vacstep(V):
+    """AC voltage source multiplied by unit step."""
 
     def __init__(self, V, f, phi=0):
 
@@ -880,8 +885,12 @@ class Vac(V):
         # Note, cos(-pi / 2) is not quite zero.
 
         omega = 2 * sym.pi * f
-        super (Vac, self).__init__(Vs((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
+        super (Vacstep, self).__init__(Vs((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
 
+
+class Vac(Vacstep):
+    """AC voltage source."""
+    pass
 
 
 class v(V):
@@ -904,20 +913,25 @@ class I(Norton):
         super (I, self).__init__(Ys(0), Is(Ival))
 
 
-class Idc(I):
-    """DC current source (note a DC current source of current i has
-    an s domain current of i / s)."""
+class Istep(I):
+    """Step current source (s domain current of i / s)."""
 
     def __init__(self, i):
 
         self.args = (i, )    
         i = cExpr(i)
-        super (Idc, self).__init__(Is(i).integrate())
+        super (Istep, self).__init__(Is(i).integrate())
         self.i = i
 
 
-class Iac(Norton):
-    """AC current source."""
+class Idc(Istep):
+    """DC current source (note a DC current source of current i has
+    an s domain current of i / s)."""
+    pass
+
+
+class Iacstep(Norton):
+    """AC current source multiplied by unit step."""
 
     def __init__(self, I, f, phi=0):
     
@@ -927,8 +941,13 @@ class Iac(Norton):
         phi = cExpr(phi)
         
         omega = 2 * sym.pi * f
-        super (Iac, self).__init__(Is((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
+        super (Iacstep, self).__init__(Is((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
 
+
+
+class Iac(Iacstep):
+    """AC current source."""
+    pass
 
 
 class i(I):
