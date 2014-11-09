@@ -600,9 +600,8 @@ class Netlist(object):
                     # that positive current flows from N1 to N2.
                     from lcapy import s
 
-                    # FIXME
-                    newelt = Element(I(elt.cpt.I), elt.nodes[1], elt.nodes[0],
-                                     elt.name)
+                    name = 'I_' + elt.name
+                    newelt = NetElement(name, elt.nodes[1], elt.nodes[0], elt.cpt.I)
                     self.current_sources[key] = newelt
             elif not elt.is_dummy:
                 raise ValueError('Unhandled element %s' % elt.name)
@@ -953,9 +952,9 @@ class Netlist(object):
         if hasattr(self, '_sch'):
             return self._sch
 
-        sch = Schematic()
-
         netlist = self.netlist(full=True)
+
+        sch = Schematic()
 
         for net in netlist.split('\n')[0:-1]:
             sch.add(net)
@@ -978,14 +977,14 @@ class Netlist(object):
             if isinstance(elt.cpt, C):
                 continue
 
-            new_elt = copy(elt)
-
             if isinstance(elt.cpt, L):
-                # Create 0 ohm R or 0 volt source?
-                new_cct.add('W00%d' % wire_counter, elt.nodes[0], elt.nodes[1])
+                # Replace inductor with a wire assuming initial current is zero.
+                net = 'W00%d %s %s ; %s' % (wire_counter, elt.nodes[0], elt.nodes[1],
+                                            elt.opts.format())
+                new_cct.add(net)
                 wire_counter += 1
             else:
-                new_cct._elt_add(new_elt)
+                new_cct._elt_add(elt)
 
         return new_cct
 
