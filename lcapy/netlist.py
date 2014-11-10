@@ -1079,8 +1079,9 @@ class Netlist(object):
                         if new_elt.opts.has_key(opt):
                             new_elt.opts.pop(opt)
 
-                    # Strip current label.
-                    for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 
+                    # Strip voltage and current labels.
+                    for opt in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
+                                'i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 
                                 'i>_', 'i<_', 'i>^', 'i<^'):
                         if velt.opts.has_key(opt):
                             velt.opts.pop(opt)
