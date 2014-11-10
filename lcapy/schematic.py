@@ -712,9 +712,9 @@ class Schematic(object):
 
 
     def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-             filename=None, args=None, scale=2, tex=False):
+             filename=None, args=None, scale=1, tex=False):
 
-        self.scale = scale
+        self.scale = scale * 2
 
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
