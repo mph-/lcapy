@@ -440,8 +440,17 @@ class Netlist(object):
         if name in self.voltage_sources:
             self.voltage_sources.pop(name)
 
-        
-    def _open(self, node1, node2, opts):
+
+    def _make_node(self):
+        """Create a dummy node"""        
+
+        if not hasattr(self, '_node_counter'):
+            self._node_counter = 0
+        self._node_counter += 1
+        return '_%d' % self._node_counter
+
+
+    def _make_open(self, node1, node2, opts):
         """Create a dummy open-circuit"""
 
         if not hasattr(self, '_open_counter'):
@@ -453,7 +462,7 @@ class Netlist(object):
         return self.net_parse(net)
 
 
-    def _short(self, node1, node2, opts):
+    def _make_short(self, node1, node2, opts):
         """Create a dummy short-circuit"""
 
         if not hasattr(self, '_short_counter'):
@@ -461,6 +470,30 @@ class Netlist(object):
         self._short_counter += 1
 
         net = 'W#%d %s %s ; %s' % (self._short_counter, node1, node2, opts.format())
+
+        return self.net_parse(net)
+
+
+    def _make_Z(self, node1, node2, value, opts):
+        """Create a dummy impedance"""
+
+        if not hasattr(self, '_Z_counter'):
+            self._Z_counter = 0
+        self._Z_counter += 1
+
+        net = 'Z#%d %s %s %s; %s' % (self._Z_counter, node1, node2, value, opts.format())
+
+        return self.net_parse(net)
+
+
+    def _make_V(self, node1, node2, value, opts):
+        """Create a dummy voltage source"""
+
+        if not hasattr(self, '_V_counter'):
+            self._V_counter = 0
+        self._V_counter += 1
+
+        net = 'V#%d %s %s %s; %s' % (self._V_counter, node1, node2, value, opts.format())
 
         return self.net_parse(net)
 
@@ -863,9 +896,9 @@ class Netlist(object):
 
         for key, elt in self.elements.iteritems():
             if elt.is_independentI: 
-                elt = self._open(elt.nodes[0], elt.nodes[1], elt.opts)
+                elt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
             elif elt.is_independentV: 
-                elt = self._short(elt.nodes[0], elt.nodes[1], elt.opts)
+                elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
             new._elt_add(elt)
 
         return new
@@ -1006,22 +1039,70 @@ class Netlist(object):
                 print('Cannot determine pre-initial condition for %s, assuming 0' % elt.name)
 
             if elt.cpt_type in ('C', 'Istep', 'Iacstep', 'I', 'i', 'Iac'):
-                elt = self._open(elt.nodes[0], elt.nodes[1], elt.opts)
+                elt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
             elif elt.cpt_type in ('L', 'Vstep', 'Vacstep', 'V', 'v', 'Vac'):
-                elt = self._short(elt.nodes[0], elt.nodes[1], elt.opts)
+                elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
             new_cct._elt_add(elt)
 
         return new_cct
 
 
+    def s_model(self):
+
+        from copy import copy
+
+        cct = Circuit()
+
+        for key, elt in self.elements.iteritems():
+            
+            new_elt = copy(elt)
+
+            cpt_type = elt.cpt_type
+
+            if cpt_type in ('C', 'L', 'R', 'G'):
+                new_elt = self._make_Z(elt.nodes[0], elt.nodes[1], elt.cpt.Z, elt.opts)
+            elif cpt_type in ('V', 'Vdc'):
+                new_elt = self._make_V(elt.nodes[0], elt.nodes[1], elt.cpt.V, elt.opts)
+
+
+            if cpt_type in ('C', 'L', 'R', 'G') and elt.cpt.V != 0:
+
+                    dummy_node = self._make_node()
+
+
+                    velt = self._make_V(dummy_node, elt.nodes[1], elt.cpt.V, elt.opts)
+                    new_elt.nodes = (elt.nodes[0], dummy_node)
+
+                    # Strip voltage label.  TODO: show voltage label across
+                    # both components.
+                    for opt in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
+                        if new_elt.opts.has_key(opt):
+                            new_elt.opts.pop(opt)
+
+                    # Strip current label.
+                    for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 
+                                'i>_', 'i<_', 'i>^', 'i<^'):
+                        if velt.opts.has_key(opt):
+                            velt.opts.pop(opt)
+  
+                    cct._elt_add(velt)
+
+            cct._elt_add(new_elt)
+        
+        return cct
+
+
     def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
              s_model=False, filename=None, args=None, scale=2, tex=False):
 
-
-        return self.sch.draw(draw_labels=draw_labels, draw_nodes=draw_nodes, 
-                             label_nodes=label_nodes, s_model=s_model,
-                             filename=filename, args=args, 
-                             scale=scale, tex=tex)
+        cct = self
+        if s_model:
+            cct = cct.s_model()
+            
+        return cct.sch.draw(draw_labels=draw_labels, draw_nodes=draw_nodes, 
+                            label_nodes=label_nodes,
+                            filename=filename, args=args, 
+                            scale=scale, tex=tex)
 
 
 class Circuit(Netlist):

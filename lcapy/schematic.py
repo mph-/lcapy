@@ -18,6 +18,7 @@ Copyright 2014 Michael Hayes, UCECE
 from __future__ import print_function
 import numpy as np
 import re
+import sympy as sym
 
 __all__ = ('Schematic', )
 
@@ -225,7 +226,7 @@ class NetElement(object):
                     autolabel = Units(value, units_map[cpt_type[0]]).latex()
 
             except ValueError:
-                autolabel = args[0]
+                autolabel = sym.latex(sym.sympify(args[0]))
 
         self.name = name
         self.cpt_type = cpt_type
@@ -626,9 +627,9 @@ class Schematic(object):
                 if cpt_type not in ('open', 'short'):
                     label_parts = elt.autolabel.split('\\,')
                     if len(label_parts) > 1:
-                        label_str = '=$%s\mbox{%s}$' % (label_parts[0], label_parts[1])
+                        label_str = ', l=$%s\mbox{%s}$' % (label_parts[0], label_parts[1])
                     else:
-                        label_str = '=$%s$' % label_parts[0]
+                        label_str = ', l=$%s$' % label_parts[0]
 
             if cpt_type in ('Y', 'Z'):
                 cpt_type = 'european resistor'
@@ -707,15 +708,12 @@ class Schematic(object):
 
 
     def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-             s_model=False, filename=None, args=None, scale=2, tex=False):
+             filename=None, args=None, scale=2, tex=False):
 
         self.scale = scale
 
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
-
-        if s_model:
-            self = self.s_model()
 
         if tex or (filename is not None and filename.endswith('.tex')):
             self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
@@ -724,84 +722,6 @@ class Schematic(object):
         else:
             self.schemdraw_draw(draw_labels=draw_labels, draw_nodes=draw_nodes, 
                                 label_nodes=label_nodes, filename=filename)
-
-
-    def s_model(self):
-
-        from copy import copy
-
-        sch = Schematic()
-
-        sch.hints = self.hints
-
-        Z_counter = 1
-        node_counter = 1
-        V_counter = 1
-
-        for key, elt in self.elements.iteritems():
-            
-            new_elt = copy(elt)
-
-            cpt_type = elt.cpt_type
-
-            label = elt.autolabel.split('\,')[0]
-
-            if cpt_type in ('C', 'L', 'R', 'G'):
-                new_elt.cpt_type = 'Z'
-                Z_counter += 1
-
-            if cpt_type in ('V', 'Vdc'):
-                new_elt.autolabel = '%s/s' % label
-
-            elif cpt_type in ('C', 'L'):
-
-                new_elt.opts = Opts(elt.opts)
-
-                if cpt_type == 'C':
-                    if label.isdigit():
-                        new_elt.autolabel = '1/%ss' % label
-                    else:
-                        new_elt.autolabel = '1/s%s' % label
-
-                if cpt_type == 'L':
-                    if label.isdigit():
-                        new_elt.autolabel = '%ss' % label
-                    else:
-                        new_elt.autolabel = 's%s' % label
-
-                if len(elt.args) > 1:
-                    dummy_node = '_dummy%d' % node_counter
-                    node_counter += 1
-
-                    velt = NetElement('V00%d' % V_counter, dummy_node, elt.nodes[1])
-
-                    V_counter += 1
-                    new_elt.nodes = (elt.nodes[0], dummy_node)
-
-                    velt.opts = Opts(elt.opts)
-
-                    # Strip voltage label.  TODO: show voltage label across
-                    # both components.
-                    for opt in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
-                        if new_elt.opts.has_key(opt):
-                            new_elt.opts.pop(opt)
-
-                    # Strip current label.
-                    for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 
-                                'i>_', 'i<_', 'i>^', 'i<^'):
-                        if velt.opts.has_key(opt):
-                            velt.opts.pop(opt)
-  
-                    sch._elt_add(velt)
-                    if cpt_type == 'L':
-                        # FIXME if current negative
-                        velt.autolabel = '-%s%s' % (elt.args[1], label)
-                    else:
-                        velt.autolabel = '%s/s' % elt.args[1]
-
-            sch._elt_add(new_elt)
-        
-        return sch
 
 
 def test():
