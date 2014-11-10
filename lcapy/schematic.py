@@ -230,6 +230,8 @@ class NetElement(object):
             elif cpt_type in ('Vstep', 'Istep'):
                 expr = '(%s) * Heaviside(t)' % expr
                 autolabel = sym.latex(sym.sympify(expr))
+            elif cpt_type in ('Vs', 'Is'):
+                autolabel = sym.latex(sym.sympify(expr))
             else:
                 try:
                     value = float(args[0])
