@@ -28,14 +28,17 @@ __all__ = ('Schematic', )
 cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 'G' : 'G',
                 'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
                 'Vacstep' : 'sV', 'Vstep' : 'V', 'Iacstep' : 'sI', 'Istep' : 'I', 
+                'Vimpulse' : 'V', 'Iimpulse' : 'I',
+                'Vs' : 'V', 'Is' : 'I',
                 'V' : 'V', 'I' : 'I', 'v' : 'V', 'i' : 'I',
-                'TF' : 'transformer', 'P' : 'open', 'port' : 'open',
-                'W' : 'short', 'wire' : 'short', 'Z' : 'Z', 'Y' : 'Y'}
+                'P' : 'open', 'W' : 'short', 
+                'TF' : 'transformer', 
+                'Z' : 'Z', 'Y' : 'Y'}
 
 
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
-cpt_types = cpt_type_map.keys()
+cpt_types = ['R', 'C', 'L', 'G', 'Z', 'Y', 'V', 'I', 'W', 'P', 'E', 'TF']
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 
 cpt_type_pattern = re.compile(r'(%s)(\w)?' % '|'.join(cpt_types))
@@ -160,7 +163,7 @@ class Node(object):
     
     def append(self, elt):
 
-        if elt.cpt_type in ('P', 'port', 'open'):
+        if elt.cpt_type in ('P', ):
             self.port = True
 
         self.list.append(elt)
@@ -193,7 +196,7 @@ class NetElement(object):
 
         cpt_type_orig = cpt_type
         if args != ():
-            if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep'):
+            if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep', 'impulse', 's'):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]
 
@@ -204,7 +207,7 @@ class NetElement(object):
         if autolabel is None:
             autolabel = cpt_type_orig + '_{' + id + '}'
 
-        if cpt_type in ('P', 'port', 'W', 'wire') or autolabel.find('#') != -1:
+        if cpt_type in ('P', 'W') or autolabel.find('#') != -1:
             autolabel = ''
 
         if not opts.has_key('dir'):
@@ -213,20 +216,28 @@ class NetElement(object):
             opts['size'] = 1
 
         if opts['dir'] is None:
-            opts['dir'] = 'down' if cpt_type in ('port', 'P') else 'right'
+            opts['dir'] = 'down' if cpt_type in ('P', ) else 'right'
 
         if len(args) > 0:
 
             units_map = {'V' : 'V', 'I' : 'A', 'R' : '$\Omega$',
                          'G' : 'S', 'C' : 'F', 'L' : 'H'}
 
-            try :
-                value = float(args[0])
-                if cpt_type[0] in units_map:
-                    autolabel = Units(value, units_map[cpt_type[0]]).latex()
+            expr = args[0]
+            if cpt_type in ('Vimpulse', 'Iimpulse'):
+                expr = '(%s) * DiracDelta(t)' % expr
+                autolabel = sym.latex(sym.sympify(expr))
+            elif cpt_type in ('Vstep', 'Istep'):
+                expr = '(%s) * Heaviside(t)' % expr
+                autolabel = sym.latex(sym.sympify(expr))
+            else:
+                try:
+                    value = float(args[0])
+                    if cpt_type[0] in units_map:
+                        autolabel = Units(value, units_map[cpt_type[0]]).latex()
 
-            except ValueError:
-                autolabel = sym.latex(sym.sympify(args[0]))
+                except ValueError:
+                    autolabel = sym.latex(sym.sympify(expr))
 
         self.name = name
         self.cpt_type = cpt_type
@@ -670,6 +681,7 @@ class Schematic(object):
                          'Vac' : e.SOURCE_SIN, 'Vdc' : e.SOURCE_V,
                          'Iac' : e.SOURCE_SIN, 'Idc' : e.SOURCE_I, 
                          'V' : e.SOURCE_V, 'I' : e.SOURCE_I, 
+                         'Vs' : e.SOURCE_V, 'Is' : e.SOURCE_I, 
                          'v' : e.SOURCE_V, 'i' : e.SOURCE_I,
                          'P' : e.GAP_LABEL, 'port' : e.GAP_LABEL,
                          'W' : e.LINE, 'wire' : e.LINE,

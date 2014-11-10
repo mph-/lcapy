@@ -92,21 +92,21 @@ class TF(CS):
         self.V = 0
 
 
-cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'G' : G,
+cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'G' : G, 'Z' : Z, 'Y' : Y,
                 'Vac' : Vac, 'Vdc' : Vdc, 
                 'Iac' : Iac, 'Idc' : Idc, 
                 'Vacstep' : Vacstep, 'Vstep' : Vstep,
                 'Iacstep' : Iacstep, 'Istep' : Istep, 
-                'V' : V, 'I' : I, 'v' : v, 'i' : i, 'TF' : TF, 
-                'Z' : Z, 'Y' : Y,
-                'P' : 'open', 'port' : 'open',
-                'W' : 'short', 'wire' : 'short',
-                'E' : VCVS}
+                'Vimpulse' : V, 'Iimpulse' : I, 
+                'Vs' : V, 'Is' : I, 
+                'V' : v, 'I' : i, 'v' : v, 'i' : i,
+                'P' : 'open', 'W' : 'short', 
+                'E' : VCVS, 'TF' : TF}
 
 
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
-cpt_types = cpt_type_map.keys()
+cpt_types = ['R', 'C', 'L', 'G', 'Z', 'Y', 'V', 'I', 'W', 'P', 'E', 'TF']
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 
 cpt_type_pattern = re.compile(r'(%s)(\w)?' % '|'.join(cpt_types))
@@ -161,7 +161,7 @@ class Node(object):
     
     def append(self, elt):
 
-        if elt.cpt_type in ('P', 'port', 'open'):
+        if elt.cpt_type in ('P', ):
             self.port = True
 
         self.list.append(elt)
@@ -200,13 +200,13 @@ class NetElement(object):
 
         cpt_type_orig = cpt_type
         if args != ():
-            if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep'):
+            if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep', 'impulse', 's'):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]
 
         self.cpt_type = cpt_type
 
-        if cpt_type in ('port', 'P', 'wire', 'W'):
+        if cpt_type in ('P', 'W'):
             self.cpt = None
             return
 
@@ -241,7 +241,7 @@ class NetElement(object):
     @property
     def is_dummy(self):
         
-        return self.cpt_type in ('port', 'P', 'wire', 'W')
+        return self.cpt_type in ('P', 'W')
 
 
     @property
@@ -487,13 +487,25 @@ class Netlist(object):
 
 
     def _make_V(self, node1, node2, value, opts):
-        """Create a dummy voltage source"""
+        """Create a dummy s-domain voltage source"""
 
         if not hasattr(self, '_V_counter'):
             self._V_counter = 0
         self._V_counter += 1
 
-        net = 'V#%d %s %s %s; %s' % (self._V_counter, node1, node2, value, opts.format())
+        net = 'V#%d %s %s s %s; %s' % (self._V_counter, node1, node2, value, opts.format())
+
+        return self.net_parse(net)
+
+
+    def _make_I(self, node1, node2, value, opts):
+        """Create a dummy s-domain current source"""
+
+        if not hasattr(self, '_I_counter'):
+            self._I_counter = 0
+        self._I_counter += 1
+
+        net = 'I#%d %s %s s %s; %s' % (self._I_counter, node1, node2, value, opts.format())
 
         return self.net_parse(net)
 
@@ -631,6 +643,14 @@ class Netlist(object):
 
     def _analyse(self):
         """Force reanalysis of network."""
+
+        # TODO: think this out.  When a circuit is converted
+        # to a s-domain model we get Z (and perhaps Y) components.
+        # We also loose the ability to determine the voltage
+        # across a capacitor or inductor since they get split
+        # into a Thevenin model and renamed.
+        if hasattr(self, _s_model):
+            raise RuntimeError('Cannot analyse s-domain model')
 
         if not self.nodes.has_key('0'):
             print('Nothing connected to ground node 0')
@@ -838,7 +858,7 @@ class Netlist(object):
         Note, independent sources are killed."""
 
         new = self.kill()
-        new.add('V1_', n1, n2)
+        new.add('V1_ %d %d impulse' % (n1, n2))
 
         H = Avs(new.Voc(n3, n4) / new.Vd['V1_'])
 
@@ -858,7 +878,7 @@ class Netlist(object):
 
         try:
 
-            self.add('V1_ %d %d' % (n1, n2))
+            self.add('V1_ %d %d impulse' % (n1, n2))
             
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
@@ -870,7 +890,7 @@ class Netlist(object):
             
             self.remove('V1_')
             
-            self.add('I1_ %d %d' % (n1, n2))
+            self.add('I1_ %d %d impulse' % (n1, n2))
             
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
@@ -978,7 +998,7 @@ class Netlist(object):
 
         # Then augment with nodes connected by wires.
         for m, elt in enumerate(self.elements.values()):
-            if elt.cpt_type not in ('W', 'wire'):
+            if elt.cpt_type not in ('W', ):
                 continue
 
             n1, n2 = elt.nodes
@@ -1038,9 +1058,11 @@ class Netlist(object):
             if elt.cpt_type in ('v', 'i'):
                 print('Cannot determine pre-initial condition for %s, assuming 0' % elt.name)
 
-            if elt.cpt_type in ('C', 'Istep', 'Iacstep', 'I', 'i', 'Iac'):
+            if elt.cpt_type in ('C', 'Istep', 'Iacstep', 'I', 'i',
+                                'Iac', 'Iimpulse'):
                 elt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
-            elif elt.cpt_type in ('L', 'Vstep', 'Vacstep', 'V', 'v', 'Vac'):
+            elif elt.cpt_type in ('L', 'Vstep', 'Vacstep', 'V', 'v',
+                                  'Vac', 'Vimpulse'):
                 elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
             new_cct._elt_add(elt)
 
@@ -1052,6 +1074,7 @@ class Netlist(object):
         from copy import copy
 
         cct = Circuit()
+        cct._s_model = True
 
         for key, elt in self.elements.iteritems():
             
@@ -1061,8 +1084,10 @@ class Netlist(object):
 
             if cpt_type in ('C', 'L', 'R', 'G'):
                 new_elt = self._make_Z(elt.nodes[0], elt.nodes[1], elt.cpt.Z, elt.opts)
-            elif cpt_type in ('V', 'Vdc'):
+            elif cpt_type in ('V', 'Vdc', 'Vac', 'Vimpulse', 'Vstep', 'Vacstep'):
                 new_elt = self._make_V(elt.nodes[0], elt.nodes[1], elt.cpt.V, elt.opts)
+            elif cpt_type in ('I', 'Idc', 'Iac', 'Iimpulse', 'Istep', 'Iacstep'):
+                new_elt = self._make_I(elt.nodes[0], elt.nodes[1], elt.cpt.I, elt.opts)
 
 
             if cpt_type in ('C', 'L', 'R', 'G') and elt.cpt.V != 0:
