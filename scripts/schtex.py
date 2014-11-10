@@ -65,7 +65,7 @@ def main (argv=None):
             cct = cct.pre_initial_model()
 
         cct.draw(label_nodes=options.label_nodes,
-                 filename=filename, scale=scale, tex=True)
+                 filename=filename, scale=options.scale, tex=True)
     else:
         filename = infilename
 
