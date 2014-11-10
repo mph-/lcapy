@@ -224,7 +224,9 @@ class Expr(object):
         expr = self.val
         printer = args[0]
 
-        return printer._print(expr)
+        string = printer._print(expr)
+        # sympy uses theta for Heaviside 
+        return string.replace(r'\theta\left', r'u\left')
 
 
     def pretty(self):
@@ -251,7 +253,9 @@ class Expr(object):
     def latex(self):
         """Make latex string"""
 
-        return sym.latex(self.val)
+        string = sym.latex(self.val)
+        # sympy uses theta for Heaviside 
+        return string.replace(r'\theta\left', r'u\left')
 
 
     def latexans(self, name):

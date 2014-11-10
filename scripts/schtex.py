@@ -36,7 +36,11 @@ def main (argv=None):
 
     parser.add_option('--k-model', action='store_true',
                       dest='k_model', default=False,
-                      help='generate schematic with independet sources killed')
+                      help='generate schematic with independent sources killed')
+
+    parser.add_option('--scale', type='float',
+                      dest='scale', default=1,
+                      help='schematic scale factor')
     
     (options, args) = parser.parse_args()
 
@@ -55,11 +59,13 @@ def main (argv=None):
         cct = Circuit(args[0])
         if options.k_model:
             cct = cct.kill()
+        if options.s_model:
+            cct = cct.s_model()
         if options.p_model:
             cct = cct.pre_initial_model()
 
-        cct.draw(label_nodes=options.label_nodes, s_model=options.s_model,
-                 filename=filename, tex=True)
+        cct.draw(label_nodes=options.label_nodes,
+                 filename=filename, scale=scale, tex=True)
     else:
         filename = infilename
 
