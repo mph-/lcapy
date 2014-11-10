@@ -596,9 +596,13 @@ class Schematic(object):
             cpt_type = cpt_type_map[elt.cpt_type]
 
             # circuittikz expects the positive node first, except for 
-            # voltage and current sources!
+            # voltage and current sources!   So swap the nodes otherwise
+            # they are drawn the wrong way around.
+            modifier = ''
             if elt.opts['dir'] == 'down' and cpt_type in ('V', 'Vdc', 'I', 'Idc'):
                 n1, n2 = n2, n1
+                # Draw label on RHS for vertical cpt.
+                modifier = '_'
       
             # If have a left drawn cpt, then switch nodes so that
             # label defaults to top but then have to switch current
@@ -627,9 +631,9 @@ class Schematic(object):
                 if cpt_type not in ('open', 'short'):
                     label_parts = elt.autolabel.split('\\,')
                     if len(label_parts) > 1:
-                        label_str = ', l=$%s\mbox{%s}$' % (label_parts[0], label_parts[1])
+                        label_str = ', l%s=$%s\mbox{%s}$' % (modifier, label_parts[0], label_parts[1])
                     else:
-                        label_str = ', l=$%s$' % label_parts[0]
+                        label_str = ', l%s=$%s$' % (modifier, label_parts[0])
 
             if cpt_type in ('Y', 'Z'):
                 cpt_type = 'european resistor'
