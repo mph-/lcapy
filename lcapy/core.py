@@ -15,6 +15,7 @@ from warnings import warn
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
+import sys
 # Note imports at bottom to avoid circuit dependencies
 
 
@@ -242,7 +243,12 @@ class Expr(object):
 
     def pprint(self):
         """Pretty print"""
-        print(self.pretty())
+        
+        # If interactive use pretty, otherwise use latex
+        if hasattr(sys, 'ps1'):
+            print(self.pretty())
+        else:
+            print(self.latex())
 
 
     def pprintans(self, name):
