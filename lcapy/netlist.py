@@ -649,7 +649,7 @@ class Netlist(object):
         # We also loose the ability to determine the voltage
         # across a capacitor or inductor since they get split
         # into a Thevenin model and renamed.
-        if hasattr(self, _s_model):
+        if hasattr(self, '_s_model'):
             raise RuntimeError('Cannot analyse s-domain model')
 
         if not self.nodes.has_key('0'):
