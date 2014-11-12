@@ -839,10 +839,13 @@ def _inverse_laplace(expr, t, var):
 
     P = poles(expr, var)
     result2 = 0
-    for p in P:
+
+    P2 = P.copy()
+
+    for p in P2:
         
         # Number of occurrences of the pole.
-        N = P[p]
+        N = P2[p]
 
         if N == 0:
             continue
@@ -855,7 +858,7 @@ def _inverse_laplace(expr, t, var):
             pc = p.conjugate()
             if pc != p and P.has_key(pc):
                 # Remove conjugate from poles and process pole with its conjugate
-                P[pc] = 0
+                P2[pc] = 0
                 result2 += 2 * sym.re(r) * sym.exp(sym.re(p) * td) * sym.cos(sym.im(p) * td) + 2 * sym.im(r) * sym.exp(sym.re(p) * td) * sym.sin(sym.im(p) * td)
             else:
                 result2 += r * sym.exp(p * td)
