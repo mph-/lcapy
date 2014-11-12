@@ -65,7 +65,7 @@ class Units(object):
         m = math.log10(abs(value))
         n = int(math.floor(m / 3))
   
-        k = int(m) - n * 3
+        k = int(math.floor(m)) - n * 3
         dp = sfmax - k
 
         idx = n + 5
