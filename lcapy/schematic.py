@@ -55,7 +55,7 @@ class Units(object):
         self.unit = unit
 
     
-    def latex(self, trim=True):
+    def latex(self, trim=True, hundreds=False):
 
         prefixes = ('f', 'p', 'n', '$\mu$', 'm', '', 'k', 'M', 'G', 'T')
 
@@ -63,9 +63,16 @@ class Units(object):
 
         value = self.value
         m = math.log10(abs(value))
-        n = int(math.floor(m / 3))
-  
-        k = int(math.floor(m)) - n * 3
+
+        if hundreds:
+            # Generate 100 m
+            n = int(math.floor(m / 3))
+            k = int(math.floor(m)) - n * 3
+        else:
+            # Generate 0.1
+            n = int(round(m / 3))
+            k = int(round(m)) - n * 3
+
         dp = sfmax - k
 
         idx = n + 5
