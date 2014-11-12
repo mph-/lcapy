@@ -19,6 +19,7 @@ from __future__ import print_function
 import numpy as np
 import re
 import sympy as sym
+from lcapy.core import Expr
 
 __all__ = ('Schematic', )
 
@@ -226,12 +227,12 @@ class NetElement(object):
             expr = args[0]
             if cpt_type in ('Vimpulse', 'Iimpulse'):
                 expr = '(%s) * DiracDelta(t)' % expr
-                autolabel = sym.latex(sym.sympify(expr))
+                autolabel = Expr(expr).latex()
             elif cpt_type in ('Vstep', 'Istep'):
                 expr = '(%s) * Heaviside(t)' % expr
-                autolabel = sym.latex(sym.sympify(expr))
+                autolabel = Expr(expr).latex()
             elif cpt_type in ('Vs', 'Is'):
-                autolabel = sym.latex(sym.sympify(expr))
+                autolabel = Expr(expr).latex()
             else:
                 try:
                     value = float(args[0])
@@ -239,7 +240,7 @@ class NetElement(object):
                         autolabel = Units(value, units_map[cpt_type[0]]).latex()
 
                 except ValueError:
-                    autolabel = sym.latex(sym.sympify(expr))
+                    autolabel = Expr(expr).latex()
 
         self.name = name
         self.cpt_type = cpt_type
