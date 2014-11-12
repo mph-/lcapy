@@ -26,6 +26,21 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'transient_response', 'response', 'final_value', 's', 'sExpr', 
            't', 'tExpr', 'cExpr', 'pi', 'cos', 'sin', 'exp', 'H', 'Dirac')
 
+
+class Exprdict(dict):
+    """Decorator class for dictionary created by sympy"""
+
+    def pprint(self):
+        """Pretty print"""
+        
+        return sym.pprint(self)
+
+
+    def latex(self):
+        """Latex"""
+
+        return sym.latex(self)
+
 class Expr(object):
     """Decorator class for sympy classes derived from sympy.Expr"""
     
@@ -242,6 +257,7 @@ class Expr(object):
         return sym.pretty(sym.Eq(sym.sympify(name), self.val))
 
 
+
     def pprint(self):
         """Pretty print"""
         
@@ -318,15 +334,15 @@ class sExpr(Expr):
 
 
     def zeros(self):
-        """Return zeroes of expression"""
+        """Return zeroes of expression as a dictionary"""
         
-        return zeros(self.expr, self.var)
+        return Exprdict(zeros(self.expr, self.var))
 
 
     def poles(self):
-        """Return poles of expression"""
+        """Return poles of expression as a dictionary"""
         
-        return poles(self.expr, self.var)
+        return Exprdict(poles(self.expr, self.var))
 
 
     def residues(self):
