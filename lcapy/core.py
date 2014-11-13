@@ -50,7 +50,7 @@ class Expr(object):
         return self.val
     
     
-    def __init__(self, val, simplify=True, real=False):
+    def __init__(self, val, simplify=False, real=False):
         
         if isinstance(val, sExpr):
             val = val.val
