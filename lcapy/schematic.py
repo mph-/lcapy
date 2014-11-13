@@ -47,7 +47,7 @@ cpt_type_pattern = re.compile(r'(%s)(\w)?' % '|'.join(cpt_types))
 
 import math
 
-class Units(object):
+class EngFormat(object):
 
     def __init__(self, value, unit=''):
 
@@ -131,10 +131,11 @@ class Opts(dict):
 
 
 def longest_path(all_nodes, from_nodes):
-    """all_nodes is an iterable for all the nodes in the graph, from_nodes
-    is a directory indexed by node that stores a tuple of tuples.  The
-    first tuple element is the parent node and the second element is
-    the minimium size of the component connecting the nodes.
+    """Find longest path through DAG.  all_nodes is an iterable for all
+    the nodes in the graph, from_nodes is a directory indexed by node
+    that stores a tuple of tuples.  The first tuple element is the
+    parent node and the second element is the minimium size of the
+    component connecting the nodes.
     """
 
     memo = {}
@@ -244,7 +245,7 @@ class NetElement(object):
                 try:
                     value = float(args[0])
                     if cpt_type[0] in units_map:
-                        autolabel = Units(value, units_map[cpt_type[0]]).latex()
+                        autolabel = EngFormat(value, units_map[cpt_type[0]]).latex()
 
                 except ValueError:
                     autolabel = Expr(expr).latex()
