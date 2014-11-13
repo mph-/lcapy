@@ -165,7 +165,7 @@ class Node(object):
         self.pos = None
         self.port = False
         parts = name.split('_')
-        self.rootname = parts[0]  if name[0] != '_' else name
+        self.rootname = parts[0] if name[0] != '_' else name
         self.primary = len(parts) == 1
         self.list = []
 
@@ -229,6 +229,7 @@ class NetElement(object):
 
         if len(args) > 0:
 
+            # TODO, extend for mechanical and acoustical components.
             units_map = {'V' : 'V', 'I' : 'A', 'R' : '$\Omega$',
                          'G' : 'S', 'C' : 'F', 'L' : 'H'}
 
@@ -250,11 +251,17 @@ class NetElement(object):
                 except ValueError:
                     autolabel = Expr(expr).latex()
 
+        # Identifier for component, e.g., 'R1'
         self.name = name
+        # Type of component, e.g., 'V'
         self.cpt_type = cpt_type
+        # Default label to use when drawing
         self.autolabel = autolabel
+        # Tuple of nodes
         self.nodes = (node1, node2)
+        # Drawing hints
         self.opts = Opts(opts)
+        # Component arguments
         self.args = args
 
 
