@@ -324,6 +324,11 @@ class Cnodes(object):
             self.cnodes[self.cnode] = [n2]
 
 
+    def map(self, n1, n2):
+
+        return self.cnode_map[n1], self.cnode_map[n2]
+
+
 class Schematic(object):
 
     def __init__(self, filename=None):
@@ -466,7 +471,7 @@ class Schematic(object):
             if elt.opts['dir'] not in dirs:
                 continue
 
-            m1, m2 = cnodes.cnode_map[elt.nodes[0]], cnodes.cnode_map[elt.nodes[1]]
+            m1, m2 = cnodes.map(*elt.nodes[0:2])
 
             size = float(elt.opts['size'])
 
