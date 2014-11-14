@@ -46,6 +46,32 @@ import re
 __all__ = ('Circuit', )
 
 
+cpt_types = ['C', # Capacitor
+             'D', # Diode (not supported)
+             'E', # VCVS
+             'G', # Conductance (perhaps remove to be compatible with SPICE)
+             'I', # Current
+             'L', # Inductor
+             'P', # Port (open-circuit)
+             'Q', # Transistor (not supported)
+             'R', # Resistor
+             'TF', # Transformer
+             'TP', # Two-port (not supported yet)
+             'V', # Voltage
+             'W', # Wire (short-circuit)
+             'Y', # Admittance
+             'Z', # Impedance
+         ]
+
+# Note, SPICE netlists are usually case insensitive
+# Perhaps prefix mechanical components with M?  But this will make
+# crappy component labels.
+mech_cpt_types = ['d', # Dashpot (damper, resistance)  perhaps b?
+                  'f', # Force source
+                  'k', # Spring
+                  'm', # Mass
+                  'u', # Velocity source
+              ]
 
 class Mdict(dict):
 
@@ -62,21 +88,19 @@ class Mdict(dict):
 class CS(object):
     """Controlled source"""
 
-    def __init__(self, node1, node2, arg):
+    def __init__(self, arg):
 
-        self.args = (node1, node2, arg)    
-        # Controlling nodes
-        self.cnodes = (node1, node2)
+        self.args = (arg, )    
         self.arg = arg
 
 
 class VCVS(CS):
     """Voltage controlled voltage source."""
 
-    def __init__(self, node1, node2, A):
+    def __init__(self, A):
     
         A = cExpr(A)
-        super (VCVS, self).__init__(node1, node2, A)
+        super (VCVS, self).__init__(A)
         # No independent component.
         self.V = 0
 
@@ -84,10 +108,10 @@ class VCVS(CS):
 class TF(CS):
     """Ideal transformer.  T is turns ratio (secondary / primary)"""
 
-    def __init__(self, node1, node2, T):
+    def __init__(self, T):
     
         T = cExpr(T)
-        super (TF, self).__init__(node1, node2, T)
+        super (TF, self).__init__(T)
         # No independent component.
         self.V = 0
 
@@ -106,9 +130,7 @@ cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'G' : G, 'Z' : Z, 'Y' : Y,
 
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
-cpt_types = ['R', 'C', 'L', 'G', 'Z', 'Y', 'V', 'I', 'W', 'P', 'E', 'TF']
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
-
 cpt_type_pattern = re.compile(r'(%s)(\w)?' % '|'.join(cpt_types))
 
 
@@ -209,6 +231,12 @@ class NetElement(object):
         if cpt_type in ('P', 'W'):
             self.cpt = None
             return
+
+        if cpt_type in ('E', 'TF'):
+            if len(args) < 3:
+                raise ValueError('Component type %s requires 3 args' % cpt_type)
+            self.nodes += (args[0], args[1])
+            args = args[2:]
 
         try:
             foo = cpt_type_map[cpt_type]
@@ -546,8 +574,8 @@ class Netlist(object):
 
             if isinstance(elt.cpt, TF):
 
-                n3 = self._nodeindex(elt.cpt.cnodes[0])
-                n4 = self._nodeindex(elt.cpt.cnodes[1])
+                n3 = self._nodeindex(elt.nodes[2])
+                n4 = self._nodeindex(elt.nodes[3])
                 T = elt.cpt.arg
                 
                 if n3 >= 0:
@@ -574,8 +602,8 @@ class Netlist(object):
 
             if isinstance(elt.cpt, (TF, VCVS)):
 
-                n3 = self._nodeindex(elt.cpt.cnodes[0])
-                n4 = self._nodeindex(elt.cpt.cnodes[1])
+                n3 = self._nodeindex(elt.nodes[2])
+                n4 = self._nodeindex(elt.nodes[3])
                 A = elt.cpt.arg
                 
                 if n3 >= 0:
