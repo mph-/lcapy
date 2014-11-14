@@ -209,6 +209,13 @@ class NetElement(object):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]
 
+
+        if cpt_type in ('E', 'TF'):
+            if len(args) < 3:
+                raise ValueError('Component type %s requires 3 args' % cpt_type)
+            self.nodes += (args[0], args[1])
+            args = args[2:]
+
         symbol = None
         self.symbol = symbol
 
@@ -514,13 +521,6 @@ class Schematic(object):
         for node in xpos.keys():
             coords[node] = np.array((xpos[node], ypos[node]))
 
-        for m, elt in enumerate(self.elements.values()):
-
-            n1, n2 = elt.nodes
-
-            elt.pos1 = coords[n1]
-            elt.pos2 = coords[n2]
-
         self._coords = coords
 
 
@@ -718,13 +718,18 @@ class Schematic(object):
 
             cpt_type = cpt_type_map2[elt.cpt_type]
 
+            n1, n2 = elt.nodes
+
+            pos1 = self.coords[n1]
+            pos2 = self.coords[n2]
+
             if draw_labels:
-                drw.add(cpt_type, xy=elt.pos2 * self.scale, 
-                        to=elt.pos1 * self.scale, 
+                drw.add(cpt_type, xy=pos2 * self.scale, 
+                        to=pos1 * self.scale, 
                         label=elt.autolabel.replace('\\,', ' '))
             else:
-                drw.add(cpt_type, xy=elt.pos2 * self.scale,
-                        to=elt.pos1 * self.scale)
+                drw.add(cpt_type, xy=pos2 * self.scale,
+                        to=pos1 * self.scale)
 
         if draw_nodes:
             for m, node in enumerate(self.nodes.values()):
