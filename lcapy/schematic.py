@@ -130,6 +130,68 @@ class Opts(dict):
         return ', '.join(['%s=%s' % (key, val) for key, val in self.iteritems()])
 
 
+class Cnodes(object):
+    """Common nodes"""
+
+    def __init__(self, nodes):
+
+        self.sets = {}
+        for node in nodes:
+            self.sets[node] = (node, )
+
+
+    def link(self, n1, n2):
+        """Make nodes n1 and n2 share common node"""
+
+        set1 = self.sets[n1]
+        set2 = self.sets[n2]
+        newset = set1 + set2
+
+        for n in self.sets[n1]:
+            self.sets[n] = newset
+        for n in self.sets[n2]:
+            self.sets[n] = newset
+
+
+    def _analyse(self):
+
+        # Add dymmy cnode at start
+        unique = ['dummy'] + list(set(self.sets.values()))
+        map = {}
+        for node, nodes in self.sets.iteritems():
+            map[node] = unique.index(nodes)
+        
+        self._map = map
+        self._nodes = unique
+
+
+    @property
+    def map(self):
+        """Return mapping of node number to common node number"""
+
+        if not hasattr(self, '_map'):
+            self._analyse()
+
+        return self._map
+
+
+    @property
+    def nodes(self):
+        """Return mapping of common node number to tuple of shared nodes"""
+
+        if not hasattr(self, '_nodes'):
+            self._analyse()
+
+        return self._nodes
+
+
+    @property
+    def size(self):
+        """Return number of common nodes"""
+
+        return len(self.nodes)
+
+
 def longest_path(all_nodes, from_nodes):
     """Find longest path through DAG.  all_nodes is an iterable for all
     the nodes in the graph, from_nodes is a directory indexed by node
@@ -283,52 +345,6 @@ class NetElement(object):
         return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes])
 
 
-class Cnodes(object):
-
-    def __init__(self):
-
-        self.cnodes = {}
-        self.cnode_map = {}
-        self.cnode = 0
-
-    
-    def add_constraint(self, n1, n2):
-
-        if self.cnode_map.has_key(n1) and self.cnode_map.has_key(n2) and self.cnode_map[n1] != self.cnode_map[n2]:
-            raise ValueError('Conflict for elt %s' % elt)
-                    
-        if not self.cnode_map.has_key(n1) and not self.cnode_map.has_key(n2):
-            self.cnode += 1
-            self.cnode_map[n1] = self.cnode
-            self.cnode_map[n2] = self.cnode
-            self.cnodes[self.cnode] = [n1, n2]
-        elif not self.cnode_map.has_key(n1):
-            node = self.cnode_map[n2]
-            self.cnode_map[n1] = node
-            self.cnodes[node].append(n1)
-        else:
-            node = self.cnode_map[n1]
-            self.cnode_map[n2] = node
-            self.cnodes[node].append(n2)
-
-        
-    def add(self, n1, n2):
-
-        if not self.cnode_map.has_key(n1):
-            self.cnode += 1
-            self.cnode_map[n1] = self.cnode
-            self.cnodes[self.cnode] = [n1]
-        if not self.cnode_map.has_key(n2):
-            self.cnode += 1
-            self.cnode_map[n2] = self.cnode
-            self.cnodes[self.cnode] = [n2]
-
-
-    def map(self, n1, n2):
-
-        return self.cnode_map[n1], self.cnode_map[n2]
-
-
 class Schematic(object):
 
     def __init__(self, filename=None):
@@ -440,30 +456,28 @@ class Schematic(object):
 
     def _make_graphs(self, dirs):
 
-        cnodes = Cnodes()
+        cnodes = Cnodes(self.nodes)
 
         # Use components in orthogonal directions as constraints.  The
         # nodes of orthogonal components get combined into a
-        # collective node.
+        # common node.
         for m, elt in enumerate(self.elements.values()):
+
+            if elt.cpt_type == 'TF' and dirs[0] == 'right':
+                cnodes.link(*elt.nodes[0:2])
+                cnodes.link(*elt.nodes[2:4])
+                continue
+
             if elt.opts['dir'] in dirs:
                 continue
 
-            cnodes.add_constraint(*elt.nodes[0:2])
-
-        # Augment the collective nodes with the other nodes used by
-        # components in the desired directions.
-        for m, elt in enumerate(self.elements.values()):
-            if elt.opts['dir'] not in dirs:
-                continue
-
-            cnodes.add(*elt.nodes[0:2])
+            cnodes.link(*elt.nodes[0:2])
 
         # Now form forward and reverse directed graphs using components
         # in the desired directions.
         graph = {}
         rgraph = {}
-        for m in range(cnodes.cnode + 1):
+        for m in range(cnodes.size):
             graph[m] = []
             rgraph[m] = []
 
@@ -471,7 +485,8 @@ class Schematic(object):
             if elt.opts['dir'] not in dirs:
                 continue
 
-            m1, m2 = cnodes.map(*elt.nodes[0:2])
+            m1 = cnodes.map[elt.nodes[0]]
+            m2 = cnodes.map[elt.nodes[1]]
 
             size = float(elt.opts['size'])
 
@@ -485,7 +500,7 @@ class Schematic(object):
         # Chain all potential start nodes to node 0.
         orphans = []
         rorphans = []
-        for m in range(1, cnodes.cnode + 1):
+        for m in range(1, cnodes.size):
             if graph[m] == []:
                 orphans.append((m, 0))
             if rgraph[m] == []:
@@ -496,8 +511,9 @@ class Schematic(object):
         if False:
             print(graph)
             print(rgraph)
-            print(cnodes.cnodes)
-            print(cnodes.cnode_map)
+            print(cnodes.map)
+            import pdb
+            pdb.set_trace()
 
 
         # Find longest path through the graphs.
@@ -511,7 +527,7 @@ class Schematic(object):
             if cnode == 0:
                 continue
 
-            for node in cnodes.cnodes[cnode]:
+            for node in cnodes.nodes[cnode]:
                 pos[node] = length - memo[cnode]
                 posr[node] = memor[cnode]
                 posa[node] = 0.5 * (pos[node] + posr[node])
@@ -519,7 +535,7 @@ class Schematic(object):
         if False:
             print(pos)
             print(posr)
-        return posa, cnodes.cnodes
+        return posa, cnodes.nodes
 
 
     def _positions_calculate(self):
