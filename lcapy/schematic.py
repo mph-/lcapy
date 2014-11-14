@@ -209,6 +209,14 @@ class NetElement(object):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]
 
+        # Tuple of nodes
+        self.nodes = (node1, node2)
+        # Identifier for component, e.g., 'R1'
+        self.name = name
+        # Type of component, e.g., 'V'
+        self.cpt_type = cpt_type
+        # Component arguments
+        self.args = args
 
         if cpt_type in ('E', 'TF'):
             if len(args) < 3:
@@ -258,18 +266,10 @@ class NetElement(object):
                 except ValueError:
                     autolabel = Expr(expr).latex()
 
-        # Identifier for component, e.g., 'R1'
-        self.name = name
-        # Type of component, e.g., 'V'
-        self.cpt_type = cpt_type
         # Default label to use when drawing
         self.autolabel = autolabel
-        # Tuple of nodes
-        self.nodes = (node1, node2)
         # Drawing hints
         self.opts = Opts(opts)
-        # Component arguments
-        self.args = args
 
 
     def __repr__(self):
@@ -282,6 +282,46 @@ class NetElement(object):
 
         return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes])
 
+
+class Cnodes(object):
+
+    def __init__(self):
+
+        self.cnodes = {}
+        self.cnode_map = {}
+        self.cnode = 0
+
+    
+    def add_constraint(self, n1, n2):
+
+        if self.cnode_map.has_key(n1) and self.cnode_map.has_key(n2) and self.cnode_map[n1] != self.cnode_map[n2]:
+            raise ValueError('Conflict for elt %s' % elt)
+                    
+        if not self.cnode_map.has_key(n1) and not self.cnode_map.has_key(n2):
+            self.cnode += 1
+            self.cnode_map[n1] = self.cnode
+            self.cnode_map[n2] = self.cnode
+            self.cnodes[self.cnode] = [n1, n2]
+        elif not self.cnode_map.has_key(n1):
+            node = self.cnode_map[n2]
+            self.cnode_map[n1] = node
+            self.cnodes[node].append(n1)
+        else:
+            node = self.cnode_map[n1]
+            self.cnode_map[n2] = node
+            self.cnodes[node].append(n2)
+
+        
+    def add(self, n1, n2):
+
+        if not self.cnode_map.has_key(n1):
+            self.cnode += 1
+            self.cnode_map[n1] = self.cnode
+            self.cnodes[self.cnode] = [n1]
+        if not self.cnode_map.has_key(n2):
+            self.cnode += 1
+            self.cnode_map[n2] = self.cnode
+            self.cnodes[self.cnode] = [n2]
 
 
 class Schematic(object):
@@ -384,12 +424,18 @@ class Schematic(object):
         self._elt_add(elt)
 
 
+# Transformer
+#   n4      n2 
+#
+#   n3      n1
+#
+# For horiz. node layout want to make (n3, n4) and (n1, n2) in same cnodes
+# For vert. node layout want to make (n2, n4) and (n1, n3) in same cnodes
+
 
     def _make_graphs(self, dirs):
 
-        cnodes = {}
-        cnode_map = {}
-        cnode = 0
+        cnodes = Cnodes()
 
         # Use components in orthogonal directions as constraints.  The
         # nodes of orthogonal components get combined into a
@@ -398,25 +444,7 @@ class Schematic(object):
             if elt.opts['dir'] in dirs:
                 continue
 
-            n1, n2 = elt.nodes
-
-            if cnode_map.has_key(n1) and cnode_map.has_key(n2) and cnode_map[n1] != cnode_map[n2]:
-                raise ValueError('Conflict for elt %s' % elt)
-                    
-            if not cnode_map.has_key(n1) and not cnode_map.has_key(n2):
-                cnode += 1
-                cnode_map[n1] = cnode
-                cnode_map[n2] = cnode
-                cnodes[cnode] = [n1, n2]
-            elif not cnode_map.has_key(n1):
-                node = cnode_map[n2]
-                cnode_map[n1] = node
-                cnodes[node].append(n1)
-            else:
-                node = cnode_map[n1]
-                cnode_map[n2] = node
-                cnodes[node].append(n2)
-
+            cnodes.add_constraint(*elt.nodes[0:2])
 
         # Augment the collective nodes with the other nodes used by
         # components in the desired directions.
@@ -424,23 +452,13 @@ class Schematic(object):
             if elt.opts['dir'] not in dirs:
                 continue
 
-            n1, n2 = elt.nodes
-
-            if not cnode_map.has_key(n1):
-                cnode += 1
-                cnode_map[n1] = cnode
-                cnodes[cnode] = [n1]
-            if not cnode_map.has_key(n2):
-                cnode += 1
-                cnode_map[n2] = cnode
-                cnodes[cnode] = [n2]
-
+            cnodes.add(*elt.nodes[0:2])
 
         # Now form forward and reverse directed graphs using components
         # in the desired directions.
         graph = {}
         rgraph = {}
-        for m in range(cnode + 1):
+        for m in range(cnodes.cnode + 1):
             graph[m] = []
             rgraph[m] = []
 
@@ -448,7 +466,7 @@ class Schematic(object):
             if elt.opts['dir'] not in dirs:
                 continue
 
-            m1, m2 = cnode_map[elt.nodes[0]], cnode_map[elt.nodes[1]]
+            m1, m2 = cnodes.cnode_map[elt.nodes[0]], cnodes.cnode_map[elt.nodes[1]]
 
             size = float(elt.opts['size'])
 
@@ -462,7 +480,7 @@ class Schematic(object):
         # Chain all potential start nodes to node 0.
         orphans = []
         rorphans = []
-        for m in range(1, cnode + 1):
+        for m in range(1, cnodes.cnode + 1):
             if graph[m] == []:
                 orphans.append((m, 0))
             if rgraph[m] == []:
@@ -473,8 +491,8 @@ class Schematic(object):
         if False:
             print(graph)
             print(rgraph)
-            print(cnodes)
-            print(cnode_map)
+            print(cnodes.cnodes)
+            print(cnodes.cnode_map)
 
 
         # Find longest path through the graphs.
@@ -488,7 +506,7 @@ class Schematic(object):
             if cnode == 0:
                 continue
 
-            for node in cnodes[cnode]:
+            for node in cnodes.cnodes[cnode]:
                 pos[node] = length - memo[cnode]
                 posr[node] = memor[cnode]
                 posa[node] = 0.5 * (pos[node] + posr[node])
@@ -496,7 +514,7 @@ class Schematic(object):
         if False:
             print(pos)
             print(posr)
-        return posa, cnodes
+        return posa, cnodes.cnodes
 
 
     def _positions_calculate(self):
@@ -620,7 +638,7 @@ class Schematic(object):
         # Draw components
         for m, elt in enumerate(self.elements.values()):
 
-            n1, n2 = elt.nodes
+            n1, n2 = elt.nodes[0:2]
 
             cpt_type = cpt_type_map[elt.cpt_type]
 
@@ -716,9 +734,10 @@ class Schematic(object):
         # Draw components
         for m, elt in enumerate(self.elements.values()):
 
+            # FIXME: transformer needs to be drawn as a pair of inductors
             cpt_type = cpt_type_map2[elt.cpt_type]
 
-            n1, n2 = elt.nodes
+            n1, n2 = elt.nodes[0:2]
 
             pos1 = self.coords[n1]
             pos2 = self.coords[n2]
