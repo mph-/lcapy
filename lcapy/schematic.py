@@ -813,21 +813,32 @@ class Schematic(object):
         # Draw components
         for m, elt in enumerate(self.elements.values()):
 
-            # FIXME: transformer needs to be drawn as a pair of inductors
+            if elt.cpt_type == 'TF':
+                n1, n2, n3, n4 = elt.nodes
+
+                pos1 = self.coords[n1] * self.scale
+                pos2 = self.coords[n2] * self.scale
+                pos3 = self.coords[n3] * self.scale
+                pos4 = self.coords[n4] * self.scale
+
+                drw.add(e.INDUCTOR2, xy=pos4, to=pos3)
+                drw.add(e.INDUCTOR2, xy=pos2, to=pos1,
+                        label=elt.autolabel.replace('\\,', ' '))
+
+                continue
+
             cpt_type = cpt_type_map2[elt.cpt_type]
 
             n1, n2 = elt.nodes[0:2]
 
-            pos1 = self.coords[n1]
-            pos2 = self.coords[n2]
+            pos1 = self.coords[n1] * self.scale
+            pos2 = self.coords[n2] * self.scale
 
             if draw_labels:
-                drw.add(cpt_type, xy=pos2 * self.scale, 
-                        to=pos1 * self.scale, 
+                drw.add(cpt_type, xy=pos2, to=pos1, 
                         label=elt.autolabel.replace('\\,', ' '))
             else:
-                drw.add(cpt_type, xy=pos2 * self.scale,
-                        to=pos1 * self.scale)
+                drw.add(cpt_type, xy=pos2, to=pos1)
 
         if draw_nodes:
             for m, node in enumerate(self.nodes.values()):
