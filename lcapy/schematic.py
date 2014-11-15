@@ -157,22 +157,30 @@ class Cnodes(object):
 
         # Add dymmy cnode at start
         unique = ['dummy'] + list(set(self.sets.values()))
-        map = {}
+        node_map = {}
         for node, nodes in self.sets.iteritems():
-            map[node] = unique.index(nodes)
+            node_map[node] = unique.index(nodes)
         
-        self._map = map
+        self._node_map = node_map
         self._nodes = unique
 
 
     @property
-    def map(self):
+    def node_map(self):
         """Return mapping of node number to common node number"""
 
-        if not hasattr(self, '_map'):
+        if not hasattr(self, '_node_map'):
             self._analyse()
 
-        return self._map
+        return self._node_map
+
+
+    def map(self, nodes):
+
+        if not isinstance(nodes, (tuple, list)):
+            nodes = list[nodes]
+
+        return [self.node_map[node] for node in nodes]
 
 
     @property
@@ -190,6 +198,37 @@ class Cnodes(object):
         """Return number of common nodes"""
 
         return len(self.nodes)
+
+
+class Graph(dict):
+
+    def __init__(self, size):
+
+        for m in range(size):
+            self[m] = []
+
+
+    def add(self, n1, n2, size):
+        self[n1].append((n2, size))
+
+
+
+class Graphs(object):
+
+    def __init__(self, size):
+
+        self.fwd = Graph(size)
+        self.rev = Graph(size)
+
+
+    def add(self, n1, n2, size):
+        self.fwd.add(n1, n2, size)
+        self.rev.add(n2, n1, size)
+        
+
+    @property
+    def nodes(self):
+        return self.fwd.keys()
 
 
 def longest_path(all_nodes, from_nodes):
@@ -463,9 +502,13 @@ class Schematic(object):
         # common node.
         for m, elt in enumerate(self.elements.values()):
 
-            if elt.cpt_type == 'TF' and dirs[0] == 'right':
-                cnodes.link(*elt.nodes[0:2])
-                cnodes.link(*elt.nodes[2:4])
+            if elt.cpt_type == 'TF':
+                if dirs[0] == 'right':
+                    cnodes.link(*elt.nodes[0:2])
+                    cnodes.link(*elt.nodes[2:4])
+                else:
+                    cnodes.link(*elt.nodes[0:4:2])
+                    cnodes.link(*elt.nodes[1:4:2])
                 continue
 
             if elt.opts['dir'] in dirs:
@@ -475,55 +518,61 @@ class Schematic(object):
 
         # Now form forward and reverse directed graphs using components
         # in the desired directions.
-        graph = {}
-        rgraph = {}
-        for m in range(cnodes.size):
-            graph[m] = []
-            rgraph[m] = []
+        graphs = Graphs(cnodes.size)
 
         for m, elt in enumerate(self.elements.values()):
-            if elt.opts['dir'] not in dirs:
-                continue
-
-            m1 = cnodes.map[elt.nodes[0]]
-            m2 = cnodes.map[elt.nodes[1]]
 
             size = float(elt.opts['size'])
 
+            if elt.cpt_type == 'TF':
+                m1, m2, m3, m4 = cnodes.map(elt.nodes)
+
+                if dirs[0] == 'right':
+                    graphs.add(m1, m3, size)
+                    graphs.add(m2, m4, size)
+                else:
+                    graphs.add(m2, m1, size)
+                    graphs.add(m4, m3, size)
+                continue
+
+            if elt.opts['dir'] not in dirs:
+                continue
+
+            m1, m2 = cnodes.map(elt.nodes)
+
             if elt.opts['dir'] == dirs[0]:
-                graph[m1].append((m2, size))
-                rgraph[m2].append((m1, size))
+                graphs.add(m1, m2, size)
             elif elt.opts['dir'] == dirs[1]:
-                graph[m2].append((m1, size))
-                rgraph[m1].append((m2, size))
+                graphs.add(m2, m1, size)
+
 
         # Chain all potential start nodes to node 0.
         orphans = []
         rorphans = []
         for m in range(1, cnodes.size):
-            if graph[m] == []:
+            if graphs.fwd[m] == []:
                 orphans.append((m, 0))
-            if rgraph[m] == []:
+            if graphs.rev[m] == []:
                 rorphans.append((m, 0))
-        graph[0] = rorphans
-        rgraph[0] = orphans
+        graphs.fwd[0] = rorphans
+        graphs.rev[0] = orphans
 
         if False:
-            print(graph)
-            print(rgraph)
-            print(cnodes.map)
+            print(graphs.fwd)
+            print(graphs.rev)
+            print(cnodes.node_map)
             import pdb
             pdb.set_trace()
 
 
         # Find longest path through the graphs.
-        length, node, memo = longest_path(graph.keys(), graph)
-        length, node, memor = longest_path(graph.keys(), rgraph)
+        length, node, memo = longest_path(graphs.fwd.keys(), graphs.fwd)
+        length, node, memor = longest_path(graphs.fwd.keys(), graphs.rev)
 
         pos = {}
         posr = {}
         posa = {}
-        for cnode in graph.keys():
+        for cnode in graphs.fwd.keys():
             if cnode == 0:
                 continue
 
