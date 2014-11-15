@@ -208,7 +208,6 @@ class NetElement(object):
         id = match.groups()[1]
 
        
-        self.args = args
         self.opts = Opts(opts)
         self.name = name
         self.nodes = (node1, node2)
@@ -226,17 +225,19 @@ class NetElement(object):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]
 
-        self.cpt_type = cpt_type
-
-        if cpt_type in ('P', 'W'):
-            self.cpt = None
-            return
-
         if cpt_type in ('E', 'TF'):
             if len(args) < 3:
                 raise ValueError('Component type %s requires 3 args' % cpt_type)
             self.nodes += (args[0], args[1])
             args = args[2:]
+
+
+        self.cpt_type = cpt_type
+        self.args = args
+
+        if cpt_type in ('P', 'W'):
+            self.cpt = None
+            return
 
         try:
             foo = cpt_type_map[cpt_type]
