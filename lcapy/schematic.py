@@ -528,8 +528,8 @@ class Schematic(object):
                 m1, m2, m3, m4 = cnodes.map(elt.nodes)
 
                 if dirs[0] == 'right':
-                    graphs.add(m1, m3, size)
-                    graphs.add(m2, m4, size)
+                    graphs.add(m1, m3, 0.4 * size)
+                    graphs.add(m2, m4, 0.4 * size)
                 else:
                     graphs.add(m2, m1, size)
                     graphs.add(m4, m3, size)
@@ -715,10 +715,8 @@ class Schematic(object):
                 n1, n2, n3, n4 = elt.nodes
 
                 labelstr = elt.autolabel if draw_labels else ''
-                pos = '%.1f,%.1f' % (self.scale * (self.coords[n1][0] + self.coords[n3][0]) / 2, (self.scale * (self.coords[n1][0] + self.coords[n2][0]) / 2))
-
-                print(r'    \draw (%s) node [%s] (%s) {} (%s.base) node{$%s$};' % (pos, cpt_type, elt.name, elt.name, labelstr), file=outfile)
-                
+                print(r'    \draw (%s) to [inductor] (%s);' % (n1, n2), file=outfile)
+                print(r'    \draw (%s) to [inductor, l=$%s$] (%s);' % (n3, labelstr, n4), file=outfile)
                 continue
 
             n1, n2 = elt.nodes[0:2]
