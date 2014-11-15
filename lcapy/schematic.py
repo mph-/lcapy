@@ -630,6 +630,7 @@ class Schematic(object):
 
     @property
     def coords(self):
+        """Directory of position tuples indexed by node name"""
 
         if not hasattr(self, '_coords'):
             self._positions_calculate()
@@ -708,9 +709,19 @@ class Schematic(object):
         # Draw components
         for m, elt in enumerate(self.elements.values()):
 
-            n1, n2 = elt.nodes[0:2]
-
             cpt_type = cpt_type_map[elt.cpt_type]
+
+            if elt.cpt_type == 'TF':
+                n1, n2, n3, n4 = elt.nodes
+
+                labelstr = elt.autolabel if draw_labels else ''
+                pos = '%.1f,%.1f' % (self.scale * (self.coords[n1][0] + self.coords[n3][0]) / 2, (self.scale * (self.coords[n1][0] + self.coords[n2][0]) / 2))
+
+                print(r'    \draw (%s) node [%s] (%s) {} (%s.base) node{$%s$};' % (pos, cpt_type, elt.name, elt.name, labelstr), file=outfile)
+                
+                continue
+
+            n1, n2 = elt.nodes[0:2]
 
             # circuittikz expects the positive node first, except for 
             # voltage and current sources!   So swap the nodes otherwise
@@ -743,7 +754,7 @@ class Schematic(object):
 
             node_str = self._node_str(n1, n2, draw_nodes)
                
-            label_str =''
+            label_str = ''
             if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
                 if cpt_type not in ('open', 'short'):
                     label_parts = elt.autolabel.split('\\,')
