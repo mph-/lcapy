@@ -301,6 +301,18 @@ class Expr(object):
         return self.expr.is_constant()
 
 
+    def evaluate(self, vector, var):
+
+        func = lambdify(var, self.expr, ("numpy", "sympy", "math"))
+        
+        try:
+            response = np.array([complex(func(v1)) for v1 in vector])
+
+        except NameError:
+            raise RuntimeError('Cannot evaluate expression')
+
+        return response
+
 
 class sExpr(Expr):
     """s-domain expression or symbol"""
@@ -462,6 +474,12 @@ class sExpr(Expr):
         return N, D, delay
 
 
+    def evaluate(self, svector):
+
+        return super (sExpr, self).evaluate(svector, sym.symbols('s'))
+
+
+
 class tExpr(Expr):
     """t-domain expression or symbol"""
 
@@ -473,6 +491,14 @@ class tExpr(Expr):
         
         F, a, cond = sym.laplace_transform(self.expr, self.var, s)
         return sExpr(F)
+
+
+    def evaluate(self, tvector):
+
+        response = super (tExpr, self).evaluate(tvector, sym.symbols('t'))
+        if np.allclose(response.imag, 0.0):
+            response = response.real
+        return response
 
 
 class cExpr(Expr):
