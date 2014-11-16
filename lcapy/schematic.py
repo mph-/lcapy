@@ -33,13 +33,13 @@ cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L',
                 'Vs' : 'V', 'Is' : 'I',
                 'V' : 'V', 'I' : 'I', 'v' : 'V', 'i' : 'I',
                 'P' : 'open', 'W' : 'short', 
-                'TF' : 'transformer', 
+                'TF' : 'transformer',
                 'Z' : 'Z', 'Y' : 'Y'}
 
 
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
-cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'P', 'E', 'TF']
+cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'P', 'E', 'TF', 'TP']
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 
 cpt_type_pattern = re.compile(r'(%s)(\w)?' % '|'.join(cpt_types))
@@ -502,7 +502,7 @@ class Schematic(object):
         # common node.
         for m, elt in enumerate(self.elements.values()):
 
-            if elt.cpt_type == 'TF':
+            if elt.cpt_type in ('TF', 'TP'):
                 if dirs[0] == 'right':
                     cnodes.link(*elt.nodes[0:2])
                     cnodes.link(*elt.nodes[2:4])
@@ -524,13 +524,15 @@ class Schematic(object):
 
             size = float(elt.opts['size'])
 
-            if elt.cpt_type == 'TF':
+            if elt.cpt_type in ('TF', 'TP'):
                 # m1, m2 output nodes; m3, m4 input nodes
                 m1, m2, m3, m4 = cnodes.map(elt.nodes)
 
+                scale = {'TF' : 0.4, 'TP' : 2}
+
                 if dirs[0] == 'right':
-                    graphs.add(m3, m1, 0.4 * size)
-                    graphs.add(m4, m2, 0.4 * size)
+                    graphs.add(m3, m1, scale[elt.cpt_type] * size)
+                    graphs.add(m4, m2, scale[elt.cpt_type] * size)
                 else:
                     graphs.add(m2, m1, size)
                     graphs.add(m4, m3, size)

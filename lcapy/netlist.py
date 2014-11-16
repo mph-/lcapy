@@ -91,10 +91,9 @@ class Mdict(dict):
 class CS(object):
     """Controlled source"""
 
-    def __init__(self, arg):
+    def __init__(self, *args):
 
-        self.args = (arg, )    
-        self.arg = arg
+        self.args = args   
 
 
 class VCVS(CS):
@@ -119,6 +118,16 @@ class TF(CS):
         self.V = 0
 
 
+class TP(CS):
+    """Two-port Z-network"""
+
+    def __init__(self, kind, Z11, Z12, Z21, Z22):
+    
+        super (TP, self).__init__(kind, Z11, Z12, Z21, Z22)
+        # No independent component.
+        self.V = 0
+
+
 cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'Z' : Z, 'Y' : Y,
                 'Vac' : Vac, 'Vdc' : Vdc, 
                 'Iac' : Iac, 'Idc' : Idc, 
@@ -128,7 +137,7 @@ cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'Z' : Z, 'Y' : Y,
                 'Vs' : V, 'Is' : I, 
                 'V' : v, 'I' : i, 'v' : v, 'i' : i,
                 'P' : 'open', 'W' : 'short', 
-                'E' : VCVS, 'TF' : TF}
+                'E' : VCVS, 'TF' : TF, 'TP' : TP}
 
 
 # Regular expression alternate matches stop with first match so need
@@ -222,18 +231,17 @@ class NetElement(object):
         # although these can be specified symbolically, for example,
         # v1 1 0 t*Heaviside(t)
 
-        cpt_type_orig = cpt_type
-        if args != ():
-            if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep', 'impulse', 's'):
-                cpt_type = cpt_type + args[0]
-                args = args[1:]
-
         if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP'):
             if len(args) < 2:
                 raise ValueError('Component type %s requires 4 nodes' % cpt_type)
             self.nodes += (args[0], args[1])
             args = args[2:]
 
+        cpt_type_orig = cpt_type
+        if args != ():
+            if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep', 'impulse', 's'):
+                cpt_type = cpt_type + args[0]
+                args = args[1:]
 
         self.cpt_type = cpt_type
         self.args = args
@@ -580,7 +588,7 @@ class Netlist(object):
 
                 n3 = self._nodeindex(elt.nodes[2])
                 n4 = self._nodeindex(elt.nodes[3])
-                T = elt.cpt.arg
+                T = elt.cpt.args[0]
                 
                 if n3 >= 0:
                     B[n3, m] = -T
@@ -608,7 +616,7 @@ class Netlist(object):
 
                 n3 = self._nodeindex(elt.nodes[2])
                 n4 = self._nodeindex(elt.nodes[3])
-                A = elt.cpt.arg
+                A = elt.cpt.args[0]
                 
                 if n3 >= 0:
                     C[m, n3] = -A
