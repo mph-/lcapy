@@ -319,9 +319,9 @@ class NetElement(object):
         # Component arguments
         self.args = args
 
-        if cpt_type in ('E', 'TF'):
-            if len(args) < 3:
-                raise ValueError('Component type %s requires 3 args' % cpt_type)
+        if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP'):
+            if len(args) < 2:
+                raise ValueError('Component type %s requires 4 nodes' % cpt_type)
             self.nodes += (args[0], args[1])
             args = args[2:]
 
@@ -525,11 +525,12 @@ class Schematic(object):
             size = float(elt.opts['size'])
 
             if elt.cpt_type == 'TF':
+                # m1, m2 output nodes; m3, m4 input nodes
                 m1, m2, m3, m4 = cnodes.map(elt.nodes)
 
                 if dirs[0] == 'right':
-                    graphs.add(m1, m3, 0.4 * size)
-                    graphs.add(m2, m4, 0.4 * size)
+                    graphs.add(m3, m1, 0.4 * size)
+                    graphs.add(m4, m2, 0.4 * size)
                 else:
                     graphs.add(m2, m1, size)
                     graphs.add(m4, m3, size)
@@ -715,8 +716,8 @@ class Schematic(object):
                 n1, n2, n3, n4 = elt.nodes
 
                 labelstr = elt.autolabel if draw_labels else ''
-                print(r'    \draw (%s) to [inductor] (%s);' % (n1, n2), file=outfile)
-                print(r'    \draw (%s) to [inductor, l=$%s$] (%s);' % (n3, labelstr, n4), file=outfile)
+                print(r'    \draw (%s) to [inductor] (%s);' % (n3, n4), file=outfile)
+                print(r'    \draw (%s) to [inductor, l=$%s$] (%s);' % (n1, labelstr, n2), file=outfile)
                 continue
 
             n1, n2 = elt.nodes[0:2]

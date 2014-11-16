@@ -228,7 +228,7 @@ class NetElement(object):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]
 
-        if cpt_type in ('E', 'F', 'G', 'H', 'TF'):
+        if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP'):
             if len(args) < 2:
                 raise ValueError('Component type %s requires 4 nodes' % cpt_type)
             self.nodes += (args[0], args[1])
