@@ -49,13 +49,16 @@ __all__ = ('Circuit', )
 cpt_types = ['C', # Capacitor
              'D', # Diode (not supported)
              'E', # VCVS
-             'G', # Conductance (perhaps remove to be compatible with SPICE)
+             'F', # CCCS (not supported yet, can be handled by G)
+             'G', # VCCS (not supported yet)
+             'H', # CCVS (not supported yet, can be handled by E)
              'I', # Current
              'L', # Inductor
+             'M', # Mutual inductance (not supported yet)
              'P', # Port (open-circuit)
              'Q', # Transistor (not supported)
              'R', # Resistor
-             'TF', # Transformer
+             'TF', # Ideal transformer (even works at DC!)
              'TP', # Two-port (not supported yet)
              'V', # Voltage
              'W', # Wire (short-circuit)
@@ -116,7 +119,7 @@ class TF(CS):
         self.V = 0
 
 
-cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'G' : G, 'Z' : Z, 'Y' : Y,
+cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'Z' : Z, 'Y' : Y,
                 'Vac' : Vac, 'Vdc' : Vdc, 
                 'Iac' : Iac, 'Idc' : Idc, 
                 'Vacstep' : Vacstep, 'Vstep' : Vstep,
@@ -225,9 +228,9 @@ class NetElement(object):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]
 
-        if cpt_type in ('E', 'TF'):
-            if len(args) < 3:
-                raise ValueError('Component type %s requires 3 args' % cpt_type)
+        if cpt_type in ('E', 'F', 'G', 'H', 'TF'):
+            if len(args) < 2:
+                raise ValueError('Component type %s requires 4 nodes' % cpt_type)
             self.nodes += (args[0], args[1])
             args = args[2:]
 
@@ -1111,7 +1114,7 @@ class Netlist(object):
 
             cpt_type = elt.cpt_type
 
-            if cpt_type in ('C', 'L', 'R', 'G'):
+            if cpt_type in ('C', 'L', 'R'):
                 new_elt = self._make_Z(elt.nodes[0], elt.nodes[1], elt.cpt.Z, elt.opts)
             elif cpt_type in ('V', 'Vdc', 'Vac', 'Vimpulse', 'Vstep', 'Vacstep'):
                 new_elt = self._make_V(elt.nodes[0], elt.nodes[1], elt.cpt.V, elt.opts)
@@ -1119,7 +1122,7 @@ class Netlist(object):
                 new_elt = self._make_I(elt.nodes[0], elt.nodes[1], elt.cpt.I, elt.opts)
 
 
-            if cpt_type in ('C', 'L', 'R', 'G') and elt.cpt.V != 0:
+            if cpt_type in ('C', 'L', 'R') and elt.cpt.V != 0:
 
                     dummy_node = self._make_node()
 

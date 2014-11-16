@@ -26,7 +26,7 @@ __all__ = ('Schematic', )
 
 # Mapping of component names to circuitikz names.   The keys define
 # the allowable component names.
-cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 'G' : 'G',
+cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 
                 'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
                 'Vacstep' : 'sV', 'Vstep' : 'V', 'Iacstep' : 'sI', 'Istep' : 'I', 
                 'Vimpulse' : 'V', 'Iimpulse' : 'I',
@@ -39,7 +39,7 @@ cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 'G' : 'G',
 
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
-cpt_types = ['R', 'C', 'L', 'G', 'Z', 'Y', 'V', 'I', 'W', 'P', 'E', 'TF']
+cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'P', 'E', 'TF']
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 
 cpt_type_pattern = re.compile(r'(%s)(\w)?' % '|'.join(cpt_types))
@@ -347,7 +347,7 @@ class NetElement(object):
 
             # TODO, extend for mechanical and acoustical components.
             units_map = {'V' : 'V', 'I' : 'A', 'R' : '$\Omega$',
-                         'G' : 'S', 'C' : 'F', 'L' : 'H'}
+                         'C' : 'F', 'L' : 'H'}
 
             expr = args[0]
             if cpt_type in ('Vimpulse', 'Iimpulse'):
