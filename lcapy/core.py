@@ -311,6 +311,9 @@ class Expr(object):
         except NameError:
             raise RuntimeError('Cannot evaluate expression')
 
+        except AttributeError:
+            raise RuntimeError('Cannot evaluate expression, probably have undefined symbols, such as Dirac delta')
+
         return response
 
 
@@ -448,15 +451,11 @@ class sExpr(Expr):
     def frequency_response(self, f=None):
         """Evaluate frequency response"""
         
-        fsym = sym.symbols('f')
-
-        expr = self.val.subs(s, sym.I * 2 * sym.pi * fsym)
-        
         if f is None:
-            return expr
-        
-        func = lambdify(fsym, expr, modules="numpy")
-        return np.array([func(f1) for f1 in f])
+            fsym = sym.symbols('f')
+            return self.val.subs(s, sym.I * 2 * sym.pi * fsym)
+
+        return self.evaluate(2j * np.pi * f)
 
 
     def response(self, x, t):
@@ -937,23 +936,7 @@ def transient_response(expr, t=None, s=None):
 
     print('Evaluating inverse Laplace transform...')
         
-    func = lambdify(tv, texpr, ("numpy", "sympy", "math"))
-        
-    try:
-        # FIXME for scalar t
-        response = np.array([complex(func(t1)) for t1 in t])
-        # The following does not work if all the sympy functions are not
-        # converted to numpy functions.
-        # response = func(t)
-            
-    except NameError:
-        raise RuntimeError('Cannot evaluate inverse Laplace transform')
-
-    except AttributeError:
-        raise RuntimeError('Cannot evaluate inverse Laplace transform, probably have undefined symbols, such as Dirac delta')
-        
-    # The result should be real so quietly remove any imaginary component.
-    return response.real
+    return texpr.evaluate(t)
 
 
 def response(expr, x, t=None, s=None):
