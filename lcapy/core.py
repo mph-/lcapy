@@ -57,6 +57,11 @@ class Expr(object):
             
         if real and isinstance(val, str) and val.isalnum() and not val[0].isdigit():
             val = sym.symbols(val, real=True)
+
+        if isinstance(val, str):
+            val = val.replace('u(t', 'Heaviside(t')
+            val = val.replace('delta(t', 'DiracDelta(t')
+            
         val = sym.sympify(val, rational=True)
 
         if simplify:
@@ -305,6 +310,13 @@ class Expr(object):
 
         func = lambdify(var, self.expr, ("numpy", "sympy", "math"))
         
+        # Expressions such as exp(-alpha*t) * Heaviside(t)
+        # will not evaluate correctly since the exp will overflow
+        # for -t and produce an Inf.  When this is multiplied by
+        # 0 from the Heaviside function we get Nan.
+        # Perhaps should check if expr.args[1] == Heaviside('t')
+        # and not evaluate if t < 0?
+
         try:
             response = np.array([complex(func(v1)) for v1 in vector])
 
