@@ -53,8 +53,8 @@ cpt_types = ['C', # Capacitor
              'G', # VCCS (not supported yet)
              'H', # CCVS (not supported yet, can be handled by E)
              'I', # Current
+             'K', # Mutual inductance (not supported yet)
              'L', # Inductor
-             'M', # Mutual inductance (not supported yet)
              'P', # Port (open-circuit)
              'Q', # Transistor (not supported)
              'R', # Resistor
