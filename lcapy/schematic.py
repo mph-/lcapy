@@ -689,6 +689,73 @@ class Schematic(object):
         return node_str
 
 
+    def _tikz_draw_TF(self, elt, outfile, draw_labels):
+
+        n1, n2, n3, n4 = elt.nodes
+
+        labelstr = elt.autolabel if draw_labels else ''
+        print(r'    \draw (%s) to [inductor] (%s);' % (n3, n4), file=outfile)
+        print(r'    \draw (%s) to [inductor, l=$%s$] (%s);' % (n1, labelstr, n2), file=outfile)
+
+
+    def _tikz_draw_TP(self, elt, outfile, draw_labels):
+
+        pass
+        
+
+    def _tikz_draw_cpt(self, elt, outfile, draw_labels, draw_nodes):
+
+        cpt_type = cpt_type_map[elt.cpt_type]
+
+        n1, n2 = elt.nodes[0:2]
+
+        # circuittikz expects the positive node first, except for 
+        # voltage and current sources!   So swap the nodes otherwise
+        # they are drawn the wrong way around.
+        modifier = ''
+        if elt.opts['dir'] == 'down' and cpt_type in ('V', 'Vdc', 'I', 'Idc'):
+            n1, n2 = n2, n1
+            # Draw label on RHS for vertical cpt.
+            modifier = '_'
+      
+        # If have a left drawn cpt, then switch nodes so that
+        # label defaults to top but then have to switch current
+        # and voltage directions.
+        if elt.opts['dir'] == 'left':
+            n1, n2 = n2, n1
+            if elt.opts.has_key('i'):
+                elt.opts['i<^'] = elt.opts.pop('i')
+            if elt.opts.has_key('v'):
+                elt.opts['v_>'] = elt.opts.pop('v')
+
+        # Current, voltage, label options.
+        # It might be better to allow any options and prune out
+        # dir and size.
+        opts_str = ''
+        for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 
+                    'i>_', 'i<_', 'i>^', 'i<^', 
+                    'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<', 'l', 'l^', 'l_'):
+            if elt.opts.has_key(opt):
+                opts_str += '%s=$%s$, ' % (opt, elt.opts[opt])
+
+        node_str = self._node_str(n1, n2, draw_nodes)
+               
+        label_str = ''
+        if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
+            if cpt_type not in ('open', 'short'):
+                label_parts = elt.autolabel.split('\\,')
+                if len(label_parts) > 1:
+                    label_str = ', l%s=$%s\mbox{%s}$' % (modifier, label_parts[0], label_parts[1])
+                else:
+                    label_str = ', l%s=$%s$' % (modifier, label_parts[0])
+
+        if cpt_type in ('Y', 'Z'):
+            cpt_type = 'european resistor'
+
+        print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt_type, label_str, opts_str, node_str, n2), file=outfile)
+
+
+
     def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
                   filename=None, args=None):
 
@@ -710,62 +777,14 @@ class Schematic(object):
         # Draw components
         for m, elt in enumerate(self.elements.values()):
 
-            cpt_type = cpt_type_map[elt.cpt_type]
-
+            # Perhaps vector through a table?
             if elt.cpt_type == 'TF':
-                n1, n2, n3, n4 = elt.nodes
+                self._tikz_draw_TF(elt, outfile, draw_labels)
+            elif elt.cpt_type == 'TP':
+                self._tikz_draw_TP(elt, outfile, draw_labels)
+            else:
+                self._tikz_draw_cpt(elt, outfile, draw_labels, draw_nodes)
 
-                labelstr = elt.autolabel if draw_labels else ''
-                print(r'    \draw (%s) to [inductor] (%s);' % (n3, n4), file=outfile)
-                print(r'    \draw (%s) to [inductor, l=$%s$] (%s);' % (n1, labelstr, n2), file=outfile)
-                continue
-
-            n1, n2 = elt.nodes[0:2]
-
-            # circuittikz expects the positive node first, except for 
-            # voltage and current sources!   So swap the nodes otherwise
-            # they are drawn the wrong way around.
-            modifier = ''
-            if elt.opts['dir'] == 'down' and cpt_type in ('V', 'Vdc', 'I', 'Idc'):
-                n1, n2 = n2, n1
-                # Draw label on RHS for vertical cpt.
-                modifier = '_'
-      
-            # If have a left drawn cpt, then switch nodes so that
-            # label defaults to top but then have to switch current
-            # and voltage directions.
-            if elt.opts['dir'] == 'left':
-                n1, n2 = n2, n1
-                if elt.opts.has_key('i'):
-                    elt.opts['i<^'] = elt.opts.pop('i')
-                if elt.opts.has_key('v'):
-                    elt.opts['v_>'] = elt.opts.pop('v')
-
-            # Current, voltage, label options.
-            # It might be better to allow any options and prune out
-            # dir and size.
-            opts_str = ''
-            for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 
-                        'i>_', 'i<_', 'i>^', 'i<^', 
-                        'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<', 'l', 'l^', 'l_'):
-                if elt.opts.has_key(opt):
-                    opts_str += '%s=$%s$, ' % (opt, elt.opts[opt])
-
-            node_str = self._node_str(n1, n2, draw_nodes)
-               
-            label_str = ''
-            if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
-                if cpt_type not in ('open', 'short'):
-                    label_parts = elt.autolabel.split('\\,')
-                    if len(label_parts) > 1:
-                        label_str = ', l%s=$%s\mbox{%s}$' % (modifier, label_parts[0], label_parts[1])
-                    else:
-                        label_str = ', l%s=$%s$' % (modifier, label_parts[0])
-
-            if cpt_type in ('Y', 'Z'):
-                cpt_type = 'european resistor'
-
-            print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt_type, label_str, opts_str, node_str, n2), file=outfile)
 
         wires = self._make_wires()
 
