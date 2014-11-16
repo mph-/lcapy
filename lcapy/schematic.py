@@ -806,10 +806,29 @@ class Schematic(object):
         print(r'\end{tikzpicture}', file=outfile)
 
 
-    def schemdraw_draw(self, draw_labels=True, draw_nodes=True, 
-                       label_nodes=True, filename=None, args=None):
+    def _schemdraw_draw_TF(self, elt, drw, draw_labels):
 
-        from SchemDraw import Drawing
+        import SchemDraw.elements as e
+
+        n1, n2, n3, n4 = elt.nodes
+
+        pos1 = self.coords[n1] * self.scale
+        pos2 = self.coords[n2] * self.scale
+        pos3 = self.coords[n3] * self.scale
+        pos4 = self.coords[n4] * self.scale
+        
+        drw.add(e.INDUCTOR2, xy=pos4, to=pos3)
+        drw.add(e.INDUCTOR2, xy=pos2, to=pos1,
+                label=elt.autolabel.replace('\\,', ' '))
+
+
+    def _schemdraw_draw_TP(self, elt, drw, draw_labels):
+
+        pass
+
+
+    def _schemdraw_draw_cpt(self, elt, drw, draw_labels, draw_nodes):
+
         import SchemDraw.elements as e
 
         cpt_type_map2 = {'R' : e.RES, 'C' : e.CAP, 'L' : e.INDUCTOR2, 
@@ -822,6 +841,26 @@ class Schematic(object):
                          'W' : e.LINE, 'wire' : e.LINE,
                          'Y' : e.RBOX, 'Z' : e.RBOX}        
 
+        cpt_type = cpt_type_map2[elt.cpt_type]
+
+        n1, n2 = elt.nodes[0:2]
+        
+        pos1 = self.coords[n1] * self.scale
+        pos2 = self.coords[n2] * self.scale
+        
+        if draw_labels:
+            drw.add(cpt_type, xy=pos2, to=pos1, 
+                    label=elt.autolabel.replace('\\,', ' '))
+        else:
+            drw.add(cpt_type, xy=pos2, to=pos1)
+
+
+    def schemdraw_draw(self, draw_labels=True, draw_nodes=True, 
+                       label_nodes=True, filename=None, args=None):
+
+        from SchemDraw import Drawing
+        import SchemDraw.elements as e
+
         # Preamble
         if args is None: args = ''
         
@@ -833,32 +872,13 @@ class Schematic(object):
         # Draw components
         for m, elt in enumerate(self.elements.values()):
 
+            # Perhaps vector through a table?
             if elt.cpt_type == 'TF':
-                n1, n2, n3, n4 = elt.nodes
-
-                pos1 = self.coords[n1] * self.scale
-                pos2 = self.coords[n2] * self.scale
-                pos3 = self.coords[n3] * self.scale
-                pos4 = self.coords[n4] * self.scale
-
-                drw.add(e.INDUCTOR2, xy=pos4, to=pos3)
-                drw.add(e.INDUCTOR2, xy=pos2, to=pos1,
-                        label=elt.autolabel.replace('\\,', ' '))
-
-                continue
-
-            cpt_type = cpt_type_map2[elt.cpt_type]
-
-            n1, n2 = elt.nodes[0:2]
-
-            pos1 = self.coords[n1] * self.scale
-            pos2 = self.coords[n2] * self.scale
-
-            if draw_labels:
-                drw.add(cpt_type, xy=pos2, to=pos1, 
-                        label=elt.autolabel.replace('\\,', ' '))
+                self._schemdraw_draw_TF(elt, drw, draw_labels)
+            elif elt.cpt_type == 'TP':
+                self._schemdraw_draw_TP(elt, drw, draw_labels)
             else:
-                drw.add(cpt_type, xy=pos2, to=pos1)
+                self._schemdraw_draw_cpt(elt, drw, draw_labels, draw_nodes)
 
         if draw_nodes:
             for m, node in enumerate(self.nodes.values()):
