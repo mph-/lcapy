@@ -702,8 +702,16 @@ class Schematic(object):
 
     def _tikz_draw_TP(self, elt, outfile, draw_labels):
 
-        pass
-        
+        p1, p2, p3, p4 = [self.coords[n] * self.scale for n in elt.nodes] 
+        width = p2[0] - p4[0]
+        height = p1[1] - p2[1]
+        extra = 0.2 * self.scale
+        p1[1] += extra
+        p2[1] -= extra
+        p3[1] += extra
+        p4[1] -= extra
+        print(r'    \draw (%.1f,%.1f) -- (%.1f,%.1f) -- (%.1f,%.1f) -- (%.1f,%.1f)  -- (%.1f,%.1f);' % (p4[0], p4[1], p3[0], p3[1], p1[0], p1[1], p2[0], p2[1], p4[0], p4[1]), file=outfile)
+
 
     def _tikz_draw_cpt(self, elt, outfile, draw_labels, draw_nodes):
 
@@ -825,7 +833,8 @@ class Schematic(object):
 
 
     def _schemdraw_draw_TP(self, elt, drw, draw_labels):
-
+        
+        # TODO
         pass
 
 
