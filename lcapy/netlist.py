@@ -237,6 +237,9 @@ class NetElement(object):
             self.nodes += (args[0], args[1])
             args = args[2:]
 
+        if cpt_type == 'TP' and len(args) != 5:
+            raise ValueError('TP component requires 5 args')
+
         cpt_type_orig = cpt_type
         if args != ():
             if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep', 'impulse', 's'):

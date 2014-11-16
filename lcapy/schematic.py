@@ -316,8 +316,7 @@ class NetElement(object):
         self.name = name
         # Type of component, e.g., 'V'
         self.cpt_type = cpt_type
-        # Component arguments
-        self.args = args
+
 
         if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP'):
             if len(args) < 2:
@@ -325,12 +324,13 @@ class NetElement(object):
             self.nodes += (args[0], args[1])
             args = args[2:]
 
-        symbol = None
-        self.symbol = symbol
+        if cpt_type == 'TP' and len(args) != 5:
+            raise ValueError('TP component requires 5 args')
 
-        autolabel = symbol
-        if autolabel is None:
-            autolabel = cpt_type_orig + '_{' + id + '}'
+        # Component arguments
+        self.args = args
+
+        autolabel = cpt_type_orig + '_{' + id + '}'
 
         if cpt_type in ('P', 'W') or autolabel.find('#') != -1:
             autolabel = ''
@@ -358,7 +358,7 @@ class NetElement(object):
                 autolabel = Expr(expr).latex()
             elif cpt_type in ('Vs', 'Is'):
                 autolabel = Expr(expr).latex()
-            else:
+            elif cpt_type not in ('TF', 'TP'):
                 try:
                     value = float(args[0])
                     if cpt_type[0] in units_map:
@@ -695,7 +695,6 @@ class Schematic(object):
 
         n1, n2, n3, n4 = elt.nodes
 
-        labelstr = elt.autolabel if draw_labels else ''
         print(r'    \draw (%s) to [inductor] (%s);' % (n3, n4), file=outfile)
         print(r'    \draw (%s) to [inductor, l=$%s$] (%s);' % (n1, labelstr, n2), file=outfile)
 
@@ -705,12 +704,20 @@ class Schematic(object):
         p1, p2, p3, p4 = [self.coords[n] * self.scale for n in elt.nodes] 
         width = p2[0] - p4[0]
         height = p1[1] - p2[1]
-        extra = 0.2 * self.scale
+        extra = 0.25 * self.scale
         p1[1] += extra
         p2[1] -= extra
         p3[1] += extra
         p4[1] -= extra
+        centre = (0.5 * (p3[0] + p1[0]), 0.5 * (p2[1] + p1[1]))
+        top = (centre[0], p1[1] + 0.15 * self.scale)
+
+        labelstr = elt.autolabel if draw_labels else ''
+        titlestr = "%s-parameter two-port" % elt.args[0]
+
         print(r'    \draw (%.1f,%.1f) -- (%.1f,%.1f) -- (%.1f,%.1f) -- (%.1f,%.1f)  -- (%.1f,%.1f);' % (p4[0], p4[1], p3[0], p3[1], p1[0], p1[1], p2[0], p2[1], p4[0], p4[1]), file=outfile)
+        print(r'    \draw  (%.1f,%.1f) node[minimum width=%.1f] {%s};' % (centre[0], centre[1], width, titlestr), file=outfile)
+        print(r'    \draw  (%.1f,%.1f) node[minimum width=%.1f] {$%s$};' % (top[0], top[1], width, labelstr), file=outfile)
 
 
     def _tikz_draw_cpt(self, elt, outfile, draw_labels, draw_nodes):
@@ -763,7 +770,6 @@ class Schematic(object):
             cpt_type = 'european resistor'
 
         print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt_type, label_str, opts_str, node_str, n2), file=outfile)
-
 
 
     def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
