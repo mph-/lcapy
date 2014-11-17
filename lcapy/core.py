@@ -522,7 +522,7 @@ class tExpr(Expr):
     def evaluate(self, tvector):
 
         response = super (tExpr, self).evaluate(tvector, sym.symbols('t'))
-        if np.any(np.iscomplex(response)) and np.allclose(response.imag, 0.0):
+        if np.iscomplexobj(response) and np.allclose(response.imag, 0.0):
             response = response.real
         return response
 

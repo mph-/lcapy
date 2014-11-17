@@ -87,6 +87,33 @@ class Mdict(dict):
         return super (Mdict, self).__getitem__(key)
 
 
+class Ldict(dict):
+    """Lazy dictionary for inverse Laplace"""
+
+    def __init__(self, Vdict):
+
+        self.Vdict = Vdict
+        self.vdict = {}
+
+
+    def __getitem__(self, key):
+        
+        # If key is an integer, convert to a string.
+        if isinstance(key, int):
+            key = '%d' % key
+
+        if not self.vdict.has_key(key) and self.Vdict.has_key(key):
+            self.vdict[key] = self.Vdict[key].inverse_laplace()
+
+        return self.vdict[key]
+
+
+    def keys(self):
+
+        return self.Vdict.keys()
+
+
+
 
 class CS(object):
     """Controlled source"""
@@ -791,9 +818,7 @@ class Netlist(object):
         """Return dictionary of t-domain node voltages indexed by node name"""
 
         if not hasattr(self, '_v'):
-            self._v = Mdict()
-            for key in self.V:
-                self._v[key] = self.V[key].inverse_laplace()
+            self._v = Ldict(self.V)
 
         return self._v
 
@@ -803,9 +828,7 @@ class Netlist(object):
         """Return dictionary of t-domain branch currents indexed by component name"""
 
         if not hasattr(self, '_i'):
-            self._i = {}
-            for key in self.I:
-                self._i[key] = self.I[key].inverse_laplace()
+            self._i = Ldict(self.I)
 
         return self._i
 
@@ -815,9 +838,7 @@ class Netlist(object):
         """Return dictionary of t-domain branch voltage differences indexed by component name"""
 
         if not hasattr(self, '_vd'):
-            self._vd = {}
-            for key in self.Vd:
-                self._vd[key] = self.Vd[key].inverse_laplace()
+            self._vd = Ldict(self.Vd)
 
         return self._vd
 
