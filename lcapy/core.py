@@ -317,8 +317,14 @@ class Expr(object):
         # Perhaps should check if expr.args[1] == Heaviside('t')
         # and not evaluate if t < 0?
 
+        if np.isscalar(vector):
+            v1 = vector
+        else:
+            v1 = vector[0]
+
+
         try:
-            response = np.array([complex(func(v1)) for v1 in vector])
+            response = func(v1)
 
         except NameError:
             raise RuntimeError('Cannot evaluate expression')
@@ -326,7 +332,16 @@ class Expr(object):
         except AttributeError:
             raise RuntimeError('Cannot evaluate expression, probably have undefined symbols, such as Dirac delta')
 
+        if np.isscalar(vector):
+            return response
+
+        response = np.array([complex(func(v1)) for v1 in vector])
         return response
+
+
+    def __call__(self, vector):
+
+        return self.evaluate(vector)
 
 
 class sExpr(Expr):
@@ -507,7 +522,7 @@ class tExpr(Expr):
     def evaluate(self, tvector):
 
         response = super (tExpr, self).evaluate(tvector, sym.symbols('t'))
-        if np.allclose(response.imag, 0.0):
+        if np.any(np.iscomplex(response)) and np.allclose(response.imag, 0.0):
             response = response.real
         return response
 
