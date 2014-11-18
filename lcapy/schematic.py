@@ -746,9 +746,9 @@ class Schematic(object):
         labelstr = elt.autolabel if draw_labels else ''
         titlestr = "%s-parameter two-port" % elt.args[0]
 
-        print(r'    \draw (%.1f,%.1f) -- (%.1f,%.1f) -- (%.1f,%.1f) -- (%.1f,%.1f)  -- (%.1f,%.1f);' % (p4.x, p4.y, p3.x, p3.y, p1.x, p1.y, p2.x, p2.y, p4.x, p4.y), file=outfile)
-        print(r'    \draw  (%.1f,%.1f) node[minimum width=%.1f] {%s};' % (centre.x, centre.y, width, titlestr), file=outfile)
-        print(r'    \draw  (%.1f,%.1f) node[minimum width=%.1f] {$%s$};' % (top.x, top.y, width, labelstr), file=outfile)
+        print(r'    \draw (%s) -- (%s) -- (%s) -- (%s)  -- (%s);' % (p4, p3, p1, p2, p4), file=outfile)
+        print(r'    \draw  (%s) node[minimum width=%.1f] {%s};' % (centre, width, titlestr), file=outfile)
+        print(r'    \draw  (%s) node[minimum width=%.1f] {$%s$};' % (top, width, labelstr), file=outfile)
 
 
     def _tikz_draw_cpt(self, elt, outfile, draw_labels, draw_nodes):
@@ -818,7 +818,7 @@ class Schematic(object):
 
         # Write coordinates
         for coord in self.coords.keys():
-            print(r'    \coordinate (%s) at (%.1f, %.1f);' % (coord, self.coords[coord].x * self.scale, self.coords[coord].y * self.scale), file=outfile)
+            print(r'    \coordinate (%s) at (%s);' % (coord, self.coords[coord] * self.scale), file=outfile)
 
 
         # Draw components
