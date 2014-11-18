@@ -279,6 +279,25 @@ class Node(object):
         self.list.append(elt)
 
 
+class Pos(object):
+
+    def __init__(self, x, y):
+
+        self.x = x
+        self.y = y
+
+    
+    def __mul__(self, scale):
+
+        return Pos(self.x * scale, self.y * scale)
+
+
+    def __str__(self):
+
+        return "%.1f,%.1f" % (self.x, self.y)
+
+
+
 class NetElement(object):
 
     cpt_type_counter = 0
@@ -610,7 +629,7 @@ class Schematic(object):
 
         coords = {}
         for node in xpos.keys():
-            coords[node] = np.array((xpos[node], ypos[node]))
+            coords[node] = Pos(xpos[node], ypos[node])
 
         self._coords = coords
 
@@ -695,29 +714,41 @@ class Schematic(object):
 
         n1, n2, n3, n4 = elt.nodes
 
+        p1, p2, p3, p4 = [self.coords[n] * self.scale for n in elt.nodes] 
+        
+        xoffset = 0.1 * self.scale
+        yoffset = elt.opts['size'] / 2 + 0.35 * self.scale
+
+        primary_dot = Pos(p3.x - xoffset, 0.5 * (p3.y + p4.y) + yoffset)
+        secondary_dot = Pos(p1.x + xoffset, 0.5 * (p1.y + p2.y) + yoffset)
+
+        labelstr = elt.autolabel if draw_labels else ''
+
         print(r'    \draw (%s) to [inductor] (%s);' % (n3, n4), file=outfile)
         print(r'    \draw (%s) to [inductor, l=$%s$] (%s);' % (n1, labelstr, n2), file=outfile)
+        print(r'    \draw (%s) node[circ] {};' % primary_dot, file=outfile)
+        print(r'    \draw (%s) node[circ] {};' % secondary_dot, file=outfile)
 
 
     def _tikz_draw_TP(self, elt, outfile, draw_labels):
 
         p1, p2, p3, p4 = [self.coords[n] * self.scale for n in elt.nodes] 
-        width = p2[0] - p4[0]
-        height = p1[1] - p2[1]
+        width = p2.x - p4.x
+        height = p1.y - p2.y
         extra = 0.25 * self.scale
-        p1[1] += extra
-        p2[1] -= extra
-        p3[1] += extra
-        p4[1] -= extra
-        centre = (0.5 * (p3[0] + p1[0]), 0.5 * (p2[1] + p1[1]))
-        top = (centre[0], p1[1] + 0.15 * self.scale)
+        p1.y += extra
+        p2.y -= extra
+        p3.y += extra
+        p4.y -= extra
+        centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
+        top = Pos(centre.x, p1.y + 0.15 * self.scale)
 
         labelstr = elt.autolabel if draw_labels else ''
         titlestr = "%s-parameter two-port" % elt.args[0]
 
-        print(r'    \draw (%.1f,%.1f) -- (%.1f,%.1f) -- (%.1f,%.1f) -- (%.1f,%.1f)  -- (%.1f,%.1f);' % (p4[0], p4[1], p3[0], p3[1], p1[0], p1[1], p2[0], p2[1], p4[0], p4[1]), file=outfile)
-        print(r'    \draw  (%.1f,%.1f) node[minimum width=%.1f] {%s};' % (centre[0], centre[1], width, titlestr), file=outfile)
-        print(r'    \draw  (%.1f,%.1f) node[minimum width=%.1f] {$%s$};' % (top[0], top[1], width, labelstr), file=outfile)
+        print(r'    \draw (%.1f,%.1f) -- (%.1f,%.1f) -- (%.1f,%.1f) -- (%.1f,%.1f)  -- (%.1f,%.1f);' % (p4.x, p4.y, p3.x, p3.y, p1.x, p1.y, p2.x, p2.y, p4.x, p4.y), file=outfile)
+        print(r'    \draw  (%.1f,%.1f) node[minimum width=%.1f] {%s};' % (centre.x, centre.y, width, titlestr), file=outfile)
+        print(r'    \draw  (%.1f,%.1f) node[minimum width=%.1f] {$%s$};' % (top.x, top.y, width, labelstr), file=outfile)
 
 
     def _tikz_draw_cpt(self, elt, outfile, draw_labels, draw_nodes):
@@ -787,7 +818,7 @@ class Schematic(object):
 
         # Write coordinates
         for coord in self.coords.keys():
-            print(r'    \coordinate (%s) at (%.1f, %.1f);' % (coord, self.coords[coord][0] * self.scale, self.coords[coord][1] * self.scale), file=outfile)
+            print(r'    \coordinate (%s) at (%.1f, %.1f);' % (coord, self.coords[coord].x * self.scale, self.coords[coord].y * self.scale), file=outfile)
 
 
         # Draw components
