@@ -263,8 +263,9 @@ class Node(object):
     def __init__(self, name):
 
         self.name = name
-        self.pos = None
-        self.port = False
+        self._port = False
+        self._count = 0
+        self._cpt_count = 0
         parts = name.split('_')
         self.rootname = parts[0] if name[0] != '_' else name
         self.primary = len(parts) == 1
@@ -272,11 +273,45 @@ class Node(object):
 
     
     def append(self, elt):
+        """Add new element to the node"""
 
-        if elt.cpt_type in ('P', ):
-            self.port = True
+        if elt.cpt_type == 'P':
+            self._port = True
 
         self.list.append(elt)
+        self._count += 1
+        if elt.cpt_type != 'W':
+            self._cpt_count += 1
+
+
+    @property
+    def count(self):
+        """Number of elements (including wires) connected to the node"""
+
+        return self._count
+
+
+    @property
+    def cpt_count(self):
+        """Number of elements (not including wires) connected to the node"""
+
+        return self._cpt_count
+
+
+    @property
+    def visible(self):
+        """Return true if node drawn"""
+
+        # Could add blobs where components join when count > 2
+
+        return self.name.find('_') == -1
+
+
+    @property
+    def port(self):
+        """Return true if node is a port"""
+
+        return self._port or self.count == 1
 
 
 class Pos(object):
@@ -692,17 +727,19 @@ class Schematic(object):
 
     def _node_str(self, n1, n2, draw_nodes=True):
 
-        if self.nodes[n1].port:
+        node1, node2 = self.nodes[n1], self.nodes[n2]
+
+        if node1.port:
             node_str = 'o'
         else:
-            node_str = '*' if draw_nodes and n1.find('_') == - 1 else ''
+            node_str = '*' if draw_nodes and n1.visible else ''
             
         node_str += '-'
 
-        if self.nodes[n2].port:
+        if node2.port:
             node_str += 'o'
         else:
-            node_str += '*' if draw_nodes and n2.find('_') == - 1 else ''
+            node_str += '*' if draw_nodes and n2.visible else ''
 
         if node_str == '-':
             node_str = ''
