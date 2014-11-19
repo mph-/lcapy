@@ -766,7 +766,11 @@ class Netlist(object):
         # Create dictionary of node voltages
         self._V = Mdict({'0': Vs(0)})
         for n in self.nodes:
-            self._V[n] = Vs(results[self._nodeindex(n)])
+            index = self._nodeindex(n)
+            if index >= 0:
+                self._V[n] = Vs(results[index])
+            else:
+                self._V[n] = Vs(0)
 
         # Create dictionary of currents through elements
         self._I = {}
