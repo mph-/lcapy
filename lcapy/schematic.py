@@ -418,7 +418,7 @@ class NetElement(object):
                 autolabel = Expr(expr).latex()
             elif cpt_type in ('Vs', 'Is'):
                 autolabel = Expr(expr).latex()
-            elif cpt_type not in ('TF', 'TP'):
+            elif cpt_type not in ('TP',):
                 try:
                     value = float(args[0])
                     if cpt_type[0] in units_map:

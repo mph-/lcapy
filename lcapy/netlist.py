@@ -384,12 +384,15 @@ class Netlist(object):
         lines = file.readlines()
 
         for line in lines:
+            line = line.strip()
+            if line == '':
+                continue
+
             # Skip comments
             if line[0] in ('#', '%'):
                 continue
-            line = line.strip()
-            if line != '':
-                self.add(line)
+
+            self.add(line)
 
 
     def netlist(self, full=False):

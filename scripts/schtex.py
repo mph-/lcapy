@@ -25,6 +25,16 @@ def main (argv=None):
     parser.add_option('--label-nodes', action='store_true',
                       dest='label_nodes', default=True,
                       help='label nodes')
+    parser.add_option('--nolabel-nodes', action='store_false',
+                      dest='label_nodes',
+                      help="don't label nodes")
+
+    parser.add_option('--draw-nodes', action='store_true',
+                      dest='draw_nodes', default=True,
+                      help='draw nodes')
+    parser.add_option('--nodraw-nodes', action='store_false',
+                      dest='draw_nodes',
+                      help="don't draw nodes")
 
     parser.add_option('--s-model', action='store_true',
                       dest='s_model', default=False,
@@ -68,7 +78,7 @@ def main (argv=None):
         if options.p_model:
             cct = cct.pre_initial_model()
 
-        cct.draw(label_nodes=options.label_nodes,
+        cct.draw(label_nodes=options.label_nodes, draw_nodes=options.draw_nodes,
                  filename=filename, scale=options.scale, stretch=options.stretch,
                  tex=True)
     else:
