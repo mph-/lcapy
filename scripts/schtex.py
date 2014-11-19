@@ -41,6 +41,10 @@ def main (argv=None):
     parser.add_option('--scale', type='float',
                       dest='scale', default=1,
                       help='schematic scale factor')
+
+    parser.add_option('--stretch', type='float',
+                      dest='stretch', default=1,
+                      help='schematic stretch factor')
     
     (options, args) = parser.parse_args()
 
@@ -65,7 +69,8 @@ def main (argv=None):
             cct = cct.pre_initial_model()
 
         cct.draw(label_nodes=options.label_nodes,
-                 filename=filename, scale=options.scale, tex=True)
+                 filename=filename, scale=options.scale, stretch=options.stretch,
+                 tex=True)
     else:
         filename = infilename
 

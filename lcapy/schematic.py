@@ -302,7 +302,8 @@ class Node(object):
     def visible(self):
         """Return true if node drawn"""
 
-        # Could add blobs where components join when count > 2
+        # Should show node when cpt_count >= 2
+        # Could add blobs when count > 2
 
         return self.name.find('_') == -1
 
@@ -332,12 +333,17 @@ class Pos(object):
         return "%.1f,%.1f" % (self.x, self.y)
 
 
+    @property
+    def xy(self):
+
+        return np.array((self.x, self.y))
+
 
 class NetElement(object):
 
     cpt_type_counter = 0
 
-    def __init__(self, name, node1, node2, *args, **opts):
+    def __init__(self, name, n1, n2, *args, **opts):
 
         match = cpt_type_pattern.match(name)
 
@@ -345,10 +351,10 @@ class NetElement(object):
             raise ValueError('Unknown schematic component %s' % name)
 
         # Circuitikz does not like a . in a name
-        if node1.find('.') != -1:
-            raise ValueError('Cannot have . in node name %s' % node1)
-        if node2.find('.') != -1:
-            raise ValueError('Cannot have . in node name %s' % node2)
+        if n1.find('.') != -1:
+            raise ValueError('Cannot have . in node name %s' % n1)
+        if n2.find('.') != -1:
+            raise ValueError('Cannot have . in node name %s' % n2)
 
         cpt_type = match.groups()[0]
         id = match.groups()[1]
@@ -365,7 +371,7 @@ class NetElement(object):
                 args = args[1:]
 
         # Tuple of nodes
-        self.nodes = (node1, node2)
+        self.nodes = (n1, n2)
         # Identifier for component, e.g., 'R1'
         self.name = name
         # Type of component, e.g., 'V'
@@ -446,7 +452,6 @@ class Schematic(object):
         self.nodes = {}
         # Shared nodes (with same voltage)
         self.snodes = {}
-        self.scale = 2
         self.hints = False
 
         if filename is not None:
@@ -732,14 +737,14 @@ class Schematic(object):
         if node1.port:
             node_str = 'o'
         else:
-            node_str = '*' if draw_nodes and n1.visible else ''
+            node_str = '*' if draw_nodes and node1.visible else ''
             
         node_str += '-'
 
         if node2.port:
             node_str += 'o'
         else:
-            node_str += '*' if draw_nodes and n2.visible else ''
+            node_str += '*' if draw_nodes and node2.visible else ''
 
         if node_str == '-':
             node_str = ''
@@ -751,10 +756,10 @@ class Schematic(object):
 
         n1, n2, n3, n4 = elt.nodes
 
-        p1, p2, p3, p4 = [self.coords[n] * self.scale for n in elt.nodes] 
+        p1, p2, p3, p4 = [self.coords[n]  for n in elt.nodes] 
         
-        xoffset = 0.1 * self.scale
-        yoffset = elt.opts['size'] / 2 + 0.35 * self.scale
+        xoffset = 0.06 
+        yoffset = 0.35
 
         primary_dot = Pos(p3.x - xoffset, 0.5 * (p3.y + p4.y) + yoffset)
         secondary_dot = Pos(p1.x + xoffset, 0.5 * (p1.y + p2.y) + yoffset)
@@ -769,16 +774,16 @@ class Schematic(object):
 
     def _tikz_draw_TP(self, elt, outfile, draw_labels):
 
-        p1, p2, p3, p4 = [self.coords[n] * self.scale for n in elt.nodes] 
+        p1, p2, p3, p4 = [self.coords[n]  for n in elt.nodes] 
         width = p2.x - p4.x
         height = p1.y - p2.y
-        extra = 0.25 * self.scale
+        extra = 0.25 
         p1.y += extra
         p2.y -= extra
         p3.y += extra
         p4.y -= extra
         centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
-        top = Pos(centre.x, p1.y + 0.15 * self.scale)
+        top = Pos(centre.x, p1.y + 0.15 )
 
         labelstr = elt.autolabel if draw_labels else ''
         titlestr = "%s-parameter two-port" % elt.args[0]
@@ -851,11 +856,11 @@ class Schematic(object):
 
         # Preamble
         if args is None: args = ''
-        print(r'\begin{tikzpicture}[%s]' % args, file=outfile)
+        print(r'\begin{tikzpicture}[scale=%.2f,/tikz/circuitikz/bipoles/length=%.1fcm,%s]' % (self.node_spacing, self.cpt_size, args), file=outfile)
 
         # Write coordinates
         for coord in self.coords.keys():
-            print(r'    \coordinate (%s) at (%s);' % (coord, self.coords[coord] * self.scale), file=outfile)
+            print(r'    \coordinate (%s) at (%s);' % (coord, self.coords[coord]), file=outfile)
 
 
         # Draw components
@@ -896,13 +901,13 @@ class Schematic(object):
 
         n1, n2, n3, n4 = elt.nodes
 
-        pos1 = self.coords[n1] * self.scale
-        pos2 = self.coords[n2] * self.scale
-        pos3 = self.coords[n3] * self.scale
-        pos4 = self.coords[n4] * self.scale
+        pos1 = self.coords[n1] * self.node_spacing
+        pos2 = self.coords[n2] * self.node_spacing
+        pos3 = self.coords[n3] * self.node_spacing
+        pos4 = self.coords[n4] * self.node_spacing
         
-        drw.add(e.INDUCTOR2, xy=pos4, to=pos3)
-        drw.add(e.INDUCTOR2, xy=pos2, to=pos1,
+        drw.add(e.INDUCTOR2, xy=pos4.xy, to=pos3.xy)
+        drw.add(e.INDUCTOR2, xy=pos2.xy, to=pos1.xy,
                 label=elt.autolabel.replace('\\,', ' '))
 
 
@@ -930,14 +935,14 @@ class Schematic(object):
 
         n1, n2 = elt.nodes[0:2]
         
-        pos1 = self.coords[n1] * self.scale
-        pos2 = self.coords[n2] * self.scale
+        pos1 = self.coords[n1] * self.node_spacing
+        pos2 = self.coords[n2] * self.node_spacing
         
         if draw_labels:
-            drw.add(cpt_type, xy=pos2, to=pos1, 
+            drw.add(cpt_type, xy=pos2.xy, to=pos1.xy, 
                     label=elt.autolabel.replace('\\,', ' '))
         else:
-            drw.add(cpt_type, xy=pos2, to=pos1)
+            drw.add(cpt_type, xy=pos2.xy, to=pos1.xy)
 
 
     def schemdraw_draw(self, draw_labels=True, draw_nodes=True, 
@@ -969,10 +974,10 @@ class Schematic(object):
             for m, node in enumerate(self.nodes.values()):
                 label_str = node.name if draw_labels and node.primary else ''
                 if node.port:
-                    drw.add(e.DOT_OPEN, xy=self.coords[node.name] * self.scale,
+                    drw.add(e.DOT_OPEN, xy=self.coords[node.name].xy * self.node_spacing,
                             label=label_str)
                 elif node.primary:
-                    drw.add(e.DOT, xy=self.coords[node.name] * self.scale, 
+                    drw.add(e.DOT, xy=self.coords[node.name].xy * self.node_spacing, 
                             label=label_str)
 
         drw.draw()
@@ -981,9 +986,10 @@ class Schematic(object):
 
 
     def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-             filename=None, args=None, scale=1, tex=False):
+             filename=None, args=None, stretch=1, scale=1, tex=False):
 
-        self.scale = scale * 2
+        self.node_spacing = 2 * stretch * scale
+        self.cpt_size = 1.5 * scale
 
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
