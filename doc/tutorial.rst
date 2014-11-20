@@ -954,10 +954,23 @@ Other methods
   
    cct.Z(n1, n2)        Impedance between nodes n1 and n2.
 
+   cct.kill()           Remove independent sources.
+
+   cct.transfer(n1, n2, n3, n4) Transfer function for voltage difference between nodes n3 and n4 compared to the voltage difference between nodes n1 and n2.
+
    cct.thevenin(n1, n2) Thevenin model between nodes n1 and n2.
 
    cct.norton(n1, n2)    Norton model between nodes n1 and n2.
 
+   cct.twoport(self, n1, n2, n3, n4) Create two-port component where
+        I1 is the current flowing into n1 and out of n2, I2 is the
+        current flowing into n3 and out of n4, V1 = V[n1] - V[n2], V2
+        = V[n3] - V[n4].
+
    cct.remove(component) Remove component from net list.
 
    cct.netfile_add(filename) Add netlist from file.
+
+   cct.s_model()         Convert circuit to s-domain model.
+
+   cct.pre_initital_model()   Convert circuit to pre-initial model.
