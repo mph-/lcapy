@@ -250,6 +250,7 @@ class NetElement(object):
         self.opts = Opts(opts)
         self.name = name
         self.nodes = (node1, node2)
+        self.args = args
 
         # Should check for Vdc1, etc.
 
@@ -274,7 +275,6 @@ class NetElement(object):
                 args = args[1:]
 
         self.cpt_type = cpt_type
-        self.args = args
 
         if cpt_type in ('P', 'W'):
             self.cpt = None
