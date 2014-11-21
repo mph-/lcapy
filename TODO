@@ -1,0 +1,59 @@
+Here are some things to do, in no particular order.
+
+Write unit tests.
+
+Add other controlled sources: VCCS, CCVS. CCCS.
+
+Use formal grammar for netlists and use proper parser.
+
+Use single representation for netlists/AST
+
+Generate schematic from abstract syntax tree (assume horizontal layout)
+
+Speed up residue calculation  (perhaps can try without taking limit...)
+
+Handle mechanical and acoustical components.  Perhaps lower case for
+mechanical/acoustical.  For example,
+
+Force      f  (N)
+Mass       m  (kg)
+Spring     k  (N/m)
+Damper     r  (kg/s)
+Velocity   u  (m/s)
+
+Support both electro-machnical analogues?
+m -> L, C
+k -> C, L
+f -> I, V
+u -> V, I
+
+Draw opamps / FDA
+
+VCVS 2 0 3 1 A   -> label A (V_3 - V_1)
+VCVS 2 0 3 0 A   -> label A V_3
+
+Expand two-ports, xtals, opamps, etc.   cct = cct.expand()
+Perhaps have arg to expand to select components and/or types of
+component to expand?
+
+When expanding, still need to know original nodes for determining
+voltage, say across a capacitor when it expanded into a series
+comb. of an impedance and voltage source.  Perhaps retain the
+component in the netlist but prefix it with some symbol such as @.
+So C1 2 1 5 2 expands to
+C#1 2 dummy 5
+V#1 dummy 1 2
+@C1 2 1 5 2
+
+The @symbol says not to draw or analyse cpt.  But the name C1 will be
+added to the directories for the current and voltage.
+
+
+Generalise two-port representation to avoid transformations from a
+singular matrix.
+
+Determine pre-initial conditions.  Likely to be limited to a
+restricted arrange of independent source signals.  For example,
+cos(2pi f t) indeterminate.
+
+Add consistent mapping of unit step, dirac delta, etc.
