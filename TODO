@@ -57,3 +57,11 @@ restricted arrange of independent source signals.  For example,
 cos(2pi f t) indeterminate.
 
 Add consistent mapping of unit step, dirac delta, etc.
+
+Determine loops in schematic DAGs and issue warning.
+
+Warn user when calculations may take a while, say when inverting a
+large matrix.
+
+Fix labels for schemdraw.
+

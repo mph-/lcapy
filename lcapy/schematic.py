@@ -924,6 +924,8 @@ class Schematic(object):
         cpt_type_map2 = {'R' : e.RES, 'C' : e.CAP, 'L' : e.INDUCTOR2, 
                          'Vac' : e.SOURCE_SIN, 'Vdc' : e.SOURCE_V,
                          'Iac' : e.SOURCE_SIN, 'Idc' : e.SOURCE_I, 
+                         'Vstep' : e.SOURCE_V, 'Vdelta' : e.SOURCE_V,
+                         'Istep' : e.SOURCE_I, 'Idelta' : e.SOURCE_I, 
                          'V' : e.SOURCE_V, 'I' : e.SOURCE_I, 
                          'Vs' : e.SOURCE_V, 'Is' : e.SOURCE_I, 
                          'v' : e.SOURCE_V, 'i' : e.SOURCE_I,
