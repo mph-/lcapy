@@ -53,7 +53,7 @@ cpt_types = ['C', # Capacitor
              'G', # VCCS (not supported yet)
              'H', # CCVS (not supported yet, can be handled by E)
              'I', # Current
-             'K', # Mutual inductance (not supported yet)
+             'K', # Mutual inductance
              'L', # Inductor
              'P', # Port (open-circuit)
              'Q', # Transistor (not supported)
@@ -113,8 +113,6 @@ class Ldict(dict):
         return self.Vdict.keys()
 
 
-
-
 class CS(object):
     """Controlled source"""
 
@@ -155,6 +153,14 @@ class TP(CS):
         self.V = 0
 
 
+class K(object):
+    """Mutual inductance"""
+
+    def __init__(self, k):
+    
+        self.k = k
+
+
 cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'Z' : Z, 'Y' : Y,
                 'Vac' : Vac, 'Vdc' : Vdc, 
                 'Iac' : Iac, 'Idc' : Idc, 
@@ -164,7 +170,7 @@ cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'Z' : Z, 'Y' : Y,
                 'Vs' : V, 'Is' : I, 
                 'V' : v, 'I' : i, 'v' : v, 'i' : i,
                 'P' : 'open', 'W' : 'short', 
-                'E' : VCVS, 'TF' : TF, 'TP' : TP}
+                'E' : VCVS, 'TF' : TF, 'TP' : TP, 'K' : K}
 
 
 # Regular expression alternate matches stop with first match so need
