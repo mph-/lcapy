@@ -24,8 +24,7 @@ from lcapy.core import Expr
 __all__ = ('Schematic', )
 
 
-# Mapping of component names to circuitikz names.   The keys define
-# the allowable component names.
+# Mapping of component names to circuitikz names.
 cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 
                 'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
                 'Vacstep' : 'sV', 'Vstep' : 'V', 'Iacstep' : 'sI', 'Istep' : 'I', 
@@ -34,7 +33,7 @@ cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L',
                 'V' : 'V', 'I' : 'I', 'v' : 'V', 'i' : 'I',
                 'P' : 'open', 'W' : 'short', 
                 'TF' : 'transformer',
-                'Z' : 'Z', 'Y' : 'Y'}
+                'Z' : 'Z', 'Y' : 'Y', 'opamp' : 'opamp'}
 
 
 # Regular expression alternate matches stop with first match so need
@@ -364,10 +363,16 @@ class NetElement(object):
             id = '#%d' % NetElement.cpt_type_counter
             name = cpt_type + id
 
+        # Component arguments
+        self.args = args
+
         cpt_type_orig = cpt_type
         if args != ():
             if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep', 'impulse', 's'):
                 cpt_type = cpt_type + args[0]
+                args = args[1:]
+            elif cpt_type == 'E' and args[0] == 'opamp':
+                cpt_type = 'opamp'
                 args = args[1:]
 
         # Tuple of nodes
@@ -377,8 +382,7 @@ class NetElement(object):
         # Type of component, e.g., 'V'
         self.cpt_type = cpt_type
 
-
-        if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP'):
+        if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP', 'opamp'):
             if len(args) < 2:
                 raise ValueError('Component type %s requires 4 nodes' % cpt_type)
             self.nodes += (args[0], args[1])
@@ -386,9 +390,6 @@ class NetElement(object):
 
         if cpt_type == 'TP' and len(args) != 5:
             raise ValueError('TP component requires 5 args')
-
-        # Component arguments
-        self.args = args
 
         autolabel = cpt_type_orig + '_{' + id + '}'
 
@@ -563,11 +564,17 @@ class Schematic(object):
 
             if elt.cpt_type in ('TF', 'TP'):
                 if dirs[0] == 'right':
+                    # Ensure nodes have same x value
                     cnodes.link(*elt.nodes[0:2])
                     cnodes.link(*elt.nodes[2:4])
                 else:
                     cnodes.link(*elt.nodes[0:4:2])
                     cnodes.link(*elt.nodes[1:4:2])
+                continue
+            elif elt.cpt_type == 'opamp':
+                if dirs[0] == 'right':
+                    # Ensure input nodes have same x value
+                    cnodes.link(*elt.nodes[2:4])
                 continue
 
             if elt.opts['dir'] in dirs:
@@ -594,6 +601,19 @@ class Schematic(object):
                     graphs.add(m4, m2, scale[elt.cpt_type] * size)
                 else:
                     graphs.add(m2, m1, size)
+                    graphs.add(m4, m3, size)
+                continue
+            elif elt.cpt_type == 'opamp':
+                # m1, m2 output nodes; m3, m4 input nodes
+                # m2 assumed ground...
+                m1, m2, m3, m4 = cnodes.map(elt.nodes)
+
+                size *= 2
+
+                if dirs[0] == 'right':
+                    graphs.add(m3, m1, size)
+                    graphs.add(m4, m1, size)
+                else:
                     graphs.add(m4, m3, size)
                 continue
 
@@ -752,6 +772,22 @@ class Schematic(object):
         return node_str
 
 
+    def _tikz_draw_opamp(self, elt, outfile, draw_labels):
+
+        n1, n2, n3, n4 = elt.nodes
+
+        p1, p2, p3, p4 = [self.coords[n]  for n in elt.nodes] 
+
+        centre = Pos(0.5 * (p3.x + p1.x), p1.y)
+
+        print(r'    \draw (%s) node[op amp, scale=2] (opamp) {};' % centre, file=outfile)
+
+        p1, p2, p3, p4 = [self.coords[n]  for n in elt.nodes] 
+
+        print(p1, p2, p3, p4)
+
+            
+
     def _tikz_draw_TF(self, elt, outfile, draw_labels):
 
         n1, n2, n3, n4 = elt.nodes
@@ -786,7 +822,7 @@ class Schematic(object):
         top = Pos(centre.x, p1.y + 0.15 )
 
         labelstr = elt.autolabel if draw_labels else ''
-        titlestr = "%s-parameter two-port" % elt.args[0]
+        titlestr = "%s-parameter two-port" % elt.args[2]
 
         print(r'    \draw (%s) -- (%s) -- (%s) -- (%s)  -- (%s);' % (p4, p3, p1, p2, p4), file=outfile)
         print(r'    \draw  (%s) node[minimum width=%.1f] {%s};' % (centre, width, titlestr), file=outfile)
@@ -863,14 +899,15 @@ class Schematic(object):
             print(r'    \coordinate (%s) at (%s);' % (coord, self.coords[coord]), file=outfile)
 
 
+        draw = {'TF' : self._tikz_draw_TF,
+                'TP' : self._tikz_draw_TP,
+                'opamp' : self._tikz_draw_opamp}
+
         # Draw components
         for m, elt in enumerate(self.elements.values()):
 
-            # Perhaps vector through a table?
-            if elt.cpt_type == 'TF':
-                self._tikz_draw_TF(elt, outfile, draw_labels)
-            elif elt.cpt_type == 'TP':
-                self._tikz_draw_TP(elt, outfile, draw_labels)
+            if elt.cpt_type in draw:
+                draw[elt.cpt_type](elt, outfile, draw_labels)
             else:
                 self._tikz_draw_cpt(elt, outfile, draw_labels, draw_nodes)
 
