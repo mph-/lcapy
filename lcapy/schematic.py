@@ -784,8 +784,6 @@ class Schematic(object):
 
     def _tikz_draw_TF1(self, elt, nodes, outfile, draw_labels):
 
-        n1, n2, n3, n4 = nodes
-
         p1, p2, p3, p4 = [self.coords[n]  for n in nodes] 
         
         xoffset = 0.06 
@@ -799,8 +797,6 @@ class Schematic(object):
 
         labelstr = elt.autolabel if draw_labels else ''
 
-        print(r'    \draw (%s) to [inductor] (%s);' % (n3, n4), file=outfile)
-        print(r'    \draw (%s) to [inductor] (%s);' % (n1, n2), file=outfile)
         print(r'    \draw (%s) node[circ] {};' % primary_dot, file=outfile)
         print(r'    \draw (%s) node[circ] {};' % secondary_dot, file=outfile)
         print(r'    \draw (%s) node[minimum width=%.1f] {$%s$};' % (top, 0.5, labelstr), file=outfile)
@@ -808,6 +804,10 @@ class Schematic(object):
 
     def _tikz_draw_TF(self, elt, outfile, draw_labels):
 
+        n1, n2, n3, n4 = nodes
+
+        print(r'    \draw (%s) to [inductor] (%s);' % (n3, n4), file=outfile)
+        print(r'    \draw (%s) to [inductor] (%s);' % (n1, n2), file=outfile)
         self._tikz_draw_TF1(elt, elt.nodes, outfile, draw_labels)
 
 
