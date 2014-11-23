@@ -38,17 +38,11 @@ Simple circuit elements
 
 The basic circuit elements are two-terminal (one-port) devices:
 
-- Vdc DC voltage source
+- I current source
 
-- Idc DC current source
-
-- Vac AC voltage source
-
-- Iac AC current source
+- V voltage source
 
 - R resistance
-
-- G conductance
 
 - C capacitance
 
@@ -59,10 +53,6 @@ These are augmented by generic s-domain components:
 - Y admittance
 
 - Z impedance
-
-- V voltage source
-
-- I current source
 
 
 Here are some examples of their creation:

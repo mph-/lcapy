@@ -454,4 +454,108 @@ matrices:
 
 
 
+\section{Mutual inductances}
+
+
+If $i_1$ is the current flowing into the dot of inductor $L_1$ and
+$i_2$ is the current flowing into the dot of coupled inductor $L_2$,
+%
+then
+%
+\begin{eqnarray}
+ v_1(t) & = & L_1 \udby{t} i_1(t) + M \udby{t} i_2(t),\\
+ v_2(t) & = & M \udby{t} i_1(t) + L_2 \udby{t} i_2(t),
+\label{eqn:mut}
+\end{eqnarray}
+%
+where the mutual inductance $M$ is
+%
+\begin{equation}
+  M = k \sqrt{L_1 L_2},
+\end{equation}
+%
+for a coupling coefficient $0 \le k \le 1$.  Note an ideal transformer
+requires $L_1 = L_2 = \infty$ and $k=1$.
+
+Taking Laplace transforms of \refeqn{mut} yields,
+%
+\begin{eqnarray}
+\label{eqn:mut_V1}
+ V_1(s) & = & s L_1 I_1(s) + s M I_2(s) - L i_1(0^{-}) - M i_2(0^{-}), \\
+ V_2(s) & = & s M I_1(s) + s L_2 I_2(s) - M i_1(0^{-}) - L i_2(0^{-}),
+\label{eqn:mut_V2}
+\end{eqnarray}
+%
+where $i_1(0^{-})$ and $i_2(0^{-})$ are the initial currents.
+Thus each inductor can be modelled by an impedance in series with a
+current controlled voltage source and voltage source.
+
+Solving for $I_2$ from \refeqn{mut_V1} gives
+%
+\begin{equation} 
+  I_2(s) = \frac{1}{M s} \left(- I_1(s) L_1 s + L_1 i_1(0^{-}) + M i_2(0^{-}) + V_1(s)\right)
+\label{eqn:mut_I2V1}
+\end{equation}
+%
+and solving for $I_2$ from \refeqn{mut_V2} gives
+%
+\begin{equation}
+I_2(s) = \frac{1}{L_2 s} \left(- I_1(s) M s + L_2 i_2(0^{-}) + M i_1(0^{-}) + V_2(s)\right).
+\label{eqn:mut_I2V2}
+\end{equation}
+%
+Equating \refeqn{mut_I2V1} and \refeqn{mut_I2V2} yields,
+%
+\begin{equation}
+I_1(s) =\frac{L_2 V_1(s) - M V_2(s)}{s \left(L_1 L_2 - M^{2}\right)}
+- \frac{i_1(0^{-})}{s}
+ \end{equation}
+%
+Similarly,
+%
+\begin{equation}
+I_2(s) =\frac{L_1 V_2(s) - M V_1(s)}{s \left(L_1 L_2 - M^{2}\right)}
+- \frac{i_2(0^{-})}{s}
+ \end{equation}
+
+
+Substituting for $M$ gives
+%
+\begin{equation}
+I_1(s) =\frac{L_2 V_1(s) - k\sqrt{L_1 L_2} V_2(s)}{s L_1 L_2 \left(1 - k^2\right)}
+- \frac{i_1(0^{-})}{s}.
+ \end{equation}
+
+
+
+If $k=0$ then $M=0$ and so
+%
+\begin{equation}
+I_1(s) =\frac{V_1(s)}{s L_1} - \frac{i_1(0^{-})}{s}
+ \end{equation}
+%
+and
+%
+\begin{equation}
+I_2(s) =\frac{V_2(s)}{s L_2} - \frac{i_2(0^{-})}{s}
+\end{equation}
+%
+as expected for independent inductors.
+
+
+An ideal transformer occurs when $k=1$ and $L_1$ and $L_2$ are
+infinite.  In practice, this cannot be achieved.  It can be
+approximated by making $k$ be close to 1 and choosing $L_1$ and $L_2$
+to have large inductances.
+
+
+The secondary of a transformer requires a DC connection to ground;
+either by having a common ground or using a large resistance.
+
+\begin{equation}
+  \frac{L_1}{L_2} = \encp{\frac{N_1}{N_2}}^2.
+\end{equation}
+
+
 \end{document}
+
