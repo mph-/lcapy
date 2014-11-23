@@ -754,8 +754,6 @@ class Netlist(object):
                     # both current_source and RLC lists.  We need to
                     # flip the current direction to follow convention
                     # that positive current flows from N1 to N2.
-                    from lcapy import s
-
                     name = 'I_' + elt.name
                     newelt = NetElement(name, elt.nodes[1], elt.nodes[0], elt.cpt.I)
                     self.current_sources[key] = newelt
