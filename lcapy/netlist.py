@@ -689,14 +689,13 @@ class Netlist(object):
 
         I = sym.zeros(self.num_nodes, 1)
 
-        for n in range(self.num_nodes):
-            for m, elt in enumerate(self.current_sources.values()):
-                n1 = self._nodeindex(elt.nodes[0])
-                n2 = self._nodeindex(elt.nodes[1])
-                if n1 == n:
-                    I[n] = I[n] - elt.cpt.I
-                elif n2 == n:
-                    I[n] = I[n] + elt.cpt.I
+        for m, elt in enumerate(self.current_sources.values()):
+            n1 = self._nodeindex(elt.nodes[0])
+            n2 = self._nodeindex(elt.nodes[1])
+            if n1 >= 0:
+                I[n1] -= elt.cpt.I
+            if n2 >= 0:
+                I[n2] += elt.cpt.I
         return I
 
 
