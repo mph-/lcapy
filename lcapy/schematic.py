@@ -411,6 +411,8 @@ class NetElement(object):
                 autolabel = Expr(expr).latex()
             elif cpt_type in ('Vs', 'Is'):
                 autolabel = Expr(expr).latex()
+            elif cpt_type == 'TF':
+                autolabel = '1:%s' % args[2]
             elif cpt_type not in ('TP',):
                 try:
                     value = float(args[0])
@@ -782,28 +784,24 @@ class Schematic(object):
         return node_str
 
 
-    def _tikz_draw_TF1(self, elt, nodes, outfile, ratio, draw_labels):
+    def _tikz_draw_TF1(self, elt, nodes, outfile, draw_labels):
 
         p1, p2, p3, p4 = [self.coords[n]  for n in nodes] 
         
         xoffset = 0.06 
-        yoffset = 0.35
+        yoffset = 0.40
 
         primary_dot = Pos(p3.x - xoffset, 0.5 * (p3.y + p4.y) + yoffset)
         secondary_dot = Pos(p1.x + xoffset, 0.5 * (p1.y + p2.y) + yoffset)
 
         centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
-        top = Pos(centre.x, p1.y + 0.15 )
+        labelpos = Pos(centre.x, primary_dot.y)
 
         labelstr = elt.autolabel if draw_labels else ''
 
         print(r'    \draw (%s) node[circ] {};' % primary_dot, file=outfile)
         print(r'    \draw (%s) node[circ] {};' % secondary_dot, file=outfile)
-        print(r'    \draw (%s) node[minimum width=%.1f] {$%s$};' % (top, 0.5, labelstr), file=outfile)
-
-        if ratio != None:
-            bottom = Pos(centre.x, p2.y - 0.15 )
-            print(r'    \draw (%s) node[minimum width=%.1f] {$%s$};' % (bottom, 0.5, '1:' + ratio), file=outfile)            
+        print(r'    \draw (%s) node[minimum width=%.1f] {$%s$};' % (labelpos, 0.5, labelstr), file=outfile)
 
 
     def _tikz_draw_TF(self, elt, outfile, draw_labels):
@@ -812,7 +810,7 @@ class Schematic(object):
 
         print(r'    \draw (%s) to [inductor] (%s);' % (n3, n4), file=outfile)
         print(r'    \draw (%s) to [inductor] (%s);' % (n1, n2), file=outfile)
-        self._tikz_draw_TF1(elt, elt.nodes, outfile, elt.args[2], draw_labels)
+        self._tikz_draw_TF1(elt, elt.nodes, outfile, draw_labels)
 
 
     def _tikz_draw_TP(self, elt, outfile, draw_labels):
@@ -843,7 +841,7 @@ class Schematic(object):
 
         nodes = L2.nodes + L1.nodes
 
-        self._tikz_draw_TF1(elt, nodes, outfile, None, draw_labels)
+        self._tikz_draw_TF1(elt, nodes, outfile, draw_labels)
         # Should draw arc linking inductors.
 
 
