@@ -782,7 +782,7 @@ class Schematic(object):
         return node_str
 
 
-    def _tikz_draw_TF1(self, elt, nodes, outfile, draw_labels):
+    def _tikz_draw_TF1(self, elt, nodes, outfile, ratio, draw_labels):
 
         p1, p2, p3, p4 = [self.coords[n]  for n in nodes] 
         
@@ -801,14 +801,18 @@ class Schematic(object):
         print(r'    \draw (%s) node[circ] {};' % secondary_dot, file=outfile)
         print(r'    \draw (%s) node[minimum width=%.1f] {$%s$};' % (top, 0.5, labelstr), file=outfile)
 
+        if ratio != None:
+            bottom = Pos(centre.x, p2.y - 0.15 )
+            print(r'    \draw (%s) node[minimum width=%.1f] {$%s$};' % (bottom, 0.5, '1:' + ratio), file=outfile)            
+
 
     def _tikz_draw_TF(self, elt, outfile, draw_labels):
 
-        n1, n2, n3, n4 = nodes
+        n1, n2, n3, n4 = elt.nodes
 
         print(r'    \draw (%s) to [inductor] (%s);' % (n3, n4), file=outfile)
         print(r'    \draw (%s) to [inductor] (%s);' % (n1, n2), file=outfile)
-        self._tikz_draw_TF1(elt, elt.nodes, outfile, draw_labels)
+        self._tikz_draw_TF1(elt, elt.nodes, outfile, elt.args[2], draw_labels)
 
 
     def _tikz_draw_TP(self, elt, outfile, draw_labels):
@@ -839,7 +843,7 @@ class Schematic(object):
 
         nodes = L2.nodes + L1.nodes
 
-        self._tikz_draw_TF1(elt, nodes, outfile, draw_labels)
+        self._tikz_draw_TF1(elt, nodes, outfile, None, draw_labels)
         # Should draw arc linking inductors.
 
 
