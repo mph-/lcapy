@@ -775,7 +775,7 @@ class Netlist(object):
             else:
                 self._V[n] = Vs(0)
 
-        # Create dictionary of currents through elements
+        # Create dictionary of branch currents through elements
         self._I = {}
         for m, elt in enumerate(self.voltage_sources.values()):
             self._I[elt.name] = Is(results[m + self.num_nodes])
@@ -783,8 +783,9 @@ class Netlist(object):
         for m, elt in enumerate(self.current_sources.values()):
             self._I[elt.name] = elt.cpt.I
 
-        # Don't worry about currents due to initial conditions; these
-        # are overwritten below.
+        # Calculate the branch currents.  These should be evaluated as
+        # required.  Don't worry about currents due to initial
+        # conditions; these are overwritten below.
         for m, elt in enumerate(self.RLC):
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
             self._I[elt.name] = Is(sym.simplify((self._V[n1] - self._V[n2] - elt.cpt.V) / elt.cpt.Z))
