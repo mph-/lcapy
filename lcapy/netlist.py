@@ -754,7 +754,7 @@ class Netlist(object):
                     # flip the current direction to follow convention
                     # that positive current flows from N1 to N2.
                     name = 'I_' + elt.name
-                    newelt = NetElement(name, elt.nodes[1], elt.nodes[0], elt.cpt.I)
+                    newelt = NetElement(name, elt.nodes[1], elt.nodes[0], 's', elt.cpt.I)
                     self.current_sources[key] = newelt
             elif not elt.is_dummy:
                 raise ValueError('Unhandled element %s' % elt.name)
