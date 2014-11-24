@@ -531,16 +531,30 @@ I_1(s) =\frac{L_2 V_1(s) - k\sqrt{L_1 L_2} V_2(s)}{s L_1 L_2 \left(1 - k^2\right
 If $k=0$ then $M=0$ and so
 %
 \begin{equation}
-I_1(s) =\frac{V_1(s)}{s L_1} - \frac{i_1(0^{-})}{s}
+I_1(s) = \frac{V_1(s)}{s L_1} - \frac{i_1(0^{-})}{s}
  \end{equation}
 %
 and
 %
 \begin{equation}
-I_2(s) =\frac{V_2(s)}{s L_2} - \frac{i_2(0^{-})}{s}
+I_2(s) = \frac{V_2(s)}{s L_2} - \frac{i_2(0^{-})}{s}
 \end{equation}
 %
 as expected for independent inductors.
+
+
+The additional current due to the mutual coupling is
+%
+\begin{eqnarray}
+  I_1'(s) & = & I_1(s) - \encp{\frac{V_1(s)}{s L_1} - \frac{i_1(0^{-})}{s}}, \\
+          & = & \frac{M^2}{s L_1 \encp{L_1 L_2 - M^2}} V_1 - \frac{M}{s \encp{L_1 L_2 - M^2}} V_2.
+\end{eqnarray}
+%
+In terms of the coupling coefficient, $k$, this can be expressed as
+%
+\begin{equation}
+  I_1'(s) = \frac{k^2}{s L_1 \encp{1-k^2}} V_1 - \frac{k}{s\sqrt{L_1 L_2}\encp{1-k^2}}V_2.
+\end{equation}
 
 
 An ideal transformer occurs when $k=1$ and $L_1$ and $L_2$ are
@@ -552,8 +566,303 @@ to have large inductances.
 The secondary of a transformer requires a DC connection to ground;
 either by having a common ground or using a large resistance.
 
+If the turns ratio is $a$ then
+%
 \begin{equation}
-  \frac{L_1}{L_2} = \encp{\frac{N_1}{N_2}}^2.
+N_2 = a N_1,
+\end{equation}
+%
+and
+%
+\begin{equation}
+  L_2 = a^2 L_1.
+\end{equation}
+
+
+\section{Modified nodal analysis}
+
+There are two possible stamps for a capacitor, $C$.  In the first,
+the current through the capacitor $I_C=I_1=-I_2$ is required to be solved,
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  & 1 \\
+     &  & -1 \\
+-1 & 1 & \frac{1}{sC}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 \\ I_C
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  0 \\ 0 \\ - \frac{v_0}{s}
+\end{bmatrix}.
+\end{equation}
+%
+This comes from the equations:
+%
+\begin{eqnarray}
+\label{eqn:C_I1}
+  I_1 & = & I_C, \\
+  I_2 & = & -I_C,
+\label{eqn:C_I2}
+\end{eqnarray}
+%
+with
+%
+\begin{equation}
+    V_1 - V_2  =  \frac{I_C}{sC} + \frac{v_0}{s},
+\end{equation}
+%
+and thus
+%
+\begin{equation}
+    V_2 - V_1 + \frac{I_C}{sC} =  -\frac{v_0}{s}.
+\end{equation}
+
+
+The second formulation does not directly solve the current through the
+capacitor and thus has a smaller matrix to solve:
+%
+\begin{equation}
+  \begin{bmatrix}
+    sC & -sC \\
+   -sC & sC
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  C v_0 \\ -C v_0
+\end{bmatrix}.
+\end{equation}
+%
+This comes from \refeqn{C_I1} and \refeqn{C_I2} with 
+%
+\begin{equation}
+    I_C  =  \encp{V_1 - V_2}sC - C v_0.
+\end{equation}
+
+Similarly for an inductor, the two formulations are
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  & 1 \\
+     &  & -1 \\
+-1 & 1 & sL
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 \\ I_L
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  0 \\ 0 \\ L i_0
+\end{bmatrix},
+\end{equation}
+%
+and
+%
+\begin{equation}
+  \begin{bmatrix}
+    \frac{1}{sL} & -\frac{1}{sL} \\
+   -\frac{1}{sL} & \frac{1}{sL}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  -\frac{i_0}{s} \\ \frac{i_0}{s}
+\end{bmatrix}.
+\end{equation}
+%
+Here
+%
+\begin{eqnarray}
+\label{eqn:L_I1}
+  I_1 & = & I_L, \\
+  I_2 & = & -I_L,
+\label{eqn:L_I2}
+\end{eqnarray}
+%
+and
+%
+\begin{equation}
+ V_1 - V_2 = s L I_L - L i_0, 
+\end{equation}
+%
+yielding
+%
+\begin{equation}
+  V_2 - V_1 + s L I_L = L i_0.
+\end{equation}
+%
+For the second formulation, $I_L$ is substituted in \refeqn{L_I1} and
+\refeqn{L_I2} with
+%
+\begin{equation}
+  I_L = \frac{V_1 - V_2}{sL} + \frac{i_0}{s}.
+\end{equation}
+
+Let's now consider two uncoupled inductors.  The two formulations are:
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  &  &    &  1 & \\
+     &  &  &    & -1 & \\
+     &  &  &    &    & 1\\
+     &  &  &    &    & -1\\
+-1 & 1  &  &    & sL_1 & \\
+     &  & -1 & 1 &  & sL_2
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 \\ V_3 \\ V_4 \\ I_{L1} \\ I_{L2}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  0 \\ 0 \\ 0 \\ 0 \\ L_1 i_{10} \\ L_2 i_{20}
+\end{bmatrix}.
+\label{eqn:L1L2_stamp1}
+\end{equation}
+
+
+\begin{equation}
+  \begin{bmatrix}
+    \frac{1}{sL_1} & -\frac{1}{sL_1} &   & \\
+   -\frac{1}{sL_1} & \frac{1}{sL_1}  &   & \\
+   & &  \frac{1}{sL_2} & -\frac{1}{sL_2}   \\
+   & & -\frac{1}{sL_2} & \frac{1}{sL_2}  
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 \\ V_3 \\ V_4
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  -\frac{i_{10}}{s} \\ \frac{i_{10}}{s} \\
+  -\frac{i_{20}}{s} \\ \frac{i_{20}}{s}
+\end{bmatrix}
+\label{eqn:L1L2_stamp2}
+\end{equation}
+
+If there is mutual inductance $M$, the system of equations is
+%
+\begin{eqnarray}
+  I_1 & = & I_{L1}, \\
+  I_2 & = & -I_{L1}, \\
+  I_3 & = & I_{L2}, \\
+  I_4 & = & -I_{L2},
+\end{eqnarray}
+%
+with
+%
+\begin{eqnarray}
+  I_{L1} & = & \frac{L_2\encp{V_1 - V_2} - M\encp{V_3 - V_4}}{s\encp{L_1 L_2 - M^2}} - \frac{i_{10}}{s}, \\
+  I_{L2} & = & \frac{L_1\encp{V_3 - V_4} - M\encp{V_1 - V_2}}{s\encp{L_1 L_2 - M^2}} - \frac{i_{20}}{s}.
+\end{eqnarray}
+%
+Defining,
+%
+\begin{equation}
+  D  = L_1 L_2 - M^2,
+\end{equation}
+%
+gives
+%
+\begin{eqnarray}
+  I_{L1} & = & \frac{L_2\encp{V_1 - V_2} - M\encp{V_3 - V_4}}{sD} - \frac{i_{10}}{s}, \\
+  I_{L2} & = & \frac{L_1\encp{V_3 - V_4} - M\encp{V_1 - V_2}}{sD} - \frac{i_{20}}{s}.
+\end{eqnarray}
+%
+
+\begin{equation}
+  \begin{bmatrix}
+    \frac{L_2}{sD} & -\frac{L_2}{sD} & -\frac{M}{sD}  & \frac{M}{sD} \\
+   -\frac{L_2}{sD} & \frac{L_2}{sD}  & \frac{M}{sD}  & -\frac{M}{sD} \\
+  -\frac{M}{sD} & \frac{M}{sD} &  \frac{L_1}{sD} & -\frac{L_1}{sD}   \\
+   \frac{M}{sD} & -\frac{M}{sD} & -\frac{L_1}{sD} & \frac{L_1}{sD}  
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 \\ V_3 \\ V_4
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  -\frac{i_{10}}{s} \\ \frac{i_{10}}{s} \\
+  -\frac{i_{20}}{s} \\ \frac{i_{20}}{s}
+\end{bmatrix}
+\label{eqn:mutual_stamp1}
+\end{equation}
+
+Alternatively, the stamps for the uncoupled inductors can be augmented
+with a stamp describing the coupling, using
+%
+\begin{eqnarray}
+  I'_{L1} & = & \frac{M^2\encp{V_1 - V_2}}{sL_1 D} - \frac{M\encp{V_3 - V_4}}{sD}, \\
+  I'_{L2} & = & \frac{M^2\encp{V_3 - V_4}}{sL_2 D} - \frac{M\encp{V_1 - V_2}}{sD}.  
+\end{eqnarray}
+%
+These equations produce the stamp:
+%
+\begin{equation}
+  \begin{bmatrix}
+    \frac{M^2}{sL_1 D} & -\frac{M^2}{sL_1 D} & -\frac{M}{sD}  & \frac{M}{sD} \\
+   -\frac{M^2}{sL_1 D} & \frac{M^2}{sL_1 D}  & \frac{M}{sD}  & -\frac{M}{sD} \\
+  -\frac{M}{sD} & \frac{M}{sD} &  \frac{M^2}{sL_2 D} & -\frac{M^2}{sL_2 D}   \\
+   \frac{M}{sD} & -\frac{M}{sD} & -\frac{M^2}{sL_2 D} & \frac{M^2}{sL_2 D}  
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 \\ V_3 \\ V_4
+  \end{bmatrix}
+=
+\begin{bmatrix}
+0 \\ 0 \\ 0 \\ 0
+\end{bmatrix}.
+\end{equation}
+%
+This can be added to \refeqn{L1L2_stamp2} to produce
+\refeqn{mutual_stamp1}.  Note, when there is no coupling $M=0$, and so
+the stamp is all zeroes.  When the coupling is perfect, $D=0$ and the
+stamp blows up.
+
+The alternative stamp formulation includes the currents through the
+inductors,
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  &  &    &  1 & \\
+     &  &  &    & -1 & \\
+     &  &  &    &    & 1\\
+     &  &  &    &    & -1\\
+-1 & 1  &  &    & sL_1 & sM\\
+     &  & -1 & 1 & sM & sL_2
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 \\ V_3 \\ V_4 \\ I_{L1} \\ I_{L2}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  0 \\ 0 \\ 0 \\ 0 \\ L_1 i_{10} \\ L_2 i_{20}
+\end{bmatrix}.
+\end{equation}
+%
+This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  &  &    &    & \\
+     &  &  &    &    & \\
+     &  &  &    &    & \\
+     &  &  &    &    & \\
+     &  &  &    &    & sM\\
+     &  &  &    & sM & 
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 \\ V_3 \\ V_4 \\ I_{L1} \\ I_{L2}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0
+\end{bmatrix}.
 \end{equation}
 
 
