@@ -157,7 +157,8 @@ class K(object):
     """Mutual inductance"""
 
     def __init__(self, k):
-    
+
+        k = cExpr(k)
         self.k = k
 
 
@@ -354,6 +355,12 @@ class NetElement(object):
     def is_L(self):
         
         return isinstance(self.cpt, L)
+
+
+    @property
+    def is_K(self):
+        
+        return isinstance(self.cpt, K)
 
 
 
@@ -633,8 +640,24 @@ class Netlist(object):
             self.B[n2, m] = -1
             self.C[m, n2] = -1
 
-        self.D[m, m] += -elt.Z
-        self._Es[m] += elt.V
+        self.D[m, m] += -elt.cpt.Z
+        self._Es[m] += elt.cpt.V
+
+
+    def _K_stamp(self, elt):
+
+        # This requires the inductor stamp to include the inductor current.
+
+        L1 = elt.nodes[0]
+        L2 = elt.nodes[1]
+        # TODO: Add sqrt to Expr
+        ZM = elt.cpt.k * sym.sqrt((self.elements[L1].cpt.Z * self.elements[L2].cpt.Z).expr)
+
+        m1 = self._branch_index(L1)
+        m2 = self._branch_index(L2)
+
+        self.D[m1, m2] += -ZM
+        self.D[m2, m1] += -ZM
 
 
     def _V_stamp(self, elt):
@@ -676,11 +699,6 @@ class Netlist(object):
         self._Es[m] += elt.cpt.V
 
 
-
-
-
-
-
     def _I_stamp(self, elt):
 
         n1 = self._node_index(elt.nodes[0])
@@ -689,7 +707,6 @@ class Netlist(object):
             self._Is[n1] -= elt.cpt.I
         if n2 >= 0:
             self._Is[n2] += elt.cpt.I
-
 
 
     def _analyse(self):
@@ -758,6 +775,10 @@ class Netlist(object):
                 self._RC_stamp(elt)
             elif elt.is_L: 
                 self._L_stamp(elt)
+            elif elt.is_K: 
+                self._K_stamp(elt)
+            else:
+                raise ValueError('Unhandled element %s' % elt.name)
 
 
         # Augment the admittance matrix to form A matrix
@@ -767,7 +788,12 @@ class Netlist(object):
         self.Z = self._Is.col_join(self._Es)
 
         # Solve for the nodal voltages
-        results = sym.simplify(self.A.inv() * self.Z)
+        try:
+            Ainv = self.A.inv()
+        except ValueError:
+            raise ValueError('The A matrix is not invertible; probably some nodes need connecting with high value resistors')
+
+        results = sym.simplify(A.inv * self.Z)
 
         # Create dictionary of node voltages
         self._V = Mdict({'0': Vs(0)})
