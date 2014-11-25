@@ -37,7 +37,7 @@ from warnings import warn
 from lcapy.core import  pprint, cExpr, Avs, Ais, Zs, Ys, s
 from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep, Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z, Is, Vs, Ys, Zs
-from lcapy.twoport import AMatrix, TwoPortBModel
+from lcapy.twoport import AMatrix, TwoPortBModel, Matrix, Vector
 from schematic import Schematic
 import sympy as sym
 import re
@@ -808,7 +808,7 @@ class Netlist(object):
 
         if not hasattr(self, '_A'):
             self._analyse()
-        return self._A
+        return Matrix(self._A)
 
 
     @property
@@ -817,7 +817,7 @@ class Netlist(object):
 
         if not hasattr(self, '_Z'):
             self._analyse()
-        return self._Z
+        return Vector(self._Z)
 
 
     @property
@@ -829,7 +829,7 @@ class Netlist(object):
 
         V = ['V_' + node for node in self.node_list[1:]]
         I = ['I_' + branch for branch in self.unknown_branch_currents]
-        return V + I
+        return Vector(V + I)
 
 
     @property
@@ -944,7 +944,7 @@ class Netlist(object):
         return I(Isc) | Y(Ys(Isc / Voc))
 
 
-    def Y(self, n1, n2):
+    def admittance(self, n1, n2):
         """Return admittance between nodes n1 and n2
         with independent sources killed."""
 
@@ -956,7 +956,7 @@ class Netlist(object):
         return Ys(Isc / Voc)
 
 
-    def Z(self, n1, n2):
+    def impedance(self, n1, n2):
         """Return impedance between nodes n1 and n2
         with independent sources killed."""
 
