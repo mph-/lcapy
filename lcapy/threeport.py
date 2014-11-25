@@ -1,9 +1,9 @@
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import Vs, Avs, cExpr
+from lcapy.core import Vs, Avs, cExpr, VsVector, IsVector
 from lcapy.oneport import OnePort
-from lcapy.twoport import VsVector, IsVector, YMatrix, ZMatrix, TwoPortZModel, Series
+from lcapy.twoport import YMatrix, ZMatrix, TwoPortZModel, Series
 
 __all__ = ('Opamp', )
 

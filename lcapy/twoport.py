@@ -5,7 +5,7 @@ This module supports simple linear two-port networks.
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, Avs, Ais, WyeDelta, DeltaWye
+from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, Avs, Ais, WyeDelta, DeltaWye, Vector, Matrix, VsVector, IsVector, YVector, ZVector
 from lcapy.oneport import OnePort, Norton, Thevenin
 from copy import copy
 
@@ -107,111 +107,6 @@ def _check_twoport_args(args):
     for arg1 in args:
         if not isinstance(arg1, TwoPort):
             raise ValueError('%s not a TwoPort' % arg1)
-
-
-class Matrix(sym.Matrix):
-
-    # Unlike numpy.ndarray, the sympy.Matrix runs all the elements
-    # through sympify, creating sympy objects and thus losing the
-    # original type information and associated methods.
-    # As a hack, we try to wrap elements when they are read
-    # using __getitem__.
-
-    _typewrap = sExpr
-
-
-    def __getitem__(self, key):
-
-        item = super (Matrix, self).__getitem__(key)
-
-        # The following line is to handle slicing used
-        # by latex method.
-        if isinstance(item, sym.Matrix):
-            return item
-
-        if hasattr(self, '_typewrap'):
-            return self._typewrap(item, simplify=False)
-
-        return item
-
-
-    def pprint(self):
-
-        return sym.pprint(self)
-
-
-    def latex(self):
-
-        return sym.latex(self)
-
-
-    def _reformat(self, method):
-        """Helper method for reformatting expression"""
-
-        new = copy(self)
-
-        for i in range(self.rows):
-            for j in range(self.cols):
-                new[i, j] = getattr(self[i, j], method)()
-
-        return new
-
-
-    def canonical(self):
-
-        return self._reformat('canonical');
-
-
-    def general(self):
-
-        return self._reformat('general');
-
-
-    def mixedfrac(self):
-
-        return self._reformat('mixedfrac');
-
-
-    def partfrac(self):
-
-        return self._reformat('partfrac');
-
-
-    def ZPK(self):
-
-        return self._reformat('ZPK');
-
-
-class Vector(Matrix):
-
-    def __new__ (cls, *args):
-
-        args = [sym.sympify(arg) for arg in args]
-
-        if len(args) == 2:
-            return super (Vector, cls).__new__(cls, (args[0], args[1]))
-
-        return super (Vector, cls).__new__(cls, *args)
-
-
-class VsVector(Vector):
-    
-    _typewrap = Vs
-
-
-class IsVector(Vector):
-    
-    _typewrap = Is
-
-
-class YVector(Vector):
-
-    _typewrap = Ys
-
-
-class ZVector(Vector):
-
-    _typewrap = Zs
 
 
 class TwoPortMatrix(Matrix):
