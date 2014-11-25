@@ -34,7 +34,7 @@ Copyright 2014 Michael Hayes, UCECE
 
 from __future__ import division
 from warnings import warn
-from lcapy.core import  pprint, cExpr, Avs, Ais, Zs, Ys
+from lcapy.core import  pprint, cExpr, Avs, Ais, Zs, Ys, s
 from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep, Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z, Is, Vs, Ys, Zs
 from lcapy.twoport import AMatrix, TwoPortBModel
@@ -470,6 +470,10 @@ class Netlist(object):
 
         self.elements[elt.name] = elt
 
+        # Ignore nodes for mutual inductance.
+        if elt.cpt_type == 'K':
+            return
+
         self._node_add(elt.nodes[0], elt)
         self._node_add(elt.nodes[1], elt)
         
@@ -651,7 +655,7 @@ class Netlist(object):
         L1 = elt.nodes[0]
         L2 = elt.nodes[1]
         # TODO: Add sqrt to Expr
-        ZM = elt.cpt.k * sym.sqrt((self.elements[L1].cpt.Z * self.elements[L2].cpt.Z).expr)
+        ZM = elt.cpt.k * s * sym.simplify(sym.sqrt((self.elements[L1].cpt.Z * self.elements[L2].cpt.Z / s**2).expr))
 
         m1 = self._branch_index(L1)
         m2 = self._branch_index(L2)
