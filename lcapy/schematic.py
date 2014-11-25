@@ -78,6 +78,7 @@ class EngFormat(object):
         string = fmt % value 
 
         if trim:
+            # Remove trailing zeroes after decimal point
             string = string.rstrip('0').rstrip('.')
             
         return string + '\,' + prefixes[idx] + self.unit
@@ -323,7 +324,10 @@ class Pos(object):
 
     def __str__(self):
 
-        return "%.1f,%.1f" % (self.x, self.y)
+        xstr = ('%.2f' % self.x).rstrip('0').rstrip('.')
+        ystr = ('%.2f' % self.y).rstrip('0').rstrip('.')
+
+        return "%s,%s" % (xstr, ystr)
 
 
     @property
@@ -820,7 +824,7 @@ class Schematic(object):
         print(p1, p2, p3, p4)
 
 
-    def _tikz_draw_TF1(self, elt, nodes, outfile, draw_labels):
+    def _tikz_draw_TF1(self, elt, nodes, outfile, draw_labels, link=False):
 
         p1, p2, p3, p4 = [self.coords[n]  for n in nodes] 
         
@@ -838,6 +842,13 @@ class Schematic(object):
         print(r'    \draw (%s) node[circ] {};' % primary_dot, file=outfile)
         print(r'    \draw (%s) node[circ] {};' % secondary_dot, file=outfile)
         print(r'    \draw (%s) node[minimum width=%.1f] {$%s$};' % (labelpos, 0.5, labelstr), file=outfile)
+
+        if link:
+            width = p1.x - p3.x
+            arcpos = Pos((p1.x + p3.x) / 2, secondary_dot.y - width / 2 + 0.2)
+
+            print(r'    \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);' % (width / 2, arcpos, width / 2), file=outfile)
+            
 
 
     def _tikz_draw_TF(self, elt, outfile, draw_labels):
@@ -877,8 +888,7 @@ class Schematic(object):
 
         nodes = L2.nodes + L1.nodes
 
-        self._tikz_draw_TF1(elt, nodes, outfile, draw_labels)
-        # Should draw arc linking inductors.
+        self._tikz_draw_TF1(elt, nodes, outfile, draw_labels, link=True)
 
 
     def _tikz_draw_cpt(self, elt, outfile, draw_labels, draw_nodes):
