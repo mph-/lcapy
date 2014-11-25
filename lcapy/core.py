@@ -77,20 +77,38 @@ class Expr(object):
         # class and rewrap the returned value if it is a sympy Expr
         # object.
 
-        if not hasattr(self.val, attr):
+        expr = self.val
+        if hasattr(expr, attr):
+            
+            def wrap(*args):
+
+                ret = getattr(expr, attr)(*args)
+                if not isinstance(ret, sym.Expr):
+                    return ret
+
+                # Wrap the return value
+                return self.__class__(ret)
+
+            return wrap
+
+            
+        # Try looking for a sympy function with the same name,
+        # such as sqrt, log, etc.
+        # Perhaps should have a list of allowable functions?
+        if not hasattr(sym, attr):
             raise AttributeError(
                 "%s has no attribute %s." % (self.__class__.__name__, attr))
+            
+        def wrap1(*args):
 
-        def wrap(*args):
-
-            ret = getattr(self.val, attr)(*args)
+            ret = getattr(sym, attr)(expr, *args)
             if not isinstance(ret, sym.Expr):
                 return ret
 
             # Wrap the return value
             return self.__class__(ret)
 
-        return wrap
+        return wrap1
 
 
     def __str__(self):
@@ -260,7 +278,6 @@ class Expr(object):
         """Make pretty string with LHS name"""
 
         return sym.pretty(sym.Eq(sym.sympify(name), self.val))
-
 
 
     def pprint(self):
