@@ -396,6 +396,14 @@ class Netlist(object):
         return self.node_list.index(self.node_map[node]) - 1
 
 
+    def _branch_index(self, cpt_name):
+
+        index = self.unknown_branch_currents.index(cpt_name)
+        if index < 0:
+            raise ValueError ('Unknown component name %s for branch current' % cpt.name)
+        return index
+
+
     def netfile_add(self, filename):    
         """Add the nets from file with specified filename"""
 
@@ -457,7 +465,7 @@ class Netlist(object):
 
     def _invalidate(self):
 
-        for attr in ('_V', '_I', '_node_map', '_node_list', '_sch'):
+        for attr in ('_V', '_I', '_node_map', '_node_list', '_sch', '_A', '_Z'):
             if hasattr(self, attr):
                 delattr(self, attr)
 
@@ -601,14 +609,6 @@ class Netlist(object):
         return self.net_parse(net)
 
 
-    def _branch_index(self, cpt_name):
-
-        index = self.unknown_branch_currents.index(cpt_name)
-        if index < 0:
-            raise ValueError ('Unknown component name %s for branch current' % cpt.name)
-        return index
-
-
     def _RC_stamp(self, elt):
 
         # L's can also be added with this stamp but if have coupling
@@ -619,12 +619,12 @@ class Netlist(object):
         Y = elt.cpt.Y
 
         if n1 >= 0 and n2 >= 0:
-            self.G[n1, n2] -= Y
-            self.G[n2, n1] -= Y
+            self._G[n1, n2] -= Y
+            self._G[n2, n1] -= Y
         if n1 >= 0:
-            self.G[n1, n1] += Y
+            self._G[n1, n1] += Y
         if n2 >= 0:
-            self.G[n2, n2] += Y
+            self._G[n2, n2] += Y
 
         self._Is[n1] += elt.cpt.I
 
@@ -636,13 +636,13 @@ class Netlist(object):
         m = self._branch_index(elt.name)
 
         if n1 >= 0:
-            self.B[n1, m] = 1
-            self.C[m, n1] = 1
+            self._B[n1, m] = 1
+            self._C[m, n1] = 1
         if n2 >= 0:
-            self.B[n2, m] = -1
-            self.C[m, n2] = -1
+            self._B[n2, m] = -1
+            self._C[m, n2] = -1
 
-        self.D[m, m] += -elt.cpt.Z
+        self._D[m, m] += -elt.cpt.Z
 
         self._Es[m] += elt.cpt.V
 
@@ -659,8 +659,8 @@ class Netlist(object):
         m1 = self._branch_index(L1)
         m2 = self._branch_index(L2)
 
-        self.D[m1, m2] += -ZM
-        self.D[m2, m1] += -ZM
+        self._D[m1, m2] += -ZM
+        self._D[m2, m1] += -ZM
 
 
     def _V_stamp(self, elt):
@@ -670,11 +670,11 @@ class Netlist(object):
         m = self._branch_index(elt.name)
 
         if n1 >= 0:
-            self.B[n1, m] = 1
-            self.C[m, n1] = 1
+            self._B[n1, m] = 1
+            self._C[m, n1] = 1
         if n2 >= 0:
-            self.B[n2, m] = -1
-            self.C[m, n2] = -1
+            self._B[n2, m] = -1
+            self._C[m, n2] = -1
 
         if isinstance(elt.cpt, TF):
 
@@ -683,11 +683,11 @@ class Netlist(object):
             T = elt.cpt.args[0]
                 
             if n3 >= 0:
-                self.B[n3, m] = -T
-                self.C[m, n3] = -T
+                self._B[n3, m] = -T
+                self._C[m, n3] = -T
             if n4 >= 0:
-                self.B[n4, m] = T
-                self.C[m, n4] = T
+                self._B[n4, m] = T
+                self._C[m, n4] = T
 
         elif isinstance(elt.cpt, VCVS):
 
@@ -696,9 +696,9 @@ class Netlist(object):
             A = elt.cpt.args[0]
                 
             if n3 >= 0:
-                self.C[m, n3] = -A
+                self._C[m, n3] = -A
             if n4 >= 0:
-                self.C[m, n4] = A
+                self._C[m, n4] = A
 
         # Add ?
         self._Es[m] += elt.cpt.V
@@ -742,10 +742,10 @@ class Netlist(object):
         num_nodes = len(self.node_list) - 1
         num_branches = len(self.unknown_branch_currents)
 
-        self.G = sym.zeros(num_nodes, num_nodes)
-        self.B = sym.zeros(num_nodes, num_branches)
-        self.C = sym.zeros(num_branches, num_nodes)
-        self.D = sym.zeros(num_branches, num_branches)
+        self._G = sym.zeros(num_nodes, num_nodes)
+        self._B = sym.zeros(num_nodes, num_branches)
+        self._C = sym.zeros(num_branches, num_nodes)
+        self._D = sym.zeros(num_branches, num_branches)
 
         self._Is = sym.zeros(num_nodes, 1)
         self._Es = sym.zeros(num_branches, 1)
@@ -766,18 +766,18 @@ class Netlist(object):
 
 
         # Augment the admittance matrix to form A matrix
-        self.A = self.G.row_join(self.B).col_join(self.C.row_join(self.D))
+        self._A = self._G.row_join(self._B).col_join(self._C.row_join(self._D))
         # Augment the known current vector with known voltage vector
         # to form Z vector
-        self.Z = self._Is.col_join(self._Es)
+        self._Z = self._Is.col_join(self._Es)
 
         # Solve for the nodal voltages
         try:
-            Ainv = self.A.inv()
+            Ainv = self._A.inv()
         except ValueError:
             raise ValueError('The A matrix is not invertible; probably some nodes need connecting with high value resistors')
 
-        results = sym.simplify(Ainv * self.Z)
+        results = sym.simplify(Ainv * self._Z)
 
         # Create dictionary of node voltages
         self._V = Mdict({'0': Vs(0)})
@@ -799,6 +799,37 @@ class Netlist(object):
             if elt.is_RC: 
                 n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
                 self._I[elt.name] = Is(sym.simplify((self._V[n1] - self._V[n2] - elt.cpt.V) / elt.cpt.Z))
+
+
+
+    @property
+    def A(self):    
+        """Return A matrix for MNA"""
+
+        if not hasattr(self, '_A'):
+            self._analyse()
+        return self._A
+
+
+    @property
+    def Z(self):    
+        """Return Z vector for MNA"""
+
+        if not hasattr(self, '_Z'):
+            self._analyse()
+        return self._Z
+
+
+    @property
+    def X(self):
+        """Return X vector (of unknowns) for MNA"""
+
+        if not hasattr(self, '_Z'):
+            self._analyse()
+
+        V = ['V_' + node for node in self.node_list[1:]]
+        I = ['I_' + branch for branch in self.unknown_branch_currents]
+        return V + I
 
 
     @property
@@ -1046,7 +1077,8 @@ class Netlist(object):
                     if '0' in nodes:
                         node_map[node] = '0'
                     else:
-                        node_map[node] = nodes[0]
+                        # Sort nodes so 8 before 8_1 etc.
+                        node_map[node] = sorted(nodes)[0]
                     break
 
         if not node_map.has_key('0'):
