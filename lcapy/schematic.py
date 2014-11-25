@@ -329,6 +329,11 @@ class Pos(object):
 
         return "%s,%s" % (xstr, ystr)
 
+        
+    def __repr__(self):
+
+        return 'Pos(%s)' % self
+
 
     @property
     def xy(self):
@@ -631,13 +636,12 @@ class Schematic(object):
                 # m2 assumed ground...
                 m1, m2, m3, m4 = cnodes.map(elt.nodes)
 
-                size *= 2
-
                 if dirs[0] == 'right':
-                    graphs.add(m3, m1, size)
-                    graphs.add(m4, m1, size)
+                    graphs.add(m3, m1, size * 2 + 0.4)
+                    graphs.add(m4, m1, size * 2 + 0.4)
                 else:
-                    graphs.add(m4, m3, size)
+                    graphs.add(m4, m1, 0.5 * size)
+                    graphs.add(m1, m3, 0.5 * size)
                 continue
 
             if elt.cpt_type == 'K':
@@ -818,10 +822,6 @@ class Schematic(object):
         centre = Pos(0.5 * (p3.x + p1.x), p1.y)
 
         print(r'    \draw (%s) node[op amp, scale=2] (opamp) {};' % centre, file=outfile)
-
-        p1, p2, p3, p4 = [self.coords[n]  for n in elt.nodes] 
-
-        print(p1, p2, p3, p4)
 
 
     def _tikz_draw_TF1(self, elt, nodes, outfile, draw_labels, link=False):

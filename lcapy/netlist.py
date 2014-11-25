@@ -171,7 +171,8 @@ cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'Z' : Z, 'Y' : Y,
                 'Vs' : V, 'Is' : I, 
                 'V' : v, 'I' : i, 'v' : v, 'i' : i,
                 'P' : 'open', 'W' : 'short', 
-                'E' : VCVS, 'TF' : TF, 'TP' : TP, 'K' : K}
+                'E' : VCVS, 'TF' : TF, 'TP' : TP, 'K' : K, 
+                'opamp' : VCVS}
 
 
 # Regular expression alternate matches stop with first match so need
@@ -266,11 +267,6 @@ class NetElement(object):
         # although these can be specified symbolically, for example,
         # v1 1 0 t*Heaviside(t)
 
-        if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP'):
-            if len(args) < 2:
-                raise ValueError('Component type %s requires 4 nodes' % cpt_type)
-            self.nodes += (args[0], args[1])
-            args = args[2:]
 
         if cpt_type == 'TP' and len(args) != 5:
             raise ValueError('TP component requires 5 args')
@@ -280,6 +276,15 @@ class NetElement(object):
             if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep', 'impulse', 's'):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]
+            elif cpt_type == 'E' and args[0] == 'opamp':
+                cpt_type = 'opamp'
+                args = args[1:]
+
+        if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP', 'opamp'):
+            if len(args) < 2:
+                raise ValueError('Component type %s requires 4 nodes' % cpt_type)
+            self.nodes += (args[0], args[1])
+            args = args[2:]
 
         self.cpt_type = cpt_type
 
@@ -312,7 +317,7 @@ class NetElement(object):
 
     def __str__(self):
 
-        return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes + self.args])
+        return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes[0:2] + self.args])
 
 
     @property
