@@ -1069,6 +1069,18 @@ class Schematic(object):
             drw.add(cpt_type, xy=pos2.xy, to=pos1.xy)
 
 
+    def _tikz_draw_opamp(self, elt, outfile, draw_labels):
+
+        # TODO
+        pass
+
+
+    def _schemdraw_draw_K(self, elt, outfile, draw_labels):
+        
+        # TODO
+        pass
+
+
     def schemdraw_draw(self, draw_labels=True, draw_nodes=True, 
                        label_nodes=True, filename=None, args=None):
 
@@ -1085,7 +1097,8 @@ class Schematic(object):
 
         draw = {'TF' : self._schemdraw_draw_TF,
                 'TP' : self._schemdraw_draw_TP,
-                'K' : self._schemdraw_draw_K}
+                'K' : self._schemdraw_draw_K,
+                'opamp' : self._schemdraw_draw_opamp}
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):

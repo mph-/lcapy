@@ -27,7 +27,7 @@ k -> C, L
 f -> I, V
 u -> V, I
 
-Draw opamps / FDA
+Draw fully differential opamps
 
 VCVS 2 0 3 1 A   -> label A (V_3 - V_1)
 VCVS 2 0 3 0 A   -> label A V_3
@@ -64,4 +64,8 @@ Warn user when calculations may take a while, say when inverting a
 large matrix.
 
 Fix labels for schemdraw.
+
+Handle symbol names such as E1 that sympy thinks are functions.
+
+
 
