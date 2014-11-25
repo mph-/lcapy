@@ -423,7 +423,7 @@ class NetElement(object):
             elif cpt_type in ('Vs', 'Is'):
                 autolabel = Expr(expr).latex()
             elif cpt_type == 'TF':
-                autolabel = '1:%s' % args[2]
+                autolabel = '1:%s' % args[0]
             elif cpt_type not in ('TP',):
                 try:
                     value = float(args[0])
