@@ -821,9 +821,12 @@ class Schematic(object):
 
         centre = Pos(0.5 * (p3.x + p1.x), p1.y)
 
+        labelstr = elt.autolabel if draw_labels else ''
         argstr = 'yscale=-1' if elt.opts.has_key('mirror') else ''
 
         print(r'    \draw (%s) node[op amp, %s, scale=2] (opamp) {};' % (centre, argstr), file=outfile)
+        # Draw label separately to avoid being scaled by 2.
+        print(r'    \draw (%s) node [] {$%s$};' % (centre, labelstr), file=outfile)
 
 
     def _tikz_draw_TF1(self, elt, nodes, outfile, draw_labels, link=False):
