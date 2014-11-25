@@ -598,7 +598,7 @@ class Netlist(object):
 
     def _branch_index(self, cpt_name):
 
-        index = list(self.unknown_branch_currents).index(cpt_name)
+        index = self.unknown_branch_currents.index(cpt_name)
         if index < 0:
             raise ValueError ('Unknown component name %s for branch current' % cpt.name)
         return index
@@ -679,10 +679,12 @@ class Netlist(object):
                 
             if n3 >= 0:
                 self.B[n3, m] = -T
+                self.C[m, n3] = -T
             if n4 >= 0:
                 self.B[n4, m] = T
+                self.C[m, n4] = T
 
-        if isinstance(elt.cpt, (TF, VCVS)):
+        elif isinstance(elt.cpt, VCVS):
 
             n3 = self._node_index(elt.nodes[2])
             n4 = self._node_index(elt.nodes[3])
@@ -724,13 +726,11 @@ class Netlist(object):
 
 
         # Determine which branch currents are needed.
-        self.unknown_branch_currents = {}
+        self.unknown_branch_currents = []
 
         for key, elt in self.elements.iteritems():
-            if elt.is_V:
-                self.unknown_branch_currents[key] = elt
-            elif elt.is_L: 
-                self.unknown_branch_currents[key] = elt
+            if elt.is_V or elt.is_L:
+                self.unknown_branch_currents.append(key)
 
 
         # Generate stamps.
@@ -785,8 +785,8 @@ class Netlist(object):
 
         # Create dictionary of branch currents through elements
         self._I = {}
-        for m, elt in enumerate(self.unknown_branch_currents.values()):
-            self._I[elt.name] = Is(results[m + num_nodes])
+        for m, key in enumerate(self.unknown_branch_currents):
+            self._I[key] = Is(results[m + num_nodes])
 
         # Calculate the branch currents.  These should be evaluated as
         # required.  
