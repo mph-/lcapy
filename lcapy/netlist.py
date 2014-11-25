@@ -758,6 +758,7 @@ class Netlist(object):
                 self._K_stamp(elt)
             else:
                 raise ValueError('Unhandled element %s' % elt.name)
+            # TODO handle wires, etc.
 
 
         # Augment the admittance matrix to form A matrix
@@ -823,6 +824,8 @@ class Netlist(object):
 
         self._Vd = {}
         for elt in self.elements.values():
+            if elt.is_K:
+                continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
             self._Vd[elt.name] = Vs(sym.simplify(self.V[n1] - self.V[n2]))
 
