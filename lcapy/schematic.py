@@ -828,7 +828,7 @@ class Schematic(object):
         labelstr = elt.autolabel if draw_labels else ''
         argstr = '' if elt.opts.has_key('mirror') else 'yscale=-1'
 
-        print(r'    \draw (%s) node[op amp, %s, scale=2] (opamp) {};' % (centre, argstr), file=outfile)
+        print(r'    \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (centre, argstr, self.scale * 2), file=outfile)
         # Draw label separately to avoid being scaled by 2.
         print(r'    \draw (%s) node [] {$%s$};' % (centre, labelstr), file=outfile)
 
@@ -1116,6 +1116,7 @@ class Schematic(object):
 
         self.node_spacing = 2 * stretch * scale
         self.cpt_size = 1.5 * scale
+        self.scale = scale
 
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
