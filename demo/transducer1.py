@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 from msignal import Msignal
 
-cct = Circuit('Transducer')
+cct = Circuit()
 
 fr = 36e3
 C1 = 1e-6

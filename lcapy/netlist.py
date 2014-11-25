@@ -372,9 +372,6 @@ class Netlist(object):
         self.nodes = {}
         # Shared nodes (with same voltage)
         self.snodes = {}
-        self.num_nodes = 0
-        self.known_branch_voltages = {}
-        self.known_branch_currents = {}
 
         self._V = Mdict({'0': Vs(0)})
         self._I = {}
@@ -529,12 +526,6 @@ class Netlist(object):
             raise Error('Unknown component: ' + name)
         self.elements.pop(name)
         
-        if name in self.known_branch_currents:
-            self.known_branch_currents.pop(name)
-
-        if name in self.known_branch_voltages:
-            self.known_branch_voltages.pop(name)
-
 
     def _make_node(self):
         """Create a dummy node"""        
@@ -630,6 +621,8 @@ class Netlist(object):
         if n2 >= 0:
             self.G[n2, n2] += Y
 
+        self._Is[n1] += elt.cpt.I
+
 
     def _L_stamp(self, elt):
 
@@ -645,6 +638,7 @@ class Netlist(object):
             self.C[m, n2] = -1
 
         self.D[m, m] += -elt.cpt.Z
+
         self._Es[m] += elt.cpt.V
 
 
@@ -728,47 +722,28 @@ class Netlist(object):
             print('Nothing connected to ground node 0')
             self.nodes['0'] = None
 
-        # Start by determining which branch currents are needed andthe
-        # independent current and voltage sources.
-        self.num_nodes = len(self.node_list) - 1
 
-        self.known_branch_voltages = {}
-        self.known_branch_currents = {}
+        # Determine which branch currents are needed.
         self.unknown_branch_currents = {}
 
         for key, elt in self.elements.iteritems():
             if elt.is_V:
-                self.known_branch_voltages[key] = elt
                 self.unknown_branch_currents[key] = elt
-            elif elt.is_I: 
-                self.known_branch_currents[key] = elt
-            elif elt.is_RC: 
-                if elt.cpt.V != 0.0:
-                    # To handle initial condition, use Norton model
-                    # and split element into admittance in parallel
-                    # with current source.  We flip the current
-                    # direction to follow convention that positive
-                    # current flows from N1 to N2.
-                    newelt = NetElement('I_' + elt.name, elt.nodes[1], elt.nodes[0], 's', elt.cpt.I)
-                    self.known_branch_currents[key] = newelt
             elif elt.is_L: 
                 self.unknown_branch_currents[key] = elt
-                if elt.cpt.V != 0.0:
-                    # To handle initial condition, use Norton model
-                    # and split element into admittance in parallel
-                    # with current source.  We flip the current
-                    # direction to follow convention that positive
-                    # current flows from N1 to N2.
-                    newelt = NetElement('V_' + elt.name, elt.nodes[1], elt.nodes[0], 's', elt.cpt.V)
-                    self.known_branch_voltages[key] = newelt
 
-        self.G = sym.zeros(self.num_nodes, self.num_nodes)
-        self.B = sym.zeros(self.num_nodes, len(self.unknown_branch_currents))
-        self.C = sym.zeros(len(self.unknown_branch_currents), self.num_nodes)
-        self.D = sym.zeros(len(self.unknown_branch_currents), len(self.unknown_branch_currents))
 
-        self._Is = sym.zeros(self.num_nodes, 1)
-        self._Es = sym.zeros(len(self.unknown_branch_currents), 1)
+        # Generate stamps.
+        num_nodes = len(self.node_list) - 1
+        num_branches = len(self.unknown_branch_currents)
+
+        self.G = sym.zeros(num_nodes, num_nodes)
+        self.B = sym.zeros(num_nodes, num_branches)
+        self.C = sym.zeros(num_branches, num_nodes)
+        self.D = sym.zeros(num_branches, num_branches)
+
+        self._Is = sym.zeros(num_nodes, 1)
+        self._Es = sym.zeros(num_branches, 1)
 
         for key, elt in self.elements.iteritems():
             if elt.is_V:
@@ -811,10 +786,7 @@ class Netlist(object):
         # Create dictionary of branch currents through elements
         self._I = {}
         for m, elt in enumerate(self.unknown_branch_currents.values()):
-            self._I[elt.name] = Is(results[m + self.num_nodes])
-
-        for m, elt in enumerate(self.known_branch_currents.values()):
-            self._I[elt.name] = elt.cpt.I
+            self._I[elt.name] = Is(results[m + num_nodes])
 
         # Calculate the branch currents.  These should be evaluated as
         # required.  
