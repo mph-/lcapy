@@ -761,9 +761,8 @@ class Netlist(object):
                 self._L_stamp(elt)
             elif elt.is_K: 
                 self._K_stamp(elt)
-            else:
+            elif elt.cpt_type not in ('P', 'W'):
                 raise ValueError('Unhandled element %s' % elt.name)
-            # TODO handle wires, etc.
 
 
         # Augment the admittance matrix to form A matrix
