@@ -793,7 +793,7 @@ class Netlist(object):
         except ValueError:
             raise ValueError('The A matrix is not invertible; probably some nodes need connecting with high value resistors')
 
-        results = sym.simplify(A.inv * self.Z)
+        results = sym.simplify(Ainv * self.Z)
 
         # Create dictionary of node voltages
         self._V = Mdict({'0': Vs(0)})
@@ -806,17 +806,16 @@ class Netlist(object):
 
         # Create dictionary of branch currents through elements
         self._I = {}
-        for m, elt in enumerate(self.known_branch_voltages.values()):
+        for m, elt in enumerate(self.unknown_branch_currents.values()):
             self._I[elt.name] = Is(results[m + self.num_nodes])
 
         for m, elt in enumerate(self.known_branch_currents.values()):
             self._I[elt.name] = elt.cpt.I
 
         # Calculate the branch currents.  These should be evaluated as
-        # required.  Don't worry about currents due to initial
-        # conditions; these are overwritten below.
-        if False:
-            for m, elt in enumerate(self.RLC):
+        # required.  
+        for key, elt in self.elements.iteritems():
+            if elt.is_RC: 
                 n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
                 self._I[elt.name] = Is(sym.simplify((self._V[n1] - self._V[n2] - elt.cpt.V) / elt.cpt.Z))
 
