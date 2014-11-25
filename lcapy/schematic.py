@@ -994,12 +994,13 @@ class Schematic(object):
 
         wires = self._make_wires()
 
-        # Draw implict wires
-        for wire in wires:
-            n1, n2 = wire.nodes
+        if False:
+            # Draw implict wires
+            for wire in wires:
+                n1, n2 = wire.nodes
 
-            node_str = self._node_str(n1, n2, draw_nodes)
-            print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2),
+                node_str = self._node_str(n1, n2, draw_nodes)
+                print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2),
                   file=outfile)
     
         # Label primary nodes
