@@ -640,8 +640,12 @@ class Schematic(object):
                     graphs.add(m3, m1, size * 2 + 0.4)
                     graphs.add(m4, m1, size * 2 + 0.4)
                 else:
-                    graphs.add(m4, m1, 0.5 * size)
-                    graphs.add(m1, m3, 0.5 * size)
+                    if elt.opts.has_key('mirror'):
+                        graphs.add(m3, m1, 0.5 * size)
+                        graphs.add(m1, m4, 0.5 * size)
+                    else:
+                        graphs.add(m4, m1, 0.5 * size)
+                        graphs.add(m1, m3, 0.5 * size)
                 continue
 
             if elt.cpt_type == 'K':
@@ -822,7 +826,7 @@ class Schematic(object):
         centre = Pos(0.5 * (p3.x + p1.x), p1.y)
 
         labelstr = elt.autolabel if draw_labels else ''
-        argstr = 'yscale=-1' if elt.opts.has_key('mirror') else ''
+        argstr = '' if elt.opts.has_key('mirror') else 'yscale=-1'
 
         print(r'    \draw (%s) node[op amp, %s, scale=2] (opamp) {};' % (centre, argstr), file=outfile)
         # Draw label separately to avoid being scaled by 2.
