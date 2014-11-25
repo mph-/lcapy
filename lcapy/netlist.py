@@ -604,6 +604,9 @@ class Netlist(object):
 
     def _RC_stamp(self, elt):
 
+        # L's can also be added with this stamp but if have coupling
+        # it is easier to generate stamp that requires branch current
+        # through the L.
         n1 = self._node_index(elt.nodes[0])
         n2 = self._node_index(elt.nodes[1])
         Y = elt.cpt.Y
@@ -617,11 +620,27 @@ class Netlist(object):
             self.G[n2, n2] += Y
 
 
+    def _L_stamp(self, elt):
+
+        n1 = self._node_index(elt.nodes[0])
+        n2 = self._node_index(elt.nodes[1])
+        m = self._branch_index(elt.name)
+
+        if n1 >= 0:
+            self.B[n1, m] = 1
+            self.C[m, n1] = 1
+        if n2 >= 0:
+            self.B[n2, m] = -1
+            self.C[m, n2] = -1
+
+        self.D[m, m] += -elt.Z
+        self._Es[m] += elt.V
+
+
     def _V_stamp(self, elt):
 
         n1 = self._node_index(elt.nodes[0])
         n2 = self._node_index(elt.nodes[1])
-
         m = self._branch_index(elt.name)
 
         if n1 >= 0:
@@ -655,6 +674,10 @@ class Netlist(object):
 
         # Add ?
         self._Es[m] += elt.cpt.V
+
+
+
+
 
 
 
