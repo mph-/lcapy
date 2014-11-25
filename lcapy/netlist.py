@@ -345,9 +345,15 @@ class NetElement(object):
 
 
     @property
-    def is_RLC(self):
+    def is_RC(self):
         
-        return isinstance(self.cpt, (R, G, L, C))
+        return isinstance(self.cpt, (R, G, C))
+
+
+    @property
+    def is_L(self):
+        
+        return isinstance(self.cpt, L)
 
 
 
@@ -360,9 +366,8 @@ class Netlist(object):
         # Shared nodes (with same voltage)
         self.snodes = {}
         self.num_nodes = 0
-        self.voltage_sources = {}
-        self.current_sources = {}
-        self.RLC = []
+        self.known_branch_voltages = {}
+        self.known_branch_currents = {}
 
         self._V = Mdict({'0': Vs(0)})
         self._I = {}
@@ -377,7 +382,7 @@ class Netlist(object):
         return self.elements[name]
 
 
-    def _nodeindex(self, node):
+    def _node_index(self, node):
         """Return node index; ground is -1"""
         return self.node_list.index(self.node_map[node]) - 1
 
@@ -513,11 +518,11 @@ class Netlist(object):
             raise Error('Unknown component: ' + name)
         self.elements.pop(name)
         
-        if name in self.current_sources:
-            self.current_sources.pop(name)
+        if name in self.known_branch_currents:
+            self.known_branch_currents.pop(name)
 
-        if name in self.voltage_sources:
-            self.voltage_sources.pop(name)
+        if name in self.known_branch_voltages:
+            self.known_branch_voltages.pop(name)
 
 
     def _make_node(self):
@@ -589,134 +594,79 @@ class Netlist(object):
         return self.net_parse(net)
 
 
-    def _G_matrix(self):
+    def _branch_index(self, cpt_name):
 
-        G = sym.zeros(self.num_nodes, self.num_nodes)
-
-        for elt in self.RLC:
-            n1 = self._nodeindex(elt.nodes[0])
-            n2 = self._nodeindex(elt.nodes[1])
-            Y = elt.cpt.Y
-
-            if n1 >= 0 and n2 >= 0:
-                G[n1, n2] -= Y
-                G[n2, n1] -= Y
-            if n1 >= 0:
-                G[n1, n1] += Y
-            if n2 >= 0:
-                G[n2, n2] += Y
-
-        return G
+        index = list(self.unknown_branch_currents).index(cpt_name)
+        if index < 0:
+            raise ValueError ('Unknown component name %s for branch current' % cpt.name)
+        return index
 
 
-    def _B_matrix(self):
+    def _RC_stamp(self, elt):
 
-        B = sym.zeros(self.num_nodes, len(self.voltage_sources))
+        n1 = self._node_index(elt.nodes[0])
+        n2 = self._node_index(elt.nodes[1])
+        Y = elt.cpt.Y
 
-        for m, elt in enumerate(self.voltage_sources.values()):
+        if n1 >= 0 and n2 >= 0:
+            self.G[n1, n2] -= Y
+            self.G[n2, n1] -= Y
+        if n1 >= 0:
+            self.G[n1, n1] += Y
+        if n2 >= 0:
+            self.G[n2, n2] += Y
 
-            n1 = self._nodeindex(elt.nodes[0])
-            n2 = self._nodeindex(elt.nodes[1])
 
-            if n1 >= 0:
-                B[n1, m] = 1
-            if n2 >= 0:
-                B[n2, m] = -1
+    def _V_stamp(self, elt):
 
-            if isinstance(elt.cpt, TF):
+        n1 = self._node_index(elt.nodes[0])
+        n2 = self._node_index(elt.nodes[1])
 
-                n3 = self._nodeindex(elt.nodes[2])
-                n4 = self._nodeindex(elt.nodes[3])
-                T = elt.cpt.args[0]
+        m = self._branch_index(elt.name)
+
+        if n1 >= 0:
+            self.B[n1, m] = 1
+            self.C[m, n1] = 1
+        if n2 >= 0:
+            self.B[n2, m] = -1
+            self.C[m, n2] = -1
+
+        if isinstance(elt.cpt, TF):
+
+            n3 = self._node_index(elt.nodes[2])
+            n4 = self._node_index(elt.nodes[3])
+            T = elt.cpt.args[0]
                 
-                if n3 >= 0:
-                    B[n3, m] = -T
-                if n4 >= 0:
-                    B[n4, m] = T
+            if n3 >= 0:
+                self.B[n3, m] = -T
+            if n4 >= 0:
+                self.B[n4, m] = T
 
-        return B
+        if isinstance(elt.cpt, (TF, VCVS)):
 
-
-    def _C_matrix(self):
-
-        C = sym.zeros(len(self.voltage_sources), self.num_nodes)
-
-        for m, elt in enumerate(self.voltage_sources.values()):
-
-            n1 = self._nodeindex(elt.nodes[0])
-            n2 = self._nodeindex(elt.nodes[1])
-
-            if n1 >= 0:
-                C[m, n1] = 1
-            if n2 >= 0:
-                C[m, n2] = -1
-
-            if isinstance(elt.cpt, (TF, VCVS)):
-
-                n3 = self._nodeindex(elt.nodes[2])
-                n4 = self._nodeindex(elt.nodes[3])
-                A = elt.cpt.args[0]
+            n3 = self._node_index(elt.nodes[2])
+            n4 = self._node_index(elt.nodes[3])
+            A = elt.cpt.args[0]
                 
-                if n3 >= 0:
-                    C[m, n3] = -A
-                if n4 >= 0:
-                    C[m, n4] = A
+            if n3 >= 0:
+                self.C[m, n3] = -A
+            if n4 >= 0:
+                self.C[m, n4] = A
 
-        return C
-
-
-    def _D_matrix(self):
-
-        D = sym.zeros(len(self.voltage_sources), len(self.voltage_sources))
-
-        return D
+        # Add ?
+        self._Es[m] += elt.cpt.V
 
 
-    def _A_matrix(self):
 
-        G = self._G_matrix()
-        B = self._B_matrix()
-        C = self._C_matrix()
-        D = self._D_matrix()
+    def _I_stamp(self, elt):
 
-        # Augment the admittance matrix to form A matrix
-        A = G.row_join(B).col_join(C.row_join(D))
+        n1 = self._node_index(elt.nodes[0])
+        n2 = self._node_index(elt.nodes[1])
+        if n1 >= 0:
+            self._Is[n1] -= elt.cpt.I
+        if n2 >= 0:
+            self._Is[n2] += elt.cpt.I
 
-        return A
-
-
-    def _I_vector(self):
-
-        I = sym.zeros(self.num_nodes, 1)
-
-        for m, elt in enumerate(self.current_sources.values()):
-            n1 = self._nodeindex(elt.nodes[0])
-            n2 = self._nodeindex(elt.nodes[1])
-            if n1 >= 0:
-                I[n1] -= elt.cpt.I
-            if n2 >= 0:
-                I[n2] += elt.cpt.I
-        return I
-
-
-    def _E_vector(self):
-
-        E = sym.zeros(len(self.voltage_sources), 1)
-
-        for m, elt in enumerate(self.voltage_sources.values()):
-            E[m] = elt.cpt.V
-            
-        return E
-
-
-    def _Z_vector(self):
-
-        I = self._I_vector()
-        E = self._E_vector()
-
-        # Augment the known current vector with known voltage sources
-        Z = I.col_join(E)
-        return Z
 
 
     def _analyse(self):
@@ -734,42 +684,72 @@ class Netlist(object):
             print('Nothing connected to ground node 0')
             self.nodes['0'] = None
 
+        # Start by determining which branch currents are needed andthe
+        # independent current and voltage sources.
         self.num_nodes = len(self.node_list) - 1
 
-        self.voltage_sources = {}
-        self.current_sources = {}
-        self.RLC = []
+        self.known_branch_voltages = {}
+        self.known_branch_currents = {}
+        self.unknown_branch_currents = {}
+
         for key, elt in self.elements.iteritems():
-            if elt.is_V: 
-                self.voltage_sources[key] = elt
+            if elt.is_V:
+                self.known_branch_voltages[key] = elt
+                self.unknown_branch_currents[key] = elt
             elif elt.is_I: 
-                self.current_sources[key] = elt
-            elif elt.is_RLC: 
-                self.RLC.append(elt)
+                self.known_branch_currents[key] = elt
+            elif elt.is_RC: 
                 if elt.cpt.V != 0.0:
                     # To handle initial condition, use Norton model
                     # and split element into admittance in parallel
-                    # with current source.  The element will appear on
-                    # both current_source and RLC lists.  We need to
-                    # flip the current direction to follow convention
-                    # that positive current flows from N1 to N2.
-                    name = 'I_' + elt.name
-                    newelt = NetElement(name, elt.nodes[1], elt.nodes[0], 's', elt.cpt.I)
-                    self.current_sources[key] = newelt
-            elif not elt.is_dummy:
-                raise ValueError('Unhandled element %s' % elt.name)
+                    # with current source.  We flip the current
+                    # direction to follow convention that positive
+                    # current flows from N1 to N2.
+                    newelt = NetElement('I_' + elt.name, elt.nodes[1], elt.nodes[0], 's', elt.cpt.I)
+                    self.known_branch_currents[key] = newelt
+            elif elt.is_L: 
+                self.unknown_branch_currents[key] = elt
+                if elt.cpt.V != 0.0:
+                    # To handle initial condition, use Norton model
+                    # and split element into admittance in parallel
+                    # with current source.  We flip the current
+                    # direction to follow convention that positive
+                    # current flows from N1 to N2.
+                    newelt = NetElement('V_' + elt.name, elt.nodes[1], elt.nodes[0], 's', elt.cpt.V)
+                    self.known_branch_voltages[key] = newelt
+
+        self.G = sym.zeros(self.num_nodes, self.num_nodes)
+        self.B = sym.zeros(self.num_nodes, len(self.unknown_branch_currents))
+        self.C = sym.zeros(len(self.unknown_branch_currents), self.num_nodes)
+        self.D = sym.zeros(len(self.unknown_branch_currents), len(self.unknown_branch_currents))
+
+        self._Is = sym.zeros(self.num_nodes, 1)
+        self._Es = sym.zeros(len(self.unknown_branch_currents), 1)
+
+        for key, elt in self.elements.iteritems():
+            if elt.is_V:
+                self._V_stamp(elt)
+            elif elt.is_I: 
+                self._I_stamp(elt)
+            elif elt.is_RC: 
+                self._RC_stamp(elt)
+            elif elt.is_L: 
+                self._L_stamp(elt)
 
 
-        A = self._A_matrix()
-        Z = self._Z_vector()
+        # Augment the admittance matrix to form A matrix
+        self.A = self.G.row_join(self.B).col_join(self.C.row_join(self.D))
+        # Augment the known current vector with known voltage vector
+        # to form Z vector
+        self.Z = self._Is.col_join(self._Es)
 
         # Solve for the nodal voltages
-        results = sym.simplify(A.inv() * Z);        
+        results = sym.simplify(self.A.inv() * self.Z)
 
         # Create dictionary of node voltages
         self._V = Mdict({'0': Vs(0)})
         for n in self.nodes:
-            index = self._nodeindex(n)
+            index = self._node_index(n)
             if index >= 0:
                 self._V[n] = Vs(results[index])
             else:
@@ -777,18 +757,19 @@ class Netlist(object):
 
         # Create dictionary of branch currents through elements
         self._I = {}
-        for m, elt in enumerate(self.voltage_sources.values()):
+        for m, elt in enumerate(self.known_branch_voltages.values()):
             self._I[elt.name] = Is(results[m + self.num_nodes])
 
-        for m, elt in enumerate(self.current_sources.values()):
+        for m, elt in enumerate(self.known_branch_currents.values()):
             self._I[elt.name] = elt.cpt.I
 
         # Calculate the branch currents.  These should be evaluated as
         # required.  Don't worry about currents due to initial
         # conditions; these are overwritten below.
-        for m, elt in enumerate(self.RLC):
-            n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
-            self._I[elt.name] = Is(sym.simplify((self._V[n1] - self._V[n2] - elt.cpt.V) / elt.cpt.Z))
+        if False:
+            for m, elt in enumerate(self.RLC):
+                n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
+                self._I[elt.name] = Is(sym.simplify((self._V[n1] - self._V[n2] - elt.cpt.V) / elt.cpt.Z))
 
 
     @property

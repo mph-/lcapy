@@ -1,8 +1,8 @@
 from lcapy import pprint, Circuit
 
-cct = Circuit('Non-inverting opamp')
+cct = Circuit()
 
-cct.add('Vs 1 0 dc 10') 
+cct.add('Vs 1 0 step 10') 
 # Cannot have floating voltage source so tie to ground with arbitrary R
 cct.add('Ri 1 0') 
 cct.add('R1 2 0') 

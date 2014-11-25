@@ -1,8 +1,8 @@
 from lcapy import pprint, Circuit
 
-cct = Circuit('V R C')
+cct = Circuit()
 
-cct.add('Vs 1 0 dc') 
+cct.add('Vs 1 0 step') 
 cct.add('R1 1 2') 
 cct.add('C1 2 0 1 -5') 
 
