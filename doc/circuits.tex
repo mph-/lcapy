@@ -588,14 +588,14 @@ the current through the capacitor $I_C=I_1=-I_2$ is required to be solved,
   \begin{bmatrix}
      &  & 1 \\
      &  & -1 \\
--1 & 1 & \frac{1}{sC}
+1 & -1 & -\frac{1}{sC}
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_2 \\ I_C
   \end{bmatrix}
 =
 \begin{bmatrix}
-  0 \\ 0 \\ - \frac{v_0}{s}
+  0 \\ 0 \\ \frac{v_0}{s}
 \end{bmatrix}.
 \end{equation}
 %
@@ -617,7 +617,7 @@ with
 and thus
 %
 \begin{equation}
-    V_2 - V_1 + \frac{I_C}{sC} =  -\frac{v_0}{s}.
+    V_1 - V_2 - \frac{I_C}{sC} =  \frac{v_0}{s}.
 \end{equation}
 
 
@@ -650,7 +650,7 @@ Similarly for an inductor, the two formulations are
   \begin{bmatrix}
      &  & 1 \\
      &  & -1 \\
--1 & 1 & sL
+1 & -1 & -sL
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_2 \\ I_L
@@ -695,7 +695,7 @@ and
 yielding
 %
 \begin{equation}
-  V_2 - V_1 + s L I_L = L i_0.
+  V_1 - V_2 - s L I_L = -L i_0.
 \end{equation}
 %
 For the second formulation, $I_L$ is substituted in \refeqn{L_I1} and
@@ -713,15 +713,15 @@ Let's now consider two uncoupled inductors.  The two formulations are:
      &  &  &    & -1 & \\
      &  &  &    &    & 1\\
      &  &  &    &    & -1\\
--1 & 1  &  &    & sL_1 & \\
-     &  & -1 & 1 &  & sL_2
+1 & -1  &  &    & -sL_1 & \\
+     &  & 1 & -1 &  & -sL_2
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_2 \\ V_3 \\ V_4 \\ I_{L1} \\ I_{L2}
   \end{bmatrix}
 =
 \begin{bmatrix}
-  0 \\ 0 \\ 0 \\ 0 \\ L_1 i_{10} \\ L_2 i_{20}
+  0 \\ 0 \\ 0 \\ 0 \\ -L_1 i_{10} \\ -L_2 i_{20}
 \end{bmatrix}.
 \label{eqn:L1L2_stamp1}
 \end{equation}
@@ -833,15 +833,15 @@ inductors,
      &  &  &    & -1 & \\
      &  &  &    &    & 1\\
      &  &  &    &    & -1\\
--1 & 1  &  &    & sL_1 & sM\\
-     &  & -1 & 1 & sM & sL_2
+1 & -1  &  &    & -sL_1 & -sM\\
+     &  & 1 & -1 & -sM & -sL_2
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_2 \\ V_3 \\ V_4 \\ I_{L1} \\ I_{L2}
   \end{bmatrix}
 =
 \begin{bmatrix}
-  0 \\ 0 \\ 0 \\ 0 \\ L_1 i_{10} \\ L_2 i_{20}
+  0 \\ 0 \\ 0 \\ 0 \\ -L_1 i_{10} \\ -L_2 i_{20}
 \end{bmatrix}.
 \end{equation}
 %
@@ -853,8 +853,8 @@ This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
      &  &  &    &    & \\
      &  &  &    &    & \\
      &  &  &    &    & \\
-     &  &  &    &    & sM\\
-     &  &  &    & sM & 
+     &  &  &    &    & -sM\\
+     &  &  &    & -sM & 
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_2 \\ V_3 \\ V_4 \\ I_{L1} \\ I_{L2}
