@@ -178,7 +178,7 @@ cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'Z' : Z, 'Y' : Y,
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
-cpt_type_pattern = re.compile(r'(%s)(\w)?' % '|'.join(cpt_types))
+cpt_type_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_types))
 
 
 class Opts(dict):

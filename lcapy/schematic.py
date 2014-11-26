@@ -29,7 +29,7 @@ __all__ = ('Schematic', )
 cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'P', 'E', 'TF', 'TP', 'K']
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 
-cpt_type_pattern = re.compile(r'(%s)(\w)?' % '|'.join(cpt_types))
+cpt_type_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_types))
 
 
 import math
