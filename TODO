@@ -54,7 +54,7 @@ singular matrix.
 
 Determine pre-initial conditions.  Likely to be limited to a
 restricted arrange of independent source signals.  For example,
-cos(2pi f t) indeterminate.
+cos(2pi f t) is indeterminate.
 
 Add consistent mapping of unit step, dirac delta, etc.
 
@@ -65,7 +65,12 @@ large matrix.
 
 Fix labels for schemdraw.
 
+Add opamps, etc, for schemdraw.
+
+Allow component names and values on schematics.
+
+Tweak formatting of values on schematics (say use shortest
+representation).
+
 Handle symbol names such as E1 that sympy thinks are functions.
-
-
 

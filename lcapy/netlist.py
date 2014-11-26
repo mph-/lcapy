@@ -750,7 +750,7 @@ class Netlist(object):
         self._Is = sym.zeros(num_nodes, 1)
         self._Es = sym.zeros(num_branches, 1)
 
-        for key, elt in self.elements.iteritems():
+        for elt in self.elements.values():
             if elt.is_V:
                 self._V_stamp(elt)
             elif elt.is_I: 
@@ -771,6 +771,13 @@ class Netlist(object):
         # to form Z vector
         self._Z = self._Is.col_join(self._Es)
 
+
+    def _solve(self):
+        """Solve network."""
+
+        if not hasattr(self, '_A'):
+            self._analyse()
+
         # Solve for the nodal voltages
         try:
             Ainv = self._A.inv()
@@ -787,6 +794,8 @@ class Netlist(object):
                 self._V[n] = Vs(results[index])
             else:
                 self._V[n] = Vs(0)
+
+        num_nodes = len(self.node_list) - 1
 
         # Create dictionary of branch currents through elements
         self._I = {}
@@ -837,7 +846,7 @@ class Netlist(object):
         """Return dictionary of s-domain node voltages indexed by node name"""
 
         if not hasattr(self, '_V'):
-            self._analyse()
+            self._solve()
         return self._V
 
 
@@ -846,7 +855,7 @@ class Netlist(object):
         """Return dictionary of s-domain branch currents indexed by component name"""
 
         if not hasattr(self, '_I'):
-            self._analyse()
+            self._solve()
         return self._I
 
 
