@@ -1069,7 +1069,7 @@ class Schematic(object):
             drw.add(cpt_type, xy=pos2.xy, to=pos1.xy)
 
 
-    def _tikz_draw_opamp(self, elt, outfile, draw_labels):
+    def _schemdraw_draw_opamp(self, elt, outfile, draw_labels):
 
         # TODO
         pass
