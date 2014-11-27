@@ -930,7 +930,7 @@ class Idc(Istep):
     pass
 
 
-class Iacstep(Norton):
+class Iacstep(I):
     """AC current source multiplied by unit step."""
 
     def __init__(self, I, f, phi=0):
