@@ -876,7 +876,7 @@ def _as_ratfun_parts(expr, var=None):
     
     expr, var = _guess_var(expr, var)
 
-    if not expr.is_rational_function():
+    if not expr.is_rational_function(var):
         raise ValueError('Expression not a rational function')
 
     numer, denom = expr.as_numer_denom()
@@ -907,7 +907,7 @@ def _as_ratfun_delay(expr, var=None):
 
         ratfun *= f
             
-    if not ratfun.is_rational_function():
+    if not ratfun.is_rational_function(var):
         raise ValueError('Expression not a product of rational function and exponential')
 
     return ratfun, delay
