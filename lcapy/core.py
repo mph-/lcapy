@@ -354,7 +354,11 @@ class Expr(object):
         if np.isscalar(vector):
             return response
 
-        response = np.array([complex(func(v1)) for v1 in vector])
+        try:
+            response = np.array([complex(func(v1)) for v1 in vector])
+        except TypeError:
+            raise TypeError('Cannot evaluate expression, probably have undefined symbols')
+            
         return response
 
 
