@@ -885,7 +885,7 @@ class Vacstep(V):
         # Note, cos(-pi / 2) is not quite zero.
 
         omega = 2 * sym.pi * f
-        super (Vacstep, self).__init__(Vs((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
+        super (Vacstep, self).__init__(Vs(V * (s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
 
 
 class Vac(Vacstep):
@@ -941,7 +941,7 @@ class Iacstep(I):
         phi = cExpr(phi)
         
         omega = 2 * sym.pi * f
-        super (Iacstep, self).__init__(Is((s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
+        super (Iacstep, self).__init__(Is(I * (s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
 
 
 
