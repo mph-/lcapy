@@ -24,7 +24,8 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'zp2tf', 'poles', 'zeros', 'residue', 'residues', 'partfrac',
            'general', 'canonical', 'ZPK', 'inverse_laplace', 'initial_value',
            'transient_response', 'response', 'final_value', 's', 'sExpr', 
-           't', 'tExpr', 'cExpr', 'pi', 'cos', 'sin', 'exp', 'H', 'Dirac',
+           't', 'tExpr', 'f', 'fExpr', 'cExpr', 'omega', 'omegaExpr', 'pi',
+           'cos', 'sin', 'exp', 'H', 'DiracDelta',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YVector', 'ZVector')
 
 
@@ -390,7 +391,7 @@ class sExpr(Expr):
         """Return expression with s = j omega"""
 
         omega = sym.symbols('omega')
-        return Expr(self.subs(s, sym.I * omega))
+        return omegaExpr(self.subs(s, sym.I * omega))
 
 
     def zeros(self):
@@ -498,7 +499,7 @@ class sExpr(Expr):
         
         if f is None:
             fsym = sym.symbols('f')
-            return Expr(self.subs(s, sym.I * 2 * sym.pi * fsym))
+            return fExpr(self.subs(s, sym.I * 2 * sym.pi * fsym))
 
         return self.evaluate(2j * np.pi * f)
 
@@ -524,6 +525,31 @@ class sExpr(Expr):
 
 
 
+class fExpr(Expr):
+    """Fourier domain expression or symbol"""
+    
+    var = sym.symbols('f')
+
+
+    def inverse_fourier(self):
+        """Attempt inverse Fourier transform"""
+        
+        return tExpr(sym.inverse_fourier_transform(self.expr, t, self.var))
+
+
+
+class omegaExpr(Expr):
+    """Fourier domain expression or symbol (angular frequency)"""
+    
+    var = sym.symbols('omega')
+
+
+    def inverse_fourier(self):
+        """Attempt inverse Fourier transform"""
+        
+        return tExpr(sym.inverse_fourier_transform(self.expr, t, self.var))
+
+
 class tExpr(Expr):
     """t-domain expression or symbol"""
 
@@ -535,6 +561,13 @@ class tExpr(Expr):
         
         F, a, cond = sym.laplace_transform(self.expr, self.var, s)
         return sExpr(F)
+
+
+    def fourier(self):
+        """Attempt Fourier transform"""
+        
+        F = sym.fourier_transform(self.expr, self.var, f)
+        return fExpr(F)
 
 
     def evaluate(self, tvector):
@@ -559,6 +592,8 @@ class cExpr(Expr):
 
 s = sExpr('s')
 t = tExpr('t')
+f = fExpr('f')
+omega = omegaExpr('omega')
 pi = sym.pi
 
 def _guess_var(expr, var):
@@ -1350,9 +1385,9 @@ def H(expr):
     return expr.__class__(sym.Heaviside(expr))
 
 
-def Dirac(expr):
+def DiracDelta(expr):
     
-    return expr.__class__(sym.Dirac(expr))
+    return expr.__class__(sym.DiracDelta(expr))
 
 
 
