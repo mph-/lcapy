@@ -390,7 +390,7 @@ class sExpr(Expr):
         """Return expression with s = j omega"""
 
         omega = sym.symbols('omega')
-        return self.subs(s, sym.I * omega)        
+        return Expr(self.subs(s, sym.I * omega))
 
 
     def zeros(self):
@@ -498,7 +498,7 @@ class sExpr(Expr):
         
         if f is None:
             fsym = sym.symbols('f')
-            return self.val.subs(s, sym.I * 2 * sym.pi * fsym)
+            return Expr(self.subs(s, sym.I * 2 * sym.pi * fsym))
 
         return self.evaluate(2j * np.pi * f)
 
