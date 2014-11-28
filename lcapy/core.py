@@ -23,9 +23,10 @@ import sys
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf', 
            'zp2tf', 'poles', 'zeros', 'residue', 'residues', 'partfrac',
            'general', 'canonical', 'ZPK', 'inverse_laplace', 'initial_value',
-           'transient_response', 'response', 'final_value', 's', 'sExpr', 
-           't', 'tExpr', 'f', 'fExpr', 'cExpr', 'omega', 'omegaExpr', 'pi',
-           'cos', 'sin', 'exp', 'H', 'DiracDelta',
+           'transient_response', 'response', 'final_value', 'Expr', 
+           's', 'sExpr',  't', 'tExpr', 'f', 'fExpr', 'cExpr',
+           'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt',
+           'H', 'DiracDelta',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YVector', 'ZVector')
 
 
@@ -96,8 +97,10 @@ class Expr(object):
             
         # Try looking for a sympy function with the same name,
         # such as sqrt, log, etc.
+        # On second thoughts, this may confuse the user since
+        # we will pick up methods such as laplace_transform.
         # Perhaps should have a list of allowable functions?
-        if not hasattr(sym, attr):
+        if True or not hasattr(sym, attr):
             raise AttributeError(
                 "%s has no attribute %s." % (self.__class__.__name__, attr))
             
@@ -1382,6 +1385,11 @@ def cos(expr):
 def exp(expr):
     
     return expr.__class__(sym.exp(expr))
+
+
+def sqrt(expr):
+    
+    return expr.__class__(sym.sqrt(expr))
 
 
 def H(expr):
