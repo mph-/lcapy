@@ -143,6 +143,15 @@ class TF(CS):
         self.V = 0
 
 
+class K(object):
+    """Mutual inductance"""
+
+    def __init__(self, k):
+
+        k = cExpr(k)
+        self.k = k
+
+
 class TP(CS):
     """Two-port Z-network"""
 
@@ -151,15 +160,6 @@ class TP(CS):
         super (TP, self).__init__(kind, Z11, Z12, Z21, Z22)
         # No independent component.
         self.V = 0
-
-
-class K(object):
-    """Mutual inductance"""
-
-    def __init__(self, k):
-
-        k = cExpr(k)
-        self.k = k
 
 
 cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'Z' : Z, 'Y' : Y,
@@ -610,6 +610,7 @@ class Netlist(object):
 
 
     def _RC_stamp(self, elt):
+        """Add stamp for resistor or capacitor"""
 
         # L's can also be added with this stamp but if have coupling
         # it is easier to generate stamp that requires branch current
@@ -630,6 +631,9 @@ class Netlist(object):
 
 
     def _L_stamp(self, elt):
+        """Add stamp for inductor"""
+        
+        # This formulation adds the inductor current to the unknowns
 
         n1 = self._node_index(elt.nodes[0])
         n2 = self._node_index(elt.nodes[1])
@@ -648,6 +652,7 @@ class Netlist(object):
 
 
     def _K_stamp(self, elt):
+        """Add stamp for mutual inductance"""
 
         # This requires the inductor stamp to include the inductor current.
 
@@ -664,17 +669,18 @@ class Netlist(object):
 
 
     def _V_stamp(self, elt):
+        """Add stamp for voltage source (independent and dependent)"""
 
         n1 = self._node_index(elt.nodes[0])
         n2 = self._node_index(elt.nodes[1])
         m = self._branch_index(elt.name)
 
         if n1 >= 0:
-            self._B[n1, m] = 1
-            self._C[m, n1] = 1
+            self._B[n1, m] += 1
+            self._C[m, n1] += 1
         if n2 >= 0:
-            self._B[n2, m] = -1
-            self._C[m, n2] = -1
+            self._B[n2, m] -= 1
+            self._C[m, n2] -= 1
 
         if isinstance(elt.cpt, TF):
 
@@ -683,11 +689,11 @@ class Netlist(object):
             T = elt.cpt.args[0]
                 
             if n3 >= 0:
-                self._B[n3, m] = -T
-                self._C[m, n3] = -T
+                self._B[n3, m] -= T
+                self._C[m, n3] -= T
             if n4 >= 0:
-                self._B[n4, m] = T
-                self._C[m, n4] = T
+                self._B[n4, m] += T
+                self._C[m, n4] += T
 
         elif isinstance(elt.cpt, VCVS):
 
@@ -696,15 +702,16 @@ class Netlist(object):
             A = elt.cpt.args[0]
                 
             if n3 >= 0:
-                self._C[m, n3] = -A
+                self._C[m, n3] -= A
             if n4 >= 0:
-                self._C[m, n4] = A
+                self._C[m, n4] += A
 
         # Add ?
         self._Es[m] += elt.cpt.V
 
 
     def _I_stamp(self, elt):
+        """Add stamp for current source (independent and dependent)"""
 
         n1 = self._node_index(elt.nodes[0])
         n2 = self._node_index(elt.nodes[1])
