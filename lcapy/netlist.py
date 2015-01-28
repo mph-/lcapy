@@ -913,22 +913,22 @@ class Netlist(object):
         return self._vd
 
 
-    def Voc(self, n1, n2):
-        """Return open-circuit s-domain voltage between nodes n1 and n2."""
+    def Voc(self, Np, Nm):
+        """Return open-circuit s-domain voltage between nodes Np and Nm."""
 
-        return self.V[n1] - self.V[n2]
+        return self.V[Np] - self.V[Nm]
 
 
-    def voc(self, n1, n2):
-        """Return open-circuit t-domain voltage between nodes n1 and n2."""
+    def voc(self, Np, Nm):
+        """Return open-circuit t-domain voltage between nodes Np and Nm."""
 
-        return self.Voc(n1, n2).inverse_laplace()
+        return self.Voc(Np, Nm).inverse_laplace()
 
     
-    def Isc(self, n1, n2):
-        """Return short-circuit s-domain current between nodes n1 and n2."""
+    def Isc(self, Np, Nm):
+        """Return short-circuit s-domain current between nodes Np and Nm."""
 
-        self.add('Vshort_ %d %d' %(n1, n2), 0)
+        self.add('Vshort_ %d %d' %(Np, Nm), 0)
 
         Isc = self.I['Vshort_']
         self.remove('Vshort_')
@@ -936,113 +936,113 @@ class Netlist(object):
         return Isc
 
 
-    def isc(self, n1, n2):
-        """Return short-circuit t-domain current between nodes n1 and n2."""
+    def isc(self, Np, Nm):
+        """Return short-circuit t-domain current between nodes Np and Nm."""
 
-        return self.Isc(n1, n2).inverse_laplace()
+        return self.Isc(Np, Nm).inverse_laplace()
 
 
-    def thevenin(self, n1, n2):
-        """Return Thevenin model between nodes n1 and n2"""
+    def thevenin(self, Np, Nm):
+        """Return Thevenin model between nodes Np and Nm"""
 
-        Voc = self.Voc(n1, n2)
+        Voc = self.Voc(Np, Nm)
 
         # Connect 1 A s-domain current source between nodes and
         # measure voltage.
-        self.add('Iin_ %d %d s 1' %(n2, n1))
-        Vf = self.Voc(n1, n2)
+        self.add('Iin_ %d %d s 1' %(Nm, Np))
+        Vf = self.Voc(Np, Nm)
         self.remove('Iin_')
 
         return V(Voc) + Z(Zs(Vf - Voc))
 
 
-    def norton(self, n1, n2):
-        """Return Norton model between nodes n1 and n2"""
+    def norton(self, Np, Nm):
+        """Return Norton model between nodes Np and Nm"""
 
-        Isc = self.Isc(n1, n2)
+        Isc = self.Isc(Np, Nm)
 
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
-        self.add('Vin_ %d %d s 1' %(n2, n1))
+        self.add('Vin_ %d %d s 1' %(Nm, Np))
         If = -self.I['Vin_']
         self.remove('Vin_')
 
         return I(Isc) | Y(Ys(If - Isc))
 
 
-    def admittance(self, n1, n2):
-        """Return admittance between nodes n1 and n2
+    def admittance(self, Np, Nm):
+        """Return admittance between nodes Np and Nm
         with independent sources killed."""
 
         new = self.kill()
 
-        Voc = new.Voc(n1, n2)
-        Isc = new.Isc(n1, n2)
+        Voc = new.Voc(Np, Nm)
+        Isc = new.Isc(Np, Nm)
 
         return Ys(Isc / Voc)
 
 
-    def impedance(self, n1, n2):
-        """Return impedance between nodes n1 and n2
+    def impedance(self, Np, Nm):
+        """Return impedance between nodes Np and Nm
         with independent sources killed."""
 
         new = self.kill()
 
-        Voc = new.Voc(n1, n2)
-        Isc = new.Isc(n1, n2)
+        Voc = new.Voc(Np, Nm)
+        Isc = new.Isc(Np, Nm)
 
         return Zs(Voc / Isc)
 
 
-    def transfer(self, n1, n2, n3, n4):
+    def transfer(self, N1p, N1m, N2p, N2m):
         """Create voltage transfer function V2 / V1 where:
-        V1 is V[n1] - V[n2]
-        V2 is V[n3] - V[n4]
+        V1 is V[N1p] - V[N1m]
+        V2 is V[N2p] - V[N2m]
         
         Note, independent sources are killed."""
 
         new = self.kill()
-        new.add('V1_ %d %d impulse' % (n1, n2))
+        new.add('V1_ %d %d impulse' % (N1p, N1m))
 
-        H = Avs(new.Voc(n3, n4) / new.Vd['V1_'])
+        H = Avs(new.Voc(N2p, N2m) / new.Vd['V1_'])
 
         return H
 
 
-    def Amatrix(self, n1, n2, n3, n4):
+    def Amatrix(self, N1p, N1m, N2p, N2m):
         """Create A matrix from network, where:
-        I1 is the current flowing into n1 and out of n2
-        I2 is the current flowing into n3 and out of n4
-        V1 is V[n1] - V[n2]
-        V2 is V[n3] - V[n4]
+        I1 is the current flowing into N1p and out of N1m
+        I2 is the current flowing into N2p and out of N2m
+        V1 is V[N1p] - V[N1m]
+        V2 is V[N2p] - V[N2m]
         """
 
-        if self.Voc(n1, n2) != 0 or self.Voc(n3, n4) != 0:
+        if self.Voc(N1p, N1m) != 0 or self.Voc(N2p, N2m) != 0:
             raise ValueError('Network contains independent sources')
 
         try:
 
-            self.add('V1_ %d %d impulse' % (n1, n2))
+            self.add('V1_ %d %d impulse' % (N1p, N1m))
             
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
-            A11 = Avs(self.Vd['V1_'] / self.Voc(n3, n4))
+            A11 = Avs(self.Vd['V1_'] / self.Voc(N2p, N2m))
             
             # A12 = V1 / I2 with V2 = 0
             # Apply V1 and measure I2 with port 2 short-circuit
-            A12 = Zs(self.Vd['V1_'] / self.Isc(n3, n4))
+            A12 = Zs(self.Vd['V1_'] / self.Isc(N2p, N2m))
             
             self.remove('V1_')
             
-            self.add('I1_ %d %d impulse' % (n1, n2))
+            self.add('I1_ %d %d impulse' % (N1p, N1m))
             
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
-            A21 = Ys(-self.I['I1_'] / self.Voc(n3, n4))
+            A21 = Ys(-self.I['I1_'] / self.Voc(N2p, N2m))
             
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure I2 with port 2 short-circuit
-            A22 = Ais(-self.I['I1_'] / self.Isc(n3, n4))
+            A22 = Ais(-self.I['I1_'] / self.Isc(N2p, N2m))
             
             self.remove('I1_')
             return AMatrix(A11, A12, A21, A22)
@@ -1068,18 +1068,18 @@ class Netlist(object):
         return new
 
 
-    def twoport(self, n1, n2, n3, n4):
+    def twoport(self, N1p, N1m, N2p, N2m):
         """Create twoport model from network, where:
-        I1 is the current flowing into n1 and out of n2
-        I2 is the current flowing into n3 and out of n4
-        V1 is V[n1] - V[n2]
-        V2 is V[n3] - V[n4]
+        I1 is the current flowing into N1p and out of N1m
+        I2 is the current flowing into N2p and out of N2m
+        V1 is V[N1p] - V[N1m]
+        V2 is V[N2p] - V[N2m]
         """        
 
-        V2b = self.Voc(n3, n4)
-        I2b = self.Isc(n3, n4)
+        V2b = self.Voc(N2p, N2m)
+        I2b = self.Isc(N2p, N2m)
 
-        A = self.kill().Amatrix(n1, n2, n3, n4)
+        A = self.kill().Amatrix(N1p, N1m, N2p, N2m)
 
         return TwoPortBModel(A.B, V2b, I2b)
 
