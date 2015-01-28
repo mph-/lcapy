@@ -946,18 +946,28 @@ class Netlist(object):
         """Return Thevenin model between nodes n1 and n2"""
 
         Voc = self.Voc(n1, n2)
-        Isc = self.Isc(n1, n2)
 
-        return V(Voc) + Z(Zs(Voc / Isc))
+        # Connect 1 A s-domain current source between nodes and
+        # measure voltage.
+        self.add('Iin_ %d %d s 1' %(n2, n1))
+        Vf = self.Voc(n1, n2)
+        self.remove('Iin_')
+
+        return V(Voc) + Z(Zs(Vf - Voc))
 
 
     def norton(self, n1, n2):
         """Return Norton model between nodes n1 and n2"""
 
-        Voc = self.Voc(n1, n2)
         Isc = self.Isc(n1, n2)
 
-        return I(Isc) | Y(Ys(Isc / Voc))
+        # Connect 1 V s-domain voltage source between nodes and
+        # measure current.
+        self.add('Vin_ %d %d s 1' %(n2, n1))
+        If = -self.I['Vin_']
+        self.remove('Vin_')
+
+        return I(Isc) | Y(Ys(If - Isc))
 
 
     def admittance(self, n1, n2):

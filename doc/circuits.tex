@@ -25,21 +25,21 @@ Modified nodal analysis handles independent voltage sources using a
 similar system of equations,
 %
 \begin{equation}
-  \mat{A} \mat{X} = \mat{Z},
+  \mat{A} \vec{X} = \vec{Z},
 \end{equation}
 %
-where the vector of unknowns includes the currents through the
-independent voltage sources,
+where the vector of unknowns, $\vec{X}$, includes the currents,
+$\vec{J}$, through the independent voltage sources,
 %
 \begin{equation}
   \mat{X} =   
   \begin{bmatrix}
     \vec{V} \\ \vec{J}
-  \end{bmatrix},
+  \end{bmatrix}.
 \end{equation}
 %
-the vector of knowns includes the voltages produced by the independent
-voltage sources,
+The vector of knowns, $\vec{Z}$, includes the voltages, $\vec{E}$,
+produced by the independent voltage sources,
 %
 \begin{equation}
     \mat{Z} =   
