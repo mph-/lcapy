@@ -947,13 +947,7 @@ class Netlist(object):
 
         Voc = self.Voc(Np, Nm)
 
-        # Connect 1 A s-domain current source between nodes and
-        # measure voltage.
-        self.add('Iin_ %d %d s 1' %(Nm, Np))
-        Vf = self.Voc(Np, Nm)
-        self.remove('Iin_')
-
-        return V(Voc) + Z(Zs(Vf - Voc))
+        return V(Voc) + Z(self.impedance(Np, Nm))
 
 
     def norton(self, Np, Nm):
@@ -961,13 +955,7 @@ class Netlist(object):
 
         Isc = self.Isc(Np, Nm)
 
-        # Connect 1 V s-domain voltage source between nodes and
-        # measure current.
-        self.add('Vin_ %d %d s 1' %(Nm, Np))
-        If = -self.I['Vin_']
-        self.remove('Vin_')
-
-        return I(Isc) | Y(Ys(If - Isc))
+        return I(Isc) | Y(self.admittance(Np, Nm))
 
 
     def admittance(self, Np, Nm):
@@ -976,10 +964,13 @@ class Netlist(object):
 
         new = self.kill()
 
-        Voc = new.Voc(Np, Nm)
-        Isc = new.Isc(Np, Nm)
+        # Connect 1 V s-domain voltage source between nodes and
+        # measure current.
+        new.add('Vin_ %d %d s 1' %(Nm, Np))
+        If = -new.I['Vin_']
+        new.remove('Vin_')
 
-        return Ys(Isc / Voc)
+        return Ys(If)
 
 
     def impedance(self, Np, Nm):
@@ -988,10 +979,13 @@ class Netlist(object):
 
         new = self.kill()
 
-        Voc = new.Voc(Np, Nm)
-        Isc = new.Isc(Np, Nm)
+        # Connect 1 A s-domain current source between nodes and
+        # measure voltage.
+        new.add('Iin_ %d %d s 1' %(Nm, Np))
+        Vf = new.Voc(Np, Nm)
+        new.remove('Iin_')
 
-        return Zs(Voc / Isc)
+        return Zs(Vf)
 
 
     def transfer(self, N1p, N1m, N2p, N2m):
