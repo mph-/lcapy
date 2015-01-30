@@ -31,6 +31,8 @@ cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 
 cpt_type_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_types))
 
+label_pattern = re.compile(r"([\w']*)(_{[\w]})?")
+
 
 import math
 
@@ -81,7 +83,7 @@ class EngFormat(object):
             # Remove trailing zeroes after decimal point
             string = string.rstrip('0').rstrip('.')
             
-        return string + '\,' + prefixes[idx] + self.unit
+        return string + '\,' + prefixes[idx] + r'\mbox{' + self.unit + r'}'
 
 
 class Opts(dict):
@@ -394,10 +396,14 @@ class NetElement(object):
         if cpt_type == 'TP' and len(args) != 5:
             raise ValueError('TP component requires 5 args')
 
-        autolabel = cpt_type_orig + '_{' + id + '}'
+        # There are two possible labels for a component:
+        # 1. Component identifier, e.g., R1
+        # 2. Component value, expression, or symbol
+        identifier_label = name
+        value_label = None
 
-        if cpt_type in ('P', 'W') or autolabel.find('#') != -1:
-            autolabel = ''
+        if cpt_type in ('P', 'W') or identifier_label.find('#') != -1:
+            identifier_label = None
 
         if not opts.has_key('dir'):
             opts['dir'] = None
@@ -416,25 +422,41 @@ class NetElement(object):
             expr = args[0]
             if cpt_type in ('Vimpulse', 'Iimpulse'):
                 expr = '(%s) * DiracDelta(t)' % expr
-                autolabel = Expr(expr).latex()
+                value_label = Expr(expr).latex()
             elif cpt_type in ('Vstep', 'Istep'):
                 expr = '(%s) * Heaviside(t)' % expr
-                autolabel = Expr(expr).latex()
+                value_label = Expr(expr).latex()
             elif cpt_type in ('Vs', 'Is'):
-                autolabel = Expr(expr).latex()
+                value_label = Expr(expr).latex()
             elif cpt_type == 'TF':
-                autolabel = '1:%s' % args[0]
+                value_label = '1:%s' % args[0]
             elif cpt_type not in ('TP',):
                 try:
                     value = float(args[0])
                     if cpt_type[0] in units_map:
-                        autolabel = EngFormat(value, units_map[cpt_type[0]]).latex()
+                        value_label = EngFormat(value, units_map[cpt_type[0]]).latex()
 
                 except ValueError:
-                    autolabel = Expr(expr).latex()
+                    value_label = Expr(expr).latex()
 
-        # Default label to use when drawing
-        self.autolabel = autolabel
+        tex_label = value_label
+        if tex_label is None:
+            if identifier_label is not None:
+                tex_label = Expr(identifier_label).latex()
+
+        # Currently, we only annnotated the component with the value,
+        # expression, or symbol.  If this is not specified, it
+        # defaults to the component identifier.  Note, some objects
+        # we do not want to label, such as wires and ports.
+
+        # Default label to use when drawing with LaTeX
+        if tex_label is None:
+            self.tex_label = ''
+        else:
+            self.tex_label = '$%s$' % tex_label
+    
+        self.identifier_label = identifier_label
+        self.value_label = value_label
         # Drawing hints
         self.opts = Opts(opts)
 
@@ -825,12 +847,12 @@ class Schematic(object):
 
         centre = Pos(0.5 * (p3.x + p1.x), p1.y)
 
-        labelstr = elt.autolabel if draw_labels else ''
+        labelstr = elt.tex_label if draw_labels else ''
         argstr = '' if elt.opts.has_key('mirror') else 'yscale=-1'
 
         print(r'    \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (centre, argstr, self.scale * 2), file=outfile)
         # Draw label separately to avoid being scaled by 2.
-        print(r'    \draw (%s) node [] {$%s$};' % (centre, labelstr), file=outfile)
+        print(r'    \draw (%s) node [] {%s};' % (centre, labelstr), file=outfile)
 
 
     def _tikz_draw_TF1(self, elt, nodes, outfile, draw_labels, link=False):
@@ -846,11 +868,11 @@ class Schematic(object):
         centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
         labelpos = Pos(centre.x, primary_dot.y)
 
-        labelstr = elt.autolabel if draw_labels else ''
+        labelstr = elt.tex_label if draw_labels else ''
 
         print(r'    \draw (%s) node[circ] {};' % primary_dot, file=outfile)
         print(r'    \draw (%s) node[circ] {};' % secondary_dot, file=outfile)
-        print(r'    \draw (%s) node[minimum width=%.1f] {$%s$};' % (labelpos, 0.5, labelstr), file=outfile)
+        print(r'    \draw (%s) node[minimum width=%.1f] {%s};' % (labelpos, 0.5, labelstr), file=outfile)
 
         if link:
             width = p1.x - p3.x
@@ -882,12 +904,12 @@ class Schematic(object):
         centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
         top = Pos(centre.x, p1.y + 0.15 )
 
-        labelstr = elt.autolabel if draw_labels else ''
+        labelstr = elt.tex_label if draw_labels else ''
         titlestr = "%s-parameter two-port" % elt.args[2]
 
         print(r'    \draw (%s) -- (%s) -- (%s) -- (%s)  -- (%s);' % (p4, p3, p1, p2, p4), file=outfile)
         print(r'    \draw (%s) node[minimum width=%.1f] {%s};' % (centre, width, titlestr), file=outfile)
-        print(r'    \draw (%s) node[minimum width=%.1f] {$%s$};' % (top, width, labelstr), file=outfile)
+        print(r'    \draw (%s) node[minimum width=%.1f] {%s};' % (top, width, labelstr), file=outfile)
 
 
     def _tikz_draw_K(self, elt, outfile, draw_labels):
@@ -952,11 +974,7 @@ class Schematic(object):
         label_str = ''
         if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
             if cpt_type not in ('open', 'short'):
-                label_parts = elt.autolabel.split('\\,')
-                if len(label_parts) > 1:
-                    label_str = ', l%s=$%s\mbox{%s}$' % (modifier, label_parts[0], label_parts[1])
-                else:
-                    label_str = ', l%s=$%s$' % (modifier, label_parts[0])
+                label_str = ', l%s=%s' % (modifier, elt.tex_label)
 
         if cpt_type in ('Y', 'Z'):
             cpt_type = 'european resistor'
@@ -1030,7 +1048,7 @@ class Schematic(object):
         
         drw.add(e.INDUCTOR2, xy=pos4.xy, to=pos3.xy)
         drw.add(e.INDUCTOR2, xy=pos2.xy, to=pos1.xy,
-                label=elt.autolabel.replace('\\,', ' '))
+                label=elt.tex_label.replace('\\,', ' '))
 
 
     def _schemdraw_draw_TP(self, elt, drw, draw_labels):
@@ -1064,7 +1082,7 @@ class Schematic(object):
         
         if draw_labels:
             drw.add(cpt_type, xy=pos2.xy, to=pos1.xy, 
-                    label=elt.autolabel.replace('\\,', ' '))
+                    label=elt.tex_label.replace('\\,', ' '))
         else:
             drw.add(cpt_type, xy=pos2.xy, to=pos1.xy)
 
