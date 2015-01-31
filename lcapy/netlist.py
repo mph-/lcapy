@@ -34,10 +34,10 @@ Copyright 2014 Michael Hayes, UCECE
 
 from __future__ import division
 from warnings import warn
-from lcapy.core import  pprint, cExpr, Avs, Ais, Zs, Ys, Vs, Is, s
+from lcapy.core import  pprint, cExpr, Avs, Ais, Zs, Ys, s
 from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep, Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
-from lcapy.twoport import AMatrix, TwoPortBModel, Matrix, Vector
+from lcapy.twoport import AMatrix, TwoPortBModel
 from schematic import Schematic
 from mna import MNA
 import sympy as sym
@@ -368,7 +368,7 @@ class Netlist(object):
         # Shared nodes (with same voltage)
         self.snodes = {}
 
-        self.MNA = MNA(self.elements, self.nodes, self.snodes)
+        self._MNA = None
 
         if filename is not None:
             self.netfile_add(filename)
@@ -441,7 +441,7 @@ class Netlist(object):
 
     def _invalidate(self):
 
-        self.MNA._invalidate()
+        self._MNA = None
 
         for attr in ('_sch', ):
             if hasattr(self, attr):
@@ -585,6 +585,14 @@ class Netlist(object):
         net = 'I#%d %s %s s %s; %s' % (self._I_counter, node1, node2, value, opts.format())
 
         return self.net_parse(net)
+
+
+    @property
+    def MNA(self):    
+
+        if self._MNA == None:
+            self._MNA = MNA(self.elements, self.nodes, self.snodes)
+        return self._MNA
 
 
     @property
