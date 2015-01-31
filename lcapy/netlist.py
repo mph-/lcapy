@@ -368,27 +368,104 @@ class NetElement(object):
         return isinstance(self.cpt, K)
 
 
+class MNA(object):
 
-class Netlist(object):
+    def __init__(self, elements, nodes, snodes):
 
-    def __init__(self, filename=None):
-
-        self.elements = {}
-        self.nodes = {}
-        # Shared nodes (with same voltage)
-        self.snodes = {}
-
-        self._V = Mdict({'0': Vs(0)})
-        self._I = {}
-
-        if filename is not None:
-            self.netfile_add(filename)
+        self.elements = elements
+        self.nodes = nodes
+        self.snodes = snodes
 
 
-    def __getitem__(self, name):
-        """Return component by name"""
+    def _invalidate(self):
 
-        return self.elements[name]
+        for attr in ('_V', '_I', '_node_map', '_node_list', '_A', '_Z'):
+            if hasattr(self, attr):
+                delattr(self, attr)
+
+
+    @property
+    def lnodes(self):
+        """Determine linked nodes (both implicitly and explicitly
+        connected)"""
+
+        from copy import deepcopy
+
+        # Start with implicitly linked nodes.
+        lnodes = deepcopy(self.snodes)
+
+        # Then augment with nodes connected by wires.
+        for m, elt in enumerate(self.elements.values()):
+            if elt.cpt_type not in ('W', ):
+                continue
+
+            n1, n2 = elt.nodes
+
+            for key1, nodes in lnodes.iteritems():
+                if n1 in nodes:
+                    break;
+
+            for key2, nodes in lnodes.iteritems():
+                if n2 in nodes:
+                    break;
+                    
+            if key1 != key2:
+                lnodes[key1].extend(lnodes.pop(key2))
+
+        # Remove nodes that are not linked.
+        pnodes = []
+        for key, nodes in lnodes.iteritems():
+            if len(nodes) > 1:
+                pnodes.append(nodes)
+
+        return pnodes
+
+
+    @property
+    def node_map(self):
+        """Determine mapping of nodes to unique nodes of the same potential"""
+
+        if hasattr(self, '_node_map'):
+            return self._node_map
+
+        lnodes = self.lnodes
+
+        node_map = {}
+        for node in self.nodes:
+
+            node_map[node] = node
+            for nodes in lnodes:
+                if node in nodes:
+                    # Use first of the linked nodes unless '0' in list
+                    if '0' in nodes:
+                        node_map[node] = '0'
+                    else:
+                        # Sort nodes so 8 before 8_1 etc.
+                        node_map[node] = sorted(nodes)[0]
+                    break
+
+        if not node_map.has_key('0'):
+            print('Nothing connected to ground node 0')
+            node_map['0'] = '0'
+
+        self._node_map = node_map
+        return node_map
+
+
+    @property
+    def node_list(self):
+        """Determine list of unique nodes"""
+
+        if hasattr(self, '_node_list'):
+            return self._node_list
+
+        # Extract unique nodes.
+        node_list = list(set(self.node_map.values()))
+        # Ensure node '0' is first in the list.
+        node_list.insert(0, node_list.pop(node_list.index('0')))
+
+        self._node_list = node_list
+        return node_list
 
 
     def _node_index(self, node):
@@ -402,211 +479,6 @@ class Netlist(object):
         if index < 0:
             raise ValueError ('Unknown component name %s for branch current' % cpt.name)
         return index
-
-
-    def netfile_add(self, filename):    
-        """Add the nets from file with specified filename"""
-
-        file = open(filename, 'r')
-        
-        lines = file.readlines()
-
-        for line in lines:
-            line = line.strip()
-            if line == '':
-                continue
-
-            # Skip comments
-            if line[0] in ('#', '%'):
-                continue
-
-            self.add(line)
-
-
-    def netlist(self, full=False):
-        """Return the current netlist"""
-
-        from copy import copy
-
-        lines = ''
-        for key, elt in self.elements.iteritems():
-            newelt = copy(elt)
-            
-            if not full:
-                newelt.nodes = tuple([self.node_map[node] for node in elt.nodes])
-                if elt.is_dummy:
-                    continue
-
-            line = newelt.__str__()
-            if full:
-                optstr = newelt.opts.format()
-                if optstr != '':
-                    line += ' ; ' + optstr
-
-            lines += line + '\n'
-
-        return lines
-
-
-    def _node_add(self, node, elt):
-
-        if not self.nodes.has_key(node):
-            self.nodes[node] = Node(node)
-        self.nodes[node].append(elt)
-
-        vnode = self.nodes[node].rootname
-
-        if vnode not in self.snodes:
-            self.snodes[vnode] = []
-
-        if node not in self.snodes[vnode]:
-            self.snodes[vnode].append(node)
-
-
-    def _invalidate(self):
-
-        for attr in ('_V', '_I', '_node_map', '_node_list', '_sch', '_A', '_Z'):
-            if hasattr(self, attr):
-                delattr(self, attr)
-
-
-    def _elt_add(self, elt):
-
-        if self.elements.has_key(elt.name):
-            print('Overriding component %s' % elt.name)     
-            # Need to search lists and update component.
-           
-        self._invalidate()
-
-        self.elements[elt.name] = elt
-
-        # Ignore nodes for mutual inductance.
-        if elt.cpt_type == 'K':
-            return
-
-        self._node_add(elt.nodes[0], elt)
-        self._node_add(elt.nodes[1], elt)
-        
-
-    def net_parse(self, string, *args):
-
-        fields = string.split(';')
-        string = fields[1].strip() if len(fields) > 1 else ''
-        if string != '':
-            self.hints = True
-
-        opts = Opts(string)
-
-        parts = tuple(re.split(r'[\s]+', fields[0].strip()))
-        elt = NetElement(*(parts + args), **opts)
-        return elt
-
-
-    def add(self, string, *args):
-        """Add a component to the netlist.
-        The general form is: 'Name Np Nm args'
-        where Np is the positive node and Nm is the negative node.
-
-        A positive current is defined to flow from the positive node
-        to the negative node.
-        """
-
-        elt = self.net_parse(string, *args)
-
-        self._elt_add(elt)
-
-
-    def net_add(self, string, *args):
-        """Add a component to the netlist.
-        The general form is: 'Name Np Nm args'
-        where Np is the positive nose and Nm is the negative node.
-
-        A positive current is defined to flow from the positive node
-        to the negative node.
-
-        Note, this method has been superseded by add.
-        """
-
-        self.add(string, *args)
-
-
-    def remove(self, name):
-        """Remove specified element"""
-
-        self._invalidate()
-
-        if name not in self.elements:
-            raise Error('Unknown component: ' + name)
-        self.elements.pop(name)
-        
-
-    def _make_node(self):
-        """Create a dummy node"""        
-
-        if not hasattr(self, '_node_counter'):
-            self._node_counter = 0
-        self._node_counter += 1
-        return '_%d' % self._node_counter
-
-
-    def _make_open(self, node1, node2, opts):
-        """Create a dummy open-circuit"""
-
-        if not hasattr(self, '_open_counter'):
-            self._open_counter = 0
-        self._open_counter += 1
-
-        net = 'P#%d %s %s ; %s' % (self._open_counter, node1, node2, opts.format())
-
-        return self.net_parse(net)
-
-
-    def _make_short(self, node1, node2, opts):
-        """Create a dummy short-circuit"""
-
-        if not hasattr(self, '_short_counter'):
-            self._short_counter = 0
-        self._short_counter += 1
-
-        net = 'W#%d %s %s ; %s' % (self._short_counter, node1, node2, opts.format())
-
-        return self.net_parse(net)
-
-
-    def _make_Z(self, node1, node2, value, opts):
-        """Create a dummy impedance"""
-
-        if not hasattr(self, '_Z_counter'):
-            self._Z_counter = 0
-        self._Z_counter += 1
-
-        net = 'Z#%d %s %s %s; %s' % (self._Z_counter, node1, node2, value, opts.format())
-
-        return self.net_parse(net)
-
-
-    def _make_V(self, node1, node2, value, opts):
-        """Create a dummy s-domain voltage source"""
-
-        if not hasattr(self, '_V_counter'):
-            self._V_counter = 0
-        self._V_counter += 1
-
-        net = 'V#%d %s %s s %s; %s' % (self._V_counter, node1, node2, value, opts.format())
-
-        return self.net_parse(net)
-
-
-    def _make_I(self, node1, node2, value, opts):
-        """Create a dummy s-domain current source"""
-
-        if not hasattr(self, '_I_counter'):
-            self._I_counter = 0
-        self._I_counter += 1
-
-        net = 'I#%d %s %s s %s; %s' % (self._I_counter, node1, node2, value, opts.format())
-
-        return self.net_parse(net)
 
 
     def _RC_stamp(self, elt):
@@ -883,6 +755,255 @@ class Netlist(object):
         return self._Vd
 
 
+class Netlist(object):
+
+    def __init__(self, filename=None):
+
+        self.elements = {}
+        self.nodes = {}
+        # Shared nodes (with same voltage)
+        self.snodes = {}
+
+        self.MNA = MNA(self.elements, self.nodes, self.snodes)
+
+        if filename is not None:
+            self.netfile_add(filename)
+
+
+    def __getitem__(self, name):
+        """Return component by name"""
+
+        return self.elements[name]
+
+
+    def netfile_add(self, filename):    
+        """Add the nets from file with specified filename"""
+
+        file = open(filename, 'r')
+        
+        lines = file.readlines()
+
+        for line in lines:
+            line = line.strip()
+            if line == '':
+                continue
+
+            # Skip comments
+            if line[0] in ('#', '%'):
+                continue
+
+            self.add(line)
+
+
+    def netlist(self, full=False):
+        """Return the current netlist"""
+
+        from copy import copy
+
+        lines = ''
+        for key, elt in self.elements.iteritems():
+            newelt = copy(elt)
+            
+            if not full:
+                newelt.nodes = tuple([self.node_map[node] for node in elt.nodes])
+                if elt.is_dummy:
+                    continue
+
+            line = newelt.__str__()
+            if full:
+                optstr = newelt.opts.format()
+                if optstr != '':
+                    line += ' ; ' + optstr
+
+            lines += line + '\n'
+
+        return lines
+
+
+    def _node_add(self, node, elt):
+
+        if not self.nodes.has_key(node):
+            self.nodes[node] = Node(node)
+        self.nodes[node].append(elt)
+
+        vnode = self.nodes[node].rootname
+
+        if vnode not in self.snodes:
+            self.snodes[vnode] = []
+
+        if node not in self.snodes[vnode]:
+            self.snodes[vnode].append(node)
+
+
+    def _invalidate(self):
+
+        self.MNA._invalidate()
+
+        for attr in ('_sch', ):
+            if hasattr(self, attr):
+                delattr(self, attr)
+
+
+    def _elt_add(self, elt):
+
+        if self.elements.has_key(elt.name):
+            print('Overriding component %s' % elt.name)     
+            # Need to search lists and update component.
+           
+        self._invalidate()
+
+        self.elements[elt.name] = elt
+
+        # Ignore nodes for mutual inductance.
+        if elt.cpt_type == 'K':
+            return
+
+        self._node_add(elt.nodes[0], elt)
+        self._node_add(elt.nodes[1], elt)
+        
+
+    def net_parse(self, string, *args):
+
+        fields = string.split(';')
+        string = fields[1].strip() if len(fields) > 1 else ''
+        if string != '':
+            self.hints = True
+
+        opts = Opts(string)
+
+        parts = tuple(re.split(r'[\s]+', fields[0].strip()))
+        elt = NetElement(*(parts + args), **opts)
+        return elt
+
+
+    def add(self, string, *args):
+        """Add a component to the netlist.
+        The general form is: 'Name Np Nm args'
+        where Np is the positive node and Nm is the negative node.
+
+        A positive current is defined to flow from the positive node
+        to the negative node.
+        """
+
+        elt = self.net_parse(string, *args)
+
+        self._elt_add(elt)
+
+
+    def net_add(self, string, *args):
+        """Add a component to the netlist.
+        The general form is: 'Name Np Nm args'
+        where Np is the positive nose and Nm is the negative node.
+
+        A positive current is defined to flow from the positive node
+        to the negative node.
+
+        Note, this method has been superseded by add.
+        """
+
+        self.add(string, *args)
+
+
+    def remove(self, name):
+        """Remove specified element"""
+
+        self._invalidate()
+
+        if name not in self.elements:
+            raise Error('Unknown component: ' + name)
+        self.elements.pop(name)
+        
+
+    def _make_node(self):
+        """Create a dummy node"""        
+
+        if not hasattr(self, '_node_counter'):
+            self._node_counter = 0
+        self._node_counter += 1
+        return '_%d' % self._node_counter
+
+
+    def _make_open(self, node1, node2, opts):
+        """Create a dummy open-circuit"""
+
+        if not hasattr(self, '_open_counter'):
+            self._open_counter = 0
+        self._open_counter += 1
+
+        net = 'P#%d %s %s ; %s' % (self._open_counter, node1, node2, opts.format())
+
+        return self.net_parse(net)
+
+
+    def _make_short(self, node1, node2, opts):
+        """Create a dummy short-circuit"""
+
+        if not hasattr(self, '_short_counter'):
+            self._short_counter = 0
+        self._short_counter += 1
+
+        net = 'W#%d %s %s ; %s' % (self._short_counter, node1, node2, opts.format())
+
+        return self.net_parse(net)
+
+
+    def _make_Z(self, node1, node2, value, opts):
+        """Create a dummy impedance"""
+
+        if not hasattr(self, '_Z_counter'):
+            self._Z_counter = 0
+        self._Z_counter += 1
+
+        net = 'Z#%d %s %s %s; %s' % (self._Z_counter, node1, node2, value, opts.format())
+
+        return self.net_parse(net)
+
+
+    def _make_V(self, node1, node2, value, opts):
+        """Create a dummy s-domain voltage source"""
+
+        if not hasattr(self, '_V_counter'):
+            self._V_counter = 0
+        self._V_counter += 1
+
+        net = 'V#%d %s %s s %s; %s' % (self._V_counter, node1, node2, value, opts.format())
+
+        return self.net_parse(net)
+
+
+    def _make_I(self, node1, node2, value, opts):
+        """Create a dummy s-domain current source"""
+
+        if not hasattr(self, '_I_counter'):
+            self._I_counter = 0
+        self._I_counter += 1
+
+        net = 'I#%d %s %s s %s; %s' % (self._I_counter, node1, node2, value, opts.format())
+
+        return self.net_parse(net)
+
+
+    @property
+    def V(self):    
+        """Return dictionary of s-domain node voltages indexed by node name"""
+
+        return self.MNA.V
+
+
+    @property
+    def I(self):    
+        """Return dictionary of s-domain branch currents indexed by component name"""
+
+        return self.MNA.I
+
+
+    @property
+    def Vd(self):    
+        """Return dictionary of s-domain branch voltage differences indexed by component name"""
+
+        return self.MNA.Vd
+
+
     @property
     def v(self):    
         """Return dictionary of t-domain node voltages indexed by node name"""
@@ -1076,90 +1197,6 @@ class Netlist(object):
         A = self.kill().Amatrix(N1p, N1m, N2p, N2m)
 
         return TwoPortBModel(A.B, V2b, I2b)
-
-
-    @property
-    def node_map(self):
-        """Determine mapping of nodes to unique nodes of the same potential"""
-
-        if hasattr(self, '_node_map'):
-            return self._node_map
-
-        lnodes = self.lnodes
-
-        node_map = {}
-        for node in self.nodes:
-
-            node_map[node] = node
-            for nodes in lnodes:
-                if node in nodes:
-                    # Use first of the linked nodes unless '0' in list
-                    if '0' in nodes:
-                        node_map[node] = '0'
-                    else:
-                        # Sort nodes so 8 before 8_1 etc.
-                        node_map[node] = sorted(nodes)[0]
-                    break
-
-        if not node_map.has_key('0'):
-            print('Nothing connected to ground node 0')
-            node_map['0'] = '0'
-
-        self._node_map = node_map
-        return node_map
-
-
-    @property
-    def node_list(self):
-        """Determine list of unique nodes"""
-
-        if hasattr(self, '_node_list'):
-            return self._node_list
-
-        # Extract unique nodes.
-        node_list = list(set(self.node_map.values()))
-        # Ensure node '0' is first in the list.
-        node_list.insert(0, node_list.pop(node_list.index('0')))
-
-        self._node_list = node_list
-        return node_list
-
-
-    @property
-    def lnodes(self):
-        """Determine linked nodes (both implicitly and explicitly
-        connected)"""
-
-        from copy import deepcopy
-
-        # Start with implicitly linked nodes.
-        lnodes = deepcopy(self.snodes)
-
-        # Then augment with nodes connected by wires.
-        for m, elt in enumerate(self.elements.values()):
-            if elt.cpt_type not in ('W', ):
-                continue
-
-            n1, n2 = elt.nodes
-
-            for key1, nodes in lnodes.iteritems():
-                if n1 in nodes:
-                    break;
-
-            for key2, nodes in lnodes.iteritems():
-                if n2 in nodes:
-                    break;
-                    
-            if key1 != key2:
-                lnodes[key1].extend(lnodes.pop(key2))
-
-        # Remove nodes that are not linked.
-        pnodes = []
-        for key, nodes in lnodes.iteritems():
-            if len(nodes) > 1:
-                pnodes.append(nodes)
-
-        return pnodes
 
 
     @property

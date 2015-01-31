@@ -270,8 +270,13 @@ class Expr(object):
         printer = args[0]
 
         string = printer._print(expr)
-        # sympy uses theta for Heaviside 
-        return string.replace(r'\theta\left', r'u\left')
+        # sympy uses theta for Heaviside , use u(t) although I prefer H(t)
+        string = string.replace(r'\theta\left', r'u\left')
+
+        # Should replace _{xxx} with _{\mathrm{xxx}} if len(xxx) > 1
+
+        return string
+
 
 
     def pretty(self):
