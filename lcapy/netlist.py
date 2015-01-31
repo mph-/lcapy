@@ -689,7 +689,6 @@ class MNA(object):
                 self._I[elt.name] = Is(sym.simplify((self._V[n1] - self._V[n2] - elt.cpt.V) / elt.cpt.Z))
 
 
-
     @property
     def A(self):    
         """Return A matrix for MNA"""
@@ -1107,6 +1106,21 @@ class Netlist(object):
         new.remove('Iin_')
 
         return Zs(Vf)
+
+
+    def Y(self, Np, Nm):
+        """Return admittance between nodes Np and Nm
+        with independent sources killed."""
+
+        return self.admittance(Np, Nm)
+
+
+    def Z(self, Np, Nm):
+        """Return impedance between nodes Np and Nm
+        with independent sources killed."""
+
+        return self.impedance(Np, Nm)
+
 
 
     def transfer(self, N1p, N1m, N2p, N2m):
