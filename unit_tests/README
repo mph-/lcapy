@@ -1,0 +1,4 @@
+These tests scripts are run using nosetests in the root directory of lcapy.
+
+Currently, two failures are expected.
+
