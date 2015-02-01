@@ -44,6 +44,7 @@ class Exprdict(dict):
 
         return sym.latex(self)
 
+
 class Expr(object):
     """Decorator class for sympy classes derived from sympy.Expr"""
     
@@ -380,6 +381,14 @@ class sExpr(Expr):
     
     var = sym.symbols('s')
 
+
+    def __init__(self, val):
+        
+        super (sExpr, self).__init__(val)
+        if self.expr.find('t') != set():
+            raise ValueError('s-domain expression %s cannot depend on t' % self.expr)
+
+
     def differentiate(self):
         """Differentiate (multiply by s)"""
         
@@ -543,6 +552,15 @@ class fExpr(Expr):
     var = sym.symbols('f')
 
 
+    def __init__(self, val):
+        
+        super (fExpr, self).__init__(val)
+        if self.expr.find('s') != set():
+            raise ValueError('f-domain expression %s cannot depend on s' % self.expr)
+        if self.expr.find('t') != set():
+            raise ValueError('f-domain expression %s cannot depend on t' % self.expr)
+
+
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
         
@@ -556,6 +574,15 @@ class omegaExpr(Expr):
     var = sym.symbols('omega')
 
 
+    def __init__(self, val):
+        
+        super (omegaExpr, self).__init__(val)
+        if self.expr.find('s') != set():
+            raise ValueError('omega-domain expression %s cannot depend on s' % self.expr)
+        if self.expr.find('t') != set():
+            raise ValueError('omega-domain expression %s cannot depend on t' % self.expr)
+
+
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
         
@@ -566,6 +593,13 @@ class tExpr(Expr):
     """t-domain expression or symbol"""
 
     var = sym.symbols('t')
+
+
+    def __init__(self, val):
+        
+        super (tExpr, self).__init__(val)
+        if self.expr.find('s') != set():
+            raise ValueError('t-domain expression %s cannot depend on s' % self.expr)
 
 
     def laplace(self):
