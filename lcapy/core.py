@@ -483,6 +483,30 @@ class sExpr(Expr):
         return final_value(self.expr, self.var)
 
 
+    @property
+    def N(self):
+        """Return numerator of rational function"""
+
+        expr = self.expr
+        if not expr.is_rational_function(self):
+            raise ValueError('Expression not a rational function')
+
+        numer, denom = expr.as_numer_denom()
+        return self.__class__(numer)
+
+
+    @property
+    def D(self):
+        """Return denominator of rational function"""
+
+        expr = self.expr
+        if not expr.is_rational_function(self):
+            raise ValueError('Expression not a rational function')
+
+        numer, denom = expr.as_numer_denom()
+        return self.__class__(denom)
+
+
     def _as_ratfun_parts(self):
         
         return _as_ratfun_parts(self.expr, self.var)
