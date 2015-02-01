@@ -1,4 +1,5 @@
-These tests scripts are run using nosetests in the root directory of lcapy.
+These tests scripts are run using nosetests in the root directory of lcapy
+or in the unit_tests directory.
 
 Currently, two failures are expected.
 

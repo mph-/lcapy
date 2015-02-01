@@ -39,7 +39,7 @@ from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep, Vacstep,
 from lcapy.oneport import R, L, C, G, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
 from schematic import Schematic
-from mna import MNA
+from mna import MNA, VCVS, TF, K, TP
 import sympy as sym
 import re
 
@@ -102,55 +102,6 @@ class Ldict(dict):
     def keys(self):
 
         return self.Vdict.keys()
-
-
-class CS(object):
-    """Controlled source"""
-
-    def __init__(self, *args):
-
-        self.args = args   
-
-
-class VCVS(CS):
-    """Voltage controlled voltage source."""
-
-    def __init__(self, A):
-    
-        A = cExpr(A)
-        super (VCVS, self).__init__(A)
-        # No independent component.
-        self.V = 0
-
-
-class TF(CS):
-    """Ideal transformer.  T is turns ratio (secondary / primary)"""
-
-    def __init__(self, T):
-    
-        T = cExpr(T)
-        super (TF, self).__init__(T)
-        # No independent component.
-        self.V = 0
-
-
-class K(object):
-    """Mutual inductance"""
-
-    def __init__(self, k):
-
-        k = cExpr(k)
-        self.k = k
-
-
-class TP(CS):
-    """Two-port Z-network"""
-
-    def __init__(self, kind, Z11, Z12, Z21, Z22):
-    
-        super (TP, self).__init__(kind, Z11, Z12, Z21, Z22)
-        # No independent component.
-        self.V = 0
 
 
 cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'Z' : Z, 'Y' : Y,
@@ -589,8 +540,22 @@ class Netlist(object):
 
     @property
     def MNA(self):    
+        """Return results from modified nodal analysis (MNA) of the circuit.
+
+        Note, the voltages and currents are lazily determined when
+        requested. """
+
 
         if self._MNA == None:
+
+            # TODO: think this out.  When a circuit is converted
+            # to a s-domain model we get Z (and perhaps Y) components.
+            # We also loose the ability to determine the voltage
+            # across a capacitor or inductor since they get split
+            # into a Thevenin model and renamed.
+            if hasattr(self, '_s_model'):
+                raise RuntimeError('Cannot analyse s-domain model')
+
             self._MNA = MNA(self.elements, self.nodes, self.snodes)
         return self._MNA
 
