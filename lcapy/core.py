@@ -54,7 +54,7 @@ class Expr(object):
         return self.val
     
     
-    def __init__(self, val, simplify=False, real=False):
+    def __init__(self, val, real=False):
         
         if isinstance(val, sExpr):
             val = val.val
@@ -67,9 +67,6 @@ class Expr(object):
             val = val.replace('delta(t', 'DiracDelta(t')
             
         val = sym.sympify(val, rational=True)
-
-        if simplify:
-            val = val.cancel()
 
         self.val = val
 
@@ -439,7 +436,7 @@ class sExpr(Expr):
 
         See also general, partfrac, mixedfrac, and ZPK"""
         
-        return self.__class__(canonical(self.expr, self.var), simplify=False)
+        return self.__class__(canonical(self.expr, self.var))
 
 
     def general(self):
@@ -447,7 +444,7 @@ class sExpr(Expr):
 
         See also canonical, partfrac, mixedfrac, and ZPK"""
         
-        return self.__class__(general(self.expr, self.var), simplify=False)
+        return self.__class__(general(self.expr, self.var))
 
 
     def partfrac(self):
@@ -455,7 +452,7 @@ class sExpr(Expr):
 
         See also canonical, mixedfrac, general, and ZPK"""
 
-        return self.__class__(partfrac(self.expr, self.var), simplify=False)
+        return self.__class__(partfrac(self.expr, self.var))
 
 
     def mixedfrac(self):
@@ -463,7 +460,7 @@ class sExpr(Expr):
 
         See also canonical, general, partfrac and ZPK"""
 
-        return self.__class__(mixedfrac(self.expr, self.var), simplify=False)
+        return self.__class__(mixedfrac(self.expr, self.var))
 
 
     def ZPK(self):
@@ -471,7 +468,7 @@ class sExpr(Expr):
         
         See also canonical, general, mixedfrac, and partfrac"""
         
-        return self.__class__(ZPK(self.expr, self.var), simplify=False)
+        return self.__class__(ZPK(self.expr, self.var))
 
 
     def initial_value(self):
@@ -633,7 +630,7 @@ class cExpr(Expr):
         if False and not isinstance(val, (cExpr, int, float, str)):
             raise ValueError('%s of type %s not int, float, or str' % (val, type(val)))
 
-        super (cExpr, self).__init__(val, simplify=False, real=True)
+        super (cExpr, self).__init__(val, real=True)
 
 
 s = sExpr('s')
@@ -711,7 +708,7 @@ class Matrix(sym.Matrix):
             return item
 
         if hasattr(self, '_typewrap'):
-            return self._typewrap(item, simplify=False)
+            return self._typewrap(item)
 
         return item
 
@@ -1130,7 +1127,7 @@ def inverse_laplace(expr, t=None, s=None):
         from sympy.integrals.transforms import inverse_laplace_transform
         result = inverse_laplace_transform(expr, t, s)
 
-    return tExpr(result, simplify=False)
+    return tExpr(result)
 
 
 def transient_response(expr, t=None, s=None):
