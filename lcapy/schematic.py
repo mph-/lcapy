@@ -474,7 +474,7 @@ class NetElement(object):
 
 class Schematic(object):
 
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, **kwargs):
 
         self.elements = {}
         self.nodes = {}
@@ -564,6 +564,7 @@ class Schematic(object):
 
         fields = string.split(';')
         string = fields[1].strip() if len(fields) > 1 else ''
+
         if string != '':
             self.hints = True
 
@@ -1142,8 +1143,7 @@ class Schematic(object):
             drw.save(filename)
 
 
-    def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-             filename=None, args=None, stretch=1, scale=1, tex=False):
+    def draw(self, filename=None, args=None, stretch=1, scale=1, tex=False, **kwargs):
 
         self.node_spacing = 2 * stretch * scale
         self.cpt_size = 1.5 * scale
@@ -1153,12 +1153,9 @@ class Schematic(object):
             raise RuntimeWarning('No schematic drawing hints provided!')
 
         if tex or (filename is not None and filename.endswith('.tex')):
-            self.tikz_draw(draw_labels=draw_labels, draw_nodes=draw_nodes,
-                           label_nodes=label_nodes, filename=filename,
-                           args=args)            
+            self.tikz_draw(filename=filename, args=args, **kwargs)            
         else:
-            self.schemdraw_draw(draw_labels=draw_labels, draw_nodes=draw_nodes, 
-                                label_nodes=label_nodes, filename=filename)
+            self.schemdraw_draw(filename=filename, **kwargs)
 
 
 def test():

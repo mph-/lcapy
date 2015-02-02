@@ -42,6 +42,7 @@ from schematic import Schematic
 from mna import MNA, VCVS, TF, K, TP
 import sympy as sym
 import re
+from copy import copy
 
 
 __all__ = ('Circuit', )
@@ -319,6 +320,11 @@ class Netlist(object):
         # Shared nodes (with same voltage)
         self.snodes = {}
 
+        # TODO, decouple from Schematic
+        self.kwargs = {'draw_nodes' : True,
+                       'draw_labels' : True, 
+                       'label_nodes' : True}
+
         self._MNA = None
 
         if filename is not None:
@@ -352,8 +358,6 @@ class Netlist(object):
 
     def netlist(self, full=False):
         """Return the current netlist"""
-
-        from copy import copy
 
         lines = ''
         for key, elt in self.elements.iteritems():
@@ -405,8 +409,6 @@ class Netlist(object):
             print('Overriding component %s' % elt.name)     
             # Need to search lists and update component.
            
-        self._invalidate()
-
         self.elements[elt.name] = elt
 
         # Ignore nodes for mutual inductance.
@@ -439,6 +441,19 @@ class Netlist(object):
         A positive current is defined to flow from the positive node
         to the negative node.
         """
+
+        self._invalidate()
+
+        if string[0] == ';':
+            fields = string[1:].split('=')
+            key = fields[0].strip()
+            arg = fields[1].strip() if len(fields) > 1 else ''
+            if arg.lower() == 'false':
+                arg = False
+            elif arg.lower() == 'true':
+                arg = True
+            self.kwargs[key] = arg
+            return
 
         elt = self.net_parse(string, *args)
 
@@ -886,18 +901,24 @@ class Netlist(object):
         return cct
 
 
-    def draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
+    def draw(self, draw_labels=None, draw_nodes=None, label_nodes=None,
              s_model=False, filename=None, args=None, scale=1, stretch=1,
              tex=False):
 
         cct = self
         if s_model:
             cct = cct.s_model()
-            
-        return cct.sch.draw(draw_labels=draw_labels, draw_nodes=draw_nodes, 
-                            label_nodes=label_nodes,
-                            filename=filename, args=args, 
-                            scale=scale, stretch=stretch, tex=tex)
+
+        kwargs = copy(self.kwargs)
+        if draw_nodes is not None:
+            kwargs['draw_nodes'] = draw_nodes
+        if label_nodes is not None:
+            kwargs['label_nodes'] = label_nodes
+        if draw_labels is not None:
+            kwargs['draw_labels'] = draw_labels
+
+        return cct.sch.draw(filename=filename, args=args, 
+                            scale=scale, stretch=stretch, tex=tex, **kwargs)
 
 
 class Circuit(Netlist):
