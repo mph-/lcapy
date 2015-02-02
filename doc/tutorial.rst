@@ -8,7 +8,7 @@ Introduction
 
 lcapy is a Python package for linear circuit analysis.  It will only
 solve linear, time invariant networks.  In other words, networks
-comprised of basic circuit elements (R, L, C, etc.) that do not vary
+comprised of basic circuit components (R, L, C, etc.) that do not vary
 with time.
 
 It does not support non-linear devices such as diodes or transistors
@@ -33,10 +33,10 @@ Preliminaries
   >>> ipython --pylab
 
 
-Simple circuit elements
-=======================
+Simple circuit components
+=========================
 
-The basic circuit elements are two-terminal (one-port) devices:
+The basic circuit components are two-terminal (one-port) devices:
 
 - I current source
 
@@ -372,7 +372,7 @@ Similarly, here's an example of a Norton to Thevenin transformation:
 Two-port networks
 =================
 
-The basic circuit elements are one-port networks.  They can be
+The basic circuit components are one-port networks.  They can be
 combined to create a two-port network.  The simplest two-port is a
 shunt::
 
@@ -560,7 +560,7 @@ for example,
 
 
 
-Partial Fraction Analysis
+Partial fraction analysis
 =========================
 
 Lcapy can be used for converting rational functions into partial
@@ -725,6 +725,14 @@ find circuit voltages and currents:
 - `i` t-domain branch current directory indexed by component name
 
 - `vd` t-domain branch voltage difference directory indexed by component name
+
+- `Y` admittance between pair of nodes
+
+- `Z` impedance between pair of nodes
+
+- `Isc` short-circuit current between pair of nodes
+
+- `Voc` open-circuit current between pair of nodes
 
 
 For example,
@@ -932,30 +940,30 @@ V1 1 0 20/s
 Other methods
 -------------
 
-   cct.Isc(n1, n2)      Short-circuit s-domain current between nodes n1 and n2.
+   cct.Isc(Np, Nm)      Short-circuit s-domain current between nodes Np and Nm.
 
-   cct.Voc(n1, n2)      Open-circuit s-domain voltage between nodes n1 and n2.
+   cct.Voc(Np, Nm)      Open-circuit s-domain voltage between nodes Np and Nm.
 
-   cct.isc(n1, n2)      Short-circuit t-domain current between nodes n1 and n2.
+   cct.isc(Np, Nm)      Short-circuit t-domain current between nodes Np and Nm.
 
-   cct.voc(n1, n2)      Open-circuit t-domain voltage between nodes n1 and n2.
+   cct.voc(Np, Nm)      Open-circuit t-domain voltage between nodes Np and Nm.
    
-   cct.Y(n1, n2)        Admittance between nodes n1 and n2.
+   cct.Y(Np, Nm)        Admittance between nodes Np and Nm.
   
-   cct.Z(n1, n2)        Impedance between nodes n1 and n2.
+   cct.Z(Np, Nm)        Impedance between nodes Np and Nm.
 
    cct.kill()           Remove independent sources.
 
-   cct.transfer(n1, n2, n3, n4) Transfer function for voltage difference between nodes n3 and n4 compared to the voltage difference between nodes n1 and n2.
+   cct.transfer(N1p, N1m, N2p, N2m) Voltage transfer function V2/V1, where V1 = V[N1p] - V[N1m], V2 = V[N2p] - V[N2m].
 
-   cct.thevenin(n1, n2) Thevenin model between nodes n1 and n2.
+   cct.thevenin(Np, Nm) Thevenin model between nodes Np and Nm.
 
-   cct.norton(n1, n2)    Norton model between nodes n1 and n2.
+   cct.norton(Np, Nm)    Norton model between nodes Np and Nm.
 
-   cct.twoport(self, n1, n2, n3, n4) Create two-port component where
-        I1 is the current flowing into n1 and out of n2, I2 is the
-        current flowing into n3 and out of n4, V1 = V[n1] - V[n2], V2
-        = V[n3] - V[n4].
+   cct.twoport(self, N1p, N1m, N2p, N2m) Create two-port component where
+        I1 is the current flowing into N1p and out of N1m, I2 is the
+        current flowing into N2p and out of N2m, V1 = V[N1p] - V[N1m], V2
+        = V[N2p] - V[N2m].
 
    cct.remove(component) Remove component from net list.
 
@@ -964,3 +972,55 @@ Other methods
    cct.s_model()         Convert circuit to s-domain model.
 
    cct.pre_initital_model()   Convert circuit to pre-initial model.
+
+
+Schematics
+==========
+
+Schematics can be generated from a netlist using Circuitikz for LaTeX
+diagrams.  Hints are required to designate component orientation and
+explicit wires are required to link nodes of the same potential but
+with different coordinate.
+
+Here's an example:
+   >>> from lcapy import Circuit
+   >>> cct = Circuit()
+   >>> cct.add('V1 1 0 V(s); down') 
+   >>> cct.add('R1 1 2; right') 
+   >>> cct.add('C1 2 0_2; down') 
+   >>> cct.add('W1 0 0_2; right') 
+   >>> cct.draw('schematic.tex')
+
+Note, the orientation hints are appended to the netlist strings with a
+semicolon delimiter.  The drawing direction is with respect to the
+first node.  The component W1 is a wire.  Nodes with an underscore in
+their name are not drawn with a closed blob.
+
+Here's another example, this time loading the netlist from a file:
+   >>> from lcapy import Circuit
+   >>> cct = Circuit('voltage-divider.sch')
+   >>> cct.draw('voltage-divider.tex')
+
+Here are the contents of the file 'voltage-divider.sch'::
+
+   V1 1 0_1 dc V; down
+   R1 1 2 R1; right
+   R2 2 0 R2; down
+   P1 2_2 0_2; down
+   W1 2 2_2; right
+   W2 0_1 0; right
+   W3 0 0_2; right
+
+Here, P1 defines a port.  This is shown as a pair of open blobs.
+
+Other schematic drawing hints include:
+
+   mirror  mirror component vertically (primarily for drawing opamps)
+   size=size    specify size of component
+   i=label    annotate current through component with label
+   v=label    annotate volatge across component with label
+
+The label position, current and voltage direction can be controlled
+with attributes _ ^ < and >, for example i^<=I_1.  See the Circuitikz
+manual for details.
+
