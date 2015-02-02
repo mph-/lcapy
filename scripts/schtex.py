@@ -19,7 +19,7 @@ def main (argv=None):
 
     version = __doc__.split('\n')[0]
 
-    parser = OptionParser(usage='%prog schematic-file', version=version, 
+    parser = OptionParser(usage='%prog schematic-file [output-file]', version=version, 
                           description=__doc__)
 
     parser.add_option('--label-nodes', action='store_true',
@@ -67,6 +67,7 @@ def main (argv=None):
     if len(args) > 1:
         outfilename = args[1]
         filename = outfilename.replace('.pdf', '.pytex')
+        filename = filename.replace('.png', '.pytex')
 
     infilename = args[0]
     if not infilename.endswith('.tex'):
@@ -84,12 +85,15 @@ def main (argv=None):
     else:
         filename = infilename
 
-    if not outfilename.endswith('.pdf'):
+    if not outfilename.endswith('.pdf') and not outfilename.endswith('.png'):
         return 0
 
-    template = '\\documentclass[a4paper]{article}\n\\usepackage[americanvoltages]{circuitikz}\n\\begin{document}\n\\input %s\n\\end{document}' % filename
+    template = '\\documentclass[a4paper]{standalone}\n\\usepackage[americanvoltages]{circuitikz}\n\\begin{document}\n\\input %s\n\\end{document}' % filename
 
-    tmpfile = open(outfilename.replace('.pdf', '.tex'), 'w')
+    texfilename = outfilename.replace('.pdf', '.tex')
+    texfilename = texfilename.replace('.png', '.tex')
+
+    tmpfile = open(texfilename, 'w')
     print(template, file=tmpfile)
     tmpfile.close()
 
@@ -101,6 +105,9 @@ def main (argv=None):
     # Should change directory if not simple path and use temporary filenames to avoid
     # collateral damage...
     os.system('pdflatex %s; rm ' % basename + files)
+
+    if outfilename.endswith('.png'):
+        os.system('convert -density 300 %s.pdf -quality 90 %s.png; rm %s.pdf' % (basename, basename, basename))
 
     return 0
 
