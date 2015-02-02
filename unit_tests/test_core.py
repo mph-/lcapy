@@ -1,8 +1,5 @@
 from lcapy import *
 import unittest
-import sympy as sym
-
-s = sym.var('s')
 
 class LcapyTester(unittest.TestCase):
     """Unit tests for lcapy
