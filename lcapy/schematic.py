@@ -20,6 +20,8 @@ import numpy as np
 import re
 import sympy as sym
 from lcapy.core import Expr
+from os import system, path
+
 
 __all__ = ('Schematic', )
 
@@ -1148,6 +1150,43 @@ class Schematic(object):
             drw.save(filename)
 
 
+    def _tmpfilename(self, suffix=''):
+
+        from tempfile import NamedTemporaryFile
+
+        filename = NamedTemporaryFile(suffix=suffix, delete=False).name
+        return filename
+
+
+    def file_draw(self, filename, args, **kwargs):
+
+        root, ext = path.splitext(filename)
+        if ext not in ('.tex', '.pdf', '.svg'):
+            raise TypeError('Cannot create file of type %s' % ext)
+
+        texfilename = filename.replace(ext, '.tex')
+
+        s = self.tikz_draw(args=args, **kwargs)            
+        template = '\\documentclass[a4paper]{standalone}\n\\usepackage[americanvoltages]{circuitikz}\n\\begin{document}\n%s\n\\end{document}'
+        content = template % s
+        
+        open(texfilename, 'w').write(content)
+
+        if ext == '.tex':
+            return
+
+        dirname = path.dirname(texfilename)
+        baseroot = path.basename(root)
+
+        system('cd %s; pdflatex -interaction batchmode %s.tex' % (dirname, baseroot))        
+        system('rm -f %s.aux %s.log %s.tex' % (root, root, root))
+
+        if ext == '.pdf':
+            return
+
+        system('pdf2svg %s.pdf %s.svg; rm %s.pdf' % (root, root, root))
+
+
     def draw(self, filename=None, args=None, stretch=1, scale=1, tex=False, **kwargs):
 
         self.node_spacing = 2 * stretch * scale
@@ -1169,30 +1208,12 @@ class Schematic(object):
             raise RuntimeWarning('No schematic drawing hints provided!')
 
         if in_ipynb():
-            from tempfile import NamedTemporaryFile
             from IPython.display import SVG
-            from os import system, path
 
-            s = self.tikz_draw(filename=None, args=args, **kwargs)            
-            template = '\\documentclass[a4paper]{standalone}\n\\usepackage[americanvoltages]{circuitikz}\n\\begin{document}\n%s\n\\end{document}'
-            content = template % s
+            svgfilename = self._tmpfilename('.svg')
+            self.file_draw(svgfilename, args=args, **kwargs)            
 
-            if filename is None:
-                filename = NamedTemporaryFile(suffix='.tex', delete=False).name
-                tf = open(filename, 'w')
-                print(content, file=tf)
-                tf.close()
-
-            root, ext = path.splitext(filename)
-            baseroot = path.basename(root)
-            dirname = path.dirname(filename)
-
-            system('cd %s; pdflatex -interaction batchmode %s.tex' % (dirname, baseroot))
-            system('rm -f %s.aux %s.log' % (root, root))        
-            system('pdfcrop %s.pdf %s-tmp.pdf' % (root, root))
-            system('mv %s-tmp.pdf %s.pdf' % (root, root))        
-            system('pdf2svg %s.pdf %s.svg' % (root, root))
-            result = SVG(filename=root + '.svg')
+            result = SVG(svgfilename)
             return result
 
         if tex or (filename is not None and filename.endswith('.tex')):
