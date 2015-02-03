@@ -193,7 +193,8 @@ class MNA(object):
         if n2 >= 0:
             self._G[n2, n2] += Y
 
-        self._Is[n1] += elt.cpt.I
+        if n1 >= 0:
+            self._Is[n1] += elt.cpt.I
 
 
     def _L_stamp(self, elt):

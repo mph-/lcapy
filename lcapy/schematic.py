@@ -628,7 +628,8 @@ class Schematic(object):
                     cnodes.link(n4, n2)
                 continue
 
-            if elt.opts['dir'] in dirs:
+            if elt.opts['dir'
+] in dirs:
                 continue
 
             cnodes.link(*elt.nodes[0:2])
@@ -840,7 +841,7 @@ class Schematic(object):
         return node_str
 
 
-    def _tikz_draw_opamp(self, elt, outfile, draw_labels):
+    def _tikz_draw_opamp(self, elt, draw_labels):
 
         n1, n2, n3, n4 = elt.nodes
 
@@ -851,12 +852,13 @@ class Schematic(object):
         labelstr = elt.tex_label if draw_labels else ''
         argstr = '' if elt.opts.has_key('mirror') else 'yscale=-1'
 
-        print(r'    \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (centre, argstr, self.scale * 2), file=outfile)
+        s = r'    \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (centre, argstr, self.scale * 2)
         # Draw label separately to avoid being scaled by 2.
-        print(r'    \draw (%s) node [] {%s};' % (centre, labelstr), file=outfile)
+        s += r'    \draw (%s) node [] {%s};' % (centre, labelstr)
+        return s
 
 
-    def _tikz_draw_TF1(self, elt, nodes, outfile, draw_labels, link=False):
+    def _tikz_draw_TF1(self, elt, nodes, draw_labels, link=False):
 
         p1, p2, p3, p4 = [self.coords[n]  for n in nodes] 
         
@@ -871,28 +873,30 @@ class Schematic(object):
 
         labelstr = elt.tex_label if draw_labels else ''
 
-        print(r'    \draw (%s) node[circ] {};' % primary_dot, file=outfile)
-        print(r'    \draw (%s) node[circ] {};' % secondary_dot, file=outfile)
-        print(r'    \draw (%s) node[minimum width=%.1f] {%s};' % (labelpos, 0.5, labelstr), file=outfile)
+        s = r'    \draw (%s) node[circ] {};''\n' % primary_dot
+        s += r'    \draw (%s) node[circ] {};''\n' % secondary_dot
+        s += r'    \draw (%s) node[minimum width=%.1f] {%s};''\n' % (labelpos, 0.5, labelstr)
 
         if link:
             width = p1.x - p3.x
             arcpos = Pos((p1.x + p3.x) / 2, secondary_dot.y - width / 2 + 0.2)
 
-            print(r'    \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);' % (width / 2, arcpos, width / 2), file=outfile)
+            s += r'    \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (width / 2, arcpos, width / 2)
             
+        return s
 
 
-    def _tikz_draw_TF(self, elt, outfile, draw_labels):
+    def _tikz_draw_TF(self, elt, draw_labels):
 
         n1, n2, n3, n4 = elt.nodes
 
-        print(r'    \draw (%s) to [inductor] (%s);' % (n3, n4), file=outfile)
-        print(r'    \draw (%s) to [inductor] (%s);' % (n1, n2), file=outfile)
-        self._tikz_draw_TF1(elt, elt.nodes, outfile, draw_labels)
+        s = r'    \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
+        s += r'    \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
+        s += self._tikz_draw_TF1(elt, elt.nodes, draw_labels)
+        return s
 
 
-    def _tikz_draw_TP(self, elt, outfile, draw_labels):
+    def _tikz_draw_TP(self, elt, draw_labels):
 
         p1, p2, p3, p4 = [self.coords[n]  for n in elt.nodes] 
         width = p2.x - p4.x
@@ -908,22 +912,24 @@ class Schematic(object):
         labelstr = elt.tex_label if draw_labels else ''
         titlestr = "%s-parameter two-port" % elt.args[2]
 
-        print(r'    \draw (%s) -- (%s) -- (%s) -- (%s)  -- (%s);' % (p4, p3, p1, p2, p4), file=outfile)
-        print(r'    \draw (%s) node[minimum width=%.1f] {%s};' % (centre, width, titlestr), file=outfile)
-        print(r'    \draw (%s) node[minimum width=%.1f] {%s};' % (top, width, labelstr), file=outfile)
+        s = r'    \draw (%s) -- (%s) -- (%s) -- (%s)  -- (%s);''\n' % (p4, p3, p1, p2, p4)
+        s += r'    \draw (%s) node[minimum width=%.1f] {%s};''\n' % (centre, width, titlestr)
+        s += r'    \draw (%s) node[minimum width=%.1f] {%s};''\n' % (top, width, labelstr)
+        return s
 
 
-    def _tikz_draw_K(self, elt, outfile, draw_labels):
+    def _tikz_draw_K(self, elt, draw_labels):
 
         L1 = self.elements[elt.nodes[0]]
         L2 = self.elements[elt.nodes[1]]
 
         nodes = L2.nodes + L1.nodes
 
-        self._tikz_draw_TF1(elt, nodes, outfile, draw_labels, link=True)
+        s = self._tikz_draw_TF1(elt, nodes, draw_labels, link=True)
+        return s
 
 
-    def _tikz_draw_cpt(self, elt, outfile, draw_labels, draw_nodes):
+    def _tikz_draw_cpt(self, elt, draw_labels, draw_nodes):
 
         # Mapping of component names to circuitikz names.
         cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 
@@ -980,26 +986,20 @@ class Schematic(object):
         if cpt_type in ('Y', 'Z'):
             cpt_type = 'european resistor'
 
-        print(r'    \draw (%s) to [%s%s, %s%s] (%s);' % (n1, cpt_type, label_str, opts_str, node_str, n2), file=outfile)
+        s = r'    \draw (%s) to [%s%s, %s%s] (%s);''\n' % (n1, cpt_type, label_str, opts_str, node_str, n2)
+        return s
 
 
     def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
                   filename=None, args=None):
 
-        if filename != None and filename != '':
-            outfile = open(filename, 'w')
-        else:
-            import sys
-            outfile = sys.stdout
-
         # Preamble
         if args is None: args = ''
-        print(r'\begin{tikzpicture}[scale=%.2f,/tikz/circuitikz/bipoles/length=%.1fcm,%s]' % (self.node_spacing, self.cpt_size, args), file=outfile)
+        s = r'\begin{tikzpicture}[scale=%.2f,/tikz/circuitikz/bipoles/length=%.1fcm,%s]''\n' % (self.node_spacing, self.cpt_size, args)
 
         # Write coordinates
         for coord in self.coords.keys():
-            print(r'    \coordinate (%s) at (%s);' % (coord, self.coords[coord]), file=outfile)
-
+            s += r'    \coordinate (%s) at (%s);''\n' % (coord, self.coords[coord])
 
         draw = {'TF' : self._tikz_draw_TF,
                 'TP' : self._tikz_draw_TP,
@@ -1010,10 +1010,9 @@ class Schematic(object):
         for m, elt in enumerate(self.elements.values()):
 
             if elt.cpt_type in draw:
-                draw[elt.cpt_type](elt, outfile, draw_labels)
+                s += draw[elt.cpt_type](elt, draw_labels)
             else:
-                self._tikz_draw_cpt(elt, outfile, draw_labels, draw_nodes)
-
+                s += self._tikz_draw_cpt(elt, draw_labels, draw_nodes)
 
         wires = self._make_wires()
 
@@ -1023,17 +1022,23 @@ class Schematic(object):
                 n1, n2 = wire.nodes
 
                 node_str = self._node_str(n1, n2, draw_nodes)
-                print(r'    \draw (%s) to [short, %s] (%s);' % (n1, node_str, n2),
-                  file=outfile)
+                s += r'    \draw (%s) to [short, %s] (%s);''\n' % (n1, node_str, n2)
     
         # Label primary nodes
         if label_nodes:
             for m, node in enumerate(self.nodes.values()):
                 if not node.primary:
                     continue
-                print(r'    \draw {[anchor=south east] (%s) node {%s}};' % (node.name, node.name), file=outfile)
+                s += r'    \draw {[anchor=south east] (%s) node {%s}};''\n' % (node.name, node.name)
 
-        print(r'\end{tikzpicture}', file=outfile)
+        s += r'\end{tikzpicture}''\n'
+
+        if filename != None and filename != '':
+            outfile = open(filename, 'w')
+            print(s, file=outfile)
+            outfile.close()
+
+        return s
 
 
     def _schemdraw_draw_TF(self, elt, drw, draw_labels):
@@ -1088,13 +1093,13 @@ class Schematic(object):
             drw.add(cpt_type, xy=pos2.xy, to=pos1.xy)
 
 
-    def _schemdraw_draw_opamp(self, elt, outfile, draw_labels):
+    def _schemdraw_draw_opamp(self, elt, draw_labels):
 
         # TODO
         pass
 
 
-    def _schemdraw_draw_K(self, elt, outfile, draw_labels):
+    def _schemdraw_draw_K(self, elt, draw_labels):
         
         # TODO
         pass
@@ -1149,13 +1154,51 @@ class Schematic(object):
         self.cpt_size = 1.5 * scale
         self.scale = scale
 
+
+        def in_ipynb():
+            try:
+                cfg = get_ipython().config 
+                if cfg['IPKernelApp']['parent_appname'] == 'ipython-notebook':
+                    return True
+                else:
+                    return False
+            except (NameError, KeyError):
+                return False
+
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
 
+        if in_ipynb():
+            from tempfile import NamedTemporaryFile
+            from IPython.display import SVG
+            from os import system, path
+
+            s = self.tikz_draw(filename=None, args=args, **kwargs)            
+            template = '\\documentclass[a4paper]{standalone}\n\\usepackage[americanvoltages]{circuitikz}\n\\begin{document}\n%s\n\\end{document}'
+            content = template % s
+
+            if filename is None:
+                filename = NamedTemporaryFile(suffix='.tex', delete=False).name
+                tf = open(filename, 'w')
+                print(content, file=tf)
+                tf.close()
+
+            root, ext = path.splitext(filename)
+            baseroot = path.basename(root)
+            dirname = path.dirname(filename)
+
+            system('cd %s; pdflatex -interaction batchmode %s.tex' % (dirname, baseroot))
+            system('rm -f %s.aux %s.log' % (root, root))        
+            system('pdfcrop %s.pdf %s-tmp.pdf' % (root, root))
+            system('mv %s-tmp.pdf %s.pdf' % (root, root))        
+            system('pdf2svg %s.pdf %s.svg' % (root, root))
+            result = SVG(filename=root + '.svg')
+            return result
+
         if tex or (filename is not None and filename.endswith('.tex')):
-            self.tikz_draw(filename=filename, args=args, **kwargs)            
+            return self.tikz_draw(filename=filename, args=args, **kwargs)            
         else:
-            self.schemdraw_draw(filename=filename, **kwargs)
+            return self.schemdraw_draw(filename=filename, **kwargs)
 
 
 def test():

@@ -13,7 +13,7 @@ Copyright 2014 Michael Hayes, UCECE
 
 from __future__ import absolute_import, print_function
 
-__version__ = "0.6.1-git"
+__version__ = "0.6.2-git"
 
 import sys
 if sys.version_info[0] == 2 and sys.version_info[1] < 6:
