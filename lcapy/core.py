@@ -128,6 +128,11 @@ class Expr(object):
 
         p.pretty(self.expr)
 
+
+    def _repr_latex_(self):
+
+        return '$%s$' % self.latex()
+
     
     def __abs__(self):
         """Absolute value"""
