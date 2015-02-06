@@ -22,24 +22,25 @@ else:  # Python 3
     pass
     # Here we can also check for specific Python 3 versions, if needed
 
-def _displayhook(arg):
-    
-    if arg is not None:
-        # Perhaps use latex method if not interactive
-        # and not using ipython notebook.
-        if hasattr(arg, 'pprint'):
-            arg.pprint()
-        else:
-            _old_displayhook(arg)
-
-_old_displayhook = sys.displayhook        
-sys.displayhook = _displayhook
-
 del sys
 
-from sympy import init_printing
-init_printing(use_latex='mathjax')
+def _print_expr(arg, p, cycle):
 
+    p.pretty(arg.expr)
+
+
+from sympy import init_printing
+#init_printing(use_latex='mathjax')
+init_printing()
+
+try:
+     ip = get_ipython()
+
+     plaintext_formatter = ip.display_formatter.formatters['text/plain']
+     plaintext_formatter.for_type(Expr, _print_expr)
+
+except NameError:
+     pass
 
 
 # List of symbols that get imported with 'from lcapy import *'
@@ -70,3 +71,4 @@ from .netlist import *
 from . import schematic
 __all__.extend(schematic.__all__)
 from .schematic import *
+
