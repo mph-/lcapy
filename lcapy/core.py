@@ -123,6 +123,11 @@ class Expr(object):
 
         return '%s(%s)' % (self.__class__.__name__, self.val)
 
+
+    def _repr_pretty_(self, p, cycle):
+
+        p.pretty(self.expr)
+
     
     def __abs__(self):
         """Absolute value"""
