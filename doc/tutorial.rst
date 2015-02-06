@@ -62,21 +62,6 @@ Here are some examples of their creation:
    >>> C1 = C(10e-6)
    >>> L1 = L('L_1')
 
-Here a symbolic inductance is created (using the Python string
-notation).  In each case, a reference to the circuit element object is
-stored in a Python variable.  These can be printed using `print` or
-`pprint` (pretty print), for example,
-
-   >>> print(R1)
-   R(10)
-   >>> print(C1)
-   print(C)
-   C(1.00000000000000e-6)
-   >>> print(L1)
-   L(L_1)
-   >>> pprint(L1)
-   L(L₁)
-
 
 
 Simple circuit element combinations
@@ -119,10 +104,8 @@ The result can be performed symbolically, for example,
    R(R_1) | R(R_2)
    >>> print(Rtot.simplify())
    R(R_1*R_2/(R_1 + R_2))
-   >>> Rtot.simplify().pprint()
+   >>> Rtot.simplify()
    R(R₁) | R(R₂)
-
-Notice the difference between `print` and `pprint` (pretty print) methods.
 
 Here's another example using inductors in series
 
@@ -130,9 +113,9 @@ Here's another example using inductors in series
    >>> L1 = L(10)
    >>> L2 = L(5)
    >>> Ltot = L1 + L2
-   >>> Ltot.pprint()
+   >>> Ltot
    L(10) + L(5)
-   >>> Ltot.simplify().pprint()
+   >>> Ltot.simplify()
    L(15)
 
 
@@ -140,9 +123,9 @@ Finally, here's an example of a parallel combination of capacitors
 
    >>> from lcapy import *
    >>> Ctot = C(10) | C(5)
-   >>> Ctot.pprint()
+   >>> Ctot
    C(10) | C(5)
-   >>> Ctot.simplify().pprint()
+   >>> Ctot.simplify()
    C(15)
 
 
@@ -153,9 +136,9 @@ Let's consider a series R-L-C network
 
    >>> from lcapy import *
    >>> N = R(5) + L(20) + C(10)
-   >>> N.pprint()
+   >>> N
    R(5) + L(20) + C(10)
-   >>> N.Z.pprint()
+   >>> N.Z
         2           
    200⋅s  + 80⋅s + 1
    ─────────────────
@@ -165,14 +148,14 @@ Notice the result is a rational function of `s`.  Remember impedance
 is a frequency domain concept.  A rational function can be formatted
 in a number of different ways, for example,
 
-   >>> N.Z.ZPK().pprint()
+   >>> N.Z.ZPK()
       ⎛      ____    ⎞ ⎛      ____    ⎞
       ⎜    ╲╱ 14    1⎟ ⎜    ╲╱ 14    1⎟
    10⋅⎜s - ────── + ─⎟⋅⎜s + ────── + ─⎟
       ⎝      20     5⎠ ⎝      20     5⎠
    ────────────────────────────────────
                     s                 
-   >>> N.Z.canonical().pprint()
+   >>> N.Z.canonical()
       ⎛ 2   2⋅s    1 ⎞
    10⋅⎜s  + ─── + ───⎟
       ⎝      5    200⎠
@@ -187,27 +170,27 @@ The corresponding parallel R-L-C network yields
 
    >>> from lcapy import *
    >>> N = R(5) | L(20) | C(10)
-   >>> N.pprint()
+   >>> N
    R(5) | L(20) | C(10)
-   >>> N.Z.pprint()
+   >>> N.Z
          20⋅s      
    ────────────────
         2          
    200⋅s  + 4⋅s + 1
 
-   >>> N.Z.ZPK().pprint()
+   >>> N.Z.ZPK()
                    s                 
    ──────────────────────────────────
       ⎛     1    7⋅ⅈ⎞ ⎛     1    7⋅ⅈ⎞
    10⋅⎜s + ─── - ───⎟⋅⎜s + ─── + ───⎟
       ⎝    100   100⎠ ⎝    100   100⎠
-   >>> N.Z.canonical().pprint()
+   >>> N.Z.canonical()
            s         
    ──────────────────
       ⎛ 2   s     1 ⎞
    10⋅⎜s  + ── + ───⎟
       ⎝     50   200⎠
-   >>> N.Y.pprint()
+   >>> N.Y
         2          
    200⋅s  + 4⋅s + 1
    ────────────────
@@ -260,19 +243,19 @@ by a unit step)
 
    >>> from lcapy import *
    >>> N = Vdc(20) + R(5) + C(10)
-   >>> N.pprint()
+   >>> N
    Vdc(20) + R(5) + C(10)
    >>> Voc = N.Voc
-   >>> Voc.pprint()
+   >>> Voc
    20
    ──
    s 
-   >>> N.Isc.pprint()
+   >>> N.Isc
    200   
    ────────
    50⋅s + 1
    >>> isc = N.Isc.transient_response()
-   >>> isc.pprint()
+   >>> isc
       -t              
       ───             
        50             
@@ -289,19 +272,19 @@ Of course, this could have been done symbolically,
 
    >>> from lcapy import *
    >>> N = Vdc('V_1') + R('R_1') + C('C_1')
-   >>> N.pprint()
+   >>> N
    Vdc(V₁) + R(R₁) + C(C₁)
    >>> Voc = N.Voc
-   >>> Voc.pprint()
+   >>> Voc
    V₁
    ──
    s 
-   >>> N.Isc.pprint()
+   >>> N.Isc
    C₁⋅V₁   
    ───────────
    C₁⋅R₁⋅s + 1
    >>> isc = N.Isc.transient_response()
-   >>> isc.pprint()
+   >>> isc
          -t               
         ─────             
         C₁⋅R₁             
@@ -356,7 +339,7 @@ Here's an example of a Thevenin to Norton transformation:
    >>> from lcapy import *
    >>> T = Vdc(10) + R(5)
    >>> N = T.norton()
-   >>> N.pprint()
+   >>> N
    G(1/5) | Idc(2)
 
 Similarly, here's an example of a Norton to Thevenin transformation:
@@ -364,7 +347,7 @@ Similarly, here's an example of a Norton to Thevenin transformation:
    >>> from lcapy import *
    >>> N = Idc(10) | R(5)
    >>> T = N.thevenin()
-   >>> T.pprint()
+   >>> T
    R(5) + Vdc(50)
 
 
@@ -404,28 +387,28 @@ This is comprised from any two one-port networks.  For example,
    >>> R1 = R('R_1')
    >>> R2 = R('R_2')
    >>> N = LSection(R1, R2)
-   >>> N.Vtransfer.pprint()
+   >>> N.Vtransfer
    R_2/(R_1 + R_2)
 
 Here `N.Vtransfer` determines the forward voltage transfer function
 `V_2(s) / V_1(s)`.
 
 The open-circuit input impedance can be found using:
-   >>> N.Z1oc.pprint()
+   >>> N.Z1oc
    R₁ + R₂
 
 The open-circuit output impedance can be found using:
-   >>> N.Z2oc.pprint()
+   >>> N.Z2oc
    R₂
 
 The short-circuit input admittance can be found using:
-   >>> N.Y1sc.pprint()
+   >>> N.Y1sc
    1 
    ──
    R₁
 
 The short-circuit output admittance can be found using:
-   >>> N.Y2sc.pprint()
+   >>> N.Y2sc
    R₁ + R₂
    ───────
     R₁⋅R₂ 
@@ -445,7 +428,7 @@ series one-port.
 
    >>> from lcapy import *
    >>> N = Series(R('R_1')).chain(Shunt(R('R_2')))
-   >>> N.Vtransfer.pprint()
+   >>> N.Vtransfer
    R_2/(R_1 + R_2)
 
 
@@ -462,7 +445,7 @@ Consider an L section comprised of two resistors:
    >>> N = LSection(R('R_1'), R('R_2')))
 
 The different matrix representations can be shown using:
-   >>> N.A.pprint()
+   >>> N.A
    ⎡R₁ + R₂    ⎤
    ⎢───────  R₁⎥
    ⎢   R₂      ⎥
@@ -470,13 +453,13 @@ The different matrix representations can be shown using:
    ⎢  1        ⎥
    ⎢  ──     1 ⎥
    ⎣  R₂       ⎦
-   >>> N.B.pprint()
+   >>> N.B
    ⎡ 1    -R₁  ⎤
    ⎢           ⎥
    ⎢-1   R₁    ⎥
    ⎢───  ── + 1⎥
    ⎣ R₂  R₂    ⎦
-   >>> N.G.pprint()
+   >>> N.G
    ⎡   1       -R₂  ⎤
    ⎢───────  ───────⎥
    ⎢R₁ + R₂  R₁ + R₂⎥
@@ -484,13 +467,13 @@ The different matrix representations can be shown using:
    ⎢   R₂     R₁⋅R₂ ⎥
    ⎢───────  ───────⎥
    ⎣R₁ + R₂  R₁ + R₂⎦
-   >>> N.H.pprint()
+   >>> N.H
    ⎡R₁  1 ⎤
    ⎢      ⎥
    ⎢    1 ⎥
    ⎢-1  ──⎥
    ⎣    R₂⎦
-   >>> N.Y.pprint()
+   >>> N.Y
    ⎡1      -1   ⎤
    ⎢──     ───  ⎥
    ⎢R₁      R₁  ⎥
@@ -498,7 +481,7 @@ The different matrix representations can be shown using:
    ⎢-1   R₁ + R₂⎥
    ⎢───  ───────⎥
    ⎣ R₁   R₁⋅R₂ ⎦
-   >>> N.Z.pprint()
+   >>> N.Z
    ⎡R₁ + R₂  R₂⎤
    ⎢           ⎥
    ⎣  R₂     R₂⎦
@@ -518,7 +501,7 @@ either using lists of numerator and denominator coefficients:
     >>> from lcapy import *
     >>>
     >>> H1 = tf(0.001, [1, 0.05, 0])
-    >>> H1.pprint()
+    >>> H1
         0.001     
     ───────────────
          2         
@@ -529,7 +512,7 @@ from lists of poles and zeros (and optional gain):
    >>> from lcapy import *
    >>>
    >>> H2 = zp2tf([], [0, -0.05])
-   >>> H2.pprint()
+   >>> H2
         0.001     
    ───────────────
         2         
@@ -540,7 +523,7 @@ or symbolically:
    >>> from lcapy import *
    >>>
    >>> H3 = 0.001 / (s**2 + 0.05 * s)
-   >>> H3.pprint()
+   >>> H3
         0.001     
    ───────────────
         2         
@@ -553,7 +536,7 @@ for example,
    >>> from lcapy import *
    >>>
    >>> H4 = zp2tf(['z_1'], ['p_1', 'p_2'])
-   >>> H4.pprint()
+   >>> H4
           s - z₁      
    ───────────────────
    (-p₁ + s)⋅(-p₂ + s)
@@ -570,7 +553,7 @@ fraction form.  Here's an example:
    >>>
    >>> G = 1 / (s**2 + 5 * s + 6)
    >>>
-   >>> G.partfrac().pprint()
+   >>> G.partfrac()
       1       1  
    - ───── + ─────
      s + 3   s + 2
@@ -581,14 +564,14 @@ Here's an example of a not strictly proper rational function,
    >>>
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6)
    >>>
-   >>> H.partfrac().pprint()
+   >>> H.partfrac()
          70      90 
    5 + ───── - ─────
        s + 3   s + 2
 
 The rational function can also be printed in ZPK form:
 
-   >>> H.ZPK().pprint()
+   >>> H.ZPK()
    5⋅(s - 4)⋅(s + 5)
    ─────────────────
     (s + 2)⋅(s + 3) 
@@ -617,11 +600,11 @@ a strictly proper rational function:
 
    >>> from lcapy import s
    >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
-   >>> H.partfrac().pprint()
+   >>> H.partfrac()
      35      30 
    ───── - ─────
    s + 3   s + 2
-   >>> H.inverse_laplace().pprint()
+   >>> H.inverse_laplace()
    ⎛      -2⋅t       -3⋅t⎞             
    ⎝- 30⋅ℯ     + 35⋅ℯ    ⎠⋅Heaviside(t)
 
@@ -632,11 +615,11 @@ transform has Dirac deltas (and derivatives of Dirac deltas):
 
    >>> from lcapy import s
    >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
-   >>> H.partfrac().pprint()
+   >>> H.partfrac()
         70      90 
    5 + ───── - ─────
        s + 3   s + 2
-   >>> H.inverse_laplace().pprint()
+   >>> H.inverse_laplace()
    ⎛      -2⋅t       -3⋅t⎞                               
    ⎝- 90⋅ℯ     + 70⋅ℯ    ⎠⋅Heaviside(t) + 5⋅DiracDelta(t)
 
@@ -646,17 +629,17 @@ repeated pole:
 
    >>> from lcapy import s
    >>> H = 5 * (s + 5) / ((s + 3) * (s + 3))
-   >>> H.ZPK().pprint()
+   >>> H.ZPK()
    5⋅(s + 5)
    ─────────
            2
     (s + 3) 
-   >>> H.partfrac().pprint()
+   >>> H.partfrac()
      5        10   
    ───── + ────────
    s + 3          2
            (s + 3) 
-   >>> H.inverse_laplace().pprint()
+   >>> H.inverse_laplace()
    ⎛      -3⋅t      -3⋅t⎞             
    ⎝10⋅t⋅ℯ     + 5⋅ℯ    ⎠⋅Heaviside(t)
 
@@ -667,11 +650,11 @@ Rational functions with delays can also be handled:
    >>> import sympy as sym
    >>> T = sym.symbols('T')
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * sym.exp(-s * T)
-   >>> H.partfrac().pprint()
+   >>> H.partfrac()
    ⎛      70      90 ⎞  -T⋅s
    ⎜5 + ───── - ─────⎟⋅ℯ    
    ⎝    s + 3   s + 2⎠      
-   >>> H.inverse_laplace().pprint()
+   >>> H.inverse_laplace()
    ⎛      2⋅T - 2⋅t       3⋅T - 3⋅t⎞                                         
    ⎝- 90⋅ℯ          + 70⋅ℯ         ⎠⋅Heaviside(-T + t) + 5⋅DiracDelta(-T + t)
 
@@ -685,7 +668,7 @@ Lcapy can also perform Laplace transforms.   Here's an example:
    >>> from lcapy import t
    >>> 
    >>> v = 10 * t ** 2 + 3 * t
-   >>> v.laplace().pprint()
+   >>> v.laplace()
    3⋅s + 20
    ────────
        3   
@@ -749,7 +732,7 @@ For example,
 Notice, how the displayed voltages are Laplace domain voltages.  The
 transient voltages can be determined using an inverse Laplace transform:
 
-   >>> cct.V[1].inverse_laplace().pprint()
+   >>> cct.V[1].inverse_laplace()
    10.0⋅Heaviside(t)
 
 Alternatively, 
@@ -761,7 +744,7 @@ Alternatively,
 For another example, the s-domain voltage difference across the
 resistor Ra can be found using:
 
-   >>> cct.Vd['Ra'].pprint()
+   >>> cct.Vd['Ra']
    7.5
    ───
     s 
@@ -775,12 +758,12 @@ use the component name for its value.  For example,
    >>> cct.add('V1 1 0 dc Vs') 
    >>> cct.add('R1 1 2') 
    >>> cct.add('C1 2 0') 
-   >>> cct.V[2].pprint()
+   >>> cct.V[2]
         Vs     
    ────────────
           2    
    C₁⋅R₁⋅s  + s
-   >>> : cct.V[2].inverse_laplace().pprint()
+   >>> : cct.V[2].inverse_laplace()
    ⎛          -t  ⎞             
    ⎜         ─────⎟             
    ⎜         C₁⋅R₁⎟             
@@ -798,7 +781,7 @@ For example,
    >>> cct.add('V1 1 0 dc Vs') 
    >>> cct.add('C1 2 1 C1 v0') 
    >>> cct.add('L1 2 0 L1 i0') 
-   >>> cct.V[2].pprint()
+   >>> cct.V[2]
    C₁⋅L₁⋅Vs⋅s + C₁⋅L₁⋅s⋅v₀ - L₁⋅i₀
    ───────────────────────────────
                     2             
@@ -817,20 +800,20 @@ Here's an example using an arbitrary input voltage `V(s)`:
    >>> cct.add('V1 1 0 V(s)') 
    >>> cct.add('R1 1 2') 
    >>> cct.add('C1 2 0') 
-   >>> cct.V[2].pprint()
+   >>> cct.V[2]
        V(s)   
    ───────────
    C₁⋅R₁⋅s + 1
 
    >>> H = cct.V[2] / cct.V[1]
-   >>> H.pprint()
+   >>> H
         1     
    ───────────
    C₁⋅R₁⋅s + 1
 
 The corresponding impulse response can found from an inverse Laplace transform:
 
-   >>> H.inverse_laplace().pprint()
+   >>> H.inverse_laplace()
      -t               
     ─────             
     C₁⋅R₁             

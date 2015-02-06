@@ -1425,6 +1425,16 @@ class NetObject(object):
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
 
+    def _repr_pretty_(self, p, cycle):
+
+        p.text(self.pretty())
+
+
+    def _repr_latex_(self):
+
+        return '$%s$' % self.latex()
+
+
     def pretty(self):
 
         argsrepr = ', '.join([sym.pretty(arg) for arg in self._tweak_args()])

@@ -153,6 +153,16 @@ class ParSer(OnePort):
         return str
 
 
+    def _repr_pretty_(self, p, cycle):
+
+        p.text(self.pretty())
+
+
+    def _repr_latex_(self):
+
+        return '$%s$' % self.latex()
+
+
     def pretty(self):
 
         str = ''
