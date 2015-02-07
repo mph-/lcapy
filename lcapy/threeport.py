@@ -1,7 +1,7 @@
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import Vs, Avs, cExpr, VsVector, IsVector
+from lcapy.core import Vs, Hs, cExpr, VsVector, IsVector
 from lcapy.oneport import OnePort
 from lcapy.twoport import YMatrix, ZMatrix, TwoPortZModel, Series
 
@@ -162,7 +162,7 @@ class ThreePort(object):
         p1 = inport - 1
         p2 = outport - 1
 
-        return Avs(self.Z[p2, p1] / self.Z[p1, p1])
+        return Hs(self.Z[p2, p1] / self.Z[p1, p1])
 
 
     def Igain(self, inport=1, outport=2):
@@ -177,7 +177,7 @@ class ThreePort(object):
 
         Y = self.Y
 
-        return Ais(self.Y[p2, p1] / self.Y[p1, p1])
+        return Hs(self.Y[p2, p1] / self.Y[p1, p1])
 
 
     def Vresponse(self, V, inport=1, outport=2):

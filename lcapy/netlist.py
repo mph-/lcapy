@@ -34,7 +34,7 @@ Copyright 2014 Michael Hayes, UCECE
 
 from __future__ import division
 from warnings import warn
-from lcapy.core import  pprint, cExpr, Avs, Ais, Zs, Ys, s
+from lcapy.core import  pprint, cExpr, Hs, Zs, Ys, s
 from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep, Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
@@ -726,7 +726,7 @@ class Netlist(object):
         new = self.kill()
         new.add('V1_ %d %d impulse' % (N1p, N1m))
 
-        H = Avs(new.Voc(N2p, N2m) / new.Vd['V1_'])
+        H = Hs(new.Voc(N2p, N2m) / new.Vd['V1_'])
 
         return H
 
@@ -748,7 +748,7 @@ class Netlist(object):
             
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
-            A11 = Avs(self.Vd['V1_'] / self.Voc(N2p, N2m))
+            A11 = Hs(self.Vd['V1_'] / self.Voc(N2p, N2m))
             
             # A12 = V1 / I2 with V2 = 0
             # Apply V1 and measure I2 with port 2 short-circuit
@@ -764,7 +764,7 @@ class Netlist(object):
             
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure I2 with port 2 short-circuit
-            A22 = Ais(-self.I['I1_'] / self.Isc(N2p, N2m))
+            A22 = Hs(-self.I['I1_'] / self.Isc(N2p, N2m))
             
             self.remove('I1_')
             return AMatrix(A11, A12, A21, A22)

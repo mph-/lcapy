@@ -1,6 +1,6 @@
 from __future__ import division
 from warnings import warn
-from lcapy.core import  pprint, cExpr, Avs, Ais, Zs, Ys, Vs, Is, s
+from lcapy.core import  pprint, cExpr, Hs, Zs, Ys, Vs, Is, s
 from lcapy.twoport import Matrix, Vector
 import sympy as sym
 

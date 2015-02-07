@@ -5,7 +5,7 @@ This module supports simple linear two-port networks.
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, Avs, Ais, WyeDelta, DeltaWye, Vector, Matrix, VsVector, IsVector, YVector, ZVector
+from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, Hs, WyeDelta, DeltaWye, Vector, Matrix, VsVector, IsVector, YVector, ZVector
 from lcapy.oneport import OnePort, Norton, Thevenin
 from copy import copy
 
@@ -1237,11 +1237,11 @@ class TwoPort(NetObject):
         # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12 / Y11
 
         if inport == outport:
-            return Avs(1)
+            return Hs(1)
         if inport == 1 and outport == 2:
-            return Avs(1 / self.A11)
+            return Hs(1 / self.A11)
         if inport == 2 and outport == 1:
-            return Avs(1 / self.B11)
+            return Hs(1 / self.B11)
         raise ValueError('bad port values')
 
 
@@ -1253,11 +1253,11 @@ class TwoPort(NetObject):
         # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12 / Y22
 
         if inport == outport:
-            return Ais(1)
+            return Hs(1)
         if inport == 1 and outport == 2:
-            return Ais(-1 / self.A22)
+            return Hs(-1 / self.A22)
         if inport == 2 and outport == 1:
-            return Ais(-1 / self.B22)
+            return Hs(-1 / self.B22)
         raise ValueError('bad port values')
 
 

@@ -1291,6 +1291,8 @@ def final_value(expr, var=None):
     return sym.limit(expr * var, var, 0)
 
 
+# Perhaps use a factory to create the following classes?
+
 class Zs(sExpr):
     """s-domain impedance value"""
 
@@ -1449,14 +1451,17 @@ class Is(sExpr):
         return self
 
 
-class Avs(sExpr):
-    """s-domain voltage ratio"""
+class Hs(sExpr):
+    """s-domain ratio"""
     pass
 
+    quantity = 's-ratio'
+    units = ''    
 
-class Ais(sExpr):
-    """s-domain current ratio"""
-    pass
+    def __init__(self, val):
+
+        super (Hs, self).__init__(val)
+        self._laplace_conjugate_class = Ht
 
 
 class Yt(tExpr):
@@ -1464,11 +1469,11 @@ class Yt(tExpr):
 
     units = 'siemens/s'
 
-
     def __init__(self, val):
 
         super (Yt, self).__init__(val)
         self._laplace_conjugate_class = Ys
+        self._fourier_conjugate_class = Yf
 
 
 class Zt(tExpr):
@@ -1480,6 +1485,7 @@ class Zt(tExpr):
 
         super (Zt, self).__init__(val)
         self._laplace_conjugate_class = Zs
+        self._fourier_conjugate_class = Zf
 
 
 class Vt(tExpr):
@@ -1492,6 +1498,7 @@ class Vt(tExpr):
 
         super (Vt, self).__init__(val)
         self._laplace_conjugate_class = Vs
+        self._fourier_conjugate_class = Vf
 
 
 class It(tExpr):
@@ -1504,6 +1511,81 @@ class It(tExpr):
 
         super (It, self).__init__(val)
         self._laplace_conjugate_class = Is
+        self._fourier_conjugate_class = If
+
+
+class Ht(tExpr):
+    """impulse response"""
+    
+    quantity = 'Impulse response'
+    units = '1/s'
+
+    def __init__(self, val):
+
+        super (Ht, self).__init__(val)
+        self._laplace_conjugate_class = Hs
+        self._fourier_conjugate_class = Hf
+
+
+class Yf(fExpr):
+    """f-domain admittance"""
+
+    quantity = 'Admittance'
+    units = 'siemens'
+
+    def __init__(self, val):
+
+        super (Yf, self).__init__(val)
+        self._fourier_conjugate_class = Yt
+
+
+class Zf(fExpr):
+    """f-domain impedance"""
+
+    quantity = 'Impedance'
+    units = 'ohms'
+
+    def __init__(self, val):
+
+        super (Zf, self).__init__(val)
+        self._fourier_conjugate_class = Zt
+
+
+class Vf(fExpr):
+    """f-domain voltage (units V)"""
+
+    quantity = 'Voltage spectrum'
+    units = 'V/Hz'
+
+    def __init__(self, val):
+
+        super (Vf, self).__init__(val)
+        self._fourier_conjugate_class = Vt
+
+
+class If(fExpr):
+    """f-domain current (units A)"""
+    
+    quantity = 'Current spectrum'
+    units = 'A/Hz'
+
+    def __init__(self, val):
+
+        super (If, self).__init__(val)
+        self._fourier_conjugate_class = It
+
+
+class Hf(fExpr):
+    """d-domain transfer function response"""
+    
+    quantity = 'Transfer function'
+    units = '1'
+
+    def __init__(self, val):
+
+        super (Ht, self).__init__(val)
+        self._fourier_conjugate_class = Ht
+
 
 
 class VsVector(Vector):
