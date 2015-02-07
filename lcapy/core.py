@@ -623,7 +623,10 @@ class fExpr(Expr):
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
         
-        return tExpr(sym.inverse_fourier_transform(self.expr, t, self.var))
+        result = sym.inverse_fourier_transform(self.expr, t, self.var)
+        if hasattr(self, '_fourier_conjugate_class'):
+            result = self._fourier_conjugate_class(result)
+        return result
 
 
 class omegaExpr(Expr):
@@ -647,7 +650,10 @@ class omegaExpr(Expr):
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
         
-        return tExpr(sym.inverse_fourier_transform(self.expr, t, self.var))
+        result = sym.inverse_fourier_transform(self.expr, t, self.var)
+        if hasattr(self, '_fourier_conjugate_class'):
+            result = self._fourier_conjugate_class(result)
+        return result
 
 
 class tExpr(Expr):
