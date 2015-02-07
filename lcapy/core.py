@@ -383,15 +383,38 @@ class Expr(object):
         return self.evaluate(vector)
 
 
+    @property
+    def label(self):
+
+        label = ''
+        if hasattr(self, 'quantity'):
+            label += '%s' % self.quantity
+        if hasattr(self, 'units'):
+            label += ' (%s)' % self.units
+        return label
+
+
+    @property
+    def domain_label(self):
+
+        label = ''
+        if hasattr(self, 'domain_name'):
+            label += '%s' % self.domain_name
+        if hasattr(self, 'domain_units'):
+            label += ' (%s)' % self.domain_units
+        return label
+
+
 class sExpr(Expr):
     """s-domain expression or symbol"""
     
     var = sym.symbols('s')
 
-
     def __init__(self, val):
-        
+
         super (sExpr, self).__init__(val)
+        self._laplace_conjugate_class = tExpr
+        
         if self.expr.find('t') != set():
             raise ValueError('s-domain expression %s cannot depend on t' % self.expr)
 
@@ -525,7 +548,10 @@ class sExpr(Expr):
     def inverse_laplace(self):
         """Attempt inverse Laplace transform"""
         
-        return inverse_laplace(self.expr, t, self.var)
+        result = inverse_laplace(self.expr, t, self.var)
+        if hasattr(self, '_laplace_conjugate_class'):
+            result = self._laplace_conjugate_class(result)
+        return result
 
 
     def transient_response(self, t=None):
@@ -576,16 +602,18 @@ class sExpr(Expr):
         return super (sExpr, self).evaluate(svector, sym.symbols('s'))
 
 
-
 class fExpr(Expr):
     """Fourier domain expression or symbol"""
     
     var = sym.symbols('f')
-
+    domain_name = 'Frequency'
+    domain_units = 'Hz'
 
     def __init__(self, val):
-        
+
         super (fExpr, self).__init__(val)
+        self._fourier_conjugate_class = tExpr
+        
         if self.expr.find('s') != set():
             raise ValueError('f-domain expression %s cannot depend on s' % self.expr)
         if self.expr.find('t') != set():
@@ -598,16 +626,18 @@ class fExpr(Expr):
         return tExpr(sym.inverse_fourier_transform(self.expr, t, self.var))
 
 
-
 class omegaExpr(Expr):
     """Fourier domain expression or symbol (angular frequency)"""
     
     var = sym.symbols('omega')
-
+    domain_name = 'Angular frequency'
+    domain_units = 'rad/s'
 
     def __init__(self, val):
-        
+
         super (omegaExpr, self).__init__(val)
+        self._fourier_conjugate_class = tExpr
+        
         if self.expr.find('s') != set():
             raise ValueError('omega-domain expression %s cannot depend on s' % self.expr)
         if self.expr.find('t') != set():
@@ -624,11 +654,15 @@ class tExpr(Expr):
     """t-domain expression or symbol"""
 
     var = sym.symbols('t')
-
+    domain_name = 'Time'
+    domain_units = 's'
 
     def __init__(self, val):
-        
+
         super (tExpr, self).__init__(val)
+        self._fourier_conjugate_class = fExpr
+        self._laplace_conjugate_class = sExpr
+        
         if self.expr.find('s') != set():
             raise ValueError('t-domain expression %s cannot depend on s' % self.expr)
 
@@ -637,14 +671,20 @@ class tExpr(Expr):
         """Attempt Laplace transform"""
         
         F, a, cond = sym.laplace_transform(self.expr, self.var, s)
-        return sExpr(F)
+
+        if hasattr(self, '_laplace_conjugate_class'):
+            F = self._laplace_conjugate_class(F)
+        return F
 
 
     def fourier(self):
         """Attempt Fourier transform"""
         
         F = sym.fourier_transform(self.expr, self.var, f)
-        return fExpr(F)
+
+        if hasattr(self, '_fourier_conjugate_class'):
+            F = self._fourier_conjugate_class(F)
+        return F
 
 
     def evaluate(self, tvector):
@@ -653,6 +693,22 @@ class tExpr(Expr):
         if np.iscomplexobj(response) and np.allclose(response.imag, 0.0):
             response = response.real
         return response
+
+
+    def plot(self):
+
+        from matplotlib.pyplot import figure
+        
+        # FIXME, determine useful time range...
+        t = np.linspace(-0.2, 2, 400)
+        v = self(t)
+
+        fig = figure()
+        ax = fig.add_subplot(111)
+        ax.plot(t, v)
+        ax.set_xlabel(self.domain_label)
+        ax.set_ylabel(self.label)
+        ax.grid(True)
 
 
 class cExpr(Expr):
@@ -1238,6 +1294,15 @@ def final_value(expr, var=None):
 class Zs(sExpr):
     """s-domain impedance value"""
 
+    quantity = 'Impedance'
+    units = 'ohms'
+
+    def __init__(self, val):
+
+        super (Zs, self).__init__(val)
+        self._laplace_conjugate_class = Zt
+
+
     @classmethod
     def C(cls, Cval):
     
@@ -1284,6 +1349,15 @@ class Zs(sExpr):
 class Ys(sExpr):
     """s-domain admittance value"""
     
+    quantity = 'Admittance'
+    units = 'siemens'
+
+
+    def __init__(self, val):
+
+        super (Ys, self).__init__(val)
+        self._laplace_conjugate_class = Yt
+
 
     @classmethod
     def C(cls, Cval):
@@ -1330,7 +1404,15 @@ class Ys(sExpr):
 
 class Vs(sExpr):
     """s-domain voltage (units V s / radian)"""
-    
+
+    quantity = 's-Voltage'
+    units = 'V/Hz'    
+
+    def __init__(self, val):
+
+        super (Vs, self).__init__(val)
+        self._laplace_conjugate_class = Vt
+
 
     def cpt(self):
 
@@ -1345,6 +1427,16 @@ class Vs(sExpr):
 
 class Is(sExpr):
     """s-domain current (units A s / radian)"""
+
+    quantity = 's-Current'
+    units = 'A/Hz'    
+
+
+    def __init__(self, val):
+
+        super (Is, self).__init__(val)
+        self._laplace_conjugate_class = It
+
     
     def cpt(self):
 
@@ -1365,6 +1457,53 @@ class Avs(sExpr):
 class Ais(sExpr):
     """s-domain current ratio"""
     pass
+
+
+class Yt(tExpr):
+    """t-domain 'admittance' value"""
+
+    units = 'siemens/s'
+
+
+    def __init__(self, val):
+
+        super (Yt, self).__init__(val)
+        self._laplace_conjugate_class = Ys
+
+
+class Zt(tExpr):
+    """t-domain 'impedance' value"""
+
+    units = 'ohms/s'
+
+    def __init__(self, val):
+
+        super (Zt, self).__init__(val)
+        self._laplace_conjugate_class = Zs
+
+
+class Vt(tExpr):
+    """t-domain voltage (units V)"""
+
+    quantity = 'Voltage'
+    units = 'V'
+
+    def __init__(self, val):
+
+        super (Vt, self).__init__(val)
+        self._laplace_conjugate_class = Vs
+
+
+class It(tExpr):
+    """t-domain current (units A)"""
+    
+    quantity = 'Current'
+    units = 'A'
+
+    def __init__(self, val):
+
+        super (It, self).__init__(val)
+        self._laplace_conjugate_class = Is
 
 
 class VsVector(Vector):
