@@ -715,7 +715,7 @@ class tExpr(Expr):
 
         fig = figure()
         ax = fig.add_subplot(111)
-        ax.plot(t, v, kwargs)
+        ax.plot(t, v, **kwargs)
         ax.set_xlabel(self.domain_label)
         ax.set_ylabel(self.label)
         ax.grid(True)
