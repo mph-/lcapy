@@ -437,19 +437,21 @@ class NetElement(object):
                     value = float(args[0])
                     if cpt_type[0] in units_map:
                         value_label = EngFormat(value, units_map[cpt_type[0]]).latex()
+                    else:
+                        value_label = Expr(expr).latex()
 
                 except ValueError:
                     value_label = Expr(expr).latex()
-
-        tex_label = value_label
-        if tex_label is None:
-            if identifier_label is not None:
-                tex_label = Expr(identifier_label).latex()
 
         # Currently, we only annnotated the component with the value,
         # expression, or symbol.  If this is not specified, it
         # defaults to the component identifier.  Note, some objects
         # we do not want to label, such as wires and ports.
+
+        tex_label = value_label
+        if tex_label is None:
+            if identifier_label is not None:
+                tex_label = Expr(identifier_label).latex()
 
         # Default label to use when drawing with LaTeX
         if tex_label is None:
@@ -1156,8 +1158,6 @@ class Schematic(object):
     def tikz_draw(self, filename, args, **kwargs):
 
         root, ext = path.splitext(filename)
-        if ext not in ('.tex', '.pdf', '.svg'):
-            raise TypeError('Cannot create file of type %s' % ext)
 
         include = kwargs.has_key('include') and kwargs.pop('include')
 
@@ -1182,7 +1182,15 @@ class Schematic(object):
         if ext == '.pdf':
             return
 
-        system('pdf2svg %s.pdf %s.svg; rm %s.pdf' % (root, root, root))
+        if ext == '.svg':
+            system('pdf2svg %s.pdf %s.svg; rm %s.pdf' % (root, root, root))
+            return
+
+        if ext == '.png':
+            system('convert -density 150 %s.pdf %s.png; rm %s.pdf' % (root, root, root))
+            return
+
+        raise ValueError('Cannot create file of type %s' % ext)
 
 
     def draw(self, filename=None, args=None, stretch=1, scale=1, tex=False, **kwargs):
@@ -1205,7 +1213,7 @@ class Schematic(object):
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
 
-        if in_ipynb() and filename is None:
+        if False and in_ipynb() and filename is None:
             from IPython.display import SVG
 
             svgfilename = self._tmpfilename('.svg')
@@ -1215,8 +1223,18 @@ class Schematic(object):
             result = SVG(svgfilename)
             return result
 
-        # TODO, support png?
-        tikz_extensions = ('.tex', '.pdf', '.svg')
+
+        if in_ipynb() and filename is None:
+            from IPython.display import Image
+
+            pngfilename = self._tmpfilename('.png')
+            self.tikz_draw(pngfilename, args=args, **kwargs)            
+
+            # Display image.
+            result = Image(pngfilename)
+            return result
+
+        tikz_extensions = ('.tex', '.pdf', '.svg', '.png')
 
         # matplotlib can support many other formats but tikz
         # generates better diagrams
