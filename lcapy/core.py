@@ -705,12 +705,18 @@ class tExpr(Expr):
         return response
 
 
-    def plot(self, **kwargs):
+    def plot(self, t=None, **kwargs):
 
         from matplotlib.pyplot import figure
         
         # FIXME, determine useful time range...
-        t = np.linspace(-0.2, 2, 400)
+        if t is None:
+            t = (-0.2, 2)
+        if isinstance(t, int):
+            t = (0, t)
+        if isinstance(t, tuple):
+            t = np.linspace(t[0], t[1], 400)
+
         v = self(t)
 
         fig = figure()
