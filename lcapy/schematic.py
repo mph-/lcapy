@@ -992,8 +992,8 @@ class Schematic(object):
         return s
 
 
-    def tikz_draw(self, draw_labels=True, draw_nodes=True, label_nodes=True,
-                  filename=None, args=None):
+    def _tikz_draw(self, draw_labels=True, draw_nodes=True,
+                   label_nodes=True, args=None):
 
         # Preamble
         if args is None: args = ''
@@ -1034,11 +1034,6 @@ class Schematic(object):
                 s += r'    \draw {[anchor=south east] (%s) node {%s}};''\n' % (node.name, node.name)
 
         s += r'\end{tikzpicture}''\n'
-
-        if filename != None and filename != '':
-            outfile = open(filename, 'w')
-            print(s, file=outfile)
-            outfile.close()
 
         return s
 
@@ -1158,18 +1153,21 @@ class Schematic(object):
         return filename
 
 
-    def file_draw(self, filename, args, **kwargs):
+    def tikz_draw(self, filename, args, **kwargs):
 
         root, ext = path.splitext(filename)
         if ext not in ('.tex', '.pdf', '.svg'):
             raise TypeError('Cannot create file of type %s' % ext)
 
-        texfilename = filename.replace(ext, '.tex')
+        include = kwargs.has_key('include') and kwargs.pop('include')
 
-        s = self.tikz_draw(args=args, **kwargs)            
-        template = '\\documentclass[a4paper]{standalone}\n\\usepackage[americanvoltages]{circuitikz}\n\\begin{document}\n%s\n\\end{document}'
-        content = template % s
-        
+        content = self._tikz_draw(args=args, **kwargs)            
+
+        if not include:
+            template = '\\documentclass[a4paper]{standalone}\n\\usepackage[americanvoltages]{circuitikz}\n\\begin{document}\n%s\n\\end{document}'
+            content = template % content
+
+        texfilename = filename.replace(ext, '.tex')
         open(texfilename, 'w').write(content)
 
         if ext == '.tex':
@@ -1193,10 +1191,10 @@ class Schematic(object):
         self.cpt_size = 1.5 * scale
         self.scale = scale
 
-
         def in_ipynb():
             try:
-                cfg = get_ipython().config 
+                ip = get_ipython()
+                cfg = ip.config 
                 if cfg['IPKernelApp']['parent_appname'] == 'ipython-notebook':
                     return True
                 else:
@@ -1207,17 +1205,24 @@ class Schematic(object):
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
 
-        if in_ipynb():
+        if in_ipynb() and filename is None:
             from IPython.display import SVG
 
             svgfilename = self._tmpfilename('.svg')
-            self.file_draw(svgfilename, args=args, **kwargs)            
+            self.tikz_draw(svgfilename, args=args, **kwargs)            
 
+            # Display image.
             result = SVG(svgfilename)
             return result
 
-        if tex or (filename is not None and filename.endswith('.tex')):
-            return self.tikz_draw(filename=filename, args=args, **kwargs)            
+        # TODO, support png?
+        tikz_extensions = ('.tex', '.pdf', '.svg')
+
+        # matplotlib can support many other formats but tikz
+        # generates better diagrams
+
+        if tex or (filename is not None and filename.endswith(tikz_extensions)):
+            return self.tikz_draw(filename=filename, args=args, **kwargs)
         else:
             return self.schemdraw_draw(filename=filename, **kwargs)
 

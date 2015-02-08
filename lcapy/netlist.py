@@ -901,9 +901,9 @@ class Netlist(object):
         return cct
 
 
-    def draw(self, draw_labels=None, draw_nodes=None, label_nodes=None,
-             s_model=False, filename=None, args=None, scale=1, stretch=1,
-             tex=False):
+    def draw(self, filename=None, draw_labels=None, draw_nodes=None,
+             label_nodes=None, s_model=False, args=None, scale=1, stretch=1,
+             tex=False, include=False):
 
         cct = self
         if s_model:
@@ -918,7 +918,8 @@ class Netlist(object):
             kwargs['draw_labels'] = draw_labels
 
         return cct.sch.draw(filename=filename, args=args, 
-                            scale=scale, stretch=stretch, tex=tex, **kwargs)
+                            scale=scale, stretch=stretch, tex=tex, 
+                            include=include, **kwargs)
 
 
 class Circuit(Netlist):
