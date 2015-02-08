@@ -17,7 +17,7 @@ import sympy as sym
 from sympy.utilities.lambdify import lambdify
 import sys
 
-# Note imports at bottom to avoid circuit dependencies
+# Note imports at bottom to avoid circular dependencies
 
 
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf', 
@@ -48,6 +48,9 @@ class Exprdict(dict):
 class Expr(object):
     """Decorator class for sympy classes derived from sympy.Expr"""
     
+    # Perhaps have lookup table for operands to determine
+    # the resultant type?  For example, Vs / Vs -> Hs
+    # Vs / Is -> Zs,  Is * Zs -> Vs
 
     @property
     def expr(self):    
@@ -63,6 +66,7 @@ class Expr(object):
             val = sym.symbols(val, real=True)
 
         if isinstance(val, str):
+            # Perhaps have dictionary of functions and their replacements?
             val = val.replace('u(t', 'Heaviside(t')
             val = val.replace('delta(t', 'DiracDelta(t')
             
@@ -701,7 +705,7 @@ class tExpr(Expr):
         return response
 
 
-    def plot(self):
+    def plot(self, **kwargs):
 
         from matplotlib.pyplot import figure
         
@@ -711,7 +715,7 @@ class tExpr(Expr):
 
         fig = figure()
         ax = fig.add_subplot(111)
-        ax.plot(t, v)
+        ax.plot(t, v, kwargs)
         ax.set_xlabel(self.domain_label)
         ax.set_ylabel(self.label)
         ax.grid(True)
