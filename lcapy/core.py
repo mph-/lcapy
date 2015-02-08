@@ -577,7 +577,8 @@ class sExpr(Expr):
     
     
     def frequency_response(self, f=None):
-        """Evaluate frequency response"""
+        """Convert to frequency domain and evaluate response is frequency
+        specified"""
         
         if f is None:
             fsym = sym.symbols('f')
@@ -606,6 +607,13 @@ class sExpr(Expr):
         return super (sExpr, self).evaluate(svector, sym.symbols('s'))
 
 
+    def plot(self, t=None, **kwargs):
+
+        from lcapy.plot import plot_pole_zero
+
+        plot_pole_zero(self, **kwargs)
+
+
 class fExpr(Expr):
     """Fourier domain expression or symbol"""
     
@@ -631,6 +639,13 @@ class fExpr(Expr):
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         return result
+
+
+    def plot(self, f=None, **kwargs):
+
+        from lcapy.plot import plot_frequency
+        plot_frequency(self, f, **kwargs)
+
 
 
 class omegaExpr(Expr):
@@ -707,24 +722,8 @@ class tExpr(Expr):
 
     def plot(self, t=None, **kwargs):
 
-        from matplotlib.pyplot import figure
-        
-        # FIXME, determine useful time range...
-        if t is None:
-            t = (-0.2, 2)
-        if isinstance(t, int):
-            t = (0, t)
-        if isinstance(t, tuple):
-            t = np.linspace(t[0], t[1], 400)
-
-        v = self(t)
-
-        fig = figure()
-        ax = fig.add_subplot(111)
-        ax.plot(t, v, **kwargs)
-        ax.set_xlabel(self.domain_label)
-        ax.set_ylabel(self.label)
-        ax.grid(True)
+        from lcapy.plot import plot_time
+        plot_time(self, t, **kwargs)
 
 
 class cExpr(Expr):
@@ -1721,3 +1720,5 @@ def DiracDelta(expr):
 
 
 from lcapy.oneport import L, C, R, G, I, V, Idc, Vdc
+
+

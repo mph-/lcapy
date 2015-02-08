@@ -1224,6 +1224,7 @@ class Schematic(object):
         if tex or (filename is not None and filename.endswith(tikz_extensions)):
             return self.tikz_draw(filename=filename, args=args, **kwargs)
         else:
+            include = kwargs.has_key('include') and kwargs.pop('include')
             return self.schemdraw_draw(filename=filename, **kwargs)
 
 
