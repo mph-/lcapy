@@ -1,6 +1,8 @@
 import numpy as np
 from matplotlib.pyplot import figure
 
+# Perhaps add Formatter classes that will produce the plot data?
+
 def plot_pole_zero(obj, **kwargs):
 
     poles = obj.poles()

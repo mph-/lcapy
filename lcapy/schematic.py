@@ -1159,13 +1159,14 @@ class Schematic(object):
 
         root, ext = path.splitext(filename)
 
-        include = kwargs.has_key('include') and kwargs.pop('include')
-
         content = self._tikz_draw(args=args, **kwargs)            
 
-        if not include:
-            template = '\\documentclass[a4paper]{standalone}\n\\usepackage[americanvoltages]{circuitikz}\n\\begin{document}\n%s\n\\end{document}'
-            content = template % content
+        if ext == '.pytex':
+            open(filename, 'w').write(content)
+            return
+
+        template = '\\documentclass[a4paper]{standalone}\n\\usepackage[americanvoltages]{circuitikz}\n\\begin{document}\n%s\\end{document}'
+        content = template % content
 
         texfilename = filename.replace(ext, '.tex')
         open(texfilename, 'w').write(content)
@@ -1175,8 +1176,9 @@ class Schematic(object):
 
         dirname = path.dirname(texfilename)
         baseroot = path.basename(root)
+        chdir = '' if dirname == '' else 'cd %s; ' % dirname
 
-        system('cd %s; pdflatex -interaction batchmode %s.tex' % (dirname, baseroot))        
+        system('%spdflatex -interaction batchmode %s.tex' % (chdir, baseroot))        
         system('rm -f %s.aux %s.log %s.tex' % (root, root, root))
 
         if ext == '.pdf':
@@ -1193,7 +1195,7 @@ class Schematic(object):
         raise ValueError('Cannot create file of type %s' % ext)
 
 
-    def draw(self, filename=None, args=None, stretch=1, scale=1, tex=False, **kwargs):
+    def draw(self, filename=None, args=None, stretch=1, scale=1, **kwargs):
 
         self.node_spacing = 2 * stretch * scale
         self.cpt_size = 1.5 * scale
@@ -1234,15 +1236,14 @@ class Schematic(object):
             result = Image(pngfilename)
             return result
 
-        tikz_extensions = ('.tex', '.pdf', '.svg', '.png')
+        tikz_extensions = ('.tex', '.pytex', '.pdf', '.svg', '.png')
 
         # matplotlib can support many other formats but tikz
         # generates better diagrams
 
-        if tex or (filename is not None and filename.endswith(tikz_extensions)):
+        if filename is not None and filename.endswith(tikz_extensions):
             return self.tikz_draw(filename=filename, args=args, **kwargs)
         else:
-            include = kwargs.has_key('include') and kwargs.pop('include')
             return self.schemdraw_draw(filename=filename, **kwargs)
 
 

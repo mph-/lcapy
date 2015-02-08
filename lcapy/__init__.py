@@ -25,7 +25,6 @@ else:  # Python 3
 del sys
 
 from sympy import init_printing
-#init_printing(use_latex='mathjax')
 init_printing()
 
 

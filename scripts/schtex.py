@@ -2,7 +2,7 @@
 """schtex V0.1
 Copyright (c) 2014 Michael P. Hayes, UC ECE, NZ
 
-Usage: schtex infile.sch [outfile.tex]
+Usage: schtex infile.sch [outfile.tex|pdf|png|svg]
 """
 
 from __future__ import print_function
@@ -62,52 +62,21 @@ def main (argv=None):
         parser.error('missing argument')
         return 1
 
-    filename = ''
-    outfilename = ''
+    infilename = args[0]
+    outfilename = None
     if len(args) > 1:
         outfilename = args[1]
-        filename = outfilename.replace('.pdf', '.pytex')
-        filename = filename.replace('.png', '.pytex')
 
-    infilename = args[0]
-    if not infilename.endswith('.tex'):
-        cct = Circuit(args[0])
-        if options.k_model:
-            cct = cct.kill()
-        if options.s_model:
-            cct = cct.s_model()
-        if options.p_model:
-            cct = cct.pre_initial_model()
+    cct = Circuit(infilename)
+    if options.k_model:
+        cct = cct.kill()
+    if options.s_model:
+        cct = cct.s_model()
+    if options.p_model:
+        cct = cct.pre_initial_model()
 
-        cct.draw(label_nodes=options.label_nodes, draw_nodes=options.draw_nodes,
-                 filename=filename, scale=options.scale, stretch=options.stretch,
-                 tex=True)
-    else:
-        filename = infilename
-
-    if not outfilename.endswith('.pdf') and not outfilename.endswith('.png'):
-        return 0
-
-    template = '\\documentclass[a4paper]{standalone}\n\\usepackage[americanvoltages]{circuitikz}\n\\begin{document}\n\\input %s\n\\end{document}' % filename
-
-    texfilename = outfilename.replace('.pdf', '.tex')
-    texfilename = texfilename.replace('.png', '.tex')
-
-    tmpfile = open(texfilename, 'w')
-    print(template, file=tmpfile)
-    tmpfile.close()
-
-    basename = os.path.splitext(outfilename)[0]
-    print(basename)
-
-    files = ' '.join([basename + ext for ext in ('.aux', '.log', '.pytex', '.tex')])
-    
-    # Should change directory if not simple path and use temporary filenames to avoid
-    # collateral damage...
-    os.system('pdflatex %s; rm ' % basename + files)
-
-    if outfilename.endswith('.png'):
-        os.system('convert -density 300 %s.pdf -quality 90 %s.png; rm %s.pdf' % (basename, basename, basename))
+    cct.draw(label_nodes=options.label_nodes, draw_nodes=options.draw_nodes,
+             filename=outfilename, scale=options.scale, stretch=options.stretch)
 
     return 0
 
