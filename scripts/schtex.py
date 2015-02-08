@@ -9,7 +9,6 @@ from __future__ import print_function
 from optparse import OptionParser
 import sys
 import os
-from lcapy import Circuit
 
 
 def main (argv=None):
@@ -66,6 +65,8 @@ def main (argv=None):
     outfilename = None
     if len(args) > 1:
         outfilename = args[1]
+
+    from lcapy import Circuit
 
     cct = Circuit(infilename)
     if options.k_model:
