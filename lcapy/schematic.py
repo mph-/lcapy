@@ -387,9 +387,9 @@ class NetElement(object):
         if cpt_type in ('P', 'W') or identifier_label.find('#') != -1:
             identifier_label = None
 
-        if not opts.has_key('dir'):
+        if 'dir' not in opts:
             opts['dir'] = None
-        if not opts.has_key('size'):
+        if 'size' not in opts:
             opts['size'] = 1
 
         if opts['dir'] is None:
@@ -502,7 +502,7 @@ class Schematic(object):
 
     def _node_add(self, node, elt):
 
-        if not self.nodes.has_key(node):
+        if node not in self.nodes:
             self.nodes[node] = Node(node)
         self.nodes[node].append(elt)
 
@@ -641,7 +641,7 @@ class Schematic(object):
                     graphs.add(m3, m1, size * 2 + 0.4)
                     graphs.add(m4, m1, size * 2 + 0.4)
                 else:
-                    if elt.opts.has_key('mirror'):
+                    if 'mirror' in elt.opts:
                         graphs.add(m3, m1, 0.5 * size)
                         graphs.add(m1, m4, 0.5 * size)
                     else:
@@ -817,7 +817,7 @@ class Schematic(object):
         centre = Pos(0.5 * (p3.x + p1.x), p1.y)
 
         labelstr = elt.tex_label if draw_labels else ''
-        argstr = '' if elt.opts.has_key('mirror') else 'yscale=-1'
+        argstr = '' if 'mirror' in elt.opts else 'yscale=-1'
 
         s = r'    \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (
             centre, argstr, self.scale * 2)
@@ -929,9 +929,9 @@ class Schematic(object):
         # and voltage directions.
         if elt.opts['dir'] == 'left':
             n1, n2 = n2, n1
-            if elt.opts.has_key('i'):
+            if 'i' in elt.opts:
                 elt.opts['i<^'] = elt.opts.pop('i')
-            if elt.opts.has_key('v'):
+            if 'v' in elt.opts:
                 elt.opts['v_>'] = elt.opts.pop('v')
 
         # Current, voltage, label options.
@@ -941,7 +941,7 @@ class Schematic(object):
         for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
                     'i>_', 'i<_', 'i>^', 'i<^',
                     'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<', 'l', 'l^', 'l_'):
-            if elt.opts.has_key(opt):
+            if opt in elt.opts:
                 opts_str += '%s=$%s$, ' % (opt, elt.opts[opt])
 
         node_str = self._node_str(n1, n2, draw_nodes)
@@ -1176,8 +1176,8 @@ class Schematic(object):
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
 
-        png = kwargs.has_key('png') and kwargs.pop('png')
-        svg = kwargs.has_key('svg') and kwargs.pop('svg')
+        png = 'png' in kwargs and kwargs.pop('png')
+        svg = 'svg' in kwargs and kwargs.pop('svg')
 
         if not png and not svg:
             png = True

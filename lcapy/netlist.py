@@ -92,7 +92,7 @@ class Ldict(dict):
         if isinstance(key, int):
             key = '%d' % key
 
-        if not self.vdict.has_key(key) and self.Vdict.has_key(key):
+        if key not in self.vdict and key not in self.Vdict:
             self.vdict[key] = self.Vdict[key].inverse_laplace()
 
         return self.vdict[key]
@@ -360,7 +360,7 @@ class Netlist(object):
 
     def _node_add(self, node, elt):
 
-        if not self.nodes.has_key(node):
+        if node not in self.nodes:
             self.nodes[node] = Node(node)
         self.nodes[node].append(elt)
 
@@ -382,7 +382,7 @@ class Netlist(object):
 
     def _elt_add(self, elt):
 
-        if self.elements.has_key(elt.name):
+        if elt.name in self.elements:
             print('Overriding component %s' % elt.name)
             # Need to search lists and update component.
 
@@ -531,7 +531,7 @@ class Netlist(object):
         Note, the voltages and currents are lazily determined when
         requested. """
 
-        if self._MNA == None:
+        if self._MNA is None:
 
             # TODO: think this out.  When a circuit is converted
             # to a s-domain model we get Z (and perhaps Y) components.
@@ -830,14 +830,14 @@ class Netlist(object):
                 # Strip voltage label.  TODO: show voltage label across
                 # both components.
                 for opt in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
-                    if new_elt.opts.has_key(opt):
+                    if opt in new_elt.opts:
                         new_elt.opts.pop(opt)
 
                 # Strip voltage and current labels.
                 for opt in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
                             'i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
                             'i>_', 'i<_', 'i>^', 'i<^'):
-                    if velt.opts.has_key(opt):
+                    if opt in velt.opts:
                         velt.opts.pop(opt)
 
                 cct._elt_add(velt)

@@ -140,7 +140,7 @@ class MNA(object):
                         node_map[node] = sorted(nodes)[0]
                     break
 
-        if not node_map.has_key('0'):
+        if '0' not in node_map:
             print('Nothing connected to ground node 0')
             node_map['0'] = '0'
 
@@ -287,7 +287,7 @@ class MNA(object):
     def _analyse(self):
         """Analyse network."""
 
-        if not self.nodes.has_key('0'):
+        if '0' not in self.node_map:
             print('Nothing connected to ground node 0')
             self.nodes['0'] = None
 
