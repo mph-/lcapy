@@ -1126,7 +1126,9 @@ class Schematic(object):
             open(filename, 'w').write(content)
             return
 
-        template = '\\documentclass[a4paper]{standalone}\n\\usepackage[americanvoltages]{circuitikz}\n\\begin{document}\n%s\\end{document}'
+        template = ('\\documentclass[a4paper]{standalone}\n'
+                    '\\usepackage[americanvoltages]{circuitikz}\n'
+                    '\\begin{document}\n%s\\end{document}')
         content = template % content
 
         texfilename = filename.replace(ext, '.tex')
