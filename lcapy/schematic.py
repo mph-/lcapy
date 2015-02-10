@@ -18,7 +18,6 @@ Copyright 2014 Michael Hayes, UCECE
 from __future__ import print_function
 import numpy as np
 import re
-import sympy as sym
 from lcapy.core import Expr
 from os import system, path
 
@@ -38,6 +37,7 @@ label_pattern = re.compile(r"([\w']*)(_{[\w]})?")
 
 import math
 
+
 class EngFormat(object):
 
     def __init__(self, value, unit=''):
@@ -45,7 +45,6 @@ class EngFormat(object):
         self.value = value
         self.unit = unit
 
-    
     def latex(self, trim=True, hundreds=False):
 
         prefixes = ('f', 'p', 'n', '$\mu$', 'm', '', 'k', 'M', 'G', 'T')
@@ -74,17 +73,17 @@ class EngFormat(object):
             idx = len(prefixes) - 1
             return '%e\,' % value + self.unit
 
-        fmt = '%%.%df' % dp            
+        fmt = '%%.%df' % dp
 
         n = idx - 5
         value = value * 10**(-3 * n)
 
-        string = fmt % value 
+        string = fmt % value
 
         if trim:
             # Remove trailing zeroes after decimal point
             string = string.rstrip('0').rstrip('.')
-            
+
         return string + '\,' + prefixes[idx] + r'\mbox{' + self.unit + r'}'
 
 
@@ -106,7 +105,6 @@ class Opts(dict):
             arg = fields[1].strip() if len(fields) > 1 else ''
             self[key] = arg
 
-
     def __init__(self, arg):
 
         if isinstance(arg, str):
@@ -116,13 +114,13 @@ class Opts(dict):
         for key, val in arg.iteritems():
             self[key] = val
 
-
     def format(self):
 
         return ', '.join(['%s=%s' % (key, val) for key, val in self.iteritems()])
 
 
 class Cnodes(object):
+
     """Common nodes"""
 
     def __init__(self, nodes):
@@ -130,7 +128,6 @@ class Cnodes(object):
         self.sets = {}
         for node in nodes:
             self.sets[node] = (node, )
-
 
     def link(self, n1, n2):
         """Make nodes n1 and n2 share common node"""
@@ -144,7 +141,6 @@ class Cnodes(object):
         for n in self.sets[n2]:
             self.sets[n] = newset
 
-
     def _analyse(self):
 
         # Add dymmy cnode at start
@@ -152,10 +148,9 @@ class Cnodes(object):
         node_map = {}
         for node, nodes in self.sets.iteritems():
             node_map[node] = unique.index(nodes)
-        
+
         self._node_map = node_map
         self._nodes = unique
-
 
     @property
     def node_map(self):
@@ -166,14 +161,12 @@ class Cnodes(object):
 
         return self._node_map
 
-
     def map(self, nodes):
 
         if not isinstance(nodes, (tuple, list)):
             nodes = list[nodes]
 
         return [self.node_map[node] for node in nodes]
-
 
     @property
     def nodes(self):
@@ -183,7 +176,6 @@ class Cnodes(object):
             self._analyse()
 
         return self._nodes
-
 
     @property
     def size(self):
@@ -199,10 +191,8 @@ class Graph(dict):
         for m in range(size):
             self[m] = []
 
-
     def add(self, n1, n2, size):
         self[n1].append((n2, size))
-
 
 
 class Graphs(object):
@@ -212,11 +202,9 @@ class Graphs(object):
         self.fwd = Graph(size)
         self.rev = Graph(size)
 
-
     def add(self, n1, n2, size):
         self.fwd.add(n1, n2, size)
         self.rev.add(n2, n1, size)
-        
 
     @property
     def nodes(self):
@@ -247,7 +235,8 @@ def longest_path(all_nodes, from_nodes):
         return best
 
     try:
-        length, node = max([(get_longest(to_node), to_node) for to_node in all_nodes])
+        length, node = max([(get_longest(to_node), to_node)
+                            for to_node in all_nodes])
     except RuntimeError:
         print('Dodgy graph')
         print(from_nodes)
@@ -269,7 +258,6 @@ class Node(object):
         self.primary = len(parts) == 1
         self.list = []
 
-    
     def append(self, elt):
         """Add new element to the node"""
 
@@ -281,20 +269,17 @@ class Node(object):
         if elt.cpt_type != 'W':
             self._cpt_count += 1
 
-
     @property
     def count(self):
         """Number of elements (including wires) connected to the node"""
 
         return self._count
 
-
     @property
     def cpt_count(self):
         """Number of elements (not including wires) connected to the node"""
 
         return self._cpt_count
-
 
     @property
     def visible(self):
@@ -304,7 +289,6 @@ class Node(object):
         # Could add blobs when count > 2
 
         return self.name.find('_') == -1
-
 
     @property
     def port(self):
@@ -320,11 +304,9 @@ class Pos(object):
         self.x = x
         self.y = y
 
-    
     def __mul__(self, scale):
 
         return Pos(self.x * scale, self.y * scale)
-
 
     def __str__(self):
 
@@ -333,11 +315,9 @@ class Pos(object):
 
         return "%s,%s" % (xstr, ystr)
 
-        
     def __repr__(self):
 
         return 'Pos(%s)' % self
-
 
     @property
     def xy(self):
@@ -373,7 +353,6 @@ class NetElement(object):
         # Component arguments
         self.args = args
 
-        cpt_type_orig = cpt_type
         if args != ():
             if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep', 'impulse', 's'):
                 cpt_type = cpt_type + args[0]
@@ -391,7 +370,8 @@ class NetElement(object):
 
         if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP', 'opamp'):
             if len(args) < 2:
-                raise ValueError('Component type %s requires 4 nodes' % cpt_type)
+                raise ValueError(
+                    'Component type %s requires 4 nodes' % cpt_type)
             self.nodes += (args[0], args[1])
             args = args[2:]
 
@@ -418,8 +398,8 @@ class NetElement(object):
         if len(args) > 0:
 
             # TODO, extend for mechanical and acoustical components.
-            units_map = {'V' : 'V', 'I' : 'A', 'R' : '$\Omega$',
-                         'C' : 'F', 'L' : 'H'}
+            units_map = {'V': 'V', 'I': 'A', 'R': '$\Omega$',
+                         'C': 'F', 'L': 'H'}
 
             expr = args[0]
             if cpt_type in ('Vimpulse', 'Iimpulse'):
@@ -436,7 +416,8 @@ class NetElement(object):
                 try:
                     value = float(args[0])
                     if cpt_type[0] in units_map:
-                        value_label = EngFormat(value, units_map[cpt_type[0]]).latex()
+                        value_label = EngFormat(
+                            value, units_map[cpt_type[0]]).latex()
                     else:
                         value_label = Expr(expr).latex()
 
@@ -458,18 +439,17 @@ class NetElement(object):
             self.tex_label = ''
         else:
             self.tex_label = '$%s$' % tex_label
-    
+
         self.identifier_label = identifier_label
         self.value_label = value_label
         # Drawing hints
         self.opts = Opts(opts)
 
-
     def __repr__(self):
 
-        str = ', '.join(arg.__str__() for arg in [self.name] + list(self.nodes))
+        str = ', '.join(arg.__str__()
+                        for arg in [self.name] + list(self.nodes))
         return 'NetElement(%s)' % str
-
 
     def __str__(self):
 
@@ -489,18 +469,16 @@ class Schematic(object):
         if filename is not None:
             self.netfile_add(filename)
 
-
     def __getitem__(self, name):
         """Return component by name"""
 
         return self.elements[name]
 
-
-    def netfile_add(self, filename):    
+    def netfile_add(self, filename):
         """Add the nets from file with specified filename"""
 
         file = open(filename, 'r')
-        
+
         lines = file.readlines()
 
         for line in lines:
@@ -511,19 +489,16 @@ class Schematic(object):
             if line != '':
                 self.add(line)
 
-
     def netlist(self):
         """Return the current netlist"""
 
         return '\n'.join([elt.__str__() for elt in self.elements.values()])
-
 
     def _invalidate(self):
 
         for attr in ('_xnodes', '_ynodes', '_coords'):
             if hasattr(self, attr):
                 delattr(self, attr)
-
 
     def _node_add(self, node, elt):
 
@@ -539,15 +514,14 @@ class Schematic(object):
         if node not in self.snodes[vnode]:
             self.snodes[vnode].append(node)
 
-
     def _elt_add(self, elt):
 
         self._invalidate()
 
         if elt.name in self.elements:
-            print('Overriding component %s' % elt.name)     
+            print('Overriding component %s' % elt.name)
             # Need to search lists and update component.
-           
+
         self.elements[elt.name] = elt
 
         # Ignore nodes for mutual inductance.
@@ -556,7 +530,6 @@ class Schematic(object):
 
         for node in elt.nodes:
             self._node_add(node, elt)
-        
 
     def add(self, string):
         """The general form is: 'Name Np Nm symbol'
@@ -581,13 +554,12 @@ class Schematic(object):
 
 
 # Transformer
-#   n4      n2 
+#   n4      n2
 #
 #   n3      n1
 #
 # For horiz. node layout want to make (n3, n4) and (n1, n2) in same cnodes
 # For vert. node layout want to make (n2, n4) and (n1, n3) in same cnodes
-
 
     def _make_graphs(self, dirs):
 
@@ -621,7 +593,8 @@ class Schematic(object):
 
                 # TODO, generalise
                 if L1.opts['dir'] != 'down' or L2.opts['dir'] != 'down':
-                    raise ValueError('Can only handle vertical mutual inductors')
+                    raise ValueError(
+                        'Can only handle vertical mutual inductors')
                 nodes = L2.nodes + L1.nodes
                 n1, n2, n3, n4 = nodes
 
@@ -633,7 +606,7 @@ class Schematic(object):
                 continue
 
             if elt.opts['dir'
-] in dirs:
+                        ] in dirs:
                 continue
 
             cnodes.link(*elt.nodes[0:2])
@@ -650,7 +623,7 @@ class Schematic(object):
                 # m1, m2 output nodes; m3, m4 input nodes
                 m1, m2, m3, m4 = cnodes.map(elt.nodes)
 
-                scale = {'TF' : 0.5, 'TP' : 2}
+                scale = {'TF': 0.5, 'TP': 2}
 
                 if dirs[0] == 'right':
                     graphs.add(m3, m1, scale[elt.cpt_type] * size)
@@ -683,7 +656,7 @@ class Schematic(object):
 
                 nodes = L2.nodes + L1.nodes
                 m1, m2, m3, m4 = cnodes.map(nodes)
-                
+
                 scale = 0.8
                 if dirs[0] == 'right':
                     graphs.add(m3, m1, scale * size)
@@ -699,7 +672,6 @@ class Schematic(object):
                 graphs.add(m1, m2, size)
             elif elt.opts['dir'] == dirs[1]:
                 graphs.add(m2, m1, size)
-
 
         # Chain all potential start nodes to node 0.
         orphans = []
@@ -719,7 +691,6 @@ class Schematic(object):
             import pdb
             pdb.set_trace()
 
-
         # Find longest path through the graphs.
         length, node, memo = longest_path(graphs.fwd.keys(), graphs.fwd)
         length, node, memor = longest_path(graphs.fwd.keys(), graphs.rev)
@@ -735,12 +706,11 @@ class Schematic(object):
                 pos[node] = length - memo[cnode]
                 posr[node] = memor[cnode]
                 posa[node] = 0.5 * (pos[node] + posr[node])
-        
+
         if False:
             print(pos)
             print(posr)
         return posa, cnodes.nodes
-
 
     def _positions_calculate(self):
 
@@ -766,14 +736,12 @@ class Schematic(object):
 
         self._coords = coords
 
-
     @property
     def xnodes(self):
 
         if not hasattr(self, '_xnodes'):
             self._positions_calculate()
         return self._xnodes
-
 
     @property
     def ynodes(self):
@@ -782,7 +750,6 @@ class Schematic(object):
             self._positions_calculate()
         return self._ynodes
 
-
     @property
     def coords(self):
         """Directory of position tuples indexed by node name"""
@@ -790,7 +757,6 @@ class Schematic(object):
         if not hasattr(self, '_coords'):
             self._positions_calculate()
         return self._coords
-
 
     def _make_wires1(self, snode_list):
 
@@ -804,11 +770,10 @@ class Schematic(object):
         for n in range(num_wires):
             n1 = snode_list[n]
             n2 = snode_list[n + 1]
-            
+
             wires.append(NetElement('W_', n1, n2))
 
         return wires
-
 
     def _make_wires(self):
         """Create implict wires between common nodes."""
@@ -819,9 +784,8 @@ class Schematic(object):
 
         for m, snode_list in enumerate(snode_dir.values()):
             wires.extend(self._make_wires1(snode_list))
-            
-        return wires
 
+        return wires
 
     def _node_str(self, n1, n2, draw_nodes=True):
 
@@ -831,7 +795,7 @@ class Schematic(object):
             node_str = 'o'
         else:
             node_str = '*' if draw_nodes and node1.visible else ''
-            
+
         node_str += '-'
 
         if node2.port:
@@ -841,32 +805,31 @@ class Schematic(object):
 
         if node_str == '-':
             node_str = ''
-        
-        return node_str
 
+        return node_str
 
     def _tikz_draw_opamp(self, elt, draw_labels):
 
         n1, n2, n3, n4 = elt.nodes
 
-        p1, p2, p3, p4 = [self.coords[n]  for n in elt.nodes] 
+        p1, p2, p3, p4 = [self.coords[n] for n in elt.nodes]
 
         centre = Pos(0.5 * (p3.x + p1.x), p1.y)
 
         labelstr = elt.tex_label if draw_labels else ''
         argstr = '' if elt.opts.has_key('mirror') else 'yscale=-1'
 
-        s = r'    \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (centre, argstr, self.scale * 2)
+        s = r'    \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (
+            centre, argstr, self.scale * 2)
         # Draw label separately to avoid being scaled by 2.
         s += r'    \draw (%s) node [] {%s};' % (centre, labelstr)
         return s
 
-
     def _tikz_draw_TF1(self, elt, nodes, draw_labels, link=False):
 
-        p1, p2, p3, p4 = [self.coords[n]  for n in nodes] 
-        
-        xoffset = 0.06 
+        p1, p2, p3, p4 = [self.coords[n] for n in nodes]
+
+        xoffset = 0.06
         yoffset = 0.40
 
         primary_dot = Pos(p3.x - xoffset, 0.5 * (p3.y + p4.y) + yoffset)
@@ -879,16 +842,17 @@ class Schematic(object):
 
         s = r'    \draw (%s) node[circ] {};''\n' % primary_dot
         s += r'    \draw (%s) node[circ] {};''\n' % secondary_dot
-        s += r'    \draw (%s) node[minimum width=%.1f] {%s};''\n' % (labelpos, 0.5, labelstr)
+        s += r'    \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
+            labelpos, 0.5, labelstr)
 
         if link:
             width = p1.x - p3.x
             arcpos = Pos((p1.x + p3.x) / 2, secondary_dot.y - width / 2 + 0.2)
 
-            s += r'    \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (width / 2, arcpos, width / 2)
-            
-        return s
+            s += r'    \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (
+                width / 2, arcpos, width / 2)
 
+        return s
 
     def _tikz_draw_TF(self, elt, draw_labels):
 
@@ -899,28 +863,29 @@ class Schematic(object):
         s += self._tikz_draw_TF1(elt, elt.nodes, draw_labels)
         return s
 
-
     def _tikz_draw_TP(self, elt, draw_labels):
 
-        p1, p2, p3, p4 = [self.coords[n]  for n in elt.nodes] 
+        p1, p2, p3, p4 = [self.coords[n] for n in elt.nodes]
         width = p2.x - p4.x
-        height = p1.y - p2.y
-        extra = 0.25 
+        #height = p1.y - p2.y
+        extra = 0.25
         p1.y += extra
         p2.y -= extra
         p3.y += extra
         p4.y -= extra
         centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
-        top = Pos(centre.x, p1.y + 0.15 )
+        top = Pos(centre.x, p1.y + 0.15)
 
         labelstr = elt.tex_label if draw_labels else ''
         titlestr = "%s-parameter two-port" % elt.args[2]
 
-        s = r'    \draw (%s) -- (%s) -- (%s) -- (%s)  -- (%s);''\n' % (p4, p3, p1, p2, p4)
-        s += r'    \draw (%s) node[minimum width=%.1f] {%s};''\n' % (centre, width, titlestr)
-        s += r'    \draw (%s) node[minimum width=%.1f] {%s};''\n' % (top, width, labelstr)
+        s = r'    \draw (%s) -- (%s) -- (%s) -- (%s)  -- (%s);''\n' % (p4,
+                                                                       p3, p1, p2, p4)
+        s += r'    \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
+            centre, width, titlestr)
+        s += r'    \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
+            top, width, labelstr)
         return s
-
 
     def _tikz_draw_K(self, elt, draw_labels):
 
@@ -932,26 +897,25 @@ class Schematic(object):
         s = self._tikz_draw_TF1(elt, nodes, draw_labels, link=True)
         return s
 
-
     def _tikz_draw_cpt(self, elt, draw_labels, draw_nodes):
 
         # Mapping of component names to circuitikz names.
-        cpt_type_map = {'R' : 'R', 'C' : 'C', 'L' : 'L', 
-                        'Vac' : 'sV', 'Vdc' : 'V', 'Iac' : 'sI', 'Idc' : 'I', 
-                        'Vacstep' : 'sV', 'Vstep' : 'V', 
-                        'Iacstep' : 'sI', 'Istep' : 'I', 
-                        'Vimpulse' : 'V', 'Iimpulse' : 'I',
-                        'Vs' : 'V', 'Is' : 'I',
-                        'V' : 'V', 'I' : 'I', 'v' : 'V', 'i' : 'I',
-                        'P' : 'open', 'W' : 'short', 
-                        'TF' : 'transformer',
-                        'Z' : 'Z', 'Y' : 'Y'}
+        cpt_type_map = {'R': 'R', 'C': 'C', 'L': 'L',
+                        'Vac': 'sV', 'Vdc': 'V', 'Iac': 'sI', 'Idc': 'I',
+                        'Vacstep': 'sV', 'Vstep': 'V',
+                        'Iacstep': 'sI', 'Istep': 'I',
+                        'Vimpulse': 'V', 'Iimpulse': 'I',
+                        'Vs': 'V', 'Is': 'I',
+                        'V': 'V', 'I': 'I', 'v': 'V', 'i': 'I',
+                        'P': 'open', 'W': 'short',
+                        'TF': 'transformer',
+                        'Z': 'Z', 'Y': 'Y'}
 
         cpt_type = cpt_type_map[elt.cpt_type]
 
         n1, n2 = elt.nodes[0:2]
 
-        # circuitikz expects the positive node first, except for 
+        # circuitikz expects the positive node first, except for
         # voltage and current sources!   So swap the nodes otherwise
         # they are drawn the wrong way around.
         modifier = ''
@@ -959,7 +923,7 @@ class Schematic(object):
             n1, n2 = n2, n1
             # Draw label on RHS for vertical cpt.
             modifier = '_'
-      
+
         # If have a left drawn cpt, then switch nodes so that
         # label defaults to top but then have to switch current
         # and voltage directions.
@@ -974,14 +938,14 @@ class Schematic(object):
         # It might be better to allow any options and prune out
         # dir and size.
         opts_str = ''
-        for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 
-                    'i>_', 'i<_', 'i>^', 'i<^', 
+        for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
+                    'i>_', 'i<_', 'i>^', 'i<^',
                     'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<', 'l', 'l^', 'l_'):
             if elt.opts.has_key(opt):
                 opts_str += '%s=$%s$, ' % (opt, elt.opts[opt])
 
         node_str = self._node_str(n1, n2, draw_nodes)
-               
+
         label_str = ''
         if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
             if cpt_type not in ('open', 'short'):
@@ -990,25 +954,28 @@ class Schematic(object):
         if cpt_type in ('Y', 'Z'):
             cpt_type = 'european resistor'
 
-        s = r'    \draw (%s) to [%s%s, %s%s] (%s);''\n' % (n1, cpt_type, label_str, opts_str, node_str, n2)
+        s = r'    \draw (%s) to [%s%s, %s%s] (%s);''\n' % (
+            n1, cpt_type, label_str, opts_str, node_str, n2)
         return s
-
 
     def _tikz_draw(self, draw_labels=True, draw_nodes=True,
                    label_nodes=True, args=None):
 
         # Preamble
-        if args is None: args = ''
-        s = r'\begin{tikzpicture}[scale=%.2f,/tikz/circuitikz/bipoles/length=%.1fcm,%s]''\n' % (self.node_spacing, self.cpt_size, args)
+        if args is None:
+            args = ''
+        s = r'\begin{tikzpicture}[scale=%.2f,/tikz/circuitikz/bipoles/length=%.1fcm,%s]''\n' % (
+            self.node_spacing, self.cpt_size, args)
 
         # Write coordinates
         for coord in self.coords.keys():
-            s += r'    \coordinate (%s) at (%s);''\n' % (coord, self.coords[coord])
+            s += r'    \coordinate (%s) at (%s);''\n' % (coord,
+                                                         self.coords[coord])
 
-        draw = {'TF' : self._tikz_draw_TF,
-                'TP' : self._tikz_draw_TP,
-                'K' : self._tikz_draw_K,
-                'opamp' : self._tikz_draw_opamp}
+        draw = {'TF': self._tikz_draw_TF,
+                'TP': self._tikz_draw_TP,
+                'K': self._tikz_draw_K,
+                'opamp': self._tikz_draw_opamp}
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):
@@ -1026,19 +993,20 @@ class Schematic(object):
                 n1, n2 = wire.nodes
 
                 node_str = self._node_str(n1, n2, draw_nodes)
-                s += r'    \draw (%s) to [short, %s] (%s);''\n' % (n1, node_str, n2)
-    
+                s += r'    \draw (%s) to [short, %s] (%s);''\n' % (n1,
+                                                                   node_str, n2)
+
         # Label primary nodes
         if label_nodes:
             for m, node in enumerate(self.nodes.values()):
                 if not node.primary:
                     continue
-                s += r'    \draw {[anchor=south east] (%s) node {%s}};''\n' % (node.name, node.name)
+                s += r'    \draw {[anchor=south east] (%s) node {%s}};''\n' % (
+                    node.name, node.name)
 
         s += r'\end{tikzpicture}''\n'
 
         return s
-
 
     def _schemdraw_draw_TF(self, elt, drw, draw_labels):
 
@@ -1050,78 +1018,74 @@ class Schematic(object):
         pos2 = self.coords[n2] * self.node_spacing
         pos3 = self.coords[n3] * self.node_spacing
         pos4 = self.coords[n4] * self.node_spacing
-        
+
         drw.add(e.INDUCTOR2, xy=pos4.xy, to=pos3.xy)
         drw.add(e.INDUCTOR2, xy=pos2.xy, to=pos1.xy,
                 label=elt.tex_label.replace('\\,', ' '))
 
-
     def _schemdraw_draw_TP(self, elt, drw, draw_labels):
-        
+
         # TODO
         pass
-
 
     def _schemdraw_draw_cpt(self, elt, drw, draw_labels, draw_nodes):
 
         import SchemDraw.elements as e
 
-        cpt_type_map2 = {'R' : e.RES, 'C' : e.CAP, 'L' : e.INDUCTOR2, 
-                         'Vac' : e.SOURCE_SIN, 'Vdc' : e.SOURCE_V,
-                         'Iac' : e.SOURCE_SIN, 'Idc' : e.SOURCE_I, 
-                         'Vstep' : e.SOURCE_V, 'Vdelta' : e.SOURCE_V,
-                         'Istep' : e.SOURCE_I, 'Idelta' : e.SOURCE_I, 
-                         'V' : e.SOURCE_V, 'I' : e.SOURCE_I, 
-                         'Vs' : e.SOURCE_V, 'Is' : e.SOURCE_I, 
-                         'v' : e.SOURCE_V, 'i' : e.SOURCE_I,
-                         'P' : e.GAP_LABEL, 'port' : e.GAP_LABEL,
-                         'W' : e.LINE, 'wire' : e.LINE,
-                         'Y' : e.RBOX, 'Z' : e.RBOX}        
+        cpt_type_map2 = {'R': e.RES, 'C': e.CAP, 'L': e.INDUCTOR2,
+                         'Vac': e.SOURCE_SIN, 'Vdc': e.SOURCE_V,
+                         'Iac': e.SOURCE_SIN, 'Idc': e.SOURCE_I,
+                         'Vstep': e.SOURCE_V, 'Vdelta': e.SOURCE_V,
+                         'Istep': e.SOURCE_I, 'Idelta': e.SOURCE_I,
+                         'V': e.SOURCE_V, 'I': e.SOURCE_I,
+                         'Vs': e.SOURCE_V, 'Is': e.SOURCE_I,
+                         'v': e.SOURCE_V, 'i': e.SOURCE_I,
+                         'P': e.GAP_LABEL, 'port': e.GAP_LABEL,
+                         'W': e.LINE, 'wire': e.LINE,
+                         'Y': e.RBOX, 'Z': e.RBOX}
 
         cpt_type = cpt_type_map2[elt.cpt_type]
 
         n1, n2 = elt.nodes[0:2]
-        
+
         pos1 = self.coords[n1] * self.node_spacing
         pos2 = self.coords[n2] * self.node_spacing
-        
+
         if draw_labels:
-            drw.add(cpt_type, xy=pos2.xy, to=pos1.xy, 
+            drw.add(cpt_type, xy=pos2.xy, to=pos1.xy,
                     label=elt.tex_label.replace('\\,', ' '))
         else:
             drw.add(cpt_type, xy=pos2.xy, to=pos1.xy)
-
 
     def _schemdraw_draw_opamp(self, elt, draw_labels):
 
         # TODO
         pass
 
-
     def _schemdraw_draw_K(self, elt, draw_labels):
-        
+
         # TODO
         pass
 
-
-    def schemdraw_draw(self, draw_labels=True, draw_nodes=True, 
+    def schemdraw_draw(self, draw_labels=True, draw_nodes=True,
                        label_nodes=True, filename=None, args=None):
 
         from SchemDraw import Drawing
         import SchemDraw.elements as e
 
         # Preamble
-        if args is None: args = ''
-        
+        if args is None:
+            args = ''
+
         drw = Drawing()
 
         # Update element positions
         self.coords
 
-        draw = {'TF' : self._schemdraw_draw_TF,
-                'TP' : self._schemdraw_draw_TP,
-                'K' : self._schemdraw_draw_K,
-                'opamp' : self._schemdraw_draw_opamp}
+        draw = {'TF': self._schemdraw_draw_TF,
+                'TP': self._schemdraw_draw_TP,
+                'K': self._schemdraw_draw_K,
+                'opamp': self._schemdraw_draw_opamp}
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):
@@ -1131,7 +1095,6 @@ class Schematic(object):
             else:
                 self._schemdraw_draw_cpt(elt, drw, draw_labels, draw_nodes)
 
-
         if draw_nodes:
             for m, node in enumerate(self.nodes.values()):
                 label_str = node.name if draw_labels and node.primary else ''
@@ -1139,13 +1102,12 @@ class Schematic(object):
                     drw.add(e.DOT_OPEN, xy=self.coords[node.name].xy * self.node_spacing,
                             label=label_str)
                 elif node.primary:
-                    drw.add(e.DOT, xy=self.coords[node.name].xy * self.node_spacing, 
+                    drw.add(e.DOT, xy=self.coords[node.name].xy * self.node_spacing,
                             label=label_str)
 
         drw.draw()
         if filename is not None:
             drw.save(filename)
-
 
     def _tmpfilename(self, suffix=''):
 
@@ -1154,12 +1116,11 @@ class Schematic(object):
         filename = NamedTemporaryFile(suffix=suffix, delete=False).name
         return filename
 
-
     def tikz_draw(self, filename, args, **kwargs):
 
         root, ext = path.splitext(filename)
 
-        content = self._tikz_draw(args=args, **kwargs)            
+        content = self._tikz_draw(args=args, **kwargs)
 
         if ext == '.pytex':
             open(filename, 'w').write(content)
@@ -1178,7 +1139,7 @@ class Schematic(object):
         baseroot = path.basename(root)
         chdir = '' if dirname == '' else 'cd %s; ' % dirname
 
-        system('%spdflatex -interaction batchmode %s.tex' % (chdir, baseroot))        
+        system('%spdflatex -interaction batchmode %s.tex' % (chdir, baseroot))
         system('rm -f %s.aux %s.log %s.tex' % (root, root, root))
 
         if ext == '.pdf':
@@ -1189,11 +1150,11 @@ class Schematic(object):
             return
 
         if ext == '.png':
-            system('convert -density 150 %s.pdf %s.png; rm %s.pdf' % (root, root, root))
+            system('convert -density 200 %s.pdf %s.png; rm %s.pdf' %
+                   (root, root, root))
             return
 
         raise ValueError('Cannot create file of type %s' % ext)
-
 
     def draw(self, filename=None, args=None, stretch=1, scale=1, **kwargs):
 
@@ -1204,7 +1165,7 @@ class Schematic(object):
         def in_ipynb():
             try:
                 ip = get_ipython()
-                cfg = ip.config 
+                cfg = ip.config
                 if cfg['IPKernelApp']['parent_appname'] == 'ipython-notebook':
                     return True
                 else:
@@ -1216,25 +1177,32 @@ class Schematic(object):
             raise RuntimeWarning('No schematic drawing hints provided!')
 
         png = kwargs.has_key('png') and kwargs.pop('png')
+        svg = kwargs.has_key('svg') and kwargs.pop('svg')
+
+        if not png and not svg:
+            png = True
 
         if in_ipynb() and filename is None:
-            
+
             if png:
-                from IPython.display import Image                
+                from IPython.display import Image
 
                 pngfilename = self._tmpfilename('.png')
-                self.tikz_draw(pngfilename, args=args, **kwargs)            
-                
+                self.tikz_draw(pngfilename, args=args, **kwargs)
+
                 # Display image.
                 result = Image(pngfilename)
                 return result
-            else:
+
+            if svg:
                 from IPython.display import SVG
 
                 svgfilename = self._tmpfilename('.svg')
-                self.tikz_draw(svgfilename, args=args, **kwargs)            
+                self.tikz_draw(svgfilename, args=args, **kwargs)
 
-                # Display image.
+                # Display image.  There is a problem displaying
+                # multiple SVG files since the later ones inherit
+                # the namespace of the first ones.
                 result = SVG(svgfilename)
                 return result
 
@@ -1250,7 +1218,7 @@ class Schematic(object):
 
 
 def test():
-    
+
     sch = Schematic()
 
     sch.add('P1 1 0.1')

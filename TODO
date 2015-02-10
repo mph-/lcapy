@@ -76,3 +76,6 @@ Handle symbol names such as E1 that sympy thinks are functions.
 
 Handle symbol names such as R1'.  sympy.symbols handles this but not
 sympy.sympify.
+
+
+Second circuit displayed in notebook has text screwed

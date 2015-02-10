@@ -11,7 +11,6 @@ Copyright 2014 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from warnings import warn
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
@@ -20,21 +19,21 @@ import sys
 # Note imports at bottom to avoid circular dependencies
 
 
-__all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf', 
+__all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'zp2tf', 'Expr', 's', 'sExpr',  't', 'tExpr', 'f', 'fExpr', 'cExpr',
            'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt',
            'H', 'DiracDelta',
-           'Vector', 'Matrix', 'VsVector', 'IsVector', 'YVector', 'ZVector')
+           'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector')
 
 
 class Exprdict(dict):
+
     """Decorator class for dictionary created by sympy"""
 
     def pprint(self):
         """Pretty print"""
-        
-        return sym.pprint(self)
 
+        return sym.pprint(self)
 
     def latex(self):
         """Latex"""
@@ -43,22 +42,22 @@ class Exprdict(dict):
 
 
 class Expr(object):
+
     """Decorator class for sympy classes derived from sympy.Expr"""
-    
+
     # Perhaps have lookup table for operands to determine
     # the resultant type?  For example, Vs / Vs -> Hs
     # Vs / Is -> Zs,  Is * Zs -> Vs
 
     @property
-    def expr(self):    
+    def expr(self):
         return self.val
-    
-    
+
     def __init__(self, val, real=False):
-        
+
         if isinstance(val, sExpr):
             val = val.val
-            
+
         if real and isinstance(val, str) and val.isalnum() and not val[0].isdigit():
             val = sym.symbols(val, real=True)
 
@@ -66,11 +65,10 @@ class Expr(object):
             # Perhaps have dictionary of functions and their replacements?
             val = val.replace('u(t', 'Heaviside(t')
             val = val.replace('delta(t', 'DiracDelta(t')
-            
+
         val = sym.sympify(val, rational=True)
 
         self.val = val
-
 
     def __getattr__(self, attr):
 
@@ -81,7 +79,7 @@ class Expr(object):
 
         expr = self.val
         if hasattr(expr, attr):
-            
+
             def wrap(*args):
 
                 ret = getattr(expr, attr)(*args)
@@ -93,7 +91,6 @@ class Expr(object):
 
             return wrap
 
-            
         # Try looking for a sympy function with the same name,
         # such as sqrt, log, etc.
         # On second thoughts, this may confuse the user since
@@ -102,7 +99,7 @@ class Expr(object):
         if True or not hasattr(sym, attr):
             raise AttributeError(
                 "%s has no attribute %s." % (self.__class__.__name__, attr))
-            
+
         def wrap1(*args):
 
             ret = getattr(sym, attr)(expr, *args)
@@ -114,38 +111,31 @@ class Expr(object):
 
         return wrap1
 
-
     def __str__(self):
 
         return self.val.__str__()
-
 
     def __repr__(self):
 
         return '%s(%s)' % (self.__class__.__name__, self.val)
 
-
     def _repr_pretty_(self, p, cycle):
 
         p.pretty(self.expr)
-
 
     def _repr_latex_(self):
 
         return '$%s$' % self.latex()
 
-    
     def __abs__(self):
         """Absolute value"""
-        
-        return self.__class__(abs(self.val))
 
+        return self.__class__(abs(self.val))
 
     def __neg__(self):
         """Negation"""
-        
-        return self.__class__(-self.val)
 
+        return self.__class__(-self.val)
 
     def __rdiv__(self, x):
         """Reverse divide"""
@@ -153,27 +143,23 @@ class Expr(object):
         x = self.__class__(x)
         return self.__class__(x.val / self.val)
 
-
     def __rtruediv__(self, x):
         """Reverse true divide"""
-            
+
         x = self.__class__(x)
         return self.__class__(x.val / self.val)
 
-
     def __mul__(self, x):
         """Multiply"""
-        
+
         x = self.__class__(x)
         return self.__class__(self.val * x.val)
-
 
     def __rmul__(self, x):
         """Reverse multiply"""
-        
+
         x = self.__class__(x)
         return self.__class__(self.val * x.val)
-
 
     def __div__(self, x):
         """Divide"""
@@ -181,55 +167,47 @@ class Expr(object):
         x = self.__class__(x)
         return self.__class__(self.val / x.val)
 
-
     def __truediv__(self, x):
         """True divide"""
 
         x = self.__class__(x)
         return self.__class__(self.val / x.val)
-    
 
     def __add__(self, x):
         """Add"""
-        
+
         x = self.__class__(x)
         return self.__class__(self.val + x.val)
-    
 
     def __radd__(self, x):
         """Reverse add"""
-        
+
         x = self.__class__(x)
         return self.__class__(self.val + x.val)
-    
-    
+
     def __rsub__(self, x):
         """Reverse subtract"""
-        
+
         x = self.__class__(x)
         return self.__class__(x.val - self.val)
-    
 
     def __sub__(self, x):
         """Subtract"""
-        
+
         x = self.__class__(x)
         return self.__class__(self.val - x.val)
-    
-    
+
     def __pow__(self, x):
         """Pow"""
-        
+
         x = self.__class__(x)
         return self.__class__(self.val ** x.val)
 
-
     def __or__(self, x):
         """Parallel combination"""
-        
+
         return self.parallel(x)
-    
-    
+
     def __eq__(self, x):
         """Equality"""
 
@@ -238,7 +216,6 @@ class Expr(object):
 
         x = self.__class__(x)
         return self.val == x.val
-
 
     def __ne__(self, x):
         """Inequality"""
@@ -249,31 +226,28 @@ class Expr(object):
         x = self.__class__(x)
         return self.val != x.val
 
-
     def parallel(self, x):
         """Parallel combination"""
-        
+
         x = self.__class__(x)
         return self.__class__(self.val * x.val / (self.val + x.val))
-    
 
     def _pretty(self, *args, **kwargs):
         """Make pretty string"""
-        
+
         # This works in conjunction with Printer._print
-        # It is a hack to allow printing of _Matrix types 
+        # It is a hack to allow printing of _Matrix types
         # and its elements.
         expr = self.val
         printer = args[0]
 
         return printer._print(expr)
 
-
     def _latex(self, *args, **kwargs):
         """Make latex string"""
-        
+
         # This works in conjunction with LatexPrinter._print
-        # It is a hack to allow printing of _Matrix types 
+        # It is a hack to allow printing of _Matrix types
         # and its elements.
         expr = self.val
         printer = args[0]
@@ -286,41 +260,34 @@ class Expr(object):
 
         return string
 
-
-
     def pretty(self):
         """Make pretty string"""
         return sym.pretty(self.val)
-
 
     def prettyans(self, name):
         """Make pretty string with LHS name"""
 
         return sym.pretty(sym.Eq(sym.sympify(name), self.val))
 
-
     def pprint(self):
         """Pretty print"""
-        
+
         # If interactive use pretty, otherwise use latex
         if hasattr(sys, 'ps1'):
             print(self.pretty())
         else:
             print(self.latex())
 
-
     def pprintans(self, name):
         """Pretty print string with LHS name"""
         print(self.prettyans(name))
-
 
     def latex(self):
         """Make latex string"""
 
         string = sym.latex(self.val)
-        # sympy uses theta for Heaviside 
+        # sympy uses theta for Heaviside
         return string.replace(r'\theta\left', r'u\left')
-
 
     def latexans(self, name):
         """Print latex string with LHS name"""
@@ -329,23 +296,20 @@ class Expr(object):
 
         return sym.latex(expr)
 
-
     @property
     def is_number(self):
 
         return self.expr.is_number
-
 
     @property
     def is_constant(self):
 
         return self.expr.is_constant()
 
-
     def evaluate(self, vector, var):
 
         func = lambdify(var, self.expr, ("numpy", "sympy", "math"))
-        
+
         # Expressions such as exp(-alpha*t) * Heaviside(t)
         # will not evaluate correctly since the exp will overflow
         # for -t and produce an Inf.  When this is multiplied by
@@ -358,7 +322,6 @@ class Expr(object):
         else:
             v1 = vector[0]
 
-
         try:
             response = func(v1)
 
@@ -366,7 +329,8 @@ class Expr(object):
             raise RuntimeError('Cannot evaluate expression')
 
         except AttributeError:
-            raise RuntimeError('Cannot evaluate expression, probably have undefined symbols, such as Dirac delta')
+            raise RuntimeError(
+                'Cannot evaluate expression, probably have undefined symbols, such as Dirac delta')
 
         if np.isscalar(vector):
             return response
@@ -374,15 +338,14 @@ class Expr(object):
         try:
             response = np.array([complex(func(v1)) for v1 in vector])
         except TypeError:
-            raise TypeError('Cannot evaluate expression, probably have undefined symbols')
-            
-        return response
+            raise TypeError(
+                'Cannot evaluate expression, probably have undefined symbols')
 
+        return response
 
     def __call__(self, vector):
 
         return self.evaluate(vector)
-
 
     @property
     def label(self):
@@ -393,7 +356,6 @@ class Expr(object):
         if hasattr(self, 'units'):
             label += ' (%s)' % self.units
         return label
-
 
     @property
     def domain_label(self):
@@ -407,21 +369,22 @@ class Expr(object):
 
 
 class sExpr(Expr):
+
     """s-domain expression or symbol"""
-    
+
     var = sym.symbols('s')
 
     def __init__(self, val):
 
-        super (sExpr, self).__init__(val)
+        super(sExpr, self).__init__(val)
         self._laplace_conjugate_class = tExpr
-        
-        if self.expr.find('t') != set():
-            raise ValueError('s-domain expression %s cannot depend on t' % self.expr)
 
+        if self.expr.find('t') != set():
+            raise ValueError(
+                's-domain expression %s cannot depend on t' % self.expr)
 
     def _as_ratfun_delay(self):
-    
+
         expr, var = self.expr, self.var
 
         F = sym.factor(expr).as_ordered_factors()
@@ -440,9 +403,10 @@ class sExpr(Expr):
                     continue
 
             ratfun *= f
-            
+
         if not ratfun.is_rational_function(var):
-            raise ValueError('Expression not a product of rational function and exponential')
+            raise ValueError(
+                'Expression not a product of rational function and exponential')
 
         numer, denom = ratfun.as_numer_denom()
         N = sym.Poly(numer, var)
@@ -450,25 +414,21 @@ class sExpr(Expr):
 
         return N, D, delay
 
-
     def differentiate(self):
         """Differentiate (multiply by s)"""
-        
+
         return self.__class__(self.val * self.var)
-    
 
     def integrate(self):
         """Integrate (divide by s)"""
-        
+
         return self.__class__(self.val / self.var)
-    
-    
+
     def delay(self, T):
         """Apply delay of T seconds by multiplying by exp(-s T)"""
-        
+
         T = self.__class__(T)
         return self.__class__(self.val * sym.exp(-s * T))
-
 
     def omega(self):
         """Return expression with s = j omega"""
@@ -476,27 +436,23 @@ class sExpr(Expr):
         omega = sym.symbols('omega')
         return omegaExpr(self.subs(s, sym.I * omega))
 
-
     def roots(self):
         """Return roots of expression as a dictionary
         Note this may not find them all."""
 
         return Exprdict(sym.roots(sym.Poly(self.expr, self.var)))
 
-
     def zeros(self):
         """Return zeroes of expression as a dictionary
         Note this may not find them all."""
-        
-        return self.N.roots()
 
+        return self.N.roots()
 
     def poles(self):
         """Return poles of expression as a dictionary
         Note this may not find them all."""
-        
-        return self.D.roots()
 
+        return self.D.roots()
 
     def residue(self, pole, poles):
 
@@ -506,16 +462,16 @@ class sExpr(Expr):
         # doesn't always work, for example, for complex poles.
         poles2 = poles.copy()
         poles2[pole] -= 1
-        
+
         numer, denom = expr.as_numer_denom()
         D = sym.Poly(denom, var)
         K = D.LC()
-        
+
         D = [(var - p) ** poles2[p] for p in poles2]
         denom = sym.Mul(K, *D)
-        
+
         d = sym.limit(denom, var, pole)
-        
+
         if d != 0:
             tmp = numer / denom
             return sym.limit(tmp, var, pole)
@@ -523,13 +479,12 @@ class sExpr(Expr):
         print("Trying l'hopital's rule")
         tmp = numer / denom
         tmp = sym.diff(tmp, var)
-        
-        return sym.limit(tmp, var, pole)
 
+        return sym.limit(tmp, var, pole)
 
     def _as_residue_parts(self):
         """Return residues of expression"""
-      
+
         var = self.var
         N, D, delay = self._as_ratfun_delay()
 
@@ -542,7 +497,7 @@ class sExpr(Expr):
         F = []
         R = []
         for p in P:
-        
+
             # Number of occurrences of the pole.
             N = P[p]
 
@@ -558,10 +513,10 @@ class sExpr(Expr):
             for n in range(1, N + 1):
                 m = N - n
                 F.append(f ** n)
-                R.append(sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m))
+                R.append(
+                    sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m))
 
         return F, R, Q, delay
-
 
     def canonical(self):
         """Convert rational function to canonical form with unity
@@ -578,17 +533,16 @@ class sExpr(Expr):
         # Divide by leading coefficient
         N = N.monic()
         D = D.monic()
-    
+
         expr = K * (N / D)
 
         return self.__class__(expr)
-
 
     def general(self):
         """Convert rational function to general form.
 
         See also canonical, partfrac, mixedfrac, and ZPK"""
-        
+
         N, D, delay = self._as_ratfun_delay()
 
         expr = sym.cancel(N / D, self.var)
@@ -596,7 +550,6 @@ class sExpr(Expr):
             expr *= sym.exp(self.var * delay)
 
         return self.__class__(expr)
-
 
     def partfrac(self):
         """Convert rational function into partial fraction form.
@@ -614,7 +567,6 @@ class sExpr(Expr):
 
         return self.__class__(expr)
 
-
     def mixedfrac(self):
         """Convert rational function into mixed fraction form.
 
@@ -631,10 +583,9 @@ class sExpr(Expr):
 
         return self.__class__(expr)
 
-
     def ZPK(self):
         """Convert to pole-zero-gain (PZK) form.
-        
+
         See also canonical, general, mixedfrac, and partfrac"""
 
         N, D, delay = self._as_ratfun_delay()
@@ -648,18 +599,15 @@ class sExpr(Expr):
 
         return self.__class__(_zp2tf(zeros, poles, K, self.var))
 
-
     def initial_value(self):
         """Determine value at t = 0"""
-        
-        return self.__class__(sym.limit(sym.expr * sym.var, sym.var, sym.oo))
 
+        return self.__class__(sym.limit(sym.expr * sym.var, sym.var, sym.oo))
 
     def final_value(self):
         """Determine value at t = oo"""
-        
-        return self.__class__(sym.limit(sym.expr * sym.var, sym.var, 0))
 
+        return self.__class__(sym.limit(sym.expr * sym.var, sym.var, 0))
 
     @property
     def N(self):
@@ -672,7 +620,6 @@ class sExpr(Expr):
         numer, denom = expr.as_numer_denom()
         return self.__class__(numer)
 
-
     @property
     def D(self):
         """Return denominator of rational function"""
@@ -684,7 +631,6 @@ class sExpr(Expr):
         numer, denom = expr.as_numer_denom()
         return self.__class__(denom)
 
-        
     def _inverse_laplace(self):
 
         var = self.var
@@ -701,7 +647,7 @@ class sExpr(Expr):
             C = Q.all_coeffs()
             for n, c in enumerate(C):
                 result1 += c * sym.diff(sym.DiracDelta(td), t, len(C) - n - 1)
-        
+
         expr = M / D
         sexpr = sExpr(expr)
 
@@ -711,7 +657,7 @@ class sExpr(Expr):
         P2 = P.copy()
 
         for p in P2:
-        
+
             # Number of occurrences of the pole.
             N = P2[p]
 
@@ -724,10 +670,12 @@ class sExpr(Expr):
                 r = sexpr.residue(p, P)
 
                 pc = p.conjugate()
-                if pc != p and P.has_key(pc):
-                    # Remove conjugate from poles and process pole with its conjugate
+                if pc != p and pc in P:
+                    # Remove conjugate from poles and process pole with its
+                    # conjugate
                     P2[pc] = 0
-                    result2 += 2 * sym.re(r) * sym.exp(sym.re(p) * td) * sym.cos(sym.im(p) * td) + 2 * sym.im(r) * sym.exp(sym.re(p) * td) * sym.sin(sym.im(p) * td)
+                    result2 += 2 * sym.re(r) * sym.exp(sym.re(p) * td) * sym.cos(
+                        sym.im(p) * td) + 2 * sym.im(r) * sym.exp(sym.re(p) * td) * sym.sin(sym.im(p) * td)
                 else:
                     result2 += r * sym.exp(p * td)
                 continue
@@ -736,15 +684,15 @@ class sExpr(Expr):
             expr2 = expr * f ** N
             for n in range(1, N + 1):
                 m = N - n
-                r = sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m)
+                r = sym.limit(
+                    sym.diff(expr2, var, m), var, p) / sym.factorial(m)
                 result2 += r * sym.exp(p * td) * td**(n - 1)
 
         return result1 + result2 * sym.Heaviside(td)
 
-
     def inverse_laplace(self):
         """Attempt inverse Laplace transform"""
-        
+
         try:
             result = self._inverse_laplace()
         except:
@@ -762,7 +710,6 @@ class sExpr(Expr):
             result = self._laplace_conjugate_class(result)
         return result
 
-
     def transient_response(self, t=None):
         """Evaluate transient (impulse) response"""
 
@@ -771,37 +718,33 @@ class sExpr(Expr):
 
         tv = sym.symbols('t')
 
-        texpr = self.inverse_laplace(expr, tv)
+        texpr = self.inverse_laplace(tv)
         if t is None:
             return texpr
 
         print('Evaluating inverse Laplace transform...')
-        
+
         return texpr.evaluate(t)
-    
-    
+
     def impulse_response(self, t=None):
         """Evaluate transient (impulse) response"""
-        
-        return self.transient_response(t)
 
+        return self.transient_response(t)
 
     def step_response(self, t=None):
         """Evaluate step response"""
-        
+
         return (self / self.var).transient_response(t)
-    
-    
+
     def frequency_response(self, f=None):
         """Convert to frequency domain and evaluate response is frequency
         specified"""
-        
+
         if f is None:
             fsym = sym.symbols('f')
             return fExpr(self.subs(s, sym.I * 2 * sym.pi * fsym))
 
         return self.evaluate(2j * np.pi * f)
-
 
     def response(self, x, t):
         """Evaluate response to input signal x at times t"""
@@ -811,7 +754,7 @@ class sExpr(Expr):
         Q, M = N.div(D)
         expr = M / D
 
-        h = transient_response(expr, t, s)
+        h = sExpr(expr).transient_response(t)
         y = np.convolve(x, h)
 
         if Q:
@@ -819,7 +762,7 @@ class sExpr(Expr):
             C = Q.all_coeffs()
             dt = np.diff(t)
             for n, c in enumerate(C):
-            
+
                 y += c * x
 
                 x = np.diff(x) / dt
@@ -831,23 +774,20 @@ class sExpr(Expr):
         import scipy.interpolate.interp1d as interp1d
 
         # Try linear interpolation; should oversample first...
-        f = interp1d(t, y, bounds_error=False, fill_value=0)
+        y = interp1d(t, y, bounds_error=False, fill_value=0)
         y = y(td)
-        
-        return y
 
+        return y
 
     def decompose(self):
 
         N, D, delay = self._as_ratfun_delay()
-        
-        return N, D, delay
 
+        return N, D, delay
 
     def evaluate(self, svector):
 
-        return super (sExpr, self).evaluate(svector, sym.symbols('s'))
-
+        return super(sExpr, self).evaluate(svector, sym.symbols('s'))
 
     def plot(self, t=None, **kwargs):
 
@@ -857,31 +797,32 @@ class sExpr(Expr):
 
 
 class fExpr(Expr):
+
     """Fourier domain expression or symbol"""
-    
+
     var = sym.symbols('f')
     domain_name = 'Frequency'
     domain_units = 'Hz'
 
     def __init__(self, val):
 
-        super (fExpr, self).__init__(val)
+        super(fExpr, self).__init__(val)
         self._fourier_conjugate_class = tExpr
-        
-        if self.expr.find('s') != set():
-            raise ValueError('f-domain expression %s cannot depend on s' % self.expr)
-        if self.expr.find('t') != set():
-            raise ValueError('f-domain expression %s cannot depend on t' % self.expr)
 
+        if self.expr.find('s') != set():
+            raise ValueError(
+                'f-domain expression %s cannot depend on s' % self.expr)
+        if self.expr.find('t') != set():
+            raise ValueError(
+                'f-domain expression %s cannot depend on t' % self.expr)
 
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
-        
+
         result = sym.inverse_fourier_transform(self.expr, t, self.var)
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         return result
-
 
     def plot(self, f=None, **kwargs):
 
@@ -889,28 +830,29 @@ class fExpr(Expr):
         plot_frequency(self, f, **kwargs)
 
 
-
 class omegaExpr(Expr):
+
     """Fourier domain expression or symbol (angular frequency)"""
-    
+
     var = sym.symbols('omega')
     domain_name = 'Angular frequency'
     domain_units = 'rad/s'
 
     def __init__(self, val):
 
-        super (omegaExpr, self).__init__(val)
+        super(omegaExpr, self).__init__(val)
         self._fourier_conjugate_class = tExpr
-        
-        if self.expr.find('s') != set():
-            raise ValueError('omega-domain expression %s cannot depend on s' % self.expr)
-        if self.expr.find('t') != set():
-            raise ValueError('omega-domain expression %s cannot depend on t' % self.expr)
 
+        if self.expr.find('s') != set():
+            raise ValueError(
+                'omega-domain expression %s cannot depend on s' % self.expr)
+        if self.expr.find('t') != set():
+            raise ValueError(
+                'omega-domain expression %s cannot depend on t' % self.expr)
 
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
-        
+
         result = sym.inverse_fourier_transform(self.expr, t, self.var)
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
@@ -918,6 +860,7 @@ class omegaExpr(Expr):
 
 
 class tExpr(Expr):
+
     """t-domain expression or symbol"""
 
     var = sym.symbols('t')
@@ -926,41 +869,38 @@ class tExpr(Expr):
 
     def __init__(self, val):
 
-        super (tExpr, self).__init__(val)
+        super(tExpr, self).__init__(val)
         self._fourier_conjugate_class = fExpr
         self._laplace_conjugate_class = sExpr
-        
-        if self.expr.find('s') != set():
-            raise ValueError('t-domain expression %s cannot depend on s' % self.expr)
 
+        if self.expr.find('s') != set():
+            raise ValueError(
+                't-domain expression %s cannot depend on s' % self.expr)
 
     def laplace(self):
         """Attempt Laplace transform"""
-        
+
         F, a, cond = sym.laplace_transform(self.expr, self.var, s)
 
         if hasattr(self, '_laplace_conjugate_class'):
             F = self._laplace_conjugate_class(F)
         return F
 
-
     def fourier(self):
         """Attempt Fourier transform"""
-        
+
         F = sym.fourier_transform(self.expr, self.var, f)
 
         if hasattr(self, '_fourier_conjugate_class'):
             F = self._fourier_conjugate_class(F)
         return F
 
-
     def evaluate(self, tvector):
 
-        response = super (tExpr, self).evaluate(tvector, sym.symbols('t'))
+        response = super(tExpr, self).evaluate(tvector, sym.symbols('t'))
         if np.iscomplexobj(response) and np.allclose(response.imag, 0.0):
             response = response.real
         return response
-
 
     def plot(self, t=None, **kwargs):
 
@@ -969,15 +909,17 @@ class tExpr(Expr):
 
 
 class cExpr(Expr):
+
     """Constant real expression or symbol"""
 
     def __init__(self, val):
-        
+
         # FIXME for expressions of cExpr
         if False and not isinstance(val, (cExpr, int, float, str)):
-            raise ValueError('%s of type %s not int, float, or str' % (val, type(val)))
+            raise ValueError(
+                '%s of type %s not int, float, or str' % (val, type(val)))
 
-        super (cExpr, self).__init__(val, real=True)
+        super(cExpr, self).__init__(val, real=True)
 
 
 s = sExpr('s')
@@ -1018,10 +960,9 @@ class Matrix(sym.Matrix):
 
     _typewrap = sExpr
 
-
     def __getitem__(self, key):
 
-        item = super (Matrix, self).__getitem__(key)
+        item = super(Matrix, self).__getitem__(key)
 
         # The following line is to handle slicing used
         # by latex method.
@@ -1033,20 +974,18 @@ class Matrix(sym.Matrix):
 
         return item
 
-
     def pprint(self):
 
         return sym.pprint(self)
-
 
     def latex(self):
 
         return sym.latex(self)
 
-
     def _reformat(self, method):
         """Helper method for reformatting expression"""
 
+        import copy
         new = copy(self)
 
         for i in range(self.rows):
@@ -1055,42 +994,37 @@ class Matrix(sym.Matrix):
 
         return new
 
-
     def canonical(self):
 
-        return self._reformat('canonical');
-
+        return self._reformat('canonical')
 
     def general(self):
 
-        return self._reformat('general');
-
+        return self._reformat('general')
 
     def mixedfrac(self):
 
-        return self._reformat('mixedfrac');
-
+        return self._reformat('mixedfrac')
 
     def partfrac(self):
 
-        return self._reformat('partfrac');
-
+        return self._reformat('partfrac')
 
     def ZPK(self):
 
-        return self._reformat('ZPK');
+        return self._reformat('ZPK')
 
 
 class Vector(Matrix):
 
-    def __new__ (cls, *args):
+    def __new__(cls, *args):
 
         args = [sym.sympify(arg) for arg in args]
 
         if len(args) == 2:
-            return super (Vector, cls).__new__(cls, (args[0], args[1]))
+            return super(Vector, cls).__new__(cls, (args[0], args[1]))
 
-        return super (Vector, cls).__new__(cls, *args)
+        return super(Vector, cls).__new__(cls, *args)
 
 
 def DeltaWye(Z1, Z2, Z3):
@@ -1121,7 +1055,7 @@ def tf(numer, denom=1, var=None):
 def _zp2tf(zeros, poles, K=1, var=None):
     """Create a transfer function from lists of zeros and poles, 
     and from a constant gain"""
-    
+
     if var is None:
         var = sym.symbols('s')
 
@@ -1137,7 +1071,7 @@ def _zp2tf(zeros, poles, K=1, var=None):
         pp = [1 / (var - p) for p in poles]
     else:
         pp = [1 / (var - p) ** poles[p] for p in poles]
-        
+
     return sym.Mul(K, *(zz + pp))
 
 
@@ -1151,6 +1085,7 @@ def zp2tf(zeros, poles, K=1, var=None):
 # Perhaps use a factory to create the following classes?
 
 class Zs(sExpr):
+
     """s-domain impedance value"""
 
     quantity = 'Impedance'
@@ -1158,33 +1093,28 @@ class Zs(sExpr):
 
     def __init__(self, val):
 
-        super (Zs, self).__init__(val)
+        super(Zs, self).__init__(val)
         self._laplace_conjugate_class = Zt
-
 
     @classmethod
     def C(cls, Cval):
-    
-        return cls(1 / Cval).integrate()
 
+        return cls(1 / Cval).integrate()
 
     @classmethod
     def G(cls, Gval):
-    
-        return cls(1 / Gval)
 
+        return cls(1 / Gval)
 
     @classmethod
     def L(cls, Lval):
-    
-        return cls(Lval).differentiate()
 
+        return cls(Lval).differentiate()
 
     @classmethod
     def R(cls, Rval):
-    
-        return cls(Rval)
 
+        return cls(Rval)
 
     def cpt(self):
 
@@ -1206,41 +1136,36 @@ class Zs(sExpr):
 
 
 class Ys(sExpr):
+
     """s-domain admittance value"""
-    
+
     quantity = 'Admittance'
     units = 'siemens'
 
-
     def __init__(self, val):
 
-        super (Ys, self).__init__(val)
+        super(Ys, self).__init__(val)
         self._laplace_conjugate_class = Yt
-
 
     @classmethod
     def C(cls, Cval):
-    
-        return cls(Cval).differentiate()
 
+        return cls(Cval).differentiate()
 
     @classmethod
     def G(cls, Gval):
-    
-        return cls(Gval)
 
+        return cls(Gval)
 
     @classmethod
     def L(cls, Lval):
-    
-        return cls(1 / Lval).integrate()
 
+        return cls(1 / Lval).integrate()
 
     @classmethod
     def R(cls, Rval):
-    
-        return cls(1 / Rval)
 
+        return cls(1 / Rval)
 
     def cpt(self):
 
@@ -1262,16 +1187,16 @@ class Ys(sExpr):
 
 
 class Vs(sExpr):
+
     """s-domain voltage (units V s / radian)"""
 
     quantity = 's-Voltage'
-    units = 'V/Hz'    
+    units = 'V/Hz'
 
     def __init__(self, val):
 
-        super (Vs, self).__init__(val)
+        super(Vs, self).__init__(val)
         self._laplace_conjugate_class = Vt
-
 
     def cpt(self):
 
@@ -1285,18 +1210,17 @@ class Vs(sExpr):
 
 
 class Is(sExpr):
+
     """s-domain current (units A s / radian)"""
 
     quantity = 's-Current'
-    units = 'A/Hz'    
-
+    units = 'A/Hz'
 
     def __init__(self, val):
 
-        super (Is, self).__init__(val)
+        super(Is, self).__init__(val)
         self._laplace_conjugate_class = It
 
-    
     def cpt(self):
 
         i = self * s
@@ -1309,43 +1233,47 @@ class Is(sExpr):
 
 
 class Hs(sExpr):
+
     """s-domain ratio"""
     pass
 
     quantity = 's-ratio'
-    units = ''    
+    units = ''
 
     def __init__(self, val):
 
-        super (Hs, self).__init__(val)
+        super(Hs, self).__init__(val)
         self._laplace_conjugate_class = Ht
 
 
 class Yt(tExpr):
+
     """t-domain 'admittance' value"""
 
     units = 'siemens/s'
 
     def __init__(self, val):
 
-        super (Yt, self).__init__(val)
+        super(Yt, self).__init__(val)
         self._laplace_conjugate_class = Ys
         self._fourier_conjugate_class = Yf
 
 
 class Zt(tExpr):
+
     """t-domain 'impedance' value"""
 
     units = 'ohms/s'
 
     def __init__(self, val):
 
-        super (Zt, self).__init__(val)
+        super(Zt, self).__init__(val)
         self._laplace_conjugate_class = Zs
         self._fourier_conjugate_class = Zf
 
 
 class Vt(tExpr):
+
     """t-domain voltage (units V)"""
 
     quantity = 'Voltage'
@@ -1353,38 +1281,41 @@ class Vt(tExpr):
 
     def __init__(self, val):
 
-        super (Vt, self).__init__(val)
+        super(Vt, self).__init__(val)
         self._laplace_conjugate_class = Vs
         self._fourier_conjugate_class = Vf
 
 
 class It(tExpr):
+
     """t-domain current (units A)"""
-    
+
     quantity = 'Current'
     units = 'A'
 
     def __init__(self, val):
 
-        super (It, self).__init__(val)
+        super(It, self).__init__(val)
         self._laplace_conjugate_class = Is
         self._fourier_conjugate_class = If
 
 
 class Ht(tExpr):
+
     """impulse response"""
-    
+
     quantity = 'Impulse response'
     units = '1/s'
 
     def __init__(self, val):
 
-        super (Ht, self).__init__(val)
+        super(Ht, self).__init__(val)
         self._laplace_conjugate_class = Hs
         self._fourier_conjugate_class = Hf
 
 
 class Yf(fExpr):
+
     """f-domain admittance"""
 
     quantity = 'Admittance'
@@ -1392,11 +1323,12 @@ class Yf(fExpr):
 
     def __init__(self, val):
 
-        super (Yf, self).__init__(val)
+        super(Yf, self).__init__(val)
         self._fourier_conjugate_class = Yt
 
 
 class Zf(fExpr):
+
     """f-domain impedance"""
 
     quantity = 'Impedance'
@@ -1404,11 +1336,12 @@ class Zf(fExpr):
 
     def __init__(self, val):
 
-        super (Zf, self).__init__(val)
+        super(Zf, self).__init__(val)
         self._fourier_conjugate_class = Zt
 
 
 class Vf(fExpr):
+
     """f-domain voltage (units V)"""
 
     quantity = 'Voltage spectrum'
@@ -1416,51 +1349,52 @@ class Vf(fExpr):
 
     def __init__(self, val):
 
-        super (Vf, self).__init__(val)
+        super(Vf, self).__init__(val)
         self._fourier_conjugate_class = Vt
 
 
 class If(fExpr):
+
     """f-domain current (units A)"""
-    
+
     quantity = 'Current spectrum'
     units = 'A/Hz'
 
     def __init__(self, val):
 
-        super (If, self).__init__(val)
+        super(If, self).__init__(val)
         self._fourier_conjugate_class = It
 
 
 class Hf(fExpr):
+
     """d-domain transfer function response"""
-    
+
     quantity = 'Transfer function'
     units = '1'
 
     def __init__(self, val):
 
-        super (Ht, self).__init__(val)
+        super(Ht, self).__init__(val)
         self._fourier_conjugate_class = Ht
 
 
-
 class VsVector(Vector):
-    
+
     _typewrap = Vs
 
 
 class IsVector(Vector):
-    
+
     _typewrap = Is
 
 
-class YVector(Vector):
+class YsVector(Vector):
 
     _typewrap = Ys
 
 
-class ZVector(Vector):
+class ZsVector(Vector):
 
     _typewrap = Zs
 
@@ -1473,94 +1407,84 @@ class NetObject(object):
             return ()
 
         args = self.args
-            # Drop the initial condition for L or C if it is zero.
+        # Drop the initial condition for L or C if it is zero.
         if isinstance(self, (L, C)) and args[1] == 0:
             args = args[:-1]
-            
+
         modargs = []
         for arg in args:
             if isinstance(arg, sExpr):
                 arg = arg.expr
-                
+
             modargs.append(arg)
         return modargs
-
 
     def __repr__(self):
 
         argsrepr = ', '.join([arg.__repr__() for arg in self._tweak_args()])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
-
     def __str__(self):
 
         def fmt(arg):
             if False and isinstance(arg, str):
-                return "'" + arg + "'" 
+                return "'" + arg + "'"
             return arg.__str__()
-        
+
         argsrepr = ', '.join([fmt(arg) for arg in self._tweak_args()])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
-
 
     def _repr_pretty_(self, p, cycle):
 
         p.text(self.pretty())
 
-
     def _repr_latex_(self):
 
         return '$%s$' % self.latex()
-
 
     def pretty(self):
 
         argsrepr = ', '.join([sym.pretty(arg) for arg in self._tweak_args()])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
-
     def latex(self):
 
         argsrepr = ', '.join([sym.latex(arg) for arg in self._tweak_args()])
         return '\\mathrm{%s}(%s)' % (self.__class__.__name__, argsrepr)
 
-    
     def simplify(self):
 
         return self
 
 
 def sin(expr):
-    
+
     return expr.__class__(sym.sin(expr))
 
 
 def cos(expr):
-    
+
     return expr.__class__(sym.cos(expr))
 
 
 def exp(expr):
-    
+
     return expr.__class__(sym.exp(expr))
 
 
 def sqrt(expr):
-    
+
     return expr.__class__(sym.sqrt(expr))
 
 
 def H(expr):
-    
+
     return expr.__class__(sym.Heaviside(expr))
 
 
 def DiracDelta(expr):
-    
+
     return expr.__class__(sym.DiracDelta(expr))
 
 
-
-from lcapy.oneport import L, C, R, G, I, V, Idc, Vdc
-
-
+from lcapy.oneport import L, C, R, G, Idc, Vdc

@@ -3,6 +3,7 @@ from matplotlib.pyplot import figure
 
 # Perhaps add Formatter classes that will produce the plot data?
 
+
 def plot_pole_zero(obj, **kwargs):
 
     poles = obj.poles()
@@ -15,40 +16,40 @@ def plot_pole_zero(obj, **kwargs):
 
     fig = figure()
     ax = fig.add_subplot(111)
-    
+
     ax.axvline(0, color='0.7')
     ax.axhline(0, color='0.7')
     ax.axis('equal')
     ax.grid()
 
     a = np.hstack((p, z))
-    xmin = a.real.min()
-    xmax = a.real.max()
-    ymin = a.imag.min()
-    ymax = a.imag.max()
+    x_min = a.real.min()
+    x_max = a.real.max()
+    y_min = a.imag.min()
+    y_max = a.imag.max()
 
-    xextra, yextra = 0.0, 0.0
-    
+    x_extra, y_extra = 0.0, 0.0
+
     # This needs tweaking for better bounds.
     if len(a) >= 2:
-        xextra, yextra = 0.1 * (xmax - xmin), 0.1 * (ymax - ymin)
-    if xextra == 0:
-        xextra += 1.0
-    if yextra == 0:
-        yextra += 1.0
+        x_extra, y_extra = 0.1 * (x_max - x_min), 0.1 * (y_max - y_min)
+    if x_extra == 0:
+        x_extra += 1.0
+    if y_extra == 0:
+        y_extra += 1.0
 
-    ax.set_xlim(xmin - 0.5 * xextra, xmax + 0.5 * xextra)
-    ax.set_ylim(ymin - 0.5 * yextra, ymax + 0.5 * yextra)
+    ax.set_xlim(x_min - 0.5 * x_extra, x_max + 0.5 * x_extra)
+    ax.set_ylim(y_min - 0.5 * y_extra, y_max + 0.5 * y_extra)
 
     # TODO, annotate with number of times a pole or zero is repeated.
     ax.plot(z.real, z.imag, 'bo', fillstyle='none', ms=10, **kwargs)
     ax.plot(p.real, p.imag, 'bx', fillstyle='none', ms=10, **kwargs)
-    
 
-def plot_frequency(obj, t, **kwargs):
+
+def plot_frequency(obj, f, **kwargs):
 
     from matplotlib.pyplot import figure
-    
+
     # FIXME, determine useful frequency range...
     if f is None:
         f = (-0.2, 2)
@@ -67,7 +68,7 @@ def plot_frequency(obj, t, **kwargs):
     ax.set_xlabel(obj.domain_label)
     ax.set_ylabel(obj.label)
     ax.grid(True)
-    
+
 
 def plot_time(obj, t, **kwargs):
 
@@ -87,7 +88,3 @@ def plot_time(obj, t, **kwargs):
     ax.set_xlabel(obj.domain_label)
     ax.set_ylabel(obj.label)
     ax.grid(True)
-
-
-
-

@@ -1,27 +1,25 @@
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import Vs, Hs, cExpr, VsVector, IsVector
+from lcapy.core import Vs, Hs, Is, cExpr, VsVector, IsVector, YsVector, ZsVector
 from lcapy.oneport import OnePort
-from lcapy.twoport import YMatrix, ZMatrix, TwoPortZModel, Series
+from lcapy.twoport import YMatrix, ZMatrix, TwoPortZModel, Series, TwoPort
 
 __all__ = ('Opamp', )
 
 
 class ThreePortMatrix(sym.Matrix):
 
-    def __new__ (cls, *args):
+    def __new__(cls, *args):
 
         if len(args) == 9:
-            return super (ThreePortMatrix, cls).__new__(cls, ((args[0], args[1], args[2]), (args[3], args[4], args[5]), (args[6], args[7], args[8])))
+            return super(ThreePortMatrix, cls).__new__(cls, ((args[0], args[1], args[2]), (args[3], args[4], args[5]), (args[6], args[7], args[8])))
 
-        return super (ThreePortMatrix, cls).__new__(cls, *args)
-
+        return super(ThreePortMatrix, cls).__new__(cls, *args)
 
     @property
     def Z(self):
         return ZMatrix3(self.Y.inv())
-
 
     @property
     def Y(self):
@@ -29,6 +27,7 @@ class ThreePortMatrix(sym.Matrix):
 
 
 class ZMatrix3(ThreePortMatrix):
+
     """
     +-  -+     +-             -+   +-  -+
     | V1 |     | Z11  Z12  Z13 |   | I1 |
@@ -46,6 +45,7 @@ class ZMatrix3(ThreePortMatrix):
 
 
 class YMatrix3(ThreePortMatrix):
+
     """
     +-  -+     +-             -+   +-  -+
     | I1 |  =  | Y11  Y12  Y13 |   | V1 |
@@ -56,7 +56,6 @@ class YMatrix3(ThreePortMatrix):
     Y = inv(Z)
     """
 
-
     @property
     def Y(self):
         # Perhaps we should make a copy?
@@ -64,6 +63,7 @@ class YMatrix3(ThreePortMatrix):
 
 
 class ThreePort(object):
+
     """ 
 
     +-  -+     +-             -+   +-  -+     +-   -+
@@ -89,15 +89,13 @@ class ThreePort(object):
         self._M = Z
         self._Vz = Vz
 
-
     @property
-    def Voc(self):    
+    def Voc(self):
         """Return voltage vector with all ports open-circuited (i.e., In = 0)"""
         return self._Vz
 
-
     @property
-    def Isc(self):    
+    def Isc(self):
         """Return current vector with all ports short-circuited (i.e., Vn = 0)"""
         Y = self.Y
         Voc = self.Voc
@@ -105,52 +103,44 @@ class ThreePort(object):
         Isc = IsVector([Voc[m] * Y[m, m] for m in range(len(Voc))])
         return Isc
 
-
     @property
-    def Y(self):    
+    def Y(self):
         """Return admittance matrix"""
         return YMatrix3(self._M.Y)
 
-
     @property
-    def Z(self):    
+    def Z(self):
         """Return impedance matrix"""
         return self._M
 
-
     @property
-    def Yoc(self):    
+    def Yoc(self):
         """Return admittance vector with ports open circuit"""
         Z = self.Z
-        return YVector([1 / Z[m, m] for m in range(Z.shape[0])])
-
+        return YsVector([1 / Z[m, m] for m in range(Z.shape[0])])
 
     @property
-    def Ysc(self):    
+    def Ysc(self):
         """Return admittance vector with ports short circuit"""
         Y = self.Y
-        return YVector([Y[m, m] for m in range(Y.shape[0])])
-
+        return YsVector([Y[m, m] for m in range(Y.shape[0])])
 
     @property
-    def Zoc(self):    
+    def Zoc(self):
         """Return impedance vector with ports open circuit"""
         Z = self.Z
-        return ZVector([Z[m, m] for m in range(Z.shape[0])])
-
+        return ZsVector([Z[m, m] for m in range(Z.shape[0])])
 
     @property
-    def Zsc(self):    
+    def Zsc(self):
         """Return impedance vector with ports short circuit"""
         Y = self.Y
-        return ZVector([1 / Y[m, m] for m in range(Y.shape[0])])
-
+        return ZsVector([1 / Y[m, m] for m in range(Y.shape[0])])
 
     def _portcheck(self, port):
 
         if port not in (1, 2, 3):
             raise ValueError('Invalid port ' + port)
-
 
     def Vgain(self, inport=1, outport=2):
         """Return voltage gain for specified ports with internal
@@ -164,7 +154,6 @@ class ThreePort(object):
 
         return Hs(self.Z[p2, p1] / self.Z[p1, p1])
 
-
     def Igain(self, inport=1, outport=2):
         """Return voltage gain for specified ports with internal
         sources zero"""
@@ -175,10 +164,7 @@ class ThreePort(object):
         p1 = inport - 1
         p2 = outport - 1
 
-        Y = self.Y
-
         return Hs(self.Y[p2, p1] / self.Y[p1, p1])
-
 
     def Vresponse(self, V, inport=1, outport=2):
         """Return voltage response for specified applied voltage and
@@ -192,7 +178,6 @@ class ThreePort(object):
 
         return Vs(self.Voc[p2] + (V - self.Voc[p1]) * self.Z[p2, p1] / self.Z[p1, p1])
 
-
     def Iresponse(self, I, inport=1, outport=2):
         """Return current response for specified current voltage and
         specified ports"""
@@ -205,9 +190,8 @@ class ThreePort(object):
 
         Y = self.Y
         Isc = self.Isc
-                
-        return Is(Isc[p2] + (I - Isc[p1]) * Y[p2, p1] / Y[p1, p1])
 
+        return Is(Isc[p2] + (I - Isc[p1]) * Y[p2, p1] / Y[p1, p1])
 
     def attach_parallel(self, OP, port=2):
         """Attach one-port in parallel to specified port"""
@@ -227,7 +211,6 @@ class ThreePort(object):
         Voc = VsVector([Vs(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Z, Voc)
 
-
     def bridge(self, OP, inport=1, outport=2):
         """Bridge the specified ports with a one-port element"""
 
@@ -236,7 +219,7 @@ class ThreePort(object):
 
         # Create two-port series element.
         s = Series(OP)
-        
+
         # The impedance matrix for a series element is infinite.
 
         Y3 = YMatrix3(((0, 0, 0), (0, 0, 0), (0, 0, 0)))
@@ -257,7 +240,6 @@ class ThreePort(object):
         Voc = VsVector([Vs(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Y.Z, Voc)
 
-    
     def parallel(self, MP, port=None):
         """Return the model with, MP, in parallel"""
 
@@ -270,13 +252,12 @@ class ThreePort(object):
 
         if not issubclass(MP.__class__, ThreePort):
             raise TypeError('Argument not ', ThreePort)
-        
+
         Y = self.Y + MP.Y
         Isc = self.Isc + MP.Isc
         Z = Y.Z
         Voc = VsVector([Vs(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Z, Voc)
-
 
     def series(self, MP, port=None):
         """Return the model with, MP, in series"""
@@ -289,21 +270,19 @@ class ThreePort(object):
 
         if not issubclass(MP.__class__, ThreePort):
             raise TypeError('Argument not ', ThreePort)
-        
+
         warn('Will this ever work?')
 
         Z = self.Z + MP.Z
         Voc = self.Voc + MP.Voc
-    
-        return ThreePort(Z, Voc)
 
+        return ThreePort(Z, Voc)
 
     def terminate(self, OP, port=2):
         """Connect one-port in parallel to specified port and return a
         two-port object"""
 
         return self.attach_parallel(OP, port).open_circuit(port)
-
 
     def short_circuit(self, port=2):
         """Apply a short-circuit to specified port and return a
@@ -320,13 +299,12 @@ class ThreePort(object):
         Voc.row_del(port - 1)
 
         return TwoPortZModel(Y.Z, Vs(Voc[0]), Vs(Voc[1]))
-        
 
     def open_circuit(self, port=2):
         """Apply a open-circuit to specified port and return a
         two-port object"""
 
-        # Remove the unwanted port from the Zmatrix.        
+        # Remove the unwanted port from the Zmatrix.
         Z = self.Z.copy()
         Z.row_del(port - 1)
         Z.col_del(port - 1)
@@ -339,10 +317,11 @@ class ThreePort(object):
 
 
 class Opamp(ThreePort):
+
     """
     Create an ideal(ish) opamp
     ::
-        
+
             |\
             |  \
         1 --+ +  \
@@ -372,8 +351,7 @@ class Opamp(ThreePort):
         Rb = Rm * (Rd + Rp) / (Rp + Rd + Rm)
 
         Z = ZMatrix3(((Rp + Rd, Rd, 0),
-                     (Rd, Rm + Rd, 0),
-                     (A * Ra, -A * Rb, Ro)))
-        super (Opamp, self).__init__(Z)
+                      (Rd, Rm + Rd, 0),
+                      (A * Ra, -A * Rb, Ro)))
+        super(Opamp, self).__init__(Z)
         self.args = (Rd, Ro, A, Rp, Rm)
-

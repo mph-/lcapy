@@ -33,14 +33,12 @@ Copyright 2014 Michael Hayes, UCECE
 # numerical quantisation.
 
 from __future__ import division
-from warnings import warn
-from lcapy.core import  pprint, cExpr, Hs, Zs, Ys, s
+from lcapy.core import pprint, Hs, Zs, Ys
 from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep, Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
 from schematic import Schematic
 from mna import MNA, VCVS, TF, K, TP
-import sympy as sym
 import re
 from copy import copy
 
@@ -48,38 +46,39 @@ from copy import copy
 __all__ = ('Circuit', )
 
 
-cpt_types = ['C', # Capacitor
-             'D', # Diode (not supported)
-             'E', # VCVS
-             'F', # CCCS (not supported yet, can be handled by G)
-             'G', # VCCS (not supported yet)
-             'H', # CCVS (not supported yet, can be handled by E)
-             'I', # Current
-             'K', # Mutual inductance
-             'L', # Inductor
-             'P', # Port (open-circuit)
-             'Q', # Transistor (not supported)
-             'R', # Resistor
-             'TF', # Ideal transformer (even works at DC!)
-             'TP', # Two-port (not supported yet)
-             'V', # Voltage
-             'W', # Wire (short-circuit)
-             'Y', # Admittance
-             'Z', # Impedance
-         ]
+cpt_types = ['C',  # Capacitor
+             'D',  # Diode (not supported)
+             'E',  # VCVS
+             'F',  # CCCS (not supported yet, can be handled by G)
+             'G',  # VCCS (not supported yet)
+             'H',  # CCVS (not supported yet, can be handled by E)
+             'I',  # Current
+             'K',  # Mutual inductance
+             'L',  # Inductor
+             'P',  # Port (open-circuit)
+             'Q',  # Transistor (not supported)
+             'R',  # Resistor
+             'TF',  # Ideal transformer (even works at DC!)
+             'TP',  # Two-port (not supported yet)
+             'V',  # Voltage
+             'W',  # Wire (short-circuit)
+             'Y',  # Admittance
+             'Z',  # Impedance
+             ]
 
 # Note, SPICE netlists are usually case insensitive
 # Perhaps prefix mechanical components with M?  But this will make
 # crappy component labels.
-mech_cpt_types = ['d', # Dashpot (damper, resistance)  perhaps b?
-                  'f', # Force source
-                  'k', # Spring
-                  'm', # Mass
-                  'u', # Velocity source
-              ]
+mech_cpt_types = ['d',  # Dashpot (damper, resistance)  perhaps b?
+                  'f',  # Force source
+                  'k',  # Spring
+                  'm',  # Mass
+                  'u',  # Velocity source
+                  ]
 
 
 class Ldict(dict):
+
     """Lazy dictionary for inverse Laplace"""
 
     def __init__(self, Vdict):
@@ -87,9 +86,8 @@ class Ldict(dict):
         self.Vdict = Vdict
         self.vdict = {}
 
-
     def __getitem__(self, key):
-        
+
         # If key is an integer, convert to a string.
         if isinstance(key, int):
             key = '%d' % key
@@ -99,23 +97,22 @@ class Ldict(dict):
 
         return self.vdict[key]
 
-
     def keys(self):
 
         return self.Vdict.keys()
 
 
-cpt_type_map = {'R' : R, 'C' : C, 'L' : L, 'Z' : Z, 'Y' : Y,
-                'Vac' : Vac, 'Vdc' : Vdc, 
-                'Iac' : Iac, 'Idc' : Idc, 
-                'Vacstep' : Vacstep, 'Vstep' : Vstep,
-                'Iacstep' : Iacstep, 'Istep' : Istep, 
-                'Vimpulse' : V, 'Iimpulse' : I, 
-                'Vs' : V, 'Is' : I, 
-                'V' : v, 'I' : i, 'v' : v, 'i' : i,
-                'P' : 'open', 'W' : 'short', 
-                'E' : VCVS, 'TF' : TF, 'TP' : TP, 'K' : K, 
-                'opamp' : VCVS}
+cpt_type_map = {'R': R, 'C': C, 'L': L, 'Z': Z, 'Y': Y,
+                'Vac': Vac, 'Vdc': Vdc,
+                'Iac': Iac, 'Idc': Idc,
+                'Vacstep': Vacstep, 'Vstep': Vstep,
+                'Iacstep': Iacstep, 'Istep': Istep,
+                'Vimpulse': V, 'Iimpulse': I,
+                'Vs': V, 'Is': I,
+                'V': v, 'I': i, 'v': v, 'i': i,
+                'P': 'open', 'W': 'short',
+                'E': VCVS, 'TF': TF, 'TP': TP, 'K': K,
+                'opamp': VCVS}
 
 
 # Regular expression alternate matches stop with first match so need
@@ -142,7 +139,6 @@ class Opts(dict):
             arg = fields[1].strip() if len(fields) > 1 else ''
             self[key] = arg
 
-
     def __init__(self, arg):
 
         if isinstance(arg, str):
@@ -151,7 +147,6 @@ class Opts(dict):
 
         for key, val in arg.iteritems():
             self[key] = val
-
 
     def format(self):
 
@@ -166,11 +161,10 @@ class Node(object):
         self.pos = None
         self.port = False
         parts = name.split('_')
-        self.rootname = parts[0]  if name[0] != '_' else name
+        self.rootname = parts[0] if name[0] != '_' else name
         self.primary = len(parts) == 1
         self.list = []
 
-    
     def append(self, elt):
 
         if elt.cpt_type in ('P', ):
@@ -195,9 +189,7 @@ class NetElement(object):
             raise ValueError('Cannot have . in node name %s' % node2)
 
         cpt_type = match.groups()[0]
-        id = match.groups()[1]
 
-       
         self.opts = Opts(opts)
         self.name = name
         self.nodes = (node1, node2)
@@ -210,11 +202,9 @@ class NetElement(object):
         # although these can be specified symbolically, for example,
         # v1 1 0 t*Heaviside(t)
 
-
         if cpt_type == 'TP' and len(args) != 5:
             raise ValueError('TP component requires 5 args')
 
-        cpt_type_orig = cpt_type
         if args != ():
             if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep', 'impulse', 's'):
                 cpt_type = cpt_type + args[0]
@@ -225,7 +215,8 @@ class NetElement(object):
 
         if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP', 'opamp'):
             if len(args) < 2:
-                raise ValueError('Component type %s requires 4 nodes' % cpt_type)
+                raise ValueError(
+                    'Component type %s requires 4 nodes' % cpt_type)
             self.nodes += (args[0], args[1])
             args = args[2:]
 
@@ -251,63 +242,54 @@ class NetElement(object):
         cpt = foo(*args)
         self.cpt = cpt
 
-
     def __repr__(self):
 
-        str = ', '.join(arg.__str__() for arg in [self.name] + list(self.nodes) + list(self.args))
+        str = ', '.join(arg.__str__()
+                        for arg in [self.name] + list(self.nodes) + list(self.args))
         return 'NetElement(%s)' % str
-
 
     def __str__(self):
 
         return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes[0:2] + self.args])
 
-
     @property
     def is_dummy(self):
-        
-        return self.cpt_type in ('P', 'W')
 
+        return self.cpt_type in ('P', 'W')
 
     @property
     def is_independentV(self):
-        
-        return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep))
 
+        return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep))
 
     @property
     def is_independentI(self):
-        
-        return isinstance(self.cpt, (I, Idc, Iac, Istep, Iacstep))
 
+        return isinstance(self.cpt, (I, Idc, Iac, Istep, Iacstep))
 
     @property
     def is_V(self):
-        
-        return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep, VCVS, TF))
 
+        return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep, VCVS, TF))
 
     @property
     def is_I(self):
-        
-        return isinstance(self.cpt, (I, Idc, Iac, Istep, Iacstep))
 
+        return isinstance(self.cpt, (I, Idc, Iac, Istep, Iacstep))
 
     @property
     def is_RC(self):
-        
-        return isinstance(self.cpt, (R, G, C))
 
+        return isinstance(self.cpt, (R, G, C))
 
     @property
     def is_L(self):
-        
-        return isinstance(self.cpt, L)
 
+        return isinstance(self.cpt, L)
 
     @property
     def is_K(self):
-        
+
         return isinstance(self.cpt, K)
 
 
@@ -321,27 +303,25 @@ class Netlist(object):
         self.snodes = {}
 
         # TODO, decouple from Schematic
-        self.kwargs = {'draw_nodes' : True,
-                       'draw_labels' : True, 
-                       'label_nodes' : True}
+        self.kwargs = {'draw_nodes': True,
+                       'draw_labels': True,
+                       'label_nodes': True}
 
         self._MNA = None
 
         if filename is not None:
             self.netfile_add(filename)
 
-
     def __getitem__(self, name):
         """Return component by name"""
 
         return self.elements[name]
 
-
-    def netfile_add(self, filename):    
+    def netfile_add(self, filename):
         """Add the nets from file with specified filename"""
 
         file = open(filename, 'r')
-        
+
         lines = file.readlines()
 
         for line in lines:
@@ -355,16 +335,16 @@ class Netlist(object):
 
             self.add(line)
 
-
     def netlist(self, full=False):
         """Return the current netlist"""
 
         lines = ''
         for key, elt in self.elements.iteritems():
             newelt = copy(elt)
-            
+
             if not full:
-                newelt.nodes = tuple([self.node_map[node] for node in elt.nodes])
+                newelt.nodes = tuple([self.node_map[node]
+                                      for node in elt.nodes])
                 if elt.is_dummy:
                     continue
 
@@ -377,7 +357,6 @@ class Netlist(object):
             lines += line + '\n'
 
         return lines
-
 
     def _node_add(self, node, elt):
 
@@ -393,7 +372,6 @@ class Netlist(object):
         if node not in self.snodes[vnode]:
             self.snodes[vnode].append(node)
 
-
     def _invalidate(self):
 
         self._MNA = None
@@ -402,13 +380,12 @@ class Netlist(object):
             if hasattr(self, attr):
                 delattr(self, attr)
 
-
     def _elt_add(self, elt):
 
         if self.elements.has_key(elt.name):
-            print('Overriding component %s' % elt.name)     
+            print('Overriding component %s' % elt.name)
             # Need to search lists and update component.
-           
+
         self.elements[elt.name] = elt
 
         # Ignore nodes for mutual inductance.
@@ -417,7 +394,6 @@ class Netlist(object):
 
         self._node_add(elt.nodes[0], elt)
         self._node_add(elt.nodes[1], elt)
-        
 
     def net_parse(self, string, *args):
 
@@ -431,7 +407,6 @@ class Netlist(object):
         parts = tuple(re.split(r'[\s]+', fields[0].strip()))
         elt = NetElement(*(parts + args), **opts)
         return elt
-
 
     def add(self, string, *args):
         """Add a component to the netlist.
@@ -459,7 +434,6 @@ class Netlist(object):
 
         self._elt_add(elt)
 
-
     def net_add(self, string, *args):
         """Add a component to the netlist.
         The general form is: 'Name Np Nm args'
@@ -473,25 +447,22 @@ class Netlist(object):
 
         self.add(string, *args)
 
-
     def remove(self, name):
         """Remove specified element"""
 
         self._invalidate()
 
         if name not in self.elements:
-            raise Error('Unknown component: ' + name)
+            raise ValueError('Unknown component: ' + name)
         self.elements.pop(name)
-        
 
     def _make_node(self):
-        """Create a dummy node"""        
+        """Create a dummy node"""
 
         if not hasattr(self, '_node_counter'):
             self._node_counter = 0
         self._node_counter += 1
         return '_%d' % self._node_counter
-
 
     def _make_open(self, node1, node2, opts):
         """Create a dummy open-circuit"""
@@ -500,10 +471,10 @@ class Netlist(object):
             self._open_counter = 0
         self._open_counter += 1
 
-        net = 'P#%d %s %s ; %s' % (self._open_counter, node1, node2, opts.format())
+        net = 'P#%d %s %s ; %s' % (
+            self._open_counter, node1, node2, opts.format())
 
         return self.net_parse(net)
-
 
     def _make_short(self, node1, node2, opts):
         """Create a dummy short-circuit"""
@@ -512,10 +483,10 @@ class Netlist(object):
             self._short_counter = 0
         self._short_counter += 1
 
-        net = 'W#%d %s %s ; %s' % (self._short_counter, node1, node2, opts.format())
+        net = 'W#%d %s %s ; %s' % (
+            self._short_counter, node1, node2, opts.format())
 
         return self.net_parse(net)
-
 
     def _make_Z(self, node1, node2, value, opts):
         """Create a dummy impedance"""
@@ -524,10 +495,10 @@ class Netlist(object):
             self._Z_counter = 0
         self._Z_counter += 1
 
-        net = 'Z#%d %s %s %s; %s' % (self._Z_counter, node1, node2, value, opts.format())
+        net = 'Z#%d %s %s %s; %s' % (
+            self._Z_counter, node1, node2, value, opts.format())
 
         return self.net_parse(net)
-
 
     def _make_V(self, node1, node2, value, opts):
         """Create a dummy s-domain voltage source"""
@@ -536,10 +507,10 @@ class Netlist(object):
             self._V_counter = 0
         self._V_counter += 1
 
-        net = 'V#%d %s %s s %s; %s' % (self._V_counter, node1, node2, value, opts.format())
+        net = 'V#%d %s %s s %s; %s' % (
+            self._V_counter, node1, node2, value, opts.format())
 
         return self.net_parse(net)
-
 
     def _make_I(self, node1, node2, value, opts):
         """Create a dummy s-domain current source"""
@@ -548,18 +519,17 @@ class Netlist(object):
             self._I_counter = 0
         self._I_counter += 1
 
-        net = 'I#%d %s %s s %s; %s' % (self._I_counter, node1, node2, value, opts.format())
+        net = 'I#%d %s %s s %s; %s' % (
+            self._I_counter, node1, node2, value, opts.format())
 
         return self.net_parse(net)
 
-
     @property
-    def MNA(self):    
+    def MNA(self):
         """Return results from modified nodal analysis (MNA) of the circuit.
 
         Note, the voltages and currents are lazily determined when
         requested. """
-
 
         if self._MNA == None:
 
@@ -574,30 +544,26 @@ class Netlist(object):
             self._MNA = MNA(self.elements, self.nodes, self.snodes)
         return self._MNA
 
-
     @property
-    def V(self):    
+    def V(self):
         """Return dictionary of s-domain node voltages indexed by node name"""
 
         return self.MNA.V
 
-
     @property
-    def I(self):    
+    def I(self):
         """Return dictionary of s-domain branch currents indexed by component name"""
 
         return self.MNA.I
 
-
     @property
-    def Vd(self):    
+    def Vd(self):
         """Return dictionary of s-domain branch voltage differences indexed by component name"""
 
         return self.MNA.Vd
 
-
     @property
-    def v(self):    
+    def v(self):
         """Return dictionary of t-domain node voltages indexed by node name"""
 
         if not hasattr(self, '_v'):
@@ -605,9 +571,8 @@ class Netlist(object):
 
         return self._v
 
-
     @property
-    def i(self):    
+    def i(self):
         """Return dictionary of t-domain branch currents indexed by component name"""
 
         if not hasattr(self, '_i'):
@@ -615,9 +580,8 @@ class Netlist(object):
 
         return self._i
 
-
     @property
-    def vd(self):    
+    def vd(self):
         """Return dictionary of t-domain branch voltage differences indexed by component name"""
 
         if not hasattr(self, '_vd'):
@@ -625,35 +589,30 @@ class Netlist(object):
 
         return self._vd
 
-
     def Voc(self, Np, Nm):
         """Return open-circuit s-domain voltage between nodes Np and Nm."""
 
         return self.V[Np] - self.V[Nm]
-
 
     def voc(self, Np, Nm):
         """Return open-circuit t-domain voltage between nodes Np and Nm."""
 
         return self.Voc(Np, Nm).inverse_laplace()
 
-    
     def Isc(self, Np, Nm):
         """Return short-circuit s-domain current between nodes Np and Nm."""
 
-        self.add('Vshort_ %d %d' %(Np, Nm), 0)
+        self.add('Vshort_ %d %d' % (Np, Nm), 0)
 
         Isc = self.I['Vshort_']
         self.remove('Vshort_')
-        
-        return Isc
 
+        return Isc
 
     def isc(self, Np, Nm):
         """Return short-circuit t-domain current between nodes Np and Nm."""
 
         return self.Isc(Np, Nm).inverse_laplace()
-
 
     def thevenin(self, Np, Nm):
         """Return Thevenin model between nodes Np and Nm"""
@@ -662,14 +621,12 @@ class Netlist(object):
 
         return V(Voc) + Z(self.impedance(Np, Nm))
 
-
     def norton(self, Np, Nm):
         """Return Norton model between nodes Np and Nm"""
 
         Isc = self.Isc(Np, Nm)
 
         return I(Isc) | Y(self.admittance(Np, Nm))
-
 
     def admittance(self, Np, Nm):
         """Return admittance between nodes Np and Nm
@@ -679,12 +636,11 @@ class Netlist(object):
 
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
-        new.add('Vin_ %d %d s 1' %(Nm, Np))
+        new.add('Vin_ %d %d s 1' % (Nm, Np))
         If = -new.I['Vin_']
         new.remove('Vin_')
 
         return Ys(If)
-
 
     def impedance(self, Np, Nm):
         """Return impedance between nodes Np and Nm
@@ -694,12 +650,11 @@ class Netlist(object):
 
         # Connect 1 A s-domain current source between nodes and
         # measure voltage.
-        new.add('Iin_ %d %d s 1' %(Nm, Np))
+        new.add('Iin_ %d %d s 1' % (Nm, Np))
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
         return Zs(Vf)
-
 
     def Y(self, Np, Nm):
         """Return admittance between nodes Np and Nm
@@ -707,20 +662,17 @@ class Netlist(object):
 
         return self.admittance(Np, Nm)
 
-
     def Z(self, Np, Nm):
         """Return impedance between nodes Np and Nm
         with independent sources killed."""
 
         return self.impedance(Np, Nm)
 
-
-
     def transfer(self, N1p, N1m, N2p, N2m):
         """Create voltage transfer function V2 / V1 where:
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
-        
+
         Note, independent sources are killed."""
 
         new = self.kill()
@@ -729,7 +681,6 @@ class Netlist(object):
         H = Hs(new.Voc(N2p, N2m) / new.Vd['V1_'])
 
         return H
-
 
     def Amatrix(self, N1p, N1m, N2p, N2m):
         """Create A matrix from network, where:
@@ -745,33 +696,32 @@ class Netlist(object):
         try:
 
             self.add('V1_ %d %d impulse' % (N1p, N1m))
-            
+
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
             A11 = Hs(self.Vd['V1_'] / self.Voc(N2p, N2m))
-            
+
             # A12 = V1 / I2 with V2 = 0
             # Apply V1 and measure I2 with port 2 short-circuit
             A12 = Zs(self.Vd['V1_'] / self.Isc(N2p, N2m))
-            
+
             self.remove('V1_')
-            
+
             self.add('I1_ %d %d impulse' % (N1p, N1m))
-            
+
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
             A21 = Ys(-self.I['I1_'] / self.Voc(N2p, N2m))
-            
+
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure I2 with port 2 short-circuit
             A22 = Hs(-self.I['I1_'] / self.Isc(N2p, N2m))
-            
+
             self.remove('I1_')
             return AMatrix(A11, A12, A21, A22)
 
         except ValueError:
             raise ValueError('Cannot create A matrix')
-
 
     def kill(self):
         """Return a new circuit with the independent sources killed;
@@ -781,14 +731,13 @@ class Netlist(object):
         new = Circuit()
 
         for key, elt in self.elements.iteritems():
-            if elt.is_independentI: 
+            if elt.is_independentI:
                 elt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
-            elif elt.is_independentV: 
+            elif elt.is_independentV:
                 elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
             new._elt_add(elt)
 
         return new
-
 
     def twoport(self, N1p, N1m, N2p, N2m):
         """Create twoport model from network, where:
@@ -796,7 +745,7 @@ class Netlist(object):
         I2 is the current flowing into N2p and out of N2m
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
-        """        
+        """
 
         V2b = self.Voc(N2p, N2m)
         I2b = self.Isc(N2p, N2m)
@@ -804,7 +753,6 @@ class Netlist(object):
         A = self.kill().Amatrix(N1p, N1m, N2p, N2m)
 
         return TwoPortBModel(A.B, V2b, I2b)
-
 
     @property
     def sch(self):
@@ -822,24 +770,23 @@ class Netlist(object):
         self._sch = sch
         return sch
 
-
     def pre_initial_model(self):
         """Generate circuit model for determining the pre-initial conditions."""
-
-        from copy import copy
 
         new_cct = self.__class__()
 
         for key, elt in self.elements.iteritems():
-            
+
             # Assume initial C voltage and L current is zero.
-                
+
             if elt.cpt_type in ('V', 'I', 'Vac', 'Iac'):
-                print('Cannot determine pre-initial condition for %s, assuming 0' % elt.name)
+                print(
+                    'Cannot determine pre-initial condition for %s, assuming 0' % elt.name)
 
             # v and i should be evaluated to determine the value at 0 - eps.
             if elt.cpt_type in ('v', 'i'):
-                print('Cannot determine pre-initial condition for %s, assuming 0' % elt.name)
+                print(
+                    'Cannot determine pre-initial condition for %s, assuming 0' % elt.name)
 
             if elt.cpt_type in ('C', 'Istep', 'Iacstep', 'I', 'i',
                                 'Iac', 'Iimpulse'):
@@ -851,96 +798,95 @@ class Netlist(object):
 
         return new_cct
 
-
     def s_model(self):
-
-        from copy import copy
 
         cct = Circuit()
         cct._s_model = True
 
         for key, elt in self.elements.iteritems():
-            
+
             new_elt = copy(elt)
 
             cpt_type = elt.cpt_type
 
             if cpt_type in ('C', 'L', 'R'):
-                new_elt = self._make_Z(elt.nodes[0], elt.nodes[1], elt.cpt.Z, elt.opts)
+                new_elt = self._make_Z(
+                    elt.nodes[0], elt.nodes[1], elt.cpt.Z, elt.opts)
             elif cpt_type in ('V', 'Vdc', 'Vac', 'Vimpulse', 'Vstep', 'Vacstep'):
-                new_elt = self._make_V(elt.nodes[0], elt.nodes[1], elt.cpt.V, elt.opts)
+                new_elt = self._make_V(
+                    elt.nodes[0], elt.nodes[1], elt.cpt.V, elt.opts)
             elif cpt_type in ('I', 'Idc', 'Iac', 'Iimpulse', 'Istep', 'Iacstep'):
-                new_elt = self._make_I(elt.nodes[0], elt.nodes[1], elt.cpt.I, elt.opts)
-
+                new_elt = self._make_I(
+                    elt.nodes[0], elt.nodes[1], elt.cpt.I, elt.opts)
 
             if cpt_type in ('C', 'L', 'R') and elt.cpt.V != 0:
 
-                    dummy_node = self._make_node()
+                dummy_node = self._make_node()
 
+                velt = self._make_V(
+                    dummy_node, elt.nodes[1], elt.cpt.V, elt.opts)
+                new_elt.nodes = (elt.nodes[0], dummy_node)
 
-                    velt = self._make_V(dummy_node, elt.nodes[1], elt.cpt.V, elt.opts)
-                    new_elt.nodes = (elt.nodes[0], dummy_node)
+                # Strip voltage label.  TODO: show voltage label across
+                # both components.
+                for opt in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
+                    if new_elt.opts.has_key(opt):
+                        new_elt.opts.pop(opt)
 
-                    # Strip voltage label.  TODO: show voltage label across
-                    # both components.
-                    for opt in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
-                        if new_elt.opts.has_key(opt):
-                            new_elt.opts.pop(opt)
+                # Strip voltage and current labels.
+                for opt in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
+                            'i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
+                            'i>_', 'i<_', 'i>^', 'i<^'):
+                    if velt.opts.has_key(opt):
+                        velt.opts.pop(opt)
 
-                    # Strip voltage and current labels.
-                    for opt in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
-                                'i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<', 
-                                'i>_', 'i<_', 'i>^', 'i<^'):
-                        if velt.opts.has_key(opt):
-                            velt.opts.pop(opt)
-  
-                    cct._elt_add(velt)
+                cct._elt_add(velt)
 
             cct._elt_add(new_elt)
-        
-        return cct
 
+        return cct
 
     def draw(self, filename=None, draw_labels=None, draw_nodes=None,
              label_nodes=None, s_model=False, args=None, scale=1, stretch=1,
-             png=False):
+             **kwargs):
 
         cct = self
         if s_model:
             cct = cct.s_model()
 
-        kwargs = copy(self.kwargs)
+        kwargs2 = copy(self.kwargs)
         if draw_nodes is not None:
-            kwargs['draw_nodes'] = draw_nodes
+            kwargs2['draw_nodes'] = draw_nodes
         if label_nodes is not None:
-            kwargs['label_nodes'] = label_nodes
+            kwargs2['label_nodes'] = label_nodes
         if draw_labels is not None:
-            kwargs['draw_labels'] = draw_labels
+            kwargs2['draw_labels'] = draw_labels
 
-        kwargs['png'] = png
+        for key, arg in kwargs.iteritems():
+            kwargs2[key] = arg
 
-        return cct.sch.draw(filename=filename, args=args, 
+        return cct.sch.draw(filename=filename, args=args,
                             scale=scale, stretch=stretch,
-                            **kwargs)
+                            **kwargs2)
 
 
 class Circuit(Netlist):
 
     def __init__(self, filename=None):
 
-        super (Circuit, self).__init__(filename)
+        super(Circuit, self).__init__(filename)
 
 
 def test():
 
     cct = Circuit('Test')
 
-    cct.add('V_s fred 0') 
-    cct.add('R_a fred bert') 
-    cct.add('R_b bert 0') 
-    
+    cct.add('V_s fred 0')
+    cct.add('R_a fred bert')
+    cct.add('R_b bert 0')
+
     pprint(cct.V)
-    
+
     pprint(cct.I)
 
     return cct

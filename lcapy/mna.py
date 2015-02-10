@@ -1,41 +1,44 @@
 from __future__ import division
-from warnings import warn
-from lcapy.core import  pprint, cExpr, Hs, Zs, Ys, Vs, Is, s
+from lcapy.core import cExpr, Vs, Is, s
 from lcapy.twoport import Matrix, Vector
 import sympy as sym
 
 
 class CS(object):
+
     """Controlled source"""
 
     def __init__(self, *args):
 
-        self.args = args   
+        self.args = args
 
 
 class VCVS(CS):
+
     """Voltage controlled voltage source."""
 
     def __init__(self, A):
-    
+
         A = cExpr(A)
-        super (VCVS, self).__init__(A)
+        super(VCVS, self).__init__(A)
         # No independent component.
         self.V = 0
 
 
 class TF(CS):
+
     """Ideal transformer.  T is turns ratio (secondary / primary)"""
 
     def __init__(self, T):
-    
+
         T = cExpr(T)
-        super (TF, self).__init__(T)
+        super(TF, self).__init__(T)
         # No independent component.
         self.V = 0
 
 
 class K(object):
+
     """Mutual inductance"""
 
     def __init__(self, k):
@@ -45,11 +48,12 @@ class K(object):
 
 
 class TP(CS):
+
     """Two-port Z-network"""
 
     def __init__(self, kind, Z11, Z12, Z21, Z22):
-    
-        super (TP, self).__init__(kind, Z11, Z12, Z21, Z22)
+
+        super(TP, self).__init__(kind, Z11, Z12, Z21, Z22)
         # No independent component.
         self.V = 0
 
@@ -62,7 +66,7 @@ class Mdict(dict):
         if isinstance(key, int):
             key = '%d' % key
 
-        return super (Mdict, self).__getitem__(key)
+        return super(Mdict, self).__getitem__(key)
 
 
 class MNA(object):
@@ -76,7 +80,6 @@ class MNA(object):
         self._analyse()
         # The network is not solved until a current or voltage
         # is required.
-
 
     @property
     def lnodes(self):
@@ -97,12 +100,12 @@ class MNA(object):
 
             for key1, nodes in lnodes.iteritems():
                 if n1 in nodes:
-                    break;
+                    break
 
             for key2, nodes in lnodes.iteritems():
                 if n2 in nodes:
-                    break;
-                    
+                    break
+
             if key1 != key2:
                 lnodes[key1].extend(lnodes.pop(key2))
 
@@ -113,7 +116,6 @@ class MNA(object):
                 pnodes.append(nodes)
 
         return pnodes
-
 
     @property
     def node_map(self):
@@ -145,7 +147,6 @@ class MNA(object):
         self._node_map = node_map
         return node_map
 
-
     @property
     def node_list(self):
         """Determine list of unique nodes"""
@@ -161,19 +162,17 @@ class MNA(object):
         self._node_list = node_list
         return node_list
 
-
     def _node_index(self, node):
         """Return node index; ground is -1"""
         return self.node_list.index(self.node_map[node]) - 1
-
 
     def _branch_index(self, cpt_name):
 
         index = self.unknown_branch_currents.index(cpt_name)
         if index < 0:
-            raise ValueError ('Unknown component name %s for branch current' % cpt.name)
+            raise ValueError(
+                'Unknown component name %s for branch current' % cpt_name)
         return index
-
 
     def _RC_stamp(self, elt):
         """Add stamp for resistor or capacitor"""
@@ -196,10 +195,9 @@ class MNA(object):
         if n1 >= 0:
             self._Is[n1] += elt.cpt.I
 
-
     def _L_stamp(self, elt):
         """Add stamp for inductor"""
-        
+
         # This formulation adds the inductor current to the unknowns
 
         n1 = self._node_index(elt.nodes[0])
@@ -217,7 +215,6 @@ class MNA(object):
 
         self._Es[m] += elt.cpt.V
 
-
     def _K_stamp(self, elt):
         """Add stamp for mutual inductance"""
 
@@ -226,14 +223,15 @@ class MNA(object):
         L1 = elt.nodes[0]
         L2 = elt.nodes[1]
         # TODO: Add sqrt to Expr
-        ZM = elt.cpt.k * s * sym.simplify(sym.sqrt((self.elements[L1].cpt.Z * self.elements[L2].cpt.Z / s**2).expr))
+        ZM = elt.cpt.k * s * \
+            sym.simplify(
+                sym.sqrt((self.elements[L1].cpt.Z * self.elements[L2].cpt.Z / s**2).expr))
 
         m1 = self._branch_index(L1)
         m2 = self._branch_index(L2)
 
         self._D[m1, m2] += -ZM
         self._D[m2, m1] += -ZM
-
 
     def _V_stamp(self, elt):
         """Add stamp for voltage source (independent and dependent)"""
@@ -254,7 +252,7 @@ class MNA(object):
             n3 = self._node_index(elt.nodes[2])
             n4 = self._node_index(elt.nodes[3])
             T = elt.cpt.args[0]
-                
+
             if n3 >= 0:
                 self._B[n3, m] -= T
                 self._C[m, n3] -= T
@@ -267,7 +265,7 @@ class MNA(object):
             n3 = self._node_index(elt.nodes[2])
             n4 = self._node_index(elt.nodes[3])
             A = elt.cpt.args[0]
-                
+
             if n3 >= 0:
                 self._C[m, n3] -= A
             if n4 >= 0:
@@ -275,7 +273,6 @@ class MNA(object):
 
         # Add ?
         self._Es[m] += elt.cpt.V
-
 
     def _I_stamp(self, elt):
         """Add stamp for current source (independent and dependent)"""
@@ -287,7 +284,6 @@ class MNA(object):
         if n2 >= 0:
             self._Is[n2] += elt.cpt.I
 
-
     def _analyse(self):
         """Analyse network."""
 
@@ -295,14 +291,12 @@ class MNA(object):
             print('Nothing connected to ground node 0')
             self.nodes['0'] = None
 
-
         # Determine which branch currents are needed.
         self.unknown_branch_currents = []
 
         for key, elt in self.elements.iteritems():
             if elt.is_V or elt.is_L:
                 self.unknown_branch_currents.append(key)
-
 
         # Generate stamps.
         num_nodes = len(self.node_list) - 1
@@ -319,24 +313,22 @@ class MNA(object):
         for elt in self.elements.values():
             if elt.is_V:
                 self._V_stamp(elt)
-            elif elt.is_I: 
+            elif elt.is_I:
                 self._I_stamp(elt)
-            elif elt.is_RC: 
+            elif elt.is_RC:
                 self._RC_stamp(elt)
-            elif elt.is_L: 
+            elif elt.is_L:
                 self._L_stamp(elt)
-            elif elt.is_K: 
+            elif elt.is_K:
                 self._K_stamp(elt)
             elif elt.cpt_type not in ('P', 'W'):
                 raise ValueError('Unhandled element %s' % elt.name)
-
 
         # Augment the admittance matrix to form A matrix
         self._A = self._G.row_join(self._B).col_join(self._C.row_join(self._D))
         # Augment the known current vector with known voltage vector
         # to form Z vector
         self._Z = self._Is.col_join(self._Es)
-
 
     def _solve(self):
         """Solve network."""
@@ -345,7 +337,8 @@ class MNA(object):
         try:
             Ainv = self._A.inv()
         except ValueError:
-            raise ValueError('The MNA A matrix is not invertible; some nodes may need connecting with high value resistors, a voltage source might be short-circuited, a current source might be open-circuited.')
+            raise ValueError(
+                'The MNA A matrix is not invertible; some nodes may need connecting with high value resistors, a voltage source might be short-circuited, a current source might be open-circuited.')
 
         results = sym.simplify(Ainv * self._Z)
 
@@ -366,26 +359,25 @@ class MNA(object):
             self._I[key] = Is(results[m + num_nodes])
 
         # Calculate the branch currents.  These should be evaluated as
-        # required.  
+        # required.
         for key, elt in self.elements.iteritems():
-            if elt.is_RC: 
-                n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
-                self._I[elt.name] = Is(sym.simplify((self._V[n1] - self._V[n2] - elt.cpt.V) / elt.cpt.Z))
-
+            if elt.is_RC:
+                n1, n2 = self.node_map[
+                    elt.nodes[0]], self.node_map[elt.nodes[1]]
+                self._I[elt.name] = Is(
+                    sym.simplify((self._V[n1] - self._V[n2] - elt.cpt.V) / elt.cpt.Z))
 
     @property
-    def A(self):    
+    def A(self):
         """Return A matrix for MNA"""
 
         return Matrix(self._A)
 
-
     @property
-    def Z(self):    
+    def Z(self):
         """Return Z vector for MNA"""
 
         return Vector(self._Z)
-
 
     @property
     def X(self):
@@ -395,27 +387,24 @@ class MNA(object):
         I = ['I_' + branch for branch in self.unknown_branch_currents]
         return Vector(V + I)
 
-
     @property
-    def V(self):    
+    def V(self):
         """Return dictionary of s-domain node voltages indexed by node name"""
 
         if not hasattr(self, '_V'):
             self._solve()
         return self._V
 
-
     @property
-    def I(self):    
+    def I(self):
         """Return dictionary of s-domain branch currents indexed by component name"""
 
         if not hasattr(self, '_I'):
             self._solve()
         return self._I
 
-
     @property
-    def Vd(self):    
+    def Vd(self):
         """Return dictionary of s-domain branch voltage differences indexed by component name"""
 
         if hasattr(self, '_Vd'):
