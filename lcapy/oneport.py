@@ -23,7 +23,7 @@ Isc short-circuit current
 One-ports can either be connected in series (+) or parallel (|) to
 create a new one-port.
 
-Copyright 2014 Michael Hayes, UCECE
+Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -229,7 +229,8 @@ class ParSer(OnePort):
             if isinstance(arg1, G):
                 return G(arg1.G * arg2.G / (arg1.G + arg2.G))
             if isinstance(arg1, C):
-                return C(arg1.C * arg2.C / (arg1.C + arg2.C), arg1.v0 + arg2.v0)
+                return C(
+                    arg1.C * arg2.C / (arg1.C + arg2.C), arg1.v0 + arg2.v0)
             return None
 
         elif self.__class__ == Par:
@@ -251,7 +252,8 @@ class ParSer(OnePort):
             if isinstance(arg1, R):
                 return R(arg1.R * arg2.R / (arg1.R + arg2.R))
             if isinstance(arg1, L):
-                return L(arg1.L * arg2.L / (arg1.L + arg2.L), arg1.i0 + arg2.i0)
+                return L(
+                    arg1.L * arg2.L / (arg1.L + arg2.L), arg1.i0 + arg2.i0)
             return None
 
         else:
@@ -464,7 +466,7 @@ class Norton(OnePort):
     """Norton (Y) model
     ::
 
-                +-------------------+  
+                +-------------------+
         I1      |                   |      -I1
         -->-+---+        Y          +---+--<--
             |   |                   |   |
@@ -474,8 +476,8 @@ class Norton(OnePort):
             |          +------+         |
             |          |      |         |
             +----------+ -I-> +---------+
-                       |      |    
-                       +------+    
+                       |      |
+                       +------+
 
           +              V1                 -
     """
@@ -555,11 +557,11 @@ class Thevenin(OnePort):
     """Thevenin (Z) model
     ::
 
-             +------+    +-------------------+  
+             +------+    +-------------------+
         I1   | +  - |    |                   | -I1
         -->--+  V   +----+        Z          +--<--
-             |      |    |                   |    
-             +------+    +-------------------+  
+             |      |    |                   |
+             +------+    +-------------------+
         +                       V1                -
     """
 
@@ -608,14 +610,14 @@ class Thevenin(OnePort):
         """Add unbalanced ladder network in parallel; alternately in parallel and series.
 
         ::
-               +---------+       +---------+       
+               +---------+       +---------+
             +--+   self  +---+---+   Z1    +---+---
             |  +---------+   |   +---------+   |
             |              +-+-+             +-+-+
             |              |   |             |   |
             |              |Z0 |             |Z2 |
             |              |   |             |   |
-            |              +-+-+             +-+-+                       
+            |              +-+-+             +-+-+
             |                |                 |
             +----------------+-----------------+---
         """
@@ -632,14 +634,14 @@ class Thevenin(OnePort):
         """Add C network in parallel.
 
         ::
-               +---------+      +---------+        
+               +---------+      +---------+
             +--+   self  +------+   Z0    +---+----
-            |  +---------+      +---------+   |    
+            |  +---------+      +---------+   |
             |                               +-+-+
             |                               |   |
             |                               |Z1 |
             |                               |   |
-            |                               +-+-+                       
+            |                               +-+-+
             |                   +---------+   |
             +-------------------+   Z2    +---+----
                                 +---------+
@@ -651,14 +653,14 @@ class Thevenin(OnePort):
         """Add L network in parallel.
 
         ::
-               +---------+      +---------+        
+               +---------+      +---------+
             +--+   self  +------+   Z0    +---+----
-            |  +---------+      +---------+   |    
+            |  +---------+      +---------+   |
             |                               +-+-+
             |                               |   |
             |                               |Z1 |
             |                               |   |
-            |                               +-+-+                       
+            |                               +-+-+
             |                                 |
             +---------------------------------+----
         """
@@ -670,14 +672,14 @@ class Thevenin(OnePort):
 
         ::
 
-               +---------+       +---------+       
+               +---------+       +---------+
             +--+   self  +---+---+   Z1    +---+---
             |  +---------+   |   +---------+   |
             |              +-+-+             +-+-+
             |              |   |             |   |
             |              |Z0 |             |Z2 |
             |              |   |             |   |
-            |              +-+-+             +-+-+                       
+            |              +-+-+             +-+-+
             |                |                 |
             +----------------+-----------------+---
         """
@@ -688,14 +690,14 @@ class Thevenin(OnePort):
         """Add T (Y) network in parallel.
         ::
 
-               +---------+       +---------+        +---------+       
+               +---------+       +---------+        +---------+
             +--+   self  +-------+   Z0    +---+----+   Z2    +---
-            |  +---------+       +---------+   |    +---------+   
+            |  +---------+       +---------+   |    +---------+
             |                                +-+-+
             |                                |   |
             |                                |Z1 |
             |                                |   |
-            |                                +-+-+                       
+            |                                +-+-+
             |                                  |
             +----------------------------------+------------------
         """
@@ -974,7 +976,7 @@ class FerriteBead(Thevenin):
 
     """Ferrite bead (lossy inductor)
 
-    This is modelled as a series resistor (Rs) connected 
+    This is modelled as a series resistor (Rs) connected
     to a parallel R, L, C network (Rp, Lp, Cp).
     """
 

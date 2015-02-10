@@ -12,7 +12,7 @@ This module performs schematic drawing using circuitikz from a netlist.
 >>> sch.add('W 0.2 0.2; right')
 >>> sch.draw()
 
-Copyright 2014 Michael Hayes, UCECE
+Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
 from __future__ import print_function
@@ -116,7 +116,8 @@ class Opts(dict):
 
     def format(self):
 
-        return ', '.join(['%s=%s' % (key, val) for key, val in self.iteritems()])
+        return ', '.join(['%s=%s' % (key, val)
+                          for key, val in self.iteritems()])
 
 
 class Cnodes(object):
@@ -354,7 +355,8 @@ class NetElement(object):
         self.args = args
 
         if args != ():
-            if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep', 'impulse', 's'):
+            if cpt_type in ('V', 'I') and args[0] in (
+                    'ac', 'dc', 'step', 'acstep', 'impulse', 's'):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]
             elif cpt_type == 'E' and args[0] == 'opamp':
@@ -947,7 +949,8 @@ class Schematic(object):
         node_str = self._node_str(n1, n2, draw_nodes)
 
         label_str = ''
-        if draw_labels and not ('l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
+        if draw_labels and not (
+                'l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
             if cpt_type not in ('open', 'short'):
                 label_str = ', l%s=%s' % (modifier, elt.tex_label)
 

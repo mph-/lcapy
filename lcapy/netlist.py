@@ -9,9 +9,9 @@ example:
 
 >>> from lcapy import Circuit
 >>> cct = Circuit('Voltage divider')
->>> cct.add('V_s fred 0') 
->>> cct.add('R_a fred 1') 
->>> cct.add('R_b 1 0') 
+>>> cct.add('V_s fred 0')
+>>> cct.add('R_a fred 1')
+>>> cct.add('R_b 1 0')
 >>> cct.V.pprint()
 >>> cct.I.pprint()
 
@@ -25,7 +25,7 @@ the component names.  For example,
 >>> cct.I['R1'].pprint()
 
 
-Copyright 2014 Michael Hayes, UCECE
+Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
 # TODO: Add option to defer evaluation and thus keep things symbolic.
@@ -150,7 +150,8 @@ class Opts(dict):
 
     def format(self):
 
-        return ', '.join(['%s=%s' % (key, val) for key, val in self.iteritems()])
+        return ', '.join(['%s=%s' % (key, val)
+                          for key, val in self.iteritems()])
 
 
 class Node(object):
@@ -206,7 +207,8 @@ class NetElement(object):
             raise ValueError('TP component requires 5 args')
 
         if args != ():
-            if cpt_type in ('V', 'I') and args[0] in ('ac', 'dc', 'step', 'acstep', 'impulse', 's'):
+            if cpt_type in ('V', 'I') and args[0] in (
+                    'ac', 'dc', 'step', 'acstep', 'impulse', 's'):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]
             elif cpt_type == 'E' and args[0] == 'opamp':
@@ -230,7 +232,8 @@ class NetElement(object):
             foo = cpt_type_map[cpt_type]
 
         except KeyError:
-            raise(ValueError, 'Unknown component kind for %s' % name)
+            raise ValueError('Unknown component kind for %s' % name)
+
 
         if len(args) == 0:
             # Ensure symbol uppercase for s-domain value.
@@ -250,7 +253,8 @@ class NetElement(object):
 
     def __str__(self):
 
-        return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes[0:2] + self.args])
+        return ' '.join(
+            ['%s' % arg for arg in (self.name, ) + self.nodes[0:2] + self.args])
 
     @property
     def is_dummy(self):

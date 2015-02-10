@@ -1,13 +1,13 @@
 """
-This module provides the core functions and classes for Lcapy.  
+This module provides the core functions and classes for Lcapy.
 
 To print the rational functions in canonical form (with the highest
 power of s in the denominator with a unity coefficient), use
-print(x.canonical()) or x.pprint() for pretty printing.
+print(x.canonical()).
 
 For additional documentation, see the Lcapy tutorial.
 
-Copyright 2014 Michael Hayes, UCECE
+Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -20,7 +20,7 @@ import sys
 
 
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
-           'zp2tf', 'Expr', 's', 'sExpr',  't', 'tExpr', 'f', 'fExpr', 'cExpr',
+           'zp2tf', 'Expr', 's', 'sExpr', 't', 'tExpr', 'f', 'fExpr', 'cExpr',
            'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt',
            'H', 'DiracDelta',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector')
@@ -58,7 +58,8 @@ class Expr(object):
         if isinstance(val, sExpr):
             val = val.val
 
-        if real and isinstance(val, str) and val.isalnum() and not val[0].isdigit():
+        if real and isinstance(val, str) and val.isalnum() and not val[
+                0].isdigit():
             val = sym.symbols(val, real=True)
 
         if isinstance(val, str):
@@ -1053,7 +1054,7 @@ def tf(numer, denom=1, var=None):
 
 
 def _zp2tf(zeros, poles, K=1, var=None):
-    """Create a transfer function from lists of zeros and poles, 
+    """Create a transfer function from lists of zeros and poles,
     and from a constant gain"""
 
     if var is None:
@@ -1076,7 +1077,7 @@ def _zp2tf(zeros, poles, K=1, var=None):
 
 
 def zp2tf(zeros, poles, K=1, var=None):
-    """Create a transfer function from lists of zeros and poles, 
+    """Create a transfer function from lists of zeros and poles,
     and from a constant gain"""
 
     return Hs(_zp2tf(zeros, poles, K, var))

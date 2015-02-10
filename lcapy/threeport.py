@@ -1,3 +1,11 @@
+"""
+This module supports simple linear three-port networks.  It is
+experimental and needs a rethink.
+
+Copyright 2014, 2015 Michael Hayes, UCECE
+
+"""
+
 from __future__ import division
 from warnings import warn
 import sympy as sym
@@ -13,7 +21,8 @@ class ThreePortMatrix(sym.Matrix):
     def __new__(cls, *args):
 
         if len(args) == 9:
-            return super(ThreePortMatrix, cls).__new__(cls, ((args[0], args[1], args[2]), (args[3], args[4], args[5]), (args[6], args[7], args[8])))
+            return super(ThreePortMatrix, cls).__new__(cls, ((args[0], args[1], args[
+                2]), (args[3], args[4], args[5]), (args[6], args[7], args[8])))
 
         return super(ThreePortMatrix, cls).__new__(cls, *args)
 
@@ -64,7 +73,7 @@ class YMatrix3(ThreePortMatrix):
 
 class ThreePort(object):
 
-    """ 
+    """
 
     +-  -+     +-             -+   +-  -+     +-   -+
     | V1 |     | Z11  Z12  Z13 |   | I1 |     | V1z |
@@ -176,7 +185,8 @@ class ThreePort(object):
         p1 = inport - 1
         p2 = outport - 1
 
-        return Vs(self.Voc[p2] + (V - self.Voc[p1]) * self.Z[p2, p1] / self.Z[p1, p1])
+        return Vs(
+            self.Voc[p2] + (V - self.Voc[p1]) * self.Z[p2, p1] / self.Z[p1, p1])
 
     def Iresponse(self, I, inport=1, outport=2):
         """Return current response for specified current voltage and

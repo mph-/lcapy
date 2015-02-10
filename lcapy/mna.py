@@ -1,3 +1,9 @@
+"""
+This module implements modified nodal analysis (MNA).
+
+Copyright 2014, 2015 Michael Hayes, UCECE
+"""
+
 from __future__ import division
 from lcapy.core import cExpr, Vs, Is, s
 from lcapy.twoport import Matrix, Vector

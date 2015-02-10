@@ -1,5 +1,7 @@
 """
 This module supports simple linear two-port networks.
+
+Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
 from __future__ import division

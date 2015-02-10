@@ -1,3 +1,9 @@
+"""
+This module performs plotting using matplotlib.
+
+Copyright 2014, 2015 Michael Hayes, UCECE
+"""
+
 import numpy as np
 from matplotlib.pyplot import figure
 
