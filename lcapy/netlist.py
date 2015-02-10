@@ -902,7 +902,8 @@ class Netlist(object):
 
 
     def draw(self, filename=None, draw_labels=None, draw_nodes=None,
-             label_nodes=None, s_model=False, args=None, scale=1, stretch=1):
+             label_nodes=None, s_model=False, args=None, scale=1, stretch=1,
+             png=False):
 
         cct = self
         if s_model:
@@ -915,6 +916,8 @@ class Netlist(object):
             kwargs['label_nodes'] = label_nodes
         if draw_labels is not None:
             kwargs['draw_labels'] = draw_labels
+
+        kwargs['png'] = png
 
         return cct.sch.draw(filename=filename, args=args, 
                             scale=scale, stretch=stretch,

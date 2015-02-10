@@ -21,10 +21,7 @@ import sys
 
 
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf', 
-           'zp2tf', 'poles', 'zeros', 'residue', 'residues', 'partfrac',
-           'general', 'canonical', 'ZPK', 'inverse_laplace', 'initial_value',
-           'transient_response', 'response', 'final_value', 'Expr', 
-           's', 'sExpr',  't', 'tExpr', 'f', 'fExpr', 'cExpr',
+           'zp2tf', 'Expr', 's', 'sExpr',  't', 'tExpr', 'f', 'fExpr', 'cExpr',
            'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt',
            'H', 'DiracDelta',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YVector', 'ZVector')
@@ -423,6 +420,37 @@ class sExpr(Expr):
             raise ValueError('s-domain expression %s cannot depend on t' % self.expr)
 
 
+    def _as_ratfun_delay(self):
+    
+        expr, var = self.expr, self.var
+
+        F = sym.factor(expr).as_ordered_factors()
+
+        delay = sym.sympify(0)
+        ratfun = sym.sympify(1)
+        for f in F:
+            b, e = f.as_base_exp()
+            if b == sym.E and e.is_polynomial(var):
+                p = sym.Poly(e, var)
+                c = p.all_coeffs()
+                if p.degree() == 1:
+                    delay -= c[0]
+                    if c[1] != 0:
+                        ratfun *= sym.exp(c[1])
+                    continue
+
+            ratfun *= f
+            
+        if not ratfun.is_rational_function(var):
+            raise ValueError('Expression not a product of rational function and exponential')
+
+        numer, denom = ratfun.as_numer_denom()
+        N = sym.Poly(numer, var)
+        D = sym.Poly(denom, var)
+
+        return N, D, delay
+
+
     def differentiate(self):
         """Differentiate (multiply by s)"""
         
@@ -449,22 +477,90 @@ class sExpr(Expr):
         return omegaExpr(self.subs(s, sym.I * omega))
 
 
+    def roots(self):
+        """Return roots of expression as a dictionary
+        Note this may not find them all."""
+
+        return Exprdict(sym.roots(sym.Poly(self.expr, self.var)))
+
+
     def zeros(self):
-        """Return zeroes of expression as a dictionary"""
+        """Return zeroes of expression as a dictionary
+        Note this may not find them all."""
         
-        return Exprdict(zeros(self.expr, self.var))
+        return self.N.roots()
 
 
     def poles(self):
-        """Return poles of expression as a dictionary"""
+        """Return poles of expression as a dictionary
+        Note this may not find them all."""
         
-        return Exprdict(poles(self.expr, self.var))
+        return self.D.roots()
 
 
-    def residues(self):
+    def residue(self, pole, poles):
+
+        expr, var = self.expr, self.var
+
+        # Remove pole from list of poles; sym.cancel
+        # doesn't always work, for example, for complex poles.
+        poles2 = poles.copy()
+        poles2[pole] -= 1
+        
+        numer, denom = expr.as_numer_denom()
+        D = sym.Poly(denom, var)
+        K = D.LC()
+        
+        D = [(var - p) ** poles2[p] for p in poles2]
+        denom = sym.Mul(K, *D)
+        
+        d = sym.limit(denom, var, pole)
+        
+        if d != 0:
+            tmp = numer / denom
+            return sym.limit(tmp, var, pole)
+
+        print("Trying l'hopital's rule")
+        tmp = numer / denom
+        tmp = sym.diff(tmp, var)
+        
+        return sym.limit(tmp, var, pole)
+
+
+    def _as_residue_parts(self):
         """Return residues of expression"""
+      
+        var = self.var
+        N, D, delay = self._as_ratfun_delay()
+
+        Q, M = N.div(D)
+
+        expr = M / D
+        sexpr = sExpr(expr)
+
+        P = sexpr.poles()
+        F = []
+        R = []
+        for p in P:
         
-        return residues(self.expr, self.var)
+            # Number of occurrences of the pole.
+            N = P[p]
+
+            f = var - p
+
+            if N == 1:
+                F.append(f)
+                R.append(sexpr.residue(p, P))
+                continue
+
+            # Handle repeated poles.
+            expr2 = expr * f ** N
+            for n in range(1, N + 1):
+                m = N - n
+                F.append(f ** n)
+                R.append(sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m))
+
+        return F, R, Q, delay
 
 
     def canonical(self):
@@ -472,8 +568,20 @@ class sExpr(Expr):
         highest power of denominator.
 
         See also general, partfrac, mixedfrac, and ZPK"""
-        
-        return self.__class__(canonical(self.expr, self.var))
+
+        N, D, delay = self._as_ratfun_delay()
+
+        K = sym.cancel(N.LC() / D.LC())
+        if delay != 0:
+            K *= sym.exp(self.var * delay)
+
+        # Divide by leading coefficient
+        N = N.monic()
+        D = D.monic()
+    
+        expr = K * (N / D)
+
+        return self.__class__(expr)
 
 
     def general(self):
@@ -481,7 +589,13 @@ class sExpr(Expr):
 
         See also canonical, partfrac, mixedfrac, and ZPK"""
         
-        return self.__class__(general(self.expr, self.var))
+        N, D, delay = self._as_ratfun_delay()
+
+        expr = sym.cancel(N / D, self.var)
+        if delay != 0:
+            expr *= sym.exp(self.var * delay)
+
+        return self.__class__(expr)
 
 
     def partfrac(self):
@@ -489,7 +603,16 @@ class sExpr(Expr):
 
         See also canonical, mixedfrac, general, and ZPK"""
 
-        return self.__class__(partfrac(self.expr, self.var))
+        F, R, Q, delay = self._as_residue_parts()
+
+        expr = Q.as_expr()
+        for f, r in zip(F, R):
+            expr += r / f
+
+        if delay != 0:
+            expr *= sym.exp(-self.var * delay)
+
+        return self.__class__(expr)
 
 
     def mixedfrac(self):
@@ -497,27 +620,45 @@ class sExpr(Expr):
 
         See also canonical, general, partfrac and ZPK"""
 
-        return self.__class__(mixedfrac(self.expr, self.var))
+        N, D, delay = self._as_ratfun_delay()
+
+        Q, M = N.div(D)
+
+        expr = Q + M / D
+
+        if delay != 0:
+            expr *= sym.exp(-self.var * delay)
+
+        return self.__class__(expr)
 
 
     def ZPK(self):
         """Convert to pole-zero-gain (PZK) form.
         
         See also canonical, general, mixedfrac, and partfrac"""
-        
-        return self.__class__(ZPK(self.expr, self.var))
+
+        N, D, delay = self._as_ratfun_delay()
+
+        K = sym.cancel(N.LC() / D.LC())
+        if delay != 0:
+            K *= sym.exp(self.var * delay)
+
+        zeros = sym.roots(N)
+        poles = sym.roots(D)
+
+        return self.__class__(_zp2tf(zeros, poles, K, self.var))
 
 
     def initial_value(self):
         """Determine value at t = 0"""
         
-        return initial_value(self.expr, self.var)
+        return self.__class__(sym.limit(sym.expr * sym.var, sym.var, sym.oo))
 
 
     def final_value(self):
         """Determine value at t = oo"""
         
-        return final_value(self.expr, self.var)
+        return self.__class__(sym.limit(sym.expr * sym.var, sym.var, 0))
 
 
     @property
@@ -543,16 +684,80 @@ class sExpr(Expr):
         numer, denom = expr.as_numer_denom()
         return self.__class__(denom)
 
-
-    def _as_ratfun_parts(self):
         
-        return _as_ratfun_parts(self.expr, self.var)
+    def _inverse_laplace(self):
+
+        var = self.var
+        N, D, delay = self._as_ratfun_delay()
+
+        Q, M = N.div(D)
+
+        result1 = 0
+
+        # Delayed time.
+        td = t - delay
+
+        if Q:
+            C = Q.all_coeffs()
+            for n, c in enumerate(C):
+                result1 += c * sym.diff(sym.DiracDelta(td), t, len(C) - n - 1)
+        
+        expr = M / D
+        sexpr = sExpr(expr)
+
+        P = sexpr.poles()
+        result2 = 0
+
+        P2 = P.copy()
+
+        for p in P2:
+        
+            # Number of occurrences of the pole.
+            N = P2[p]
+
+            if N == 0:
+                continue
+
+            f = var - p
+
+            if N == 1:
+                r = sexpr.residue(p, P)
+
+                pc = p.conjugate()
+                if pc != p and P.has_key(pc):
+                    # Remove conjugate from poles and process pole with its conjugate
+                    P2[pc] = 0
+                    result2 += 2 * sym.re(r) * sym.exp(sym.re(p) * td) * sym.cos(sym.im(p) * td) + 2 * sym.im(r) * sym.exp(sym.re(p) * td) * sym.sin(sym.im(p) * td)
+                else:
+                    result2 += r * sym.exp(p * td)
+                continue
+
+            # Handle repeated poles.
+            expr2 = expr * f ** N
+            for n in range(1, N + 1):
+                m = N - n
+                r = sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m)
+                result2 += r * sym.exp(p * td) * td**(n - 1)
+
+        return result1 + result2 * sym.Heaviside(td)
 
 
     def inverse_laplace(self):
         """Attempt inverse Laplace transform"""
         
-        result = inverse_laplace(self.expr, t, self.var)
+        try:
+            result = self._inverse_laplace()
+        except:
+
+            print('Determining inverse Laplace transform with sympy...')
+
+            # Try splitting into partial fractions to help sympy.
+            expr = self.partfrac().expr
+
+            # This barfs when needing to generate Dirac deltas
+            from sympy.integrals.transforms import inverse_laplace_transform
+            result = inverse_laplace_transform(expr, t, self.var)
+
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result)
         return result
@@ -561,7 +766,18 @@ class sExpr(Expr):
     def transient_response(self, t=None):
         """Evaluate transient (impulse) response"""
 
-        return transient_response(self.expr, t, self.var)
+        if isinstance(t, sym.Expr):
+            return self.inverse_laplace(t)
+
+        tv = sym.symbols('t')
+
+        texpr = self.inverse_laplace(expr, tv)
+        if t is None:
+            return texpr
+
+        print('Evaluating inverse Laplace transform...')
+        
+        return texpr.evaluate(t)
     
     
     def impulse_response(self, t=None):
@@ -588,17 +804,43 @@ class sExpr(Expr):
 
 
     def response(self, x, t):
-        """Evaluate response to input signal x"""
+        """Evaluate response to input signal x at times t"""
 
-        return response(self.expr, x, t, self.var)
+        N, D, delay = self._as_ratfun_delay()
+
+        Q, M = N.div(D)
+        expr = M / D
+
+        h = transient_response(expr, t, s)
+        y = np.convolve(x, h)
+
+        if Q:
+            # Handle Dirac Deltas and derivatives.
+            C = Q.all_coeffs()
+            dt = np.diff(t)
+            for n, c in enumerate(C):
+            
+                y += c * x
+
+                x = np.diff(x) / dt
+                x = np.hstack((x, 0))
+
+        if delay != 0.0:
+            td = t - delay
+
+        import scipy.interpolate.interp1d as interp1d
+
+        # Try linear interpolation; should oversample first...
+        f = interp1d(t, y, bounds_error=False, fill_value=0)
+        y = y(td)
+        
+        return y
 
 
     def decompose(self):
 
-        ratfun, delay = _as_ratfun_delay(self.expr, self.var)
+        N, D, delay = self._as_ratfun_delay()
         
-        N, D = _as_ratfun_parts(ratfun, self.var)
-
         return N, D, delay
 
 
@@ -727,7 +969,7 @@ class tExpr(Expr):
 
 
 class cExpr(Expr):
-    """Constant expression or symbol"""
+    """Constant real expression or symbol"""
 
     def __init__(self, val):
         
@@ -743,32 +985,6 @@ t = tExpr('t')
 f = fExpr('f')
 omega = omegaExpr('omega')
 pi = sym.pi
-
-def _guess_var(expr, var):
-
-    if hasattr(expr, 'expr'):
-        return expr.expr, expr.var
-
-    if var is not None:
-        return expr, var
-
-    #if not expr.is_rational_function():
-    #    raise ValueError('Expression not a rational function')
-
-    numer, denom = expr.as_numer_denom()
-    try:
-        P = sym.Poly(numer)
-        if P.gens != ():
-            return expr, P.gens[0]
-    except:
-        pass
-
-    try:
-        P = sym.Poly(denom)
-        if P.gens != ():
-            return expr, P.gens[0]
-    except:
-        raise ValueError('Cannot determine polynomial variable')
 
 
 def pprint(expr):
@@ -899,7 +1115,7 @@ def tf(numer, denom=1, var=None):
     N = sym.Poly(numer, var)
     D = sym.Poly(denom, var)
 
-    return sExpr(N / D)
+    return Hs(N / D)
 
 
 def _zp2tf(zeros, poles, K=1, var=None):
@@ -929,381 +1145,7 @@ def zp2tf(zeros, poles, K=1, var=None):
     """Create a transfer function from lists of zeros and poles, 
     and from a constant gain"""
 
-    return sExpr(_zp2tf(zeros, poles, K, var))
-
-
-def poles(expr, var=None):
-
-    expr, var = _guess_var(expr, var)
-
-    numer, denom = expr.as_numer_denom()
-    poles = sym.roots(sym.Poly(denom, var))
-    return poles
-
-
-def zeros(expr, var=None):
-
-    expr, var = _guess_var(expr, var)
-
-    numer, denom = expr.as_numer_denom()
-    zeros = sym.roots(sym.Poly(numer, var))
-    return zeros
-
-
-def residue(expr, var, pole, poles):
-
-    # Remove pole from list of poles; sym.cancel
-    # doesn't always work, for example, for complex poles.
-    poles2 = poles.copy()
-    poles2[pole] -= 1
-
-    numer, denom = expr.as_numer_denom()
-    D = sym.Poly(denom, var)
-    K = D.LC()
-
-    D = [(var - p) ** poles2[p] for p in poles2]
-    denom = sym.Mul(K, *D)
-
-    d = sym.limit(denom, var, pole)
-
-    if d != 0:
-        tmp = numer / denom
-        return sym.limit(tmp, var, pole)
-
-    print("Trying l'hopital's rule")
-    tmp = numer / denom
-    tmp = sym.diff(tmp, var)
-    
-    return sym.limit(tmp, var, pole)
-
-
-def residues(expr, var=None):
-
-    expr, var = _guess_var(expr, var)
-
-    N, D = _as_ratfun_parts(expr, var)
-
-    Q, M = N.div(D)
-
-    expr = M / D
-
-    P = poles(expr, var)
-    F = []
-    R = []
-    for p in P:
-        
-        # Number of occurrences of the pole.
-        N = P[p]
-
-        f = var - p
-
-        if N == 1:
-            F.append(f)
-            R.append(residue(expr, var, p, P))
-            continue
-
-        # Handle repeated poles.
-        expr2 = expr * f ** N
-        for n in range(1, N + 1):
-            m = N - n
-            F.append(f ** n)
-            R.append(sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m))
-
-    return F, R, Q
-
-
-def mixedfrac(expr, var=None):
-    """Convert rational function into mixed fraction form.
-
-    See also canonical, general, partfrac, and ZPK"""
-
-    expr, var = _guess_var(expr, var)
-
-    ratfun, delay = _as_ratfun_delay(expr, var)
-
-    N, D = _as_ratfun_parts(ratfun, var)
-
-    Q, M = N.div(D)
-
-    expr = Q + M / D
-
-    if delay != 0:
-        expr *= sym.exp(-var * delay)
-
-    return expr
-
-
-def partfrac(expr, var=None):
-    """Convert rational function into partial fraction form (standard form).
-
-    See also canonical, general, and ZPK"""
-
-    expr, var = _guess_var(expr, var)
-
-    ratfun, delay = _as_ratfun_delay(expr, var)
-
-    F, R, Q = residues(ratfun, var)
-
-    expr = Q.as_expr()
-    for f, r in zip(F, R):
-        expr = expr + r / f
-
-    if delay != 0:
-        expr *= sym.exp(-var * delay)
-
-    return expr
-
-
-
-def _as_ratfun_parts(expr, var=None):
-    
-    expr, var = _guess_var(expr, var)
-
-    if not expr.is_rational_function(var):
-        raise ValueError('Expression not a rational function')
-
-    numer, denom = expr.as_numer_denom()
-    N = sym.Poly(numer, var)
-    D = sym.Poly(denom, var)
-    
-    return N, D
-
-
-def _as_ratfun_delay(expr, var=None):
-    
-    expr, var = _guess_var(expr, var)
-
-    F = sym.factor(expr).as_ordered_factors()
-
-    delay = sym.sympify(0)
-    ratfun = sym.sympify(1)
-    for f in F:
-        b, e = f.as_base_exp()
-        if b == sym.E and e.is_polynomial(var):
-            p = sym.Poly(e, var)
-            c = p.all_coeffs()
-            if p.degree() == 1:
-                delay -= c[0]
-                if c[1] != 0:
-                    ratfun *= sym.exp(c[1])
-                continue
-
-        ratfun *= f
-            
-    if not ratfun.is_rational_function(var):
-        raise ValueError('Expression not a product of rational function and exponential')
-
-    return ratfun, delay
-
-
-def general(expr, var=None):
-    """Convert rational function into general form.
-
-    See also canonical, partfrac, mixedfrac, and ZPK"""
-
-    expr, var = _guess_var(expr, var)
-
-    ratfun, delay = _as_ratfun_delay(expr, var)
-
-    result = sym.cancel(ratfun, var)
-    if delay != 0:
-        result = result * sym.exp(var * delay)
-
-    return result
-
-
-def canonical(expr, var=None):
-    """Convert rational function into canonical form.
-
-    See also general, partfrac, mixedfrac, and ZPK"""
-
-    expr, var = _guess_var(expr, var)
-
-    ratfun, delay = _as_ratfun_delay(expr, var)
-
-    N, D = _as_ratfun_parts(ratfun, var)
-
-    K = sym.cancel(N.LC() / D.LC())
-    if delay != 0:
-        K = K * sym.exp(var * delay)
-
-    # Divide by leading coefficient
-    N = N.monic()
-    D = D.monic()
-    
-    return K * (N / D)
-
-
-def ZPK(expr, var=None):
-    """Convert rational function into ZPK form.
-
-    See also canonical, general, partfrac, and mixedfrac"""
-
-    expr, var = _guess_var(expr, var)
-
-    ratfun, delay = _as_ratfun_delay(expr, var)
-
-    N, D = _as_ratfun_parts(ratfun, var)
-
-    K = sym.cancel(N.LC() / D.LC())
-    if delay != 0:
-        K = K * sym.exp(var * delay)
-
-    zeros = sym.roots(N)
-    poles = sym.roots(D)
-
-    return _zp2tf(zeros, poles, K, var)
-
-
-def _inverse_laplace(expr, t, var):
-
-    ratfun, delay = _as_ratfun_delay(expr, var)
-
-    N, D = _as_ratfun_parts(ratfun, var)
-
-    Q, M = N.div(D)
-
-    result1 = 0
-
-    # Delayed time.
-    td = t - delay
-
-    if Q:
-        C = Q.all_coeffs()
-        for n, c in enumerate(C):
-            result1 += c * sym.diff(sym.DiracDelta(td), t, len(C) - n - 1)
-        
-    expr = M / D
-
-    P = poles(expr, var)
-    result2 = 0
-
-    P2 = P.copy()
-
-    for p in P2:
-        
-        # Number of occurrences of the pole.
-        N = P2[p]
-
-        if N == 0:
-            continue
-
-        f = var - p
-
-        if N == 1:
-            r = residue(expr, var, p, P)
-
-            pc = p.conjugate()
-            if pc != p and P.has_key(pc):
-                # Remove conjugate from poles and process pole with its conjugate
-                P2[pc] = 0
-                result2 += 2 * sym.re(r) * sym.exp(sym.re(p) * td) * sym.cos(sym.im(p) * td) + 2 * sym.im(r) * sym.exp(sym.re(p) * td) * sym.sin(sym.im(p) * td)
-            else:
-                result2 += r * sym.exp(p * td)
-            continue
-
-        # Handle repeated poles.
-        expr2 = expr * f ** N
-        for n in range(1, N + 1):
-            m = N - n
-            r = sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m)
-            result2 += r * sym.exp(p * td) * td**(n - 1)
-
-    return result1 + result2 * sym.Heaviside(td)
-
-
-def inverse_laplace(expr, t=None, s=None):
-    """Determine inverse Laplace transform of expression"""
-
-    expr, s = _guess_var(expr, s)
-    if t is None:
-        t = sym.symbols('t')
-
-    try:
-        result = _inverse_laplace(expr, t, s)
-    except:
-
-        print('Determining inverse Laplace transform with sympy...')
-
-        # Try splitting into partial fractions to help sympy.
-        expr = partfrac(expr, s)
-
-        # This barfs when needing to generate Dirac deltas
-        from sympy.integrals.transforms import inverse_laplace_transform
-        result = inverse_laplace_transform(expr, t, s)
-
-    return tExpr(result)
-
-
-def transient_response(expr, t=None, s=None):
-    """Determine transient (impulse) response"""        
-
-    if isinstance(t, sym.Expr):
-        return inverse_laplace(expr, t, s)
-
-    tv = sym.symbols('t')
-
-    texpr = inverse_laplace(expr, tv, s)
-    if t is None:
-        return texpr
-
-    print('Evaluating inverse Laplace transform...')
-        
-    return texpr.evaluate(t)
-
-
-def response(expr, x, t=None, s=None):
-    """Determine response to excitation x"""        
-
-    expr, s = _guess_var(expr, s)
-
-    ratfun, delay = _as_ratfun_delay(expr, s)
-    N, D = _as_ratfun_parts(ratfun, s)
-    Q, M = N.div(D)
-    expr = M / D
-
-    h = transient_response(expr, t, s)
-    y = np.convolve(x, h)
-
-    if Q:
-        # Handle Dirac Deltas and derivatives.
-        C = Q.all_coeffs()
-        dt = np.diff(t)
-        for n, c in enumerate(C):
-            
-            y += c * x
-
-            x = np.diff(x) / dt
-            x = np.hstack((x, 0))
-
-    if delay != 0.0:
-        td = t - delay
-
-        import scipy.interpolate.interp1d as interp1d
-
-        # Try linear interpolation; should oversample first...
-        f = interp1d(t, y, bounds_error=False, fill_value=0)
-        y = y(td)
-
-    return y
-
-
-def initial_value(expr, var=None):
-
-    if hasattr(expr, 'expr'):
-        var = expr.s
-        expr = expr.expr
-
-    return sym.limit(expr * var, var, sym.oo)
-
-
-def final_value(expr, var=None):
-
-    if hasattr(expr, 'expr'):
-        var = expr.s
-        expr = expr.expr
-
-    return sym.limit(expr * var, var, 0)
+    return Hs(_zp2tf(zeros, poles, K, var))
 
 
 # Perhaps use a factory to create the following classes?

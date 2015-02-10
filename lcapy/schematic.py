@@ -1215,26 +1215,28 @@ class Schematic(object):
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
 
-        if False and in_ipynb() and filename is None:
-            from IPython.display import SVG
-
-            svgfilename = self._tmpfilename('.svg')
-            self.tikz_draw(svgfilename, args=args, **kwargs)            
-
-            # Display image.
-            result = SVG(svgfilename)
-            return result
-
+        png = kwargs.has_key('png') and kwargs.pop('png')
 
         if in_ipynb() and filename is None:
-            from IPython.display import Image
+            
+            if png:
+                from IPython.display import Image                
 
-            pngfilename = self._tmpfilename('.png')
-            self.tikz_draw(pngfilename, args=args, **kwargs)            
+                pngfilename = self._tmpfilename('.png')
+                self.tikz_draw(pngfilename, args=args, **kwargs)            
+                
+                # Display image.
+                result = Image(pngfilename)
+                return result
+            else:
+                from IPython.display import SVG
 
-            # Display image.
-            result = Image(pngfilename)
-            return result
+                svgfilename = self._tmpfilename('.svg')
+                self.tikz_draw(svgfilename, args=args, **kwargs)            
+
+                # Display image.
+                result = SVG(svgfilename)
+                return result
 
         tikz_extensions = ('.tex', '.pytex', '.pdf', '.svg', '.png')
 
