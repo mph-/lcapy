@@ -31,8 +31,10 @@ import sympy as sym
 from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr
 
 
-__all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z', 'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac',
-           'Vacstep', 'Iac', 'Iacstep', 'Norton', 'Thevenin', 'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
+__all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
+           'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac',
+           'Vacstep', 'Iac', 'Iacstep', 'Norton', 'Thevenin',
+           'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
 
 
 def _check_oneport_args(args):
@@ -223,8 +225,8 @@ class ParSer(OnePort):
             if isinstance(arg1, L):
                 # The currents should be the same!
                 if arg1.i0 != arg2.i0:
-                    print(
-                        'Warning, series inductors with different initial currents!')
+                    print('Warning, series inductors with different'
+                          ' initial currents!')
                 return L(arg1.L + arg2.L, arg1.i0)
             if isinstance(arg1, G):
                 return G(arg1.G * arg2.G / (arg1.G + arg2.G))
@@ -246,8 +248,8 @@ class ParSer(OnePort):
             if isinstance(arg1, C):
                 # The voltages should be the same!
                 if arg1.v0 != arg2.v0:
-                    print(
-                        'Warning, parallel capacitors with different initial voltages!')
+                    print('Warning, parallel capacitors with different'
+                          ' initial voltages!')
                 return C(arg1.C + arg2.C, arg1.v0)
             if isinstance(arg1, R):
                 return R(arg1.R * arg2.R / (arg1.R + arg2.R))
@@ -312,7 +314,7 @@ class ParSer(OnePort):
 
                 newarg = self._combine(arg1, arg2)
                 if newarg is not None:
-                    #print('Combining', arg1, arg2, 'to', newarg)
+                    # print('Combining', arg1, arg2, 'to', newarg)
                     args[m] = None
                     arg1 = newarg
                     new = True
@@ -379,13 +381,13 @@ class Par(ParSer):
         for n, arg1 in enumerate(self.args):
             for arg2 in self.args[n + 1:]:
                 if isinstance(arg1, V) and isinstance(arg2, V):
-                    raise ValueError(
-                        'Voltage sources connected in parallel %s and %s' % (arg1, arg2))
+                    raise ValueError('Voltage sources connected in parallel'
+                                     ' %s and %s' % (arg1, arg2))
                 if isinstance(arg1, V) or isinstance(arg2, V):
                     # Should simplify by removing redundant component to
                     # save later grief with Norton or Thevenin transformation.
-                    print(
-                        'Warn: parallel connection with voltage source: %s and %s' % (arg1, arg2))
+                    print('Warn: parallel connection with voltage source:'
+                          ' %s and %s' % (arg1, arg2))
 
     @property
     def Z(self):
@@ -426,13 +428,13 @@ class Ser(ParSer):
         for n, arg1 in enumerate(self.args):
             for arg2 in self.args[n + 1:]:
                 if isinstance(arg1, I) and isinstance(arg2, I):
-                    raise ValueError(
-                        'Current sources connected in series %s and %s' % (arg1, arg2))
+                    raise ValueError('Current sources connected in series'
+                                     ' %s and %s' % (arg1, arg2))
                 if isinstance(arg1, I) or isinstance(arg2, I):
                     # Should simplify by removing redundant component to
                     # save later grief with Norton or Thevenin transformation.
-                    print(
-                        'Warn: series connection with current source: %s and %s' % (arg1, arg2))
+                    print('Warn: series connection with current source:'
+                          ' %s and %s' % (arg1, arg2))
 
     @property
     def Y(self):
@@ -484,7 +486,7 @@ class Norton(OnePort):
 
     def __init__(self, Yval, Ival=Is(0)):
 
-        #print('<N> Y:', Yval, 'I:', Ival)
+        # print('<N> Y:', Yval, 'I:', Ival)
         if not isinstance(Yval, Ys):
             raise ValueError('Yval not Ys')
         if not isinstance(Ival, Is):
@@ -567,7 +569,7 @@ class Thevenin(OnePort):
 
     def __init__(self, Zval, Vval=Vs(0)):
 
-        #print('<T> Z:', Zval, 'V:', Vval)
+        # print('<T> Z:', Zval, 'V:', Vval)
         if not isinstance(Zval, Zs):
             raise ValueError('Zval not Zs')
         if not isinstance(Vval, Vs):
@@ -607,7 +609,8 @@ class Thevenin(OnePort):
         return self.norton().parallel(OP).thevenin()
 
     def parallel_ladder(self, *args):
-        """Add unbalanced ladder network in parallel; alternately in parallel and series.
+        """Add unbalanced ladder network in parallel;
+        alternately in parallel and series.
 
         ::
                +---------+       +---------+
@@ -863,8 +866,8 @@ class Vacstep(V):
         # Note, cos(-pi / 2) is not quite zero.
 
         omega = 2 * sym.pi * f
-        super(Vacstep, self).__init__(
-            Vs(V * (s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
+        foo = (s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)
+        super(Vacstep, self).__init__(Vs(V * foo))
 
 
 class Vac(Vacstep):
@@ -926,8 +929,8 @@ class Iacstep(I):
         phi = cExpr(phi)
 
         omega = 2 * sym.pi * f
-        super(Iacstep, self).__init__(
-            Is(I * (s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)))
+        foo = (s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)
+        super(Iacstep, self).__init__(Is(I * foo))
 
 
 class Iac(Iacstep):

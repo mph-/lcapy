@@ -58,8 +58,8 @@ class Expr(object):
         if isinstance(val, sExpr):
             val = val.val
 
-        if real and isinstance(val, str) and val.isalnum() and not val[
-                0].isdigit():
+        if (real and isinstance(val, str) and val.isalnum() and
+                not val[0].isdigit()):
             val = sym.symbols(val, real=True)
 
         if isinstance(val, str):
@@ -331,7 +331,8 @@ class Expr(object):
 
         except AttributeError:
             raise RuntimeError(
-                'Cannot evaluate expression, probably have undefined symbols, such as Dirac delta')
+                'Cannot evaluate expression,'
+                ' probably have undefined symbols, such as Dirac delta')
 
         if np.isscalar(vector):
             return response
@@ -406,8 +407,8 @@ class sExpr(Expr):
             ratfun *= f
 
         if not ratfun.is_rational_function(var):
-            raise ValueError(
-                'Expression not a product of rational function and exponential')
+            raise ValueError('Expression not a product of rational function'
+                             ' and exponential')
 
         numer, denom = ratfun.as_numer_denom()
         N = sym.Poly(numer, var)
@@ -514,8 +515,8 @@ class sExpr(Expr):
             for n in range(1, N + 1):
                 m = N - n
                 F.append(f ** n)
-                R.append(
-                    sym.limit(sym.diff(expr2, var, m), var, p) / sym.factorial(m))
+                dexpr = sym.diff(expr2, var, m)
+                R.append(sym.limit(dexpr, var, p) / sym.factorial(m))
 
         return F, R, Q, delay
 
@@ -675,8 +676,13 @@ class sExpr(Expr):
                     # Remove conjugate from poles and process pole with its
                     # conjugate
                     P2[pc] = 0
-                    result2 += 2 * sym.re(r) * sym.exp(sym.re(p) * td) * sym.cos(
-                        sym.im(p) * td) + 2 * sym.im(r) * sym.exp(sym.re(p) * td) * sym.sin(sym.im(p) * td)
+                    p_re = sym.re(p)
+                    p_im = sym.im(p)
+                    r_re = sym.re(r)
+                    r_im = sym.im(r)
+                    etd = sym.re(p_re * td)
+                    result2 += 2 * r_re * etd * sym.cos(p_im * td)
+                    result2 += 2 * r_im * etd * sym.sin(p_im * td)
                 else:
                     result2 += r * sym.exp(p * td)
                 continue

@@ -9,7 +9,8 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import Vs, Hs, Is, cExpr, VsVector, IsVector, YsVector, ZsVector
+from lcapy.core import Vs, Hs, Is, cExpr
+from lcapy.core import VsVector, IsVector, YsVector, ZsVector
 from lcapy.oneport import OnePort
 from lcapy.twoport import YMatrix, ZMatrix, TwoPortZModel, Series, TwoPort
 
@@ -21,8 +22,10 @@ class ThreePortMatrix(sym.Matrix):
     def __new__(cls, *args):
 
         if len(args) == 9:
-            return super(ThreePortMatrix, cls).__new__(cls, ((args[0], args[1], args[
-                2]), (args[3], args[4], args[5]), (args[6], args[7], args[8])))
+            args = ((args[0], args[1], args[2]),
+                    (args[3], args[4], args[5]),
+                    (args[6], args[7], args[8]))
+            return super(ThreePortMatrix, cls).__new__(cls, args)
 
         return super(ThreePortMatrix, cls).__new__(cls, *args)
 
@@ -100,12 +103,14 @@ class ThreePort(object):
 
     @property
     def Voc(self):
-        """Return voltage vector with all ports open-circuited (i.e., In = 0)"""
+        """Return voltage vector with all ports open-circuited
+        (i.e., In = 0)"""
         return self._Vz
 
     @property
     def Isc(self):
-        """Return current vector with all ports short-circuited (i.e., Vn = 0)"""
+        """Return current vector with all ports short-circuited
+        (i.e., Vn = 0)"""
         Y = self.Y
         Voc = self.Voc
 
@@ -185,8 +190,8 @@ class ThreePort(object):
         p1 = inport - 1
         p2 = outport - 1
 
-        return Vs(
-            self.Voc[p2] + (V - self.Voc[p1]) * self.Z[p2, p1] / self.Z[p1, p1])
+        H = self.Z[p2, p1] / self.Z[p1, p1]
+        return Vs(self.Voc[p2] + (V - self.Voc[p1]) * H)
 
     def Iresponse(self, I, inport=1, outport=2):
         """Return current response for specified current voltage and

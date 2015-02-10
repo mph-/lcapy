@@ -34,7 +34,8 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 
 from __future__ import division
 from lcapy.core import pprint, Hs, Zs, Ys
-from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep, Vacstep, Iacstep
+from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep
+from lcapy.oneport import Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
 from schematic import Schematic
@@ -234,7 +235,6 @@ class NetElement(object):
         except KeyError:
             raise ValueError('Unknown component kind for %s' % name)
 
-
         if len(args) == 0:
             # Ensure symbol uppercase for s-domain value.
             if cpt_type in ('Vdc', 'Vac', 'Idc', 'Iac'):
@@ -247,14 +247,14 @@ class NetElement(object):
 
     def __repr__(self):
 
-        str = ', '.join(arg.__str__()
-                        for arg in [self.name] + list(self.nodes) + list(self.args))
+        args = [self.name] + list(self.nodes) + list(self.args)
+        str = ', '.join([arg.__str__() for arg in args])
         return 'NetElement(%s)' % str
 
     def __str__(self):
 
-        return ' '.join(
-            ['%s' % arg for arg in (self.name, ) + self.nodes[0:2] + self.args])
+        args = (self.name, ) + self.nodes[0:2] + self.args
+        return ' '.join(['%s' % arg for arg in args])
 
     @property
     def is_dummy(self):
@@ -556,13 +556,15 @@ class Netlist(object):
 
     @property
     def I(self):
-        """Return dictionary of s-domain branch currents indexed by component name"""
+        """Return dictionary of s-domain branch currents
+        indexed by component name"""
 
         return self.MNA.I
 
     @property
     def Vd(self):
-        """Return dictionary of s-domain branch voltage differences indexed by component name"""
+        """Return dictionary of s-domain branch voltage differences
+        indexed by component name"""
 
         return self.MNA.Vd
 
@@ -577,7 +579,8 @@ class Netlist(object):
 
     @property
     def i(self):
-        """Return dictionary of t-domain branch currents indexed by component name"""
+        """Return dictionary of t-domain branch currents indexed
+        by component name"""
 
         if not hasattr(self, '_i'):
             self._i = Ldict(self.I)
@@ -586,7 +589,8 @@ class Netlist(object):
 
     @property
     def vd(self):
-        """Return dictionary of t-domain branch voltage differences indexed by component name"""
+        """Return dictionary of t-domain branch voltage differences
+        indexed by component name"""
 
         if not hasattr(self, '_vd'):
             self._vd = Ldict(self.Vd)
@@ -775,7 +779,8 @@ class Netlist(object):
         return sch
 
     def pre_initial_model(self):
-        """Generate circuit model for determining the pre-initial conditions."""
+        """Generate circuit model for determining the pre-initial
+        conditions."""
 
         new_cct = self.__class__()
 
@@ -784,13 +789,13 @@ class Netlist(object):
             # Assume initial C voltage and L current is zero.
 
             if elt.cpt_type in ('V', 'I', 'Vac', 'Iac'):
-                print(
-                    'Cannot determine pre-initial condition for %s, assuming 0' % elt.name)
+                print('Cannot determine pre-initial condition for %s'
+                      ', assuming 0' % elt.name)
 
             # v and i should be evaluated to determine the value at 0 - eps.
             if elt.cpt_type in ('v', 'i'):
-                print(
-                    'Cannot determine pre-initial condition for %s, assuming 0' % elt.name)
+                print('Cannot determine pre-initial condition for %s'
+                      ', assuming 0' % elt.name)
 
             if elt.cpt_type in ('C', 'Istep', 'Iacstep', 'I', 'i',
                                 'Iac', 'Iimpulse'):
@@ -816,10 +821,12 @@ class Netlist(object):
             if cpt_type in ('C', 'L', 'R'):
                 new_elt = self._make_Z(
                     elt.nodes[0], elt.nodes[1], elt.cpt.Z, elt.opts)
-            elif cpt_type in ('V', 'Vdc', 'Vac', 'Vimpulse', 'Vstep', 'Vacstep'):
+            elif cpt_type in ('V', 'Vdc', 'Vac', 'Vimpulse',
+                              'Vstep', 'Vacstep'):
                 new_elt = self._make_V(
                     elt.nodes[0], elt.nodes[1], elt.cpt.V, elt.opts)
-            elif cpt_type in ('I', 'Idc', 'Iac', 'Iimpulse', 'Istep', 'Iacstep'):
+            elif cpt_type in ('I', 'Idc', 'Iac', 'Iimpulse',
+                              'Istep', 'Iacstep'):
                 new_elt = self._make_I(
                     elt.nodes[0], elt.nodes[1], elt.cpt.I, elt.opts)
 

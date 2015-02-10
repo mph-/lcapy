@@ -293,16 +293,16 @@ class AMatrix(TwoPortMatrix):
         det = self.det()
         if det == 0:
             warn('Producing dodgy B matrix')
-        return BMatrix(
-            self.A22 / det, -self.A12 / det, -self.A21 / det, self.A11 / det)
+        return BMatrix(self.A22 / det, -self.A12 / det,
+                       -self.A21 / det, self.A11 / det)
 
     @property
     def H(self):
 
         if self.A22 == 0:
             warn('Producing dodgy H matrix')
-        return HMatrix(
-            self.A12 / self.A22, self.det() / self.A22, -1 / self.A22, self.A21 / self.A22)
+        return HMatrix(self.A12 / self.A22, self.det() / self.A22,
+                       -1 / self.A22, self.A21 / self.A22)
 
     @property
     def Y(self):
@@ -311,8 +311,8 @@ class AMatrix(TwoPortMatrix):
         # shunt element).   Note, it doesn't use A21.
         if self.A12 == 0:
             warn('Producing dodgy Y matrix')
-        return YMatrix(self.A22 / self.A12, -self.det() /
-                       self.A12, -1 / self.A12, self.A11 / self.A12)
+        return YMatrix(self.A22 / self.A12, -self.det() / self.A12,
+                       -1 / self.A12, self.A11 / self.A12)
 
     @property
     def Z(self):
@@ -321,8 +321,8 @@ class AMatrix(TwoPortMatrix):
         # series element).   Note, it doesn't use A12.
         if self.A21 == 0:
             warn('Producing dodgy Z matrix')
-        return ZMatrix(
-            self.A11 / self.A21, self.det() / self.A21, 1 / self.A21, self.A22 / self.A21)
+        return ZMatrix(self.A11 / self.A21, self.det() / self.A21,
+                       1 / self.A21, self.A22 / self.A21)
 
     @property
     def Z1oc(self):
@@ -656,8 +656,8 @@ class GMatrix(TwoPortMatrix):
     @property
     def A(self):
         # return self.H.A
-        return AMatrix(
-            1 / self.G21, self.G22 / self.G21, self.G11 / self.G21, self.det() / self.G21)
+        return AMatrix(1 / self.G21, self.G22 / self.G21,
+                       self.G11 / self.G21, self.det() / self.G21)
 
     @property
     def B(self):
@@ -717,13 +717,13 @@ class HMatrix(TwoPortMatrix):
 
     @property
     def Y(self):
-        return YMatrix(
-            1 / self.H11, -self.H12 / self.H11, self.H21 / self.H11, self.det() / self.H11)
+        return YMatrix(1 / self.H11, -self.H12 / self.H11,
+                       self.H21 / self.H11, self.det() / self.H11)
 
     @property
     def Z(self):
-        return ZMatrix(
-            self.det() / self.H22, self.H12 / self.H22, -self.H21 / self.H22, 1 / self.H22)
+        return ZMatrix(self.det() / self.H22, self.H12 / self.H22,
+                       -self.H21 / self.H22, 1 / self.H22)
 
 
 class YMatrix(TwoPortMatrix):
@@ -759,8 +759,8 @@ class YMatrix(TwoPortMatrix):
 
     @property
     def H(self):
-        return HMatrix(
-            1 / self.Y11, -self.Y12 / self.Y11, self.Y21 / self.Y11, self.det() / self.Y11)
+        return HMatrix(1 / self.Y11, -self.Y12 / self.Y11,
+                       self.Y21 / self.Y11, self.det() / self.Y11)
 
     @property
     def Y(self):
@@ -798,8 +798,8 @@ class ZMatrix(TwoPortMatrix):
 
     @property
     def A(self):
-        return AMatrix(
-            self.Z11 / self.Z21, self.det() / self.Z21, 1 / self.Z21, self.Z22 / self.Z21)
+        return AMatrix(self.Z11 / self.Z21, self.det() / self.Z21,
+                       1 / self.Z21, self.Z22 / self.Z21)
 
     @property
     def B(self):
@@ -808,8 +808,8 @@ class ZMatrix(TwoPortMatrix):
 
     @property
     def H(self):
-        return HMatrix(
-            self.det() / self.Z22, self.Z12 / self.Z22, -self.Z21 / self.Z22, 1 / self.Z22)
+        return HMatrix(self.det() / self.Z22, self.Z12 / self.Z22,
+                       -self.Z21 / self.Z22, 1 / self.Z22)
 
     @property
     def Y(self):
@@ -1189,8 +1189,8 @@ class TwoPort(NetObject):
         p1 = inport - 1
         p2 = outport - 1
 
-        return Vs(
-            self.Voc[p2] + (V - self.Voc[p1]) * self.Z[p2, p1] / self.Z[p1, p1])
+        H = self.Z[p2, p1] / self.Z[p1, p1]
+        return Vs(self.Voc[p2] + (V - self.Voc[p1]) * H)
 
     def Iresponse(self, I, inport=1, outport=2):
         """Return current response for specified applied current and
@@ -1280,12 +1280,14 @@ class TwoPort(NetObject):
 
     @property
     def Voc(self):
-        """Return voltage vector with all ports open-circuited (i.e., In = 0)"""
+        """Return voltage vector with all ports open-circuited
+        (i.e., In = 0)"""
         return VsVector(self.V1z, self.V2z)
 
     @property
     def Isc(self):
-        """Return current vector with all ports short-circuited (i.e., V1 = V2 = 0)"""
+        """Return current vector with all ports short-circuited
+        (i.e., V1 = V2 = 0)"""
         return IsVector(self.I1y, self.I2y)
 
     @property
@@ -1313,7 +1315,8 @@ class TwoPort(NetObject):
         return TwoPortZModel(self.Z, self.V1z, self.V2z)
 
     def chain(self, TP):
-        """Return the model with, TP, appended (cascade or chain connection)"""
+        """Return the model with, TP, appended (cascade or
+        chain connection)"""
 
         if not issubclass(TP.__class__, TwoPort):
             raise TypeError('Argument not', TwoPort)
@@ -1346,15 +1349,14 @@ class TwoPort(NetObject):
         if issubclass(TP.__class__, OnePort):
             raise NotImplementedError('TODO')
 
-        warn(
-            'Do you mean chain?'
-            ' The result of a series combination of two two-ports may be dodgy')
+        warn('Do you mean chain?  The result of a series combination'
+             ' of two two-ports may be dodgy')
 
         return Ser2(self, TP)
 
     def terminate(self, OP, port=2):
-        """Connect one-port in parallel to specified port and return a Thevenin
-        (one-port) object"""
+        """Connect one-port in parallel to specified port and return
+        a Thevenin (one-port) object"""
 
         if port == 1:
             return self.source(OP)

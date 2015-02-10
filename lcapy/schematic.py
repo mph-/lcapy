@@ -821,10 +821,10 @@ class Schematic(object):
         labelstr = elt.tex_label if draw_labels else ''
         argstr = '' if 'mirror' in elt.opts else 'yscale=-1'
 
-        s = r'    \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (
+        s = r'  \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (
             centre, argstr, self.scale * 2)
         # Draw label separately to avoid being scaled by 2.
-        s += r'    \draw (%s) node [] {%s};' % (centre, labelstr)
+        s += r'  \draw (%s) node [] {%s};' % (centre, labelstr)
         return s
 
     def _tikz_draw_TF1(self, elt, nodes, draw_labels, link=False):
@@ -842,17 +842,18 @@ class Schematic(object):
 
         labelstr = elt.tex_label if draw_labels else ''
 
-        s = r'    \draw (%s) node[circ] {};''\n' % primary_dot
-        s += r'    \draw (%s) node[circ] {};''\n' % secondary_dot
-        s += r'    \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
+        s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
+        s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
+        s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
             labelpos, 0.5, labelstr)
 
         if link:
             width = p1.x - p3.x
             arcpos = Pos((p1.x + p3.x) / 2, secondary_dot.y - width / 2 + 0.2)
 
-            s += r'    \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (
+            s += r'  \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);' % (
                 width / 2, arcpos, width / 2)
+            s += '\n'
 
         return s
 
@@ -860,8 +861,8 @@ class Schematic(object):
 
         n1, n2, n3, n4 = elt.nodes
 
-        s = r'    \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
-        s += r'    \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
+        s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
+        s += r'  \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
         s += self._tikz_draw_TF1(elt, elt.nodes, draw_labels)
         return s
 
@@ -869,7 +870,7 @@ class Schematic(object):
 
         p1, p2, p3, p4 = [self.coords[n] for n in elt.nodes]
         width = p2.x - p4.x
-        #height = p1.y - p2.y
+        # height = p1.y - p2.y
         extra = 0.25
         p1.y += extra
         p2.y -= extra
@@ -881,11 +882,11 @@ class Schematic(object):
         labelstr = elt.tex_label if draw_labels else ''
         titlestr = "%s-parameter two-port" % elt.args[2]
 
-        s = r'    \draw (%s) -- (%s) -- (%s) -- (%s)  -- (%s);''\n' % (p4,
-                                                                       p3, p1, p2, p4)
-        s += r'    \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
+        s = r'  \draw (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
+            p4, p3, p1, p2, p4)
+        s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
             centre, width, titlestr)
-        s += r'    \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
+        s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
             top, width, labelstr)
         return s
 
@@ -921,7 +922,8 @@ class Schematic(object):
         # voltage and current sources!   So swap the nodes otherwise
         # they are drawn the wrong way around.
         modifier = ''
-        if elt.opts['dir'] == 'down' and cpt_type in ('V', 'Vdc', 'I', 'Idc'):
+        if (elt.opts['dir'] == 'down' and
+                cpt_type in ('V', 'Vdc', 'I', 'Idc')):
             n1, n2 = n2, n1
             # Draw label on RHS for vertical cpt.
             modifier = '_'
@@ -942,22 +944,23 @@ class Schematic(object):
         opts_str = ''
         for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
                     'i>_', 'i<_', 'i>^', 'i<^',
-                    'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<', 'l', 'l^', 'l_'):
+                    'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
+                    'l', 'l^', 'l_'):
             if opt in elt.opts:
                 opts_str += '%s=$%s$, ' % (opt, elt.opts[opt])
 
         node_str = self._node_str(n1, n2, draw_nodes)
 
         label_str = ''
-        if draw_labels and not (
-                'l' in elt.opts.keys() or 'l_' in elt.opts.keys() or 'l^' in elt.opts.keys()):
+        keys = elt.opts.keys
+        if draw_labels and not ('l' in keys or 'l_' in keys or 'l^' in keys):
             if cpt_type not in ('open', 'short'):
                 label_str = ', l%s=%s' % (modifier, elt.tex_label)
 
         if cpt_type in ('Y', 'Z'):
             cpt_type = 'european resistor'
 
-        s = r'    \draw (%s) to [%s%s, %s%s] (%s);''\n' % (
+        s = r'  \draw (%s) to [%s%s, %s%s] (%s);''\n' % (
             n1, cpt_type, label_str, opts_str, node_str, n2)
         return s
 
@@ -967,13 +970,15 @@ class Schematic(object):
         # Preamble
         if args is None:
             args = ''
-        s = r'\begin{tikzpicture}[scale=%.2f,/tikz/circuitikz/bipoles/length=%.1fcm,%s]''\n' % (
+
+        opts = r'scale=%.2f,/tikz/circuitikz/bipoles/length=%.1fcm,%s' % (
             self.node_spacing, self.cpt_size, args)
+        s = r'\begin{tikzpicture}[%s]''\n' % opts
 
         # Write coordinates
         for coord in self.coords.keys():
-            s += r'    \coordinate (%s) at (%s);''\n' % (coord,
-                                                         self.coords[coord])
+            s += r'  \coordinate (%s) at (%s);''\n' % (
+                coord, self.coords[coord])
 
         draw = {'TF': self._tikz_draw_TF,
                 'TP': self._tikz_draw_TP,
@@ -996,15 +1001,15 @@ class Schematic(object):
                 n1, n2 = wire.nodes
 
                 node_str = self._node_str(n1, n2, draw_nodes)
-                s += r'    \draw (%s) to [short, %s] (%s);''\n' % (n1,
-                                                                   node_str, n2)
+                s += r'  \draw (%s) to [short, %s] (%s);''\n' % (
+                    n1, node_str, n2)
 
         # Label primary nodes
         if label_nodes:
             for m, node in enumerate(self.nodes.values()):
                 if not node.primary:
                     continue
-                s += r'    \draw {[anchor=south east] (%s) node {%s}};''\n' % (
+                s += r'  \draw {[anchor=south east] (%s) node {%s}};''\n' % (
                     node.name, node.name)
 
         s += r'\end{tikzpicture}''\n'
@@ -1102,10 +1107,12 @@ class Schematic(object):
             for m, node in enumerate(self.nodes.values()):
                 label_str = node.name if draw_labels and node.primary else ''
                 if node.port:
-                    drw.add(e.DOT_OPEN, xy=self.coords[node.name].xy * self.node_spacing,
+                    drw.add(e.DOT_OPEN,
+                            xy=self.coords[node.name].xy * self.node_spacing,
                             label=label_str)
                 elif node.primary:
-                    drw.add(e.DOT, xy=self.coords[node.name].xy * self.node_spacing,
+                    drw.add(e.DOT,
+                            xy=self.coords[node.name].xy * self.node_spacing,
                             label=label_str)
 
         drw.draw()

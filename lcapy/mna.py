@@ -5,7 +5,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from lcapy.core import cExpr, Vs, Is, s
+from lcapy.core import cExpr, Vs, Is, s, sqrt
 from lcapy.twoport import Matrix, Vector
 import sympy as sym
 
@@ -228,10 +228,11 @@ class MNA(object):
 
         L1 = elt.nodes[0]
         L2 = elt.nodes[1]
-        # TODO: Add sqrt to Expr
-        ZM = elt.cpt.k * s * \
-            sym.simplify(
-                sym.sqrt((self.elements[L1].cpt.Z * self.elements[L2].cpt.Z / s**2).expr))
+
+        ZL1 = self.elements[L1].cpt.Z
+        ZL2 = self.elements[L2].cpt.Z
+
+        ZM = elt.cpt.k * s * sqrt(ZL1 * ZL2 / s**2).simplify()
 
         m1 = self._branch_index(L1)
         m2 = self._branch_index(L2)
@@ -344,7 +345,10 @@ class MNA(object):
             Ainv = self._A.inv()
         except ValueError:
             raise ValueError(
-                'The MNA A matrix is not invertible; some nodes may need connecting with high value resistors, a voltage source might be short-circuited, a current source might be open-circuited.')
+                'The MNA A matrix is not invertible; some nodes may need'
+                ' connecting with high value resistors, a voltage source'
+                ' might be short-circuited, a current source might be'
+                ' open-circuited.')
 
         results = sym.simplify(Ainv * self._Z)
 
@@ -370,8 +374,9 @@ class MNA(object):
             if elt.is_RC:
                 n1, n2 = self.node_map[
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
-                self._I[elt.name] = Is(
-                    sym.simplify((self._V[n1] - self._V[n2] - elt.cpt.V) / elt.cpt.Z))
+                V1, V2 = self._V[n1], self._V[n2]
+                I = ((V1 - V2 - elt.cpt.V) / elt.cpt.Z).simplify()
+                self._I[elt.name] = Is(I)
 
     @property
     def A(self):
@@ -403,7 +408,8 @@ class MNA(object):
 
     @property
     def I(self):
-        """Return dictionary of s-domain branch currents indexed by component name"""
+        """Return dictionary of s-domain branch currents indexed
+        by component name"""
 
         if not hasattr(self, '_I'):
             self._solve()
@@ -411,7 +417,8 @@ class MNA(object):
 
     @property
     def Vd(self):
-        """Return dictionary of s-domain branch voltage differences indexed by component name"""
+        """Return dictionary of s-domain branch voltage differences
+        indexed by component name"""
 
         if hasattr(self, '_Vd'):
             return self._Vd
