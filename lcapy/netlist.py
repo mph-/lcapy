@@ -92,7 +92,7 @@ class Ldict(dict):
         if isinstance(key, int):
             key = '%d' % key
 
-        if key not in self.vdict and key not in self.Vdict:
+        if (key not in self.vdict) and (key in self.Vdict):
             self.vdict[key] = self.Vdict[key].inverse_laplace()
 
         return self.vdict[key]

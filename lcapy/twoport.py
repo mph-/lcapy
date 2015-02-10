@@ -5,7 +5,9 @@ This module supports simple linear two-port networks.
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, Hs, WyeDelta, DeltaWye, Vector, Matrix, VsVector, IsVector, YsVector, ZsVector
+from lcapy.core import s, Vs, Is, Zs, Ys, Hs, NetObject, cExpr, sExpr
+from lcapy.core import WyeDelta, DeltaWye, Vector, Matrix
+from lcapy.core import VsVector, IsVector, YsVector, ZsVector
 from lcapy.oneport import OnePort, Norton, Thevenin
 
 
@@ -105,7 +107,8 @@ class TwoPortMatrix(Matrix):
         args = [sym.simplify(arg) for arg in args]
 
         if len(args) == 4:
-            return super(TwoPortMatrix, cls).__new__(cls, ((args[0], args[1]), (args[2], args[3])))
+            return super(TwoPortMatrix, cls).__new__(
+                cls, ((args[0], args[1]), (args[2], args[3])))
 
         return super(TwoPortMatrix, cls).__new__(cls, *args)
 
@@ -261,15 +264,15 @@ class AMatrix(TwoPortMatrix):
 
     """
     ::
-       +-  -+     +-       -+   +-  -+    
-       | V1 |  =  | A11  A12|   | V2 | 
-       | I1 |     | A21  A22|   |-I2 | 
-       +-  -+     +-       -+   +-  -+    
+       +-  -+     +-       -+   +-  -+
+       | V1 |  =  | A11  A12|   | V2 |
+       | I1 |     | A21  A22|   |-I2 |
+       +-  -+     +-       -+   +-  -+
 
               +-         -+
        units  | 1     ohm |
               | 1/ohm   1 |
-              +-         -+ 
+              +-         -+
 
     A buffered two-port has A12 = A22 = 0.
 
@@ -288,14 +291,16 @@ class AMatrix(TwoPortMatrix):
         det = self.det()
         if det == 0:
             warn('Producing dodgy B matrix')
-        return BMatrix(self.A22 / det, -self.A12 / det, -self.A21 / det, self.A11 / det)
+        return BMatrix(
+            self.A22 / det, -self.A12 / det, -self.A21 / det, self.A11 / det)
 
     @property
     def H(self):
 
         if self.A22 == 0:
             warn('Producing dodgy H matrix')
-        return HMatrix(self.A12 / self.A22, self.det() / self.A22, -1 / self.A22, self.A21 / self.A22)
+        return HMatrix(
+            self.A12 / self.A22, self.det() / self.A22, -1 / self.A22, self.A21 / self.A22)
 
     @property
     def Y(self):
@@ -304,7 +309,8 @@ class AMatrix(TwoPortMatrix):
         # shunt element).   Note, it doesn't use A21.
         if self.A12 == 0:
             warn('Producing dodgy Y matrix')
-        return YMatrix(self.A22 / self.A12, -self.det() / self.A12, -1 / self.A12, self.A11 / self.A12)
+        return YMatrix(self.A22 / self.A12, -self.det() /
+                       self.A12, -1 / self.A12, self.A11 / self.A12)
 
     @property
     def Z(self):
@@ -313,7 +319,8 @@ class AMatrix(TwoPortMatrix):
         # series element).   Note, it doesn't use A12.
         if self.A21 == 0:
             warn('Producing dodgy Z matrix')
-        return ZMatrix(self.A11 / self.A21, self.det() / self.A21, 1 / self.A21, self.A22 / self.A21)
+        return ZMatrix(
+            self.A11 / self.A21, self.det() / self.A21, 1 / self.A21, self.A22 / self.A21)
 
     @property
     def Z1oc(self):
@@ -403,7 +410,7 @@ class BMatrix(TwoPortMatrix):
               +-         -+
        units  | 1     ohm |
               | 1/ohm   1 |
-              +-         -+ 
+              +-         -+
 
     B = inv(A)
     """
@@ -412,7 +419,8 @@ class BMatrix(TwoPortMatrix):
     def A(self):
         # Inverse
         det = self.det()
-        return AMatrix(self.B22 / det, -self.B12 / det, -self.B21 / det, self.B11 / det)
+        return AMatrix(
+            self.B22 / det, -self.B12 / det, -self.B21 / det, self.B11 / det)
 
     @property
     def B(self):
@@ -422,22 +430,26 @@ class BMatrix(TwoPortMatrix):
     @property
     def G(self):
 
-        return GMatrix(-self.B21 / self.B22, -1 / self.B22, self.det() / self.B22, -self.B12 / self.B22)
+        return GMatrix(-self.B21 / self.B22, -1 / self.B22,
+                       self.det() / self.B22, -self.B12 / self.B22)
 
     @property
     def H(self):
 
-        return HMatrix(-self.B12 / self.B11, 1 / self.B11, -self.det() / self.B11, -self.B21 / self.B11)
+        return HMatrix(-self.B12 / self.B11, 1 / self.B11, -
+                       self.det() / self.B11, -self.B21 / self.B11)
 
     @property
     def Y(self):
 
-        return YMatrix(-self.B11 / self.B12, 1 / self.B12, self.det() / self.B12, -self.B22 / self.B12)
+        return YMatrix(-self.B11 / self.B12, 1 / self.B12,
+                       self.det() / self.B12, -self.B22 / self.B12)
 
     @property
     def Z(self):
 
-        return ZMatrix(-self.B22 / self.B21, -1 / self.B21, -self.det() / self.B21, -self.B11 / self.B21)
+        return ZMatrix(-self.B22 / self.B21, -1 / self.B21, -
+                       self.det() / self.B21, -self.B11 / self.B21)
 
     @property
     def Z1oc(self):
@@ -516,7 +528,8 @@ class BMatrix(TwoPortMatrix):
         # Perhaps default Ar, Yin, and Zout to 1e-10 to get a reasonable
         # B matrix?
 
-        return cls(1 / Ar, -1 / (Ar * Yin), -1 / (Ar * Zout), -1 / (Ar * Yin * Zout * (Af * Ar - 1)))
+        return cls(1 / Ar, -1 / (Ar * Yin), -1 / (Ar * Zout), -
+                   1 / (Ar * Yin * Zout * (Af * Ar - 1)))
 
     @classmethod
     def current_amplifier(cls, Af, Ar=1e-9, Zin=1e-9, Yout=1e-9):
@@ -554,7 +567,8 @@ class BMatrix(TwoPortMatrix):
         # A = lim x->0  [1/x  -0/x]
         #               [0/x   -Af]
 
-        return cls(1 / Ar, -1 / (Ar * Yout), -1 / (Ar * Zin), -1 / (Ar * Yout * Zin * (Af * Ar - 1)))
+        return cls(1 / Ar, -1 / (Ar * Yout), -1 / (Ar * Zin), -
+                   1 / (Ar * Yout * Zin * (Af * Ar - 1)))
 
     @classmethod
     def voltage_differentiator(cls, Av=1):
@@ -632,7 +646,7 @@ class GMatrix(TwoPortMatrix):
               +-         -+
        units  | ohm     1 |
               | 1   1/ohm |
-              +-         -+ 
+              +-         -+
 
     G = inv(H)
     """
@@ -640,12 +654,14 @@ class GMatrix(TwoPortMatrix):
     @property
     def A(self):
         # return self.H.A
-        return AMatrix(1 / self.G21, self.G22 / self.G21, self.G11 / self.G21, self.det() / self.G21)
+        return AMatrix(
+            1 / self.G21, self.G22 / self.G21, self.G11 / self.G21, self.det() / self.G21)
 
     @property
     def B(self):
         # return self.H.B
-        return BMatrix(-self.det() / self.G12, self.G22 / self.G12, self.G11 / self.G12, -1 / self.G12)
+        return BMatrix(-self.det() / self.G12, self.G22 /
+                       self.G12, self.G11 / self.G12, -1 / self.G12)
 
     @property
     def G(self):
@@ -677,18 +693,20 @@ class HMatrix(TwoPortMatrix):
               +-         -+
        units  | ohm     1 |
               | 1   1/ohm |
-              +-         -+ 
+              +-         -+
 
     H = inv(G)
     """
 
     @property
     def A(self):
-        return AMatrix(-self.det() / self.H21, -self.H11 / self.H21, -self.H22 / self.H21, -1 / self.H21)
+        return AMatrix(-self.det() / self.H21, -self.H11 /
+                       self.H21, -self.H22 / self.H21, -1 / self.H21)
 
     @property
     def B(self):
-        return BMatrix(1 / self.H12, -self.H11 / self.H12, -self.H22 / self.H12, self.det() / self.H12)
+        return BMatrix(1 / self.H12, -self.H11 / self.H12, -
+                       self.H22 / self.H12, self.det() / self.H12)
 
     @property
     def H(self):
@@ -697,11 +715,13 @@ class HMatrix(TwoPortMatrix):
 
     @property
     def Y(self):
-        return YMatrix(1 / self.H11, -self.H12 / self.H11, self.H21 / self.H11, self.det() / self.H11)
+        return YMatrix(
+            1 / self.H11, -self.H12 / self.H11, self.H21 / self.H11, self.det() / self.H11)
 
     @property
     def Z(self):
-        return ZMatrix(self.det() / self.H22, self.H12 / self.H22, -self.H21 / self.H22, 1 / self.H22)
+        return ZMatrix(
+            self.det() / self.H22, self.H12 / self.H22, -self.H21 / self.H22, 1 / self.H22)
 
 
 class YMatrix(TwoPortMatrix):
@@ -716,7 +736,7 @@ class YMatrix(TwoPortMatrix):
               +-           -+
        units  | 1/ohm 1/ohm |
               | 1/ohm 1/ohm |
-              +-           -+ 
+              +-           -+
 
     Y = inv(Z)
     """
@@ -727,15 +747,18 @@ class YMatrix(TwoPortMatrix):
 
     @property
     def A(self):
-        return AMatrix(-self.Y22 / self.Y21, -1 / self.Y21, -self.det() / self.Y21, -self.Y11 / self.Y21)
+        return AMatrix(-self.Y22 / self.Y21, -1 / self.Y21, -
+                       self.det() / self.Y21, -self.Y11 / self.Y21)
 
     @property
     def B(self):
-        return BMatrix(-self.Y11 / self.Y12, 1 / self.Y12, self.det() / self.Y12, -self.Y22 / self.Y12)
+        return BMatrix(-self.Y11 / self.Y12, 1 / self.Y12,
+                       self.det() / self.Y12, -self.Y22 / self.Y12)
 
     @property
     def H(self):
-        return HMatrix(1 / self.Y11, -self.Y12 / self.Y11, self.Y21 / self.Y11, self.det() / self.Y11)
+        return HMatrix(
+            1 / self.Y11, -self.Y12 / self.Y11, self.Y21 / self.Y11, self.det() / self.Y11)
 
     @property
     def Y(self):
@@ -746,7 +769,8 @@ class YMatrix(TwoPortMatrix):
     def Z(self):
         # Inverse
         det = self.det()
-        return ZMatrix(self.Y22 / det, -self.Y12 / det, -self.Y21 / det, self.Y11 / det)
+        return ZMatrix(
+            self.Y22 / det, -self.Y12 / det, -self.Y21 / det, self.Y11 / det)
 
 
 class ZMatrix(TwoPortMatrix):
@@ -761,7 +785,7 @@ class ZMatrix(TwoPortMatrix):
               +-         -+
        units  | ohm   ohm |
               | ohm   ohm |
-              +-         -+ 
+              +-         -+
 
     Z = inv(Y)
     """
@@ -772,21 +796,25 @@ class ZMatrix(TwoPortMatrix):
 
     @property
     def A(self):
-        return AMatrix(self.Z11 / self.Z21, self.det() / self.Z21, 1 / self.Z21, self.Z22 / self.Z21)
+        return AMatrix(
+            self.Z11 / self.Z21, self.det() / self.Z21, 1 / self.Z21, self.Z22 / self.Z21)
 
     @property
     def B(self):
-        return BMatrix(self.Z22 / self.Z12, -self.det() / self.Z12, -1 / self.Z12, self.Z11 / self.Z12)
+        return BMatrix(self.Z22 / self.Z12, -self.det() /
+                       self.Z12, -1 / self.Z12, self.Z11 / self.Z12)
 
     @property
     def H(self):
-        return HMatrix(self.det() / self.Z22, self.Z12 / self.Z22, -self.Z21 / self.Z22, 1 / self.Z22)
+        return HMatrix(
+            self.det() / self.Z22, self.Z12 / self.Z22, -self.Z21 / self.Z22, 1 / self.Z22)
 
     @property
     def Y(self):
         # Inverse
         det = self.det()
-        return YMatrix(self.Z22 / det, -self.Z12 / det, -self.Z21 / det, self.Z11 / det)
+        return YMatrix(
+            self.Z22 / det, -self.Z12 / det, -self.Z21 / det, self.Z11 / det)
 
     @property
     def Z(self):
@@ -1159,7 +1187,8 @@ class TwoPort(NetObject):
         p1 = inport - 1
         p2 = outport - 1
 
-        return Vs(self.Voc[p2] + (V - self.Voc[p1]) * self.Z[p2, p1] / self.Z[p1, p1])
+        return Vs(
+            self.Voc[p2] + (V - self.Voc[p1]) * self.Z[p2, p1] / self.Z[p1, p1])
 
     def Iresponse(self, I, inport=1, outport=2):
         """Return current response for specified applied current and
@@ -1316,7 +1345,8 @@ class TwoPort(NetObject):
             raise NotImplementedError('TODO')
 
         warn(
-            'Do you mean chain?  The result of a series combination of two two-ports may be dodgy')
+            'Do you mean chain?'
+            ' The result of a series combination of two two-ports may be dodgy')
 
         return Ser2(self, TP)
 
@@ -1427,10 +1457,10 @@ class TwoPortBModel(TwoPort):
     +       |    network        | +  +------+    |       +
     V1      |    without        | V2'        +---+---+  V2
     -       |    sources        | -          |   |   |   -
-            |    represented    |               I2b  |    
+            |    represented    |               I2b  |
             |    by B matrix    |            |   v   |
             |                   |            +---+---+
-            |                   |                |    
+            |                   |                |
     --------+                   +----------------+--------
             |                   |
             +-------------------+
@@ -1438,33 +1468,33 @@ class TwoPortBModel(TwoPort):
     +-   +     +-        -+   +-  -+     +-   -+
     | V2 |  =  | B11  B12 |   | V1 |  +  | V2b |
     |-I2 |     | B21  B22 |   | I1 |     | I2b |
-    +-  -+     +-        -+   +-  -+     +-   -+ 
+    +-  -+     +-        -+   +-  -+     +-   -+
 
 
     +-    +     +-        -+   +-  -+
     | V2' |  =  | B11  B12 |   | V1 |
     |-I2' |     | B21  B22 |   | I1 |
-    +-   -+     +-        -+   +-  -+    
+    +-   -+     +-        -+   +-  -+
 
     +-    +     +-  -+    +-   -+
     | V2' |  =  | V2 | -  | V2b |
     | I2' |     | I2'|    | I2b |
-    +-  - +     +-  -+    +-   -+    
+    +-  - +     +-  -+    +-   -+
 
     +-         +     +-        -+   +-  -+
     | V2 - V2b |  =  | B11  B12 |   | V1 |
     |-I2 - I2b |     | B21  B22 |   | I1 |
-    +-        -+     +-        -+   +-  -+    
+    +-        -+     +-        -+   +-  -+
 
     +-   +     +-        -+   +-    +
     | V1 |  =  | A11  A12 |   | V2' |
     | I1 |     | A21  A22 |   |-I2' |
-    +-  -+     +-        -+   +-   -+    
+    +-  -+     +-        -+   +-   -+
 
     +-   +     +-        -+   +-       -+
     | V1 |  =  | A11  A12 |   | V2 - V2b |
     | I1 |     | A21  A22 |   |-I2 + I2b |
-    +-  -+     +-        -+   +-        -+    
+    +-  -+     +-        -+   +-        -+
 
     """
 
@@ -1586,17 +1616,17 @@ class TwoPortHModel(TwoPort):
 
     """
     ::
-         +------+   +-------------------+    
+         +------+   +-------------------+
      I1  | +  - |   |                   | I2'          I2
     -->--+  V1h +---+                   +-<-------+-----<--
          |      |   |    two-port       |         |
     +    +------+   |    network        | +       |       +
     V1              |    without        | V2' ---+---+  V2
     -               |    sources        | -  |   |   |   -
-                    |    represented    |    |  I2h  |    
+                    |    represented    |    |  I2h  |
                     |    by H matrix    |    |   v   |
                     |                   |    +---+---+
-                    |                   |        |    
+                    |                   |        |
     ----------------+                   +--------+--------
                     |                   |
                     +-------------------+
@@ -1605,7 +1635,7 @@ class TwoPortHModel(TwoPort):
     +-   +     +-        -+   +-  -+     +-   -+
     | V1 |  =  | H11  H12 |   | I1 |  +  | V1h |
     | I2 |     | H21  H22 |   | V2 |     | I2h |
-    +-  -+     +-        -+   +-  -+     +-   -+ 
+    +-  -+     +-        -+   +-  -+     +-   -+
     """
 
     def __init__(self, H, V1h=Vs(0), I2h=Is(0)):
@@ -1656,17 +1686,17 @@ class TwoPortYModel(TwoPort):
 
     """
     ::
-                     +-------------------+ 
+                     +-------------------+
      I1              |                   | I2'           I2
     -->----+---------+                   +-<-------+-----<--
            |         |    two-port       |         |
     +      |       + |    network        | +       +       +
     V1 +---+---+  V1'|    without        | V2' +---+---+  V2
     -  |   |   |   - |    sources        | -   |   |   |   -
-       |  I1y  |     |    represented    |     |  I2y  |    
+       |  I1y  |     |    represented    |     |  I2y  |
        |   v   |     |    by Y matrix    |     |   v   |
        +---+---+     |                   |     +---+---+
-           |         |                   |         |    
+           |         |                   |         |
     -------+---------+                   +---------+--------
                      |                   |
                      +-------------------+
@@ -1674,7 +1704,7 @@ class TwoPortYModel(TwoPort):
     +-   +     +-        -+   +-  -+     +-   -+
     | I1 |  =  | Y11  Y12 |   | V1 |  +  | I1y |
     | I2 |     | Y21  Y22 |   | V2 |     | I2y |
-    +-  -+     +-        -+   +-  -+     +-   -+ 
+    +-  -+     +-        -+   +-  -+     +-   -+
 
     Ymn = Im / Vn for Vm = 0
     """
@@ -1725,14 +1755,14 @@ class TwoPortZModel(TwoPort):
          +------+    +-------------------+    +------+
     I1   | +  - | I1'|                   | I2'| -  + |  I2
     -->--+  V1z +-->-+                   +-<--+  V2z +--<--
-         |      |    |    two-port       |    |      | 
+         |      |    |    two-port       |    |      |
     +    +------+  + |    network        | +  +------+    +
     V1            V1'|    without        | V2'           V2
     -              - |    sources        | -              -
-                     |    represented    |             
-                     |    by Z matrix    |           
-                     |                   |           
-                     |                   |          
+                     |    represented    |
+                     |    by Z matrix    |
+                     |                   |
+                     |                   |
     -----------------+                   +-----------------
                      |                   |
                      +-------------------+
@@ -1740,7 +1770,7 @@ class TwoPortZModel(TwoPort):
     +-   +     +-        -+   +-  -+     +-   -+
     | V1 |  =  | Z11  Z12 |   | I1 |  +  | V1z |
     | V2 |     | Z21  Z22 |   | I2 |     | V2z |
-    +-  -+     +-        -+   +-  -+     +-   -+ 
+    +-  -+     +-        -+   +-  -+     +-   -+
 
     """
 
@@ -1819,10 +1849,13 @@ class Chain(TwoPortBModel):
     def simplify(self):
 
         if isinstance(self.args[0], Shunt) and isinstance(self.args[1], Shunt):
-            return Shunt((self.args[0].args[0] | self.args[1].args[0]).simplify())
+            return Shunt(
+                (self.args[0].args[0] | self.args[1].args[0]).simplify())
 
-        if isinstance(self.args[0], Series) and isinstance(self.args[1], Series):
-            return Series((self.args[0].args[0] + self.args[1].args[0]).simplify())
+        if isinstance(self.args[0], Series) and isinstance(
+                self.args[1], Series):
+            return Series(
+                (self.args[0].args[0] + self.args[1].args[0]).simplify())
 
         return self
 
@@ -1857,10 +1890,13 @@ class Par2(TwoPortYModel):
     def simplify(self):
 
         if isinstance(self.args[0], Shunt) and isinstance(self.args[1], Shunt):
-            return Shunt((self.args[0].args[0] | self.args[1].args[0]).simplify())
+            return Shunt(
+                (self.args[0].args[0] | self.args[1].args[0]).simplify())
 
-        if isinstance(self.args[0], Series) and isinstance(self.args[1], Series):
-            return Series((self.args[0].args[0] | self.args[1].args[0]).simplify())
+        if isinstance(self.args[0], Series) and isinstance(
+                self.args[1], Series):
+            return Series(
+                (self.args[0].args[0] | self.args[1].args[0]).simplify())
 
         return self
 
@@ -1894,7 +1930,8 @@ class Ser2(TwoPortZModel):
     def simplify(self):
 
         if isinstance(self.args[0], Shunt) and isinstance(self.args[1], Shunt):
-            return Shunt((self.args[0].args[0] + self.args[1].args[0]).simplify())
+            return Shunt(
+                (self.args[0].args[0] + self.args[1].args[0]).simplify())
 
         return self
 
@@ -1951,9 +1988,9 @@ class Series(TwoPortBModel):
     Two-port comprising a single one-port in series configuration
     ::
 
-           +---------+   
+           +---------+
          --+   OP    +---
-           +---------+   
+           +---------+
 
          ----------------
 
@@ -1977,13 +2014,13 @@ class Shunt(TwoPortBModel):
     ::
 
          -----+----
-              |    
-            +-+-+  
-            |   |  
-            |OP |  
-            |   |  
-            +-+-+  
-              |    
+              |
+            +-+-+
+            |   |
+            |OP |
+            |   |
+            +-+-+
+              |
          -----+----
 
     Note, this has a singular Z matrix.
@@ -2197,15 +2234,15 @@ class TSection(TwoPortBModel):
     """T (Y) section
     ::
 
-           +---------+       +---------+       
+           +---------+       +---------+
          --+   OP1   +---+---+   OP3   +---
-           +---------+   |   +---------+   
-                       +-+-+             
-                       |   |             
-                       |OP2|             
-                       |   |             
-                       +-+-+             
-                         |               
+           +---------+   |   +---------+
+                       +-+-+
+                       |   |
+                       |OP2|
+                       |   |
+                       +-+-+
+                         |
          ----------------+-----------------
 
       The Z matrix for a resistive T section is
@@ -2234,7 +2271,7 @@ class TwinTSection(TwoPortBModel):
     """Twin T section
     ::
 
-              +---------+       +---------+       
+              +---------+       +---------+
            +--+   OP1a  +---+---+   OP3a  +--+
            |  +---------+   |   +---------+  |
            |              +-+-+              |
@@ -2244,15 +2281,15 @@ class TwinTSection(TwoPortBModel):
            |              +-+-+              |
            |                |                |
            |                v                |
-           |  +---------+       +---------+  |    
+           |  +---------+       +---------+  |
          --+--+   OP1b  +---+---+   OP3b  +--+--
-              +---------+   |   +---------+   
-                          +-+-+             
-                          |   |             
-                          |OP2b             
-                          |   |             
-                          +-+-+             
-                            |               
+              +---------+   |   +---------+
+                          +-+-+
+                          |   |
+                          |OP2b
+                          |   |
+                          +-+-+
+                            |
          -------------------+--------------------
 
     """
@@ -2271,19 +2308,19 @@ class BridgedTSection(TwoPortBModel):
     """Bridged T section
         ::
 
-                       +---------+       
+                       +---------+
            +-----------+   OP4   +-----------+
            |           +---------+           |
            |                                 |
-           |  +---------+       +---------+  |    
+           |  +---------+       +---------+  |
          --+--+   OP1b  +---+---+   OP3b  +--+--
-              +---------+   |   +---------+   
-                          +-+-+             
-                          |   |             
-                          |OP2b             
-                          |   |             
-                          +-+-+             
-                            |               
+              +---------+   |   +---------+
+                          +-+-+
+                          |   |
+                          |OP2b
+                          |   |
+                          +-+-+
+                            |
          -------------------+--------------------
 
          """
@@ -2302,14 +2339,14 @@ class PiSection(TwoPortBModel):
     """Pi (delta) section
     ::
 
-                  +---------+       
+                  +---------+
         -----+----+   OP2    +---+-----
-             |    +---------+   |  
+             |    +---------+   |
            +-+-+              +-+-+
            |   |              |   |
            |OP1|              |OP3|
            |   |              |   |
-           +-+-+              +-+-+                       
+           +-+-+              +-+-+
              |                  |
         -----+------------------+-----
 
@@ -2334,15 +2371,15 @@ class LSection(TwoPortBModel):
     """L Section
     ::
 
-           +---------+       
+           +---------+
          --+   OP1   +---+----
-           +---------+   |   
-                       +-+-+ 
-                       |   | 
-                       |OP2| 
-                       |   | 
-                       +-+-+ 
-                         |   
+           +---------+   |
+                       +-+-+
+                       |   |
+                       |OP2|
+                       |   |
+                       +-+-+
+                         |
          ----------------+----
     """
 
@@ -2360,15 +2397,15 @@ class Ladder(TwoPortBModel):
     networks chained
     ::
 
-           +---------+       +---------+       
+           +---------+       +---------+
          --+   OP1   +---+---+ args[1] +---
-           +---------+   |   +---------+   
-                       +-+-+             
-                       |   |             
-                       |   | args[0]             
-                       |   |             
-                       +-+-+             
-                         |               
+           +---------+   |   +---------+
+                       +-+-+
+                       |   |
+                       |   | args[0]
+                       |   |
+                       +-+-+
+                         |
          ----------------+-----------------
     """
 
