@@ -1,5 +1,4 @@
 include LICENCE README
-recursive-include unit-tests *.py
 recursive-include lcapy *.py
 recursive-include demo *.py
 recursive-include doc *.rst *.py
