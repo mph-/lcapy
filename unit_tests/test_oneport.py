@@ -5,7 +5,9 @@ from msignal.mrf import MRF
 
 s = sym.var('s')
 
+
 class LcapyTester(unittest.TestCase):
+
     """Unit tests for lcapy
 
     """
@@ -17,7 +19,6 @@ class LcapyTester(unittest.TestCase):
         a = R(10)
         self.assertEqual(a.Z, 10, "Z incorrect.")
 
-
     def test_L(self):
         """Lcapy: check L
 
@@ -25,7 +26,6 @@ class LcapyTester(unittest.TestCase):
         a = L(10, 5)
         self.assertEqual(a.Z, 10 * s, "Z incorrect.")
         self.assertEqual(a.V, -10 * 5, "V incorrect.")
-
 
     def test_C(self):
         """Lcapy: check C
@@ -35,7 +35,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.Z, 1 / (10 * s), "Z incorrect.")
         self.assertEqual(a.V, 5 / s, "V incorrect.")
-
 
     def test_R_series_R(self):
         """Lcapy: check R + R
@@ -47,7 +46,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.Z, 15, "Z incorrect.")
         self.assertEqual(type(b), R, "type incorrect.")
 
-
     def test_L_series_L(self):
         """Lcapy: check L + L
 
@@ -57,7 +55,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.L, 15, "L incorrect.")
         self.assertEqual(b.Z, 15 * s, "Z incorrect.")
         self.assertEqual(type(b), L, "type incorrect.")
-
 
     def test_C_series_C(self):
         """Lcapy: check C + C
@@ -69,7 +66,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.Z, 1 / (6 * s), "Z incorrect.")
         self.assertEqual(type(b), C, "type incorrect.")
 
-
     def test_V_series_V(self):
         """Lcapy: check Vdc + Vdc
 
@@ -80,14 +76,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.V, 15 / s, "V incorrect.")
         self.assertEqual(type(b), Vdc, "type incorrect.")
 
-
     def test_R_series_L(self):
         """Lcapy: check R + L
 
         """
         a = R(10) + L(5)
         self.assertEqual(a.Z, 5 * s + 10, "Z incorrect.")
-
 
     def test_R_parallel_R(self):
         """Lcapy: check R | R
@@ -99,7 +93,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.Z, 6, "Z incorrect.")
         self.assertEqual(type(b), R, "type incorrect.")
 
-
     def test_L_parallel_L(self):
         """Lcapy: check L | L
 
@@ -109,7 +102,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.L, 6, "L incorrect.")
         self.assertEqual(b.Z, 6 * s, "Z incorrect.")
         self.assertEqual(type(b), L, "type incorrect.")
-
 
     def test_C_parallel_C(self):
         """Lcapy: check C | C
@@ -121,7 +113,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.Z, 1 / (25 * s), "Z incorrect.")
         self.assertEqual(type(b), C, "type incorrect.")
 
-
     def test_I_parallel_I(self):
         """Lcapy: check I | I
 
@@ -131,77 +122,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.i, 15, "I incorrect.")
         self.assertEqual(b.I, 15 / s, "I incorrect.")
         self.assertEqual(type(b), Idc, "type incorrect.")
-
-
-    def test_Shunt(self):
-        """Lcapy: check Shunt
-
-        """
-        a = Shunt(R(10) + Vdc(5))
-        self.assertEqual(a.Z1oc, 10, "Z1oc incorrect.")
-        self.assertEqual(a.Z2oc, 10, "Z2oc incorrect.")
-        self.assertEqual(a.V2oc, 5 / s, "V2oc incorrect.")
-        self.assertEqual(a.V1oc, 5 / s, "V1oc incorrect.")
-        # Cannot determine I1sc, I2sc, Ymn
-
-        b = a.chain(Shunt(R(30)))
-        self.assertEqual(b.Z1oc, 7.5, "Z1oc incorrect.")
-        self.assertEqual(b.Z2oc, 7.5, "Z2oc incorrect.")
-        self.assertEqual(b.V2oc, 3.75 / s, "V2oc incorrect.")
-        self.assertEqual(b.V1oc, 3.75 / s, "V1oc incorrect.")
-
-        c = a.chain(Series(R(30)))
-        self.assertEqual(c.Z1oc, 10, "Z1oc incorrect.")
-        self.assertEqual(c.Z2oc, 40, "Z2oc incorrect.")
-        self.assertEqual(c.V1oc, 5 / s, "V1oc incorrect.")
-        print(c.V2oc)
-        self.assertEqual(c.V2oc, 5 / s, "V2oc incorrect.")
-        self.assertEqual(c.I1sc, -0.5 / s, "I1sc incorrect.")
-        self.assertEqual(c.I2sc, 0 / s, "I2sc incorrect.")
-
-        d = Shunt(R(10)).chain(Series(R(30)))
-
-
-    def test_Series(self):
-        """Lcapy: check Series
-
-        """
-        a = Series(R(10) + Vdc(5))
-        self.assertEqual(a.Y1sc, 0.1, "Y1sc incorrect.")
-        self.assertEqual(a.Y2sc, 0.1, "Y2sc incorrect.")
-        self.assertEqual(a.I1sc, 0.5 / s, "I1sc incorrect.")
-        self.assertEqual(a.I2sc, -0.5 / s, "I2sc incorrect.")
-        # Cannot determine V1oc, V2oc, Zmn
-
-
-    def test_Shunt_parallel(self):
-        """Lcapy: check Shunts in parallel
-
-        """
-
-        a = Shunt(R(10) + Vdc(5))
-        b = a.chain(Shunt(R(30)))
-        self.assertEqual(b.Z1oc, 7.5, "Z1oc incorrect.")
-        self.assertEqual(b.Z2oc, 7.5, "Z2oc incorrect.")
-        self.assertEqual(b.V1oc, 3.75 / s, "V1oc incorrect.")
-        self.assertEqual(b.V2oc, 3.75 / s, "V2oc incorrect.")
-
-
-    def test_Series_series(self):
-        """Lcapy: check Series in series
-
-        """
-
-        a = Series(R(10) + Vdc(5))
-        b = a.chain(Series(R(30)))
-        self.assertEqual(b.Y1sc, 0.025, "Y1sc incorrect.")
-        self.assertEqual(b.Y2sc, 0.025, "Y2sc incorrect.")
-        self.assertEqual(b.I1sc, -0.125 / s, "I1sc incorrect.")
-        self.assertEqual(b.I2sc, 0.125 / s, "I2sc incorrect.")
-
-        c = a.chain(a)
-
-
 
     def test_load(self):
         """Lcapy: check load
@@ -213,7 +133,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(type(b), Thevenin, "type incorrect.")
         self.assertEqual(b.Z, 7.5, "Shunt loaded R incorrect Z.")
-        
 
     def test_open_circuit(self):
         """Lcapy: check open_circuit
@@ -226,7 +145,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(type(b), Thevenin, "type incorrect.")
         self.assertEqual(b.Z, 10, "incorrect Z.")
         self.assertEqual(b.V, 5 / s, "incorrect V.")
-
 
     def test_short_circuit(self):
         """Lcapy: check short_circuit
