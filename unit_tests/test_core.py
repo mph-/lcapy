@@ -12,7 +12,7 @@ class LcapyTester(unittest.TestCase):
 
         try:
             self.assertEqual(ans1, ans2, comment)
-        except AssertionError, e:
+        except AssertionError as e:
             ans1.pprint()
             ans2.pprint()
             raise AssertionError(e)
