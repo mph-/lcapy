@@ -12,8 +12,9 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
 from __future__ import absolute_import, print_function
+from pkg_resources import get_distribution
 
-__version__ = "0.6.3-git"
+__version__ = get_distribution('lcapy').version
 
 import sys
 if sys.version_info[0] == 2 and sys.version_info[1] < 6:
