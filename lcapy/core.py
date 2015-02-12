@@ -381,7 +381,7 @@ class sExpr(Expr):
         super(sExpr, self).__init__(val)
         self._laplace_conjugate_class = tExpr
 
-        if self.expr.find(sym.symplify('t')) != set():
+        if self.expr.find(sym.sympify('t')) != set():
             raise ValueError(
                 's-domain expression %s cannot depend on t' % self.expr)
 
@@ -816,10 +816,10 @@ class fExpr(Expr):
         super(fExpr, self).__init__(val)
         self._fourier_conjugate_class = tExpr
 
-        if self.expr.find(sym.symplify('s')) != set():
+        if self.expr.find(sym.sympify('s')) != set():
             raise ValueError(
                 'f-domain expression %s cannot depend on s' % self.expr)
-        if self.expr.find(sym.symplify('t')) != set():
+        if self.expr.find(sym.sympify('t')) != set():
             raise ValueError(
                 'f-domain expression %s cannot depend on t' % self.expr)
 
@@ -850,10 +850,10 @@ class omegaExpr(Expr):
         super(omegaExpr, self).__init__(val)
         self._fourier_conjugate_class = tExpr
 
-        if self.expr.find(sym.symplify('s')) != set():
+        if self.expr.find(sym.sympify('s')) != set():
             raise ValueError(
                 'omega-domain expression %s cannot depend on s' % self.expr)
-        if self.expr.find(sym.symplify('t')) != set():
+        if self.expr.find(sym.sympify('t')) != set():
             raise ValueError(
                 'omega-domain expression %s cannot depend on t' % self.expr)
 
@@ -880,7 +880,7 @@ class tExpr(Expr):
         self._fourier_conjugate_class = fExpr
         self._laplace_conjugate_class = sExpr
 
-        if self.expr.find(sym.symplify('s')) != set():
+        if self.expr.find(sym.sympify('s')) != set():
             raise ValueError(
                 't-domain expression %s cannot depend on s' % self.expr)
 
