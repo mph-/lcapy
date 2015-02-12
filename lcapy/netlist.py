@@ -876,9 +876,9 @@ class Netlist(object):
         for key, arg in kwargs.iteritems():
             kwargs2[key] = arg
 
-        return cct.sch.draw(filename=filename, args=args,
-                            scale=scale, stretch=stretch,
-                            **kwargs2)
+        cct.sch.draw(filename=filename, args=args,
+                     scale=scale, stretch=stretch,
+                     **kwargs2)
 
 
 class Circuit(Netlist):

@@ -1,6 +1,8 @@
 Here are some things to do, in no particular order.
 
-Write unit tests.
+Write more unit tests.
+
+Switch to setuptools.
 
 Add other controlled sources: VCCS, CCVS. CCCS.
 
@@ -77,5 +79,5 @@ Handle symbol names such as E1 that sympy thinks are functions.
 Handle symbol names such as R1'.  sympy.symbols handles this but not
 sympy.sympify.
 
-
-Second circuit displayed in notebook has text screwed
+Handle multiple SVG images displayed in notebook due to problems with
+shared namespace.

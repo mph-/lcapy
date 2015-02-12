@@ -19,7 +19,7 @@ from __future__ import print_function
 import numpy as np
 import re
 from lcapy.core import Expr
-from os import system, path
+from os import system, path, remove
 
 
 __all__ = ('Schematic', )
@@ -1154,16 +1154,31 @@ class Schematic(object):
         system('%spdflatex -interaction batchmode %s.tex' % (chdir, baseroot))
         system('rm -f %s.aux %s.log %s.tex' % (root, root, root))
 
+        pdf_filename = root + '.pdf'
+        if not path.exists(pdf_filename):
+            raise RuntimeError('Could not generate %s with pdflatex' % 
+                               pdf_filename)
+
         if ext == '.pdf':
             return
 
         if ext == '.svg':
-            system('pdf2svg %s.pdf %s.svg; rm %s.pdf' % (root, root, root))
+            svg_filename = root + '.svg'
+            system('pdf2svg %s %s' % (pdf_filename, svg_filename))
+            if not path.exists(svg_filename):
+                raise RuntimeError('Could not generate %s with pdf2svg' % 
+                                   svg_filename)
+            remove(pdf_filename)
             return
 
         if ext == '.png':
-            system('convert -density 200 %s.pdf %s.png; rm %s.pdf' %
-                   (root, root, root))
+            png_filename = root + '.png'
+            system('convert -density 200 %s %s' %
+                   (pdf_filename, png_filename))
+            if not path.exists(png_filename):
+                raise RuntimeError('Could not generate %s with convert' % 
+                                   png_filename)
+            remove(pdf_filename)
             return
 
         raise ValueError('Cannot create file of type %s' % ext)
