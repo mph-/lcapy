@@ -18,13 +18,13 @@ example:
 
    >>> from lcapy import Circuit
    >>> cct = Circuit('Voltage divider')
-   >>> cct.add('V_s fred 0') 
-   >>> cct.add('R_a fred 1') 
+   >>> cct.add('V_s 2 0') 
+   >>> cct.add('R_a 2 1') 
    >>> cct.add('R_b 1 0') 
-   >>> cct.V[1].pprint()
-   >>> cct.V['fred'].pprint()
-   >>> cct.I['R_a'].pprint()
-   >>> cct.Vd['R_a'].pprint()
+   >>> cct.V[1]
+   >>> cct.V['2']
+   >>> cct.I['R_a']
+   >>> cct.Vd['R_a']
 
 
 One-port networks
@@ -65,19 +65,19 @@ Here a is the name of the network formed with a 10 V DC voltage source in
 series with R1 and L1.
 
 The open circuit voltage across the network can be printed with:
-   >>> print(a.Voc)
+   >>> a.Voc
    10/s
 
 The time domain response is given by:
-   >>> print(a.Voc.transientresponse())
+   >>> a.Voc.transientresponse()
    10*Heaviside(t)
 
 The short circuit current through the network can be printed with:
-   >>> print(a.Isc)
+   >>> a.Isc
    10/(L_1*s**2 + R_1*s)
 
 The time domain response is given by:
-   >>> print(a.Isc.transientresponse())
+   >>> a.Isc.transientresponse()
    10*Heaviside(t)/R_1 - 10*exp(-R_1*t/L_1)*Heaviside(t)/R_1
 
 
@@ -105,21 +105,19 @@ Limitations
 Schematics
 ----------
 
-LaTeX schematics can be generated using circuitikz and the Schematic
-class.  Currently, this is independent from Lcapy but uses a similar
-netlist syntax but with additional drawing hints, such as direction
-and size.
+LaTeX schematics can be generated using circuitikz from the netlist.
+Additional drawing hints, such as direction and size are required.
 
-   >>> from lcapy import Schematic
-   >>> sch = Schematic()
-   >>> sch.add('P1 1 0.1; down')
-   >>> sch.add('R1 3 1; right')
-   >>> sch.add('L1 2 3; right')
-   >>> sch.add('C1 3 0; down')
-   >>> sch.add('P2 2 0.2; down')
-   >>> sch.add('W 0 0.1; right')
-   >>> sch.add('W 0.2 0.2; right')
-   >>> sch.draw(filename='pic.tex')
+   >>> from lcapy import Circuit
+   >>> cct = Circuit()
+   >>> cct.add('P1 1 0.1; down')
+   >>> cct.add('R1 3 1; right')
+   >>> cct.add('L1 2 3; right')
+   >>> cct.add('C1 3 0; down')
+   >>> cct.add('P2 2 0.2; down')
+   >>> cct.add('W 0 0.1; right')
+   >>> cct.add('W 0.2 0.2; right')
+   >>> cct.draw(filename='pic.tex')
 
 In this example, P denotes a port (open-circuit) and W denotes a wire
 (short-circuit).  The drawing hints are separated from the netlist
@@ -129,16 +127,16 @@ optional.  The symbol label can be changed using the l keyword; the
 voltage and current labels are specified with the v and i keywords.
 For example,
 
-   >>> from lcapy import Schematic
-   >>> sch = Schematic()
-   >>> sch.add('V1 1 0; down')
-   >>> sch.add('R1 1 2; left, i=I_1, v=V_{R_1}')
-   >>> sch.add('R2 1 3; right, i=I_2, v=V_{R_2}')
-   >>> sch.add('L1 2 0.1; down, i=I_1, v=V_{L_1}')
-   >>> sch.add('L2 3 0.3; down, i=I_1, v=V_{L_2}')
-   >>> sch.add('W 0 0.3; right')
-   >>> sch.add('W 0 0.1; left')
-   >>> sch.draw(scale=3, filename='pic2.tex')
+   >>> from lcapy import Circuit
+   >>> cct = Circuit()
+   >>> cct.add('V1 1 0; down')
+   >>> cct.add('R1 1 2; left, i=I_1, v=V_{R_1}')
+   >>> cct.add('R2 1 3; right, i=I_2, v=V_{R_2}')
+   >>> cct.add('L1 2 0.1; down, i=I_1, v=V_{L_1}')
+   >>> cct.add('L2 3 0.3; down, i=I_1, v=V_{L_2}')
+   >>> cct.add('W 0 0.3; right')
+   >>> cct.add('W 0 0.1; left')
+   >>> cct.draw(scale=3, filename='pic2.svg')
 
 The drawing direction is with respect to the positive node; i.e., the
 drawing is performed from the positive to the negative node.  Since
@@ -153,10 +151,23 @@ components.
 Node names containing a dot or underscore are not displayed.
 
 
+IPython Notebooks
+-----------------
+
+Lcapy can be used with IPython Notebooks (some example notebooks are
+in the notebooks directory).  Schematics are drawn inline using png
+(svg output is currently disabled due to problems with multiple svg
+files sharing the same namespace).  The transient and frequency
+response of a circuit can also be drawn inline using the magic command
+%matplotlib.
+
+
 Documentation
 -------------
 
-For additional documentation, see the Lcapy tutorial.
+For additional documentation, see the Lcapy tutorial.  This can be
+viewed in a web browser after running 'make html' in the doc
+directory.
 
 
-Copyright 2014 Michael Hayes, UCECE
+Copyright 2014, 2015 Michael Hayes, UCECE
