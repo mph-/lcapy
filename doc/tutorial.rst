@@ -73,9 +73,9 @@ Here's an example of resistors in series
    >>> R1 = R(10)
    >>> R2 = R(5)
    >>> Rtot = R1 + R2
-   >>> print(Rtot)
+   >>> Rtot
    R(10) + R(5)
-   >>> print(Rtot.simplify())
+   >>> Rtot.simplify()
    R(15)
 
 Here `R(10)` creates a 10 ohm resistor and this is assigned to the
@@ -91,18 +91,18 @@ the parallel operator is `|` instead of the usual `||`.
 
    >>> from lcapy import *
    >>> Rtot = R(10) | R(5)
-   >>> print(Rtot)
+   >>> Rtot
    R(10) | R(5)
-   >>> print(Rtot.simplify())
+   >>> Rtot.simplify()
    R(10/3)
 
 The result can be performed symbolically, for example,
 
    >>> from lcapy import *
    >>> Rtot = R('R_1') | R('R_2')
-   >>> print(Rtot)
+   >>> Rtot
    R(R_1) | R(R_2)
-   >>> print(Rtot.simplify())
+   >>> Rtot.simplify()
    R(R_1*R_2/(R_1 + R_2))
    >>> Rtot.simplify()
    R(R₁) | R(R₂)
