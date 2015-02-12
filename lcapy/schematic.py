@@ -952,7 +952,7 @@ class Schematic(object):
         node_str = self._node_str(n1, n2, draw_nodes)
 
         label_str = ''
-        keys = elt.opts.keys
+        keys = elt.opts.keys()
         if draw_labels and not ('l' in keys or 'l_' in keys or 'l^' in keys):
             if cpt_type not in ('open', 'short'):
                 label_str = ', l%s=%s' % (modifier, elt.tex_label)
