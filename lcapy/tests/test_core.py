@@ -18,7 +18,7 @@ class LcapyTester(unittest.TestCase):
             raise AssertionError(e)
 
     def test_sExpr1(self):
-        """Lcapy: check sExpr
+        """Lcapy: check sExpr1
 
         """
         a = sExpr('(s+2)/(s-2)')
@@ -30,8 +30,12 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(a.partfrac(), 1 + 4 / (s - 2), "partfrac incorrect.")
 
+        self.assertEqual(a.evaluate(1), -3.0, "scalar evaluate incorrect.")
+        self.assertEqual(a.evaluate(-2), 0.0, "scalar evaluate incorrect.")
+
+
     def test_sExpr2(self):
-        """Lcapy: check sExpr 2
+        """Lcapy: check sExpr2
 
         """
         a = (s + 2) * (s + 3) / (s - 2)
@@ -51,7 +55,7 @@ class LcapyTester(unittest.TestCase):
             a.canonical(), (s**2 + 5 * s + 6) / (s - 2), "general incorrect.")
 
     def test_sExpr3(self):
-        """Lcapy: check sExpr 3
+        """Lcapy: check sExpr3
 
         """
         a = (s**2 + 5 * s + 6) / (s - 2)
@@ -71,3 +75,12 @@ class LcapyTester(unittest.TestCase):
             a.canonical(), (s**2 + 5 * s + 6) / (s - 2), "general incorrect.")
         self.assertEqual2(
             a.ZPK(), (s + 2) * (s + 3) / (s - 2), "ZPK incorrect.")
+
+    def test_tExpr1(self):
+        """Lcapy: check tExpr1
+
+        """
+        a = t**2
+
+        self.assertEqual(a.evaluate(2), 4.0, "scalar evaluate incorrect.")
+        self.assertEqual(a.evaluate((2, 3))[1], 9.0, "vector evaluate incorrect.")

@@ -307,9 +307,9 @@ class Expr(object):
 
         return self.expr.is_constant()
 
-    def evaluate(self, vector, var):
+    def evaluate(self, vector):
 
-        func = lambdify(var, self.expr, ("numpy", "sympy", "math"))
+        func = lambdify(self.var, self.expr, ("numpy", "sympy", "math"))
 
         # Expressions such as exp(-alpha*t) * Heaviside(t)
         # will not evaluate correctly since the exp will overflow
@@ -435,8 +435,8 @@ class sExpr(Expr):
     def omega(self):
         """Return expression with s = j omega"""
 
-        omega = sym.symbols('omega')
-        return omegaExpr(self.subs(s, sym.I * omega))
+        w = sym.symbols('omega')
+        return omegaExpr(self.subs(s, sym.I * w))
 
     def roots(self):
         """Return roots of expression as a dictionary
@@ -604,12 +604,12 @@ class sExpr(Expr):
     def initial_value(self):
         """Determine value at t = 0"""
 
-        return self.__class__(sym.limit(sym.expr * sym.var, sym.var, sym.oo))
+        return self.__class__(sym.limit(self.expr * self.var, self.var, sym.oo))
 
     def final_value(self):
         """Determine value at t = oo"""
 
-        return self.__class__(sym.limit(sym.expr * sym.var, sym.var, 0))
+        return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
 
     @property
     def N(self):
@@ -720,17 +720,12 @@ class sExpr(Expr):
     def transient_response(self, t=None):
         """Evaluate transient (impulse) response"""
 
-        if isinstance(t, sym.Expr):
-            return self.inverse_laplace(t)
+        texpr = self.inverse_laplace()
 
-        tv = sym.symbols('t')
-
-        texpr = self.inverse_laplace(tv)
         if t is None:
             return texpr
 
         print('Evaluating inverse Laplace transform...')
-
         return texpr.evaluate(t)
 
     def impulse_response(self, t=None):
@@ -775,13 +770,11 @@ class sExpr(Expr):
                 x = np.diff(x) / dt
                 x = np.hstack((x, 0))
 
-        if delay != 0.0:
-            td = t - delay
-
-        import scipy.interpolate.interp1d as interp1d
+        from scipy.interpolate import interp1d
 
         # Try linear interpolation; should oversample first...
         y = interp1d(t, y, bounds_error=False, fill_value=0)
+        td = t - delay
         y = y(td)
 
         return y
@@ -794,7 +787,7 @@ class sExpr(Expr):
 
     def evaluate(self, svector):
 
-        return super(sExpr, self).evaluate(svector, sym.symbols('s'))
+        return super(sExpr, self).evaluate(svector)
 
     def plot(self, t=None, **kwargs):
 
@@ -904,7 +897,7 @@ class tExpr(Expr):
 
     def evaluate(self, tvector):
 
-        response = super(tExpr, self).evaluate(tvector, sym.symbols('t'))
+        response = super(tExpr, self).evaluate(tvector)
         if np.iscomplexobj(response) and np.allclose(response.imag, 0.0):
             response = response.real
         return response
@@ -992,7 +985,7 @@ class Matrix(sym.Matrix):
     def _reformat(self, method):
         """Helper method for reformatting expression"""
 
-        import copy
+        from copy import copy
         new = copy(self)
 
         for i in range(self.rows):
@@ -1382,7 +1375,7 @@ class Hf(fExpr):
 
     def __init__(self, val):
 
-        super(Ht, self).__init__(val)
+        super(Hf, self).__init__(val)
         self._fourier_conjugate_class = Ht
 
 
@@ -1407,6 +1400,10 @@ class ZsVector(Vector):
 
 
 class NetObject(object):
+
+    def __init__(self, args):
+
+        self.args = args
 
     def _tweak_args(self):
 
