@@ -307,6 +307,34 @@ class Expr(object):
         return sym.latex(expr)
 
     @property
+    def N(self):
+        """Return numerator of rational function"""
+
+        expr = self.expr
+        if not expr.is_rational_function(self):
+            raise ValueError('Expression not a rational function')
+
+        numer, denom = expr.as_numer_denom()
+        return self.__class__(numer)
+
+    @property
+    def D(self):
+        """Return denominator of rational function"""
+
+        expr = self.expr
+        if not expr.is_rational_function(self):
+            raise ValueError('Expression not a rational function')
+
+        numer, denom = expr.as_numer_denom()
+        return self.__class__(denom)
+
+    @property
+    def conjugate(self):
+        """Return complex conjugate"""
+
+        return self.__class__(sym.conjugate(self.expr))
+
+    @property
     def is_number(self):
 
         return self.expr.is_number
@@ -441,10 +469,10 @@ class sExpr(Expr):
         T = self.__class__(T)
         return self.__class__(self.val * sym.exp(-s * T))
 
-    def omega(self):
+    def jomega(self):
         """Return expression with s = j omega"""
 
-        w = sym.symbols('omega')
+        w = sym.symbols('omega', real=True)
         return omegaExpr(self.subs(s, sym.I * w))
 
     def roots(self):
@@ -620,27 +648,6 @@ class sExpr(Expr):
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
 
-    @property
-    def N(self):
-        """Return numerator of rational function"""
-
-        expr = self.expr
-        if not expr.is_rational_function(self):
-            raise ValueError('Expression not a rational function')
-
-        numer, denom = expr.as_numer_denom()
-        return self.__class__(numer)
-
-    @property
-    def D(self):
-        """Return denominator of rational function"""
-
-        expr = self.expr
-        if not expr.is_rational_function(self):
-            raise ValueError('Expression not a rational function')
-
-        numer, denom = expr.as_numer_denom()
-        return self.__class__(denom)
 
     def _inverse_laplace(self):
 
@@ -814,9 +821,9 @@ class fExpr(Expr):
     domain_name = 'Frequency'
     domain_units = 'Hz'
 
-    def __init__(self, val):
+    def __init__(self, val, real=False):
 
-        super(fExpr, self).__init__(val)
+        super(fExpr, self).__init__(val, real=real)
         self._fourier_conjugate_class = tExpr
 
         if self.expr.find(sym.sympify('s')) != set():
@@ -848,9 +855,9 @@ class omegaExpr(Expr):
     domain_name = 'Angular frequency'
     domain_units = 'rad/s'
 
-    def __init__(self, val):
+    def __init__(self, val, real=False):
 
-        super(omegaExpr, self).__init__(val)
+        super(omegaExpr, self).__init__(val, real=real)
         self._fourier_conjugate_class = tExpr
 
         if self.expr.find(sym.sympify('s')) != set():
@@ -877,9 +884,9 @@ class tExpr(Expr):
     domain_name = 'Time'
     domain_units = 's'
 
-    def __init__(self, val):
+    def __init__(self, val, real=True):
 
-        super(tExpr, self).__init__(val)
+        super(tExpr, self).__init__(val, real=real)
         self._fourier_conjugate_class = fExpr
         self._laplace_conjugate_class = sExpr
 
@@ -933,9 +940,9 @@ class cExpr(Expr):
 
 
 s = sExpr('s')
-t = tExpr('t')
-f = fExpr('f')
-omega = omegaExpr('omega')
+t = tExpr('t', real=True)
+f = fExpr('f', real=True)
+omega = omegaExpr('omega', real=True)
 pi = sym.pi
 j = sym.I
 
