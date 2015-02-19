@@ -678,11 +678,12 @@ class sExpr(Expr):
                     # Remove conjugate from poles and process pole with its
                     # conjugate
                     P2[pc] = 0
+                  
                     p_re = sym.re(p)
                     p_im = sym.im(p)
                     r_re = sym.re(r)
                     r_im = sym.im(r)
-                    etd = sym.re(p_re * td)
+                    etd = sym.exp(p_re * td)
                     result2 += 2 * r_re * etd * sym.cos(p_im * td)
                     result2 += 2 * r_im * etd * sym.sin(p_im * td)
                 else:
