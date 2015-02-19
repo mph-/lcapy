@@ -108,6 +108,32 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.inverse_laplace(), -sin(t) * H(t), "inverse Laplace incorrect.")
 
 
+    def test_sExpr5(self):
+        """Lcapy: check sExpr5
+
+        """
+        a = 1 / ((s - 1j) * (s + 1j))
+        self.assertEqual2(a.N, 1, "N incorrect.")
+        self.assertEqual2(a.D, (s - j) * (s + j), "D incorrect.")
+
+        self.assertEqual2(a.poles().keys(), [-j, j], "poles incorrect.")
+        self.assertEqual2(a.zeros().keys(), [], "zeros incorrect.")
+
+        self.assertEqual2(
+            a.partfrac(), 0.5j / (s + j) - 0.5j / (s - j), "partfrac incorrect.")
+        self.assertEqual2(
+            a.mixedfrac(), 1 / (s**2 + 1), "mixedfrac incorrect.")
+        self.assertEqual2(
+            a.general(), 1 / (s**2 + 1), "general incorrect.")
+        self.assertEqual2(
+            a.canonical(), 1 / (s**2 + 1), "canonical incorrect.")
+        self.assertEqual2(
+            a.ZPK(), 1 / ((s - j) * (s + j)), "ZPK incorrect.")
+
+        self.assertEqual(a.inverse_laplace(), -sin(t) * H(t), "inverse Laplace incorrect.")
+
+
+
     def test_tExpr1(self):
         """Lcapy: check tExpr1
 

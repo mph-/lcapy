@@ -67,9 +67,16 @@ class Expr(object):
             val = val.replace('u(t', 'Heaviside(t')
             val = val.replace('delta(t', 'DiracDelta(t')
 
-        # TODO convert 1j to sympy.I
-            
-        val = sym.sympify(val, rational=True)
+        # Why doesn't sympy do this?
+        if isinstance(val, complex):
+            re = sym.sympify(val.real, rational=True)
+            im = sym.sympify(val.imag, rational=True)
+            if im == 1.0:
+                val = re + sym.I
+            else:
+                val = re + sym.I * im
+        else:
+            val = sym.sympify(val, rational=True)
 
         self.val = val
 
