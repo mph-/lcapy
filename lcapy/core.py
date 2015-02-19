@@ -1486,9 +1486,9 @@ def H(expr):
     return expr.__class__(sym.Heaviside(expr))
 
 
-def DiracDelta(expr):
+def DiracDelta(expr, *args):
 
-    return expr.__class__(sym.DiracDelta(expr))
+    return expr.__class__(sym.DiracDelta(expr, *args))
 
 
 from lcapy.oneport import L, C, R, G, Idc, Vdc
