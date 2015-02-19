@@ -22,7 +22,7 @@ import sys
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'zp2tf', 'Expr', 's', 'sExpr', 't', 'tExpr', 'f', 'fExpr', 'cExpr',
            'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt',
-           'H', 'Heaviside', 'DiracDelta',
+           'H', 'Heaviside', 'DiracDelta', 'j',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector')
 
 
@@ -67,6 +67,8 @@ class Expr(object):
             val = val.replace('u(t', 'Heaviside(t')
             val = val.replace('delta(t', 'DiracDelta(t')
 
+        # TODO convert 1j to sympy.I
+            
         val = sym.sympify(val, rational=True)
 
         self.val = val
@@ -927,6 +929,7 @@ t = tExpr('t')
 f = fExpr('f')
 omega = omegaExpr('omega')
 pi = sym.pi
+j = sym.I
 
 
 def pprint(expr):
