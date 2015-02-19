@@ -22,7 +22,7 @@ import sys
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'zp2tf', 'Expr', 's', 'sExpr', 't', 'tExpr', 'f', 'fExpr', 'cExpr',
            'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt',
-           'H', 'DiracDelta',
+           'H', 'Heaviside', 'DiracDelta',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector')
 
 
@@ -1482,6 +1482,11 @@ def sqrt(expr):
 
 
 def H(expr):
+
+    return expr.__class__(sym.Heaviside(expr))
+
+
+def Heaviside(expr):
 
     return expr.__class__(sym.Heaviside(expr))
 
