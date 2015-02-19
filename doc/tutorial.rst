@@ -499,7 +499,6 @@ Transfer functions can be created in a similar manner to Matlab,
 either using lists of numerator and denominator coefficients:
 
     >>> from lcapy import *
-    >>>
     >>> H1 = tf(0.001, [1, 0.05, 0])
     >>> H1
         0.001     
@@ -510,7 +509,6 @@ either using lists of numerator and denominator coefficients:
 from lists of poles and zeros (and optional gain):
 
    >>> from lcapy import *
-   >>>
    >>> H2 = zp2tf([], [0, -0.05])
    >>> H2
         0.001     
@@ -521,7 +519,6 @@ from lists of poles and zeros (and optional gain):
 or symbolically:
 
    >>> from lcapy import *
-   >>>
    >>> H3 = 0.001 / (s**2 + 0.05 * s)
    >>> H3
         0.001     
@@ -534,7 +531,6 @@ In each case, parameters can be expressed numerically or symbolically,
 for example,
 
    >>> from lcapy import *
-   >>>
    >>> H4 = zp2tf(['z_1'], ['p_1', 'p_2'])
    >>> H4
           s - z₁      
@@ -550,9 +546,7 @@ Lcapy can be used for converting rational functions into partial
 fraction form.  Here's an example:
 
    >>> from lcapy import *
-   >>>
    >>> G = 1 / (s**2 + 5 * s + 6)
-   >>>
    >>> G.partfrac()
       1       1  
    - ───── + ─────
@@ -561,9 +555,7 @@ fraction form.  Here's an example:
 Here's an example of a not strictly proper rational function,
 
    >>> from lcapy import *
-   >>>
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6)
-   >>>
    >>> H.partfrac()
          70      90 
    5 + ───── - ─────
@@ -666,7 +658,6 @@ Laplace transforms
 Lcapy can also perform Laplace transforms.   Here's an example:
 
    >>> from lcapy import t
-   >>> 
    >>> v = 10 * t ** 2 + 3 * t
    >>> v.laplace()
    3⋅s + 20
