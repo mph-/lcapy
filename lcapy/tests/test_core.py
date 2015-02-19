@@ -33,6 +33,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.evaluate(1), -3.0, "scalar evaluate incorrect.")
         self.assertEqual(a.evaluate(-2), 0.0, "scalar evaluate incorrect.")
 
+        self.assertEqual(a.inverse_laplace(), 4 * exp(2 * t) * H(t) + DiracDelta(t), "inverse Laplace incorrect.")
+
 
     def test_sExpr2(self):
         """Lcapy: check sExpr2
@@ -52,7 +54,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(
             a.general(), (s**2 + 5 * s + 6) / (s - 2), "general incorrect.")
         self.assertEqual2(
-            a.canonical(), (s**2 + 5 * s + 6) / (s - 2), "general incorrect.")
+            a.canonical(), (s**2 + 5 * s + 6) / (s - 2), "canonical incorrect.")
+
+        self.assertEqual(a.inverse_laplace(), 20 * exp(2 * t) * H(t) + 7 * DiracDelta(t) + DiracDelta(t, 1), "inverse Laplace incorrect.")
 
     def test_sExpr3(self):
         """Lcapy: check sExpr3
@@ -72,9 +76,38 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(
             a.general(), (s**2 + 5 * s + 6) / (s - 2), "general incorrect.")
         self.assertEqual2(
-            a.canonical(), (s**2 + 5 * s + 6) / (s - 2), "general incorrect.")
+            a.canonical(), (s**2 + 5 * s + 6) / (s - 2), "canonical incorrect.")
         self.assertEqual2(
             a.ZPK(), (s + 2) * (s + 3) / (s - 2), "ZPK incorrect.")
+
+        self.assertEqual(a.inverse_laplace(), 20 * exp(2 * t) * H(t) + 7 * DiracDelta(t) + DiracDelta(t, 1), "inverse Laplace incorrect.")
+
+
+    def test_sExpr4(self):
+        """Lcapy: check sExpr4
+
+        """
+        a = 1 / ((s - j) * (s + j))
+        self.assertEqual2(a.N, 1, "N incorrect.")
+        self.assertEqual2(a.D, (s - j) * (s + j), "D incorrect.")
+
+        self.assertEqual2(a.poles().keys(), [-j, j], "poles incorrect.")
+        self.assertEqual2(a.zeros().keys(), [], "zeros incorrect.")
+
+        self.assertEqual2(
+            a.partfrac(), 0.5j / (s + j) - 0.5j / (s - j), "partfrac incorrect.")
+        self.assertEqual2(
+            a.mixedfrac(), 1 / (s**2 + 1), "mixedfrac incorrect.")
+        self.assertEqual2(
+            a.general(), 1 / (s**2 + 1), "general incorrect.")
+        self.assertEqual2(
+            a.canonical(), 1 / (s**2 + 1), "canonical incorrect.")
+        self.assertEqual2(
+            a.ZPK(), 1 / ((s - j) * (s + j)), "ZPK incorrect.")
+
+#        self.assertEqual(a.inverse_laplace(), 20 * exp(2 * t) * H(t) + 7 * DiracDelta(t) + DiracDelta(t, 1), "inverse Laplace incorrect.")
+
+
 
     def test_tExpr1(self):
         """Lcapy: check tExpr1
