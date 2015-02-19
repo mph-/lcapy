@@ -225,6 +225,9 @@ class Expr(object):
             return False
 
         x = self.__class__(x)
+
+        # This fails if one of the operands has the is_real attribute
+        # end the other doesn't...
         return self.val == x.val
 
     def __ne__(self, x):
@@ -344,21 +347,24 @@ class Expr(object):
 
         return self.expr.is_constant()
 
-    def evaluate(self, vector):
+    def evaluate(self, arg):
+        """Evaluate expression at arg.
+        arg may be a scalar, or a vector.
+
+        Note, expressions such as exp(-alpha*t) * Heaviside(t) will
+        not evaluate correctly since the exp will overflow for -t and
+        produce an Inf.  When this is multiplied by 0 from the
+        Heaviside function we get Nan. """
+
+        # Perhaps should check if expr.args[1] == Heaviside('t') and not
+        # evaluate if t < 0?
 
         func = lambdify(self.var, self.expr, ("numpy", "sympy", "math"))
 
-        # Expressions such as exp(-alpha*t) * Heaviside(t)
-        # will not evaluate correctly since the exp will overflow
-        # for -t and produce an Inf.  When this is multiplied by
-        # 0 from the Heaviside function we get Nan.
-        # Perhaps should check if expr.args[1] == Heaviside('t')
-        # and not evaluate if t < 0?
-
-        if np.isscalar(vector):
-            v1 = vector
+        if np.isscalar(arg):
+            v1 = arg
         else:
-            v1 = vector[0]
+            v1 = arg[0]
 
         try:
             response = func(v1)
@@ -371,20 +377,28 @@ class Expr(object):
                 'Cannot evaluate expression,'
                 ' probably have undefined symbols, such as Dirac delta')
 
-        if np.isscalar(vector):
+        if np.isscalar(arg):
             return response
 
         try:
-            response = np.array([complex(func(v1)) for v1 in vector])
+            response = np.array([complex(func(v1)) for v1 in arg])
         except TypeError:
             raise TypeError(
                 'Cannot evaluate expression, probably have undefined symbols')
 
         return response
 
-    def __call__(self, vector):
+    def subs(self, arg):
+        """Substitute arg for variable."""
 
-        return self.evaluate(vector)
+        return arg.__class__(self.expr.subs(self.var, arg))
+
+    def __call__(self, arg):
+
+        if isinstance(arg, (Expr, sym.expr.Expr)):
+            return self.subs(arg)
+
+        return self.evaluate(arg)
 
     @property
     def label(self):
@@ -472,8 +486,8 @@ class sExpr(Expr):
     def jomega(self):
         """Return expression with s = j omega"""
 
-        w = sym.symbols('omega', real=True)
-        return omegaExpr(self.subs(s, sym.I * w))
+        w = omegaExpr('omega', real=True)
+        return self.subs(sym.I * w)
 
     def roots(self):
         """Return roots of expression as a dictionary
@@ -760,8 +774,8 @@ class sExpr(Expr):
         specified"""
 
         if f is None:
-            fsym = sym.symbols('f')
-            return fExpr(self.subs(s, sym.I * 2 * sym.pi * fsym))
+            fsym = sym.symbols('f', real=True)
+            return self.subs(sym.I * 2 * sym.pi * fsym)
 
         return self.evaluate(2j * np.pi * f)
 
@@ -817,7 +831,7 @@ class fExpr(Expr):
 
     """Fourier domain expression or symbol"""
 
-    var = sym.symbols('f')
+    var = sym.symbols('f', real=True)
     domain_name = 'Frequency'
     domain_units = 'Hz'
 
@@ -851,7 +865,7 @@ class omegaExpr(Expr):
 
     """Fourier domain expression or symbol (angular frequency)"""
 
-    var = sym.symbols('omega')
+    var = sym.symbols('omega', real=True)
     domain_name = 'Angular frequency'
     domain_units = 'rad/s'
 
@@ -880,7 +894,7 @@ class tExpr(Expr):
 
     """t-domain expression or symbol"""
 
-    var = sym.symbols('t')
+    var = sym.symbols('t', real=True)
     domain_name = 'Time'
     domain_units = 's'
 
@@ -896,8 +910,13 @@ class tExpr(Expr):
 
     def laplace(self):
         """Attempt Laplace transform"""
+        
+        var = self.var
+        if var == sym.symbols('t', real=True):
+            # Hack since sympy gives up on Laplace transform if t real!
+            var = sym.symbols('t')
 
-        F, a, cond = sym.laplace_transform(self.expr, self.var, s)
+        F, a, cond = sym.laplace_transform(self.expr, var, s)
 
         if hasattr(self, '_laplace_conjugate_class'):
             F = self._laplace_conjugate_class(F)

@@ -167,3 +167,15 @@ class LcapyTester(unittest.TestCase):
         # from 0- to ensure symmetry, but at the moment 0.5 is 
         # the correct answer.
         self.assertEqual(a.laplace(), 0.5, "Laplace transform incorrect.")
+
+    
+    def test_jomega(self):
+        """Lcapy: check jomega
+
+        """
+
+        a = sExpr('s+2')
+        b = a(j * omega)
+
+        self.assertEqual2(b, j * omega + 2, "Substitution failed.")
+        self.assertEqual2(a.jomega(), j * omega + 2, "jomega failed.")
