@@ -142,3 +142,28 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.evaluate(2), 4.0, "scalar evaluate incorrect.")
         self.assertEqual(a.evaluate((2, 3))[1], 9.0, "vector evaluate incorrect.")
+
+
+    def test_step(self):
+        """Lcapy: check step
+
+        """
+        a = u(t)
+
+        self.assertEqual(a.evaluate(2), 1.0, "scalar evaluate incorrect.")
+        self.assertEqual(a.evaluate((-2, 2))[1], 1.0, "vector evaluate incorrect.")
+        self.assertEqual(a.evaluate((-2, 2))[0], 0.0, "vector evaluate incorrect.")
+        self.assertEqual(a.laplace(), 1 / s, "Laplace transform incorrect.")
+
+
+    def test_delta(self):
+        """Lcapy: check delta
+
+        """
+        a = delta(t)
+
+        self.assertEqual(a.evaluate(2), 0.0, "scalar evaluate incorrect.")
+        # Well, I reckon that the Laplace transfrom should integrate
+        # from 0- to ensure symmetry, but at the moment 0.5 is 
+        # the correct answer.
+        self.assertEqual(a.laplace(), 0.5, "Laplace transform incorrect.")

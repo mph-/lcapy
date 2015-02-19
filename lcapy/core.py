@@ -22,7 +22,7 @@ import sys
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'zp2tf', 'Expr', 's', 'sExpr', 't', 'tExpr', 'f', 'fExpr', 'cExpr',
            'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt',
-           'H', 'Heaviside', 'DiracDelta', 'j',
+           'H', 'Heaviside', 'DiracDelta', 'j', 'u', 'delta',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector')
 
 
@@ -1492,19 +1492,34 @@ def sqrt(expr):
     return expr.__class__(sym.sqrt(expr))
 
 
-def H(expr):
-
-    return expr.__class__(sym.Heaviside(expr))
-
-
 def Heaviside(expr):
+    """Heaviside's unit step"""
 
     return expr.__class__(sym.Heaviside(expr))
+
+
+def H(expr):
+    """Heaviside's unit step"""
+
+    return Heaviside(expr)
+
+
+def u(expr):
+    """Heaviside's unit step"""
+
+    return Heaviside(expr)
 
 
 def DiracDelta(expr, *args):
+    """Dirac delta (impulse)"""
 
     return expr.__class__(sym.DiracDelta(expr, *args))
+
+
+def delta(expr, *args):
+    """Dirac delta (impulse)"""
+
+    return DiracDelta(expr, *args)
 
 
 from lcapy.oneport import L, C, R, G, Idc, Vdc
