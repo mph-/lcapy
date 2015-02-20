@@ -26,6 +26,41 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector')
 
 
+def sympify(arg, real=False):
+
+    if isinstance(arg, sym.symbol.Symbol):
+        return arg
+
+    if (real and isinstance(arg, str) and arg.isalnum() and
+        not arg[0].isdigit()):
+        arg = sym.symbols(arg, real=True)
+
+    if isinstance(arg, str):
+        # Perhaps have dictionary of functions and their replacements?
+        arg = arg.replace('u(t', 'Heaviside(t')
+        arg = arg.replace('delta(t', 'DiracDelta(t')
+        
+    # Why doesn't sympy do this?
+    if isinstance(arg, complex):
+        re = sym.sympify(arg.real, rational=True)
+        im = sym.sympify(arg.imag, rational=True)
+        if im == 1.0:
+            arg = re + sym.I
+        else:
+            arg = re + sym.I * im
+    else:
+        arg = sym.sympify(arg, rational=True)
+
+    return arg
+
+
+ssym = sympify('s')
+tsym = sympify('t', real=True)
+fsym = sympify('f', real=True)
+omegasym = sympify('omega', real=True)
+
+
+
 class Exprdict(dict):
 
     """Decorator class for dictionary created by sympy"""
@@ -53,32 +88,12 @@ class Expr(object):
     def expr(self):
         return self.val
 
-    def __init__(self, val, real=False):
+    def __init__(self, arg, real=False):
 
-        if isinstance(val, sExpr):
-            val = val.val
+        if isinstance(arg, Expr):
+            arg = arg.val
 
-        if (real and isinstance(val, str) and val.isalnum() and
-                not val[0].isdigit()):
-            val = sym.symbols(val, real=True)
-
-        if isinstance(val, str):
-            # Perhaps have dictionary of functions and their replacements?
-            val = val.replace('u(t', 'Heaviside(t')
-            val = val.replace('delta(t', 'DiracDelta(t')
-
-        # Why doesn't sympy do this?
-        if isinstance(val, complex):
-            re = sym.sympify(val.real, rational=True)
-            im = sym.sympify(val.imag, rational=True)
-            if im == 1.0:
-                val = re + sym.I
-            else:
-                val = re + sym.I * im
-        else:
-            val = sym.sympify(val, rational=True)
-
-        self.val = val
+        self.val = sympify(arg, real=real)
 
     def __getattr__(self, attr):
 
@@ -280,7 +295,7 @@ class Expr(object):
     def prettyans(self, name):
         """Make pretty string with LHS name"""
 
-        return sym.pretty(sym.Eq(sym.sympify(name), self.val))
+        return sym.pretty(sym.Eq(sympify(name), self.val))
 
     def pprint(self):
         """Pretty print"""
@@ -305,7 +320,7 @@ class Expr(object):
     def latexans(self, name):
         """Print latex string with LHS name"""
 
-        expr = sym.Eq(sym.sympify(name), self.val)
+        expr = sym.Eq(sympify(name), self.val)
 
         return sym.latex(expr)
 
@@ -391,7 +406,12 @@ class Expr(object):
     def subs(self, arg):
         """Substitute arg for variable."""
 
-        return arg.__class__(self.expr.subs(self.var, arg))
+        cls = arg.__class__
+
+        if isinstance(arg, Expr):
+            arg = arg.expr
+
+        return cls(self.expr.subs(self.var, arg))
 
     def __call__(self, arg):
 
@@ -425,14 +445,14 @@ class sExpr(Expr):
 
     """s-domain expression or symbol"""
 
-    var = sym.symbols('s')
+    var = ssym
 
     def __init__(self, val):
 
         super(sExpr, self).__init__(val)
         self._laplace_conjugate_class = tExpr
 
-        if self.expr.find(sym.sympify('t')) != set():
+        if self.expr.find(tsym) != set():
             raise ValueError(
                 's-domain expression %s cannot depend on t' % self.expr)
 
@@ -442,8 +462,8 @@ class sExpr(Expr):
 
         F = sym.factor(expr).as_ordered_factors()
 
-        delay = sym.sympify(0)
-        ratfun = sym.sympify(1)
+        delay = sympify(0)
+        ratfun = sympify(1)
         for f in F:
             b, e = f.as_base_exp()
             if b == sym.E and e.is_polynomial(var):
@@ -486,7 +506,7 @@ class sExpr(Expr):
     def jomega(self):
         """Return expression with s = j omega"""
 
-        w = omegaExpr('omega', real=True)
+        w = omegaExpr(omegasym)
         return self.subs(sym.I * w)
 
     def roots(self):
@@ -774,7 +794,6 @@ class sExpr(Expr):
         specified"""
 
         if f is None:
-            fsym = sym.symbols('f', real=True)
             return self.subs(sym.I * 2 * sym.pi * fsym)
 
         return self.evaluate(2j * np.pi * f)
@@ -831,7 +850,7 @@ class fExpr(Expr):
 
     """Fourier domain expression or symbol"""
 
-    var = sym.symbols('f', real=True)
+    var = fsym
     domain_name = 'Frequency'
     domain_units = 'Hz'
 
@@ -840,10 +859,10 @@ class fExpr(Expr):
         super(fExpr, self).__init__(val, real=real)
         self._fourier_conjugate_class = tExpr
 
-        if self.expr.find(sym.sympify('s')) != set():
+        if self.expr.find(ssym) != set():
             raise ValueError(
                 'f-domain expression %s cannot depend on s' % self.expr)
-        if self.expr.find(sym.sympify('t')) != set():
+        if self.expr.find(tsym) != set():
             raise ValueError(
                 'f-domain expression %s cannot depend on t' % self.expr)
 
@@ -865,7 +884,7 @@ class omegaExpr(Expr):
 
     """Fourier domain expression or symbol (angular frequency)"""
 
-    var = sym.symbols('omega', real=True)
+    var = omegasym
     domain_name = 'Angular frequency'
     domain_units = 'rad/s'
 
@@ -874,10 +893,10 @@ class omegaExpr(Expr):
         super(omegaExpr, self).__init__(val, real=real)
         self._fourier_conjugate_class = tExpr
 
-        if self.expr.find(sym.sympify('s')) != set():
+        if self.expr.find(ssym) != set():
             raise ValueError(
                 'omega-domain expression %s cannot depend on s' % self.expr)
-        if self.expr.find(sym.sympify('t')) != set():
+        if self.expr.find(tsym) != set():
             raise ValueError(
                 'omega-domain expression %s cannot depend on t' % self.expr)
 
@@ -894,7 +913,7 @@ class tExpr(Expr):
 
     """t-domain expression or symbol"""
 
-    var = sym.symbols('t', real=True)
+    var = tsym
     domain_name = 'Time'
     domain_units = 's'
 
@@ -904,7 +923,7 @@ class tExpr(Expr):
         self._fourier_conjugate_class = fExpr
         self._laplace_conjugate_class = sExpr
 
-        if self.expr.find(sym.sympify('s')) != set():
+        if self.expr.find(ssym) != set():
             raise ValueError(
                 't-domain expression %s cannot depend on s' % self.expr)
 
@@ -1056,7 +1075,7 @@ class Vector(Matrix):
 
     def __new__(cls, *args):
 
-        args = [sym.sympify(arg) for arg in args]
+        args = [sympify(arg) for arg in args]
 
         if len(args) == 2:
             return super(Vector, cls).__new__(cls, (args[0], args[1]))
@@ -1081,7 +1100,7 @@ def tf(numer, denom=1, var=None):
     for the numerator and denominator"""
 
     if var is None:
-        var = sym.symbols('s')
+        var = ssym
 
     N = sym.Poly(numer, var)
     D = sym.Poly(denom, var)
@@ -1094,10 +1113,10 @@ def _zp2tf(zeros, poles, K=1, var=None):
     and from a constant gain"""
 
     if var is None:
-        var = sym.symbols('s')
+        var = ssym
 
-    zeros = sym.sympify(zeros)
-    poles = sym.sympify(poles)
+    zeros = sympify(zeros)
+    poles = sympify(poles)
 
     if isinstance(zeros, (tuple, list)):
         zz = [(var - z) for z in zeros]

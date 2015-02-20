@@ -179,3 +179,14 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(b, j * omega + 2, "Substitution failed.")
         self.assertEqual2(a.jomega(), j * omega + 2, "jomega failed.")
+
+
+    def test_subs1(self):
+        """Lcapy: check subs
+
+        """
+
+        a = s(omega)
+
+        self.assertEqual(a.expr.is_real, True, "Lost is_real.")
+        self.assertEqual2(a, omega, "Substitution fail.")
