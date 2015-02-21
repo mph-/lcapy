@@ -353,6 +353,67 @@ class Expr(object):
 
         return self.__class__(sym.conjugate(self.expr))
 
+
+    @property
+    def real(self):
+        """Return real part"""
+
+        return self.__class__(sym.re(self.expr).simplify())
+
+
+    @property
+    def imag(self):
+        """Return imaginary part"""
+
+        return self.__class__(sym.im(self.expr).simplify())
+
+    
+    def rationalize_denominator(self):
+        """Rationalize denominator by multiplying numerator and denominator by
+        complex conjugate of denominator"""
+
+        N = self.N
+        D = self.D
+        Dconj = D.conjugate
+        Nnew = (N * Dconj).simplify()
+        Dnew = (D * Dconj).simplify()
+
+        Nnew = Nnew.real + j * Nnew.imag
+
+        return Nnew / Dnew
+
+    @property
+    def magnitude(self):
+        """Return magnitude"""
+
+        x = self.rationalize_denominator()
+        N = x.N
+        Dnew = x.D
+        Nnew = sqrt((N.real**2 + N.imag**2).simplify())
+
+        return Nnew / Dnew
+
+    @property
+    def abs(self):
+        """Return magnitude"""
+
+        return self.magnitude
+
+    @property
+    def phase(self):
+        """Return phase"""
+
+        x = self.rationalize_denominator()
+        N = x.N
+        
+        return self.__class__(sym.atan2(N.imag, N.real))
+
+    @property
+    def angle(self):
+        """Return phase"""
+
+        return self.phase
+
     @property
     def is_number(self):
 
@@ -932,11 +993,11 @@ class tExpr(Expr):
         """Attempt Laplace transform"""
         
         var = self.var
-        if var == sym.symbols('t', real=True):
+        if var == tsym:
             # Hack since sympy gives up on Laplace transform if t real!
             var = sym.symbols('t')
 
-        F, a, cond = sym.laplace_transform(self.expr, var, s)
+        F, a, cond = sym.laplace_transform(self, var, ssym)
 
         if hasattr(self, '_laplace_conjugate_class'):
             F = self._laplace_conjugate_class(F)
@@ -1520,30 +1581,41 @@ class NetObject(object):
         return self
 
 
+def _funcwrap(func, *args):
+
+    expr = args[0]
+    cls = expr.__class__
+
+    #if isinstance(expr, Expr):
+    #    expr = expr.val
+
+    return cls(func(*args))
+
+
 def sin(expr):
 
-    return expr.__class__(sym.sin(expr))
+    return _funcwrap(sym.sin, expr)
 
 
 def cos(expr):
 
-    return expr.__class__(sym.cos(expr))
+    return _funcwrap(sym.cos, expr)
 
 
 def exp(expr):
 
-    return expr.__class__(sym.exp(expr))
+    return _funcwrap(sym.exp, expr)
 
 
 def sqrt(expr):
 
-    return expr.__class__(sym.sqrt(expr))
+    return _funcwrap(sym.sqrt, expr)
 
 
 def Heaviside(expr):
     """Heaviside's unit step"""
 
-    return expr.__class__(sym.Heaviside(expr))
+    return _funcwrap(sym.Heaviside, expr)
 
 
 def H(expr):
@@ -1558,10 +1630,10 @@ def u(expr):
     return Heaviside(expr)
 
 
-def DiracDelta(expr, *args):
+def DiracDelta(*args):
     """Dirac delta (impulse)"""
 
-    return expr.__class__(sym.DiracDelta(expr, *args))
+    return _funcwrap(sym.DiracDelta, *args)
 
 
 def delta(expr, *args):

@@ -35,6 +35,10 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.inverse_laplace(), 4 * exp(2 * t) * H(t) + DiracDelta(t), "inverse Laplace incorrect.")
 
+        aw = a(j * omega)
+        self.assertEqual2(aw.real, (omega**2 - 4) / (omega**2 + 4), "real part incorrect.")
+        self.assertEqual2(aw.imag, -4 * omega / (omega**2 + 4), "imag part incorrect.")
+
 
     def test_sExpr2(self):
         """Lcapy: check sExpr2
