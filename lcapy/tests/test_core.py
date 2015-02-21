@@ -137,6 +137,17 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.inverse_laplace(), -sin(t) * H(t), "inverse Laplace incorrect.")
 
 
+    def test_wExpr1(self):
+        """Lcapy: check wExpr1
+
+        """
+
+        A = (j * omega + 3) / (j * omega - 4)
+        self.assertEqual2(A.N, j * omega + 3, "N incorrect.")
+        self.assertEqual2(A.D, j * omega - 4, "D incorrect.")
+        self.assertEqual2(A.real, (omega**2 - 12) / (omega**2 + 16), "real incorrect.")
+        self.assertEqual2(A.imag, -7 * omega / (omega**2 + 16), "imag incorrect.")
+
 
     def test_tExpr1(self):
         """Lcapy: check tExpr1

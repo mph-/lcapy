@@ -755,12 +755,12 @@ class sExpr(Expr):
         result1 = 0
 
         # Delayed time.
-        td = t - delay
+        td = tsym - delay
 
         if Q:
             C = Q.all_coeffs()
             for n, c in enumerate(C):
-                result1 += c * sym.diff(sym.DiracDelta(td), t, len(C) - n - 1)
+                result1 += c * sym.diff(sym.DiracDelta(td), tsym, len(C) - n - 1)
 
         expr = M / D
         sexpr = sExpr(expr)
@@ -1586,10 +1586,10 @@ def _funcwrap(func, *args):
     expr = args[0]
     cls = expr.__class__
 
-    #if isinstance(expr, Expr):
-    #    expr = expr.val
+    if isinstance(expr, Expr):
+        expr = expr.val
 
-    return cls(func(*args))
+    return cls(func(expr, *args[1:]))
 
 
 def sin(expr):
