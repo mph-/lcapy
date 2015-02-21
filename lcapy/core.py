@@ -468,10 +468,11 @@ class Expr(object):
     def subs(self, arg):
         """Substitute arg for variable."""
 
-        cls = arg.__class__
-
         if isinstance(arg, Expr):
+            cls = arg.__class__
             arg = arg.expr
+        else:
+            cls = self.__class__
 
         return cls(self.expr.subs(self.var, arg))
 
@@ -931,7 +932,7 @@ class fExpr(Expr):
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
 
-        result = sym.inverse_fourier_transform(self.expr, t, self.var)
+        result = sym.inverse_fourier_transform(self.expr, tsym, self.var.val)
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         return result
@@ -965,7 +966,7 @@ class omegaExpr(Expr):
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
 
-        result = sym.inverse_fourier_transform(self.expr, t, self.var)
+        result = sym.inverse_fourier_transform(self.expr, tsym, self.var.val)
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         return result
