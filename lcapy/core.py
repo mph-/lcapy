@@ -28,7 +28,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
 
 def sympify(arg, real=False):
 
-    if isinstance(arg, sym.symbol.Symbol):
+    if isinstance(arg, (sym.symbol.Symbol, sym.symbol.Expr)):
         return arg
 
     if (real and isinstance(arg, str) and arg.isalnum() and
@@ -151,6 +151,7 @@ class Expr(object):
     def _repr_latex_(self):
 
         return '$%s$' % self.latex()
+
 
     def __abs__(self):
         """Absolute value"""
@@ -1010,9 +1011,11 @@ class Matrix(sym.Matrix):
 
     # Unlike numpy.ndarray, the sympy.Matrix runs all the elements
     # through sympify, creating sympy objects and thus losing the
-    # original type information and associated methods.
-    # As a hack, we try to wrap elements when they are read
-    # using __getitem__.
+    # original type information and associated methods.  As a hack, we
+    # try to wrap elements when they are read using __getitem__.  This
+    # assumes that all the elements have the same type.  This is not
+    # the case for A, B, G, and H matrices.  This could he handled by
+    # having another matrix to specify the type for each element.
 
     _typewrap = sExpr
 
