@@ -551,22 +551,17 @@ class Expr(object):
         return label
 
 
-class sExpr(Expr):
+class sfwExpr(Expr):
 
-    """s-domain expression or symbol"""
+    def __init__(self, val, real=False):
 
-    var = ssym
-
-    def __init__(self, val):
-
-        super(sExpr, self).__init__(val)
-        self._laplace_conjugate_class = tExpr
-
-        if self.expr.find(tsym) != set():
-            raise ValueError(
-                's-domain expression %s cannot depend on t' % self.expr)
+        super(sfwExpr, self).__init__(val, real)
 
     def _as_ratfun_delay(self):
+        """Split expr as (N, D, delay)
+        where expr = (N / D) * exp(var * delay)
+        
+        Note, delay only represents a delay when var is s."""
 
         expr, var = self.expr, self.var
 
@@ -596,28 +591,6 @@ class sExpr(Expr):
         D = sym.Poly(denom, var)
 
         return N, D, delay
-
-    def differentiate(self):
-        """Differentiate (multiply by s)"""
-
-        return self.__class__(self.expr * self.var)
-
-    def integrate(self):
-        """Integrate (divide by s)"""
-
-        return self.__class__(self.expr / self.var)
-
-    def delay(self, T):
-        """Apply delay of T seconds by multiplying by exp(-s T)"""
-
-        T = self.__class__(T)
-        return self.__class__(self.expr * sym.exp(-s * T))
-
-    def jomega(self):
-        """Return expression with s = j omega"""
-
-        w = omegaExpr(omegasym)
-        return self.subs(sym.I * w)
 
     def roots(self):
         """Return roots of expression as a dictionary
@@ -782,6 +755,44 @@ class sExpr(Expr):
 
         return self.__class__(_zp2tf(zeros, poles, K, self.var))
 
+
+class sExpr(sfwExpr):
+
+    """s-domain expression or symbol"""
+
+    var = ssym
+
+    def __init__(self, val):
+
+        super(sExpr, self).__init__(val)
+        self._laplace_conjugate_class = tExpr
+
+        if self.expr.find(tsym) != set():
+            raise ValueError(
+                's-domain expression %s cannot depend on t' % self.expr)
+
+    def differentiate(self):
+        """Differentiate (multiply by s)"""
+
+        return self.__class__(self.expr * self.var)
+
+    def integrate(self):
+        """Integrate (divide by s)"""
+
+        return self.__class__(self.expr / self.var)
+
+    def delay(self, T):
+        """Apply delay of T seconds by multiplying by exp(-s T)"""
+
+        T = self.__class__(T)
+        return self.__class__(self.expr * sym.exp(-s * T))
+
+    def jomega(self):
+        """Return expression with s = j omega"""
+
+        w = omegaExpr(omegasym)
+        return self.subs(sym.I * w)
+
     def initial_value(self):
         """Determine value at t = 0"""
 
@@ -791,7 +802,6 @@ class sExpr(Expr):
         """Determine value at t = oo"""
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
-
 
     def _inverse_laplace(self):
 
@@ -956,7 +966,7 @@ class sExpr(Expr):
         plot_pole_zero(self, **kwargs)
 
 
-class fExpr(Expr):
+class fExpr(sfwExpr):
 
     """Fourier domain expression or symbol"""
 
@@ -990,7 +1000,7 @@ class fExpr(Expr):
         plot_frequency(self, f, **kwargs)
 
 
-class omegaExpr(Expr):
+class omegaExpr(sfwExpr):
 
     """Fourier domain expression or symbol (angular frequency)"""
 
