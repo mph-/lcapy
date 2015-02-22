@@ -6,7 +6,8 @@ Switch to setuptools.
 
 Add other controlled sources: VCCS, CCVS. CCCS.
 
-Use formal grammar for netlists and use proper parser.
+Use formal grammar for netlists and use proper parser, say plyplus.
+The disadvantage is poorer error messages.
 
 Use single representation for netlists/AST
 
@@ -23,7 +24,7 @@ Spring     k  (N/m)
 Damper     r  (kg/s)
 Velocity   u  (m/s)
 
-Support both electro-machnical analogues?
+Support both electro-mechnical analogues?  cct.electrical_analogue(1)?
 m -> L, C
 k -> C, L
 f -> I, V

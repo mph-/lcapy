@@ -972,6 +972,11 @@ class omegaExpr(Expr):
             result = self._fourier_conjugate_class(result)
         return result
 
+    def plot(self, f=None, **kwargs):
+
+        from lcapy.plot import plot_angular_frequency
+        plot_angular_frequency(self, f, **kwargs)
+
 
 class tExpr(Expr):
 

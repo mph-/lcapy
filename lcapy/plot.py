@@ -58,19 +58,41 @@ def plot_frequency(obj, f, **kwargs):
 
     # FIXME, determine useful frequency range...
     if f is None:
-        f = (-0.2, 2)
+        f = (0, 2)
     if isinstance(f, (int, float)):
         f = (0, f)
     if isinstance(f, tuple):
         f = np.linspace(f[0], f[1], 400)
 
-    V = obj(f)
-
     # TODO, handle different formats; real/imag, mag/phase
+    V = obj.real.evaluate(f)
 
     fig = figure()
     ax = fig.add_subplot(111)
     ax.plot(f, abs(V), **kwargs)
+    ax.set_xlabel(obj.domain_label)
+    ax.set_ylabel(obj.label)
+    ax.grid(True)
+
+
+def plot_angular_frequency(obj, omega, **kwargs):
+
+    from matplotlib.pyplot import figure
+
+    # FIXME, determine useful frequency range...
+    if omega is None:
+        omega = (0, np.pi)
+    if isinstance(omega, (int, float)):
+        omega = (0, omega)
+    if isinstance(omega, tuple):
+        omega = np.linspace(omega[0], omega[1], 400)
+
+    # TODO, handle different formats; real/imag, mag/phase
+    V = obj.real.evaluate(omega)
+
+    fig = figure()
+    ax = fig.add_subplot(111)
+    ax.plot(omega, abs(V), **kwargs)
     ax.set_xlabel(obj.domain_label)
     ax.set_ylabel(obj.label)
     ax.grid(True)
@@ -86,7 +108,7 @@ def plot_time(obj, t, **kwargs):
     if isinstance(t, tuple):
         t = np.linspace(t[0], t[1], 400)
 
-    v = obj(t)
+    v = obj.evaluate(t)
 
     fig = figure()
     ax = fig.add_subplot(111)
