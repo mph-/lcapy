@@ -20,9 +20,11 @@ def plot_pole_zero(obj, **kwargs):
     except TypeError:
         raise TypeError('Cannot plot poles and zeros of symbolic expression')
 
-    fig = figure()
-    ax = fig.add_subplot(111)
 
+    ax = kwargs.pop('axes', None)
+    if ax is None:
+        fig = figure()
+        ax = fig.add_subplot(111)
     ax.axvline(0, color='0.7')
     ax.axhline(0, color='0.7')
     ax.axis('equal')
@@ -70,8 +72,10 @@ def plot_frequency(obj, f, **kwargs):
 
     V = obj.evaluate(f)
 
-    fig = figure()
-    ax = fig.add_subplot(111)
+    ax = kwargs.pop('axes', None)
+    if ax is None:
+        fig = figure()
+        ax = fig.add_subplot(111)
     ax.plot(f, V, **kwargs)
     ax.set_xlabel(obj.domain_label)
     ax.set_ylabel(obj.label)
@@ -96,8 +100,10 @@ def plot_angular_frequency(obj, omega, **kwargs):
 
     V = obj.evaluate(omega)
 
-    fig = figure()
-    ax = fig.add_subplot(111)
+    ax = kwargs.pop('axes', None)
+    if ax is None:
+        fig = figure()
+        ax = fig.add_subplot(111)
     ax.plot(omega, V, **kwargs)
     ax.set_xlabel(obj.domain_label)
     ax.set_ylabel(obj.label)
@@ -116,8 +122,10 @@ def plot_time(obj, t, **kwargs):
 
     v = obj.evaluate(t)
 
-    fig = figure()
-    ax = fig.add_subplot(111)
+    ax = kwargs.pop('axes', None)
+    if ax is None:
+        fig = figure()
+        ax = fig.add_subplot(111)
     ax.plot(t, v, **kwargs)
     ax.set_xlabel(obj.domain_label)
     ax.set_ylabel(obj.label)
