@@ -379,7 +379,8 @@ class Expr(object):
         D = self.D
         Dconj = D.conjugate
         Nnew = (N * Dconj).simplify()
-        Dnew = (D * Dconj).simplify()
+        #Dnew = (D * Dconj).simplify()
+        Dnew = (D.real**2 + D.imag**2).simplify()
 
         Nnew = Nnew.real + j * Nnew.imag
 
