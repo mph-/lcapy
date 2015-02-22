@@ -2117,7 +2117,7 @@ class IdealDelay(TwoPortBModel):
 
         delay = cExpr(delay)
         super(IdealDelay, self).__init__(
-            BMatrix.voltage_amplifier(sym.exp(-delay * delay.s)))
+            BMatrix.voltage_amplifier(sym.exp(-s * delay)))
         self.args = (delay, )
 
 

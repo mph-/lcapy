@@ -531,16 +531,16 @@ class Norton(OnePort):
         if self.Y.is_number and self.I == 0:
             return G(self.Y.expr)
 
-        i = self.I * self.I.s
+        i = s * self.I
         if self.Y == 0 and i.is_number:
             return Idc(i.expr)
 
-        v = self.V * self.V.s
+        v = s * self.V
         if self.Z == 0 and v.is_number:
             return Vdc(v.expr)
 
-        y = self.Y * self.Y.s
-        z = self.Z * self.Z.s
+        y = s * self.Y
+        z = s * self.Z
 
         if z.is_number and v.is_number:
             return C((1 / z).expr, v)
@@ -713,16 +713,16 @@ class Thevenin(OnePort):
         if self.Z.is_number and self.V == 0:
             return R(self.Z.expr)
 
-        v = self.V * self.V.s
+        v = s * self.V
         if self.Z == 0 and v.is_number:
             return Vdc(v.expr)
 
-        i = self.I * self.I.s
+        i = s * self.I
         if self.Y == 0 and i.is_number:
             return Idc(i.expr)
 
-        y = self.Y * self.Y.s
-        z = self.Z * self.Z.s
+        y = s * self.Y
+        z = s * self.Z
 
         if z.is_number and v.is_number:
             return C((1 / z).expr, v)
