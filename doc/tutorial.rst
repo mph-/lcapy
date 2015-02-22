@@ -1,3 +1,5 @@
+.. TODO, split into manual and tutorial
+
 ========
 Tutorial
 ========
@@ -15,7 +17,7 @@ It does not support non-linear devices such as diodes or transistors
 although it does support simple opamps without saturation.
 
 Lcapy uses Sympy (symbolic Python) for its values and expressions
-and thus the circuit analysis can be performed symbolically.  See http://docs.sympy.org/latest/tutorial/index.html for the SymPy tutorial.
+and thus the circuit analysis can be performed symbolically.  See http://docs.sympy.org/latest/tutorial/index.html for the Sympy tutorial.
 
 Internally, the circuit components are stored using their s-domain
 equivalents, such as impedances and admittances.  This is convenient
@@ -31,6 +33,150 @@ Preliminaries
 - Then fire up your favourite python interpreter, for example, ipython:
 
   >>> ipython --pylab
+
+
+Expressions
+===========
+
+Lcapy defines a number of symbols corresponding to different domains:
+
+- t -- time (real)
+
+- f -- frequency (real)
+
+- s -- complex (s-domain) frequency
+
+- omega -- angular frequency (real)
+
+Expressions can be formed using these symbols, for example, a
+time-domain expression can be created using:
+
+   >>> from lcapy import t, delta, u
+   >>> v = 2 * t * u(t) + 3 + delta(t)
+   >>> i = 0 * t + 3
+
+and a s-domain expression can be created using:
+
+   >>> from lcapy import s, j, omega
+   >>> H = (s + 3) / (s - 4)
+   >>> H
+   s + 3
+   ─────
+   s - 4
+
+For steady-state signals, the s-domain can be converted to the angular
+frequency domain by substituting :math:`j \omega` for :math:`s`:
+
+   >>> from lcapy import s, j, omega
+   >>> H = (s + 3) / (s - 4)
+   >>> A = H(j * omega)
+   >>> A
+   ⅈ⋅ω + 3
+   ───────
+   ⅈ⋅ω - 4
+
+Note, the imaginary unit j is printed as i by Sympy.  Also note, real
+numbers are approximated by rationals.
+
+Lcapy expressions have a number of attributes, including:
+
+- N --  numerator
+
+- D --  denominator
+
+- magnitude -- magnitude
+
+- angle -- angle
+
+- real -- real part
+
+- imag -- imaginary part
+
+- conjugate -- complex conjugate
+
+- expr -- the underlying Sympy expression
+
+- val -- the expression as evaluated as a floating point value (if possible)
+
+and a number of generic methods including:
+
+- symplify -- attempt simple simplification of the expression
+
+- rationalize_denominator -- multiply numerator and denominator by complex conjugate of denominator
+
+- evaluate -- evaluate at specified vector and return floating point vector
+
+Here's an example of using these attributes and methods:
+
+   >>> from lcapy import s, j, omega
+   >>> H = (s + 3) / (s - 4)
+   >>> A = H(j * omega)
+   >>> A
+   ⅈ⋅ω + 3
+   ───────
+   ⅈ⋅ω - 4
+   >>> A.rationalize_denominator()
+    2             
+   ω  - 7⋅ⅈ⋅ω - 12
+   ───────────────
+        2         
+       ω  + 16  
+   >>> A.real
+    2     
+   ω  - 12
+   ───────
+    2     
+   ω  + 16
+   >>> A.imag
+    -7⋅ω  
+   ───────
+    2     
+   ω  + 16
+   >>> A.N
+   ⅈ⋅ω + 3
+   >>> A.D
+   ⅈ⋅ω - 4
+   >>> A.phase
+        ⎛       2     ⎞
+   atan2⎝-7⋅ω, ω  - 12⎠
+   >>> A.magnitude
+      __________________
+     ╱  4       2       
+   ╲╱  ω  + 25⋅ω  + 144 
+   ─────────────────────
+           2            
+          ω  + 16       
+
+
+
+Each domain has specific methods, including:
+
+- fourier  
+
+- laplace
+
+- inverse_fourier
+
+- inverse_laplace
+
+
+Lcapy defines a number of functions that can be used in expressions, including:
+
+- u --  Heaviside's unit step
+
+- H -- Heaviside's unit step
+
+- delta -- Dirac delta
+
+- cos -- cosine
+
+- sin -- sine
+
+- sqrt -- square root
+
+- exp -- exponential
+
+
 
 
 Simple circuit components
@@ -639,7 +785,7 @@ repeated pole:
 Rational functions with delays can also be handled:
 
    >>> from lcapy import s
-   >>> import sympy as sym
+   >>> import Sympy as sym
    >>> T = sym.symbols('T')
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * sym.exp(-s * T)
    >>> H.partfrac()
@@ -740,7 +886,7 @@ resistor Ra can be found using:
    ───
     s 
 
-Since Lcapy uses SymPy, circuit analysis can be performed
+Since Lcapy uses Sympy, circuit analysis can be performed
 symbolically.  This can be achieved by using symbolic arguments or by
 not specifying a component value.  In the latter case, Lcapy will
 use the component name for its value.  For example,
@@ -989,10 +1135,13 @@ Here, P1 defines a port.  This is shown as a pair of open blobs.
 
 Other schematic drawing hints include:
 
-   mirror  mirror component vertically (primarily for drawing opamps)
-   size=size    specify size of component
-   i=label    annotate current through component with label
-   v=label    annotate volatge across component with label
+- mirror --  mirror component vertically (primarily for drawing opamps)
+ 
+- size=size -- specify size of component
+ 
+- i=label -- annotate current through component with label
+ 
+- v=label -- annotate volatge across component with label
 
 The label position, current and voltage direction can be controlled
 with attributes _ ^ < and >, for example i^<=I_1.  See the Circuitikz
