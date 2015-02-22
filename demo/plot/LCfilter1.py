@@ -16,6 +16,5 @@ fv = linspace(0, 100, 400)
 A.magnitude.dB.plot(fv)
 A.phase.plot(fv)
 
-
-
+A.plot(fv, log_scale=True)
 
