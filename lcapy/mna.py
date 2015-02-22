@@ -194,7 +194,7 @@ class MNA(object):
         n1 = self._node_index(elt.nodes[0])
         n2 = self._node_index(elt.nodes[1])
 
-        Y = elt.cpt.Y.val
+        Y = elt.cpt.Y.expr
 
         if n1 >= 0 and n2 >= 0:
             self._G[n1, n2] -= Y
@@ -205,7 +205,7 @@ class MNA(object):
             self._G[n2, n2] += Y
 
         if n1 >= 0:
-            self._Is[n1] += elt.cpt.I.val
+            self._Is[n1] += elt.cpt.I.expr
 
     def _L_stamp(self, elt):
         """Add stamp for inductor"""
@@ -223,9 +223,9 @@ class MNA(object):
             self._B[n2, m] = -1
             self._C[m, n2] = -1
 
-        self._D[m, m] += -elt.cpt.Z.val
+        self._D[m, m] += -elt.cpt.Z.expr
 
-        self._Es[m] += elt.cpt.V.val
+        self._Es[m] += elt.cpt.V.expr
 
     def _K_stamp(self, elt):
         """Add stamp for mutual inductance"""
@@ -243,8 +243,8 @@ class MNA(object):
         m1 = self._branch_index(L1)
         m2 = self._branch_index(L2)
 
-        self._D[m1, m2] += -ZM.val
-        self._D[m2, m1] += -ZM.val
+        self._D[m1, m2] += -ZM.expr
+        self._D[m2, m1] += -ZM.expr
 
     def _V_stamp(self, elt):
         """Add stamp for voltage source (independent and dependent)"""
@@ -264,7 +264,7 @@ class MNA(object):
 
             n3 = self._node_index(elt.nodes[2])
             n4 = self._node_index(elt.nodes[3])
-            T = elt.cpt.args[0].val
+            T = elt.cpt.args[0].expr
 
             if n3 >= 0:
                 self._B[n3, m] -= T
@@ -277,7 +277,7 @@ class MNA(object):
 
             n3 = self._node_index(elt.nodes[2])
             n4 = self._node_index(elt.nodes[3])
-            A = elt.cpt.args[0].val
+            A = elt.cpt.args[0].expr
 
             if n3 >= 0:
                 self._C[m, n3] -= A
@@ -285,14 +285,14 @@ class MNA(object):
                 self._C[m, n4] += A
 
         # Add ?
-        self._Es[m] += elt.cpt.V.val
+        self._Es[m] += elt.cpt.V.expr
 
     def _I_stamp(self, elt):
         """Add stamp for current source (independent and dependent)"""
 
         n1 = self._node_index(elt.nodes[0])
         n2 = self._node_index(elt.nodes[1])
-        I = elt.cpt.I.val
+        I = elt.cpt.I.expr
         if n1 >= 0:
             self._Is[n1] -= I
         if n2 >= 0:

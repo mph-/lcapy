@@ -84,16 +84,12 @@ class Expr(object):
     # the resultant type?  For example, Vs / Vs -> Hs
     # Vs / Is -> Zs,  Is * Zs -> Vs
 
-    @property
-    def expr(self):
-        return self.val
-
     def __init__(self, arg, real=False):
 
         if isinstance(arg, Expr):
-            arg = arg.val
+            arg = arg.expr
 
-        self.val = sympify(arg, real=real)
+        self.expr = sympify(arg, real=real)
 
     def __getattr__(self, attr):
 
@@ -102,7 +98,7 @@ class Expr(object):
         # class and rewrap the returned value if it is a sympy Expr
         # object.
 
-        expr = self.val
+        expr = self.expr
         if hasattr(expr, attr):
 
             def wrap(*args):
@@ -138,11 +134,11 @@ class Expr(object):
 
     def __str__(self):
 
-        return self.val.__str__()
+        return self.expr.__str__()
 
     def __repr__(self):
 
-        return '%s(%s)' % (self.__class__.__name__, self.val)
+        return '%s(%s)' % (self.__class__.__name__, self.expr)
 
     def _repr_pretty_(self, p, cycle):
 
@@ -156,78 +152,78 @@ class Expr(object):
     def __abs__(self):
         """Absolute value"""
 
-        return self.__class__(abs(self.val))
+        return self.__class__(abs(self.expr))
 
     def __neg__(self):
         """Negation"""
 
-        return self.__class__(-self.val)
+        return self.__class__(-self.expr)
 
     def __rdiv__(self, x):
         """Reverse divide"""
 
         x = self.__class__(x)
-        return self.__class__(x.val / self.val)
+        return self.__class__(x.expr / self.expr)
 
     def __rtruediv__(self, x):
         """Reverse true divide"""
 
         x = self.__class__(x)
-        return self.__class__(x.val / self.val)
+        return self.__class__(x.expr / self.expr)
 
     def __mul__(self, x):
         """Multiply"""
 
         x = self.__class__(x)
-        return self.__class__(self.val * x.val)
+        return self.__class__(self.expr * x.expr)
 
     def __rmul__(self, x):
         """Reverse multiply"""
 
         x = self.__class__(x)
-        return self.__class__(self.val * x.val)
+        return self.__class__(self.expr * x.expr)
 
     def __div__(self, x):
         """Divide"""
 
         x = self.__class__(x)
-        return self.__class__(self.val / x.val)
+        return self.__class__(self.expr / x.expr)
 
     def __truediv__(self, x):
         """True divide"""
 
         x = self.__class__(x)
-        return self.__class__(self.val / x.val)
+        return self.__class__(self.expr / x.expr)
 
     def __add__(self, x):
         """Add"""
 
         x = self.__class__(x)
-        return self.__class__(self.val + x.val)
+        return self.__class__(self.expr + x.expr)
 
     def __radd__(self, x):
         """Reverse add"""
 
         x = self.__class__(x)
-        return self.__class__(self.val + x.val)
+        return self.__class__(self.expr + x.expr)
 
     def __rsub__(self, x):
         """Reverse subtract"""
 
         x = self.__class__(x)
-        return self.__class__(x.val - self.val)
+        return self.__class__(x.expr - self.expr)
 
     def __sub__(self, x):
         """Subtract"""
 
         x = self.__class__(x)
-        return self.__class__(self.val - x.val)
+        return self.__class__(self.expr - x.expr)
 
     def __pow__(self, x):
         """Pow"""
 
         x = self.__class__(x)
-        return self.__class__(self.val ** x.val)
+        return self.__class__(self.expr ** x.expr)
 
     def __or__(self, x):
         """Parallel combination"""
@@ -244,7 +240,7 @@ class Expr(object):
 
         # This fails if one of the operands has the is_real attribute
         # end the other doesn't...
-        return self.val == x.val
+        return self.expr == x.expr
 
     def __ne__(self, x):
         """Inequality"""
@@ -253,13 +249,13 @@ class Expr(object):
             return True
 
         x = self.__class__(x)
-        return self.val != x.val
+        return self.expr != x.expr
 
     def parallel(self, x):
         """Parallel combination"""
 
         x = self.__class__(x)
-        return self.__class__(self.val * x.val / (self.val + x.val))
+        return self.__class__(self.expr * x.expr / (self.expr + x.expr))
 
     def _pretty(self, *args, **kwargs):
         """Make pretty string"""
@@ -267,7 +263,7 @@ class Expr(object):
         # This works in conjunction with Printer._print
         # It is a hack to allow printing of _Matrix types
         # and its elements.
-        expr = self.val
+        expr = self.expr
         printer = args[0]
 
         return printer._print(expr)
@@ -278,7 +274,7 @@ class Expr(object):
         # This works in conjunction with LatexPrinter._print
         # It is a hack to allow printing of _Matrix types
         # and its elements.
-        expr = self.val
+        expr = self.expr
         printer = args[0]
 
         string = printer._print(expr)
@@ -291,12 +287,12 @@ class Expr(object):
 
     def pretty(self):
         """Make pretty string"""
-        return sym.pretty(self.val)
+        return sym.pretty(self.expr)
 
     def prettyans(self, name):
         """Make pretty string with LHS name"""
 
-        return sym.pretty(sym.Eq(sympify(name), self.val))
+        return sym.pretty(sym.Eq(sympify(name), self.expr))
 
     def pprint(self):
         """Pretty print"""
@@ -314,14 +310,14 @@ class Expr(object):
     def latex(self):
         """Make latex string"""
 
-        string = sym.latex(self.val)
+        string = sym.latex(self.expr)
         # sympy uses theta for Heaviside
         return string.replace(r'\theta\left', r'u\left')
 
     def latexans(self, name):
         """Print latex string with LHS name"""
 
-        expr = sym.Eq(sympify(name), self.val)
+        expr = sym.Eq(sympify(name), self.expr)
 
         return sym.latex(expr)
 
@@ -553,18 +549,18 @@ class sExpr(Expr):
     def differentiate(self):
         """Differentiate (multiply by s)"""
 
-        return self.__class__(self.val * self.var)
+        return self.__class__(self.expr * self.var)
 
     def integrate(self):
         """Integrate (divide by s)"""
 
-        return self.__class__(self.val / self.var)
+        return self.__class__(self.expr / self.var)
 
     def delay(self, T):
         """Apply delay of T seconds by multiplying by exp(-s T)"""
 
         T = self.__class__(T)
-        return self.__class__(self.val * sym.exp(-s * T))
+        return self.__class__(self.expr * sym.exp(-s * T))
 
     def jomega(self):
         """Return expression with s = j omega"""
@@ -932,7 +928,7 @@ class fExpr(Expr):
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
 
-        result = sym.inverse_fourier_transform(self.expr, tsym, self.var.val)
+        result = sym.inverse_fourier_transform(self.expr, tsym, self.var.expr)
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         return result
@@ -966,7 +962,7 @@ class omegaExpr(Expr):
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
 
-        result = sym.inverse_fourier_transform(self.expr, tsym, self.var.val)
+        result = sym.inverse_fourier_transform(self.expr, tsym, self.var.expr)
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         return result
@@ -1588,7 +1584,7 @@ def _funcwrap(func, *args):
     cls = expr.__class__
 
     if isinstance(expr, Expr):
-        expr = expr.val
+        expr = expr.expr
 
     return cls(func(expr, *args[1:]))
 
