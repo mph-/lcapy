@@ -356,20 +356,21 @@ class Expr(object):
 
         return self.__class__(sym.conjugate(self.expr))
 
-
     @property
     def real(self):
         """Return real part"""
 
-        return self.__class__(sym.re(self.expr).simplify())
-
+        dst = self.__class__(sym.re(self.expr).simplify())
+        dst.part = 'real'
+        return dst
 
     @property
     def imag(self):
         """Return imaginary part"""
 
-        return self.__class__(sym.im(self.expr).simplify())
-
+        dst = self.__class__(sym.im(self.expr).simplify())
+        dst.part = 'imaginary'
+        return dst
     
     def rationalize_denominator(self):
         """Rationalize denominator by multiplying numerator and denominator by
@@ -395,7 +396,9 @@ class Expr(object):
         Dnew = x.D
         Nnew = sqrt((N.real**2 + N.imag**2).simplify())
 
-        return Nnew / Dnew
+        dst = Nnew / Dnew
+        dst.part = 'magnitude'
+        return dst
 
     @property
     def abs(self):
@@ -410,7 +413,10 @@ class Expr(object):
         x = self.rationalize_denominator()
         N = x.N
         
-        return self.__class__(sym.atan2(N.imag, N.real))
+        dst = self.__class__(sym.atan2(N.imag, N.real))
+        dst.part = 'phase'
+        dst.units = 'rad'
+        return dst
 
     @property
     def angle(self):
@@ -517,6 +523,8 @@ class Expr(object):
         label = ''
         if hasattr(self, 'quantity'):
             label += '%s' % self.quantity
+        if hasattr(self, 'part'):
+            label += ' %s ' % self.part
         if hasattr(self, 'units') and self.units != '':
             label += ' (%s)' % self.units
         return label
