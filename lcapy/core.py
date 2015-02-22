@@ -21,7 +21,7 @@ import sys
 
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'zp2tf', 'Expr', 's', 'sExpr', 't', 'tExpr', 'f', 'fExpr', 'cExpr',
-           'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt',
+           'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt', 'log10',
            'H', 'Heaviside', 'DiracDelta', 'j', 'u', 'delta',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector')
 
@@ -405,6 +405,17 @@ class Expr(object):
         """Return magnitude"""
 
         return self.magnitude
+
+    @property
+    def dB(self):
+        """Return magnitude in dB"""
+
+        # Need to clip for a desired dynamic range?
+        # Assume reference is 1. 
+        dst = 20 * log10(self.magnitude)
+        dst.part = 'magnitude'
+        dst.units = 'dB'
+        return dst
 
     @property
     def phase(self):
@@ -1716,6 +1727,11 @@ def exp(expr):
 def sqrt(expr):
 
     return _funcwrap(sym.sqrt, expr)
+
+
+def log10(expr):
+
+    return _funcwrap(sym.log, expr, 10)
 
 
 def Heaviside(expr):

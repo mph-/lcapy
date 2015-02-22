@@ -65,11 +65,14 @@ def plot_frequency(obj, f, **kwargs):
         f = np.linspace(f[0], f[1], 400)
 
     # TODO, handle different formats; real/imag, mag/phase
-    V = obj.real.evaluate(f)
+    if not hasattr(obj, 'part'):
+        obj = obj.real
+
+    V = obj.evaluate(f)
 
     fig = figure()
     ax = fig.add_subplot(111)
-    ax.plot(f, abs(V), **kwargs)
+    ax.plot(f, V, **kwargs)
     ax.set_xlabel(obj.domain_label)
     ax.set_ylabel(obj.label)
     ax.grid(True)
@@ -88,11 +91,14 @@ def plot_angular_frequency(obj, omega, **kwargs):
         omega = np.linspace(omega[0], omega[1], 400)
 
     # TODO, handle different formats; real/imag, mag/phase
-    V = obj.real.evaluate(omega)
+    if not hasattr(obj, 'part'):
+        obj = obj.real
+
+    V = obj.evaluate(omega)
 
     fig = figure()
     ax = fig.add_subplot(111)
-    ax.plot(omega, abs(V), **kwargs)
+    ax.plot(omega, V, **kwargs)
     ax.set_xlabel(obj.domain_label)
     ax.set_ylabel(obj.label)
     ax.grid(True)
