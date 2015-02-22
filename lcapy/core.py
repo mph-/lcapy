@@ -472,13 +472,40 @@ class Expr(object):
     def subs(self, arg):
         """Substitute arg for variable."""
 
+        # Should check for bogus substitutions, such as t for s.
+
+        expr = arg
         if isinstance(arg, Expr):
             cls = arg.__class__
-            arg = arg.expr
+            expr = arg.expr
         else:
             cls = self.__class__
 
-        return cls(self.expr.subs(self.var, arg))
+        class_map = {(Hs, omegaExpr) : Homega,
+                     (Is, omegaExpr) : Iomega,
+                     (Vs, omegaExpr) : Vomega,
+                     (Ys, omegaExpr) : Yomega,
+                     (Zs, omegaExpr) : Zomega,
+                     (Hs, fExpr) : Hf,
+                     (Is, fExpr) : If,
+                     (Vs, fExpr) : Vf,
+                     (Ys, fExpr) : Yf,
+                     (Zs, fExpr) : Zf,
+                     (Hf, omegaExpr) : Homega,
+                     (If, omegaExpr) : Iomega,
+                     (Vf, omegaExpr) : Vomega,
+                     (Yf, omegaExpr) : Yomega,
+                     (Zf, omegaExpr) : Zomega,
+                     (Homega, fExpr) : Hf,
+                     (Iomega, fExpr) : If,
+                     (Vomega, fExpr) : Vf,
+                     (Yomega, fExpr) : Yf,
+                     (Zomega, fExpr) : Zf}
+
+        if (self.__class__, arg.__class__) in class_map:
+            cls = class_map[(self.__class__, arg.__class__)]
+
+        return cls(self.expr.subs(self.var, expr))
 
     def __call__(self, arg):
 
@@ -490,7 +517,7 @@ class Expr(object):
         label = ''
         if hasattr(self, 'quantity'):
             label += '%s' % self.quantity
-        if hasattr(self, 'units'):
+        if hasattr(self, 'units') and self.units != '':
             label += ' (%s)' % self.units
         return label
 
@@ -1362,7 +1389,6 @@ class Is(sExpr):
 class Hs(sExpr):
 
     """s-domain ratio"""
-    pass
 
     quantity = 's-ratio'
     units = ''
@@ -1469,7 +1495,7 @@ class Zf(fExpr):
 
 class Vf(fExpr):
 
-    """f-domain voltage (units V)"""
+    """f-domain voltage (units V/Hz)"""
 
     quantity = 'Voltage spectrum'
     units = 'V/Hz'
@@ -1482,7 +1508,7 @@ class Vf(fExpr):
 
 class If(fExpr):
 
-    """f-domain current (units A)"""
+    """f-domain current (units A/Hz)"""
 
     quantity = 'Current spectrum'
     units = 'A/Hz'
@@ -1495,14 +1521,79 @@ class If(fExpr):
 
 class Hf(fExpr):
 
-    """d-domain transfer function response"""
+    """f-domain transfer function response"""
 
     quantity = 'Transfer function'
-    units = '1'
+    units = ''
 
     def __init__(self, val):
 
         super(Hf, self).__init__(val)
+        self._fourier_conjugate_class = Ht
+
+
+class Yomega(omegaExpr):
+
+    """omega-domain admittance"""
+
+    quantity = 'Admittance'
+    units = 'siemens'
+
+    def __init__(self, val):
+
+        super(Yomega, self).__init__(val)
+        self._fourier_conjugate_class = Yt
+
+
+class Zomega(omegaExpr):
+
+    """omega-domain impedance"""
+
+    quantity = 'Impedance'
+    units = 'ohms'
+
+    def __init__(self, val):
+
+        super(Zomega, self).__init__(val)
+        self._fourier_conjugate_class = Zt
+
+
+class Vomega(omegaExpr):
+
+    """omega-domain voltage (units V/rad/s)"""
+
+    quantity = 'Voltage spectrum'
+    units = 'V/rad/s'
+
+    def __init__(self, val):
+
+        super(Vomega, self).__init__(val)
+        self._fourier_conjugate_class = Vt
+
+
+class Iomega(omegaExpr):
+
+    """omega-domain current (units A/rad/s)"""
+
+    quantity = 'Current spectrum'
+    units = 'A/rad/s'
+
+    def __init__(self, val):
+
+        super(Iomega, self).__init__(val)
+        self._fourier_conjugate_class = It
+
+
+class Homega(omegaExpr):
+
+    """omega-domain transfer function response"""
+
+    quantity = 'Transfer function'
+    units = ''
+
+    def __init__(self, val):
+
+        super(Homega, self).__init__(val)
         self._fourier_conjugate_class = Ht
 
 
