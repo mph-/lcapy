@@ -892,35 +892,52 @@ class sExpr(sfwExpr):
             result = self._laplace_conjugate_class(result)
         return result
 
-    def transient_response(self, t=None):
+    def transient_response(self, tvector=None):
         """Evaluate transient (impulse) response"""
 
         texpr = self.inverse_laplace()
 
-        if t is None:
+        if tvector is None:
             return texpr
 
         print('Evaluating inverse Laplace transform...')
-        return texpr.evaluate(t)
+        return texpr.evaluate(tvector)
 
-    def impulse_response(self, t=None):
+    def impulse_response(self, tvector=None):
         """Evaluate transient (impulse) response"""
 
-        return self.transient_response(t)
+        return self.transient_response(tvector)
 
-    def step_response(self, t=None):
+    def step_response(self, tvector=None):
         """Evaluate step response"""
 
-        return (self / self.var).transient_response(t)
+        return (self / self.var).transient_response(tvector)
 
-    def frequency_response(self, f=None):
-        """Convert to frequency domain and evaluate response is frequency
-        specified"""
+    def angular_frequency_response(self, wvector=None):
+        """Convert to angular frequency domain and evaluate response if
+        angular frequency vector specified
 
-        if f is None:
-            return self.subs(sym.I * 2 * sym.pi * fsym)
+        """
 
-        return self.evaluate(2j * np.pi * f)
+        X = self.subs(j * omega)
+
+        if wvector is None:
+            return X
+
+        return X.evaluate(wvector)
+
+    def frequency_response(self, fvector=None):
+        """Convert to frequency domain and evaluate response if frequency
+        vector specified
+
+        """
+
+        X = self.subs(j * 2 * pi * f)
+
+        if fvector is None:
+            return X
+
+        return X.evaluate(fvector)
 
     def response(self, x, t):
         """Evaluate response to input signal x at times t"""
