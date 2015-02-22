@@ -91,6 +91,13 @@ class Expr(object):
 
         self.expr = sympify(arg, real=real)
 
+    @property
+    def val(self):
+        """Return floating point value of expression if it can be evaluated,
+        otherwise the expression"""
+
+        return self.evalf()
+
     def __getattr__(self, attr):
 
         # This gets called if there is no explicit attribute attr for
