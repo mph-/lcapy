@@ -964,6 +964,7 @@ class sExpr(sfwExpr):
         return super(sExpr, self).evaluate(svector)
 
     def plot(self, t=None, **kwargs):
+        """Plot pole-zero map"""
 
         from lcapy.plot import plot_pole_zero
 
@@ -998,10 +999,22 @@ class fExpr(sfwExpr):
             result = self._fourier_conjugate_class(result)
         return result
 
-    def plot(self, f=None, **kwargs):
+    def plot(self, fvector=None, **kwargs):
+        """Plot frequency response at values specified by fvector.
+        
+        There are many plotting options, see matplotlib.pyplot.plot.
+
+        For example:
+            V.plot(fvector, log_scale=True)
+            V.real.plot(fvector, color='black')
+            V.phase.plot(fvector, color='black', linestyle='--')
+
+        By default complex data is plotted as separate plots of magnitude (dB)
+        and phase.        
+        """
 
         from lcapy.plot import plot_frequency
-        plot_frequency(self, f, **kwargs)
+        plot_frequency(self, fvector, **kwargs)
 
 
 class omegaExpr(sfwExpr):
@@ -1032,10 +1045,22 @@ class omegaExpr(sfwExpr):
             result = self._fourier_conjugate_class(result)
         return result
 
-    def plot(self, f=None, **kwargs):
+    def plot(self, wvector=None, **kwargs):
+        """Plot angular frequency response at values specified by wvector.
+        
+        There are many plotting options, see matplotlib.pyplot.plot.
+
+        For example:
+            V.plot(fvector, log_scale=True)
+            V.real.plot(fvector, color='black')
+            V.phase.plot(fvector, color='black', linestyle='--')
+
+        By default complex data is plotted as separate plots of magnitude (dB)
+        and phase.        
+        """
 
         from lcapy.plot import plot_angular_frequency
-        plot_angular_frequency(self, f, **kwargs)
+        plot_angular_frequency(self, wvector, **kwargs)
 
 
 class tExpr(Expr):

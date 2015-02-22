@@ -52,6 +52,7 @@ def plot_pole_zero(obj, **kwargs):
     # TODO, annotate with number of times a pole or zero is repeated.
     ax.plot(z.real, z.imag, 'bo', fillstyle='none', ms=10, **kwargs)
     ax.plot(p.real, p.imag, 'bx', fillstyle='none', ms=10, **kwargs)
+    return ax
 
 
 def plot_frequency(obj, f, **kwargs):
@@ -68,7 +69,12 @@ def plot_frequency(obj, f, **kwargs):
 
     # TODO, handle different formats; real/imag, mag/phase
     if not hasattr(obj, 'part'):
-        obj = obj.real
+        ax = plot_frequency(obj.magnitude.dB, f, **kwargs)
+        ax2 = ax.twinx()
+        kwargs['axes'] = ax2
+        kwargs['linestyle'] = '--'
+        ax = plot_frequency(obj.phase, f, **kwargs)
+        return ax
 
     V = obj.evaluate(f)
 
@@ -76,10 +82,15 @@ def plot_frequency(obj, f, **kwargs):
     if ax is None:
         fig = figure()
         ax = fig.add_subplot(111)
-    ax.plot(f, V, **kwargs)
+
+    if kwargs.pop('log_scale', False):
+        ax.semilogx(f, V, **kwargs)
+    else:
+        ax.plot(f, V, **kwargs)
     ax.set_xlabel(obj.domain_label)
     ax.set_ylabel(obj.label)
     ax.grid(True)
+    return ax
 
 
 def plot_angular_frequency(obj, omega, **kwargs):
@@ -96,7 +107,11 @@ def plot_angular_frequency(obj, omega, **kwargs):
 
     # TODO, handle different formats; real/imag, mag/phase
     if not hasattr(obj, 'part'):
-        obj = obj.real
+        ax = plot_angular_frequency(obj.magnitude.db, omega, **kwargs)
+        ax2 = ax.twinx()
+        kwargs['axes'] = ax2
+        ax = plot_angular_frequency(obj.phase, omega, **kwargs)
+        return ax
 
     V = obj.evaluate(omega)
 
@@ -104,10 +119,15 @@ def plot_angular_frequency(obj, omega, **kwargs):
     if ax is None:
         fig = figure()
         ax = fig.add_subplot(111)
-    ax.plot(omega, V, **kwargs)
+
+    if kwargs.pop('log_scale', False):
+        ax.semilogx(omega, V, **kwargs)
+    else:
+        ax.plot(omega, V, **kwargs)
     ax.set_xlabel(obj.domain_label)
     ax.set_ylabel(obj.label)
     ax.grid(True)
+    return ax
 
 
 def plot_time(obj, t, **kwargs):
@@ -130,3 +150,4 @@ def plot_time(obj, t, **kwargs):
     ax.set_xlabel(obj.domain_label)
     ax.set_ylabel(obj.label)
     ax.grid(True)
+    return ax
