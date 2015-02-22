@@ -474,10 +474,7 @@ class Expr(object):
 
     def __call__(self, arg):
 
-        if isinstance(arg, (Expr, sym.expr.Expr)):
-            return self.subs(arg)
-
-        return self.evaluate(arg)
+        return self.subs(arg)
 
     @property
     def label(self):
