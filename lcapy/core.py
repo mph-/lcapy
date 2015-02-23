@@ -542,9 +542,12 @@ class Expr(object):
 
         label = ''
         if hasattr(self, 'quantity'):
-            label += '%s' % self.quantity
-        if hasattr(self, 'part'):
-            label += ' %s ' % self.part
+            label += self.quantity
+            if hasattr(self, 'part'):
+                label += ' ' + self.part
+        else:
+            if hasattr(self, 'part'):
+                label += self.part.capitalize()
         if hasattr(self, 'units') and self.units != '':
             label += ' (%s)' % self.units
         return label
