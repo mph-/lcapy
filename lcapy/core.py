@@ -21,9 +21,14 @@ import sys
 
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'zp2tf', 'Expr', 's', 'sExpr', 't', 'tExpr', 'f', 'fExpr', 'cExpr',
-           'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt', 'log10',
+           'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt', 
+           'log', 'log10',
            'H', 'Heaviside', 'DiracDelta', 'j', 'u', 'delta',
-           'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector')
+           'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector',
+           'Hs', 'Is', 'Vs', 'Ys', 'Zs',
+           'Ht', 'It', 'Vt', 'Yt', 'Zt',
+           'Hf', 'If', 'Vf', 'Yf', 'Zf',
+           'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
 
 def sympify(arg, real=False):
@@ -1783,6 +1788,11 @@ def exp(expr):
 def sqrt(expr):
 
     return _funcwrap(sym.sqrt, expr)
+
+
+def log(expr):
+
+    return _funcwrap(sym.log, expr)
 
 
 def log10(expr):
