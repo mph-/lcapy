@@ -347,13 +347,13 @@ of the impedance `N.Z`.
 
 
 The frequency response can be evaluated numerically by specifying a
-vector of time values.
+vector of frequency values.
 
    >>> from lcapy import *
-   >>> from numpy import logspace
+   >>> from numpy import linspace
    >>> N = Vdc(20) + R(5) + C(10)
-   >>> f = linspace(0, 4, 400)
-   >>> Isc = N.Isc.frequency_response(f)
+   >>> vf = linspace(0, 4, 400)
+   >>> Isc = N.Isc.frequency_response().evaluate(vf)
 
 Then the frequency response can be plotted.  For example,
 
@@ -366,9 +366,16 @@ Then the frequency response can be plotted.  For example,
    >>> ax.grid(True)
    >>> show()
 
+A simpler approach is to use the plot method:
+
+   >>> from lcapy import *
+   >>> from numpy import linspace
+   >>> N = Vdc(20) + R(5) + C(10)
+   >>> vf = linspace(0, 4, 400)
+   >>> Isc = N.Isc.frequency_response().plot(vf, log_scale=True)
+
 .. image:: examples/series-VRC1-Isc.png
    :width: 15cm
-
 
 Here's a complete example Python script to plot the impedance of a
 series R-L-C network:
@@ -447,16 +454,12 @@ vector of time values.
    >>> t = linspace(0, 100, 400)
    >>> isc = N.Isc.transient_response(t)
 
-Then the transient response can be plotted.  For example,
+Then the transient response can be plotted.  Alternatively, the plot
+method can be used.
 
-   >>> from matplotlib.pyplot import figure, show
-   >>> fig = figure()
-   >>> ax = fig.add_subplot(111)
-   >>> ax.plot(t, isc, linewidth=2)
-   >>> ax.set_xlabel('Time (s)')
-   >>> ax.set_ylabel('Current (A)')
-   >>> ax.grid(True)
-   >>> show()
+.. literalinclude:: examples/series-VRC1-isc.py
+
+This produces:
 
 .. image:: examples/series-VRC1-isc.png
    :width: 15cm
