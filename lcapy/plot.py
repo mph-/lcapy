@@ -50,8 +50,12 @@ def plot_pole_zero(obj, **kwargs):
     ax.set_ylim(y_min - 0.5 * y_extra, y_max + 0.5 * y_extra)
 
     # TODO, annotate with number of times a pole or zero is repeated.
-    ax.plot(z.real, z.imag, 'bo', fillstyle='none', ms=10, **kwargs)
-    ax.plot(p.real, p.imag, 'bx', fillstyle='none', ms=10, **kwargs)
+
+    # Marker size
+    ms = kwargs.pop('ms', 10)
+    fillstyle = kwargs.pop('fillstyle', 'none')
+    ax.plot(z.real, z.imag, 'bo', fillstyle=fillstyle, ms=ms, **kwargs)
+    ax.plot(p.real, p.imag, 'bx', fillstyle=fillstyle, ms=ms, **kwargs)
     return ax
 
 
