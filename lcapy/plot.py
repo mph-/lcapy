@@ -73,8 +73,8 @@ def plot_frequency(obj, f, **kwargs):
         ax2 = ax.twinx()
         kwargs['axes'] = ax2
         kwargs['linestyle'] = '--'
-        ax = plot_frequency(obj.phase, f, **kwargs)
-        return ax
+        ax2 = plot_frequency(obj.phase, f, **kwargs)
+        return ax, ax2
 
     V = obj.evaluate(f)
 
@@ -110,8 +110,8 @@ def plot_angular_frequency(obj, omega, **kwargs):
         ax = plot_angular_frequency(obj.magnitude.db, omega, **kwargs)
         ax2 = ax.twinx()
         kwargs['axes'] = ax2
-        ax = plot_angular_frequency(obj.phase, omega, **kwargs)
-        return ax
+        ax2 = plot_angular_frequency(obj.phase, omega, **kwargs)
+        return ax, ax2
 
     V = obj.evaluate(omega)
 
