@@ -27,7 +27,8 @@ __all__ = ('Schematic', )
 
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
-cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'P', 'E', 'TF', 'TP', 'K']
+cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'P', 'E', 
+             'M', 'Q', 'TF', 'TP', 'K']
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 
 cpt_type_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_types))
@@ -187,8 +188,9 @@ class Cnodes(object):
 
 class Graph(dict):
 
-    def __init__(self, size):
+    def __init__(self, size, name):
 
+        self.name = name
         for m in range(size):
             self[m] = []
 
@@ -196,12 +198,50 @@ class Graph(dict):
         self[n1].append((n2, size))
 
 
+    def longest_path(self):
+        """Find longest path through DAG.  all_nodes is an iterable for all
+        the nodes in the graph, from_nodes is a directory indexed by node
+        that stores a tuple of tuples.  The first tuple element is the
+        parent node and the second element is the minimium size of the
+        component connecting the nodes.
+        """
+
+        all_nodes = self.keys()
+        from_nodes = self
+
+        memo = {}
+
+        def get_longest(to_node):
+
+            if to_node in memo:
+                return memo[to_node]
+
+            best = 0
+            for from_node, size in from_nodes[to_node]:
+                best = max(best, get_longest(from_node) + size)
+
+            memo[to_node] = best
+
+            return best
+
+        try:
+            length, node = max([(get_longest(to_node), to_node)
+                                for to_node in all_nodes])
+        except RuntimeError:
+            raise RuntimeError(
+                ('The schematic graph %s is dodgy, probably a component'
+                 ' is connected to the wrong node\n%s') 
+                % (self.name, from_nodes))
+
+        return length, node, memo
+
+
 class Graphs(object):
 
-    def __init__(self, size):
+    def __init__(self, size, name):
 
-        self.fwd = Graph(size)
-        self.rev = Graph(size)
+        self.fwd = Graph(size, name + ' forward')
+        self.rev = Graph(size, name + ' reverse')
 
     def add(self, n1, n2, size):
         self.fwd.add(n1, n2, size)
@@ -210,40 +250,6 @@ class Graphs(object):
     @property
     def nodes(self):
         return self.fwd.keys()
-
-
-def longest_path(all_nodes, from_nodes):
-    """Find longest path through DAG.  all_nodes is an iterable for all
-    the nodes in the graph, from_nodes is a directory indexed by node
-    that stores a tuple of tuples.  The first tuple element is the
-    parent node and the second element is the minimium size of the
-    component connecting the nodes.
-    """
-
-    memo = {}
-
-    def get_longest(to_node):
-
-        if to_node in memo:
-            return memo[to_node]
-
-        best = 0
-        for from_node, size in from_nodes[to_node]:
-            best = max(best, get_longest(from_node) + size)
-
-        memo[to_node] = best
-
-        return best
-
-    try:
-        length, node = max([(get_longest(to_node), to_node)
-                            for to_node in all_nodes])
-    except RuntimeError:
-        raise RuntimeError(
-            ('The schematic graph is dodgy, probably a component is connected'
-             ' to the wrong node\n%s') % from_nodes)
-
-    return length, node, memo
 
 
 class Node(object):
@@ -369,6 +375,13 @@ class NetElement(object):
         self.name = name
         # Type of component, e.g., 'V'
         self.cpt_type = cpt_type
+
+        if cpt_type in ('M', 'Q'):
+            if len(args) < 1:
+                raise ValueError(
+                    'Component type %s requires 3 nodes' % cpt_type)
+            self.nodes += (args[0], )
+            args = args[1:]
 
         if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP', 'opamp'):
             if len(args) < 2:
@@ -607,15 +620,15 @@ class Schematic(object):
                     cnodes.link(n4, n2)
                 continue
 
-            if elt.opts['dir'
-                        ] in dirs:
+            if elt.opts['dir'] in dirs:
                 continue
 
             cnodes.link(*elt.nodes[0:2])
 
         # Now form forward and reverse directed graphs using components
         # in the desired directions.
-        graphs = Graphs(cnodes.size)
+        graphs = Graphs(cnodes.size, 
+                        'vertical' if dirs[0] == 'up' else 'horizontal')
 
         for m, elt in enumerate(self.elements.values()):
 
@@ -650,8 +663,7 @@ class Schematic(object):
                         graphs.add(m4, m1, 0.5 * size)
                         graphs.add(m1, m3, 0.5 * size)
                 continue
-
-            if elt.cpt_type == 'K':
+            elif elt.cpt_type == 'K':
 
                 L1 = self.elements[elt.nodes[0]]
                 L2 = self.elements[elt.nodes[1]]
@@ -663,6 +675,18 @@ class Schematic(object):
                 if dirs[0] == 'right':
                     graphs.add(m3, m1, scale * size)
                     graphs.add(m4, m2, scale * size)
+                continue
+            elif elt.cpt_type in ('M', 'Q'):
+                # C, B, E or D, G, S
+                m1, m2, m3 = cnodes.map(elt.nodes)
+
+                scale = 0.8
+                if dirs[0] == 'right':
+                    graphs.add(m2, m3, scale * size)
+                    graphs.add(m2, m1, scale * size)
+                else:
+                    graphs.add(m3, m2, scale * size * 0.5)
+                    graphs.add(m2, m1, scale * size * 0.5)
                 continue
 
             if elt.opts['dir'] not in dirs:
@@ -694,8 +718,8 @@ class Schematic(object):
             pdb.set_trace()
 
         # Find longest path through the graphs.
-        length, node, memo = longest_path(graphs.fwd.keys(), graphs.fwd)
-        length, node, memor = longest_path(graphs.fwd.keys(), graphs.rev)
+        length, node, memo = graphs.fwd.longest_path()
+        length, node, memor = graphs.rev.longest_path()
 
         pos = {}
         posr = {}
@@ -900,6 +924,21 @@ class Schematic(object):
         s = self._tikz_draw_TF1(elt, nodes, draw_labels, link=True)
         return s
 
+    def _tikz_draw_Q(self, elt, draw_labels):
+
+        n1, n2, n3 = elt.nodes
+
+        p1, p2, p3 = [self.coords[n] for n in elt.nodes]
+
+        centre = Pos(0.5 * (p3.x + p2.x), p2.y)
+
+        # TODO, handle MOSFET and transistor type.
+
+        s = r'  \draw (%s) node[npn, scale=%.1f] (npn) {};' % (
+            centre, self.scale * 2)
+        s += r'  \draw (%s) node [] {%s};' % (centre, labelstr)
+        return s
+
     def _tikz_draw_cpt(self, elt, draw_labels, draw_nodes):
 
         # Mapping of component names to circuitikz names.
@@ -989,6 +1028,8 @@ class Schematic(object):
         draw = {'TF': self._tikz_draw_TF,
                 'TP': self._tikz_draw_TP,
                 'K': self._tikz_draw_K,
+                'M': self._tikz_draw_Q,
+                'Q': self._tikz_draw_Q,
                 'opamp': self._tikz_draw_opamp}
 
         # Draw components
