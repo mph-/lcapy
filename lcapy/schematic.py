@@ -239,9 +239,9 @@ def longest_path(all_nodes, from_nodes):
         length, node = max([(get_longest(to_node), to_node)
                             for to_node in all_nodes])
     except RuntimeError:
-        print('Dodgy graph')
-        print(from_nodes)
-        raise RuntimeError
+        raise RuntimeError(
+            ('The schematic graph is dodgy, probably a component is connected'
+             ' to the wrong node\n%s') % from_nodes)
 
     return length, node, memo
 
@@ -915,6 +915,8 @@ class Schematic(object):
                         'Z': 'Z', 'Y': 'Y'}
 
         cpt_type = cpt_type_map[elt.cpt_type]
+        if cpt_type == 'R' and 'variable' in elt.opts:
+            cpt_type = 'vR'
 
         n1, n2 = elt.nodes[0:2]
 
@@ -927,6 +929,10 @@ class Schematic(object):
             n1, n2 = n2, n1
             # Draw label on RHS for vertical cpt.
             modifier = '_'
+
+        if cpt_type in ('V', 'Vdc', 'I', 'Idc') and 'mirror' in elt.opts:
+            # Probably should negate value.
+            n1, n2 = n2, n1
 
         # If have a left drawn cpt, then switch nodes so that
         # label defaults to top but then have to switch current
