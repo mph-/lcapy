@@ -176,6 +176,10 @@ Lcapy defines a number of functions that can be used in expressions, including:
 
 - exp -- exponential
 
+- log10 -- logarithm base 10
+
+- log -- natural logarithm
+
 
 
 
@@ -1139,14 +1143,67 @@ Here, P1 defines a port.  This is shown as a pair of open blobs.
 Other schematic drawing hints include:
 
 - mirror --  mirror component vertically (primarily for drawing opamps)
+
+- reverse -- reverse component direction (primarily for opamps, diodes, voltage and current sources)
  
 - size=size -- specify size of component
  
 - i=label -- annotate current through component with label
  
-- v=label -- annotate volatge across component with label
+- v=label -- annotate voltage across component with label
 
 The label position, current and voltage direction can be controlled
 with attributes _ ^ < and >, for example i^<=I_1.  See the Circuitikz
 manual for details.
 
+
+Diodes can be drawn but not analyzed.   A standard diode is described using:
+
+     Dname Np Nm
+
+Other diodes are specified with an additional argument:
+
+     Dname Np Nm schottky|led|zener|tunnel|photo 
+
+Transistors (BJT, JFET, and MOSFET) can also be drawn but not analyzed.  Both
+are added to the netlist using a syntax similar to that of SPICE.  A BJT
+is described using:
+    
+     Qname NC NB NE npn|pnp
+
+where NC, NB, and NE denote the collector, base, and emitter nodes.
+A MOSFET is described using:
+
+     Mname ND NG NS nmos|pmos
+
+where ND, NG, and NS denote the drain, gate, and source nodes.
+
+A JFET is described using:
+
+     Jname ND NG NS njf|pjf
+
+where ND, NG, and NS denote the drain, gate, and source nodes.
+
+
+
+Plotting
+========
+
+Lcapy expressions have a plot method; this differs depending on the
+domain.  For example, the plot method for s-domain expressions
+produces a pole-zero plot.  Here's an example:
+
+.. literalinclude:: examples/tf1-pole-zero-plot.py
+
+.. image:: examples/tf1-pole-zero-plot.png
+   :width: 15cm
+
+
+The plot method for f-domain and :math:`\omega` -domain expressions
+produce spectral plots, for example, 
+
+
+.. literalinclude:: examples/tf1-bode-plot.py
+
+.. image:: examples/tf1-bode-plot.png
+   :width: 15cm

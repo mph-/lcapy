@@ -4,7 +4,7 @@ from matplotlib.pyplot import figure, savefig, show
 
 t = np.linspace(0, 0.01, 1000)
 
-cct = Circuit('Series VRC1')
+cct = Circuit()
 
 cct.add('V1 1 0 dc 20')
 cct.add('R1 1 2 10')

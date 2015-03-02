@@ -723,8 +723,12 @@ class Schematic(object):
                         m1, m2 = m2, m1
                     graphs.add(m2, m1, xscale * size)
                 else:
-                    graphs.add(m3, m2, yscale * size * 0.32)
-                    graphs.add(m2, m1, yscale * size * 0.68)
+                    if elt.sub_type == 'pjf':
+                        graphs.add(m3, m2, yscale * size * 0.68)
+                        graphs.add(m2, m1, yscale * size * 0.32)
+                    else:
+                        graphs.add(m3, m2, yscale * size * 0.32)
+                        graphs.add(m2, m1, yscale * size * 0.68)
                 continue
             elif elt.cpt_type in ('M', 'Q'):
                 # C, B, E or D, G, S
