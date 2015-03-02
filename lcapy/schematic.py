@@ -599,8 +599,7 @@ class Schematic(object):
                     # Ensure input nodes have same x value
                     cnodes.link(*elt.nodes[2:4])
                 continue
-
-            if elt.cpt_type == 'K':
+            elif elt.cpt_type == 'K':
 
                 # Should check that these inductors exist.
                 L1 = self.elements[elt.nodes[0]]
@@ -618,6 +617,13 @@ class Schematic(object):
                 if dirs[0] != 'right':
                     cnodes.link(n3, n1)
                     cnodes.link(n4, n2)
+                continue
+            elif elt.cpt_type in ('M', 'Q'):
+                n1, n2, n3 = elt.nodes                
+
+                if dirs[0] == 'right':
+                    # Horizontal constraint for C and E.
+                    cnodes.link(n3, n1)
                 continue
 
             if elt.opts['dir'] in dirs:
@@ -680,13 +686,14 @@ class Schematic(object):
                 # C, B, E or D, G, S
                 m1, m2, m3 = cnodes.map(elt.nodes)
 
-                scale = 0.8
+                yscale = 1.5
+                xscale = 0.75
                 if dirs[0] == 'right':
-                    graphs.add(m2, m3, scale * size)
-                    graphs.add(m2, m1, scale * size)
+                    graphs.add(m2, m3, xscale * size)
+                    graphs.add(m2, m1, xscale * size)
                 else:
-                    graphs.add(m3, m2, scale * size * 0.5)
-                    graphs.add(m2, m1, scale * size * 0.5)
+                    graphs.add(m3, m2, yscale * size * 0.5)
+                    graphs.add(m2, m1, yscale * size * 0.5)
                 continue
 
             if elt.opts['dir'] not in dirs:
@@ -930,10 +937,11 @@ class Schematic(object):
 
         p1, p2, p3 = [self.coords[n] for n in elt.nodes]
 
-        centre = Pos(0.5 * (p3.x + p2.x), p2.y)
+        centre = Pos(p3.x, p2.y)
+
+        labelstr = elt.tex_label if draw_labels else ''
 
         # TODO, handle MOSFET and transistor type.
-
         s = r'  \draw (%s) node[npn, scale=%.1f] (npn) {};' % (
             centre, self.scale * 2)
         s += r'  \draw (%s) node [] {%s};' % (centre, labelstr)
