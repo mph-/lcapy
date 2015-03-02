@@ -39,7 +39,7 @@ from lcapy.oneport import Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
 from schematic import Schematic
-from mna import MNA, VCVS, TF, K, TP
+from mna import MNA, VCVS, TF, K, TP, Dummy
 import re
 from copy import copy
 
@@ -113,6 +113,7 @@ cpt_type_map = {'R': R, 'C': C, 'L': L, 'Z': Z, 'Y': Y,
                 'V': v, 'I': i, 'v': v, 'i': i,
                 'P': 'open', 'W': 'short',
                 'E': VCVS, 'TF': TF, 'TP': TP, 'K': K,
+                'M': Dummy, 'Q': Dummy,
                 'opamp': VCVS}
 
 

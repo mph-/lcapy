@@ -64,6 +64,15 @@ class TP(CS):
         self.V = 0
 
 
+class Dummy(object):
+
+    """Dummy component.  These can be drawn but not analysed."""
+
+    def __init__(self, *args):
+
+        self.args = args
+
+
 class Mdict(dict):
 
     def __getitem__(self, key):
