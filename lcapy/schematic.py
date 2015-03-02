@@ -440,7 +440,6 @@ class NetElement(object):
 
         if opts['dir'] is None:
             opts['dir'] = 'down' if cpt_type in ('P', ) else 'right'
-
         if len(args) > 0:
 
             # TODO, extend for mechanical and acoustical components.
@@ -720,6 +719,8 @@ class Schematic(object):
                 yscale = 1.5
                 xscale = 1.0
                 if dirs[0] == 'right':
+                    if elt.opts['dir'] == 'left':
+                        m1, m2 = m2, m1
                     graphs.add(m2, m1, xscale * size)
                 else:
                     graphs.add(m3, m2, yscale * size * 0.32)
@@ -732,6 +733,8 @@ class Schematic(object):
                 yscale = 1.5
                 xscale = 0.8
                 if dirs[0] == 'right':
+                    if elt.opts['dir'] == 'left':
+                        m1, m2 = m2, m1
                     graphs.add(m2, m1, xscale * size)
                 else:
                     graphs.add(m3, m2, yscale * size * 0.5)
@@ -741,6 +744,7 @@ class Schematic(object):
             if elt.opts['dir'] not in dirs:
                 continue
 
+            # Handle bipoles here.
             m1, m2 = cnodes.map(elt.nodes)
 
             if elt.opts['dir'] == dirs[0]:
@@ -885,6 +889,10 @@ class Schematic(object):
 
     def _tikz_draw_opamp(self, elt, draw_labels):
 
+        if elt.opts['dir'] != 'right':
+            raise ValueError('Cannot draw opamp %s in direction %s'
+                             % (elt.name, elt.opts['dir']))
+
         n1, n2, n3, n4 = elt.nodes
 
         p1, p2, p3, p4 = [self.coords[n] for n in elt.nodes]
@@ -932,6 +940,10 @@ class Schematic(object):
 
     def _tikz_draw_TF(self, elt, draw_labels):
 
+        if elt.opts['dir'] != 'right':
+            raise ValueError('Cannot draw transformer %s in direction %s'
+                             % (elt.name, elt.opts['dir']))
+
         n1, n2, n3, n4 = elt.nodes
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
@@ -940,6 +952,10 @@ class Schematic(object):
         return s
 
     def _tikz_draw_TP(self, elt, draw_labels):
+
+        if elt.opts['dir'] != 'right':
+            raise ValueError('Cannot draw twoport network %s in direction %s'
+                             % (elt.name, elt.opts['dir']))
 
         p1, p2, p3, p4 = [self.coords[n] for n in elt.nodes]
         width = p2.x - p4.x
@@ -965,6 +981,10 @@ class Schematic(object):
 
     def _tikz_draw_K(self, elt, draw_labels):
 
+        if elt.opts['dir'] != 'right':
+            raise ValueError('Cannot draw mutual coupling %s in direction %s'
+                             % (elt.name, elt.opts['dir']))
+
         L1 = self.elements[elt.nodes[0]]
         L2 = self.elements[elt.nodes[1]]
 
@@ -975,6 +995,12 @@ class Schematic(object):
 
     def _tikz_draw_Q(self, elt, draw_labels):
 
+        # For common base, will need to support up and down.
+        if elt.opts['dir'] not in ('left', 'right'):
+            raise ValueError('Cannot draw transistor %s in direction %s'
+                             '; try left or right'
+                             % (elt.name, elt.opts['dir']))
+
         n1, n2, n3 = elt.nodes
 
         p1, p2, p3 = [self.coords[n] for n in elt.nodes]
@@ -983,9 +1009,12 @@ class Schematic(object):
 
         labelstr = elt.tex_label if draw_labels else ''
         sub_type = elt.sub_type.replace('jf', 'jfet')
+        argstr = '' if elt.opts['dir'] == 'right' else 'xscale=-1'
+        if 'mirror' in elt.opts:
+            argstr += ', yscale=-1'
 
-        s = r'  \draw (%s) node[%s, scale=%.1f] () {};' % (
-            centre, sub_type, self.scale * 2)
+        s = r'  \draw (%s) node[%s, %s, scale=%.1f] () {};' % (
+            centre, sub_type, argstr, self.scale * 2)
         s += r'  \draw (%s) node [] {%s};' % (centre, labelstr)
         return s
 
@@ -1009,29 +1038,23 @@ class Schematic(object):
 
         n1, n2 = elt.nodes[0:2]
 
-        # circuitikz expects the positive node first, except for
-        # voltage and current sources!   So swap the nodes otherwise
-        # they are drawn the wrong way around.
         modifier = ''
-        if (elt.opts['dir'] == 'down' and
-                cpt_type in ('V', 'Vdc', 'I', 'Idc')):
-            n1, n2 = n2, n1
-            # Draw label on RHS for vertical cpt.
-            modifier = '_'
+        if cpt_type in ('V', 'Vdc', 'I', 'Idc'):
 
-        if cpt_type in ('V', 'Vdc', 'I', 'Idc', 'D') and 'reverse' in elt.opts:
-            # Probably should negate value for sources.
+            # circuitikz expects the positive node first, except for
+            # voltage and current sources!  So swap the nodes
+            # otherwise they are drawn the wrong way around.
             n1, n2 = n2, n1
 
-        # If have a left drawn cpt, then switch nodes so that
-        # label defaults to top but then have to switch current
-        # and voltage directions.
-        if elt.opts['dir'] == 'left':
-            n1, n2 = n2, n1
-            if 'i' in elt.opts:
-                elt.opts['i<^'] = elt.opts.pop('i')
-            if 'v' in elt.opts:
-                elt.opts['v_>'] = elt.opts.pop('v')
+            if elt.opts['dir'] in ('down', 'left'):
+                # Draw label on RHS for vertical cpt and below
+                # for horizontal cpt.
+                modifier = '_'
+        else:
+            if elt.opts['dir'] in ('up', 'right'):
+                # Draw label on RHS for vertical cpt and below
+                # for horizontal cpt.
+                modifier = '_'
 
         # Current, voltage, label options.
         # It might be better to allow any options and prune out
