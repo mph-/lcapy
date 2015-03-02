@@ -54,6 +54,7 @@ cpt_types = ['C',  # Capacitor
              'G',  # VCCS (not supported yet)
              'H',  # CCVS (not supported yet, can be handled by E)
              'I',  # Current
+             'J',  # JFET (not supported)
              'K',  # Mutual inductance
              'L',  # Inductor
              'M',  # MOSFET (not supported)
@@ -114,7 +115,7 @@ cpt_type_map = {'R': R, 'C': C, 'L': L, 'Z': Z, 'Y': Y,
                 'V': v, 'I': i, 'v': v, 'i': i,
                 'P': 'open', 'W': 'short',
                 'E': VCVS, 'TF': TF, 'TP': TP, 'K': K,
-                'M': Dummy, 'Q': Dummy,
+                'D' : Dummy, 'J' : Dummy, 'M': Dummy, 'Q': Dummy,
                 'opamp': VCVS}
 
 

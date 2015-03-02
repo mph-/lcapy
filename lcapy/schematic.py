@@ -28,7 +28,7 @@ __all__ = ('Schematic', )
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
 cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'P', 'E', 
-             'M', 'Q', 'TF', 'TP', 'K']
+             'D', 'J', 'M', 'Q', 'TF', 'TP', 'K']
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 
 cpt_type_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_types))
@@ -376,7 +376,7 @@ class NetElement(object):
         # Type of component, e.g., 'V'
         self.cpt_type = cpt_type
 
-        if cpt_type in ('M', 'Q'):
+        if cpt_type in ('J', 'M', 'Q'):
             if len(args) < 1:
                 raise ValueError(
                     'Component type %s requires 3 nodes' % cpt_type)
@@ -385,23 +385,34 @@ class NetElement(object):
             
             if cpt_type == 'Q':
                 self.sub_type = 'npn'
-                if len(args) > 0 and args[0] in ('npn', 'pnp'):
+                if len(args) > 0:
+                    if args[0] not in ('npn', 'pnp'):
+                        raise ValueError('Bad argument %s for BJT' % args[0])
+                    self.sub_type = args[0]
+                args = args[1:]
+            elif cpt_type == 'J':
+                self.sub_type = 'njf'
+                if len(args) > 0:
+                    if args[0] not in ('npj', 'pjf'):
+                        raise ValueError('Bad argument %s for JFET' % args[0])
                     self.sub_type = args[0]
                 args = args[1:]
             elif cpt_type == 'M':
                 self.sub_type = 'nmos'
-                if len(args) > 0 and args[0] in ('nmos', 'pmos'):
+                if len(args) > 0:
+                    if args[0] not in ('nmos', 'pmos'):
+                        raise ValueError('Bad argument %s for MOSFET' % args[0])
                     self.sub_type = args[0]
                 args = args[1:]
 
-        if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP', 'opamp'):
+        elif cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP', 'opamp'):
             if len(args) < 2:
                 raise ValueError(
                     'Component type %s requires 4 nodes' % cpt_type)
             self.nodes += (args[0], args[1])
             args = args[2:]
 
-        if cpt_type == 'TP' and len(args) != 5:
+        elif cpt_type == 'TP' and len(args) != 5:
             raise ValueError('TP component requires 5 args')
 
         # There are two possible labels for a component:
@@ -629,7 +640,7 @@ class Schematic(object):
                     cnodes.link(n3, n1)
                     cnodes.link(n4, n2)
                 continue
-            elif elt.cpt_type in ('M', 'Q'):
+            elif elt.cpt_type in ('J', 'M', 'Q'):
                 n1, n2, n3 = elt.nodes                
 
                 if dirs[0] == 'right':
@@ -693,6 +704,18 @@ class Schematic(object):
                     graphs.add(m3, m1, scale * size)
                     graphs.add(m4, m2, scale * size)
                 continue
+            elif elt.cpt_type == 'J':
+                # D, G, S
+                m1, m2, m3 = cnodes.map(elt.nodes)
+
+                yscale = 1.5
+                xscale = 1.0
+                if dirs[0] == 'right':
+                    graphs.add(m2, m1, xscale * size)
+                else:
+                    graphs.add(m3, m2, yscale * size * 0.32)
+                    graphs.add(m2, m1, yscale * size * 0.68)
+                continue
             elif elt.cpt_type in ('M', 'Q'):
                 # C, B, E or D, G, S
                 m1, m2, m3 = cnodes.map(elt.nodes)
@@ -700,7 +723,6 @@ class Schematic(object):
                 yscale = 1.5
                 xscale = 0.8
                 if dirs[0] == 'right':
-                    graphs.add(m2, m3, xscale * size)
                     graphs.add(m2, m1, xscale * size)
                 else:
                     graphs.add(m3, m2, yscale * size * 0.5)
@@ -948,13 +970,13 @@ class Schematic(object):
 
         p1, p2, p3 = [self.coords[n] for n in elt.nodes]
 
-        centre = Pos(p3.x, p2.y)
+        centre = Pos(p3.x, 0.5 * (p1.y + p3.y))
 
         labelstr = elt.tex_label if draw_labels else ''
+        sub_type = elt.sub_type.replace('jf', 'jfet')
 
-        # TODO, handle MOSFET and transistor type.
-        s = r'  \draw (%s) node[%s, scale=%.1f] (npn) {};' % (
-            centre, elt.sub_type, self.scale * 2)
+        s = r'  \draw (%s) node[%s, scale=%.1f] () {};' % (
+            centre, sub_type, self.scale * 2)
         s += r'  \draw (%s) node [] {%s};' % (centre, labelstr)
         return s
 
@@ -1047,6 +1069,7 @@ class Schematic(object):
         draw = {'TF': self._tikz_draw_TF,
                 'TP': self._tikz_draw_TP,
                 'K': self._tikz_draw_K,
+                'J': self._tikz_draw_Q,
                 'M': self._tikz_draw_Q,
                 'Q': self._tikz_draw_Q,
                 'opamp': self._tikz_draw_opamp}
