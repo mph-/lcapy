@@ -56,8 +56,9 @@ cpt_types = ['C',  # Capacitor
              'I',  # Current
              'K',  # Mutual inductance
              'L',  # Inductor
+             'M',  # MOSFET (not supported)
              'P',  # Port (open-circuit)
-             'Q',  # Transistor (not supported)
+             'Q',  # BJT (not supported)
              'R',  # Resistor
              'TF',  # Ideal transformer (even works at DC!)
              'TP',  # Two-port (not supported yet)

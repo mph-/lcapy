@@ -382,6 +382,17 @@ class NetElement(object):
                     'Component type %s requires 3 nodes' % cpt_type)
             self.nodes += (args[0], )
             args = args[1:]
+            
+            if cpt_type == 'Q':
+                self.sub_type = 'npn'
+                if len(args) > 0 and args[0] in ('npn', 'pnp'):
+                    self.sub_type = args[0]
+                args = args[1:]
+            elif cpt_type == 'M':
+                self.sub_type = 'nmos'
+                if len(args) > 0 and args[0] in ('nmos', 'pmos'):
+                    self.sub_type = args[0]
+                args = args[1:]
 
         if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP', 'opamp'):
             if len(args) < 2:
@@ -687,7 +698,7 @@ class Schematic(object):
                 m1, m2, m3 = cnodes.map(elt.nodes)
 
                 yscale = 1.5
-                xscale = 0.75
+                xscale = 0.8
                 if dirs[0] == 'right':
                     graphs.add(m2, m3, xscale * size)
                     graphs.add(m2, m1, xscale * size)
@@ -942,8 +953,8 @@ class Schematic(object):
         labelstr = elt.tex_label if draw_labels else ''
 
         # TODO, handle MOSFET and transistor type.
-        s = r'  \draw (%s) node[npn, scale=%.1f] (npn) {};' % (
-            centre, self.scale * 2)
+        s = r'  \draw (%s) node[%s, scale=%.1f] (npn) {};' % (
+            centre, elt.sub_type, self.scale * 2)
         s += r'  \draw (%s) node [] {%s};' % (centre, labelstr)
         return s
 
