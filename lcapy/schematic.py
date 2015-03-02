@@ -415,6 +415,15 @@ class NetElement(object):
         elif cpt_type == 'TP' and len(args) != 5:
             raise ValueError('TP component requires 5 args')
 
+        elif cpt_type == 'D':
+            self.sub_type = ''
+            if len(args) > 0:
+                if args[0] not in ('led', 'zener', 'photo', 'tunnel', 
+                                   'schottky'):
+                    raise ValueError('Bad argument %s for diode' % args[0])
+                self.sub_type = args[0]
+                args = args[1:]
+
         # There are two possible labels for a component:
         # 1. Component identifier, e.g., R1
         # 2. Component value, expression, or symbol
@@ -991,7 +1000,7 @@ class Schematic(object):
                         'Vs': 'V', 'Is': 'I',
                         'V': 'V', 'I': 'I', 'v': 'V', 'i': 'I',
                         'P': 'open', 'W': 'short',
-                        'TF': 'transformer',
+                        'TF': 'transformer', 'D' : 'D',
                         'Z': 'Z', 'Y': 'Y'}
 
         cpt_type = cpt_type_map[elt.cpt_type]
@@ -1010,8 +1019,8 @@ class Schematic(object):
             # Draw label on RHS for vertical cpt.
             modifier = '_'
 
-        if cpt_type in ('V', 'Vdc', 'I', 'Idc') and 'mirror' in elt.opts:
-            # Probably should negate value.
+        if cpt_type in ('V', 'Vdc', 'I', 'Idc', 'D') and 'reverse' in elt.opts:
+            # Probably should negate value for sources.
             n1, n2 = n2, n1
 
         # If have a left drawn cpt, then switch nodes so that
@@ -1045,6 +1054,11 @@ class Schematic(object):
 
         if cpt_type in ('Y', 'Z'):
             cpt_type = 'european resistor'
+        elif cpt_type == 'D':
+            diode_type_map = {'' : 'D', 'led' : 'leD', 'tunnel' : 'tD',
+                              'zener' : 'zD', 'photo' : 'pD',
+                              'schottky' : 'sD'}
+            cpt_type = diode_type_map[elt.sub_type]
 
         s = r'  \draw (%s) to [%s%s, %s%s] (%s);''\n' % (
             n1, cpt_type, label_str, opts_str, node_str, n2)
