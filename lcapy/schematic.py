@@ -1280,6 +1280,7 @@ class Schematic(object):
             ax.imshow(img)
             ax.axis('equal')
             ax.axis('off')
+        return None
 
 
 def test():
