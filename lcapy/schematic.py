@@ -1238,15 +1238,15 @@ class Schematic(object):
 
         if in_ipynb() and filename is None:
 
+            result = None
             if png:
                 from IPython.display import Image
 
                 pngfilename = self._tmpfilename('.png')
                 self.tikz_draw(pngfilename, args=args, **kwargs)
 
-                # Display image.
+                # Create PNG image object.
                 result = Image(pngfilename)
-                return result
 
             if svg:
                 from IPython.display import SVG
@@ -1254,11 +1254,15 @@ class Schematic(object):
                 svgfilename = self._tmpfilename('.svg')
                 self.tikz_draw(svgfilename, args=args, **kwargs)
 
-                # Display image.  There is a problem displaying
-                # multiple SVG files since the later ones inherit
-                # the namespace of the first ones.
+                # Create SVG image object.
                 result = SVG(svgfilename)
-                return result
+
+            # Need to return result to interpreter if want it
+            # displayed.  Note, there is a problem displaying multiple
+            # SVG files since the later ones inherit the namespace of
+            # the first ones.
+            return result
+
 
         display = False
         if filename is None:
