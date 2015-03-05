@@ -891,7 +891,33 @@ class Schematic(object):
 
         return node_str
 
-    def _tikz_draw_opamp(self, elt, draw_labels):
+
+    def _tikz_draw_node(self, n, draw_nodes=True):
+        
+        s = ''
+        if not draw_nodes:
+            return s
+
+        node = self.nodes[n]
+        if not node.visible:
+            return s
+
+        pos = self.coords[n]
+        if not node.port:
+            s = r'  \draw (%s) node[ocirc] {};''\n' % pos
+        else:
+            s = r'  \draw (%s) node[circ] {};''\n' % pos
+
+        return s
+
+    def _tikz_draw_nodes(self, elt, draw_nodes=True):
+
+        s = ''
+        for n in elt.nodes:
+            s += self._tikz_draw_node(n, draw_nodes)
+        return s
+
+    def _tikz_draw_opamp(self, elt, draw_labels, draw_nodes):
 
         if elt.opts['dir'] != 'right':
             raise ValueError('Cannot draw opamp %s in direction %s'
@@ -910,6 +936,8 @@ class Schematic(object):
             centre, argstr, self.scale * 2)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node [] {%s};' % (centre, labelstr)
+        
+        s += self._tikz_draw_nodes(elt, draw_nodes)
         return s
 
     def _tikz_draw_TF1(self, elt, nodes, draw_labels, link=False):
@@ -942,7 +970,7 @@ class Schematic(object):
 
         return s
 
-    def _tikz_draw_TF(self, elt, draw_labels):
+    def _tikz_draw_TF(self, elt, draw_labels, draw_nodes):
 
         if elt.opts['dir'] != 'right':
             raise ValueError('Cannot draw transformer %s in direction %s'
@@ -953,9 +981,11 @@ class Schematic(object):
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
         s += self._tikz_draw_TF1(elt, elt.nodes, draw_labels)
+
+        s += self._tikz_draw_nodes(elt, draw_nodes)
         return s
 
-    def _tikz_draw_TP(self, elt, draw_labels):
+    def _tikz_draw_TP(self, elt, draw_labels, draw_nodes):
 
         if elt.opts['dir'] != 'right':
             raise ValueError('Cannot draw twoport network %s in direction %s'
@@ -981,9 +1011,11 @@ class Schematic(object):
             centre, width, titlestr)
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
             top, width, labelstr)
+
+        s += self._tikz_draw_nodes(elt, draw_nodes)
         return s
 
-    def _tikz_draw_K(self, elt, draw_labels):
+    def _tikz_draw_K(self, elt, draw_labels, draw_nodes):
 
         if elt.opts['dir'] != 'right':
             raise ValueError('Cannot draw mutual coupling %s in direction %s'
@@ -997,7 +1029,7 @@ class Schematic(object):
         s = self._tikz_draw_TF1(elt, nodes, draw_labels, link=True)
         return s
 
-    def _tikz_draw_Q(self, elt, draw_labels):
+    def _tikz_draw_Q(self, elt, draw_labels, draw_nodes):
 
         # For common base, will need to support up and down.
         if elt.opts['dir'] not in ('left', 'right'):
@@ -1019,7 +1051,9 @@ class Schematic(object):
 
         s = r'  \draw (%s) node[%s, %s, scale=%.1f] () {};''\n' % (
             centre, sub_type, argstr, self.scale * 2)
-        s += r'  \draw (%s) node [] {%s};''\n' % (centre, labelstr)
+        s += r'  \draw (%s) node [] {%s};''\n'% (centre, labelstr)
+
+        s += self._tikz_draw_nodes(elt, draw_nodes)
         return s
 
     def _tikz_draw_cpt(self, elt, draw_labels, draw_nodes):
@@ -1119,7 +1153,7 @@ class Schematic(object):
         for m, elt in enumerate(self.elements.values()):
 
             if elt.cpt_type in draw:
-                s += draw[elt.cpt_type](elt, draw_labels)
+                s += draw[elt.cpt_type](elt, draw_labels, draw_nodes)
             else:
                 s += self._tikz_draw_cpt(elt, draw_labels, draw_nodes)
 
