@@ -1017,9 +1017,9 @@ class Schematic(object):
         if 'mirror' in elt.opts:
             argstr += ', yscale=-1'
 
-        s = r'  \draw (%s) node[%s, %s, scale=%.1f] () {};' % (
+        s = r'  \draw (%s) node[%s, %s, scale=%.1f] () {};''\n' % (
             centre, sub_type, argstr, self.scale * 2)
-        s += r'  \draw (%s) node [] {%s};' % (centre, labelstr)
+        s += r'  \draw (%s) node [] {%s};''\n' % (centre, labelstr)
         return s
 
     def _tikz_draw_cpt(self, elt, draw_labels, draw_nodes):
