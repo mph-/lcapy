@@ -4,9 +4,11 @@
 Installation
 ============
 
-- You will need to install SymPy, see http://docs.sympy.org/latest/install.html.
+- You need to install SymPy, see http://docs.sympy.org/latest/install.html.
 
-- For plotting you will need to install matplotlib (this requires Numpy).
+- For plotting you need to install matplotlib (this requires Numpy).
+
+- For schematic drawing you need pdflatex and the circuitikz package.
 
 - Lcapy can be downloaded from https://github.com/mph-/lcapy using git or as a .zip file.
 
@@ -22,6 +24,8 @@ Lcapy installation for Linux
 
   >>> sudo apt-get install python-numpy python-matplotlib
 
+- For schematic drawing you need pdflatex and the circuitikz package.
+
 - The easiest way to obtain the Lcapy sources is to use git:
 
   >>> git clone https://github.com/mph-/lcapy
@@ -33,6 +37,6 @@ Lcapy installation for Linux
 
 - If you do not have root access, you can set the environment variable `PYTHONPATH` to find the source files for Lcapy.
 
-- While you are at it, it is worthwhile to install ipython, the interactive python shell
+- While you are at it, it is worthwhile to install ipython, the interactive python shell  (this is also useful for displaying notebooks in a web browser)
 
   >>> sudo apt-get install ipython
