@@ -735,7 +735,7 @@ class Schematic(object):
                 m1, m2, m3 = cnodes.map(elt.nodes)
 
                 yscale = 1.5
-                xscale = 0.8
+                xscale = 1.0 if elt.cpt_type == 'M' else 0.85
                 if dirs[0] == 'right':
                     if elt.opts['dir'] == 'left':
                         m1, m2 = m2, m1
@@ -903,7 +903,7 @@ class Schematic(object):
             return s
 
         pos = self.coords[n]
-        if not node.port:
+        if node.port:
             s = r'  \draw (%s) node[ocirc] {};''\n' % pos
         else:
             s = r'  \draw (%s) node[circ] {};''\n' % pos
@@ -1049,9 +1049,15 @@ class Schematic(object):
         if 'mirror' in elt.opts:
             argstr += ', yscale=-1'
 
-        s = r'  \draw (%s) node[%s, %s, scale=%.1f] () {};''\n' % (
+        s = r'  \draw (%s) node[%s, %s, scale=%.1f] (T) {};''\n' % (
             centre, sub_type, argstr, self.scale * 2)
         s += r'  \draw (%s) node [] {%s};''\n'% (centre, labelstr)
+
+        # Add additional wires.
+        if elt.cpt_type in ('J', 'M'):
+            s += r'  \draw (T.D) -- (%s) (T.G) -- (%s) (T.S) -- (%s);''\n' % (n1, n2, n3)
+        else:
+            s += r'  \draw (T.C) -- (%s) (T.B) -- (%s) (T.E) -- (%s);''\n' % (n1, n2, n3)
 
         s += self._tikz_draw_nodes(elt, draw_nodes)
         return s
