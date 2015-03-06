@@ -42,7 +42,8 @@ def sympify(arg, real=False):
 
     if isinstance(arg, str):
         # Sympy considers E1 to be the generalized exponential integral.
-        if arg == 'E1':
+        # N is for numerical evaluation.
+        if arg in ('E1', 'N'):
             return sym.symbols(arg, real=real)
 
         # Perhaps have dictionary of functions and their replacements?
