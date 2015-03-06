@@ -1053,6 +1053,9 @@ class Schematic(object):
             centre, sub_type, argstr, self.scale * 2)
         s += r'  \draw (%s) node [] {%s};''\n'% (centre, labelstr)
 
+        if sub_type in ('pnp', 'pmos', 'pjfet'):
+            n1, n3 = n3, n1
+
         # Add additional wires.
         if elt.cpt_type in ('J', 'M'):
             s += r'  \draw (T.D) -- (%s) (T.G) -- (%s) (T.S) -- (%s);''\n' % (n1, n2, n3)
