@@ -527,12 +527,7 @@ class Schematic(object):
         lines = file.readlines()
 
         for line in lines:
-            # Skip comments
-            if line[0] in ('#', '%'):
-                continue
-            line = line.strip()
-            if line != '':
-                self.add(line)
+            self.add(line)
 
     def netlist(self):
         """Return the current netlist"""
@@ -583,6 +578,17 @@ class Schematic(object):
         A positive current is defined to flow from the positive node
         to the negative node.
         """
+
+        # Ignore comments
+        string = string.strip()
+        if string == '' or string[0] in ('#', '%'):
+            return
+
+        if '\n' in string:
+            lines = string.split('\n')
+            for line in lines:
+                self.add(line)
+            return
 
         fields = string.split(';')
         string = fields[1].strip() if len(fields) > 1 else ''

@@ -332,14 +332,6 @@ class Netlist(object):
         lines = file.readlines()
 
         for line in lines:
-            line = line.strip()
-            if line == '':
-                continue
-
-            # Skip comments
-            if line[0] in ('#', '%'):
-                continue
-
             self.add(line)
 
     def netlist(self, full=False):
@@ -423,6 +415,17 @@ class Netlist(object):
         A positive current is defined to flow from the positive node
         to the negative node.
         """
+
+        # Ignore comments
+        string = string.strip()
+        if string == '' or string[0] in ('#', '%'):
+            return
+
+        if '\n' in string:
+            lines = string.split('\n')
+            for line in lines:
+                self.add(line)
+            return
 
         self._invalidate()
 
