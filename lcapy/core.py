@@ -11,6 +11,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
 from __future__ import division
+from lcapy.latex import latex_str
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
@@ -83,7 +84,7 @@ class Exprdict(dict):
     def latex(self):
         """Latex"""
 
-        return sym.latex(self)
+        return latex_str(sym.latex(self))
 
 
 class Expr(object):
@@ -163,7 +164,7 @@ class Expr(object):
 
     def _repr_latex_(self):
 
-        return '$%s$' % self.latex()
+        return '$%s$' % latex_str(self.latex())
 
 
     def __abs__(self):
@@ -318,7 +319,7 @@ class Expr(object):
         if hasattr(sys, 'ps1'):
             print(self.pretty())
         else:
-            print(self.latex())
+            print(latex_str(self.latex()))
 
     def pprintans(self, name):
         """Pretty print string with LHS name"""
@@ -329,14 +330,14 @@ class Expr(object):
 
         string = sym.latex(self.expr)
         # sympy uses theta for Heaviside
-        return string.replace(r'\theta\left', r'u\left')
+        return latex_str(string).replace(r'\theta\left', r'u\left')
 
     def latexans(self, name):
         """Print latex string with LHS name"""
 
         expr = sym.Eq(sympify(name), self.expr)
 
-        return sym.latex(expr)
+        return latex_str(sym.latex(expr))
 
     @property
     def N(self):
@@ -1181,9 +1182,9 @@ def pretty(expr):
 def latex(expr):
 
     if hasattr(expr, 'latex'):
-        return expr.latex()
+        return latex_str(expr.latex())
     else:
-        return sym.latex(expr)
+        return latex_str(sym.latex(expr))
 
 
 class Matrix(sym.Matrix):

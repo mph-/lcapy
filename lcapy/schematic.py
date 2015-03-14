@@ -18,6 +18,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 from __future__ import print_function
 import numpy as np
 import re
+from lcapy.latex import latex_str
 from lcapy.core import Expr
 from os import system, path, remove
 
@@ -350,13 +351,6 @@ class NetElement(object):
         
             return '%s_{%s}' % (name, subscript)
 
-        def sympy_name(name, subscript=''):
-
-            if len(subscript) == 0:
-                return name
-        
-            return '%s_%s' % (name, subscript)
-
         match = cpt_type_pattern.match(name)
 
         if not match:
@@ -502,7 +496,7 @@ class NetElement(object):
         if tex_label is None:
             self.tex_label = ''
         else:
-            self.tex_label = '$%s$' % tex_label
+            self.tex_label = '$%s$' % latex_str(tex_label)
 
         self.identifier_label = identifier_label
         self.value_label = value_label
@@ -1118,7 +1112,7 @@ class Schematic(object):
             s += r'  \draw (%s) node[%s];''\n' % (pos, argstr)
 
             if 'l' in elt.opts:
-                label_str = '$%s$' % elt.opts['l']
+                label_str = '$%s$' % latex_str(elt.opts['l'])
                 s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (anchor, n2, label_str)
             return s
 
@@ -1193,7 +1187,7 @@ class Schematic(object):
             cpt_type = diode_type_map[elt.sub_type]
 
         s = r'  \draw (%s) to [%s%s, %s%s] (%s);''\n' % (
-            n1, cpt_type, label_str, opts_str, node_str, n2)
+            n1, cpt_type, label_str, latex_str(opts_str), node_str, n2)
         return s
 
     def _tikz_draw(self, draw_labels=True, draw_nodes=True,
