@@ -1067,6 +1067,36 @@ class Schematic(object):
 
     def _tikz_draw_cpt(self, elt, draw_labels, draw_nodes):
 
+        n1, n2 = elt.nodes[0:2]
+
+        if elt.cpt_type == 'W' and 'implicit' in elt.opts:
+            # Draw implict wires, i.e., connections to ground, etc.
+
+            args = ['sground']
+            if elt.opts['dir'] == 'up':
+                args.append('yscale=-1')
+            if elt.opts['dir'] == 'left':
+                args.append('xscale=-1')
+            argstr = ','.join(args)
+
+            offset = 0.0
+            anchor = 'south west'
+            p = self.coords[n2]
+            if elt.opts['dir'] == 'down':
+                offset = 0.25
+                anchor = 'north west'
+            elif elt.opts['dir'] == 'up':
+                offset = -0.25
+            pos = Pos(p.x, p.y + offset)
+
+            s = r'  \draw (%s) to [short, -] (%s);''\n' % (n1, pos)
+            s += r'  \draw (%s) node[%s];''\n' % (pos, argstr)
+
+            if 'l' in elt.opts:
+                label_str = '$%s$' % elt.opts['l']
+                s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (anchor, n2, label_str)
+            return s
+
         # Mapping of component names to circuitikz names.
         cpt_type_map = {'R': 'R', 'C': 'C', 'L': 'L',
                         'Vac': 'sV', 'Vdc': 'V', 'Iac': 'sI', 'Idc': 'I',
@@ -1083,8 +1113,6 @@ class Schematic(object):
         cpt_type = cpt_type_map[elt.cpt_type]
         if cpt_type == 'R' and 'variable' in elt.opts:
             cpt_type = 'vR'
-
-        n1, n2 = elt.nodes[0:2]
 
         label_pos = '_'
         voltage_pos = '^'
@@ -1107,8 +1135,6 @@ class Schematic(object):
                 label_pos = '^'
                 voltage_pos = '_'
 
-        print('%s %s %s %s' % (elt.name, elt.opts['dir'], label_pos, elt.tex_label))
-
         # Add modifier to place voltage label on other side
         # from component identifier label.
         if 'v' in elt.opts:
@@ -1121,7 +1147,7 @@ class Schematic(object):
         for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
                     'i>_', 'i<_', 'i>^', 'i<^',
                     'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
-                    'l', 'l^', 'l_'):
+                    'l', 'l^', 'l_', 'color'):
             if opt in elt.opts:
                 opts_str += '%s=$%s$, ' % (opt, elt.opts[opt])
 
