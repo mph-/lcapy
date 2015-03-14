@@ -69,13 +69,26 @@ class Dummy(object):
 
 class Mdict(dict):
 
+    def __init__(self, branchdir):
+
+        super(Mdict, self).__init__()
+        self.branchdir = branchdir
+
     def __getitem__(self, key):
 
         # If key is an integer, convert to a string.
         if isinstance(key, int):
             key = '%d' % key
 
+        if key in self.branchdir:
+            n1, n2 = self.branchdir[key]
+            return self[n1] - self[n2]
+
         return super(Mdict, self).__getitem__(key)
+
+    def keys(self):
+
+        return super(Mdict, self).keys() + self.branchdir.keys()
 
 
 class MNA(object):
@@ -362,8 +375,17 @@ class MNA(object):
 
         results = sym.simplify(Ainv * self._Z)
 
+
+        branchdir = {}
+        for elt in self.elements.values():
+            if elt.is_K:
+                continue
+            n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
+            branchdir[elt.name] = (n1, n2)
+
         # Create dictionary of node voltages
-        self._V = Mdict({'0': Vs(0)})
+        self._V = Mdict(branchdir)
+        self._V['0'] = Vs(0)
         for n in self.nodes:
             index = self._node_index(n)
             if index >= 0:

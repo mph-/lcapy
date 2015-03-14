@@ -841,17 +841,13 @@ the other voltages are referenced to.
 The circuit has a number of attributes that can be interrogated to
 find circuit voltages and currents:
 
-- `V` s-domain node voltage directory indexed by node name
+- `V` s-domain voltage directory indexed by node name or branch name
 
 - `I` s-domain branch current directory indexed by component name
 
-- `Vd` s-domain branch voltage difference directory indexed by component name
-
-- `v` t-domain node voltage directory indexed by node name
+- `v` t-domain voltage directory indexed by node name or branch name
 
 - `i` t-domain branch current directory indexed by component name
-
-- `vd` t-domain branch voltage difference directory indexed by component name
 
 - `Y` admittance between pair of nodes
 
@@ -888,7 +884,7 @@ Alternatively,
 For another example, the s-domain voltage difference across the
 resistor Ra can be found using:
 
-   >>> cct.Vd['Ra']
+   >>> cct.V['Ra']
    7.5
    ───
     s 

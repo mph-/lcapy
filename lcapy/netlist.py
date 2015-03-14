@@ -86,19 +86,24 @@ class Ldict(dict):
 
     def __init__(self, Vdict):
 
+        super(Ldict, self).__init__()
+
         self.Vdict = Vdict
-        self.vdict = {}
+
 
     def __getitem__(self, key):
 
         # If key is an integer, convert to a string.
         if isinstance(key, int):
             key = '%d' % key
+        
+        # Note, need to use keys method to catch branch names.
+        if (key not in self) and (key in self.Vdict.keys()):
+            v = self.Vdict[key].inverse_laplace()
+            self[key] = v
+            return v
 
-        if (key not in self.vdict) and (key in self.Vdict):
-            self.vdict[key] = self.Vdict[key].inverse_laplace()
-
-        return self.vdict[key]
+        return super(Ldict, self).__getitem__(key)
 
     def keys(self):
 
@@ -556,7 +561,8 @@ class Netlist(object):
 
     @property
     def V(self):
-        """Return dictionary of s-domain node voltages indexed by node name"""
+        """Return dictionary of s-domain node voltages indexed by node name
+        and voltage differences indexed by branch name"""
 
         return self.MNA.V
 
@@ -568,15 +574,9 @@ class Netlist(object):
         return self.MNA.I
 
     @property
-    def Vd(self):
-        """Return dictionary of s-domain branch voltage differences
-        indexed by component name"""
-
-        return self.MNA.Vd
-
-    @property
     def v(self):
-        """Return dictionary of t-domain node voltages indexed by node name"""
+        """Return dictionary of t-domain node voltages indexed by node name
+        and voltage differences indexed by branch name"""
 
         if not hasattr(self, '_v'):
             self._v = Ldict(self.V)
@@ -593,15 +593,6 @@ class Netlist(object):
 
         return self._i
 
-    @property
-    def vd(self):
-        """Return dictionary of t-domain branch voltage differences
-        indexed by component name"""
-
-        if not hasattr(self, '_vd'):
-            self._vd = Ldict(self.Vd)
-
-        return self._vd
 
     def Voc(self, Np, Nm):
         """Return open-circuit s-domain voltage between nodes Np and Nm."""
@@ -692,7 +683,7 @@ class Netlist(object):
         new = self.kill()
         new.add('V1_ %d %d impulse' % (N1p, N1m))
 
-        H = Hs(new.Voc(N2p, N2m) / new.Vd['V1_'])
+        H = Hs(new.Voc(N2p, N2m) / new.V['V1_'])
 
         return H
 
@@ -713,11 +704,11 @@ class Netlist(object):
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
-            A11 = Hs(self.Vd['V1_'] / self.Voc(N2p, N2m))
+            A11 = Hs(self.V['V1_'] / self.Voc(N2p, N2m))
 
             # A12 = V1 / I2 with V2 = 0
             # Apply V1 and measure I2 with port 2 short-circuit
-            A12 = Zs(self.Vd['V1_'] / self.Isc(N2p, N2m))
+            A12 = Zs(self.V['V1_'] / self.Isc(N2p, N2m))
 
             self.remove('V1_')
 
