@@ -1085,7 +1085,8 @@ class Schematic(object):
 
         n1, n2 = elt.nodes[0:2]
 
-        modifier = ''
+        label_pos = '_'
+        voltage_pos = '^'
         if cpt_type in ('V', 'Vdc', 'I', 'Idc'):
 
             # circuitikz expects the positive node first, except for
@@ -1093,15 +1094,24 @@ class Schematic(object):
             # otherwise they are drawn the wrong way around.
             n1, n2 = n2, n1
 
-            if elt.opts['dir'] in ('down', 'left'):
-                # Draw label on RHS for vertical cpt and below
+            if elt.opts['dir'] in ('down', 'right'):
+                # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
-                modifier = '_'
+                label_pos = '^'
+                voltage_pos = '_'
         else:
-            if elt.opts['dir'] in ('up', 'right'):
-                # Draw label on RHS for vertical cpt and below
+            if elt.opts['dir'] in ('up', 'left'):
+                # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
-                modifier = '_'
+                label_pos = '^'
+                voltage_pos = '_'
+
+        # Add modifier to place voltage label on other side
+        # from component identifier label.
+        if 'v' in elt.opts:
+            elt.opts['v' + voltage_pos] = elt.opts.pop('v')
+
+        print('%s %s %s' % (elt.name, elt.opts['dir'], label_pos))
 
         # Current, voltage, label options.
         # It might be better to allow any options and prune out
@@ -1120,7 +1130,7 @@ class Schematic(object):
         keys = elt.opts.keys()
         if draw_labels and not ('l' in keys or 'l_' in keys or 'l^' in keys):
             if cpt_type not in ('open', 'short'):
-                label_str = ', l%s=%s' % (modifier, elt.tex_label)
+                label_str = ', l%s=%s' % (label_pos, elt.tex_label)
 
         if cpt_type in ('Y', 'Z'):
             cpt_type = 'european resistor'
