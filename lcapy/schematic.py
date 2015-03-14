@@ -1111,8 +1111,6 @@ class Schematic(object):
         if 'v' in elt.opts:
             elt.opts['v' + voltage_pos] = elt.opts.pop('v')
 
-        print('%s %s %s' % (elt.name, elt.opts['dir'], label_pos))
-
         # Current, voltage, label options.
         # It might be better to allow any options and prune out
         # dir and size.
