@@ -27,8 +27,6 @@ class VCVS(CS):
 
         A = cExpr(A)
         super(VCVS, self).__init__(A)
-        # No independent component.
-        self.V = 0
 
 
 class TF(CS):
@@ -39,8 +37,6 @@ class TF(CS):
 
         T = cExpr(T)
         super(TF, self).__init__(T)
-        # No independent component.
-        self.V = 0
 
 
 class K(object):
@@ -60,8 +56,6 @@ class TP(CS):
     def __init__(self, kind, Z11, Z12, Z21, Z22):
 
         super(TP, self).__init__(kind, Z11, Z12, Z21, Z22)
-        # No independent component.
-        self.V = 0
 
 
 class Dummy(object):
@@ -293,8 +287,8 @@ class MNA(object):
             if n4 >= 0:
                 self._C[m, n4] += A
 
-        # Add ?
-        self._Es[m] += elt.cpt.V.expr
+        if hasattr(elt.cpt, 'V'):
+            self._Es[m] += elt.cpt.V.expr
 
     def _I_stamp(self, elt):
         """Add stamp for current source (independent and dependent)"""
