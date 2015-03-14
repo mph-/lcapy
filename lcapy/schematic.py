@@ -748,8 +748,8 @@ class Schematic(object):
             if elt.opts['dir'] not in dirs:
                 continue
 
-            # Handle bipoles here.
-            m1, m2 = cnodes.map(elt.nodes)
+            # Handle bipoles here.  Treat VCCS etc as bipole.
+            m1, m2 = cnodes.map(elt.nodes[0:2])
 
             if elt.opts['dir'] == dirs[0]:
                 graphs.add(m1, m2, size)
@@ -1077,7 +1077,8 @@ class Schematic(object):
                         'V': 'V', 'I': 'I', 'v': 'V', 'i': 'I',
                         'P': 'open', 'W': 'short',
                         'TF': 'transformer', 'D' : 'D',
-                        'Z': 'Z', 'Y': 'Y'}
+                        'Z': 'Z', 'Y': 'Y',
+                        'E' : 'american controlled voltage source'}
 
         cpt_type = cpt_type_map[elt.cpt_type]
         if cpt_type == 'R' and 'variable' in elt.opts:
@@ -1087,7 +1088,7 @@ class Schematic(object):
 
         label_pos = '_'
         voltage_pos = '^'
-        if cpt_type in ('V', 'Vdc', 'I', 'Idc'):
+        if elt.cpt_type in ('V', 'Vdc', 'I', 'Idc', 'E'):
 
             # circuitikz expects the positive node first, except for
             # voltage and current sources!  So swap the nodes
@@ -1105,6 +1106,8 @@ class Schematic(object):
                 # for horizontal cpt.
                 label_pos = '^'
                 voltage_pos = '_'
+
+        print('%s %s %s %s' % (elt.name, elt.opts['dir'], label_pos, elt.tex_label))
 
         # Add modifier to place voltage label on other side
         # from component identifier label.
