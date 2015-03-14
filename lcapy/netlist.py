@@ -199,6 +199,12 @@ class NetElement(object):
             raise ValueError('Cannot have . in node name %s' % node2)
 
         cpt_type = match.groups()[0]
+        cpt_id = match.groups()[1]
+
+        # Default value is the component name
+        value = cpt_type
+        if len(cpt_id) > 0:
+            value += '_' + cpt_id
 
         self.opts = Opts(opts)
         self.name = name
@@ -246,9 +252,9 @@ class NetElement(object):
         if len(args) == 0:
             # Ensure symbol uppercase for s-domain value.
             if cpt_type in ('Vdc', 'Vac', 'Idc', 'Iac'):
-                name = name.capitalize()
-            # Use component name for value
-            args = (name, )
+                value = value.capitalize()
+
+            args = (value, )
 
         cpt = foo(*args)
         self.cpt = cpt

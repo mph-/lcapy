@@ -336,7 +336,26 @@ class NetElement(object):
 
     cpt_type_counter = 0
 
+
     def __init__(self, name, n1, n2, *args, **opts):
+
+        def tex_name(name, subscript=''):
+
+            if len(name) > 1:
+                name = r'\mathrm{%s}' % name
+            if len(subscript) > 1:
+                subscript = r'\mathrm{%s}' % subscript
+            if len(subscript) == 0:
+                return name
+        
+            return '%s_{%s}' % (name, subscript)
+
+        def sympy_name(name, subscript=''):
+
+            if len(subscript) == 0:
+                return name
+        
+            return '%s_%s' % (name, subscript)
 
         match = cpt_type_pattern.match(name)
 
@@ -350,12 +369,17 @@ class NetElement(object):
             raise ValueError('Cannot have . in node name %s' % n2)
 
         cpt_type = match.groups()[0]
-        id = match.groups()[1]
+        cpt_id = match.groups()[1]
 
-        if id is None:
+        if cpt_id is None:
             NetElement.cpt_type_counter += 1
-            id = '#%d' % NetElement.cpt_type_counter
-            name = cpt_type + id
+            name = cpt_type + '#%d' % NetElement.cpt_type_counter
+
+        # There are two possible labels for a component:
+        # 1. Component identifier, e.g., R1
+        # 2. Component value, expression, or symbol
+        identifier_label = tex_name(cpt_type, cpt_id)
+        value_label = None
 
         # Component arguments
         self.args = args
@@ -424,12 +448,6 @@ class NetElement(object):
                 self.sub_type = args[0]
                 args = args[1:]
 
-        # There are two possible labels for a component:
-        # 1. Component identifier, e.g., R1
-        # 2. Component value, expression, or symbol
-        identifier_label = name
-        value_label = None
-
         if cpt_type in ('P', 'W') or identifier_label.find('#') != -1:
             identifier_label = None
 
@@ -440,6 +458,7 @@ class NetElement(object):
 
         if opts['dir'] is None:
             opts['dir'] = 'down' if cpt_type in ('P', ) else 'right'
+
         if len(args) > 0:
 
             # TODO, extend for mechanical and acoustical components.
@@ -477,7 +496,7 @@ class NetElement(object):
         tex_label = value_label
         if tex_label is None:
             if identifier_label is not None:
-                tex_label = Expr(identifier_label).latex()
+                tex_label = identifier_label
 
         # Default label to use when drawing with LaTeX
         if tex_label is None:
