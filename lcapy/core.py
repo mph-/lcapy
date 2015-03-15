@@ -35,10 +35,6 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
 symbol_pattern = re.compile(r"^[a-zA-Z]+[\w]*[_]?[\w]*$")
 symbol_pattern2 = re.compile(r"^([a-zA-Z]+[\w]*_){([\w]*)}$")
 
-ssym = sym.symbols('s')
-tsym, fsym, omegasym = sym.symbols('t f omega', real=True)
-
-syms = {'s' : ssym, 't' : tsym, 'f' : fsym, 's' : ssym}
 symbols = {}
 
 def symbol(arg, real=False, positive=None):
@@ -49,6 +45,12 @@ def symbol(arg, real=False, positive=None):
         sym1 = sym.symbols(arg, real=True)
     symbols[arg] = sym1
     return sym1
+
+ssym = symbol('s')
+tsym = symbol('t', real=True)
+fsym = symbol('f', real=True)
+omegasym = symbol('omega', real=True)
+
 
 def sympify(arg, real=False, positive=None):
 
@@ -81,7 +83,7 @@ def sympify(arg, real=False, positive=None):
         arg = arg.replace('u(t', 'Heaviside(t')
         arg = arg.replace('delta(t', 'DiracDelta(t')
 
-    return sym.sympify(arg, rational=True, locals=syms)
+    return sym.sympify(arg, rational=True, locals=symbols)
 
 
 class Exprdict(dict):
@@ -554,8 +556,8 @@ class Expr(object):
 
         return cls(self.expr.subs(self.var, expr))
 
-    def subs(self, *args):
-        """Substitute variables in expression"""
+    def subs(self, *args, **kwargs):
+        """Substitute variables in expression, see sympy.subs for usage"""
 
         # Should check if self.var is attempted to be substituted.
         # If it is, then use __call__ method.
@@ -575,7 +577,7 @@ class Expr(object):
                 raise ValueError('Unknown symbol %s' % key)
             mdict[symbols[key]] = sdict[key]
 
-        return self.__class__(self.expr.subs(mdict))
+        return self.__class__(self.expr.subs(mdict, **kwargs))
 
     @property
     def label(self):
