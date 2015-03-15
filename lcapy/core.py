@@ -35,6 +35,11 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
 symbol_pattern = re.compile(r"^[a-zA-Z]+[\w]*[_]?[\w]*$")
 symbol_pattern2 = re.compile(r"^([a-zA-Z]+[\w]*_){([\w]*)}$")
 
+ssym = sym.symbols('s')
+tsym, fsym, omegasym = sym.symbols('t f omega', real=True)
+
+syms = {'s' : ssym, 't' : tsym, 'f' : fsym, 's' : ssym}
+
 
 def sympify(arg, real=False, positive=None):
 
@@ -70,13 +75,7 @@ def sympify(arg, real=False, positive=None):
         arg = arg.replace('u(t', 'Heaviside(t')
         arg = arg.replace('delta(t', 'DiracDelta(t')
 
-    return sym.sympify(arg, rational=True)
-
-
-ssym = sympify('s')
-tsym = sympify('t', real=True)
-fsym = sympify('f', real=True)
-omegasym = sympify('omega', real=True)
+    return sym.sympify(arg, rational=True, locals=syms)
 
 
 class Exprdict(dict):
@@ -391,6 +390,7 @@ class Expr(object):
         dst.part = 'imaginary'
         return dst
 
+    @property
     def real_imag(self):
         """Rewrite as x + j * y"""
         

@@ -33,7 +33,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 # numerical quantisation.
 
 from __future__ import division
-from lcapy.core import pprint, Hs, Zs, Ys
+from lcapy.core import pprint, Hs, Zs, Ys, Expr, tsym
 from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep
 from lcapy.oneport import Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
@@ -117,7 +117,7 @@ cpt_type_map = {'R': R, 'C': C, 'L': L, 'Z': Z, 'Y': Y,
                 'Iacstep': Iacstep, 'Istep': Istep,
                 'Vimpulse': V, 'Iimpulse': I,
                 'Vs': V, 'Is': I,
-                'V': v, 'I': i, 'v': v, 'i': i,
+                'V': V, 'I': I, 'v': v, 'i': i,
                 'P': 'open', 'W': 'short',
                 'E': VCVS, 'TF': TF, 'TP': TP, 'K': K,
                 'D' : Dummy, 'J' : Dummy, 'M': Dummy, 'Q': Dummy,
@@ -211,12 +211,11 @@ class NetElement(object):
         self.nodes = (node1, node2)
         self.args = args
 
-        # Should check for Vdc1, etc.
-
         # Handle special cases for voltage and current sources.
         # Perhaps could generalise for impulse, step, ramp sources
         # although these can be specified symbolically, for example,
         # v1 1 0 t*Heaviside(t)
+        # The only gnarly bit is that the expression cannot contain spaces.
 
         if cpt_type == 'TP' and len(args) != 5:
             raise ValueError('TP component requires 5 args')
@@ -242,6 +241,12 @@ class NetElement(object):
         if cpt_type in ('P', 'W'):
             self.cpt = None
             return
+
+        if args != () and cpt_type in ('V', 'I'):
+            # If have a t-domain expression, use v and i.
+            expr = Expr(args[0])
+            if expr.expr.find(tsym) != set():
+                cpt_type = 'v' if cpt_type == 'V' else 'i'
 
         try:
             foo = cpt_type_map[cpt_type]
