@@ -114,6 +114,7 @@ def plot_angular_frequency(obj, omega, **kwargs):
         ax = plot_angular_frequency(obj.magnitude.dB, omega, **kwargs)
         ax2 = ax.twinx()
         kwargs['axes'] = ax2
+        kwargs['linestyle'] = '--'
         ax2 = plot_angular_frequency(obj.phase, omega, **kwargs)
         return ax, ax2
 
