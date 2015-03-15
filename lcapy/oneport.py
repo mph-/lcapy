@@ -751,7 +751,7 @@ class R(Thevenin):
     def __init__(self, Rval):
 
         self.args = (Rval, )
-        Rval = cExpr(Rval)
+        Rval = cExpr(Rval, positive=True)
         super(R, self).__init__(Zs.R(Rval))
         self.R = Rval
 
@@ -763,7 +763,7 @@ class G(Norton):
     def __init__(self, Gval):
 
         self.args = (Gval, )
-        Gval = cExpr(Gval)
+        Gval = cExpr(Gval, positive=True)
         super(G, self).__init__(Ys.G(Gval))
         self.G = Gval
 
@@ -777,7 +777,7 @@ class L(Thevenin):
     def __init__(self, Lval, i0=0):
 
         self.args = (Lval, i0)
-        Lval = cExpr(Lval)
+        Lval = cExpr(Lval, positive=True)
         i0 = cExpr(i0)
         super(L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
         self.L = Lval
@@ -793,7 +793,7 @@ class C(Thevenin):
     def __init__(self, Cval, v0=0):
 
         self.args = (Cval, v0)
-        Cval = cExpr(Cval)
+        Cval = cExpr(Cval, positive=True)
         v0 = cExpr(v0)
         super(C, self).__init__(Zs.C(Cval), Vs(v0).integrate())
         self.C = Cval
@@ -962,10 +962,10 @@ class Xtal(Thevenin):
     def __init__(self, C0, R1, L1, C1):
 
         self.args = (C0, R1, L1, C1)
-        self.C0 = cExpr(C0)
-        self.R1 = cExpr(R1)
-        self.L1 = cExpr(L1)
-        self.C1 = cExpr(C1)
+        self.C0 = cExpr(C0, positive=True)
+        self.R1 = cExpr(R1, positive=True)
+        self.L1 = cExpr(L1, positive=True)
+        self.C1 = cExpr(C1, positive=True)
 
         N = self.expand()
         super(Xtal, self).__init__(N.Z, N.V)
@@ -986,10 +986,10 @@ class FerriteBead(Thevenin):
     def __init__(self, Rs, Rp, Cp, Lp):
 
         self.args = (Rs, Rp, Cp, Lp)
-        self.Rs = cExpr(Rs)
-        self.Rp = cExpr(Rp)
-        self.Cp = cExpr(Cp)
-        self.Lp = cExpr(Lp)
+        self.Rs = cExpr(Rs, positive=True)
+        self.Rp = cExpr(Rp, positive=True)
+        self.Cp = cExpr(Cp, positive=True)
+        self.Lp = cExpr(Lp, positive=True)
 
         N = self.expand()
         super(Xtal, self).__init__(N.Z, N.V)

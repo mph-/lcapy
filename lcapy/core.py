@@ -36,7 +36,7 @@ symbol_pattern = re.compile(r"[a-zA-Z]+[\w]*[_]?[\w]*")
 symbol_pattern2 = re.compile(r"([a-zA-Z]+[\w]*_){([\w]*)}")
 
 
-def sympify(arg, real=False):
+def sympify(arg, real=False, positive=None):
 
     if isinstance(arg, (sym.symbol.Symbol, sym.symbol.Expr)):
         return arg
@@ -55,7 +55,10 @@ def sympify(arg, real=False):
         # Sympy considers E1 to be the generalized exponential integral.
         # N is for numerical evaluation.
         if symbol_pattern.match(arg) is not None:
-            return sym.symbols(arg, real=True)
+            if positive is not None:
+                return sym.symbols(arg, real=True, positive=positive)
+            else:
+                return sym.symbols(arg, real=True)
 
         match = symbol_pattern2.match(arg)
         if match is not None:
@@ -99,12 +102,12 @@ class Expr(object):
     # the resultant type?  For example, Vs / Vs -> Hs
     # Vs / Is -> Zs,  Is * Zs -> Vs
 
-    def __init__(self, arg, real=False):
+    def __init__(self, arg, real=False, positive=None):
 
         if isinstance(arg, Expr):
             arg = arg.expr
 
-        self.expr = sympify(arg, real=real)
+        self.expr = sympify(arg, real=real, positive=positive)
 
     @property
     def val(self):
@@ -387,6 +390,11 @@ class Expr(object):
         dst = self.__class__(sym.im(self.expr).simplify())
         dst.part = 'imaginary'
         return dst
+
+    def real_imag(self):
+        """Rewrite as x + j * y"""
+        
+        return self.real + j * self.imag
     
     def rationalize_denominator(self):
         """Rationalize denominator by multiplying numerator and denominator by
@@ -399,7 +407,7 @@ class Expr(object):
         #Dnew = (D * Dconj).simplify()
         Dnew = (D.real**2 + D.imag**2).simplify()
 
-        Nnew = Nnew.real + j * Nnew.imag
+        Nnew = Nnew.real_imag()
 
         return Nnew / Dnew
 
@@ -407,9 +415,9 @@ class Expr(object):
     def magnitude(self):
         """Return magnitude"""
 
-        x = self.rationalize_denominator()
-        N = x.N
-        Dnew = x.D
+        R = self.rationalize_denominator()
+        N = R.N
+        Dnew = R.D
         Nnew = sqrt((N.real**2 + N.imag**2).simplify())
 
         dst = Nnew / Dnew
@@ -437,8 +445,8 @@ class Expr(object):
     def phase(self):
         """Return phase"""
 
-        x = self.rationalize_denominator()
-        N = x.N
+        R = self.rationalize_denominator()
+        N = R.N
         
         dst = self.__class__(sym.atan2(N.imag, N.real))
         dst.part = 'phase'
@@ -1153,14 +1161,14 @@ class cExpr(Expr):
 
     """Constant real expression or symbol"""
 
-    def __init__(self, val):
+    def __init__(self, val, positive=None):
 
         # FIXME for expressions of cExpr
         if False and not isinstance(val, (cExpr, int, float, str)):
             raise ValueError(
                 '%s of type %s not int, float, or str' % (val, type(val)))
 
-        super(cExpr, self).__init__(val, real=True)
+        super(cExpr, self).__init__(val, real=True, positive=positive)
 
 
 s = sExpr('s')
