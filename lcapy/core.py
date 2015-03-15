@@ -39,7 +39,16 @@ ssym = sym.symbols('s')
 tsym, fsym, omegasym = sym.symbols('t f omega', real=True)
 
 syms = {'s' : ssym, 't' : tsym, 'f' : fsym, 's' : ssym}
+symbols = {}
 
+def symbol(arg, real=False, positive=None):
+
+    if positive is not None:
+        sym1 = sym.symbols(arg, real=True, positive=positive)
+    else:
+        sym1 = sym.symbols(arg, real=True)
+    symbols[arg] = sym1
+    return sym1
 
 def sympify(arg, real=False, positive=None):
 
@@ -60,16 +69,13 @@ def sympify(arg, real=False, positive=None):
         # Sympy considers E1 to be the generalized exponential integral.
         # N is for numerical evaluation.
         if symbol_pattern.match(arg) is not None:
-            if positive is not None:
-                return sym.symbols(arg, real=True, positive=positive)
-            else:
-                return sym.symbols(arg, real=True)
+            return symbol(arg, real=True, positive=positive)
 
         match = symbol_pattern2.match(arg)
         if match is not None:
             # Convert R_{out} to R_out for sympy to recognise.
             arg = match.groups()[0] + match.groups()[1]
-            return sym.symbols(arg, real=True)
+            return symbol(arg, real=True)
 
         # Perhaps have dictionary of functions and their replacements?
         arg = arg.replace('u(t', 'Heaviside(t')
@@ -510,7 +516,7 @@ class Expr(object):
 
         return response
 
-    def subs(self, arg):
+    def __call__(self, arg):
         """Substitute arg for variable."""
 
         # Should check for bogus substitutions, such as t for s.
@@ -548,9 +554,28 @@ class Expr(object):
 
         return cls(self.expr.subs(self.var, expr))
 
-    def __call__(self, arg):
+    def subs(self, *args):
+        """Substitute variables in expression"""
 
-        return self.subs(arg)
+        # Should check if self.var is attempted to be substituted.
+        # If it is, then use __call__ method.
+
+        if len(args) == 2:
+            sdict = {args[0] : args[1]}
+        elif len(args) == 1:
+            if not isinstance(args[0], dict):
+                raise ValueError('Argument not dict')
+            sdict = args[0]
+
+        # Replace symbol names with symbol definitions to
+        # avoid problems with real or positive attributes.
+        mdict = {}
+        for key in sdict.keys():
+            if key not in symbols:
+                raise ValueError('Unknown symbol %s' % key)
+            mdict[symbols[key]] = sdict[key]
+
+        return self.__class__(self.expr.subs(mdict))
 
     @property
     def label(self):
