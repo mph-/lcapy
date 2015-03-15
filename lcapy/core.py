@@ -407,7 +407,7 @@ class Expr(object):
         #Dnew = (D * Dconj).simplify()
         Dnew = (D.real**2 + D.imag**2).simplify()
 
-        Nnew = Nnew.real_imag()
+        Nnew = Nnew.real_imag
 
         return Nnew / Dnew
 
