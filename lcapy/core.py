@@ -32,8 +32,8 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Hf', 'If', 'Vf', 'Yf', 'Zf',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
-symbol_pattern = re.compile(r"[a-zA-Z]+[\w]*[_]?[\w]*")
-symbol_pattern2 = re.compile(r"([a-zA-Z]+[\w]*_){([\w]*)}")
+symbol_pattern = re.compile(r"^[a-zA-Z]+[\w]*[_]?[\w]*$")
+symbol_pattern2 = re.compile(r"^([a-zA-Z]+[\w]*_){([\w]*)}$")
 
 
 def sympify(arg, real=False, positive=None):
@@ -69,7 +69,7 @@ def sympify(arg, real=False, positive=None):
         # Perhaps have dictionary of functions and their replacements?
         arg = arg.replace('u(t', 'Heaviside(t')
         arg = arg.replace('delta(t', 'DiracDelta(t')
-        
+
     return sym.sympify(arg, rational=True)
 
 
