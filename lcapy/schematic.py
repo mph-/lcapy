@@ -812,7 +812,7 @@ class Schematic(object):
         if False:
             print(pos)
             print(posr)
-        return posa, cnodes.nodes
+        return posa, cnodes.nodes, length
 
     def _positions_calculate(self):
 
@@ -829,8 +829,8 @@ class Schematic(object):
         # distance from the root of the graph.  To centre components,
         # a reverse graph is created and the distances are averaged.
 
-        xpos, self._xnodes = self._make_graphs(('right', 'left'))
-        ypos, self._ynodes = self._make_graphs(('up', 'down'))
+        xpos, self._xnodes, self.width = self._make_graphs(('right', 'left'))
+        ypos, self._ynodes, self.height = self._make_graphs(('up', 'down'))
 
         coords = {}
         for node in xpos.keys():
@@ -1345,6 +1345,7 @@ class Schematic(object):
 
                 # Create PNG image object.
                 im = Image(pngfilename)
+                im.width = self.width * 100
                 display_png(im)
                 return
 
@@ -1356,6 +1357,7 @@ class Schematic(object):
 
                 # Create SVG image object.
                 im = SVG(svgfilename)
+                im.width = self.width * 100
 
                 # Note, there is a problem displaying multiple SVG
                 # files since the later ones inherit the namespace of
