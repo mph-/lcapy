@@ -38,6 +38,7 @@ symbol_pattern2 = re.compile(r"^([a-zA-Z]+[\w]*_){([\w]*)}$")
 symbols = {}
 
 def symbol(arg, real=False, positive=None):
+    """Create a symbol."""
 
     if positive is not None:
         sym1 = sym.symbols(arg, real=True, positive=positive)
@@ -53,6 +54,7 @@ omegasym = symbol('omega', real=True)
 
 
 def sympify(arg, real=False, positive=None):
+    """Create a sympy expression."""
 
     if isinstance(arg, (sym.symbol.Symbol, sym.symbol.Expr)):
         return arg
@@ -845,7 +847,7 @@ class sExpr(sfwExpr):
         """Return expression with s = j omega"""
 
         w = omegaExpr(omegasym)
-        return self.subs(sym.I * w)
+        return self(sym.I * w)
 
     def initial_value(self):
         """Determine value at t = 0"""
@@ -969,7 +971,7 @@ class sExpr(sfwExpr):
 
         """
 
-        X = self.subs(j * omega)
+        X = self(j * omega)
 
         if wvector is None:
             return X
@@ -982,7 +984,7 @@ class sExpr(sfwExpr):
 
         """
 
-        X = self.subs(j * 2 * pi * f)
+        X = self(j * 2 * pi * f)
 
         if fvector is None:
             return X
