@@ -1769,7 +1769,7 @@ class NetObject(object):
 
     def latex(self):
 
-        argsrepr = ', '.join([sym.latex(arg) for arg in self._tweak_args()])
+        argsrepr = ', '.join([latex_str(sym.latex(arg)) for arg in self._tweak_args()])
         return '\\mathrm{%s}(%s)' % (self.__class__.__name__, argsrepr)
 
     def simplify(self):
