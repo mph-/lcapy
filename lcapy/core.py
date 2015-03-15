@@ -14,6 +14,7 @@ from __future__ import division
 from lcapy.latex import latex_str
 import numpy as np
 import sympy as sym
+import re
 from sympy.utilities.lambdify import lambdify
 import sys
 
@@ -31,14 +32,15 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Hf', 'If', 'Vf', 'Yf', 'Zf',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
+symbol_pattern = re.compile(r"[a-zA-Z]+[\w]*[_]?[\w]*")
+
 
 def sympify(arg, real=False):
 
     if isinstance(arg, (sym.symbol.Symbol, sym.symbol.Expr)):
         return arg
 
-    if (real and isinstance(arg, str) and arg.isalnum() and
-        not arg[0].isdigit()):
+    if isinstance(arg, str) and symbol_pattern.match(arg):
         arg = sym.symbols(arg, real=True)
 
     if isinstance(arg, str):
