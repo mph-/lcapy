@@ -33,6 +33,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
 symbol_pattern = re.compile(r"[a-zA-Z]+[\w]*[_]?[\w]*")
+symbol_pattern2 = re.compile(r"([a-zA-Z]+[\w]*_){([\w]*)}")
 
 
 def sympify(arg, real=False):
@@ -40,19 +41,6 @@ def sympify(arg, real=False):
     if isinstance(arg, (sym.symbol.Symbol, sym.symbol.Expr)):
         return arg
 
-    if isinstance(arg, str) and symbol_pattern.match(arg):
-        arg = sym.symbols(arg, real=True)
-
-    if isinstance(arg, str):
-        # Sympy considers E1 to be the generalized exponential integral.
-        # N is for numerical evaluation.
-        if arg in ('E1', 'N'):
-            return sym.symbols(arg, real=real)
-
-        # Perhaps have dictionary of functions and their replacements?
-        arg = arg.replace('u(t', 'Heaviside(t')
-        arg = arg.replace('delta(t', 'DiracDelta(t')
-        
     # Why doesn't sympy do this?
     if isinstance(arg, complex):
         re = sym.sympify(arg.real, rational=True)
@@ -61,17 +49,31 @@ def sympify(arg, real=False):
             arg = re + sym.I
         else:
             arg = re + sym.I * im
-    else:
-        arg = sym.sympify(arg, rational=True)
+        return arg
 
-    return arg
+    if isinstance(arg, str):
+        # Sympy considers E1 to be the generalized exponential integral.
+        # N is for numerical evaluation.
+        if symbol_pattern.match(arg) is not None:
+            return sym.symbols(arg, real=True)
+
+        match = symbol_pattern2.match(arg)
+        if match is not None:
+            # Convert R_{out} to R_out for sympy to recognise.
+            arg = match.groups()[0] + match.groups()[1]
+            return sym.symbols(arg, real=True)
+
+        # Perhaps have dictionary of functions and their replacements?
+        arg = arg.replace('u(t', 'Heaviside(t')
+        arg = arg.replace('delta(t', 'DiracDelta(t')
+        
+    return sym.sympify(arg, rational=True)
 
 
 ssym = sympify('s')
 tsym = sympify('t', real=True)
 fsym = sympify('f', real=True)
 omegasym = sympify('omega', real=True)
-
 
 
 class Exprdict(dict):
@@ -301,7 +303,8 @@ class Expr(object):
         # sympy uses theta for Heaviside , use u(t) although I prefer H(t)
         string = string.replace(r'\theta\left', r'u\left')
 
-        # Should replace _{xxx} with _{\mathrm{xxx}} if len(xxx) > 1
+        # Perhaps replace _{xxx} with _{\mathrm{xxx}} if len(xxx) > 1
+        # We catch this later on with latex_str
 
         return string
 
