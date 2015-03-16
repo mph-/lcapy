@@ -22,6 +22,7 @@ import sys
 
 
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
+           'symbol', 'sympify',
            'zp2tf', 'Expr', 's', 'sExpr', 't', 'tExpr', 'f', 'fExpr', 'cExpr',
            'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt', 
            'log', 'log10',
@@ -65,6 +66,7 @@ def symbol(name, real=False, positive=None, cache=True):
     if cache:
         symbols[name] = sym1
     return sym1
+
 
 ssym = symbol('s')
 tsym = symbol('t', real=True)
@@ -477,7 +479,12 @@ class Expr(object):
         R = self.rationalize_denominator()
         N = R.N
         
-        dst = self.__class__(sym.atan2(N.imag, N.real))
+        re, im = N.real, N.imag
+        G = sym.gcd(re.expr, im.expr)
+        re /= G
+        im /= G
+
+        dst = self.__class__(sym.atan2(im.simplify(), re.simplify()))
         dst.part = 'phase'
         dst.units = 'rad'
         return dst
