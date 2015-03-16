@@ -244,7 +244,7 @@ class NetElement(object):
 
         if args != () and cpt_type in ('V', 'I'):
             # If have a t-domain expression, use v and i.
-            expr = Expr(args[0])
+            expr = Expr(args[0], cache=False)
             if expr.expr.find(tsym) != set():
                 cpt_type = 'v' if cpt_type == 'V' else 'i'
 

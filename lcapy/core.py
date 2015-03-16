@@ -53,7 +53,7 @@ def canonical_name(name):
     return name
 
 
-def symbol(name, real=False, positive=None):
+def symbol(name, real=False, positive=None, cache=True):
     """Create a symbol."""  
 
     name = canonical_name(name)
@@ -62,7 +62,8 @@ def symbol(name, real=False, positive=None):
         sym1 = sym.symbols(name, real=real, positive=positive)
     else:
         sym1 = sym.symbols(name, real=real)
-    symbols[name] = sym1
+    if cache:
+        symbols[name] = sym1
     return sym1
 
 ssym = symbol('s')
@@ -71,7 +72,7 @@ fsym = symbol('f', real=True)
 omegasym = symbol('omega', real=True)
 
 
-def sympify(arg, real=False, positive=None):
+def sympify(arg, real=False, positive=None, cache=True):
     """Create a sympy expression."""
 
     if isinstance(arg, (sym.symbol.Symbol, sym.symbol.Expr)):
@@ -91,7 +92,7 @@ def sympify(arg, real=False, positive=None):
         # Sympy considers E1 to be the generalized exponential integral.
         # N is for numerical evaluation.
         if symbol_pattern.match(arg) is not None:
-            return symbol(arg, real=real, positive=positive)
+            return symbol(arg, real=real, positive=positive, cache=cache)
 
         match = symbol_pattern2.match(arg)
         if match is not None:
@@ -129,12 +130,12 @@ class Expr(object):
     # the resultant type?  For example, Vs / Vs -> Hs
     # Vs / Is -> Zs,  Is * Zs -> Vs
 
-    def __init__(self, arg, real=False, positive=None):
+    def __init__(self, arg, real=False, positive=None, cache=True):
 
         if isinstance(arg, Expr):
             arg = arg.expr
 
-        self.expr = sympify(arg, real=real, positive=positive)
+        self.expr = sympify(arg, real=real, positive=positive, cache=cache)
 
     @property
     def val(self):
@@ -520,12 +521,12 @@ class Expr(object):
             response = func(v1)
 
         except NameError:
-            raise RuntimeError('Cannot evaluate expression')
+            raise RuntimeError('Cannot evaluate expression %s' % self)
 
         except AttributeError:
             raise RuntimeError(
-                'Cannot evaluate expression,'
-                ' probably have undefined symbols, such as Dirac delta')
+                'Cannot evaluate expression %s,'
+                ' probably have undefined symbols, such as Dirac delta' % self)
 
         if np.isscalar(arg):
             return response
@@ -534,7 +535,8 @@ class Expr(object):
             response = np.array([complex(func(v1)) for v1 in arg])
         except TypeError:
             raise TypeError(
-                'Cannot evaluate expression, probably have undefined symbols')
+                'Cannot evaluate expression %s,'
+                ' probably have undefined symbols' % self)
 
         return response
 
@@ -1209,7 +1211,7 @@ class cExpr(Expr):
 
     """Constant real expression or symbol"""
 
-    def __init__(self, val, positive=None):
+    def __init__(self, val, positive=True):
 
         # FIXME for expressions of cExpr
         if False and not isinstance(val, (cExpr, int, float, str)):

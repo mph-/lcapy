@@ -462,12 +462,12 @@ class NetElement(object):
             expr = args[0]
             if cpt_type in ('Vimpulse', 'Iimpulse'):
                 expr = '(%s) * DiracDelta(t)' % expr
-                value_label = Expr(expr).latex()
+                value_label = Expr(expr, cache=False).latex()
             elif cpt_type in ('Vstep', 'Istep'):
                 expr = '(%s) * Heaviside(t)' % expr
-                value_label = Expr(expr).latex()
+                value_label = Expr(expr, cache=False).latex()
             elif cpt_type in ('Vs', 'Is'):
-                value_label = Expr(expr).latex()
+                value_label = Expr(expr, cache=False).latex()
             elif cpt_type == 'TF':
                 value_label = '1:%s' % args[0]
             elif cpt_type not in ('TP',):
@@ -477,10 +477,10 @@ class NetElement(object):
                         value_label = EngFormat(
                             value, units_map[cpt_type[0]]).latex()
                     else:
-                        value_label = Expr(expr).latex()
+                        value_label = Expr(expr, cache=False).latex()
 
                 except ValueError:
-                    value_label = Expr(expr).latex()
+                    value_label = Expr(expr, cache=False).latex()
 
         # Currently, we only annnotated the component with the value,
         # expression, or symbol.  If this is not specified, it
