@@ -532,7 +532,8 @@ class Expr(object):
             return response
 
         try:
-            response = np.array([complex(func(v1)) for v1 in arg])
+            response = [func(v1) for v1 in arg]
+            response = np.array(response)
         except TypeError:
             raise TypeError(
                 'Cannot evaluate expression %s,'
