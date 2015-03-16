@@ -3,8 +3,6 @@ from lcapy.core import Zs
 import unittest
 import sympy as sym
 
-s = sym.var('s')
-
 
 class LcapyTester(unittest.TestCase):
 
@@ -66,4 +64,4 @@ class LcapyTester(unittest.TestCase):
         # This has a non-invertible A matrix.
         # self.assertEqual2(a.Y(1, 0), R(0).Y, "Y incorrect across V1")
 
-        self.assertEqual2(a.Voc(1, 0), v('V1').V, "Voc incorrect across V1")
+        self.assertEqual2(a.Voc(1, 0), V('V1').V, "Voc incorrect across V1")

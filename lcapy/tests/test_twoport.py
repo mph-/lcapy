@@ -1,9 +1,6 @@
 from lcapy import *
 import unittest
 import sympy as sym
-from msignal.mrf import MRF
-
-s = sym.var('s')
 
 
 class LcapyTester(unittest.TestCase):
