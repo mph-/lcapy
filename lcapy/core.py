@@ -37,14 +37,32 @@ symbol_pattern2 = re.compile(r"^([a-zA-Z]+[\w]*_){([\w]*)}$")
 
 symbols = {}
 
-def symbol(arg, real=False, positive=None):
-    """Create a symbol."""
+cpt_names = ('C', 'G', 'I', 'L', 'R', 'V', 'Y', 'Z')
+cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
+
+def canonical_name(name):
+
+    if name.find('_') != -1:
+        return name
+
+    # Rewrite R1 as R_1, etc.
+    match = cpt_name_pattern.match(name)
+    if match:
+        name = match.groups()[0] + '_' + match.groups()[1]
+
+    return name
+
+
+def symbol(name, real=False, positive=None):
+    """Create a symbol."""  
+
+    name = canonical_name(name)
 
     if positive is not None:
-        sym1 = sym.symbols(arg, real=True, positive=positive)
+        sym1 = sym.symbols(name, real=real, positive=positive)
     else:
-        sym1 = sym.symbols(arg, real=True)
-    symbols[arg] = sym1
+        sym1 = sym.symbols(name, real=real)
+    symbols[name] = sym1
     return sym1
 
 ssym = symbol('s')
@@ -73,7 +91,7 @@ def sympify(arg, real=False, positive=None):
         # Sympy considers E1 to be the generalized exponential integral.
         # N is for numerical evaluation.
         if symbol_pattern.match(arg) is not None:
-            return symbol(arg, real=True, positive=positive)
+            return symbol(arg, real=real, positive=positive)
 
         match = symbol_pattern2.match(arg)
         if match is not None:
@@ -575,9 +593,10 @@ class Expr(object):
         # avoid problems with real or positive attributes.
         mdict = {}
         for key in sdict.keys():
-            if key not in symbols:
+            name = canonical_name(key)
+            if name not in symbols:
                 raise ValueError('Unknown symbol %s' % key)
-            mdict[symbols[key]] = sdict[key]
+            mdict[symbols[name]] = sdict[key]
 
         return self.__class__(self.expr.subs(mdict, **kwargs))
 
