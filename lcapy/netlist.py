@@ -514,15 +514,11 @@ class Netlist(object):
 
         return self.net_parse(net)
 
-    def _make_Z(self, node1, node2, value, opts):
+    def _make_Z(self, name, node1, node2, value, opts):
         """Create a dummy impedance"""
 
-        if not hasattr(self, '_Z_counter'):
-            self._Z_counter = 0
-        self._Z_counter += 1
-
-        net = 'Z#%d %s %s %s; %s' % (
-            self._Z_counter, node1, node2, value, opts.format())
+        net = 'Z%s %s %s %s; %s' % (name,
+                                    node1, node2, value, opts.format())
 
         return self.net_parse(net)
 
@@ -827,8 +823,8 @@ class Netlist(object):
             cpt_type = elt.cpt_type
 
             if cpt_type in ('C', 'L', 'R'):
-                new_elt = self._make_Z(
-                    elt.nodes[0], elt.nodes[1], elt.cpt.Z, elt.opts)
+                new_elt = self._make_Z(elt.name, elt.nodes[0], elt.nodes[1],
+                                       elt.cpt.Z, elt.opts)
             elif cpt_type in ('V', 'Vdc', 'Vac', 'Vimpulse',
                               'Vstep', 'Vacstep'):
                 new_elt = self._make_V(
