@@ -33,7 +33,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 # numerical quantisation.
 
 from __future__ import division
-from lcapy.core import pprint, Hs, Zs, Ys, Expr, tsym
+from lcapy.core import pprint, Hs, Zs, Ys, Expr, tsym, s, j, omega
 from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep
 from lcapy.oneport import Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
@@ -811,7 +811,7 @@ class Netlist(object):
 
         return new_cct
 
-    def s_model(self):
+    def _model(self, var=None):
 
         cct = Circuit()
         cct._s_model = True
@@ -824,22 +824,22 @@ class Netlist(object):
 
             if cpt_type in ('C', 'L', 'R'):
                 new_elt = self._make_Z(elt.name, elt.nodes[0], elt.nodes[1],
-                                       elt.cpt.Z, elt.opts)
+                                       elt.cpt.Z(var), elt.opts)
             elif cpt_type in ('V', 'Vdc', 'Vac', 'Vimpulse',
                               'Vstep', 'Vacstep'):
                 new_elt = self._make_V(
-                    elt.nodes[0], elt.nodes[1], elt.cpt.V, elt.opts)
+                    elt.nodes[0], elt.nodes[1], elt.cpt.V(var), elt.opts)
             elif cpt_type in ('I', 'Idc', 'Iac', 'Iimpulse',
                               'Istep', 'Iacstep'):
                 new_elt = self._make_I(
-                    elt.nodes[0], elt.nodes[1], elt.cpt.I, elt.opts)
+                    elt.nodes[0], elt.nodes[1], elt.cpt.I(var), elt.opts)
 
             if cpt_type in ('C', 'L', 'R') and elt.cpt.V != 0:
 
                 dummy_node = self._make_node()
 
                 velt = self._make_V(
-                    dummy_node, elt.nodes[1], elt.cpt.V, elt.opts)
+                    dummy_node, elt.nodes[1], elt.cpt.V(var), elt.opts)
                 new_elt.nodes = (elt.nodes[0], dummy_node)
 
                 # Strip voltage label.  TODO: show voltage label across
@@ -860,6 +860,14 @@ class Netlist(object):
             cct._elt_add(new_elt)
 
         return cct
+
+    def ac_model(self):
+        return self._model(j * omega)
+
+
+    def s_model(self):
+        return self._model(s)
+
 
     def draw(self, filename=None, draw_labels=None, draw_nodes=None,
              label_nodes=None, s_model=False, args=None, scale=1, stretch=1,
