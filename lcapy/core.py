@@ -474,7 +474,7 @@ class Expr(object):
 
     @property
     def phase(self):
-        """Return phase"""
+        """Return phase in radians"""
 
         R = self.rationalize_denominator()
         N = R.N
@@ -487,6 +487,15 @@ class Expr(object):
         dst = self.__class__(sym.atan2(im.simplify(), re.simplify()))
         dst.part = 'phase'
         dst.units = 'rad'
+        return dst
+
+    @property
+    def phase_degrees(self):
+        """Return phase in degrees"""
+
+        dst = self.phase * 180.0 / pi
+        dst.part = 'phase'
+        dst.units = 'degrees'
         return dst
 
     @property

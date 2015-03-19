@@ -857,6 +857,7 @@ class Netlist(object):
 
                 cct._elt_add(velt)
 
+            # TODO, make voltage and current labels uppercase.
             cct._elt_add(new_elt)
 
         return cct
