@@ -948,13 +948,16 @@ class Schematic(object):
 
         centre = Pos(0.5 * (p3.x + p1.x), p1.y)
 
-        labelstr = elt.tex_label if draw_labels else ''
-        argstr = '' if 'mirror' in elt.opts else 'yscale=-1'
+        label_str = elt.tex_label if draw_labels else ''
+        args_str = '' if 'mirror' in elt.opts else 'yscale=-1'
+        for key, val in elt.opts.iteritems():
+            if key in ('color', ):
+                args_str += '%s=%s, ' % (key, val)                
 
         s = r'  \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (
-            centre, argstr, self.scale * 2)
+            centre, args_str, self.scale * 2)
         # Draw label separately to avoid being scaled by 2.
-        s += r'  \draw (%s) node [] {%s};' % (centre, labelstr)
+        s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
         
         s += self._tikz_draw_nodes(elt, draw_nodes)
         return s
@@ -972,12 +975,12 @@ class Schematic(object):
         centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
         labelpos = Pos(centre.x, primary_dot.y)
 
-        labelstr = elt.tex_label if draw_labels else ''
+        label_str = elt.tex_label if draw_labels else ''
 
         s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
         s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
-            labelpos, 0.5, labelstr)
+            labelpos, 0.5, label_str)
 
         if link:
             width = p1.x - p3.x
@@ -1021,7 +1024,7 @@ class Schematic(object):
         centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
         top = Pos(centre.x, p1.y + 0.15)
 
-        labelstr = elt.tex_label if draw_labels else ''
+        label_str = elt.tex_label if draw_labels else ''
         titlestr = "%s-parameter two-port" % elt.args[2]
 
         s = r'  \draw (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
@@ -1029,7 +1032,7 @@ class Schematic(object):
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
             centre, width, titlestr)
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
-            top, width, labelstr)
+            top, width, label_str)
 
         s += self._tikz_draw_nodes(elt, draw_nodes)
         return s
@@ -1062,15 +1065,18 @@ class Schematic(object):
 
         centre = Pos(p3.x, 0.5 * (p1.y + p3.y))
 
-        labelstr = elt.tex_label if draw_labels else ''
+        label_str = elt.tex_label if draw_labels else ''
         sub_type = elt.sub_type.replace('jf', 'jfet')
-        argstr = '' if elt.opts['dir'] == 'right' else 'xscale=-1'
+        args_str = '' if elt.opts['dir'] == 'right' else 'xscale=-1'
         if 'mirror' in elt.opts:
-            argstr += ', yscale=-1'
+            args_str += ', yscale=-1'
+        for key, val in elt.opts.iteritems():
+            if key in ('color', ):
+                args_str += '%s=%s, ' % (key, val)                
 
         s = r'  \draw (%s) node[%s, %s, scale=%.1f] (T) {};''\n' % (
-            centre, sub_type, argstr, self.scale * 2)
-        s += r'  \draw (%s) node [] {%s};''\n'% (centre, labelstr)
+            centre, sub_type, args_str, self.scale * 2)
+        s += r'  \draw (%s) node [] {%s};''\n'% (centre, label_str)
 
         if sub_type in ('pnp', 'pmos', 'pjfet'):
             n1, n3 = n3, n1
@@ -1096,7 +1102,7 @@ class Schematic(object):
                 args.append('yscale=-1')
             if elt.opts['dir'] == 'left':
                 args.append('xscale=-1')
-            argstr = ','.join(args)
+            args_str = ','.join(args)
 
             offset = 0.0
             anchor = 'south west'
@@ -1109,7 +1115,7 @@ class Schematic(object):
             pos = Pos(p.x, p.y + offset)
 
             s = r'  \draw (%s) to [short, -] (%s);''\n' % (n1, pos)
-            s += r'  \draw (%s) node[%s];''\n' % (pos, argstr)
+            s += r'  \draw (%s) node[%s];''\n' % (pos, args_str)
 
             if 'l' in elt.opts:
                 label_str = '$%s$' % latex_str(elt.opts['l'])
@@ -1162,13 +1168,15 @@ class Schematic(object):
         # Current, voltage, label options.
         # It might be better to allow any options and prune out
         # dir and size.
-        opts_str = ''
-        for opt in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
-                    'i>_', 'i<_', 'i>^', 'i<^',
-                    'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
-                    'l', 'l^', 'l_', 'color'):
-            if opt in elt.opts:
-                opts_str += '%s=$%s$, ' % (opt, elt.opts[opt])
+        args_str = ''
+        for key, val in elt.opts.iteritems():
+            if key in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
+                       'i>_', 'i<_', 'i>^', 'i<^',
+                       'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
+                       'l', 'l^', 'l_'):
+                args_str += '%s=$%s$, ' % (key, val)
+            if key in ('color', ):
+                args_str += '%s=%s, ' % (key, val)                
 
         node_str = self._node_str(n1, n2, draw_nodes)
 
@@ -1187,7 +1195,7 @@ class Schematic(object):
             cpt_type = diode_type_map[elt.sub_type]
 
         s = r'  \draw (%s) to [%s%s, %s%s] (%s);''\n' % (
-            n1, cpt_type, label_str, latex_str(opts_str), node_str, n2)
+            n1, cpt_type, label_str, latex_str(args_str), node_str, n2)
         return s
 
     def _tikz_draw(self, draw_labels=True, draw_nodes=True,
