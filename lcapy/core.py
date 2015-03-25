@@ -514,7 +514,7 @@ class Expr(object):
 
         return self.expr.is_constant()
 
-    def evaluate(self, arg):
+    def evaluate(self, arg=None):
         """Evaluate expression at arg.
         arg may be a scalar, or a vector.
 
@@ -522,6 +522,12 @@ class Expr(object):
         not evaluate correctly since the exp will overflow for -t and
         produce an Inf.  When this is multiplied by 0 from the
         Heaviside function we get Nan. """
+
+        if arg is None:
+            if self.expr.find(self.var) != set():
+                raise ValueError('Need value to evaluate expression at')
+            # The arg is irrelevant since the expression is a constant.
+            arg = 0
 
         # Perhaps should check if expr.args[1] == Heaviside('t') and not
         # evaluate if t < 0?
