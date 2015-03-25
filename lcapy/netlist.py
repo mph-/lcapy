@@ -185,6 +185,9 @@ class Node(object):
 
 class NetElement(object):
 
+    cpt_type_counter = 0
+
+
     def __init__(self, name, node1, node2, *args, **opts):
 
         match = cpt_type_pattern.match(name)
@@ -205,6 +208,9 @@ class NetElement(object):
         value = cpt_type
         if len(cpt_id) > 0:
             value += '_' + cpt_id
+        else:
+            NetElement.cpt_type_counter += 1
+            name = cpt_type + '#%d' % NetElement.cpt_type_counter
 
         self.opts = Opts(opts)
         self.name = name
