@@ -58,6 +58,7 @@ cpt_types = ['C',  # Capacitor
              'K',  # Mutual inductance
              'L',  # Inductor
              'M',  # MOSFET (not supported)
+             'O',  # Open-circuit
              'P',  # Port (open-circuit)
              'Q',  # BJT (not supported)
              'R',  # Resistor
@@ -118,7 +119,7 @@ cpt_type_map = {'R': R, 'C': C, 'L': L, 'Z': Z, 'Y': Y,
                 'Vimpulse': V, 'Iimpulse': I,
                 'Vs': V, 'Is': I,
                 'V': V, 'I': I, 'v': v, 'i': i,
-                'P': 'open', 'W': 'short',
+                'O' : None, 'P': None, 'W': None,
                 'E': VCVS, 'TF': TF, 'TP': TP, 'K': K,
                 'D' : Dummy, 'J' : Dummy, 'M': Dummy, 'Q': Dummy,
                 'opamp': VCVS}
@@ -244,10 +245,6 @@ class NetElement(object):
 
         self.cpt_type = cpt_type
 
-        if cpt_type in ('P', 'W'):
-            self.cpt = None
-            return
-
         if args != () and cpt_type in ('V', 'I'):
             # If have a t-domain expression, use v and i.
             expr = Expr(args[0], cache=False)
@@ -256,6 +253,10 @@ class NetElement(object):
 
         try:
             foo = cpt_type_map[cpt_type]
+            # Ignore ports and wires, etc.
+            if foo is None:
+                self.cpt = None
+                return
 
         except KeyError:
             raise ValueError('Unknown component kind for %s' % name)
@@ -284,7 +285,7 @@ class NetElement(object):
     @property
     def is_dummy(self):
 
-        return self.cpt_type in ('P', 'W')
+        return self.cpt_type in ('O', 'P', 'W')
 
     @property
     def is_independentV(self):

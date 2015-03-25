@@ -28,7 +28,7 @@ __all__ = ('Schematic', )
 
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
-cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'P', 'E', 
+cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'O', 'P', 'E', 
              'D', 'J', 'M', 'Q', 'TF', 'TP', 'K']
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 
@@ -442,7 +442,7 @@ class NetElement(object):
                 self.sub_type = args[0]
                 args = args[1:]
 
-        if cpt_type in ('P', 'W') or identifier_label.find('#') != -1:
+        if cpt_type in ('O', 'P', 'W') or identifier_label.find('#') != -1:
             identifier_label = None
 
         if 'dir' not in opts:
@@ -451,7 +451,7 @@ class NetElement(object):
             opts['size'] = 1
 
         if opts['dir'] is None:
-            opts['dir'] = 'down' if cpt_type in ('P', ) else 'right'
+            opts['dir'] = 'down' if cpt_type in ('O', 'P') else 'right'
 
         if len(args) > 0:
 
@@ -1130,7 +1130,7 @@ class Schematic(object):
                         'Vimpulse': 'V', 'Iimpulse': 'I',
                         'Vs': 'V', 'Is': 'I',
                         'V': 'V', 'I': 'I', 'v': 'V', 'i': 'I',
-                        'P': 'open', 'W': 'short',
+                        'O' : 'open', 'P': 'open', 'W': 'short',
                         'TF': 'transformer', 'D' : 'D',
                         'Z': 'Z', 'Y': 'Y',
                         'E' : 'american controlled voltage source'}
