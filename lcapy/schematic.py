@@ -1199,7 +1199,7 @@ class Schematic(object):
         return s
 
     def _tikz_draw(self, draw_labels=True, draw_nodes=True,
-                   label_nodes=True, args=None):
+                   label_nodes='primary', args=None):
 
         # Preamble
         if args is None:
@@ -1244,10 +1244,10 @@ class Schematic(object):
         # Label primary nodes
         if label_nodes:
             for m, node in enumerate(self.nodes.values()):
-                if not node.primary:
+                if label_nodes == 'primary' and not node.primary:
                     continue
                 s += r'  \draw {[anchor=south east] (%s) node {%s}};''\n' % (
-                    node.name, node.name)
+                    node.name, node.name.replace('_', r'\_'))
 
         s += r'\end{tikzpicture}''\n'
 
