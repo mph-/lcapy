@@ -911,11 +911,16 @@ class Schematic(object):
 
         node_str = ''
         if node1.visible(draw_nodes):
-            node_str = 'o-' if node1.port else '*-'
+            node_str = 'o' if node1.port else '*'
+
+        node_str += '-'
 
         if node2.visible(draw_nodes):
             node_str += 'o' if node2.port else '*'
-            
+
+        if node_str == '-':
+            node_str = ''
+        
         return node_str
 
 
