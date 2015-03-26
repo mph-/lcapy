@@ -146,7 +146,7 @@ class Cnodes(object):
 
     def _analyse(self):
 
-        # Add dymmy cnode at start
+        # Add dummy cnode at start
         unique = ['dummy'] + list(set(self.sets.values()))
         node_map = {}
         for node, nodes in self.sets.iteritems():
@@ -207,6 +207,11 @@ class Graph(dict):
         component connecting the nodes.
         """
 
+        if self[0] == []:
+            raise ValueError("Cannot find start node for graph '%s'. "
+                             "Probably a component has an incorrect direction."
+                             % self.name)
+
         all_nodes = self.keys()
         from_nodes = self
 
@@ -230,8 +235,8 @@ class Graph(dict):
                                 for to_node in all_nodes])
         except RuntimeError:
             raise RuntimeError(
-                ('The schematic graph %s is dodgy, probably a component'
-                 ' is connected to the wrong node\n%s') 
+                ("The schematic graph '%s' is dodgy, probably a component"
+                 " is connected to the wrong node\n%s") 
                 % (self.name, from_nodes))
 
         return length, node, memo
@@ -241,8 +246,9 @@ class Graphs(object):
 
     def __init__(self, size, name):
 
-        self.fwd = Graph(size, name + ' forward')
-        self.rev = Graph(size, name + ' reverse')
+        self.fwd = Graph(size, 'forward ' + name)
+        self.rev = Graph(size, 'reverse ' + name)
+        self.size = size
 
     def add(self, n1, n2, size):
         self.fwd.add(n1, n2, size)
@@ -251,6 +257,19 @@ class Graphs(object):
     @property
     def nodes(self):
         return self.fwd.keys()
+
+    def add_start_nodes(self):
+
+        # Chain all potential start nodes to node 0.
+        orphans = []
+        rorphans = []
+        for m in range(1, self.size):
+            if self.fwd[m] == []:
+                orphans.append((m, 0))
+            if self.rev[m] == []:
+                rorphans.append((m, 0))
+        self.fwd[0] = rorphans
+        self.rev[0] = orphans
 
 
 class Node(object):
@@ -780,16 +799,7 @@ class Schematic(object):
             elif elt.opts['dir'] == dirs[1]:
                 graphs.add(m2, m1, size)
 
-        # Chain all potential start nodes to node 0.
-        orphans = []
-        rorphans = []
-        for m in range(1, cnodes.size):
-            if graphs.fwd[m] == []:
-                orphans.append((m, 0))
-            if graphs.rev[m] == []:
-                rorphans.append((m, 0))
-        graphs.fwd[0] = rorphans
-        graphs.rev[0] = orphans
+        graphs.add_start_nodes()
 
         if False:
             print(graphs.fwd)
