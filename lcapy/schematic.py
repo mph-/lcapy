@@ -289,9 +289,14 @@ class Node(object):
 
         return self._cpt_count
 
-    @property
-    def visible(self):
+    def visible(self, draw_nodes):
         """Return true if node drawn"""
+
+        if draw_nodes in ('none', None, False):
+            return False
+        
+        if draw_nodes == 'all':
+            return True
 
         # Should show node when cpt_count >= 2
         # Could add blobs when count > 2
@@ -896,14 +901,14 @@ class Schematic(object):
         if node1.port:
             node_str = 'o'
         else:
-            node_str = '*' if draw_nodes and node1.visible else ''
+            node_str = '*' if node1.visible(draw_nodes) else ''
 
         node_str += '-'
 
         if node2.port:
             node_str += 'o'
         else:
-            node_str += '*' if draw_nodes and node2.visible else ''
+            node_str += '*' if node2.visible(draw_nodes) else ''
 
         if node_str == '-':
             node_str = ''
@@ -918,7 +923,7 @@ class Schematic(object):
             return s
 
         node = self.nodes[n]
-        if not node.visible:
+        if not node.visible(draw_nodes):
             return s
 
         pos = self.coords[n]

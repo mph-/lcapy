@@ -333,7 +333,7 @@ class Netlist(object):
         self.snodes = {}
 
         # TODO, decouple from Schematic
-        self.kwargs = {'draw_nodes': True,
+        self.kwargs = {'draw_nodes': 'primary',
                        'draw_labels': True,
                        'label_nodes': 'primary'}
 
