@@ -31,7 +31,7 @@ def main (argv=None):
 
     parser.add_option('--draw-nodes', type='str',
                       dest='draw_nodes', default=None,
-                      help='draw nodes, choice none, primary, all')
+                      help='draw nodes, choice none, connections, primary, all')
 
     parser.add_option('--nodraw-nodes', action='store_false',
                       dest='draw_nodes',
@@ -81,7 +81,8 @@ def main (argv=None):
     if options.label_nodes not in ('none', 'all', 'primary', False, None):
         raise ValueError('Illegal option %s for label_nodes' % options.label_nodes)
 
-    if options.draw_nodes not in ('none', 'all', 'primary', False, None):
+    if options.draw_nodes not in ('none', 'all', 'primary', 'connections',
+                                  False, None):
         raise ValueError('Illegal option %s for draw_nodes' % options.draw_nodes)
 
     cct.draw(label_nodes=options.label_nodes, draw_nodes=options.draw_nodes,

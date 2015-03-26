@@ -279,7 +279,6 @@ class Node(object):
         self.name = name
         self._port = False
         self._count = 0
-        self._cpt_count = 0
         parts = name.split('_')
         self.rootname = parts[0] if name[0] != '_' else name
         self.primary = len(parts) == 1
@@ -292,21 +291,15 @@ class Node(object):
             self._port = True
 
         self.list.append(elt)
-        self._count += 1
-        if elt.cpt_type != 'W':
-            self._cpt_count += 1
+        if elt.cpt_type not in ('O', ):
+            self._count += 1
 
     @property
     def count(self):
-        """Number of elements (including wires) connected to the node"""
+        """Number of elements (including wires but not open-circuits)
+        connected to the node"""
 
         return self._count
-
-    @property
-    def cpt_count(self):
-        """Number of elements (not including wires) connected to the node"""
-
-        return self._cpt_count
 
     def visible(self, draw_nodes):
         """Return true if node drawn"""
@@ -317,8 +310,11 @@ class Node(object):
         if draw_nodes == 'all':
             return True
 
-        # Should show node when cpt_count >= 2
-        # Could add blobs when count > 2
+        if self.port:
+            return True
+
+        if draw_nodes == 'connections':
+            return self.count > 2
 
         return self.name.find('_') == -1
 
@@ -605,7 +601,12 @@ class Schematic(object):
         if elt.cpt_type == 'K':
             return
 
-        for node in elt.nodes:
+        nodes = elt.nodes
+        # The controlling nodes are not drawn.
+        if elt.cpt_type in ('E', 'F', 'G', 'H'):
+            nodes = nodes[0:2]
+
+        for node in nodes:
             self._node_add(node, elt)
 
     def add(self, string):
@@ -908,21 +909,13 @@ class Schematic(object):
 
         node1, node2 = self.nodes[n1], self.nodes[n2]
 
-        if node1.port:
-            node_str = 'o'
-        else:
-            node_str = '*' if node1.visible(draw_nodes) else ''
+        node_str = ''
+        if node1.visible(draw_nodes):
+            node_str = 'o-' if node1.port else '*-'
 
-        node_str += '-'
-
-        if node2.port:
-            node_str += 'o'
-        else:
-            node_str += '*' if node2.visible(draw_nodes) else ''
-
-        if node_str == '-':
-            node_str = ''
-
+        if node2.visible(draw_nodes):
+            node_str += 'o' if node2.port else '*'
+            
         return node_str
 
 
