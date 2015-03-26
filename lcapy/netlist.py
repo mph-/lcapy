@@ -453,14 +453,16 @@ class Netlist(object):
         self._invalidate()
 
         if string[0] == ';':
-            fields = string[1:].split('=')
-            key = fields[0].strip()
-            arg = fields[1].strip() if len(fields) > 1 else ''
-            if arg.lower() == 'false':
-                arg = False
-            elif arg.lower() == 'true':
-                arg = True
-            self.kwargs[key] = arg
+            keypairs = string[1:].split(',')
+            for keypair in keypairs:
+                fields = keypair.split('=')
+                key = fields[0].strip()
+                arg = fields[1].strip() if len(fields) > 1 else ''
+                if arg.lower() == 'false':
+                    arg = False
+                elif arg.lower() == 'true':
+                    arg = True
+                self.kwargs[key] = arg
             return
 
         elt = self.net_parse(string, *args)

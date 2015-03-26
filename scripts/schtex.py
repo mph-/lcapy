@@ -21,16 +21,18 @@ def main (argv=None):
     parser = OptionParser(usage='%prog schematic-file [output-file]', version=version, 
                           description=__doc__)
 
-    parser.add_option('--label-nodes', action='store_true',
-                      dest='label_nodes', default=True,
-                      help='label nodes')
+    parser.add_option('--label-nodes', type='str',
+                      dest='label_nodes', default=None,
+                      help='label nodes, choice none, primary, all')
+
     parser.add_option('--nolabel-nodes', action='store_false',
                       dest='label_nodes',
                       help="don't label nodes")
 
-    parser.add_option('--draw-nodes', action='store_true',
-                      dest='draw_nodes', default=True,
-                      help='draw nodes')
+    parser.add_option('--draw-nodes', type='str',
+                      dest='draw_nodes', default=None,
+                      help='draw nodes, choice none, primary, all')
+
     parser.add_option('--nodraw-nodes', action='store_false',
                       dest='draw_nodes',
                       help="don't draw nodes")
@@ -75,6 +77,12 @@ def main (argv=None):
         cct = cct.s_model()
     if options.p_model:
         cct = cct.pre_initial_model()
+
+    if options.label_nodes not in ('none', 'all', 'primary', False, None):
+        raise ValueError('Illegal option %s for label_nodes' % options.label_nodes)
+
+    if options.draw_nodes not in ('none', 'all', 'primary', False, None):
+        raise ValueError('Illegal option %s for draw_nodes' % options.draw_nodes)
 
     cct.draw(label_nodes=options.label_nodes, draw_nodes=options.draw_nodes,
              filename=outfilename, scale=options.scale, stretch=options.stretch)
