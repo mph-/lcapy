@@ -166,8 +166,9 @@ class Opts(dict):
 
 class Node(object):
 
-    def __init__(self, name):
+    def __init__(self, cct, name):
 
+        self.cct = cct
         self.name = name
         self.pos = None
         self.port = False
@@ -175,6 +176,11 @@ class Node(object):
         self.rootname = parts[0] if name[0] != '_' else name
         self.primary = len(parts) == 1
         self.list = []
+
+    @property
+    def V(self):
+
+        return self.cct.V[self.name]
 
     def append(self, elt):
 
@@ -189,7 +195,7 @@ class NetElement(object):
     cpt_type_counter = 0
 
 
-    def __init__(self, name, node1, node2, *args, **opts):
+    def __init__(self, cct, name, node1, node2, *args, **opts):
 
         match = cpt_type_pattern.match(name)
 
@@ -213,8 +219,9 @@ class NetElement(object):
             NetElement.cpt_type_counter += 1
             name = cpt_type + '#%d' % NetElement.cpt_type_counter
 
-        self.opts = Opts(opts)
+        self.cct = cct
         self.name = name
+        self.opts = Opts(opts)
         self.nodes = (node1, node2)
         self.args = args
 
@@ -356,7 +363,13 @@ class Netlist(object):
     def __getitem__(self, name):
         """Return component by name"""
 
-        return self.elements[name]
+        if name in self.elements:
+            return self.elements[name]
+
+        if name in self.nodes:            
+            return self.nodes[name]            
+
+        raise ValueError('Unknown element or node name %s' % name)
 
     def netfile_add(self, filename):
         """Add the nets from file with specified filename"""
@@ -394,7 +407,7 @@ class Netlist(object):
     def _node_add(self, node, elt):
 
         if node not in self.nodes:
-            self.nodes[node] = Node(node)
+            self.nodes[node] = Node(self, node)
         self.nodes[node].append(elt)
 
         vnode = self.nodes[node].rootname
@@ -441,8 +454,7 @@ class Netlist(object):
         opts = Opts(string)
 
         parts = tuple(re.split(r'[\s]+', fields[0].strip()))
-        elt = NetElement(*(parts + args), **opts)
-        elt.cct = self
+        elt = NetElement(self, *(parts + args), **opts)
         return elt
 
     def add(self, string, *args):

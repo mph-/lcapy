@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='lcapy',
-      version='0.6.39',
+      version='0.6.40',
       description='Symbolic linear circuit analysis',
       author='Michael Hayes',
       requires=['sympy', 'numpy', 'scipy'],
