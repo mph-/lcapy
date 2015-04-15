@@ -288,16 +288,6 @@ class NetElement(object):
         return self.cpt_type in ('O', 'P', 'W')
 
     @property
-    def is_independentV(self):
-
-        return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep))
-
-    @property
-    def is_independentI(self):
-
-        return isinstance(self.cpt, (I, Idc, Iac, Istep, Iacstep))
-
-    @property
     def is_V(self):
 
         return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep, VCVS, TF))
@@ -328,6 +318,7 @@ class Netlist(object):
     def __init__(self, filename=None):
 
         self.elements = {}
+        self.sources = {}
         self.nodes = {}
         # Shared nodes (with same voltage)
         self.snodes = {}
@@ -409,6 +400,9 @@ class Netlist(object):
             # Need to search lists and update component.
 
         self.elements[elt.name] = elt
+
+        if elt.is_I or elt.is_V:
+            self.sources[elt.name] = elt
 
         # Ignore nodes for mutual inductance.
         if elt.cpt_type == 'K':
@@ -609,7 +603,6 @@ class Netlist(object):
 
         return self._i
 
-
     def Voc(self, Np, Nm):
         """Return open-circuit s-domain voltage between nodes Np and Nm."""
 
@@ -650,8 +643,9 @@ class Netlist(object):
         return I(Isc) | Y(self.admittance(Np, Nm))
 
     def admittance(self, Np, Nm):
-        """Return admittance between nodes Np and Nm
-        with independent sources killed."""
+        """Return admittance between nodes Np and Nm with sources killed.
+
+        """
 
         new = self.kill()
 
@@ -664,8 +658,9 @@ class Netlist(object):
         return Ys(If)
 
     def impedance(self, Np, Nm):
-        """Return impedance between nodes Np and Nm
-        with independent sources killed."""
+        """Return impedance between nodes Np and Nm with sources killed.
+
+        """
 
         new = self.kill()
 
@@ -678,14 +673,16 @@ class Netlist(object):
         return Zs(Vf)
 
     def Y(self, Np, Nm):
-        """Return admittance between nodes Np and Nm
-        with independent sources killed."""
+        """Return admittance between nodes Np and Nm with sources killed.
+
+        """
 
         return self.admittance(Np, Nm)
 
     def Z(self, Np, Nm):
-        """Return impedance between nodes Np and Nm
-        with independent sources killed."""
+        """Return impedance between nodes Np and Nm with sources killed.
+
+        """
 
         return self.impedance(Np, Nm)
 
@@ -694,7 +691,7 @@ class Netlist(object):
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
-        Note, independent sources are killed."""
+        Note, sources are killed."""
 
         new = self.kill()
         new.add('V1_ %d %d impulse' % (N1p, N1m))
@@ -744,21 +741,51 @@ class Netlist(object):
         except ValueError:
             raise ValueError('Cannot create A matrix')
 
-    def kill(self):
-        """Return a new circuit with the independent sources killed;
-        i.e., make the voltage sources short-circuits and the current
-        sources open-circuits."""
+    def _kill(self, sourcenames):
 
         new = Circuit()
 
         for key, elt in self.elements.iteritems():
-            if elt.is_independentI:
-                elt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
-            elif elt.is_independentV:
-                elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
+            if key in sourcenames:
+                if elt.is_I:
+                    elt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
+                elif elt.is_V:
+                    elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
             new._elt_add(elt)
 
-        return new
+        return new        
+
+    def kill_except(self, *args):
+        """Return a new circuit with all but the specified sources killed;
+        i.e., make the voltage sources short-circuits and the current
+        sources open-circuits.  If no sources are specified, all are
+        killed.
+
+        """
+
+        for arg in args:
+            if arg not in self.sources:
+                raise ValueError('Element %s is not a known source' % arg)
+        sources = []
+        for key, source in self.sources.iteritems():
+            if key not in args:
+                sources.append(key)
+        return self._kill(sources)
+
+    def kill(self, *args):
+        """Return a new circuit with the specified sources killed; i.e., make
+        the voltage sources short-circuits and the current sources
+        open-circuits.  If no sources are specified, all are killed.
+
+        """
+
+        sources = []
+        for arg in args:
+            if arg not in self.sources:
+                raise ValueError('Element %s is not a known source' % arg)
+            sources.append(self.sources[arg].name)
+
+        return self._kill(sources)
 
     def twoport(self, N1p, N1m, N2p, N2m):
         """Create twoport model from network, where:

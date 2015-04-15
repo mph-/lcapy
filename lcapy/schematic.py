@@ -167,7 +167,7 @@ class Cnodes(object):
     def map(self, nodes):
 
         if not isinstance(nodes, (tuple, list)):
-            nodes = list[nodes]
+            nodes = list([nodes])
 
         return [self.node_map[node] for node in nodes]
 
