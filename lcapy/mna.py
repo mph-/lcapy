@@ -351,7 +351,7 @@ class MNA(object):
                 self._L_stamp(elt)
             elif elt.is_K:
                 self._K_stamp(elt)
-            elif elt.cpt_type not in ('P', 'W'):
+            elif elt.cpt_type not in ('O', 'P', 'W'):
                 raise ValueError('Unhandled element %s' % elt.name)
 
         # Augment the admittance matrix to form A matrix
