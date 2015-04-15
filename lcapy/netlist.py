@@ -312,6 +312,26 @@ class NetElement(object):
 
         return isinstance(self.cpt, K)
 
+    @property
+    def I(self):
+
+        return self.cct.I[self.name]
+
+    @property
+    def V(self):
+
+        return self.cct.V[self.name]
+
+    @property
+    def Y(self):
+        
+        return self.cpt.Y
+
+    @property
+    def Z(self):
+        
+        return self.cpt.Z
+
 
 class Netlist(object):
 
@@ -422,6 +442,7 @@ class Netlist(object):
 
         parts = tuple(re.split(r'[\s]+', fields[0].strip()))
         elt = NetElement(*(parts + args), **opts)
+        elt.cct = self
         return elt
 
     def add(self, string, *args):
