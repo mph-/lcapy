@@ -380,22 +380,28 @@ class Netlist(object):
     def __getitem__(self, name):
         """Return element or node by name"""
 
-        try:
-            return self.elements[name]
-        except:
-            pass
-
         # If name is an integer, convert to a string.
         if isinstance(name, int):
             name = '%d' % name
 
-        try:
+        if name in self.nodes:
             return self.nodes[name]
-        except:
-            pass
 
+        if name in self.elements:
+            return self.elements[name]
 
         raise ValueError('Unknown element or node name %s' % name)
+
+
+    def __getattr__(self, attr):
+        """Return element or node by name"""
+
+        # This gets called if there is no explicit attribute attr for
+        # this instance.  This is primarily for accessing elements
+        # and non-numerical node names.
+
+        return self.__getitem__(attr)
+
 
     def netfile_add(self, filename):
         """Add the nets from file with specified filename"""
