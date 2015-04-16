@@ -1367,6 +1367,7 @@ class Schematic(object):
                 # Create PNG image object.
                 im = Image(pngfilename)
                 im.width = self.width * 100
+                im.height = self.height * 100
                 display_png(im)
                 return
 
@@ -1379,6 +1380,7 @@ class Schematic(object):
                 # Create SVG image object.
                 im = SVG(svgfilename)
                 im.width = self.width * 100
+                im.height = self.height * 100
 
                 # Note, there is a problem displaying multiple SVG
                 # files since the later ones inherit the namespace of

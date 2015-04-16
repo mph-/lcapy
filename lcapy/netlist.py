@@ -377,13 +377,22 @@ class Netlist(object):
             self.netfile_add(filename)
 
     def __getitem__(self, name):
-        """Return component by name"""
+        """Return element or node by name"""
 
-        if name in self.elements:
+        try:
             return self.elements[name]
+        except:
+            pass
 
-        if name in self.nodes:            
-            return self.nodes[name]            
+        # If name is an integer, convert to a string.
+        if isinstance(name, int):
+            name = '%d' % name
+
+        try:
+            return self.nodes[name]
+        except:
+            pass
+
 
         raise ValueError('Unknown element or node name %s' % name)
 
