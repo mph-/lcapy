@@ -182,6 +182,11 @@ class Node(object):
 
         return self.cct.V[self.name]
 
+    @property
+    def v(self):
+
+        return self.cct.v[self.name]
+
     def append(self, elt):
 
         if elt.cpt_type in ('P', ):
@@ -327,9 +332,19 @@ class NetElement(object):
         return self.cct.I[self.name]
 
     @property
+    def i(self):
+
+        return self.cct.i[self.name]
+
+    @property
     def V(self):
 
         return self.cct.V[self.name]
+
+    @property
+    def v(self):
+
+        return self.cct.v[self.name]
 
     @property
     def Y(self):
