@@ -197,9 +197,6 @@ class Node(object):
 
 class NetElement(object):
 
-    wire_counter = 0
-
-
     def __init__(self, cct, name, node1, node2, *args, **opts):
 
         match = cpt_type_pattern.match(name)
@@ -223,8 +220,8 @@ class NetElement(object):
         else:
             if cpt_type == 'W':
                 # Automatically enumerate wires to avoid conflict.
-                NetElement.wire_counter += 1
-                name = cpt_type + '#%d' % NetElement.wire_counter
+                cct.wire_counter += 1
+                name = cpt_type + '#%d' % cct.wire_counter
 
         self.cct = cct
         self.name = name
@@ -366,6 +363,8 @@ class Netlist(object):
         self.nodes = {}
         # Shared nodes (with same voltage)
         self.snodes = {}
+
+        self.wire_counter = 0
 
         # TODO, decouple from Schematic
         self.kwargs = {'draw_nodes': 'primary',
