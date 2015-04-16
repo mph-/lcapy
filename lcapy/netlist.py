@@ -192,7 +192,7 @@ class Node(object):
 
 class NetElement(object):
 
-    cpt_type_counter = 0
+    wire_counter = 0
 
 
     def __init__(self, cct, name, node1, node2, *args, **opts):
@@ -216,8 +216,10 @@ class NetElement(object):
         if len(cpt_id) > 0:
             value += '_' + cpt_id
         else:
-            NetElement.cpt_type_counter += 1
-            name = cpt_type + '#%d' % NetElement.cpt_type_counter
+            if cpt_type == 'W':
+                # Automatically enumerate wires to avoid conflict.
+                NetElement.wire_counter += 1
+                name = cpt_type + '#%d' % NetElement.wire_counter
 
         self.cct = cct
         self.name = name
@@ -533,6 +535,12 @@ class Netlist(object):
             self._open_counter = 0
         self._open_counter += 1
 
+        # Strip current labels.
+        for opt in ('l', 'l^', 'l_', 'i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
+                    'i>_', 'i<_', 'i>^', 'i<^'):
+            if opt in opts:
+                opts.pop(opt)
+
         net = 'P#%d %s %s ; %s' % (
             self._open_counter, node1, node2, opts.format())
 
@@ -544,6 +552,11 @@ class Netlist(object):
         if not hasattr(self, '_short_counter'):
             self._short_counter = 0
         self._short_counter += 1
+
+        # Strip voltage labels.
+        for opt in ('l', 'l^', 'l_', 'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
+            if opt in opts:
+                opts.pop(opt)
 
         net = 'W#%d %s %s ; %s' % (
             self._short_counter, node1, node2, opts.format())
@@ -781,10 +794,16 @@ class Netlist(object):
         for key, elt in self.elements.iteritems():
             if key in sourcenames:
                 if elt.is_I:
-                    elt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
+                    newelt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
                 elif elt.is_V:
-                    elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
-            new._elt_add(elt)
+                    newelt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
+                else:
+                    raise ValueError('Element %s is not a source' % key)
+            else:
+                newelt = copy(elt)             
+                newelt.cct = new
+   
+            new._elt_add(newelt)
 
         return new        
 
