@@ -37,6 +37,15 @@ def main (argv=None):
                       dest='draw_nodes',
                       help="don't draw nodes")
 
+
+    parser.add_option('--nodraw-id', action='store_false',
+                      dest='draw_id', default=None,
+                      help="don't draw identifiers")
+
+    parser.add_option('--draw-id', action='store_true',
+                      dest='draw_id', default=None,
+                      help="draw identifiers")
+
     parser.add_option('--s-model', action='store_true',
                       dest='s_model', default=False,
                       help='generate s-domain model schematic')
@@ -86,7 +95,8 @@ def main (argv=None):
         raise ValueError('Illegal option %s for draw_nodes' % options.draw_nodes)
 
     cct.draw(label_nodes=options.label_nodes, draw_nodes=options.draw_nodes,
-             filename=outfilename, scale=options.scale, stretch=options.stretch)
+             draw_id=options.draw_id, filename=outfilename, 
+             scale=options.scale, stretch=options.stretch)
 
     return 0
 

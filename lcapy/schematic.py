@@ -392,7 +392,7 @@ class NetElement(object):
         # There are two possible labels for a component:
         # 1. Component identifier, e.g., R1
         # 2. Component value, expression, or symbol
-        identifier_label = tex_name(cpt_type, cpt_id)
+        id_label = tex_name(cpt_type, cpt_id)
         value_label = None
 
         # Component arguments
@@ -462,8 +462,8 @@ class NetElement(object):
                 self.sub_type = args[0]
                 args = args[1:]
 
-        if cpt_type in ('O', 'P', 'W') or identifier_label.find('#') != -1:
-            identifier_label = None
+        if cpt_type in ('O', 'P', 'W') or id_label.find('#') != -1:
+            id_label = None
 
         if 'dir' not in opts:
             opts['dir'] = None
@@ -507,19 +507,10 @@ class NetElement(object):
         # defaults to the component identifier.  Note, some objects
         # we do not want to label, such as wires and ports.
 
-        tex_label = value_label
-        if tex_label is None:
-            if identifier_label is not None:
-                tex_label = identifier_label
+        self.id_label = '' if id_label is None else latex_str(id_label)
+        self.value_label = '' if value_label is None else latex_str(value_label)
+        self.default_label = self.id_label if self.value_label == '' else self.value_label
 
-        # Default label to use when drawing with LaTeX
-        if tex_label is None:
-            self.tex_label = ''
-        else:
-            self.tex_label = '$%s$' % latex_str(tex_label)
-
-        self.identifier_label = identifier_label
-        self.value_label = value_label
         # Drawing hints
         self.opts = Opts(opts)
 
@@ -961,7 +952,7 @@ class Schematic(object):
 
         centre = Pos(0.5 * (p3.x + p1.x), p1.y)
 
-        label_str = elt.tex_label if draw_labels else ''
+        label_str = '$%s$' % elt.default_label if draw_labels else ''
         args_str = '' if 'mirror' in elt.opts else 'yscale=-1'
         for key, val in elt.opts.iteritems():
             if key in ('color', ):
@@ -988,7 +979,7 @@ class Schematic(object):
         centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
         labelpos = Pos(centre.x, primary_dot.y)
 
-        label_str = elt.tex_label if draw_labels else ''
+        label_str = '$%s$' % elt.default_label if draw_labels else ''
 
         s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
         s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
@@ -1037,7 +1028,7 @@ class Schematic(object):
         centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
         top = Pos(centre.x, p1.y + 0.15)
 
-        label_str = elt.tex_label if draw_labels else ''
+        label_str = '$%s$' % elt.default_label if draw_labels else ''
         titlestr = "%s-parameter two-port" % elt.args[2]
 
         s = r'  \draw (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
@@ -1078,7 +1069,7 @@ class Schematic(object):
 
         centre = Pos(p3.x, 0.5 * (p1.y + p3.y))
 
-        label_str = elt.tex_label if draw_labels else ''
+        label_str = '$%s$' % elt.default_label if draw_labels else ''
         sub_type = elt.sub_type.replace('jf', 'jfet')
         args_str = '' if elt.opts['dir'] == 'right' else 'xscale=-1'
         if 'mirror' in elt.opts:
@@ -1103,7 +1094,7 @@ class Schematic(object):
         s += self._tikz_draw_nodes(elt, draw_nodes)
         return s
 
-    def _tikz_draw_cpt(self, elt, draw_labels, draw_nodes):
+    def _tikz_draw_cpt(self, elt, draw_labels, draw_nodes, draw_id):
 
         n1, n2 = elt.nodes[0:2]
 
@@ -1152,7 +1143,7 @@ class Schematic(object):
         if cpt_type == 'R' and 'variable' in elt.opts:
             cpt_type = 'vR'
 
-        label_pos = '_'
+        id_pos = '_'
         voltage_pos = '^'
         if elt.cpt_type in ('V', 'Vdc', 'I', 'Idc', 'E', 'Vs', 'Is'):
 
@@ -1164,13 +1155,13 @@ class Schematic(object):
             if elt.opts['dir'] in ('down', 'right'):
                 # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
-                label_pos = '^'
+                id_pos = '^'
                 voltage_pos = '_'
         else:
             if elt.opts['dir'] in ('up', 'left'):
                 # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
-                label_pos = '^'
+                id_pos = '^'
                 voltage_pos = '_'
 
         # Add modifier to place voltage label on other side
@@ -1181,23 +1172,37 @@ class Schematic(object):
         # Current, voltage, label options.
         # It might be better to allow any options and prune out
         # dir and size.
+        voltage_str = ''
+        current_str = ''
+        label_str = ''
         args_str = ''
         for key, val in elt.opts.iteritems():
             if key in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
-                       'i>_', 'i<_', 'i>^', 'i<^',
-                       'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
-                       'l', 'l^', 'l_'):
-                args_str += '%s=$%s$, ' % (key, val)
-            if key in ('color', ):
+                       'i>_', 'i<_', 'i>^', 'i<^'):
+                current_str += '%s=$%s$, ' % (key, val)
+            elif key in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
+                voltage_str += '%s=$%s$, ' % (key, val)
+            elif key in ('l', 'l^', 'l_'):
+                label_str += '%s=$%s$, ' % (key, val)
+            elif key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
         node_str = self._node_str(n1, n2, draw_nodes)
 
-        label_str = ''
+        args_str += voltage_str + current_str
+
+        # Generate default label unless specified.
         keys = elt.opts.keys()
-        if draw_labels and not ('l' in keys or 'l_' in keys or 'l^' in keys):
+        if draw_labels and label_str == '':
             if cpt_type not in ('open', 'short'):
-                label_str = ', l%s=%s' % (label_pos, elt.tex_label)
+
+                label_str = ', l%s=$%s$' % (id_pos, elt.default_label)
+                
+                # If have voltage label skip this since they will
+                # clash.  Moreover can identify component by V_{R_1}
+                # etc.
+                if draw_id and elt.value_label != '' and voltage_str == '':
+                    label_str += ', l%s=$%s$' % (voltage_pos, elt.id_label)
 
         if cpt_type in ('Y', 'Z'):
             cpt_type = 'european resistor'
@@ -1211,7 +1216,7 @@ class Schematic(object):
             n1, cpt_type, label_str, latex_str(args_str), node_str, n2)
         return s
 
-    def _tikz_draw(self, draw_labels=True, draw_nodes=True,
+    def _tikz_draw(self, draw_labels=True, draw_nodes=True, draw_id=True,
                    label_nodes='primary', args=None):
 
         # Preamble
@@ -1241,7 +1246,7 @@ class Schematic(object):
             if elt.cpt_type in draw:
                 s += draw[elt.cpt_type](elt, draw_labels, draw_nodes)
             else:
-                s += self._tikz_draw_cpt(elt, draw_labels, draw_nodes)
+                s += self._tikz_draw_cpt(elt, draw_labels, draw_nodes, draw_id)
 
         wires = self._make_wires()
 
