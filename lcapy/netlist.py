@@ -369,7 +369,7 @@ class Netlist(object):
         # TODO, decouple from Schematic
         self.kwargs = {'draw_nodes': 'primary',
                        'draw_labels': True,
-                       'draw_id': True,
+                       'draw_id': False,
                        'label_nodes': 'primary'}
 
         self._MNA = None

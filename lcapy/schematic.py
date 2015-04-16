@@ -1198,11 +1198,8 @@ class Schematic(object):
 
                 label_str = ', l%s=$%s$' % (id_pos, elt.default_label)
                 
-                # If have voltage label skip this since they will
-                # clash.  Moreover can identify component by V_{R_1}
-                # etc.
-                if draw_id and elt.value_label != '' and voltage_str == '':
-                    label_str += ', l%s=$%s$' % (voltage_pos, elt.id_label)
+                if draw_id and elt.value_label != '':
+                    label_str += r', l%s={$%s$\\$%s$}' % (id_pos, elt.id_label, elt.value_label)
 
         if cpt_type in ('Y', 'Z'):
             cpt_type = 'european resistor'
@@ -1212,7 +1209,7 @@ class Schematic(object):
                               'schottky' : 'sD'}
             cpt_type = diode_type_map[elt.sub_type]
 
-        s = r'  \draw (%s) to [%s%s, %s%s] (%s);''\n' % (
+        s = r'  \draw (%s) to [align=right, %s%s, %s%s] (%s);''\n' % (
             n1, cpt_type, label_str, latex_str(args_str), node_str, n2)
         return s
 
