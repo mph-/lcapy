@@ -940,7 +940,7 @@ class Schematic(object):
             s += self._tikz_draw_node(n, draw_nodes)
         return s
 
-    def _tikz_draw_opamp(self, elt, draw_labels, draw_nodes):
+    def _tikz_draw_opamp(self, elt, label_values, draw_nodes):
 
         if elt.opts['dir'] != 'right':
             raise ValueError('Cannot draw opamp %s in direction %s'
@@ -952,7 +952,7 @@ class Schematic(object):
 
         centre = Pos(0.5 * (p3.x + p1.x), p1.y)
 
-        label_str = '$%s$' % elt.default_label if draw_labels else ''
+        label_str = '$%s$' % elt.default_label if label_values else ''
         args_str = '' if 'mirror' in elt.opts else 'yscale=-1'
         for key, val in elt.opts.iteritems():
             if key in ('color', ):
@@ -966,7 +966,7 @@ class Schematic(object):
         s += self._tikz_draw_nodes(elt, draw_nodes)
         return s
 
-    def _tikz_draw_TF1(self, elt, nodes, draw_labels, link=False):
+    def _tikz_draw_TF1(self, elt, nodes, label_values, link=False):
 
         p1, p2, p3, p4 = [self.coords[n] for n in nodes]
 
@@ -979,7 +979,7 @@ class Schematic(object):
         centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
         labelpos = Pos(centre.x, primary_dot.y)
 
-        label_str = '$%s$' % elt.default_label if draw_labels else ''
+        label_str = '$%s$' % elt.default_label if label_values else ''
 
         s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
         s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
@@ -996,7 +996,7 @@ class Schematic(object):
 
         return s
 
-    def _tikz_draw_TF(self, elt, draw_labels, draw_nodes):
+    def _tikz_draw_TF(self, elt, label_values, draw_nodes):
 
         if elt.opts['dir'] != 'right':
             raise ValueError('Cannot draw transformer %s in direction %s'
@@ -1006,12 +1006,12 @@ class Schematic(object):
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
-        s += self._tikz_draw_TF1(elt, elt.nodes, draw_labels)
+        s += self._tikz_draw_TF1(elt, elt.nodes, label_values)
 
         s += self._tikz_draw_nodes(elt, draw_nodes)
         return s
 
-    def _tikz_draw_TP(self, elt, draw_labels, draw_nodes):
+    def _tikz_draw_TP(self, elt, label_values, draw_nodes):
 
         if elt.opts['dir'] != 'right':
             raise ValueError('Cannot draw twoport network %s in direction %s'
@@ -1028,7 +1028,7 @@ class Schematic(object):
         centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
         top = Pos(centre.x, p1.y + 0.15)
 
-        label_str = '$%s$' % elt.default_label if draw_labels else ''
+        label_str = '$%s$' % elt.default_label if label_values else ''
         titlestr = "%s-parameter two-port" % elt.args[2]
 
         s = r'  \draw (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
@@ -1041,7 +1041,7 @@ class Schematic(object):
         s += self._tikz_draw_nodes(elt, draw_nodes)
         return s
 
-    def _tikz_draw_K(self, elt, draw_labels, draw_nodes):
+    def _tikz_draw_K(self, elt, label_values, draw_nodes):
 
         if elt.opts['dir'] != 'right':
             raise ValueError('Cannot draw mutual coupling %s in direction %s'
@@ -1052,10 +1052,10 @@ class Schematic(object):
 
         nodes = L2.nodes + L1.nodes
 
-        s = self._tikz_draw_TF1(elt, nodes, draw_labels, link=True)
+        s = self._tikz_draw_TF1(elt, nodes, label_values, link=True)
         return s
 
-    def _tikz_draw_Q(self, elt, draw_labels, draw_nodes):
+    def _tikz_draw_Q(self, elt, label_values, draw_nodes):
 
         # For common base, will need to support up and down.
         if elt.opts['dir'] not in ('left', 'right'):
@@ -1069,7 +1069,7 @@ class Schematic(object):
 
         centre = Pos(p3.x, 0.5 * (p1.y + p3.y))
 
-        label_str = '$%s$' % elt.default_label if draw_labels else ''
+        label_str = '$%s$' % elt.default_label if label_values else ''
         sub_type = elt.sub_type.replace('jf', 'jfet')
         args_str = '' if elt.opts['dir'] == 'right' else 'xscale=-1'
         if 'mirror' in elt.opts:
@@ -1094,7 +1094,7 @@ class Schematic(object):
         s += self._tikz_draw_nodes(elt, draw_nodes)
         return s
 
-    def _tikz_draw_cpt(self, elt, draw_labels, draw_nodes, draw_id):
+    def _tikz_draw_cpt(self, elt, label_values, draw_nodes, label_ids):
 
         n1, n2 = elt.nodes[0:2]
 
@@ -1193,13 +1193,16 @@ class Schematic(object):
 
         # Generate default label unless specified.
         keys = elt.opts.keys()
-        if draw_labels and label_str == '':
+        if label_values and label_str == '':
             if cpt_type not in ('open', 'short'):
 
                 label_str = ', l%s=$%s$' % (id_pos, elt.default_label)
                 
-                if draw_id and elt.value_label != '':
+                if label_ids and elt.value_label != '':
                     label_str += r', l%s={$%s$\\$%s$}' % (id_pos, elt.id_label, elt.value_label)
+
+        if not label_values and label_ids:
+            label_str = ', l%s=$%s$' % (id_pos, elt.id_label)
 
         if cpt_type in ('Y', 'Z'):
             cpt_type = 'european resistor'
@@ -1213,7 +1216,7 @@ class Schematic(object):
             n1, cpt_type, label_str, latex_str(args_str), node_str, n2)
         return s
 
-    def _tikz_draw(self, draw_labels=True, draw_nodes=True, draw_id=True,
+    def _tikz_draw(self, label_values=True, draw_nodes=True, label_ids=True,
                    label_nodes='primary', args=None):
 
         # Preamble
@@ -1241,9 +1244,9 @@ class Schematic(object):
         for m, elt in enumerate(self.elements.values()):
 
             if elt.cpt_type in draw:
-                s += draw[elt.cpt_type](elt, draw_labels, draw_nodes)
+                s += draw[elt.cpt_type](elt, label_values, draw_nodes)
             else:
-                s += self._tikz_draw_cpt(elt, draw_labels, draw_nodes, draw_id)
+                s += self._tikz_draw_cpt(elt, label_values, draw_nodes, label_ids)
 
         wires = self._make_wires()
 
@@ -1279,7 +1282,14 @@ class Schematic(object):
 
         root, ext = path.splitext(filename)
 
+        debug = kwargs.pop('debug', False)
+        oversample = float(kwargs.pop('oversample', 1))
+
         content = self._tikz_draw(args=args, **kwargs)
+
+        if debug:
+            print('width = %d, height = %d, oversample = %d'
+                  % (self.width, self.height, oversample))
 
         if ext == '.pytex':
             open(filename, 'w').write(content)
@@ -1301,7 +1311,10 @@ class Schematic(object):
         chdir = '' if dirname == '' else 'cd %s; ' % dirname
 
         system('%spdflatex -interaction batchmode %s.tex' % (chdir, baseroot))
-        system('rm -f %s.aux %s.log %s.tex' % (root, root, root))
+        if not debug:
+            remove(root + '.aux')
+            remove(root + '.log')
+            remove(root + '.tex')
 
         pdf_filename = root + '.pdf'
         if not path.exists(pdf_filename):
@@ -1317,17 +1330,19 @@ class Schematic(object):
             if not path.exists(svg_filename):
                 raise RuntimeError('Could not generate %s with pdf2svg' % 
                                    svg_filename)
-            remove(pdf_filename)
+            if not debug:
+                remove(pdf_filename)
             return
 
         if ext == '.png':
             png_filename = root + '.png'
-            system('convert -density 200 %s %s' %
-                   (pdf_filename, png_filename))
+            system('convert -density %d %s %s' %
+                   (oversample * 100, pdf_filename, png_filename))
             if not path.exists(png_filename):
                 raise RuntimeError('Could not generate %s with convert' % 
                                    png_filename)
-            remove(pdf_filename)
+            if not debug:
+                remove(pdf_filename)
             return
 
         raise ValueError('Cannot create file of type %s' % ext)
@@ -1342,7 +1357,13 @@ class Schematic(object):
             try:
                 ip = get_ipython()
                 cfg = ip.config
-                if cfg['IPKernelApp']['parent_appname'] == 'ipython-notebook':
+
+                kernapp = cfg['IPKernelApp']
+
+                # Check if processing ipynb file.
+                if 'connection_file' in kernapp:
+                    return True
+                elif kernapp and kernapp['parent_appname'] == 'ipython-notebook':
                     return True
                 else:
                     return False

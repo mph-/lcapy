@@ -368,8 +368,8 @@ class Netlist(object):
 
         # TODO, decouple from Schematic
         self.kwargs = {'draw_nodes': 'primary',
-                       'draw_labels': True,
-                       'draw_id': False,
+                       'label_values': True,
+                       'label_ids': False,
                        'label_nodes': 'primary'}
 
         self._MNA = None
@@ -988,8 +988,8 @@ class Netlist(object):
         return self._model(s)
 
 
-    def draw(self, filename=None, draw_labels=None, draw_nodes=None,
-             label_nodes=None, draw_id=None,
+    def draw(self, filename=None, label_values=None, draw_nodes=None,
+             label_nodes=None, label_ids=None,
              s_model=False, args=None, scale=1, stretch=1,
              **kwargs):
 
@@ -1002,10 +1002,10 @@ class Netlist(object):
             kwargs2['draw_nodes'] = draw_nodes
         if label_nodes is not None:
             kwargs2['label_nodes'] = label_nodes
-        if draw_labels is not None:
-            kwargs2['draw_labels'] = draw_labels
-        if draw_id is not None:
-            kwargs2['draw_id'] = draw_id
+        if label_values is not None:
+            kwargs2['label_values'] = label_values
+        if label_ids is not None:
+            kwargs2['label_ids'] = label_ids
 
         for key, arg in kwargs.iteritems():
             kwargs2[key] = arg

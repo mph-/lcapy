@@ -21,13 +21,9 @@ def main (argv=None):
     parser = OptionParser(usage='%prog schematic-file [output-file]', version=version, 
                           description=__doc__)
 
-    parser.add_option('--label-nodes', type='str',
-                      dest='label_nodes', default=None,
-                      help='label nodes, choice none, primary, all')
-
-    parser.add_option('--nolabel-nodes', action='store_false',
-                      dest='label_nodes',
-                      help="don't label nodes")
+    parser.add_option('--debug', action='store_true',
+                      dest='debug', default=None,
+                      help="enable debugging")
 
     parser.add_option('--draw-nodes', type='str',
                       dest='draw_nodes', default=None,
@@ -37,14 +33,29 @@ def main (argv=None):
                       dest='draw_nodes',
                       help="don't draw nodes")
 
+    parser.add_option('--label-nodes', type='str',
+                      dest='label_nodes', default=None,
+                      help='label nodes, choice none, primary, all')
 
-    parser.add_option('--nodraw-id', action='store_false',
-                      dest='draw_id', default=None,
-                      help="don't draw identifiers")
+    parser.add_option('--nolabel-nodes', action='store_false',
+                      dest='label_nodes',
+                      help="don't label nodes")
 
-    parser.add_option('--draw-id', action='store_true',
-                      dest='draw_id', default=None,
-                      help="draw identifiers")
+    parser.add_option('--nolabel-ids', action='store_false',
+                      dest='label_ids', default=None,
+                      help="don't label element identifiers")
+
+    parser.add_option('--label-ids', action='store_true',
+                      dest='label_ids', default=None,
+                      help="label element identifiers")
+
+    parser.add_option('--nolabel-values', action='store_false',
+                      dest='label_values', default=None,
+                      help="don't label values")
+
+    parser.add_option('--label-values', action='store_true',
+                      dest='label_values', default=None,
+                      help="labels values")
 
     parser.add_option('--s-model', action='store_true',
                       dest='s_model', default=False,
@@ -95,8 +106,9 @@ def main (argv=None):
         raise ValueError('Illegal option %s for draw_nodes' % options.draw_nodes)
 
     cct.draw(label_nodes=options.label_nodes, draw_nodes=options.draw_nodes,
-             draw_id=options.draw_id, filename=outfilename, 
-             scale=options.scale, stretch=options.stretch)
+             label_ids=options.label_ids, label_values=options.label_values, 
+             filename=outfilename, scale=options.scale, stretch=options.stretch,
+             debug=options.debug)
 
     return 0
 
