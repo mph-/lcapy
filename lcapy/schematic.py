@@ -1283,7 +1283,7 @@ class Schematic(object):
         root, ext = path.splitext(filename)
 
         debug = kwargs.pop('debug', False)
-        oversample = float(kwargs.pop('oversample', 1))
+        oversample = float(kwargs.pop('oversample', 2))
 
         content = self._tikz_draw(args=args, **kwargs)
 
@@ -1387,11 +1387,15 @@ class Schematic(object):
                 pngfilename = self._tmpfilename('.png')
                 self.tikz_draw(pngfilename, args=args, **kwargs)
 
-                # Create PNG image object.
-                im = Image(pngfilename)
-                im.width = self.width * 100
-                im.height = self.height * 100
-                display_png(im)
+                # Create and display PNG image object.
+                # There are two problems:
+                # 1. The image metadata (width, height) is ignored
+                #    when the ipynb file is loaded.
+                # 2. The image metadata (width, height) is not stored
+                #    when the ipynb file is written non-interactively.
+                display_png(Image(filename=pngfilename,
+                                  width=self.width * 100, 
+                                  height=self.height * 100))
                 return
 
             if svg:
@@ -1400,15 +1404,12 @@ class Schematic(object):
                 svgfilename = self._tmpfilename('.svg')
                 self.tikz_draw(svgfilename, args=args, **kwargs)
 
-                # Create SVG image object.
-                im = SVG(svgfilename)
-                im.width = self.width * 100
-                im.height = self.height * 100
-
+                # Create and display SVG image object.
                 # Note, there is a problem displaying multiple SVG
                 # files since the later ones inherit the namespace of
                 # the first ones.
-                display_svg(im)
+                display_svg(SVG(filename=pngfilename, 
+                                width=self.width * 100, height=self.height * 100))
                 return
 
         display = False
