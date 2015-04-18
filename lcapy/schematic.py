@@ -1192,14 +1192,18 @@ class Schematic(object):
         args_str += voltage_str + current_str
 
         # Generate default label unless specified.
-        keys = elt.opts.keys()
-        if label_values and label_str == '':
+        if label_str == '':
             if cpt_type not in ('open', 'short'):
-
+                
                 label_str = ', l%s=$%s$' % (id_pos, elt.default_label)
                 
                 if label_ids and elt.value_label != '':
                     label_str += r', l%s={$%s$\\$%s$}' % (id_pos, elt.id_label, elt.value_label)
+        else:
+            label_str = ', ' + label_str
+
+        if not label_values:
+            label_str = ''
 
         if not label_values and label_ids:
             label_str = ', l%s=$%s$' % (id_pos, elt.id_label)
