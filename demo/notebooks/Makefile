@@ -5,15 +5,17 @@ IPYNB_HTML_FILES = $(IPYNB:.ipynb=_files)
 IPYNB_PDF = $(IPYNB:.ipynb=.pdf)
 IPYNB_CHECK = $(IPYNB:.ipynb=.ipynb.check)
 
+IPYTHON=ipython
+
 %.html: %.ipynb
-	ipython nbconvert --to html $<
+	$(IPYTHON) nbconvert --to html $<
 	mv $@ $@.bak
 	# Tweak file to allow latex math to be displayed correctly
 	sed 's|c328740.ssl.cf1.rackcdn.com|cdn.mathjax.org|g' $@.bak > $@
 	rm $@.bak
 
 %.pdf: %.ipynb
-	ipython nbconvert --to latex --post PDF $<
+	$(IPYTHON) nbconvert --to latex --post PDF $<
 
 html: $(IPYNB_HTML)
 
