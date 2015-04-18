@@ -860,11 +860,11 @@ find circuit voltages and currents:
 
 For example,
 
-   >>> cct.V[1]
+   >>> cct[1].V
    10.0
    ────
     s  
-   >>> cct.V[2]
+   >>> cct[2].V
    2.5
    ───
     s 
@@ -872,19 +872,19 @@ For example,
 Notice, how the displayed voltages are Laplace domain voltages.  The
 transient voltages can be determined using an inverse Laplace transform:
 
-   >>> cct.V[1].inverse_laplace()
+   >>> cct[1].V.inverse_laplace()
    10.0⋅Heaviside(t)
 
 Alternatively, 
 
-   >>> cct.v[1]
+   >>> cct[1].v
    10.0⋅Heaviside(t)
 
 
 For another example, the s-domain voltage difference across the
 resistor Ra can be found using:
 
-   >>> cct.V['Ra']
+   >>> cct.Ra.V
    7.5
    ───
     s 
@@ -898,12 +898,12 @@ use the component name for its value.  For example,
    >>> cct.add('V1 1 0 dc Vs') 
    >>> cct.add('R1 1 2') 
    >>> cct.add('C1 2 0') 
-   >>> cct.V[2]
+   >>> cct[2].V
         Vs     
    ────────────
           2    
    C₁⋅R₁⋅s  + s
-   >>> : cct.V[2].inverse_laplace()
+   >>> : cct[2].V.inverse_laplace()
    ⎛          -t  ⎞             
    ⎜         ─────⎟             
    ⎜         C₁⋅R₁⎟             
@@ -921,7 +921,7 @@ For example,
    >>> cct.add('V1 1 0 dc Vs') 
    >>> cct.add('C1 2 1 C1 v0') 
    >>> cct.add('L1 2 0 L1 i0') 
-   >>> cct.V[2]
+   >>> cct[2].V
    C₁⋅L₁⋅Vs⋅s + C₁⋅L₁⋅s⋅v₀ - L₁⋅i₀
    ───────────────────────────────
                     2             
@@ -940,12 +940,12 @@ Here's an example using an arbitrary input voltage `V(s)`:
    >>> cct.add('V1 1 0 V(s)') 
    >>> cct.add('R1 1 2') 
    >>> cct.add('C1 2 0') 
-   >>> cct.V[2]
+   >>> cct[2].V
        V(s)   
    ───────────
    C₁⋅R₁⋅s + 1
 
-   >>> H = cct.V[2] / cct.V[1]
+   >>> H = cct[2].V / cct[1].V
    >>> H
         1     
    ───────────
