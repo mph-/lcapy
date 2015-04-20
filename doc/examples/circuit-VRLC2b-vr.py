@@ -10,7 +10,7 @@ cct.add('L1 1 2')
 cct.add('C1 2 3')
 cct.add('R1 3 0')
 
-Vr = cct.V[3]
+Vr = cct[3].V
 vr = Vr.transient_response()
 
 vr.pprintans('v_R(t)')

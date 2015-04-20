@@ -11,7 +11,7 @@ cct.add('L1 1 2 1e-3')
 cct.add('C1 2 3 1e-4')
 cct.add('R1 3 0 10')
 
-Vr = cct.V[3]
+Vr = cct[3].V
 vr = Vr.transient_response(t)
 
 fig = figure()

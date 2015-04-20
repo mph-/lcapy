@@ -11,7 +11,7 @@ cct.add('R1 1 2 10')
 cct.add('C1 2 0 1e-4')
 
 
-Vc = cct.V[2]
+Vc = cct[2].V
 vc = Vc.transient_response(t)
 
 fig = figure()

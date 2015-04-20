@@ -80,9 +80,9 @@ numbers are approximated by rationals.
 
 Lcapy expressions have a number of attributes, including:
 
-- N --  numerator
+- numerator, N --  numerator of rational function
 
-- D --  denominator
+- denominator, D --  denominator of rational function
 
 - magnitude -- magnitude
 
@@ -838,27 +838,34 @@ This creates a circuit comprised of a 10 V DC voltage source connected
 to two resistors in series.  The node named 0 denotes the ground which
 the other voltages are referenced to.
 
-The circuit has a number of attributes that can be interrogated to
-find circuit voltages and currents:
+The circuit has an attribute for each circuit element (and for each
+node starting with an alphabetical character).  These can be
+interrogated to find the voltage drop across an element or the current
+through an element, for example,
 
-- `V` s-domain voltage directory indexed by node name or branch name
+   >>> cct.V1.V
+   10.0
+   ────
+    s 
+   >>> cct.Rb.V
+   2.5
+   ───
+    s  
 
-- `I` s-domain branch current directory indexed by component name
+Notice, how the displayed voltages are Laplace domain voltages.  The
+transient voltages can be determined using an inverse Laplace transform:
 
-- `v` t-domain voltage directory indexed by node name or branch name
+   >>> cct.V1.V.inverse_laplace()
+   10.0⋅Heaviside(t)
 
-- `i` t-domain branch current directory indexed by component name
+Alternatively, using the lowercase `v` attribute:
 
-- `Y` admittance between pair of nodes
-
-- `Z` impedance between pair of nodes
-
-- `Isc` short-circuit current between pair of nodes
-
-- `Voc` open-circuit current between pair of nodes
+   >>> cct.V1.v
+   10.0⋅Heaviside(t)
 
 
-For example,
+The voltage between a node and ground can be determined with the node
+name as an index, for example,
 
    >>> cct[1].V
    10.0
@@ -869,25 +876,28 @@ For example,
    ───
     s 
 
-Notice, how the displayed voltages are Laplace domain voltages.  The
-transient voltages can be determined using an inverse Laplace transform:
+The circuit has a number of attributes that can be interrogated to
+find circuit voltages and currents, including:
 
-   >>> cct[1].V.inverse_laplace()
-   10.0⋅Heaviside(t)
+- `V` s-domain voltage directory indexed by node name or branch name
 
-Alternatively, 
+- `I` s-domain branch current directory indexed by component name
 
-   >>> cct[1].v
-   10.0⋅Heaviside(t)
+- `v` t-domain voltage directory indexed by node name or branch name
+
+- `i` t-domain branch current directory indexed by component name
 
 
-For another example, the s-domain voltage difference across the
-resistor Ra can be found using:
+The circuit also has a number of methods, including:
 
-   >>> cct.Ra.V
-   7.5
-   ───
-    s 
+- `Y` admittance between pair of nodes
+
+- `Z` impedance between pair of nodes
+
+- `Isc` short-circuit current between pair of nodes
+
+- `Voc` open-circuit current between pair of nodes
+
 
 Since Lcapy uses Sympy, circuit analysis can be performed
 symbolically.  This can be achieved by using symbolic arguments or by
@@ -1060,8 +1070,8 @@ V1 1 0 20/s
 
 
 
-Other methods
--------------
+Other circuit methods
+---------------------
 
    cct.Isc(Np, Nm)      Short-circuit s-domain current between nodes Np and Nm.
 
