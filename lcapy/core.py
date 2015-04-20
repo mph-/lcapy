@@ -381,6 +381,12 @@ class Expr(object):
     def N(self):
         """Return numerator of rational function"""
 
+        return self.numerator
+
+    @property
+    def numerator(self):
+        """Return numerator of rational function"""
+
         expr = self.expr
         if not expr.is_rational_function(self):
             raise ValueError('Expression not a rational function')
@@ -391,6 +397,14 @@ class Expr(object):
     @property
     def D(self):
         """Return denominator of rational function"""
+
+        return self.denominator
+
+    @property
+    def denominator(self):
+        """Return denominator of rational function"""
+
+        return self.numerator
 
         expr = self.expr
         if not expr.is_rational_function(self):
