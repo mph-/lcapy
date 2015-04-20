@@ -325,7 +325,7 @@ class MNA(object):
         self.unknown_branch_currents = []
 
         for key, elt in self.elements.iteritems():
-            if elt.is_V or elt.is_L:
+            if elt._is_V or elt._is_L:
                 self.unknown_branch_currents.append(key)
 
         # Generate stamps.
@@ -341,15 +341,15 @@ class MNA(object):
         self._Es = sym.zeros(num_branches, 1)
 
         for elt in self.elements.values():
-            if elt.is_V:
+            if elt._is_V:
                 self._V_stamp(elt)
-            elif elt.is_I:
+            elif elt._is_I:
                 self._I_stamp(elt)
-            elif elt.is_RC:
+            elif elt._is_RC:
                 self._RC_stamp(elt)
-            elif elt.is_L:
+            elif elt._is_L:
                 self._L_stamp(elt)
-            elif elt.is_K:
+            elif elt._is_K:
                 self._K_stamp(elt)
             elif elt.cpt_type not in ('O', 'P', 'W'):
                 raise ValueError('Unhandled element %s' % elt.name)
@@ -378,7 +378,7 @@ class MNA(object):
 
         branchdir = {}
         for elt in self.elements.values():
-            if elt.is_K:
+            if elt._is_K:
                 continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
             branchdir[elt.name] = (n1, n2)
@@ -403,7 +403,7 @@ class MNA(object):
         # Calculate the branch currents.  These should be evaluated as
         # required.
         for key, elt in self.elements.iteritems():
-            if elt.is_RC:
+            if elt._is_RC:
                 n1, n2 = self.node_map[
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
                 V1, V2 = self._V[n1], self._V[n2]
@@ -457,7 +457,7 @@ class MNA(object):
 
         self._Vd = {}
         for elt in self.elements.values():
-            if elt.is_K:
+            if elt._is_K:
                 continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
             self._Vd[elt.name] = Vs(sym.simplify(self.V[n1] - self.V[n2]))

@@ -179,11 +179,13 @@ class Node(object):
 
     @property
     def V(self):
+        """Node voltage with respect to ground"""
 
         return self.cct.V[self.name]
 
     @property
     def v(self):
+        """Node time-domain voltage with respect to ground"""
 
         return self.cct.v[self.name]
 
@@ -294,62 +296,68 @@ class NetElement(object):
         return ' '.join(['%s' % arg for arg in args])
 
     @property
-    def is_dummy(self):
+    def _is_dummy(self):
 
         return self.cpt_type in ('O', 'P', 'W')
 
     @property
-    def is_V(self):
+    def _is_V(self):
 
         return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep, VCVS, TF))
 
     @property
-    def is_I(self):
+    def _is_I(self):
 
         return isinstance(self.cpt, (I, Idc, Iac, Istep, Iacstep))
 
     @property
-    def is_RC(self):
+    def _is_RC(self):
 
         return isinstance(self.cpt, (R, G, C))
 
     @property
-    def is_L(self):
+    def _is_L(self):
 
         return isinstance(self.cpt, L)
 
     @property
-    def is_K(self):
+    def _is_K(self):
 
         return isinstance(self.cpt, K)
 
     @property
     def I(self):
+        """Current through element"""
 
         return self.cct.I[self.name]
 
     @property
     def i(self):
+        """Time-domain current through element"""
 
         return self.cct.i[self.name]
 
     @property
     def V(self):
+        """Voltage drop across element"""
 
         return self.cct.V[self.name]
 
     @property
     def v(self):
+        """Time-domain voltage drop across element"""
 
         return self.cct.v[self.name]
 
     @property
     def Y(self):
+        """Admittance"""
         
         return self.cpt.Y
 
     @property
     def Z(self):
+        """Impedance"""
         
         return self.cpt.Z
 
@@ -423,7 +431,7 @@ class Netlist(object):
             if not full:
                 newelt.nodes = tuple([self.node_map[node]
                                       for node in elt.nodes])
-                if elt.is_dummy:
+                if elt._is_dummy:
                     continue
 
             line = newelt.__str__()
@@ -466,7 +474,7 @@ class Netlist(object):
 
         self.elements[elt.name] = elt
 
-        if elt.is_I or elt.is_V:
+        if elt._is_I or elt._is_V:
             self.sources[elt.name] = elt
 
         # Ignore nodes for mutual inductance.
@@ -823,9 +831,9 @@ class Netlist(object):
 
         for key, elt in self.elements.iteritems():
             if key in sourcenames:
-                if elt.is_I:
+                if elt._is_I:
                     newelt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
-                elif elt.is_V:
+                elif elt._is_V:
                     newelt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
                 else:
                     raise ValueError('Element %s is not a source' % key)
