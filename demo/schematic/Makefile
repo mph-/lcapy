@@ -1,18 +1,25 @@
-all: pic1.pdf pic2.pdf pic3.pdf pic4.pdf VRL1.pdf VacRL1.pdf pic5.pdf rnet1.pdf pic6.pdf rnet2.pdf rnet3.pdf rnet4.pdf VRL2.pdf pic7.pdf pics.pdf
+SCH = $(wildcard *.sch)
+PDF = $(SCH:.sch=.pdf)
+PNG = $(SCH:.sch=.png)
 
-%.pytex: %.py
-	cd $(dir $@); ipython $(notdir $<) > $(notdir $@) 
+all: png
+
+png: $(PNG)
+
+pdf: $(PDF)
 
 %.pytex: %.sch
-	cd $(dir $@); ./schtex.py $(notdir $<) > $(notdir $@) 
+	cd $(dir $@); schtex.py $(notdir $<) $(notdir $@) 
 
-pics.pdf: pics.tex VRL2.pytex
-	pdflatex pics
+%.pdf: %.sch
+	cd $(dir $@); schtex.py $(notdir $<) $(notdir $@) 
 
-%.pdf: %.tex %.pytex
-	pdflatex $*
+%.png: %.sch
+	cd $(dir $@); schtex.py $(notdir $<) $(notdir $@) 
 
 clean:
-	rm *.pdf *.pytex
+	-rm *.pdf
+	-rm *.pytex
+	-rm *.png
 
 .PRECIOUS: %.pytex
