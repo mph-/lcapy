@@ -165,9 +165,10 @@ response of a circuit can also be drawn inline using the magic command
 Documentation
 -------------
 
-For additional documentation, see the Lcapy tutorial.  This can be
-viewed in a web browser after running 'make html' in the doc
-directory.
+For additional documentation, see the Lcapy tutorial at
+http://lcapy.elec.canterbury.ac.z/lcapy
 
+Alternatively, the tutorial can be viewed in a web browser after
+running 'make html' in the doc directory.
 
 Copyright 2014, 2015 Michael Hayes, UCECE
