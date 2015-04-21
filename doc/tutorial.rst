@@ -1244,18 +1244,18 @@ Schematic examples
 .. literalinclude:: examples/schematics/K1.sch
 
 .. image:: examples/schematics/K1.png
-   :width: 5cm
+   :width: 3cm
 
 
 .. literalinclude:: examples/schematics/VRL2.sch
 
 .. image:: examples/schematics/VRL2.png
-   :width: 10cm
+   :width: 8cm
 
 
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded.sch
 
 .. image:: examples/schematics/lpf1-buffer-loaded.png
-   :width: 10cm
+   :width: 13cm
 
 
