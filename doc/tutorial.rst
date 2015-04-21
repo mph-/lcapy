@@ -378,16 +378,16 @@ A simpler approach is to use the plot method:
    >>> vf = linspace(0, 4, 400)
    >>> Isc = N.Isc.frequency_response().plot(vf, log_scale=True)
 
-.. image:: examples/series-VRC1-Isc.png
+.. image:: examples/netlists/series-VRC1-Isc.png
    :width: 15cm
 
 Here's a complete example Python script to plot the impedance of a
 series R-L-C network:
 
-.. literalinclude:: examples/series-RLC3-Z.py
+.. literalinclude:: examples/netlists/series-RLC3-Z.py
 
 
-.. image:: examples/series-RLC3-Z.png
+.. image:: examples/netlists/series-RLC3-Z.png
    :width: 15cm
 
 
@@ -461,20 +461,20 @@ vector of time values.
 Then the transient response can be plotted.  Alternatively, the plot
 method can be used.
 
-.. literalinclude:: examples/series-VRC1-isc.py
+.. literalinclude:: examples/netlists/series-VRC1-isc.py
 
 This produces:
 
-.. image:: examples/series-VRC1-isc.png
+.. image:: examples/netlists/series-VRC1-isc.png
    :width: 15cm
 
 
 Here's a complete example Python script of the short-circuit current
 through an underdamped series RLC network:
 
-.. literalinclude:: examples/series-VRLC1-isc.py
+.. literalinclude:: examples/netlists/series-VRLC1-isc.py
 
-.. image:: examples/series-VRLC1-isc.png
+.. image:: examples/netlists/series-VRLC1-isc.png
    :width: 15cm
 
 
@@ -1107,6 +1107,29 @@ Other circuit methods
    cct.pre_initital_model()   Convert circuit to pre-initial model.
 
 
+Plotting
+========
+
+Lcapy expressions have a plot method; this differs depending on the
+domain.  For example, the plot method for s-domain expressions
+produces a pole-zero plot.  Here's an example:
+
+.. literalinclude:: examples/netlists/tf1-pole-zero-plot.py
+
+.. image:: examples/netlists/tf1-pole-zero-plot.png
+   :width: 15cm
+
+
+The plot method for f-domain and :math:`\omega` -domain expressions
+produce spectral plots, for example, 
+
+
+.. literalinclude:: examples/netlists/tf1-bode-plot.py
+
+.. image:: examples/netlists/tf1-bode-plot.png
+   :width: 15cm
+
+
 Schematics
 ==========
 
@@ -1191,25 +1214,48 @@ A JFET is described using:
 where ND, NG, and NS denote the drain, gate, and source nodes.
 
 
+Schematic examples
+------------------
 
-Plotting
-========
+.. literalinclude:: examples/schematics/opamp-inverting.sch
 
-Lcapy expressions have a plot method; this differs depending on the
-domain.  For example, the plot method for s-domain expressions
-produces a pole-zero plot.  Here's an example:
-
-.. literalinclude:: examples/tf1-pole-zero-plot.py
-
-.. image:: examples/tf1-pole-zero-plot.png
-   :width: 15cm
+.. image:: examples/schematics/opamp-inverting.png
+   :width: 7cm
 
 
-The plot method for f-domain and :math:`\omega` -domain expressions
-produce spectral plots, for example, 
+.. literalinclude:: examples/schematics/cmos1.sch
+
+.. image:: examples/schematics/cmos1.png
+   :width: 7cm
 
 
-.. literalinclude:: examples/tf1-bode-plot.py
+.. literalinclude:: examples/schematics/D4.sch
 
-.. image:: examples/tf1-bode-plot.png
-   :width: 15cm
+.. image:: examples/schematics/D4.png
+   :width: 5cm
+
+
+.. literalinclude:: examples/schematics/pic6.sch
+
+.. image:: examples/schematics/pic6.png
+   :width: 5cm
+
+
+.. literalinclude:: examples/schematics/K1.sch
+
+.. image:: examples/schematics/K1.png
+   :width: 5cm
+
+
+.. literalinclude:: examples/schematics/VRL2.sch
+
+.. image:: examples/schematics/VRL2.png
+   :width: 10cm
+
+
+.. literalinclude:: examples/schematics/lpf1-buffer-loaded.sch
+
+.. image:: examples/schematics/lpf1-buffer-loaded.png
+   :width: 10cm
+
+
