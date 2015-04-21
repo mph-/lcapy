@@ -13,6 +13,10 @@ Use single representation for netlists/AST
 
 Generate schematic from abstract syntax tree (assume horizontal layout)
 
+Perhaps store initial circuit using time domain representation, then
+convert to s-domain for analysis, instead of waltzing straight into
+s-domain?
+
 Speed up residue calculation  (perhaps can try without taking limit...)
 
 Handle mechanical and acoustical components.  Perhaps lower case for
@@ -66,20 +70,13 @@ Determine loops in schematic DAGs and issue warning.
 Warn user when calculations may take a while, say when inverting a
 large matrix.
 
-Fix labels for schemdraw.
-
-Add opamps, etc, for schemdraw.
-
 Allow component names and values on schematics.
 
 Tweak formatting of values on schematics (say use shortest
 representation).
 
-Handle symbol names such as E1 that sympy thinks are functions.
-
-Handle symbol names such as R1'.  sympy.symbols handles this but not
-sympy.sympify.
-
 Handle multiple SVG images displayed in notebook due to problems with
 shared namespace.
 
+Perhaps add H, I, V, Y, Z methods to Expr classes to create
+appropriate subclasses?
