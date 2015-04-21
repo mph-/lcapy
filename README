@@ -166,7 +166,7 @@ Documentation
 -------------
 
 For additional documentation, see the Lcapy tutorial at
-http://lcapy.elec.canterbury.ac.z/lcapy
+http://lcapy.elec.canterbury.ac.nz/lcapy
 
 Alternatively, the tutorial can be viewed in a web browser after
 running 'make html' in the doc directory.
