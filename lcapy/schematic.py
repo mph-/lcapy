@@ -1169,6 +1169,12 @@ class Schematic(object):
         if 'v' in elt.opts:
             elt.opts['v' + voltage_pos] = elt.opts.pop('v')
 
+        current_pos = id_pos
+        # Add modifier to place current label on other side
+        # from voltage marks.
+        if 'i' in elt.opts:
+            elt.opts['i' + current_pos] = elt.opts.pop('i')
+
         # Current, voltage, label options.
         # It might be better to allow any options and prune out
         # dir and size.
@@ -1179,11 +1185,11 @@ class Schematic(object):
         for key, val in elt.opts.iteritems():
             if key in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
                        'i>_', 'i<_', 'i>^', 'i<^'):
-                current_str += '%s=$%s$, ' % (key, val)
+                current_str += '%s=$%s$, ' % (key, latex_str(val))
             elif key in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
-                voltage_str += '%s=$%s$, ' % (key, val)
+                voltage_str += '%s=$%s$, ' % (key, latex_str(val))
             elif key in ('l', 'l^', 'l_'):
-                label_str += '%s=$%s$, ' % (key, val)
+                label_str += '%s=$%s$, ' % (key, latex_str(val))
             elif key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
@@ -1217,7 +1223,7 @@ class Schematic(object):
             cpt_type = diode_type_map[elt.sub_type]
 
         s = r'  \draw (%s) to [align=right, %s%s, %s%s] (%s);''\n' % (
-            n1, cpt_type, label_str, latex_str(args_str), node_str, n2)
+            n1, cpt_type, label_str, args_str, node_str, n2)
         return s
 
     def _tikz_draw(self, label_values=True, draw_nodes=True, label_ids=True,

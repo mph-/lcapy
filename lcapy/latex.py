@@ -17,7 +17,7 @@ class Latex(object):
             fred = match.group(2)
             
             if fred in ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
-                        'mean'):
+                        'mean', 'peak', 'pp', 'min', 'max', 'src'):
                 fred = r'{\mathrm{%s}}' % fred
             return match.group(1) + fred
 
