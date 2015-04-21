@@ -17,14 +17,18 @@ The netlists can be loaded from a file or created at run-time.  For
 example:
 
    >>> from lcapy import Circuit
-   >>> cct = Circuit('Voltage divider')
-   >>> cct.add('V_s 2 0') 
-   >>> cct.add('R_a 2 1') 
-   >>> cct.add('R_b 1 0') 
-   >>> cct.V[1]
-   >>> cct.V['2']
-   >>> cct.I['R_a']
-   >>> cct.Vd['R_a']
+   >>> cct = Circuit()
+   >>> cct.add('Vs 2 0') 
+   >>> cct.add('Ra 2 1') 
+   >>> cct.add('Rb 1 0') 
+
+The circuit can then be interrogated to determine branch currents,
+branch voltages, and node voltages (with respect to the ground node 0).
+
+   >>> cct[1].V
+   >>> cct[2].V
+   >>> cct.Ra.I
+   >>> cct.Ra.V
 
 
 One-port networks
