@@ -20,7 +20,7 @@ import numpy as np
 import re
 from lcapy.latex import latex_str
 from lcapy.core import Expr
-from os import system, path, remove
+from os import system, path, remove, mkdir
 
 
 __all__ = ('Schematic', )
@@ -1284,8 +1284,11 @@ class Schematic(object):
     def _tmpfilename(self, suffix=''):
 
         from tempfile import NamedTemporaryFile
+        
+        tempdir = 'temp'
 
-        filename = NamedTemporaryFile(suffix=suffix, dir='./temp', 
+        mkdir(tempdir)
+        filename = NamedTemporaryFile(suffix=suffix, dir=tempdir, 
                                       delete=False).name
         return filename
 
