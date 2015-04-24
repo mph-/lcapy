@@ -1286,8 +1286,8 @@ class Schematic(object):
         from tempfile import NamedTemporaryFile
         
         tempdir = 'temp'
-
-        mkdir(tempdir)
+        if not path.exists(tempdir):
+            mkdir(tempdir)
         filename = NamedTemporaryFile(suffix=suffix, dir=tempdir, 
                                       delete=False).name
         return filename
