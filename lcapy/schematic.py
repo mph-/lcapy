@@ -1299,7 +1299,7 @@ class Schematic(object):
             raise RuntimeError('Could not generate %s with pdf2svg' % 
                                svg_filename)
 
-    def _convert_pdf_png(self, pdf_filename, png_filename):
+    def _convert_pdf_png(self, pdf_filename, png_filename, oversample=1):
 
         system('convert -density %d %s %s' %
                (oversample * 100, pdf_filename, png_filename))
@@ -1369,7 +1369,7 @@ class Schematic(object):
             return
 
         if ext == '.png':
-            self._convert_pdf_png(pdf_filename, root + '.png')
+            self._convert_pdf_png(pdf_filename, root + '.png', oversample)
             if not debug:
                 remove(pdf_filename)
             return
