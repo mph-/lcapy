@@ -1285,7 +1285,8 @@ class Schematic(object):
 
         from tempfile import NamedTemporaryFile
 
-        filename = NamedTemporaryFile(suffix=suffix, delete=False).name
+        filename = NamedTemporaryFile(suffix=suffix, dir='./temp', 
+                                      delete=False).name
         return filename
 
     def tikz_draw(self, filename, args, **kwargs):
