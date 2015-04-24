@@ -1292,6 +1292,30 @@ class Schematic(object):
                                       delete=False).name
         return filename
 
+    def _convert_pdf_svg(self, pdf_filename, svg_filename):
+
+        system('pdf2svg %s %s' % (pdf_filename, svg_filename))
+        if not path.exists(svg_filename):
+            raise RuntimeError('Could not generate %s with pdf2svg' % 
+                               svg_filename)
+
+    def _convert_pdf_png(self, pdf_filename, png_filename):
+
+        system('convert -density %d %s %s' %
+               (oversample * 100, pdf_filename, png_filename))
+        if path.exists(png_filename):
+            return
+
+        # Windows has a program called convert, try im-convert
+        # for image magick convert.
+        system('im-convert -density %d %s %s' %
+               (oversample * 100, pdf_filename, png_filename))
+        if path.exists(png_filename):
+            return
+
+        raise RuntimeError('Could not generate %s with convert' % 
+                           png_filename)
+
     def tikz_draw(self, filename, args, **kwargs):
 
         root, ext = path.splitext(filename)
@@ -1339,22 +1363,13 @@ class Schematic(object):
             return
 
         if ext == '.svg':
-            svg_filename = root + '.svg'
-            system('pdf2svg %s %s' % (pdf_filename, svg_filename))
-            if not path.exists(svg_filename):
-                raise RuntimeError('Could not generate %s with pdf2svg' % 
-                                   svg_filename)
+            self._convert_pdf_svg(pdf_filename, root + '.svg')
             if not debug:
                 remove(pdf_filename)
             return
 
         if ext == '.png':
-            png_filename = root + '.png'
-            system('convert -density %d %s %s' %
-                   (oversample * 100, pdf_filename, png_filename))
-            if not path.exists(png_filename):
-                raise RuntimeError('Could not generate %s with convert' % 
-                                   png_filename)
+            self._convert_pdf_png(pdf_filename, root + '.png')
             if not debug:
                 remove(pdf_filename)
             return
