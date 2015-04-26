@@ -8,13 +8,13 @@ Installation
 
 - For plotting you need to install matplotlib (this requires Numpy).
 
-- For schematic drawing you need pdflatex and the circuitikz package.
+- For schematic drawing you need pdflatex, the circuitikz package (https://www.ctan.org/pkg/circuitikz), the imagemagick convert program (http://www.imagemagick.org/), and ghostscript (http://www.ghostscript.com/).
 
 - Lcapy can be downloaded from https://github.com/mph-/lcapy using git or as a .zip file.
 
 
-Lcapy installation for Linux
-============================
+Lcapy installation for Linux (Ubuntu and variants)
+==================================================
 
 - You need to install the Sympy package:
 
@@ -24,7 +24,10 @@ Lcapy installation for Linux
 
   >>> sudo apt-get install python-numpy python-matplotlib
 
-- For schematic drawing you need pdflatex and the circuitikz package.
+- For schematic drawing you need pdflatex, the circuitikz package,
+  imagemagick, and ghostscript.
+
+  >>> sudo apt-get install texlive-latex-base texlive-pictures imagemagick ghostscript
 
 - The easiest way to obtain the Lcapy sources is to use git:
 

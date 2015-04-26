@@ -8,13 +8,16 @@ Tutorial
 Introduction
 ============
 
-lcapy is a Python package for linear circuit analysis.  It will only
+Lcapy is a Python package for linear circuit analysis.  It will only
 solve linear, time invariant networks.  In other words, networks
 comprised of basic circuit components (R, L, C, etc.) that do not vary
 with time.
 
-It does not support non-linear devices such as diodes or transistors
-although it does support simple opamps without saturation.
+Lcapy can semi-automate the drawing of schematics from a netlist.
+
+Lcapy cannot directly analyse non-linear devices such as diodes or
+transistors although it does support simple opamps without saturation.
+Nevertheless, it can draw them!
 
 Lcapy uses Sympy (symbolic Python) for its values and expressions
 and thus the circuit analysis can be performed symbolically.  See http://docs.sympy.org/latest/tutorial/index.html for the Sympy tutorial.
@@ -645,7 +648,7 @@ example, a series impedance has a non specified Z matrix and a shunt
 impedance has a non specified Y matrix.
 
 
-Transfer Functions
+Transfer functions
 ==================
 
 Transfer functions can be created in a similar manner to Matlab,
