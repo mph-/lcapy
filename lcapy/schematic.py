@@ -1350,9 +1350,12 @@ class Schematic(object):
 
         system('%spdflatex -interaction batchmode %s.tex' % (chdir, baseroot))
         if not debug:
-            remove(root + '.aux')
-            remove(root + '.log')
-            remove(root + '.tex')
+            try:
+                remove(root + '.aux')
+                remove(root + '.log')
+                remove(root + '.tex')
+            except:
+                pass
 
         pdf_filename = root + '.pdf'
         if not path.exists(pdf_filename):
