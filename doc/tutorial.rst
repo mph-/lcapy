@@ -1139,7 +1139,7 @@ Schematics
 Schematics can be generated from a netlist using Circuitikz for LaTeX
 diagrams.  Hints are required to designate component orientation and
 explicit wires are required to link nodes of the same potential but
-with different coordinate.
+with different coordinates.
 
 Here's an example:
    >>> from lcapy import Circuit
@@ -1171,94 +1171,4 @@ Here are the contents of the file 'voltage-divider.sch'::
    W3 0 0_2; right
 
 Here, P1 defines a port.  This is shown as a pair of open blobs.
-
-Other schematic drawing hints include:
-
-- mirror --  mirror component vertically (primarily for drawing opamps)
-
-- reverse -- reverse component direction (primarily for opamps, diodes, voltage and current sources)
- 
-- size=size -- specify size of component
- 
-- i=label -- annotate current through component with label
- 
-- v=label -- annotate voltage across component with label
-
-The label position, current and voltage direction can be controlled
-with attributes _ ^ < and >, for example i^<=I_1.  See the Circuitikz
-manual for details.
-
-
-Diodes can be drawn but not analyzed.   A standard diode is described using:
-
-     Dname Np Nm
-
-Other diodes are specified with an additional argument:
-
-     Dname Np Nm schottky|led|zener|tunnel|photo 
-
-Transistors (BJT, JFET, and MOSFET) can also be drawn but not analyzed.  Both
-are added to the netlist using a syntax similar to that of SPICE.  A BJT
-is described using:
-    
-     Qname NC NB NE npn|pnp
-
-where NC, NB, and NE denote the collector, base, and emitter nodes.
-A MOSFET is described using:
-
-     Mname ND NG NS nmos|pmos
-
-where ND, NG, and NS denote the drain, gate, and source nodes.
-
-A JFET is described using:
-
-     Jname ND NG NS njf|pjf
-
-where ND, NG, and NS denote the drain, gate, and source nodes.
-
-
-Schematic examples
-------------------
-
-.. literalinclude:: examples/schematics/opamp-inverting.sch
-
-.. image:: examples/schematics/opamp-inverting.png
-   :width: 7cm
-
-
-.. literalinclude:: examples/schematics/cmos1.sch
-
-.. image:: examples/schematics/cmos1.png
-   :width: 7cm
-
-
-.. literalinclude:: examples/schematics/D4.sch
-
-.. image:: examples/schematics/D4.png
-   :width: 5cm
-
-
-.. literalinclude:: examples/schematics/pic6.sch
-
-.. image:: examples/schematics/pic6.png
-   :width: 5cm
-
-
-.. literalinclude:: examples/schematics/K1.sch
-
-.. image:: examples/schematics/K1.png
-   :width: 3cm
-
-
-.. literalinclude:: examples/schematics/VRL2.sch
-
-.. image:: examples/schematics/VRL2.png
-   :width: 8cm
-
-
-.. literalinclude:: examples/schematics/lpf1-buffer-loaded.sch
-
-.. image:: examples/schematics/lpf1-buffer-loaded.png
-   :width: 13cm
-
 
