@@ -86,7 +86,7 @@ class EngFormat(object):
             # Remove trailing zeroes after decimal point
             string = string.rstrip('0').rstrip('.')
 
-        return string + '\,' + prefixes[idx] + r'\mbox{' + self.unit + r'}'
+        return string + '\,' + r'\mbox{' + prefixes[idx] + self.unit + r'}'
 
 
 class Opts(dict):
