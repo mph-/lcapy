@@ -578,6 +578,9 @@ class Expr(object):
     def __call__(self, arg):
         """Substitute arg for variable."""
 
+        if isinstance(arg, (tuple, list, np.ndarray)):
+            return self.evaluate(arg)
+
         # Should check for bogus substitutions, such as t for s.
 
         expr = arg
