@@ -1145,7 +1145,9 @@ class Schematic(object):
 
         id_pos = '_'
         voltage_pos = '^'
-        if elt.cpt_type in ('V', 'Vdc', 'I', 'Idc', 'E', 'Vs', 'Is'):
+        if elt.cpt_type in ('V', 'Vdc', 'Vstep', 'Vac', 'Vacstep', 'Vimpulse', 'v',
+                            'I', 'Idc', 'Istep', 'Iac', 'Iacstep', 'Iimpulse', 'i',
+                            'E', 'Vs', 'Is'):
 
             # circuitikz expects the positive node first, except for
             # voltage and current sources!  So swap the nodes
