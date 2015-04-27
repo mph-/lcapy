@@ -204,6 +204,12 @@ Schematic examples
    :width: 7cm
 
 
+.. literalinclude:: examples/schematics/opamp-noninverting-amplifier.sch
+
+.. image:: examples/schematics/opamp-noninverting-amplifier.png
+   :width: 7cm
+
+
 .. literalinclude:: examples/schematics/opamp-inverting-integrator.sch
 
 .. image:: examples/schematics/opamp-inverting-integrator.png

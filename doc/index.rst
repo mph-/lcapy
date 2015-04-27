@@ -12,15 +12,19 @@ Sympy (symbolic Python) for symbolic analysis.  Lcapy can
 semi-automate the drawing of schematics from a netlist, including
 diodes and transistors.
 
+.. image:: examples/schematics/lpf1-buffer-loaded2.png
+   :width: 9cm
+
 Contents:
+========
 
 .. toctree::
    :maxdepth: 2
 
    install.rst
    tutorial.rst
-   networks.rst
    circuits.rst
+   networks.rst
    schematics.rst
    api.rst
 
