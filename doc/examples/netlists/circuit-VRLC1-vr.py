@@ -1,19 +1,16 @@
 from lcapy import Circuit
-import numpy as np
-from matplotlib.pyplot import figure, savefig, show
-
-t = np.linspace(0, 0.01, 1000)
-
 cct = Circuit()
 
-cct.add('V1 1 0 dc 10')
-cct.add('L1 1 2 1e-3')
-cct.add('C1 2 3 1e-4')
-cct.add('R1 3 0 10')
+cct.add('V 1 0 step 10')
+cct.add('L 1 2 1e-3')
+cct.add('C 2 3 1e-4')
+cct.add('R 3 0 10')
 
-Vr = cct[3].V
-vr = Vr.transient_response(t)
+import numpy as np
+t = np.linspace(0, 0.01, 1000)
+vr = cct.R.v(t)
 
+from matplotlib.pyplot import figure, savefig, show
 fig = figure()
 ax = fig.add_subplot(111)
 ax.plot(t, vr, linewidth=2)
