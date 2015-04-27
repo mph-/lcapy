@@ -404,8 +404,6 @@ class Expr(object):
     def denominator(self):
         """Return denominator of rational function"""
 
-        return self.numerator
-
         expr = self.expr
         if not expr.is_rational_function(self):
             raise ValueError('Expression not a rational function')
