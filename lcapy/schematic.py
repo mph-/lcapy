@@ -20,7 +20,7 @@ import numpy as np
 import re
 from lcapy.latex import latex_str
 from lcapy.core import Expr
-from os import system, path, remove, mkdir
+from os import system, path, remove, mkdir, chdir
 
 
 __all__ = ('Schematic', )
@@ -1349,7 +1349,7 @@ class Schematic(object):
         dirname = path.dirname(texfilename)
         baseroot = path.basename(root)
         if dirname != '':
-            os.chdir(os.path.abspath(dirname))
+            chdir(path.abspath(dirname))
 
         system('pdflatex -interaction batchmode %s.tex' % baseroot)
         if not debug:
