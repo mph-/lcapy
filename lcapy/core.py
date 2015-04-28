@@ -25,7 +25,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'symbol', 'sympify',
            'zp2tf', 'Expr', 's', 'sExpr', 't', 'tExpr', 'f', 'fExpr', 'cExpr',
            'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'tan', 'atan', 'atan2',
-           'exp', 'sqrt', 'log', 'log10',
+           'exp', 'sqrt', 'log', 'log10', 'gcd',
            'H', 'Heaviside', 'DiracDelta', 'j', 'u', 'delta',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector',
            'Hs', 'Is', 'Vs', 'Ys', 'Zs',
@@ -491,12 +491,9 @@ class Expr(object):
         R = self.rationalize_denominator()
         N = R.N
         
-        re, im = N.real, N.imag
-        G = sym.gcd(re.expr, im.expr)
-        re /= G
-        im /= G
-
-        dst = self.__class__(atan2(im.simplify(), re.simplify()))
+        G = gcd(N.real, N.imag)
+        new = N / G
+        dst = atan2(new.imag, new.real)
         dst.part = 'phase'
         dst.units = 'rad'
         return dst
@@ -1879,13 +1876,14 @@ class NetObject(object):
 
 def _funcwrap(func, *args):
 
-    expr = args[0]
-    cls = expr.__class__
+    cls = args[0].__class__
 
-    if isinstance(expr, Expr):
-        expr = expr.expr
+    tweak_args = list(args)
+    for m, arg in enumerate(args):
+        if isinstance(arg, Expr):
+            tweak_args[m] = arg.expr
 
-    return cls(func(expr, *args[1:]))
+    return cls(func(*tweak_args))
 
 
 def sin(expr):
@@ -1911,6 +1909,11 @@ def atan(expr):
 def atan2(expr1, expr2):
 
     return _funcwrap(sym.atan2, expr1, expr2)
+
+
+def gcd(expr1, expr2):
+
+    return _funcwrap(sym.gcd, expr1, expr2)
 
 
 def exp(expr):
