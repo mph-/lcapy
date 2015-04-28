@@ -24,8 +24,8 @@ import sys
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'symbol', 'sympify',
            'zp2tf', 'Expr', 's', 'sExpr', 't', 'tExpr', 'f', 'fExpr', 'cExpr',
-           'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'exp', 'sqrt', 
-           'log', 'log10',
+           'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'tan', 'atan', 'atan2',
+           'exp', 'sqrt', 'log', 'log10',
            'H', 'Heaviside', 'DiracDelta', 'j', 'u', 'delta',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector',
            'Hs', 'Is', 'Vs', 'Ys', 'Zs',
@@ -496,7 +496,7 @@ class Expr(object):
         re /= G
         im /= G
 
-        dst = self.__class__(sym.atan2(im.simplify(), re.simplify()))
+        dst = self.__class__(atan2(im.simplify(), re.simplify()))
         dst.part = 'phase'
         dst.units = 'rad'
         return dst
@@ -575,18 +575,14 @@ class Expr(object):
 
         return response
 
-    def __call__(self, arg):
-        """Substitute arg for variable."""
-
-        if isinstance(arg, (tuple, list, np.ndarray)):
-            return self.evaluate(arg)
+    def __subs1__(self, old, new, **kwargs):
 
         # Should check for bogus substitutions, such as t for s.
 
-        expr = arg
-        if isinstance(arg, Expr):
-            cls = arg.__class__
-            expr = arg.expr
+        expr = new
+        if isinstance(new, Expr):
+            cls = new.__class__
+            expr = new.expr
         else:
             cls = self.__class__
 
@@ -611,40 +607,50 @@ class Expr(object):
                      (Yomega, fExpr) : Yf,
                      (Zomega, fExpr) : Zf}
 
-        if (self.__class__, arg.__class__) in class_map:
-            cls = class_map[(self.__class__, arg.__class__)]
+        if (self.__class__, new.__class__) in class_map:
+            cls = class_map[(self.__class__, new.__class__)]
 
-        return cls(self.expr.subs(self.var, expr))
+        name = canonical_name(old)
+
+        if not isinstance(name, str):
+            name = str(name)
+
+        # Replace symbol names with symbol definitions to
+        # avoid problems with real or positive attributes.
+        if name not in symbols:
+            raise ValueError('Unknown symbol %s' % old)
+        old = symbols[name]
+
+        return cls(self.expr.subs(old, expr))
+
+    def __call__(self, arg):
+        """Substitute arg for variable.  If arg is an tuple, list, or array,
+        evaluate."""
+
+        if isinstance(arg, (tuple, list, np.ndarray)):
+            return self.evaluate(arg)
+
+        return self.__subs1__(self.var, arg)
 
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage"""
 
+        if len(args) > 2:
+            raise ValueError('Too many arguments')
+        if len(args) == 0:
+            raise ValueError('No arguments')
+
         if len(args) == 2:
+            return self.__subs1__(args[0], args[1])
 
-            if args[0] == self.var:
-                return self.__call__(args[1])
+        if  isinstance(args[0], dict):
+            dst = self
+            for key, val in args[0].iteritems():
+                dst = dst.__subs1__(key, val, **kwargs)
 
-            sdict = {args[0] : args[1]}
-        elif len(args) == 1:
-            if not isinstance(args[0], dict):
-                raise ValueError('Argument not dict')
-            sdict = args[0]
+            return dst
 
-        # Replace symbol names with symbol definitions to
-        # avoid problems with real or positive attributes.
-        mdict = {}
-        for key in sdict.keys():
-            
-            name = canonical_name(key)
-
-            if not isinstance(name, str):
-                name = str(name)
-
-            if name not in symbols:
-                raise ValueError('Unknown symbol %s' % key)
-            mdict[symbols[name]] = sdict[key]
-
-        return self.__class__(self.expr.subs(mdict, **kwargs))
+        return self.__subs1__(self.var, args[0])
 
     @property
     def label(self):
@@ -1890,6 +1896,21 @@ def sin(expr):
 def cos(expr):
 
     return _funcwrap(sym.cos, expr)
+
+
+def tan(expr):
+
+    return _funcwrap(sym.tan, expr)
+
+
+def atan(expr):
+
+    return _funcwrap(sym.atan, expr)
+
+
+def atan2(expr1, expr2):
+
+    return _funcwrap(sym.atan2, expr1, expr2)
 
 
 def exp(expr):

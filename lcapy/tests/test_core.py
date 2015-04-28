@@ -219,7 +219,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a1, a2, "Substitution fail.")
 
-        # This is a gnarly case since the current result has the same class as s
-        #a3 = s.subs({s: omega}) 
-        #self.assertEqual(a1, a3, "Substitution fail with dict.")
+        a3 = s.subs({s: omega}) 
+        self.assertEqual(a1, a3, "Substitution fail with dict.")
 
