@@ -869,6 +869,9 @@ class Netlist(object):
 
         """
 
+        if len(args) == 0:
+            return self.kill_except()
+
         sources = []
         for arg in args:
             if arg not in self.sources:
