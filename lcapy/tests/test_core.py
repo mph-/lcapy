@@ -207,3 +207,19 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.expr.is_real, True, "Lost is_real.")
         self.assertEqual2(a, omega, "Substitution fail.")
+
+
+    def test_subs2(self):
+        """Lcapy: check subs
+
+        """
+
+        a1 = s(omega)
+        a2 = s.subs(s, omega)
+
+        self.assertEqual(a1, a2, "Substitution fail.")
+
+        # This is a gnarly case since the current result has the same class as s
+        #a3 = s.subs({s: omega}) 
+        #self.assertEqual(a1, a3, "Substitution fail with dict.")
+

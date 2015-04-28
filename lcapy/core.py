@@ -619,10 +619,11 @@ class Expr(object):
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage"""
 
-        # Should check if self.var is attempted to be substituted.
-        # If it is, then use __call__ method.
-
         if len(args) == 2:
+
+            if args[0] == self.var:
+                return self.__call__(args[1])
+
             sdict = {args[0] : args[1]}
         elif len(args) == 1:
             if not isinstance(args[0], dict):
@@ -633,7 +634,12 @@ class Expr(object):
         # avoid problems with real or positive attributes.
         mdict = {}
         for key in sdict.keys():
+            
             name = canonical_name(key)
+
+            if not isinstance(name, str):
+                name = str(name)
+
             if name not in symbols:
                 raise ValueError('Unknown symbol %s' % key)
             mdict[symbols[name]] = sdict[key]
