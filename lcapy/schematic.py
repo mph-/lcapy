@@ -1348,14 +1348,15 @@ class Schematic(object):
 
         dirname = path.dirname(texfilename)
         baseroot = path.basename(root)
-        chdir = '' if dirname == '' else 'cd %s; ' % dirname
+        if dirname != '':
+            os.chdir(os.path.abspath(dirname))
 
-        system('%spdflatex -interaction batchmode %s.tex' % (chdir, baseroot))
+        system('pdflatex -interaction batchmode %s.tex' % baseroot)
         if not debug:
             try:
-                remove(root + '.aux')
-                remove(root + '.log')
-                remove(root + '.tex')
+                remove(baseroot + '.aux')
+                remove(baseroot + '.log')
+                remove(baseroot + '.tex')
             except:
                 pass
 
