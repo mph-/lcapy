@@ -1363,6 +1363,17 @@ class Matrix(sym.Matrix):
 
         return self._reformat('ZPK')
 
+    # TODO. There is probably a cunning way to automatically handle
+    # the following.
+
+    def inv(self):
+
+        return self.__class__(sym.Matrix(self).inv())
+
+    def det(self):
+
+        return self.__class__(sym.Matrix(self).det())
+
 
 class Vector(Matrix):
 
