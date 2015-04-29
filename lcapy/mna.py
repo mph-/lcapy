@@ -375,7 +375,6 @@ class MNA(object):
 
         results = sym.simplify(Ainv * self._Z)
 
-
         branchdir = {}
         for elt in self.elements.values():
             if elt._is_K:
@@ -400,8 +399,8 @@ class MNA(object):
         for m, key in enumerate(self.unknown_branch_currents):
             self._I[key] = Is(results[m + num_nodes])
 
-        # Calculate the branch currents.  These should be evaluated as
-        # required.
+        # Calculate the branch currents.  These should be lazily
+        # evaluated as required.
         for key, elt in self.elements.iteritems():
             if elt._is_RC:
                 n1, n2 = self.node_map[
