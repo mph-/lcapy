@@ -50,7 +50,7 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2')
         a.add('C1 2 0')
 
-        # Note, V1 acts as a short-circuit for the impedance/admittanc
+        # Note, V1 acts as a short-circuit for the impedance/admittance
         self.assertEqual2(
             a.Z(1, 2), (R('R1') | C('C1')).Z, "Z incorrect across R1")
         self.assertEqual2(

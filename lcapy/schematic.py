@@ -1336,7 +1336,7 @@ class Schematic(object):
             return
 
         template = ('\\documentclass[a4paper]{standalone}\n'
-                    '\\usepackage[americanvoltages]{circuitikz}\n'
+                    '\\usepackage[americanvoltages,americancurrents]{circuitikz}\n'
                     '\\begin{document}\n%s\\end{document}')
         content = template % content
 
