@@ -304,13 +304,13 @@ class Node(object):
     def visible(self, draw_nodes):
         """Return true if node drawn"""
 
+        if self.port:
+            return True
+
         if draw_nodes in ('none', None, False):
             return False
         
         if draw_nodes == 'all':
-            return True
-
-        if self.port:
             return True
 
         if draw_nodes == 'connections':
@@ -1098,10 +1098,21 @@ class Schematic(object):
 
         n1, n2 = elt.nodes[0:2]
 
-        if elt.cpt_type == 'W' and 'implicit' in elt.opts:
+        if elt.cpt_type == 'W' and ('implicit' in elt.opts
+                                    or 'ground' in elt.opts
+                                    or 'sground' in elt.opts):
+                                    
             # Draw implict wires, i.e., connections to ground, etc.
 
-            args = ['sground']
+            kind = ''
+            if 'implicit' in elt.opts:
+                kind = 'sground'
+            if 'ground' in elt.opts:
+                kind = 'ground'
+            if 'sground' in elt.opts:
+                kind = 'sground'
+
+            args = [kind]
             if elt.opts['dir'] == 'up':
                 args.append('yscale=-1')
             if elt.opts['dir'] == 'left':
@@ -1118,8 +1129,8 @@ class Schematic(object):
                 offset = -0.25
             pos = Pos(p.x, p.y + offset)
 
-            s = r'  \draw (%s) to [short, -] (%s);''\n' % (n1, pos)
-            s += r'  \draw (%s) node[%s];''\n' % (pos, args_str)
+            s = r'  \draw (%s) to [short] (%s);''\n' % (n1, pos)
+            s += r'  \draw (%s) node[%s] {};''\n' % (pos, args_str)
 
             if 'l' in elt.opts:
                 label_str = '$%s$' % latex_str(elt.opts['l'])
