@@ -1226,7 +1226,17 @@ class tExpr(Expr):
             # Hack since sympy gives up on Laplace transform if t real!
             var = sym.symbols('t')
 
-        F, a, cond = sym.laplace_transform(self, var, ssym)
+        try:
+            F, a, cond = sym.laplace_transform(self, var, ssym)
+        except TypeError as e:
+            expr = self.expr
+            if not isinstance(expr, sym.function.AppliedUndef):
+                raise TypeError(e)
+            if (expr.nargs != 1) or (expr.args[0] != tsym):
+                raise TypeError(e)
+            # Convert v(t) to V(s), etc.
+            name = expr.func.__name__.capitalize() + '(s)'
+            return sExpr(name)
 
         if hasattr(self, '_laplace_conjugate_class'):
             F = self._laplace_conjugate_class(F)
