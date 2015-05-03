@@ -19,6 +19,8 @@ class Latex(object):
             if fred in ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
                         'mean', 'peak', 'pp', 'min', 'max', 'src'):
                 fred = r'{\mathrm{%s}}' % fred
+            else:
+                fred = r'{%s}' % fred
             return match.group(1) + fred
 
         return pattern.sub(foo, self.str)
