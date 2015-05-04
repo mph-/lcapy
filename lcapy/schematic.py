@@ -25,6 +25,10 @@ from os import system, path, remove, mkdir, chdir
 
 __all__ = ('Schematic', )
 
+# Perhaps AM for ammeter, VM for voltmeter, SW for switch, VR for
+# variable resistor?  Currently, variable resistor supported with
+# option variable.
+
 
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
@@ -1188,6 +1192,9 @@ class Schematic(object):
         if 'i' in elt.opts:
             elt.opts['i' + current_pos] = elt.opts.pop('i')
 
+        # Perhaps have ir for a reversed current?
+
+
         # Current, voltage, label options.
         # It might be better to allow any options and prune out
         # dir and size.
@@ -1217,7 +1224,8 @@ class Schematic(object):
                 label_str = ', l%s=$%s$' % (id_pos, elt.default_label)
                 
                 if label_ids and elt.value_label != '':
-                    label_str += r', l%s={$%s$\\$%s$}' % (id_pos, elt.id_label, elt.value_label)
+                    label_str += r', l%s={$%s$\\$%s$}' % (id_pos, elt.id_label,
+                                                          elt.value_label)
         else:
             label_str = ', ' + label_str
 
