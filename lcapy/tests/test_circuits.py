@@ -42,7 +42,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.Isc(1, 0), I(0).I, "Isc incorrect")
 
     def test_VRL1(self):
-        """Lcapy: check RL circuit
+        """Lcapy: check VRL circuit
 
         """
         a = Circuit()
@@ -65,3 +65,14 @@ class LcapyTester(unittest.TestCase):
         # self.assertEqual2(a.Y(1, 0), R(0).Y, "Y incorrect across V1")
 
         self.assertEqual2(a.Voc(1, 0), V('V1').V, "Voc incorrect across V1")
+
+
+    def test_IR1(self):
+        """Lcapy: check IR circuit
+
+        """
+        a = Circuit()
+        a.add('I1 1 0 2')
+        a.add('R1 1 0 1')
+
+        self.assertEqual2(a.R1.V, V(2).V, "Incorrect voltage")
