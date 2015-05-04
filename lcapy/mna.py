@@ -310,9 +310,9 @@ class MNA(object):
         n2 = self._node_index(elt.nodes[1])
         I = elt.cpt.I.expr
         if n1 >= 0:
-            self._Is[n1] -= I
+            self._Is[n1] += I
         if n2 >= 0:
-            self._Is[n2] += I
+            self._Is[n2] -= I
 
     def _analyse(self):
         """Analyse network."""
