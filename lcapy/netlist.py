@@ -80,7 +80,6 @@ mech_cpt_types = ['d',  # Dashpot (damper, resistance)  perhaps b?
                   'u',  # Velocity source
                   ]
 
-
 class Ldict(dict):
 
     """Lazy dictionary for inverse Laplace"""
@@ -735,7 +734,7 @@ class Netlist(object):
 
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
-        new.add('Vin_ %d %d s 1' % (Nm, Np))
+        new.add('Vin_ %d %d s 1' % (Np, Nm))
         If = -new.I['Vin_']
         new.remove('Vin_')
 
@@ -750,7 +749,7 @@ class Netlist(object):
 
         # Connect 1 A s-domain current source between nodes and
         # measure voltage.
-        new.add('Iin_ %d %d s 1' % (Nm, Np))
+        new.add('Iin_ %d %d s 1' % (Np, Nm))
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
