@@ -38,7 +38,7 @@ from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep
 from lcapy.oneport import Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
-from schematic import Schematic
+from schematic import Schematic, Opts
 from mna import MNA, VCVS, TF, K, TP, Dummy
 import re
 from copy import copy
@@ -128,39 +128,6 @@ cpt_type_map = {'R': R, 'C': C, 'L': L, 'Z': Z, 'Y': Y,
 # to have longer names first.
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 cpt_type_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_types))
-
-
-class Opts(dict):
-
-    def _parse(self, string):
-
-        for part in string.split(','):
-            part = part.strip()
-            if part == '':
-                continue
-
-            if part in ('up', 'down', 'left', 'right'):
-                self['dir'] = part
-                continue
-
-            fields = part.split('=')
-            key = fields[0].strip()
-            arg = fields[1].strip() if len(fields) > 1 else ''
-            self[key] = arg
-
-    def __init__(self, arg):
-
-        if isinstance(arg, str):
-            self._parse(arg)
-            return
-
-        for key, val in arg.iteritems():
-            self[key] = val
-
-    def format(self):
-
-        return ', '.join(['%s=%s' % (key, val)
-                          for key, val in self.iteritems()])
 
 
 class Node(object):
