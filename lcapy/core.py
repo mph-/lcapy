@@ -1382,7 +1382,7 @@ class Matrix(sym.Matrix):
 
     def det(self):
 
-        return self.__class__(sym.Matrix(self).det())
+        return sym.Matrix(self).det()
 
 
 class Vector(Matrix):
