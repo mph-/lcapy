@@ -26,8 +26,8 @@ from os import system, path, remove, mkdir, chdir
 __all__ = ('Schematic', )
 
 # Perhaps AM for ammeter, VM for voltmeter, SW for switch, VR for
-# variable resistor?  Currently, variable resistor supported with
-# option variable.
+# variable resistor?  Currently, a variable resistor is supported with
+# the variable option.
 
 
 # Regular expression alternate matches stop with first match so need
@@ -1186,14 +1186,19 @@ class Schematic(object):
         if 'v' in elt.opts:
             elt.opts['v' + voltage_pos] = elt.opts.pop('v')
 
+        # Reversed voltage.
+        if 'vr' in elt.opts:
+            elt.opts['v' + voltage_pos + '>'] = elt.opts.pop('vr')
+
         current_pos = id_pos
         # Add modifier to place current label on other side
         # from voltage marks.
         if 'i' in elt.opts:
             elt.opts['i' + current_pos] = elt.opts.pop('i')
 
-        # Perhaps have ir for a reversed current?
-
+        # Reversed current.
+        if 'ir' in elt.opts:
+            elt.opts['i' + current_pos + '<'] = elt.opts.pop('ir')
 
         # Current, voltage, label options.
         # It might be better to allow any options and prune out
