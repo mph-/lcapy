@@ -459,7 +459,7 @@ class Netlist(object):
 
         opts = Opts(string)
 
-        parts = tuple(re.split(r'[\s]+', fields[0].strip()))
+        parts = tuple(re.split(r'[,]*[\s]+', fields[0].strip()))
         elt = NetElement(self, *(parts + args), **opts)
         return elt
 
