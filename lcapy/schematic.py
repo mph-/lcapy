@@ -62,7 +62,10 @@ class Opts(dict):
             arg = fields[1].strip() if len(fields) > 1 else ''
             self[key] = arg
 
-    def __init__(self, arg):
+    def __init__(self, arg=None):
+
+        if arg is None:
+            return
 
         if isinstance(arg, str):
             self._parse(arg)
@@ -71,10 +74,47 @@ class Opts(dict):
         for key, val in arg.iteritems():
             self[key] = val
 
+    @property
+    def size(self):
+
+        size = self.get('size', 1)
+        return float(size)
+
     def format(self):
 
         return ', '.join(['%s=%s' % (key, val)
                           for key, val in self.iteritems()])
+
+    def copy(self):
+        
+        return self.__class__(super(Opts, self).copy())
+
+    def strip(self, *args):
+
+        stripped = Opts()
+        for opt in args:
+            if opt in self:
+                stripped[opt] = self.pop(opt)        
+        return stripped
+
+    def strip_voltage_labels(self):
+
+        return self.strip('v', 'vr', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<')
+
+    def strip_current_labels(self):
+
+        return self.strip('i', 'ir', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
+                          'i>_', 'i<_', 'i>^', 'i<^')
+
+    def strip_labels(self):
+
+        return self.strip('l', 'l^', 'l_')
+
+    def strip_all_labels(self):
+
+        self.strip_voltage_labels()
+        self.strip_current_labels()
+        self.strip_labels()
 
 
 class EngFormat(object):
@@ -124,39 +164,6 @@ class EngFormat(object):
             string = string.rstrip('0').rstrip('.')
 
         return string + '\,' + r'\mbox{' + prefixes[idx] + self.unit + r'}'
-
-
-class Opts(dict):
-
-    def _parse(self, string):
-
-        for part in string.split(','):
-            part = part.strip()
-            if part == '':
-                continue
-
-            if part in ('up', 'down', 'left', 'right'):
-                self['dir'] = part
-                continue
-
-            fields = part.split('=')
-            key = fields[0].strip()
-            arg = fields[1].strip() if len(fields) > 1 else ''
-            self[key] = arg
-
-    def __init__(self, arg):
-
-        if isinstance(arg, str):
-            self._parse(arg)
-            return
-
-        for key, val in arg.iteritems():
-            self[key] = val
-
-    def format(self):
-
-        return ', '.join(['%s=%s' % (key, val)
-                          for key, val in self.iteritems()])
 
 
 class Cnodes(object):

@@ -539,11 +539,8 @@ class Netlist(object):
             self._open_counter = 0
         self._open_counter += 1
 
-        # Strip current labels.
-        for opt in ('l', 'l^', 'l_', 'i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
-                    'i>_', 'i<_', 'i>^', 'i<^'):
-            if opt in opts:
-                opts.pop(opt)
+        opts.strip_current_labels()
+        opts.strip_labels()
 
         net = 'P#%d %s %s ; %s' % (
             self._open_counter, node1, node2, opts.format())
@@ -557,10 +554,8 @@ class Netlist(object):
             self._short_counter = 0
         self._short_counter += 1
 
-        # Strip voltage labels.
-        for opt in ('l', 'l^', 'l_', 'v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
-            if opt in opts:
-                opts.pop(opt)
+        opts.strip_voltage_labels()
+        opts.strip_labels()
 
         net = 'W#%d %s %s ; %s' % (
             self._short_counter, node1, node2, opts.format())
@@ -937,22 +932,32 @@ class Netlist(object):
                     dummy_node, elt.nodes[1], elt.cpt.V(var), elt.opts)
                 new_elt.nodes = (elt.nodes[0], dummy_node)
 
-                # Strip voltage label.  TODO: show voltage label across
-                # both components.
-                for opt in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
-                    if opt in new_elt.opts:
-                        new_elt.opts.pop(opt)
+                # Strip voltage labels. 
+                voltage_opts = new_elt.opts.strip_voltage_labels()
 
-                # Strip voltage and current labels.
-                for opt in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
-                            'i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
-                            'i>_', 'i<_', 'i>^', 'i<^'):
-                    if opt in velt.opts:
-                        velt.opts.pop(opt)
+                # Strip voltage and current labels from voltage source.
+                velt.opts.strip_all_labels()
 
                 cct._elt_add(velt)
 
-            # TODO, make voltage and current labels uppercase.
+                if voltage_opts != {}:
+                    opts = elt.opts.copy()
+                    opts.strip_current_labels()
+                    # Need to convert voltage labels to s-domain.
+                    # v(t) -> V(s)
+                    # v_C -> V_C
+                    # v_L(t) -> V_L(s)
+                    for opt, val in voltage_opts.iteritems():
+                        opts[opt] = val.capitalize()
+
+                    open_elt = self._make_open(elt.nodes[0], elt.nodes[1], opts)
+                    cct._elt_add(open_elt)
+
+            # Make voltage and current labels uppercase.
+            for opt, val in new_elt.opts.strip_voltage_labels().iteritems():
+                new_elt.opts[opt] = val.capitalize()            
+            for opt, val in new_elt.opts.strip_current_labels().iteritems():
+                new_elt.opts[opt] = val.capitalize()            
             cct._elt_add(new_elt)
 
         return cct
