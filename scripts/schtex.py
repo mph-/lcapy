@@ -61,6 +61,10 @@ def main (argv=None):
                       dest='s_model', default=False,
                       help='generate s-domain model schematic')
 
+    parser.add_option('--ac-model', action='store_true',
+                      dest='ac_model', default=False,
+                      help='generate AC model schematic')
+
     parser.add_option('--p-model', action='store_true',
                       dest='p_model', default=False,
                       help='generate pre-initial model schematic')
@@ -95,6 +99,8 @@ def main (argv=None):
         cct = cct.kill()
     if options.s_model:
         cct = cct.s_model()
+    if options.ac_model:
+        cct = cct.ac_model()
     if options.p_model:
         cct = cct.pre_initial_model()
 
