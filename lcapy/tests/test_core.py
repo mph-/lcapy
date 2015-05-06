@@ -48,8 +48,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.N, (s + 2) * (s + 3), "N incorrect.")
         self.assertEqual2(a.D, s - 2, "D incorrect.")
 
+        # NB. we can't check the output of keys() directly
+        # as there is no guarantee of list order.
         self.assertEqual2(a.poles().keys(), [2], "poles incorrect.")
-        self.assertEqual2(a.zeros().keys(), [-2, -3], "zeros incorrect.")
+        self.assertEqual2(set(a.zeros().keys()), set([-2, -3]), "zeros incorrect.")
 
         self.assertEqual2(
             a.partfrac(), s + 7 + 20 / (s - 2), "partfrac incorrect.")
@@ -70,8 +72,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.N, s ** 2 + 5 * s + 6, "N incorrect.")
         self.assertEqual2(a.D, s - 2, "D incorrect.")
 
+        # NB. we can't check the output of keys() directly
+        # as there is no guarantee of list order.
         self.assertEqual2(a.poles().keys(), [2], "poles incorrect.")
-        self.assertEqual2(a.zeros().keys(), [-2, -3], "zeros incorrect.")
+        self.assertEqual2(set(a.zeros().keys()), set([-2, -3]), "zeros incorrect.")
 
         self.assertEqual2(
             a.partfrac(), s + 7 + 20 / (s - 2), "partfrac incorrect.")
@@ -95,7 +99,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.N, 1, "N incorrect.")
         self.assertEqual2(a.D, (s - j) * (s + j), "D incorrect.")
 
-        self.assertEqual2(a.poles().keys(), [-j, j], "poles incorrect.")
+        # NB. we can't check the output of keys() directly
+        # as there is no guarantee of list order.
+        self.assertEqual2(set(a.poles().keys()), set([-j, j]), "poles incorrect.")
         self.assertEqual2(a.zeros().keys(), [], "zeros incorrect.")
 
         # This depends on if 2 * (s + j) is expanded to 2 * s + 2 * j
@@ -121,8 +127,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.N, 1, "N incorrect.")
         self.assertEqual2(a.D, (s - j) * (s + j), "D incorrect.")
 
-        self.assertEqual2(a.poles().keys(), [-j, j], "poles incorrect.")
-        self.assertEqual2(a.zeros().keys(), [], "zeros incorrect.")
+        # NB. we can't check the output of keys() directly
+        # as there is no guarantee of list order.
+        self.assertEqual2(set(a.poles().keys()), set([-j, j]), "poles incorrect.")
+        self.assertEqual2(len(a.zeros().keys()), 0, "zeros incorrect.")
 
         # This depends on if 2 * (s + j) is expanded to 2 * s + 2 * j
         # self.assertEqual2(
@@ -181,11 +189,11 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.evaluate(2), 0.0, "scalar evaluate incorrect.")
         # Well, I reckon that the Laplace transfrom should integrate
-        # from 0- to ensure symmetry, but at the moment 0.5 is 
+        # from 0- to ensure symmetry, but at the moment 0.5 is
         # the correct answer.
         self.assertEqual(a.laplace(), 0.5, "Laplace transform incorrect.")
 
-    
+
     def test_jomega(self):
         """Lcapy: check jomega
 
@@ -219,6 +227,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a1, a2, "Substitution fail.")
 
-        a3 = s.subs({s: omega}) 
+        a3 = s.subs({s: omega})
         self.assertEqual(a1, a3, "Substitution fail with dict.")
 
