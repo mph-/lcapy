@@ -584,8 +584,10 @@ class Schematic(object):
 
     def __getitem__(self, name):
         """Return component by name"""
-
-        return self.elements[name]
+        try:
+            return self.elements[name]
+        except KeyError:
+            raise AttributeError('Unknown component %s' % name)
 
     def netfile_add(self, filename):
         """Add the nets from file with specified filename"""
