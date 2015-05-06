@@ -41,6 +41,12 @@ symbols = {}
 cpt_names = ('C', 'G', 'I', 'L', 'R', 'V', 'Y', 'Z')
 cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
 
+
+def uppercase_name(name):
+
+    return name[0].upper() + name[1:]
+
+
 def canonical_name(name):
 
     if name.find('_') != -1:
@@ -659,7 +665,7 @@ class Expr(object):
                 label += ' ' + self.part
         else:
             if hasattr(self, 'part'):
-                label += self.part.capitalize()
+                label += uppercase_name(self.part)
         if hasattr(self, 'units') and self.units != '':
             label += ' (%s)' % self.units
         return label
@@ -1235,7 +1241,7 @@ class tExpr(Expr):
             if (expr.nargs != 1) or (expr.args[0] != tsym):
                 raise TypeError(e)
             # Convert v(t) to V(s), etc.
-            name = expr.func.__name__.capitalize() + '(s)'
+            name = uppercase_name(expr.func.__name__) + '(s)'
             return sExpr(name)
 
         if hasattr(self, '_laplace_conjugate_class'):

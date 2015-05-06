@@ -33,7 +33,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 # numerical quantisation.
 
 from __future__ import division
-from lcapy.core import pprint, Hs, Zs, Ys, Expr, tsym, s, j, omega
+from lcapy.core import pprint, Hs, Zs, Ys, Expr, tsym, s, j, omega, uppercase_name
 from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep
 from lcapy.oneport import Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
@@ -243,7 +243,7 @@ class NetElement(object):
         if len(args) == 0:
             # Ensure symbol uppercase for s-domain value.
             if cpt_type in ('Vdc', 'Vac', 'Idc', 'Iac'):
-                value = value.capitalize()
+                value = uppercase_name(value)
 
             args = (value, )
 
@@ -948,16 +948,16 @@ class Netlist(object):
                     # v_C -> V_C
                     # v_L(t) -> V_L(s)
                     for opt, val in voltage_opts.iteritems():
-                        opts[opt] = val.capitalize()
+                        opts[opt] = uppercase_name(val)
 
                     open_elt = self._make_open(elt.nodes[0], elt.nodes[1], opts)
                     cct._elt_add(open_elt)
 
             # Make voltage and current labels uppercase.
             for opt, val in new_elt.opts.strip_voltage_labels().iteritems():
-                new_elt.opts[opt] = val.capitalize()            
+                new_elt.opts[opt] = uppercase_name(val)
             for opt, val in new_elt.opts.strip_current_labels().iteritems():
-                new_elt.opts[opt] = val.capitalize()            
+                new_elt.opts[opt] = uppercase_name(val)
             cct._elt_add(new_elt)
 
         return cct
