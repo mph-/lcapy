@@ -582,7 +582,12 @@ class Expr(object):
         # Perhaps should check if expr.args[1] == Heaviside('t') and not
         # evaluate if t < 0?
 
-        func = lambdify(self.var, self.expr, ("numpy", "sympy", "math"))
+        def Dirac(arg):
+
+            return np.inf if arg == 0.0 else 0.0
+
+        func = lambdify(self.var, self.expr, ({'DiracDelta' : Dirac},
+                                              "numpy", "sympy", "math"))
 
         if np.isscalar(arg):
             v1 = arg
