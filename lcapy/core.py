@@ -42,6 +42,41 @@ cpt_names = ('C', 'G', 'I', 'L', 'R', 'V', 'Y', 'Z')
 cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
 
 
+from sympy.printing.latex import LatexPrinter 
+from sympy.printing.pretty.pretty import PrettyPrinter 
+
+class LcapyLatexPrinter(LatexPrinter):
+
+    def _print(self, expr):
+
+        if hasattr(self, 'expr'):
+            expr = expr.expr
+
+        if expr == sym.I:
+            return "j"
+        return super(LcapyLatexPrinter, self)._print(expr)
+
+
+def latex(expr, **settings):
+    return LcapyLatexPrinter(settings).doprint(expr)
+
+
+class LcapyPrettyPrinter(PrettyPrinter):
+
+    def _print(self, expr):
+
+        if hasattr(self, 'expr'):
+            expr = expr.expr
+
+        if expr == sym.I:
+            return "j"
+        return super(LcapyPrettyPrinter, self)._print(expr)
+
+
+def pretty(expr, **settings):
+    return LcapyPrettyPrinter(settings).doprint(expr)
+
+
 def uppercase_name(name):
 
     return name[0].upper() + name[1:]
@@ -122,12 +157,12 @@ class Exprdict(dict):
     def pprint(self):
         """Pretty print"""
 
-        return sym.pprint(self)
+        return pprint(self)
 
     def latex(self):
         """Latex"""
 
-        return latex_str(sym.latex(self))
+        return latex_str(latex(self))
 
 
 class Expr(object):
@@ -372,7 +407,7 @@ class Expr(object):
     def latex(self):
         """Make latex string"""
 
-        string = sym.latex(self.expr)
+        string = latex(self.expr)
         # sympy uses theta for Heaviside
         return latex_str(string).replace(r'\theta\left', r'u\left')
 
@@ -381,7 +416,7 @@ class Expr(object):
 
         expr = sym.Eq(sympify(name), self.expr)
 
-        return latex_str(sym.latex(expr))
+        return latex_str(latex(expr))
 
     @property
     def N(self):
@@ -1297,20 +1332,20 @@ def pprint(expr):
     print(pretty(expr))
 
 
-def pretty(expr):
+# def pretty(expr):
 
-    if hasattr(expr, 'pretty'):
-        return expr.pretty()
-    else:
-        return sym.pretty(expr)
+#     if hasattr(expr, 'pretty'):
+#         return expr.pretty()
+#     else:
+#         return sym.pretty(expr)
 
 
-def latex(expr):
-
-    if hasattr(expr, 'latex'):
-        return latex_str(expr.latex())
-    else:
-        return latex_str(sym.latex(expr))
+# def latex(expr):
+#
+#     if hasattr(expr, 'latex'):
+#         return latex_str(expr.latex())
+#     else:
+#         return latex_str(sym.latex(expr))
 
 
 class Matrix(sym.Matrix):
@@ -1341,11 +1376,11 @@ class Matrix(sym.Matrix):
 
     def pprint(self):
 
-        return sym.pprint(self)
+        return pprint(self)
 
     def latex(self):
 
-        return sym.latex(self)
+        return latex(self)
 
     def _reformat(self, method):
         """Helper method for reformatting expression"""
