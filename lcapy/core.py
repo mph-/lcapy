@@ -49,7 +49,7 @@ class LcapyLatexPrinter(LatexPrinter):
 
     def _print(self, expr):
 
-        if hasattr(self, 'expr'):
+        if hasattr(expr, 'expr'):
             expr = expr.expr
 
         if expr == sym.I:
@@ -65,11 +65,11 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
     def _print(self, expr):
 
-        if hasattr(self, 'expr'):
+        if hasattr(expr, 'expr'):
             expr = expr.expr
 
         if expr == sym.I:
-            return "j"
+            return self._print_basestring("j")
         return super(LcapyPrettyPrinter, self)._print(expr)
 
 
@@ -384,12 +384,12 @@ class Expr(object):
 
     def pretty(self):
         """Make pretty string"""
-        return sym.pretty(self.expr)
+        return pretty(self.expr)
 
     def prettyans(self, name):
         """Make pretty string with LHS name"""
 
-        return sym.pretty(sym.Eq(sympify(name), self.expr))
+        return pretty(sym.Eq(sympify(name), self.expr))
 
     def pprint(self):
         """Pretty print"""
@@ -1335,22 +1335,6 @@ j = sym.I
 def pprint(expr):
 
     print(pretty(expr))
-
-
-# def pretty(expr):
-
-#     if hasattr(expr, 'pretty'):
-#         return expr.pretty()
-#     else:
-#         return sym.pretty(expr)
-
-
-# def latex(expr):
-#
-#     if hasattr(expr, 'latex'):
-#         return latex_str(expr.latex())
-#     else:
-#         return latex_str(sym.latex(expr))
 
 
 class Matrix(sym.Matrix):
