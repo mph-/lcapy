@@ -364,7 +364,7 @@ class Netlist(object):
         if name in self.elements:
             return self.elements[name]
 
-        raise ValueError('Unknown element or node name %s' % name)
+        raise AttributeError('Unknown element or node name %s' % name)
 
 
     def __getattr__(self, attr):

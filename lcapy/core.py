@@ -196,10 +196,19 @@ class Expr(object):
 
         expr = self.expr
         if hasattr(expr, attr):
+            a = getattr(expr, attr)
 
+            # If it is not callable, directly wrap it.
+            if not hasattr(a, '__call__'):
+                if not isinstance(a, sym.Expr):
+                    return a
+                return self.__class__(ret)
+
+            # If it is callable, create a function to pass arguments
+            # through and wrap its return value.
             def wrap(*args):
+                ret = a(*args)
 
-                ret = getattr(expr, attr)(*args)
                 if not isinstance(ret, sym.Expr):
                     return ret
 
