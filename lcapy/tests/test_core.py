@@ -13,8 +13,8 @@ class LcapyTester(unittest.TestCase):
         try:
             self.assertEqual(ans1, ans2, comment)
         except AssertionError as e:
-            ans1.pprint()
-            ans2.pprint()
+            pprint(ans1)
+            pprint(ans2)
             raise AssertionError(e)
 
     def test_sExpr1(self):
@@ -51,7 +51,7 @@ class LcapyTester(unittest.TestCase):
         # NB. we can't check the output of keys() directly
         # as there is no guarantee of list order.
         self.assertEqual2(a.poles().keys(), [2], "poles incorrect.")
-        self.assertEqual2(set(a.zeros().keys()), set([-2, -3]), "zeros incorrect.")
+        self.assertEqual2(sorted(a.zeros().keys()), [-3.0, -2.0], "zeros incorrect.")
 
         self.assertEqual2(
             a.partfrac(), s + 7 + 20 / (s - 2), "partfrac incorrect.")
@@ -75,7 +75,7 @@ class LcapyTester(unittest.TestCase):
         # NB. we can't check the output of keys() directly
         # as there is no guarantee of list order.
         self.assertEqual2(a.poles().keys(), [2], "poles incorrect.")
-        self.assertEqual2(set(a.zeros().keys()), set([-2, -3]), "zeros incorrect.")
+        self.assertEqual2(sorted(a.zeros().keys()), [-3, -2], "zeros incorrect.")
 
         self.assertEqual2(
             a.partfrac(), s + 7 + 20 / (s - 2), "partfrac incorrect.")
