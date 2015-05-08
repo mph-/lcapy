@@ -542,7 +542,7 @@ class Netlist(object):
         opts.strip_current_labels()
         opts.strip_labels()
 
-        net = 'P#%d %s %s ; %s' % (
+        net = 'O#%d %s %s ; %s' % (
             self._open_counter, node1, node2, opts.format())
 
         return self.net_parse(net)
