@@ -62,6 +62,7 @@ cpt_types = ['C',  # Capacitor
              'P',  # Port (open-circuit)
              'Q',  # BJT (not supported)
              'R',  # Resistor
+             'SW',  # Switch
              'TF',  # Ideal transformer (even works at DC!)
              'TP',  # Two-port (not supported yet)
              'V',  # Voltage
@@ -121,6 +122,7 @@ cpt_type_map = {'R': R, 'C': C, 'L': L, 'Z': Z, 'Y': Y,
                 'O' : None, 'P': None, 'W': None,
                 'E': VCVS, 'TF': TF, 'TP': TP, 'K': K,
                 'D' : Dummy, 'J' : Dummy, 'M': Dummy, 'Q': Dummy,
+                'SW' : Dummy, 'SWno' : Dummy, 'SWnc' : Dummy, 
                 'opamp': VCVS}
 
 
@@ -214,6 +216,9 @@ class NetElement(object):
             elif cpt_type == 'E' and args[0] == 'opamp':
                 cpt_type = 'opamp'
                 args = args[1:]
+            elif cpt_type == 'SW' and args[0] in ('nc', 'no'):
+                cpt_type = cpt_type + args[0]
+                args = args[1:]                
 
         if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP', 'opamp'):
             if len(args) < 2:

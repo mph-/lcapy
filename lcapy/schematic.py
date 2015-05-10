@@ -33,7 +33,7 @@ __all__ = ('Schematic', )
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
 cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'O', 'P', 'E', 
-             'D', 'J', 'M', 'Q', 'TF', 'TP', 'K']
+             'D', 'J', 'M', 'Q', 'SW', 'TF', 'TP', 'K']
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 
 cpt_type_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_types))
@@ -450,6 +450,9 @@ class NetElement(object):
             elif cpt_type == 'E' and args[0] == 'opamp':
                 cpt_type = 'opamp'
                 args = args[1:]
+            elif cpt_type == 'SW' and args[0] in ('nc', 'no'):
+                cpt_type = cpt_type + args[0]
+                args = args[1:]                
 
         # Tuple of nodes
         self.nodes = (n1, n2)
@@ -1194,7 +1197,10 @@ class Schematic(object):
                         'O' : 'open', 'P': 'open', 'W': 'short',
                         'TF': 'transformer', 'D' : 'D',
                         'Z': 'Z', 'Y': 'Y',
-                        'E' : 'american controlled voltage source'}
+                        'E' : 'american controlled voltage source',
+                        'SWnc' : 'opening switch', 
+                        'SWno' : 'closing switch',
+                        'SW' : 'closing switch'}
 
         cpt_type = cpt_type_map[elt.cpt_type]
         if cpt_type == 'R' and 'variable' in elt.opts:
