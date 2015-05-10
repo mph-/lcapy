@@ -123,7 +123,7 @@ cpt_type_map = {'R': R, 'C': C, 'L': L, 'Z': Z, 'Y': Y,
                 'E': VCVS, 'TF': TF, 'TP': TP, 'K': K,
                 'D' : Dummy, 'J' : Dummy, 'M': Dummy, 'Q': Dummy,
                 'SW' : Dummy, 'SWno' : Dummy, 'SWnc' : Dummy, 
-                'opamp': VCVS}
+                'SWpush' : Dummy, 'opamp': VCVS}
 
 
 # Regular expression alternate matches stop with first match so need
@@ -216,7 +216,7 @@ class NetElement(object):
             elif cpt_type == 'E' and args[0] == 'opamp':
                 cpt_type = 'opamp'
                 args = args[1:]
-            elif cpt_type == 'SW' and args[0] in ('nc', 'no'):
+            elif cpt_type == 'SW' and args[0] in ('nc', 'no', 'push'):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]                
 

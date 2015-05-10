@@ -450,7 +450,7 @@ class NetElement(object):
             elif cpt_type == 'E' and args[0] == 'opamp':
                 cpt_type = 'opamp'
                 args = args[1:]
-            elif cpt_type == 'SW' and args[0] in ('nc', 'no'):
+            elif cpt_type == 'SW' and args[0] in ('nc', 'no', 'push'):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]                
 
@@ -1198,9 +1198,8 @@ class Schematic(object):
                         'TF': 'transformer', 'D' : 'D',
                         'Z': 'Z', 'Y': 'Y',
                         'E' : 'american controlled voltage source',
-                        'SWnc' : 'opening switch', 
-                        'SWno' : 'closing switch',
-                        'SW' : 'closing switch'}
+                        'SWnc' : 'opening switch', 'SWno' : 'closing switch',
+                        'SW' : 'closing switch', 'SWpush' : 'push button'}
 
         cpt_type = cpt_type_map[elt.cpt_type]
         if cpt_type == 'R' and 'variable' in elt.opts:
