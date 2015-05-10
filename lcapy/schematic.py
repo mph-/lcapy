@@ -59,7 +59,7 @@ class Opts(dict):
 
             fields = part.split('=')
             key = fields[0].strip()
-            arg = fields[1].strip() if len(fields) > 1 else ''
+            arg = '='.join(fields[1:]).strip() if len(fields) > 1 else ''
             self[key] = arg
 
     def __init__(self, arg=None):
@@ -1182,7 +1182,7 @@ class Schematic(object):
             s += r'  \draw (%s) node[%s] {};''\n' % (pos, args_str)
 
             if 'l' in elt.opts:
-                label_str = '$%s$' % latex_str(elt.opts['l'])
+                label_str = '${%s}$' % latex_str(elt.opts['l'])
                 s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (anchor, n2, label_str)
             return s
 
@@ -1257,11 +1257,11 @@ class Schematic(object):
         for key, val in elt.opts.iteritems():
             if key in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
                        'i>_', 'i<_', 'i>^', 'i<^'):
-                current_str += '%s=$%s$, ' % (key, latex_str(val))
+                current_str += '%s=${%s}$, ' % (key, latex_str(val))
             elif key in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
-                voltage_str += '%s=$%s$, ' % (key, latex_str(val))
+                voltage_str += '%s=${%s}$, ' % (key, latex_str(val))
             elif key in ('l', 'l^', 'l_'):
-                label_str += '%s=$%s$, ' % (key, latex_str(val))
+                label_str += '%s=${%s}$, ' % (key, latex_str(val))
             elif key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
@@ -1273,11 +1273,10 @@ class Schematic(object):
         if label_str == '':
             if cpt_type not in ('open', 'short'):
                 
-                label_str = ', l%s=$%s$' % (id_pos, elt.default_label)
+                label_str = ', l%s=${%s}$' % (id_pos, elt.default_label)
                 
                 if label_ids and elt.value_label != '':
-                    label_str += r', l%s={$%s$\\$%s$}' % (id_pos, elt.id_label,
-                                                          elt.value_label)
+                    label_str += r', l%s={$%s$\\${%s}$}' % (id_pos, elt.id_label, elt.value_label)
         else:
             label_str = ', ' + label_str
 
@@ -1285,7 +1284,7 @@ class Schematic(object):
             label_str = ''
 
         if not label_values and label_ids:
-            label_str = ', l%s=$%s$' % (id_pos, elt.id_label)
+            label_str = ', l%s=${%s}$' % (id_pos, elt.id_label)
 
         if cpt_type in ('Y', 'Z'):
             cpt_type = 'european resistor'
