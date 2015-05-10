@@ -247,7 +247,7 @@ class Expr(object):
 
     def _repr_pretty_(self, p, cycle):
 
-        p.pretty(self.expr)
+        p.text(pretty(self.expr))
 
     def _repr_latex_(self):
 
