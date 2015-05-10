@@ -133,14 +133,18 @@ class EngFormat(object):
         value = self.value
         m = math.log10(abs(value))
 
-        if hundreds:
-            # Generate 100 m
-            n = int(math.floor(m / 3))
-            k = int(math.floor(m)) - n * 3
+        if m < -1 or m >= 3.0:
+            if hundreds:
+                # Generate 100 m
+                n = int(math.floor(m / 3))
+                k = int(math.floor(m)) - n * 3
+            else:
+                # Generate 0.1
+                n = int(round(m / 3))
+                k = int(round(m)) - n * 3
         else:
-            # Generate 0.1
-            n = int(round(m / 3))
-            k = int(round(m)) - n * 3
+            n = 0
+            k = m - 1
 
         dp = sfmax - k
 
