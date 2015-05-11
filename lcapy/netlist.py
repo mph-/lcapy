@@ -300,25 +300,25 @@ class NetElement(object):
     def I(self):
         """Current through element"""
 
-        return self.cct.I[self.name]
+        return self.cct._I[self.name]
 
     @property
     def i(self):
         """Time-domain current through element"""
 
-        return self.cct.i[self.name]
+        return self.cct._i[self.name]
 
     @property
     def V(self):
         """Voltage drop across element"""
 
-        return self.cct.V[self.name]
+        return self.cct._V[self.name]
 
     @property
     def v(self):
         """Time-domain voltage drop across element"""
 
-        return self.cct.v[self.name]
+        return self.cct._v[self.name]
 
     @property
     def Y(self):
@@ -620,43 +620,43 @@ class Netlist(object):
         return self._MNA
 
     @property
-    def V(self):
+    def _V(self):
         """Return dictionary of s-domain node voltages indexed by node name
         and voltage differences indexed by branch name"""
 
         return self.MNA.V
 
     @property
-    def I(self):
+    def _I(self):
         """Return dictionary of s-domain branch currents
         indexed by component name"""
 
         return self.MNA.I
 
     @property
-    def v(self):
+    def _v(self):
         """Return dictionary of t-domain node voltages indexed by node name
         and voltage differences indexed by branch name"""
 
         if not hasattr(self, '_v'):
-            self._v = Ldict(self.V)
+            self._v = Ldict(self._V)
 
         return self._v
 
     @property
-    def i(self):
+    def _i(self):
         """Return dictionary of t-domain branch currents indexed
         by component name"""
 
         if not hasattr(self, '_i'):
-            self._i = Ldict(self.I)
+            self._i = Ldict(self._I)
 
         return self._i
 
     def Voc(self, Np, Nm):
         """Return open-circuit s-domain voltage between nodes Np and Nm."""
 
-        return self.V[Np] - self.V[Nm]
+        return self._V[Np] - self._V[Nm]
 
     def voc(self, Np, Nm):
         """Return open-circuit t-domain voltage between nodes Np and Nm."""
@@ -668,7 +668,7 @@ class Netlist(object):
 
         self.add('Vshort_ %d %d' % (Np, Nm), 0)
 
-        Isc = self.I['Vshort_']
+        Isc = self._I['Vshort_']
         self.remove('Vshort_')
 
         return Isc
@@ -767,11 +767,11 @@ class Netlist(object):
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
-            A11 = Hs(self.V['V1_'] / self.Voc(N2p, N2m))
+            A11 = Hs(self.V1_.V / self.Voc(N2p, N2m))
 
             # A12 = V1 / I2 with V2 = 0
             # Apply V1 and measure I2 with port 2 short-circuit
-            A12 = Zs(self.V['V1_'] / self.Isc(N2p, N2m))
+            A12 = Zs(self.V1_.V / self.Isc(N2p, N2m))
 
             self.remove('V1_')
 
@@ -779,11 +779,11 @@ class Netlist(object):
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
-            A21 = Ys(-self.I['I1_'] / self.Voc(N2p, N2m))
+            A21 = Ys(-self._I['I1_'] / self.Voc(N2p, N2m))
 
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure I2 with port 2 short-circuit
-            A22 = Hs(-self.I['I1_'] / self.Isc(N2p, N2m))
+            A22 = Hs(-self._I['I1_'] / self.Isc(N2p, N2m))
 
             self.remove('I1_')
             return AMatrix(A11, A12, A21, A22)
