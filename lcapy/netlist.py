@@ -397,17 +397,17 @@ class Netlist(object):
 
         lines = ''
         for key, elt in self.elements.iteritems():
-            newelt = copy(elt)
+            new_elt = copy(elt)
 
             if not full:
-                newelt.nodes = tuple([self.node_map[node]
+                new_elt.nodes = tuple([self.node_map[node]
                                       for node in elt.nodes])
                 if elt._is_dummy:
                     continue
 
-            line = newelt.__str__()
+            line = new_elt.__str__()
             if full:
-                optstr = newelt.opts.format()
+                optstr = new_elt.opts.format()
                 if optstr != '':
                     line += ' ; ' + optstr
 
@@ -798,16 +798,16 @@ class Netlist(object):
         for key, elt in self.elements.iteritems():
             if key in sourcenames:
                 if elt._is_I:
-                    newelt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
+                    new_elt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
                 elif elt._is_V:
-                    newelt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
+                    new_elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
                 else:
                     raise ValueError('Element %s is not a source' % key)
             else:
-                newelt = copy(elt)             
-                newelt.cct = new
+                new_elt = copy(elt)             
+                new_elt.cct = new
    
-            new._elt_add(newelt)
+            new._elt_add(new_elt)
 
         return new        
 
@@ -902,7 +902,9 @@ class Netlist(object):
             elif elt.cpt_type in ('L', 'Vstep', 'Vacstep', 'V', 'v',
                                   'Vac', 'Vimpulse'):
                 elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
-            new_cct._elt_add(elt)
+            new_elt = copy(elt)             
+            new_elt.cct = new_cct
+            new_cct._elt_add(new_elt)
 
         return new_cct
 
@@ -912,8 +914,6 @@ class Netlist(object):
         cct._s_model = True
 
         for key, elt in self.elements.iteritems():
-
-            new_elt = copy(elt)
 
             cpt_type = elt.cpt_type
 
@@ -928,6 +928,9 @@ class Netlist(object):
                               'Istep', 'Iacstep'):
                 new_elt = self._make_I(
                     elt.nodes[0], elt.nodes[1], elt.cpt.I(var), elt.opts)
+            else:
+                new_elt = copy(elt)
+                new_elt.cct = cct
 
             if cpt_type in ('C', 'L', 'R') and elt.cpt.V != 0:
 
