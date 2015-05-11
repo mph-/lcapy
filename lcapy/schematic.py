@@ -1280,7 +1280,7 @@ class Schematic(object):
                 label_str = ', l%s=${%s}$' % (id_pos, elt.default_label)
                 
                 if label_ids and elt.value_label != '':
-                    label_str += r', l%s={$%s$\\${%s}$}' % (id_pos, elt.id_label, elt.value_label)
+                    label_str = r', l%s=${%s=%s}$' % (id_pos, elt.id_label, elt.value_label)
         else:
             label_str = ', ' + label_str
 
