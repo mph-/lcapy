@@ -1,5 +1,4 @@
-"""
-This module provides circuit analysis using modified nodal analysis
+"""This module provides circuit analysis using modified nodal analysis
 (MNA).
 
 The circuit is described using netlists, similar to SPICE, but with
@@ -12,20 +11,22 @@ example:
 >>> cct.add('V_s fred 0')
 >>> cct.add('R_a fred 1')
 >>> cct.add('R_b 1 0')
->>> cct.V.pprint()
->>> cct.I.pprint()
 
-cct.V is a directory of the nodal voltages keyed by the node names.
-If the nodes are not integers, they need to specified as strings.
-cct.I is a directory of the currents through the components keyed by
-the component names.  For example,
+Branch currents and branch voltage differences can be found using the
+component name as an attribute, for example,
 
->>> cct.V['fred'].pprint()
->>> cct.V[1].pprint()
->>> cct.I['R1'].pprint()
+>>> cct.V_s.V.pprint()
+>>> cct.R_a.I.pprint()
+
+Nodal voltages (with respect to the ground node) can be found using
+the node name or number as index, for example,
+
+>>> cct['fred'].V.pprint()
+>>> cct[1].V.pprint()
 
 
 Copyright 2014, 2015 Michael Hayes, UCECE
+
 """
 
 # TODO: Add option to defer evaluation and thus keep things symbolic.
@@ -638,20 +639,20 @@ class Netlist(object):
         """Return dictionary of t-domain node voltages indexed by node name
         and voltage differences indexed by branch name"""
 
-        if not hasattr(self, '_v'):
-            self._v = Ldict(self._V)
+        if not hasattr(self, '_vcache'):
+            self._vcache = Ldict(self._V)
 
-        return self._v
+        return self._vcache
 
     @property
     def _i(self):
         """Return dictionary of t-domain branch currents indexed
         by component name"""
 
-        if not hasattr(self, '_i'):
-            self._i = Ldict(self._I)
+        if not hasattr(self, '_icache'):
+            self._icache = Ldict(self._I)
 
-        return self._i
+        return self._icache
 
     def Voc(self, Np, Nm):
         """Return open-circuit s-domain voltage between nodes Np and Nm."""
@@ -702,7 +703,7 @@ class Netlist(object):
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
         new.add('Vin_ %d %d s 1' % (Np, Nm))
-        If = -new.I['Vin_']
+        If = -new.Vin_.I
         new.remove('Vin_')
 
         return Ys(If)
