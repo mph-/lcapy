@@ -1,4 +1,4 @@
-from lcapy import Circuit, R, C, V, I, v
+from lcapy import Circuit, R, C, L, V, I, v
 from lcapy.core import Zs
 import unittest
 import sympy as sym
@@ -41,8 +41,8 @@ class LcapyTester(unittest.TestCase):
             a.Y(1, 0), (R('R1') + C('C1')).Y, "Y incorrect for R1 + C1.")
         self.assertEqual2(a.Isc(1, 0), I(0).I, "Isc incorrect")
 
-    def test_VRL1(self):
-        """Lcapy: check VRL circuit
+    def test_VRC1(self):
+        """Lcapy: check VRC circuit
 
         """
         a = Circuit()
@@ -61,6 +61,32 @@ class LcapyTester(unittest.TestCase):
             a.Y(1, 2), (R('R1') | C('C1')).Y, "Y incorrect across R1")
         self.assertEqual2(
             a.Y(2, 0), (R('R1') | C('C1')).Y, "Y incorrect across C1")
+        # This has a non-invertible A matrix.
+        # self.assertEqual2(a.Y(1, 0), R(0).Y, "Y incorrect across V1")
+
+        self.assertEqual2(a.Voc(1, 0), V('V1').V, "Voc incorrect across V1")
+
+
+    def test_VRL1(self):
+        """Lcapy: check VRL circuit
+
+        """
+        a = Circuit()
+        a.add('V1 1 0')
+        a.add('R1 1 2')
+        a.add('L1 2 0')
+
+        # Note, V1 acts as a short-circuit for the impedance/admittance
+        self.assertEqual2(
+            a.Z(1, 2), (R('R1') | L('L1')).Z, "Z incorrect across R1")
+        self.assertEqual2(
+            a.Z(2, 0), (R('R1') | L('L1')).Z, "Z incorrect across L1")
+        self.assertEqual2(a.Z(1, 0), R(0).Z, "Z incorrect across V1")
+
+        self.assertEqual2(
+            a.Y(1, 2), (R('R1') | L('L1')).Y, "Y incorrect across R1")
+        self.assertEqual2(
+            a.Y(2, 0), (R('R1') | L('L1')).Y, "Y incorrect across L1")
         # This has a non-invertible A matrix.
         # self.assertEqual2(a.Y(1, 0), R(0).Y, "Y incorrect across V1")
 

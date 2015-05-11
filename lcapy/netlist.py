@@ -144,6 +144,7 @@ class Node(object):
         parts = name.split('_')
         self.rootname = parts[0] if name[0] != '_' else name
         self.primary = len(parts) == 1
+        # List of elements connected to this node.
         self.list = []
 
     @property
@@ -453,8 +454,14 @@ class Netlist(object):
         if elt.cpt_type == 'K':
             return
 
-        self._node_add(elt.nodes[0], elt)
-        self._node_add(elt.nodes[1], elt)
+        n1, n2 = elt.nodes[0:2]
+
+        if elt.cpt_type != 'W' and (
+                Node(self, n1).rootname == Node(self, n2).rootname):
+            raise ValueError('Component %s shorted by implicitly linked nodes %s and %s' % (elt.name, n1, n2))
+
+        self._node_add(n1, elt)
+        self._node_add(n2, elt)
 
     def net_parse(self, string, *args):
 
