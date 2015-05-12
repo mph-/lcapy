@@ -78,8 +78,7 @@ frequency domain by substituting :math:`j \omega` for :math:`s`:
    ───────
    ⅈ⋅ω - 4
 
-Note, the imaginary unit j is printed as i by Sympy.  Also note, real
-numbers are approximated by rationals.
+Also note, real numbers are approximated by rationals.
 
 Lcapy expressions have a number of attributes, including:
 
