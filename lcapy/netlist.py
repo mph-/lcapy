@@ -151,13 +151,13 @@ class Node(object):
     def V(self):
         """Node voltage with respect to ground"""
 
-        return self.cct.V[self.name]
+        return self.cct._V[self.name]
 
     @property
     def v(self):
         """Node time-domain voltage with respect to ground"""
 
-        return self.cct.v[self.name]
+        return self.cct._v[self.name]
 
     def append(self, elt):
 
