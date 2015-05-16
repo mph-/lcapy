@@ -441,6 +441,10 @@ class Netlist(object):
 
     def _elt_add(self, elt):
 
+        # Check that this name won't conflict with an attr.
+        if hasattr(self, elt.name):
+            raise ValueError('Invalid component name %s' % elt.name)
+
         if elt.name in self.elements:
             print('Overriding component %s' % elt.name)
             # Need to search lists and update component.
