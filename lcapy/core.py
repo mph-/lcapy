@@ -25,7 +25,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'symbol', 'sympify',
            'zp2tf', 'Expr', 's', 'sExpr', 't', 'tExpr', 'f', 'fExpr', 'cExpr',
            'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'tan', 'atan', 'atan2',
-           'exp', 'sqrt', 'log', 'log10', 'gcd',
+           'exp', 'sqrt', 'log', 'log10', 'gcd', 'oo', 'inf',
            'H', 'Heaviside', 'DiracDelta', 'j', 'u', 'delta',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector',
            'Hs', 'Is', 'Vs', 'Ys', 'Zs',
@@ -574,13 +574,20 @@ class Expr(object):
         return self.expr.is_constant()
 
     def evaluate(self, arg=None):
-        """Evaluate expression at arg.
-        arg may be a scalar, or a vector.
+        """Evaluate expression at arg.  arg may be a scalar, or a vector.
+
+        There can be no symbols in the expression except for the variable.
 
         Note, expressions such as exp(-alpha*t) * Heaviside(t) will
         not evaluate correctly since the exp will overflow for -t and
         produce an Inf.  When this is multiplied by 0 from the
         Heaviside function we get Nan. """
+
+        free_symbols = self.expr.free_symbols
+        if self.var in free_symbols:
+            free_symbols -= set((self.var, ))
+        if free_symbols != set():
+            raise ValueError('Undefined symbols %s in expression %s' % (tuple(free_symbols), self.var))
 
         if arg is None:
             if self.expr.find(self.var) != set():
@@ -604,27 +611,28 @@ class Expr(object):
             v1 = arg[0]
 
         try:
-            response = func(v1)
-
+            response = complex(func(v1))
         except NameError:
             raise RuntimeError('Cannot evaluate expression %s' % self)
-
         except AttributeError:
             raise RuntimeError(
                 'Cannot evaluate expression %s,'
                 ' probably have undefined symbols, such as Dirac delta' % self)
 
         if np.isscalar(arg):
+            if np.allclose(response.imag, 0.0):
+                response = response.real
             return response
 
         try:
-            response = [func(v1) for v1 in arg]
-            response = np.array(response)
+            response = np.array([complex(func(v1)) for v1 in arg])
         except TypeError:
             raise TypeError(
                 'Cannot evaluate expression %s,'
                 ' probably have undefined symbols' % self)
 
+        if np.allclose(response.imag, 0.0):
+            response = response.real
         return response
 
     def __subs1__(self, old, new, **kwargs):
@@ -676,11 +684,18 @@ class Expr(object):
         return cls(self.expr.subs(old, expr))
 
     def __call__(self, arg):
-        """Substitute arg for variable.  If arg is an tuple, list, or array,
-        evaluate."""
+        """Substitute arg for variable.  If arg is an tuple or list
+        return a list.  If arg is an numpy array, return
+        numpy array.
 
-        if isinstance(arg, (tuple, list, np.ndarray)):
-            return self.evaluate(arg)
+        See also evaluate.
+        """
+
+        if isinstance(arg, (tuple, list)):
+            return [self.__subs1__(self.var, arg1) for arg1 in arg]
+
+        if isinstance(arg, np.ndarray):
+            return np.array([self.__subs1__(self.var, arg1) for arg1 in arg])
 
         return self.__subs1__(self.var, arg)
 
@@ -1117,18 +1132,31 @@ class sExpr(sfwExpr):
     def response(self, x, t):
         """Evaluate response to input signal x at times t"""
 
+        if len(x) != len(t):
+            raise ValueError('x must have same length as t')
+
+        dt = t[1] - t[0]
+        if not np.allclose(np.diff(t), np.ones(len(t) - 1) * dt):
+            raise (ValueError, 't values not equally spaced')
+
         N, D, delay = self._as_ratfun_delay()
 
         Q, M = N.div(D)
         expr = M / D
 
-        h = sExpr(expr).transient_response(t)
-        y = np.convolve(x, h)
+        N = len(t)
+
+        # Evaluate transient response.
+        th = np.arange(N) * dt - dt
+        h = sExpr(expr).transient_response(th)
+
+        print('Convolving...')
+        ty = t
+        y = np.convolve(x, h)[0:N] * dt
 
         if Q:
-            # Handle Dirac Deltas and derivatives.
+            # Handle Dirac deltas and their derivatives.
             C = Q.all_coeffs()
-            dt = np.diff(t)
             for n, c in enumerate(C):
 
                 y += c * x
@@ -1138,10 +1166,11 @@ class sExpr(sfwExpr):
 
         from scipy.interpolate import interp1d
 
-        # Try linear interpolation; should oversample first...
-        y = interp1d(t, y, bounds_error=False, fill_value=0)
-        td = t - delay
-        y = y(td)
+        if delay != 0.0:
+            print('Interpolating...')
+            # Try linear interpolation; should oversample first...
+            y = interp1d(ty, y, bounds_error=False, fill_value=0)
+            y = y(t - delay)
 
         return y
 
@@ -1306,13 +1335,6 @@ class tExpr(Expr):
             F = self._fourier_conjugate_class(F)
         return F
 
-    def evaluate(self, tvector):
-
-        response = super(tExpr, self).evaluate(tvector)
-        if np.iscomplexobj(response) and np.allclose(response.imag, 0.0):
-            response = response.real
-        return response
-
     def plot(self, t=None, **kwargs):
 
         from lcapy.plot import plot_time
@@ -1339,6 +1361,8 @@ f = fExpr('f', real=True)
 omega = omegaExpr('omega', real=True)
 pi = sym.pi
 j = sym.I
+oo = sym.oo
+inf = sym.oo
 
 
 def pprint(expr):
