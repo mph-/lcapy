@@ -102,3 +102,5 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 0 1')
 
         self.assertEqual2(a.R1.V, V(2).V, "Incorrect voltage")
+
+        self.assertEqual2(a[1].V, V(2).V, "Incorrect node voltage")

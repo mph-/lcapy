@@ -744,6 +744,15 @@ class Expr(object):
             label += ' (%s)' % self.domain_units
         return label
 
+    def differentiate(self, arg=None):
+
+        if arg is None:
+            arg = self.var
+        return self.__class__(sym.diff(self.expr, arg))
+
+    def diff(self, arg=None):
+
+        return self.differentiate(arg)
 
 class sfwExpr(Expr):
 
@@ -1047,7 +1056,7 @@ class sExpr(sfwExpr):
                     r_im = sym.im(r)
                     etd = sym.exp(p_re * td)
                     result2 += 2 * r_re * etd * sym.cos(p_im * td)
-                    result2 += 2 * r_im * etd * sym.sin(p_im * td)
+                    result2 -= 2 * r_im * etd * sym.sin(p_im * td)
                 else:
                     result2 += r * sym.exp(p * td)
                 continue
