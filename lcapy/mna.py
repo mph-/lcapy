@@ -341,7 +341,7 @@ class MNA(object):
         self._Es = sym.zeros(num_branches, 1)
 
         for elt in self.elements.values():
-            if elt._is_V:
+            if elt._is_V or elt._is_E:
                 self._V_stamp(elt)
             elif elt._is_I:
                 self._I_stamp(elt)

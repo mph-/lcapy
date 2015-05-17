@@ -34,7 +34,8 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 # numerical quantisation.
 
 from __future__ import division
-from lcapy.core import pprint, Hs, Zs, Ys, Expr, tsym, s, j, omega, uppercase_name
+from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym
+from lcapy.core import s, j, omega, uppercase_name
 from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep
 from lcapy.oneport import Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
@@ -276,7 +277,12 @@ class NetElement(object):
     @property
     def _is_V(self):
 
-        return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep, VCVS, TF))
+        return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep))
+
+    @property
+    def _is_E(self):
+
+        return isinstance(self.cpt, (VCVS, TF))
 
     @property
     def _is_I(self):
@@ -287,6 +293,11 @@ class NetElement(object):
     def _is_RC(self):
 
         return isinstance(self.cpt, (R, G, C))
+
+    @property
+    def _is_C(self):
+
+        return isinstance(self.cpt, C)
 
     @property
     def _is_L(self):
@@ -340,6 +351,8 @@ class Netlist(object):
     def __init__(self, filename=None):
 
         self.elements = {}
+        # Independent current and voltage sources.  This does not include
+        # implicit sources due to initial conditions.
         self.sources = {}
         self.nodes = {}
         # Shared nodes (with same voltage)
@@ -451,7 +464,7 @@ class Netlist(object):
 
         self.elements[elt.name] = elt
 
-        if elt._is_I or elt._is_V:
+        if elt._is_V or elt._is_I:
             self.sources[elt.name] = elt
 
         # Ignore nodes for mutual inductance.
@@ -705,7 +718,8 @@ class Netlist(object):
         return I(Isc) | Y(self.admittance(Np, Nm))
 
     def admittance(self, Np, Nm):
-        """Return admittance between nodes Np and Nm with sources killed.
+        """Return admittance between nodes Np and Nm with independent 
+        sources killed.
 
         """
 
@@ -720,7 +734,8 @@ class Netlist(object):
         return Ys(If)
 
     def impedance(self, Np, Nm):
-        """Return impedance between nodes Np and Nm with sources killed.
+        """Return impedance between nodes Np and Nm with independent
+        sources killed.
 
         """
 
@@ -735,14 +750,16 @@ class Netlist(object):
         return Zs(Vf)
 
     def Y(self, Np, Nm):
-        """Return admittance between nodes Np and Nm with sources killed.
+        """Return admittance between nodes Np and Nm with independent
+        sources killed.
 
         """
 
         return self.admittance(Np, Nm)
 
     def Z(self, Np, Nm):
-        """Return impedance between nodes Np and Nm with sources killed.
+        """Return impedance between nodes Np and Nm with independent
+        sources killed.
 
         """
 
@@ -753,7 +770,7 @@ class Netlist(object):
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
-        Note, sources are killed."""
+        Note, independent sources are killed."""
 
         new = self.kill()
         new.add('V1_ %d %d impulse' % (N1p, N1m))
@@ -818,6 +835,15 @@ class Netlist(object):
             else:
                 new_elt = copy(elt)             
                 new_elt.cct = new
+
+                # Kill implicit voltage sources due to initial conditions.
+                if new_elt._is_L or new_elt._is_C:
+                    # TODO, fix this nonsense.
+                    cpt = copy(elt.cpt)
+                    cpt.V = Vs(0)
+                    cpt.args = []
+                    new_elt.cpt = cpt
+                    new_elt.args = new_elt.args[0:1]
    
             new._elt_add(new_elt)
 
@@ -826,8 +852,8 @@ class Netlist(object):
     def kill_except(self, *args):
         """Return a new circuit with all but the specified sources killed;
         i.e., make the voltage sources short-circuits and the current
-        sources open-circuits.  If no sources are specified, all are
-        killed.
+        sources open-circuits.  If no sources are specified, all
+        independent sources (including initial conditions) are killed.
 
         """
 
@@ -843,7 +869,8 @@ class Netlist(object):
     def kill(self, *args):
         """Return a new circuit with the specified sources killed; i.e., make
         the voltage sources short-circuits and the current sources
-        open-circuits.  If no sources are specified, all are killed.
+        open-circuits.  If no sources are specified, all independent
+        sources (including initial conditions) are killed.
 
         """
 

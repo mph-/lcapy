@@ -617,7 +617,7 @@ class Expr(object):
         except AttributeError:
             raise RuntimeError(
                 'Cannot evaluate expression %s,'
-                ' probably have undefined symbols, such as Dirac delta' % self)
+                ' probably have a mysterious function' % self)
 
         if np.isscalar(arg):
             if np.allclose(response.imag, 0.0):

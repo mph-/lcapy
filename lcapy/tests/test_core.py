@@ -116,7 +116,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(
             a.ZPK(), 1 / ((s - j) * (s + j)), "ZPK incorrect.")
 
-        self.assertEqual(a.inverse_laplace(), -sin(t) * H(t), "inverse Laplace incorrect.")
+        self.assertEqual(a.inverse_laplace(), sin(t) * H(t), "inverse Laplace incorrect.")
 
 
     def test_sExpr5(self):
@@ -144,7 +144,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(
             a.ZPK(), 1 / ((s - j) * (s + j)), "ZPK incorrect.")
 
-        self.assertEqual(a.inverse_laplace(), -sin(t) * H(t), "inverse Laplace incorrect.")
+        self.assertEqual(a.inverse_laplace(), sin(t) * H(t), "inverse Laplace incorrect.")
 
 
     def test_wExpr1(self):
