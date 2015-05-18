@@ -364,7 +364,10 @@ class Netlist(object):
         self.kwargs = {'draw_nodes': 'primary',
                        'label_values': True,
                        'label_ids': True,
-                       'label_nodes': 'primary'}
+                       'label_nodes': 'primary',
+                       'scale' : 1,
+                       'stretch' : 1,
+                       'style' : 'american'}
 
         self._MNA = None
 
@@ -1019,7 +1022,7 @@ class Netlist(object):
 
     def draw(self, filename=None, label_values=None, draw_nodes=None,
              label_nodes=None, label_ids=None,
-             s_model=False, args=None, scale=1, stretch=1,
+             s_model=False, args=None, scale=None, stretch=None, style=None,
              **kwargs):
 
         cct = self
@@ -1035,13 +1038,17 @@ class Netlist(object):
             kwargs2['label_values'] = label_values
         if label_ids is not None:
             kwargs2['label_ids'] = label_ids
+        if stretch is not None:
+            kwargs2['stretch'] = stretch
+        if scale is not None:
+            kwargs2['scale'] = scale
+        if style is not None:
+            kwargs2['style'] = style
 
         for key, arg in kwargs.iteritems():
             kwargs2[key] = arg
 
-        return cct.sch.draw(filename=filename, args=args,
-                            scale=scale, stretch=stretch,
-                            **kwargs2)
+        return cct.sch.draw(filename=filename, args=args, **kwargs2)
 
 
 class Circuit(Netlist):

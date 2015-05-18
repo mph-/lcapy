@@ -1398,19 +1398,37 @@ class Schematic(object):
 
         debug = kwargs.pop('debug', False)
         oversample = float(kwargs.pop('oversample', 2))
+        style = kwargs.pop('style', 'american')
+        stretch = float(kwargs.pop('stretch', 1.0))
+        scale = float(kwargs.pop('scale', 1.0))
+
+        self.node_spacing = 2 * stretch * scale
+        self.cpt_size = 1.5 * scale
+        self.scale = scale
+
+        if style == 'american':
+            style_args = 'american currents,american voltages'
+        elif style == 'british':
+            style_args = 'american currents, european voltages'
+        elif style == 'european':
+            style_args = 'european currents, european voltages'
+        else:
+            raise ValueError('Unknown style %s' % style)
+
+        args = style_args if args is None else style_args + ',' + args
 
         content = self._tikz_draw(args=args, **kwargs)
 
         if debug:
-            print('width = %d, height = %d, oversample = %d'
-                  % (self.width, self.height, oversample))
+            print('width = %d, height = %d, oversample = %d, stretch = %.2f, scale = %.2f'
+                  % (self.width, self.height, oversample, stretch, scale))
 
         if ext == '.pytex':
             open(filename, 'w').write(content)
             return
 
         template = ('\\documentclass[a4paper]{standalone}\n'
-                    '\\usepackage[americanvoltages,americancurrents]{circuitikz}\n'
+                    '\\usepackage{circuitikz}\n'
                     '\\begin{document}\n%s\\end{document}')
         content = template % content
 
@@ -1456,11 +1474,7 @@ class Schematic(object):
 
         raise ValueError('Cannot create file of type %s' % ext)
 
-    def draw(self, filename=None, args=None, stretch=1, scale=1, **kwargs):
-
-        self.node_spacing = 2 * stretch * scale
-        self.cpt_size = 1.5 * scale
-        self.scale = scale
+    def draw(self, filename=None, args=None, **kwargs):
 
         def in_ipynb():
             try:
