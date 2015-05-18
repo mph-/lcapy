@@ -40,7 +40,7 @@ from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep
 from lcapy.oneport import Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
-from schematic import Schematic, Opts
+from schematic import Schematic, Opts, SchematicOpts
 from mna import MNA, VCVS, TF, K, TP, Dummy
 import re
 from copy import copy
@@ -360,15 +360,7 @@ class Netlist(object):
 
         self.wire_counter = 0
 
-        # TODO, decouple from Schematic
-        self.kwargs = {'draw_nodes': 'primary',
-                       'label_values': True,
-                       'label_ids': True,
-                       'label_nodes': 'primary',
-                       'scale' : 1,
-                       'stretch' : 1,
-                       'style' : 'american'}
-
+        self.opts = SchematicOpts()
         self._MNA = None
 
         if filename is not None:
@@ -528,7 +520,7 @@ class Netlist(object):
                     arg = False
                 elif arg.lower() == 'true':
                     arg = True
-                self.kwargs[key] = arg
+                self.opts[key] = arg
             return
 
         elt = self.net_parse(string, *args)
@@ -1020,35 +1012,13 @@ class Netlist(object):
         return self._model(s)
 
 
-    def draw(self, filename=None, label_values=None, draw_nodes=None,
-             label_nodes=None, label_ids=None,
-             s_model=False, args=None, scale=None, stretch=None, style=None,
-             **kwargs):
+    def draw(self, filename=None, **kwargs):
 
         cct = self
-        if s_model:
+        if kwargs.pop('s_model', False):
             cct = cct.s_model()
 
-        kwargs2 = copy(self.kwargs)
-        if draw_nodes is not None:
-            kwargs2['draw_nodes'] = draw_nodes
-        if label_nodes is not None:
-            kwargs2['label_nodes'] = label_nodes
-        if label_values is not None:
-            kwargs2['label_values'] = label_values
-        if label_ids is not None:
-            kwargs2['label_ids'] = label_ids
-        if stretch is not None:
-            kwargs2['stretch'] = stretch
-        if scale is not None:
-            kwargs2['scale'] = scale
-        if style is not None:
-            kwargs2['style'] = style
-
-        for key, arg in kwargs.iteritems():
-            kwargs2[key] = arg
-
-        return cct.sch.draw(filename=filename, args=args, **kwargs2)
+        return cct.sch.draw(filename=filename, opts=self.opts, **kwargs)
 
 
 class Circuit(Netlist):

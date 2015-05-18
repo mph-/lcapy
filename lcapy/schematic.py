@@ -117,6 +117,20 @@ class Opts(dict):
         self.strip_labels()
 
 
+class SchematicOpts(Opts):
+
+    def __init__(self):
+
+        super (SchematicOpts, self).__init__(
+            {'draw_nodes': 'primary',
+             'label_values': True,
+             'label_ids': True,
+             'label_nodes': 'primary',
+             'scale' : 1,
+             'stretch' : 1,
+             'style' : 'american'})
+
+
 class EngFormat(object):
 
     def __init__(self, value, unit=''):
@@ -1302,15 +1316,12 @@ class Schematic(object):
             n1, cpt_type, label_str, args_str, node_str, n2)
         return s
 
-    def _tikz_draw(self, label_values=True, draw_nodes=True, label_ids=True,
-                   label_nodes='primary', args=None):
-
-        # Preamble
-        if args is None:
-            args = ''
+    def _tikz_draw(self, style_args='', label_values=True, 
+                   draw_nodes=True, label_ids=True,
+                   label_nodes='primary'):
 
         opts = r'scale=%.2f,/tikz/circuitikz/bipoles/length=%.1fcm,%s' % (
-            self.node_spacing, self.cpt_size, args)
+            self.node_spacing, self.cpt_size, style_args)
         s = r'\begin{tikzpicture}[%s]''\n' % opts
 
         # Write coordinates
@@ -1392,7 +1403,7 @@ class Schematic(object):
         raise RuntimeError('Could not generate %s with convert' % 
                            png_filename)
 
-    def tikz_draw(self, filename, args, **kwargs):
+    def tikz_draw(self, filename, **kwargs):
 
         root, ext = path.splitext(filename)
 
@@ -1415,9 +1426,7 @@ class Schematic(object):
         else:
             raise ValueError('Unknown style %s' % style)
 
-        args = style_args if args is None else style_args + ',' + args
-
-        content = self._tikz_draw(args=args, **kwargs)
+        content = self._tikz_draw(style_args, **kwargs)
 
         if debug:
             print('width = %d, height = %d, oversample = %d, stretch = %.2f, scale = %.2f'
@@ -1474,7 +1483,11 @@ class Schematic(object):
 
         raise ValueError('Cannot create file of type %s' % ext)
 
-    def draw(self, filename=None, args=None, **kwargs):
+    def draw(self, filename=None, opts={}, **kwargs):
+
+        for key, val in opts.iteritems():
+            if key not in kwargs or kwargs[key] is None:
+                kwargs[key] = val
 
         def in_ipynb():
             try:
@@ -1508,7 +1521,7 @@ class Schematic(object):
                 from IPython.display import Image, display_png
 
                 pngfilename = self._tmpfilename('.png')
-                self.tikz_draw(pngfilename, args=args, **kwargs)
+                self.tikz_draw(pngfilename, **kwargs)
 
                 # Create and display PNG image object.
                 # There are two problems:
@@ -1525,7 +1538,7 @@ class Schematic(object):
                 from IPython.display import SVG, display_svg
 
                 svgfilename = self._tmpfilename('.svg')
-                self.tikz_draw(svgfilename, args=args, **kwargs)
+                self.tikz_draw(svgfilename, **kwargs)
 
                 # Create and display SVG image object.
                 # Note, there is a problem displaying multiple SVG
@@ -1540,7 +1553,7 @@ class Schematic(object):
             filename = self._tmpfilename('.png')
             display = True
 
-        self.tikz_draw(filename=filename, args=args, **kwargs)
+        self.tikz_draw(filename=filename, **kwargs)
         
         if display:
             # TODO display as SVG so have scaled fonts...
