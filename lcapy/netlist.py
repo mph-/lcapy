@@ -818,6 +818,7 @@ class Netlist(object):
     def _kill(self, sourcenames):
 
         new = Circuit()
+        new.opts = copy(self.opts)
 
         for key, elt in self.elements.iteritems():
             if key in sourcenames:
@@ -945,6 +946,7 @@ class Netlist(object):
     def _model(self, var=None):
 
         cct = Circuit()
+        cct.opts = copy(self.opts)
         cct._s_model = True
 
         for key, elt in self.elements.iteritems():

@@ -20,7 +20,7 @@ import numpy as np
 import re
 from lcapy.latex import latex_str
 from lcapy.core import Expr
-from os import system, path, remove, mkdir, chdir
+from os import system, path, remove, mkdir, chdir, getcwd
 
 
 __all__ = ('Schematic', )
@@ -1370,11 +1370,11 @@ class Schematic(object):
 
     def _tmpfilename(self, suffix=''):
 
-        from tempfile import NamedTemporaryFile
+        from tempfile import gettempdir, NamedTemporaryFile
+
+        # Searches using TMPDIR, TEMP, TMP environment variables
+        tempdir = gettempdir()
         
-        tempdir = 'temp'
-        if not path.exists(tempdir):
-            mkdir(tempdir)
         filename = NamedTemporaryFile(suffix=suffix, dir=tempdir, 
                                       delete=False).name
         return filename
@@ -1449,15 +1449,20 @@ class Schematic(object):
 
         dirname = path.dirname(texfilename)
         baseroot = path.basename(root)
+        cwd = getcwd()
         if dirname != '':
             chdir(path.abspath(dirname))
 
         system('pdflatex -interaction batchmode %s.tex' % baseroot)
+
+        if dirname != '':
+            chdir(cwd)            
+
         if not debug:
             try:
-                remove(baseroot + '.aux')
-                remove(baseroot + '.log')
-                remove(baseroot + '.tex')
+                remove(root + '.aux')
+                remove(root + '.log')
+                remove(root + '.tex')
             except:
                 pass
 
