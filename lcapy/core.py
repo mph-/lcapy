@@ -637,8 +637,10 @@ class Expr(object):
             response = response.real
         return response
 
-    def __subs1__(self, old, new, **kwargs):
+    def _subs1(self, old, new, **kwargs):
 
+        # This will fail is a variable has different attributes,
+        # such as positive or real.
         # Should check for bogus substitutions, such as t for s.
 
         expr = new
@@ -694,12 +696,12 @@ class Expr(object):
         """
 
         if isinstance(arg, (tuple, list)):
-            return [self.__subs1__(self.var, arg1) for arg1 in arg]
+            return [self._subs1(self.var, arg1) for arg1 in arg]
 
         if isinstance(arg, np.ndarray):
-            return np.array([self.__subs1__(self.var, arg1) for arg1 in arg])
+            return np.array([self._subs1(self.var, arg1) for arg1 in arg])
 
-        return self.__subs1__(self.var, arg)
+        return self._subs1(self.var, arg)
 
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage"""
@@ -710,16 +712,16 @@ class Expr(object):
             raise ValueError('No arguments')
 
         if len(args) == 2:
-            return self.__subs1__(args[0], args[1])
+            return self._subs1(args[0], args[1])
 
         if  isinstance(args[0], dict):
             dst = self
             for key, val in args[0].iteritems():
-                dst = dst.__subs1__(key, val, **kwargs)
+                dst = dst._subs1(key, val, **kwargs)
 
             return dst
 
-        return self.__subs1__(self.var, args[0])
+        return self._subs1(self.var, args[0])
 
     @property
     def label(self):
