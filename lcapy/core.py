@@ -1545,7 +1545,7 @@ class Zs(sExpr):
     @classmethod
     def C(cls, Cval):
 
-        return cls(1 / Cval).integrate()
+        return cls(1 / (s * Cval))
 
     @classmethod
     def G(cls, Gval):
@@ -1555,7 +1555,7 @@ class Zs(sExpr):
     @classmethod
     def L(cls, Lval):
 
-        return cls(Lval).differentiate()
+        return cls(s * Lval)
 
     @classmethod
     def R(cls, Rval):
@@ -1596,7 +1596,7 @@ class Ys(sExpr):
     @classmethod
     def C(cls, Cval):
 
-        return cls(Cval).differentiate()
+        return cls(s * Cval)
 
     @classmethod
     def G(cls, Gval):
@@ -1606,7 +1606,7 @@ class Ys(sExpr):
     @classmethod
     def L(cls, Lval):
 
-        return cls(1 / Lval).integrate()
+        return cls(1 / (s * Lval))
 
     @classmethod
     def R(cls, Rval):
