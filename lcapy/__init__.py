@@ -25,8 +25,8 @@ else:  # Python 3
 
 del sys
 
-from sympy import init_printing
-init_printing()
+from sympy import init_session
+init_session()
 
 
 # List of symbols that get imported with 'from lcapy import *'
