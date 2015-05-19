@@ -107,7 +107,16 @@ def symbol(name, real=False, positive=None, cache=True):
     else:
         sym1 = sym.symbols(name, real=real)
     if cache:
-        symbols[name] = sym1
+        # The following can be triggered if define a resistor of value R
+        # and then convert to s-model where an impedance is created of
+        # value R.  In the former case R has a positive attribute but not
+        # for the latter since an arbitrary impedance is not positive.
+        # Perhaps should keep a list of symbols for each circuit
+        # as well as a global list?
+        if False and name in symbols and symbols[name] != sym1:
+            raise ValueError('Changing symbol definition %s' % name)
+        if name not in symbols:
+            symbols[name] = sym1
     return sym1
 
 
