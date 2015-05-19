@@ -688,7 +688,7 @@ class Netlist(object):
 
         self.add('Vshort_ %d %d' % (Np, Nm), 0)
 
-        Isc = self._I['Vshort_']
+        Isc = self.Vshort_.I
         self.remove('Vshort_')
 
         return Isc
@@ -770,7 +770,7 @@ class Netlist(object):
         new = self.kill()
         new.add('V1_ %d %d impulse' % (N1p, N1m))
 
-        H = Hs(new.Voc(N2p, N2m) / new.V['V1_'])
+        H = Hs(new.Voc(N2p, N2m) / new.V1_.V)
 
         return H
 

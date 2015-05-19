@@ -90,6 +90,8 @@ def canonical_name(name):
     # Rewrite R1 as R_1, etc.
     match = cpt_name_pattern.match(name)
     if match:
+        if match.groups()[1] == '':
+            return name
         name = match.groups()[0] + '_' + match.groups()[1]
 
     return name
