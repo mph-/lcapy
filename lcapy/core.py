@@ -134,14 +134,18 @@ def sympify(arg, real=False, positive=None, cache=True):
 
     # Why doesn't sympy do this?
     if isinstance(arg, complex):
-        re = sym.sympify(arg.real, rational=True)
-        im = sym.sympify(arg.imag, rational=True)
+        re = sym.sympify(str(arg.real), rational=True)
+        im = sym.sympify(str(arg.imag), rational=True)
         if im == 1.0:
             arg = re + sym.I
         else:
             arg = re + sym.I * im
         return arg
 
+    if isinstance(arg, float):
+        # Note, need to convert to string to achieve a rational representation.
+        return sym.sympify(str(arg), rational=True)
+        
     if isinstance(arg, str):
         # Sympy considers E1 to be the generalized exponential integral.
         # N is for numerical evaluation.
@@ -658,6 +662,7 @@ class Expr(object):
             expr = new.expr
         else:
             cls = self.__class__
+            expr = sympify(expr)
 
         class_map = {(Hs, omegaExpr) : Homega,
                      (Is, omegaExpr) : Iomega,
