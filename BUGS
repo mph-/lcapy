@@ -1,0 +1,17 @@
+Sympy bugs to fix:
+
+1. exp(-a * t) * Heaviside(t) blows up for t < 0 since exp returns Inf
+and Inf * 0 -> Nan.  exp shouldn't return Inf.  The result might be
+enormous but it is not infinite.
+
+2. sympy/printing/latex.py: _print_Mul calls fraction which calls Mul
+which simplifies 5 * (s + 0.8) into 5 * s + 4.  This screws up ZPK
+representation.  Perhaps call _unevaluated_Mul?
+
+3. factorisation bug 
+s = sym.symbols('s')
+D = 0.2 * s**2 + s + 0.8
+sym.factor(D).expand() -> 0.04 * s**2 + 0.2 * s + 0.16
+
+4. laplace transform of delta(t) -> 0.5  This is because the lower limit is
+0 and not 0-.
