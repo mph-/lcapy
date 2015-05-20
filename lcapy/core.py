@@ -781,9 +781,18 @@ class sfwExpr(Expr):
 
         expr, var = self.expr, self.var
 
+        delay = sympify(0)
+
+        if expr.is_rational_function():
+            numer, denom = expr.as_numer_denom()
+            N = sym.Poly(numer, var)
+            D = sym.Poly(denom, var)
+
+            return N, D, delay
+
+        # Note, there is a bug in sympy factor, TODO warn if detected.
         F = sym.factor(expr).as_ordered_factors()
 
-        delay = sympify(0)
         ratfun = sympify(1)
         for f in F:
             b, e = f.as_base_exp()
