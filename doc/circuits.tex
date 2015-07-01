@@ -605,26 +605,90 @@ In terms of the coupling coefficient, $k$, this can be expressed as
 \end{equation}
 
 
-An ideal transformer occurs when $k=1$ and $L_1$ and $L_2$ are
-infinite.  In practice, this cannot be achieved.  It can be
-approximated by making $k$ be close to 1 and choosing $L_1$ and $L_2$
-to have large inductances.
-
-
-The secondary of a transformer requires a DC connection to ground;
-either by having a common ground or using a large resistance.
-
-If the turns ratio is $a$ then
+If a transformer has a turns ratio $a$ then
 %
 \begin{equation}
 N_2 = a N_1,
 \end{equation}
 %
-and
+and thus
 %
 \begin{equation}
   L_2 = a^2 L_1.
 \end{equation}
+%
+If there is perfect coupling, $k=1$, and thus the mutual inductance is
+%
+\begin{equation}
+  M = a L_1.
+\end{equation}
+%
+The relationship between the currents and voltages from \refeqn{mut}
+then becomes
+%
+\begin{eqnarray}
+ v_1(t) & = & L_1 \udby{t} i_1(t) + a L_1 \udby{t} i_2(t),\\
+ v_2(t) & = & a L_1 \udby{t} i_1(t) + a^2 L_1 \udby{t} i_2(t).
+\label{eqn:mut_transformer}
+\end{eqnarray}
+
+
+An ideal transformer occurs when $k=1$ and $L_1$ and $L_2$ are
+infinite.  In practice, this cannot be achieved.  It can be
+approximated by making $k$ be close to 1 and choosing $L_1$ and $L_2$
+to have large inductances.
+
+Let's consider the case when a voltage source is applied to the
+primary and the secondary is open circuit so that $i_2=0$.  The
+transformer equations simplify to
+%
+\begin{eqnarray}
+ v_1(t) & = & L_1 \udby{t} i_1(t),\\
+ v_2(t) & = & a L_1 \udby{t} i_1(t).
+\label{eqn:mut_transformer_oc}
+\end{eqnarray}
+%
+By inspection, 
+%
+\begin{equation}
+v_2(t) = a v_1(t),  
+\end{equation}
+%
+and thus the open-circuit secondary voltage is $a$ times the primary.
+Let's now consider the short-circuit secondary current when $v_2=0$.
+The transformer equations are now
+%
+\begin{eqnarray}
+ v_1(t) & = & L_1 \udby{t} i_1(t) + a L_1 \udby{t} i_2(t),\\
+      0 & = & a L_1 \udby{t} i_1(t) + a^2 L_1 \udby{t} i_2(t).
+\label{eqn:mut_transformer_sc}
+\end{eqnarray}
+%
+From the second of these equations,
+%
+\begin{equation}
+  a L_1 \udby{t} i_1(t) = -a^2 L_1 \udby{t} i_2(t),
+\end{equation}
+%
+and so
+%
+\begin{equation}
+  i_1(t) = -a i_2(t),
+\end{equation}
+%
+or equivalently,
+%
+\begin{equation}
+  i_2(t) = -\frac{1}{a} i_1(t).
+\end{equation}
+%
+The negative sign results from the definition of the direction of the
+currents, as used by two-port networks.
+
+
+When modelling, the secondary of a transformer requires a DC
+connection to ground; either by having a ground common with the
+primary or using a large resistance.
 
 
 
