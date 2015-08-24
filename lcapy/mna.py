@@ -325,7 +325,7 @@ class MNA(object):
         self.unknown_branch_currents = []
 
         for key, elt in self.elements.iteritems():
-            if elt._is_V or elt._is_L:
+            if elt._is_V or elt._is_E or elt._is_L:
                 self.unknown_branch_currents.append(key)
 
         # Generate stamps.

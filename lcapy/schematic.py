@@ -694,8 +694,18 @@ class Schematic(object):
 
         opts = Opts(string)
 
-        parts = re.split(r'[\s]+', fields[0].strip())
-        elt = NetElement(*parts, **opts)
+        args = ()
+        net = fields[0].strip()
+        if net[-1] == '"':
+            quote_pos = net[:-1].rfind('"')
+            if quote_pos == -1:
+                raise ValueError('Missing " in net: ' + net)
+            args = (net[quote_pos + 1:-1], ) + args
+            net = net[:quote_pos - 1]
+
+        parts = tuple(re.split(r'[,]*[\s]+', net))
+
+        elt = NetElement(*(parts + args), **opts)
 
         self._elt_add(elt)
 

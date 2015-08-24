@@ -260,14 +260,24 @@ class NetElement(object):
 
     def __repr__(self):
 
+        def quote(arg):
+            if arg.find(' ') == -1:
+                return arg
+            return '"%s"' % arg
+
         args = [self.name] + list(self.nodes) + list(self.args)
-        str = ', '.join([arg.__str__() for arg in args])
+        str = ', '.join([quote(arg).__str__() for arg in args])
         return 'NetElement(%s)' % str
 
     def __str__(self):
 
+        def quote(arg):
+            if arg.find(' ') == -1:
+                return arg
+            return '"%s"' % arg
+
         args = (self.name, ) + self.nodes[0:2] + self.args
-        return ' '.join(['%s' % arg for arg in args])
+        return ' '.join(['%s' % quote(arg) for arg in args])
 
     @property
     def _is_dummy(self):
@@ -402,24 +412,17 @@ class Netlist(object):
         for line in lines:
             self.add(line)
 
-    def netlist(self, full=False):
+    def netlist(self):
         """Return the current netlist"""
 
         lines = ''
         for key, elt in self.elements.iteritems():
             new_elt = copy(elt)
 
-            if not full:
-                new_elt.nodes = tuple([self.node_map[node]
-                                      for node in elt.nodes])
-                if elt._is_dummy:
-                    continue
-
             line = new_elt.__str__()
-            if full:
-                optstr = new_elt.opts.format()
-                if optstr != '':
-                    line += ' ; ' + optstr
+            optstr = new_elt.opts.format()
+            if optstr != '':
+                line += ' ; ' + optstr
 
             lines += line + '\n'
 
@@ -484,7 +487,16 @@ class Netlist(object):
 
         opts = Opts(string)
 
-        parts = tuple(re.split(r'[,]*[\s]+', fields[0].strip()))
+        net = fields[0].strip()
+        if net[-1] == '"':
+            quote_pos = net[:-1].rfind('"')
+            if quote_pos == -1:
+                raise ValueError('Missing " in net: ' + net)
+            args = (net[quote_pos + 1:-1], ) + args
+            net = net[:quote_pos - 1]
+
+        parts = tuple(re.split(r'[,]*[\s]+', net))
+
         elt = NetElement(self, *(parts + args), **opts)
         return elt
 
@@ -590,7 +602,7 @@ class Netlist(object):
     def _make_Z(self, name, node1, node2, value, opts):
         """Create a dummy impedance"""
 
-        net = 'Z%s %s %s %s; %s' % (name,
+        net = 'Z%s %s %s "%s"; %s' % (name,
                                     node1, node2, value, opts.format())
 
         return self.net_parse(net)
@@ -602,7 +614,7 @@ class Netlist(object):
             self._V_counter = 0
         self._V_counter += 1
 
-        net = 'V#%d %s %s s %s; %s' % (
+        net = 'V#%d %s %s "%s"; %s' % (
             self._V_counter, node1, node2, value, opts.format())
 
         return self.net_parse(net)
@@ -614,7 +626,7 @@ class Netlist(object):
             self._I_counter = 0
         self._I_counter += 1
 
-        net = 'I#%d %s %s s %s; %s' % (
+        net = 'I#%d %s %s "%s"; %s' % (
             self._I_counter, node1, node2, value, opts.format())
 
         return self.net_parse(net)
@@ -902,7 +914,7 @@ class Netlist(object):
         if hasattr(self, '_sch'):
             return self._sch
 
-        netlist = self.netlist(full=True)
+        netlist = self.netlist()
 
         sch = Schematic()
 

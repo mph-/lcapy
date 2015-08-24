@@ -13,6 +13,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 from __future__ import division
 from lcapy.latex import latex_str
 import numpy as np
+from sympy.core.mul import _unevaluated_Mul as uMul
 import sympy as sym
 import re
 from sympy.utilities.lambdify import lambdify
@@ -1540,8 +1541,8 @@ def _zp2tf(zeros, poles, K=1, var=None):
         pp = [1 / (var - p) for p in poles]
     else:
         pp = [1 / (var - p) ** poles[p] for p in poles]
-
-    return sym.Mul(K, *(zz + pp))
+        
+    return uMul(K, *(zz + pp))
 
 
 def zp2tf(zeros, poles, K=1, var=None):
