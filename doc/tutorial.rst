@@ -1171,3 +1171,14 @@ Here are the contents of the file 'voltage-divider.sch'::
 
 Here, P1 defines a port.  This is shown as a pair of open blobs.
 
+
+IPython Notebooks
+=================
+
+IPython notebooks allow interactive markup of python code and text.  A
+number of examples are provided in the `lcapy/doc/examples/notebooks`
+directory.  Before these notebooks can be viewed in a browser you need
+to start an IPython notebook server.
+
+   >>> cd lcapy/doc/examples/notebooks
+   >>> ipython notebook

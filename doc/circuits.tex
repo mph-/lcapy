@@ -523,7 +523,7 @@ where the mutual inductance $M$ is
 \end{equation}
 %
 for a coupling coefficient $0 \le k \le 1$.  Note an ideal transformer
-requires $L_1 = L_2 = \infty$ and $k=1$.
+requires $L_1 = L_2 = \infty$ and $k=1$; it also works at DC.
 
 Taking Laplace transforms of \refeqn{mut} yields,
 %
@@ -684,6 +684,10 @@ or equivalently,
 %
 The negative sign results from the definition of the direction of the
 currents, as used by two-port networks.
+
+A tee model can be used to represent a transformer if the primary and
+secondary share a common ground.  Hoewever, this will result in
+non-realisable negative inductances when $M > L_1$ or $M > L_2$.
 
 
 When modelling, the secondary of a transformer requires a DC
