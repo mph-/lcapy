@@ -11,7 +11,6 @@ import sympy as sym
 
 
 class CS(object):
-
     """Controlled source"""
 
     def __init__(self, *args):
@@ -20,7 +19,6 @@ class CS(object):
 
 
 class VCVS(CS):
-
     """Voltage controlled voltage source."""
 
     def __init__(self, A):
@@ -29,8 +27,15 @@ class VCVS(CS):
         super(VCVS, self).__init__(A)
 
 
-class TF(CS):
+class VCCS(CS):
+    """Voltage controlled current source."""
 
+    def __init__(self, A):
+
+        A = cExpr(A)
+        super(VCCS, self).__init__(A)
+
+class TF(CS):
     """Ideal transformer.  T is turns ratio (secondary / primary)"""
 
     def __init__(self, T):
@@ -40,7 +45,6 @@ class TF(CS):
 
 
 class K(object):
-
     """Mutual inductance"""
 
     def __init__(self, k):
@@ -50,7 +54,6 @@ class K(object):
 
 
 class TP(CS):
-
     """Two-port Z-network"""
 
     def __init__(self, kind, Z11, Z12, Z21, Z22):
@@ -59,7 +62,6 @@ class TP(CS):
 
 
 class Dummy(object):
-
     """Dummy component.  These can be drawn but not analysed."""
 
     def __init__(self, *args):
@@ -308,11 +310,27 @@ class MNA(object):
 
         n1 = self._node_index(elt.nodes[0])
         n2 = self._node_index(elt.nodes[1])
-        I = elt.cpt.I.expr
-        if n1 >= 0:
-            self._Is[n1] += I
-        if n2 >= 0:
-            self._Is[n2] -= I
+
+        if isinstance(elt.cpt, VCCS):
+            n3 = self._node_index(elt.nodes[2])
+            n4 = self._node_index(elt.nodes[3])
+            G = elt.cpt.args[0].expr
+
+            if n1 >= 0 and n3 >= 0:
+                self._G[n1, n3] -= G
+            if n1 >= 0 and n4 >= 0:
+                self._G[n1, n4] += G
+            if n2 >= 0 and n3 >= 0:
+                self._G[n2, n3] += G
+            if n2 >= 0 and n4 >= 0:
+                self._G[n2, n4] -= G
+
+        else:
+            I = elt.cpt.I.expr
+            if n1 >= 0:
+                self._Is[n1] += I
+            if n2 >= 0:
+                self._Is[n2] -= I
 
     def _analyse(self):
         """Analyse network."""
@@ -343,7 +361,7 @@ class MNA(object):
         for elt in self.elements.values():
             if elt._is_V or elt._is_E:
                 self._V_stamp(elt)
-            elif elt._is_I:
+            elif elt._is_I or elt._is_G:
                 self._I_stamp(elt)
             elif elt._is_RC:
                 self._RC_stamp(elt)

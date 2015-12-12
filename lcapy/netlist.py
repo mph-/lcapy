@@ -41,7 +41,7 @@ from lcapy.oneport import Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
 from schematic import Schematic, Opts, SchematicOpts
-from mna import MNA, VCVS, TF, K, TP, Dummy
+from mna import MNA, VCVS, VCCS, TF, K, TP, Dummy
 import re
 from copy import copy
 
@@ -53,7 +53,7 @@ cpt_types = ['C',  # Capacitor
              'D',  # Diode (not supported)
              'E',  # VCVS
              'F',  # CCCS (not supported yet, can be handled by G)
-             'G',  # VCCS (not supported yet)
+             'G',  # VCCS
              'H',  # CCVS (not supported yet, can be handled by E)
              'I',  # Current
              'J',  # JFET (not supported)
@@ -122,7 +122,7 @@ cpt_type_map = {'R': R, 'C': C, 'L': L, 'Z': Z, 'Y': Y,
                 'Vs': V, 'Is': I,
                 'V': V, 'I': I, 'v': v, 'i': i,
                 'O' : None, 'P': None, 'W': None,
-                'E': VCVS, 'TF': TF, 'TP': TP, 'K': K,
+                'E': VCVS, 'G' : VCCS, 'TF': TF, 'TP': TP, 'K': K,
                 'D' : Dummy, 'J' : Dummy, 'M': Dummy, 'Q': Dummy,
                 'SW' : Dummy, 'SWno' : Dummy, 'SWnc' : Dummy, 
                 'SWpush' : Dummy, 'opamp': VCVS}
@@ -293,6 +293,11 @@ class NetElement(object):
     def _is_E(self):
 
         return isinstance(self.cpt, (VCVS, TF))
+
+    @property
+    def _is_G(self):
+
+        return isinstance(self.cpt, VCCS)
 
     @property
     def _is_I(self):
