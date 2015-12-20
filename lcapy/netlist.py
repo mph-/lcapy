@@ -41,7 +41,7 @@ from lcapy.oneport import Vacstep, Iacstep
 from lcapy.oneport import R, L, C, G, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
 from schematic import Schematic, Opts, SchematicOpts
-from mna import MNA, VCVS, VCCS, TF, K, TP, Dummy
+from mna import MNA, VCVS, VCCS, CCVS, CCCS, TF, K, TP, Dummy
 import re
 from copy import copy
 
@@ -122,7 +122,8 @@ cpt_type_map = {'R': R, 'C': C, 'L': L, 'Z': Z, 'Y': Y,
                 'Vs': V, 'Is': I,
                 'V': V, 'I': I, 'v': v, 'i': i,
                 'O' : None, 'P': None, 'W': None,
-                'E': VCVS, 'G' : VCCS, 'TF': TF, 'TP': TP, 'K': K,
+                'E': VCVS, 'F' : CCCS, 'G' : VCCS, 'H': CCVS,
+                'TF': TF, 'TP': TP, 'K': K,
                 'D' : Dummy, 'J' : Dummy, 'M': Dummy, 'Q': Dummy,
                 'SW' : Dummy, 'SWno' : Dummy, 'SWnc' : Dummy, 
                 'SWpush' : Dummy, 'opamp': VCVS}
@@ -285,9 +286,9 @@ class NetElement(object):
         return self.cpt_type in ('O', 'P', 'W')
 
     @property
-    def _is_V(self):
+    def _is_C(self):
 
-        return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep))
+        return isinstance(self.cpt, C)
 
     @property
     def _is_E(self):
@@ -295,9 +296,19 @@ class NetElement(object):
         return isinstance(self.cpt, (VCVS, TF))
 
     @property
+    def _is_F(self):
+
+        return isinstance(self.cpt, CCCS)
+
+    @property
     def _is_G(self):
 
         return isinstance(self.cpt, VCCS)
+
+    @property
+    def _is_H(self):
+
+        return isinstance(self.cpt, CCVS)
 
     @property
     def _is_I(self):
@@ -305,14 +316,9 @@ class NetElement(object):
         return isinstance(self.cpt, (I, Idc, Iac, Istep, Iacstep))
 
     @property
-    def _is_RC(self):
+    def _is_K(self):
 
-        return isinstance(self.cpt, (R, G, C))
-
-    @property
-    def _is_C(self):
-
-        return isinstance(self.cpt, C)
+        return isinstance(self.cpt, K)
 
     @property
     def _is_L(self):
@@ -320,9 +326,14 @@ class NetElement(object):
         return isinstance(self.cpt, L)
 
     @property
-    def _is_K(self):
+    def _is_RC(self):
 
-        return isinstance(self.cpt, K)
+        return isinstance(self.cpt, (R, G, C))
+
+    @property
+    def _is_V(self):
+
+        return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep))
 
     @property
     def I(self):

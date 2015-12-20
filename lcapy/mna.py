@@ -18,30 +18,38 @@ class CS(object):
         self.args = args
 
 
-class VCVS(CS):
+class CS1(CS):
+    """Controlled source with one arg."""
+
+    def __init__(self, A):
+
+        A = cExpr(A)
+        super(CS1, self).__init__(A)
+
+
+class VCVS(CS1):
     """Voltage controlled voltage source."""
-
-    def __init__(self, A):
-
-        A = cExpr(A)
-        super(VCVS, self).__init__(A)
+    pass
 
 
-class VCCS(CS):
+class VCCS(CS1):
     """Voltage controlled current source."""
+    pass
 
-    def __init__(self, A):
 
-        A = cExpr(A)
-        super(VCCS, self).__init__(A)
+class CCVS(CS1):
+    """Current controlled voltage source."""
+    pass
 
-class TF(CS):
-    """Ideal transformer.  T is turns ratio (secondary / primary)"""
 
-    def __init__(self, T):
+class CCCS(CS1):
+    """Current controlled current source."""
+    pass
 
-        T = cExpr(T)
-        super(TF, self).__init__(T)
+
+class TF(CS1):
+    """Ideal transformer.  T is turns ratio (secondary / primary)."""
+    pass
 
 
 class K(object):
