@@ -214,11 +214,11 @@ class MNA(object):
 
     def _branch_index(self, cpt_name):
 
-        index = self.unknown_branch_currents.index(cpt_name)
-        if index < 0:
-            raise ValueError(
-                'Unknown component name %s for branch current' % cpt_name)
-        return index
+        try:
+            index = self.unknown_branch_currents.index(cpt_name)
+            return index
+        except ValueError:
+            raise ValueError('Unknown component name %s for branch current' % cpt_name)
 
     def _RC_stamp(self, elt):
         """Add stamp for resistor or capacitor"""
