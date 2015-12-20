@@ -32,8 +32,8 @@ __all__ = ('Schematic', )
 
 # Regular expression alternate matches stop with first match so need
 # to have longer names first.
-cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'O', 'P', 'E', 
-             'D', 'J', 'M', 'Q', 'SW', 'TF', 'TP', 'K']
+cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'O', 'P', 'E',
+             'F', 'G', 'H', 'D', 'J', 'M', 'Q', 'SW', 'TF', 'TP', 'K']
 cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
 
 cpt_type_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_types))
@@ -508,12 +508,17 @@ class NetElement(object):
                     self.sub_type = args[0]
                 args = args[1:]
 
-        elif cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP', 'opamp'):
+        elif cpt_type in ('E', 'G', 'TF', 'TP', 'opamp'):
             if len(args) < 2:
                 raise ValueError(
-                    'Component type %s requires 4 nodes' % cpt_type)
+                    'Component %s requires 4 nodes' % args[0])
             self.nodes += (args[0], args[1])
             args = args[2:]
+
+        elif cpt_type in ('F', 'H'):
+            if len(args) < 1:
+                raise ValueError(
+                    'Component %s requires 3 args' % args[0])
 
         elif cpt_type == 'TP' and len(args) != 5:
             raise ValueError('TP component requires 5 args')
@@ -661,7 +666,7 @@ class Schematic(object):
 
         nodes = elt.nodes
         # The controlling nodes are not drawn.
-        if elt.cpt_type in ('E', 'F', 'G', 'H'):
+        if elt.cpt_type in ('E', 'G'):
             nodes = nodes[0:2]
 
         for node in nodes:
@@ -1226,6 +1231,9 @@ class Schematic(object):
                         'TF': 'transformer', 'D' : 'D',
                         'Z': 'Z', 'Y': 'Y',
                         'E' : 'american controlled voltage source',
+                        'G' : 'american controlled voltage source',
+                        'F' : 'american controlled current source',
+                        'H' : 'american controlled current source',
                         'SWnc' : 'opening switch', 'SWno' : 'closing switch',
                         'SW' : 'closing switch', 'SWpush' : 'push button'}
 
@@ -1237,7 +1245,7 @@ class Schematic(object):
         voltage_pos = '^'
         if elt.cpt_type in ('V', 'Vdc', 'Vstep', 'Vac', 'Vacstep', 'Vimpulse', 'v',
                             'I', 'Idc', 'Istep', 'Iac', 'Iacstep', 'Iimpulse', 'i',
-                            'E', 'Vs', 'Is'):
+                            'E', 'F', 'G', 'H', 'Vs', 'Is'):
 
             # circuitikz expects the positive node first, except for
             # voltage and current sources!  So swap the nodes
