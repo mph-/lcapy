@@ -27,6 +27,15 @@ class CS1(CS):
         super(CS1, self).__init__(A)
 
 
+class CS2(CS):
+    """Controlled source with two args."""
+
+    def __init__(self, Vc, A):
+
+        A = cExpr(A)
+        super(CS2, self).__init__(Vc, A)
+
+
 class VCVS(CS1):
     """Voltage controlled voltage source."""
     pass
@@ -37,12 +46,12 @@ class VCCS(CS1):
     pass
 
 
-class CCVS(CS1):
+class CCVS(CS2):
     """Current controlled voltage source."""
     pass
 
 
-class CCCS(CS1):
+class CCCS(CS2):
     """Current controlled current source."""
     pass
 
@@ -310,6 +319,12 @@ class MNA(object):
             if n4 >= 0:
                 self._C[m, n4] += A
 
+        elif isinstance(elt.cpt, CCVS):
+
+            mc = self._branch_index(elt.cpt.args[0])
+            H = elt.cpt.args[1].expr
+            self._D[m, mc] -= H
+
         if hasattr(elt.cpt, 'V'):
             self._Es[m] += elt.cpt.V.expr
 
@@ -333,6 +348,16 @@ class MNA(object):
             if n2 >= 0 and n4 >= 0:
                 self._G[n2, n4] -= G
 
+        elif isinstance(elt.cpt, CCCS):
+
+            m = self._branch_index(elt.args[0])
+            F = elt.cpt.args[1].expr
+            
+            if n1 >= 0:
+                self._B[n1, m] -= F
+            if n2 >= 0:
+                self._B[n2, m] += F
+
         else:
             I = elt.cpt.I.expr
             if n1 >= 0:
@@ -351,7 +376,7 @@ class MNA(object):
         self.unknown_branch_currents = []
 
         for key, elt in self.elements.iteritems():
-            if elt._is_V or elt._is_E or elt._is_L:
+            if elt._is_V or elt._is_E or elt._is_H or elt._is_L:
                 self.unknown_branch_currents.append(key)
 
         # Generate stamps.
@@ -367,9 +392,9 @@ class MNA(object):
         self._Es = sym.zeros(num_branches, 1)
 
         for elt in self.elements.values():
-            if elt._is_V or elt._is_E:
+            if elt._is_V or elt._is_E or elt._is_H:
                 self._V_stamp(elt)
-            elif elt._is_I or elt._is_G:
+            elif elt._is_I or elt._is_F or elt._is_G:
                 self._I_stamp(elt)
             elif elt._is_RC:
                 self._RC_stamp(elt)

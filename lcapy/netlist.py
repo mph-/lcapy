@@ -52,9 +52,9 @@ __all__ = ('Circuit', )
 cpt_types = ['C',  # Capacitor
              'D',  # Diode (not supported)
              'E',  # VCVS
-             'F',  # CCCS (not supported yet, can be handled by G)
+             'F',  # CCCS
              'G',  # VCCS
-             'H',  # CCVS (not supported yet, can be handled by E)
+             'H',  # CCVS
              'I',  # Current
              'J',  # JFET (not supported)
              'K',  # Mutual inductance
@@ -224,7 +224,14 @@ class NetElement(object):
                 cpt_type = cpt_type + args[0]
                 args = args[1:]                
 
-        if cpt_type in ('E', 'F', 'G', 'H', 'TF', 'TP', 'opamp'):
+        if cpt_type in ('F', 'H'):
+            if len(args) != 2:
+                raise ValueError('Component %s requires 2 args' % name)
+            if args[0][0] != 'V':
+                raise ValueError(
+                    'Component %s requires name of voltage source for controlling current' % name)
+
+        if cpt_type in ('E', 'G', 'TF', 'TP', 'opamp'):
             if len(args) < 2:
                 raise ValueError(
                     'Component type %s requires 4 nodes' % cpt_type)

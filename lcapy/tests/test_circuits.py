@@ -128,3 +128,30 @@ class LcapyTester(unittest.TestCase):
         a.add('R2 2 0 1')
 
         self.assertEqual2(a.R2.V, V(6).V, "Incorrect voltage")
+
+    def test_CCCS1(self):
+        """Lcapy: check CCCS
+
+        """
+        a = Circuit()
+        a.add('V1 1 0 10')
+        a.add('R1 1 2 2')
+        a.add('V2 2 0 0')
+        a.add('F1 3 0 V2 2')
+        a.add('R2 3 0 1')
+
+        self.assertEqual2(a.R2.V, V(10).V, "Incorrect voltage")
+
+
+    def test_CCVS1(self):
+        """Lcapy: check CCVS
+
+        """
+        a = Circuit()
+        a.add('V1 1 0 10')
+        a.add('R1 1 2 2')
+        a.add('V2 2 0 0')
+        a.add('H1 3 0 V2 2')
+        a.add('R2 3 0 1')
+
+        self.assertEqual2(a.R2.V, V(10).V, "Incorrect voltage")
