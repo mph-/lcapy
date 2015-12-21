@@ -226,7 +226,7 @@ class NetElement(object):
 
         if cpt_type in ('F', 'H'):
             if len(args) != 2:
-                raise ValueError('Component %s requires 2 args' % name)
+                raise ValueError('Component %s requires 4 args' % name)
             if args[0][0] != 'V':
                 raise ValueError(
                     'Component %s requires name of voltage source for controlling current' % name)

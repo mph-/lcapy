@@ -65,18 +65,17 @@ cos(2pi f t) is indeterminate.
 
 Add consistent mapping of unit step, dirac delta, etc.
 
-Determine loops in schematic DAGs and issue warning.
-
 Warn user when calculations may take a while, say when inverting a
 large matrix.
-
-Allow component names and values on schematics.
-
-Tweak formatting of values on schematics (say use shortest
-representation).
 
 Handle multiple SVG images displayed in notebook due to problems with
 shared namespace.
 
 Perhaps add H, I, V, Y, Z methods to Expr classes to create
 appropriate subclasses?
+
+Automatically separate parallel components when drawing (except open
+circuits).  The tricky part is adding enough space for the labels,
+
+Add || operator to sympy
+
