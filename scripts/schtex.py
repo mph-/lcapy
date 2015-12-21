@@ -75,11 +75,11 @@ def main (argv=None):
 
     parser.add_option('--scale', type='float',
                       dest='scale', default=1,
-                      help='schematic scale factor')
+                      help='schematic scale factor, this controls the size of components')
 
     parser.add_option('--stretch', type='float',
                       dest='stretch', default=1,
-                      help='schematic stretch factor')
+                      help='schematic stretch factor, this controls the spacing of components')
     
     (options, args) = parser.parse_args()
 
