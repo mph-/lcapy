@@ -20,23 +20,12 @@ import numpy as np
 import re
 from lcapy.latex import latex_str
 from lcapy.core import Expr
+from parser import Parser
+import schemcpts as cpts
 from os import system, path, remove, mkdir, chdir, getcwd
 
 
 __all__ = ('Schematic', )
-
-# Perhaps AM for ammeter, VM for voltmeter, SW for switch, VR for
-# variable resistor?  Currently, a variable resistor is supported with
-# the variable option.
-
-
-# Regular expression alternate matches stop with first match so need
-# to have longer names first.
-cpt_types = ['R', 'C', 'L', 'Z', 'Y', 'V', 'I', 'W', 'O', 'P', 'E',
-             'F', 'G', 'H', 'D', 'J', 'M', 'Q', 'SW', 'TF', 'TP', 'K']
-cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
-
-cpt_type_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_types))
 
 label_pattern = re.compile(r"([\w']*)(_{[\w]})?")
 
@@ -607,6 +596,10 @@ class Schematic(object):
 
         if filename is not None:
             self.netfile_add(filename)
+
+        parser = Parser(cpts)
+        self.parse = parser.parse
+
 
     def __getitem__(self, name):
         """Return component by name"""

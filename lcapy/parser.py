@@ -35,10 +35,15 @@ class Parser(object):
         # Add attributes.
         obj.nodes = ()
         for field in thing.tail[0].tail[1:]:
-            attr, val = field.head, field.tail[0] 
+            attr, val = field.head, field.tail
+            try:
+                val = val[0]
+            except:
+                pass
+
             if 'node' in attr:
                 obj.nodes += (val, )
-                obj.attr = val
+            setattr(obj, attr, val)
 
         obj.string = string
 

@@ -234,3 +234,9 @@ defclass('Vdc', 'V', 'DC voltage source', 'V')
 defclass('Vac', 'V', 'AC voltage source', 'V')
 
 defclass('W', OnePort, 'Wire', 'short')
+
+# Add TP and TF.
+# Perhaps AM for ammeter, VM for voltmeter, VR for variable resistor?
+# Currently, a variable resistor is supported with the variable
+# option.
+
