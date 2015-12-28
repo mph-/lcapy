@@ -39,7 +39,7 @@ print(v4)
 v5 = parse('V1 2 3 1e3')
 print(v5)
 
-v6 = parse('V1 2 3; right colour=blue size=1.5')
+v6 = parse('V1 2 3; right colour=blue size=1.5 l=$V_1$')
 print(v6)
 
 r2 = parse('R1 2 3 {5 * a}')

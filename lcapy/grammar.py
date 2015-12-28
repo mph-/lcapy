@@ -55,7 +55,7 @@ phase: val;
 keyname: 'dir' | 'colour' | 'size' | 'v' | 'l' | 'i';
 keyword: 'mirror' | 'reverse' | 'down' | 'up' | 'left' | 'right' | 'implict' | 'ground' | 'sground' ;
 opts: ';' opt opt* ;
-keyval: '=[.\w]+';
+keyval: '=.*';
 keypair: keyname keyval ;
 @opt: keyword | keypair;
 vname: 'V(\d|\w)+';
