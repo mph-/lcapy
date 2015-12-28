@@ -1,4 +1,8 @@
-from parser import parse
+from parser import Parser
+import schemcpts as cpts
+
+parser = Parser(cpts)
+parse = parser.parse
 
 r = parse('R1 2 3 4')
 print(r)
