@@ -19,13 +19,12 @@ print(j)
 s = parse('SW1 2 3 push')
 print(s)
 
-d1 = parse('D1 2 3 led')
+#d1 = parse('D1 2 3 led; dir : down')
+d1 = parse('D1 2 3 led; dir=down')
 print(d1)
 
-v1 = parse('V1 2 3')
-print(v1)
-
-v1 = parse('V1 2 3 dc=4')
+#v1 = parse('V1 2 3 dc=4')
+v1 = parse('V1 2 3 dc 4')
 print(v1)
 
 v2 = parse('V1 2 3 ac 10, 20')
@@ -39,6 +38,9 @@ print(v4)
 
 v5 = parse('V1 2 3 1e3')
 print(v5)
+
+v6 = parse('V1 2 3; right colour=blue size=1.5')
+print(v6)
 
 r2 = parse('R1 2 3 {5 * a}')
 print(r2)

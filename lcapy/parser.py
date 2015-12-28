@@ -31,15 +31,30 @@ class Parser(object):
             return self.string
         
         obj.__repr__ = frepr
+        obj.thing = thing
 
         # Add attributes.
         obj.nodes = ()
         for field in thing.tail[0].tail[1:]:
             attr, val = field.head, field.tail
-            try:
-                val = val[0]
-            except:
-                pass
+
+            # There must be a cleaner way to do this!
+            if attr == 'opts':
+                opts = {}
+                for val1 in val:
+                    if val1.head == 'keyword':
+                        opts[val1.tail[0]] = True
+                    elif val1.head == 'keypair':
+                        opts[val1.tail[0].tail[0]] = val1.tail[1].tail[0][1:]
+                    else:
+                        raise ValueError('Unknown field %s' % val1.head)
+                val = opts
+
+            else:
+                try:
+                    val = val[0]
+                except:
+                    pass
 
             if 'node' in attr:
                 obj.nodes += (val, )
