@@ -496,7 +496,7 @@ class NetElement(object):
             elif cpt_type == 'J':
                 self.sub_type = 'njf'
                 if len(args) > 0:
-                    if args[0] not in ('npj', 'pjf'):
+                    if args[0] not in ('njf', 'pjf'):
                         raise ValueError('Bad argument %s for JFET' % args[0])
                     self.sub_type = args[0]
                 args = args[1:]
