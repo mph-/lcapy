@@ -55,7 +55,7 @@ phase: val;
 keyname: 'dir' | 'colour' | 'size' | 'v' | 'l' | 'i';
 keyword: 'mirror' | 'reverse' | 'down' | 'up' | 'left' | 'right' | 'implict' | 'ground' | 'sground' ;
 opts: ';' opt opt* ;
-keyval: '=.*';
+keyval: '=[^\s]*';
 keypair: keyname keyval ;
 @opt: keyword | keypair;
 vname: 'V(\d|\w)+';
@@ -84,6 +84,6 @@ gnode: xnode;
 // Source node
 snode: xnode;
 @xnode: '\d+';
-//WHITESPACE: '[ \t\(\)=,]+' (%ignore);
+// = is also a spice whitespace character
 WHITESPACE: '[ \t\(\),]+' (%ignore);
 """

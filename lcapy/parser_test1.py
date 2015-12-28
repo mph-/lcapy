@@ -42,6 +42,9 @@ print(v5)
 v6 = parse('V1 2 3; right colour=blue size=1.5 l=$V_1$')
 print(v6)
 
+v7 = parse('V1 2 3; right colour=blue, size=1.5, l=$V_1$')
+print(v7)
+
 r2 = parse('R1 2 3 {5 * a}')
 print(r2)
 
