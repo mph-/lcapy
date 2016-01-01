@@ -1,65 +1,190 @@
-from plyplus import Grammar, ParseError
-from grammar import grammar
+"""This module performs parsing of SPICE-like netlists.  It uses a
+custom parser rather than lex/yacc to give better error messages.
 
-parser = Grammar(grammar)
+Copyright 2015, 2016 Michael Hayes, UCECE
+
+"""
+
+import re
+
+# Could use a script to generate parser and parsing tables if speed
+# was important.
+
+class Arg(object):
+
+    def __init__(self, name, base, comment):
+        
+        self.name = name
+        self.base = base
+        self.comment = comment
+        self.baseclass = None
+
+    def is_valid(self, string):
+
+        if self.baseclass is None:
+            return True
+        return self.baseclass.is_valid(string)
+
+
+class Rule(object):
+
+    def __init__(self, name, classname, args, comment, pos):
+        
+        self.name = name
+        self.classname = classname
+        self.args = args
+        self.comment = comment
+        self.pos = pos
+
+    def __repr__(self):
+
+        return self.name + 'name ' + ' '.join(self.args)
 
 class Parser(object):
 
-    def __init__(self, cpts):
+    def __init__(self, cpts, grammar):
+        """cpts is a module containing a class for each component
+        grammar is a module defining the syntax of a netlist"""
+
+        # A string defining the syntax for a netlist
+        rules = grammar.rules
+        # A string defining arguments
+        args = grammar.args
+        # A string defining delimiter characters"""
+        delimiters = grammar.delimiters
 
         self.cpts = cpts
+        self._anon_count = 0
+        self.args = {}
+        self.rules = {}
+        
+        args = args.split('\n')
+        for arg in args:
+            self._add_arg(arg)
 
-    
+        rules = rules.split('\n')
+        for rule in rules:
+            self._add_rule(rule)
+
+        cpts = self.rules.keys()
+        cpts.sort(key=len, reverse=True)
+
+        self.cpt_pattern = re.compile('(%s)(\w+)?' % '|'.join(cpts))
+        # strings in curly braces are expressions so do not split.
+        self.arg_pattern = re.compile('\{.*\}|[^%s]+' % delimiters)
+
+    def _add_arg(self, string):
+
+        if string == '':
+            return
+
+        fields = string.split(':')
+        argname = fields[0]
+        fields = fields[1].split(';')
+        argbase = fields[0].strip()
+        comment = fields[1].strip()
+        
+        self.args[argname] = Arg(argname, argbase, comment)
+
+    def _add_rule(self, string):
+
+        if string == '':
+            return
+
+        fields = string.split(':')
+        eltcname = fields[0]
+        fields = fields[1].split(';')
+        string = fields[0].strip()
+        comment = fields[1].strip()
+        
+        fields = string.split(' ')
+        args = fields[1:]
+
+        eltname = fields[0][0:-4]
+        
+        pos = None
+        newargs = ()
+        for m, arg in enumerate(args):
+            if arg[0] == '[':
+                arg = arg[1:-1]
+            if arg not in self.args:
+                raise ValueError('Unknown argument %s for %s' % (arg, string))
+            if pos is None and self.args[arg].base == 'keyword':
+                pos = m
+
+        if eltname not in self.rules:
+            self.rules[eltname] = ()
+        self.rules[eltname] += (Rule(eltname, eltcname, args, comment, pos), )
+
+
+    def _anon_cpt_id(self):
+
+        self._anon_count += 1
+        return '#%d' % self._anon_count
+
+
     def parse(self, string):
+        """Parse string and create object"""
 
-        try:
-            thing = parser.parse(string)
-        except ParseError as e:
-            raise ParseError('Could not parse: %s: due to %s' % (string, e))
+        self.string = string
+        fields = string.split(';')
+        opts_string = fields[1].strip() if len(fields) > 1 else ''
+
+        fields = self.arg_pattern.findall(fields[0])
         
-        classname = str(thing.tail[0].head).capitalize()
-        name = str(thing.tail[0].tail[0].tail[0])
+        name = fields.pop(0)
+        match = self.cpt_pattern.match(name)
+        if match is None:
+            raise ValueError('Unknown component for %s' % name)
+
+        groups = match.groups()
         
+        # Add id if anonymous.
+        cpt, cptid = groups[0], groups[1]
+        if cptid is None:
+            name += self._anon_cpt_id()
+
+        # This is the most hackery aspect of this parser where we
+        # choose the rule pattern based on a keyword.  If the
+        # keyword is not present, default to first rule pattern.
+        rule = self.rules[cpt][0]
+        for rule1 in self.rules[cpt]:
+            pos = rule1.pos
+            if pos is None:
+                continue
+            if len(fields) > pos and fields[pos].lower() == rule1.args[pos]:
+                rule = rule1
+                break
+
+        args = rule.args
+        if len(fields) > len(args):
+            raise ValueError('Too many args when parsing %s\nExpected format: %s' % (self.string, repr(rule)))
+
+
+        # Create instance of component object
         try:
-            newclass = getattr(self.cpts, classname)
+            newclass = getattr(self.cpts, cpt)
         except:
-            newclass = self.cpts.newclasses[classname]
+            newclass = self.cpts.newclasses[cpt]
 
-        obj = newclass(name)
-
-        def frepr(self):
-            return self.string
-        
-        obj.__repr__ = frepr
-        obj.thing = thing
-
-        # Add attributes.
-        obj.nodes = ()
-        for field in thing.tail[0].tail[1:]:
-            attr, val = field.head, field.tail
-
-            # There must be a cleaner way to do this!
-            if attr == 'opts':
-                opts = {}
-                for val1 in val:
-                    if val1.head == 'keyword':
-                        opts[val1.tail[0]] = True
-                    elif val1.head == 'keypair':
-                        opts[val1.tail[0].tail[0]] = val1.tail[1].tail[0][1:]
-                    else:
-                        raise ValueError('Unknown field %s' % val1.head)
-                val = opts
-
-            else:
-                try:
-                    val = val[0]
-                except:
-                    pass
-
-            if 'node' in attr:
-                obj.nodes += (val, )
-            setattr(obj, attr, val)
-
+        obj = newclass(name, *fields)
         obj.string = string
+        obj.opts_string = opts_string
+
+        for m, arg in enumerate(args):
+
+            if m >= len(fields):
+                # Optional argument
+                if arg[0] == '[':
+                    break
+                raise ValueError('Missing arg %s for %s when parsing %s\nExpected format: %s' % (arg, cpt, self.string, repr(rule)))
+
+            if arg[0] == '[':
+                arg = arg[1:-1]
+
+            # Add attribute.  Perhaps the __init__ method for
+            # the class should create these from the args?
+            setattr(obj, arg, fields[m])
 
         return obj
+

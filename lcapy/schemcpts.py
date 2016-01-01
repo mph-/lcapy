@@ -80,12 +80,18 @@ class Cpt(object):
         if hasattr(self, 'check'):
             self.check()
 
+    def __repr__(self):
+
+        if hasattr(self, 'string'):
+            return self.string
+        
+        return type(self)
 
     def draw(self, label_values=True, draw_nodes=True):
         pass
 
 
-class Q(Cpt):
+class Transistor(Cpt):
     """Transistor"""
     
     yscale = 1.5
@@ -166,17 +172,12 @@ class K(Cpt):
 
 newclasses = {}
 
-def defclass(name, base, docstring, cpt=None, pos=None):
+def defcpt(name, base, docstring, cpt=None, pos=None):
     
     if isinstance(base, str):
         base = newclasses[base]
 
     newclass = type(name, (base, ), {'__doc__': docstring})
-
-    def frepr(self):
-        return self.string
-        
-    newclass.__repr__ = frepr
 
     if cpt is not None:
         newclass.tikz_cpt = cpt
@@ -186,54 +187,55 @@ def defclass(name, base, docstring, cpt=None, pos=None):
 
 # Dynamically create classes.
 
-defclass('C', OnePort, 'Capacitor', 'C')
+defcpt('C', OnePort, 'Capacitor', 'C')
 
-defclass('D', OnePort, 'Diode', 'I')
-defclass('Dled', 'D', 'LED', 'leD')
-defclass('Dphoto', 'D', 'Photo diode', 'pD')
-defclass('Dshottky', 'D', 'Shottky diode', 'zD')
-defclass('Dtunnel', 'D', 'Tunnel diode', 'tD')
-defclass('Dzener', 'D', 'Zener diode', 'zD')
+defcpt('D', OnePort, 'Diode', 'I')
+defcpt('Dled', 'D', 'LED', 'leD')
+defcpt('Dphoto', 'D', 'Photo diode', 'pD')
+defcpt('Dshottky', 'D', 'Shottky diode', 'zD')
+defcpt('Dtunnel', 'D', 'Tunnel diode', 'tD')
+defcpt('Dzener', 'D', 'Zener diode', 'zD')
 
-defclass('E', VCS, 'VCVS', 'V')
-defclass('F', VCS, 'VCCS', 'I')
-defclass('G', CCS, 'CCVS', 'V')
-defclass('H', CCS, 'CCCS', 'I')
+defcpt('E', VCS, 'VCVS', 'V')
+defcpt('F', VCS, 'VCCS', 'I')
+defcpt('G', CCS, 'CCVS', 'V')
+defcpt('H', CCS, 'CCCS', 'I')
 
-defclass('I', OnePort, 'Current source', 'I')
-defclass('Isin', 'I', 'Sinusoidal current source', 'sI')
-defclass('Idc', 'I', 'DC current source', 'I')
-defclass('Iac', 'I', 'AC current source', 'I')
+defcpt('I', OnePort, 'Current source', 'I')
+defcpt('Isin', 'I', 'Sinusoidal current source', 'sI')
+defcpt('Idc', 'I', 'DC current source', 'I')
+defcpt('Iac', 'I', 'AC current source', 'I')
 
-defclass('J', Q, 'N JFET transistor', 'njft', {1: (1, 1), 2: (0, 0.5), 3: (1, 0)})
-defclass('Jnjf', 'J',  'N JFET transistor', 'njf')
-defclass('Jpjf', 'J',  'P JFET transistor', 'pjf')
+defcpt('J', Transistor, 'N JFET transistor', 'njft', {1: (1, 1), 2: (0, 0.5), 3: (1, 0)})
+defcpt('Jnjf', 'J', 'N JFET transistor', 'njf')
+defcpt('Jpjf', 'J', 'P JFET transistor', 'pjf')
 
-defclass('L', OnePort, 'Inductor', 'L')
+defcpt('L', OnePort, 'Inductor', 'L')
 
-defclass('M', 'J', 'N MOSJFET transistor', 'nmos')
-defclass('Mnmos', 'M', 'N channel MOSJFET transistor', 'nmos')
-defclass('Mpmos', 'M', 'P channel MOSJFET transistor', 'pmos')
+defcpt('M', 'J', 'N MOSJFET transistor', 'nmos')
+defcpt('Mnmos', 'M', 'N channel MOSJFET transistor', 'nmos')
+defcpt('Mpmos', 'M', 'P channel MOSJFET transistor', 'pmos')
 
-defclass('O', OnePort, 'Open circuit', 'open')
-defclass('P', OnePort, 'Port', 'open')
+defcpt('O', OnePort, 'Open circuit', 'open')
+defcpt('P', OnePort, 'Port', 'open')
 
-defclass('Qpnp', Q, 'PNP transistor', 'pnp')
-defclass('Qnpn', Q, 'NPN transistor', 'npn')
+defcpt('Q', Transistor, 'NPN transistor', 'npn')
+defcpt('Qpnp', 'Q', 'PNP transistor', 'pnp')
+defcpt('Qnpn', 'Q', 'NPN transistor', 'npn')
 
-defclass('R', OnePort, 'Resistor', 'R')
+defcpt('R', OnePort, 'Resistor', 'R')
 
-defclass('Sw', OnePort, 'Switch', 'SW')
-defclass('Swno', 'Sw', 'Normally open switch', 'SWno')
-defclass('Swnc', 'Sw', 'Normally closed switch', 'SWnc')
-defclass('Swpush', 'Sw', 'Pushbutton switch', 'SWpush')
+defcpt('SW', OnePort, 'SWitch', 'SW')
+defcpt('SWno', 'SW', 'Normally open switch', 'SWno')
+defcpt('SWnc', 'SW', 'Normally closed switch', 'SWnc')
+defcpt('SWpush', 'SW', 'Pushbutton switch', 'SWpush')
 
-defclass('V', OnePort, 'Voltage source', 'V')
-defclass('Vsin', 'V', 'Sinusoidal voltage source', 'sV')
-defclass('Vdc', 'V', 'DC voltage source', 'V')
-defclass('Vac', 'V', 'AC voltage source', 'V')
+defcpt('V', OnePort, 'Voltage source', 'V')
+defcpt('Vsin', 'V', 'Sinusoidal voltage source', 'sV')
+defcpt('Vdc', 'V', 'DC voltage source', 'V')
+defcpt('Vac', 'V', 'AC voltage source', 'V')
 
-defclass('W', OnePort, 'Wire', 'short')
+defcpt('W', OnePort, 'Wire', 'short')
 
 # Add TP and TF.
 # Perhaps AM for ammeter, VM for voltmeter, VR for variable resistor?

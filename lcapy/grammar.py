@@ -1,89 +1,87 @@
-grammar = r"""
-start: c | d | dled | dphoto | dzener | dshottky | dtunnel | e | f | g | h | i | idc | iac | isin | jnjf | jpjf | k | l | qnpn | qpnp | r | swnc | swno | swpush | v | vdc | vac | vsin;
-c: cname pnode nnode value? opts?;
-cname: 'C(\d|\w)+';
-d: dname pnode nnode opts?;
-dled: dname pnode nnode 'led' opts?;
-dzener: dname pnode nnode 'zener' opts?;
-dphoto: dname pnode nnode 'photo' opts?;
-dtunnel: dname pnode nnode 'tunnel' opts?;
-dshottky: dname pnode nnode 'shottky' opts?;
-dname: 'D(\d|\w)+';
-e: ename pnode nnode cpnode cnnode value? opts?;
-ename: 'E(\d|\w)+';
-f: fname pnode nnode vname value? opts?;
-fname: 'F(\d|\w)+';
-g: gname pnode nnode cpnode cnnode value? opts?;
-gname: 'G(\d|\w)+';
-h: hname pnode nnode vname value? opts?;
-hname: 'H(\d|\w)+';
-i: iname pnode nnode value? opts?;
-idc: iname pnode nnode 'dc' value? opts?;
-iac: iname pnode nnode 'ac' value? phase? opts?;
-isin: iname pnode nnode 'sin' io ia fo td? alpha? phase? opts?;
-io: val;
-ia: val;
-iname: 'I(\d|\w)+';
-jnjf: jname dnode gnode snode 'njf'? opts?;
-jpjf: jname dnode gnode snode 'pjf' opts?;
-jname: 'J(\d|\w)+';
-k: kname lname lname value? opts?;
-kname: 'K(\d|\w)+';
-l: lname pnode nnode value? opts?;
-lname: 'L(\d|\w)+';
-// C B E or D G S
-qnpn: qname cnode bnode enode 'npn'? opts?;
-qpnp: qname cnode bnode enode 'pnp' opts?;
-qname: 'Q(\d|\w)+';
-r: rname pnode nnode value? opts?;
-rname: 'R(\d|\w)+';
-swnc: swname pnode nnode 'nc' opts?;
-swno: swname pnode nnode 'no' opts?;
-swpush: swname pnode nnode 'push' opts?;
-swname: 'SW(\d|\w)+';
-v: vname pnode nnode value? opts?;
-vdc: vname pnode nnode 'dc' value? opts?;
-vac: vname pnode nnode 'ac' value? phase? opts?;
-vsin: vname pnode nnode 'sin' vo va fo td? alpha? phase? opts?;
-vo: val;
-va: val;
-fo: val;
-td: val;
-alpha: val;
-phase: val;
-// opts: ;
-keyname: 'dir' | 'colour' | 'size' | 'v' | 'l' | 'i';
-keyword: 'mirror' | 'reverse' | 'down' | 'up' | 'left' | 'right' | 'implict' | 'ground' | 'sground' ;
-opts: ';' opt opt* ;
-keyval: '=[^\s]*';
-keypair: keyname keyval ;
-@opt: keyword | keypair;
-vname: 'V(\d|\w)+';
-@integer: '\d+';
-@float: '-?([1-9]\d*|\d)\.(\d+)?([eE][+-]?\d+)?' | '-?([1-9]\d*|\d)[eE]([+-]?\d+)?';
-value: float | integer | '\{.*\}';
-@val: float | integer | '\{.*\}';
-// Positive node
-pnode: xnode;
-// Negative node
-nnode: xnode;
-// Positive controlling node
-cpnode: xnode;
-// Negative controlling node
-cnnode: xnode;
-// Collector node
-cnode: xnode;
-// Base node
-bnode: xnode;
-// Emitter node
-enode: xnode;
-// Drain node
-dnode: xnode;
-// Gate node
-gnode: xnode;
-// Source node
-snode: xnode;
-@xnode: '\d+';
-// = is also a spice whitespace character
-WHITESPACE: '[ \t\(\),]+' (%ignore);
+"""
+This module defines a grammar for SPICE-like netlists.
+
+Copyright 2015, 2016 Michael Hayes, UCECE
+"""
+
+# SPICE also considers = a delimiter.
+delimiters = r' \t\(\),'
+
+# Optional args are in square brackets.
+rules = r"""
+D: Dname Np Nm; Diode
+Dled: Dname Np Nm led; Light emitting diode
+Dzener: Dname Np Nm zener; Zener diode
+Dphoto: Dname Np Nm photo; Photo diode
+Dtunnel: Dname Np Nm tunnel; Tunnel diode
+Dshottky: Dname Np Nm shottky; Shottky diode
+E: Ename Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
+F: Fname Np Nm Vcontrol [Value]; Voltage controlled current source
+G: Gname Np Nm Ncp Ncm [Value]; Current controlled voltage source
+H: Hname Np Nm Vcontrol [Value]; Current controlled current source
+I: Iname Np Nm [Value]; Current source
+Idc: Iname Np Nm dc [Value]; DC current source
+Iac: Iname Np Nm ac [Value] [Phase]; AC current source
+Isin: Iname Np Nm sin Io Ia fo [td] [alpha] [Phase]; Sinusoidal current source
+J: Jname Nd Ng Ns; N channel JFET
+Jnjf: Jname Nd Ng Ns njf; N channel JFET
+Jpjf: Jname Nd Ng Ns pjf; P channel JFET
+K: Kname Lname1 Lname2 [Value]; Mutual inductance
+L: Lname Np Nm [Value]; Inductance
+M: Mname Nd Ng Ns; N channel MOSFET
+Mnmos: Mname Nd Ng Ns nmos; N channel MOSFET
+Mpmos: Mname Nd Ng Ns pmos; P channel MOSFET
+Q: Qname Nc Nb Ne; NPN transistor
+Qnpn: Qname Nc Nb Ne npn; NPN transistor
+Qpnp: Qname Nc Nb Ne pnp; PNP transistor 
+R: Rname Np Nm [Value]; Resistor
+SWnc: SWname Np Nm nc; Switch normally closed
+SWno: SWname Np Nm no; Switch normally open
+Swpush: SWname Np Nm push; Pushbutton switch
+V: Vname Np Nm [Value]; Voltage source
+Vdc: Vname Np Nm dc [Value]; DC voltage source
+Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
+Vsin: Vname Np Nm sin Vo Va fo [td] [alpha] [Phase]; Sinusoidal voltage source
+"""
+
+args = r"""
+led: keyword;
+zener: keyword;
+photo: keyword;
+tunnel: keyword;
+shottky: keyword;
+ac: keyword;
+dc: keyword;
+sin: keyword;
+njf: keyword;
+pjf: keyword;
+npn: keyword;
+pnp: keyword;
+nmos: keyword;
+pmos: keyword;
+no: keyword;
+nc: keyword;
+push: keyword;
+Nb: node; Base node
+Nc: node; Collector node
+Ncp: node; Positive control node
+Ncm: node; Negative control node
+Nd: node; Drain node
+Ne: node; Emitter node
+Ng: node; Gate node
+Nm: node; Negative node
+Np: node; Positive node
+Ns: node; Source node
+Phase: value; AC Phase
+Vo: value; DC voltage offset
+Va: value; Sinewave voltage amplitude
+Io: value; DC current offset
+Ia: value; Sinewave current amplitude
+fo: value; Sinewave frequency
+td: value; Time delay
+alpha: value; Damping factor
+Value: value; Value
+Lname1: name; Inductor1 name 
+Lname2: name; Inductor2 name 
+Vcontrol: name; Control voltage name 
 """
