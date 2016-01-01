@@ -40,6 +40,45 @@ class Rule(object):
 
         return self.name + 'name ' + ' '.join(self.args)
 
+    def syntax_error(self, error, string):
+
+        raise ValueError('%s parsing %s\nExpected format: %s' % (error, string, repr(self)))        
+
+
+    def process(self, cpts, cpt, name, string, fields, opts_string):
+
+        args = self.args
+        if len(fields) > len(args):
+            self.syntax_error('Too many args', string)
+
+        # Create instance of component object
+        try:
+            newclass = getattr(cpts, cpt)
+        except:
+            newclass = cpts.newclasses[cpt]
+
+        obj = newclass(name, *fields)
+        obj.string = string
+        obj.opts_string = opts_string
+
+        for m, arg in enumerate(args):
+
+            if m >= len(fields):
+                # Optional argument
+                if arg[0] == '[':
+                    break
+                self.syntax_error('Missing arg %s' % arg, string)
+
+            if arg[0] == '[':
+                arg = arg[1:-1]
+
+            # Add attribute.  Perhaps the __init__ method for
+            # the class should create these from the args?
+            setattr(obj, arg, fields[m])
+
+        return obj
+
+
 class Parser(object):
 
     def __init__(self, cpts, grammar):
@@ -123,6 +162,11 @@ class Parser(object):
         return '#%d' % self._anon_count
 
 
+    def _syntax_error(self, string):
+
+        raise ValueError('%s\nExpected format: %s' % (repr(rule)))
+
+
     def parse(self, string):
         """Parse string and create object"""
 
@@ -156,35 +200,7 @@ class Parser(object):
                 rule = rule1
                 break
 
-        args = rule.args
-        if len(fields) > len(args):
-            raise ValueError('Too many args when parsing %s\nExpected format: %s' % (self.string, repr(rule)))
+        return rule.process(self.cpts, cpt, name, string, fields, 
+                            opts_string)
 
-
-        # Create instance of component object
-        try:
-            newclass = getattr(self.cpts, cpt)
-        except:
-            newclass = self.cpts.newclasses[cpt]
-
-        obj = newclass(name, *fields)
-        obj.string = string
-        obj.opts_string = opts_string
-
-        for m, arg in enumerate(args):
-
-            if m >= len(fields):
-                # Optional argument
-                if arg[0] == '[':
-                    break
-                raise ValueError('Missing arg %s for %s when parsing %s\nExpected format: %s' % (arg, cpt, self.string, repr(rule)))
-
-            if arg[0] == '[':
-                arg = arg[1:-1]
-
-            # Add attribute.  Perhaps the __init__ method for
-            # the class should create these from the args?
-            setattr(obj, arg, fields[m])
-
-        return obj
 
