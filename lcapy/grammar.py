@@ -37,7 +37,7 @@ Qpnp: Qname Nc Nb Ne pnp; PNP transistor
 R: Rname Np Nm [Value]; Resistor
 SWnc: SWname Np Nm nc; Switch normally closed
 SWno: SWname Np Nm no; Switch normally open
-Swpush: SWname Np Nm push; Pushbutton switch
+SWpush: SWname Np Nm push; Pushbutton switch
 V: Vname Np Nm [Value]; Voltage source
 Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source

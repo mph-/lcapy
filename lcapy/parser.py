@@ -45,7 +45,7 @@ class Rule(object):
         raise ValueError('%s parsing %s\nExpected format: %s' % (error, string, repr(self)))        
 
 
-    def process(self, cpts, cpt, name, string, fields, opts_string):
+    def process(self, cpts, name, string, fields, opts_string):
 
         args = self.args
         if len(fields) > len(args):
@@ -53,9 +53,9 @@ class Rule(object):
 
         # Create instance of component object
         try:
-            newclass = getattr(cpts, cpt)
+            newclass = getattr(cpts, self.classname)
         except:
-            newclass = cpts.newclasses[cpt]
+            newclass = cpts.newclasses[self.classname]
 
         obj = newclass(name, *fields)
         obj.string = string
@@ -89,7 +89,7 @@ class Parser(object):
         rules = grammar.rules
         # A string defining arguments
         args = grammar.args
-        # A string defining delimiter characters"""
+        # A string defining delimiter characters
         delimiters = grammar.delimiters
 
         self.cpts = cpts
@@ -97,12 +97,10 @@ class Parser(object):
         self.args = {}
         self.rules = {}
         
-        args = args.split('\n')
-        for arg in args:
+        for arg in args.split('\n'):
             self._add_arg(arg)
 
-        rules = rules.split('\n')
-        for rule in rules:
+        for rule in rules.split('\n'):
             self._add_rule(rule)
 
         cpts = self.rules.keys()
@@ -153,19 +151,17 @@ class Parser(object):
 
         if eltname not in self.rules:
             self.rules[eltname] = ()
-        self.rules[eltname] += (Rule(eltname, eltcname, args, comment, pos), )
-
+        self.rules[eltname] += (Rule(eltname, eltcname,
+                                     args, comment, pos), )
 
     def _anon_cpt_id(self):
 
         self._anon_count += 1
         return '#%d' % self._anon_count
 
-
     def _syntax_error(self, string):
 
         raise ValueError('%s\nExpected format: %s' % (repr(rule)))
-
 
     def parse(self, string):
         """Parse string and create object"""
@@ -200,7 +196,7 @@ class Parser(object):
                 rule = rule1
                 break
 
-        return rule.process(self.cpts, cpt, name, string, fields, 
+        return rule.process(self.cpts, name, string, fields, 
                             opts_string)
 
 
