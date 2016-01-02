@@ -28,8 +28,6 @@ import math
 
 __all__ = ('Schematic', )
 
-label_pattern = re.compile(r"([\w']*)(_{[\w]})?")
-
 parser = Parser(cpts, grammar)
 
 class Opts(dict):
@@ -458,29 +456,8 @@ class Schematic(object):
         if node not in self.snodes[vnode]:
             self.snodes[vnode].append(node)
 
-    def _elt_add(self, elt):
 
-        self._invalidate()
-
-        if elt.name in self.elements:
-            print('Overriding component %s' % elt.name)
-            # Need to search lists and update component.
-
-        self.elements[elt.name] = elt
-
-        # Ignore nodes for mutual inductance.
-        if elt.type == 'K':
-            return
-
-        nodes = elt.nodes
-        # The controlling nodes are not drawn.
-        if elt.type in ('E', 'G'):
-            nodes = nodes[0:2]
-
-        for node in nodes:
-            self._node_add(node, elt)
-
-    def add(self, string):
+    def parse(self, string):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive nose and Nm is the negative node.
 
@@ -506,7 +483,6 @@ class Schematic(object):
                 self.add(line)
             return
 
-        # FIX
         cpt = parser.parse(string)
         if cpt is None:
             return
@@ -570,11 +546,42 @@ class Schematic(object):
             opts['dir'] = 'down' if cpt.type in ('O', 'P') else 'right'
         cpt.opts = opts
 
+        return cpt
+
+    def add(self, string):
+        """The general form is: 'Name Np Nm symbol'
+        where Np is the positive nose and Nm is the negative node.
+
+        A positive current is defined to flow from the positive node
+        to the negative node.
+        """
+
+        cpt = self.parse(string)
+        if cpt is None:
+            return
 
         if cpt.opts_string != '':
             self.hints = True
 
-        self._elt_add(cpt)
+        self._invalidate()
+
+        if cpt.name in self.elements:
+            print('Overriding component %s' % cpt.name)
+            # Need to search lists and update component.
+
+        self.elements[cpt.name] = cpt
+
+        # Ignore nodes for mutual inductance.
+        if cpt.type == 'K':
+            return
+
+        nodes = cpt.nodes
+        # The controlling nodes are not drawn.
+        if cpt.type in ('E', 'G'):
+            nodes = nodes[0:2]
+
+        for node in nodes:
+            self._node_add(node, cpt)
 
 
 # Transformer
@@ -823,9 +830,8 @@ class Schematic(object):
         for n in range(num_wires):
             n1 = snode_list[n]
             n2 = snode_list[n + 1]
-
-            raise ValueError('TODO')
-            #wires.append(NetElement('W_', n1, n2))
+            
+            wires.append(self.parse('W_ %s %s' % (n1, n2)))
 
         return wires
 
