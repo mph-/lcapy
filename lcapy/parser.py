@@ -118,7 +118,7 @@ class Parser(object):
 
         self.cpt_pattern = re.compile('(%s)(\w+)?' % '|'.join(cpts))
         # strings in curly braces are expressions so do not split.
-        self.arg_pattern = re.compile('\{.*\}|[^%s]+' % delimiters)
+        self.arg_pattern = re.compile('\{.*\}|".*"|[^%s]+' % delimiters)
 
     def _add_arg(self, string):
 
