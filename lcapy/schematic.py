@@ -465,7 +465,10 @@ class Schematic(object):
         to the negative node.
         """
 
-        def tex_name(name, subscript=''):
+        def tex_name(name, subscript=None):
+
+            if subscript is None:
+                subscript = ''
 
             if len(name) > 1:
                 name = r'\mathrm{%s}' % name
@@ -496,29 +499,29 @@ class Schematic(object):
         if cpt.type in ('O', 'P', 'W') or id_label.find('#') != -1:
             id_label = None
 
-        if False and len(args) > 0:
+        if hasattr(cpt, 'Value'):
 
             # TODO, extend for mechanical and acoustical components.
             units_map = {'V': 'V', 'I': 'A', 'R': '$\Omega$',
                          'C': 'F', 'L': 'H'}
 
-            expr = args[0]
-            if cpt.type in ('Vimpulse', 'Iimpulse'):
+            expr = cpt.Value
+            if cpt.classname in ('Vimpulse', 'Iimpulse'):
                 expr = '(%s) * DiracDelta(t)' % expr
                 value_label = Expr(expr, cache=False).latex()
-            elif cpt.type in ('Vstep', 'Istep'):
+            elif cpt.classname in ('Vstep', 'Istep'):
                 expr = '(%s) * Heaviside(t)' % expr
                 value_label = Expr(expr, cache=False).latex()
-            elif cpt.type in ('Vs', 'Is'):
+            elif cpt.classname in ('Vs', 'Is'):
                 value_label = Expr(expr, cache=False).latex()
-            elif cpt.type == 'TF':
-                value_label = '1:%s' % args[0]
-            elif cpt.type not in ('TP',):
+            elif cpt.classname == 'TF':
+                value_label = '1:%s' % expr
+            elif cpt.classname not in ('TP',):
                 try:
-                    value = float(args[0])
-                    if cpt.type[0] in units_map:
+                    value = float(expr)
+                    if cpt.type in units_map:
                         value_label = EngFormat(
-                            value, units_map[cpt.type[0]]).latex()
+                            value, units_map[cpt.type]).latex()
                     else:
                         value_label = Expr(expr, cache=False).latex()
 

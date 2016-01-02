@@ -62,7 +62,12 @@ def test_Vsin1():
 def test_Vexpr():
     '''Test voltage source with expr'''
     
-    assert_equals(type(parse('V1 1 2 sin(1, 2, 3)')), schemcpts.classes['Vsin'], 'Class not Vsin')
+    assert_equals(type(parse('V1 1 2 {a * 5}')), schemcpts.classes['V'], 'Class not V')
+
+def test_Vquotes():
+    '''Test voltage source with arg in quotes'''
+    
+    assert_equals(type(parse('V1 1 2 "a * 5"')), schemcpts.classes['V'], 'Class not V')
 
 def test_opamp():
     '''Test opamp'''

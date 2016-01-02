@@ -218,6 +218,7 @@ class Parser(object):
         
         cpt.id = cpt_id
         cpt.type = cpt_type
+        cpt.classname = rule.classname
         return cpt
 
 
