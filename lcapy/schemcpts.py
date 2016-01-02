@@ -197,6 +197,7 @@ defcpt('Dtunnel', 'D', 'Tunnel diode', 'tD')
 defcpt('Dzener', 'D', 'Zener diode', 'zD')
 
 defcpt('E', VCS, 'VCVS', 'V')
+defcpt('Eopamp', 'E', 'VCVS', 'V')
 defcpt('F', VCS, 'VCCS', 'I')
 defcpt('G', CCS, 'CCVS', 'V')
 defcpt('H', CCS, 'CCCS', 'I')

@@ -16,6 +16,7 @@ Dphoto: Dname Np Nm photo; Photo diode
 Dtunnel: Dname Np Nm tunnel; Tunnel diode
 Dshottky: Dname Np Nm shottky; Shottky diode
 E: Ename Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
+Eopamp: Ename Np Nm opamp Ncp Ncm [Value]; Opamp
 F: Fname Np Nm Vcontrol [Value]; Voltage controlled current source
 G: Gname Np Nm Ncp Ncm [Value]; Current controlled voltage source
 H: Hname Np Nm Vcontrol [Value]; Current controlled current source
@@ -61,6 +62,7 @@ nmos: keyword;
 pmos: keyword;
 no: keyword;
 nc: keyword;
+opamp: keyword;
 push: keyword;
 Nb: node; Base node
 Nc: node; Collector node

@@ -64,10 +64,7 @@ def test_Vexpr():
     
     assert_equals(type(parse('V1 1 2 sin(1, 2, 3)')), schemcpts.classes['Vsin'], 'Class not Vsin')
 
-
-
-
-
-
-
+def test_opamp():
+    '''Test opamp'''
     
+    assert_equals(type(parse('E 1 2 opamp 3 4')), schemcpts.classes['Eopamp'], 'Class not Eopamp')

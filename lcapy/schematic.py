@@ -424,18 +424,7 @@ class NetElement(object):
             return '%s_{%s}' % (name, subscript)
 
 
-        # Circuitikz does not like a . in a name
-        if n1.find('.') != -1:
-            raise ValueError('Cannot have . in node name %s' % n1)
-        if n2.find('.') != -1:
-            raise ValueError('Cannot have . in node name %s' % n2)
 
-        cpt_type = match.groups()[0]
-        cpt_id = match.groups()[1]
-
-        if cpt_id is None:
-            NetElement.cpt_type_counter += 1
-            name = cpt_type + '#%d' % NetElement.cpt_type_counter
 
         # There are two possible labels for a component:
         # 1. Component identifier, e.g., R1
