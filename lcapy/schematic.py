@@ -587,163 +587,68 @@ class Schematic(object):
             self._node_add(node, cpt)
 
 
-# Transformer
-#   n4      n2
-#
-#   n3      n1
-#
-# For horiz. node layout want to make (n3, n4) and (n1, n2) in same cnodes
-# For vert. node layout want to make (n2, n4) and (n1, n3) in same cnodes
+    def _xlink(self, cpt, cnodes):
+
+        for n1 in cpt.nodes:
+            for n2 in cpt.nodes:
+                if n1 == n2:
+                    continue
+                if cpt.xvals[n2] == cpt.xvals[n1]:
+                    print('TODO link xpos for node %d with %d' % (n1, n2))
+
+    def _ylink(self, cpt, cnodes):
+
+        for n1 in cpt.nodes:
+            for n2 in cpt.nodes:
+                if n1 == n2:
+                    continue
+                if cpt.yvals[n2] == cpt.yvals[n1]:
+                    print('TODO link ypos for node %d with %d' % (n1, n2))
+
+    def _xplace(self, cpt, graphs, size=1):
+
+        for n1 in cpt.nodes:
+            for n2 in cpt.nodes:
+                if n1 == n2:
+                    continue
+                value = (cpt.xvals[n2] - cpt.xvals[1]) * cpt.xscale * size
+                graphs.add(nodes[int(n1) - 1], nodes[int(n2) - 1], value)
+
+    def _yplace(self, cpt, graphs, size=1):
+
+        for n1 in cpt.nodes:
+            for n2 in cpt.nodes:
+                if n1 == n2:
+                    continue
+                value = (cpt.yvals[n2] - cpt.yvals[1]) * cpt.yscale * size
+                graphs.add(nodes[int(n1) - 1], nodes[int(n2) - 1], value)
 
     def _make_graphs(self, dirs):
-
-        cnodes = Cnodes(self.nodes)
 
         # Use components in orthogonal directions as constraints.  The
         # nodes of orthogonal components get combined into a
         # common node.
-        for m, elt in enumerate(self.elements.values()):
 
-            if elt.type in ('TF', 'TP'):
-                if dirs[0] == 'right':
-                    # Ensure nodes have same x value
-                    cnodes.link(*elt.nodes[0:2])
-                    cnodes.link(*elt.nodes[2:4])
-                else:
-                    cnodes.link(*elt.nodes[0:4:2])
-                    cnodes.link(*elt.nodes[1:4:2])
-                continue
-            elif elt.type == 'opamp':
-                if dirs[0] == 'right':
-                    # Ensure input nodes have same x value
-                    cnodes.link(*elt.nodes[2:4])
-                continue
-            elif elt.type == 'K':
+        cnodes = Cnodes(self.nodes)
 
-                # Should check that these inductors exist.
-                L1 = self.elements[elt.nodes[0]]
-                L2 = self.elements[elt.nodes[1]]
-
-                # TODO, generalise
-                if L1.opts['dir'] != 'down' or L2.opts['dir'] != 'down':
-                    raise ValueError(
-                        'Can only handle vertical mutual inductors')
-                nodes = L2.nodes + L1.nodes
-                n1, n2, n3, n4 = nodes
-
-                # Provide horizontal constraints (the inductors
-                # provide the vertical constraints).
-                if dirs[0] != 'right':
-                    cnodes.link(n3, n1)
-                    cnodes.link(n4, n2)
-                continue
-            elif elt.type in ('J', 'M', 'Q'):
-                n1, n2, n3 = elt.nodes                
-
-                if dirs[0] == 'right':
-                    # Horizontal constraint for C and E.
-                    cnodes.link(n3, n1)
-                continue
-
-            if elt.opts['dir'] in dirs:
-                continue
-
-            cnodes.link(*elt.nodes[0:2])
+        if dirs[0] == 'right':
+            for m, elt in enumerate(self.elements.values()):
+                self._xlink(elt, cnodes)                
+        else:
+            for m, elt in enumerate(self.elements.values()):
+                self._ylink(elt, cnodes)                
 
         # Now form forward and reverse directed graphs using components
         # in the desired directions.
         graphs = Graphs(cnodes.size, 
                         'vertical' if dirs[0] == 'up' else 'horizontal')
 
-        for m, elt in enumerate(self.elements.values()):
-
-            size = float(elt.opts['size'])
-
-            if elt.type in ('TF', 'TP'):
-                # m1, m2 output nodes; m3, m4 input nodes
-                m1, m2, m3, m4 = cnodes.map(elt.nodes)
-
-                scale = {'TF': 0.5, 'TP': 2}
-
-                if dirs[0] == 'right':
-                    graphs.add(m3, m1, scale[elt.type] * size)
-                    graphs.add(m4, m2, scale[elt.type] * size)
-                else:
-                    graphs.add(m2, m1, size)
-                    graphs.add(m4, m3, size)
-                continue
-            elif elt.type == 'opamp':
-                # m1, m2 output nodes; m3, m4 input nodes
-                # m2 assumed ground...
-                m1, m2, m3, m4 = cnodes.map(elt.nodes)
-
-                if dirs[0] == 'right':
-                    graphs.add(m3, m1, size * 2 + 0.4)
-                    graphs.add(m4, m1, size * 2 + 0.4)
-                else:
-                    if 'mirror' in elt.opts:
-                        graphs.add(m3, m1, 0.5 * size)
-                        graphs.add(m1, m4, 0.5 * size)
-                    else:
-                        graphs.add(m4, m1, 0.5 * size)
-                        graphs.add(m1, m3, 0.5 * size)
-                continue
-            elif elt.type == 'K':
-
-                L1 = self.elements[elt.nodes[0]]
-                L2 = self.elements[elt.nodes[1]]
-
-                nodes = L2.nodes + L1.nodes
-                m1, m2, m3, m4 = cnodes.map(nodes)
-
-                scale = 0.8
-                if dirs[0] == 'right':
-                    graphs.add(m3, m1, scale * size)
-                    graphs.add(m4, m2, scale * size)
-                continue
-            elif elt.type == 'J':
-                # D, G, S
-                m1, m2, m3 = cnodes.map(elt.nodes)
-
-                yscale = 1.5
-                xscale = 1.0
-                if dirs[0] == 'right':
-                    if elt.opts['dir'] == 'left':
-                        m1, m2 = m2, m1
-                    graphs.add(m2, m1, xscale * size)
-                else:
-                    if elt.sub_type == 'pjf':
-                        graphs.add(m3, m2, yscale * size * 0.68)
-                        graphs.add(m2, m1, yscale * size * 0.32)
-                    else:
-                        graphs.add(m3, m2, yscale * size * 0.32)
-                        graphs.add(m2, m1, yscale * size * 0.68)
-                continue
-            elif elt.type in ('M', 'Q'):
-                # C, B, E or D, G, S
-                m1, m2, m3 = cnodes.map(elt.nodes)
-
-                yscale = 1.5
-                xscale = 1.0 if elt.type == 'M' else 0.85
-                if dirs[0] == 'right':
-                    if elt.opts['dir'] == 'left':
-                        m1, m2 = m2, m1
-                    graphs.add(m2, m1, xscale * size)
-                else:
-                    graphs.add(m3, m2, yscale * size * 0.5)
-                    graphs.add(m2, m1, yscale * size * 0.5)
-                continue
-
-            if elt.opts['dir'] not in dirs:
-                continue
-
-            # Handle bipoles here.  Treat VCCS etc as bipole.
-            m1, m2 = cnodes.map(elt.nodes[0:2])
-
-            if elt.opts['dir'] == dirs[0]:
-                graphs.add(m1, m2, size)
-            elif elt.opts['dir'] == dirs[1]:
-                graphs.add(m2, m1, size)
+        if dirs[0] == 'right':
+            for m, elt in enumerate(self.elements.values()):
+                self._xplace(elt, graphs, cnodes)                
+        else:
+            for m, elt in enumerate(self.elements.values()):
+                self._yplace(elt, graphs, cnodes)                
 
         graphs.add_start_nodes()
 
@@ -1052,65 +957,7 @@ class Schematic(object):
 
         n1, n2 = elt.nodes[0:2]
 
-        if elt.type == 'W' and ('implicit' in elt.opts
-                                    or 'ground' in elt.opts
-                                    or 'sground' in elt.opts):
-                                    
-            # Draw implict wires, i.e., connections to ground, etc.
-
-            kind = ''
-            if 'implicit' in elt.opts:
-                kind = 'sground'
-            if 'ground' in elt.opts:
-                kind = 'ground'
-            if 'sground' in elt.opts:
-                kind = 'sground'
-
-            args = [kind]
-            if elt.opts['dir'] == 'up':
-                args.append('yscale=-1')
-            if elt.opts['dir'] == 'left':
-                args.append('xscale=-1')
-            args_str = ','.join(args)
-
-            offset = 0.0
-            anchor = 'south west'
-            p = self.coords[n2]
-            if elt.opts['dir'] == 'down':
-                offset = 0.25
-                anchor = 'north west'
-            elif elt.opts['dir'] == 'up':
-                offset = -0.25
-            pos = Pos(p.x, p.y + offset)
-
-            s = r'  \draw (%s) to [short] (%s);''\n' % (n1, pos)
-            s += r'  \draw (%s) node[%s] {};''\n' % (pos, args_str)
-
-            if 'l' in elt.opts:
-                label_str = '${%s}$' % latex_str(elt.opts['l'])
-                s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (anchor, n2, label_str)
-            return s
-
-        # Mapping of component names to circuitikz names.
-        cpt_type_map = {'R': 'R', 'C': 'C', 'L': 'L',
-                        'Vac': 'sV', 'Vdc': 'V', 'Iac': 'sI', 'Idc': 'I',
-                        'Vacstep': 'sV', 'Vstep': 'V',
-                        'Iacstep': 'sI', 'Istep': 'I',
-                        'Vimpulse': 'V', 'Iimpulse': 'I',
-                        'Vs': 'V', 'Is': 'I',
-                        'V': 'V', 'I': 'I', 'v': 'V', 'i': 'I',
-                        'O' : 'open', 'P': 'open', 'W': 'short',
-                        'TF': 'transformer', 'D' : 'D',
-                        'Z': 'Z', 'Y': 'Y',
-                        'E' : 'american controlled voltage source',
-                        'G' : 'american controlled voltage source',
-                        'F' : 'american controlled current source',
-                        'H' : 'american controlled current source',
-                        'SWnc' : 'opening switch', 'SWno' : 'closing switch',
-                        'SW' : 'closing switch', 'SWpush' : 'push button'}
-
-        cpt_type = cpt_type_map[elt.type]
-        if cpt_type == 'R' and 'variable' in elt.opts:
+        if cpt.type == 'R' and 'variable' in elt.opts:
             cpt_type = 'vR'
 
         id_pos = '_'
@@ -1179,7 +1026,7 @@ class Schematic(object):
 
         # Generate default label unless specified.
         if label_str == '':
-            if cpt_type not in ('open', 'short'):
+            if cpt.type not in ('open', 'short'):
                 
                 label_str = ', l%s=${%s}$' % (id_pos, elt.default_label)
                 
@@ -1193,14 +1040,6 @@ class Schematic(object):
 
         if not label_values and label_ids:
             label_str = ', l%s=${%s}$' % (id_pos, elt.id_label)
-
-        if cpt_type in ('Y', 'Z'):
-            cpt_type = 'european resistor'
-        elif cpt_type == 'D':
-            diode_type_map = {'' : 'D', 'led' : 'leD', 'tunnel' : 'tD',
-                              'zener' : 'zD', 'photo' : 'pD',
-                              'schottky' : 'sD'}
-            cpt_type = diode_type_map[elt.sub_type]
 
         s = r'  \draw (%s) to [align=right, %s%s, %s%s] (%s);''\n' % (
             n1, cpt_type, label_str, args_str, node_str, n2)
@@ -1219,21 +1058,9 @@ class Schematic(object):
             s += r'  \coordinate (%s) at (%s);''\n' % (
                 coord, self.coords[coord])
 
-        draw = {'TF': self._tikz_draw_TF,
-                'TP': self._tikz_draw_TP,
-                'K': self._tikz_draw_K,
-                'J': self._tikz_draw_Q,
-                'M': self._tikz_draw_Q,
-                'Q': self._tikz_draw_Q,
-                'opamp': self._tikz_draw_opamp}
-
         # Draw components
         for m, elt in enumerate(self.elements.values()):
-
-            if elt.type in draw:
-                s += draw[elt.type](elt, label_values, draw_nodes)
-            else:
-                s += self._tikz_draw_cpt(elt, label_values, draw_nodes, label_ids)
+            s += elt.draw(label_values, draw_nodes)
 
         wires = self._make_wires()
 

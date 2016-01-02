@@ -12,6 +12,7 @@ comments = r'#%'
 
 # Optional args are in square brackets.
 rules = r"""
+C: Cname Np Nm [Value]; Capacitor
 D: Dname Np Nm; Diode
 Dled: Dname Np Nm led; Light emitting diode
 Dzener: Dname Np Nm zener; Zener diode
@@ -27,25 +28,31 @@ I: Iname Np Nm [Value]; Current source
 Idc: Iname Np Nm dc [Value]; DC current source
 Iac: Iname Np Nm ac [Value] [Phase]; AC current source
 Isin: Iname Np Nm sin Io Ia fo [td] [alpha] [Phase]; Sinusoidal current source
-J: Jname Nd Ng Ns; N channel JFET
-Jnjf: Jname Nd Ng Ns njf; N channel JFET
-Jpjf: Jname Nd Ng Ns pjf; P channel JFET
+J: Jname Nd Ng Ns [Value]; N channel JFET
+Jnjf: Jname Nd Ng Ns njf [Value]; N channel JFET
+Jpjf: Jname Nd Ng Ns pjf [Value]; P channel JFET
 K: Kname Lname1 Lname2 [Value]; Mutual inductance
 L: Lname Np Nm [Value]; Inductance
-M: Mname Nd Ng Ns; N channel MOSFET
-Mnmos: Mname Nd Ng Ns nmos; N channel MOSFET
-Mpmos: Mname Nd Ng Ns pmos; P channel MOSFET
-Q: Qname Nc Nb Ne; NPN transistor
-Qnpn: Qname Nc Nb Ne npn; NPN transistor
-Qpnp: Qname Nc Nb Ne pnp; PNP transistor 
+M: Mname Nd Ng Ns [Value]; N channel MOSFET
+Mnmos: Mname Nd Ng Ns nmos [Value]; N channel MOSFET
+Mpmos: Mname Nd Ng Ns pmos [Value]; P channel MOSFET
+O: Pname Np Np; Open circuit
+P: Pname Np Np; Port
+Q: Qname Nc Nb Ne [Value]; NPN transistor
+Qnpn: Qname Nc Nb Ne npn [Value]; NPN transistor
+Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor 
 R: Rname Np Nm [Value]; Resistor
 SWnc: SWname Np Nm nc; Switch normally closed
 SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch
+TF: Tfname Np Nm Ncp Ncm [Value]; Transformer (works to DC!)
 V: Vname Np Nm [Value]; Voltage source
 Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
 Vsin: Vname Np Nm sin Vo Va fo [td] [alpha] [Phase]; Sinusoidal voltage source
+W: Wname Np Np; Wire
+Y: Yname Np Np [Value]; Admittance
+Z: Zname Np Np [Value]; Impedance
 """
 
 args = r"""

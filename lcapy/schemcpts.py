@@ -1,5 +1,4 @@
 from __future__ import print_function
-from schemmisc import *
 import numpy as np
 
 
@@ -54,31 +53,6 @@ class Cpt(object):
         self.args = args
         self.xvals = np.array(self.pos.values())[:, 0]
         self.yvals = np.array(self.pos.values())[:, 1]
-            
-        if True:
-            return
-
-        nodes = kwargs['nodes']
-        if len(nodes) != len(self.xvals):
-            raise ValueError('Expecting %d nodes, got %d' % 
-                             (len(self.xvals), len(nodes)))
-        self.nodes = nodes
-
-        if hasattr(kwargs, 'opts'):
-            opts = kwargs['opts']
-        else:
-            opts = {}
-        if 'dir' not in opts:
-            opts['dir'] = None
-        if 'size' not in opts:
-            opts['size'] = 1
-
-        if opts['dir'] is None:
-            opts['dir'] = 'down' if isinstance(self, (Open, Port)) else 'right'
-        self.opts = opts
-
-        if hasattr(self, 'check'):
-            self.check()
 
     def __repr__(self):
 
@@ -87,7 +61,7 @@ class Cpt(object):
         
         return type(self)
 
-    def draw(self, label_values=True, draw_nodes=True):
+    def draw(self, **kwargs):
         pass
 
 
@@ -108,7 +82,9 @@ class Transistor(Cpt):
                              '; try left or right'
                              % (self.name, self.opts['dir']))
 
-    def draw(self, label_values=True, draw_nodes=True):
+    def draw(self, **kwargs):
+
+        label_values = kwargs.get('label_values', True)
 
         n1, n2, n3 = self.nodes
         p1, p2, p3 = self.coords
@@ -170,6 +146,57 @@ class K(Cpt):
     """K"""
 
 
+class Wire(OnePort):
+
+
+    def draw_implicit(self, **kwargs):
+
+        # Draw implict wires, i.e., connections to ground, etc.
+
+        kind = ''
+        if 'implicit' in elt.opts:
+            kind = 'sground'
+        if 'ground' in elt.opts:
+            kind = 'ground'
+        if 'sground' in elt.opts:
+            kind = 'sground'
+
+        args = [kind]
+        if elt.opts['dir'] == 'up':
+            args.append('yscale=-1')
+        if elt.opts['dir'] == 'left':
+            args.append('xscale=-1')
+        args_str = ','.join(args)
+
+        offset = 0.0
+        anchor = 'south west'
+        p = self.coords[n2]
+        if elt.opts['dir'] == 'down':
+            offset = 0.25
+            anchor = 'north west'
+        elif elt.opts['dir'] == 'up':
+            offset = -0.25
+        pos = Pos(p.x, p.y + offset)
+
+        s = r'  \draw (%s) to [short] (%s);''\n' % (n1, pos)
+        s += r'  \draw (%s) node[%s] {};''\n' % (pos, args_str)
+
+        if 'l' in elt.opts:
+            label_str = '${%s}$' % latex_str(elt.opts['l'])
+            s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (anchor, n2, label_str)
+        return s
+
+
+    def draw(self, **kwargs):
+
+        if ('implicit' in elt.opts or 'ground' in elt.opts
+            or 'sground' in elt.opts):
+            return self.draw_implicit()
+                                    
+        return (super, Wire).draw(**kwargs)
+
+
+
 classes = {}
 
 def defcpt(name, base, docstring, cpt=None, pos=None):
@@ -196,16 +223,16 @@ defcpt('Dshottky', 'D', 'Shottky diode', 'zD')
 defcpt('Dtunnel', 'D', 'Tunnel diode', 'tD')
 defcpt('Dzener', 'D', 'Zener diode', 'zD')
 
-defcpt('E', VCS, 'VCVS', 'V')
+defcpt('E', VCS, 'VCVS', 'american controlled voltage source')
 defcpt('Eopamp', 'E', 'VCVS', 'V')
-defcpt('F', VCS, 'VCCS', 'I')
-defcpt('G', CCS, 'CCVS', 'V')
-defcpt('H', CCS, 'CCCS', 'I')
+defcpt('F', VCS, 'VCCS', 'american controlled current source')
+defcpt('G', CCS, 'CCVS', 'american controlled voltage source')
+defcpt('H', CCS, 'CCCS', 'american controlled current source')
 
 defcpt('I', OnePort, 'Current source', 'I')
 defcpt('Isin', 'I', 'Sinusoidal current source', 'sI')
 defcpt('Idc', 'I', 'DC current source', 'I')
-defcpt('Iac', 'I', 'AC current source', 'I')
+defcpt('Iac', 'I', 'AC current source', 'sI')
 
 defcpt('J', Transistor, 'N JFET transistor', 'njft', {1: (1, 1), 2: (0, 0.5), 3: (1, 0)})
 defcpt('Jnjf', 'J', 'N JFET transistor', 'njf')
@@ -226,17 +253,21 @@ defcpt('Qnpn', 'Q', 'NPN transistor', 'npn')
 
 defcpt('R', OnePort, 'Resistor', 'R')
 
-defcpt('SW', OnePort, 'SWitch', 'SW')
-defcpt('SWno', 'SW', 'Normally open switch', 'SWno')
-defcpt('SWnc', 'SW', 'Normally closed switch', 'SWnc')
-defcpt('SWpush', 'SW', 'Pushbutton switch', 'SWpush')
+defcpt('SW', OnePort, 'SWitch', 'closing switch')
+defcpt('SWno', 'SW', 'Normally open switch', 'closing switch')
+defcpt('SWnc', 'SW', 'Normally closed switch', 'opening switch')
+defcpt('SWpush', 'SW', 'Pushbutton switch', 'push button')
+
+defcpt('TF', TwoPort, 'Transformer', 'transformer')
 
 defcpt('V', OnePort, 'Voltage source', 'V')
 defcpt('Vsin', 'V', 'Sinusoidal voltage source', 'sV')
 defcpt('Vdc', 'V', 'DC voltage source', 'V')
-defcpt('Vac', 'V', 'AC voltage source', 'V')
+defcpt('Vac', 'V', 'AC voltage source', 'sV')
 
 defcpt('W', OnePort, 'Wire', 'short')
+defcpt('Y', OnePort, 'Admittance', 'european resistor')
+defcpt('Z', OnePort, 'Impedance', 'european resistor')
 
 # Add TP and TF.
 # Perhaps AM for ammeter, VM for voltmeter, VR for variable resistor?
