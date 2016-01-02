@@ -59,7 +59,7 @@ class Rule(object):
         cpt = newclass(name, *fields)
         cpt.string = string
         cpt.opts_string = opts_string
-        cpt.nodes =()
+        cpt.nodes = ()
 
         for m, arg in enumerate(args):
 
@@ -213,7 +213,11 @@ class Parser(object):
                 rule = rule1
                 break
 
-        return rule.process(self.cpts, self.argdir, name, string,
-                            fields, opts_string)
+        cpt = rule.process(self.cpts, self.argdir, name, string,
+                           fields, opts_string)
+        
+        cpt.id = cpt_id
+        cpt.type = cpt_type
+        return cpt
 
 

@@ -24,15 +24,13 @@ import grammar
 from parser import Parser
 import schemcpts as cpts
 from os import system, path, remove, mkdir, chdir, getcwd
-
+import math
 
 __all__ = ('Schematic', )
 
 label_pattern = re.compile(r"([\w']*)(_{[\w]})?")
 
-
-import math
-
+parser = Parser(cpts, grammar)
 
 class Opts(dict):
 
@@ -339,11 +337,11 @@ class Node(object):
     def append(self, elt):
         """Add new element to the node"""
 
-        if elt.cpt_type == 'P':
+        if elt.type == 'P':
             self._port = True
 
         self.list.append(elt)
-        if elt.cpt_type not in ('O', ):
+        if elt.type not in ('O', ):
             self._count += 1
 
     @property
@@ -405,171 +403,6 @@ class Pos(object):
         return np.array((self.x, self.y))
 
 
-class NetElement(object):
-
-    cpt_type_counter = 0
-
-
-    def __init__(self, name, n1, n2, *args, **opts):
-
-        def tex_name(name, subscript=''):
-
-            if len(name) > 1:
-                name = r'\mathrm{%s}' % name
-            if len(subscript) > 1:
-                subscript = r'\mathrm{%s}' % subscript
-            if len(subscript) == 0:
-                return name
-        
-            return '%s_{%s}' % (name, subscript)
-
-
-
-
-        # There are two possible labels for a component:
-        # 1. Component identifier, e.g., R1
-        # 2. Component value, expression, or symbol
-        id_label = tex_name(cpt_type, cpt_id)
-        value_label = None
-
-        # Component arguments
-        self.args = args
-
-        if args != ():
-            if cpt_type in ('V', 'I') and args[0] in (
-                    'ac', 'dc', 'step', 'acstep', 'impulse', 's'):
-                cpt_type = cpt_type + args[0]
-                args = args[1:]
-            elif cpt_type == 'E' and args[0] == 'opamp':
-                cpt_type = 'opamp'
-                args = args[1:]
-            elif cpt_type == 'SW' and args[0] in ('nc', 'no', 'push'):
-                cpt_type = cpt_type + args[0]
-                args = args[1:]                
-
-        # Tuple of nodes
-        self.nodes = (n1, n2)
-        # Identifier for component, e.g., 'R1'
-        self.name = name
-        # Type of component, e.g., 'V'
-        self.cpt_type = cpt_type
-
-        if cpt_type in ('J', 'M', 'Q'):
-            if len(args) < 1:
-                raise ValueError(
-                    'Component type %s requires 3 nodes' % cpt_type)
-            self.nodes += (args[0], )
-            args = args[1:]
-            
-            if cpt_type == 'Q':
-                self.sub_type = 'npn'
-                if len(args) > 0:
-                    if args[0] not in ('npn', 'pnp'):
-                        raise ValueError('Bad argument %s for BJT' % args[0])
-                    self.sub_type = args[0]
-                args = args[1:]
-            elif cpt_type == 'J':
-                self.sub_type = 'njf'
-                if len(args) > 0:
-                    if args[0] not in ('njf', 'pjf'):
-                        raise ValueError('Bad argument %s for JFET' % args[0])
-                    self.sub_type = args[0]
-                args = args[1:]
-            elif cpt_type == 'M':
-                self.sub_type = 'nmos'
-                if len(args) > 0:
-                    if args[0] not in ('nmos', 'pmos'):
-                        raise ValueError('Bad argument %s for MOSFET' % args[0])
-                    self.sub_type = args[0]
-                args = args[1:]
-
-        elif cpt_type in ('E', 'G', 'TF', 'TP', 'opamp'):
-            if len(args) < 2:
-                raise ValueError(
-                    'Component %s requires 4 nodes' % args[0])
-            self.nodes += (args[0], args[1])
-            args = args[2:]
-
-        elif cpt_type in ('F', 'H'):
-            if len(args) < 1:
-                raise ValueError(
-                    'Component %s requires 3 args' % args[0])
-
-        elif cpt_type == 'TP' and len(args) != 5:
-            raise ValueError('TP component requires 5 args')
-
-        elif cpt_type == 'D':
-            self.sub_type = ''
-            if len(args) > 0:
-                if args[0] not in ('led', 'zener', 'photo', 'tunnel', 
-                                   'schottky'):
-                    raise ValueError('Bad argument %s for diode' % args[0])
-                self.sub_type = args[0]
-                args = args[1:]
-
-        if cpt_type in ('O', 'P', 'W') or id_label.find('#') != -1:
-            id_label = None
-
-        if 'dir' not in opts:
-            opts['dir'] = None
-        if 'size' not in opts:
-            opts['size'] = 1
-
-        if opts['dir'] is None:
-            opts['dir'] = 'down' if cpt_type in ('O', 'P') else 'right'
-
-        if len(args) > 0:
-
-            # TODO, extend for mechanical and acoustical components.
-            units_map = {'V': 'V', 'I': 'A', 'R': '$\Omega$',
-                         'C': 'F', 'L': 'H'}
-
-            expr = args[0]
-            if cpt_type in ('Vimpulse', 'Iimpulse'):
-                expr = '(%s) * DiracDelta(t)' % expr
-                value_label = Expr(expr, cache=False).latex()
-            elif cpt_type in ('Vstep', 'Istep'):
-                expr = '(%s) * Heaviside(t)' % expr
-                value_label = Expr(expr, cache=False).latex()
-            elif cpt_type in ('Vs', 'Is'):
-                value_label = Expr(expr, cache=False).latex()
-            elif cpt_type == 'TF':
-                value_label = '1:%s' % args[0]
-            elif cpt_type not in ('TP',):
-                try:
-                    value = float(args[0])
-                    if cpt_type[0] in units_map:
-                        value_label = EngFormat(
-                            value, units_map[cpt_type[0]]).latex()
-                    else:
-                        value_label = Expr(expr, cache=False).latex()
-
-                except ValueError:
-                    value_label = Expr(expr, cache=False).latex()
-
-        # Currently, we only annnotated the component with the value,
-        # expression, or symbol.  If this is not specified, it
-        # defaults to the component identifier.  Note, some objects
-        # we do not want to label, such as wires and ports.
-
-        self.id_label = '' if id_label is None else latex_str(id_label)
-        self.value_label = '' if value_label is None else latex_str(value_label)
-        self.default_label = self.id_label if self.value_label == '' else self.value_label
-
-        # Drawing hints
-        self.opts = Opts(opts)
-
-    def __repr__(self):
-
-        str = ', '.join(arg.__str__()
-                        for arg in [self.name] + list(self.nodes))
-        return 'NetElement(%s)' % str
-
-    def __str__(self):
-
-        return ' '.join(['%s' % arg for arg in (self.name, ) + self.nodes])
-
-
 class Schematic(object):
 
     def __init__(self, filename=None, **kwargs):
@@ -582,10 +415,6 @@ class Schematic(object):
 
         if filename is not None:
             self.netfile_add(filename)
-
-        parser = Parser(cpts, grammar)
-        self.parse = parser.parse
-
 
     def __getitem__(self, name):
         """Return component by name"""
@@ -640,12 +469,12 @@ class Schematic(object):
         self.elements[elt.name] = elt
 
         # Ignore nodes for mutual inductance.
-        if elt.cpt_type == 'K':
+        if elt.type == 'K':
             return
 
         nodes = elt.nodes
         # The controlling nodes are not drawn.
-        if elt.cpt_type in ('E', 'G'):
+        if elt.type in ('E', 'G'):
             nodes = nodes[0:2]
 
         for node in nodes:
@@ -659,10 +488,17 @@ class Schematic(object):
         to the negative node.
         """
 
-        # Ignore comments
-        string = string.strip()
-        if string == '' or string[0] in ('#', '%'):
-            return
+        def tex_name(name, subscript=''):
+
+            if len(name) > 1:
+                name = r'\mathrm{%s}' % name
+            if len(subscript) > 1:
+                subscript = r'\mathrm{%s}' % subscript
+            if len(subscript) == 0:
+                return name
+        
+            return '%s_{%s}' % (name, subscript)
+
 
         if '\n' in string:
             lines = string.split('\n')
@@ -670,28 +506,75 @@ class Schematic(object):
                 self.add(line)
             return
 
-        fields = string.split(';')
-        string = fields[1].strip() if len(fields) > 1 else ''
+        # FIX
+        cpt = parser.parse(string)
+        if cpt is None:
+            return
 
-        if string != '':
+        # There are two possible labels for a component:
+        # 1. Component identifier, e.g., R1
+        # 2. Component value, expression, or symbol
+        id_label = tex_name(cpt.type, cpt.id)
+        value_label = None
+
+        if cpt.type in ('O', 'P', 'W') or id_label.find('#') != -1:
+            id_label = None
+
+        if False and len(args) > 0:
+
+            # TODO, extend for mechanical and acoustical components.
+            units_map = {'V': 'V', 'I': 'A', 'R': '$\Omega$',
+                         'C': 'F', 'L': 'H'}
+
+            expr = args[0]
+            if cpt.type in ('Vimpulse', 'Iimpulse'):
+                expr = '(%s) * DiracDelta(t)' % expr
+                value_label = Expr(expr, cache=False).latex()
+            elif cpt.type in ('Vstep', 'Istep'):
+                expr = '(%s) * Heaviside(t)' % expr
+                value_label = Expr(expr, cache=False).latex()
+            elif cpt.type in ('Vs', 'Is'):
+                value_label = Expr(expr, cache=False).latex()
+            elif cpt.type == 'TF':
+                value_label = '1:%s' % args[0]
+            elif cpt.type not in ('TP',):
+                try:
+                    value = float(args[0])
+                    if cpt.type[0] in units_map:
+                        value_label = EngFormat(
+                            value, units_map[cpt.type[0]]).latex()
+                    else:
+                        value_label = Expr(expr, cache=False).latex()
+
+                except ValueError:
+                    value_label = Expr(expr, cache=False).latex()
+
+        # Currently, we only annnotated the component with the value,
+        # expression, or symbol.  If this is not specified, it
+        # defaults to the component identifier.  Note, some objects
+        # we do not want to label, such as wires and ports.
+
+        cpt.id_label = '' if id_label is None else latex_str(id_label)
+        cpt.value_label = '' if value_label is None else latex_str(value_label)
+        cpt.default_label = cpt.id_label if cpt.value_label == '' else cpt.value_label
+
+        # Drawing hints
+        opts = Opts(cpt.opts_string)
+
+        if 'dir' not in opts:
+            opts['dir'] = None
+        if 'size' not in opts:
+            opts['size'] = 1
+
+        if opts['dir'] is None:
+            opts['dir'] = 'down' if cpt.type in ('O', 'P') else 'right'
+        cpt.opts = opts
+
+
+        if cpt.opts_string != '':
             self.hints = True
 
-        opts = Opts(string)
-
-        args = ()
-        net = fields[0].strip()
-        if net[-1] == '"':
-            quote_pos = net[:-1].rfind('"')
-            if quote_pos == -1:
-                raise ValueError('Missing " in net: ' + net)
-            args = (net[quote_pos + 1:-1], ) + args
-            net = net[:quote_pos - 1]
-
-        parts = tuple(re.split(r'[,]*[\s]+', net))
-
-        elt = NetElement(*(parts + args), **opts)
-
-        self._elt_add(elt)
+        self._elt_add(cpt)
 
 
 # Transformer
@@ -711,7 +594,7 @@ class Schematic(object):
         # common node.
         for m, elt in enumerate(self.elements.values()):
 
-            if elt.cpt_type in ('TF', 'TP'):
+            if elt.type in ('TF', 'TP'):
                 if dirs[0] == 'right':
                     # Ensure nodes have same x value
                     cnodes.link(*elt.nodes[0:2])
@@ -720,12 +603,12 @@ class Schematic(object):
                     cnodes.link(*elt.nodes[0:4:2])
                     cnodes.link(*elt.nodes[1:4:2])
                 continue
-            elif elt.cpt_type == 'opamp':
+            elif elt.type == 'opamp':
                 if dirs[0] == 'right':
                     # Ensure input nodes have same x value
                     cnodes.link(*elt.nodes[2:4])
                 continue
-            elif elt.cpt_type == 'K':
+            elif elt.type == 'K':
 
                 # Should check that these inductors exist.
                 L1 = self.elements[elt.nodes[0]]
@@ -744,7 +627,7 @@ class Schematic(object):
                     cnodes.link(n3, n1)
                     cnodes.link(n4, n2)
                 continue
-            elif elt.cpt_type in ('J', 'M', 'Q'):
+            elif elt.type in ('J', 'M', 'Q'):
                 n1, n2, n3 = elt.nodes                
 
                 if dirs[0] == 'right':
@@ -766,20 +649,20 @@ class Schematic(object):
 
             size = float(elt.opts['size'])
 
-            if elt.cpt_type in ('TF', 'TP'):
+            if elt.type in ('TF', 'TP'):
                 # m1, m2 output nodes; m3, m4 input nodes
                 m1, m2, m3, m4 = cnodes.map(elt.nodes)
 
                 scale = {'TF': 0.5, 'TP': 2}
 
                 if dirs[0] == 'right':
-                    graphs.add(m3, m1, scale[elt.cpt_type] * size)
-                    graphs.add(m4, m2, scale[elt.cpt_type] * size)
+                    graphs.add(m3, m1, scale[elt.type] * size)
+                    graphs.add(m4, m2, scale[elt.type] * size)
                 else:
                     graphs.add(m2, m1, size)
                     graphs.add(m4, m3, size)
                 continue
-            elif elt.cpt_type == 'opamp':
+            elif elt.type == 'opamp':
                 # m1, m2 output nodes; m3, m4 input nodes
                 # m2 assumed ground...
                 m1, m2, m3, m4 = cnodes.map(elt.nodes)
@@ -795,7 +678,7 @@ class Schematic(object):
                         graphs.add(m4, m1, 0.5 * size)
                         graphs.add(m1, m3, 0.5 * size)
                 continue
-            elif elt.cpt_type == 'K':
+            elif elt.type == 'K':
 
                 L1 = self.elements[elt.nodes[0]]
                 L2 = self.elements[elt.nodes[1]]
@@ -808,7 +691,7 @@ class Schematic(object):
                     graphs.add(m3, m1, scale * size)
                     graphs.add(m4, m2, scale * size)
                 continue
-            elif elt.cpt_type == 'J':
+            elif elt.type == 'J':
                 # D, G, S
                 m1, m2, m3 = cnodes.map(elt.nodes)
 
@@ -826,12 +709,12 @@ class Schematic(object):
                         graphs.add(m3, m2, yscale * size * 0.32)
                         graphs.add(m2, m1, yscale * size * 0.68)
                 continue
-            elif elt.cpt_type in ('M', 'Q'):
+            elif elt.type in ('M', 'Q'):
                 # C, B, E or D, G, S
                 m1, m2, m3 = cnodes.map(elt.nodes)
 
                 yscale = 1.5
-                xscale = 1.0 if elt.cpt_type == 'M' else 0.85
+                xscale = 1.0 if elt.type == 'M' else 0.85
                 if dirs[0] == 'right':
                     if elt.opts['dir'] == 'left':
                         m1, m2 = m2, m1
@@ -941,7 +824,8 @@ class Schematic(object):
             n1 = snode_list[n]
             n2 = snode_list[n + 1]
 
-            wires.append(NetElement('W_', n1, n2))
+            raise ValueError('TODO')
+            #wires.append(NetElement('W_', n1, n2))
 
         return wires
 
@@ -1147,7 +1031,7 @@ class Schematic(object):
             n1, n3 = n3, n1
 
         # Add additional wires.
-        if elt.cpt_type in ('J', 'M'):
+        if elt.type in ('J', 'M'):
             s += r'  \draw (T.D) -- (%s) (T.G) -- (%s) (T.S) -- (%s);''\n' % (n1, n2, n3)
         else:
             s += r'  \draw (T.C) -- (%s) (T.B) -- (%s) (T.E) -- (%s);''\n' % (n1, n2, n3)
@@ -1159,7 +1043,7 @@ class Schematic(object):
 
         n1, n2 = elt.nodes[0:2]
 
-        if elt.cpt_type == 'W' and ('implicit' in elt.opts
+        if elt.type == 'W' and ('implicit' in elt.opts
                                     or 'ground' in elt.opts
                                     or 'sground' in elt.opts):
                                     
@@ -1216,13 +1100,13 @@ class Schematic(object):
                         'SWnc' : 'opening switch', 'SWno' : 'closing switch',
                         'SW' : 'closing switch', 'SWpush' : 'push button'}
 
-        cpt_type = cpt_type_map[elt.cpt_type]
+        cpt_type = cpt_type_map[elt.type]
         if cpt_type == 'R' and 'variable' in elt.opts:
             cpt_type = 'vR'
 
         id_pos = '_'
         voltage_pos = '^'
-        if elt.cpt_type in ('V', 'Vdc', 'Vstep', 'Vac', 'Vacstep', 'Vimpulse', 'v',
+        if elt.type in ('V', 'Vdc', 'Vstep', 'Vac', 'Vacstep', 'Vimpulse', 'v',
                             'I', 'Idc', 'Istep', 'Iac', 'Iacstep', 'Iimpulse', 'i',
                             'E', 'F', 'G', 'H', 'Vs', 'Is'):
 
@@ -1337,8 +1221,8 @@ class Schematic(object):
         # Draw components
         for m, elt in enumerate(self.elements.values()):
 
-            if elt.cpt_type in draw:
-                s += draw[elt.cpt_type](elt, label_values, draw_nodes)
+            if elt.type in draw:
+                s += draw[elt.type](elt, label_values, draw_nodes)
             else:
                 s += self._tikz_draw_cpt(elt, label_values, draw_nodes, label_ids)
 
