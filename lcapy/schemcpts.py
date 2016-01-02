@@ -47,12 +47,30 @@ class Cpt(object):
     def yextent(self):
         return self.ymax - self.ymin
 
+    @property
+    def xvals(self):
+        # Switch x, y values if have vertical orientation.
+        if self.horizontal:
+            return self._xvals
+        return self._yvals
+
+    @property
+    def yvals(self):
+        # Switch x, y values if have vertical orientation.
+        if self.horizontal:
+            return self._yvals
+        return self._xvals
+
+    @property
+    def horizontal(self):
+        return self.opts['dir'] in ('left', 'right')
+
     def __init__(self, name, *args, **kwargs):
 
         self.name = name
         self.args = args
-        self.xvals = np.array(self.pos.values())[:, 0]
-        self.yvals = np.array(self.pos.values())[:, 1]
+        self._xvals = np.array(self.pos.values())[:, 0]
+        self._yvals = np.array(self.pos.values())[:, 1]
 
     def __repr__(self):
 
@@ -61,8 +79,88 @@ class Cpt(object):
         
         return type(self)
 
-    def draw(self, **kwargs):
-        pass
+    def xlink(self, cnodes):
+
+        for m1, n1 in enumerate(self.nodes):
+            for m2, n2 in enumerate(self.nodes[m1 + 1:]):
+                if m1 == m2:
+                    continue
+                if self.xvals[m2] == self.xvals[m1]:
+                    cnodes.link(n1, n2)
+
+    def ylink(self, cnodes):
+
+        for m1, n1 in enumerate(self.nodes):
+            for m2, n2 in enumerate(self.nodes[m1 + 1:]):
+                if m1 == m2:
+                    continue
+                if self.yvals[m2] == self.yvals[m1]:
+                    cnodes.link(n1, n2)
+
+    def xplace(self, graphs, cnodes):
+
+        size = self.opts['size']
+        for m1, n1 in enumerate(self.nodes):
+            for m2, n2 in enumerate(self.nodes[m1 + 1:]):
+                if m1 == m2:
+                    continue
+                value = (self.xvals[m2] - self.xvals[m1]) * self.xscale * size
+                graphs.add(cnodes[n1], cnodes[n2], value)
+
+    def yplace(self, graphs, cnodes):
+
+        size = self.opts['size']
+        for m1, n1 in enumerate(self.nodes):
+            for m2, n2 in enumerate(self.nodes[m1 + 1:]):
+                if m1 == m2:
+                    continue
+                value = (self.yvals[m2] - self.yvals[m1]) * self.yscale * size
+                graphs.add(cnodes[n1], cnodes[n2], value)
+
+
+    def _node_str(self, node1, node2, draw_nodes=True):
+
+        node_str = ''
+        if node1.visible(draw_nodes):
+            node_str = 'o' if node1.port else '*'
+
+        node_str += '-'
+
+        if node2.visible(draw_nodes):
+            node_str += 'o' if node2.port else '*'
+
+        if node_str == '-':
+            node_str = ''
+        
+        return node_str
+
+    def _draw_node(self, nodes, n, draw_nodes=True):
+        
+        s = ''
+        if not draw_nodes:
+            return s
+
+        node = nodes[n]
+        if not node.visible(draw_nodes):
+            return s
+
+        pos = self.coords[n]
+        if node.port:
+            s = r'  \draw (%s) node[ocirc] {};''\n' % pos
+        else:
+            s = r'  \draw (%s) node[circ] {};''\n' % pos
+
+        return s
+
+    def _draw_nodes(self, nodes, draw_nodes=True):
+
+        s = ''
+        for n in self.nodes:
+            s += self._draw_node(nodes, n, draw_nodes)
+        return s
+
+    def draw(self, nodes, **kwargs):
+        raise Error('draw method not implemented')
 
 
 class Transistor(Cpt):
@@ -82,9 +180,10 @@ class Transistor(Cpt):
                              '; try left or right'
                              % (self.name, self.opts['dir']))
 
-    def draw(self, **kwargs):
+    def draw(self, nodes, **kwargs):
 
         label_values = kwargs.get('label_values', True)
+        draw_nodes = kwargs.get('draw_nodes', True)
 
         n1, n2, n3 = self.nodes
         p1, p2, p3 = self.coords
@@ -100,20 +199,19 @@ class Transistor(Cpt):
                 args_str += '%s=%s, ' % (key, val)                
 
         s = r'  \draw (%s) node[%s, %s, scale=%.1f] (T) {};''\n' % (
-            centre, tikz_cpt, args_str, self.scale * 2)
+            centre, self.tikz_cpt, args_str, self.scale * 2)
         s += r'  \draw (%s) node [] {%s};''\n'% (centre, label_str)
 
-        if tikz_cpt in ('pnp', 'pmos', 'pjfet'):
+        if self.tikz_cpt in ('pnp', 'pmos', 'pjfet'):
             n1, n3 = n3, n1
 
         # Add additional wires.
-        if tikz_cpt in ('pnp', 'npn'):
+        if self.tikz_cpt in ('pnp', 'npn'):
             s += r'  \draw (T.C) -- (%s) (T.B) -- (%s) (T.E) -- (%s);''\n' % (n1, n2, n3)
         else:
             s += r'  \draw (T.D) -- (%s) (T.G) -- (%s) (T.S) -- (%s);''\n' % (n1, n2, n3)
 
-
-        # s += self._tikz_draw_nodes(self, draw_nodes)
+        s += self._draw_nodes(nodes, draw_nodes)
         return s
 
 
@@ -132,6 +230,104 @@ class OnePort(Cpt):
 
     # horiz, need to rotate for up/down
     pos = {1: (0, 0), 2: (1, 0)}
+
+
+    def draw(self, nodes, **kwargs):
+
+        label_values = kwargs.get('label_values', True)
+        draw_nodes = kwargs.get('draw_nodes', True)
+        label_ids = kwargs.get('label_ids', True)
+
+        n1, n2 = self.nodes[0:2]
+
+        tikz_cpt = self.tikz_cpt
+        if self.type == 'R' and 'variable' in self.opts:
+            tikz_cpt = 'vR'
+
+        id_pos = '_'
+        voltage_pos = '^'
+        if self.type in ('V', 'Vdc', 'Vstep', 'Vac', 'Vacstep', 'Vimpulse', 'v',
+                            'I', 'Idc', 'Istep', 'Iac', 'Iacstep', 'Iimpulse', 'i',
+                            'E', 'F', 'G', 'H', 'Vs', 'Is'):
+
+            # circuitikz expects the positive node first, except for
+            # voltage and current sources!  So swap the nodes
+            # otherwise they are drawn the wrong way around.
+            n1, n2 = n2, n1
+
+            if self.opts['dir'] in ('down', 'right'):
+                # Draw label on LHS for vertical cpt and below
+                # for horizontal cpt.
+                id_pos = '^'
+                voltage_pos = '_'
+        else:
+            if self.opts['dir'] in ('up', 'left'):
+                # Draw label on LHS for vertical cpt and below
+                # for horizontal cpt.
+                id_pos = '^'
+                voltage_pos = '_'
+
+        # Add modifier to place voltage label on other side
+        # from component identifier label.
+        if 'v' in self.opts:
+            self.opts['v' + voltage_pos] = self.opts.pop('v')
+
+        # Reversed voltage.
+        if 'vr' in self.opts:
+            self.opts['v' + voltage_pos + '>'] = self.opts.pop('vr')
+
+        current_pos = id_pos
+        # Add modifier to place current label on other side
+        # from voltage marks.
+        if 'i' in self.opts:
+            self.opts['i' + current_pos] = self.opts.pop('i')
+
+        # Reversed current.
+        if 'ir' in self.opts:
+            self.opts['i' + current_pos + '<'] = self.opts.pop('ir')
+
+        # Current, voltage, label options.
+        # It might be better to allow any options and prune out
+        # dir and size.
+        voltage_str = ''
+        current_str = ''
+        label_str = ''
+        args_str = ''
+        for key, val in self.opts.iteritems():
+            if key in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
+                       'i>_', 'i<_', 'i>^', 'i<^'):
+                current_str += '%s=${%s}$, ' % (key, latex_str(val))
+            elif key in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
+                voltage_str += '%s=${%s}$, ' % (key, latex_str(val))
+            elif key in ('l', 'l^', 'l_'):
+                label_str += '%s=${%s}$, ' % (key, latex_str(val))
+            elif key in ('color', ):
+                args_str += '%s=%s, ' % (key, val)                
+
+        node_str = self._node_str(nodes[n1], nodes[n2], draw_nodes)
+
+        args_str += voltage_str + current_str
+
+        # Generate default label unless specified.
+        if label_str == '':
+            if self.type not in ('O', 'W'):
+                
+                label_str = ', l%s=${%s}$' % (id_pos, self.default_label)
+                
+                if label_ids and self.value_label != '':
+                    label_str = r', l%s=${%s=%s}$' % (id_pos, self.id_label, self.value_label)
+        else:
+            label_str = ', ' + label_str
+
+        if not label_values:
+            label_str = ''
+
+        if not label_values and label_ids:
+            label_str = ', l%s=${%s}$' % (id_pos, self.id_label)
+
+        s = r'  \draw (%s) to [align=right, %s%s, %s%s] (%s);''\n' % (
+            n1, tikz_cpt, label_str, args_str, node_str, n2)
+        return s
 
 
 class VCS(OnePort):
@@ -154,47 +350,45 @@ class Wire(OnePort):
         # Draw implict wires, i.e., connections to ground, etc.
 
         kind = ''
-        if 'implicit' in elt.opts:
+        if 'implicit' in self.opts:
             kind = 'sground'
-        if 'ground' in elt.opts:
+        if 'ground' in self.opts:
             kind = 'ground'
-        if 'sground' in elt.opts:
+        if 'sground' in self.opts:
             kind = 'sground'
 
         args = [kind]
-        if elt.opts['dir'] == 'up':
+        if self.opts['dir'] == 'up':
             args.append('yscale=-1')
-        if elt.opts['dir'] == 'left':
+        if self.opts['dir'] == 'left':
             args.append('xscale=-1')
         args_str = ','.join(args)
 
         offset = 0.0
         anchor = 'south west'
         p = self.coords[n2]
-        if elt.opts['dir'] == 'down':
+        if self.opts['dir'] == 'down':
             offset = 0.25
             anchor = 'north west'
-        elif elt.opts['dir'] == 'up':
+        elif self.opts['dir'] == 'up':
             offset = -0.25
         pos = Pos(p.x, p.y + offset)
 
         s = r'  \draw (%s) to [short] (%s);''\n' % (n1, pos)
         s += r'  \draw (%s) node[%s] {};''\n' % (pos, args_str)
 
-        if 'l' in elt.opts:
-            label_str = '${%s}$' % latex_str(elt.opts['l'])
+        if 'l' in self.opts:
+            label_str = '${%s}$' % latex_str(self.opts['l'])
             s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (anchor, n2, label_str)
         return s
 
+    def draw(self, nodes, **kwargs):
 
-    def draw(self, **kwargs):
-
-        if ('implicit' in elt.opts or 'ground' in elt.opts
-            or 'sground' in elt.opts):
+        if ('implicit' in self.opts or 'ground' in self.opts
+            or 'sground' in self.opts):
             return self.draw_implicit()
                                     
         return (super, Wire).draw(**kwargs)
-
 
 
 classes = {}

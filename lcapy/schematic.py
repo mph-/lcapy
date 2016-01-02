@@ -15,6 +15,18 @@ This module performs schematic drawing using circuitikz from a netlist.
 Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
+# Components are positioned using two pairs of graphs; one pair for
+# the x direction and the other for the y direction.  Each pair
+# consists of a forward and a reverse graph. 
+#
+# x and y component positioning are performed independently.  Let's
+# consider the x or horizontal positioning.  There are three stages:
+#   1. Component nodes that share a y position are linked; this can
+#      occur, for example, for a vertically oriented component.
+#   2. The x positions are then...
+
+
+
 from __future__ import print_function
 import numpy as np
 import re
@@ -203,21 +215,21 @@ class Cnodes(object):
         self._node_map = node_map
         self._nodes = unique
 
-    @property
-    def node_map(self):
+
+    def __getitem__(self, key):
         """Return mapping of node number to common node number"""
 
         if not hasattr(self, '_node_map'):
             self._analyse()
 
-        return self._node_map
+        return self._node_map[key]
 
     def map(self, nodes):
 
         if not isinstance(nodes, (tuple, list)):
             nodes = list([nodes])
 
-        return [self.node_map[node] for node in nodes]
+        return [self[node] for node in nodes]
 
     @property
     def nodes(self):
@@ -587,43 +599,7 @@ class Schematic(object):
             self._node_add(node, cpt)
 
 
-    def _xlink(self, cpt, cnodes):
-
-        for n1 in cpt.nodes:
-            for n2 in cpt.nodes:
-                if n1 == n2:
-                    continue
-                if cpt.xvals[n2] == cpt.xvals[n1]:
-                    print('TODO link xpos for node %d with %d' % (n1, n2))
-
-    def _ylink(self, cpt, cnodes):
-
-        for n1 in cpt.nodes:
-            for n2 in cpt.nodes:
-                if n1 == n2:
-                    continue
-                if cpt.yvals[n2] == cpt.yvals[n1]:
-                    print('TODO link ypos for node %d with %d' % (n1, n2))
-
-    def _xplace(self, cpt, graphs, size=1):
-
-        for n1 in cpt.nodes:
-            for n2 in cpt.nodes:
-                if n1 == n2:
-                    continue
-                value = (cpt.xvals[n2] - cpt.xvals[1]) * cpt.xscale * size
-                graphs.add(nodes[int(n1) - 1], nodes[int(n2) - 1], value)
-
-    def _yplace(self, cpt, graphs, size=1):
-
-        for n1 in cpt.nodes:
-            for n2 in cpt.nodes:
-                if n1 == n2:
-                    continue
-                value = (cpt.yvals[n2] - cpt.yvals[1]) * cpt.yscale * size
-                graphs.add(nodes[int(n1) - 1], nodes[int(n2) - 1], value)
-
-    def _make_graphs(self, dirs):
+    def _make_graphs(self, dir='horizontal'):
 
         # Use components in orthogonal directions as constraints.  The
         # nodes of orthogonal components get combined into a
@@ -631,24 +607,23 @@ class Schematic(object):
 
         cnodes = Cnodes(self.nodes)
 
-        if dirs[0] == 'right':
+        if dir == 'horizontal':
             for m, elt in enumerate(self.elements.values()):
-                self._xlink(elt, cnodes)                
+                elt.xlink(cnodes)                
         else:
             for m, elt in enumerate(self.elements.values()):
-                self._ylink(elt, cnodes)                
+                elt.ylink(cnodes)                
 
         # Now form forward and reverse directed graphs using components
         # in the desired directions.
-        graphs = Graphs(cnodes.size, 
-                        'vertical' if dirs[0] == 'up' else 'horizontal')
+        graphs = Graphs(cnodes.size, dir)
 
-        if dirs[0] == 'right':
+        if dir == 'horizontal':
             for m, elt in enumerate(self.elements.values()):
-                self._xplace(elt, graphs, cnodes)                
+                elt.xplace(graphs, cnodes)                
         else:
             for m, elt in enumerate(self.elements.values()):
-                self._yplace(elt, graphs, cnodes)                
+                elt.yplace(graphs, cnodes)                
 
         graphs.add_start_nodes()
 
@@ -695,8 +670,8 @@ class Schematic(object):
         # distance from the root of the graph.  To centre components,
         # a reverse graph is created and the distances are averaged.
 
-        xpos, self._xnodes, self.width = self._make_graphs(('right', 'left'))
-        ypos, self._ynodes, self.height = self._make_graphs(('up', 'down'))
+        xpos, self._xnodes, self.width = self._make_graphs('horizontal')
+        ypos, self._ynodes, self.height = self._make_graphs('vertical')
 
         coords = {}
         for node in xpos.keys():
@@ -755,296 +730,6 @@ class Schematic(object):
 
         return wires
 
-    def _node_str(self, n1, n2, draw_nodes=True):
-
-        node1, node2 = self.nodes[n1], self.nodes[n2]
-
-        node_str = ''
-        if node1.visible(draw_nodes):
-            node_str = 'o' if node1.port else '*'
-
-        node_str += '-'
-
-        if node2.visible(draw_nodes):
-            node_str += 'o' if node2.port else '*'
-
-        if node_str == '-':
-            node_str = ''
-        
-        return node_str
-
-
-    def _tikz_draw_node(self, n, draw_nodes=True):
-        
-        s = ''
-        if not draw_nodes:
-            return s
-
-        node = self.nodes[n]
-        if not node.visible(draw_nodes):
-            return s
-
-        pos = self.coords[n]
-        if node.port:
-            s = r'  \draw (%s) node[ocirc] {};''\n' % pos
-        else:
-            s = r'  \draw (%s) node[circ] {};''\n' % pos
-
-        return s
-
-    def _tikz_draw_nodes(self, elt, draw_nodes=True):
-
-        s = ''
-        for n in elt.nodes:
-            s += self._tikz_draw_node(n, draw_nodes)
-        return s
-
-    def _tikz_draw_opamp(self, elt, label_values, draw_nodes):
-
-        if elt.opts['dir'] != 'right':
-            raise ValueError('Cannot draw opamp %s in direction %s'
-                             % (elt.name, elt.opts['dir']))
-
-        n1, n2, n3, n4 = elt.nodes
-
-        p1, p2, p3, p4 = [self.coords[n] for n in elt.nodes]
-
-        centre = Pos(0.5 * (p3.x + p1.x), p1.y)
-
-        label_str = '$%s$' % elt.default_label if label_values else ''
-        args_str = '' if 'mirror' in elt.opts else 'yscale=-1'
-        for key, val in elt.opts.iteritems():
-            if key in ('color', ):
-                args_str += '%s=%s, ' % (key, val)                
-
-        s = r'  \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (
-            centre, args_str, self.scale * 2)
-        # Draw label separately to avoid being scaled by 2.
-        s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
-        
-        s += self._tikz_draw_nodes(elt, draw_nodes)
-        return s
-
-    def _tikz_draw_TF1(self, elt, nodes, label_values, link=False):
-
-        p1, p2, p3, p4 = [self.coords[n] for n in nodes]
-
-        xoffset = 0.06
-        yoffset = 0.40
-
-        primary_dot = Pos(p3.x - xoffset, 0.5 * (p3.y + p4.y) + yoffset)
-        secondary_dot = Pos(p1.x + xoffset, 0.5 * (p1.y + p2.y) + yoffset)
-
-        centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
-        labelpos = Pos(centre.x, primary_dot.y)
-
-        label_str = '$%s$' % elt.default_label if label_values else ''
-
-        s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
-        s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
-        s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
-            labelpos, 0.5, label_str)
-
-        if link:
-            width = p1.x - p3.x
-            arcpos = Pos((p1.x + p3.x) / 2, secondary_dot.y - width / 2 + 0.2)
-
-            s += r'  \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);' % (
-                width / 2, arcpos, width / 2)
-            s += '\n'
-
-        return s
-
-    def _tikz_draw_TF(self, elt, label_values, draw_nodes):
-
-        if elt.opts['dir'] != 'right':
-            raise ValueError('Cannot draw transformer %s in direction %s'
-                             % (elt.name, elt.opts['dir']))
-
-        n1, n2, n3, n4 = elt.nodes
-
-        s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
-        s += r'  \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
-        s += self._tikz_draw_TF1(elt, elt.nodes, label_values)
-
-        s += self._tikz_draw_nodes(elt, draw_nodes)
-        return s
-
-    def _tikz_draw_TP(self, elt, label_values, draw_nodes):
-
-        if elt.opts['dir'] != 'right':
-            raise ValueError('Cannot draw twoport network %s in direction %s'
-                             % (elt.name, elt.opts['dir']))
-
-        p1, p2, p3, p4 = [self.coords[n] for n in elt.nodes]
-        width = p2.x - p4.x
-        # height = p1.y - p2.y
-        extra = 0.25
-        p1.y += extra
-        p2.y -= extra
-        p3.y += extra
-        p4.y -= extra
-        centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
-        top = Pos(centre.x, p1.y + 0.15)
-
-        label_str = '$%s$' % elt.default_label if label_values else ''
-        titlestr = "%s-parameter two-port" % elt.args[2]
-
-        s = r'  \draw (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
-            p4, p3, p1, p2, p4)
-        s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
-            centre, width, titlestr)
-        s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
-            top, width, label_str)
-
-        s += self._tikz_draw_nodes(elt, draw_nodes)
-        return s
-
-    def _tikz_draw_K(self, elt, label_values, draw_nodes):
-
-        if elt.opts['dir'] != 'right':
-            raise ValueError('Cannot draw mutual coupling %s in direction %s'
-                             % (elt.name, elt.opts['dir']))
-
-        L1 = self.elements[elt.nodes[0]]
-        L2 = self.elements[elt.nodes[1]]
-
-        nodes = L2.nodes + L1.nodes
-
-        s = self._tikz_draw_TF1(elt, nodes, label_values, link=True)
-        return s
-
-    def _tikz_draw_Q(self, elt, label_values, draw_nodes):
-
-        # For common base, will need to support up and down.
-        if elt.opts['dir'] not in ('left', 'right'):
-            raise ValueError('Cannot draw transistor %s in direction %s'
-                             '; try left or right'
-                             % (elt.name, elt.opts['dir']))
-
-        n1, n2, n3 = elt.nodes
-
-        p1, p2, p3 = [self.coords[n] for n in elt.nodes]
-
-        centre = Pos(p3.x, 0.5 * (p1.y + p3.y))
-
-        label_str = '$%s$' % elt.default_label if label_values else ''
-        sub_type = elt.sub_type.replace('jf', 'jfet')
-        args_str = '' if elt.opts['dir'] == 'right' else 'xscale=-1'
-        if 'mirror' in elt.opts:
-            args_str += ', yscale=-1'
-        for key, val in elt.opts.iteritems():
-            if key in ('color', ):
-                args_str += '%s=%s, ' % (key, val)                
-
-        s = r'  \draw (%s) node[%s, %s, scale=%.1f] (T) {};''\n' % (
-            centre, sub_type, args_str, self.scale * 2)
-        s += r'  \draw (%s) node [] {%s};''\n'% (centre, label_str)
-
-        if sub_type in ('pnp', 'pmos', 'pjfet'):
-            n1, n3 = n3, n1
-
-        # Add additional wires.
-        if elt.type in ('J', 'M'):
-            s += r'  \draw (T.D) -- (%s) (T.G) -- (%s) (T.S) -- (%s);''\n' % (n1, n2, n3)
-        else:
-            s += r'  \draw (T.C) -- (%s) (T.B) -- (%s) (T.E) -- (%s);''\n' % (n1, n2, n3)
-
-        s += self._tikz_draw_nodes(elt, draw_nodes)
-        return s
-
-    def _tikz_draw_cpt(self, elt, label_values, draw_nodes, label_ids):
-
-        n1, n2 = elt.nodes[0:2]
-
-        if cpt.type == 'R' and 'variable' in elt.opts:
-            cpt_type = 'vR'
-
-        id_pos = '_'
-        voltage_pos = '^'
-        if elt.type in ('V', 'Vdc', 'Vstep', 'Vac', 'Vacstep', 'Vimpulse', 'v',
-                            'I', 'Idc', 'Istep', 'Iac', 'Iacstep', 'Iimpulse', 'i',
-                            'E', 'F', 'G', 'H', 'Vs', 'Is'):
-
-            # circuitikz expects the positive node first, except for
-            # voltage and current sources!  So swap the nodes
-            # otherwise they are drawn the wrong way around.
-            n1, n2 = n2, n1
-
-            if elt.opts['dir'] in ('down', 'right'):
-                # Draw label on LHS for vertical cpt and below
-                # for horizontal cpt.
-                id_pos = '^'
-                voltage_pos = '_'
-        else:
-            if elt.opts['dir'] in ('up', 'left'):
-                # Draw label on LHS for vertical cpt and below
-                # for horizontal cpt.
-                id_pos = '^'
-                voltage_pos = '_'
-
-        # Add modifier to place voltage label on other side
-        # from component identifier label.
-        if 'v' in elt.opts:
-            elt.opts['v' + voltage_pos] = elt.opts.pop('v')
-
-        # Reversed voltage.
-        if 'vr' in elt.opts:
-            elt.opts['v' + voltage_pos + '>'] = elt.opts.pop('vr')
-
-        current_pos = id_pos
-        # Add modifier to place current label on other side
-        # from voltage marks.
-        if 'i' in elt.opts:
-            elt.opts['i' + current_pos] = elt.opts.pop('i')
-
-        # Reversed current.
-        if 'ir' in elt.opts:
-            elt.opts['i' + current_pos + '<'] = elt.opts.pop('ir')
-
-        # Current, voltage, label options.
-        # It might be better to allow any options and prune out
-        # dir and size.
-        voltage_str = ''
-        current_str = ''
-        label_str = ''
-        args_str = ''
-        for key, val in elt.opts.iteritems():
-            if key in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
-                       'i>_', 'i<_', 'i>^', 'i<^'):
-                current_str += '%s=${%s}$, ' % (key, latex_str(val))
-            elif key in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
-                voltage_str += '%s=${%s}$, ' % (key, latex_str(val))
-            elif key in ('l', 'l^', 'l_'):
-                label_str += '%s=${%s}$, ' % (key, latex_str(val))
-            elif key in ('color', ):
-                args_str += '%s=%s, ' % (key, val)                
-
-        node_str = self._node_str(n1, n2, draw_nodes)
-
-        args_str += voltage_str + current_str
-
-        # Generate default label unless specified.
-        if label_str == '':
-            if cpt.type not in ('open', 'short'):
-                
-                label_str = ', l%s=${%s}$' % (id_pos, elt.default_label)
-                
-                if label_ids and elt.value_label != '':
-                    label_str = r', l%s=${%s=%s}$' % (id_pos, elt.id_label, elt.value_label)
-        else:
-            label_str = ', ' + label_str
-
-        if not label_values:
-            label_str = ''
-
-        if not label_values and label_ids:
-            label_str = ', l%s=${%s}$' % (id_pos, elt.id_label)
-
-        s = r'  \draw (%s) to [align=right, %s%s, %s%s] (%s);''\n' % (
-            n1, cpt_type, label_str, args_str, node_str, n2)
-        return s
-
     def _tikz_draw(self, style_args='', label_values=True, 
                    draw_nodes=True, label_ids=True,
                    label_nodes='primary'):
@@ -1060,18 +745,10 @@ class Schematic(object):
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):
-            s += elt.draw(label_values, draw_nodes)
+            s += elt.draw(nodes=self.nodes, label_values=label_values, 
+                          draw_nodes=draw_nodes)
 
         wires = self._make_wires()
-
-        if False:
-            # Draw implict wires
-            for wire in wires:
-                n1, n2 = wire.nodes
-
-                node_str = self._node_str(n1, n2, draw_nodes)
-                s += r'  \draw (%s) to [short, %s] (%s);''\n' % (
-                    n1, node_str, n2)
 
         # Label primary nodes
         if label_nodes:
@@ -1143,7 +820,7 @@ class Schematic(object):
         else:
             raise ValueError('Unknown style %s' % style)
 
-        content = self._tikz_draw(style_args, **kwargs)
+        content = self._tikz_draw(style_args=style_args, **kwargs)
 
         if debug:
             print('width = %d, height = %d, oversample = %d, stretch = %.2f, scale = %.2f'
