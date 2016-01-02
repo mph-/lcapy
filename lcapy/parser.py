@@ -56,10 +56,10 @@ class Rule(object):
         except:
             newclass = cpts.classes[self.classname]
 
-        obj = newclass(name, *fields)
-        obj.string = string
-        obj.opts_string = opts_string
-        obj.nodes =()
+        cpt = newclass(name, *fields)
+        cpt.string = string
+        cpt.opts_string = opts_string
+        cpt.nodes =()
 
         for m, arg in enumerate(args):
 
@@ -76,15 +76,15 @@ class Rule(object):
             if argdir[arg].base == 'node':
                 if field.find('.') != -1:
                     self.syntax_error('Found . in node name %s' % field, string)                
-                obj.nodes += (field, )
+                cpt.nodes += (field, )
 
             # Perhaps gobble keywords?
 
             # Add attribute.  Perhaps the __init__ method for
             # the class should create these from the args?
-            setattr(obj, arg, field)
+            setattr(cpt, arg, field)
 
-        return obj
+        return cpt
 
 
 class Parser(object):
