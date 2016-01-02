@@ -28,9 +28,9 @@ class Arg(object):
 
 class Rule(object):
 
-    def __init__(self, name, classname, args, comment, pos):
+    def __init__(self, cpt_type, classname, args, comment, pos):
         
-        self.name = name
+        self.type = cpt_type
         self.classname = classname
         self.args = args
         self.comment = comment
@@ -38,7 +38,7 @@ class Rule(object):
 
     def __repr__(self):
 
-        return self.name + 'name ' + ' '.join(self.args)
+        return self.type + 'name ' + ' '.join(self.args)
 
     def syntax_error(self, error, string):
 
@@ -59,6 +59,7 @@ class Rule(object):
         obj = newclass(name, *fields)
         obj.string = string
         obj.opts_string = opts_string
+        obj.nodes =()
 
         for m, arg in enumerate(args):
 
@@ -72,8 +73,12 @@ class Rule(object):
                 arg = arg[1:-1]
 
             field = fields[m]
-            if argdir[arg].base == 'node' and field.find('.') != -1:
-                self.syntax_error('Found . in node name %s' % field, string)                
+            if argdir[arg].base == 'node':
+                if field.find('.') != -1:
+                    self.syntax_error('Found . in node name %s' % field, string)                
+                obj.nodes += (field, )
+
+            # Perhaps gobble keywords?
 
             # Add attribute.  Perhaps the __init__ method for
             # the class should create these from the args?
@@ -94,6 +99,8 @@ class Parser(object):
         args = grammar.args
         # A string defining delimiter characters
         delimiters = grammar.delimiters
+        # A string defining comment characters
+        self.comments = grammar.comments
 
         self.cpts = cpts
         self._anon_count = 0
@@ -132,7 +139,7 @@ class Parser(object):
             return
 
         fields = string.split(':')
-        eltcname = fields[0]
+        cpt_classname = fields[0]
         fields = fields[1].split(';')
         string = fields[0].strip()
         comment = fields[1].strip()
@@ -140,7 +147,7 @@ class Parser(object):
         fields = string.split(' ')
         args = fields[1:]
 
-        eltname = fields[0][0:-4]
+        cpt_type = fields[0][0:-4]
         
         pos = None
         newargs = ()
@@ -152,10 +159,10 @@ class Parser(object):
             if pos is None and self.argdir[arg].base == 'keyword':
                 pos = m
 
-        if eltname not in self.ruledir:
-            self.ruledir[eltname] = ()
-        self.ruledir[eltname] += (Rule(eltname, eltcname,
-                                     args, comment, pos), )
+        if cpt_type not in self.ruledir:
+            self.ruledir[cpt_type] = ()
+        self.ruledir[cpt_type] += (Rule(cpt_type, cpt_classname,
+                                        args, comment, pos), )
 
     def _anon_cpt_id(self):
 
@@ -168,6 +175,13 @@ class Parser(object):
 
     def parse(self, string):
         """Parse string and create object"""
+
+        string = string.strip()
+        if string == '':
+            return None
+
+        if string[0] in self.comments:
+            return None
 
         self.string = string
         fields = string.split(';')
@@ -183,15 +197,15 @@ class Parser(object):
         groups = match.groups()
         
         # Add id if anonymous.
-        cpt, cptid = groups[0], groups[1]
-        if cptid is None:
+        cpt_type, cpt_id = groups[0], groups[1]
+        if cpt_id is None:
             name += self._anon_cpt_id()
 
         # This is the most hackery aspect of this parser where we
         # choose the rule pattern based on a keyword.  If the
         # keyword is not present, default to first rule pattern.
-        rule = self.ruledir[cpt][0]
-        for rule1 in self.ruledir[cpt]:
+        rule = self.ruledir[cpt_type][0]
+        for rule1 in self.ruledir[cpt_type]:
             pos = rule1.pos
             if pos is None:
                 continue

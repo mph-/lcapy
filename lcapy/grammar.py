@@ -7,6 +7,9 @@ Copyright 2015, 2016 Michael Hayes, UCECE
 # SPICE also considers = a delimiter.
 delimiters = r' \t\(\),'
 
+# Comment characters
+comments = r'#%'
+
 # Optional args are in square brackets.
 rules = r"""
 D: Dname Np Nm; Diode
