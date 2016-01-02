@@ -42,10 +42,9 @@ class Rule(object):
 
     def syntax_error(self, error, string):
 
-        raise ValueError('%s parsing %s\nExpected format: %s' % (error, string, repr(self)))        
+        raise ValueError('Syntax error: %s when parsing %s\nExpected format: %s' % (error, string, repr(self)))        
 
-
-    def process(self, cpts, name, string, fields, opts_string):
+    def process(self, cpts, argdir, name, string, fields, opts_string):
 
         args = self.args
         if len(fields) > len(args):
@@ -55,7 +54,7 @@ class Rule(object):
         try:
             newclass = getattr(cpts, self.classname)
         except:
-            newclass = cpts.newclasses[self.classname]
+            newclass = cpts.classes[self.classname]
 
         obj = newclass(name, *fields)
         obj.string = string
@@ -72,9 +71,13 @@ class Rule(object):
             if arg[0] == '[':
                 arg = arg[1:-1]
 
+            field = fields[m]
+            if argdir[arg].base == 'node' and field.find('.') != -1:
+                self.syntax_error('Found . in node name %s' % field, string)                
+
             # Add attribute.  Perhaps the __init__ method for
             # the class should create these from the args?
-            setattr(obj, arg, fields[m])
+            setattr(obj, arg, field)
 
         return obj
 
@@ -94,8 +97,8 @@ class Parser(object):
 
         self.cpts = cpts
         self._anon_count = 0
-        self.args = {}
-        self.rules = {}
+        self.argdir = {}
+        self.ruledir = {}
         
         for arg in args.split('\n'):
             self._add_arg(arg)
@@ -103,7 +106,7 @@ class Parser(object):
         for rule in rules.split('\n'):
             self._add_rule(rule)
 
-        cpts = self.rules.keys()
+        cpts = self.ruledir.keys()
         cpts.sort(key=len, reverse=True)
 
         self.cpt_pattern = re.compile('(%s)(\w+)?' % '|'.join(cpts))
@@ -121,7 +124,7 @@ class Parser(object):
         argbase = fields[0].strip()
         comment = fields[1].strip()
         
-        self.args[argname] = Arg(argname, argbase, comment)
+        self.argdir[argname] = Arg(argname, argbase, comment)
 
     def _add_rule(self, string):
 
@@ -144,14 +147,14 @@ class Parser(object):
         for m, arg in enumerate(args):
             if arg[0] == '[':
                 arg = arg[1:-1]
-            if arg not in self.args:
+            if arg not in self.argdir:
                 raise ValueError('Unknown argument %s for %s' % (arg, string))
-            if pos is None and self.args[arg].base == 'keyword':
+            if pos is None and self.argdir[arg].base == 'keyword':
                 pos = m
 
-        if eltname not in self.rules:
-            self.rules[eltname] = ()
-        self.rules[eltname] += (Rule(eltname, eltcname,
+        if eltname not in self.ruledir:
+            self.ruledir[eltname] = ()
+        self.ruledir[eltname] += (Rule(eltname, eltcname,
                                      args, comment, pos), )
 
     def _anon_cpt_id(self):
@@ -187,8 +190,8 @@ class Parser(object):
         # This is the most hackery aspect of this parser where we
         # choose the rule pattern based on a keyword.  If the
         # keyword is not present, default to first rule pattern.
-        rule = self.rules[cpt][0]
-        for rule1 in self.rules[cpt]:
+        rule = self.ruledir[cpt][0]
+        for rule1 in self.ruledir[cpt]:
             pos = rule1.pos
             if pos is None:
                 continue
@@ -196,7 +199,7 @@ class Parser(object):
                 rule = rule1
                 break
 
-        return rule.process(self.cpts, name, string, fields, 
-                            opts_string)
+        return rule.process(self.cpts, self.argdir, name, string,
+                            fields, opts_string)
 
 

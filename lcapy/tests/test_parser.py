@@ -33,16 +33,39 @@ def test_Exception4():
 
     parse('A1 1 2')
 
+@raises(ValueError)
+def test_Exception4():
+    '''Test node name'''
+
+    parse('R1 1.2 2.3')
+
 def test_V1():
     '''Test voltage source'''
     
-    assert_equals(type(parse('V1 1 2')), schemcpts.newclasses['V'], 'Class not V')
-
+    assert_equals(type(parse('V1 1 2')), schemcpts.classes['V'], 'Class not V')
 
 def test_Vdc1():
     '''Test dc voltage source'''
     
-    assert_equals(type(parse('V1 1 2 dc')), schemcpts.newclasses['Vdc'], 'Class not V')
+    assert_equals(type(parse('V1 1 2 dc')), schemcpts.classes['Vdc'], 'Class not Vdc')
+
+def test_Vac1():
+    '''Test ac voltage source'''
+    
+    assert_equals(type(parse('V1 1 2 ac')), schemcpts.classes['Vac'], 'Class not Vac')
+
+def test_Vsin1():
+    '''Test sin voltage source'''
+    
+    assert_equals(type(parse('V1 1 2 sin(1, 2, 3)')), schemcpts.classes['Vsin'], 'Class not Vsin')
+
+def test_Vexpr():
+    '''Test voltage source with expr'''
+    
+    assert_equals(type(parse('V1 1 2 sin(1, 2, 3)')), schemcpts.classes['Vsin'], 'Class not Vsin')
+
+
+
 
 
 

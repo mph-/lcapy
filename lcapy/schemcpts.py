@@ -170,12 +170,12 @@ class K(Cpt):
     """K"""
 
 
-newclasses = {}
+classes = {}
 
 def defcpt(name, base, docstring, cpt=None, pos=None):
     
     if isinstance(base, str):
-        base = newclasses[base]
+        base = classes[base]
 
     newclass = type(name, (base, ), {'__doc__': docstring})
 
@@ -183,7 +183,7 @@ def defcpt(name, base, docstring, cpt=None, pos=None):
         newclass.tikz_cpt = cpt
     if pos is not None:
         newclass.pos= pos
-    newclasses[name] = newclass
+    classes[name] = newclass
 
 # Dynamically create classes.
 

@@ -20,6 +20,7 @@ import numpy as np
 import re
 from lcapy.latex import latex_str
 from lcapy.core import Expr
+import grammar
 from parser import Parser
 import schemcpts as cpts
 from os import system, path, remove, mkdir, chdir, getcwd
@@ -422,10 +423,6 @@ class NetElement(object):
         
             return '%s_{%s}' % (name, subscript)
 
-        match = cpt_type_pattern.match(name)
-
-        if not match:
-            raise ValueError('Unknown schematic component %s' % name)
 
         # Circuitikz does not like a . in a name
         if n1.find('.') != -1:
@@ -597,7 +594,7 @@ class Schematic(object):
         if filename is not None:
             self.netfile_add(filename)
 
-        parser = Parser(cpts)
+        parser = Parser(cpts, grammar)
         self.parse = parser.parse
 
 
