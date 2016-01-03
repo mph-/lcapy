@@ -225,14 +225,13 @@ class Graph(dict):
         if size == 0:
             return
 
-        if n1 not in self:
-            self[n1] = []
-        if n2 not in self:
-            self[n2] = []
-
         if size < 0:
+            if n2 not in self:
+                self[n2] = []
             self[n2].append((n1, -size))
         else:
+            if n1 not in self:
+                self[n1] = []
             self[n1].append((n2, size))
 
 
@@ -304,7 +303,12 @@ class Graphs(object):
         # Chain all potential start nodes to node 'start'.
         orphans = []
         rorphans = []
-        for node in self.fwd.keys():
+        for node in self.cnodes.values():
+            if node not in self.fwd:
+                self.fwd[node] = []                
+            if node not in self.rev:
+                self.rev[node] = [] 
+               
             if self.fwd[node] == []:
                 orphans.append((node, 0))
             if self.rev[node] == []:
@@ -725,7 +729,7 @@ class Schematic(object):
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):
-            s += elt.draw(nodes=self.nodes, label_values=label_values, 
+            s += elt.draw(sch=self, label_values=label_values, 
                           draw_nodes=draw_nodes)
 
         wires = self._make_wires()

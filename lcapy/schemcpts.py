@@ -117,13 +117,13 @@ class Cpt(object):
         
         return node_str
 
-    def _draw_node(self, nodes, n, draw_nodes=True):
+    def _draw_node(self, sch, n, draw_nodes=True):
         
         s = ''
         if not draw_nodes:
             return s
 
-        node = nodes[n]
+        node = sch.nodes[n]
         if not node.visible(draw_nodes):
             return s
 
@@ -134,14 +134,14 @@ class Cpt(object):
 
         return s
 
-    def _draw_nodes(self, nodes, draw_nodes=True):
+    def _draw_nodes(self, sch, draw_nodes=True):
 
         s = ''
         for n in self.nodes:
-            s += self._draw_node(nodes, n, draw_nodes)
+            s += self._draw_node(sch, n, draw_nodes)
         return s
 
-    def draw(self, nodes, **kwargs):
+    def draw(self, sch, **kwargs):
         raise Error('draw method not implemented')
 
 
@@ -160,15 +160,15 @@ class Transistor(Cpt):
                              '; try left or right'
                              % (self.name, self.opts['dir']))
 
-    def draw(self, nodes, **kwargs):
+    def draw(self, sch, **kwargs):
 
         label_values = kwargs.get('label_values', True)
         draw_nodes = kwargs.get('draw_nodes', True)
 
         n1, n2, n3 = self.nodes
-        p1, p2, p3 = nodes[n1].pos, nodes[n2].pos, nodes[n3].pos
+        p1, p2, p3 = sch.nodes[n1].pos, sch.nodes[n2].pos, sch.nodes[n3].pos
 
-        centre = 0.5 * (p1 + p3)
+        centre = (p1 + p3) * 0.5
 
         label_str = '$%s$' % self.default_label if label_values else ''
         args_str = '' if self.opts['dir'] == 'right' else 'xscale=-1'
@@ -179,7 +179,7 @@ class Transistor(Cpt):
                 args_str += '%s=%s, ' % (key, val)                
 
         s = r'  \draw (%s) node[%s, %s, scale=%.1f] (T) {};''\n' % (
-            centre, self.tikz_cpt, args_str, self.scale * 2)
+            centre, self.tikz_cpt, args_str, sch.scale * 2)
         s += r'  \draw (%s) node [] {%s};''\n'% (centre, label_str)
 
         if self.tikz_cpt in ('pnp', 'pmos', 'pjfet'):
@@ -191,7 +191,7 @@ class Transistor(Cpt):
         else:
             s += r'  \draw (T.D) -- (%s) (T.G) -- (%s) (T.S) -- (%s);''\n' % (n1, n2, n3)
 
-        s += self._draw_nodes(nodes, draw_nodes)
+        s += self._draw_nodes(sch, draw_nodes)
         return s
 
 
@@ -211,7 +211,7 @@ class OnePort(Cpt):
     pos = ((0, 0), (1, 0))
 
 
-    def draw(self, nodes, **kwargs):
+    def draw(self, sch, **kwargs):
 
         label_values = kwargs.get('label_values', True)
         draw_nodes = kwargs.get('draw_nodes', True)
@@ -283,7 +283,8 @@ class OnePort(Cpt):
             elif key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        node_str = self._node_str(nodes[n1], nodes[n2], draw_nodes)
+        node_str = self._node_str(sch.nodes[n1], sch.nodes[n2],
+                                  draw_nodes)
 
         args_str += voltage_str + current_str
 
@@ -324,7 +325,7 @@ class K(Cpt):
 class Wire(OnePort):
 
 
-    def draw_implicit(self, nodes, **kwargs):
+    def draw_implicit(self, sch, **kwargs):
 
         # Draw implict wires, i.e., connections to ground, etc.
 
@@ -345,7 +346,7 @@ class Wire(OnePort):
 
         offset = (0.0, 0.0)
         anchor = 'south west'
-        p = nodes[n2].pos
+        p = sch.nodes[n2].pos
         if self.opts['dir'] == 'down':
             offset = (0.0, 0.25)
             anchor = 'north west'
@@ -361,7 +362,7 @@ class Wire(OnePort):
             s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (anchor, n2, label_str)
         return s
 
-    def draw(self, nodes, **kwargs):
+    def draw(self, sch, **kwargs):
 
         if ('implicit' in self.opts or 'ground' in self.opts
             or 'sground' in self.opts):
