@@ -205,7 +205,8 @@ class Cnodes(dict):
 
         set1 = self[n1]
         set2 = self[n2]
-        newset = set1 + set2
+        # Convert to set to remove duplicates.
+        newset = tuple(set(set1 + set2))
 
         for n in self[n1]:
             self[n] = newset
@@ -271,7 +272,7 @@ class Graph(dict):
                                 for to_node in all_nodes])
         except RuntimeError:
             raise RuntimeError(
-                ("The schematic graph '%s' is dodgy, probably a component"
+                ("The %s schematic graph is dodgy, probably a component"
                  " is connected to the wrong node\n%s") 
                 % (self.name, from_nodes))
 

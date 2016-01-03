@@ -85,7 +85,7 @@ class Cpt(object):
 
     def xplace(self, graphs):
 
-        size = self.opts['size']
+        size = float(self.opts['size'])
         xvals = self.xvals
         for m1, n1 in enumerate(self.nodes):
             for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
@@ -94,7 +94,7 @@ class Cpt(object):
 
     def yplace(self, graphs):
 
-        size = self.opts['size']
+        size = float(self.opts['size'])
         yvals = self.yvals
         for m1, n1 in enumerate(self.nodes):
             for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
@@ -390,7 +390,7 @@ def defcpt(name, base, docstring, cpt=None, pos=None):
 
 defcpt('C', OnePort, 'Capacitor', 'C')
 
-defcpt('D', OnePort, 'Diode', 'I')
+defcpt('D', OnePort, 'Diode', 'D')
 defcpt('Dled', 'D', 'LED', 'leD')
 defcpt('Dphoto', 'D', 'Photo diode', 'pD')
 defcpt('Dshottky', 'D', 'Shottky diode', 'zD')
