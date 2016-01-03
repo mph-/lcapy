@@ -393,7 +393,7 @@ defcpt('C', OnePort, 'Capacitor', 'C')
 defcpt('D', OnePort, 'Diode', 'D')
 defcpt('Dled', 'D', 'LED', 'leD')
 defcpt('Dphoto', 'D', 'Photo diode', 'pD')
-defcpt('Dshottky', 'D', 'Shottky diode', 'zD')
+defcpt('Dschottky', 'D', 'Schottky diode', 'zD')
 defcpt('Dtunnel', 'D', 'Tunnel diode', 'tD')
 defcpt('Dzener', 'D', 'Zener diode', 'zD')
 

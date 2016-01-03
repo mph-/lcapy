@@ -18,7 +18,7 @@ Dled: Dname Np Nm led; Light emitting diode
 Dzener: Dname Np Nm zener; Zener diode
 Dphoto: Dname Np Nm photo; Photo diode
 Dtunnel: Dname Np Nm tunnel; Tunnel diode
-Dshottky: Dname Np Nm shottky; Shottky diode
+Dschottky: Dname Np Nm schottky; Schottky diode
 E: Ename Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
 Eopamp: Ename Np Nm opamp Ncp Ncm [Value]; Opamp
 F: Fname Np Nm Vcontrol [Value]; Voltage controlled current source
@@ -60,7 +60,7 @@ led: keyword;
 zener: keyword;
 photo: keyword;
 tunnel: keyword;
-shottky: keyword;
+schottky: keyword;
 ac: keyword;
 dc: keyword;
 sin: keyword;
