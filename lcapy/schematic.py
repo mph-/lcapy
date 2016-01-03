@@ -336,7 +336,7 @@ class Graphs(object):
             posr[node] = memor[gnode]
             posa[node] = 0.5 * (pos[node] + posr[node])
 
-        return posa, self.cnodes, length
+        return posa, length
 
 
 class Node(object):
@@ -429,7 +429,7 @@ class Schematic(object):
 
     def _invalidate(self):
 
-        for attr in ('_xcnodes', '_ycnodes', '_coords'):
+        for attr in ('xgraphs', 'ygraphs'):
             if hasattr(self, attr):
                 delattr(self, attr)
 
@@ -600,8 +600,8 @@ class Schematic(object):
             elt.xplace(self.xgraphs)
             elt.yplace(self.ygraphs)
 
-        xpos, self._xcnodes, self.width = self.xgraphs.analyse()
-        ypos, self._ycnodes, self.height = self.ygraphs.analyse()
+        xpos, self.width = self.xgraphs.analyse()
+        ypos, self.height = self.ygraphs.analyse()
 
         for n, node in self.nodes.iteritems():
             node.pos = Pos(xpos[n], ypos[n])
@@ -610,17 +610,17 @@ class Schematic(object):
     def xcnodes(self):
         """Names of common x nodes; for debugging"""
 
-        if not hasattr(self, '_xcnodes'):
+        if not hasattr(self, 'xgraphs'):
             self._positions_calculate()
-        return self._xcnodes
+        return self.xgraphs.cnodes
 
     @property
     def ycnodes(self):
         """Names of common y nodes; for debugging"""
 
-        if not hasattr(self, '_ycnodes'):
+        if not hasattr(self, 'ygraphs'):
             self._positions_calculate()
-        return self._ycnodes
+        return self.ygraphs.cnodes
 
     def _make_wires1(self, snode_list):
 

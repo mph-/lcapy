@@ -36,8 +36,8 @@ L: Lname Np Nm [Value]; Inductance
 M: Mname Nd Ng Ns [Value]; N channel MOSFET
 Mnmos: Mname Nd Ng Ns nmos [Value]; N channel MOSFET
 Mpmos: Mname Nd Ng Ns pmos [Value]; P channel MOSFET
-O: Pname Np Np; Open circuit
-P: Pname Np Np; Port
+O: Pname Np Np [Value]; Open circuit
+P: Pname Np Np [Value]; Port
 Q: Qname Nc Nb Ne [Value]; NPN transistor
 Qnpn: Qname Nc Nb Ne npn [Value]; NPN transistor
 Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor 

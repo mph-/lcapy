@@ -299,15 +299,33 @@ class TF(TF1):
         s += super(TF, self).draw(sch, link=True, **kwargs)
 
         draw_nodes = kwargs.get('draw_nodes', True)
-        s += self._draw_nodes(sch, draw_nodes=draw_nodes)
+        s += self._draw_nodes(sch, draw_nodes)
         return s
+
+
+class K(TF1):
+    """Mutual coupling"""
+
+    def fixup(self, sch):
+        
+        L1 = sch.elements[self.Lname1]
+        L2 = sch.elements[self.Lname2]
+
+        self.nodes = L2.nodes + L1.nodes
+
+    def draw(self, sch, **kwargs):
+
+        if self.opts['dir'] != 'right':
+            raise ValueError('Cannot draw mutual coupling %s in direction %s'
+                             % (self.name, self.opts['dir']))
+
+        return super(K, self).draw(sch, link=True, **kwargs)
 
 
 class OnePort(Cpt):
     """OnePort"""
 
     pos = ((0, 0), (1, 0))
-
 
     def draw(self, sch, **kwargs):
 
@@ -420,23 +438,46 @@ class CCS(OnePort):
     """Current controlled source"""
 
 
-class K(TF1):
-    """Mutual coupling"""
+class Opamp(Cpt):
+
+    # The Nm node is not used (ground).
+    ppos = ((2.4, 0.5), (0, 1), (0, 0))
+    npos = ((2.4, 0.5), (0, 0), (0, 1))
+
+    @property
+    def vnodes(self):
+        return (self.nodes[0], ) + self.nodes[2:]
 
     def fixup(self, sch):
         
-        L1 = sch.elements[self.Lname1]
-        L2 = sch.elements[self.Lname2]
-
-        self.nodes = L2.nodes + L1.nodes
+        self.pos = self.npos if 'mirror' in self.opts else self.ppos
 
     def draw(self, sch, **kwargs):
 
+        draw_nodes = kwargs.get('draw_nodes', True)
+        label_values = kwargs.get('label_values', True)
+
         if self.opts['dir'] != 'right':
-            raise ValueError('Cannot draw mutual coupling %s in direction %s'
+            raise ValueError('Cannot draw opamp %s in direction %s'
                              % (self.name, self.opts['dir']))
 
-        return super(K, self).draw(sch, link=True, **kwargs)
+        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.nodes]
+
+        centre = Pos(0.5 * (p3.x + p1.x), p1.y)
+
+        label_str = '$%s$' % self.default_label if label_values else ''
+        args_str = '' if 'mirror' in self.opts else 'yscale=-1'
+        for key, val in self.opts.iteritems():
+            if key in ('color', ):
+                args_str += '%s=%s, ' % (key, val)                
+
+        s = r'  \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (
+            centre, args_str, sch.scale * 2)
+        # Draw label separately to avoid being scaled by 2.
+        s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
+        
+        s += self._draw_nodes(sch, draw_nodes)
+        return s
 
 
 class Wire(OnePort):
@@ -515,7 +556,7 @@ defcpt('Dtunnel', 'D', 'Tunnel diode', 'tD')
 defcpt('Dzener', 'D', 'Zener diode', 'zD')
 
 defcpt('E', VCS, 'VCVS', 'american controlled voltage source')
-defcpt('Eopamp', 'E', 'VCVS', 'V')
+defcpt('Eopamp', Opamp, 'VCVS', 'V')
 defcpt('F', VCS, 'VCCS', 'american controlled current source')
 defcpt('G', CCS, 'CCVS', 'american controlled voltage source')
 defcpt('H', CCS, 'CCCS', 'american controlled current source')
