@@ -182,82 +182,44 @@ class EngFormat(object):
         return string + '\,' + r'\mbox{' + prefixes[idx] + self.unit + r'}'
 
 
-class Cnodes(object):
-
+class Cnodes(dict):
     """Common nodes"""
 
     def __init__(self, nodes):
 
-        self.sets = {}
+        super (Cnodes, self).__init__()
         for node in nodes:
-            self.sets[node] = (node, )
+            self[node] = (node, )
 
     def link(self, n1, n2):
         """Make nodes n1 and n2 share common node"""
 
-        set1 = self.sets[n1]
-        set2 = self.sets[n2]
+        set1 = self[n1]
+        set2 = self[n2]
         newset = set1 + set2
 
-        for n in self.sets[n1]:
-            self.sets[n] = newset
-        for n in self.sets[n2]:
-            self.sets[n] = newset
-
-    def _analyse(self):
-
-        # Add dummy cnode at start
-        unique = ['dummy'] + list(set(self.sets.values()))
-        node_map = {}
-        for node, nodes in self.sets.iteritems():
-            node_map[node] = unique.index(nodes)
-
-        self._node_map = node_map
-        self._nodes = unique
-
-    def __getitem__(self, key):
-        """Return mapping of node name to common node number"""
-
-        if not hasattr(self, '_node_map'):
-            self._analyse()
-
-        return self._node_map[key]
-
-    def map(self, nodes):
-
-        if not isinstance(nodes, (tuple, list)):
-            nodes = list([nodes])
-
-        return [self[node] for node in nodes]
-
-    @property
-    def nodes(self):
-        """Return mapping of common node number to tuple of shared nodes"""
-
-        if not hasattr(self, '_nodes'):
-            self._analyse()
-
-        return self._nodes
-
-    @property
-    def size(self):
-        """Return number of common nodes"""
-
-        return len(self.nodes)
+        for n in self[n1]:
+            self[n] = newset
+        for n in self[n2]:
+            self[n] = newset
 
 
 class Graph(dict):
 
-    def __init__(self, size, name):
+    def __init__(self, name):
 
         self.name = name
-        for m in range(size):
-            self[m] = []
+
 
     def add(self, n1, n2, size):
 
         if size == 0:
             return
+
+        if n1 not in self:
+            self[n1] = []
+        if n2 not in self:
+            self[n2] = []
 
         if size < 0:
             self[n2].append((n1, -size))
@@ -273,7 +235,7 @@ class Graph(dict):
         component connecting the nodes.
         """
 
-        if self[0] == []:
+        if self['start'] == []:
             raise ValueError("Cannot find start node for graph '%s'. "
                              "Probably a component has an incorrect direction."
                              % self.name)
@@ -310,11 +272,10 @@ class Graph(dict):
 
 class Graphs(object):
 
-    def __init__(self, size, name):
+    def __init__(self, name):
 
-        self.fwd = Graph(size, 'forward ' + name)
-        self.rev = Graph(size, 'reverse ' + name)
-        self.size = size
+        self.fwd = Graph('forward ' + name)
+        self.rev = Graph('reverse ' + name)
 
     def add(self, n1, n2, size):
         self.fwd.add(n1, n2, size)
@@ -326,16 +287,16 @@ class Graphs(object):
 
     def add_start_nodes(self):
 
-        # Chain all potential start nodes to node 0.
+        # Chain all potential start nodes to node 'start'.
         orphans = []
         rorphans = []
-        for m in range(1, self.size):
-            if self.fwd[m] == []:
-                orphans.append((m, 0))
-            if self.rev[m] == []:
-                rorphans.append((m, 0))
-        self.fwd[0] = rorphans
-        self.rev[0] = orphans
+        for node in self.fwd.keys():
+            if self.fwd[node] == []:
+                orphans.append((node, 0))
+            if self.rev[node] == []:
+                rorphans.append((node, 0))
+        self.fwd['start'] = rorphans
+        self.rev['start'] = orphans
 
 
 class Node(object):
@@ -613,9 +574,6 @@ class Schematic(object):
 
         cnodes = Cnodes(self.nodes)
 
-        import pdb
-        pdb.set_trace()
-
         if dir == 'horizontal':
             for m, elt in enumerate(self.elements.values()):
                 elt.xlink(cnodes)                
@@ -625,7 +583,7 @@ class Schematic(object):
 
         # Now form forward and reverse directed graphs using components
         # in the desired directions.
-        graphs = Graphs(cnodes.size, dir)
+        graphs = Graphs(dir)
 
         if dir == 'horizontal':
             for m, elt in enumerate(self.elements.values()):
@@ -650,19 +608,16 @@ class Schematic(object):
         pos = {}
         posr = {}
         posa = {}
-        for cnode in graphs.fwd.keys():
-            if cnode == 0:
-                continue
 
-            for node in cnodes.nodes[cnode]:
-                pos[node] = length - memo[cnode]
-                posr[node] = memor[cnode]
-                posa[node] = 0.5 * (pos[node] + posr[node])
+        for node, gnode in cnodes.iteritems():
+            pos[node] = length - memo[gnode]
+            posr[node] = memor[gnode]
+            posa[node] = 0.5 * (pos[node] + posr[node])
 
         if False:
             print(pos)
             print(posr)
-        return posa, cnodes.nodes, length
+        return posa, cnodes, length
 
     def _positions_calculate(self):
 

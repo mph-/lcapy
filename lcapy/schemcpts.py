@@ -86,7 +86,7 @@ class Cpt(object):
     def xplace(self, graphs, cnodes):
 
         size = self.opts['size']
-        xvals = self.yvals
+        xvals = self.xvals
         for m1, n1 in enumerate(self.nodes):
             for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
                 value = (xvals[m2] - xvals[m1]) * self.xscale * size
