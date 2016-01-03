@@ -1,4 +1,5 @@
 from __future__ import print_function
+from lcapy.latex import latex_str
 import numpy as np
 
 
@@ -9,6 +10,11 @@ class Cpt(object):
     cpt_type_counter = 1
 
     pos = ((0, 0), (0, 1))
+
+    @property
+    def vnodes(self):
+        '''Drawn nodes'''
+        return self.nodes
 
     @property
     def tpos(self):
@@ -70,16 +76,16 @@ class Cpt(object):
     def xlink(self, graphs):
 
         xvals = self.xvals
-        for m1, n1 in enumerate(self.nodes):
-            for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.vnodes):
+            for m2, n2 in enumerate(self.vnodes[m1 + 1:], m1 + 1):
                 if xvals[m2] == xvals[m1]:
                     graphs.link(n1, n2)
 
     def ylink(self, graphs):
 
         yvals = self.yvals
-        for m1, n1 in enumerate(self.nodes):
-            for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.vnodes):
+            for m2, n2 in enumerate(self.vnodes[m1 + 1:], m1 + 1):
                 if yvals[m2] == yvals[m1]:
                     graphs.link(n1, n2)
 
@@ -87,8 +93,8 @@ class Cpt(object):
 
         size = float(self.opts['size'])
         xvals = self.xvals
-        for m1, n1 in enumerate(self.nodes):
-            for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.vnodes):
+            for m2, n2 in enumerate(self.vnodes[m1 + 1:], m1 + 1):
                 value = (xvals[m2] - xvals[m1]) * self.xscale * size
                 graphs.add(n1, n2, value)
 
@@ -96,8 +102,8 @@ class Cpt(object):
 
         size = float(self.opts['size'])
         yvals = self.yvals
-        for m1, n1 in enumerate(self.nodes):
-            for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.vnodes):
+            for m2, n2 in enumerate(self.vnodes[m1 + 1:], m1 + 1):
                 value = (yvals[m2] - yvals[m1]) * self.yscale * size
                 graphs.add(n1, n2, value)
 
@@ -123,7 +129,7 @@ class Cpt(object):
         if not draw_nodes:
             return s
 
-        node = sch.nodes[n]
+        node = sch.vnodes[n]
         if not node.visible(draw_nodes):
             return s
 
@@ -137,7 +143,7 @@ class Cpt(object):
     def _draw_nodes(self, sch, draw_nodes=True):
 
         s = ''
-        for n in self.nodes:
+        for n in self.vnodes:
             s += self._draw_node(sch, n, draw_nodes)
         return s
 
@@ -165,8 +171,8 @@ class Transistor(Cpt):
         label_values = kwargs.get('label_values', True)
         draw_nodes = kwargs.get('draw_nodes', True)
 
-        n1, n2, n3 = self.nodes
-        p1, p2, p3 = sch.nodes[n1].pos, sch.nodes[n2].pos, sch.nodes[n3].pos
+        n1, n2, n3 = self.vnodes
+        p1, p2, p3 = sch.vnodes[n1].pos, sch.vnodes[n2].pos, sch.vnodes[n3].pos
 
         centre = (p1 + p3) * 0.5
 
@@ -312,6 +318,10 @@ class OnePort(Cpt):
 
 class VCS(OnePort):
     """Voltage controlled source"""
+
+    @property
+    def vnodes(self):
+        return self.nodes[0:2]
 
 
 class CCS(OnePort):
