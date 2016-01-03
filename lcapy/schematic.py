@@ -417,7 +417,7 @@ class Schematic(object):
 
     def _invalidate(self):
 
-        for attr in ('_xnodes', '_ynodes', '_coords'):
+        for attr in ('_xcnodes', '_ycnodes', '_coords'):
             if hasattr(self, attr):
                 delattr(self, attr)
 
@@ -634,8 +634,8 @@ class Schematic(object):
         # distance from the root of the graph.  To centre components,
         # a reverse graph is created and the distances are averaged.
 
-        xpos, self._xnodes, self.width = self._make_graphs('horizontal')
-        ypos, self._ynodes, self.height = self._make_graphs('vertical')
+        xpos, self._xcnodes, self.width = self._make_graphs('horizontal')
+        ypos, self._ycnodes, self.height = self._make_graphs('vertical')
 
         coords = {}
         for node in xpos.keys():
@@ -644,20 +644,20 @@ class Schematic(object):
         self._coords = coords
 
     @property
-    def xnodes(self):
-        """Names of common xnodes; for debugging"""
+    def xcnodes(self):
+        """Names of common x nodes; for debugging"""
 
-        if not hasattr(self, '_xnodes'):
+        if not hasattr(self, '_xcnodes'):
             self._positions_calculate()
-        return self._xnodes
+        return self._xcnodes
 
     @property
-    def ynodes(self):
-        """Names of common ynodes; for debugging"""
+    def ycnodes(self):
+        """Names of common y nodes; for debugging"""
 
-        if not hasattr(self, '_ynodes'):
+        if not hasattr(self, '_ycnodes'):
             self._positions_calculate()
-        return self._ynodes
+        return self._ycnodes
 
     @property
     def coords(self):

@@ -31,10 +31,10 @@ class Cpt(object):
         if self.opts['dir'] == 'left':            
             # Negate x.
             tpos = np.dot(tpos, np.array(((-1, 0), (0, 1))))
-        elif self.opts['dir'] == 'down': 
+        elif self.opts['dir'] == 'up': 
             # Swap x/y. 
             tpos = np.dot(tpos, np.array(((0, 1), (1, 0))))
-        elif self.opts['dir'] == 'up': 
+        elif self.opts['dir'] == 'down': 
             # Swap x/y and negate y. 
             tpos = np.dot(tpos, np.array(((0, -1), (1, 0))))
         elif self.opts['dir'] != 'right': 
