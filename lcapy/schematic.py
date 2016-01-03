@@ -622,13 +622,7 @@ class Schematic(object):
 
         graphs.add_start_nodes()
 
-        if False:
-            print(graphs.fwd)
-            print(graphs.rev)
-            import pdb
-            pdb.set_trace()
-
-        # Find longest path through the graphs.
+        # Find longest paths through the graphs.
         length, node, memo = graphs.fwd.longest_path()
         length, node, memor = graphs.rev.longest_path()
 
@@ -641,9 +635,6 @@ class Schematic(object):
             posr[node] = memor[gnode]
             posa[node] = 0.5 * (pos[node] + posr[node])
 
-        if False:
-            print(pos)
-            print(posr)
         return posa, graphs.cnodes, length
 
     def _positions_calculate(self):
@@ -715,7 +706,6 @@ class Schematic(object):
     def _tikz_draw(self, style_args='', label_values=True, 
                    draw_nodes=True, label_ids=True,
                    label_nodes='primary'):
-
 
         self._positions_calculate()
 
