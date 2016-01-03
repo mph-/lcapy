@@ -188,6 +188,11 @@ class Parser(object):
         opts_string = fields[1].strip() if len(fields) > 1 else ''
 
         fields = self.arg_pattern.findall(fields[0])
+
+        # Strip {}, perhaps should do with regexp.
+        for m, field in enumerate(fields):
+            if field[0] == '{':
+                fields[m] = fields[m][1:-1]
         
         name = fields.pop(0)
         match = self.cpt_pattern.match(name)

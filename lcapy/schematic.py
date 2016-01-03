@@ -44,6 +44,7 @@ from lcapy.core import Expr
 import grammar
 from parser import Parser
 import schemcpts as cpts
+from lcapy.schemmisc import Pos
 from os import system, path, remove, mkdir, chdir, getcwd
 import math
 
@@ -371,44 +372,6 @@ class Node(object):
         return self._port or self.count == 1
 
 
-class Pos(object):
-
-    def __init__(self, x, y=0):
-
-        if isinstance(x, tuple):
-            x, y = x
-
-        self.x = x
-        self.y = y
-
-    def __mul__(self, scale):
-
-        return Pos(self.x * scale, self.y * scale)
-
-    def __add__(self, arg):
-
-        if not isinstance(arg, Pos):
-            arg = Pos(arg)
-
-        return Pos(self.x + arg.x, self.y + arg.y)
-
-    def __str__(self):
-
-        xstr = ('%.2f' % self.x).rstrip('0').rstrip('.')
-        ystr = ('%.2f' % self.y).rstrip('0').rstrip('.')
-
-        return "%s,%s" % (xstr, ystr)
-
-    def __repr__(self):
-
-        return 'Pos(%s)' % self
-
-    @property
-    def xy(self):
-
-        return np.array((self.x, self.y))
-
-
 class Schematic(object):
 
     def __init__(self, filename=None, **kwargs):
@@ -582,16 +545,7 @@ class Schematic(object):
 
         self.elements[cpt.name] = cpt
 
-        # Ignore nodes for mutual inductance.
-        if cpt.type == 'K':
-            return
-
-        nodes = cpt.nodes
-        # The controlling nodes are not drawn.
-        if cpt.type in ('E', 'G'):
-            nodes = nodes[0:2]
-
-        for node in nodes:
+        for node in cpt.vnodes:
             self._node_add(node, cpt)
 
 

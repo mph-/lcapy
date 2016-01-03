@@ -1,5 +1,6 @@
 from __future__ import print_function
 from lcapy.latex import latex_str
+from lcapy.schemmisc import Pos
 import numpy as np
 
 
@@ -148,7 +149,7 @@ class Cpt(object):
         return s
 
     def draw(self, sch, **kwargs):
-        raise Error('draw method not implemented')
+        raise NotImplementedError('draw method not implemented')
 
 
 class Transistor(Cpt):
@@ -207,8 +208,63 @@ class TwoPort(Cpt):
     pos = ((0, 0), (0, 1), (1, 0), (1, 1))
 
 
-class TF(TwoPort):
+class TF1(TwoPort):
     """Transformer"""
+
+    def draw(self, sch, **kwargs):
+
+        label_values = kwargs.get('label_values', True)
+        link = kwargs.get('link', True)
+
+        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.nodes]
+
+        xoffset = 0.06
+        yoffset = 0.40
+
+        primary_dot = Pos(p3.x - xoffset, 0.5 * (p3.y + p4.y) + yoffset)
+        secondary_dot = Pos(p1.x + xoffset, 0.5 * (p1.y + p2.y) + yoffset)
+
+        centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
+        labelpos = Pos(centre.x, primary_dot.y)
+
+        label_str = '$%s$' % elt.default_label if label_values else ''
+
+        s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
+        s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
+        s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
+            labelpos, 0.5, label_str)
+
+        if link:
+            width = p1.x - p3.x
+            arcpos = Pos((p1.x + p3.x) / 2, secondary_dot.y - width / 2 + 0.2)
+
+            s += r'  \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);' % (
+                width / 2, arcpos, width / 2)
+            s += '\n'
+
+        return s
+
+
+class TF(TF1):
+    """Transformer"""
+
+
+    def draw(self, sch, **kwargs):
+
+        if self.opts['dir'] != 'right':
+            raise ValueError('Cannot draw transformer %s in direction %s'
+                             % (self.name, self.opts['dir']))
+
+        n1, n2, n3, n4 = self.nodes
+
+        s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
+        s += r'  \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
+
+        s += super(TF, self).draw(sch, **kwargs)
+
+        draw_nodes = kwargs.get('draw_nodes', True)
+        s += self.draw_nodes(draw_nodes=draw_nodes, link=True)
+        return s
 
 
 class OnePort(Cpt):
