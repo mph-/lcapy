@@ -246,7 +246,7 @@ class Graph(dict):
         """
 
         if self['start'] == []:
-            raise ValueError("Cannot find start node for graph '%s'. "
+            raise ValueError("Cannot find start node for %s schematic graph. "
                              "Probably a component has an incorrect direction."
                              % self.name)
 
@@ -317,6 +317,26 @@ class Graphs(object):
                 rorphans.append((node, 0))
         self.fwd['start'] = rorphans
         self.rev['start'] = orphans
+
+
+    def analyse(self):
+
+        self.add_start_nodes()
+
+        # Find longest paths through the graphs.
+        length, node, memo = self.fwd.longest_path()
+        length, node, memor = self.rev.longest_path()
+
+        pos = {}
+        posr = {}
+        posa = {}
+
+        for node, gnode in self.cnodes.iteritems():
+            pos[node] = length - memo[gnode]
+            posr[node] = memor[gnode]
+            posa[node] = 0.5 * (pos[node] + posr[node])
+
+        return posa, self.cnodes, length
 
 
 class Node(object):
@@ -548,49 +568,6 @@ class Schematic(object):
         for node in cpt.vnodes:
             self._node_add(node, cpt)
 
-
-    def _make_graphs(self, dir='horizontal'):
-
-        # Use components in orthogonal directions as constraints.  The
-        # nodes of orthogonal components get combined into a
-        # common node.
-
-        graphs = Graphs(dir, self.nodes)
-
-        if dir == 'horizontal':
-            for m, elt in enumerate(self.elements.values()):
-                elt.xlink(graphs)                
-        else:
-            for m, elt in enumerate(self.elements.values()):
-                elt.ylink(graphs)                
-
-        # Now form forward and reverse directed graphs using components
-        # in the desired directions.
-
-        if dir == 'horizontal':
-            for m, elt in enumerate(self.elements.values()):
-                elt.xplace(graphs)                
-        else:
-            for m, elt in enumerate(self.elements.values()):
-                elt.yplace(graphs)                
-
-        graphs.add_start_nodes()
-
-        # Find longest paths through the graphs.
-        length, node, memo = graphs.fwd.longest_path()
-        length, node, memor = graphs.rev.longest_path()
-
-        pos = {}
-        posr = {}
-        posa = {}
-
-        for node, gnode in graphs.cnodes.iteritems():
-            pos[node] = length - memo[gnode]
-            posr[node] = memor[gnode]
-            posa[node] = 0.5 * (pos[node] + posr[node])
-
-        return posa, graphs.cnodes, length
-
     def _positions_calculate(self):
 
         # The x and y positions of a component node are determined
@@ -606,8 +583,24 @@ class Schematic(object):
         # distance from the root of the graph.  To centre components,
         # a reverse graph is created and the distances are averaged.
 
-        xpos, self._xcnodes, self.width = self._make_graphs('horizontal')
-        ypos, self._ycnodes, self.height = self._make_graphs('vertical')
+        self.xgraphs = Graphs('horizontal', self.nodes)
+        self.ygraphs = Graphs('vertical', self.nodes)
+
+        # Use components in orthogonal directions as constraints.  The
+        # nodes of orthogonal components get combined into a
+        # common node.
+        for m, elt in enumerate(self.elements.values()):
+            elt.xlink(self.xgraphs)
+            elt.ylink(self.ygraphs)
+
+        # Now form forward and reverse directed graphs using components
+        # in the desired directions.
+        for m, elt in enumerate(self.elements.values()):
+            elt.xplace(self.xgraphs)
+            elt.yplace(self.ygraphs)
+
+        xpos, self._xcnodes, self.width = self.xgraphs.analyse()
+        ypos, self._ycnodes, self.height = self.ygraphs.analyse()
 
         for n, node in self.nodes.iteritems():
             node.pos = Pos(xpos[n], ypos[n])
