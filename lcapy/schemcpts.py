@@ -12,6 +12,43 @@ class Cpt(object):
 
     pos = ((0, 0), (0, 1))
 
+
+    @property
+    def size(self):
+        return float(self.opts['size'])
+
+    @property
+    def down(self):
+        return self.opts['dir']  == 'down'
+
+    @property
+    def up(self):
+        return self.opts['dir']  == 'up'
+
+    @property
+    def left(self):
+        return self.opts['dir']  == 'left'
+
+    @property
+    def right(self):
+        return self.opts['dir']  == 'right'
+
+    @property
+    def horizontal(self):
+        return self.opts['dir'] in ('left', 'right')
+
+    @property
+    def vertical(self):
+        return self.opts['dir'] in ('left', 'down')
+
+    @property
+    def mirror(self):
+        return 'mirror' in self.opts
+
+    @property
+    def variable(self):
+        return 'variable' in self.opts
+
     @property
     def vnodes(self):
         '''Drawn nodes'''
@@ -35,17 +72,17 @@ class Cpt(object):
         #       +
 
         tpos = np.array(self.pos)
-        if self.opts['dir'] == 'left':            
+        if self.left:            
             # Negate x.
             tpos = np.dot(tpos, np.array(((-1, 0), (0, 1))))
-        elif self.opts['dir'] == 'up': 
+        elif self.up: 
             # Swap x/y. 
             tpos = np.dot(tpos, np.array(((0, 1), (1, 0))))
-        elif self.opts['dir'] == 'down': 
+        elif self.down: 
             # Swap x/y and negate y. 
             tpos = np.dot(tpos, np.array(((0, -1), (1, 0))))
-        elif self.opts['dir'] != 'right': 
-            raise ValueError('Unknown orientation: %s' % opts['dir'])
+        elif not self.right: 
+            raise ValueError('Unknown orientation: %s' % self.opts['dir'])
         self._tpos = tpos
         return tpos
 
@@ -56,10 +93,6 @@ class Cpt(object):
     @property
     def yvals(self):
         return self.tpos[:, 1]
-
-    @property
-    def horizontal(self):
-        return self.opts['dir'] in ('left', 'right')
 
     def __init__(self, name, *args, **kwargs):
 
@@ -94,7 +127,7 @@ class Cpt(object):
 
     def xplace(self, graphs):
 
-        size = float(self.opts['size'])
+        size = self.size
         xvals = self.xvals
         for m1, n1 in enumerate(self.vnodes):
             for m2, n2 in enumerate(self.vnodes[m1 + 1:], m1 + 1):
@@ -103,7 +136,7 @@ class Cpt(object):
 
     def yplace(self, graphs):
 
-        size = float(self.opts['size'])
+        size = self.size
         yvals = self.yvals
         for m1, n1 in enumerate(self.vnodes):
             for m2, n2 in enumerate(self.vnodes[m1 + 1:], m1 + 1):
@@ -164,7 +197,7 @@ class Transistor(Cpt):
     def draw(self, sch, **kwargs):
 
         # For common base, will need to support up and down.
-        if False and self.opts['dir'] not in ('left', 'right'):
+        if False and not self.vertical:
             raise ValueError('Cannot draw transistor %s in direction %s'
                              '; try left or right'
                              % (self.name, self.opts['dir']))
@@ -178,15 +211,21 @@ class Transistor(Cpt):
         centre = (p1 + p3) * 0.5
 
         label_str = '$%s$' % self.default_label if label_values else ''
-        args_str = '' if self.opts['dir'] == 'right' else 'xscale=-1'
-        if 'mirror' in self.opts:
+        args_str = '' if self.right else 'xscale=-1'
+        if self.mirror:
             args_str += ', yscale=-1'
         for key, val in self.opts.iteritems():
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        s = r'  \draw (%s) node[%s, %s, scale=%.1f] (T) {};''\n' % (
-            centre, self.tikz_cpt, args_str, sch.scale * 2)
+        angle = 0
+        if self.down:
+            angle = -90
+        if self.up:
+            angle = 90
+
+        s = r'  \draw (%s) node[%s, %s, scale=%.1f, rotate=%d] (T) {};''\n' % (
+            centre, self.tikz_cpt, args_str, sch.scale * 2, angle)
         s += r'  \draw (%s) node [] {%s};''\n'% (centre, label_str)
 
         if self.tikz_cpt in ('pnp', 'pmos', 'pjfet'):
@@ -213,7 +252,7 @@ class TwoPort(Cpt):
         label_values = kwargs.get('label_values', True)
         draw_nodes = kwargs.get('draw_nodes', True)
 
-        if self.opts['dir'] != 'right':
+        if not self.right:
             raise ValueError('Cannot draw twoport network %s in direction %s'
                              % (self.name, self.opts['dir']))
 
@@ -285,7 +324,7 @@ class TF(TF1):
 
     def draw(self, sch, **kwargs):
 
-        if self.opts['dir'] != 'right':
+        if not self.right:
             raise ValueError('Cannot draw transformer %s in direction %s'
                              % (self.name, self.opts['dir']))
 
@@ -313,7 +352,7 @@ class K(TF1):
 
     def draw(self, sch, **kwargs):
 
-        if self.opts['dir'] != 'right':
+        if not self.right:
             raise ValueError('Cannot draw mutual coupling %s in direction %s'
                              % (self.name, self.opts['dir']))
 
@@ -334,7 +373,7 @@ class OnePort(Cpt):
         n1, n2 = self.nodes[0:2]
 
         tikz_cpt = self.tikz_cpt
-        if self.type == 'R' and 'variable' in self.opts:
+        if self.type == 'R' and self.variable:
             tikz_cpt = 'vR'
 
         id_pos = '_'
@@ -348,13 +387,13 @@ class OnePort(Cpt):
             # otherwise they are drawn the wrong way around.
             n1, n2 = n2, n1
 
-            if self.opts['dir'] in ('down', 'right'):
+            if self.horizontal:
                 # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
                 id_pos = '^'
                 voltage_pos = '_'
         else:
-            if self.opts['dir'] in ('up', 'left'):
+            if self.vertical:
                 # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
                 id_pos = '^'
@@ -448,14 +487,14 @@ class Opamp(Cpt):
 
     def fixup(self, sch):
         
-        self.pos = self.npos if 'mirror' in self.opts else self.ppos
+        self.pos = self.npos if self.mirror else self.ppos
 
     def draw(self, sch, **kwargs):
 
         draw_nodes = kwargs.get('draw_nodes', True)
         label_values = kwargs.get('label_values', True)
 
-        if self.opts['dir'] != 'right':
+        if not self.right:
             raise ValueError('Cannot draw opamp %s in direction %s'
                              % (self.name, self.opts['dir']))
 
@@ -464,7 +503,7 @@ class Opamp(Cpt):
         centre = Pos(0.5 * (p3.x + p1.x), p1.y)
 
         label_str = '$%s$' % self.default_label if label_values else ''
-        args_str = '' if 'mirror' in self.opts else 'yscale=-1'
+        args_str = '' if self.mirror else 'yscale=-1'
         for key, val in self.opts.iteritems():
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
@@ -480,28 +519,28 @@ class Opamp(Cpt):
 
 class FDOpamp(Cpt):
 
-    pos = ((1.2, 1), (1.2, 0), (0, 1), (0, 0))
+    pos = ((2, 1), (2, 0), (0, 1), (0, 0))
 
     def draw(self, sch, **kwargs):
 
         draw_nodes = kwargs.get('draw_nodes', True)
         label_values = kwargs.get('label_values', True)
 
-        if self.opts['dir'] != 'right':
+        if not self.right:
             raise ValueError('Cannot draw fdopamp %s in direction %s'
                              % (self.name, self.opts['dir']))
 
         p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.nodes]
 
-        centre = Pos(0.5 * (p3.x + p1.x), p1.y)
+        centre = (p1 + p4) * 0.5 + 0.2
 
         label_str = '$%s$' % self.default_label if label_values else ''
-        args_str = '' if 'mirror' in self.opts else 'yscale=-1'
+        args_str = '' if self.mirror else 'yscale=-1'
         for key, val in self.opts.iteritems():
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        s = r'  \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (
+        s = r'  \draw (%s) node[fd op amp, %s, scale=%.1f] (opamp) {};' % (
             centre, args_str, sch.scale * 2)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
@@ -520,25 +559,25 @@ class Wire(OnePort):
         kind = ''
         if 'implicit' in self.opts:
             kind = 'sground'
-        if 'ground' in self.opts:
+        elif 'ground' in self.opts:
             kind = 'ground'
-        if 'sground' in self.opts:
+        elif 'sground' in self.opts:
             kind = 'sground'
 
         args = [kind]
-        if self.opts['dir'] == 'up':
+        if self.up:
             args.append('yscale=-1')
-        if self.opts['dir'] == 'left':
+        if self.left:
             args.append('xscale=-1')
         args_str = ','.join(args)
 
         offset = (0.0, 0.0)
         anchor = 'south west'
         p = sch.nodes[n2].pos
-        if self.opts['dir'] == 'down':
+        if self.down:
             offset = (0.0, 0.25)
             anchor = 'north west'
-        elif self.opts['dir'] == 'up':
+        elif self.up:
             offset = (0.0, -0.25)
         pos = p + offset
 
