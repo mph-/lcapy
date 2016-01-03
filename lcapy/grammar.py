@@ -21,6 +21,7 @@ Dtunnel: Dname Np Nm tunnel; Tunnel diode
 Dschottky: Dname Np Nm schottky; Schottky diode
 E: Ename Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
 Eopamp: Ename Np Nm opamp Ncp Ncm [Value]; Opamp
+Efdopamp: Ename Np Nm fdopamp Ncp Ncm [Value]; Fully differential opamp
 F: Fname Np Nm Vcontrol [Value]; Voltage controlled current source
 G: Gname Np Nm Ncp Ncm [Value]; Current controlled voltage source
 H: Hname Np Nm Vcontrol [Value]; Current controlled current source
@@ -74,6 +75,7 @@ pmos: keyword;
 no: keyword;
 nc: keyword;
 opamp: keyword;
+fdopamp: keyword;
 push: keyword;
 Nb: node; Base node
 Nc: node; Collector node

@@ -161,15 +161,13 @@ class Transistor(Cpt):
     xscale = 0.85
     pos = ((1, 1), (0, 0.5), (1, 0))
 
-    def check(self):
+    def draw(self, sch, **kwargs):
 
         # For common base, will need to support up and down.
-        if self.opts['dir'] not in ('left', 'right'):
+        if False and self.opts['dir'] not in ('left', 'right'):
             raise ValueError('Cannot draw transistor %s in direction %s'
                              '; try left or right'
                              % (self.name, self.opts['dir']))
-
-    def draw(self, sch, **kwargs):
 
         label_values = kwargs.get('label_values', True)
         draw_nodes = kwargs.get('draw_nodes', True)
@@ -480,6 +478,38 @@ class Opamp(Cpt):
         return s
 
 
+class FDOpamp(Cpt):
+
+    pos = ((1.2, 1), (1.2, 0), (0, 1), (0, 0))
+
+    def draw(self, sch, **kwargs):
+
+        draw_nodes = kwargs.get('draw_nodes', True)
+        label_values = kwargs.get('label_values', True)
+
+        if self.opts['dir'] != 'right':
+            raise ValueError('Cannot draw fdopamp %s in direction %s'
+                             % (self.name, self.opts['dir']))
+
+        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.nodes]
+
+        centre = Pos(0.5 * (p3.x + p1.x), p1.y)
+
+        label_str = '$%s$' % self.default_label if label_values else ''
+        args_str = '' if 'mirror' in self.opts else 'yscale=-1'
+        for key, val in self.opts.iteritems():
+            if key in ('color', ):
+                args_str += '%s=%s, ' % (key, val)                
+
+        s = r'  \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (
+            centre, args_str, sch.scale * 2)
+        # Draw label separately to avoid being scaled by 2.
+        s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
+        
+        s += self._draw_nodes(sch, draw_nodes)
+        return s
+
+
 class Wire(OnePort):
 
 
@@ -556,7 +586,8 @@ defcpt('Dtunnel', 'D', 'Tunnel diode', 'tD')
 defcpt('Dzener', 'D', 'Zener diode', 'zD')
 
 defcpt('E', VCS, 'VCVS', 'american controlled voltage source')
-defcpt('Eopamp', Opamp, 'VCVS', 'V')
+defcpt('Eopamp', Opamp, 'Opamp')
+defcpt('Efdopamp', FDOpamp, 'Fully differential opamp')
 defcpt('F', VCS, 'VCCS', 'american controlled current source')
 defcpt('G', CCS, 'CCVS', 'american controlled voltage source')
 defcpt('H', CCS, 'CCCS', 'american controlled current source')

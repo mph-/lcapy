@@ -247,8 +247,8 @@ class Graph(dict):
 
         if self['start'] == []:
             raise ValueError("Cannot find start node for %s schematic graph. "
-                             "Probably a component has an incorrect direction."
-                             % self.name)
+                             "Probably a component has an incorrect direction.\n%s."
+                             % (self.name, self))
 
         all_nodes = self.keys()
         from_nodes = self
