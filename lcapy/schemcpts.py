@@ -4,62 +4,51 @@ import numpy as np
 
 class Cpt(object):
 
-    pos = {}
     yscale = 1.0
     xscale = 1.0
     cpt_type_counter = 1
 
-    pos = {1: (0, 0), 2: (0, 1)}
+    pos = ((0, 0), (0, 1))
 
     @property
-    def num_nodes(self):
-        return len(self.pos)
+    def tpos(self):
+        """Transformed node positions"""
 
-    @property
-    def xvals_flip(self):
-        return self.xmin + self.xmax - self.xvals
+        if hasattr(self, '_tpos'):
+            return self._tpos
 
-    @property
-    def yvals_flip(self):
-        return self.ymin + self.ymax - self.yvals
+        # right + -
+        #
+        # down  +
+        #       -
+        #
+        # left  - +
+        #
+        # up    -
+        #       +
 
-    @property
-    def xmin(self):
-        return self.xvals.min()
-
-    @property
-    def xmax(self):
-        return self.xvals.max()
-
-    @property
-    def ymin(self):
-        return self.yvals.min()
-
-    @property
-    def ymax(self):
-        return self.yvals.max()
-
-    @property
-    def xextent(self):
-        return self.xmax - self.xmin
-
-    @property
-    def yextent(self):
-        return self.ymax - self.ymin
+        tpos = np.array(self.pos)
+        if self.opts['dir'] == 'left':            
+            # Negate x.
+            tpos = np.dot(tpos, np.array(((-1, 0), (0, 1))))
+        elif self.opts['dir'] == 'down': 
+            # Swap x/y. 
+            tpos = np.dot(tpos, np.array(((0, 1), (1, 0))))
+        elif self.opts['dir'] == 'up': 
+            # Swap x/y and negate y. 
+            tpos = np.dot(tpos, np.array(((0, -1), (1, 0))))
+        elif self.opts['dir'] != 'right': 
+            raise ValueError('Unknown orientation: %s' % opts['dir'])
+        self._tpos = tpos
+        return tpos
 
     @property
     def xvals(self):
-        # Switch x, y values if have vertical orientation.
-        if self.horizontal:
-            return self._xvals
-        return self._yvals
+        return self.tpos[:, 0]
 
     @property
     def yvals(self):
-        # Switch x, y values if have vertical orientation.
-        if self.horizontal:
-            return self._yvals
-        return self._xvals
+        return self.tpos[:, 1]
 
     @property
     def horizontal(self):
@@ -69,8 +58,7 @@ class Cpt(object):
 
         self.name = name
         self.args = args
-        self._xvals = np.array(self.pos.values())[:, 0]
-        self._yvals = np.array(self.pos.values())[:, 1]
+
 
     def __repr__(self):
 
@@ -81,42 +69,37 @@ class Cpt(object):
 
     def xlink(self, cnodes):
 
+        xvals = self.xvals
         for m1, n1 in enumerate(self.nodes):
-            for m2, n2 in enumerate(self.nodes[m1 + 1:]):
-                if m1 == m2:
-                    continue
-                if self.xvals[m2] == self.xvals[m1]:
+            for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
+                if xvals[m2] == xvals[m1]:
                     cnodes.link(n1, n2)
 
     def ylink(self, cnodes):
 
+        yvals = self.yvals
         for m1, n1 in enumerate(self.nodes):
-            for m2, n2 in enumerate(self.nodes[m1 + 1:]):
-                if m1 == m2:
-                    continue
-                if self.yvals[m2] == self.yvals[m1]:
+            for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
+                if yvals[m2] == yvals[m1]:
                     cnodes.link(n1, n2)
 
     def xplace(self, graphs, cnodes):
 
         size = self.opts['size']
+        xvals = self.yvals
         for m1, n1 in enumerate(self.nodes):
-            for m2, n2 in enumerate(self.nodes[m1 + 1:]):
-                if m1 == m2:
-                    continue
-                value = (self.xvals[m2] - self.xvals[m1]) * self.xscale * size
+            for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
+                value = (xvals[m2] - xvals[m1]) * self.xscale * size
                 graphs.add(cnodes[n1], cnodes[n2], value)
 
     def yplace(self, graphs, cnodes):
 
         size = self.opts['size']
+        yvals = self.yvals
         for m1, n1 in enumerate(self.nodes):
-            for m2, n2 in enumerate(self.nodes[m1 + 1:]):
-                if m1 == m2:
-                    continue
-                value = (self.yvals[m2] - self.yvals[m1]) * self.yscale * size
+            for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
+                value = (yvals[m2] - yvals[m1]) * self.yscale * size
                 graphs.add(cnodes[n1], cnodes[n2], value)
-
 
     def _node_str(self, node1, node2, draw_nodes=True):
 
@@ -168,9 +151,7 @@ class Transistor(Cpt):
     
     yscale = 1.5
     xscale = 0.85
-
-    pos = {1: (1, 1), 2: (0, 0.5), 3: (1, 0)}
-
+    pos = ((1, 1), (0, 0.5), (1, 0))
 
     def check(self):
 
@@ -218,7 +199,7 @@ class Transistor(Cpt):
 class TwoPort(Cpt):
     """Two-port"""
 
-    pos = {1: (0, 0), 2: (0, 1), 3: (1, 0), 4: (1, 1)}
+    pos = ((0, 0), (0, 1), (1, 0), (1, 1))
 
 
 class TF(TwoPort):
@@ -228,8 +209,7 @@ class TF(TwoPort):
 class OnePort(Cpt):
     """OnePort"""
 
-    # horiz, need to rotate for up/down
-    pos = {1: (0, 0), 2: (1, 0)}
+    pos = ((0, 0), (1, 0))
 
 
     def draw(self, nodes, **kwargs):

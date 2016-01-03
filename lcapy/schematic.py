@@ -215,9 +215,8 @@ class Cnodes(object):
         self._node_map = node_map
         self._nodes = unique
 
-
     def __getitem__(self, key):
-        """Return mapping of node number to common node number"""
+        """Return mapping of node name to common node number"""
 
         if not hasattr(self, '_node_map'):
             self._analyse()
@@ -256,7 +255,14 @@ class Graph(dict):
             self[m] = []
 
     def add(self, n1, n2, size):
-        self[n1].append((n2, size))
+
+        if size == 0:
+            return
+
+        if size < 0:
+            self[n2].append((n1, -size))
+        else:
+            self[n1].append((n2, size))
 
 
     def longest_path(self):
@@ -607,6 +613,9 @@ class Schematic(object):
 
         cnodes = Cnodes(self.nodes)
 
+        import pdb
+        pdb.set_trace()
+
         if dir == 'horizontal':
             for m, elt in enumerate(self.elements.values()):
                 elt.xlink(cnodes)                
@@ -630,7 +639,7 @@ class Schematic(object):
         if False:
             print(graphs.fwd)
             print(graphs.rev)
-            print(cnodes.node_map)
+            print(cnodes._node_map)
             import pdb
             pdb.set_trace()
 
@@ -681,6 +690,7 @@ class Schematic(object):
 
     @property
     def xnodes(self):
+        """Names of common xnodes; for debugging"""
 
         if not hasattr(self, '_xnodes'):
             self._positions_calculate()
@@ -688,6 +698,7 @@ class Schematic(object):
 
     @property
     def ynodes(self):
+        """Names of common ynodes; for debugging"""
 
         if not hasattr(self, '_ynodes'):
             self._positions_calculate()
