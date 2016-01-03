@@ -590,6 +590,7 @@ class Schematic(object):
         # nodes of orthogonal components get combined into a
         # common node.
         for m, elt in enumerate(self.elements.values()):
+            elt.fixup(self)
             elt.xlink(self.xgraphs)
             elt.ylink(self.ygraphs)
 

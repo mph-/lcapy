@@ -66,13 +66,15 @@ class Cpt(object):
         self.name = name
         self.args = args
 
-
     def __repr__(self):
 
         if hasattr(self, 'string'):
             return self.string
         
         return type(self)
+
+    def fixup(self, sch):
+        pass
 
     def xlink(self, graphs):
 
@@ -130,7 +132,7 @@ class Cpt(object):
         if not draw_nodes:
             return s
 
-        node = sch.vnodes[n]
+        node = sch.nodes[n]
         if not node.visible(draw_nodes):
             return s
 
@@ -173,7 +175,7 @@ class Transistor(Cpt):
         draw_nodes = kwargs.get('draw_nodes', True)
 
         n1, n2, n3 = self.vnodes
-        p1, p2, p3 = sch.vnodes[n1].pos, sch.vnodes[n2].pos, sch.vnodes[n3].pos
+        p1, p2, p3 = sch.nodes[n1].pos, sch.nodes[n2].pos, sch.nodes[n3].pos
 
         centre = (p1 + p3) * 0.5
 
@@ -205,7 +207,7 @@ class Transistor(Cpt):
 class TwoPort(Cpt):
     """Two-port"""
 
-    pos = ((0, 0), (0, 1), (1, 0), (1, 1))
+    pos = ((1, 1), (1, 0), (0, 1), (0, 0))
 
 
     def draw(self, sch, **kwargs):
@@ -238,7 +240,7 @@ class TwoPort(Cpt):
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
             top, width, label_str)
 
-        s += self.draw_nodes(self, draw_nodes)
+        s += self._draw_nodes(sch, draw_nodes)
         return s
 
 
@@ -294,10 +296,10 @@ class TF(TF1):
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
 
-        s += super(TF, self).draw(sch, **kwargs)
+        s += super(TF, self).draw(sch, link=True, **kwargs)
 
         draw_nodes = kwargs.get('draw_nodes', True)
-        s += self.draw_nodes(draw_nodes=draw_nodes, link=True)
+        s += self._draw_nodes(sch, draw_nodes=draw_nodes)
         return s
 
 
@@ -418,8 +420,23 @@ class CCS(OnePort):
     """Current controlled source"""
 
 
-class K(Cpt):
-    """K"""
+class K(TF1):
+    """Mutual coupling"""
+
+    def fixup(self, sch):
+        
+        L1 = sch.elements[self.Lname1]
+        L2 = sch.elements[self.Lname2]
+
+        self.nodes = L2.nodes + L1.nodes
+
+    def draw(self, sch, **kwargs):
+
+        if self.opts['dir'] != 'right':
+            raise ValueError('Cannot draw mutual coupling %s in direction %s'
+                             % (self.name, self.opts['dir']))
+
+        return super(K, self).draw(sch, link=True, **kwargs)
 
 
 class Wire(OnePort):
