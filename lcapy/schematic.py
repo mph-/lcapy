@@ -12,19 +12,28 @@ This module performs schematic drawing using circuitikz from a netlist.
 >>> sch.add('W 0.2 0.2; right')
 >>> sch.draw()
 
-Copyright 2014, 2015 Michael Hayes, UCECE
+Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 """
 
 # Components are positioned using two pairs of graphs; one pair for
 # the x direction and the other for the y direction.  Each pair
 # consists of a forward and a reverse graph. 
 #
+# There is naming confusion.  We have network nodes (electrical
+# nodes) and nodes in the graphs used for component placement.
+# Let's call the latter gnodes.  The names of these gnodes are a
+# tuple of the common network nodes.
+#
 # x and y component positioning are performed independently.  Let's
 # consider the x or horizontal positioning.  There are three stages:
 #   1. Component nodes that share a y position are linked; this can
 #      occur, for example, for a vertically oriented component.
-#   2. The x positions are then...
-
+#      This helps to reduce the size of the graph.
+#   2. The x positions of the components are used to determine the
+#      graph edges.
+#   3. The longest path through the graph is found and the x positions
+#      of the nodes are assigned based on the distance along the
+#      longest path.
 
 
 from __future__ import print_function
@@ -272,14 +281,19 @@ class Graph(dict):
 
 class Graphs(object):
 
-    def __init__(self, name):
+    def __init__(self, name, nodes):
 
+        self.cnodes = Cnodes(nodes)
         self.fwd = Graph('forward ' + name)
         self.rev = Graph('reverse ' + name)
 
+    def link(self, n1, n2):
+        self.cnodes.link(n1, n2)
+
     def add(self, n1, n2, size):
-        self.fwd.add(n1, n2, size)
-        self.rev.add(n2, n1, size)
+        cnode1, cnode2 = self.cnodes[n1], self.cnodes[n2]
+        self.fwd.add(cnode1, cnode2, size)
+        self.rev.add(cnode2, cnode1, size)
 
     @property
     def nodes(self):
@@ -354,7 +368,10 @@ class Node(object):
 
 class Pos(object):
 
-    def __init__(self, x, y):
+    def __init__(self, x, y=0):
+
+        if isinstance(x, tuple):
+            x, y = x
 
         self.x = x
         self.y = y
@@ -362,6 +379,13 @@ class Pos(object):
     def __mul__(self, scale):
 
         return Pos(self.x * scale, self.y * scale)
+
+    def __add__(self, arg):
+
+        if not isinstance(arg, Pos):
+            arg = Pos(arg)
+
+        return Pos(self.x + arg.x, self.y + arg.y)
 
     def __str__(self):
 
@@ -572,32 +596,30 @@ class Schematic(object):
         # nodes of orthogonal components get combined into a
         # common node.
 
-        cnodes = Cnodes(self.nodes)
+        graphs = Graphs(dir, self.nodes)
 
         if dir == 'horizontal':
             for m, elt in enumerate(self.elements.values()):
-                elt.xlink(cnodes)                
+                elt.xlink(graphs)                
         else:
             for m, elt in enumerate(self.elements.values()):
-                elt.ylink(cnodes)                
+                elt.ylink(graphs)                
 
         # Now form forward and reverse directed graphs using components
         # in the desired directions.
-        graphs = Graphs(dir)
 
         if dir == 'horizontal':
             for m, elt in enumerate(self.elements.values()):
-                elt.xplace(graphs, cnodes)                
+                elt.xplace(graphs)                
         else:
             for m, elt in enumerate(self.elements.values()):
-                elt.yplace(graphs, cnodes)                
+                elt.yplace(graphs)                
 
         graphs.add_start_nodes()
 
         if False:
             print(graphs.fwd)
             print(graphs.rev)
-            print(cnodes._node_map)
             import pdb
             pdb.set_trace()
 
@@ -609,7 +631,7 @@ class Schematic(object):
         posr = {}
         posa = {}
 
-        for node, gnode in cnodes.iteritems():
+        for node, gnode in graphs.cnodes.iteritems():
             pos[node] = length - memo[gnode]
             posr[node] = memor[gnode]
             posa[node] = 0.5 * (pos[node] + posr[node])
@@ -617,7 +639,7 @@ class Schematic(object):
         if False:
             print(pos)
             print(posr)
-        return posa, cnodes, length
+        return posa, graphs.cnodes, length
 
     def _positions_calculate(self):
 
@@ -637,11 +659,8 @@ class Schematic(object):
         xpos, self._xcnodes, self.width = self._make_graphs('horizontal')
         ypos, self._ycnodes, self.height = self._make_graphs('vertical')
 
-        coords = {}
-        for node in xpos.keys():
-            coords[node] = Pos(xpos[node], ypos[node])
-
-        self._coords = coords
+        for n, node in self.nodes.iteritems():
+            node.pos = Pos(xpos[n], ypos[n])
 
     @property
     def xcnodes(self):
@@ -658,14 +677,6 @@ class Schematic(object):
         if not hasattr(self, '_ycnodes'):
             self._positions_calculate()
         return self._ycnodes
-
-    @property
-    def coords(self):
-        """Directory of position tuples indexed by node name"""
-
-        if not hasattr(self, '_coords'):
-            self._positions_calculate()
-        return self._coords
 
     def _make_wires1(self, snode_list):
 
@@ -700,14 +711,17 @@ class Schematic(object):
                    draw_nodes=True, label_ids=True,
                    label_nodes='primary'):
 
+
+        self._positions_calculate()
+
         opts = r'scale=%.2f,/tikz/circuitikz/bipoles/length=%.1fcm,%s' % (
             self.node_spacing, self.cpt_size, style_args)
         s = r'\begin{tikzpicture}[%s]''\n' % opts
 
         # Write coordinates
-        for coord in self.coords.keys():
+        for n, node in self.nodes.iteritems():
             s += r'  \coordinate (%s) at (%s);''\n' % (
-                coord, self.coords[coord])
+                n, node.pos)
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):

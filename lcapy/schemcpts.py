@@ -67,39 +67,39 @@ class Cpt(object):
         
         return type(self)
 
-    def xlink(self, cnodes):
+    def xlink(self, graphs):
 
         xvals = self.xvals
         for m1, n1 in enumerate(self.nodes):
             for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
                 if xvals[m2] == xvals[m1]:
-                    cnodes.link(n1, n2)
+                    graphs.link(n1, n2)
 
-    def ylink(self, cnodes):
+    def ylink(self, graphs):
 
         yvals = self.yvals
         for m1, n1 in enumerate(self.nodes):
             for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
                 if yvals[m2] == yvals[m1]:
-                    cnodes.link(n1, n2)
+                    graphs.link(n1, n2)
 
-    def xplace(self, graphs, cnodes):
+    def xplace(self, graphs):
 
         size = self.opts['size']
         xvals = self.xvals
         for m1, n1 in enumerate(self.nodes):
             for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
                 value = (xvals[m2] - xvals[m1]) * self.xscale * size
-                graphs.add(cnodes[n1], cnodes[n2], value)
+                graphs.add(n1, n2, value)
 
-    def yplace(self, graphs, cnodes):
+    def yplace(self, graphs):
 
         size = self.opts['size']
         yvals = self.yvals
         for m1, n1 in enumerate(self.nodes):
             for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
                 value = (yvals[m2] - yvals[m1]) * self.yscale * size
-                graphs.add(cnodes[n1], cnodes[n2], value)
+                graphs.add(n1, n2, value)
 
     def _node_str(self, node1, node2, draw_nodes=True):
 
@@ -127,11 +127,10 @@ class Cpt(object):
         if not node.visible(draw_nodes):
             return s
 
-        pos = self.coords[n]
         if node.port:
-            s = r'  \draw (%s) node[ocirc] {};''\n' % pos
+            s = r'  \draw (%s) node[ocirc] {};''\n' % node.pos
         else:
-            s = r'  \draw (%s) node[circ] {};''\n' % pos
+            s = r'  \draw (%s) node[circ] {};''\n' % node.pos
 
         return s
 
@@ -167,9 +166,9 @@ class Transistor(Cpt):
         draw_nodes = kwargs.get('draw_nodes', True)
 
         n1, n2, n3 = self.nodes
-        p1, p2, p3 = self.coords
+        p1, p2, p3 = nodes[n1].pos, nodes[n2].pos, nodes[n3].pos
 
-        centre = Pos(p3.x, 0.5 * (p1.y + p3.y))
+        centre = 0.5 * (p1 + p3)
 
         label_str = '$%s$' % self.default_label if label_values else ''
         args_str = '' if self.opts['dir'] == 'right' else 'xscale=-1'
@@ -325,7 +324,7 @@ class K(Cpt):
 class Wire(OnePort):
 
 
-    def draw_implicit(self, **kwargs):
+    def draw_implicit(self, nodes, **kwargs):
 
         # Draw implict wires, i.e., connections to ground, etc.
 
@@ -344,15 +343,15 @@ class Wire(OnePort):
             args.append('xscale=-1')
         args_str = ','.join(args)
 
-        offset = 0.0
+        offset = (0.0, 0.0)
         anchor = 'south west'
-        p = self.coords[n2]
+        p = nodes[n2].pos
         if self.opts['dir'] == 'down':
-            offset = 0.25
+            offset = (0.0, 0.25)
             anchor = 'north west'
         elif self.opts['dir'] == 'up':
-            offset = -0.25
-        pos = Pos(p.x, p.y + offset)
+            offset = (0.0, -0.25)
+        pos = p + offset
 
         s = r'  \draw (%s) to [short] (%s);''\n' % (n1, pos)
         s += r'  \draw (%s) node[%s] {};''\n' % (pos, args_str)
@@ -366,7 +365,7 @@ class Wire(OnePort):
 
         if ('implicit' in self.opts or 'ground' in self.opts
             or 'sground' in self.opts):
-            return self.draw_implicit()
+            return self.draw_implicit(nodes)
                                     
         return (super, Wire).draw(**kwargs)
 
@@ -408,7 +407,7 @@ defcpt('Isin', 'I', 'Sinusoidal current source', 'sI')
 defcpt('Idc', 'I', 'DC current source', 'I')
 defcpt('Iac', 'I', 'AC current source', 'sI')
 
-defcpt('J', Transistor, 'N JFET transistor', 'njft', {1: (1, 1), 2: (0, 0.5), 3: (1, 0)})
+defcpt('J', Transistor, 'N JFET transistor', 'njft', ((1, 1), (0, 0.5), (1, 0)))
 defcpt('Jnjf', 'J', 'N JFET transistor', 'njf')
 defcpt('Jpjf', 'J', 'P JFET transistor', 'pjf')
 
