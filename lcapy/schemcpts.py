@@ -566,9 +566,9 @@ defcpt('Isin', 'I', 'Sinusoidal current source', 'sI')
 defcpt('Idc', 'I', 'DC current source', 'I')
 defcpt('Iac', 'I', 'AC current source', 'sI')
 
-defcpt('J', Transistor, 'N JFET transistor', 'njft', ((1, 1), (0, 0.5), (1, 0)))
-defcpt('Jnjf', 'J', 'N JFET transistor', 'njf')
-defcpt('Jpjf', 'J', 'P JFET transistor', 'pjf')
+defcpt('J', Transistor, 'N JFET transistor', 'njfet', ((1, 1), (0, 0.32), (1, 0)))
+defcpt('Jnjf', 'J', 'N JFET transistor', 'njfet')
+defcpt('Jpjf', 'J', 'P JFET transistor', 'pjfet', ((1, 1), (0, 0.68), (1, 0)))
 
 defcpt('L', OnePort, 'Inductor', 'L')
 
