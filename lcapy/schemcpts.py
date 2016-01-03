@@ -208,6 +208,40 @@ class TwoPort(Cpt):
     pos = ((0, 0), (0, 1), (1, 0), (1, 1))
 
 
+    def draw(self, sch, **kwargs):
+
+        label_values = kwargs.get('label_values', True)
+        draw_nodes = kwargs.get('draw_nodes', True)
+
+        if self.opts['dir'] != 'right':
+            raise ValueError('Cannot draw twoport network %s in direction %s'
+                             % (self.name, self.opts['dir']))
+
+        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.nodes]
+        width = p2.x - p4.x
+        # height = p1.y - p2.y
+        extra = 0.25
+        p1.y += extra
+        p2.y -= extra
+        p3.y += extra
+        p4.y -= extra
+        centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
+        top = Pos(centre.x, p1.y + 0.15)
+
+        label_str = '$%s$' % self.default_label if label_values else ''
+        titlestr = "%s-parameter two-port" % self.args[2]
+
+        s = r'  \draw (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
+            p4, p3, p1, p2, p4)
+        s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
+            centre, width, titlestr)
+        s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
+            top, width, label_str)
+
+        s += self.draw_nodes(self, draw_nodes)
+        return s
+
+
 class TF1(TwoPort):
     """Transformer"""
 
@@ -227,7 +261,7 @@ class TF1(TwoPort):
         centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
         labelpos = Pos(centre.x, primary_dot.y)
 
-        label_str = '$%s$' % elt.default_label if label_values else ''
+        label_str = '$%s$' % self.default_label if label_values else ''
 
         s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
         s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
@@ -499,6 +533,7 @@ defcpt('SWnc', 'SW', 'Normally closed switch', 'opening switch')
 defcpt('SWpush', 'SW', 'Pushbutton switch', 'push button')
 
 defcpt('TF', TwoPort, 'Transformer', 'transformer')
+defcpt('TP', TwoPort, 'Two port', '')
 
 defcpt('V', OnePort, 'Voltage source', 'V')
 defcpt('Vsin', 'V', 'Sinusoidal voltage source', 'sV')

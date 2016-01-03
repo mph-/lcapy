@@ -45,7 +45,8 @@ R: Rname Np Nm [Value]; Resistor
 SWnc: SWname Np Nm nc; Switch normally closed
 SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch
-TF: Tfname Np Nm Ncp Ncm [Value]; Transformer (works to DC!)
+TF: TFname Np Nm Ncp Ncm [Value]; Transformer (works to DC!)
+TP: TPname Np Nm Ncp Ncm [Value]; Two port
 V: Vname Np Nm [Value]; Voltage source
 Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
