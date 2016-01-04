@@ -225,9 +225,7 @@ class Transistor(Cpt):
         label_values = kwargs.get('label_values', True)
         draw_nodes = kwargs.get('draw_nodes', True)
 
-        n1, n2, n3 = self.vnodes
-        p1, p2, p3 = sch.nodes[n1].pos, sch.nodes[n2].pos, sch.nodes[n3].pos
-
+        p1, p2, p3 = [sch.nodes[n].pos for n in self.vnodes]
         centre = (p1 + p3) * 0.5
 
         label_str = '$%s$' % self.default_label if label_values else ''
@@ -242,9 +240,9 @@ class Transistor(Cpt):
 
         # Add additional wires.
         if self.tikz_cpt in ('pnp', 'npn'):
-            s += r'  \draw (T.C) -- (%s) (T.B) -- (%s) (T.E) -- (%s);''\n' % (n1, n2, n3)
+            s += r'  \draw (T.C) -- (%s) (T.B) -- (%s) (T.E) -- (%s);''\n' % self.vnodes
         else:
-            s += r'  \draw (T.D) -- (%s) (T.G) -- (%s) (T.S) -- (%s);''\n' % (n1, n2, n3)
+            s += r'  \draw (T.D) -- (%s) (T.G) -- (%s) (T.S) -- (%s);''\n' % self.vnodes
 
         s += self._draw_nodes(sch, draw_nodes)
         return s
@@ -279,15 +277,14 @@ class TwoPort(Cpt):
 
         # TODO, fix positions if component rotated.
 
-        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.nodes]
+        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.vnodes]
         width = p2.x - p4.x
-        # height = p1.y - p2.y
         extra = 0.25
         p1.y += extra
         p2.y -= extra
         p3.y += extra
         p4.y -= extra
-        centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
+        centre = (p1 + p2 + p3 + p4) * 0.25
         top = Pos(centre.x, p1.y + 0.15)
 
         label_str = '$%s$' % self.default_label if label_values else ''
@@ -312,7 +309,7 @@ class TF1(TwoPort):
         label_values = kwargs.get('label_values', True)
         link = kwargs.get('link', True)
 
-        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.nodes]
+        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.vnodes]
 
         xoffset = 0.06
         yoffset = 0.40
@@ -321,7 +318,7 @@ class TF1(TwoPort):
         primary_dot = Pos(p3.x - xoffset, 0.5 * (p3.y + p4.y) + yoffset)
         secondary_dot = Pos(p1.x + xoffset, 0.5 * (p1.y + p2.y) + yoffset)
 
-        centre = Pos(0.5 * (p3.x + p1.x), 0.5 * (p2.y + p1.y))
+        centre = (p1 + p2 + p3 + p4) * 0.25
         labelpos = Pos(centre.x, primary_dot.y)
 
         label_str = '$%s$' % self.default_label if label_values else ''
@@ -345,10 +342,9 @@ class TF1(TwoPort):
 class TF(TF1):
     """Transformer"""
 
-
     def draw(self, sch, **kwargs):
 
-        n1, n2, n3, n4 = self.nodes
+        n1, n2, n3, n4 = self.vnodes
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
@@ -384,7 +380,7 @@ class OnePort(Cpt):
         draw_nodes = kwargs.get('draw_nodes', True)
         label_ids = kwargs.get('label_ids', True)
 
-        n1, n2 = self.nodes[0:2]
+        n1, n2 = self.vnodes
 
         tikz_cpt = self.tikz_cpt
         if self.type == 'R' and self.variable:
@@ -392,9 +388,7 @@ class OnePort(Cpt):
 
         id_pos = '_'
         voltage_pos = '^'
-        if self.type in ('V', 'Vdc', 'Vstep', 'Vac', 'Vacstep', 'Vimpulse', 'v',
-                            'I', 'Idc', 'Istep', 'Iac', 'Iacstep', 'Iimpulse', 'i',
-                            'E', 'F', 'G', 'H', 'Vs', 'Is'):
+        if self.type in ('V', 'I', 'E', 'F', 'G', 'H'):
 
             # circuitikz expects the positive node first, except for
             # voltage and current sources!  So swap the nodes
@@ -462,7 +456,8 @@ class OnePort(Cpt):
                 label_str = ', l%s=${%s}$' % (id_pos, self.default_label)
                 
                 if label_ids and self.value_label != '':
-                    label_str = r', l%s=${%s=%s}$' % (id_pos, self.id_label, self.value_label)
+                    label_str = r', l%s=${%s=%s}$' % (
+                        id_pos, self.id_label, self.value_label)
         else:
             label_str = ', ' + label_str
 
@@ -559,9 +554,22 @@ class FDOpamp(Cpt):
 
 class Wire(OnePort):
 
-    def draw_implicit(self, sch, **kwargs):
+    @property
+    def coords(self):
 
-        # Draw implict wires, i.e., connections to ground, etc.
+        if 'implicit' in self.opts or 'ground' in self.opts or 'sground' in self.opts:
+            return ((0, 0), )
+        return ((0, 0), (1, 0))
+
+    @property
+    def vnodes(self):
+
+        if 'implicit' in self.opts or 'ground' in self.opts or 'sground' in self.opts:
+            return (self.nodes[0], )
+        return self.nodes
+
+    def draw_implicit(self, sch, **kwargs):
+        """Draw implict wires, i.e., connections to ground, etc."""
 
         kind = ''
         if 'implicit' in self.opts:
@@ -571,36 +579,23 @@ class Wire(OnePort):
         elif 'sground' in self.opts:
             kind = 'sground'
 
-        args = [kind]
-        if self.up:
-            args.append('yscale=-1')
-        if self.left:
-            args.append('xscale=-1')
-        args_str = ','.join(args)
-
-        offset = (0.0, 0.0)
         anchor = 'south west'
-        p = sch.nodes[n2].pos
         if self.down:
-            offset = (0.0, 0.25)
             anchor = 'north west'
-        elif self.up:
-            offset = (0.0, -0.25)
-        pos = p + offset
 
-        s = r'  \draw (%s) to [short] (%s);''\n' % (n1, pos)
-        s += r'  \draw (%s) node[%s] {};''\n' % (pos, args_str)
+        s = r'  \draw (%s) node[%s, rotate=%d] {};''\n' % (
+            self.vnodes[0], kind, self.angle + 90)
 
         if 'l' in self.opts:
             label_str = '${%s}$' % latex_str(self.opts['l'])
-            s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (anchor, n2, label_str)
+            s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
+                anchor, self.vnodes[0], label_str)
         return s
 
     def draw(self, sch, **kwargs):
 
-        if ('implicit' in self.opts or 'ground' in self.opts
-            or 'sground' in self.opts):
-            return self.draw_implicit(nodes)
+        if 'implicit' in self.opts or 'ground' in self.opts or 'sground' in self.opts:
+            return self.draw_implicit(sch, **kwargs)
                                     
         return (super, Wire).draw(**kwargs)
 
@@ -617,6 +612,7 @@ def defcpt(name, base, docstring, cpt=None):
     if cpt is not None:
         newclass.tikz_cpt = cpt
     classes[name] = newclass
+
 
 # Dynamically create classes.
 
@@ -673,7 +669,7 @@ defcpt('Vsin', 'V', 'Sinusoidal voltage source', 'sV')
 defcpt('Vdc', 'V', 'DC voltage source', 'V')
 defcpt('Vac', 'V', 'AC voltage source', 'sV')
 
-defcpt('W', OnePort, 'Wire', 'short')
+defcpt('W', Wire, 'Wire', 'short')
 defcpt('Y', OnePort, 'Admittance', 'european resistor')
 defcpt('Z', OnePort, 'Impedance', 'european resistor')
 
