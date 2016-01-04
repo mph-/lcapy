@@ -8,9 +8,6 @@ class Cpt(object):
 
     cpt_type_counter = 1
 
-    pos = ((0, 0), (0, 1))
-
-
     @property
     def size(self):
         return float(self.opts['size'])
@@ -44,6 +41,39 @@ class Cpt(object):
         return 'mirror' in self.opts
 
     @property
+    def angle(self):
+        if self.right:
+            angle = 0   
+        elif self.down:
+            angle = -90
+        elif self.left:
+            angle = 180
+        elif self.up:
+            angle = 90
+        else:
+            raise ValueError('Unknown orientation: %s' % self.opts['dir'])
+        
+        if 'rotate' in self.opts:
+            angle += float(self.opts['rotate'])
+        return angle
+
+    @property
+    def R(self):
+        angle = self.angle
+        
+        Rdict = {0: ((1, 0), (0, 1)),
+                 90: ((0, 1), (-1, 0)),
+                 180: ((-1, 0), (0, -1)),
+                 -180: ((-1, 0), (0, -1)),
+                 -90: ((0, -1), (1, 0))}
+        if angle in Rdict:
+            return np.array(Rdict[angle])
+        
+        t = angle / 180.0 * np.pi
+        return np.array(((np.cos(t), np.sin(t)),
+                         (-np.sin(t), np.cos(t))))
+
+    @property
     def variable(self):
         return 'variable' in self.opts
 
@@ -53,11 +83,14 @@ class Cpt(object):
         return self.nodes
 
     @property
-    def tpos(self):
-        """Transformed node positions"""
+    def coords(self):
+        raise NotImplementedError('coords method not implemented')
 
-        if hasattr(self, '_tpos'):
-            return self._tpos
+    @property
+    def tcoords(self):
+        """Transformed node positions"""
+        if hasattr(self, '_tcoords'):
+            return self._tcoords
 
         # right + -
         #
@@ -69,28 +102,16 @@ class Cpt(object):
         # up    -
         #       +
 
-        tpos = np.array(self.pos)
-        if self.left:            
-            # Negate x.
-            tpos = np.dot(tpos, np.array(((-1, 0), (0, 1))))
-        elif self.up: 
-            # Swap x/y. 
-            tpos = np.dot(tpos, np.array(((0, 1), (1, 0))))
-        elif self.down: 
-            # Swap x/y and negate y. 
-            tpos = np.dot(tpos, np.array(((0, -1), (1, 0))))
-        elif not self.right: 
-            raise ValueError('Unknown orientation: %s' % self.opts['dir'])
-        self._tpos = tpos
-        return tpos
+        self._tcoords = np.dot(np.array(self.coords), self.R)
+        return self._tcoords
 
     @property
     def xvals(self):
-        return self.tpos[:, 0]
+        return self.tcoords[:, 0]
 
     @property
     def yvals(self):
-        return self.tpos[:, 1]
+        return self.tcoords[:, 1]
 
     def __init__(self, name, *args, **kwargs):
 
@@ -188,15 +209,15 @@ class Cpt(object):
 class Transistor(Cpt):
     """Transistor"""
     
-    npos = ((1, 1), (0, 0.5), (1, 0))
-    ppos = ((1, 0), (0, 0.5), (1, 1))
+    npos = ((1, 1.5), (0, 0.75), (1, 0))
+    ppos = ((1, 0), (0, 0.75), (1, 1.5))
 
-    def fixup(self, sch):
-
+    @property
+    def coords(self):
         if self.classname in ('Qpnp', 'Mpmos', 'Jpjf'):
-            self.pos = self.npos if self.mirror else self.ppos
+            return self.npos if self.mirror else self.ppos
         else:
-            self.pos = self.ppos if self.mirror else self.npos
+            return self.ppos if self.mirror else self.npos
 
     def draw(self, sch, **kwargs):
 
@@ -210,7 +231,7 @@ class Transistor(Cpt):
 
         label_str = '$%s$' % self.default_label if label_values else ''
         args_str = ''
-        if self.mirror:
+        if False and self.mirror:
             if self.vertical:
                 args_str += ', xscale=-1'
             else:
@@ -219,11 +240,12 @@ class Transistor(Cpt):
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        angle = 0
-        if self.down:
-            angle = -90
-        if self.up:
-            angle = 90
+        # angle = 0
+        # if self.down:
+        #     angle = -90
+        # if self.up:
+        #     angle = 90
+        angle = self.angle
 
         s = r'  \draw (%s) node[%s, %s, scale=%.1f, rotate=%d] (T) {};''\n' % (
             centre, self.tikz_cpt, args_str, sch.scale * 2, angle)
@@ -256,8 +278,9 @@ class MOSFET(Transistor):
 class TwoPort(Cpt):
     """Two-port"""
 
-    pos = ((1, 1), (1, 0), (0, 1), (0, 0))
-
+    @property
+    def coords(self):
+        return ((1, 1), (1, 0), (0, 1), (0, 0))
 
     def draw(self, sch, **kwargs):
 
@@ -374,7 +397,9 @@ class K(TF1):
 class OnePort(Cpt):
     """OnePort"""
 
-    pos = ((0, 0), (1, 0))
+    @property
+    def coords(self):
+        return ((0, 0), (1, 0))
 
     def draw(self, sch, **kwargs):
 
@@ -497,9 +522,9 @@ class Opamp(Cpt):
     def vnodes(self):
         return (self.nodes[0], ) + self.nodes[2:]
 
-    def fixup(self, sch):
-        
-        self.pos = self.npos if self.mirror else self.ppos
+    @property
+    def coords(self):
+        return self.npos if self.mirror else self.ppos
 
     def draw(self, sch, **kwargs):
 
@@ -531,7 +556,9 @@ class Opamp(Cpt):
 
 class FDOpamp(Cpt):
 
-    pos = ((2, 1), (2, 0), (0, 1), (0, 0))
+    @property
+    def coords(self):
+        return ((2, 1), (2, 0), (0, 1), (0, 0))
 
     def draw(self, sch, **kwargs):
 

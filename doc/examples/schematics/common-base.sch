@@ -1,4 +1,4 @@
-Q1 2 0 3 pnp;up
+Q1 2 0 3 pnp;down, mirror
 R1 1 2;right
 R2 4 0_4;down
 P1 1 0_1;down
