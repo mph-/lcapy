@@ -276,9 +276,8 @@ class TwoPort(Cpt):
         label_values = kwargs.get('label_values', True)
         draw_nodes = kwargs.get('draw_nodes', True)
 
-        if not self.right:
-            raise ValueError('Cannot draw twoport network %s in direction %s'
-                             % (self.name, self.opts['dir']))
+
+        # TODO, fix positions if component rotated.
 
         p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.nodes]
         width = p2.x - p4.x
@@ -318,6 +317,7 @@ class TF1(TwoPort):
         xoffset = 0.06
         yoffset = 0.40
 
+        # TODO, fix positions if component rotated.
         primary_dot = Pos(p3.x - xoffset, 0.5 * (p3.y + p4.y) + yoffset)
         secondary_dot = Pos(p1.x + xoffset, 0.5 * (p1.y + p2.y) + yoffset)
 
@@ -348,10 +348,6 @@ class TF(TF1):
 
     def draw(self, sch, **kwargs):
 
-        if not self.right:
-            raise ValueError('Cannot draw transformer %s in direction %s'
-                             % (self.name, self.opts['dir']))
-
         n1, n2, n3, n4 = self.nodes
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
@@ -373,14 +369,6 @@ class K(TF1):
         L2 = sch.elements[self.Lname2]
 
         self.nodes = L2.nodes + L1.nodes
-
-    def draw(self, sch, **kwargs):
-
-        if not self.right:
-            raise ValueError('Cannot draw mutual coupling %s in direction %s'
-                             % (self.name, self.opts['dir']))
-
-        return super(K, self).draw(sch, link=True, **kwargs)
 
 
 class OnePort(Cpt):
@@ -505,7 +493,7 @@ class Opamp(Cpt):
 
     # The Nm node is not used (ground).
     ppos = ((2.375, 0.495), (0, 0.99), (0, 0))
-    npos = ((2.375, 0.49 5), (0, 0), (0, 0.99))
+    npos = ((2.375, 0.495), (0, 0), (0, 0.99))
 
     @property
     def vnodes(self):
@@ -520,22 +508,18 @@ class Opamp(Cpt):
         draw_nodes = kwargs.get('draw_nodes', True)
         label_values = kwargs.get('label_values', True)
 
-        if not self.right:
-            raise ValueError('Cannot draw opamp %s in direction %s'
-                             % (self.name, self.opts['dir']))
+        p1, p3, p4 = [sch.nodes[n].pos for n in self.vnodes]
 
-        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.nodes]
-
-        centre = Pos(0.5 * (p3.x + p1.x), p1.y)
+        centre = (p3 + p4) * 0.25 + p1 * 0.5
 
         label_str = '$%s$' % self.default_label if label_values else ''
-        args_str = '' if self.mirror else 'yscale=-1'
+        args_str = ''
         for key, val in self.opts.iteritems():
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        s = r'  \draw (%s) node[op amp, %s, scale=%.1f] (opamp) {};' % (
-            centre, args_str, sch.scale * 2)
+        s = r'  \draw (%s) node[op amp, %s, scale=%.1f, rotate=%d] (opamp) {};' % (
+            centre, args_str, sch.scale * 2, self.angle)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
         
@@ -554,22 +538,18 @@ class FDOpamp(Cpt):
         draw_nodes = kwargs.get('draw_nodes', True)
         label_values = kwargs.get('label_values', True)
 
-        if not self.right:
-            raise ValueError('Cannot draw fdopamp %s in direction %s'
-                             % (self.name, self.opts['dir']))
+        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.vnodes]
 
-        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.nodes]
-
-        centre = (p1 + p4) * 0.5 + 0.2
+        centre = (p1 + p2 + p3 + p4) * 0.25
 
         label_str = '$%s$' % self.default_label if label_values else ''
-        args_str = '' if self.mirror else 'yscale=-1'
+        args_str = ''
         for key, val in self.opts.iteritems():
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        s = r'  \draw (%s) node[fd op amp, %s, scale=%.1f] (opamp) {};' % (
-            centre, args_str, sch.scale * 2)
+        s = r'  \draw (%s) node[fd op amp, %s, scale=%.1f, rotate=%d] (opamp) {};' % (
+            centre, args_str, sch.scale * 2, self.angle)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
         
