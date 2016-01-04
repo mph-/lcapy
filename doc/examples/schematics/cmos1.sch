@@ -1,4 +1,4 @@
-M1 Vdd 2_p 3_c pmos P; right
+M1 3_c 2_p Vdd pmos P; right
 M2 3_c 2_n 0 nmos N; right
 W 2_p 2_c; down, size=0.5
 W 2_c 2_n; down, size=0.5

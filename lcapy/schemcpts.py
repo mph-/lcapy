@@ -192,15 +192,17 @@ class Transistor(Cpt):
     
     yscale = 1.5
     xscale = 0.85
-    pos = ((1, 1), (0, 0.5), (1, 0))
+    npos = ((1, 1), (0, 0.5), (1, 0))
+    ppos = ((1, 0), (0, 0.5), (1, 1))
+
+    def fixup(self, sch):
+
+        if self.classname in ('Qpnp', 'Mpmos', 'Jpjf'):
+            self.pos = self.npos if self.mirror else self.ppos
+        else:
+            self.pos = self.ppos if self.mirror else self.npos
 
     def draw(self, sch, **kwargs):
-
-        # For common base, will need to support up and down.
-        if False and not self.vertical:
-            raise ValueError('Cannot draw transistor %s in direction %s'
-                             '; try left or right'
-                             % (self.name, self.opts['dir']))
 
         label_values = kwargs.get('label_values', True)
         draw_nodes = kwargs.get('draw_nodes', True)
@@ -211,9 +213,12 @@ class Transistor(Cpt):
         centre = (p1 + p3) * 0.5
 
         label_str = '$%s$' % self.default_label if label_values else ''
-        args_str = '' if self.right else 'xscale=-1'
+        args_str = ''
         if self.mirror:
-            args_str += ', yscale=-1'
+            if self.vertical:
+                args_str += ', xscale=-1'
+            else:
+                args_str += ', yscale=-1'
         for key, val in self.opts.iteritems():
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
@@ -227,9 +232,6 @@ class Transistor(Cpt):
         s = r'  \draw (%s) node[%s, %s, scale=%.1f, rotate=%d] (T) {};''\n' % (
             centre, self.tikz_cpt, args_str, sch.scale * 2, angle)
         s += r'  \draw (%s) node [] {%s};''\n'% (centre, label_str)
-
-        if self.tikz_cpt in ('pnp', 'pmos', 'pjfet'):
-            n1, n3 = n3, n1
 
         # Add additional wires.
         if self.tikz_cpt in ('pnp', 'npn'):
@@ -279,6 +281,13 @@ class TwoPort(Cpt):
 
         s += self._draw_nodes(sch, draw_nodes)
         return s
+
+
+class JFET(Transistor):
+    """Transistor"""
+    
+    npos = ((1, 1), (0, 0.32), (1, 0))
+    ppos = ((1, 0), (0, 0.68), (1, 1))
 
 
 class TF1(TwoPort):
@@ -600,7 +609,7 @@ class Wire(OnePort):
 
 classes = {}
 
-def defcpt(name, base, docstring, cpt=None, pos=None):
+def defcpt(name, base, docstring, cpt=None):
     
     if isinstance(base, str):
         base = classes[base]
@@ -609,8 +618,6 @@ def defcpt(name, base, docstring, cpt=None, pos=None):
 
     if cpt is not None:
         newclass.tikz_cpt = cpt
-    if pos is not None:
-        newclass.pos= pos
     classes[name] = newclass
 
 # Dynamically create classes.
@@ -636,9 +643,9 @@ defcpt('Isin', 'I', 'Sinusoidal current source', 'sI')
 defcpt('Idc', 'I', 'DC current source', 'I')
 defcpt('Iac', 'I', 'AC current source', 'sI')
 
-defcpt('J', Transistor, 'N JFET transistor', 'njfet', ((1, 1), (0, 0.32), (1, 0)))
+defcpt('J', JFET, 'N JFET transistor', 'njfet')
 defcpt('Jnjf', 'J', 'N JFET transistor', 'njfet')
-defcpt('Jpjf', 'J', 'P JFET transistor', 'pjfet', ((1, 1), (0, 0.68), (1, 0)))
+defcpt('Jpjf', 'J', 'P JFET transistor', 'pjfet')
 
 defcpt('L', OnePort, 'Inductor', 'L')
 
