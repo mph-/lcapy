@@ -231,24 +231,12 @@ class Transistor(Cpt):
 
         label_str = '$%s$' % self.default_label if label_values else ''
         args_str = ''
-        if False and self.mirror:
-            if self.vertical:
-                args_str += ', xscale=-1'
-            else:
-                args_str += ', yscale=-1'
         for key, val in self.opts.iteritems():
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        # angle = 0
-        # if self.down:
-        #     angle = -90
-        # if self.up:
-        #     angle = 90
-        angle = self.angle
-
         s = r'  \draw (%s) node[%s, %s, scale=%.1f, rotate=%d] (T) {};''\n' % (
-            centre, self.tikz_cpt, args_str, sch.scale * 2, angle)
+            centre, self.tikz_cpt, args_str, sch.scale * 2, self.angle)
         s += r'  \draw (%s) node [] {%s};''\n'% (centre, label_str)
 
         # Add additional wires.
@@ -516,7 +504,7 @@ class Opamp(Cpt):
 
     # The Nm node is not used (ground).
     ppos = ((2.375, 0.495), (0, 0.99), (0, 0))
-    npos = ((2.375, 0.495), (0, 0), (0, 0.99))
+    npos = ((2.375, 0.49 5), (0, 0), (0, 0.99))
 
     @property
     def vnodes(self):
