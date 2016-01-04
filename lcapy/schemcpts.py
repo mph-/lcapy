@@ -6,8 +6,6 @@ import numpy as np
 
 class Cpt(object):
 
-    yscale = 1.0
-    xscale = 1.0
     cpt_type_counter = 1
 
     pos = ((0, 0), (0, 1))
@@ -131,7 +129,7 @@ class Cpt(object):
         xvals = self.xvals
         for m1, n1 in enumerate(self.vnodes):
             for m2, n2 in enumerate(self.vnodes[m1 + 1:], m1 + 1):
-                value = (xvals[m2] - xvals[m1]) * self.xscale * size
+                value = (xvals[m2] - xvals[m1]) * size
                 graphs.add(n1, n2, value)
 
     def yplace(self, graphs):
@@ -140,7 +138,7 @@ class Cpt(object):
         yvals = self.yvals
         for m1, n1 in enumerate(self.vnodes):
             for m2, n2 in enumerate(self.vnodes[m1 + 1:], m1 + 1):
-                value = (yvals[m2] - yvals[m1]) * self.yscale * size
+                value = (yvals[m2] - yvals[m1]) * size
                 graphs.add(n1, n2, value)
 
     def _node_str(self, node1, node2, draw_nodes=True):
@@ -190,8 +188,6 @@ class Cpt(object):
 class Transistor(Cpt):
     """Transistor"""
     
-    yscale = 1.5
-    xscale = 0.85
     npos = ((1, 1), (0, 0.5), (1, 0))
     ppos = ((1, 0), (0, 0.5), (1, 1))
 
@@ -243,6 +239,20 @@ class Transistor(Cpt):
         return s
 
 
+class JFET(Transistor):
+    """Transistor"""
+    
+    npos = ((1, 1.5), (0, 0.48), (1, 0))
+    ppos = ((1, 0), (0, 1.02), (1, 1.5))
+
+
+class MOSFET(Transistor):
+    """Transistor"""
+    
+    npos = ((0.85, 1.5), (-0.25, 0.75), (0.85, 0))
+    ppos = ((0.85, 0), (-0.25, 0.75), (0.85, 1.5))
+
+
 class TwoPort(Cpt):
     """Two-port"""
 
@@ -281,13 +291,6 @@ class TwoPort(Cpt):
 
         s += self._draw_nodes(sch, draw_nodes)
         return s
-
-
-class JFET(Transistor):
-    """Transistor"""
-    
-    npos = ((1, 1), (0, 0.32), (1, 0))
-    ppos = ((1, 0), (0, 0.68), (1, 1))
 
 
 class TF1(TwoPort):
@@ -560,7 +563,6 @@ class FDOpamp(Cpt):
 
 class Wire(OnePort):
 
-
     def draw_implicit(self, sch, **kwargs):
 
         # Draw implict wires, i.e., connections to ground, etc.
@@ -649,7 +651,7 @@ defcpt('Jpjf', 'J', 'P JFET transistor', 'pjfet')
 
 defcpt('L', OnePort, 'Inductor', 'L')
 
-defcpt('M', 'J', 'N MOSJFET transistor', 'nmos')
+defcpt('M', MOSFET, 'N MOSJFET transistor', 'nmos')
 defcpt('Mnmos', 'M', 'N channel MOSJFET transistor', 'nmos')
 defcpt('Mpmos', 'M', 'P channel MOSJFET transistor', 'pmos')
 
