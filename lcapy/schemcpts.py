@@ -515,8 +515,8 @@ class CCS(OnePort):
 class Opamp(Cpt):
 
     # The Nm node is not used (ground).
-    ppos = ((2.4, 0.5), (0, 1), (0, 0))
-    npos = ((2.4, 0.5), (0, 0), (0, 1))
+    ppos = ((2.375, 0.495), (0, 0.99), (0, 0))
+    npos = ((2.375, 0.495), (0, 0), (0, 0.99))
 
     @property
     def vnodes(self):
