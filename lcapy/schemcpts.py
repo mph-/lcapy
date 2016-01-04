@@ -1,3 +1,11 @@
+"""
+This module defines and draws the schematic components using
+circuitikz.   The components are defined at the bottom of this file.
+
+Copyright 2015, 2016 Michael Hayes, UCECE
+"""
+
+
 from __future__ import print_function
 from lcapy.latex import latex_str
 from lcapy.schemmisc import Pos
@@ -42,6 +50,7 @@ class Cpt(object):
 
     @property
     def angle(self):
+        """Return rotation angle"""
         if self.right:
             angle = 0   
         elif self.down:
@@ -59,6 +68,7 @@ class Cpt(object):
 
     @property
     def R(self):
+        """Return rotation matrix"""
         angle = self.angle
         
         Rdict = {0: ((1, 0), (0, 1)),
@@ -84,23 +94,14 @@ class Cpt(object):
 
     @property
     def coords(self):
+        """Return coordinates of each of the nodes"""
         raise NotImplementedError('coords method not implemented')
 
     @property
     def tcoords(self):
-        """Transformed node positions"""
+        """Transformed coordinates for each of the nodes"""
         if hasattr(self, '_tcoords'):
             return self._tcoords
-
-        # right + -
-        #
-        # down  +
-        #       -
-        #
-        # left  - +
-        #
-        # up    -
-        #       +
 
         self._tcoords = np.dot(np.array(self.coords), self.R)
         return self._tcoords
@@ -696,8 +697,6 @@ defcpt('W', OnePort, 'Wire', 'short')
 defcpt('Y', OnePort, 'Admittance', 'european resistor')
 defcpt('Z', OnePort, 'Impedance', 'european resistor')
 
-# Add TP and TF.
 # Perhaps AM for ammeter, VM for voltmeter, VR for variable resistor?
 # Currently, a variable resistor is supported with the variable
 # option.
-
