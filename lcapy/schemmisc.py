@@ -6,6 +6,8 @@ class Pos(object):
 
         if isinstance(x, tuple):
             x, y = x
+        elif isinstance(x, np.ndarray):
+            x, y = x[0], x[1]
 
         self.x = x
         self.y = y

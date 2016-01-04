@@ -583,13 +583,16 @@ class Wire(OnePort):
         if self.down:
             anchor = 'north west'
 
+        n1 = self.vnodes[0]
         s = r'  \draw (%s) node[%s, rotate=%d] {};''\n' % (
-            self.vnodes[0], kind, self.angle + 90)
+            n1, kind, self.angle + 90)
+
+        lpos = sch.nodes[n1].pos + np.dot((0.25, 0), self.R)
 
         if 'l' in self.opts:
             label_str = '${%s}$' % latex_str(self.opts['l'])
             s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
-                anchor, self.vnodes[0], label_str)
+                anchor, lpos, label_str)
         return s
 
     def draw(self, sch, **kwargs):
@@ -597,7 +600,7 @@ class Wire(OnePort):
         if 'implicit' in self.opts or 'ground' in self.opts or 'sground' in self.opts:
             return self.draw_implicit(sch, **kwargs)
                                     
-        return (super, Wire).draw(**kwargs)
+        return super(Wire, self).draw(sch, **kwargs)
 
 
 classes = {}
