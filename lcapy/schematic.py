@@ -485,7 +485,7 @@ class Schematic(object):
         if cpt is None:
             return
 
-        fields = cpt.string.split(';')
+        fields = string.split(';')
         opts_string = fields[1].strip() if len(fields) > 1 else '' 
         cpt.opts_string = opts_string
 

@@ -98,7 +98,7 @@ class Parser(object):
         self.comments = grammar.comments
 
         self.cpts = cpts
-        self._anon_count = 0
+        self.anon = {}
         self.paramdir = {}
         self.ruledir = {}
         
@@ -159,10 +159,13 @@ class Parser(object):
         self.ruledir[cpt_type] += (Rule(cpt_type, cpt_classname,
                                         params, comment, pos), )
 
-    def _anon_cpt_id(self):
+    def _anon_cpt_id(self, cpt_type):
 
-        self._anon_count += 1
-        return '#%d' % self._anon_count
+        if cpt_type not in self.anon:
+            self.anon[cpt_type] = 0
+
+        self.anon[cpt_type] += 1
+        return '#%d' %  self.anon[cpt_type]
 
     def _syntax_error(self, string):
 
@@ -198,7 +201,7 @@ class Parser(object):
         # Add id if anonymous.
         cpt_type, cpt_id = groups[0], groups[1]
         if cpt_id is None:
-            name += self._anon_cpt_id()
+            name += self._anon_cpt_id(cpt_type)
 
         # This is the most hackery aspect of this parser where we
         # choose the rule pattern based on a keyword.  If the
