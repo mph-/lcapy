@@ -350,6 +350,10 @@ class Node(object):
         self.rootname = parts[0] if name[0] != '_' else name
         self.primary = len(parts) == 1
         self.list = []
+        self.pos = 'unknown'
+        
+    def __repr__(self):
+        return '%s @ (%s)' % (self.name, self.pos)
 
     def append(self, elt):
         """Add new element to the node"""

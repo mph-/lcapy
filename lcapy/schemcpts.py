@@ -487,8 +487,8 @@ class CCS(OnePort):
 class Opamp(Cpt):
 
     # The Nm node is not used (ground).
-    ppos = ((2.375, 0.495), (0, 0.99), (0, 0))
-    npos = ((2.375, 0.495), (0, 0), (0, 0.99))
+    ppos = ((2.4, 0.5), (0, 1), (0, 0))
+    npos = ((2.4, 0.5), (0, 0), (0, 1))
 
     @property
     def vnodes(self):
@@ -513,8 +513,8 @@ class Opamp(Cpt):
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        s = r'  \draw (%s) node[op amp, %s, scale=%.1f, rotate=%d] (opamp) {};' % (
-            centre, args_str, sch.scale * 2, self.angle)
+        s = r'  \draw (%s) node[op amp, %s, scale=%.3f, rotate=%d] (opamp) {};' % (
+            centre, args_str, sch.scale * 2 * 1.01, self.angle)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
         
@@ -526,7 +526,7 @@ class FDOpamp(Cpt):
 
     @property
     def coords(self):
-        return ((1.97, 0.985), (1.97, 0), (0, 0.985), (0, 0))
+        return ((2, 1), (2, 0), (0, 1), (0, 0))
 
     def draw(self, sch, **kwargs):
 
@@ -535,7 +535,7 @@ class FDOpamp(Cpt):
 
         p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.vnodes]
 
-        centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.175, 0), self.R)
+        centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.18, 0), self.R)
 
         label_str = '$%s$' % self.default_label if label_values else ''
         args_str = ''
@@ -543,8 +543,8 @@ class FDOpamp(Cpt):
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        s = r'  \draw (%s) node[fd op amp, %s, scale=%.1f, rotate=%d] (opamp) {};' % (
-            centre, args_str, sch.scale * 2, self.angle)
+        s = r'  \draw (%s) node[fd op amp, %s, scale=%.3f, rotate=%d] (opamp) {};' % (
+            centre, args_str, sch.scale * 2 * 1.015, self.angle)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
         

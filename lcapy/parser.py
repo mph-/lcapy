@@ -116,7 +116,7 @@ class Parser(object):
         cpts = self.ruledir.keys()
         cpts.sort(key=len, reverse=True)
 
-        self.cpt_pattern = re.compile('(%s)([#_\w]+)?' % '|'.join(cpts))
+        self.cpt_pattern = re.compile("(%s)([#_\w']+)?" % '|'.join(cpts))
         # strings in curly braces are expressions so do not split.
         self.arg_pattern = re.compile('\{.*\}|".*"|[^%s]+' % delimiters)
 
