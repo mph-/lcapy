@@ -283,9 +283,11 @@ class NetElement(object):
     def __str__(self):
 
         def quote(arg):
-            if arg.find(' ') == -1:
-                return arg
-            return '"%s"' % arg
+            if arg.find('(') != -1:
+                return '{%s}' % arg
+            if arg.find(' ') != -1:
+                return '"%s"' % arg
+            return arg
 
         args = (self.name, ) + self.nodes[0:2] + self.args
         return ' '.join(['%s' % quote(arg) for arg in args])
@@ -521,7 +523,13 @@ class Netlist(object):
             args = (net[quote_pos + 1:-1], ) + args
             net = net[:quote_pos - 1]
 
-        parts = tuple(re.split(r'[,]*[\s]+', net))
+        parts = re.split(r'[,]*[\s]+', net)
+
+        # Strip {}, perhaps should do with regexp.
+        for m, part in enumerate(parts):
+            if part[0] == '{':
+                parts[m] = parts[m][1:-1]
+        parts = tuple(parts)
 
         elt = NetElement(self, *(parts + args), **opts)
         return elt
