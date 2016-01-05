@@ -526,7 +526,7 @@ class FDOpamp(Cpt):
 
     @property
     def coords(self):
-        return ((2, 1), (2, 0), (0, 1), (0, 0))
+        return ((1.97, 0.985), (1.97, 0), (0, 0.985), (0, 0))
 
     def draw(self, sch, **kwargs):
 
@@ -535,7 +535,7 @@ class FDOpamp(Cpt):
 
         p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.vnodes]
 
-        centre = (p1 + p2 + p3 + p4) * 0.25
+        centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.175, 0), self.R)
 
         label_str = '$%s$' % self.default_label if label_values else ''
         args_str = ''
