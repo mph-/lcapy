@@ -1138,16 +1138,16 @@ Schematics
 Schematics can be generated from a netlist using Circuitikz for LaTeX
 diagrams.  Hints are required to designate component orientation and
 explicit wires are required to link nodes of the same potential but
-with different coordinates.
+with different coordinates.  For more details see :ref:`schematics`.
 
 Here's an example:
    >>> from lcapy import Circuit
    >>> cct = Circuit()
-   >>> cct.add('V1 1 0 V(s); down') 
+   >>> cct.add('V1 1 0 {V(s)}; down') 
    >>> cct.add('R1 1 2; right') 
    >>> cct.add('C1 2 0_2; down') 
    >>> cct.add('W1 0 0_2; right') 
-   >>> cct.draw('schematic.tex')
+   >>> cct.draw('schematic.pdf')
 
 Note, the orientation hints are appended to the netlist strings with a
 semicolon delimiter.  The drawing direction is with respect to the
@@ -1157,7 +1157,7 @@ their name are not drawn with a closed blob.
 Here's another example, this time loading the netlist from a file:
    >>> from lcapy import Circuit
    >>> cct = Circuit('voltage-divider.sch')
-   >>> cct.draw('voltage-divider.tex')
+   >>> cct.draw('voltage-divider.pdf')
 
 Here are the contents of the file 'voltage-divider.sch'::
 
