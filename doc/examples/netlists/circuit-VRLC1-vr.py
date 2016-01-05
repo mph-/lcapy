@@ -8,7 +8,7 @@ cct.add('R 3 0 10')
 
 import numpy as np
 t = np.linspace(0, 0.01, 1000)
-vr = cct.R.v(t)
+vr = cct.R.v.evaluate(t)
 
 from matplotlib.pyplot import figure, savefig, show
 fig = figure()

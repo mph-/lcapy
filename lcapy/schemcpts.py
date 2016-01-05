@@ -670,6 +670,7 @@ defcpt('TP', TwoPort, 'Two port', '')
 defcpt('V', OnePort, 'Voltage source', 'V')
 defcpt('Vsin', 'V', 'Sinusoidal voltage source', 'sV')
 defcpt('Vdc', 'V', 'DC voltage source', 'V')
+defcpt('Vstep', 'V', 'Step voltage source', 'V')
 defcpt('Vac', 'V', 'AC voltage source', 'sV')
 
 defcpt('W', Wire, 'Wire', 'short')

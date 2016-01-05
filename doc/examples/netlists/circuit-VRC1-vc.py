@@ -8,7 +8,7 @@ cct.add('C 2 0 1e-4')
 # Determine transient response at node 2 evaluated at specified times.
 import numpy as np
 t = np.linspace(0, 0.01, 1000)
-vc = cct[2].v(t)
+vc = cct[2].v.evaluate(t)
 
 from matplotlib.pyplot import figure, savefig
 fig = figure()

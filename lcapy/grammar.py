@@ -50,6 +50,7 @@ TF: TFname Np Nm Ncp Ncm [Value]; Transformer (works to DC!)
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 V: Vname Np Nm [Value]; Voltage source
 Vdc: Vname Np Nm dc [Value]; DC voltage source
+Vstep: Vname Np Nm step [Value]; Step voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
 Vsin: Vname Np Nm sin Vo Va fo [td] [alpha] [Phase]; Sinusoidal voltage source
 W: Wname Np Np; Wire
@@ -65,6 +66,7 @@ tunnel: keyword;
 schottky: keyword;
 ac: keyword;
 dc: keyword;
+step: keyword;
 sin: keyword;
 njf: keyword;
 pjf: keyword;
