@@ -95,7 +95,7 @@ class Cpt(object):
     @property
     def coords(self):
         """Return coordinates of each of the nodes"""
-        raise NotImplementedError('coords method not implemented')
+        raise NotImplementedError('coords method not implemented for %s' % self)
 
     @property
     def tcoords(self):
@@ -114,8 +114,10 @@ class Cpt(object):
     def yvals(self):
         return self.tcoords[:, 1]
 
-    def __init__(self, name, *args, **kwargs):
+    def __init__(self, name, string, nodes, *args):
 
+        self.string = string
+        self.nodes = nodes
         self.name = name
         self.args = args
 
@@ -204,7 +206,7 @@ class Cpt(object):
         return s
 
     def draw(self, sch, **kwargs):
-        raise NotImplementedError('draw method not implemented')
+        raise NotImplementedError('draw method not implemented for %s' % self)
 
 
 class Transistor(Cpt):
@@ -358,6 +360,12 @@ class TF(TF1):
 
 class K(TF1):
     """Mutual coupling"""
+
+    def __init__(self, name, string, nodes, *args):
+
+        self.Lname1 = args[0]
+        self.Lname2 = args[1]
+        super (K, self).__init__(name, string, nodes, *args)
 
     def fixup(self, sch):
         

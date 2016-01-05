@@ -10,7 +10,7 @@ import re
 # Could use a script to generate parser and parsing tables if speed
 # was important.
 
-class Arg(object):
+class Param(object):
 
     def __init__(self, name, base, comment):
         
@@ -28,27 +28,48 @@ class Arg(object):
 
 class Rule(object):
 
-    def __init__(self, cpt_type, classname, args, comment, pos):
+    def __init__(self, cpt_type, classname, params, comment, pos):
         
         self.type = cpt_type
         self.classname = classname
-        self.args = args
+        self.params = params
         self.comment = comment
         self.pos = pos
 
     def __repr__(self):
 
-        return self.type + 'name ' + ' '.join(self.args)
+        return self.type + 'name ' + ' '.join(self.params)
 
     def syntax_error(self, error, string):
 
         raise ValueError('Syntax error: %s when parsing %s\nExpected format: %s' % (error, string, repr(self)))        
 
-    def process(self, cpts, argdir, name, string, fields, opts_string):
+    def process(self, cpts, paramdir, name, string, fields):
 
-        args = self.args
-        if len(fields) > len(args):
+        params = self.params
+        if len(fields) > len(params):
             self.syntax_error('Too many args', string)
+
+        nodes = []
+        args = []
+        for m, param in enumerate(params):
+
+            if m >= len(fields):
+                # Optional argument
+                if param[0] == '[':
+                    break
+                self.syntax_error('Missing arg %s' % param, string)
+
+            if param[0] == '[':
+                param = param[1:-1]
+
+            field = fields[m]
+            if paramdir[param].base == 'node':
+                if field.find('.') != -1:
+                    self.syntax_error('Found . in node name %s' % field, string)
+                nodes.append(field)
+            elif paramdir[param].base != 'keyword':
+                args.append(field)
 
         # Create instance of component object
         try:
@@ -56,34 +77,8 @@ class Rule(object):
         except:
             newclass = cpts.classes[self.classname]
 
-        cpt = newclass(name, *fields)
-        cpt.string = string
-        cpt.opts_string = opts_string
-        cpt.nodes = ()
-
-        for m, arg in enumerate(args):
-
-            if m >= len(fields):
-                # Optional argument
-                if arg[0] == '[':
-                    break
-                self.syntax_error('Missing arg %s' % arg, string)
-
-            if arg[0] == '[':
-                arg = arg[1:-1]
-
-            field = fields[m]
-            if argdir[arg].base == 'node':
-                if field.find('.') != -1:
-                    self.syntax_error('Found . in node name %s' % field, string)                
-                cpt.nodes += (field, )
-
-            # Perhaps gobble keywords?
-
-            # Add attribute.  Perhaps the __init__ method for
-            # the class should create these from the args?
-            setattr(cpt, arg, field)
-
+        cpt = newclass(name, string, tuple(nodes), *args)
+        # Add named attributes for the args?   Lname1, etc.
         return cpt
 
 
@@ -95,8 +90,8 @@ class Parser(object):
 
         # A string defining the syntax for a netlist
         rules = grammar.rules
-        # A string defining arguments
-        args = grammar.args
+        # A string defining parameters
+        params = grammar.params
         # A string defining delimiter characters
         delimiters = grammar.delimiters
         # A string defining comment characters
@@ -104,11 +99,11 @@ class Parser(object):
 
         self.cpts = cpts
         self._anon_count = 0
-        self.argdir = {}
+        self.paramdir = {}
         self.ruledir = {}
         
-        for arg in args.split('\n'):
-            self._add_arg(arg)
+        for param in params.split('\n'):
+            self._add_param(param)
 
         for rule in rules.split('\n'):
             self._add_rule(rule)
@@ -118,20 +113,20 @@ class Parser(object):
 
         self.cpt_pattern = re.compile("(%s)([#_\w']+)?" % '|'.join(cpts))
         # strings in curly braces are expressions so do not split.
-        self.arg_pattern = re.compile('\{.*\}|".*"|[^%s]+' % delimiters)
+        self.param_pattern = re.compile('\{.*\}|".*"|[^%s]+' % delimiters)
 
-    def _add_arg(self, string):
+    def _add_param(self, string):
 
         if string == '':
             return
 
         fields = string.split(':')
-        argname = fields[0]
+        paramname = fields[0]
         fields = fields[1].split(';')
-        argbase = fields[0].strip()
+        parambase = fields[0].strip()
         comment = fields[1].strip()
         
-        self.argdir[argname] = Arg(argname, argbase, comment)
+        self.paramdir[paramname] = Param(paramname, parambase, comment)
 
     def _add_rule(self, string):
 
@@ -145,24 +140,24 @@ class Parser(object):
         comment = fields[1].strip()
         
         fields = string.split(' ')
-        args = fields[1:]
+        params = fields[1:]
 
         cpt_type = fields[0][0:-4]
         
         pos = None
-        newargs = ()
-        for m, arg in enumerate(args):
-            if arg[0] == '[':
-                arg = arg[1:-1]
-            if arg not in self.argdir:
-                raise ValueError('Unknown argument %s for %s' % (arg, string))
-            if pos is None and self.argdir[arg].base == 'keyword':
+        newparams = ()
+        for m, param in enumerate(params):
+            if param[0] == '[':
+                param = param[1:-1]
+            if param not in self.paramdir:
+                raise ValueError('Unknown parameter %s for %s' % (param, string))
+            if pos is None and self.paramdir[param].base == 'keyword':
                 pos = m
 
         if cpt_type not in self.ruledir:
             self.ruledir[cpt_type] = ()
         self.ruledir[cpt_type] += (Rule(cpt_type, cpt_classname,
-                                        args, comment, pos), )
+                                        params, comment, pos), )
 
     def _anon_cpt_id(self):
 
@@ -185,9 +180,8 @@ class Parser(object):
 
         self.string = string
         fields = string.split(';')
-        opts_string = fields[1].strip() if len(fields) > 1 else ''
 
-        fields = self.arg_pattern.findall(fields[0])
+        fields = self.param_pattern.findall(fields[0])
 
         # Strip {}, perhaps should do with regexp.
         for m, field in enumerate(fields):
@@ -214,12 +208,11 @@ class Parser(object):
             pos = rule1.pos
             if pos is None:
                 continue
-            if len(fields) > pos and fields[pos].lower() == rule1.args[pos]:
+            if len(fields) > pos and fields[pos].lower() == rule1.params[pos]:
                 rule = rule1
                 break
 
-        cpt = rule.process(self.cpts, self.argdir, name, string,
-                           fields, opts_string)
+        cpt = rule.process(self.cpts, self.paramdir, name, string, fields)
         
         cpt.id = cpt_id
         cpt.type = cpt_type

@@ -10,7 +10,7 @@ delimiters = r' \t\(\),'
 # Comment characters
 comments = r'#%'
 
-# Optional args are in square brackets.
+# Optional params are in square brackets.
 rules = r"""
 C: Cname Np Nm [Value]; Capacitor
 D: Dname Np Nm; Diode
@@ -58,7 +58,7 @@ Y: Yname Np Np [Value]; Admittance
 Z: Zname Np Np [Value]; Impedance
 """
 
-args = r"""
+params = r"""
 led: keyword;
 zener: keyword;
 photo: keyword;

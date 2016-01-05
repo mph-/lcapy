@@ -485,6 +485,10 @@ class Schematic(object):
         if cpt is None:
             return
 
+        fields = cpt.string.split(';')
+        opts_string = fields[1].strip() if len(fields) > 1 else '' 
+        cpt.opts_string = opts_string
+
         # There are two possible labels for a component:
         # 1. Component identifier, e.g., R1
         # 2. Component value, expression, or symbol
