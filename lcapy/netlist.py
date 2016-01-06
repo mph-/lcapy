@@ -42,46 +42,16 @@ from lcapy.oneport import R, L, C, G, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
 from schematic import Schematic, Opts, SchematicOpts
 from mna import MNA, VCVS, VCCS, CCVS, CCCS, TF, K, TP, Dummy
+import grammar
+from parser import Parser
+import mnacpts as cpts
 import re
 from copy import copy
 
 
 __all__ = ('Circuit', )
 
-
-cpt_types = ['C',  # Capacitor
-             'D',  # Diode (not supported)
-             'E',  # VCVS
-             'F',  # CCCS
-             'G',  # VCCS
-             'H',  # CCVS
-             'I',  # Current
-             'J',  # JFET (not supported)
-             'K',  # Mutual inductance
-             'L',  # Inductor
-             'M',  # MOSFET (not supported)
-             'O',  # Open-circuit
-             'P',  # Port (open-circuit)
-             'Q',  # BJT (not supported)
-             'R',  # Resistor
-             'SW',  # Switch
-             'TF',  # Ideal transformer (even works at DC!)
-             'TP',  # Two-port (not supported yet)
-             'V',  # Voltage
-             'W',  # Wire (short-circuit)
-             'Y',  # Admittance
-             'Z',  # Impedance
-             ]
-
-# Note, SPICE netlists are usually case insensitive
-# Perhaps prefix mechanical components with M?  But this will make
-# crappy component labels.
-mech_cpt_types = ['d',  # Dashpot (damper, resistance)  perhaps b?
-                  'f',  # Force source
-                  'k',  # Spring
-                  'm',  # Mass
-                  'u',  # Velocity source
-                  ]
+parser = Parser(cpts, grammar)
 
 class Ldict(dict):
 
@@ -113,28 +83,6 @@ class Ldict(dict):
         return self.Vdict.keys()
 
 
-cpt_type_map = {'R': R, 'C': C, 'L': L, 'Z': Z, 'Y': Y,
-                'Vac': Vac, 'Vdc': Vdc,
-                'Iac': Iac, 'Idc': Idc,
-                'Vacstep': Vacstep, 'Vstep': Vstep,
-                'Iacstep': Iacstep, 'Istep': Istep,
-                'Vimpulse': V, 'Iimpulse': I,
-                'Vs': V, 'Is': I,
-                'V': V, 'I': I, 'v': v, 'i': i,
-                'O' : None, 'P': None, 'W': None,
-                'E': VCVS, 'F' : CCCS, 'G' : VCCS, 'H': CCVS,
-                'TF': TF, 'TP': TP, 'K': K,
-                'D' : Dummy, 'J' : Dummy, 'M': Dummy, 'Q': Dummy,
-                'SW' : Dummy, 'SWno' : Dummy, 'SWnc' : Dummy, 
-                'SWpush' : Dummy, 'opamp': VCVS, 'fdopamp' : VCVS}
-
-
-# Regular expression alternate matches stop with first match so need
-# to have longer names first.
-cpt_types.sort(lambda x, y: cmp(len(y), len(x)))
-cpt_type_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_types))
-
-
 class Node(object):
 
     def __init__(self, cct, name):
@@ -163,240 +111,24 @@ class Node(object):
 
     def append(self, elt):
 
-        if elt.cpt_type in ('P', ):
+        if elt.type in ('P', ):
             self.port = True
 
         self.list.append(elt)
-
-
-class NetElement(object):
-
-    def __init__(self, cct, name, node1, node2, *args, **opts):
-
-        match = cpt_type_pattern.match(name)
-
-        if not match:
-            raise ValueError('Unknown schematic component %s' % name)
-
-        # Circuitikz does not like a . in a name
-        if node1.find('.') != -1:
-            raise ValueError('Cannot have . in node name %s' % node1)
-        if node2.find('.') != -1:
-            raise ValueError('Cannot have . in node name %s' % node2)
-
-        cpt_type = match.groups()[0]
-        cpt_id = match.groups()[1]
-
-        # Default value is the component name
-        value = cpt_type
-        if len(cpt_id) > 0:
-            value += '_' + cpt_id
-        else:
-            if cpt_type == 'W':
-                # Automatically enumerate wires to avoid conflict.
-                cct.wire_counter += 1
-                name = cpt_type + '#%d' % cct.wire_counter
-
-        self.cct = cct
-        self.name = name
-        self.opts = Opts(opts)
-        self.nodes = (node1, node2)
-        self.args = args
-
-        # Handle special cases for voltage and current sources.
-        # Perhaps could generalise for impulse, step, ramp sources
-        # although these can be specified symbolically, for example,
-        # v1 1 0 t*Heaviside(t)
-        # The only gnarly bit is that the expression cannot contain spaces.
-
-        if cpt_type == 'TP' and len(args) != 5:
-            raise ValueError('TP component requires 5 args')
-
-        if args != ():
-            if cpt_type in ('V', 'I') and args[0] in (
-                    'ac', 'dc', 'step', 'acstep', 'impulse', 's'):
-                cpt_type = cpt_type + args[0]
-                args = args[1:]
-            elif cpt_type == 'E' and args[0] == 'opamp':
-                cpt_type = 'opamp'
-                args = args[1:]
-            elif cpt_type == 'E' and args[0] == 'fdopamp':
-                cpt_type = 'fdopamp'
-                args = args[1:]
-            elif cpt_type == 'SW' and args[0] in ('nc', 'no', 'push'):
-                cpt_type = cpt_type + args[0]
-                args = args[1:]                
-
-        if cpt_type in ('F', 'H'):
-            if len(args) != 2:
-                raise ValueError('Component %s requires 4 args' % name)
-            if args[0][0] != 'V':
-                raise ValueError(
-                    'Component %s requires name of voltage source for controlling current' % name)
-
-        if cpt_type in ('E', 'G', 'TF', 'TP', 'opamp', 'fdopamp'):
-            if len(args) < 2:
-                raise ValueError(
-                    'Component type %s requires 4 nodes' % cpt_type)
-            self.nodes += (args[0], args[1])
-            args = args[2:]
-
-        self.cpt_type = cpt_type
-
-        if args != () and cpt_type in ('V', 'I'):
-            # If have a t-domain expression, use v and i.
-            expr = Expr(args[0], cache=False)
-            if expr.expr.find(tsym) != set():
-                cpt_type = 'v' if cpt_type == 'V' else 'i'
-
-        try:
-            foo = cpt_type_map[cpt_type]
-            # Ignore ports and wires, etc.
-            if foo is None:
-                self.cpt = None
-                return
-
-        except KeyError:
-            raise ValueError('Unknown component kind for %s' % name)
-
-        if len(args) == 0:
-            # Ensure symbol uppercase for s-domain value.
-            if cpt_type in ('Vdc', 'Vac', 'Idc', 'Iac'):
-                value = uppercase_name(value)
-
-            args = (value, )
-
-        cpt = foo(*args)
-        self.cpt = cpt
-
-    def __repr__(self):
-
-        def quote(arg):
-            if arg.find(' ') == -1:
-                return arg
-            return '"%s"' % arg
-
-        args = [self.name] + list(self.nodes) + list(self.args)
-        str = ', '.join([quote(arg).__str__() for arg in args])
-        return 'NetElement(%s)' % str
-
-    def __str__(self):
-
-        def quote(arg):
-            if arg.find('(') != -1:
-                return '{%s}' % arg
-            if arg.find(' ') != -1:
-                return '"%s"' % arg
-            return arg
-
-        args = (self.name, ) + self.nodes[0:2] + self.args
-        return ' '.join(['%s' % quote(arg) for arg in args])
-
-    @property
-    def _is_dummy(self):
-
-        return self.cpt_type in ('O', 'P', 'W')
-
-    @property
-    def _is_C(self):
-
-        return isinstance(self.cpt, C)
-
-    @property
-    def _is_E(self):
-
-        return isinstance(self.cpt, (VCVS, TF))
-
-    @property
-    def _is_F(self):
-
-        return isinstance(self.cpt, CCCS)
-
-    @property
-    def _is_G(self):
-
-        return isinstance(self.cpt, VCCS)
-
-    @property
-    def _is_H(self):
-
-        return isinstance(self.cpt, CCVS)
-
-    @property
-    def _is_I(self):
-
-        return isinstance(self.cpt, (I, Idc, Iac, Istep, Iacstep))
-
-    @property
-    def _is_K(self):
-
-        return isinstance(self.cpt, K)
-
-    @property
-    def _is_L(self):
-
-        return isinstance(self.cpt, L)
-
-    @property
-    def _is_RC(self):
-
-        return isinstance(self.cpt, (R, G, C))
-
-    @property
-    def _is_V(self):
-
-        return isinstance(self.cpt, (V, Vdc, Vac, Vstep, Vacstep))
-
-    @property
-    def I(self):
-        """Current through element"""
-
-        return self.cct._I[self.name]
-
-    @property
-    def i(self):
-        """Time-domain current through element"""
-
-        return self.cct._i[self.name]
-
-    @property
-    def V(self):
-        """Voltage drop across element"""
-
-        return self.cct._V[self.name]
-
-    @property
-    def v(self):
-        """Time-domain voltage drop across element"""
-
-        return self.cct._v[self.name]
-
-    @property
-    def Y(self):
-        """Admittance"""
-        
-        return self.cpt.Y
-
-    @property
-    def Z(self):
-        """Impedance"""
-        
-        return self.cpt.Z
 
 
 class Netlist(object):
 
     def __init__(self, filename=None):
 
+        self.anon = {}
         self.elements = {}
         # Independent current and voltage sources.  This does not include
         # implicit sources due to initial conditions.
-        self.sources = {}
+        self.independent_sources = {}
         self.nodes = {}
         # Shared nodes (with same voltage)
         self.snodes = {}
-
-        self.wire_counter = 0
 
         self.opts = SchematicOpts()
         self._MNA = None
@@ -478,6 +210,30 @@ class Netlist(object):
             if hasattr(self, attr):
                 delattr(self, attr)
 
+    def parse(self, string):
+        """The general form is: 'Name Np Nm symbol'
+        where Np is the positive node and Nm is the negative node.
+
+        A positive current is defined to flow from the positive node
+        to the negative node.
+        """
+
+        if '\n' in string:
+            lines = string.split('\n')
+            for line in lines:
+                self.add(line.strip())
+            return
+
+        cpt = parser.parse(string, self)
+        if cpt is None:
+            return
+
+        opts = Opts(cpt.opts_string)
+        cpt.opts = opts
+
+        return cpt
+
+
     def _elt_add(self, elt):
 
         # Check that this name won't conflict with an attr.
@@ -490,49 +246,11 @@ class Netlist(object):
 
         self.elements[elt.name] = elt
 
-        if elt._is_V or elt._is_I:
-            self.sources[elt.name] = elt
+        if elt.type in ('V', 'I'):
+            self.independent_sources[elt.name] = elt
 
-        # Ignore nodes for mutual inductance.
-        if elt.cpt_type == 'K':
-            return
-
-        n1, n2 = elt.nodes[0:2]
-
-        if elt.cpt_type != 'W' and (
-                Node(self, n1).rootname == Node(self, n2).rootname):
-            raise ValueError('Component %s shorted by implicitly linked nodes %s and %s' % (elt.name, n1, n2))
-
-        self._node_add(n1, elt)
-        self._node_add(n2, elt)
-
-    def net_parse(self, string, *args):
-
-        fields = string.split(';')
-        string = fields[1].strip() if len(fields) > 1 else ''
-        if string != '':
-            self.hints = True
-
-        opts = Opts(string)
-
-        net = fields[0].strip()
-        if net[-1] == '"':
-            quote_pos = net[:-1].rfind('"')
-            if quote_pos == -1:
-                raise ValueError('Missing " in net: ' + net)
-            args = (net[quote_pos + 1:-1], ) + args
-            net = net[:quote_pos - 1]
-
-        parts = re.split(r'[,]*[\s]+', net)
-
-        # Strip {}, perhaps should do with regexp.
-        for m, part in enumerate(parts):
-            if part[0] == '{':
-                parts[m] = parts[m][1:-1]
-        parts = tuple(parts)
-
-        elt = NetElement(self, *(parts + args), **opts)
-        return elt
+        for node in elt.nodes:
+            self._node_add(node, elt)
 
     def add(self, string, *args):
         """Add a component to the netlist.
@@ -543,40 +261,17 @@ class Netlist(object):
         to the negative node.
         """
 
-        # Ignore comments
-        string = string.strip()
-        if string == '' or string[0] in ('#', '%'):
-            return
-
-        if '\n' in string:
-            lines = string.split('\n')
-            for line in lines:
-                self.add(line)
+        elt = self.parse(string)
+        if elt is None:
             return
 
         self._invalidate()
-
-        if string[0] == ';':
-            keypairs = string[1:].split(',')
-            for keypair in keypairs:
-                fields = keypair.split('=')
-                key = fields[0].strip()
-                arg = fields[1].strip() if len(fields) > 1 else ''
-                if arg.lower() == 'false':
-                    arg = False
-                elif arg.lower() == 'true':
-                    arg = True
-                self.opts[key] = arg
-            return
-
-        elt = self.net_parse(string, *args)
-
         self._elt_add(elt)
 
     def net_add(self, string, *args):
         """Add a component to the netlist.
         The general form is: 'Name Np Nm args'
-        where Np is the positive nose and Nm is the negative node.
+        where Np is the positive node and Nm is the negative node.
 
         A positive current is defined to flow from the positive node
         to the negative node.
@@ -606,64 +301,39 @@ class Netlist(object):
     def _make_open(self, node1, node2, opts):
         """Create a dummy open-circuit"""
 
-        if not hasattr(self, '_open_counter'):
-            self._open_counter = 0
-        self._open_counter += 1
-
         opts.strip_current_labels()
         opts.strip_labels()
 
-        net = 'O#%d %s %s ; %s' % (
-            self._open_counter, node1, node2, opts.format())
-
-        return self.net_parse(net)
+        net = 'O %s %s ; %s' % (node1, node2, opts.format())
+        return self.parse(net)
 
     def _make_short(self, node1, node2, opts):
         """Create a dummy short-circuit"""
 
-        if not hasattr(self, '_short_counter'):
-            self._short_counter = 0
-        self._short_counter += 1
-
         opts.strip_voltage_labels()
         opts.strip_labels()
 
-        net = 'W#%d %s %s ; %s' % (
-            self._short_counter, node1, node2, opts.format())
-
-        return self.net_parse(net)
+        net = 'W %s %s ; %s' % (node1, node2, opts.format())
+        return self.parse(net)
 
     def _make_Z(self, name, node1, node2, value, opts):
         """Create a dummy impedance"""
 
-        net = 'Z%s %s %s "%s"; %s' % (name,
-                                    node1, node2, value, opts.format())
-
-        return self.net_parse(net)
+        net = 'Z%s %s %s "%s"; %s' % (
+            name, node1, node2, value, opts.format())
+        return self.parse(net)
 
     def _make_V(self, node1, node2, value, opts):
         """Create a dummy s-domain voltage source"""
 
-        if not hasattr(self, '_V_counter'):
-            self._V_counter = 0
-        self._V_counter += 1
-
-        net = 'V#%d %s %s "%s"; %s' % (
-            self._V_counter, node1, node2, value, opts.format())
-
-        return self.net_parse(net)
+        net = 'V %s %s "%s"; %s' % (node1, node2, value, opts.format())
+        return self.parse(net)
 
     def _make_I(self, node1, node2, value, opts):
         """Create a dummy s-domain current source"""
 
-        if not hasattr(self, '_I_counter'):
-            self._I_counter = 0
-        self._I_counter += 1
-
-        net = 'I#%d %s %s "%s"; %s' % (
-            self._I_counter, node1, node2, value, opts.format())
-
-        return self.net_parse(net)
+        net = 'I %s %s "%s"; %s' % (node1, node2, value, opts.format())
+        return self.parse(net)
 
     @property
     def MNA(self):
@@ -903,7 +573,7 @@ class Netlist(object):
             if arg not in self.sources:
                 raise ValueError('Element %s is not a known source' % arg)
         sources = []
-        for key, source in self.sources.iteritems():
+        for key, source in self.independent_sources.iteritems():
             if key not in args:
                 sources.append(key)
         return self._kill(sources)
@@ -921,9 +591,9 @@ class Netlist(object):
 
         sources = []
         for arg in args:
-            if arg not in self.sources:
+            if arg not in self.independent_sources:
                 raise ValueError('Element %s is not a known source' % arg)
-            sources.append(self.sources[arg].name)
+            sources.append(self.independent_sources[arg].name)
 
         return self._kill(sources)
 
@@ -968,19 +638,19 @@ class Netlist(object):
 
             # Assume initial C voltage and L current is zero.
 
-            if elt.cpt_type in ('V', 'I', 'Vac', 'Iac'):
+            if elt.type in ('V', 'I', 'Vac', 'Iac'):
                 print('Cannot determine pre-initial condition for %s'
                       ', assuming 0' % elt.name)
 
             # v and i should be evaluated to determine the value at 0 - eps.
-            if elt.cpt_type in ('v', 'i'):
+            if elt.type in ('v', 'i'):
                 print('Cannot determine pre-initial condition for %s'
                       ', assuming 0' % elt.name)
 
-            if elt.cpt_type in ('C', 'Istep', 'Iacstep', 'I', 'i',
+            if elt.type in ('C', 'Istep', 'Iacstep', 'I', 'i',
                                 'Iac', 'Iimpulse'):
                 elt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
-            elif elt.cpt_type in ('L', 'Vstep', 'Vacstep', 'V', 'v',
+            elif elt.type in ('L', 'Vstep', 'Vacstep', 'V', 'v',
                                   'Vac', 'Vimpulse'):
                 elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
             new_elt = copy(elt)             
@@ -997,7 +667,7 @@ class Netlist(object):
 
         for key, elt in self.elements.iteritems():
 
-            cpt_type = elt.cpt_type
+            cpt_type = elt.type
 
             if cpt_type in ('C', 'L', 'R'):
                 new_elt = self._make_Z(elt.name, elt.nodes[0], elt.nodes[1],

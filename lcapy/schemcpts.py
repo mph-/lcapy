@@ -11,10 +11,40 @@ from lcapy.latex import latex_str
 from lcapy.schemmisc import Pos
 import numpy as np
 
-
 class Cpt(object):
 
-    cpt_type_counter = 1
+    def __init__(self, sch, cpt_type, cpt_id, string, opts_string, nodes, *args):
+
+        self.sch = sch
+        self.type = cpt_type
+        self.id = cpt_id
+
+        if cpt_id is None:
+            if cpt_type not in sch.anon:
+                sch.anon[cpt_type] = 0
+            sch.anon[cpt_type] += 1
+            cpt_id = '#%d' % sch.anon[cpt_type]
+
+        name = self.type + cpt_id
+
+        self.string = string
+        self.opts_string = opts_string
+        # There are three sets of nodes:
+        # 1. nodes are the names of the electrical nodes for a cpt.
+        # 2. vnodes are the subset of the electrical nodes for a cpt that are drawn.
+        # 3. dnodes includes vnodes plus inherited nodes from other cpts (K).  The
+        # lookup of this attribute is deferred until cpts are drawn.
+        self.nodes = nodes
+        self.name = name
+        self.args = args
+        self.classname = self.__class__.__name__
+
+    def __repr__(self):
+
+        if hasattr(self, 'string'):
+            return self.string
+        
+        return type(self)
 
     @property
     def size(self):
@@ -89,8 +119,13 @@ class Cpt(object):
 
     @property
     def vnodes(self):
-        '''Drawn nodes'''
+        '''Visible nodes'''
         return self.nodes
+
+    @property
+    def dnodes(self):
+        '''Nodes used to construct schematic'''
+        return self.vnodes
 
     @property
     def coords(self):
@@ -114,36 +149,19 @@ class Cpt(object):
     def yvals(self):
         return self.tcoords[:, 1]
 
-    def __init__(self, name, string, nodes, *args):
-
-        self.string = string
-        self.nodes = nodes
-        self.name = name
-        self.args = args
-
-    def __repr__(self):
-
-        if hasattr(self, 'string'):
-            return self.string
-        
-        return type(self)
-
-    def fixup(self, sch):
-        pass
-
     def xlink(self, graphs):
 
         xvals = self.xvals
-        for m1, n1 in enumerate(self.vnodes):
-            for m2, n2 in enumerate(self.vnodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.dnodes):
+            for m2, n2 in enumerate(self.dnodes[m1 + 1:], m1 + 1):
                 if xvals[m2] == xvals[m1]:
                     graphs.link(n1, n2)
 
     def ylink(self, graphs):
 
         yvals = self.yvals
-        for m1, n1 in enumerate(self.vnodes):
-            for m2, n2 in enumerate(self.vnodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.dnodes):
+            for m2, n2 in enumerate(self.dnodes[m1 + 1:], m1 + 1):
                 if yvals[m2] == yvals[m1]:
                     graphs.link(n1, n2)
 
@@ -151,8 +169,8 @@ class Cpt(object):
 
         size = self.size
         xvals = self.xvals
-        for m1, n1 in enumerate(self.vnodes):
-            for m2, n2 in enumerate(self.vnodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.dnodes):
+            for m2, n2 in enumerate(self.dnodes[m1 + 1:], m1 + 1):
                 value = (xvals[m2] - xvals[m1]) * size
                 graphs.add(n1, n2, value)
 
@@ -160,8 +178,8 @@ class Cpt(object):
 
         size = self.size
         yvals = self.yvals
-        for m1, n1 in enumerate(self.vnodes):
-            for m2, n2 in enumerate(self.vnodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.dnodes):
+            for m2, n2 in enumerate(self.dnodes[m1 + 1:], m1 + 1):
                 value = (yvals[m2] - yvals[m1]) * size
                 graphs.add(n1, n2, value)
 
@@ -201,7 +219,7 @@ class Cpt(object):
     def _draw_nodes(self, sch, draw_nodes=True):
 
         s = ''
-        for n in self.vnodes:
+        for n in self.dnodes:
             s += self._draw_node(sch, n, draw_nodes)
         return s
 
@@ -227,7 +245,7 @@ class Transistor(Cpt):
         label_values = kwargs.get('label_values', True)
         draw_nodes = kwargs.get('draw_nodes', True)
 
-        p1, p2, p3 = [sch.nodes[n].pos for n in self.vnodes]
+        p1, p2, p3 = [sch.nodes[n].pos for n in self.dnodes]
         centre = (p1 + p3) * 0.5
 
         label_str = '$%s$' % self.default_label if label_values else ''
@@ -242,9 +260,9 @@ class Transistor(Cpt):
 
         # Add additional wires.
         if self.tikz_cpt in ('pnp', 'npn'):
-            s += r'  \draw (T.C) -- (%s) (T.B) -- (%s) (T.E) -- (%s);''\n' % self.vnodes
+            s += r'  \draw (T.C) -- (%s) (T.B) -- (%s) (T.E) -- (%s);''\n' % self.dnodes
         else:
-            s += r'  \draw (T.D) -- (%s) (T.G) -- (%s) (T.S) -- (%s);''\n' % self.vnodes
+            s += r'  \draw (T.D) -- (%s) (T.G) -- (%s) (T.S) -- (%s);''\n' % self.dnodes
 
         s += self._draw_nodes(sch, draw_nodes)
         return s
@@ -279,7 +297,7 @@ class TwoPort(Cpt):
 
         # TODO, fix positions if component rotated.
 
-        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.vnodes]
+        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.dnodes]
         width = p2.x - p4.x
         extra = 0.25
         p1.y += extra
@@ -311,7 +329,7 @@ class TF1(TwoPort):
         label_values = kwargs.get('label_values', True)
         link = kwargs.get('link', True)
 
-        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.vnodes]
+        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.dnodes]
 
         xoffset = 0.06
         yoffset = 0.40
@@ -346,7 +364,7 @@ class TF(TF1):
 
     def draw(self, sch, **kwargs):
 
-        n1, n2, n3, n4 = self.vnodes
+        n1, n2, n3, n4 = self.dnodes
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
@@ -361,18 +379,19 @@ class TF(TF1):
 class K(TF1):
     """Mutual coupling"""
 
-    def __init__(self, name, string, nodes, *args):
+    def __init__(self, sch, cpt_type, cpt_id, string, opts_string, nodes, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super (K, self).__init__(name, string, nodes, *args)
+        super (K, self).__init__(sch, cpt_type, cpt_id, string, opts_string, nodes, *args)
 
-    def fixup(self, sch):
-        
-        L1 = sch.elements[self.Lname1]
-        L2 = sch.elements[self.Lname2]
+    @property
+    def dnodes(self):
 
-        self.nodes = L2.nodes + L1.nodes
+        # L1 and L2 need to be previously defined so we can find their nodes.
+        L1 = self.sch.elements[self.Lname1]
+        L2 = self.sch.elements[self.Lname2]
+        return L1.nodes + L2.nodes
 
 
 class OnePort(Cpt):
@@ -388,7 +407,7 @@ class OnePort(Cpt):
         draw_nodes = kwargs.get('draw_nodes', True)
         label_ids = kwargs.get('label_ids', True)
 
-        n1, n2 = self.vnodes
+        n1, n2 = self.dnodes
 
         tikz_cpt = self.tikz_cpt
         if self.type == 'R' and self.variable:
@@ -511,7 +530,7 @@ class Opamp(Cpt):
         draw_nodes = kwargs.get('draw_nodes', True)
         label_values = kwargs.get('label_values', True)
 
-        p1, p3, p4 = [sch.nodes[n].pos for n in self.vnodes]
+        p1, p3, p4 = [sch.nodes[n].pos for n in self.dnodes]
 
         centre = (p3 + p4) * 0.25 + p1 * 0.5
 
@@ -541,7 +560,7 @@ class FDOpamp(Cpt):
         draw_nodes = kwargs.get('draw_nodes', True)
         label_values = kwargs.get('label_values', True)
 
-        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.vnodes]
+        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.dnodes]
 
         centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.18, 0), self.R)
 
@@ -591,7 +610,7 @@ class Wire(OnePort):
         if self.down:
             anchor = 'north west'
 
-        n1 = self.vnodes[0]
+        n1 = self.dnodes[0]
         s = r'  \draw (%s) node[%s, rotate=%d] {};''\n' % (
             n1, kind, self.angle + 90)
 

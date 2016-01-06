@@ -44,7 +44,7 @@ class Rule(object):
 
         raise ValueError('Syntax error: %s when parsing %s\nExpected format: %s' % (error, string, repr(self)))        
 
-    def process(self, cpts, paramdir, name, string, fields):
+    def process(self, paramdir, string, fields):
 
         params = self.params
         if len(fields) > len(params):
@@ -71,15 +71,7 @@ class Rule(object):
             elif paramdir[param].base != 'keyword':
                 args.append(field)
 
-        # Create instance of component object
-        try:
-            newclass = getattr(cpts, self.classname)
-        except:
-            newclass = cpts.classes[self.classname]
-
-        cpt = newclass(name, string, tuple(nodes), *args)
-        # Add named attributes for the args?   Lname1, etc.
-        return cpt
+        return tuple(nodes), args
 
 
 class Parser(object):
@@ -98,7 +90,6 @@ class Parser(object):
         self.comments = grammar.comments
 
         self.cpts = cpts
-        self.anon = {}
         self.paramdir = {}
         self.ruledir = {}
         
@@ -159,19 +150,11 @@ class Parser(object):
         self.ruledir[cpt_type] += (Rule(cpt_type, cpt_classname,
                                         params, comment, pos), )
 
-    def _anon_cpt_id(self, cpt_type):
-
-        if cpt_type not in self.anon:
-            self.anon[cpt_type] = 0
-
-        self.anon[cpt_type] += 1
-        return '#%d' %  self.anon[cpt_type]
-
     def _syntax_error(self, string):
 
         raise ValueError('%s\nExpected format: %s' % (repr(rule)))
 
-    def parse(self, string):
+    def parse(self, string, parent=None):
         """Parse string and create object"""
 
         string = string.strip()
@@ -197,11 +180,7 @@ class Parser(object):
             raise ValueError('Unknown component for %s' % name)
 
         groups = match.groups()
-        
-        # Add id if anonymous.
         cpt_type, cpt_id = groups[0], groups[1]
-        if cpt_id is None:
-            name += self._anon_cpt_id(cpt_type)
 
         # This is the most hackery aspect of this parser where we
         # choose the rule pattern based on a keyword.  If the
@@ -215,11 +194,21 @@ class Parser(object):
                 rule = rule1
                 break
 
-        cpt = rule.process(self.cpts, self.paramdir, name, string, fields)
+        nodes, args = rule.process(self.paramdir, string, fields)
+
+        fields = string.split(';')
+        opts_string = fields[1].strip() if len(fields) > 1 else '' 
+
+        # Create instance of component object
+        try:
+            newclass = getattr(self.cpts, rule.classname)
+        except:
+            newclass = self.cpts.classes[rule.classname]
+
+        cpt = newclass(parent, cpt_type, cpt_id, string, opts_string, 
+                       tuple(nodes), *args)
+        # Add named attributes for the args?   Lname1, etc.
         
-        cpt.id = cpt_id
-        cpt.type = cpt_type
-        cpt.classname = rule.classname
         return cpt
 
 

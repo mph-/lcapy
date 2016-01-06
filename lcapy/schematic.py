@@ -400,6 +400,7 @@ class Schematic(object):
 
     def __init__(self, filename=None, **kwargs):
 
+        self.anon = {}
         self.elements = {}
         self.nodes = {}
         # Shared nodes (with same voltage)
@@ -474,20 +475,15 @@ class Schematic(object):
         
             return '%s_{%s}' % (name, subscript)
 
-
         if '\n' in string:
             lines = string.split('\n')
             for line in lines:
-                self.add(line)
+                self.add(line.strip())
             return
 
-        cpt = parser.parse(string)
+        cpt = parser.parse(string, self)
         if cpt is None:
             return
-
-        fields = string.split(';')
-        opts_string = fields[1].strip() if len(fields) > 1 else '' 
-        cpt.opts_string = opts_string
 
         # There are two possible labels for a component:
         # 1. Component identifier, e.g., R1
@@ -598,7 +594,6 @@ class Schematic(object):
         # nodes of orthogonal components get combined into a
         # common node.
         for m, elt in enumerate(self.elements.values()):
-            elt.fixup(self)
             elt.xlink(self.xgraphs)
             elt.ylink(self.ygraphs)
 
