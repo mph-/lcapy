@@ -230,9 +230,7 @@ class Netlist(object):
 
         opts = Opts(cpt.opts_string)
         cpt.opts = opts
-
         return cpt
-
 
     def _elt_add(self, elt):
 

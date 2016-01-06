@@ -199,13 +199,13 @@ class Cpt(object):
         
         return node_str
 
-    def _draw_node(self, sch, n, draw_nodes=True):
+    def _draw_node(self, n, draw_nodes=True):
         
         s = ''
         if not draw_nodes:
             return s
 
-        node = sch.nodes[n]
+        node = self.sch.nodes[n]
         if not node.visible(draw_nodes):
             return s
 
@@ -216,14 +216,14 @@ class Cpt(object):
 
         return s
 
-    def _draw_nodes(self, sch, draw_nodes=True):
+    def _draw_nodes(self, draw_nodes=True):
 
         s = ''
         for n in self.dnodes:
-            s += self._draw_node(sch, n, draw_nodes)
+            s += self._draw_node(n, draw_nodes)
         return s
 
-    def draw(self, sch, **kwargs):
+    def draw(self, **kwargs):
         raise NotImplementedError('draw method not implemented for %s' % self)
 
 
@@ -240,12 +240,12 @@ class Transistor(Cpt):
         else:
             return self.ppos if self.mirror else self.npos
 
-    def draw(self, sch, **kwargs):
+    def draw(self, **kwargs):
 
         label_values = kwargs.get('label_values', True)
         draw_nodes = kwargs.get('draw_nodes', True)
 
-        p1, p2, p3 = [sch.nodes[n].pos for n in self.dnodes]
+        p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dnodes]
         centre = (p1 + p3) * 0.5
 
         label_str = '$%s$' % self.default_label if label_values else ''
@@ -255,7 +255,7 @@ class Transistor(Cpt):
                 args_str += '%s=%s, ' % (key, val)                
 
         s = r'  \draw (%s) node[%s, %s, scale=%.1f, rotate=%d] (T) {};''\n' % (
-            centre, self.tikz_cpt, args_str, sch.scale * 2, self.angle)
+            centre, self.tikz_cpt, args_str, self.sch.scale * 2, self.angle)
         s += r'  \draw (%s) node [] {%s};''\n'% (centre, label_str)
 
         # Add additional wires.
@@ -264,7 +264,7 @@ class Transistor(Cpt):
         else:
             s += r'  \draw (T.D) -- (%s) (T.G) -- (%s) (T.S) -- (%s);''\n' % self.dnodes
 
-        s += self._draw_nodes(sch, draw_nodes)
+        s += self._draw_nodes(draw_nodes)
         return s
 
 
@@ -289,7 +289,7 @@ class TwoPort(Cpt):
     def coords(self):
         return ((1, 1), (1, 0), (0, 1), (0, 0))
 
-    def draw(self, sch, **kwargs):
+    def draw(self, **kwargs):
 
         label_values = kwargs.get('label_values', True)
         draw_nodes = kwargs.get('draw_nodes', True)
@@ -297,7 +297,7 @@ class TwoPort(Cpt):
 
         # TODO, fix positions if component rotated.
 
-        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.dnodes]
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
         width = p2.x - p4.x
         extra = 0.25
         p1.y += extra
@@ -317,19 +317,19 @@ class TwoPort(Cpt):
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
             top, width, label_str)
 
-        s += self._draw_nodes(sch, draw_nodes)
+        s += self._draw_nodes(draw_nodes)
         return s
 
 
 class TF1(TwoPort):
     """Transformer"""
 
-    def draw(self, sch, **kwargs):
+    def draw(self, **kwargs):
 
         label_values = kwargs.get('label_values', True)
         link = kwargs.get('link', True)
 
-        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.dnodes]
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
         xoffset = 0.06
         yoffset = 0.40
@@ -362,17 +362,17 @@ class TF1(TwoPort):
 class TF(TF1):
     """Transformer"""
 
-    def draw(self, sch, **kwargs):
+    def draw(self, **kwargs):
 
         n1, n2, n3, n4 = self.dnodes
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
 
-        s += super(TF, self).draw(sch, link=True, **kwargs)
+        s += super(TF, self).draw(link=True, **kwargs)
 
         draw_nodes = kwargs.get('draw_nodes', True)
-        s += self._draw_nodes(sch, draw_nodes)
+        s += self._draw_nodes(draw_nodes)
         return s
 
 
@@ -401,7 +401,7 @@ class OnePort(Cpt):
     def coords(self):
         return ((0, 0), (1, 0))
 
-    def draw(self, sch, **kwargs):
+    def draw(self, **kwargs):
 
         label_values = kwargs.get('label_values', True)
         draw_nodes = kwargs.get('draw_nodes', True)
@@ -471,7 +471,7 @@ class OnePort(Cpt):
             elif key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        node_str = self._node_str(sch.nodes[n1], sch.nodes[n2],
+        node_str = self._node_str(self.sch.nodes[n1], self.sch.nodes[n2],
                                   draw_nodes)
 
         args_str += voltage_str + current_str
@@ -525,12 +525,12 @@ class Opamp(Cpt):
     def coords(self):
         return self.npos if self.mirror else self.ppos
 
-    def draw(self, sch, **kwargs):
+    def draw(self, **kwargs):
 
         draw_nodes = kwargs.get('draw_nodes', True)
         label_values = kwargs.get('label_values', True)
 
-        p1, p3, p4 = [sch.nodes[n].pos for n in self.dnodes]
+        p1, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
         centre = (p3 + p4) * 0.25 + p1 * 0.5
 
@@ -541,11 +541,11 @@ class Opamp(Cpt):
                 args_str += '%s=%s, ' % (key, val)                
 
         s = r'  \draw (%s) node[op amp, %s, scale=%.3f, rotate=%d] (opamp) {};' % (
-            centre, args_str, sch.scale * 2 * 1.01, self.angle)
+            centre, args_str, self.sch.scale * 2 * 1.01, self.angle)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
         
-        s += self._draw_nodes(sch, draw_nodes)
+        s += self._draw_nodes(draw_nodes)
         return s
 
 
@@ -555,12 +555,12 @@ class FDOpamp(Cpt):
     def coords(self):
         return ((2, 1), (2, 0), (0, 1), (0, 0))
 
-    def draw(self, sch, **kwargs):
+    def draw(self, **kwargs):
 
         draw_nodes = kwargs.get('draw_nodes', True)
         label_values = kwargs.get('label_values', True)
 
-        p1, p2, p3, p4 = [sch.nodes[n].pos for n in self.dnodes]
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
         centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.18, 0), self.R)
 
@@ -571,11 +571,11 @@ class FDOpamp(Cpt):
                 args_str += '%s=%s, ' % (key, val)                
 
         s = r'  \draw (%s) node[fd op amp, %s, scale=%.3f, rotate=%d] (opamp) {};' % (
-            centre, args_str, sch.scale * 2 * 1.015, self.angle)
+            centre, args_str, self.sch.scale * 2 * 1.015, self.angle)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
         
-        s += self._draw_nodes(sch, draw_nodes)
+        s += self._draw_nodes(draw_nodes)
         return s
 
 
@@ -595,7 +595,7 @@ class Wire(OnePort):
             return (self.nodes[0], )
         return self.nodes
 
-    def draw_implicit(self, sch, **kwargs):
+    def draw_implicit(self, **kwargs):
         """Draw implict wires, i.e., connections to ground, etc."""
 
         kind = ''
@@ -614,7 +614,7 @@ class Wire(OnePort):
         s = r'  \draw (%s) node[%s, rotate=%d] {};''\n' % (
             n1, kind, self.angle + 90)
 
-        lpos = sch.nodes[n1].pos + np.dot((0.25, 0), self.R)
+        lpos = self.sch.nodes[n1].pos + np.dot((0.25, 0), self.R)
 
         if 'l' in self.opts:
             label_str = '${%s}$' % latex_str(self.opts['l'])
@@ -622,12 +622,12 @@ class Wire(OnePort):
                 anchor, lpos, label_str)
         return s
 
-    def draw(self, sch, **kwargs):
+    def draw(self, **kwargs):
 
         if 'implicit' in self.opts or 'ground' in self.opts or 'sground' in self.opts:
-            return self.draw_implicit(sch, **kwargs)
+            return self.draw_implicit(**kwargs)
                                     
-        return super(Wire, self).draw(sch, **kwargs)
+        return super(Wire, self).draw(**kwargs)
 
 
 classes = {}

@@ -671,7 +671,7 @@ class Schematic(object):
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):
-            s += elt.draw(sch=self, label_values=label_values, 
+            s += elt.draw(label_values=label_values, 
                           draw_nodes=draw_nodes)
 
         wires = self._make_wires()
