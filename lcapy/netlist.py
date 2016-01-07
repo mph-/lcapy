@@ -149,6 +149,10 @@ class Netlist(object):
         if name in self.elements:
             return self.elements[name]
 
+        # Try first anonymous name.
+        if name + '#1' in self.elements:
+            return self.elements[name + '#1']
+
         raise AttributeError('Unknown element or node name %s' % name)
 
 
@@ -536,27 +540,9 @@ class Netlist(object):
 
         for key, elt in self.elements.iteritems():
             if key in sourcenames:
-                if elt._is_I:
-                    new_elt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
-                elif elt._is_V:
-                    new_elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
-                else:
-                    raise ValueError('Element %s is not a source' % key)
+                elt.kill(new)
             else:
-                new_elt = copy(elt)             
-                new_elt.cct = new
-
-                # Kill implicit voltage sources due to initial conditions.
-                if new_elt._is_L or new_elt._is_C:
-                    # TODO, fix this nonsense.
-                    cpt = copy(elt.cpt)
-                    cpt.V = Vs(0)
-                    cpt.args = []
-                    new_elt.cpt = cpt
-                    new_elt.args = new_elt.args[0:1]
-   
-            new._elt_add(new_elt)
-
+                elt.kill_initial(new)
         return new        
 
     def kill_except(self, *args):

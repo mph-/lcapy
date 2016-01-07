@@ -43,8 +43,12 @@ class Cpt(object):
     def stamp(self, cct, **kwargs):
         raise NotImplementedError('stamp method not implemented for %s' % self)
 
-    def kill(self):
-        return copy(self)
+    def kill_initial(self, newcct):
+        """Copy cpt"""
+        return newcct.add(self.string)
+
+    def kill(self, newcct):
+        raise ValueError('component not a source: %s' % self)        
 
 
 class NonLinear(Cpt):
@@ -94,11 +98,19 @@ class Resistor(RC):
 
 
 class Capacitor(RC):
-    pass
+    
+    def kill_initial(self, newcct):
+        # Kill implicit voltage sources due to initial conditions.
+        return newcct.add('%s %s %s %s; %s' % (
+            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts.format()))
 
 
 class Inductor(Cpt):
-    pass
+    
+    def kill_initial(self, newcct):
+        # Kill implicit voltage sources due to initial conditions.
+        return newcct.add('%s %s %s %s; %s' % (
+            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts.format()))
 
 
 class VCS(Cpt):
@@ -111,14 +123,18 @@ class CCS(Cpt):
 
 class CurrentSource(Cpt):
 
-    def kill(self):
-        return Open()
+    def kill(self, newcct):
+        newopts = self.opts.copy()
+        newopts.strip_voltage_labels()
+        return newcct.add('O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts.format()))
 
 
 class VoltageSource(Cpt):
 
-    def kill(self):
-        return Short()
+    def kill(self, newcct):
+        newopts = self.opts.copy()
+        newopts.strip_current_labels()
+        return newcct.add('W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts.format()))
 
 
 class MutualInductance(Cpt):
