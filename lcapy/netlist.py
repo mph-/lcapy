@@ -36,12 +36,12 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 from __future__ import division
 from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym
 from lcapy.core import s, j, omega, uppercase_name
-from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep
-from lcapy.oneport import Vacstep, Iacstep
-from lcapy.oneport import R, L, C, G, Y, Z
+#from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep
+#from lcapy.oneport import Vacstep, Iacstep
+#from lcapy.oneport import R, L, C, G, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
 from schematic import Schematic, Opts, SchematicOpts
-from mna import MNA, VCVS, VCCS, CCVS, CCCS, TF, K, TP, Dummy
+from mna import MNA
 import grammar
 from parser import Parser
 import mnacpts as cpts
@@ -101,13 +101,13 @@ class Node(object):
     def V(self):
         """Node voltage with respect to ground"""
 
-        return self.cct._V[self.name]
+        return self.cct.V[self.name]
 
     @property
     def v(self):
         """Node time-domain voltage with respect to ground"""
 
-        return self.cct._v[self.name]
+        return self.cct.v[self.name]
 
     def append(self, elt):
 
@@ -117,7 +117,7 @@ class Node(object):
         self.list.append(elt)
 
 
-class Netlist(object):
+class Netlist(MNA):
 
     def __init__(self, filename=None):
 
@@ -131,7 +131,6 @@ class Netlist(object):
         self.snodes = {}
 
         self.opts = SchematicOpts()
-        self._MNA = None
 
         if filename is not None:
             self.netfile_add(filename)
@@ -208,9 +207,7 @@ class Netlist(object):
 
     def _invalidate(self):
 
-        self._MNA = None
-
-        for attr in ('_sch', ):
+        for attr in ('_sch', '_A'):
             if hasattr(self, attr):
                 delattr(self, attr)
 
@@ -338,63 +335,29 @@ class Netlist(object):
         return self.parse(net)
 
     @property
-    def MNA(self):
-        """Return results from modified nodal analysis (MNA) of the circuit.
-
-        Note, the voltages and currents are lazily determined when
-        requested. """
-
-        if self._MNA is None:
-
-            # TODO: think this out.  When a circuit is converted
-            # to a s-domain model we get Z (and perhaps Y) components.
-            # We also loose the ability to determine the voltage
-            # across a capacitor or inductor since they get split
-            # into a Thevenin model and renamed.
-            if hasattr(self, '_s_model'):
-                raise RuntimeError('Cannot analyse s-domain model')
-
-            self._MNA = MNA(self.elements, self.nodes, self.snodes)
-        return self._MNA
-
-    @property
-    def _V(self):
-        """Return dictionary of s-domain node voltages indexed by node name
-        and voltage differences indexed by branch name"""
-
-        return self.MNA.V
-
-    @property
-    def _I(self):
-        """Return dictionary of s-domain branch currents
-        indexed by component name"""
-
-        return self.MNA.I
-
-    @property
-    def _v(self):
+    def v(self):
         """Return dictionary of t-domain node voltages indexed by node name
         and voltage differences indexed by branch name"""
 
         if not hasattr(self, '_vcache'):
-            self._vcache = Ldict(self._V)
+            self._vcache = Ldict(self.V)
 
         return self._vcache
 
     @property
-    def _i(self):
+    def i(self):
         """Return dictionary of t-domain branch currents indexed
         by component name"""
 
         if not hasattr(self, '_icache'):
-            self._icache = Ldict(self._I)
+            self._icache = Ldict(self.I)
 
         return self._icache
 
     def Voc(self, Np, Nm):
         """Return open-circuit s-domain voltage between nodes Np and Nm."""
 
-        return self._V[Np] - self._V[Nm]
+        return self.V[Np] - self.V[Nm]
 
     def voc(self, Np, Nm):
         """Return open-circuit t-domain voltage between nodes Np and Nm."""
@@ -521,11 +484,11 @@ class Netlist(object):
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
-            A21 = Ys(-self._I['I1_'] / self.Voc(N2p, N2m))
+            A21 = Ys(-self.I['I1_'] / self.Voc(N2p, N2m))
 
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure I2 with port 2 short-circuit
-            A22 = Hs(-self._I['I1_'] / self.Isc(N2p, N2m))
+            A22 = Hs(-self.I['I1_'] / self.Isc(N2p, N2m))
 
             self.remove('I1_')
             return AMatrix(A11, A12, A21, A22)
@@ -554,7 +517,7 @@ class Netlist(object):
         """
 
         for arg in args:
-            if arg not in self.sources:
+            if arg not in self.independent_sources:
                 raise ValueError('Element %s is not a known source' % arg)
         sources = []
         for key, source in self.independent_sources.iteritems():

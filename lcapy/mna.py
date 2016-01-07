@@ -9,82 +9,10 @@ from lcapy.core import cExpr, Vs, Is, s, sqrt
 from lcapy.twoport import Matrix, Vector
 import sympy as sym
 
-
-class CS(object):
-    """Controlled source"""
-
-    def __init__(self, *args):
-
-        self.args = args
-
-
-class CS1(CS):
-    """Controlled source with one arg."""
-
-    def __init__(self, A):
-
-        A = cExpr(A)
-        super(CS1, self).__init__(A)
-
-
-class CS2(CS):
-    """Controlled source with two args."""
-
-    def __init__(self, Vc, A):
-
-        A = cExpr(A)
-        super(CS2, self).__init__(Vc, A)
-
-
-class VCVS(CS1):
-    """Voltage controlled voltage source."""
-    pass
-
-
-class VCCS(CS1):
-    """Voltage controlled current source."""
-    pass
-
-
-class CCVS(CS2):
-    """Current controlled voltage source."""
-    pass
-
-
-class CCCS(CS2):
-    """Current controlled current source."""
-    pass
-
-
-class TF(CS1):
-    """Ideal transformer.  T is turns ratio (secondary / primary)."""
-    pass
-
-
-class K(object):
-    """Mutual inductance"""
-
-    def __init__(self, k):
-
-        k = cExpr(k)
-        self.k = k
-
-
-class TP(CS):
-    """Two-port Z-network"""
-
-    def __init__(self, kind, Z11, Z12, Z21, Z22):
-
-        super(TP, self).__init__(kind, Z11, Z12, Z21, Z22)
-
-
-class Dummy(object):
-    """Dummy component.  These can be drawn but not analysed."""
-
-    def __init__(self, *args):
-
-        self.args = args
-
+# Note, all the maths is performed using sympy expressions and the
+# values and converted to Expr when required.  This is more
+# efficient and, more importantly, overcomes some of the wrapping
+# problems which casues the is_real attribute to be dropped.
 
 class Mdict(dict):
 
@@ -112,21 +40,6 @@ class Mdict(dict):
 
 class MNA(object):
 
-    # Note, all the maths is performed using sympy expressions and the
-    # values and converted to Expr when required.  This is more
-    # efficient and, more importantly, overcomes some of the wrapping
-    # problems which casues the is_real attribute to be dropped.
-
-    def __init__(self, elements, nodes, snodes):
-
-        self.elements = elements
-        self.nodes = nodes
-        self.snodes = snodes
-
-        self._analyse()
-        # The network is not solved until a current or voltage
-        # is required.
-
     @property
     def lnodes(self):
         """Determine linked nodes (both implicitly and explicitly
@@ -139,7 +52,7 @@ class MNA(object):
 
         # Then augment with nodes connected by wires.
         for m, elt in enumerate(self.elements.values()):
-            if elt.cpt_type not in ('W', ):
+            if elt.type not in ('W', ):
                 continue
 
             n1, n2 = elt.nodes
@@ -220,154 +133,18 @@ class MNA(object):
         except ValueError:
             raise ValueError('Unknown component name %s for branch current' % cpt_name)
 
-    def _RC_stamp(self, elt):
-        """Add stamp for resistor or capacitor"""
-
-        # L's can also be added with this stamp but if have coupling
-        # it is easier to generate stamp that requires branch current
-        # through the L.
-        n1 = self._node_index(elt.nodes[0])
-        n2 = self._node_index(elt.nodes[1])
-
-        Y = elt.cpt.Y.expr
-
-        if n1 >= 0 and n2 >= 0:
-            self._G[n1, n2] -= Y
-            self._G[n2, n1] -= Y
-        if n1 >= 0:
-            self._G[n1, n1] += Y
-        if n2 >= 0:
-            self._G[n2, n2] += Y
-
-        if n1 >= 0:
-            self._Is[n1] += elt.cpt.I.expr
-
-    def _L_stamp(self, elt):
-        """Add stamp for inductor"""
-
-        # This formulation adds the inductor current to the unknowns
-
-        n1 = self._node_index(elt.nodes[0])
-        n2 = self._node_index(elt.nodes[1])
-        m = self._branch_index(elt.name)
-
-        if n1 >= 0:
-            self._B[n1, m] = 1
-            self._C[m, n1] = 1
-        if n2 >= 0:
-            self._B[n2, m] = -1
-            self._C[m, n2] = -1
-
-        self._D[m, m] += -elt.cpt.Z.expr
-
-        self._Es[m] += elt.cpt.V.expr
-
-    def _K_stamp(self, elt):
-        """Add stamp for mutual inductance"""
-
-        # This requires the inductor stamp to include the inductor current.
-
-        L1 = elt.nodes[0]
-        L2 = elt.nodes[1]
-
-        ZL1 = self.elements[L1].cpt.Z
-        ZL2 = self.elements[L2].cpt.Z
-
-        ZM = elt.cpt.k * s * sqrt(ZL1 * ZL2 / s**2).simplify()
-
-        m1 = self._branch_index(L1)
-        m2 = self._branch_index(L2)
-
-        self._D[m1, m2] += -ZM.expr
-        self._D[m2, m1] += -ZM.expr
-
-    def _V_stamp(self, elt):
-        """Add stamp for voltage source (independent and dependent)"""
-
-        n1 = self._node_index(elt.nodes[0])
-        n2 = self._node_index(elt.nodes[1])
-        m = self._branch_index(elt.name)
-
-        if n1 >= 0:
-            self._B[n1, m] += 1
-            self._C[m, n1] += 1
-        if n2 >= 0:
-            self._B[n2, m] -= 1
-            self._C[m, n2] -= 1
-
-        if isinstance(elt.cpt, TF):
-
-            n3 = self._node_index(elt.nodes[2])
-            n4 = self._node_index(elt.nodes[3])
-            T = elt.cpt.args[0].expr
-
-            if n3 >= 0:
-                self._B[n3, m] -= T
-                self._C[m, n3] -= T
-            if n4 >= 0:
-                self._B[n4, m] += T
-                self._C[m, n4] += T
-
-        elif isinstance(elt.cpt, VCVS):
-
-            n3 = self._node_index(elt.nodes[2])
-            n4 = self._node_index(elt.nodes[3])
-            A = elt.cpt.args[0].expr
-
-            if n3 >= 0:
-                self._C[m, n3] -= A
-            if n4 >= 0:
-                self._C[m, n4] += A
-
-        elif isinstance(elt.cpt, CCVS):
-
-            mc = self._branch_index(elt.cpt.args[0])
-            H = elt.cpt.args[1].expr
-            self._D[m, mc] -= H
-
-        if hasattr(elt.cpt, 'V'):
-            self._Es[m] += elt.cpt.V.expr
-
-    def _I_stamp(self, elt):
-        """Add stamp for current source (independent and dependent)"""
-
-        n1 = self._node_index(elt.nodes[0])
-        n2 = self._node_index(elt.nodes[1])
-
-        if isinstance(elt.cpt, VCCS):
-            n3 = self._node_index(elt.nodes[2])
-            n4 = self._node_index(elt.nodes[3])
-            G = elt.cpt.args[0].expr
-
-            if n1 >= 0 and n3 >= 0:
-                self._G[n1, n3] -= G
-            if n1 >= 0 and n4 >= 0:
-                self._G[n1, n4] += G
-            if n2 >= 0 and n3 >= 0:
-                self._G[n2, n3] += G
-            if n2 >= 0 and n4 >= 0:
-                self._G[n2, n4] -= G
-
-        elif isinstance(elt.cpt, CCCS):
-
-            m = self._branch_index(elt.args[0])
-            F = elt.cpt.args[1].expr
-            
-            if n1 >= 0:
-                self._B[n1, m] -= F
-            if n2 >= 0:
-                self._B[n2, m] += F
-
-        else:
-            I = elt.cpt.I.expr
-            if n1 >= 0:
-                self._Is[n1] += I
-            if n2 >= 0:
-                self._Is[n2] -= I
-
     def _analyse(self):
         """Analyse network."""
 
+
+        # TODO: think this out.  When a circuit is converted
+        # to a s-domain model we get Z (and perhaps Y) components.
+        # We also loose the ability to determine the voltage
+        # across a capacitor or inductor since they get split
+        # into a Thevenin model and renamed.
+        if hasattr(self, '_s_model'):
+            raise RuntimeError('Cannot analyse s-domain model')
+            
         if '0' not in self.node_map:
             print('Nothing connected to ground node 0')
             self.nodes['0'] = None
@@ -376,7 +153,7 @@ class MNA(object):
         self.unknown_branch_currents = []
 
         for key, elt in self.elements.iteritems():
-            if elt._is_V or elt._is_E or elt._is_H or elt._is_L:
+            if elt.type in ('E', 'H', 'L', 'V'):
                 self.unknown_branch_currents.append(key)
 
         # Generate stamps.
@@ -392,27 +169,19 @@ class MNA(object):
         self._Es = sym.zeros(num_branches, 1)
 
         for elt in self.elements.values():
-            if elt._is_V or elt._is_E or elt._is_H:
-                self._V_stamp(elt)
-            elif elt._is_I or elt._is_F or elt._is_G:
-                self._I_stamp(elt)
-            elif elt._is_RC:
-                self._RC_stamp(elt)
-            elif elt._is_L:
-                self._L_stamp(elt)
-            elif elt._is_K:
-                self._K_stamp(elt)
-            elif elt.cpt_type not in ('O', 'P', 'W'):
-                raise ValueError('Unhandled element %s' % elt.name)
+            elt.stamp(self)
 
-        # Augment the admittance matrix to form A matrix
+        # Augment the admittance matrix to form A matrix.
         self._A = self._G.row_join(self._B).col_join(self._C.row_join(self._D))
         # Augment the known current vector with known voltage vector
-        # to form Z vector
+        # to form Z vector.
         self._Z = self._Is.col_join(self._Es)
 
     def _solve(self):
         """Solve network."""
+
+        if not hasattr(self, '_A'):
+            self._analyse()
 
         # Solve for the nodal voltages
         try:
@@ -428,7 +197,7 @@ class MNA(object):
 
         branchdir = {}
         for elt in self.elements.values():
-            if elt._is_K:
+            if elt.type == 'K':
                 continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
             branchdir[elt.name] = (n1, n2)
@@ -453,7 +222,7 @@ class MNA(object):
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
         for key, elt in self.elements.iteritems():
-            if elt._is_RC:
+            if elt.type in ('R', 'C'):
                 n1, n2 = self.node_map[
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
                 V1, V2 = self._V[n1], self._V[n2]
@@ -507,7 +276,7 @@ class MNA(object):
 
         self._Vd = {}
         for elt in self.elements.values():
-            if elt._is_K:
+            if elt.type == 'K':
                 continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
             self._Vd[elt.name] = Vs(sym.simplify(self.V[n1] - self.V[n2]))

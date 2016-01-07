@@ -9,20 +9,22 @@ Copyright 2015, 2016 Michael Hayes, UCECE
 from __future__ import print_function
 from lcapy.core import cExpr, Vs, Is, s, sqrt
 from copy import copy
+import oneport
+import twoport
 
 class Cpt(object):
 
-    def __init__(self, sch, cpt_type, cpt_id, string, opts_string, nodes, *args):
+    def __init__(self, cct, cpt_type, cpt_id, string, opts_string, nodes, *args):
 
-        self.sch = sch
+        self.cct = cct
         self.type = cpt_type
         self.id = cpt_id
 
         if cpt_id is None:
-            if cpt_type not in sch.anon:
-                sch.anon[cpt_type] = 0
-            sch.anon[cpt_type] += 1
-            cpt_id = '#%d' % sch.anon[cpt_type]
+            if cpt_type not in cct.anon:
+                cct.anon[cpt_type] = 0
+            cct.anon[cpt_type] += 1
+            cpt_id = '#%d' % cct.anon[cpt_type]
 
         name = self.type + cpt_id
 
@@ -32,6 +34,28 @@ class Cpt(object):
         self.name = name
         self.args = args
         self.classname = self.__class__.__name__
+
+        if self.type in ('W', 'O', 'P'):
+            return
+
+        try:
+            newclass = getattr(oneport, self.classname)
+        except:
+            try:
+                newclass = getattr(twoport, self.classname)
+            except:
+                raise ValueError('Cannot find class %s for %s' % (classname, name))
+                
+        if args is ():
+            # Default value is the component name
+            value = self.type
+            if self.id is not None:
+                value += '_' + self.id
+
+            args = (value, )
+
+        self.cpt = newclass(*args)
+
 
     def __repr__(self):
 
@@ -49,6 +73,53 @@ class Cpt(object):
 
     def kill(self, newcct):
         raise ValueError('component not a source: %s' % self)        
+
+    @property
+    def I(self):
+        """Current through element"""
+
+        return self.cct.I[self.name]
+
+    @property
+    def i(self):
+        """Time-domain current through element"""
+
+        return self.cct.i[self.name]
+
+    @property
+    def V(self):
+        """Voltage drop across element"""
+
+        return self.cct.V[self.name]
+
+    @property
+    def v(self):
+        """Time-domain voltage drop across element"""
+
+        return self.cct.v[self.name]
+
+    @property
+    def Y(self):
+        """Admittance"""
+        
+        return self.cpt.Y
+
+    @property
+    def Z(self):
+        """Impedance"""
+        
+        return self.cpt.Z
+
+
+    @property
+    def node_indexes(self):
+
+        return (self.cct._node_index(n) for n in self.nodes)
+
+    @property
+    def branch_index(self):
+
+        return self.cct._branch_index(self.name)
 
 
 class NonLinear(Cpt):
@@ -76,8 +147,7 @@ class RC(Cpt):
         # L's can also be added with this stamp but if have coupling
         # it is easier to generate stamp that requires branch current
         # through the L.
-        n1 = cct._node_index(self.nodes[0])
-        n2 = cct._node_index(self.nodes[1])
+        n1, n2 = self.node_indexes
 
         Y = self.cpt.Y.expr
 
@@ -136,6 +206,20 @@ class VoltageSource(Cpt):
         newopts.strip_current_labels()
         return newcct.add('W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts.format()))
 
+    def stamp(self, cct, **kwargs):
+
+        n1, n2 = self.node_indexes
+        m = self.branch_index
+
+        if n1 >= 0:
+            cct._B[n1, m] += 1
+            cct._C[m, n1] += 1
+        if n2 >= 0:
+            cct._B[n2, m] -= 1
+            cct._C[m, n2] -= 1
+        
+        cct._Es[m] += self.cpt.V.expr
+
 
 class MutualInductance(Cpt):
     pass
@@ -150,7 +234,9 @@ class Transformer(Cpt):
 
 
 class Wire(Cpt):
-    pass
+
+    def stamp(self, cct, **kwargs):
+        pass
 
 
 class Admittance(Cpt):
