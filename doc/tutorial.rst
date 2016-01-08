@@ -1073,9 +1073,16 @@ or alternatively,
 
 V1 1 2 {20 * DiracDelta(t)}
 
-Unfortunately sympy Laplace transform does not consider the lower
-limit to approach 0 from -oo and so the DiracDelta gives half the
-value.
+Unfortunately the sympy Laplace transform does not consider the lower
+limit of the integral to approach 0 in the limit from -oo and so the
+DiracDelta gives half the value expected in circuit analysis.
+
+To input an arbitrary time varying voltage use:
+
+V1 1 2 {v(t)}
+
+Here the value will be converted to V(s) for calculations but
+displayed on a schematic as v(t).   
 
 Here's an example of a cosine current current of amplitude 20 A and
 frequency f

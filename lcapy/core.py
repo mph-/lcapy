@@ -161,6 +161,9 @@ def sympify(arg, real=False, positive=None, cache=True, evaluate=True):
 
         # Perhaps have dictionary of functions and their replacements?
         arg = arg.replace('u(t', 'Heaviside(t')
+        # It is tempting to replace delta(t) with 2 * DiracDelta(t) to
+        # work around sympy's Laplace transform giving 0.5 but will
+        # need to parse the expression to handle other cases.
         arg = arg.replace('delta(t', 'DiracDelta(t')
 
     return sym.sympify(arg, rational=True, locals=symbols, 
