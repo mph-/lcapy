@@ -591,15 +591,9 @@ class Netlist(MNA):
                 print('Cannot determine pre-initial condition for %s'
                       ', assuming 0' % elt.name)
 
-            # v and i should be evaluated to determine the value at 0 - eps.
-            if elt.type in ('v', 'i'):
-                print('Cannot determine pre-initial condition for %s'
-                      ', assuming 0' % elt.name)
-
-            if elt.type in ('C', 'Istep', 'Iacstep', 'I', 'i',
-                                'Iac', 'Iimpulse'):
+            if elt.type in ('C', 'Istep', 'Iacstep', 'I', 'Iac', 'Iimpulse'):
                 elt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
-            elif elt.type in ('L', 'Vstep', 'Vacstep', 'V', 'v',
+            elif elt.type in ('L', 'Vstep', 'Vacstep', 'V',
                                   'Vac', 'Vimpulse'):
                 elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
             new_elt = copy(elt)             
