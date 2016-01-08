@@ -16,7 +16,7 @@ diodes and transistors.
    :width: 9cm
 
 Contents:
-========
+=========
 
 .. toctree::
    :maxdepth: 2

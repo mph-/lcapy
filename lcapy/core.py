@@ -1003,7 +1003,7 @@ class sExpr(sfwExpr):
             if strict:
                 raise ValueError(
                     's-domain expression %s cannot depend on t' % self.expr)
-            self.expr = self.expr.laplace()
+            self.expr = tExpr(val).laplace().expr
 
     def differentiate(self):
         """Differentiate (multiply by s)"""
