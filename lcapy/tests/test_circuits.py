@@ -1,5 +1,5 @@
 from lcapy import Circuit, R, C, L, V, I, v
-from lcapy.core import Zs
+from lcapy.core import Zs, s
 import unittest
 import sympy as sym
 
@@ -155,3 +155,12 @@ class LcapyTester(unittest.TestCase):
         a.add('R2 3 0 1')
 
         self.assertEqual2(a.R2.V, V(10).V, "Incorrect voltage")
+
+
+    def test_V1(self):
+        """Lcapy: test V1"""
+
+        a = Circuit()
+        a.add('V1 1 0 10') 
+
+        self.assertEqual2(a.V1.V, 10 / s, "Incorrect voltage")

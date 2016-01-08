@@ -28,7 +28,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr
+from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr
 
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
@@ -829,7 +829,7 @@ class V(Thevenin):
     def __init__(self, Vval):
 
         self.args = (Vval, )
-        Vval = sExpr(Vval, strict=False)
+        Vval = tsExpr(Vval)
         super(V, self).__init__(Zs(0), Vs(Vval))
 
 
@@ -894,7 +894,7 @@ class I(Norton):
     def __init__(self, Ival):
 
         self.args = (Ival, )
-        Ival = sExpr(Ival, strict=False)
+        Ival = tsExpr(Ival)
         super(I, self).__init__(Ys(0), Is(Ival))
 
 

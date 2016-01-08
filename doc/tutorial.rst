@@ -1071,7 +1071,11 @@ V1 1 2 {0 * s + 10}
 
 or alternatively,
 
-V1 1 2 {10 * DiracDelta(t)}
+V1 1 2 {20 * DiracDelta(t)}
+
+Unfortunately sympy Laplace transform does not consider the lower
+limit to approach 0 from -oo and so the DiracDelta gives half the
+value.
 
 Here's an example of a cosine current current of amplitude 20 A and
 frequency f

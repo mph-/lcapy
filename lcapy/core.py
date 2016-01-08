@@ -127,7 +127,7 @@ fsym = symbol('f', real=True)
 omegasym = symbol('omega', real=True)
 
 
-def sympify(arg, real=False, positive=None, cache=True):
+def sympify(arg, real=False, positive=None, cache=True, evaluate=True):
     """Create a sympy expression."""
 
     if isinstance(arg, (sym.symbol.Symbol, sym.symbol.Expr)):
@@ -135,8 +135,8 @@ def sympify(arg, real=False, positive=None, cache=True):
 
     # Why doesn't sympy do this?
     if isinstance(arg, complex):
-        re = sym.sympify(str(arg.real), rational=True)
-        im = sym.sympify(str(arg.imag), rational=True)
+        re = sym.sympify(str(arg.real), rational=True, evaluate=evaluate)
+        im = sym.sympify(str(arg.imag), rational=True, evaluate=evaluate)
         if im == 1.0:
             arg = re + sym.I
         else:
@@ -145,7 +145,7 @@ def sympify(arg, real=False, positive=None, cache=True):
 
     if isinstance(arg, float):
         # Note, need to convert to string to achieve a rational representation.
-        return sym.sympify(str(arg), rational=True)
+        return sym.sympify(str(arg), rational=True, evaluate=evaluate)
         
     if isinstance(arg, str):
         # Sympy considers E1 to be the generalized exponential integral.
@@ -163,7 +163,8 @@ def sympify(arg, real=False, positive=None, cache=True):
         arg = arg.replace('u(t', 'Heaviside(t')
         arg = arg.replace('delta(t', 'DiracDelta(t')
 
-    return sym.sympify(arg, rational=True, locals=symbols)
+    return sym.sympify(arg, rational=True, locals=symbols, 
+                       evaluate=evaluate)
 
 
 class Exprdict(dict):
@@ -993,17 +994,15 @@ class sExpr(sfwExpr):
 
     var = ssym
 
-    def __init__(self, val, strict=True):
+    def __init__(self, val):
 
         super(sExpr, self).__init__(val)
         self._laplace_conjugate_class = tExpr
 
         if self.expr.find(tsym) != set():
 
-            if strict:
-                raise ValueError(
-                    's-domain expression %s cannot depend on t' % self.expr)
-            self.expr = tExpr(val).laplace().expr
+            raise ValueError(
+                's-domain expression %s cannot depend on t' % self.expr)
 
     def differentiate(self):
         """Differentiate (multiply by s)"""
@@ -1230,6 +1229,21 @@ class sExpr(sfwExpr):
         from lcapy.plot import plot_pole_zero
 
         plot_pole_zero(self, **kwargs)
+
+
+class tsExpr(sExpr):
+
+    """t or s-domain expression or symbol, interpreted in time domain
+    if not containing s"""
+
+    def __init__(self, val):
+
+        # If no s in expression evaluate as tExpr and convert to s-domain.
+        expr = sympify(val, evaluate=False)
+        if expr.find(ssym) == set():
+            val = tExpr(val).laplace().expr
+
+        super(tsExpr, self).__init__(val)
 
 
 class fExpr(sfwExpr):
