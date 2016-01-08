@@ -809,6 +809,20 @@ class Schematic(object):
         raise ValueError('Cannot create file of type %s' % ext)
 
     def draw(self, filename=None, opts={}, **kwargs):
+        """
+        filename specifies the name of the file to produce.  If None,
+        the schematic is displayed on the screen.
+
+        kwargs include:
+           label_ids: True to show component ids
+           label_values: True to display component values
+           draw_nodes: True to show nodes
+           style: 'american', 'british', or 'european'
+           scale: scale factor for component size
+           stretch: scale factor for node spacing
+           oversample: oversampling factor for png or pdf files
+           debug: True to display debug information
+        """
 
         for key, val in opts.iteritems():
             if key not in kwargs or kwargs[key] is None:
