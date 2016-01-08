@@ -48,7 +48,10 @@ class Rule(object):
 
         params = self.params
         if len(fields) > len(params):
-            self.syntax_error('Too many args', string)
+            extra = ''
+            if '(' in string:
+                extra = ' (perhaps enclose expressions with parentheses in {})'
+            self.syntax_error('Too many args' + extra, string)
 
         nodes = []
         args = []
