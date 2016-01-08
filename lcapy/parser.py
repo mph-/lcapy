@@ -181,6 +181,8 @@ class Parser(object):
 
         groups = match.groups()
         cpt_type, cpt_id = groups[0], groups[1]
+        if cpt_id is None:
+            cpt_id = ''
 
         # This is the most hackery aspect of this parser where we
         # choose the rule pattern based on a keyword.  If the
@@ -199,16 +201,5 @@ class Parser(object):
         fields = string.split(';')
         opts_string = fields[1].strip() if len(fields) > 1 else '' 
 
-        # Create instance of component object
-        try:
-            newclass = getattr(self.cpts, rule.classname)
-        except:
-            newclass = self.cpts.classes[rule.classname]
-
-        cpt = newclass(parent, cpt_type, cpt_id, string, opts_string, 
-                       tuple(nodes), *args)
-        # Add named attributes for the args?   Lname1, etc.
-        
-        return cpt
-
-
+        return self.cpts.make(rule.classname, parent, cpt_type, cpt_id,
+                              string, opts_string, tuple(nodes), *args)

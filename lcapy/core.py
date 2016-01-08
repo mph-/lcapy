@@ -993,14 +993,17 @@ class sExpr(sfwExpr):
 
     var = ssym
 
-    def __init__(self, val):
+    def __init__(self, val, strict=True):
 
         super(sExpr, self).__init__(val)
         self._laplace_conjugate_class = tExpr
 
         if self.expr.find(tsym) != set():
-            raise ValueError(
-                's-domain expression %s cannot depend on t' % self.expr)
+
+            if strict:
+                raise ValueError(
+                    's-domain expression %s cannot depend on t' % self.expr)
+            self.expr = self.expr.laplace()
 
     def differentiate(self):
         """Differentiate (multiply by s)"""

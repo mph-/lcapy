@@ -136,6 +136,8 @@ class MNA(object):
     def _analyse(self):
         """Analyse network."""
 
+        if hasattr(self, '_A'):
+            return
 
         # TODO: think this out.  When a circuit is converted
         # to a s-domain model we get Z (and perhaps Y) components.
@@ -180,8 +182,9 @@ class MNA(object):
     def _solve(self):
         """Solve network."""
 
-        if not hasattr(self, '_A'):
-            self._analyse()
+        if hasattr(self, '_V'):
+            return
+        self._analyse()
 
         # Solve for the nodal voltages
         try:

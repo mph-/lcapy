@@ -10,6 +10,10 @@ from __future__ import print_function
 from lcapy.latex import latex_str
 from lcapy.schemmisc import Pos
 import numpy as np
+import sys
+
+module = sys.modules[__name__]
+
 
 class Cpt(object):
 
@@ -19,7 +23,7 @@ class Cpt(object):
         self.type = cpt_type
         self.id = cpt_id
 
-        if cpt_id is None:
+        if cpt_id == '' and sch is not None:
             if cpt_type not in sch.anon:
                 sch.anon[cpt_type] = 0
             sch.anon[cpt_type] += 1
@@ -644,6 +648,21 @@ def defcpt(name, base, docstring, cpt=None):
     classes[name] = newclass
 
 
+def make(classname, parent, cpt_type, cpt_id,
+         string, opts_string, nodes, *args):
+
+    # Create instance of component object
+    try:
+        newclass = getattr(module, classname)
+    except:
+        newclass = classes[classname]
+
+    cpt = newclass(parent, cpt_type, cpt_id, string, opts_string, 
+                   nodes, *args)
+    # Add named attributes for the args?   Lname1, etc.
+        
+    return cpt
+
 # Dynamically create classes.
 
 defcpt('C', OnePort, 'Capacitor', 'C')
@@ -658,9 +677,9 @@ defcpt('Dzener', 'D', 'Zener diode', 'zD')
 defcpt('E', VCS, 'VCVS', 'american controlled voltage source')
 defcpt('Eopamp', Opamp, 'Opamp')
 defcpt('Efdopamp', FDOpamp, 'Fully differential opamp')
-defcpt('F', VCS, 'VCCS', 'american controlled current source')
-defcpt('G', CCS, 'CCVS', 'american controlled voltage source')
-defcpt('H', CCS, 'CCCS', 'american controlled current source')
+defcpt('F', VCS, 'CCCS', 'american controlled current source')
+defcpt('G', CCS, 'VCCS', 'american controlled current source')
+defcpt('H', CCS, 'CCVS', 'american controlled voltage source')
 
 defcpt('I', OnePort, 'Current source', 'I')
 defcpt('Isin', 'I', 'Sinusoidal current source', 'sI')

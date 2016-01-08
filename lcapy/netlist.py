@@ -207,7 +207,7 @@ class Netlist(MNA):
 
     def _invalidate(self):
 
-        for attr in ('_sch', '_A'):
+        for attr in ('_sch', '_A', '_V'):
             if hasattr(self, attr):
                 delattr(self, attr)
 
@@ -235,13 +235,15 @@ class Netlist(MNA):
 
     def _elt_add(self, elt):
 
-        # Check that this name won't conflict with an attr.
-        if hasattr(self, elt.name):
-            raise ValueError('Invalid component name %s' % elt.name)
-
         if elt.name in self.elements:
             print('Overriding component %s' % elt.name)
             # Need to search lists and update component.
+        else:
+            # Check that this name won't conflict with an attr.
+            # For example, cannot have name V or I.  Perhaps
+            # rename these attributes?
+            if hasattr(self, elt.name):
+                raise ValueError('Invalid component name %s' % elt.name)
 
         self.elements[elt.name] = elt
 
@@ -367,7 +369,7 @@ class Netlist(MNA):
     def Isc(self, Np, Nm):
         """Return short-circuit s-domain current between nodes Np and Nm."""
 
-        self.add('Vshort_ %d %d' % (Np, Nm), 0)
+        self.add('Vshort_ %d %d 0' % (Np, Nm))
 
         Isc = self.Vshort_.I
         self.remove('Vshort_')
@@ -403,7 +405,7 @@ class Netlist(MNA):
 
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
-        new.add('Vin_ %d %d s 1' % (Np, Nm))
+        new.add('Vin_ %d %d {s * 0 + 1}' % (Np, Nm))
         If = -new.Vin_.I
         new.remove('Vin_')
 
@@ -419,7 +421,7 @@ class Netlist(MNA):
 
         # Connect 1 A s-domain current source between nodes and
         # measure voltage.
-        new.add('Iin_ %d %d s 1' % (Np, Nm))
+        new.add('Iin_ %d %d {s * 0 + 1}' % (Np, Nm))
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 

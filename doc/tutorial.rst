@@ -999,10 +999,6 @@ The component type is specified by the first letter(s) of the
 
    Vname Np Nm Vexpr
 
-- Arbitrary time domain voltage source:
-
-   vname Np Nm vexpr
-
 - DC current source of current I:
 
    Iname Np Nm dc I
@@ -1014,10 +1010,6 @@ The component type is specified by the first letter(s) of the
 - Arbitrary s-domain current source:
 
    Iname Np Nm Iexpr
-
-- Arbitrary time domain current source:
-
-   iname Np Nm iexpr
 
 - Resistor:
 
@@ -1047,28 +1039,49 @@ Np denotes the positive node; Np denotes the negative node.  Note,
 positive current flows from `positive-node` to `negative-node`.  Node
 names can be numeric or symbolic.  The ground node is designated `0`.
 
-Here's an example of a ramp voltage source (note, the expression cannot have
-spaces in it):
 
-v1 1 0 t*Heaviside(t)
+Voltage and current sources
+---------------------------
 
-Here's an example of a Dirac Delta voltage source:
+The netlist for a voltage source has the form:
 
-v2 1 0 DiracDelta(t)
+Vname Np Nm value
 
-Here's an example of a cosine current current of amplitude 20 A and frequency f
+Here value can be an arbitrary expression; the expression must be
+enclosed in curly braces if it contains a delimiter such as a space,
+comma, left bracket, or right bracket.  For example, for a ramp
+voltage source
 
-i1 1 0 20*cos(2*pi*f*t)
+V1 1 0 {t * Heaviside(t)}
+
+An s-domain value can be similarly described, for example
+
+V1 1 0 {10 / s}
+
+But what about the following example?
+
+V1 1 2 10
+
+Here the value is not an expression of t or s and so is ambiguous.
+For Spice compatibility, Lcapy assumes a DC value of 10 (in the
+s-domain this is equivalent to 10 / s).  An s-domain value of 10 can
+be achieved using:
+
+V1 1 2 {0 * s + 10}
+
+or alternatively,
+
+V1 1 2 {10 * DiracDelta(t)}
+
+Here's an example of a cosine current current of amplitude 20 A and
+frequency f
+
+I1 1 0 {20 * cos(2 * pi * f * t)}
 
 Here's an example of a negative exponential current of amplitude 20 A
 and time constant 2 s
 
-i1 1 0 20*exp(-t/4)
-
-Here's another way of specifying a 20 V DC voltage source, this time
-using its Laplace transform:
-
-V1 1 0 20/s
+I1 1 0 {20 * exp(-t / 4)}
 
 
 

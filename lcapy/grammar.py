@@ -22,9 +22,9 @@ Dschottky: Dname Np Nm schottky; Schottky diode
 E: Ename Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
 Eopamp: Ename Np Nm opamp Ncp Ncm [Value]; Opamp
 Efdopamp: Ename Np Nm fdopamp Ncp Ncm [Value]; Fully differential opamp
-F: Fname Np Nm Vcontrol [Value]; Voltage controlled current source
-G: Gname Np Nm Ncp Ncm [Value]; Current controlled voltage source
-H: Hname Np Nm Vcontrol [Value]; Current controlled current source
+F: Fname Np Nm Vcontrol [Value]; Current controlled current source
+G: Gname Np Nm Ncp Ncm [Value]; Voltage controlled current source
+H: Hname Np Nm Vcontrol [Value]; Current controlled voltage source
 I: Iname Np Nm [Value]; Current source
 Idc: Iname Np Nm dc [Value]; DC current source
 Iac: Iname Np Nm ac [Value] [Phase]; AC current source
@@ -37,7 +37,7 @@ L: Lname Np Nm [Value]; Inductance
 M: Mname Nd Ng Ns [Value]; N channel MOSFET
 Mnmos: Mname Nd Ng Ns nmos [Value]; N channel MOSFET
 Mpmos: Mname Nd Ng Ns pmos [Value]; P channel MOSFET
-O: Pname Np Np [Value]; Open circuit
+O: Oname Np Np [Value]; Open circuit
 P: Pname Np Np [Value]; Port
 Q: Qname Nc Nb Ne [Value]; NPN transistor
 Qnpn: Qname Nc Nb Ne npn [Value]; NPN transistor

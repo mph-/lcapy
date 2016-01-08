@@ -9,8 +9,12 @@ Copyright 2015, 2016 Michael Hayes, UCECE
 from __future__ import print_function
 from lcapy.core import cExpr, Vs, Is, s, sqrt
 from copy import copy
-import oneport
-import twoport
+import lcapy
+import inspect
+import sys
+
+module = sys.modules[__name__]
+
 
 class Cpt(object):
 
@@ -20,7 +24,7 @@ class Cpt(object):
         self.type = cpt_type
         self.id = cpt_id
 
-        if cpt_id is None:
+        if cpt_id == '' and cct is not None:
             if cpt_type not in cct.anon:
                 cct.anon[cpt_type] = 0
             cct.anon[cpt_type] += 1
@@ -38,22 +42,23 @@ class Cpt(object):
         if self.type in ('W', 'O', 'P'):
             return
 
-        try:
-            newclass = getattr(oneport, self.classname)
-        except:
-            try:
-                newclass = getattr(twoport, self.classname)
-            except:
-                raise ValueError('Cannot find class %s for %s' % (classname, name))
-                
         if args is ():
             # Default value is the component name
             value = self.type
-            if self.id is not None:
+            if self.id != '':
                 value += '_' + self.id
 
             args = (value, )
+            self.args = args
 
+        try:
+            newclass = getattr(lcapy.oneport, self.classname)
+        except:
+            try:
+                newclass = getattr(lcapy.twoport, self.classname)
+            except:
+                return
+                
         self.cpt = newclass(*args)
 
 
@@ -134,10 +139,15 @@ class TimeVarying(Cpt):
         raise NotImplementedError('cannot analyse time-varying component %s' % self)
 
 
-class OpenCircuit(Cpt):
+class O(Cpt):
+    """Open circuit"""
 
     def stamp(self, cct, **kwargs):
         pass
+
+class P(O):
+    """Port"""
+    pass
 
 
 class RC(Cpt):
@@ -163,11 +173,11 @@ class RC(Cpt):
             cct._Is[n1] += self.cpt.I.expr
 
 
-class Resistor(RC):
+class R(RC):
     pass
 
 
-class Capacitor(RC):
+class C(RC):
     
     def kill_initial(self, newcct):
         # Kill implicit voltage sources due to initial conditions.
@@ -175,23 +185,104 @@ class Capacitor(RC):
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts.format()))
 
 
-class Inductor(Cpt):
+class L(Cpt):
     
     def kill_initial(self, newcct):
         # Kill implicit voltage sources due to initial conditions.
         return newcct.add('%s %s %s %s; %s' % (
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts.format()))
 
+    def stamp(self, cct, **kwargs):
 
-class VCS(Cpt):
-    pass
+        # This formulation adds the inductor current to the unknowns
+
+        n1, n2 = self.node_indexes
+        m = self.branch_index
+
+        if n1 >= 0:
+            cct._B[n1, m] = 1
+            cct._C[m, n1] = 1
+        if n2 >= 0:
+            cct._B[n2, m] = -1
+            cct._C[m, n2] = -1
+
+        cct._D[m, m] += -self.cpt.Z.expr
+        cct._Es[m] += self.cpt.V.expr
 
 
-class CCS(Cpt):
-    pass
+class E(Cpt):
+    """VCVS"""
+
+    def stamp(self, cct, **kwargs):
+        n1, n2, n3, n4 = self.node_indexes
+        m = self.branch_index
+
+        if n1 >= 0:
+            cct._B[n1, m] += 1
+            cct._C[m, n1] += 1
+        if n2 >= 0:
+            cct._B[n2, m] -= 1
+            cct._C[m, n2] -= 1
+        
+        A = cExpr(self.args[0]).expr
+        
+        if n3 >= 0:
+            cct._C[m, n3] -= A
+        if n4 >= 0:
+            cct._C[m, n4] += A
 
 
-class CurrentSource(Cpt):
+class F(Cpt):
+    """CCCS"""
+
+    def stamp(self, cct, **kwargs):
+        n1, n2 = self.node_indexes
+        m = cct._branch_index(self.args[0])
+        F = cExpr(self.args[1]).expr
+            
+        if n1 >= 0:
+            cct._B[n1, m] -= F
+        if n2 >= 0:
+            cct._B[n2, m] += F
+
+
+class G(Cpt):
+    """VCCS"""
+
+    def stamp(self, cct, **kwargs):
+        n1, n2, n3, n4 = self.node_indexes
+        G = cExpr(self.args[0]).expr
+
+        if n1 >= 0 and n3 >= 0:
+            cct._G[n1, n3] -= G
+        if n1 >= 0 and n4 >= 0:
+            cct._G[n1, n4] += G
+        if n2 >= 0 and n3 >= 0:
+            cct._G[n2, n3] += G
+        if n2 >= 0 and n4 >= 0:
+            cct._G[n2, n4] -= G
+
+
+class H(Cpt):
+    """CCVS"""
+
+    def stamp(self, cct, **kwargs):
+        n1, n2 = self.node_indexes
+        m = self.branch_index
+
+        if n1 >= 0:
+            cct._B[n1, m] += 1
+            cct._C[m, n1] += 1
+        if n2 >= 0:
+            cct._B[n2, m] -= 1
+            cct._C[m, n2] -= 1
+        
+        mc = cct._branch_index(self.args[0])
+        G = cExpr(self.args[1]).expr
+        cct._D[m, mc] -= G
+
+
+class I(Cpt):
 
     def kill(self, newcct):
         newopts = self.opts.copy()
@@ -199,7 +290,18 @@ class CurrentSource(Cpt):
         return newcct.add('O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts.format()))
 
 
-class VoltageSource(Cpt):
+    def stamp(self, cct, **kwargs):
+
+        n1, n2 = self.node_indexes
+
+        I = self.cpt.I.expr
+        if n1 >= 0:
+            cct._Is[n1] += I
+        if n2 >= 0:
+            cct._Is[n2] -= I
+
+
+class V(Cpt):
 
     def kill(self, newcct):
         newopts = self.opts.copy()
@@ -221,29 +323,76 @@ class VoltageSource(Cpt):
         cct._Es[m] += self.cpt.V.expr
 
 
-class MutualInductance(Cpt):
+class K(Cpt):
+    
+    def __init__(self, cct, cpt_type, cpt_id, string, opts_string, nodes, *args):
+
+        self.Lname1 = args[0]
+        self.Lname2 = args[1]
+        super (K, self).__init__(cct, cpt_type, cpt_id, string, opts_string, nodes, *args)
+
+
+    def stamp(self, cct, **kwargs):
+
+        L1 = self.nodes[0]
+        L2 = self.nodes[1]
+
+        ZL1 = cct.elements[L1].cpt.Z
+        ZL2 = cct.elements[L2].cpt.Z
+
+        ZM = self.cpt.k * s * sqrt(ZL1 * ZL2 / s**2).simplify()
+
+        m1 = cct._branch_index(L1)
+        m2 = cct._branch_index(L2)
+
+        cct._D[m1, m2] += -ZM.expr
+        cct._D[m2, m1] += -ZM.expr
+
+
+class TP(Cpt):
+    """Two port"""
     pass
 
 
-class TwoPort(Cpt):
-    pass
+class TF(Cpt):
+    """Transformer"""    
+
+    def stamp(self, cct, **kwargs):
+
+        n1, n2, n3, n4 = self.node_indexes
+        m = self.branch_index
+
+        if n1 >= 0:
+            cct._B[n1, m] += 1
+            cct._C[m, n1] += 1
+        if n2 >= 0:
+            cct._B[n2, m] -= 1
+            cct._C[m, n2] -= 1
+        
+        T = self.cpt.args[0].expr
+
+        if n3 >= 0:
+            cct._B[n3, m] -= T
+            cct._C[m, n3] -= T
+        if n4 >= 0:
+            cct._B[n4, m] += T
+            cct._C[m, n4] += T
 
 
-class Transformer(Cpt):
-    pass
-
-
-class Wire(Cpt):
+class W(Cpt):
+    """Wire"""
 
     def stamp(self, cct, **kwargs):
         pass
 
 
-class Admittance(Cpt):
+class Y(RC):
+    """Admittance"""
     pass
 
 
-class Impedance(Cpt):
+class Z(RC):
+    """Impedance"""
     pass
 
 
@@ -259,9 +408,20 @@ def defcpt(name, base, docstring):
     classes[name] = newclass
 
 
-# Dynamically create classes.
+def make(classname, parent, cpt_type, cpt_id,
+         string, opts_string, nodes, *args):
 
-defcpt('C', Capacitor, 'Capacitor')
+    # Create instance of component object
+    newclass = classes[classname]
+
+    cpt = newclass(parent, cpt_type, cpt_id, string, opts_string, 
+                   nodes, *args)
+    # Add named attributes for the args?   Lname1, etc.
+        
+    return cpt
+
+
+# Dynamically create classes.
 
 defcpt('D', NonLinear, 'Diode')
 defcpt('Dled', 'D', 'LED')
@@ -270,52 +430,39 @@ defcpt('Dschottky', 'D', 'Schottky diode')
 defcpt('Dtunnel', 'D', 'Tunnel diode')
 defcpt('Dzener', 'D', 'Zener diode')
 
-defcpt('E', VCS, 'VCVS')
-defcpt('Eopamp', 'E', 'Opamp')
-defcpt('Efdopamp', 'E', 'Fully differential opamp')
-defcpt('F', VCS, 'VCCS')
-defcpt('G', CCS, 'CCVS')
-defcpt('H', CCS, 'CCCS')
+defcpt('Eopamp', E, 'Opamp')
+defcpt('Efdopamp', E, 'Fully differential opamp')
 
-defcpt('I', CurrentSource, 'Current source')
-defcpt('Isin', 'I', 'Sinusoidal current source')
-defcpt('Idc', 'I', 'DC current source')
-defcpt('Iac', 'I', 'AC current source')
+defcpt('Is', I, 's-domain current source')
+defcpt('Isin', I, 'Sinusoidal current source')
+defcpt('Idc', I, 'DC current source')
+defcpt('Iac', I, 'AC current source')
 
 defcpt('J', NonLinear, 'N JFET transistor')
 defcpt('Jnjf', 'J', 'N JFET transistor')
 defcpt('Jpjf', 'J', 'P JFET transistor')
 
-defcpt('K', MutualInductance, 'Mutual inductance')
-defcpt('L', Inductor, 'Inductor')
-
 defcpt('M', NonLinear, 'N MOSJFET transistor')
 defcpt('Mnmos', 'M', 'N channel MOSJFET transistor')
 defcpt('Mpmos', 'M', 'P channel MOSJFET transistor')
 
-defcpt('O', OpenCircuit, 'Open circuit')
-defcpt('P', OpenCircuit, 'Port')
-
 defcpt('Q', NonLinear, 'NPN transistor')
 defcpt('Qpnp', 'Q', 'PNP transistor')
 defcpt('Qnpn', 'Q', 'NPN transistor')
-
-defcpt('R', Resistor, 'Resistor')
 
 defcpt('SW', TimeVarying, 'Switch')
 defcpt('SWno', 'SW', 'Normally open switch')
 defcpt('SWnc', 'SW', 'Normally closed switch')
 defcpt('SWpush', 'SW', 'Pushbutton switch')
 
-defcpt('TF', Transformer, 'Transformer')
-defcpt('TP', TwoPort, 'Two port')
+defcpt('Vs', V, 's-domain voltage source')
+defcpt('Vsin', V, 'Sinusoidal voltage source')
+defcpt('Vdc', V, 'DC voltage source')
+defcpt('Vstep', V, 'Step voltage source')
+defcpt('Vac', V, 'AC voltage source')
 
-defcpt('V', VoltageSource, 'Voltage source')
-defcpt('Vsin', 'V', 'Sinusoidal voltage source')
-defcpt('Vdc', 'V', 'DC voltage source')
-defcpt('Vstep', 'V', 'Step voltage source')
-defcpt('Vac', 'V', 'AC voltage source')
+# Append classes defined in this module but not imported.
+clsmembers = inspect.getmembers(module, lambda member: inspect.isclass(member) and member.__module__ == __name__)
+for name, cls in clsmembers:
+    classes[name] = cls
 
-defcpt('W', Wire, 'Wire')
-defcpt('Y', Admittance, 'Admittance')
-defcpt('Z', Impedance, 'Impedance')
