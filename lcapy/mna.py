@@ -148,8 +148,7 @@ class MNA(object):
             raise RuntimeError('Cannot analyse s-domain model')
             
         if '0' not in self.node_map:
-            print('Nothing connected to ground node 0')
-            self.nodes['0'] = None
+            raise RuntimeError('Nothing connected to ground node 0')
 
         # Determine which branch currents are needed.
         self.unknown_branch_currents = []
