@@ -12,7 +12,7 @@ comments = r'#%'
 
 # Optional params are in square brackets.
 rules = r"""
-C: Cname Np Nm [Value]; Capacitor
+C: Cname Np Nm [Value] [IC]; Capacitor
 D: Dname Np Nm; Diode
 Dled: Dname Np Nm led; Light emitting diode
 Dzener: Dname Np Nm zener; Zener diode
@@ -34,7 +34,7 @@ J: Jname Nd Ng Ns [Value]; N channel JFET
 Jnjf: Jname Nd Ng Ns njf [Value]; N channel JFET
 Jpjf: Jname Nd Ng Ns pjf [Value]; P channel JFET
 K: Kname Lname1 Lname2 [Value]; Mutual inductance
-L: Lname Np Nm [Value]; Inductance
+L: Lname Np Nm [Value] [IC]; Inductance
 M: Mname Nd Ng Ns [Value]; N channel MOSFET
 Mnmos: Mname Nd Ng Ns nmos [Value]; N channel MOSFET
 Mpmos: Mname Nd Ng Ns pmos [Value]; P channel MOSFET
@@ -101,6 +101,7 @@ fo: value; Sinewave frequency
 td: value; Time delay
 alpha: value; Damping factor
 Value: value; Value
+IC: value; Initial condition
 Lname1: name; Inductor1 name 
 Lname2: name; Inductor2 name 
 Vcontrol: name; Control voltage name 

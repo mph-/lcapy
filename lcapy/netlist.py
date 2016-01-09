@@ -291,14 +291,6 @@ class Netlist(MNA):
             raise ValueError('Unknown component: ' + name)
         self.elements.pop(name)
 
-    def _make_node(self):
-        """Create a dummy node"""
-
-        if not hasattr(self, '_node_counter'):
-            self._node_counter = 0
-        self._node_counter += 1
-        return '_%d' % self._node_counter
-
     def _make_open(self, node1, node2, opts):
         """Create a dummy open-circuit"""
 
@@ -603,76 +595,18 @@ class Netlist(MNA):
 
         return new_cct
 
-    def _model(self, var=None):
+    def s_model(self, var=s):
 
-        cct = Circuit()
-        cct.opts = copy(self.opts)
-        cct._s_model = True
+        new = Circuit()
+        new.opts = copy(self.opts)
 
         for key, elt in self.elements.iteritems():
-
-            cpt_type = elt.type
-
-            if cpt_type in ('C', 'L', 'R'):
-                new_elt = self._make_Z(elt.name, elt.nodes[0], elt.nodes[1],
-                                       elt.cpt.Z(var), elt.opts)
-            elif cpt_type in ('V', 'Vdc', 'Vac', 'Vimpulse',
-                              'Vstep', 'Vacstep'):
-                new_elt = self._make_V(
-                    elt.nodes[0], elt.nodes[1], elt.cpt.V(var), elt.opts)
-            elif cpt_type in ('I', 'Idc', 'Iac', 'Iimpulse',
-                              'Istep', 'Iacstep'):
-                new_elt = self._make_I(
-                    elt.nodes[0], elt.nodes[1], elt.cpt.I(var), elt.opts)
-            else:
-                new_elt = copy(elt)
-                new_elt.cct = cct
-
-            if cpt_type in ('C', 'L', 'R') and elt.cpt.V != 0:
-
-                dummy_node = self._make_node()
-
-                velt = self._make_V(
-                    dummy_node, elt.nodes[1], elt.cpt.V(var), elt.opts)
-                new_elt.nodes = (elt.nodes[0], dummy_node)
-
-                # Strip voltage labels. 
-                voltage_opts = new_elt.opts.strip_voltage_labels()
-
-                # Strip voltage and current labels from voltage source.
-                velt.opts.strip_all_labels()
-
-                cct._elt_add(velt)
-
-                if voltage_opts != {}:
-                    opts = elt.opts.copy()
-                    opts.strip_current_labels()
-                    # Need to convert voltage labels to s-domain.
-                    # v(t) -> V(s)
-                    # v_C -> V_C
-                    # v_L(t) -> V_L(s)
-                    for opt, val in voltage_opts.iteritems():
-                        opts[opt] = uppercase_name(val)
-
-                    open_elt = self._make_open(elt.nodes[0], elt.nodes[1], opts)
-                    cct._elt_add(open_elt)
-
-            # Make voltage and current labels uppercase.
-            for opt, val in new_elt.opts.strip_voltage_labels().iteritems():
-                new_elt.opts[opt] = uppercase_name(val)
-            for opt, val in new_elt.opts.strip_current_labels().iteritems():
-                new_elt.opts[opt] = uppercase_name(val)
-            cct._elt_add(new_elt)
-
-        return cct
+            net = elt.s_model(var)
+            new.add(net)
+        return new        
 
     def ac_model(self):
-        return self._model(j * omega)
-
-
-    def s_model(self):
-        return self._model(s)
-
+        return self.s_model(j * omega)
 
     def draw(self, filename=None, **kwargs):
 

@@ -82,6 +82,9 @@ class Opts(dict):
         for key, val in arg.iteritems():
             self[key] = val
 
+    def __str__(self):
+        return self.format()
+
     @property
     def size(self):
 

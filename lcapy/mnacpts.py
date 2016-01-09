@@ -7,7 +7,7 @@ Copyright 2015, 2016 Michael Hayes, UCECE
 """
 
 from __future__ import print_function
-from lcapy.core import cExpr, Vs, Is, s, sqrt
+from lcapy.core import cExpr, Vs, Is, s, sqrt, uppercase_name
 from copy import copy
 import lcapy
 import inspect
@@ -18,6 +18,14 @@ module = sys.modules[__name__]
 
 class Cpt(object):
 
+    def anon(self, cpt_type):
+
+        cct = self.cct
+        if cpt_type not in cct.anon:
+            cct.anon[cpt_type] = 0
+        cct.anon[cpt_type] += 1        
+        return str(cct.anon[cpt_type])
+
     def __init__(self, cct, cpt_type, cpt_id, string, opts_string, nodes, *args):
 
         self.cct = cct
@@ -25,10 +33,7 @@ class Cpt(object):
         self.id = cpt_id
 
         if cpt_id == '' and cct is not None:
-            if cpt_type not in cct.anon:
-                cct.anon[cpt_type] = 0
-            cct.anon[cpt_type] += 1
-            cpt_id = '#%d' % cct.anon[cpt_type]
+            cpt_id = '#' + self.anon(cpt_type)
 
         name = self.type + cpt_id
 
@@ -79,6 +84,10 @@ class Cpt(object):
     def kill(self):
         raise ValueError('component not a source: %s' % self)        
 
+    def s_model(self, var):
+        """Copy cpt"""
+        return self.string
+
     @property
     def I(self):
         """Current through element"""
@@ -126,6 +135,10 @@ class Cpt(object):
 
         return self.cct._branch_index(self.name)
 
+    def dummy_node(self):
+
+        return '_' + self.anon('node')
+
 
 class NonLinear(Cpt):
 
@@ -150,7 +163,55 @@ class P(O):
     pass
 
 
-class RC(Cpt):
+class RLC(Cpt):
+
+    def s_model(self, var):
+
+        if self.cpt.V == 0:        
+            return 'Z%s %s %s {%s};%s' % (self.name, 
+                                          self.nodes[0], self.nodes[1],
+                                          self.cpt.Z(var), 
+                                          self.opts)
+
+        dummy_node = self.dummy_node()
+
+        opts = self.opts.copy()
+
+        # Strip voltage labels and save for open-circuit cpt
+        # in parallel with Z and V.
+        voltage_opts = opts.strip_voltage_labels()
+
+        znet = 'Z%s %s %s {%s};%s' % (self.name, 
+                                      self.nodes[0], dummy_node,
+                                      self.cpt.Z(var), 
+                                      opts)
+
+        # Strip voltage and current labels from voltage source.
+        opts.strip_all_labels()
+
+        vnet = 'V%s %s %s s {%s}; %s' % (self.name, 
+                                         dummy_node, self.nodes[1],
+                                         self.cpt.V(var), opts)
+
+        if voltage_opts == {}:
+            return znet + '\n' + vnet
+
+        # Create open circuit in parallel to the Z and V
+        # that has the voltage labels.
+        opts = self.opts.copy()
+        opts.strip_current_labels()
+        # Need to convert voltage labels to s-domain.
+        # v(t) -> V(s)
+        # v_C -> V_C
+        # v_L(t) -> V_L(s)
+        for opt, val in voltage_opts.iteritems():
+            opts[opt] = uppercase_name(val)
+            
+        onet = 'O %s %s; %s' % (self.nodes[0], self.nodes[1], opts)
+        return znet + '\n' + vnet + '\n' + onet
+
+
+class RC(RLC):
 
     def stamp(self, cct, **kwargs):
 
@@ -182,15 +243,15 @@ class C(RC):
     def kill_initial(self):
         # Kill implicit voltage sources due to initial conditions.
         return '%s %s %s %s; %s' % (
-            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts.format())
+            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
 
-class L(Cpt):
+class L(RLC):
     
     def kill_initial(self):
         # Kill implicit voltage sources due to initial conditions.
         return '%s %s %s %s; %s' % (
-            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts.format())
+            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
     def stamp(self, cct, **kwargs):
 
@@ -287,8 +348,7 @@ class I(Cpt):
     def kill(self):
         newopts = self.opts.copy()
         newopts.strip_voltage_labels()
-        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts.format())
-
+        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
 
     def stamp(self, cct, **kwargs):
 
@@ -300,13 +360,18 @@ class I(Cpt):
         if n2 >= 0:
             cct._Is[n2] -= I
 
+    def s_model(self, var):
+
+        return '%s %s %s s {%s}; %s' % (self.name, 
+                                        self.nodes[0], self.nodes[1],
+                                        self.cpt.I(var), self.opts)
 
 class V(Cpt):
 
     def kill(self):
         newopts = self.opts.copy()
         newopts.strip_current_labels()
-        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts.format())
+        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
 
     def stamp(self, cct, **kwargs):
 
@@ -322,6 +387,12 @@ class V(Cpt):
         
         cct._Es[m] += self.cpt.V.expr
 
+
+    def s_model(self, var):
+
+        return '%s %s %s s {%s}; %s' % (self.name, 
+                                        self.nodes[0], self.nodes[1],
+                                        self.cpt.V(var), self.opts)
 
 class K(Cpt):
     

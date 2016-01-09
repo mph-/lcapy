@@ -17,6 +17,14 @@ module = sys.modules[__name__]
 
 class Cpt(object):
 
+    def anon(self, cpt_type):
+
+        sch = self.sch
+        if cpt_type not in sch.anon:
+            sch.anon[cpt_type] = 0
+        sch.anon[cpt_type] += 1        
+        return str(sch.anon[cpt_type])
+
     def __init__(self, sch, cpt_type, cpt_id, string, opts_string, nodes, *args):
 
         self.sch = sch
@@ -24,10 +32,7 @@ class Cpt(object):
         self.id = cpt_id
 
         if cpt_id == '' and sch is not None:
-            if cpt_type not in sch.anon:
-                sch.anon[cpt_type] = 0
-            sch.anon[cpt_type] += 1
-            cpt_id = '#%d' % sch.anon[cpt_type]
+            cpt_id = '#' + self.anon(cpt_type)
 
         name = self.type + cpt_id
 
