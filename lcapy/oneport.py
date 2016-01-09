@@ -32,7 +32,7 @@ from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr
 
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
-           'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac',
+           'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac', 'sV', 'sI',
            'Vacstep', 'Iac', 'Iacstep', 'Norton', 'Thevenin',
            'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
 
@@ -822,18 +822,31 @@ class Z(Thevenin):
         super(Z, self).__init__(Zval)
 
 
-class V(Thevenin):
+class sV(Thevenin):
 
     """Arbitrary s-domain voltage source"""
 
     def __init__(self, Vval):
 
         self.args = (Vval, )
+        Vval = sExpr(Vval)
+        super(sV, self).__init__(Zs(0), Vs(Vval))
+
+
+class V(sV):
+
+    """Voltage source. If the expression contains s treat as s-domain
+    voltage otherwise time domain.  A constant V is considered DC
+    with an s-domain voltage V / s."""
+
+    def __init__(self, Vval):
+
+        self.args = (Vval, )
         Vval = tsExpr(Vval)
-        super(V, self).__init__(Zs(0), Vs(Vval))
+        super(V, self).__init__(Vval)
 
 
-class Vstep(V):
+class Vstep(sV):
 
     """Step voltage source (s domain voltage of v / s)."""
 
@@ -852,7 +865,7 @@ class Vdc(Vstep):
     pass
 
 
-class Vacstep(V):
+class Vacstep(sV):
 
     """AC voltage source multiplied by unit step."""
 
@@ -876,7 +889,7 @@ class Vac(Vacstep):
     pass
 
 
-class v(V):
+class v(sV):
 
     """Arbitrary t-domain voltage source"""
 
@@ -887,18 +900,33 @@ class v(V):
         super(V, self).__init__(Zs(0), Vs(Vval))
 
 
-class I(Norton):
+class sI(Norton):
 
     """Arbitrary s-domain current source"""
 
     def __init__(self, Ival):
 
         self.args = (Ival, )
+        Ival = sExpr(Ival)
+        super(sI, self).__init__(Ys(0), Is(Ival))
+
+
+class I(sI):
+
+    """Current source. If the expression contains s treat as s-domain
+    current otherwise time domain.  A constant I is considered DC with
+    an s-domain current I / s.
+
+    """
+
+    def __init__(self, Ival):
+
+        self.args = (Ival, )
         Ival = tsExpr(Ival)
-        super(I, self).__init__(Ys(0), Is(Ival))
+        super(I, self).__init__(Ival)
 
 
-class Istep(I):
+class Istep(sI):
 
     """Step current source (s domain current of i / s)."""
 
@@ -917,7 +945,7 @@ class Idc(Istep):
     pass
 
 
-class Iacstep(I):
+class Iacstep(sI):
 
     """AC current source multiplied by unit step."""
 
@@ -939,7 +967,7 @@ class Iac(Iacstep):
     pass
 
 
-class i(I):
+class i(sI):
 
     """Arbitrary t-domain current source"""
 

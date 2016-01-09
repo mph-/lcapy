@@ -1069,6 +1069,10 @@ be achieved using:
 
 V1 1 2 {0 * s + 10}
 
+or
+
+V1 1 2 s 10
+
 or alternatively,
 
 V1 1 2 {20 * DiracDelta(t)}

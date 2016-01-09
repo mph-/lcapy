@@ -26,6 +26,7 @@ F: Fname Np Nm Vcontrol [Value]; Current controlled current source
 G: Gname Np Nm Ncp Ncm [Value]; Voltage controlled current source
 H: Hname Np Nm Vcontrol [Value]; Current controlled voltage source
 I: Iname Np Nm [Value]; Current source
+sI: Iname Np Nm s [Value]; s-domain current source
 Idc: Iname Np Nm dc [Value]; DC current source
 Iac: Iname Np Nm ac [Value] [Phase]; AC current source
 Isin: Iname Np Nm sin Io Ia fo [td] [alpha] [Phase]; Sinusoidal current source
@@ -49,6 +50,7 @@ SWpush: SWname Np Nm push; Pushbutton switch
 TF: TFname Np Nm Ncp Ncm [Value]; Transformer (works to DC!)
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 V: Vname Np Nm [Value]; Voltage source
+sV: Vname Np Nm s [Value]; s-domain voltage source
 Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vstep: Vname Np Nm step [Value]; Step voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
@@ -64,6 +66,7 @@ zener: keyword;
 photo: keyword;
 tunnel: keyword;
 schottky: keyword;
+s: keyword;
 ac: keyword;
 dc: keyword;
 step: keyword;
