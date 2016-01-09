@@ -215,7 +215,8 @@ class RLC(Cpt):
         for opt, val in voltage_opts.iteritems():
             opts[opt] = uppercase_name(val)
             
-        onet = 'O %s %s; %s' % (self.nodes[0], self.nodes[1], opts)
+        onet = 'O%s %s %s; %s' % (self.name, 
+                                  self.nodes[0], self.nodes[1], opts)
         return znet + '\n' + vnet + '\n' + onet
 
 
