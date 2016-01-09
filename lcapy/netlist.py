@@ -505,9 +505,10 @@ class Netlist(MNA):
 
         for key, elt in self.elements.iteritems():
             if key in sourcenames:
-                elt.kill(new)
+                net = elt.kill()
             else:
-                elt.kill_initial(new)
+                net = elt.kill_initial()
+            new.add(net)
         return new        
 
     def kill_except(self, *args):

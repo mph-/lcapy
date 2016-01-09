@@ -72,11 +72,11 @@ class Cpt(object):
     def stamp(self, cct, **kwargs):
         raise NotImplementedError('stamp method not implemented for %s' % self)
 
-    def kill_initial(self, newcct):
+    def kill_initial(self):
         """Copy cpt"""
-        return newcct.add(self.string)
+        return self.string
 
-    def kill(self, newcct):
+    def kill(self):
         raise ValueError('component not a source: %s' % self)        
 
     @property
@@ -179,18 +179,18 @@ class R(RC):
 
 class C(RC):
     
-    def kill_initial(self, newcct):
+    def kill_initial(self):
         # Kill implicit voltage sources due to initial conditions.
-        return newcct.add('%s %s %s %s; %s' % (
-            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts.format()))
+        return '%s %s %s %s; %s' % (
+            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts.format())
 
 
 class L(Cpt):
     
-    def kill_initial(self, newcct):
+    def kill_initial(self):
         # Kill implicit voltage sources due to initial conditions.
-        return newcct.add('%s %s %s %s; %s' % (
-            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts.format()))
+        return '%s %s %s %s; %s' % (
+            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts.format())
 
     def stamp(self, cct, **kwargs):
 
@@ -284,10 +284,10 @@ class H(Cpt):
 
 class I(Cpt):
 
-    def kill(self, newcct):
+    def kill(self):
         newopts = self.opts.copy()
         newopts.strip_voltage_labels()
-        return newcct.add('O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts.format()))
+        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts.format())
 
 
     def stamp(self, cct, **kwargs):
@@ -303,10 +303,10 @@ class I(Cpt):
 
 class V(Cpt):
 
-    def kill(self, newcct):
+    def kill(self):
         newopts = self.opts.copy()
         newopts.strip_current_labels()
-        return newcct.add('W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts.format()))
+        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts.format())
 
     def stamp(self, cct, **kwargs):
 
