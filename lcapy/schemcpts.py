@@ -36,7 +36,7 @@ class Cpt(object):
 
         name = self.type + cpt_id
 
-        self.string = string
+        self.net = string.split(';')[0]
         self.opts_string = opts_string
         # There are three sets of nodes:
         # 1. nodes are the names of the electrical nodes for a cpt.
@@ -47,6 +47,7 @@ class Cpt(object):
         self.name = name
         self.args = args
         self.classname = self.__class__.__name__
+        self.opts = {}
 
     def __repr__(self):
         return self.__str__()
@@ -194,7 +195,9 @@ class Cpt(object):
                 value = (yvals[m2] - yvals[m1]) * size
                 graphs.add(n1, n2, value)
 
-    def _node_str(self, node1, node2, draw_nodes=True):
+    def _node_str(self, node1, node2, **kwargs):
+
+        draw_nodes = kwargs.get('draw_nodes', True)
 
         node_str = ''
         if node1.visible(draw_nodes):
@@ -210,8 +213,10 @@ class Cpt(object):
         
         return node_str
 
-    def _draw_node(self, n, draw_nodes=True):
-        
+    def _draw_node(self, n, **kwargs):
+
+        draw_nodes = kwargs.get('draw_nodes', True)        
+
         s = ''
         if not draw_nodes:
             return s
@@ -227,11 +232,11 @@ class Cpt(object):
 
         return s
 
-    def _draw_nodes(self, draw_nodes=True):
+    def _draw_nodes(self, **kwargs):
 
         s = ''
         for n in self.dnodes:
-            s += self._draw_node(n, draw_nodes)
+            s += self._draw_node(n, **kwargs)
         return s
 
     def draw(self, **kwargs):
@@ -254,7 +259,6 @@ class Transistor(Cpt):
     def draw(self, **kwargs):
 
         label_values = kwargs.get('label_values', True)
-        draw_nodes = kwargs.get('draw_nodes', True)
 
         p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dnodes]
         centre = (p1 + p3) * 0.5
@@ -275,7 +279,7 @@ class Transistor(Cpt):
         else:
             s += r'  \draw (T.D) -- (%s) (T.G) -- (%s) (T.S) -- (%s);''\n' % self.dnodes
 
-        s += self._draw_nodes(draw_nodes)
+        s += self._draw_nodes(**kwargs)
         return s
 
 
@@ -303,8 +307,6 @@ class TwoPort(Cpt):
     def draw(self, **kwargs):
 
         label_values = kwargs.get('label_values', True)
-        draw_nodes = kwargs.get('draw_nodes', True)
-
 
         # TODO, fix positions if component rotated.
 
@@ -328,7 +330,7 @@ class TwoPort(Cpt):
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
             top, width, label_str)
 
-        s += self._draw_nodes(draw_nodes)
+        s += self._draw_nodes(**kwargs)
         return s
 
 
@@ -381,9 +383,7 @@ class TF(TF1):
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
 
         s += super(TF, self).draw(link=True, **kwargs)
-
-        draw_nodes = kwargs.get('draw_nodes', True)
-        s += self._draw_nodes(draw_nodes)
+        s += self._draw_nodes(**kwargs)
         return s
 
 
@@ -415,7 +415,6 @@ class OnePort(Cpt):
     def draw(self, **kwargs):
 
         label_values = kwargs.get('label_values', True)
-        draw_nodes = kwargs.get('draw_nodes', True)
         label_ids = kwargs.get('label_ids', True)
 
         n1, n2 = self.dnodes
@@ -483,7 +482,7 @@ class OnePort(Cpt):
                 args_str += '%s=%s, ' % (key, val)                
 
         node_str = self._node_str(self.sch.nodes[n1], self.sch.nodes[n2],
-                                  draw_nodes)
+                                  **kwargs)
 
         args_str += voltage_str + current_str
 
@@ -538,7 +537,6 @@ class Opamp(Cpt):
 
     def draw(self, **kwargs):
 
-        draw_nodes = kwargs.get('draw_nodes', True)
         label_values = kwargs.get('label_values', True)
 
         p1, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
@@ -556,7 +554,7 @@ class Opamp(Cpt):
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
         
-        s += self._draw_nodes(draw_nodes)
+        s += self._draw_nodes(**kwargs)
         return s
 
 
@@ -568,7 +566,6 @@ class FDOpamp(Cpt):
 
     def draw(self, **kwargs):
 
-        draw_nodes = kwargs.get('draw_nodes', True)
         label_values = kwargs.get('label_values', True)
 
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
@@ -586,7 +583,7 @@ class FDOpamp(Cpt):
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
         
-        s += self._draw_nodes(draw_nodes)
+        s += self._draw_nodes(**kwargs)
         return s
 
 

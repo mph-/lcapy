@@ -45,6 +45,7 @@ class Cpt(object):
         self.name = name
         self.args = args
         self.classname = self.__class__.__name__
+        self.opts = {}
 
         if self.type in ('W', 'O', 'P'):
             return
@@ -97,25 +98,25 @@ class Cpt(object):
 
     @property
     def I(self):
-        """Current through element"""
+        """Current through component"""
 
         return self.cct.I[self.name]
 
     @property
     def i(self):
-        """Time-domain current through element"""
+        """Time-domain current through component"""
 
         return self.cct.i[self.name]
 
     @property
     def V(self):
-        """Voltage drop across element"""
+        """Voltage drop across component"""
 
         return self.cct.V[self.name]
 
     @property
     def v(self):
-        """Time-domain voltage drop across element"""
+        """Time-domain voltage drop across component"""
 
         return self.cct.v[self.name]
 
