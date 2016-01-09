@@ -88,6 +88,10 @@ class Cpt(object):
         """Copy cpt"""
         return self.string
 
+    def pre_initial_model(self):
+        """Copy cpt"""
+        return self.string
+
     @property
     def I(self):
         """Current through element"""
@@ -245,6 +249,11 @@ class C(RC):
         return '%s %s %s %s; %s' % (
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
+    def pre_initial_model(self):
+
+        # Assume IC zero.  FIXME
+        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
+
 
 class L(RLC):
     
@@ -269,6 +278,11 @@ class L(RLC):
 
         cct._D[m, m] += -self.cpt.Z.expr
         cct._Es[m] += self.cpt.V.expr
+
+    def pre_initial_model(self):
+
+        # Assume IC zero.  FIXME
+        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
 
 
 class E(Cpt):
@@ -366,6 +380,11 @@ class I(Cpt):
                                         self.nodes[0], self.nodes[1],
                                         self.cpt.I(var), self.opts)
 
+    def pre_initial_model(self):
+
+        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
+
+
 class V(Cpt):
 
     def kill(self):
@@ -393,6 +412,11 @@ class V(Cpt):
         return '%s %s %s s {%s}; %s' % (self.name, 
                                         self.nodes[0], self.nodes[1],
                                         self.cpt.V(var), self.opts)
+
+    def pre_initial_model(self):
+
+        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
+
 
 class K(Cpt):
     

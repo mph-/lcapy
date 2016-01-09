@@ -291,43 +291,6 @@ class Netlist(MNA):
             raise ValueError('Unknown component: ' + name)
         self.elements.pop(name)
 
-    def _make_open(self, node1, node2, opts):
-        """Create a dummy open-circuit"""
-
-        opts.strip_current_labels()
-        opts.strip_labels()
-
-        net = 'O %s %s ; %s' % (node1, node2, opts.format())
-        return self.parse(net)
-
-    def _make_short(self, node1, node2, opts):
-        """Create a dummy short-circuit"""
-
-        opts.strip_voltage_labels()
-        opts.strip_labels()
-
-        net = 'W %s %s ; %s' % (node1, node2, opts.format())
-        return self.parse(net)
-
-    def _make_Z(self, name, node1, node2, value, opts):
-        """Create a dummy impedance"""
-
-        net = 'Z%s %s %s "%s"; %s' % (
-            name, node1, node2, value, opts.format())
-        return self.parse(net)
-
-    def _make_V(self, node1, node2, value, opts):
-        """Create a dummy s-domain voltage source"""
-
-        net = 'V %s %s "%s"; %s' % (node1, node2, value, opts.format())
-        return self.parse(net)
-
-    def _make_I(self, node1, node2, value, opts):
-        """Create a dummy s-domain current source"""
-
-        net = 'I %s %s "%s"; %s' % (node1, node2, value, opts.format())
-        return self.parse(net)
-
     @property
     def v(self):
         """Return dictionary of t-domain node voltages indexed by node name
@@ -574,26 +537,13 @@ class Netlist(MNA):
         """Generate circuit model for determining the pre-initial
         conditions."""
 
-        new_cct = self.__class__()
+        new = Circuit()
+        new.opts = copy(self.opts)
 
         for key, elt in self.elements.iteritems():
-
-            # Assume initial C voltage and L current is zero.
-
-            if elt.type in ('V', 'I', 'Vac', 'Iac'):
-                print('Cannot determine pre-initial condition for %s'
-                      ', assuming 0' % elt.name)
-
-            if elt.type in ('C', 'Istep', 'Iacstep', 'I', 'Iac', 'Iimpulse'):
-                elt = self._make_open(elt.nodes[0], elt.nodes[1], elt.opts)
-            elif elt.type in ('L', 'Vstep', 'Vacstep', 'V',
-                                  'Vac', 'Vimpulse'):
-                elt = self._make_short(elt.nodes[0], elt.nodes[1], elt.opts)
-            new_elt = copy(elt)             
-            new_elt.cct = new_cct
-            new_cct._elt_add(new_elt)
-
-        return new_cct
+            net = elt.pre_initial_model(var)
+            new.add(net)
+        return new        
 
     def s_model(self, var=s):
 
