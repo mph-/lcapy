@@ -82,18 +82,23 @@ class Cpt(object):
         raise NotImplementedError('stamp method not implemented for %s' % self)
 
     def kill_initial(self):
-        """Copy cpt"""
+        """Kill implicit voltage sources due to initial conditions"""
+
         return str(self)
 
     def kill(self):
+        """Kill component"""
+
         raise ValueError('component not a source: %s' % self)        
 
     def s_model(self, var):
-        """Copy cpt"""
+        """Return s-domain model of component"""
+
         return str(self)
 
     def pre_initial_model(self):
-        """Copy cpt"""
+        """Return pre-initial model of component"""
+
         return str(self)
 
     @property
@@ -165,6 +170,7 @@ class O(Cpt):
 
     def stamp(self, cct, **kwargs):
         pass
+
 
 class P(O):
     """Port"""
@@ -250,7 +256,7 @@ class R(RC):
 class C(RC):
     
     def kill_initial(self):
-        # Kill implicit voltage sources due to initial conditions.
+        """Kill implicit voltage sources due to initial conditions"""
         return '%s %s %s %s; %s' % (
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
@@ -266,7 +272,7 @@ class C(RC):
 class L(RLC):
     
     def kill_initial(self):
-        # Kill implicit voltage sources due to initial conditions.
+        """Kill implicit voltage sources due to initial conditions"""
         return '%s %s %s %s; %s' % (
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
