@@ -541,7 +541,7 @@ class Netlist(MNA):
         new.opts = copy(self.opts)
 
         for key, elt in self.elements.iteritems():
-            net = elt.pre_initial_model(var)
+            net = elt.pre_initial_model()
             new.add(net)
         return new        
 

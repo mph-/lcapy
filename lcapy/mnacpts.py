@@ -251,8 +251,11 @@ class C(RC):
 
     def pre_initial_model(self):
 
-        # Assume IC zero.  FIXME
-        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
+        if self.cpt.v0 == 0.0:
+            return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
+        return 'V%s %s %s %s; %s' % (self.name,
+                                     self.nodes[0], self.nodes[1], 
+                                     self.cpt.v0, self.opts)       
 
 
 class L(RLC):
@@ -281,9 +284,12 @@ class L(RLC):
 
     def pre_initial_model(self):
 
-        # Assume IC zero.  FIXME
-        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
-
+        if self.cpt.i0 == 0.0:
+            return 'W %s %s; %s' % (self.nodes[0], self.nodes[1],
+                                    self.opts)
+        return 'I%s %s %s %s; %s' % (self.name,
+                                     self.nodes[0], self.nodes[1], 
+                                     self.cpt.i0, self.opts)       
 
 class E(Cpt):
     """VCVS"""
@@ -382,6 +388,7 @@ class I(Cpt):
 
     def pre_initial_model(self):
 
+        # Assume IC zero.  FIXME
         return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
 
 
@@ -415,6 +422,7 @@ class V(Cpt):
 
     def pre_initial_model(self):
 
+        # Assume IC zero.  FIXME
         return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
 
 
