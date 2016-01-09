@@ -135,6 +135,10 @@ class Netlist(MNA):
         if filename is not None:
             self.netfile_add(filename)
 
+    def __repr__(self):
+        
+        return self.netlist()
+
     def __getitem__(self, name):
         """Return element or node by name"""
 
@@ -180,15 +184,8 @@ class Netlist(MNA):
 
         lines = ''
         for key, elt in self.elements.iteritems():
-            new_elt = copy(elt)
-
-            line = new_elt.__str__()
-            optstr = new_elt.opts.format()
-            if optstr != '':
-                line += ' ; ' + optstr
-
+            line = str(elt)
             lines += line + '\n'
-
         return lines
 
     def _node_add(self, node, elt):

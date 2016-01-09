@@ -37,7 +37,9 @@ class Cpt(object):
 
         name = self.type + cpt_id
 
-        self.string = string
+        self.net = string.split(';')[0]
+        # This is the initial opts_string from which the opts attribute
+        # is derived.
         self.opts_string = opts_string
         self.nodes = nodes
         self.name = name
@@ -66,31 +68,29 @@ class Cpt(object):
                 
         self.cpt = newclass(*args)
 
+    def __str__(self):
 
-    def __repr__(self):
-
-        if hasattr(self, 'string'):
-            return self.string
-        
-        return type(self)
+        if self.opts == {}:
+            return self.net
+        return self.net + '; ' + str(self.opts)
 
     def stamp(self, cct, **kwargs):
         raise NotImplementedError('stamp method not implemented for %s' % self)
 
     def kill_initial(self):
         """Copy cpt"""
-        return self.string
+        return str(self)
 
     def kill(self):
         raise ValueError('component not a source: %s' % self)        
 
     def s_model(self, var):
         """Copy cpt"""
-        return self.string
+        return str(self)
 
     def pre_initial_model(self):
         """Copy cpt"""
-        return self.string
+        return str(self)
 
     @property
     def I(self):
