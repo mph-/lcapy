@@ -1404,10 +1404,13 @@ class cExpr(Expr):
 
     def __init__(self, val, positive=True):
 
-        # FIXME for expressions of cExpr
-        if False and not isinstance(val, (cExpr, int, float, str)):
+        expr = sympify(val, evaluate=False)
+        if expr.find(ssym) != set():
             raise ValueError(
-                '%s of type %s not int, float, or str' % (val, type(val)))
+                'constant expression %s cannot depend on s' % val)
+        if expr.find(tsym) != set():
+            raise ValueError(
+                'constant expression %s cannot depend on t' % val)
 
         super(cExpr, self).__init__(val, real=True, positive=positive)
 

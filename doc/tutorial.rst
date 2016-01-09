@@ -1111,11 +1111,13 @@ Other circuit methods
 
    cct.voc(Np, Nm)      Open-circuit t-domain voltage between nodes Np and Nm.
    
-   cct.Y(Np, Nm)        Admittance between nodes Np and Nm.
+   cct.admittance(Np, Nm)        Admittance between nodes Np and Nm.
   
-   cct.Z(Np, Nm)        Impedance between nodes Np and Nm.
+   cct.impedance(Np, Nm)         Impedance between nodes Np and Nm.
 
    cct.kill()           Remove independent sources.
+
+   cct.kill_except(sources)      Remove independent sources except ones specified.
 
    cct.transfer(N1p, N1m, N2p, N2m) Voltage transfer function V2/V1, where V1 = V[N1p] - V[N1m], V2 = V[N2p] - V[N2m].
 
