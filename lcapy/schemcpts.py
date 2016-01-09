@@ -49,11 +49,13 @@ class Cpt(object):
         self.classname = self.__class__.__name__
 
     def __repr__(self):
+        return self.__str__()
 
-        if hasattr(self, 'string'):
-            return self.string
-        
-        return type(self)
+    def __str__(self):
+
+        if self.opts == {}:
+            return self.net
+        return self.net + '; ' + str(self.opts)
 
     @property
     def size(self):
