@@ -68,6 +68,9 @@ class Cpt(object):
                 
         self.cpt = newclass(*args)
 
+    def __repr__(self):
+        return self.__str__()
+
     def __str__(self):
 
         if self.opts == {}:
