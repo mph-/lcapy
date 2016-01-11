@@ -1039,7 +1039,7 @@ class sExpr(sfwExpr):
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
 
-    def _inverse_laplace(self):
+    def _inverse_laplace(self, causal=False):
 
         var = self.var
         N, D, delay = self._as_ratfun_delay()
@@ -1102,13 +1102,23 @@ class sExpr(sfwExpr):
                     sym.diff(expr2, var, m), var, p) / sym.factorial(m)
                 result2 += r * sym.exp(p * td) * td**(n - 1)
 
-        return result1 + result2 * sym.Heaviside(td)
+        if causal:
+            return result1 + result2 * sym.Heaviside(td)
+        else:
+            return sym.Piecewise((result1 + result2, 't>=0'))
 
-    def inverse_laplace(self):
-        """Attempt inverse Laplace transform"""
+
+    def inverse_laplace(self, causal=False):
+        """Attempt inverse Laplace transform.
+
+        Set causal to True if the response is zero for t < 0.
+        This will multiply the result by Heaviside(t)
+        otherwise the result is only known for t >= 0.
+
+        """
 
         try:
-            result = self._inverse_laplace()
+            result = self._inverse_laplace(causal)
         except:
 
             print('Determining inverse Laplace transform with sympy...')
