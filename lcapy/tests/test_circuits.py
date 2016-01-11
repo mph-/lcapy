@@ -78,6 +78,14 @@ class LcapyTester(unittest.TestCase):
 
         # Note, V1 acts as a short-circuit for the impedance/admittance
         self.assertEqual2(
+            a.thevenin(1, 2).V, a.Voc(1, 2), "incorrect thevenin voltage")
+        self.assertEqual2(
+            a.thevenin(1, 2).Z, a.Z(1, 2), "incorrect thevenin impedance")
+        self.assertEqual2(
+            a.norton(1, 2).I, a.Isc(1, 2), "incorrect norton current")
+        self.assertEqual2(
+            a.norton(1, 2).Y, a.Y(1, 2), "incorrect norton admittance")
+        self.assertEqual2(
             a.Z(1, 2), (R('R1') | L('L1')).Z, "Z incorrect across R1")
         self.assertEqual2(
             a.Z(2, 0), (R('R1') | L('L1')).Z, "Z incorrect across L1")

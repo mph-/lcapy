@@ -4,11 +4,6 @@ Write more unit tests.
 
 Switch to setuptools.
 
-Add other controlled sources: VCCS, CCVS. CCCS.
-
-Use formal grammar for netlists and use proper parser, say plyplus.
-The disadvantage is poorer error messages.
-
 Use single representation for netlists/AST
 
 Generate schematic from abstract syntax tree (assume horizontal layout)
@@ -34,11 +29,6 @@ k -> C, L
 f -> I, V
 u -> V, I
 
-Draw fully differential opamps
-
-VCVS 2 0 3 1 A   -> label A (V_3 - V_1)
-VCVS 2 0 3 0 A   -> label A V_3
-
 Expand two-ports, xtals, opamps, etc.   cct = cct.expand()
 Perhaps have arg to expand to select components and/or types of
 component to expand?
@@ -59,9 +49,14 @@ added to the directories for the current and voltage.
 Generalise two-port representation to avoid transformations from a
 singular matrix.
 
-Determine pre-initial conditions.  Likely to be limited to a
-restricted arrange of independent source signals.  For example,
-cos(2pi f t) is indeterminate.
+Determine pre-initial conditions for voltage and current sources.
+Will need to add v0 (and i0) attributes.  For DC this is the same as
+the value.  For s-domain expression it is zero.  For time domain
+expression need to consider limit, sym.limit(texpr, t, 0, dir='-')
+
+
+Add Vsin and Isin.
+
 
 Add consistent mapping of unit step, dirac delta, etc.
 
@@ -77,5 +72,11 @@ appropriate subclasses?
 Automatically separate parallel components when drawing (except open
 circuits).  The tricky part is adding enough space for the labels,
 
-Add || operator to sympy
+Add || operator to sympy!
+
+Push for Sympy to consider lower limit of Laplace transform integral
+to sneak past 0 so that DiracDelta(t) -> 1 instead of 0.5
+
+
+sym.limit(sym.DiracDelta(t), t, 0, dir='-') -> 0
 

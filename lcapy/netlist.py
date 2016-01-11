@@ -36,9 +36,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 from __future__ import division
 from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym
 from lcapy.core import s, j, omega, uppercase_name
-#from lcapy.oneport import V, I, v, i, Vdc, Idc, Vac, Iac, Vstep, Istep
-#from lcapy.oneport import Vacstep, Iacstep
-#from lcapy.oneport import R, L, C, G, Y, Z
+from lcapy.oneport import V, I, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
 from schematic import Schematic, Opts, SchematicOpts
 from mna import MNA
@@ -204,7 +202,7 @@ class Netlist(MNA):
 
     def _invalidate(self):
 
-        for attr in ('_sch', '_A', '_V'):
+        for attr in ('_sch', '_A', '_V', '_I', '_Vd', '_node_list'):
             if hasattr(self, attr):
                 delattr(self, attr)
 
@@ -565,6 +563,72 @@ class Netlist(MNA):
 
 
 class Circuit(Netlist):
+
+    """Here's an example of using the Circuit class:
+
+    cct = Circuit()
+    cct.add('V1 1 0 V; down')
+    cct.add('R1 1 2 R; right')
+    cct.add('C1 2 0_2 C; down')
+    cct.add('W 0 0_2; right')
+
+    The directions after the semicolon are hints for drawing the
+    schematic and are ignored for the circuit analysis.  The last net
+    is a wire to make the schematic look nice; it is not needed for
+    circuit analysis.  Indeed the capacitor could be connected
+    directly to nodes 2 and 0.
+
+    The nodes are usually numbers but can be any alphanumeric name
+    including underscores.  By default, nodes with underscores are not
+    drawn.
+
+    The circuit components are also usually numbered but again they
+    can be any alphanumeric name.  They can also have anonymous names,
+    as for the wire in the example.  Internally they are enumerated
+    sequentially for each component type: W#1, W#2, etc.
+
+    The circuit can be displayed using:
+    cct.draw()
+
+    The schematic can be saved to a file using:
+    cct.draw('schematic.pdf')
+
+    The s-domain voltage across a component can be found using:
+    cct.V1.V
+
+    This is found using modified nodal analysis.  Once this is
+    performed, the results are cached until the network is modified.
+
+    The s-domain voltage through a component can be found using:
+    cct.R1.I
+
+    The s-domain nodal voltages with respect to the ground node (0)
+    can be found using: 
+    cct[2].V
+
+    The time domain voltages and currents are displayed using
+    lowercase attributes v and i.  For example,
+    cct.C1.v
+
+    Note that the answer assumes that all the dependent sources are
+    zero for t < 0 and that all the inductors and capacitors have no
+    initial currents and voltages.  Thus the Heaviside(t) factor
+    should be ignored and replaced with the condition t >= 0.
+
+    The impedance between nodes 2 and 0 can be found using:
+    Z = cct.impedance(2, 0)
+
+    The open-circuit voltage between nodes 2 and 0 can be found using:
+    Z = cct.Voc(2, 0)
+
+    The Thevenin equivalent circuit between nodes 2 and 0 can be found
+    using:
+    thevenin = cct.Thevenin(2, 0)
+
+    The s-domain model can be drawn using:
+    cct.s_model().draw()
+
+    """
 
     def __init__(self, filename=None):
 
