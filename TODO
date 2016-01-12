@@ -54,9 +54,25 @@ Will need to add v0 (and i0) attributes.  For DC this is the same as
 the value.  For s-domain expression it is zero.  For time domain
 expression need to consider limit, sym.limit(texpr, t, 0, dir='-')
 
+Options:
+1.  Ignore independent sources for t < 0 and rely on user
+to calculate and specify initial conditions.
+2.  Determine initial conditions from independent sources.
+3.  Assume all independent sources = 0 for t < 0 and thus
+    all the initial conditions are 0.
+
+In each case the result is only valid for t >= 0 unless independent
+sources = 0 for t < 0 in which case the initial conditions should be
+zero and the response is 0 for t < 0.
+
+
+sV know v(t) = 0 for t < 0
+Vdc know v(t) = V for all t; no discontinuities
+Vac know v(t) for all t; no discontinuities
+Vsin know v(t) for all t; no discontinuities
+V can evaluate v(t) for all t; hard to determine discontinuities
 
 Add Vsin and Isin.
-
 
 Add consistent mapping of unit step, dirac delta, etc.
 
@@ -79,4 +95,7 @@ to sneak past 0 so that DiracDelta(t) -> 1 instead of 0.5
 
 
 sym.limit(sym.DiracDelta(t), t, 0, dir='-') -> 0
+
+Remove { when printing Piecewise with single condition?  Line 911
+sympy/printing/pretty/pretty.py
 

@@ -224,7 +224,6 @@ class Graph(dict):
 
         self.name = name
 
-
     def add(self, n1, n2, size):
 
         if size == 0:
@@ -239,6 +238,13 @@ class Graph(dict):
                 self[n1] = []
             self[n1].append((n2, size))
 
+    def add_start_nodes(self, nodes):
+
+        if nodes == []:
+            raise ValueError("Cannot find start node for %s schematic graph. "
+                             "Probably a component has an incorrect direction.\n%s."
+                             % (self.name, self))
+        self['start'] = nodes
 
     def longest_path(self):
         """Find longest path through DAG.  all_nodes is an iterable for all
@@ -247,11 +253,6 @@ class Graph(dict):
         parent node and the second element is the minimium size of the
         component connecting the nodes.
         """
-
-        if self['start'] == []:
-            raise ValueError("Cannot find start node for %s schematic graph. "
-                             "Probably a component has an incorrect direction.\n%s."
-                             % (self.name, self))
 
         all_nodes = self.keys()
         from_nodes = self
@@ -318,9 +319,8 @@ class Graphs(object):
                 orphans.append((node, 0))
             if self.rev[node] == []:
                 rorphans.append((node, 0))
-        self.fwd['start'] = rorphans
-        self.rev['start'] = orphans
-
+        self.fwd.add_start_nodes(rorphans)
+        self.rev.add_start_nodes(orphans)
 
     def analyse(self):
 
