@@ -7,7 +7,7 @@ Copyright 2015, 2016 Michael Hayes, UCECE
 """
 
 from __future__ import print_function
-from lcapy.core import cExpr, Vs, Is, s, sqrt, uppercase_name
+from lcapy.core import cExpr, Vs, Is, s, sqrt, uppercase_name, set_symbols
 from copy import copy
 import lcapy
 import inspect
@@ -528,9 +528,15 @@ def make(classname, parent, cpt_type, cpt_id,
     # Create instance of component object
     newclass = classes[classname]
 
+    # Switch symbol namespace
+    symbols = set_symbols(parent.symbols)
+
     cpt = newclass(parent, cpt_type, cpt_id, string, opts_string, 
                    nodes, *args)
     # Add named attributes for the args?   Lname1, etc.
+
+    # Restore symbol namespace
+    set_symbols(symbols)
         
     return cpt
 

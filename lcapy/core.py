@@ -37,7 +37,10 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
 symbol_pattern = re.compile(r"^[a-zA-Z]+[\w]*[_]?[\w]*$")
 symbol_pattern2 = re.compile(r"^([a-zA-Z]+[\w]*_){([\w]*)}$")
 
-symbols = {}
+global_symbols = {}
+predefined_symbols = {}
+symbols = predefined_symbols
+
 
 cpt_names = ('C', 'G', 'I', 'L', 'R', 'V', 'Y', 'Z')
 cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
@@ -98,6 +101,19 @@ def canonical_name(name):
     return name
 
 
+def set_symbols(local_symbols=None):
+    """Switch symbol namespace and return previous symbols."""
+
+    global symbols
+
+    prev_symbols = symbols
+    if local_symbols is None:
+        symbols = global_symbols
+    else:
+        symbols = local_symbols
+    return prev_symbols
+
+
 def symbol(name, real=False, positive=None, cache=True):
     """Create a symbol."""  
 
@@ -126,6 +142,9 @@ tsym = symbol('t', real=True)
 fsym = symbol('f', real=True)
 omegasym = symbol('omega', real=True)
 
+global_symbols.update(symbols)
+symbols = global_symbols
+
 
 def sympify(arg, real=False, positive=None, cache=True, evaluate=True):
     """Create a sympy expression."""
@@ -144,7 +163,8 @@ def sympify(arg, real=False, positive=None, cache=True, evaluate=True):
         return arg
 
     if isinstance(arg, float):
-        # Note, need to convert to string to achieve a rational representation.
+        # Note, need to convert to string to achieve a rational
+        # representation.
         return sym.sympify(str(arg), rational=True, evaluate=evaluate)
         
     if isinstance(arg, str):
@@ -1119,6 +1139,7 @@ class sExpr(sfwExpr):
 
         try:
             result = self._inverse_laplace(causal)
+
         except:
 
             print('Determining inverse Laplace transform with sympy...')
