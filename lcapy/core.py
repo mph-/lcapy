@@ -113,15 +113,14 @@ def set_context(new_context=None):
     return prev_context
 
 
-def symbol(name, real=False, positive=None, cache=True):
+def symbol(name, **assumptions):
     """Create a symbol."""  
 
     name = canonical_name(name)
 
-    if positive is not None:
-        sym1 = sym.symbols(name=real, positive=positive)
-    else:
-        sym1 = sym.symbols(name, real=real)
+    cache = assumptions.pop('cache', True)
+
+    sym1 = sym.symbols(name, **assumptions)
     if cache:
         # The following can be triggered if define a resistor of value R
         # and then convert to s-model where an impedance is created of
@@ -159,7 +158,7 @@ fsym = symbol('f', real=True)
 omegasym = symbol('omega', real=True)
 
 
-def sympify(arg, real=False, positive=None, cache=True, evaluate=True):
+def sympify(arg, evaluate=True, **assumptions):
     """Create a sympy expression."""
 
     if isinstance(arg, (sym.symbol.Symbol, sym.symbol.Expr)):
@@ -184,7 +183,7 @@ def sympify(arg, real=False, positive=None, cache=True, evaluate=True):
         # Sympy considers E1 to be the generalized exponential integral.
         # N is for numerical evaluation.
         if symbol_pattern.match(arg) is not None:
-            return symbol(arg, real=real, positive=positive, cache=cache)
+            return symbol(arg, **assumptions)
 
         match = symbol_pattern2.match(arg)
         if match is not None:
@@ -226,12 +225,12 @@ class Expr(object):
     # the resultant type?  For example, Vs / Vs -> Hs
     # Vs / Is -> Zs,  Is * Zs -> Vs
 
-    def __init__(self, arg, real=False, positive=None, cache=True):
+    def __init__(self, arg, **assumptions):
 
         if isinstance(arg, Expr):
             arg = arg.expr
 
-        self.expr = sympify(arg, real=real, positive=positive, cache=cache)
+        self.expr = sympify(arg, **assumptions)
 
     @property
     def val(self):
@@ -812,9 +811,9 @@ class Expr(object):
 
 class sfwExpr(Expr):
 
-    def __init__(self, val, real=False):
+    def __init__(self, val, **assumptions):
 
-        super(sfwExpr, self).__init__(val, real)
+        super(sfwExpr, self).__init__(val, **assumptions)
 
     def _as_ratfun_delay(self):
         """Split expr as (N, D, delay)
@@ -1303,9 +1302,9 @@ class fExpr(sfwExpr):
     domain_name = 'Frequency'
     domain_units = 'Hz'
 
-    def __init__(self, val, real=False):
+    def __init__(self, val):
 
-        super(fExpr, self).__init__(val, real=real)
+        super(fExpr, self).__init__(val, real=True)
         self._fourier_conjugate_class = tExpr
 
         if self.expr.find(ssym) != set():
@@ -1349,9 +1348,9 @@ class omegaExpr(sfwExpr):
     domain_name = 'Angular frequency'
     domain_units = 'rad/s'
 
-    def __init__(self, val, real=False):
+    def __init__(self, val):
 
-        super(omegaExpr, self).__init__(val, real=real)
+        super(omegaExpr, self).__init__(val, real=True)
         self._fourier_conjugate_class = tExpr
 
         if self.expr.find(ssym) != set():
@@ -1395,9 +1394,9 @@ class tExpr(Expr):
     domain_name = 'Time'
     domain_units = 's'
 
-    def __init__(self, val, real=True):
+    def __init__(self, val):
 
-        super(tExpr, self).__init__(val, real=real)
+        super(tExpr, self).__init__(val, real=True)
         self._fourier_conjugate_class = fExpr
         self._laplace_conjugate_class = sExpr
 
@@ -1446,9 +1445,14 @@ class tExpr(Expr):
 
 class cExpr(Expr):
 
-    """Constant real expression or symbol"""
+    """Constant real expression or symbol.
 
-    def __init__(self, val, positive=True):
+    If the expression is known to be positive, use
+
+    cExpr(expr, positive=True)
+    """
+
+    def __init__(self, val, **assumptions):
 
         expr = sympify(val, evaluate=False)
         if expr.find(ssym) != set():
@@ -1458,13 +1462,14 @@ class cExpr(Expr):
             raise ValueError(
                 'constant expression %s cannot depend on t' % val)
 
-        super(cExpr, self).__init__(val, real=True, positive=positive)
+        assumptions['real'] = True
+        super(cExpr, self).__init__(val, **assumptions)
 
 
 s = sExpr('s')
-t = tExpr('t', real=True)
-f = fExpr('f', real=True)
-omega = omegaExpr('omega', real=True)
+t = tExpr('t')
+f = fExpr('f')
+omega = omegaExpr('omega')
 pi = sym.pi
 j = sym.I
 oo = sym.oo
