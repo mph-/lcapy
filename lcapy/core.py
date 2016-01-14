@@ -1287,7 +1287,7 @@ class tsExpr(sExpr):
     def __init__(self, val):
 
         # If no s in expression evaluate as tExpr and convert to s-domain.
-        expr = sympify(val, evaluate=False)
+        expr = sympify(val, evaluate=False, cache=False)
         if expr.find(ssym) == set():
             val = tExpr(val).laplace().expr
 
