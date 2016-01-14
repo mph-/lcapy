@@ -1454,7 +1454,7 @@ class cExpr(Expr):
 
     def __init__(self, val, **assumptions):
 
-        expr = sympify(val, evaluate=False)
+        expr = sympify(val, evaluate=False, cache=False)
         if expr.find(ssym) != set():
             raise ValueError(
                 'constant expression %s cannot depend on s' % val)
