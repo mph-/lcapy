@@ -35,7 +35,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 
 from __future__ import division
 from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym
-from lcapy.core import s, j, omega, uppercase_name, predefined_symbols
+from lcapy.core import s, j, omega, uppercase_name, global_context
 from lcapy.oneport import V, I, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
 from schematic import Schematic, Opts, SchematicOpts
@@ -127,7 +127,7 @@ class Netlist(MNA):
         self.nodes = {}
         # Shared nodes (with same voltage)
         self.snodes = {}
-        self.symbols = copy(predefined_symbols)
+        self.context = global_context.new()
 
         self.opts = SchematicOpts()
 

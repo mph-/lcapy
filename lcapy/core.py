@@ -37,11 +37,6 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
 symbol_pattern = re.compile(r"^[a-zA-Z]+[\w]*[_]?[\w]*$")
 symbol_pattern2 = re.compile(r"^([a-zA-Z]+[\w]*_){([\w]*)}$")
 
-global_symbols = {}
-predefined_symbols = {}
-symbols = predefined_symbols
-
-
 cpt_names = ('C', 'G', 'I', 'L', 'R', 'V', 'Y', 'Z')
 cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
 
@@ -101,17 +96,17 @@ def canonical_name(name):
     return name
 
 
-def set_symbols(local_symbols=None):
-    """Switch symbol namespace and return previous symbols."""
+def set_context(new_context=None):
+    """Switch context and return previous context."""
 
-    global symbols
+    global context
 
-    prev_symbols = symbols
-    if local_symbols is None:
-        symbols = global_symbols
+    prev_context = context
+    if new_context is None:
+        context = global_context
     else:
-        symbols = local_symbols
-    return prev_symbols
+        context = new_context
+    return prev_context
 
 
 def symbol(name, real=False, positive=None, cache=True):
@@ -130,20 +125,34 @@ def symbol(name, real=False, positive=None, cache=True):
         # for the latter since an arbitrary impedance is not positive.
         # Perhaps should keep a list of symbols for each circuit
         # as well as a global list?
-        if False and name in symbols and symbols[name] != sym1:
+        if False and name in context.symbols and context.symbols[name] != sym1:
             raise ValueError('Changing symbol definition %s' % name)
-        if name not in symbols:
-            symbols[name] = sym1
+        if name not in context.symbols:
+            context.symbols[name] = sym1
     return sym1
 
+
+class Context(object):
+
+    def __init__(self):
+        self.symbols = {}
+        self.assumptions = {}
+
+    def new(self):
+
+        new_context = Context()
+        new_context.symbols.update(self.symbols)
+        new_context.assumptions.update(self.assumptions)
+        return new_context
+
+
+global_context = Context()
+context = global_context
 
 ssym = symbol('s')
 tsym = symbol('t', real=True)
 fsym = symbol('f', real=True)
 omegasym = symbol('omega', real=True)
-
-global_symbols.update(symbols)
-symbols = global_symbols
 
 
 def sympify(arg, real=False, positive=None, cache=True, evaluate=True):
@@ -186,7 +195,7 @@ def sympify(arg, real=False, positive=None, cache=True, evaluate=True):
         # need to parse the expression to handle other cases.
         arg = arg.replace('delta(t', 'DiracDelta(t')
 
-    return sym.sympify(arg, rational=True, locals=symbols, 
+    return sym.sympify(arg, rational=True, locals=context.symbols, 
                        evaluate=evaluate)
 
 
@@ -720,9 +729,9 @@ class Expr(object):
 
         # Replace symbol names with symbol definitions to
         # avoid problems with real or positive attributes.
-        if name not in symbols:
+        if name not in context.symbols:
             raise ValueError('Unknown symbol %s' % old)
-        old = symbols[name]
+        old = context.symbols[name]
 
         return cls(self.expr.subs(old, expr))
 
@@ -1139,6 +1148,8 @@ class sExpr(sfwExpr):
 
         try:
             result = self._inverse_laplace(causal)
+            if not causal:
+                result = sym.Piecewise((result, 't>=0'))
 
         except:
 
