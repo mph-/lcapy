@@ -203,7 +203,8 @@ class Netlist(MNA):
 
     def _invalidate(self):
 
-        for attr in ('_sch', '_A', '_V', '_I', '_Vd', '_node_list'):
+        for attr in ('_sch', '_A', '_V', '_I', '_Vd', '_node_list',
+                     '_vcache', '_icache'):
             if hasattr(self, attr):
                 delattr(self, attr)
 
