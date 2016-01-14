@@ -7,13 +7,14 @@ print(x.canonical()).
 
 For additional documentation, see the Lcapy tutorial.
 
-Copyright 2014, 2015 Michael Hayes, UCECE
+Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 """
 
 from __future__ import division
 from lcapy.latex import latex_str
 import numpy as np
 from sympy.core.mul import _unevaluated_Mul as uMul
+from sympy.assumptions.assume import global_assumptions
 import sympy as sym
 import re
 from sympy.utilities.lambdify import lambdify
@@ -102,8 +103,11 @@ def set_context(new_context=None):
     global context
 
     prev_context = context
+    context.assumptions.update(global_assumptions)
     if new_context is None:
         context = global_context
+        global_assumptions.clear()
+        global_assumptions.update(context.assumptions)
     else:
         context = new_context
     return prev_context
@@ -115,7 +119,7 @@ def symbol(name, real=False, positive=None, cache=True):
     name = canonical_name(name)
 
     if positive is not None:
-        sym1 = sym.symbols(name, real=real, positive=positive)
+        sym1 = sym.symbols(name=real, positive=positive)
     else:
         sym1 = sym.symbols(name, real=real)
     if cache:
