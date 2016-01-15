@@ -100,8 +100,7 @@ class MNA(object):
                     break
 
         if '0' not in node_map:
-            print('Nothing connected to ground node 0')
-            node_map['0'] = '0'
+            raise RuntimeError('Nothing connected to ground node 0')
 
         self._node_map = node_map
         return node_map
@@ -204,6 +203,8 @@ class MNA(object):
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
             branchdir[elt.name] = (n1, n2)
 
+        self.context.switch()
+
         # Create dictionary of node voltages
         self._V = Mdict(branchdir)
         self._V['0'] = Vs(0)
@@ -230,6 +231,8 @@ class MNA(object):
                 V1, V2 = self._V[n1], self._V[n2]
                 I = ((V1 - V2 - elt.cpt.V) / elt.cpt.Z).simplify()
                 self._I[elt.name] = Is(I)
+
+        self.context.restore()
 
     @property
     def A(self):

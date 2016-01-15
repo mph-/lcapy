@@ -235,6 +235,8 @@ class Netlist(MNA):
         if elt.name in self.elements:
             print('Overriding component %s' % elt.name)
             # Need to search lists and update component.
+            # For example, remove nodes that are only connected
+            # to this component.
         else:
             # Check that this name won't conflict with an attr.
             # For example, cannot have name V or I.  Perhaps
@@ -287,6 +289,8 @@ class Netlist(MNA):
         if name not in self.elements:
             raise ValueError('Unknown component: ' + name)
         self.elements.pop(name)
+        # TODO, remove nodes that are only connected
+        # to this component.
 
     @property
     def v(self):

@@ -12,6 +12,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 from lcapy.latex import latex_str
+from lcapy.sympify import canonical_name, sympify1
 import numpy as np
 from sympy.core.mul import _unevaluated_Mul as uMul
 from sympy.assumptions.assume import global_assumptions
@@ -97,49 +98,12 @@ def canonical_name(name):
     return name
 
 
-def set_context(new_context=None):
-    """Switch context and return previous context."""
-
-    global context
-
-    prev_context = context
-    context.assumptions.update(global_assumptions)
-    if new_context is None:
-        context = global_context
-        global_assumptions.clear()
-        global_assumptions.update(context.assumptions)
-    else:
-        context = new_context
-    return prev_context
-
-
-def symbol(name, **assumptions):
-    """Create a symbol."""  
-
-    name = canonical_name(name)
-
-    cache = assumptions.pop('cache', True)
-
-    sym1 = sym.symbols(name, **assumptions)
-    if cache:
-        # The following can be triggered if define a resistor of value R
-        # and then convert to s-model where an impedance is created of
-        # value R.  In the former case R has a positive attribute but not
-        # for the latter since an arbitrary impedance is not positive.
-        # Perhaps should keep a list of symbols for each circuit
-        # as well as a global list?
-        if False and name in context.symbols and context.symbols[name] != sym1:
-            raise ValueError('Changing symbol definition %s' % name)
-        if name not in context.symbols:
-            context.symbols[name] = sym1
-    return sym1
-
-
 class Context(object):
 
     def __init__(self):
         self.symbols = {}
         self.assumptions = {}
+        self.previous = None
 
     def new(self):
 
@@ -147,6 +111,35 @@ class Context(object):
         new_context.symbols.update(self.symbols)
         new_context.assumptions.update(self.assumptions)
         return new_context
+
+    def switch(self):
+
+        global context
+
+        self.previous = context
+        context = self
+        global_assumptions.clear()
+        global_assumptions.update(self.assumptions)
+
+    def restore(self):
+        
+        if self.previous is None:
+            return
+
+        self.assumptions.update(global_assumptions)
+        global_assumptions.clear()
+        global_assumptions.update(self.previous.assumptions)
+
+
+def sympify(expr, evaluate=True, **assumptions):
+    """Create a sympy expression."""
+
+    return sympify1(expr, context.symbols, 
+                    evaluate, **assumptions)
+
+def symbol(name, **assumptions):
+
+    return sympify(name, **assumptions)
 
 
 global_context = Context()
@@ -156,50 +149,6 @@ ssym = symbol('s')
 tsym = symbol('t', real=True)
 fsym = symbol('f', real=True)
 omegasym = symbol('omega', real=True)
-
-
-def sympify(arg, evaluate=True, **assumptions):
-    """Create a sympy expression."""
-
-    if isinstance(arg, (sym.symbol.Symbol, sym.symbol.Expr)):
-        return arg
-
-    # Why doesn't sympy do this?
-    if isinstance(arg, complex):
-        re = sym.sympify(str(arg.real), rational=True, evaluate=evaluate)
-        im = sym.sympify(str(arg.imag), rational=True, evaluate=evaluate)
-        if im == 1.0:
-            arg = re + sym.I
-        else:
-            arg = re + sym.I * im
-        return arg
-
-    if isinstance(arg, float):
-        # Note, need to convert to string to achieve a rational
-        # representation.
-        return sym.sympify(str(arg), rational=True, evaluate=evaluate)
-        
-    if isinstance(arg, str):
-        # Sympy considers E1 to be the generalized exponential integral.
-        # N is for numerical evaluation.
-        if symbol_pattern.match(arg) is not None:
-            return symbol(arg, **assumptions)
-
-        match = symbol_pattern2.match(arg)
-        if match is not None:
-            # Convert R_{out} to R_out for sympy to recognise.
-            arg = match.groups()[0] + match.groups()[1]
-            return symbol(arg, real=True)
-
-        # Perhaps have dictionary of functions and their replacements?
-        arg = arg.replace('u(t', 'Heaviside(t')
-        # It is tempting to replace delta(t) with 2 * DiracDelta(t) to
-        # work around sympy's Laplace transform giving 0.5 but will
-        # need to parse the expression to handle other cases.
-        arg = arg.replace('delta(t', 'DiracDelta(t')
-
-    return sym.sympify(arg, rational=True, locals=context.symbols, 
-                       evaluate=evaluate)
 
 
 class Exprdict(dict):
@@ -1029,9 +978,9 @@ class sExpr(sfwExpr):
 
     var = ssym
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(sExpr, self).__init__(val)
+        super(sExpr, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = tExpr
 
         if self.expr.find(tsym) != set():
@@ -1291,7 +1240,7 @@ class tsExpr(sExpr):
         if expr.find(ssym) == set():
             val = tExpr(val).laplace().expr
 
-        super(tsExpr, self).__init__(val)
+        super(tsExpr, self).__init__(val, real=True)
 
 
 class fExpr(sfwExpr):
@@ -1410,7 +1359,7 @@ class tExpr(Expr):
         var = self.var
         if var == tsym:
             # Hack since sympy gives up on Laplace transform if t real!
-            var = sym.symbols('t')
+            var = sym.Symbol('t')
 
         try:
             F, a, cond = sym.laplace_transform(self, var, ssym)

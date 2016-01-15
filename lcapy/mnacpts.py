@@ -7,7 +7,7 @@ Copyright 2015, 2016 Michael Hayes, UCECE
 """
 
 from __future__ import print_function
-from lcapy.core import cExpr, Vs, Is, s, sqrt, uppercase_name, set_context
+from lcapy.core import cExpr, Vs, Is, s, sqrt, uppercase_name
 from copy import copy
 import lcapy
 import inspect
@@ -529,14 +529,14 @@ def make(classname, parent, cpt_type, cpt_id,
     newclass = classes[classname]
 
     # Switch context
-    context = set_context(parent.context)
+    parent.context.switch()
 
     cpt = newclass(parent, cpt_type, cpt_id, string, opts_string, 
                    nodes, *args)
     # Add named attributes for the args?   Lname1, etc.
 
     # Restore context
-    set_context(context)
+    parent.context.restore()
         
     return cpt
 
