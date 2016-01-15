@@ -172,3 +172,19 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 10') 
 
         self.assertEqual2(a.V1.V, 10 / s, "Incorrect voltage")
+
+
+    def test_VRL1_dc(self):
+        """Lcapy: check VRL circuit at dc
+
+        """
+
+        a = Circuit()
+        a.add('V1 1 0')
+        a.add('R1 1 2')
+        a.add('L1 2 0 L1 {V1 / R1}')
+        # This tests if symbols are converted to the defined ones.
+        self.assertEqual2(a.L1.v, V(0).V.inverse_laplace(), 
+                          "Incorrect time domain voltage")        
+        self.assertEqual2(a.R1.v, V('V1').V.inverse_laplace(), 
+                          "Incorrect time domain voltage")        

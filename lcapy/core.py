@@ -83,21 +83,6 @@ def uppercase_name(name):
     return name[0].upper() + name[1:]
 
 
-def canonical_name(name):
-
-    if name.find('_') != -1:
-        return name
-
-    # Rewrite R1 as R_1, etc.
-    match = cpt_name_pattern.match(name)
-    if match:
-        if match.groups()[1] == '':
-            return name
-        name = match.groups()[0] + '_' + match.groups()[1]
-
-    return name
-
-
 class Context(object):
 
     def __init__(self):
@@ -1389,6 +1374,9 @@ class tExpr(Expr):
 
         from lcapy.plot import plot_time
         plot_time(self, t, **kwargs)
+
+    def canonical(self):
+        return self.copy()
 
 
 class cExpr(Expr):

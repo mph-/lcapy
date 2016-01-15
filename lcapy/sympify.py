@@ -18,6 +18,9 @@ braces_suffix_pattern = re.compile(r"^([a-zA-Z]+[\w]*_){([\w]*)}$")
 
 def canonical_name(name):
 
+    if not isinstance(name, str):
+        return name
+
     match = braces_suffix_pattern.match(name)
     if match:
         # Convert R_{out} to R_out for sympy to recognise.
