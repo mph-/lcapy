@@ -984,7 +984,6 @@ class sExpr(sfwExpr):
         self._laplace_conjugate_class = tExpr
 
         if self.expr.find(tsym) != set():
-
             raise ValueError(
                 's-domain expression %s cannot depend on t' % self.expr)
 
