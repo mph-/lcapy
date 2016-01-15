@@ -196,6 +196,8 @@ class MNA(object):
 
         results = sym.simplify(Ainv * self._Z)
 
+        results = results.subs(self.context.symbols)
+
         branchdir = {}
         for elt in self.elements.values():
             if elt.type == 'K':

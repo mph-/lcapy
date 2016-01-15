@@ -12,7 +12,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 from lcapy.latex import latex_str
-from lcapy.sympify import canonical_name, sympify1
+from lcapy.sympify import canonical_name, sympify1, symbols_find
 import numpy as np
 from sympy.core.mul import _unevaluated_Mul as uMul
 from sympy.assumptions.assume import global_assumptions
@@ -1236,9 +1236,9 @@ class tsExpr(sExpr):
     def __init__(self, val):
 
         # If no s in expression evaluate as tExpr and convert to s-domain.
-        expr = sympify(val, evaluate=False, cache=False)
-        if expr.find(ssym) == set():
+        if 's' not in symbols_find(val):
             val = tExpr(val).laplace().expr
+            val = val.subs(context.symbols)
 
         super(tsExpr, self).__init__(val, real=True)
 
@@ -1403,11 +1403,11 @@ class cExpr(Expr):
 
     def __init__(self, val, **assumptions):
 
-        expr = sympify(val, evaluate=False, cache=False)
-        if expr.find(ssym) != set():
+        symbols = symbols_find(val)
+        if 's' in symbols:
             raise ValueError(
                 'constant expression %s cannot depend on s' % val)
-        if expr.find(tsym) != set():
+        if 't' in symbols:
             raise ValueError(
                 'constant expression %s cannot depend on t' % val)
 
