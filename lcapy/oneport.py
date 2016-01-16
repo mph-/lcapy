@@ -29,12 +29,25 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 from __future__ import division
 import sympy as sym
 from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos
+from lcapy.schematic import Schematic
 
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
            'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac', 'sV', 'sI',
            'Vacstep', 'Iac', 'Iacstep', 'Norton', 'Thevenin',
            'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
+
+class Drawing(object):
+
+    def __init__(self):
+
+        self.node_counter = 0
+
+    @property 
+    def node(self):
+
+        self.node_counter += 1
+        return self.node_counter
 
 
 def _check_oneport_args(args):
@@ -47,7 +60,7 @@ def _check_oneport_args(args):
 class OnePort(NetObject):
     """One-port network"""
 
-    # Attributes: Y, Z, V, I
+    # Attributes: Y, Z, V, I, y, z, v, i
 
     def __add__(self, OP):
         """Series combination"""
@@ -137,6 +150,25 @@ class OnePort(NetObject):
     def z(self):
         return self.Z.inverse_laplace(self.causal)
 
+    def netlist(self, drw, n1=None, n2=None):
+        if n1 == None:
+            n1 = drw.node
+        if n2 == None:
+            n2 = drw.node
+        return '%s %s %s %s; right' % (
+            self.__class__.__name__, n1, n2,
+            ' '.join([str(arg) for arg in self.args]))
+
+    def draw(self, label_ids=False, label_values=True, draw_nodes='connections',
+             label_nodes=False):
+        drw = Drawing()
+        netlist = self.netlist(drw)
+        sch = Schematic()
+        for net in netlist.split('\n'):
+            sch.add(net)
+        sch.draw(label_ids=label_ids, label_values=label_values, 
+                 draw_nodes=draw_nodes, label_nodes=label_nodes)
+        
 
 class ParSer(OnePort):
     """Parallel/serial class"""
@@ -437,6 +469,29 @@ class Par(ParSer):
         return self.V.inverse_laplace()
 
 
+    def netlist(self, drw, n1=None, n2=None):
+
+        if len(self.args) > 2:
+            raise NotImplementedError('Cannot handle more than two cpts in parallel')
+
+        s = []
+        if n1 is None:
+            n1 = drw.node
+        if n2 is None:
+            n2 = drw.node
+        n3, n4, n5 =  drw.node, drw.node, drw.node
+        n6, n7, n8 =  drw.node, drw.node, drw.node
+        s.append('W %s %s; right, size=0.5' % (n1, n3))
+        s.append('W %s %s; up, size=0.5' % (n3, n4))
+        s.append('W %s %s; down, size=0.5' % (n3, n5))
+        s.append('W %s %s; right, size=0.5' % (n6, n2))
+        s.append('W %s %s; up, size=0.5' % (n6, n7))
+        s.append('W %s %s; down, size=0.5' % (n6, n8))
+        s.append(self.args[0].netlist(drw, n4, n7))
+        s.append(self.args[1].netlist(drw, n5, n8))
+        return '\n'.join(s)
+
+
 class Ser(ParSer):
     """Series class"""
 
@@ -483,6 +538,23 @@ class Ser(ParSer):
             result += arg.V
 
         return result
+
+
+    def netlist(self, drw, n1=None, n2=None):
+
+        s = []
+        if n1 is None:
+            n1 = drw.node
+        for arg in self.args[:-1]:
+            n3 = drw.node
+            s.append(arg.netlist(drw, n1, n3))
+            n1 = drw.node
+            s.append('W %s %s; right, size=0.5' % (n3, n1))
+
+        if n2 is None:
+            n2 = drw.node
+        s.append(self.args[-1].netlist(drw, n1, n2))
+        return '\n'.join(s)
 
 
 class Norton(OnePort):

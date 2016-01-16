@@ -657,9 +657,7 @@ class Schematic(object):
 
         return wires
 
-    def _tikz_draw(self, style_args='', label_values=True, 
-                   draw_nodes=True, label_ids=True,
-                   label_nodes='primary'):
+    def _tikz_draw(self, style_args='', **kwargs):
 
         self._positions_calculate()
 
@@ -674,10 +672,11 @@ class Schematic(object):
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):
-            s += elt.draw(label_values=label_values, 
-                          draw_nodes=draw_nodes)
+            s += elt.draw(**kwargs)
 
         wires = self._make_wires()
+
+        label_nodes = kwargs.get('label_nodes', 'primary')
 
         # Label primary nodes
         if label_nodes:
