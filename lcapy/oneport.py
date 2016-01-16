@@ -28,7 +28,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr
+from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos
 
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
@@ -45,7 +45,6 @@ def _check_oneport_args(args):
 
 
 class OnePort(NetObject):
-
     """One-port network"""
 
     # Attributes: Y, Z, V, I
@@ -124,14 +123,23 @@ class OnePort(NetObject):
 
     @property
     def v(self):
-        return self.V.inverse_laplace()
+        return self.V.inverse_laplace(self.causal)
 
     @property
     def i(self):
-        return self.I.inverse_laplace()
+        return self.I.inverse_laplace(self.causal)
+
+    @property
+    def y(self):
+        return self.Y.inverse_laplace(self.causal)
+
+    @property
+    def z(self):
+        return self.Z.inverse_laplace(self.causal)
 
 
 class ParSer(OnePort):
+    """Parallel/serial class"""
 
     def __str__(self):
 
@@ -378,6 +386,7 @@ class ParSer(OnePort):
 
 
 class Par(ParSer):
+    """Parallel class"""
 
     _operator = '|'
 
@@ -429,6 +438,7 @@ class Par(ParSer):
 
 
 class Ser(ParSer):
+    """Series class"""
 
     _operator = '+'
 
@@ -476,7 +486,6 @@ class Ser(ParSer):
 
 
 class Norton(OnePort):
-
     """Norton (Y) model
     ::
 
@@ -567,7 +576,6 @@ class Norton(OnePort):
 
 
 class Thevenin(OnePort):
-
     """Thevenin (Z) model
     ::
 
@@ -757,7 +765,6 @@ class Load(object):
 
 
 class R(Thevenin):
-
     """Resistor"""
 
     def __init__(self, Rval):
@@ -769,7 +776,6 @@ class R(Thevenin):
 
 
 class G(Norton):
-
     """Conductance"""
 
     def __init__(self, Gval):
@@ -781,7 +787,6 @@ class G(Norton):
 
 
 class L(Thevenin):
-
     """Inductor
 
     Inductance Lval, initial current i0"""
@@ -797,7 +802,6 @@ class L(Thevenin):
 
 
 class C(Thevenin):
-
     """Capacitor
 
     Capacitance Cval, initial voltage v0"""
@@ -813,7 +817,6 @@ class C(Thevenin):
 
 
 class Y(Norton):
-
     """General admittance."""
 
     def __init__(self, Yval):
@@ -824,7 +827,6 @@ class Y(Norton):
 
 
 class Z(Thevenin):
-
     """General impedance."""
 
     def __init__(self, Zval):
@@ -835,7 +837,6 @@ class Z(Thevenin):
 
 
 class sV(Thevenin):
-
     """Arbitrary s-domain voltage source"""
 
     def __init__(self, Vval):
@@ -846,7 +847,6 @@ class sV(Thevenin):
 
 
 class V(sV):
-
     """Voltage source. If the expression contains s treat as s-domain
     voltage otherwise time domain.  A constant V is considered DC
     with an s-domain voltage V / s."""
@@ -855,11 +855,11 @@ class V(sV):
 
         self.args = (Vval, )
         Vval = tsExpr(Vval)
+        # TODO, if time domain set noncausal unless a constant.
         super(V, self).__init__(Vval)
 
 
 class Vstep(sV):
-
     """Step voltage source (s domain voltage of v / s)."""
 
     def __init__(self, v):
@@ -871,9 +871,10 @@ class Vstep(sV):
 
 
 class Vdc(Vstep):
-
     """DC voltage source (note a DC voltage source of voltage V has
     an s domain voltage of V / s)."""
+
+    causal = False
     
     @property
     def v(self):
@@ -881,7 +882,6 @@ class Vdc(Vstep):
 
 
 class Vacstep(sV):
-
     """AC voltage source multiplied by unit step."""
 
     def __init__(self, V, f, phi=0):
@@ -895,17 +895,23 @@ class Vacstep(sV):
 
         omega = 2 * sym.pi * f
         foo = (s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)
-        super(Vacstep, self).__init__(Vs(V * foo))
+        super(Vacstep, self).__init__(Vs(foo * V))
+        self.v0 = V
+        self.f = f
+        self.phi = phi
 
 
 class Vac(Vacstep):
-
     """AC voltage source."""
-    pass
+
+    causal = False
+
+    @property
+    def v(self):
+        return cos(t * 2 * sym.pi * self.f + self.phi) * self.v0
 
 
 class v(sV):
-
     """Arbitrary t-domain voltage source"""
 
     def __init__(self, vval):
@@ -916,7 +922,6 @@ class v(sV):
 
 
 class sI(Norton):
-
     """Arbitrary s-domain current source"""
 
     def __init__(self, Ival):
@@ -927,7 +932,6 @@ class sI(Norton):
 
 
 class I(sI):
-
     """Current source. If the expression contains s treat as s-domain
     current otherwise time domain.  A constant I is considered DC with
     an s-domain current I / s.
@@ -938,11 +942,11 @@ class I(sI):
 
         self.args = (Ival, )
         Ival = tsExpr(Ival)
+        # TODO, if time domain set noncausal unless a constant.
         super(I, self).__init__(Ival)
 
 
 class Istep(sI):
-
     """Step current source (s domain current of i / s)."""
 
     def __init__(self, i):
@@ -954,9 +958,10 @@ class Istep(sI):
 
 
 class Idc(Istep):
-
     """DC current source (note a DC current source of current i has
     an s domain current of i / s)."""
+
+    causal = False
     
     @property
     def i(self):
@@ -964,7 +969,6 @@ class Idc(Istep):
 
 
 class Iacstep(sI):
-
     """AC current source multiplied by unit step."""
 
     def __init__(self, I, f, phi=0):
@@ -976,17 +980,23 @@ class Iacstep(sI):
 
         omega = 2 * sym.pi * f
         foo = (s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)
-        super(Iacstep, self).__init__(Is(I * foo))
+        super(Iacstep, self).__init__(Is(foo * I))
+        self.i0 = I
+        self.f = f
+        self.phi = phi
 
 
 class Iac(Iacstep):
-
     """AC current source."""
-    pass
+
+    causal = False
+
+    @property
+    def i(self):
+        return cos(t * 2 * sym.pi * self.f + self.phi) * self.i0
 
 
 class i(sI):
-
     """Arbitrary t-domain current source"""
 
     def __init__(self, ival):
@@ -997,7 +1007,6 @@ class i(sI):
 
 
 class Xtal(Thevenin):
-
     """Crystal
 
     This is modelled as a series R, L, C circuit in parallel
@@ -1022,7 +1031,6 @@ class Xtal(Thevenin):
 
 
 class FerriteBead(Thevenin):
-
     """Ferrite bead (lossy inductor)
 
     This is modelled as a series resistor (Rs) connected

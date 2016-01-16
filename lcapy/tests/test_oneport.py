@@ -164,3 +164,34 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(type(b), Norton, "type incorrect.")
         self.assertEqual2(b.Z, 10, "incorrect Z.")
         self.assertEqual2(b.V, 5 / s, "incorrect V.")
+
+    def test_v(self):
+        """Lcapy: check inverse Laplace for voltage sources"""
+
+        a = Vdc(10)
+        self.assertEqual2(a.v, 10, "DC incorrect.")        
+
+        a = Vstep(10)
+        self.assertEqual2(a.v, 10 * Heaviside(t), "Step incorrect.")
+
+        a = Vac(10, 20)
+        self.assertEqual2(a.v, 10 * cos(40 * pi * t), "AC incorrect.")
+
+        a = Vacstep(10, 20)
+        self.assertEqual2(a.v, 10 * cos(40 * pi * t) * Heaviside(t), "AC step incorrect.")
+
+
+    def test_i(self):
+        """Lcapy: check inverse Laplace for current sources"""
+
+        a = Idc(10)
+        self.assertEqual2(a.i, 10, "DC incorrect.")        
+
+        a = Istep(10)
+        self.assertEqual2(a.i, 10 * Heaviside(t), "Step incorrect.")
+
+        a = Iac(10, 20)
+        self.assertEqual2(a.i, 10 * cos(40 * pi * t), "AC incorrect.")
+
+        a = Iacstep(10, 20)
+        self.assertEqual2(a.i, 10 * cos(40 * pi * t) * Heaviside(t), "AC step incorrect.")

@@ -1945,6 +1945,10 @@ class ZsVector(Vector):
 
 class NetObject(object):
 
+    # Causal is not really the correct noun but it it indicates
+    # that the time response is zero for t < 0.
+    causal = True
+
     def __init__(self, args):
 
         self.args = args
