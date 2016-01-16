@@ -122,6 +122,14 @@ class OnePort(NetObject):
 
         return self
 
+    @property
+    def v(self):
+        return self.V.inverse_laplace()
+
+    @property
+    def i(self):
+        return self.I.inverse_laplace()
+
 
 class ParSer(OnePort):
 
@@ -216,7 +224,7 @@ class ParSer(OnePort):
             if isinstance(arg1, I):
                 return None
             if isinstance(arg1, Vdc):
-                return Vdc(arg1.v + arg2.v)
+                return Vdc(arg1.v0 + arg2.v0)
             # Could simplify Vac here if same frequency
             if isinstance(arg1, V):
                 return V(arg1 + arg2)
@@ -225,7 +233,7 @@ class ParSer(OnePort):
             if isinstance(arg1, L):
                 # The currents should be the same!
                 if arg1.i0 != arg2.i0:
-                    print('Warning, series inductors with different'
+                    raise ValueError('Series inductors with different'
                           ' initial currents!')
                 return L(arg1.L + arg2.L, arg1.i0)
             if isinstance(arg1, G):
@@ -239,7 +247,7 @@ class ParSer(OnePort):
             if isinstance(arg1, V):
                 return None
             if isinstance(arg1, Idc):
-                return Idc(arg1.i + arg2.i)
+                return Idc(arg1.i0 + arg2.i0)
             # Could simplify Iac here if same frequency
             if isinstance(arg1, I):
                 return I(arg1 + arg2)
@@ -248,7 +256,7 @@ class ParSer(OnePort):
             if isinstance(arg1, C):
                 # The voltages should be the same!
                 if arg1.v0 != arg2.v0:
-                    print('Warning, parallel capacitors with different'
+                    raise ValueError('Parallel capacitors with different'
                           ' initial voltages!')
                 return C(arg1.C + arg2.C, arg1.v0)
             if isinstance(arg1, R):
@@ -414,6 +422,10 @@ class Par(ParSer):
             result += arg.I
 
         return result
+
+    @property
+    def v(self):
+        return self.V.inverse_laplace()
 
 
 class Ser(ParSer):
@@ -855,7 +867,7 @@ class Vstep(sV):
         self.args = (v, )
         v = cExpr(v)
         super(Vstep, self).__init__(Vs(v).integrate())
-        self.v = v
+        self.v0 = v
 
 
 class Vdc(Vstep):
@@ -935,7 +947,7 @@ class Istep(sI):
         self.args = (i, )
         i = cExpr(i)
         super(Istep, self).__init__(Is(i).integrate())
-        self.i = i
+        self.i0 = i
 
 
 class Idc(Istep):
