@@ -250,71 +250,114 @@ class Expr(object):
 
         return self.__class__(-self.expr)
 
+    def __compat__(self, x):
+        """Check if args are compatible and if so return compatible class."""
+
+        cls = self.__class__
+        if not isinstance(x, Expr):
+            return cls
+
+        xcls = x.__class__
+        if cls == xcls:
+            return cls
+
+        if xcls in (Expr, cExpr):
+            return cls
+
+        if cls in (Expr, cExpr):
+            return xcls
+
+        if isinstance(x, cls):
+            return cls
+
+        if isinstance(self, xcls):
+            return xcls
+
+        if isinstance(self, tExpr) and isinstance(x, tExpr):
+            return cls
+
+        if isinstance(self, sExpr) and isinstance(x, sExpr):
+            return cls
+        
+        raise ValueError('Cannot combine %s(%s) with %s(%s)' % 
+                         (cls.__name__, self, xcls.__name__, x))
+
     def __rdiv__(self, x):
         """Reverse divide"""
 
-        x = self.__class__(x)
-        return self.__class__(x.expr / self.expr)
+        cls = self.__compat__(x)
+        x = cls(x)
+        return cls(x.expr / self.expr)
 
     def __rtruediv__(self, x):
         """Reverse true divide"""
 
-        x = self.__class__(x)
-        return self.__class__(x.expr / self.expr)
+        cls = self.__compat__(x)
+        x = cls(x)
+        return cls(x.expr / self.expr)
 
     def __mul__(self, x):
         """Multiply"""
 
-        x = self.__class__(x)
-        return self.__class__(self.expr * x.expr)
+        cls = self.__compat__(x)
+        x = cls(x)
+        return cls(self.expr * x.expr)
 
     def __rmul__(self, x):
         """Reverse multiply"""
 
-        x = self.__class__(x)
-        return self.__class__(self.expr * x.expr)
+        cls = self.__compat__(x)
+        x = cls(x)
+        return cls(self.expr * x.expr)
 
     def __div__(self, x):
         """Divide"""
 
-        x = self.__class__(x)
-        return self.__class__(self.expr / x.expr)
+        cls = self.__compat__(x)
+        x = cls(x)
+        return cls(self.expr / x.expr)
 
     def __truediv__(self, x):
         """True divide"""
 
-        x = self.__class__(x)
-        return self.__class__(self.expr / x.expr)
+        cls = self.__compat__(x)
+        x = cls(x)
+        return cls(self.expr / x.expr)
 
     def __add__(self, x):
         """Add"""
 
-        x = self.__class__(x)
-        return self.__class__(self.expr + x.expr)
+        cls = self.__compat__(x)
+        x = cls(x)
+        return cls(self.expr + x.expr)
 
     def __radd__(self, x):
         """Reverse add"""
 
-        x = self.__class__(x)
-        return self.__class__(self.expr + x.expr)
+        cls = self.__compat__(x)
+        x = cls(x)
+        return cls(self.expr + x.expr)
 
     def __rsub__(self, x):
         """Reverse subtract"""
 
-        x = self.__class__(x)
-        return self.__class__(x.expr - self.expr)
+        cls = self.__compat__(x)
+        x = cls(x)
+        return cls(x.expr - self.expr)
 
     def __sub__(self, x):
         """Subtract"""
 
-        x = self.__class__(x)
-        return self.__class__(self.expr - x.expr)
+        cls = self.__compat__(x)
+        x = cls(x)
+        return cls(self.expr - x.expr)
 
     def __pow__(self, x):
         """Pow"""
 
-        x = self.__class__(x)
-        return self.__class__(self.expr ** x.expr)
+        cls = self.__compat__(x)
+        x = cls(x)
+        return cls(self.expr ** x.expr)
 
     def __or__(self, x):
         """Parallel combination"""
@@ -327,7 +370,8 @@ class Expr(object):
         if x is None:
             return False
 
-        x = self.__class__(x)
+        cls = self.__compat__(x)
+        x = cls(x)
 
         # This fails if one of the operands has the is_real attribute
         # end the other doesn't...
@@ -339,14 +383,17 @@ class Expr(object):
         if x is None:
             return True
 
-        x = self.__class__(x)
+        cls = self.__compat__(x)
+        x = cls(x)
+
         return self.expr != x.expr
 
     def parallel(self, x):
         """Parallel combination"""
 
-        x = self.__class__(x)
-        return self.__class__(self.expr * x.expr / (self.expr + x.expr))
+        cls = self.__compat__(x)
+        x = cls(x)
+        return cls(self.expr * x.expr / (self.expr + x.expr))
 
     def _pretty(self, *args, **kwargs):
         """Make pretty string"""

@@ -913,7 +913,7 @@ class Vac(Vacstep):
 
     @property
     def v(self):
-        return cos(t * 2 * sym.pi * self.f + self.phi) * self.v0
+        return self.v0 * cos(2 * sym.pi * self.f * t + self.phi)
 
 
 class v(sV):
@@ -998,7 +998,7 @@ class Iac(Iacstep):
 
     @property
     def i(self):
-        return cos(t * 2 * sym.pi * self.f + self.phi) * self.i0
+        return self.i0 * cos(2 * sym.pi * self.f * t + self.phi)
 
 
 class i(sI):
