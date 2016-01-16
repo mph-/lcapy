@@ -77,7 +77,7 @@ class LcapyTester(unittest.TestCase):
         """
         a = Vdc(10) + Vdc(5)
         b = a.simplify()
-        self.assertEqual2(b.v, 15, "V incorrect.")
+        self.assertEqual2(b.v, Vdc(15).v, "V incorrect.")
         self.assertEqual2(b.V, 15 / s, "V incorrect.")
         self.assertEqual2(type(b), Vdc, "type incorrect.")
 
@@ -124,7 +124,7 @@ class LcapyTester(unittest.TestCase):
         """
         a = Idc(10) | Idc(5)
         b = a.simplify()
-        self.assertEqual2(b.i, 15, "I incorrect.")
+        self.assertEqual2(b.i, Idc(15).i, "I incorrect.")
         self.assertEqual2(b.I, 15 / s, "I incorrect.")
         self.assertEqual2(type(b), Idc, "type incorrect.")
 
