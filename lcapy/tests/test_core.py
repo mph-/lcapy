@@ -259,3 +259,11 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(type(v + sExpr(10)), Vs, "Not Vs")
 
         
+    def test_evaluate(self):
+        """Lcapy: check evaluate
+
+        """
+
+        self.assertEqual(t.evaluate(10), 10.0, "Evaluate fail for scalar")
+        self.assertEqual(t.evaluate((10, 20))[0], 10.0, "Evaluate fail for vector")
+        self.assertEqual((t * 5 + 1).evaluate((10, 20))[0], 51.0, "Evaluate fail for vector")

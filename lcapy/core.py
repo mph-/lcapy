@@ -620,9 +620,12 @@ class Expr(object):
         produce an Inf.  When this is multiplied by 0 from the
         Heaviside function we get Nan. """
 
-        free_symbols = self.expr.free_symbols
-        if self.var in free_symbols:
-            free_symbols -= set((self.var, ))
+        # Use symbol names to avoid problems with symbols of the same
+        # name with different assumptions.
+        varname = self.var.name
+        free_symbols = set([symbol.name for symbol in self.expr.free_symbols])
+        if varname in free_symbols:
+            free_symbols -= set((varname, ))
         if free_symbols != set():
             raise ValueError('Undefined symbols %s in expression %s' % (tuple(free_symbols), self.var))
 
