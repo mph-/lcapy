@@ -799,6 +799,9 @@ class L(Thevenin):
         super(L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
         self.L = Lval
         self.i0 = i0
+        
+        if i0 != 0:
+            self.causal = False
 
 
 class C(Thevenin):
@@ -815,6 +818,8 @@ class C(Thevenin):
         self.C = Cval
         self.v0 = v0
 
+        if v0 != 0:
+            self.causal = False
 
 class Y(Norton):
     """General admittance."""
