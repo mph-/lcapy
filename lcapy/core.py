@@ -253,6 +253,10 @@ class Expr(object):
     def __compat__(self, x):
         """Check if args are compatible and if so return compatible class."""
 
+        # Could disallow Vs + Is, etc.
+        # Could also convert Vs / Zs -> Is, etc.
+        # But, what about (Vs * Vs) / (Vs * Is) ???
+
         cls = self.__class__
         if not isinstance(x, Expr):
             return cls
@@ -268,10 +272,10 @@ class Expr(object):
             return xcls
 
         if isinstance(x, cls):
-            return cls
+            return xcls
 
         if isinstance(self, xcls):
-            return xcls
+            return cls
 
         if isinstance(self, tExpr) and isinstance(x, tExpr):
             return cls

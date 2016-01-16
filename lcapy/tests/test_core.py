@@ -230,3 +230,32 @@ class LcapyTester(unittest.TestCase):
         a3 = s.subs({s: omega})
         self.assertEqual(a1, a3, "Substitution fail with dict.")
 
+
+    def test_types(self):
+        """Lcapy: check types
+
+        """
+
+        c = cExpr(10)
+        self.assertEqual(type(10 + c), cExpr, "Not cExpr")
+        self.assertEqual(type(c + 10), cExpr, "Not cExpr")
+        self.assertEqual(type(cExpr(10) + c), cExpr, "Not cExpr")
+        self.assertEqual(type(c + cExpr(10)), cExpr, "Not cExpr")
+
+        self.assertEqual(type(10 + s), sExpr, "Not sExpr")
+        self.assertEqual(type(s + 10), sExpr, "Not sExpr")
+        self.assertEqual(type(cExpr(10) + s), sExpr, "Not sExpr")
+        self.assertEqual(type(s + cExpr(10)), sExpr, "Not sExpr")
+
+        self.assertEqual(type(10 + t), tExpr, "Not tExpr")
+        self.assertEqual(type(t + 10), tExpr, "Not tExpr")
+        self.assertEqual(type(cExpr(10) + t), tExpr, "Not tExpr")
+        self.assertEqual(type(t + cExpr(10)), tExpr, "Not tExpr")
+
+        v = Vs(10)
+        self.assertEqual(type(10 + v), Vs, "Not Vs")
+        self.assertEqual(type(v + 10), Vs, "Not Vs")
+        self.assertEqual(type(sExpr(10) + v), Vs, "Not Vs")
+        self.assertEqual(type(v + sExpr(10)), Vs, "Not Vs")
+
+        
