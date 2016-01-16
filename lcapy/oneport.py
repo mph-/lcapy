@@ -872,9 +872,12 @@ class Vstep(sV):
 
 class Vdc(Vstep):
 
-    """DC voltage source (note a DC voltage source of voltage v has
-    an s domain voltage of v / s)."""
-    pass
+    """DC voltage source (note a DC voltage source of voltage V has
+    an s domain voltage of V / s)."""
+    
+    @property
+    def v(self):
+        return self.v0
 
 
 class Vacstep(sV):
@@ -954,7 +957,10 @@ class Idc(Istep):
 
     """DC current source (note a DC current source of current i has
     an s domain current of i / s)."""
-    pass
+    
+    @property
+    def i(self):
+        return self.i0
 
 
 class Iacstep(sI):
