@@ -1,5 +1,5 @@
-from lcapy import Circuit, R, C, L, V, I, v
-from lcapy.core import Zs, s
+from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside
+from lcapy.core import Zs, s, t
 import unittest
 import sympy as sym
 
@@ -188,3 +188,19 @@ class LcapyTester(unittest.TestCase):
                           "Incorrect time domain voltage")        
         self.assertEqual2(a.R1.v, V('V1').V.inverse_laplace(), 
                           "Incorrect time domain voltage")        
+
+
+    def test_transfer(self):
+        """Lcapy: check transfer function
+
+        """
+
+        a = Circuit()
+        a.add('R1 1 0 1')
+        a.add('R2 1 2 2')
+        a.add('C1 2 0 1')
+
+        H = a.transfer(1, 0, 2, 0)
+        h = H.inverse_laplace()
+        self.assertEqual2(h, exp(-t / 2) * Heaviside(t) / 2,
+                          "Incorrect impulse response")        

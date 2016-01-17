@@ -365,7 +365,9 @@ class Netlist(MNA):
         If = -new.Vin_.I
         new.remove('Vin_')
 
-        return Ys(If)
+        Y = Ys(If)
+        Y.causal = True
+        return Y
 
     def impedance(self, Np, Nm):
         """Return impedance between nodes Np and Nm with independent
@@ -381,7 +383,9 @@ class Netlist(MNA):
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
-        return Zs(Vf)
+        Z = Zs(Vf)
+        Z.causal = True
+        return Z
 
     def Y(self, Np, Nm):
         """Return admittance between nodes Np and Nm with independent
@@ -410,6 +414,7 @@ class Netlist(MNA):
         new.add('V1_ %d %d impulse' % (N1p, N1m))
 
         H = Hs(new.Voc(N2p, N2m) / new.V1_.V)
+        H.causal = True
 
         return H
 

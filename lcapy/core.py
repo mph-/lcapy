@@ -1058,7 +1058,10 @@ class sExpr(sfwExpr):
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
 
-    def _inverse_laplace(self, causal=False):
+    def _inverse_laplace(self, causal=None):
+
+        if causal is None:
+            causal = getattr(self, 'causal', False)
 
         var = self.var
         N, D, delay = self._as_ratfun_delay()
@@ -1124,10 +1127,13 @@ class sExpr(sfwExpr):
         if causal:
             return result1 + result2 * sym.Heaviside(td)
         else:
+            if td != 0:
+                result2 *= sym.Heaviside(td)
+                
             return sym.Piecewise((result1 + result2, 't>=0'))
 
 
-    def inverse_laplace(self, causal=False):
+    def inverse_laplace(self, causal=None):
         """Attempt inverse Laplace transform.
 
         Set causal to True if the response is zero for t < 0.
@@ -1136,10 +1142,11 @@ class sExpr(sfwExpr):
 
         """
 
+        if causal is None:
+            causal = getattr(self, 'causal', False)
+
         try:
             result = self._inverse_laplace(causal)
-            if not causal:
-                result = sym.Piecewise((result, 't>=0'))
 
         except:
 
@@ -1151,6 +1158,9 @@ class sExpr(sfwExpr):
             # This barfs when needing to generate Dirac deltas
             from sympy.integrals.transforms import inverse_laplace_transform
             result = inverse_laplace_transform(expr, t, self.var)
+
+            if not causal:
+                result = sym.Piecewise((result, 't>=0'))
 
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result)
