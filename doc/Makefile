@@ -155,3 +155,4 @@ doctest:
 figs:
 	cd examples/netlists; make
 	cd examples/schematics; make
+	cd examples/networks; make
