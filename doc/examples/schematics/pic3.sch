@@ -4,4 +4,4 @@ L1 3 2; right
 C1 3 4; down
 L2 4 0; down
 P2 2 0_2
-
+# Note, no constraints aligning ground nodes.  Add wires if want them aligned.

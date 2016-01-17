@@ -98,3 +98,10 @@ sym.limit(sym.DiracDelta(t), t, 0, dir='-') -> 0
 Remove { when printing Piecewise with single condition?  Line 911
 sympy/printing/pretty/pretty.py
 
+Perhaps the causal attribute should be added to sExpr?  This can be
+updated when operations are performed.  Only when both operands are
+causal then so is the result.  I think.  This is true for
+addition/subtraction/multiplication since the latter is equivalent to
+a time domain convolution.  Division?  
+
+

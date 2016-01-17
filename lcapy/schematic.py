@@ -246,9 +246,8 @@ class Graph(dict):
             if node not in self:
                 self[node] = []                
             if self[node] == []:
-                orphans.append((node, 0))
+                orphans.append(node)
         self.orphans = orphans
-
 
     def add_start_nodes(self, nodes):
 
@@ -256,7 +255,7 @@ class Graph(dict):
             raise ValueError("Cannot find start node for %s schematic graph. "
                              "Probably a component has an incorrect direction.\n%s."
                              % (self.name, self))
-        self['start'] = nodes
+        self['start'] = [(node, 0) for node in nodes]
 
     def longest_path(self):
         """Find longest path through DAG."""
@@ -349,7 +348,14 @@ class Graphs(object):
         for node, gnode in self.cnodes.iteritems():
             pos[node] = distance_max - distances[gnode]
             posr[node] = distancesr[gnode]
-            posa[node] = 0.5 * (pos[node] + posr[node])
+
+            # If the nodes are dangling, do not average positions.
+            if gnode in self.rev.orphans:
+                posa[node] = pos[node]
+            elif gnode in self.fwd.orphans:
+                posa[node] = posr[node]
+            else:
+                posa[node] = 0.5 * (pos[node] + posr[node])
 
         return posa, distance_max
 
