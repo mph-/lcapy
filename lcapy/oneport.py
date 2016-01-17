@@ -159,15 +159,20 @@ class OnePort(NetObject):
             self.__class__.__name__, n1, n2,
             ' '.join([str(arg) for arg in self.args]))
 
-    def draw(self, label_ids=False, label_values=True, draw_nodes='connections',
-             label_nodes=False):
+
+    def sch(self):
+
         drw = Drawing()
         netlist = self.netlist(drw)
         sch = Schematic()
         for net in netlist.split('\n'):
             sch.add(net)
-        sch.draw(label_ids=label_ids, label_values=label_values, 
-                 draw_nodes=draw_nodes, label_nodes=label_nodes)
+        return sch
+
+    def draw(self, label_ids=False, label_values=True, draw_nodes='connections',
+             label_nodes=False):
+        self.sch().draw(label_ids=label_ids, label_values=label_values, 
+                        draw_nodes=draw_nodes, label_nodes=label_nodes)
         
 
 class ParSer(OnePort):
