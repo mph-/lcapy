@@ -309,7 +309,8 @@ class Graphs(object):
         # Chain all potential start nodes to node 'start'.
         orphans = []
         rorphans = []
-        for node in self.cnodes.values():
+        # Use set to remove duplicates.
+        for node in list(set(self.cnodes.values())):
             if node not in self.fwd:
                 self.fwd[node] = []                
             if node not in self.rev:
