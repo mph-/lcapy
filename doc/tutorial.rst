@@ -1165,10 +1165,18 @@ produce spectral plots, for example,
 Schematics
 ==========
 
-Schematics can be generated from a netlist using Circuitikz for LaTeX
-diagrams.  Hints are required to designate component orientation and
-explicit wires are required to link nodes of the same potential but
-with different coordinates.  For more details see :ref:`schematics`.
+Schematics can be generated from a netlist and from one port networks.
+In both cases the drawing is performed using the LaTeX Circuitikz
+package.  The schematic can be displayed interactively or saved to a
+pdf or png file.
+
+
+Netlist schematics
+------------------
+
+Hints are required to designate component orientation and explicit
+wires are required to link nodes of the same potential but with
+different coordinates.  For more details see :ref:`schematics`.
 
 Here's an example:
    >>> from lcapy import Circuit
@@ -1200,6 +1208,64 @@ Here are the contents of the file 'voltage-divider.sch'::
    W3 0 0_2; right
 
 Here, P1 defines a port.  This is shown as a pair of open blobs.
+
+Here's the resulting schematic:
+
+.. image:: examples/schematics/voltage-divider.png
+   :width: 5cm
+
+Many other components can be drawn than can be simulated.  This
+includes non-linear devices such as transistors and diodes and time
+varying components such as switches.  For example, here's a common
+base amplifier,
+
+.. image:: examples/schematics/common-base.png
+   :width: 7cm
+
+This is described by the netlist::
+
+    Q1 3 0 2 pnp; up
+    R1 1 2;right
+    R2 4 0_4;down
+    P1 1 0_1;down
+    W 0_1 0;right
+    W 0 0_4;right
+    W 3 4;right
+
+
+Network schematics
+------------------
+
+One port networks can be drawn with a horizontal layout.  Here's an example:
+
+   >>> from lcapy import R, C, L
+   >>> ((R(1) + L(2)) | C(3)).draw()
+
+Here's the result:
+
+.. image:: examples/networks/pickup.png
+   :width: 5cm
+
+Internally, Lcapy converts the network to a netlist and then draws the
+netlist.  The netlist can be found using the netlist method, for example,
+
+   >>> from lcapy import R, C, L
+   >>> print(((R(1) + L(2)) | C(3)).netlist())
+
+yields::
+
+   W 1 3; right, size=0.5
+   W 3 4; up, size=0.4
+   W 3 5; down, size=0.4
+   W 6 2; right, size=0.5
+   W 6 7; up, size=0.4
+   W 6 8; down, size=0.4
+   R 4 9 1; right
+   W 9 10; right, size=0.5
+   L 10 7 2 0; right
+   C 5 8 3 0; right
+
+Note, the components have anonymous identifiers.
 
 
 IPython Notebooks

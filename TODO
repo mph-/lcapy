@@ -92,7 +92,6 @@ Add || operator to sympy!
 Push for Sympy to consider lower limit of Laplace transform integral
 to sneak past 0 so that DiracDelta(t) -> 1 instead of 0.5
 
-
 sym.limit(sym.DiracDelta(t), t, 0, dir='-') -> 0
 
 Remove { when printing Piecewise with single condition?  Line 911
@@ -104,4 +103,5 @@ causal then so is the result.  I think.  This is true for
 addition/subtraction/multiplication since the latter is equivalent to
 a time domain convolution.  Division?  
 
+Add drawing methods to TwoPorts.
 
