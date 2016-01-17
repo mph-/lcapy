@@ -238,6 +238,18 @@ class Graph(dict):
                 self[n1] = []
             self[n1].append((n2, size))
 
+    def add_orphan_nodes(self, all_nodes):
+
+        orphans = []
+
+        for node in all_nodes:
+            if node not in self:
+                self[node] = []                
+            if self[node] == []:
+                orphans.append((node, 0))
+        self.orphans = orphans
+
+
     def add_start_nodes(self, nodes):
 
         if nodes == []:
@@ -247,41 +259,45 @@ class Graph(dict):
         self['start'] = nodes
 
     def longest_path(self):
-        """Find longest path through DAG.  all_nodes is an iterable for all
-        the nodes in the graph, from_nodes is a directory indexed by node
-        that stores a tuple of tuples.  The first tuple element is the
-        parent node and the second element is the minimium size of the
-        component connecting the nodes.
-        """
+        """Find longest path through DAG."""
+
+        # all_nodes is an iterable for all the nodes in the graph,
+        # from_nodes is a directory indexed by node that stores a
+        # tuple of tuples.  The first tuple element is the parent node
+        # and the second element is the minimium size of the component
+        # connecting the nodes.
 
         all_nodes = self.keys()
         from_nodes = self
 
-        memo = {}
+        distances = {}
 
         def get_longest(to_node):
 
-            if to_node in memo:
-                return memo[to_node]
+            if to_node in distances:
+                return distances[to_node]
 
             best = 0
             for from_node, size in from_nodes[to_node]:
                 best = max(best, get_longest(from_node) + size)
 
-            memo[to_node] = best
+            distances[to_node] = best
 
             return best
 
         try:
-            length, node = max([(get_longest(to_node), to_node)
-                                for to_node in all_nodes])
+            distance_max, node = max([(get_longest(to_node), to_node)
+                                      for to_node in all_nodes])
         except RuntimeError:
             raise RuntimeError(
                 ("The %s schematic graph is dodgy, probably a component"
                  " is connected to the wrong node\n%s") 
                 % (self.name, from_nodes))
 
-        return length, node, memo
+        # Distances are from the furtherest node back to the start node.
+        # Thus the maximum distance is distances['start'].
+
+        return distances
 
 
 class Graphs(object):
@@ -304,43 +320,38 @@ class Graphs(object):
     def nodes(self):
         return self.fwd.keys()
 
+    @property
+    def all_nodes(self):
+        # Use set to remove duplicates.
+        return list(set(self.cnodes.values()))
+
     def add_start_nodes(self):
 
-        # Chain all potential start nodes to node 'start'.
-        orphans = []
-        rorphans = []
-        # Use set to remove duplicates.
-        for node in list(set(self.cnodes.values())):
-            if node not in self.fwd:
-                self.fwd[node] = []                
-            if node not in self.rev:
-                self.rev[node] = [] 
-               
-            if self.fwd[node] == []:
-                orphans.append((node, 0))
-            if self.rev[node] == []:
-                rorphans.append((node, 0))
-        self.fwd.add_start_nodes(rorphans)
-        self.rev.add_start_nodes(orphans)
+        self.fwd.add_orphan_nodes(self.all_nodes)
+        self.rev.add_orphan_nodes(self.all_nodes)
+
+        self.fwd.add_start_nodes(self.rev.orphans)
+        self.rev.add_start_nodes(self.fwd.orphans)
 
     def analyse(self):
 
         self.add_start_nodes()
 
         # Find longest paths through the graphs.
-        length, node, memo = self.fwd.longest_path()
-        length, node, memor = self.rev.longest_path()
+        distances = self.fwd.longest_path()
+        distancesr = self.rev.longest_path()
 
         pos = {}
         posr = {}
         posa = {}
 
+        distance_max = distancesr['start']
         for node, gnode in self.cnodes.iteritems():
-            pos[node] = length - memo[gnode]
-            posr[node] = memor[gnode]
+            pos[node] = distance_max - distances[gnode]
+            posr[node] = distancesr[gnode]
             posa[node] = 0.5 * (pos[node] + posr[node])
 
-        return posa, length
+        return posa, distance_max
 
 
 class Node(object):
