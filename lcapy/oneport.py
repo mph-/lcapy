@@ -156,7 +156,10 @@ class OnePort(NetObject):
     def z(self):
         return self.Z.inverse_laplace(self.causal)
 
-    def netlist(self, drw, n1=None, n2=None):
+    def netlist(self, drw=None, n1=None, n2=None):
+
+        if drw is None:
+            drw = Drawing()        
         if n1 == None:
             n1 = drw.node
         if n2 == None:
@@ -167,8 +170,7 @@ class OnePort(NetObject):
 
     def sch(self):
 
-        drw = Drawing()
-        netlist = self.netlist(drw)
+        netlist = self.netlist()
         sch = Schematic()
         for net in netlist.split('\n'):
             sch.add(net)
@@ -498,7 +500,10 @@ class Par(ParSer):
             total += arg.height
         return total + (len(self.args) - 1) * self.hsep
 
-    def netlist(self, drw, n1=None, n2=None):
+    def netlist(self, drw=None, n1=None, n2=None):
+
+        if drw is None:
+            drw = Drawing()
 
         if len(self.args) > 2:
             raise NotImplementedError('Cannot handle more than two cpts in parallel')
@@ -590,7 +595,10 @@ class Ser(ParSer):
             total += arg.width
         return total + (len(self.args) - 1) * self.wsep
 
-    def netlist(self, drw, n1=None, n2=None):
+    def netlist(self, drw=None, n1=None, n2=None):
+
+        if drw is None:
+            drw = Drawing()
 
         s = []
         if n1 is None:
