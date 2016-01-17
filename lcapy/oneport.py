@@ -150,6 +150,9 @@ class OnePort(NetObject):
     def z(self):
         return self.Z.inverse_laplace(self.causal)
 
+    def height(self, this=1):
+        return this
+
     def netlist(self, drw, n1=None, n2=None):
         if n1 == None:
             n1 = drw.node
@@ -158,7 +161,6 @@ class OnePort(NetObject):
         return '%s %s %s %s; right' % (
             self.__class__.__name__, n1, n2,
             ' '.join([str(arg) for arg in self.args]))
-
 
     def sch(self):
 
@@ -473,6 +475,12 @@ class Par(ParSer):
     def v(self):
         return self.V.inverse_laplace()
 
+    def height(self, this=1):
+
+        total = 0
+        for arg in self.args:
+            total += arg.height(this)
+        return total
 
     def netlist(self, drw, n1=None, n2=None):
 
@@ -486,12 +494,16 @@ class Par(ParSer):
             n2 = drw.node
         n3, n4, n5 =  drw.node, drw.node, drw.node
         n6, n7, n8 =  drw.node, drw.node, drw.node
+        # The vertical wires will need to be lengthened depending
+        # on the height of the networks in parallel.
+        h1 = self.args[0].height() * 0.25 + 0.25
+        h2 = self.args[1].height() * 0.25 + 0.25
         s.append('W %s %s; right, size=0.5' % (n1, n3))
-        s.append('W %s %s; up, size=0.5' % (n3, n4))
-        s.append('W %s %s; down, size=0.5' % (n3, n5))
+        s.append('W %s %s; up, size=%s' % (n3, n4, h1))
+        s.append('W %s %s; down, size=%s' % (n3, n5, h2))
         s.append('W %s %s; right, size=0.5' % (n6, n2))
-        s.append('W %s %s; up, size=0.5' % (n6, n7))
-        s.append('W %s %s; down, size=0.5' % (n6, n8))
+        s.append('W %s %s; up, size=%s' % (n6, n7, h1))
+        s.append('W %s %s; down, size=%s' % (n6, n8, h2))
         s.append(self.args[0].netlist(drw, n4, n7))
         s.append(self.args[1].netlist(drw, n5, n8))
         return '\n'.join(s)
@@ -544,6 +556,14 @@ class Ser(ParSer):
 
         return result
 
+    def height(self, this=1):
+
+        total = 0
+        for arg in self.args:
+            val = arg.height(this)
+            if val > total:
+                total = val
+        return total
 
     def netlist(self, drw, n1=None, n2=None):
 
