@@ -62,6 +62,12 @@ class OnePort(NetObject):
 
     # Attributes: Y, Z, V, I, y, z, v, i
 
+    # Dimensions and separations of component with horizontal orientation.
+    height = 0.3
+    hsep = 0.5
+    width = 1
+    wsep = 0.5
+
     def __add__(self, OP):
         """Series combination"""
 
@@ -149,9 +155,6 @@ class OnePort(NetObject):
     @property
     def z(self):
         return self.Z.inverse_laplace(self.causal)
-
-    def height(self, this=1):
-        return this
 
     def netlist(self, drw, n1=None, n2=None):
         if n1 == None:
@@ -475,12 +478,23 @@ class Par(ParSer):
     def v(self):
         return self.V.inverse_laplace()
 
-    def height(self, this=1):
+    @property
+    def width(self):
 
         total = 0
         for arg in self.args:
-            total += arg.height(this)
-        return total
+            val = arg.width
+            if val > total:
+                total = val
+        return total + 2 * self.wsep
+
+    @property
+    def height(self):
+
+        total = 0
+        for arg in self.args:
+            total += arg.height
+        return total + (len(self.args) - 1) * self.hsep
 
     def netlist(self, drw, n1=None, n2=None):
 
@@ -496,12 +510,12 @@ class Par(ParSer):
         n6, n7, n8 =  drw.node, drw.node, drw.node
         # The vertical wires will need to be lengthened depending
         # on the height of the networks in parallel.
-        h1 = self.args[0].height() * 0.25 + 0.25
-        h2 = self.args[1].height() * 0.25 + 0.25
-        s.append('W %s %s; right, size=0.5' % (n1, n3))
+        h1 = (self.args[0].height + self.hsep) * 0.5
+        h2 = (self.args[1].height + self.hsep) * 0.5
+        s.append('W %s %s; right, size=%s' % (n1, n3, self.wsep))
         s.append('W %s %s; up, size=%s' % (n3, n4, h1))
         s.append('W %s %s; down, size=%s' % (n3, n5, h2))
-        s.append('W %s %s; right, size=0.5' % (n6, n2))
+        s.append('W %s %s; right, size=%s' % (n6, n2, self.wsep))
         s.append('W %s %s; up, size=%s' % (n6, n7, h1))
         s.append('W %s %s; down, size=%s' % (n6, n8, h2))
         s.append(self.args[0].netlist(drw, n4, n7))
@@ -556,14 +570,23 @@ class Ser(ParSer):
 
         return result
 
-    def height(self, this=1):
+    @property
+    def height(self):
 
         total = 0
         for arg in self.args:
-            val = arg.height(this)
+            val = arg.height
             if val > total:
                 total = val
         return total
+
+    @property
+    def width(self):
+
+        total = 0
+        for arg in self.args:
+            total += arg.width
+        return total + (len(self.args) - 1) * self.wsep
 
     def netlist(self, drw, n1=None, n2=None):
 
@@ -574,7 +597,7 @@ class Ser(ParSer):
             n3 = drw.node
             s.append(arg.netlist(drw, n1, n3))
             n1 = drw.node
-            s.append('W %s %s; right, size=0.5' % (n3, n1))
+            s.append('W %s %s; right, size=%s' % (n3, n1, self.wsep))
 
         if n2 is None:
             n2 = drw.node
