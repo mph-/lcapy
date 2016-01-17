@@ -174,9 +174,11 @@ class OnePort(NetObject):
             sch.add(net)
         return sch
 
-    def draw(self, label_ids=False, label_values=True, draw_nodes='connections',
+    def draw(self, filename=None, label_ids=False,
+             label_values=True, draw_nodes='connections',
              label_nodes=False):
-        self.sch().draw(label_ids=label_ids, label_values=label_values, 
+        self.sch().draw(filename=filename, label_ids=label_ids, 
+                        label_values=label_values, 
                         draw_nodes=draw_nodes, label_nodes=label_nodes)
         
 
