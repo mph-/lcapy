@@ -921,7 +921,12 @@ class L(Thevenin):
 
     Inductance Lval, initial current i0"""
 
-    def __init__(self, Lval, i0=0):
+    def __init__(self, Lval, i0=None):
+
+        if i0 is None:
+            i0 = 0
+        else:
+            self.hasic = True
 
         self.args = (Lval, i0)
         Lval = cExpr(Lval, positive=True)
@@ -929,9 +934,9 @@ class L(Thevenin):
         super(L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
         self.L = Lval
         self.i0 = i0
-        
-        if i0 != 0:
-            self.causal = False
+       
+        self.causal = self.i0 == 0
+        self.zeroic = self.i0 == 0 
 
 
 class C(Thevenin):
@@ -939,7 +944,12 @@ class C(Thevenin):
 
     Capacitance Cval, initial voltage v0"""
 
-    def __init__(self, Cval, v0=0):
+    def __init__(self, Cval, v0=None):
+
+        if v0 is None:
+            v0 = 0
+        else:
+            self.hasic = True
 
         self.args = (Cval, v0)
         Cval = cExpr(Cval, positive=True)
@@ -948,8 +958,9 @@ class C(Thevenin):
         self.C = Cval
         self.v0 = v0
 
-        if v0 != 0:
-            self.causal = False
+        self.causal = self.v0 == 0
+        self.zeroic = self.v0 == 0
+
 
 class Y(Norton):
     """General admittance."""

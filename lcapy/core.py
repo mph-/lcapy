@@ -2013,6 +2013,12 @@ class NetObject(object):
     # response of a causal system.
     causal = True
 
+    # True if initial conditions are zero (or unspecified).
+    zeroic = True
+
+    # True if initial conditions are specified.
+    hasic = False
+
     def __init__(self, args):
 
         self.args = args

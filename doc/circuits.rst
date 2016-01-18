@@ -51,7 +51,7 @@ and inductors can be replaced with short-circuits.  Currently, Lcapy
 does not perform DC analysis although this can achieved to some extent
 by using Lcapy to convert a circuit to a DC model.  Alternatively, a
 Laplace analysis can be performed provided the initial conditions are
-specified to avoid a transient reponse at :math:`t=0`.
+specified to avoid a transient response at :math:`t=0`.
 
 
 AC analysis
@@ -63,7 +63,7 @@ the source. Currently, Lcapy does not perform AC analysis although
 this can achieved to some extent by using Lcapy to convert a circuit
 to an AC model.  Alternatively, a Laplace analysis can be performed
 with :math:`s` replaced by :math:`\mathrm{j} \omega` assuming that the
-initial conditions are specified to avoid a transient reponse at
+initial conditions are specified to avoid a transient response at
 :math:`t=0`.
 
 
@@ -78,8 +78,8 @@ analogous to a causal impulse response.
 The response due to a non-causal excitation can be determined provided
 the initial conditions (i.e., the voltages across capacitors and
 currents through inductors) are specified.  More precisely, the
-pre-intial conditions at :math:`t = 0_{-}` are required.  These differ
-from the intial conditions at :math:`t = 0_{-}` whenever a Dirac delta
+pre-initial conditions at :math:`t = 0_{-}` are required.  These differ
+from the initial conditions at :math:`t = 0_{-}` whenever a Dirac delta
 (or its derivative) excitation is considered.  Determining the initial
 conditions is not straightforward for arbitrary excitations and at the
 moment Lcapy expects you to do this!

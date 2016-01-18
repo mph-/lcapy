@@ -102,6 +102,25 @@ class Cpt(object):
         return str(self)
 
     @property
+    def causal(self):
+        """Return True if causal component or if source produces
+        a causal signal"""
+
+        return self.cpt.causal
+
+    @property
+    def zeroic(self):
+        """Return True if initial conditions are zero (or unspecified)"""
+
+        return self.cpt.zeroic
+
+    @property
+    def hasic(self):
+        """Return True if initial conditions are specified"""
+
+        return self.cpt.hasic
+
+    @property
     def I(self):
         """Current through component"""
 

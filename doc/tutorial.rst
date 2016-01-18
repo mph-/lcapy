@@ -1048,7 +1048,7 @@ Other circuit methods
 
    cct.s_model()         Convert circuit to s-domain model.
 
-   cct.pre_initital_model()   Convert circuit to pre-initial model.
+   cct.pre_initial_model()   Convert circuit to pre-initial model.
 
 
 Plotting
