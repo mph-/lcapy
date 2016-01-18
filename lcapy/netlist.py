@@ -293,33 +293,6 @@ class Netlist(MNA):
         # to this component.
 
     @property
-    def causal(self):
-        """Return True if all components causal"""
-
-        for elt in self.elements.values():
-            if not elt.causal:
-                return False
-        return True
-
-    @property
-    def zeroic(self):
-        """Return True if the initial conditions for all components are zero"""
-
-        for elt in self.elements.values():
-            if not elt.zeroic:
-                return False
-        return True
-
-    @property
-    def hasic(self):
-        """Return True if any component has explicit initial conditions"""
-
-        for elt in self.elements.values():
-            if elt.hasic:
-                return True
-        return False
-
-    @property
     def v(self):
         """Return dictionary of t-domain node voltages indexed by node name
         and voltage differences indexed by branch name"""

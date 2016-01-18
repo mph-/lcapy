@@ -7,7 +7,7 @@ Copyright 2015, 2016 Michael Hayes, UCECE
 """
 
 from __future__ import print_function
-from lcapy.core import cExpr, Vs, Is, s, sqrt, uppercase_name
+from lcapy.core import cExpr, s, sqrt, uppercase_name
 from copy import copy
 import lcapy
 import inspect
@@ -184,7 +184,14 @@ class TimeVarying(Cpt):
         raise NotImplementedError('cannot analyse time-varying component %s' % self)
 
 
-class O(Cpt):
+class DummyCpt(Cpt):
+
+    causal = True
+    zeroic = True
+    hasic = False
+
+
+class O(DummyCpt):
     """Open circuit"""
 
     def stamp(self, cct, **kwargs):
@@ -321,7 +328,7 @@ class L(RLC):
                                      self.nodes[0], self.nodes[1], 
                                      self.cpt.i0, self.opts)       
 
-class E(Cpt):
+class E(DummyCpt):
     """VCVS"""
 
     def stamp(self, cct, **kwargs):
@@ -343,7 +350,7 @@ class E(Cpt):
             cct._C[m, n4] += A
 
 
-class F(Cpt):
+class F(DummyCpt):
     """CCCS"""
 
     def stamp(self, cct, **kwargs):
@@ -357,7 +364,7 @@ class F(Cpt):
             cct._B[n2, m] += F
 
 
-class G(Cpt):
+class G(DummyCpt):
     """VCCS"""
 
     def stamp(self, cct, **kwargs):
@@ -374,7 +381,7 @@ class G(Cpt):
             cct._G[n2, n4] -= G
 
 
-class H(Cpt):
+class H(DummyCpt):
     """CCVS"""
 
     def stamp(self, cct, **kwargs):
@@ -512,7 +519,7 @@ class TF(Cpt):
             cct._C[m, n4] += T
 
 
-class W(Cpt):
+class W(DummyCpt):
     """Wire"""
 
     def stamp(self, cct, **kwargs):

@@ -30,6 +30,7 @@ from __future__ import division
 import sympy as sym
 from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos
 from lcapy.schematic import Schematic
+from lcapy.sympify import symbols_find
 
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
@@ -1000,8 +1001,12 @@ class V(sV):
     def __init__(self, Vval):
 
         self.args = (Vval, )
+        if 's' not in symbols_find(Vval):
+            # TODO.  Try to determine if causal.  At the moment
+            # conservatively set as non causal.
+            self.causal = False
+
         Vval = tsExpr(Vval)
-        # TODO, if time domain set noncausal unless a constant.
         super(V, self).__init__(Vval)
 
 
@@ -1087,8 +1092,12 @@ class I(sI):
     def __init__(self, Ival):
 
         self.args = (Ival, )
+        if 's' not in symbols_find(Ival):
+            # TODO.  Try to determine if causal.  At the moment
+            # conservatively set as non causal.
+            self.causal = False
+
         Ival = tsExpr(Ival)
-        # TODO, if time domain set noncausal unless a constant.
         super(I, self).__init__(Ival)
 
 

@@ -1737,9 +1737,10 @@ class Vs(sExpr):
     quantity = 's-Voltage'
     units = 'V/Hz'
 
-    def __init__(self, val):
+    def __init__(self, val, causal=False):
 
         super(Vs, self).__init__(val)
+        self.causal = causal
         self._laplace_conjugate_class = Vt
 
     def cpt(self):
@@ -1760,9 +1761,10 @@ class Is(sExpr):
     quantity = 's-Current'
     units = 'A/Hz'
 
-    def __init__(self, val):
+    def __init__(self, val, causal=False):
 
         super(Is, self).__init__(val)
+        self.causal = causal
         self._laplace_conjugate_class = It
 
     def cpt(self):
