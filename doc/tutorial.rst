@@ -751,7 +751,19 @@ a strictly proper rational function:
      35      30 
    ───── - ─────
    s + 3   s + 2
+
    >>> H.inverse_laplace()
+   ⎧      -2⋅t       -3⋅t           
+   ⎨- 30⋅ℯ     + 35⋅ℯ      for t ≥ 0
+   ⎩                                
+
+Note that the unilateral inverse Laplace transform can only determine
+the result for t >= 0.  If you know that the system is causal, then use
+
+
+   >>> H.inverse_laplace(causal=True)
+
+This gives
    ⎛      -2⋅t       -3⋅t⎞             
    ⎝- 30⋅ℯ     + 35⋅ℯ    ⎠⋅Heaviside(t)
 
@@ -766,7 +778,7 @@ transform has Dirac deltas (and derivatives of Dirac deltas):
         70      90 
    5 + ───── - ─────
        s + 3   s + 2
-   >>> H.inverse_laplace()
+   >>> H.inverse_laplace(causal=True)
    ⎛      -2⋅t       -3⋅t⎞                               
    ⎝- 90⋅ℯ     + 70⋅ℯ    ⎠⋅Heaviside(t) + 5⋅DiracDelta(t)
 
@@ -786,7 +798,7 @@ repeated pole:
    ───── + ────────
    s + 3          2
            (s + 3) 
-   >>> H.inverse_laplace()
+   >>> H.inverse_laplace(causal=True)
    ⎛      -3⋅t      -3⋅t⎞             
    ⎝10⋅t⋅ℯ     + 5⋅ℯ    ⎠⋅Heaviside(t)
 
@@ -794,14 +806,14 @@ repeated pole:
 Rational functions with delays can also be handled:
 
    >>> from lcapy import s
-   >>> import Sympy as sym
+   >>> import sympy as sym
    >>> T = sym.symbols('T')
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * sym.exp(-s * T)
    >>> H.partfrac()
    ⎛      70      90 ⎞  -T⋅s
    ⎜5 + ───── - ─────⎟⋅ℯ    
    ⎝    s + 3   s + 2⎠      
-   >>> H.inverse_laplace()
+   >>> H.inverse_laplace(causal=True)
    ⎛      2⋅T - 2⋅t       3⋅T - 3⋅t⎞                                         
    ⎝- 90⋅ℯ          + 70⋅ℯ         ⎠⋅Heaviside(-T + t) + 5⋅DiracDelta(-T + t)
 
@@ -857,7 +869,7 @@ through an element, for example,
 Notice, how the displayed voltages are Laplace domain voltages.  The
 transient voltages can be determined using an inverse Laplace transform:
 
-   >>> cct.V1.V.inverse_laplace()
+   >>> cct.V1.V.inverse_laplace(causal=True)
    10.0⋅Heaviside(t)
 
 Alternatively, using the lowercase `v` attribute:
@@ -916,10 +928,11 @@ use the component name for its value.  For example,
           2    
    C₁⋅R₁⋅s  + s
    >>> : cct[2].V.inverse_laplace()
-   ⎛          -t  ⎞             
-   ⎜         ─────⎟             
-   ⎜         C₁⋅R₁⎟             
-   ⎝Vs - Vs⋅ℯ     ⎠⋅Heaviside(t)
+   ⎧            -t             
+   ⎪           ─────           
+   ⎨           C₁⋅R₁           
+   ⎪V_s - V_s⋅ℯ       for t ≥ 0
+   ⎩                           
 
 
 Initial Conditions
@@ -949,7 +962,7 @@ Here's an example using an arbitrary input voltage `V(s)`:
 
    >>> from lcapy import Circuit
    >>> cct = Circuit()
-   >>> cct.add('V1 1 0 V(s)') 
+   >>> cct.add('V1 1 0 {V(s)}') 
    >>> cct.add('R1 1 2') 
    >>> cct.add('C1 2 0') 
    >>> cct[2].V
@@ -965,13 +978,42 @@ Here's an example using an arbitrary input voltage `V(s)`:
 
 The corresponding impulse response can found from an inverse Laplace transform:
 
-   >>> H.inverse_laplace()
+   >>> H.inverse_laplace(causal=True)
      -t               
     ─────             
     C₁⋅R₁             
    ℯ     ⋅Heaviside(t)
    ───────────────────
           C₁⋅R₁ 
+
+Transfer functions can also be created using the transfer method of a
+circuit.  For example,
+
+   >>> from lcapy import Circuit
+   >>> cct = Circuit()
+   >>> cct.add('R1 1 2') 
+   >>> cct.add('C1 2 0') 
+   >>> H = cct.transfer(1, 0, 2, 0)
+   >>> H
+        1     
+   ───────────
+   C₁⋅R₁⋅s + 1
+
+In this example, the transfer method computes (V[1] - V[0]) / (V[2] -
+V[0]).  In general, all independent sources are killed and so the
+response is causal.
+
+   >>> H.inverse_laplace()
+     -t               
+    ─────             
+    C₁⋅R₁             
+   ℯ     ⋅Heaviside(t)
+   ───────────────────
+          C₁⋅R₁       
+
+
+
+
 
 
 Netlist specification

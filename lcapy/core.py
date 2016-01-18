@@ -1126,11 +1126,11 @@ class sExpr(sfwExpr):
 
         if causal:
             return result1 + result2 * sym.Heaviside(td)
-        else:
-            if td != 0:
-                result2 *= sym.Heaviside(td)
+
+        if delay != 0:
+            result2 *= sym.Heaviside(td)
                 
-            return sym.Piecewise((result1 + result2, 't>=0'))
+        return sym.Piecewise((result1 + result2, 't>=0'))
 
 
     def inverse_laplace(self, causal=None):
@@ -2009,8 +2009,8 @@ class ZsVector(Vector):
 
 class NetObject(object):
 
-    # Causal is not really the correct noun but it it indicates
-    # that the time response is zero for t < 0.
+    # A causal signal is zero for t < 0 analogous with the impulse
+    # response of a causal system.
     causal = True
 
     def __init__(self, args):
