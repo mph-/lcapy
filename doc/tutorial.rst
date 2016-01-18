@@ -68,7 +68,7 @@ and a s-domain expression can be created using:
    s - 4
 
 For steady-state signals, the s-domain can be converted to the angular
-frequency domain by substituting :math:`j \omega` for :math:`s`:
+frequency domain by substituting :math:`\mathrm{j} \omega` for :math:`s`
 
    >>> from lcapy import s, j, omega
    >>> H = (s + 3) / (s - 4)
@@ -837,10 +837,10 @@ Circuit analysis
 ================
 
 The nodal voltages for a linear circuit can be found using Modified
-Nodal Analysis (MNA).  This requires the circuit topology be entered as
-a netlist.  This describes each component, its name, value, and the
-nodes it is connected to.  This netlist can be read from a file or
-created dynamically, for example,
+Nodal Analysis (MNA).  This requires the circuit topology be entered
+as a netlist (see :ref:`netlists`).  This describes each component, its
+name, value, and the nodes it is connected to.  This netlist can be
+read from a file or created dynamically, for example,
 
    >>> from lcapy import Circuit
    >>> cct = Circuit()
@@ -958,7 +958,7 @@ Transfer functions
 
 Transfer functions can be found from the ratio of two s-domain
 quantities such as voltage or current with zero initial conditions.
-Here's an example using an arbitrary input voltage `V(s)`:
+Here's an example using an arbitrary input voltage `V(s)`
 
    >>> from lcapy import Circuit
    >>> cct = Circuit()
@@ -1010,136 +1010,6 @@ response is causal.
    ℯ     ⋅Heaviside(t)
    ───────────────────
           C₁⋅R₁       
-
-
-
-
-
-
-Netlist specification
----------------------
-
-The general form for a net is:
-
-    component-name positive-node negative-node arg1 [arg2 etc.]
-
-If no args are specified then the component value is assigned a
-symbolic name specified by `component-name`. 
-
-The component type is specified by the first letter(s) of the
-`component-name`.  For example,
-
-- DC voltage source of voltage V:
-
-   Vname Np Nm dc V
-
-- AC voltage source of voltage V, frequency f, and phase p:
-
-   Vname Np Nm ac V f p
-
-- Arbitrary s-domain voltage source:
-
-   Vname Np Nm Vexpr
-
-- DC current source of current I:
-
-   Iname Np Nm dc I
-
-- AC current source of current I, frequency f, and phase p:
-
-   Iname Np Nm ac I p
-
-- Arbitrary s-domain current source:
-
-   Iname Np Nm Iexpr
-
-- Resistor:
-
-   Rname Np Nm R
-
-- Conductor:
-
-   Gname Np Nm G
-
-- Inductor:
-
-   Lname Np Nm L i0
-
-- Capacitor:
-
-   Cname Np Nm L v0
-
-- Voltage-controlled voltage source (VCVS) of gain H with controlling nodes Nip and Nim:
-
-   Ename Np Nm Nip Nim H
-
-- Ideal transformer of turns ratio a:
-
-   TFname Np Nm a
-
-Np denotes the positive node; Np denotes the negative node.  Note,
-positive current flows from `positive-node` to `negative-node`.  Node
-names can be numeric or symbolic.  The ground node is designated `0`.
-
-
-Voltage and current sources
----------------------------
-
-The netlist for a voltage source has the form:
-
-Vname Np Nm value
-
-Here value can be an arbitrary expression; the expression must be
-enclosed in curly braces if it contains a delimiter such as a space,
-comma, left bracket, or right bracket.  For example, for a ramp
-voltage source
-
-V1 1 0 {t * Heaviside(t)}
-
-An s-domain value can be similarly described, for example
-
-V1 1 0 {10 / s}
-
-But what about the following example?
-
-V1 1 2 10
-
-Here the value is not an expression of t or s and so is ambiguous.
-For Spice compatibility, Lcapy assumes a DC value of 10 (in the
-s-domain this is equivalent to 10 / s).  An s-domain value of 10 can
-be achieved using:
-
-V1 1 2 {0 * s + 10}
-
-or
-
-V1 1 2 s 10
-
-or alternatively,
-
-V1 1 2 {20 * DiracDelta(t)}
-
-Unfortunately the sympy Laplace transform does not consider the lower
-limit of the integral to approach 0 in the limit from -oo and so the
-DiracDelta gives half the value expected in circuit analysis.
-
-To input an arbitrary time varying voltage use:
-
-V1 1 2 {v(t)}
-
-Here the value will be converted to V(s) for calculations but
-displayed on a schematic as v(t).   
-
-Here's an example of a cosine current current of amplitude 20 A and
-frequency f
-
-I1 1 0 {20 * cos(2 * pi * f * t)}
-
-Here's an example of a negative exponential current of amplitude 20 A
-and time constant 2 s
-
-I1 1 0 {20 * exp(-t / 4)}
-
 
 
 Other circuit methods
