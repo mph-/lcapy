@@ -28,7 +28,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos, Heaviside, DiracDelta
+from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos, is_causal
 from lcapy.schematic import Schematic
 from lcapy.sympify import symbols_find
 
@@ -999,14 +999,10 @@ class V(sV):
     def __init__(self, Vval):
 
         self.args = (Vval, )
-        Vsym = tsExpr(Vval)
-
         if 's' not in symbols_find(Vval):
-            # TODO.  Try to determine if causal.  At the moment
-            # conservatively set as non causal.
-            factors = tExpr(Vval).as_ordered_factors()
-            self.causal = (Vsym == 0) or (DiracDelta(t) in factors) or (Heaviside(t) in factors)
+            self.causal = is_causal(Vval)
 
+        Vsym = tsExpr(Vval)
         super(V, self).__init__(Vsym)
 
 
@@ -1092,14 +1088,11 @@ class I(sI):
     def __init__(self, Ival):
 
         self.args = (Ival, )
-        Isym = tsExpr(Ival)
 
         if 's' not in symbols_find(Ival):
-            # TODO.  Try to determine if causal.  At the moment
-            # conservatively set as non causal.
-            factors = tExpr(Ival).as_ordered_factors()
-            self.causal = (Isym == 0) or (DiracDelta(t) in factors) or (Heaviside(t) in factors)
+            self.causal = is_causal(Ival)
 
+        Isym = tsExpr(Ival)
         super(I, self).__init__(Isym)
 
 

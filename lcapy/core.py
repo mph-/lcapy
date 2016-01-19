@@ -135,7 +135,6 @@ tsym = symbol('t', real=True)
 fsym = symbol('f', real=True)
 omegasym = symbol('omega', real=True)
 
-
 class Exprdict(dict):
 
     """Decorator class for dictionary created by sympy"""
@@ -2174,5 +2173,26 @@ def delta(expr, *args):
 
     return DiracDelta(expr, *args)
 
+known_causal_factors = [0, DiracDelta(t).expr, Heaviside(t).expr]
+
+def has_causal_factor(expr):
+
+    factors = expr.as_ordered_factors()
+    for factor in known_causal_factors:
+        return True
+    return False
+
+
+def is_causal(val):
+    """Return True if time domain expression is zero for t < 0"""
+
+    expr = tExpr(val).expr
+
+    terms = expr.as_ordered_terms()
+    for term in terms:
+        if not has_causal_factor(term):
+            return False
+
+    return True
 
 from lcapy.oneport import L, C, R, G, Idc, Vdc

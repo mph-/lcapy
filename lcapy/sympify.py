@@ -87,15 +87,7 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
             if tokNum == NAME:
                 name = tokVal
 
-                name = canonical_name(str(name))
-
-                if name in local_dict:
-                    # print('Found %s' % name)
-                    # Could check assumptions.
-                    result.append((NAME, name))
-                    continue
-
-                elif name in global_dict:
+                if name in global_dict:
 
                     obj = global_dict[name]
                     if isinstance(obj, (Basic, type)):
@@ -106,11 +98,13 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
                         result.append((NAME, name))
                         continue
 
-                    # This does not work, say with delta * 5.
-                    # if (callable(obj) and
-                    #     nextTokNum == OP and nextTokVal == '('):
-                    #     result.append((NAME, name))
-                    #     continue
+                name = canonical_name(str(name))
+
+                if name in local_dict:
+                    # print('Found %s' % name)
+                    # Could check assumptions.
+                    result.append((NAME, name))
+                    continue
 
                 # Automatically add Symbol
                 result.extend([(NAME, 'Symbol'),
