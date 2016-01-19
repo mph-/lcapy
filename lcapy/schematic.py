@@ -79,7 +79,7 @@ class Opts(dict):
             self._parse(arg)
             return
 
-        for key, val in arg.iteritems():
+        for key, val in arg.items():
             self[key] = val
 
     def __str__(self):
@@ -94,7 +94,7 @@ class Opts(dict):
     def format(self):
 
         return ', '.join(['%s=%s' % (key, val)
-                          for key, val in self.iteritems()])
+                          for key, val in self.items()])
 
     def copy(self):
         
@@ -345,7 +345,7 @@ class Graphs(object):
         posa = {}
 
         distance_max = distancesr['start']
-        for node, gnode in self.cnodes.iteritems():
+        for node, gnode in self.cnodes.items():
             pos[node] = distance_max - distances[gnode]
             posr[node] = distancesr[gnode]
 
@@ -627,7 +627,7 @@ class Schematic(object):
         xpos, self.width = self.xgraphs.analyse()
         ypos, self.height = self.ygraphs.analyse()
 
-        for n, node in self.nodes.iteritems():
+        for n, node in self.nodes.items():
             node.pos = Pos(xpos[n], ypos[n])
 
     @property
@@ -684,7 +684,7 @@ class Schematic(object):
         s = r'\begin{tikzpicture}[%s]''\n' % opts
 
         # Write coordinates
-        for n, node in self.nodes.iteritems():
+        for n, node in self.nodes.items():
             s += r'  \coordinate (%s) at (%s);''\n' % (
                 n, node.pos)
 
@@ -844,7 +844,7 @@ class Schematic(object):
            debug: True to display debug information
         """
 
-        for key, val in opts.iteritems():
+        for key, val in opts.items():
             if key not in kwargs or kwargs[key] is None:
                 kwargs[key] = val
 

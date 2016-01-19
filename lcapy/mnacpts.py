@@ -246,7 +246,7 @@ class RLC(Cpt):
         # v(t) -> V(s)
         # v_C -> V_C
         # v_L(t) -> V_L(s)
-        for opt, val in voltage_opts.iteritems():
+        for opt, val in voltage_opts.items():
             opts[opt] = uppercase_name(val)
             
         onet = 'O%s %s %s; %s' % (self.name, 

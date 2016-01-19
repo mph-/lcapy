@@ -14,6 +14,10 @@ import sympy as sym
 # efficient and, more importantly, overcomes some of the wrapping
 # problems which casues the is_real attribute to be dropped.
 
+def namelist(elements):
+    return ', '.join([elt.name for elt in elements])
+
+
 class Mdict(dict):
 
     def __init__(self, branchdir, causal):
@@ -74,22 +78,23 @@ class MNA(object):
 
     @property
     def missing_ic(self):
-        """Return list of components that allow initial conditions
-        but do not have them explicitly defined"""
+        """Return components that allow initial conditions but do not have
+        them explicitly defined"""
 
-        return [key for key, elt in self.elements.iteritems() if elt.hasic is False]
+        return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is False)
 
     @property
     def noncausal_sources(self):
-        """Return list of non-causal independent sources"""
+        """Return non-causal independent sources"""
 
-        return [key for key, elt in self.elements.iteritems() if elt.source and not elt.causal]
+        return dict((key, elt) for key, elt in self.elements.items() if elt.source and not elt.causal)
 
     @property
-    def sources(self):
-        """Return list of independent sources"""
+    def independent_sources(self):
+        """Return independent sources (this does not include
+        implicit sources due to initial conditions)"""
 
-        return [key for key, elt in self.elements.iteritems() if elt.source]
+        return dict((key, elt) for key, elt in self.elements.items() if elt.source)
 
     @property
     def lnodes(self):
@@ -108,11 +113,11 @@ class MNA(object):
 
             n1, n2 = elt.nodes
 
-            for key1, nodes in lnodes.iteritems():
+            for key1, nodes in lnodes.items():
                 if n1 in nodes:
                     break
 
-            for key2, nodes in lnodes.iteritems():
+            for key2, nodes in lnodes.items():
                 if n2 in nodes:
                     break
 
@@ -121,7 +126,7 @@ class MNA(object):
 
         # Remove nodes that are not linked.
         pnodes = []
-        for key, nodes in lnodes.iteritems():
+        for nodes in lnodes.values():
             if len(nodes) > 1:
                 pnodes.append(nodes)
 
@@ -204,15 +209,15 @@ class MNA(object):
             print('Warning non-causal sources detected (%s)'
                   ' and initial conditions missing for %s;'
                   ' expect unexpected transient!' % (
-                      ', '.join(self.noncausal_sources),
-                      ', '.join(self.missing_ic)))
+                      namelist(self.noncausal_sources),
+                      namelist(self.missing_ic)))
 
         # Determine which branch currents are needed.
         self.unknown_branch_currents = []
 
-        for key, elt in self.elements.iteritems():
+        for elt in self.elements.values():
             if elt.type in ('E', 'H', 'L', 'V'):
-                self.unknown_branch_currents.append(key)
+                self.unknown_branch_currents.append(elt.name)
 
         # Generate stamps.
         num_nodes = len(self.node_list) - 1
@@ -285,7 +290,7 @@ class MNA(object):
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
-        for key, elt in self.elements.iteritems():
+        for elt in self.elements.values():
             if elt.type in ('R', 'C'):
                 n1, n2 = self.node_map[
                     elt.nodes[0]], self.node_map[elt.nodes[1]]

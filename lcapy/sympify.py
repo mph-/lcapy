@@ -109,7 +109,7 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
                 # Automatically add Symbol
                 result.extend([(NAME, 'Symbol'),
                                (OP, '('), (NAME, repr(name))])
-                for assumption, val in assumptions.iteritems():
+                for assumption, val in assumptions.items():
                     result.extend([(OP, ','), 
                                    (NAME, '%s=%s' % (assumption, val))])
                 result.extend([(OP, ')')])

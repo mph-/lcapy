@@ -754,7 +754,7 @@ class Expr(object):
 
         if  isinstance(args[0], dict):
             dst = self
-            for key, val in args[0].iteritems():
+            for key, val in args[0].items():
                 dst = dst._subs1(key, val, **kwargs)
 
             return dst
@@ -2178,8 +2178,11 @@ known_causal_factors = [0, DiracDelta(t).expr, Heaviside(t).expr]
 def has_causal_factor(expr):
 
     factors = expr.as_ordered_factors()
-    for factor in known_causal_factors:
-        return True
+    for factor in factors:
+        if factor in known_causal_factors:
+            return True
+    # f(a * t + b) is also causal for positive a and b for
+    # Heaviside and DiracDelta.
     return False
 
 

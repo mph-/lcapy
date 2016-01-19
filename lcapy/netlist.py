@@ -121,9 +121,6 @@ class Netlist(MNA):
 
         self.anon = {}
         self.elements = {}
-        # Independent current and voltage sources.  This does not include
-        # implicit sources due to initial conditions.
-        self.independent_sources = {}
         self.nodes = {}
         # Shared nodes (with same voltage)
         self.snodes = {}
@@ -157,7 +154,6 @@ class Netlist(MNA):
 
         raise AttributeError('Unknown element or node name %s' % name)
 
-
     def __getattr__(self, attr):
         """Return element or node by name"""
 
@@ -166,7 +162,6 @@ class Netlist(MNA):
         # and non-numerical node names.
 
         return self.__getitem__(attr)
-
 
     def netfile_add(self, filename):
         """Add the nets from file with specified filename"""
@@ -181,11 +176,7 @@ class Netlist(MNA):
     def netlist(self):
         """Return the current netlist"""
 
-        lines = ''
-        for key, elt in self.elements.iteritems():
-            line = str(elt)
-            lines += line + '\n'
-        return lines
+        return '\n'.join([str(elt) for elt in self.elements])
 
     def _node_add(self, node, elt):
 
@@ -245,9 +236,6 @@ class Netlist(MNA):
                 raise ValueError('Invalid component name %s' % elt.name)
 
         self.elements[elt.name] = elt
-
-        if elt.type in ('V', 'I'):
-            self.independent_sources[elt.name] = elt
 
         for node in elt.nodes:
             self._node_add(node, elt)
@@ -464,8 +452,8 @@ class Netlist(MNA):
         new = Circuit()
         new.opts = copy(self.opts)
 
-        for key, elt in self.elements.iteritems():
-            if key in sourcenames:
+        for elt in self.elements.values():
+            if elt.name in sourcenames:
                 net = elt.kill()
             else:
                 net = elt.kill_initial()
@@ -484,9 +472,9 @@ class Netlist(MNA):
             if arg not in self.independent_sources:
                 raise ValueError('Element %s is not a known source' % arg)
         sources = []
-        for key, source in self.independent_sources.iteritems():
-            if key not in args:
-                sources.append(key)
+        for elt in self.independent_sources.values():
+            if elt.name not in args:
+                sources.append(elt.name)
         return self._kill(sources)
 
     def kill(self, *args):
@@ -529,11 +517,10 @@ class Netlist(MNA):
         if hasattr(self, '_sch'):
             return self._sch
 
-        netlist = self.netlist()
-
         sch = Schematic()
 
-        for net in netlist.split('\n')[0:-1]:
+        netlist = self.netlist()
+        for net in netlist.split('\n'):
             sch.add(net)
 
         self._sch = sch
@@ -546,7 +533,7 @@ class Netlist(MNA):
         new = Circuit()
         new.opts = copy(self.opts)
 
-        for key, elt in self.elements.iteritems():
+        for elt in self.elements.values():
             net = elt.pre_initial_model()
             new.add(net)
         return new        
@@ -556,7 +543,7 @@ class Netlist(MNA):
         new = Circuit()
         new.opts = copy(self.opts)
 
-        for key, elt in self.elements.iteritems():
+        for elt in self.elements.values():
             net = elt.s_model(var)
             new.add(net)
         return new        

@@ -265,7 +265,7 @@ class Transistor(Cpt):
 
         label_str = '$%s$' % self.default_label if label_values else ''
         args_str = ''
-        for key, val in self.opts.iteritems():
+        for key, val in self.opts.items():
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
@@ -470,7 +470,7 @@ class OnePort(Cpt):
         current_str = ''
         label_str = ''
         args_str = ''
-        for key, val in self.opts.iteritems():
+        for key, val in self.opts.items():
             if key in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
                        'i>_', 'i<_', 'i>^', 'i<^'):
                 current_str += '%s=${%s}$, ' % (key, latex_str(val))
@@ -545,7 +545,7 @@ class Opamp(Cpt):
 
         label_str = '$%s$' % self.default_label if label_values else ''
         args_str = ''
-        for key, val in self.opts.iteritems():
+        for key, val in self.opts.items():
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
@@ -574,7 +574,7 @@ class FDOpamp(Cpt):
 
         label_str = '$%s$' % self.default_label if label_values else ''
         args_str = ''
-        for key, val in self.opts.iteritems():
+        for key, val in self.opts.items():
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
