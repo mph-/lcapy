@@ -77,23 +77,19 @@ class MNA(object):
         """Return list of components that allow initial conditions
         but do not have them explicitly defined"""
 
-        missing = []
-        for key, elt in self.elements.iteritems():
-            if elt.hasic is None:
-                continue
-            if not elt.hasic:
-                missing.append(key)
-        return missing
+        return [key for key, elt in self.elements.iteritems() if elt.hasic is False]
 
     @property
     def noncausal_sources(self):
         """Return list of non-causal independent sources"""
 
-        sources = []
-        for key, elt in self.elements.iteritems():
-            if elt.source and not elt.causal:
-                sources.append(key)
-        return sources
+        return [key for key, elt in self.elements.iteritems() if elt.source and not elt.causal]
+
+    @property
+    def sources(self):
+        """Return list of independent sources"""
+
+        return [key for key, elt in self.elements.iteritems() if elt.source]
 
     @property
     def lnodes(self):
