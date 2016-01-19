@@ -62,12 +62,38 @@ class MNA(object):
 
     @property
     def hasic(self):
-        """Return True if any component has explicit initial conditions"""
+        """Return True if all components that allow initial conditions
+        have them explicitly defined"""
 
         for elt in self.elements.values():
-            if elt.hasic:
-                return True
-        return False
+            if elt.hasic is None:
+                continue
+            if not elt.hasic:
+                return False
+        return True
+
+    @property
+    def missing_ic(self):
+        """Return list of components that allow initial conditions
+        but do not have them explicitly defined"""
+
+        missing = []
+        for key, elt in self.elements.iteritems():
+            if elt.hasic is None:
+                continue
+            if not elt.hasic:
+                missing.append(key)
+        return missing
+
+    @property
+    def noncausal_sources(self):
+        """Return list of non-causal independent sources"""
+
+        sources = []
+        for key, elt in self.elements.iteritems():
+            if elt.source and not elt.causal:
+                sources.append(key)
+        return sources
 
     @property
     def lnodes(self):
@@ -177,6 +203,13 @@ class MNA(object):
             
         if '0' not in self.node_map:
             raise RuntimeError('Nothing connected to ground node 0')
+
+        if not self.causal and not self.hasic:
+            print('Warning non-causal sources detected (%s)'
+                  ' and initial conditions missing for %s;'
+                  ' expect unexpected transient!' % (
+                      ', '.join(self.noncausal_sources),
+                      ', '.join(self.missing_ic)))
 
         # Determine which branch currents are needed.
         self.unknown_branch_currents = []

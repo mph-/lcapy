@@ -2018,8 +2018,10 @@ class NetObject(object):
     # True if initial conditions are zero (or unspecified).
     zeroic = True
 
+    # None if component does not have initial conditions.
     # True if initial conditions are specified.
-    hasic = False
+    # False if initial conditions are not specified.
+    hasic = None
 
     def __init__(self, args):
 

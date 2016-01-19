@@ -28,7 +28,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos
+from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos, Heaviside, DiracDelta
 from lcapy.schematic import Schematic
 from lcapy.sympify import symbols_find
 
@@ -924,10 +924,9 @@ class L(Thevenin):
 
     def __init__(self, Lval, i0=None):
 
+        self.hasic = i0 is not None
         if i0 is None:
             i0 = 0
-        else:
-            self.hasic = True
 
         self.args = (Lval, i0)
         Lval = cExpr(Lval, positive=True)
@@ -947,10 +946,9 @@ class C(Thevenin):
 
     def __init__(self, Cval, v0=None):
 
+        self.hasic = v0 is not None
         if v0 is None:
             v0 = 0
-        else:
-            self.hasic = True
 
         self.args = (Cval, v0)
         Cval = cExpr(Cval, positive=True)
@@ -1001,13 +999,15 @@ class V(sV):
     def __init__(self, Vval):
 
         self.args = (Vval, )
+        Vsym = tsExpr(Vval)
+
         if 's' not in symbols_find(Vval):
             # TODO.  Try to determine if causal.  At the moment
             # conservatively set as non causal.
-            self.causal = False
+            factors = tExpr(Vval).as_ordered_factors()
+            self.causal = (Vsym == 0) or (DiracDelta(t) in factors) or (Heaviside(t) in factors)
 
-        Vval = tsExpr(Vval)
-        super(V, self).__init__(Vval)
+        super(V, self).__init__(Vsym)
 
 
 class Vstep(sV):
@@ -1092,13 +1092,15 @@ class I(sI):
     def __init__(self, Ival):
 
         self.args = (Ival, )
+        Isym = tsExpr(Ival)
+
         if 's' not in symbols_find(Ival):
             # TODO.  Try to determine if causal.  At the moment
             # conservatively set as non causal.
-            self.causal = False
+            factors = tExpr(Ival).as_ordered_factors()
+            self.causal = (Isym == 0) or (DiracDelta(t) in factors) or (Heaviside(t) in factors)
 
-        Ival = tsExpr(Ival)
-        super(I, self).__init__(Ival)
+        super(I, self).__init__(Isym)
 
 
 class Istep(sI):

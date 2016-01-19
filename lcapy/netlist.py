@@ -411,7 +411,7 @@ class Netlist(MNA):
         Note, independent sources are killed."""
 
         new = self.kill()
-        new.add('V1_ %d %d impulse' % (N1p, N1m))
+        new.add('V1_ %d %d s 1' % (N1p, N1m))
 
         H = Hs(new.Voc(N2p, N2m) / new.V1_.V)
         H.causal = True
@@ -431,7 +431,7 @@ class Netlist(MNA):
 
         try:
 
-            self.add('V1_ %d %d impulse' % (N1p, N1m))
+            self.add('V1_ %d %d s 1' % (N1p, N1m))
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
@@ -443,7 +443,7 @@ class Netlist(MNA):
 
             self.remove('V1_')
 
-            self.add('I1_ %d %d impulse' % (N1p, N1m))
+            self.add('I1_ %d %d s 1' % (N1p, N1m))
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit

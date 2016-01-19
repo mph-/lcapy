@@ -46,7 +46,7 @@ class LcapyTester(unittest.TestCase):
 
         """
         a = Circuit()
-        a.add('V1 1 0')
+        a.add('V1 1 0 {V1 / s}')
         a.add('R1 1 2')
         a.add('C1 2 0')
 
@@ -72,7 +72,7 @@ class LcapyTester(unittest.TestCase):
 
         """
         a = Circuit()
-        a.add('V1 1 0')
+        a.add('V1 1 0 {V1 / s}')
         a.add('R1 1 2')
         a.add('L1 2 0')
 

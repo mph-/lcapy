@@ -18,6 +18,8 @@ module = sys.modules[__name__]
 
 class Cpt(object):
 
+    source = False
+
     def anon(self, cpt_type):
 
         cct = self.cct
@@ -188,7 +190,7 @@ class DummyCpt(Cpt):
 
     causal = True
     zeroic = True
-    hasic = False
+    hasic = None
 
 
 class O(DummyCpt):
@@ -402,6 +404,8 @@ class H(DummyCpt):
 
 class I(Cpt):
 
+    source = True
+
     def kill(self):
         newopts = self.opts.copy()
         newopts.strip_voltage_labels()
@@ -430,6 +434,8 @@ class I(Cpt):
 
 
 class V(Cpt):
+
+    source = True
 
     def kill(self):
         newopts = self.opts.copy()
