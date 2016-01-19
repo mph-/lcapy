@@ -15,7 +15,7 @@ import sympy as sym
 # problems which casues the is_real attribute to be dropped.
 
 def namelist(elements):
-    return ', '.join([elt.name for elt in elements])
+    return ', '.join([elt for elt in elements])
 
 
 class Mdict(dict):
@@ -65,10 +65,11 @@ class MNA(object):
         return True
 
     @property
-    def hasic(self):
+    def initial_value_problem(self):
         """Return True if all components that allow initial conditions
         have them explicitly defined"""
 
+        # This should be equivalent to self.allow_ic == self.explicit_ic
         for elt in self.elements.values():
             if elt.hasic is None:
                 continue
@@ -82,6 +83,20 @@ class MNA(object):
         them explicitly defined"""
 
         return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is False)
+
+    @property
+    def explicit_ic(self):
+        """Return components that have explicitly defined initial conditions
+
+        """
+
+        return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is True)
+
+    @property
+    def allow_ic(self):
+        """Return components (L and C) that allow initial conditions"""
+
+        return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is not None)
 
     @property
     def noncausal_sources(self):
@@ -205,7 +220,14 @@ class MNA(object):
         if '0' not in self.node_map:
             raise RuntimeError('Nothing connected to ground node 0')
 
-        if not self.causal and not self.hasic:
+        # Determine if all components that allow initial conditions
+        # have them explicitly defined.  In this case, we can only
+        # provide solution for t >= 0.
+        if self.causal and self.initial_value_problem and not self.zeroic:
+            raise Error('Detected initial value problem that has causal sources!')
+
+        if (not self.initial_value_problem and not self.causal and
+            self.missing_ic != {}):
             print('Warning non-causal sources detected (%s)'
                   ' and initial conditions missing for %s;'
                   ' expect unexpected transient!' % (

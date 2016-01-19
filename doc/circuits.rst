@@ -70,22 +70,42 @@ initial conditions are specified to avoid a transient response at
 Laplace analysis
 ----------------
 
-The response due to a causal transient excitation from an independent
-source can be analysed using Laplace analysis.  This is what Lcapy was
-originally designed for.  A causal signal is zero for :math:`t<0`
-analogous to a causal impulse response.
+The response due to a transient excitation from an independent source
+can be analysed using Laplace analysis.  This is what Lcapy was
+originally designed for.  Since the unilateral transform is not unique
+(it ignores the circuit behaviour for :math:`t < 0`), the response can
+only be determined for :math:`t \ge 0`.
 
-The response due to a non-causal excitation can be determined provided
-the initial conditions (i.e., the voltages across capacitors and
-currents through inductors) are specified.  More precisely, the
-pre-initial conditions at :math:`t = 0_{-}` are required.  These differ
-from the initial conditions at :math:`t = 0_{-}` whenever a Dirac delta
-(or its derivative) excitation is considered.  Determining the initial
+If the independent sources are known to be causal (a causal signal is
+zero for :math:`t < 0` analogous to a causal impulse response) and the
+initial conditions (i.e., the voltages across capacitors and currents
+through inductors) are zero, then the response is 0 for :math:`t < 0`.
+Thus in this case, the response can be specified for all :math:`t`.
+
+The response due to a general non-causal excitation is hard to
+determine using Laplace analysis.  One strategy is to use circuit
+analysis techniques to determine the response for :math:`t < 0`,
+compute the pre-initial conditions, and then use Laplace analysis to
+determine the response for :math:`t \ge 0`.  Note, the pre-initial
+conditions at :math:`t = 0_{-}` are required.  These differ from the
+initial conditions at :math:`t = 0_{-}` whenever a Dirac delta (or its
+derivative) excitation is considered.  Determining the initial
 conditions is not straightforward for arbitrary excitations and at the
 moment Lcapy expects you to do this!
 
-The use of initial conditions also allows switching circuits to be
-considered (see :ref:`switching-analysis`).
+The use of pre-initial conditions also allows switching circuits to be
+considered (see :ref:`switching-analysis`).  In this case the
+independent sources are ignored for :math:`t < 0` and the result is
+only known for :math:`t \ge 0`.
+
+Note if any of the pre-initial conditions are non-zero and the
+independent sources are causal then either we have an initial value
+problem or a mistake has been made.  Lcapy assumes that if all the
+inductors and capacitors have explicit initial conditions, then the
+circuit is to be analysed as an initial value problem with the
+independent sources ignored for :math:`t \ge 0`.  In this case a DC
+source is not DC since it is considered to switch on at :math:`t = 0`.
+
 
 .. _switching-analysis:
 
@@ -97,7 +117,9 @@ closing of switch changes the circuit and can produce transients.
 While a switch violates the LTI requirements for linear circuit
 analysis, the circuit prior to the switch changing can be analysed and
 used to determine the initial conditions for the circuit after the
-switched changed.  Lcapy requires that you do this!
+switched changed.  Lcapy requires that you do this!  The independent
+sources are ignored for :math:`t < 0` and the result is only known for
+:math:`t \ge 0`.
 
 
 Superposition

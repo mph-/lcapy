@@ -176,7 +176,7 @@ class Netlist(MNA):
     def netlist(self):
         """Return the current netlist"""
 
-        return '\n'.join([str(elt) for elt in self.elements])
+        return '\n'.join([str(elt) for elt in self.elements.values()])
 
     def _node_add(self, node, elt):
 
