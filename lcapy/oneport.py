@@ -165,7 +165,7 @@ class OnePort(NetObject):
             n1 = drw.node
         if n2 == None:
             n2 = drw.node
-        return '%s %s %s %s; right' % (
+        return '%s %s %s {%s}; right' % (
             self.__class__.__name__, n1, n2,
             ' '.join([str(arg) for arg in self.args]))
 
@@ -406,6 +406,9 @@ class ParSer(OnePort):
     def thevenin(self):
         """Simplify to a Thevenin network"""
 
+        # FIXME,  This jumps into the s-domain if have a combination of
+        # components.
+
         if self.Y == 0:
             print('Dodgy Norton to Thevenin transformation since Y = 0')
 
@@ -415,10 +418,18 @@ class ParSer(OnePort):
         if not isinstance(V1, OnePort):
             V1 = V(V1)
 
+        if V1.V == 0:
+            return Z1
+        if Z1.Z == 0:
+            return V1
+
         return Ser(Z1, V1)
 
     def norton(self):
         """Simplify to a Norton network"""
+
+        # FIXME,  This jumps into the s-domain if have a combination of
+        # components.
 
         if self.Z == 0:
             print('Dodgy Thevenin to Norton transformation since Z = 0')
@@ -428,6 +439,11 @@ class ParSer(OnePort):
             Y1 = Y(Y1)
         if not isinstance(I1, OnePort):
             I1 = I(I1)
+
+        if I1.I == 0:
+            return Y1
+        if Y1.Y == 0:
+            return I1
 
         return Par(Y1, I1)
 
