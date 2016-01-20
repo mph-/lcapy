@@ -515,17 +515,14 @@ class Schematic(object):
         if cpt.type in ('O', 'P', 'W') or id_label.find('#') != -1:
             id_label = None
 
-        if hasattr(cpt, 'Value'):
+        if cpt.args != ():
 
             # TODO, extend for mechanical and acoustical components.
             units_map = {'V': 'V', 'I': 'A', 'R': '$\Omega$',
                          'C': 'F', 'L': 'H'}
 
-            expr = cpt.Value
-            if cpt.classname in ('Vimpulse', 'Iimpulse'):
-                expr = '(%s) * DiracDelta(t)' % expr
-                value_label = Expr(expr, cache=False).latex()
-            elif cpt.classname in ('Vstep', 'Istep'):
+            expr = cpt.args[0]
+            if cpt.classname in ('Vstep', 'Istep'):
                 expr = '(%s) * Heaviside(t)' % expr
                 value_label = Expr(expr, cache=False).latex()
             elif cpt.classname in ('Vs', 'Is'):

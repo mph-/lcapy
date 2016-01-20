@@ -190,6 +190,7 @@ class Parser(object):
         # This is the most hackery aspect of this parser where we
         # choose the rule pattern based on a keyword.  If the
         # keyword is not present, default to first rule pattern.
+        # Perhaps a factory should sort this out.
         rule = self.ruledir[cpt_type][0]
         for rule1 in self.ruledir[cpt_type]:
             pos = rule1.pos
