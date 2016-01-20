@@ -6,8 +6,6 @@ Switch to setuptools.
 
 Use single representation for netlists/AST
 
-Generate schematic from abstract syntax tree (assume horizontal layout)
-
 Perhaps store initial circuit using time domain representation, then
 convert to s-domain for analysis, instead of waltzing straight into
 s-domain?
@@ -106,7 +104,12 @@ a time domain convolution.  Division?  This can be set when creating a
 transfer function since by definition the initial conditions are all
 zero.
 
-Update docs for inverse_laplace.  
-
 Add drawing methods to TwoPorts.
 
+Add crystal for schematics (XT) but not supported by circuitikz.
+
+Add thevenin/norton methods to NetObject?  Thevenin/Norton models are
+ frequency domain concepts so should these attempt to convert the
+ sources back to the time domain?
+
+Simplify series and parallel impedances

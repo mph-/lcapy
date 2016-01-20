@@ -69,6 +69,9 @@ class OnePort(NetObject):
     width = 1
     wsep = 0.5
 
+    netname = ''
+    netkeyword = ''
+
     def __add__(self, OP):
         """Series combination"""
 
@@ -141,6 +144,10 @@ class OnePort(NetObject):
 
         return self
 
+    def smodel(self):
+        """Convert to s-domain"""
+        raise NotImplemented('smodel not implemented')
+
     @property
     def v(self):
         return self.V.inverse_laplace(self.causal)
@@ -157,6 +164,9 @@ class OnePort(NetObject):
     def z(self):
         return self.Z.inverse_laplace(self.causal)
 
+    def netargs(self):
+        return ' '.join(['{%s}' % arg for arg in self.args])
+
     def netlist(self, drw=None, n1=None, n2=None):
 
         if drw is None:
@@ -165,9 +175,10 @@ class OnePort(NetObject):
             n1 = drw.node
         if n2 == None:
             n2 = drw.node
-        return '%s %s %s {%s}; right' % (
-            self.__class__.__name__, n1, n2,
-            ' '.join([str(arg) for arg in self.args]))
+
+        netname = self.__class__.__name__ if self.netname == '' else self.netname
+        return '%s %s %s %s %s; right' % (netname, n1, n2, 
+                                          self.netkeyword, self.netargs())
 
     def sch(self):
 
@@ -447,6 +458,11 @@ class ParSer(OnePort):
 
         return Par(Y1, I1)
 
+    def smodel(self):
+        """Convert to s-domain"""
+        args = [arg.smodel() for arg in self.args]
+        return (self.__class__(*args))
+
 
 class Par(ParSer):
     """Parallel class"""
@@ -721,6 +737,15 @@ class Norton(OnePort):
 
         return self
 
+    def smodel(self):
+        """Convert to s-domain"""
+
+        if self.I == 0:
+            return Y(self.Y)
+        if self.Y == 0:
+            return sI(self.I)
+        return Par(sI(self.I), Y(self.Y))
+
 
 class Thevenin(OnePort):
     """Thevenin (Z) model
@@ -902,6 +927,15 @@ class Thevenin(OnePort):
 
         return self
 
+    def smodel(self):
+        """Convert to s-domain"""
+
+        if self.V == 0:
+            return Z(self.Z)
+        if self.Z == 0:
+            return sV(self.V)
+        return Ser(sV(self.V), Z(self.Z))
+
 
 class Load(object):
 
@@ -1000,6 +1034,9 @@ class Z(Thevenin):
 class sV(Thevenin):
     """Arbitrary s-domain voltage source"""
 
+    netname = 'V'
+    netkeyword = 's'
+
     def __init__(self, Vval):
 
         self.args = (Vval, )
@@ -1025,6 +1062,9 @@ class V(sV):
 class Vstep(sV):
     """Step voltage source (s domain voltage of v / s)."""
 
+    netname = 'V'
+    netkeyword = 'step'
+
     def __init__(self, v):
 
         self.args = (v, )
@@ -1038,6 +1078,8 @@ class Vdc(Vstep):
     an s domain voltage of V / s)."""
 
     causal = False
+    netname = 'V'
+    netkeyword = 'dc'
     
     @property
     def v(self):
@@ -1068,6 +1110,8 @@ class Vac(Vacstep):
     """AC voltage source."""
 
     causal = False
+    netname = 'V'
+    netkeyword = 'ac'
 
     @property
     def v(self):
@@ -1086,6 +1130,9 @@ class v(sV):
 
 class sI(Norton):
     """Arbitrary s-domain current source"""
+
+    netname = 'I'
+    netkeyword = 's'
 
     def __init__(self, Ival):
 
@@ -1115,6 +1162,9 @@ class I(sI):
 class Istep(sI):
     """Step current source (s domain current of i / s)."""
 
+    netname = 'I'
+    netkeyword = 'step'
+
     def __init__(self, i):
 
         self.args = (i, )
@@ -1128,6 +1178,8 @@ class Idc(Istep):
     an s domain current of i / s)."""
 
     causal = False
+    netname = 'I'
+    netkeyword = 'dc'
     
     @property
     def i(self):
@@ -1156,6 +1208,8 @@ class Iac(Iacstep):
     """AC current source."""
 
     causal = False
+    netname = 'V'
+    netkeyword = 'ac'
 
     @property
     def i(self):
