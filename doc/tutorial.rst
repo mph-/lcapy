@@ -758,13 +758,11 @@ a strictly proper rational function:
    ⎩                                
 
 Note that the unilateral inverse Laplace transform can only determine
-the result for t >= 0.  If you know that the system is causal, then use
-
+the result for :math:`t \ge 0`.  If you know that the system is
+causal, then use:
 
    >>> H.inverse_laplace(causal=True)
-
-This gives
-   ⎛      -2⋅t       -3⋅t⎞             
+   ⎛      -2⋅t       -3⋅t⎞
    ⎝- 30⋅ℯ     + 35⋅ℯ    ⎠⋅Heaviside(t)
 
 The Heaviside function is the unit step.
