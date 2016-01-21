@@ -165,7 +165,14 @@ class OnePort(NetObject):
         return self.Z.inverse_laplace(self.causal)
 
     def netargs(self):
-        return ' '.join(['{%s}' % arg for arg in self.args])
+
+        def quote(arg):
+
+            if ('(' in arg) or (')' in arg) or (' ' in arg) or (',' in arg):
+                return '{%s}' % arg
+            return arg
+
+        return ' '.join([quote(str(arg)) for arg in self.args])
 
     def netlist(self, drw=None, n1=None, n2=None):
 

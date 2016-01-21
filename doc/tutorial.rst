@@ -1158,6 +1158,16 @@ Here's the result:
 .. image:: examples/networks/pickup.png
    :width: 5cm
 
+The s-domain model can be drawn using:
+
+   >>> from lcapy import R, C, L
+   >>> ((R(1) + L(2)) | C(3)).smodel().draw()
+
+This produces:
+
+.. image:: examples/networks/pickup-s.png
+   :width: 5cm
+
 Internally, Lcapy converts the network to a netlist and then draws the
 netlist.  The netlist can be found using the netlist method, for example,
 
