@@ -113,3 +113,8 @@ Add thevenin/norton methods to NetObject?  Thevenin/Norton models are
  sources back to the time domain?
 
 Simplify series and parallel impedances
+
+Add passive network synthesis to generate R, L, C network given an
+impedance...
+
+Input impedance aka driving point impedance

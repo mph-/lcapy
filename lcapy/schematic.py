@@ -54,7 +54,19 @@ parser = Parser(cpts, grammar)
 
 class Opts(dict):
 
-    def _parse(self, string):
+    def __init__(self, arg=None):
+
+        if arg is None:
+            return
+
+        if isinstance(arg, str):
+            self.add(arg)
+            return
+
+        for key, val in arg.items():
+            self[key] = val
+
+    def add(self, string):
 
         for part in string.split(','):
             part = part.strip()
@@ -68,19 +80,12 @@ class Opts(dict):
             fields = part.split('=')
             key = fields[0].strip()
             arg = '='.join(fields[1:]).strip() if len(fields) > 1 else ''
+            if arg in ('true', 'True'):
+                arg = True
+            elif arg in ('false', 'False'):
+                arg = False
+
             self[key] = arg
-
-    def __init__(self, arg=None):
-
-        if arg is None:
-            return
-
-        if isinstance(arg, str):
-            self._parse(arg)
-            return
-
-        for key, val in arg.items():
-            self[key] = val
 
     def __str__(self):
         return self.format()

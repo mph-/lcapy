@@ -207,15 +207,13 @@ class Netlist(MNA):
         to the negative node.
         """
 
-        if '\n' in string:
-            lines = string.split('\n')
-            for line in lines:
-                self.add(line.strip())
-            return
+        if string[0] == ';':
+            self.opts.add(string[1:])
+            return None
 
         cpt = parser.parse(string, self)
         if cpt is None:
-            return
+            return None
 
         opts = Opts(cpt.opts_string)
         cpt.opts = opts
@@ -248,6 +246,14 @@ class Netlist(MNA):
         A positive current is defined to flow from the positive node
         to the negative node.
         """
+
+        if '\n' in string:
+            lines = string.split('\n')
+            for line in lines:
+                line = line.strip()
+                if line != '':
+                    self.add(line)
+            return
 
         elt = self.parse(string)
         if elt is None:
