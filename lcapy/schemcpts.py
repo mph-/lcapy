@@ -504,8 +504,8 @@ class OnePort(Cpt):
         if not label_values and label_ids:
             label_str = ', l%s=${%s}$' % (id_pos, self.id_label)
 
-        s = r'  \draw (%s) to [align=right, %s%s, %s%s] (%s);''\n' % (
-            n1, tikz_cpt, label_str, args_str, node_str, n2)
+        s = r'  \draw (%s) to [align=right, %s%s, %s%s, n=%s] (%s);''\n' % (
+            n1, tikz_cpt, label_str, args_str, node_str, self.name, n2)
         return s
 
 
