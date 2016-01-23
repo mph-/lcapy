@@ -169,7 +169,7 @@ class Parser(object):
             return None
 
         self.string = string
-        fields = string.split(';')
+        fields = string.split(';', 1)
 
         fields = self.param_pattern.findall(fields[0])
 

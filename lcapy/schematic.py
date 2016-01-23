@@ -68,6 +68,10 @@ class Opts(dict):
 
     def add(self, string):
 
+        if string[0] == ';':
+            self['append'] += string[1:] + '\n'
+            return
+
         for part in string.split(','):
             part = part.strip()
             if part == '':
@@ -144,6 +148,7 @@ class SchematicOpts(Opts):
              'label_nodes': 'primary',
              'scale' : 1,
              'stretch' : 1,
+             'append' : '',
              'style' : 'american'})
 
 
@@ -706,6 +711,7 @@ class Schematic(object):
                 s += r'  \draw {[anchor=south east] (%s) node {%s}};''\n' % (
                     node.name, node.name.replace('_', r'\_'))
 
+        s += '  ' + kwargs.pop('append', '')
         s += r'\end{tikzpicture}''\n'
 
         return s
@@ -745,7 +751,7 @@ class Schematic(object):
         raise RuntimeError('Could not generate %s with convert' % 
                            png_filename)
 
-    def tikz_draw(self, filename, **kwargs):
+    def tikz_draw(self, filename=None, **kwargs):
 
         root, ext = path.splitext(filename)
 
@@ -780,6 +786,7 @@ class Schematic(object):
 
         template = ('\\documentclass[a4paper]{standalone}\n'
                     '\\usepackage{circuitikz}\n'
+                    '\\usetikzlibrary{fit}\n'
                     '\\begin{document}\n%s\\end{document}')
         content = template % content
 
