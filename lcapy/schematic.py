@@ -68,6 +68,9 @@ class Opts(dict):
 
     def add(self, string):
 
+
+        if string == '':
+            return
         if string[0] == ';':
             self['append'] += string[1:] + '\n'
             return
@@ -634,8 +637,9 @@ class Schematic(object):
         xpos, self.width = self.xgraphs.analyse()
         ypos, self.height = self.ygraphs.analyse()
 
+        scale = self.node_spacing
         for n, node in self.nodes.items():
-            node.pos = Pos(xpos[n], ypos[n])
+            node.pos = Pos(xpos[n] * scale, ypos[n] * scale)
 
     @property
     def xcnodes(self):
@@ -686,8 +690,8 @@ class Schematic(object):
 
         self._positions_calculate()
 
-        opts = r'scale=%.2f,/tikz/circuitikz/bipoles/length=%.1fcm,%s' % (
-            self.node_spacing, self.cpt_size, style_args)
+        opts = r'scale=%.2f,transform shape,/tikz/circuitikz/bipoles/length=%.1fcm,%s' % (
+            self.scale, self.cpt_size, style_args)
         s = r'\begin{tikzpicture}[%s]''\n' % opts
 
         # Write coordinates
@@ -761,9 +765,9 @@ class Schematic(object):
         stretch = float(kwargs.pop('stretch', 1.0))
         scale = float(kwargs.pop('scale', 1.0))
 
-        self.node_spacing = 2 * stretch * scale
-        self.cpt_size = 1.5 * scale
-        self.scale = scale
+        self.node_spacing = 2 * scale
+        self.cpt_size = self.node_spacing * 0.625 * stretch
+        self.scale = 1.0
 
         if style == 'american':
             style_args = 'american currents,american voltages'
