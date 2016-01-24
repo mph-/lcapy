@@ -276,7 +276,7 @@ class Transistor(Cpt):
 
         # Add additional wires.
         if self.tikz_cpt in ('pnp', 'npn'):
-            s += r'  \draw (%s.C) -- (%s) (%s.B) -- (%s) (%.E) -- (%s);''\n' %(self.name, self.dnodes[0], self.name, self.dnodes[1], self.name, self.dnodes[2])
+            s += r'  \draw (%s.C) -- (%s) (%s.B) -- (%s) (%s.E) -- (%s);''\n' %(self.name, self.dnodes[0], self.name, self.dnodes[1], self.name, self.dnodes[2])
         else:
             s += r'  \draw (%s.D) -- (%s) (%s.G) -- (%s) (%s.S) -- (%s);''\n' % (self.name, self.dnodes[0], self.name, self.dnodes[1], self.name, self.dnodes[2])
 
