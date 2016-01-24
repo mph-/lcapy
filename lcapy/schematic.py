@@ -690,6 +690,7 @@ class Schematic(object):
 
         self._positions_calculate()
 
+        # Note, scale does not scale the font size.
         opts = r'scale=%.2f,transform shape,/tikz/circuitikz/bipoles/length=%.1fcm,%s' % (
             self.scale, self.cpt_size, style_args)
         s = r'\begin{tikzpicture}[%s]''\n' % opts

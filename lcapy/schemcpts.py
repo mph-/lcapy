@@ -345,7 +345,7 @@ class TF1(TwoPort):
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
         xoffset = 0.06
-        yoffset = 0.40
+        yoffset = 0.5 * self.sch.cpt_size
 
         # TODO, fix positions if component rotated.
         primary_dot = Pos(p3.x - xoffset, 0.5 * (p3.y + p4.y) + yoffset)
@@ -394,7 +394,7 @@ class K(TF1):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super (K, self).__init__(sch, cpt_type, cpt_id, string, opts_string, nodes, *args)
+        super (K, self).__init__(sch, cpt_type, cpt_id, string, opts_string, nodes, *args[2:])
 
     @property
     def dnodes(self):
