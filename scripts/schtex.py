@@ -27,7 +27,7 @@ def main (argv=None):
 
     parser.add_option('--draw-nodes', type='str',
                       dest='draw_nodes', default=None,
-                      help='draw nodes, choice none, connections, primary, all')
+                      help='draw nodes, choice: none, connections, primary, all')
 
     parser.add_option('--nodraw-nodes', action='store_false',
                       dest='draw_nodes',
@@ -35,7 +35,7 @@ def main (argv=None):
 
     parser.add_option('--label-nodes', type='str',
                       dest='label_nodes', default=None,
-                      help='label nodes, choice none, primary, all')
+                      help='label nodes, choice: none, alpha, primary, all')
 
     parser.add_option('--nolabel-nodes', action='store_false',
                       dest='label_nodes',
@@ -74,15 +74,15 @@ def main (argv=None):
                       help='generate schematic with independent sources killed')
 
     parser.add_option('--scale', type='float',
-                      dest='scale', default=1,
+                      dest='scale', default=None,
                       help='schematic scale factor, this scales the schematic size but not the fonts')
 
-    parser.add_option('--node_spacing', type='float',
-                      dest='node_spacing', default=2.0,
+    parser.add_option('--node-spacing', type='float',
+                      dest='node_spacing', default=None,
                       help='this specifies the spacing of the nodes of a component')
 
-    parser.add_option('--cpt_size', type='float',
-                      dest='cpt_size', default=1.5,
+    parser.add_option('--cpt-size', type='float',
+                      dest='cpt_size', default=None,
                       help='this specifies the size of a component; it needs to be smaller than node_spacing')
     
     (options, args) = parser.parse_args()

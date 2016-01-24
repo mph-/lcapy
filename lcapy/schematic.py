@@ -712,6 +712,8 @@ class Schematic(object):
         # Label primary nodes
         if label_nodes:
             for m, node in enumerate(self.nodes.values()):
+                if label_nodes == 'alpha' and not node.name[0].isalpha():
+                    continue
                 if label_nodes == 'primary' and not node.primary:
                     continue
                 s += r'  \draw {[anchor=south east] (%s) node {%s}};''\n' % (
