@@ -53,8 +53,6 @@ wires do not need unique names.
 
 
 
-
-=============
 Documentation
 =============
 
@@ -88,9 +86,26 @@ The component orientation can also be specified by a direction keyword:
 
 For example:
 
-   >>> cct.add('D1 1 2; right')
+.. literalinclude:: examples/schematics/Dright.sch
 
-The drawing direction is from the positive node to the negative node.
+.. image:: examples/schematics/Dright.png
+   :width: 2.5cm
+
+.. literalinclude:: examples/schematics/Ddown.sch
+
+.. image:: examples/schematics/Ddown.png
+   :width: 1.5cm
+
+Note, the drawing direction is from the positive node to the negative
+node.
+
+Here's an example of how to draw a diode bridge:
+
+.. literalinclude:: examples/schematics/Dbridge.sch
+
+.. image:: examples/schematics/Dbridge.png
+   :width: 4cm
+
 
 Components can be mirrored about the x-axis using the mirror
 attribute.  For example, to switch the order of the inverting and
@@ -99,14 +114,19 @@ non-inverting inputs of an opamp use:
    >>> cct.add('E1 1 2 opamp 3 0; right, mirror')
 
 
+
+
 Component size
 --------------
 
-By default each component has a minimum size of 1.  This can be
+By default each component has a minimum size of 1. This can be
 stretched to satisfy a node constraint.  The minimum size is specified
 using the size keyword, for example:
 
    >>> cct.add('R1 1 2; right, size=2')
+
+The size argument is used as a scale factor for the component node
+spacing.
 
 
 Colors
@@ -209,6 +229,27 @@ A JFET is described using:
 where ND, NG, and NS denote the drain, gate, and source nodes.
 
 
+Annotation
+----------
+
+Schematics can be annotated using additional tikz commands in the
+netlist.  These are delimited by a line starting with two semicolons,
+for example:
+
+.. literalinclude:: examples/schematics/fit1.sch
+
+This example draws dashed boxes around the nodes 0, 1, and 6 and 2, 3,
+4, and 5:
+
+.. image:: examples/schematics/fit1.png
+   :width: 7cm
+
+Alternatively, the boxes can be fit around named components, for
+example::
+
+    ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
+
+
 Schematic examples
 ==================
 
@@ -251,7 +292,7 @@ Schematic examples
 .. literalinclude:: examples/schematics/K1.sch
 
 .. image:: examples/schematics/K1.png
-   :width: 3cm
+   :width: 5cm
 
 
 .. literalinclude:: examples/schematics/VRL2.sch
@@ -266,3 +307,18 @@ Schematic examples
    :width: 14cm
 
 
+
+schtex.py
+=========
+
+`schtex.py` is a Python script that will generate a schematic from a
+netlist file.  For example, here's how a PNG file can be generated:
+
+   >>> schtex.py Dbridge.sch Dbridge.png
+
+The generated LaTeX file can be obtained using:
+
+   >>> schtex.py Dbridge.sch Dbridge.tex
+
+`schtex.py` has many command line options to configure the drawing.
+These override the options specified in the netlist file.

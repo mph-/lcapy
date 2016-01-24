@@ -149,8 +149,9 @@ class SchematicOpts(Opts):
              'label_values': True,
              'label_ids': True,
              'label_nodes': 'primary',
-             'scale' : 1,
-             'stretch' : 1,
+             'scale' : 1.0,
+             'cpt_size' : 1.5,
+             'node_spacing' : 2.0,
              'append' : '',
              'style' : 'american'})
 
@@ -691,7 +692,7 @@ class Schematic(object):
         self._positions_calculate()
 
         # Note, scale does not scale the font size.
-        opts = r'scale=%.2f,transform shape,/tikz/circuitikz/bipoles/length=%.1fcm,%s' % (
+        opts = r'scale=%.2f,transform shape,/tikz/circuitikz/bipoles/length=%.2fcm,%s' % (
             self.scale, self.cpt_size, style_args)
         s = r'\begin{tikzpicture}[%s]''\n' % opts
 
@@ -763,12 +764,9 @@ class Schematic(object):
         debug = kwargs.pop('debug', False)
         oversample = float(kwargs.pop('oversample', 2))
         style = kwargs.pop('style', 'american')
-        stretch = float(kwargs.pop('stretch', 1.0))
-        scale = float(kwargs.pop('scale', 1.0))
-
-        self.node_spacing = 2 * scale
-        self.cpt_size = self.node_spacing * 0.625 * stretch
-        self.scale = 1.0
+        self.cpt_size = float(kwargs.pop('cpt_size', 1.2))
+        self.node_spacing = float(kwargs.pop('node_spacing', 2.0))
+        self.scale = float(kwargs.pop('scale', 1.0))
 
         if style == 'american':
             style_args = 'american currents,american voltages'
@@ -782,8 +780,9 @@ class Schematic(object):
         content = self._tikz_draw(style_args=style_args, **kwargs)
 
         if debug:
-            print('width = %d, height = %d, oversample = %d, stretch = %.2f, scale = %.2f'
-                  % (self.width, self.height, oversample, stretch, scale))
+            print('width = %d, height = %d, oversample = %d, cpt_size = %.2f, node_spacing = %.2f, scale = %.2f'
+                  % (self.width, self.height, oversample, 
+                     self.cpt_size, self.node_spacing, self.scale))
 
         if ext == '.pytex':
             open(filename, 'w').write(content)
@@ -852,8 +851,9 @@ class Schematic(object):
            label_values: True to display component values
            draw_nodes: True to show nodes
            style: 'american', 'british', or 'european'
-           scale: scale factor for component size
-           stretch: scale factor for node spacing
+           scale: schematic scale factor, default 1.0
+           node_spacing: spacing between component nodes, default 2.0
+           cpt_size: size of a component, default 1.5
            oversample: oversampling factor for png or pdf files
            debug: True to display debug information
         """

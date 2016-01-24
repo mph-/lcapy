@@ -75,11 +75,15 @@ def main (argv=None):
 
     parser.add_option('--scale', type='float',
                       dest='scale', default=1,
-                      help='schematic scale factor, this controls the size of components')
+                      help='schematic scale factor, this scales the schematic size but not the fonts')
 
-    parser.add_option('--stretch', type='float',
-                      dest='stretch', default=1,
-                      help='schematic stretch factor, this controls the spacing of components')
+    parser.add_option('--node_spacing', type='float',
+                      dest='node_spacing', default=2.0,
+                      help='this specifies the spacing of the nodes of a component')
+
+    parser.add_option('--cpt_size', type='float',
+                      dest='cpt_size', default=1.5,
+                      help='this specifies the size of a component; it needs to be smaller than node_spacing')
     
     (options, args) = parser.parse_args()
 
@@ -113,7 +117,8 @@ def main (argv=None):
 
     cct.draw(label_nodes=options.label_nodes, draw_nodes=options.draw_nodes,
              label_ids=options.label_ids, label_values=options.label_values, 
-             filename=outfilename, scale=options.scale, stretch=options.stretch,
+             filename=outfilename, scale=options.scale,
+             node_spacing=options.node_spacing, cpt_size=options.cpt_size,
              debug=options.debug)
 
     return 0
