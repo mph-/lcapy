@@ -344,7 +344,7 @@ class TF1(TwoPort):
 
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
-        xoffset = 0.06
+        xoffset = 0.1
         yoffset = 0.5 * self.sch.cpt_size
 
         # TODO, fix positions if component rotated.
