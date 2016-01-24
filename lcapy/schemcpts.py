@@ -269,8 +269,9 @@ class Transistor(Cpt):
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        s = r'  \draw (%s) node[%s, %s, scale=%.1f, rotate=%d] (T) {};''\n' % (
-            centre, self.tikz_cpt, args_str, self.sch.scale * 2, self.angle)
+        s = r'  \draw (%s) node[%s, %s, scale=%.1f, rotate=%d, n=%s] (T) {};''\n' % (
+            centre, self.tikz_cpt, args_str, self.sch.scale * 2, 
+            self.angle, self.name)
         s += r'  \draw (%s) node [] {%s};''\n'% (centre, label_str)
 
         # Add additional wires.
@@ -325,8 +326,8 @@ class TwoPort(Cpt):
 
         s = r'  \draw (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
             p4, p3, p1, p2, p4)
-        s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
-            centre, width, titlestr)
+        s += r'  \draw (%s) node[minimum width=%.1f, n=%s] {%s};''\n' % (
+            centre, width, titlestr, self.name)
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
             top, width, label_str)
 
@@ -358,8 +359,8 @@ class TF1(TwoPort):
 
         s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
         s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
-        s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
-            labelpos, 0.5, label_str)
+        s += r'  \draw (%s) node[minimum width=%.1f, n=%s] {%s};''\n' % (
+            labelpos, 0.5, label_str, self.name)
 
         if link:
             width = p1.x - p3.x
@@ -549,8 +550,9 @@ class Opamp(Cpt):
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        s = r'  \draw (%s) node[op amp, %s, scale=%.3f, rotate=%d] (opamp) {};' % (
-            centre, args_str, self.sch.scale * 2 * 1.01, self.angle)
+        s = r'  \draw (%s) node[op amp, %s, scale=%.3f, rotate=%d, n=%s] (opamp) {};' % (
+            centre, args_str, self.sch.scale * 2 * 1.01,
+            self.angle, self.name)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
         
@@ -578,8 +580,9 @@ class FDOpamp(Cpt):
             if key in ('color', ):
                 args_str += '%s=%s, ' % (key, val)                
 
-        s = r'  \draw (%s) node[fd op amp, %s, scale=%.3f, rotate=%d] (opamp) {};' % (
-            centre, args_str, self.sch.scale * 2 * 1.015, self.angle)
+        s = r'  \draw (%s) node[fd op amp, %s, scale=%.3f, rotate=%d, n=%s] (opamp) {};' % (
+            centre, args_str, self.sch.scale * 2 * 1.015, 
+            self.angle, self.name)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
         
