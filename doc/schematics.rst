@@ -4,10 +4,17 @@
 Schematics
 ==========
 
-Schematics can be generated from a netlist using Circuitikz for LaTeX
-diagrams.  Hints are required to designate component orientation and
-explicit wires are required to link nodes of the same potential but
-with different coordinates.
+
+Introduction
+============
+
+High quality schematics can be generated from a netlist using
+Circuitikz for LaTeX diagrams.  This is much easier than writing
+Circuitikz commands directly in LaTeX.
+
+A semi-automatic component placement is used with hints required to
+designate component orientation and explicit wires to link nodes of
+the same potential but with different coordinates.
 
 Here's an example:
    >>> from lcapy import Circuit
@@ -47,14 +54,22 @@ Here are the contents of the file 'voltage-divider.sch'::
 Here, P1 defines a port.  This is shown as a pair of open blobs.  The
 wires do not need unique names.
 
-
 .. image:: examples/schematics/voltage-divider.png
    :width: 5cm
 
 
 
-Documentation
-=============
+File formats
+============
+
+Lcapy uses the filename extension to determine the file format to
+produce.  This must be one of tex, png, svg, or pdf.  The tex format
+is useful for including schematics into LaTeX documents.  If no
+filename is specified, the schematic is displayed on the screen.
+
+
+Component orientation
+=====================
 
 Lcapy uses a semi-automated component layout.  Each component requires
 a specified orientation: up, down, left, or right.  In addition,
@@ -63,10 +78,6 @@ attributes can be added to override color, size, etc.
 The drawing direction provides a constraint.  For example, the nodes
 of components with a vertical orientation have the same x coordinate,
 whereas nodes of horizontal components have the same y coordinate.
-
-
-Component orientation
----------------------
 
 The component orientation is specified by a rotation angle.  This
 angle is degrees anticlockwise with zero degrees being along the
@@ -114,10 +125,8 @@ non-inverting inputs of an opamp use:
    >>> cct.add('E1 1 2 opamp 3 0; right, mirror')
 
 
-
-
 Component size
---------------
+==============
 
 By default each component has a minimum size of 1. This can be
 stretched to satisfy a node constraint.  The minimum size is specified
@@ -130,7 +139,7 @@ spacing.
 
 
 Colors
-------
+======
 
 By default the components are drawn in black.  This can be overridden
 with the color attribute, for example:
@@ -139,7 +148,7 @@ with the color attribute, for example:
 
 
 Labels
-------
+======
 
 Each component has a component identifier label and a value label.
 These can be augmented by explicit voltage and current labels.
@@ -165,12 +174,17 @@ displayed using:
 
     >>> cct.draw(label_ids=True, label_values=True)
 
+Schematic options are separated using a comma.  If you need a comma,
+say in a label, enclose the field in braces.  For example:
+
+    >>> C1 1 0 100e-12;down, size=1.5, v=\mathrm{5\,kV}
+
 
 Nodes
------
+=====
 
 Nodes are shown by a blob.  By default, only the primary nodes (those
-without an underscore in them) are not shown by default.  This is
+without an underscore in them) are shown by default.  This is
 equivalent to:
 
     >>> cct.draw(draw_nodes='primary')
@@ -196,9 +210,28 @@ No nodes can be labelled using:
 
     >>> cct.draw(label_nodes=False)
 
+Only nodes starting with a letter can be labelled using:
+
+    >>> cct.draw(label_nodes='alpha')
+
+In this case nodes with names such as `in` and `out` will be displayed
+but not numeric node names.
+
+These options can be stored with the schematic netlist, for example,::
+
+  C1 1 0 100e-12; down, size=1.5, v=\mathrm{5\,kV}
+  R1 1 6 1500; right
+  R2 2 4 1e12; down
+  C2 3 5 5e-9; down
+  W 2 3; right
+  W 0 4; right
+  W 4 5; right
+  SW 6 2 no; right, l=, size=1.5
+  ; draw_nodes=connections, label_nodes=False, label_ids=False
+
 
 Diodes and transistors
-----------------------
+======================
 
 Non-linear components such as diodes and transistors can be drawn (but
 not analyzed).  A standard diode is described using:
@@ -208,6 +241,16 @@ not analyzed).  A standard diode is described using:
 Other diodes are specified with an additional argument:
 
      Dname Np Nm schottky|led|zener|tunnel|photo 
+
+
+Here's an example:
+
+.. literalinclude:: examples/schematics/diodes.sch
+
+
+.. image:: examples/schematics/diodes.png
+   :width: 10cm
+
 
 Transistors (BJT, JFET, and MOSFET) can also be drawn but not analyzed.  Both
 are added to the netlist using a syntax similar to that of SPICE.  A BJT
@@ -228,9 +271,36 @@ A JFET is described using:
 
 where ND, NG, and NS denote the drain, gate, and source nodes.
 
+Here's an example:
+
+.. literalinclude:: examples/schematics/transistors.sch
+
+
+.. image:: examples/schematics/transistors.png
+   :width: 16cm
+
+
+Switches
+========
+
+Switches can be drawn but they are ignored for analysis since they
+make the circuit time-varying.
+
+The general format is:
+
+     SWname Np Nm nc|no|push
+
+Here's an example:
+
+.. literalinclude:: examples/schematics/switches.sch
+
+
+.. image:: examples/schematics/switches.png
+   :width: 10cm
+
 
 Annotation
-----------
+==========
 
 Schematics can be annotated using additional tikz commands in the
 netlist.  These are delimited by a line starting with two semicolons,
@@ -250,8 +320,8 @@ example::
     ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
 
 
-Schematic examples
-==================
+Examples
+========
 
 .. literalinclude:: examples/schematics/opamp-inverting-amplifier.sch
 
