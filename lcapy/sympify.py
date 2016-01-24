@@ -6,7 +6,9 @@ import re
 
 global_dict = {}
 exec('from sympy import *', global_dict)
-global_dict.pop('E1')
+global_ignore = ('C', 'O', 'S', 'N', 'E', 'E1', 'Q')
+for symbol in global_ignore:
+    global_dict.pop(symbol)
 # delta gets printed as DiracDelta; could override
 global_dict['delta'] = global_dict['DiracDelta']
 global_dict['step'] = global_dict['Heaviside']
@@ -40,7 +42,6 @@ def canonical_name(name):
 
     return name
 
-
 def symbols_find(arg):
     """Return list of symbols in arg.  No symbols are cached."""
 
@@ -69,7 +70,6 @@ def symbols_find(arg):
     if not isinstance(arg, (Symbol, Expr)):
         return []
     return [symbol.name for symbol in arg.atoms(Symbol)]
-
 
 def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
 
