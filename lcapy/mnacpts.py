@@ -35,7 +35,7 @@ class Cpt(object):
         self.id = cpt_id
 
         if cpt_id == '' and cct is not None:
-            cpt_id = '#' + self.anon(cpt_type)
+            cpt_id = '@' + self.anon(cpt_type)
 
         name = self.type + cpt_id
 

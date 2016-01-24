@@ -149,8 +149,8 @@ class Netlist(MNA):
             return self.elements[name]
 
         # Try first anonymous name.
-        if name + '#1' in self.elements:
-            return self.elements[name + '#1']
+        if name + '@1' in self.elements:
+            return self.elements[name + '@1']
 
         raise AttributeError('Unknown element or node name %s' % name)
 
