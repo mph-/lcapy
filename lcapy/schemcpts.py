@@ -17,6 +17,12 @@ module = sys.modules[__name__]
 
 class Cpt(object):
 
+    voltage_keys = ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<')
+    current_keys = ('i', 'i_', 'i^', 'i_>',  'i_<', 'i^>', 'i^<',
+                    'i>_', 'i<_', 'i>^', 'i<^')
+    label_keys = ('l', 'l_', 'l^')
+    misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size', 'dir')
+
     def anon(self, cpt_type):
 
         sch = self.sch
@@ -254,25 +260,28 @@ class Cpt(object):
     @property
     def voltage_str(self):
 
-        return self.opts_str(('v', 'v_', 'v^', 'v_>', 
-                              'v_<', 'v^>', 'v^<'))
+        return self.opts_str(self.voltage_keys)
 
     @property
     def current_str(self):
 
-        return self.opts_str(('i', 'i_', 'i^', 'i_>', 
-                              'i_<', 'i^>', 'i^<',
-                              'i>_', 'i<_', 'i>^', 'i<^'))
+        return self.opts_str(self.current_keys)
 
     @property
     def label_str(self):
 
-        return self.opts_str(('l', 'l_', 'l^'))
+        return self.opts_str(self.label_keys)
 
     @property
     def args_str(self):
 
-        return self.opts_str(('color', ))
+        def fmt(key, val):
+            return '%s=%s' % (key, format_label(val))
+
+        return ','.join([fmt(key, val) 
+                         for key, val in self.opts.items()
+                         if key not in self.voltage_keys + self.current_keys + self.label_keys + self.misc_keys])
+
 
     def label(self, **kwargs):
 
@@ -287,6 +296,7 @@ class Cpt(object):
         if str != '':
             label_str = str
         return label_str
+
 
 class Transistor(Cpt):
     """Transistor"""
@@ -331,8 +341,8 @@ class JFET(Transistor):
 class MOSFET(Transistor):
     """Transistor"""
     
-    npos = ((0.85, 1.5), (-0.25, 0.75), (0.85, 0))
-    ppos = ((0.85, 0), (-0.25, 0.75), (0.85, 1.5))
+    npos = ((0.85, 1.52), (-0.25, 0.76), (0.85, 0))
+    ppos = ((0.85, 0), (-0.25, 0.76), (0.85, 1.52))
 
 
 class TwoPort(Cpt):
@@ -619,7 +629,7 @@ class Wire(OnePort):
             anchor = 'north west'
 
         n1 = self.dnodes[0]
-        s = r'  \draw (%s) node[%s, rotate=%d] {};''\n' % (
+        s = r'  \draw (%s) node[%s,scale=0.5,rotate=%d] {};''\n' % (
             n1, kind, self.angle + 90)
 
         lpos = self.sch.nodes[n1].pos + np.dot((0.25, 0), self.R)
