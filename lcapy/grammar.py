@@ -52,6 +52,8 @@ TF: TFname Np Nm Ncp Ncm [Value]; Transformer (works to DC!)
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 V: Vname Np Nm [Value]; Voltage source
 sV: Vname Np Nm s [Value]; s-domain voltage source
+Ubuffer: Uname Np Nm buffer; Buffer
+Uinverter: Uname Np Nm inverter; Inverter
 Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vstep: Vname Np Nm step [Value]; Step voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
@@ -83,6 +85,8 @@ nc: keyword;
 spdt: keyword;
 opamp: keyword;
 fdopamp: keyword;
+buffer: keyword;
+inverter: keyword;
 push: keyword;
 Nb: node; Base node
 Nc: node; Collector node

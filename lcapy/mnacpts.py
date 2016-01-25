@@ -186,6 +186,12 @@ class TimeVarying(Cpt):
         raise NotImplementedError('cannot analyse time-varying component %s' % self)
 
 
+class Logic(Cpt):
+
+    def stamp(self, cct, **kwargs):
+        raise NotImplementedError('cannot analyse logic component %s' % self)
+
+
 class DummyCpt(Cpt):
 
     causal = True
@@ -607,6 +613,9 @@ defcpt('SWno', 'SW', 'Normally open switch')
 defcpt('SWnc', 'SW', 'Normally closed switch')
 defcpt('SWpush', 'SW', 'Pushbutton switch')
 defcpt('SWspdt', 'SW', 'SPDT switch')
+
+defcpt('Ubuffer', Logic, 'Buffer')
+defcpt('Uinverter', Logic, 'Inverter')
 
 defcpt('sV', V, 's-domain voltage source')
 defcpt('Vsin', V, 'Sinusoidal voltage source')

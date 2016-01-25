@@ -614,6 +614,26 @@ class SPDT(Cpt):
         return s
 
 
+class Logic(Cpt):
+    """Logic"""
+
+    @property
+    def coords(self):
+        return ((0, 0), (0.75, 0))
+
+    def draw(self, **kwargs):
+
+        # TODO, fix scaling to make buffer and inverter same size.
+
+        p1, p2 = [self.sch.nodes[n].pos for n in self.dnodes]
+        centre = (p1 + p2) * 0.5
+        s = r'  \draw (%s) node[align=left, %s, %s, rotate=%d] (%s) {};''\n' % (
+            centre, self.tikz_cpt, self.args_str, self.angle, self.name)
+        s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
+        s += self._draw_nodes(**kwargs)
+        return s
+
+
 class Wire(OnePort):
 
     @property
@@ -736,7 +756,7 @@ defcpt('Qnpn', 'Q', 'NPN transistor', 'npn')
 
 defcpt('R', OnePort, 'Resistor', 'R')
 
-defcpt('SW', OnePort, 'SWitch', 'closing switch')
+defcpt('SW', OnePort, 'Switch', 'closing switch')
 defcpt('SWno', 'SW', 'Normally open switch', 'closing switch')
 defcpt('SWnc', 'SW', 'Normally closed switch', 'opening switch')
 defcpt('SWpush', 'SW', 'Pushbutton switch', 'push button')
@@ -744,6 +764,9 @@ defcpt('SWspdt', SPDT, 'SPDT switch', 'spdt')
 
 defcpt('TF', TwoPort, 'Transformer', 'transformer')
 defcpt('TP', TwoPort, 'Two port', '')
+
+defcpt('Ubuffer', Logic, 'Buffer', 'buffer')
+defcpt('Uinverter', Logic, 'Inverter', 'american not port')
 
 defcpt('V', OnePort, 'Voltage source', 'V')
 defcpt('sV', OnePort, 'Voltage source', 'V')
