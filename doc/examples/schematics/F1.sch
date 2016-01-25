@@ -11,4 +11,5 @@ R4 4 0_4 R_L; down
 W 0_2 0_3; size=1.2
 W 0_3 0_4
 P1 4 0_4; down
+; label_ids=False, draw_nodes=connections, label_nodes=False
 

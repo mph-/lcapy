@@ -63,9 +63,10 @@ File formats
 ============
 
 Lcapy uses the filename extension to determine the file format to
-produce.  This must be one of tex, png, svg, or pdf.  The tex format
-is useful for including schematics into LaTeX documents.  If no
-filename is specified, the schematic is displayed on the screen.
+produce.  This must be one of tex, pytes, png, svg, or pdf.  The pytex
+format is useful for including schematics into LaTeX documents.  The
+tex format generates a standalone LaTeX file.  If no filename is
+specified, the schematic is displayed on the screen.
 
 
 Component orientation
@@ -162,7 +163,7 @@ These can be augmented by explicit voltage and current labels.
 The label name is displayed using LaTeX math mode, so superscripts and
 subscripts can be employed.  For example,
 
->>> cct.add('R1 1 2; right, i=I_1, v=V_{R_1}')
+>>> cct.add('R1 1 2; right, i=$I_1$, v=$V_{R_1}$')
 
 The label position, current and voltage direction can be controlled
 with attributes _ ^ < and >, for example i^<=I_1.  See the Circuitikz
@@ -177,7 +178,14 @@ displayed using:
 Schematic options are separated using a comma.  If you need a comma,
 say in a label, enclose the field in braces.  For example:
 
-    >>> C1 1 0 100e-12;down, size=1.5, v=\mathrm{5\,kV}
+    >>> C1 1 0 100e-12;down, size=1.5, v={5\,kV}
+
+Math-mode labels need to be enclosed in `$...$`.  There is an
+experimental feature that is activated when the label starts with a
+single `$`.  In this case, Lcapy tries to generate a nice LaTeX label.
+For example, words in sub- and superscripts are converted into a roman
+font using `mathrm`.  This feature is also activated if the label is
+not enclosed in `$...$` but includes an `^` or `_`.
 
 
 Nodes
@@ -219,7 +227,7 @@ but not numeric node names.
 
 These options can be stored with the schematic netlist, for example,::
 
-  C1 1 0 100e-12; down, size=1.5, v=\mathrm{5\,kV}
+  C1 1 0 100e-12; down, size=1.5, v={5\,kV}
   R1 1 6 1500; right
   R2 2 4 1e12; down
   C2 3 5 5e-9; down

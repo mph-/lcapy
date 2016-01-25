@@ -7,7 +7,7 @@ Copyright 2015, 2016 Michael Hayes, UCECE
 
 
 from __future__ import print_function
-from lcapy.latex import latex_str
+from lcapy.latex import latex_str, format_label
 from lcapy.schemmisc import Pos
 import numpy as np
 import sys
@@ -244,7 +244,10 @@ class Cpt(object):
 
     def opts_str(self, choices):
 
-        return ','.join(['%s=${%s}$' % (key, latex_str(val)) 
+        def fmt(key, val):
+            return '%s=%s' % (key, format_label(val))
+
+        return ','.join([fmt(key, val) 
                          for key, val in self.opts.items()
                          if key in choices])
 
@@ -269,17 +272,15 @@ class Cpt(object):
     @property
     def args_str(self):
 
-        return ','.join(['%s=%s' % (key, latex_str(val)) 
-                         for key, val in self.opts.items()
-                         if key in ('color', )])
+        return self.opts_str(('color', ))
 
     def label(self, **kwargs):
 
         label_values = kwargs.get('label_values', True)
-        label_str = '$%s$' % self.default_label if label_values else ''
+        label_str = self.default_label if label_values else ''
 
         # Override label if specified.  There are no placement options.
-        str =  ','.join(['${%s}$' % latex_str(val)
+        str =  ','.join([format_label(val)
                          for key, val in self.opts.items()
                          if key in ('l', )])
 
@@ -497,29 +498,27 @@ class OnePort(Cpt):
         node_str = self._node_str(self.sch.nodes[n1], self.sch.nodes[n2],
                                   **kwargs)
 
-        args_str = ''.join([self.args_str, self.voltage_str,
-                            self.current_str])
+        args_str = ','.join([self.args_str, self.voltage_str,
+                             self.current_str])
 
         # Generate default label.
-        label_str = ''
-        if self.type not in ('O', 'W'):
-            label_str = ', l%s=${%s}$' % (id_pos, self.default_label)
-                
-            if label_ids and self.value_label != '':
-                label_str = r', l%s=${%s=%s}$' % (
-                    id_pos, self.id_label, self.value_label)
-
-        if not label_values:
+        if (label_ids and label_values and self.id_label != '' 
+            and self.value_label):
+            label_str = r'l%s={%s=%s}' % (
+                id_pos, self.id_label, self.value_label)
+        elif label_ids and self.id_label != '':
+            label_str = 'l%s=%s' % (id_pos, self.id_label)
+        elif label_values and self.value_label != '':
+            label_str = r'l%s=%s' % (
+                id_pos, self.value_label)            
+        else:
             label_str = ''
-
-        if not label_values and label_ids:
-            label_str = ', l%s=${%s}$' % (id_pos, self.id_label)
 
         # Override label if specified.
         if self.label_str != '':
             label_str = self.label_str
 
-        s = r'  \draw (%s) to [align=right,%s,%s,%s%s,n=%s] (%s);''\n' % (
+        s = r'  \draw (%s) to [align=right,%s,%s,%s,%s,n=%s] (%s);''\n' % (
             n1, tikz_cpt, label_str, args_str, node_str, self.name, n2)
         return s
 
@@ -626,9 +625,8 @@ class Wire(OnePort):
         lpos = self.sch.nodes[n1].pos + np.dot((0.25, 0), self.R)
 
         if 'l' in self.opts:
-            label_str = '${%s}$' % latex_str(self.opts['l'])
             s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
-                anchor, lpos, label_str)
+                anchor, lpos, self.label(**kwargs))
         return s
 
     def draw(self, **kwargs):

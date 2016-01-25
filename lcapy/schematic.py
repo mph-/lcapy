@@ -39,7 +39,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 from __future__ import print_function
 import numpy as np
 import re
-from lcapy.latex import latex_str
+from lcapy.latex import latex_str, format_label
 from lcapy.core import Expr
 import grammar
 from parser import Parser
@@ -578,8 +578,8 @@ class Schematic(object):
         # defaults to the component identifier.  Note, some objects
         # we do not want to label, such as wires and ports.
 
-        cpt.id_label = '' if id_label is None else latex_str(id_label)
-        cpt.value_label = '' if value_label is None else latex_str(value_label)
+        cpt.id_label = '' if id_label is None else format_label(id_label)
+        cpt.value_label = '' if value_label is None else format_label(value_label)
         cpt.default_label = cpt.id_label if cpt.value_label == '' else cpt.value_label
 
         # Drawing hints
