@@ -47,6 +47,7 @@ R: Rname Np Nm [Value]; Resistor
 SWnc: SWname Np Nm nc; Switch normally closed
 SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch
+SWspdt: SWname Nc Np Nm spdt; SPDT switch
 TF: TFname Np Nm Ncp Ncm [Value]; Transformer (works to DC!)
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 V: Vname Np Nm [Value]; Voltage source
@@ -79,6 +80,7 @@ nmos: keyword;
 pmos: keyword;
 no: keyword;
 nc: keyword;
+spdt: keyword;
 opamp: keyword;
 fdopamp: keyword;
 push: keyword;

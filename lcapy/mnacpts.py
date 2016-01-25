@@ -606,6 +606,7 @@ defcpt('SW', TimeVarying, 'Switch')
 defcpt('SWno', 'SW', 'Normally open switch')
 defcpt('SWnc', 'SW', 'Normally closed switch')
 defcpt('SWpush', 'SW', 'Pushbutton switch')
+defcpt('SWspdt', 'SW', 'SPDT switch')
 
 defcpt('sV', V, 's-domain voltage source')
 defcpt('Vsin', V, 'Sinusoidal voltage source')

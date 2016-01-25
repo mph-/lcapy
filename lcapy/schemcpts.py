@@ -316,10 +316,9 @@ class Transistor(Cpt):
         p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dnodes]
         centre = (p1 + p3) * 0.5
 
-        s = r'  \draw (%s) node[%s, %s, scale=%.1f, rotate=%d] (%s) {};''\n' % (
-            centre, self.tikz_cpt, self.args_str, self.sch.scale * 2, 
-            self.angle, self.name)
-        s += r'  \draw (%s) node [] {%s};''\n'% (centre, self.label(**kwargs))
+        s = r'  \draw (%s) node[%s, %s, scale=2, rotate=%d] (%s) {};''\n' % (
+            centre, self.tikz_cpt, self.args_str, self.angle, self.name)
+        s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
 
         # Add additional wires.
         if self.tikz_cpt in ('pnp', 'npn'):
@@ -407,9 +406,8 @@ class TF1(TwoPort):
             width = p1.x - p3.x
             arcpos = Pos((p1.x + p3.x) / 2, secondary_dot.y - width / 2 + 0.2)
 
-            s += r'  \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);' % (
+            s += r'  \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (
                 width / 2, arcpos, width / 2)
-            s += '\n'
 
         return s
 
@@ -514,13 +512,12 @@ class OnePort(Cpt):
         # Generate default label.
         if (label_ids and label_values and self.id_label != '' 
             and self.value_label):
-            label_str = r'l%s={%s=%s}' % (
-                id_pos, self.id_label, self.value_label)
+            label_str = r'l%s={%s=%s}' % (id_pos, self.id_label,
+                                          self.value_label)
         elif label_ids and self.id_label != '':
             label_str = 'l%s=%s' % (id_pos, self.id_label)
         elif label_values and self.value_label != '':
-            label_str = r'l%s=%s' % (
-                id_pos, self.value_label)            
+            label_str = r'l%s=%s' % (id_pos, self.value_label)
         else:
             label_str = ''
 
@@ -565,11 +562,10 @@ class Opamp(Cpt):
 
         centre = (p3 + p4) * 0.25 + p1 * 0.5
 
-        s = r'  \draw (%s) node[op amp, %s, scale=%.3f, rotate=%d] (%s) {};' % (
-            centre, self.args_str, self.sch.scale * 2 * 1.01,
-            self.angle, self.name)
+        s = r'  \draw (%s) node[op amp, %s, scale=2.02, rotate=%d] (%s) {};''\n' % (
+            centre, self.args_str, self.angle, self.name)
         # Draw label separately to avoid being scaled by 2.
-        s += r'  \draw (%s) node [] {%s};' % (centre, self.label(**kwargs))
+        s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
         
         s += self._draw_nodes(**kwargs)
         return s
@@ -587,12 +583,33 @@ class FDOpamp(Cpt):
 
         centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.18, 0), self.R)
 
-        s = r'  \draw (%s) node[fd op amp, %s, scale=%.3f, rotate=%d] (%s) {};' % (
-            centre, self.args_str, self.sch.scale * 2 * 1.015, 
-            self.angle, self.name)
+        s = r'  \draw (%s) node[fd op amp, %s, scale=2.03, rotate=%d] (%s) {};''\n' % (
+            centre, self.args_str, self.angle, self.name)
         # Draw label separately to avoid being scaled by 2.
-        s += r'  \draw (%s) node [] {%s};' % (centre, self.label(**kwargs))
+        s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
         
+        s += self._draw_nodes(**kwargs)
+        return s
+
+
+class SPDT(Cpt):
+    """SPDT switch"""
+
+    @property
+    def coords(self):
+        return ((0, 0.15), (0.6, 0.3), (0.6, 0))
+
+    def draw(self, **kwargs):
+
+        p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dnodes]
+
+        centre = p1 * 0.5 + (p2 + p3) * 0.25
+        s = r'  \draw (%s) node[spdt, %s, rotate=%d] (%s) {};''\n' % (
+            centre, self.args_str, self.angle, self.name)
+        
+        # TODO, fix label position.
+        centre = (p1 + p3) * 0.5 + Pos(0, -0.5)
+        s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
         s += self._draw_nodes(**kwargs)
         return s
 
@@ -723,6 +740,7 @@ defcpt('SW', OnePort, 'SWitch', 'closing switch')
 defcpt('SWno', 'SW', 'Normally open switch', 'closing switch')
 defcpt('SWnc', 'SW', 'Normally closed switch', 'opening switch')
 defcpt('SWpush', 'SW', 'Pushbutton switch', 'push button')
+defcpt('SWspdt', SPDT, 'SPDT switch', 'spdt')
 
 defcpt('TF', TwoPort, 'Transformer', 'transformer')
 defcpt('TP', TwoPort, 'Two port', '')
