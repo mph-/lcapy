@@ -242,6 +242,50 @@ class Cpt(object):
     def draw(self, **kwargs):
         raise NotImplementedError('draw method not implemented for %s' % self)
 
+    def opts_str(self, choices):
+
+        return ','.join(['%s=${%s}$' % (key, latex_str(val)) 
+                         for key, val in self.opts.items()
+                         if key in choices])
+
+    @property
+    def voltage_str(self):
+
+        return self.opts_str(('v', 'v_', 'v^', 'v_>', 
+                              'v_<', 'v^>', 'v^<'))
+
+    @property
+    def current_str(self):
+
+        return self.opts_str(('i', 'i_', 'i^', 'i_>', 
+                              'i_<', 'i^>', 'i^<',
+                              'i>_', 'i<_', 'i>^', 'i<^'))
+
+    @property
+    def label_str(self):
+
+        return self.opts_str(('l', 'l_', 'l^'))
+
+    @property
+    def args_str(self):
+
+        return ','.join(['%s=%s' % (key, latex_str(val)) 
+                         for key, val in self.opts.items()
+                         if key in ('color', )])
+
+    def label(self, **kwargs):
+
+        label_values = kwargs.get('label_values', True)
+        label_str = '$%s$' % self.default_label if label_values else ''
+
+        # Override label if specified.  There are no placement options.
+        str =  ','.join(['${%s}$' % latex_str(val)
+                         for key, val in self.opts.items()
+                         if key in ('l', )])
+
+        if str != '':
+            label_str = str
+        return label_str
 
 class Transistor(Cpt):
     """Transistor"""
@@ -258,21 +302,13 @@ class Transistor(Cpt):
 
     def draw(self, **kwargs):
 
-        label_values = kwargs.get('label_values', True)
-
         p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dnodes]
         centre = (p1 + p3) * 0.5
 
-        label_str = '$%s$' % self.default_label if label_values else ''
-        args_str = ''
-        for key, val in self.opts.items():
-            if key in ('color', ):
-                args_str += '%s=%s, ' % (key, val)                
-
         s = r'  \draw (%s) node[%s, %s, scale=%.1f, rotate=%d] (%s) {};''\n' % (
-            centre, self.tikz_cpt, args_str, self.sch.scale * 2, 
+            centre, self.tikz_cpt, self.args_str, self.sch.scale * 2, 
             self.angle, self.name)
-        s += r'  \draw (%s) node [] {%s};''\n'% (centre, label_str)
+        s += r'  \draw (%s) node [] {%s};''\n'% (centre, self.label(**kwargs))
 
         # Add additional wires.
         if self.tikz_cpt in ('pnp', 'npn'):
@@ -307,8 +343,6 @@ class TwoPort(Cpt):
 
     def draw(self, **kwargs):
 
-        label_values = kwargs.get('label_values', True)
-
         # TODO, fix positions if component rotated.
 
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
@@ -321,7 +355,6 @@ class TwoPort(Cpt):
         centre = (p1 + p2 + p3 + p4) * 0.25
         top = Pos(centre.x, p1.y + 0.15)
 
-        label_str = '$%s$' % self.default_label if label_values else ''
         titlestr = "%s-parameter two-port" % self.args[2]
 
         s = r'  \draw (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
@@ -329,7 +362,7 @@ class TwoPort(Cpt):
         s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
             centre, width, titlestr, self.name)
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
-            top, width, label_str)
+            top, width, self.label(**kwargs))
 
         s += self._draw_nodes(**kwargs)
         return s
@@ -340,7 +373,6 @@ class TF1(TwoPort):
 
     def draw(self, **kwargs):
 
-        label_values = kwargs.get('label_values', True)
         link = kwargs.get('link', True)
 
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
@@ -355,12 +387,10 @@ class TF1(TwoPort):
         centre = (p1 + p2 + p3 + p4) * 0.25
         labelpos = Pos(centre.x, primary_dot.y)
 
-        label_str = '$%s$' % self.default_label if label_values else ''
-
         s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
         s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
         s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-            labelpos, 0.5, label_str, self.name)
+            labelpos, 0.5, self.label(**kwargs), self.name)
 
         if link:
             width = p1.x - p3.x
@@ -464,40 +494,20 @@ class OnePort(Cpt):
         if 'ir' in self.opts:
             self.opts['i' + current_pos + '<'] = self.opts.pop('ir')
 
-        # Current, voltage, label options.
-        # It might be better to allow any options and prune out
-        # dir and size.
-        voltage_str = ''
-        current_str = ''
-        label_str = ''
-        args_str = ''
-        for key, val in self.opts.items():
-            if key in ('i', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
-                       'i>_', 'i<_', 'i>^', 'i<^'):
-                current_str += '%s=${%s}$, ' % (key, latex_str(val))
-            elif key in ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<'):
-                voltage_str += '%s=${%s}$, ' % (key, latex_str(val))
-            elif key in ('l', 'l^', 'l_'):
-                label_str += '%s=${%s}$, ' % (key, latex_str(val))
-            elif key in ('color', ):
-                args_str += '%s=%s, ' % (key, val)                
-
         node_str = self._node_str(self.sch.nodes[n1], self.sch.nodes[n2],
                                   **kwargs)
 
-        args_str += voltage_str + current_str
+        args_str = ''.join([self.args_str, self.voltage_str,
+                            self.current_str])
 
-        # Generate default label unless specified.
-        if label_str == '':
-            if self.type not in ('O', 'W'):
+        # Generate default label.
+        label_str = ''
+        if self.type not in ('O', 'W'):
+            label_str = ', l%s=${%s}$' % (id_pos, self.default_label)
                 
-                label_str = ', l%s=${%s}$' % (id_pos, self.default_label)
-                
-                if label_ids and self.value_label != '':
-                    label_str = r', l%s=${%s=%s}$' % (
-                        id_pos, self.id_label, self.value_label)
-        else:
-            label_str = ', ' + label_str
+            if label_ids and self.value_label != '':
+                label_str = r', l%s=${%s=%s}$' % (
+                    id_pos, self.id_label, self.value_label)
 
         if not label_values:
             label_str = ''
@@ -505,7 +515,11 @@ class OnePort(Cpt):
         if not label_values and label_ids:
             label_str = ', l%s=${%s}$' % (id_pos, self.id_label)
 
-        s = r'  \draw (%s) to [align=right, %s%s, %s%s, n=%s] (%s);''\n' % (
+        # Override label if specified.
+        if self.label_str != '':
+            label_str = self.label_str
+
+        s = r'  \draw (%s) to [align=right,%s,%s,%s%s,n=%s] (%s);''\n' % (
             n1, tikz_cpt, label_str, args_str, node_str, self.name, n2)
         return s
 
@@ -538,23 +552,15 @@ class Opamp(Cpt):
 
     def draw(self, **kwargs):
 
-        label_values = kwargs.get('label_values', True)
-
         p1, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
         centre = (p3 + p4) * 0.25 + p1 * 0.5
 
-        label_str = '$%s$' % self.default_label if label_values else ''
-        args_str = ''
-        for key, val in self.opts.items():
-            if key in ('color', ):
-                args_str += '%s=%s, ' % (key, val)                
-
         s = r'  \draw (%s) node[op amp, %s, scale=%.3f, rotate=%d] (%s) {};' % (
-            centre, args_str, self.sch.scale * 2 * 1.01,
+            centre, self.args_str, self.sch.scale * 2 * 1.01,
             self.angle, self.name)
         # Draw label separately to avoid being scaled by 2.
-        s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
+        s += r'  \draw (%s) node [] {%s};' % (centre, self.label(**kwargs))
         
         s += self._draw_nodes(**kwargs)
         return s
@@ -568,23 +574,15 @@ class FDOpamp(Cpt):
 
     def draw(self, **kwargs):
 
-        label_values = kwargs.get('label_values', True)
-
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
         centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.18, 0), self.R)
 
-        label_str = '$%s$' % self.default_label if label_values else ''
-        args_str = ''
-        for key, val in self.opts.items():
-            if key in ('color', ):
-                args_str += '%s=%s, ' % (key, val)                
-
         s = r'  \draw (%s) node[fd op amp, %s, scale=%.3f, rotate=%d] (%s) {};' % (
-            centre, args_str, self.sch.scale * 2 * 1.015, 
+            centre, self.args_str, self.sch.scale * 2 * 1.015, 
             self.angle, self.name)
         # Draw label separately to avoid being scaled by 2.
-        s += r'  \draw (%s) node [] {%s};' % (centre, label_str)
+        s += r'  \draw (%s) node [] {%s};' % (centre, self.label(**kwargs))
         
         s += self._draw_nodes(**kwargs)
         return s

@@ -296,7 +296,7 @@ Here's an example:
 
 
 .. image:: examples/schematics/switches.png
-   :width: 10cm
+   :width: 8cm
 
 
 Annotation
