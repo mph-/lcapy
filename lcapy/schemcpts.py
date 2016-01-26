@@ -463,7 +463,7 @@ class OnePort(Cpt):
         if self.type == 'R' and self.variable:
             tikz_cpt = 'vR'
 
-        id_pos = '_'
+        label_pos = '_'
         voltage_pos = '^'
         if self.type in ('V', 'I', 'E', 'F', 'G', 'H'):
 
@@ -475,13 +475,13 @@ class OnePort(Cpt):
             if self.horizontal:
                 # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
-                id_pos = '^'
+                label_pos = '^'
                 voltage_pos = '_'
         else:
             if self.vertical:
                 # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
-                id_pos = '^'
+                label_pos = '^'
                 voltage_pos = '_'
 
         # Add modifier to place voltage label on other side
@@ -493,7 +493,7 @@ class OnePort(Cpt):
         if 'vr' in self.opts:
             self.opts['v' + voltage_pos + '>'] = self.opts.pop('vr')
 
-        current_pos = id_pos
+        current_pos = label_pos
         # Add modifier to place current label on other side
         # from voltage marks.
         if 'i' in self.opts:
@@ -502,6 +502,9 @@ class OnePort(Cpt):
         # Reversed current.
         if 'ir' in self.opts:
             self.opts['i' + current_pos + '<'] = self.opts.pop('ir')
+
+        if 'l' in self.opts:
+            self.opts['l' + label_pos] = self.opts.pop('l')
 
         node_str = self._node_str(self.sch.nodes[n1], self.sch.nodes[n2],
                                   **kwargs)
@@ -512,12 +515,12 @@ class OnePort(Cpt):
         # Generate default label.
         if (label_ids and label_values and self.id_label != '' 
             and self.value_label):
-            label_str = r'l%s={%s=%s}' % (id_pos, self.id_label,
+            label_str = r'l%s={%s=%s}' % (label_pos, self.id_label,
                                           self.value_label)
         elif label_ids and self.id_label != '':
-            label_str = 'l%s=%s' % (id_pos, self.id_label)
+            label_str = 'l%s=%s' % (label_pos, self.id_label)
         elif label_values and self.value_label != '':
-            label_str = r'l%s=%s' % (id_pos, self.value_label)
+            label_str = r'l%s=%s' % (label_pos, self.value_label)
         else:
             label_str = ''
 
