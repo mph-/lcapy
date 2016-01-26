@@ -1,6 +1,6 @@
 import re
 
-pattern = re.compile(r"([_\^]){([\w]+)}")
+sub_super_pattern = re.compile(r"([_\^]){([\w]+)}")
 
 
 class Latex(object):
@@ -28,7 +28,7 @@ class Latex(object):
                 fred = r'{%s}' % fred
             return match.group(1) + fred
 
-        return pattern.sub(foo, self.str)
+        return sub_super_pattern.sub(foo, self.str)
 
     def __str__(self):
         

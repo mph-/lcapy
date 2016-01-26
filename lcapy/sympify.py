@@ -16,18 +16,18 @@ global_dict['step'] = global_dict['Heaviside']
 cpt_names = ('C', 'E', 'F', 'G', 'H', 'I', 'L', 'R', 'V', 'Y', 'Z')
 cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
 
-braces_suffix_pattern = re.compile(r"^([a-zA-Z]+[\w]*_){([\w]*)}$")
+sub_super_pattern = re.compile(r"([_\^]){([\w]+)}")
 
 def canonical_name(name):
+
+    def foo(match):
+        return match.group(1) + match.group(2)
 
     if not isinstance(name, str):
         return name
 
-    match = braces_suffix_pattern.match(name)
-    if match:
-        # Convert R_{out} to R_out for sympy to recognise.
-        name = match.groups()[0] + match.groups()[1]
-        return name
+    # Convert R_{out} to R_out for sympy to recognise.
+    name = sub_super_pattern.sub(foo, name)
 
     if name.find('_') != -1:
         return name
