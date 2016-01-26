@@ -5,6 +5,10 @@ pattern = re.compile(r"([_\^]){([\w]+)}")
 
 class Latex(object):
 
+    words = ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
+             'mean', 'peak', 'pp', 'min', 'max', 'src',
+             'cc', 'ee', 'dd', 'ss', 'ih', 'il', 'oh', 'ol')
+
     def __init__(self, string):
 
         self.str = string
@@ -18,9 +22,7 @@ class Latex(object):
             
             fred = match.group(2)
             
-            if fred in ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
-                        'mean', 'peak', 'pp', 'min', 'max', 'src',
-                        'cc', 'ee', 'dd', 'ss'):
+            if fred.lower() in self.words:
                 fred = r'{\mathrm{%s}}' % fred
             else:
                 fred = r'{%s}' % fred
