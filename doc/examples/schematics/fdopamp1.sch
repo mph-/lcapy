@@ -1,7 +1,7 @@
 P1 1 4; down
 R1 1 5; right
 R3 4 2; right
-E1 3_2 6_2 fdopamp 5 2 A; right
+E1 3_2 6_2 fdopamp 2 5 A; right
 W 3_2 3; right
 W 6_2 6; right
 P2 3 0_3; down
