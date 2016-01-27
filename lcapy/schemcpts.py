@@ -238,9 +238,9 @@ class Cpt(object):
             return s
 
         if node.port:
-            s = r'  \draw (%s) node[ocirc] {};''\n' % node.pos
+            s = r'  \draw (%s) node[ocirc] {};''\n' % node.name
         else:
-            s = r'  \draw (%s) node[circ] {};''\n' % node.pos
+            s = r'  \draw (%s) node[circ] {};''\n' % node.name
 
         return s
 
@@ -568,15 +568,18 @@ class Opamp(Cpt):
     def draw(self, **kwargs):
 
         p1, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
+        n1, n3, n4 = self.dnodes
 
         centre = (p3 + p4) * 0.25 + p1 * 0.5
 
+        # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            centre, self.args_str, 2.04 * self.scale, 2.04 * self.scale,
+            centre, self.args_str, 2 * 1.01 * self.scale, 
+            2 * 1.019 * self.scale,
             self.angle, self.name)
-        s += r'  \draw (%s.out) |- (%s);''\n' % (self.name, p1)
-        s += r'  \draw (%s.+) |- (%s);''\n' % (self.name, p3)
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.name, p4)
+        s += r'  \draw (%s.out) |- (%s);''\n' % (self.name, n1)
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.name, n3)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.name, n4)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
         
@@ -588,21 +591,22 @@ class FDOpamp(Cpt):
 
     @property
     def coords(self):
-        return ((2.4, 1), (2.4, 0), (0, 0), (0, 1))
+        return ((2.05, 1), (2.05, 0), (0, 0), (0, 1))
 
     def draw(self, **kwargs):
 
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
+        n1, n2, n3, n4 = self.dnodes
 
-        centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.18, 0), self.R) * self.scale
+        centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.15, 0), self.R) * self.scale
 
         s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            centre, self.args_str, 2.04 * self.scale, 2.04 * self.scale,
+            centre, self.args_str, 2 * 1.01 * self.scale, 2 * 1.02 * self.scale,
             self.angle, self.name)
-        s += r'  \draw (%s.out +) |- (%s);''\n' % (self.name, p1)
-        s += r'  \draw (%s.out -) |- (%s);''\n' % (self.name, p2)
-        s += r'  \draw (%s.+) |- (%s);''\n' % (self.name, p3)
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.name, p4)
+        s += r'  \draw (%s.out +) |- (%s);''\n' % (self.name, n1)
+        s += r'  \draw (%s.out -) |- (%s);''\n' % (self.name, n2)
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.name, n3)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.name, n4)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
         

@@ -120,3 +120,15 @@ impedance...
 Input impedance aka driving point impedance
  
 https://en.wikipedia.org/wiki/Wikipedia:WikiProject_Electronics/Programs
+
+Warn if have disjoint components
+
+Opamp circuitikz scale is by area, xscale, yscale linear.
+
+size controls node-spacing, it does not make component larger but only affects
+the length of the leads
+
+scale controls component size, it does not change node spacing
+(perhaps it should)
+
+Add node object, say for adding labels?  
