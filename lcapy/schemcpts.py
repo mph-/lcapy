@@ -21,7 +21,9 @@ class Cpt(object):
     current_keys = ('i', 'i_', 'i^', 'i_>',  'i_<', 'i^>', 'i^<',
                     'i>_', 'i<_', 'i>^', 'i<^')
     label_keys = ('l', 'l_', 'l^')
-    misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size', 'dir')
+    # The following keys do not get passed through to circuitikz.
+    misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
+                 'dir', 'mirror', 'scale')
 
     def anon(self, cpt_type):
 
@@ -66,7 +68,11 @@ class Cpt(object):
 
     @property
     def size(self):
-        return float(self.opts['size'])
+        return float(self.opts.get('size', 1.0))
+
+    @property
+    def scale(self):
+        return float(self.opts.get('scale', 1.0))
 
     @property
     def down(self):
@@ -548,8 +554,8 @@ class CCS(OnePort):
 class Opamp(Cpt):
 
     # The Nm node is not used (ground).
-    ppos = ((2.4, 0.5), (0, 1), (0, 0))
-    npos = ((2.4, 0.5), (0, 0), (0, 1))
+    ppos = ((2.4, 0.0), (0, 0.5), (0, -0.5))
+    npos = ((2.4, 0.0), (0, -0.5), (0, 0.5))
 
     @property
     def vnodes(self):
@@ -565,8 +571,12 @@ class Opamp(Cpt):
 
         centre = (p3 + p4) * 0.25 + p1 * 0.5
 
-        s = r'  \draw (%s) node[op amp, %s, scale=2.02, rotate=%d] (%s) {};''\n' % (
-            centre, self.args_str, self.angle, self.name)
+        s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
+            centre, self.args_str, 2.04 * self.scale, 2.04 * self.scale,
+            self.angle, self.name)
+        s += r'  \draw (%s.out) |- (%s);''\n' % (self.name, p1)
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.name, p3)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.name, p4)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
         
@@ -578,16 +588,21 @@ class FDOpamp(Cpt):
 
     @property
     def coords(self):
-        return ((2, 1), (2, 0), (0, 1), (0, 0))
+        return ((2.4, 1), (2.4, 0), (0, 0), (0, 1))
 
     def draw(self, **kwargs):
 
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
-        centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.18, 0), self.R)
+        centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.18, 0), self.R) * self.scale
 
-        s = r'  \draw (%s) node[fd op amp, %s, scale=2.03, rotate=%d] (%s) {};''\n' % (
-            centre, self.args_str, self.angle, self.name)
+        s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
+            centre, self.args_str, 2.04 * self.scale, 2.04 * self.scale,
+            self.angle, self.name)
+        s += r'  \draw (%s.out +) |- (%s);''\n' % (self.name, p1)
+        s += r'  \draw (%s.out -) |- (%s);''\n' % (self.name, p2)
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.name, p3)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.name, p4)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
         
@@ -675,7 +690,7 @@ class Wire(OnePort):
         lpos = self.sch.nodes[n1].pos + np.dot((0.25, 0), self.R)
 
         if 'l' in self.opts:
-            s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
+            s += r'  \draw [anchor=%s] (%s) node {%s};''\n' % (
                 anchor, lpos, self.label(**kwargs))
         return s
 

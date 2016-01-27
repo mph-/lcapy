@@ -118,8 +118,7 @@ class Opts(dict):
     @property
     def size(self):
 
-        size = self.get('size', 1)
-        return float(size)
+        return float(self.get('size', 1))
 
     def format(self):
 
@@ -587,8 +586,6 @@ class Schematic(object):
 
         if 'dir' not in opts:
             opts['dir'] = None
-        if 'size' not in opts:
-            opts['size'] = 1
 
         if opts['dir'] is None:
             opts['dir'] = 'down' if cpt.type in ('O', 'P') else 'right'
@@ -803,6 +800,9 @@ class Schematic(object):
             print('width = %d, height = %d, oversample = %d, cpt_size = %.2f, node_spacing = %.2f, scale = %.2f'
                   % (self.width, self.height, oversample, 
                      self.cpt_size, self.node_spacing, self.scale))
+            print(self.nodes)
+            # print(self.xgraphs.cnodes)
+            # print(self.ygraphs.cnodes)
 
         if ext == '.pytex':
             open(filename, 'w').write(content)
