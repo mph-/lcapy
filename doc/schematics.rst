@@ -379,6 +379,16 @@ fdopamp argument to a VCCS.  For example:
    :width: 5cm
 
 
+Transmission lines
+==================
+
+A transmission line is a two-port device.  Here's an example:
+
+.. literalinclude:: examples/schematics/tline2.sch
+
+.. image:: examples/schematics/tline2.png
+   :width: 8cm
+
 
 Annotation
 ==========

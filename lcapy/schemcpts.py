@@ -398,11 +398,17 @@ class TL(Cpt):
 
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
-        s = r'  \draw (%s) node[align=right,tlinestub] {};''\n' % (
-            self.dnodes[2])
-        s += r'  \draw (%s) -- (%s);''\n' % (p1 + Pos(-0.55, 0), self.dnodes[0])
-        s += r'  \draw (%s) |- (%s);''\n' % (p1 + Pos(-0.67, -0.29), self.dnodes[1])
-        s += r'  \draw (%s) |- (%s);''\n' % (p3 + Pos(0.6, -0.29), self.dnodes[3])
+        if self.angle != 0:
+            raise ValueError('Cannot draw rotated transmission line %s' % self.name)
+
+        centre = (p1 + p3) * 0.5
+        xs = self.scale
+        s = r'  \draw (%s) node[align=center,tlinestub,xscale=%s] {};''\n' % (centre + Pos(-1.3 * xs, 0), self.scale)
+        s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
+        s += r'  \draw (%s) -- (%s);''\n' % (centre + Pos(-1.25 * xs, 0), self.dnodes[2])
+        s += r'  \draw (%s) -- (%s);''\n' % (centre + Pos(0.65 * xs, 0), self.dnodes[0])
+        s += r'  \draw (%s) |- (%s);''\n' % (centre + Pos(0.525 * xs, -0.29), self.dnodes[1])
+        s += r'  \draw (%s) |- (%s);''\n' % (centre + Pos(-0.7 * xs, -0.29), self.dnodes[3])
         s += self._draw_nodes(**kwargs)
         return s
 
@@ -819,7 +825,6 @@ defcpt('SWpush', 'SW', 'Pushbutton switch', 'push button')
 defcpt('SWspdt', SPDT, 'SPDT switch', 'spdt')
 
 defcpt('TF', TwoPort, 'Transformer', 'transformer')
-#defcpt('TL', TwoPort, 'Transmission line', 'tline')
 defcpt('TP', TwoPort, 'Two port', '')
 
 defcpt('Ubuffer', Logic, 'Buffer', 'buffer')
