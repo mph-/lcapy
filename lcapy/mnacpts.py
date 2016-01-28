@@ -439,6 +439,13 @@ class I(Cpt):
         return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
 
 
+class TL(Cpt):
+    """Transmission line"""
+
+    # TODO
+    pass
+
+
 class V(Cpt):
 
     source = True

@@ -141,7 +141,7 @@ spacing.
 .. literalinclude:: examples/schematics/resistors1.sch
 
 .. image:: examples/schematics/resistors1.png
-   :width: 10cm
+   :width: 12cm
 
 By default, a component with size 1 has its nodes spaced by 2 units.
 This can be changed using the `node_spacing` option of the schematic.
@@ -150,7 +150,7 @@ For example,
 .. literalinclude:: examples/schematics/resistors2.sch
 
 .. image:: examples/schematics/resistors2.png
-   :width: 10cm
+   :width: 12cm
 
 Be default, a component has a length of 1.5 units.  This can be
 changed using the `cpt_size` option of the schematic.  For example,
@@ -158,12 +158,12 @@ changed using the `cpt_size` option of the schematic.  For example,
 .. literalinclude:: examples/schematics/resistors3.sch
 
 .. image:: examples/schematics/resistors3.png
-   :width: 10cm
+   :width: 12cm
 
 .. literalinclude:: examples/schematics/resistors4.sch
 
 .. image:: examples/schematics/resistors4.png
-   :width: 10cm
+   :width: 12cm
 
 The overall schematic can be scaled with the `scale` option of the schematic:
 
@@ -371,7 +371,7 @@ with the `mirror` option.
    :width: 5cm
 
 Fully differential opamps can be drawn in a similar manner using the
-fdompamp argument to a VCCS.  For example:
+fdopamp argument to a VCCS.  For example:
 
 .. literalinclude:: examples/schematics/fdopamp1.sch
 

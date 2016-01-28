@@ -49,6 +49,7 @@ SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch
 SWspdt: SWname Nc Np Nm spdt; SPDT switch
 TF: TFname Np Nm Ncp Ncm [Value]; Transformer (works to DC!)
+TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 V: Vname Np Nm [Value]; Voltage source
 sV: Vname Np Nm s [Value]; s-domain voltage source

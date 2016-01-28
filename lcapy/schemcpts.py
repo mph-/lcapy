@@ -17,7 +17,8 @@ module = sys.modules[__name__]
 
 class Cpt(object):
 
-    voltage_keys = ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<')
+    voltage_keys = ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
+                    'v<', 'v>')
     current_keys = ('i', 'i_', 'i^', 'i_>',  'i_<', 'i^>', 'i^<',
                     'i>_', 'i<_', 'i>^', 'i<^', 'i>', 'i<')
     label_keys = ('l', 'l_', 'l^')
@@ -382,6 +383,26 @@ class TwoPort(Cpt):
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
             top, width, self.label(**kwargs))
 
+        s += self._draw_nodes(**kwargs)
+        return s
+
+
+class TL(Cpt):
+    """Transmission line"""
+
+    @property
+    def coords(self):
+        return ((1.25, 0.5), (1.25, 0), (0, 0.5), (0, 0))
+
+    def draw(self, **kwargs):
+
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
+
+        s = r'  \draw (%s) node[align=right,tlinestub] {};''\n' % (
+            self.dnodes[2])
+        s += r'  \draw (%s) -- (%s);''\n' % (p1 + Pos(-0.55, 0), self.dnodes[0])
+        s += r'  \draw (%s) |- (%s);''\n' % (p1 + Pos(-0.67, -0.29), self.dnodes[1])
+        s += r'  \draw (%s) |- (%s);''\n' % (p3 + Pos(0.6, -0.29), self.dnodes[3])
         s += self._draw_nodes(**kwargs)
         return s
 
@@ -798,6 +819,7 @@ defcpt('SWpush', 'SW', 'Pushbutton switch', 'push button')
 defcpt('SWspdt', SPDT, 'SPDT switch', 'spdt')
 
 defcpt('TF', TwoPort, 'Transformer', 'transformer')
+#defcpt('TL', TwoPort, 'Transmission line', 'tline')
 defcpt('TP', TwoPort, 'Two port', '')
 
 defcpt('Ubuffer', Logic, 'Buffer', 'buffer')
