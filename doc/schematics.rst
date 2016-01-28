@@ -384,6 +384,11 @@ Examples
 .. image:: examples/schematics/lpf1-buffer-loaded2.png
    :width: 14cm
 
+.. literalinclude:: examples/schematics/sallen-key-lpf1.sch
+
+.. image:: examples/schematics/sallen-key-lpf1.png
+   :width: 14cm
+
 
 
 schtex.py
@@ -394,9 +399,42 @@ netlist file.  For example, here's how a PNG file can be generated:
 
    >>> schtex.py Dbridge.sch Dbridge.png
 
-The generated LaTeX file can be obtained using:
+The generated stand-alone LaTeX file can be obtained using:
 
    >>> schtex.py Dbridge.sch Dbridge.tex
 
+If you wish to include the schematic into a LaTeX file use:
+
+   >>> schtex.py Dbridge.sch Dbridge.pytex
+
+and then include the file with `\\input{Dbridge.pytex}`.
+
 `schtex.py` has many command line options to configure the drawing.
 These override the options specified in the netlist file.
+
+
+Drawing tips
+============
+
+Lcapy uses a semi-automated approach to component layout.  For each
+component it needs its orientation and size.  By default the size
+is 1.  This is the minimum distance between its nodes (for a one-port
+device).  Lcapy will increase but never decrease this distance.  
+
+The x and y positions of nodes are computed independently using a
+graph.  An error can occur if components have the wrong orientation
+since this makes the graph inconsistent.  Unfortunately, it is not
+trivial to find the offending component so it is best to draw a
+schematic incrementally and to test it as you go.  A sketch on a piece
+of paper showing the nodes is useful.
+
+Problems occasionally occur when drawing circuits with operational
+amplifiers.  This can be fixed by reducing the size of interconnect
+wires and allowing Lcapy to stetch them.  Alternatively, explicitly
+add short interconnecting wires that can be adjusted by Lcapy.
+
+Grid lines can be added to a schematic using some Tikz markup.  For
+example,::
+
+   ;;\draw[help lines] (0,0) grid [xstep=0.1, ystep=0.1] (10,5);  
+  

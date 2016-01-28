@@ -68,10 +68,12 @@ class Cpt(object):
 
     @property
     def size(self):
+        """Component size between its nodes"""
         return float(self.opts.get('size', 1.0))
 
     @property
     def scale(self):
+        """This is only used for scaling an opamp"""
         return float(self.opts.get('scale', 1.0))
 
     @property
@@ -572,10 +574,13 @@ class Opamp(Cpt):
 
         centre = (p3 + p4) * 0.25 + p1 * 0.5
 
+        yscale = 2 * 1.019 * self.scale
+        if not self.mirror:
+            yscale = -yscale
+
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            centre, self.args_str, 2 * 1.01 * self.scale, 
-            2 * 1.019 * self.scale,
+            centre, self.args_str, 2 * 1.01 * self.scale, yscale,
             self.angle, self.name)
         s += r'  \draw (%s.out) |- (%s);''\n' % (self.name, n1)
         s += r'  \draw (%s.+) |- (%s);''\n' % (self.name, n3)
@@ -589,9 +594,13 @@ class Opamp(Cpt):
 
 class FDOpamp(Cpt):
 
+    npos = ((2.05, 1), (2.05, 0), (0, 0), (0, 1))
+    ppos = ((2.05, -1), (2.05, 0), (0, 0), (0, -1))
+
+
     @property
     def coords(self):
-        return ((2.05, 1), (2.05, 0), (0, 0), (0, 1))
+        return self.npos if self.mirror else self.ppos
 
     def draw(self, **kwargs):
 
@@ -600,8 +609,12 @@ class FDOpamp(Cpt):
 
         centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.15, 0), self.R) * self.scale
 
+        yscale = 2 * 1.02 * self.scale
+        if not self.mirror:
+            yscale = -yscale
+
         s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            centre, self.args_str, 2 * 1.01 * self.scale, 2 * 1.02 * self.scale,
+            centre, self.args_str, 2 * 1.01 * self.scale, yscale,
             self.angle, self.name)
         s += r'  \draw (%s.out +) |- (%s);''\n' % (self.name, n1)
         s += r'  \draw (%s.out -) |- (%s);''\n' % (self.name, n2)
