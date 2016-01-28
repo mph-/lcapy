@@ -19,7 +19,7 @@ class Cpt(object):
 
     voltage_keys = ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<')
     current_keys = ('i', 'i_', 'i^', 'i_>',  'i_<', 'i^>', 'i^<',
-                    'i>_', 'i<_', 'i>^', 'i<^')
+                    'i>_', 'i<_', 'i>^', 'i<^', 'i>', 'i<')
     label_keys = ('l', 'l_', 'l^')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
