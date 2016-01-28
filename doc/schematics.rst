@@ -138,6 +138,40 @@ using the size keyword, for example:
 The size argument is used as a scale factor for the component node
 spacing.
 
+.. literalinclude:: examples/schematics/resistors1.sch
+
+.. image:: examples/schematics/resistors1.png
+   :width: 10cm
+
+By default, a component with size 1 has its nodes spaced by 2 units.
+This can be changed using the `node_spacing` option of the schematic.
+For example,
+
+.. literalinclude:: examples/schematics/resistors2.sch
+
+.. image:: examples/schematics/resistors2.png
+   :width: 10cm
+
+Be default, a component has a length of 1.5 units.  This can be
+changed using the `cpt_size` option of the schematic.  For example,
+
+.. literalinclude:: examples/schematics/resistors3.sch
+
+.. image:: examples/schematics/resistors3.png
+   :width: 10cm
+
+.. literalinclude:: examples/schematics/resistors4.sch
+
+.. image:: examples/schematics/resistors4.png
+   :width: 10cm
+
+The overall schematic can be scaled with the `scale` option of the schematic:
+
+.. literalinclude:: examples/schematics/resistors5.sch
+
+.. image:: examples/schematics/resistors5.png
+   :width: 5cm
+
 
 Colors
 ======
@@ -254,7 +288,6 @@ Other diodes are specified with an additional argument:
 Here's an example:
 
 .. literalinclude:: examples/schematics/diodes.sch
-
 
 .. image:: examples/schematics/diodes.png
    :width: 10cm
