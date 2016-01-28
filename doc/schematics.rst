@@ -335,9 +335,49 @@ Here's an example:
 
 .. literalinclude:: examples/schematics/switches.sch
 
-
 .. image:: examples/schematics/switches.png
    :width: 8cm
+
+
+Opamps
+======
+
+Opamps can be drawn using the `opamp` argument to a VCCS.   For example:
+
+.. literalinclude:: examples/schematics/opamp1.sch
+
+.. image:: examples/schematics/opamp1.png
+   :width: 5cm
+
+The size can be controlled with the `scale` and `size` options.  The
+positions of the inverting and non-inverting inputs can be flipped
+with the `mirror` option.
+
+.. literalinclude:: examples/schematics/opamp2.sch
+
+.. image:: examples/schematics/opamp2.png
+   :width: 5cm
+
+
+.. literalinclude:: examples/schematics/opamp3.sch
+
+.. image:: examples/schematics/opamp3.png
+   :width: 5cm
+
+
+.. literalinclude:: examples/schematics/opamp4.sch
+
+.. image:: examples/schematics/opamp4.png
+   :width: 5cm
+
+Fully differential opamps can be drawn in a similar manner using the
+fdompamp argument to a VCCS.  For example:
+
+.. literalinclude:: examples/schematics/fdopamp1.sch
+
+.. image:: examples/schematics/fdopamp1.png
+   :width: 5cm
+
 
 
 Annotation
