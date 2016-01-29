@@ -26,6 +26,10 @@ class Cpt(object):
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'dir', 'mirror', 'scale')
 
+    can_rotate = True
+    can_scale = False
+    can_mirror = False
+
     def anon(self, cpt_type):
 
         sch = self.sch
@@ -306,12 +310,25 @@ class Cpt(object):
             label_str = str
         return label_str
 
+    def check(self):
+
+        if not self.can_rotate and self.angle != 0:
+            raise ValueError('Cannot rotate component %s' % self.name)
+
+        if not self.can_scale and self.scale != 1:
+            raise ValueError('Cannot scale component %s' % self.name)
+
+        if not self.can_mirror and self.mirror:
+            raise ValueError('Cannot mirrore component %s' % self.name)
+
 
 class Transistor(Cpt):
     """Transistor"""
     
     npos = ((1, 1.5), (0, 0.75), (1, 0))
     ppos = ((1, 0), (0, 0.75), (1, 1.5))
+
+    can_mirror = True
 
     @property
     def coords(self):
@@ -321,6 +338,8 @@ class Transistor(Cpt):
             return self.ppos if self.mirror else self.npos
 
     def draw(self, **kwargs):
+
+        self.check()
 
         p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dnodes]
         centre = (p1 + p3) * 0.5
@@ -356,11 +375,15 @@ class MOSFET(Transistor):
 class TwoPort(Cpt):
     """Two-port"""
 
+    can_rotate = False
+
     @property
     def coords(self):
         return ((1, 1), (1, 0), (0, 1), (0, 0))
 
     def draw(self, **kwargs):
+
+        self.check()
 
         # TODO, fix positions if component rotated.
 
@@ -390,16 +413,18 @@ class TwoPort(Cpt):
 class TL(Cpt):
     """Transmission line"""
 
+    can_scale = True
+    can_rotate = False
+
     @property
     def coords(self):
         return ((1.25, 0.5), (1.25, 0), (0, 0.5), (0, 0))
 
     def draw(self, **kwargs):
 
-        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
+        self.check()
 
-        if self.angle != 0:
-            raise ValueError('Cannot draw rotated transmission line %s' % self.name)
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
         centre = (p1 + p3) * 0.5
         xs = self.scale
@@ -416,7 +441,11 @@ class TL(Cpt):
 class TF1(TwoPort):
     """Transformer"""
 
+    can_rotate = True
+
     def draw(self, **kwargs):
+
+        self.check()
 
         link = kwargs.get('link', True)
 
@@ -452,6 +481,7 @@ class TF(TF1):
 
     def draw(self, **kwargs):
 
+        self.check()
         n1, n2, n3, n4 = self.dnodes
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
@@ -483,12 +513,15 @@ class K(TF1):
 class OnePort(Cpt):
     """OnePort"""
 
+    can_scale = True
+
     @property
     def coords(self):
         return ((0, 0), (1, 0))
 
     def draw(self, **kwargs):
 
+        self.check()
         label_values = kwargs.get('label_values', True)
         label_ids = kwargs.get('label_ids', True)
 
@@ -571,6 +604,8 @@ class OnePort(Cpt):
 class VCS(OnePort):
     """Voltage controlled source"""
 
+    can_rotate = True
+
     @property
     def vnodes(self):
         return self.nodes[0:2]
@@ -579,12 +614,17 @@ class VCS(OnePort):
 class CCS(OnePort):
     """Current controlled source"""
 
+    can_rotate = True
+
 
 class Opamp(Cpt):
 
     # The Nm node is not used (ground).
     ppos = ((2.4, 0.0), (0, 0.5), (0, -0.5))
     npos = ((2.4, 0.0), (0, -0.5), (0, 0.5))
+
+    can_scale = True
+    can_mirror = True
 
     @property
     def vnodes(self):
@@ -596,6 +636,7 @@ class Opamp(Cpt):
 
     def draw(self, **kwargs):
 
+        self.check()
         p1, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
         n1, n3, n4 = self.dnodes
 
@@ -624,6 +665,9 @@ class FDOpamp(Cpt):
     npos = ((2.05, 1), (2.05, 0), (0, 0), (0, 1))
     ppos = ((2.05, -1), (2.05, 0), (0, 0), (0, -1))
 
+    can_scale = True
+    can_rotate = False
+    can_mirror = True
 
     @property
     def coords(self):
@@ -631,6 +675,7 @@ class FDOpamp(Cpt):
 
     def draw(self, **kwargs):
 
+        self.check()
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
         n1, n2, n3, n4 = self.dnodes
 
@@ -663,6 +708,7 @@ class SPDT(Cpt):
 
     def draw(self, **kwargs):
 
+        self.check()
         p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dnodes]
 
         centre = p1 * 0.5 + (p2 + p3) * 0.25
@@ -685,6 +731,7 @@ class Logic(Cpt):
 
     def draw(self, **kwargs):
 
+        self.check()
         # TODO, fix scaling to make buffer and inverter same size.
 
         p1, p2 = [self.sch.nodes[n].pos for n in self.dnodes]
@@ -740,6 +787,7 @@ class Wire(OnePort):
 
     def draw(self, **kwargs):
 
+        self.check()
         if 'implicit' in self.opts or 'ground' in self.opts or 'sground' in self.opts:
             return self.draw_implicit(**kwargs)
                                     
