@@ -786,11 +786,12 @@ class Schematic(object):
         self.scale = float(kwargs.pop('scale', 1.0))
 
         if style == 'american':
-            style_args = 'american currents,american voltages'
+            style_args = 'american currents, american voltages'
         elif style == 'british':
             style_args = 'american currents, european voltages'
         elif style == 'european':
-            style_args = 'european currents, european voltages'
+            style_args = ('european currents, european voltages'
+                          ', european inductors, european resistors')
         else:
             raise ValueError('Unknown style %s' % style)
 

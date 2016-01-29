@@ -411,6 +411,19 @@ example::
     ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
 
 
+Styles
+======
+
+Three component styles are supported: american (default, british, and
+european.  The style is set by a style argument to the `draw` method
+or by a schematic option.  For example,
+
+.. literalinclude:: examples/schematics/lpf1-buffer-loaded3.sch
+
+.. image:: examples/schematics/lpf1-buffer-loaded3.png
+   :width: 12cm
+ 
+
 Examples
 ========
 
