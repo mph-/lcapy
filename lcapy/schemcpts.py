@@ -24,7 +24,7 @@ class Cpt(object):
     label_keys = ('l', 'l_', 'l^')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
-                 'dir', 'mirror', 'scale', 'invisible')
+                 'dir', 'mirror', 'scale', 'invisible', 'variable')
 
     can_rotate = True
     can_scale = False
@@ -114,6 +114,10 @@ class Cpt(object):
         return self.opts.get('invisible', False)
 
     @property
+    def variable(self):
+        return self.opts.get('variable', False)
+
+    @property
     def angle(self):
         """Return rotation angle"""
         if self.right:
@@ -147,10 +151,6 @@ class Cpt(object):
         t = angle / 180.0 * np.pi
         return np.array(((np.cos(t), np.sin(t)),
                          (-np.sin(t), np.cos(t))))
-
-    @property
-    def variable(self):
-        return 'variable' in self.opts
 
     @property
     def vnodes(self):
@@ -323,7 +323,7 @@ class Cpt(object):
             raise ValueError('Cannot scale component %s' % self.name)
 
         if not self.can_mirror and self.mirror:
-            raise ValueError('Cannot mirrore component %s' % self.name)
+            raise ValueError('Cannot mirror component %s' % self.name)
         
         return not self.invisible
 
@@ -542,8 +542,11 @@ class OnePort(Cpt):
         n1, n2 = self.dnodes
 
         tikz_cpt = self.tikz_cpt
-        if self.type == 'R' and self.variable:
-            tikz_cpt = 'vR'
+        if self.variable:
+            if self.type in ('C', 'R', 'L'):
+                tikz_cpt = 'v' + tikz_cpt
+            else:
+                raise Error('Component %s not variable' % self.name)
 
         label_pos = '_'
         voltage_pos = '^'

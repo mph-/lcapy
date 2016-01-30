@@ -426,6 +426,9 @@ Component attributes
 
    - `color`: component color
 
+   - `variable`: for variable resistors, inductors, and capacitors
+
+
 Styles
 ======
 
