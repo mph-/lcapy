@@ -22,8 +22,7 @@ class Cpt(object):
     current_keys = ('i', 'i_', 'i^', 'i_>',  'i_<', 'i^>', 'i^<',
                     'i>_', 'i<_', 'i>^', 'i<^', 'i>', 'i<')
     label_keys = ('l', 'l_', 'l^')
-    implicit_keys =  ('implicit', 'ground', 'sground', 'rground',
-                      'Vdd', 'Vcc',  'Vss', 'Vee')
+    implicit_keys =  ('implicit', 'ground', 'sground', 'rground')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'dir', 'mirror', 'scale', 'invisible', 'variable')
@@ -838,13 +837,16 @@ class Wire(OnePort):
     def draw_implicit(self, **kwargs):
         """Draw implict wires, i.e., connections to ground, etc."""
 
-        kind = self.implicit
+        kind = None
+        for key in self.implicit_keys:
+            if key in self.opts:
+                kind = key
+                break;
+
         # I like the sground symbol for power supplies but rground symbol
         # is also common.
-        for key in ('implicit', 'Vss', 'Vdd', 'Vss', 'Vee'):
-            if key in self.opts:
-                kind = 'sground'
-                break
+        if kind == 'implicit':
+            kind = 'sground'
 
         anchor = 'south west'
         if self.down:
