@@ -342,6 +342,13 @@ class Cpt(object):
         return centre + np.dot(offset, self.R) * self.scale
 
 
+    def xtf(self, centre, offset):
+        """Transform coordinate but with x-scaling only"""
+        
+        offset = (offset[0] * self.scale, offset[1])
+        return centre + np.dot(offset, self.R)
+
+
 class Transistor(Cpt):
     """Transistor"""
     
@@ -421,7 +428,7 @@ class TwoPort(Cpt):
 
         titlestr = "%s-parameter two-port" % self.args[2]
 
-        s = r'  \draw (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
+        s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
             p4, p3, p1, p2, p4)
         s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
             centre, width, titlestr, self.name)
@@ -450,13 +457,19 @@ class TL(Cpt):
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
         centre = (p1 + p3) * 0.5
+        q1 = self.xtf(centre, (-1.25, 0))
+        q2 = self.xtf(centre, (0.65, 0))
+        q3 = self.xtf(centre, (0.525, -0.29))
+        q4 = self.xtf(centre, (-0.7, -0.29))
+
         xs = self.scale
+        # Rotation creates an ellipse!
         s = r'  \draw (%s) node[align=center,tlinestub,xscale=%s] {};''\n' % (centre + Pos(-1.3 * xs, 0), self.scale)
         s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
-        s += r'  \draw (%s) -- (%s);''\n' % (centre + Pos(-1.25 * xs, 0), self.dnodes[2])
-        s += r'  \draw (%s) -- (%s);''\n' % (centre + Pos(0.65 * xs, 0), self.dnodes[0])
-        s += r'  \draw (%s) |- (%s);''\n' % (centre + Pos(0.525 * xs, -0.29), self.dnodes[1])
-        s += r'  \draw (%s) |- (%s);''\n' % (centre + Pos(-0.7 * xs, -0.29), self.dnodes[3])
+        s += r'  \draw (%s) -- (%s);''\n' % (q1, self.dnodes[2])
+        s += r'  \draw (%s) -- (%s);''\n' % (q2, self.dnodes[0])
+        s += r'  \draw (%s) |- (%s);''\n' % (q3, self.dnodes[1])
+        s += r'  \draw (%s) |- (%s);''\n' % (q4, self.dnodes[3])
         s += self._draw_nodes(**kwargs)
         return s
 
