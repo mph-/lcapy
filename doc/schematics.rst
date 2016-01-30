@@ -390,6 +390,13 @@ A transmission line is a two-port device.  Here's an example:
    :width: 8cm
 
 
+Implicit wires
+==============
+
+Implicit wires are commonly employed for power supply and ground
+connections.  They have the `implicit` attribute.
+
+
 Annotation
 ==========
 

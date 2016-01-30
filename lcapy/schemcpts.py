@@ -106,17 +106,25 @@ class Cpt(object):
     def vertical(self):
         return self.opts['dir'] in ('left', 'down')
 
+    def attr(self, opt):
+
+        if opt not in self.opts:
+            return False
+        if self.opts[opt] == '':
+            return True
+        return self.opts[opt]
+
     @property
     def mirror(self):
-        return self.opts.get('mirror', False)
+        return self.attr('mirror')
 
     @property
     def invisible(self):
-        return self.opts.get('invisible', False)
+        return self.attr('invisible')
 
     @property
     def variable(self):
-        return self.opts.get('variable', False)
+        return self.attr('variable')
 
     @property
     def angle(self):
@@ -327,6 +335,11 @@ class Cpt(object):
             raise ValueError('Cannot mirror component %s' % self.name)
         
         return not self.invisible
+
+    def tf(self, centre, offset):
+        """Transform coordinate"""
+
+        return centre + np.dot(offset, self.R) * self.scale
 
 
 class Transistor(Cpt):
@@ -671,7 +684,7 @@ class Opamp(Cpt):
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             centre, self.args_str, 2 * 1.01 * self.scale, yscale,
-            self.angle, self.name)
+            -self.angle, self.name)
         s += r'  \draw (%s.out) |- (%s);''\n' % (self.name, n1)
         s += r'  \draw (%s.+) |- (%s);''\n' % (self.name, n3)
         s += r'  \draw (%s.-) |- (%s);''\n' % (self.name, n4)
@@ -688,7 +701,6 @@ class FDOpamp(Cpt):
     ppos = ((2.05, -1), (2.05, 0), (0, 0), (0, -1))
 
     can_scale = True
-    can_rotate = False
     can_mirror = True
 
     @property
@@ -703,7 +715,7 @@ class FDOpamp(Cpt):
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
         n1, n2, n3, n4 = self.dnodes
 
-        centre = (p1 + p2 + p3 + p4) * 0.25 + np.dot((0.15, 0), self.R) * self.scale
+        centre = self.tf((p1 + p2 + p3 + p4) * 0.25, (0.15, 0))
 
         yscale = 2 * 1.02 * self.scale
         if not self.mirror:
@@ -711,7 +723,7 @@ class FDOpamp(Cpt):
 
         s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             centre, self.args_str, 2 * 1.01 * self.scale, yscale,
-            self.angle, self.name)
+            -self.angle, self.name)
         s += r'  \draw (%s.out +) |- (%s);''\n' % (self.name, n1)
         s += r'  \draw (%s.out -) |- (%s);''\n' % (self.name, n2)
         s += r'  \draw (%s.+) |- (%s);''\n' % (self.name, n3)
@@ -774,7 +786,6 @@ class Logic(Cpt):
 class Upbuffer(Cpt):
     """Buffer with power supplies"""
 
-    can_rotate = False
     can_scale = True
 
     @property
@@ -791,12 +802,12 @@ class Upbuffer(Cpt):
 
         # TODO, create pgf shape
         scale = self.scale
-        q1 = centre + Pos(-1, 0) * scale
-        q2 = centre + Pos(1, 0) * scale
-        q3 = centre + Pos(0, 0.5) * scale
-        q4 = centre + Pos(0, -0.5) * scale
-        q5 = centre + Pos(-1, 1) * scale
-        q6 = centre + Pos(-1, -1) * scale
+        q1 = self.tf(centre, (-1, 0))
+        q2 = self.tf(centre, (1, 0))
+        q3 = self.tf(centre, (0, 0.5))
+        q4 = self.tf(centre, (0, -0.5))
+        q5 = self.tf(centre, (-1, 1))
+        q6 = self.tf(centre, (-1, -1))
 
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
             q5, q2, q6, q5)
@@ -847,7 +858,6 @@ class Wire(OnePort):
         # is also common.
         if kind == 'implicit':
             kind = 'sground'
-
         anchor = 'south west'
         if self.down:
             anchor = 'north west'
@@ -856,7 +866,7 @@ class Wire(OnePort):
         s = r'  \draw (%s) node[%s,scale=0.5,rotate=%d] {};''\n' % (
             n1, kind, self.angle + 90)
 
-        lpos = self.sch.nodes[n1].pos + np.dot((0.25, 0), self.R)
+        lpos = self.tf(self.sch.nodes[n1].pos, (0.25, 0))
 
         if 'l' in self.opts:
             s += r'  \draw [anchor=%s] (%s) node {%s};''\n' % (

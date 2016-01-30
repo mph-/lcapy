@@ -12,6 +12,6 @@ W 5 11; down, size=1
 P 8 10; down, v=v_{out}(t)
 W 0 9; right
 W 9 10; right
-;draw_nodes=connections, debug=True
+;draw_nodes=connections
 ;;\draw[help lines] (0,0) grid [xstep=0.1, ystep=0.1] (10,5);
 
