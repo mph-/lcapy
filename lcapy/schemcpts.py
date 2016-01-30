@@ -525,7 +525,7 @@ class K(TF1):
 class OnePort(Cpt):
     """OnePort"""
 
-    can_scale = True
+    can_mirror = True
 
     @property
     def coords(self):
@@ -596,6 +596,8 @@ class OnePort(Cpt):
 
         args_str = ','.join([self.args_str, self.voltage_str,
                              self.current_str])
+        if self.mirror:
+            args_str += ',mirror'
 
         # Generate default label.
         if (label_ids and label_values and self.id_label != '' 
