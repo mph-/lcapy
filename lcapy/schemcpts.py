@@ -770,6 +770,45 @@ class Logic(Cpt):
         return s
 
 
+class Upbuffer(Cpt):
+    """Buffer with power supplies"""
+
+    can_rotate = False
+    can_scale = True
+
+    @property
+    def coords(self):
+        return ((0, 0), (1.5, 0), (0.75, 0.5), (0.75, -0.5))
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
+        centre = (p1 + p2) * 0.5
+
+        # TODO, create pgf shape
+        scale = self.scale
+        q1 = centre + Pos(-1, 0) * scale
+        q2 = centre + Pos(1, 0) * scale
+        q3 = centre + Pos(0, 0.5) * scale
+        q4 = centre + Pos(0, -0.5) * scale
+        q5 = centre + Pos(-1, 1) * scale
+        q6 = centre + Pos(-1, -1) * scale
+
+        s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
+            q5, q2, q6, q5)
+        s += r'  \draw (%s) -- (%s);''\n' % (q1, p1)
+        s += r'  \draw (%s) -- (%s);''\n' % (q2, p2)
+        s += r'  \draw (%s) -- (%s);''\n' % (q3, p3)
+        s += r'  \draw (%s) -- (%s);''\n' % (q4, p4)
+        s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
+            centre, self.name, self.label(**kwargs))
+        s += self._draw_nodes(**kwargs)
+        return s
+
+
 class Wire(OnePort):
 
     @property

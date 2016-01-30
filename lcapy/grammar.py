@@ -53,8 +53,9 @@ TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 V: Vname Np Nm [Value]; Voltage source
 sV: Vname Np Nm s [Value]; s-domain voltage source
-Ubuffer: Uname Np Nm buffer; Buffer
-Uinverter: Uname Np Nm inverter; Inverter
+Ubuffer: Uname Ni No buffer; Buffer
+Upbuffer: Uname Ni No Np Nm pbuffer; Buffer with power supplies
+Uinverter: Uname Ni No inverter; Inverter
 Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vstep: Vname Np Nm step [Value]; Step voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
@@ -87,6 +88,7 @@ spdt: keyword;
 opamp: keyword;
 fdopamp: keyword;
 buffer: keyword;
+pbuffer: keyword;
 inverter: keyword;
 push: keyword;
 Nb: node; Base node
@@ -96,7 +98,9 @@ Ncm: node; Negative control node
 Nd: node; Drain node
 Ne: node; Emitter node
 Ng: node; Gate node
+Ni: node; Input node
 Nm: node; Negative node
+No: node; Output node
 Np: node; Positive node
 Ns: node; Source node
 Phase: value; AC Phase
