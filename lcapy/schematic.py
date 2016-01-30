@@ -104,7 +104,7 @@ class Opts(dict):
 
             fields = part.split('=')
             key = fields[0].strip()
-            arg = '='.join(fields[1:]).strip() if len(fields) > 1 else ''
+            arg = '='.join(fields[1:]).strip() if len(fields) > 1 else True
             if arg in ('true', 'True'):
                 arg = True
             elif arg in ('false', 'False'):

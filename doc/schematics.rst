@@ -411,6 +411,21 @@ example::
     ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
 
 
+Component attributes
+====================
+
+   - `size`: scale factor for distance between component's nodes
+
+   - `scale`: scale factor for length of component, ignoring wires (opamps, transmission lines)
+
+   - `rotate`: angle in degrees to rotate component anti-clockwise
+
+   - `mirror`: mirror component in x-axis (opamps, transistors)
+
+   - `invisible`: do not draw
+
+   - `color`: component color
+
 Styles
 ======
 

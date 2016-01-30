@@ -24,7 +24,7 @@ class Cpt(object):
     label_keys = ('l', 'l_', 'l^')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
-                 'dir', 'mirror', 'scale')
+                 'dir', 'mirror', 'scale', 'invisible')
 
     can_rotate = True
     can_scale = False
@@ -107,7 +107,11 @@ class Cpt(object):
 
     @property
     def mirror(self):
-        return 'mirror' in self.opts
+        return self.opts.get('mirror', False)
+
+    @property
+    def invisible(self):
+        return self.opts.get('invisible', False)
 
     @property
     def angle(self):
@@ -295,7 +299,6 @@ class Cpt(object):
                          for key, val in self.opts.items()
                          if key not in self.voltage_keys + self.current_keys + self.label_keys + self.misc_keys])
 
-
     def label(self, **kwargs):
 
         label_values = kwargs.get('label_values', True)
@@ -311,6 +314,7 @@ class Cpt(object):
         return label_str
 
     def check(self):
+        """Check schematic options and return True if component is to be drawn"""
 
         if not self.can_rotate and self.angle != 0:
             raise ValueError('Cannot rotate component %s' % self.name)
@@ -320,6 +324,8 @@ class Cpt(object):
 
         if not self.can_mirror and self.mirror:
             raise ValueError('Cannot mirrore component %s' % self.name)
+        
+        return not self.invisible
 
 
 class Transistor(Cpt):
@@ -339,7 +345,8 @@ class Transistor(Cpt):
 
     def draw(self, **kwargs):
 
-        self.check()
+        if not self.check():
+            return ''
 
         p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dnodes]
         centre = (p1 + p3) * 0.5
@@ -383,7 +390,8 @@ class TwoPort(Cpt):
 
     def draw(self, **kwargs):
 
-        self.check()
+        if not self.check():
+            return ''
 
         # TODO, fix positions if component rotated.
 
@@ -422,7 +430,8 @@ class TL(Cpt):
 
     def draw(self, **kwargs):
 
-        self.check()
+        if not self.check():
+            return ''
 
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
@@ -445,7 +454,8 @@ class TF1(TwoPort):
 
     def draw(self, **kwargs):
 
-        self.check()
+        if not self.check():
+            return ''
 
         link = kwargs.get('link', True)
 
@@ -481,7 +491,9 @@ class TF(TF1):
 
     def draw(self, **kwargs):
 
-        self.check()
+        if not self.check():
+            return ''
+
         n1, n2, n3, n4 = self.dnodes
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
@@ -521,7 +533,9 @@ class OnePort(Cpt):
 
     def draw(self, **kwargs):
 
-        self.check()
+        if not self.check():
+            return ''
+
         label_values = kwargs.get('label_values', True)
         label_ids = kwargs.get('label_ids', True)
 
@@ -636,7 +650,9 @@ class Opamp(Cpt):
 
     def draw(self, **kwargs):
 
-        self.check()
+        if not self.check():
+            return ''
+
         p1, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
         n1, n3, n4 = self.dnodes
 
@@ -675,7 +691,9 @@ class FDOpamp(Cpt):
 
     def draw(self, **kwargs):
 
-        self.check()
+        if not self.check():
+            return ''
+
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
         n1, n2, n3, n4 = self.dnodes
 
@@ -708,7 +726,9 @@ class SPDT(Cpt):
 
     def draw(self, **kwargs):
 
-        self.check()
+        if not self.check():
+            return ''
+
         p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dnodes]
 
         centre = p1 * 0.5 + (p2 + p3) * 0.25
@@ -731,7 +751,9 @@ class Logic(Cpt):
 
     def draw(self, **kwargs):
 
-        self.check()
+        if not self.check():
+            return ''
+
         # TODO, fix scaling to make buffer and inverter same size.
 
         p1, p2 = [self.sch.nodes[n].pos for n in self.dnodes]
@@ -787,7 +809,9 @@ class Wire(OnePort):
 
     def draw(self, **kwargs):
 
-        self.check()
+        if not self.check():
+            return ''
+
         if 'implicit' in self.opts or 'ground' in self.opts or 'sground' in self.opts:
             return self.draw_implicit(**kwargs)
                                     
