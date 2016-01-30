@@ -384,9 +384,9 @@ Transmission lines
 
 A transmission line is a two-port device.  Here's an example:
 
-.. literalinclude:: examples/schematics/tline2.sch
+.. literalinclude:: examples/schematics/tline3.sch
 
-.. image:: examples/schematics/tline2.png
+.. image:: examples/schematics/tline3.png
    :width: 8cm
 
 

@@ -22,6 +22,8 @@ class Cpt(object):
     current_keys = ('i', 'i_', 'i^', 'i_>',  'i_<', 'i^>', 'i^<',
                     'i>_', 'i<_', 'i>^', 'i<^', 'i>', 'i<')
     label_keys = ('l', 'l_', 'l^')
+    implicit_keys =  ('implicit', 'ground', 'sground', 'rground',
+                      'Vdd', 'Vcc',  'Vss', 'Vee')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'dir', 'mirror', 'scale', 'invisible', 'variable')
@@ -297,7 +299,7 @@ class Cpt(object):
 
         return ','.join([fmt(key, val) 
                          for key, val in self.opts.items()
-                         if key not in self.voltage_keys + self.current_keys + self.label_keys + self.misc_keys])
+                         if key not in self.voltage_keys + self.current_keys + self.label_keys + self.misc_keys + self.implicit_keys])
 
     def label(self, **kwargs):
 
@@ -812,29 +814,37 @@ class Upbuffer(Cpt):
 class Wire(OnePort):
 
     @property
+    def implicit(self):
+
+        for key in self.implicit_keys:
+            if key in self.opts:
+                return True
+        return False
+
+    @property
     def coords(self):
 
-        if 'implicit' in self.opts or 'ground' in self.opts or 'sground' in self.opts:
+        if self.implicit:
             return ((0, 0), )
         return ((0, 0), (1, 0))
 
     @property
     def vnodes(self):
 
-        if 'implicit' in self.opts or 'ground' in self.opts or 'sground' in self.opts:
+        if self.implicit:
             return (self.nodes[0], )
         return self.nodes
 
     def draw_implicit(self, **kwargs):
         """Draw implict wires, i.e., connections to ground, etc."""
 
-        kind = ''
-        if 'implicit' in self.opts:
-            kind = 'sground'
-        elif 'ground' in self.opts:
-            kind = 'ground'
-        elif 'sground' in self.opts:
-            kind = 'sground'
+        kind = self.implicit
+        # I like the sground symbol for power supplies but rground symbol
+        # is also common.
+        for key in ('implicit', 'Vss', 'Vdd', 'Vss', 'Vee'):
+            if key in self.opts:
+                kind = 'sground'
+                break
 
         anchor = 'south west'
         if self.down:
@@ -856,7 +866,7 @@ class Wire(OnePort):
         if not self.check():
             return ''
 
-        if 'implicit' in self.opts or 'ground' in self.opts or 'sground' in self.opts:
+        if self.implicit:
             return self.draw_implicit(**kwargs)
                                     
         return super(Wire, self).draw(**kwargs)
