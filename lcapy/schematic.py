@@ -98,10 +98,6 @@ class Opts(dict):
             if part == '':
                 continue
 
-            if part in ('up', 'down', 'left', 'right'):
-                self['dir'] = part
-                continue
-
             fields = part.split('=')
             key = fields[0].strip()
             arg = '='.join(fields[1:]).strip() if len(fields) > 1 else ''
@@ -583,12 +579,6 @@ class Schematic(object):
 
         # Drawing hints
         opts = Opts(cpt.opts_string)
-
-        if 'dir' not in opts:
-            opts['dir'] = None
-
-        if opts['dir'] is None:
-            opts['dir'] = 'down' if cpt.type in ('O', 'P') else 'right'
         cpt.opts = opts
 
         return cpt

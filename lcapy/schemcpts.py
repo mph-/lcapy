@@ -25,7 +25,7 @@ class Cpt(object):
     implicit_keys =  ('implicit', 'ground', 'sground', 'rground')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
-                 'dir', 'mirror', 'scale', 'invisible', 'variable')
+                 'mirror', 'scale', 'invisible', 'variable')
 
     can_rotate = True
     can_scale = False
@@ -84,27 +84,27 @@ class Cpt(object):
 
     @property
     def down(self):
-        return self.opts['dir']  == 'down'
+        return 'down' in self.opts
 
     @property
     def up(self):
-        return self.opts['dir']  == 'up'
+        return 'up' in self.opts
 
     @property
     def left(self):
-        return self.opts['dir']  == 'left'
+        return 'left' in self.opts
 
     @property
     def right(self):
-        return self.opts['dir']  == 'right'
+        return 'right' in self.opts
 
     @property
     def horizontal(self):
-        return self.opts['dir'] in ('left', 'right')
+        return self.left or self.right
 
     @property
     def vertical(self):
-        return self.opts['dir'] in ('left', 'down')
+        return self.up or self.down
 
     def attr(self, opt):
 
@@ -138,7 +138,7 @@ class Cpt(object):
         elif self.up:
             angle = 90
         else:
-            raise ValueError('Unknown orientation: %s' % self.opts['dir'])
+            angle = -90 if self.type in ('O', 'P') else 0
         
         if 'rotate' in self.opts:
             angle += float(self.opts['rotate'])
@@ -333,6 +333,9 @@ class Cpt(object):
 
         if not self.can_mirror and self.mirror:
             raise ValueError('Cannot mirror component %s' % self.name)
+
+        if self.left + self.right + self.up + self.down > 1:
+            raise ValueError('Mutually exclusive drawing directions for %s' % self.name)
         
         return not self.invisible
 
