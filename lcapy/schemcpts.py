@@ -75,7 +75,21 @@ class Cpt(object):
     @property
     def size(self):
         """Component size between its nodes"""
-        return float(self.opts.get('size', 1.0))
+        if 'size' in self.opts:
+            val = self.opts['size']
+        elif self.right:
+            val = self.opts['right']
+        elif self.down:
+            val = self.opts['down']
+        elif self.left:
+            val = self.opts['left']
+        elif self.up:
+            val = self.opts['up']
+        else:
+            val = 1
+        if val == '':
+            val = 1
+        return float(val)
 
     @property
     def scale(self):
@@ -106,7 +120,7 @@ class Cpt(object):
     def vertical(self):
         return self.up or self.down
 
-    def attr(self, opt):
+    def boolattr(self, opt):
 
         if opt not in self.opts:
             return False
@@ -116,15 +130,15 @@ class Cpt(object):
 
     @property
     def mirror(self):
-        return self.attr('mirror')
+        return self.boolattr('mirror')
 
     @property
     def invisible(self):
-        return self.attr('invisible')
+        return self.boolattr('invisible')
 
     @property
     def variable(self):
-        return self.attr('variable')
+        return self.boolattr('variable')
 
     @property
     def angle(self):
