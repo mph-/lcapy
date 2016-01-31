@@ -896,6 +896,39 @@ class Wire(OnePort):
                                     
         return super(Wire, self).draw(**kwargs)
 
+class XT(Cpt):
+    """Crystal"""
+
+    can_scale = True
+
+    @property
+    def coords(self):
+        return ((-0.5, 0), (0.5, 0))
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        p1, p2 = [self.sch.nodes[n].pos for n in self.dnodes]
+
+        centre = (p1 + p2) * 0.5
+        q = self.xtf(centre, ((-0.375, 0), (-0.375, 0.3), (-0.375, -0.3),
+                              (0.375, 0), (0.375, 0.3), (0.375, -0.3),
+                              (-0.375 / 3, 0.3), (0.375 / 3, 0.3),
+                              (0.375 / 3, -0.3), (-0.375 / 3, -0.3),
+                              (0.0, -0.6)))
+
+        s = r'  \draw[thick] (%s) -- (%s);''\n' % (q[1], q[2])
+        s += r'  \draw[thick] (%s) -- (%s);''\n' % (q[4], q[5])
+        s += r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
+            q[6], q[7], q[8], q[9], q[6])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dnodes[0])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[3], self.dnodes[1])
+        s += r'  \draw (%s) node[] {%s};''\n'% (q[10], self.label(**kwargs))
+        s += self._draw_nodes(**kwargs)
+        return s
+
 
 classes = {}
 

@@ -61,6 +61,7 @@ Vstep: Vname Np Nm step [Value]; Step voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
 Vsin: Vname Np Nm sin Vo Va fo [td] [alpha] [Phase]; Sinusoidal voltage source
 W: Wname Np Np; Wire
+XT: XTname Np Nm; Crystal
 Y: Yname Np Np [Value]; Admittance
 Z: Zname Np Np [Value]; Impedance
 """

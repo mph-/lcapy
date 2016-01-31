@@ -545,6 +545,10 @@ class W(DummyCpt):
         pass
 
 
+class XT(Cpt):
+    """Crystal"""
+    pass
+
 class Y(RC):
     """Admittance"""
     pass
