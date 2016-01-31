@@ -782,7 +782,7 @@ class Logic(Cpt):
 
     @property
     def coords(self):
-        return ((0, 0), (0.75, 0))
+        return ((0, 0), (1.0, 0))
 
     def draw(self, **kwargs):
 
@@ -795,6 +795,8 @@ class Logic(Cpt):
         centre = (p1 + p2) * 0.5
         s = r'  \draw (%s) node[align=left, %s, %s, rotate=%d] (%s) {};''\n' % (
             centre, self.tikz_cpt, self.args_str, self.angle, self.name)
+        s += r'  \draw (%s.out) -- (%s);''\n' % (self.name, self.dnodes[1])
+        s += r'  \draw (%s.in) -- (%s);''\n' % (self.name, self.dnodes[0])
         s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
         s += self._draw_nodes(**kwargs)
         return s
@@ -913,10 +915,10 @@ class XT(Cpt):
         p1, p2 = [self.sch.nodes[n].pos for n in self.dnodes]
 
         centre = (p1 + p2) * 0.5
-        q = self.xtf(centre, ((-0.375, 0), (-0.375, 0.3), (-0.375, -0.3),
-                              (0.375, 0), (0.375, 0.3), (0.375, -0.3),
-                              (-0.375 / 3, 0.3), (0.375 / 3, 0.3),
-                              (0.375 / 3, -0.3), (-0.375 / 3, -0.3),
+        q = self.xtf(centre, ((-0.3, 0), (-0.3, 0.3), (-0.3, -0.3),
+                              (0.3, 0), (0.3, 0.3), (0.3, -0.3),
+                              (-0.12, 0.3), (0.12, 0.3),
+                              (0.12, -0.3), (-0.12, -0.3),
                               (0.0, -0.6)))
 
         s = r'  \draw[thick] (%s) -- (%s);''\n' % (q[1], q[2])
