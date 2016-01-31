@@ -339,12 +339,18 @@ class Cpt(object):
     def tf(self, centre, offset):
         """Transform coordinate"""
 
+        if isinstance(offset[0], tuple):
+            return [self.tf(centre, offset1) for offset1 in offset]
+
         return centre + np.dot(offset, self.R) * self.scale
 
 
     def xtf(self, centre, offset):
         """Transform coordinate but with x-scaling only"""
         
+        if isinstance(offset[0], tuple):
+            return [self.xtf(centre, offset1) for offset1 in offset]
+
         offset = (offset[0] * self.scale, offset[1])
         return centre + np.dot(offset, self.R)
 
@@ -457,19 +463,17 @@ class TL(Cpt):
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
 
         centre = (p1 + p3) * 0.5
-        q1 = self.xtf(centre, (-1.25, 0))
-        q2 = self.xtf(centre, (0.65, 0))
-        q3 = self.xtf(centre, (0.525, -0.29))
-        q4 = self.xtf(centre, (-0.7, -0.29))
+        q = self.xtf(centre, ((-1.25, 0), (0.65, 0),
+                              (0.525, -0.29), (-0.7, -0.29)))
 
         xs = self.scale
         # Rotation creates an ellipse!
         s = r'  \draw (%s) node[align=center,tlinestub,xscale=%s] {};''\n' % (centre + Pos(-1.3 * xs, 0), self.scale)
         s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
-        s += r'  \draw (%s) -- (%s);''\n' % (q1, self.dnodes[2])
-        s += r'  \draw (%s) -- (%s);''\n' % (q2, self.dnodes[0])
-        s += r'  \draw (%s) |- (%s);''\n' % (q3, self.dnodes[1])
-        s += r'  \draw (%s) |- (%s);''\n' % (q4, self.dnodes[3])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dnodes[2])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[1], self.dnodes[0])
+        s += r'  \draw (%s) |- (%s);''\n' % (q[2], self.dnodes[1])
+        s += r'  \draw (%s) |- (%s);''\n' % (q[3], self.dnodes[3])
         s += self._draw_nodes(**kwargs)
         return s
 
@@ -815,19 +819,15 @@ class Upbuffer(Cpt):
 
         # TODO, create pgf shape
         scale = self.scale
-        q1 = self.tf(centre, (-1, 0))
-        q2 = self.tf(centre, (1, 0))
-        q3 = self.tf(centre, (0, 0.5))
-        q4 = self.tf(centre, (0, -0.5))
-        q5 = self.tf(centre, (-1, 1))
-        q6 = self.tf(centre, (-1, -1))
+        q = self.tf(centre, ((-1, 0), (1, 0), (0, 0.5), (0, -0.5),
+                             (-1, 1), (-1, -1)))
 
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
-            q5, q2, q6, q5)
-        s += r'  \draw (%s) -- (%s);''\n' % (q1, p1)
-        s += r'  \draw (%s) -- (%s);''\n' % (q2, p2)
-        s += r'  \draw (%s) -- (%s);''\n' % (q3, p3)
-        s += r'  \draw (%s) -- (%s);''\n' % (q4, p4)
+            q[4], q[1], q[5], q[4])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dnodes[0])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[1], self.dnodes[1])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[2], self.dnodes[2])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[3], self.dnodes[3])
         s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
             centre, self.name, self.label(**kwargs))
         s += self._draw_nodes(**kwargs)
