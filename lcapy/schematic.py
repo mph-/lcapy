@@ -118,8 +118,12 @@ class Opts(dict):
 
     def format(self):
 
-        return ', '.join(['%s=%s' % (key, val)
-                          for key, val in self.items()])
+        def fmt(key, val):
+            if val == '':
+                return key
+            return '%s=%s' % (key, val)
+
+        return ', '.join([fmt(key, val) for key, val in self.items()])
 
     def copy(self):
         
@@ -578,8 +582,7 @@ class Schematic(object):
         cpt.default_label = cpt.id_label if cpt.value_label == '' else cpt.value_label
 
         # Drawing hints
-        opts = Opts(cpt.opts_string)
-        cpt.opts = opts
+        cpt.opts = Opts(cpt.opts_string)
 
         return cpt
 
