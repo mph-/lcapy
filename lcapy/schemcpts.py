@@ -574,6 +574,7 @@ class OnePort(Cpt):
     """OnePort"""
 
     can_mirror = True
+    can_scale = True
 
     @property
     def coords(self):
@@ -646,6 +647,9 @@ class OnePort(Cpt):
                              self.current_str])
         if self.mirror:
             args_str += ',mirror'
+
+        if self.scale != 1.0:
+            args_str += ',bipoles/length=%scm' % (self.sch.cpt_size * self.scale)
 
         # Generate default label.
         if (label_ids and label_values and self.id_label != '' 
