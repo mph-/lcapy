@@ -170,12 +170,19 @@ changed using the `cpt_size` option of the schematic.  For example,
 .. image:: examples/schematics/resistors4.png
    :width: 12cm
 
+The size of components can scaled with the `scale` attribute:
+
+.. literalinclude:: examples/schematics/resistors6.sch
+
+.. image:: examples/schematics/resistors6.png
+   :width: 12cm
+
 The overall schematic can be scaled with the `scale` option of the schematic:
 
 .. literalinclude:: examples/schematics/resistors5.sch
 
 .. image:: examples/schematics/resistors5.png
-   :width: 5cm
+   :width: 6cm
 
 
 Colors
@@ -428,7 +435,7 @@ Component attributes
 
    - `size`: scale factor for distance between component's nodes
 
-   - `scale`: scale factor for length of component, ignoring wires (opamps, transmission lines)
+   - `scale`: scale factor for length of component
 
    - `rotate`: angle in degrees to rotate component anti-clockwise
 
@@ -484,36 +491,36 @@ Examples
 .. literalinclude:: examples/schematics/D4.sch
 
 .. image:: examples/schematics/D4.png
-   :width: 5cm
+   :width: 3.5cm
 
 
 .. literalinclude:: examples/schematics/pic6.sch
 
 .. image:: examples/schematics/pic6.png
-   :width: 5cm
+   :width: 3.5cm
 
 
 .. literalinclude:: examples/schematics/K1.sch
 
 .. image:: examples/schematics/K1.png
-   :width: 5cm
+   :width: 3.5cm
 
 
 .. literalinclude:: examples/schematics/VRL2.sch
 
 .. image:: examples/schematics/VRL2.png
-   :width: 8cm
+   :width: 6.5cm
 
 
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded2.sch
 
 .. image:: examples/schematics/lpf1-buffer-loaded2.png
-   :width: 14cm
+   :width: 10.5cm
 
 .. literalinclude:: examples/schematics/sallen-key-lpf1.sch
 
 .. image:: examples/schematics/sallen-key-lpf1.png
-   :width: 14cm
+   :width: 9cm
 
 
 
@@ -536,7 +543,9 @@ If you wish to include the schematic into a LaTeX file use:
 and then include the file with `\\input{Dbridge.pytex}`.
 
 `schtex.py` has many command line options to configure the drawing.
-These override the options specified in the netlist file.
+These override the options specified in the netlist file.  For example:
+
+   >>> schtex.py --draw_nodes=connections --label_nodes=false --cpt-size=1 Dbridge.sch Dbridge.pdf
 
 
 Drawing tips
