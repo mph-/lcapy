@@ -85,6 +85,10 @@ def main (argv=None):
                       dest='cpt_size', default=None,
                       help='this specifies the size of a component; it needs to be smaller than node_spacing')
     
+    parser.add_option('--help-lines', type='float',
+                      dest='help_lines', default=None,
+                      help="draw help lines")
+
     (options, args) = parser.parse_args()
 
     if len(args) < 1:
@@ -108,7 +112,7 @@ def main (argv=None):
     if options.p_model:
         cct = cct.pre_initial_model()
 
-    if options.label_nodes not in ('none', 'all', 'primary', False, None):
+    if options.label_nodes not in ('none', 'all', 'alpha', 'primary', False, None):
         raise ValueError('Illegal option %s for label_nodes' % options.label_nodes)
 
     if options.draw_nodes not in ('none', 'all', 'primary', 'connections',
@@ -119,7 +123,7 @@ def main (argv=None):
              label_ids=options.label_ids, label_values=options.label_values, 
              filename=outfilename, scale=options.scale,
              node_spacing=options.node_spacing, cpt_size=options.cpt_size,
-             debug=options.debug)
+             help_lines=options.help_lines, debug=options.debug)
 
     return 0
 

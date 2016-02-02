@@ -170,6 +170,7 @@ class SchematicOpts(Opts):
              'cpt_size' : 1.5,
              'node_spacing' : 2.0,
              'append' : '',
+             'help_lines' : 0.0,
              'style' : 'american'})
 
 
@@ -728,6 +729,15 @@ class Schematic(object):
                     node.name, node.name.replace('_', r'\_'))
 
         s += '  ' + kwargs.pop('append', '')
+
+        help = float(kwargs.pop('help_lines', 0))
+        if help != 0:
+            start = Pos(-0.5, -0.5) * self.node_spacing
+            stop = Pos(self.width + 0.5, self.height +0.5) * self.node_spacing
+
+            s += r'\draw[help lines, blue] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
+                start, help, help, stop)
+
         s += r'\end{tikzpicture}''\n'
 
         return s
@@ -869,6 +879,7 @@ class Schematic(object):
            node_spacing: spacing between component nodes, default 2.0
            cpt_size: size of a component, default 1.5
            oversample: oversampling factor for png or pdf files
+           help_lines: distance between lines in grid, default 0.0 (disabled)
            debug: True to display debug information
         """
 

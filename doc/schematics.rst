@@ -146,7 +146,7 @@ Here's a comparison of resistors of different sizes.
 .. literalinclude:: examples/schematics/resistors1.sch
 
 .. image:: examples/schematics/resistors1.png
-   :width: 12cm
+   :width: 14cm
 
 By default, a component with size 1 has its nodes spaced by 2 units.
 This can be changed using the `node_spacing` option of the schematic.
@@ -155,7 +155,7 @@ For example,
 .. literalinclude:: examples/schematics/resistors2.sch
 
 .. image:: examples/schematics/resistors2.png
-   :width: 12cm
+   :width: 10.5cm
 
 Be default, a component has a length of 1.5 units.  This can be
 changed using the `cpt_size` option of the schematic.  For example,
@@ -163,26 +163,26 @@ changed using the `cpt_size` option of the schematic.  For example,
 .. literalinclude:: examples/schematics/resistors3.sch
 
 .. image:: examples/schematics/resistors3.png
-   :width: 12cm
+   :width: 14cm
 
 .. literalinclude:: examples/schematics/resistors4.sch
 
 .. image:: examples/schematics/resistors4.png
-   :width: 12cm
+   :width: 7cm
 
 The size of components can scaled with the `scale` attribute:
 
 .. literalinclude:: examples/schematics/resistors6.sch
 
 .. image:: examples/schematics/resistors6.png
-   :width: 12cm
+   :width: 14cm
 
 The overall schematic can be scaled with the `scale` option of the schematic:
 
 .. literalinclude:: examples/schematics/resistors5.sch
 
 .. image:: examples/schematics/resistors5.png
-   :width: 6cm
+   :width: 7cm
 
 
 Colors
@@ -433,26 +433,54 @@ example::
 Component attributes
 ====================
 
-   - `size`: scale factor for distance between component's nodes
+- `size`: scale factor for distance between component's nodes
 
-   - `scale`: scale factor for length of component
+- `scale`: scale factor for length of component
 
-   - `rotate`: angle in degrees to rotate component anti-clockwise
+- `rotate`: angle in degrees to rotate component anti-clockwise
 
-   - `mirror`: mirror component in x-axis (opamps, transistors)
+- `mirror`: mirror component in x-axis (opamps, transistors)
 
-   - `invisible`: do not draw
+- `invisible`: do not draw
 
-   - `color`: component color
+- `color`: component color
 
-   - `variable`: for variable resistors, inductors, and capacitors
+- `variable`: for variable resistors, inductors, and capacitors
+
+
+Schematic attributes
+====================
+
+- `node_spacing`: scale factor for distance between component nodes (default 2)
+
+- `cpt_size`: length of component (default 1.5)
+
+- `scale`: scale factor (default 1)
+
+- `help_lines`: spacing between help lines (default 0 to disable)
+
+- `draw_nodes`: specifies which nodes to draw (default `primary`). Its argument can either be `all`, `connections` (nodes that connect at least two components), `none`, or `primary` (node names without an underscore).
+
+- `label_nodes`: specifies which nodes to label (default `primary`).  Its argument can either be `all`, `alpha` (node names starting with a letter), `none`, or `primary` (node names without an underscore).
+
+- `label_ids`: specifies whether component ids are drawn (default `true`)
+
+- `label_values`: specifies whether component values are drawn (default `true`)
+
+- `style`: specifies the component style.  This is either `american`,  `british`, or `european` (default `american`).
+
+Schematic attributes apply to the whole schematic.  They can be specified by starting a netlist with a semicolon, for example,
+
+    ;help_lines=1, draw_nodes=connections
+
+The schematic attributes can be over-written using arguments to the `draw` method.
 
 
 Styles
 ======
 
-Three component styles are supported: american (default, british, and
-european.  The style is set by a style argument to the `draw` method
+Three component styles are supported: `american` (default), `british`, and
+`european`.  The style is set by a style argument to the `draw` method
 or by a schematic option.  For example,
 
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded3.sch
@@ -517,11 +545,11 @@ Examples
 .. image:: examples/schematics/lpf1-buffer-loaded2.png
    :width: 10.5cm
 
+
 .. literalinclude:: examples/schematics/sallen-key-lpf1.sch
 
 .. image:: examples/schematics/sallen-key-lpf1.png
    :width: 9cm
-
 
 
 schtex.py
@@ -545,7 +573,7 @@ and then include the file with `\\input{Dbridge.pytex}`.
 `schtex.py` has many command line options to configure the drawing.
 These override the options specified in the netlist file.  For example:
 
-   >>> schtex.py --draw_nodes=connections --label_nodes=false --cpt-size=1 Dbridge.sch Dbridge.pdf
+   >>> schtex.py --draw_nodes=connections --label_nodes=false --cpt-size=1 --help_lines=1 Dbridge.sch Dbridge.pdf
 
 
 Drawing tips
