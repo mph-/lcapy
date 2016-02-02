@@ -1,2 +1,2 @@
-R 1 2; right, size=2
+R 1 2; right=2
 

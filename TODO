@@ -132,3 +132,8 @@ scale controls component size, it does not change node spacing
 (perhaps it should)
 
 Add node object, say for adding labels?  
+
+Add crystal and ferrite bead components to Circuitikz.
+
+Add generic amplifier to Circuitikz or add up and down anchors to
+buffer and inverter.

@@ -136,7 +136,12 @@ using the size keyword, for example:
    >>> cct.add('R1 1 2; right, size=2')
 
 The size argument is used as a scale factor for the component node
-spacing.
+spacing.  The size can also be specified by adding a value to the
+`left`, `right`, `up`, or `down` arguments.  For example:
+
+   >>> cct.add('R1 1 2; right=2')
+
+Here's a comparison of resistors of different sizes.
 
 .. literalinclude:: examples/schematics/resistors1.sch
 
