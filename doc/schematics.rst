@@ -473,7 +473,7 @@ Schematic attributes apply to the whole schematic.  They can be specified by sta
 
     ;help_lines=1, draw_nodes=connections
 
-The schematic attributes can be over-written using arguments to the `draw` method.
+The schematic attributes can be overridden using arguments to the `draw` method.
 
 
 Styles

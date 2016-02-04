@@ -67,9 +67,11 @@ class Rule(object):
                 param = param[1:-1]
 
             field = fields[m]
-            if paramdir[param].base == 'node':
-                if field.find('.') != -1:
-                    self.syntax_error('Found . in node name %s' % field, string)
+            if paramdir[param].base in ('node', 'pin'):
+                if paramdir[param].base == 'pin':
+                    if field.find('.') != -1:
+                        self.syntax_error('Found . in pin name %s' % field, string)
+                field = field.replace('.', '@')
                 nodes.append(field)
             elif paramdir[param].base != 'keyword':
                 args.append(field)

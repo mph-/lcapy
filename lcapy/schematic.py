@@ -404,6 +404,7 @@ class Node(object):
         self.primary = len(parts) == 1
         self.list = []
         self.pos = 'unknown'
+        self.pin = False
         
     def __repr__(self):
         return '%s @ (%s)' % (self.name, self.pos)
@@ -428,6 +429,9 @@ class Node(object):
     def visible(self, draw_nodes):
         """Return true if node drawn"""
 
+        if '@' in self.name:
+            return False
+
         if self.port:
             return True
 
@@ -440,7 +444,7 @@ class Node(object):
         if draw_nodes == 'connections':
             return self.count > 2
 
-        return self.name.find('_') == -1
+        return '_' not in self.name
 
     @property
     def port(self):
@@ -725,8 +729,15 @@ class Schematic(object):
                     continue
                 if label_nodes == 'primary' and not node.primary:
                     continue
-                s += r'  \draw {[anchor=south east] (%s) node {%s}};''\n' % (
-                    node.name, node.name.replace('_', r'\_'))
+                anchors = {False: 'south east', 
+                           'l': 'west', 'r' : 'east', 
+                           't' : 'north', 'b' : 'south'}
+                anchor = anchors[node.pin]
+                name = node.name
+                name = name.split('@')[-1]
+
+                s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
+                    anchor, node.name, name.replace('_', r'\_'))
 
         s += '  ' + kwargs.pop('append', '')
 

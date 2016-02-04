@@ -56,6 +56,7 @@ sV: Vname Np Nm s [Value]; s-domain voltage source
 Ubuffer: Uname Ni No buffer; Buffer
 Upbuffer: Uname Ni No Np Nm pbuffer; Buffer with power supplies
 Uinverter: Uname Ni No inverter; Inverter
+Uchip4141: Uname chip4141 P P P P P P P P P P; Chip
 Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vstep: Vname Np Nm step [Value]; Step voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
@@ -91,7 +92,9 @@ fdopamp: keyword;
 buffer: keyword;
 pbuffer: keyword;
 inverter: keyword;
+chip4141: keyword;
 push: keyword;
+P: pin; Pin
 Nb: node; Base node
 Nc: node; Collector node
 Ncp: node; Positive control node
@@ -104,6 +107,7 @@ Nm: node; Negative node
 No: node; Output node
 Np: node; Positive node
 Ns: node; Source node
+Nodelist: nodelist; List of nodes
 Phase: value; AC Phase
 Vo: value; DC voltage offset
 Va: value; Sinewave voltage amplitude

@@ -628,6 +628,7 @@ defcpt('SWspdt', 'SW', 'SPDT switch')
 defcpt('Ubuffer', Logic, 'Buffer')
 defcpt('Upbuffer', Logic, 'Buffer with power supplies')
 defcpt('Uinverter', Logic, 'Inverter')
+defcpt('Uchip4141', Logic, 'General purpose chip')
 
 defcpt('sV', V, 's-domain voltage source')
 defcpt('Vsin', V, 'Sinusoidal voltage source')

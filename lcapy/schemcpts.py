@@ -246,12 +246,12 @@ class Cpt(object):
         draw_nodes = kwargs.get('draw_nodes', True)
 
         node_str = ''
-        if node1.visible(draw_nodes):
+        if node1.visible(draw_nodes) and not node1.pin:
             node_str = 'o' if node1.port else '*'
 
         node_str += '-'
 
-        if node2.visible(draw_nodes):
+        if node2.visible(draw_nodes) and not node2.pin:
             node_str += 'o' if node2.port else '*'
 
         if node_str == '-':
@@ -268,7 +268,7 @@ class Cpt(object):
             return s
 
         node = self.sch.nodes[n]
-        if not node.visible(draw_nodes):
+        if not node.visible(draw_nodes) or node.pin:
             return s
 
         if node.port:
@@ -857,6 +857,60 @@ class Upbuffer(Cpt):
         return s
 
 
+class Chip(Cpt):
+    """General purpose chip"""
+
+    def __init__(self, sch, cpt_type, cpt_id, string, opts_string, nodes, *args):
+
+        super (Chip, self).__init__(sch, cpt_type, cpt_id, string,
+                                    opts_string, nodes, *args[2:])
+
+        pins = []
+        for node in self.nodes:
+            pins.append(self.name + '@' + node)
+        self.nodes = pins
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        for m, n in enumerate(self.dnodes):
+            self.sch.nodes[n].pin = self.pinpos[m]
+
+        p = [self.sch.nodes[n].pos for n in self.dnodes]
+        centre = (p[4] + p[9]) * 0.5
+
+        w, h = self.width, self.height
+        c1 = centre + Pos(-0.5 * w, 0.5 * h) * self.scale * 2
+        c2 = centre + Pos(0.5 * w, 0.5 * h) * self.scale * 2
+        c3 = centre + Pos(0.5 * w, -0.5 * h) * self.scale * 2
+        c4 = centre + Pos(-0.5 * w, -0.5 * h) * self.scale * 2
+
+        s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
+            c1, c2, c3, c4, c1)
+
+        s += self._draw_nodes(**kwargs)
+        return s
+
+
+class Chip4141(Chip):
+    """Chip of size 4 1 4 1"""
+
+    width = 2
+    height = 3
+    pinpos = ('l', 'l', 'l', 'l', 'b', 'r', 'r', 'r', 'r', 't')
+
+    @property
+    def coords(self):
+        w, h = self.width, self.height
+
+        return ((0, 0.375 * h), (0, 0.125 * h), (0, -0.125 * h), (0, -0.375 * h),
+                (0.5 * w, -0.5 * h), 
+                (w, -0.375 * h), (w, -0.125 * h), (w, 0.125 * h), (w, 0.375 * h),
+                (0.5 * w, 0.5 * h))
+
+
 class Wire(OnePort):
 
     @property
@@ -1036,6 +1090,7 @@ defcpt('TP', TwoPort, 'Two port', '')
 
 defcpt('Ubuffer', Logic, 'Buffer', 'buffer')
 defcpt('Uinverter', Logic, 'Inverter', 'american not port')
+defcpt('Uchip4141', Chip4141, 'General purpose chip')
 
 defcpt('V', OnePort, 'Voltage source', 'V')
 defcpt('sV', OnePort, 'Voltage source', 'V')
