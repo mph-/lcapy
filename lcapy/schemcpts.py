@@ -500,6 +500,10 @@ class TF1(TwoPort):
 
     can_rotate = True
 
+    @property
+    def coords(self):
+        return ((0.5, 1), (0.5, 0), (0, 1), (0, 0))
+
     def draw(self, **kwargs):
 
         if not self.check():
@@ -545,9 +549,9 @@ class TF(TF1):
         n1, n2, n3, n4 = self.dnodes
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
-        s += r'  \draw (%s) to [inductor] (%s);''\n' % (n1, n2)
+        s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2, n1)
 
-        s += super(TF, self).draw(link=True, **kwargs)
+        s += super(TF, self).draw(link=False, **kwargs)
         s += self._draw_nodes(**kwargs)
         return s
 
