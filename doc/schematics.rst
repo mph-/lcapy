@@ -413,11 +413,11 @@ Here's an example:
 .. image:: examples/schematics/ic1.png
    :width: 8cm
 
-The `chip2121` keyword specifies a block with two pins on the left,
-one on the bottom, two on the right, and one at the top.  The pins
-are enumerated anti-clockwise from top-left.  If a pin name has an
-underscore, it is not labelled.  A connection to a pin is prefixed by
-the name of the chip, for example, `U1.PIO1`.
+In this example, the `chip2121` keyword specifies a block with two
+pins on the left, one on the bottom, two on the right, and one at the
+top.  The pins are enumerated anti-clockwise from top-left.  If a pin
+name has an underscore, it is not labelled.  A connection to a pin is
+prefixed by the name of the chip, for example, `U1.PIO1`.
 
 The supported chips are:
  - `chip2121`

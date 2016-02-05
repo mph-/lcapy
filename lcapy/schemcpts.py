@@ -911,8 +911,23 @@ class Chip2121(Chip):
     def coords(self):
         w, h = self.width, self.height
 
-        return ((0, 0.125 * h), (0, -0.125 * h), (0.5 * w, -0.5 * h), 
-                (w, -0.125 * h), (w, 0.125 * h), (0.5 * w, 0.5 * h))
+        return ((0, 0.25 * h), (0, -0.25 * h), (0.5 * w, -0.5 * h), 
+                (w, -0.25 * h), (w, 0.25 * h), (0.5 * w, 0.5 * h))
+
+
+class Chip3131(Chip):
+    """Chip of size 3 1 3 1"""
+
+    width = 2
+    height = 2
+    pinpos = ('l', 'l', 'b', 'r', 'r', 't')
+
+    @property
+    def coords(self):
+        w, h = self.width, self.height
+
+        return ((0, 0.5 * h), (0, 0), (0, -0.5 * h), (0.5 * w, -0.5 * h), 
+                (w, -0.5 * h), (w, 0), (w, 0.5 * h), (0.5 * w, 0.5 * h))
 
 
 class Chip4141(Chip):
@@ -1112,6 +1127,7 @@ defcpt('TP', TwoPort, 'Two port', '')
 defcpt('Ubuffer', Logic, 'Buffer', 'buffer')
 defcpt('Uinverter', Logic, 'Inverter', 'american not port')
 defcpt('Uchip2121', Chip2121, 'General purpose chip')
+defcpt('Uchip3131', Chip3131, 'General purpose chip')
 defcpt('Uchip4141', Chip4141, 'General purpose chip')
 
 defcpt('V', OnePort, 'Voltage source', 'V')

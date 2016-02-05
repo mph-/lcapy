@@ -57,6 +57,7 @@ Ubuffer: Uname Ni No buffer; Buffer
 Upbuffer: Uname Ni No Np Nm pbuffer; Buffer with power supplies
 Uinverter: Uname Ni No inverter; Inverter
 Uchip4141: Uname chip4141 P P P P P P P P P P; Chip
+Uchip3131: Uname chip4141 P P P P P P P P; Chip
 Uchip2121: Uname chip2121 P P P P P P; Chip
 Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vstep: Vname Np Nm step [Value]; Step voltage source
@@ -94,6 +95,7 @@ buffer: keyword;
 pbuffer: keyword;
 inverter: keyword;
 chip4141: keyword;
+chip3131: keyword;
 chip2121: keyword;
 push: keyword;
 P: pin; Pin

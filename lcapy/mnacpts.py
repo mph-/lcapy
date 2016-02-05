@@ -629,6 +629,7 @@ defcpt('Ubuffer', Logic, 'Buffer')
 defcpt('Upbuffer', Logic, 'Buffer with power supplies')
 defcpt('Uinverter', Logic, 'Inverter')
 defcpt('Uchip4141', Logic, 'General purpose chip')
+defcpt('Uchip3131', Logic, 'General purpose chip')
 defcpt('Uchip2121', Logic, 'General purpose chip')
 
 defcpt('sV', V, 's-domain voltage source')
