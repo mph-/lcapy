@@ -883,7 +883,8 @@ class Chip(Cpt):
             self.sch.nodes[n].pin = self.pinpos[m]
 
         p = [self.sch.nodes[n].pos for n in self.dnodes]
-        centre = (p[4] + p[9]) * 0.5
+        N = len(p)
+        centre = (p[N / 2 - 1] + p[N - 1]) * 0.5
 
         w, h = self.width, self.height
         c1 = centre + Pos(-0.5 * w, 0.5 * h) * self.scale * 2
@@ -893,9 +894,25 @@ class Chip(Cpt):
 
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
             c1, c2, c3, c4, c1)
+        s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
 
         s += self._draw_nodes(**kwargs)
         return s
+
+
+class Chip2121(Chip):
+    """Chip of size 2 1 2 1"""
+
+    width = 2
+    height = 2
+    pinpos = ('l', 'l', 'b', 'r', 'r', 't')
+
+    @property
+    def coords(self):
+        w, h = self.width, self.height
+
+        return ((0, 0.125 * h), (0, -0.125 * h), (0.5 * w, -0.5 * h), 
+                (w, -0.125 * h), (w, 0.125 * h), (0.5 * w, 0.5 * h))
 
 
 class Chip4141(Chip):
@@ -1094,6 +1111,7 @@ defcpt('TP', TwoPort, 'Two port', '')
 
 defcpt('Ubuffer', Logic, 'Buffer', 'buffer')
 defcpt('Uinverter', Logic, 'Inverter', 'american not port')
+defcpt('Uchip2121', Chip2121, 'General purpose chip')
 defcpt('Uchip4141', Chip4141, 'General purpose chip')
 
 defcpt('V', OnePort, 'Voltage source', 'V')

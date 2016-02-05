@@ -1,4 +1,4 @@
-U1 chip2121 _1 _2 Vss PIO1 PIO2 Vdd; right
+U1 chip4141 _1 _2 _3 _4 Vss _5 PIO1 PIO2 _8 Vdd; right
 W U1.Vdd Vdd; implicit, up, l=3V3
 W U1.Vss 0; implicit, down, l=0V
 R1 U1.PIO1 1; right
