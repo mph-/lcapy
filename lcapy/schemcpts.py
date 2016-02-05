@@ -8,7 +8,7 @@ Copyright 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import print_function
 from lcapy.latex import latex_str, format_label
-from lcapy.schemmisc import Pos
+from lcapy.schemmisc import Pos, Opts
 import numpy as np
 import sys
 
@@ -61,7 +61,9 @@ class Cpt(object):
         self.name = name
         self.args = args
         self.classname = self.__class__.__name__
-        self.opts = {}
+
+        # Drawing hints
+        self.opts = Opts(opts_string)
 
     def __repr__(self):
         return self.__str__()
@@ -240,6 +242,9 @@ class Cpt(object):
             for m2, n2 in enumerate(self.dnodes[m1 + 1:], m1 + 1):
                 value = (yvals[m2] - yvals[m1]) * size
                 graphs.add(n1, n2, value)
+
+    def midpoint(self, n1, n2):
+        return (self.sch.nodes[n1].pos + self.sch.nodes[n2].pos) * 0.5
 
     def _node_str(self, node1, node2, **kwargs):
 
@@ -874,6 +879,19 @@ class Chip(Cpt):
             pins.append(self.name + '@' + node)
         self.nodes = pins
 
+    @property
+    def centre(self):
+        N = len(self.dnodes)
+        return self.midpoint(self.dnodes[0], self.dnodes[N // 2])
+
+    @property
+    def width(self):
+        return self.w * self.size * self.sch.node_spacing
+
+    @property
+    def height(self):
+        return self.h * self.size * self.sch.node_spacing
+
     def draw(self, **kwargs):
 
         if not self.check():
@@ -883,14 +901,13 @@ class Chip(Cpt):
             self.sch.nodes[n].pin = self.pinpos[m]
 
         p = [self.sch.nodes[n].pos for n in self.dnodes]
-        N = len(p)
-        centre = (p[N / 2 - 1] + p[N - 1]) * 0.5
+        centre = self.centre
 
         w, h = self.width, self.height
-        c1 = centre + Pos(-0.5 * w, 0.5 * h) * self.scale * 2
-        c2 = centre + Pos(0.5 * w, 0.5 * h) * self.scale * 2
-        c3 = centre + Pos(0.5 * w, -0.5 * h) * self.scale * 2
-        c4 = centre + Pos(-0.5 * w, -0.5 * h) * self.scale * 2
+        c1 = centre + Pos(-0.5 * w, 0.5 * h)
+        c2 = centre + Pos(0.5 * w, 0.5 * h)
+        c3 = centre + Pos(0.5 * w, -0.5 * h)
+        c4 = centre + Pos(-0.5 * w, -0.5 * h)
 
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
             c1, c2, c3, c4, c1)
@@ -900,54 +917,83 @@ class Chip(Cpt):
         return s
 
 
+class Chip1310(Chip):
+    """Chip of size 1 3 1 0"""
+
+    w = 2
+    h = 1
+    pinpos = ('l', 'b', 'b', 'b', 'r')
+
+    @property
+    def centre(self):
+        return self.midpoint(self.dnodes[0], self.dnodes[4])
+
+    @property
+    def coords(self):
+        w, h = self.width, self.height
+
+        return ((-0.375, 0), (-0.35, -0.25), (0, -0.25), (0.25, -0.25),
+                (0.375, 0))
+
+
 class Chip2121(Chip):
     """Chip of size 2 1 2 1"""
 
-    width = 2
-    height = 2
+    w = 2
+    h = 2
     pinpos = ('l', 'l', 'b', 'r', 'r', 't')
 
     @property
     def coords(self):
         w, h = self.width, self.height
 
-        return ((0, 0.25 * h), (0, -0.25 * h), (0.5 * w, -0.5 * h), 
-                (w, -0.25 * h), (w, 0.25 * h), (0.5 * w, 0.5 * h))
+        return ((0, 0.5), (0, -0.5), (1, -1), 
+                (2, -0.5), (2, 0.5), (1, 1))
 
 
 class Chip3131(Chip):
     """Chip of size 3 1 3 1"""
 
-    width = 2
-    height = 2
+    w = 2
+    h = 3
     pinpos = ('l', 'l', 'b', 'r', 'r', 't')
 
     @property
     def coords(self):
         w, h = self.width, self.height
 
-        return ((0, 0.5 * h), (0, 0), (0, -0.5 * h), (0.5 * w, -0.5 * h), 
-                (w, -0.5 * h), (w, 0), (w, 0.5 * h), (0.5 * w, 0.5 * h))
+        return ((0, 0.5), (0, 0), (0, -0.5), (1, -1), 
+                (2, -0.5), (2, 0), (2, 0.5), (1, 1))
 
 
 class Chip4141(Chip):
     """Chip of size 4 1 4 1"""
 
-    width = 2
-    height = 3
+    w = 2
+    h = 2
     pinpos = ('l', 'l', 'l', 'l', 'b', 'r', 'r', 'r', 'r', 't')
 
     @property
     def coords(self):
         w, h = self.width, self.height
 
-        return ((0, 0.375 * h), (0, 0.125 * h), (0, -0.125 * h), (0, -0.375 * h),
-                (0.5 * w, -0.5 * h), 
-                (w, -0.375 * h), (w, -0.125 * h), (w, 0.125 * h), (w, 0.375 * h),
-                (0.5 * w, 0.5 * h))
+        return ((0, 0.75), (0, 0.25), (0, -0.25), (0, -0.75),
+                (1, -1), 
+                (2, -0.75), (2, -0.25), (2, 0.25), (2, 0.75),
+                (1, 1))
 
 
 class Wire(OnePort):
+
+    def __init__(self, sch, cpt_type, cpt_id, string, opts_string, nodes, *args):
+
+        super (Wire, self).__init__(sch, cpt_type, cpt_id, string,
+                                    opts_string, nodes, *args)
+
+        if self.implicit:
+            # Rename second node since this is spatially different from
+            # other nodes of the same name.
+            self.nodes = (self.nodes[0], self.name + '@_' + self.nodes[1])
 
     @property
     def implicit(self):
@@ -960,15 +1006,11 @@ class Wire(OnePort):
     @property
     def coords(self):
 
-        if self.implicit:
-            return ((0, 0), )
         return ((0, 0), (1, 0))
 
     @property
     def vnodes(self):
 
-        if self.implicit:
-            return (self.nodes[0], )
         return self.nodes
 
     def draw_implicit(self, **kwargs):
@@ -988,13 +1030,13 @@ class Wire(OnePort):
         if self.down:
             anchor = 'north west'
 
-        n1 = self.dnodes[0]
-        s = r'  \draw (%s) node[%s,scale=0.5,rotate=%d] {};''\n' % (
-            n1, kind, self.angle + 90)
-
-        lpos = self.tf(self.sch.nodes[n1].pos, (0.25, 0))
+        n1, n2 = self.dnodes
+        s = r'  \draw (%s) -- (%s);''\n' % (n1, n2)
+        s += r'  \draw (%s) node[%s,scale=0.5,rotate=%d] {};''\n' % (
+            n2, kind, self.angle + 90)
 
         if 'l' in self.opts:
+            lpos = self.tf(self.sch.nodes[n2].pos, (0.25, 0))
             s += r'  \draw [anchor=%s] (%s) node {%s};''\n' % (
                 anchor, lpos, self.label(**kwargs))
         return s
@@ -1126,6 +1168,7 @@ defcpt('TP', TwoPort, 'Two port', '')
 
 defcpt('Ubuffer', Logic, 'Buffer', 'buffer')
 defcpt('Uinverter', Logic, 'Inverter', 'american not port')
+defcpt('Uchip1310', Chip1310, 'General purpose chip')
 defcpt('Uchip2121', Chip2121, 'General purpose chip')
 defcpt('Uchip3131', Chip3131, 'General purpose chip')
 defcpt('Uchip4141', Chip4141, 'General purpose chip')

@@ -56,9 +56,10 @@ sV: Vname Np Nm s [Value]; s-domain voltage source
 Ubuffer: Uname Ni No buffer; Buffer
 Upbuffer: Uname Ni No Np Nm pbuffer; Buffer with power supplies
 Uinverter: Uname Ni No inverter; Inverter
-Uchip4141: Uname chip4141 P P P P P P P P P P; Chip
-Uchip3131: Uname chip4141 P P P P P P P P; Chip
+Uchip1310: Uname chip1310 P P P P P; Chip
 Uchip2121: Uname chip2121 P P P P P P; Chip
+Uchip3131: Uname chip3131 P P P P P P P P; Chip
+Uchip4141: Uname chip4141 P P P P P P P P P P; Chip
 Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vstep: Vname Np Nm step [Value]; Step voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
@@ -94,9 +95,10 @@ fdopamp: keyword;
 buffer: keyword;
 pbuffer: keyword;
 inverter: keyword;
-chip4141: keyword;
-chip3131: keyword;
+chip1310: keyword;
 chip2121: keyword;
+chip3131: keyword;
+chip4141: keyword;
 push: keyword;
 P: pin; Pin
 Nb: node; Base node

@@ -44,118 +44,13 @@ from lcapy.core import Expr
 import grammar
 from parser import Parser
 import schemcpts as cpts
-from lcapy.schemmisc import Pos
+from lcapy.schemmisc import Pos, Opts
 from os import system, path, remove, mkdir, chdir, getcwd
 import math
 
 __all__ = ('Schematic', )
 
 parser = Parser(cpts, grammar)
-
-class Opts(dict):
-
-    def __init__(self, arg=None):
-
-        if arg is None:
-            return
-
-        if isinstance(arg, str):
-            self.add(arg)
-            return
-
-        for key, val in arg.items():
-            self[key] = val
-
-    def add(self, string):
-
-        def split(s):
-            """Split a string by , except if in braces"""
-            parts = []
-            bracket_level = 0
-            current = []
-            for c in (s + ','):
-                if c == ',' and bracket_level == 0:
-                    parts.append(''.join(current))
-                    current = []
-                else:
-                    if c == '{':
-                        bracket_level += 1
-                    elif c == '}':
-                        bracket_level -= 1
-                    current.append(c)
-            if bracket_level != 0:
-                raise ValueError('Mismatched braces for ' + s)
-            return parts
-
-        if string == '':
-            return
-        if string[0] == ';':
-            self['append'] += string[1:] + '\n'
-            return
-
-        for part in split(string):
-            part = part.strip()
-            if part == '':
-                continue
-
-            fields = part.split('=')
-            key = fields[0].strip()
-            arg = '='.join(fields[1:]).strip() if len(fields) > 1 else ''
-            if arg in ('true', 'True'):
-                arg = True
-            elif arg in ('false', 'False'):
-                arg = False
-
-            self[key] = arg
-
-    def __str__(self):
-        return self.format()
-
-    @property
-    def size(self):
-
-        return float(self.get('size', 1))
-
-    def format(self):
-
-        def fmt(key, val):
-            if val == '':
-                return key
-            return '%s=%s' % (key, val)
-
-        return ', '.join([fmt(key, val) for key, val in self.items()])
-
-    def copy(self):
-        
-        return self.__class__(super(Opts, self).copy())
-
-    def strip(self, *args):
-
-        stripped = Opts()
-        for opt in args:
-            if opt in self:
-                stripped[opt] = self.pop(opt)        
-        return stripped
-
-    def strip_voltage_labels(self):
-
-        return self.strip('v', 'vr', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<')
-
-    def strip_current_labels(self):
-
-        return self.strip('i', 'ir', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
-                          'i>_', 'i<_', 'i>^', 'i<^')
-
-    def strip_labels(self):
-
-        return self.strip('l', 'l^', 'l_')
-
-    def strip_all_labels(self):
-
-        self.strip_voltage_labels()
-        self.strip_current_labels()
-        self.strip_labels()
-
 
 class SchematicOpts(Opts):
 
@@ -429,6 +324,9 @@ class Node(object):
     def visible(self, draw_nodes):
         """Return true if node drawn"""
 
+        if draw_nodes == 'all':
+            return True
+
         if '@' in self.name:
             return False
 
@@ -438,9 +336,6 @@ class Node(object):
         if draw_nodes in ('none', None, False):
             return False
         
-        if draw_nodes == 'all':
-            return True
-
         if draw_nodes == 'connections':
             return self.count > 2
 
@@ -586,9 +481,6 @@ class Schematic(object):
         cpt.value_label = '' if value_label is None else format_label(value_label)
         cpt.default_label = cpt.id_label if cpt.value_label == '' else cpt.value_label
 
-        # Drawing hints
-        cpt.opts = Opts(cpt.opts_string)
-
         return cpt
 
     def add(self, string):
@@ -689,7 +581,7 @@ class Schematic(object):
         return wires
 
     def _make_wires(self):
-        """Create implict wires between common nodes."""
+        """Create implicit wires between common nodes."""
 
         wires = []
 
@@ -708,6 +600,14 @@ class Schematic(object):
         opts = r'scale=%.2f,transform shape,/tikz/circuitikz/bipoles/length=%.2fcm,%s' % (
             self.scale, self.cpt_size, style_args)
         s = r'\begin{tikzpicture}[%s]''\n' % opts
+
+        help = float(kwargs.pop('help_lines', 0))
+        if help != 0:
+            start = Pos(-0.5, -0.5) * self.node_spacing
+            stop = Pos(self.width + 0.5, self.height +0.5) * self.node_spacing
+
+            s += r'\draw[help lines, blue] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
+                start, help, help, stop)
 
         # Write coordinates
         for n, node in self.nodes.items():
@@ -740,14 +640,6 @@ class Schematic(object):
                     anchor, node.name, name.replace('_', r'\_'))
 
         s += '  ' + kwargs.pop('append', '')
-
-        help = float(kwargs.pop('help_lines', 0))
-        if help != 0:
-            start = Pos(-0.5, -0.5) * self.node_spacing
-            stop = Pos(self.width + 0.5, self.height +0.5) * self.node_spacing
-
-            s += r'\draw[help lines, blue] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
-                start, help, help, stop)
 
         s += r'\end{tikzpicture}''\n'
 
