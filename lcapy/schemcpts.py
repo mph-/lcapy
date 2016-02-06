@@ -992,7 +992,8 @@ class Wire(OnePort):
 
         if self.implicit:
             # Rename second node since this is spatially different from
-            # other nodes of the same name.
+            # other nodes of the same name.  Add underscore so node
+            # not drawn.
             self.nodes = (self.nodes[0], self.name + '@_' + self.nodes[1])
 
     @property
