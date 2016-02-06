@@ -227,6 +227,14 @@ class Graph(dict):
 
     def dot(self, filename):
 
+        base, ext = path.splitext(filename)
+        if ext == '.pdf':
+            tmpfilename = filename + '.dot'
+            self.dot(tmpfilename)
+            system('dot -T pdf -o ' + filename + ' ' + tmpfilename)
+            remove(tmpfilename)            
+            return
+
         dotfile = open (filename, 'w')
         dotfile.write ('strict digraph {\n\tgraph [rankdir=LR];\n')
 
