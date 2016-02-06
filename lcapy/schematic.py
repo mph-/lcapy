@@ -225,6 +225,26 @@ class Graph(dict):
 
         return distances
 
+    def dot(self, filename):
+
+        dotfile = open (filename, 'w')
+        dotfile.write ('strict digraph {\n\tgraph [rankdir=LR];\n')
+
+        def fmt(n):
+            if isinstance(n, tuple):
+                return ', '.join(n)
+            return n
+
+        for n in self:
+            dotfile.write ('\t"%s"\t [style=filled];\n' % fmt(n))
+
+        for n, nodes in self.items():
+            for node in nodes:
+                dotfile.write ('\t"%s" ->\t"%s" [ label="%s" ];\n' % (fmt(n), fmt(node[0]), node[1]))
+
+        dotfile.write ('}\n')
+        dotfile.close ()
+
 
 class Graphs(object):
 
