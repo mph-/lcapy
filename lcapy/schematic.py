@@ -180,6 +180,18 @@ class Graph(dict):
 
         self.name = name
 
+    def __repr__(self):
+
+        s = ''
+        for n, node in self.items():
+            if node.edges == []:
+                s += '%s @%s\n' % (n, node.dist)
+            else:
+                for edge in node.edges:
+                    s += '%s @%s %s to %s\n' % (n, node.dist,
+                                                edge.size, edge.node)
+        return s
+
     def add(self, n1, n2, size):
 
         if size == 0:
@@ -274,9 +286,9 @@ class Graph(dict):
         for n in self:
             dotfile.write ('\t"%s"\t [style=filled];\n' % fmt(n))
 
-        for n, nodes in self.items():
-            for node in nodes:
-                dotfile.write ('\t"%s" ->\t"%s" [ label="%s" ];\n' % (fmt(n), fmt(node[0]), node[1]))
+        for n, node in self.items():
+            for edge in node.edges:
+                dotfile.write ('\t"%s" ->\t"%s" [ label="%s" ];\n' % (fmt(n), fmt(edge.node), edge.size))
 
         dotfile.write ('}\n')
         dotfile.close ()
