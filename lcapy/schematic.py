@@ -220,12 +220,9 @@ class Graph(dict):
 
         # all_nodes is an iterable for all the nodes in the graph,
         # from_nodes is a directory indexed by node that stores a
-        # tuple of tuples.  The first tuple element is the parent node
-        # and the second element is the minimium size of the component
-        # connecting the nodes.
+        # list of edges to other nodes. 
 
         all_nodes = self.keys()
-        from_nodes = self
 
         distances = {}
 
@@ -234,15 +231,13 @@ class Graph(dict):
             if to_node in distances:
                 return distances[to_node]
 
-            best = 0
-            for edge in from_nodes[to_node].edges:
-                from_node = edge.node
-                size = edge.size
-                best = max(best, get_longest(from_node) + size)
+            longest = 0
+            for edge in self[to_node].edges:
+                longest = max(longest, get_longest(edge.node) + edge.size)
 
-            distances[to_node] = best
-
-            return best
+            distances[to_node] = longest
+            self[to_node].dist = longest
+            return longest
 
         try:
             distance_max, node = max([(get_longest(to_node), to_node)
@@ -251,7 +246,7 @@ class Graph(dict):
             raise RuntimeError(
                 ("The %s schematic graph is dodgy, probably a component"
                  " is connected to the wrong node\n%s") 
-                % (self.name, from_nodes))
+                % (self.name, self))
 
         # Distances are from the furtherest node back to the start node.
         # Thus the maximum distance is distances['start'].
