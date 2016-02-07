@@ -145,6 +145,15 @@ class Cnodes(dict):
             self[n] = newset
 
 
+class Gedge(object):
+
+    def __init__(self, node, size):
+
+        self.node = node
+        self.size = size
+        self.stretch = True
+
+
 class Graph(dict):
 
     def __init__(self, name):
@@ -159,11 +168,11 @@ class Graph(dict):
         if size < 0:
             if n2 not in self:
                 self[n2] = []
-            self[n2].append((n1, -size))
+            self[n2].append(Gedge(n1, -size))
         else:
             if n1 not in self:
                 self[n1] = []
-            self[n1].append((n2, size))
+            self[n1].append(Gedge(n2, size))
 
     def add_orphan_nodes(self, all_nodes):
 
@@ -182,7 +191,7 @@ class Graph(dict):
             raise ValueError("Cannot find start node for %s schematic graph. "
                              "Probably a component has an incorrect direction.\n%s."
                              % (self.name, self))
-        self['start'] = [(node, 0) for node in nodes]
+        self['start'] = [Gedge(node, 0) for node in nodes]
 
     def longest_path(self):
         """Find longest path through DAG."""
@@ -204,7 +213,9 @@ class Graph(dict):
                 return distances[to_node]
 
             best = 0
-            for from_node, size in from_nodes[to_node]:
+            for edge in from_nodes[to_node]:
+                from_node = edge.node
+                size = edge.size
                 best = max(best, get_longest(from_node) + size)
 
             distances[to_node] = best
