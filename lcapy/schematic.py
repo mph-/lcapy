@@ -182,14 +182,19 @@ class Graph(dict):
 
     def __repr__(self):
 
+        def fmt(n):
+            if isinstance(n, tuple):
+                return ', '.join(n)
+            return n
+
         s = ''
         for n, node in self.items():
             if node.edges == []:
-                s += '%s @%s\n' % (n, node.dist)
+                s += '%s @%s\n' % (fmt(n), node.dist)
             else:
                 for edge in node.edges:
-                    s += '%s @%s %s to %s\n' % (n, node.dist,
-                                                edge.size, edge.node)
+                    s += '%s @%s --%s--> %s\n' % (fmt(n), node.dist,
+                                                  edge.size, fmt(edge.node))
         return s
 
     def add(self, n1, n2, size):
@@ -240,7 +245,7 @@ class Graph(dict):
 
             dist = 0
             for edge in node.edges:
-                dist = max(dist, get_dist(self[edge.node]) + edge.size)
+                dist = max(dist, get_longest(self[edge.node]) + edge.size)
 
             node.dist = dist
             return dist
