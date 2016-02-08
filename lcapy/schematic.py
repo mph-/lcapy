@@ -64,9 +64,7 @@ def tmpfilename(suffix=''):
     return filename
 
 
-def mdisplay_png(filename):
-
-    # TODO display as SVG so have scaled fonts...
+def display_matplotlib(filename):
         
     from matplotlib.pyplot import figure
     from matplotlib.image import imread
@@ -175,11 +173,11 @@ class Cnodes(dict):
 
 class Gedge(object):
 
-    def __init__(self, node, size):
+    def __init__(self, node, size, stretch=False):
 
         self.node = node
         self.size = size
-        self.stretch = True
+        self.stretch = stretch
         self.stretched = False
 
     def __repr__(self):
@@ -189,7 +187,8 @@ class Gedge(object):
                 return ', '.join(n)
             return n
         
-        return '--%s--> %s' % (self.size, fmt(self.node))
+        return '--%s%s--> %s' % (self.size, '*' if self.stretch else '',
+                                 fmt(self.node))
         
 
 class Gnode(object):
@@ -247,7 +246,7 @@ class Graph(dict):
         # Throw error.
         return super(Graph, self).__getitem__(key)
 
-    def add(self, n1, n2, size):
+    def add(self, n1, n2, size, stretch):
 
         if size == 0:
             return
@@ -255,11 +254,11 @@ class Graph(dict):
         if size < 0:
             if n2 not in self:
                 self[n2] = Gnode()
-            self[n2].append(Gedge(n1, -size))
+            self[n2].append(Gedge(n1, -size, stretch))
         else:
             if n1 not in self:
                 self[n1] = Gnode()
-            self[n1].append(Gedge(n2, size))
+            self[n1].append(Gedge(n2, size, stretch))
 
     def add_orphan_nodes(self, all_nodes):
 
@@ -323,7 +322,7 @@ class Graph(dict):
         if filename is None:
             filename = tmpfilename('.png')
             self.dot(filename=filename)
-            mdisplay_png(filename)
+            display_matplotlib(filename)
             return
 
         base, ext = path.splitext(filename)
@@ -342,12 +341,12 @@ class Graph(dict):
                 return ', '.join(n)
             return n
 
-        for n in self:
-            dotfile.write ('\t"%s"\t [style=filled];\n' % fmt(n))
+        for n, node in self.items():
+            dotfile.write ('\t"%s"\t [style=filled, xlabel="@%s"];\n' % (fmt(n), node.dist))
 
         for n, node in self.items():
             for edge in node.edges:
-                dotfile.write ('\t"%s" ->\t"%s" [ label="%s" ];\n' % (fmt(n), fmt(edge.node), edge.size))
+                dotfile.write ('\t"%s" ->\t"%s" [ label="%s%s" ];\n' % (fmt(n), fmt(edge.node), edge.size, '*' if edge.stretch else ''))
 
         dotfile.write ('}\n')
         dotfile.close ()
@@ -364,10 +363,10 @@ class Graphs(object):
     def link(self, n1, n2):
         self.cnodes.link(n1, n2)
 
-    def add(self, n1, n2, size):
+    def add(self, n1, n2, size, stretch):
         cnode1, cnode2 = self.cnodes[n1], self.cnodes[n2]
-        self.fwd.add(cnode1, cnode2, size)
-        self.rev.add(cnode2, cnode1, size)
+        self.fwd.add(cnode1, cnode2, size, stretch)
+        self.rev.add(cnode2, cnode1, size, stretch)
 
     @property
     def nodes(self):
@@ -968,7 +967,7 @@ class Schematic(object):
         if filename is None:
             filename = tmpfilename('.png')
             self.tikz_draw(filename=filename, **kwargs)
-            mdisplay_png(filename)
+            display_matplotlib(filename)
             return
         
         self.tikz_draw(filename=filename, **kwargs)

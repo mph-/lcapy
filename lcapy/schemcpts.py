@@ -30,6 +30,7 @@ class Cpt(object):
     can_rotate = True
     can_scale = False
     can_mirror = False
+    stretch = True
 
     def anon(self, cpt_type):
 
@@ -232,7 +233,7 @@ class Cpt(object):
         for m1, n1 in enumerate(self.dnodes):
             for m2, n2 in enumerate(self.dnodes[m1 + 1:], m1 + 1):
                 value = (xvals[m2] - xvals[m1]) * size
-                graphs.add(n1, n2, value)
+                graphs.add(n1, n2, value, self.stretch)
 
     def yplace(self, graphs):
 
@@ -241,7 +242,7 @@ class Cpt(object):
         for m1, n1 in enumerate(self.dnodes):
             for m2, n2 in enumerate(self.dnodes[m1 + 1:], m1 + 1):
                 value = (yvals[m2] - yvals[m1]) * size
-                graphs.add(n1, n2, value)
+                graphs.add(n1, n2, value, self.stretch)
 
     def midpoint(self, n1, n2):
         return (self.sch.nodes[n1].pos + self.sch.nodes[n2].pos) * 0.5
@@ -705,6 +706,7 @@ class Opamp(Cpt):
 
     can_scale = True
     can_mirror = True
+    stretch = False
 
     @property
     def vnodes(self):
@@ -868,6 +870,8 @@ class Upbuffer(Cpt):
 
 class Chip(Cpt):
     """General purpose chip"""
+
+    stretch = False
 
     def __init__(self, sch, cpt_type, cpt_id, string, opts_string, nodes, *args):
 
