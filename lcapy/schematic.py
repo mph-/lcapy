@@ -230,23 +230,23 @@ class Graph(dict):
     def longest_path(self):
         """Find longest path through DAG."""
 
-        distances = {}
+        for node in self.values():
+            node.dist = None
 
         def get_longest(node):
 
-            if node in distances:
-                return distances[node]
+            if node.dist is not None:
+                return node.dist
 
             longest = 0
-            for edge in self[node].edges:
-                longest = max(longest, get_longest(edge.node) + edge.size)
+            for edge in node.edges:
+                longest = max(longest, get_longest(self[edge.node]) + edge.size)
 
-            distances[node] = longest
-            self[node].dist = longest
+            node.dist = longest
             return longest
 
         try:
-            for node in self:
+            for node in self.values():
                 get_longest(node)
 
         except RuntimeError:
@@ -257,8 +257,6 @@ class Graph(dict):
 
         # Distances are from the furtherest node back to the start node.
         # Thus the maximum distance is distances['start'].
-
-        return distances
 
     def dot(self, filename):
 
@@ -327,17 +325,17 @@ class Graphs(object):
         self.add_start_nodes()
 
         # Find longest paths through the graphs.
-        distances = self.fwd.longest_path()
-        distancesr = self.rev.longest_path()
+        self.fwd.longest_path()
+        self.rev.longest_path()
 
         pos = {}
         posr = {}
         posa = {}
 
-        distance_max = distancesr['start']
+        distance_max = self.rev['start'].dist
         for node, gnode in self.cnodes.items():
-            pos[node] = distance_max - distances[gnode]
-            posr[node] = distancesr[gnode]
+            pos[node] = distance_max - self.fwd[gnode].dist
+            posr[node] = self.rev[gnode].dist
 
             # If the nodes are dangling, do not average positions.
             if gnode in self.rev.orphans:
