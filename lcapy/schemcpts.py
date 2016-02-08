@@ -920,7 +920,7 @@ class Chip(Cpt):
 class Chip1310(Chip):
     """Chip of size 1 3 1 0"""
 
-    w = 2
+    w = 1.5
     h = 1
     pinpos = ('l', 'b', 'b', 'b', 'r')
 
@@ -932,8 +932,8 @@ class Chip1310(Chip):
     def coords(self):
         w, h = self.width, self.height
 
-        return ((-0.375, 0), (-0.35, -0.25), (0, -0.25), (0.25, -0.25),
-                (0.375, 0))
+        return ((-0.75, 0), (-0.5, -0.5), (0, -0.5), (0.5, -0.5),
+                (0.75, 0))
 
 
 class Chip2121(Chip):

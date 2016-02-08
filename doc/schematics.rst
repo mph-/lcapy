@@ -420,7 +420,9 @@ name has an underscore, it is not labelled.  A connection to a pin is
 prefixed by the name of the chip, for example, `U1.PIO1`.
 
 The supported chips are:
+ - `chip1310`
  - `chip2121`
+ - `chip3131`
  - `chip4141`
 
 
