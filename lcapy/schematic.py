@@ -238,12 +238,12 @@ class Graph(dict):
             if node.dist is not None:
                 return node.dist
 
-            longest = 0
+            dist = 0
             for edge in node.edges:
-                longest = max(longest, get_longest(self[edge.node]) + edge.size)
+                dist = max(dist, get_dist(self[edge.node]) + edge.size)
 
-            node.dist = longest
-            return longest
+            node.dist = dist
+            return dist
 
         try:
             for node in self.values():
