@@ -52,6 +52,34 @@ __all__ = ('Schematic', )
 
 parser = Parser(cpts, grammar)
 
+def tmpfilename(suffix=''):
+
+    from tempfile import gettempdir, NamedTemporaryFile
+    
+    # Searches using TMPDIR, TEMP, TMP environment variables
+    tempdir = gettempdir()
+    
+    filename = NamedTemporaryFile(suffix=suffix, dir=tempdir, 
+                                  delete=False).name
+    return filename
+
+
+def mdisplay_png(filename):
+
+    # TODO display as SVG so have scaled fonts...
+        
+    from matplotlib.pyplot import figure
+    from matplotlib.image import imread
+    
+    img = imread(filename)
+    
+    fig = figure()
+    ax = fig.add_subplot(111)
+    ax.imshow(img)
+    ax.axis('equal')
+    ax.axis('off')
+
+
 class SchematicOpts(Opts):
 
     def __init__(self):
@@ -152,10 +180,16 @@ class Gedge(object):
         self.node = node
         self.size = size
         self.stretch = True
+        self.stretched = False
 
     def __repr__(self):
+
+        def fmt(n):
+            if isinstance(n, tuple):
+                return ', '.join(n)
+            return n
         
-        return '%s$%s' % (self.node, self.size)
+        return '--%s--> %s' % (self.size, fmt(self.node))
         
 
 class Gnode(object):
@@ -193,9 +227,25 @@ class Graph(dict):
                 s += '%s @%s\n' % (fmt(n), node.dist)
             else:
                 for edge in node.edges:
-                    s += '%s @%s --%s--> %s\n' % (fmt(n), node.dist,
-                                                  edge.size, fmt(edge.node))
+                    s += '%s @%s %s\n' % (fmt(n), node.dist, edge)
         return s
+
+    def __getitem__(self, key):
+
+        # If key is an integer, convert to a string.
+        if isinstance(key, int):
+            key = '%d' % key
+
+        if key in self.keys():
+            return super(Graph, self).__getitem__(key)
+
+        # Allow indexing by a node name rather than by tuple.
+        for key1 in self.keys():
+            if key in key1:
+                return super(Graph, self).__getitem__(key1)
+
+        # Throw error.
+        return super(Graph, self).__getitem__(key)
 
     def add(self, n1, n2, size):
 
@@ -248,6 +298,11 @@ class Graph(dict):
                 dist = max(dist, get_longest(self[edge.node]) + edge.size)
 
             node.dist = dist
+
+            for edge in node.edges:
+                edge.dist = get_longest(self[edge.node]) + edge.size
+                edge.stretched = edge.dist != dist
+
             return dist
 
         try:
@@ -263,14 +318,20 @@ class Graph(dict):
         # Distances are from the furtherest node back to the start node.
         # Thus the maximum distance is distances['start'].
 
-    def dot(self, filename):
+    def dot(self, filename=None):
+
+        if filename is None:
+            filename = tmpfilename('.png')
+            self.dot(filename=filename)
+            mdisplay_png(filename)
+            return
 
         base, ext = path.splitext(filename)
-        if ext == '.pdf':
-            tmpfilename = filename + '.dot'
-            self.dot(tmpfilename)
-            system('dot -T pdf -o ' + filename + ' ' + tmpfilename)
-            remove(tmpfilename)            
+        if ext in ('.pdf', '.png'):
+            dotfilename = filename + '.dot'
+            self.dot(dotfilename)
+            system('dot -T %s -o %s %s' % (ext[1:], filename, dotfilename))
+            remove(dotfilename)            
             return
 
         dotfile = open (filename, 'w')
@@ -711,17 +772,6 @@ class Schematic(object):
 
         return s
 
-    def _tmpfilename(self, suffix=''):
-
-        from tempfile import gettempdir, NamedTemporaryFile
-
-        # Searches using TMPDIR, TEMP, TMP environment variables
-        tempdir = gettempdir()
-        
-        filename = NamedTemporaryFile(suffix=suffix, dir=tempdir, 
-                                      delete=False).name
-        return filename
-
     def _convert_pdf_svg(self, pdf_filename, svg_filename):
 
         system('pdf2svg %s %s' % (pdf_filename, svg_filename))
@@ -887,7 +937,7 @@ class Schematic(object):
             if png:
                 from IPython.display import Image, display_png
 
-                pngfilename = self._tmpfilename('.png')
+                pngfilename = tmpfilename('.png')
                 self.tikz_draw(pngfilename, **kwargs)
 
                 # Create and display PNG image object.
@@ -904,7 +954,7 @@ class Schematic(object):
             if svg:
                 from IPython.display import SVG, display_svg
 
-                svgfilename = self._tmpfilename('.svg')
+                svgfilename = tmpfilename('.svg')
                 self.tikz_draw(svgfilename, **kwargs)
 
                 # Create and display SVG image object.
@@ -915,26 +965,13 @@ class Schematic(object):
                                 width=self.width * 100, height=self.height * 100))
                 return
 
-        display = False
         if filename is None:
-            filename = self._tmpfilename('.png')
-            display = True
-
-        self.tikz_draw(filename=filename, **kwargs)
+            filename = tmpfilename('.png')
+            self.tikz_draw(filename=filename, **kwargs)
+            mdisplay_png(filename)
+            return
         
-        if display:
-            # TODO display as SVG so have scaled fonts...
-
-            from matplotlib.pyplot import figure
-            from matplotlib.image import imread
-
-            img = imread(filename)
-
-            fig = figure()
-            ax = fig.add_subplot(111)
-            ax.imshow(img)
-            ax.axis('equal')
-            ax.axis('off')
+        self.tikz_draw(filename=filename, **kwargs)
 
 def test():
 
