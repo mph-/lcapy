@@ -230,30 +230,25 @@ class Graph(dict):
     def longest_path(self):
         """Find longest path through DAG."""
 
-        # all_nodes is an iterable for all the nodes in the graph,
-        # from_nodes is a directory indexed by node that stores a
-        # list of edges to other nodes. 
-
-        all_nodes = self.keys()
-
         distances = {}
 
-        def get_longest(to_node):
+        def get_longest(node):
 
-            if to_node in distances:
-                return distances[to_node]
+            if node in distances:
+                return distances[node]
 
             longest = 0
-            for edge in self[to_node].edges:
+            for edge in self[node].edges:
                 longest = max(longest, get_longest(edge.node) + edge.size)
 
-            distances[to_node] = longest
-            self[to_node].dist = longest
+            distances[node] = longest
+            self[node].dist = longest
             return longest
 
         try:
-            distance_max, node = max([(get_longest(to_node), to_node)
-                                      for to_node in all_nodes])
+            for node in self:
+                get_longest(node)
+
         except RuntimeError:
             raise RuntimeError(
                 ("The %s schematic graph is dodgy, probably a component"
