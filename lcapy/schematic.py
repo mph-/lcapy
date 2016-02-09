@@ -176,6 +176,7 @@ class Gedge(object):
     def __init__(self, node, size, stretch=False):
 
         self.node = node
+        self.prev = None
         self.size = size
         self.stretch = stretch
         self.stretched = False
@@ -316,6 +317,32 @@ class Graph(dict):
 
         # Distances are from the furtherest node back to the start node.
         # Thus the maximum distance is distances['start'].
+
+    def longest_path2(self):
+        """Find longest path through DAG."""
+
+        for node in self.values():
+            node.dist = -1
+            node.prev = None
+
+        def longest(node):
+
+            for edge in node.edges:
+                next_node = self[edge.node]
+                dist = node.dist + edge.size
+                if dist > next_node.dist:
+                    next_node.dist = dist
+                    next_node.prev = node
+                    longest(next_node)
+
+        self['start'].dist = 0
+        try:
+            longest(self['start'])
+        except RuntimeError:
+            raise RuntimeError(
+                ("The %s schematic graph is dodgy, probably a component"
+                 " is connected to the wrong node\n%s") 
+                % (self.name, self))
 
     def dot(self, filename=None):
 

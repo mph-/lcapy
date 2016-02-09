@@ -9,7 +9,7 @@ R2 U1.PIO2 2; right
 W 2 5; right
 D2 5 4 led; down
 W 4 0; down=0.7, implicit, l=0V
-; draw_nodes=all, help_lines=1
+; draw_nodes=connections, help_lines=1
 
 
 

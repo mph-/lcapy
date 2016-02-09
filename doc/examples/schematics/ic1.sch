@@ -1,4 +1,4 @@
-; draw_nodes=all, help_lines=1
+; draw_nodes=connections, help_lines=1
 U1 chip2121 _1 _2 Vss PIO1 PIO2 Vdd; right
 W U1.Vdd Vdd; implicit, up=0.2, l=3V3
 W U1.Vss 0; implicit, down=0.8, l=0V
