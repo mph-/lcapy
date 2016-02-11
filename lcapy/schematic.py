@@ -172,11 +172,11 @@ class Cnodes(dict):
 
 class Gedge(object):
 
-    def __init__(self, cpt, from_node, to_node, size, stretch=False):
+    def __init__(self, cpt, from_gnode, to_gnode, size, stretch=False):
 
         self.cpt = cpt
-        self.from_node = from_node
-        self.to_node = to_node
+        self.from_gnode = from_gnode
+        self.to_gnode = to_gnode
         self.size = size
         self.stretch = stretch
         self.stretched = False
@@ -184,8 +184,8 @@ class Gedge(object):
     def __repr__(self):
 
         return '%s --%s%s--> %s' % (
-            self.from_node.fmt_name, self.size, '*' if self.stretch else '',
-            self.to_node.fmt_name)
+            self.from_gnode.fmt_name, self.size, '*' if self.stretch else '',
+            self.to_gnode.fmt_name)
 
 
 class Gnode(object):
@@ -217,7 +217,7 @@ class Gnode(object):
 
     def __repr__(self):
         
-        return '\n'.join([str(edge) for edge in self.fedges])
+        return self.fmt_name
 
 
 class Graph(dict):
@@ -230,12 +230,12 @@ class Graph(dict):
     def __repr__(self):
 
         s = ''
-        for node in self.values():
-            if node.fedges == []:
-                s += '%s @%s\n' % (node.fmt_name, node.dist)
+        for gnode in self.values():
+            if gnode.fedges == []:
+                s += '%s @%s\n' % (gnode.fmt_name, gnode.dist)
             else:
-                for edge in node.fedges:
-                    s += '%s @%s %s\n' % (node.fmt_name, node.dist, edge)
+                for edge in gnode.fedges:
+                    s += '%s @%s %s\n' % (gnode.fmt_name, gnode.dist, edge)
         return s
 
     def __getitem__(self, key):
@@ -267,10 +267,10 @@ class Graph(dict):
         if n2 in self.cnodes:
             n2 = self.cnodes[n2]
 
-        node1 = self.add_node(n1)
-        node2 = self.add_node(n2)
+        gnode1 = self.add_node(n1)
+        gnode2 = self.add_node(n2)
 
-        self.add_edges(cpt, node1, node2, size, stretch)
+        self.add_edges(cpt, gnode1, gnode2, size, stretch)
 
     def add_node(self, n):
         
@@ -278,10 +278,10 @@ class Graph(dict):
             self[n] = Gnode(n)
         return self[n]
 
-    def add_edges(self, cpt, node1, node2, size, stretch):
+    def add_edges(self, cpt, gnode1, gnode2, size, stretch):
 
-        node1.add_fedge(Gedge(cpt, node1, node2, size, stretch))
-        node2.add_redge(Gedge(cpt, node2, node1, size, stretch))
+        gnode1.add_fedge(Gedge(cpt, gnode1, gnode2, size, stretch))
+        gnode2.add_redge(Gedge(cpt, gnode2, gnode1, size, stretch))
 
     @property
     def nodes(self):
@@ -297,27 +297,27 @@ class Graph(dict):
         if 'start' in self:
             return
 
-        nodes = self.values()
+        gnodes = self.values()
         start = self.add_node('start')
         end = self.add_node('end')
 
-        for node in nodes:
-            if node.redges == []:
-                self.add_edges(None, start, node, 0, True)
-            if node.fedges == []:
-                self.add_edges(None, node, end, 0, True)
+        for gnode in gnodes:
+            if gnode.redges == []:
+                self.add_edges(None, start, gnode, 0, True)
+            if gnode.fedges == []:
+                self.add_edges(None, gnode, end, 0, True)
 
-    def assign_fixed(self, node, unknown):
+    def assign_fixed(self, gnode, unknown):
 
-        for edge in node.fedges:
-            if (not edge.stretch and edge.to_node.name not in unknown 
-                and edge.to_node.name != 'end'):
-                node.pos = edge.to_node.dist - edge.size
+        for edge in gnode.fedges:
+            if (not edge.stretch and edge.to_gnode.name not in unknown 
+                and edge.to_gnode.name != 'end'):
+                gnode.pos = edge.to_gnode.dist - edge.size
                 return True
-        for edge in node.redges:
-            if (not edge.stretch and edge.from_node.name not in unknown
-                and edge.from_node.name != 'start'):
-                node.pos = edge.from_node.dist + edge.size
+        for edge in gnode.redges:
+            if (not edge.stretch and edge.from_gnode.name not in unknown
+                and edge.from_gnode.name != 'start'):
+                gnode.pos = edge.from_gnode.dist + edge.size
                 return True
         return False
 
@@ -325,26 +325,30 @@ class Graph(dict):
 
         self.add_start_nodes()
 
+        for gnode in self.values():
+            gnode.pos = None
+
         unknown = set(self.keys())
         unknown.discard('start')
         unknown.discard('end')
 
         if unknown == set():
             pos = {}
-            for n, node in self.cnodes.items():
+            for n, gnode in self.cnodes.items():
                 pos[n] = 0
             return pos, 0
 
         # Find longest path through the graph.
-        self.longest_forward_path(self['start'])
+        # self.longest_forward_path(self['start'])
+        self.longest_path_to_known(self['start'])
 
         # Nodes on the longest path have known positions.
-        node = self['end']
-        while node != None and node.name != 'start':
-            unknown.discard(node.name)
-            node.path = True
-            node.pos = node.dist
-            node = node.prev.from_node
+        gnode = self['end']
+        while gnode != None and gnode.name != 'start':
+            unknown.discard(gnode.name)
+            gnode.path = True
+            gnode.pos = gnode.dist
+            gnode = gnode.prev.from_gnode
         self['start'].pos = 0
 
         if stage == 1:
@@ -356,8 +360,8 @@ class Graph(dict):
         changes = True
         while changes and unknown != set():
             for n in unknown:
-                node = self[n]
-                changes = self.assign_fixed(node, unknown)
+                gnode = self[n]
+                changes = self.assign_fixed(gnode, unknown)
                 if changes:
                     unknown.discard(n)
                     break
@@ -381,57 +385,57 @@ class Graph(dict):
         # This can be optimised by processing all the nodes on
         # a path between nodes with known positions at the same time.
         for n in unknown:
-            node = self[n]
+            gnode = self[n]
 
             fstretches = 0
             fdist = 0
-            self.longest_path_to_known(node)
-            to_node = node
-            while to_node.next is not None:
-                if to_node.next.stretch:
+            self.longest_path_to_known(gnode)
+            to_gnode = gnode
+            while to_gnode.next is not None:
+                if to_gnode.next.stretch:
                     fstretches += 1
-                fdist += to_node.next.size
-                to_node = to_node.next.to_node
+                fdist += to_gnode.next.size
+                to_gnode = to_gnode.next.to_gnode
 
             rstretches = 0
             rdist = 0
-            self.longest_path_to_known(node, False)
-            from_node = node
-            while from_node.next is not None:
-                if from_node.next.stretch:
+            self.longest_path_to_known(gnode, False)
+            from_gnode = gnode
+            while from_gnode.next is not None:
+                if from_gnode.next.stretch:
                     rstretches += 1
-                rdist += from_node.next.size
-                from_node = from_node.next.to_node
+                rdist += from_gnode.next.size
+                from_gnode = from_gnode.next.to_gnode
 
-            if from_node.name == 'start':
+            if from_gnode.name == 'start':
                 # Have dangling node, so no stretch needed.
-                node.pos = to_node.pos - fdist
+                gnode.pos = to_gnode.pos - fdist
                 continue
 
-            if to_node.name == 'end':
+            if to_gnode.name == 'end':
                 # Have dangling node, so no stretch needed.
-                node.pos = from_node.pos + rdist
+                gnode.pos = from_gnode.pos + rdist
                 continue
 
-            separation = to_node.pos - from_node.pos
+            separation = to_gnode.pos - from_gnode.pos
             extent = fdist + rdist
             if extent > separation:
                 raise ValueError('Inconsistent graph, component will not fit')
 
             if rstretches == 0:
-                node.pos = from_node.pos + rdist
+                gnode.pos = from_gnode.pos + rdist
             elif fstretches == 0:
-                node.pos = to_node.pos - fdist
+                gnode.pos = to_gnode.pos - fdist
             else:
                 stretch = (separation - extent) / (fstretches + rstretches)
-                node.pos = from_node.pos + rdist + stretch * rstretches          
+                gnode.pos = from_gnode.pos + rdist + stretch * rstretches          
 
         self.check_positions()
   
         try:
             pos = {}
-            for n, node in self.cnodes.items():
-                pos[n] = self[node].pos
+            for n, gnode in self.cnodes.items():
+                pos[n] = self[gnode].pos
 
         except KeyError:
             # TODO determine which components are not connected.
@@ -442,24 +446,29 @@ class Graph(dict):
 
         return pos, distance_max
 
-    def longest_forward_path(self, start):
-        """Find longest path through DAG."""
 
-        for node in self.values():
-            node.dist = -1
-            node.prev = None
-            node.next = None
+    def longest_path_to_known(self, start, forward=True):
+        """Find longest path through DAG to a node with a known dist."""
 
-        def traverse(node):
+        for gnode in self.values():
+            gnode.dist = -1
+            gnode.prev = None
+            gnode.next = None
 
-            for edge in node.fedges:
-                next_node = edge.to_node
-                dist = node.dist + edge.size
-                if dist > next_node.dist:
-                    next_node.dist = dist
-                    next_node.prev = edge
-                    node.next = edge
-                    traverse(next_node)
+        def traverse(gnode):
+
+            if gnode.pos is not None:
+                return
+
+            edges = gnode.fedges if forward else gnode.redges
+            for edge in edges:
+                next_gnode = edge.to_gnode
+                dist = gnode.dist + edge.size
+                if dist > next_gnode.dist:
+                    next_gnode.dist = dist
+                    next_gnode.prev = edge
+                    gnode.next = edge
+                    traverse(next_gnode)
 
         start.dist = 0
         try:
@@ -469,50 +478,23 @@ class Graph(dict):
                 ("The %s schematic graph is dodgy, probably a component"
                  " is connected to the wrong node\n%s") % (self.name, self))
 
-
-    def longest_path_to_known(self, start, forward=True):
-        """Find longest path through DAG to a node with a known dist."""
-
-        for node in self.values():
-            node.dist = -1
-            node.prev = None
-            node.next = None
-
-        def traverse(node):
-
-            if node.pos is not None:
-                return
-
-            edges = node.fedges if forward else node.redges
-            for edge in edges:
-                next_node = edge.to_node
-                dist = node.dist + edge.size
-                if dist > next_node.dist:
-                    next_node.dist = dist
-                    next_node.prev = edge
-                    node.next = edge
-                    traverse(next_node)
-
-        start.dist = 0
-        traverse(start)
-
     def check_positions(self):
 
         for gnode in self.values():
             for edge in gnode.fedges:
-                dist = edge.to_node.pos - gnode.pos
+                dist = edge.to_gnode.pos - gnode.pos
                 if edge.stretch:
                     if dist - edge.size < -1e-6:
                         print('Distance conflict %s for %s between nodes %s and %s,'
                               ' due to incompatible sizes' % (dist,
                                   edge.cpt.name, gnode.fmt_name,
-                                  edge.to_node.fmt_name))
+                                  edge.to_gnode.fmt_name))
                 else:
                     if abs(dist - edge.size) > 1e-6:
                         print('Stretch conflict %s vs %s for %s between nodes %s and %s,'
                               ' due to incompatible sizes' % (dist, edge.size,
                                   edge.cpt.name, gnode.fmt_name,
-                                  edge.to_node.fmt_name))
+                                  edge.to_gnode.fmt_name))
 
     def dot(self, filename=None, stage=None):
 
@@ -536,17 +518,17 @@ class Graph(dict):
         dotfile = open (filename, 'w')
         dotfile.write ('strict digraph {\n\tgraph [rankdir=LR];\n')
 
-        for node in self.values():
-            colour = 'red' if node.pos is not None else 'blue'
-            if node.name in ('start', 'end'):
+        for gnode in self.values():
+            colour = 'red' if gnode.pos is not None else 'blue'
+            if gnode.name in ('start', 'end'):
                 colour = 'green'
-            dotfile.write ('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (node.fmt_name, colour, node.pos))
+            dotfile.write ('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (gnode.fmt_name, colour, gnode.pos))
 
-        for node in self.values():
-            for edge in node.fedges:
+        for gnode in self.values():
+            for edge in gnode.fedges:
                 colour = 'black' if edge.stretch else 'red'
                 dotfile.write ('\t"%s" ->\t"%s" [ color=%s, label="%s%s" ];\n' % (
-                    node.fmt_name, edge.to_node.fmt_name, colour, 
+                    gnode.fmt_name, edge.to_gnode.fmt_name, colour, 
                     edge.size, '*' if edge.stretch else ''))
 
         dotfile.write ('}\n')

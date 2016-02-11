@@ -33,12 +33,6 @@ def test_Exception4():
 
     parse('A1 1 2')
 
-@raises(ValueError)
-def test_Exception4():
-    '''Test node name'''
-
-    parse('R1 1.2 2.3')
-
 def test_V1():
     '''Test voltage source'''
     
