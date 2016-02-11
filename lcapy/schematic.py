@@ -15,12 +15,11 @@ This module performs schematic drawing using circuitikz from a netlist.
 Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 """
 
-# Components are positioned using two pairs of graphs; one pair for
-# the x direction and the other for the y direction.  Each pair
-# consists of a forward and a reverse graph. 
+# Components are positioned using two graphs; one graph for
+# the x direction and the other for the y direction. 
 #
 # There is naming confusion.  We have network nodes (electrical
-# nodes) and nodes in the graphs used for component placement.
+# nodes) and nodes in the graph used for component placement.
 # Let's call the latter gnodes.  The names of these gnodes are a
 # tuple of the common network nodes.
 #
@@ -173,61 +172,69 @@ class Cnodes(dict):
 
 class Gedge(object):
 
-    def __init__(self, node, size, stretch=False):
+    def __init__(self, from_node, to_node, size, stretch=False):
 
-        self.node = node
-        self.prev = None
+        self.from_node = from_node
+        self.to_node = to_node
         self.size = size
         self.stretch = stretch
         self.stretched = False
 
     def __repr__(self):
 
-        def fmt(n):
-            if isinstance(n, tuple):
-                return ', '.join(n)
-            return n
-        
-        return '--%s%s--> %s' % (self.size, '*' if self.stretch else '',
-                                 fmt(self.node))
-        
+        return '%s --%s%s--> %s' % (
+            self.from_node.fmt_name, self.size, '*' if self.stretch else '',
+            self.to_node.fmt_name)
+
 
 class Gnode(object):
-
-    def __init__(self):
-
-        self.dist = 0
-        self.edges = []
-
-    def append(self, edge):
-
-        self.edges.append(edge)
-
-    def __repr__(self):
-        
-        return ','.join([str(edge) for edge in self.edges])
-
-
-class Graph(dict):
 
     def __init__(self, name):
 
         self.name = name
+        self.prev = None
+        self.next = None
+        self.dist = 0
+        self.known_dist = None
+        self.fedges = []
+        self.redges = []
+
+    def add_fedge(self, edge):
+
+        self.fedges.append(edge)
+
+    def add_redge(self, edge):
+
+        self.redges.append(edge)
+
+    @property
+    def fmt_name(self):
+
+        if isinstance(self.name, tuple):
+            return ', '.join(self.name)
+        return self.name
+
+    def __repr__(self):
+        
+        return '\n'.join([str(edge) for edge in self.fedges])
+
+
+class Graph(dict):
+
+    def __init__(self, name, nodes):
+
+        self.cnodes = Cnodes(nodes)
+        self.name = name
 
     def __repr__(self):
 
-        def fmt(n):
-            if isinstance(n, tuple):
-                return ', '.join(n)
-            return n
-
         s = ''
-        for n, node in self.items():
-            if node.edges == []:
-                s += '%s @%s\n' % (fmt(n), node.dist)
+        for node in self.values():
+            if node.fedges == []:
+                s += '%s @%s\n' % (node.fmt_name, node.dist)
             else:
-                for edge in node.edges:
-                    s += '%s @%s %s\n' % (fmt(n), node.dist, edge)
+                for edge in node.fedges:
+                    s += '%s @%s %s\n' % (node.fmt_name, node.dist, edge)
         return s
 
     def __getitem__(self, key):
@@ -236,16 +243,14 @@ class Graph(dict):
         if isinstance(key, int):
             key = '%d' % key
 
-        if key in self.keys():
-            return super(Graph, self).__getitem__(key)
+        # Allow indexing by a node name rather than by cnode tuple.
+        if key in self.cnodes:
+            key = self.cnodes[key]
 
-        # Allow indexing by a node name rather than by tuple.
-        for key1 in self.keys():
-            if key in key1:
-                return super(Graph, self).__getitem__(key1)
-
-        # Throw error.
         return super(Graph, self).__getitem__(key)
+
+    def link(self, n1, n2):
+        self.cnodes.link(n1, n2)
 
     def add(self, n1, n2, size, stretch):
 
@@ -253,151 +258,33 @@ class Graph(dict):
             return
 
         if size < 0:
-            if n2 not in self:
-                self[n2] = Gnode()
-            self[n2].append(Gedge(n1, -size, stretch))
-        else:
-            if n1 not in self:
-                self[n1] = Gnode()
-            self[n1].append(Gedge(n2, size, stretch))
+            n1, n2 = n2, n1
+            size = -size
 
-    def add_orphan_nodes(self, all_nodes):
+        if n1 in self.cnodes:
+            n1 = self.cnodes[n1]
+        if n2 in self.cnodes:
+            n2 = self.cnodes[n2]
 
-        orphans = []
+        node1 = self.add_node(n1)
+        node2 = self.add_node(n2)
 
-        for node in all_nodes:
-            if node not in self:
-                self[node] = Gnode()             
-            if self[node].edges == []:
-                orphans.append(node)
-        self.orphans = orphans
+        self.add_edges(node1, node2, size, stretch)
 
-    def add_start_nodes(self, nodes):
+    def add_node(self, n):
+        
+        if n not in self:
+            self[n] = Gnode(n)
+        return self[n]
 
-        if nodes == []:
-            raise ValueError("Cannot find start node for %s schematic graph. "
-                             "Probably a component has an incorrect direction.\n%s."
-                             % (self.name, self))
-        self['start'] = Gnode()
-        for node in nodes:
-            self['start'].append(Gedge(node, 0))
+    def add_edges(self, node1, node2, size, stretch):
 
-    def longest_path(self):
-        """Find longest path through DAG."""
-
-        for node in self.values():
-            node.dist = None
-
-        def get_longest(node):
-
-            if node.dist is not None:
-                return node.dist
-
-            dist = 0
-            for edge in node.edges:
-                dist = max(dist, get_longest(self[edge.node]) + edge.size)
-
-            node.dist = dist
-
-            for edge in node.edges:
-                edge.dist = get_longest(self[edge.node]) + edge.size
-                edge.stretched = edge.dist != dist
-
-            return dist
-
-        try:
-            for node in self.values():
-                get_longest(node)
-
-        except RuntimeError:
-            raise RuntimeError(
-                ("The %s schematic graph is dodgy, probably a component"
-                 " is connected to the wrong node\n%s") 
-                % (self.name, self))
-
-        # Distances are from the furtherest node back to the start node.
-        # Thus the maximum distance is distances['start'].
-
-    def longest_path2(self):
-        """Find longest path through DAG."""
-
-        for node in self.values():
-            node.dist = -1
-            node.prev = None
-
-        def longest(node):
-
-            for edge in node.edges:
-                next_node = self[edge.node]
-                dist = node.dist + edge.size
-                if dist > next_node.dist:
-                    next_node.dist = dist
-                    next_node.prev = node
-                    longest(next_node)
-
-        self['start'].dist = 0
-        try:
-            longest(self['start'])
-        except RuntimeError:
-            raise RuntimeError(
-                ("The %s schematic graph is dodgy, probably a component"
-                 " is connected to the wrong node\n%s") 
-                % (self.name, self))
-
-    def dot(self, filename=None):
-
-        if filename is None:
-            filename = tmpfilename('.png')
-            self.dot(filename=filename)
-            display_matplotlib(filename)
-            return
-
-        base, ext = path.splitext(filename)
-        if ext in ('.pdf', '.png'):
-            dotfilename = filename + '.dot'
-            self.dot(dotfilename)
-            system('dot -T %s -o %s %s' % (ext[1:], filename, dotfilename))
-            remove(dotfilename)            
-            return
-
-        dotfile = open (filename, 'w')
-        dotfile.write ('strict digraph {\n\tgraph [rankdir=LR];\n')
-
-        def fmt(n):
-            if isinstance(n, tuple):
-                return ', '.join(n)
-            return n
-
-        for n, node in self.items():
-            dotfile.write ('\t"%s"\t [style=filled, xlabel="@%s"];\n' % (fmt(n), node.dist))
-
-        for n, node in self.items():
-            for edge in node.edges:
-                dotfile.write ('\t"%s" ->\t"%s" [ label="%s%s" ];\n' % (fmt(n), fmt(edge.node), edge.size, '*' if edge.stretch else ''))
-
-        dotfile.write ('}\n')
-        dotfile.close ()
-
-
-class Graphs(object):
-
-    def __init__(self, name, nodes):
-
-        self.cnodes = Cnodes(nodes)
-        self.fwd = Graph('forward ' + name)
-        self.rev = Graph('reverse ' + name)
-
-    def link(self, n1, n2):
-        self.cnodes.link(n1, n2)
-
-    def add(self, n1, n2, size, stretch):
-        cnode1, cnode2 = self.cnodes[n1], self.cnodes[n2]
-        self.fwd.add(cnode1, cnode2, size, stretch)
-        self.rev.add(cnode2, cnode1, size, stretch)
+        node1.add_fedge(Gedge(node1, node2, size, stretch))
+        node2.add_redge(Gedge(node2, node1, size, stretch))
 
     @property
     def nodes(self):
-        return self.fwd.keys()
+        return self.keys()
 
     @property
     def all_nodes(self):
@@ -406,38 +293,231 @@ class Graphs(object):
 
     def add_start_nodes(self):
 
-        self.fwd.add_orphan_nodes(self.all_nodes)
-        self.rev.add_orphan_nodes(self.all_nodes)
+        if 'start' in self:
+            return
 
-        self.fwd.add_start_nodes(self.rev.orphans)
-        self.rev.add_start_nodes(self.fwd.orphans)
+        nodes = self.values()
+        start = self.add_node('start')
+        end = self.add_node('end')
 
-    def analyse(self):
+        for node in nodes:
+            if node.redges == []:
+                self.add_edges(start, node, 0, False)
+            if node.fedges == []:
+                self.add_edges(node, end, 0, False)
+
+    def assign_fixed(self, node, unknown):
+
+        for edge in node.fedges:
+            if (not edge.stretch and edge.to_node.name not in unknown 
+                and edge.to_node.name != 'end'):
+                node.known_dist = edge.to_node.dist - edge.size
+                return True
+        for edge in node.redges:
+            if (not edge.stretch and edge.from_node.name not in unknown
+                and edge.from_node.name != 'start'):
+                node.known_dist = edge.from_node.dist + edge.size
+                return True
+        return False
+
+    def analyse(self, stage=None):
 
         self.add_start_nodes()
 
-        # Find longest paths through the graphs.
-        self.fwd.longest_path()
-        self.rev.longest_path()
+        unknown = set(self.keys())
+        unknown.discard('start')
+        unknown.discard('end')
 
-        pos = {}
-        posr = {}
-        posa = {}
+        if unknown == set():
+            pos = {}
+            for n, node in self.cnodes.items():
+                pos[n] = 0
+            return pos, 0
 
-        distance_max = self.rev['start'].dist
-        for node, gnode in self.cnodes.items():
-            pos[node] = distance_max - self.fwd[gnode].dist
-            posr[node] = self.rev[gnode].dist
+        # Find longest path through the graph.
+        self.longest_forward_path(self['start'])
 
-            # If the nodes are dangling, do not average positions.
-            if gnode in self.rev.orphans:
-                posa[node] = pos[node]
-            elif gnode in self.fwd.orphans:
-                posa[node] = posr[node]
+        # Nodes on the longest path have known positions.
+        node = self['end']
+        while node != None and node.name != 'start':
+            unknown.discard(node.name)
+            node.path = True
+            node.known_dist = node.dist
+            node = node.prev.from_node
+
+        if stage == 1:
+            return
+
+        # Assign node positions to nodes with fixed edge lengths to
+        # nodes with known positions.  Iterate until no more changes.
+        changes = True
+        while changes and unknown != set():
+            for n in unknown:
+                node = self[n]
+                changes = self.assign_fixed(node, unknown)
+                if changes:
+                    unknown.discard(n)
+                    break
+
+        if stage == 2:
+            return
+
+        for n in unknown:
+            node = self[n]
+
+            fstretches = 0
+            fdist = 0
+            self.longest_path_to_known(node)
+            to_node = node
+            while to_node.next is not None:
+                if to_node.next.stretch:
+                    fstretches += 1
+                fdist += to_node.next.size
+                to_node = to_node.next.to_node
+
+            rstretches = 0
+            rdist = 0
+            self.longest_path_to_known(node, False)
+            from_node = node
+            while from_node.next is not None:
+                if from_node.next.stretch:
+                    rstretches += 1
+                rdist += from_node.next.size
+                from_node = from_node.next.to_node
+
+            if from_node.name == 'start':
+                # Have dangling node, no stretching required?
+                node.known_dist = to_node.known_dist - fdist
+                continue
+
+            if to_node.name == 'end':
+                # Have dangling node, no stretching required?
+                node.known_dist = from_node.known_dist + rdist
+                continue
+
+            separation = to_node.known_dist - from_node.known_dist
+            extent = fdist + rdist
+            if extent > separation:
+                raise ValueError('Inconsistent graph, component will not fit')
+
+            if rstretches == 0:
+                node.known_dist = from_node.known_dist + rdist
+            elif fstretches == 0:
+                node.known_dist = to_node.known_dist - fdist
             else:
-                posa[node] = 0.5 * (pos[node] + posr[node])
+                stretch = (separation - extent) / (fstretches + rstretches)
+                node.known_dist = from_node.known_dist + rdist + stretch * rstretches            
+        # Process dangling nodes that have no reverse edges to any
+        # assigned node (excluding start).
 
-        return posa, distance_max
+        # Process dangling nodes that have no forward edges to any
+        # assigned node (excluding end).
+
+        try:
+            pos = {}
+            for n, node in self.cnodes.items():
+                pos[n] = self[node].known_dist
+
+        except KeyError:
+            # TODO determine which components are not connected.
+            raise KeyError("The %s schematic graph is dodgy, probably a "
+                           "component is unattached\n%s" % (self.name, self))
+
+        distance_max = self['end'].known_dist
+
+        return pos, distance_max
+
+    def longest_forward_path(self, start):
+        """Find longest path through DAG."""
+
+        for node in self.values():
+            node.dist = -1
+            node.prev = None
+            node.next = None
+
+        def traverse(node):
+
+            for edge in node.fedges:
+                next_node = edge.to_node
+                dist = node.dist + edge.size
+                if dist > next_node.dist:
+                    next_node.dist = dist
+                    next_node.prev = edge
+                    node.next = edge
+                    traverse(next_node)
+
+        start.dist = 0
+        try:
+            traverse(start)
+        except RuntimeError:
+            raise RuntimeError(
+                ("The %s schematic graph is dodgy, probably a component"
+                 " is connected to the wrong node\n%s") % (self.name, self))
+
+
+    def longest_path_to_known(self, start, forward=True):
+        """Find longest path through DAG to a node with a known dist."""
+
+        for node in self.values():
+            node.dist = -1
+            node.prev = None
+            node.next = None
+
+        def traverse(node):
+
+            if node.known_dist is not None:
+                return
+
+            edges = node.fedges if forward else node.redges
+            for edge in edges:
+                next_node = edge.to_node
+                dist = node.dist + edge.size
+                if dist > next_node.dist:
+                    next_node.dist = dist
+                    next_node.prev = edge
+                    node.next = edge
+                    traverse(next_node)
+
+        start.dist = 0
+        traverse(start)
+
+    def dot(self, filename=None, stage=None):
+
+        if filename is None:
+            filename = tmpfilename('.png')
+            self.dot(filename=filename, stage=stage)
+            display_matplotlib(filename)
+            return
+
+        base, ext = path.splitext(filename)
+        if ext in ('.pdf', '.png'):
+            dotfilename = filename + '.dot'
+            self.dot(dotfilename, stage=stage)
+            system('dot -T %s -o %s %s' % (ext[1:], filename, dotfilename))
+            remove(dotfilename)            
+            return
+
+        if stage != 0:
+            self.analyse(stage=stage)
+
+        dotfile = open (filename, 'w')
+        dotfile.write ('strict digraph {\n\tgraph [rankdir=LR];\n')
+
+        for node in self.values():
+            colour = 'red' if node.known_dist is not None else 'blue'
+            if node.name in ('start', 'end'):
+                colour = 'green'
+            dotfile.write ('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (node.fmt_name, colour, node.known_dist))
+
+        for node in self.values():
+            for edge in node.fedges:
+                colour = 'black' if edge.stretch else 'red'
+                dotfile.write ('\t"%s" ->\t"%s" [ color=%s, label="%s%s" ];\n' % (
+                    node.fmt_name, edge.to_node.fmt_name, colour, 
+                    edge.size, '*' if edge.stretch else ''))
+
+        dotfile.write ('}\n')
+        dotfile.close ()
 
 
 class Node(object):
@@ -539,7 +619,7 @@ class Schematic(object):
 
     def _invalidate(self):
 
-        for attr in ('xgraphs', 'ygraphs'):
+        for attr in ('xgraph', 'ygraph'):
             if hasattr(self, attr):
                 delattr(self, attr)
 
@@ -677,24 +757,24 @@ class Schematic(object):
         # distance from the root of the graph.  To centre components,
         # a reverse graph is created and the distances are averaged.
 
-        self.xgraphs = Graphs('horizontal', self.nodes)
-        self.ygraphs = Graphs('vertical', self.nodes)
+        self.xgraph = Graph('horizontal', self.nodes)
+        self.ygraph = Graph('vertical', self.nodes)
 
         # Use components in orthogonal directions as constraints.  The
         # nodes of orthogonal components get combined into a
         # common node.
         for m, elt in enumerate(self.elements.values()):
-            elt.xlink(self.xgraphs)
-            elt.ylink(self.ygraphs)
+            elt.xlink(self.xgraph)
+            elt.ylink(self.ygraph)
 
-        # Now form forward and reverse directed graphs using components
+        # Now form forward and reverse directed graph using components
         # in the desired directions.
         for m, elt in enumerate(self.elements.values()):
-            elt.xplace(self.xgraphs)
-            elt.yplace(self.ygraphs)
+            elt.xplace(self.xgraph)
+            elt.yplace(self.ygraph)
 
-        xpos, self.width = self.xgraphs.analyse()
-        ypos, self.height = self.ygraphs.analyse()
+        xpos, self.width = self.xgraph.analyse()
+        ypos, self.height = self.ygraph.analyse()
 
         scale = self.node_spacing
         for n, node in self.nodes.items():
@@ -704,17 +784,17 @@ class Schematic(object):
     def xcnodes(self):
         """Names of common x nodes; for debugging"""
 
-        if not hasattr(self, 'xgraphs'):
+        if not hasattr(self, 'xgraph'):
             self._positions_calculate()
-        return self.xgraphs.cnodes
+        return self.xgraph.cnodes
 
     @property
     def ycnodes(self):
         """Names of common y nodes; for debugging"""
 
-        if not hasattr(self, 'ygraphs'):
+        if not hasattr(self, 'ygraph'):
             self._positions_calculate()
-        return self.ygraphs.cnodes
+        return self.ygraph.cnodes
 
     def _make_wires1(self, snode_list):
 
@@ -757,7 +837,7 @@ class Schematic(object):
         help = float(kwargs.pop('help_lines', 0))
         if help != 0:
             start = Pos(-0.5, -0.5) * self.node_spacing
-            stop = Pos(self.width + 0.5, self.height +0.5) * self.node_spacing
+            stop = Pos(self.width + 0.5, self.height + 0.5) * self.node_spacing
 
             s += r'\draw[help lines, blue] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
                 start, help, help, stop)
@@ -850,8 +930,8 @@ class Schematic(object):
                   % (self.width, self.height, oversample, 
                      self.cpt_size, self.node_spacing, self.scale))
             print(self.nodes)
-            # print(self.xgraphs.cnodes)
-            # print(self.ygraphs.cnodes)
+            # print(self.xgraph.cnodes)
+            # print(self.ygraph.cnodes)
 
         if ext == '.pytex':
             open(filename, 'w').write(content)

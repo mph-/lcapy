@@ -385,6 +385,7 @@ class Transistor(Cpt):
     ppos = ((1, 0), (0, 0.75), (1, 1.5))
 
     can_mirror = True
+    stretch = False
 
     @property
     def coords(self):
@@ -882,6 +883,11 @@ class Chip(Cpt):
         for node in self.nodes:
             pins.append(self.name + '@' + node)
         self.nodes = pins
+
+    # TODO, tweak coord if pin name ends in \ using pinpos to
+    # accomodate inverting circle.  This will require stripping of the
+    # \ from the label. Alternatively, do not use inverting circle and
+    # add overline to symbol name when printing.
 
     @property
     def centre(self):
