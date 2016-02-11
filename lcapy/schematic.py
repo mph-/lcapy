@@ -172,8 +172,9 @@ class Cnodes(dict):
 
 class Gedge(object):
 
-    def __init__(self, from_node, to_node, size, stretch=False):
+    def __init__(self, cpt, from_node, to_node, size, stretch=False):
 
+        self.cpt = cpt
         self.from_node = from_node
         self.to_node = to_node
         self.size = size
@@ -252,7 +253,7 @@ class Graph(dict):
     def link(self, n1, n2):
         self.cnodes.link(n1, n2)
 
-    def add(self, n1, n2, size, stretch):
+    def add(self, cpt, n1, n2, size, stretch):
 
         if size == 0:
             return
@@ -269,7 +270,7 @@ class Graph(dict):
         node1 = self.add_node(n1)
         node2 = self.add_node(n2)
 
-        self.add_edges(node1, node2, size, stretch)
+        self.add_edges(cpt, node1, node2, size, stretch)
 
     def add_node(self, n):
         
@@ -277,10 +278,10 @@ class Graph(dict):
             self[n] = Gnode(n)
         return self[n]
 
-    def add_edges(self, node1, node2, size, stretch):
+    def add_edges(self, cpt, node1, node2, size, stretch):
 
-        node1.add_fedge(Gedge(node1, node2, size, stretch))
-        node2.add_redge(Gedge(node2, node1, size, stretch))
+        node1.add_fedge(Gedge(cpt, node1, node2, size, stretch))
+        node2.add_redge(Gedge(cpt, node2, node1, size, stretch))
 
     @property
     def nodes(self):
@@ -302,9 +303,9 @@ class Graph(dict):
 
         for node in nodes:
             if node.redges == []:
-                self.add_edges(start, node, 0, False)
+                self.add_edges(None, start, node, 0, True)
             if node.fedges == []:
-                self.add_edges(node, end, 0, False)
+                self.add_edges(None, node, end, 0, True)
 
     def assign_fixed(self, node, unknown):
 
@@ -344,6 +345,7 @@ class Graph(dict):
             node.path = True
             node.pos = node.dist
             node = node.prev.from_node
+        self['start'].pos = 0
 
         if stage == 1:
             return
@@ -422,7 +424,10 @@ class Graph(dict):
                 node.pos = to_node.pos - fdist
             else:
                 stretch = (separation - extent) / (fstretches + rstretches)
-                node.pos = from_node.pos + rdist + stretch * rstretches            
+                node.pos = from_node.pos + rdist + stretch * rstretches          
+
+        self.check_positions()
+  
         try:
             pos = {}
             for n, node in self.cnodes.items():
@@ -490,6 +495,24 @@ class Graph(dict):
 
         start.dist = 0
         traverse(start)
+
+    def check_positions(self):
+
+        for gnode in self.values():
+            for edge in gnode.fedges:
+                dist = edge.to_node.pos - gnode.pos
+                if edge.stretch:
+                    if dist - edge.size < -1e-6:
+                        print('Distance conflict %s for %s between nodes %s and %s,'
+                              ' due to incompatible sizes' % (dist,
+                                  edge.cpt.name, gnode.fmt_name,
+                                  edge.to_node.fmt_name))
+                else:
+                    if abs(dist - edge.size) > 1e-6:
+                        print('Stretch conflict %s vs %s for %s between nodes %s and %s,'
+                              ' due to incompatible sizes' % (dist, edge.size,
+                                  edge.cpt.name, gnode.fmt_name,
+                                  edge.to_node.fmt_name))
 
     def dot(self, filename=None, stage=None):
 
