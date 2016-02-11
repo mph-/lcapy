@@ -195,7 +195,7 @@ class Gnode(object):
         self.prev = None
         self.next = None
         self.dist = 0
-        self.known_dist = None
+        self.pos = None
         self.fedges = []
         self.redges = []
 
@@ -311,12 +311,12 @@ class Graph(dict):
         for edge in node.fedges:
             if (not edge.stretch and edge.to_node.name not in unknown 
                 and edge.to_node.name != 'end'):
-                node.known_dist = edge.to_node.dist - edge.size
+                node.pos = edge.to_node.dist - edge.size
                 return True
         for edge in node.redges:
             if (not edge.stretch and edge.from_node.name not in unknown
                 and edge.from_node.name != 'start'):
-                node.known_dist = edge.from_node.dist + edge.size
+                node.pos = edge.from_node.dist + edge.size
                 return True
         return False
 
@@ -342,7 +342,7 @@ class Graph(dict):
         while node != None and node.name != 'start':
             unknown.discard(node.name)
             node.path = True
-            node.known_dist = node.dist
+            node.pos = node.dist
             node = node.prev.from_node
 
         if stage == 1:
@@ -350,6 +350,7 @@ class Graph(dict):
 
         # Assign node positions to nodes with fixed edge lengths to
         # nodes with known positions.  Iterate until no more changes.
+        # This stage is not needed but provides a minor optimisation.
         changes = True
         while changes and unknown != set():
             for n in unknown:
@@ -362,6 +363,21 @@ class Graph(dict):
         if stage == 2:
             return
 
+        # For each node, find the longest path between nodes with
+        # known positions.  The path between the nodes with known
+        # positions is then traversed, measuring the total separation
+        # and the number of stretchable components.  (Note, there may
+        # be multiple paths of the same length; it does not matter
+        # which one is chosen.) The stretch is then calculated from
+        # the distance of the path, the total separation, and the
+        # number of stretches.  If only one known position is found,
+        # the node is dangling and the stretch is zero.
+        
+        # TODO, check for multiple paths with a conflict, for example,
+        # a stretchy path of a longser distance than a fixed path.
+
+        # This can be optimised by processing all the nodes on
+        # a path between nodes with known positions at the same time.
         for n in unknown:
             node = self[n]
 
@@ -386,44 +402,38 @@ class Graph(dict):
                 from_node = from_node.next.to_node
 
             if from_node.name == 'start':
-                # Have dangling node, no stretching required?
-                node.known_dist = to_node.known_dist - fdist
+                # Have dangling node, so no stretch needed.
+                node.pos = to_node.pos - fdist
                 continue
 
             if to_node.name == 'end':
-                # Have dangling node, no stretching required?
-                node.known_dist = from_node.known_dist + rdist
+                # Have dangling node, so no stretch needed.
+                node.pos = from_node.pos + rdist
                 continue
 
-            separation = to_node.known_dist - from_node.known_dist
+            separation = to_node.pos - from_node.pos
             extent = fdist + rdist
             if extent > separation:
                 raise ValueError('Inconsistent graph, component will not fit')
 
             if rstretches == 0:
-                node.known_dist = from_node.known_dist + rdist
+                node.pos = from_node.pos + rdist
             elif fstretches == 0:
-                node.known_dist = to_node.known_dist - fdist
+                node.pos = to_node.pos - fdist
             else:
                 stretch = (separation - extent) / (fstretches + rstretches)
-                node.known_dist = from_node.known_dist + rdist + stretch * rstretches            
-        # Process dangling nodes that have no reverse edges to any
-        # assigned node (excluding start).
-
-        # Process dangling nodes that have no forward edges to any
-        # assigned node (excluding end).
-
+                node.pos = from_node.pos + rdist + stretch * rstretches            
         try:
             pos = {}
             for n, node in self.cnodes.items():
-                pos[n] = self[node].known_dist
+                pos[n] = self[node].pos
 
         except KeyError:
             # TODO determine which components are not connected.
             raise KeyError("The %s schematic graph is dodgy, probably a "
                            "component is unattached\n%s" % (self.name, self))
 
-        distance_max = self['end'].known_dist
+        distance_max = self['end'].pos
 
         return pos, distance_max
 
@@ -465,7 +475,7 @@ class Graph(dict):
 
         def traverse(node):
 
-            if node.known_dist is not None:
+            if node.pos is not None:
                 return
 
             edges = node.fedges if forward else node.redges
@@ -504,10 +514,10 @@ class Graph(dict):
         dotfile.write ('strict digraph {\n\tgraph [rankdir=LR];\n')
 
         for node in self.values():
-            colour = 'red' if node.known_dist is not None else 'blue'
+            colour = 'red' if node.pos is not None else 'blue'
             if node.name in ('start', 'end'):
                 colour = 'green'
-            dotfile.write ('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (node.fmt_name, colour, node.known_dist))
+            dotfile.write ('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (node.fmt_name, colour, node.pos))
 
         for node in self.values():
             for edge in node.fedges:
