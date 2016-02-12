@@ -617,13 +617,13 @@ class OnePort(Cpt):
             # otherwise they are drawn the wrong way around.
             n1, n2 = n2, n1
 
-            if self.horizontal:
+            if self.right or self.up:
                 # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
                 label_pos = '^'
                 voltage_pos = '_'
         else:
-            if self.vertical:
+            if self.left or self.down:
                 # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
                 label_pos = '^'
@@ -665,8 +665,8 @@ class OnePort(Cpt):
         # Generate default label.
         if (label_ids and label_values and self.id_label != '' 
             and self.value_label):
-            label_str = r'l%s={%s=%s}' % (label_pos, self.id_label,
-                                          self.value_label)
+            label_str = r'l%s={%s}{=%s}' % (label_pos, self.id_label,
+                                            self.value_label)
         elif label_ids and self.id_label != '':
             label_str = 'l%s=%s' % (label_pos, self.id_label)
         elif label_values and self.value_label != '':

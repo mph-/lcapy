@@ -232,10 +232,10 @@ class Graph(dict):
         s = ''
         for gnode in self.values():
             if gnode.fedges == []:
-                s += '%s @%s\n' % (gnode.fmt_name, gnode.dist)
+                s += '@%s %s\n' % (gnode.dist, gnode.fmt_name)
             else:
                 for edge in gnode.fedges:
-                    s += '%s @%s %s\n' % (gnode.fmt_name, gnode.dist, edge)
+                    s += '@%s %s\n' % (gnode.dist, edge)
         return s
 
     def __getitem__(self, key):
@@ -342,14 +342,18 @@ class Graph(dict):
         # self.longest_forward_path(self['start'])
         self.longest_path_to_known(self['start'])
 
-        # Nodes on the longest path have known positions.
-        gnode = self['end']
-        while gnode != None and gnode.name != 'start':
-            unknown.discard(gnode.name)
-            gnode.path = True
-            gnode.pos = gnode.dist
-            gnode = gnode.prev.from_gnode
-        self['start'].pos = 0
+        try:
+            # Nodes on the longest path have known positions.
+            gnode = self['end']
+            while gnode != None and gnode.name != 'start':
+                unknown.discard(gnode.name)
+                gnode.path = True
+                gnode.pos = gnode.dist
+                gnode = gnode.prev.from_gnode
+                self['start'].pos = 0
+        except AttributeError:
+            raise AttributeError("The %s schematic graph is dodgy, probably a "
+                                 "component is attached to the wrong nodes:\n%s" % (self.name, self))            
 
         if stage == 1:
             return
@@ -440,7 +444,7 @@ class Graph(dict):
         except KeyError:
             # TODO determine which components are not connected.
             raise KeyError("The %s schematic graph is dodgy, probably a "
-                           "component is unattached\n%s" % (self.name, self))
+                           "component is unattached:\n%s" % (self.name, self))
 
         distance_max = self['end'].pos
 
@@ -476,7 +480,7 @@ class Graph(dict):
         except RuntimeError:
             raise RuntimeError(
                 ("The %s schematic graph is dodgy, probably a component"
-                 " is connected to the wrong node\n%s") % (self.name, self))
+                 " is connected to the wrong node:\n%s") % (self.name, self))
 
     def check_positions(self):
 
@@ -609,6 +613,10 @@ class Schematic(object):
 
         if filename is not None:
             self.netfile_add(filename)
+
+    def __repr__(self):
+        
+        return self.netlist()
 
     def __getitem__(self, name):
         """Return component by name"""
