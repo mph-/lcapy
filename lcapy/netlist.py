@@ -78,7 +78,7 @@ class Ldict(dict):
 
     def keys(self):
 
-        return self.Vdict.keys()
+        return list(self.Vdict)
 
 
 class Node(object):

@@ -172,6 +172,11 @@ class Expr(object):
 
         return self.evalf()
 
+    def __hash__(self):
+        # This is needed for Python3 so can create a dict key,
+        # say for subs.
+        return hash(self.expr)
+
     def __getattr__(self, attr):
 
         # This gets called if there is no explicit attribute attr for

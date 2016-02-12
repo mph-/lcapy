@@ -20,10 +20,10 @@ def namelist(elements):
 
 class Mdict(dict):
 
-    def __init__(self, branchdir, causal):
+    def __init__(self, branchdict, causal):
 
         super(Mdict, self).__init__()
-        self.branchdir = branchdir
+        self.branchdict = branchdict
         # Hack, should compute causal attribute on fly.
         self.causal = causal
 
@@ -33,15 +33,15 @@ class Mdict(dict):
         if isinstance(key, int):
             key = '%d' % key
 
-        if key in self.branchdir:
-            n1, n2 = self.branchdir[key]
+        if key in self.branchdict:
+            n1, n2 = self.branchdict[key]
             return Vs((self[n1] - self[n2]).simplify(), self.causal)
 
         return super(Mdict, self).__getitem__(key)
 
     def keys(self):
 
-        return super(Mdict, self).keys() + self.branchdir.keys()
+        return list(super(Mdict, self).keys()) + list(self.branchdict)
 
 
 class MNA(object):
@@ -284,17 +284,17 @@ class MNA(object):
         results = results.subs(self.context.symbols)
         causal = self.causal
 
-        branchdir = {}
+        branchdict = {}
         for elt in self.elements.values():
             if elt.type == 'K':
                 continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
-            branchdir[elt.name] = (n1, n2)
+            branchdict[elt.name] = (n1, n2)
 
         self.context.switch()
 
         # Create dictionary of node voltages
-        self._V = Mdict(branchdir, causal)
+        self._V = Mdict(branchdict, causal)
         self._V['0'] = Vs(0, causal)
         for n in self.nodes:
             index = self._node_index(n)

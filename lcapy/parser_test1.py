@@ -1,9 +1,9 @@
 import sys
 sys.path.append('../..')
 
-from parser import Parser
-import schemcpts
-import grammar
+from lcapy.parser import Parser
+import lcapy.schemcpts as schemcpts
+import lcapy.grammar as grammar
 
 parser = Parser(schemcpts, grammar)
 parse = parser.parse

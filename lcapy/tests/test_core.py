@@ -25,8 +25,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.N, sExpr('s+2'), "N incorrect.")
         self.assertEqual2(a.D, sExpr('s-2'), "D incorrect.")
 
-        self.assertEqual2(a.poles().keys(), [2], "poles incorrect.")
-        self.assertEqual2(a.zeros().keys(), [-2], "zeros incorrect.")
+        self.assertEqual2(set(a.poles()), set([2]), "poles incorrect.")
+        self.assertEqual2(set(a.zeros()), set([-2]), "zeros incorrect.")
 
         self.assertEqual2(a.partfrac(), 1 + 4 / (s - 2), "partfrac incorrect.")
 
@@ -50,8 +50,8 @@ class LcapyTester(unittest.TestCase):
 
         # NB. we can't check the output of keys() directly
         # as there is no guarantee of list order.
-        self.assertEqual2(a.poles().keys(), [2], "poles incorrect.")
-        self.assertEqual2(sorted(a.zeros().keys()), [-3.0, -2.0], "zeros incorrect.")
+        self.assertEqual2(set(a.poles()), set([2]), "poles incorrect.")
+        self.assertEqual2(set(a.zeros()), set([-3.0, -2.0]), "zeros incorrect.")
 
         self.assertEqual2(
             a.partfrac(), s + 7 + 20 / (s - 2), "partfrac incorrect.")
@@ -74,8 +74,8 @@ class LcapyTester(unittest.TestCase):
 
         # NB. we can't check the output of keys() directly
         # as there is no guarantee of list order.
-        self.assertEqual2(a.poles().keys(), [2], "poles incorrect.")
-        self.assertEqual2(sorted(a.zeros().keys()), [-3, -2], "zeros incorrect.")
+        self.assertEqual2(set(a.poles()), set([2]), "poles incorrect.")
+        self.assertEqual2(set(a.zeros()), set([-3, -2]), "zeros incorrect.")
 
         self.assertEqual2(
             a.partfrac(), s + 7 + 20 / (s - 2), "partfrac incorrect.")
@@ -102,7 +102,7 @@ class LcapyTester(unittest.TestCase):
         # NB. we can't check the output of keys() directly
         # as there is no guarantee of list order.
         self.assertEqual2(set(a.poles().keys()), set([-j, j]), "poles incorrect.")
-        self.assertEqual2(a.zeros().keys(), [], "zeros incorrect.")
+        self.assertEqual2(a.zeros(), {}, "zeros incorrect.")
 
         # This depends on if 2 * (s + j) is expanded to 2 * s + 2 * j
         # self.assertEqual2(
@@ -129,8 +129,8 @@ class LcapyTester(unittest.TestCase):
 
         # NB. we can't check the output of keys() directly
         # as there is no guarantee of list order.
-        self.assertEqual2(set(a.poles().keys()), set([-j, j]), "poles incorrect.")
-        self.assertEqual2(len(a.zeros().keys()), 0, "zeros incorrect.")
+        self.assertEqual2(set(a.poles()), set([-j, j]), "poles incorrect.")
+        self.assertEqual2(len(a.zeros()), 0, "zeros incorrect.")
 
         # This depends on if 2 * (s + j) is expanded to 2 * s + 2 * j
         # self.assertEqual2(
