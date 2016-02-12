@@ -40,9 +40,9 @@ import numpy as np
 import re
 from lcapy.latex import latex_str, format_label
 from lcapy.core import Expr
-import grammar
-from parser import Parser
-import schemcpts as cpts
+import lcapy.grammar as grammar
+from lcapy.parser import Parser
+import lcapy.schemcpts as cpts
 from lcapy.schemmisc import Pos, Opts
 from os import system, path, remove, mkdir, chdir, getcwd
 import math

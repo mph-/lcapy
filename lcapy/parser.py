@@ -104,8 +104,7 @@ class Parser(object):
         for rule in rules.split('\n'):
             self._add_rule(rule)
 
-        cpts = self.ruledir.keys()
-        cpts.sort(key=len, reverse=True)
+        cpts = sorted(self.ruledir.keys(), key=len, reverse=True)
 
         self.cpt_pattern = re.compile("(%s)([#_\w']+)?" % '|'.join(cpts))
         # strings in curly braces are expressions so do not split.

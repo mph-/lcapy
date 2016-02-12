@@ -38,11 +38,11 @@ from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym
 from lcapy.core import s, j, omega, uppercase_name, global_context
 from lcapy.oneport import V, I, Y, Z
 from lcapy.twoport import AMatrix, TwoPortBModel
-from schematic import Schematic, Opts, SchematicOpts
-from mna import MNA
-import grammar
-from parser import Parser
-import mnacpts as cpts
+from lcapy.schematic import Schematic, Opts, SchematicOpts
+from lcapy.mna import MNA
+import lcapy.grammar as grammar
+from lcapy.parser import Parser
+import lcapy.mnacpts as cpts
 import re
 from copy import copy
 
