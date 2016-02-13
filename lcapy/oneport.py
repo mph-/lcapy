@@ -1118,6 +1118,7 @@ class Vac(Vacstep):
     """AC voltage source."""
 
     causal = False
+    ac = True
     netname = 'V'
     netkeyword = 'ac'
 
@@ -1217,6 +1218,7 @@ class Iac(Iacstep):
     """AC current source."""
 
     causal = False
+    ac = True
     netname = 'V'
     netkeyword = 'ac'
 

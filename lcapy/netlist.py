@@ -55,12 +55,13 @@ class Ldict(dict):
 
     """Lazy dictionary for inverse Laplace"""
 
-    def __init__(self, Vdict, dc=False):
+    def __init__(self, Vdict, dc=False, ac=False):
 
         super(Ldict, self).__init__()
 
         self.Vdict = Vdict
         self.dc = dc
+        self.ac = ac
 
     def __getitem__(self, key):
 
@@ -70,7 +71,7 @@ class Ldict(dict):
         
         # Note, need to use keys method to catch branch names.
         if (key not in self) and (key in self.Vdict.keys()):
-            v = self.Vdict[key].inverse_laplace(dc=self.dc)
+            v = self.Vdict[key].inverse_laplace(dc=self.dc, ac=self.ac)
             self[key] = v
             return v
 
@@ -292,7 +293,7 @@ class Netlist(MNA):
         and voltage differences indexed by branch name"""
 
         if not hasattr(self, '_vcache'):
-            self._vcache = Ldict(self.V, self.dc)
+            self._vcache = Ldict(self.V, self.dc, self.ac)
 
         return self._vcache
 
@@ -302,7 +303,7 @@ class Netlist(MNA):
         by component name"""
 
         if not hasattr(self, '_icache'):
-            self._icache = Ldict(self.I, self.dc)
+            self._icache = Ldict(self.I, self.dc, self.ac)
 
         return self._icache
 

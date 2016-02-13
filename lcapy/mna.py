@@ -69,6 +69,19 @@ class MNA(object):
         return True
 
     @property
+    def ac(self):
+        """Return True if all independent sources are AC."""
+
+        independent_sources = self.independent_sources
+        if independent_sources == {}:
+            return not self.initial_value_problem
+
+        for elt in independent_sources.values():
+            if not elt.ac:
+                return False
+        return True
+
+    @property
     def zeroic(self):
         """Return True if the initial conditions for all components are zero"""
 

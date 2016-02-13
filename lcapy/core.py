@@ -1138,12 +1138,13 @@ class sExpr(sfwExpr):
         return sym.Piecewise((result1 + result2, 't>=0'))
 
 
-    def inverse_laplace(self, causal=None, dc=False):
+    def inverse_laplace(self, causal=None, dc=False, ac=False):
         """Attempt inverse Laplace transform.
 
         Set causal to True if the response is zero for t < 0.
         This will multiply the result by Heaviside(t)
-        otherwise the result is only known for t >= 0.
+        otherwise the result is only known for t >= 0.  If dc or
+        ac is True we can infer response for t < 0.
 
         """
 
@@ -1153,6 +1154,12 @@ class sExpr(sfwExpr):
         if causal and dc:
             raise ValueError('Cannot be causal for dc')
 
+        if causal and ac:
+            raise ValueError('Cannot be causal for ac')
+
+        if dc and ac:
+            raise ValueError('Cannot be dc and ac')
+
         if dc:
             result = self * s
             n, d = result.expr.as_numer_denom()
@@ -1160,6 +1167,9 @@ class sExpr(sfwExpr):
             if not (n.is_Symbol or n.is_Number or d.is_Symbol or d.is_Number):
                 raise ValueError('Something wonky going on, expecting dc')
             return result
+
+        if ac:
+            print('TODO for ac signal...')
 
         try:
             result = self._inverse_laplace(causal)
@@ -2041,6 +2051,9 @@ class NetObject(object):
 
     # True for direct current sources.
     dc = False
+
+    # True for alternating current sources.
+    ac = False
 
     def __init__(self, args):
 

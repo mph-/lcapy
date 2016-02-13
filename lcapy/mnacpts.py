@@ -117,6 +117,12 @@ class Cpt(object):
         return self.cpt.dc
 
     @property
+    def ac(self):
+        """Return True if source is ac"""
+
+        return self.cpt.ac
+
+    @property
     def zeroic(self):
         """Return True if initial conditions are zero (or unspecified)"""
 
@@ -202,6 +208,7 @@ class DummyCpt(Cpt):
 
     causal = True
     dc = False
+    ac = False
     zeroic = True
     hasic = None
 

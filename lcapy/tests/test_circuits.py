@@ -67,6 +67,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.Voc(1, 0), V('V1').V, "Voc incorrect across V1")
         self.assertEqual(a.initial_value_problem, False, "Initial value problem incorrect")
         self.assertEqual(a.dc, False, "DC incorrect")
+        self.assertEqual(a.ac, False, "AC incorrect")
 
 
     def test_VRL1(self):
@@ -103,6 +104,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.Voc(1, 0), V('V1').V, "Voc incorrect across V1")
         self.assertEqual(a.initial_value_problem, False, "Initial value problem incorrect")
         self.assertEqual(a.dc, False, "DC incorrect")
+        self.assertEqual(a.ac, False, "AC incorrect")
 
     def test_IR1(self):
         """Lcapy: check IR circuit
@@ -193,6 +195,7 @@ class LcapyTester(unittest.TestCase):
                           "Incorrect time domain voltage")        
         self.assertEqual(a.initial_value_problem, True, "Initial value problem incorrect")
         self.assertEqual(a.dc, False, "DC incorrect")
+        self.assertEqual(a.ac, False, "AC incorrect")
 
 
     def test_VRL1_ivp_dc(self):
@@ -206,6 +209,7 @@ class LcapyTester(unittest.TestCase):
         a.add('L1 2 0')
         self.assertEqual(a.initial_value_problem, False, "Initial value problem incorrect")
         self.assertEqual(a.dc, True, "DC incorrect")
+        self.assertEqual(a.ac, False, "AC incorrect")
 
 
     def test_transfer(self):
