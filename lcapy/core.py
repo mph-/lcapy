@@ -1062,7 +1062,7 @@ class sExpr(sfwExpr):
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
 
-    def _inverse_laplace(self, causal=None):
+    def _inverse_laplace(self, causal=None, ac=False):
 
         if causal is None:
             causal = getattr(self, 'causal', False)
@@ -1129,6 +1129,9 @@ class sExpr(sfwExpr):
                     sym.diff(expr2, var, m), var, p) / sym.factorial(m)
                 result2 += r * sym.exp(p * td) * td**(n - 1)
 
+        if ac:
+            return result1 + result2
+
         if causal:
             return result1 + result2 * sym.Heaviside(td)
 
@@ -1168,11 +1171,8 @@ class sExpr(sfwExpr):
                 raise ValueError('Something wonky going on, expecting dc')
             return result
 
-        if ac:
-            print('TODO for ac signal...')
-
         try:
-            result = self._inverse_laplace(causal)
+            result = self._inverse_laplace(causal, ac)
 
         except:
 

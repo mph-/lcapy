@@ -28,7 +28,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos, is_causal
+from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos, is_causal, sympify
 from lcapy.schematic import Schematic
 from lcapy.sympify import symbols_find
 
@@ -1097,20 +1097,18 @@ class Vdc(Vstep):
 class Vacstep(sV):
     """AC voltage source multiplied by unit step."""
 
-    def __init__(self, V, f, phi=0):
+    def __init__(self, V, phi=0):
 
-        self.args = (V, f, phi)
+        self.args = (V, phi)
         V = cExpr(V)
-        f = cExpr(f)
         phi = cExpr(phi)
 
         # Note, cos(-pi / 2) is not quite zero.
 
-        omega = 2 * sym.pi * f
-        foo = (s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)
+        self.omega = sympify('omega')
+        foo = (s * sym.cos(phi) + self.omega * sym.sin(phi)) / (s**2 + self.omega**2)
         super(Vacstep, self).__init__(Vs(foo * V))
         self.v0 = V
-        self.f = f
         self.phi = phi
 
 
@@ -1124,7 +1122,7 @@ class Vac(Vacstep):
 
     @property
     def v(self):
-        return self.v0 * cos(2 * sym.pi * self.f * t + self.phi)
+        return self.v0 * cos(self.omega * t + self.phi)
 
 
 class v(sV):
@@ -1199,18 +1197,16 @@ class Idc(Istep):
 class Iacstep(sI):
     """AC current source multiplied by unit step."""
 
-    def __init__(self, I, f, phi=0):
+    def __init__(self, I, phi=0):
 
-        self.args = (I, f, phi)
+        self.args = (I, phi)
         I = cExpr(I)
-        f = cExpr(f)
         phi = cExpr(phi)
 
-        omega = 2 * sym.pi * f
-        foo = (s * sym.cos(phi) + omega * sym.sin(phi)) / (s**2 + omega**2)
+        self.omega = sympify('omega')
+        foo = (s * sym.cos(phi) + self.omega * sym.sin(phi)) / (s**2 + self.omega**2)
         super(Iacstep, self).__init__(Is(foo * I))
         self.i0 = I
-        self.f = f
         self.phi = phi
 
 
@@ -1224,7 +1220,7 @@ class Iac(Iacstep):
 
     @property
     def i(self):
-        return self.i0 * cos(2 * sym.pi * self.f * t + self.phi)
+        return self.i0 * cos(self.omega * t + self.phi)
 
 
 class i(sI):

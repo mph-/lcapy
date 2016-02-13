@@ -168,21 +168,25 @@ class LcapyTester(unittest.TestCase):
     def test_v(self):
         """Lcapy: check inverse Laplace for voltage sources"""
 
+        omega = sympify('omega')
+
         a = Vdc(10)
         self.assertEqual2(a.v, 10, "DC incorrect.")        
 
         a = Vstep(10)
         self.assertEqual2(a.v, 10 * Heaviside(t), "Step incorrect.")
 
-        a = Vac(10, 20)
-        self.assertEqual2(a.v, 10 * cos(40 * pi * t), "AC incorrect.")
+        a = Vac(10)
+        self.assertEqual2(a.v, 10 * cos(omega * t), "AC incorrect.")
 
-        a = Vacstep(10, 20)
-        self.assertEqual2(a.v, 10 * cos(40 * pi * t) * Heaviside(t), "AC step incorrect.")
+        a = Vacstep(10)
+        self.assertEqual2(a.v, 10 * cos(omega * t) * Heaviside(t), "AC step incorrect.")
 
 
     def test_i(self):
         """Lcapy: check inverse Laplace for current sources"""
+
+        omega = sympify('omega')
 
         a = Idc(10)
         self.assertEqual2(a.i, 10, "DC incorrect.")        
@@ -190,8 +194,8 @@ class LcapyTester(unittest.TestCase):
         a = Istep(10)
         self.assertEqual2(a.i, 10 * Heaviside(t), "Step incorrect.")
 
-        a = Iac(10, 20)
-        self.assertEqual2(a.i, 10 * cos(40 * pi * t), "AC incorrect.")
+        a = Iac(10)
+        self.assertEqual2(a.i, 10 * cos(omega * t), "AC incorrect.")
 
-        a = Iacstep(10, 20)
-        self.assertEqual2(a.i, 10 * cos(40 * pi * t) * Heaviside(t), "AC step incorrect.")
+        a = Iacstep(10)
+        self.assertEqual2(a.i, 10 * cos(omega * t) * Heaviside(t), "AC step incorrect.")

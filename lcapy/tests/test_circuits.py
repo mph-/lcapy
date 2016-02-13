@@ -198,7 +198,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.ac, False, "AC incorrect")
 
 
-    def test_VRL1_ivp_dc(self):
+    def test_VRL1_dc(self):
         """Lcapy: check VRL circuit at dc
 
         """
@@ -210,6 +210,20 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.initial_value_problem, False, "Initial value problem incorrect")
         self.assertEqual(a.dc, True, "DC incorrect")
         self.assertEqual(a.ac, False, "AC incorrect")
+
+
+    def test_VRL1_ac(self):
+        """Lcapy: check VRL circuit at ac
+
+        """
+
+        a = Circuit()
+        a.add('V1 1 0 ac')
+        a.add('R1 1 2')
+        a.add('L1 2 0')
+        self.assertEqual(a.initial_value_problem, False, "Initial value problem incorrect")
+        self.assertEqual(a.dc, False, "DC incorrect")
+        self.assertEqual(a.ac, True, "AC incorrect")
 
 
     def test_transfer(self):
