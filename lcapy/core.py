@@ -1162,7 +1162,7 @@ class sExpr(sfwExpr):
             return result
 
         try:
-            result = self._inverse_laplace(causal, dc)
+            result = self._inverse_laplace(causal)
 
         except:
 
