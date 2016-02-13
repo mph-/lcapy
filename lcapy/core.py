@@ -1068,6 +1068,7 @@ class sExpr(sfwExpr):
             causal = getattr(self, 'causal', False)
 
         var = self.var
+
         N, D, delay = self._as_ratfun_delay()
 
         Q, M = N.div(D)
@@ -1137,7 +1138,7 @@ class sExpr(sfwExpr):
         return sym.Piecewise((result1 + result2, 't>=0'))
 
 
-    def inverse_laplace(self, causal=None):
+    def inverse_laplace(self, causal=None, dc=False):
         """Attempt inverse Laplace transform.
 
         Set causal to True if the response is zero for t < 0.
@@ -1149,8 +1150,19 @@ class sExpr(sfwExpr):
         if causal is None:
             causal = getattr(self, 'causal', False)
 
+        if causal and dc:
+            raise ValueError('Cannot be causal for dc')
+
+        if dc:
+            result = self * s
+            n, d = result.expr.as_numer_denom()
+
+            if not (n.is_Symbol or n.is_Number or d.is_Symbol or d.is_Number):
+                raise ValueError('Something wonky going on, expecting dc')
+            return result
+
         try:
-            result = self._inverse_laplace(causal)
+            result = self._inverse_laplace(causal, dc)
 
         except:
 
