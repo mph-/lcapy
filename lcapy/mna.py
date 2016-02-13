@@ -56,6 +56,19 @@ class MNA(object):
         return True
 
     @property
+    def dc(self):
+        """Return True if all independent sources are DC."""
+
+        independent_sources = self.independent_sources
+        if independent_sources == {}:
+            return not self.initial_value_problem
+
+        for elt in independent_sources.values():
+            if not elt.dc:
+                return False
+        return True
+
+    @property
     def zeroic(self):
         """Return True if the initial conditions for all components are zero"""
 
@@ -67,15 +80,18 @@ class MNA(object):
     @property
     def initial_value_problem(self):
         """Return True if all components that allow initial conditions
-        have them explicitly defined"""
+        have them explicitly defined.  If there are no components that
+        take initial conditions, return False."""
 
-        # This should be equivalent to self.allow_ic == self.explicit_ic
+        ret = False
         for elt in self.elements.values():
             if elt.hasic is None:
                 continue
-            if not elt.hasic:
+            if elt.hasic:
+                ret = True
+            else:
                 return False
-        return True
+        return ret
 
     @property
     def missing_ic(self):
@@ -253,8 +269,10 @@ class MNA(object):
         self._Is = sym.zeros(num_nodes, 1)
         self._Es = sym.zeros(num_branches, 1)
 
+        dc = self.dc
+
         for elt in self.elements.values():
-            elt.stamp(self)
+            elt.stamp(self, dc=dc)
 
         # Augment the admittance matrix to form A matrix.
         self._A = self._G.row_join(self._B).col_join(self._C.row_join(self._D))

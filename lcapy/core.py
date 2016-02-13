@@ -2027,6 +2027,9 @@ class NetObject(object):
     # False if initial conditions are not specified.
     hasic = None
 
+    # True for direct current sources.
+    dc = False
+
     def __init__(self, args):
 
         self.args = args

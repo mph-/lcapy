@@ -111,6 +111,12 @@ class Cpt(object):
         return self.cpt.causal
 
     @property
+    def dc(self):
+        """Return True if source is dc"""
+
+        return self.cpt.dc
+
+    @property
     def zeroic(self):
         """Return True if initial conditions are zero (or unspecified)"""
 
@@ -195,6 +201,7 @@ class Logic(Cpt):
 class DummyCpt(Cpt):
 
     causal = True
+    dc = False
     zeroic = True
     hasic = None
 
@@ -271,6 +278,9 @@ class RC(RLC):
 
         Y = self.cpt.Y.expr
 
+        if self.type == 'C' and kwargs.get('dc', False):
+            Y = 0
+
         if n1 >= 0 and n2 >= 0:
             cct._G[n1, n2] -= Y
             cct._G[n2, n1] -= Y
@@ -324,7 +334,11 @@ class L(RLC):
             cct._B[n2, m] = -1
             cct._C[m, n2] = -1
 
-        cct._D[m, m] += -self.cpt.Z.expr
+        Z = self.cpt.Z.expr
+        if self.type == 'L' and kwargs.get('dc', False):
+            Z = 0
+
+        cct._D[m, m] += -Z
         cct._Es[m] += self.cpt.V.expr
 
     def pre_initial_model(self):

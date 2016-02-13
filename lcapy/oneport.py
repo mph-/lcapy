@@ -1085,6 +1085,7 @@ class Vdc(Vstep):
     an s domain voltage of V / s)."""
 
     causal = False
+    dc = True
     netname = 'V'
     netkeyword = 'dc'
     
@@ -1185,6 +1186,7 @@ class Idc(Istep):
     an s domain current of i / s)."""
 
     causal = False
+    dc = True
     netname = 'I'
     netkeyword = 'dc'
     
