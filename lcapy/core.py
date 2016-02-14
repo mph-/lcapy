@@ -35,6 +35,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Hs', 'Is', 'Vs', 'Ys', 'Zs',
            'Ht', 'It', 'Vt', 'Yt', 'Zt',
            'Hf', 'If', 'Vf', 'Yf', 'Zf',
+           'Iphasor', 'Vphasor',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
 symbol_pattern = re.compile(r"^[a-zA-Z]+[\w]*[_]?[\w]*$")
@@ -1325,6 +1326,7 @@ class fExpr(sfwExpr):
     def __init__(self, val):
 
         super(fExpr, self).__init__(val, real=True)
+        # Define when class defined.
         self._fourier_conjugate_class = tExpr
 
         if self.expr.find(ssym) != set():
@@ -1410,21 +1412,6 @@ class omegaExpr(sfwExpr):
         plot_angular_frequency(self, wvector, **kwargs)
 
 
-class Phasor(Expr):
-
-    var = omega1sym
-
-    def time(self):
-        """Convert to time domain representation"""
-
-        return self.real.expr * cos(self.var * t) + self.imag.expr * sin(self.var * t)
-
-    def laplace(self):
-        """Convert to Laplace domain representation"""
-
-        return self.time().laplace()
-
-
 class tExpr(Expr):
 
     """t-domain expression or symbol"""
@@ -1506,6 +1493,32 @@ class cExpr(Expr):
 
         assumptions['real'] = True
         super(cExpr, self).__init__(val, **assumptions)
+
+
+class Phasor(Expr):
+
+    var = omega1sym
+
+    def time(self):
+        """Convert to time domain representation"""
+
+        return self.real.expr * cos(self.var * t) + self.imag.expr * sin(self.var * t)
+
+    def laplace(self):
+        """Convert to Laplace domain representation"""
+
+        return self.time().laplace()
+
+
+class Vphasor(Phasor):
+    pass
+
+
+class Iphasor(Phasor):
+    pass
+
+
+# TODO: Perhaps add complex impedances s --> j omega
 
 
 s = sExpr('s')

@@ -28,7 +28,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos, exp, is_causal, symbol, j, Phasor
+from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor
 from lcapy.schematic import Schematic
 from lcapy.sympify import symbols_find
 
@@ -1097,7 +1097,7 @@ class Vdc(Vstep):
 
     @property
     def Vphasor(self):
-        return omegaExpr(self.v0)
+        return Vphasor(self.v0)
 
 
 class Vacstep(sV):
@@ -1131,7 +1131,7 @@ class Vac(Vacstep):
 
     @property
     def Vphasor(self):
-        return Phasor(self.v0 * exp(j * self.phi))
+        return Vphasor(self.v0 * exp(j * self.phi))
 
 
 class v(sV):
@@ -1205,7 +1205,7 @@ class Idc(Istep):
 
     @property
     def Iphasor(self):
-        return Phasor(self.i0)
+        return Iphasor(self.i0)
 
 
 class Iacstep(sI):
@@ -1237,7 +1237,7 @@ class Iac(Iacstep):
 
     @property
     def Iphasor(self):
-        return Phasor(self.i0 * exp(j * self.phi))
+        return Iphasor(self.i0 * exp(j * self.phi))
 
 
 class i(sI):
