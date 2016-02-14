@@ -1166,7 +1166,7 @@ class sExpr(sfwExpr):
             
             if not is_dc(result):
                 raise ValueError('Something wonky going on, expecting dc')
-            return result
+            return self._laplace_conjugate_class(result)
 
         try:
             result = self._inverse_laplace(assumption)
@@ -2265,8 +2265,7 @@ def has_causal_factor(expr):
 def is_causal(val):
     """Return True if time domain expression is zero for t < 0"""
 
-    expr = tExpr(val).expr
-
+    expr = val.expr
     terms = expr.as_ordered_terms()
     for term in terms:
         if not has_causal_factor(term):
@@ -2278,9 +2277,13 @@ def is_causal(val):
 def is_dc(val):
     """Return True if time domain expression is dc"""
 
-    n, d = val.expr.as_numer_denom()
-
-    return (n.is_Symbol or n.is_Number) and (d.is_Symbol or d.is_Number)
+    expr = val.expr
+    terms = expr.as_ordered_terms()
+    for term in terms:
+        n, d = term.as_numer_denom()
+        if not ((n.is_Symbol or n.is_Number) and (d.is_Symbol or d.is_Number)):
+            return False
+    return True
 
 
 from lcapy.oneport import L, C, R, G, Idc, Vdc

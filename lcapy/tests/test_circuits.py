@@ -179,27 +179,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.V1.V, 10 / s, "Incorrect voltage")
 
 
-    def test_VRL1_ivp_dc(self):
-        """Lcapy: check VRL circuit at dc
-
-        """
-
-        # Need to dupe Lcapy from using a DC analysis. 
-        # When is_dc is improved this test will need to change.
-        a = Circuit()
-        a.add('V1 1 0 {V1 + 1}')
-        a.add('R1 1 2')
-        a.add('L1 2 0 L1 {(V1 + 1) / R1}')
-        # This tests if symbols are converted to the defined ones.
-        self.assertEqual2(a.L1.v, V(0).V.inverse_laplace(), 
-                          "Incorrect time domain voltage")        
-        self.assertEqual2(a.R1.v, V('V1 + 1').V.inverse_laplace(), 
-                          "Incorrect time domain voltage")        
-        self.assertEqual(a.initial_value_problem, True, "Initial value problem incorrect")
-        self.assertEqual(a.dc, False, "DC incorrect")
-        self.assertEqual(a.ac, False, "AC incorrect")
-
-
     def test_VRL1_dc(self):
         """Lcapy: check VRL circuit at dc
 
@@ -210,6 +189,26 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2')
         a.add('L1 2 0')
         self.assertEqual(a.initial_value_problem, False, "Initial value problem incorrect")
+        self.assertEqual(a.dc, True, "DC incorrect")
+        self.assertEqual(a.ac, False, "AC incorrect")
+
+
+    def test_VRL1_dc2(self):
+        """Lcapy: check VRL circuit at dc
+
+        """
+
+        # TODO: need to dupe Lcapy from using a DC analysis. 
+        a = Circuit()
+        a.add('V1 1 0 {V1 + 1}')
+        a.add('R1 1 2')
+        a.add('L1 2 0 L1 {(V1 + 1) / R1}')
+        # This tests if symbols are converted to the defined ones.
+        self.assertEqual2(a.L1.v, V(0).V.inverse_laplace(a.assumption), 
+                          "Incorrect time domain voltage")        
+        self.assertEqual2(a.R1.v, V('V1 + 1').V.inverse_laplace(a.assumption), 
+                          "Incorrect time domain voltage")        
+        self.assertEqual(a.initial_value_problem, True, "Initial value problem incorrect")
         self.assertEqual(a.dc, True, "DC incorrect")
         self.assertEqual(a.ac, False, "AC incorrect")
 
