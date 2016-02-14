@@ -150,19 +150,19 @@ class OnePort(NetObject):
 
     @property
     def v(self):
-        return self.V.inverse_laplace(self.causal, self.dc, self.ac)
+        return self.V.inverse_laplace(self.assumption)
 
     @property
     def i(self):
-        return self.I.inverse_laplace(self.causal, self.dc, self.ac)
+        return self.I.inverse_laplace(self.assumption)
 
     @property
     def y(self):
-        return self.Y.inverse_laplace(self.causal, self.dc, self.ac)
+        return self.Y.inverse_laplace(self.assumption)
 
     @property
     def z(self):
-        return self.Z.inverse_laplace(self.causal, self.dc, self.ac)
+        return self.Z.inverse_laplace(self.assumption)
 
     def netargs(self):
 
@@ -992,7 +992,8 @@ class L(Thevenin):
         self.L = Lval
         self.i0 = i0
        
-        self.causal = self.i0 == 0
+        if self.assumption is None and self.i0 == 0:
+            self.assumption = 'causal'
         self.zeroic = self.i0 == 0 
 
 
@@ -1014,7 +1015,8 @@ class C(Thevenin):
         self.C = Cval
         self.v0 = v0
 
-        self.causal = self.v0 == 0
+        if self.assumption is None and self.v0 == 0:
+            self.assumption = 'causal'
         self.zeroic = self.v0 == 0
 
 
@@ -1059,11 +1061,12 @@ class V(sV):
     def __init__(self, Vval):
 
         self.args = (Vval, )
-        if 's' not in symbols_find(Vval):
-            self.causal = is_causal(Vval)
+        time_domain = 's' not in symbols_find(Vval)
 
         Vsym = tsExpr(Vval)
         super(V, self).__init__(Vsym)
+        if time_domain:
+            self.assumption_set(Vs(Vval))
 
 
 class Vstep(sV):
@@ -1084,8 +1087,7 @@ class Vdc(Vstep):
     """DC voltage source (note a DC voltage source of voltage V has
     an s domain voltage of V / s)."""
 
-    causal = False
-    dc = True
+    assumption = 'dc'
     netname = 'V'
     netkeyword = 'dc'
     
@@ -1119,8 +1121,7 @@ class Vacstep(sV):
 class Vac(Vacstep):
     """AC voltage source."""
 
-    causal = False
-    ac = True
+    assumption = 'ac'
     netname = 'V'
     netkeyword = 'ac'
 
@@ -1139,8 +1140,9 @@ class v(sV):
     def __init__(self, vval):
 
         self.args = (vval, )
-        Vval = tExpr(vval).laplace()
-        super(V, self).__init__(Zs(0), Vs(Vval))
+        Vval = tExpr(vval)
+        super(V, self).__init__(Zs(0), Vs(Vval).laplace())
+        self.assumption_set(Vval)
 
 
 class sI(Norton):
@@ -1167,11 +1169,12 @@ class I(sI):
 
         self.args = (Ival, )
 
-        if 's' not in symbols_find(Ival):
-            self.causal = is_causal(Ival)
+        time_domain = 's' not in symbols_find(Ival)
 
         Isym = tsExpr(Ival)
         super(I, self).__init__(Isym)
+        if time_domain:
+            self.assumption_set(Is(Ival))
 
 
 class Istep(sI):
@@ -1192,8 +1195,7 @@ class Idc(Istep):
     """DC current source (note a DC current source of current i has
     an s domain current of i / s)."""
 
-    causal = False
-    dc = True
+    assumption = 'dc'
     netname = 'I'
     netkeyword = 'dc'
     
@@ -1225,8 +1227,7 @@ class Iacstep(sI):
 class Iac(Iacstep):
     """AC current source."""
 
-    causal = False
-    ac = True
+    assumption = 'ac'
     netname = 'V'
     netkeyword = 'ac'
 
@@ -1245,8 +1246,9 @@ class i(sI):
     def __init__(self, ival):
 
         self.args = (ival, )
-        Ival = tExpr(ival).laplace()
-        super(I, self).__init__(Ys(0), Is(Ival))
+        Ival = tExpr(ival)
+        super(I, self).__init__(Ys(0), Is(Ival.laplace()))
+        self.assumption_set(Ival)
 
 
 class Xtal(Thevenin):

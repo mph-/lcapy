@@ -1064,13 +1064,10 @@ class sExpr(sfwExpr):
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
 
-    def _inverse_laplace(self, causal=None, ac=None):
+    def _inverse_laplace(self, assumption=None):
 
-        if causal is None:
-            causal = getattr(self, 'causal', False)
-
-        if ac is None:
-            ac = getattr(self, 'ac', False)
+        if assumption is None:
+            assumption = getattr(self, 'assumption', None)
 
         var = self.var
 
@@ -1134,10 +1131,10 @@ class sExpr(sfwExpr):
                     sym.diff(expr2, var, m), var, p) / sym.factorial(m)
                 result2 += r * sym.exp(p * td) * td**(n - 1)
 
-        if ac:
+        if assumption == 'ac':
             return result1 + result2
 
-        if causal:
+        if assumption == 'causal':
             return result1 + result2 * sym.Heaviside(td)
 
         if delay != 0:
@@ -1146,44 +1143,28 @@ class sExpr(sfwExpr):
         return sym.Piecewise((result1 + result2, 't>=0'))
 
 
-    def inverse_laplace(self, causal=None, dc=None, ac=None):
+    def inverse_laplace(self, assumption=None):
         """Attempt inverse Laplace transform.
 
-        Set causal to True if the response is zero for t < 0.
-        This will multiply the result by Heaviside(t)
-        otherwise the result is only known for t >= 0.  If dc or
-        ac is True we can infer response for t < 0.
+        If assumption is 'causal' the response is zero for t < 0 and
+        the result is multiplied by Heaviside(t)
+        If assumption is 'ac' or 'dc' the result is extrapolated for t < 0.
+        Otherwise the result is only known for t >= 0.
 
         """
 
-        if causal is None:
-            causal = getattr(self, 'causal', False)
+        if assumption is None:
+            assumption = getattr(self, 'assumption', None)
 
-        if dc is None:
-            causal = getattr(self, 'dc', False)
-
-        if ac is None:
-            causal = getattr(self, 'ac', False)
-
-        if causal and dc:
-            raise ValueError('Cannot be causal for dc')
-
-        if causal and ac:
-            raise ValueError('Cannot be causal for ac')
-
-        if dc and ac:
-            raise ValueError('Cannot be dc and ac')
-
-        if dc:
+        if assumption == 'dc':
             result = self * s
-            n, d = result.expr.as_numer_denom()
-
-            if not (n.is_Symbol or n.is_Number or d.is_Symbol or d.is_Number):
+            
+            if not is_dc(result):
                 raise ValueError('Something wonky going on, expecting dc')
             return result
 
         try:
-            result = self._inverse_laplace(causal, ac)
+            result = self._inverse_laplace(assumption)
 
         except:
 
@@ -1196,7 +1177,7 @@ class sExpr(sfwExpr):
             from sympy.integrals.transforms import inverse_laplace_transform
             result = inverse_laplace_transform(expr, t, self.var)
 
-            if not causal:
+            if assumption != 'causal':
                 result = sym.Piecewise((result, 't>=0'))
 
         if hasattr(self, '_laplace_conjugate_class'):
@@ -1794,10 +1775,10 @@ class Vs(sExpr):
     quantity = 's-Voltage'
     units = 'V/Hz'
 
-    def __init__(self, val, causal=False):
+    def __init__(self, val, assumption=None):
 
         super(Vs, self).__init__(val)
-        self.causal = causal
+        self.assumption = assumption
         self._laplace_conjugate_class = Vt
 
     def cpt(self):
@@ -1818,10 +1799,10 @@ class Is(sExpr):
     quantity = 's-Current'
     units = 'A/Hz'
 
-    def __init__(self, val, causal=False):
+    def __init__(self, val, assumption=None):
 
         super(Is, self).__init__(val)
-        self.causal = causal
+        self.assumption = assumption
         self._laplace_conjugate_class = It
 
     def cpt(self):
@@ -2068,9 +2049,10 @@ class ZsVector(Vector):
 
 class NetObject(object):
 
+    # This can be None, 'ac', 'dc', 'causal', 'noncausal'.
     # A causal signal is zero for t < 0 analogous with the impulse
     # response of a causal system.
-    causal = True
+    assumption = 'causal'
 
     # True if initial conditions are zero (or unspecified).
     zeroic = True
@@ -2079,12 +2061,6 @@ class NetObject(object):
     # True if initial conditions are specified.
     # False if initial conditions are not specified.
     hasic = None
-
-    # True for direct current sources.
-    dc = False
-
-    # True for alternating current sources.
-    ac = False
 
     def __init__(self, args):
 
@@ -2146,6 +2122,18 @@ class NetObject(object):
         return self
 
     @property
+    def ac(self):
+        return self.assumption == 'ac'
+
+    @property
+    def dc(self):
+        return self.assumption == 'dc'
+
+    @property
+    def causal(self):
+        return self.assumption == 'causal'
+
+    @property
     def Vphasor(self):
         raise ValueError('No voltage phasor representation for %s' % self)
 
@@ -2156,6 +2144,15 @@ class NetObject(object):
     @property
     def Zphasor(self):
         raise self.Z.jomega
+
+    def assumption_set(self, val):
+
+        if is_dc(val):
+            self.assumption = 'dc'
+        elif is_causal(val):
+            self.assumption = 'causal'
+        else:
+            self.assumption = 'noncausal'
 
 
 def _funcwrap(func, *args):
@@ -2273,5 +2270,14 @@ def is_causal(val):
             return False
 
     return True
+
+
+def is_dc(val):
+    """Return True if time domain expression is dc"""
+
+    n, d = val.expr.as_numer_denom()
+
+    return (n.is_Symbol or n.is_Number) and (d.is_Symbol or d.is_Number)
+
 
 from lcapy.oneport import L, C, R, G, Idc, Vdc

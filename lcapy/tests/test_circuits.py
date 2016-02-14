@@ -184,14 +184,16 @@ class LcapyTester(unittest.TestCase):
 
         """
 
+        # Need to dupe Lcapy from using a DC analysis. 
+        # When is_dc is improved this test will need to change.
         a = Circuit()
-        a.add('V1 1 0')
+        a.add('V1 1 0 {V1 + 1}')
         a.add('R1 1 2')
-        a.add('L1 2 0 L1 {V1 / R1}')
+        a.add('L1 2 0 L1 {(V1 + 1) / R1}')
         # This tests if symbols are converted to the defined ones.
         self.assertEqual2(a.L1.v, V(0).V.inverse_laplace(), 
                           "Incorrect time domain voltage")        
-        self.assertEqual2(a.R1.v, V('V1').V.inverse_laplace(), 
+        self.assertEqual2(a.R1.v, V('V1 + 1').V.inverse_laplace(), 
                           "Incorrect time domain voltage")        
         self.assertEqual(a.initial_value_problem, True, "Initial value problem incorrect")
         self.assertEqual(a.dc, False, "DC incorrect")
@@ -237,6 +239,7 @@ class LcapyTester(unittest.TestCase):
         a.add('C1 2 0 1')
 
         H = a.transfer(1, 0, 2, 0)
+        self.assertEqual2(H, 1 / (2 * s + 1), "Incorrect transfer function")
         h = H.inverse_laplace()
         self.assertEqual2(h, exp(-t / 2) * Heaviside(t) / 2,
                           "Incorrect impulse response")        

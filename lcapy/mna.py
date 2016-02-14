@@ -20,12 +20,12 @@ def namelist(elements):
 
 class Mdict(dict):
 
-    def __init__(self, branchdict, causal):
+    def __init__(self, branchdict, assumption):
 
         super(Mdict, self).__init__()
         self.branchdict = branchdict
-        # Hack, should compute causal attribute on fly.
-        self.causal = causal
+        # Hack, should compute assumption attribute on fly.
+        self.assumption = assumption
 
     def __getitem__(self, key):
 
@@ -35,7 +35,7 @@ class Mdict(dict):
 
         if key in self.branchdict:
             n1, n2 = self.branchdict[key]
-            return Vs((self[n1] - self[n2]).simplify(), self.causal)
+            return Vs((self[n1] - self[n2]).simplify(), self.assumption)
 
         return super(Mdict, self).__getitem__(key)
 
@@ -80,6 +80,18 @@ class MNA(object):
             if not elt.ac:
                 return False
         return True
+
+    @property
+    def assumption(self):
+
+        if self.ac:
+            return 'ac'
+        elif self.dc:
+            return 'dc'
+        elif self.causal:
+            return 'causal'
+        else:
+            return None
 
     @property
     def zeroic(self):
@@ -253,7 +265,7 @@ class MNA(object):
         # have them explicitly defined.  In this case, we can only
         # provide solution for t >= 0.
         if self.causal and self.initial_value_problem and not self.zeroic:
-            raise Error('Detected initial value problem that has causal sources!')
+            raise RuntimeError('Detected initial value problem that has causal sources!')
 
         if (not self.initial_value_problem and not self.causal and
             self.missing_ic != {}):
@@ -313,7 +325,7 @@ class MNA(object):
         results = sym.simplify(Ainv * self._Z)
 
         results = results.subs(self.context.symbols)
-        causal = self.causal
+        assumption = self.assumption
 
         branchdict = {}
         for elt in self.elements.values():
@@ -325,21 +337,21 @@ class MNA(object):
         self.context.switch()
 
         # Create dictionary of node voltages
-        self._V = Mdict(branchdict, causal)
-        self._V['0'] = Vs(0, causal)
+        self._V = Mdict(branchdict, assumption)
+        self._V['0'] = Vs(0, assumption)
         for n in self.nodes:
             index = self._node_index(n)
             if index >= 0:
-                self._V[n] = Vs(results[index], causal)
+                self._V[n] = Vs(results[index], assumption)
             else:
-                self._V[n] = Vs(0, causal)
+                self._V[n] = Vs(0, assumption)
 
         num_nodes = len(self.node_list) - 1
 
         # Create dictionary of branch currents through elements
         self._I = {}
         for m, key in enumerate(self.unknown_branch_currents):
-            self._I[key] = Is(results[m + num_nodes], causal)
+            self._I[key] = Is(results[m + num_nodes], assumption)
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
@@ -349,7 +361,7 @@ class MNA(object):
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
                 V1, V2 = self._V[n1], self._V[n2]
                 I = ((V1 - V2 - elt.cpt.V) / elt.cpt.Z).simplify()
-                self._I[elt.name] = Is(I, causal)
+                self._I[elt.name] = Is(I, assumption)
 
         self.context.restore()
 
@@ -398,15 +410,16 @@ class MNA(object):
         if hasattr(self, '_Vd'):
             return self._Vd
 
-        # This is a hack.  The causal attribute should be recalculated
+        # This is a hack.  The assumption attribute should be recalculated
         # when performing operations on Expr types.
-        causal = self.causal
+        assumption = self.assumption
 
         self._Vd = {}
         for elt in self.elements.values():
             if elt.type == 'K':
                 continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
-            self._Vd[elt.name] = Vs((self.V[n1] - self.V[n2]).simplify(), causal)
+            self._Vd[elt.name] = Vs((self.V[n1] - self.V[n2]).simplify(),
+                                    assumption)
 
         return self._Vd

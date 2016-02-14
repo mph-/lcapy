@@ -55,13 +55,12 @@ class Ldict(dict):
 
     """Lazy dictionary for inverse Laplace"""
 
-    def __init__(self, Vdict, dc=False, ac=False):
+    def __init__(self, Vdict, assumption):
 
         super(Ldict, self).__init__()
 
         self.Vdict = Vdict
-        self.dc = dc
-        self.ac = ac
+        self.assumption = assumption
 
     def __getitem__(self, key):
 
@@ -71,7 +70,7 @@ class Ldict(dict):
         
         # Note, need to use keys method to catch branch names.
         if (key not in self) and (key in self.Vdict.keys()):
-            v = self.Vdict[key].inverse_laplace(dc=self.dc, ac=self.ac)
+            v = self.Vdict[key].inverse_laplace(self.assumption)
             self[key] = v
             return v
 
@@ -293,7 +292,7 @@ class Netlist(MNA):
         and voltage differences indexed by branch name"""
 
         if not hasattr(self, '_vcache'):
-            self._vcache = Ldict(self.V, self.dc, self.ac)
+            self._vcache = Ldict(self.V, self.assumption)
 
         return self._vcache
 
@@ -303,7 +302,7 @@ class Netlist(MNA):
         by component name"""
 
         if not hasattr(self, '_icache'):
-            self._icache = Ldict(self.I, self.dc, self.ac)
+            self._icache = Ldict(self.I, self.assumption)
 
         return self._icache
 
@@ -361,7 +360,7 @@ class Netlist(MNA):
         new.remove('Vin_')
 
         Y = Ys(If)
-        Y.causal = True
+        Y.assumption = 'causal'
         return Y
 
     def impedance(self, Np, Nm):
@@ -379,7 +378,7 @@ class Netlist(MNA):
         new.remove('Iin_')
 
         Z = Zs(Vf)
-        Z.causal = True
+        Z.assumption = 'causal'
         return Z
 
     def Y(self, Np, Nm):
@@ -409,7 +408,7 @@ class Netlist(MNA):
         new.add('V1_ %d %d s 1' % (N1p, N1m))
 
         H = Hs(new.Voc(N2p, N2m) / new.V1_.V)
-        H.causal = True
+        H.assumption = 'causal'
 
         return H
 

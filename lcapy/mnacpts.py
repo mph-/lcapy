@@ -123,6 +123,12 @@ class Cpt(object):
         return self.cpt.ac
 
     @property
+    def assumption(self):
+        """Return assumption about component"""
+
+        return self.cpt.assumption
+
+    @property
     def zeroic(self):
         """Return True if initial conditions are zero (or unspecified)"""
 
@@ -189,19 +195,19 @@ class Cpt(object):
 class NonLinear(Cpt):
 
     def stamp(self, cct, **kwargs):
-        raise NotImplementedError('cannot analyse non-linear component %s' % self)
+        raise NotImplementedError('Cannot analyse non-linear component %s' % self)
 
 
 class TimeVarying(Cpt):
 
     def stamp(self, cct, **kwargs):
-        raise NotImplementedError('cannot analyse time-varying component %s' % self)
+        raise NotImplementedError('Cannot analyse time-varying component %s' % self)
 
 
 class Logic(Cpt):
 
     def stamp(self, cct, **kwargs):
-        raise NotImplementedError('cannot analyse logic component %s' % self)
+        raise NotImplementedError('Cannot analyse logic component %s' % self)
 
 
 class DummyCpt(Cpt):
@@ -211,6 +217,7 @@ class DummyCpt(Cpt):
     ac = False
     zeroic = True
     hasic = None
+    assumption = None
 
 
 class O(DummyCpt):
@@ -342,11 +349,13 @@ class L(RLC):
             cct._C[m, n2] = -1
 
         Z = self.cpt.Z.expr
+        V = self.cpt.V.expr
         if self.type == 'L' and kwargs.get('dc', False):
             Z = 0
+            V = 0
 
         cct._D[m, m] += -Z
-        cct._Es[m] += self.cpt.V.expr
+        cct._Es[m] += V
 
     def pre_initial_model(self):
 
