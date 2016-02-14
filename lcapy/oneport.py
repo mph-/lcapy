@@ -28,7 +28,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor
+from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, omega1
 from lcapy.schematic import Schematic
 from lcapy.sympify import symbols_find
 
@@ -107,6 +107,14 @@ class OnePort(NetObject):
     @property
     def Isc(self):
         return self.I
+
+    @property
+    def Yphasor(self):
+        return self.Y(j * omega1)
+
+    @property
+    def Zphasor(self):
+        return self.Z(j * omega1)
 
     def ladder(self, *args):
         """Create (unbalanced) ladder network"""

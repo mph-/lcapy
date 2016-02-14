@@ -176,6 +176,29 @@ class Cpt(object):
         
         return self.cpt.Z
 
+    @property
+    def Yphasor(self):
+        """Phasor (complex) admittance"""
+        
+        return self.cpt.Yphasor
+
+    @property
+    def Zphasor(self):
+        """Phasor (complex) impedance"""
+        
+        return self.cpt.Zphasor
+
+    @property
+    def Iphasor(self):
+        """Phasor current"""
+        
+        return self.cpt.Iphasor
+
+    @property
+    def Vphasor(self):
+        """Phasor voltage"""
+        
+        return self.cpt.Vphasor
 
     @property
     def node_indexes(self):

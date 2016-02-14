@@ -35,7 +35,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Hs', 'Is', 'Vs', 'Ys', 'Zs',
            'Ht', 'It', 'Vt', 'Yt', 'Zt',
            'Hf', 'If', 'Vf', 'Yf', 'Zf',
-           'Iphasor', 'Vphasor',
+           'Iphasor', 'Vphasor', 'Yphasor', 'Zphasor',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
 symbol_pattern = re.compile(r"^[a-zA-Z]+[\w]*[_]?[\w]*$")
@@ -1518,7 +1518,15 @@ class Iphasor(Phasor):
     pass
 
 
-# TODO: Perhaps add complex impedances s --> j omega
+class Zphasor(Expr):
+    """Phase impedance aka complex impedance"""
+    pass
+
+
+class Yphasor(Expr):
+    """Phase admittance aka complex admittance"""
+    pass
+
 
 
 s = sExpr('s')
