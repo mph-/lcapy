@@ -2278,6 +2278,10 @@ def is_dc(val):
     """Return True if time domain expression is dc"""
 
     expr = val.expr
+    for symbol in expr.free_symbols:
+        if symbol.name in ('s', 't', 'f', 'omega'):
+            return False
+
     terms = expr.as_ordered_terms()
     for term in terms:
         n, d = term.as_numer_denom()
