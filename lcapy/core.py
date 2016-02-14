@@ -27,7 +27,8 @@ import sys
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'symbol', 'sympify',
            'zp2tf', 'Expr', 's', 'sExpr', 't', 'tExpr', 'f', 'fExpr', 'cExpr',
-           'omega', 'omegaExpr', 'pi', 'cos', 'sin', 'tan', 'atan', 'atan2',
+           'omega', 'omega1', 'omegaExpr', 'Phasor',
+           'pi', 'cos', 'sin', 'tan', 'atan', 'atan2',
            'exp', 'sqrt', 'log', 'log10', 'gcd', 'oo', 'inf',
            'H', 'Heaviside', 'DiracDelta', 'j', 'u', 'delta',
            'Vector', 'Matrix', 'VsVector', 'IsVector', 'YsVector', 'ZsVector',
@@ -134,6 +135,7 @@ ssym = symbol('s')
 tsym = symbol('t', real=True)
 fsym = symbol('f', real=True)
 omegasym = symbol('omega', real=True)
+omega1sym = symbol('omega_1', real=True)
 
 class Exprdict(dict):
 
@@ -1062,10 +1064,13 @@ class sExpr(sfwExpr):
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
 
-    def _inverse_laplace(self, causal=None, ac=False):
+    def _inverse_laplace(self, causal=None, ac=None):
 
         if causal is None:
             causal = getattr(self, 'causal', False)
+
+        if ac is None:
+            ac = getattr(self, 'ac', False)
 
         var = self.var
 
@@ -1141,7 +1146,7 @@ class sExpr(sfwExpr):
         return sym.Piecewise((result1 + result2, 't>=0'))
 
 
-    def inverse_laplace(self, causal=None, dc=False, ac=False):
+    def inverse_laplace(self, causal=None, dc=None, ac=None):
         """Attempt inverse Laplace transform.
 
         Set causal to True if the response is zero for t < 0.
@@ -1153,6 +1158,12 @@ class sExpr(sfwExpr):
 
         if causal is None:
             causal = getattr(self, 'causal', False)
+
+        if dc is None:
+            causal = getattr(self, 'dc', False)
+
+        if ac is None:
+            causal = getattr(self, 'ac', False)
 
         if causal and dc:
             raise ValueError('Cannot be causal for dc')
@@ -1340,7 +1351,9 @@ class fExpr(sfwExpr):
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
 
-        result = sym.inverse_fourier_transform(self.expr, tsym, self.var.expr)
+        from sympy.integrals.transforms import inverse_fourier_transform
+
+        result = inverse_fourier_transform(self.expr, tsym, self.var.expr)
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         return result
@@ -1386,7 +1399,9 @@ class omegaExpr(sfwExpr):
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
 
-        result = sym.inverse_fourier_transform(self.expr, tsym, self.var.expr)
+        from sympy.integrals.transforms import inverse_fourier_transform
+
+        result = inverse_fourier_transform(self.expr, tsym, self.var.expr)
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         return result
@@ -1407,6 +1422,21 @@ class omegaExpr(sfwExpr):
 
         from lcapy.plot import plot_angular_frequency
         plot_angular_frequency(self, wvector, **kwargs)
+
+
+class Phasor(Expr):
+
+    var = omega1sym
+
+    def time(self):
+        """Convert to time domain representation"""
+
+        return self.real.expr * cos(self.var * t) + self.imag.expr * sin(self.var * t)
+
+    def laplace(self):
+        """Convert to Laplace domain representation"""
+
+        return self.time().laplace()
 
 
 class tExpr(Expr):
@@ -1496,6 +1526,7 @@ s = sExpr('s')
 t = tExpr('t')
 f = fExpr('f')
 omega = omegaExpr('omega')
+omega1 = omegaExpr('omega_1')
 pi = sym.pi
 j = sym.I
 oo = sym.oo
@@ -2113,6 +2144,18 @@ class NetObject(object):
     def simplify(self):
 
         return self
+
+    @property
+    def Vphasor(self):
+        raise ValueError('No voltage phasor representation for %s' % self)
+
+    @property
+    def Iphasor(self):
+        raise ValueError('No current phasor representation for %s' % self)
+
+    @property
+    def Zphasor(self):
+        raise self.Z.jomega
 
 
 def _funcwrap(func, *args):

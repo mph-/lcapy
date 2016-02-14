@@ -28,7 +28,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos, is_causal, sympify
+from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos, exp, is_causal, symbol, j, Phasor
 from lcapy.schematic import Schematic
 from lcapy.sympify import symbols_find
 
@@ -150,19 +150,19 @@ class OnePort(NetObject):
 
     @property
     def v(self):
-        return self.V.inverse_laplace(self.causal)
+        return self.V.inverse_laplace(self.causal, self.dc, self.ac)
 
     @property
     def i(self):
-        return self.I.inverse_laplace(self.causal)
+        return self.I.inverse_laplace(self.causal, self.dc, self.ac)
 
     @property
     def y(self):
-        return self.Y.inverse_laplace(self.causal)
+        return self.Y.inverse_laplace(self.causal, self.dc, self.ac)
 
     @property
     def z(self):
-        return self.Z.inverse_laplace(self.causal)
+        return self.Z.inverse_laplace(self.causal, self.dc, self.ac)
 
     def netargs(self):
 
@@ -1093,6 +1093,10 @@ class Vdc(Vstep):
     def v(self):
         return self.v0
 
+    @property
+    def Vphasor(self):
+        return omegaExpr(self.v0)
+
 
 class Vacstep(sV):
     """AC voltage source multiplied by unit step."""
@@ -1105,7 +1109,7 @@ class Vacstep(sV):
 
         # Note, cos(-pi / 2) is not quite zero.
 
-        self.omega = sympify('omega')
+        self.omega = symbol('omega_1', real=True)
         foo = (s * sym.cos(phi) + self.omega * sym.sin(phi)) / (s**2 + self.omega**2)
         super(Vacstep, self).__init__(Vs(foo * V))
         self.v0 = V
@@ -1123,6 +1127,10 @@ class Vac(Vacstep):
     @property
     def v(self):
         return self.v0 * cos(self.omega * t + self.phi)
+
+    @property
+    def Vphasor(self):
+        return Phasor(self.v0 * exp(j * self.phi))
 
 
 class v(sV):
@@ -1193,6 +1201,10 @@ class Idc(Istep):
     def i(self):
         return self.i0
 
+    @property
+    def Iphasor(self):
+        return Phasor(self.i0)
+
 
 class Iacstep(sI):
     """AC current source multiplied by unit step."""
@@ -1203,7 +1215,7 @@ class Iacstep(sI):
         I = cExpr(I)
         phi = cExpr(phi)
 
-        self.omega = sympify('omega')
+        self.omega = symbol('omega_1', real=True)
         foo = (s * sym.cos(phi) + self.omega * sym.sin(phi)) / (s**2 + self.omega**2)
         super(Iacstep, self).__init__(Is(foo * I))
         self.i0 = I
@@ -1221,6 +1233,10 @@ class Iac(Iacstep):
     @property
     def i(self):
         return self.i0 * cos(self.omega * t + self.phi)
+
+    @property
+    def Iphasor(self):
+        return Phasor(self.i0 * exp(j * self.phi))
 
 
 class i(sI):
