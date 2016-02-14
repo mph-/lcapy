@@ -156,6 +156,8 @@ class Expr(object):
 
     """Decorator class for sympy classes derived from sympy.Expr"""
 
+    assumption = 'noncausal'
+
     # Perhaps have lookup table for operands to determine
     # the resultant type?  For example, Vs / Vs -> Hs
     # Vs / Is -> Zs,  Is * Zs -> Vs
@@ -1022,11 +1024,14 @@ class sExpr(sfwExpr):
     """s-domain expression or symbol"""
 
     var = ssym
+    assumption = 'causal'
 
-    def __init__(self, val, **assumptions):
+    def __init__(self, val, assumption=None, **assumptions):
 
         super(sExpr, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = tExpr
+        if assumption is not None:
+            self.assumption = assumption
 
         if self.expr.find(tsym) != set():
             raise ValueError(
@@ -1673,9 +1678,9 @@ class Zs(sExpr):
     quantity = 'Impedance'
     units = 'ohms'
 
-    def __init__(self, val):
+    def __init__(self, val, assumption=None):
 
-        super(Zs, self).__init__(val)
+        super(Zs, self).__init__(val, assumption)
         self._laplace_conjugate_class = Zt
 
     @classmethod
@@ -1724,9 +1729,9 @@ class Ys(sExpr):
     quantity = 'Admittance'
     units = 'siemens'
 
-    def __init__(self, val):
+    def __init__(self, val, assumption=None):
 
-        super(Ys, self).__init__(val)
+        super(Ys, self).__init__(val, assumption)
         self._laplace_conjugate_class = Yt
 
     @classmethod
@@ -1777,8 +1782,7 @@ class Vs(sExpr):
 
     def __init__(self, val, assumption=None):
 
-        super(Vs, self).__init__(val)
-        self.assumption = assumption
+        super(Vs, self).__init__(val, assumption)
         self._laplace_conjugate_class = Vt
 
     def cpt(self):
@@ -1801,8 +1805,7 @@ class Is(sExpr):
 
     def __init__(self, val, assumption=None):
 
-        super(Is, self).__init__(val)
-        self.assumption = assumption
+        super(Is, self).__init__(val, assumption)
         self._laplace_conjugate_class = It
 
     def cpt(self):
@@ -1823,9 +1826,9 @@ class Hs(sExpr):
     quantity = 's-ratio'
     units = ''
 
-    def __init__(self, val):
+    def __init__(self, val, assumption=None):
 
-        super(Hs, self).__init__(val)
+        super(Hs, self).__init__(val, assumption)
         self._laplace_conjugate_class = Ht
 
 

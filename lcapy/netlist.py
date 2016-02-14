@@ -360,7 +360,6 @@ class Netlist(MNA):
         new.remove('Vin_')
 
         Y = Ys(If)
-        Y.assumption = 'causal'
         return Y
 
     def impedance(self, Np, Nm):
@@ -378,7 +377,6 @@ class Netlist(MNA):
         new.remove('Iin_')
 
         Z = Zs(Vf)
-        Z.assumption = 'causal'
         return Z
 
     def Y(self, Np, Nm):
@@ -408,7 +406,6 @@ class Netlist(MNA):
         new.add('V1_ %d %d s 1' % (N1p, N1m))
 
         H = Hs(new.Voc(N2p, N2m) / new.V1_.V)
-        H.assumption = 'causal'
 
         return H
 
