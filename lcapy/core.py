@@ -1516,7 +1516,7 @@ class cExpr(Expr):
         super(cExpr, self).__init__(val, **assumptions)
 
 
-class Phasor(Expr):
+class Phasor(sfwExpr):
 
     var = omega1sym
 
@@ -1539,12 +1539,12 @@ class Iphasor(Phasor):
     pass
 
 
-class Zphasor(Expr):
+class Zphasor(sfwExpr):
     """Phase impedance aka complex impedance"""
     pass
 
 
-class Yphasor(Expr):
+class Yphasor(sfwExpr):
     """Phase admittance aka complex admittance"""
     pass
 
