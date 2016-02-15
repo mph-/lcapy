@@ -70,7 +70,7 @@ class Ldict(dict):
         
         # Note, need to use keys method to catch branch names.
         if (key not in self) and (key in self.Vdict.keys()):
-            v = self.Vdict[key].inverse_laplace(self.assumption)
+            v = self.Vdict[key].time(self.assumption)
             self[key] = v
             return v
 
@@ -314,7 +314,7 @@ class Netlist(MNA):
     def voc(self, Np, Nm):
         """Return open-circuit t-domain voltage between nodes Np and Nm."""
 
-        return self.Voc(Np, Nm).inverse_laplace()
+        return self.Voc(Np, Nm).time()
 
     def Isc(self, Np, Nm):
         """Return short-circuit s-domain current between nodes Np and Nm."""
@@ -329,7 +329,7 @@ class Netlist(MNA):
     def isc(self, Np, Nm):
         """Return short-circuit t-domain current between nodes Np and Nm."""
 
-        return self.Isc(Np, Nm).inverse_laplace()
+        return self.Isc(Np, Nm).time()
 
     def thevenin(self, Np, Nm):
         """Return Thevenin model between nodes Np and Nm"""

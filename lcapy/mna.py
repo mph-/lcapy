@@ -5,7 +5,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from lcapy.core import cExpr, Vs, Is, s, sqrt
+from lcapy.core import cExpr, VV, II, s, sqrt
 from lcapy.twoport import Matrix, Vector
 import sympy as sym
 
@@ -35,7 +35,7 @@ class Mdict(dict):
 
         if key in self.branchdict:
             n1, n2 = self.branchdict[key]
-            return Vs((self[n1] - self[n2]).simplify(), self.assumption)
+            return VV((self[n1] - self[n2]).simplify(), self.assumption)
 
         return super(Mdict, self).__getitem__(key)
 
@@ -267,8 +267,8 @@ class MNA(object):
         if self.causal and self.initial_value_problem and not self.zeroic:
             raise RuntimeError('Detected initial value problem that has causal sources!')
 
-        if (not self.initial_value_problem and not self.causal and
-            self.missing_ic != {}):
+        if (not self.ac and not self.initial_value_problem
+            and not self.causal and self.missing_ic != {}):
             print('Warning non-causal sources detected (%s)'
                   ' and initial conditions missing for %s;'
                   ' expect unexpected transient!' % (
@@ -339,20 +339,20 @@ class MNA(object):
 
         # Create dictionary of node voltages
         self._V = Mdict(branchdict, assumption)
-        self._V['0'] = Vs(0, assumption)
+        self._V['0'] = VV(0, assumption)
         for n in self.nodes:
             index = self._node_index(n)
             if index >= 0:
-                self._V[n] = Vs(results[index], assumption)
+                self._V[n] = VV(results[index], assumption)
             else:
-                self._V[n] = Vs(0, assumption)
+                self._V[n] = VV(0, assumption)
 
         num_nodes = len(self.node_list) - 1
 
         # Create dictionary of branch currents through elements
         self._I = {}
         for m, key in enumerate(self.unknown_branch_currents):
-            self._I[key] = Is(results[m + num_nodes], assumption)
+            self._I[key] = II(results[m + num_nodes], assumption)
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
@@ -361,8 +361,8 @@ class MNA(object):
                 n1, n2 = self.node_map[
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
                 V1, V2 = self._V[n1], self._V[n2]
-                I = ((V1 - V2 - elt.cpt.V) / elt.cpt.Z).simplify()
-                self._I[elt.name] = Is(I, assumption)
+                I = ((V1 - V2 - elt.V) / elt.Z).simplify()
+                self._I[elt.name] = II(I, assumption)
 
         self.context.restore()
 
@@ -420,7 +420,7 @@ class MNA(object):
             if elt.type == 'K':
                 continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
-            self._Vd[elt.name] = Vs((self.V[n1] - self.V[n2]).simplify(),
+            self._Vd[elt.name] = VV((self.V[n1] - self.V[n2]).simplify(),
                                     assumption)
 
         return self._Vd

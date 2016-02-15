@@ -168,12 +168,16 @@ class Cpt(object):
     def Y(self):
         """Admittance"""
         
+        if self.cct.ac:
+            return self.cpt.Yphasor
         return self.cpt.Y
 
     @property
     def Z(self):
         """Impedance"""
         
+        if self.cct.ac:
+            return self.cpt.Zphasor
         return self.cpt.Z
 
     @property

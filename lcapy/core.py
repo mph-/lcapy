@@ -291,6 +291,12 @@ class Expr(object):
 
         if isinstance(self, sExpr) and isinstance(x, sExpr):
             return cls
+
+        if isinstance(self, Phasor) and isinstance(x, Phasor):
+            return cls
+
+        if isinstance(self, Phasor) and isinstance(x, Expr):
+            return cls
         
         raise ValueError('Cannot combine %s(%s) with %s(%s)' % 
                          (cls.__name__, self, xcls.__name__, x))
@@ -1190,6 +1196,9 @@ class sExpr(sfwExpr):
             result = self._laplace_conjugate_class(result)
         return result
 
+    def time(self, assumption=None):
+        return self.inverse_laplace(assumption)
+
     def transient_response(self, tvector=None):
         """Evaluate transient (impulse) response"""
 
@@ -1499,7 +1508,7 @@ class Phasor(Expr):
 
     var = omega1sym
 
-    def time(self):
+    def time(self, assumption=None):
         """Convert to time domain representation"""
 
         return self.real.expr * cos(self.var * t) + self.imag.expr * sin(self.var * t)
@@ -2309,6 +2318,22 @@ def is_dc(val):
         if not ((n.is_Symbol or n.is_Number) and (d.is_Symbol or d.is_Number)):
             return False
     return True
+
+
+def VV(val, assumption=None):
+
+    if assumption == 'ac':
+        return Vphasor(val)
+    else:
+        return Vs(val, assumption)
+
+
+def II(val, assumption=None):
+
+    if assumption == 'ac':
+        return Iphasor(val)
+    else:
+        return Is(val, assumption)
 
 
 from lcapy.oneport import L, C, R, G, Idc, Vdc
