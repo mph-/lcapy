@@ -1199,6 +1199,10 @@ class sExpr(sfwExpr):
     def time(self, assumption=None):
         return self.inverse_laplace(assumption)
 
+    def phasor(self, assumption=None):
+
+        return self.time(assumption).phasor(assumption)
+
     def transient_response(self, tvector=None):
         """Evaluate transient (impulse) response"""
 
@@ -1471,6 +1475,14 @@ class tExpr(Expr):
         if hasattr(self, '_fourier_conjugate_class'):
             F = self._fourier_conjugate_class(F)
         return F
+
+    def phasor(self, assumption):
+
+        if assumption is None:
+            assumption = getattr(self, 'assumption', None)
+        if assumption != 'ac':
+            raise ValueError('Do not know how to convert %s to phasor' % self)
+        raise RuntimeError('TODO!')
 
     def plot(self, t=None, **kwargs):
 
