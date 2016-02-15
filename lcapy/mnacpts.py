@@ -313,10 +313,15 @@ class RC(RLC):
         # through the L.
         n1, n2 = self.node_indexes
 
-        Y = self.cpt.Y.expr
-
-        if self.type == 'C' and kwargs.get('dc', False):
+        if kwargs.get('ac', False):
+            Y = self.cpt.Yphasor.expr
+            I = 0
+        elif self.type == 'C' and kwargs.get('dc', False):
             Y = 0
+            I = 0
+        else:
+            Y = self.cpt.Y.expr
+            I = self.cpt.I.expr
 
         if n1 >= 0 and n2 >= 0:
             cct._G[n1, n2] -= Y
@@ -327,7 +332,7 @@ class RC(RLC):
             cct._G[n2, n2] += Y
 
         if n1 >= 0:
-            cct._Is[n1] += self.cpt.I.expr
+            cct._Is[n1] += I
 
 
 class R(RC):
@@ -371,11 +376,16 @@ class L(RLC):
             cct._B[n2, m] = -1
             cct._C[m, n2] = -1
 
-        Z = self.cpt.Z.expr
-        V = self.cpt.V.expr
-        if self.type == 'L' and kwargs.get('dc', False):
+        if kwargs.get('ac', False):
+            Z = self.cpt.Zphasor.expr
+            V = 0
+        elif kwargs.get('dc', False):
             Z = 0
             V = 0
+        else:
+            Z = self.cpt.Z.expr
+            V = self.cpt.V.expr
+
 
         cct._D[m, m] += -Z
         cct._Es[m] += V
@@ -474,7 +484,11 @@ class I(Cpt):
 
         n1, n2 = self.node_indexes
 
-        I = self.cpt.I.expr
+        if kwargs.get('ac', False):
+            I = self.cpt.Iphasor.expr
+        else:
+            I = self.cpt.I.expr
+
         if n1 >= 0:
             cct._Is[n1] += I
         if n2 >= 0:
@@ -519,8 +533,13 @@ class V(Cpt):
         if n2 >= 0:
             cct._B[n2, m] -= 1
             cct._C[m, n2] -= 1
+
+        if kwargs.get('ac', False):
+            V = self.cpt.Vphasor.expr
+        else:
+            V = self.cpt.V.expr
         
-        cct._Es[m] += self.cpt.V.expr
+        cct._Es[m] += V
 
 
     def s_model(self, var):
@@ -545,6 +564,9 @@ class K(Cpt):
 
 
     def stamp(self, cct, **kwargs):
+
+        if kwargs.get('ac', False):
+            raise ValueError('TODO')
 
         L1 = self.nodes[0]
         L2 = self.nodes[1]

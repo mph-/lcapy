@@ -295,9 +295,10 @@ class MNA(object):
         self._Es = sym.zeros(num_branches, 1)
 
         dc = self.dc
+        ac = self.ac
 
         for elt in self.elements.values():
-            elt.stamp(self, dc=dc)
+            elt.stamp(self, dc=dc, ac=ac)
 
         # Augment the admittance matrix to form A matrix.
         self._A = self._G.row_join(self._B).col_join(self._C.row_join(self._D))

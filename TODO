@@ -131,9 +131,19 @@ the length of the leads
 scale controls component size, it does not change node spacing
 (perhaps it should)
 
-Add node object, say for adding labels?  
-
 Add crystal and ferrite bead components to Circuitikz.
 
 Add generic amplifier to Circuitikz or add up and down anchors to
 buffer and inverter.
+
+Detect ac.  Add is_ac.
+
+Make Vphasor, Iphasor methods work for general ac or dc signals.
+
+Add arithmetic so phasor + s-expr -> phasor.laplace() + s-expr
+
+Add ac analysis
+
+Perhaps prune transients when know have ac result?
+
+
