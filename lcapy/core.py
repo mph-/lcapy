@@ -354,6 +354,30 @@ class Expr(object):
         raise ValueError('Cannot combine %s(%s) with %s(%s)' % 
                          (cls.__name__, self, xcls.__name__, x))
 
+
+    def __compat_add__(self, x):
+
+        cls = self.__class__
+        if not isinstance(x, Expr):
+            return cls, self, cls(x)
+
+        xcls = x.__class__
+        if cls == xcls:
+            return cls, self, x
+
+        if isinstance(self, Phasor) and isinstance(x, Expr):
+            self = self.laplace()
+            cls = self.__class__
+            return cls, self, cls(x)
+
+        if isinstance(self, Expr) and isinstance(x, Phasor):
+            x = x.laplace()
+            cls = self.__class__
+            return cls, self, x
+
+        cls = self.__compat__(x)
+        return cls, self, cls(x)
+
     def __rdiv__(self, x):
         """Reverse divide"""
 
@@ -399,29 +423,25 @@ class Expr(object):
     def __add__(self, x):
         """Add"""
 
-        cls = self.__compat__(x)
-        x = cls(x)
+        cls, self, x = self.__compat_add__(x)
         return cls(self.expr + x.expr)
 
     def __radd__(self, x):
         """Reverse add"""
 
-        cls = self.__compat__(x)
-        x = cls(x)
+        cls, self, x = self.__compat_add__(x)
         return cls(self.expr + x.expr)
 
     def __rsub__(self, x):
         """Reverse subtract"""
 
-        cls = self.__compat__(x)
-        x = cls(x)
+        cls, self, x = self.__compat_add__(x)
         return cls(x.expr - self.expr)
 
     def __sub__(self, x):
         """Subtract"""
 
-        cls = self.__compat__(x)
-        x = cls(x)
+        cls, self, x = self.__compat_add__(x)
         return cls(self.expr - x.expr)
 
     def __pow__(self, x):

@@ -71,8 +71,7 @@ class MNA(object):
 
     @property
     def causal(self):
-
-    """Return True if all independent sources are causal"""
+        """Return True if all independent sources are causal"""
 
         for elt in self.independent_sources.values():
             if not elt.causal:

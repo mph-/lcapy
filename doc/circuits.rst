@@ -125,15 +125,9 @@ sources are ignored for :math:`t < 0` and the result is only known for
 Superposition
 -------------
 
-In principle, Lcapy could perform a combination of DC, AC, and Laplace
-analysis to determine the overall result using superposition.
-However, since the superposition needs to be performed in the time
-domain, this requires a rethink of the s-domain attributes `V`, `I`,
-`Y`, and `Z`.
+In principle, Lcapy could perform a combination of DC, AC, and Laplace analysis to determine the overall result using superposition.
 
-Lcapy will happily kill of a specified independent source using the
-`kill_except` method and thus s-domain superposition can be manually
-performed.
+Lcapy will happily kill of a specified independent source using the `kill_except` method and thus s-domain superposition can be manually performed.
 
 
 .. _netlists:
