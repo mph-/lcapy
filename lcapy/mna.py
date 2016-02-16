@@ -45,10 +45,34 @@ class Mdict(dict):
 
 
 class MNA(object):
+    """This class performs modified nodal analysis (MNA) on a netlist of
+    components.  There are several variants:
+    
+    1. DC analysis if all the independent sources are DC.  The .V and .I
+    methods return s-domain expressions with the dc assumption set.
+
+    2. AC analysis if all the independent sources are AC.  The .V and .I
+    methods return phasors.
+
+    3. Initial value Laplace analysis if an L or C has an explicit
+    initial value.  The .V and .I methods return s-domain expressions
+    with no assumption sets; thus the time-domain results are only
+    valid for t >= 0.
+
+    4. General Laplace analysis.  If all the sources are causal and
+    all the initial conditions are zero (explicitly or implicitly)
+    then the time-domain results are causal.
+
+    5. Mixed analysis.  This is not yet supported.  When the
+    independent sources are mixed (say AC and DC), superpostion can be
+    employed.
+
+    """
 
     @property
     def causal(self):
-        """Return True if all independent sources are causal"""
+
+    """Return True if all independent sources are causal"""
 
         for elt in self.independent_sources.values():
             if not elt.causal:
@@ -294,11 +318,10 @@ class MNA(object):
         self._Is = sym.zeros(num_nodes, 1)
         self._Es = sym.zeros(num_branches, 1)
 
-        dc = self.dc
-        ac = self.ac
+        assumptions = self.assumptions
 
         for elt in self.elements.values():
-            elt.stamp(self, dc=dc, ac=ac)
+            elt.stamp(self, **assumptions)
 
         # Augment the admittance matrix to form A matrix.
         self._A = self._G.row_join(self._B).col_join(self._C.row_join(self._D))
