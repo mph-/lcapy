@@ -35,7 +35,7 @@ from lcapy.sympify import symbols_find
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
            'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac', 'sV', 'sI',
-           'Vacstep', 'Iac', 'Iacstep', 'Norton', 'Thevenin',
+           'Iac', 'Norton', 'Thevenin',
            'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
 
 class Drawing(object):
@@ -158,19 +158,19 @@ class OnePort(NetObject):
 
     @property
     def v(self):
-        return self.V.inverse_laplace(self.assumption)
+        return self.V.inverse_laplace()
 
     @property
     def i(self):
-        return self.I.inverse_laplace(self.assumption)
+        return self.I.inverse_laplace()
 
     @property
     def y(self):
-        return self.Y.inverse_laplace(self.assumption)
+        return self.Y.inverse_laplace()
 
     @property
     def z(self):
-        return self.Z.inverse_laplace(self.assumption)
+        return self.Z.inverse_laplace()
 
     def netargs(self):
 
@@ -1000,8 +1000,6 @@ class L(Thevenin):
         self.L = Lval
         self.i0 = i0
        
-        if self.assumption is None and self.i0 == 0:
-            self.assumption = 'causal'
         self.zeroic = self.i0 == 0 
 
 
@@ -1023,8 +1021,6 @@ class C(Thevenin):
         self.C = Cval
         self.v0 = v0
 
-        if self.assumption is None and self.v0 == 0:
-            self.assumption = 'causal'
         self.zeroic = self.v0 == 0
 
 
@@ -1051,6 +1047,7 @@ class Z(Thevenin):
 class sV(Thevenin):
     """Arbitrary s-domain voltage source"""
 
+    voltage_source = True
     netname = 'V'
     netkeyword = 's'
 
@@ -1069,12 +1066,8 @@ class V(sV):
     def __init__(self, Vval):
 
         self.args = (Vval, )
-        time_domain = 's' not in symbols_find(Vval)
-
         Vsym = tsExpr(Vval)
         super(V, self).__init__(Vsym)
-        if time_domain:
-            self.assumption_set(Vs(Vval))
 
 
 class Vstep(sV):
@@ -1087,18 +1080,28 @@ class Vstep(sV):
 
         self.args = (v, )
         v = cExpr(v)
-        super(Vstep, self).__init__(Vs(v).integrate())
+        super(Vstep, self).__init__(Vs(v, causal=True) / s)
+        # This is not needed when assumptions propagated.
+        self.V.causal = True
         self.v0 = v
 
 
-class Vdc(Vstep):
+class Vdc(sV):
     """DC voltage source (note a DC voltage source of voltage V has
     an s domain voltage of V / s)."""
 
-    assumption = 'dc'
     netname = 'V'
     netkeyword = 'dc'
     
+    def __init__(self, v):
+
+        self.args = (v, )
+        v = cExpr(v)
+        super(Vdc, self).__init__(Vs(v, dc=True) / s)
+        # This is not needed when assumptions propagated.
+        self.V.dc = True
+        self.v0 = v
+
     @property
     def v(self):
         return self.v0
@@ -1108,8 +1111,11 @@ class Vdc(Vstep):
         return Vphasor(self.v0)
 
 
-class Vacstep(sV):
-    """AC voltage source multiplied by unit step."""
+class Vac(sV):
+    """AC voltage source."""
+
+    netname = 'V'
+    netkeyword = 'ac'
 
     def __init__(self, V, phi=0):
 
@@ -1121,17 +1127,11 @@ class Vacstep(sV):
 
         self.omega = symbol('omega_1', real=True)
         foo = (s * sym.cos(phi) + self.omega * sym.sin(phi)) / (s**2 + self.omega**2)
-        super(Vacstep, self).__init__(Vs(foo * V))
+        super(Vac, self).__init__(Vs(foo * V, ac=True))
+        # This is not needed when assumptions propagated.
+        self.V.ac = True
         self.v0 = V
         self.phi = phi
-
-
-class Vac(Vacstep):
-    """AC voltage source."""
-
-    assumption = 'ac'
-    netname = 'V'
-    netkeyword = 'ac'
 
     @property
     def v(self):
@@ -1150,12 +1150,13 @@ class v(sV):
         self.args = (vval, )
         Vval = tExpr(vval)
         super(V, self).__init__(Zs(0), Vs(Vval).laplace())
-        self.assumption_set(Vval)
+        self.assumptions_infer(Vval)
 
 
 class sI(Norton):
     """Arbitrary s-domain current source"""
 
+    current_source = True
     netname = 'I'
     netkeyword = 's'
 
@@ -1176,13 +1177,8 @@ class I(sI):
     def __init__(self, Ival):
 
         self.args = (Ival, )
-
-        time_domain = 's' not in symbols_find(Ival)
-
         Isym = tsExpr(Ival)
         super(I, self).__init__(Isym)
-        if time_domain:
-            self.assumption_set(Is(Ival))
 
 
 class Istep(sI):
@@ -1195,18 +1191,28 @@ class Istep(sI):
 
         self.args = (i, )
         i = cExpr(i)
-        super(Istep, self).__init__(Is(i).integrate())
+        super(Istep, self).__init__(Is(i, causal=True) / s)
+        # This is not needed when assumptions propagated.
+        self.I.causal = True
         self.i0 = i
 
 
-class Idc(Istep):
+class Idc(sI):
     """DC current source (note a DC current source of current i has
     an s domain current of i / s)."""
 
-    assumption = 'dc'
     netname = 'I'
     netkeyword = 'dc'
     
+    def __init__(self, i):
+
+        self.args = (i, )
+        i = cExpr(i)
+        super(Idc, self).__init__(Is(i, dc=True) / s)
+        # This is not needed when assumptions propagated.
+        self.I.dc = True
+        self.i0 = i
+
     @property
     def i(self):
         return self.i0
@@ -1216,8 +1222,11 @@ class Idc(Istep):
         return Iphasor(self.i0)
 
 
-class Iacstep(sI):
-    """AC current source multiplied by unit step."""
+class Iac(sI):
+    """AC current source."""
+
+    netname = 'V'
+    netkeyword = 'ac'
 
     def __init__(self, I, phi=0):
 
@@ -1227,17 +1236,11 @@ class Iacstep(sI):
 
         self.omega = symbol('omega_1', real=True)
         foo = (s * sym.cos(phi) + self.omega * sym.sin(phi)) / (s**2 + self.omega**2)
-        super(Iacstep, self).__init__(Is(foo * I))
+        super(Iac, self).__init__(Is(foo * I, ac=True))
+        # This is not needed when assumptions propagated.
+        self.I.ac = True
         self.i0 = I
         self.phi = phi
-
-
-class Iac(Iacstep):
-    """AC current source."""
-
-    assumption = 'ac'
-    netname = 'V'
-    netkeyword = 'ac'
 
     @property
     def i(self):
@@ -1256,7 +1259,7 @@ class i(sI):
         self.args = (ival, )
         Ival = tExpr(ival)
         super(I, self).__init__(Ys(0), Is(Ival.laplace()))
-        self.assumption_set(Ival)
+        self.assumptions_infer(Ival)
 
 
 class Xtal(Thevenin):

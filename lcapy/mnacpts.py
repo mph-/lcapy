@@ -108,19 +108,34 @@ class Cpt(object):
         """Return True if causal component or if source produces
         a causal signal"""
 
-        return self.cpt.causal
+        if self.cpt.voltage_source:
+            return self.cpt.V.causal
+        elif self.cpt.current_source:
+            return self.cpt.I.causal
+        else:
+            raise ValueError('%s is not a source' % self)
 
     @property
     def dc(self):
         """Return True if source is dc"""
-
-        return self.cpt.dc
+        
+        if self.cpt.voltage_source:
+            return self.cpt.V.dc
+        elif self.cpt.current_source:
+            return self.cpt.I.dc
+        else:
+            raise ValueError('%s is not a source' % self)
 
     @property
     def ac(self):
         """Return True if source is ac"""
 
-        return self.cpt.ac
+        if self.cpt.voltage_source:
+            return self.cpt.V.ac
+        elif self.cpt.current_source:
+            return self.cpt.I.ac
+        else:
+            raise ValueError('%s is not a source' % self)
 
     @property
     def assumption(self):

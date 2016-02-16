@@ -48,6 +48,8 @@ cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
 from sympy.printing.latex import LatexPrinter 
 from sympy.printing.pretty.pretty import PrettyPrinter 
 
+init = False
+
 class LcapyLatexPrinter(LatexPrinter):
 
     def _print(self, expr):
@@ -138,6 +140,7 @@ fsym = symbol('f', real=True)
 omegasym = symbol('omega', real=True)
 omega1sym = symbol('omega_1', real=True)
 
+
 class Exprdict(dict):
 
     """Decorator class for dictionary created by sympy"""
@@ -157,8 +160,6 @@ class Expr(object):
 
     """Decorator class for sympy classes derived from sympy.Expr"""
 
-    assumption = 'noncausal'
-
     # Perhaps have lookup table for operands to determine
     # the resultant type?  For example, Vs / Vs -> Hs
     # Vs / Is -> Zs,  Is * Zs -> Vs
@@ -166,8 +167,18 @@ class Expr(object):
     def __init__(self, arg, **assumptions):
 
         if isinstance(arg, Expr):
+            if assumptions == {}:
+                assumptions = arg.assumptions
             arg = arg.expr
 
+        # There are two types of assumptions.
+        #   1. There are the sympy assumptions that are only associated
+        #      with symbols, for example, real=True.
+        #   2. The expr assumptions such as dc, ac, causal.
+
+        for attr in 'ac', 'dc', 'causal':
+            if attr in assumptions:
+                setattr(self, attr, assumptions.pop(attr))
         self.expr = sympify(arg, **assumptions)
 
     @property
@@ -247,6 +258,48 @@ class Expr(object):
     def _repr_latex_(self):
 
         return '$%s$' % latex_str(self.latex())
+
+    @property
+    def assumptions(self):
+        
+        assumptions = {}
+        for attr in 'ac', 'dc', 'causal':
+            if hasattr(self, '_' + attr):
+                assumptions[attr] = getattr(self, '_' + attr)
+        return assumptions
+
+    @assumptions.setter
+    def assumptions(self, **assumptions):
+
+        for attr in 'ac', 'dc', 'causal':
+            if attr in assumptions:
+                setattr(self, attr, assumptions.pop(attr))
+        if assumptions != {}:
+            raise ValueError('Unknown assumption %s' % assumptions)
+
+    @property
+    def ac(self):
+        return getattr(self, '_ac', False)
+
+    @property
+    def dc(self):
+        return getattr(self, '_dc', False)
+
+    @property
+    def causal(self):
+        return getattr(self, '_causal', False)
+
+    @ac.setter
+    def ac(self, val):
+        self._ac = val
+
+    @dc.setter
+    def dc(self, val):
+        self._dc = val
+
+    @causal.setter
+    def causal(self, val):
+        self._causal = val
 
 
     def __abs__(self):
@@ -1031,14 +1084,11 @@ class sExpr(sfwExpr):
     """s-domain expression or symbol"""
 
     var = ssym
-    assumption = 'causal'
 
-    def __init__(self, val, assumption=None, **assumptions):
+    def __init__(self, val, **assumptions):
 
         super(sExpr, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = tExpr
-        if assumption is not None:
-            self.assumption = assumption
 
         if self.expr.find(tsym) != set():
             raise ValueError(
@@ -1076,10 +1126,7 @@ class sExpr(sfwExpr):
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
 
-    def _inverse_laplace(self, assumption=None):
-
-        if assumption is None:
-            assumption = getattr(self, 'assumption', None)
+    def _inverse_laplace(self, **assumptions):
 
         var = self.var
 
@@ -1143,10 +1190,10 @@ class sExpr(sfwExpr):
                     sym.diff(expr2, var, m), var, p) / sym.factorial(m)
                 result2 += r * sym.exp(p * td) * td**(n - 1)
 
-        if assumption == 'ac':
+        if assumptions.get('ac', False):
             return result1 + result2
 
-        if assumption == 'causal':
+        if assumptions.get('causal', False):
             return result1 + result2 * sym.Heaviside(td)
 
         if delay != 0:
@@ -1155,20 +1202,20 @@ class sExpr(sfwExpr):
         return sym.Piecewise((result1 + result2, 't>=0'))
 
 
-    def inverse_laplace(self, assumption=None):
+    def inverse_laplace(self, **assumptions):
         """Attempt inverse Laplace transform.
 
-        If assumption is 'causal' the response is zero for t < 0 and
+        If causal=True the response is zero for t < 0 and
         the result is multiplied by Heaviside(t)
-        If assumption is 'ac' or 'dc' the result is extrapolated for t < 0.
+        If ac=True or dc=True the result is extrapolated for t < 0.
         Otherwise the result is only known for t >= 0.
 
         """
 
-        if assumption is None:
-            assumption = getattr(self, 'assumption', None)
+        if assumptions == {}:
+            assumptions = self.assumptions
 
-        if assumption == 'dc':
+        if assumptions.get('dc', False):
             result = self * s
             
             if not is_dc(result):
@@ -1176,7 +1223,7 @@ class sExpr(sfwExpr):
             return self._laplace_conjugate_class(result)
 
         try:
-            result = self._inverse_laplace(assumption)
+            result = self._inverse_laplace(**assumptions)
 
         except:
 
@@ -1189,19 +1236,19 @@ class sExpr(sfwExpr):
             from sympy.integrals.transforms import inverse_laplace_transform
             result = inverse_laplace_transform(expr, t, self.var)
 
-            if assumption != 'causal':
+            if not assumptions.causal:
                 result = sym.Piecewise((result, 't>=0'))
 
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result)
         return result
 
-    def time(self, assumption=None):
-        return self.inverse_laplace(assumption)
+    def time(self, **assumptions):
+        return self.inverse_laplace(**assumptions)
 
-    def phasor(self, assumption=None):
+    def phasor(self, **assumptions):
 
-        return self.time(assumption).phasor(assumption)
+        return self.time(**assumptions).phasor(**assumptions)
 
     def transient_response(self, tvector=None):
         """Evaluate transient (impulse) response"""
@@ -1320,12 +1367,16 @@ class tsExpr(sExpr):
 
     def __init__(self, val):
 
+        assumptions = {}
+
         # If no s in expression evaluate as tExpr and convert to s-domain.
         if 's' not in symbols_find(val):
-            val = tExpr(val).laplace().expr
+            tval = tExpr(val)
+            val = tval.laplace().expr
             val = val.subs(context.symbols)
+            assumptions = tval.assumptions
 
-        super(tsExpr, self).__init__(val, real=True)
+        super(tsExpr, self).__init__(val, real=True, **assumptions)
 
 
 class fExpr(sfwExpr):
@@ -1436,6 +1487,15 @@ class tExpr(Expr):
     def __init__(self, val):
 
         super(tExpr, self).__init__(val, real=True)
+
+        # Hack to avoid circular dep.
+        if init:
+            # TODO, infer ac
+            if is_dc(self):
+                self.dc = True
+            elif is_causal(self):
+                self.causal = True
+
         self._fourier_conjugate_class = fExpr
         self._laplace_conjugate_class = sExpr
 
@@ -1476,11 +1536,12 @@ class tExpr(Expr):
             F = self._fourier_conjugate_class(F)
         return F
 
-    def phasor(self, assumption):
+    def phasor(self, **assumptions):
 
-        if assumption is None:
-            assumption = getattr(self, 'assumption', None)
-        if assumption != 'ac':
+        if assumptions == {}:
+            assumptions = self.assumptions
+
+        if not assumptions.ac:
             raise ValueError('Do not know how to convert %s to phasor' % self)
         raise RuntimeError('TODO!')
 
@@ -1520,7 +1581,7 @@ class Phasor(sfwExpr):
 
     var = omega1sym
 
-    def time(self, assumption=None):
+    def time(self, **assumptions):
         """Convert to time domain representation"""
 
         return self.real.expr * cos(self.var * t) + self.imag.expr * sin(self.var * t)
@@ -1720,9 +1781,9 @@ class Zs(sExpr):
     quantity = 'Impedance'
     units = 'ohms'
 
-    def __init__(self, val, assumption=None):
+    def __init__(self, val, **assumptions):
 
-        super(Zs, self).__init__(val, assumption)
+        super(Zs, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Zt
 
     @classmethod
@@ -1771,9 +1832,9 @@ class Ys(sExpr):
     quantity = 'Admittance'
     units = 'siemens'
 
-    def __init__(self, val, assumption=None):
+    def __init__(self, val, **assumptions):
 
-        super(Ys, self).__init__(val, assumption)
+        super(Ys, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Yt
 
     @classmethod
@@ -1822,9 +1883,9 @@ class Vs(sExpr):
     quantity = 's-Voltage'
     units = 'V/Hz'
 
-    def __init__(self, val, assumption=None):
+    def __init__(self, val, **assumptions):
 
-        super(Vs, self).__init__(val, assumption)
+        super(Vs, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Vt
 
     def cpt(self):
@@ -1845,9 +1906,9 @@ class Is(sExpr):
     quantity = 's-Current'
     units = 'A/Hz'
 
-    def __init__(self, val, assumption=None):
+    def __init__(self, val, **assumptions):
 
-        super(Is, self).__init__(val, assumption)
+        super(Is, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = It
 
     def cpt(self):
@@ -1868,9 +1929,9 @@ class Hs(sExpr):
     quantity = 's-ratio'
     units = ''
 
-    def __init__(self, val, assumption=None):
+    def __init__(self, val, **assumptions):
 
-        super(Hs, self).__init__(val, assumption)
+        super(Hs, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Ht
 
 
@@ -2094,10 +2155,8 @@ class ZsVector(Vector):
 
 class NetObject(object):
 
-    # This can be None, 'ac', 'dc', 'causal', 'noncausal'.
-    # A causal signal is zero for t < 0 analogous with the impulse
-    # response of a causal system.
-    assumption = 'causal'
+    voltage_source = False
+    current_source = False
 
     # True if initial conditions are zero (or unspecified).
     zeroic = True
@@ -2167,18 +2226,6 @@ class NetObject(object):
         return self
 
     @property
-    def ac(self):
-        return self.assumption == 'ac'
-
-    @property
-    def dc(self):
-        return self.assumption == 'dc'
-
-    @property
-    def causal(self):
-        return self.assumption == 'causal'
-
-    @property
     def Vphasor(self):
         raise ValueError('No voltage phasor representation for %s' % self)
 
@@ -2189,15 +2236,6 @@ class NetObject(object):
     @property
     def Zphasor(self):
         raise self.Z.jomega
-
-    def assumption_set(self, val):
-
-        if is_dc(val):
-            self.assumption = 'dc'
-        elif is_causal(val):
-            self.assumption = 'causal'
-        else:
-            self.assumption = 'noncausal'
 
 
 def _funcwrap(func, *args):
@@ -2291,6 +2329,22 @@ def delta(expr, *args):
 
     return DiracDelta(expr, *args)
 
+def is_dc(val):
+    """Return True if time domain expression is dc"""
+
+    expr = val.expr
+    for symbol in expr.free_symbols:
+        if symbol.name in ('s', 't', 'f', 'omega'):
+            return False
+
+    terms = expr.as_ordered_terms()
+    for term in terms:
+        n, d = term.as_numer_denom()
+        if not ((n.is_Symbol or n.is_Number) and (d.is_Symbol or d.is_Number)):
+            return False
+    return True
+
+
 known_causal_factors = [0, DiracDelta(t).expr, Heaviside(t).expr]
 
 def has_causal_factor(expr):
@@ -2316,36 +2370,21 @@ def is_causal(val):
     return True
 
 
-def is_dc(val):
-    """Return True if time domain expression is dc"""
+def VV(val, **assumptions):
 
-    expr = val.expr
-    for symbol in expr.free_symbols:
-        if symbol.name in ('s', 't', 'f', 'omega'):
-            return False
-
-    terms = expr.as_ordered_terms()
-    for term in terms:
-        n, d = term.as_numer_denom()
-        if not ((n.is_Symbol or n.is_Number) and (d.is_Symbol or d.is_Number)):
-            return False
-    return True
-
-
-def VV(val, assumption=None):
-
-    if assumption == 'ac':
+    if assumptions.get('ac', False):
         return Vphasor(val)
     else:
-        return Vs(val, assumption)
+        return Vs(val, **assumptions)
 
 
-def II(val, assumption=None):
+def II(val, **assumptions):
 
-    if assumption == 'ac':
+    if assumptions.get('ac', False):
         return Iphasor(val)
     else:
-        return Is(val, assumption)
+        return Is(val, **assumptions)
 
 
+init = True
 from lcapy.oneport import L, C, R, G, Idc, Vdc

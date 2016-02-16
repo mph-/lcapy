@@ -20,12 +20,12 @@ def namelist(elements):
 
 class Mdict(dict):
 
-    def __init__(self, branchdict, assumption):
+    def __init__(self, branchdict, **assumptions):
 
         super(Mdict, self).__init__()
         self.branchdict = branchdict
-        # Hack, should compute assumption attribute on fly.
-        self.assumption = assumption
+        # Hack, should compute assumptions on fly.
+        self.assumptions = assumptions
 
     def __getitem__(self, key):
 
@@ -35,7 +35,7 @@ class Mdict(dict):
 
         if key in self.branchdict:
             n1, n2 = self.branchdict[key]
-            return VV((self[n1] - self[n2]).simplify(), self.assumption)
+            return VV((self[n1] - self[n2]).simplify(), **self.assumptions)
 
         return super(Mdict, self).__getitem__(key)
 
@@ -48,9 +48,9 @@ class MNA(object):
 
     @property
     def causal(self):
-        """Return True if all components causal"""
+        """Return True if all independent sources are causal"""
 
-        for elt in self.elements.values():
+        for elt in self.independent_sources.values():
             if not elt.causal:
                 return False
         return True
@@ -82,16 +82,16 @@ class MNA(object):
         return True
 
     @property
-    def assumption(self):
+    def assumptions(self):
 
+        assumptions = {}
         if self.ac:
-            return 'ac'
-        elif self.dc:
-            return 'dc'
-        elif self.causal:
-            return 'causal'
-        else:
-            return None
+            assumptions['ac'] = True
+        if self.dc:
+            assumptions['dc'] = True
+        if self.causal:
+            assumptions['causal'] = True
+        return assumptions
 
     @property
     def zeroic(self):
@@ -326,7 +326,7 @@ class MNA(object):
         results = sym.simplify(Ainv * self._Z)
 
         results = results.subs(self.context.symbols)
-        assumption = self.assumption
+        assumptions = self.assumptions
 
         branchdict = {}
         for elt in self.elements.values():
@@ -338,21 +338,21 @@ class MNA(object):
         self.context.switch()
 
         # Create dictionary of node voltages
-        self._V = Mdict(branchdict, assumption)
-        self._V['0'] = VV(0, assumption)
+        self._V = Mdict(branchdict, **assumptions)
+        self._V['0'] = VV(0, **assumptions)
         for n in self.nodes:
             index = self._node_index(n)
             if index >= 0:
-                self._V[n] = VV(results[index], assumption)
+                self._V[n] = VV(results[index], **assumptions)
             else:
-                self._V[n] = VV(0, assumption)
+                self._V[n] = VV(0, **assumptions)
 
         num_nodes = len(self.node_list) - 1
 
         # Create dictionary of branch currents through elements
         self._I = {}
         for m, key in enumerate(self.unknown_branch_currents):
-            self._I[key] = II(results[m + num_nodes], assumption)
+            self._I[key] = II(results[m + num_nodes], **assumptions)
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
@@ -362,7 +362,7 @@ class MNA(object):
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
                 V1, V2 = self._V[n1], self._V[n2]
                 I = ((V1 - V2 - elt.V) / elt.Z).simplify()
-                self._I[elt.name] = II(I, assumption)
+                self._I[elt.name] = II(I, **assumptions)
 
         self.context.restore()
 
@@ -411,9 +411,9 @@ class MNA(object):
         if hasattr(self, '_Vd'):
             return self._Vd
 
-        # This is a hack.  The assumption attribute should be recalculated
+        # This is a hack.  The assumptions should be recalculated
         # when performing operations on Expr types.
-        assumption = self.assumption
+        assumptions = self.assumptions
 
         self._Vd = {}
         for elt in self.elements.values():
@@ -421,6 +421,6 @@ class MNA(object):
                 continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
             self._Vd[elt.name] = VV((self.V[n1] - self.V[n2]).simplify(),
-                                    assumption)
+                                    **assumptions)
 
         return self._Vd
