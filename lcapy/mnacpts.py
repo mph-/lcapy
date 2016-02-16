@@ -80,7 +80,7 @@ class Cpt(object):
             return self.net
         return self.net + '; ' + str(self.opts)
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
         raise NotImplementedError('stamp method not implemented for %s' % self)
 
     def kill_initial(self):
@@ -236,19 +236,19 @@ class Cpt(object):
 
 class NonLinear(Cpt):
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
         raise NotImplementedError('Cannot analyse non-linear component %s' % self)
 
 
 class TimeVarying(Cpt):
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
         raise NotImplementedError('Cannot analyse time-varying component %s' % self)
 
 
 class Logic(Cpt):
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
         raise NotImplementedError('Cannot analyse logic component %s' % self)
 
 
@@ -265,7 +265,7 @@ class DummyCpt(Cpt):
 class O(DummyCpt):
     """Open circuit"""
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
         pass
 
 
@@ -325,17 +325,17 @@ class RLC(Cpt):
 
 class RC(RLC):
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
 
         # L's can also be added with this stamp but if have coupling
         # it is easier to generate stamp that requires branch current
         # through the L.
         n1, n2 = self.node_indexes
 
-        if kwargs.get('ac', False):
+        if assumptions.get('ac', False):
             Y = self.cpt.Yphasor.expr
             I = 0
-        elif self.type == 'C' and kwargs.get('dc', False):
+        elif self.type == 'C' and assumptions.get('dc', False):
             Y = 0
             I = 0
         else:
@@ -381,7 +381,7 @@ class L(RLC):
         return '%s %s %s %s; %s' % (
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
 
         # This formulation adds the inductor current to the unknowns
 
@@ -395,10 +395,10 @@ class L(RLC):
             cct._B[n2, m] = -1
             cct._C[m, n2] = -1
 
-        if kwargs.get('ac', False):
+        if assumptions.get('ac', False):
             Z = self.cpt.Zphasor.expr
             V = 0
-        elif kwargs.get('dc', False):
+        elif assumptions.get('dc', False):
             Z = 0
             V = 0
         else:
@@ -421,7 +421,7 @@ class L(RLC):
 class E(DummyCpt):
     """VCVS"""
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
         n1, n2, n3, n4 = self.node_indexes
         m = self.branch_index
 
@@ -443,7 +443,7 @@ class E(DummyCpt):
 class F(DummyCpt):
     """CCCS"""
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
         n1, n2 = self.node_indexes
         m = cct._branch_index(self.args[0])
         F = cExpr(self.args[1]).expr
@@ -457,7 +457,7 @@ class F(DummyCpt):
 class G(DummyCpt):
     """VCCS"""
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
         n1, n2, n3, n4 = self.node_indexes
         G = cExpr(self.args[0]).expr
 
@@ -474,7 +474,7 @@ class G(DummyCpt):
 class H(DummyCpt):
     """CCVS"""
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
         n1, n2 = self.node_indexes
         m = self.branch_index
 
@@ -499,11 +499,11 @@ class I(Cpt):
         newopts.strip_voltage_labels()
         return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
 
         n1, n2 = self.node_indexes
 
-        if kwargs.get('ac', False):
+        if assumptions.get('ac', False):
             I = self.cpt.Iphasor.expr
         else:
             I = self.cpt.I.expr
@@ -541,7 +541,7 @@ class V(Cpt):
         newopts.strip_current_labels()
         return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
 
         n1, n2 = self.node_indexes
         m = self.branch_index
@@ -553,7 +553,7 @@ class V(Cpt):
             cct._B[n2, m] -= 1
             cct._C[m, n2] -= 1
 
-        if kwargs.get('ac', False):
+        if assumptions.get('ac', False):
             V = self.cpt.Vphasor.expr
         else:
             V = self.cpt.V.expr
@@ -582,9 +582,9 @@ class K(Cpt):
         super (K, self).__init__(cct, cpt_type, cpt_id, string, opts_string, nodes, *args)
 
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
 
-        if kwargs.get('ac', False):
+        if assumptions.get('ac', False):
             raise ValueError('TODO')
 
         L1 = self.nodes[0]
@@ -610,7 +610,7 @@ class TP(Cpt):
 class TF(Cpt):
     """Transformer"""    
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
 
         n1, n2, n3, n4 = self.node_indexes
         m = self.branch_index
@@ -635,7 +635,7 @@ class TF(Cpt):
 class W(DummyCpt):
     """Wire"""
 
-    def stamp(self, cct, **kwargs):
+    def stamp(self, cct, **assumptions):
         pass
 
 
