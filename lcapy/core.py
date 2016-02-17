@@ -1561,7 +1561,7 @@ class tExpr(Expr):
         if assumptions == {}:
             assumptions = self.assumptions
 
-        if not assumptions.ac:
+        if not assumptions.get('ac', False):
             raise ValueError('Do not know how to convert %s to phasor' % self)
         raise RuntimeError('TODO!')
 
