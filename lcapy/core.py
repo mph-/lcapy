@@ -12,6 +12,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 from lcapy.latex import latex_str
+from lcapy.acdc import is_dc, is_ac, is_causal
 from lcapy.sympify import canonical_name, sympify1, symbols_find
 import numpy as np
 from sympy.core.mul import _unevaluated_Mul as uMul
@@ -1238,7 +1239,7 @@ class sExpr(sfwExpr):
         if assumptions.get('dc', False):
             result = self * s
             
-            if not is_dc(result):
+            if not is_dc(result, t):
                 raise ValueError('Something wonky going on, expecting dc')
             return self._laplace_conjugate_class(result)
 
@@ -1265,6 +1266,11 @@ class sExpr(sfwExpr):
 
     def time(self, **assumptions):
         return self.inverse_laplace(**assumptions)
+
+    def laplace(self):
+        """Convert to s-domain representation"""
+
+        return self.copy()
 
     def phasor(self, **assumptions):
 
@@ -1510,10 +1516,11 @@ class tExpr(Expr):
 
         # Hack to avoid circular dep.
         if init:
-            # TODO, infer ac
-            if is_dc(self):
+            if is_dc(self, t):
                 self.dc = True
-            elif is_causal(self):
+            elif is_ac(self, t):
+                self.ac = True
+            elif is_causal(self, t):
                 self.causal = True
 
         self._fourier_conjugate_class = fExpr
@@ -1610,6 +1617,11 @@ class Phasor(sfwExpr):
         """Convert to Laplace domain representation"""
 
         return self.time().laplace()
+
+    def phasor(self):
+        """Convert to phasor representation"""
+
+        return self.copy()
 
 
 class Vphasor(Phasor):
@@ -2348,46 +2360,6 @@ def delta(expr, *args):
     """Dirac delta (impulse)"""
 
     return DiracDelta(expr, *args)
-
-def is_dc(val):
-    """Return True if time domain expression is dc"""
-
-    expr = val.expr
-    for symbol in expr.free_symbols:
-        if symbol.name in ('s', 't', 'f', 'omega'):
-            return False
-
-    terms = expr.as_ordered_terms()
-    for term in terms:
-        n, d = term.as_numer_denom()
-        if not ((n.is_Symbol or n.is_Number) and (d.is_Symbol or d.is_Number)):
-            return False
-    return True
-
-
-known_causal_factors = [0, DiracDelta(t).expr, Heaviside(t).expr]
-
-def has_causal_factor(expr):
-
-    factors = expr.as_ordered_factors()
-    for factor in factors:
-        if factor in known_causal_factors:
-            return True
-    # f(a * t + b) is also causal for positive a and b for
-    # Heaviside and DiracDelta.
-    return False
-
-
-def is_causal(val):
-    """Return True if time domain expression is zero for t < 0"""
-
-    expr = val.expr
-    terms = expr.as_ordered_terms()
-    for term in terms:
-        if not has_causal_factor(term):
-            return False
-
-    return True
 
 
 def VV(val, **assumptions):
