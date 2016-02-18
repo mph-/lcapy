@@ -727,12 +727,23 @@ class Expr(object):
         # Perhaps should check if expr.args[1] == Heaviside('t') and not
         # evaluate if t < 0?
 
-        def Dirac(arg):
+        def dirac(arg):
 
             return np.inf if arg == 0.0 else 0.0
 
-        func = lambdify(self.var, self.expr, ({'DiracDelta' : Dirac},
-                                              "numpy", "sympy", "math"))
+        def sqrt(arg):
+
+            if arg < 0:
+                return 1j * np.sqrt(-arg)
+            return np.sqrt(arg)
+
+        # For negative arguments, np.sqrt will return Nan.
+        # np.lib.scimath.sqrt converts to complex but cannot be used
+        # for lamdification!
+        func = lambdify(self.var, self.expr,
+                        ({'DiracDelta' : dirac,
+                          'sqrt' : sqrt},
+                         "numpy", "sympy", "math"))
 
         if np.isscalar(arg):
             v1 = arg
@@ -740,10 +751,16 @@ class Expr(object):
             v1 = arg[0]
 
         try:
-            response = complex(func(v1))
+            result = func(v1)
+            response = complex(result)
         except NameError:
             raise RuntimeError('Cannot evaluate expression %s' % self)
-        except AttributeError:
+        except (AttributeError, TypeError):
+            if self.expr.is_Piecewise:
+                raise RuntimeError(
+                    'Cannot evaluate expression %s,'
+                    ' due to undetermined conditional result' % self)
+
             raise RuntimeError(
                 'Cannot evaluate expression %s,'
                 ' probably have a mysterious function' % self)
