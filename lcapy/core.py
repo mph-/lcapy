@@ -2368,7 +2368,7 @@ def VV(val, **assumptions):
     if assumptions.get('ac', False):
         return Vphasor(val)
     else:
-        return Vs(val, **assumptions)
+        return Vs(val, **assumptions).canonical()
 
 
 def II(val, **assumptions):
@@ -2376,7 +2376,7 @@ def II(val, **assumptions):
     if assumptions.get('ac', False):
         return Iphasor(val)
     else:
-        return Is(val, **assumptions)
+        return Is(val, **assumptions).canonical()
 
 
 init = True

@@ -366,7 +366,7 @@ class MNA(object):
         for n in self.nodes:
             index = self._node_index(n)
             if index >= 0:
-                self._V[n] = VV(results[index], **assumptions)
+                self._V[n] = VV(results[index].simplify(), **assumptions)
             else:
                 self._V[n] = VV(0, **assumptions)
 
@@ -375,7 +375,7 @@ class MNA(object):
         # Create dictionary of branch currents through elements
         self._I = {}
         for m, key in enumerate(self.unknown_branch_currents):
-            self._I[key] = II(results[m + num_nodes], **assumptions)
+            self._I[key] = II(results[m + num_nodes].simplify(), **assumptions)
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
@@ -384,8 +384,8 @@ class MNA(object):
                 n1, n2 = self.node_map[
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
                 V1, V2 = self._V[n1], self._V[n2]
-                I = ((V1 - V2 - elt.V) / elt.Z).simplify()
-                self._I[elt.name] = II(I, **assumptions)
+                I = ((V1 - V2 - elt.cpt.V) / elt.Z)
+                self._I[elt.name] = II(I.simplify(), **assumptions)
 
         self.context.restore()
 
