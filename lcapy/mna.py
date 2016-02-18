@@ -73,6 +73,10 @@ class MNA(object):
     def causal(self):
         """Return True if all independent sources are causal"""
 
+        independent_sources = self.independent_sources
+        if independent_sources == {}:
+            return not self.initial_value_problem
+
         for elt in self.independent_sources.values():
             if not elt.causal:
                 return False
@@ -127,19 +131,16 @@ class MNA(object):
 
     @property
     def initial_value_problem(self):
-        """Return True if all components that allow initial conditions
-        have them explicitly defined.  If there are no components that
-        take initial conditions, return False."""
+        """Return True if any components that allow initial conditions
+        have them explicitly defined."""
 
-        ret = False
         for elt in self.elements.values():
             if elt.hasic is None:
                 continue
             if elt.hasic:
-                ret = True
-            else:
-                return False
-        return ret
+                return True
+
+        return False
 
     @property
     def missing_ic(self):
