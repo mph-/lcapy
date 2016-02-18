@@ -1189,7 +1189,9 @@ class sExpr(sfwExpr):
                 pc = p.conjugate()
                 if pc != p and pc in P:
                     # Remove conjugate from poles and process pole with its
-                    # conjugate
+                    # conjugate.  Unforrtunately, for symbolic expressions
+                    # we cannot tell if a quadratic has two real poles,
+                    # a repeat real pole, or a complex conjugate pair of poles.
                     P2[pc] = 0
                   
                     p_re = sym.re(p)
@@ -1515,7 +1517,7 @@ class tExpr(Expr):
         super(tExpr, self).__init__(val, real=True)
 
         # Hack to avoid circular dep.
-        if init and False:
+        if init:
             if is_dc(self, t):
                 self.dc = True
             elif is_ac(self, t):
@@ -2260,11 +2262,11 @@ class NetObject(object):
 
     @property
     def Vphasor(self):
-        raise ValueError('No voltage phasor representation for %s' % self)
+        return 0
 
     @property
     def Iphasor(self):
-        raise ValueError('No current phasor representation for %s' % self)
+        return 0
 
     @property
     def Zphasor(self):

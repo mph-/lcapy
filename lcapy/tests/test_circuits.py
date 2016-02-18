@@ -225,6 +225,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.initial_value_problem, False, "Initial value problem incorrect")
         self.assertEqual(a.dc, False, "DC incorrect")
         self.assertEqual(a.ac, True, "AC incorrect")
+        self.assertEqual(a.R1.I, a.L1.I, "currents different")
+        self.assertEqual(-a.V1.I, a.L1.I, "currents different")
 
 
     def test_transfer(self):

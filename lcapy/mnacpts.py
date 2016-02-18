@@ -162,6 +162,14 @@ class Cpt(object):
         return self.cct.I[self.name]
 
     @property
+    def I0(self):
+        """Initial current"""
+        
+        if self.cct.ac:
+            return self.cpt.Iphasor
+        return self.cpt.I
+
+    @property
     def i(self):
         """Time-domain current through component"""
 
@@ -172,6 +180,14 @@ class Cpt(object):
         """Voltage drop across component"""
 
         return self.cct.V[self.name]
+
+    @property
+    def V0(self):
+        """Initial voltage"""
+        
+        if self.cct.ac:
+            return self.cpt.Vphasor
+        return self.cpt.V
 
     @property
     def v(self):

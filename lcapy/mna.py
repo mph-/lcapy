@@ -384,7 +384,7 @@ class MNA(object):
                 n1, n2 = self.node_map[
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
                 V1, V2 = self._V[n1], self._V[n2]
-                I = ((V1 - V2 - elt.cpt.V) / elt.Z)
+                I = ((V1 - V2 - elt.V0) / elt.Z)
                 self._I[elt.name] = II(I.simplify(), **assumptions)
 
         self.context.restore()
