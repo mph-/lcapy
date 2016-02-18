@@ -12,7 +12,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 from lcapy.latex import latex_str
-from lcapy.acdc import is_dc, is_ac, is_causal
+from lcapy.acdc import is_dc, is_ac, is_causal, ACChecker
 from lcapy.sympify import canonical_name, sympify1, symbols_find
 import numpy as np
 from sympy.core.mul import _unevaluated_Mul as uMul
@@ -1239,7 +1239,7 @@ class sExpr(sfwExpr):
         if assumptions.get('dc', False):
             result = self * s
             
-            if not is_dc(result, t):
+            if s in result.free_symbols:
                 raise ValueError('Something wonky going on, expecting dc')
             return self._laplace_conjugate_class(result)
 
@@ -1515,7 +1515,7 @@ class tExpr(Expr):
         super(tExpr, self).__init__(val, real=True)
 
         # Hack to avoid circular dep.
-        if init:
+        if init and False:
             if is_dc(self, t):
                 self.dc = True
             elif is_ac(self, t):
@@ -1565,12 +1565,13 @@ class tExpr(Expr):
 
     def phasor(self, **assumptions):
 
-        if assumptions == {}:
-            assumptions = self.assumptions
-
-        if not assumptions.get('ac', False):
+        check = ACChecker(self, t)
+        if not check.is_ac:
             raise ValueError('Do not know how to convert %s to phasor' % self)
-        raise RuntimeError('TODO!')
+        if check.omega != omega1sym:            
+            raise ValueError('Angular frequency %s not omega1' % check.omega)
+        phasor = Phasor(check.amp * exp(j * check.phase))
+        return phasor
 
     def plot(self, t=None, **kwargs):
 

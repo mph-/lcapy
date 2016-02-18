@@ -1,8 +1,8 @@
 from lcapy.sympify import sympify1
 import sympy as sym
-from sympy import symbols, I, exp, cos, pi, sin
+from sympy import symbols, I, exp, cos, pi, sin, atan2, sqrt
 
-class Causal(object):
+class CausalChecker(object):
 
     def _has_causal_factor(self, expr):
 
@@ -37,35 +37,27 @@ class Causal(object):
     def __init__(self, expr, var):        
 
         self.var = getattr(var, 'expr', sympify1(var)) 
-        self.causal = self._is_causal(getattr(expr, 'expr', sympify1(expr)))
+        self.is_causal = self._is_causal(getattr(expr, 'expr', sympify1(expr)))
 
 
-class DC(object):
+class DCChecker(object):
 
     def _is_dc(self, expr):
 
-        if self.var in expr.free_symbols:
-            return False
-
-        terms = expr.as_ordered_terms()
-        for term in terms:
-            for factor in term.as_ordered_factors():
-                n, d = factor.as_numer_denom()
-                if not ((n.is_Symbol or n.is_number) and (d.is_Symbol or d.is_number)):
-                    return False
-        return True
+        return not self.var in expr.free_symbols
 
     def __init__(self, expr, var):        
 
         self.var = getattr(var, 'expr', sympify1(var))
-        self.dc = self._is_dc(getattr(expr, 'expr', sympify1(expr)))
+        self.is_dc = self._is_dc(getattr(expr, 'expr', sympify1(expr)))
 
 
-class AC(object):
+class ACChecker(object):
 
     def _find_freq_phase(self, expr):
 
         self.freq = 0
+        self.omega = 0
 
         if expr.func == cos:
             self.phase = 0
@@ -80,7 +72,31 @@ class AC(object):
             return False
 
         self.phase += coeffs[1]
-        self.freq = coeffs[0] / (2 * pi)
+        self.omega = coeffs[0]
+        self.freq = self.omega / (2 * pi)
+        return True
+
+    def _is_sum_ac(self, terms):
+
+        check = ACChecker(terms[0], self.var)
+        if not check.is_ac:
+            return False
+
+        for term in terms[1:]:
+            check2 = ACChecker(term, self.var)
+            if not check2.is_ac or check.omega != check2.omega:
+                return False
+            A1, p1 = check.amp, check.phase
+            A2, p2 = check2.amp, check2.phase
+            x = A1 * cos(p1) + A2 * cos(p2)
+            y = A1 * sin(p1) + A2 * sin(p2)
+            check.phase = atan2(y, x)
+            check.amp = sqrt(x**2 + y**2)
+
+        self.freq = check.freq
+        self.omega = check.omega
+        self.amp = check.amp
+        self.phase = check.phase
         return True
 
     def _is_ac(self, expr):
@@ -88,6 +104,10 @@ class AC(object):
         # Convert sum of exps into sin/cos
         expr = expr.rewrite(cos).combsimp().expand()
         
+        terms = expr.as_ordered_terms()
+        if len(terms) > 1:
+            return self._is_sum_ac(terms)
+
         factors = expr.as_ordered_factors()
             
         self.amp = 1
@@ -109,16 +129,16 @@ class AC(object):
         self.amp = 0
         self.freq = 0
         self.phase = 0
-        self.ac = self._is_ac(getattr(expr, 'expr', sympify1(expr)))
+        self.is_ac = self._is_ac(getattr(expr, 'expr', sympify1(expr)))
 
 
 def is_dc(expr, var):
-    return DC(expr, var).dc
+    return DCChecker(expr, var).is_dc
 
 
 def is_ac(expr, var):
-    return AC(expr, var).ac
+    return ACChecker(expr, var).is_ac
 
 
 def is_causal(expr, var):
-    return Causal(expr, var).causal
+    return CausalChecker(expr, var).is_causal
