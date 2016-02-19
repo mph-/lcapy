@@ -166,7 +166,7 @@ class Cpt(object):
         """Initial current"""
         
         if self.cct.ac:
-            return self.cpt.Iphasor
+            return self.cpt.Iac
         return self.cpt.I
 
     @property
@@ -186,7 +186,7 @@ class Cpt(object):
         """Initial voltage"""
         
         if self.cct.ac:
-            return self.cpt.Vphasor
+            return self.cpt.Vac
         return self.cpt.V
 
     @property
@@ -200,7 +200,7 @@ class Cpt(object):
         """Admittance"""
         
         if self.cct.ac:
-            return self.cpt.Yphasor
+            return self.cpt.Yac
         return self.cpt.Y
 
     @property
@@ -208,32 +208,32 @@ class Cpt(object):
         """Impedance"""
         
         if self.cct.ac:
-            return self.cpt.Zphasor
+            return self.cpt.Zac
         return self.cpt.Z
 
     @property
-    def Yphasor(self):
+    def Yac(self):
         """Phasor (complex) admittance"""
         
-        return self.cpt.Yphasor
+        return self.cpt.Yac
 
     @property
-    def Zphasor(self):
+    def Zac(self):
         """Phasor (complex) impedance"""
         
-        return self.cpt.Zphasor
+        return self.cpt.Zac
 
     @property
-    def Iphasor(self):
+    def Iac(self):
         """Phasor current"""
         
-        return self.cpt.Iphasor
+        return self.cpt.Iac
 
     @property
-    def Vphasor(self):
+    def Vac(self):
         """Phasor voltage"""
         
-        return self.cpt.Vphasor
+        return self.cpt.Vac
 
     @property
     def node_indexes(self):
@@ -349,7 +349,7 @@ class RC(RLC):
         n1, n2 = self.node_indexes
 
         if assumptions.get('ac', False):
-            Y = self.cpt.Yphasor.expr
+            Y = self.cpt.Yac.expr
             I = 0
         elif self.type == 'C' and assumptions.get('dc', False):
             Y = 0
@@ -412,7 +412,7 @@ class L(RLC):
             cct._C[m, n2] = -1
 
         if assumptions.get('ac', False):
-            Z = self.cpt.Zphasor.expr
+            Z = self.cpt.Zac.expr
             V = 0
         elif assumptions.get('dc', False):
             Z = 0
@@ -520,7 +520,7 @@ class I(Cpt):
         n1, n2 = self.node_indexes
 
         if assumptions.get('ac', False):
-            I = self.cpt.Iphasor.expr
+            I = self.cpt.Iac.expr
         else:
             I = self.cpt.I.expr
 
@@ -570,7 +570,7 @@ class V(Cpt):
             cct._C[m, n2] -= 1
 
         if assumptions.get('ac', False):
-            V = self.cpt.Vphasor.expr
+            V = self.cpt.Vac.expr
         else:
             V = self.cpt.V.expr
         

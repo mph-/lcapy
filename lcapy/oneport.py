@@ -1057,6 +1057,11 @@ class sV(Thevenin):
         Vval = sExpr(Vval)
         super(sV, self).__init__(Zs(0), Vs(Vval))
 
+    @property
+    def Vac(self):
+        if not self.V.ac:
+            raise ValueError('No ac representation for %s' % self)
+        return self.V.phasor()
 
 class V(sV):
     """Voltage source. If the expression contains s treat as s-domain
@@ -1106,10 +1111,6 @@ class Vdc(sV):
     def v(self):
         return self.v0
 
-    @property
-    def Vphasor(self):
-        return Vphasor(self.v0)
-
 
 class Vac(sV):
     """AC voltage source."""
@@ -1138,7 +1139,7 @@ class Vac(sV):
         return self.v0 * cos(self.omega * t + self.phi)
 
     @property
-    def Vphasor(self):
+    def Vac(self):
         return Vphasor(self.v0 * exp(j * self.phi))
 
 
@@ -1165,6 +1166,12 @@ class sI(Norton):
         self.args = (Ival, )
         Ival = sExpr(Ival)
         super(sI, self).__init__(Ys(0), Is(Ival))
+
+    @property
+    def Iac(self):
+        if not self.I.ac:
+            raise IalueError('No ac representation for %s' % self)
+        return self.I.phasor()
 
 
 class I(sI):
@@ -1218,7 +1225,7 @@ class Idc(sI):
         return self.i0
 
     @property
-    def Iphasor(self):
+    def Iac(self):
         return Iphasor(self.i0)
 
 
@@ -1247,7 +1254,7 @@ class Iac(sI):
         return self.i0 * cos(self.omega * t + self.phi)
 
     @property
-    def Iphasor(self):
+    def Iac(self):
         return Iphasor(self.i0 * exp(j * self.phi))
 
 

@@ -2278,16 +2278,20 @@ class NetObject(object):
         return self
 
     @property
-    def Vphasor(self):
+    def Vac(self):
         return 0
 
     @property
-    def Iphasor(self):
+    def Iac(self):
         return 0
 
     @property
-    def Zphasor(self):
-        raise self.Z.jomega
+    def Yac(self):
+        return self.Y.jomega()
+
+    @property
+    def Zac(self):
+        return self.Z.jomega()
 
 
 def _funcwrap(func, *args):
