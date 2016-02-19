@@ -1059,7 +1059,7 @@ class sV(Thevenin):
 
     @property
     def Vac(self):
-        if not self.V.ac:
+        if not self.V.is_ac:
             raise ValueError('No ac representation for %s' % self)
         return self.V.phasor()
 
@@ -1087,7 +1087,7 @@ class Vstep(sV):
         v = cExpr(v)
         super(Vstep, self).__init__(Vs(v, causal=True) / s)
         # This is not needed when assumptions propagated.
-        self.V.causal = True
+        self.V.is_causal = True
         self.v0 = v
 
 
@@ -1104,7 +1104,7 @@ class Vdc(sV):
         v = cExpr(v)
         super(Vdc, self).__init__(Vs(v, dc=True) / s)
         # This is not needed when assumptions propagated.
-        self.V.dc = True
+        self.V.is_dc = True
         self.v0 = v
 
     @property
@@ -1130,7 +1130,7 @@ class Vac(sV):
         foo = (s * sym.cos(phi) + self.omega * sym.sin(phi)) / (s**2 + self.omega**2)
         super(Vac, self).__init__(Vs(foo * V, ac=True))
         # This is not needed when assumptions propagated.
-        self.V.ac = True
+        self.V.is_ac = True
         self.v0 = V
         self.phi = phi
 
@@ -1169,7 +1169,7 @@ class sI(Norton):
 
     @property
     def Iac(self):
-        if not self.I.ac:
+        if not self.I.is_ac:
             raise IalueError('No ac representation for %s' % self)
         return self.I.phasor()
 
@@ -1200,7 +1200,7 @@ class Istep(sI):
         i = cExpr(i)
         super(Istep, self).__init__(Is(i, causal=True) / s)
         # This is not needed when assumptions propagated.
-        self.I.causal = True
+        self.I.is_causal = True
         self.i0 = i
 
 
@@ -1217,7 +1217,7 @@ class Idc(sI):
         i = cExpr(i)
         super(Idc, self).__init__(Is(i, dc=True) / s)
         # This is not needed when assumptions propagated.
-        self.I.dc = True
+        self.I.is_dc = True
         self.i0 = i
 
     @property
@@ -1245,7 +1245,7 @@ class Iac(sI):
         foo = (s * sym.cos(phi) + self.omega * sym.sin(phi)) / (s**2 + self.omega**2)
         super(Iac, self).__init__(Is(foo * I, ac=True))
         # This is not needed when assumptions propagated.
-        self.I.ac = True
+        self.I.is_ac = True
         self.i0 = I
         self.phi = phi
 

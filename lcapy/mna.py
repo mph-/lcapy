@@ -70,7 +70,7 @@ class MNA(object):
     """
 
     @property
-    def causal(self):
+    def is_causal(self):
         """Return True if all independent sources are causal"""
 
         independent_sources = self.independent_sources
@@ -78,12 +78,12 @@ class MNA(object):
             return not self.initial_value_problem
 
         for elt in self.independent_sources.values():
-            if not elt.causal:
+            if not elt.is_causal:
                 return False
         return True
 
     @property
-    def dc(self):
+    def is_dc(self):
         """Return True if all independent sources are DC."""
 
         independent_sources = self.independent_sources
@@ -91,12 +91,12 @@ class MNA(object):
             return not self.initial_value_problem
 
         for elt in independent_sources.values():
-            if not elt.dc:
+            if not elt.is_dc:
                 return False
         return True
 
     @property
-    def ac(self):
+    def is_ac(self):
         """Return True if all independent sources are AC."""
 
         independent_sources = self.independent_sources
@@ -104,7 +104,7 @@ class MNA(object):
             return not self.initial_value_problem
 
         for elt in independent_sources.values():
-            if not elt.ac:
+            if not elt.is_ac:
                 return False
         return True
 
@@ -112,11 +112,11 @@ class MNA(object):
     def assumptions(self):
 
         assumptions = {}
-        if self.ac:
+        if self.is_ac:
             assumptions['ac'] = True
-        if self.dc:
+        if self.is_dc:
             assumptions['dc'] = True
-        if self.causal:
+        if self.is_causal:
             assumptions['causal'] = True
         return assumptions
 
@@ -167,7 +167,7 @@ class MNA(object):
     def noncausal_sources(self):
         """Return non-causal independent sources"""
 
-        return dict((key, elt) for key, elt in self.elements.items() if elt.source and not elt.causal)
+        return dict((key, elt) for key, elt in self.elements.items() if elt.source and not elt.is_causal)
 
     @property
     def independent_sources(self):
@@ -288,11 +288,11 @@ class MNA(object):
         # Determine if all components that allow initial conditions
         # have them explicitly defined.  In this case, we can only
         # provide solution for t >= 0.
-        if self.causal and self.initial_value_problem and not self.zeroic:
+        if self.is_causal and self.initial_value_problem and not self.zeroic:
             raise RuntimeError('Detected initial value problem that has causal sources!')
 
-        if (not self.ac and not self.initial_value_problem
-            and not self.causal and self.missing_ic != {}):
+        if (not self.is_ac and not self.initial_value_problem
+            and not self.is_causal and self.missing_ic != {}):
             print('Warning non-causal sources detected (%s)'
                   ' and initial conditions missing for %s;'
                   ' expect unexpected transient!' % (

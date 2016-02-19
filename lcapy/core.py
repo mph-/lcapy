@@ -45,6 +45,7 @@ symbol_pattern2 = re.compile(r"^([a-zA-Z]+[\w]*_){([\w]*)}$")
 cpt_names = ('C', 'G', 'I', 'L', 'R', 'V', 'Y', 'Z')
 cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
 
+all_assumptions = ('ac', 'dc', 'causal')
 
 from sympy.printing.latex import LatexPrinter 
 from sympy.printing.pretty.pretty import PrettyPrinter 
@@ -177,9 +178,8 @@ class Expr(object):
         #      with symbols, for example, real=True.
         #   2. The expr assumptions such as dc, ac, causal.
 
-        for attr in 'ac', 'dc', 'causal':
-            if attr in assumptions:
-                setattr(self, attr, assumptions.pop(attr))
+        for attr in all_assumptions:
+            setattr(self, 'is_' + attr, assumptions.pop(attr, None))
         self.expr = sympify(arg, **assumptions)
 
     @property
@@ -262,46 +262,22 @@ class Expr(object):
 
     @property
     def assumptions(self):
-        
+
         assumptions = {}
-        for attr in 'ac', 'dc', 'causal':
-            if hasattr(self, '_' + attr):
-                assumptions[attr] = getattr(self, '_' + attr)
+        for attr in all_assumptions:
+            assumption = getattr(self, 'is_' + attr)
+            if assumption is not None:
+                assumptions[attr] = assumption
         return assumptions
 
     @assumptions.setter
     def assumptions(self, **assumptions):
 
-        for attr in 'ac', 'dc', 'causal':
+        for attr in all_assumptions:
             if attr in assumptions:
-                setattr(self, attr, assumptions.pop(attr))
+                setattr(self, 'is_' + attr, assumptions.pop(attr))
         if assumptions != {}:
             raise ValueError('Unknown assumption %s' % assumptions)
-
-    @property
-    def ac(self):
-        return getattr(self, '_ac', False)
-
-    @property
-    def dc(self):
-        return getattr(self, '_dc', False)
-
-    @property
-    def causal(self):
-        return getattr(self, '_causal', False)
-
-    @ac.setter
-    def ac(self, val):
-        self._ac = val
-
-    @dc.setter
-    def dc(self, val):
-        self._dc = val
-
-    @causal.setter
-    def causal(self, val):
-        self._causal = val
-
 
     def __abs__(self):
         """Absolute value"""
@@ -1536,11 +1512,11 @@ class tExpr(Expr):
         # Hack to avoid circular dep.
         if init:
             if is_dc(self, t):
-                self.dc = True
+                self.is_dc = True
             elif is_ac(self, t):
-                self.ac = True
+                self.is_ac = True
             elif is_causal(self, t):
-                self.causal = True
+                self.is_causal = True
 
         self._fourier_conjugate_class = fExpr
         self._laplace_conjugate_class = sExpr

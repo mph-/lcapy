@@ -104,36 +104,36 @@ class Cpt(object):
         return str(self)
 
     @property
-    def causal(self):
+    def is_causal(self):
         """Return True if causal component or if source produces
         a causal signal"""
 
         if self.cpt.voltage_source:
-            return self.cpt.V.causal
+            return self.cpt.V.is_causal
         elif self.cpt.current_source:
-            return self.cpt.I.causal
+            return self.cpt.I.is_causal
         else:
             raise ValueError('%s is not a source' % self)
 
     @property
-    def dc(self):
+    def is_dc(self):
         """Return True if source is dc"""
         
         if self.cpt.voltage_source:
-            return self.cpt.V.dc
+            return self.cpt.V.is_dc
         elif self.cpt.current_source:
-            return self.cpt.I.dc
+            return self.cpt.I.is_dc
         else:
             raise ValueError('%s is not a source' % self)
 
     @property
-    def ac(self):
+    def is_ac(self):
         """Return True if source is ac"""
 
         if self.cpt.voltage_source:
-            return self.cpt.V.ac
+            return self.cpt.V.is_ac
         elif self.cpt.current_source:
-            return self.cpt.I.ac
+            return self.cpt.I.is_ac
         else:
             raise ValueError('%s is not a source' % self)
 
@@ -165,7 +165,7 @@ class Cpt(object):
     def I0(self):
         """Initial current"""
         
-        if self.cct.ac:
+        if self.cct.is_ac:
             return self.cpt.Iac
         return self.cpt.I
 
@@ -185,7 +185,7 @@ class Cpt(object):
     def V0(self):
         """Initial voltage"""
         
-        if self.cct.ac:
+        if self.cct.is_ac:
             return self.cpt.Vac
         return self.cpt.V
 
@@ -199,7 +199,7 @@ class Cpt(object):
     def Y(self):
         """Admittance"""
         
-        if self.cct.ac:
+        if self.cct.is_ac:
             return self.cpt.Yac
         return self.cpt.Y
 
@@ -207,7 +207,7 @@ class Cpt(object):
     def Z(self):
         """Impedance"""
         
-        if self.cct.ac:
+        if self.cct.is_ac:
             return self.cpt.Zac
         return self.cpt.Z
 
