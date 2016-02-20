@@ -140,3 +140,8 @@ Perhaps prune transients when know have ac result?
 
 AC analysis for arbitrary sinusoids.
 
+What about Vac(2) | R(1)?  Currently we used Laplace analysis rather
+than ac analysis.  Probably, we should convert the AST to a netlist
+and then analyse the netlist with MNA.  The result would be the
+Thevenin equivalent.  With this approach, the responses of different
+independent sources can be combined with superposition.

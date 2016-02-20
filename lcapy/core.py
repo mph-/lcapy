@@ -2196,7 +2196,8 @@ class NetObject(object):
 
     def __init__(self, args):
 
-        self.args = args
+        if not hasattr(self, 'args'):
+            self.args = args
 
     def _tweak_args(self):
 

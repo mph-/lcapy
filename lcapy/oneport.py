@@ -965,7 +965,8 @@ class R(Thevenin):
 
     def __init__(self, Rval):
 
-        self.args = (Rval, )
+        if not hasattr(self, 'args'):
+            self.args = (Rval, )
         Rval = cExpr(Rval, positive=True)
         super(R, self).__init__(Zs.R(Rval))
         self.R = Rval
@@ -976,7 +977,8 @@ class G(Norton):
 
     def __init__(self, Gval):
 
-        self.args = (Gval, )
+        if not hasattr(self, 'args'):
+            self.args = (Gval, )
         Gval = cExpr(Gval, positive=True)
         super(G, self).__init__(Ys.G(Gval))
         self.G = Gval
@@ -993,7 +995,8 @@ class L(Thevenin):
         if i0 is None:
             i0 = 0
 
-        self.args = (Lval, i0)
+        if not hasattr(self, 'args'):
+            self.args = (Lval, i0)
         Lval = cExpr(Lval, positive=True)
         i0 = cExpr(i0)
         super(L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
@@ -1014,7 +1017,8 @@ class C(Thevenin):
         if v0 is None:
             v0 = 0
 
-        self.args = (Cval, v0)
+        if not hasattr(self, 'args'):
+            self.args = (Cval, v0)
         Cval = cExpr(Cval, positive=True)
         v0 = cExpr(v0)
         super(C, self).__init__(Zs.C(Cval), Vs(v0).integrate())
@@ -1029,7 +1033,8 @@ class Y(Norton):
 
     def __init__(self, Yval):
 
-        self.args = (Yval, )
+        if not hasattr(self, 'args'):
+            self.args = (Yval, )
         Yval = Ys(Yval)
         super(Y, self).__init__(Yval)
 
@@ -1039,7 +1044,8 @@ class Z(Thevenin):
 
     def __init__(self, Zval):
 
-        self.args = (Zval, )
+        if not hasattr(self, 'args'):
+            self.args = (Zval, )
         Zval = Zs(Zval)
         super(Z, self).__init__(Zval)
 
@@ -1053,7 +1059,8 @@ class sV(Thevenin):
 
     def __init__(self, Vval):
 
-        self.args = (Vval, )
+        if not hasattr(self, 'args'):
+            self.args = (Vval, )
         Vval = sExpr(Vval)
         super(sV, self).__init__(Zs(0), Vs(Vval))
 
@@ -1070,7 +1077,8 @@ class V(sV):
 
     def __init__(self, Vval):
 
-        self.args = (Vval, )
+        if not hasattr(self, 'args'):
+            self.args = (Vval, )
         Vsym = tsExpr(Vval)
         super(V, self).__init__(Vsym)
 
@@ -1083,7 +1091,8 @@ class Vstep(sV):
 
     def __init__(self, v):
 
-        self.args = (v, )
+        if not hasattr(self, 'args'):
+            self.args = (v, )
         v = cExpr(v)
         super(Vstep, self).__init__(Vs(v, causal=True) / s)
         # This is not needed when assumptions propagated.
@@ -1100,7 +1109,8 @@ class Vdc(sV):
     
     def __init__(self, v):
 
-        self.args = (v, )
+        if not hasattr(self, 'args'):
+            self.args = (v, )
         v = cExpr(v)
         super(Vdc, self).__init__(Vs(v, dc=True) / s)
         # This is not needed when assumptions propagated.
@@ -1120,7 +1130,8 @@ class Vac(sV):
 
     def __init__(self, V, phi=0):
 
-        self.args = (V, phi)
+        if not hasattr(self, 'args'):
+            self.args = (V, phi)
         V = cExpr(V)
         phi = cExpr(phi)
 
@@ -1148,7 +1159,8 @@ class v(sV):
 
     def __init__(self, vval):
 
-        self.args = (vval, )
+        if not hasattr(self, 'args'):
+            self.args = (vval, )
         Vval = tExpr(vval)
         super(V, self).__init__(Zs(0), Vs(Vval).laplace())
         self.assumptions_infer(Vval)
@@ -1163,7 +1175,8 @@ class sI(Norton):
 
     def __init__(self, Ival):
 
-        self.args = (Ival, )
+        if not hasattr(self, 'args'):
+            self.args = (Ival, )
         Ival = sExpr(Ival)
         super(sI, self).__init__(Ys(0), Is(Ival))
 
@@ -1183,7 +1196,8 @@ class I(sI):
 
     def __init__(self, Ival):
 
-        self.args = (Ival, )
+        if not hasattr(self, 'args'):
+            self.args = (Ival, )
         Isym = tsExpr(Ival)
         super(I, self).__init__(Isym)
 
@@ -1196,7 +1210,8 @@ class Istep(sI):
 
     def __init__(self, i):
 
-        self.args = (i, )
+        if not hasattr(self, 'args'):
+            self.args = (i, )
         i = cExpr(i)
         super(Istep, self).__init__(Is(i, causal=True) / s)
         # This is not needed when assumptions propagated.
@@ -1213,7 +1228,8 @@ class Idc(sI):
     
     def __init__(self, i):
 
-        self.args = (i, )
+        if not hasattr(self, 'args'):
+            self.args = (i, )
         i = cExpr(i)
         super(Idc, self).__init__(Is(i, dc=True) / s)
         # This is not needed when assumptions propagated.
@@ -1237,7 +1253,8 @@ class Iac(sI):
 
     def __init__(self, I, phi=0):
 
-        self.args = (I, phi)
+        if not hasattr(self, 'args'):
+            self.args = (I, phi)
         I = cExpr(I)
         phi = cExpr(phi)
 
@@ -1263,7 +1280,8 @@ class i(sI):
 
     def __init__(self, ival):
 
-        self.args = (ival, )
+        if not hasattr(self, 'args'):
+            self.args = (ival, )
         Ival = tExpr(ival)
         super(I, self).__init__(Ys(0), Is(Ival.laplace()))
         self.assumptions_infer(Ival)
@@ -1279,7 +1297,8 @@ class Xtal(Thevenin):
 
     def __init__(self, C0, R1, L1, C1):
 
-        self.args = (C0, R1, L1, C1)
+        if not hasattr(self, 'args'):
+            self.args = (C0, R1, L1, C1)
         self.C0 = cExpr(C0, positive=True)
         self.R1 = cExpr(R1, positive=True)
         self.L1 = cExpr(L1, positive=True)
@@ -1302,7 +1321,8 @@ class FerriteBead(Thevenin):
 
     def __init__(self, Rs, Rp, Cp, Lp):
 
-        self.args = (Rs, Rp, Cp, Lp)
+        if not hasattr(self, 'args'):
+            self.args = (Rs, Rp, Cp, Lp)
         self.Rs = cExpr(Rs, positive=True)
         self.Rp = cExpr(Rp, positive=True)
         self.Cp = cExpr(Cp, positive=True)
