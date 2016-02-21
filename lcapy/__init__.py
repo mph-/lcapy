@@ -50,9 +50,9 @@ from . import threeport
 __all__.extend(threeport.__all__)
 from .threeport import *
 
-from . import netlist
-__all__.extend(netlist.__all__)
-from .netlist import *
+from . import circuit
+__all__.extend(circuit.__all__)
+from .circuit import *
 
 from . import schematic
 __all__.extend(schematic.__all__)
