@@ -29,7 +29,6 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 from __future__ import division
 import sympy as sym
 from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, Yphasor, Zphasor, omega1
-from lcapy.schematic import Schematic
 from lcapy.sympify import symbols_find
 from lcapy.network import Network
 
@@ -38,19 +37,6 @@ __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
            'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac', 'sV', 'sI',
            'Iac', 'Norton', 'Thevenin',
            'Load', 'Par', 'Ser', 'Xtal', 'FerriteBead')
-
-class Drawing(object):
-
-    def __init__(self):
-
-        self.node_counter = 0
-
-    @property 
-    def node(self):
-
-        self.node_counter += 1
-        return self.node_counter
-
 
 def _check_oneport_args(args):
 
@@ -172,68 +158,6 @@ class OnePort(Network):
     @property
     def z(self):
         return self.Z.inverse_laplace()
-
-    def netargs(self):
-
-        def quote(arg):
-
-            if ('(' in arg) or (')' in arg) or (' ' in arg) or (',' in arg):
-                return '{%s}' % arg
-            return arg
-
-        return ' '.join([quote(str(arg)) for arg in self.args])
-
-    def netlist(self, drw=None, n1=None, n2=None):
-
-        if drw is None:
-            drw = Drawing()        
-        if n1 == None:
-            n1 = drw.node
-        if n2 == None:
-            n2 = drw.node
-
-        netname = self.__class__.__name__ if self.netname == '' else self.netname
-        return '%s %s %s %s %s; right' % (netname, n1, n2, 
-                                          self.netkeyword, self.netargs())
-
-    @property
-    def sch(self):
-
-        if hasattr(self, '_sch'):
-            return self._sch
-
-        netlist = self.netlist()
-        sch = Schematic()
-        for net in netlist.split('\n'):
-            sch.add(net)
-        self._sch = sch
-        return sch
-
-    def draw(self, filename=None, label_ids=False,
-             label_values=True, draw_nodes='connections',
-             label_nodes=False):
-        self.sch.draw(filename=filename, label_ids=label_ids, 
-                      label_values=label_values, 
-                      draw_nodes=draw_nodes, label_nodes=label_nodes)
-        
-    @property
-    def cct(self):
-
-        if hasattr(self, '_cct'):
-            return self._cct
-
-        from lcapy.netlist import Circuit
-
-        drw = Drawing()        
-        netlist = self.netlist(drw)
-        cct = Circuit()
-        for net in netlist.split('\n'):
-            cct.add(net)
-
-        # Create ground reference.
-        cct.add('W %d 0' % (drw.node - 1))
-        self._cct = cct
-        return cct
 
 
 class ParSer(OnePort):
@@ -573,21 +497,18 @@ class Par(ParSer):
             total += arg.height
         return total + (len(self.args) - 1) * self.hsep
 
-    def netlist(self, drw=None, n1=None, n2=None):
-
-        if drw is None:
-            drw = Drawing()
+    def netlist(self, n1=None, n2=None):
 
         if len(self.args) > 2:
             raise NotImplementedError('Cannot handle more than two cpts in parallel')
 
         s = []
         if n1 is None:
-            n1 = drw.node
+            n1 = self.node
         if n2 is None:
-            n2 = drw.node
-        n3, n4, n5 =  drw.node, drw.node, drw.node
-        n6, n7, n8 =  drw.node, drw.node, drw.node
+            n2 = self.node
+        n3, n4, n5 =  self.node, self.node, self.node
+        n6, n7, n8 =  self.node, self.node, self.node
         # The vertical wires will need to be lengthened depending
         # on the height of the networks in parallel.
         h1 = (self.args[0].height + self.hsep) * 0.5
@@ -598,8 +519,8 @@ class Par(ParSer):
         s.append('W %s %s; right, size=%s' % (n6, n2, self.wsep))
         s.append('W %s %s; up, size=%s' % (n6, n7, h1))
         s.append('W %s %s; down, size=%s' % (n6, n8, h2))
-        s.append(self.args[0].netlist(drw, n4, n7))
-        s.append(self.args[1].netlist(drw, n5, n8))
+        s.append(self.args[0].netlist(n4, n7))
+        s.append(self.args[1].netlist(n5, n8))
         return '\n'.join(s)
 
 
@@ -668,23 +589,20 @@ class Ser(ParSer):
             total += arg.width
         return total + (len(self.args) - 1) * self.wsep
 
-    def netlist(self, drw=None, n1=None, n2=None):
-
-        if drw is None:
-            drw = Drawing()
+    def netlist(self, n1=None, n2=None):
 
         s = []
         if n1 is None:
-            n1 = drw.node
+            n1 = self.node
         for arg in self.args[:-1]:
-            n3 = drw.node
-            s.append(arg.netlist(drw, n1, n3))
-            n1 = drw.node
+            n3 = self.node
+            s.append(arg.netlist(n1, n3))
+            n1 = self.node
             s.append('W %s %s; right, size=%s' % (n3, n1, self.wsep))
 
         if n2 is None:
-            n2 = drw.node
-        s.append(self.args[-1].netlist(drw, n1, n2))
+            n2 = self.node
+        s.append(self.args[-1].netlist(n1, n2))
         return '\n'.join(s)
 
 

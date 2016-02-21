@@ -5,6 +5,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 from __future__ import division
 import sympy as sym
 from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, Yphasor, Zphasor, omega1
+from lcapy.schematic import Schematic
 
 class Network(object):
 
@@ -23,6 +24,8 @@ class Network(object):
 
         if not hasattr(self, 'args'):
             self.args = args
+        self.node_counter = 0
+
 
     def _tweak_args(self):
 
@@ -94,3 +97,76 @@ class Network(object):
     @property
     def Zac(self):
         return self.Z.jomega()
+
+    @property
+    def elements(self):
+        raise ValueError('TODO')
+
+    @property 
+    def node(self):
+
+        self.node_counter += 1
+        return self.node_counter
+
+    def netargs(self):
+
+        def quote(arg):
+
+            if ('(' in arg) or (')' in arg) or (' ' in arg) or (',' in arg):
+                return '{%s}' % arg
+            return arg
+
+        return ' '.join([quote(str(arg)) for arg in self.args])
+
+    def netlist(self, n1=None, n2=None):
+
+        if n1 == None:
+            n1 = self.node
+        if n2 == None:
+            n2 = self.node
+
+        netname = self.__class__.__name__ if self.netname == '' else self.netname
+        return '%s %s %s %s %s; right' % (netname, n1, n2, 
+                                          self.netkeyword, self.netargs())
+
+    @property
+    def sch(self):
+
+        if hasattr(self, '_sch'):
+            return self._sch
+
+        netlist = self.netlist()
+        sch = Schematic()
+        for net in netlist.split('\n'):
+            sch.add(net)
+        self._sch = sch
+        return sch
+
+    def draw(self, filename=None, label_ids=False,
+             label_values=True, draw_nodes='connections',
+             label_nodes=False):
+
+        self.node_counter = 0
+        self.sch.draw(filename=filename, label_ids=label_ids, 
+                      label_values=label_values, 
+                      draw_nodes=draw_nodes, label_nodes=label_nodes)
+        
+    @property
+    def cct(self):
+
+        if hasattr(self, '_cct'):
+            return self._cct
+
+        from lcapy.netlist import Circuit
+
+        self.node_counter = 0
+        netlist = self.netlist(self)
+        cct = Circuit()
+        for net in netlist.split('\n'):
+            cct.add(net)
+
+        # Create ground reference.
+        cct.add('W %d 0' % (self.node - 1))
+        self._cct = cct
+        return cct
+

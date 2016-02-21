@@ -94,7 +94,7 @@ class Netlist(MNA):
     def __init__(self, filename=None):
 
         self.anon = {}
-        self.elements = {}
+        self._elements = {}
         self.nodes = {}
         # Shared nodes (with same voltage)
         self.snodes = {}
@@ -104,6 +104,10 @@ class Netlist(MNA):
 
         if filename is not None:
             self.netfile_add(filename)
+
+    @property
+    def elements(self):
+        return self._elements
 
     def __repr__(self):
         
@@ -197,7 +201,7 @@ class Netlist(MNA):
             if hasattr(self, elt.name):
                 raise ValueError('Invalid component name %s' % elt.name)
 
-        self.elements[elt.name] = elt
+        self._elements[elt.name] = elt
 
         for node in elt.nodes:
             self._node_add(node, elt)
