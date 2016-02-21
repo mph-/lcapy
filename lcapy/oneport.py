@@ -23,14 +23,15 @@ Isc short-circuit current
 One-ports can either be connected in series (+) or parallel (|) to
 create a new one-port.
 
-Copyright 2014, 2015 Michael Hayes, UCECE
+Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 """
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, NetObject, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, Yphasor, Zphasor, omega1
+from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, Yphasor, Zphasor, omega1
 from lcapy.schematic import Schematic
 from lcapy.sympify import symbols_find
+from lcapy.network import Network
 
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
@@ -58,7 +59,7 @@ def _check_oneport_args(args):
             raise ValueError('%s not a OnePort' % arg1)
 
 
-class OnePort(NetObject):
+class OnePort(Network):
     """One-port network"""
 
     # Attributes: Y, Z, V, I, y, z, v, i

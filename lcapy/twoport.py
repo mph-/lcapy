@@ -1,16 +1,17 @@
 """
 This module supports simple linear two-port networks.
 
-Copyright 2014, 2015 Michael Hayes, UCECE
+Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 """
 
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import s, Vs, Is, Zs, Ys, Hs, NetObject, cExpr, sExpr
+from lcapy.core import s, Vs, Is, Zs, Ys, Hs, cExpr, sExpr
 from lcapy.core import WyeDelta, DeltaWye, Vector, Matrix
 from lcapy.core import VsVector, IsVector, YsVector, ZsVector
 from lcapy.oneport import OnePort, Norton, Thevenin
+from lcapy.network import Network
 
 
 # TODO:
@@ -841,7 +842,7 @@ class ZMatrix(TwoPortMatrix):
         return cls.Tsection(Za, Zb, Zc)
 
 
-class TwoPort(NetObject):
+class TwoPort(Network):
 
     """
     General class to two-port networks.  Two-port networks are
