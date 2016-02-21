@@ -195,21 +195,45 @@ class OnePort(NetObject):
         return '%s %s %s %s %s; right' % (netname, n1, n2, 
                                           self.netkeyword, self.netargs())
 
+    @property
     def sch(self):
+
+        if hasattr(self, '_sch'):
+            return self._sch
 
         netlist = self.netlist()
         sch = Schematic()
         for net in netlist.split('\n'):
             sch.add(net)
+        self._sch = sch
         return sch
 
     def draw(self, filename=None, label_ids=False,
              label_values=True, draw_nodes='connections',
              label_nodes=False):
-        self.sch().draw(filename=filename, label_ids=label_ids, 
-                        label_values=label_values, 
-                        draw_nodes=draw_nodes, label_nodes=label_nodes)
+        self.sch.draw(filename=filename, label_ids=label_ids, 
+                      label_values=label_values, 
+                      draw_nodes=draw_nodes, label_nodes=label_nodes)
         
+    @property
+    def cct(self):
+
+        if hasattr(self, '_cct'):
+            return self._cct
+
+        from lcapy.netlist import Circuit
+
+        drw = Drawing()        
+        netlist = self.netlist(drw)
+        cct = Circuit()
+        for net in netlist.split('\n'):
+            cct.add(net)
+
+        # Create ground reference.
+        cct.add('W %d 0' % (drw.node - 1))
+        self._cct = cct
+        return cct
+
 
 class ParSer(OnePort):
     """Parallel/serial class"""
