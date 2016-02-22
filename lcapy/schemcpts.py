@@ -47,7 +47,7 @@ class Cpt(object):
         self.id = cpt_id
 
         if cpt_id == '' and sch is not None:
-            cpt_id = '@' + self.anon(cpt_type)
+            cpt_id = 'anon' + self.anon(cpt_type)
 
         name = self.type + cpt_id
 
