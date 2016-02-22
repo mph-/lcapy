@@ -144,11 +144,6 @@ class Netlist(MNA):
 
         return self._elements
 
-    @elements.setter
-    def elements(self, val):
-
-        self._elements = val
-
     def netlist(self):
         """Return the current netlist"""
 

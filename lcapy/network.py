@@ -99,7 +99,6 @@ class Network(Netlist):
     def Zac(self):
         return self.Z.jomega()
 
-    @property
     def _add_elements(self):
 
         netlist = self.netlist()
