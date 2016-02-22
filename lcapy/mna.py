@@ -274,6 +274,10 @@ class MNA(object):
         if hasattr(self, '_A'):
             return
 
+        # Hack, to indirectly generate element list for network.
+        if self.elements == {}:
+            raise ValueError('No elements to analyse')
+
         # TODO: think this out.  When a circuit is converted
         # to a s-domain model we get Z (and perhaps Y) components.
         # We also loose the ability to determine the voltage
