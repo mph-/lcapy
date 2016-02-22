@@ -397,17 +397,21 @@ class MNA(object):
     def A(self):
         """Return A matrix for MNA"""
 
+        self._analyse()
         return Matrix(self._A)
 
     @property
     def Z(self):
         """Return Z vector for MNA"""
 
+        self._analyse()
         return Vector(self._Z)
 
     @property
     def X(self):
         """Return X vector (of unknowns) for MNA"""
+
+        self._analyse()
 
         V = ['V_' + node for node in self.node_list[1:]]
         I = ['I_' + branch for branch in self.unknown_branch_currents]
@@ -417,8 +421,7 @@ class MNA(object):
     def V(self):
         """Return dictionary of s-domain node voltages indexed by node name"""
 
-        if not hasattr(self, '_V'):
-            self._solve()
+        self._solve()
         return self._V
 
     @property
@@ -426,8 +429,7 @@ class MNA(object):
         """Return dictionary of s-domain branch currents indexed
         by component name"""
 
-        if not hasattr(self, '_I'):
-            self._solve()
+        self._solve()
         return self._I
 
     @property
@@ -438,6 +440,8 @@ class MNA(object):
         if hasattr(self, '_Vd'):
             return self._Vd
 
+        self._solve()
+
         # This is a hack.  The assumptions should be recalculated
         # when performing operations on Expr types.
         assumptions = self.assumptions
@@ -447,7 +451,7 @@ class MNA(object):
             if elt.type == 'K':
                 continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
-            self._Vd[elt.name] = VV((self.V[n1] - self.V[n2]).simplify(),
+            self._Vd[elt.name] = VV((self._V[n1] - self._V[n2]).simplify(),
                                     **assumptions)
 
         return self._Vd

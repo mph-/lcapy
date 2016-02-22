@@ -159,7 +159,8 @@ class Cpt(object):
     def I(self):
         """Current through component"""
 
-        return self.cct.I[self.name]
+        self.cct._solve()
+        return self.cct._I[self.name]
 
     @property
     def I0(self):
@@ -179,7 +180,8 @@ class Cpt(object):
     def V(self):
         """Voltage drop across component"""
 
-        return self.cct.V[self.name]
+        self.cct._solve()
+        return self.cct._V[self.name]
 
     @property
     def V0(self):
