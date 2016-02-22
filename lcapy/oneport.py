@@ -159,6 +159,39 @@ class OnePort(Network):
     def z(self):
         return self.Z.inverse_laplace()
 
+    @property
+    def I(self):
+        return self._I
+
+    @I.setter
+    def I(self, val):
+        self._I = val
+
+    @property
+    def V(self):
+        return self._V
+
+    @V.setter
+    def V(self, val):
+        self._V = val
+
+    @property
+    def Y(self):
+        return self._Y
+
+    @Y.setter
+    def Y(self, val):
+        self._Y = val
+
+    @property
+    def Z(self):
+        return self._Z
+
+    @Z.setter
+    def Z(self, val):
+        self._Z = val
+
+
 
 class ParSer(OnePort):
     """Parallel/serial class"""
@@ -435,8 +468,8 @@ class Par(ParSer):
 
     def __init__(self, *args):
 
-        self.args = args
         _check_oneport_args(args)
+        super(Par, self).__init__(*args)
 
         for n, arg1 in enumerate(self.args):
             for arg2 in self.args[n + 1:]:
@@ -497,7 +530,7 @@ class Par(ParSer):
             total += arg.height
         return total + (len(self.args) - 1) * self.hsep
 
-    def netlist(self, n1=None, n2=None):
+    def net_make(self, n1=None, n2=None):
 
         if len(self.args) > 2:
             raise NotImplementedError('Cannot handle more than two cpts in parallel')
@@ -519,8 +552,8 @@ class Par(ParSer):
         s.append('W %s %s; right, size=%s' % (n6, n2, self.wsep))
         s.append('W %s %s; up, size=%s' % (n6, n7, h1))
         s.append('W %s %s; down, size=%s' % (n6, n8, h2))
-        s.append(self.args[0].netlist(n4, n7))
-        s.append(self.args[1].netlist(n5, n8))
+        s.append(self.args[0].net_make(n4, n7))
+        s.append(self.args[1].net_make(n5, n8))
         return '\n'.join(s)
 
 
@@ -531,8 +564,8 @@ class Ser(ParSer):
 
     def __init__(self, *args):
 
-        self.args = args
         _check_oneport_args(args)
+        super(Ser, self).__init__(*args)
 
         for n, arg1 in enumerate(self.args):
             for arg2 in self.args[n + 1:]:
@@ -544,6 +577,8 @@ class Ser(ParSer):
                     # save later grief with Norton or Thevenin transformation.
                     print('Warn: series connection with current source:'
                           ' %s and %s' % (arg1, arg2))
+
+
 
     @property
     def Y(self):
@@ -589,20 +624,20 @@ class Ser(ParSer):
             total += arg.width
         return total + (len(self.args) - 1) * self.wsep
 
-    def netlist(self, n1=None, n2=None):
+    def net_make(self, n1=None, n2=None):
 
         s = []
         if n1 is None:
             n1 = self.node
         for arg in self.args[:-1]:
             n3 = self.node
-            s.append(arg.netlist(n1, n3))
+            s.append(arg.net_make(n1, n3))
             n1 = self.node
             s.append('W %s %s; right, size=%s' % (n3, n1, self.wsep))
 
         if n2 is None:
             n2 = self.node
-        s.append(self.args[-1].netlist(n1, n2))
+        s.append(self.args[-1].net_make(n1, n2))
         return '\n'.join(s)
 
 

@@ -113,20 +113,16 @@ class Circuit(Netlist):
         for line in lines:
             self.add(line)
 
-    def net_add(self, string, *args):
+    def add(self, string, *args):
         """Add a component to the netlist.
         The general form is: 'Name Np Nm args'
         where Np is the positive node and Nm is the negative node.
 
         A positive current is defined to flow from the positive node
         to the negative node.
-
-        Note, this method has been superseded by add.
         """
 
-        self.add(string, *args)
-
-
+        return self._add(string, *args)
 
 def test():
 

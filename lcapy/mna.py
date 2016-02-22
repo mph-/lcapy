@@ -6,7 +6,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 
 from __future__ import division
 from lcapy.core import cExpr, VV, II, s, sqrt
-from lcapy.twoport import Matrix, Vector
+from lcapy.core import Matrix, Vector
 import sympy as sym
 
 # Note, all the maths is performed using sympy expressions and the

@@ -6,8 +6,9 @@ from __future__ import division
 import sympy as sym
 from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, Yphasor, Zphasor, omega1
 from lcapy.schematic import Schematic
+from lcapy.netlist import Netlist
 
-class Network(object):
+class Network(Netlist):
 
     voltage_source = False
     current_source = False
@@ -20,12 +21,12 @@ class Network(object):
     # False if initial conditions are not specified.
     hasic = None
 
-    def __init__(self, args):
+    def __init__(self, *args):
 
         if not hasattr(self, 'args'):
             self.args = args
-        self.node_counter = 0
 
+        super(Network, self).__init__()
 
     def _tweak_args(self):
 
@@ -34,7 +35,7 @@ class Network(object):
 
         args = self.args
         # Drop the initial condition for L or C if it is zero.
-        if isinstance(self, (L, C)) and args[1] == 0:
+        if self.__class__.__name__ in ('L', 'C') and args[1] == 0:
             args = args[:-1]
 
         modargs = []
@@ -99,12 +100,21 @@ class Network(object):
         return self.Z.jomega()
 
     @property
-    def elements(self):
-        raise ValueError('TODO')
+    def _add_elements(self):
+
+        netlist = self.netlist()
+        for net in netlist.split('\n'):
+            self._add(net)
+
+        # Hack, create ground reference.
+        self._add('W %d 0' % (self.node - 1))
 
     @property 
     def node(self):
 
+        if not hasattr(self, 'node_counter'):
+            self.node_counter = 0
+        
         self.node_counter += 1
         return self.node_counter
 
@@ -118,7 +128,7 @@ class Network(object):
 
         return ' '.join([quote(str(arg)) for arg in self.args])
 
-    def netlist(self, n1=None, n2=None):
+    def net_make(self, n1=None, n2=None):
 
         if n1 == None:
             n1 = self.node
@@ -128,6 +138,12 @@ class Network(object):
         netname = self.__class__.__name__ if self.netname == '' else self.netname
         return '%s %s %s %s %s; right' % (netname, n1, n2, 
                                           self.netkeyword, self.netargs())
+
+    def netlist(self):
+
+        self.node_counter = 0
+        return self.net_make()
+
 
     @property
     def sch(self):
@@ -146,27 +162,7 @@ class Network(object):
              label_values=True, draw_nodes='connections',
              label_nodes=False):
 
-        self.node_counter = 0
         self.sch.draw(filename=filename, label_ids=label_ids, 
                       label_values=label_values, 
                       draw_nodes=draw_nodes, label_nodes=label_nodes)
         
-    @property
-    def cct(self):
-
-        if hasattr(self, '_cct'):
-            return self._cct
-
-        from lcapy.netlist import Circuit
-
-        self.node_counter = 0
-        netlist = self.netlist(self)
-        cct = Circuit()
-        for net in netlist.split('\n'):
-            cct.add(net)
-
-        # Create ground reference.
-        cct.add('W %d 0' % (self.node - 1))
-        self._cct = cct
-        return cct
-

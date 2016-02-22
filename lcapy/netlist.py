@@ -12,8 +12,6 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 from __future__ import division
 from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym
 from lcapy.core import s, j, omega, uppercase_name, global_context
-from lcapy.oneport import V, I, Y, Z
-from lcapy.twoport import AMatrix, TwoPortBModel
 from lcapy.schematic import Schematic, Opts, SchematicOpts
 from lcapy.mna import MNA
 import lcapy.grammar as grammar
@@ -105,14 +103,6 @@ class Netlist(MNA):
         if filename is not None:
             self.netfile_add(filename)
 
-    @property
-    def elements(self):
-        return self._elements
-
-    def __repr__(self):
-        
-        return self.netlist()
-
     def __getitem__(self, name):
         """Return element or node by name"""
 
@@ -123,12 +113,12 @@ class Netlist(MNA):
         if name in self.nodes:
             return self.nodes[name]
 
-        if name in self.elements:
-            return self.elements[name]
+        if name in self._elements:
+            return self._elements[name]
 
         # Try first anonymous name.
-        if name + '@1' in self.elements:
-            return self.elements[name + '@1']
+        if name + '@1' in self._elements:
+            return self._elements[name + '@1']
 
         raise AttributeError('Unknown element or node name %s' % name)
 
@@ -141,10 +131,28 @@ class Netlist(MNA):
 
         return self.__getitem__(attr)
 
+    def __repr__(self):
+        
+        return self.netlist()
+
+    @property
+    def elements(self):
+
+        if hasattr(self, '_add_elements'):
+            if self._elements == {}:
+                self._add_elements()
+
+        return self._elements
+
+    @elements.setter
+    def elements(self, val):
+
+        self._elements = val
+
     def netlist(self):
         """Return the current netlist"""
 
-        return '\n'.join([str(elt) for elt in self.elements.values()])
+        return '\n'.join([str(elt) for elt in self._elements.values()])
 
     def _node_add(self, node, elt):
 
@@ -189,7 +197,7 @@ class Netlist(MNA):
 
     def _elt_add(self, elt):
 
-        if elt.name in self.elements:
+        if elt.name in self._elements:
             print('Overriding component %s' % elt.name)
             # Need to search lists and update component.
             # For example, remove nodes that are only connected
@@ -206,7 +214,7 @@ class Netlist(MNA):
         for node in elt.nodes:
             self._node_add(node, elt)
 
-    def add(self, string, *args):
+    def _add(self, string, *args):
         """Add a component to the netlist.
         The general form is: 'Name Np Nm args'
         where Np is the positive node and Nm is the negative node.
@@ -220,7 +228,7 @@ class Netlist(MNA):
             for line in lines:
                 line = line.strip()
                 if line != '':
-                    self.add(line)
+                    self._add(line)
             return
 
         elt = self.parse(string)
@@ -235,9 +243,9 @@ class Netlist(MNA):
 
         self._invalidate()
 
-        if name not in self.elements:
+        if name not in self._elements:
             raise ValueError('Unknown component: ' + name)
-        self.elements.pop(name)
+        self._elements.pop(name)
         # TODO, remove nodes that are only connected
         # to this component.
 
@@ -274,7 +282,7 @@ class Netlist(MNA):
     def Isc(self, Np, Nm):
         """Return short-circuit s-domain current between nodes Np and Nm."""
 
-        self.add('Vshort_ %d %d 0' % (Np, Nm))
+        self._add('Vshort_ %d %d 0' % (Np, Nm))
 
         Isc = self.Vshort_.I
         self.remove('Vshort_')
@@ -289,12 +297,16 @@ class Netlist(MNA):
     def thevenin(self, Np, Nm):
         """Return Thevenin model between nodes Np and Nm"""
 
+        from lcapy.oneport import V, Z
+
         Voc = self.Voc(Np, Nm)
 
         return V(Voc) + Z(self.impedance(Np, Nm))
 
     def norton(self, Np, Nm):
         """Return Norton model between nodes Np and Nm"""
+
+        from lcapy.oneport import I, Y
 
         Isc = self.Isc(Np, Nm)
 
@@ -310,7 +322,7 @@ class Netlist(MNA):
 
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
-        new.add('Vin_ %d %d {s * 0 + 1}' % (Np, Nm))
+        new._add('Vin_ %d %d {s * 0 + 1}' % (Np, Nm))
         If = -new.Vin_.I
         new.remove('Vin_')
 
@@ -327,7 +339,7 @@ class Netlist(MNA):
 
         # Connect 1 A s-domain current source between nodes and
         # measure voltage.
-        new.add('Iin_ %d %d {s * 0 + 1}' % (Np, Nm))
+        new._add('Iin_ %d %d {s * 0 + 1}' % (Np, Nm))
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
@@ -358,7 +370,7 @@ class Netlist(MNA):
         Note, independent sources are killed."""
 
         new = self.kill()
-        new.add('V1_ %d %d s 1' % (N1p, N1m))
+        new._add('V1_ %d %d s 1' % (N1p, N1m))
 
         H = Hs(new.Voc(N2p, N2m) / new.V1_.V, causal=True)
 
@@ -372,12 +384,14 @@ class Netlist(MNA):
         V2 is V[N2p] - V[N2m]
         """
 
+        from lcapy.twoport import AMatrix
+
         if self.Voc(N1p, N1m) != 0 or self.Voc(N2p, N2m) != 0:
             raise ValueError('Network contains independent sources')
 
         try:
 
-            self.add('V1_ %d %d s 1' % (N1p, N1m))
+            self._add('V1_ %d %d s 1' % (N1p, N1m))
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
@@ -389,7 +403,7 @@ class Netlist(MNA):
 
             self.remove('V1_')
 
-            self.add('I1_ %d %d s 1' % (N1p, N1m))
+            self._add('I1_ %d %d s 1' % (N1p, N1m))
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
@@ -410,12 +424,12 @@ class Netlist(MNA):
         new = Netlist()
         new.opts = copy(self.opts)
 
-        for elt in self.elements.values():
+        for elt in self._elements.values():
             if elt.name in sourcenames:
                 net = elt.kill()
             else:
                 net = elt.kill_initial()
-            new.add(net)
+            new._add(net)
         return new        
 
     def kill_except(self, *args):
@@ -462,6 +476,8 @@ class Netlist(MNA):
         V2 is V[N2p] - V[N2m]
         """
 
+        from lcapy.twoport import TwoPortBModel
+
         V2b = self.Voc(N2p, N2m)
         I2b = self.Isc(N2p, N2m)
 
@@ -491,9 +507,9 @@ class Netlist(MNA):
         new = Netlist()
         new.opts = copy(self.opts)
 
-        for elt in self.elements.values():
+        for elt in self._elements.values():
             net = elt.pre_initial_model()
-            new.add(net)
+            new._add(net)
         return new        
 
     def s_model(self, var=s):
@@ -501,9 +517,9 @@ class Netlist(MNA):
         new = Netlist()
         new.opts = copy(self.opts)
 
-        for elt in self.elements.values():
+        for elt in self._elements.values():
             net = elt.s_model(var)
-            new.add(net)
+            new._add(net)
         return new        
 
     def ac_model(self):
