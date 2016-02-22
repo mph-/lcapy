@@ -1160,7 +1160,7 @@ class sExpr(sfwExpr):
 
         expr = M / D
         for factor in expr.as_ordered_factors():
-            if factor.is_finite == False:
+            if factor == sym.oo:
                 return factor
 
         sexpr = sExpr(expr)
