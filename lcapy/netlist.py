@@ -71,7 +71,7 @@ class Node(object):
     def V(self):
         """Node voltage with respect to ground"""
 
-        return self.cct.V[self.name]
+        return self.cct._V[self.name]
 
     @property
     def v(self):
@@ -317,7 +317,7 @@ class Netlist(MNA):
 
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
-        new._add('Vin_ %d %d {s * 0 + 1}' % (Np, Nm))
+        new._add('Vin_ %d %d {2 * DiracDelta(t)}' % (Np, Nm))
         If = -new.Vin_.I
         new.remove('Vin_')
 
@@ -334,7 +334,7 @@ class Netlist(MNA):
 
         # Connect 1 A s-domain current source between nodes and
         # measure voltage.
-        new._add('Iin_ %d %d {s * 0 + 1}' % (Np, Nm))
+        new._add('Iin_ %d %d {2 * DiracDelta(t)}' % (Np, Nm))
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 

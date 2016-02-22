@@ -109,9 +109,9 @@ class Cpt(object):
         a causal signal"""
 
         if self.cpt.voltage_source:
-            return self.cpt.V.is_causal
+            return self.cpt.Voc.is_causal
         elif self.cpt.current_source:
-            return self.cpt.I.is_causal
+            return self.cpt.Isc.is_causal
         else:
             raise ValueError('%s is not a source' % self)
 
@@ -120,9 +120,9 @@ class Cpt(object):
         """Return True if source is dc"""
         
         if self.cpt.voltage_source:
-            return self.cpt.V.is_dc
+            return self.cpt.Voc.is_dc
         elif self.cpt.current_source:
-            return self.cpt.I.is_dc
+            return self.cpt.Isc.is_dc
         else:
             raise ValueError('%s is not a source' % self)
 
@@ -131,9 +131,9 @@ class Cpt(object):
         """Return True if source is ac"""
 
         if self.cpt.voltage_source:
-            return self.cpt.V.is_ac
+            return self.cpt.Voc.is_ac
         elif self.cpt.current_source:
-            return self.cpt.I.is_ac
+            return self.cpt.Isc.is_ac
         else:
             raise ValueError('%s is not a source' % self)
 
@@ -163,14 +163,6 @@ class Cpt(object):
         return self.cct._I[self.name]
 
     @property
-    def I0(self):
-        """Initial current"""
-        
-        if self.cct.is_ac:
-            return self.cpt.Iac
-        return self.cpt.I
-
-    @property
     def i(self):
         """Time-domain current through component"""
 
@@ -184,21 +176,29 @@ class Cpt(object):
         return self.cct._V[self.name]
 
     @property
-    def V0(self):
-        """Initial voltage"""
-        
-        if self.cct.is_ac:
-            return self.cpt.Vac
-        return self.cpt.V
-
-    @property
     def v(self):
         """Time-domain voltage drop across component"""
 
         return self.cct.v[self.name]
 
     @property
-    def Y(self):
+    def Icpt(self):
+        """Initial current"""
+        
+        if self.cct.is_ac:
+            return self.cpt.Iscac
+        return self.cpt.Isc
+
+    @property
+    def Vcpt(self):
+        """Initial voltage"""
+        
+        if self.cct.is_ac:
+            return self.cpt.Vocac
+        return self.cpt.Voc
+
+    @property
+    def Ycpt(self):
         """Admittance"""
         
         if self.cct.is_ac:
@@ -206,36 +206,12 @@ class Cpt(object):
         return self.cpt.Y
 
     @property
-    def Z(self):
+    def Zcpt(self):
         """Impedance"""
         
         if self.cct.is_ac:
             return self.cpt.Zac
         return self.cpt.Z
-
-    @property
-    def Yac(self):
-        """Phasor (complex) admittance"""
-        
-        return self.cpt.Yac
-
-    @property
-    def Zac(self):
-        """Phasor (complex) impedance"""
-        
-        return self.cpt.Zac
-
-    @property
-    def Iac(self):
-        """Phasor current"""
-        
-        return self.cpt.Iac
-
-    @property
-    def Vac(self):
-        """Phasor voltage"""
-        
-        return self.cpt.Vac
 
     @property
     def node_indexes(self):
@@ -296,7 +272,7 @@ class RLC(Cpt):
 
     def s_model(self, var):
 
-        if self.cpt.V == 0:        
+        if self.cpt.Voc == 0:        
             return 'Z%s %s %s {%s};%s' % (self.name, 
                                           self.nodes[0], self.nodes[1],
                                           self.cpt.Z(var), 
@@ -320,7 +296,7 @@ class RLC(Cpt):
 
         vnet = 'V%s %s %s s {%s}; %s' % (self.name, 
                                          dummy_node, self.nodes[1],
-                                         self.cpt.V(var), opts)
+                                         self.cpt.Voc(var), opts)
 
         if voltage_opts == {}:
             return znet + '\n' + vnet
@@ -358,7 +334,7 @@ class RC(RLC):
             I = 0
         else:
             Y = self.cpt.Y.expr
-            I = self.cpt.I.expr
+            I = self.cpt.Isc.expr
 
         if n1 >= 0 and n2 >= 0:
             cct._G[n1, n2] -= Y
@@ -421,7 +397,7 @@ class L(RLC):
             V = 0
         else:
             Z = self.cpt.Z.expr
-            V = self.cpt.V.expr
+            V = self.cpt.Voc.expr
 
 
         cct._D[m, m] += -Z
@@ -522,9 +498,9 @@ class I(Cpt):
         n1, n2 = self.node_indexes
 
         if assumptions.get('ac', False):
-            I = self.cpt.Iac.expr
+            I = self.cpt.Iscac.expr
         else:
-            I = self.cpt.I.expr
+            I = self.cpt.Isc.expr
 
         if n1 >= 0:
             cct._Is[n1] += I
@@ -535,7 +511,7 @@ class I(Cpt):
 
         return '%s %s %s s {%s}; %s' % (self.name, 
                                         self.nodes[0], self.nodes[1],
-                                        self.cpt.I(var), self.opts)
+                                        self.cpt.Isc(var), self.opts)
 
     def pre_initial_model(self):
 
@@ -572,9 +548,9 @@ class V(Cpt):
             cct._C[m, n2] -= 1
 
         if assumptions.get('ac', False):
-            V = self.cpt.Vac.expr
+            V = self.cpt.Vocac.expr
         else:
-            V = self.cpt.V.expr
+            V = self.cpt.Voc.expr
         
         cct._Es[m] += V
 
@@ -583,7 +559,7 @@ class V(Cpt):
 
         return '%s %s %s s {%s}; %s' % (self.name, 
                                         self.nodes[0], self.nodes[1],
-                                        self.cpt.V(var), self.opts)
+                                        self.cpt.Voc(var), self.opts)
 
     def pre_initial_model(self):
 

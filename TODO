@@ -145,3 +145,4 @@ than ac analysis.  Probably, we should convert the AST to a netlist
 and then analyse the netlist with MNA.  The result would be the
 Thevenin equivalent.  With this approach, the responses of different
 independent sources can be combined with superposition.
+

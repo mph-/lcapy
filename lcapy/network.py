@@ -7,6 +7,7 @@ import sympy as sym
 from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, Yphasor, Zphasor, omega1
 from lcapy.schematic import Schematic
 from lcapy.netlist import Netlist
+from lcapy.circuit import Circuit
 
 class Network(Netlist):
 
@@ -84,11 +85,11 @@ class Network(Netlist):
         return self
 
     @property
-    def Vac(self):
+    def Vocac(self):
         return 0
 
     @property
-    def Iac(self):
+    def Iscac(self):
         return 0
 
     @property
@@ -146,6 +147,7 @@ class Network(Netlist):
 
     @property
     def sch(self):
+        """Convert a Network object into a Schematic object."""
 
         if hasattr(self, '_sch'):
             return self._sch
@@ -165,3 +167,16 @@ class Network(Netlist):
                       label_values=label_values, 
                       draw_nodes=draw_nodes, label_nodes=label_nodes)
         
+    @property
+    def cct(self):
+        """Convert a Network object into a Circuit object for debugging."""
+
+        if hasattr(self, '_cct'):
+            return self._cct
+
+        netlist = self.netlist()
+        cct = Circuit()
+        for net in netlist.split('\n'):
+            cct.add(net)
+        self._cct = cct
+        return cct
