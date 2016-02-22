@@ -22,8 +22,8 @@ class LcapyTester(unittest.TestCase):
             ans2.pprint()
             raise AssertionError(e)
 
-    def test_RL1(self):
-        """Lcapy: check RL network
+    def test_RC1(self):
+        """Lcapy: check RC network
 
         """
         a = Circuit()
