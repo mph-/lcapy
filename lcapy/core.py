@@ -1159,6 +1159,10 @@ class sExpr(sfwExpr):
                 result1 += c * sym.diff(sym.DiracDelta(td), tsym, len(C) - n - 1)
 
         expr = M / D
+        for factor in expr.as_ordered_factors():
+            if factor.is_finite == False:
+                return factor
+
         sexpr = sExpr(expr)
 
         P = sexpr.poles()
