@@ -124,6 +124,23 @@ class Circuit(Netlist):
 
         return self._add(string, *args)
 
+    def Y(self, Np, Nm):
+        """Return admittance between nodes Np and Nm with independent
+        sources killed.
+
+        """
+
+        return self.admittance(Np, Nm)
+
+    def Z(self, Np, Nm):
+        """Return impedance between nodes Np and Nm with independent
+        sources killed.
+
+        """
+
+        return self.impedance(Np, Nm)
+
+
 def test():
 
     cct = Circuit('Test')

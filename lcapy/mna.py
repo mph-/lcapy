@@ -70,113 +70,6 @@ class MNA(object):
     """
 
     @property
-    def is_causal(self):
-        """Return True if all independent sources are causal"""
-
-        independent_sources = self.independent_sources
-        if independent_sources == {}:
-            return not self.initial_value_problem
-
-        for elt in self.independent_sources.values():
-            if not elt.is_causal:
-                return False
-        return True
-
-    @property
-    def is_dc(self):
-        """Return True if all independent sources are DC."""
-
-        independent_sources = self.independent_sources
-        if independent_sources == {}:
-            return not self.initial_value_problem
-
-        for elt in independent_sources.values():
-            if not elt.is_dc:
-                return False
-        return True
-
-    @property
-    def is_ac(self):
-        """Return True if all independent sources are AC."""
-
-        independent_sources = self.independent_sources
-        if independent_sources == {}:
-            return not self.initial_value_problem
-
-        for elt in independent_sources.values():
-            if not elt.is_ac:
-                return False
-        return True
-
-    @property
-    def assumptions(self):
-
-        assumptions = {}
-        if self.is_ac:
-            assumptions['ac'] = True
-        if self.is_dc:
-            assumptions['dc'] = True
-        if self.is_causal:
-            assumptions['causal'] = True
-        return assumptions
-
-    @property
-    def zeroic(self):
-        """Return True if the initial conditions for all components are zero"""
-
-        for elt in self.elements.values():
-            if not elt.zeroic:
-                return False
-        return True
-
-    @property
-    def initial_value_problem(self):
-        """Return True if any components that allow initial conditions
-        have them explicitly defined."""
-
-        for elt in self.elements.values():
-            if elt.hasic is None:
-                continue
-            if elt.hasic:
-                return True
-
-        return False
-
-    @property
-    def missing_ic(self):
-        """Return components that allow initial conditions but do not have
-        them explicitly defined"""
-
-        return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is False)
-
-    @property
-    def explicit_ic(self):
-        """Return components that have explicitly defined initial conditions
-
-        """
-
-        return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is True)
-
-    @property
-    def allow_ic(self):
-        """Return components (L and C) that allow initial conditions"""
-
-        return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is not None)
-
-    @property
-    def noncausal_sources(self):
-        """Return non-causal independent sources"""
-
-        return dict((key, elt) for key, elt in self.elements.items() if elt.source and not elt.is_causal)
-
-    @property
-    def independent_sources(self):
-        """Return independent sources (this does not include
-        implicit sources due to initial conditions)"""
-
-        return dict((key, elt) for key, elt in self.elements.items() if elt.source)
-
-    @property
     def lnodes(self):
         """Determine linked nodes (both implicitly and explicitly
         connected)"""
@@ -401,7 +294,7 @@ class MNA(object):
         return Matrix(self._A)
 
     @property
-    def Z(self):
+    def ZV(self):
         """Return Z vector for MNA"""
 
         self._analyse()

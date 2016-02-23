@@ -341,22 +341,6 @@ class Netlist(MNA):
         Z = Zs(Vf, causal=True)
         return Z
 
-    def Y(self, Np, Nm):
-        """Return admittance between nodes Np and Nm with independent
-        sources killed.
-
-        """
-
-        return self.admittance(Np, Nm)
-
-    def Z(self, Np, Nm):
-        """Return impedance between nodes Np and Nm with independent
-        sources killed.
-
-        """
-
-        return self.impedance(Np, Nm)
-
     def transfer(self, N1p, N1m, N2p, N2m):
         """Create voltage transfer function V2 / V1 where:
         V1 is V[N1p] - V[N1m]
@@ -527,3 +511,111 @@ class Netlist(MNA):
             cct = cct.s_model()
 
         return cct.sch.draw(filename=filename, opts=self.opts, **kwargs)
+
+    @property
+    def is_causal(self):
+        """Return True if all independent sources are causal"""
+
+        independent_sources = self.independent_sources
+        if independent_sources == {}:
+            return not self.initial_value_problem
+
+        for elt in self.independent_sources.values():
+            if not elt.is_causal:
+                return False
+        return True
+
+    @property
+    def is_dc(self):
+        """Return True if all independent sources are DC."""
+
+        independent_sources = self.independent_sources
+        if independent_sources == {}:
+            return not self.initial_value_problem
+
+        for elt in independent_sources.values():
+            if not elt.is_dc:
+                return False
+        return True
+
+    @property
+    def is_ac(self):
+        """Return True if all independent sources are AC."""
+
+        independent_sources = self.independent_sources
+        if independent_sources == {}:
+            return not self.initial_value_problem
+
+        for elt in independent_sources.values():
+            if not elt.is_ac:
+                return False
+        return True
+
+    @property
+    def assumptions(self):
+
+        assumptions = {}
+        if self.is_ac:
+            assumptions['ac'] = True
+        if self.is_dc:
+            assumptions['dc'] = True
+        if self.is_causal:
+            assumptions['causal'] = True
+        return assumptions
+
+    @property
+    def zeroic(self):
+        """Return True if the initial conditions for all components are zero"""
+
+        for elt in self.elements.values():
+            if not elt.zeroic:
+                return False
+        return True
+
+    @property
+    def initial_value_problem(self):
+        """Return True if any components that allow initial conditions
+        have them explicitly defined."""
+
+        for elt in self.elements.values():
+            if elt.hasic is None:
+                continue
+            if elt.hasic:
+                return True
+
+        return False
+
+    @property
+    def missing_ic(self):
+        """Return components that allow initial conditions but do not have
+        them explicitly defined"""
+
+        return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is False)
+
+    @property
+    def explicit_ic(self):
+        """Return components that have explicitly defined initial conditions
+
+        """
+
+        return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is True)
+
+    @property
+    def allow_ic(self):
+        """Return components (L and C) that allow initial conditions"""
+
+        return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is not None)
+
+    @property
+    def noncausal_sources(self):
+        """Return non-causal independent sources"""
+
+        return dict((key, elt) for key, elt in self.elements.items() if elt.source and not elt.is_causal)
+
+    @property
+    def independent_sources(self):
+        """Return independent sources (this does not include
+        implicit sources due to initial conditions)"""
+
+        return dict((key, elt) for key, elt in self.elements.items() if elt.source)
+
