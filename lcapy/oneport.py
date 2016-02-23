@@ -28,7 +28,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, Yphasor, Zphasor, omega1, It
+from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, Yphasor, Zphasor, omega1, It, II, VV
 from lcapy.sympify import symbols_find
 from lcapy.network import Network
 
@@ -247,18 +247,18 @@ class ParSer(OnePort):
 
         if arg1.__class__ != arg2.__class__:
             if self.__class__ == Ser:
-                if isinstance(arg1, V) and arg1.V == 0:
+                if isinstance(arg1, V) and arg1.Voc == 0:
                     return arg2
-                if isinstance(arg2, V) and arg2.V == 0:
+                if isinstance(arg2, V) and arg2.Voc == 0:
                     return arg1
                 if isinstance(arg1, Z) and arg1.Z == 0:
                     return arg2
                 if isinstance(arg2, Z) and arg2.Z == 0:
                     return arg1
             if self.__class__ == Par:
-                if isinstance(arg1, I) and arg1.I == 0:
+                if isinstance(arg1, I) and arg1.Isc == 0:
                     return arg2
-                if isinstance(arg2, I) and arg2.I == 0:
+                if isinstance(arg2, I) and arg2.Isc == 0:
                     return arg1
                 if isinstance(arg1, Y) and arg1.Y == 0:
                     return arg2
@@ -410,7 +410,7 @@ class ParSer(OnePort):
         if not isinstance(V1, OnePort):
             V1 = V(V1)
 
-        if V1.V == 0:
+        if V1.Voc == 0:
             return Z1
         if Z1.Z == 0:
             return V1
@@ -432,7 +432,7 @@ class ParSer(OnePort):
         if not isinstance(I1, OnePort):
             I1 = I(I1)
 
-        if I1.I == 0:
+        if I1.Isc == 0:
             return Y1
         if Y1.Y == 0:
             return I1
@@ -446,7 +446,16 @@ class ParSer(OnePort):
 
     @property
     def Isc(self):
-        return Is(self.Voc / self.Z, **self.Voc.assumptions)
+
+        Voc = self.Voc
+        Z = self.Z
+        assumptions = Voc.assumptions
+        # Hack
+        if isinstance(Voc, Vphasor):
+            assumptions['ac'] = True
+            Z = self.Zac
+            
+        return II(Voc / Z, **assumptions) 
 
     @property
     def Voc(self):
@@ -623,7 +632,7 @@ class Norton(OnePort):
 
     @property
     def Voc(self):
-        return Vs(self.Isc / self.Y, **self.Isc.assumptions)
+        return VV(self.Isc / self.Y, **self.Isc.assumptions)
 
     def thevenin(self):
         """Simplify to a Thevenin network"""
@@ -700,7 +709,13 @@ class Thevenin(OnePort):
 
     @property
     def Isc(self):
-        return Is(self.Voc / self.Z, **self.Voc.assumptions)
+
+        assumptions = self.Voc.assumptions
+        # Hack
+        if isinstance(self.Voc, Vphasor):
+            assumptions['ac'] = True
+            
+        return II(self.Voc / self.Z, **assumptions)
 
     def norton(self):
         """Simplify to a Norton network"""
@@ -867,6 +882,14 @@ class G(Norton):
         super(G, self).__init__(Ys.G(Gval))
         self.G = Gval
 
+    def net_make(self, net, n1=None, n2=None):
+
+        if n1 == None:
+            n1 = net.node
+        if n2 == None:
+            n2 = net.node
+        return 'R %s %s %s; right' % (n1, n2, 1 / self.G)
+
 
 class L(Thevenin):
     """Inductor
@@ -941,7 +964,6 @@ class VoltageSource(Thevenin):
 
 class sV(VoltageSource):
     """Arbitrary s-domain voltage source"""
-
 
     netname = 'V'
     netkeyword = 's'

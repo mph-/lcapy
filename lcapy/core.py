@@ -1634,11 +1634,27 @@ class Phasor(sfwExpr):
 
 
 class Vphasor(Phasor):
-    pass
+
+    def cpt(self):
+
+        v = self
+        if v.is_number:
+            return Vac(v.expr)
+
+        # Need a combination of components.
+        return self
 
 
 class Iphasor(Phasor):
-    pass
+    
+    def cpt(self):
+
+        i = self
+        if i.is_number:
+            return Iac(i.expr)
+
+        # Need a combination of components.
+        return self
 
 
 class Zphasor(sfwExpr):
@@ -2303,4 +2319,4 @@ def II(val, **assumptions):
 
 
 init = True
-from lcapy.oneport import L, C, R, G, Idc, Vdc
+from lcapy.oneport import L, C, R, G, Idc, Vdc, Iac, Vac
