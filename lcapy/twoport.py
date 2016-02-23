@@ -850,6 +850,12 @@ class TwoPort(Network):
     opposite directions).  This is called the port condition.
     """
 
+    def _add_elements(self):
+        raise ValueError('Cannot generate netlist for two-port objects')
+
+    def netlist(self):
+        raise ValueError('Cannot generate netlist for two-port objects')
+
     def _check_twoport_args(self):
 
         # This is an interim measure until Par2, Ser2, etc. generalised.
