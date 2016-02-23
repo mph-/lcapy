@@ -454,12 +454,7 @@ class ParSer(OnePort):
         Voc = self.Voc
         Z = self.Z
         assumptions = Voc.assumptions
-        # Hack
-        if isinstance(Voc, Vphasor):
-            assumptions['ac'] = True
-            Z = self.Zac
-            
-        return II(Voc / Z, **assumptions).laplace()
+        return Is(Voc / Z, **assumptions).laplace()
 
     @property
     def Voc(self):
@@ -636,7 +631,7 @@ class Norton(OnePort):
 
     @property
     def Voc(self):
-        return VV(self.Isc / self.Y, **self.Isc.assumptions).laplace()
+        return Vs(self.Isc / self.Y, **self.Isc.assumptions).laplace()
 
     def thevenin(self):
         """Simplify to a Thevenin network"""
@@ -715,11 +710,7 @@ class Thevenin(OnePort):
     def Isc(self):
 
         assumptions = self.Voc.assumptions
-        # Hack
-        if isinstance(self.Voc, Vphasor):
-            assumptions['ac'] = True
-            
-        return II(self.Voc / self.Z, **assumptions).laplace()
+        return Is(self.Voc / self.Z, **assumptions).laplace()
 
     def norton(self):
         """Simplify to a Norton network"""
