@@ -125,12 +125,12 @@ class Network(Netlist):
 
         return ' '.join([quote(str(arg)) for arg in self.args])
 
-    def net_make(self, n1=None, n2=None):
+    def net_make(self, net, n1=None, n2=None):
 
         if n1 == None:
-            n1 = self.node
+            n1 = net.node
         if n2 == None:
-            n2 = self.node
+            n2 = net.node
 
         netname = self.__class__.__name__ if self.netname == '' else self.netname
         return '%s %s %s %s %s; right' % (netname, n1, n2, 
@@ -139,7 +139,7 @@ class Network(Netlist):
     def netlist(self):
 
         self.node_counter = 0
-        return self.net_make()
+        return self.net_make(self)
 
 
     @property

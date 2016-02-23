@@ -501,18 +501,18 @@ class Par(ParSer):
             total += arg.height
         return total + (len(self.args) - 1) * self.hsep
 
-    def net_make(self, n1=None, n2=None):
+    def net_make(self, net, n1=None, n2=None):
 
         if len(self.args) > 2:
             raise NotImplementedError('Cannot handle more than two cpts in parallel')
 
         s = []
         if n1 is None:
-            n1 = self.node
-        n3, n4, n5 =  self.node, self.node, self.node
-        n6, n7, n8 =  self.node, self.node, self.node
+            n1 = net.node
+        n3, n4, n5 =  net.node, net.node, net.node
+        n6, n7, n8 =  net.node, net.node, net.node
         if n2 is None:
-            n2 = self.node
+            n2 = net.node
         # The vertical wires will need to be lengthened depending
         # on the height of the networks in parallel.
         h1 = (self.args[0].height + self.hsep) * 0.5
@@ -523,8 +523,8 @@ class Par(ParSer):
         s.append('W %s %s; right, size=%s' % (n6, n2, self.wsep))
         s.append('W %s %s; up, size=%s' % (n6, n7, h1))
         s.append('W %s %s; down, size=%s' % (n6, n8, h2))
-        s.append(self.args[0].net_make(n4, n7))
-        s.append(self.args[1].net_make(n5, n8))
+        s.append(self.args[0].net_make(net, n4, n7))
+        s.append(self.args[1].net_make(net, n5, n8))
         return '\n'.join(s)
 
 
@@ -568,20 +568,20 @@ class Ser(ParSer):
             total += arg.width
         return total + (len(self.args) - 1) * self.wsep
 
-    def net_make(self, n1=None, n2=None):
+    def net_make(self, net, n1=None, n2=None):
 
         s = []
         if n1 is None:
-            n1 = self.node
+            n1 = net.node
         for arg in self.args[:-1]:
-            n3 = self.node
-            s.append(arg.net_make(n1, n3))
-            n1 = self.node
+            n3 = net.node
+            s.append(arg.net_make(net, n1, n3))
+            n1 = net.node
             s.append('W %s %s; right, size=%s' % (n3, n1, self.wsep))
 
         if n2 is None:
-            n2 = self.node
-        s.append(self.args[-1].net_make(n1, n2))
+            n2 = net.node
+        s.append(self.args[-1].net_make(net, n1, n2))
         return '\n'.join(s)
 
 
