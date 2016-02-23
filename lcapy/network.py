@@ -22,10 +22,7 @@ class Network(Netlist):
     # False if initial conditions are not specified.
     hasic = None
 
-    def __init__(self, *args):
-
-        if not hasattr(self, 'args'):
-            self.args = args
+    def __init__(self):
 
         super(Network, self).__init__()
 

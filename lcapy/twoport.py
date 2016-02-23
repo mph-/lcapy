@@ -10,7 +10,7 @@ import sympy as sym
 from lcapy.core import s, Vs, Is, Zs, Ys, Hs, cExpr, sExpr
 from lcapy.core import WyeDelta, DeltaWye, Vector, Matrix
 from lcapy.core import VsVector, IsVector, YsVector, ZsVector
-from lcapy.oneport import OnePort, Norton, Thevenin
+from lcapy.oneport import OnePort, I, V, Y, Z, Thevenin, Norton
 from lcapy.network import Network
 
 
@@ -1185,7 +1185,7 @@ class TwoPort(Network):
         specified ports"""
 
         if issubclass(V.__class__, OnePort):
-            V = V.V
+            V = V.Voc
 
         p1 = inport - 1
         p2 = outport - 1
@@ -1198,7 +1198,7 @@ class TwoPort(Network):
         specified ports"""
 
         if issubclass(I.__class__, OnePort):
-            I = I.I
+            I = I.Isc
 
         p1 = inport - 1
         p2 = outport - 1
@@ -1410,7 +1410,7 @@ class TwoPort(Network):
             raise TypeError('Argument not ', OnePort)
 
         foo = self.chain(Shunt(TP))
-        return Thevenin(Zs(foo.Z1oc), foo.V1oc)
+        return Z(foo.Z1oc) + V(foo.V1oc)
 
     def source(self, TP):
         """Apply a one-port source and return a Thevenin (one-port) object"""
@@ -1419,27 +1419,27 @@ class TwoPort(Network):
             raise TypeError('Argument not ', OnePort)
 
         foo = Shunt(TP).chain(self)
-        return Thevenin(Zs(foo.Z2oc), foo.V2oc)
+        return Z(foo.Z2oc) +  V(foo.V2oc)
 
     def short_circuit(self, port=2):
         """Apply a short-circuit to specified port and return a
         one-port object"""
 
         p = port - 1
-        Y = self.Y[1 - p, 1 - p]
-        I = self.Isc[1 - p]
+        Yval = self.Y[1 - p, 1 - p]
+        Ival = self.Isc[1 - p]
 
-        return Norton(Ys(Y), Is(I))
+        return Y(Yval) | I(Ival)
 
     def open_circuit(self, port=2):
         """Apply a open-circuit to specified port and return a
         one-port object"""
 
         p = port - 1
-        Z = self.Z[1 - p, 1 - p]
-        V = self.Voc[1 - p]
+        Zval = self.Z[1 - p, 1 - p]
+        Vval = self.Voc[1 - p]
 
-        return Thevenin(Zs(Z), Vs(V))
+        return Z(Zval) + V(Vval)
 
     def simplify(self):
 
@@ -1524,6 +1524,7 @@ class TwoPortBModel(TwoPort):
         if not isinstance(I2b, Is):
             raise ValueError('I2b not Is')
 
+        super(TwoPortBModel, self).__init__()
         self._M = B
         self._V2b = V2b
         self._I2b = I2b
@@ -1585,6 +1586,7 @@ class TwoPortGModel(TwoPort):
         if not isinstance(V2g, Vs):
             raise ValueError('V2g not Vs')
 
+        super(TwoPortGModel, self).__init__()
         self._M = G
         self._V1g = I1g
         self._I2g = V2g
@@ -1657,6 +1659,7 @@ class TwoPortHModel(TwoPort):
         if not isinstance(I2h, Is):
             raise ValueError('I2h not Is')
 
+        super(TwoPortHModel, self).__init__()
         self._M = H
         self._V1h = V1h
         self._I2h = I2h
@@ -1727,6 +1730,7 @@ class TwoPortYModel(TwoPort):
         if not isinstance(I2y, Is):
             raise ValueError('I2y not Is')
 
+        super(TwoPortYModel, self).__init__()
         self._M = Y
         self._I1y = I1y
         self._I2y = I2y
@@ -1792,6 +1796,7 @@ class TwoPortZModel(TwoPort):
         if not isinstance(V2z, Vs):
             raise ValueError('V2z not Vs')
 
+        super(TwoPortZModel, self).__init__()
         self._M = Z
         self._V1z = V1z
         self._V2z = V2z
@@ -2007,9 +2012,7 @@ class Series(TwoPortBModel):
         self.OP = OP
         self.args = (OP, )
         _check_oneport_args(self.args)
-        self._M = BMatrix.Zseries(OP.Z)
-        self._V2b = OP.V
-        self._I2b = Is(0)
+        super(Series, self).__init__(BMatrix.Zseries(OP.Z), Vs(OP.Voc), Is(0))
 
 
 class Shunt(TwoPortBModel):
@@ -2036,9 +2039,7 @@ class Shunt(TwoPortBModel):
         self.OP = OP
         self.args = (OP, )
         _check_oneport_args(self.args)
-        self._M = BMatrix.Yshunt(OP.Y)
-        self._V2b = Vs(0)
-        self._I2b = OP.I
+        super(Shunt, self).__init__(BMatrix.Yshunt(OP.Y), Vs(0), Is(OP.Isc))
 
 
 class IdealTransformer(TwoPortBModel):
@@ -2049,9 +2050,7 @@ class IdealTransformer(TwoPortBModel):
 
         self.alpha = cExpr(alpha)
         self.args = (alpha, )
-        self._M = BMatrix.transformer(alpha)
-        self._V2b = Vs(0)
-        self._I2b = Is(0)
+        super(IdealTransformer, self).__init__(BMatrix.transformer(alpha))
 
 
 class IdealGyrator(TwoPortBModel):
@@ -2065,9 +2064,7 @@ class IdealGyrator(TwoPortBModel):
 
         self.R = cExpr(R)
         self.args = (R, )
-        self._M = BMatrix.gyrator(R)
-        self._V2b = Vs(0)
-        self._I2b = Is(0)
+        super(IdealGyrator, self).__init__(BMatrix.gyrator(R))
 
 
 class VoltageFollower(TwoPortBModel):
@@ -2077,9 +2074,7 @@ class VoltageFollower(TwoPortBModel):
     def __init__(self):
 
         self.args = ()
-        self._M = BMatrix.voltage_amplifier(1)
-        self._V2b = Vs(0)
-        self._I2b = Is(0)
+        super(VoltageFollower, self).__init__(BMatrix.voltage_amplifier(1))
 
 
 class VoltageAmplifier(TwoPortBModel):

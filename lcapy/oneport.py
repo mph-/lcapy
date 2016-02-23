@@ -151,10 +151,6 @@ class OnePort(Network):
     def i(self):
         return It(0)
 
-#    @I.setter
-#    def I(self, val):
-#        self._I = val
-
     @property
     def V(self):
         self._solve()
@@ -164,9 +160,21 @@ class OnePort(Network):
     def v(self):
         return self.V.time()
 
-#    @V.setter
-#    def V(self, val):
-#        self._V = val
+    @property
+    def Y(self):
+        return self._Y
+
+    @Y.setter
+    def Y(self, val):
+        self._Y = val
+
+    @property
+    def Z(self):
+        return self._Z
+
+    @Z.setter
+    def Z(self, val):
+        self._Z = val
 
 
 class ParSer(OnePort):
@@ -436,6 +444,22 @@ class ParSer(OnePort):
         args = [arg.smodel() for arg in self.args]
         return (self.__class__(*args))
 
+    @property
+    def Isc(self):
+        return Is(self.Voc / self.Z, **self.Voc.assumptions)
+
+    @property
+    def Voc(self):
+        self._solve()
+        return self._V[1]
+
+    @property
+    def Y(self):
+        return self.admittance(1, 0)
+
+    @property
+    def Z(self):
+        return self.impedance(1, 0)
 
 class Par(ParSer):
     """Parallel class"""
@@ -445,7 +469,8 @@ class Par(ParSer):
     def __init__(self, *args):
 
         _check_oneport_args(args)
-        super(Par, self).__init__(*args)
+        super(Par, self).__init__()
+        self.args = args
 
         for n, arg1 in enumerate(self.args):
             for arg2 in self.args[n + 1:]:
@@ -511,7 +536,8 @@ class Ser(ParSer):
     def __init__(self, *args):
 
         _check_oneport_args(args)
-        super(Ser, self).__init__(*args)
+        super(Ser, self).__init__()
+        self.args = args
 
         for n, arg1 in enumerate(self.args):
             for arg2 in self.args[n + 1:]:
@@ -579,7 +605,7 @@ class Norton(OnePort):
           +              V1                 -
     """
 
-    def __init__(self, Yval, Ival=Is(0)):
+    def __init__(self, Yval=Ys(0), Ival=Is(0)):
 
         # print('<N> Y:', Yval, 'I:', Ival)
         if not isinstance(Yval, Ys):
@@ -589,7 +615,7 @@ class Norton(OnePort):
         self.Y = Yval
         self.Isc = Ival
 
-        super(Norton, self).__init__(None)
+        super(Norton, self).__init__()
 
     @property
     def Z(self):
@@ -656,7 +682,7 @@ class Thevenin(OnePort):
         +                       V1                -
     """
 
-    def __init__(self, Zval, Vval=Vs(0)):
+    def __init__(self, Zval=Zs(0), Vval=Vs(0)):
 
         # print('<T> Z:', Zval, 'V:', Vval)
         if not isinstance(Zval, Zs):
@@ -666,7 +692,7 @@ class Thevenin(OnePort):
         self.Z = Zval
         self.Voc = Vval
 
-        super(Thevenin, self).__init__(None)
+        super(Thevenin, self).__init__()
 
     @property
     def Y(self):
@@ -825,8 +851,7 @@ class R(Thevenin):
 
     def __init__(self, Rval):
 
-        if not hasattr(self, 'args'):
-            self.args = (Rval, )
+        self.args = (Rval, )
         Rval = cExpr(Rval, positive=True)
         super(R, self).__init__(Zs.R(Rval))
         self.R = Rval
@@ -837,8 +862,7 @@ class G(Norton):
 
     def __init__(self, Gval):
 
-        if not hasattr(self, 'args'):
-            self.args = (Gval, )
+        self.args = (Gval, )
         Gval = cExpr(Gval, positive=True)
         super(G, self).__init__(Ys.G(Gval))
         self.G = Gval
@@ -855,8 +879,7 @@ class L(Thevenin):
         if i0 is None:
             i0 = 0
 
-        if not hasattr(self, 'args'):
-            self.args = (Lval, i0)
+        self.args = (Lval, i0)
         Lval = cExpr(Lval, positive=True)
         i0 = cExpr(i0)
         super(L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
@@ -877,8 +900,7 @@ class C(Thevenin):
         if v0 is None:
             v0 = 0
 
-        if not hasattr(self, 'args'):
-            self.args = (Cval, v0)
+        self.args = (Cval, v0)
         Cval = cExpr(Cval, positive=True)
         v0 = cExpr(v0)
         super(C, self).__init__(Zs.C(Cval), Vs(v0).integrate())
@@ -893,8 +915,7 @@ class Y(Norton):
 
     def __init__(self, Yval):
 
-        if not hasattr(self, 'args'):
-            self.args = (Yval, )
+        self.args = (Yval, )
         Yval = Ys(Yval)
         super(Y, self).__init__(Yval)
 
@@ -904,25 +925,32 @@ class Z(Thevenin):
 
     def __init__(self, Zval):
 
-        if not hasattr(self, 'args'):
-            self.args = (Zval, )
+        self.args = (Zval, )
         Zval = Zs(Zval)
         super(Z, self).__init__(Zval)
 
 
-class sV(Thevenin):
-    """Arbitrary s-domain voltage source"""
+class VoltageSource(Thevenin):
 
     voltage_source = True
+
+    def __init__(self, Vval):
+
+        super(VoltageSource, self).__init__(Zs(0), Vs(Vval))
+
+
+class sV(VoltageSource):
+    """Arbitrary s-domain voltage source"""
+
+
     netname = 'V'
     netkeyword = 's'
 
     def __init__(self, Vval):
 
-        if not hasattr(self, 'args'):
-            self.args = (Vval, )
+        self.args = (Vval, )
         Vval = sExpr(Vval)
-        super(sV, self).__init__(Zs(0), Vs(Vval))
+        super(sV, self).__init__(Vs(Vval))
 
     @property
     def Vocac(self):
@@ -930,20 +958,27 @@ class sV(Thevenin):
             raise ValueError('No ac representation for %s' % self)
         return self.Voc.phasor()
 
-class V(sV):
+class V(VoltageSource):
     """Voltage source. If the expression contains s treat as s-domain
     voltage otherwise time domain.  A constant V is considered DC
     with an s-domain voltage V / s."""
 
+    netname = 'V'
+
     def __init__(self, Vval):
 
-        if not hasattr(self, 'args'):
-            self.args = (Vval, )
+        self.args = (Vval, )
         Vsym = tsExpr(Vval)
-        super(V, self).__init__(Vsym)
+        super(V, self).__init__(Vs(Vsym))
+
+    @property
+    def Vocac(self):
+        if not self.Voc.is_ac:
+            raise ValueError('No ac representation for %s' % self)
+        return self.Voc.phasor()
 
 
-class Vstep(sV):
+class Vstep(VoltageSource):
     """Step voltage source (s domain voltage of v / s)."""
 
     netname = 'V'
@@ -951,8 +986,7 @@ class Vstep(sV):
 
     def __init__(self, v):
 
-        if not hasattr(self, 'args'):
-            self.args = (v, )
+        self.args = (v, )
         v = cExpr(v)
         super(Vstep, self).__init__(Vs(v, causal=True) / s)
         # This is not needed when assumptions propagated.
@@ -960,7 +994,7 @@ class Vstep(sV):
         self.v0 = v
 
 
-class Vdc(sV):
+class Vdc(VoltageSource):
     """DC voltage source (note a DC voltage source of voltage V has
     an s domain voltage of V / s)."""
 
@@ -969,8 +1003,7 @@ class Vdc(sV):
     
     def __init__(self, v):
 
-        if not hasattr(self, 'args'):
-            self.args = (v, )
+        self.args = (v, )
         v = cExpr(v)
         super(Vdc, self).__init__(Vs(v, dc=True) / s)
         # This is not needed when assumptions propagated.
@@ -982,7 +1015,7 @@ class Vdc(sV):
         return self.v0
 
 
-class Vac(sV):
+class Vac(VoltageSource):
     """AC voltage source."""
 
     netname = 'V'
@@ -990,8 +1023,7 @@ class Vac(sV):
 
     def __init__(self, V, phi=0):
 
-        if not hasattr(self, 'args'):
-            self.args = (V, phi)
+        self.args = (V, phi)
         V = cExpr(V)
         phi = cExpr(phi)
 
@@ -1005,6 +1037,7 @@ class Vac(sV):
         self.v0 = V
         self.phi = phi
 
+
     @property
     def voc(self):
         return self.v0 * cos(self.omega * t + self.phi)
@@ -1014,19 +1047,27 @@ class Vac(sV):
         return Vphasor(self.v0 * exp(j * self.phi))
 
 
-class v(sV):
+class v(VoltageSource):
     """Arbitrary t-domain voltage source"""
 
     def __init__(self, vval):
 
-        if not hasattr(self, 'args'):
-            self.args = (vval, )
+        self.args = (vval, )
         Vval = tExpr(vval)
         super(V, self).__init__(Zs(0), Vs(Vval).laplace())
         self.assumptions_infer(Vval)
 
 
-class sI(Norton):
+class CurrentSource(Norton):
+
+    current_source = True
+
+    def __init__(self, Ival):
+
+        super(CurrentSource, self).__init__(Ys(0), Is(Ival))
+
+
+class sI(CurrentSource):
     """Arbitrary s-domain current source"""
 
     current_source = True
@@ -1035,8 +1076,7 @@ class sI(Norton):
 
     def __init__(self, Ival):
 
-        if not hasattr(self, 'args'):
-            self.args = (Ival, )
+        self.args = (Ival, )
         Ival = sExpr(Ival)
         super(sI, self).__init__(Ys(0), Is(Ival))
 
@@ -1047,22 +1087,28 @@ class sI(Norton):
         return self.Isc.phasor()
 
 
-class I(sI):
+class I(CurrentSource):
     """Current source. If the expression contains s treat as s-domain
     current otherwise time domain.  A constant I is considered DC with
     an s-domain current I / s.
 
     """
 
+    netname = 'I'
+
     def __init__(self, Ival):
 
-        if not hasattr(self, 'args'):
-            self.args = (Ival, )
+        self.args = (Ival, )
         Isym = tsExpr(Ival)
-        super(I, self).__init__(Isym)
+        super(I, self).__init__(Is(Isym))
 
+    @property
+    def Iocac(self):
+        if not self.Ioc.is_ac:
+            raise ValueError('No ac representation for %s' % self)
+        return self.Ioc.phasor()
 
-class Istep(sI):
+class Istep(CurrentSource):
     """Step current source (s domain current of i / s)."""
 
     netname = 'I'
@@ -1070,8 +1116,7 @@ class Istep(sI):
 
     def __init__(self, i):
 
-        if not hasattr(self, 'args'):
-            self.args = (i, )
+        self.args = (i, )
         i = cExpr(i)
         super(Istep, self).__init__(Is(i, causal=True) / s)
         # This is not needed when assumptions propagated.
@@ -1079,7 +1124,7 @@ class Istep(sI):
         self.i0 = i
 
 
-class Idc(sI):
+class Idc(CurrentSource):
     """DC current source (note a DC current source of current i has
     an s domain current of i / s)."""
 
@@ -1088,8 +1133,7 @@ class Idc(sI):
     
     def __init__(self, i):
 
-        if not hasattr(self, 'args'):
-            self.args = (i, )
+        self.args = (i, )
         i = cExpr(i)
         super(Idc, self).__init__(Is(i, dc=True) / s)
         # This is not needed when assumptions propagated.
@@ -1105,7 +1149,7 @@ class Idc(sI):
         return Iphasor(self.i0)
 
 
-class Iac(sI):
+class Iac(CurrentSource):
     """AC current source."""
 
     netname = 'V'
@@ -1113,8 +1157,7 @@ class Iac(sI):
 
     def __init__(self, I, phi=0):
 
-        if not hasattr(self, 'args'):
-            self.args = (I, phi)
+        self.args = (I, phi)
         I = cExpr(I)
         phi = cExpr(phi)
 
@@ -1135,15 +1178,14 @@ class Iac(sI):
         return Iphasor(self.i0 * exp(j * self.phi))
 
 
-class i(sI):
+class i(CurrentSource):
     """Arbitrary t-domain current source"""
 
     def __init__(self, ival):
 
-        if not hasattr(self, 'args'):
-            self.args = (ival, )
+        self.args = (ival, )
         Ival = tExpr(ival)
-        super(I, self).__init__(Ys(0), Is(Ival.laplace()))
+        super(I, self).__init__(Is(Ival.laplace()))
         self.assumptions_infer(Ival)
 
 
@@ -1157,8 +1199,6 @@ class Xtal(Thevenin):
 
     def __init__(self, C0, R1, L1, C1):
 
-        if not hasattr(self, 'args'):
-            self.args = (C0, R1, L1, C1)
         self.C0 = cExpr(C0, positive=True)
         self.R1 = cExpr(R1, positive=True)
         self.L1 = cExpr(L1, positive=True)
@@ -1166,6 +1206,7 @@ class Xtal(Thevenin):
 
         N = self.expand()
         super(Xtal, self).__init__(N.Z, N.V)
+        self.args = (C0, R1, L1, C1)
 
     def expand(self):
 
@@ -1181,8 +1222,6 @@ class FerriteBead(Thevenin):
 
     def __init__(self, Rs, Rp, Cp, Lp):
 
-        if not hasattr(self, 'args'):
-            self.args = (Rs, Rp, Cp, Lp)
         self.Rs = cExpr(Rs, positive=True)
         self.Rp = cExpr(Rp, positive=True)
         self.Cp = cExpr(Cp, positive=True)
@@ -1190,6 +1229,7 @@ class FerriteBead(Thevenin):
 
         N = self.expand()
         super(Xtal, self).__init__(N.Z, N.V)
+        self.args = (Rs, Rp, Cp, Lp)
 
     def expand(self):
 

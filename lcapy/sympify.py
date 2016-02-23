@@ -121,6 +121,7 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
 
         return result
 
+
     s = parse_expr(string, transformations=(auto_symbol, auto_number), 
                    global_dict=global_dict, local_dict=local_dict,
                    evaluate=evaluate)

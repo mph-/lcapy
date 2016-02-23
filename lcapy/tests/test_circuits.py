@@ -77,15 +77,15 @@ class LcapyTester(unittest.TestCase):
         a = Circuit()
         a.add('V1 1 0 {V1 / s}')
         a.add('R1 1 2')
-        a.add('L1 2 0')
+        a.add('L1 2 0 L1 0')
 
         # Note, V1 acts as a short-circuit for the impedance/admittance
         self.assertEqual2(
-            a.thevenin(1, 2).V, a.Voc(1, 2), "incorrect thevenin voltage")
+            a.thevenin(1, 2).Voc, a.Voc(1, 2), "incorrect thevenin voltage")
         self.assertEqual2(
             a.thevenin(1, 2).Z, a.Z(1, 2), "incorrect thevenin impedance")
         self.assertEqual2(
-            a.norton(1, 2).I, a.Isc(1, 2), "incorrect norton current")
+            a.norton(1, 2).I.sc, a.Isc(1, 2), "incorrect norton current")
         self.assertEqual2(
             a.norton(1, 2).Y, a.Y(1, 2), "incorrect norton admittance")
         self.assertEqual2(

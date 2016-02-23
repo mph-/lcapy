@@ -1,5 +1,10 @@
 These tests scripts are run using nosetests in the root directory of lcapy
 or in the unit_tests directory.
 
-Currently, two failures are expected.
+They can be run individually, for example,
 
+nosetests test_circuits.py
+
+For python3 use nosetests3
+
+If a test hangs, run with -v option to display which test is hanging.

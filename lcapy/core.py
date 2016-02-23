@@ -173,6 +173,10 @@ class Expr(object):
                 assumptions = arg.assumptions
             arg = arg.expr
 
+        # Perhaps could set dc.
+        if arg == 0:
+            assumptions['causal'] = True
+
         # There are two types of assumptions.
         #   1. There are the sympy assumptions that are only associated
         #      with symbols, for example, real=True.
@@ -878,6 +882,13 @@ class Expr(object):
     def diff(self, arg=None):
 
         return self.differentiate(arg)
+
+    def debug(self):
+
+        expr = self.expr
+        print(expr)
+        for symbol in expr.free_symbols:
+            print('  %s: %s' % (symbol, symbol.assumptions0))
 
 class sfwExpr(Expr):
 
@@ -1585,9 +1596,7 @@ class cExpr(Expr):
 
     """Constant real expression or symbol.
 
-    If the expression is known to be positive, use
-
-    cExpr(expr, positive=True)
+    If the expression is known to be positive, use cExpr(expr, positive=True)
     """
 
     def __init__(self, val, **assumptions):

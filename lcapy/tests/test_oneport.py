@@ -23,12 +23,12 @@ class LcapyTester(unittest.TestCase):
         """
         a = R(10)
         self.assertEqual2(a.Z, 10, "Z incorrect.")
-        self.assertEqual2(a.Voc, o, "Voc incorrect.")
-        self.assertEqual2(a.voc, o, "voc incorrect.")
-        self.assertEqual2(a.Isc, o, "Isc incorrect.")
-        self.assertEqual2(a.I, o, "I incorrect.")
-        self.assertEqual2(a.isc, o, "isc incorrect.")
-        self.assertEqual2(a.i, o, "i incorrect.")
+        self.assertEqual2(a.Voc, 0, "Voc incorrect.")
+        self.assertEqual2(a.voc, 0, "voc incorrect.")
+        self.assertEqual2(a.Isc, 0, "Isc incorrect.")
+        self.assertEqual2(a.I, 0, "I incorrect.")
+        self.assertEqual2(a.isc, 0, "isc incorrect.")
+        self.assertEqual2(a.i, 0, "i incorrect.")
 
     def test_L(self):
         """Lcapy: check L
@@ -37,6 +37,8 @@ class LcapyTester(unittest.TestCase):
         a = L(10, 5)
         self.assertEqual2(a.Z, 10 * s, "Z incorrect.")
         self.assertEqual2(a.Voc, -10 * 5, "Voc incorrect.")
+        self.assertEqual2(a.I, 0, "I incorrect.")
+        self.assertEqual2(a.i, 0, "i incorrect.")
 
     def test_C(self):
         """Lcapy: check C
@@ -83,10 +85,10 @@ class LcapyTester(unittest.TestCase):
         """
         a = Vdc(10) + Vdc(5)
         b = a.simplify()
-        self.assertEqual2(b.v, Vdc(15).v, "Voc incorrect.")
+        self.assertEqual2(b.voc, Vdc(15).voc, "voc incorrect.")
         self.assertEqual2(b.Voc, 15 / s, "Voc incorrect.")
         self.assertEqual2(type(b), Vdc, "type incorrect.")
-        self.assertEqual2(b.v, 15, "Voc incorrect.")
+        self.assertEqual2(b.voc, 15, "voc incorrect.")
 
     def test_R_series_L(self):
         """Lcapy: check R + L
@@ -131,10 +133,10 @@ class LcapyTester(unittest.TestCase):
         """
         a = Idc(10) | Idc(5)
         b = a.simplify()
-        self.assertEqual2(b.isc, Idc(15).isc, "Isc incorrect.")
-        self.assertEqual2(b.iscsc, 15 / s, "Isc incorrect.")
+        self.assertEqual2(b.isc, Idc(15).isc, "isc incorrect.")
+        self.assertEqual2(b.Isc, 15 / s, "Isc incorrect.")
         self.assertEqual2(type(b), Idc, "type incorrect.")
-        self.assertEqual2(b.isc, 15, "Voc incorrect.")
+        self.assertEqual2(b.isc, 15, "isc incorrect.")
 
     def test_load(self):
         """Lcapy: check load
@@ -144,7 +146,7 @@ class LcapyTester(unittest.TestCase):
         a = Shunt(R(10) + Vdc(5))
         b = a.load(R(30))
 
-        self.assertEqual2(type(b), Thevenin, "type incorrect.")
+        self.assertEqual2(type(b), Ser, "type incorrect.")
         self.assertEqual2(b.Z, 7.5, "Shunt loaded R incorrect Z.")
 
     def test_open_circuit(self):
@@ -155,7 +157,6 @@ class LcapyTester(unittest.TestCase):
         a = Shunt(R(10) + Vdc(5))
         b = a.open_circuit()
 
-        self.assertEqual2(type(b), Thevenin, "type incorrect.")
         self.assertEqual2(b.Z, 10, "incorrect Z.")
         self.assertEqual2(b.Voc, 5 / s, "incorrect V.")
 
@@ -167,7 +168,6 @@ class LcapyTester(unittest.TestCase):
         a = Series(R(10) + Vdc(5))
         b = a.short_circuit()
 
-        self.assertEqual2(type(b), Norton, "type incorrect.")
         self.assertEqual2(b.Z, 10, "incorrect Z.")
         self.assertEqual2(b.Voc, 5 / s, "incorrect V.")
 
