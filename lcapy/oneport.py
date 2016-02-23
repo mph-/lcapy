@@ -46,9 +46,13 @@ def _check_oneport_args(args):
 
 
 class OnePort(Network):
-    """One-port network"""
+    """One-port network
 
-    # Attributes: Y, Z, V, I, y, z, v, i
+    There are three types of OnePort: ParSer (for combinations of 
+    OnePort), Thevenin, and Norton.
+
+    Attributes: Y, Z, Voc, Isc, y, z, voc, isc
+    """
 
     # Dimensions and separations of component with horizontal orientation.
     height = 0.3
@@ -455,12 +459,12 @@ class ParSer(OnePort):
             assumptions['ac'] = True
             Z = self.Zac
             
-        return II(Voc / Z, **assumptions) 
+        return II(Voc / Z, **assumptions).laplace()
 
     @property
     def Voc(self):
         self._solve()
-        return self._V[1]
+        return self._V[1].laplace()
 
     @property
     def Y(self):
@@ -632,7 +636,7 @@ class Norton(OnePort):
 
     @property
     def Voc(self):
-        return VV(self.Isc / self.Y, **self.Isc.assumptions)
+        return VV(self.Isc / self.Y, **self.Isc.assumptions).laplace()
 
     def thevenin(self):
         """Simplify to a Thevenin network"""
@@ -715,7 +719,7 @@ class Thevenin(OnePort):
         if isinstance(self.Voc, Vphasor):
             assumptions['ac'] = True
             
-        return II(self.Voc / self.Z, **assumptions)
+        return II(self.Voc / self.Z, **assumptions).laplace()
 
     def norton(self):
         """Simplify to a Norton network"""
