@@ -54,7 +54,7 @@ def format_label(s):
     if s[0] == '$' and s[-1] != '$':
         return '$' + latex_str(s[1:]) + '$'
     # If have + or ^ need to be in math-mode.
-    if '_' in s or '^' in s:
+    if '_' in s or '^' in s or '\\' in s:
         return '$' + latex_str(s) + '$'
     return s
 
