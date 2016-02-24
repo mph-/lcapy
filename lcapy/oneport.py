@@ -951,6 +951,7 @@ class Z(Thevenin):
 class VoltageSource(Thevenin):
 
     voltage_source = True
+    netname = 'V'
 
     def __init__(self, Vval):
 
@@ -960,7 +961,6 @@ class VoltageSource(Thevenin):
 class sV(VoltageSource):
     """Arbitrary s-domain voltage source"""
 
-    netname = 'V'
     netkeyword = 's'
 
     def __init__(self, Vval):
@@ -980,8 +980,6 @@ class V(VoltageSource):
     voltage otherwise time domain.  A constant V is considered DC
     with an s-domain voltage V / s."""
 
-    netname = 'V'
-
     def __init__(self, Vval):
 
         self.args = (Vval, )
@@ -998,7 +996,6 @@ class V(VoltageSource):
 class Vstep(VoltageSource):
     """Step voltage source (s domain voltage of v / s)."""
 
-    netname = 'V'
     netkeyword = 'step'
 
     def __init__(self, v):
@@ -1015,7 +1012,6 @@ class Vdc(VoltageSource):
     """DC voltage source (note a DC voltage source of voltage V has
     an s domain voltage of V / s)."""
 
-    netname = 'V'
     netkeyword = 'dc'
     
     def __init__(self, v):
@@ -1035,7 +1031,6 @@ class Vdc(VoltageSource):
 class Vac(VoltageSource):
     """AC voltage source."""
 
-    netname = 'V'
     netkeyword = 'ac'
 
     def __init__(self, V, phi=0):
@@ -1078,6 +1073,7 @@ class v(VoltageSource):
 class CurrentSource(Norton):
 
     current_source = True
+    netname = 'I'
 
     def __init__(self, Ival):
 
@@ -1087,8 +1083,6 @@ class CurrentSource(Norton):
 class sI(CurrentSource):
     """Arbitrary s-domain current source"""
 
-    current_source = True
-    netname = 'I'
     netkeyword = 's'
 
     def __init__(self, Ival):
@@ -1111,8 +1105,6 @@ class I(CurrentSource):
 
     """
 
-    netname = 'I'
-
     def __init__(self, Ival):
 
         self.args = (Ival, )
@@ -1128,7 +1120,6 @@ class I(CurrentSource):
 class Istep(CurrentSource):
     """Step current source (s domain current of i / s)."""
 
-    netname = 'I'
     netkeyword = 'step'
 
     def __init__(self, i):
@@ -1145,7 +1136,6 @@ class Idc(CurrentSource):
     """DC current source (note a DC current source of current i has
     an s domain current of i / s)."""
 
-    netname = 'I'
     netkeyword = 'dc'
     
     def __init__(self, i):
@@ -1169,7 +1159,6 @@ class Idc(CurrentSource):
 class Iac(CurrentSource):
     """AC current source."""
 
-    netname = 'V'
     netkeyword = 'ac'
 
     def __init__(self, I, phi=0):
