@@ -4,7 +4,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, Yphasor, Zphasor, omega1
+from lcapy.core import Vphasor, Iphasor, sExpr
 from lcapy.schematic import Schematic
 from lcapy.netlist import Netlist
 from lcapy.circuit import Circuit
@@ -83,11 +83,11 @@ class Network(Netlist):
 
     @property
     def Vocac(self):
-        return 0
+        return Vphasor(0)
 
     @property
     def Iscac(self):
-        return 0
+        return Iphasor(0)
 
     @property
     def Yac(self):

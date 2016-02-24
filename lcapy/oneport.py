@@ -638,7 +638,7 @@ class Norton(OnePort):
 
         if self.Y == 0:
             print('Dodgy Norton to Thevenin transformation since Y = 0')
-        return Thevenin(self.Z, self.Voc)
+        return V(self.Voc) + Z(self.Z)
 
     def cpt(self):
         """Convert to a component, if possible"""
@@ -717,7 +717,7 @@ class Thevenin(OnePort):
 
         if self.Z == 0:
             print('Dodgy Thevenin to Norton transformation since Z = 0')
-        return Norton(self.Y, self.Isc)
+        return I(self.Isc) | Y(self.Y)
 
     def parallel_ladder(self, *args):
         """Add unbalanced ladder network in parallel;
