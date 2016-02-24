@@ -1074,7 +1074,7 @@ produce spectral plots, for example,
 Schematics
 ==========
 
-Schematics can be generated from a netlist and from one port networks.
+Schematics can be generated from a netlist and from one-port networks.
 In both cases the drawing is performed using the LaTeX Circuitikz
 package.  The schematic can be displayed interactively or saved to a
 pdf or png file.
@@ -1145,7 +1145,7 @@ This is described by the netlist::
 Network schematics
 ------------------
 
-One port networks can be drawn with a horizontal layout.  Here's an example:
+One-port networks can be drawn with a horizontal layout.  Here's an example:
 
    >>> from lcapy import R, C, L
    >>> ((R(1) + L(2)) | C(3)).draw()

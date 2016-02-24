@@ -1,11 +1,178 @@
-===============
-Simple networks
-===============
+========
+Networks
+========
 
+Lcapy supports one-port and two-port networks. 
+
+
+
+One-port networks
+=================
+
+One-port networks are creating by combining one-port components in
+series or parallel, for example, here's an example of resistors in
+series
+
+   >>> from lcapy import R
+   >>> R1 = R(10)
+   >>> R2 = R(5)
+   >>> Rtot = R1 + R2
+   >>> Rtot
+   R(10) + R(5)
+
+Here `R(10)` creates a 10 ohm resistor and this is assigned to the
+variable `R1`.  Similarly, `R(5)` creates a 5 ohm resistor and this is
+assigned to the variable `R2`.  `Rtot` is the name of the network
+formed by connecting `R1` and `R2` in series.  
+
+
+Network attributes
+------------------
+
+Each network has a number of attributes, including:
+
+- `Voc` s-domain open-circuit voltage
+
+- `Isc` s-domain short-circuit current
+
+- `I` s-domain current through network terminals (zero by definition)
+
+- `Z` s-domain impedance
+
+- `Y` s-domain admittance
+
+- `voc` t-domain open-circuit voltage
+
+- `isc` t-domain short-circuit current
+
+- `isc` t-domain current through network terminals (zero by definition)
+
+- `t` t-domain impulse response
+
+- `y` t-domain impulse response
+
+
+Network simplification
+----------------------
+
+A network can be simplified (if possible) using the `simplify` method.
+For example, here's an example of a parallel combination of resistors.
+Note that the parallel operator is `|` instead of the usual `||`.
+
+   >>> from lcapy import *
+   >>> Rtot = R(10) | R(5)
+   >>> Rtot
+   R(10) | R(5)
+   >>> Rtot.simplify()
+   R(10/3)
+
+The result can be performed symbolically, for example,
+
+   >>> from lcapy import *
+   >>> Rtot = R('R_1') | R('R_2')
+   >>> Rtot
+   R(R_1) | R(R_2)
+   >>> Rtot.simplify()
+   R(R_1*R_2/(R_1 + R_2))
+   >>> Rtot.simplify()
+   R(R₁) | R(R₂)
+
+Here's another example using inductors in series
+
+   >>> from lcapy import *
+   >>> L1 = L(10)
+   >>> L2 = L(5)
+   >>> Ltot = L1 + L2
+   >>> Ltot
+   L(10) + L(5)
+   >>> Ltot.simplify()
+   L(15)
+
+
+Finally, here's an example of a parallel combination of capacitors
+
+   >>> from lcapy import *
+   >>> Ctot = C(10) | C(5)
+   >>> Ctot
+   C(10) | C(5)
+   >>> Ctot.simplify()
+   C(15)
+
+
+Norton and Thevenin transformations
+-----------------------------------
+
+A Norton or Thevenin equivalent network can be created using the
+`norton` or `thevenin` methods.  For example,
+
+   >>> from lcapy import Vdc, R
+   >>> a = Vdc(1) + R(2)
+   >>> a.norton()
+   G(1/2) | Idc(1/2)
+
+
+Network schematics
+==================
+
+One port networks can be drawn with a horizontal layout.  Here's an example:
+
+   >>> from lcapy import R, C, L
+   >>> ((R(1) + L(2)) | C(3)).draw()
+
+Here's the result:
+
+.. image:: examples/networks/pickup.png
+   :width: 5cm
+
+The s-domain model can be drawn using:
+
+   >>> from lcapy import R, C, L
+   >>> ((R(1) + L(2)) | C(3)).smodel().draw()
+
+This produces:
+
+.. image:: examples/networks/pickup-s.png
+   :width: 5cm
+
+Internally, Lcapy converts the network to a netlist and then draws the
+netlist.  The netlist can be found using the netlist method, for example,
+
+   >>> from lcapy import R, C, L
+   >>> print(((R(1) + L(2)) | C(3)).netlist())
+
+yields::
+
+   W 1 3; right, size=0.5
+   W 3 4; up, size=0.4
+   W 3 5; down, size=0.4
+   W 6 2; right, size=0.5
+   W 6 7; up, size=0.4
+   W 6 8; down, size=0.4
+   R 4 9 1; right
+   W 9 10; right, size=0.5
+   L 10 7 2 0; right
+   C 5 8 3 0; right
+
+Note, the components have anonymous identifiers.
+
+
+To create a schematic with multiple components in parallel, use `Par`.
+For example,
+
+.. literalinclude:: examples/networks/par3.py
+
+
+.. image:: examples/networks/par3.png
+   :width: 3cm
+
+
+
+Network examples
+================
 
 
 Series R-C network
-==================
+------------------
 
 
 .. literalinclude:: examples/netlists/series-RC1-Z.py
@@ -23,7 +190,7 @@ Series R-C network
 
 
 Series R-L network
-==================
+------------------
 
 
 .. literalinclude:: examples/netlists/series-RL1-Z.py
@@ -40,7 +207,7 @@ Series R-L network
 
 
 Series R-L-C network
-====================
+--------------------
 
 
 .. literalinclude:: examples/netlists/series-RLC3-Z.py
@@ -59,7 +226,7 @@ Series R-L-C network
 
 
 Parallel R-L-C network
-======================
+----------------------
 
 
 .. literalinclude:: examples/netlists/parallel-RLC3-Z.py
