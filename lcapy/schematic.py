@@ -423,8 +423,8 @@ class Graph(dict):
 
             separation = to_gnode.pos - from_gnode.pos
             extent = fdist + rdist
-            if extent > separation:
-                raise ValueError('Inconsistent graph, component will not fit')
+            if extent - separation > 1e-6:
+                raise ValueError('Inconsistent %s schematic graph, component will not fit:\n%s' % (self.name, self))
 
             if rstretches == 0:
                 gnode.pos = from_gnode.pos + rdist

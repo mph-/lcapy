@@ -519,28 +519,58 @@ class Par(ParSer):
 
     def net_make(self, net, n1=None, n2=None):
 
-        if len(self.args) > 2:
-            raise NotImplementedError('Cannot handle more than two cpts in parallel')
-
         s = []
         if n1 is None:
             n1 = net.node
-        n3, n4, n5 =  net.node, net.node, net.node
-        n6, n7, n8 =  net.node, net.node, net.node
+        n3, n4 =  net.node, net.node
+
+        H = [(arg.height + self.hsep) * 0.5 for arg in self.args]
+        
+        N = len(H)
+        num_branches = N // 2
+
+        # Draw component in centre if have odd number in parallel.
+        if (N & 1):
+            s.append(self.args[N // 2].net_make(net, n3, n4))
+
+        na, nb = n3, n4
+
+        s.append('W %s %s; right, size=%s' % (n1, n3, self.wsep))
+
+        # Draw components above centre
+        for n in range(num_branches):
+
+            if not (N & 1) and n == 0:
+                sep = H[N // 2 - 1]
+            else:
+                sep = H[N // 2 - n] + H[N // 2 - 1 - n]
+
+            nc, nd =  net.node, net.node
+            s.append('W %s %s; up, size=%s' % (na, nc, sep))
+            s.append('W %s %s; up, size=%s' % (nb, nd, sep))
+            s.append(self.args[N // 2 - 1 - n].net_make(net, nc, nd))
+            na, nb = nc, nd
+
+        na, nb = n3, n4
+
+        # Draw components below centre
+        for n in range(num_branches):
+
+            if not (N & 1) and n == 0:
+                sep = H[(N + 1) // 2]
+            else:
+                sep = H[(N + 1) // 2 + n] + H[(N + 1) // 2 - 1 + n]
+
+            nc, nd =  net.node, net.node
+            s.append('W %s %s; down, size=%s' % (na, nc, sep))
+            s.append('W %s %s; down, size=%s' % (nb, nd, sep))
+            s.append(self.args[(N + 1) // 2 + n].net_make(net, nc, nd))
+            na, nb = nc, nd
+
         if n2 is None:
             n2 = net.node
-        # The vertical wires will need to be lengthened depending
-        # on the height of the networks in parallel.
-        h1 = (self.args[0].height + self.hsep) * 0.5
-        h2 = (self.args[1].height + self.hsep) * 0.5
-        s.append('W %s %s; right, size=%s' % (n1, n3, self.wsep))
-        s.append('W %s %s; up, size=%s' % (n3, n4, h1))
-        s.append('W %s %s; down, size=%s' % (n3, n5, h2))
-        s.append('W %s %s; right, size=%s' % (n6, n2, self.wsep))
-        s.append('W %s %s; up, size=%s' % (n6, n7, h1))
-        s.append('W %s %s; down, size=%s' % (n6, n8, h2))
-        s.append(self.args[0].net_make(net, n4, n7))
-        s.append(self.args[1].net_make(net, n5, n8))
+
+        s.append('W %s %s; right, size=%s' % (n4, n2, self.wsep))
         return '\n'.join(s)
 
 
@@ -718,6 +748,7 @@ class Thevenin(OnePort):
         alternately in parallel and series.
 
         ::
+
                +---------+       +---------+
             +--+   self  +---+---+   Z1    +---+---
             |  +---------+   |   +---------+   |
@@ -742,6 +773,7 @@ class Thevenin(OnePort):
         """Add C network in parallel.
 
         ::
+
                +---------+      +---------+
             +--+   self  +------+   Z0    +---+----
             |  +---------+      +---------+   |
@@ -761,6 +793,7 @@ class Thevenin(OnePort):
         """Add L network in parallel.
 
         ::
+
                +---------+      +---------+
             +--+   self  +------+   Z0    +---+----
             |  +---------+      +---------+   |
