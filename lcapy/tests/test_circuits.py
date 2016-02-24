@@ -244,3 +244,18 @@ class LcapyTester(unittest.TestCase):
         h = H.inverse_laplace()
         self.assertEqual2(h, exp(-t / 2) * Heaviside(t) / 2,
                           "Incorrect impulse response")        
+
+
+    def test_VRC2(self):
+        """Lcapy: check VRC circuit with arbitrary s-domain source
+
+        """
+
+        a = Circuit()
+        a.add('V1 1 0 {V(s)}') 
+        a.add('R1 1 2') 
+        a.add('C1 2 0 C1 0') 
+        H = a[2].V / a[1].V
+
+        self.assertEqual2(H, 1 / (s * 'R1' * 'C1' + 1),  "Incorrect ratio")
+    

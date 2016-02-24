@@ -961,7 +961,7 @@ Here's an example using an arbitrary input voltage `V(s)`
    >>> cct = Circuit()
    >>> cct.add('V1 1 0 {V(s)}') 
    >>> cct.add('R1 1 2') 
-   >>> cct.add('C1 2 0') 
+   >>> cct.add('C1 2 0 C1 0') 
    >>> cct[2].V
        V(s)   
    ───────────
@@ -1030,7 +1030,7 @@ Other circuit methods
 
    cct.transfer(N1p, N1m, N2p, N2m) Voltage transfer function V2/V1, where V1 = V[N1p] - V[N1m], V2 = V[N2p] - V[N2m].
 
-   cct.thevenin(Np, Nm) Thevenin model between nodes Np and Nm.
+   cct.thevenin(Np, Nm)  Thevenin model between nodes Np and Nm.
 
    cct.norton(Np, Nm)    Norton model between nodes Np and Nm.
 
