@@ -21,6 +21,8 @@ import sympy as sym
 import re
 from sympy.utilities.lambdify import lambdify
 import sys
+from copy import copy
+
 
 # Note imports at bottom to avoid circular dependencies
 
@@ -1028,7 +1030,10 @@ class sfwExpr(Expr):
 
         See also general, partfrac, mixedfrac, and ZPK"""
 
-        N, D, delay = self._as_ratfun_delay()
+        try:
+            N, D, delay = self._as_ratfun_delay()
+        except ValueError:
+            return self.__class__(self.expr)            
 
         K = sym.cancel(N.LC() / D.LC())
         if delay != 0:
@@ -1280,7 +1285,7 @@ class sExpr(sfwExpr):
     def laplace(self):
         """Convert to s-domain representation"""
 
-        return self.copy()
+        return self.__class__(self)
 
     def phasor(self, **assumptions):
 
@@ -1589,7 +1594,7 @@ class tExpr(Expr):
         plot_time(self, t, **kwargs)
 
     def canonical(self):
-        return self.copy()
+        return self.__class__(self)
 
 
 class cExpr(Expr):
@@ -1620,7 +1625,7 @@ class Phasor(sfwExpr):
     def time(self, **assumptions):
         """Convert to time domain representation"""
 
-        return self.real.expr * cos(self.var * t) + self.imag.expr * sin(self.var * t)
+        return self._laplace_conjugate_class(self.real.expr * cos(self.var * t) + self.imag.expr * sin(self.var * t))
 
     def laplace(self):
         """Convert to Laplace domain representation"""
@@ -1629,11 +1634,15 @@ class Phasor(sfwExpr):
 
     def phasor(self):
         """Convert to phasor representation"""
-
-        return self.copy()
+        return self.__class__(self)
 
 
 class Vphasor(Phasor):
+
+    def __init__(self, val, **assumptions):
+
+        super(Vphasor, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = Vt
 
     def cpt(self):
 
@@ -1646,6 +1655,11 @@ class Vphasor(Phasor):
 
 
 class Iphasor(Phasor):
+
+    def __init__(self, val, **assumptions):
+
+        super(Iphasor, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = It
     
     def cpt(self):
 
@@ -1659,12 +1673,20 @@ class Iphasor(Phasor):
 
 class Zphasor(sfwExpr):
     """Phase impedance aka complex impedance"""
-    pass
+
+    def __init__(self, val, **assumptions):
+
+        super(Zphasor, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = Zt
 
 
 class Yphasor(sfwExpr):
     """Phase admittance aka complex admittance"""
-    pass
+
+    def __init__(self, val, **assumptions):
+
+        super(Yphasor, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = Yt
 
 
 
@@ -1721,7 +1743,6 @@ class Matrix(sym.Matrix):
     def _reformat(self, method):
         """Helper method for reformatting expression"""
 
-        from copy import copy
         new = copy(self)
 
         for i in range(self.rows):
