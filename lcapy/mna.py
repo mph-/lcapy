@@ -215,10 +215,8 @@ class MNA(object):
         self._Is = sym.zeros(num_nodes, 1)
         self._Es = sym.zeros(num_branches, 1)
 
-        assumptions = self.assumptions
-
         for elt in self.elements.values():
-            elt.stamp(self, **assumptions)
+            elt.stamp(self)
 
         # Augment the admittance matrix to form A matrix.
         self._A = self._G.row_join(self._B).col_join(self._C.row_join(self._D))
@@ -281,7 +279,7 @@ class MNA(object):
                 n1, n2 = self.node_map[
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
                 V1, V2 = self._V[n1], self._V[n2]
-                I = ((V1 - V2 - elt.Vcpt) / elt.Zcpt)
+                I = ((V1 - V2 - elt.Voc) / elt.Z)
                 self._I[elt.name] = II(I.simplify(), **assumptions)
 
         self.context.restore()

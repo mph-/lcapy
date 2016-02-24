@@ -80,7 +80,7 @@ class Cpt(object):
             return self.net
         return self.net + '; ' + str(self.opts)
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
         raise NotImplementedError('stamp method not implemented for %s' % self)
 
     def kill_initial(self):
@@ -138,12 +138,6 @@ class Cpt(object):
             raise ValueError('%s is not a source' % self)
 
     @property
-    def assumption(self):
-        """Return assumption about component"""
-
-        return self.cpt.assumption
-
-    @property
     def zeroic(self):
         """Return True if initial conditions are zero (or unspecified)"""
 
@@ -182,23 +176,23 @@ class Cpt(object):
         return self.cct.v[self.name]
 
     @property
-    def Icpt(self):
-        """Initial current"""
+    def Isc(self):
+        """Short-circuit current"""
         
         if self.cct.is_ac:
             return self.cpt.Iscac
         return self.cpt.Isc
 
     @property
-    def Vcpt(self):
-        """Initial voltage"""
+    def Voc(self):
+        """Open-circuit voltage"""
         
         if self.cct.is_ac:
             return self.cpt.Vocac
         return self.cpt.Voc
 
     @property
-    def Ycpt(self):
+    def Y(self):
         """Admittance"""
         
         if self.cct.is_ac:
@@ -206,7 +200,7 @@ class Cpt(object):
         return self.cpt.Y
 
     @property
-    def Zcpt(self):
+    def Z(self):
         """Impedance"""
         
         if self.cct.is_ac:
@@ -230,19 +224,19 @@ class Cpt(object):
 
 class NonLinear(Cpt):
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
         raise NotImplementedError('Cannot analyse non-linear component %s' % self)
 
 
 class TimeVarying(Cpt):
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
         raise NotImplementedError('Cannot analyse time-varying component %s' % self)
 
 
 class Logic(Cpt):
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
         raise NotImplementedError('Cannot analyse logic component %s' % self)
 
 
@@ -253,13 +247,12 @@ class DummyCpt(Cpt):
     ac = False
     zeroic = True
     hasic = None
-    assumption = None
 
 
 class O(DummyCpt):
     """Open circuit"""
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
         pass
 
 
@@ -319,17 +312,17 @@ class RLC(Cpt):
 
 class RC(RLC):
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
 
         # L's can also be added with this stamp but if have coupling
         # it is easier to generate stamp that requires branch current
         # through the L.
         n1, n2 = self.node_indexes
 
-        if assumptions.get('ac', False):
+        if cct.is_ac:
             Y = self.cpt.Yac.expr
             I = 0
-        elif self.type == 'C' and assumptions.get('dc', False):
+        elif self.type == 'C' and cct.is_dc:
             Y = 0
             I = 0
         else:
@@ -375,7 +368,7 @@ class L(RLC):
         return '%s %s %s %s; %s' % (
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
 
         # This formulation adds the inductor current to the unknowns
 
@@ -389,16 +382,15 @@ class L(RLC):
             cct._B[n2, m] = -1
             cct._C[m, n2] = -1
 
-        if assumptions.get('ac', False):
+        if cct.is_ac:
             Z = self.cpt.Zac.expr
             V = 0
-        elif assumptions.get('dc', False):
+        elif cct.is_dc:
             Z = 0
             V = 0
         else:
             Z = self.cpt.Z.expr
             V = self.cpt.Voc.expr
-
 
         cct._D[m, m] += -Z
         cct._Es[m] += V
@@ -415,7 +407,7 @@ class L(RLC):
 class E(DummyCpt):
     """VCVS"""
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
         m = self.branch_index
 
@@ -437,7 +429,7 @@ class E(DummyCpt):
 class F(DummyCpt):
     """CCCS"""
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
         n1, n2 = self.node_indexes
         m = cct._branch_index(self.args[0])
         F = cExpr(self.args[1]).expr
@@ -451,7 +443,7 @@ class F(DummyCpt):
 class G(DummyCpt):
     """VCCS"""
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
         G = cExpr(self.args[0]).expr
 
@@ -468,7 +460,7 @@ class G(DummyCpt):
 class H(DummyCpt):
     """CCVS"""
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
         n1, n2 = self.node_indexes
         m = self.branch_index
 
@@ -493,11 +485,11 @@ class I(Cpt):
         newopts.strip_voltage_labels()
         return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
 
         n1, n2 = self.node_indexes
 
-        if assumptions.get('ac', False):
+        if cct.is_ac:
             I = self.cpt.Iscac.expr
         else:
             I = self.cpt.Isc.expr
@@ -535,7 +527,7 @@ class V(Cpt):
         newopts.strip_current_labels()
         return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
 
         n1, n2 = self.node_indexes
         m = self.branch_index
@@ -547,11 +539,7 @@ class V(Cpt):
             cct._B[n2, m] -= 1
             cct._C[m, n2] -= 1
 
-        if assumptions.get('ac', False):
-            V = self.cpt.Vocac.expr
-        else:
-            V = self.cpt.Voc.expr
-        
+        V = self.Voc.expr
         cct._Es[m] += V
 
 
@@ -576,9 +564,9 @@ class K(Cpt):
         super (K, self).__init__(cct, cpt_type, cpt_id, string, opts_string, nodes, *args)
 
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
 
-        if assumptions.get('ac', False):
+        if cct.is_ac:
             raise ValueError('TODO')
 
         L1 = self.nodes[0]
@@ -604,7 +592,7 @@ class TP(Cpt):
 class TF(Cpt):
     """Transformer"""    
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
 
         n1, n2, n3, n4 = self.node_indexes
         m = self.branch_index
@@ -629,7 +617,7 @@ class TF(Cpt):
 class W(DummyCpt):
     """Wire"""
 
-    def stamp(self, cct, **assumptions):
+    def stamp(self, cct):
         pass
 
 
