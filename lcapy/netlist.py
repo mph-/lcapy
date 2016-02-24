@@ -71,6 +71,7 @@ class Node(object):
     def V(self):
         """Node voltage with respect to ground"""
 
+        self.cct._solve()
         return self.cct._V[self.name]
 
     @property

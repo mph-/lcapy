@@ -888,8 +888,7 @@ name as an index, for example,
    ───
     s 
 
-The circuit has a number of attributes that can be interrogated to
-find circuit voltages and currents, including:
+The circuit has a number of attributes, including:
 
 - `V` s-domain voltage directory indexed by node name or branch name
 
@@ -902,13 +901,13 @@ find circuit voltages and currents, including:
 
 The circuit also has a number of methods, including:
 
-- `Y` admittance between pair of nodes
+- `admittance(N1, N2)` admittance between pair of nodes
 
-- `Z` impedance between pair of nodes
+- `impedance(N1, N2)` impedance between pair of nodes
 
-- `Isc` short-circuit current between pair of nodes
+- `Isc(N1, N2)` short-circuit current between pair of nodes
 
-- `Voc` open-circuit current between pair of nodes
+- `Voc(N1, N2)` open-circuit current between pair of nodes
 
 
 Since Lcapy uses Sympy, circuit analysis can be performed

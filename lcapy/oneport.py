@@ -180,6 +180,55 @@ class OnePort(Network):
     def Z(self, val):
         self._Z = val
 
+    def thevenin(self):
+        """Simplify to a Thevenin network"""
+
+        # FIXME,  This jumps into the s-domain if have a combination of
+        # components.
+
+        if self.Y == 0:
+            print('Dodgy Norton to Thevenin transformation since Y = 0')
+
+        Z1, V1 = self.Z.cpt(), self.Voc.cpt()
+        if not isinstance(Z1, OnePort):
+            Z1 = Z(Z1)
+        if not isinstance(V1, OnePort):
+            V1 = V(V1)
+
+        if V1.Voc == 0:
+            return Z1
+        if Z1.Z == 0:
+            return V1
+
+        return Ser(Z1, V1)
+
+    def norton(self):
+        """Simplify to a Norton network"""
+
+        # FIXME,  This jumps into the s-domain if have a combination of
+        # components.
+
+        if self.Z == 0:
+            print('Dodgy Thevenin to Norton transformation since Z = 0')
+
+        Y1, I1 = self.Y.cpt(), self.Isc.cpt()
+        if not isinstance(Y1, OnePort):
+            Y1 = Y(Y1)
+        if not isinstance(I1, OnePort):
+            I1 = I(I1)
+
+        if I1.Isc == 0:
+            return Y1
+        if Y1.Y == 0:
+            return I1
+
+        return Par(Y1, I1)
+
+    def smodel(self):
+        """Convert to s-domain"""
+        args = [arg.smodel() for arg in self.args]
+        return (self.__class__(*args))
+
 
 class ParSer(OnePort):
     """Parallel/serial class"""
@@ -399,50 +448,6 @@ class ParSer(OnePort):
 
         return self.__class__(*newargs)
 
-    def thevenin(self):
-        """Simplify to a Thevenin network"""
-
-        # FIXME,  This jumps into the s-domain if have a combination of
-        # components.
-
-        if self.Y == 0:
-            print('Dodgy Norton to Thevenin transformation since Y = 0')
-
-        Z1, V1 = self.Z.cpt(), self.Voc.cpt()
-        if not isinstance(Z1, OnePort):
-            Z1 = Z(Z1)
-        if not isinstance(V1, OnePort):
-            V1 = V(V1)
-
-        if V1.Voc == 0:
-            return Z1
-        if Z1.Z == 0:
-            return V1
-
-        return Ser(Z1, V1)
-
-    def norton(self):
-        """Simplify to a Norton network"""
-
-        # FIXME,  This jumps into the s-domain if have a combination of
-        # components.
-
-        if self.Z == 0:
-            print('Dodgy Thevenin to Norton transformation since Z = 0')
-
-        Y1, I1 = self.Y.cpt(), self.Isc.cpt()
-        if not isinstance(Y1, OnePort):
-            Y1 = Y(Y1)
-        if not isinstance(I1, OnePort):
-            I1 = I(I1)
-
-        if I1.Isc == 0:
-            return Y1
-        if Y1.Y == 0:
-            return I1
-
-        return Par(Y1, I1)
-
     def smodel(self):
         """Convert to s-domain"""
         args = [arg.smodel() for arg in self.args]
@@ -454,12 +459,15 @@ class ParSer(OnePort):
         Voc = self.Voc
         Z = self.Z
         assumptions = Voc.assumptions
-        return Is(Voc / Z, **assumptions).laplace()
+        return II(Voc / Z, **assumptions).laplace()
 
     @property
     def Voc(self):
         self._solve()
-        return self._V[1].laplace()
+        Voc = self._V[1]
+        # FIXME
+        assumptions = self._V.assumptions
+        return VV(Voc, **assumptions).laplace()
 
     @property
     def Y(self):
@@ -631,14 +639,7 @@ class Norton(OnePort):
 
     @property
     def Voc(self):
-        return Vs(self.Isc / self.Y, **self.Isc.assumptions).laplace()
-
-    def thevenin(self):
-        """Simplify to a Thevenin network"""
-
-        if self.Y == 0:
-            print('Dodgy Norton to Thevenin transformation since Y = 0')
-        return V(self.Voc) + Z(self.Z)
+        return VV(self.Isc / self.Y, **self.Isc.assumptions).laplace()
 
     def cpt(self):
         """Convert to a component, if possible"""
@@ -710,14 +711,7 @@ class Thevenin(OnePort):
     def Isc(self):
 
         assumptions = self.Voc.assumptions
-        return Is(self.Voc / self.Z, **assumptions).laplace()
-
-    def norton(self):
-        """Simplify to a Norton network"""
-
-        if self.Z == 0:
-            print('Dodgy Thevenin to Norton transformation since Z = 0')
-        return I(self.Isc) | Y(self.Y)
+        return II(self.Voc / self.Z, **assumptions).laplace()
 
     def parallel_ladder(self, *args):
         """Add unbalanced ladder network in parallel;

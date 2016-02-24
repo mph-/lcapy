@@ -146,3 +146,6 @@ and then analyse the netlist with MNA.  The result would be the
 Thevenin equivalent.  With this approach, the responses of different
 independent sources can be combined with superposition.
 
+Fix cct._V assumptions.
+
+Fix thevenin/norton for simple ac/dc examples without going into s-domain.
