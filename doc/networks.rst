@@ -25,6 +25,11 @@ variable `R1`.  Similarly, `R(5)` creates a 5 ohm resistor and this is
 assigned to the variable `R2`.  `Rtot` is the name of the network
 formed by connecting `R1` and `R2` in series.  
 
+   >>> Rtot.draw()
+
+.. image:: examples/networks/rseries.png
+   :width: 4cm
+
 
 Network attributes
 ------------------
@@ -50,6 +55,27 @@ Each network has a number of attributes, including:
 - `t` t-domain impulse response
 
 - `y` t-domain impulse response
+
+
+   >>> from lcapy import R, V
+   >>> n = V(20) + R(10)
+   >>> n.Voc
+   20
+   ──
+    s 
+   >>> n.voc
+   20
+   >>> n.Isc
+   2
+   ─
+   s
+   >>> n.isc
+   2
+   >>> n.Z
+   10
+
+.. image:: examples/networks/VRseries.png
+   :width: 4cm
 
 
 Network simplification
