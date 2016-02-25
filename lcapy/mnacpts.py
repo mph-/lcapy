@@ -322,6 +322,9 @@ class RC(RLC):
         if cct.is_ac:
             Y = self.cpt.Yac.expr
             I = 0
+        elif self.type == 'C' and cct.is_dc:
+            Y = 0
+            I = 0
         else:
             Y = self.cpt.Y.expr
             I = self.cpt.Isc.expr
@@ -381,6 +384,9 @@ class L(RLC):
 
         if cct.is_ac:
             Z = self.cpt.Zac.expr
+            V = 0
+        elif cct.is_dc:
+            Z = 0
             V = 0
         else:
             Z = self.cpt.Z.expr
