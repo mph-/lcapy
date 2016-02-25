@@ -1257,8 +1257,10 @@ class sExpr(sfwExpr):
         if assumptions.get('dc', False):
             result = self * s
             
-            if s in result.free_symbols:
-                raise ValueError('Something wonky going on, expecting dc')
+            free_symbols = set([symbol.name for symbol in result.free_symbols])
+            if 's' in free_symbols:
+                raise ValueError('Something wonky going on, expecting dc.'
+                                 ' Perhaps have capacitors in series?')
             return self._laplace_conjugate_class(result)
 
         try:
