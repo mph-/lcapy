@@ -26,6 +26,9 @@ from copy import copy
 
 # Note imports at bottom to avoid circular dependencies
 
+# TODO, propagate assumptions for arithmetic.........  This may be
+# tricky.  At the moment only a limited propagation of assumptions are
+# performed.
 
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'symbol', 'sympify',
@@ -288,12 +291,12 @@ class Expr(object):
     def __abs__(self):
         """Absolute value"""
 
-        return self.__class__(abs(self.expr))
+        return self.__class__(abs(self.expr), **self.assumptions)
 
     def __neg__(self):
         """Negation"""
 
-        return self.__class__(-self.expr)
+        return self.__class__(-self.expr, **self.assumptions)
 
     def __compat__(self, x):
         """Check if args are compatible and if so return compatible class."""
@@ -1033,7 +1036,7 @@ class sfwExpr(Expr):
         try:
             N, D, delay = self._as_ratfun_delay()
         except ValueError:
-            return self.__class__(self.expr)            
+            return self.__class__(self.expr, **self.assumptions)
 
         K = sym.cancel(N.LC() / D.LC())
         if delay != 0:
@@ -1045,7 +1048,7 @@ class sfwExpr(Expr):
 
         expr = K * (N / D)
 
-        return self.__class__(expr)
+        return self.__class__(expr, **self.assumptions)
 
     def general(self):
         """Convert rational function to general form.
@@ -1058,7 +1061,7 @@ class sfwExpr(Expr):
         if delay != 0:
             expr *= sym.exp(self.var * delay)
 
-        return self.__class__(expr)
+        return self.__class__(expr, **self.assumptions)
 
     def partfrac(self):
         """Convert rational function into partial fraction form.
@@ -1074,7 +1077,7 @@ class sfwExpr(Expr):
         if delay != 0:
             expr *= sym.exp(-self.var * delay)
 
-        return self.__class__(expr)
+        return self.__class__(expr, **self.assumptions)
 
     def mixedfrac(self):
         """Convert rational function into mixed fraction form.
@@ -1090,7 +1093,7 @@ class sfwExpr(Expr):
         if delay != 0:
             expr *= sym.exp(-self.var * delay)
 
-        return self.__class__(expr)
+        return self.__class__(expr, **self.assumptions)
 
     def ZPK(self):
         """Convert to pole-zero-gain (PZK) form.
@@ -1106,7 +1109,7 @@ class sfwExpr(Expr):
         zeros = sym.roots(N)
         poles = sym.roots(D)
 
-        return self.__class__(_zp2tf(zeros, poles, K, self.var))
+        return self.__class__(_zp2tf(zeros, poles, K, self.var), **self.assumptions)
 
 
 class sExpr(sfwExpr):
@@ -1285,7 +1288,7 @@ class sExpr(sfwExpr):
     def laplace(self):
         """Convert to s-domain representation"""
 
-        return self.__class__(self)
+        return self.__class__(self, **self.assumptions)
 
     def phasor(self, **assumptions):
 
@@ -1634,7 +1637,7 @@ class Phasor(sfwExpr):
 
     def phasor(self):
         """Convert to phasor representation"""
-        return self.__class__(self)
+        return self.__class__(self, **self.assumptions)
 
 
 class Vphasor(Phasor):
