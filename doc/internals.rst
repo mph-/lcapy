@@ -200,11 +200,13 @@ The steps of the algorithm are:
 1. Construct a graph where the edges are the components.  Electrical
    nodes with a common x or y position are combined to reduce the
    graph size.
+
 2. Find longest path through graph.  This determines the maximum
    dimension.  Nodes along this longest path are assigned positions
    based on the maximum distance from the start.  Note, there may be
    multiple parallel paths of the same length; it does not matter
    which is chosen.
+
 3. For each component with an unknown position, find the longest path
    in both forward and backward directions to a node with a known
    position.  This path is traversed counting the number of stretchy

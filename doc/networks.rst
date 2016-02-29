@@ -52,10 +52,12 @@ Each network has a number of attributes, including:
 
 - `isc` t-domain current through network terminals (zero by definition)
 
-- `t` t-domain impulse response
+- `y` t-domain impulse response of admittance
 
-- `y` t-domain impulse response
+- `z` t-domain impulse response of impedance
 
+
+Here's an example:
 
    >>> from lcapy import R, V
    >>> n = V(20) + R(10)
@@ -73,6 +75,8 @@ Each network has a number of attributes, including:
    2
    >>> n.Z
    10
+   >>> n.Y
+   1/10
 
 .. image:: examples/networks/VRseries.png
    :width: 4cm
