@@ -49,6 +49,7 @@ SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch
 SWspdt: SWname Nc Np Nm spdt; SPDT switch
 TF: TFname Np Nm Ncp Ncm [Value]; Transformer (works to DC!)
+TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value]; Tapped transformer (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 V: Vname Np Nm [Value]; Voltage source
@@ -90,6 +91,7 @@ pmos: keyword;
 no: keyword;
 nc: keyword;
 spdt: keyword;
+tap: keyword;
 opamp: keyword;
 fdopamp: keyword;
 buffer: keyword;
@@ -113,6 +115,7 @@ Nm: node; Negative node
 No: node; Output node
 Np: node; Positive node
 Ns: node; Source node
+Nt: node; Tap node
 Nodelist: nodelist; List of nodes
 Phase: value; AC Phase
 Vo: value; DC voltage offset

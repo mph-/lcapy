@@ -53,11 +53,12 @@ class Cpt(object):
 
         self.net = string.split(';')[0]
         self.opts_string = opts_string
-        # There are three sets of nodes:
+        # There are four sets of nodes:
         # 1. nodes are the names of the electrical nodes for a cpt.
         # 2. vnodes are the subset of the electrical nodes for a cpt that are drawn.
-        # 3. dnodes includes vnodes plus inherited nodes from other cpts (K).  The
+        # 3. dvnodes includes vnodes plus inherited nodes from other cpts (K).  The
         # lookup of this attribute is deferred until cpts are drawn.
+        # 4. dnodes are the subset of dvnodes that are shown.
         self.nodes = nodes
         self.name = name
         self.args = args
@@ -184,9 +185,14 @@ class Cpt(object):
         return self.nodes
 
     @property
-    def dnodes(self):
-        '''Nodes used to construct schematic'''
+    def dvnodes(self):
+        '''Nodes used to construct schematic (these are deferred vnodes)'''
         return self.vnodes
+
+    @property
+    def dnodes(self):
+        '''Nodes that are drawn'''
+        return self.dvnodes
 
     @property
     def coords(self):
@@ -213,16 +219,16 @@ class Cpt(object):
     def xlink(self, graphs):
 
         xvals = self.xvals
-        for m1, n1 in enumerate(self.dnodes):
-            for m2, n2 in enumerate(self.dnodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.dvnodes):
+            for m2, n2 in enumerate(self.dvnodes[m1 + 1:], m1 + 1):
                 if xvals[m2] == xvals[m1]:
                     graphs.link(n1, n2)
 
     def ylink(self, graphs):
 
         yvals = self.yvals
-        for m1, n1 in enumerate(self.dnodes):
-            for m2, n2 in enumerate(self.dnodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.dvnodes):
+            for m2, n2 in enumerate(self.dvnodes[m1 + 1:], m1 + 1):
                 if yvals[m2] == yvals[m1]:
                     graphs.link(n1, n2)
 
@@ -230,8 +236,8 @@ class Cpt(object):
 
         size = self.size
         xvals = self.xvals
-        for m1, n1 in enumerate(self.dnodes):
-            for m2, n2 in enumerate(self.dnodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.dvnodes):
+            for m2, n2 in enumerate(self.dvnodes[m1 + 1:], m1 + 1):
                 value = (xvals[m2] - xvals[m1]) * size
                 graphs.add(self, n1, n2, value, self.can_stretch)
 
@@ -239,8 +245,8 @@ class Cpt(object):
 
         size = self.size
         yvals = self.yvals
-        for m1, n1 in enumerate(self.dnodes):
-            for m2, n2 in enumerate(self.dnodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.dvnodes):
+            for m2, n2 in enumerate(self.dvnodes[m1 + 1:], m1 + 1):
                 value = (yvals[m2] - yvals[m1]) * size
                 graphs.add(self, n1, n2, value, self.can_stretch)
 
@@ -399,7 +405,7 @@ class Transistor(Cpt):
         if not self.check():
             return ''
 
-        p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dnodes]
+        p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dvnodes]
         centre = (p1 + p3) * 0.5
 
         s = r'  \draw (%s) node[%s, %s, scale=2, rotate=%d] (%s) {};''\n' % (
@@ -408,9 +414,9 @@ class Transistor(Cpt):
 
         # Add additional wires.
         if self.tikz_cpt in ('pnp', 'npn'):
-            s += r'  \draw (%s.C) -- (%s) (%s.B) -- (%s) (%s.E) -- (%s);''\n' %(self.name, self.dnodes[0], self.name, self.dnodes[1], self.name, self.dnodes[2])
+            s += r'  \draw (%s.C) -- (%s) (%s.B) -- (%s) (%s.E) -- (%s);''\n' %(self.name, self.dvnodes[0], self.name, self.dvnodes[1], self.name, self.dvnodes[2])
         else:
-            s += r'  \draw (%s.D) -- (%s) (%s.G) -- (%s) (%s.S) -- (%s);''\n' % (self.name, self.dnodes[0], self.name, self.dnodes[1], self.name, self.dnodes[2])
+            s += r'  \draw (%s.D) -- (%s) (%s.G) -- (%s) (%s.S) -- (%s);''\n' % (self.name, self.dvnodes[0], self.name, self.dvnodes[1], self.name, self.dvnodes[2])
 
         s += self._draw_nodes(**kwargs)
         return s
@@ -446,7 +452,7 @@ class TwoPort(Cpt):
 
         # TODO, fix positions if component rotated.
 
-        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dvnodes]
         width = p2.x - p4.x
         extra = 0.25
         p1.y += extra
@@ -484,7 +490,7 @@ class TL(Cpt):
         if not self.check():
             return ''
 
-        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dvnodes]
 
         centre = (p1 + p3) * 0.5
         q = self.xtf(centre, ((-1.25, 0), (0.65, 0),
@@ -494,10 +500,10 @@ class TL(Cpt):
         # Rotation creates an ellipse!
         s = r'  \draw (%s) node[align=center,tlinestub,xscale=%s] {};''\n' % (centre + Pos(-1.3 * xs, 0), self.scale)
         s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
-        s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dnodes[2])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[1], self.dnodes[0])
-        s += r'  \draw (%s) |- (%s);''\n' % (q[2], self.dnodes[1])
-        s += r'  \draw (%s) |- (%s);''\n' % (q[3], self.dnodes[3])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dvnodes[2])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[1], self.dvnodes[0])
+        s += r'  \draw (%s) |- (%s);''\n' % (q[2], self.dvnodes[1])
+        s += r'  \draw (%s) |- (%s);''\n' % (q[3], self.dvnodes[3])
         s += self._draw_nodes(**kwargs)
         return s
 
@@ -518,26 +524,26 @@ class TF1(TwoPort):
 
         link = kwargs.get('link', True)
 
-        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
+        p = [self.sch.nodes[n].pos for n in self.dvnodes]
 
         xoffset = 0.1
         yoffset = 0.5 * self.sch.cpt_size
 
         # TODO, fix positions if component rotated.
-        primary_dot = Pos(p3.x - xoffset, 0.5 * (p3.y + p4.y) + yoffset)
-        secondary_dot = Pos(p1.x + xoffset, 0.5 * (p1.y + p2.y) + yoffset)
+        primary_dot = Pos(p[2].x - xoffset, 0.5 * (p[2].y + p[3].y) + yoffset)
+        secondary_dot = Pos(p[0].x + xoffset, 0.5 * (p[0].y + p[1].y) + yoffset)
 
-        centre = (p1 + p2 + p3 + p4) * 0.25
+        centre = (p[0] + p[1] + p[2] + p[3]) * 0.25
         labelpos = Pos(centre.x, primary_dot.y)
 
         s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
         s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
         s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-            labelpos, 0.5, self.label(**kwargs), self.name)
+            labelpos, 0.5, self.name, self.label(**kwargs))
 
         if link:
-            width = p1.x - p3.x
-            arcpos = Pos((p1.x + p3.x) / 2, secondary_dot.y - width / 2 + 0.2)
+            width = p[0].x - p[2].x
+            arcpos = Pos((p[0].x + p[2].x) / 2, secondary_dot.y - width / 2 + 0.2)
 
             s += r'  \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (
                 width / 2, arcpos, width / 2)
@@ -553,12 +559,41 @@ class TF(TF1):
         if not self.check():
             return ''
 
-        n1, n2, n3, n4 = self.dnodes
+        n1, n2, n3, n4 = self.dvnodes
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2, n1)
 
         s += super(TF, self).draw(link=False, **kwargs)
+        s += self._draw_nodes(**kwargs)
+        return s
+
+
+class TFtap(TF1):
+    """Transformer"""
+    can_rotate = True
+
+
+    @property
+    def coords(self):
+        return ((0.5, 1), (0.5, 0), (0, 1), (0, 0), (-0.125, 0.55), (0.625, 0.55))
+
+    @property
+    def dnodes(self):
+        # Do not draw the taps.
+        return self.nodes[0:4]
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        n1, n2, n3, n4 = self.dnodes
+
+        s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
+        s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2, n1)
+
+        s += super(TFtap, self).draw(link=False, **kwargs)
         s += self._draw_nodes(**kwargs)
         return s
 
@@ -573,7 +608,7 @@ class K(TF1):
         super (K, self).__init__(sch, cpt_type, cpt_id, string, opts_string, nodes, *args[2:])
 
     @property
-    def dnodes(self):
+    def dvnodes(self):
 
         # L1 and L2 need to be previously defined so we can find their nodes.
         L1 = self.sch.elements[self.Lname1]
@@ -599,7 +634,7 @@ class OnePort(Cpt):
         label_values = kwargs.get('label_values', True)
         label_ids = kwargs.get('label_ids', True)
 
-        n1, n2 = self.dnodes
+        n1, n2 = self.dvnodes
 
         tikz_cpt = self.tikz_cpt
         if self.variable:
@@ -722,8 +757,8 @@ class Opamp(Cpt):
         if not self.check():
             return ''
 
-        p1, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
-        n1, n3, n4 = self.dnodes
+        p1, p3, p4 = [self.sch.nodes[n].pos for n in self.dvnodes]
+        n1, n3, n4 = self.dvnodes
 
         centre = (p3 + p4) * 0.25 + p1 * 0.5
 
@@ -762,8 +797,8 @@ class FDOpamp(Cpt):
         if not self.check():
             return ''
 
-        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
-        n1, n2, n3, n4 = self.dnodes
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dvnodes]
+        n1, n2, n3, n4 = self.dvnodes
 
         centre = self.tf((p1 + p2 + p3 + p4) * 0.25, (0.15, 0))
 
@@ -797,7 +832,7 @@ class SPDT(Cpt):
         if not self.check():
             return ''
 
-        p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dnodes]
+        p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dvnodes]
 
         centre = p1 * 0.5 + (p2 + p3) * 0.25
         s = r'  \draw (%s) node[spdt, %s, rotate=%d] (%s) {};''\n' % (
@@ -824,12 +859,12 @@ class Logic(Cpt):
 
         # TODO, fix scaling to make buffer and inverter same size.
 
-        p1, p2 = [self.sch.nodes[n].pos for n in self.dnodes]
+        p1, p2 = [self.sch.nodes[n].pos for n in self.dvnodes]
         centre = (p1 + p2) * 0.5
         s = r'  \draw (%s) node[align=left, %s, %s, rotate=%d] (%s) {};''\n' % (
             centre, self.tikz_cpt, self.args_str, self.angle, self.name)
-        s += r'  \draw (%s.out) -- (%s);''\n' % (self.name, self.dnodes[1])
-        s += r'  \draw (%s.in) -- (%s);''\n' % (self.name, self.dnodes[0])
+        s += r'  \draw (%s.out) -- (%s);''\n' % (self.name, self.dvnodes[1])
+        s += r'  \draw (%s.in) -- (%s);''\n' % (self.name, self.dvnodes[0])
         s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
         s += self._draw_nodes(**kwargs)
         return s
@@ -849,7 +884,7 @@ class Upbuffer(Cpt):
         if not self.check():
             return ''
 
-        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dnodes]
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dvnodes]
         centre = (p1 + p2) * 0.5
 
         # TODO, create pgf shape
@@ -859,10 +894,10 @@ class Upbuffer(Cpt):
 
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
             q[4], q[1], q[5], q[4])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dnodes[0])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[1], self.dnodes[1])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[2], self.dnodes[2])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[3], self.dnodes[3])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dvnodes[0])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[1], self.dvnodes[1])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[2], self.dvnodes[2])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[3], self.dvnodes[3])
         s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
             centre, self.name, self.label(**kwargs))
         s += self._draw_nodes(**kwargs)
@@ -891,8 +926,8 @@ class Chip(Cpt):
 
     @property
     def centre(self):
-        N = len(self.dnodes)
-        return self.midpoint(self.dnodes[0], self.dnodes[N // 2])
+        N = len(self.dvnodes)
+        return self.midpoint(self.dvnodes[0], self.dvnodes[N // 2])
 
     @property
     def width(self):
@@ -907,10 +942,10 @@ class Chip(Cpt):
         if not self.check():
             return ''
 
-        for m, n in enumerate(self.dnodes):
+        for m, n in enumerate(self.dvnodes):
             self.sch.nodes[n].pin = self.pinpos[m]
 
-        p = [self.sch.nodes[n].pos for n in self.dnodes]
+        p = [self.sch.nodes[n].pos for n in self.dvnodes]
         centre = self.centre
 
         w, h = self.width, self.height
@@ -936,7 +971,7 @@ class Chip1310(Chip):
 
     @property
     def centre(self):
-        return self.midpoint(self.dnodes[0], self.dnodes[4])
+        return self.midpoint(self.dvnodes[0], self.dvnodes[4])
 
     @property
     def coords(self):
@@ -1041,7 +1076,7 @@ class Wire(OnePort):
         if self.down:
             anchor = 'north west'
 
-        n1, n2 = self.dnodes
+        n1, n2 = self.dvnodes
         s = r'  \draw (%s) -- (%s);''\n' % (n1, n2)
         s += r'  \draw (%s) node[%s,scale=0.5,rotate=%d] {};''\n' % (
             n2, kind, self.angle + 90)
@@ -1076,7 +1111,7 @@ class XT(Cpt):
         if not self.check():
             return ''
 
-        p1, p2 = [self.sch.nodes[n].pos for n in self.dnodes]
+        p1, p2 = [self.sch.nodes[n].pos for n in self.dvnodes]
 
         centre = (p1 + p2) * 0.5
         q = self.xtf(centre, ((-0.3, 0), (-0.3, 0.3), (-0.3, -0.3),
@@ -1089,8 +1124,8 @@ class XT(Cpt):
         s += r'  \draw[thick] (%s) -- (%s);''\n' % (q[4], q[5])
         s += r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
             q[6], q[7], q[8], q[9], q[6])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dnodes[0])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[3], self.dnodes[1])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dvnodes[0])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[3], self.dvnodes[1])
         s += r'  \draw (%s) node[] {%s};''\n'% (q[10], self.label(**kwargs))
         s += self._draw_nodes(**kwargs)
         return s

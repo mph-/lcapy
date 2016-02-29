@@ -614,6 +614,13 @@ class TF(Cpt):
             cct._C[m, n4] += T
 
 
+class TFtap(Cpt):
+    """Tapped transformer"""    
+
+    def stamp(self, cct):
+        raise NotImplementedError('Cannot analyse tapped transformer %s' % self)
+
+
 class W(DummyCpt):
     """Wire"""
 
