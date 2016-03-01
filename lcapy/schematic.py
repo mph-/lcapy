@@ -901,8 +901,11 @@ class Schematic(object):
         # Label primary nodes
         if label_nodes:
             for m, node in enumerate(self.nodes.values()):
+                name = node.name
+                name = name.split('@')[-1]
+
                 if label_nodes == 'alpha':
-                    if not node.name[0].isalpha():
+                    if not name[0].isalpha():
                         continue
                 elif label_nodes == 'primary':
                     if not node.primary:
@@ -911,8 +914,6 @@ class Schematic(object):
                            'l': 'west', 'r' : 'east', 
                            't' : 'north', 'b' : 'south'}
                 anchor = anchors[node.pin]
-                name = node.name
-                name = name.split('@')[-1]
 
                 s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
                     anchor, node.name, name.replace('_', r'\_'))
