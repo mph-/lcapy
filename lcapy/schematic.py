@@ -202,9 +202,21 @@ class Gnode(object):
 
     def add_fedge(self, edge):
 
+        for edge1 in self.fedges:
+            if (edge1.cpt == edge.cpt and 
+                edge1.to_gnode == edge.to_gnode and
+                edge1.from_gnode == edge.from_gnode):
+                return
+
         self.fedges.append(edge)
 
     def add_redge(self, edge):
+
+        for edge1 in self.redges:
+            if (edge1.cpt == edge.cpt and 
+                edge1.to_gnode == edge.to_gnode and
+                edge1.from_gnode == edge.from_gnode):
+                return
 
         self.redges.append(edge)
 
@@ -424,7 +436,7 @@ class Graph(dict):
             separation = to_gnode.pos - from_gnode.pos
             extent = fdist + rdist
             if extent - separation > 1e-6:
-                raise ValueError('Inconsistent %s schematic graph, component will not fit:\n%s' % (self.name, self))
+                raise ValueError('Inconsistent %s schematic graph, component will not fit:  separation %s between %s and %s, need %s.\n%s' % (self.name, separation, from_gnode, to_gnode, extent, self))
 
             if rstretches == 0:
                 gnode.pos = from_gnode.pos + rdist
@@ -689,6 +701,14 @@ class Schematic(object):
                 self.add(line.strip())
             return
 
+        if string == '':
+            return None            
+
+        if string[0] == ';':
+            #TODO
+            #self.opts.add(string[1:])
+            return None
+
         cpt = parser.parse(string, self)
         if cpt is None:
             return
@@ -881,10 +901,12 @@ class Schematic(object):
         # Label primary nodes
         if label_nodes:
             for m, node in enumerate(self.nodes.values()):
-                if label_nodes == 'alpha' and not node.name[0].isalpha():
-                    continue
-                if label_nodes == 'primary' and not node.primary:
-                    continue
+                if label_nodes == 'alpha':
+                    if not node.name[0].isalpha():
+                        continue
+                elif label_nodes == 'primary':
+                    if not node.primary:
+                        continue
                 anchors = {False: 'south east', 
                            'l': 'west', 'r' : 'east', 
                            't' : 'north', 'b' : 'south'}

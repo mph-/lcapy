@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """schtex V0.1
 Copyright (c) 2014 Michael P. Hayes, UC ECE, NZ
 

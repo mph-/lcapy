@@ -232,23 +232,23 @@ class Cpt(object):
                 if yvals[m2] == yvals[m1]:
                     graphs.link(n1, n2)
 
-    def xplace(self, graphs):
-
+    def place(self, graphs, vals):
+        
         size = self.size
-        xvals = self.xvals
-        for m1, n1 in enumerate(self.dvnodes):
-            for m2, n2 in enumerate(self.dvnodes[m1 + 1:], m1 + 1):
-                value = (xvals[m2] - xvals[m1]) * size
-                graphs.add(self, n1, n2, value, self.can_stretch)
+        idx = np.argsort(vals)[::-1]
+        for i in range(len(idx) - 1):
+            m1 = idx[i]
+            m2 = idx[i + 1]
+            n1 = self.dvnodes[m1]
+            n2 = self.dvnodes[m2]
+            value = (vals[m2] - vals[m1]) * size
+            graphs.add(self, n1, n2, value, self.can_stretch)
+
+    def xplace(self, graphs):
+        self.place(graphs, self.xvals)
 
     def yplace(self, graphs):
-
-        size = self.size
-        yvals = self.yvals
-        for m1, n1 in enumerate(self.dvnodes):
-            for m2, n2 in enumerate(self.dvnodes[m1 + 1:], m1 + 1):
-                value = (yvals[m2] - yvals[m1]) * size
-                graphs.add(self, n1, n2, value, self.can_stretch)
+        self.place(graphs, self.yvals)
 
     def midpoint(self, n1, n2):
         return (self.sch.nodes[n1].pos + self.sch.nodes[n2].pos) * 0.5
