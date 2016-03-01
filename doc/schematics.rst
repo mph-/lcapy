@@ -426,6 +426,13 @@ The supported chips are:
  - `chip4141`
 
 
+Here's another example:
+
+.. literalinclude:: examples/schematics/stepup.sch
+
+.. image:: examples/schematics/stepup.png
+   :width: 8cm
+
 
 Implicit wires
 ==============
