@@ -823,22 +823,6 @@ class Schematic(object):
         for n, node in self.nodes.items():
             node.pos = Pos(xpos[n] * scale, ypos[n] * scale)
 
-    @property
-    def xcnodes(self):
-        """Names of common x nodes; for debugging"""
-
-        if not hasattr(self, 'xgraph'):
-            self._positions_calculate()
-        return self.xgraph.cnodes
-
-    @property
-    def ycnodes(self):
-        """Names of common y nodes; for debugging"""
-
-        if not hasattr(self, 'ygraph'):
-            self._positions_calculate()
-        return self.ygraph.cnodes
-
     def _make_wires1(self, snode_list):
 
         num_wires = len(snode_list) - 1
@@ -911,7 +895,7 @@ class Schematic(object):
                     if not node.primary:
                         continue
                 anchors = {False: 'south east', 
-                           'l': 'west', 'r' : 'east', 
+                           'l' : 'west', 'r' : 'east', 
                            't' : 'north', 'b' : 'south'}
                 anchor = anchors[node.pin]
 
@@ -969,7 +953,13 @@ class Schematic(object):
         else:
             raise ValueError('Unknown style %s' % style)
 
+        # For debugging when do not want to write to file
+        nosave = kwargs.pop('nosave', False)
+
         content = self._tikz_draw(style_args=style_args, **kwargs)
+        
+        if nosave:
+            return
 
         if debug:
             print('width = %d, height = %d, oversample = %d, cpt_size = %.2f, node_spacing = %.2f, scale = %.2f'

@@ -89,6 +89,14 @@ def main (argv=None):
                       dest='help_lines', default=None,
                       help="draw help lines")
 
+    parser.add_option('--xgraph', action='store_true',
+                      dest='xgraph', default=False,
+                      help="generate graph of component x positions")
+
+    parser.add_option('--ygraph', action='store_true',
+                      dest='ygraph', default=False,
+                      help="generate graph of component y positions")
+
     (options, args) = parser.parse_args()
 
     if len(args) < 1:
@@ -119,11 +127,21 @@ def main (argv=None):
                                   False, None):
         raise ValueError('Illegal option %s for draw_nodes' % options.draw_nodes)
 
+    nosave = options.xgraph or options.ygraph
+
     cct.draw(label_nodes=options.label_nodes, draw_nodes=options.draw_nodes,
              label_ids=options.label_ids, label_values=options.label_values, 
              filename=outfilename, scale=options.scale,
              node_spacing=options.node_spacing, cpt_size=options.cpt_size,
-             help_lines=options.help_lines, debug=options.debug)
+             help_lines=options.help_lines, debug=options.debug, nosave=nosave)
+
+    if options.xgraph:
+        cct.sch.xgraph.dot(outfilename)
+        return 0
+
+    if options.ygraph:
+        cct.sch.ygraph.dot(outfilename)
+        return 0
 
     return 0
 
