@@ -57,6 +57,7 @@ sV: Vname Np Nm s [Value]; s-domain voltage source
 Ubuffer: Uname Ni No buffer; Buffer
 Upbuffer: Uname Ni No Np Nm pbuffer; Buffer with power supplies
 Uinverter: Uname Ni No inverter; Inverter
+Upinverter: Uname Ni No Np Nm pinverter; Inverter with power supplies
 Uchip1310: Uname chip1310 P P P P P; Chip
 Uchip2121: Uname chip2121 P P P P P P; Chip
 Uchip3131: Uname chip3131 P P P P P P P P; Chip
@@ -96,6 +97,7 @@ opamp: keyword;
 fdopamp: keyword;
 buffer: keyword;
 pbuffer: keyword;
+pinverter: keyword;
 inverter: keyword;
 chip1310: keyword;
 chip2121: keyword;

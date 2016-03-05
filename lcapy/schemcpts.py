@@ -892,12 +892,47 @@ class Upbuffer(Cpt):
         centre = (p1 + p2) * 0.5
 
         # TODO, create pgf shape
-        scale = self.scale
         q = self.tf(centre, ((-1, 0), (1, 0), (0, 0.5), (0, -0.5),
                              (-1, 1), (-1, -1)))
 
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
             q[4], q[1], q[5], q[4])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dvnodes[0])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[1], self.dvnodes[1])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[2], self.dvnodes[2])
+        s += r'  \draw (%s) -- (%s);''\n' % (q[3], self.dvnodes[3])
+        s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
+            centre, self.name, self.label(**kwargs))
+        s += self._draw_nodes(**kwargs)
+        return s
+
+
+class Upinverter(Cpt):
+    """Inverter with power supplies"""
+
+    can_scale = True
+
+    @property
+    def coords(self):
+        return ((0, 0), (1.5, 0), (0.75, 0.5), (0.75, -0.5))
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dvnodes]
+        centre = (p1 + p2) * 0.5
+
+        # TODO, create pgf shape
+        w = 0.1
+
+        q = self.tf(centre, ((-1, 0), (1, 0), (0, 0.47), (0, -0.47),
+                             (-1, 1), (-1, -1), (1 - 2 * w, 0), (1 - w, 0)))
+
+        s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
+            q[4], q[6], q[5], q[4])
+        s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (q[7], 1.8 * self.scale)
         s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dvnodes[0])
         s += r'  \draw (%s) -- (%s);''\n' % (q[1], self.dvnodes[1])
         s += r'  \draw (%s) -- (%s);''\n' % (q[2], self.dvnodes[2])
