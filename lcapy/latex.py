@@ -1,6 +1,6 @@
 import re
 
-sub_super_pattern = re.compile(r"([_\^]){([\w]+)}")
+sub_super_pattern = re.compile(r"([_\^]){([a-zA-Z]+)([0-9]*)}")
 
 
 class Latex(object):
@@ -20,13 +20,14 @@ class Latex(object):
         
         def foo(match):
             
-            fred = match.group(2)
+            word = match.group(2)
+            suffix = word + match.group(3)
             
-            if fred.lower() in self.words:
-                fred = r'{\mathrm{%s}}' % fred
+            if word.lower() in self.words:
+                suffix = r'{\mathrm{%s}}' % suffix
             else:
-                fred = r'{%s}' % fred
-            return match.group(1) + fred
+                suffix = r'{%s}' % suffix
+            return match.group(1) + suffix
 
         return sub_super_pattern.sub(foo, self.str)
 
