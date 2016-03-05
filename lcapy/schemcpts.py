@@ -1040,7 +1040,7 @@ class Chip3131(Chip):
 
     w = 2
     h = 3
-    pinpos = ('l', 'l', 'b', 'r', 'r', 't')
+    pinpos = ('l', 'l', 'l', 'b', 'r', 'r', 'r', 't')
 
     @property
     def coords(self):
