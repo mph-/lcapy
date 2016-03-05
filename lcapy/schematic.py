@@ -327,9 +327,9 @@ class Graph(dict):
                 gnode.pos = edge.to_gnode.dist - edge.size
                 return True
         for edge in gnode.redges:
-            if (not edge.stretch and edge.from_gnode.name not in unknown
-                and edge.from_gnode.name != 'start'):
-                gnode.pos = edge.from_gnode.dist + edge.size
+            if (not edge.stretch and edge.to_gnode.name not in unknown
+                and edge.to_gnode.name != 'start'):
+                gnode.pos = edge.to_gnode.dist + edge.size
                 return True
         return False
 
@@ -369,7 +369,7 @@ class Graph(dict):
 
         if stage == 1:
             return
-
+            
         # Assign node positions to nodes with fixed edge lengths to
         # nodes with known positions.  Iterate until no more changes.
         # This stage is not needed but provides a minor optimisation.
@@ -403,48 +403,53 @@ class Graph(dict):
         for n in unknown:
             gnode = self[n]
 
-            fstretches = 0
-            fdist = 0
+            to_stretches = 0
+            to_dist = 0
             self.longest_path_to_known(gnode)
             to_gnode = gnode
             while to_gnode.next is not None:
                 if to_gnode.next.stretch:
-                    fstretches += 1
-                fdist += to_gnode.next.size
+                    to_stretches += 1
+                to_dist += to_gnode.next.size
                 to_gnode = to_gnode.next.to_gnode
 
-            rstretches = 0
-            rdist = 0
+            from_stretches = 0
+            from_dist = 0
             self.longest_path_to_known(gnode, False)
             from_gnode = gnode
             while from_gnode.next is not None:
                 if from_gnode.next.stretch:
-                    rstretches += 1
-                rdist += from_gnode.next.size
+                    from_stretches += 1
+                from_dist += from_gnode.next.size
                 from_gnode = from_gnode.next.to_gnode
+
+            if from_gnode.name == 'start' and to_gnode.name == 'end':
+                # There is a chance that we have naively picked an unlucky gnode.
+                # We should defer this gnode until the next pass
+                raise ValueError('Disconnected %s schematic graph for node %s\n%s' % (self.name, gnode, self))
 
             if from_gnode.name == 'start':
                 # Have dangling node, so no stretch needed.
-                gnode.pos = to_gnode.pos - fdist
+                gnode.pos = to_gnode.pos - to_dist
                 continue
 
             if to_gnode.name == 'end':
                 # Have dangling node, so no stretch needed.
-                gnode.pos = from_gnode.pos + rdist
+                gnode.pos = from_gnode.pos + from_dist
                 continue
 
             separation = to_gnode.pos - from_gnode.pos
-            extent = fdist + rdist
+            extent = to_dist + from_dist
             if extent - separation > 1e-6:
                 raise ValueError('Inconsistent %s schematic graph, component will not fit:  separation %s between %s and %s, need %s.\n%s' % (self.name, separation, from_gnode, to_gnode, extent, self))
 
-            if rstretches == 0:
-                gnode.pos = from_gnode.pos + rdist
-            elif fstretches == 0:
-                gnode.pos = to_gnode.pos - fdist
+            if from_stretches == 0:
+                gnode.pos = from_gnode.pos + from_dist
+            elif to_stretches == 0:
+                gnode.pos = to_gnode.pos - to_dist
             else:
-                stretch = (separation - extent) / (fstretches + rstretches)
-                gnode.pos = from_gnode.pos + rdist + stretch * rstretches          
+                stretch = (separation - extent) / (to_stretches + from_stretches)
+                gnode.pos = from_gnode.pos + from_dist + stretch * from_stretches
 
         self.check_positions()
   
