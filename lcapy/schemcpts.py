@@ -850,6 +850,8 @@ class SPDT(Cpt):
 class Logic(Cpt):
     """Logic"""
 
+    can_scale = True
+
     @property
     def coords(self):
         return ((0, 0), (1.0, 0))
@@ -863,8 +865,8 @@ class Logic(Cpt):
 
         p1, p2 = [self.sch.nodes[n].pos for n in self.dvnodes]
         centre = (p1 + p2) * 0.5
-        s = r'  \draw (%s) node[align=left, %s, %s, rotate=%d] (%s) {};''\n' % (
-            centre, self.tikz_cpt, self.args_str, self.angle, self.name)
+        s = r'  \draw (%s) node[align=left, %s, %s, xscale=%s, yscale=%s, rotate=%d] (%s) {};''\n' % (
+            centre, self.tikz_cpt, self.args_str, self.scale, self.scale, self.angle, self.name)
         s += r'  \draw (%s.out) -- (%s);''\n' % (self.name, self.dvnodes[1])
         s += r'  \draw (%s.in) -- (%s);''\n' % (self.name, self.dvnodes[0])
         s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
