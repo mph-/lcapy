@@ -474,7 +474,7 @@ class Graph(dict):
         def traverse(gnode):
 
             if gnode.pos is not None:
-                return
+                return True
 
             edges = gnode.fedges if forward else gnode.redges
             for edge in edges:
@@ -484,7 +484,9 @@ class Graph(dict):
                     next_gnode.dist = dist
                     next_gnode.prev = edge
                     gnode.next = edge
-                    traverse(next_gnode)
+                    if traverse(next_gnode):
+                        return True
+            return False
 
         start.dist = 0
         try:
