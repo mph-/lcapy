@@ -25,8 +25,8 @@ class Pos(object):
 
     def __str__(self):
 
-        xstr = ('%.2f' % self.x).rstrip('0').rstrip('.')
-        ystr = ('%.2f' % self.y).rstrip('0').rstrip('.')
+        xstr = ('%.3f' % self.x).rstrip('0').rstrip('.')
+        ystr = ('%.3f' % self.y).rstrip('0').rstrip('.')
 
         return "%s,%s" % (xstr, ystr)
 

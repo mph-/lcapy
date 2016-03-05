@@ -823,9 +823,11 @@ class FDOpamp(Cpt):
 class SPDT(Cpt):
     """SPDT switch"""
 
+    can_stretch = False
+
     @property
     def coords(self):
-        return ((0, 0.15), (0.6, 0.3), (0.6, 0))
+        return ((0, 0.1565), (0.59, 0.313), (0.59, 0))
 
     def draw(self, **kwargs):
 
