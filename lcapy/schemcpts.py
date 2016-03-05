@@ -1046,8 +1046,8 @@ class Chip3131(Chip):
     def coords(self):
         w, h = self.width, self.height
 
-        return ((0, 0.5), (0, 0), (0, -0.5), (1, -1), 
-                (2, -0.5), (2, 0), (2, 0.5), (1, 1))
+        return ((0, 1), (0, 0), (0, -1), (1, -1.5), 
+                (2, -1), (2, 0), (2, 1), (1, 1.5))
 
 
 class Chip4141(Chip):
