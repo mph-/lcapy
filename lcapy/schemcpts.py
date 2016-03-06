@@ -253,23 +253,26 @@ class Cpt(object):
     def midpoint(self, n1, n2):
         return (self.sch.nodes[n1].pos + self.sch.nodes[n2].pos) * 0.5
 
-    def _node_str(self, node1, node2, **kwargs):
+    def _node_str(self, node1, **kwargs):
 
         draw_nodes = kwargs.get('draw_nodes', True)
 
-        node_str = ''
+        s = ''
         if node1.visible(draw_nodes) and not node1.pin:
-            node_str = 'o' if node1.port else '*'
+            s = 'o' if node1.port else '*'
+        return s
 
-        node_str += '-'
+    def _node_pair_str(self, node1, node2, **kwargs):
 
-        if node2.visible(draw_nodes) and not node2.pin:
-            node_str += 'o' if node2.port else '*'
+        # Create o-o o-* *-* etc.
+        s = self._node_str(node1, **kwargs)
+        s += '-'
+        s += self._node_str(node2, **kwargs)
 
-        if node_str == '-':
-            node_str = ''
+        if s == '-':
+            s = ''
         
-        return node_str
+        return s
 
     def _draw_node(self, n, **kwargs):
 
@@ -686,7 +689,7 @@ class OnePort(Cpt):
         if 'l' in self.opts:
             self.opts['l' + label_pos] = self.opts.pop('l')
 
-        node_str = self._node_str(self.sch.nodes[n1], self.sch.nodes[n2],
+        node_pair_str = self._node_pair_str(self.sch.nodes[n1], self.sch.nodes[n2],
                                   **kwargs)
 
         args_str = ','.join([self.args_str, self.voltage_str,
@@ -712,9 +715,9 @@ class OnePort(Cpt):
         # Override label if specified.
         if self.label_str != '':
             label_str = self.label_str
-
+            
         s = r'  \draw (%s) to [align=right,%s,%s,%s,%s,n=%s] (%s);''\n' % (
-            n1, tikz_cpt, label_str, args_str, node_str, self.name, n2)
+            n1, tikz_cpt, label_str, args_str, node_pair_str, self.name, n2)
         return s
 
 
@@ -1133,8 +1136,49 @@ class Wire(OnePort):
 
         if self.implicit:
             return self.draw_implicit(**kwargs)
-                                    
-        return super(Wire, self).draw(**kwargs)
+            
+        def arrow_map(name):
+
+            try:
+                return {'' : '', '*' : '*', 'o' : 'o',
+                        'tee': '|', 'otri' : 'open triangle 60',
+                        'tri' : 'triangle 60'}[name]
+            except:
+                return name
+
+        n1, n2 = self.dvnodes
+
+        # W 1 2; up, arrow=tri, l=V_{dd}
+        # W 1 3; right, arrow=otri
+        # W 1 4; down, arrow=tee, l=0V
+        # W 1 5; left, startarrow=tri, endarrow=open triangle 90, bus=8
+
+        startarrow = self.opts.pop('startarrow', '')
+        endarrow = self.opts.pop('arrow', '')
+        endarrow = self.opts.pop('endarrow', endarrow)
+
+        bus = self.opts.pop('bus', False)
+        style = ''
+        if bus:
+            # TODO if bus has numeric arg, indicate number of lines with slash.
+            style = 'ultra thick'
+
+        s = r'  \draw[%s-%s, %s] (%s) to (%s);''\n' % (
+            arrow_map(startarrow), arrow_map(endarrow), style, n1, n2)
+        if startarrow == '':
+            s += self._draw_node(n1, **kwargs)
+        if endarrow == '':
+            s += self._draw_node(n2, **kwargs)
+
+        if 'l' in self.opts:
+            anchor = 'south west'
+            if self.down:
+                anchor = 'north west'
+            lpos = self.tf(self.sch.nodes[n2].pos, (-0.25, 0))
+            s += r'  \draw [anchor=%s] (%s) node {%s};''\n' % (
+                anchor, lpos, self.label(**kwargs))
+        return s
+
 
 class XT(Cpt):
     """Crystal"""

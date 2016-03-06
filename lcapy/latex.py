@@ -6,7 +6,7 @@ sub_super_pattern = re.compile(r"([_\^]){([a-zA-Z]+)([0-9]*)}")
 class Latex(object):
 
     words = ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
-             'mean', 'peak', 'pp', 'min', 'max', 'src',
+             'mean', 'peak', 'pp', 'min', 'max', 'src', 'bat',
              'cc', 'ee', 'dd', 'ss', 'ih', 'il', 'oh', 'ol')
 
     def __init__(self, string):
