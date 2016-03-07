@@ -54,10 +54,8 @@ TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 V: Vname Np Nm [Value]; Voltage source
 sV: Vname Np Nm s [Value]; s-domain voltage source
-Ubuffer: Uname Ni No buffer; Buffer
-Upbuffer: Uname Ni No Np Nm pbuffer; Buffer with power supplies
-Uinverter: Uname Ni No inverter; Inverter
-Upinverter: Uname Ni No Np Nm pinverter; Inverter with power supplies
+Ubuffer: Uname buffer Pi PVss Po PVdd; Buffer with power supplies
+Uinverter: Uname inverter Pi PVss Po PVdd; Inverter with power supplies
 Uchip1310: Uname chip1310 P P P P P; Chip
 Uchip2121: Uname chip2121 P P P P P P; Chip
 Uchip3131: Uname chip3131 P P P P P P P P; Chip
@@ -105,6 +103,10 @@ chip3131: keyword;
 chip4141: keyword;
 push: keyword;
 P: pin; Pin
+Pi: pin; Input pin
+Po: pin; Output pin
+PVdd: pin; Vdd pin
+PVss: pin; Vss pin
 Nb: node; Base node
 Nc: node; Collector node
 Ncp: node; Positive control node

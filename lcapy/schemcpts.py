@@ -850,102 +850,6 @@ class SPDT(Cpt):
         return s
 
 
-class Logic(Cpt):
-    """Logic"""
-
-    can_scale = True
-
-    @property
-    def coords(self):
-        return ((0, 0), (1.0, 0))
-
-    def draw(self, **kwargs):
-
-        if not self.check():
-            return ''
-
-        # TODO, fix scaling to make buffer and inverter same size.
-
-        p1, p2 = [self.sch.nodes[n].pos for n in self.dvnodes]
-        centre = (p1 + p2) * 0.5
-        s = r'  \draw (%s) node[align=left, %s, %s, xscale=%s, yscale=%s, rotate=%d] (%s) {};''\n' % (
-            centre, self.tikz_cpt, self.args_str, self.scale, self.scale, self.angle, self.name)
-        s += r'  \draw (%s.out) -- (%s);''\n' % (self.name, self.dvnodes[1])
-        s += r'  \draw (%s.in) -- (%s);''\n' % (self.name, self.dvnodes[0])
-        s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
-        s += self._draw_nodes(**kwargs)
-        return s
-
-
-class Upbuffer(Cpt):
-    """Buffer with power supplies"""
-
-    can_scale = True
-
-    @property
-    def coords(self):
-        return ((0, 0), (1.5, 0), (0.75, 0.5), (0.75, -0.5))
-
-    def draw(self, **kwargs):
-
-        if not self.check():
-            return ''
-
-        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dvnodes]
-        centre = (p1 + p2) * 0.5
-
-        # TODO, create pgf shape
-        q = self.tf(centre, ((-1, 0), (1, 0), (0, 0.5), (0, -0.5),
-                             (-1, 1), (-1, -1)))
-
-        s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
-            q[4], q[1], q[5], q[4])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dvnodes[0])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[1], self.dvnodes[1])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[2], self.dvnodes[2])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[3], self.dvnodes[3])
-        s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
-            centre, self.name, self.label(**kwargs))
-        s += self._draw_nodes(**kwargs)
-        return s
-
-
-class Upinverter(Cpt):
-    """Inverter with power supplies"""
-
-    can_scale = True
-
-    @property
-    def coords(self):
-        return ((0, 0), (1.5, 0), (0.75, 0.5), (0.75, -0.5))
-
-    def draw(self, **kwargs):
-
-        if not self.check():
-            return ''
-
-        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dvnodes]
-        centre = (p1 + p2) * 0.5
-
-        # TODO, create pgf shape
-        w = 0.1
-
-        q = self.tf(centre, ((-1, 0), (1, 0), (0, 0.47), (0, -0.47),
-                             (-1, 1), (-1, -1), (1 - 2 * w, 0), (1 - w, 0)))
-
-        s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
-            q[4], q[6], q[5], q[4])
-        s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (q[7], 1.8 * self.scale)
-        s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dvnodes[0])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[1], self.dvnodes[1])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[2], self.dvnodes[2])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[3], self.dvnodes[3])
-        s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
-            centre, self.name, self.label(**kwargs))
-        s += self._draw_nodes(**kwargs)
-        return s
-
-
 class Chip(Cpt):
     """General purpose chip"""
 
@@ -1069,6 +973,64 @@ class Chip4141(Chip):
                 (2, -1.5), (2, -0.5), (2, 0.5), (2, 1.5),
                 (1, 2))
 
+class Ubuffer(Chip):
+    """Buffer with power supplies"""
+
+    can_scale = True
+
+    @property
+    def coords(self):
+        return ((0, 0), (0.5, -0.25), (1.0, 0), (0.5, 0.25))
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dvnodes]
+        centre = (p1 + p3) * 0.5
+
+        # TODO, create pgf shape
+        q = self.tf(centre, ((-1, 0), (1, 0), (0, 0.5), (0, -0.5),
+                             (-1, 1), (-1, -1)))
+
+        s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
+            q[4], q[1], q[5], q[4])
+        s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
+            centre, self.name, self.label(**kwargs))
+        s += self._draw_nodes(**kwargs)
+        return s
+
+class Uinverter(Chip):
+    """Inverter with power supplies"""
+
+    can_scale = True
+
+    @property
+    def coords(self):
+        return ((0, 0), (0.5, -0.25), (1.0, 0), (0.5, 0.25))
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dvnodes]
+        centre = (p1 + p3) * 0.5
+
+        # TODO, create pgf shape
+        w = 0.1
+
+        q = self.tf(centre, ((-1, 0), (1, 0), (0, 0.465), (0, -0.465),
+                             (-1, 1), (-1, -1), (1 - 2 * w, 0), (1 - w, 0)))
+
+        s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
+            q[4], q[6], q[5], q[4])
+        s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (q[7], 1.8 * self.scale)
+        s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
+            centre, self.name, self.label(**kwargs))
+        s += self._draw_nodes(**kwargs)
+        return s
 
 class Wire(OnePort):
 
@@ -1140,8 +1102,7 @@ class Wire(OnePort):
         def arrow_map(name):
 
             try:
-                return {'' : '', '*' : '*', 'o' : 'o',
-                        'tee': '|', 'otri' : 'open triangle 60',
+                return {'tee': '|', 'otri' : 'open triangle 60',
                         'tri' : 'triangle 60'}[name]
             except:
                 return name
@@ -1162,6 +1123,8 @@ class Wire(OnePort):
         if bus:
             # TODO if bus has numeric arg, indicate number of lines with slash.
             style = 'ultra thick'
+
+        # TODO, add arrow shapes for earth symbol.
 
         s = r'  \draw[%s-%s, %s] (%s) to (%s);''\n' % (
             arrow_map(startarrow), arrow_map(endarrow), style, n1, n2)
@@ -1295,8 +1258,6 @@ defcpt('SWspdt', SPDT, 'SPDT switch', 'spdt')
 defcpt('TF', TwoPort, 'Transformer', 'transformer')
 defcpt('TP', TwoPort, 'Two port', '')
 
-defcpt('Ubuffer', Logic, 'Buffer', 'buffer')
-defcpt('Uinverter', Logic, 'Inverter', 'american not port')
 defcpt('Uchip1310', Chip1310, 'General purpose chip')
 defcpt('Uchip2121', Chip2121, 'General purpose chip')
 defcpt('Uchip3131', Chip3131, 'General purpose chip')
