@@ -978,6 +978,8 @@ class Ubuffer(Chip):
 
     can_scale = True
 
+    pinpos = ('l', 'b', 'r', 't')
+
     @property
     def coords(self):
         return ((0, 0), (0.5, -0.25), (1.0, 0), (0.5, 0.25))
@@ -986,6 +988,9 @@ class Ubuffer(Chip):
 
         if not self.check():
             return ''
+
+        for m, n in enumerate(self.dvnodes):
+            self.sch.nodes[n].pin = self.pinpos[m]
 
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dvnodes]
         centre = (p1 + p3) * 0.5
@@ -1006,14 +1011,19 @@ class Uinverter(Chip):
 
     can_scale = True
 
+    pinpos = ('l', 'b', 'r', 't')
+
     @property
     def coords(self):
-        return ((0, 0), (0.5, -0.25), (1.0, 0), (0.5, 0.25))
+        return ((0, 0), (0.5, -0.22), (1.0, 0), (0.5, 0.22))
 
     def draw(self, **kwargs):
 
         if not self.check():
             return ''
+
+        for m, n in enumerate(self.dvnodes):
+            self.sch.nodes[n].pin = self.pinpos[m]
 
         p1, p2, p3, p4 = [self.sch.nodes[n].pos for n in self.dvnodes]
         centre = (p1 + p3) * 0.5
@@ -1021,12 +1031,11 @@ class Uinverter(Chip):
         # TODO, create pgf shape
         w = 0.1
 
-        q = self.tf(centre, ((-1, 0), (1, 0), (0, 0.465), (0, -0.465),
-                             (-1, 1), (-1, -1), (1 - 2 * w, 0), (1 - w, 0)))
+        q = self.tf(centre, ((-1, 1), (-1, -1), (1 - 2 * w, 0), (1 - w, 0)))
 
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
-            q[4], q[6], q[5], q[4])
-        s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (q[7], 1.8 * self.scale)
+            q[0], q[2], q[1], q[0])
+        s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (q[3], 1.8 * self.scale)
         s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
             centre, self.name, self.label(**kwargs))
         s += self._draw_nodes(**kwargs)
