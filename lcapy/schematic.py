@@ -361,6 +361,7 @@ class Graph(dict):
                 unknown.discard(gnode.name)
                 gnode.path = True
                 gnode.pos = gnode.dist
+                gnode.fixed = True
                 gnode = gnode.prev.from_gnode
                 self['start'].pos = 0
         except AttributeError:
@@ -542,7 +543,10 @@ class Graph(dict):
         dotfile.write ('strict digraph {\n\tgraph [rankdir=LR];\n')
 
         for gnode in self.values():
-            colour = 'red' if gnode.pos is not None else 'blue'
+            if hasattr(gnode, 'fixed'):
+                colour = 'yellow'
+            else:
+                colour = 'red' if gnode.pos is not None else 'blue'
             if gnode.name in ('start', 'end'):
                 colour = 'green'
             dotfile.write ('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (gnode.fmt_name, colour, gnode.pos))
