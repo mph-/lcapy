@@ -319,17 +319,17 @@ class Graph(dict):
             if gnode.fedges == []:
                 self.add_edges(None, gnode, end, 0, True)
 
-    def assign_fixed(self, gnode, unknown):
+    def assign_fixed(self, gnode):
 
         for edge in gnode.fedges:
-            if (not edge.stretch and edge.to_gnode.name not in unknown 
+            if (not edge.stretch and edge.to_gnode.pos is not None
                 and edge.to_gnode.name != 'end'):
-                gnode.pos = edge.to_gnode.dist - edge.size
+                gnode.pos = edge.to_gnode.pos - edge.size
                 return True
         for edge in gnode.redges:
-            if (not edge.stretch and edge.to_gnode.name not in unknown
+            if (not edge.stretch and edge.to_gnode.pos is not None
                 and edge.to_gnode.name != 'start'):
-                gnode.pos = edge.to_gnode.dist + edge.size
+                gnode.pos = edge.to_gnode.pos + edge.size
                 return True
         return False
 
@@ -378,7 +378,7 @@ class Graph(dict):
         while changes and unknown != set():
             for n in unknown:
                 gnode = self[n]
-                changes = self.assign_fixed(gnode, unknown)
+                changes = self.assign_fixed(gnode)
                 if changes:
                     unknown.discard(n)
                     break
