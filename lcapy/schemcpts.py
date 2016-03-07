@@ -403,6 +403,7 @@ class Transistor(Cpt):
 
     can_mirror = True
     can_stretch = False
+    can_scale = True
 
     @property
     def coords(self):
@@ -419,8 +420,9 @@ class Transistor(Cpt):
         p1, p2, p3 = [self.sch.nodes[n].pos for n in self.dvnodes]
         centre = (p1 + p3) * 0.5
 
-        s = r'  \draw (%s) node[%s, %s, scale=2, rotate=%d] (%s) {};''\n' % (
-            centre, self.tikz_cpt, self.args_str, self.angle, self.name)
+        s = r'  \draw (%s) node[%s, %s, scale=%s, rotate=%d] (%s) {};''\n' % (
+            centre, self.tikz_cpt, self.args_str, 2 * self.scale,
+            self.angle, self.name)
         s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
 
         # Add additional wires.
