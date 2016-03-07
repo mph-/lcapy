@@ -690,7 +690,7 @@ class OnePort(Cpt):
             self.opts['l' + label_pos] = self.opts.pop('l')
 
         node_pair_str = self._node_pair_str(self.sch.nodes[n1], self.sch.nodes[n2],
-                                  **kwargs)
+                                            **kwargs)
 
         args_str = ','.join([self.args_str, self.voltage_str,
                              self.current_str])
@@ -1135,8 +1135,8 @@ class Wire(OnePort):
 
         # TODO, add arrow shapes for earth symbol.
 
-        s = r'  \draw[%s-%s, %s] (%s) to (%s);''\n' % (
-            arrow_map(startarrow), arrow_map(endarrow), style, n1, n2)
+        s = r'  \draw[%s-%s, %s, %s] (%s) to (%s);''\n' % (
+            arrow_map(startarrow), arrow_map(endarrow), style, self.args_str, n1, n2)
         if startarrow == '':
             s += self._draw_node(n1, **kwargs)
         if endarrow == '':
