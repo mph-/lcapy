@@ -25,7 +25,7 @@ class Cpt(object):
     implicit_keys =  ('implicit', 'ground', 'sground', 'rground')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
-                 'mirror', 'scale', 'invisible', 'variable')
+                 'mirror', 'scale', 'invisible', 'variable', 'fixed')
 
     can_rotate = True
     can_scale = False
@@ -145,6 +145,14 @@ class Cpt(object):
         return self.boolattr('variable')
 
     @property
+    def fixed(self):
+        return self.boolattr('fixed')
+
+    @property
+    def stretch(self):
+        return self.can_stretch and not self.fixed
+
+    @property
     def angle(self):
         """Return rotation angle"""
         if self.right:
@@ -242,7 +250,7 @@ class Cpt(object):
             n1 = self.dvnodes[m1]
             n2 = self.dvnodes[m2]
             value = (vals[m2] - vals[m1]) * size
-            graphs.add(self, n1, n2, value, self.can_stretch)
+            graphs.add(self, n1, n2, value, self.stretch)
 
     def xplace(self, graphs):
         self.place(graphs, self.xvals)
