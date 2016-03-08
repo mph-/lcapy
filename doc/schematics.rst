@@ -225,8 +225,9 @@ These can be augmented by explicit voltage and current labels.
 
 - l=label -- component label
 
-The label name is displayed using LaTeX math mode, so superscripts and
-subscripts can be employed.  For example,
+The label name can be displayed using LaTeX math mode by enclosing the
+name between dollar signs.  Thus superscripts and subscripts can be
+employed.  For example,
 
 >>> cct.add('R1 1 2; right, i=$I_1$, v=$V_{R_1}$')
 
@@ -443,7 +444,8 @@ The supported chips are:
  - `chip2121`
  - `chip3131`
  - `chip4141`
-
+ - `buffer`
+ - `inverter`
 
 Here's another example:
 
@@ -497,6 +499,8 @@ Component attributes
 - `color`: component color
 
 - `variable`: for variable resistors, inductors, and capacitors
+
+- `fixed`: do not stretch
 
 
 Schematic attributes
@@ -603,6 +607,14 @@ Examples
    :width: 9cm
 
 
+.. literalinclude:: examples/schematics/cmos-backdrive2.sch
+
+.. image:: examples/schematics/cmos-backdrive2.png
+   :width: 9cm
+
+
+
+
 schtex.py
 =========
 
@@ -633,7 +645,8 @@ Drawing tips
 Lcapy uses a semi-automated approach to component layout.  For each
 component it needs its orientation and size.  By default the size
 is 1.  This is the minimum distance between its nodes (for a one-port
-device).  Lcapy will increase but never decrease this distance.  
+device). If the component can be stretched, Lcapy will increase but
+never decrease this distance.
 
 The x and y positions of nodes are computed independently using a
 graph.  An error can occur if components have the wrong orientation
@@ -642,10 +655,14 @@ trivial to find the offending component so it is best to draw a
 schematic incrementally and to test it as you go.  A sketch on a piece
 of paper showing the nodes is useful.
 
-Problems occasionally occur when drawing circuits with operational
-amplifiers.  This can be fixed by reducing the size of interconnect
-wires and allowing Lcapy to stetch them.  Alternatively, explicitly
-add short interconnecting wires that can be adjusted by Lcapy.
+Problems can occur using components, such as integrated circuits and
+opamps, that cannot be stretched.  Usually this is due to a conflict
+between constraints.  A solution is to reduce the size of the
+component if it can be stretched, such as a wire or resistor.
+Sometimes it is necessary to add a short interconnecting wire.
+
+The stretching of components can be prevented by specifying the
+`fixed` attribute.
 
 Grid lines can be added to a schematic using some Tikz markup.  For
 example,::
