@@ -194,6 +194,25 @@ with the color attribute, for example:
    >>> cct.add('R1 1 2; right, color=blue')
 
 
+Line styles
+===========
+
+The line style of wires can be changed using the tikz attributes, `dashed`, `dotted`, `thick`, `ultra thick`, `line width`, and many others.  For example,
+
+.. literalinclude:: examples/schematics/wirestyles.sch
+
+.. image:: examples/schematics/wirestyles.png
+   :width: 8cm
+
+Arrows can be drawn using the `startarrow` and `endarrow` attributes.
+There are many arrow styles, see the tikz manual. For example,
+
+.. literalinclude:: examples/schematics/arrows.sch
+
+.. image:: examples/schematics/arrows.png
+   :width: 5cm
+
+
 Labels
 ======
 
