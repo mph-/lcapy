@@ -425,11 +425,16 @@ class Transistor(Cpt):
             self.angle, self.name)
         s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
 
-        # Add additional wires.
+        # Add additional wires.  These help to compensate for the
+        # slight differences in sizes of the different transistors.
         if self.tikz_cpt in ('pnp', 'npn'):
-            s += r'  \draw (%s.C) -- (%s) (%s.B) -- (%s) (%s.E) -- (%s);''\n' %(self.name, self.dvnodes[0], self.name, self.dvnodes[1], self.name, self.dvnodes[2])
+            s += r'  \draw (%s.C) -- (%s) (%s.B) -- (%s) (%s.E) -- (%s);''\n' % (
+                self.name, self.dvnodes[0], self.name, self.dvnodes[1], 
+                self.name, self.dvnodes[2])
         else:
-            s += r'  \draw (%s.D) -- (%s) (%s.G) -- (%s) (%s.S) -- (%s);''\n' % (self.name, self.dvnodes[0], self.name, self.dvnodes[1], self.name, self.dvnodes[2])
+            s += r'  \draw (%s.D) -- (%s) (%s.G) -- (%s) (%s.S) -- (%s);''\n' % (
+                self.name, self.dvnodes[0], self.name, self.dvnodes[1],
+                self.name, self.dvnodes[2])
 
         s += self._draw_nodes(**kwargs)
         return s
@@ -1147,10 +1152,7 @@ class Wire(OnePort):
 
         s = r'  \draw[%s-%s, %s, %s] (%s) to (%s);''\n' % (
             arrow_map(startarrow), arrow_map(endarrow), style, self.args_str, n1, n2)
-        if startarrow == '':
-            s += self._draw_node(n1, **kwargs)
-        if endarrow == '':
-            s += self._draw_node(n2, **kwargs)
+        s += self._draw_nodes(**kwargs)
 
         if 'l' in self.opts:
             anchor = 'south west'
