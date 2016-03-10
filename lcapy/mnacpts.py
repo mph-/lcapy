@@ -349,14 +349,14 @@ class C(RC):
     
     def kill_initial(self):
         """Kill implicit voltage sources due to initial conditions"""
-        return '%s %s %s %s; %s' % (
+        return '%s %s %s {%s}; %s' % (
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
     def pre_initial_model(self):
 
         if self.cpt.v0 == 0.0:
             return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
-        return 'V%s %s %s %s; %s' % (self.name,
+        return 'V%s %s %s {%s}; %s' % (self.name,
                                      self.nodes[0], self.nodes[1], 
                                      self.cpt.v0, self.opts)       
 
@@ -365,7 +365,7 @@ class L(RLC):
     
     def kill_initial(self):
         """Kill implicit voltage sources due to initial conditions"""
-        return '%s %s %s %s; %s' % (
+        return '%s %s %s {%s}; %s' % (
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
     def stamp(self, cct):
@@ -400,7 +400,7 @@ class L(RLC):
         if self.cpt.i0 == 0.0:
             return 'W %s %s; %s' % (self.nodes[0], self.nodes[1],
                                     self.opts)
-        return 'I%s %s %s %s; %s' % (self.name,
+        return 'I%s %s %s {%s}; %s' % (self.name,
                                      self.nodes[0], self.nodes[1], 
                                      self.cpt.i0, self.opts)       
 
