@@ -205,7 +205,7 @@ The line style of wires can be changed using the tikz attributes, `dashed`, `dot
    :width: 8cm
 
 Arrows can be drawn using the `startarrow` and `endarrow` attributes.
-There are many arrow styles, see the tikz manual. For example,
+There are many arrow styles, see the tikz manual.  For example,
 
 .. literalinclude:: examples/schematics/arrows.sch
 
@@ -244,7 +244,7 @@ displayed using:
 Schematic options are separated using a comma.  If you need a comma,
 say in a label, enclose the field in braces.  For example:
 
-    >>> C1 1 0 100e-12;down, size=1.5, v={5\,kV}
+    >>> C1 1 0 100e-12; down, size=1.5, v={5\,kV}
 
 Math-mode labels need to be enclosed in `$...$`.  There is an
 experimental feature that is activated when the label starts with a
@@ -252,6 +252,11 @@ single `$`.  In this case, Lcapy tries to generate a nice LaTeX label.
 For example, words in sub- and superscripts are converted into a roman
 font using `mathrm`.  This feature is also activated if the label is
 not enclosed in `$...$` but includes an `^` or `_`.
+
+Voltage labels can be annotated between pairs of nodes using an
+open-circuit component.   For example,
+
+    >>> O1 1 0; down, v=V_1
 
 
 Nodes
@@ -550,25 +555,25 @@ Examples
 .. literalinclude:: examples/schematics/opamp-inverting-amplifier.sch
 
 .. image:: examples/schematics/opamp-inverting-amplifier.png
-   :width: 7cm
+   :width: 5cm
 
 
 .. literalinclude:: examples/schematics/opamp-noninverting-amplifier.sch
 
 .. image:: examples/schematics/opamp-noninverting-amplifier.png
-   :width: 7cm
+   :width: 5cm
 
 
 .. literalinclude:: examples/schematics/opamp-inverting-integrator.sch
 
 .. image:: examples/schematics/opamp-inverting-integrator.png
-   :width: 7cm
+   :width: 5cm
 
 
 .. literalinclude:: examples/schematics/cmos1.sch
 
 .. image:: examples/schematics/cmos1.png
-   :width: 7cm
+   :width: 5cm
 
 
 .. literalinclude:: examples/schematics/D4.sch
@@ -663,6 +668,9 @@ Sometimes it is necessary to add a short interconnecting wire.
 
 The stretching of components can be prevented by specifying the
 `fixed` attribute.
+
+Additional constraints can be supplied by using an invisible
+component, for example, an open-circuit.
 
 Grid lines can be added to a schematic using some Tikz markup.  For
 example,::
