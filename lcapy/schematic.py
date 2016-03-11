@@ -319,7 +319,7 @@ class Graph(dict):
             if gnode.fedges == []:
                 self.add_edges(None, gnode, end, 0, True)
 
-    def assign_fixed(self, gnode):
+    def assign_fixed1(self, gnode):
 
         for edge in gnode.fedges:
             if (not edge.stretch and edge.to_gnode.pos is not None
@@ -332,6 +332,17 @@ class Graph(dict):
                 gnode.pos = edge.to_gnode.pos + edge.size
                 return True
         return False
+
+    def assign_fixed(self, unknown):
+
+        changes = True
+        while changes and unknown != set():
+            for n in unknown:
+                gnode = self[n]
+                changes = self.assign_fixed1(gnode)
+                if changes:
+                    unknown.discard(n)
+                    break
 
     def analyse(self, stage=None):
 
@@ -374,14 +385,7 @@ class Graph(dict):
         # Assign node positions to nodes with fixed edge lengths to
         # nodes with known positions.  Iterate until no more changes.
         # This stage is not needed but provides a minor optimisation.
-        changes = True
-        while changes and unknown != set():
-            for n in unknown:
-                gnode = self[n]
-                changes = self.assign_fixed(gnode)
-                if changes:
-                    unknown.discard(n)
-                    break
+        self.assign_fixed(unknown)
 
         if stage == 2:
             return
