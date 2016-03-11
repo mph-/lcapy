@@ -757,6 +757,7 @@ class Schematic(object):
                         value_label = Expr(expr, cache=False).latex()
 
                 except ValueError:
+                    # This catches non numeric arg.
                     value_label = Expr(expr, cache=False).latex()
 
         # Currently, we only annnotated the component with the value,
@@ -984,7 +985,9 @@ class Schematic(object):
             open(filename, 'w').write(content)
             return
 
+        # Need amsmath for operatorname
         template = ('\\documentclass[a4paper]{standalone}\n'
+                    '\\usepackage{amsmath}\n'
                     '\\usepackage{circuitikz}\n'
                     '\\usetikzlibrary{fit}\n'
                     '\\begin{document}\n%s\\end{document}')

@@ -44,11 +44,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Iphasor', 'Vphasor', 'Yphasor', 'Zphasor',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
-symbol_pattern = re.compile(r"^[a-zA-Z]+[\w]*[_]?[\w]*$")
-symbol_pattern2 = re.compile(r"^([a-zA-Z]+[\w]*_){([\w]*)}$")
-
-cpt_names = ('C', 'G', 'I', 'L', 'R', 'V', 'Y', 'Z')
-cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
+func_pattern = re.compile(r"\\operatorname{(.*)}")
 
 all_assumptions = ('ac', 'dc', 'causal')
 
@@ -528,8 +524,15 @@ class Expr(object):
         """Make latex string"""
 
         string = latex(self.expr)
+        match = func_pattern.match(string)
+        if match is not None:
+            # v_1(t) -> \operatorname{v\_1}\left( t \right)
+            # operatorname requires amsmath so switch to mathrm
+            string = r'\mathrm{%s}' % match.groups()[0].replace('\\_', '_')
+
         # sympy uses theta for Heaviside
-        return latex_str(string).replace(r'\theta\left', r'u\left')
+        string = string.replace(r'\theta\left', r'u\left')
+        return latex_str(string)
 
     def latexans(self, name):
         """Print latex string with LHS name"""

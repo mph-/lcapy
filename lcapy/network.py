@@ -5,6 +5,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 from __future__ import division
 import sympy as sym
 from lcapy.core import Vphasor, Iphasor, sExpr
+from lcapy.latex import latex_str
 from lcapy.schematic import Schematic
 from lcapy.netlist import Netlist
 from lcapy.circuit import Circuit

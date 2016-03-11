@@ -129,6 +129,9 @@ class MNA(object):
                     break
 
         if '0' not in node_map:
+            # Perhaps could hack a connection to an arbitrary node?
+            # But then would need to make a copy of the circuit
+            # in case the user modified it.
             raise RuntimeError('Nothing connected to ground node 0')
 
         self._node_map = node_map
