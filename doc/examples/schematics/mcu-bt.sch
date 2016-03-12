@@ -11,7 +11,7 @@ U4 chip1310 _IN _EN GND _NC _OUT; right
 W U4._OUT 3; right=0.5
 W 3 U1.VDD; down
 # Hack
-O 3 U3._IN; right
+#O 3 U3._IN; right
 W 5 U4._IN; right=0.5
 W 5 _5; up=0.4, implicit, l=V_{bat}
 W 6 U3._IN; right=0.5
