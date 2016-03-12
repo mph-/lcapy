@@ -334,7 +334,10 @@ class Graph(dict):
         return False
 
     def assign_fixed(self, unknown):
-
+        """ Assign node positions to nodes with fixed edge lengths to
+        nodes with known positions.  Iterate until no more changes.
+        This stage is not needed but provides a minor optimisation."""
+        
         changes = True
         while changes and unknown != set():
             for n in unknown:
@@ -342,6 +345,83 @@ class Graph(dict):
                 changes = self.assign_fixed1(gnode)
                 if changes:
                     unknown.discard(n)
+                    break
+
+    def assign_stretch1(self, gnode):
+
+        # For each node, find the longest path between nodes with
+        # known positions.  The path between the nodes with known
+        # positions is then traversed, measuring the total separation
+        # and the number of stretchable components.  (Note, there may
+        # be multiple paths of the same length; it does not matter
+        # which one is chosen.) The stretch is then calculated from
+        # the distance of the path, the total separation, and the
+        # number of stretches.  If only one known position is found,
+        # the node is dangling and the stretch is zero.
+        
+        # TODO, check for multiple paths with a conflict, for example,
+        # a stretchy path of a longser distance than a fixed path.
+
+        to_stretches = 0
+        to_dist = 0
+        self.shortest_path_to_known(gnode)
+        to_gnode = gnode
+        while to_gnode.next is not None:
+            if to_gnode.next.stretch:
+                to_stretches += 1
+            to_dist += to_gnode.next.size
+            to_gnode = to_gnode.next.to_gnode
+
+        from_stretches = 0
+        from_dist = 0
+        self.shortest_path_to_known(gnode, False)
+        from_gnode = gnode
+        while from_gnode.next is not None:
+            if from_gnode.next.stretch:
+                from_stretches += 1
+            from_dist += from_gnode.next.size
+            from_gnode = from_gnode.next.to_gnode
+
+        if from_gnode.name == 'start' and to_gnode.name == 'end':
+            # There is a chance that we have naively picked an
+            # unlucky gnode. 
+            return False
+
+        if from_gnode.name == 'start':
+            # Have dangling node, so no stretch needed.
+            gnode.pos = to_gnode.pos - to_dist
+            return True
+
+        if to_gnode.name == 'end':
+            # Have dangling node, so no stretch needed.
+            gnode.pos = from_gnode.pos + from_dist
+            return True
+            unknown.discard(n)
+
+        separation = to_gnode.pos - from_gnode.pos
+        extent = to_dist + from_dist
+        if extent - separation > 1e-6:
+            raise ValueError('Inconsistent %s schematic graph, component will not fit:  separation %s between %s and %s, need %s.\n%s' % (self.name, separation, from_gnode, to_gnode, extent, self))
+            
+        if from_stretches == 0:
+            gnode.pos = from_gnode.pos + from_dist
+        elif to_stretches == 0:
+            gnode.pos = to_gnode.pos - to_dist
+        else:
+            stretch = (separation - extent) / (to_stretches + from_stretches)
+            gnode.pos = from_gnode.pos + from_dist + stretch * from_stretches
+        return True
+
+    def assign_stretch(self, unknown):
+
+        changes = True
+        while changes and unknown != set():
+            for n in unknown:
+                gnode = self[n]
+                changes = self.assign_stretch1(gnode)
+                if changes:
+                    unknown.discard(n)
+                    self.assign_fixed(unknown)
                     break
 
     def analyse(self, stage=None):
@@ -382,80 +462,17 @@ class Graph(dict):
         if stage == 1:
             return
             
-        # Assign node positions to nodes with fixed edge lengths to
-        # nodes with known positions.  Iterate until no more changes.
-        # This stage is not needed but provides a minor optimisation.
         self.assign_fixed(unknown)
 
         if stage == 2:
             return
 
-        # For each node, find the longest path between nodes with
-        # known positions.  The path between the nodes with known
-        # positions is then traversed, measuring the total separation
-        # and the number of stretchable components.  (Note, there may
-        # be multiple paths of the same length; it does not matter
-        # which one is chosen.) The stretch is then calculated from
-        # the distance of the path, the total separation, and the
-        # number of stretches.  If only one known position is found,
-        # the node is dangling and the stretch is zero.
-        
-        # TODO, check for multiple paths with a conflict, for example,
-        # a stretchy path of a longser distance than a fixed path.
+        self.assign_stretch(unknown)
 
-        # This can be optimised by processing all the nodes on
-        # a path between nodes with known positions at the same time.
-        for n in unknown:
-            gnode = self[n]
-
-            to_stretches = 0
-            to_dist = 0
-            self.longest_path_to_known(gnode)
-            to_gnode = gnode
-            while to_gnode.next is not None:
-                if to_gnode.next.stretch:
-                    to_stretches += 1
-                to_dist += to_gnode.next.size
-                to_gnode = to_gnode.next.to_gnode
-
-            from_stretches = 0
-            from_dist = 0
-            self.longest_path_to_known(gnode, False)
-            from_gnode = gnode
-            while from_gnode.next is not None:
-                if from_gnode.next.stretch:
-                    from_stretches += 1
-                from_dist += from_gnode.next.size
-                from_gnode = from_gnode.next.to_gnode
-
-            if from_gnode.name == 'start' and to_gnode.name == 'end':
-                # There is a chance that we have naively picked an unlucky gnode.
-                # We should defer this gnode until the next pass
-                raise ValueError('Disconnected %s schematic graph for node %s\n%s' % (self.name, gnode, self))
-
-            if from_gnode.name == 'start':
-                # Have dangling node, so no stretch needed.
-                gnode.pos = to_gnode.pos - to_dist
-                continue
-
-            if to_gnode.name == 'end':
-                # Have dangling node, so no stretch needed.
-                gnode.pos = from_gnode.pos + from_dist
-                continue
-
-            separation = to_gnode.pos - from_gnode.pos
-            extent = to_dist + from_dist
-            if extent - separation > 1e-6:
-                raise ValueError('Inconsistent %s schematic graph, component will not fit:  separation %s between %s and %s, need %s.\n%s' % (self.name, separation, from_gnode, to_gnode, extent, self))
-
-            if from_stretches == 0:
-                gnode.pos = from_gnode.pos + from_dist
-            elif to_stretches == 0:
-                gnode.pos = to_gnode.pos - to_dist
-            else:
-                stretch = (separation - extent) / (to_stretches + from_stretches)
-                gnode.pos = from_gnode.pos + from_dist + stretch * from_stretches
-
+        if unknown != set():
+            raise ValueError('Cannot assign nodes %s for %s graph:\n%s' %
+                             (unknown, self.name, self))
+            
         self.check_positions()
   
         try:
@@ -472,6 +489,39 @@ class Graph(dict):
 
         return pos, distance_max
 
+    def shortest_path_to_known(self, start, forward=True):
+        """Find shortest path through DAG to a node with a known dist."""
+
+        def traverse(gnode):
+
+            if gnode.name in ('start', 'end'):
+                # Choose as last resort
+                gnode.next = None
+                return 1000
+
+            if gnode.pos is not None:
+                gnode.next = None
+                return 0
+
+            edges = gnode.fedges if forward else gnode.redges
+            min_dist = 1e6
+            for edge in edges:
+                next_gnode = edge.to_gnode
+                # TODO, memoize
+                dist = traverse(next_gnode) + edge.size
+                if dist < min_dist:
+                    min_dist = dist
+                    next_gnode.prev = edge
+                    gnode.next = edge
+            return min_dist
+
+        start.dist = 0
+        try:
+            return traverse(start)
+        except RuntimeError:
+            raise RuntimeError(
+                ("The %s schematic graph is dodgy, probably a component"
+                 " is connected to the wrong node:\n%s") % (self.name, self))
 
     def longest_path_to_known(self, start, forward=True):
         """Find longest path through DAG to a node with a known dist."""
@@ -506,6 +556,7 @@ class Graph(dict):
                 ("The %s schematic graph is dodgy, probably a component"
                  " is connected to the wrong node:\n%s") % (self.name, self))
 
+
     def check_positions(self):
 
         for gnode in self.values():
@@ -513,14 +564,16 @@ class Graph(dict):
                 dist = edge.to_gnode.pos - gnode.pos
                 if edge.stretch:
                     if dist - edge.size < -1e-6:
-                        print('Distance conflict %s for %s between nodes %s and %s,'
-                              ' due to incompatible sizes' % (dist,
+                        print('Distance conflict %s vs %s in %s graph for %s between nodes %s and %s,'
+                              ' due to incompatible sizes' % (
+                                  dist, edge.size, self.name,
                                   edge.cpt.name, gnode.fmt_name,
                                   edge.to_gnode.fmt_name))
                 else:
                     if abs(dist - edge.size) > 1e-6:
-                        print('Stretch conflict %s vs %s for %s between nodes %s and %s,'
-                              ' due to incompatible sizes' % (dist, edge.size,
+                        print('Stretch conflict %s vs %s in %s graph for %s between nodes %s and %s,'
+                              ' due to incompatible sizes' % (
+                                  dist, edge.size, self.name,
                                   edge.cpt.name, gnode.fmt_name,
                                   edge.to_gnode.fmt_name))
 
