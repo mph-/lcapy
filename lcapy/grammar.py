@@ -12,6 +12,7 @@ comments = r'#%'
 
 # Optional params are in square brackets.
 rules = r"""
+AM: AMname Np Nm; Ammeter
 C: Cname Np Nm [Value] [IC]; Capacitor
 D: Dname Np Nm; Diode
 Dled: Dname Np Nm led; Light emitting diode
@@ -65,6 +66,7 @@ Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vstep: Vname Np Nm step [Value]; Step voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
 Vsin: Vname Np Nm sin Vo Va fo [td] [alpha] [Phase]; Sinusoidal voltage source
+VM: VMname Np Nm; Voltmeter
 W: Wname Np Np; Wire
 XT: XTname Np Nm; Crystal
 Y: Yname Np Np [Value]; Admittance

@@ -674,6 +674,7 @@ def make(classname, parent, cpt_type, cpt_id,
 
 
 # Dynamically create classes.
+defcpt('AM', W, 'Ammeter')
 
 defcpt('D', NonLinear, 'Diode')
 defcpt('Dled', 'D', 'LED')
@@ -724,6 +725,8 @@ defcpt('Vsin', V, 'Sinusoidal voltage source')
 defcpt('Vdc', V, 'DC voltage source')
 defcpt('Vstep', V, 'Step voltage source')
 defcpt('Vac', V, 'AC voltage source')
+
+defcpt('VM', O, 'Voltmeter')
 
 # Append classes defined in this module but not imported.
 clsmembers = inspect.getmembers(module, lambda member: inspect.isclass(member) and member.__module__ == __name__)

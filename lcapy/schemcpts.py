@@ -516,7 +516,8 @@ class TL(Cpt):
 
         xs = self.scale
         # Rotation creates an ellipse!
-        s = r'  \draw (%s) node[align=center,tlinestub,xscale=%s] {};''\n' % (centre + Pos(-1.3 * xs, 0), self.scale)
+        s = r'  \draw (%s) node[align=center,tlinestub,xscale=%s] {};''\n' % (
+            centre + Pos(-1.3 * xs, 0), self.scale)
         s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
         s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dvnodes[2])
         s += r'  \draw (%s) -- (%s);''\n' % (q[1], self.dvnodes[0])
@@ -1232,6 +1233,7 @@ def make(classname, parent, cpt_type, cpt_id,
     return cpt
 
 # Dynamically create classes.
+defcpt('AM', OnePort, 'Ammeter', 'ammeter')
 
 defcpt('C', OnePort, 'Capacitor', 'C')
 
@@ -1295,6 +1297,8 @@ defcpt('Vsin', 'V', 'Sinusoidal voltage source', 'sV')
 defcpt('Vdc', 'V', 'DC voltage source', 'V')
 defcpt('Vstep', 'V', 'Step voltage source', 'V')
 defcpt('Vac', 'V', 'AC voltage source', 'sV')
+
+defcpt('VM', OnePort, 'Voltmeter', 'voltmeter')
 
 defcpt('W', Wire, 'Wire', 'short')
 defcpt('Y', OnePort, 'Admittance', 'european resistor')
