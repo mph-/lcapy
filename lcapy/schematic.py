@@ -364,7 +364,7 @@ class Graph(dict):
 
         to_stretches = 0
         to_dist = 0
-        self.shortest_path_to_known(gnode)
+        self.longest_path_to_known(gnode)
         to_gnode = gnode
         while to_gnode.next is not None:
             if to_gnode.next.stretch:
@@ -374,7 +374,7 @@ class Graph(dict):
 
         from_stretches = 0
         from_dist = 0
-        self.shortest_path_to_known(gnode, False)
+        self.longest_path_to_known(gnode, False)
         from_gnode = gnode
         while from_gnode.next is not None:
             if from_gnode.next.stretch:
@@ -442,8 +442,7 @@ class Graph(dict):
             return pos, 0
 
         # Find longest path through the graph.
-        # self.longest_forward_path(self['start'])
-        self.longest_path_to_known(self['start'])
+        self.longest_path(self['start'])
 
         try:
             # Nodes on the longest path have known positions.
@@ -489,31 +488,31 @@ class Graph(dict):
 
         return pos, distance_max
 
-    def shortest_path_to_known(self, start, forward=True):
-        """Find shortest path through DAG to a node with a known dist."""
+    def longest_path_to_known(self, start, forward=True):
+        """Find longest path through DAG to a node with a known dist."""
 
         def traverse(gnode):
 
             if gnode.name in ('start', 'end'):
                 # Choose as last resort
                 gnode.next = None
-                return 1000
+                return 0
 
             if gnode.pos is not None:
                 gnode.next = None
                 return 0
 
             edges = gnode.fedges if forward else gnode.redges
-            min_dist = 1e6
+            max_dist = -1
             for edge in edges:
                 next_gnode = edge.to_gnode
                 # TODO, memoize
                 dist = traverse(next_gnode) + edge.size
-                if dist < min_dist:
-                    min_dist = dist
+                if dist > max_dist:
+                    max_dist = dist
                     next_gnode.prev = edge
                     gnode.next = edge
-            return min_dist
+            return max_dist
 
         start.dist = 0
         try:
@@ -523,8 +522,8 @@ class Graph(dict):
                 ("The %s schematic graph is dodgy, probably a component"
                  " is connected to the wrong node:\n%s") % (self.name, self))
 
-    def longest_path_to_known(self, start, forward=True):
-        """Find longest path through DAG to a node with a known dist."""
+    def longest_path(self, start, forward=True):
+        """Find longest path through DAG."""
 
         for gnode in self.values():
             gnode.dist = -1
