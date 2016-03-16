@@ -712,6 +712,7 @@ defcpt('SWpush', 'SW', 'Pushbutton switch')
 defcpt('SWspdt', 'SW', 'SPDT switch')
 
 defcpt('TFcore', TF, 'Transformer with core')
+defcpt('TFtapcore', TFtap, 'Transformer with core')
 
 defcpt('Ubuffer', Logic, 'Buffer')
 defcpt('Upbuffer', Logic, 'Buffer with power supplies')

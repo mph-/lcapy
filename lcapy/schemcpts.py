@@ -564,7 +564,7 @@ class TF1(TwoPort):
             s += r'  \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (
                 width / 2, arcpos, width / 2)
 
-        if self.classname == 'TFcore':
+        if self.classname in ('TFcore', 'TFtapcore'):
             # Draw core
             q = self.tf(centre, ((-0.1, -0.4), (-0.1, 0.4),
                                  (0.1, -0.4), (0.1, 0.4)))
@@ -712,13 +712,14 @@ class OnePort(Cpt):
         node_pair_str = self._node_pair_str(self.sch.nodes[n1], self.sch.nodes[n2],
                                             **kwargs)
 
-        args_str = ','.join([self.args_str, self.voltage_str,
-                             self.current_str])
+        args_str1 = ','.join([self.args_str])
+        args_str2 = ','.join([self.voltage_str, self.current_str])
+
         if self.mirror:
             args_str += ',mirror'
 
         if self.scale != 1.0:
-            args_str += ',bipoles/length=%scm' % (self.sch.cpt_size * self.scale)
+            args_str2 += ',bipoles/length=%scm' % (self.sch.cpt_size * self.scale)
 
         # Generate default label.
         if (label_ids and label_values and self.id_label != '' 
@@ -736,8 +737,8 @@ class OnePort(Cpt):
         if self.label_str != '':
             label_str = self.label_str
             
-        s = r'  \draw (%s) to [align=right,%s,%s,%s,%s,n=%s] (%s);''\n' % (
-            n1, tikz_cpt, label_str, args_str, node_pair_str, self.name, n2)
+        s = r'  \draw[%s] (%s) to [align=right,%s,%s,%s,%s,n=%s] (%s);''\n' % (
+            args_str1, n1, tikz_cpt, label_str, args_str2, node_pair_str, self.name, n2)
         return s
 
 
@@ -1286,6 +1287,7 @@ defcpt('SWspdt', SPDT, 'SPDT switch', 'spdt')
 
 defcpt('TF', Transformer, 'Transformer', 'transformer')
 defcpt('TFcore', Transformer, 'Transformer with core', 'transformer core')
+defcpt('TFtapcore', TFtap, 'Tapped transformer with core', 'transformer core')
 defcpt('TP', TwoPort, 'Two port', '')
 
 defcpt('Uchip1310', Chip1310, 'General purpose chip')

@@ -3,7 +3,7 @@ M1 9 10 11; right
 M2 12 13 14; right
 W U1.PWM1 10; right=0.1
 W U1.PWM2 13; right=0.1
-TF1 1 2 3 4 tap 5 _6; right, l=1:100
+TF1 1 2 3 4 tapcore 5 _6; right, l=1:100
 W 9 8; up=0.1
 W 8 3; right
 W 7 5; right=0.5

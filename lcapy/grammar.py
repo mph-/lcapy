@@ -53,6 +53,7 @@ SWspdt: SWname Nc Np Nm spdt; SPDT switch
 TF: TFname Np Nm Ncp Ncm [Value]; Transformer (works to DC!)
 TFcore: TFname Np Nm Ncp Ncm core [Value]; Transformer with core (works to DC!)
 TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value]; Tapped transformer (works to DC!)
+TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value]; Tapped transformer with core (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 V: Vname Np Nm [Value]; Voltage source
@@ -96,6 +97,7 @@ no: keyword;
 nc: keyword;
 spdt: keyword;
 tap: keyword;
+tapcore: keyword;
 opamp: keyword;
 fdopamp: keyword;
 buffer: keyword;
