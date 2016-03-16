@@ -13,6 +13,7 @@ comments = r'#%'
 # Optional params are in square brackets.
 rules = r"""
 AM: AMname Np Nm; Ammeter
+BAT: BATname Np Nm [Value]; Battery
 C: Cname Np Nm [Value] [IC]; Capacitor
 D: Dname Np Nm; Diode
 Dled: Dname Np Nm led; Light emitting diode

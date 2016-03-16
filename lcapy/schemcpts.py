@@ -668,7 +668,7 @@ class OnePort(Cpt):
 
         label_pos = '_'
         voltage_pos = '^'
-        if self.type in ('V', 'I', 'E', 'F', 'G', 'H'):
+        if self.type in ('V', 'I', 'E', 'F', 'G', 'H', 'BAT'):
 
             # circuitikz expects the positive node first, except for
             # voltage and current sources!  So swap the nodes
@@ -1234,6 +1234,8 @@ def make(classname, parent, cpt_type, cpt_id,
 
 # Dynamically create classes.
 defcpt('AM', OnePort, 'Ammeter', 'ammeter')
+
+defcpt('BAT', OnePort, 'Battery', 'battery')
 
 defcpt('C', OnePort, 'Capacitor', 'C')
 

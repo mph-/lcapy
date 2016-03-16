@@ -676,6 +676,8 @@ def make(classname, parent, cpt_type, cpt_id,
 # Dynamically create classes.
 defcpt('AM', W, 'Ammeter')
 
+defcpt('BAT', V, 'Battery')
+
 defcpt('D', NonLinear, 'Diode')
 defcpt('Dled', 'D', 'LED')
 defcpt('Dphoto', 'D', 'Photo diode')
