@@ -49,6 +49,7 @@ SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch
 SWspdt: SWname Nc Np Nm spdt; SPDT switch
 TF: TFname Np Nm Ncp Ncm [Value]; Transformer (works to DC!)
+TFcore: TFname Np Nm Ncp Ncm core [Value]; Transformer with core (works to DC!)
 TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value]; Tapped transformer (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
@@ -78,6 +79,7 @@ tunnel: keyword;
 schottky: keyword;
 s: keyword;
 ac: keyword;
+core: keyword;
 dc: keyword;
 step: keyword;
 sin: keyword;

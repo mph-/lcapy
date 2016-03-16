@@ -544,15 +544,11 @@ class TF1(TwoPort):
 
         p = [self.sch.nodes[n].pos for n in self.dvnodes]
 
-        xoffset = 0.1
-        yoffset = 0.5 * self.sch.cpt_size
-
-        # TODO, fix positions if component rotated.
-        primary_dot = Pos(p[2].x - xoffset, 0.5 * (p[2].y + p[3].y) + yoffset)
-        secondary_dot = Pos(p[0].x + xoffset, 0.5 * (p[0].y + p[1].y) + yoffset)
-
         centre = (p[0] + p[1] + p[2] + p[3]) * 0.25
-        labelpos = Pos(centre.x, primary_dot.y)
+        q = self.tf(centre, ((-0.6, 0.6), (0.6, 0.6), (0, 0.65)))
+        primary_dot = q[0]
+        secondary_dot = q[1]
+        labelpos = q[2]
 
         s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
         s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
@@ -560,16 +556,24 @@ class TF1(TwoPort):
             labelpos, 0.5, self.name, self.label(**kwargs))
 
         if link:
+            # TODO: allow for rotation
             width = p[0].x - p[2].x
             arcpos = Pos((p[0].x + p[2].x) / 2, secondary_dot.y - width / 2 + 0.2)
 
             s += r'  \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (
                 width / 2, arcpos, width / 2)
 
+        if self.classname == 'TFcore':
+            # Draw core
+            q = self.tf(centre, ((-0.1, -0.4), (-0.1, 0.4),
+                                 (0.1, -0.4), (0.1, 0.4)))
+            s += r'  \draw[thick] (%s) -- (%s);''\n' % (q[0], q[1])
+            s += r'  \draw[thick] (%s) -- (%s);''\n' % (q[2], q[3])
+
         return s
 
 
-class TF(TF1):
+class Transformer(TF1):
     """Transformer"""
 
     def draw(self, **kwargs):
@@ -582,7 +586,7 @@ class TF(TF1):
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3, n4)
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2, n1)
 
-        s += super(TF, self).draw(link=False, **kwargs)
+        s += super(Transformer, self).draw(link=False, **kwargs)
         s += self._draw_nodes(**kwargs)
         return s
 
@@ -1276,7 +1280,8 @@ defcpt('SWnc', 'SW', 'Normally closed switch', 'opening switch')
 defcpt('SWpush', 'SW', 'Pushbutton switch', 'push button')
 defcpt('SWspdt', SPDT, 'SPDT switch', 'spdt')
 
-defcpt('TF', TwoPort, 'Transformer', 'transformer')
+defcpt('TF', Transformer, 'Transformer', 'transformer')
+defcpt('TFcore', Transformer, 'Transformer with core', 'transformer core')
 defcpt('TP', TwoPort, 'Two port', '')
 
 defcpt('Uchip1310', Chip1310, 'General purpose chip')
