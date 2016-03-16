@@ -854,7 +854,7 @@ class Schematic(object):
         for node in cpt.vnodes:
             self._node_add(node, cpt)
 
-    def _positions_calculate(self):
+    def make_graphs(self):
 
         # The x and y positions of a component node are determined
         # independently.  The principle is that each component has a
@@ -884,6 +884,10 @@ class Schematic(object):
         for m, elt in enumerate(self.elements.values()):
             elt.xplace(self.xgraph)
             elt.yplace(self.ygraph)
+
+    def _positions_calculate(self):
+
+        self.make_graphs()
 
         xpos, self.width = self.xgraph.analyse()
         ypos, self.height = self.ygraph.analyse()

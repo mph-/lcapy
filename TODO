@@ -151,3 +151,7 @@ Fix cct._V assumptions.
 Fix thevenin/norton for simple ac/dc examples without going into s-domain.
 
 Tweak cpt method.  Should V('V1') -> Vdc('V1') or V('V1')?
+
+Add motor symbol to schematics
+
+Add ferrite bead symbol to schematics

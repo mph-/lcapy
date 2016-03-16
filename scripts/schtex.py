@@ -97,6 +97,10 @@ def main (argv=None):
                       dest='ygraph', default=False,
                       help="generate graph of component y positions")
 
+    parser.add_option('--stage', type='int',
+                      dest='stage', default=0,
+                      help='graph analysis stage')
+
     (options, args) = parser.parse_args()
 
     if len(args) < 1:
@@ -129,18 +133,24 @@ def main (argv=None):
 
     nosave = options.xgraph or options.ygraph
 
-    cct.draw(label_nodes=options.label_nodes, draw_nodes=options.draw_nodes,
-             label_ids=options.label_ids, label_values=options.label_values, 
-             filename=outfilename, scale=options.scale,
-             node_spacing=options.node_spacing, cpt_size=options.cpt_size,
-             help_lines=options.help_lines, debug=options.debug, nosave=nosave)
+    if not options.xgraph and not options.ygraph:
+        cct.draw(label_nodes=options.label_nodes,
+                 draw_nodes=options.draw_nodes,
+                 label_ids=options.label_ids,
+                 label_values=options.label_values, 
+                 filename=outfilename, scale=options.scale,
+                 node_spacing=options.node_spacing, cpt_size=options.cpt_size,
+                 help_lines=options.help_lines, debug=options.debug,
+                 nosave=nosave)
 
     if options.xgraph:
-        cct.sch.xgraph.dot(outfilename)
+        cct.sch.make_graphs()
+        cct.sch.xgraph.dot(outfilename, stage=options.stage)
         return 0
 
     if options.ygraph:
-        cct.sch.ygraph.dot(outfilename)
+        cct.sch.make_graphs()
+        cct.sch.ygraph.dot(outfilename, stage=options.stage)
         return 0
 
     return 0
