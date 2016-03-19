@@ -496,23 +496,23 @@ class Graph(dict):
             if gnode.name in ('start', 'end'):
                 # Choose as last resort
                 gnode.next = None
-                return 0
+                return 1000
 
             if gnode.pos is not None:
                 gnode.next = None
-                return 0
+                return gnode.pos
 
             edges = gnode.fedges if forward else gnode.redges
-            max_dist = -1
+            min_dist = 2000
             for edge in edges:
                 next_gnode = edge.to_gnode
                 # TODO, memoize
-                dist = traverse(next_gnode) + edge.size
-                if dist > max_dist:
-                    max_dist = dist
+                dist = traverse(next_gnode) - edge.size
+                if dist < min_dist:
+                    min_dist = dist
                     next_gnode.prev = edge
                     gnode.next = edge
-            return max_dist
+            return min_dist
 
         start.dist = 0
         try:
