@@ -1157,8 +1157,19 @@ class Wire(OnePort):
         # TODO, add arrow shapes for earth symbol.
 
         s = r'  \draw[%s-%s, %s, %s] (%s) to (%s);''\n' % (
-            arrow_map(startarrow), arrow_map(endarrow), style, self.args_str, n1, n2)
+            arrow_map(startarrow), arrow_map(endarrow), style,
+            self.args_str, n1, n2)
         s += self._draw_nodes(**kwargs)
+
+        if self.voltage_str != '':
+            print('There is no voltage drop across an ideal wire!')
+
+        if self.current_str != '':
+            # FIXME, we don't really want the wire drawn since this
+            # can clobber the arrow.  We just want the current
+            # annotation.
+            s += r'  \draw[%s] (%s) [short, %s] to (%s);''\n' % (
+                self.args_str, n1, self.current_str, n2)
 
         if 'l' in self.opts:
             anchor = 'south west'
