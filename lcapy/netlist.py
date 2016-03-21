@@ -516,9 +516,11 @@ class Netlist(MNA):
     @property
     def is_causal(self):
         """Return True if all independent sources are causal and not an
-        initial value problem."""
+        initial value problem (unless all the initial values are zero)."""
 
-        if self.initial_value_problem:
+        # If some of the initial conditions are specified and are non-zero
+        # then have a non-causal initial value problem.
+        if not self.zeroic:
             return False
 
         independent_sources = self.independent_sources
@@ -530,7 +532,8 @@ class Netlist(MNA):
     @property
     def is_dc(self):
         """Return True if all independent sources are DC and not an
-        initial value problem."""
+        initial value problem.  The initial value problem may collapse
+        to a DC problem but we cannot prove this yet."""
 
         if self.initial_value_problem:
             return False
