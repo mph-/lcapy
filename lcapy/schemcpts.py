@@ -516,7 +516,7 @@ class TL(Cpt):
 
         xs = self.scale
         # Rotation creates an ellipse!
-        s = r'  \draw (%s) node[align=center,tlinestub,xscale=%s] {};''\n' % (
+        s = r'  \draw (%s) node[tlinestub,xscale=%s] {};''\n' % (
             centre + Pos(-1.3 * xs, 0), self.scale)
         s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
         s += r'  \draw (%s) -- (%s);''\n' % (q[0], self.dvnodes[2])
@@ -727,7 +727,7 @@ class OnePort(Cpt):
             label_str = r'l%s={%s}{=%s}' % (label_pos, self.id_label,
                                             self.value_label)
         elif label_ids and self.id_label != '':
-            label_str = 'l%s=%s' % (label_pos, self.id_label)
+            label_str = r'l%s=%s' % (label_pos, self.id_label)
         elif label_values and self.value_label != '':
             label_str = r'l%s=%s' % (label_pos, self.value_label)
         else:
@@ -737,7 +737,7 @@ class OnePort(Cpt):
         if self.label_str != '':
             label_str = self.label_str
             
-        s = r'  \draw[%s] (%s) to [align=right,%s,%s,%s,%s,n=%s] (%s);''\n' % (
+        s = r'  \draw[%s] (%s) to [%s,%s,%s,%s,n=%s] (%s);''\n' % (
             args_str1, n1, tikz_cpt, label_str, args_str2, node_pair_str, self.name, n2)
         return s
 
@@ -1164,21 +1164,12 @@ class Wire(OnePort):
         if self.voltage_str != '':
             print('There is no voltage drop across an ideal wire!')
 
-        if self.current_str != '':
+        if self.current_str != '' or 'l' in self.opts:
             # FIXME, we don't really want the wire drawn since this
             # can clobber the arrow.  We just want the current
-            # annotation.
-            s += r'  \draw[%s] (%s) [short, %s] to (%s);''\n' % (
-                self.args_str, n1, self.current_str, n2)
-
-        if 'l' in self.opts:
-            anchor = 'south west'
-            if self.down:
-                anchor = 'north west'
-            p1, p2 = [self.sch.nodes[n].pos for n in self.dvnodes]
-            centre = (p1 + p2) * 0.5
-            s += r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
-                anchor, centre, self.label(**kwargs))
+            # annotation and/or the label.
+            s += r'  \draw[%s] (%s) [short, %s, %s] to (%s);''\n' % (
+                self.args_str, n1, self.current_str, self.label_str, n2)
         return s
 
 
