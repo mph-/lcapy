@@ -1,4 +1,4 @@
-from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside
+from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs
 from lcapy.core import Zs, s, t
 import unittest
 import sympy as sym
@@ -78,6 +78,9 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 {V1 / s}')
         a.add('R1 1 2')
         a.add('L1 2 0 L1 0')
+
+        # This currently fails due to two symbols of the same name
+        # having different assumptions.
 
         # Note, V1 acts as a short-circuit for the impedance/admittance
         self.assertEqual2(
@@ -194,11 +197,13 @@ class LcapyTester(unittest.TestCase):
 
 
     def test_VRL1_dc2(self):
-        """Lcapy: check VRL circuit at dc
+        """Lcapy: check VRL circuit at dc but with initial conditions
 
         """
 
-        # TODO: need to dupe Lcapy from using a DC analysis. 
+        # This currently fails due to two symbols of the same name
+        # having different assumptions.
+
         a = Circuit()
         a.add('V1 1 0 {V1 + 1}')
         a.add('R1 1 2')
@@ -206,10 +211,26 @@ class LcapyTester(unittest.TestCase):
         # This tests if symbols are converted to the defined ones.
         self.assertEqual2(a.L1.v, V(0).V.inverse_laplace(**a.assumptions), 
                           "Incorrect time domain voltage")        
-        self.assertEqual2(a.R1.v, V('V1 + 1').V.inverse_laplace(**a.assumptions), 
+        v = Vs('(V1+1)/s', dc=False).inverse_laplace()
+        self.assertEqual2(a.R1.v, v, 
                           "Incorrect time domain voltage")        
         self.assertEqual(a.initial_value_problem, True, "Initial value problem incorrect")
-        self.assertEqual(a.is_dc, True, "DC incorrect")
+        self.assertEqual(a.is_dc, False, "DC incorrect")
+        self.assertEqual(a.is_ac, False, "AC incorrect")
+
+    def test_VRL1_dc3(self):
+        """Lcapy: check VRL circuit at dc but with initial conditions
+
+        """
+
+        # This currently fails due to two symbols of the same name
+        # having different assumptions.
+
+        a = Circuit()
+        a.add('V1 1 0 V1')
+        a.add('R1 1 2')
+        a.add('L1 2 0 L1 0')
+        self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
 
 

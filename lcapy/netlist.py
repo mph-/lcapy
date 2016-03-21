@@ -25,7 +25,7 @@ parser = Parser(cpts, grammar)
 
 class Ldict(dict):
 
-    """Lazy dictionary for inverse Laplace"""
+    """Lazy dictionary for inverse Laplace."""
 
     def __init__(self, Vdict, **assumptions):
 
@@ -69,14 +69,14 @@ class Node(object):
 
     @property
     def V(self):
-        """Node voltage with respect to ground"""
+        """Node voltage with respect to ground."""
 
         self.cct._solve()
         return self.cct._V[self.name]
 
     @property
     def v(self):
-        """Node time-domain voltage with respect to ground"""
+        """Node time-domain voltage with respect to ground."""
 
         return self.cct.v[self.name]
 
@@ -105,7 +105,7 @@ class Netlist(MNA):
             self.netfile_add(filename)
 
     def __getitem__(self, name):
-        """Return element or node by name"""
+        """Return element or node by name."""
 
         # If name is an integer, convert to a string.
         if isinstance(name, int):
@@ -124,7 +124,7 @@ class Netlist(MNA):
         raise AttributeError('Unknown element or node name %s' % name)
 
     def __getattr__(self, attr):
-        """Return element or node by name"""
+        """Return element or node by name."""
 
         # This gets called if there is no explicit attribute attr for
         # this instance.  This is primarily for accessing elements
@@ -146,7 +146,7 @@ class Netlist(MNA):
         return self._elements
 
     def netlist(self):
-        """Return the current netlist"""
+        """Return the current netlist."""
 
         return '\n'.join([str(elt) for elt in self._elements.values()])
 
@@ -235,7 +235,7 @@ class Netlist(MNA):
         self._elt_add(elt)
 
     def remove(self, name):
-        """Remove specified element"""
+        """Remove specified element."""
 
         self._invalidate()
 
@@ -248,7 +248,7 @@ class Netlist(MNA):
     @property
     def v(self):
         """Return dictionary of t-domain node voltages indexed by node name
-        and voltage differences indexed by branch name"""
+        and voltage differences indexed by branch name."""
 
         if not hasattr(self, '_vcache'):
             self._vcache = Ldict(self.V, **self.assumptions)
@@ -258,7 +258,7 @@ class Netlist(MNA):
     @property
     def i(self):
         """Return dictionary of t-domain branch currents indexed
-        by component name"""
+        by component name."""
 
         if not hasattr(self, '_icache'):
             self._icache = Ldict(self.I, **self.assumptions)
@@ -291,7 +291,7 @@ class Netlist(MNA):
         return self.Isc(Np, Nm).time()
 
     def thevenin(self, Np, Nm):
-        """Return Thevenin model between nodes Np and Nm"""
+        """Return Thevenin model between nodes Np and Nm."""
 
         from lcapy.oneport import V, Z
 
@@ -300,7 +300,7 @@ class Netlist(MNA):
         return V(Voc) + Z(self.impedance(Np, Nm))
 
     def norton(self, Np, Nm):
-        """Return Norton model between nodes Np and Nm"""
+        """Return Norton model between nodes Np and Nm."""
 
         from lcapy.oneport import I, Y
 
@@ -515,12 +515,13 @@ class Netlist(MNA):
 
     @property
     def is_causal(self):
-        """Return True if all independent sources are causal"""
+        """Return True if all independent sources are causal and not an
+        initial value problem."""
+
+        if self.initial_value_problem:
+            return False
 
         independent_sources = self.independent_sources
-        if independent_sources == {}:
-            return not self.initial_value_problem
-
         for elt in self.independent_sources.values():
             if not elt.is_causal:
                 return False
@@ -528,12 +529,13 @@ class Netlist(MNA):
 
     @property
     def is_dc(self):
-        """Return True if all independent sources are DC."""
+        """Return True if all independent sources are DC and not an
+        initial value problem."""
+
+        if self.initial_value_problem:
+            return False
 
         independent_sources = self.independent_sources
-        if independent_sources == {}:
-            return not self.initial_value_problem
-
         for elt in independent_sources.values():
             if not elt.is_dc:
                 return False
@@ -541,12 +543,13 @@ class Netlist(MNA):
 
     @property
     def is_ac(self):
-        """Return True if all independent sources are AC."""
+        """Return True if all independent sources are AC and not an
+        initial value problem."""
+
+        if self.initial_value_problem:
+            return False
 
         independent_sources = self.independent_sources
-        if independent_sources == {}:
-            return not self.initial_value_problem
-
         for elt in independent_sources.values():
             if not elt.is_ac:
                 return False
@@ -566,7 +569,7 @@ class Netlist(MNA):
 
     @property
     def zeroic(self):
-        """Return True if the initial conditions for all components are zero"""
+        """Return True if the initial conditions for all components are zero."""
 
         for elt in self.elements.values():
             if not elt.zeroic:
@@ -589,34 +592,32 @@ class Netlist(MNA):
     @property
     def missing_ic(self):
         """Return components that allow initial conditions but do not have
-        them explicitly defined"""
+        them explicitly defined."""
 
         return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is False)
 
     @property
     def explicit_ic(self):
-        """Return components that have explicitly defined initial conditions
-
-        """
+        """Return components that have explicitly defined initial conditions."""
 
         return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is True)
 
     @property
     def allow_ic(self):
-        """Return components (L and C) that allow initial conditions"""
+        """Return components (L and C) that allow initial conditions."""
 
         return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is not None)
 
     @property
     def noncausal_sources(self):
-        """Return non-causal independent sources"""
+        """Return non-causal independent sources."""
 
         return dict((key, elt) for key, elt in self.elements.items() if elt.source and not elt.is_causal)
 
     @property
     def independent_sources(self):
         """Return independent sources (this does not include
-        implicit sources due to initial conditions)"""
+        implicit sources due to initial conditions)."""
 
         return dict((key, elt) for key, elt in self.elements.items() if elt.source)
 
