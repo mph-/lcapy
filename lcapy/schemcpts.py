@@ -1175,9 +1175,10 @@ class Wire(OnePort):
             anchor = 'south west'
             if self.down:
                 anchor = 'north west'
-            lpos = self.tf(self.sch.nodes[n2].pos, (-0.25, 0))
-            s += r'  \draw [anchor=%s] (%s) node {%s};''\n' % (
-                anchor, lpos, self.label(**kwargs))
+            p1, p2 = [self.sch.nodes[n].pos for n in self.dvnodes]
+            centre = (p1 + p2) * 0.5
+            s += r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
+                anchor, centre, self.label(**kwargs))
         return s
 
 

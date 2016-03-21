@@ -6,10 +6,10 @@ V2 5 4; down=1.25, fixed, l=\frac{v_d}{2}
 V3 4 22; down=1.25, fixed, l=\frac{v_d}{2}
 W 5 6; right
 W 6 7; down
-W 7 8; right=2, i={i_c + i_d}
+W 7 8; right=2, i={\frac{i_c}{2} + i_d}
 W 22 21; right
 W 21 20; up
-W 20 19; right=2, i={i_c - i_d}
+W 20 19; right=2, i={\frac{i_c}{2} - i_d}
 TF 8 9 19 18 core; up, l={}
 W 9 10; right=2
 W 18 17; right=2
