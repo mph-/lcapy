@@ -762,12 +762,6 @@ class Schematic(object):
         
             return '%s_{%s}' % (name, subscript)
 
-        if '\n' in string:
-            lines = string.split('\n')
-            for line in lines:
-                self.add(line.strip())
-            return
-
         if string == '':
             return None            
 
@@ -834,6 +828,12 @@ class Schematic(object):
         A positive current is defined to flow from the positive node
         to the negative node.
         """
+
+        if '\n' in string:
+            lines = string.split('\n')
+            for line in lines:
+                self.add(line.strip())
+            return
 
         cpt = self.parse(string)
         if cpt is None:
