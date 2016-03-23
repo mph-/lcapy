@@ -630,10 +630,16 @@ class Node(object):
         self.primary = len(parts) == 1
         self.list = []
         self.pos = 'unknown'
+        self.pinpos = None
         self.pin = False
         
     def __repr__(self):
         return '%s @ (%s)' % (self.name, self.pos)
+
+    @property
+    def s(self):
+        """Sanitised name"""
+        return self.name.replace('.', '@')
 
     def append(self, elt):
         """Add new element to the node"""
@@ -658,7 +664,7 @@ class Node(object):
         if draw_nodes == 'all':
             return True
 
-        if '@' in self.name:
+        if self.pin:
             return False
 
         if self.port:
@@ -689,6 +695,7 @@ class Schematic(object):
         # Shared nodes (with same voltage)
         self.snodes = {}
         self.hints = False
+        self.namespace = ''
 
         if filename is not None:
             self.netfile_add(filename)
@@ -733,12 +740,32 @@ class Schematic(object):
 
         vnode = self.nodes[node].rootname
 
+        if elt.type == 'U':
+            self.nodes[node].pin = True
+
         if vnode not in self.snodes:
             self.snodes[vnode] = []
 
         if node not in self.snodes[vnode]:
             self.snodes[vnode].append(node)
 
+    def include(self, string):
+
+        parts = string.split(' ')
+        if len(parts) < 2 or parts[0] != 'include':
+            raise ValueError('Expecting include filename in %s' % string)
+        filename = parts[1]
+        if len(parts) == 2:
+            return self.netfile_add(filename)
+        
+        if len(parts) != 4 and parts[2] != 'as':
+            raise ValueError('Expecting include filename as name in %s' % string)
+        name = parts[3]
+        namespace = self.namespace
+        self.namespace = name + '.' + namespace
+        ret = self.netfile_add(filename)        
+        self.namespace = namespace
+        return ret
 
     def parse(self, string):
         """The general form is: 'Name Np Nm symbol'
@@ -770,7 +797,11 @@ class Schematic(object):
             #self.opts.add(string[1:])
             return None
 
-        cpt = parser.parse(string, self)
+        if string[0:8] == 'include ':
+            self.include(string)
+            return None
+
+        cpt = parser.parse(string, self, namespace=self.namespace)
         if cpt is None:
             return
 
@@ -966,10 +997,10 @@ class Schematic(object):
                 elif label_nodes == 'primary':
                     if not node.primary:
                         continue
-                anchors = {False: 'south east', 
+                anchors = {None: 'south east', 
                            'l' : 'west', 'r' : 'east', 
                            't' : 'north', 'b' : 'south'}
-                anchor = anchors[node.pin]
+                anchor = anchors[node.pinpos]
 
                 s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
                     anchor, node.name, name.replace('_', r'\_'))

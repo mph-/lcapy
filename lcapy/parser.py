@@ -44,7 +44,7 @@ class Rule(object):
 
         raise ValueError('Syntax error: %s when parsing %s\nExpected format: %s' % (error, string, repr(self)))        
 
-    def process(self, paramdir, string, fields):
+    def process(self, paramdir, string, fields, namespace):
 
         params = self.params
         if len(fields) > len(params):
@@ -72,7 +72,7 @@ class Rule(object):
                     if field.find('.') != -1:
                         self.syntax_error('Found . in pin name %s' % field, string)
                 field = field.replace('.', '@')
-                nodes.append(field)
+                nodes.append(namespace + field)
             elif paramdir[param].base != 'keyword':
                 args.append(field)
 
@@ -159,7 +159,7 @@ class Parser(object):
 
         raise ValueError('%s\nExpected format: %s' % (repr(rule)))
 
-    def parse(self, string, parent=None):
+    def parse(self, string, parent=None, namespace=''):
         """Parse string and create object"""
 
         string = string.strip()
@@ -202,7 +202,7 @@ class Parser(object):
                 rule = rule1
                 break
 
-        nodes, args = rule.process(self.paramdir, string, fields)
+        nodes, args = rule.process(self.paramdir, string, fields, namespace)
 
         fields = string.split(';')
         opts_string = fields[1].strip() if len(fields) > 1 else '' 
