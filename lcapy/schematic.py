@@ -978,6 +978,9 @@ class Schematic(object):
                        't' : 'north', 'b' : 'south'}
             anchor = anchors[node.pinpos]
 
+            if not node.pin:
+                name = node.name
+
             s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
                 anchor, node.s, name.replace('_', r'\_'))
         return s
