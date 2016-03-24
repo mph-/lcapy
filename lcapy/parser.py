@@ -68,10 +68,6 @@ class Rule(object):
 
             field = fields[m]
             if paramdir[param].base in ('node', 'pin'):
-                if paramdir[param].base == 'pin':
-                    if field.find('.') != -1:
-                        self.syntax_error('Found . in pin name %s' % field, string)
-                field = field.replace('.', '@')
                 nodes.append(namespace + field)
             elif paramdir[param].base != 'keyword':
                 args.append(field)
@@ -159,7 +155,7 @@ class Parser(object):
 
         raise ValueError('%s\nExpected format: %s' % (repr(rule)))
 
-    def parse(self, string, parent=None, namespace=''):
+    def parse(self, string, parent=None):
         """Parse string and create object"""
 
         string = string.strip()
@@ -180,6 +176,12 @@ class Parser(object):
                 fields[m] = fields[m][1:-1]
         
         name = fields.pop(0)
+        parts = name.split('.')
+        namespace = ''
+        if len(parts) > 1:
+            namespace = '.'.join(parts[0:-1]) + '.'
+        name = parts[-1]
+
         match = self.cpt_pattern.match(name)
         if match is None:
             raise ValueError('Unknown component for %s' % name)
@@ -207,5 +209,6 @@ class Parser(object):
         fields = string.split(';')
         opts_string = fields[1].strip() if len(fields) > 1 else '' 
 
-        return self.cpts.make(rule.classname, parent, cpt_type, cpt_id,
-                              string, opts_string, tuple(nodes), *args)
+        return self.cpts.make(rule.classname, parent, namespace,
+                              cpt_type, cpt_id, string, opts_string,
+                              tuple(nodes), *args)

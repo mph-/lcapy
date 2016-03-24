@@ -711,7 +711,7 @@ class Schematic(object):
         except KeyError:
             raise AttributeError('Unknown component %s' % name)
 
-    def netfile_add(self, filename):
+    def netfile_add(self, filename, namespace=''):
         """Add the nets from file with specified filename"""
 
         file = open(filename, 'r')
@@ -719,7 +719,7 @@ class Schematic(object):
         lines = file.readlines()
 
         for line in lines:
-            self.add(line)
+            self.add(line, namespace)
 
     def netlist(self):
         """Return the current netlist"""
@@ -756,14 +756,14 @@ class Schematic(object):
             raise ValueError('Expecting include filename in %s' % string)
         filename = parts[1]
         if len(parts) == 2:
-            return self.netfile_add(filename)
+            return self.netfile_add(filename, self.namespace)
         
         if len(parts) != 4 and parts[2] != 'as':
             raise ValueError('Expecting include filename as name in %s' % string)
         name = parts[3]
         namespace = self.namespace
         self.namespace = name + '.' + namespace
-        ret = self.netfile_add(filename)        
+        ret = self.netfile_add(filename, self.namespace)        
         self.namespace = namespace
         return ret
 
@@ -801,7 +801,7 @@ class Schematic(object):
             self.include(string)
             return None
 
-        cpt = parser.parse(string, self, namespace=self.namespace)
+        cpt = parser.parse(string, self)
         if cpt is None:
             return
 
@@ -852,7 +852,7 @@ class Schematic(object):
 
         return cpt
 
-    def add(self, string):
+    def add(self, string, namespace=''):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive nose and Nm is the negative node.
 
@@ -863,10 +863,10 @@ class Schematic(object):
         if '\n' in string:
             lines = string.split('\n')
             for line in lines:
-                self.add(line.strip())
+                self.add(line.strip(), namespace)
             return
 
-        cpt = self.parse(string)
+        cpt = self.parse(namespace + string)
         if cpt is None:
             return
 
@@ -955,6 +955,34 @@ class Schematic(object):
 
         return wires
 
+    def _label_nodes(self, **kwargs):
+
+        label_nodes = kwargs.get('label_nodes', 'primary')
+
+        s = ''
+        if not label_nodes:
+            return s
+
+        for m, node in enumerate(self.nodes.values()):
+            name = node.name
+            name = name.split('.')[-1]
+            
+            if label_nodes == 'alpha':
+                if not node.primary or not name[0].isalpha():
+                    continue
+            elif label_nodes == 'primary':
+                if not node.primary:
+                    continue
+            anchors = {None: 'south east', 
+                       'l' : 'west', 'r' : 'east', 
+                       't' : 'north', 'b' : 'south'}
+            anchor = anchors[node.pinpos]
+
+            s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
+                anchor, node.s, name.replace('_', r'\_'))
+        return s
+
+
     def _tikz_draw(self, style_args='', **kwargs):
 
         self._positions_calculate()
@@ -973,9 +1001,8 @@ class Schematic(object):
                 start, help, help, stop)
 
         # Write coordinates
-        for n, node in self.nodes.items():
-            s += r'  \coordinate (%s) at (%s);''\n' % (
-                n, node.pos)
+        for n in self.nodes.values():
+            s += r'  \coordinate (%s) at (%s);''\n' % (n.s, n.pos)
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):
@@ -983,27 +1010,7 @@ class Schematic(object):
 
         wires = self._make_wires()
 
-        label_nodes = kwargs.get('label_nodes', 'primary')
-
-        # Label primary nodes
-        if label_nodes:
-            for m, node in enumerate(self.nodes.values()):
-                name = node.name
-                name = name.split('@')[-1]
-
-                if label_nodes == 'alpha':
-                    if not name[0].isalpha():
-                        continue
-                elif label_nodes == 'primary':
-                    if not node.primary:
-                        continue
-                anchors = {None: 'south east', 
-                           'l' : 'west', 'r' : 'east', 
-                           't' : 'north', 'b' : 'south'}
-                anchor = anchors[node.pinpos]
-
-                s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
-                    anchor, node.name, name.replace('_', r'\_'))
+        s += self._label_nodes(**kwargs)
 
         s += '  ' + kwargs.pop('append', '')
 

@@ -28,7 +28,8 @@ class Cpt(object):
         cct.anon[cpt_type] += 1        
         return str(cct.anon[cpt_type])
 
-    def __init__(self, cct, cpt_type, cpt_id, string, opts_string, nodes, *args):
+    def __init__(self, cct, namespace, cpt_type, cpt_id, string,
+                 opts_string, nodes, *args):
 
         self.cct = cct
         self.type = cpt_type
@@ -37,7 +38,7 @@ class Cpt(object):
         if cpt_id == '' and cct is not None:
             cpt_id = 'anon' + self.anon(cpt_type)
 
-        name = self.type + cpt_id
+        name = namespace + self.type + cpt_id
 
         self.net = string.split(';')[0]
         # This is the initial opts_string from which the opts attribute
@@ -557,11 +558,13 @@ class V(Cpt):
 
 class K(Cpt):
     
-    def __init__(self, cct, cpt_type, cpt_id, string, opts_string, nodes, *args):
+    def __init__(self, cct, namespace, cpt_type, cpt_id, string,
+                 opts_string, nodes, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super (K, self).__init__(cct, cpt_type, cpt_id, string, opts_string, nodes, *args)
+        super (K, self).__init__(cct, namespace, cpt_type, cpt_id, string,
+                                 opts_string, nodes, *args)
 
 
     def stamp(self, cct):
@@ -654,7 +657,7 @@ def defcpt(name, base, docstring):
     classes[name] = newclass
 
 
-def make(classname, parent, cpt_type, cpt_id,
+def make(classname, parent, namespace, cpt_type, cpt_id,
          string, opts_string, nodes, *args):
 
     # Create instance of component object
@@ -663,7 +666,7 @@ def make(classname, parent, cpt_type, cpt_id,
     # Switch context
     parent.context.switch()
 
-    cpt = newclass(parent, cpt_type, cpt_id, string, opts_string, 
+    cpt = newclass(parent, namespace, cpt_type, cpt_id, string, opts_string, 
                    nodes, *args)
     # Add named attributes for the args?   Lname1, etc.
 

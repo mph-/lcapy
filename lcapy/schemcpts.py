@@ -32,6 +32,11 @@ class Cpt(object):
     can_mirror = False
     can_stretch = True
 
+    @property
+    def s(self):
+        """Sanitised name"""
+        return self.name.replace('.', '@')
+
     def anon(self, cpt_type):
 
         sch = self.sch
@@ -40,7 +45,8 @@ class Cpt(object):
         sch.anon[cpt_type] += 1        
         return str(sch.anon[cpt_type])
 
-    def __init__(self, sch, cpt_type, cpt_id, string, opts_string, nodes, *args):
+    def __init__(self, sch, namespace, cpt_type, cpt_id, string,
+                 opts_string, nodes, *args):
 
         self.sch = sch
         self.type = cpt_type
@@ -49,7 +55,7 @@ class Cpt(object):
         if cpt_id == '' and sch is not None:
             cpt_id = 'anon' + self.anon(cpt_type)
 
-        name = self.type + cpt_id
+        name = namespace + self.type + cpt_id
 
         self.net = string.split(';')[0]
         self.opts_string = opts_string
@@ -294,9 +300,9 @@ class Cpt(object):
             return s
 
         if n.port:
-            s = r'  \draw (%s) node[ocirc] {};''\n' % n.name
+            s = r'  \draw (%s) node[ocirc] {};''\n' % n.s
         else:
-            s = r'  \draw (%s) node[circ] {};''\n' % n.name
+            s = r'  \draw (%s) node[circ] {};''\n' % n.s
 
         return s
 
@@ -421,17 +427,17 @@ class Transistor(Cpt):
 
         s = r'  \draw (%s) node[%s, %s, scale=%s, rotate=%d] (%s) {};''\n' % (
             centre, self.tikz_cpt, self.args_str, 2 * self.scale,
-            self.angle, self.name)
+            self.angle, self.s)
         s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
 
         # Add additional wires.  These help to compensate for the
         # slight differences in sizes of the different transistors.
         if self.tikz_cpt in ('pnp', 'npn'):
             s += r'  \draw (%s.C) -- (%s) (%s.B) -- (%s) (%s.E) -- (%s);''\n' % (
-                self.name, n1.s, self.name, n2.s, self.name, n3.s)
+                self.s, n1.s, self.s, n2.s, self.s, n3.s)
         else:
             s += r'  \draw (%s.D) -- (%s) (%s.G) -- (%s) (%s.S) -- (%s);''\n' % (
-                self.name, n1.s, self.name, n2.s, self.name, n3.s)
+                self.s, n1.s, self.s, n2.s, self.s, n3.s)
 
         s += self._draw_nodes(**kwargs)
         return s
@@ -477,7 +483,7 @@ class TwoPort(Cpt):
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
             n4, n3, n1, n2, n4)
         s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-            centre, width, titlestr, self.name)
+            centre, width, titlestr, self.s)
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
             top, width, self.label(**kwargs))
 
@@ -546,7 +552,7 @@ class TF1(TwoPort):
         s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
         s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
         s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-            labelpos, 0.5, self.name, self.label(**kwargs))
+            labelpos, 0.5, self.s, self.label(**kwargs))
 
         if link:
             # TODO: allow for rotation
@@ -616,11 +622,13 @@ class TFtap(TF1):
 class K(TF1):
     """Mutual coupling"""
 
-    def __init__(self, sch, cpt_type, cpt_id, string, opts_string, nodes, *args):
+    def __init__(self, sch, namespace, cpt_type, cpt_id, string,
+                 opts_string, nodes, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super (K, self).__init__(sch, cpt_type, cpt_id, string, opts_string, nodes, *args[2:])
+        super (K, self).__init__(sch, namespace, cpt_type, cpt_id, string,
+                                 opts_string, nodes, *args[2:])
 
     @property
     def dvnodes(self):
@@ -730,7 +738,7 @@ class OnePort(Cpt):
             
         s = r'  \draw[%s] (%s) to [%s,%s,%s,%s,n=%s] (%s);''\n' % (
             args_str1, n1.s, tikz_cpt, label_str, args_str2,
-            node_pair_str, self.name, n2.s)
+            node_pair_str, self.s, n2.s)
         return s
 
 
@@ -784,10 +792,10 @@ class Opamp(Cpt):
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             centre, self.args_str, 2 * 1.01 * self.scale, yscale,
-            -self.angle, self.name)
-        s += r'  \draw (%s.out) |- (%s);''\n' % (self.name, n1.s)
-        s += r'  \draw (%s.+) |- (%s);''\n' % (self.name, n3.s)
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.name, n4.s)
+            -self.angle, self.s)
+        s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, n1.s)
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, n3.s)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, n4.s)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
         
@@ -822,11 +830,11 @@ class FDOpamp(Cpt):
 
         s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             centre, self.args_str, 2 * 1.01 * self.scale, yscale,
-            -self.angle, self.name)
-        s += r'  \draw (%s.out +) |- (%s);''\n' % (self.name, n1.s)
-        s += r'  \draw (%s.out -) |- (%s);''\n' % (self.name, n2.s)
-        s += r'  \draw (%s.+) |- (%s);''\n' % (self.name, n3.s)
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.name, n4.s)
+            -self.angle, self.s)
+        s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, n1.s)
+        s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, n2.s)
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, n3.s)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, n4.s)
         # Draw label separately to avoid being scaled by 2.
         s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
         
@@ -852,7 +860,7 @@ class SPDT(Cpt):
 
         centre = n1.pos * 0.5 + (n2.pos + n3.pos) * 0.25
         s = r'  \draw (%s) node[spdt, %s, rotate=%d] (%s) {};''\n' % (
-            centre, self.args_str, self.angle, self.name)
+            centre, self.args_str, self.angle, self.s)
         
         # TODO, fix label position.
         centre = (n1.pos + n3.pos) * 0.5 + Pos(0, -0.5)
@@ -866,14 +874,15 @@ class Chip(Cpt):
 
     can_stretch = False
 
-    def __init__(self, sch, cpt_type, cpt_id, string, opts_string, nodes, *args):
+    def __init__(self, sch, namespace, cpt_type, cpt_id, string,
+                 opts_string, nodes, *args):
 
-        super (Chip, self).__init__(sch, cpt_type, cpt_id, string,
+        super (Chip, self).__init__(sch, namespace, cpt_type, cpt_id, string,
                                     opts_string, nodes, *args[2:])
 
         pins = []
         for node in self.nodes:
-            pins.append(self.name + '@' + node)
+            pins.append(self.name + '.' + node)
         self.nodes = pins
 
     # TODO, tweak coord if pin name ends in \ using pinpos to
@@ -1012,7 +1021,7 @@ class Ubuffer(Chip):
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
             q[4], q[1], q[5], q[4])
         s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
-            centre, self.name, self.label(**kwargs))
+            centre, self.s, self.label(**kwargs))
         s += self._draw_nodes(**kwargs)
         return s
 
@@ -1047,15 +1056,16 @@ class Uinverter(Chip):
             q[0], q[2], q[1], q[0])
         s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (q[3], 1.8 * self.scale)
         s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
-            centre, self.name, self.label(**kwargs))
+            centre, self.s, self.label(**kwargs))
         s += self._draw_nodes(**kwargs)
         return s
 
 class Wire(OnePort):
 
-    def __init__(self, sch, cpt_type, cpt_id, string, opts_string, nodes, *args):
+    def __init__(self, sch, namespace, cpt_type, cpt_id, string,
+                 opts_string, nodes, *args):
 
-        super (Wire, self).__init__(sch, cpt_type, cpt_id, string,
+        super (Wire, self).__init__(sch, namespace, cpt_type, cpt_id, string,
                                     opts_string, nodes, *args)
 
         if self.implicit:
@@ -1210,7 +1220,7 @@ def defcpt(name, base, docstring, cpt=None):
     classes[name] = newclass
 
 
-def make(classname, parent, cpt_type, cpt_id,
+def make(classname, parent, namespace, cpt_type, cpt_id,
          string, opts_string, nodes, *args):
 
     # Create instance of component object
@@ -1219,7 +1229,7 @@ def make(classname, parent, cpt_type, cpt_id,
     except:
         newclass = classes[classname]
 
-    cpt = newclass(parent, cpt_type, cpt_id, string, opts_string, 
+    cpt = newclass(parent, namespace, cpt_type, cpt_id, string, opts_string, 
                    nodes, *args)
     # Add named attributes for the args?   Lname1, etc.
         

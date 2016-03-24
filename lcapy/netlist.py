@@ -98,6 +98,7 @@ class Netlist(MNA):
         # Shared nodes (with same voltage)
         self.snodes = {}
         self.context = global_context.new()
+        self.namespace = ''
 
         self.opts = SchematicOpts()
 
@@ -171,6 +172,24 @@ class Netlist(MNA):
             if hasattr(self, attr):
                 delattr(self, attr)
 
+    def include(self, string):
+
+        parts = string.split(' ')
+        if len(parts) < 2 or parts[0] != 'include':
+            raise ValueError('Expecting include filename in %s' % string)
+        filename = parts[1]
+        if len(parts) == 2:
+            return self.netfile_add(filename, self.namespace)
+        
+        if len(parts) != 4 and parts[2] != 'as':
+            raise ValueError('Expecting include filename as name in %s' % string)
+        name = parts[3]
+        namespace = self.namespace
+        self.namespace = name + '.' + namespace
+        ret = self.netfile_add(filename, self.namespace)
+        self.namespace = namespace
+        return ret
+
     def parse(self, string):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive node and Nm is the negative node.
@@ -181,6 +200,10 @@ class Netlist(MNA):
 
         if string[0] == ';':
             self.opts.add(string[1:])
+            return None
+
+        if string[0:8] == 'include ':
+            self.include(string)
             return None
 
         cpt = parser.parse(string, self)
@@ -210,7 +233,7 @@ class Netlist(MNA):
         for node in elt.nodes:
             self._node_add(node, elt)
 
-    def _add(self, string, *args):
+    def _add(self, string, namespace=''):
         """Add a component to the netlist.
         The general form is: 'Name Np Nm args'
         where Np is the positive node and Nm is the negative node.
@@ -224,10 +247,10 @@ class Netlist(MNA):
             for line in lines:
                 line = line.strip()
                 if line != '':
-                    self._add(line)
+                    self._add(line, namespace)
             return
 
-        elt = self.parse(string)
+        elt = self.parse(namespace + string)
         if elt is None:
             return
 

@@ -103,7 +103,7 @@ class Circuit(Netlist):
 
         super(Circuit, self).__init__(filename)
 
-    def netfile_add(self, filename):
+    def netfile_add(self, filename, namespace=''):
         """Add the nets from file with specified filename"""
 
         file = open(filename, 'r')
@@ -111,7 +111,7 @@ class Circuit(Netlist):
         lines = file.readlines()
 
         for line in lines:
-            self.add(line)
+            self.add(line, namespace)
 
     def add(self, string, *args):
         """Add a component to the netlist.
