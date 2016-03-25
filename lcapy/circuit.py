@@ -103,17 +103,12 @@ class Circuit(Netlist):
 
         super(Circuit, self).__init__(filename)
 
-    def netfile_add(self, filename, namespace=''):
+    def netfile_add(self, filename):
         """Add the nets from file with specified filename"""
+        
+        self._netfile_add(filename)
 
-        file = open(filename, 'r')
-
-        lines = file.readlines()
-
-        for line in lines:
-            self.add(line, namespace)
-
-    def add(self, string, *args):
+    def add(self, string):
         """Add a component to the netlist.
         The general form is: 'Name Np Nm args'
         where Np is the positive node and Nm is the negative node.
@@ -122,21 +117,17 @@ class Circuit(Netlist):
         to the negative node.
         """
 
-        return self._add(string, *args)
+        self._add(string)
 
     def Y(self, Np, Nm):
         """Return admittance between nodes Np and Nm with independent
-        sources killed.
-
-        """
+        sources killed."""
 
         return self.admittance(Np, Nm)
 
     def Z(self, Np, Nm):
         """Return impedance between nodes Np and Nm with independent
-        sources killed.
-
-        """
+        sources killed."""
 
         return self.impedance(Np, Nm)
 

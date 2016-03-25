@@ -693,8 +693,7 @@ class Schematic(NetfileMixin):
         # Shared nodes (with same voltage)
         self.snodes = {}
         self.hints = False
-        self.namespace = ''
-        self.init_parser(cpts)
+        self._init_parser(cpts)
 
         if filename is not None:
             self.netfile_add(filename)
@@ -710,15 +709,21 @@ class Schematic(NetfileMixin):
         except KeyError:
             raise AttributeError('Unknown component %s' % name)
 
-    def netfile_add(self, filename, namespace=''):
+    def netfile_add(self, filename):
         """Add the nets from file with specified filename"""
+        
+        self._netfile_add(filename)
 
-        file = open(filename, 'r')
+    def add(self, string):
+        """Add a component to the netlist.
+        The general form is: 'Name Np Nm args'
+        where Np is the positive node and Nm is the negative node.
 
-        lines = file.readlines()
+        A positive current is defined to flow from the positive node
+        to the negative node.
+        """
 
-        for line in lines:
-            self.add(line, namespace)
+        self._add(string)
 
     def netlist(self):
         """Return the current netlist"""
@@ -748,7 +753,7 @@ class Schematic(NetfileMixin):
         if node not in self.snodes[vnode]:
             self.snodes[vnode].append(node)
 
-    def add_cpt(self, cpt):
+    def _cpt_add(self, cpt):
 
         def tex_name(name, subscript=None):
 

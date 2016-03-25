@@ -14,14 +14,10 @@ from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym
 from lcapy.core import s, j, omega, uppercase_name, global_context
 from lcapy.schematic import Schematic, Opts, SchematicOpts
 from lcapy.mna import MNA
-import lcapy.grammar as grammar
-from lcapy.parser import Parser
+from lcapy.netfile import NetfileMixin
 import lcapy.mnacpts as cpts
 import re
 from copy import copy
-
-
-parser = Parser(cpts, grammar)
 
 class Ldict(dict):
 
@@ -80,15 +76,15 @@ class Node(object):
 
         return self.cct.v[self.name]
 
-    def append(self, elt):
+    def append(self, cpt):
 
-        if elt.type in ('P', ):
+        if cpt.type in ('P', ):
             self.port = True
 
-        self.list.append(elt)
+        self.list.append(cpt)
 
 
-class Netlist(MNA):
+class Netlist(MNA, NetfileMixin):
 
     def __init__(self, filename=None):
 
@@ -98,7 +94,7 @@ class Netlist(MNA):
         # Shared nodes (with same voltage)
         self.snodes = {}
         self.context = global_context.new()
-        self.namespace = ''
+        self._init_parser(cpts)
 
         self.opts = SchematicOpts()
 
@@ -149,13 +145,13 @@ class Netlist(MNA):
     def netlist(self):
         """Return the current netlist."""
 
-        return '\n'.join([str(elt) for elt in self._elements.values()])
+        return '\n'.join([str(cpt) for cpt in self._elements.values()])
 
-    def _node_add(self, node, elt):
+    def _node_add(self, node, cpt):
 
         if node not in self.nodes:
             self.nodes[node] = Node(self, node)
-        self.nodes[node].append(elt)
+        self.nodes[node].append(cpt)
 
         vnode = self.nodes[node].rootname
 
@@ -172,52 +168,15 @@ class Netlist(MNA):
             if hasattr(self, attr):
                 delattr(self, attr)
 
-    def include(self, string):
+    def _cpt_add(self, cpt):
 
-        parts = string.split(' ')
-        if len(parts) < 2 or parts[0] != 'include':
-            raise ValueError('Expecting include filename in %s' % string)
-        filename = parts[1]
-        if len(parts) == 2:
-            return self.netfile_add(filename, self.namespace)
-        
-        if len(parts) != 4 and parts[2] != 'as':
-            raise ValueError('Expecting include filename as name in %s' % string)
-        name = parts[3]
-        namespace = self.namespace
-        self.namespace = name + '.' + namespace
-        ret = self.netfile_add(filename, self.namespace)
-        self.namespace = namespace
-        return ret
-
-    def parse(self, string):
-        """The general form is: 'Name Np Nm symbol'
-        where Np is the positive node and Nm is the negative node.
-
-        A positive current is defined to flow from the positive node
-        to the negative node.
-        """
-
-        if string[0] == ';':
-            self.opts.add(string[1:])
-            return None
-
-        if string[0:8] == 'include ':
-            self.include(string)
-            return None
-
-        cpt = parser.parse(string, self)
-        if cpt is None:
-            return None
+        self._invalidate()
 
         opts = Opts(cpt.opts_string)
         cpt.opts = opts
-        return cpt
 
-    def _elt_add(self, elt):
-
-        if elt.name in self._elements:
-            print('Overriding component %s' % elt.name)
+        if cpt.name in self._elements:
+            print('Overriding component %s' % cpt.name)
             # Need to search lists and update component.
             # For example, remove nodes that are only connected
             # to this component.
@@ -225,37 +184,13 @@ class Netlist(MNA):
             # Check that this name won't conflict with an attr.
             # For example, cannot have name V or I.  Perhaps
             # rename these attributes?
-            if hasattr(self, elt.name):
-                raise ValueError('Invalid component name %s' % elt.name)
+            if hasattr(self, cpt.name):
+                raise ValueError('Invalid component name %s' % cpt.name)
 
-        self._elements[elt.name] = elt
+        self._elements[cpt.name] = cpt
 
-        for node in elt.nodes:
-            self._node_add(node, elt)
-
-    def _add(self, string, namespace=''):
-        """Add a component to the netlist.
-        The general form is: 'Name Np Nm args'
-        where Np is the positive node and Nm is the negative node.
-
-        A positive current is defined to flow from the positive node
-        to the negative node.
-        """
-
-        if '\n' in string:
-            lines = string.split('\n')
-            for line in lines:
-                line = line.strip()
-                if line != '':
-                    self._add(line, namespace)
-            return
-
-        elt = self.parse(namespace + string)
-        if elt is None:
-            return
-
-        self._invalidate()
-        self._elt_add(elt)
+        for node in cpt.nodes:
+            self._node_add(node, cpt)
 
     def remove(self, name):
         """Remove specified element."""
@@ -427,11 +362,11 @@ class Netlist(MNA):
         new = Netlist()
         new.opts = copy(self.opts)
 
-        for elt in self._elements.values():
-            if elt.name in sourcenames:
-                net = elt.kill()
+        for cpt in self._elements.values():
+            if cpt.name in sourcenames:
+                net = cpt.kill()
             else:
-                net = elt.kill_initial()
+                net = cpt.kill_initial()
             new._add(net)
         return new        
 
@@ -447,9 +382,9 @@ class Netlist(MNA):
             if arg not in self.independent_sources:
                 raise ValueError('Element %s is not a known source' % arg)
         sources = []
-        for elt in self.independent_sources.values():
-            if elt.name not in args:
-                sources.append(elt.name)
+        for cpt in self.independent_sources.values():
+            if cpt.name not in args:
+                sources.append(cpt.name)
         return self._kill(sources)
 
     def kill(self, *args):
@@ -510,8 +445,8 @@ class Netlist(MNA):
         new = Netlist()
         new.opts = copy(self.opts)
 
-        for elt in self._elements.values():
-            net = elt.pre_initial_model()
+        for cpt in self._elements.values():
+            net = cpt.pre_initial_model()
             new._add(net)
         return new        
 
@@ -520,8 +455,8 @@ class Netlist(MNA):
         new = Netlist()
         new.opts = copy(self.opts)
 
-        for elt in self._elements.values():
-            net = elt.s_model(var)
+        for cpt in self._elements.values():
+            net = cpt.s_model(var)
             new._add(net)
         return new        
 
@@ -547,8 +482,8 @@ class Netlist(MNA):
             return False
 
         independent_sources = self.independent_sources
-        for elt in self.independent_sources.values():
-            if not elt.is_causal:
+        for cpt in self.independent_sources.values():
+            if not cpt.is_causal:
                 return False
         return True
 
@@ -562,8 +497,8 @@ class Netlist(MNA):
             return False
 
         independent_sources = self.independent_sources
-        for elt in independent_sources.values():
-            if not elt.is_dc:
+        for cpt in independent_sources.values():
+            if not cpt.is_dc:
                 return False
         return True
 
@@ -576,8 +511,8 @@ class Netlist(MNA):
             return False
 
         independent_sources = self.independent_sources
-        for elt in independent_sources.values():
-            if not elt.is_ac:
+        for cpt in independent_sources.values():
+            if not cpt.is_ac:
                 return False
         return True
 
@@ -597,8 +532,8 @@ class Netlist(MNA):
     def zeroic(self):
         """Return True if the initial conditions for all components are zero."""
 
-        for elt in self.elements.values():
-            if not elt.zeroic:
+        for cpt in self.elements.values():
+            if not cpt.zeroic:
                 return False
         return True
 
@@ -607,10 +542,10 @@ class Netlist(MNA):
         """Return True if any components that allow initial conditions
         have them explicitly defined."""
 
-        for elt in self.elements.values():
-            if elt.hasic is None:
+        for cpt in self.elements.values():
+            if cpt.hasic is None:
                 continue
-            if elt.hasic:
+            if cpt.hasic:
                 return True
 
         return False
@@ -620,30 +555,30 @@ class Netlist(MNA):
         """Return components that allow initial conditions but do not have
         them explicitly defined."""
 
-        return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is False)
+        return dict((key, cpt) for key, cpt in self.elements.items() if cpt.hasic is False)
 
     @property
     def explicit_ic(self):
         """Return components that have explicitly defined initial conditions."""
 
-        return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is True)
+        return dict((key, cpt) for key, cpt in self.elements.items() if cpt.hasic is True)
 
     @property
     def allow_ic(self):
         """Return components (L and C) that allow initial conditions."""
 
-        return dict((key, elt) for key, elt in self.elements.items() if elt.hasic is not None)
+        return dict((key, cpt) for key, cpt in self.elements.items() if cpt.hasic is not None)
 
     @property
     def noncausal_sources(self):
         """Return non-causal independent sources."""
 
-        return dict((key, elt) for key, elt in self.elements.items() if elt.source and not elt.is_causal)
+        return dict((key, cpt) for key, cpt in self.elements.items() if cpt.source and not cpt.is_causal)
 
     @property
     def independent_sources(self):
         """Return independent sources (this does not include
         implicit sources due to initial conditions)."""
 
-        return dict((key, elt) for key, elt in self.elements.items() if elt.source)
+        return dict((key, cpt) for key, cpt in self.elements.items() if cpt.source)
 
