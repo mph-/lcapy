@@ -40,16 +40,14 @@ import numpy as np
 import re
 from lcapy.latex import latex_str, format_label
 from lcapy.core import Expr
-import lcapy.grammar as grammar
-from lcapy.parser import Parser
 import lcapy.schemcpts as cpts
 from lcapy.schemmisc import Pos, Opts
+from lcapy.netfile import NetfileMixin
 from os import system, path, remove, mkdir, chdir, getcwd
 import math
 
 __all__ = ('Schematic', )
 
-parser = Parser(cpts, grammar)
 
 def tmpfilename(suffix=''):
 
@@ -685,7 +683,7 @@ class Node(object):
         return self._port or self.count == 1
 
 
-class Schematic(object):
+class Schematic(NetfileMixin):
 
     def __init__(self, filename=None, **kwargs):
 
@@ -696,6 +694,7 @@ class Schematic(object):
         self.snodes = {}
         self.hints = False
         self.namespace = ''
+        self.init_parser(cpts)
 
         if filename is not None:
             self.netfile_add(filename)
@@ -749,31 +748,7 @@ class Schematic(object):
         if node not in self.snodes[vnode]:
             self.snodes[vnode].append(node)
 
-    def include(self, string):
-
-        parts = string.split(' ')
-        if len(parts) < 2 or parts[0] != 'include':
-            raise ValueError('Expecting include filename in %s' % string)
-        filename = parts[1]
-        if len(parts) == 2:
-            return self.netfile_add(filename, self.namespace)
-        
-        if len(parts) != 4 and parts[2] != 'as':
-            raise ValueError('Expecting include filename as name in %s' % string)
-        name = parts[3]
-        namespace = self.namespace
-        self.namespace = name + '.' + namespace
-        ret = self.netfile_add(filename, self.namespace)        
-        self.namespace = namespace
-        return ret
-
-    def parse(self, string):
-        """The general form is: 'Name Np Nm symbol'
-        where Np is the positive nose and Nm is the negative node.
-
-        A positive current is defined to flow from the positive node
-        to the negative node.
-        """
+    def add_cpt(self, cpt):
 
         def tex_name(name, subscript=None):
 
@@ -788,22 +763,6 @@ class Schematic(object):
                 return name
         
             return '%s_{%s}' % (name, subscript)
-
-        if string == '':
-            return None            
-
-        if string[0] == ';':
-            #TODO
-            #self.opts.add(string[1:])
-            return None
-
-        if string[0:8] == 'include ':
-            self.include(string)
-            return None
-
-        cpt = parser.parse(string, self)
-        if cpt is None:
-            return
 
         # There are two possible labels for a component:
         # 1. Component identifier, e.g., R1
@@ -849,26 +808,6 @@ class Schematic(object):
         cpt.id_label = '' if id_label is None else format_label(id_label)
         cpt.value_label = '' if value_label is None else format_label(value_label)
         cpt.default_label = cpt.id_label if cpt.value_label == '' else cpt.value_label
-
-        return cpt
-
-    def add(self, string, namespace=''):
-        """The general form is: 'Name Np Nm symbol'
-        where Np is the positive nose and Nm is the negative node.
-
-        A positive current is defined to flow from the positive node
-        to the negative node.
-        """
-
-        if '\n' in string:
-            lines = string.split('\n')
-            for line in lines:
-                self.add(line.strip(), namespace)
-            return
-
-        cpt = self.parse(namespace + string)
-        if cpt is None:
-            return
 
         if cpt.opts_string != '':
             self.hints = True
