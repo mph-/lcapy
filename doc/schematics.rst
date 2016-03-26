@@ -549,6 +549,37 @@ or by a schematic option.  For example,
    :width: 12cm
  
 
+Includes
+========
+
+Large schematics can be composed by including smaller schematics using the `.include` directive, for example,::
+   
+   .include part1.sch
+   .include part2.sch
+
+Each of the smaller schematics can be included into their own namespace to avoid conflicts, for example,::
+
+   .include LC1.sch as s1
+   .include LC1.sch as s2
+   W s1.2 s2.1; right=0.1
+   W s1.3 s2.0; right=0.1
+
+
+
+Namespaces
+==========
+
+Hierarchical namespaces are supported, for example,::
+
+   a.R1 1 2; right
+   b.R1 1 2; right
+
+This creates two resistors: `a.R1` with nodes `a.1` and `a.2` and `b.R1` with nodes `b.1` and `a.2`.   They can be joined using,::
+
+   W a.2 b.1; right
+
+
+
 Examples
 ========
 
