@@ -474,10 +474,10 @@ class TwoPort(Cpt):
 
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
             q[0], q[1], q[2], q[3], q[0])
-        s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+        s += r'  \draw (%s) node[text width=%.1fcm, align=center] (%s) {%s};''\n' % (
             centre, width, titlestr, self.s)
-        s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
-            top, width, self.label(**kwargs))
+        s += r'  \draw (%s) node[text width=%.1fcm, align=center, %s] {%s};''\n' % (
+            top, width, self.args_str, self.label(**kwargs))
 
         s += self._draw_nodes(**kwargs)
         return s
@@ -963,7 +963,8 @@ class Chip(Cpt):
 
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
             q[0], q[1], q[2], q[3], q[0])
-        s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
+        s += r'  \draw (%s) node[text width=%scm, align=center, %s] {%s};''\n'% (
+            centre, w - 0.5, self.args_str, self.label(**kwargs))
 
         s += self._draw_nodes(**kwargs)
         return s
