@@ -923,6 +923,8 @@ class Schematic(NetfileMixin):
 
             if not node.pin:
                 name = node.name
+            elif node.pinpos is None:
+                continue
 
             s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
                 anchor, node.s, name.replace('_', r'\_'))

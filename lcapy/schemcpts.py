@@ -489,7 +489,6 @@ class MX(Cpt):
     can_stretch = False
     can_scale = True
     can_rotate = False
-    pinpos = ('r', 'l', 'b')
 
     @property
     def coords(self):
@@ -500,8 +499,6 @@ class MX(Cpt):
         if not self.check():
             return ''
 
-        for m, n in enumerate(self.dvnodes):
-            n.pinpos = self.pinpos[m]
         n1, n2, n3 = self.dvnodes
 
         centre = (n1.pos + n2.pos) * 0.5
@@ -519,7 +516,6 @@ class SJ(Cpt):
     can_stretch = False
     can_scale = True
     can_rotate = False
-    pinpos = ('r', 'l', 'b', 't')
 
     @property
     def coords(self):
@@ -530,8 +526,6 @@ class SJ(Cpt):
         if not self.check():
             return ''
 
-        for m, n in enumerate(self.dvnodes):
-            n.pinpos = self.pinpos[m]
         n1, n2, n3, n4 = self.dvnodes
 
         centre = (n1.pos + n2.pos) * 0.5
@@ -979,7 +973,7 @@ class Block(Chip):
 
     w = 1.5
     h = 1
-    pinpos = ('l', 'r')
+    pinpos = (None, None)
 
     @property
     def centre(self):
