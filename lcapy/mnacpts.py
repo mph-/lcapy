@@ -240,6 +240,11 @@ class Logic(Cpt):
     def stamp(self, cct):
         raise NotImplementedError('Cannot analyse logic component %s' % self)
 
+class Misc(Cpt):
+
+    def stamp(self, cct):
+        raise NotImplementedError('Cannot analyse misc component %s' % self)
+
 
 class DummyCpt(Cpt):
 
@@ -703,6 +708,7 @@ defcpt('Jpjf', 'J', 'P JFET transistor')
 defcpt('M', NonLinear, 'N MOSJFET transistor')
 defcpt('Mnmos', 'M', 'N channel MOSJFET transistor')
 defcpt('Mpmos', 'M', 'P channel MOSJFET transistor')
+defcpt('MX', Misc, 'Mixer')
 
 defcpt('Q', NonLinear, 'NPN transistor')
 defcpt('Qpnp', 'Q', 'PNP transistor')

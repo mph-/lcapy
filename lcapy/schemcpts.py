@@ -471,8 +471,6 @@ class TwoPort(Cpt):
         if not self.check():
             return ''
 
-        # TODO, fix positions if component rotated.
-
         n1, n2, n3, n4 = self.dvnodes
         width = n2.pos.x - n4.pos.x
         centre = (n1.pos + n2.pos + n3.pos + n4.pos) * 0.25
@@ -493,6 +491,33 @@ class TwoPort(Cpt):
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
             top, width, self.label(**kwargs))
 
+        s += self._draw_nodes(**kwargs)
+        return s
+
+
+class MX(Cpt):
+    """Mixer"""
+
+    can_scale = True
+    can_rotate = False
+
+    @property
+    def coords(self):
+        return ((0.25, 0.25), (-0.25, 0.25), (0, 0))
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        n1, n2, n3 = self.dvnodes
+
+        centre = (n1.pos + n2.pos) * 0.5
+        q = self.xtf(centre, ((0, 0.7)))
+
+        s = r'  \draw (%s) node[mixer,xscale=%s] {};''\n' % (
+            centre, self.scale)
+        s += r'  \draw (%s) node[] {%s};''\n'% (q, self.label(**kwargs))
         s += self._draw_nodes(**kwargs)
         return s
 

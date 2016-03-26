@@ -40,6 +40,7 @@ L: Lname Np Nm [Value] [IC]; Inductance
 M: Mname Nd Ng Ns [Value]; N channel MOSFET
 Mnmos: Mname Nd Ng Ns nmos [Value]; N channel MOSFET
 Mpmos: Mname Nd Ng Ns pmos [Value]; P channel MOSFET
+MX: MXname No Ni Nc; Mixer
 O: Oname Np Np [Value]; Open circuit
 P: Pname Np Np [Value]; Port
 Q: Qname Nc Nb Ne [Value]; NPN transistor
@@ -56,14 +57,14 @@ TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value]; Tapped transformer (works to DC!)
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value]; Tapped transformer with core (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
-V: Vname Np Nm [Value]; Voltage source
-sV: Vname Np Nm s [Value]; s-domain voltage source
 Ubuffer: Uname buffer Pi PVss Po PVdd; Buffer with power supplies
 Uinverter: Uname inverter Pi PVss Po PVdd; Inverter with power supplies
 Uchip1310: Uname chip1310 P P P P P; Chip
 Uchip2121: Uname chip2121 P P P P P P; Chip
 Uchip3131: Uname chip3131 P P P P P P P P; Chip
 Uchip4141: Uname chip4141 P P P P P P P P P P; Chip
+V: Vname Np Nm [Value]; Voltage source
+sV: Vname Np Nm s [Value]; s-domain voltage source
 Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vstep: Vname Np Nm step [Value]; Step voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
