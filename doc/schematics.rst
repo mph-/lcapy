@@ -427,6 +427,30 @@ A transmission line is a two-port device.  Here's an example:
    :width: 8cm
 
 
+Transformers
+============
+
+.. literalinclude:: examples/schematics/TF1.sch
+
+.. image:: examples/schematics/TF1.png
+   :width: 1.4cm
+
+.. literalinclude:: examples/schematics/TFcore1.sch
+
+.. image:: examples/schematics/TFcore1.png
+   :width: 1.4cm
+
+.. literalinclude:: examples/schematics/TFtap1.sch
+
+.. image:: examples/schematics/TFtap1.png
+   :width: 3cm
+
+.. literalinclude:: examples/schematics/TFtapcore1.sch
+
+.. image:: examples/schematics/TFtapcore1.png
+   :width: 3cm
+
+
 Integrated circuits
 ===================
 
