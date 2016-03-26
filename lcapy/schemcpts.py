@@ -540,11 +540,22 @@ class SJ(Cpt):
         n1, n2, n3, n4 = self.dvnodes
 
         centre = (n1.pos + n2.pos) * 0.5
-        q = self.xtf(centre, ((0.5, 0.7)))
+        q = self.xtf(centre, ((0.7, 0.7), (0.25, 0), (-0.25, 0),
+                              (0, -0.25), (0, 0.25)))
 
         s = r'  \draw (%s) node[mixer,xscale=%s] {};''\n' % (
             centre, self.scale)
-        s += r'  \draw (%s) node[] {%s};''\n'% (q, self.label(**kwargs))
+        s += r'  \draw (%s) node[] {%s};''\n'% (q[0], self.label(**kwargs))
+
+        l1 = self.opts.pop('l1', '')
+        s += r'  \draw (%s) node[] {%s};''\n'% (q[1], l1)
+        l2 = self.opts.pop('l2', '')
+        s += r'  \draw (%s) node[] {%s};''\n'% (q[2], l2)
+        l3 = self.opts.pop('l3', '')
+        s += r'  \draw (%s) node[] {%s};''\n'% (q[3], l3)
+        l4 = self.opts.pop('l4', '')
+        s += r'  \draw (%s) node[] {%s};''\n'% (q[4], l4)
+
         s += self._draw_nodes(**kwargs)
         return s
 
