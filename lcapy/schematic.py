@@ -687,7 +687,6 @@ class Schematic(NetfileMixin):
 
     def __init__(self, filename=None, **kwargs):
 
-        self.anon = {}
         self.elements = {}
         self.nodes = {}
         # Shared nodes (with same voltage)
@@ -744,7 +743,7 @@ class Schematic(NetfileMixin):
 
         vnode = self.nodes[node].rootname
 
-        if elt.type == 'U':
+        if elt.type in ('U', 'MX', 'SJ'):
             self.nodes[node].pin = True
 
         if vnode not in self.snodes:

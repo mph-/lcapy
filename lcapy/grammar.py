@@ -40,14 +40,14 @@ L: Lname Np Nm [Value] [IC]; Inductance
 M: Mname Nd Ng Ns [Value]; N channel MOSFET
 Mnmos: Mname Nd Ng Ns nmos [Value]; N channel MOSFET
 Mpmos: Mname Nd Ng Ns pmos [Value]; P channel MOSFET
-MX: MXname No Ni Nc; Mixer
+MX: MXname P P P; Mixer
 O: Oname Np Np [Value]; Open circuit
 P: Pname Np Np [Value]; Port
 Q: Qname Nc Nb Ne [Value]; NPN transistor
 Qnpn: Qname Nc Nb Ne npn [Value]; NPN transistor
 Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor 
 R: Rname Np Nm [Value]; Resistor
-SJ: SJname No Ni Ncp Ncm; Summing junction
+SJ: SJname P P P P; Summing junction
 SWnc: SWname Np Nm nc; Switch normally closed
 SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch
@@ -60,6 +60,7 @@ TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 Ubuffer: Uname buffer Pi PVss Po PVdd; Buffer with power supplies
 Uinverter: Uname inverter Pi PVss Po PVdd; Inverter with power supplies
+Ublock: Uname block P P; Block
 Uchip1310: Uname chip1310 P P P P P; Chip
 Uchip2121: Uname chip2121 P P P P P P; Chip
 Uchip3131: Uname chip3131 P P P P P P P P; Chip
@@ -106,6 +107,7 @@ buffer: keyword;
 pbuffer: keyword;
 pinverter: keyword;
 inverter: keyword;
+block: keyword;
 chip1310: keyword;
 chip2121: keyword;
 chip3131: keyword;

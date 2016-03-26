@@ -37,25 +37,13 @@ class Cpt(object):
         """Sanitised name"""
         return self.name.replace('.', '@')
 
-    def anon(self, cpt_type):
-
-        sch = self.sch
-        if cpt_type not in sch.anon:
-            sch.anon[cpt_type] = 0
-        sch.anon[cpt_type] += 1        
-        return str(sch.anon[cpt_type])
-
-    def __init__(self, sch, namespace, cpt_type, cpt_id, string,
+    def __init__(self, sch, name, cpt_type, cpt_id, string,
                  opts_string, nodes, *args):
 
         self.sch = sch
         self.type = cpt_type
         self.id = cpt_id
-
-        if cpt_id == '' and sch is not None:
-            cpt_id = 'anon' + self.anon(cpt_type)
-
-        name = namespace + self.type + cpt_id
+        self.name = name
 
         self.net = string.split(';')[0]
         self.opts_string = opts_string
@@ -66,7 +54,7 @@ class Cpt(object):
         # lookup of this attribute is deferred until cpts are drawn.
         # 4. dnodes are the subset of dvnodes that are shown.
         self.nodes = nodes
-        self.name = name
+
         self.args = args
         self.classname = self.__class__.__name__
 
@@ -498,8 +486,10 @@ class TwoPort(Cpt):
 class MX(Cpt):
     """Mixer"""
 
+    can_stretch = False
     can_scale = True
     can_rotate = False
+    pinpos = ('r', 'l', 'b')
 
     @property
     def coords(self):
@@ -510,6 +500,8 @@ class MX(Cpt):
         if not self.check():
             return ''
 
+        for m, n in enumerate(self.dvnodes):
+            n.pinpos = self.pinpos[m]
         n1, n2, n3 = self.dvnodes
 
         centre = (n1.pos + n2.pos) * 0.5
@@ -518,15 +510,16 @@ class MX(Cpt):
         s = r'  \draw (%s) node[mixer,xscale=%s] {};''\n' % (
             centre, self.scale)
         s += r'  \draw (%s) node[] {%s};''\n'% (q, self.label(**kwargs))
-        s += self._draw_nodes(**kwargs)
         return s
 
 
 class SJ(Cpt):
     """Summing junction"""
 
+    can_stretch = False
     can_scale = True
     can_rotate = False
+    pinpos = ('r', 'l', 'b', 't')
 
     @property
     def coords(self):
@@ -537,6 +530,8 @@ class SJ(Cpt):
         if not self.check():
             return ''
 
+        for m, n in enumerate(self.dvnodes):
+            n.pinpos = self.pinpos[m]
         n1, n2, n3, n4 = self.dvnodes
 
         centre = (n1.pos + n2.pos) * 0.5
@@ -555,8 +550,6 @@ class SJ(Cpt):
         s += r'  \draw (%s) node[] {%s};''\n'% (q[3], l3)
         l4 = self.opts.pop('l4', '')
         s += r'  \draw (%s) node[] {%s};''\n'% (q[4], l4)
-
-        s += self._draw_nodes(**kwargs)
         return s
 
 
@@ -691,12 +684,12 @@ class TFtap(TF1):
 class K(TF1):
     """Mutual coupling"""
 
-    def __init__(self, sch, namespace, cpt_type, cpt_id, string,
+    def __init__(self, sch, name, cpt_type, cpt_id, string,
                  opts_string, nodes, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super (K, self).__init__(sch, namespace, cpt_type, cpt_id, string,
+        super (K, self).__init__(sch, name, cpt_type, cpt_id, string,
                                  opts_string, nodes, *args[2:])
 
     @property
@@ -943,17 +936,6 @@ class Chip(Cpt):
 
     can_stretch = False
 
-    def __init__(self, sch, namespace, cpt_type, cpt_id, string,
-                 opts_string, nodes, *args):
-
-        super (Chip, self).__init__(sch, namespace, cpt_type, cpt_id, string,
-                                    opts_string, nodes, *args[2:])
-
-        pins = []
-        for node in self.nodes:
-            pins.append(self.name + '.' + node)
-        self.nodes = pins
-
     # TODO, tweak coord if pin name ends in \ using pinpos to
     # accomodate inverting circle.  This will require stripping of the
     # \ from the label. Alternatively, do not use inverting circle and
@@ -991,6 +973,23 @@ class Chip(Cpt):
 
         s += self._draw_nodes(**kwargs)
         return s
+
+class Block(Chip):
+    """Block"""
+
+    w = 1.5
+    h = 1
+    pinpos = ('l', 'r')
+
+    @property
+    def centre(self):
+        return self.midpoint(self.dvnodes[0], self.dvnodes[1])
+
+    @property
+    def coords(self):
+        w, h = self.width, self.height
+
+        return ((-0.75, 0), (0.75, 0))
 
 
 class Chip1310(Chip):
@@ -1128,10 +1127,10 @@ class Uinverter(Chip):
 
 class Wire(OnePort):
 
-    def __init__(self, sch, namespace, cpt_type, cpt_id, string,
+    def __init__(self, sch, name, cpt_type, cpt_id, string,
                  opts_string, nodes, *args):
 
-        super (Wire, self).__init__(sch, namespace, cpt_type, cpt_id, string,
+        super (Wire, self).__init__(sch, name, cpt_type, cpt_id, string,
                                     opts_string, nodes, *args)
 
         if self.implicit:
@@ -1286,7 +1285,7 @@ def defcpt(name, base, docstring, cpt=None):
     classes[name] = newclass
 
 
-def make(classname, parent, namespace, cpt_type, cpt_id,
+def make(classname, parent, name, cpt_type, cpt_id,
          string, opts_string, nodes, *args):
 
     # Create instance of component object
@@ -1295,7 +1294,7 @@ def make(classname, parent, namespace, cpt_type, cpt_id,
     except:
         newclass = classes[classname]
 
-    cpt = newclass(parent, namespace, cpt_type, cpt_id, string, opts_string, 
+    cpt = newclass(parent, name, cpt_type, cpt_id, string, opts_string, 
                    nodes, *args)
     # Add named attributes for the args?   Lname1, etc.
         
@@ -1358,6 +1357,7 @@ defcpt('TFcore', Transformer, 'Transformer with core', 'transformer core')
 defcpt('TFtapcore', TFtap, 'Tapped transformer with core', 'transformer core')
 defcpt('TP', TwoPort, 'Two port', '')
 
+defcpt('Ublock', Block, 'Block')
 defcpt('Uchip1310', Chip1310, 'General purpose chip')
 defcpt('Uchip2121', Chip2121, 'General purpose chip')
 defcpt('Uchip3131', Chip3131, 'General purpose chip')

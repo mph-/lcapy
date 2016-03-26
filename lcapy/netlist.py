@@ -88,7 +88,6 @@ class Netlist(MNA, NetfileMixin):
 
     def __init__(self, filename=None):
 
-        self.anon = {}
         self._elements = {}
         self.nodes = {}
         # Shared nodes (with same voltage)

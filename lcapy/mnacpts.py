@@ -20,32 +20,19 @@ class Cpt(object):
 
     source = False
 
-    def anon(self, cpt_type):
-
-        cct = self.cct
-        if cpt_type not in cct.anon:
-            cct.anon[cpt_type] = 0
-        cct.anon[cpt_type] += 1        
-        return str(cct.anon[cpt_type])
-
-    def __init__(self, cct, namespace, cpt_type, cpt_id, string,
+    def __init__(self, cct, name, cpt_type, cpt_id, string,
                  opts_string, nodes, *args):
 
         self.cct = cct
         self.type = cpt_type
         self.id = cpt_id
-
-        if cpt_id == '' and cct is not None:
-            cpt_id = 'anon' + self.anon(cpt_type)
-
-        name = namespace + self.type + cpt_id
+        self.name = name
 
         self.net = string.split(';')[0]
         # This is the initial opts_string from which the opts attribute
         # is derived.
         self.opts_string = opts_string
         self.nodes = nodes
-        self.name = name
         self.args = args
         self.classname = self.__class__.__name__
         self.opts = {}
@@ -563,12 +550,12 @@ class V(Cpt):
 
 class K(Cpt):
     
-    def __init__(self, cct, namespace, cpt_type, cpt_id, string,
+    def __init__(self, cct, name, cpt_type, cpt_id, string,
                  opts_string, nodes, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super (K, self).__init__(cct, namespace, cpt_type, cpt_id, string,
+        super (K, self).__init__(cct, name, cpt_type, cpt_id, string,
                                  opts_string, nodes, *args)
 
 
@@ -662,7 +649,7 @@ def defcpt(name, base, docstring):
     classes[name] = newclass
 
 
-def make(classname, parent, namespace, cpt_type, cpt_id,
+def make(classname, parent, name, cpt_type, cpt_id,
          string, opts_string, nodes, *args):
 
     # Create instance of component object
@@ -671,7 +658,7 @@ def make(classname, parent, namespace, cpt_type, cpt_id,
     # Switch context
     parent.context.switch()
 
-    cpt = newclass(parent, namespace, cpt_type, cpt_id, string, opts_string, 
+    cpt = newclass(parent, name, cpt_type, cpt_id, string, opts_string, 
                    nodes, *args)
     # Add named attributes for the args?   Lname1, etc.
 
@@ -728,6 +715,7 @@ defcpt('Ubuffer', Logic, 'Buffer')
 defcpt('Upbuffer', Logic, 'Buffer with power supplies')
 defcpt('Uinverter', Logic, 'Inverter')
 defcpt('Upinverter', Logic, 'Inverter with power supplies')
+defcpt('Ublock', Misc, 'Block')
 defcpt('Uchip1310', Logic, 'General purpose chip')
 defcpt('Uchip2121', Logic, 'General purpose chip')
 defcpt('Uchip3131', Logic, 'General purpose chip')

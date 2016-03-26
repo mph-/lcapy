@@ -44,7 +44,7 @@ class Rule(object):
 
         raise ValueError('Syntax error: %s when parsing %s\nExpected format: %s' % (error, string, repr(self)))        
 
-    def process(self, paramdir, string, fields, namespace):
+    def process(self, paramdir, string, fields, name, namespace):
 
         params = self.params
         if len(fields) > len(params):
@@ -67,8 +67,10 @@ class Rule(object):
                 param = param[1:-1]
 
             field = fields[m]
-            if paramdir[param].base in ('node', 'pin'):
+            if paramdir[param].base == 'node':
                 nodes.append(namespace + field)
+            elif paramdir[param].base == 'pin':
+                nodes.append(name + '.' + field)
             elif paramdir[param].base != 'keyword':
                 args.append(field)
 
@@ -194,7 +196,7 @@ class Parser(object):
         # This is the most hackery aspect of this parser where we
         # choose the rule pattern based on a keyword.  If the
         # keyword is not present, default to first rule pattern.
-        # Perhaps a factory should sort this out.
+        # Perhaps a factory should sort this out?
         rule = self.ruledir[cpt_type][0]
         for rule1 in self.ruledir[cpt_type]:
             pos = rule1.pos
@@ -204,11 +206,21 @@ class Parser(object):
                 rule = rule1
                 break
 
-        nodes, args = rule.process(self.paramdir, string, fields, namespace)
+        name = namespace + cpt_type + cpt_id
+        if cpt_id == '' and parent is not None:
+            if not hasattr(parent, 'anon'):
+                parent.anon = {}
+            if cpt_type not in parent.anon:
+                parent.anon[cpt_type] = 0
+            parent.anon[cpt_type] += 1        
+            name += str(parent.anon[cpt_type])
+
+        nodes, args = rule.process(self.paramdir, string, fields, name, 
+                                   namespace)
 
         fields = string.split(';')
         opts_string = fields[1].strip() if len(fields) > 1 else '' 
 
-        return self.cpts.make(rule.classname, parent, namespace,
+        return self.cpts.make(rule.classname, parent, name,
                               cpt_type, cpt_id, string, opts_string,
                               tuple(nodes), *args)
