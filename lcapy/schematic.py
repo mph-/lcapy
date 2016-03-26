@@ -883,7 +883,7 @@ class Schematic(NetfileMixin):
             n1 = snode_list[n]
             n2 = snode_list[n + 1]
             
-            wires.append(self.parse('W_ %s %s' % (n1, n2)))
+            wires.append(self._parse('W_ %s %s' % (n1, n2)))
 
         return wires
 
