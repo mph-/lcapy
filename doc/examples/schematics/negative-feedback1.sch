@@ -1,5 +1,5 @@
 W 1 SJ1._2; right=0.5, endarrow=tri
-SJ1 _1 _2 _3 _4; right, l2=$+$, l3=$-$
+SJ1 _1 _2 _3 _4; right, l2=$+$, l3=$-$, l={}
 W SJ1._1 U1._IN; endarrow=tri
 U1 block _IN _OUT; right, l=Open-loop gain (A)
 W U1._OUT 2; right

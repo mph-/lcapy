@@ -28,7 +28,7 @@ class NetfileMixin(object):
 
     def _parse(self, string, namespace=''):
         """The general form is: 'Name Np Nm symbol'
-        where Np is the positive nose and Nm is the negative node.
+        where Np is the positive node and Nm is the negative node.
 
         A positive current is defined to flow from the positive node
         to the negative node.
@@ -38,6 +38,7 @@ class NetfileMixin(object):
             return None            
 
         if string[0] == ';':
+            self.opts.add(string[1:])
             return None
 
         if string[0:9] == '.include ':
