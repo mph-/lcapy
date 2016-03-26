@@ -464,7 +464,7 @@ class TwoPort(Cpt):
 
     @property
     def coords(self):
-        return ((1, 1), (1, 0), (0, 1), (0, 0))
+        return ((1.5, 1), (1.5, 0), (0, 1), (0, 0))
 
     def draw(self, **kwargs):
 
@@ -476,12 +476,18 @@ class TwoPort(Cpt):
         n1, n2, n3, n4 = self.dvnodes
         width = n2.pos.x - n4.pos.x
         centre = (n1.pos + n2.pos + n3.pos + n4.pos) * 0.25
-        top = Pos(centre.x, n1.pos.y + 0.15)
 
-        titlestr = "%s-parameter two-port" % self.args[2]
+        q = self.tf(centre, ((-1.5, -1.5), (-1.5, 1.5), (1.5, 1.5), (1.5, -1.5),
+                             (0, 1.15)))
+
+        top = q[4]
+
+        titlestr = ''
+        if len(self.args) > 0:
+            titlestr = "%s-parameter two-port" % self.args[0]
 
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
-            n4, n3, n1, n2, n4)
+            q[0], q[1], q[2], q[3], q[0])
         s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
             centre, width, titlestr, self.s)
         s += r'  \draw (%s) node[minimum width=%.1f] {%s};''\n' % (
@@ -912,15 +918,12 @@ class Chip(Cpt):
             n.pinpos = self.pinpos[m]
 
         centre = self.centre
-
         w, h = self.width, self.height
-        c1 = centre + Pos(-0.5 * w, 0.5 * h)
-        c2 = centre + Pos(0.5 * w, 0.5 * h)
-        c3 = centre + Pos(0.5 * w, -0.5 * h)
-        c4 = centre + Pos(-0.5 * w, -0.5 * h)
+        q = self.tf(centre, ((-0.5 * w, 0.5 * h), (0.5 * w, 0.5 * h),
+                             (0.5 * w, -0.5 * h), (-0.5 * w, -0.5 * h)))
 
         s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
-            c1, c2, c3, c4, c1)
+            q[0], q[1], q[2], q[3], q[0])
         s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
 
         s += self._draw_nodes(**kwargs)
