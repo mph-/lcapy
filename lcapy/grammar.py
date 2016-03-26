@@ -47,6 +47,7 @@ Q: Qname Nc Nb Ne [Value]; NPN transistor
 Qnpn: Qname Nc Nb Ne npn [Value]; NPN transistor
 Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor 
 R: Rname Np Nm [Value]; Resistor
+SJ: SJname No Ni Ncp Ncm; Summing junction
 SWnc: SWname Np Nm nc; Switch normally closed
 SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch

@@ -714,6 +714,7 @@ defcpt('Q', NonLinear, 'NPN transistor')
 defcpt('Qpnp', 'Q', 'PNP transistor')
 defcpt('Qnpn', 'Q', 'NPN transistor')
 
+defcpt('SJ', Misc, 'Summing junction')
 defcpt('SW', TimeVarying, 'Switch')
 defcpt('SWno', 'SW', 'Normally open switch')
 defcpt('SWnc', 'SW', 'Normally closed switch')

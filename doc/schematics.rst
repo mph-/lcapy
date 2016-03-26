@@ -484,6 +484,18 @@ Here's another example:
    :width: 8cm
 
 
+Mixer
+=====
+
+Here's a example of a mixer:
+
+.. literalinclude:: examples/schematics/MX1.sch
+
+.. image:: examples/schematics/MX1.png
+   :width: 3cm
+
+
+
 Implicit wires
 ==============
 

@@ -522,6 +522,33 @@ class MX(Cpt):
         return s
 
 
+class SJ(Cpt):
+    """Summing junction"""
+
+    can_scale = True
+    can_rotate = False
+
+    @property
+    def coords(self):
+        return ((0.25, 0.25), (-0.25, 0.25), (0, 0), (0, 0.5))
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        n1, n2, n3, n4 = self.dvnodes
+
+        centre = (n1.pos + n2.pos) * 0.5
+        q = self.xtf(centre, ((0.5, 0.7)))
+
+        s = r'  \draw (%s) node[mixer,xscale=%s] {};''\n' % (
+            centre, self.scale)
+        s += r'  \draw (%s) node[] {%s};''\n'% (q, self.label(**kwargs))
+        s += self._draw_nodes(**kwargs)
+        return s
+
+
 class TL(Cpt):
     """Transmission line"""
 
