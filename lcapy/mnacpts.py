@@ -701,7 +701,6 @@ defcpt('Q', NonLinear, 'NPN transistor')
 defcpt('Qpnp', 'Q', 'PNP transistor')
 defcpt('Qnpn', 'Q', 'NPN transistor')
 
-defcpt('SJ', Misc, 'Summing junction')
 defcpt('SPpp', Misc, 'Summing point')
 defcpt('SPpm', Misc, 'Summing point')
 defcpt('SPppp', Misc, 'Summing point')
