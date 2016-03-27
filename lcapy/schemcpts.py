@@ -25,7 +25,8 @@ class Cpt(object):
     implicit_keys =  ('implicit', 'ground', 'sground', 'rground')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
-                 'mirror', 'scale', 'invisible', 'variable', 'fixed')
+                 'mirror', 'scale', 'invisible', 'variable', 'fixed',
+                 'w', 'h')
 
     can_rotate = True
     can_scale = False
@@ -925,6 +926,88 @@ class SPDT(Cpt):
         return s
 
 
+class Shape(Cpt):
+    """General purpose shape"""
+
+    can_stretch = False
+
+    @property
+    def centre(self):
+        N = len(self.dvnodes)
+        return self.midpoint(self.dvnodes[0], self.dvnodes[N // 2])
+
+    @property
+    def width(self):
+        return self.w * self.size * self.sch.node_spacing
+
+    @property
+    def height(self):
+        return self.h * self.size * self.sch.node_spacing
+
+    @property
+    def w(self):
+        return float(self.opts.get('w', 1.0))
+
+    @property
+    def h(self):
+        return float(self.opts.get('h', self.w))
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%scm, minimum height=%scm, text width=%scm, align=center, draw, %s] {%s};''\n'% (
+            self.centre, self.shape, self.width, self.height, 
+            self.width - 0.5, self.args_str, self.label(**kwargs))
+
+        return s
+
+
+class Box(Shape):
+    """Box"""
+
+    shape = 'rectangle'
+
+    @property
+    def coords(self):
+        w, h = self.w, self.h
+
+        return ((-0.5 * w, 0), (0.5 * w, 0))
+
+
+class Circle(Shape):
+    """Circle"""
+
+    shape = 'circle'
+
+    @property
+    def coords(self):
+        w, h = self.w, self.h
+
+        return ((-0.5 * w, 0), (0.5 * w, 0))
+
+
+class Box4(Box):
+    """Box4"""
+
+    @property
+    def coords(self):
+        w, h = self.w, self.h
+
+        return ((-0.5 * w, 0), (0, -0.5 * h), (0.5 * w, 0), (0, 0.5 * h))
+
+
+class Circle4(Circle):
+    """Circle4"""
+
+    @property
+    def coords(self):
+        w, h = self.w, self.h
+
+        return ((-0.5 * w, 0), (0, -0.5 * h), (0.5 * w, 0), (0, 0.5 * h))
+
+
 class Chip(Cpt):
     """General purpose chip"""
 
@@ -968,23 +1051,6 @@ class Chip(Cpt):
 
         s += self._draw_nodes(**kwargs)
         return s
-
-class Block(Chip):
-    """Block"""
-
-    w = 1.5
-    h = 1
-    pinpos = (None, None)
-
-    @property
-    def centre(self):
-        return self.midpoint(self.dvnodes[0], self.dvnodes[1])
-
-    @property
-    def coords(self):
-        w, h = self.width, self.height
-
-        return ((-0.75, 0), (0.75, 0))
 
 
 class Chip1310(Chip):
@@ -1352,7 +1418,10 @@ defcpt('TFcore', Transformer, 'Transformer with core', 'transformer core')
 defcpt('TFtapcore', TFtap, 'Tapped transformer with core', 'transformer core')
 defcpt('TP', TwoPort, 'Two port', '')
 
-defcpt('Ublock', Block, 'Block')
+defcpt('Ubox', Box, 'Box')
+defcpt('Ucircle', Circle, 'Circle')
+defcpt('Ubox4', Box4, 'Box')
+defcpt('Ucircle4', Circle4, 'Circle')
 defcpt('Uchip1310', Chip1310, 'General purpose chip')
 defcpt('Uchip2121', Chip2121, 'General purpose chip')
 defcpt('Uchip3131', Chip3131, 'General purpose chip')

@@ -60,7 +60,10 @@ TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 Ubuffer: Uname buffer Pi PVss Po PVdd; Buffer with power supplies
 Uinverter: Uname inverter Pi PVss Po PVdd; Inverter with power supplies
-Ublock: Uname block P P; Block
+Ubox: Uname box P P; Box
+Ucircle: Uname circle P P; Circle
+Ubox4: Uname box4 P P P P; Box
+Ucircle4: Uname circle4 P P P P; Circle
 Uchip1310: Uname chip1310 P P P P P; Chip
 Uchip2121: Uname chip2121 P P P P P P; Chip
 Uchip3131: Uname chip3131 P P P P P P P P; Chip
@@ -107,7 +110,10 @@ buffer: keyword;
 pbuffer: keyword;
 pinverter: keyword;
 inverter: keyword;
-block: keyword;
+box: keyword;
+circle: keyword;
+box4: keyword;
+circle4: keyword;
 chip1310: keyword;
 chip2121: keyword;
 chip3131: keyword;

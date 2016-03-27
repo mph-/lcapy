@@ -693,6 +693,9 @@ class Schematic(NetfileMixin):
         self.snodes = {}
         self.hints = False
         self._init_parser(cpts)
+        self.cpt_size = 1.2
+        self.node_spacing = 2.0
+        self.scale = 1.0
 
         if filename is not None:
             self.netfile_add(filename)
