@@ -548,6 +548,84 @@ class SJ(Cpt):
         return s
 
 
+class SP(Cpt):
+    """Summing point"""
+
+    can_stretch = False
+    can_scale = True
+    can_mirror = True
+    can_rotate = True
+
+    @property
+    def coords(self):
+        if self.mirror:
+            return ((-0.25, 0), (0, 0.25), (0.25, 0), (0, -0.25))
+        return ((-0.25, 0), (0, -0.25), (0.25, 0), (0, 0.25))
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        n = self.dvnodes
+
+        centre = (n[0].pos + n[2].pos) * 0.5
+        q = self.xtf(centre, ((0.7, 0.7), (-0.25, 0), (0, -0.25),
+                              (0, 0.25), (0, 0.25)))
+        xscale = self.scale
+        yscale = self.scale        
+        if self.mirror:
+            yscale = -yscale
+
+        s = r'  \draw (%s) node[mixer, xscale=%s, yscale=%s, rotate=%s] {};''\n' % (
+            centre, xscale, yscale, self.angle)
+        s += r'  \draw (%s) node[] {%s};''\n'% (q[0], self.label(**kwargs))
+
+        s += r'  \draw (%s) node[] {$%s$};''\n'% (q[1], self.labels[0])
+
+        if self.mirror:
+            s += r'  \draw (%s) node[] {$%s$};''\n'% (q[4], self.labels[0])
+        else:
+            s += r'  \draw (%s) node[] {$%s$};''\n'% (q[2], self.labels[1])
+        if len(self.labels) > 2:
+            s += r'  \draw (%s) node[] {$%s$};''\n'% (q[3], self.labels[2])
+        return s
+
+
+class SP3(SP):
+    """Summing point"""
+
+    @property
+    def coords(self):
+        if self.mirror:
+            return ((-0.25, 0), (0, 0.25), (0.25, 0))
+        return ((-0.25, 0), (0, -0.25), (0.25, 0))
+
+
+class SPpp(SP3):
+    """Summing point"""
+
+    labels = '++'
+
+
+class SPpm(SP3):
+    """Summing point"""
+
+    labels = '+-'
+
+
+class SPppp(SP):
+    """Summing point"""
+
+    labels = '+++'
+
+
+class SPpmm(SP):
+    """Summing point"""
+
+    labels = '+--'
+
+
 class TL(Cpt):
     """Transmission line"""
 

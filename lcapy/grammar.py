@@ -48,6 +48,10 @@ Qnpn: Qname Nc Nb Ne npn [Value]; NPN transistor
 Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor 
 R: Rname Np Nm [Value]; Resistor
 SJ: SJname P P P P; Summing junction
+SPpp: SPname pp P P P; Summing point
+SPpm: SPname pm P P P; Summing point
+SPppp: SPname ppp P P P P; Summing point
+SPpmm: SPname pmm P P P P; Summing point
 SWnc: SWname Np Nm nc; Switch normally closed
 SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch
@@ -118,6 +122,10 @@ chip1310: keyword;
 chip2121: keyword;
 chip3131: keyword;
 chip4141: keyword;
+pp: keyword;
+pm: keyword;
+ppp: keyword;
+pmm: keyword;
 push: keyword;
 P: pin; Pin
 Pi: pin; Input pin
