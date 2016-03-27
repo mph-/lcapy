@@ -26,7 +26,7 @@ class Cpt(object):
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
-                 'w', 'h')
+                 'aspect')
 
     can_rotate = True
     can_scale = False
@@ -946,20 +946,24 @@ class Shape(Cpt):
 
     @property
     def w(self):
-        return float(self.opts.get('w', 1.0))
+        return 1.0
 
     @property
     def h(self):
-        return float(self.opts.get('h', self.w))
+        return self.aspect
+
+    @property
+    def aspect(self):
+        return float(self.opts.get('aspect', 1.0))
 
     def draw(self, **kwargs):
 
         if not self.check():
             return ''
 
-        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%scm, minimum height=%scm, text width=%scm, align=center, draw, %s] {%s};''\n'% (
+        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%scm, minimum height=%scm, text width=%scm, align=center, rotate=%s, draw, %s] {%s};''\n'% (
             self.centre, self.shape, self.width, self.height, 
-            self.width - 0.5, self.args_str, self.label(**kwargs))
+            self.width - 0.5, self.angle, self.args_str, self.label(**kwargs))
 
         return s
 
@@ -971,7 +975,7 @@ class Box(Shape):
 
     @property
     def coords(self):
-        w, h = self.w, self.h
+        w = self.w
 
         return ((-0.5 * w, 0), (0.5 * w, 0))
 
@@ -983,7 +987,7 @@ class Circle(Shape):
 
     @property
     def coords(self):
-        w, h = self.w, self.h
+        w = self.w
 
         return ((-0.5 * w, 0), (0.5 * w, 0))
 
