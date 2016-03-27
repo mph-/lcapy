@@ -976,7 +976,6 @@ class Box(Shape):
     @property
     def coords(self):
         w = self.w
-
         return ((-0.5 * w, 0), (0.5 * w, 0))
 
 
@@ -988,7 +987,6 @@ class Circle(Shape):
     @property
     def coords(self):
         w = self.w
-
         return ((-0.5 * w, 0), (0.5 * w, 0))
 
 
@@ -998,7 +996,6 @@ class Box4(Box):
     @property
     def coords(self):
         w, h = self.w, self.h
-
         return ((-0.5 * w, 0), (0, -0.5 * h), (0.5 * w, 0), (0, 0.5 * h))
 
 
@@ -1008,7 +1005,6 @@ class Circle4(Circle):
     @property
     def coords(self):
         w, h = self.w, self.h
-
         return ((-0.5 * w, 0), (0, -0.5 * h), (0.5 * w, 0), (0, 0.5 * h))
 
 
