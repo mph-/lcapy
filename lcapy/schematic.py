@@ -746,7 +746,7 @@ class Schematic(NetfileMixin):
 
         vnode = self.nodes[node].rootname
 
-        if elt.type in ('U', 'MX', 'SP', 'TP'):
+        if elt.type in ('U', 'MX', 'SP', 'TP', 'TR'):
             self.nodes[node].pin = True
 
         if vnode not in self.snodes:

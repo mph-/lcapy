@@ -61,6 +61,7 @@ TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value]; Tapped transformer (works to DC!)
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value]; Tapped transformer with core (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
+TR: TRname Pi Po [Value]; Transfer function
 Ubuffer: Uname buffer Pi PVss Po PVdd; Buffer with power supplies
 Uinverter: Uname inverter Pi PVss Po PVdd; Inverter with power supplies
 Ubox: Uname box P P; Box

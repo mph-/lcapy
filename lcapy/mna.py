@@ -203,7 +203,7 @@ class MNA(object):
         self.unknown_branch_currents = []
 
         for elt in self.elements.values():
-            if elt.type in ('E', 'H', 'L', 'V'):
+            if elt.need_branch_current:
                 self.unknown_branch_currents.append(elt.name)
 
         # Generate stamps.

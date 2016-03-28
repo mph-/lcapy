@@ -120,11 +120,11 @@ class Netlist(MNA, NetfileMixin):
         raise AttributeError('Unknown element or node name %s' % name)
 
     def __getattr__(self, attr):
-        """Return element or node by name."""
-
-        # This gets called if there is no explicit attribute attr for
-        # this instance.  This is primarily for accessing elements
-        # and non-numerical node names.
+        """Return element or node by name.  This gets called if there is no
+        explicit attribute attr for this instance.  This is primarily
+        for accessing elements and non-numerical node names.  It also
+        gets called if the called attr throws an AttributeError
+        exception."""
 
         return self.__getitem__(attr)
 

@@ -19,6 +19,7 @@ module = sys.modules[__name__]
 class Cpt(object):
 
     source = False
+    need_branch_current = False
 
     def __init__(self, cct, name, cpt_type, cpt_id, string,
                  opts_string, nodes, *args):
@@ -209,28 +210,34 @@ class Cpt(object):
 
         return '_' + self.anon('node')
 
-
-class NonLinear(Cpt):
-
-    def stamp(self, cct):
-        raise NotImplementedError('Cannot analyse non-linear component %s' % self)
-
-
-class TimeVarying(Cpt):
-
-    def stamp(self, cct):
-        raise NotImplementedError('Cannot analyse time-varying component %s' % self)
+class InvalidCpt(Cpt):
+    
+    @property
+    def cpt(self):
+         raise NotImplementedError('Invalid component for circuit analysis: %s' % self)       
 
 
-class Logic(Cpt):
+class NonLinear(InvalidCpt):
 
     def stamp(self, cct):
-        raise NotImplementedError('Cannot analyse logic component %s' % self)
+        raise NotImplementedError('Cannot analyse non-linear component: %s' % self)
 
-class Misc(Cpt):
+
+class TimeVarying(InvalidCpt):
 
     def stamp(self, cct):
-        raise NotImplementedError('Cannot analyse misc component %s' % self)
+        raise NotImplementedError('Cannot analyse time-varying component: %s' % self)
+
+
+class Logic(InvalidCpt):
+
+    def stamp(self, cct):
+        raise NotImplementedError('Cannot analyse logic component: %s' % self)
+
+class Misc(InvalidCpt):
+
+    def stamp(self, cct):
+        raise NotImplementedError('Cannot analyse misc component: %s' % self)
 
 
 class DummyCpt(Cpt):
@@ -356,6 +363,8 @@ class C(RC):
 
 class L(RLC):
     
+    need_branch_current = True
+
     def kill_initial(self):
         """Kill implicit voltage sources due to initial conditions"""
         return '%s %s %s {%s}; %s' % (
@@ -399,6 +408,8 @@ class L(RLC):
 
 class E(DummyCpt):
     """VCVS"""
+
+    need_branch_current = True
 
     def stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
@@ -452,6 +463,8 @@ class G(DummyCpt):
 
 class H(DummyCpt):
     """CCVS"""
+
+    need_branch_current = True
 
     def stamp(self, cct):
         n1, n2 = self.node_indexes
@@ -511,9 +524,66 @@ class TL(Cpt):
     pass
 
 
+class TR(DummyCpt):
+    """Transfer function.  This is equivalent to a VCVS with the input and
+    output referenced to node 0."""
+
+    need_branch_current = True
+
+    def stamp(self, cct):
+        n1, n2 = self.node_indexes
+        m = self.branch_index
+
+        if n2 >= 0:
+            cct._B[n2, m] += 1
+            cct._C[m, n2] += 1
+        
+        A = cExpr(self.args[0]).expr
+        
+        if n1 >= 0:
+            cct._C[m, n1] -= A
+
+
+class SPpp(DummyCpt):
+
+    need_branch_current = True
+
+    def stamp(self, cct):
+        n1, n2, n3 = self.node_indexes
+        m = self.branch_index
+
+        if n3 >= 0:
+            cct._B[n3, m] += 1
+            cct._C[m, n3] += 1
+        
+        if n1 >= 0:
+            cct._C[m, n1] -= 1
+        if n2 >= 0:
+            cct._C[m, n2] -= 1
+
+
+class SPpm(DummyCpt):
+
+    need_branch_current = True
+
+    def stamp(self, cct):
+        n1, n2, n3 = self.node_indexes
+        m = self.branch_index
+
+        if n3 >= 0:
+            cct._B[n3, m] += 1
+            cct._C[m, n3] += 1
+        
+        if n1 >= 0:
+            cct._C[m, n1] -= 1
+        if n2 >= 0:
+            cct._C[m, n2] += 1
+
+
 class V(Cpt):
 
     source = True
+    need_branch_current = True
 
     def kill(self):
         newopts = self.opts.copy()
@@ -701,8 +771,6 @@ defcpt('Q', NonLinear, 'NPN transistor')
 defcpt('Qpnp', 'Q', 'PNP transistor')
 defcpt('Qnpn', 'Q', 'NPN transistor')
 
-defcpt('SPpp', Misc, 'Summing point')
-defcpt('SPpm', Misc, 'Summing point')
 defcpt('SPppp', Misc, 'Summing point')
 defcpt('SPpmm', Misc, 'Summing point')
 defcpt('SW', TimeVarying, 'Switch')

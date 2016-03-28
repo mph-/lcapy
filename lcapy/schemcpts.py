@@ -971,6 +971,8 @@ class Shape(Cpt):
     """General purpose shape"""
 
     can_stretch = False
+    default_width = 1.0
+    default_aspect = 1.0
 
     @property
     def centre(self):
@@ -987,7 +989,7 @@ class Shape(Cpt):
 
     @property
     def w(self):
-        return 1.0
+        return self.default_width
 
     @property
     def h(self):
@@ -995,7 +997,7 @@ class Shape(Cpt):
 
     @property
     def aspect(self):
-        return float(self.opts.get('aspect', 1.0))
+        return float(self.opts.get('aspect', self.default_aspect))
 
     def draw(self, **kwargs):
 
@@ -1047,6 +1049,13 @@ class Circle4(Circle):
     def coords(self):
         w, h = self.w, self.h
         return ((-0.5 * w, 0), (0, -0.5 * h), (0.5 * w, 0), (0, 0.5 * h))
+
+
+class TR(Box):
+    """Transfer function"""
+
+    default_width = 1.5
+    default_aspect = 0.66667
 
 
 class Chip(Cpt):
