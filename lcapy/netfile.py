@@ -38,7 +38,8 @@ class NetfileMixin(object):
             return None            
 
         if string[0] == ';':
-            self.opts.add(string[1:])
+            if hasattr(self, 'opts'):
+                self.opts.add(string[1:])
             return None
 
         if string[0:9] == '.include ':
