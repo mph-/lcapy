@@ -71,13 +71,13 @@ class MNA(object):
 
     @property
     def lnodes(self):
-        """Determine linked nodes (both implicitly and explicitly
-        connected)"""
+        """Determine linked nodes"""
 
         from copy import deepcopy
 
-        # Start with implicitly linked nodes.
-        lnodes = deepcopy(self.snodes)
+        lnodes = {}
+        for key in self.nodes.keys():
+            lnodes[key] = [key]
 
         # Then augment with nodes connected by wires.
         for m, elt in enumerate(self.elements.values()):

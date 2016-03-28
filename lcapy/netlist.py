@@ -90,8 +90,6 @@ class Netlist(MNA, NetfileMixin):
 
         self._elements = {}
         self.nodes = {}
-        # Shared nodes (with same voltage)
-        self.snodes = {}
         self.context = global_context.new()
         self._init_parser(cpts)
 
@@ -151,14 +149,6 @@ class Netlist(MNA, NetfileMixin):
         if node not in self.nodes:
             self.nodes[node] = Node(self, node)
         self.nodes[node].append(cpt)
-
-        vnode = self.nodes[node].rootname
-
-        if vnode not in self.snodes:
-            self.snodes[vnode] = []
-
-        if node not in self.snodes[vnode]:
-            self.snodes[vnode].append(node)
 
     def _invalidate(self):
 
