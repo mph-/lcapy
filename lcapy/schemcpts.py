@@ -661,7 +661,7 @@ class TF1(TwoPort):
         if link:
             # TODO: allow for rotation
             width = p[0].x - p[2].x
-            arcpos = Pos((p[0].x + p[2].x) / 2, secondary_dot.y - width / 2 + 0.2)
+            arcpos = Pos((p[0].x + p[2].x) / 2, secondary_dot.y - width / 2 + 0.3)
 
             s += r'  \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (
                 width / 2, arcpos, width / 2)
