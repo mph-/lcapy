@@ -1,4 +1,4 @@
-U1 inverter _IN _VSS _OUT _VDD; right
+U1 inverter ._IN ._VSS ._OUT ._VDD; right
 R 2 U1._IN; right
 D1 2 3; up
 W 3 3_1; up=0.1, implicit, l=V_{DD}

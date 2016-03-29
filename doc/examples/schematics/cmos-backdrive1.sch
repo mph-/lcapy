@@ -1,5 +1,5 @@
-U1 inverter _IN _VSS _OUT _VDD; right
-U2 inverter _IN _VSS _OUT _VDD; right
+U1 inverter ._IN ._VSS ._OUT ._VDD; right
+U2 inverter ._IN ._VSS ._OUT ._VDD; right
 W U1._OUT U2._IN; right=1
 W U1._VSS 4_2; down=0.3, implicit, l=0V
 W U2._VSS 4_3; down=0.3, implicit, l=0V

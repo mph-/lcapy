@@ -1,4 +1,4 @@
-U1 buffer _IN _VSS _OUT _VDD; right
+U1 buffer ._IN ._VSS ._OUT ._VDD; right
 W U1._OUT 1; right=0.5
 R 1 2; right=2, i>^=I_o
 D 2 0_2 led; down, v=V_f, l={}

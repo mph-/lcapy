@@ -1,4 +1,4 @@
-U1 chip2121 _UNUSED1 _UNUSED2 VSS PWM2 PWM1 VDD; right, l=MCU
+U1 chip2121 ._UNUSED1 ._UNUSED2 .VSS .PWM2 .PWM1 .VDD; right, l=MCU
 M1 9 10 11; right
 M2 12 13 14; right
 W U1.PWM1 10; right=0.1

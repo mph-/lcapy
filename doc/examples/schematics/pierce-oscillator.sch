@@ -1,4 +1,4 @@
-U1 inverter _in _VSS _out _VDD; right
+U1 inverter ._in ._VSS ._out ._VDD; right
 W 5 U1._in; right=0.5
 W U1._out 6; right=0.5
 W 6 9; right=0.5

@@ -67,10 +67,14 @@ class Rule(object):
                 param = param[1:-1]
 
             field = fields[m]
-            if paramdir[param].base == 'node':
-                nodes.append(namespace + field)
-            elif paramdir[param].base == 'pin':
-                nodes.append(name + '.' + field)
+
+            if paramdir[param].base in ('pin', 'node'):
+                if field[0] == '.':
+                    # Note name contains namespace
+                    field = name + field
+                else:
+                    field = namespace + field
+                nodes.append(field)
             elif paramdir[param].base != 'keyword':
                 args.append(field)
 
