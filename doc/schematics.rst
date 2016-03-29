@@ -597,6 +597,10 @@ Component attributes
 
 - `fixed`: do not stretch
 
+- `aspect`: set aspect ratio for boxes
+
+- `pins`: define pin labels for ICs
+
 
 Schematic attributes
 ====================
@@ -636,7 +640,7 @@ or by a schematic option.  For example,
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded3.sch
 
 .. image:: examples/schematics/lpf1-buffer-loaded3.png
-   :width: 12cm
+   :width: 10.5cm
  
 
 Includes
