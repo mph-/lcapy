@@ -217,7 +217,7 @@ class Parser(object):
             if cpt_type not in parent.anon:
                 parent.anon[cpt_type] = 0
             parent.anon[cpt_type] += 1        
-            name += str(parent.anon[cpt_type])
+            name += 'anon' + str(parent.anon[cpt_type])
 
         nodes, args = rule.process(self.paramdir, string, fields, name, 
                                    namespace)
