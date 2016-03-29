@@ -909,9 +909,6 @@ class Schematic(NetfileMixin):
 
         for m, node in enumerate(self.nodes.values()):
 
-            if node.pinpos is None:
-                continue
-
             name = node.name
             name = name.split('.')[-1]
             
@@ -925,6 +922,9 @@ class Schematic(NetfileMixin):
                        'l' : 'west', 'r' : 'east', 
                        't' : 'north', 'b' : 'south'}
             anchor = anchors[node.pinpos]
+
+            if node.pin and node.pinpos is None:
+                continue
 
             s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
                 anchor, node.s, node.label.replace('_', r'\_'))

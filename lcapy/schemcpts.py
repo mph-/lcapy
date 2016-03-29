@@ -26,7 +26,7 @@ class Cpt(object):
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
-                 'aspect')
+                 'aspect', 'pins')
 
     can_rotate = True
     can_scale = False
@@ -1086,8 +1086,29 @@ class Chip(Cpt):
         if not self.check():
             return ''
 
+        pins = self.opts.get('pins', '')
+        if pins != '':
+            if pins[0] != '{':
+                raise ValueError('Expecting { for pins in %s' % self)
+            if pins[-1] != '}':
+                raise ValueError('Expecting } for pins in %s' % self)
+            pins = pins[1:-1]
+                
+            pins = pins.split(',')
+            if len(pins) != len(self.dvnodes):
+                raise ValueError('Expecting %d pin names, got %s in %s' % (
+                    len(self.dvnodes), len(pins), self))
+
         for m, n in enumerate(self.dvnodes):
             n.pinpos = self.pinpos[m]
+            if pins != '':
+                n.label = pins[m].strip()
+            else:
+                # TODO, probably should set label to '' and rely on pins attr.
+                label = n.label.split('.')[-1]
+                if label[0] == '_':
+                    label = ''
+                n.label = label
 
         centre = self.centre
         w, h = self.width, self.height
@@ -1098,8 +1119,6 @@ class Chip(Cpt):
             q[0], q[1], q[2], q[3], q[0])
         s += r'  \draw (%s) node[text width=%scm, align=center, %s] {%s};''\n'% (
             centre, w - 0.5, self.args_str, self.label(**kwargs))
-
-        s += self._draw_nodes(**kwargs)
         return s
 
 
