@@ -296,7 +296,7 @@ Only nodes starting with a letter can be labelled using:
 In this case nodes with names such as `in` and `out` will be displayed
 but not numeric node names.
 
-These options can be stored with the schematic netlist, for example,::
+These options can be stored with the schematic netlist, for example::
 
   C1 1 0 100e-12; down, size=1.5, v={5\,kV}
   R1 1 6 1500; right
@@ -642,12 +642,12 @@ or by a schematic option.  For example,
 Includes
 ========
 
-Large schematics can be composed by including smaller schematics using the `.include` directive, for example,::
+Large schematics can be composed by including smaller schematics using the `.include` directive, for example::
    
    .include part1.sch
    .include part2.sch
 
-Each of the smaller schematics can be included into their own namespace to avoid conflicts, for example,::
+Each of the smaller schematics can be included into their own namespace to avoid conflicts, for example::
 
    .include LC1.sch as s1
    .include LC1.sch as s2
@@ -659,17 +659,17 @@ Each of the smaller schematics can be included into their own namespace to avoid
 Namespaces
 ==========
 
-Hierarchical namespaces are supported, for example,::
+Hierarchical namespaces are supported, for example::
 
    a.R1 1 2; right
    b.R1 1 2; right
 
-This creates two resistors: `a.R1` with nodes `a.1` and `a.2` and `b.R1` with nodes `b.1` and `a.2`.   They can be joined using,::
+This creates two resistors: `a.R1` with nodes `a.1` and `a.2` and `b.R1` with nodes `b.1` and `a.2`.   They can be joined using::
 
    W a.2 b.1; right
 
 When node names start with a dot, they are defined relative to the
-name of the component, for example,::
+name of the component, for example::
 
    R1 .p .m; right
    W 1 R1.p; right
@@ -719,7 +719,7 @@ Examples
 .. literalinclude:: examples/schematics/K1.sch
 
 .. image:: examples/schematics/K1.png
-   :width: 3.5cm
+   :width: 2.5cm
 
 
 .. literalinclude:: examples/schematics/VRL2.sch
@@ -801,7 +801,7 @@ Additional constraints can be supplied by using an invisible
 component, for example, an open-circuit.
 
 Grid lines can be added to a schematic using some Tikz markup.  For
-example,::
+example::
 
    ;;\draw[help lines] (0,0) grid [xstep=0.1, ystep=0.1] (10,5);  
   
