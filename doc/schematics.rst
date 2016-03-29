@@ -464,10 +464,12 @@ Here's an example:
 
 In this example, the `chip2121` keyword specifies a block with two
 pins on the left, one on the bottom, two on the right, and one at the
-top.  The pins are enumerated anti-clockwise from top-left.  If a pin
-name starts with an underscore, it is not labelled (this may change).
-If the pin name starts with dot, the connection to the pin is prefixed
-by the name of the chip, for example, `U1.PIO1`.
+top.  The pins are enumerated anti-clockwise from top-left.  Since the
+pin names start with a dot the associated node names are prefixed by
+the name of the chip, for example, `U1.PIO1`.
+
+With the `pins` attribute set to `auto` the pins are labelled with
+their names unless the pin name starts with an underscore.
 
 The supported chips are:
  - `chip1310`
@@ -484,9 +486,46 @@ Here's another example:
 .. image:: examples/schematics/stepup.png
    :width: 8cm
 
+In this example, the pin labels are explicitly defined with the `pins`
+attribute.
 
-Mixer
-=====
+
+Block diagrams
+==============
+
+Block diagrams can be constructed with the following components:
+ - `TF` transfer function
+ - `SPpp`, `SPpm`, `SPppp`, `SPpmm`, `SPppm` summing points
+ - `MX` mixer
+ - `box`, `box4` rectangular box
+ - `circle`, `circle4` circle
+
+Here's an example showing negative feedback:
+
+.. literalinclude:: examples/schematics/negative-feedback3.sch
+
+.. image:: examples/schematics/negative-feedback3.png
+   :width: 8cm
+
+
+Summing points
+--------------
+
+There are a number of summing point varieties: `SPpp`, `SPpm`,
+`SPppp`, `SPpmm`, `SPppm`.  The `p` suffix stands for plus, the `m`
+suffix stands for minus.  The other variations can be generated using
+the `mirror` attribute.
+
+Here's an example:
+
+.. literalinclude:: examples/schematics/SP4.sch
+
+.. image:: examples/schematics/SP4.png
+   :width: 2.5cm
+
+
+Mixers
+------
 
 Here's a example of a mixer:
 
@@ -495,6 +534,20 @@ Here's a example of a mixer:
 .. image:: examples/schematics/MX1.png
    :width: 3cm
 
+
+Boxes and circles
+-----------------
+
+`box` and `circle` have two connection points; `box4` and `circle4`
+have four connection points.  The aspect ratio of a box can be
+controlled with the `aspect` attribute.
+
+Here's an example of their use:
+
+.. literalinclude:: examples/schematics/fir5.sch
+
+.. image:: examples/schematics/fir5.png
+   :width: 5cm
 
 
 Implicit wires
