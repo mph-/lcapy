@@ -155,3 +155,35 @@ Tweak cpt method.  Should V('V1') -> Vdc('V1') or V('V1')?
 Add motor symbol to schematics
 
 Add ferrite bead symbol to schematics
+
+How to analyse components with namespace in name?  The trouble is
+that, if the node is a.1 we create V_a.1 but this cannot be parsed by
+sympy.  We could replace the dot with an underscore but cannot keep
+adding subscripts.  This is where using macros or subcircuits has an
+advantage since we map the nodes to reasonable names.  We culd do
+something grubby such as replacing the dot with a z.
+
+
+U1 chip2120 _1 _2 VSS _4 _5 VDD; right
+W 7 U1._1; right
+
+To avoid referencing component pins by component name could specify
+labels separately, for example,
+
+U1 chip2120 1 2 3#VSS 4 5 6#VDD; right
+W 7 1; right
+
+or alternatively
+
+U1 chip2120 1 2 3 4 5 6; right, pins=,,VSS,,VDD
+W 7 1; right
+
+The latter separates the schematic labels from the circuit connections.
+
+We could implement something like
+
+U1 chip2120 1 2 .VDD 4 5 .VSS; right, pins=,,VSS,,VDD
+
+and refer to the nodes as U1.VDD U1.VSS etc.  However, this does not
+avoid the problem of dots in node names when passed to sympy.
+

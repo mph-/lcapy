@@ -630,14 +630,12 @@ class Node(object):
         self.pos = 'unknown'
         self.pinpos = None
         self.pin = False
+        # Sanitised name
+        self.s = name.replace('.', '@')
+        self.label = name
         
     def __repr__(self):
         return '%s @ (%s)' % (self.name, self.pos)
-
-    @property
-    def s(self):
-        """Sanitised name"""
-        return self.name.replace('.', '@')
 
     def append(self, elt):
         """Add new element to the node"""
@@ -910,6 +908,10 @@ class Schematic(NetfileMixin):
             return s
 
         for m, node in enumerate(self.nodes.values()):
+
+            if node.pinpos is None:
+                continue
+
             name = node.name
             name = name.split('.')[-1]
             
@@ -924,13 +926,8 @@ class Schematic(NetfileMixin):
                        't' : 'north', 'b' : 'south'}
             anchor = anchors[node.pinpos]
 
-            if not node.pin:
-                name = node.name
-            elif node.pinpos is None:
-                continue
-
             s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
-                anchor, node.s, name.replace('_', r'\_'))
+                anchor, node.s, node.label.replace('_', r'\_'))
         return s
 
 
