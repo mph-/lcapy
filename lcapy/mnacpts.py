@@ -579,6 +579,64 @@ class SPpm(DummyCpt):
         if n2 >= 0:
             cct._C[m, n2] += 1
 
+class SPppp(DummyCpt):
+
+    need_branch_current = True
+
+    def stamp(self, cct):
+        n1, n2, n3, n4 = self.node_indexes
+        m = self.branch_index
+
+        if n3 >= 0:
+            cct._B[n3, m] += 1
+            cct._C[m, n3] += 1
+        
+        if n1 >= 0:
+            cct._C[m, n1] -= 1
+        if n2 >= 0:
+            cct._C[m, n2] -= 1
+        if n4 >= 0:
+            cct._C[m, n4] -= 1
+
+class SPpmm(DummyCpt):
+
+    need_branch_current = True
+
+    def stamp(self, cct):
+        n1, n2, n3, n4 = self.node_indexes
+        m = self.branch_index
+
+        if n3 >= 0:
+            cct._B[n3, m] += 1
+            cct._C[m, n3] += 1
+        
+        if n1 >= 0:
+            cct._C[m, n1] -= 1
+        if n2 >= 0:
+            cct._C[m, n2] += 1
+        if n4 >= 0:
+            cct._C[m, n4] += 1
+
+
+class SPppm(DummyCpt):
+
+    need_branch_current = True
+
+    def stamp(self, cct):
+        n1, n2, n3, n4 = self.node_indexes
+        m = self.branch_index
+
+        if n3 >= 0:
+            cct._B[n3, m] += 1
+            cct._C[m, n3] += 1
+        
+        if n1 >= 0:
+            cct._C[m, n1] -= 1
+        if n2 >= 0:
+            cct._C[m, n2] -= 1
+        if n4 >= 0:
+            cct._C[m, n4] += 1
+
 
 class V(Cpt):
 
@@ -771,8 +829,6 @@ defcpt('Q', NonLinear, 'NPN transistor')
 defcpt('Qpnp', 'Q', 'PNP transistor')
 defcpt('Qnpn', 'Q', 'NPN transistor')
 
-defcpt('SPppp', Misc, 'Summing point')
-defcpt('SPpmm', Misc, 'Summing point')
 defcpt('SW', TimeVarying, 'Switch')
 defcpt('SWno', 'SW', 'Normally open switch')
 defcpt('SWnc', 'SW', 'Normally closed switch')

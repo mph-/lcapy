@@ -51,6 +51,7 @@ SPpp: SPname pp P P P; Summing point
 SPpm: SPname pm P P P; Summing point
 SPppp: SPname ppp P P P P; Summing point
 SPpmm: SPname pmm P P P P; Summing point
+SPppm: SPname ppm P P P P; Summing point
 SWnc: SWname Np Nm nc; Switch normally closed
 SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch
@@ -126,6 +127,7 @@ pp: keyword;
 pm: keyword;
 ppp: keyword;
 pmm: keyword;
+ppm: keyword;
 push: keyword;
 P: pin; Pin
 Pi: pin; Input pin
