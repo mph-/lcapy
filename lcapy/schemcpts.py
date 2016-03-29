@@ -589,6 +589,12 @@ class SPpmm(SP):
     labels = '+--'
 
 
+class SPppm(SP):
+    """Summing point"""
+
+    labels = '++-'
+
+
 class TL(Cpt):
     """Transmission line"""
 
@@ -1088,7 +1094,7 @@ class Chip(Cpt):
             return ''
 
         pins = self.opts.get('pins', '')
-        if pins != '':
+        if pins != '' and pins != 'auto':
             if pins[0] != '{':
                 raise ValueError('Expecting { for pins in %s' % self)
             if pins[-1] != '}':
@@ -1102,14 +1108,14 @@ class Chip(Cpt):
 
         for m, n in enumerate(self.dvnodes):
             n.pinpos = self.pinpos[m]
-            if pins != '':
-                n.label = pins[m].strip()
-            else:
-                # TODO, probably should set label to '' and rely on pins attr.
+            label = ''
+            if pins == 'auto':
                 label = n.label.split('.')[-1]
                 if label[0] == '_':
                     label = ''
-                n.label = label
+            elif pins != '':
+                label = pins[m].strip()
+            n.label = label
 
         centre = self.centre
         w, h = self.width, self.height
