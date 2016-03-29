@@ -1004,7 +1004,8 @@ class Shape(Cpt):
         if not self.check():
             return ''
 
-        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%scm, minimum height=%scm, text width=%scm, align=center, rotate=%s, draw, %s] {%s};''\n'% (
+        # shape border rotate rotates the box but not the text
+        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%scm, minimum height=%scm, text width=%scm, align=center, shape border rotate=%s, draw, %s] {%s};''\n'% (
             self.centre, self.shape, self.width, self.height, 
             self.width - 0.5, self.angle, self.args_str, self.label(**kwargs))
 

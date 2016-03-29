@@ -465,8 +465,9 @@ Here's an example:
 In this example, the `chip2121` keyword specifies a block with two
 pins on the left, one on the bottom, two on the right, and one at the
 top.  The pins are enumerated anti-clockwise from top-left.  If a pin
-name has an underscore, it is not labelled.  A connection to a pin is
-prefixed by the name of the chip, for example, `U1.PIO1`.
+name starts with an underscore, it is not labelled (this may change).
+If the pin name starts with dot, the connection to the pin is prefixed
+by the name of the chip, for example, `U1.PIO1`.
 
 The supported chips are:
  - `chip1310`
@@ -613,6 +614,13 @@ Hierarchical namespaces are supported, for example,::
 This creates two resistors: `a.R1` with nodes `a.1` and `a.2` and `b.R1` with nodes `b.1` and `a.2`.   They can be joined using,::
 
    W a.2 b.1; right
+
+When node names start with a dot, they are defined relative to the
+name of the component, for example,::
+
+   R1 .p .m; right
+   W 1 R1.p; right
+   W R1.m 2; right
 
 
 
