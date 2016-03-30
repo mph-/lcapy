@@ -59,7 +59,7 @@ wires do not need unique names.
 
 
 Component orientation
-=====================
+---------------------
 
 Lcapy uses a semi-automated component layout.  Each component requires
 a specified orientation: up, down, left, or right.  In addition,
@@ -116,7 +116,7 @@ non-inverting inputs of an opamp use:
 
 
 Component size
-==============
+--------------
 
 By default each component has a minimum size of 1. This can be
 stretched to satisfy a node constraint.  The minimum size is specified
@@ -175,7 +175,7 @@ The overall schematic can be scaled with the `scale` option of the schematic:
 
 
 Nodes
-=====
+-----
 
 Nodes are shown by a blob.  By default, only the primary nodes (those
 without an underscore in them) are shown by default.  This is
@@ -224,49 +224,16 @@ These options can be stored with the schematic netlist, for example::
   ; draw_nodes=connections, label_nodes=False, label_ids=False
 
 
-Wires
-=====
+Components
+==========
 
-Wires need to be explicitly added to the netlist, for example,
-
-   W 1 2; right
-
-Here an anonymous wire is created since it has no id.
-
-The line style of wires can be changed, such as dashed or dotted (see
-:ref:`linestyles`).
-
-
-Arrows
-------
-
-Arrows can be drawn on wires using the `startarrow` and `endarrow` attributes.
-There are many arrow styles, see the tikz manual.  For example,
-
-.. literalinclude:: examples/schematics/arrows.sch
-
-.. image:: examples/schematics/arrows.png
-   :width: 5cm
-
-
-Implicit wires
---------------
-
-Implicit wires are commonly employed for power supply and ground
-connections.  They have the `implicit` attribute.
-
-
-Diodes and transistors
-======================
-
-Non-linear components such as diodes and transistors can be drawn (but
-not analyzed). 
+Only linear, time-invariant, components can be analyzed.
 
 
 Diodes
 ------
 
-A standard diode is described using:
+Diodes can be drawn but not simulated.   A standard diode is described using:
 
      Dname Np Nm
 
@@ -283,57 +250,44 @@ Here's an example:
    :width: 10cm
 
 
-Transistors
------------
+Integrated circuits
+-------------------
 
-Transistors (BJT, JFET, and MOSFET) can also be drawn but not analyzed.  Both
-are added to the netlist using a syntax similar to that of SPICE.  A BJT
-is described using:
-    
-     Qname NC NB NE npn|pnp
+ICs can be drawn but not simulated.  Here's an example:
 
-where NC, NB, and NE denote the collector, base, and emitter nodes.
-A MOSFET is described using:
+.. literalinclude:: examples/schematics/ic1.sch
 
-     Mname ND NG NS nmos|pmos
+.. image:: examples/schematics/ic1.png
+   :width: 8cm
 
-where ND, NG, and NS denote the drain, gate, and source nodes.
+In this example, the `chip2121` keyword specifies a block with two
+pins on the left, one on the bottom, two on the right, and one at the
+top.  The pins are enumerated anti-clockwise from top-left.  Since the
+pin names start with a dot the associated node names are prefixed by
+the name of the chip, for example, `U1.PIO1`.
 
-A JFET is described using:
+With the `pins` attribute set to `auto` the pins are labelled with
+their names unless the pin name starts with an underscore.
 
-     Jname ND NG NS njf|pjf
+The supported chips are:
+ - `chip1310`
+ - `chip2121`
+ - `chip3131`
+ - `chip4141`
+ - `buffer`
+ - `inverter`
 
-where ND, NG, and NS denote the drain, gate, and source nodes.
+Here's another example where the pin labels are explicitly defined
+with the `pins` attribute:
 
-Here's an example:
+.. literalinclude:: examples/schematics/stepup.sch
 
-.. literalinclude:: examples/schematics/transistors.sch
-
-
-.. image:: examples/schematics/transistors.png
-   :width: 16cm
-
-
-Switches
-========
-
-Switches can be drawn but they are ignored for analysis since they
-make the circuit time-varying.
-
-The general format is:
-
-     SWname Np Nm nc|no|push
-
-Here's an example:
-
-.. literalinclude:: examples/schematics/switches.sch
-
-.. image:: examples/schematics/switches.png
+.. image:: examples/schematics/stepup.png
    :width: 8cm
 
 
 Opamps
-======
+------
 
 Opamps can be drawn using the `opamp` argument to a VCCS.   For example:
 
@@ -372,19 +326,26 @@ fdopamp argument to a VCCS.  For example:
    :width: 5cm
 
 
-Transmission lines
-==================
+Switches
+--------
 
-A transmission line is a two-port device.  Here's an example:
+Switches can be drawn but they are ignored for analysis since they
+make the circuit time-varying.
 
-.. literalinclude:: examples/schematics/tline3.sch
+The general format is:
 
-.. image:: examples/schematics/tline3.png
+     SWname Np Nm nc|no|push
+
+Here's an example:
+
+.. literalinclude:: examples/schematics/switches.sch
+
+.. image:: examples/schematics/switches.png
    :width: 8cm
 
 
 Transformers
-============
+------------
 
 .. literalinclude:: examples/schematics/TF1.sch
 
@@ -406,41 +367,79 @@ Transformers
 .. image:: examples/schematics/TFtapcore1.png
    :width: 3cm
 
+Transistors
+-----------
 
-Integrated circuits
-===================
+Transistors (BJT, JFET, and MOSFET) can be drawn but not analyzed.  Both
+are added to the netlist using a syntax similar to that of SPICE.  A BJT
+is described using:
+    
+     Qname NC NB NE npn|pnp
 
-ICs can be drawn but not simulated.  Here's an example:
+where NC, NB, and NE denote the collector, base, and emitter nodes.
+A MOSFET is described using:
 
-.. literalinclude:: examples/schematics/ic1.sch
+     Mname ND NG NS nmos|pmos
 
-.. image:: examples/schematics/ic1.png
+where ND, NG, and NS denote the drain, gate, and source nodes.
+
+A JFET is described using:
+
+     Jname ND NG NS njf|pjf
+
+where ND, NG, and NS denote the drain, gate, and source nodes.
+
+Here's an example:
+
+.. literalinclude:: examples/schematics/transistors.sch
+
+
+.. image:: examples/schematics/transistors.png
+   :width: 16cm
+
+
+Transmission lines
+------------------
+
+A transmission line is a two-port device.  Here's an example:
+
+.. literalinclude:: examples/schematics/tline3.sch
+
+.. image:: examples/schematics/tline3.png
    :width: 8cm
 
-In this example, the `chip2121` keyword specifies a block with two
-pins on the left, one on the bottom, two on the right, and one at the
-top.  The pins are enumerated anti-clockwise from top-left.  Since the
-pin names start with a dot the associated node names are prefixed by
-the name of the chip, for example, `U1.PIO1`.
 
-With the `pins` attribute set to `auto` the pins are labelled with
-their names unless the pin name starts with an underscore.
+Wires
+=====
 
-The supported chips are:
- - `chip1310`
- - `chip2121`
- - `chip3131`
- - `chip4141`
- - `buffer`
- - `inverter`
+Components can be directly connected or by using wires.   Wires need to
+be explicitly added to the netlist, for example,
 
-Here's another example where the pin labels are explicitly defined
-with the `pins` attribute:
+   W 1 2; right
 
-.. literalinclude:: examples/schematics/stepup.sch
+Here an anonymous wire is created since it has no identifier.
 
-.. image:: examples/schematics/stepup.png
-   :width: 8cm
+The line style of wires can be changed, such as dashed or dotted (see
+:ref:`linestyles`).
+
+
+Arrows
+------
+
+Arrows can be drawn on wires using the `startarrow` and `endarrow` attributes.
+There are many arrow styles, see the tikz manual.  For example,
+
+.. literalinclude:: examples/schematics/arrows.sch
+
+.. image:: examples/schematics/arrows.png
+   :width: 5cm
+
+
+Implicit wires
+--------------
+
+Implicit wires are commonly employed for power supply and ground
+connections.  They have the `implicit` attribute.
 
 
 Block diagrams
