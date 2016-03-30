@@ -286,6 +286,17 @@ with the `pins` attribute:
    :width: 8cm
 
 
+Meters
+------
+
+Here's an example using a voltmeter and an ammeter:
+
+.. literalinclude:: examples/schematics/meters2.sch
+
+.. image:: examples/schematics/meters2.png
+   :width: 5cm
+
+
 Opamps
 ------
 
@@ -366,6 +377,7 @@ Transformers
 
 .. image:: examples/schematics/TFtapcore1.png
    :width: 3cm
+
 
 Transistors
 -----------
@@ -628,6 +640,14 @@ Component attributes
 - `pins`: define pin labels for ICs
 
 
+Here's an example using the variable attribute:
+
+.. literalinclude:: examples/schematics/variable1.sch
+
+.. image:: examples/schematics/variable1.png
+   :width: 5cm
+
+
 Schematic attributes
 --------------------
 
@@ -653,7 +673,9 @@ Schematic attributes apply to the whole schematic.  They can be specified by sta
 
     ;help_lines=1, draw_nodes=connections
 
-The schematic attributes can be overridden using arguments to the `draw` method.
+The schematic attributes can be overridden using arguments to the `draw` method.  For example,
+ 
+    >>> sch.draw(draw_nodes='alpha')
 
 
 Includes
@@ -742,7 +764,7 @@ Examples
 .. literalinclude:: examples/schematics/VRL2.sch
 
 .. image:: examples/schematics/VRL2.png
-   :width: 6.5cm
+   :width: 8cm
 
 
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded2.sch
@@ -761,6 +783,12 @@ Examples
 
 .. image:: examples/schematics/cmos-backdrive2.png
    :width: 9cm
+
+
+.. literalinclude:: examples/schematics/pierce-oscillator.sch
+
+.. image:: examples/schematics/pierce-oscillator.png
+   :width: 4cm
 
 
 
