@@ -58,17 +58,6 @@ wires do not need unique names.
    :width: 5cm
 
 
-
-File formats
-============
-
-Lcapy uses the filename extension to determine the file format to
-produce.  This must be one of tex, pytes, png, svg, or pdf.  The pytex
-format is useful for including schematics into LaTeX documents.  The
-tex format generates a standalone LaTeX file.  If no filename is
-specified, the schematic is displayed on the screen.
-
-
 Component orientation
 =====================
 
@@ -185,80 +174,6 @@ The overall schematic can be scaled with the `scale` option of the schematic:
    :width: 7cm
 
 
-Colors
-======
-
-By default the components are drawn in black.  This can be overridden
-with the color attribute, for example:
-
-   >>> cct.add('R1 1 2; right, color=blue')
-
-
-Line styles
-===========
-
-The line style of wires can be changed using the tikz attributes, `dashed`, `dotted`, `thick`, `ultra thick`, `line width`, and many others.  For example,
-
-.. literalinclude:: examples/schematics/wirestyles.sch
-
-.. image:: examples/schematics/wirestyles.png
-   :width: 8cm
-
-Arrows can be drawn using the `startarrow` and `endarrow` attributes.
-There are many arrow styles, see the tikz manual.  For example,
-
-.. literalinclude:: examples/schematics/arrows.sch
-
-.. image:: examples/schematics/arrows.png
-   :width: 5cm
-
-
-Labels
-======
-
-Each component has a component identifier label and a value label.
-These can be augmented by explicit voltage and current labels.
-
-- i=label -- annotate current through component with label
- 
-- v=label -- annotate voltage across component with label
-
-- l=label -- component label
-
-The label name can be displayed using LaTeX math mode by enclosing the
-name between dollar signs.  Thus superscripts and subscripts can be
-employed.  For example,
-
->>> cct.add('R1 1 2; right, i=$I_1$, v=$V_{R_1}$')
-
-The label position, current and voltage direction can be controlled
-with attributes _ ^ < and >, for example i^<=I_1.  See the Circuitikz
-manual for details.
-
-By default, if a component has a value label it is displayed,
-otherwise the component identifier is displayed.  Both can be
-displayed using:
-
-    >>> cct.draw(label_ids=True, label_values=True)
-
-Schematic options are separated using a comma.  If you need a comma,
-say in a label, enclose the field in braces.  For example:
-
-    >>> C1 1 0 100e-12; down, size=1.5, v={5\,kV}
-
-Math-mode labels need to be enclosed in `$...$`.  There is an
-experimental feature that is activated when the label starts with a
-single `$`.  In this case, Lcapy tries to generate a nice LaTeX label.
-For example, words in sub- and superscripts are converted into a roman
-font using `mathrm`.  This feature is also activated if the label is
-not enclosed in `$...$` but includes an `^` or `_`.
-
-Voltage labels can be annotated between pairs of nodes using an
-open-circuit component.   For example,
-
-    >>> O1 1 0; down, v=V_1
-
-
 Nodes
 =====
 
@@ -309,11 +224,49 @@ These options can be stored with the schematic netlist, for example::
   ; draw_nodes=connections, label_nodes=False, label_ids=False
 
 
+Wires
+=====
+
+Wires need to be explicitly added to the netlist, for example,
+
+   W 1 2; right
+
+Here an anonymous wire is created since it has no id.
+
+The line style of wires can be changed, such as dashed or dotted (see
+:ref:`linestyles`).
+
+
+Arrows
+------
+
+Arrows can be drawn on wires using the `startarrow` and `endarrow` attributes.
+There are many arrow styles, see the tikz manual.  For example,
+
+.. literalinclude:: examples/schematics/arrows.sch
+
+.. image:: examples/schematics/arrows.png
+   :width: 5cm
+
+
+Implicit wires
+--------------
+
+Implicit wires are commonly employed for power supply and ground
+connections.  They have the `implicit` attribute.
+
+
 Diodes and transistors
 ======================
 
 Non-linear components such as diodes and transistors can be drawn (but
-not analyzed).  A standard diode is described using:
+not analyzed). 
+
+
+Diodes
+------
+
+A standard diode is described using:
 
      Dname Np Nm
 
@@ -329,6 +282,9 @@ Here's an example:
 .. image:: examples/schematics/diodes.png
    :width: 10cm
 
+
+Transistors
+-----------
 
 Transistors (BJT, JFET, and MOSFET) can also be drawn but not analyzed.  Both
 are added to the netlist using a syntax similar to that of SPICE.  A BJT
@@ -454,8 +410,7 @@ Transformers
 Integrated circuits
 ===================
 
-Drawing of ICs is experimental at present and the syntax may change.
-Here's an example:
+ICs can be drawn but not simulated.  Here's an example:
 
 .. literalinclude:: examples/schematics/ic1.sch
 
@@ -479,15 +434,13 @@ The supported chips are:
  - `buffer`
  - `inverter`
 
-Here's another example:
+Here's another example where the pin labels are explicitly defined
+with the `pins` attribute:
 
 .. literalinclude:: examples/schematics/stepup.sch
 
 .. image:: examples/schematics/stepup.png
    :width: 8cm
-
-In this example, the pin labels are explicitly defined with the `pins`
-attribute.
 
 
 Block diagrams
@@ -550,13 +503,6 @@ Here's an example of their use:
    :width: 5cm
 
 
-Implicit wires
-==============
-
-Implicit wires are commonly employed for power supply and ground
-connections.  They have the `implicit` attribute.
-
-
 Annotation
 ==========
 
@@ -578,8 +524,89 @@ example::
     ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
 
 
+Styles
+======
+
+Three component styles are supported: `american` (default), `british`, and
+`european`.  The style is set by a style argument to the `draw` method
+or by a schematic option.  For example,
+
+.. literalinclude:: examples/schematics/lpf1-buffer-loaded3.sch
+
+.. image:: examples/schematics/lpf1-buffer-loaded3.png
+   :width: 10.5cm
+ 
+
+Colors
+------
+
+By default the components are drawn in black.  This can be overridden
+with the color attribute, for example:
+
+   >>> cct.add('R1 1 2; right, color=blue')
+
+
+.. _linestyles:
+
+Line styles
+-----------
+
+The line style of wires can be changed using the tikz attributes, `dashed`, `dotted`, `thick`, `ultra thick`, `line width`, and many others.  For example,
+
+.. literalinclude:: examples/schematics/wirestyles.sch
+
+.. image:: examples/schematics/wirestyles.png
+   :width: 8cm
+
+
+Labels
+------
+
+Each component has a component identifier label and a value label.
+These can be augmented by explicit voltage and current labels.
+
+- i=label -- annotate current through component with label
+ 
+- v=label -- annotate voltage across component with label
+
+- l=label -- component label
+
+The label name can be displayed using LaTeX math mode by enclosing the
+name between dollar signs.  Thus superscripts and subscripts can be
+employed.  For example,
+
+>>> cct.add('R1 1 2; right, i=$I_1$, v=$V_{R_1}$')
+
+The label position, current and voltage direction can be controlled
+with attributes _ ^ < and >, for example i^<=I_1.  See the Circuitikz
+manual for details.
+
+By default, if a component has a value label it is displayed,
+otherwise the component identifier is displayed.  Both can be
+displayed using:
+
+    >>> cct.draw(label_ids=True, label_values=True)
+
+Schematic options are separated using a comma.  If you need a comma,
+say in a label, enclose the field in braces.  For example:
+
+    >>> C1 1 0 100e-12; down, size=1.5, v={5\,kV}
+
+Math-mode labels need to be enclosed in `$...$`.  There is an
+experimental feature that is activated when the label starts with a
+single `$`.  In this case, Lcapy tries to generate a nice LaTeX label.
+For example, words in sub- and superscripts are converted into a roman
+font using `mathrm`.  This feature is also activated if the label is
+not enclosed in `$...$` but includes an `^` or `_`.
+
+Voltage labels can be annotated between pairs of nodes using an
+open-circuit component.   For example,
+
+    >>> O1 1 0; down, v=V_1
+
+
 Component attributes
-====================
+--------------------
 
 - `size`: scale factor for distance between component's nodes
 
@@ -603,7 +630,7 @@ Component attributes
 
 
 Schematic attributes
-====================
+--------------------
 
 - `node_spacing`: scale factor for distance between component nodes (default 2)
 
@@ -629,19 +656,6 @@ Schematic attributes apply to the whole schematic.  They can be specified by sta
 
 The schematic attributes can be overridden using arguments to the `draw` method.
 
-
-Styles
-======
-
-Three component styles are supported: `american` (default), `british`, and
-`european`.  The style is set by a style argument to the `draw` method
-or by a schematic option.  For example,
-
-.. literalinclude:: examples/schematics/lpf1-buffer-loaded3.sch
-
-.. image:: examples/schematics/lpf1-buffer-loaded3.png
-   :width: 10.5cm
- 
 
 Includes
 ========
@@ -749,6 +763,16 @@ Examples
 .. image:: examples/schematics/cmos-backdrive2.png
    :width: 9cm
 
+
+
+File formats
+============
+
+Lcapy uses the filename extension to determine the file format to
+produce.  This must be one of tex, pytes, png, svg, or pdf.  The pytex
+format is useful for including schematics into LaTeX documents.  The
+tex format generates a standalone LaTeX file.  If no filename is
+specified, the schematic is displayed on the screen.
 
 
 
