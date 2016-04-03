@@ -386,13 +386,12 @@ class Cpt(object):
         offset = (offset[0] * self.scale, offset[1])
         return centre + np.dot(offset, self.R())
 
-    def draw_path(self, points, style='', join='--'):
+    def draw_path(self, points, style='', join='--', closed=False):
 
-        if len(points) > 1 and points[0] == points[-1]:
-            path = (' %s ' % join).join(['(%s)' % point for point in points[0:-1]])
+        path = (' %s ' % join).join(['(%s)' % point for point in points])
+        if closed:
             path += ' %s cycle' % join
-        else:
-            path = (' %s ' % join).join(['(%s)' % point for point in points])
+
         args_str = self.args_str
         if style == '':
             s = args_str
@@ -495,7 +494,7 @@ class TwoPort(Cpt):
         if len(self.args) > 0:
             titlestr = "%s-parameter two-port" % self.args[0]
 
-        s = self.draw_path((q[0], q[1], q[2], q[3], q[0]))
+        s = self.draw_path(q[0:4], closed=True)
         s += r'  \draw (%s) node[text width=%.1fcm, align=center] (%s) {%s};''\n' % (
             centre, width, titlestr, self.s)
         s += r'  \draw (%s) node[text width=%.1fcm, align=center, %s] {%s};''\n' % (
@@ -1104,10 +1103,7 @@ class Chip(Cpt):
     def height(self):
         return self.h * self.size * self.sch.node_spacing
 
-    def draw(self, **kwargs):
-
-        if not self.check():
-            return ''
+    def name_pins(self):
 
         pins = self.opts.get('pins', '')
         if pins != '' and pins != 'auto':
@@ -1133,12 +1129,20 @@ class Chip(Cpt):
                 label = pins[m].strip()
             n.label = label
 
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        self.name_pins()
+            
         centre = self.centre
         w, h = self.width, self.height
         q = self.tf(centre, ((-0.5 * w, 0.5 * h), (0.5 * w, 0.5 * h),
                              (0.5 * w, -0.5 * h), (-0.5 * w, -0.5 * h)))
 
-        s = self.draw_path((q[0], q[1], q[2], q[3], q[0]), style='thick')
+        s = self.draw_path(q[0:4], closed=True, style='thick')
         s += r'  \draw (%s) node[text width=%scm, align=center, %s] {%s};''\n'% (
             centre, w - 0.5, self.args_str, self.label(**kwargs))
         return s
@@ -1225,20 +1229,19 @@ class Ubuffer(Chip):
         if not self.check():
             return ''
 
-        for m, n in enumerate(self.dvnodes):
-            n.pinpos = self.pinpos[m]
+        self.name_pins()
 
         n1, n2, n3, n4 = self.dvnodes
         centre = (n1.pos + n3.pos) * 0.5
 
         # TODO, create pgf shape
-        q = self.tf(centre, ((-1, 0), (1, 0), (0, 0.5), (0, -0.5),
-                             (-1, 1), (-1, -1)))
+        q = self.tf(centre, ((-1, 1), (1, 0), (-1, -1)))
 
-        s = self.draw_path((q[4], q[1], q[5], q[4]), style='thick')
+        s = self.draw_path(q[0:3], closed=True, style='thick')
         s += self.draw_label(centre, **kwargs)
         s += self.draw_nodes(**kwargs)
         return s
+
 
 class Uinverter(Chip):
     """Inverter with power supplies"""
@@ -1256,8 +1259,7 @@ class Uinverter(Chip):
         if not self.check():
             return ''
 
-        for m, n in enumerate(self.dvnodes):
-            n.pinpos = self.pinpos[m]
+        self.name_pins()
 
         n1, n2, n3, n4 = self.dvnodes
         centre = (n1.pos + n3.pos) * 0.5
@@ -1265,13 +1267,14 @@ class Uinverter(Chip):
         # TODO, create pgf shape
         w = 0.1
 
-        q = self.tf(centre, ((-1, 1), (-1, -1), (1 - 2 * w, 0), (1 - w, 0)))
+        q = self.tf(centre, ((-1, 1), (1 - 2 * w, 0), (-1, -1), (1 - w, 0)))
 
-        s = self.draw_path((q[0], q[2], q[1], q[0]), style='thick')
+        s = self.draw_path(q[0:3], closed=True, style='thick')
         s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (q[3], 1.8 * self.scale)
         s += self.draw_label(centre, **kwargs)
         s += self.draw_nodes(**kwargs)
         return s
+
 
 class Wire(OnePort):
 
@@ -1411,7 +1414,7 @@ class FB(Cpt):
                              (0, h)), -30)
         q2 = self.tf(centre, ((-0.53 * w, 0), (0.53 * w, 0), (0, h)))
 
-        s = self.draw_path((q[0], q[1], q[2], q[3], q[0]), style='thick')
+        s = self.draw_path(q[0:4], closed=True, style='thick')
         s += self.draw_path((n1.s, q2[0]))
         s += self.draw_path((q2[1], n2.s))
         s += self.draw_label(q[4], **kwargs)
@@ -1444,7 +1447,7 @@ class XT(Cpt):
 
         s = self.draw_path((q[1], q[2]), style='thick')
         s += self.draw_path((q[4], q[5]), style='thick')
-        s += self.draw_path((q[6], q[7], q[8], q[9], q[6]), style='thick')
+        s += self.draw_path(q[6:10], closed=True, style='thick')
         s += self.draw_path((q[0], n1.s), style='thick')
         s += self.draw_path((q[3], n2.s), style='thick')
         s += self.draw_label(q[10], **kwargs)
