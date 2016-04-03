@@ -210,55 +210,45 @@ class Cpt(object):
 
         return '_' + self.anon('node')
 
-class InvalidCpt(Cpt):
+
+class Invalid(Cpt):
     
     @property
     def cpt(self):
          raise NotImplementedError('Invalid component for circuit analysis: %s' % self)       
 
 
-class NonLinear(InvalidCpt):
+class NonLinear(Invalid):
 
     def stamp(self, cct):
         raise NotImplementedError('Cannot analyse non-linear component: %s' % self)
 
 
-class TimeVarying(InvalidCpt):
+class TimeVarying(Invalid):
 
     def stamp(self, cct):
         raise NotImplementedError('Cannot analyse time-varying component: %s' % self)
 
 
-class Logic(InvalidCpt):
+class Logic(Invalid):
 
     def stamp(self, cct):
         raise NotImplementedError('Cannot analyse logic component: %s' % self)
 
-class Misc(InvalidCpt):
+
+class Misc(Invalid):
 
     def stamp(self, cct):
         raise NotImplementedError('Cannot analyse misc component: %s' % self)
 
 
-class DummyCpt(Cpt):
+class Dummy(Cpt):
 
     causal = True
     dc = False
     ac = False
     zeroic = True
     hasic = None
-
-
-class O(DummyCpt):
-    """Open circuit"""
-
-    def stamp(self, cct):
-        pass
-
-
-class P(O):
-    """Port"""
-    pass
 
 
 class RLC(Cpt):
@@ -341,10 +331,6 @@ class RC(RLC):
             cct._Is[n1] += I
 
 
-class R(RC):
-    pass
-
-
 class C(RC):
     
     def kill_initial(self):
@@ -361,52 +347,7 @@ class C(RC):
                                      self.cpt.v0, self.opts)       
 
 
-class L(RLC):
-    
-    need_branch_current = True
-
-    def kill_initial(self):
-        """Kill implicit voltage sources due to initial conditions"""
-        return '%s %s %s {%s}; %s' % (
-            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
-
-    def stamp(self, cct):
-
-        # This formulation adds the inductor current to the unknowns
-
-        n1, n2 = self.node_indexes
-        m = self.branch_index
-
-        if n1 >= 0:
-            cct._B[n1, m] = 1
-            cct._C[m, n1] = 1
-        if n2 >= 0:
-            cct._B[n2, m] = -1
-            cct._C[m, n2] = -1
-
-        if cct.is_ac:
-            Z = self.cpt.Zac.expr
-            V = 0
-        elif cct.is_dc:
-            Z = 0
-            V = 0
-        else:
-            Z = self.cpt.Z.expr
-            V = self.cpt.Voc.expr
-
-        cct._D[m, m] += -Z
-        cct._Es[m] += V
-
-    def pre_initial_model(self):
-
-        if self.cpt.i0 == 0.0:
-            return 'W %s %s; %s' % (self.nodes[0], self.nodes[1],
-                                    self.opts)
-        return 'I%s %s %s {%s}; %s' % (self.name,
-                                     self.nodes[0], self.nodes[1], 
-                                     self.cpt.i0, self.opts)       
-
-class E(DummyCpt):
+class E(Dummy):
     """VCVS"""
 
     need_branch_current = True
@@ -430,7 +371,7 @@ class E(DummyCpt):
             cct._C[m, n4] += A
 
 
-class F(DummyCpt):
+class F(Dummy):
     """CCCS"""
 
     def stamp(self, cct):
@@ -444,7 +385,12 @@ class F(DummyCpt):
             cct._B[n2, m] += F
 
 
-class G(DummyCpt):
+class FB(Misc):
+    """Ferrite bead"""
+    pass
+
+
+class G(Dummy):
     """VCCS"""
 
     def stamp(self, cct):
@@ -461,7 +407,7 @@ class G(DummyCpt):
             cct._G[n2, n4] -= G
 
 
-class H(DummyCpt):
+class H(Dummy):
     """CCVS"""
 
     need_branch_current = True
@@ -517,34 +463,99 @@ class I(Cpt):
         return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
 
 
-class TL(Cpt):
-    """Transmission line"""
+class K(Cpt):
+    
+    def __init__(self, cct, name, cpt_type, cpt_id, string,
+                 opts_string, nodes, *args):
 
-    # TODO
-    pass
+        self.Lname1 = args[0]
+        self.Lname2 = args[1]
+        super (K, self).__init__(cct, name, cpt_type, cpt_id, string,
+                                 opts_string, nodes, *args)
 
-
-class TR(DummyCpt):
-    """Transfer function.  This is equivalent to a VCVS with the input and
-    output referenced to node 0."""
-
-    need_branch_current = True
 
     def stamp(self, cct):
+
+        if cct.is_ac:
+            raise ValueError('TODO')
+
+        L1 = self.nodes[0]
+        L2 = self.nodes[1]
+
+        ZL1 = cct.elements[L1].cpt.Z
+        ZL2 = cct.elements[L2].cpt.Z
+
+        ZM = self.cpt.k * s * sqrt(ZL1 * ZL2 / s**2).simplify()
+
+        m1 = cct._branch_index(L1)
+        m2 = cct._branch_index(L2)
+
+        cct._D[m1, m2] += -ZM.expr
+        cct._D[m2, m1] += -ZM.expr
+
+
+class L(RLC):
+    
+    need_branch_current = True
+
+    def kill_initial(self):
+        """Kill implicit voltage sources due to initial conditions"""
+        return '%s %s %s {%s}; %s' % (
+            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
+
+    def stamp(self, cct):
+
+        # This formulation adds the inductor current to the unknowns
+
         n1, n2 = self.node_indexes
         m = self.branch_index
 
-        if n2 >= 0:
-            cct._B[n2, m] += 1
-            cct._C[m, n2] += 1
-        
-        A = cExpr(self.args[0]).expr
-        
         if n1 >= 0:
-            cct._C[m, n1] -= A
+            cct._B[n1, m] = 1
+            cct._C[m, n1] = 1
+        if n2 >= 0:
+            cct._B[n2, m] = -1
+            cct._C[m, n2] = -1
+
+        if cct.is_ac:
+            Z = self.cpt.Zac.expr
+            V = 0
+        elif cct.is_dc:
+            Z = 0
+            V = 0
+        else:
+            Z = self.cpt.Z.expr
+            V = self.cpt.Voc.expr
+
+        cct._D[m, m] += -Z
+        cct._Es[m] += V
+
+    def pre_initial_model(self):
+
+        if self.cpt.i0 == 0.0:
+            return 'W %s %s; %s' % (self.nodes[0], self.nodes[1],
+                                    self.opts)
+        return 'I%s %s %s {%s}; %s' % (self.name,
+                                     self.nodes[0], self.nodes[1], 
+                                     self.cpt.i0, self.opts)       
+
+class O(Dummy):
+    """Open circuit"""
+
+    def stamp(self, cct):
+        pass
 
 
-class SPpp(DummyCpt):
+class P(O):
+    """Port"""
+    pass
+
+
+class R(RC):
+    pass
+
+
+class SPpp(Dummy):
 
     need_branch_current = True
 
@@ -562,7 +573,7 @@ class SPpp(DummyCpt):
             cct._C[m, n2] -= 1
 
 
-class SPpm(DummyCpt):
+class SPpm(Dummy):
 
     need_branch_current = True
 
@@ -579,7 +590,7 @@ class SPpm(DummyCpt):
         if n2 >= 0:
             cct._C[m, n2] += 1
 
-class SPppp(DummyCpt):
+class SPppp(Dummy):
 
     need_branch_current = True
 
@@ -598,7 +609,7 @@ class SPppp(DummyCpt):
         if n4 >= 0:
             cct._C[m, n4] -= 1
 
-class SPpmm(DummyCpt):
+class SPpmm(Dummy):
 
     need_branch_current = True
 
@@ -618,7 +629,7 @@ class SPpmm(DummyCpt):
             cct._C[m, n4] += 1
 
 
-class SPppm(DummyCpt):
+class SPppm(Dummy):
 
     need_branch_current = True
 
@@ -636,6 +647,72 @@ class SPppm(DummyCpt):
             cct._C[m, n2] -= 1
         if n4 >= 0:
             cct._C[m, n4] += 1
+
+
+class TF(Cpt):
+    """Transformer"""    
+
+    def stamp(self, cct):
+
+        n1, n2, n3, n4 = self.node_indexes
+        m = self.branch_index
+
+        if n1 >= 0:
+            cct._B[n1, m] += 1
+            cct._C[m, n1] += 1
+        if n2 >= 0:
+            cct._B[n2, m] -= 1
+            cct._C[m, n2] -= 1
+        
+        T = self.cpt.args[0].expr
+
+        if n3 >= 0:
+            cct._B[n3, m] -= T
+            cct._C[m, n3] -= T
+        if n4 >= 0:
+            cct._B[n4, m] += T
+            cct._C[m, n4] += T
+
+
+class TFtap(Cpt):
+    """Tapped transformer"""    
+
+    def stamp(self, cct):
+        raise NotImplementedError('Cannot analyse tapped transformer %s' % self)
+
+
+class TL(Misc):
+    """Transmission line"""
+
+    # TODO
+    pass
+
+
+class TP(Misc):
+    """Two port"""
+
+    # TODO
+    pass
+
+
+class TR(Dummy):
+    """Transfer function.  This is equivalent to a VCVS with the input and
+    output referenced to node 0."""
+
+    need_branch_current = True
+
+    def stamp(self, cct):
+        n1, n2 = self.node_indexes
+        m = self.branch_index
+
+        if n2 >= 0:
+            cct._B[n2, m] += 1
+            cct._C[m, n2] += 1
+        
+        A = cExpr(self.args[0]).expr
+        
+        if n1 >= 0:
+            cct._C[m, n1] -= A
 
 
 class V(Cpt):
@@ -676,84 +753,17 @@ class V(Cpt):
         return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
 
 
-class K(Cpt):
-    
-    def __init__(self, cct, name, cpt_type, cpt_id, string,
-                 opts_string, nodes, *args):
-
-        self.Lname1 = args[0]
-        self.Lname2 = args[1]
-        super (K, self).__init__(cct, name, cpt_type, cpt_id, string,
-                                 opts_string, nodes, *args)
-
-
-    def stamp(self, cct):
-
-        if cct.is_ac:
-            raise ValueError('TODO')
-
-        L1 = self.nodes[0]
-        L2 = self.nodes[1]
-
-        ZL1 = cct.elements[L1].cpt.Z
-        ZL2 = cct.elements[L2].cpt.Z
-
-        ZM = self.cpt.k * s * sqrt(ZL1 * ZL2 / s**2).simplify()
-
-        m1 = cct._branch_index(L1)
-        m2 = cct._branch_index(L2)
-
-        cct._D[m1, m2] += -ZM.expr
-        cct._D[m2, m1] += -ZM.expr
-
-
-class TP(Cpt):
-    """Two port"""
-    pass
-
-
-class TF(Cpt):
-    """Transformer"""    
-
-    def stamp(self, cct):
-
-        n1, n2, n3, n4 = self.node_indexes
-        m = self.branch_index
-
-        if n1 >= 0:
-            cct._B[n1, m] += 1
-            cct._C[m, n1] += 1
-        if n2 >= 0:
-            cct._B[n2, m] -= 1
-            cct._C[m, n2] -= 1
-        
-        T = self.cpt.args[0].expr
-
-        if n3 >= 0:
-            cct._B[n3, m] -= T
-            cct._C[m, n3] -= T
-        if n4 >= 0:
-            cct._B[n4, m] += T
-            cct._C[m, n4] += T
-
-
-class TFtap(Cpt):
-    """Tapped transformer"""    
-
-    def stamp(self, cct):
-        raise NotImplementedError('Cannot analyse tapped transformer %s' % self)
-
-
-class W(DummyCpt):
+class W(Dummy):
     """Wire"""
 
     def stamp(self, cct):
         pass
 
 
-class XT(Cpt):
+class XT(Misc):
     """Crystal"""
     pass
+
 
 class Y(RC):
     """Admittance"""

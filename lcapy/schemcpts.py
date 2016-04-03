@@ -165,10 +165,9 @@ class Cpt(object):
             angle += float(self.opts['rotate'])
         return angle
 
-    @property
-    def R(self):
+    def R(self, angle_offset=0):
         """Return rotation matrix"""
-        angle = self.angle
+        angle = self.angle + angle_offset
         
         Rdict = {0: ((1, 0), (0, 1)),
                  90: ((0, 1), (-1, 0)),
@@ -208,7 +207,7 @@ class Cpt(object):
         if hasattr(self, '_tcoords'):
             return self._tcoords
 
-        self._tcoords = np.dot(np.array(self.coords), self.R)
+        self._tcoords = np.dot(np.array(self.coords), self.R())
         return self._tcoords
 
     @property
@@ -277,7 +276,7 @@ class Cpt(object):
         
         return s
 
-    def _draw_node(self, n, **kwargs):
+    def draw_node(self, n, **kwargs):
 
         draw_nodes = kwargs.get('draw_nodes', True)        
 
@@ -295,11 +294,11 @@ class Cpt(object):
 
         return s
 
-    def _draw_nodes(self, **kwargs):
+    def draw_nodes(self, **kwargs):
 
         s = ''
         for n in self.dnodes:
-            s += self._draw_node(n, **kwargs)
+            s += self.draw_node(n, **kwargs)
         return s
 
     def draw(self, **kwargs):
@@ -370,14 +369,13 @@ class Cpt(object):
         
         return not self.invisible
 
-    def tf(self, centre, offset):
+    def tf(self, centre, offset, angle_offset=0.0):
         """Transform coordinate"""
 
         if isinstance(offset[0], tuple):
-            return [self.tf(centre, offset1) for offset1 in offset]
+            return [self.tf(centre, offset1, angle_offset) for offset1 in offset]
 
-        return centre + np.dot(offset, self.R) * self.scale
-
+        return centre + np.dot(offset, self.R(angle_offset)) * self.scale
 
     def xtf(self, centre, offset):
         """Transform coordinate but with x-scaling only"""
@@ -386,7 +384,27 @@ class Cpt(object):
             return [self.xtf(centre, offset1) for offset1 in offset]
 
         offset = (offset[0] * self.scale, offset[1])
-        return centre + np.dot(offset, self.R)
+        return centre + np.dot(offset, self.R())
+
+    def draw_path(self, points, style='', join='--'):
+
+        path = (' %s ' % join).join(['(%s)' % point for point in points])
+        args_str = self.args_str
+        if style == '':
+            s = args_str
+        elif args_str == '':
+            s = style
+        else:
+            s = style + ', ' + args_str
+        if s != '':
+            s = '[%s]' % s
+
+        return r'  \draw%s %s;''\n' % (s, path)
+
+    def draw_label(self, pos, **kwargs):
+
+        return r'  \draw (%s) node[] {%s};''\n'% (
+            pos, self.label(**kwargs))
 
 
 class Transistor(Cpt):
@@ -417,7 +435,7 @@ class Transistor(Cpt):
         s = r'  \draw (%s) node[%s, %s, scale=%s, rotate=%d] (%s) {};''\n' % (
             centre, self.tikz_cpt, self.args_str, 2 * self.scale,
             self.angle, self.s)
-        s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
+        s += self.draw_label(centre, **kwargs)
 
         # Add additional wires.  These help to compensate for the
         # slight differences in sizes of the different transistors.
@@ -428,7 +446,7 @@ class Transistor(Cpt):
             s += r'  \draw (%s.D) -- (%s) (%s.G) -- (%s) (%s.S) -- (%s);''\n' % (
                 self.s, n1.s, self.s, n2.s, self.s, n3.s)
 
-        s += self._draw_nodes(**kwargs)
+        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -473,14 +491,13 @@ class TwoPort(Cpt):
         if len(self.args) > 0:
             titlestr = "%s-parameter two-port" % self.args[0]
 
-        s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
-            q[0], q[1], q[2], q[3], q[0])
+        s = self.draw_path((q[0], q[1], q[2], q[3], q[0]))
         s += r'  \draw (%s) node[text width=%.1fcm, align=center] (%s) {%s};''\n' % (
             centre, width, titlestr, self.s)
         s += r'  \draw (%s) node[text width=%.1fcm, align=center, %s] {%s};''\n' % (
             top, width, self.args_str, self.label(**kwargs))
 
-        s += self._draw_nodes(**kwargs)
+        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -507,7 +524,7 @@ class MX(Cpt):
 
         s = r'  \draw (%s) node[mixer,xscale=%s] {};''\n' % (
             centre, self.scale)
-        s += r'  \draw (%s) node[] {%s};''\n'% (q, self.label(**kwargs))
+        s += self.draw_label(q, **kwargs)
         return s
 
 
@@ -542,8 +559,7 @@ class SP(Cpt):
 
         s = r'  \draw (%s) node[mixer, xscale=%s, yscale=%s, rotate=%s] {};''\n' % (
             centre, xscale, yscale, self.angle)
-        s += r'  \draw (%s) node[] {%s};''\n'% (q[0], self.label(**kwargs))
-
+        s += self.draw_label(q[0], **kwargs)
         s += r'  \draw (%s) node[] {$%s$};''\n'% (q[1], self.labels[0])
 
         if self.mirror:
@@ -618,14 +634,14 @@ class TL(Cpt):
 
         xs = self.scale
         # Rotation creates an ellipse!
-        s = r'  \draw (%s) node[tlinestub,xscale=%s] {};''\n' % (
+        s = r'  \draw (%s) node[tlinestub, xscale=%s] {};''\n' % (
             centre + Pos(-1.3 * xs, 0), self.scale)
-        s += r'  \draw (%s) node[] {%s};''\n'% (centre, self.label(**kwargs))
-        s += r'  \draw (%s) -- (%s);''\n' % (q[0], n3.s)
-        s += r'  \draw (%s) -- (%s);''\n' % (q[1], n1.s)
-        s += r'  \draw (%s) |- (%s);''\n' % (q[2], n2.s)
-        s += r'  \draw (%s) |- (%s);''\n' % (q[3], n4.s)
-        s += self._draw_nodes(**kwargs)
+        s += self.draw_label(centre, **kwargs)
+        s += self.draw_path((q[0], n3.s))
+        s += self.draw_path((q[1], n1.s))
+        s += self.draw_path((q[2], n2.s), join='|-')
+        s += self.draw_path((q[3], n4.s), join='|-')
+        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -670,8 +686,8 @@ class TF1(TwoPort):
             # Draw core
             q = self.tf(centre, ((-0.1, -0.4), (-0.1, 0.4),
                                  (0.1, -0.4), (0.1, 0.4)))
-            s += r'  \draw[thick] (%s) -- (%s);''\n' % (q[0], q[1])
-            s += r'  \draw[thick] (%s) -- (%s);''\n' % (q[2], q[3])
+            s += self.draw_path(q[0:2], style='thick')
+            s += self.draw_path(q[2:4], style='thick')
 
         return s
 
@@ -690,7 +706,7 @@ class Transformer(TF1):
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2.s, n1.s)
 
         s += super(Transformer, self).draw(link=False, **kwargs)
-        s += self._draw_nodes(**kwargs)
+        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -719,7 +735,7 @@ class TFtap(TF1):
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2.s, n1.s)
 
         s += super(TFtap, self).draw(link=False, **kwargs)
-        s += self._draw_nodes(**kwargs)
+        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -815,7 +831,7 @@ class OnePort(Cpt):
 
         node_pair_str = self._node_pair_str(n1, n2, **kwargs)
 
-        args_str1 = ','.join([self.args_str])
+        args_str = self.args_str
         args_str2 = ','.join([self.voltage_str, self.current_str])
 
         if self.mirror:
@@ -841,7 +857,7 @@ class OnePort(Cpt):
             label_str = self.label_str
             
         s = r'  \draw[%s] (%s) to [%s,%s,%s,%s,n=%s] (%s);''\n' % (
-            args_str1, n1.s, tikz_cpt, label_str, args_str2,
+            args_str, n1.s, tikz_cpt, label_str, args_str2,
             node_pair_str, self.s, n2.s)
         return s
 
@@ -900,10 +916,8 @@ class Opamp(Cpt):
         s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, n1.s)
         s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, n3.s)
         s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, n4.s)
-        # Draw label separately to avoid being scaled by 2.
-        s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
-        
-        s += self._draw_nodes(**kwargs)
+        s += self.draw_label(centre, **kwargs)
+        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -939,10 +953,8 @@ class FDOpamp(Cpt):
         s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, n2.s)
         s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, n3.s)
         s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, n4.s)
-        # Draw label separately to avoid being scaled by 2.
-        s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
-        
-        s += self._draw_nodes(**kwargs)
+        s += self.draw_label(centre, **kwargs)
+        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -968,8 +980,8 @@ class SPDT(Cpt):
         
         # TODO, fix label position.
         centre = (n1.pos + n3.pos) * 0.5 + Pos(0, -0.5)
-        s += r'  \draw (%s) node[] {%s};''\n' % (centre, self.label(**kwargs))
-        s += self._draw_nodes(**kwargs)
+        s += self.draw_label(centre, **kwargs)
+        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -1122,8 +1134,7 @@ class Chip(Cpt):
         q = self.tf(centre, ((-0.5 * w, 0.5 * h), (0.5 * w, 0.5 * h),
                              (0.5 * w, -0.5 * h), (-0.5 * w, -0.5 * h)))
 
-        s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
-            q[0], q[1], q[2], q[3], q[0])
+        s = self.draw_path((q[0], q[1], q[2], q[3], q[0]), style='thick')
         s += r'  \draw (%s) node[text width=%scm, align=center, %s] {%s};''\n'% (
             centre, w - 0.5, self.args_str, self.label(**kwargs))
         return s
@@ -1220,11 +1231,9 @@ class Ubuffer(Chip):
         q = self.tf(centre, ((-1, 0), (1, 0), (0, 0.5), (0, -0.5),
                              (-1, 1), (-1, -1)))
 
-        s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
-            q[4], q[1], q[5], q[4])
-        s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
-            centre, self.s, self.label(**kwargs))
-        s += self._draw_nodes(**kwargs)
+        s = self.draw_path((q[4], q[1], q[5], q[4]), style='thick')
+        s += self.draw_label(centre, **kwargs)
+        s += self.draw_nodes(**kwargs)
         return s
 
 class Uinverter(Chip):
@@ -1254,12 +1263,10 @@ class Uinverter(Chip):
 
         q = self.tf(centre, ((-1, 1), (-1, -1), (1 - 2 * w, 0), (1 - w, 0)))
 
-        s = r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s);''\n' % (
-            q[0], q[2], q[1], q[0])
+        s = self.draw_path((q[0], q[2], q[1], q[0]), style='thick')
         s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (q[3], 1.8 * self.scale)
-        s += r'  \draw (%s) node[] (%s) {%s};''\n' % (
-            centre, self.s, self.label(**kwargs))
-        s += self._draw_nodes(**kwargs)
+        s += self.draw_label(centre, **kwargs)
+        s += self.draw_nodes(**kwargs)
         return s
 
 class Wire(OnePort):
@@ -1312,7 +1319,7 @@ class Wire(OnePort):
             anchor = 'north west'
 
         n1, n2 = self.dvnodes
-        s = r'  \draw (%s) -- (%s);''\n' % (n1.s, n2.s)
+        s = self.draw_path((n1.s, n2.s), style='thick') 
         s += r'  \draw (%s) node[%s,scale=0.5,rotate=%d] {};''\n' % (
             n2.s, kind, self.angle + 90)
 
@@ -1360,7 +1367,7 @@ class Wire(OnePort):
         s = r'  \draw[%s-%s, %s, %s] (%s) to (%s);''\n' % (
             arrow_map(startarrow), arrow_map(endarrow), style,
             self.args_str, n1.s, n2.s)
-        s += self._draw_nodes(**kwargs)
+        s += self.draw_nodes(**kwargs)
 
         if self.voltage_str != '':
             print('There is no voltage drop across an ideal wire!')
@@ -1371,6 +1378,41 @@ class Wire(OnePort):
             # annotation and/or the label.
             s += r'  \draw[%s] (%s) [short, %s, %s] to (%s);''\n' % (
                 self.args_str, n1.s, self.current_str, self.label_str, n2.s)
+        return s
+
+
+class FB(Cpt):
+    """Ferrite bead"""
+
+    can_scale = True
+    can_rotate = True
+
+    @property
+    def coords(self):
+        return ((-0.5, 0), (0.5, 0))
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        n1, n2 = self.dvnodes
+
+        centre = (n1.pos + n2.pos) * 0.5
+        w = 0.25
+        h = 0.8
+        
+        q = self.tf(centre, ((-0.5 * w, -0.5 * h), (-0.5 * w, 0.5 * h),
+                             (0.5 * w, 0.5 * h), (0.5 * w, -0.5 * h),
+                             (0, h)), -30)
+        q2 = self.tf(centre, ((-0.53 * w, 0), (0.53 * w, 0), (0, h)))
+
+        args_str = self.args_str
+        s = self.draw_path((q[0], q[1], q[2], q[3], q[0]), style='thick')
+        s += self.draw_path((n1.s, q2[0]), style='thick')
+        s += self.draw_path((q2[1], n2.s), style='thick')
+        s += self.draw_label(q[4], **kwargs)
+        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -1397,14 +1439,14 @@ class XT(Cpt):
                               (0.12, -0.3), (-0.12, -0.3),
                               (0.0, -0.6)))
 
-        s = r'  \draw[thick] (%s) -- (%s);''\n' % (q[1], q[2])
-        s += r'  \draw[thick] (%s) -- (%s);''\n' % (q[4], q[5])
-        s += r'  \draw[thick] (%s) -- (%s) -- (%s) -- (%s) -- (%s);''\n' % (
-            q[6], q[7], q[8], q[9], q[6])
-        s += r'  \draw (%s) -- (%s);''\n' % (q[0], n1.s)
-        s += r'  \draw (%s) -- (%s);''\n' % (q[3], n2.s)
-        s += r'  \draw (%s) node[] {%s};''\n'% (q[10], self.label(**kwargs))
-        s += self._draw_nodes(**kwargs)
+        args_str = self.args_str
+        s = self.draw_path((q[1], q[2]), style='thick')
+        s += self.draw_path((q[4], q[5]), style='thick')
+        s += self.draw_path((q[6], q[7], q[8], q[9], q[6]), style='thick')
+        s += self.draw_path((q[0], n1.s), style='thick')
+        s += self.draw_path((q[3], n2.s), style='thick')
+        s += self.draw_label(q[10], **kwargs)
+        s += self.draw_nodes(**kwargs)
         return s
 
 
