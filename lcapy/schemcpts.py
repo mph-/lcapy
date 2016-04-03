@@ -388,7 +388,11 @@ class Cpt(object):
 
     def draw_path(self, points, style='', join='--'):
 
-        path = (' %s ' % join).join(['(%s)' % point for point in points])
+        if len(points) > 1 and points[0] == points[-1]:
+            path = (' %s ' % join).join(['(%s)' % point for point in points[0:-1]])
+            path += ' %s cycle' % join
+        else:
+            path = (' %s ' % join).join(['(%s)' % point for point in points])
         args_str = self.args_str
         if style == '':
             s = args_str
@@ -1407,10 +1411,9 @@ class FB(Cpt):
                              (0, h)), -30)
         q2 = self.tf(centre, ((-0.53 * w, 0), (0.53 * w, 0), (0, h)))
 
-        args_str = self.args_str
         s = self.draw_path((q[0], q[1], q[2], q[3], q[0]), style='thick')
-        s += self.draw_path((n1.s, q2[0]), style='thick')
-        s += self.draw_path((q2[1], n2.s), style='thick')
+        s += self.draw_path((n1.s, q2[0]))
+        s += self.draw_path((q2[1], n2.s))
         s += self.draw_label(q[4], **kwargs)
         s += self.draw_nodes(**kwargs)
         return s
@@ -1439,7 +1442,6 @@ class XT(Cpt):
                               (0.12, -0.3), (-0.12, -0.3),
                               (0.0, -0.6)))
 
-        args_str = self.args_str
         s = self.draw_path((q[1], q[2]), style='thick')
         s += self.draw_path((q[4], q[5]), style='thick')
         s += self.draw_path((q[6], q[7], q[8], q[9], q[6]), style='thick')
