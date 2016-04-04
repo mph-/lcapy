@@ -926,7 +926,7 @@ class Schematic(NetfileMixin):
             if node.pin and node.pinpos is None:
                 continue
 
-            s += r'  \draw {[anchor=%s] (%s) node {%s}};''\n' % (
+            s += r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
                 anchor, node.s, node.label.replace('_', r'\_'))
         return s
 

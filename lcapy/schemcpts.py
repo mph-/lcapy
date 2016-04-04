@@ -1127,8 +1127,13 @@ class Chip(Cpt):
                     label = ''
             elif pins != '':
                 label = pins[m].strip()
-            n.label = label
 
+            n.clock = label != '' and label[0] == '>'
+            if n.clock:
+                # Remove clock designator
+                label = label[1:]
+
+            n.label = label
 
     def draw(self, **kwargs):
 
@@ -1145,6 +1150,12 @@ class Chip(Cpt):
         s = self.draw_path(q[0:4], closed=True, style='thick')
         s += r'  \draw (%s) node[text width=%scm, align=center, %s] {%s};''\n'% (
             centre, w - 0.5, self.args_str, self.label(**kwargs))
+
+        for m, n in enumerate(self.dvnodes):
+            if n.clock:
+                # TODO, tweak for pinpos
+                q = self.tf(n.pos, ((0, 0.25), (0.25, 0), (0, -0.25)))
+                s += self.draw_path(q[0:3], style='thick')
         return s
 
 
