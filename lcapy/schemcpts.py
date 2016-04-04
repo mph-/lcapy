@@ -1148,7 +1148,7 @@ class Chip(Cpt):
         return s
 
 
-class Chip1310(Chip):
+class Uchip1310(Chip):
     """Chip of size 1 3 1 0"""
 
     w = 1.5
@@ -1167,7 +1167,7 @@ class Chip1310(Chip):
                 (0.75, 0))
 
 
-class Chip2121(Chip):
+class Uchip2121(Chip):
     """Chip of size 2 1 2 1"""
 
     w = 2
@@ -1182,7 +1182,7 @@ class Chip2121(Chip):
                 (2, -0.5), (2, 0.5), (1, 1))
 
 
-class Chip3131(Chip):
+class Uchip3131(Chip):
     """Chip of size 3 1 3 1"""
 
     w = 2
@@ -1197,7 +1197,22 @@ class Chip3131(Chip):
                 (2, -1), (2, 0), (2, 1), (1, 1.5))
 
 
-class Chip4141(Chip):
+class Uchip3131small(Chip):
+    """Small chip of size 3 1 3 1"""
+
+    w = 2
+    h = 2
+    pinpos = ('l', 'l', 'l', 'b', 'r', 'r', 'r', 't')
+
+    @property
+    def coords(self):
+        w, h = self.width, self.height
+
+        return ((0, 0.5), (0, 0), (0, -0.5), (1, -1), 
+                (2, -0.5), (2, 0), (2, 0.5), (1, 1))
+
+
+class Uchip4141(Chip):
     """Chip of size 4 1 4 1"""
 
     w = 2
@@ -1545,10 +1560,7 @@ defcpt('Ubox', Box, 'Box')
 defcpt('Ucircle', Circle, 'Circle')
 defcpt('Ubox4', Box4, 'Box')
 defcpt('Ucircle4', Circle4, 'Circle')
-defcpt('Uchip1310', Chip1310, 'General purpose chip')
-defcpt('Uchip2121', Chip2121, 'General purpose chip')
-defcpt('Uchip3131', Chip3131, 'General purpose chip')
-defcpt('Uchip4141', Chip4141, 'General purpose chip')
+
 
 defcpt('V', OnePort, 'Voltage source', 'V')
 defcpt('sV', OnePort, 'Voltage source', 'V')
