@@ -1014,7 +1014,7 @@ class Shape(Cpt):
 
     @property
     def h(self):
-        return self.aspect
+        return self.w / self.aspect
 
     @property
     def aspect(self):
@@ -1080,7 +1080,7 @@ class TR(Box):
     default_aspect = 0.66667
 
 
-class Chip(Cpt):
+class Chip(Shape):
     """General purpose chip"""
 
     can_stretch = False
@@ -1089,19 +1089,6 @@ class Chip(Cpt):
     # accomodate inverting circle.  This will require stripping of the
     # \ from the label. Alternatively, do not use inverting circle and
     # add overline to symbol name when printing.
-
-    @property
-    def centre(self):
-        N = len(self.dvnodes)
-        return self.midpoint(self.dvnodes[0], self.dvnodes[N // 2])
-
-    @property
-    def width(self):
-        return self.w * self.size * self.sch.node_spacing
-
-    @property
-    def height(self):
-        return self.h * self.size * self.sch.node_spacing
 
     def name_pins(self):
 
@@ -1211,16 +1198,16 @@ class Uchip3131(Chip):
 class Uchip3131small(Chip):
     """Small chip of size 3 1 3 1"""
 
-    w = 2
-    h = 2
+    default_width = 2.0
+    default_aspect = 1.0
     pinpos = ('l', 'l', 'l', 'b', 'r', 'r', 'r', 't')
 
     @property
     def coords(self):
-        w, h = self.width, self.height
+        w, h = 0.5 * self.w, 0.5 * self.h
 
-        return ((0, 0.5), (0, 0), (0, -0.5), (1, -1), 
-                (2, -0.5), (2, 0), (2, 0.5), (1, 1))
+        return ((0, 0.5 * h), (0, 0), (0, -0.5 * h), (w, -h), 
+                (2 * w, -0.5 * h), (2 * 2, 0), (2 * w, 0.5 * h), (w, h))
 
 
 class Uchip4141(Chip):
