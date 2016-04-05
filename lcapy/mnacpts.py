@@ -859,7 +859,6 @@ defcpt('Ucircle4', Misc, 'Circle')
 defcpt('Uchip1310', Logic, 'General purpose chip')
 defcpt('Uchip2121', Logic, 'General purpose chip')
 defcpt('Uchip3131', Logic, 'General purpose chip')
-defcpt('Uchip3131small', Logic, 'General purpose chip')
 defcpt('Uchip4141', Logic, 'General purpose chip')
 
 defcpt('sV', V, 's-domain voltage source')

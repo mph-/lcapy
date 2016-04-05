@@ -14,6 +14,20 @@ import sys
 
 module = sys.modules[__name__]
 
+# There are two types of component (Cpt).
+#
+# 1. The stretchable components (such as resistors and capacitors) have
+# wires that can be stretched.  The size attribute controls the
+# spacing between the nodes but does not affect the component size.
+# The component size can be changed with the scale attribute (this changes
+# the dipole length).  The aspect ratio is not easy to change (need to use
+# dipole/resistor/height).
+#
+# 2.  The fixed components (such as ICs) do not have wires and cannot
+# be stretched.  The (unrotated) width is set by the size attribute and
+# the (unrotated) height is set by the aspect attribute.  The scale attribute
+# is not used.
+
 
 class Cpt(object):
 
@@ -32,6 +46,8 @@ class Cpt(object):
     can_scale = False
     can_mirror = False
     can_stretch = True
+    default_width = 1.0
+    default_aspect = 1.0
 
     @property
     def s(self):
@@ -85,14 +101,13 @@ class Cpt(object):
         elif self.up:
             val = self.opts['up']
         else:
-            val = 1
+            val = self.default_width
         if val == '':
-            val = 1
+            val = self.default_width
         return float(val)
 
     @property
     def scale(self):
-        """This is only used for scaling an opamp"""
         return float(self.opts.get('scale', 1.0))
 
     @property
@@ -165,6 +180,20 @@ class Cpt(object):
             angle += float(self.opts['rotate'])
         return angle
 
+    @property
+    def w(self):
+        """Normalised width"""
+        return 1.0
+
+    @property
+    def h(self):
+        """Normalised height"""
+        return self.w / self.aspect
+
+    @property
+    def aspect(self):
+        return float(self.opts.get('aspect', self.default_aspect))
+
     def R(self, angle_offset=0):
         """Return rotation matrix"""
         angle = self.angle + angle_offset
@@ -202,12 +231,20 @@ class Cpt(object):
         raise NotImplementedError('coords method not implemented for %s' % self)
 
     @property
+    def scoords(self):
+        """Scaled coordinates for each of the nodes"""
+
+        c = np.array(self.coords)
+        S = np.array(((self.w, self.h),) * c.shape[0])
+        return c * S
+
+    @property
     def tcoords(self):
         """Transformed coordinates for each of the nodes"""
         if hasattr(self, '_tcoords'):
             return self._tcoords
 
-        self._tcoords = np.dot(np.array(self.coords), self.R())
+        self._tcoords = np.dot(self.scoords, self.R())
         return self._tcoords
 
     @property
@@ -372,19 +409,7 @@ class Cpt(object):
     def tf(self, centre, offset, angle_offset=0.0):
         """Transform coordinate"""
 
-        if isinstance(offset[0], tuple):
-            return [self.tf(centre, offset1, angle_offset) for offset1 in offset]
-
-        return centre + np.dot(offset, self.R(angle_offset)) * self.scale
-
-    def xtf(self, centre, offset):
-        """Transform coordinate but with x-scaling only"""
-        
-        if isinstance(offset[0], tuple):
-            return [self.xtf(centre, offset1) for offset1 in offset]
-
-        offset = (offset[0] * self.scale, offset[1])
-        return centre + np.dot(offset, self.R())
+        raise NotImplementedError('tf method not implemented for %s' % self)
 
     def draw_path(self, points, style='', join='--', closed=False):
 
@@ -410,14 +435,50 @@ class Cpt(object):
             pos, self.label(**kwargs))
 
 
-class Transistor(Cpt):
+class StretchyCpt(Cpt):
+
+    can_stretch = True
+
+    def xtf(self, centre, offset, angle_offset=0.0):
+        """Transform coordinate."""
+
+        # Note the size attribute is not used.   This only scales the x coords.
+        if isinstance(offset[0], tuple):
+            return [self.xtf(centre, offset1, angle_offset) for offset1 in offset]
+
+        return centre + np.dot((offset[0] * self.w * self.scale, offset[1] * self.h), self.R(angle_offset)) * self.sch.node_spacing
+
+
+    def tf(self, centre, offset, angle_offset=0.0):
+        """Transform coordinate."""
+
+        # Note the size attribute is not used.
+        if isinstance(offset[0], tuple):
+            return [self.tf(centre, offset1, angle_offset) for offset1 in offset]
+
+        return centre + np.dot((offset[0] * self.w, offset[1] * self.h), self.R(angle_offset)) * self.scale * self.sch.node_spacing
+
+
+class FixedCpt(Cpt):
+
+    can_stretch = False
+
+    def tf(self, centre, offset, angle_offset=0.0):
+        """Transform coordinate."""
+
+        if isinstance(offset[0], tuple):
+            return [self.tf(centre, offset1, angle_offset) for offset1 in offset]
+
+        return centre + np.dot((offset[0] * self.w, offset[1] * self.h), self.R(angle_offset)) * self.size * self.scale * self.sch.node_spacing
+
+
+class Transistor(FixedCpt):
     """Transistor"""
     
     npos = ((1, 1.5), (0, 0.75), (1, 0))
     ppos = ((1, 0), (0, 0.75), (1, 1.5))
 
     can_mirror = True
-    can_stretch = False
     can_scale = True
 
     @property
@@ -467,9 +528,10 @@ class MOSFET(Transistor):
     ppos = ((0.85, 0), (-0.25, 0.76), (0.85, 1.52))
 
 
-class TwoPort(Cpt):
+class TwoPort(FixedCpt):
     """Two-port"""
 
+    # TODO
     can_rotate = False
 
     @property
@@ -504,12 +566,11 @@ class TwoPort(Cpt):
         return s
 
 
-class MX(Cpt):
+class MX(FixedCpt):
     """Mixer"""
 
-    can_stretch = False
+    # Dubious
     can_scale = True
-    can_rotate = False
 
     @property
     def coords(self):
@@ -523,21 +584,20 @@ class MX(Cpt):
         n1, n2, n3 = self.dvnodes
 
         centre = (n1.pos + n2.pos) * 0.5
-        q = self.xtf(centre, ((0, 0.7)))
+        q = self.tf(centre, ((0, 0.35)))
 
         s = r'  \draw (%s) node[mixer,xscale=%s] {};''\n' % (
-            centre, self.scale)
+            centre, self.scale * self.size)
         s += self.draw_label(q, **kwargs)
         return s
 
 
-class SP(Cpt):
+class SP(FixedCpt):
     """Summing point"""
 
-    can_stretch = False
+    # Dubious
     can_scale = True
     can_mirror = True
-    can_rotate = True
 
     @property
     def coords(self):
@@ -553,10 +613,10 @@ class SP(Cpt):
         n = self.dvnodes
 
         centre = (n[0].pos + n[2].pos) * 0.5
-        q = self.xtf(centre, ((0.7, 0.7), (-0.25, 0), (0, -0.25),
-                              (0, 0.25), (0, 0.25)))
-        xscale = self.scale
-        yscale = self.scale        
+        q = self.tf(centre, ((0.3, 0.3), (-0.125, 0), (0, -0.125),
+                             (0, 0.125), (0, 0.125)))
+        xscale = self.scale * self.size
+        yscale = self.scale * self.size       
         if self.mirror:
             yscale = -yscale
 
@@ -614,11 +674,11 @@ class SPppm(SP):
     labels = '++-'
 
 
-class TL(Cpt):
+class TL(StretchyCpt):
     """Transmission line"""
 
+    # Dubious.  Perhaps should stretch this component in proportion to size?
     can_scale = True
-    can_rotate = False
 
     @property
     def coords(self):
@@ -632,26 +692,25 @@ class TL(Cpt):
         n1, n2, n3, n4 = self.dvnodes
 
         centre = (n1.pos + n3.pos) * 0.5
-        q = self.xtf(centre, ((-1.25, 0), (0.65, 0),
-                              (0.525, -0.29), (-0.7, -0.29)))
+        q = self.xtf(centre, ((0.32, 0),
+                              (0.27, -0.145),
+                              (-0.35, 0),
+                              (-0.35, -0.145)))
 
-        xs = self.scale
         # Rotation creates an ellipse!
         s = r'  \draw (%s) node[tlinestub, xscale=%s] {};''\n' % (
-            centre + Pos(-1.3 * xs, 0), self.scale)
+            centre + Pos(-1.3 * self.scale, 0), self.scale)
         s += self.draw_label(centre, **kwargs)
-        s += self.draw_path((q[0], n3.s))
-        s += self.draw_path((q[1], n1.s))
-        s += self.draw_path((q[2], n2.s), join='|-')
+        s += self.draw_path((q[0], n1.s))
+        s += self.draw_path((q[1], n2.s), join='|-')
+        s += self.draw_path((q[2], n3.s))
         s += self.draw_path((q[3], n4.s), join='|-')
         s += self.draw_nodes(**kwargs)
         return s
 
 
-class TF1(TwoPort):
+class TF1(FixedCpt):
     """Transformer"""
-
-    can_rotate = True
 
     @property
     def coords(self):
@@ -667,7 +726,7 @@ class TF1(TwoPort):
         p = [node.pos for node in self.dvnodes]
 
         centre = (p[0] + p[1] + p[2] + p[3]) * 0.25
-        q = self.tf(centre, ((-0.6, 0.6), (0.6, 0.6), (0, 0.65)))
+        q = self.tf(centre, ((-0.35, 0.3), (0.35, 0.3), (0, 0.375)))
         primary_dot = q[0]
         secondary_dot = q[1]
         labelpos = q[2]
@@ -687,8 +746,8 @@ class TF1(TwoPort):
 
         if self.classname in ('TFcore', 'TFtapcore'):
             # Draw core
-            q = self.tf(centre, ((-0.1, -0.4), (-0.1, 0.4),
-                                 (0.1, -0.4), (0.1, 0.4)))
+            q = self.tf(centre, ((-0.05, -0.2), (-0.05, 0.2),
+                                 (0.05, -0.2), (0.05, 0.2)))
             s += self.draw_path(q[0:2], style='thick')
             s += self.draw_path(q[2:4], style='thick')
 
@@ -715,8 +774,6 @@ class Transformer(TF1):
 
 class TFtap(TF1):
     """Transformer"""
-    can_rotate = True
-
 
     @property
     def coords(self):
@@ -762,7 +819,7 @@ class K(TF1):
         return [self.sch.nodes[n] for n in L1.nodes + L2.nodes]
 
 
-class OnePort(Cpt):
+class OnePort(StretchyCpt):
     """OnePort"""
 
     can_mirror = True
@@ -868,8 +925,6 @@ class OnePort(Cpt):
 class VCS(OnePort):
     """Voltage controlled source"""
 
-    can_rotate = True
-
     @property
     def vnodes(self):
         return self.nodes[0:2]
@@ -877,11 +932,10 @@ class VCS(OnePort):
 
 class CCS(OnePort):
     """Current controlled source"""
+    pass
 
-    can_rotate = True
 
-
-class Opamp(Cpt):
+class Opamp(FixedCpt):
 
     # The Nm node is not used (ground).
     ppos = ((2.4, 0.0), (0, 0.5), (0, -0.5))
@@ -889,7 +943,6 @@ class Opamp(Cpt):
 
     can_scale = True
     can_mirror = True
-    can_stretch = False
 
     @property
     def vnodes(self):
@@ -924,7 +977,7 @@ class Opamp(Cpt):
         return s
 
 
-class FDOpamp(Cpt):
+class FDOpamp(FixedCpt):
 
     npos = ((2.05, 1), (2.05, 0), (0, 0), (0, 1))
     ppos = ((2.05, -1), (2.05, 0), (0, 0), (0, -1))
@@ -961,10 +1014,8 @@ class FDOpamp(Cpt):
         return s
 
 
-class SPDT(Cpt):
+class SPDT(StretchyCpt):
     """SPDT switch"""
-
-    can_stretch = False
 
     @property
     def coords(self):
@@ -988,11 +1039,9 @@ class SPDT(Cpt):
         return s
 
 
-class Shape(Cpt):
+class Shape(FixedCpt):
     """General purpose shape"""
 
-    can_stretch = False
-    default_width = 1.0
     default_aspect = 1.0
 
     @property
@@ -1007,18 +1056,6 @@ class Shape(Cpt):
     @property
     def height(self):
         return self.h * self.size * self.sch.node_spacing
-
-    @property
-    def w(self):
-        return self.default_width
-
-    @property
-    def h(self):
-        return self.w / self.aspect
-
-    @property
-    def aspect(self):
-        return float(self.opts.get('aspect', self.default_aspect))
 
     def draw(self, **kwargs):
 
@@ -1040,8 +1077,7 @@ class Box(Shape):
 
     @property
     def coords(self):
-        w = self.w
-        return ((-0.5 * w, 0), (0.5 * w, 0))
+        return ((-0.5, 0), (0.5, 0))
 
 
 class Circle(Shape):
@@ -1051,8 +1087,7 @@ class Circle(Shape):
 
     @property
     def coords(self):
-        w = self.w
-        return ((-0.5 * w, 0), (0.5 * w, 0))
+        return ((-0.5, 0), (0.5, 0))
 
 
 class Box4(Box):
@@ -1060,8 +1095,7 @@ class Box4(Box):
 
     @property
     def coords(self):
-        w, h = self.w, self.h
-        return ((-0.5 * w, 0), (0, -0.5 * h), (0.5 * w, 0), (0, 0.5 * h))
+        return ((-0.5, 0), (0, -0.5), (0.5, 0), (0, 0.5))
 
 
 class Circle4(Circle):
@@ -1069,21 +1103,23 @@ class Circle4(Circle):
 
     @property
     def coords(self):
-        w, h = self.w, self.h
-        return ((-0.5 * w, 0), (0, -0.5 * h), (0.5 * w, 0), (0, 0.5 * h))
+        return ((-0.5, 0), (0, -0.5), (0.5, 0), (0, 0.5))
 
 
 class TR(Box):
     """Transfer function"""
 
     default_width = 1.5
-    default_aspect = 0.66667
+    default_aspect = 1.5
 
 
 class Chip(Shape):
     """General purpose chip"""
 
-    can_stretch = False
+    default_width = 2.0
+
+    # Could allow can_scale but not a lot of point since nodes
+    # will not be on the boundary of the chip.
 
     # TODO, tweak coord if pin name ends in \ using pinpos to
     # accomodate inverting circle.  This will require stripping of the
@@ -1109,7 +1145,7 @@ class Chip(Shape):
             n.pinpos = self.pinpos[m]
             label = ''
             if pins == 'auto':
-                label = n.label.split('.')[-1]
+                label = n.name.split('.')[-1]
                 if label[0] == '_':
                     label = ''
             elif pins != '':
@@ -1130,18 +1166,17 @@ class Chip(Shape):
         self.name_pins()
             
         centre = self.centre
-        w, h = self.width, self.height
-        q = self.tf(centre, ((-0.5 * w, 0.5 * h), (0.5 * w, 0.5 * h),
-                             (0.5 * w, -0.5 * h), (-0.5 * w, -0.5 * h)))
+        q = self.tf(centre, ((-0.5, 0.5), (0.5, 0.5),
+                             (0.5, -0.5), (-0.5, -0.5)))
 
         s = self.draw_path(q[0:4], closed=True, style='thick')
         s += r'  \draw (%s) node[text width=%scm, align=center, %s] {%s};''\n'% (
-            centre, w - 0.5, self.args_str, self.label(**kwargs))
+            centre, self.width - 0.5, self.args_str, self.label(**kwargs))
 
         for m, n in enumerate(self.dvnodes):
             if n.clock:
                 # TODO, tweak for pinpos
-                q = self.tf(n.pos, ((0, 0.25), (0.25, 0), (0, -0.25)))
+                q = self.tf(n.pos, ((0, 0.125), (0.125, 0), (0, -0.125)))
                 s += self.draw_path(q[0:3], style='thick')
         return s
 
@@ -1149,8 +1184,7 @@ class Chip(Shape):
 class Uchip1310(Chip):
     """Chip of size 1 3 1 0"""
 
-    w = 1.5
-    h = 1
+    default_aspect=1.3333333
     pinpos = ('l', 'b', 'b', 'b', 'r')
 
     @property
@@ -1159,78 +1193,52 @@ class Uchip1310(Chip):
 
     @property
     def coords(self):
-        w, h = self.width, self.height
-
-        return ((-0.75, 0), (-0.5, -0.5), (0, -0.5), (0.5, -0.5),
-                (0.75, 0))
+        return ((0, 0), (0.25, -0.5), (0.5, -0.5), (0.75, -0.5), (1, 0))
 
 
 class Uchip2121(Chip):
     """Chip of size 2 1 2 1"""
 
-    w = 2
-    h = 2
     pinpos = ('l', 'l', 'b', 'r', 'r', 't')
 
     @property
     def coords(self):
-        w, h = self.width, self.height
-
-        return ((0, 0.5), (0, -0.5), (1, -1), 
-                (2, -0.5), (2, 0.5), (1, 1))
+        return ((0, 0.25), (0, -0.25),
+                (0.5, -0.5), 
+                (1.0, -0.25), (1.0, 0.25),
+                (0.5, 0.5))
 
 
 class Uchip3131(Chip):
     """Chip of size 3 1 3 1"""
 
-    w = 2
-    h = 3
     pinpos = ('l', 'l', 'l', 'b', 'r', 'r', 'r', 't')
 
     @property
     def coords(self):
-        w, h = self.width, self.height
-
-        return ((0, 1), (0, 0), (0, -1), (1, -1.5), 
-                (2, -1), (2, 0), (2, 1), (1, 1.5))
-
-
-class Uchip3131small(Chip):
-    """Small chip of size 3 1 3 1"""
-
-    default_width = 2.0
-    default_aspect = 1.0
-    pinpos = ('l', 'l', 'l', 'b', 'r', 'r', 'r', 't')
-
-    @property
-    def coords(self):
-        w, h = 0.5 * self.w, 0.5 * self.h
-
-        return ((0, 0.5 * h), (0, 0), (0, -0.5 * h), (w, -h), 
-                (2 * w, -0.5 * h), (2 * 2, 0), (2 * w, 0.5 * h), (w, h))
+        return ((0, 0.25), (0, 0), (0, -0.25), (0.5, -0.5), 
+                (1.0, -0.25), (1.0, 0), (1.0, 0.25), (0.5, 0.5))
 
 
 class Uchip4141(Chip):
     """Chip of size 4 1 4 1"""
 
-    w = 2
-    h = 4
+    default_width = 2
+    default_aspect = 0.5
     pinpos = ('l', 'l', 'l', 'l', 'b', 'r', 'r', 'r', 'r', 't')
 
     @property
     def coords(self):
-        w, h = self.width, self.height
+        return ((0, 0.75), (0, 0.25), (0, -0.25), (0, -0.75),
+                (0.5, -0.5), 
+                (1.0, -0.75), (1.0, -0.25), (1.0, 0.25), (1.0, 0.75),
+                (0.5, 0.5))
 
-        return ((0, 1.5), (0, 0.5), (0, -0.5), (0, -1.5),
-                (1, -2), 
-                (2, -1.5), (2, -0.5), (2, 0.5), (2, 1.5),
-                (1, 2))
 
 class Ubuffer(Chip):
     """Buffer with power supplies"""
 
-    can_scale = True
-
+    default_width = 1.0
     pinpos = ('l', 'b', 'r', 't')
 
     @property
@@ -1248,7 +1256,7 @@ class Ubuffer(Chip):
         centre = (n1.pos + n3.pos) * 0.5
 
         # TODO, create pgf shape
-        q = self.tf(centre, ((-1, 1), (1, 0), (-1, -1)))
+        q = self.tf(centre, ((-0.5, 0.5), (0.5, 0), (-0.5, -0.5)))
 
         s = self.draw_path(q[0:3], closed=True, style='thick')
         s += self.draw_label(centre, **kwargs)
@@ -1259,8 +1267,7 @@ class Ubuffer(Chip):
 class Uinverter(Chip):
     """Inverter with power supplies"""
 
-    can_scale = True
-
+    default_width = 1.0
     pinpos = ('l', 'b', 'r', 't')
 
     @property
@@ -1278,12 +1285,13 @@ class Uinverter(Chip):
         centre = (n1.pos + n3.pos) * 0.5
 
         # TODO, create pgf shape
-        w = 0.1
+        w = 0.05
 
-        q = self.tf(centre, ((-1, 1), (1 - 2 * w, 0), (-1, -1), (1 - w, 0)))
+        q = self.tf(centre, ((-0.5, 0.5), (0.5 - 2 * w, 0),
+                             (-0.5, -0.5), (0.5 - w, 0)))
 
         s = self.draw_path(q[0:3], closed=True, style='thick')
-        s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (q[3], 1.8 * self.scale)
+        s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (q[3], 1.8 * self.size * self.scale)
         s += self.draw_label(centre, **kwargs)
         s += self.draw_nodes(**kwargs)
         return s
@@ -1339,7 +1347,7 @@ class Wire(OnePort):
             anchor = 'north west'
 
         n1, n2 = self.dvnodes
-        s = self.draw_path((n1.s, n2.s), style='thick') 
+        s = self.draw_path((n1.s, n2.s)) 
         s += r'  \draw (%s) node[%s,scale=0.5,rotate=%d] {};''\n' % (
             n2.s, kind, self.angle + 90)
 
@@ -1401,11 +1409,10 @@ class Wire(OnePort):
         return s
 
 
-class FB(Cpt):
+class FB(StretchyCpt):
     """Ferrite bead"""
 
     can_scale = True
-    can_rotate = True
 
     @property
     def coords(self):
@@ -1419,8 +1426,8 @@ class FB(Cpt):
         n1, n2 = self.dvnodes
 
         centre = (n1.pos + n2.pos) * 0.5
-        w = 0.25
-        h = 0.8
+        w = 0.125
+        h = 0.4
         
         q = self.tf(centre, ((-0.5 * w, -0.5 * h), (-0.5 * w, 0.5 * h),
                              (0.5 * w, 0.5 * h), (0.5 * w, -0.5 * h),
@@ -1435,7 +1442,7 @@ class FB(Cpt):
         return s
 
 
-class XT(Cpt):
+class XT(StretchyCpt):
     """Crystal"""
 
     can_scale = True
@@ -1452,11 +1459,11 @@ class XT(Cpt):
         n1, n2 = self.dvnodes
 
         centre = (n1.pos + n2.pos) * 0.5
-        q = self.xtf(centre, ((-0.3, 0), (-0.3, 0.3), (-0.3, -0.3),
-                              (0.3, 0), (0.3, 0.3), (0.3, -0.3),
-                              (-0.12, 0.3), (0.12, 0.3),
-                              (0.12, -0.3), (-0.12, -0.3),
-                              (0.0, -0.6)))
+        q = self.tf(centre, ((-0.15, 0), (-0.15, 0.15), (-0.15, -0.15),
+                             (0.15, 0), (0.15, 0.15), (0.15, -0.15),
+                             (-0.06, 0.15), (0.06, 0.15),
+                             (0.06, -0.15), (-0.06, -0.15),
+                             (0.0, -0.3)))
 
         s = self.draw_path((q[1], q[2]), style='thick')
         s += self.draw_path((q[4], q[5]), style='thick')

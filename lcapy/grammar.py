@@ -73,7 +73,6 @@ Ucircle4: Uname circle4 P P P P; Circle
 Uchip1310: Uname chip1310 P P P P P; Chip
 Uchip2121: Uname chip2121 P P P P P P; Chip
 Uchip3131: Uname chip3131 P P P P P P P P; Chip
-Uchip3131small: Uname chip3131small P P P P P P P P; Chip
 Uchip4141: Uname chip4141 P P P P P P P P P P; Chip
 V: Vname Np Nm [Value]; Voltage source
 sV: Vname Np Nm s [Value]; s-domain voltage source
@@ -124,7 +123,6 @@ circle4: keyword;
 chip1310: keyword;
 chip2121: keyword;
 chip3131: keyword;
-chip3131small: keyword;
 chip4141: keyword;
 pp: keyword;
 pm: keyword;
