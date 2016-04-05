@@ -702,6 +702,7 @@ class TL(StretchyCpt):
         s = r'  \draw (%s) node[tlinestub, xscale=%s, rotate=%s] {};''\n' % (
             q[4], self.scale, self.angle)
         s += self.draw_label(centre, **kwargs)
+
         s += self.draw_path((q[0], n1.s))
         s += self.draw_path((q[1], n2.s), join='|-')
         s += self.draw_path((q[2], n3.s))
@@ -1353,7 +1354,7 @@ class Wire(OnePort):
             n2.s, kind, self.angle + 90)
 
         if 'l' in self.opts:
-            lpos = self.tf(n2.pos, (0.25, 0))
+            lpos = self.tf(n2.pos, (0.125, 0))
             s += r'  \draw [anchor=%s] (%s) node {%s};''\n' % (
                 anchor, lpos, self.label(**kwargs))
         return s
