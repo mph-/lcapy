@@ -695,11 +695,12 @@ class TL(StretchyCpt):
         q = self.xtf(centre, ((0.32, 0),
                               (0.27, -0.145),
                               (-0.35, 0),
-                              (-0.35, -0.145)))
+                              (-0.35, -0.145),
+                              (-0.65, 0)))
 
         # Rotation creates an ellipse!
-        s = r'  \draw (%s) node[tlinestub, xscale=%s] {};''\n' % (
-            centre + Pos(-1.3 * self.scale, 0), self.scale)
+        s = r'  \draw (%s) node[tlinestub, xscale=%s, rotate=%s] {};''\n' % (
+            q[4], self.scale, self.angle)
         s += self.draw_label(centre, **kwargs)
         s += self.draw_path((q[0], n1.s))
         s += self.draw_path((q[1], n2.s), join='|-')
