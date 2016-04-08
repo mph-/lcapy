@@ -66,6 +66,7 @@ TP: TPname Np Nm Ncp Ncm [Value]; Two port
 TR: TRname Pi Po [Value]; Transfer function
 Ubuffer: Uname buffer Pi PVss Po PVdd; Buffer with power supplies
 Uinverter: Uname inverter Pi PVss Po PVdd; Inverter with power supplies
+Udiffamp: Uname diffamp P P P P P; Differential amplifier
 Uadc: Uname adc P P P P P P P P; ADC
 Udac: Uname dac P P P P P P P P; DAC
 Ubox: Uname box P P; Box
@@ -120,6 +121,7 @@ pinverter: keyword;
 inverter: keyword;
 adc: keyword;
 dac: keyword;
+diffamp: keyword;
 box: keyword;
 circle: keyword;
 box4: keyword;

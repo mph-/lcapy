@@ -1203,13 +1203,14 @@ class Chip(Shape):
                 # TODO, tweak for pinpos
                 q = self.tf(n.pos, ((0, 0.125), (0.125, 0), (0, -0.125)))
                 s += self.draw_path(q[0:3], style='thick')
+                
         return s
 
 
 class Uchip1310(Chip):
     """Chip of size 1 3 1 0"""
 
-    default_aspect=1.3333333
+    default_aspect = 4.0 / 3.0
     pinpos = ('l', 'b', 'b', 'b', 'r')
 
     @property
@@ -1300,6 +1301,26 @@ class Udac(Chip):
         return self.midpoint(self.dvnodes[1], self.dvnodes[5])
 
 
+class Udiffamp(Chip):
+    """Amplifier"""
+
+    default_width = 1.0
+    pinpos = ('l', 'l', 'b', 'r', 't')
+
+    @property
+    def coords(self):
+        return ((-0.5, 0.25), (-0.5, -0.25), (0.0, -0.25), (0.5, 0), (0.0, 0.25))
+
+    @property
+    def path(self):
+        return ((-0.5, 0.5), (-0.5, -0.5), (0.5, 0))
+
+    @property
+    def centre(self):
+        n1, n2, n3, n4, n5 = self.dvnodes
+        return (n1.pos + n2.pos) * 0.25 + n4.pos * 0.5
+
+
 class Ubuffer(Chip):
     """Buffer with power supplies"""
 
@@ -1309,6 +1330,10 @@ class Ubuffer(Chip):
     @property
     def coords(self):
         return ((0, 0), (0.5, -0.25), (1.0, 0), (0.5, 0.25))
+
+    @property
+    def path(self):
+        return ((-0.5, 0.5), (0.5, 0), (-0.5, -0.5))
 
     def draw(self, **kwargs):
 
@@ -1320,9 +1345,7 @@ class Ubuffer(Chip):
         n1, n2, n3, n4 = self.dvnodes
         centre = (n1.pos + n3.pos) * 0.5
 
-        # TODO, create pgf shape
-        q = self.tf(centre, ((-0.5, 0.5), (0.5, 0), (-0.5, -0.5)))
-
+        q = self.tf(centre, self.path)
         s = self.draw_path(q[0:3], closed=True, style='thick')
         s += self.draw_label(centre, **kwargs)
         s += self.draw_nodes(**kwargs)
@@ -1339,6 +1362,11 @@ class Uinverter(Chip):
     def coords(self):
         return ((0, 0), (0.5, -0.22), (1.0, 0), (0.5, 0.22))
 
+    @property
+    def path(self):
+        w = 0.05
+        return ((-0.5, 0.5), (0.5 -2 * w, 0), (-0.5, -0.5), (0.5 - w, 0))
+
     def draw(self, **kwargs):
 
         if not self.check():
@@ -1349,14 +1377,10 @@ class Uinverter(Chip):
         n1, n2, n3, n4 = self.dvnodes
         centre = (n1.pos + n3.pos) * 0.5
 
-        # TODO, create pgf shape
-        w = 0.05
-
-        q = self.tf(centre, ((-0.5, 0.5), (0.5 - 2 * w, 0),
-                             (-0.5, -0.5), (0.5 - w, 0)))
-
+        q = self.tf(centre, self.path)
         s = self.draw_path(q[0:3], closed=True, style='thick')
-        s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (q[3], 1.8 * self.size * self.scale)
+        s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (
+            q[3], 1.8 * self.size * self.scale)
         s += self.draw_label(centre, **kwargs)
         s += self.draw_nodes(**kwargs)
         return s
