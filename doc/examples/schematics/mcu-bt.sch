@@ -1,5 +1,5 @@
-U1 chip3131 ._UNUSED1 ._UNUSED2 ._UNUSED3 .VSS .RXD .TXD .PIO1 .VDD; right=2, l=MCU, pins=auto
-U2 chip3131 ._UNUSED1 .RXD .TXD .VSS ._UNUSED2 ._UNUSED3 ._UNUSED4 .VDD; right=2, l=Bluetooth, pins=auto
+U1 chip3131 ._UNUSED1 ._UNUSED2 ._UNUSED3 .VSS .RXD .TXD .PIO1 .VDD; right=2, l=MCU, pins=auto, aspect=0.75
+U2 chip3131 ._UNUSED1 .RXD .TXD .VSS ._UNUSED2 ._UNUSED3 ._UNUSED4 .VDD; right=2, l=Bluetooth, pins=auto, aspect=0.75
 W U1.TXD U2.RXD; right=2.5
 W U1.RXD U2.TXD; right=2.5
 U3 chip1310 ._IN .EN .GND ._NC ._OUT; right=1.5, aspect=1.5, pins=auto

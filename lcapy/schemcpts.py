@@ -1128,6 +1128,10 @@ class Chip(Shape):
     # \ from the label. Alternatively, do not use inverting circle and
     # add overline to symbol name when printing.
 
+    @property
+    def path(self):
+        return ((-0.5, 0.5), (0.5, 0.5), (0.5, -0.5), (-0.5, -0.5))
+
     def name_pins(self):
 
         pins = self.opts.get('pins', '')
@@ -1168,10 +1172,9 @@ class Chip(Shape):
         self.name_pins()
             
         centre = self.centre
-        q = self.tf(centre, ((-0.5, 0.5), (0.5, 0.5),
-                             (0.5, -0.5), (-0.5, -0.5)))
+        q = self.tf(centre + Pos(-2.0, 0), self.path)
 
-        s = self.draw_path(q[0:4], closed=True, style='thick')
+        s = self.draw_path(q, closed=True, style='thick')
         s += r'  \draw (%s) node[text width=%scm, align=center, %s] {%s};''\n'% (
             centre, self.width - 0.5, self.args_str, self.label(**kwargs))
 
@@ -1235,6 +1238,46 @@ class Uchip4141(Chip):
                 (0.5, -0.5), 
                 (1.0, -0.75), (1.0, -0.25), (1.0, 0.25), (1.0, 0.75),
                 (0.5, 0.5))
+
+
+class Uadc(Chip):
+    """ADC"""
+
+    # in, vref, vss, clk, data, fs, vdd, vref
+    pinpos = ('l', 'b', 'b', 'r', 'r', 'r', 't', 't')
+
+    @property
+    def coords(self):
+        return ((0, 0.0), (0.5, -0.5), (0.75, -0.5), 
+                (1.0, -0.25), (1.0, 0), (1.0, 0.25), (0.75, 0.5), (0.5, 0.5))
+
+    @property
+    def path(self):
+        return ((0, 0.0), (0.25, -0.5), (1, -0.5), (1.0, 0.5), (0.25, 0.5))
+
+    @property
+    def centre(self):
+        return self.midpoint(self.dvnodes[0], self.dvnodes[4])
+
+
+class Udac(Chip):
+    """DAC"""
+
+    # fs, data, clk, vss, out, vdd, vref
+    pinpos = ('l', 'l', 'l', 'b', 'b', 'r', 't', 't')
+
+    @property
+    def coords(self):
+        return ((0, 0.25), (0, 0), (0, -0.25), (0.25, -0.5), (0.5, -0.5),
+                (1.0, 0), (0.5, 0.5), (0.25, 0.5))
+
+    @property
+    def path(self):
+        return ((0, -0.5), (0.75, -0.5), (1.0, 0), (0.75, 0.5), (0, 0.5))
+
+    @property
+    def centre(self):
+        return self.midpoint(self.dvnodes[1], self.dvnodes[5])
 
 
 class Ubuffer(Chip):
