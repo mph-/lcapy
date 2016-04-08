@@ -912,7 +912,10 @@ class Schematic(NetfileMixin):
             name = node.name
             name = name.split('.')[-1]
             
-            if label_nodes == 'alpha':
+            if label_nodes == 'pins':
+                if not node.pin:
+                    continue
+            elif label_nodes == 'alpha':
                 if not node.primary or not name[0].isalpha():
                     continue
             elif label_nodes == 'primary':

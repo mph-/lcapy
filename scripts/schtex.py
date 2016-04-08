@@ -35,7 +35,7 @@ def main (argv=None):
 
     parser.add_option('--label-nodes', type='str',
                       dest='label_nodes', default=None,
-                      help='label nodes, choice: none, alpha, primary, all')
+                      help='label nodes, choice: none, alpha, pins, primary, all')
 
     parser.add_option('--nolabel-nodes', action='store_false',
                       dest='label_nodes',
@@ -124,7 +124,7 @@ def main (argv=None):
     if options.p_model:
         cct = cct.pre_initial_model()
 
-    if options.label_nodes not in ('none', 'all', 'alpha', 'primary', False, None):
+    if options.label_nodes not in ('none', 'all', 'alpha', 'pins', 'primary', False, None):
         raise ValueError('Illegal option %s for label_nodes' % options.label_nodes)
 
     if options.draw_nodes not in ('none', 'all', 'primary', 'connections',
