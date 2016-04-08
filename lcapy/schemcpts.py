@@ -1045,6 +1045,7 @@ class Shape(FixedCpt):
     """General purpose shape"""
 
     default_aspect = 1.0
+    can_mirror = True
 
     @property
     def centre(self):
@@ -1132,6 +1133,25 @@ class Chip(Shape):
     def path(self):
         return ((-0.5, 0.5), (0.5, 0.5), (0.5, -0.5), (-0.5, -0.5))
 
+    def pinmap(self, pos):
+
+        pinmap = ['l', 't', 'r', 'b']
+        if pos not in pinmap:
+            return pos
+            
+        index = pinmap.index(pos)
+        angle = int(self.angle)
+        if angle < 0:
+            angle += 360
+
+        angles = (0, 90, 180, 270)
+        if angle not in angles:
+            raise ValueError('Cannot rotate pinpos %s by %s' % (pos, self.angle))
+
+        index += angles.index(angle)
+        pos = pinmap[index % len(pinmap)]
+        return pos
+
     def name_pins(self):
 
         pins = self.opts.get('pins', '')
@@ -1148,7 +1168,7 @@ class Chip(Shape):
                     len(self.dvnodes), len(pins), self))
 
         for m, n in enumerate(self.dvnodes):
-            n.pinpos = self.pinpos[m]
+            n.pinpos = self.pinmap(self.pinpos[m])
             label = ''
             if pins == 'auto':
                 label = n.name.split('.')[-1]
@@ -1172,7 +1192,7 @@ class Chip(Shape):
         self.name_pins()
             
         centre = self.centre
-        q = self.tf(centre + Pos(-2.0, 0), self.path)
+        q = self.tf(centre, self.path)
 
         s = self.draw_path(q, closed=True, style='thick')
         s += r'  \draw (%s) node[text width=%scm, align=center, %s] {%s};''\n'% (
@@ -1253,7 +1273,7 @@ class Uadc(Chip):
 
     @property
     def path(self):
-        return ((0, 0.0), (0.25, -0.5), (1, -0.5), (1.0, 0.5), (0.25, 0.5))
+        return ((-0.5, 0.0), (-0.25, -0.5), (0.5, -0.5), (0.5, 0.5), (-0.25, 0.5))
 
     @property
     def centre(self):
@@ -1273,7 +1293,7 @@ class Udac(Chip):
 
     @property
     def path(self):
-        return ((0, -0.5), (0.75, -0.5), (1.0, 0), (0.75, 0.5), (0, 0.5))
+        return ((-0.5, -0.5), (0.25, -0.5), (0.5, 0), (0.25, 0.5), (-0.5, 0.5))
 
     @property
     def centre(self):
