@@ -1201,7 +1201,8 @@ class Chip(Shape):
         for m, n in enumerate(self.dvnodes):
             if n.clock:
                 # TODO, tweak for pinpos
-                q = self.tf(n.pos, ((0, 0.125), (0.125, 0), (0, -0.125)))
+                q = self.tf(n.pos, ((0, 0.125 * 0.707), (0.125, 0), 
+                                    (0, -0.125 * 0.707)))
                 s += self.draw_path(q[0:3], style='thick')
                 
         return s
@@ -1244,6 +1245,10 @@ class Uchip3131(Chip):
     def coords(self):
         return ((-0.5, 0.25), (-0.5, 0), (-0.5, -0.25), (0.0, -0.5), 
                 (0.5, -0.25), (0.5, 0), (0.5, 0.25), (0.0, 0.5))
+
+    @property
+    def path(self):
+        return ((-0.5, 0.375), (0.5, 0.375), (0.5, -0.375), (-0.5, -0.375))
 
 
 class Uchip4141(Chip):
