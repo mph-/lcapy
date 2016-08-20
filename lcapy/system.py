@@ -98,18 +98,5 @@ def circuitikz_version():
 
     match = re.search(r'circuitikz ([0-9/]+)', log)
     if match is None:
-        return ''
+        return None
     return match.group(1)
-
-
-def circuitikz_check():
-
-    version = circuitikz_version()
-
-    if version == '':
-        print('Need circuitikz installed if want to display schematics')
-        return
-
-    fields = version.split('/')
-    if fields[0] != '2016':
-        print('Need to upgrade circuitikz, have %s' % version)
