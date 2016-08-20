@@ -44,7 +44,7 @@ import lcapy.schemcpts as cpts
 from lcapy.schemmisc import Pos, Opts
 from lcapy.netfile import NetfileMixin
 from lcapy.system import run_dot, run_latex, convert_pdf_png, convert_pdf_svg
-from lcapy.system import tmpfilename, circuitikz_check, latex_cleanup
+from lcapy.system import tmpfilename, circuitikz_version, latex_cleanup
 from os import path, remove
 import math
 
@@ -981,7 +981,7 @@ class Schematic(NetfileMixin):
         # For debugging when do not want to write to file
         nosave = kwargs.pop('nosave', False)
 
-        circuitikz_check()
+        self.circuitikz_version = circuitikz_version()
 
         content = self._tikz_draw(style_args=style_args, **kwargs)
         
