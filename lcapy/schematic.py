@@ -43,22 +43,12 @@ from lcapy.core import Expr
 import lcapy.schemcpts as cpts
 from lcapy.schemmisc import Pos, Opts
 from lcapy.netfile import NetfileMixin
-from os import system, path, remove, mkdir, chdir, getcwd
+from lcapy.system import run_dot, run_latex, convert_pdf_png, convert_pdf_svg
+from lcapy.system import tmpfilename, circuitikz_check, latex_cleanup
+from os import path, remove
 import math
 
 __all__ = ('Schematic', )
-
-
-def tmpfilename(suffix=''):
-
-    from tempfile import gettempdir, NamedTemporaryFile
-    
-    # Searches using TMPDIR, TEMP, TMP environment variables
-    tempdir = gettempdir()
-    
-    filename = NamedTemporaryFile(suffix=suffix, dir=tempdir, 
-                                  delete=False).name
-    return filename
 
 
 def display_matplotlib(filename):
@@ -586,8 +576,7 @@ class Graph(dict):
         if ext in ('.pdf', '.png'):
             dotfilename = filename + '.dot'
             self.dot(dotfilename, stage=stage)
-            system('dot -T %s -o %s %s' % (ext[1:], filename, dotfilename))
-            remove(dotfilename)            
+            run_dot(dotfilename, filename)
             return
 
         if stage != 0:
@@ -933,7 +922,6 @@ class Schematic(NetfileMixin):
                 anchor, node.s, node.label.replace('_', r'\_'))
         return s
 
-
     def _tikz_draw(self, style_args='', **kwargs):
 
         self._positions_calculate()
@@ -969,31 +957,7 @@ class Schematic(NetfileMixin):
 
         return s
 
-    def _convert_pdf_svg(self, pdf_filename, svg_filename):
-
-        system('pdf2svg %s %s' % (pdf_filename, svg_filename))
-        if not path.exists(svg_filename):
-            raise RuntimeError('Could not generate %s with pdf2svg' % 
-                               svg_filename)
-
-    def _convert_pdf_png(self, pdf_filename, png_filename, oversample=1):
-
-        system('convert -density %d %s %s' %
-               (oversample * 100, pdf_filename, png_filename))
-        if path.exists(png_filename):
-            return
-
-        # Windows has a program called convert, try im-convert
-        # for image magick convert.
-        system('im-convert -density %d %s %s' %
-               (oversample * 100, pdf_filename, png_filename))
-        if path.exists(png_filename):
-            return
-
-        raise RuntimeError('Could not generate %s with convert' % 
-                           png_filename)
-
-    def tikz_draw(self, filename=None, **kwargs):
+    def tikz_draw(self, filename, **kwargs):
 
         root, ext = path.splitext(filename)
 
@@ -1016,6 +980,8 @@ class Schematic(NetfileMixin):
 
         # For debugging when do not want to write to file
         nosave = kwargs.pop('nosave', False)
+
+        circuitikz_check()
 
         content = self._tikz_draw(style_args=style_args, **kwargs)
         
@@ -1042,32 +1008,17 @@ class Schematic(NetfileMixin):
                     '\\begin{document}\n%s\\end{document}')
         content = template % content
 
-        texfilename = filename.replace(ext, '.tex')
-        open(texfilename, 'w').write(content)
+        tex_filename = filename.replace(ext, '.tex')
+        open(tex_filename, 'w').write(content)
 
         if ext == '.tex':
             return
 
-        dirname = path.dirname(texfilename)
-        baseroot = path.basename(root)
-        cwd = getcwd()
-        if dirname != '':
-            chdir(path.abspath(dirname))
-
-        system('pdflatex -interaction batchmode %s.tex' % baseroot)
-
-        if dirname != '':
-            chdir(cwd)            
-
+        pdf_filename = tex_filename.replace('.tex', '.pdf')
+        run_latex(tex_filename)
         if not debug:
-            try:
-                remove(root + '.aux')
-                remove(root + '.log')
-                remove(root + '.tex')
-            except:
-                pass
+            latex_cleanup(tex_filename, pdf_filename)
 
-        pdf_filename = root + '.pdf'
         if not path.exists(pdf_filename):
             raise RuntimeError('Could not generate %s with pdflatex' % 
                                pdf_filename)
@@ -1076,13 +1027,13 @@ class Schematic(NetfileMixin):
             return
 
         if ext == '.svg':
-            self._convert_pdf_svg(pdf_filename, root + '.svg')
+            convert_pdf_svg(pdf_filename, root + '.svg')
             if not debug:
                 remove(pdf_filename)
             return
 
         if ext == '.png':
-            self._convert_pdf_png(pdf_filename, root + '.png', oversample)
+            convert_pdf_png(pdf_filename, root + '.png', oversample)
             if not debug:
                 remove(pdf_filename)
             return
@@ -1167,7 +1118,8 @@ class Schematic(NetfileMixin):
                 # files since the later ones inherit the namespace of
                 # the first ones.
                 display_svg(SVG(filename=pngfilename, 
-                                width=self.width * 100, height=self.height * 100))
+                                width=self.width * 100,
+                                height=self.height * 100))
                 return
 
         if filename is None:
