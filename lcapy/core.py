@@ -1570,6 +1570,8 @@ class tExpr(Expr):
             if (expr.nargs != 1) or (expr.args[0] != tsym):
                 raise TypeError(e)
             # Convert v(t) to V(s), etc.
+            if expr.func.__name__ == 'u':
+                print('Warning, use Heaviside(t) for unit step u(t)')
             name = uppercase_name(expr.func.__name__) + '(s)'
             return sExpr(name)
 
