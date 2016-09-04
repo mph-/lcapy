@@ -1068,9 +1068,10 @@ class Shape(FixedCpt):
             return ''
 
         # shape border rotate rotates the box but not the text
-        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%scm, minimum height=%scm, text width=%scm, align=center, shape border rotate=%s, draw, %s] {%s};''\n'% (
+        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%scm, minimum height=%scm, text width=%scm, align=center, shape border rotate=%s, draw, %s] (%s) {%s};''\n'% (
             self.centre, self.shape, self.width, self.height, 
-            self.width - 0.5, self.angle, self.args_str, self.label(**kwargs))
+            self.width - 0.5, self.angle, self.args_str, self.s,
+            self.label(**kwargs))
 
         return s
 
