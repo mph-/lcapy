@@ -342,9 +342,16 @@ class Cpt(object):
         raise NotImplementedError('draw method not implemented for %s' % self)
 
     def opts_str(self, choices):
+        """Format voltage, current, or label string as a key-value pair"""
 
         def fmt(key, val):
-            return '%s=%s' % (key, format_label(val))
+            label = format_label(val)
+            if label == '':
+                label = '{}'
+            if not (label[0] == '{' and label[-1] == '}'):
+                label = '{' + label + '}'
+
+            return '%s=%s' % (key, label)
 
         return ','.join([fmt(key, val) 
                          for key, val in self.opts.items()
