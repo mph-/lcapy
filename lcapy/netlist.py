@@ -297,7 +297,7 @@ class Netlist(MNA, NetfileMixin):
         Note, independent sources are killed."""
 
         new = self.kill()
-        new._add('V1_ %d %d s 1' % (N1p, N1m))
+        new._add('V1_ %d %d {2 * DiracDelta(t)}' % (N1p, N1m))
 
         H = Hs(new.Voc(N2p, N2m) / new.V1_.V, causal=True)
 
@@ -317,8 +317,7 @@ class Netlist(MNA, NetfileMixin):
             raise ValueError('Network contains independent sources')
 
         try:
-
-            self._add('V1_ %d %d s 1' % (N1p, N1m))
+            self._add('V1_ %d %d {2 * DiracDelta(t)}' % (N1p, N1m))
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
@@ -330,7 +329,7 @@ class Netlist(MNA, NetfileMixin):
 
             self.remove('V1_')
 
-            self._add('I1_ %d %d s 1' % (N1p, N1m))
+            self._add('I1_ %d %d {2 * DiracDelta(t)}' % (N1p, N1m))
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
