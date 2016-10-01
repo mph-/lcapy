@@ -1463,7 +1463,7 @@ class fExpr(sfwExpr):
 
         from sympy.integrals.transforms import inverse_fourier_transform
 
-        result = inverse_fourier_transform(self.expr, tsym, self.var)
+        result = inverse_fourier_transform(self.expr, self.var, tsym)
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         return result
@@ -1511,7 +1511,7 @@ class omegaExpr(sfwExpr):
 
         from sympy.integrals.transforms import inverse_fourier_transform
 
-        result = inverse_fourier_transform(self.expr, tsym, self.var)
+        result = inverse_fourier_transform(self.expr, self.var, tsym)
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         return result
