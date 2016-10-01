@@ -1,7 +1,7 @@
 """This module provides support for the common aspects of Circuit and
 Network classes.
 
-Copyright 2014, 2015 Michael Hayes, UCECE
+Copyright 2014-2016 Michael Hayes, UCECE
 
 """
 
@@ -181,6 +181,19 @@ class Netlist(MNA, NetfileMixin):
         for node in cpt.nodes:
             self._node_add(node, cpt)
 
+    def copy(self):
+        """Create a copy of the netlist"""
+
+        new = self._new()
+        new.opts = copy(self.opts)
+
+        for cpt in self._elements.values():
+            new._add(str(cpt))
+        return new        
+
+    def _new(self):
+        return self.__class__()
+
     def remove(self, name):
         """Remove specified element."""
 
@@ -299,7 +312,10 @@ class Netlist(MNA, NetfileMixin):
         new = self.kill()
         new._add('V1_ %d %d {2 * DiracDelta(t)}' % (N1p, N1m))
 
-        H = Hs(new.Voc(N2p, N2m) / new.V1_.V, causal=True)
+        V2 = new.Voc(N2p, N2m)
+        V1 = new.V1_.V
+
+        H = Hs(V2 / V1, causal=True)
 
         return H
 
@@ -347,7 +363,7 @@ class Netlist(MNA, NetfileMixin):
 
     def _kill(self, sourcenames):
 
-        new = Netlist()
+        new = self._new()
         new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
@@ -430,7 +446,7 @@ class Netlist(MNA, NetfileMixin):
         """Generate circuit model for determining the pre-initial
         conditions."""
 
-        new = Netlist()
+        new = self._new()
         new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
@@ -440,7 +456,7 @@ class Netlist(MNA, NetfileMixin):
 
     def s_model(self, var=s):
 
-        new = Netlist()
+        new = self._new()
         new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
