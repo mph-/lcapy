@@ -90,6 +90,7 @@ class EngFormat(object):
         self.unit = unit
 
     def latex(self, trim=True, hundreds=False):
+        """If hundreds True format like 100 pF rather than 0.1 nF"""
 
         prefixes = ('f', 'p', 'n', '$\mu$', 'm', '', 'k', 'M', 'G', 'T')
 
@@ -99,14 +100,10 @@ class EngFormat(object):
         m = math.log10(abs(value))
 
         if m < -1 or m >= 3.0:
-            if hundreds:
-                # Generate 100 m
-                n = int(math.floor(m / 3))
-                k = int(math.floor(m)) - n * 3
-            else:
-                # Generate 0.1
-                n = int(round(m / 3))
-                k = int(round(m)) - n * 3
+            if not hundreds:
+                m += 1
+            n = int(math.floor(m / 3))
+            k = int(math.floor(m)) - n * 3
         else:
             n = 0
             k = m - 1
