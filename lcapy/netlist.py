@@ -501,6 +501,9 @@ class Netlist(MNA, NetfileMixin):
             return False
 
         independent_sources = self.independent_sources
+        if independent_sources == {}:
+            return False
+
         for cpt in independent_sources.values():
             if not cpt.is_dc:
                 return False
@@ -515,6 +518,9 @@ class Netlist(MNA, NetfileMixin):
             return False
 
         independent_sources = self.independent_sources
+        if independent_sources == {}:
+            return False
+
         for cpt in independent_sources.values():
             if not cpt.is_ac:
                 return False
