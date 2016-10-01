@@ -206,6 +206,9 @@ class Expr(object):
         # class and rewrap the returned value if it is a sympy Expr
         # object.
 
+        # This propagates the assumptions.  There is a possibility that
+        # the operation may violate them.
+
         expr = self.expr
         if hasattr(expr, attr):
             a = getattr(expr, attr)
@@ -1418,7 +1421,9 @@ class tsExpr(sExpr):
     """t or s-domain expression or symbol, interpreted in time domain
     if not containing s"""
 
-    def __init__(self, val):
+    # Todo, replace with a factory.
+
+    def __init__(self, val, **assumptions):
 
         assumptions = {}
 
@@ -1440,7 +1445,7 @@ class fExpr(sfwExpr):
     domain_name = 'Frequency'
     domain_units = 'Hz'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
         super(fExpr, self).__init__(val, real=True)
         # Define when class defined.
@@ -1489,7 +1494,7 @@ class omegaExpr(sfwExpr):
     domain_name = 'Angular frequency'
     domain_units = 'rad/s'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
         super(omegaExpr, self).__init__(val, real=True)
         self._fourier_conjugate_class = tExpr
@@ -1537,7 +1542,7 @@ class tExpr(Expr):
     domain_name = 'Time'
     domain_units = 's'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
         super(tExpr, self).__init__(val, real=True)
 
@@ -2033,9 +2038,9 @@ class Yt(tExpr):
 
     units = 'siemens/s'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(Yt, self).__init__(val)
+        super(Yt, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Ys
         self._fourier_conjugate_class = Yf
 
@@ -2046,9 +2051,9 @@ class Zt(tExpr):
 
     units = 'ohms/s'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(Zt, self).__init__(val)
+        super(Zt, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Zs
         self._fourier_conjugate_class = Zf
 
@@ -2060,9 +2065,9 @@ class Vt(tExpr):
     quantity = 'Voltage'
     units = 'V'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(Vt, self).__init__(val)
+        super(Vt, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Vs
         self._fourier_conjugate_class = Vf
 
@@ -2074,9 +2079,9 @@ class It(tExpr):
     quantity = 'Current'
     units = 'A'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(It, self).__init__(val)
+        super(It, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Is
         self._fourier_conjugate_class = If
 
@@ -2088,9 +2093,9 @@ class Ht(tExpr):
     quantity = 'Impulse response'
     units = '1/s'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(Ht, self).__init__(val)
+        super(Ht, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Hs
         self._fourier_conjugate_class = Hf
 
@@ -2102,9 +2107,9 @@ class Yf(fExpr):
     quantity = 'Admittance'
     units = 'siemens'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(Yf, self).__init__(val)
+        super(Yf, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Yt
 
 
@@ -2117,7 +2122,7 @@ class Zf(fExpr):
 
     def __init__(self, val):
 
-        super(Zf, self).__init__(val)
+        super(Zf, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Zt
 
 
@@ -2128,9 +2133,9 @@ class Vf(fExpr):
     quantity = 'Voltage spectrum'
     units = 'V/Hz'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(Vf, self).__init__(val)
+        super(Vf, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Vt
 
 
@@ -2141,9 +2146,9 @@ class If(fExpr):
     quantity = 'Current spectrum'
     units = 'A/Hz'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(If, self).__init__(val)
+        super(If, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = It
 
 
@@ -2154,9 +2159,9 @@ class Hf(fExpr):
     quantity = 'Transfer function'
     units = ''
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(Hf, self).__init__(val)
+        super(Hf, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Ht
 
 
@@ -2167,9 +2172,9 @@ class Yomega(omegaExpr):
     quantity = 'Admittance'
     units = 'siemens'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(Yomega, self).__init__(val)
+        super(Yomega, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Yt
 
 
@@ -2180,9 +2185,9 @@ class Zomega(omegaExpr):
     quantity = 'Impedance'
     units = 'ohms'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(Zomega, self).__init__(val)
+        super(Zomega, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Zt
 
 
@@ -2193,9 +2198,9 @@ class Vomega(omegaExpr):
     quantity = 'Voltage spectrum'
     units = 'V/rad/s'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(Vomega, self).__init__(val)
+        super(Vomega, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Vt
 
 
@@ -2206,9 +2211,9 @@ class Iomega(omegaExpr):
     quantity = 'Current spectrum'
     units = 'A/rad/s'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(Iomega, self).__init__(val)
+        super(Iomega, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = It
 
 
@@ -2219,9 +2224,9 @@ class Homega(omegaExpr):
     quantity = 'Transfer function'
     units = ''
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
-        super(Homega, self).__init__(val)
+        super(Homega, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Ht
 
 
@@ -2340,7 +2345,7 @@ def delta(expr, *args):
 def VV(val, **assumptions):
 
     if assumptions.get('ac', False):
-        return Vphasor(val)
+        return Vphasor(val, **assumptions)
     else:
         return Vs(val, **assumptions).canonical()
 
@@ -2348,7 +2353,7 @@ def VV(val, **assumptions):
 def II(val, **assumptions):
 
     if assumptions.get('ac', False):
-        return Iphasor(val)
+        return Iphasor(val, **assumptions)
     else:
         return Is(val, **assumptions).canonical()
 
