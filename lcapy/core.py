@@ -214,8 +214,10 @@ class Expr(object):
             if not hasattr(a, '__call__'):
                 if not isinstance(a, sym.Expr):
                     return a
+                if hasattr(self, 'assumptions'):
+                    return self.__class__(ret, **self.assumptions)
                 return self.__class__(ret)
-
+                
             # If it is callable, create a function to pass arguments
             # through and wrap its return value.
             def wrap(*args):
@@ -225,6 +227,8 @@ class Expr(object):
                     return ret
 
                 # Wrap the return value
+                if hasattr(self, 'assumptions'):
+                    return self.__class__(ret, **self.assumptions)
                 return self.__class__(ret)
 
             return wrap
