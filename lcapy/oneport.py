@@ -941,9 +941,6 @@ class C(Thevenin):
 
     def __init__(self, Cval, v0=None):
 
-        import pdb
-        pdb.set_trace()
-
         self.hasic = v0 is not None
         if v0 is None:
             v0 = 0

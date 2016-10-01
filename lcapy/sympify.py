@@ -1,4 +1,4 @@
-from sympy.parsing.sympy_parser import parse_expr, auto_number
+from sympy.parsing.sympy_parser import parse_expr, auto_number, rationalize
 from sympy.parsing.sympy_tokenize import NUMBER, STRING, NAME, OP
 from sympy import Basic, Symbol, Expr
 import sympy as sym
@@ -122,7 +122,8 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
         return result
 
 
-    s = parse_expr(string, transformations=(auto_symbol, auto_number), 
+    s = parse_expr(string, transformations=(auto_symbol, auto_number,
+                                            rationalize), 
                    global_dict=global_dict, local_dict=local_dict,
                    evaluate=evaluate)
     if not cache:
@@ -166,8 +167,8 @@ def sympify1(arg, symbols={}, evaluate=True, **assumptions):
         return sym.sympify(str(arg), rational=True, evaluate=evaluate)
         
     if isinstance(arg, str):
-        return parse(arg, symbols, evaluate=evaluate, local_dict=symbols, 
-                     **assumptions)
+        return parse(arg, symbols, evaluate=evaluate,
+                     local_dict=symbols, **assumptions)
 
     return sym.sympify(arg, rational=True, locals=symbols, 
                        evaluate=evaluate)

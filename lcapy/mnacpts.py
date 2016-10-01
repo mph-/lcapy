@@ -24,9 +24,6 @@ class Cpt(object):
     def __init__(self, cct, name, cpt_type, cpt_id, string,
                  opts_string, nodes, *args):
 
-        import pdb
-        pdb.set_trace()
-
         self.cct = cct
         self.type = cpt_type
         self.id = cpt_id

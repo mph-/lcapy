@@ -192,7 +192,11 @@ class Netlist(MNA, NetfileMixin):
         return new        
 
     def _new(self):
-        return self.__class__()
+        
+        if self.__class__ == 'Circuit':
+            return Circuit()
+        # If have OnePort, Network, etc., treat as Netlist
+        return Netlist()
 
     def remove(self, name):
         """Remove specified element."""
