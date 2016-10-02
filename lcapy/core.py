@@ -696,13 +696,17 @@ class Expr(object):
 
     def evaluate(self, arg=None):
         """Evaluate expression at arg.  arg may be a scalar, or a vector.
+        The result is of type float or complex.  
 
         There can be no symbols in the expression except for the variable.
 
         Note, expressions such as exp(-alpha*t) * Heaviside(t) will
         not evaluate correctly since the exp will overflow for -t and
         produce an Inf.  When this is multiplied by 0 from the
-        Heaviside function we get Nan. """
+        Heaviside function we get Nan.  To avoid this problem,
+        use expr(arg).evaluate().  This substitutes the dependent variable
+        with arg but only works for scalars and is much slower.
+        """
 
         # Use symbol names to avoid problems with symbols of the same
         # name with different assumptions.
@@ -722,6 +726,14 @@ class Expr(object):
         # Perhaps should check if expr.args[1] == Heaviside('t') and not
         # evaluate if t < 0?
 
+        def exp(arg):
+
+            # Hack to handle exp(-a * t) * Heaviside(t) for t < 0
+            # by trying to avoid inf when number overflows float.
+            if arg > 500:
+                arg = 500;
+            return np.exp(arg)
+
         def dirac(arg):
 
             return np.inf if arg == 0.0 else 0.0
@@ -737,7 +749,7 @@ class Expr(object):
         # for lamdification!
         func = lambdify(self.var, self.expr,
                         ({'DiracDelta' : dirac,
-                          'sqrt' : sqrt},
+                          'sqrt' : sqrt, 'exp' : exp},
                          "numpy", "sympy", "math"))
 
         if np.isscalar(arg):
