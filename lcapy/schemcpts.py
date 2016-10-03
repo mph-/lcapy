@@ -1111,6 +1111,17 @@ class Box4(Box):
         return ((-0.5, 0), (0, -0.5), (0.5, 0), (0, 0.5))
 
 
+class Box12(Box):
+    """Box12"""
+
+    @property
+    def coords(self):
+        return ((-0.5, 0.25), (-0.5, 0), (-0.5, -0.25),
+                (-0.25, -0.5), (0, -0.5), (0.25, -0.5),
+                (0.5, -0.25), (0.5, 0), (0.5, 0.25),
+                (0.25, 0.5), (0, 0.5), (-0.25, 0.5))
+
+
 class Circle4(Circle):
     """Circle4"""
 
@@ -1668,6 +1679,7 @@ defcpt('TP', TwoPort, 'Two port', '')
 defcpt('Ubox', Box, 'Box')
 defcpt('Ucircle', Circle, 'Circle')
 defcpt('Ubox4', Box4, 'Box')
+defcpt('Ubox12', Box12, 'Box')
 defcpt('Ucircle4', Circle4, 'Circle')
 
 

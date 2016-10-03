@@ -72,6 +72,7 @@ Udac: Uname dac P P P P P P P P; DAC
 Ubox: Uname box P P; Box
 Ucircle: Uname circle P P; Circle
 Ubox4: Uname box4 P P P P; Box
+Ubox12: Uname box12 P P P P P P P P P P P P; Box
 Ucircle4: Uname circle4 P P P P; Circle
 Uchip1310: Uname chip1310 P P P P P; Chip
 Uchip2121: Uname chip2121 P P P P P P; Chip
@@ -125,6 +126,7 @@ diffamp: keyword;
 box: keyword;
 circle: keyword;
 box4: keyword;
+box12: keyword;
 circle4: keyword;
 chip1310: keyword;
 chip2121: keyword;
