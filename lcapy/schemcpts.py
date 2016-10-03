@@ -341,8 +341,10 @@ class Cpt(object):
     def draw(self, **kwargs):
         raise NotImplementedError('draw method not implemented for %s' % self)
 
-    def opts_str(self, choices):
-        """Format voltage, current, or label string as a key-value pair"""
+
+    def opts_str_list(self, choices):
+        """Format voltage, current, or label string as a key-value pair
+        and return list of strings"""
 
         def fmt(key, val):
             label = format_label(val)
@@ -353,9 +355,13 @@ class Cpt(object):
 
             return '%s=%s' % (key, label)
 
-        return ','.join([fmt(key, val) 
-                         for key, val in self.opts.items()
-                         if key in choices])
+        return [fmt(key, val) for key, val in self.opts.items()
+                if key in choices]
+
+    def opts_str(self, choices):
+        """Format voltage, current, or label string as a key-value pair"""
+
+        return ','.join(self.opts_str_list(choices))
 
     @property
     def voltage_str(self):
@@ -371,6 +377,11 @@ class Cpt(object):
     def label_str(self):
 
         return self.opts_str(self.label_keys)
+
+    @property
+    def label_str_list(self):
+
+        return self.opts_str_list(self.label_keys)
 
     @property
     def args_str(self):
@@ -1519,8 +1530,14 @@ class Wire(OnePort):
             # FIXME, we don't really want the wire drawn since this
             # can clobber the arrow.  We just want the current
             # annotation and/or the label.
-            s += r'  \draw[%s] (%s) [short, %s, %s] to (%s);''\n' % (
-                self.args_str, n1.s, self.current_str, self.label_str, n2.s)
+
+            # To handle multiple labels, we need to draw separate wires.
+            for label_str in self.label_str_list:
+                s += r'  \draw[%s] (%s) [short, %s, %s] to (%s);''\n' % (
+                    self.args_str, n1.s, self.current_str, label_str, n2.s)
+            if self.label_str_list == []:
+                s += r'  \draw[%s] (%s) [short, %s] to (%s);''\n' % (
+                    self.args_str, n1.s, self.current_str, n2.s)
         return s
 
 
