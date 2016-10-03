@@ -699,29 +699,25 @@ class Expr(object):
         The result is of type float or complex.  
 
         There can be no symbols in the expression except for the variable.
-
-        Note, expressions such as exp(-alpha*t) * Heaviside(t) will
-        not evaluate correctly since the exp will overflow for -t and
-        produce an Inf.  When this is multiplied by 0 from the
-        Heaviside function we get Nan.  To avoid this problem,
-        use expr(arg).evaluate().  This substitutes the dependent variable
-        with arg but only works for scalars and is much slower.
         """
 
-        # Use symbol names to avoid problems with symbols of the same
-        # name with different assumptions.
-        varname = self.var.name
-        free_symbols = set([symbol.name for symbol in self.expr.free_symbols])
-        if varname in free_symbols:
-            free_symbols -= set((varname, ))
-        if free_symbols != set():
-            raise ValueError('Undefined symbols %s in expression %s' % (tuple(free_symbols), self.var))
+        if hasattr(self, 'var'):
+            # Use symbol names to avoid problems with symbols of the same
+            # name with different assumptions.
+            varname = self.var.name
+            free_symbols = set([symbol.name for symbol in self.expr.free_symbols])
+            if varname in free_symbols:
+                free_symbols -= set((varname, ))
+            if free_symbols != set():
+                raise ValueError('Undefined symbols %s in expression %s' % (tuple(free_symbols), self.var))
 
-        if arg is None:
-            if self.expr.find(self.var) != set():
-                raise ValueError('Need value to evaluate expression at')
-            # The arg is irrelevant since the expression is a constant.
-            arg = 0
+            if arg is None:
+                if self.expr.find(self.var) != set():
+                    raise ValueError('Need value to evaluate expression at')
+                # The arg is irrelevant since the expression is a constant.
+                arg = 0
+            else:
+                arg = 0
 
         # Perhaps should check if expr.args[1] == Heaviside('t') and not
         # evaluate if t < 0?
