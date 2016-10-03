@@ -1504,7 +1504,7 @@ class Wire(OnePort):
         if self.voltage_str != '':
             print('There is no voltage drop across an ideal wire!')
 
-        if self.current_str != '' or 'l' in self.opts:
+        if self.current_str != '' or self.label_str != '':
             # FIXME, we don't really want the wire drawn since this
             # can clobber the arrow.  We just want the current
             # annotation and/or the label.
