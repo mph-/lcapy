@@ -716,8 +716,8 @@ class Expr(object):
                     raise ValueError('Need value to evaluate expression at')
                 # The arg is irrelevant since the expression is a constant.
                 arg = 0
-            else:
-                arg = 0
+        else:
+            arg = 0
 
         # Perhaps should check if expr.args[1] == Heaviside('t') and not
         # evaluate if t < 0?
