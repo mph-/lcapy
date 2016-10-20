@@ -2128,7 +2128,7 @@ class Zf(fExpr):
     quantity = 'Impedance'
     units = 'ohms'
 
-    def __init__(self, val):
+    def __init__(self, val, **assumptions):
 
         super(Zf, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Zt
