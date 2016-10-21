@@ -924,7 +924,11 @@ class L(Thevenin):
         if i0 is None:
             i0 = 0
 
-        self.args = (Lval, i0)
+        if self.hasic:
+            self.args = (Lval, i0)
+        else:
+            self.args = (Lval, )
+
         Lval = cExpr(Lval, positive=True)
         i0 = cExpr(i0)
         super(L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
@@ -945,7 +949,11 @@ class C(Thevenin):
         if v0 is None:
             v0 = 0
 
-        self.args = (Cval, v0)
+        if self.hasic:
+            self.args = (Cval, v0)
+        else:
+            self.args = (Cval, )
+
         Cval = cExpr(Cval, positive=True)
         v0 = cExpr(v0)
         super(C, self).__init__(Zs.C(Cval), Vs(v0).integrate())

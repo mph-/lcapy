@@ -353,13 +353,17 @@ of the impedance `N.Z`.
 
 
 The frequency response can be evaluated numerically by specifying a
-vector of frequency values.
+vector of frequency values.  For example:
 
    >>> from lcapy import *
    >>> from numpy import linspace
-   >>> N = Vdc(20) + R(5) + C(10)
+   >>> N = Vdc(20) + R(5) + C(10, 0)
    >>> vf = linspace(0, 4, 400)
    >>> Isc = N.Isc.frequency_response().evaluate(vf)
+
+Note, in this example, the initial capacitor voltage is specified to
+be zero.  If this initial condition is unspecified, the short circuit
+current cannot be determined.
 
 Then the frequency response can be plotted.  For example,
 
@@ -376,9 +380,9 @@ A simpler approach is to use the plot method:
 
    >>> from lcapy import *
    >>> from numpy import linspace
-   >>> N = Vdc(20) + R(5) + C(10)
+   >>> N = Vdc(20) + R(5) + C(10, 0)
    >>> vf = linspace(0, 4, 400)
-   >>> Isc = N.Isc.frequency_response().plot(vf, log_scale=True)
+   >>> N.Isc.frequency_response().plot(vf, log_scale=True)
 
 .. image:: examples/netlists/series-VRC1-Isc.png
    :width: 15cm
@@ -397,13 +401,11 @@ Simple transient analysis
 =========================
 
 Let's consider a series R-C network in series with a DC voltage source
-(well, its not really a DC voltage source but a DC voltage multiplied
-by a unit step)
 
    >>> from lcapy import *
-   >>> N = Vdc(20) + R(5) + C(10)
+   >>> N = Vdc(20) + R(5) + C(10, 0)
    >>> N
-   Vdc(20) + R(5) + C(10)
+   Vdc(20) + R(5) + C(10, 0)
    >>> Voc = N.Voc
    >>> Voc
    20
@@ -415,24 +417,29 @@ by a unit step)
    50⋅s + 1
    >>> isc = N.Isc.transient_response()
    >>> isc
-      -t              
-      ───             
-       50             
-   4⋅ℯ   ⋅Heaviside(t)
+   ⎧   -t            
+   ⎪   ───           
+   ⎨    50           
+   ⎪4⋅ℯ     for t ≥ 0
+   ⎩                 
 
 Here `N` is network formed by the components in series, and `N.Voc` is
 the open-circuit voltage across the network.  Note, this is the same
 as the s-domain value of the voltage source.  `N.Isc` is the
 short-circuit s-domain voltage through the network.  The method
-`transient_response` converts this to the time-domain, a damped
-exponential response multiplied by the ubiquitous unit step.
+`transient_response` converts this to the time-domain.  Note, since
+the capacitor has the initial value specified, this network is
+analysed as an initial value problem and thus the result is not known
+for :math:`t<0`.  If the initial capacitor voltage is not specified,
+the network cannot be analysed.
 
-Of course, this could have been done symbolically,
+
+Of course, the previous example can be performed symbolically,
 
    >>> from lcapy import *
-   >>> N = Vdc('V_1') + R('R_1') + C('C_1')
+   >>> N = Vdc('V_1') + R('R_1') + C('C_1', 0)
    >>> N
-   Vdc(V₁) + R(R₁) + C(C₁)
+   Vdc(V₁) + R(R₁) + C(C₁, 0)
    >>> Voc = N.Voc
    >>> Voc
    V₁
@@ -444,19 +451,20 @@ Of course, this could have been done symbolically,
    C₁⋅R₁⋅s + 1
    >>> isc = N.Isc.transient_response()
    >>> isc
-         -t               
-        ─────             
-        C₁⋅R₁             
-    V₁⋅ℯ     ⋅Heaviside(t)
-    ──────────────────────
-          R₁          
+   ⎧     -t             
+   ⎪    ─────           
+   ⎪    C₁⋅R₁           
+   ⎨V₁⋅ℯ                
+   ⎪─────────  for t ≥ 0
+   ⎪    R₁              
+   ⎩                    
 
 The transient response can be evaluated numerically by specifying a
 vector of time values.
 
    >>> from lcapy import *
    >>> from numpy import linspace
-   >>> N = Vdc(20) + R(5) + C(10)
+   >>> N = Vdc(20) + R(5) + C(10, 0)
    >>> t = linspace(0, 100, 400)
    >>> isc = N.Isc.transient_response(t)
 

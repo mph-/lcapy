@@ -32,13 +32,8 @@ class Network(Netlist):
         if not hasattr(self, 'args'):
             return ()
 
-        args = self.args
-        # Drop the initial condition for L or C if it is zero.
-        if self.__class__.__name__ in ('L', 'C') and args[1] == 0:
-            args = args[:-1]
-
         modargs = []
-        for arg in args:
+        for arg in self.args:
             if isinstance(arg, sExpr):
                 arg = arg.expr
 

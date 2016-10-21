@@ -41,7 +41,33 @@ class LcapyTester(unittest.TestCase):
 
         a = Vdc(4) | R(2)
 
+        self.assertEqual(a.initial_value_problem, False, "initial_value_problem incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
         self.assertEqual(a.is_dc, True, "DC incorrect")
         self.assertEqual(a.i, 0, "Open circuit terminal current not zero")
 
+
+    def test_VC_dc1(self):
+        """Lcapy: check VC dc network
+
+        """
+
+        a = Vdc(4) + C(2)
+
+        self.assertEqual(a.initial_value_problem, False, "initial_value_problem incorrect")
+        self.assertEqual(a.is_ac, False, "AC incorrect")
+        self.assertEqual(a.is_dc, True, "DC incorrect")
+        self.assertEqual(a.i, 0, "Open circuit terminal current not zero")
+
+
+    def test_VC_dc2(self):
+        """Lcapy: check VC dc network
+
+        """
+
+        a = Vdc(4) + C(2, 0)
+
+        self.assertEqual(a.initial_value_problem, True, "initial_value_problem incorrect")
+        self.assertEqual(a.is_ac, False, "AC incorrect")
+        self.assertEqual(a.is_dc, False, "DC incorrect")
+        self.assertEqual(a.i, 0, "Open circuit terminal current not zero")
