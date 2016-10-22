@@ -1571,7 +1571,17 @@ class tExpr(Expr):
                 't-domain expression %s cannot depend on s' % self.expr)
 
     def laplace(self):
-        """Attempt Laplace transform"""
+        """Attempt Laplace transform
+
+        Note, sympy uses a one-sided Laplace transform with limits 0
+        to oo.  For electrical system it is common to use limits -t0
+        to oo where t0 tends to zero.  This correctly captures
+        Heaviside and DiracDelta generalised distributions.  As a
+        consequence DiracDelta(t) gives 0.5 and not 1 as expected.
+
+        Note, this may change in the future...
+        
+        """
         
         var = self.var
         if var == tsym:
@@ -1580,6 +1590,11 @@ class tExpr(Expr):
 
         try:
             F, a, cond = sym.laplace_transform(self, var, ssym)
+            # Newer versions of sympy do not simplify Heaviside(0)
+            # For now use the version 0.5.
+            if F.has(sym.Heaviside(0)):
+                F = sym.simplify(F.replace(sym.Heaviside(0), sympify(0.5)))
+
         except TypeError as e:
             expr = self.expr
             if not isinstance(expr, sym.function.AppliedUndef):
@@ -1597,6 +1612,7 @@ class tExpr(Expr):
         return F
 
     def fourier(self):
+
         """Attempt Fourier transform"""
 
         F = sym.fourier_transform(self.expr, self.var, f)
