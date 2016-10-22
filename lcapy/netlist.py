@@ -282,7 +282,7 @@ class Netlist(MNA, NetfileMixin):
 
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
-        new._add('Vin_ %d %d {2 * DiracDelta(t)}' % (Np, Nm))
+        new._add('Vin_ %d %d {DiracDelta(t)}' % (Np, Nm))
         If = -new.Vin_.I
         new.remove('Vin_')
 
@@ -299,7 +299,7 @@ class Netlist(MNA, NetfileMixin):
 
         # Connect 1 A s-domain current source between nodes and
         # measure voltage.
-        new._add('Iin_ %d %d {2 * DiracDelta(t)}' % (Np, Nm))
+        new._add('Iin_ %d %d {DiracDelta(t)}' % (Np, Nm))
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
@@ -314,7 +314,7 @@ class Netlist(MNA, NetfileMixin):
         Note, independent sources are killed."""
 
         new = self.kill()
-        new._add('V1_ %d %d {2 * DiracDelta(t)}' % (N1p, N1m))
+        new._add('V1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
 
         V2 = new.Voc(N2p, N2m)
         V1 = new.V1_.V
@@ -337,7 +337,7 @@ class Netlist(MNA, NetfileMixin):
             raise ValueError('Network contains independent sources')
 
         try:
-            self._add('V1_ %d %d {2 * DiracDelta(t)}' % (N1p, N1m))
+            self._add('V1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
@@ -349,7 +349,7 @@ class Netlist(MNA, NetfileMixin):
 
             self.remove('V1_')
 
-            self._add('I1_ %d %d {2 * DiracDelta(t)}' % (N1p, N1m))
+            self._add('I1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit

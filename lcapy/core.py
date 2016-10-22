@@ -14,6 +14,7 @@ from __future__ import division
 from lcapy.latex import latex_str
 from lcapy.acdc import is_dc, is_ac, is_causal, ACChecker
 from lcapy.sympify import canonical_name, sympify1, symbols_find
+from lcapy.laplace import laplace_transform
 import numpy as np
 from sympy.core.mul import _unevaluated_Mul as uMul
 from sympy.assumptions.assume import global_assumptions
@@ -1571,41 +1572,9 @@ class tExpr(Expr):
                 't-domain expression %s cannot depend on s' % self.expr)
 
     def laplace(self):
-        """Attempt Laplace transform
-
-        Note, sympy uses a one-sided Laplace transform with limits 0
-        to oo.  For electrical system it is common to use limits -t0
-        to oo where t0 tends to zero.  This correctly captures
-        Heaviside and DiracDelta generalised distributions.  As a
-        consequence DiracDelta(t) gives 0.5 and not 1 as expected.
-
-        Note, this may change in the future...
+        """Determine one-side Laplace transform with 0- as the lower limit."""
         
-        """
-        
-        var = self.var
-        if var == tsym:
-            # Hack since sympy gives up on Laplace transform if t real!
-            var = sym.Symbol('t')
-
-        try:
-            F, a, cond = sym.laplace_transform(self, var, ssym)
-            # Newer versions of sympy do not simplify Heaviside(0)
-            # For now use the version 0.5.
-            if F.has(sym.Heaviside(0)):
-                F = sym.simplify(F.replace(sym.Heaviside(0), sympify(0.5)))
-
-        except TypeError as e:
-            expr = self.expr
-            if not isinstance(expr, sym.function.AppliedUndef):
-                raise TypeError(e)
-            if (expr.nargs != 1) or (expr.args[0] != tsym):
-                raise TypeError(e)
-            # Convert v(t) to V(s), etc.
-            if expr.func.__name__ == 'u':
-                print('Warning, use Heaviside(t) for unit step u(t)')
-            name = uppercase_name(expr.func.__name__) + '(s)'
-            return sExpr(name)
+        F = laplace_transform(self, self.var, ssym)
 
         if hasattr(self, '_laplace_conjugate_class'):
             F = self._laplace_conjugate_class(F)

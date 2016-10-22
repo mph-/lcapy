@@ -179,11 +179,8 @@ class LcapyTester(unittest.TestCase):
         """
         a = delta(t)
 
-        self.assertEqual(a.evaluate(2), 0.0, "scalar evaluate incorrect.")
-        # Well, I reckon that the Laplace transfrom should integrate
-        # from 0- to ensure symmetry, but at the moment 0.5 is
-        # the correct answer.
-        self.assertEqual(a.laplace(), 0.5, "Laplace transform incorrect.")
+        self.assertEqual(a.evaluate(2), 0, "scalar evaluate incorrect.")
+        self.assertEqual(a.laplace(), 1, "Laplace transform incorrect.")
 
 
     def test_jomega(self):
@@ -263,5 +260,4 @@ class LcapyTester(unittest.TestCase):
     def test_laplace(self):
         
         self.assertEqual(Heaviside(t).laplace(), 1 / s, "Heaviside(t)")        
-        # Yes, sympy gives 0.5 and not 1 since its lower limit is 0.
-        self.assertEqual(DiracDelta(t).laplace(), 0.5, "DiracDelta(t)")
+        self.assertEqual(DiracDelta(t).laplace(), 1, "DiracDelta(t)")
