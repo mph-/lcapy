@@ -1257,7 +1257,7 @@ class sExpr(sfwExpr):
         if delay != 0:
             result2 *= sym.Heaviside(td)
                 
-        return sym.Piecewise((result1 + result2, 't>=0'))
+        return sym.Piecewise((result1 + result2, tsym >= 0))
 
 
     def inverse_laplace(self, **assumptions):
@@ -1297,7 +1297,7 @@ class sExpr(sfwExpr):
             result = inverse_laplace_transform(expr, t, self.var)
 
             if not assumptions.causal:
-                result = sym.Piecewise((result, 't>=0'))
+                result = sym.Piecewise((result, tsym >= 0))
 
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result)
