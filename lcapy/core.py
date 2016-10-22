@@ -834,7 +834,13 @@ class Expr(object):
             raise ValueError('Unknown symbol %s' % old)
         old = context.symbols[name]
 
-        return cls(self.expr.subs(old, expr))
+        result = self.expr.subs(old, expr)
+
+        # If get empty Piecewise, then result unknowable.
+        if result == sym.Piecewise():
+            result = sym.nan
+
+        return cls(result)
 
     def __call__(self, arg):
         """Substitute arg for variable.  If arg is an tuple or list
