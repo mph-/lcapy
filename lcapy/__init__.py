@@ -57,3 +57,15 @@ from .circuit import *
 from . import schematic
 __all__.extend(schematic.__all__)
 from .schematic import *
+
+__all__.extend(('show_version', ))
+
+def show_version():
+    
+    from sys import version as python_version
+    from sympy import __version__ as sympy_version
+    from numpy import __version__ as numpy_version
+
+    print('Python: %s\nSymPy: %s\nNumPy: %s' % 
+          (python_version, sympy_version, numpy_version))
+
