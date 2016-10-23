@@ -12,6 +12,7 @@ for symbol in global_ignore:
 # delta gets printed as DiracDelta; could override
 global_dict['delta'] = global_dict['DiracDelta']
 global_dict['step'] = global_dict['Heaviside']
+global_dict['u'] = global_dict['Heaviside']
 
 cpt_names = ('C', 'E', 'F', 'G', 'H', 'I', 'L', 'R', 'V', 'Y', 'Z')
 cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))

@@ -33,14 +33,12 @@ def laplace_term(expr, t, s):
     var = sym.Symbol(str(t))
     expr = expr.replace(var, t)
 
-    if expr.has(sym.function.AppliedUndef):
-        # TODO, handle things like 3 * v(t), a * v(t), 3 * t * v(t)
+    if expr.has(sym.function.AppliedUndef) and expr.args[0] == t:
+        # TODO, handle things like 3 * v(t), a * v(t), 3 * t * v(t), v(t-T)
         if not isinstance(expr, sym.function.AppliedUndef):
             raise ValueError('Could not compute Laplace transform for ' + str(expr))
-        # Convert v(t) to V(s), etc.
-        if expr.func.__name__ == 'u':
-            print('Warning, use Heaviside(t) for unit step u(t)')
 
+        # Convert v(t) to V(s), etc.
         name = expr.func.__name__
         name = name[0].upper() + name[1:] + '(s)'
         return sym.sympify(name)
