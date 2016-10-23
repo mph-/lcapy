@@ -25,6 +25,7 @@ Contents:
    tutorial.rst
    circuits.rst
    networks.rst
+   netlists.rst
    schematics.rst
    api.rst
 

@@ -7,14 +7,11 @@ Introduction
 ============
 
 Lcapy can only analyse linear time invariant (LTI) circuits, this
-includes both passive and active circuits.  The circuits can be
-created using a netlist_ specification or by combinations of
-components (see :ref:`networks`).
-
-Time invariance means that the circuit parameters cannot change with
-time; i.e., capacitors cannot change value with time.  It also means
-that the circuit configuration cannot change with time, i.e., contain
-switches (although switching problems can be analysed, see
+includes both passive and active circuits.  Time invariance means that
+the circuit parameters cannot change with time; i.e., capacitors
+cannot change value with time.  It also means that the circuit
+configuration cannot change with time, i.e., contain switches
+(although switching problems can be analysed, see
 :ref:`switching-analysis`).
 
 Linearity means that superposition applies---if you double the voltage
@@ -31,6 +28,52 @@ effect of each independent current and voltage source in isolation and
 summing the results.
 
 
+Networks and netlists
+=====================
+
+Lcapy circuits can be created using a netlist specification (see
+:ref:`netlists`) or by combinations of components (see
+:ref:`networks`).  For example, here are two ways to create the same
+circuit:
+
+   >>> cct1 = (Vstep(10) + R(1)) | C(2)
+
+   >>> cct2 = Circuit()
+   >>> cct2.add('V 1 0 step 10')
+   >>> cct2.add('R 1 2 1')
+   >>> cct2.add('C 2 0 2')
+
+The two approaches have many attributes and methods in common.  For example,
+
+   >>> cct1.is_causal
+   True
+   >>> cct2.is_causal
+   True
+   >>> cct1.is_dc
+   False
+   >>> cct2.is_dc
+   False
+
+However, there are subtle differences.  For example,
+
+   >>> cct1.Voc
+      5   
+   ──────
+    2   s
+   s  + ─
+        2
+
+   >>> cct2.Voc(2, 0)
+      5   
+   ──────
+    2   s
+   s  + ─
+        2
+
+Notice, the second example requires specific nodes to determine the
+open-circuit voltage across.
+
+
 Linear circuit analysis
 =======================
 
@@ -38,7 +81,7 @@ There is no universal analytical technique to determine the voltages
 and currents in an LTI circuit.  Instead there are a number of methods
 that all try to side step having to solve simultaneous
 integro-differential equations.  These methods include DC analysis, AC
-analysis, and Laplace analysis.
+analysis, and Laplace analysis.  Lcapy uses all three.
 
 
 DC analysis
@@ -156,197 +199,3 @@ analysis to determine the overall result using superposition.
 Lcapy will happily kill a specified independent source using the
 `kill_except` method and thus s-domain superposition can be manually
 performed.
-
-
-.. _netlist:
-.. _netlists:
-
-Netlists
-========
-
-Circuits are described using a netlist of interconnected components (see :ref:`component-specification`).  Each line of a netlist describes a component using a Spice-like syntax.
-
-
-.. _component-specification:
-
-Component specification
------------------------
-
-The general form for a component is:
-
-    component-name positive-node negative-node arg1 [arg2 etc.]
-
-If no args are specified then the component value is assigned a
-symbolic name specified by `component-name`. 
-
-The component type is specified by the first letter(s) of the
-`component-name`.  For example,
-
-- DC voltage source of voltage V:
-
-   Vname Np Nm dc V
-
-- AC voltage source of voltage V, frequency f, and phase p:
-
-   Vname Np Nm ac V f p
-
-- Arbitrary s-domain voltage source:
-
-   Vname Np Nm Vexpr
-
-- DC current source of current I:
-
-   Iname Np Nm dc I
-
-- AC current source of current I, frequency f, and phase p:
-
-   Iname Np Nm ac I p
-
-- Arbitrary s-domain current source:
-
-   Iname Np Nm Iexpr
-
-- Resistor:
-
-   Rname Np Nm R
-
-- Conductor:
-
-   Gname Np Nm G
-
-- Inductor:
-
-   Lname Np Nm L i0
-
-- Capacitor:
-
-   Cname Np Nm L v0
-
-- Voltage-controlled voltage source (VCVS) of gain H with controlling nodes Nip and Nim:
-
-   Ename Np Nm Nip Nim H
-
-- Ideal transformer of turns ratio a:
-
-   TFname Np Nm a
-
-Np denotes the positive node; Np denotes the negative node.  Note,
-positive current flows from `positive-node` to `negative-node`.  Node
-names can be numeric or symbolic.  The ground node is designated `0`.
-
-
-Voltage and current sources
----------------------------
-
-The netlist description for a voltage source has the form:
-
-Vname Np Nm value
-
-Here value can be an arbitrary expression; the expression must be
-enclosed in curly braces if it contains a delimiter such as a space,
-comma, left bracket, or right bracket.  For example, for a ramp
-voltage source
-
-V1 1 0 {t * Heaviside(t)}
-
-An s-domain value can be similarly described, for example
-
-V1 1 0 {10 / s}
-
-But what about the following example?
-
-V1 1 2 10
-
-Here the value is not an expression of t or s and so is ambiguous.
-For Spice compatibility, Lcapy assumes a DC value of 10 (in the
-s-domain this is equivalent to 10 / s).  An s-domain value of 10 can
-be achieved using:
-
-V1 1 2 {0 * s + 10}
-
-or
-
-V1 1 2 s 10
-
-or alternatively,
-
-V1 1 2 {10 * DiracDelta(t)}
-
-To input an arbitrary time varying voltage use:
-
-V1 1 2 {v(t)}
-
-Here the value will be converted to V(s) for calculations but
-displayed on a schematic as v(t).   
-
-Here's an example of a cosine current current of amplitude 20 A and
-frequency f
-
-I1 1 0 {20 * cos(2 * pi * f * t)}
-
-Here's an example of a negative exponential current of amplitude 20 A
-and time constant 2 s
-
-I1 1 0 {20 * exp(-t / 4)}
-
-
-
-Circuit examples
-================
-
-
-V-R-C circuit (1)
------------------
-
-This example plots the transient voltage across a capacitor in a series R-L circuit:
-
-.. image:: examples/netlists/circuit-VRC1.png
-   :width: 7cm
-
-.. literalinclude:: examples/netlists/circuit-VRC1-vc.py
-
-.. image:: examples/netlists/circuit-VRC1-vc.png
-   :width: 15cm
-
-
-V-R-C circuit (2)
------------------
-
-This example is the same as the previous example but it uses an
-alternative method of plotting.
-
-.. literalinclude:: examples/netlists/circuit-VRC2-vc.py
-
-.. image:: examples/netlists/circuit-VRC2-vc.png
-   :width: 15cm
-
-
-V-R-L-C circuit (1)
--------------------
-
-This example plots the transient voltage across a resistor in a series R-L-C circuit:
-
-.. image:: examples/netlists/circuit-VRLC1.png
-   :width: 7cm
-
-.. literalinclude:: examples/netlists/circuit-VRLC1-vr.py
-
-.. image:: examples/netlists/circuit-VRLC1-vr.png
-   :width: 15cm
-
-
-
-V-R-L-C circuit (2)
--------------------
-
-This is the same as the previous example but with a different resistor value giving an underdamped response:
-
-.. image:: examples/netlists/circuit-VRLC2-vr.png
-   :width: 7cm
-
-.. literalinclude:: examples/netlists/circuit-VRLC2-vr.py
-
-.. image:: examples/netlists/circuit-VRLC2-vr.png
-   :width: 15cm
-
-

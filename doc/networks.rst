@@ -208,8 +208,8 @@ For example,
 
 
 
-Network examples
-================
+Network analysis examples
+=========================
 
 
 Series R-C network
