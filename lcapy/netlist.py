@@ -484,6 +484,7 @@ class Netlist(MNA, NetfileMixin):
         """Return True if all independent sources are causal and not an
         initial value problem (unless all the initial values are zero)."""
 
+
         # If some of the initial conditions are specified and are non-zero
         # then have a non-causal initial value problem.
         if not self.zeroic:

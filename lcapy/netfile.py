@@ -7,6 +7,15 @@ class NetfileMixin(object):
     def _init_parser(self, cpts):
         self.parser = Parser(cpts, grammar)        
         self.namespace = ''
+        self._anon = {}
+
+    def _make_anon(self, kind):
+        """Make identifier for anonymous component"""
+
+        if kind not in self._anon:
+            self._anon[kind] = 0
+        self._anon[kind] += 1        
+        return 'anon' + str(self._anon[kind])
 
     def _include(self, string):
 

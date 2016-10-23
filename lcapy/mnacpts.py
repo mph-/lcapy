@@ -208,7 +208,7 @@ class Cpt(object):
 
     def dummy_node(self):
 
-        return '_' + self.anon('node')
+        return '_' + self.cct._make_anon('node')
 
 
 class Invalid(Cpt):
@@ -652,6 +652,8 @@ class SPppm(Dummy):
 class TF(Cpt):
     """Transformer"""    
 
+    need_branch_current = True
+
     def stamp(self, cct):
 
         n1, n2, n3, n4 = self.node_indexes
@@ -664,7 +666,7 @@ class TF(Cpt):
             cct._B[n2, m] -= 1
             cct._C[m, n2] -= 1
         
-        T = self.cpt.args[0].expr
+        T = self.cpt.alpha
 
         if n3 >= 0:
             cct._B[n3, m] -= T

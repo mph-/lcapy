@@ -2059,6 +2059,10 @@ class IdealTransformer(TwoPortBModel):
         super(IdealTransformer, self).__init__(BMatrix.transformer(alpha))
 
 
+class TF(IdealTransformer):
+    pass
+
+
 class IdealGyrator(TwoPortBModel):
 
     """Ideal gyrator with gyration resistance R.

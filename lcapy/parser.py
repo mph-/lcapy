@@ -212,12 +212,7 @@ class Parser(object):
 
         name = namespace + cpt_type + cpt_id
         if cpt_id == '' and parent is not None:
-            if not hasattr(parent, 'anon'):
-                parent.anon = {}
-            if cpt_type not in parent.anon:
-                parent.anon[cpt_type] = 0
-            parent.anon[cpt_type] += 1        
-            name += 'anon' + str(parent.anon[cpt_type])
+            name += parent._make_anon(cpt_id)
 
         nodes, args = rule.process(self.paramdir, string, fields, name, 
                                    namespace)
