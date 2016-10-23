@@ -6,7 +6,7 @@ Installation
 
 - You need to install SymPy, see http://docs.sympy.org/latest/install.html.
 
-- For plotting you need to install matplotlib (this requires Numpy).
+- For plotting you need to install matplotlib (this requires NumPy).
 
 - For schematic drawing you need pdflatex, the circuitikz package (https://www.ctan.org/pkg/circuitikz), the imagemagick convert program (http://www.imagemagick.org/), and ghostscript (http://www.ghostscript.com/).
 
@@ -20,11 +20,11 @@ Installation
 Lcapy installation for Linux (Ubuntu and variants)
 ==================================================
 
-- You need to install the Sympy package:
+- You need to install the SymPy package:
 
   >>> sudo apt-get install python-sympy
 
-- For plotting you need the Matplotlib and Numpy packages:
+- For plotting you need the Matplotlib and NumPy packages:
 
   >>> sudo apt-get install python-numpy python-matplotlib
 

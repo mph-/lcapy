@@ -1,3 +1,5 @@
+.. _networks:
+
 ========
 Networks
 ========
@@ -55,6 +57,15 @@ Each network has a number of attributes, including:
 - `y` t-domain impulse response of admittance
 
 - `z` t-domain impulse response of impedance
+
+- `is_dc` DC network
+
+- `is_ac` AC network
+
+- `is_ivp` initial value problem
+
+- `is_causal` causal response
+
 
 
 Here's an example:

@@ -45,8 +45,8 @@ Values and Expressions
 
 Lcapy uses a number of classes to represent a value or expression.
 These classes all inherit from the 'Expr' base class; this is a
-wrapper for a sympy expression.  Unfortunately, sympy does not provide
-a generic sympy expression class so 'Expr' stores the sympy expression
+wrapper for a SymPy expression.  Unfortunately, SymPy does not provide
+a generic SymPy expression class so 'Expr' stores the SymPy expression
 as its 'expr' attribute.
 
 'cExpr' represents a constant, such as the resistance of a resistor.
@@ -60,7 +60,7 @@ The constant must be real and positive.
 interpreted as a time domain expression.
 
 
-Note sympy considers that the two expressions x1 and x2 are different
+Note SymPy considers that the two expressions x1 and x2 are different
 since they have different conditions, where
 
   x1 = sym.symbols('x')
@@ -95,10 +95,10 @@ Lcapy maintains a set of symbols for each circuit plus a set of
 additional symbols defined when creating other objects, such as V
 or C.  Symbol names are converted into a canonical format, V1 -> V_1.
 
-sympy defines symbols Q, C, O, S, I, N, E.  It also consider E1 as the
+SymPy defines symbols Q, C, O, S, I, N, E.  It also consider E1 as the
 generalized exponential integral function. Thus sympify(5 * E1) fails.
 
-Assumptions are useful for sympy to simplify expressions.  For
+Assumptions are useful for SymPy to simplify expressions.  For
 example, knowing that a symbol is real or real and positive.
 
 Perhaps symbols cannot be complex or negative?  Complex expressions
@@ -120,14 +120,14 @@ Assumptions are required to simplify expressions and to help with
 inverse Laplace transforms.
 
 There are two types of assumptions.
-1. Assumptions used by Sympy, such as real, positive, etc.
+1. Assumptions used by SymPy, such as real, positive, etc.
 2. Assumptions used by Lcapy, such as dc, real, causal, etc.
 
 
-Sympy assumptions
+SymPy assumptions
 -----------------
 
-To confuse matters, Sympy has two assumptions mechanisms, old and new.
+To confuse matters, SymPy has two assumptions mechanisms, old and new.
 The old method attaches attributes to symbols, for example,
 
 from sympy import Symbol, Q, exp, I, pi
@@ -197,6 +197,7 @@ component nodes are determined independently using directed acyclic
 graphs.
 
 The steps of the algorithm are:
+
 1. Construct a graph where the edges are the components.  Electrical
    nodes with a common x or y position are combined to reduce the
    graph size.

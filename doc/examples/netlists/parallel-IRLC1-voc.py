@@ -1,8 +1,8 @@
-from lcapy import Idc, R, L, C
+from lcapy import Istep, R, L, C
 from matplotlib.pyplot import figure, savefig, show
 import numpy as np
 
-a = Idc(10) | R(0.1) | C(0.4) | L(0.2)
+a = Istep(10) | R(0.1) | C(0.4) | L(0.2)
 
 a.Voc.pprint()
 

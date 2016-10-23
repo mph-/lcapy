@@ -13,19 +13,15 @@ solve linear, time invariant networks.  In other words, networks
 comprised of basic circuit components (R, L, C, etc.) that do not vary
 with time.
 
-Lcapy can semi-automate the drawing of schematics from a netlist.
+Networks and circuits can be described using netlists or combinations
+of network elements.  These can be drawn semi-automatically.
 
 Lcapy cannot directly analyse non-linear devices such as diodes or
 transistors although it does support simple opamps without saturation.
 Nevertheless, it can draw them!
 
-Lcapy uses Sympy (symbolic Python) for its values and expressions
-and thus the circuit analysis can be performed symbolically.  See http://docs.sympy.org/latest/tutorial/index.html for the Sympy tutorial.
-
-Internally, the circuit components are stored using their s-domain
-equivalents, such as impedances and admittances.  This is convenient
-for frequency response analysis but requires an inverse Laplace
-transform for transient response analysis.
+Lcapy uses SymPy (symbolic Python) for its values and expressions
+and thus the circuit analysis can be performed symbolically.  See http://docs.sympy.org/latest/tutorial/index.html for the SymPy tutorial.
 
 
 Preliminaries
@@ -96,7 +92,7 @@ Lcapy expressions have a number of attributes, including:
 
 - conjugate -- complex conjugate
 
-- expr -- the underlying Sympy expression
+- expr -- the underlying SymPy expression
 
 - val -- the expression as evaluated as a floating point value (if possible)
 
@@ -412,9 +408,9 @@ Let's consider a series R-C network in series with a DC voltage source
    ──
    s 
    >>> N.Isc
-   200   
+   4   
    ────────
-   50⋅s + 1
+   s + 1/50
    >>> isc = N.Isc.transient_response()
    >>> isc
    ⎧   -t            
@@ -446,9 +442,11 @@ Of course, the previous example can be performed symbolically,
    ──
    s 
    >>> N.Isc
-   C₁⋅V₁   
-   ───────────
-   C₁⋅R₁⋅s + 1
+         V₁      
+   ──────────────
+      ⎛      1  ⎞
+   R₁⋅⎜s + ─────⎟
+      ⎝    C₁⋅R₁⎠
    >>> isc = N.Isc.transient_response()
    >>> isc
    ⎧     -t             
@@ -868,33 +866,34 @@ through an element, for example,
    ────
     s 
    >>> cct.Rb.V
-   2.5
+    5 
    ───
-    s  
+   2⋅s
 
 Notice, how the displayed voltages are Laplace domain voltages.  The
 transient voltages can be determined using an inverse Laplace transform:
 
-   >>> cct.V1.V.inverse_laplace(causal=True)
-   10.0⋅Heaviside(t)
+   >>> cct.V1.V.inverse_laplace()
+   10
 
 Alternatively, using the lowercase `v` attribute:
 
    >>> cct.V1.v
-   10.0⋅Heaviside(t)
+   10
 
 
 The voltage between a node and ground can be determined with the node
 name as an index, for example,
 
    >>> cct[1].V
-   10.0
-   ────
+   10
+   ───
     s  
    >>> cct[2].V
-   2.5
+    5 
    ───
-    s 
+   2⋅s
+
 
 The circuit has a number of attributes, including:
 
@@ -918,13 +917,13 @@ The circuit also has a number of methods, including:
 - `Voc(N1, N2)` open-circuit current between pair of nodes
 
 
-Since Lcapy uses Sympy, circuit analysis can be performed
+Since Lcapy uses SymPy, circuit analysis can be performed
 symbolically.  This can be achieved by using symbolic arguments or by
 not specifying a component value.  In the latter case, Lcapy will
 use the component name for its value.  For example,
 
    >>> cct = Circuit()
-   >>> cct.add('V1 1 0 dc Vs') 
+   >>> cct.add('V1 1 0 step Vs') 
    >>> cct.add('R1 1 2') 
    >>> cct.add('C1 2 0') 
    >>> cct[2].V
@@ -933,11 +932,10 @@ use the component name for its value.  For example,
           2    
    C₁⋅R₁⋅s  + s
    >>> : cct[2].V.inverse_laplace()
-   ⎧            -t             
-   ⎪           ─────           
-   ⎨           C₁⋅R₁           
-   ⎪V_s - V_s⋅ℯ       for t ≥ 0
-   ⎩                           
+   ⎛            -t  ⎞             
+   ⎜           ─────⎟             
+   ⎜           C₁⋅R₁⎟             
+   ⎝V_s - V_s⋅ℯ     ⎠⋅Heaviside(t)
 
 
 Initial Conditions
@@ -952,10 +950,13 @@ For example,
    >>> cct.add('C1 2 1 C1 v0') 
    >>> cct.add('L1 2 0 L1 i0') 
    >>> cct[2].V
-   C₁⋅L₁⋅Vs⋅s + C₁⋅L₁⋅s⋅v₀ - L₁⋅i₀
-   ───────────────────────────────
-                    2             
-             C₁⋅L₁⋅s  + 1   
+              ⎛        i₀          ⎞
+   (V_s + v₀)⋅⎜- ────────────── + s⎟
+              ⎝  C₁⋅V_s + C₁⋅v₀    ⎠
+   ─────────────────────────────────
+                2     1             
+               s  + ─────           
+                    C₁⋅L₁  
 
 
 Transfer functions

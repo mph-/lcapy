@@ -8,7 +8,7 @@ Welcome to lcapy's documentation!
 ====================================
 
 Lcapy is a Python package for linear circuit analysis.  Lcapy uses
-Sympy (symbolic Python) for symbolic analysis.  Lcapy can
+SymPy (symbolic Python) for symbolic analysis.  Lcapy can
 semi-automate the drawing of schematics from a netlist, including
 diodes and transistors.
 

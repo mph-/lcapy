@@ -7,7 +7,9 @@ Introduction
 ============
 
 Lcapy can only analyse linear time invariant (LTI) circuits, this
-includes both passive and active circuits.
+includes both passive and active circuits.  The circuits can be
+created using a netlist_ specification or by combinations of
+components (see :ref:`networks`).
 
 Time invariance means that the circuit parameters cannot change with
 time; i.e., capacitors cannot change value with time.  It also means
@@ -43,28 +45,48 @@ DC analysis
 -----------
 
 The simplest special case is for a DC independent source.  DC is an
-idealised concept---it impossible to generate---but is a good enough
+idealised concept---it impossible to generate---but is a good 
 approximation for very slowly changing sources.  With a DC independent
 source the dependent sources are also DC and thus no voltages or
 currents change.  Thus capacitors can be replaced with open-circuits
-and inductors can be replaced with short-circuits.  Currently, Lcapy
-does not perform DC analysis although this can achieved to some extent
-by using Lcapy to convert a circuit to a DC model.  Alternatively, a
-Laplace analysis can be performed provided the initial conditions are
-specified to avoid a transient response at :math:`t=0`.
+and inductors can be replaced with short-circuits.  
+
+Lcapy performs a DC analysis if all the independent sources are DC and
+no reactive component (L or C) has an initial condition explicitly
+specified.  The latter constraint may be relaxed one day if the
+initial condition can be proven not to create a transient.  A DC
+problem when the `is_dc` attribute is True.  For example:
+
+   >>> (Vdc(10) + C(1)).is_dc
+   True
+   >>> (Vdc(10) + C(1, 0)).is_dc
+   False
+
+The second example returns False since the capacitor has an explicit
+initial condition.  In this case it is solved as an initial value
+problem using Laplce analysis:
+
+   >>> (Vdc(10) + C(1, 0)).is_ivp
+   True
 
 
 AC analysis
 -----------
 
-With an AC source, phasor analysis can be performed.  Here the circuit
-components are converted to an impedance dependent on the frequency of
-the source. Currently, Lcapy does not perform AC analysis although
-this can achieved to some extent by using Lcapy to convert a circuit
-to an AC model.  Alternatively, a Laplace analysis can be performed
-with :math:`s` replaced by :math:`\mathrm{j} \omega` assuming that the
-initial conditions are specified to avoid a transient response at
-:math:`t=0`.
+AC, like DC, is an idealised concept.  It allows circuits to be
+analysed using phasors and impedances.  The use of impedances avoids
+solving integro-differential equations in the time domain.
+
+Lcapy performs AC analysis if all the independent sources are AC (and
+of the same frequency) and no reactive component (L or C) has an
+initial condition explicitly specified.  An AC
+problem when the `is_ac` attribute is True.  For example:
+
+   >>> (Vac(10) + C(1)).is_ac
+   True
+   >>> (Vac(10) + C(1, 0)).is_ac
+   False
+
 
 
 Laplace analysis
@@ -106,6 +128,9 @@ circuit is to be analysed as an initial value problem with the
 independent sources ignored for :math:`t \ge 0`.  In this case a DC
 source is not DC since it is considered to switch on at :math:`t = 0`.
 
+Lcapy performs Laplace analysis when neither the `is_ac` nor the
+`is_dc` attribute is True.
+
 
 .. _switching-analysis:
 
@@ -125,11 +150,15 @@ sources are ignored for :math:`t < 0` and the result is only known for
 Superposition
 -------------
 
-In principle, Lcapy could perform a combination of DC, AC, and Laplace analysis to determine the overall result using superposition.
+In principle, Lcapy could perform a combination of DC, AC, and Laplace
+analysis to determine the overall result using superposition.
 
-Lcapy will happily kill of a specified independent source using the `kill_except` method and thus s-domain superposition can be manually performed.
+Lcapy will happily kill a specified independent source using the
+`kill_except` method and thus s-domain superposition can be manually
+performed.
 
 
+.. _netlist:
 .. _netlists:
 
 Netlists
@@ -241,11 +270,7 @@ V1 1 2 s 10
 
 or alternatively,
 
-V1 1 2 {20 * DiracDelta(t)}
-
-Unfortunately, the sympy Laplace transform does not consider the lower
-limit of the integral to approach 0 in the limit from -oo and so the
-DiracDelta gives half the value expected in circuit analysis.
+V1 1 2 {10 * DiracDelta(t)}
 
 To input an arbitrary time varying voltage use:
 
