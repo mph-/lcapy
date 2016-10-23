@@ -129,7 +129,6 @@ Here's another example using inductors in series
    >>> Ltot.simplify()
    L(15)
 
-
 Finally, here's an example of a parallel combination of capacitors
 
    >>> from lcapy import *
