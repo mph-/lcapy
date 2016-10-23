@@ -735,6 +735,10 @@ class Expr(object):
 
             return np.inf if arg == 0.0 else 0.0
 
+        def heaviside(arg):
+
+            return 1.0 if arg >= 0.0 else 0.0
+
         def sqrt(arg):
 
             if arg < 0:
@@ -746,8 +750,9 @@ class Expr(object):
         # for lamdification!
         func = lambdify(self.var, self.expr,
                         ({'DiracDelta' : dirac,
+                          'Heaviside' : heaviside,
                           'sqrt' : sqrt, 'exp' : exp},
-                         "numpy", "sympy", "math"))
+                        "numpy", "sympy", "math"))
 
         if np.isscalar(arg):
             v1 = arg
