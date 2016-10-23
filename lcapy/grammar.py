@@ -31,6 +31,7 @@ H: Hname Np Nm Vcontrol [Value]; Current controlled voltage source (note the con
 I: Iname Np Nm [Value]; Current source
 sI: Iname Np Nm s [Value]; s-domain current source
 Idc: Iname Np Nm dc [Value]; DC current source
+Istep: Iname Np Nm step [Value]; Step current source
 Iac: Iname Np Nm ac [Value] [Phase]; AC current source
 Isin: Iname Np Nm sin Io Ia fo [td] [alpha] [Phase]; Sinusoidal current source
 J: Jname Nd Ng Ns [Value]; N channel JFET

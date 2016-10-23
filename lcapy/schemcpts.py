@@ -1661,6 +1661,7 @@ defcpt('I', OnePort, 'Current source', 'I')
 defcpt('sI', OnePort, 'Current source', 'I')
 defcpt('Isin', 'I', 'Sinusoidal current source', 'sI')
 defcpt('Idc', 'I', 'DC current source', 'I')
+defcpt('Istep', 'I', 'Step current source', 'I')
 defcpt('Iac', 'I', 'AC current source', 'sI')
 
 defcpt('J', JFET, 'N JFET transistor', 'njfet')

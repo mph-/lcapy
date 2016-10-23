@@ -824,6 +824,7 @@ defcpt('Efdopamp', E, 'Fully differential opamp')
 defcpt('sI', I, 's-domain current source')
 defcpt('Isin', I, 'Sinusoidal current source')
 defcpt('Idc', I, 'DC current source')
+defcpt('Istep', I, 'Step current source')
 defcpt('Iac', I, 'AC current source')
 
 defcpt('J', NonLinear, 'N JFET transistor')
