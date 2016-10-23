@@ -501,7 +501,7 @@ class Netlist(MNA, NetfileMixin):
         initial value problem.  The initial value problem may collapse
         to a DC problem but we cannot prove this yet."""
 
-        if self.initial_value_problem:
+        if self.is_ivp:
             return False
 
         independent_sources = self.independent_sources
@@ -518,7 +518,7 @@ class Netlist(MNA, NetfileMixin):
         """Return True if all independent sources are AC and not an
         initial value problem."""
 
-        if self.initial_value_problem:
+        if self.is_ivp:
             return False
 
         independent_sources = self.independent_sources
@@ -550,6 +550,15 @@ class Netlist(MNA, NetfileMixin):
             if not cpt.zeroic:
                 return False
         return True
+
+    @property
+    def is_ivp(self):
+        """Return True for an initial value problem.  This is True if any
+        component that allows initial conditions has them explicitly
+        defined.
+
+        """
+        return self.initial_value_problem
 
     @property
     def initial_value_problem(self):

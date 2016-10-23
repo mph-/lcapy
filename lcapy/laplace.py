@@ -37,7 +37,7 @@ def laplace_term(expr, t, s):
         # TODO, handle things like 3 * v(t), a * v(t), 3 * t * v(t)
         if not isinstance(expr, sym.function.AppliedUndef):
             raise ValueError('Could not compute Laplace transform for ' + str(expr))
-                    # Convert v(t) to V(s), etc.
+        # Convert v(t) to V(s), etc.
         if expr.func.__name__ == 'u':
             print('Warning, use Heaviside(t) for unit step u(t)')
 
@@ -82,3 +82,4 @@ def laplace_transform(expr, t, s):
         raise ValueError('Could not compute Laplace transform for ' + str(expr))
 
     return result
+
