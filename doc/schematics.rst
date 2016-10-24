@@ -796,7 +796,7 @@ File formats
 ============
 
 Lcapy uses the filename extension to determine the file format to
-produce.  This must be one of tex, pytes, png, svg, or pdf.  The pytex
+produce.  This must be one of tex, schtex, png, svg, or pdf.  The schtex
 format is useful for including schematics into LaTeX documents.  The
 tex format generates a standalone LaTeX file.  If no filename is
 specified, the schematic is displayed on the screen.
@@ -817,9 +817,9 @@ The generated stand-alone LaTeX file can be obtained using:
 
 If you wish to include the schematic into a LaTeX file use:
 
-   >>> schtex.py Dbridge.sch Dbridge.pytex
+   >>> schtex.py Dbridge.sch Dbridge.schtex
 
-and then include the file with `\\input{Dbridge.pytex}`.
+and then include the file with `\\input{Dbridge.schtex}`.
 
 `schtex.py` has many command line options to configure the drawing.
 These override the options specified in the netlist file.  For example:
