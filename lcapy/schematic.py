@@ -995,7 +995,7 @@ class Schematic(NetfileMixin):
             # print(self.xgraph.cnodes)
             # print(self.ygraph.cnodes)
 
-        if ext == '.pytex':
+        if ext in ('.pytex', '.schtex'):
             open(filename, 'w').write(content)
             return
 

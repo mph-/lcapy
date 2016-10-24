@@ -535,7 +535,7 @@ class Par(ParSer):
 
         na, nb = n3, n4
 
-        s.append('W %s %s; right, size=%s' % (n1, n3, self.wsep))
+        s.append('W %s %s; right=%s' % (n1, n3, self.wsep))
 
         # Draw components above centre
         for n in range(num_branches):
@@ -546,8 +546,8 @@ class Par(ParSer):
                 sep = H[N // 2 - n] + H[N // 2 - 1 - n]
 
             nc, nd =  net.node, net.node
-            s.append('W %s %s; up, size=%s' % (na, nc, sep))
-            s.append('W %s %s; up, size=%s' % (nb, nd, sep))
+            s.append('W %s %s; up=%s' % (na, nc, sep))
+            s.append('W %s %s; up=%s' % (nb, nd, sep))
             s.append(self.args[N // 2 - 1 - n].net_make(net, nc, nd))
             na, nb = nc, nd
 
@@ -562,15 +562,15 @@ class Par(ParSer):
                 sep = H[(N + 1) // 2 + n] + H[(N + 1) // 2 - 1 + n]
 
             nc, nd =  net.node, net.node
-            s.append('W %s %s; down, size=%s' % (na, nc, sep))
-            s.append('W %s %s; down, size=%s' % (nb, nd, sep))
+            s.append('W %s %s; down=%s' % (na, nc, sep))
+            s.append('W %s %s; down=%s' % (nb, nd, sep))
             s.append(self.args[(N + 1) // 2 + n].net_make(net, nc, nd))
             na, nb = nc, nd
 
         if n2 is None:
             n2 = net.node
 
-        s.append('W %s %s; right, size=%s' % (n4, n2, self.wsep))
+        s.append('W %s %s; right=%s' % (n4, n2, self.wsep))
         return '\n'.join(s)
 
 
@@ -623,7 +623,7 @@ class Ser(ParSer):
             n3 = net.node
             s.append(arg.net_make(net, n1, n3))
             n1 = net.node
-            s.append('W %s %s; right, size=%s' % (n3, n1, self.wsep))
+            s.append('W %s %s; right=%s' % (n3, n1, self.wsep))
 
         if n2 is None:
             n2 = net.node
