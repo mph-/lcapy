@@ -797,7 +797,7 @@ class Schematic(NetfileMixin):
         # we do not want to label, such as wires and ports.
 
         cpt.id_label = '' if id_label is None else format_label(id_label)
-        cpt.value_label = '' if value_label is None else format_label(value_label)
+        cpt.value_label = cpt.id_label if value_label is None else format_label(value_label)
         cpt.default_label = cpt.id_label if cpt.value_label == '' else cpt.value_label
 
         if cpt.opts_string != '':

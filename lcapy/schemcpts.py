@@ -924,7 +924,7 @@ class OnePort(StretchyCpt):
 
         # Generate default label.
         if (label_ids and label_values and self.id_label != '' 
-            and self.value_label):
+            and self.value_label and self.id_label != self.value_label):
             label_str = r'l%s={%s}{=%s}' % (label_pos, self.id_label,
                                             self.value_label)
         elif label_ids and self.id_label != '':
