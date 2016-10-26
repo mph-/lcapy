@@ -28,7 +28,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, Yphasor, Zphasor, omega1, It, II, VV
+from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, omega1, It, Itype, Vtype
 from lcapy.sympify import symbols_find
 from lcapy.network import Network
 
@@ -90,14 +90,6 @@ class OnePort(Network):
     @property
     def Ysc(self):
         return self.Y
-
-    @property
-    def Yphasor(self):
-        return Yphasor(self.Y(j * omega1))
-
-    @property
-    def Zphasor(self):
-        return Zphasor(self.Z(j * omega1))
 
     def ladder(self, *args):
         """Create (unbalanced) ladder network"""
@@ -189,11 +181,19 @@ class OnePort(Network):
         if self.Y == 0:
             print('Dodgy Norton to Thevenin transformation since Y = 0')
 
-        Z1, V1 = self.Z.cpt(), self.Voc.cpt()
-        if not isinstance(Z1, OnePort):
-            Z1 = Z(Z1)
+        Z1 = self.Z.cpt()
+        V1 = self.Voc.cpt()
+
         if not isinstance(V1, OnePort):
             V1 = V(V1)
+
+        if self.is_dc:
+            Z1 = Z1.Z.real
+            if not isinstance(Z1, OnePort):
+                Z1 = R(Z1)
+
+        if not isinstance(Z1, OnePort):
+            Z1 = Z(Z1)
 
         if V1.Voc == 0:
             return Z1
@@ -211,11 +211,16 @@ class OnePort(Network):
         if self.Z == 0:
             print('Dodgy Thevenin to Norton transformation since Z = 0')
 
-        Y1, I1 = self.Y.cpt(), self.Isc.cpt()
-        if not isinstance(Y1, OnePort):
-            Y1 = Y(Y1)
+        Y1 = self.Y.cpt()
+        I1 = self.Isc.cpt()
+
         if not isinstance(I1, OnePort):
             I1 = I(I1)
+
+        if self.is_dc:
+            Y1 = Y1.Y.real
+            if not isinstance(Y1, OnePort):
+                Y1 = G(Y1)
 
         if I1.Isc == 0:
             return Y1
@@ -459,7 +464,7 @@ class ParSer(OnePort):
         Voc = self.Voc
         Z = self.Z
         assumptions = Voc.assumptions
-        return II(Voc / Z, **assumptions).laplace()
+        return Itype(Voc / Z, **assumptions)
 
     @property
     def Voc(self):
@@ -467,7 +472,7 @@ class ParSer(OnePort):
         Voc = self._V[1]
         # FIXME
         assumptions = self._V.assumptions
-        return VV(Voc, **assumptions).laplace()
+        return Vtype(Voc, **assumptions)
 
     @property
     def Y(self):
@@ -669,7 +674,7 @@ class Norton(OnePort):
 
     @property
     def Voc(self):
-        return VV(self.Isc / self.Y, **self.Isc.assumptions).laplace()
+        return Vtype(self.Isc / self.Y, **self.Isc.assumptions)
 
     def cpt(self):
         """Convert to a component, if possible"""
@@ -741,7 +746,7 @@ class Thevenin(OnePort):
     def Isc(self):
 
         assumptions = self.Voc.assumptions
-        return II(self.Voc / self.Z, **assumptions).laplace()
+        return Itype(self.Voc / self.Z, **assumptions)
 
     def parallel_ladder(self, *args):
         """Add unbalanced ladder network in parallel;
