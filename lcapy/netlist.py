@@ -12,6 +12,7 @@ Copyright 2014-2016 Michael Hayes, UCECE
 from __future__ import division
 from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym
 from lcapy.core import s, j, omega, uppercase_name, global_context
+from lcapy.core import Ztype, Ytype, Htype
 from lcapy.schematic import Schematic, Opts, SchematicOpts
 from lcapy.mna import MNA
 from lcapy.netfile import NetfileMixin
@@ -286,7 +287,8 @@ class Netlist(MNA, NetfileMixin):
         If = -new.Vin_.I
         new.remove('Vin_')
 
-        Y = Ys(If, causal=True)
+        # TODO: pass modified assumptions
+        Y = Ytype(If, causal=True, dc=self.is_dc, ac=self.is_ac)
         return Y
 
     def impedance(self, Np, Nm):
@@ -303,7 +305,8 @@ class Netlist(MNA, NetfileMixin):
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
-        Z = Zs(Vf, causal=True)
+        # TODO: pass modified assumptions
+        Z = Ztype(Vf, causal=True, dc=self.is_dc, ac=self.is_ac)
         return Z
 
     def transfer(self, N1p, N1m, N2p, N2m):
@@ -319,7 +322,7 @@ class Netlist(MNA, NetfileMixin):
         V2 = new.Voc(N2p, N2m)
         V1 = new.V1_.V
 
-        H = Hs(V2 / V1, causal=True)
+        H = Htype(V2 / V1, causal=True)
 
         return H
 

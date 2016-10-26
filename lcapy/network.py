@@ -129,8 +129,12 @@ class Network(Netlist):
             n2 = net.node
 
         netname = self.__class__.__name__ if self.netname == '' else self.netname
-        return '%s %s %s %s %s; right' % (netname, n1, n2, 
-                                          self.netkeyword, self.netargs())
+
+        if self.netkeyword != '':
+            return '%s %s %s %s %s; right' % (netname, n1, n2, 
+                                              self.netkeyword, self.netargs())
+        else:
+            return '%s %s %s %s; right' % (netname, n1, n2, self.netargs())
 
     def netlist(self):
 

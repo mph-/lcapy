@@ -5,7 +5,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from lcapy.core import cExpr, VV, II, s, sqrt
+from lcapy.core import cExpr, Vtype, Itype, s, sqrt
 from lcapy.core import Matrix, Vector
 import sympy as sym
 
@@ -35,7 +35,7 @@ class Mdict(dict):
 
         if key in self.branchdict:
             n1, n2 = self.branchdict[key]
-            return VV((self[n1] - self[n2]).simplify(), **self.assumptions)
+            return Vtype((self[n1] - self[n2]).simplify(), **self.assumptions)
 
         return super(Mdict, self).__getitem__(key)
 
@@ -260,20 +260,20 @@ class MNA(object):
 
         # Create dictionary of node voltages
         self._V = Mdict(branchdict, **assumptions)
-        self._V['0'] = VV(0, **assumptions)
+        self._V['0'] = Vtype(0, **assumptions)
         for n in self.nodes:
             index = self._node_index(n)
             if index >= 0:
-                self._V[n] = VV(results[index].simplify(), **assumptions)
+                self._V[n] = Vtype(results[index].simplify(), **assumptions)
             else:
-                self._V[n] = VV(0, **assumptions)
+                self._V[n] = Vtype(0, **assumptions)
 
         num_nodes = len(self.node_list) - 1
 
         # Create dictionary of branch currents through elements
         self._I = {}
         for m, key in enumerate(self.unknown_branch_currents):
-            self._I[key] = II(results[m + num_nodes].simplify(), **assumptions)
+            self._I[key] = Itype(results[m + num_nodes].simplify(), **assumptions)
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
@@ -283,7 +283,7 @@ class MNA(object):
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
                 V1, V2 = self._V[n1], self._V[n2]
                 I = ((V1 - V2 - elt.Voc) / elt.Z)
-                self._I[elt.name] = II(I.simplify(), **assumptions)
+                self._I[elt.name] = Itype(I.simplify(), **assumptions)
 
         self.context.restore()
 
@@ -345,7 +345,7 @@ class MNA(object):
             if elt.type == 'K':
                 continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
-            self._Vd[elt.name] = VV((self._V[n1] - self._V[n2]).simplify(),
-                                    **assumptions)
+            self._Vd[elt.name] = Vtype((self._V[n1] - self._V[n2]).simplify(),
+                                       **assumptions)
 
         return self._Vd

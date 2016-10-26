@@ -42,17 +42,31 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Hs', 'Is', 'Vs', 'Ys', 'Zs',
            'Ht', 'It', 'Vt', 'Yt', 'Zt',
            'Hf', 'If', 'Vf', 'Yf', 'Zf',
-           'Iphasor', 'Vphasor', 'Yphasor', 'Zphasor',
+           'Iphasor', 'Vphasor',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
 func_pattern = re.compile(r"\\operatorname{(.*)}")
 
 all_assumptions = ('ac', 'dc', 'causal')
 
+from sympy.printing.str import StrPrinter 
 from sympy.printing.latex import LatexPrinter 
 from sympy.printing.pretty.pretty import PrettyPrinter 
 
 init = False
+
+
+class LcapyStrPrinter(StrPrinter):
+
+    def _print(self, expr):
+
+        if hasattr(expr, 'expr'):
+            expr = expr.expr
+
+        if expr == sym.I:
+            return "j"
+        return super(LcapyStrPrinter, self)._print(expr)
+
 
 class LcapyLatexPrinter(LatexPrinter):
 
@@ -259,7 +273,7 @@ class Expr(object):
 
     def __str__(self):
 
-        return self.expr.__str__()
+        return LcapyStrPrinter().doprint(self.expr)
 
     def __repr__(self):
 
@@ -340,7 +354,7 @@ class Expr(object):
 
         if isinstance(self, Phasor) and isinstance(x, Expr):
             return cls
-        
+
         raise ValueError('Cannot combine %s(%s) with %s(%s)' % 
                          (cls.__name__, self, xcls.__name__, x))
 
@@ -1670,11 +1684,10 @@ class Vphasor(Phasor):
     def cpt(self):
 
         v = self
-        if v.is_number:
-            return Vac(v.expr)
+        if v.is_number or self.is_ac:
+            return Vac(v)
 
-        # Need a combination of components.
-        return self
+        return V(self)
 
 
 class Iphasor(Phasor):
@@ -1687,30 +1700,10 @@ class Iphasor(Phasor):
     def cpt(self):
 
         i = self
-        if i.is_number:
-            return Iac(i.expr)
+        if i.is_number or self.is_ac:
+            return Iac(i)
 
-        # Need a combination of components.
-        return self
-
-
-class Zphasor(sfwExpr):
-    """Phase impedance aka complex impedance"""
-
-    def __init__(self, val, **assumptions):
-
-        super(Zphasor, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Zt
-
-
-class Yphasor(sfwExpr):
-    """Phase admittance aka complex admittance"""
-
-    def __init__(self, val, **assumptions):
-
-        super(Yphasor, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Yt
-
+        return I(self)
 
 
 s = sExpr('s')
@@ -1909,7 +1902,7 @@ class Zs(sExpr):
 
     def cpt(self):
 
-        if self.is_number:
+        if self.is_number or self.is_dc:
             return R(self.expr)
 
         z = self * s
@@ -1922,8 +1915,7 @@ class Zs(sExpr):
         if z.is_number:
             return L(z.expr)
 
-        # Need a combination of components.
-        return self
+        return Z(self)
 
 
 class Ys(sExpr):
@@ -1960,7 +1952,7 @@ class Ys(sExpr):
 
     def cpt(self):
 
-        if self.is_number:
+        if self.is_number or self.is_dc:
             return G(self.expr)
 
         y = self * s
@@ -1973,8 +1965,7 @@ class Ys(sExpr):
         if y.is_number:
             return C(y.expr)
 
-        # Need a combination of components.
-        return self
+        return Y(self)
 
 
 class Vs(sExpr):
@@ -1993,11 +1984,10 @@ class Vs(sExpr):
 
         v = self * s
 
-        if v.is_number:
-            return Vdc(v.expr)
+        if v.is_number or self.is_dc:
+            return Vdc(v)
 
-        # Need a combination of components.
-        return self
+        return V(self)
 
 
 class Is(sExpr):
@@ -2016,11 +2006,10 @@ class Is(sExpr):
 
         i = self * s
 
-        if i.is_number:
-            return Idc(i.expr)
+        if i.is_number or self.is_dc:
+            return Idc(i)
 
-        # Need a combination of components.
-        return self
+        return I(self)
 
 
 class Hs(sExpr):
@@ -2181,6 +2170,23 @@ class Yomega(omegaExpr):
         super(Yomega, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Yt
 
+    def cpt(self):
+
+        if self.is_number:
+            return G(self.expr)
+
+        y = self * sym.I * omega
+
+        if y.is_number:
+            return L((1 / y).expr)
+
+        y = self / (sym.I * omega)
+
+        if y.is_number:
+            return C(y.expr)
+
+        return Y(self)
+
 
 class Zomega(omegaExpr):
 
@@ -2193,6 +2199,23 @@ class Zomega(omegaExpr):
 
         super(Zomega, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Zt
+
+    def cpt(self):
+
+        if self.is_number:
+            return R(self.expr)
+
+        z = self * sym.I * omega
+
+        if z.is_number:
+            return C((1 / z).expr)
+
+        z = self / (sym.I * omega)
+
+        if z.is_number:
+            return L(z.expr)
+
+        return Z(self)
 
 
 class Vomega(omegaExpr):
@@ -2346,7 +2369,7 @@ def delta(expr, *args):
     return DiracDelta(expr, *args)
 
 
-def VV(val, **assumptions):
+def Vtype(val, **assumptions):
 
     if assumptions.get('ac', False):
         return Vphasor(val, **assumptions)
@@ -2354,7 +2377,7 @@ def VV(val, **assumptions):
         return Vs(val, **assumptions).canonical()
 
 
-def II(val, **assumptions):
+def Itype(val, **assumptions):
 
     if assumptions.get('ac', False):
         return Iphasor(val, **assumptions)
@@ -2362,5 +2385,32 @@ def II(val, **assumptions):
         return Is(val, **assumptions).canonical()
 
 
+def Ytype(val, **assumptions):
+
+    if assumptions.get('ac', False):
+        val = val.jomega()
+        return Yomega(val, **assumptions)
+    else:
+        return Ys(val, **assumptions).canonical()
+
+
+def Ztype(val, **assumptions):
+
+    if assumptions.get('ac', False):
+        val = val.jomega()
+        return Zomega(val, **assumptions)
+    else:
+        return Zs(val, **assumptions).canonical()
+
+
+def Htype(val, **assumptions):
+
+    if assumptions.get('ac', False):
+        val = val.jomega()
+        return Homega(val, **assumptions)
+    else:
+        return Hs(val, **assumptions).canonical()
+
+
 init = True
-from lcapy.oneport import L, C, R, G, Idc, Vdc, Iac, Vac
+from lcapy.oneport import L, C, R, G, Idc, Vdc, Iac, Vac, I, V, Z, Y
