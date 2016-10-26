@@ -407,6 +407,30 @@ class Cpt(object):
             label_str = str
         return label_str
 
+    def label_make(self, label_pos='', **kwargs):
+
+        # TODO merge with label
+
+        label_values = kwargs.get('label_values', True)
+        label_ids = kwargs.get('label_ids', True)
+
+        # Generate default label.
+        if (label_ids and label_values and self.id_label != '' 
+            and self.value_label and self.id_label != self.value_label):
+            label_str = r'l%s={%s}{=%s}' % (label_pos, self.id_label,
+                                            self.value_label)
+        elif label_ids and self.id_label != '':
+            label_str = r'l%s=%s' % (label_pos, self.id_label)
+        elif label_values and self.value_label != '':
+            label_str = r'l%s=%s' % (label_pos, self.value_label)
+        else:
+            label_str = ''
+
+        # Override label if specified.
+        if self.label_str != '':
+            label_str = self.label_str
+        return label_str
+
     def check(self):
         """Check schematic options and return True if component is to be drawn"""
 
@@ -854,9 +878,6 @@ class OnePort(StretchyCpt):
         if not self.check():
             return ''
 
-        label_values = kwargs.get('label_values', True)
-        label_ids = kwargs.get('label_ids', True)
-
         n1, n2 = self.dvnodes
 
         tikz_cpt = self.tikz_cpt
@@ -922,21 +943,7 @@ class OnePort(StretchyCpt):
         if self.scale != 1.0:
             args_str2 += ',bipoles/length=%scm' % (self.sch.cpt_size * self.scale)
 
-        # Generate default label.
-        if (label_ids and label_values and self.id_label != '' 
-            and self.value_label and self.id_label != self.value_label):
-            label_str = r'l%s={%s}{=%s}' % (label_pos, self.id_label,
-                                            self.value_label)
-        elif label_ids and self.id_label != '':
-            label_str = r'l%s=%s' % (label_pos, self.id_label)
-        elif label_values and self.value_label != '':
-            label_str = r'l%s=%s' % (label_pos, self.value_label)
-        else:
-            label_str = ''
-
-        # Override label if specified.
-        if self.label_str != '':
-            label_str = self.label_str
+        label_str = self.label_make(label_pos, **kwargs)
             
         s = r'  \draw[%s] (%s) to [%s,%s,%s,%s,n=%s] (%s);''\n' % (
             args_str, n1.s, tikz_cpt, label_str, args_str2,

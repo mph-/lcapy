@@ -45,16 +45,12 @@ def format_label(s):
 
     if s == '':
         return s
-    # Pass math-mode labels verbatim.
-    if s[0] == '$' and s[-1] == '$':
+
+    # If have $ in string then assume necessary parts are in math-mode.
+    if '$' in s:
         return s
-    # With leading $ and no trailing $, e.g., v=$V1, try to
-    # automagically convert to LateX string, otherwise pass
-    # verbatim.  Currently, this only converts words in sub- or
-    # super- scripts to roman. TODO, handle more cases.
-    if s[0] == '$' and s[-1] != '$':
-        return '$' + latex_str(s[1:]) + '$'
-    # If have + or ^ need to be in math-mode.
+
+    # If have _, ^, or \ need to be in math-mode.
     if '_' in s or '^' in s or '\\' in s:
         return '$' + latex_str(s) + '$'
     return s
