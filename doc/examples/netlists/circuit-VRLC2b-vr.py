@@ -5,7 +5,7 @@ from numpy import linspace
 
 cct = Circuit()
 
-cct.add('V1 1 0 dc')
+cct.add('V1 1 0 step')
 cct.add('L1 1 2 L1 0')
 cct.add('C1 2 3')
 cct.add('R1 3 0')

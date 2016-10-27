@@ -149,6 +149,9 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
 def sympify1(arg, symbols={}, evaluate=True, **assumptions):
     """Create a sympy expression."""
 
+    if hasattr(arg, 'expr'):
+        return arg.expr
+
     if isinstance(arg, (Symbol, Expr)):
         return arg
 
