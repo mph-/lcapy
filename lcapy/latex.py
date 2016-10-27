@@ -46,12 +46,21 @@ def format_label(s):
     if s == '':
         return s
 
-    # If have $ in string then assume necessary parts are in math-mode.
+    # With leading $ and no trailing $, e.g., v=$V1, try to
+    # automagically convert to LateX string, otherwise pass
+    # verbatim.  Currently, this only converts words in sub- or
+    # super- scripts to roman. TODO, handle more cases.
+    if s[0] == '$' and s[-1] != '$':
+        return '$' + latex_str(s[1:]) + '$'
+
+    # If find a $ assume that the label is correctly formatted.
     if '$' in s:
         return s
 
-    # If have _, ^, or \ need to be in math-mode.
-    if '_' in s or '^' in s or '\\' in s:
+    # If have _, ^, \frac, etc.  need to be in math-mode.
+    # Should prevent lcapy generating such strings and 
+    # warn user to explicity use math mode.
+    if '_' in s or '^' in s or '\\left' in s or '\\math' in s or '\\frac' in s:
         return '$' + latex_str(s) + '$'
     return s
 
