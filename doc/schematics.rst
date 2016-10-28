@@ -605,7 +605,7 @@ say in a label, enclose the field in braces.  For example:
 
 Math-mode labels need to be enclosed in `$...$`.  There is an
 experimental feature that is activated when the label starts with a
-single `$`.  In this case, Lcapy tries to generate a nice LaTeX label.
+single un-matched `$`.  In this case, Lcapy tries to generate a nice LaTeX label.
 For example, words in sub- and superscripts are converted into a roman
 font using `mathrm`.  This feature is also activated if the label is
 not enclosed in `$...$` but includes an `^` or `_`.

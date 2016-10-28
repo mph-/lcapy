@@ -261,3 +261,8 @@ class LcapyTester(unittest.TestCase):
         
         self.assertEqual(Heaviside(t).laplace(), 1 / s, "Heaviside(t)")        
         self.assertEqual(DiracDelta(t).laplace(), 1, "DiracDelta(t)")
+
+
+    def test_zp2k(self):
+
+        self.assertEqual(zp2tf([], [0, -1]), 1 / (s * (s + 1)), "zp2tf")

@@ -555,6 +555,7 @@ class Graph(dict):
                                   edge.to_gnode.fmt_name))
                 else:
                     if abs(dist - edge.size) > 1e-6:
+                        # FIXME if edge.cpt is None
                         print('Stretch conflict %s vs %s in %s graph for %s between nodes %s and %s,'
                               ' due to incompatible sizes' % (
                                   dist, edge.size, self.name,
