@@ -1620,8 +1620,8 @@ class tExpr(Expr):
         check = ACChecker(self, t)
         if not check.is_ac:
             raise ValueError('Do not know how to convert %s to phasor' % self)
-        if check.omega != omega1sym:            
-            raise ValueError('Angular frequency %s not omega1' % check.omega)
+        if check.omega != omegasym:            
+            raise ValueError('Angular frequency %s not omega' % check.omega)
         phasor = Phasor(check.amp * exp(j * check.phase))
         return phasor
 
@@ -1657,7 +1657,7 @@ class cExpr(Expr):
 
 class Phasor(sfwExpr):
 
-    var = omega1sym
+    var = omegasym
 
     def time(self, **assumptions):
         """Convert to time domain representation"""
@@ -1843,6 +1843,7 @@ def _zp2tf(zeros, poles, K=1, var=None):
     if var is None:
         var = ssym
 
+    K = sympify(K)
     zeros = sympify(zeros)
     poles = sympify(poles)
 
