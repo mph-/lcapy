@@ -34,7 +34,7 @@ from copy import copy
 __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'symbol', 'sympify',
            'zp2tf', 'Expr', 's', 'sExpr', 't', 'tExpr', 'f', 'fExpr', 'cExpr',
-           'omega', 'omega1', 'omegaExpr', 'Phasor',
+           'omega', 'omegaExpr', 'Phasor',
            'pi', 'cos', 'sin', 'tan', 'atan', 'atan2',
            'exp', 'sqrt', 'log', 'log10', 'gcd', 'oo', 'inf',
            'H', 'Heaviside', 'DiracDelta', 'j', 'u', 'delta',
@@ -156,7 +156,6 @@ ssym = symbol('s')
 tsym = symbol('t', real=True)
 fsym = symbol('f', real=True)
 omegasym = symbol('omega', real=True)
-omega1sym = symbol('omega_1', real=True)
 
 
 class Exprdict(dict):
@@ -1710,7 +1709,6 @@ s = sExpr('s')
 t = tExpr('t')
 f = fExpr('f')
 omega = omegaExpr('omega')
-omega1 = omegaExpr('omega_1')
 pi = sym.pi
 j = sym.I
 oo = sym.oo
