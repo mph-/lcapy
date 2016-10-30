@@ -1,3 +1,25 @@
+"""This module provides support for Laplace transforms.  It acts as a
+wrapper for SymPy's Laplace transform.  It calculates the unilateral
+Laplace transform using:
+
+   F(s) = lim_{t_0\rightarrow 0} \int_{-t_0}^{\infty} f(t) e^{-s t} dt
+
+In comparison, SymPy uses:
+
+   F(s) = \int_{0}^{\infty} f(t) e^{-s t} dt
+
+The latter gives 0.5 for the Laplace transform of DiracDelta(t)
+whereas the former version gives 1.  Note, SymPy is inconsistent in
+that it gives DiracDelta(t) for the inverse Laplace transform of 1.
+
+Another difference with this implementation is that it will transform
+undefined functions such as v(t) to V(s).
+
+Copyright 2016 Michael Hayes, UCECE
+
+"""
+
+
 import sympy as sym
 
 
