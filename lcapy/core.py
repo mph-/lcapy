@@ -352,7 +352,7 @@ class Expr(object):
         if isinstance(self, Phasor) and isinstance(x, Phasor):
             return cls
 
-        if isinstance(self, Phasor) and isinstance(x, Expr):
+        if isinstance(self, Phasor) and isinstance(x, omegaExpr):
             return cls
 
         raise ValueError('Cannot combine %s(%s) with %s(%s)' % 
