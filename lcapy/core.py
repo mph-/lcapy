@@ -15,6 +15,7 @@ from lcapy.latex import latex_str
 from lcapy.acdc import is_dc, is_ac, is_causal, ACChecker
 from lcapy.sympify import canonical_name, sympify1, symbols_find
 from lcapy.laplace import laplace_transform
+from lcapy.fourier import fourier_transform
 import numpy as np
 from sympy.core.mul import _unevaluated_Mul as uMul
 from sympy.assumptions.assume import global_assumptions
@@ -1248,7 +1249,7 @@ class sExpr(sfwExpr):
                 pc = p.conjugate()
                 if pc != p and pc in P:
                     # Remove conjugate from poles and process pole with its
-                    # conjugate.  Unforrtunately, for symbolic expressions
+                    # conjugate.  Unfortunately, for symbolic expressions
                     # we cannot tell if a quadratic has two real poles,
                     # a repeat real pole, or a complex conjugate pair of poles.
                     P2[pc] = 0
@@ -1608,7 +1609,7 @@ class tExpr(Expr):
 
         """Attempt Fourier transform"""
 
-        F = sym.fourier_transform(self.expr, self.var, f)
+        F = fourier_transform(self.expr, self.var, f)
 
         if hasattr(self, '_fourier_conjugate_class'):
             F = self._fourier_conjugate_class(F)
