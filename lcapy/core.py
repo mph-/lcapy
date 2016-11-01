@@ -2296,7 +2296,7 @@ def _funcwrap(func, *args):
 
     result = func(*tweak_args)
 
-    if hasattr(cls, 'expr'):
+    if hasattr(args[0], 'expr'):
         result = cls(result)
 
     return result
