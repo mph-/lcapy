@@ -56,7 +56,8 @@ def laplace_term(expr, t, s):
     expr = expr.replace(var, t)
 
     if expr.has(sym.function.AppliedUndef) and expr.args[0] == t:
-        # TODO, handle things like 3 * v(t), a * v(t), 3 * t * v(t), v(t-T)
+        # TODO, handle things like 3 * v(t), a * v(t), 3 * t * v(t), v(t-T),
+        # v(4 * a * t), etc.
         if not isinstance(expr, sym.function.AppliedUndef):
             raise ValueError('Could not compute Laplace transform for ' + str(expr))
 
@@ -77,8 +78,7 @@ def laplace_term(expr, t, s):
     return laplace_0(expr, t, s)
 
 def laplace_transform(expr, t, s):
-    """Compute single sided Laplace transform of expr
-    with lower limit 0-.
+    """Compute unilateral Laplace transform of expr with lower limit 0-.
 
     Undefined functions such as v(t) are converted to V(s)
 

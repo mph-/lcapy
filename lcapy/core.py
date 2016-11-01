@@ -1336,6 +1336,14 @@ class sExpr(sfwExpr):
 
         return self.__class__(self, **self.assumptions)
 
+    def fourier(self):
+        """Attempt Fourier transform"""
+
+        if self.is_causal:
+            return self(j * 2 * pi * f)
+
+        return self.time().fourier()
+
     def phasor(self, **assumptions):
 
         return self.time(**assumptions).phasor(**assumptions)
@@ -1543,12 +1551,13 @@ class omegaExpr(sfwExpr):
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
 
-        from sympy.integrals.transforms import inverse_fourier_transform
+        return self(2 * f).inverse_fourier()
 
-        result = inverse_fourier_transform(self.expr, self.var, tsym)
-        if hasattr(self, '_fourier_conjugate_class'):
-            result = self._fourier_conjugate_class(result)
-        return result
+    
+    def time():
+        """Alias for inverse_fourier"""
+        
+        return self.inverse_fourier()
 
     def plot(self, wvector=None, **kwargs):
         """Plot angular frequency response at values specified by wvector.
@@ -1606,7 +1615,6 @@ class tExpr(Expr):
         return F
 
     def fourier(self):
-
         """Attempt Fourier transform"""
 
         F = fourier_transform(self.expr, self.var, f)
@@ -2286,7 +2294,12 @@ def _funcwrap(func, *args):
         if isinstance(arg, Expr):
             tweak_args[m] = arg.expr
 
-    return cls(func(*tweak_args))
+    result = func(*tweak_args)
+
+    if hasattr(cls, 'expr'):
+        result = cls(result)
+
+    return result
 
 
 def sin(expr):

@@ -91,7 +91,7 @@ def fourier_transform(expr, t, f):
     """
 
     # The variable may have been created with different attributes,
-    # say when using sym.sympify('Heaviside(t)') since this will
+    # say when using sym.sympify('DiracDelta(t)') since this will
     # default to assuming that t is complex.  So if the symbol has the
     # same representation, convert to the desired one.
 
@@ -124,4 +124,6 @@ def test():
      print(fourier_transform(sym.cos(2 * sym.pi * a * t), t, f))
      print(fourier_transform(sym.sin(2 * sym.pi * a * t), t, f))
      print(fourier_transform(a * t, t, f))
+     print(fourier_transform(sym.exp(-a * t) * sym.Heaviside(t), t, f))
+
 
