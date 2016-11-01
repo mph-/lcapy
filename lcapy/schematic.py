@@ -563,6 +563,7 @@ class Graph(dict):
                                   edge.to_gnode.fmt_name))
 
     def dot(self, filename=None, stage=None):
+        """Generate directed graph using graphviz notation"""
 
         if filename is None:
             filename = tmpfilename('.png')
@@ -590,7 +591,12 @@ class Graph(dict):
                 colour = 'red' if gnode.pos is not None else 'blue'
             if gnode.name in ('start', 'end'):
                 colour = 'green'
-            dotfile.write ('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (gnode.fmt_name, colour, gnode.pos))
+
+            pos = gnode.pos
+            if pos < 1e-6:
+                pos = 0
+
+            dotfile.write ('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (gnode.fmt_name, colour, pos))
 
         for gnode in self.values():
             for edge in gnode.fedges:
