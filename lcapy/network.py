@@ -4,7 +4,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import Vphasor, Iphasor, sExpr
+from lcapy.core import Vphasor, Iphasor, sExpr, pretty
 from lcapy.latex import latex_str
 from lcapy.schematic import Schematic
 from lcapy.netlist import Netlist
@@ -65,7 +65,7 @@ class Network(Netlist):
 
     def pretty(self):
 
-        argsrepr = ', '.join([sym.pretty(arg) for arg in self._tweak_args()])
+        argsrepr = ', '.join([pretty(arg) for arg in self._tweak_args()])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
     def latex(self):
