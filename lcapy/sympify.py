@@ -54,8 +54,10 @@ def symbols_find(arg):
             tokNum, tokVal = tok
             if tokNum == NAME:
                 name = tokVal
+                if name == 'j':
+                    name = 'I'
                 if name not in local_dict and name not in global_dict:
-                    symbols.append(tokVal)
+                    symbols.append(name)
         return ([(NUMBER, '0')])
 
     if isinstance(arg, str):
@@ -87,6 +89,8 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
             nextTokNum, nextTokVal = nextTok
             if tokNum == NAME:
                 name = tokVal
+                if name == 'j':
+                    name = 'I'
 
                 if name in global_dict:
 
