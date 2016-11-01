@@ -90,6 +90,7 @@ def laplace_transform(expr, t, s):
     # same representation, convert to the desired one.
 
     var = sym.Symbol(str(t))
+    expr = sym.sympify(expr)
     expr = expr.replace(var, t)
 
     terms = expr.as_ordered_terms()
