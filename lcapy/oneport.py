@@ -28,7 +28,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, It, Itype, Vtype
+from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, It, Itype, Vtype, pretty
 from lcapy.sympify import symbols_find
 from lcapy.network import Network
 
@@ -476,10 +476,12 @@ class ParSer(OnePort):
 
     @property
     def Y(self):
+        # Could extract directly if have Y || I or Z + V
         return self.admittance(1, 0)
 
     @property
     def Z(self):
+        # Could extract directly if have Y || I or Z + V
         return self.impedance(1, 0)
 
 class Par(ParSer):
