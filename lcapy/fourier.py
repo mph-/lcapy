@@ -25,10 +25,7 @@ def fourier_sympy(expr, t, f):
     return result
 
 
-def fourier_term(expr, t, f):
-
-    var = sym.Symbol(str(t))
-    expr = expr.replace(var, t)
+def fourier_term(expr, t, f, inverse=False):
 
     if expr.has(sym.function.AppliedUndef) and expr.args[0] == t:
         # TODO, handle things like 3 * v(t), a * v(t), 3 * t * v(t), v(t-T),
@@ -38,7 +35,10 @@ def fourier_term(expr, t, f):
 
         # Convert v(t) to V(f), etc.
         name = expr.func.__name__
-        name = name[0].upper() + name[1:] + '(f)'
+        if inverse:
+            name = name[0].lower() + name[1:] + '(%s)' % -f
+        else:
+            name = name[0].upper() + name[1:] + '(%s)' % f
         return sym.sympify(name)
 
     # Check for constant.
@@ -75,28 +75,44 @@ def fourier_term(expr, t, f):
         return fourier_sympy(expr, t, f)
 
     if exps != 1:
-        return const * sym.DiracDelta(f - foo / (-sym.I * 2 * sym.pi))
+        return const * sym.DiracDelta(f - foo / (sym.I * 2 * sym.pi))
         
     return fourier_sympy(expr, t, f)
 
 
-def fourier_transform(expr, t, f):
+def fourier_transform(expr, t, f, inverse=False):
     """Compute bilateral Fourier transform of expr.
 
     Undefined functions such as v(t) are converted to V(f)
 
     This also handles some expressions that do not really have a Fourier
-    transform, such as a, cos(a*t), sin(a*t), exp(I * a * t).
+    transform, such as a, cos(a * t), sin(a * t), exp(I * a * t).
 
     """
+    
+    # Hack for debugging.  Otherwise sym.sympify will convert Expr
+    # types to string and then re-parse.  Unfortunately, we change I
+    # to j when printing and so j gets converted into a symbol and not
+    # the imaginary unit.
+    if hasattr(expr, 'expr'):
+        expr = expr.expr
+    if hasattr(t, 'expr'):
+        t = t.expr
+    if hasattr(f, 'expr'):
+        f = f.expr
+
+    expr = sym.sympify(expr)
+    t = sym.sympify(t)
+    f = sym.sympify(f)
+
+    if inverse:
+        t, f = f, -t
 
     # The variable may have been created with different attributes,
     # say when using sym.sympify('DiracDelta(t)') since this will
     # default to assuming that t is complex.  So if the symbol has the
     # same representation, convert to the desired one.
-
     var = sym.Symbol(str(t))
-    expr = sym.sympify(expr)
     expr = expr.replace(var, t)
 
     orig_expr = expr
@@ -109,11 +125,27 @@ def fourier_transform(expr, t, f):
 
     try:
         for term in terms:
-            result += fourier_term(term, t, f)
+            result += fourier_term(term, t, f, inverse=inverse)
     except ValueError:
         raise ValueError('Could not compute Fourier transform for ' + str(orig_expr))
 
     return result
+
+
+
+def inverse_fourier_transform(expr, f, t):
+    """Compute bilateral inverse Fourier transform of expr.
+
+    Undefined functions such as V(f) are converted to v(t)
+
+    This also handles some expressions that do not really have an
+    inverse Fourier transform, such as a, cos(a * f), sin(a * f), exp(I *
+    a * f).
+
+    """
+
+    result = fourier_transform(expr, t, f, inverse=True)
+    return sym.simplify(result)
 
 
 def test():
@@ -126,5 +158,3 @@ def test():
      print(fourier_transform(sym.sin(2 * sym.pi * a * t), t, f))
      print(fourier_transform(a * t, t, f))
      print(fourier_transform(sym.exp(-a * t) * sym.Heaviside(t), t, f))
-
-

@@ -15,7 +15,7 @@ from lcapy.latex import latex_str
 from lcapy.acdc import is_dc, is_ac, is_causal, ACChecker
 from lcapy.sympify import canonical_name, sympify1, symbols_find
 from lcapy.laplace import laplace_transform
-from lcapy.fourier import fourier_transform
+from lcapy.fourier import fourier_transform, inverse_fourier_transform
 import numpy as np
 from sympy.core.mul import _unevaluated_Mul as uMul
 from sympy.assumptions.assume import global_assumptions
@@ -213,6 +213,14 @@ class Expr(object):
         # This is needed for Python3 so can create a dict key,
         # say for subs.
         return hash(self.expr)
+
+# This will allow sym.sympify to magically extract the sympy expression
+# but it will also bypass our __rmul__, __radd__, etc. methods that get called
+# when sympy punts.
+#
+#    def _sympy_(self):
+#        # This is called from sym.sympify
+#        return self.expr
 
     def __getattr__(self, attr):
 
@@ -806,7 +814,7 @@ class Expr(object):
 
     def _subs1(self, old, new, **kwargs):
 
-        # This will fail is a variable has different attributes,
+        # This will fail if a variable has different attributes,
         # such as positive or real.
         # Should check for bogus substitutions, such as t for s.
 
@@ -1502,8 +1510,6 @@ class fExpr(sfwExpr):
 
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
-
-        from sympy.integrals.transforms import inverse_fourier_transform
 
         result = inverse_fourier_transform(self.expr, self.var, tsym)
         if hasattr(self, '_fourier_conjugate_class'):
