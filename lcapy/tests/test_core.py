@@ -17,6 +17,12 @@ class LcapyTester(unittest.TestCase):
             pprint(ans2)
             raise AssertionError(e)
 
+
+    def test_rmul(self):
+
+        self.assertEqual2((j * omega).__class__,  omegaExpr, "j * omega fail.")
+
+
     def test_sExpr1(self):
         """Lcapy: check sExpr1
 
