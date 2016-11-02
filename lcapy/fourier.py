@@ -59,11 +59,21 @@ def fourier_term(expr, t, f, inverse=False):
             else:
                 other *= factor
 
-    if other != 1:
+    if other != 1 and exps == 1:
         if other == t:
             return const * sym.I * 2 * sym.pi * sym.DiracDelta(f, 1)
         if other == t**2:
             return const * (sym.I * 2 * sym.pi)**2 * sym.DiracDelta(f, 2)
+
+        # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) *
+        # Heaviside(t)
+        if other.is_Pow and other.args[1] == -1:
+            foo = other.args[0]
+            if foo.is_Add and foo.args[1].has(t):
+                bar = foo.args[1] / t
+                if not bar.has(t) and bar.has(sym.I):
+                    a = -(foo.args[0] * 2 * sym.pi * sym.I) / bar
+                    return const * sym.exp(-a * f) * sym.Heaviside(f * sym.sign(a))
 
         # Punt and use SymPy.  Should check for t**n, t**n * exp(-a * t), etc.
         return fourier_sympy(expr, t, f)
@@ -74,7 +84,7 @@ def fourier_term(expr, t, f, inverse=False):
         # Have exp(a * t**n), SymPy might be able to handle this
         return fourier_sympy(expr, t, f)
 
-    if exps != 1:
+    if exps != 1 and foo.has(sym.I):
         return const * sym.DiracDelta(f - foo / (sym.I * 2 * sym.pi))
         
     return fourier_sympy(expr, t, f)
@@ -151,6 +161,7 @@ def inverse_fourier_transform(expr, f, t):
 def test():
 
      t, f, a = sym.symbols('t f a', real=True)
+     a = sym.symbols('a', positive=True)
 
      print(fourier_transform(a, t, f))
      print(fourier_transform(sym.exp(-sym.I * 2 * sym.pi * a * t), t, f))
@@ -158,3 +169,5 @@ def test():
      print(fourier_transform(sym.sin(2 * sym.pi * a * t), t, f))
      print(fourier_transform(a * t, t, f))
      print(fourier_transform(sym.exp(-a * t) * sym.Heaviside(t), t, f))
+     print(inverse_fourier_transform(a, f, t))
+     print(inverse_fourier_transform(1 / (sym.I * 2 * sym.pi * f + a), f, t))
