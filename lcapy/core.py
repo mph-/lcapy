@@ -1557,7 +1557,7 @@ class omegaExpr(sfwExpr):
     def inverse_fourier(self):
         """Attempt inverse Fourier transform"""
 
-        return self(2 * f).inverse_fourier()
+        return self(2 * pi * f).inverse_fourier()
 
     
     def time():

@@ -272,3 +272,12 @@ class LcapyTester(unittest.TestCase):
     def test_zp2k(self):
 
         self.assertEqual(zp2tf([], [0, -1]), 1 / (s * (s + 1)), "zp2tf")
+
+
+    def test_inverse_fourier(self):
+
+        self.assertEqual((1 / (s + 1))(j * omega).inverse_fourier(), exp(-t) * Heaviside(t))
+        self.assertEqual((1 / (s + 1))(j * omega)(2 * pi * f).inverse_fourier(), exp(-t) * Heaviside(t))
+
+
+
