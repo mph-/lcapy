@@ -40,7 +40,7 @@ class Cpt(object):
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
-                 'aspect', 'pins')
+                 'aspect', 'pins', 'image')
 
     can_rotate = True
     can_scale = False
@@ -1092,11 +1092,14 @@ class Shape(FixedCpt):
         if not self.check():
             return ''
 
+        label = self.label(**kwargs)
+        if 'image' in self.opts:
+            label = r'\includegraphics{%s}' % self.opts['image']
+
         # shape border rotate rotates the box but not the text
         s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%scm, minimum height=%scm, text width=%scm, align=center, shape border rotate=%s, draw, %s] (%s) {%s};''\n'% (
             self.centre, self.shape, self.width, self.height, 
-            self.width - 0.5, self.angle, self.args_str, self.s,
-            self.label(**kwargs))
+            self.width - 0.5, self.angle, self.args_str, self.s, label)
 
         return s
 
