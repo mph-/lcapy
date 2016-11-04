@@ -1094,7 +1094,9 @@ class Shape(FixedCpt):
 
         label = self.label(**kwargs)
         if 'image' in self.opts:
-            label = r'\includegraphics[width=%scm]{%s}' % (self.width, self.opts['image'])
+            # Override label with image
+            label = r'\includegraphics[width=%scm]{%s}' % (self.width - 0.5,
+                                                           self.opts['image'])
 
         # shape border rotate rotates the box but not the text
         s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%scm, minimum height=%scm, text width=%scm, align=center, shape border rotate=%s, draw, %s] (%s) {%s};''\n'% (
