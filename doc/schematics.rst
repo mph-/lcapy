@@ -461,8 +461,8 @@ Block diagrams can be constructed with the following components:
  - `TF` transfer function
  - `SPpp`, `SPpm`, `SPppp`, `SPpmm`, `SPppm` summing points
  - `MX` mixer
- - `box`, `box4` rectangular box
- - `circle`, `circle4` circle
+ - `box` rectangular box
+ - `circle` circle (or ellipse)
 
 Here's an example showing negative feedback:
 
@@ -502,9 +502,12 @@ Here's a example of a mixer:
 Boxes and circles
 -----------------
 
-`box` and `circle` have two connection points; `box4` and `circle4`
-have four connection points.  The aspect ratio of a box can be
-controlled with the `aspect` attribute.
+`box` and `circle` have default anchor nodes based on the centre (`c`)
+and sixteen directions of the compass: `n`, `nne`, `ne`, `ene`, `e`,
+`ese`, `se`, `sse`, `s`, `ssw`, `sw`, `wsw`, `w`, `wnw`, `nw`, `nww`.
+
+The aspect ratio of a box can be controlled with the `aspect`
+attribute.
 
 Here's an example of their use:
 
@@ -512,6 +515,11 @@ Here's an example of their use:
 
 .. image:: examples/schematics/fir5.png
    :width: 5cm
+
+
+The label can be replaced by an image, using the `image` keyword.  For example,
+
+.. literalinclude:: examples/schematics/image1.sch
 
 
 Annotation

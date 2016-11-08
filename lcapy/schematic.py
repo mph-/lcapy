@@ -171,6 +171,12 @@ class Gedge(object):
         return '%s --%s%s--> %s' % (
             self.from_gnode.fmt_name, self.size, '*' if self.stretch else '',
             self.to_gnode.fmt_name)
+    
+    @property
+    def name(self):
+        if self.cpt is None:
+            return 'dummy'
+        return self.cpt.name
 
 
 class Gnode(object):
@@ -551,15 +557,14 @@ class Graph(dict):
                         print('Distance conflict %s vs %s in %s graph for %s between nodes %s and %s,'
                               ' due to incompatible sizes' % (
                                   dist, edge.size, self.name,
-                                  edge.cpt.name, gnode.fmt_name,
+                                  edge.name, gnode.fmt_name,
                                   edge.to_gnode.fmt_name))
                 else:
                     if abs(dist - edge.size) > 1e-6:
-                        # FIXME if edge.cpt is None
                         print('Stretch conflict %s vs %s in %s graph for %s between nodes %s and %s,'
                               ' due to incompatible sizes' % (
                                   dist, edge.size, self.name,
-                                  edge.cpt.name, gnode.fmt_name,
+                                  edge.name, gnode.fmt_name,
                                   edge.to_gnode.fmt_name))
 
     def dot(self, filename=None, stage=None):
@@ -737,7 +742,7 @@ class Schematic(NetfileMixin):
 
         vnode = self.nodes[node].rootname
 
-        if elt.type in ('U', 'MX', 'SP', 'TP', 'TR'):
+        if elt.type in ('U', 'MX', 'S', 'SP', 'TP', 'TR'):
             self.nodes[node].pin = True
 
         if vnode not in self.snodes:

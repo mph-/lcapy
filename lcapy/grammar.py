@@ -49,6 +49,8 @@ Q: Qname Nc Nb Ne [Value]; NPN transistor
 Qnpn: Qname Nc Nb Ne npn [Value]; NPN transistor
 Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor 
 R: Rname Np Nm [Value]; Resistor
+Sbox: Sname box; Box
+Scircle: Sname circle; Circle
 SPpp: SPname pp P P P; Summing point
 SPpm: SPname pm P P P; Summing point
 SPppp: SPname ppp P P P P; Summing point

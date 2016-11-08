@@ -1106,7 +1106,7 @@ class Shape(FixedCpt):
         return s
 
 
-class Box(Shape):
+class Box2(Shape):
     """Box"""
 
     shape = 'rectangle'
@@ -1116,26 +1116,20 @@ class Box(Shape):
         return ((-0.5, 0), (0.5, 0))
 
 
-class Circle(Shape):
-    """Circle"""
-
-    shape = 'circle'
-
-    @property
-    def coords(self):
-        return ((-0.5, 0), (0.5, 0))
-
-
-class Box4(Box):
+class Box4(Shape):
     """Box4"""
+
+    shape = 'rectangle'
 
     @property
     def coords(self):
         return ((-0.5, 0), (0, -0.5), (0.5, 0), (0, 0.5))
 
 
-class Box12(Box):
+class Box12(Shape):
     """Box12"""
+
+    shape = 'rectangle'
 
     @property
     def coords(self):
@@ -1145,8 +1139,70 @@ class Box12(Box):
                 (0.25, 0.5), (0, 0.5), (-0.25, 0.5))
 
 
-class Circle4(Circle):
+class ShapeWithAnchors(Shape):
+
+    @property
+    def anchors(self):
+        return ('nw', 'wnw', 'w', 'wsw', 
+                'sw', 'ssw', 's', 'sse',
+                'se', 'ese', 'e', 'ene',
+                'ne', 'nne', 'n', 'nnw',
+                'c')
+
+    def __init__(self, sch, name, cpt_type, cpt_id, string,
+                 opts_string, nodes, *args):
+
+        if nodes != ():
+            raise ValueError('Unexpected explicit nodes %s' % nodes)
+
+        nodes = []
+        for anchor in self.anchors:
+            nodes.append(name + '.' + anchor)
+
+        super (ShapeWithAnchors, self).__init__(sch, name, cpt_type, cpt_id, string,
+                                                opts_string, nodes, *args)
+
+class Box(ShapeWithAnchors):
+    """Box"""
+
+    shape = 'rectangle'    
+
+    @property
+    def coords(self):
+        return ((-0.5, 0.5), (-0.5, 0.25), (-0.5, 0), (-0.5, -0.25), 
+                (-0.5, -0.5), (-0.25, -0.5), (0, -0.5), (0.25, -0.5),
+                (0.5, -0.5), (0.5, -0.25), (0.5, 0), (0.5, 0.25),
+                (0.5, 0.5), (0.25, 0.5), (0, 0.5), (-0.25, 0.5),
+                (0.0, 0.0))
+
+
+class Circle(ShapeWithAnchors):
+    """Circle"""
+
+    shape = 'circle'
+
+    @property
+    def coords(self):
+        return ((-0.3536, 0.3536), (-0.4619, 0.1913), (-0.5, 0), (-0.4619, -0.1913), 
+                (-0.3536, -0.3536), (-0.1913, -0.4619), (0, -0.5), (0.1913, -0.4619),
+                (0.3536, -0.3536), (0.4619, -0.1913), (0.5, 0), (0.4619, 0.1913),
+                (0.3536, 0.35365), (0.1913, 0.4619), (0, 0.5), (-0.1913, 0.4619),
+                (0.0, 0.0))
+
+class Circle2(Shape):
+    """Circle"""
+
+    shape = 'circle'
+
+    @property
+    def coords(self):
+        return ((-0.5, 0), (0.5, 0))
+
+
+class Circle4(Shape):
     """Circle4"""
+
+    shape = 'circle'
 
     @property
     def coords(self):
@@ -1695,6 +1751,9 @@ defcpt('Qnpn', 'Q', 'NPN transistor', 'npn')
 
 defcpt('R', OnePort, 'Resistor', 'R')
 
+defcpt('Sbox', Box, 'Box shape')
+defcpt('Scircle', Circle, 'Circle shape')
+
 defcpt('SW', OnePort, 'Switch', 'closing switch')
 defcpt('SWno', 'SW', 'Normally open switch', 'closing switch')
 defcpt('SWnc', 'SW', 'Normally closed switch', 'opening switch')
@@ -1706,8 +1765,8 @@ defcpt('TFcore', Transformer, 'Transformer with core', 'transformer core')
 defcpt('TFtapcore', TFtap, 'Tapped transformer with core', 'transformer core')
 defcpt('TP', TwoPort, 'Two port', '')
 
-defcpt('Ubox', Box, 'Box')
-defcpt('Ucircle', Circle, 'Circle')
+defcpt('Ubox', Box2, 'Box')
+defcpt('Ucircle', Circle2, 'Circle')
 defcpt('Ubox4', Box4, 'Box')
 defcpt('Ubox12', Box12, 'Box')
 defcpt('Ucircle4', Circle4, 'Circle')
