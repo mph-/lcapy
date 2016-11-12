@@ -46,6 +46,7 @@ from lcapy.netfile import NetfileMixin
 from lcapy.system import run_dot, run_latex, convert_pdf_png, convert_pdf_svg
 from lcapy.system import tmpfilename, circuitikz_version, latex_cleanup
 from os import path, remove
+from collections import OrderedDict
 import math
 
 __all__ = ('Schematic', )
@@ -683,7 +684,7 @@ class Schematic(NetfileMixin):
 
     def __init__(self, filename=None, **kwargs):
 
-        self.elements = {}
+        self.elements = OrderedDict()
         self.nodes = {}
         # Shared nodes (with same voltage)
         self.snodes = {}
@@ -822,6 +823,12 @@ class Schematic(NetfileMixin):
             # Need to search lists and update component.
 
         self.elements[cpt.name] = cpt
+
+        # TODO, fix hack cleanly.  For a circle or box we need to add
+        # the centre node so that we can place the component.
+        if cpt.type == 'S':
+            self._node_add(cpt.name + '.c', cpt)
+            return
 
         for node in cpt.vnodes:
             self._node_add(node, cpt)

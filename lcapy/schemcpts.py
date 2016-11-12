@@ -212,17 +212,23 @@ class Cpt(object):
 
     @property
     def vnodes(self):
-        '''Visible node names'''
+        """Visible node names"""
         return self.nodes
 
     @property
     def dvnodes(self):
-        '''Nodes used to construct schematic (these are deferred vnodes)'''
-        return [self.sch.nodes[n] for n in self.vnodes]
+        """Nodes used to construct schematic (these are deferred vnodes).
+        Return only explicity required nodes"""
+
+        rnodes = []
+        for n in self.vnodes:
+            if n in self.sch.nodes:
+                rnodes.append(self.sch.nodes[n])
+        return rnodes
 
     @property
     def dnodes(self):
-        '''Nodes that are drawn'''
+        """Nodes that are drawn"""
         return self.dvnodes
 
     @property
@@ -1141,14 +1147,6 @@ class Box12(Shape):
 
 class ShapeWithAnchors(Shape):
 
-    @property
-    def anchors(self):
-        return ('nw', 'wnw', 'w', 'wsw', 
-                'sw', 'ssw', 's', 'sse',
-                'se', 'ese', 'e', 'ene',
-                'ne', 'nne', 'n', 'nnw',
-                'c')
-
     def __init__(self, sch, name, cpt_type, cpt_id, string,
                  opts_string, nodes, *args):
 
@@ -1156,11 +1154,30 @@ class ShapeWithAnchors(Shape):
             raise ValueError('Unexpected explicit nodes %s' % nodes)
 
         nodes = []
-        for anchor in self.anchors:
+        for anchor in self.anchors.keys():
             nodes.append(name + '.' + anchor)
 
         super (ShapeWithAnchors, self).__init__(sch, name, cpt_type, cpt_id, string,
                                                 opts_string, nodes, *args)
+
+    @property
+    def coords(self):
+
+        # Determine the required coords.
+        rcoords = []
+        for node in self.nodes:
+            if node in self.sch.nodes:
+                anchor = node.split('.')[-1]
+                rcoords.append(self.anchors[anchor])
+        return rcoords
+
+    @property
+    def centre(self):
+        for node in self.dvnodes:
+            if node.name.split('.')[-1] == 'c':
+                return node.pos
+        raise ValueError('No centre node for %s', self.name)
+
 
 class Box(ShapeWithAnchors):
     """Box"""
@@ -1168,12 +1185,16 @@ class Box(ShapeWithAnchors):
     shape = 'rectangle'    
 
     @property
-    def coords(self):
-        return ((-0.5, 0.5), (-0.5, 0.25), (-0.5, 0), (-0.5, -0.25), 
-                (-0.5, -0.5), (-0.25, -0.5), (0, -0.5), (0.25, -0.5),
-                (0.5, -0.5), (0.5, -0.25), (0.5, 0), (0.5, 0.25),
-                (0.5, 0.5), (0.25, 0.5), (0, 0.5), (-0.25, 0.5),
-                (0.0, 0.0))
+    def anchors(self):
+        return {'nw' : (-0.5, 0.5), 'wnw' : (-0.5, 0.25),
+                'w' : (-0.5, 0), 'wsw' : (-0.5, -0.25), 
+                'sw' : (-0.5, -0.5), 'ssw' : (-0.25, -0.5),
+                's' : (0, -0.5), 'sse' : (0.25, -0.5),
+                'se' : (0.5, -0.5), 'ese' : (0.5, -0.25),
+                'e' : (0.5, 0), 'ene' : (0.5, 0.25),
+                'ne' : (0.5, 0.5), 'nne' : (0.25, 0.5),
+                'n' : (0, 0.5), 'nnw' : (-0.25, 0.5),
+                'c' : (0.0, 0.0)}
 
 
 class Circle(ShapeWithAnchors):
@@ -1182,12 +1203,17 @@ class Circle(ShapeWithAnchors):
     shape = 'circle'
 
     @property
-    def coords(self):
-        return ((-0.3536, 0.3536), (-0.4619, 0.1913), (-0.5, 0), (-0.4619, -0.1913), 
-                (-0.3536, -0.3536), (-0.1913, -0.4619), (0, -0.5), (0.1913, -0.4619),
-                (0.3536, -0.3536), (0.4619, -0.1913), (0.5, 0), (0.4619, 0.1913),
-                (0.3536, 0.35365), (0.1913, 0.4619), (0, 0.5), (-0.1913, 0.4619),
-                (0.0, 0.0))
+    def anchors(self):
+        return {'nw' : (-0.3536, 0.3536), 'wnw' : (-0.4619, 0.1913),
+                'w' : (-0.5, 0), 'wsw' : (-0.4619, -0.1913), 
+                'sw' : (-0.3536, -0.3536), 'ssw' : (-0.1913, -0.4619),
+                's' : (0, -0.5), 'sse' : (0.1913, -0.4619),
+                'se' : (0.3536, -0.3536), 'ese' : (0.4619, -0.1913),
+                'e' : (0.5, 0), 'ene' : (0.4619, 0.1913),
+                'ne' : (0.3536, 0.35365), 'nne' : (0.1913, 0.4619),
+                'n' : (0, 0.5), 'nnw' : (-0.1913, 0.4619),
+                'c' : (0.0, 0.0)}
+
 
 class Circle2(Shape):
     """Circle"""
