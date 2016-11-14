@@ -19,6 +19,7 @@ from lcapy.netfile import NetfileMixin
 import lcapy.mnacpts as cpts
 import re
 from copy import copy
+from collections import OrderedDict
 
 class Ldict(dict):
 
@@ -89,7 +90,7 @@ class Netlist(MNA, NetfileMixin):
 
     def __init__(self, filename=None):
 
-        self._elements = {}
+        self._elements = OrderedDict()
         self.nodes = {}
         self.context = global_context.new()
         self._init_parser(cpts)
