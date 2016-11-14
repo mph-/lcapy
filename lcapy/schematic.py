@@ -405,6 +405,10 @@ class Graph(dict):
         return True
 
     def assign_stretch(self, unknown):
+        """Use a worklist algorithm to assign nodes with unknown positions
+        that are connected via stretchable edges to the known nodes.
+
+        """
 
         changes = True
         while changes and unknown != set():
@@ -571,6 +575,9 @@ class Graph(dict):
     def dot(self, filename=None, stage=None):
         """Generate directed graph using graphviz notation"""
 
+        def fmt_dec(value):
+            return ('%.2f' % value).rstrip('0').rstrip('.')
+
         if filename is None:
             filename = tmpfilename('.png')
             self.dot(filename=filename, stage=stage)
@@ -602,14 +609,14 @@ class Graph(dict):
             if pos < 1e-6:
                 pos = 0
 
-            dotfile.write ('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (gnode.fmt_name, colour, pos))
+            dotfile.write ('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (gnode.fmt_name, colour, fmt_dec(pos)))
 
         for gnode in self.values():
             for edge in gnode.fedges:
                 colour = 'black' if edge.stretch else 'red'
                 dotfile.write ('\t"%s" ->\t"%s" [ color=%s, label="%s%s" ];\n' % (
                     gnode.fmt_name, edge.to_gnode.fmt_name, colour, 
-                    edge.size, '*' if edge.stretch else ''))
+                    fmt_dec(edge.size), '*' if edge.stretch else ''))
 
         dotfile.write ('}\n')
         dotfile.close ()
