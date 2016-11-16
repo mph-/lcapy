@@ -669,12 +669,16 @@ class Node(object):
         if self.pin:
             return False
 
-        if self.port:
+        if self._port:
             return True
 
         if draw_nodes in ('none', None, False):
             return False
         
+        # Implied port
+        if self.count == 1:
+            return True
+
         if draw_nodes == 'connections':
             return self.count > 2
 
