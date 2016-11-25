@@ -98,6 +98,9 @@ class EngFormat(object):
         sfmax = 3
 
         value = self.value
+        if value == 0:
+            return '0' + self.unit
+
         m = math.log10(abs(value))
 
         if m < -1 or m >= 3.0:
