@@ -88,11 +88,14 @@ class Node(object):
 
 class Netlist(MNA, NetfileMixin):
 
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, context=None):
 
         self._elements = OrderedDict()
         self.nodes = {}
-        self.context = global_context.new()
+        if context is None:
+            context = global_context.new()
+        
+        self.context = context
         self._init_parser(cpts)
 
         self.opts = SchematicOpts()
@@ -194,11 +197,13 @@ class Netlist(MNA, NetfileMixin):
         return new        
 
     def _new(self):
-        
+
+        # TODO.  Copy or share?
+        context = self.context
         if self.__class__ == 'Circuit':
-            return Circuit()
+            return Circuit(context=context)
         # If have OnePort, Network, etc., treat as Netlist
-        return Netlist()
+        return Netlist(context=context)
 
     def remove(self, name):
         """Remove specified element."""
