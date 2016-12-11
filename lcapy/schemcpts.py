@@ -1159,8 +1159,9 @@ class ShapeWithAnchors(Shape):
         for anchor in self.anchors.keys():
             nodes.append(name + '.' + anchor)
 
-        super (ShapeWithAnchors, self).__init__(sch, name, cpt_type, cpt_id, string,
-                                                opts_string, nodes, *args)
+        super (ShapeWithAnchors, self).__init__(sch, name, cpt_type, cpt_id,
+                                                string, opts_string,
+                                                nodes, *args)
 
     @property
     def coords(self):
