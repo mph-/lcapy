@@ -229,8 +229,8 @@ class Expr(object):
         # class and rewrap the returned value if it is a sympy Expr
         # object.
 
-        # This propagates the assumptions.  There is a possibility that
-        # the operation may violate them.
+        # FIXME.  This propagates the assumptions.  There is a
+        # possibility that the operation may violate them.
 
         expr = self.expr
         if hasattr(expr, attr):
@@ -247,6 +247,9 @@ class Expr(object):
             # If it is callable, create a function to pass arguments
             # through and wrap its return value.
             def wrap(*args):
+                """This is wrapper for a SymPy function.
+                For help, see the SymPy documentation."""
+                
                 ret = a(*args)
 
                 if not isinstance(ret, sym.Expr):
@@ -885,6 +888,16 @@ class Expr(object):
 
         return self._subs1(self.var, arg)
 
+    def limit(self, var, value, dir='+'):
+        """Determine limit of expression(var) at var = value"""
+
+        # Need to use lcapy sympify otherwise could use
+        # getattr to call sym.limit.
+        ret = sym.limit(self.expr, sympify(var), sympify(value))
+        if hasattr(self, 'assumptions'):
+            return self.__class__(ret, **self.assumptions)
+        return self.__class__(ret)
+    
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage"""
 
