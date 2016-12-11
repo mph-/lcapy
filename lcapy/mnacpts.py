@@ -362,7 +362,7 @@ class E(Dummy):
         if n2 >= 0:
             cct._B[n2, m] -= 1
             cct._C[m, n2] -= 1
-        
+
         A = cExpr(self.args[0]).expr
         
         if n3 >= 0:
