@@ -638,7 +638,7 @@ class Node(object):
         self.list = []
         self.pos = 'unknown'
         self.pinpos = None
-        self.pin = False
+        self.pin = '.' in name
         # Sanitised name
         self.s = name.replace('.', '@')
         self.label = name
