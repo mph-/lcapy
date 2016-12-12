@@ -64,6 +64,12 @@ class Cpt(object):
 
         self.net = string.split(';')[0]
         self.opts_string = opts_string
+
+        if hasattr(self, 'anchors'):
+            nodes = list(nodes)
+            for anchor in self.anchors.keys():
+                nodes.append(name + '.' + anchor)
+
         # There are four sets of nodes:
         # 1. nodes are the names of the electrical nodes for a cpt.
         # 2. vnodes are the subset of the electrical nodes for a cpt that are drawn.
@@ -1149,20 +1155,6 @@ class Box12(Shape):
 
 class ShapeWithAnchors(Shape):
 
-    def __init__(self, sch, name, cpt_type, cpt_id, string,
-                 opts_string, nodes, *args):
-
-        if nodes != ():
-            raise ValueError('Unexpected explicit nodes %s' % nodes)
-
-        nodes = []
-        for anchor in self.anchors.keys():
-            nodes.append(name + '.' + anchor)
-
-        super (ShapeWithAnchors, self).__init__(sch, name, cpt_type, cpt_id,
-                                                string, opts_string,
-                                                nodes, *args)
-
     @property
     def coords(self):
 
@@ -1238,7 +1230,7 @@ class Circle4(Shape):
         return ((-0.5, 0), (0, -0.5), (0.5, 0), (0, 0.5))
 
 
-class TR(Box):
+class TR(Box2):
     """Transfer function"""
 
     default_width = 1.5
