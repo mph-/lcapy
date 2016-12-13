@@ -838,7 +838,7 @@ class Schematic(NetfileMixin):
 
         self.elements[cpt.name] = cpt
 
-        for node in cpt.explicit_node_names + cpt.extra_node_names:
+        for node in cpt.required_node_names + cpt.extra_node_names:
             self._node_add(node, cpt)
 
     def make_graphs(self):
