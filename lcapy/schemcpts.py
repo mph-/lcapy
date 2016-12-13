@@ -1054,6 +1054,7 @@ class Opamp(FixedCpt):
                 'vss' : (1.2, -0.5),
                 'r+' : (0.35, 0.25),
                 'r-' : (0.35, -0.25)}
+    
     nanchors = {'out' : (2.4, 0.0),
                 '+' : (0.0, -0.5),
                 '-' : (0.0, 0.5),
@@ -1109,6 +1110,7 @@ class FDOpamp(FixedCpt):
                 'vss' : (1.0, -0.62),
                 'r+' : (0.35, 0.25),
                 'r-' : (0.35, -0.25)}
+    
     nanchors = {'out+' : (2.05, -0.5),
                 'out-' : (2.05, 0.5),
                 '+' : (0.0, -0.5),
@@ -1264,6 +1266,7 @@ class Box(Shape):
                'ne' : (0.5, 0.5), 'nne' : (0.25, 0.5),
                'n' : (0, 0.5), 'nnw' : (-0.25, 0.5),
                'mid' : (0.0, 0.0)}
+    required_anchors = ('mid', )    
 
 
 class Circle(Shape):
@@ -1279,6 +1282,7 @@ class Circle(Shape):
                'ne' : (0.3536, 0.35365), 'nne' : (0.1913, 0.4619),
                'n' : (0, 0.5), 'nnw' : (-0.1913, 0.4619),
                'mid' : (0.0, 0.0)}
+    required_anchors = ('mid', )
 
 
 class Circle2(Shape):
