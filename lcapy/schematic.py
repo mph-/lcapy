@@ -635,7 +635,7 @@ class Node(object):
         parts = name.split('_')
         self.rootname = parts[0] if name[0] != '_' else name
         self.primary = len(parts) == 1
-        self.list = []
+        self.elt_list = []
         self.pos = 'unknown'
         self.pinpos = None
         self.pin = '.' in name
@@ -652,7 +652,7 @@ class Node(object):
         if elt.type == 'P':
             self._port = True
 
-        self.list.append(elt)
+        self.elt_list.append(elt)
         if elt.type not in ('O', ):
             self._count += 1
 
@@ -841,6 +841,23 @@ class Schematic(NetfileMixin):
         for node in cpt.required_node_names + cpt.extra_node_names:
             self._node_add(node, cpt)
 
+    def check_nodes(self):
+
+        for node in self.nodes.values():
+            node_name = node.name
+            if '.' not in node_name:
+                continue
+            parts = node_name.split('.')
+            cpt_name = parts[-2]
+            anchor = parts[-2]
+            if cpt_name not in self.elements:
+                raise ValueError('Unknown component name %s for node %s'
+                                 % (cpt_name, node_name))
+            node_names = self.elements[cpt_name].node_names
+            if node_name not in node_names:
+                raise ValueError('Unknown node %s. Possible names: %s' %
+                                 (node.name, ', '.join(node_names)))
+            
     def make_graphs(self):
 
         # The x and y positions of a component node are determined
@@ -856,6 +873,8 @@ class Schematic(NetfileMixin):
         # distance from the root of the graph.  To centre components,
         # a reverse graph is created and the distances are averaged.
 
+        self.check_nodes()
+        
         self.xgraph = Graph('horizontal', self.nodes)
         self.ygraph = Graph('vertical', self.nodes)
 
