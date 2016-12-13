@@ -1093,37 +1093,55 @@ class Opamp(FixedCpt):
 
 class FDOpamp(FixedCpt):
 
-    npos = ((2.05, 1), (2.05, 0), (0, 0), (0, 1))
-    ppos = ((2.05, -1), (2.05, 0), (0, 0), (0, -1))
-
     can_scale = True
     can_mirror = True
 
-    @property
-    def coords(self):
-        return self.npos if self.mirror else self.ppos
+    required_anchors = ('mid', )
 
+    node_map = ('out+', 'out-', '+', '-')
+    
+    panchors = {'out+' : (2.05, -0.5),
+                'out-' : (2.05, 0.5),                
+                '+' : (0.0, 0.5),
+                '-' : (0.0, -0.5),
+                'mid' : (1.2, 0.0),
+                'vdd' : (1.0, 0.62),
+                'vss' : (1.0, -0.62),
+                'r+' : (0.35, 0.25),
+                'r-' : (0.35, -0.25)}
+    nanchors = {'out+' : (2.05, -0.5),
+                'out-' : (2.05, 0.5),
+                '+' : (0.0, -0.5),
+                '-' : (0.0, 0.5),
+                'mid' : (1.2, 0.0),
+                'vdd' : (1.0, 0.62),
+                'vss' : (1.0, -0.62),
+                'r+' : (0.35, 0.25),
+                'r-' : (0.35, -0.25)}
+
+    @property
+    def anchors(self):
+        return self.nanchors if self.mirror else self.panchors
+    
     def draw(self, **kwargs):
 
         if not self.check():
             return ''
 
-        n1, n2, n3, n4 = self.nodes
-
-        centre = self.tf((n1.pos + n2.pos + n3.pos + n4.pos) * 0.25, (0.15, 0))
+        centre = self.node('mid')
 
         yscale = 2 * 1.02 * self.scale
         if not self.mirror:
             yscale = -yscale
 
         s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            centre, self.args_str, 2 * 1.01 * self.scale, yscale,
+            centre.s, self.args_str, 2 * 1.01 * self.scale, yscale,
             -self.angle, self.s)
-        s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, n1.s)
-        s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, n2.s)
-        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, n3.s)
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, n4.s)
-        s += self.draw_label(centre, **kwargs)
+        s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, self.node('out+'))
+        s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, self.node('out-'))
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('+'))
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('-'))
+        s += self.draw_label(centre.pos, **kwargs)
         s += self.draw_nodes(**kwargs)
         return s
 
@@ -1233,11 +1251,7 @@ class Box12(Shape):
                 (0.25, 0.5), (0, 0.5), (-0.25, 0.5))
 
 
-class ShapeWithAnchors(Shape):
-    pass
-
-
-class Box(ShapeWithAnchors):
+class Box(Shape):
     """Box"""
 
     shape = 'rectangle'    
@@ -1252,7 +1266,7 @@ class Box(ShapeWithAnchors):
                'mid' : (0.0, 0.0)}
 
 
-class Circle(ShapeWithAnchors):
+class Circle(Shape):
     """Circle"""
 
     shape = 'circle'
