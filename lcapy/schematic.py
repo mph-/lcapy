@@ -843,10 +843,23 @@ class Schematic(NetfileMixin):
 
     def check_nodes(self):
 
+        def check_explicit_node(node):
+
+            node_name = node.name            
+            for elt in node.elt_list:
+                if node_name in elt.explicit_node_names:
+                    return True
+            return False
+        
         for node in self.nodes.values():
+            if check_explicit_node(node):
+                continue
+            
             node_name = node.name
             if '.' not in node_name:
-                continue
+                # Something is wrong...
+                raise ValueError('Unknown node %s.' % node_name)
+
             parts = node_name.split('.')
             cpt_name = parts[-2]
             anchor = parts[-2]
