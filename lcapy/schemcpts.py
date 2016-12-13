@@ -28,6 +28,13 @@ module = sys.modules[__name__]
 # the (unrotated) height is set by the aspect attribute.  The scale attribute
 # is not used.
 
+# There are two paradigms used for specifying node coordinates:
+#
+# 1.  The old model.  required_node_names returns subset of
+# explicit_node_names as a list.
+#
+# 2.  The new model.  node_map specifies the subset of required nodes.
+
 
 class Cpt(object):
 
@@ -48,6 +55,9 @@ class Cpt(object):
     can_stretch = True
     default_width = 1.0
     default_aspect = 1.0
+    node_map = ()
+    required_anchors = ()
+    anchors = {}
 
     @property
     def s(self):
@@ -55,7 +65,7 @@ class Cpt(object):
         return self.name.replace('.', '@')
 
     def __init__(self, sch, name, cpt_type, cpt_id, string,
-                 opts_string, nodes, *args):
+                 opts_string, node_names, *args):
 
         self.sch = sch
         self.type = cpt_type
@@ -65,24 +75,25 @@ class Cpt(object):
         self.net = string.split(';')[0]
         self.opts_string = opts_string
 
-        if hasattr(self, 'anchors'):
-            nodes = list(nodes)
-            for anchor in self.anchors.keys():
-                nodes.append(name + '.' + anchor)
-
-        # There are four sets of nodes:
-        # 1. nodes are the names of the electrical nodes for a cpt.
-        # 2. vnodes are the subset of the electrical nodes for a cpt that are drawn.
-        # 3. dvnodes includes vnodes plus inherited nodes from other cpts (K).  The
-        # lookup of this attribute is deferred until cpts are drawn.
-        # 4. dnodes are the subset of dvnodes that are shown.
-        self.nodes = nodes
-
         self.args = args
         self.classname = self.__class__.__name__
 
         # Drawing hints
         self.opts = Opts(opts_string)
+
+        self.explicit_node_names = node_names
+
+        extra_node_names = []
+        for anchor in self.required_anchors:
+            extra_node_names.append(name + '.' + anchor)
+        self.extra_node_names = tuple(extra_node_names)
+        
+        anchor_node_names = []
+        for anchor in self.anchors.keys():
+            anchor_node_names.append(name + '.' + anchor)
+        self.anchor_node_names = tuple(anchor_node_names)
+
+        self.node_names = self.required_node_names + self.anchor_node_names
 
     def __repr__(self):
         return self.__str__()
@@ -217,30 +228,75 @@ class Cpt(object):
                          (-np.sin(t), np.cos(t))))
 
     @property
-    def vnodes(self):
-        """Visible node names"""
-        return self.nodes
+    def required_node_names(self):
+        """Subset of explicit_node_names"""
+
+        # Old model.   The number of node names in the list
+        # must match the number of entries in coords.
+        if self.node_map == ():
+            return self.explicit_node_names
+
+        # New model.
+        node_names = []
+        for anchor, node_name in zip(self.node_map, self.explicit_node_names):
+            if anchor != '':
+                node_names.append(node_name)
+        return tuple(node_names)
+
+    def node(self, anchor):
+        """Return node by anchor"""
+
+        if anchor in self.node_map:
+            index = self.node_map.index(anchor)
+            node_name = self.explicit_node_names[index]
+        else:
+            node_name = self.name + '.' + anchor
+        for node in self.nodes:
+            if node.name == node_name:
+                return node
+        raise ValueError('Unknown anchor %s for %s' % (anchor, self))
 
     @property
-    def dvnodes(self):
-        """Nodes used to construct schematic (these are deferred vnodes).
-        Return only explicity required nodes"""
+    def nodes(self):
+        """Nodes used to draw the current element."""
 
+        if hasattr(self, '_nodes'):
+            return self._nodes
+
+        # Perhaps determine coords here as well and cache them?
+        
+        node_names = self.required_node_names + self.extra_node_names + self.anchor_node_names
+        
         rnodes = []
-        for n in self.vnodes:
+        for n in node_names:
             if n in self.sch.nodes:
                 rnodes.append(self.sch.nodes[n])
+        self._nodes = rnodes
         return rnodes
 
     @property
-    def dnodes(self):
+    def drawn_nodes(self):
         """Nodes that are drawn"""
-        return self.dvnodes
+        return self.nodes
 
     @property
     def coords(self):
-        """Return coordinates of each of the nodes"""
-        raise NotImplementedError('coords method not implemented for %s' % self)
+
+        # Determine the required coords.
+        rcoords = []
+        for node in self.nodes:
+            node_name = node.name
+            if node_name in self.explicit_node_names:
+                index = self.explicit_node_names.index(node_name)
+                anchor = self.node_map[index]
+            elif node_name in self.sch.nodes:
+                anchor = node_name.split('.')[-1]
+            else:
+                raise ValueError('Unknown node %s' % node_name)
+
+            if anchor != '':
+                rcoords.append(self.anchors[anchor])
+        return rcoords
 
     @property
     def scoords(self):
@@ -270,16 +326,16 @@ class Cpt(object):
     def xlink(self, graphs):
 
         xvals = self.xvals
-        for m1, n1 in enumerate(self.dvnodes):
-            for m2, n2 in enumerate(self.dvnodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.nodes):
+            for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
                 if xvals[m2] == xvals[m1]:
                     graphs.link(n1.name, n2.name)
 
     def ylink(self, graphs):
 
         yvals = self.yvals
-        for m1, n1 in enumerate(self.dvnodes):
-            for m2, n2 in enumerate(self.dvnodes[m1 + 1:], m1 + 1):
+        for m1, n1 in enumerate(self.nodes):
+            for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
                 if yvals[m2] == yvals[m1]:
                     graphs.link(n1.name, n2.name)
 
@@ -290,8 +346,8 @@ class Cpt(object):
         for i in range(len(idx) - 1):
             m1 = idx[i]
             m2 = idx[i + 1]
-            n1 = self.dvnodes[m1]
-            n2 = self.dvnodes[m2]
+            n1 = self.nodes[m1]
+            n2 = self.nodes[m2]
             value = (vals[m2] - vals[m1]) * size
             graphs.add(self, n1.name, n2.name, value, self.stretch)
 
@@ -346,7 +402,7 @@ class Cpt(object):
     def draw_nodes(self, **kwargs):
 
         s = ''
-        for n in self.dnodes:
+        for n in self.drawn_nodes:
             s += self.draw_node(n, **kwargs)
         return s
 
@@ -547,7 +603,7 @@ class Transistor(FixedCpt):
         if not self.check():
             return ''
 
-        n1, n2, n3 = self.dvnodes
+        n1, n2, n3 = self.nodes
         centre = (n1.pos + n3.pos) * 0.5
 
         s = r'  \draw (%s) node[%s, %s, scale=%s, rotate=%d] (%s) {};''\n' % (
@@ -570,14 +626,16 @@ class Transistor(FixedCpt):
 
 class JFET(Transistor):
     """Transistor"""
-    
+
+    #node_map = ('c', 'b', 'e')
     npos = ((1, 1.5), (0, 0.48), (1, 0))
     ppos = ((1, 0), (0, 1.02), (1, 1.5))
 
 
 class MOSFET(Transistor):
     """Transistor"""
-    
+
+    #node_map = ('d', 'g', 's')    
     npos = ((0.85, 1.52), (-0.25, 0.76), (0.85, 0))
     ppos = ((0.85, 0), (-0.25, 0.76), (0.85, 1.52))
 
@@ -597,7 +655,7 @@ class TwoPort(FixedCpt):
         if not self.check():
             return ''
 
-        n1, n2, n3, n4 = self.dvnodes
+        n1, n2, n3, n4 = self.nodes
         width = n2.pos.x - n4.pos.x
         centre = (n1.pos + n2.pos + n3.pos + n4.pos) * 0.25
 
@@ -635,7 +693,7 @@ class MX(FixedCpt):
         if not self.check():
             return ''
 
-        n1, n2, n3 = self.dvnodes
+        n1, n2, n3 = self.nodes
 
         centre = (n1.pos + n2.pos) * 0.5
         q = self.tf(centre, ((0, 0.35)))
@@ -664,7 +722,7 @@ class SP(FixedCpt):
         if not self.check():
             return ''
 
-        n = self.dvnodes
+        n = self.nodes
 
         centre = (n[0].pos + n[2].pos) * 0.5
         q = self.tf(centre, ((0.3, 0.3), (-0.125, 0), (0, -0.125),
@@ -743,7 +801,7 @@ class TL(StretchyCpt):
         if not self.check():
             return ''
 
-        n1, n2, n3, n4 = self.dvnodes
+        n1, n2, n3, n4 = self.nodes
 
         centre = (n1.pos + n3.pos) * 0.5
         q = self.xtf(centre, ((0.32, 0),
@@ -779,7 +837,7 @@ class TF1(FixedCpt):
 
         link = kwargs.get('link', True)
 
-        p = [node.pos for node in self.dvnodes]
+        p = [node.pos for node in self.nodes]
 
         centre = (p[0] + p[1] + p[2] + p[3]) * 0.25
         q = self.tf(centre, ((-0.35, 0.3), (0.35, 0.3), (0, 0.375)))
@@ -818,7 +876,7 @@ class Transformer(TF1):
         if not self.check():
             return ''
 
-        n1, n2, n3, n4 = self.dvnodes
+        n1, n2, n3, n4 = self.nodes
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3.s, n4.s)
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2.s, n1.s)
@@ -836,16 +894,16 @@ class TFtap(TF1):
         return ((0.5, 1), (0.5, 0), (0, 1), (0, 0), (-0.125, 0.55), (0.625, 0.55))
 
     @property
-    def dnodes(self):
+    def drawn_nodes(self):
         # Do not draw the taps.
-        return self.dvnodes[0:4]
+        return self.nodes[0:4]
 
     def draw(self, **kwargs):
 
         if not self.check():
             return ''
 
-        n1, n2, n3, n4, n5, n6 = self.dvnodes
+        n1, n2, n3, n4, n5, n6 = self.nodes
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3.s, n4.s)
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2.s, n1.s)
@@ -859,20 +917,22 @@ class K(TF1):
     """Mutual coupling"""
 
     def __init__(self, sch, name, cpt_type, cpt_id, string,
-                 opts_string, nodes, *args):
+                 opts_string, node_names, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
         super (K, self).__init__(sch, name, cpt_type, cpt_id, string,
-                                 opts_string, nodes, *args[2:])
+                                 opts_string, node_names, *args[2:])
 
     @property
-    def dvnodes(self):
+    def nodes(self):
 
+        # CHECKME
+        
         # L1 and L2 need to be previously defined so we can find their nodes.
         L1 = self.sch.elements[self.Lname1]
         L2 = self.sch.elements[self.Lname2]
-        return [self.sch.nodes[n] for n in L1.nodes + L2.nodes]
+        return [self.sch.nodes[n] for n in L1.node_names + L2.node_names]
 
 
 class OnePort(StretchyCpt):
@@ -890,7 +950,7 @@ class OnePort(StretchyCpt):
         if not self.check():
             return ''
 
-        n1, n2 = self.dvnodes
+        n1, n2 = self.nodes
 
         tikz_cpt = self.tikz_cpt
         if self.variable:
@@ -967,8 +1027,8 @@ class VCS(OnePort):
     """Voltage controlled source"""
 
     @property
-    def vnodes(self):
-        return self.nodes[0:2]
+    def required_node_names(self):
+        return self.explicit_node_names[0:2]
 
 
 class CCS(OnePort):
@@ -978,42 +1038,47 @@ class CCS(OnePort):
 
 class Opamp(FixedCpt):
 
-    # The Nm node is not used (ground).
-    ppos = ((2.4, 0.0), (0, 0.5), (0, -0.5))
-    npos = ((2.4, 0.0), (0, -0.5), (0, 0.5))
-
     can_scale = True
     can_mirror = True
 
-    @property
-    def vnodes(self):
-        return (self.nodes[0], ) + self.nodes[2:]
+    required_anchors = ('mid', )
+
+    # The Nm node is not used (ground).
+    node_map = ('out', '', '+', '-')
+    
+    panchors = {'out' : (2.4, 0.0),
+                '+' : (0.0, 0.5),
+                '-' : (0.0, -0.5),
+                'mid' : (1.2, 0.0)}
+    nanchors = {'out' : (2.4, 0.0),
+                '+' : (0.0, -0.5),
+                '-' : (0.0, 0.5),
+                'mid' : (1.2, 0.0)}
 
     @property
-    def coords(self):
-        return self.npos if self.mirror else self.ppos
-
+    def anchors(self):
+        return self.nanchors if self.mirror else self.panchors
+    
     def draw(self, **kwargs):
 
         if not self.check():
             return ''
 
-        n1, n3, n4 = self.dvnodes
-
-        centre = (n3.pos + n4.pos) * 0.25 + n1.pos * 0.5
-
         yscale = 2 * 1.019 * self.scale
         if not self.mirror:
             yscale = -yscale
 
+        centre = self.node('mid')
+
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            centre, self.args_str, 2 * 1.01 * self.scale, yscale,
+            centre.s,
+            self.args_str, 2 * 1.01 * self.scale, yscale,
             -self.angle, self.s)
-        s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, n1.s)
-        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, n3.s)
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, n4.s)
-        s += self.draw_label(centre, **kwargs)
+        s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, self.node('out').s)
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('+').s)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('-').s)
+        s += self.draw_label(centre.pos, **kwargs)
         s += self.draw_nodes(**kwargs)
         return s
 
@@ -1035,7 +1100,7 @@ class FDOpamp(FixedCpt):
         if not self.check():
             return ''
 
-        n1, n2, n3, n4 = self.dvnodes
+        n1, n2, n3, n4 = self.nodes
 
         centre = self.tf((n1.pos + n2.pos + n3.pos + n4.pos) * 0.25, (0.15, 0))
 
@@ -1067,7 +1132,7 @@ class SPDT(StretchyCpt):
         if not self.check():
             return ''
 
-        n1, n2, n3 = self.dvnodes
+        n1, n2, n3 = self.nodes
 
         centre = n1.pos * 0.5 + (n2.pos + n3.pos) * 0.25
         s = r'  \draw (%s) node[spdt, %s, rotate=%d] (%s) {};''\n' % (
@@ -1086,10 +1151,17 @@ class Shape(FixedCpt):
     default_aspect = 1.0
     can_mirror = True
 
+
     @property
     def centre(self):
-        N = len(self.dvnodes)
-        return self.midpoint(self.dvnodes[0], self.dvnodes[N // 2])
+        if hasattr(self, 'anchors'):
+            # Look for centre anchor.
+            for node in self.nodes:
+                if node.name.split('.')[-1] == 'mid':
+                    return node.pos
+        
+        N = len(self.nodes)
+        return self.midpoint(self.nodes[0], self.nodes[N // 2])
 
     @property
     def width(self):
@@ -1154,24 +1226,7 @@ class Box12(Shape):
 
 
 class ShapeWithAnchors(Shape):
-
-    @property
-    def coords(self):
-
-        # Determine the required coords.
-        rcoords = []
-        for node in self.nodes:
-            if node in self.sch.nodes:
-                anchor = node.split('.')[-1]
-                rcoords.append(self.anchors[anchor])
-        return rcoords
-
-    @property
-    def centre(self):
-        for node in self.dvnodes:
-            if node.name.split('.')[-1] == 'c':
-                return node.pos
-        raise ValueError('No centre node for %s', self.name)
+    pass
 
 
 class Box(ShapeWithAnchors):
@@ -1186,7 +1241,7 @@ class Box(ShapeWithAnchors):
                'e' : (0.5, 0), 'ene' : (0.5, 0.25),
                'ne' : (0.5, 0.5), 'nne' : (0.25, 0.5),
                'n' : (0, 0.5), 'nnw' : (-0.25, 0.5),
-               'c' : (0.0, 0.0)}
+               'mid' : (0.0, 0.0)}
 
 
 class Circle(ShapeWithAnchors):
@@ -1201,7 +1256,7 @@ class Circle(ShapeWithAnchors):
                'e' : (0.5, 0), 'ene' : (0.4619, 0.1913),
                'ne' : (0.3536, 0.35365), 'nne' : (0.1913, 0.4619),
                'n' : (0, 0.5), 'nnw' : (-0.1913, 0.4619),
-               'c' : (0.0, 0.0)}
+               'mid' : (0.0, 0.0)}
 
 
 class Circle2(Shape):
@@ -1278,11 +1333,11 @@ class Chip(Shape):
             pins = pins[1:-1]
                 
             pins = pins.split(',')
-            if len(pins) != len(self.dvnodes):
+            if len(pins) != len(self.nodes):
                 raise ValueError('Expecting %d pin names, got %s in %s' % (
-                    len(self.dvnodes), len(pins), self))
+                    len(self.nodes), len(pins), self))
 
-        for m, n in enumerate(self.dvnodes):
+        for m, n in enumerate(self.nodes):
             n.pinpos = self.pinmap(self.pinpos[m])
             label = ''
             if pins == 'auto':
@@ -1313,7 +1368,7 @@ class Chip(Shape):
         s += r'  \draw (%s) node[text width=%scm, align=center, %s] {%s};''\n'% (
             centre, self.width - 0.5, self.args_str, self.label(**kwargs))
 
-        for m, n in enumerate(self.dvnodes):
+        for m, n in enumerate(self.nodes):
             if n.clock:
                 # TODO, tweak for pinpos
                 q = self.tf(n.pos, ((0, 0.125 * 0.707), (0.125, 0), 
@@ -1331,7 +1386,7 @@ class Uchip1310(Chip):
 
     @property
     def centre(self):
-        return self.midpoint(self.dvnodes[0], self.dvnodes[4])
+        return self.midpoint(self.nodes[0], self.nodes[4])
 
     @property
     def coords(self):
@@ -1398,7 +1453,7 @@ class Uadc(Chip):
 
     @property
     def centre(self):
-        return self.midpoint(self.dvnodes[0], self.dvnodes[4])
+        return self.midpoint(self.nodes[0], self.nodes[4])
 
 
 class Udac(Chip):
@@ -1418,7 +1473,7 @@ class Udac(Chip):
 
     @property
     def centre(self):
-        return self.midpoint(self.dvnodes[1], self.dvnodes[5])
+        return self.midpoint(self.nodes[1], self.nodes[5])
 
 
 class Udiffamp(Chip):
@@ -1437,7 +1492,7 @@ class Udiffamp(Chip):
 
     @property
     def centre(self):
-        n1, n2, n3, n4, n5 = self.dvnodes
+        n1, n2, n3, n4, n5 = self.nodes
         return (n1.pos + n2.pos) * 0.25 + n4.pos * 0.5
 
 
@@ -1462,7 +1517,7 @@ class Ubuffer(Chip):
 
         self.name_pins()
 
-        n1, n2, n3, n4 = self.dvnodes
+        n1, n2, n3, n4 = self.nodes
         centre = (n1.pos + n3.pos) * 0.5
 
         q = self.tf(centre, self.path)
@@ -1494,7 +1549,7 @@ class Uinverter(Chip):
 
         self.name_pins()
 
-        n1, n2, n3, n4 = self.dvnodes
+        n1, n2, n3, n4 = self.nodes
         centre = (n1.pos + n3.pos) * 0.5
 
         q = self.tf(centre, self.path)
@@ -1509,34 +1564,27 @@ class Uinverter(Chip):
 class Wire(OnePort):
 
     def __init__(self, sch, name, cpt_type, cpt_id, string,
-                 opts_string, nodes, *args):
+                 opts_string, node_names, *args):
 
-        super (Wire, self).__init__(sch, name, cpt_type, cpt_id, string,
-                                    opts_string, nodes, *args)
+        implicit = False
+        for key in self.implicit_keys:
+            if key in opts_string:
+                implicit = True
+                break
 
-        if self.implicit:
+        if implicit:
             # Rename second node since this is spatially different from
             # other nodes of the same name.  Add underscore so node
             # not drawn.
-            self.nodes = (self.nodes[0], self.name + '@_' + self.nodes[1])
-
-    @property
-    def implicit(self):
-
-        for key in self.implicit_keys:
-            if key in self.opts:
-                return True
-        return False
+            node_names = (node_names[0], name + '@_' + node_names[1])
+        
+        super (Wire, self).__init__(sch, name, cpt_type, cpt_id, string,
+                                    opts_string, node_names, *args)
+        self.implicit = implicit
 
     @property
     def coords(self):
-
         return ((0, 0), (1, 0))
-
-    @property
-    def vnodes(self):
-
-        return self.nodes
 
     def draw_implicit(self, **kwargs):
         """Draw implict wires, i.e., connections to ground, etc."""
@@ -1555,7 +1603,7 @@ class Wire(OnePort):
         if self.down:
             anchor = 'north west'
 
-        n1, n2 = self.dvnodes
+        n1, n2 = self.nodes
         s = self.draw_path((n1.s, n2.s)) 
         s += r'  \draw (%s) node[%s,scale=0.5,rotate=%d] {};''\n' % (
             n2.s, kind, self.angle + 90)
@@ -1582,7 +1630,7 @@ class Wire(OnePort):
             except:
                 return name
 
-        n1, n2 = self.dvnodes
+        n1, n2 = self.nodes
 
         # W 1 2; up, arrow=tri, l=V_{dd}
         # W 1 3; right, arrow=otri
@@ -1638,7 +1686,7 @@ class FB(StretchyCpt):
         if not self.check():
             return ''
 
-        n1, n2 = self.dvnodes
+        n1, n2 = self.nodes
 
         centre = (n1.pos + n2.pos) * 0.5
         w = 0.125
@@ -1671,7 +1719,7 @@ class XT(StretchyCpt):
         if not self.check():
             return ''
 
-        n1, n2 = self.dvnodes
+        n1, n2 = self.nodes
 
         centre = (n1.pos + n2.pos) * 0.5
         q = self.tf(centre, ((-0.15, 0), (-0.15, 0.15), (-0.15, -0.15),
@@ -1705,7 +1753,7 @@ def defcpt(name, base, docstring, cpt=None):
 
 
 def make(classname, parent, name, cpt_type, cpt_id,
-         string, opts_string, nodes, *args):
+         string, opts_string, node_names, *args):
 
     # Create instance of component object
     try:
@@ -1714,7 +1762,7 @@ def make(classname, parent, name, cpt_type, cpt_id,
         newclass = classes[classname]
 
     cpt = newclass(parent, name, cpt_type, cpt_id, string, opts_string, 
-                   nodes, *args)
+                   node_names, *args)
     # Add named attributes for the args?   Lname1, etc.
         
     return cpt

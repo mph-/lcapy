@@ -838,13 +838,7 @@ class Schematic(NetfileMixin):
 
         self.elements[cpt.name] = cpt
 
-        # TODO, fix hack cleanly.  For a circle or box we need to add
-        # the centre node so that we can place the component.
-        if cpt.type == 'S':
-            self._node_add(cpt.name + '.c', cpt)
-            return
-
-        for node in cpt.vnodes:
+        for node in cpt.explicit_node_names + cpt.extra_node_names:
             self._node_add(node, cpt)
 
     def make_graphs(self):
