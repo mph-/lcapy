@@ -1467,7 +1467,7 @@ class sExpr(sfwExpr):
 
         return N, D, delay
 
-    def evaluate(self, svector):
+    def evaluate(self, svector=None):
 
         return super(sExpr, self).evaluate(svector)
 
