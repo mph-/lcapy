@@ -20,6 +20,7 @@ class Cpt(object):
 
     source = False
     need_branch_current = False
+    need_control_current = False
 
     def __init__(self, cct, name, cpt_type, cpt_id, string,
                  opts_string, nodes, *args):
@@ -41,13 +42,13 @@ class Cpt(object):
         if self.type in ('W', 'O', 'P'):
             return
 
-        if args is ():
+        if args is () or (self.type in ('F', 'H') and len(args) == 1):
             # Default value is the component name
             value = self.type
             if self.id != '':
                 value += '_' + self.id
 
-            args = (value, )
+            args += (value, )
             self.args = args
 
         try:
@@ -80,7 +81,15 @@ class Cpt(object):
     def kill(self):
         """Kill component"""
 
-        raise ValueError('component not a source: %s' % self)        
+        raise ValueError('component not a source: %s' % self)
+
+    def zero(self):
+        """Zero value of the voltage source.  This kills it but keeps it as a
+        voltage source in the netlist.  This is required for dummy
+        voltage sources that are required to specify the controlling
+        current for CCVS and CCCS components."""        
+
+        raise ValueError('component not a voltage source: %s' % self)        
 
     def s_model(self, var):
         """Return s-domain model of component"""
@@ -374,6 +383,8 @@ class E(Dummy):
 class F(Dummy):
     """CCCS"""
 
+    need_control_current = True
+    
     def stamp(self, cct):
         n1, n2 = self.node_indexes
         m = cct._branch_index(self.args[0])
@@ -411,6 +422,7 @@ class H(Dummy):
     """CCVS"""
 
     need_branch_current = True
+    need_control_current = True    
 
     def stamp(self, cct):
         n1, n2 = self.node_indexes
@@ -435,6 +447,8 @@ class I(Cpt):
     def kill(self):
         newopts = self.opts.copy()
         newopts.strip_voltage_labels()
+        newopts.strip_labels()
+
         return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
 
     def stamp(self, cct):
@@ -722,9 +736,18 @@ class V(Cpt):
     source = True
     need_branch_current = True
 
+    def zero(self):
+        """Zero value of the voltage source.  This kills it but keeps it as a
+        voltage source in the netlist.  This is required for dummy
+        voltage sources that are required to specify the controlling
+        current for CCVS and CCCS components."""
+        return '%s %s %s {%s}; %s' % (
+            self.name, self.nodes[0], self.nodes[1], 0, self.opts)
+    
     def kill(self):
         newopts = self.opts.copy()
         newopts.strip_current_labels()
+        newopts.strip_labels()
         return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
 
     def stamp(self, cct):

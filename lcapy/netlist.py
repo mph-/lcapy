@@ -12,7 +12,7 @@ Copyright 2014-2016 Michael Hayes, UCECE
 from __future__ import division
 from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym
 from lcapy.core import s, j, omega, uppercase_name, global_context
-from lcapy.core import Ztype, Ytype, Htype
+from lcapy.core import Ztype, Ytype, Htype, Vtype
 from lcapy.schematic import Schematic, Opts, SchematicOpts
 from lcapy.mna import MNA
 from lcapy.netfile import NetfileMixin
@@ -239,7 +239,7 @@ class Netlist(MNA, NetfileMixin):
     def Voc(self, Np, Nm):
         """Return open-circuit s-domain voltage between nodes Np and Nm."""
 
-        return self.V[Np] - self.V[Nm]
+        return Vtype(self.V[Np] - self.V[Nm],  **self.assumptions)
 
     def voc(self, Np, Nm):
         """Return open-circuit t-domain voltage between nodes Np and Nm."""
@@ -380,7 +380,9 @@ class Netlist(MNA, NetfileMixin):
         new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
-            if cpt.name in sourcenames:
+            if cpt.name in self.control_sources:
+                net = cpt.zero()                
+            elif cpt.name in sourcenames:
                 net = cpt.kill()
             else:
                 net = cpt.kill_initial()
@@ -604,14 +606,27 @@ class Netlist(MNA, NetfileMixin):
 
     @property
     def noncausal_sources(self):
-        """Return non-causal independent sources."""
+        """Return dictionary of non-causal independent sources."""
 
         return dict((key, cpt) for key, cpt in self.elements.items() if cpt.source and not cpt.is_causal)
 
     @property
     def independent_sources(self):
-        """Return independent sources (this does not include
+        """Return dictionary of independent sources (this does not include
         implicit sources due to initial conditions)."""
 
         return dict((key, cpt) for key, cpt in self.elements.items() if cpt.source)
 
+    @property
+    def control_sources(self):
+        """Return dictionary of voltage sources required to specify control
+        current for CCVS and CCCS components."""
+
+        result = {}
+
+        for key, cpt in self.elements.items():
+            if cpt.need_control_current:
+                result[cpt.args[0]] = self.elements[cpt.args[0]]
+        return result
+    
+    
