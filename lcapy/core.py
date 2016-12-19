@@ -526,9 +526,6 @@ class Expr(object):
         # sympy uses theta for Heaviside , use u(t) although I prefer H(t)
         string = string.replace(r'\theta\left', r'u\left')
 
-        # Perhaps replace _{xxx} with _{\mathrm{xxx}} if len(xxx) > 1
-        # We catch this later on with latex_str
-
         return string
 
     def pretty(self):

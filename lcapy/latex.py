@@ -22,8 +22,10 @@ class Latex(object):
             
             word = match.group(2)
             suffix = word + match.group(3)
-            
-            if word.lower() in self.words:
+
+            # Perhaps look up dictionary to find valid words?
+            # Assume that if length 3 or more then a word.
+            if word.lower() in self.words or len(word) > 2:
                 suffix = r'{\mathrm{%s}}' % suffix
             else:
                 suffix = r'{%s}' % suffix
