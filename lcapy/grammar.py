@@ -7,8 +7,8 @@ Copyright 2015, 2016 Michael Hayes, UCECE
 # SPICE also considers = a delimiter.
 delimiters = r' \t\(\),'
 
-# Comment characters
-comments = r'#%'
+# Comment characters; these must be in the first column.
+comments = r'#%*'
 
 # Optional params are in square brackets.
 rules = r"""
