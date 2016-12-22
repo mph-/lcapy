@@ -50,6 +50,8 @@ func_pattern = re.compile(r"\\operatorname{(.*)}")
 
 all_assumptions = ('ac', 'dc', 'causal')
 
+inverse_laplace_cache = {}
+
 from sympy.printing.str import StrPrinter 
 from sympy.printing.latex import LatexPrinter 
 from sympy.printing.pretty.pretty import PrettyPrinter 
@@ -1316,6 +1318,17 @@ class sExpr(sfwExpr):
         if assumptions == {}:
             assumptions = self.assumptions
 
+        # TODO, simplify
+        key = (self.expr, assumptions.get('dc', False),
+               assumptions.get('ac', False),
+               assumptions.get('causal', False))
+               
+        if key in inverse_laplace_cache:
+            result = inverse_laplace_cache[key]
+            if hasattr(self, '_laplace_conjugate_class'):
+                result = self._laplace_conjugate_class(result)
+                return result            
+
         if assumptions.get('dc', False):
             result = self * s
             
@@ -1342,6 +1355,7 @@ class sExpr(sfwExpr):
             if not assumptions.causal:
                 result = sym.Piecewise((result, tsym >= 0))
 
+        inverse_laplace_cache[key] = result
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result)
         return result

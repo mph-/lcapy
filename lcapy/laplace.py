@@ -22,6 +22,7 @@ Copyright 2016 Michael Hayes, UCECE
 
 import sympy as sym
 
+laplace_cache = {}
 
 def laplace_limits(expr, t, s, tmin, tmax):
     
@@ -89,6 +90,10 @@ def laplace_transform(expr, t, s):
     # default to assuming that t is complex.  So if the symbol has the
     # same representation, convert to the desired one.
 
+    # TODO Perhaps should check if t is the same?
+    if expr in laplace_cache:
+        return laplace_cache[expr]
+    
     var = sym.Symbol(str(t))
     expr = sym.sympify(expr)
     expr = expr.replace(var, t)
@@ -102,5 +107,6 @@ def laplace_transform(expr, t, s):
     except ValueError:
         raise ValueError('Could not compute Laplace transform for ' + str(expr))
 
+    laplace_cache[expr] = result
     return result
 
