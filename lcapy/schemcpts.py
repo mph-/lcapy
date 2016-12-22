@@ -1826,6 +1826,7 @@ defcpt('Isin', 'I', 'Sinusoidal current source', 'sI')
 defcpt('Idc', 'I', 'DC current source', 'I')
 defcpt('Istep', 'I', 'Step current source', 'I')
 defcpt('Iac', 'I', 'AC current source', 'sI')
+defcpt('Inoise', 'I', 'Noise current source', 'sI')
 
 defcpt('J', JFET, 'N JFET transistor', 'njfet')
 defcpt('Jnjf', 'J', 'N JFET transistor', 'njfet')
@@ -1873,6 +1874,7 @@ defcpt('Vsin', 'V', 'Sinusoidal voltage source', 'sV')
 defcpt('Vdc', 'V', 'DC voltage source', 'V')
 defcpt('Vstep', 'V', 'Step voltage source', 'V')
 defcpt('Vac', 'V', 'AC voltage source', 'sV')
+defcpt('Vnoise', 'V', 'Noise voltage source', 'sV')
 
 defcpt('VM', OnePort, 'Voltmeter', 'voltmeter')
 

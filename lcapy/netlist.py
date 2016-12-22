@@ -12,7 +12,7 @@ Copyright 2014-2016 Michael Hayes, UCECE
 from __future__ import division
 from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym
 from lcapy.core import s, j, omega, uppercase_name, global_context
-from lcapy.core import Ztype, Ytype, Htype, Vtype
+from lcapy.core import Vtype
 from lcapy.schematic import Schematic, Opts, SchematicOpts
 from lcapy.mna import MNA
 from lcapy.netfile import NetfileMixin
@@ -86,7 +86,7 @@ class Node(object):
         self.list.append(cpt)
 
 
-class Netlist(MNA, NetfileMixin):
+class NetlistMixin(object):
 
     def __init__(self, filename=None, context=None):
 
@@ -127,7 +127,8 @@ class Netlist(MNA, NetfileMixin):
         explicit attribute attr for this instance.  This is primarily
         for accessing elements and non-numerical node names.  It also
         gets called if the called attr throws an AttributeError
-        exception."""
+        exception.  The annoying thing is that hasattr uses getattr
+        and checks for an exception."""
 
         return self.__getitem__(attr)
 
@@ -293,9 +294,7 @@ class Netlist(MNA, NetfileMixin):
         If = -new.Vin_.I
         new.remove('Vin_')
 
-        # TODO: pass modified assumptions
-        Y = Ytype(If, causal=True, dc=self.is_dc, ac=self.is_ac)
-        return Y
+        return Ys(If)
 
     def impedance(self, Np, Nm):
         """Return impedance between nodes Np and Nm with independent
@@ -311,9 +310,7 @@ class Netlist(MNA, NetfileMixin):
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
-        # TODO: pass modified assumptions
-        Z = Ztype(Vf, causal=True, dc=self.is_dc, ac=self.is_ac)
-        return Z
+        return Zs(Vf)
 
     def transfer(self, N1p, N1m, N2p, N2m):
         """Create voltage transfer function V2 / V1 where:
@@ -328,9 +325,7 @@ class Netlist(MNA, NetfileMixin):
         V2 = new.Voc(N2p, N2m)
         V1 = new.V1_.V
 
-        H = Htype(V2 / V1, causal=True)
-
-        return H
+        return Hs(V2 / V1, causal=True)
 
     def Amatrix(self, N1p, N1m, N2p, N2m):
         """Create A matrix from network, where:
@@ -424,6 +419,48 @@ class Netlist(MNA, NetfileMixin):
             sources.append(self.independent_sources[arg].name)
 
         return self._kill(sources)
+
+    def _noisy(self, resistornames):
+
+        new = self._new()
+        new.opts = copy(self.opts)
+
+        for cpt in self._elements.values():
+            if cpt.name in resistornames:
+                net = cpt.noisy()
+            else:
+                net = str(cpt)
+            new._add(net)
+        return new        
+
+    def noisy_except(self, *args):
+        """Return a new circuit with all but the specified resistors in series
+        with noise voltage sources"""
+
+        for arg in args:
+            if arg not in self.elements and self.elements[arg].type != 'R':
+                raise ValueError('Element %s is not a known resistor' % arg)
+        resistors = []
+        for cpt in self.elements.values():
+            if cpt.type == 'R' and cpt.name not in args:
+                resistors.append(cpt.name)
+        return self._noisy(resistors)
+
+    def noisy(self, *args):
+        """Return a new circuit with the specified resistors in series
+        with noise voltage sources"""
+
+        if len(args) == 0:
+            return self.noisy_except()
+
+        resistors = []
+        for arg in args:
+            if arg not in self.elements and self.elements[arg].type != 'R':
+                raise ValueError('Element %s is not a known resistor' % arg)
+            resistors.append(arg)
+
+        return self._noisy(resistors)
+    
 
     def twoport(self, N1p, N1m, N2p, N2m):
         """Create twoport model from network, where:
@@ -628,5 +665,73 @@ class Netlist(MNA, NetfileMixin):
             if cpt.need_control_current:
                 result[cpt.args[0]] = self.elements[cpt.args[0]]
         return result
-    
-    
+
+    def sources_kind(self, kind):
+        """Return sources that match kind"""
+
+        result = []
+        for source, cpt in self.independent_sources.items():
+            if cpt.is_dc and kind == 'dc':
+                result.append(source)
+            elif cpt.is_ac and kind == 'ac':
+                result.append(source)
+            elif cpt.is_noisy and kind == 'noise':
+                result.append(source)
+            elif not cpt.is_dc and not cpt.is_ac and kind == 's':
+                result.append(source)
+        return result
+
+                        
+class Netlist(NetlistMixin, NetfileMixin):
+
+    def __init__(self, filename=None, context=None):
+
+        super (Netlist, self).__init__(filename, context)
+        self._invalidate()
+
+    def _invalidate(self):
+        """Reset dictionary of subnetlists"""
+        self.subnetlists = {'s' : None, 'dc' : None,
+                            'ac' : None, 'noise' : None}
+
+    def _subnetlists_make(self, kind):
+
+        result = {}
+        sources = self.sources_kind(kind)
+        for source in sources:
+            result[source] = SubNetlist(self, source, kind)
+        return result
+
+    def _subnetlist(self, kind):
+        if self.subnetlists[kind] is None:
+            self.subnetlists[kind] = self._subnetlists_make(kind)
+        return self.subnetlists[kind]        
+
+    @property
+    def dc(self):
+        return self._subnetlist('dc')
+
+    @property        
+    def s(self):
+        return self._subnetlist('s')        
+
+    @property        
+    def ac(self):
+        return self._subnetlist('ac')
+
+    @property        
+    def noise(self):
+        return self._subnetlist('noise')
+
+
+class SubNetlist(NetlistMixin, MNA):
+
+    def __new__(cls, netlist, sources, kind):
+
+        obj = netlist.kill_except(sources)
+        # Hack
+        obj.__class__ = cls
+        return obj
+
+    def __init__(cls, netlist, sources, kind):
+        pass

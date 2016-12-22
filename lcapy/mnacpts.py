@@ -136,6 +136,17 @@ class Cpt(object):
             raise ValueError('%s is not a source' % self)
 
     @property
+    def is_noisy(self):
+        """Return True if source is noisy"""
+
+        if self.cpt.voltage_source:
+            return self.cpt.is_noisy
+        elif self.cpt.current_source:
+            return self.cpt.is_noisy
+        else:
+            raise ValueError('%s is not a source' % self)        
+
+    @property
     def zeroic(self):
         """Return True if initial conditions are zero (or unspecified)"""
 
@@ -258,6 +269,7 @@ class Dummy(Cpt):
     ac = False
     zeroic = True
     hasic = None
+    noisy = False
 
 
 class RLC(Cpt):
@@ -311,6 +323,22 @@ class RLC(Cpt):
 
 class RC(RLC):
 
+    def noisy(self):
+
+        dummy_node = self.dummy_node()
+
+        opts = self.opts.copy()
+
+        rnet = '%s %s %s {%s};%s' % (self.name, 
+                                     self.nodes[0], dummy_node,
+                                     self.args[0],
+                                     opts)
+        
+        Vn = 'sqrt(4 * k * T * %s)' % self.args[0]
+        vnet = 'Vn%s %s %s noise {%s};%s' % (
+            self.name, dummy_node, self.nodes[1], Vn, opts)
+        return rnet + '\n' + vnet
+    
     def stamp(self, cct):
 
         # L's can also be added with this stamp but if have coupling
@@ -851,6 +879,7 @@ defcpt('Isin', I, 'Sinusoidal current source')
 defcpt('Idc', I, 'DC current source')
 defcpt('Istep', I, 'Step current source')
 defcpt('Iac', I, 'AC current source')
+defcpt('Inoise', I, 'Noise current source')
 
 defcpt('J', NonLinear, 'N JFET transistor')
 defcpt('Jnjf', 'J', 'N JFET transistor')
@@ -898,6 +927,7 @@ defcpt('Vsin', V, 'Sinusoidal voltage source')
 defcpt('Vdc', V, 'DC voltage source')
 defcpt('Vstep', V, 'Step voltage source')
 defcpt('Vac', V, 'AC voltage source')
+defcpt('Vnoise', V, 'Noise voltage source')
 
 defcpt('VM', O, 'Voltmeter')
 

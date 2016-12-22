@@ -2414,32 +2414,5 @@ def Itype(val, **assumptions):
         return Is(val, **assumptions).canonical()
 
 
-def Ytype(val, **assumptions):
-
-    if assumptions.get('ac', False):
-        val = val.jomega()
-        return Yomega(val, **assumptions)
-    else:
-        return Ys(val, **assumptions).canonical()
-
-
-def Ztype(val, **assumptions):
-
-    if assumptions.get('ac', False):
-        val = val.jomega()
-        return Zomega(val, **assumptions)
-    else:
-        return Zs(val, **assumptions).canonical()
-
-
-def Htype(val, **assumptions):
-
-    if assumptions.get('ac', False):
-        val = val.jomega()
-        return Homega(val, **assumptions)
-    else:
-        return Hs(val, **assumptions).canonical()
-
-
 init = True
 from lcapy.oneport import L, C, R, G, Idc, Vdc, Iac, Vac, I, V, Z, Y

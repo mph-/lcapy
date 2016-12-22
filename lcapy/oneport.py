@@ -35,7 +35,7 @@ from lcapy.network import Network
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
            'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac', 'sV', 'sI',
-           'Iac', 'Norton', 'Thevenin',
+           'Iac', 'Vnoise', 'Inoise', 'Norton', 'Thevenin',
            'Par', 'Ser', 'Xtal', 'FerriteBead')
 
 def _check_oneport_args(args):
@@ -994,6 +994,7 @@ class VoltageSource(Thevenin):
 
     voltage_source = True
     netname = 'V'
+    is_noisy = False
 
     def __init__(self, Vval):
 
@@ -1083,6 +1084,8 @@ class Vac(VoltageSource):
 
         # Note, cos(-pi / 2) is not quite zero.
 
+        import pdb; pdb.set_trace()
+        
         self.omega = symbol('omega_1', real=True)
         foo = (s * sym.cos(phi) + self.omega * sym.sin(phi)) / (s**2 + self.omega**2)
         super(Vac, self).__init__(Vs(foo * V, ac=True))
@@ -1101,6 +1104,18 @@ class Vac(VoltageSource):
         return Vphasor(self.v0 * exp(j * self.phi))
 
 
+class Vnoise(Vac):
+    """Noise voltage source."""
+
+    netkeyword = 'noise'
+    is_noisy = True
+
+    def __init__(self, V):
+
+        super(Vnoise, self).__init__(V, 0)
+        self.args = (V, )
+
+        
 class v(VoltageSource):
     """Arbitrary t-domain voltage source"""
 
@@ -1116,6 +1131,7 @@ class CurrentSource(Norton):
 
     current_source = True
     netname = 'I'
+    is_noisy = False    
 
     def __init__(self, Ival):
 
@@ -1226,6 +1242,18 @@ class Iac(CurrentSource):
         return Iphasor(self.i0 * exp(j * self.phi))
 
 
+class Inoise(Iac):
+    """Noise current source."""
+
+    netkeyword = 'noise'
+    is_noisy = True
+
+    def __init__(self, I):
+
+        super(Inoise, self).__init__(I, 0)
+        self.args = (I, )
+
+        
 class i(CurrentSource):
     """Arbitrary t-domain current source"""
 
