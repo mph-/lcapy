@@ -1084,8 +1084,6 @@ class Vac(VoltageSource):
 
         # Note, cos(-pi / 2) is not quite zero.
 
-        import pdb; pdb.set_trace()
-        
         self.omega = symbol('omega_1', real=True)
         foo = (s * sym.cos(phi) + self.omega * sym.sin(phi)) / (s**2 + self.omega**2)
         super(Vac, self).__init__(Vs(foo * V, ac=True))

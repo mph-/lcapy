@@ -723,6 +723,33 @@ class Netlist(NetlistMixin, NetfileMixin):
     def noise(self):
         return self._subnetlist('noise')
 
+    @property
+    def V(self):
+
+        # Hack to generate entries in subnetlists
+        self.ac
+        self.dc
+        self.s
+        self.noise
+        
+        result = {}
+        for kind, subnetlists in self.subnetlists.items():
+            for source, subnetlist in subnetlists.items():
+                if kind not in result:
+                    result[kind] = {}
+                for node, value in subnetlist.V.items():
+                    if node not in result[kind]:
+                        result[kind][node] = 0
+                    if kind == 'noise':
+                        result[kind][node] += value**2
+                    else:
+                        result[kind][node] += value
+
+        if 'noise' in result:
+            for node, value in result['noise']:
+                result['noise'][node] = sqrt(result['noise'][node])
+        return result
+    
 
 class SubNetlist(NetlistMixin, MNA):
 
