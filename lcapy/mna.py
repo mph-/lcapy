@@ -18,32 +18,6 @@ def namelist(elements):
     return ', '.join([elt for elt in elements])
 
 
-class Mdict(dict):
-
-    def __init__(self, branchdict, **assumptions):
-
-        super(Mdict, self).__init__()
-        self.branchdict = branchdict
-        # Hack, should compute assumptions on fly.
-        self.assumptions = assumptions
-
-    def __getitem__(self, key):
-
-        # If key is an integer, convert to a string.
-        if isinstance(key, int):
-            key = '%d' % key
-
-        if key in self.branchdict:
-            n1, n2 = self.branchdict[key]
-            return Vtype((self[n1] - self[n2]).simplify(), **self.assumptions)
-
-        return super(Mdict, self).__getitem__(key)
-
-    def keys(self):
-
-        return list(super(Mdict, self).keys()) + list(self.branchdict)
-
-
 class MNA(object):
     """This class performs modified nodal analysis (MNA) on a netlist of
     components.  There are several variants:
@@ -259,7 +233,7 @@ class MNA(object):
         self.context.switch()
 
         # Create dictionary of node voltages
-        self._V = Mdict(branchdict, **assumptions)
+        self._V = {}
         self._V['0'] = Vtype(0, **assumptions)
         for n in self.nodes:
             index = self._node_index(n)
@@ -325,27 +299,3 @@ class MNA(object):
 
         self._solve()
         return self._I
-
-    @property
-    def Vd(self):
-        """Return dictionary of s-domain branch voltage differences
-        indexed by component name"""
-
-        if hasattr(self, '_Vd'):
-            return self._Vd
-
-        self._solve()
-
-        # This is a hack.  The assumptions should be recalculated
-        # when performing operations on Expr types.
-        assumptions = self.assumptions
-
-        self._Vd = {}
-        for elt in self.elements.values():
-            if elt.type == 'K':
-                continue
-            n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
-            self._Vd[elt.name] = Vtype((self._V[n1] - self._V[n2]).simplify(),
-                                       **assumptions)
-
-        return self._Vd

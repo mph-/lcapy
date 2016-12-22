@@ -162,27 +162,25 @@ class Cpt(object):
     def I(self):
         """Current through component"""
 
-        self.cct._solve()
-        return self.cct._I[self.name]
+        return self.cct.get_I(self.name)
 
     @property
     def i(self):
         """Time-domain current through component"""
 
-        return self.cct.i[self.name]
+        return self.cct.get_i(self.name)
 
     @property
     def V(self):
         """Voltage drop across component"""
 
-        self.cct._solve()
-        return self.cct._V[self.name]
+        return self.cct.get_Vd(self.nodes[1], self.nodes[0])
 
     @property
     def v(self):
         """Time-domain voltage drop across component"""
 
-        return self.cct.v[self.name]
+        return self.cct.get_vd(self.nodes[1], self.nodes[0])
 
     @property
     def Isc(self):
@@ -203,7 +201,8 @@ class Cpt(object):
     @property
     def Y(self):
         """Admittance"""
-        
+
+        # TODO, remove ac
         if self.cct.is_ac:
             return self.cpt.Yac
         return self.cpt.Y
@@ -211,7 +210,8 @@ class Cpt(object):
     @property
     def Z(self):
         """Impedance"""
-        
+
+        # TODO, remove ac        
         if self.cct.is_ac:
             return self.cpt.Zac
         return self.cpt.Z
