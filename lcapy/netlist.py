@@ -10,7 +10,7 @@ Copyright 2014-2016 Michael Hayes, UCECE
 # numerical quantisation.
 
 from __future__ import division
-from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym
+from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym, Vt, It
 from lcapy.core import s, j, omega, uppercase_name, global_context
 from lcapy.core import Vtype, sqrt
 from lcapy.schematic import Schematic, Opts, SchematicOpts
@@ -40,14 +40,13 @@ class Node(object):
     def V(self):
         """Node voltage with respect to ground."""
 
-        self.cct._solve()
-        return self.cct._V[self.name]
+        return self.cct.get_Vd(self.name, '0')
 
     @property
     def v(self):
         """Node time-domain voltage with respect to ground."""
 
-        return self.cct.v[self.name]
+        return self.cct.get_vd(self.name, '0')
 
     def append(self, cpt):
 
@@ -711,26 +710,72 @@ class Netlist(NetlistMixin, NetfileMixin):
     def get_I(self, name):
         """Current through component"""
 
-        self._solve()
-        return self._I[name]
+        self.ac
+        self.dc
+        self.s
+        self.n
+        result = Domains({'s' : 0, 'dc' : 0, 'ac' : 0, 'n' : 0})        
+
+        for kind, sub in self.sub.items():
+            for source, subnetlist in sub.items():
+                I = subnetlist.get_I(name)
+                if kind == 'n':
+                    I = I * I
+                result[kind] += I
+
+        result['n'] = sqrt(result['n'])
+        return result        
 
     def get_i(self):
         """Time-domain current through component"""
 
-        return self.get_I(name).time()
+        I = self.get_I(n2, n1)
+
+        # TODO, integrate noise
+        result = 0
+        if I.s != 0:
+            result += I.s.time()
+        if I.ac != 0:
+            result += I.ac.time()
+        if I.dc != 0:
+            result += I.dc.time()
+        return It(result)
 
     def get_Vd(self, n2, n1):
         """Voltage drop between nodes"""
 
-        self._solve()
-        return self._V[n2] - self._V[n1]
+        self.ac
+        self.dc
+        self.s
+        self.n        
+        result = Domains({'s' : 0, 'dc' : 0, 'ac' : 0, 'n' : 0})        
+
+        for kind, sub in self.sub.items():
+            for source, subnetlist in sub.items():
+                Vd = subnetlist.get_Vd(n2, n1)
+                if kind == 'n':
+                    Vd = Vd * Vd
+                result[kind] += Vd
+
+        result['n'] = sqrt(result['n'])
+        return result        
 
     def get_vd(self, n2, n1):
         """Time-domain voltage drop between nodes"""
 
-        return self.get_Vd(n2, n1).time()
-    
+        Vd = self.get_Vd(n2, n1)
 
+        # TODO, integrate noise
+        result = 0
+        if Vd.s != 0:
+            result += Vd.s.time()
+        if Vd.ac != 0:
+            result += Vd.ac.time()
+        if Vd.dc != 0:
+            result += Vd.dc.time()
+        return Vt(result)        
+
+    
 class SubNetlist(NetlistMixin, MNA):
 
     def __new__(cls, netlist, sources, kind):
@@ -764,4 +809,3 @@ class SubNetlist(NetlistMixin, MNA):
         """Time-domain voltage drop between nodes"""
 
         return self.get_Vd(n2, n1).time()
-
