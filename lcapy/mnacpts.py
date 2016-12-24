@@ -74,7 +74,7 @@ class Cpt(object):
         raise NotImplementedError('stamp method not implemented for %s' % self)
 
     def kill_initial(self):
-        """Kill implicit voltage sources due to initial conditions"""
+        """Kill implicit sources due to initial conditions"""
 
         return str(self)
 
@@ -186,35 +186,35 @@ class Cpt(object):
     def Isc(self):
         """Short-circuit current"""
         
-        if self.cct.is_ac:
-            return self.cpt.Iscac
         return self.cpt.Isc
 
     @property
     def Voc(self):
         """Open-circuit voltage"""
         
-        if self.cct.is_ac:
-            return self.cpt.Vocac
         return self.cpt.Voc
 
     @property
     def Y(self):
         """Admittance"""
 
-        # TODO, remove ac
-        if self.cct.is_ac:
-            return self.cpt.Yac
-        return self.cpt.Y
+        Y1 = self.cpt.Y
+        if self.cct.kind in ('ac', 'n'):
+            return Y1.jomega()
+        if self.cct.kind is 'dc':
+            return cExpr(Y1.jomega()(0))
+        return Y1
 
     @property
     def Z(self):
         """Impedance"""
 
-        # TODO, remove ac        
-        if self.cct.is_ac:
-            return self.cpt.Zac
-        return self.cpt.Z
+        Z1 = self.cpt.Z
+        if self.cct.kind in ('ac', 'n'):
+            return Z1.jomega()
+        if self.cct.kind is 'dc':
+            return cExpr(Z1.jomega()(0))
+        return Z1        
 
     @property
     def node_indexes(self):
@@ -346,14 +346,14 @@ class RC(RLC):
         # through the L.
         n1, n2 = self.node_indexes
 
-        if cct.is_ac:
-            Y = self.cpt.Yac.expr
+        if self.type == 'R' or cct.kind in ('ac', 'n'):
+            Y = self.Y.expr
             I = 0
-        elif self.type == 'C' and cct.is_dc:
+        elif self.type == 'C' and cct.kind == 'dc':
             Y = 0
             I = 0
         else:
-            Y = self.cpt.Y.expr
+            Y = self.Y.expr
             I = self.cpt.Isc.expr
 
         if n1 >= 0 and n2 >= 0:
@@ -371,7 +371,7 @@ class RC(RLC):
 class C(RC):
     
     def kill_initial(self):
-        """Kill implicit voltage sources due to initial conditions"""
+        """Kill implicit sources due to initial conditions"""
         return '%s %s %s {%s}; %s' % (
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
@@ -483,10 +483,7 @@ class I(Cpt):
 
         n1, n2 = self.node_indexes
 
-        if cct.is_ac:
-            I = self.cpt.Iscac.expr
-        else:
-            I = self.cpt.Isc.expr
+        I = self.cpt.Isc.expr
 
         if n1 >= 0:
             cct._Is[n1] += I
@@ -518,7 +515,7 @@ class K(Cpt):
 
     def stamp(self, cct):
 
-        if cct.is_ac:
+        if cct.kind != 's':
             raise ValueError('TODO')
 
         L1 = self.nodes[0]
@@ -541,7 +538,7 @@ class L(RLC):
     need_branch_current = True
 
     def kill_initial(self):
-        """Kill implicit voltage sources due to initial conditions"""
+        """Kill implicit sources due to initial conditions"""
         return '%s %s %s {%s}; %s' % (
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
@@ -559,14 +556,14 @@ class L(RLC):
             cct._B[n2, m] = -1
             cct._C[m, n2] = -1
 
-        if cct.is_ac:
-            Z = self.cpt.Zac.expr
+        if cct.kind in ('ac', 'n'):
+            Z = self.Z.expr
             V = 0
-        elif cct.is_dc:
+        elif cct.kind == 'dc':
             Z = 0
             V = 0
         else:
-            Z = self.cpt.Z.expr
+            Z = self.Z.expr
             V = self.cpt.Voc.expr
 
         cct._D[m, m] += -Z

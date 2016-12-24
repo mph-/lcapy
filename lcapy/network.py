@@ -4,13 +4,12 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import Vphasor, Iphasor, sExpr, pretty
+from lcapy.core import sExpr, pretty
 from lcapy.latex import latex_str
 from lcapy.schematic import Schematic
-from lcapy.netlist import Netlist
 from lcapy.circuit import Circuit
 
-class Network(Netlist):
+class Network(object):
 
     voltage_source = False
     current_source = False
@@ -77,22 +76,6 @@ class Network(Netlist):
 
         return self
 
-    @property
-    def Vocac(self):
-        return Vphasor(0)
-
-    @property
-    def Iscac(self):
-        return Iphasor(0)
-
-    @property
-    def Yac(self):
-        return self.Y.jomega()
-
-    @property
-    def Zac(self):
-        return self.Z.jomega()
-
     def _add_elements(self):
 
         netlist = self.netlist()
@@ -107,9 +90,9 @@ class Network(Netlist):
 
         if not hasattr(self, 'node_counter'):
             self.node_counter = 0
-        
+        ret = self.node_counter
         self.node_counter += 1
-        return self.node_counter
+        return ret
 
     def netargs(self):
 
@@ -138,8 +121,11 @@ class Network(Netlist):
 
     def netlist(self):
 
+        # Enumerate from node 0
         self.node_counter = 0
-        return self.net_make(self)
+        n1 = self.node
+        n2 = self.node        
+        return self.net_make(self, n2, n1)
 
 
     @property
@@ -171,6 +157,8 @@ class Network(Netlist):
         if hasattr(self, '_cct'):
             return self._cct
 
+        import pdb; pdb.set_trace()
+        
         netlist = self.netlist()
         cct = Circuit()
         for net in netlist.split('\n'):

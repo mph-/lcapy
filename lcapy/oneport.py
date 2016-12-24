@@ -12,14 +12,6 @@ These components are converted to s-domain models and so capacitor and
 inductor components can be specified with initial voltage and
 currents, respectively, to model transient responses.
 
-The components are represented by either Thevenin or Norton one-port
-networks with the following attributes:
-
-Zoc open-circuit impedance
-Ysc short-circuit admittance
-Voc open-circuit voltage
-Isc short-circuit current
-
 One-ports can either be connected in series (+) or parallel (|) to
 create a new one-port.
 
@@ -28,14 +20,14 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vphasor, Iphasor, It, Itype, Vtype, pretty
+from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vp, Ip, It, Vc, Ic, Itype, Vtype, pretty
 from lcapy.sympify import symbols_find
 from lcapy.network import Network
 
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
            'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac', 'sV', 'sI',
-           'Iac', 'Vnoise', 'Inoise', 'Norton', 'Thevenin',
+           'Iac', 'Vnoise', 'Inoise', 
            'Par', 'Ser', 'Xtal', 'FerriteBead')
 
 def _check_oneport_args(args):
@@ -48,10 +40,22 @@ def _check_oneport_args(args):
 class OnePort(Network):
     """One-port network
 
-    There are three types of OnePort: ParSer (for combinations of 
-    OnePort), Thevenin, and Norton.
+    There are four major types of OnePort:
+       VoltageSource
+       CurrentSource
+       Impedance
+       Admittance
+       ParSer for combinations of OnePort
 
     Attributes: Y, Z, Voc, Isc, y, z, voc, isc
+      Y = Y(s) = Ysc(s)  admittance
+      Z = Z(s) = Zoc(s)  impedance
+      Voc       open-circuit voltage in appropriate transform domain
+      Isc       short-circuit current in appropriate transform domain
+      y = y(t)  impulse response of admittance
+      z = z(t)  impulse response of impedance
+      voc = voc(t) open-circuit voltage time response
+      isc = isc(t) short-circuit current time response
     """
 
     # Dimensions and separations of component with horizontal orientation.
@@ -62,6 +66,24 @@ class OnePort(Network):
 
     netname = ''
     netkeyword = ''
+
+    Z = Zs(0)
+    #Voc = Vc(0)
+    #Isc = Ic(0)
+    Voc = 0
+    Isc = 0
+
+    @property
+    def Zoc(self):
+        return self.Z
+
+    @property
+    def Ysc(self):
+        return self.Y
+
+    @property
+    def Y(self):
+        return 1 / self.Z
 
     def __add__(self, OP):
         """Series combination"""
@@ -82,14 +104,6 @@ class OnePort(Network):
         """Parallel combination"""
 
         return Par(self, OP)
-
-    @property
-    def Zoc(self):
-        return self.Z
-
-    @property
-    def Ysc(self):
-        return self.Y
 
     def ladder(self, *args):
         """Create (unbalanced) ladder network"""
@@ -132,45 +146,12 @@ class OnePort(Network):
         return self.Isc.time()
 
     @property
-    def y(self):
-        return self.Y.time()
-
-    @property
     def z(self):
         return self.Z.time()
 
     @property
-    def I(self):
-        return Is(0)
-
-    @property
-    def i(self):
-        return It(0)
-
-    @property
-    def V(self):
-        self._solve()
-        return self._V[1]
-
-    @property
-    def v(self):
-        return self.V.time()
-
-    @property
-    def Y(self):
-        return self._Y
-
-    @Y.setter
-    def Y(self, val):
-        self._Y = val
-
-    @property
-    def Z(self):
-        return self._Z
-
-    @Z.setter
-    def Z(self, val):
-        self._Z = val
+    def y(self):
+        return self.Y.time()
 
     def thevenin(self):
         """Simplify to a Thevenin network"""
@@ -460,29 +441,21 @@ class ParSer(OnePort):
 
     @property
     def Isc(self):
-
-        Voc = self.Voc
-        Z = self.Z
-        assumptions = Voc.assumptions
-        return Itype(Voc / Z, **assumptions)
+        return self.cct.Isc(1, 0)
 
     @property
     def Voc(self):
-        self._solve()
-        Voc = self._V[1]
-        # FIXME
-        assumptions = self._V.assumptions
-        return Vtype(Voc, **assumptions)
+        return self.cct.Voc(1, 0)
 
     @property
     def Y(self):
         # Could extract directly if have Y || I or Z + V
-        return self.admittance(1, 0)
+        return self.cct.admittance(1, 0)
 
     @property
     def Z(self):
         # Could extract directly if have Y || I or Z + V
-        return self.impedance(1, 0)
+        return self.cct.impedance(1, 0)
 
 class Par(ParSer):
     """Parallel class"""
@@ -638,278 +611,24 @@ class Ser(ParSer):
         return '\n'.join(s)
 
 
-class Norton(OnePort):
-    """Norton (Y) model
-    ::
-
-                +-------------------+
-        I1      |                   |      -I1
-        -->-+---+        Y          +---+--<--
-            |   |                   |   |
-            |   +-------------------+   |
-            |                           |
-            |                           |
-            |          +------+         |
-            |          |      |         |
-            +----------+ -I-> +---------+
-                       |      |
-                       +------+
-
-          +              V1                 -
-    """
-
-    def __init__(self, Yval=Ys(0), Ival=Is(0)):
-
-        # print('<N> Y:', Yval, 'I:', Ival)
-        if not isinstance(Yval, Ys):
-            raise ValueError('Yval not Ys')
-        if not isinstance(Ival, Is):
-            raise ValueError('Ival not Is')
-        self.Y = Yval
-        self.Isc = Ival
-
-        super(Norton, self).__init__()
-
-    @property
-    def Z(self):
-        return Zs(1 / self.Y)
-
-    @property
-    def Voc(self):
-        return Vtype(self.Isc / self.Y, **self.Isc.assumptions)
-
-    def cpt(self):
-        """Convert to a component, if possible"""
-
-        if self.Y.is_number and self.Isc == 0:
-            return G(self.Y.expr)
-
-        i = s * self.Isc
-        if self.Y == 0 and i.is_number:
-            return Idc(i.expr)
-
-        v = s * self.Voc
-        if self.Z == 0 and v.is_number:
-            return Vdc(v.expr)
-
-        y = s * self.Y
-        z = s * self.Z
-
-        if z.is_number and v.is_number:
-            return C((1 / z).expr, v)
-
-        if y.is_number and i.is_number:
-            return L((1 / y).expr, i)
-
-        if self.Isc == 0:
-            return Y(self.Y.expr)
-
-        return self
-
-    def smodel(self):
-        """Convert to s-domain"""
-
-        if self.Isc == 0:
-            return Y(self.Y)
-        if self.Y == 0:
-            return sI(self.Isc)
-        return Par(sI(self.Isc), Y(self.Y))
-
-
-class Thevenin(OnePort):
-    """Thevenin (Z) model
-    ::
-
-             +------+    +-------------------+
-        I1   | +  - |    |                   | -I1
-        -->--+  V   +----+        Z          +--<--
-             |      |    |                   |
-             +------+    +-------------------+
-        +                       V1                -
-    """
-
-    def __init__(self, Zval=Zs(0), Vval=Vs(0)):
-
-        # print('<T> Z:', Zval, 'V:', Vval)
-        if not isinstance(Zval, Zs):
-            raise ValueError('Zval not Zs')
-        if not isinstance(Vval, Vs):
-            raise ValueError('Vval not Vs')
-        self.Z = Zval
-        self.Voc = Vval
-
-        super(Thevenin, self).__init__()
-
-    @property
-    def Y(self):
-        return Ys(1 / self.Z)
-
-    @property
-    def Isc(self):
-
-        assumptions = self.Voc.assumptions
-        return Itype(self.Voc / self.Z, **assumptions)
-
-    def parallel_ladder(self, *args):
-        """Add unbalanced ladder network in parallel;
-        alternately in parallel and series.
-
-        ::
-
-               +---------+       +---------+
-            +--+   self  +---+---+   Z1    +---+---
-            |  +---------+   |   +---------+   |
-            |              +-+-+             +-+-+
-            |              |   |             |   |
-            |              |Z0 |             |Z2 |
-            |              |   |             |   |
-            |              +-+-+             +-+-+
-            |                |                 |
-            +----------------+-----------------+---
-        """
-
-        ret = self
-        for m, arg in enumerate(args):
-            if m & 1:
-                ret = ret.series(arg)
-            else:
-                ret = ret.parallel(arg)
-        return ret
-
-    def parallel_C(self, Z0, Z1, Z2):
-        """Add C network in parallel.
-
-        ::
-
-               +---------+      +---------+
-            +--+   self  +------+   Z0    +---+----
-            |  +---------+      +---------+   |
-            |                               +-+-+
-            |                               |   |
-            |                               |Z1 |
-            |                               |   |
-            |                               +-+-+
-            |                   +---------+   |
-            +-------------------+   Z2    +---+----
-                                +---------+
-        """
-
-        return self.series(Z0).series(Z2).parallel(Z1)
-
-    def parallel_L(self, Z0, Z1):
-        """Add L network in parallel.
-
-        ::
-
-               +---------+      +---------+
-            +--+   self  +------+   Z0    +---+----
-            |  +---------+      +---------+   |
-            |                               +-+-+
-            |                               |   |
-            |                               |Z1 |
-            |                               |   |
-            |                               +-+-+
-            |                                 |
-            +---------------------------------+----
-        """
-
-        return self.series(Z0).parallel(Z1)
-
-    def parallel_pi(self, Z0, Z1, Z2):
-        """Add Pi (Delta) network in parallel.
-
-        ::
-
-               +---------+       +---------+
-            +--+   self  +---+---+   Z1    +---+---
-            |  +---------+   |   +---------+   |
-            |              +-+-+             +-+-+
-            |              |   |             |   |
-            |              |Z0 |             |Z2 |
-            |              |   |             |   |
-            |              +-+-+             +-+-+
-            |                |                 |
-            +----------------+-----------------+---
-        """
-
-        return (self.parallel(Z0) + Z1).parallel(Z2)
-
-    def parallel_T(self, Z0, Z1, Z2):
-        """Add T (Y) network in parallel.
-        ::
-
-               +---------+       +---------+        +---------+
-            +--+   self  +-------+   Z0    +---+----+   Z2    +---
-            |  +---------+       +---------+   |    +---------+
-            |                                +-+-+
-            |                                |   |
-            |                                |Z1 |
-            |                                |   |
-            |                                +-+-+
-            |                                  |
-            +----------------------------------+------------------
-        """
-
-        return (self.parallel(Z0) + Z1).parallel(Z2)
-
-    def cpt(self):
-        """Convert to a component, if possible"""
-
-        if self.Z.is_number and self.Voc == 0:
-            return R(self.Z.expr)
-
-        v = s * self.Voc
-        if self.Z == 0 and v.is_number:
-            return Vdc(v.expr)
-
-        i = s * self.Isc
-        if self.Y == 0 and i.is_number:
-            return Idc(i.expr)
-
-        y = s * self.Y
-        z = s * self.Z
-
-        if z.is_number and v.is_number:
-            return C((1 / z).expr, v)
-
-        if y.is_number and i.is_number:
-            return L((1 / y).expr, i)
-
-        if self.Voc == 0:
-            return Z(self.Z.expr)
-
-        return self
-
-    def smodel(self):
-        """Convert to s-domain"""
-
-        if self.Voc == 0:
-            return Z(self.Z)
-        if self.Z == 0:
-            return sV(self.Voc)
-        return Ser(sV(self.Voc), Z(self.Z))
-
-
-class R(Thevenin):
+class R(OnePort):
     """Resistor"""
 
     def __init__(self, Rval):
 
         self.args = (Rval, )
-        Rval = cExpr(Rval, positive=True)
-        super(R, self).__init__(Zs.R(Rval))
-        self.R = Rval
+        self.R = cExpr(Rval, positive=True)
+        self.Z = Zs.R(self.R)
 
 
-class G(Norton):
+class G(OnePort):
     """Conductance"""
 
     def __init__(self, Gval):
 
         self.args = (Gval, )
-        Gval = cExpr(Gval, positive=True)
-        super(G, self).__init__(Ys.G(Gval))
-        self.G = Gval
+        self.G = cExpr(Gval, positive=True)
+        self.Z = 1 / Ys.G(self.G)
 
     def net_make(self, net, n1=None, n2=None):
 
@@ -917,10 +636,10 @@ class G(Norton):
             n1 = net.node
         if n2 == None:
             n2 = net.node
-        return 'R %s %s %s; right' % (n1, n2, 1 / self.G)
+        return 'R %s %s {%s}; right' % (n1, n2, 1 / self.G)
 
 
-class L(Thevenin):
+class L(OnePort):
     """Inductor
 
     Inductance Lval, initial current i0"""
@@ -938,14 +657,14 @@ class L(Thevenin):
 
         Lval = cExpr(Lval, positive=True)
         i0 = cExpr(i0)
-        super(L, self).__init__(Zs.L(Lval), -Vs(i0 * Lval))
         self.L = Lval
         self.i0 = i0
-       
+        self.Z = Zs.L(Lval)
+        self.Voc = -Vs(i0 * Lval)
         self.zeroic = self.i0 == 0 
 
 
-class C(Thevenin):
+class C(OnePort):
     """Capacitor
 
     Capacitance Cval, initial voltage v0"""
@@ -963,14 +682,14 @@ class C(Thevenin):
 
         Cval = cExpr(Cval, positive=True)
         v0 = cExpr(v0)
-        super(C, self).__init__(Zs.C(Cval), Vs(v0).integrate())
         self.C = Cval
         self.v0 = v0
-
+        self.Z = Zs.C(Cval)
+        self.Voc = Vs(v0).integrate()
         self.zeroic = self.v0 == 0
 
 
-class Y(Norton):
+class Y(OnePort):
     """General admittance."""
 
     def __init__(self, Yval):
@@ -980,7 +699,7 @@ class Y(Norton):
         super(Y, self).__init__(Yval)
 
 
-class Z(Thevenin):
+class Z(OnePort):
     """General impedance."""
 
     def __init__(self, Zval):
@@ -990,15 +709,11 @@ class Z(Thevenin):
         super(Z, self).__init__(Zval)
 
 
-class VoltageSource(Thevenin):
+class VoltageSource(OnePort):
 
     voltage_source = True
     netname = 'V'
     is_noisy = False
-
-    def __init__(self, Vval):
-
-        super(VoltageSource, self).__init__(Zs(0), Vs(Vval))
 
 
 class sV(VoltageSource):
@@ -1010,13 +725,8 @@ class sV(VoltageSource):
 
         self.args = (Vval, )
         Vval = sExpr(Vval)
-        super(sV, self).__init__(Vs(Vval))
+        self.Voc = Vs(Vval)
 
-    @property
-    def Vocac(self):
-        if not self.Voc.is_ac:
-            raise ValueError('No ac representation for %s' % self)
-        return self.Voc.phasor()
 
 class V(VoltageSource):
     """Voltage source. If the expression contains s treat as s-domain
@@ -1027,15 +737,9 @@ class V(VoltageSource):
 
         self.args = (Vval, )
         Vsym = tsExpr(Vval)
-        super(V, self).__init__(Vs(Vsym))
+        self.Voc = Vs(Vsym)        
 
-    @property
-    def Vocac(self):
-        if not self.Voc.is_ac:
-            raise ValueError('No ac representation for %s' % self)
-        return self.Voc.phasor()
-
-
+        
 class Vstep(VoltageSource):
     """Step voltage source (s domain voltage of v / s)."""
 
@@ -1045,9 +749,7 @@ class Vstep(VoltageSource):
 
         self.args = (v, )
         v = cExpr(v)
-        super(Vstep, self).__init__(Vs(v, causal=True) / s)
-        # This is not needed when assumptions propagated.
-        self.Voc.is_causal = True
+        self.Voc = Vs(v, causal=True) / s
         self.v0 = v
 
 
@@ -1061,9 +763,7 @@ class Vdc(VoltageSource):
 
         self.args = (v, )
         v = cExpr(v)
-        super(Vdc, self).__init__(Vs(v, dc=True) / s)
-        # This is not needed when assumptions propagated.
-        self.Voc.is_dc = True
+        self.Voc = Vc(v, dc=True)
         self.v0 = v
 
     @property
@@ -1085,21 +785,14 @@ class Vac(VoltageSource):
         # Note, cos(-pi / 2) is not quite zero.
 
         self.omega = symbol('omega_1', real=True)
-        foo = (s * sym.cos(phi) + self.omega * sym.sin(phi)) / (s**2 + self.omega**2)
-        super(Vac, self).__init__(Vs(foo * V, ac=True))
-        # This is not needed when assumptions propagated.
-        self.Voc.is_ac = True
         self.v0 = V
         self.phi = phi
+        self.Voc = Vp(self.v0 * exp(j * self.phi), ac=True)
 
 
     @property
     def voc(self):
         return self.v0 * cos(self.omega * t + self.phi)
-
-    @property
-    def Vocac(self):
-        return Vphasor(self.v0 * exp(j * self.phi))
 
 
 class Vnoise(Vac):
@@ -1110,8 +803,9 @@ class Vnoise(Vac):
 
     def __init__(self, V):
 
-        super(Vnoise, self).__init__(V, 0)
         self.args = (V, )
+        # TODO
+        # self.Voc = Vn(V)
 
         
 class v(VoltageSource):
@@ -1125,7 +819,7 @@ class v(VoltageSource):
         self.assumptions_infer(Vval)
 
 
-class CurrentSource(Norton):
+class CurrentSource(OnePort):
 
     current_source = True
     netname = 'I'
@@ -1147,12 +841,6 @@ class sI(CurrentSource):
         Ival = sExpr(Ival)
         super(sI, self).__init__(Ys(0), Is(Ival))
 
-    @property
-    def Iscac(self):
-        if not self.Isc.is_ac:
-            raise IalueError('No ac representation for %s' % self)
-        return self.Isc.phasor()
-
 
 class I(CurrentSource):
     """Current source. If the expression contains s treat as s-domain
@@ -1166,12 +854,6 @@ class I(CurrentSource):
         self.args = (Ival, )
         Isym = tsExpr(Ival)
         super(I, self).__init__(Is(Isym))
-
-    @property
-    def Iocac(self):
-        if not self.Ioc.is_ac:
-            raise ValueError('No ac representation for %s' % self)
-        return self.Ioc.phasor()
 
 class Istep(CurrentSource):
     """Step current source (s domain current of i / s)."""
@@ -1198,18 +880,12 @@ class Idc(CurrentSource):
 
         self.args = (i, )
         i = cExpr(i)
-        super(Idc, self).__init__(Is(i, dc=True) / s)
-        # This is not needed when assumptions propagated.
-        self.Isc.is_dc = True
+        self.Isc = Ic(i, dc=True)
         self.i0 = i
 
     @property
     def isc(self):
         return self.i0
-
-    @property
-    def Iscac(self):
-        return Iphasor(self.i0)
 
 
 class Iac(CurrentSource):
@@ -1224,20 +900,14 @@ class Iac(CurrentSource):
         phi = cExpr(phi)
 
         self.omega = symbol('omega_1', real=True)
-        foo = (s * sym.cos(phi) + self.omega * sym.sin(phi)) / (s**2 + self.omega**2)
-        super(Iac, self).__init__(Is(foo * I, ac=True))
-        # This is not needed when assumptions propagated.
-        self.Isc.is_ac = True
         self.i0 = I
         self.phi = phi
+        self.Isc = Ip(self.i0 * exp(j * self.phi), ac=True)
+
 
     @property
     def isc(self):
         return self.i0 * cos(self.omega * t + self.phi)
-
-    @property
-    def Iscac(self):
-        return Iphasor(self.i0 * exp(j * self.phi))
 
 
 class Inoise(Iac):
@@ -1263,7 +933,7 @@ class i(CurrentSource):
         self.assumptions_infer(Ival)
 
 
-class Xtal(Thevenin):
+class Xtal(OnePort):
     """Crystal
 
     This is modelled as a series R, L, C circuit in parallel
@@ -1287,7 +957,7 @@ class Xtal(Thevenin):
         return (R(self.R1) + L(self.L1) + C(self.C1)) | C(self.C0)
 
 
-class FerriteBead(Thevenin):
+class FerriteBead(OnePort):
     """Ferrite bead (lossy inductor)
 
     This is modelled as a series resistor (Rs) connected
@@ -1311,4 +981,5 @@ class FerriteBead(Thevenin):
 
 
 # Import this at end to circumvent circular dependencies
-from lcapy.twoport import Ladder, LSection, TSection
+# TODO
+# from lcapy.twoport import Ladder, LSection, TSection

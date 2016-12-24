@@ -43,7 +43,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Hs', 'Is', 'Vs', 'Ys', 'Zs',
            'Ht', 'It', 'Vt', 'Yt', 'Zt',
            'Hf', 'If', 'Vf', 'Yf', 'Zf',
-           'Iphasor', 'Vphasor',
+           'Ip', 'Vp',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
 func_pattern = re.compile(r"\\operatorname{(.*)}")
@@ -1712,11 +1712,11 @@ class Phasor(sfwExpr):
         return self.__class__(self, **self.assumptions)
 
 
-class Vphasor(Phasor):
+class Vp(Phasor):
 
     def __init__(self, val, **assumptions):
 
-        super(Vphasor, self).__init__(val, **assumptions)
+        super(Vp, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Vt
 
     def cpt(self):
@@ -1728,11 +1728,11 @@ class Vphasor(Phasor):
         return V(self)
 
 
-class Iphasor(Phasor):
+class Ip(Phasor):
 
     def __init__(self, val, **assumptions):
 
-        super(Iphasor, self).__init__(val, **assumptions)
+        super(Ip, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = It
     
     def cpt(self):
@@ -1742,6 +1742,38 @@ class Iphasor(Phasor):
             return Iac(i)
 
         return I(self)
+
+
+class Vc(tExpr):
+
+    def __init__(self, val, **assumptions):
+
+        super(Vc, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = Vt
+
+    def cpt(self):
+
+        v = self
+        if v.is_number or self.is_dc:
+            return Vdc(v)
+
+        return V(self)
+
+
+class Ic(tExpr):
+
+    def __init__(self, val, **assumptions):
+
+        super(Ic, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = It
+    
+    def cpt(self):
+
+        i = self
+        if i.is_number or self.is_dc:
+            return Idc(i)
+
+        return I(self)    
 
 
 s = sExpr('s')
@@ -2415,7 +2447,9 @@ def delta(expr, *args):
 def Vtype(val, **assumptions):
 
     if assumptions.get('ac', False):
-        return Vphasor(val, **assumptions)
+        return Vp(val, **assumptions)
+    elif assumptions.get('dc', False):
+        return Vc(val, **assumptions)    
     else:
         return Vs(val, **assumptions).canonical()
 
@@ -2423,10 +2457,66 @@ def Vtype(val, **assumptions):
 def Itype(val, **assumptions):
 
     if assumptions.get('ac', False):
-        return Iphasor(val, **assumptions)
+        return Ip(val, **assumptions)
+    elif assumptions.get('dc', False):
+        return Ic(val, **assumptions)    
     else:
         return Is(val, **assumptions).canonical()
 
+
+class Super(list):
+
+    def select(self, kind):
+        result = 0
+        for val in self:
+            if type(val) == self.type_map[kind]:
+                if kind == 'n':
+                    val = val * val
+                result += val
+        if kind == 'n':
+            result = sqrt(result)
+        return result
+
+    @property
+    def s(self):
+        return self.select('s')
+
+    @property    
+    def p(self):
+        return self.select('p')
+
+    @property    
+    def ac(self):
+        return self.select('p')
+
+    def time(self):
+
+        result = self.time_class(0)
+        
+        # TODO, integrate noise
+        for val in self:
+            if hasattr(val, 'time'):
+                result += val.time()
+            else:
+                result += val
+        return result
+
+    @property    
+    def t(self):
+        return self.time()
+    
+
+class Vsuper(Super):
+
+    type_map = {'s': Vs, 'p' : Vp}
+    time_class = Vt
+
+
+class Isuper(Super):
+
+    type_map = {'s': Is, 'p' : Ip}
+    time_class = It    
+    
 
 init = True
 from lcapy.oneport import L, C, R, G, Idc, Vdc, Iac, Vac, I, V, Z, Y

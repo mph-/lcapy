@@ -42,13 +42,13 @@ from . import oneport
 __all__.extend(oneport.__all__)
 from .oneport import *
 
-from . import twoport
-__all__.extend(twoport.__all__)
-from .twoport import *
+#from . import twoport
+#__all__.extend(twoport.__all__)
+#from .twoport import *
 
-from . import threeport
-__all__.extend(threeport.__all__)
-from .threeport import *
+#from . import threeport
+#__all__.extend(threeport.__all__)
+#from .threeport import *
 
 from . import circuit
 __all__.extend(circuit.__all__)

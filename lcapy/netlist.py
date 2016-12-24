@@ -12,7 +12,7 @@ Copyright 2014-2016 Michael Hayes, UCECE
 from __future__ import division
 from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym, Vt, It
 from lcapy.core import s, j, omega, uppercase_name, global_context
-from lcapy.core import Vtype, sqrt
+from lcapy.core import Vtype, sqrt, Vsuper, Isuper
 from lcapy.schematic import Schematic, Opts, SchematicOpts
 from lcapy.mna import MNA
 from lcapy.netfile import NetfileMixin
@@ -186,11 +186,10 @@ class NetlistMixin(object):
         # TODO, remove nodes that are only connected
         # to this component.
 
-
     def Voc(self, Np, Nm):
         """Return open-circuit s-domain voltage between nodes Np and Nm."""
 
-        return Vtype(self.V[Np] - self.V[Nm],  **self.assumptions)
+        return self.get_Vd(Np, Nm)
 
     def voc(self, Np, Nm):
         """Return open-circuit t-domain voltage between nodes Np and Nm."""
@@ -329,8 +328,10 @@ class NetlistMixin(object):
                 net = cpt.zero()                
             elif cpt.name in sourcenames:
                 net = cpt.kill()
-            else:
+            elif 'ICs' in sourcenames:
                 net = cpt.kill_initial()
+            else:
+                net = str(cpt)
             new._add(net)
         return new        
 
@@ -343,19 +344,23 @@ class NetlistMixin(object):
         """
 
         for arg in args:
-            if arg not in self.independent_sources:
+            if arg not in self.independent_sources and arg != 'ICs':
                 raise ValueError('Element %s is not a known source' % arg)
         sources = []
-        for cpt in self.independent_sources.values():
-            if cpt.name not in args:
-                sources.append(cpt.name)
+        for source in self.independent_sources:
+            if source not in args:
+                sources.append(source)
+        if 'ICs' not in args:
+            sources.append('ICs')            
+            
         return self._kill(sources)
 
     def kill(self, *args):
         """Return a new circuit with the specified sources killed; i.e., make
         the voltage sources short-circuits and the current sources
-        open-circuits.  If no sources are specified, all independent
-        sources (including initial conditions) are killed.
+        open-circuits.  To kill initial conditions, specify `ICs'.  If
+        no sources are specified, all independent sources (including
+        initial conditions) are killed.
 
         """
 
@@ -364,9 +369,12 @@ class NetlistMixin(object):
 
         sources = []
         for arg in args:
-            if arg not in self.independent_sources:
+            if arg == 'ICs':
+                sources.append(arg)
+            elif arg in self.independent_sources:
+                sources.append(arg)
+            else:
                 raise ValueError('Element %s is not a known source' % arg)
-            sources.append(self.independent_sources[arg].name)
 
         return self._kill(sources)
 
@@ -629,6 +637,9 @@ class NetlistMixin(object):
                 result.append(source)
             elif not cpt.is_dc and not cpt.is_ac and kind == 's':
                 result.append(source)
+
+        if kind == 's':
+            result.append('ICs')
         return result
 
 
@@ -682,7 +693,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         return self._subnetlist('n')
 
     @property
-    def V(self):
+    def Vdict(self):
         """Return dictionary of node voltages for each frequency domain"""
 
         # Hack to generate entries in sub
@@ -714,32 +725,18 @@ class Netlist(NetlistMixin, NetfileMixin):
         self.dc
         self.s
         self.n
-        result = Domains({'s' : 0, 'dc' : 0, 'ac' : 0, 'n' : 0})        
+        result = Vsuper()
 
         for kind, sub in self.sub.items():
             for source, subnetlist in sub.items():
                 I = subnetlist.get_I(name)
-                if kind == 'n':
-                    I = I * I
-                result[kind] += I
+                result.append(I)
+        return result
 
-        result['n'] = sqrt(result['n'])
-        return result        
-
-    def get_i(self):
+    def get_i(self, name):
         """Time-domain current through component"""
 
-        I = self.get_I(n2, n1)
-
-        # TODO, integrate noise
-        result = 0
-        if I.s != 0:
-            result += I.s.time()
-        if I.ac != 0:
-            result += I.ac.time()
-        if I.dc != 0:
-            result += I.dc.time()
-        return It(result)
+        return self.get_I(name).time()
 
     def get_Vd(self, n2, n1):
         """Voltage drop between nodes"""
@@ -747,33 +744,24 @@ class Netlist(NetlistMixin, NetfileMixin):
         self.ac
         self.dc
         self.s
-        self.n        
-        result = Domains({'s' : 0, 'dc' : 0, 'ac' : 0, 'n' : 0})        
+        self.n
 
+        if isinstance(n1, int):
+            n1 = '%s' % n1
+        if isinstance(n2, int):
+            n2 = '%s' % n2            
+        
+        result = Vsuper()
         for kind, sub in self.sub.items():
             for source, subnetlist in sub.items():
                 Vd = subnetlist.get_Vd(n2, n1)
-                if kind == 'n':
-                    Vd = Vd * Vd
-                result[kind] += Vd
-
-        result['n'] = sqrt(result['n'])
+                result.append(Vd)
         return result        
 
     def get_vd(self, n2, n1):
         """Time-domain voltage drop between nodes"""
 
-        Vd = self.get_Vd(n2, n1)
-
-        # TODO, integrate noise
-        result = 0
-        if Vd.s != 0:
-            result += Vd.s.time()
-        if Vd.ac != 0:
-            result += Vd.ac.time()
-        if Vd.dc != 0:
-            result += Vd.dc.time()
-        return Vt(result)        
+        return self.get_Vd(n2, n1).time()
 
     
 class SubNetlist(NetlistMixin, MNA):
@@ -781,6 +769,7 @@ class SubNetlist(NetlistMixin, MNA):
     def __new__(cls, netlist, sources, kind):
 
         obj = netlist.kill_except(sources)
+        obj.kind = kind
         # Hack
         obj.__class__ = cls
         return obj
