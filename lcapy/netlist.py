@@ -730,7 +730,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         for kind, sub in self.sub.items():
             for source, subnetlist in sub.items():
                 I = subnetlist.get_I(name)
-                result.append(I)
+                result.add(I)
         return result
 
     def get_i(self, name):
@@ -755,7 +755,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         for kind, sub in self.sub.items():
             for source, subnetlist in sub.items():
                 Vd = subnetlist.get_Vd(n2, n1)
-                result.append(Vd)
+                result.add(Vd)
         return result        
 
     def get_vd(self, n2, n1):

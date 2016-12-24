@@ -175,6 +175,10 @@ class Exprdict(dict):
 
         return latex_str(latex(self))
 
+    def _repr_pretty_(self, p, cycle):
+
+        p.text(pretty(self))
+    
 
 class Expr(object):
 
@@ -2464,19 +2468,25 @@ def Itype(val, **assumptions):
         return Is(val, **assumptions).canonical()
 
 
-class Super(list):
+class Super(Exprdict):
 
     def select(self, kind):
-        result = 0
-        for val in self:
-            if type(val) == self.type_map[kind]:
-                if kind == 'n':
-                    val = val * val
-                result += val
-        if kind == 'n':
-            result = sqrt(result)
-        return result
+        if kind not in self:
+            return self.type_map[kind](0)
+        return self[kind]
 
+    def add(self, value):
+        if value == 0:
+            return
+        for kind, mtype in self.type_map.items():
+            if isinstance(value, mtype):
+                if kind not in self:
+                    self[kind] = value
+                elif kind == 'n':
+                    self[kind] = sqrt(value**2 + self[kind]**2)
+                else:    
+                    self[kind] += value                    
+    
     @property
     def s(self):
         return self.select('s')
@@ -2488,6 +2498,10 @@ class Super(list):
     @property    
     def ac(self):
         return self.select('p')
+
+    @property    
+    def n(self):
+        return self.select('n')
 
     def time(self):
 
@@ -2504,17 +2518,17 @@ class Super(list):
     @property    
     def t(self):
         return self.time()
-    
+
 
 class Vsuper(Super):
 
-    type_map = {'s': Vs, 'p' : Vp}
+    type_map = {'s': Vs, 'p' : Vp, 'c' : Vc}
     time_class = Vt
 
 
 class Isuper(Super):
 
-    type_map = {'s': Is, 'p' : Ip}
+    type_map = {'s': Is, 'p' : Ip, 'c' : Ic}
     time_class = It    
     
 
