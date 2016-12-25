@@ -2510,6 +2510,32 @@ class Super(Exprdict):
         else:
             p.text(pretty(self))
     
+    def __add__(self, x):
+        new = copy(self)
+        if isinstance(x, Super):
+            for value in x.values():
+                new.add(value)
+        else:
+            new.add(x)            
+        return new
+
+    def __radd__(self, x):
+        return self.__add__(x)
+
+    def __sub__(self, x):
+        return -x + self
+
+    def __rsub__(self, x):
+        return -self + x
+
+    def __neg__(self):
+        new = self.__class__()
+        for kind, value in self.items():
+            if kind != 'n':
+                value = -value
+            new[kind] = value
+        return new
+    
     def select(self, kind):
         if kind not in self:
             return self.type_map[kind](0)
