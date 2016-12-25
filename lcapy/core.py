@@ -2536,6 +2536,13 @@ class Super(Exprdict):
             new[kind] = value
         return new
     
+    def __eq__(self, x):
+        diff = self - x
+        for kind, value in diff.items():
+            if value != 0:
+                return False
+        return True
+
     def select(self, kind):
         if kind not in self:
             return self.type_map[kind](0)
@@ -2554,7 +2561,7 @@ class Super(Exprdict):
 
         kind = self._kind(value)
         if kind is None:
-            if isinstance(value, (int, float, complex)):
+            if isinstance(value, (int, float)):
                 return self.add(self.type_map['dc'](value))
             
             raise ValueError('Cannot handle value %s, %s' %
@@ -2609,7 +2616,7 @@ class Isuper(Super):
 
     type_map = {'s': Is, 'ac' : Ip, 'dc' : Ic, 'n' : In}
     time_class = It    
-    
+
 
 init = True
 from lcapy.oneport import L, C, R, G, Idc, Vdc, Iac, Vac, I, V, Z, Y
