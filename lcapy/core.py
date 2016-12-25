@@ -44,6 +44,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Ht', 'It', 'Vt', 'Yt', 'Zt',
            'Hf', 'If', 'Vf', 'Yf', 'Zf',
            'Ip', 'Vp', 'In', 'Vn',
+           'Isuper', 'Vsuper',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
 func_pattern = re.compile(r"\\operatorname{(.*)}")
@@ -2498,6 +2499,11 @@ def Itype(val, **assumptions):
 
 class Super(Exprdict):
 
+    def __init__(self, *args):
+        super (Super, self).__init__()
+        for arg in args:
+            self.add(arg)
+    
     def _repr_pretty_(self, p, cycle):
         if self == {}:
             p.text(pretty(0))
@@ -2509,17 +2515,30 @@ class Super(Exprdict):
             return self.type_map[kind](0)
         return self[kind]
 
+    def _kind(self, value):
+
+        for kind, mtype in self.type_map.items():
+            if isinstance(value, mtype):
+                return kind
+        return None
+    
     def add(self, value):
         if value == 0:
             return
-        for kind, mtype in self.type_map.items():
-            if isinstance(value, mtype):
-                if kind not in self:
-                    self[kind] = value
-                elif kind == 'n':
-                    self[kind] = sqrt(value**2 + self[kind]**2)
-                else:    
-                    self[kind] += value                    
+
+        kind = self._kind(value)
+        if kind is None:
+            if isinstance(value, (int, float, complex)):
+                return self.add(self.type_map['dc'](value))
+            
+            raise ValueError('Cannot handle value %s, %s' %
+                             (value, type(value)))
+        if kind not in self:
+            self[kind] = value
+        elif kind == 'n':
+            self[kind] = sqrt(value**2 + self[kind]**2)
+        else:    
+            self[kind] += value                    
     
     @property    
     def dc(self):
