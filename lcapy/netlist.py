@@ -14,7 +14,7 @@ from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym, Vt, It
 from lcapy.core import s, j, omega, uppercase_name, global_context
 from lcapy.core import Vtype, sqrt, Vsuper, Isuper
 from lcapy.schematic import Schematic, Opts, SchematicOpts
-from lcapy.mna import MNA, Nodedict
+from lcapy.mna import MNA, Nodedict, Branchdict
 from lcapy.netfile import NetfileMixin
 import lcapy.mnacpts as cpts
 import re
@@ -694,7 +694,7 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     @property
     def Vdict(self):
-        """Return dictionary of node voltages for each frequency domain"""
+        """Return dictionary of node voltages for each transform domain"""
 
         # Hack to generate entries in sub
         self.ac
@@ -710,6 +710,26 @@ class Netlist(NetlistMixin, NetfileMixin):
                         result[node] = Vsuper()
                     result[node].add(value)
         return result
+
+
+    @property
+    def Idict(self):
+        """Return dictionary of branch currents for each transform domain"""
+
+        # Hack to generate entries in sub
+        self.ac
+        self.dc
+        self.s
+        self.n
+
+        result = Branchdict()
+        for kind, sub in self.sub.items():
+            for source, subnetlist in sub.items():
+                for node, value in subnetlist.Idict.items():
+                    if node not in result:
+                        result[node] = Isuper()
+                    result[node].add(value)
+        return result    
 
     def get_I(self, name):
         """Current through component"""

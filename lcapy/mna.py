@@ -27,6 +27,10 @@ class Nodedict(Exprdict):
         if isinstance(name, int):
             name = '%d' % name
         return super(Nodedict, self).__getitem__(name)
+
+
+class Branchdict(Exprdict):
+    pass
     
 
 class MNA(object):
@@ -256,7 +260,7 @@ class MNA(object):
         num_nodes = len(self.node_list) - 1
 
         # Create dictionary of branch currents through elements
-        self._I = {}
+        self._I = Branchdict()
         for m, key in enumerate(self.unknown_branch_currents):
             self._I[key] = Itype(results[m + num_nodes].simplify(), **assumptions)
 
