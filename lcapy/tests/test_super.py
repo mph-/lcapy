@@ -17,8 +17,7 @@ class LcapyTester(unittest.TestCase):
             ans2.pprint()
             raise AssertionError(e)
 
-    def test_Vsuper_dc(self):
-
+    def test_Vsuper_add_sub_dc(self):
         self.assertEqual2(Vsuper(3).dc, 3, "Vsuper(3).dc")
         self.assertEqual2(Vsuper(2, 3).dc, 5, "Vsuper(2, 3).dc")
         self.assertEqual2(Vsuper(2, 3).ac, 0, "Vsuper(2, 3).ac")
@@ -28,8 +27,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(Vsuper(2) - Vsuper(3), Vsuper(-1),
                           "Vsuper(2) - Vsuper(3)")
 
-    def test_Isuper_dc(self):
-
+    def test_Isuper_add_sub_dc(self):
         self.assertEqual2(Isuper(3).dc, 3, "Isuper(3).dc")
         self.assertEqual2(Isuper(2, 3).dc, 5, "Isuper(2, 3).dc")
         self.assertEqual2(Isuper(2, 3).ac, 0, "Isuper(2, 3).ac")
@@ -39,6 +37,15 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(Isuper(2) - Isuper(3), Isuper(-1),
                           "Isuper(2) - Isuper(3)")
         
+
+    def test_Isuper_mul_div(self):
+        self.assertEqual2(Isuper(3) * Zs(2), Vsuper(6), "Isuper(3) * Zs(2)")
+        self.assertEqual2(Isuper(12) / Ys(2), Vsuper(6), "Isuper(12) / Ys(2)")
+
+        
+    def test_Vsuper_mul_div(self):
+        self.assertEqual2(Vsuper(3) * Ys(2), Isuper(6), "Vsuper(3) * Ys(2)")
+        self.assertEqual2(Vsuper(12) / Zs(2), Isuper(6), "Vsuper(12) / Zs(2)")        
         
         
         

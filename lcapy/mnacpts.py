@@ -200,9 +200,9 @@ class Cpt(object):
 
         Y1 = self.cpt.Y
         if self.cct.kind in ('ac', 'n'):
-            return Y1.jomega()
+            return Y1.jomega
         if self.cct.kind is 'dc':
-            return cExpr(Y1.jomega()(0))
+            return cExpr(Y1.jomega(0))
         return Y1
 
     @property
@@ -211,9 +211,9 @@ class Cpt(object):
 
         Z1 = self.cpt.Z
         if self.cct.kind in ('ac', 'n'):
-            return Z1.jomega()
+            return Z1.jomega
         if self.cct.kind is 'dc':
-            return cExpr(Z1.jomega()(0))
+            return cExpr(Z1.jomega(0))
         return Z1        
 
     @property

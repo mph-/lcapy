@@ -1212,6 +1212,7 @@ class sExpr(sfwExpr):
         T = self.__class__(T)
         return self.__class__(self.expr * sym.exp(-s * T))
 
+    @property
     def jomega(self):
         """Return expression with s = j omega"""
 
@@ -2535,21 +2536,28 @@ class Super(Exprdict):
                 value = -value
             new[kind] = value
         return new
-    
-    def __eq__(self, x):
-        diff = self - x
-        for kind, value in diff.items():
-            if value != 0:
-                return False
-        return True
 
-    def select(self, kind):
+    def __scale__(self, x):
+        new = self.__class__()
+        for kind, value in self.items():
+            # TODO: Perhaps should ensure 'n' field positive?
+            new[kind] = value * x
+        return new
+
+    # TODO, this kills Ipython
+    # def __eq__(self, x):
+    #     diff = self - x
+    #     for kind, value in diff.items():
+    #         if value != 0:
+    #             return False
+    #     return True
+
+    def _select(self, kind):
         if kind not in self:
             return self.type_map[kind](0)
         return self[kind]
 
     def _kind(self, value):
-
         for kind, mtype in self.type_map.items():
             if isinstance(value, mtype):
                 return kind
@@ -2564,8 +2572,8 @@ class Super(Exprdict):
             if isinstance(value, (int, float)):
                 return self.add(self.type_map['dc'](value))
             
-            raise ValueError('Cannot handle value %s, %s' %
-                             (value, type(value)))
+            raise ValueError('Cannot handle value %s of type %s' %
+                             (value, type(value).__name__))
         if kind not in self:
             self[kind] = value
         elif kind == 'n':
@@ -2575,19 +2583,19 @@ class Super(Exprdict):
     
     @property    
     def dc(self):
-        return self.select('dc')    
+        return self._select('dc')    
 
     @property    
     def ac(self):
-        return self.select('ac')
+        return self._select('ac')
 
     @property
     def s(self):
-        return self.select('s')
+        return self._select('s')
 
     @property    
     def n(self):
-        return self.select('n')
+        return self._select('n')
 
     def time(self):
 
@@ -2611,12 +2619,67 @@ class Vsuper(Super):
     type_map = {'s': Vs, 'ac' : Vp, 'dc' : Vc, 'n' : Vn}
     time_class = Vt
 
+    def __mul__(self, x):
+        if isinstance(x, (int, float)):
+            return self.__scale__(x)
+        
+        if not isinstance(x, Ys):
+            raise TypeError("Unsupported types for *: 'Vsuper' and '%s'" %
+                            type(x).__name__)
+        new = Isuper()
+        if 'dc' in self:
+            # TODO, fix types
+            new += Ic(self['dc'] * cExpr(x.jomega(0)))
+        if 'ac' in self:
+            new += self['ac'] * x.jomega
+        if 'n' in self:
+            new += self['n'] * x.jomega            
+        if 's' in self:
+            new += self['s'] * x
+        return new
+
+    def __div__(self, x):
+        if isinstance(x, (int, float)):
+            return self.__scale__(1 / x)
+
+        if not isinstance(x, Zs):
+            raise TypeError("Unsupported types for /: 'Vsuper' and '%s'" %
+                            type(x).__name__)
+        return self * Ys(1 / x)    
+
 
 class Isuper(Super):
 
     type_map = {'s': Is, 'ac' : Ip, 'dc' : Ic, 'n' : In}
     time_class = It    
 
+    def __mul__(self, x):
+        if isinstance(x, (int, float)):
+            return self.__scale__(x)
+        
+        if not isinstance(x, Zs):
+            raise TypeError("Unsupported types for *: 'Isuper' and '%s'" %
+                            type(x).__name__)
+        new = Vsuper()
+        if 'dc' in self:
+            # TODO, fix types            
+            new += Vc(self['dc'] * cExpr(x.jomega(0)))
+        if 'ac' in self:
+            new += self['ac'] * x.jomega
+        if 'n' in self:
+            new += self['n'] * x.jomega            
+        if 's' in self:
+            new += self['s'] * x
+        return new
 
+    def __div__(self, x):
+        if isinstance(x, (int, float)):
+            return self.__scale__(1 / x)
+
+        if not isinstance(x, Ys):
+            raise TypeError("Unsupported types for /: 'Isuper' and '%s'" %
+                            type(x).__name__)
+        return self * Zs(1 / x)
+        
 init = True
 from lcapy.oneport import L, C, R, G, Idc, Vdc, Iac, Vac, I, V, Z, Y
