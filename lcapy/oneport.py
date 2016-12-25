@@ -825,11 +825,7 @@ class CurrentSource(OnePort):
     netname = 'I'
     is_noisy = False    
 
-    def __init__(self, Ival):
-
-        super(CurrentSource, self).__init__(Ys(0), Is(Ival))
-
-
+    
 class sI(CurrentSource):
     """Arbitrary s-domain current source"""
 
@@ -853,7 +849,8 @@ class I(CurrentSource):
 
         self.args = (Ival, )
         Isym = tsExpr(Ival)
-        super(I, self).__init__(Is(Isym))
+        self.Iscc = Is(Isym)
+        
 
 class Istep(CurrentSource):
     """Step current source (s domain current of i / s)."""

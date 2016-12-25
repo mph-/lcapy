@@ -165,3 +165,6 @@ class Network(object):
             cct.add(net)
         self._cct = cct
         return cct
+
+    def initial_value_problem(self):
+        return self.cct.initial_value_problem()

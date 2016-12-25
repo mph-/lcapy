@@ -346,15 +346,10 @@ class RC(RLC):
         # through the L.
         n1, n2 = self.node_indexes
 
-        if self.type == 'R' or cct.kind in ('ac', 'n'):
-            Y = self.Y.expr
-            I = 0
-        elif self.type == 'C' and cct.kind == 'dc':
+        if self.type == 'C' and cct.kind == 'dc':
             Y = 0
-            I = 0
         else:
             Y = self.Y.expr
-            I = self.cpt.Isc.expr
 
         if n1 >= 0 and n2 >= 0:
             cct._G[n1, n2] -= Y
@@ -364,7 +359,8 @@ class RC(RLC):
         if n2 >= 0:
             cct._G[n2, n2] += Y
 
-        if n1 >= 0:
+        if cct.kind == 's' and self.cpt.hasic and n1 >= 0:
+            I = self.cpt.Isc.expr            
             cct._Is[n1] += I
 
 
@@ -556,18 +552,16 @@ class L(RLC):
             cct._B[n2, m] = -1
             cct._C[m, n2] = -1
 
-        if cct.kind in ('ac', 'n'):
-            Z = self.Z.expr
-            V = 0
-        elif cct.kind == 'dc':
+        if cct.kind == 'dc':
             Z = 0
-            V = 0
         else:
             Z = self.Z.expr
-            V = self.cpt.Voc.expr
 
         cct._D[m, m] += -Z
-        cct._Es[m] += V
+
+        if cct.kind == 's' and self.cpt.hasic:
+            V = self.cpt.Voc.expr            
+            cct._Es[m] += V
 
     def pre_initial_model(self):
 

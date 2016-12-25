@@ -58,6 +58,11 @@ class MNA(object):
 
     """
 
+    def _invalidate(self):
+        for attr in ('_A', '_Vdict', '_Idict', '_node_list'):
+            if hasattr(self, attr):
+                delattr(self, attr)
+
     @property
     def lnodes(self):
         """Determine linked nodes"""
@@ -219,7 +224,7 @@ class MNA(object):
     def _solve(self):
         """Solve network."""
 
-        if hasattr(self, '_V'):
+        if hasattr(self, '_Vdict'):
             return
         self._analyse()
 
@@ -248,21 +253,21 @@ class MNA(object):
         self.context.switch()
 
         # Create dictionary of node voltages
-        self._V = Nodedict()
-        self._V['0'] = Vtype(0, **assumptions)
+        self._Vdict = Nodedict()
+        self._Vdict['0'] = Vtype(0, **assumptions)
         for n in self.nodes:
             index = self._node_index(n)
             if index >= 0:
-                self._V[n] = Vtype(results[index].simplify(), **assumptions)
+                self._Vdict[n] = Vtype(results[index].simplify(), **assumptions)
             else:
-                self._V[n] = Vtype(0, **assumptions)
+                self._Vdict[n] = Vtype(0, **assumptions)
 
         num_nodes = len(self.node_list) - 1
 
         # Create dictionary of branch currents through elements
-        self._I = Branchdict()
+        self._Idict = Branchdict()
         for m, key in enumerate(self.unknown_branch_currents):
-            self._I[key] = Itype(results[m + num_nodes].simplify(), **assumptions)
+            self._Idict[key] = Itype(results[m + num_nodes].simplify(), **assumptions)
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
@@ -270,9 +275,9 @@ class MNA(object):
             if elt.type in ('R', 'C'):
                 n1, n2 = self.node_map[
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
-                V1, V2 = self._V[n1], self._V[n2]
-                I = ((V1 - V2) / elt.Z)
-                self._I[elt.name] = Itype(I.simplify(), **assumptions)
+                V1, V2 = self._Vdict[n1], self._Vdict[n2]
+                I = (V1 - V2) / elt.Z
+                self._Idict[elt.name] = Itype(I.simplify(), **assumptions)
 
         self.context.restore()
 
@@ -305,7 +310,7 @@ class MNA(object):
         """Return dictionary of s-domain node voltages indexed by node name"""
 
         self._solve()
-        return self._V
+        return self._Vdict
 
     @property
     def Idict(self):
@@ -313,4 +318,6 @@ class MNA(object):
         by component name"""
 
         self._solve()
-        return self._I
+        return self._Idict
+    
+    

@@ -126,15 +126,7 @@ class NetlistMixin(object):
             self.nodes[node] = Node(self, node)
         self.nodes[node].append(cpt)
 
-    def _invalidate(self):
-
-        for attr in ('_sch', '_A', '_V', '_I', '_node_list'):
-            if hasattr(self, attr):
-                delattr(self, attr)
-
     def _cpt_add(self, cpt):
-
-        self._invalidate()
 
         opts = Opts(cpt.opts_string)
         cpt.opts = opts
@@ -653,6 +645,12 @@ class Domains(dict):
 
 
 class Netlist(NetlistMixin, NetfileMixin):
+    """This classes handles a generic netlist with multiple sources.
+    During analysis, subnetlists are created for each source kind (dc,
+    ac, etc).  Since linearity is assumed, superposition is
+    employed.
+
+    """
 
     def __init__(self, filename=None, context=None):
 
@@ -660,8 +658,22 @@ class Netlist(NetlistMixin, NetfileMixin):
         self._invalidate()
 
     def _invalidate(self):
-        self.sub = Domains({'s' : None, 'dc' : None,
-                            'ac' : None, 'n' : None})
+
+        for attr in ('_sch', '_sub', '_Vdict', '_Idict'):
+            try:
+                delattr(self, attr)
+            except:
+                pass
+
+    @property
+    def sub(self):
+
+        if hasattr(self, '_sub'):
+            return self._sub
+
+        self._sub = Domains({'s' : None, 'dc' : None,
+                             'ac' : None, 'n' : None})
+        return self._sub
 
     def _sub_make(self, kind):
 
@@ -692,15 +704,24 @@ class Netlist(NetlistMixin, NetfileMixin):
     def n(self):
         return self._subnetlist('n')
 
-    @property
-    def Vdict(self):
-        """Return dictionary of node voltages for each transform domain"""
-
+    def _solve(self):
+        
         # Hack to generate entries in sub
         self.ac
         self.dc
         self.s
         self.n
+    
+    @property
+    def Vdict(self):
+        """Return dictionary of node voltages for each transform domain"""
+
+        try:
+            return self._Vdict
+        except AttributeError:
+            pass        
+
+        self._solve()
 
         result = Nodedict()
         for kind, sub in self.sub.items():
@@ -709,18 +730,20 @@ class Netlist(NetlistMixin, NetfileMixin):
                     if node not in result:
                         result[node] = Vsuper()
                     result[node].add(value)
-        return result
 
+        self._Vdict = result
+        return result
 
     @property
     def Idict(self):
         """Return dictionary of branch currents for each transform domain"""
 
-        # Hack to generate entries in sub
-        self.ac
-        self.dc
-        self.s
-        self.n
+        try:
+            return self._Idict
+        except AttributeError:        
+            pass
+
+        self._solve()
 
         result = Branchdict()
         for kind, sub in self.sub.items():
@@ -729,21 +752,19 @@ class Netlist(NetlistMixin, NetfileMixin):
                     if node not in result:
                         result[node] = Isuper()
                     result[node].add(value)
+        self._Idict = result                    
         return result    
 
     def get_I(self, name):
         """Current through component"""
 
-        self.ac
-        self.dc
-        self.s
-        self.n
+        self._solve()
 
         result = Vsuper()
         for kind, sub in self.sub.items():
             for source, subnetlist in sub.items():
                 I = subnetlist.get_I(name)
-                result.add(I)
+                result.add(I)         
         return result
 
     def get_i(self, name):
@@ -754,10 +775,7 @@ class Netlist(NetlistMixin, NetfileMixin):
     def get_Vd(self, n2, n1):
         """Voltage drop between nodes"""
 
-        self.ac
-        self.dc
-        self.s
-        self.n
+        self._solve()        
 
         if isinstance(n1, int):
             n1 = '%s' % n1
@@ -794,7 +812,7 @@ class SubNetlist(NetlistMixin, MNA):
         """Current through component"""
 
         self._solve()
-        return self._I[name]
+        return self._Idict[name]
 
     def get_i(self):
         """Time-domain current through component"""
@@ -805,7 +823,7 @@ class SubNetlist(NetlistMixin, MNA):
         """Voltage drop between nodes"""
 
         self._solve()
-        return self._V[n2] - self._V[n1]
+        return self._Vdict[n2] - self._Vdict[n1]
 
     def get_vd(self, n2, n1):
         """Time-domain voltage drop between nodes"""

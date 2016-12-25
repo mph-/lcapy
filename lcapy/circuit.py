@@ -94,7 +94,7 @@ class Circuit(Netlist):
     using:
     thevenin = cct.Thevenin(2, 0)
 
-    The s-domain model can be drawn using:
+    The s-domain modelcan be drawn using:
     cct.s_model().draw()
 
     """
@@ -118,6 +118,7 @@ class Circuit(Netlist):
         """
 
         self._add(string)
+        self._invalidate()
 
     def Y(self, Np, Nm):
         """Return admittance between nodes Np and Nm with independent
