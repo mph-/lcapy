@@ -5,7 +5,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from lcapy.core import cExpr, Vtype, Itype, s, sqrt
+from lcapy.core import cExpr, Vtype, Itype, s, sqrt, Exprdict
 from lcapy.core import Matrix, Vector
 import sympy as sym
 
@@ -17,6 +17,17 @@ import sympy as sym
 def namelist(elements):
     return ', '.join([elt for elt in elements])
 
+
+class Nodedict(Exprdict):
+
+    def __getitem__(self, name):
+        """Return node by name or number."""
+
+        # If name is an integer, convert to a string.
+        if isinstance(name, int):
+            name = '%d' % name
+        return super(Nodedict, self).__getitem__(name)
+    
 
 class MNA(object):
     """This class performs modified nodal analysis (MNA) on a netlist of
@@ -233,7 +244,7 @@ class MNA(object):
         self.context.switch()
 
         # Create dictionary of node voltages
-        self._V = {}
+        self._V = Nodedict()
         self._V['0'] = Vtype(0, **assumptions)
         for n in self.nodes:
             index = self._node_index(n)
@@ -286,14 +297,14 @@ class MNA(object):
         return Vector(V + I)
 
     @property
-    def V(self):
+    def Vdict(self):
         """Return dictionary of s-domain node voltages indexed by node name"""
 
         self._solve()
         return self._V
 
     @property
-    def I(self):
+    def Idict(self):
         """Return dictionary of s-domain branch currents indexed
         by component name"""
 

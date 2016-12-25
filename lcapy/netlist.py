@@ -14,7 +14,7 @@ from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym, Vt, It
 from lcapy.core import s, j, omega, uppercase_name, global_context
 from lcapy.core import Vtype, sqrt, Vsuper, Isuper
 from lcapy.schematic import Schematic, Opts, SchematicOpts
-from lcapy.mna import MNA
+from lcapy.mna import MNA, Nodedict
 from lcapy.netfile import NetfileMixin
 import lcapy.mnacpts as cpts
 import re
@@ -650,8 +650,8 @@ class Domains(dict):
         if attr not in self:
             raise AttributeError('Unknown attribute %s' % attr)
         return self[attr]
-    
-                        
+
+
 class Netlist(NetlistMixin, NetfileMixin):
 
     def __init__(self, filename=None, context=None):
@@ -702,20 +702,13 @@ class Netlist(NetlistMixin, NetfileMixin):
         self.s
         self.n
 
-        result = {}
-
+        result = Nodedict()
         for kind, sub in self.sub.items():
             for source, subnetlist in sub.items():
-                for node, value in subnetlist.V.items():
+                for node, value in subnetlist.Vdict.items():
                     if node not in result:
-                        result[node] = Domains({'s' : 0, 'dc' : 0, 'ac' : 0, 'n' : 0})
-                    if kind == 'n':
-                        result[node][kind] += value**2
-                    else:
-                        result[node][kind] += value
-
-        for node, domains in result.items():                        
-            domains['n'] = sqrt(domains['n'])
+                        result[node] = Vsuper()
+                    result[node].add(value)
         return result
 
     def get_I(self, name):
@@ -725,8 +718,8 @@ class Netlist(NetlistMixin, NetfileMixin):
         self.dc
         self.s
         self.n
-        result = Vsuper()
 
+        result = Vsuper()
         for kind, sub in self.sub.items():
             for source, subnetlist in sub.items():
                 I = subnetlist.get_I(name)

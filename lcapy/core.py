@@ -43,7 +43,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Hs', 'Is', 'Vs', 'Ys', 'Zs',
            'Ht', 'It', 'Vt', 'Yt', 'Zt',
            'Hf', 'If', 'Vf', 'Yf', 'Zf',
-           'Ip', 'Vp',
+           'Ip', 'Vp', 'In', 'Vn',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
 func_pattern = re.compile(r"\\operatorname{(.*)}")
@@ -2193,7 +2193,20 @@ class Zf(fExpr):
         self._fourier_conjugate_class = Zt
 
 
-class Vf(fExpr):
+class Hf(fExpr):
+
+    """f-domain transfer function response"""
+
+    quantity = 'Transfer function'
+    units = ''
+
+    def __init__(self, val, **assumptions):
+
+        super(Hf, self).__init__(val, **assumptions)
+        self._fourier_conjugate_class = Ht
+
+
+class Vf(omegaExpr):
 
     """f-domain voltage (units V/Hz)"""
 
@@ -2206,7 +2219,7 @@ class Vf(fExpr):
         self._fourier_conjugate_class = Vt
 
 
-class If(fExpr):
+class If(omegaExpr):
 
     """f-domain current (units A/Hz)"""
 
@@ -2219,17 +2232,32 @@ class If(fExpr):
         self._fourier_conjugate_class = It
 
 
-class Hf(fExpr):
+class Vn(omegaExpr):
 
-    """f-domain transfer function response"""
+    """f-domain noise voltage (units V/rtHz)"""
 
-    quantity = 'Transfer function'
-    units = ''
+    quantity = 'Voltage noise spectrum'
+    units = 'V/rtHz'
 
     def __init__(self, val, **assumptions):
 
-        super(Hf, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Ht
+        super(Vn, self).__init__(val, **assumptions)
+        # FIXME
+        self._fourier_conjugate_class = Vt
+
+
+class In(omegaExpr):
+
+    """f-domain noise current (units A/rtHz)"""
+
+    quantity = 'Current noise spectrum'
+    units = 'A/rtHz'
+
+    def __init__(self, val, **assumptions):
+
+        super(In, self).__init__(val, **assumptions)
+        # FIXME        
+        self._fourier_conjugate_class = It        
 
 
 class Yomega(omegaExpr):
@@ -2470,6 +2498,12 @@ def Itype(val, **assumptions):
 
 class Super(Exprdict):
 
+    def _repr_pretty_(self, p, cycle):
+        if self == {}:
+            p.text(pretty(0))
+        else:
+            p.text(pretty(self))
+    
     def select(self, kind):
         if kind not in self:
             return self.type_map[kind](0)
@@ -2487,17 +2521,17 @@ class Super(Exprdict):
                 else:    
                     self[kind] += value                    
     
-    @property
-    def s(self):
-        return self.select('s')
-
     @property    
-    def p(self):
-        return self.select('p')
+    def dc(self):
+        return self.select('dc')    
 
     @property    
     def ac(self):
-        return self.select('p')
+        return self.select('ac')
+
+    @property
+    def s(self):
+        return self.select('s')
 
     @property    
     def n(self):
@@ -2522,13 +2556,13 @@ class Super(Exprdict):
 
 class Vsuper(Super):
 
-    type_map = {'s': Vs, 'p' : Vp, 'c' : Vc}
+    type_map = {'s': Vs, 'ac' : Vp, 'dc' : Vc, 'n' : Vn}
     time_class = Vt
 
 
 class Isuper(Super):
 
-    type_map = {'s': Is, 'p' : Ip, 'c' : Ic}
+    type_map = {'s': Is, 'ac' : Ip, 'dc' : Ic, 'n' : In}
     time_class = It    
     
 
