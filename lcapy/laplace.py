@@ -95,8 +95,16 @@ def laplace_transform(expr, t, s):
         return laplace_cache[expr]
     
     var = sym.Symbol(str(t))
-    expr = sym.sympify(expr)
-    expr = expr.replace(var, t)
+    if hasattr(expr, 'expr'):
+        expr = expr.expr
+    else:
+        expr = sym.sympify(expr)
+
+    # Unilateral LT ignores expr for t < 0 so
+    # but barfs on a Piecewise so handle case here.
+    expr = expr.replace(var, t)        
+    if expr.is_Piecewise and expr.args[0].args[1] == t >= 0:
+        expr = expr.args[0].args[0]
 
     terms = expr.as_ordered_terms()
     result = 0
