@@ -965,6 +965,10 @@ class Expr(object):
         for symbol in expr.free_symbols:
             print('  %s: %s' % (symbol, symbol.assumptions0))
 
+    def canonical(self):
+        return self.__class__(self)
+
+    
 class sfwExpr(Expr):
 
     def __init__(self, val, **assumptions):
@@ -1656,9 +1660,6 @@ class tExpr(Expr):
         from lcapy.plot import plot_time
         plot_time(self, t, **kwargs)
 
-    def canonical(self):
-        return self.__class__(self)
-
 
 class cExpr(Expr):
 
@@ -1732,7 +1733,7 @@ class Ip(Phasor):
         return I(self)
 
 
-class Vc(tExpr):
+class Vc(cExpr):
 
     def __init__(self, val, **assumptions):
 
@@ -1742,8 +1743,11 @@ class Vc(tExpr):
     def cpt(self):
         return Vdc(self)
 
+    def time(self):
+        return Vt(self)
 
-class Ic(tExpr):
+
+class Ic(cExpr):
 
     def __init__(self, val, **assumptions):
 
@@ -1752,6 +1756,9 @@ class Ic(tExpr):
     
     def cpt(self):
         return Idc(self)
+
+    def time(self):
+        return Vt(self)    
 
 
 s = sExpr('s')
@@ -2585,7 +2592,12 @@ class Super(Exprdict):
 
         if value.__class__ in self.type_map:
             value = self.type_map[value.__class__](value)
-        
+        else:
+            for cls1, cls2 in self.type_map.items():
+                if isinstance(value, cls1):
+                    value = cls2(value)
+                    break
+            
         kind = self._kind(value)
         if kind is None:
             raise ValueError('Cannot handle value %s of type %s' %
@@ -2624,6 +2636,10 @@ class Super(Exprdict):
             else:
                 result += val
         return result
+
+    def laplace(self):
+        # TODO, could optimise
+        return self.time().laplace()
 
     @property    
     def t(self):

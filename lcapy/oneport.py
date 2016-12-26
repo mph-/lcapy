@@ -83,7 +83,7 @@ class OnePort(Network):
 
     @property
     def Y(self):
-        return 1 / self.Z
+        return Ys(1 / self.Z)
 
     def __add__(self, OP):
         """Series combination"""
@@ -696,7 +696,7 @@ class Y(OnePort):
 
         self.args = (Yval, )
         Yval = Ys(Yval)
-        self.Y = Yval
+        self.Z = 1 / Yval
 
 
 class Z(OnePort):
@@ -976,5 +976,4 @@ class FerriteBead(OnePort):
 
 
 # Import this at end to circumvent circular dependencies
-# TODO
-# from lcapy.twoport import Ladder, LSection, TSection
+from lcapy.twoport import Ladder, LSection, TSection

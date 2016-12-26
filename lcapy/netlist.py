@@ -811,9 +811,10 @@ class SubNetlist(NetlistMixin, MNA):
 
     def __new__(cls, netlist, sources, kind):
 
+        # The unwanted sources are zeroed so that we can still refer
+        # to them by name, say when wanting the current through them.
         obj = netlist.kill_except(sources, zero=True)
         obj.kind = kind
-        # Hack
         obj.__class__ = cls
         return obj
 

@@ -130,7 +130,7 @@ class LcapyTester(unittest.TestCase):
         a = Idc(10) | Idc(5)
         b = a.simplify()
         self.assertEqual2(b.isc, Idc(15).isc, "isc incorrect.")
-        self.assertEqual2(b.Isc.s, 15 / s, "Isc incorrect.")
+        self.assertEqual2(b.Isc.dc, 15, "Isc incorrect.")
         self.assertEqual2(type(b), Idc, "type incorrect.")
         self.assertEqual2(b.isc, 15, "isc incorrect.")
 
@@ -154,7 +154,7 @@ class LcapyTester(unittest.TestCase):
         b = a.open_circuit()
 
         self.assertEqual2(b.Z, 10, "incorrect Z.")
-        self.assertEqual2(b.Voc, 5 / s, "incorrect V.")
+        self.assertEqual2(b.Voc.laplace(), Vs(5) / s, "incorrect V.")
 
     def test_short_circuit(self):
         """Lcapy: check short_circuit
@@ -165,7 +165,7 @@ class LcapyTester(unittest.TestCase):
         b = a.short_circuit()
 
         self.assertEqual2(b.Z, 10, "incorrect Z.")
-        self.assertEqual2(b.Voc, 5 / s, "incorrect V.")
+        self.assertEqual2(b.Voc.laplace(), Vs(5) / s, "incorrect V.")
 
     def test_v(self):
         """Lcapy: check inverse Laplace for voltage sources"""
@@ -173,7 +173,7 @@ class LcapyTester(unittest.TestCase):
         omega1 = symbol('omega_1', real=True)
 
         a = Vdc(10)
-        self.assertEqual2(a.voc, 10, "DC incorrect.")        
+        self.assertEqual(a.voc, 10, "DC incorrect.")        
 
         a = Vstep(10)
         self.assertEqual2(a.voc, 10 * Heaviside(t), "Step incorrect.")

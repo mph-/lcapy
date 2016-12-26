@@ -10,9 +10,12 @@ import sympy as sym
 from lcapy.core import s, Vs, Is, Zs, Ys, Hs, cExpr, sExpr
 from lcapy.core import WyeDelta, DeltaWye, Vector, Matrix
 from lcapy.core import VsVector, IsVector, YsVector, ZsVector
-from lcapy.oneport import OnePort, I, V, Y, Z, Thevenin, Norton
+from lcapy.oneport import OnePort, I, V, Y, Z
 from lcapy.network import Network
 
+
+# This needs to be generalised for superpositions.
+# For now, it uses only the s-domain.
 
 # TODO:
 # 1. Defer the choice of the two-port model.  For example, a T section
@@ -1191,7 +1194,7 @@ class TwoPort(Network):
         specified ports"""
 
         if issubclass(V.__class__, OnePort):
-            V = V.Voc
+            V = V.Voc.laplace()
 
         p1 = inport - 1
         p2 = outport - 1
@@ -1204,7 +1207,7 @@ class TwoPort(Network):
         specified ports"""
 
         if issubclass(I.__class__, OnePort):
-            I = I.Isc
+            I = I.Isc.laplace()
 
         p1 = inport - 1
         p2 = outport - 1
@@ -2018,7 +2021,7 @@ class Series(TwoPortBModel):
         self.OP = OP
         self.args = (OP, )
         _check_oneport_args(self.args)
-        super(Series, self).__init__(BMatrix.Zseries(OP.Z), Vs(OP.Voc), Is(0))
+        super(Series, self).__init__(BMatrix.Zseries(OP.Z), Vs(OP.Voc.laplace()), Is(0))
 
 
 class Shunt(TwoPortBModel):
@@ -2045,7 +2048,8 @@ class Shunt(TwoPortBModel):
         self.OP = OP
         self.args = (OP, )
         _check_oneport_args(self.args)
-        super(Shunt, self).__init__(BMatrix.Yshunt(OP.Y), Vs(0), Is(OP.Isc))
+        super(Shunt, self).__init__(BMatrix.Yshunt(OP.Y), Vs(0),
+                                    Is(OP.Isc.laplace()))
 
 
 class IdealTransformer(TwoPortBModel):
@@ -2271,7 +2275,7 @@ class TSection(TwoPortBModel):
 
         ZV = WyeDelta(self.args[0].Z, self.args[1].Z, self.args[2].Z)
         VV = WyeDelta(self.args[0].V, self.args[1].V, self.args[2].V)
-        OPV = [Thevenin(*OP).cpt() for OP in zip(ZV, VV)]
+        OPV = [(ZV1 + VV1).cpt() for ZV1, VV1 in zip(ZV, VV)]
 
         return PiSection(*OPV)
 
@@ -2372,7 +2376,7 @@ class PiSection(TwoPortBModel):
 
         ZV = DeltaWye(self.args[0].Z, self.args[1].Z, self.args[2].Z)
         VV = DeltaWye(self.args[0].V, self.args[1].V, self.args[2].V)
-        OPV = [Thevenin(OP[0], OP[1]).cpt() for OP in zip(ZV, VV)]
+        OPV = [(ZV1 + VV1).cpt() for ZV1, VV1 in zip(ZV, VV)]
         return TSection(*OPV)
 
 

@@ -42,9 +42,9 @@ from . import oneport
 __all__.extend(oneport.__all__)
 from .oneport import *
 
-#from . import twoport
-#__all__.extend(twoport.__all__)
-#from .twoport import *
+from . import twoport
+__all__.extend(twoport.__all__)
+from .twoport import *
 
 #from . import threeport
 #__all__.extend(threeport.__all__)
