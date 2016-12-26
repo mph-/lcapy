@@ -314,17 +314,21 @@ class NetlistMixin(object):
         except ValueError:
             raise ValueError('Cannot create A matrix')
 
-    def _kill(self, sourcenames):
+    def _kill(self, sourcenames, **kwargs):
 
         new = self._new()
         new.opts = copy(self.opts)
+
+        zero = kwargs.get('zero', False)
 
         for cpt in self._elements.values():
             if cpt.name in self.control_sources:
                 net = cpt.zero()                
             elif cpt.name in sourcenames:
-                # TODO: Add killed attribute for schematic
-                net = cpt.zero()
+                if zero:
+                    net = cpt.zero()
+                else:
+                    net = cpt.kill()                    
             elif 'ICs' in sourcenames:
                 net = cpt.kill_initial()
             else:
@@ -332,7 +336,7 @@ class NetlistMixin(object):
             new._add(net)
         return new        
 
-    def kill_except(self, *args):
+    def kill_except(self, *args, **kwargs):
         """Return a new circuit with all but the specified sources killed;
         i.e., make the voltage sources short-circuits and the current
         sources open-circuits.  If no sources are specified, all
@@ -350,7 +354,7 @@ class NetlistMixin(object):
         if 'ICs' not in args:
             sources.append('ICs')            
             
-        return self._kill(sources)
+        return self._kill(sources, **kwargs)
 
     def kill(self, *args):
         """Return a new circuit with the specified sources killed; i.e., make
@@ -807,7 +811,7 @@ class SubNetlist(NetlistMixin, MNA):
 
     def __new__(cls, netlist, sources, kind):
 
-        obj = netlist.kill_except(sources)
+        obj = netlist.kill_except(sources, zero=True)
         obj.kind = kind
         # Hack
         obj.__class__ = cls
