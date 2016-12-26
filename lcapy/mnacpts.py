@@ -174,13 +174,13 @@ class Cpt(object):
     def V(self):
         """Voltage drop across component"""
 
-        return self.cct.get_Vd(self.nodes[1], self.nodes[0])
+        return self.cct.get_Vd(self.nodes[0], self.nodes[1])
 
     @property
     def v(self):
         """Time-domain voltage drop across component"""
 
-        return self.cct.get_vd(self.nodes[1], self.nodes[0])
+        return self.cct.get_vd(self.nodes[0], self.nodes[1])
 
     @property
     def Isc(self):

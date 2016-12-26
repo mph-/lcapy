@@ -267,7 +267,8 @@ class MNA(object):
         # Create dictionary of branch currents through elements
         self._Idict = Branchdict()
         for m, key in enumerate(self.unknown_branch_currents):
-            self._Idict[key] = Itype(results[m + num_nodes].simplify(), **assumptions)
+            self._Idict[key] = Itype(results[m + num_nodes].simplify(),
+                                     **assumptions)
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
@@ -278,6 +279,8 @@ class MNA(object):
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
                 I = (V1 - V2) / elt.Z
                 self._Idict[elt.name] = Itype(I.simplify(), **assumptions)
+            elif elt.type in ('I', ):
+                self._Idict[elt.name] = elt.Isc
 
         self.context.restore()
 

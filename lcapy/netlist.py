@@ -772,27 +772,27 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         return self.get_I(name).time()
 
-    def get_Vd(self, n2, n1):
+    def get_Vd(self, Np, Nm):
         """Voltage drop between nodes"""
 
         self._solve()        
 
-        if isinstance(n1, int):
-            n1 = '%s' % n1
-        if isinstance(n2, int):
-            n2 = '%s' % n2            
+        if isinstance(Nm, int):
+            Nm = '%s' % Nm
+        if isinstance(Np, int):
+            Np = '%s' % Np            
         
         result = Vsuper()
         for kind, sub in self.sub.items():
             for source, subnetlist in sub.items():
-                Vd = subnetlist.get_Vd(n2, n1)
+                Vd = subnetlist.get_Vd(Np, Nm)
                 result.add(Vd)
         return result        
 
-    def get_vd(self, n2, n1):
+    def get_vd(self, Np, Nm):
         """Time-domain voltage drop between nodes"""
 
-        return self.get_Vd(n2, n1).time()
+        return self.get_Vd(Np, Nm).time()
 
     
 class SubNetlist(NetlistMixin, MNA):
@@ -819,13 +819,13 @@ class SubNetlist(NetlistMixin, MNA):
 
         return self.get_I(name).time()
 
-    def get_Vd(self, n2, n1):
+    def get_Vd(self, Np, Nm):
         """Voltage drop between nodes"""
 
         self._solve()
-        return self._Vdict[n2] - self._Vdict[n1]
+        return self._Vdict[Np] - self._Vdict[Nm]
 
-    def get_vd(self, n2, n1):
+    def get_vd(self, Np, Nm):
         """Time-domain voltage drop between nodes"""
 
-        return self.get_Vd(n2, n1).time()
+        return self.get_Vd(Np, Nm).time()
