@@ -166,5 +166,14 @@ class Network(object):
         self._cct = cct
         return cct
 
+    @property    
     def initial_value_problem(self):
         return self.cct.initial_value_problem()
+
+    @property
+    def is_dc(self):
+        return self.cct.is_dc
+
+    @property    
+    def is_ac(self):
+        return self.cct.is_ac

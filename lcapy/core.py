@@ -24,6 +24,7 @@ import re
 from sympy.utilities.lambdify import lambdify
 import sys
 from copy import copy
+import six
 
 
 # Note imports at bottom to avoid circular dependencies
@@ -43,7 +44,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Hs', 'Is', 'Vs', 'Ys', 'Zs',
            'Ht', 'It', 'Vt', 'Yt', 'Zt',
            'Hf', 'If', 'Vf', 'Yf', 'Zf',
-           'Ip', 'Vp', 'In', 'Vn',
+           'Ip', 'Vp', 'In', 'Vn', 'Vc', 'Ic',
            'Isuper', 'Vsuper',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
@@ -1178,7 +1179,8 @@ class sfwExpr(Expr):
         zeros = sym.roots(N)
         poles = sym.roots(D)
 
-        return self.__class__(_zp2tf(zeros, poles, K, self.var), **self.assumptions)
+        return self.__class__(_zp2tf(zeros, poles, K, self.var),
+                              **self.assumptions)
 
 
 class sExpr(sfwExpr):
@@ -1496,27 +1498,6 @@ class sExpr(sfwExpr):
         plot_pole_zero(self, **kwargs)
 
 
-class tsExpr(sExpr):
-
-    """t or s-domain expression or symbol, interpreted in time domain
-    if not containing s"""
-
-    # Todo, replace with a factory.
-
-    def __init__(self, val, **assumptions):
-
-        assumptions = {}
-
-        # If no s in expression evaluate as tExpr and convert to s-domain.
-        if 's' not in symbols_find(val):
-            tval = tExpr(val)
-            val = tval.laplace().expr
-            val = val.subs(context.symbols)
-            assumptions = tval.assumptions
-
-        super(tsExpr, self).__init__(val, real=True, **assumptions)
-
-
 class fExpr(sfwExpr):
 
     """Fourier domain expression or symbol"""
@@ -1627,6 +1608,7 @@ class tExpr(Expr):
 
         # Hack to avoid circular dep.
         if init:
+            # TODO, handle a + b * cos(omega * t)
             if is_dc(self, t):
                 self.is_dc = True
             elif is_ac(self, t):
@@ -1758,12 +1740,7 @@ class Vc(tExpr):
         self._laplace_conjugate_class = Vt
 
     def cpt(self):
-
-        v = self
-        if v.is_number or self.is_dc:
-            return Vdc(v)
-
-        return V(self)
+        return Vdc(self)
 
 
 class Ic(tExpr):
@@ -1774,12 +1751,7 @@ class Ic(tExpr):
         self._laplace_conjugate_class = It
     
     def cpt(self):
-
-        i = self
-        if i.is_number or self.is_dc:
-            return Idc(i)
-
-        return I(self)    
+        return Idc(self)
 
 
 s = sExpr('s')
@@ -2057,12 +2029,6 @@ class Vs(sExpr):
         self._laplace_conjugate_class = Vt
 
     def cpt(self):
-
-        v = self * s
-
-        if v.is_number or self.is_dc:
-            return Vdc(v)
-
         return V(self)
 
 
@@ -2079,12 +2045,6 @@ class Is(sExpr):
         self._laplace_conjugate_class = It
 
     def cpt(self):
-
-        i = self * s
-
-        if i.is_number or self.is_dc:
-            return Idc(i)
-
         return I(self)
 
 
@@ -2510,7 +2470,43 @@ class Super(Exprdict):
             p.text(pretty(0))
         else:
             p.text(pretty(self))
-    
+
+    @property
+    def has_dc(self):
+        return 'dc' in self
+
+    @property
+    def has_ac(self):
+        return 'ac' in self
+
+    @property
+    def has_s(self):
+        return 's' in self
+
+    @property
+    def has_n(self):
+        return 'n' in self
+
+    @property
+    def is_dc(self):
+        return self.keys() == ['dc']
+
+    @property
+    def is_ac(self):
+        return self.keys() == ['ac']
+
+    @property
+    def is_s(self):
+        return self.keys() == ['s']
+
+    @property
+    def is_n(self):
+        return self.keys() == ['n']
+
+    @property
+    def is_causal(self):
+        return self.is_s and self.s.is_causal
+
     def __add__(self, x):
         new = copy(self)
         if isinstance(x, Super):
@@ -2552,26 +2548,59 @@ class Super(Exprdict):
     #             return False
     #     return True
 
-    def _select(self, kind):
+    def select(self, kind):
         if kind not in self:
-            return self.type_map[kind](0)
+            return self.transform_domains[kind](0)
         return self[kind]
 
     def _kind(self, value):
-        for kind, mtype in self.type_map.items():
+        for kind, mtype in self.transform_domains.items():
             if isinstance(value, mtype):
                 return kind
         return None
+
+    def _parse(self, string):
+        """Parse t or s-domain expression or symbol, interpreted in time
+        domain if not containing s or omega.  Return most appropriate
+        transform domain. """
+
+        symbols = symbols_find(string)
+    
+        if 's' in symbols:
+            return self.add(sExpr(string))
+
+        if 'omega' in symbols:
+            return self.add(omegaExpr(string))
+
+        if 'f' in symbols:
+            return self.add(fExpr(string))
+
+        # TODO, split into a superposition
+        tval = tExpr(string)
+        if tval.is_dc:
+            return self.add(cExpr(tval))
+
+        if tval.is_ac:
+            return self.add(tval.phasor())
+
+        return self.add(tval.laplace())
+    
     
     def add(self, value):
         if value == 0:
             return
 
+        if isinstance(value, six.string_types):
+            return self._parse(value)
+
+        if isinstance(value, (int, float)):
+            return self.add(self.transform_domains['dc'](value))
+
+        if value.__class__ in self.type_map:
+            value = self.type_map[value.__class__](value)
+        
         kind = self._kind(value)
         if kind is None:
-            if isinstance(value, (int, float)):
-                return self.add(self.type_map['dc'](value))
-            
             raise ValueError('Cannot handle value %s of type %s' %
                              (value, type(value).__name__))
         if kind not in self:
@@ -2583,19 +2612,19 @@ class Super(Exprdict):
     
     @property    
     def dc(self):
-        return self._select('dc')    
+        return self.select('dc')    
 
     @property    
     def ac(self):
-        return self._select('ac')
+        return self.select('ac')
 
     @property
     def s(self):
-        return self._select('s')
+        return self.select('s')
 
     @property    
     def n(self):
-        return self._select('n')
+        return self.select('n')
 
     def time(self):
 
@@ -2613,10 +2642,18 @@ class Super(Exprdict):
     def t(self):
         return self.time()
 
+    def canonical(self):
+        new = self.__class__()
+        for kind, value in self.items():        
+            new[kind] = value.canonical()
+            
+        return new
 
+    
 class Vsuper(Super):
 
-    type_map = {'s': Vs, 'ac' : Vp, 'dc' : Vc, 'n' : Vn}
+    type_map = {cExpr: Vc, sExpr : Vs, omegaExpr: Vp}
+    transform_domains = {'s': Vs, 'ac' : Vp, 'dc' : Vc, 'n' : Vn}
     time_class = Vt
 
     def __mul__(self, x):
@@ -2650,7 +2687,8 @@ class Vsuper(Super):
 
 class Isuper(Super):
 
-    type_map = {'s': Is, 'ac' : Ip, 'dc' : Ic, 'n' : In}
+    type_map = {cExpr: Ic, sExpr : Is, omegaExpr: Ip}
+    transform_domains = {'s': Is, 'ac' : Ip, 'dc' : Ic, 'n' : In}
     time_class = It    
 
     def __mul__(self, x):
@@ -2680,6 +2718,7 @@ class Isuper(Super):
             raise TypeError("Unsupported types for /: 'Isuper' and '%s'" %
                             type(x).__name__)
         return self * Zs(1 / x)
-        
+
+
 init = True
 from lcapy.oneport import L, C, R, G, Idc, Vdc, Iac, Vac, I, V, Z, Y

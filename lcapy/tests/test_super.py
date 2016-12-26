@@ -17,6 +17,20 @@ class LcapyTester(unittest.TestCase):
             ans2.pprint()
             raise AssertionError(e)
 
+    def test_Vsuper_properties(self):
+        self.assertEqual(Vsuper(3).is_dc, True, "Vsuper(3).is_dc")
+        self.assertEqual(Vsuper(3).has_dc, True, "Vsuper(3).has_dc")
+        self.assertEqual(Vsuper(Vp(3)).is_ac, True, "Vsuper(Vp(3)).is_ac")
+        self.assertEqual(Vsuper(Vp(3)).has_ac, True, "Vsuper(Vp(3)).has_ac")
+        self.assertEqual(Vsuper(Vc(2), Vp(3)).is_ac, False,
+                          "Vsuper(Vc(2), Vp(3)).is_ac")
+        self.assertEqual(Vsuper(Vc(2), Vp(3)).has_ac, True,
+                          "Vsuper(Vc(2), Vp(3)).has_ac")
+        self.assertEqual(Vsuper(Vc(2), Vp(3)).is_ac, False,
+                          "Vsuper(Vc(2), Vp(3)).is_dc")
+        self.assertEqual(Vsuper(Vc(2), Vp(3)).has_ac, True,
+                          "Vsuper(Vc(2), Vp(3)).has_dc")                
+        
     def test_Vsuper_add_sub_dc(self):
         self.assertEqual2(Vsuper(3).dc, 3, "Vsuper(3).dc")
         self.assertEqual2(Vsuper(2, 3).dc, 5, "Vsuper(2, 3).dc")

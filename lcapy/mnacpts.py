@@ -186,13 +186,13 @@ class Cpt(object):
     def Isc(self):
         """Short-circuit current"""
         
-        return self.cpt.Isc
+        return self.cpt.Isc.select(self.cct.kind)
 
     @property
     def Voc(self):
         """Open-circuit voltage"""
         
-        return self.cpt.Voc
+        return self.cpt.Voc.select(self.cct.kind)
 
     @property
     def Y(self):
@@ -276,7 +276,7 @@ class RLC(Cpt):
 
     def s_model(self, var):
 
-        if self.cpt.Voc == 0:        
+        if self.Voc == 0:        
             return 'Z%s %s %s {%s};%s' % (self.name, 
                                           self.nodes[0], self.nodes[1],
                                           self.cpt.Z(var), 
@@ -300,7 +300,7 @@ class RLC(Cpt):
 
         vnet = 'V%s %s %s s {%s}; %s' % (self.name, 
                                          dummy_node, self.nodes[1],
-                                         self.cpt.Voc(var), opts)
+                                         self.Voc(var), opts)
 
         if voltage_opts == {}:
             return znet + '\n' + vnet
@@ -360,7 +360,7 @@ class RC(RLC):
             cct._G[n2, n2] += Y
 
         if cct.kind == 's' and self.cpt.hasic and n1 >= 0:
-            I = self.cpt.Isc.expr            
+            I = self.Isc.expr            
             cct._Is[n1] += I
 
 
@@ -479,7 +479,7 @@ class I(Cpt):
 
         n1, n2 = self.node_indexes
 
-        I = self.cpt.Isc.expr
+        I = self.Isc.expr
 
         if n1 >= 0:
             cct._Is[n1] += I
@@ -490,7 +490,7 @@ class I(Cpt):
 
         return '%s %s %s s {%s}; %s' % (self.name, 
                                         self.nodes[0], self.nodes[1],
-                                        self.cpt.Isc(var), self.opts)
+                                        self.Isc(var), self.opts)
 
     def pre_initial_model(self):
 
@@ -560,7 +560,7 @@ class L(RLC):
         cct._D[m, m] += -Z
 
         if cct.kind == 's' and self.cpt.hasic:
-            V = self.cpt.Voc.expr            
+            V = self.Voc.expr            
             cct._Es[m] += V
 
     def pre_initial_model(self):

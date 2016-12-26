@@ -39,7 +39,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.Y(2, 0), C('C1').Y, "Y incorrect for C1.")
         self.assertEqual2(
             a.Y(1, 0), (R('R1') + C('C1')).Y, "Y incorrect for R1 + C1.")
-        self.assertEqual2(a.Isc(1, 0), I(0).I, "Isc incorrect")
+        self.assertEqual2(a.Isc(1, 0), I(0).Isc, "Isc incorrect")
 
     def test_VRC1(self):
         """Lcapy: check VRC circuit
@@ -64,7 +64,7 @@ class LcapyTester(unittest.TestCase):
         # This has a non-invertible A matrix.
         # self.assertEqual2(a.Y(1, 0), R(0).Y, "Y incorrect across V1")
 
-        self.assertEqual2(a.Voc(1, 0), V('V1').V, "Voc incorrect across V1")
+        self.assertEqual2(a.Voc(1, 0), V('V1').Voc, "Voc incorrect across V1")
         self.assertEqual(a.initial_value_problem, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
@@ -88,7 +88,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(
             a.thevenin(1, 2).Z, a.Z(1, 2), "incorrect thevenin impedance")
         self.assertEqual2(
-            a.norton(1, 2).I.sc, a.Isc(1, 2), "incorrect norton current")
+            a.norton(1, 2).Isc, a.Isc(1, 2), "incorrect norton current")
         self.assertEqual2(
             a.norton(1, 2).Y, a.Y(1, 2), "incorrect norton admittance")
         self.assertEqual2(
@@ -104,7 +104,7 @@ class LcapyTester(unittest.TestCase):
         # This has a non-invertible A matrix.
         # self.assertEqual2(a.Y(1, 0), R(0).Y, "Y incorrect across V1")
 
-        self.assertEqual2(a.Voc(1, 0), V('V1').V, "Voc incorrect across V1")
+        self.assertEqual2(a.Voc(1, 0), V('V1').Voc, "Voc incorrect across V1")
         self.assertEqual(a.initial_value_problem, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
@@ -117,9 +117,9 @@ class LcapyTester(unittest.TestCase):
         a.add('I1 1 0 2')
         a.add('R1 1 0 1')
 
-        self.assertEqual2(a.R1.V, V(2).V, "Incorrect voltage")
+        self.assertEqual2(a.R1.V, V(2).Voc, "Incorrect voltage")
 
-        self.assertEqual2(a[1].V, V(2).V, "Incorrect node voltage")
+        self.assertEqual2(a[1].V, V(2).Voc, "Incorrect node voltage")
 
     def test_VCVS1(self):
         """Lcapy: check VCVS
@@ -131,7 +131,7 @@ class LcapyTester(unittest.TestCase):
         a.add('E1 2 0 1 0 3')
         a.add('R2 2 0 1')
 
-        self.assertEqual2(a.R2.V, V(6).V, "Incorrect voltage")
+        self.assertEqual2(a.R2.V, V(6).Voc, "Incorrect voltage")
 
     def test_VCCS1(self):
         """Lcapy: check VCCS
@@ -143,7 +143,7 @@ class LcapyTester(unittest.TestCase):
         a.add('G1 2 0 1 0 3')
         a.add('R2 2 0 1')
 
-        self.assertEqual2(a.R2.V, V(6).V, "Incorrect voltage")
+        self.assertEqual2(a.R2.V, V(6).Voc, "Incorrect voltage")
 
     def test_CCCS1(self):
         """Lcapy: check CCCS
@@ -156,7 +156,7 @@ class LcapyTester(unittest.TestCase):
         a.add('F1 3 0 V2 2')
         a.add('R2 3 0 1')
 
-        self.assertEqual2(a.R2.V, V(10).V, "Incorrect voltage")
+        self.assertEqual2(a.R2.V, V(10).Voc, "Incorrect voltage")
 
 
     def test_CCVS1(self):
@@ -170,7 +170,7 @@ class LcapyTester(unittest.TestCase):
         a.add('H1 3 0 V2 2')
         a.add('R2 3 0 1')
 
-        self.assertEqual2(a.R2.V, V(10).V, "Incorrect voltage")
+        self.assertEqual2(a.R2.V, V(10).Voc, "Incorrect voltage")
 
 
     def test_V1(self):
@@ -209,7 +209,7 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2')
         a.add('L1 2 0 L1 {(V1 + 1) / R1}')
         # This tests if symbols are converted to the defined ones.
-        self.assertEqual2(a.L1.v, V(0).V.inverse_laplace(**a.assumptions), 
+        self.assertEqual2(a.L1.v, V(0).Voc.inverse_laplace(**a.assumptions), 
                           "Incorrect time domain voltage")        
         v = Vs('(V1+1)/s', dc=False).inverse_laplace()
         self.assertEqual2(a.R1.v, v, 
@@ -246,8 +246,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.initial_value_problem, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, True, "AC incorrect")
-        self.assertEqual(a.R1.I, a.L1.I, "currents different")
-        self.assertEqual(-a.V1.I, a.L1.I, "currents different")
+        self.assertEqual(a.R1.I, a.L1.Isc, "currents different")
+        self.assertEqual(-a.V1.I, a.L1.Isc, "currents different")
 
 
     def test_transfer(self):

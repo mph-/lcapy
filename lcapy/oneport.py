@@ -20,7 +20,9 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, tsExpr, cos, exp, symbol, j, Vp, Ip, It, Vc, Ic, Itype, Vtype, pretty
+from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr
+from lcapy.core import cos, exp, symbol, j, Vp, Ip, It, Vc, Ic, Vn, In
+from lcapy.core import Itype, Vtype, Vsuper, Isuper, pretty
 from lcapy.sympify import symbols_find
 from lcapy.network import Network
 
@@ -68,10 +70,8 @@ class OnePort(Network):
     netkeyword = ''
 
     Z = Zs(0)
-    #Voc = Vc(0)
-    #Isc = Ic(0)
-    Voc = 0
-    Isc = 0
+    Voc = Vsuper()
+    Isc = Isuper()
 
     @property
     def Zoc(self):
@@ -660,7 +660,7 @@ class L(OnePort):
         self.L = Lval
         self.i0 = i0
         self.Z = Zs.L(Lval)
-        self.Voc = -Vs(i0 * Lval)
+        self.Voc = Vsuper(-Vs(i0 * Lval))
         self.zeroic = self.i0 == 0 
 
 
@@ -685,7 +685,7 @@ class C(OnePort):
         self.C = Cval
         self.v0 = v0
         self.Z = Zs.C(Cval)
-        self.Voc = Vs(v0).integrate()
+        self.Voc = Vsuper(Vs(v0).integrate())
         self.zeroic = self.v0 == 0
 
 
@@ -696,7 +696,7 @@ class Y(OnePort):
 
         self.args = (Yval, )
         Yval = Ys(Yval)
-        super(Y, self).__init__(Yval)
+        self.Y = Yval
 
 
 class Z(OnePort):
@@ -706,7 +706,7 @@ class Z(OnePort):
 
         self.args = (Zval, )
         Zval = Zs(Zval)
-        super(Z, self).__init__(Zval)
+        self.Z = Zval
 
 
 class VoltageSource(OnePort):
@@ -725,7 +725,7 @@ class sV(VoltageSource):
 
         self.args = (Vval, )
         Vval = sExpr(Vval)
-        self.Voc = Vs(Vval)
+        self.Voc = Vsuper(Vs(Vval))
 
 
 class V(VoltageSource):
@@ -736,8 +736,10 @@ class V(VoltageSource):
     def __init__(self, Vval):
 
         self.args = (Vval, )
-        Vsym = tsExpr(Vval)
-        self.Voc = Vs(Vsym)        
+        if isinstance(Vval, (Vc, Vp, Vn, Vs, Vsuper)):
+            self.Voc = Vsuper(Vval)
+        else:
+            self.Voc = Vsuper(Vval)
 
         
 class Vstep(VoltageSource):
@@ -749,7 +751,7 @@ class Vstep(VoltageSource):
 
         self.args = (v, )
         v = cExpr(v)
-        self.Voc = Vs(v, causal=True) / s
+        self.Voc = Vsuper(Vs(v, causal=True) / s)
         self.v0 = v
 
 
@@ -763,7 +765,7 @@ class Vdc(VoltageSource):
 
         self.args = (v, )
         v = cExpr(v)
-        self.Voc = Vc(v, dc=True)
+        self.Voc = Vsuper(Vc(v, dc=True))
         self.v0 = v
 
     @property
@@ -787,7 +789,7 @@ class Vac(VoltageSource):
         self.omega = symbol('omega_1', real=True)
         self.v0 = V
         self.phi = phi
-        self.Voc = Vp(self.v0 * exp(j * self.phi), ac=True)
+        self.Voc = Vsuper(Vp(self.v0 * exp(j * self.phi), ac=True))
 
 
     @property
@@ -815,7 +817,8 @@ class v(VoltageSource):
 
         self.args = (vval, )
         Vval = tExpr(vval)
-        super(V, self).__init__(Zs(0), Vs(Vval).laplace())
+        # TODO, FIXME
+        self.Voc = Vsuper(Vs(Vval.laplace()))
         self.assumptions_infer(Vval)
 
 
@@ -835,7 +838,7 @@ class sI(CurrentSource):
 
         self.args = (Ival, )
         Ival = sExpr(Ival)
-        super(sI, self).__init__(Ys(0), Is(Ival))
+        self.Isc = Isuper(Is(Ival))
 
 
 class I(CurrentSource):
@@ -848,10 +851,12 @@ class I(CurrentSource):
     def __init__(self, Ival):
 
         self.args = (Ival, )
-        Isym = tsExpr(Ival)
-        self.Iscc = Is(Isym)
-        
+        if isinstance(Ival, (Ic, Ip, In, Is, Isuper)):
+            self.Isc = Isuper(Ival)
+        else: 
+            self.Isc = Isuper(Ival)
 
+            
 class Istep(CurrentSource):
     """Step current source (s domain current of i / s)."""
 
@@ -877,7 +882,7 @@ class Idc(CurrentSource):
 
         self.args = (i, )
         i = cExpr(i)
-        self.Isc = Ic(i, dc=True)
+        self.Isc = Isuper(Ic(i, dc=True))
         self.i0 = i
 
     @property
@@ -899,7 +904,7 @@ class Iac(CurrentSource):
         self.omega = symbol('omega_1', real=True)
         self.i0 = I
         self.phi = phi
-        self.Isc = Ip(self.i0 * exp(j * self.phi), ac=True)
+        self.Isc = Isuper(Ip(self.i0 * exp(j * self.phi), ac=True))
 
 
     @property
@@ -926,7 +931,8 @@ class i(CurrentSource):
 
         self.args = (ival, )
         Ival = tExpr(ival)
-        super(I, self).__init__(Is(Ival.laplace()))
+        # TODO: FIXME
+        self.Isc = Vsuper(Is(Ival.laplace()))        
         self.assumptions_infer(Ival)
 
 
