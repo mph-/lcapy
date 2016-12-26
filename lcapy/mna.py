@@ -5,7 +5,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from lcapy.core import cExpr, Vtype, Itype, s, sqrt, Exprdict
+from lcapy.core import cExpr, s, sqrt, Exprdict, vtype_select, itype_select
 from lcapy.core import Matrix, Vector
 import sympy as sym
 
@@ -241,7 +241,6 @@ class MNA(object):
         results = sym.simplify(Ainv * self._Z)
 
         results = results.subs(self.context.symbols)
-        assumptions = self.assumptions
 
         branchdict = {}
         for elt in self.elements.values():
@@ -252,23 +251,26 @@ class MNA(object):
 
         self.context.switch()
 
+        assumptions = self.assumptions        
+        vtype = vtype_select(self.kind)
+        itype = itype_select(self.kind)        
+        
         # Create dictionary of node voltages
         self._Vdict = Nodedict()
-        self._Vdict['0'] = Vtype(0, **assumptions)
+        self._Vdict['0'] = vtype(0, **assumptions)
         for n in self.nodes:
             index = self._node_index(n)
             if index >= 0:
-                self._Vdict[n] = Vtype(results[index].simplify(), **assumptions)
+                self._Vdict[n] = vtype(results[index].simplify())
             else:
-                self._Vdict[n] = Vtype(0, **assumptions)
+                self._Vdict[n] = vtype(0)
 
         num_nodes = len(self.node_list) - 1
 
         # Create dictionary of branch currents through elements
         self._Idict = Branchdict()
         for m, key in enumerate(self.unknown_branch_currents):
-            self._Idict[key] = Itype(results[m + num_nodes].simplify(),
-                                     **assumptions)
+            self._Idict[key] = itype(results[m + num_nodes].simplify())
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
@@ -278,7 +280,7 @@ class MNA(object):
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
                 I = (V1 - V2) / elt.Z
-                self._Idict[elt.name] = Itype(I.simplify(), **assumptions)
+                self._Idict[elt.name] = itype(I.simplify())
             elif elt.type in ('I', ):
                 self._Idict[elt.name] = elt.Isc
 

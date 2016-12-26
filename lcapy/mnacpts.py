@@ -136,6 +136,17 @@ class Cpt(object):
             raise ValueError('%s is not a source' % self)
 
     @property
+    def is_s(self):
+        """Return True if source is s-domain"""
+
+        if self.cpt.voltage_source:
+            return self.cpt.Voc.is_s
+        elif self.cpt.current_source:
+            return self.cpt.Isc.is_s
+        else:
+            raise ValueError('%s is not a source' % self)        
+
+    @property
     def is_noisy(self):
         """Return True if source is noisy"""
 
@@ -185,13 +196,17 @@ class Cpt(object):
     @property
     def Isc(self):
         """Short-circuit current"""
-        
+
+        if self.cct.kind == 'super':
+            return self.cpt.Isc
         return self.cpt.Isc.select(self.cct.kind)
 
     @property
     def Voc(self):
         """Open-circuit voltage"""
-        
+
+        if self.cct.kind == 'super':
+            return self.cpt.Voc
         return self.cpt.Voc.select(self.cct.kind)
 
     @property

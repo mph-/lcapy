@@ -23,12 +23,10 @@ class LcapyTester(unittest.TestCase):
         """
         a = R(10)
         self.assertEqual2(a.Z, 10, "Z incorrect.")
-        self.assertEqual2(a.Voc, 0, "Voc incorrect.")
+        self.assertEqual2(a.Voc.s, 0, "Voc incorrect.")
         self.assertEqual2(a.voc, 0, "voc incorrect.")
-        self.assertEqual2(a.Isc, 0, "Isc incorrect.")
-        self.assertEqual2(a.I, 0, "I incorrect.")
+        self.assertEqual2(a.Isc.s, 0, "Isc incorrect.")
         self.assertEqual2(a.isc, 0, "isc incorrect.")
-        self.assertEqual2(a.i, 0, "i incorrect.")
 
     def test_L(self):
         """Lcapy: check L
@@ -36,9 +34,7 @@ class LcapyTester(unittest.TestCase):
         """
         a = L(10, 5)
         self.assertEqual2(a.Z, 10 * s, "Z incorrect.")
-        self.assertEqual2(a.Voc, -10 * 5, "Voc incorrect.")
-        self.assertEqual2(a.I, 0, "I incorrect.")
-        self.assertEqual2(a.i, 0, "i incorrect.")
+        self.assertEqual2(a.Voc.s, -10 * 5, "Voc incorrect.")
 
     def test_C(self):
         """Lcapy: check C
@@ -47,7 +43,7 @@ class LcapyTester(unittest.TestCase):
         a = C(10, 5)
 
         self.assertEqual2(a.Z, 1 / (10 * s), "Z incorrect.")
-        self.assertEqual2(a.Voc, 5 / s, "Voc incorrect.")
+        self.assertEqual2(a.Voc.s, 5 / s, "Voc incorrect.")
 
     def test_R_series_R(self):
         """Lcapy: check R + R
@@ -86,7 +82,7 @@ class LcapyTester(unittest.TestCase):
         a = Vdc(10) + Vdc(5)
         b = a.simplify()
         self.assertEqual2(b.voc, Vdc(15).voc, "voc incorrect.")
-        self.assertEqual2(b.Voc, 15 / s, "Voc incorrect.")
+        self.assertEqual(b.Voc.dc, 15, "Voc incorrect.")
         self.assertEqual2(type(b), Vdc, "type incorrect.")
         self.assertEqual2(b.voc, 15, "voc incorrect.")
 
@@ -134,7 +130,7 @@ class LcapyTester(unittest.TestCase):
         a = Idc(10) | Idc(5)
         b = a.simplify()
         self.assertEqual2(b.isc, Idc(15).isc, "isc incorrect.")
-        self.assertEqual2(b.Isc, 15 / s, "Isc incorrect.")
+        self.assertEqual2(b.Isc.s, 15 / s, "Isc incorrect.")
         self.assertEqual2(type(b), Idc, "type incorrect.")
         self.assertEqual2(b.isc, 15, "isc incorrect.")
 
@@ -192,7 +188,7 @@ class LcapyTester(unittest.TestCase):
         omega1 = symbol('omega_1', real=True)
 
         a = Idc(10)
-        self.assertEqual2(a.isc, 10, "DC incorrect.")        
+        self.assertEqual(a.isc, 10, "DC incorrect.")        
 
         a = Istep(10)
         self.assertEqual2(a.isc, 10 * Heaviside(t), "Step incorrect.")

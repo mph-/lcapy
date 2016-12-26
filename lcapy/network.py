@@ -157,8 +157,6 @@ class Network(object):
         if hasattr(self, '_cct'):
             return self._cct
 
-        import pdb; pdb.set_trace()
-        
         netlist = self.netlist()
         cct = Circuit()
         for net in netlist.split('\n'):
@@ -168,7 +166,7 @@ class Network(object):
 
     @property    
     def initial_value_problem(self):
-        return self.cct.initial_value_problem()
+        return self.cct.initial_value_problem
 
     @property
     def is_dc(self):

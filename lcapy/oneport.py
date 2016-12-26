@@ -22,7 +22,7 @@ from __future__ import division
 import sympy as sym
 from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr
 from lcapy.core import cos, exp, symbol, j, Vp, Ip, It, Vc, Ic, Vn, In
-from lcapy.core import Itype, Vtype, Vsuper, Isuper, pretty
+from lcapy.core import Vsuper, Isuper, pretty
 from lcapy.sympify import symbols_find
 from lcapy.network import Network
 
@@ -736,10 +736,7 @@ class V(VoltageSource):
     def __init__(self, Vval):
 
         self.args = (Vval, )
-        if isinstance(Vval, (Vc, Vp, Vn, Vs, Vsuper)):
-            self.Voc = Vsuper(Vval)
-        else:
-            self.Voc = Vsuper(Vval)
+        self.Voc = Vsuper(Vval)
 
         
 class Vstep(VoltageSource):
@@ -751,7 +748,7 @@ class Vstep(VoltageSource):
 
         self.args = (v, )
         v = cExpr(v)
-        self.Voc = Vsuper(Vs(v, causal=True) / s)
+        self.Voc = Vsuper(Vs(tExpr(v).laplace(), causal=True))
         self.v0 = v
 
 
@@ -851,10 +848,7 @@ class I(CurrentSource):
     def __init__(self, Ival):
 
         self.args = (Ival, )
-        if isinstance(Ival, (Ic, Ip, In, Is, Isuper)):
-            self.Isc = Isuper(Ival)
-        else: 
-            self.Isc = Isuper(Ival)
+        self.Isc = Isuper(Ival)
 
             
 class Istep(CurrentSource):
@@ -866,9 +860,7 @@ class Istep(CurrentSource):
 
         self.args = (i, )
         i = cExpr(i)
-        super(Istep, self).__init__(Is(i, causal=True) / s)
-        # This is not needed when assumptions propagated.
-        self.Isc.is_causal = True
+        self.Isc = Isuper(Is(tExpr(i).laplace(), causal=True))        
         self.i0 = i
 
 

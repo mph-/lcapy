@@ -179,7 +179,7 @@ class LcapyTester(unittest.TestCase):
         a = Circuit()
         a.add('V1 1 0 10') 
 
-        self.assertEqual2(a.V1.V, 10 / s, "Incorrect voltage")
+        self.assertEqual(a.V1.V.dc, 10, "Incorrect voltage")
 
 
     def test_VRL1_dc(self):
@@ -201,7 +201,7 @@ class LcapyTester(unittest.TestCase):
 
         """
 
-        # This currently fails due to two symbols of the same name
+        # TODO: This currently fails due to two symbols of the same name
         # having different assumptions.
 
         a = Circuit()
@@ -209,7 +209,7 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2')
         a.add('L1 2 0 L1 {(V1 + 1) / R1}')
         # This tests if symbols are converted to the defined ones.
-        self.assertEqual2(a.L1.v, V(0).Voc.inverse_laplace(**a.assumptions), 
+        self.assertEqual2(a.L1.v, V(0).Voc.s.inverse_laplace(**a.assumptions), 
                           "Incorrect time domain voltage")        
         v = Vs('(V1+1)/s', dc=False).inverse_laplace()
         self.assertEqual2(a.R1.v, v, 
@@ -223,7 +223,7 @@ class LcapyTester(unittest.TestCase):
 
         """
 
-        # This currently fails due to two symbols of the same name
+        # TODO: This currently fails due to two symbols of the same name
         # having different assumptions.
 
         a = Circuit()
@@ -246,8 +246,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.initial_value_problem, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, True, "AC incorrect")
-        self.assertEqual(a.R1.I, a.L1.Isc, "currents different")
-        self.assertEqual(-a.V1.I, a.L1.Isc, "currents different")
+        self.assertEqual(a.R1.I, a.L1.I, "currents different")
+        self.assertEqual(-a.V1.I, a.L1.I, "currents different")
 
 
     def test_transfer(self):
@@ -276,7 +276,7 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 {V(s)}') 
         a.add('R1 1 2') 
         a.add('C1 2 0 C1 0') 
-        H = a[2].V / a[1].V
+        H = a[2].V.s / a[1].V.s
 
         self.assertEqual2(H, 1 / (s * 'R1' * 'C1' + 1),  "Incorrect ratio")
     

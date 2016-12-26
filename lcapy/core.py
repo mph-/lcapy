@@ -1629,7 +1629,7 @@ class tExpr(Expr):
         F = laplace_transform(self, self.var, ssym)
 
         if hasattr(self, '_laplace_conjugate_class'):
-            F = self._laplace_conjugate_class(F)
+            F = self._laplace_conjugate_class(F, **self.assumptions)
         return F
 
     def fourier(self):
@@ -2438,26 +2438,6 @@ def delta(expr, *args):
     return DiracDelta(expr, *args)
 
 
-def Vtype(val, **assumptions):
-
-    if assumptions.get('ac', False):
-        return Vp(val, **assumptions)
-    elif assumptions.get('dc', False):
-        return Vc(val, **assumptions)    
-    else:
-        return Vs(val, **assumptions).canonical()
-
-
-def Itype(val, **assumptions):
-
-    if assumptions.get('ac', False):
-        return Ip(val, **assumptions)
-    elif assumptions.get('dc', False):
-        return Ic(val, **assumptions)    
-    else:
-        return Is(val, **assumptions).canonical()
-
-
 class Super(Exprdict):
 
     def __init__(self, *args):
@@ -2573,6 +2553,7 @@ class Super(Exprdict):
             return self.add(omegaExpr(string))
 
         if 'f' in symbols:
+            # TODO, handle AC of different frequency
             return self.add(fExpr(string))
 
         # TODO, split into a superposition
@@ -2583,13 +2564,19 @@ class Super(Exprdict):
         if tval.is_ac:
             return self.add(tval.phasor())
 
-        return self.add(tval.laplace())
+        sval = tval.laplace()
+        return self.add(sval)
     
     
     def add(self, value):
         if value == 0:
             return
 
+        if isinstance(value, Super):
+            for kind, value in value.items():
+                self.add(value)
+            return
+        
         if isinstance(value, six.string_types):
             return self._parse(value)
 
@@ -2631,7 +2618,7 @@ class Super(Exprdict):
         result = self.time_class(0)
         
         # TODO, integrate noise
-        for val in self:
+        for val in self.values():
             if hasattr(val, 'time'):
                 result += val.time()
             else:
@@ -2720,5 +2707,13 @@ class Isuper(Super):
         return self * Zs(1 / x)
 
 
+def vtype_select(kind):
+    return {'s' : Vs, 'n' : Vn, 'ac' : Vp, 'dc' : Vc}[kind]
+
+
+def itype_select(kind):
+    return {'s' : Vs, 'n' : Vn, 'ac' : Vp, 'dc' : Vc}[kind]
+
+    
 init = True
 from lcapy.oneport import L, C, R, G, Idc, Vdc, Iac, Vac, I, V, Z, Y

@@ -12,7 +12,7 @@ Copyright 2014-2016 Michael Hayes, UCECE
 from __future__ import division
 from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym, Vt, It
 from lcapy.core import s, j, omega, uppercase_name, global_context
-from lcapy.core import Vtype, sqrt, Vsuper, Isuper
+from lcapy.core import sqrt, Vsuper, Isuper
 from lcapy.schematic import Schematic, Opts, SchematicOpts
 from lcapy.mna import MNA, Nodedict, Branchdict
 from lcapy.netfile import NetfileMixin
@@ -208,18 +208,22 @@ class NetlistMixin(object):
 
         from lcapy.oneport import V, Z
 
-        Voc = self.Voc(Np, Nm)
+        # TODO, think about ac circuit
+        Voc = self.Voc(Np, Nm).s
+        Zoc = self.impedance(Np, Nm)
 
-        return V(Voc) + Z(self.impedance(Np, Nm))
+        return V(Voc) + Z(Zoc)
 
     def norton(self, Np, Nm):
         """Return Norton model between nodes Np and Nm."""
 
         from lcapy.oneport import I, Y
 
-        Isc = self.Isc(Np, Nm)
-
-        return I(Isc) | Y(self.admittance(Np, Nm))
+        # TODO, think about ac circuit
+        Isc = self.Isc(Np, Nm).s
+        Ysc = self.admittance(Np, Nm)
+        
+        return I(Isc) | Y(Ysc)
 
     def admittance(self, Np, Nm):
         """Return admittance between nodes Np and Nm with independent 
@@ -235,7 +239,7 @@ class NetlistMixin(object):
         If = -new.Vin_.I
         new.remove('Vin_')
 
-        return Ys(If)
+        return Ys(If.s)
 
     def impedance(self, Np, Nm):
         """Return impedance between nodes Np and Nm with independent
@@ -251,7 +255,7 @@ class NetlistMixin(object):
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
-        return Zs(Vf)
+        return Zs(Vf.s)
 
     def transfer(self, N1p, N1m, N2p, N2m):
         """Create voltage transfer function V2 / V1 where:
@@ -266,7 +270,7 @@ class NetlistMixin(object):
         V2 = new.Voc(N2p, N2m)
         V1 = new.V1_.V
 
-        return Hs(V2 / V1, causal=True)
+        return Hs(V2.s / V1.s, causal=True)
 
     def Amatrix(self, N1p, N1m, N2p, N2m):
         """Create A matrix from network, where:
@@ -286,11 +290,11 @@ class NetlistMixin(object):
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
-            A11 = Hs(self.V1_.V / self.Voc(N2p, N2m))
+            A11 = Hs(self.V1_.V.s / self.Voc(N2p, N2m).s)
 
             # A12 = V1 / I2 with V2 = 0
             # Apply V1 and measure I2 with port 2 short-circuit
-            A12 = Zs(self.V1_.V / self.Isc(N2p, N2m))
+            A12 = Zs(self.V1_.V.s / self.Isc(N2p, N2m).s)
 
             self.remove('V1_')
 
@@ -298,11 +302,11 @@ class NetlistMixin(object):
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
-            A21 = Ys(-self.I['I1_'] / self.Voc(N2p, N2m))
+            A21 = Ys(-self.I['I1_'].s / self.Voc(N2p, N2m).s)
 
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure I2 with port 2 short-circuit
-            A22 = Hs(-self.I['I1_'] / self.Isc(N2p, N2m))
+            A22 = Hs(-self.I['I1_'].s / self.Isc(N2p, N2m).s)
 
             self.remove('I1_')
             return AMatrix(A11, A12, A21, A22)
@@ -319,7 +323,8 @@ class NetlistMixin(object):
             if cpt.name in self.control_sources:
                 net = cpt.zero()                
             elif cpt.name in sourcenames:
-                net = cpt.kill()
+                # TODO: Add killed attribute for schematic
+                net = cpt.zero()
             elif 'ICs' in sourcenames:
                 net = cpt.kill_initial()
             else:
@@ -602,6 +607,8 @@ class NetlistMixin(object):
         """Return dictionary of independent sources (this does not include
         implicit sources due to initial conditions)."""
 
+        # TODO, ignore zero sources
+
         return dict((key, cpt) for key, cpt in self.elements.items() if cpt.source)
 
     @property
@@ -627,10 +634,10 @@ class NetlistMixin(object):
                 result.append(source)
             elif cpt.is_noisy and kind == 'n':
                 result.append(source)
-            elif not cpt.is_dc and not cpt.is_ac and kind == 's':
+            elif cpt.is_s and kind == 's':
                 result.append(source)
 
-        if kind == 's':
+        if kind == 's' and self.initial_value_problem:
             result.append('ICs')
         return result
 
@@ -656,6 +663,7 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         super (Netlist, self).__init__(filename, context)
         self._invalidate()
+        self.kind = 'super'
 
     def _invalidate(self):
 
