@@ -2205,14 +2205,16 @@ class If(omegaExpr):
 
 
 class noiseExpr(omegaExpr):
-    """Frequency domain noise spectrum expression.   When 
-    performing arithmetic on two noiseExpr expressions it
-    is assumed that they are correlated, so 3 + 4 = 7
-    and not 5 if added on a power basis.
+    """Frequency domain (one-sided) noise spectrum expression.  When
+    performing arithmetic on two noiseExpr expressions it is assumed
+    that they are correlated, so 3 + 4 = 7 and not 5 if added on a
+    power basis.
 
-    The Super class handles uncorrelated noise."""
+    The Super class handles uncorrelated noise.
+
+    """
     pass
-    
+
 
 class Vn(noiseExpr):
 
@@ -2227,7 +2229,14 @@ class Vn(noiseExpr):
         # FIXME
         self._fourier_conjugate_class = Vt
 
+    def time(self):
+        """Calculate rms noise voltage."""
 
+        rms = sym.sqrt(sym.integrate(self.expr**2, (self.var, 0, sym.oo)))
+        # TODO: Use rms class?
+        return Vt(rms)
+
+        
 class In(noiseExpr):
 
     """f-domain noise current (units A/rtHz)"""
@@ -2239,7 +2248,14 @@ class In(noiseExpr):
 
         super(In, self).__init__(val, **assumptions)
         # FIXME        
-        self._fourier_conjugate_class = It        
+        self._fourier_conjugate_class = It
+
+    def time(self):
+        """Calculate rms noise current."""
+
+        rms = sym.sqrt(sym.integrate(self.expr**2, (self.var, 0, sym.oo)))
+        # TODO: Use rms class?
+        return It(rms)        
 
 
 class Yomega(omegaExpr):
@@ -2617,13 +2633,20 @@ class Super(Exprdict):
         if kind is None:
             raise ValueError('Cannot handle value %s of type %s' %
                              (value, type(value).__name__))
-        if kind not in self:
-            self[kind] = value
-        elif kind == 'n':
-            # Assume noise uncorrelated.
-            self[kind] = sqrt(self[kind] * self[kind] + value * value)
-        else:    
-            self[kind] += value                    
+
+        if kind == 'n':
+            valuesq = (value * value.conjugate).simplify()
+            if kind not in self:
+                self[kind] = sqrt(valuesq)
+            else:
+                # Assume noise uncorrelated.
+                value1sq = (self[kind] * self[kind].conjugate).simplify()
+                self[kind] = sqrt(value1sq + valuesq)
+        else:
+            if kind not in self:
+                self[kind] = value
+            else:    
+                self[kind] += value                    
     
     @property    
     def dc(self):
