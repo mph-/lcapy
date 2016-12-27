@@ -794,7 +794,7 @@ class Vac(VoltageSource):
         return self.v0 * cos(self.omega * t + self.phi)
 
 
-class Vnoise(Vac):
+class Vnoise(VoltageSource):
     """Noise voltage source."""
 
     netkeyword = 'noise'
@@ -803,8 +803,7 @@ class Vnoise(Vac):
     def __init__(self, V):
 
         self.args = (V, )
-        # TODO
-        # self.Voc = Vn(V)
+        self.Voc = Vsuper(Vn(V))
 
         
 class v(VoltageSource):
@@ -904,7 +903,7 @@ class Iac(CurrentSource):
         return self.i0 * cos(self.omega * t + self.phi)
 
 
-class Inoise(Iac):
+class Inoise(CurrentSource):
     """Noise current source."""
 
     netkeyword = 'noise'
@@ -912,8 +911,8 @@ class Inoise(Iac):
 
     def __init__(self, I):
 
-        super(Inoise, self).__init__(I, 0)
         self.args = (I, )
+        self.Isc = Isuper(In(I))        
 
         
 class i(CurrentSource):

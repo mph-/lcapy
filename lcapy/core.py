@@ -44,8 +44,8 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Hs', 'Is', 'Vs', 'Ys', 'Zs',
            'Ht', 'It', 'Vt', 'Yt', 'Zt',
            'Hf', 'If', 'Vf', 'Yf', 'Zf',
-           'Iphasor', 'Vphasor', 'In', 'Vn', 'Vconst', 'Iconst',
-           'Isuper', 'Vsuper',
+           'Iphasor', 'Vphasor', 'In', 'Vn',
+           'Vconst', 'Iconst', 'Isuper', 'Vsuper',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
 func_pattern = re.compile(r"\\operatorname{(.*)}")
@@ -367,6 +367,9 @@ class Expr(object):
 
         if isinstance(self, sExpr) and isinstance(x, sExpr):
             return cls
+
+        if isinstance(self, omegaExpr) and isinstance(x, omegaExpr):
+            return cls        
 
         if isinstance(self, Phasor) and isinstance(x, Phasor):
             return cls
@@ -1575,7 +1578,7 @@ class omegaExpr(sfwExpr):
         return self(2 * pi * f).inverse_fourier()
 
     
-    def time():
+    def time(self):
         """Alias for inverse_fourier"""
         
         return self.inverse_fourier()

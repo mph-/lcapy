@@ -1,4 +1,4 @@
-from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs
+from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn
 from lcapy.core import Zs, s, t
 import unittest
 import sympy as sym
@@ -280,3 +280,21 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(H, 1 / (s * 'R1' * 'C1' + 1),  "Incorrect ratio")
     
+    def test_noise1(self):
+        """Lcapy: check circuit noise for voltage divider"""
+
+        a = Circuit()
+        a.add('V1 1 0 noise 3') 
+        a.add('R1 1 2 2')
+        a.add('R2 2 0 4')         
+        self.assertEqual2(a.R1.V.n, Vn(1), "Incorrect ratio")
+
+    def test_noise1(self):
+        """Lcapy: check circuit noise for pair of sources"""
+
+        a = Circuit()
+        a.add('V1 1 0 noise 3')
+        a.add('V2 2 1 noise 4')
+        a.add('R1 2 0 5')
+        self.assertEqual2(a.R1.V.n, Vn(5), "Incorrect noise sum")        
+        
