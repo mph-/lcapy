@@ -44,7 +44,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
            'Hs', 'Is', 'Vs', 'Ys', 'Zs',
            'Ht', 'It', 'Vt', 'Yt', 'Zt',
            'Hf', 'If', 'Vf', 'Yf', 'Zf',
-           'Ip', 'Vp', 'In', 'Vn', 'Vc', 'Ic',
+           'Iphasor', 'Vphasor', 'In', 'Vn', 'Vconst', 'Iconst',
            'Isuper', 'Vsuper',
            'Homega', 'Iomega', 'Vomega', 'Yomega', 'Zomega')
 
@@ -1701,11 +1701,11 @@ class Phasor(sfwExpr):
         return self.__class__(self, **self.assumptions)
 
 
-class Vp(Phasor):
+class Vphasor(Phasor):
 
     def __init__(self, val, **assumptions):
 
-        super(Vp, self).__init__(val, **assumptions)
+        super(Vphasor, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Vt
 
     def cpt(self):
@@ -1717,11 +1717,11 @@ class Vp(Phasor):
         return V(self)
 
 
-class Ip(Phasor):
+class Iphasor(Phasor):
 
     def __init__(self, val, **assumptions):
 
-        super(Ip, self).__init__(val, **assumptions)
+        super(Iphasor, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = It
     
     def cpt(self):
@@ -1733,11 +1733,11 @@ class Ip(Phasor):
         return I(self)
 
 
-class Vc(cExpr):
+class Vconst(cExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Vc, self).__init__(val, **assumptions)
+        super(Vconst, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Vt
 
     def cpt(self):
@@ -1747,11 +1747,11 @@ class Vc(cExpr):
         return Vt(self)
 
 
-class Ic(cExpr):
+class Iconst(cExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Ic, self).__init__(val, **assumptions)
+        super(Iconst, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = It
     
     def cpt(self):
@@ -2527,7 +2527,7 @@ class Super(Exprdict):
             new[kind] = value * x
         return new
 
-    # TODO, this kills Ipython
+    # TODO, this kills Iphasorython
     # def __eq__(self, x):
     #     diff = self - x
     #     for kind, value in diff.items():
@@ -2655,8 +2655,8 @@ class Super(Exprdict):
     
 class Vsuper(Super):
 
-    type_map = {cExpr: Vc, sExpr : Vs, omegaExpr: Vp}
-    transform_domains = {'s': Vs, 'ac' : Vp, 'dc' : Vc, 'n' : Vn}
+    type_map = {cExpr: Vconst, sExpr : Vs, omegaExpr: Vphasor}
+    transform_domains = {'s': Vs, 'ac' : Vphasor, 'dc' : Vconst, 'n' : Vn}
     time_class = Vt
 
     def __mul__(self, x):
@@ -2669,7 +2669,7 @@ class Vsuper(Super):
         new = Isuper()
         if 'dc' in self:
             # TODO, fix types
-            new += Ic(self['dc'] * cExpr(x.jomega(0)))
+            new += Iconst(self['dc'] * cExpr(x.jomega(0)))
         if 'ac' in self:
             new += self['ac'] * x.jomega
         if 'n' in self:
@@ -2690,8 +2690,8 @@ class Vsuper(Super):
 
 class Isuper(Super):
 
-    type_map = {cExpr: Ic, sExpr : Is, omegaExpr: Ip}
-    transform_domains = {'s': Is, 'ac' : Ip, 'dc' : Ic, 'n' : In}
+    type_map = {cExpr: Iconst, sExpr : Is, omegaExpr: Iphasor}
+    transform_domains = {'s': Is, 'ac' : Iphasor, 'dc' : Iconst, 'n' : In}
     time_class = It    
 
     def __mul__(self, x):
@@ -2704,7 +2704,7 @@ class Isuper(Super):
         new = Vsuper()
         if 'dc' in self:
             # TODO, fix types            
-            new += Vc(self['dc'] * cExpr(x.jomega(0)))
+            new += Vconst(self['dc'] * cExpr(x.jomega(0)))
         if 'ac' in self:
             new += self['ac'] * x.jomega
         if 'n' in self:
@@ -2724,11 +2724,11 @@ class Isuper(Super):
 
 
 def vtype_select(kind):
-    return {'s' : Vs, 'n' : Vn, 'ac' : Vp, 'dc' : Vc}[kind]
+    return {'s' : Vs, 'n' : Vn, 'ac' : Vphasor, 'dc' : Vconst}[kind]
 
 
 def itype_select(kind):
-    return {'s' : Vs, 'n' : Vn, 'ac' : Vp, 'dc' : Vc}[kind]
+    return {'s' : Vs, 'n' : Vn, 'ac' : Vphasor, 'dc' : Vconst}[kind]
 
     
 init = True

@@ -21,7 +21,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 from __future__ import division
 import sympy as sym
 from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr
-from lcapy.core import cos, exp, symbol, j, Vp, Ip, It, Vc, Ic, Vn, In
+from lcapy.core import cos, exp, symbol, j, Vphasor, Iphasor, It, Vconst, Iconst, Vn, In
 from lcapy.core import Vsuper, Isuper, pretty
 from lcapy.sympify import symbols_find
 from lcapy.network import Network
@@ -762,7 +762,7 @@ class Vdc(VoltageSource):
 
         self.args = (v, )
         v = cExpr(v)
-        self.Voc = Vsuper(Vc(v, dc=True))
+        self.Voc = Vsuper(Vconst(v, dc=True))
         self.v0 = v
 
     @property
@@ -786,7 +786,7 @@ class Vac(VoltageSource):
         self.omega = symbol('omega_1', real=True)
         self.v0 = V
         self.phi = phi
-        self.Voc = Vsuper(Vp(self.v0 * exp(j * self.phi), ac=True))
+        self.Voc = Vsuper(Vphasor(self.v0 * exp(j * self.phi), ac=True))
 
 
     @property
@@ -874,7 +874,7 @@ class Idc(CurrentSource):
 
         self.args = (i, )
         i = cExpr(i)
-        self.Isc = Isuper(Ic(i, dc=True))
+        self.Isc = Isuper(Iconst(i, dc=True))
         self.i0 = i
 
     @property
@@ -896,7 +896,7 @@ class Iac(CurrentSource):
         self.omega = symbol('omega_1', real=True)
         self.i0 = I
         self.phi = phi
-        self.Isc = Isuper(Ip(self.i0 * exp(j * self.phi), ac=True))
+        self.Isc = Isuper(Iphasor(self.i0 * exp(j * self.phi), ac=True))
 
 
     @property
