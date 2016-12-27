@@ -12,7 +12,7 @@ Copyright 2014-2016 Michael Hayes, UCECE
 from __future__ import division
 from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym, Vt, It
 from lcapy.core import s, j, omega, uppercase_name, global_context
-from lcapy.core import sqrt, Vsuper, Isuper
+from lcapy.core import Vsuper, Isuper
 from lcapy.schematic import Schematic, Opts, SchematicOpts
 from lcapy.mna import MNA, Nodedict, Branchdict
 from lcapy.netfile import NetfileMixin

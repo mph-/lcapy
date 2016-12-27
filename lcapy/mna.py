@@ -6,7 +6,7 @@ Copyright 2014, 2015 Michael Hayes, UCECE
 
 from __future__ import division
 from lcapy.core import cExpr, s, sqrt, Exprdict, vtype_select, itype_select
-from lcapy.core import Matrix, Vector
+from lcapy.core import Matrix, Vector, Expr
 import sympy as sym
 
 # Note, all the maths is performed using sympy expressions and the

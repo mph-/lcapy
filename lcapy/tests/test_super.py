@@ -29,7 +29,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Vsuper(Vconst(2), Vphasor(3)).is_ac, False,
                           "Vsuper(Vconst(2), Vphasor(3)).is_dc")
         self.assertEqual(Vsuper(Vconst(2), Vphasor(3)).has_ac, True,
-                          "Vsuper(Vconst(2), Vphasor(3)).has_dc")                
+                         "Vsuper(Vconst(2), Vphasor(3)).has_dc")                
         
     def test_Vsuper_add_sub_dc(self):
         self.assertEqual2(Vsuper(3).dc, 3, "Vsuper(3).dc")
@@ -59,7 +59,13 @@ class LcapyTester(unittest.TestCase):
         
     def test_Vsuper_mul_div(self):
         self.assertEqual2(Vsuper(3) * Ys(2), Isuper(6), "Vsuper(3) * Ys(2)")
-        self.assertEqual2(Vsuper(12) / Zs(2), Isuper(6), "Vsuper(12) / Zs(2)")        
+        self.assertEqual2(Vsuper(12) / Zs(2), Isuper(6), "Vsuper(12) / Zs(2)")
+
+    def test_Vsuper_noise(self):
+        self.assertEqual2(Vn(3) + Vn(4), Vn(7), "Vn(3) + Vn(4)")
+        self.assertEqual2(Vsuper(Vn(3)) + Vsuper(Vn(4)), Vsuper(Vn(5)),
+                          "Vsuper(Vn(3)) + Vsuper(Vn(4))")
+        
         
         
         

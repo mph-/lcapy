@@ -2201,7 +2201,17 @@ class If(omegaExpr):
         self._fourier_conjugate_class = It
 
 
-class Vn(omegaExpr):
+class noiseExpr(omegaExpr):
+    """Frequency domain noise spectrum expression.   When 
+    performing arithmetic on two noiseExpr expressions it
+    is assumed that they are correlated, so 3 + 4 = 7
+    and not 5 if added on a power basis.
+
+    The Super class handles uncorrelated noise."""
+    pass
+    
+
+class Vn(noiseExpr):
 
     """f-domain noise voltage (units V/rtHz)"""
 
@@ -2215,7 +2225,7 @@ class Vn(omegaExpr):
         self._fourier_conjugate_class = Vt
 
 
-class In(omegaExpr):
+class In(noiseExpr):
 
     """f-domain noise current (units A/rtHz)"""
 
@@ -2590,22 +2600,25 @@ class Super(Exprdict):
         if isinstance(value, (int, float)):
             return self.add(self.transform_domains['dc'](value))
 
-        if value.__class__ in self.type_map:
-            value = self.type_map[value.__class__](value)
-        else:
-            for cls1, cls2 in self.type_map.items():
-                if isinstance(value, cls1):
-                    value = cls2(value)
-                    break
-            
         kind = self._kind(value)
+        if kind is None:
+            if value.__class__ in self.type_map:
+                value = self.type_map[value.__class__](value)
+            else:
+                for cls1, cls2 in self.type_map.items():
+                    if isinstance(value, cls1):
+                        value = cls2(value)
+                        break
+            kind = self._kind(value)            
+
         if kind is None:
             raise ValueError('Cannot handle value %s of type %s' %
                              (value, type(value).__name__))
         if kind not in self:
             self[kind] = value
         elif kind == 'n':
-            self[kind] = sqrt(value**2 + self[kind]**2)
+            # Assume noise uncorrelated.
+            self[kind] = sqrt(self[kind] * self[kind] + value * value)
         else:    
             self[kind] += value                    
     
@@ -2655,7 +2668,7 @@ class Super(Exprdict):
     
 class Vsuper(Super):
 
-    type_map = {cExpr: Vconst, sExpr : Vs, omegaExpr: Vphasor}
+    type_map = {cExpr: Vconst, sExpr : Vs, noiseExpr: Vn, omegaExpr: Vphasor}
     transform_domains = {'s': Vs, 'ac' : Vphasor, 'dc' : Vconst, 'n' : Vn}
     time_class = Vt
 
@@ -2690,7 +2703,7 @@ class Vsuper(Super):
 
 class Isuper(Super):
 
-    type_map = {cExpr: Iconst, sExpr : Is, omegaExpr: Iphasor}
+    type_map = {cExpr: Iconst, sExpr : Is, noiseExpr: In, omegaExpr: Iphasor}
     transform_domains = {'s': Is, 'ac' : Iphasor, 'dc' : Iconst, 'n' : In}
     time_class = It    
 
