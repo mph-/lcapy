@@ -1,4 +1,4 @@
-from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn
+from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn, Vt
 from lcapy.core import Zs, s, t
 import unittest
 import sympy as sym
@@ -306,3 +306,13 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2 2')
         a.add('C1 2 0 4')         
 #        self.assertEqual2(a.R1.V.n, Vn(1), "Incorrect ratio")
+
+
+    def test_filtered_noise2(self):
+        """Lcapy: check circuit filtered noise"""
+
+        a = Circuit()
+        a.add('V1 1 0 noise {sqrt(4 * k * T * R)}') 
+        a.add('R1 1 2 R')
+        a.add('C1 2 0 C')         
+        self.assertEqual2(a.C1.V.n.rms, Vt('sqrt(k * T / C)'), "Incorrect ratio")

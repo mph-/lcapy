@@ -144,7 +144,9 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
                   (symbol.name, string))
 
         if symbol.name not in symbols:
-            # print('Added symbol %s' % symbol.name)
+            if False:
+                print('Added symbol %s: real=%s, positive=%s' %
+                      (symbol.name, symbol.is_real, symbol.is_positive))
             symbols[symbol.name] = symbol
 
     return s

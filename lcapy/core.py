@@ -183,8 +183,10 @@ class Exprdict(dict):
     
 
 class Expr(object):
-
+   
     """Decorator class for sympy classes derived from sympy.Expr"""
+
+    one_sided = False    
 
     # Perhaps have lookup table for operands to determine
     # the resultant type?  For example, Vs / Vs -> Hs
@@ -1562,7 +1564,7 @@ class omegaExpr(sfwExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(omegaExpr, self).__init__(val, real=True)
+        super(omegaExpr, self).__init__(val, real=True, **assumptions)
         self._fourier_conjugate_class = tExpr
 
         if self.expr.find(ssym) != set():
@@ -1682,7 +1684,7 @@ class cExpr(Expr):
                 'constant expression %s cannot depend on t' % val)
 
         assumptions['real'] = True
-        super(cExpr, self).__init__(val, **assumptions)
+        super(cExpr, self).__init__(val, positive=True, **assumptions)
 
 
 class Phasor(sfwExpr):
@@ -2213,7 +2215,7 @@ class noiseExpr(omegaExpr):
     The Super class handles uncorrelated noise.
 
     """
-    pass
+    one_sided = True
 
 
 class Vn(noiseExpr):
@@ -2225,14 +2227,19 @@ class Vn(noiseExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Vn, self).__init__(val, **assumptions)
+        super(Vn, self).__init__(val, positive=True, **assumptions)
         # FIXME
         self._fourier_conjugate_class = Vt
 
     def time(self):
+        # TODO, return noise object with specified autocorrelation?
+        return 0
+        
+    def rms(self):
         """Calculate rms noise voltage."""
 
-        rms = sym.sqrt(sym.integrate(self.expr**2, (self.var, 0, sym.oo)))
+        P = sym.integrate(self.expr**2, (self.var, 0, sym.oo)) / (2 * sym.pi)
+        rms = sym.sqrt(P)        
         # TODO: Use rms class?
         return Vt(rms)
 
@@ -2246,16 +2253,21 @@ class In(noiseExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(In, self).__init__(val, **assumptions)
+        super(In, self).__init__(val, positive=True, **assumptions)
         # FIXME        
         self._fourier_conjugate_class = It
 
     def time(self):
+        # TODO, return noise object with specified autocorrelation?
+        return 0
+
+    def rms(self):
         """Calculate rms noise current."""
 
-        rms = sym.sqrt(sym.integrate(self.expr**2, (self.var, 0, sym.oo)))
+        P = sym.integrate(self.expr**2, (self.var, 0, sym.oo)) / (2 * sym.pi)
+        rms = sym.sqrt(P)
         # TODO: Use rms class?
-        return It(rms)        
+        return It(rms)
 
 
 class Yomega(omegaExpr):

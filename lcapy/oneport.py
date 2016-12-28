@@ -617,7 +617,7 @@ class R(OnePort):
     def __init__(self, Rval):
 
         self.args = (Rval, )
-        self.R = cExpr(Rval, positive=True)
+        self.R = cExpr(Rval)
         self.Z = Zs.R(self.R)
 
 
@@ -627,7 +627,7 @@ class G(OnePort):
     def __init__(self, Gval):
 
         self.args = (Gval, )
-        self.G = cExpr(Gval, positive=True)
+        self.G = cExpr(Gval)
         self.Z = 1 / Ys.G(self.G)
 
     def net_make(self, net, n1=None, n2=None):
@@ -655,7 +655,7 @@ class L(OnePort):
         else:
             self.args = (Lval, )
 
-        Lval = cExpr(Lval, positive=True)
+        Lval = cExpr(Lval)
         i0 = cExpr(i0)
         self.L = Lval
         self.i0 = i0
@@ -680,7 +680,7 @@ class C(OnePort):
         else:
             self.args = (Cval, )
 
-        Cval = cExpr(Cval, positive=True)
+        Cval = cExpr(Cval)
         v0 = cExpr(v0)
         self.C = Cval
         self.v0 = v0
@@ -912,7 +912,7 @@ class Inoise(CurrentSource):
     def __init__(self, I):
 
         self.args = (I, )
-        self.Isc = Isuper(In(I))        
+        self.Isc = Isuper(In(I))
 
         
 class i(CurrentSource):
@@ -937,10 +937,10 @@ class Xtal(OnePort):
 
     def __init__(self, C0, R1, L1, C1):
 
-        self.C0 = cExpr(C0, positive=True)
-        self.R1 = cExpr(R1, positive=True)
-        self.L1 = cExpr(L1, positive=True)
-        self.C1 = cExpr(C1, positive=True)
+        self.C0 = cExpr(C0)
+        self.R1 = cExpr(R1)
+        self.L1 = cExpr(L1)
+        self.C1 = cExpr(C1)
 
         N = self.expand()
         super(Xtal, self).__init__(N.Z, N.V)
@@ -960,10 +960,10 @@ class FerriteBead(OnePort):
 
     def __init__(self, Rs, Rp, Cp, Lp):
 
-        self.Rs = cExpr(Rs, positive=True)
-        self.Rp = cExpr(Rp, positive=True)
-        self.Cp = cExpr(Cp, positive=True)
-        self.Lp = cExpr(Lp, positive=True)
+        self.Rs = cExpr(Rs)
+        self.Rp = cExpr(Rp)
+        self.Cp = cExpr(Cp)
+        self.Lp = cExpr(Lp)
 
         N = self.expand()
         super(Xtal, self).__init__(N.Z, N.V)
