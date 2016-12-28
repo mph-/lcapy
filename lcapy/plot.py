@@ -77,7 +77,8 @@ def plot_frequency(obj, f, **kwargs):
         ax2 = ax.twinx()
         kwargs['axes'] = ax2
         kwargs['linestyle'] = '--'
-        ax2 = plot_frequency(obj.phase, f, **kwargs)
+        if not obj.is_positive:
+            ax2 = plot_frequency(obj.phase, f, **kwargs)
         return ax, ax2
 
     V = obj.evaluate(f)
@@ -115,7 +116,8 @@ def plot_angular_frequency(obj, omega, **kwargs):
         ax2 = ax.twinx()
         kwargs['axes'] = ax2
         kwargs['linestyle'] = '--'
-        ax2 = plot_angular_frequency(obj.phase, omega, **kwargs)
+        if not obj.is_positive:        
+            ax2 = plot_angular_frequency(obj.phase, omega, **kwargs)
         return ax, ax2
 
     V = obj.evaluate(omega)

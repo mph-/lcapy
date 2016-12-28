@@ -745,7 +745,7 @@ class Expr(object):
             if varname in free_symbols:
                 free_symbols -= set((varname, ))
             if free_symbols != set():
-                raise ValueError('Undefined symbols %s in expression %s' % (tuple(free_symbols), self.var))
+                raise ValueError('Undefined symbols %s in expression %s' % (tuple(free_symbols), self))
 
             if arg is None:
                 if self.expr.find(self.var) != set():
@@ -2224,6 +2224,7 @@ class noiseExpr(omegaExpr):
 
     """
     one_sided = True
+    magnitude_only = True
 
     def rms(self):
         """Calculate rms value."""
