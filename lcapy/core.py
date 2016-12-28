@@ -1689,7 +1689,7 @@ class cExpr(Expr):
         super(cExpr, self).__init__(val, **assumptions)
 
     def rms(self):
-        return self * 0 + self
+        return {Vconst: Vt, Iconst : It}[self.__class__](self)
         
 
 class Phasor(sfwExpr):
@@ -1711,7 +1711,7 @@ class Phasor(sfwExpr):
         return self.__class__(self, **self.assumptions)
 
     def rms(self):
-        return 0.5 * abs(self)
+        return {Vphasor: Vt, Iphasor : It}[self.__class__](0.5 * self)        
 
     
 class Vphasor(Phasor):

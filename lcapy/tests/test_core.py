@@ -280,4 +280,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual((1 / (s + 1))(j * omega)(2 * pi * f).inverse_fourier(), exp(-t) * Heaviside(t))
 
 
+    def test_rms(self):
 
+        self.assertEqual(Vconst(2).rms(), Vt(2))
+        self.assertEqual(Vphasor(2).rms(), Vt(1))
+        
