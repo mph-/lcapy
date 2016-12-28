@@ -1670,22 +1670,27 @@ class cExpr(Expr):
 
     """Constant real expression or symbol.
 
-    If the expression is known to be positive, use cExpr(expr, positive=True)
+    If symbols in the expression are known to be negative, use
+    cExpr(expr, positive=False)
+
     """
 
     def __init__(self, val, **assumptions):
 
         symbols = symbols_find(val)
-        if 's' in symbols:
-            raise ValueError(
-                'constant expression %s cannot depend on s' % val)
-        if 't' in symbols:
-            raise ValueError(
-                'constant expression %s cannot depend on t' % val)
+        for symbol in ('s', 'omega', 't', 'f'):
+            if symbol in symbols:
+                raise ValueError(
+                    'constant expression %s cannot depend on %s' % (val, symbol))
 
         assumptions['real'] = True
-        super(cExpr, self).__init__(val, positive=True, **assumptions)
+        if 'positive' not in assumptions:
+            assumptions['positive'] = True            
+        super(cExpr, self).__init__(val, **assumptions)
 
+    def rms(self):
+        return self * 0 + self
+        
 
 class Phasor(sfwExpr):
 
@@ -1705,7 +1710,10 @@ class Phasor(sfwExpr):
         """Convert to phasor representation"""
         return self.__class__(self, **self.assumptions)
 
+    def rms(self):
+        return 0.5 * abs(self)
 
+    
 class Vphasor(Phasor):
 
     def __init__(self, val, **assumptions):
@@ -2217,6 +2225,18 @@ class noiseExpr(omegaExpr):
     """
     one_sided = True
 
+    def rms(self):
+        """Calculate rms value."""
+
+        P = sym.integrate(self.expr**2, (self.var, 0, sym.oo)) / (2 * sym.pi)
+        rms = sym.sqrt(P)        
+        # TODO: Use rms class?
+        return self._fourier_conjugate_class(rms)
+
+    def time(self):
+        print('Warn: no time representation for noise expression: use rms()')
+        return 0
+    
 
 class Vn(noiseExpr):
 
@@ -2230,19 +2250,7 @@ class Vn(noiseExpr):
         super(Vn, self).__init__(val, positive=True, **assumptions)
         # FIXME
         self._fourier_conjugate_class = Vt
-
-    def time(self):
-        # TODO, return noise object with specified autocorrelation?
-        return 0
         
-    def rms(self):
-        """Calculate rms noise voltage."""
-
-        P = sym.integrate(self.expr**2, (self.var, 0, sym.oo)) / (2 * sym.pi)
-        rms = sym.sqrt(P)        
-        # TODO: Use rms class?
-        return Vt(rms)
-
         
 class In(noiseExpr):
 
@@ -2256,18 +2264,6 @@ class In(noiseExpr):
         super(In, self).__init__(val, positive=True, **assumptions)
         # FIXME        
         self._fourier_conjugate_class = It
-
-    def time(self):
-        # TODO, return noise object with specified autocorrelation?
-        return 0
-
-    def rms(self):
-        """Calculate rms noise current."""
-
-        P = sym.integrate(self.expr**2, (self.var, 0, sym.oo)) / (2 * sym.pi)
-        rms = sym.sqrt(P)
-        # TODO: Use rms class?
-        return It(rms)
 
 
 class Yomega(omegaExpr):

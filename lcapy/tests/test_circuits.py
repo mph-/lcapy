@@ -315,4 +315,4 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 noise {sqrt(4 * k * T * R)}') 
         a.add('R1 1 2 R')
         a.add('C1 2 0 C')         
-        self.assertEqual2(a.C1.V.n.rms, Vt('sqrt(k * T / C)'), "Incorrect ratio")
+        self.assertEqual2(a.C1.V.n.rms(), Vt('sqrt(k * T / C)'), "Incorrect ratio")
