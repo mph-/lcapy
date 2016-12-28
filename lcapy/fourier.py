@@ -15,6 +15,8 @@ Copyright 2016 Michael Hayes, UCECE
 
 import sympy as sym
 
+fourier_cache = {}
+
 def fourier_sympy(expr, t, f):
 
     result = sym.fourier_transform(expr, t, f)
@@ -101,6 +103,10 @@ def fourier_transform(expr, t, f, inverse=False):
     transform, such as a, cos(a * t), sin(a * t), exp(I * a * t).
 
     """
+
+    key = (expr, t, f)
+    if key in fourier_cache:
+        return fourier_cache[key]
     
     # Hack for debugging.  Otherwise sym.sympify will convert Expr
     # types to string and then re-parse.  Unfortunately, we change I
@@ -141,6 +147,7 @@ def fourier_transform(expr, t, f, inverse=False):
     except ValueError:
         raise ValueError('Could not compute Fourier transform for ' + str(orig_expr))
 
+    fourier_cache[key] = result
     return result
 
 

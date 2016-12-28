@@ -19,7 +19,6 @@ Copyright 2016 Michael Hayes, UCECE
 
 """
 
-
 import sympy as sym
 
 laplace_cache = {}
@@ -78,6 +77,7 @@ def laplace_term(expr, t, s):
 
     return laplace_0(expr, t, s)
 
+
 def laplace_transform(expr, t, s):
     """Compute unilateral Laplace transform of expr with lower limit 0-.
 
@@ -85,15 +85,15 @@ def laplace_transform(expr, t, s):
 
     """
 
+    key = (expr, t, s)
+    if key in laplace_cache:
+        return laplace_cache[key]
+    
     # The variable may have been created with different attributes,
     # say when using sym.sympify('Heaviside(t)') since this will
     # default to assuming that t is complex.  So if the symbol has the
     # same representation, convert to the desired one.
 
-    # TODO Perhaps should check if t is the same?
-    if expr in laplace_cache:
-        return laplace_cache[expr]
-    
     var = sym.Symbol(str(t))
     if hasattr(expr, 'expr'):
         expr = expr.expr
@@ -115,6 +115,6 @@ def laplace_transform(expr, t, s):
     except ValueError:
         raise ValueError('Could not compute Laplace transform for ' + str(expr))
 
-    laplace_cache[expr] = result
+    laplace_cache[key] = result
     return result
 
