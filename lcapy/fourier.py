@@ -43,6 +43,8 @@ def fourier_term(expr, t, f, inverse=False):
 
     # Check for constant.
     if not expr.has(t):
+        if f.is_Mul and f.args[0] < 0:
+            f = -f
         return expr * sym.DiracDelta(f)
 
     one = sym.sympify(1)

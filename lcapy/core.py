@@ -2224,7 +2224,6 @@ class noiseExpr(omegaExpr):
 
     """
     one_sided = True
-    magnitude_only = True
 
     def rms(self):
         """Calculate rms value."""
@@ -2237,6 +2236,11 @@ class noiseExpr(omegaExpr):
     def time(self):
         print('Warn: no time representation for noise expression: use rms()')
         return 0
+
+    def autocorrelation(self):
+        # Convert to two-sided spectrum
+        S = self.subs(self.var, abs(self.var)) / sqrt(2)
+        return S.inverse_fourier()
     
 
 class Vn(noiseExpr):
@@ -2650,7 +2654,7 @@ class Super(Exprdict):
             else:
                 # Assume noise uncorrelated.
                 value1sq = (self[kind] * self[kind].conjugate).simplify()
-                self[kind] = sqrt(value1sq + valuesq)
+                self[kind] = sqrt((value1sq + valuesq).simplify())
         else:
             if kind not in self:
                 self[kind] = value
