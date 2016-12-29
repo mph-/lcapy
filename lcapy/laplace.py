@@ -15,13 +15,18 @@ that it gives DiracDelta(t) for the inverse Laplace transform of 1.
 Another difference with this implementation is that it will transform
 undefined functions such as v(t) to V(s).
 
+These functions are for internal use by Lcapy.  
+
 Copyright 2016 Michael Hayes, UCECE
 
 """
 
+from ratfun import Ratfun
 import sympy as sym
 
 laplace_cache = {}
+inverse_laplace_cache = {}
+
 
 def laplace_limits(expr, t, s, tmin, tmax):
     
@@ -118,3 +123,121 @@ def laplace_transform(expr, t, s):
     laplace_cache[key] = result
     return result
 
+
+def _inverse_laplace(expr, s, t, **assumptions):
+
+    N, D, delay = Ratfun(expr, s).as_ratfun_delay()
+
+    Q, M = N.div(D)
+
+    result1 = 0
+
+    # Delayed time.
+    td = t - delay
+
+    if Q:
+        C = Q.all_coeffs()
+        for n, c in enumerate(C):
+            result1 += c * sym.diff(sym.DiracDelta(td), t, len(C) - n - 1)
+
+    expr = M / D
+    for factor in expr.as_ordered_factors():
+        if factor == sym.oo:
+            return factor
+
+    sexpr = Ratfun(expr, s)
+    P = sexpr.poles()
+    result2 = 0
+
+    P2 = P.copy()
+
+    for p in P2:
+
+        # Number of occurrences of the pole.
+        N = P2[p]
+
+        if N == 0:
+            continue
+
+        f = s - p
+
+        if N == 1:
+            r = sexpr.residue(p, P)
+
+            pc = p.conjugate()
+            if pc != p and pc in P:
+                # Remove conjugate from poles and process pole with its
+                # conjugate.  Unfortunately, for symbolic expressions
+                # we cannot tell if a quadratic has two real poles,
+                # a repeat real pole, or a complex conjugate pair of poles.
+                P2[pc] = 0
+                
+                p_re = sym.re(p)
+                p_im = sym.im(p)
+                r_re = sym.re(r)
+                r_im = sym.im(r)
+                etd = sym.exp(p_re * td)
+                result2 += 2 * r_re * etd * sym.cos(p_im * td)
+                result2 -= 2 * r_im * etd * sym.sin(p_im * td)
+            else:
+                result2 += r * sym.exp(p * td)
+            continue
+
+        # Handle repeated poles.
+        expr2 = expr * f ** N
+        for n in range(1, N + 1):
+            m = N - n
+            r = sym.limit(
+                sym.diff(expr2, s, m), s, p) / sym.factorial(m)
+            result2 += r * sym.exp(p * td) * td**(n - 1)
+
+    if assumptions.get('ac', False):
+        return result1 + result2
+
+    if assumptions.get('causal', False):
+        return result1 + result2 * sym.Heaviside(td)
+
+    if delay != 0:
+        result2 *= sym.Heaviside(td)
+                
+    return sym.Piecewise((result1 + result2, t >= 0))
+
+    
+def inverse_laplace_transform(expr, s, t, **assumptions):
+
+    # TODO, simplify
+    key = (expr, s, t, assumptions.get('dc', False),
+           assumptions.get('ac', False),
+           assumptions.get('causal', False))
+    
+    if key in inverse_laplace_cache:
+        return inverse_laplace_cache[key]
+
+    if assumptions.get('dc', False):
+        result = expr * s
+            
+        free_symbols = set([symbol.name for symbol in result.free_symbols])
+        if 's' in free_symbols:
+            raise ValueError('Something wonky going on, expecting dc.'
+                                 ' Perhaps have capacitors in series?')
+        return result
+
+    try:
+        result = _inverse_laplace(expr, s, t, **assumptions)
+
+    except:
+
+        print('Determining inverse Laplace transform with sympy...')
+        
+        # Try splitting into partial fractions to help sympy.
+        expr = Ratfun(expr, s).partfrac()
+        
+        # This barfs when needing to generate Dirac deltas
+        from sympy.integrals.transforms import inverse_laplace_transform
+        result = inverse_laplace_transform(expr, t, s)
+        
+        if not assumptions.get('causal', False):
+            result = sym.Piecewise((result, t >= 0))
+
+    inverse_laplace_cache[key] = result
+    return result

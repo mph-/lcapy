@@ -1,5 +1,5 @@
 """
-This module provides support for rational functions
+This module provides support for rational functions.
 
 Copyright 2016 Michael Hayes, UCECE
 """

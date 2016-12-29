@@ -13,6 +13,12 @@ Copyright 2016 Michael Hayes, UCECE
 
 """
 
+# TODO:
+# Add DiracDelta(t, n)
+# Simplify  (-j * DiracDelta(f - 1) +j * DiracDelta(f + 1)).inverse_fourier()
+# This should give 2 * sin(2 * pi * t)
+
+
 import sympy as sym
 
 fourier_cache = {}
@@ -104,25 +110,10 @@ def fourier_transform(expr, t, f, inverse=False):
 
     """
 
-    key = (expr, t, f)
+    key = (expr, t, f, inverse)
     if key in fourier_cache:
         return fourier_cache[key]
     
-    # Hack for debugging.  Otherwise sym.sympify will convert Expr
-    # types to string and then re-parse.  Unfortunately, we change I
-    # to j when printing and so j gets converted into a symbol and not
-    # the imaginary unit.
-    if hasattr(expr, 'expr'):
-        expr = expr.expr
-    if hasattr(t, 'expr'):
-        t = t.expr
-    if hasattr(f, 'expr'):
-        f = f.expr
-
-    expr = sym.sympify(expr)
-    t = sym.sympify(t)
-    f = sym.sympify(f)
-
     if inverse:
         t, f = f, -t
 
@@ -149,7 +140,6 @@ def fourier_transform(expr, t, f, inverse=False):
 
     fourier_cache[key] = result
     return result
-
 
 
 def inverse_fourier_transform(expr, f, t):

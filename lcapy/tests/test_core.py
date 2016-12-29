@@ -17,11 +17,9 @@ class LcapyTester(unittest.TestCase):
             pprint(ans2)
             raise AssertionError(e)
 
-
     def test_rmul(self):
 
         self.assertEqual2((j * omega).__class__,  omegaExpr, "j * omega fail.")
-
 
     def test_sExpr1(self):
         """Lcapy: check sExpr1
@@ -92,7 +90,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.inverse_laplace(causal=True), 20 * exp(2 * t) * H(t) + 7 * DiracDelta(t) + DiracDelta(t, 1), "inverse Laplace incorrect.")
 
-
     def test_sExpr4(self):
         """Lcapy: check sExpr4
 
@@ -117,7 +114,6 @@ class LcapyTester(unittest.TestCase):
             a.ZPK(), 1 / ((s - j) * (s + j)), "ZPK incorrect.")
 
         self.assertEqual(a.inverse_laplace(causal=True), sin(t) * H(t), "inverse Laplace incorrect.")
-
 
     def test_sExpr5(self):
         """Lcapy: check sExpr5
@@ -144,7 +140,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.inverse_laplace(causal=True), sin(t) * H(t), "inverse Laplace incorrect.")
 
-
     def test_wExpr1(self):
         """Lcapy: check wExpr1
 
@@ -156,7 +151,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(A.real, (omega**2 - 12) / (omega**2 + 16), "real incorrect.")
         self.assertEqual2(A.imag, -7 * omega / (omega**2 + 16), "imag incorrect.")
 
-
     def test_tExpr1(self):
         """Lcapy: check tExpr1
 
@@ -165,7 +159,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.evaluate(2), 4.0, "scalar evaluate incorrect.")
         self.assertEqual(a.evaluate((2, 3))[1], 9.0, "vector evaluate incorrect.")
-
 
     def test_step(self):
         """Lcapy: check step
@@ -178,7 +171,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.evaluate((-2, 2))[0], 0.0, "vector evaluate incorrect.")
         self.assertEqual(a.laplace(), 1 / s, "Laplace transform incorrect.")
 
-
     def test_delta(self):
         """Lcapy: check delta
 
@@ -187,7 +179,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.evaluate(2), 0, "scalar evaluate incorrect.")
         self.assertEqual(a.laplace(), 1, "Laplace transform incorrect.")
-
 
     def test_jomega(self):
         """Lcapy: check jomega
@@ -200,7 +191,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(b, j * omega + 2, "Substitution failed.")
         self.assertEqual2(a.jomega, j * omega + 2, "jomega failed.")
 
-
     def test_subs1(self):
         """Lcapy: check subs
 
@@ -210,7 +200,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.expr.is_real, True, "Lost is_real.")
         self.assertEqual2(a, omega, "Substitution fail.")
-
 
     def test_subs2(self):
         """Lcapy: check subs
@@ -253,7 +242,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(type(sExpr(10) + v), Vs, "Not Vs")
         self.assertEqual(type(v + sExpr(10)), Vs, "Not Vs")
 
-        
     def test_evaluate(self):
         """Lcapy: check evaluate
 
@@ -268,17 +256,30 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Heaviside(t).laplace(), 1 / s, "Heaviside(t)")        
         self.assertEqual(DiracDelta(t).laplace(), 1, "DiracDelta(t)")
 
-
     def test_zp2k(self):
 
         self.assertEqual(zp2tf([], [0, -1]), 1 / (s * (s + 1)), "zp2tf")
 
+    def test_fourier(self):
+
+        self.assertEqual((t * 0 + 1).fourier(), DiracDelta(f))
+        self.assertEqual((t * 0 + 1).fourier().inverse_fourier(), 1)
+        self.assertEqual(t.fourier(), 2 * j * pi * DiracDelta(f, 1))
+        self.assertEqual(2 * cos(2 * pi * t).fourier(),
+                         DiracDelta(f - 1) + DiracDelta(f + 1))
+        self.assertEqual(2 * sin(2 * pi * t).fourier(),
+                         -j * DiracDelta(f - 1) + j * DiracDelta(f + 1))
+        self.assertEqual(exp(j * 2 * pi * t).fourier(), DiracDelta(f - 1))
+        self.assertEqual(exp(j * 2 * pi * t).fourier().inverse_fourier(),
+                         exp(j * 2 * pi * t))
+        self.assertEqual(exp(-j * 2 * pi * t).fourier(), DiracDelta(f + 1))
+        self.assertEqual(exp(-j * 2 * pi * t).fourier().inverse_fourier(),
+                         exp(-j * 2 * pi * t))        
 
     def test_inverse_fourier(self):
 
         self.assertEqual((1 / (s + 1))(j * omega).inverse_fourier(), exp(-t) * Heaviside(t))
         self.assertEqual((1 / (s + 1))(j * omega)(2 * pi * f).inverse_fourier(), exp(-t) * Heaviside(t))
-
 
     def test_rms(self):
 

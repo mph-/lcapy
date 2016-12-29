@@ -14,10 +14,10 @@ from __future__ import division
 from lcapy.latex import latex_str
 from lcapy.acdc import is_dc, is_ac, is_causal, ACChecker
 from lcapy.sympify import canonical_name, sympify1, symbols_find
-from lcapy.laplace import laplace_transform
+from ratfun import Ratfun, _zp2tf
+from lcapy.laplace import laplace_transform, inverse_laplace_transform
 from lcapy.fourier import fourier_transform, inverse_fourier_transform
 import numpy as np
-from sympy.core.mul import _unevaluated_Mul as uMul
 from sympy.assumptions.assume import global_assumptions
 import sympy as sym
 import re
@@ -51,8 +51,6 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
 func_pattern = re.compile(r"\\operatorname{(.*)}")
 
 all_assumptions = ('ac', 'dc', 'causal')
-
-inverse_laplace_cache = {}
 
 from sympy.printing.str import StrPrinter 
 from sympy.printing.latex import LatexPrinter 
@@ -382,7 +380,6 @@ class Expr(object):
         raise ValueError('Cannot combine %s(%s) with %s(%s)' % 
                          (cls.__name__, self, xcls.__name__, x))
 
-
     def __compat_add__(self, x):
 
         cls = self.__class__
@@ -494,7 +491,7 @@ class Expr(object):
         x = cls(x)
 
         # This fails if one of the operands has the is_real attribute
-        # end the other doesn't...
+        # and the other doesn't...
         return self.expr == x.expr
 
     def __ne__(self, x):
@@ -507,6 +504,50 @@ class Expr(object):
         x = cls(x)
 
         return self.expr != x.expr
+
+    def __gt__(self, x):
+        """Greater than"""
+
+        if x is None:
+            return True
+
+        cls = self.__compat__(x)
+        x = cls(x)
+
+        return self.expr > x.expr
+
+    def __ge__(self, x):
+        """Greater than or equal"""
+
+        if x is None:
+            return True
+
+        cls = self.__compat__(x)
+        x = cls(x)
+
+        return self.expr >= x.expr
+
+    def __lt__(self, x):
+        """Less than"""
+
+        if x is None:
+            return True
+
+        cls = self.__compat__(x)
+        x = cls(x)
+
+        return self.expr < x.expr
+
+    def __le__(self, x):
+        """Less than or equal"""
+
+        if x is None:
+            return True
+
+        cls = self.__compat__(x)
+        x = cls(x)
+
+        return self.expr <= x.expr    
 
     def parallel(self, x):
         """Parallel combination"""
@@ -585,40 +626,6 @@ class Expr(object):
         return latex_str(latex(expr))
 
     @property
-    def N(self):
-        """Return numerator of rational function"""
-
-        return self.numerator
-
-    @property
-    def numerator(self):
-        """Return numerator of rational function"""
-
-        expr = self.expr
-        if not expr.is_rational_function(self):
-            raise ValueError('Expression not a rational function')
-
-        numer, denom = expr.as_numer_denom()
-        return self.__class__(numer)
-
-    @property
-    def D(self):
-        """Return denominator of rational function"""
-
-        return self.denominator
-
-    @property
-    def denominator(self):
-        """Return denominator of rational function"""
-
-        expr = self.expr
-        if not expr.is_rational_function(self):
-            raise ValueError('Expression not a rational function')
-
-        numer, denom = expr.as_numer_denom()
-        return self.__class__(denom)
-
-    @property
     def conjugate(self):
         """Return complex conjugate"""
 
@@ -645,7 +652,35 @@ class Expr(object):
         """Rewrite as x + j * y"""
         
         return self.real + j * self.imag
+
+    @property
+    def _ratfun(self):
+        return Ratfun(self.expr, self.var)
     
+    @property
+    def N(self):
+        """Return numerator of rational function"""
+
+        return self.numerator
+
+    @property
+    def D(self):
+        """Return denominator of rational function"""
+
+        return self.denominator
+
+    @property
+    def numerator(self):
+        """Return numerator of rational function"""
+
+        return self.__class__(self._ratfun.numerator)
+
+    @property
+    def denominator(self):
+        """Return denominator of rational function"""
+
+        return self.__class__(self._ratfun.denominator)    
+
     def rationalize_denominator(self):
         """Rationalize denominator by multiplying numerator and denominator by
         complex conjugate of denominator"""
@@ -825,6 +860,12 @@ class Expr(object):
             response = response.real
         return response
 
+    def has(self, subexpr):
+        """Test whether the sub expression is contained"""
+        if hasattr(subexpr, 'expr'):
+            subexpr = subexpr.expr
+        return self.expr.has(subexpr)
+    
     def _subs1(self, old, new, **kwargs):
 
         # This will fail if a variable has different attributes,
@@ -980,55 +1021,11 @@ class sfwExpr(Expr):
 
         super(sfwExpr, self).__init__(val, **assumptions)
 
-    def _as_ratfun_delay(self):
-        """Split expr as (N, D, delay)
-        where expr = (N / D) * exp(var * delay)
-        
-        Note, delay only represents a delay when var is s."""
-
-        expr, var = self.expr, self.var
-
-        delay = sympify(0)
-
-        if expr.is_rational_function():
-            numer, denom = expr.as_numer_denom()
-            N = sym.Poly(numer, var)
-            D = sym.Poly(denom, var)
-
-            return N, D, delay
-
-        # Note, there is a bug in sympy factor, TODO warn if detected.
-        F = sym.factor(expr).as_ordered_factors()
-
-        ratfun = sympify(1)
-        for f in F:
-            b, e = f.as_base_exp()
-            if b == sym.E and e.is_polynomial(var):
-                p = sym.Poly(e, var)
-                c = p.all_coeffs()
-                if p.degree() == 1:
-                    delay -= c[0]
-                    if c[1] != 0:
-                        ratfun *= sym.exp(c[1])
-                    continue
-
-            ratfun *= f
-
-        if not ratfun.is_rational_function(var):
-            raise ValueError('Expression not a product of rational function'
-                             ' and exponential')
-
-        numer, denom = ratfun.as_numer_denom()
-        N = sym.Poly(numer, var)
-        D = sym.Poly(denom, var)
-
-        return N, D, delay
-
     def roots(self):
         """Return roots of expression as a dictionary
         Note this may not find them all."""
 
-        return Exprdict(sym.roots(sym.Poly(self.expr, self.var)))
+        return Exprdict(self._ratfun.roots())
 
     def zeros(self):
         """Return zeroes of expression as a dictionary
@@ -1040,160 +1037,46 @@ class sfwExpr(Expr):
         """Return poles of expression as a dictionary
         Note this may not find them all."""
 
-        return self.D.roots()
-
-    def residue(self, pole, poles):
-
-        expr, var = self.expr, self.var
-
-        # Remove pole from list of poles; sym.cancel
-        # doesn't always work, for example, for complex poles.
-        poles2 = poles.copy()
-        poles2[pole] -= 1
-
-        numer, denom = expr.as_numer_denom()
-        D = sym.Poly(denom, var)
-        K = D.LC()
-
-        D = [(var - p) ** poles2[p] for p in poles2]
-        denom = sym.Mul(K, *D)
-
-        d = sym.limit(denom, var, pole)
-
-        if d != 0:
-            tmp = numer / denom
-            return sym.limit(tmp, var, pole)
-
-        print("Trying l'hopital's rule")
-        tmp = numer / denom
-        tmp = sym.diff(tmp, var)
-
-        return sym.limit(tmp, var, pole)
-
-    def _as_residue_parts(self):
-        """Return residues of expression"""
-
-        var = self.var
-        N, D, delay = self._as_ratfun_delay()
-
-        Q, M = N.div(D)
-
-        expr = M / D
-        sexpr = sExpr(expr)
-
-        P = sexpr.poles()
-        F = []
-        R = []
-        for p in P:
-
-            # Number of occurrences of the pole.
-            N = P[p]
-
-            f = var - p
-
-            if N == 1:
-                F.append(f)
-                R.append(sexpr.residue(p, P))
-                continue
-
-            # Handle repeated poles.
-            expr2 = expr * f ** N
-            for n in range(1, N + 1):
-                m = N - n
-                F.append(f ** n)
-                dexpr = sym.diff(expr2, var, m)
-                R.append(sym.limit(dexpr, var, p) / sym.factorial(m))
-
-        return F, R, Q, delay
-
+        return self.D.roots()    
+    
     def canonical(self):
         """Convert rational function to canonical form with unity
         highest power of denominator.
 
         See also general, partfrac, mixedfrac, and ZPK"""
 
-        try:
-            N, D, delay = self._as_ratfun_delay()
-        except ValueError:
-            return self.__class__(self.expr, **self.assumptions)
-
-        K = sym.cancel(N.LC() / D.LC())
-        if delay != 0:
-            K *= sym.exp(self.var * delay)
-
-        # Divide by leading coefficient
-        N = N.monic()
-        D = D.monic()
-
-        expr = K * (N / D)
-
-        return self.__class__(expr, **self.assumptions)
+        return self.__class__(self._ratfun.canonical(), **self.assumptions)
 
     def general(self):
         """Convert rational function to general form.
 
         See also canonical, partfrac, mixedfrac, and ZPK"""
 
-        N, D, delay = self._as_ratfun_delay()
-
-        expr = sym.cancel(N / D, self.var)
-        if delay != 0:
-            expr *= sym.exp(self.var * delay)
-
-        return self.__class__(expr, **self.assumptions)
+        return self.__class__(self._ratfun.general(), **self.assumptions)        
 
     def partfrac(self):
         """Convert rational function into partial fraction form.
 
         See also canonical, mixedfrac, general, and ZPK"""
 
-        F, R, Q, delay = self._as_residue_parts()
-
-        expr = Q.as_expr()
-        for f, r in zip(F, R):
-            expr += r / f
-
-        if delay != 0:
-            expr *= sym.exp(-self.var * delay)
-
-        return self.__class__(expr, **self.assumptions)
+        return self.__class__(self._ratfun.partfrac(), **self.assumptions)
 
     def mixedfrac(self):
         """Convert rational function into mixed fraction form.
 
         See also canonical, general, partfrac and ZPK"""
 
-        N, D, delay = self._as_ratfun_delay()
-
-        Q, M = N.div(D)
-
-        expr = Q + M / D
-
-        if delay != 0:
-            expr *= sym.exp(-self.var * delay)
-
-        return self.__class__(expr, **self.assumptions)
+        return self.__class__(self._ratfun.mixedfrac(), **self.assumptions)
 
     def ZPK(self):
         """Convert to pole-zero-gain (PZK) form.
 
         See also canonical, general, mixedfrac, and partfrac"""
 
-        N, D, delay = self._as_ratfun_delay()
+        return self.__class__(self._ratfun.ZPK(), **self.assumptions)
 
-        K = sym.cancel(N.LC() / D.LC())
-        if delay != 0:
-            K *= sym.exp(self.var * delay)
-
-        zeros = sym.roots(N)
-        poles = sym.roots(D)
-
-        return self.__class__(_zp2tf(zeros, poles, K, self.var),
-                              **self.assumptions)
-
-
+    
 class sExpr(sfwExpr):
-
     """s-domain expression or symbol"""
 
     var = ssym
@@ -1240,88 +1123,6 @@ class sExpr(sfwExpr):
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
 
-    def _inverse_laplace(self, **assumptions):
-
-        var = self.var
-
-        N, D, delay = self._as_ratfun_delay()
-
-        Q, M = N.div(D)
-
-        result1 = 0
-
-        # Delayed time.
-        td = tsym - delay
-
-        if Q:
-            C = Q.all_coeffs()
-            for n, c in enumerate(C):
-                result1 += c * sym.diff(sym.DiracDelta(td), tsym, len(C) - n - 1)
-
-        expr = M / D
-        for factor in expr.as_ordered_factors():
-            if factor == sym.oo:
-                return factor
-
-        sexpr = sExpr(expr)
-
-        P = sexpr.poles()
-        result2 = 0
-
-        P2 = P.copy()
-
-        for p in P2:
-
-            # Number of occurrences of the pole.
-            N = P2[p]
-
-            if N == 0:
-                continue
-
-            f = var - p
-
-            if N == 1:
-                r = sexpr.residue(p, P)
-
-                pc = p.conjugate()
-                if pc != p and pc in P:
-                    # Remove conjugate from poles and process pole with its
-                    # conjugate.  Unfortunately, for symbolic expressions
-                    # we cannot tell if a quadratic has two real poles,
-                    # a repeat real pole, or a complex conjugate pair of poles.
-                    P2[pc] = 0
-                  
-                    p_re = sym.re(p)
-                    p_im = sym.im(p)
-                    r_re = sym.re(r)
-                    r_im = sym.im(r)
-                    etd = sym.exp(p_re * td)
-                    result2 += 2 * r_re * etd * sym.cos(p_im * td)
-                    result2 -= 2 * r_im * etd * sym.sin(p_im * td)
-                else:
-                    result2 += r * sym.exp(p * td)
-                continue
-
-            # Handle repeated poles.
-            expr2 = expr * f ** N
-            for n in range(1, N + 1):
-                m = N - n
-                r = sym.limit(
-                    sym.diff(expr2, var, m), var, p) / sym.factorial(m)
-                result2 += r * sym.exp(p * td) * td**(n - 1)
-
-        if assumptions.get('ac', False):
-            return result1 + result2
-
-        if assumptions.get('causal', False):
-            return result1 + result2 * sym.Heaviside(td)
-
-        if delay != 0:
-            result2 *= sym.Heaviside(td)
-                
-        return sym.Piecewise((result1 + result2, tsym >= 0))
-
-
     def inverse_laplace(self, **assumptions):
         """Attempt inverse Laplace transform.
 
@@ -1335,46 +1136,12 @@ class sExpr(sfwExpr):
         if assumptions == {}:
             assumptions = self.assumptions
 
-        # TODO, simplify
-        key = (self.expr, assumptions.get('dc', False),
-               assumptions.get('ac', False),
-               assumptions.get('causal', False))
-               
-        if key in inverse_laplace_cache:
-            result = inverse_laplace_cache[key]
-            if hasattr(self, '_laplace_conjugate_class'):
-                result = self._laplace_conjugate_class(result)
-                return result            
+        result = inverse_laplace_transform(self.expr, self.var, tsym, **assumptions)
 
-        if assumptions.get('dc', False):
-            result = self * s
-            
-            free_symbols = set([symbol.name for symbol in result.free_symbols])
-            if 's' in free_symbols:
-                raise ValueError('Something wonky going on, expecting dc.'
-                                 ' Perhaps have capacitors in series?')
-            return self._laplace_conjugate_class(result)
-
-        try:
-            result = self._inverse_laplace(**assumptions)
-
-        except:
-
-            print('Determining inverse Laplace transform with sympy...')
-
-            # Try splitting into partial fractions to help sympy.
-            expr = self.partfrac().expr
-
-            # This barfs when needing to generate Dirac deltas
-            from sympy.integrals.transforms import inverse_laplace_transform
-            result = inverse_laplace_transform(expr, t, self.var)
-
-            if not assumptions.causal:
-                result = sym.Piecewise((result, tsym >= 0))
-
-        inverse_laplace_cache[key] = result
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result)
+        else:
+            result = tExpr(result)            
         return result
 
     def time(self, **assumptions):
@@ -1534,6 +1301,8 @@ class fExpr(sfwExpr):
         result = inverse_fourier_transform(self.expr, self.var, tsym)
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
+        else:
+            result = tExpr(result)
         return result
 
     def plot(self, fvector=None, **kwargs):
@@ -1635,20 +1404,24 @@ class tExpr(Expr):
     def laplace(self):
         """Determine one-side Laplace transform with 0- as the lower limit."""
         
-        F = laplace_transform(self, self.var, ssym)
+        result = laplace_transform(self, self.var, ssym)
 
         if hasattr(self, '_laplace_conjugate_class'):
-            F = self._laplace_conjugate_class(F, **self.assumptions)
-        return F
+            result = self._laplace_conjugate_class(result, **self.assumptions)
+        else:
+            result = sExpr(result)
+        return result
 
     def fourier(self):
         """Attempt Fourier transform"""
 
-        F = fourier_transform(self.expr, self.var, f)
+        result = fourier_transform(self.expr, self.var, fsym)
 
         if hasattr(self, '_fourier_conjugate_class'):
-            F = self._fourier_conjugate_class(F)
-        return F
+            result = self._fourier_conjugate_class(result)
+        else:
+            result = fExpr(result)            
+        return result
 
     def phasor(self, **assumptions):
 
@@ -1903,34 +1676,12 @@ def tf(numer, denom=1, var=None):
     return Hs(N / D)
 
 
-def _zp2tf(zeros, poles, K=1, var=None):
+def zp2tf(zeros, poles, K=1, var=None):
     """Create a transfer function from lists of zeros and poles,
     and from a constant gain"""
 
     if var is None:
         var = ssym
-
-    K = sympify(K)
-    zeros = sympify(zeros)
-    poles = sympify(poles)
-
-    if isinstance(zeros, (tuple, list)):
-        zz = [(var - z) for z in zeros]
-    else:
-        zz = [(var - z) ** zeros[z] for z in zeros]
-
-    if isinstance(zeros, (tuple, list)):
-        pp = [1 / (var - p) for p in poles]
-    else:
-        pp = [1 / (var - p) ** poles[p] for p in poles]
-        
-    return uMul(K, *(zz + pp))
-
-
-def zp2tf(zeros, poles, K=1, var=None):
-    """Create a transfer function from lists of zeros and poles,
-    and from a constant gain"""
-
     return Hs(_zp2tf(zeros, poles, K, var))
 
 
