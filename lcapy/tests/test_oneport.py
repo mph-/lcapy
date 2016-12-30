@@ -170,7 +170,7 @@ class LcapyTester(unittest.TestCase):
     def test_v(self):
         """Lcapy: check inverse Laplace for voltage sources"""
 
-        omega1 = symbol('omega_1', real=True)
+        omega1 = symbol('omega', real=True)
 
         a = Vdc(10)
         self.assertEqual(a.voc, 10, "DC incorrect.")        
@@ -185,7 +185,7 @@ class LcapyTester(unittest.TestCase):
     def test_i(self):
         """Lcapy: check inverse Laplace for current sources"""
 
-        omega1 = symbol('omega_1', real=True)
+        omega1 = symbol('omega', real=True)
 
         a = Idc(10)
         self.assertEqual(a.isc, 10, "DC incorrect.")        

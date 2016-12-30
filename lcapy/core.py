@@ -50,7 +50,7 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
 
 func_pattern = re.compile(r"\\operatorname{(.*)}")
 
-all_assumptions = ('ac', 'dc', 'causal')
+all_assumptions = ('ac', 'dc', 'causal', 'complex')
 
 from sympy.printing.str import StrPrinter 
 from sympy.printing.latex import LatexPrinter 
@@ -1478,7 +1478,12 @@ class Phasor(sfwExpr):
     def time(self, **assumptions):
         """Convert to time domain representation"""
 
-        return self._laplace_conjugate_class(self.real.expr * cos(self.var * t) + self.imag.expr * sin(self.var * t))
+        if self.is_complex:
+            result = self.expr * exp(j * self.var * t)
+        else:
+            result = self.real.expr * cos(self.var * t) + self.imag.expr * sin(self.var * t)
+
+        return self._laplace_conjugate_class(result)
 
     def laplace(self):
         """Convert to Laplace domain representation"""

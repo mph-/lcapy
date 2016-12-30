@@ -783,7 +783,7 @@ class Vac(VoltageSource):
 
         # Note, cos(-pi / 2) is not quite zero.
 
-        self.omega = symbol('omega_1', real=True)
+        self.omega = symbol('omega', real=True)
         self.v0 = V
         self.phi = phi
         self.Voc = Vsuper(Vphasor(self.v0 * exp(j * self.phi), ac=True))
@@ -892,7 +892,7 @@ class Iac(CurrentSource):
         I = cExpr(I)
         phi = cExpr(phi)
 
-        self.omega = symbol('omega_1', real=True)
+        self.omega = symbol('omega', real=True)
         self.i0 = I
         self.phi = phi
         self.Isc = Isuper(Iphasor(self.i0 * exp(j * self.phi), ac=True))
