@@ -169,22 +169,14 @@ class Ratfun(object):
     def numerator(self):
         """Return numerator of rational function"""
 
-        expr = self.expr
-        if not expr.is_rational_function(self.var):
-            raise ValueError('Expression not a rational function')
-
-        numer, denom = expr.as_numer_denom()
+        numer, denom = self.expr.as_numer_denom()
         return numer
 
     @property
     def denominator(self):
         """Return denominator of rational function"""
 
-        expr = self.expr
-        if not expr.is_rational_function(self.var):
-            raise ValueError('Expression not a rational function')
-
-        numer, denom = expr.as_numer_denom()
+        numer, denom = self.expr.as_numer_denom()
         return denom
 
     def canonical(self):

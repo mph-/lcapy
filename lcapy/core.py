@@ -700,12 +700,15 @@ class Expr(object):
     def magnitude(self):
         """Return magnitude"""
 
-        R = self.rationalize_denominator()
-        N = R.N
-        Dnew = R.D
-        Nnew = sqrt((N.real**2 + N.imag**2).simplify())
-
-        dst = Nnew / Dnew
+        if self.is_real:
+            dst = self
+        else:
+            R = self.rationalize_denominator()
+            N = R.N
+            Dnew = R.D
+            Nnew = sqrt((N.real**2 + N.imag**2).simplify())
+            dst = Nnew / Dnew
+            
         dst.part = 'magnitude'
         return dst
 
@@ -730,6 +733,9 @@ class Expr(object):
     def phase(self):
         """Return phase in radians"""
 
+        if self.is_real:
+            return 0
+        
         R = self.rationalize_denominator()
         N = R.N
         
