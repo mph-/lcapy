@@ -209,31 +209,33 @@ class Expr(object):
         self.expr = sympify(arg, **assumptions)
 
     def infer_assumptions(self):
-        pass
+        self.assumptions['dc'] = None
+        self.assumptions['ac'] = None
+        self.assumptions['causal'] = None           
         
     @property
     def is_dc(self):
         if 'dc' not in self.assumptions:
             self.infer_assumptions()
-        return self.assumptions['dc']
+        return self.assumptions['dc'] == True
 
     @property
     def is_ac(self):
         if 'ac' not in self.assumptions:
             self.infer_assumptions()
-        return self.assumptions['ac']
+        return self.assumptions['ac'] == True
 
     @property
     def is_causal(self):
         if 'causal' not in self.assumptions:
             self.infer_assumptions()
-        return self.assumptions['causal']
+        return self.assumptions['causal'] == True
 
     @property
     def is_complex(self):
         if 'complex' not in self.assumptions:
             return False
-        return self.assumptions['complex']
+        return self.assumptions['complex']  == True
         
     @property
     def val(self):
@@ -1421,11 +1423,20 @@ class tExpr(Expr):
                 't-domain expression %s cannot depend on s' % self.expr)
 
     def infer_assumptions(self):
-        var = self.var
+
+        self.assumptions['dc'] = False
+        self.assumptions['ac'] = False
+        self.assumptions['causal'] = False        
+
+        var = self.var        
         if 'dc' not in self.assumptions:
             self.assumptions['dc'] = is_dc(self, var)
+            if self.assumptions['dc']:
+                return
         if 'ac' not in self.assumptions:            
             self.assumptions['ac'] = is_ac(self, var)
+            if self.assumptions['ac']:
+                return            
         if 'causal' not in self.assumptions:                        
             self.assumptions['causal'] = is_causal(self, var)  
 
@@ -1537,9 +1548,9 @@ class Phasor(Expr):
     
 class Vphasor(Phasor):
 
-    def __init__(self, val, **assumptions):
+    def __init__(self, val, omega=omegasym, **assumptions):
 
-        super(Vphasor, self).__init__(val, **assumptions)
+        super(Vphasor, self).__init__(val, omega, **assumptions)
         self._laplace_conjugate_class = Vt
 
     def cpt(self):
@@ -1553,9 +1564,9 @@ class Vphasor(Phasor):
 
 class Iphasor(Phasor):
 
-    def __init__(self, val, **assumptions):
+    def __init__(self, val, omega=omegasym, **assumptions):
 
-        super(Iphasor, self).__init__(val, **assumptions)
+        super(Iphasor, self).__init__(val, omega, **assumptions)
         self._laplace_conjugate_class = It
     
     def cpt(self):
@@ -2301,13 +2312,28 @@ class Super(Exprdict):
         else:
             p.text(pretty(self))
 
+    def __getitem__(self, key):
+        # This allows a[omega] to work.
+        if hasattr(key, 'expr'):
+            key = key.expr
+        return super(Super, self).__getitem__(key)
+
+    def ac_keys(self):
+        """Return list of keys for all ac components"""
+        
+        keys = self.keys()
+        for key in ('dc', 's', 'n'):
+            if key in keys:
+                keys.remove(key)
+        return keys
+
     @property
     def has_dc(self):
         return 'dc' in self
 
     @property
     def has_ac(self):
-        return 'ac' in self
+        return self.ac_keys() != []
 
     @property
     def has_s(self):
@@ -2323,7 +2349,7 @@ class Super(Exprdict):
 
     @property
     def is_ac(self):
-        return self.keys() == ['ac']
+        return self.ac_keys() == self.keys()
 
     @property
     def is_s(self):
@@ -2384,6 +2410,9 @@ class Super(Exprdict):
         return self[kind]
 
     def _kind(self, value):
+        if isinstance(value, Phasor):
+            return value.omega
+        
         for kind, mtype in self.transform_domains.items():
             if isinstance(value, mtype):
                 return kind
@@ -2415,8 +2444,10 @@ class Super(Exprdict):
     
     def _parse(self, string):
         """Parse t or s-domain expression or symbol, interpreted in time
-        domain if not containing s or omega.  Return most appropriate
-        transform domain. """
+        domain if not containing s, omega, or f.  Return most
+        appropriate transform domain.
+
+        """
 
         symbols = symbols_find(string)
     
@@ -2485,7 +2516,7 @@ class Super(Exprdict):
 
     @property    
     def ac(self):
-        return self.select('ac')
+        return Exprdict({k: v for k, v in self.items() if k in self.ac_keys()})
 
     @property
     def s(self):
@@ -2544,8 +2575,8 @@ class Vsuper(Super):
         if 'dc' in self:
             # TODO, fix types
             new += Iconst(self['dc'] * cExpr(x.jomega(0)))
-        if 'ac' in self:
-            new += self['ac'] * x.jomega
+        for key in self.ac_keys():
+            new += self[key] * x.jomega(self[key],omega)
         if 'n' in self:
             new += self['n'] * x.jomega            
         if 's' in self:
@@ -2579,8 +2610,8 @@ class Isuper(Super):
         if 'dc' in self:
             # TODO, fix types            
             new += Vconst(self['dc'] * cExpr(x.jomega(0)))
-        if 'ac' in self:
-            new += self['ac'] * x.jomega
+        for key in self.ac_keys():
+            new += self[key] * x.jomega(self[key],omega)            
         if 'n' in self:
             new += self['n'] * x.jomega            
         if 's' in self:

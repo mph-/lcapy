@@ -127,6 +127,7 @@ class ACChecker(object):
 
         self.var = getattr(var, 'expr', sympify1(var))
         self.amp = 0
+        self.omega = 0
         self.freq = 0
         self.phase = 0
         self.is_ac = self._is_ac(getattr(expr, 'expr', sympify1(expr)))
