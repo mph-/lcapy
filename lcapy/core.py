@@ -1519,7 +1519,9 @@ class Phasor(Expr):
         else:
             result = self.real.expr * cos(self.omega * t) + self.imag.expr * sin(self.omega * t)
 
-        return self._laplace_conjugate_class(result)
+        if hasattr(self, '_laplace_conjugate_class'):
+            return self._laplace_conjugate_class(result)
+        return tExpr(result)
 
     def fourier(self):
         """Attempt Fourier transform"""
