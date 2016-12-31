@@ -50,10 +50,6 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
 
 func_pattern = re.compile(r"\\operatorname{(.*)}")
 
-# Perhaps call complex complex_phasor to avoid confusion with sympy
-# attribute of the same name?
-all_assumptions = ('ac', 'dc', 'causal', 'complex')
-
 from sympy.printing.str import StrPrinter 
 from sympy.printing.latex import LatexPrinter 
 from sympy.printing.pretty.pretty import PrettyPrinter 
