@@ -206,12 +206,39 @@ class Expr(object):
         # There are two types of assumptions.
         #   1. There are the sympy assumptions that are only associated
         #      with symbols, for example, real=True.
-        #   2. The expr assumptions such as dc, ac, causal.
+        #   2. The expr assumptions such as dc, ac, causal.  These
+        #      are primarily to help the inverse Laplace transform.
 
-        for attr in all_assumptions:
-            setattr(self, 'is_' + attr, assumptions.pop(attr, None))
+        self.assumptions = assumptions
         self.expr = sympify(arg, **assumptions)
 
+    def infer_assumptions(self):
+        pass
+        
+    @property
+    def is_dc(self):
+        if 'dc' not in self.assumptions:
+            self.infer_assumptions()
+        return self.assumptions['dc']
+
+    @property
+    def is_ac(self):
+        if 'ac' not in self.assumptions:
+            self.infer_assumptions()
+        return self.assumptions['ac']
+
+    @property
+    def is_causal(self):
+        if 'causal' not in self.assumptions:
+            self.infer_assumptions()
+        return self.assumptions['causal']
+
+    @property
+    def is_complex(self):
+        if 'complex' not in self.assumptions:
+            return False
+        return self.assumptions['complex']
+        
     @property
     def val(self):
         """Return floating point value of expression if it can be evaluated,
@@ -307,25 +334,6 @@ class Expr(object):
     def _repr_latex_(self):
 
         return '$%s$' % latex_str(self.latex())
-
-    @property
-    def assumptions(self):
-
-        assumptions = {}
-        for attr in all_assumptions:
-            assumption = getattr(self, 'is_' + attr)
-            if assumption is not None:
-                assumptions[attr] = assumption
-        return assumptions
-
-    @assumptions.setter
-    def assumptions(self, **assumptions):
-
-        for attr in all_assumptions:
-            if attr in assumptions:
-                setattr(self, 'is_' + attr, assumptions.pop(attr))
-        if assumptions != {}:
-            raise ValueError('Unknown assumption %s' % assumptions)
 
     def __abs__(self):
         """Absolute value"""
@@ -1158,6 +1166,7 @@ class sExpr(sfwExpr):
     def laplace(self):
         """Convert to s-domain representation"""
 
+        self.infer_assumptions()
         return self.__class__(self, **self.assumptions)
 
     def fourier(self):
@@ -1292,7 +1301,8 @@ class fExpr(sfwExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(fExpr, self).__init__(val, real=True)
+        assumptions['real'] = True
+        super(fExpr, self).__init__(val, **assumptions)
         # Define when class defined.
         self._fourier_conjugate_class = tExpr
 
@@ -1341,7 +1351,8 @@ class omegaExpr(sfwExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(omegaExpr, self).__init__(val, real=True, **assumptions)
+        assumptions['real'] = True        
+        super(omegaExpr, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = tExpr
 
         if self.expr.find(ssym) != set():
@@ -1390,17 +1401,8 @@ class tExpr(Expr):
 
     def __init__(self, val, **assumptions):
 
-        super(tExpr, self).__init__(val, real=True)
-
-        # Hack to avoid circular dep.
-        if init and False:
-            # TODO, handle a + b * cos(omega * t)
-            if is_dc(self, t):
-                self.is_dc = True
-            elif is_ac(self, t):
-                self.is_ac = True
-            elif is_causal(self, t):
-                self.is_causal = True
+        assumptions['real'] = True
+        super(tExpr, self).__init__(val, **assumptions)
 
         self._fourier_conjugate_class = fExpr
         self._laplace_conjugate_class = sExpr
@@ -1409,9 +1411,19 @@ class tExpr(Expr):
             raise ValueError(
                 't-domain expression %s cannot depend on s' % self.expr)
 
+    def infer_assumptions(self):
+        var = self.var
+        if 'dc' not in self.assumptions:
+            self.assumptions['dc'] = is_dc(self, var)
+        if 'ac' not in self.assumptions:            
+            self.assumptions['ac'] = is_ac(self, var)
+        if 'causal' not in self.assumptions:                        
+            self.assumptions['causal'] = is_causal(self, var)  
+
     def laplace(self):
         """Determine one-side Laplace transform with 0- as the lower limit."""
-        
+
+        self.infer_assumptions()        
         result = laplace_transform(self, self.var, ssym)
 
         if hasattr(self, '_laplace_conjugate_class'):
@@ -1477,7 +1489,8 @@ class Phasor(Expr):
 
     def __init__(self, val, omega1=omegasym, **assumptions):
 
-        super (Phasor, self).__init__(val, positive=False, **assumptions)
+        assumptions['positive'] = True
+        super (Phasor, self).__init__(val, **assumptions)
         self.omega = omega1
 
     def time(self, **assumptions):
@@ -2031,7 +2044,8 @@ class Vn(noiseExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Vn, self).__init__(val, positive=True, **assumptions)
+        assumptions['positive'] = True        
+        super(Vn, self).__init__(val, **assumptions)
         # FIXME
         self._fourier_conjugate_class = Vt
         
@@ -2045,7 +2059,8 @@ class In(noiseExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(In, self).__init__(val, positive=True, **assumptions)
+        assumptions['positive'] = True        
+        super(In, self).__init__(val, **assumptions)
         # FIXME        
         self._fourier_conjugate_class = It
 
