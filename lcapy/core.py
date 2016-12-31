@@ -357,6 +357,14 @@ class Expr(object):
             return cls
 
         xcls = x.__class__
+
+        if isinstance(self, Phasor) and isinstance(x, Phasor):
+            if self.omega != x.omega:
+                raise ValueError('Cannot combine %s(%s,%s) with %s(%s,%s)' % 
+                                 (cls.__name__, self, self.omega,
+                                  xcls.__name__, x, x.omega))
+            return cls
+        
         if cls == xcls:
             return cls
 
@@ -381,9 +389,6 @@ class Expr(object):
         if isinstance(self, omegaExpr) and isinstance(x, omegaExpr):
             return cls        
 
-        if isinstance(self, Phasor) and isinstance(x, Phasor):
-            return cls
-
         if isinstance(self, Phasor) and isinstance(x, omegaExpr):
             return cls
 
@@ -397,6 +402,14 @@ class Expr(object):
             return cls, self, cls(x)
 
         xcls = x.__class__
+
+        if isinstance(self, Phasor) and isinstance(x, Phasor):
+            if self.omega != x.omega:
+                raise ValueError('Cannot combine %s(%s,%s) with %s(%s,%s)' % 
+                                 (cls.__name__, self, self.omega,
+                                  xcls.__name__, x, x.omega))
+            return cls, self, x
+
         if cls == xcls:
             return cls, self, x
 
@@ -1448,9 +1461,7 @@ class tExpr(Expr):
         check = ACChecker(self, t)
         if not check.is_ac:
             raise ValueError('Do not know how to convert %s to phasor' % self)
-        if check.omega != omegasym:            
-            raise ValueError('Angular frequency %s not omega' % check.omega)
-        phasor = Phasor(check.amp * exp(j * check.phase))
+        phasor = Phasor(check.amp * exp(j * check.phase), check.omega)
         return phasor
 
     def plot(self, t=None, **kwargs):
