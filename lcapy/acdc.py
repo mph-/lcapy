@@ -142,3 +142,4 @@ def is_ac(expr, var):
 
 def is_causal(expr, var):
     return CausalChecker(expr, var).is_causal
+

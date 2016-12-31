@@ -50,6 +50,8 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
 
 func_pattern = re.compile(r"\\operatorname{(.*)}")
 
+# Perhaps call complex complex_phasor to avoid confusion with sympy
+# attribute of the same name?
 all_assumptions = ('ac', 'dc', 'causal', 'complex')
 
 from sympy.printing.str import StrPrinter 
@@ -1391,7 +1393,7 @@ class tExpr(Expr):
         super(tExpr, self).__init__(val, real=True)
 
         # Hack to avoid circular dep.
-        if init:
+        if init and False:
             # TODO, handle a + b * cos(omega * t)
             if is_dc(self, t):
                 self.is_dc = True
@@ -1471,19 +1473,28 @@ class cExpr(Expr):
         return {Vconst: Vt, Iconst : It}[self.__class__](self)
         
 
-class Phasor(sfwExpr):
+class Phasor(Expr):
 
-    var = omegasym
+    def __init__(self, val, omega1=omegasym, **assumptions):
+
+        super (Phasor, self).__init__(val, positive=False, **assumptions)
+        self.omega = omega1
 
     def time(self, **assumptions):
         """Convert to time domain representation"""
 
         if self.is_complex:
-            result = self.expr * exp(j * self.var * t)
+            result = self.expr * exp(j * self.omega * t)
         else:
-            result = self.real.expr * cos(self.var * t) + self.imag.expr * sin(self.var * t)
+            result = self.real.expr * cos(self.omega * t) + self.imag.expr * sin(self.omega * t)
 
         return self._laplace_conjugate_class(result)
+
+    def fourier(self):
+        """Attempt Fourier transform"""
+
+        # TODO: Could optimise this...
+        return self.time().fourier()
 
     def laplace(self):
         """Convert to Laplace domain representation"""
@@ -1497,6 +1508,12 @@ class Phasor(sfwExpr):
     def rms(self):
         return {Vphasor: Vt, Iphasor : It}[self.__class__](0.5 * self)        
 
+    def plot(self, fvector=None, **kwargs):
+
+        if self.omega != omegasym:
+            self.fourier.plot(fvector, **kwargs)
+        omegaExpr(self).plot(fvector, **kwargs)
+    
     
 class Vphasor(Phasor):
 
@@ -1950,7 +1967,7 @@ class Hf(fExpr):
         self._fourier_conjugate_class = Ht
 
 
-class Vf(omegaExpr):
+class Vf(fExpr):
 
     """f-domain voltage (units V/Hz)"""
 
@@ -1963,7 +1980,7 @@ class Vf(omegaExpr):
         self._fourier_conjugate_class = Vt
 
 
-class If(omegaExpr):
+class If(fExpr):
 
     """f-domain current (units A/Hz)"""
 
@@ -2331,7 +2348,7 @@ class Super(Exprdict):
             new[kind] = value * x
         return new
 
-    # TODO, this kills Iphasorython
+    # TODO, this kills Ipython
     # def __eq__(self, x):
     #     diff = self - x
     #     for kind, value in diff.items():
@@ -2350,6 +2367,30 @@ class Super(Exprdict):
                 return kind
         return None
 
+    def _decompose(self, value):
+
+        dc = value.expr.coeff(tsym, 0)
+        if dc != 0:
+            self.add(cExpr(dc))
+            value -= dc
+
+        if value == 0:
+            return
+            
+        ac = 0
+        terms = value.expr.as_ordered_terms()
+        for term in terms:
+            if is_ac(term, tsym):
+                self.add(tExpr(term).phasor())
+                ac += term
+
+        value -= ac
+        if value == 0:
+            return
+                
+        sval = value.laplace()
+        return self.add(sval)
+    
     def _parse(self, string):
         """Parse t or s-domain expression or symbol, interpreted in time
         domain if not containing s or omega.  Return most appropriate
@@ -2367,17 +2408,7 @@ class Super(Exprdict):
             # TODO, handle AC of different frequency
             return self.add(fExpr(string))
 
-        # TODO, split into a superposition
-        tval = tExpr(string)
-        if tval.is_dc:
-            return self.add(cExpr(tval))
-
-        if tval.is_ac:
-            return self.add(tval.phasor())
-
-        sval = tval.laplace()
-        return self.add(sval)
-    
+        return self._decompose(tExpr(string))
     
     def add(self, value):
         if value == 0:
@@ -2393,6 +2424,9 @@ class Super(Exprdict):
 
         if isinstance(value, (int, float)):
             return self.add(self.transform_domains['dc'](value))
+
+        if isinstance(value, tExpr):
+            return self._decompose(value)
 
         kind = self._kind(value)
         if kind is None:
@@ -2454,6 +2488,10 @@ class Super(Exprdict):
     def laplace(self):
         # TODO, could optimise
         return self.time().laplace()
+
+    def fourier(self):
+        # TODO, could optimise
+        return self.time().fourier()    
 
     @property    
     def t(self):
