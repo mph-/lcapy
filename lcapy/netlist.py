@@ -319,16 +319,13 @@ class NetlistMixin(object):
         new = self._new()
         new.opts = copy(self.opts)
 
-        zero = kwargs.get('zero', False)
+        kind = kwargs.get('kind', None)
 
         for cpt in self._elements.values():
             if cpt.name in self.control_sources:
                 net = cpt.zero()                
             elif cpt.name in sourcenames:
-                if zero:
-                    net = cpt.zero()
-                else:
-                    net = cpt.kill()                    
+                net = cpt.kill(kind)
             elif 'ICs' in sourcenames:
                 net = cpt.kill_initial()
             else:
@@ -612,8 +609,31 @@ class NetlistMixin(object):
         implicit sources due to initial conditions)."""
 
         # TODO, ignore zero sources
-
         return dict((key, cpt) for key, cpt in self.elements.items() if cpt.source)
+
+    @property
+    def independent_source_kinds(self):
+        """Return dictionary of source kinds (dc, s, etc.)"""
+
+        if hasattr(self, '_independent_source_kinds'):
+            return self._independent_source_kinds
+        
+        kinds = {}
+        for key, elt in self.elements.items():
+            if not elt.source:
+                continue
+            cpt = elt.cpt
+            if cpt.voltage_source:
+                cpt_kinds = cpt.Voc.keys()
+            else:
+                cpt_kinds = cpt.Isc.keys()                
+            for cpt_kind in cpt_kinds:
+                if cpt_kind not in kinds:
+                    kinds[cpt_kind] = []
+                kinds[cpt_kind].append(key)
+
+        self._independent_source_kinds = kinds
+        return kinds
 
     @property
     def control_sources(self):
@@ -627,34 +647,33 @@ class NetlistMixin(object):
                 result[cpt.args[0]] = self.elements[cpt.args[0]]
         return result
 
-    def sources_kind(self, kind):
-        """Return sources that match kind"""
+    def independent_sources_select_kind(self, kind):
+        """Return list of sources that match transform domain kind."""
 
-        result = []
-        for source, cpt in self.independent_sources.items():
-            if cpt.is_dc and kind == 'dc':
-                result.append(source)
-            elif cpt.is_ac and kind == 'ac':
-                result.append(source)
-            elif cpt.is_noisy and kind == 'n':
-                result.append(source)
-            elif cpt.is_s and kind == 's':
-                result.append(source)
+        if kind not in self.independent_source_kinds:
+            return {}
 
+        result = self.independent_source_kinds[kind]
         if kind == 's' and self.initial_value_problem:
             result.append('ICs')
         return result
 
 
-class Domains(dict):
+class Transformdomains(dict):
 
     def __getattr__(self, attr):
-
         if attr not in self:
             raise AttributeError('Unknown attribute %s' % attr)
         return self[attr]
 
+    def __getitem__(self, key):
+        # This allows a[omega] to work if omega used as key
+        # instead of 'omega'.
+        if hasattr(key, 'expr'):
+            key = key.expr
+        return super(Transformdomains, self).__getitem__(key)
 
+    
 class Netlist(NetlistMixin, NetfileMixin):
     """This classes handles a generic netlist with multiple sources.
     During analysis, subnetlists are created for each source kind (dc,
@@ -671,7 +690,8 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     def _invalidate(self):
 
-        for attr in ('_sch', '_sub', '_Vdict', '_Idict'):
+        for attr in ('_sch', '_sub', '_Vdict', '_Idict',
+                     '_independent_source_kinds'):
             try:
                 delattr(self, attr)
             except:
@@ -679,27 +699,46 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     @property
     def sub(self):
+        """Return dictionary of subnetlists keyed by transform domain kind.
+        Note, the subnetlists are not created until a specific one is
+        selected.
+
+        """
 
         if hasattr(self, '_sub'):
             return self._sub
 
-        self._sub = Domains({'s' : None, 'dc' : None,
-                             'ac' : None, 'n' : None})
+        kinds = self.independent_source_kinds
+        self._sub = Transformdomains({k : None for k in kinds.keys()})
         return self._sub
 
     def _sub_make(self, kind):
+        """Create dictionary of subnetlists for specified transform domain
+        kind keyed by source.  A single subnetlist per transform
+        domain kind would be more efficient but separate subnetlists
+        are required for each noise source since these need to be
+        evaluated individually.
+
+        """
 
         result = {}
-        sources = self.sources_kind(kind)
+        sources = self.independent_sources_select_kind(kind)
         for source in sources:
             result[source] = SubNetlist(self, source, kind)
         return result
 
     def _subnetlist(self, kind):
+        if kind not in self.sub:
+            return {}
         if self.sub[kind] is None:
             self.sub[kind] = self._sub_make(kind)
         return self.sub[kind]        
 
+    @property
+    def kinds(self):
+        """Return list of transform domain kinds."""
+        return self.sub.keys()
+    
     @property
     def dc(self):
         return self._subnetlist('dc')
@@ -718,11 +757,8 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     def _solve(self):
         
-        # Hack to generate entries in sub
-        self.ac
-        self.dc
-        self.s
-        self.n
+        for kind in self.kinds:
+            self._subnetlist(kind)
     
     @property
     def Vdict(self):
@@ -813,7 +849,7 @@ class SubNetlist(NetlistMixin, MNA):
 
         # The unwanted sources are zeroed so that we can still refer
         # to them by name, say when wanting the current through them.
-        obj = netlist.kill_except(sources, zero=True)
+        obj = netlist.kill_except(sources, kind=kind)
         obj.kind = kind
         obj.__class__ = cls
         return obj

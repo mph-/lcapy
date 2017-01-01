@@ -78,7 +78,7 @@ class Cpt(object):
 
         return str(self)
 
-    def kill(self):
+    def kill(self, kind=None):
         """Kill component"""
 
         raise ValueError('component not a source: %s' % self)
@@ -214,22 +214,26 @@ class Cpt(object):
         """Admittance"""
 
         Y1 = self.cpt.Y
-        if self.cct.kind in ('ac', 'n'):
-            return Y1.jomega
-        if self.cct.kind is 'dc':
+        if self.cct.kind == 's':
+            return Y1
+        if self.cct.kind == 'dc':
             return cExpr(Y1.jomega(0))
-        return Y1
+        if self.cct.kind == 'n':        
+            return Y1.jomega
+        return Y1.jomega(self.cct.kind)
 
     @property
     def Z(self):
         """Impedance"""
 
         Z1 = self.cpt.Z
-        if self.cct.kind in ('ac', 'n'):
-            return Z1.jomega
-        if self.cct.kind is 'dc':
+        if self.cct.kind == 's':
+            return Z1
+        if self.cct.kind == 'dc':
             return cExpr(Z1.jomega(0))
-        return Z1        
+        if self.cct.kind == 'n':        
+            return Z1.jomega
+        return Z1.jomega(self.cct.kind)
 
     @property
     def node_indexes(self):
@@ -483,12 +487,21 @@ class I(Cpt):
 
     source = True
 
-    def kill(self):
+    def kill(self, kind=None):
         newopts = self.opts.copy()
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
+        if kind is None:
+            return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
+
+        Isc = self.Isc
+        if kind in Isc:
+            Isc = Isc[kind]
+        else:
+            Isc = 0
+        return '%s %s %s {%s}; %s' % (
+            self.name, self.nodes[0], self.nodes[1], Isc, self.opts)
 
     def stamp(self, cct):
 
@@ -778,11 +791,21 @@ class V(Cpt):
         return '%s %s %s {%s}; %s' % (
             self.name, self.nodes[0], self.nodes[1], 0, self.opts)
     
-    def kill(self):
+    def kill(self, kind=None):
         newopts = self.opts.copy()
         newopts.strip_current_labels()
         newopts.strip_labels()
-        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
+
+        if kind is None:
+            return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
+
+        Voc = self.Voc
+        if kind in Voc:
+            Voc = Voc[kind]
+        else:
+            Voc = 0
+        return '%s %s %s {%s}; %s' % (
+            self.name, self.nodes[0], self.nodes[1], Voc, self.opts)
 
     def stamp(self, cct):
 

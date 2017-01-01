@@ -2315,7 +2315,8 @@ class Super(Exprdict):
             p.text(pretty(self))
 
     def __getitem__(self, key):
-        # This allows a[omega] to work.
+        # This allows a[omega] to work if omega used as key
+        # instead of 'omega'.
         if hasattr(key, 'expr'):
             key = key.expr
         return super(Super, self).__getitem__(key)
@@ -2408,11 +2409,16 @@ class Super(Exprdict):
 
     def select(self, kind):
         if kind not in self:
-            return self.transform_domains[kind](0)
+            if kind not in self.transform_domains:
+                kind = 'ac'
+            return self.transform_domains[kind](0)        
         return self[kind]
 
     def _kind(self, value):
         if isinstance(value, Phasor):
+            # Use angular frequency for key.  This can be a nuisance
+            # for numerical values since cannot use x.3 syntax
+            # say for an angular frequency of 3.
             return value.omega
         
         for kind, mtype in self.transform_domains.items():
@@ -2631,11 +2637,17 @@ class Isuper(Super):
 
 
 def vtype_select(kind):
-    return {'s' : Vs, 'n' : Vn, 'ac' : Vphasor, 'dc' : Vconst}[kind]
+    try:
+        return {'s' : Vs, 'n' : Vn, 'ac' : Vphasor, 'dc' : Vconst}[kind]
+    except KeyError:
+        return Vphasor
 
 
 def itype_select(kind):
-    return {'s' : Vs, 'n' : Vn, 'ac' : Vphasor, 'dc' : Vconst}[kind]
+    try:    
+        return {'s' : Vs, 'n' : Vn, 'ac' : Vphasor, 'dc' : Vconst}[kind]
+    except KeyError:
+        return Vphasor        
 
     
 init = True
