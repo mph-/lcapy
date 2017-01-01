@@ -200,7 +200,8 @@ class Expr(object):
         #   1. There are the sympy assumptions that are only associated
         #      with symbols, for example, real=True.
         #   2. The expr assumptions such as dc, ac, causal.  These
-        #      are primarily to help the inverse Laplace transform.
+        #      are primarily to help the inverse Laplace transform for sExpr
+        #      classes.  The omega assumption is required for Phasors.
 
         self.assumptions = assumptions
         self.expr = sympify(arg, **assumptions)
@@ -348,149 +349,141 @@ class Expr(object):
 
         return self.__class__(-self.expr, **self.assumptions)
 
-    def __compat__(self, x):
+    def __compat_mul__(self, x, op):
         """Check if args are compatible and if so return compatible class."""
 
-        # Could disallow Vs + Is, etc.
         # Could also convert Vs / Zs -> Is, etc.
         # But, what about (Vs * Vs) / (Vs * Is) ???
 
         cls = self.__class__
         if not isinstance(x, Expr):
-            return cls
+            return cls, self, cls(x), {}
 
         xcls = x.__class__
 
-        if isinstance(self, Phasor) and isinstance(x, Phasor):
-            if self.omega != x.omega:
-                raise ValueError('Cannot combine %s(%s, omega=%s) with %s(%s, omega=%s)' % 
-                                 (cls.__name__, self, self.omega,
-                                  xcls.__name__, x, x.omega))
-            return cls
-        
         if cls == xcls:
-            return cls
+            return cls, self, cls(x), {}
 
         if xcls in (Expr, cExpr):
-            return cls
+            return cls, self, cls(x), {}
 
         if cls in (Expr, cExpr):
-            return xcls
+            return xcls, self, x, {}
 
         if isinstance(x, cls):
-            return xcls
+            return xcls, self, cls(x), {}
 
         if isinstance(self, xcls):
-            return cls
+            return cls, self, cls(x), {}
 
         if isinstance(self, tExpr) and isinstance(x, tExpr):
-            return cls
+            return cls, self, cls(x), {}
 
         if isinstance(self, sExpr) and isinstance(x, sExpr):
-            return cls
+            return cls, self, cls(x), {}
 
         if isinstance(self, omegaExpr) and isinstance(x, omegaExpr):
-            return cls        
+            return cls, self, cls(x), {}
 
-        if isinstance(self, Phasor) and isinstance(x, omegaExpr):
-            return cls
+        raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' % 
+                         (cls.__name__, self, xcls.__name__, x, op))
 
-        raise ValueError('Cannot combine %s(%s) with %s(%s)' % 
-                         (cls.__name__, self, xcls.__name__, x))
+    def __compat_add__(self, x, op):
 
-    def __compat_add__(self, x):
-
+        # Disallow Vs + Is, etc.
+        
         cls = self.__class__
         if not isinstance(x, Expr):
-            return cls, self, cls(x)
+            return cls, self, cls(x), {}
 
         xcls = x.__class__
 
-        if isinstance(self, Phasor) and isinstance(x, Phasor):
-            if self.omega != x.omega:
-                raise ValueError('Cannot combine %s(%s, omega=%s) with %s(%s, omega=%s)' % 
-                                 (cls.__name__, self, self.omega,
-                                  xcls.__name__, x, x.omega))
-            return cls, self, x
-
         if cls == xcls:
-            return cls, self, x
+            return cls, self, x, {}
 
-        cls = self.__compat__(x)
-        return cls, self, cls(x)
+        # Handle Vs + sExpr etc.
+        if isinstance(self, xcls):
+            return cls, self, x, {}
+
+        # Handle sExpr + Vs etc.        
+        if isinstance(x, cls):
+            return xcls, self, cls(x), {}        
+
+        if xcls in (Expr, cExpr):
+            return cls, self, x, {}
+
+        if cls in (Expr, cExpr):
+            return xcls, cls(self), x, {}        
+
+        raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' % 
+                         (cls.__name__, self, xcls.__name__, x, op))        
 
     def __rdiv__(self, x):
         """Reverse divide"""
 
-        cls = self.__compat__(x)
-        x = cls(x)
-        return cls(x.expr / self.expr)
+        cls, self, x, assumptions = self.__compat_mul__(x, '/')
+        return cls(x.expr / self.expr, **assumptions)
 
     def __rtruediv__(self, x):
         """Reverse true divide"""
 
-        cls = self.__compat__(x)
-        x = cls(x)
-        return cls(x.expr / self.expr)
+        cls, self, x, assumptions = self.__compat_mul__(x, '/')
+        return cls(x.expr / self.expr, **assumptions)
 
     def __mul__(self, x):
         """Multiply"""
 
-        cls = self.__compat__(x)
-        x = cls(x)
-        return cls(self.expr * x.expr)
+        cls, self, x, assumptions = self.__compat_mul__(x, '*')
+        return cls(self.expr * x.expr, **assumptions)
 
     def __rmul__(self, x):
         """Reverse multiply"""
 
-        cls = self.__compat__(x)
-        x = cls(x)
-        return cls(self.expr * x.expr)
+        cls, self, x, assumptions = self.__compat_mul__(x, '*')
+        return cls(self.expr * x.expr, **assumptions)
 
     def __div__(self, x):
         """Divide"""
 
-        cls = self.__compat__(x)
-        x = cls(x)
-        return cls(self.expr / x.expr)
+        cls, self, x, assumptions = self.__compat_mul__(x, '/')
+        return cls(self.expr / x.expr, **assumptions)
 
     def __truediv__(self, x):
         """True divide"""
 
-        cls = self.__compat__(x)
-        x = cls(x)
-        return cls(self.expr / x.expr)
+        cls, self, x, assumptions = self.__compat_mul__(x, '/')
+        return cls(self.expr / x.expr, **assumptions)
 
     def __add__(self, x):
         """Add"""
 
-        cls, self, x = self.__compat_add__(x)
-        return cls(self.expr + x.expr)
+        cls, self, x, assumptions = self.__compat_add__(x, '+')
+        return cls(self.expr + x.expr, **assumptions)
 
     def __radd__(self, x):
         """Reverse add"""
 
-        cls, self, x = self.__compat_add__(x)
-        return cls(self.expr + x.expr)
+        cls, self, x, assumptions = self.__compat_add__(x, '+')
+        return cls(self.expr + x.expr, **assumptions)
 
     def __rsub__(self, x):
         """Reverse subtract"""
 
-        cls, self, x = self.__compat_add__(x)
-        return cls(x.expr - self.expr)
+        cls, self, x, assumptions = self.__compat_add__(x, '-')
+        return cls(x.expr - self.expr, **assumptions)
 
     def __sub__(self, x):
         """Subtract"""
 
-        cls, self, x = self.__compat_add__(x)
-        return cls(self.expr - x.expr)
+        cls, self, x, assumptions = self.__compat_add__(x, '-')
+        return cls(self.expr - x.expr, **assumptions)
 
     def __pow__(self, x):
         """Pow"""
 
-        cls = self.__compat__(x)
-        x = cls(x)
-        return cls(self.expr ** x.expr)
+        # TODO: FIXME
+        cls, self, x, assumptions = self.__compat_mul__(x, '**')
+        return cls(self.expr ** x.expr, **assumptions)
 
     def __or__(self, x):
         """Parallel combination"""
@@ -500,10 +493,12 @@ class Expr(object):
     def __eq__(self, x):
         """Equality"""
 
+        # Note, this is used by the in operator.
+        
         if x is None:
             return False
 
-        cls = self.__compat__(x)
+        cls, self, x, assumptions = self.__compat_add__(x, '==')
         x = cls(x)
 
         # This fails if one of the operands has the is_real attribute
@@ -516,7 +511,7 @@ class Expr(object):
         if x is None:
             return True
 
-        cls = self.__compat__(x)
+        cls, self, x, assumptions = self.__compat_add__(x, '!=')
         x = cls(x)
 
         return self.expr != x.expr
@@ -527,7 +522,7 @@ class Expr(object):
         if x is None:
             return True
 
-        cls = self.__compat__(x)
+        cls, self, x, assumptions = self.__compat_add__(x, '>')
         x = cls(x)
 
         return self.expr > x.expr
@@ -538,7 +533,7 @@ class Expr(object):
         if x is None:
             return True
 
-        cls = self.__compat__(x)
+        cls, self, x, assumptions = self.__compat_add__(x, '>=')
         x = cls(x)
 
         return self.expr >= x.expr
@@ -549,7 +544,7 @@ class Expr(object):
         if x is None:
             return True
 
-        cls = self.__compat__(x)
+        cls, self, x, assumptions = self.__compat_add__(x, '<')
         x = cls(x)
 
         return self.expr < x.expr
@@ -560,7 +555,7 @@ class Expr(object):
         if x is None:
             return True
 
-        cls = self.__compat__(x)
+        cls, self, x, assumptions = self.__compat_add__(x, '<=')
         x = cls(x)
 
         return self.expr <= x.expr    
@@ -568,9 +563,10 @@ class Expr(object):
     def parallel(self, x):
         """Parallel combination"""
 
-        cls = self.__compat__(x)
+        cls, self, x, assumptions = self.__compat_add__(x, '|')
         x = cls(x)
-        return cls(self.expr * x.expr / (self.expr + x.expr))
+
+        return cls(self.expr * x.expr / (self.expr + x.expr), **assumptions)
 
     def _pretty(self, *args, **kwargs):
         """Make pretty string"""
@@ -1439,7 +1435,7 @@ class tExpr(Expr):
         """Determine one-side Laplace transform with 0- as the lower limit."""
 
         self.infer_assumptions()        
-        result = laplace_transform(self, self.var, ssym)
+        result = laplace_transform(self.expr, self.var, ssym)
 
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result, **self.assumptions)
@@ -1500,11 +1496,57 @@ class cExpr(Expr):
 
 class Phasor(Expr):
 
+    # Could convert Vphasor + Vconst -> VSuper but that is not really
+    # the scope for types such as Vphasor and Vconst.
+    
     def __init__(self, val, **assumptions):
 
         assumptions['positive'] = True
         super (Phasor, self).__init__(val, **assumptions)
 
+    def __compat_add__(self, x, op):
+
+        cls = self.__class__
+        xcls = x.__class__
+
+        # Special case for zero.
+        if isinstance(x, int) and x == 0:
+            return cls, self, cls(x), self.assumptions
+        
+        if not isinstance(x, Phasor):
+            raise TypeError('Incompatible arguments %s and %s for %s' %
+                            (repr(self), repr(x), op))
+
+        if self.omega != x.omega:
+            raise ValueError('Cannot combine %s(%s, omega=%s)'
+                             ' with %s(%s, omega=%s)' % 
+                             (cls.__name__, self, self.omega,
+                              xcls.__name__, x, x.omega))
+        return cls, self, x, {}
+
+    def __compat_mul__(self, x, op):
+
+        cls = self.__class__
+        xcls = x.__class__
+
+        # Perhaps check explicitly for int, float?
+        if not isinstance(x, Expr):
+            return cls, self, cls(x), self.assumptions
+
+        if isinstance(x, omegaExpr):
+            return cls, self, x, self.assumptions
+        
+        if not isinstance(x, Phasor):
+            raise TypeError('Incompatible arguments %s and %s for %s' %
+                            (repr(self), repr(x), op))
+
+        if self.omega != x.omega:
+            raise ValueError('Cannot combine %s(%s, omega=%s)'
+                             ' with %s(%s, omega=%s)' % 
+                             (cls.__name__, self, self.omega,
+                              xcls.__name__, x, x.omega))
+        return cls, self, x, self.assumptions
+        
     def time(self, **assumptions):
         """Convert to time domain representation"""
 
@@ -1599,7 +1641,7 @@ class Iconst(cExpr):
         return Idc(self)
 
     def time(self):
-        return Vt(self)    
+        return It(self)    
 
 
 s = sExpr('s')
@@ -2414,7 +2456,10 @@ class Super(Exprdict):
             # Use angular frequency for key.  This can be a nuisance
             # for numerical values since cannot use x.3 syntax
             # say for an angular frequency of 3.
-            return value.omega
+            key = value.omega
+            if hasattr(key, 'expr'):
+                key = key.expr
+            return key
         
         for kind, mtype in self.transform_domains.items():
             if isinstance(value, mtype):
