@@ -50,9 +50,9 @@ __all__ = ('pprint', 'pretty', 'latex', 'DeltaWye', 'WyeDelta', 'tf',
 
 func_pattern = re.compile(r"\\operatorname{(.*)}")
 
-from sympy.printing.str import StrPrinter 
-from sympy.printing.latex import LatexPrinter 
-from sympy.printing.pretty.pretty import PrettyPrinter 
+from sympy.printing.str import StrPrinter
+from sympy.printing.latex import LatexPrinter
+from sympy.printing.pretty.pretty import PrettyPrinter
 
 class LcapyStrPrinter(StrPrinter):
 
@@ -127,7 +127,7 @@ class Context(object):
         global_assumptions.update(self.assumptions)
 
     def restore(self):
-        
+
         if self.previous is None:
             return
 
@@ -139,7 +139,7 @@ class Context(object):
 def sympify(expr, evaluate=True, **assumptions):
     """Create a sympy expression."""
 
-    return sympify1(expr, context.symbols, 
+    return sympify1(expr, context.symbols,
                     evaluate, **assumptions)
 
 def symbol(name, **assumptions):
@@ -173,13 +173,13 @@ class Exprdict(dict):
     def _repr_pretty_(self, p, cycle):
 
         p.text(pretty(self))
-    
+
 
 class Expr(object):
-   
+
     """Decorator class for sympy classes derived from sympy.Expr"""
 
-    one_sided = False    
+    one_sided = False
 
     # Perhaps have lookup table for operands to determine
     # the resultant type?  For example, Vs / Vs -> Hs
@@ -209,8 +209,8 @@ class Expr(object):
     def infer_assumptions(self):
         self.assumptions['dc'] = None
         self.assumptions['ac'] = None
-        self.assumptions['causal'] = None           
-        
+        self.assumptions['causal'] = None
+
     @property
     def is_dc(self):
         if 'dc' not in self.assumptions:
@@ -234,7 +234,7 @@ class Expr(object):
         if 'complex' not in self.assumptions:
             return False
         return self.assumptions['complex']  == True
-        
+
     @property
     def val(self):
         """Return floating point value of expression if it can be evaluated,
@@ -245,7 +245,7 @@ class Expr(object):
     @property
     def omega(self):
         """Return angular frequency"""
-        
+
         if 'omega' not in self.assumptions:
             return omega
         return self.assumptions['omega']
@@ -284,13 +284,13 @@ class Expr(object):
                 if hasattr(self, 'assumptions'):
                     return self.__class__(ret, **self.assumptions)
                 return self.__class__(ret)
-                
+
             # If it is callable, create a function to pass arguments
             # through and wrap its return value.
             def wrap(*args):
                 """This is wrapper for a SymPy function.
                 For help, see the SymPy documentation."""
-                
+
                 ret = a(*args)
 
                 if not isinstance(ret, sym.Expr):
@@ -385,13 +385,13 @@ class Expr(object):
         if isinstance(self, omegaExpr) and isinstance(x, omegaExpr):
             return cls, self, cls(x), {}
 
-        raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' % 
+        raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' %
                          (cls.__name__, self, xcls.__name__, x, op))
 
     def __compat_add__(self, x, op):
 
         # Disallow Vs + Is, etc.
-        
+
         cls = self.__class__
         if not isinstance(x, Expr):
             return cls, self, cls(x), {}
@@ -405,18 +405,18 @@ class Expr(object):
         if isinstance(self, xcls):
             return cls, self, x, {}
 
-        # Handle sExpr + Vs etc.        
+        # Handle sExpr + Vs etc.
         if isinstance(x, cls):
-            return xcls, self, cls(x), {}        
+            return xcls, self, cls(x), {}
 
         if xcls in (Expr, cExpr):
             return cls, self, x, {}
 
         if cls in (Expr, cExpr):
-            return xcls, cls(self), x, {}        
+            return xcls, cls(self), x, {}
 
-        raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' % 
-                         (cls.__name__, self, xcls.__name__, x, op))        
+        raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' %
+                         (cls.__name__, self, xcls.__name__, x, op))
 
     def __rdiv__(self, x):
         """Reverse divide"""
@@ -494,7 +494,7 @@ class Expr(object):
         """Equality"""
 
         # Note, this is used by the in operator.
-        
+
         if x is None:
             return False
 
@@ -558,7 +558,7 @@ class Expr(object):
         cls, self, x, assumptions = self.__compat_add__(x, '<=')
         x = cls(x)
 
-        return self.expr <= x.expr    
+        return self.expr <= x.expr
 
     def parallel(self, x):
         """Parallel combination"""
@@ -662,13 +662,13 @@ class Expr(object):
     @property
     def real_imag(self):
         """Rewrite as x + j * y"""
-        
+
         return self.real + j * self.imag
 
     @property
     def _ratfun(self):
         return Ratfun(self.expr, self.var)
-    
+
     @property
     def N(self):
         """Return numerator of rational function"""
@@ -691,7 +691,7 @@ class Expr(object):
     def denominator(self):
         """Return denominator of rational function"""
 
-        return self.__class__(self._ratfun.denominator)    
+        return self.__class__(self._ratfun.denominator)
 
     def rationalize_denominator(self):
         """Rationalize denominator by multiplying numerator and denominator by
@@ -720,7 +720,7 @@ class Expr(object):
             Dnew = R.D
             Nnew = sqrt((N.real**2 + N.imag**2).simplify())
             dst = Nnew / Dnew
-            
+
         dst.part = 'magnitude'
         return dst
 
@@ -735,7 +735,7 @@ class Expr(object):
         """Return magnitude in dB"""
 
         # Need to clip for a desired dynamic range?
-        # Assume reference is 1. 
+        # Assume reference is 1.
         dst = 20 * log10(self.magnitude)
         dst.part = 'magnitude'
         dst.units = 'dB'
@@ -747,10 +747,10 @@ class Expr(object):
 
         if self.is_real:
             return 0
-        
+
         R = self.rationalize_denominator()
         N = R.N
-        
+
         G = gcd(N.real, N.imag)
         new = N / G
         dst = atan2(new.imag, new.real)
@@ -785,7 +785,7 @@ class Expr(object):
 
     def evaluate(self, arg=None):
         """Evaluate expression at arg.  arg may be a scalar, or a vector.
-        The result is of type float or complex.  
+        The result is of type float or complex.
 
         There can be no symbols in the expression except for the variable.
         """
@@ -883,7 +883,7 @@ class Expr(object):
         if hasattr(subexpr, 'expr'):
             subexpr = subexpr.expr
         return self.expr.has(subexpr)
-    
+
     def _subs1(self, old, new, **kwargs):
 
         # This will fail if a variable has different attributes,
@@ -966,7 +966,7 @@ class Expr(object):
         if hasattr(self, 'assumptions'):
             return self.__class__(ret, **self.assumptions)
         return self.__class__(ret)
-    
+
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage"""
 
@@ -1032,7 +1032,7 @@ class Expr(object):
     def canonical(self):
         return self.__class__(self)
 
-    
+
 class sfwExpr(Expr):
 
     def __init__(self, val, **assumptions):
@@ -1055,8 +1055,8 @@ class sfwExpr(Expr):
         """Return poles of expression as a dictionary
         Note this may not find them all."""
 
-        return self.D.roots()    
-    
+        return self.D.roots()
+
     def canonical(self):
         """Convert rational function to canonical form with unity
         highest power of denominator.
@@ -1070,7 +1070,7 @@ class sfwExpr(Expr):
 
         See also canonical, partfrac, mixedfrac, and ZPK"""
 
-        return self.__class__(self._ratfun.general(), **self.assumptions)        
+        return self.__class__(self._ratfun.general(), **self.assumptions)
 
     def partfrac(self):
         """Convert rational function into partial fraction form.
@@ -1093,7 +1093,7 @@ class sfwExpr(Expr):
 
         return self.__class__(self._ratfun.ZPK(), **self.assumptions)
 
-    
+
 class sExpr(sfwExpr):
     """s-domain expression or symbol"""
 
@@ -1159,7 +1159,7 @@ class sExpr(sfwExpr):
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result)
         else:
-            result = tExpr(result)            
+            result = tExpr(result)
         return result
 
     def time(self, **assumptions):
@@ -1327,7 +1327,7 @@ class fExpr(sfwExpr):
 
     def plot(self, fvector=None, **kwargs):
         """Plot frequency response at values specified by fvector.
-        
+
         There are many plotting options, see matplotlib.pyplot.plot.
 
         For example:
@@ -1336,7 +1336,7 @@ class fExpr(sfwExpr):
             V.phase.plot(fvector, color='black', linestyle='--')
 
         By default complex data is plotted as separate plots of magnitude (dB)
-        and phase.        
+        and phase.
         """
 
         from lcapy.plot import plot_frequency
@@ -1353,7 +1353,7 @@ class omegaExpr(sfwExpr):
 
     def __init__(self, val, **assumptions):
 
-        assumptions['real'] = True        
+        assumptions['real'] = True
         super(omegaExpr, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = tExpr
 
@@ -1369,15 +1369,15 @@ class omegaExpr(sfwExpr):
 
         return self(2 * pi * f).inverse_fourier()
 
-    
+
     def time(self):
         """Alias for inverse_fourier"""
-        
+
         return self.inverse_fourier()
 
     def plot(self, wvector=None, **kwargs):
         """Plot angular frequency response at values specified by wvector.
-        
+
         There are many plotting options, see matplotlib.pyplot.plot.
 
         For example:
@@ -1386,7 +1386,7 @@ class omegaExpr(sfwExpr):
             V.phase.plot(fvector, color='black', linestyle='--')
 
         By default complex data is plotted as separate plots of magnitude (dB)
-        and phase.        
+        and phase.
         """
 
         from lcapy.plot import plot_angular_frequency
@@ -1417,24 +1417,25 @@ class tExpr(Expr):
 
         self.assumptions['dc'] = False
         self.assumptions['ac'] = False
-        self.assumptions['causal'] = False        
+        self.assumptions['causal'] = False
 
-        var = self.var        
-        if 'dc' not in self.assumptions:
-            self.assumptions['dc'] = is_dc(self, var)
-            if self.assumptions['dc']:
-                return
-        if 'ac' not in self.assumptions:            
-            self.assumptions['ac'] = is_ac(self, var)
-            if self.assumptions['ac']:
-                return            
-        if 'causal' not in self.assumptions:                        
-            self.assumptions['causal'] = is_causal(self, var)  
+        var = self.var
+        if is_dc(self, var):
+            self.assumptions['dc'] = True
+            return
+
+        if is_ac(self, var):
+            self.assumptions['ac'] = True
+            return
+
+        if is_causal(self, var):
+            self.assumptions['causal'] = True
+
 
     def laplace(self):
         """Determine one-side Laplace transform with 0- as the lower limit."""
 
-        self.infer_assumptions()        
+        self.infer_assumptions()
         result = laplace_transform(self.expr, self.var, ssym)
 
         if hasattr(self, '_laplace_conjugate_class'):
@@ -1451,7 +1452,7 @@ class tExpr(Expr):
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         else:
-            result = fExpr(result)            
+            result = fExpr(result)
         return result
 
     def phasor(self, **assumptions):
@@ -1487,18 +1488,18 @@ class cExpr(Expr):
 
         assumptions['real'] = True
         if 'positive' not in assumptions:
-            assumptions['positive'] = True            
+            assumptions['positive'] = True
         super(cExpr, self).__init__(val, **assumptions)
 
     def rms(self):
         return {Vconst: Vt, Iconst : It}[self.__class__](self)
-        
+
 
 class Phasor(Expr):
 
     # Could convert Vphasor + Vconst -> VSuper but that is not really
     # the scope for types such as Vphasor and Vconst.
-    
+
     def __init__(self, val, **assumptions):
 
         assumptions['positive'] = True
@@ -1512,14 +1513,14 @@ class Phasor(Expr):
         # Special case for zero.
         if isinstance(x, int) and x == 0:
             return cls, self, cls(x), self.assumptions
-        
+
         if not isinstance(x, Phasor):
             raise TypeError('Incompatible arguments %s and %s for %s' %
                             (repr(self), repr(x), op))
 
         if self.omega != x.omega:
             raise ValueError('Cannot combine %s(%s, omega=%s)'
-                             ' with %s(%s, omega=%s)' % 
+                             ' with %s(%s, omega=%s)' %
                              (cls.__name__, self, self.omega,
                               xcls.__name__, x, x.omega))
         return cls, self, x, {}
@@ -1535,18 +1536,18 @@ class Phasor(Expr):
 
         if isinstance(x, omegaExpr):
             return cls, self, x, self.assumptions
-        
+
         if not isinstance(x, Phasor):
             raise TypeError('Incompatible arguments %s and %s for %s' %
                             (repr(self), repr(x), op))
 
         if self.omega != x.omega:
             raise ValueError('Cannot combine %s(%s, omega=%s)'
-                             ' with %s(%s, omega=%s)' % 
+                             ' with %s(%s, omega=%s)' %
                              (cls.__name__, self, self.omega,
                               xcls.__name__, x, x.omega))
         return cls, self, x, self.assumptions
-        
+
     def time(self, **assumptions):
         """Convert to time domain representation"""
 
@@ -1575,15 +1576,15 @@ class Phasor(Expr):
         return self.__class__(self, **self.assumptions)
 
     def rms(self):
-        return {Vphasor: Vt, Iphasor : It}[self.__class__](0.5 * self)        
+        return {Vphasor: Vt, Iphasor : It}[self.__class__](0.5 * self)
 
     def plot(self, fvector=None, **kwargs):
 
         if self.omega != omegasym:
             self.fourier.plot(fvector, **kwargs)
         omegaExpr(self).plot(fvector, **kwargs)
-    
-    
+
+
 class Vphasor(Phasor):
 
     def __init__(self, val, **assumptions):
@@ -1606,7 +1607,7 @@ class Iphasor(Phasor):
 
         super(Iphasor, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = It
-    
+
     def cpt(self):
 
         i = self
@@ -1636,12 +1637,12 @@ class Iconst(cExpr):
 
         super(Iconst, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = It
-    
+
     def cpt(self):
         return Idc(self)
 
     def time(self):
-        return It(self)    
+        return It(self)
 
 
 s = sExpr('s')
@@ -2077,7 +2078,7 @@ class noiseExpr(omegaExpr):
         """Calculate rms value."""
 
         P = sym.integrate(self.expr**2, (self.var, 0, sym.oo)) / (2 * sym.pi)
-        rms = sym.sqrt(P)        
+        rms = sym.sqrt(P)
         # TODO: Use rms class?
         return self._fourier_conjugate_class(rms)
 
@@ -2090,7 +2091,7 @@ class noiseExpr(omegaExpr):
         # Convert to two-sided spectrum
         S = self.subs(self.var, abs(self.var)) / sqrt(2)
         return S.inverse_fourier()
-    
+
 
 class Vn(noiseExpr):
 
@@ -2101,12 +2102,12 @@ class Vn(noiseExpr):
 
     def __init__(self, val, **assumptions):
 
-        assumptions['positive'] = True        
+        assumptions['positive'] = True
         super(Vn, self).__init__(val, **assumptions)
         # FIXME
         self._fourier_conjugate_class = Vt
-        
-        
+
+
 class In(noiseExpr):
 
     """f-domain noise current (units A/rtHz)"""
@@ -2116,9 +2117,9 @@ class In(noiseExpr):
 
     def __init__(self, val, **assumptions):
 
-        assumptions['positive'] = True        
+        assumptions['positive'] = True
         super(In, self).__init__(val, **assumptions)
-        # FIXME        
+        # FIXME
         self._fourier_conjugate_class = It
 
 
@@ -2344,7 +2345,7 @@ class Super(Exprdict):
         super (Super, self).__init__()
         for arg in args:
             self.add(arg)
-    
+
     def _repr_pretty_(self, p, cycle):
         if self == {}:
             p.text(pretty(0))
@@ -2360,7 +2361,7 @@ class Super(Exprdict):
 
     def ac_keys(self):
         """Return list of keys for all ac components"""
-        
+
         keys = self.keys()
         for key in ('dc', 's', 'n'):
             if key in keys:
@@ -2409,7 +2410,7 @@ class Super(Exprdict):
             for value in x.values():
                 new.add(value)
         else:
-            new.add(x)            
+            new.add(x)
         return new
 
     def __radd__(self, x):
@@ -2448,7 +2449,7 @@ class Super(Exprdict):
         if kind not in self:
             if kind not in self.transform_domains:
                 kind = 'ac'
-            return self.transform_domains[kind](0)        
+            return self.transform_domains[kind](0)
         return self[kind]
 
     def _kind(self, value):
@@ -2460,7 +2461,7 @@ class Super(Exprdict):
             if hasattr(key, 'expr'):
                 key = key.expr
             return key
-        
+
         for kind, mtype in self.transform_domains.items():
             if isinstance(value, mtype):
                 return kind
@@ -2475,7 +2476,7 @@ class Super(Exprdict):
 
         if value == 0:
             return
-            
+
         ac = 0
         terms = value.expr.as_ordered_terms()
         for term in terms:
@@ -2486,10 +2487,10 @@ class Super(Exprdict):
         value -= ac
         if value == 0:
             return
-                
+
         sval = value.laplace()
         return self.add(sval)
-    
+
     def _parse(self, string):
         """Parse t or s-domain expression or symbol, interpreted in time
         domain if not containing s, omega, or f.  Return most
@@ -2498,7 +2499,7 @@ class Super(Exprdict):
         """
 
         symbols = symbols_find(string)
-    
+
         if 's' in symbols:
             return self.add(sExpr(string))
 
@@ -2510,7 +2511,7 @@ class Super(Exprdict):
             return self.add(fExpr(string))
 
         return self._decompose(tExpr(string))
-    
+
     def add(self, value):
         if value == 0:
             return
@@ -2519,7 +2520,7 @@ class Super(Exprdict):
             for kind, value in value.items():
                 self.add(value)
             return
-        
+
         if isinstance(value, six.string_types):
             return self._parse(value)
 
@@ -2538,7 +2539,7 @@ class Super(Exprdict):
                     if isinstance(value, cls1):
                         value = cls2(value)
                         break
-            kind = self._kind(value)            
+            kind = self._kind(value)
 
         if kind is None:
             raise ValueError('Cannot handle value %s of type %s' %
@@ -2555,14 +2556,14 @@ class Super(Exprdict):
         else:
             if kind not in self:
                 self[kind] = value
-            else:    
-                self[kind] += value                    
-    
-    @property    
-    def dc(self):
-        return self.select('dc')    
+            else:
+                self[kind] += value
 
-    @property    
+    @property
+    def dc(self):
+        return self.select('dc')
+
+    @property
     def ac(self):
         return Exprdict({k: v for k, v in self.items() if k in self.ac_keys()})
 
@@ -2570,14 +2571,14 @@ class Super(Exprdict):
     def s(self):
         return self.select('s')
 
-    @property    
+    @property
     def n(self):
         return self.select('n')
 
     def time(self):
 
         result = self.time_class(0)
-        
+
         # TODO, integrate noise
         for val in self.values():
             if hasattr(val, 'time'):
@@ -2592,20 +2593,20 @@ class Super(Exprdict):
 
     def fourier(self):
         # TODO, could optimise
-        return self.time().fourier()    
+        return self.time().fourier()
 
-    @property    
+    @property
     def t(self):
         return self.time()
 
     def canonical(self):
         new = self.__class__()
-        for kind, value in self.items():        
+        for kind, value in self.items():
             new[kind] = value.canonical()
-            
+
         return new
 
-    
+
 class Vsuper(Super):
 
     type_map = {cExpr: Vconst, sExpr : Vs, noiseExpr: Vn, omegaExpr: Vphasor}
@@ -2615,7 +2616,7 @@ class Vsuper(Super):
     def __mul__(self, x):
         if isinstance(x, (int, float)):
             return self.__scale__(x)
-        
+
         if not isinstance(x, Ys):
             raise TypeError("Unsupported types for *: 'Vsuper' and '%s'" %
                             type(x).__name__)
@@ -2626,7 +2627,7 @@ class Vsuper(Super):
         for key in self.ac_keys():
             new += self[key] * x.jomega(self[key],omega)
         if 'n' in self:
-            new += self['n'] * x.jomega            
+            new += self['n'] * x.jomega
         if 's' in self:
             new += self['s'] * x
         return new
@@ -2638,30 +2639,30 @@ class Vsuper(Super):
         if not isinstance(x, Zs):
             raise TypeError("Unsupported types for /: 'Vsuper' and '%s'" %
                             type(x).__name__)
-        return self * Ys(1 / x)    
+        return self * Ys(1 / x)
 
 
 class Isuper(Super):
 
     type_map = {cExpr: Iconst, sExpr : Is, noiseExpr: In, omegaExpr: Iphasor}
     transform_domains = {'s': Is, 'ac' : Iphasor, 'dc' : Iconst, 'n' : In}
-    time_class = It    
+    time_class = It
 
     def __mul__(self, x):
         if isinstance(x, (int, float)):
             return self.__scale__(x)
-        
+
         if not isinstance(x, Zs):
             raise TypeError("Unsupported types for *: 'Isuper' and '%s'" %
                             type(x).__name__)
         new = Vsuper()
         if 'dc' in self:
-            # TODO, fix types            
+            # TODO, fix types
             new += Vconst(self['dc'] * cExpr(x.jomega(0)))
         for key in self.ac_keys():
-            new += self[key] * x.jomega(self[key],omega)            
+            new += self[key] * x.jomega(self[key],omega)
         if 'n' in self:
-            new += self['n'] * x.jomega            
+            new += self['n'] * x.jomega
         if 's' in self:
             new += self['s'] * x
         return new
@@ -2684,9 +2685,9 @@ def vtype_select(kind):
 
 
 def itype_select(kind):
-    try:    
+    try:
         return {'s' : Vs, 'n' : Vn, 'ac' : Vphasor, 'dc' : Vconst}[kind]
     except KeyError:
-        return Iphasor        
+        return Iphasor
 
 from lcapy.oneport import L, C, R, G, Idc, Vdc, Iac, Vac, I, V, Z, Y

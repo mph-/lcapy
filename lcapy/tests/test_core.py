@@ -252,8 +252,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual((t * 5 + 1).evaluate((10, 20))[0], 51.0, "Evaluate fail for vector")
 
     def test_laplace(self):
-        
-        self.assertEqual(Heaviside(t).laplace(), 1 / s, "Heaviside(t)")        
+
+        self.assertEqual(Heaviside(t).laplace(), 1 / s, "Heaviside(t)")
         self.assertEqual(DiracDelta(t).laplace(), 1, "DiracDelta(t)")
 
     def test_zp2k(self):
@@ -274,7 +274,7 @@ class LcapyTester(unittest.TestCase):
                          exp(j * 2 * pi * t))
         self.assertEqual(exp(-j * 2 * pi * t).fourier(), DiracDelta(f + 1))
         self.assertEqual(exp(-j * 2 * pi * t).fourier().inverse_fourier(),
-                         exp(-j * 2 * pi * t))        
+                         exp(-j * 2 * pi * t))
 
     def test_inverse_fourier(self):
 
@@ -285,4 +285,19 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(Vconst(2).rms(), Vt(2))
         self.assertEqual(Vphasor(2).rms(), Vt(1))
+
+    def test_assumptions(self):
+        """Lcapy: check assumptions
+
+        """
+
+        self.assertEqual(Heaviside(t).is_causal, True, "Heaviside(t).is_causal")
+        self.assertEqual(Heaviside(t).is_dc, False, "Heaviside(t).is_dc")
+        self.assertEqual(Heaviside(t).is_ac, False, "Heaviside(t).is_ac")
+        self.assertEqual(DiracDelta(t).is_causal, True, "DiracDelta(t).is_causal")
+        self.assertEqual(DiracDelta(t).is_dc, False, "DiracDelta(t).is_dc")
+        self.assertEqual(DiracDelta(t).is_ac, False, "DiracDelta(t).is_ac")
+        self.assertEqual(cos(t).is_causal, False, "cos(t).is_causal")
+        self.assertEqual(cos(t).is_dc, False, "cos(t).is_dc")
+        self.assertEqual(cos(t).is_ac, True, "cos(t).is_ac")
         
