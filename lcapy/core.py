@@ -54,9 +54,6 @@ from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter 
 from sympy.printing.pretty.pretty import PrettyPrinter 
 
-init = False
-
-
 class LcapyStrPrinter(StrPrinter):
 
     def _print(self, expr):
@@ -244,6 +241,14 @@ class Expr(object):
 
         return self.evalf()
 
+    @property
+    def omega(self):
+        """Return angular frequency"""
+        
+        if 'omega' not in self.assumptions:
+            return omega
+        return self.assumptions['omega']
+
     def __hash__(self):
         # This is needed for Python3 so can create a dict key,
         # say for subs.
@@ -358,7 +363,7 @@ class Expr(object):
 
         if isinstance(self, Phasor) and isinstance(x, Phasor):
             if self.omega != x.omega:
-                raise ValueError('Cannot combine %s(%s,%s) with %s(%s,%s)' % 
+                raise ValueError('Cannot combine %s(%s, omega=%s) with %s(%s, omega=%s)' % 
                                  (cls.__name__, self, self.omega,
                                   xcls.__name__, x, x.omega))
             return cls
@@ -403,22 +408,12 @@ class Expr(object):
 
         if isinstance(self, Phasor) and isinstance(x, Phasor):
             if self.omega != x.omega:
-                raise ValueError('Cannot combine %s(%s,%s) with %s(%s,%s)' % 
+                raise ValueError('Cannot combine %s(%s, omega=%s) with %s(%s, omega=%s)' % 
                                  (cls.__name__, self, self.omega,
                                   xcls.__name__, x, x.omega))
             return cls, self, x
 
         if cls == xcls:
-            return cls, self, x
-
-        if isinstance(self, Phasor) and isinstance(x, Expr):
-            self = self.laplace()
-            cls = self.__class__
-            return cls, self, cls(x)
-
-        if isinstance(self, Expr) and isinstance(x, Phasor):
-            x = x.laplace()
-            cls = self.__class__
             return cls, self, x
 
         cls = self.__compat__(x)
@@ -1468,7 +1463,7 @@ class tExpr(Expr):
         check = ACChecker(self, t)
         if not check.is_ac:
             raise ValueError('Do not know how to convert %s to phasor' % self)
-        phasor = Phasor(check.amp * exp(j * check.phase), check.omega)
+        phasor = Phasor(check.amp * exp(j * check.phase), omega=check.omega)
         return phasor
 
     def plot(self, t=None, **kwargs):
@@ -1505,11 +1500,10 @@ class cExpr(Expr):
 
 class Phasor(Expr):
 
-    def __init__(self, val, omega1=omegasym, **assumptions):
+    def __init__(self, val, **assumptions):
 
         assumptions['positive'] = True
         super (Phasor, self).__init__(val, **assumptions)
-        self.omega = omega1
 
     def time(self, **assumptions):
         """Convert to time domain representation"""
@@ -1550,9 +1544,9 @@ class Phasor(Expr):
     
 class Vphasor(Phasor):
 
-    def __init__(self, val, omega=omegasym, **assumptions):
+    def __init__(self, val, **assumptions):
 
-        super(Vphasor, self).__init__(val, omega, **assumptions)
+        super(Vphasor, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Vt
 
     def cpt(self):
@@ -1566,9 +1560,9 @@ class Vphasor(Phasor):
 
 class Iphasor(Phasor):
 
-    def __init__(self, val, omega=omegasym, **assumptions):
+    def __init__(self, val, **assumptions):
 
-        super(Iphasor, self).__init__(val, omega, **assumptions)
+        super(Iphasor, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = It
     
     def cpt(self):
@@ -2046,7 +2040,8 @@ class noiseExpr(omegaExpr):
         return self._fourier_conjugate_class(rms)
 
     def time(self):
-        print('Warn: no time representation for noise expression: use rms()')
+        print('Warning: no time representation for noise expression'
+              ', assumed zero: use rms()')
         return 0
 
     def autocorrelation(self):
@@ -2647,8 +2642,6 @@ def itype_select(kind):
     try:    
         return {'s' : Vs, 'n' : Vn, 'ac' : Vphasor, 'dc' : Vconst}[kind]
     except KeyError:
-        return Vphasor        
+        return Iphasor        
 
-    
-init = True
 from lcapy.oneport import L, C, R, G, Idc, Vdc, Iac, Vac, I, V, Z, Y

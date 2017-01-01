@@ -829,7 +829,7 @@ class Netlist(NetlistMixin, NetfileMixin):
             Nm = '%s' % Nm
         if isinstance(Np, int):
             Np = '%s' % Np            
-        
+
         result = Vsuper()
         for kind, sub in self.sub.items():
             for source, subnetlist in sub.items():

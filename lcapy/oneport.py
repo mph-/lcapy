@@ -786,7 +786,8 @@ class Vac(VoltageSource):
         self.omega = symbol('omega', real=True)
         self.v0 = V
         self.phi = phi
-        self.Voc = Vsuper(Vphasor(self.v0 * exp(j * self.phi), ac=True))
+        self.Voc = Vsuper(Vphasor(self.v0 * exp(j * self.phi), ac=True,
+                                  omega=self.omega))
 
 
     @property
@@ -895,8 +896,8 @@ class Iac(CurrentSource):
         self.omega = symbol('omega', real=True)
         self.i0 = I
         self.phi = phi
-        self.Isc = Isuper(Iphasor(self.i0 * exp(j * self.phi), ac=True))
-
+        self.Isc = Isuper(Iphasor(self.i0 * exp(j * self.phi), ac=True,
+                                  omega=self.omega))
 
     @property
     def isc(self):
