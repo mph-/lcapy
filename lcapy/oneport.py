@@ -808,9 +808,7 @@ class v(VoltageSource):
 
         self.args = (vval, )
         Vval = tExpr(vval)
-        # TODO, FIXME
-        self.Voc = Vsuper(Vs(Vval.laplace()))
-        self.assumptions_infer(Vval)
+        self.Voc = Vsuper(Vval)
 
 
 class CurrentSource(OnePort):
@@ -917,9 +915,7 @@ class i(CurrentSource):
 
         self.args = (ival, )
         Ival = tExpr(ival)
-        # TODO: FIXME
-        self.Isc = Vsuper(Is(Ival.laplace()))        
-        self.assumptions_infer(Ival)
+        self.Isc = Isuper(Ival)
 
 
 class Xtal(OnePort):

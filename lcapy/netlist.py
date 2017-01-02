@@ -193,7 +193,7 @@ class NetlistMixin(object):
 
         self._add('Vshort_ %d %d 0' % (Np, Nm))
 
-        Isc = self.Vshort_.I
+        Isc = self.Vshort_.I * Ys(1)
         self.remove('Vshort_')
 
         return Isc

@@ -1567,7 +1567,11 @@ class Phasor(Expr):
     def time(self, **assumptions):
         """Convert to time domain representation"""
 
-        omega = self.omega.expr
+        omega = self.omega
+        if hasattr(omega, 'expr'):
+            # TODO: Fix inconsistency.  Sometimes omega is a symbol.
+            omega = omega.expr
+            
         if self.is_complex:
             result = self.expr * exp(j * omega * t)
         else:
@@ -2660,7 +2664,7 @@ class Vsuper(Super):
             # TODO, fix types
             new += Iconst(self['dc'] * cExpr(x.jomega(0)))
         for key in self.ac_keys():
-            new += self[key] * x.jomega(self[key],omega)
+            new += self[key] * x.jomega(self[key].omega)
         if 'n' in self:
             new += self['n'] * x.jomega
         if 's' in self:
@@ -2697,7 +2701,7 @@ class Isuper(Super):
             # TODO, fix types
             new += Vconst(self['dc'] * cExpr(x.jomega(0)))
         for key in self.ac_keys():
-            new += self[key] * x.jomega(self[key],omega)
+            new += self[key] * x.jomega(self[key].omega)
         if 'n' in self:
             new += self['n'] * x.jomega
         if 's' in self:
