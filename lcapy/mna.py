@@ -186,7 +186,8 @@ class MNA(object):
         if self.is_causal and self.initial_value_problem and not self.zeroic:
             raise RuntimeError('Detected initial value problem that has causal sources!')
 
-        if (not self.is_ac and not self.initial_value_problem
+        if (not self.is_ac and not self.is_dc
+            and not self.initial_value_problem
             and not self.is_causal and self.missing_ic != {}):
             print('Warning non-causal sources detected (%s)'
                   ' and initial conditions missing for %s;'
