@@ -234,11 +234,14 @@ class MNA(object):
         try:
             Ainv = self._A.inv()
         except ValueError:
+            comment = ''
+            if self.kind == 'dc':
+                comment = '  Check there is a DC path between all nodes.'
             raise ValueError(
                 'The MNA A matrix is not invertible; some nodes may need'
                 ' connecting with high value resistors, a voltage source'
                 ' might be short-circuited, a current source might be'
-                ' open-circuited.')
+                ' open-circuited.%s' % comment)
 
         results = sym.simplify(Ainv * self._Z)
 
