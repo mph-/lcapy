@@ -176,3 +176,9 @@ class Network(object):
     def is_ac(self):
         return self.cct.is_ac
 
+    @property    
+    def kinds(self):
+        """Return list of transform domain kinds."""        
+        return self.cct.kinds
+    
+
