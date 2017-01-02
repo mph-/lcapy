@@ -463,6 +463,7 @@ class NetlistMixin(object):
         return new        
 
     def s_model(self, var=s):
+        """"Create s-domain model."""
 
         new = self._new()
         new.opts = copy(self.opts)
@@ -472,9 +473,19 @@ class NetlistMixin(object):
             new._add(net)
         return new        
 
-    def ac_model(self):
-        return self.s_model(j * omega)
+    def ac_model(self, var=omega):
+        """"Create AC model for specified angular frequency (default
+        omega)."""
+        
+        return self.s_model(j * var)
 
+    def noise_model(self):
+        """"Create noise model where resistors are converted into a series
+        combination of an ideal resistor and a noise voltage
+        source."""
+        
+        return self.noisy()
+    
     def draw(self, filename=None, **kwargs):
 
         cct = self
