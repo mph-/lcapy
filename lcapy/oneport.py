@@ -156,58 +156,50 @@ class OnePort(Network):
     def thevenin(self):
         """Simplify to a Thevenin network"""
 
-        # FIXME,  This jumps into the s-domain if have a combination of
-        # components.
+        Voc = self.Voc
+        Z = self.Z
+        
+        if Voc.is_superposition and not Z.is_real:
+            print('Warning, detected superposition with reactive impedance,'
+                  ' using s-domain.')
+            Voc = Voc.laplace()
+        elif Voc.is_ac:
+            Z = Z(j * Voc.ac_keys()[0])
+        elif Voc.is_dc:
+            Z = Z(0)
 
-        if self.Y == 0:
-            print('Dodgy Norton to Thevenin transformation since Y = 0')
+        V1 = Voc.cpt()
+        Z1 = Z.cpt()
 
-        Z1 = self.Z.cpt()
-        V1 = self.Voc.cpt()
-
-        if not isinstance(V1, OnePort):
-            V1 = V(V1)
-
-        if self.is_dc:
-            Z1 = Z1.Z.real
-            if not isinstance(Z1, OnePort):
-                Z1 = R(Z1)
-
-        if not isinstance(Z1, OnePort):
-            Z1 = Z(Z1)
-
-        if V1.Voc == 0:
+        if Voc == 0:
             return Z1
-        if Z1.Z == 0:
+        if Z == 0:
             return V1
 
-        import pdb; pdb.set_trace()
-        
         return Ser(Z1, V1)
+
 
     def norton(self):
         """Simplify to a Norton network"""
 
-        # FIXME,  This jumps into the s-domain if have a combination of
-        # components.
+        Isc = self.Isc
+        Y = self.Y
+        
+        if Isc.is_superposition and not Y.is_real:
+            print('Warning, detected superposition with reactive impedance,'
+                  ' using s-domain.')
+            Isc = Isc.laplace()
+        elif Isc.is_ac:
+            Y = Y(j * Isc.ac_keys()[0])
+        elif Isc.is_dc:
+            Y = Y(0)
 
-        if self.Z == 0:
-            print('Dodgy Thevenin to Norton transformation since Z = 0')
+        I1 = Isc.cpt()
+        Y1 = Y.cpt()
 
-        Y1 = self.Y.cpt()
-        I1 = self.Isc.cpt()
-
-        if not isinstance(I1, OnePort):
-            I1 = I(I1)
-
-        if self.is_dc:
-            Y1 = Y1.Y.real
-            if not isinstance(Y1, OnePort):
-                Y1 = G(Y1)
-
-        if I1.Isc == 0:
+        if Isc == 0:
             return Y1
-        if Y1.Y == 0:
+        if Y == 0:
             return I1
 
         return Par(Y1, I1)
