@@ -364,7 +364,6 @@ class Expr(object):
         xcls = x.__class__
 
         if isinstance(self, sExpr) and isinstance(x, sExpr):
-            
             if self.is_causal or x.is_causal:
                 assumptions = {'causal' : True}
             elif self.is_dc and x.is_dc:
@@ -626,12 +625,7 @@ class Expr(object):
 
     def pprint(self):
         """Pretty print"""
-
-        # If interactive use pretty, otherwise use latex
-        if hasattr(sys, 'ps1'):
-            print(self.pretty())
-        else:
-            print(latex_str(self.latex()))
+        pprint(self)
 
     def pprintans(self, name):
         """Pretty print string with LHS name"""
@@ -1452,7 +1446,6 @@ class tExpr(Expr):
         if is_causal(self, var):
             self.assumptions['causal'] = True
 
-
     def laplace(self):
         """Determine one-side Laplace transform with 0- as the lower limit."""
 
@@ -1572,10 +1565,11 @@ class Phasor(Expr):
     def time(self, **assumptions):
         """Convert to time domain representation"""
 
+        omega = self.omega.expr
         if self.is_complex:
-            result = self.expr * exp(j * self.omega * t)
+            result = self.expr * exp(j * omega * t)
         else:
-            result = self.real.expr * cos(self.omega * t) + self.imag.expr * sin(self.omega * t)
+            result = self.real.expr * cos(omega * t) + self.imag.expr * sin(omega * t)
 
         if hasattr(self, '_laplace_conjugate_class'):
             return self._laplace_conjugate_class(result)
@@ -1678,9 +1672,13 @@ inf = sym.oo
 
 def pprint(expr):
 
-    print(pretty(expr))
+    # If interactive use pretty, otherwise use latex
+    if hasattr(sys, 'ps1'):
+        print(pretty(expr))
+    else:
+        print(latex_str(latex(expr)))
 
-
+        
 class Matrix(sym.Matrix):
 
     # Unlike numpy.ndarray, the sympy.Matrix runs all the elements
@@ -2662,6 +2660,8 @@ class Vsuper(Super):
                             type(x).__name__)
         return self * Ys(1 / x)
 
+    def cpt(self):
+        return V(self.time())
 
 class Isuper(Super):
 
@@ -2697,7 +2697,10 @@ class Isuper(Super):
                             type(x).__name__)
         return self * Zs(1 / x)
 
-
+    def cpt(self):
+        return I(self.time())
+    
+    
 def vtype_select(kind):
     try:
         return {'s' : Vs, 'n' : Vn, 'ac' : Vphasor, 'dc' : Vconst}[kind]

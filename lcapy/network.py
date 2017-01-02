@@ -175,3 +175,4 @@ class Network(object):
     @property    
     def is_ac(self):
         return self.cct.is_ac
+

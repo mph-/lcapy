@@ -319,7 +319,7 @@ class RLC(Cpt):
 
         vnet = 'V%s %s %s s {%s}; %s' % (self.name, 
                                          dummy_node, self.nodes[1],
-                                         self.Voc(var), opts)
+                                         self.Voc.laplace()(var), opts)
 
         if voltage_opts == {}:
             return znet + '\n' + vnet
@@ -518,7 +518,7 @@ class I(Cpt):
 
         return '%s %s %s s {%s}; %s' % (self.name, 
                                         self.nodes[0], self.nodes[1],
-                                        self.Isc(var), self.opts)
+                                        self.Isc.laplace()(var), self.opts)
 
     def pre_initial_model(self):
 
@@ -827,7 +827,7 @@ class V(Cpt):
 
         return '%s %s %s s {%s}; %s' % (self.name, 
                                         self.nodes[0], self.nodes[1],
-                                        self.cpt.Voc(var), self.opts)
+                                        self.cpt.Voc.laplace()(var), self.opts)
 
     def pre_initial_model(self):
 

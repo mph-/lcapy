@@ -21,7 +21,7 @@ Copyright 2016 Michael Hayes, UCECE
 
 """
 
-from ratfun import Ratfun
+from lcapy.ratfun import Ratfun
 import sympy as sym
 
 laplace_cache = {}
