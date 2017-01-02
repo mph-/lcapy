@@ -392,28 +392,34 @@ class Expr(object):
 
         # Disallow Vs + Is, etc.
 
+        assumptions = {}        
+
         cls = self.__class__
         if not isinstance(x, Expr):
-            return cls, self, cls(x), {}
+            return cls, self, cls(x), assumptions
 
         xcls = x.__class__
 
+        if isinstance(self, sExpr) and isinstance(x, sExpr):
+            if self.assumptions == x.assumptions:
+                assumptions = self.assumptions
+        
         if cls == xcls:
-            return cls, self, x, {}
+            return cls, self, x, assumptions
 
         # Handle Vs + sExpr etc.
         if isinstance(self, xcls):
-            return cls, self, x, {}
+            return cls, self, x, assumptions
 
         # Handle sExpr + Vs etc.
         if isinstance(x, cls):
-            return xcls, self, cls(x), {}
+            return xcls, self, cls(x), assumptions
 
         if xcls in (Expr, cExpr):
-            return cls, self, x, {}
+            return cls, self, x, assumptions
 
         if cls in (Expr, cExpr):
-            return xcls, cls(self), x, {}
+            return xcls, cls(self), x, assumptions
 
         raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' %
                          (cls.__name__, self, xcls.__name__, x, op))

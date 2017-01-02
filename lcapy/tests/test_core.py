@@ -300,4 +300,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(cos(t).is_causal, False, "cos(t).is_causal")
         self.assertEqual(cos(t).is_dc, False, "cos(t).is_dc")
         self.assertEqual(cos(t).is_ac, True, "cos(t).is_ac")
-        
+
+        self.assertEqual(Heaviside(t).laplace().is_causal, True,
+                         "Heaviside(t).laplace().is_causal")
+        self.assertEqual((Heaviside(t).laplace() +
+                          DiracDelta(t).laplace()).is_causal, True)
