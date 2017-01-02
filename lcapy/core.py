@@ -2531,7 +2531,7 @@ class Super(Exprdict):
         if 'omega' in symbols:
             if 't' in symbols:
                 # Handle cos(omega * t)
-                return self.add(Phasor(string))
+                return self.add(tExpr(string))
             return self.add(omegaExpr(string))
 
         if 'f' in symbols:
