@@ -1449,13 +1449,15 @@ class tExpr(Expr):
     def laplace(self):
         """Determine one-side Laplace transform with 0- as the lower limit."""
 
+        # The assumptions are required to help with the inverse Laplace
+        # tranform is reequired.
         self.infer_assumptions()
         result = laplace_transform(self.expr, self.var, ssym)
 
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result, **self.assumptions)
         else:
-            result = sExpr(result)
+            result = sExpr(result, **self.assumptions)
         return result
 
     def fourier(self):
@@ -1464,9 +1466,9 @@ class tExpr(Expr):
         result = fourier_transform(self.expr, self.var, fsym)
 
         if hasattr(self, '_fourier_conjugate_class'):
-            result = self._fourier_conjugate_class(result)
+            result = self._fourier_conjugate_class(result, **self.assumptions)
         else:
-            result = fExpr(result)
+            result = fExpr(result **self.assumptions)
         return result
 
     def phasor(self, **assumptions):
@@ -2422,6 +2424,10 @@ class Super(Exprdict):
     @property
     def is_causal(self):
         return self.is_s and self.s.is_causal
+
+    @property
+    def is_superposition(self):
+        return len(self.keys()) > 1
 
     def __add__(self, x):
         new = copy(self)
