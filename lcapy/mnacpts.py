@@ -147,6 +147,17 @@ class Cpt(object):
             raise ValueError('%s is not a source' % self)        
 
     @property
+    def has_s(self):
+        """Return True if source has s-domain component"""
+
+        if self.cpt.voltage_source:
+            return self.cpt.Voc.has_s
+        elif self.cpt.current_source:
+            return self.cpt.Isc.has_s
+        else:
+            raise ValueError('%s is not a source' % self)        
+        
+    @property
     def is_noisy(self):
         """Return True if source is noisy"""
 

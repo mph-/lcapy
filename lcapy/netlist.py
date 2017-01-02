@@ -547,6 +547,16 @@ class NetlistMixin(object):
         return True
 
     @property
+    def has_s(self):
+        """Return True if any independent source has an s-domain component."""
+
+        independent_sources = self.independent_sources
+        for cpt in independent_sources.values():
+            if cpt.has_s:
+                return True
+        return False
+
+    @property
     def assumptions(self):
 
         assumptions = {}
@@ -771,7 +781,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         def namelist(elements):
             return ', '.join([elt for elt in elements])
 
-        if (not self.initial_value_problem
+        if (self.has_s and not self.initial_value_problem
             and not self.is_causal and self.missing_ic != {}):
             print('Warning non-causal sources detected (%s)'
                   ' and initial conditions missing for %s;'

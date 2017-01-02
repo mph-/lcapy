@@ -378,6 +378,12 @@ class Expr(object):
         if cls == xcls:
             return cls, self, cls(x), assumptions
 
+        # Allow omega * t but treat as t expression.
+        if isinstance(self, omegaExpr) and isinstance(x, tExpr):
+            return xcls, self, x, assumptions
+        if isinstance(self, tExpr) and isinstance(x, omegaExpr):
+            return cls, self, x, assumptions                    
+        
         if xcls in (Expr, cExpr):
             return cls, self, cls(x), assumptions
 

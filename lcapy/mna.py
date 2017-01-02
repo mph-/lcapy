@@ -15,10 +15,6 @@ from copy import copy
 # efficient and, more importantly, overcomes some of the wrapping
 # problems which casues the is_real attribute to be dropped.
 
-def namelist(elements):
-    return ', '.join([elt for elt in elements])
-
-
 class Nodedict(Exprdict):
 
     def __getitem__(self, name):

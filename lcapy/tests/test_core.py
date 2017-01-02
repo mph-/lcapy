@@ -242,6 +242,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(type(sExpr(10) + v), Vs, "Not Vs")
         self.assertEqual(type(v + sExpr(10)), Vs, "Not Vs")
 
+        self.assertEqual(type(omega * t), tExpr, "Not tExpr")        
+
     def test_evaluate(self):
         """Lcapy: check evaluate
 

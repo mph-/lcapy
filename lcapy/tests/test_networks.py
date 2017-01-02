@@ -1,4 +1,4 @@
-from lcapy import R, C, L, V, I, v, exp, Heaviside, Vac, Vdc, omega, j
+from lcapy import R, C, L, V, I, v, exp, Heaviside, Vac, Vdc, omega, j, It, sin
 from lcapy.core import Zs, s, t
 import unittest
 import sympy as sym
@@ -72,8 +72,11 @@ class LcapyTester(unittest.TestCase):
         """Lcapy: check ac Thevenin conversion
 
         """
-        self.assertEqual(((Vac('1') + C(2)) | R(3)).norton().Isc[omega],
-                         2 * j * omega, "Isc incorrect")
-        self.assertEqual(((Vac('1') + C(2)) | R(3)).thevenin().Isc[omega],
-                         2 * j * omega, "Isc incorrect")        
+        a = (Vac('1') + C(2)) | R(3)
+        
+        self.assertEqual(a.norton().isc, It(2 * omega * sin(omega * t)),
+                         "Isc incorrect")
+        self.assertEqual(a.thevenin().isc,  It(2 * omega * sin(omega * t)),
+                         "Isc incorrect")
+        
         
