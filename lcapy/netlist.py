@@ -767,7 +767,18 @@ class Netlist(NetlistMixin, NetfileMixin):
         return self._subnetlist('n')
 
     def _solve(self):
-        
+
+        def namelist(elements):
+            return ', '.join([elt for elt in elements])
+
+        if (not self.initial_value_problem
+            and not self.is_causal and self.missing_ic != {}):
+            print('Warning non-causal sources detected (%s)'
+                  ' and initial conditions missing for %s;'
+                  ' expect unexpected transient!' % (
+                      namelist(self.noncausal_sources),
+                      namelist(self.missing_ic)))
+
         for kind in self.kinds:
             self._subnetlist(kind)
     
@@ -846,7 +857,8 @@ class Netlist(NetlistMixin, NetfileMixin):
             for source, subnetlist in sub.items():
                 Vd = subnetlist.get_Vd(Np, Nm)
                 result.add(Vd)
-        return result        
+        result = result.simplify()
+        return result
 
     def get_vd(self, Np, Nm):
         """Time-domain voltage drop between nodes"""
