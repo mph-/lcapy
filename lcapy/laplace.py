@@ -120,6 +120,7 @@ def laplace_transform(expr, t, s):
     except ValueError:
         raise ValueError('Could not compute Laplace transform for ' + str(expr))
 
+    result = result.simplify()
     laplace_cache[key] = result
     return result
 
