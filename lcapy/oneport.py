@@ -181,6 +181,8 @@ class OnePort(Network):
         if Z1.Z == 0:
             return V1
 
+        import pdb; pdb.set_trace()
+        
         return Ser(Z1, V1)
 
     def norton(self):
