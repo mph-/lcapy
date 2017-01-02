@@ -355,35 +355,50 @@ class Expr(object):
         # Could also convert Vs / Zs -> Is, etc.
         # But, what about (Vs * Vs) / (Vs * Is) ???
 
+        assumptions = {}
+        
         cls = self.__class__
         if not isinstance(x, Expr):
-            return cls, self, cls(x), {}
+            return cls, self, cls(x), assumptions
 
         xcls = x.__class__
 
+        if isinstance(self, sExpr) and isinstance(x, sExpr):
+            
+            if self.is_causal or x.is_causal:
+                assumptions = {'causal' : True}
+            elif self.is_dc and x.is_dc:
+                assumptions = self.assumptions
+            elif self.is_ac and x.is_ac:
+                assumptions = self.assumptions
+            elif self.is_ac and x.is_dc:
+                assumptions = {'ac' : True}
+            elif self.is_dc and x.is_ac:
+                assumptions = {'ac' : True}                
+
         if cls == xcls:
-            return cls, self, cls(x), {}
+            return cls, self, cls(x), assumptions
 
         if xcls in (Expr, cExpr):
-            return cls, self, cls(x), {}
+            return cls, self, cls(x), assumptions
 
         if cls in (Expr, cExpr):
-            return xcls, self, x, {}
+            return xcls, self, x, assumptions
 
         if isinstance(x, cls):
-            return xcls, self, cls(x), {}
+            return xcls, self, cls(x), assumptions
 
         if isinstance(self, xcls):
-            return cls, self, cls(x), {}
+            return cls, self, cls(x), assumptions
 
         if isinstance(self, tExpr) and isinstance(x, tExpr):
-            return cls, self, cls(x), {}
+            return cls, self, cls(x), assumptions
 
         if isinstance(self, sExpr) and isinstance(x, sExpr):
-            return cls, self, cls(x), {}
+            return cls, self, cls(x), assumptions
 
         if isinstance(self, omegaExpr) and isinstance(x, omegaExpr):
-            return cls, self, cls(x), {}
+            return cls, self, cls(x), assumptions
 
         raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' %
                          (cls.__name__, self, xcls.__name__, x, op))
@@ -392,7 +407,7 @@ class Expr(object):
 
         # Disallow Vs + Is, etc.
 
-        assumptions = {}        
+        assumptions = {}
 
         cls = self.__class__
         if not isinstance(x, Expr):
