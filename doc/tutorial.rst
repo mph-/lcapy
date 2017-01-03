@@ -70,9 +70,9 @@ frequency domain by substituting :math:`\mathrm{j} \omega` for :math:`s`
    >>> H = (s + 3) / (s - 4)
    >>> A = H(j * omega)
    >>> A
-   ⅈ⋅ω + 3
+   j⋅ω + 3
    ───────
-   ⅈ⋅ω - 4
+   j⋅ω - 4
 
 Also note, real numbers are approximated by rationals.
 
@@ -110,12 +110,12 @@ Here's an example of using these attributes and methods:
    >>> H = (s + 3) / (s - 4)
    >>> A = H(j * omega)
    >>> A
-   ⅈ⋅ω + 3
+   j⋅ω + 3
    ───────
-   ⅈ⋅ω - 4
+   j⋅ω - 4
    >>> A.rationalize_denominator()
     2             
-   ω  - 7⋅ⅈ⋅ω - 12
+   ω  - 7⋅j⋅ω - 12
    ───────────────
         2         
        ω  + 16  
@@ -131,9 +131,9 @@ Here's an example of using these attributes and methods:
     2     
    ω  + 16
    >>> A.N
-   ⅈ⋅ω + 3
+   j⋅ω + 3
    >>> A.D
-   ⅈ⋅ω - 4
+   j⋅ω - 4
    >>> A.phase
         ⎛       2     ⎞
    atan2⎝-7⋅ω, ω  - 12⎠
@@ -283,27 +283,28 @@ Impedances
 Let's consider a series R-L-C network
 
    >>> from lcapy import *
-   >>> N = R(5) + L(20) + C(10)
-   >>> N
-   R(5) + L(20) + C(10)
-   >>> N.Z
-        2           
-   200⋅s  + 80⋅s + 1
-   ─────────────────
-          20⋅s    
+   >>> n = R(4) + L(10) + C(20)
+   >>> n
+   R(4) + L(10) + C(20)
+   >>> n.Z
+      ⎛ 2   2⋅s    1 ⎞
+   10⋅⎜s  + ─── + ───⎟
+      ⎝      5    200⎠
+   ───────────────────
+            s         
 
 Notice the result is a rational function of `s`.  Remember impedance
 is a frequency domain concept.  A rational function can be formatted
 in a number of different ways, for example,
 
-   >>> N.Z.ZPK()
+   >>> n.Z.ZPK()
       ⎛      ____    ⎞ ⎛      ____    ⎞
       ⎜    ╲╱ 14    1⎟ ⎜    ╲╱ 14    1⎟
    10⋅⎜s - ────── + ─⎟⋅⎜s + ────── + ─⎟
       ⎝      20     5⎠ ⎝      20     5⎠
    ────────────────────────────────────
                     s                 
-   >>> N.Z.canonical()
+   >>> n.Z.canonical()
       ⎛ 2   2⋅s    1 ⎞
    10⋅⎜s  + ─── + ───⎟
       ⎝      5    200⎠
@@ -317,35 +318,36 @@ function in monic form (with unity leading coefficient).
 The corresponding parallel R-L-C network yields
 
    >>> from lcapy import *
-   >>> N = R(5) | L(20) | C(10)
-   >>> N
+   >>> n = R(5) | L(20) | C(10)
+   >>> n
    R(5) | L(20) | C(10)
-   >>> N.Z
-         20⋅s      
-   ────────────────
-        2          
-   200⋅s  + 4⋅s + 1
-
-   >>> N.Z.ZPK()
-                   s                 
-   ──────────────────────────────────
-      ⎛     1    7⋅ⅈ⎞ ⎛     1    7⋅ⅈ⎞
-   10⋅⎜s + ─── - ───⎟⋅⎜s + ─── + ───⎟
-      ⎝    100   100⎠ ⎝    100   100⎠
-   >>> N.Z.canonical()
+   >>> n.Z
            s         
    ──────────────────
       ⎛ 2   s     1 ⎞
    10⋅⎜s  + ── + ───⎟
       ⎝     50   200⎠
-   >>> N.Y
+
+   >>> n.Z.ZPK()
+                   s                 
+   ──────────────────────────────────
+      ⎛     1    7⋅j⎞ ⎛     1    7⋅j⎞
+   10⋅⎜s + ─── - ───⎟⋅⎜s + ─── + ───⎟
+      ⎝    100   100⎠ ⎝    100   100⎠
+   >>> n.Z.canonical()
+           s         
+   ──────────────────
+      ⎛ 2   s     1 ⎞
+   10⋅⎜s  + ── + ───⎟
+      ⎝     50   200⎠
+   >>> n.Y
         2          
    200⋅s  + 4⋅s + 1
    ────────────────
          20⋅s      
 
-Notice how `N.Y` returns the admittance of the network, the reciprocal
-of the impedance `N.Z`.
+Notice how `n.Y` returns the admittance of the network, the reciprocal
+of the impedance `n.Z`.
 
 
 The frequency response can be evaluated numerically by specifying a
@@ -353,9 +355,9 @@ vector of frequency values.  For example:
 
    >>> from lcapy import *
    >>> from numpy import linspace
-   >>> N = Vdc(20) + R(5) + C(10, 0)
+   >>> n = Vstep(20) + R(5) + C(10, 0)
    >>> vf = linspace(0, 4, 400)
-   >>> Isc = N.Isc.frequency_response().evaluate(vf)
+   >>> Isc = n.Isc.frequency_response().evaluate(vf)
 
 Note, in this example, the initial capacitor voltage is specified to
 be zero.  If this initial condition is unspecified, the short circuit
@@ -376,9 +378,9 @@ A simpler approach is to use the plot method:
 
    >>> from lcapy import *
    >>> from numpy import linspace
-   >>> N = Vdc(20) + R(5) + C(10, 0)
+   >>> n = Vstep(20) + R(5) + C(10, 0)
    >>> vf = linspace(0, 4, 400)
-   >>> N.Isc.frequency_response().plot(vf, log_scale=True)
+   >>> n.Isc.frequency_response().plot(vf, log_scale=True)
 
 .. image:: examples/netlists/series-VRC1-Isc.png
    :width: 15cm
@@ -399,19 +401,19 @@ Simple transient analysis
 Let's consider a series R-C network in series with a DC voltage source
 
    >>> from lcapy import *
-   >>> N = Vdc(20) + R(5) + C(10, 0)
-   >>> N
-   Vdc(20) + R(5) + C(10, 0)
-   >>> Voc = N.Voc
+   >>> n = Vstep(20) + R(5) + C(10, 0)
+   >>> n
+   Vstep(20) + R(5) + C(10, 0)
+   >>> Voc = n.Voc.s
    >>> Voc
    20
    ──
    s 
-   >>> N.Isc
-   4   
+   >>> n.Isc.s
+      4   
    ────────
    s + 1/50
-   >>> isc = N.Isc.transient_response()
+   >>> isc = n.Isc.transient_response()
    >>> isc
    ⎧   -t            
    ⎪   ───           
@@ -419,9 +421,9 @@ Let's consider a series R-C network in series with a DC voltage source
    ⎪4⋅ℯ     for t ≥ 0
    ⎩                 
 
-Here `N` is network formed by the components in series, and `N.Voc` is
-the open-circuit voltage across the network.  Note, this is the same
-as the s-domain value of the voltage source.  `N.Isc` is the
+Here `n` is network formed by the components in series, and `n.Voc.s` is
+the open-circuit s-domain voltage across the network.  Note, this is the same
+as the s-domain value of the voltage source.  `n.Isc.s` is the
 short-circuit s-domain voltage through the network.  The method
 `transient_response` converts this to the time-domain.  Note, since
 the capacitor has the initial value specified, this network is
@@ -433,21 +435,21 @@ the network cannot be analysed.
 Of course, the previous example can be performed symbolically,
 
    >>> from lcapy import *
-   >>> N = Vdc('V_1') + R('R_1') + C('C_1', 0)
-   >>> N
-   Vdc(V₁) + R(R₁) + C(C₁, 0)
-   >>> Voc = N.Voc
+   >>> n = Vstep('V_1') + R('R_1') + C('C_1', 0)
+   >>> n
+   Vstep(V₁) + R(R₁) + C(C₁, 0)
+   >>> Voc = n.Voc.s
    >>> Voc
    V₁
    ──
    s 
-   >>> N.Isc
+   >>> n.Isc.s
          V₁      
    ──────────────
       ⎛      1  ⎞
    R₁⋅⎜s + ─────⎟
       ⎝    C₁⋅R₁⎠
-   >>> isc = N.Isc.transient_response()
+   >>> isc = n.Isc.transient_response()
    >>> isc
    ⎧     -t             
    ⎪    ─────           
@@ -462,9 +464,9 @@ vector of time values.
 
    >>> from lcapy import *
    >>> from numpy import linspace
-   >>> N = Vdc(20) + R(5) + C(10, 0)
+   >>> n = Vstep(20) + R(5) + C(10, 0)
    >>> t = linspace(0, 100, 400)
-   >>> isc = N.Isc.transient_response(t)
+   >>> isc = n.Isc.transient_response(t)
 
 Then the transient response can be plotted.  Alternatively, the plot
 method can be used.
@@ -499,15 +501,15 @@ Here's an example of a Thevenin to Norton transformation:
 
    >>> from lcapy import *
    >>> T = Vdc(10) + R(5)
-   >>> N = T.norton()
-   >>> N
+   >>> n = T.norton()
+   >>> n
    G(1/5) | Idc(2)
 
 Similarly, here's an example of a Norton to Thevenin transformation:
 
    >>> from lcapy import *
-   >>> N = Idc(10) | R(5)
-   >>> T = N.thevenin()
+   >>> n = Idc(10) | R(5)
+   >>> T = n.thevenin()
    >>> T
    R(5) + Vdc(50)
 
@@ -547,29 +549,29 @@ This is comprised from any two one-port networks.  For example,
    >>> from lcapy import *
    >>> R1 = R('R_1')
    >>> R2 = R('R_2')
-   >>> N = LSection(R1, R2)
-   >>> N.Vtransfer
+   >>> n = LSection(R1, R2)
+   >>> n.Vtransfer
    R_2/(R_1 + R_2)
 
-Here `N.Vtransfer` determines the forward voltage transfer function
+Here `n.Vtransfer` determines the forward voltage transfer function
 `V_2(s) / V_1(s)`.
 
 The open-circuit input impedance can be found using:
-   >>> N.Z1oc
+   >>> n.Z1oc
    R₁ + R₂
 
 The open-circuit output impedance can be found using:
-   >>> N.Z2oc
+   >>> n.Z2oc
    R₂
 
 The short-circuit input admittance can be found using:
-   >>> N.Y1sc
+   >>> n.Y1sc
    1 
    ──
    R₁
 
 The short-circuit output admittance can be found using:
-   >>> N.Y2sc
+   >>> n.Y2sc
    R₁ + R₂
    ───────
     R₁⋅R₂ 
@@ -588,8 +590,8 @@ For example, an L section can be created by chaining a shunt to a
 series one-port.
 
    >>> from lcapy import *
-   >>> N = Series(R('R_1')).chain(Shunt(R('R_2')))
-   >>> N.Vtransfer
+   >>> n = Series(R('R_1')).chain(Shunt(R('R_2')))
+   >>> n.Vtransfer
    R_2/(R_1 + R_2)
 
 
@@ -603,10 +605,10 @@ http://en.wikipedia.org/wiki/Two-port_network).
 
 Consider an L section comprised of two resistors:
    >>> from lcapy import *
-   >>> N = LSection(R('R_1'), R('R_2')))
+   >>> n = LSection(R('R_1'), R('R_2')))
 
 The different matrix representations can be shown using:
-   >>> N.A
+   >>> n.A
    ⎡R₁ + R₂    ⎤
    ⎢───────  R₁⎥
    ⎢   R₂      ⎥
@@ -614,13 +616,13 @@ The different matrix representations can be shown using:
    ⎢  1        ⎥
    ⎢  ──     1 ⎥
    ⎣  R₂       ⎦
-   >>> N.B
+   >>> n.B
    ⎡ 1    -R₁  ⎤
    ⎢           ⎥
    ⎢-1   R₁    ⎥
    ⎢───  ── + 1⎥
    ⎣ R₂  R₂    ⎦
-   >>> N.G
+   >>> n.G
    ⎡   1       -R₂  ⎤
    ⎢───────  ───────⎥
    ⎢R₁ + R₂  R₁ + R₂⎥
@@ -628,13 +630,13 @@ The different matrix representations can be shown using:
    ⎢   R₂     R₁⋅R₂ ⎥
    ⎢───────  ───────⎥
    ⎣R₁ + R₂  R₁ + R₂⎦
-   >>> N.H
+   >>> n.H
    ⎡R₁  1 ⎤
    ⎢      ⎥
    ⎢    1 ⎥
    ⎢-1  ──⎥
    ⎣    R₂⎦
-   >>> N.Y
+   >>> n.Y
    ⎡1      -1   ⎤
    ⎢──     ───  ⎥
    ⎢R₁      R₁  ⎥
@@ -642,7 +644,7 @@ The different matrix representations can be shown using:
    ⎢-1   R₁ + R₂⎥
    ⎢───  ───────⎥
    ⎣ R₁   R₁⋅R₂ ⎦
-   >>> N.Z
+   >>> n.Z
    ⎡R₁ + R₂  R₂⎤
    ⎢           ⎥
    ⎣  R₂     R₂⎦
@@ -946,10 +948,10 @@ current through an inductor can be specified as the second argument.
 For example,
 
    >>> cct = Circuit()
-   >>> cct.add('V1 1 0 dc Vs') 
+   >>> cct.add('V1 1 0 step Vs') 
    >>> cct.add('C1 2 1 C1 v0') 
    >>> cct.add('L1 2 0 L1 i0') 
-   >>> cct[2].V
+   >>> cct[2].V.s
               ⎛        i₀          ⎞
    (V_s + v₀)⋅⎜- ────────────── + s⎟
               ⎝  C₁⋅V_s + C₁⋅v₀    ⎠
@@ -976,7 +978,7 @@ Here's an example using an arbitrary input voltage `V(s)`
    ───────────
    C₁⋅R₁⋅s + 1
 
-   >>> H = cct[2].V / cct[1].V
+   >>> H = cct[2].V.s / cct[1].V.s
    >>> H
         1     
    ───────────
@@ -1021,9 +1023,9 @@ response is causal.
 Other circuit methods
 ---------------------
 
-   cct.Isc(Np, Nm)      Short-circuit s-domain current between nodes Np and Nm.
+   cct.Isc(Np, Nm)      Short-circuit current between nodes Np and Nm.
 
-   cct.Voc(Np, Nm)      Open-circuit s-domain voltage between nodes Np and Nm.
+   cct.Voc(Np, Nm)      Open-circuit voltage between nodes Np and Nm.
 
    cct.isc(Np, Nm)      Short-circuit t-domain current between nodes Np and Nm.
 
