@@ -1456,7 +1456,7 @@ class tExpr(Expr):
         """Determine one-side Laplace transform with 0- as the lower limit."""
 
         # The assumptions are required to help with the inverse Laplace
-        # tranform is reequired.
+        # transform is required.
         self.infer_assumptions()
         result = laplace_transform(self.expr, self.var, ssym)
 
@@ -1516,7 +1516,12 @@ class cExpr(Expr):
     def rms(self):
         return {Vconst: Vt, Iconst : It}[self.__class__](self)
 
+    def laplace(self):
+        """Convert to Laplace domain representation"""
 
+        return self.time().laplace()
+
+    
 class Phasor(Expr):
 
     # Could convert Vphasor + Vconst -> VSuper but that is not really
@@ -2631,8 +2636,11 @@ class Super(Exprdict):
         return result
 
     def laplace(self):
-        # TODO, could optimise
-        return self.time().laplace()
+
+        result = self.laplace_class(0)
+        for val in self.values():
+            result += val.laplace()
+        return result
 
     def fourier(self):
         # TODO, could optimise
@@ -2662,6 +2670,7 @@ class Vsuper(Super):
     type_map = {cExpr: Vconst, sExpr : Vs, noiseExpr: Vn, omegaExpr: Vphasor}
     transform_domains = {'s': Vs, 'ac' : Vphasor, 'dc' : Vconst, 'n' : Vn}
     time_class = Vt
+    laplace_class = Vs    
 
     def __mul__(self, x):
         if isinstance(x, (int, float)):
@@ -2702,6 +2711,7 @@ class Isuper(Super):
     type_map = {cExpr: Iconst, sExpr : Is, noiseExpr: In, omegaExpr: Iphasor}
     transform_domains = {'s': Is, 'ac' : Iphasor, 'dc' : Iconst, 'n' : In}
     time_class = It
+    laplace_class = Is    
 
     def __mul__(self, x):
         if isinstance(x, (int, float)):

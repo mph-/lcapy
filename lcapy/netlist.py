@@ -516,7 +516,6 @@ class NetlistMixin(object):
         """Return True if all independent sources are causal and not an
         initial value problem (unless all the initial values are zero)."""
 
-
         # If some of the initial conditions are specified and are non-zero
         # then have a non-causal initial value problem.
         if not self.zeroic:
@@ -728,24 +727,28 @@ class Netlist(NetlistMixin, NetfileMixin):
         if hasattr(self, '_sub'):
             return self._sub
 
+        if self.is_ivp:
+
+            def namelist(elements):
+                return ', '.join([elt for elt in elements])
+
+            if self.missing_ic != {}:
+                print('Warning: missing initial conditions for %s' %
+                      namelist(self.missing_ic))
+
+            model = self.s_model()
+        else:
+            model = self    
+        
         self._sub = Transformdomains()
-        for key, sources in self.independent_source_groups().items():
+        groups = model.independent_source_groups()
+
+        for key, sources in groups.items():
             kind = key
             if isinstance(kind, str) and kind[0] == 'n':
                 kind = 'n'
-            self._sub[key] = SubNetlist(self, sources, kind)
+            self._sub[key] = SubNetlist(model, sources, kind)
 
-        def namelist(elements):
-            return ', '.join([elt for elt in elements])
-
-        if (self.has_s and not self.is_ivp
-            and not self.is_causal and self.missing_ic != {}):
-            print('Warning non-causal sources detected (%s)'
-                  ' and initial conditions missing for %s;'
-                  ' expect unexpected transient!' % (
-                      namelist(self.noncausal_sources),
-                      namelist(self.missing_ic)))
-            
         return self._sub
 
     @property
