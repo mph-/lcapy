@@ -20,7 +20,7 @@ Copyright 2014, 2015, 2016 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr
+from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, Expr
 from lcapy.core import cos, exp, symbol, j, Vphasor, Iphasor, It, Vconst, Iconst, Vn, In
 from lcapy.core import Vsuper, Isuper, pretty
 from lcapy.sympify import symbols_find
@@ -772,8 +772,8 @@ class Vac(VoltageSource):
     def __init__(self, V, phi=0):
 
         self.args = (V, phi)
-        V = cExpr(V)
-        phi = cExpr(phi)
+        V = Expr(V)
+        phi = Expr(phi)
 
         # Note, cos(-pi / 2) is not quite zero.
 
@@ -882,8 +882,8 @@ class Iac(CurrentSource):
     def __init__(self, I, phi=0):
 
         self.args = (I, phi)
-        I = cExpr(I)
-        phi = cExpr(phi)
+        I = Expr(I)
+        phi = Expr(phi)
 
         self.omega = symbol('omega', real=True)
         self.i0 = I

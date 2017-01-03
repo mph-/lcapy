@@ -16,6 +16,14 @@ import sys
 module = sys.modules[__name__]
 
 
+def kind_keyword(kind):
+    if kind == 'n':
+        return 'noise'
+    if not isinstance(kind, str):
+        return 'ac'
+    return kind
+
+
 class Cpt(object):
 
     source = False
@@ -78,10 +86,15 @@ class Cpt(object):
 
         return str(self)
 
-    def kill(self, kind=None):
+    def kill(self):
         """Kill component"""
 
         raise ValueError('component not a source: %s' % self)
+
+    def select(self, kind=None):
+        """Select domain kind for component"""
+
+        raise ValueError('component not a source: %s' % self)    
 
     def zero(self):
         """Zero value of the voltage source.  This kills it but keeps it as a
@@ -89,7 +102,7 @@ class Cpt(object):
         voltage sources that are required to specify the controlling
         current for CCVS and CCCS components."""        
 
-        raise ValueError('component not a voltage source: %s' % self)        
+        raise ValueError('component not a source: %s' % self)        
 
     def s_model(self, var):
         """Return s-domain model of component"""
@@ -498,21 +511,24 @@ class I(Cpt):
 
     source = True
 
-    def kill(self, kind=None):
-        newopts = self.opts.copy()
-        newopts.strip_voltage_labels()
-        newopts.strip_labels()
-
-        if kind is None:
-            return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
+    def select(self, kind=None):
+        """Select domain kind for component"""
 
         Isc = self.Isc
         if kind in Isc:
             Isc = Isc[kind]
         else:
             Isc = 0
-        return '%s %s %s {%s}; %s' % (
-            self.name, self.nodes[0], self.nodes[1], Isc, self.opts)
+        return '%s %s %s %s {%s}; %s' % (
+            self.name, self.nodes[0], self.nodes[1], kind_keyword(kind),
+            Isc, self.opts)
+
+    def kill(self):
+        newopts = self.opts.copy()
+        newopts.strip_voltage_labels()
+        newopts.strip_labels()
+
+        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
 
     def stamp(self, cct):
 
@@ -802,21 +818,24 @@ class V(Cpt):
         return '%s %s %s {%s}; %s' % (
             self.name, self.nodes[0], self.nodes[1], 0, self.opts)
     
-    def kill(self, kind=None):
-        newopts = self.opts.copy()
-        newopts.strip_current_labels()
-        newopts.strip_labels()
-
-        if kind is None:
-            return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
+    def select(self, kind=None):
+        """Select domain kind for component"""
 
         Voc = self.Voc
         if kind in Voc:
             Voc = Voc[kind]
         else:
             Voc = 0
-        return '%s %s %s {%s}; %s' % (
-            self.name, self.nodes[0], self.nodes[1], Voc, self.opts)
+        return '%s %s %s %s {%s}; %s' % (
+            self.name, self.nodes[0], self.nodes[1],
+            kind_keyword(kind), Voc, self.opts)
+
+    def kill(self):
+        newopts = self.opts.copy()
+        newopts.strip_current_labels()
+        newopts.strip_labels()
+
+        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
 
     def stamp(self, cct):
 
@@ -832,7 +851,6 @@ class V(Cpt):
 
         V = self.Voc.expr
         cct._Es[m] += V
-
 
     def s_model(self, var):
 

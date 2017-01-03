@@ -314,18 +314,33 @@ class NetlistMixin(object):
         except ValueError:
             raise ValueError('Cannot create A matrix')
 
-    def _kill(self, sourcenames, **kwargs):
+    def select(self, sourcenames, kind):
 
         new = self._new()
         new.opts = copy(self.opts)
 
-        kind = kwargs.get('kind', None)
+        for cpt in self._elements.values():
+            if cpt.name in sourcenames:
+                net = cpt.select(kind)
+            elif cpt.source:
+                net = cpt.zero()
+            elif kind != 's':
+                net = cpt.kill_initial()
+            else:
+                net = str(cpt)
+            new._add(net)
+        return new        
+
+    def _kill(self, sourcenames):
+
+        new = self._new()
+        new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
             if cpt.name in self.control_sources:
                 net = cpt.zero()                
             elif cpt.name in sourcenames:
-                net = cpt.kill(kind)
+                net = cpt.kill()
             elif 'ICs' in sourcenames:
                 net = cpt.kill_initial()
             else:
@@ -333,7 +348,7 @@ class NetlistMixin(object):
             new._add(net)
         return new        
 
-    def kill_except(self, *args, **kwargs):
+    def kill_except(self, *args):
         """Return a new circuit with all but the specified sources killed;
         i.e., make the voltage sources short-circuits and the current
         sources open-circuits.  If no sources are specified, all
@@ -351,7 +366,7 @@ class NetlistMixin(object):
         if 'ICs' not in args:
             sources.append('ICs')            
             
-        return self._kill(sources, **kwargs)
+        return self._kill(sources)
 
     def kill(self, *args):
         """Return a new circuit with the specified sources killed; i.e., make
@@ -633,13 +648,19 @@ class NetlistMixin(object):
         return dict((key, cpt) for key, cpt in self.elements.items() if cpt.source)
 
     @property
-    def independent_source_kinds(self):
-        """Return dictionary of source kinds (dc, s, etc.)"""
+    def independent_source_groups(self):
+        """Return dictionary of source groups.  Each group is a collection of
+        sources that can be analysed at the same time.  Noise sources
+        have separate groups since they are assumed uncorrelated.
 
-        if hasattr(self, '_independent_source_kinds'):
-            return self._independent_source_kinds
+        """
+
+        if hasattr(self, '_independent_source_groups'):
+            return self._independent_source_groups
+
+        noise_source_count = 0
         
-        kinds = {}
+        groups = {}
         for key, elt in self.elements.items():
             if not elt.source:
                 continue
@@ -649,12 +670,15 @@ class NetlistMixin(object):
             else:
                 cpt_kinds = cpt.Isc.keys()                
             for cpt_kind in cpt_kinds:
-                if cpt_kind not in kinds:
-                    kinds[cpt_kind] = []
-                kinds[cpt_kind].append(key)
+                if cpt_kind == 'n':
+                    noise_source_count += 1
+                    cpt_kind = 'n%d' % noise_source_count
+                if cpt_kind not in groups:
+                    groups[cpt_kind] = []
+                groups[cpt_kind].append(key)
 
-        self._independent_source_kinds = kinds
-        return kinds
+        self._independent_source_groups = groups
+        return groups    
 
     @property
     def control_sources(self):
@@ -666,17 +690,6 @@ class NetlistMixin(object):
         for key, cpt in self.elements.items():
             if cpt.need_control_current:
                 result[cpt.args[0]] = self.elements[cpt.args[0]]
-        return result
-
-    def independent_sources_select_kind(self, kind):
-        """Return list of sources that match transform domain kind."""
-
-        if kind not in self.independent_source_kinds:
-            return {}
-
-        result = self.independent_source_kinds[kind]
-        if kind == 's' and self.initial_value_problem:
-            result.append('ICs')
         return result
 
 
@@ -712,7 +725,7 @@ class Netlist(NetlistMixin, NetfileMixin):
     def _invalidate(self):
 
         for attr in ('_sch', '_sub', '_Vdict', '_Idict',
-                     '_independent_source_kinds'):
+                     '_independent_source_groups'):
             try:
                 delattr(self, attr)
             except:
@@ -729,53 +742,19 @@ class Netlist(NetlistMixin, NetfileMixin):
         if hasattr(self, '_sub'):
             return self._sub
 
-        kinds = self.independent_source_kinds
-        self._sub = Transformdomains({k : None for k in kinds.keys()})
+        self._sub = Transformdomains()
+        for key, sources in self.independent_source_groups.items():
+            kind = key
+            if isinstance(kind, str) and kind[0] == 'n':
+                kind = 'n'
+            self._sub[key] = SubNetlist(self, sources, kind)
         return self._sub
-
-    def _sub_make(self, kind):
-        """Create dictionary of subnetlists for specified transform domain
-        kind keyed by source.  A single subnetlist per transform
-        domain kind would be more efficient but separate subnetlists
-        are required for each noise source since these need to be
-        evaluated individually.
-
-        """
-
-        result = {}
-        sources = self.independent_sources_select_kind(kind)
-        for source in sources:
-            result[source] = SubNetlist(self, source, kind)
-        return result
-
-    def _subnetlist(self, kind):
-        if kind not in self.sub:
-            return {}
-        if self.sub[kind] is None:
-            self.sub[kind] = self._sub_make(kind)
-        return self.sub[kind]        
 
     @property
     def kinds(self):
         """Return list of transform domain kinds."""
         return self.sub.keys()
     
-    @property
-    def dc(self):
-        return self._subnetlist('dc')
-
-    @property        
-    def s(self):
-        return self._subnetlist('s')        
-
-    @property        
-    def ac(self):
-        return self._subnetlist('ac')
-
-    @property        
-    def n(self):
-        return self._subnetlist('n')
-
     def _solve(self):
 
         def namelist(elements):
@@ -789,8 +768,8 @@ class Netlist(NetlistMixin, NetfileMixin):
                       namelist(self.noncausal_sources),
                       namelist(self.missing_ic)))
 
-        for kind in self.kinds:
-            self._subnetlist(kind)
+        for subnetlist in self.sub.values():
+            subnetlist._solve()
     
     @property
     def Vdict(self):
@@ -805,11 +784,10 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         result = Nodedict()
         for kind, sub in self.sub.items():
-            for source, subnetlist in sub.items():
-                for node, value in subnetlist.Vdict.items():
-                    if node not in result:
-                        result[node] = Vsuper()
-                    result[node].add(value)
+            for node, value in sub.Vdict.items():
+                if node not in result:
+                    result[node] = Vsuper()
+                result[node].add(value)
 
         self._Vdict = result
         return result
@@ -827,11 +805,10 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         result = Branchdict()
         for kind, sub in self.sub.items():
-            for source, subnetlist in sub.items():
-                for node, value in subnetlist.Idict.items():
-                    if node not in result:
-                        result[node] = Isuper()
-                    result[node].add(value)
+            for node, value in sub.Idict.items():
+                if node not in result:
+                    result[node] = Isuper()
+                result[node].add(value)
         self._Idict = result                    
         return result    
 
@@ -842,9 +819,8 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         result = Vsuper()
         for kind, sub in self.sub.items():
-            for source, subnetlist in sub.items():
-                I = subnetlist.get_I(name)
-                result.add(I)         
+            I = sub.get_I(name)
+            result.add(I)         
         return result
 
     def get_i(self, name):
@@ -864,9 +840,8 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         result = Vsuper()
         for kind, sub in self.sub.items():
-            for source, subnetlist in sub.items():
-                Vd = subnetlist.get_Vd(Np, Nm)
-                result.add(Vd)
+            Vd = sub.get_Vd(Np, Nm)
+            result.add(Vd)
         result = result.simplify()
         return result
 
@@ -882,7 +857,7 @@ class SubNetlist(NetlistMixin, MNA):
 
         # The unwanted sources are zeroed so that we can still refer
         # to them by name, say when wanting the current through them.
-        obj = netlist.kill_except(sources, kind=kind)
+        obj = netlist.select(sources, kind=kind)
         obj.kind = kind
         obj.__class__ = cls
         return obj
