@@ -637,16 +637,12 @@ class NetlistMixin(object):
         # TODO, ignore zero sources
         return dict((key, cpt) for key, cpt in self.elements.items() if cpt.source)
 
-    @property
     def independent_source_groups(self):
         """Return dictionary of source groups.  Each group is a collection of
         sources that can be analysed at the same time.  Noise sources
         have separate groups since they are assumed uncorrelated.
 
         """
-
-        if hasattr(self, '_independent_source_groups'):
-            return self._independent_source_groups
 
         noise_source_count = 0
         
@@ -667,7 +663,6 @@ class NetlistMixin(object):
                     groups[cpt_kind] = []
                 groups[cpt_kind].append(key)
 
-        self._independent_source_groups = groups
         return groups    
 
     @property
@@ -716,8 +711,7 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     def _invalidate(self):
 
-        for attr in ('_sch', '_sub', '_Vdict', '_Idict',
-                     '_independent_source_groups'):
+        for attr in ('_sch', '_sub', '_Vdict', '_Idict'):
             try:
                 delattr(self, attr)
             except:
@@ -735,7 +729,7 @@ class Netlist(NetlistMixin, NetfileMixin):
             return self._sub
 
         self._sub = Transformdomains()
-        for key, sources in self.independent_source_groups.items():
+        for key, sources in self.independent_source_groups().items():
             kind = key
             if isinstance(kind, str) and kind[0] == 'n':
                 kind = 'n'
@@ -787,7 +781,6 @@ class Netlist(NetlistMixin, NetfileMixin):
         except AttributeError:        
             pass
 
-
         result = Branchdict()
         for kind, sub in self.sub.items():
             for node, value in sub.Idict.items():
@@ -803,7 +796,8 @@ class Netlist(NetlistMixin, NetfileMixin):
         result = Vsuper()
         for kind, sub in self.sub.items():
             I = sub.get_I(name)
-            result.add(I)         
+            result.add(I)
+        result = result.canonical()            
         return result
 
     def get_i(self, name):
@@ -823,7 +817,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         for kind, sub in self.sub.items():
             Vd = sub.get_Vd(Np, Nm)
             result.add(Vd)
-        result = result.simplify()
+        result = result.canonical()
         return result
 
     def get_vd(self, Np, Nm):
@@ -850,7 +844,7 @@ class SubNetlist(NetlistMixin, MNA):
         """Current through component"""
 
         self._solve()
-        return self._Idict[name]
+        return self._Idict[name].canonical()
 
     def get_i(self):
         """Time-domain current through component"""
@@ -861,7 +855,7 @@ class SubNetlist(NetlistMixin, MNA):
         """Voltage drop between nodes"""
 
         self._solve()
-        return self._Vdict[Np] - self._Vdict[Nm]
+        return (self._Vdict[Np] - self._Vdict[Nm]).canonical()
 
     def get_vd(self, Np, Nm):
         """Time-domain voltage drop between nodes"""

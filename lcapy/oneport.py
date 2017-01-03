@@ -469,12 +469,12 @@ class ParSer(OnePort):
     @property
     def Y(self):
         # Could extract directly if have Y || I or Z + V
-        return self.cct.admittance(1, 0).general()
+        return self.cct.admittance(1, 0)
 
     @property
     def Z(self):
         # Could extract directly if have Y || I or Z + V
-        return self.cct.impedance(1, 0).general()
+        return self.cct.impedance(1, 0)
 
 class Par(ParSer):
     """Parallel class"""

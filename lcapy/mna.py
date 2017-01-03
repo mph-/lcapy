@@ -325,5 +325,3 @@ class MNA(object):
 
         self._solve()
         return self._Idict
-    
-    
