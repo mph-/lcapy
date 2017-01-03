@@ -2440,7 +2440,8 @@ class Super(Exprdict):
         return len(self.keys()) > 1
 
     def __add__(self, x):
-        new = copy(self)
+
+        new = self.__class__(self)
         if isinstance(x, Super):
             for value in x.values():
                 new.add(value)
