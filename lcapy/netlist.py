@@ -572,18 +572,6 @@ class NetlistMixin(object):
         return False
 
     @property
-    def assumptions(self):
-
-        assumptions = {}
-        if self.is_ac:
-            assumptions['ac'] = True
-        if self.is_dc:
-            assumptions['dc'] = True
-        if self.is_causal:
-            assumptions['causal'] = True
-        return assumptions
-
-    @property
     def zeroic(self):
         """Return True if the initial conditions for all components are zero."""
 
@@ -701,6 +689,8 @@ class Transformdomains(dict):
         return self[attr]
 
     def __getitem__(self, key):
+        if key == 'w':
+            key = omega
         # This allows a[omega] to work if omega used as key
         # instead of 'omega'.
         if hasattr(key, 'expr'):

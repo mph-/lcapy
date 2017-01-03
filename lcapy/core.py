@@ -14,7 +14,7 @@ from __future__ import division
 from lcapy.latex import latex_str
 from lcapy.acdc import is_dc, is_ac, is_causal, ACChecker
 from lcapy.sympify import canonical_name, sympify1, symbols_find
-from ratfun import Ratfun, _zp2tf
+from lcapy.ratfun import Ratfun, _zp2tf
 from lcapy.laplace import laplace_transform, inverse_laplace_transform
 from lcapy.fourier import fourier_transform, inverse_fourier_transform
 import numpy as np
@@ -2393,10 +2393,10 @@ class Super(Exprdict):
     def ac_keys(self):
         """Return list of keys for all ac components"""
 
-        keys = self.keys()
-        for key in ('dc', 's', 'n'):
-            if key in keys:
-                keys.remove(key)
+        keys = []
+        for key in self.keys():
+            if key not in ('dc', 's', 'n'):
+                keys.append(key)
         return keys
 
     @property
@@ -2417,19 +2417,19 @@ class Super(Exprdict):
 
     @property
     def is_dc(self):
-        return self.keys() == ['dc']
+        return list(self.keys()) == ['dc']
 
     @property
     def is_ac(self):
-        return self.ac_keys() == self.keys()
+        return self.ac_keys() == list(self.keys())
 
     @property
     def is_s(self):
-        return self.keys() == ['s']
+        return list(self.keys()) == ['s']
 
     @property
     def is_n(self):
-        return self.keys() == ['n']
+        return list(self.keys()) == ['n']
 
     @property
     def is_causal(self):
@@ -2614,6 +2614,10 @@ class Super(Exprdict):
     def n(self):
         return self.select('n')
 
+    @property
+    def w(self):
+        return self.select(omegasym)    
+
     def time(self):
 
         result = self.time_class(0)
@@ -2687,6 +2691,9 @@ class Vsuper(Super):
                             type(x).__name__)
         return self * Ys(1 / x)
 
+    def __truediv__(self, x):
+        return self.__div__(x)
+
     def cpt(self):
         return V(self.time())
 
@@ -2723,6 +2730,9 @@ class Isuper(Super):
             raise TypeError("Unsupported types for /: 'Isuper' and '%s'" %
                             type(x).__name__)
         return self * Zs(1 / x)
+
+    def __truediv__(self, x):
+        return self.__div__(x)
 
     def cpt(self):
         return I(self.time())
