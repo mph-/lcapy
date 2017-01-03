@@ -209,7 +209,7 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2')
         a.add('L1 2 0 L1 {(V1 + 1) / R1}')
         # This tests if symbols are converted to the defined ones.
-        self.assertEqual2(a.L1.v, V(0).Voc.s.inverse_laplace(**a.assumptions), 
+        self.assertEqual2(a.L1.v, V(0).Voc.s.inverse_laplace(), 
                           "Incorrect time domain voltage")        
         v = Vs('(V1+1)/s', dc=False).inverse_laplace()
         self.assertEqual2(a.R1.v, v, 

@@ -1,4 +1,4 @@
-from lcapy import R, C, L, V, I, v, exp, Heaviside, Vac, Vdc, omega, j, It, sin
+from lcapy import *
 from lcapy.core import Zs, s, t
 import unittest
 import sympy as sym
@@ -79,4 +79,14 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.thevenin().isc,  It(2 * omega * sin(omega * t)),
                          "Isc incorrect")
         
+    def test_superposition(self):
+        """Lcapy: check network superposition"""
+
+        a = Vac(40) + Vnoise(20) + Vstep(10) + R(5)
+        self.assertEqual2(a.Voc.s, 10 / s, "Voc.s error")
+        self.assertEqual2(a.Voc.n, Vn(20), "Voc.n error")
+        self.assertEqual2(a.Voc.w, Vphasor(40), "Voc.w error")
+        self.assertEqual2(a.Isc.s, 2 / s, "Isc.s error")
+        self.assertEqual2(a.Isc.n, In(4), "Isc.n error")
+        self.assertEqual2(a.Isc.w, Iphasor(8), "Isc.w error")        
         
