@@ -87,6 +87,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.Voc.n, Vn(20), "Voc.n error")
         self.assertEqual2(a.Voc.w, Vphasor(40), "Voc.w error")
         self.assertEqual2(a.Isc.s, 2 / s, "Isc.s error")
+        # FIXME, this intermittently fails.
         self.assertEqual2(a.Isc.n, In(4), "Isc.n error")
         self.assertEqual2(a.Isc.w, Iphasor(8), "Isc.w error")        
         

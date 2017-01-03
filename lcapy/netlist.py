@@ -326,7 +326,7 @@ class NetlistMixin(object):
                 net = cpt.select(kind)
             elif cpt.source:
                 net = cpt.zero()
-            elif kind != 's':
+            elif kind != 'ivp':
                 net = cpt.kill_initial()
             else:
                 net = str(cpt)
@@ -727,6 +727,8 @@ class Netlist(NetlistMixin, NetfileMixin):
         if hasattr(self, '_sub'):
             return self._sub
 
+        groups = self.independent_source_groups()        
+
         if self.is_ivp:
 
             def namelist(elements):
@@ -736,18 +738,22 @@ class Netlist(NetlistMixin, NetfileMixin):
                 print('Warning: missing initial conditions for %s' %
                       namelist(self.missing_ic))
 
-            model = self.s_model()
-        else:
-            model = self    
+            newgroups = {'ivp' : []}
+            for key, sources in groups.items():
+                if isinstance(key, str) and key[0] == 'n':
+                    print('Warning: ignoring noise source %'
+                          ' for initial value problem' % sources)
+                else:
+                    newgroups['ivp'] += sources
+            groups = newgroups
         
         self._sub = Transformdomains()
-        groups = model.independent_source_groups()
 
         for key, sources in groups.items():
             kind = key
             if isinstance(kind, str) and kind[0] == 'n':
                 kind = 'n'
-            self._sub[key] = SubNetlist(model, sources, kind)
+            self._sub[key] = SubNetlist(self, sources, kind)
 
         return self._sub
 
@@ -766,7 +772,7 @@ class Netlist(NetlistMixin, NetfileMixin):
             pass        
 
         result = Nodedict()
-        for kind, sub in self.sub.items():
+        for sub in self.sub.values():
             for node, value in sub.Vdict.items():
                 if node not in result:
                     result[node] = Vsuper()
@@ -785,7 +791,7 @@ class Netlist(NetlistMixin, NetfileMixin):
             pass
 
         result = Branchdict()
-        for kind, sub in self.sub.items():
+        for sub in self.sub.values():
             for node, value in sub.Idict.items():
                 if node not in result:
                     result[node] = Isuper()
@@ -797,7 +803,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         """Current through component"""
 
         result = Vsuper()
-        for kind, sub in self.sub.items():
+        for sub in self.sub.values():
             I = sub.get_I(name)
             result.add(I)
         result = result.canonical()            
@@ -817,7 +823,7 @@ class Netlist(NetlistMixin, NetfileMixin):
             Np = '%s' % Np            
 
         result = Vsuper()
-        for kind, sub in self.sub.items():
+        for sub in self.sub.values():
             Vd = sub.get_Vd(Np, Nm)
             result.add(Vd)
         result = result.canonical()

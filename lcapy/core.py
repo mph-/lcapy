@@ -2750,14 +2750,16 @@ class Isuper(Super):
     
 def vtype_select(kind):
     try:
-        return {'s' : Vs, 'n' : Vn, 'ac' : Vphasor, 'dc' : Vconst}[kind]
+        return {'ivp' : Vs, 's' : Vs, 'n' : Vn,
+                'ac' : Vphasor, 'dc' : Vconst}[kind]
     except KeyError:
         return Vphasor
 
 
 def itype_select(kind):
     try:
-        return {'s' : Vs, 'n' : Vn, 'ac' : Vphasor, 'dc' : Vconst}[kind]
+        return {'ivp' : Is, 's' : Is, 'n' : In,
+                'ac' : Iphasor, 'dc' : Iconst}[kind]
     except KeyError:
         return Iphasor
 

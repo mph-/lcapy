@@ -19,7 +19,9 @@ module = sys.modules[__name__]
 def kind_keyword(kind):
     if kind == 'n':
         return 'noise'
-    if not isinstance(kind, str):
+    elif kind == 'ivp':
+        return 's'    
+    elif not isinstance(kind, str):
         return 'ac'
     return kind
 
@@ -221,28 +223,34 @@ class Cpt(object):
     def Isc(self):
         """Short-circuit current"""
 
+        Isc = self.cpt.Isc
         if self.cct.kind == 'super':
-            return self.cpt.Isc
-        return self.cpt.Isc.select(self.cct.kind)
+            return Isc
+        elif self.cct.kind == 'ivp':
+            return Isc.select('s')
+        return Isc.select(self.cct.kind)
 
     @property
     def Voc(self):
         """Open-circuit voltage"""
 
+        Voc = self.cpt.Voc        
         if self.cct.kind == 'super':
-            return self.cpt.Voc
-        return self.cpt.Voc.select(self.cct.kind)
+            return Voc
+        elif self.cct.kind == 'ivp':
+            return Voc.select('s')        
+        return Voc.select(self.cct.kind)
 
     @property
     def Y(self):
         """Admittance"""
 
         Y1 = self.cpt.Y
-        if self.cct.kind == 's':
+        if self.cct.kind in ('s', 'ivp'):
             return Y1
-        if self.cct.kind == 'dc':
+        elif self.cct.kind == 'dc':
             return cExpr(Y1.jomega(0))
-        if self.cct.kind == 'n':        
+        elif self.cct.kind == 'n':        
             return Y1.jomega
         return Y1.jomega(self.cct.kind)
 
@@ -251,11 +259,11 @@ class Cpt(object):
         """Impedance"""
 
         Z1 = self.cpt.Z
-        if self.cct.kind == 's':
+        if self.cct.kind in ('s', 'ivp'):
             return Z1
-        if self.cct.kind == 'dc':
+        elif self.cct.kind == 'dc':
             return cExpr(Z1.jomega(0))
-        if self.cct.kind == 'n':        
+        elif self.cct.kind == 'n':        
             return Z1.jomega
         return Z1.jomega(self.cct.kind)
 
@@ -402,7 +410,7 @@ class RC(RLC):
         if n2 >= 0:
             cct._G[n2, n2] += Y
 
-        if cct.kind == 's' and self.cpt.hasic and n1 >= 0:
+        if cct.kind == 'ivp' and self.cpt.hasic and n1 >= 0:
             I = self.Isc.expr            
             cct._Is[n1] += I
 
@@ -514,8 +522,10 @@ class I(Cpt):
     def select(self, kind=None):
         """Select domain kind for component"""
 
-        Isc = self.Isc
-        if kind in Isc:
+        Isc = self.cpt.Isc
+        if kind == 'ivp':
+            Isc = Isc.laplace()
+        elif kind in Isc:
             Isc = Isc[kind]
         else:
             Isc = 0
@@ -614,7 +624,7 @@ class L(RLC):
 
         cct._D[m, m] += -Z
 
-        if cct.kind == 's' and self.cpt.hasic:
+        if cct.kind == 'ivp' and self.cpt.hasic:
             V = self.Voc.expr            
             cct._Es[m] += V
 
@@ -821,8 +831,10 @@ class V(Cpt):
     def select(self, kind=None):
         """Select domain kind for component"""
 
-        Voc = self.Voc
-        if kind in Voc:
+        Voc = self.cpt.Voc
+        if kind == 'ivp':
+            Voc = Voc.laplace()
+        elif kind in Voc:
             Voc = Voc[kind]
         else:
             Voc = 0
