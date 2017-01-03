@@ -22,10 +22,11 @@ class LcapyTester(unittest.TestCase):
 
         """
         a = R(10)
-        self.assertEqual2(a.Z, 10, "Z incorrect.")
+        self.assertEqual(a.Z, 10, "Z incorrect.")
+        self.assertEqual(a.Y * 10, 1, "Y incorrect.")        
         self.assertEqual2(a.Voc.s, 0, "Voc incorrect.")
-        self.assertEqual2(a.voc, 0, "voc incorrect.")
         self.assertEqual2(a.Isc.s, 0, "Isc incorrect.")
+        self.assertEqual2(a.voc, 0, "voc incorrect.")
         self.assertEqual2(a.isc, 0, "isc incorrect.")
 
     def test_L(self):
@@ -34,7 +35,9 @@ class LcapyTester(unittest.TestCase):
         """
         a = L(10, 5)
         self.assertEqual2(a.Z, 10 * s, "Z incorrect.")
+        self.assertEqual2(a.Y, 1 / (10 * s), "Y incorrect.")        
         self.assertEqual2(a.Voc.s, -10 * 5, "Voc incorrect.")
+        self.assertEqual2(a.Isc.s, -5 / s, "Isc incorrect.")        
 
     def test_C(self):
         """Lcapy: check C
@@ -43,7 +46,9 @@ class LcapyTester(unittest.TestCase):
         a = C(10, 5)
 
         self.assertEqual2(a.Z, 1 / (10 * s), "Z incorrect.")
+        self.assertEqual2(a.Y, 10 * s, "Y incorrect.")        
         self.assertEqual2(a.Voc.s, 5 / s, "Voc incorrect.")
+        self.assertEqual(a.Isc.s, 50, "Isc incorrect.")        
 
     def test_R_series_R(self):
         """Lcapy: check R + R
@@ -53,6 +58,8 @@ class LcapyTester(unittest.TestCase):
         b = a.simplify()
         self.assertEqual2(b.R, 15, "R incorrect.")
         self.assertEqual2(b.Z, 15, "Z incorrect.")
+        self.assertEqual(b.Voc.s, 0, "Voc incorrect.")
+        self.assertEqual(b.Isc.s, 0, "Isc incorrect.")                
         self.assertEqual2(type(b), R, "type incorrect.")
 
     def test_L_series_L(self):

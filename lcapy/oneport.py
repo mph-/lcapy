@@ -50,8 +50,8 @@ class OnePort(Network):
        ParSer for combinations of OnePort
 
     Attributes: Y, Z, Voc, Isc, y, z, voc, isc
-      Y = Y(s) = Ysc(s)  admittance
-      Z = Z(s) = Zoc(s)  impedance
+      Y = Y(s)  admittance
+      Z = Z(s)  impedance
       Voc       open-circuit voltage in appropriate transform domain
       Isc       short-circuit current in appropriate transform domain
       y = y(t)  impulse response of admittance
@@ -69,21 +69,46 @@ class OnePort(Network):
     netname = ''
     netkeyword = ''
 
-    Z = Zs(0)
-    Voc = Vsuper()
-    Isc = Isuper()
+    _Z = None
+    _Y = None
+    _Voc = None
+    _Isc = None
 
     @property
-    def Zoc(self):
-        return self.Z
-
-    @property
-    def Ysc(self):
-        return self.Y
+    def Z(self):
+        if self._Z is not None:
+            return self._Z
+        if self._Y is not None:
+            return Zs(1 / self._Y)
+        if self._Voc is not None:        
+            return Zs(0)
+        if self._Isc is not None:        
+            return Zs(1 / Ys(0))
+        raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
 
     @property
     def Y(self):
+        if self._Y is not None:
+            return self._Y
         return Ys(1 / self.Z)
+
+    @property
+    def Voc(self):
+        if self._Voc is not None:
+            return self._Voc
+        if self._Isc is not None:
+            return self._Isc * self.Z
+        if self._Z is not None:        
+            return Vsuper()
+        if self._Y is not None:        
+            return Isuper()
+        raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)        
+
+    @property
+    def Isc(self):
+        if self._Isc is not None:
+            return self._Isc
+        return self.Voc / self.Z
 
     def __add__(self, OP):
         """Series combination"""
@@ -444,12 +469,12 @@ class ParSer(OnePort):
     @property
     def Y(self):
         # Could extract directly if have Y || I or Z + V
-        return self.cct.admittance(1, 0)
+        return self.cct.admittance(1, 0).general()
 
     @property
     def Z(self):
         # Could extract directly if have Y || I or Z + V
-        return self.cct.impedance(1, 0)
+        return self.cct.impedance(1, 0).general()
 
 class Par(ParSer):
     """Parallel class"""
@@ -612,7 +637,7 @@ class R(OnePort):
 
         self.args = (Rval, )
         self.R = cExpr(Rval)
-        self.Z = Zs.R(self.R)
+        self._Z = Zs.R(self.R)
 
 
 class G(OnePort):
@@ -622,7 +647,7 @@ class G(OnePort):
 
         self.args = (Gval, )
         self.G = cExpr(Gval)
-        self.Z = 1 / Ys.G(self.G)
+        self._Z = 1 / Ys.G(self.G)
 
     def net_make(self, net, n1=None, n2=None):
 
@@ -653,8 +678,8 @@ class L(OnePort):
         i0 = cExpr(i0)
         self.L = Lval
         self.i0 = i0
-        self.Z = Zs.L(Lval)
-        self.Voc = Vsuper(-Vs(i0 * Lval))
+        self._Z = Zs.L(Lval)
+        self._Voc = Vsuper(-Vs(i0 * Lval))
         self.zeroic = self.i0 == 0 
 
 
@@ -678,8 +703,8 @@ class C(OnePort):
         v0 = cExpr(v0)
         self.C = Cval
         self.v0 = v0
-        self.Z = Zs.C(Cval)
-        self.Voc = Vsuper(Vs(v0).integrate())
+        self._Z = Zs.C(Cval)
+        self._Voc = Vsuper(Vs(v0).integrate())
         self.zeroic = self.v0 == 0
 
 
@@ -690,7 +715,7 @@ class Y(OnePort):
 
         self.args = (Yval, )
         Yval = Ys(Yval)
-        self.Z = 1 / Yval
+        self._Z = 1 / Yval
 
 
 class Z(OnePort):
@@ -700,7 +725,7 @@ class Z(OnePort):
 
         self.args = (Zval, )
         Zval = Zs(Zval)
-        self.Z = Zval
+        self._Z = Zval
 
 
 class VoltageSource(OnePort):
@@ -719,7 +744,7 @@ class sV(VoltageSource):
 
         self.args = (Vval, )
         Vval = sExpr(Vval)
-        self.Voc = Vsuper(Vs(Vval))
+        self._Voc = Vsuper(Vs(Vval))
 
 
 class V(VoltageSource):
@@ -730,7 +755,7 @@ class V(VoltageSource):
     def __init__(self, Vval):
 
         self.args = (Vval, )
-        self.Voc = Vsuper(Vval)
+        self._Voc = Vsuper(Vval)
 
         
 class Vstep(VoltageSource):
@@ -742,7 +767,7 @@ class Vstep(VoltageSource):
 
         self.args = (v, )
         v = cExpr(v)
-        self.Voc = Vsuper(Vs(tExpr(v).laplace(), causal=True))
+        self._Voc = Vsuper(Vs(tExpr(v).laplace(), causal=True))
         self.v0 = v
 
 
@@ -756,7 +781,7 @@ class Vdc(VoltageSource):
 
         self.args = (v, )
         v = cExpr(v)
-        self.Voc = Vsuper(Vconst(v, dc=True))
+        self._Voc = Vsuper(Vconst(v, dc=True))
         self.v0 = v
 
     @property
@@ -780,7 +805,7 @@ class Vac(VoltageSource):
         self.omega = symbol('omega', real=True)
         self.v0 = V
         self.phi = phi
-        self.Voc = Vsuper(Vphasor(self.v0 * exp(j * self.phi), ac=True,
+        self._Voc = Vsuper(Vphasor(self.v0 * exp(j * self.phi), ac=True,
                                   omega=self.omega))
 
 
@@ -798,7 +823,7 @@ class Vnoise(VoltageSource):
     def __init__(self, V):
 
         self.args = (V, )
-        self.Voc = Vsuper(Vn(V))
+        self._Voc = Vsuper(Vn(V))
 
         
 class v(VoltageSource):
@@ -808,7 +833,7 @@ class v(VoltageSource):
 
         self.args = (vval, )
         Vval = tExpr(vval)
-        self.Voc = Vsuper(Vval)
+        self._Voc = Vsuper(Vval)
 
 
 class CurrentSource(OnePort):
@@ -827,7 +852,7 @@ class sI(CurrentSource):
 
         self.args = (Ival, )
         Ival = sExpr(Ival)
-        self.Isc = Isuper(Is(Ival))
+        self._Isc = Isuper(Is(Ival))
 
 
 class I(CurrentSource):
@@ -840,7 +865,7 @@ class I(CurrentSource):
     def __init__(self, Ival):
 
         self.args = (Ival, )
-        self.Isc = Isuper(Ival)
+        self._Isc = Isuper(Ival)
 
             
 class Istep(CurrentSource):
@@ -852,7 +877,7 @@ class Istep(CurrentSource):
 
         self.args = (i, )
         i = cExpr(i)
-        self.Isc = Isuper(Is(tExpr(i).laplace(), causal=True))        
+        self._Isc = Isuper(Is(tExpr(i).laplace(), causal=True))        
         self.i0 = i
 
 
@@ -866,7 +891,7 @@ class Idc(CurrentSource):
 
         self.args = (i, )
         i = cExpr(i)
-        self.Isc = Isuper(Iconst(i, dc=True))
+        self._Isc = Isuper(Iconst(i, dc=True))
         self.i0 = i
 
     @property
@@ -888,7 +913,7 @@ class Iac(CurrentSource):
         self.omega = symbol('omega', real=True)
         self.i0 = I
         self.phi = phi
-        self.Isc = Isuper(Iphasor(self.i0 * exp(j * self.phi), ac=True,
+        self._Isc = Isuper(Iphasor(self.i0 * exp(j * self.phi), ac=True,
                                   omega=self.omega))
 
     @property
@@ -905,7 +930,7 @@ class Inoise(CurrentSource):
     def __init__(self, I):
 
         self.args = (I, )
-        self.Isc = Isuper(In(I))
+        self._Isc = Isuper(In(I))
 
         
 class i(CurrentSource):
@@ -915,7 +940,7 @@ class i(CurrentSource):
 
         self.args = (ival, )
         Ival = tExpr(ival)
-        self.Isc = Isuper(Ival)
+        self._Isc = Isuper(Ival)
 
 
 class Xtal(OnePort):

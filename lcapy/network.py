@@ -168,6 +168,10 @@ class Network(object):
     def initial_value_problem(self):
         return self.cct.initial_value_problem
 
+    @property    
+    def is_ivp(self):
+        return self.cct.is_ivp
+
     @property
     def is_dc(self):
         return self.cct.is_dc
@@ -175,6 +179,10 @@ class Network(object):
     @property    
     def is_ac(self):
         return self.cct.is_ac
+
+    @property    
+    def is_causal(self):
+        return self.cct.is_causal    
 
     @property    
     def kinds(self):

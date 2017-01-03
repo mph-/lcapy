@@ -179,7 +179,7 @@ class MNA(object):
         # Determine if all components that allow initial conditions
         # have them explicitly defined.  In this case, we can only
         # provide solution for t >= 0.
-        if self.is_causal and self.initial_value_problem and not self.zeroic:
+        if self.is_causal and self.is_ivp and not self.zeroic:
             raise RuntimeError('Detected initial value problem that has causal sources!')
 
         # Determine which branch currents are needed.

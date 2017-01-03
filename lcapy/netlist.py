@@ -315,6 +315,8 @@ class NetlistMixin(object):
             raise ValueError('Cannot create A matrix')
 
     def select(self, sourcenames, kind):
+        """Return new netlist with transform domain kind selected for
+        specified source.  Sources not in sourcenames are set to zero."""
 
         new = self._new()
         new.opts = copy(self.opts)
@@ -742,7 +744,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         def namelist(elements):
             return ', '.join([elt for elt in elements])
 
-        if (self.has_s and not self.initial_value_problem
+        if (self.has_s and not self.is_ivp
             and not self.is_causal and self.missing_ic != {}):
             print('Warning non-causal sources detected (%s)'
                   ' and initial conditions missing for %s;'
@@ -755,7 +757,7 @@ class Netlist(NetlistMixin, NetfileMixin):
     @property
     def kinds(self):
         """Return list of transform domain kinds."""
-        return self.sub.keys()
+        return list(self.sub.keys())
     
     @property
     def Vdict(self):

@@ -90,3 +90,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.Isc.n, In(4), "Isc.n error")
         self.assertEqual2(a.Isc.w, Iphasor(8), "Isc.w error")        
         
+    def test_ivp(self):
+        """Lcapy: check network with initial values"""
+
+        a = Vstep(10) + C('C1', 5)
+        self.assertEqual(a.is_ivp, True, "IVP fail")
+        self.assertEqual2(a.Voc.s, 15 / s, "Voc fail")        
+        
