@@ -247,7 +247,7 @@ class Expr(object):
         """Return angular frequency"""
 
         if 'omega' not in self.assumptions:
-            return omega
+            return omegasym
         return self.assumptions['omega']
 
     def __hash__(self):

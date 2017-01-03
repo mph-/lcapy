@@ -108,18 +108,6 @@ class Circuit(Netlist):
         
         self._netfile_add(filename)
 
-    def add(self, string):
-        """Add a component to the netlist.
-        The general form is: 'Name Np Nm args'
-        where Np is the positive node and Nm is the negative node.
-
-        A positive current is defined to flow from the positive node
-        to the negative node.
-        """
-
-        self._add(string)
-        self._invalidate()
-
     def Y(self, Np, Nm):
         """Return admittance between nodes Np and Nm with independent
         sources killed."""

@@ -191,7 +191,7 @@ class NetlistMixin(object):
     def Isc(self, Np, Nm):
         """Return short-circuit s-domain current between nodes Np and Nm."""
 
-        self._add('Vshort_ %d %d 0' % (Np, Nm))
+        self.add('Vshort_ %d %d 0' % (Np, Nm))
 
         Isc = self.Vshort_.I * Ys(1)
         self.remove('Vshort_')
@@ -286,7 +286,7 @@ class NetlistMixin(object):
             raise ValueError('Network contains independent sources')
 
         try:
-            self._add('V1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
+            self.add('V1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
@@ -298,7 +298,7 @@ class NetlistMixin(object):
 
             self.remove('V1_')
 
-            self._add('I1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
+            self.add('I1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
@@ -748,14 +748,6 @@ class Netlist(NetlistMixin, NetfileMixin):
             if isinstance(kind, str) and kind[0] == 'n':
                 kind = 'n'
             self._sub[key] = SubNetlist(self, sources, kind)
-        return self._sub
-
-    @property
-    def kinds(self):
-        """Return list of transform domain kinds."""
-        return self.sub.keys()
-    
-    def _solve(self):
 
         def namelist(elements):
             return ', '.join([elt for elt in elements])
@@ -767,9 +759,13 @@ class Netlist(NetlistMixin, NetfileMixin):
                   ' expect unexpected transient!' % (
                       namelist(self.noncausal_sources),
                       namelist(self.missing_ic)))
+            
+        return self._sub
 
-        for subnetlist in self.sub.values():
-            subnetlist._solve()
+    @property
+    def kinds(self):
+        """Return list of transform domain kinds."""
+        return self.sub.keys()
     
     @property
     def Vdict(self):
@@ -779,8 +775,6 @@ class Netlist(NetlistMixin, NetfileMixin):
             return self._Vdict
         except AttributeError:
             pass        
-
-        self._solve()
 
         result = Nodedict()
         for kind, sub in self.sub.items():
@@ -801,7 +795,6 @@ class Netlist(NetlistMixin, NetfileMixin):
         except AttributeError:        
             pass
 
-        self._solve()
 
         result = Branchdict()
         for kind, sub in self.sub.items():
@@ -814,8 +807,6 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     def get_I(self, name):
         """Current through component"""
-
-        self._solve()
 
         result = Vsuper()
         for kind, sub in self.sub.items():
@@ -830,8 +821,6 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     def get_Vd(self, Np, Nm):
         """Voltage drop between nodes"""
-
-        self._solve()        
 
         if isinstance(Nm, int):
             Nm = '%s' % Nm

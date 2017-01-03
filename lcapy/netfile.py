@@ -58,6 +58,18 @@ class NetfileMixin(object):
         cpt = self.parser.parse(namespace + string, self)
         return cpt
 
+    def add(self, string):
+        """Add a component to the netlist.
+        The general form is: 'Name Np Nm args'
+        where Np is the positive node and Nm is the negative node.
+
+        A positive current is defined to flow from the positive node
+        to the negative node.
+        """
+
+        self._add(string)
+        self._invalidate()
+
     def _add(self, string, namespace=''):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive node and Nm is the negative node.
