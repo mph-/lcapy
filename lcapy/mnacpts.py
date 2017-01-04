@@ -83,18 +83,23 @@ class Cpt(object):
     def stamp(self, cct):
         raise NotImplementedError('stamp method not implemented for %s' % self)
 
-    def kill_initial(self):
-        """Kill implicit sources due to initial conditions"""
-
+    def copy(self):
+        """Make copy of net."""
+        
         return str(self)
+    
+    def kill_initial(self):
+        """Kill implicit sources due to initial conditions."""
+
+        return self.copy()
 
     def kill(self):
-        """Kill component"""
+        """Kill component."""
 
         raise ValueError('component not a source: %s' % self)
 
     def select(self, kind=None):
-        """Select domain kind for component"""
+        """Select domain kind for component."""
 
         raise ValueError('component not a source: %s' % self)    
 
@@ -107,19 +112,19 @@ class Cpt(object):
         raise ValueError('component not a source: %s' % self)        
 
     def s_model(self, var):
-        """Return s-domain model of component"""
+        """Return s-domain model of component."""
 
-        return str(self)
+        return self.copy()        
 
     def pre_initial_model(self):
-        """Return pre-initial model of component"""
+        """Return pre-initial model of component."""
 
-        return str(self)
+        return self.copy()        
 
     @property
     def is_causal(self):
         """Return True if causal component or if source produces
-        a causal signal"""
+        a causal signal."""
 
         if self.cpt.voltage_source:
             return self.cpt.Voc.is_causal
@@ -130,7 +135,7 @@ class Cpt(object):
 
     @property
     def is_dc(self):
-        """Return True if source is dc"""
+        """Return True if source is dc."""
         
         if self.cpt.voltage_source:
             return self.cpt.Voc.is_dc
@@ -141,7 +146,7 @@ class Cpt(object):
 
     @property
     def is_ac(self):
-        """Return True if source is ac"""
+        """Return True if source is ac."""
 
         if self.cpt.voltage_source:
             return self.cpt.Voc.is_ac
@@ -152,7 +157,7 @@ class Cpt(object):
 
     @property
     def is_s(self):
-        """Return True if source is s-domain"""
+        """Return True if source is s-domain."""
 
         if self.cpt.voltage_source:
             return self.cpt.Voc.is_s
@@ -163,7 +168,7 @@ class Cpt(object):
 
     @property
     def has_s(self):
-        """Return True if source has s-domain component"""
+        """Return True if source has s-domain component."""
 
         if self.cpt.voltage_source:
             return self.cpt.Voc.has_s
@@ -174,7 +179,7 @@ class Cpt(object):
         
     @property
     def is_noisy(self):
-        """Return True if source is noisy"""
+        """Return True if source is noisy."""
 
         if self.cpt.voltage_source:
             return self.cpt.is_noisy
@@ -185,61 +190,51 @@ class Cpt(object):
 
     @property
     def zeroic(self):
-        """Return True if initial conditions are zero (or unspecified)"""
+        """Return True if initial conditions are zero (or unspecified)."""
 
         return self.cpt.zeroic
 
     @property
     def hasic(self):
-        """Return True if initial conditions are specified"""
+        """Return True if initial conditions are specified."""
 
         return self.cpt.hasic
 
     @property
     def I(self):
-        """Current through component"""
+        """Current through component."""
 
         return self.cct.get_I(self.name)
 
     @property
     def i(self):
-        """Time-domain current through component"""
+        """Time-domain current through component."""
 
         return self.cct.get_i(self.name)
 
     @property
     def V(self):
-        """Voltage drop across component"""
+        """Voltage drop across component."""
 
         return self.cct.get_Vd(self.nodes[0], self.nodes[1])
 
     @property
     def v(self):
-        """Time-domain voltage drop across component"""
+        """Time-domain voltage drop across component."""
 
         return self.cct.get_vd(self.nodes[0], self.nodes[1])
 
     @property
     def Isc(self):
-        """Short-circuit current"""
+        """Short-circuit current."""
 
-        Isc = self.cpt.Isc
-        if self.cct.kind == 'super':
-            return Isc
-        elif self.cct.kind == 'ivp':
-            return Isc.select('s')
-        return Isc.select(self.cct.kind)
+        return self.cpt.Isc.select(self.cct.kind)
 
     @property
     def Voc(self):
-        """Open-circuit voltage"""
+        """Open-circuit voltage."""
 
-        Voc = self.cpt.Voc        
-        if self.cct.kind == 'super':
-            return Voc
-        elif self.cct.kind == 'ivp':
-            return Voc.select('s')        
-        return Voc.select(self.cct.kind)
+        return self.cpt.Voc.select(self.cct.kind)
 
     @property
     def Y(self):
@@ -418,7 +413,7 @@ class RC(RLC):
 class C(RC):
     
     def kill_initial(self):
-        """Kill implicit sources due to initial conditions"""
+        """Kill implicit sources due to initial conditions."""
         return '%s %s %s {%s}; %s' % (
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
@@ -520,7 +515,7 @@ class I(Cpt):
     source = True
 
     def select(self, kind=None):
-        """Select domain kind for component"""
+        """Select domain kind for component."""
 
         Isc = self.cpt.Isc
         if kind == 'ivp':
@@ -599,7 +594,7 @@ class L(RLC):
     need_branch_current = True
 
     def kill_initial(self):
-        """Kill implicit sources due to initial conditions"""
+        """Kill implicit sources due to initial conditions."""
         return '%s %s %s {%s}; %s' % (
             self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
 
@@ -829,7 +824,7 @@ class V(Cpt):
             self.name, self.nodes[0], self.nodes[1], 0, self.opts)
     
     def select(self, kind=None):
-        """Select domain kind for component"""
+        """Select domain kind for component."""
 
         Voc = self.cpt.Voc
         if kind == 'ivp':

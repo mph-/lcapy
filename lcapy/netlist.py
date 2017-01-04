@@ -155,7 +155,7 @@ class NetlistMixin(object):
         new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
-            new._add(str(cpt))
+            new._add(cpt.copy())
         return new        
 
     def _new(self):
@@ -327,7 +327,7 @@ class NetlistMixin(object):
             elif kind != 'ivp':
                 net = cpt.kill_initial()
             else:
-                net = str(cpt)
+                net = cpt.copy()
             new._add(net)
         return new        
 
@@ -344,7 +344,7 @@ class NetlistMixin(object):
             elif 'ICs' in sourcenames:
                 net = cpt.kill_initial()
             else:
-                net = str(cpt)
+                net = cpt.copy()
             new._add(net)
         return new        
 
@@ -400,7 +400,7 @@ class NetlistMixin(object):
             if cpt.name in resistornames:
                 net = cpt.noisy()
             else:
-                net = str(cpt)
+                net = cpt.copy()
             new._add(net)
         return new        
 
