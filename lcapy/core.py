@@ -2510,6 +2510,20 @@ class Super(Exprdict):
             return self.transform_domains[kind](0)
         return self[kind]
 
+    def netval(self, kind):
+
+        def kind_keyword(kind):
+            if kind == 'n':
+                return 'noise'
+            elif kind == 'ivp':
+                return 's'    
+            elif not isinstance(kind, str):
+                return 'ac'
+            return kind
+
+        val = self.select(kind)
+        return '%s {%s}' % (kind_keyword(kind), val)
+    
     def _kind(self, value):
         if isinstance(value, Phasor):
             # Use angular frequency for key.  This can be a nuisance

@@ -16,16 +16,6 @@ import sys
 module = sys.modules[__name__]
 
 
-def kind_keyword(kind):
-    if kind == 'n':
-        return 'noise'
-    elif kind == 'ivp':
-        return 's'    
-    elif not isinstance(kind, str):
-        return 'ac'
-    return kind
-
-
 class Cpt(object):
 
     source = False
@@ -517,10 +507,9 @@ class I(Cpt):
     def select(self, kind=None):
         """Select domain kind for component."""
 
-        Isc = self.cpt.Isc.select(kind)
-        return '%s %s %s %s {%s}; %s' % (
-            self.name, self.nodes[0], self.nodes[1], kind_keyword(kind),
-            Isc, self.opts)
+        return '%s %s %s %s; %s' % (
+            self.name, self.nodes[0], self.nodes[1],
+            self.cpt.Isc.netval(kind), self.opts)
 
     def kill(self):
         newopts = self.opts.copy()
@@ -820,10 +809,9 @@ class V(Cpt):
     def select(self, kind=None):
         """Select domain kind for component."""
 
-        Voc = self.cpt.Voc.select(kind)
-        return '%s %s %s %s {%s}; %s' % (
+        return '%s %s %s %s; %s' % (
             self.name, self.nodes[0], self.nodes[1],
-            kind_keyword(kind), Voc, self.opts)
+            self.cpt.Voc.netval(kind), self.opts)        
 
     def kill(self):
         newopts = self.opts.copy()
