@@ -193,7 +193,7 @@ class Expr(object):
 
         if isinstance(arg, Expr):
             if assumptions == {}:
-                assumptions = arg.assumptions
+                assumptions = arg.assumptions.copy()
             arg = arg.expr
 
         # Perhaps could set dc.
@@ -1177,7 +1177,7 @@ class sExpr(sfwExpr):
         """
 
         if assumptions == {}:
-            assumptions = self.assumptions
+            assumptions = self.assumptions.copy()
 
         result = inverse_laplace_transform(self.expr, self.var, tsym, **assumptions)
 
@@ -1193,7 +1193,6 @@ class sExpr(sfwExpr):
     def laplace(self):
         """Convert to s-domain representation."""
 
-        self.infer_assumptions()
         return self.__class__(self, **self.assumptions)
 
     def fourier(self):

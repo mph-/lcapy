@@ -242,13 +242,10 @@ class MNA(object):
         assumptions = {}
         if vtype == Vphasor:
             assumptions['omega'] = self.kind
-        elif self.kind == 's':
-            if self.is_ac:
-                assumptions['ac'] = True
-            if self.is_dc:
-                assumptions['dc'] = True
-            if self.is_causal:
-                assumptions['causal'] = True
+        elif self.kind in ('s', 'ivp'):
+            assumptions = {'ac' : self.is_ac,
+                           'dc' : self.is_dc,
+                           'causal' : self.is_causal}
         
         # Create dictionary of node voltages
         self._Vdict = Nodedict()

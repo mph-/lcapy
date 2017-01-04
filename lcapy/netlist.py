@@ -513,71 +513,30 @@ class NetlistMixin(object):
     def is_causal(self):
         """Return True if all independent sources are causal and not an
         initial value problem (unless all the initial values are zero)."""
-
-        # If some of the initial conditions are specified and are non-zero
-        # then have a non-causal initial value problem.
-        if not self.zeroic:
-            return False
-
-        independent_sources = self.independent_sources
-        for cpt in self.independent_sources.values():
-            if not cpt.is_causal:
-                return False
-        return True
+        return self.analysis['causal']        
 
     @property
     def is_dc(self):
         """Return True if all independent sources are DC and not an
         initial value problem.  The initial value problem may collapse
         to a DC problem but we cannot prove this yet."""
-
-        if self.is_ivp:
-            return False
-
-        independent_sources = self.independent_sources
-        if independent_sources == {}:
-            return False
-
-        for cpt in independent_sources.values():
-            if not cpt.is_dc:
-                return False
-        return True
+        return self.analysis['dc']
 
     @property
     def is_ac(self):
         """Return True if all independent sources are AC and not an
         initial value problem."""
-
-        if self.is_ivp:
-            return False
-
-        independent_sources = self.independent_sources
-        if independent_sources == {}:
-            return False
-
-        for cpt in independent_sources.values():
-            if not cpt.is_ac:
-                return False
-        return True
+        return self.analysis['ac']
 
     @property
     def has_s(self):
         """Return True if any independent source has an s-domain component."""
-
-        independent_sources = self.independent_sources
-        for cpt in independent_sources.values():
-            if cpt.has_s:
-                return True
-        return False
+        return self.analysis['has_s']
 
     @property
     def zeroic(self):
         """Return True if the initial conditions for all components are zero."""
-
-        for cpt in self.elements.values():
-            if not cpt.zeroic:
-                return False
-        return True
+        return self.analysis['zeroic']
 
     @property
     def is_ivp(self):
@@ -586,20 +545,7 @@ class NetlistMixin(object):
         defined.
 
         """
-        return self.initial_value_problem
-
-    @property
-    def initial_value_problem(self):
-        """Return True if any components that allow initial conditions
-        have them explicitly defined."""
-
-        for cpt in self.elements.values():
-            if cpt.hasic is None:
-                continue
-            if cpt.hasic:
-                return True
-
-        return False
+        return self.analysis['ivp']
 
     @property
     def missing_ic(self):
@@ -609,35 +555,17 @@ class NetlistMixin(object):
         return dict((key, cpt) for key, cpt in self.elements.items() if cpt.hasic is False)
 
     @property
-    def explicit_ic(self):
-        """Return components that have explicitly defined initial conditions."""
-
-        return dict((key, cpt) for key, cpt in self.elements.items() if cpt.hasic is True)
-
-    @property
-    def allow_ic(self):
-        """Return components (L and C) that allow initial conditions."""
-
-        return dict((key, cpt) for key, cpt in self.elements.items() if cpt.hasic is not None)
-
-    @property
-    def noncausal_sources(self):
-        """Return dictionary of non-causal independent sources."""
-
-        return dict((key, cpt) for key, cpt in self.elements.items() if cpt.source and not cpt.is_causal)
-
-    @property
     def independent_sources(self):
         """Return dictionary of independent sources (this does not include
         implicit sources due to initial conditions)."""
 
-        # TODO, ignore zero sources
-        return dict((key, cpt) for key, cpt in self.elements.items() if cpt.source)
+        return self.analysis['independent_sources']        
 
     def independent_source_groups(self):
-        """Return dictionary of source groups.  Each group is a collection of
-        sources that can be analysed at the same time.  Noise sources
-        have separate groups since they are assumed uncorrelated.
+        """Return dictionary of source groups.  Each group is a list of
+        sourcenames that can be analysed at the same time.  Noise
+        sources have separate groups since they are assumed
+        uncorrelated.
 
         """
 
@@ -666,15 +594,60 @@ class NetlistMixin(object):
     def control_sources(self):
         """Return dictionary of voltage sources required to specify control
         current for CCVS and CCCS components."""
+        return self.analysis['control_sources']        
 
-        result = {}
+    @property
+    def analysis(self):
 
-        for key, cpt in self.elements.items():
-            if cpt.need_control_current:
-                result[cpt.args[0]] = self.elements[cpt.args[0]]
-        return result
+        if not hasattr(self, '_analysis'):
+            self._analysis = self.analyse(None)
 
+        return self._analysis
 
+    def analyse(self, sources=None):
+
+        hasic = False
+        zeroic = True
+        has_s = False
+        ac_count = 0
+        dc_count = 0
+        causal = True
+        independent_sources = []
+        control_sources = []
+        for key, elt in self.elements.items():
+            if elt.need_control_current:
+                control_sources.append(elt.args[0])
+            if elt.hasic is not None:
+                if elt.hasic:
+                    hasic = True
+                if not elt.zeroic:
+                    zeroic = False
+            if elt.source and (sources is None or key in sources):
+                independent_sources.append(key)
+                if elt.has_s:
+                    has_s = True
+                if elt.is_ac:
+                    ac_count += 1
+                if elt.is_dc:
+                    dc_count += 1
+                if not elt.is_causal:
+                    causal = False
+
+        num_sources = len(independent_sources)
+                    
+        analysis = {} 
+        analysis['zeroic'] = zeroic
+        analysis['hasic'] = hasic
+        analysis['ivp'] = hasic
+        analysis['has_s'] = has_s
+        analysis['independent_sources'] = independent_sources
+        analysis['control_sources'] = control_sources        
+        analysis['ac'] = ac_count > 0 and (num_sources == ac_count) and not hasic
+        analysis['dc'] = dc_count > 0 and (num_sources == dc_count) and not hasic
+        analysis['causal'] = causal and zeroic
+        return analysis
+
+    
 class Transformdomains(dict):
 
     def __getattr__(self, attr):
@@ -708,7 +681,7 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     def _invalidate(self):
 
-        for attr in ('_sch', '_sub', '_Vdict', '_Idict'):
+        for attr in ('_sch', '_sub', '_Vdict', '_Idict', '_analysis'):
             try:
                 delattr(self, attr)
             except:
@@ -835,13 +808,20 @@ class Netlist(NetlistMixin, NetfileMixin):
     
 class SubNetlist(NetlistMixin, MNA):
 
-    def __new__(cls, netlist, sources, kind):
+    def __new__(cls, netlist, sourcenames, kind):
+
+        # Analyse circuit properties before calling select
+        # since for ivp we convert to s-domain and loose assumptions
+        # when save in netlist format.
+        analysis = netlist.analyse(sourcenames)
 
         # The unwanted sources are zeroed so that we can still refer
         # to them by name, say when wanting the current through them.
-        obj = netlist.select(sources, kind=kind)
+        obj = netlist.select(sourcenames, kind=kind)
+
         obj.kind = kind
         obj.__class__ = cls
+        obj._analysis = analysis
         return obj
 
     def __init__(cls, netlist, sources, kind):

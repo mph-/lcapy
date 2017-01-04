@@ -203,7 +203,6 @@ class OnePort(Network):
 
         return Ser(Z1, V1)
 
-
     def norton(self):
         """Simplify to a Norton network"""
 
