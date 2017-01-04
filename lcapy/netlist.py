@@ -204,29 +204,27 @@ class NetlistMixin(object):
         return self.Isc(Np, Nm).time()
 
     def thevenin(self, Np, Nm):
-        """Return Thevenin model between nodes Np and Nm."""
+        """Return s-domain Thevenin model between nodes Np and Nm."""
 
         from lcapy.oneport import V, Z
 
-        # TODO, think about ac circuit
-        Voc = self.Voc(Np, Nm).s
+        Voc = self.Voc(Np, Nm).laplace()
         Zoc = self.impedance(Np, Nm)
 
         return V(Voc) + Z(Zoc)
 
     def norton(self, Np, Nm):
-        """Return Norton model between nodes Np and Nm."""
+        """Return s-domain Norton model between nodes Np and Nm."""
 
         from lcapy.oneport import I, Y
 
-        # TODO, think about ac circuit
-        Isc = self.Isc(Np, Nm).s
+        Isc = self.Isc(Np, Nm).laplace()
         Ysc = self.admittance(Np, Nm)
         
         return I(Isc) | Y(Ysc)
 
     def admittance(self, Np, Nm):
-        """Return admittance between nodes Np and Nm with independent 
+        """Return s-domain admittance between nodes Np and Nm with independent 
         sources killed.
 
         """
@@ -242,7 +240,7 @@ class NetlistMixin(object):
         return Ys(If.s)
 
     def impedance(self, Np, Nm):
-        """Return impedance between nodes Np and Nm with independent
+        """Return s-domain impedance between nodes Np and Nm with independent
         sources killed.
 
         """

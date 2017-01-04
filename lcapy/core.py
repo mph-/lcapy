@@ -139,6 +139,10 @@ class Context(object):
 def sympify(expr, evaluate=True, **assumptions):
     """Create a sympy expression."""
 
+    # By default, set symbols to be positive unless
+    # real is defined.
+    if 'real' not in assumptions:
+        assumptions['positive'] = True
     return sympify1(expr, context.symbols,
                     evaluate, **assumptions)
 
@@ -150,7 +154,7 @@ def symbol(name, **assumptions):
 global_context = Context()
 context = global_context
 
-ssym = symbol('s')
+ssym = symbol('s', real=False)
 tsym = symbol('t', real=True)
 fsym = symbol('f', real=True)
 omegasym = symbol('omega', real=True)
@@ -1508,9 +1512,6 @@ class cExpr(Expr):
                 raise ValueError(
                     'constant expression %s cannot depend on %s' % (val, symbol))
 
-        assumptions['real'] = True
-        if 'positive' not in assumptions:
-            assumptions['positive'] = True
         super(cExpr, self).__init__(val, **assumptions)
 
     def rms(self):
