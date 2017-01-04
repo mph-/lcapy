@@ -1188,15 +1188,17 @@ class sExpr(sfwExpr):
         return result
 
     def time(self, **assumptions):
+        """Convert to time domain."""
+        
         return self.inverse_laplace(**assumptions)
 
     def laplace(self):
-        """Convert to s-domain representation."""
+        """Convert to s-domain."""
 
         return self.__class__(self, **self.assumptions)
 
     def fourier(self):
-        """Attempt Fourier transform."""
+        """Convert to Fourier domain."""
 
         if self.is_causal:
             return self(j * 2 * pi * f)
@@ -2480,6 +2482,16 @@ class Super(Exprdict):
         return new
 
     def __eq__(self, x):
+
+        # Cannot compare noise by subtraction.
+        if isinstance(x, Super):
+            if self.items() != x.items():
+                return False
+            for kind, value in self.items():
+                if value != x[kind]:
+                    return False
+            return True
+        
         diff = self - x
         for kind, value in diff.items():
             if value != 0:
@@ -2487,6 +2499,11 @@ class Super(Exprdict):
         return True
 
     def select(self, kind):
+        if kind == 'super':
+            return self
+        if kind == 'ivp':
+            kind = 's'
+            
         if kind not in self:
             if kind not in self.transform_domains:
                 kind = 'ac'
@@ -2633,17 +2650,14 @@ class Super(Exprdict):
         return self.select(omegasym)    
 
     def time(self, **assumptions):
-        return self.inverse_laplace(**assumptions)
-    
-    def inverse_laplace(self, **assumptions):
-        """Attempt inverse Laplace transform."""
+        """Convert to time domain."""
 
         result = self.time_class(0)
 
         # TODO, integrate noise
         for val in self.values():
             if hasattr(val, 'time'):
-                result += val.inverse_laplace(**assumptions)
+                result += val.time(**assumptions)
             else:
                 result += val
         return result
@@ -2672,6 +2686,7 @@ class Super(Exprdict):
         return X.evaluate(fvector)
 
     def laplace(self):
+        """Convert to s-domain."""                
 
         result = self.laplace_class(0)
         for val in self.values():
@@ -2679,6 +2694,8 @@ class Super(Exprdict):
         return result
 
     def fourier(self):
+        """Convert to Fourier domain."""        
+
         # TODO, could optimise
         return self.time().fourier()
 
