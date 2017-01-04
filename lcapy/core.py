@@ -2569,9 +2569,17 @@ class Super(Exprdict):
         if isinstance(value, six.string_types):
             return self._parse(value)
 
-        if isinstance(value, (int, float)):
-            return self.add(self.transform_domains['dc'](value))
+        # DC should be real but allow const complex value.
+        if isinstance(value, (int, float, complex)):
+            value = self.transform_domains['dc'](value)
 
+        try:
+            # Look for I, 5 * I, etc.
+            if value.is_constant():
+                value = self.transform_domains['dc'](value)
+        except:
+            pass
+        
         if isinstance(value, tExpr):
             return self._decompose(value)
 
