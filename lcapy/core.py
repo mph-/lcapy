@@ -162,7 +162,7 @@ omegasym = symbol('omega', real=True)
 
 class Exprdict(dict):
 
-    """Decorator class for dictionary created by sympy"""
+    """Decorator class for dictionary created by sympy."""
 
     def pprint(self):
         """Pretty print"""
@@ -242,13 +242,13 @@ class Expr(object):
     @property
     def val(self):
         """Return floating point value of expression if it can be evaluated,
-        otherwise the expression"""
+        otherwise the expression."""
 
         return self.evalf()
 
     @property
     def omega(self):
-        """Return angular frequency"""
+        """Return angular frequency."""
 
         if 'omega' not in self.assumptions:
             return omegasym
@@ -344,12 +344,12 @@ class Expr(object):
         return '$%s$' % latex_str(self.latex())
 
     def __abs__(self):
-        """Absolute value"""
+        """Absolute value."""
 
         return self.__class__(abs(self.expr), **self.assumptions)
 
     def __neg__(self):
-        """Negation"""
+        """Negation."""
 
         return self.__class__(-self.expr, **self.assumptions)
 
@@ -599,7 +599,7 @@ class Expr(object):
         return cls(self.expr * x.expr / (self.expr + x.expr), **assumptions)
 
     def _pretty(self, *args, **kwargs):
-        """Make pretty string"""
+        """Make pretty string."""
 
         # This works in conjunction with Printer._print
         # It is a hack to allow printing of _Matrix types
@@ -610,7 +610,7 @@ class Expr(object):
         return printer._print(expr)
 
     def _latex(self, *args, **kwargs):
-        """Make latex string"""
+        """Make latex string."""
 
         # This works in conjunction with LatexPrinter._print
         # It is a hack to allow printing of _Matrix types
@@ -625,11 +625,11 @@ class Expr(object):
         return string
 
     def pretty(self):
-        """Make pretty string"""
+        """Make pretty string."""
         return pretty(self.expr)
 
     def prettyans(self, name):
-        """Make pretty string with LHS name"""
+        """Make pretty string with LHS name."""
 
         return pretty(sym.Eq(sympify(name), self.expr))
 
@@ -638,11 +638,11 @@ class Expr(object):
         pprint(self)
 
     def pprintans(self, name):
-        """Pretty print string with LHS name"""
+        """Pretty print string with LHS name."""
         print(self.prettyans(name))
 
     def latex(self):
-        """Make latex string"""
+        """Make latex string."""
 
         string = latex(self.expr)
         match = func_pattern.match(string)
@@ -656,7 +656,7 @@ class Expr(object):
         return latex_str(string)
 
     def latexans(self, name):
-        """Print latex string with LHS name"""
+        """Print latex string with LHS name."""
 
         expr = sym.Eq(sympify(name), self.expr)
 
@@ -664,13 +664,13 @@ class Expr(object):
 
     @property
     def conjugate(self):
-        """Return complex conjugate"""
+        """Return complex conjugate."""
 
         return self.__class__(sym.conjugate(self.expr))
 
     @property
     def real(self):
-        """Return real part"""
+        """Return real part."""
 
         dst = self.__class__(sym.re(self.expr).simplify())
         dst.part = 'real'
@@ -678,7 +678,7 @@ class Expr(object):
 
     @property
     def imag(self):
-        """Return imaginary part"""
+        """Return imaginary part."""
 
         dst = self.__class__(sym.im(self.expr).simplify())
         dst.part = 'imaginary'
@@ -696,31 +696,31 @@ class Expr(object):
 
     @property
     def N(self):
-        """Return numerator of rational function"""
+        """Return numerator of rational function."""
 
         return self.numerator
 
     @property
     def D(self):
-        """Return denominator of rational function"""
+        """Return denominator of rational function."""
 
         return self.denominator
 
     @property
     def numerator(self):
-        """Return numerator of rational function"""
+        """Return numerator of rational function."""
 
         return self.__class__(self._ratfun.numerator)
 
     @property
     def denominator(self):
-        """Return denominator of rational function"""
+        """Return denominator of rational function."""
 
         return self.__class__(self._ratfun.denominator)
 
     def rationalize_denominator(self):
         """Rationalize denominator by multiplying numerator and denominator by
-        complex conjugate of denominator"""
+        complex conjugate of denominator."""
 
         N = self.N
         D = self.D
@@ -757,7 +757,7 @@ class Expr(object):
 
     @property
     def dB(self):
-        """Return magnitude in dB"""
+        """Return magnitude in dB."""
 
         # Need to clip for a desired dynamic range?
         # Assume reference is 1.
@@ -768,7 +768,7 @@ class Expr(object):
 
     @property
     def phase(self):
-        """Return phase in radians"""
+        """Return phase in radians."""
 
         if self.is_real:
             return 0
@@ -785,7 +785,7 @@ class Expr(object):
 
     @property
     def phase_degrees(self):
-        """Return phase in degrees"""
+        """Return phase in degrees."""
 
         dst = self.phase * 180.0 / pi
         dst.part = 'phase'
@@ -904,7 +904,7 @@ class Expr(object):
         return response
 
     def has(self, subexpr):
-        """Test whether the sub expression is contained"""
+        """Test whether the sub-expression is contained."""
         if hasattr(subexpr, 'expr'):
             subexpr = subexpr.expr
         return self.expr.has(subexpr)
@@ -983,7 +983,7 @@ class Expr(object):
         return self._subs1(self.var, arg)
 
     def limit(self, var, value, dir='+'):
-        """Determine limit of expression(var) at var = value"""
+        """Determine limit of expression(var) at var = value."""
 
         # Need to use lcapy sympify otherwise could use
         # getattr to call sym.limit.
@@ -993,7 +993,7 @@ class Expr(object):
         return self.__class__(ret)
 
     def subs(self, *args, **kwargs):
-        """Substitute variables in expression, see sympy.subs for usage"""
+        """Substitute variables in expression, see sympy.subs for usage."""
 
         if len(args) > 2:
             raise ValueError('Too many arguments')
@@ -1093,34 +1093,34 @@ class sfwExpr(Expr):
     def general(self):
         """Convert rational function to general form.
 
-        See also canonical, partfrac, mixedfrac, and ZPK"""
+        See also canonical, partfrac, mixedfrac, and ZPK."""
 
         return self.__class__(self._ratfun.general(), **self.assumptions)
 
     def partfrac(self):
         """Convert rational function into partial fraction form.
 
-        See also canonical, mixedfrac, general, and ZPK"""
+        See also canonical, mixedfrac, general, and ZPK."""
 
         return self.__class__(self._ratfun.partfrac(), **self.assumptions)
 
     def mixedfrac(self):
         """Convert rational function into mixed fraction form.
 
-        See also canonical, general, partfrac and ZPK"""
+        See also canonical, general, partfrac and ZPK."""
 
         return self.__class__(self._ratfun.mixedfrac(), **self.assumptions)
 
     def ZPK(self):
         """Convert to pole-zero-gain (PZK) form.
 
-        See also canonical, general, mixedfrac, and partfrac"""
+        See also canonical, general, mixedfrac, and partfrac."""
 
         return self.__class__(self._ratfun.ZPK(), **self.assumptions)
 
 
 class sExpr(sfwExpr):
-    """s-domain expression or symbol"""
+    """s-domain expression or symbol."""
 
     var = ssym
 
@@ -1134,35 +1134,35 @@ class sExpr(sfwExpr):
                 's-domain expression %s cannot depend on t' % self.expr)
 
     def differentiate(self):
-        """Differentiate (multiply by s)"""
+        """Differentiate (multiply by s)."""
 
         return self.__class__(self.expr * self.var)
 
     def integrate(self):
-        """Integrate (divide by s)"""
+        """Integrate (divide by s)."""
 
         return self.__class__(self.expr / self.var)
 
     def delay(self, T):
-        """Apply delay of T seconds by multiplying by exp(-s T)"""
+        """Apply delay of T seconds by multiplying by exp(-s T)."""
 
         T = self.__class__(T)
         return self.__class__(self.expr * sym.exp(-s * T))
 
     @property
     def jomega(self):
-        """Return expression with s = j omega"""
+        """Return expression with s = j omega."""
 
         w = omegaExpr(omegasym)
         return self(sym.I * w)
 
     def initial_value(self):
-        """Determine value at t = 0"""
+        """Determine value at t = 0."""
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, sym.oo))
 
     def final_value(self):
-        """Determine value at t = oo"""
+        """Determine value at t = oo."""
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
 
@@ -1191,13 +1191,13 @@ class sExpr(sfwExpr):
         return self.inverse_laplace(**assumptions)
 
     def laplace(self):
-        """Convert to s-domain representation"""
+        """Convert to s-domain representation."""
 
         self.infer_assumptions()
         return self.__class__(self, **self.assumptions)
 
     def fourier(self):
-        """Attempt Fourier transform"""
+        """Attempt Fourier transform."""
 
         if self.is_causal:
             return self(j * 2 * pi * f)
@@ -1209,29 +1209,28 @@ class sExpr(sfwExpr):
         return self.time(**assumptions).phasor(**assumptions)
 
     def transient_response(self, tvector=None):
-        """Evaluate transient (impulse) response"""
+        """Evaluate transient (impulse) response."""
 
-        texpr = self.inverse_laplace()
+        texpr = self.time()
 
         if tvector is None:
             return texpr
 
-        print('Evaluating inverse Laplace transform...')
         return texpr.evaluate(tvector)
 
     def impulse_response(self, tvector=None):
-        """Evaluate transient (impulse) response"""
+        """Evaluate transient (impulse) response."""
 
         return self.transient_response(tvector)
 
     def step_response(self, tvector=None):
-        """Evaluate step response"""
+        """Evaluate step response."""
 
         return (self / self.var).transient_response(tvector)
 
     def angular_frequency_response(self, wvector=None):
         """Convert to angular frequency domain and evaluate response if
-        angular frequency vector specified
+        angular frequency vector specified.
 
         """
 
@@ -1244,7 +1243,7 @@ class sExpr(sfwExpr):
 
     def frequency_response(self, fvector=None):
         """Convert to frequency domain and evaluate response if frequency
-        vector specified
+        vector specified.
 
         """
 
@@ -1256,7 +1255,7 @@ class sExpr(sfwExpr):
         return X.evaluate(fvector)
 
     def response(self, x, t):
-        """Evaluate response to input signal x at times t"""
+        """Evaluate response to input signal x at times t."""
 
         if len(x) != len(t):
             raise ValueError('x must have same length as t')
@@ -1311,7 +1310,7 @@ class sExpr(sfwExpr):
         return super(sExpr, self).evaluate(svector)
 
     def plot(self, t=None, **kwargs):
-        """Plot pole-zero map"""
+        """Plot pole-zero map."""
 
         from lcapy.plot import plot_pole_zero
 
@@ -1320,7 +1319,7 @@ class sExpr(sfwExpr):
 
 class fExpr(sfwExpr):
 
-    """Fourier domain expression or symbol"""
+    """Fourier domain expression or symbol."""
 
     var = fsym
     domain_name = 'Frequency'
@@ -1341,7 +1340,7 @@ class fExpr(sfwExpr):
                 'f-domain expression %s cannot depend on t' % self.expr)
 
     def inverse_fourier(self):
-        """Attempt inverse Fourier transform"""
+        """Attempt inverse Fourier transform."""
 
         result = inverse_fourier_transform(self.expr, self.var, tsym)
         if hasattr(self, '_fourier_conjugate_class'):
@@ -1370,7 +1369,7 @@ class fExpr(sfwExpr):
 
 class omegaExpr(sfwExpr):
 
-    """Fourier domain expression or symbol (angular frequency)"""
+    """Fourier domain expression or symbol (angular frequency)."""
 
     var = omegasym
     domain_name = 'Angular frequency'
@@ -1390,13 +1389,13 @@ class omegaExpr(sfwExpr):
                 'omega-domain expression %s cannot depend on t' % self.expr)
 
     def inverse_fourier(self):
-        """Attempt inverse Fourier transform"""
+        """Attempt inverse Fourier transform."""
 
         return self(2 * pi * f).inverse_fourier()
 
 
     def time(self):
-        """Alias for inverse_fourier"""
+        """Alias for inverse_fourier."""
 
         return self.inverse_fourier()
 
@@ -1420,7 +1419,7 @@ class omegaExpr(sfwExpr):
 
 class tExpr(Expr):
 
-    """t-domain expression or symbol"""
+    """t-domain expression or symbol."""
 
     var = tsym
     domain_name = 'Time'
@@ -1471,7 +1470,7 @@ class tExpr(Expr):
         return result
 
     def fourier(self):
-        """Attempt Fourier transform"""
+        """Attempt Fourier transform."""
 
         result = fourier_transform(self.expr, self.var, fsym)
 
@@ -1518,7 +1517,7 @@ class cExpr(Expr):
         return {Vconst: Vt, Iconst : It}[self.__class__](self)
 
     def laplace(self):
-        """Convert to Laplace domain representation"""
+        """Convert to Laplace domain representation."""
 
         return self.time().laplace()
 
@@ -1577,7 +1576,7 @@ class Phasor(Expr):
         return cls, self, x, self.assumptions
 
     def time(self, **assumptions):
-        """Convert to time domain representation"""
+        """Convert to time domain representation."""
 
         omega = self.omega
         if hasattr(omega, 'expr'):
@@ -1594,18 +1593,18 @@ class Phasor(Expr):
         return tExpr(result)
 
     def fourier(self):
-        """Attempt Fourier transform"""
+        """Attempt Fourier transform."""
 
         # TODO: Could optimise this...
         return self.time().fourier()
 
     def laplace(self):
-        """Convert to Laplace domain representation"""
+        """Convert to Laplace domain representation."""
 
         return self.time().laplace()
 
     def phasor(self):
-        """Convert to phasor representation"""
+        """Convert to phasor representation."""
         return self.__class__(self, **self.assumptions)
 
     def rms(self):
@@ -1732,7 +1731,7 @@ class Matrix(sym.Matrix):
         return latex(self)
 
     def _reformat(self, method):
-        """Helper method for reformatting expression"""
+        """Helper method for reformatting expression."""
 
         new = copy(self)
 
@@ -1800,7 +1799,7 @@ def WyeDelta(Z1, Z2, Z3):
 
 def tf(numer, denom=1, var=None):
     """Create a transfer function from lists of the coefficient
-    for the numerator and denominator"""
+    for the numerator and denominator."""
 
     if var is None:
         var = ssym
@@ -1813,7 +1812,7 @@ def tf(numer, denom=1, var=None):
 
 def zp2tf(zeros, poles, K=1, var=None):
     """Create a transfer function from lists of zeros and poles,
-    and from a constant gain"""
+    and from a constant gain."""
 
     if var is None:
         var = ssym
@@ -1824,7 +1823,7 @@ def zp2tf(zeros, poles, K=1, var=None):
 
 class Zs(sExpr):
 
-    """s-domain impedance value"""
+    """s-domain impedance value."""
 
     quantity = 'Impedance'
     units = 'ohms'
@@ -1874,7 +1873,7 @@ class Zs(sExpr):
 
 class Ys(sExpr):
 
-    """s-domain admittance value"""
+    """s-domain admittance value."""
 
     quantity = 'Admittance'
     units = 'siemens'
@@ -1924,7 +1923,7 @@ class Ys(sExpr):
 
 class Vs(sExpr):
 
-    """s-domain voltage (units V s / radian)"""
+    """s-domain voltage (units V s / radian)."""
 
     quantity = 's-Voltage'
     units = 'V/Hz'
@@ -1940,7 +1939,7 @@ class Vs(sExpr):
 
 class Is(sExpr):
 
-    """s-domain current (units A s / radian)"""
+    """s-domain current (units A s / radian)."""
 
     quantity = 's-Current'
     units = 'A/Hz'
@@ -1969,7 +1968,7 @@ class Hs(sExpr):
 
 class Yt(tExpr):
 
-    """t-domain 'admittance' value"""
+    """t-domain 'admittance' value."""
 
     units = 'siemens/s'
 
@@ -1982,7 +1981,7 @@ class Yt(tExpr):
 
 class Zt(tExpr):
 
-    """t-domain 'impedance' value"""
+    """t-domain 'impedance' value."""
 
     units = 'ohms/s'
 
@@ -1995,7 +1994,7 @@ class Zt(tExpr):
 
 class Vt(tExpr):
 
-    """t-domain voltage (units V)"""
+    """t-domain voltage (units V)."""
 
     quantity = 'Voltage'
     units = 'V'
@@ -2009,7 +2008,7 @@ class Vt(tExpr):
 
 class It(tExpr):
 
-    """t-domain current (units A)"""
+    """t-domain current (units A)."""
 
     quantity = 'Current'
     units = 'A'
@@ -2063,7 +2062,7 @@ class Zf(fExpr):
 
 class Hf(fExpr):
 
-    """f-domain transfer function response"""
+    """f-domain transfer function response."""
 
     quantity = 'Transfer function'
     units = ''
@@ -2076,7 +2075,7 @@ class Hf(fExpr):
 
 class Vf(fExpr):
 
-    """f-domain voltage (units V/Hz)"""
+    """f-domain voltage (units V/Hz)."""
 
     quantity = 'Voltage spectrum'
     units = 'V/Hz'
@@ -2089,7 +2088,7 @@ class Vf(fExpr):
 
 class If(fExpr):
 
-    """f-domain current (units A/Hz)"""
+    """f-domain current (units A/Hz)."""
 
     quantity = 'Current spectrum'
     units = 'A/Hz'
@@ -2132,7 +2131,7 @@ class noiseExpr(omegaExpr):
 
 class Vn(noiseExpr):
 
-    """f-domain noise voltage (units V/rtHz)"""
+    """f-domain noise voltage (units V/rtHz)."""
 
     quantity = 'Voltage noise spectrum'
     units = 'V/rtHz'
@@ -2147,7 +2146,7 @@ class Vn(noiseExpr):
 
 class In(noiseExpr):
 
-    """f-domain noise current (units A/rtHz)"""
+    """f-domain noise current (units A/rtHz)."""
 
     quantity = 'Current noise spectrum'
     units = 'A/rtHz'
@@ -2162,7 +2161,7 @@ class In(noiseExpr):
 
 class Yomega(omegaExpr):
 
-    """omega-domain admittance"""
+    """omega-domain admittance."""
 
     quantity = 'Admittance'
     units = 'siemens'
@@ -2192,7 +2191,7 @@ class Yomega(omegaExpr):
 
 class Zomega(omegaExpr):
 
-    """omega-domain impedance"""
+    """omega-domain impedance."""
 
     quantity = 'Impedance'
     units = 'ohms'
@@ -2222,7 +2221,7 @@ class Zomega(omegaExpr):
 
 class Vomega(omegaExpr):
 
-    """omega-domain voltage (units V/rad/s)"""
+    """omega-domain voltage (units V/rad/s)."""
 
     quantity = 'Voltage spectrum'
     units = 'V/rad/s'
@@ -2235,7 +2234,7 @@ class Vomega(omegaExpr):
 
 class Iomega(omegaExpr):
 
-    """omega-domain current (units A/rad/s)"""
+    """omega-domain current (units A/rad/s)."""
 
     quantity = 'Current spectrum'
     units = 'A/rad/s'
@@ -2248,7 +2247,7 @@ class Iomega(omegaExpr):
 
 class Homega(omegaExpr):
 
-    """omega-domain transfer function response"""
+    """omega-domain transfer function response."""
 
     quantity = 'Transfer function'
     units = ''
@@ -2347,31 +2346,31 @@ def log10(expr):
 
 
 def Heaviside(expr):
-    """Heaviside's unit step"""
+    """Heaviside's unit step."""
 
     return _funcwrap(sym.Heaviside, expr)
 
 
 def H(expr):
-    """Heaviside's unit step"""
+    """Heaviside's unit step."""
 
     return Heaviside(expr)
 
 
 def u(expr):
-    """Heaviside's unit step"""
+    """Heaviside's unit step."""
 
     return Heaviside(expr)
 
 
 def DiracDelta(*args):
-    """Dirac delta (impulse)"""
+    """Dirac delta (impulse)."""
 
     return _funcwrap(sym.DiracDelta, *args)
 
 
 def delta(expr, *args):
-    """Dirac delta (impulse)"""
+    """Dirac delta (impulse)."""
 
     return DiracDelta(expr, *args)
 
@@ -2397,7 +2396,7 @@ class Super(Exprdict):
         return super(Super, self).__getitem__(key)
 
     def ac_keys(self):
-        """Return list of keys for all ac components"""
+        """Return list of keys for all ac components."""
 
         keys = []
         for key in self.keys():
@@ -2635,6 +2634,29 @@ class Super(Exprdict):
             else:
                 result += val
         return result
+
+    def transient_response(self, tvector=None):
+        """Evaluate transient (impulse) response."""
+
+        texpr = self.time()
+
+        if tvector is None:
+            return texpr
+
+        return texpr.evaluate(tvector)
+    
+    def frequency_response(self, fvector=None):
+        """Convert to frequency domain and evaluate response if frequency
+        vector specified.
+
+        """
+
+        X = self.fourier()
+
+        if fvector is None:
+            return X
+
+        return X.evaluate(fvector)
 
     def laplace(self):
 
