@@ -2378,11 +2378,13 @@ class Super(Exprdict):
 
     def __init__(self, *args):
         super (Super, self).__init__()
-        for arg in args:
-            self.add(arg)
+
+        if any(args):
+            for arg in args:
+                self.add(arg)
 
     def _repr_pretty_(self, p, cycle):
-        if self == {}:
+        if not any(self):
             p.text(pretty(0))
         else:
             p.text(pretty(self))
@@ -2477,13 +2479,12 @@ class Super(Exprdict):
             new[kind] = value * x
         return new
 
-    # TODO, this kills Ipython
-    # def __eq__(self, x):
-    #     diff = self - x
-    #     for kind, value in diff.items():
-    #         if value != 0:
-    #             return False
-    #     return True
+    def __eq__(self, x):
+        diff = self - x
+        for kind, value in diff.items():
+            if value != 0:
+                return False
+        return True
 
     def select(self, kind):
         if kind not in self:
@@ -2556,7 +2557,8 @@ class Super(Exprdict):
         return self._decompose(tExpr(string))
 
     def add(self, value):
-        if value == 0:
+        # Avoid triggering __eq__ for Super otherwise have infinite recursion
+        if not isinstance(value, Super) and value == 0:
             return
 
         if isinstance(value, Super):

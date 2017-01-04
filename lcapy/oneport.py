@@ -99,9 +99,9 @@ class OnePort(Network):
         if self._Isc is not None:
             return self._Isc * self.Z
         if self._Z is not None:        
-            return Vsuper()
+            return Vsuper(0)
         if self._Y is not None:        
-            return Isuper()
+            return Isuper(0)
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)        
 
     @property
@@ -157,10 +157,6 @@ class OnePort(Network):
     def expand(self):
 
         return self
-
-    def smodel(self):
-        """Convert to s-domain"""
-        raise NotImplemented('smodel not implemented')
 
     @property
     def voc(self):
@@ -228,12 +224,30 @@ class OnePort(Network):
 
         return Par(Y1, I1)
 
-    def smodel(self):
+    def s_model(self):
         """Convert to s-domain"""
-        args = [arg.smodel() for arg in self.args]
-        return (self.__class__(*args))
 
+        if self._Voc is not None:
+            if self._Voc == 0:
+                return Z(self.Z)
+            Voc = self._Voc.laplace()
+            if self.Z == 0:
+                return V(Voc)
+            return Ser(V(Voc), Z(self.Z))
+        elif self._Isc is not None:
+            if self._Isc == 0:
+                return Y(self.Y)
+            Isc = self._Isc.laplace()
+            if self.Y == 0:
+                return I(Isc)
+            return Par(I(Isc), Y(self.Y))
+        elif self._Z is not None:
+            return Z(self._Z)
+        elif self._Y is not None:
+            return Y(self._Y)        
+        raise ValueError('Internal error')
 
+        
 class ParSer(OnePort):
     """Parallel/serial class"""
 
@@ -452,9 +466,9 @@ class ParSer(OnePort):
 
         return self.__class__(*newargs)
 
-    def smodel(self):
+    def s_model(self):
         """Convert to s-domain"""
-        args = [arg.smodel() for arg in self.args]
+        args = [arg.s_model() for arg in self.args]
         return (self.__class__(*args))
 
     @property
