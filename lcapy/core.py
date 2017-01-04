@@ -2502,7 +2502,7 @@ class Super(Exprdict):
         if kind == 'super':
             return self
         if kind == 'ivp':
-            kind = 's'
+            return self.laplace()
             
         if kind not in self:
             if kind not in self.transform_domains:

@@ -517,13 +517,7 @@ class I(Cpt):
     def select(self, kind=None):
         """Select domain kind for component."""
 
-        Isc = self.cpt.Isc
-        if kind == 'ivp':
-            Isc = Isc.laplace()
-        elif kind in Isc:
-            Isc = Isc[kind]
-        else:
-            Isc = 0
+        Isc = self.cpt.Isc.select(kind)
         return '%s %s %s %s {%s}; %s' % (
             self.name, self.nodes[0], self.nodes[1], kind_keyword(kind),
             Isc, self.opts)
@@ -826,13 +820,7 @@ class V(Cpt):
     def select(self, kind=None):
         """Select domain kind for component."""
 
-        Voc = self.cpt.Voc
-        if kind == 'ivp':
-            Voc = Voc.laplace()
-        elif kind in Voc:
-            Voc = Voc[kind]
-        else:
-            Voc = 0
+        Voc = self.cpt.Voc.select(kind)
         return '%s %s %s %s {%s}; %s' % (
             self.name, self.nodes[0], self.nodes[1],
             kind_keyword(kind), Voc, self.opts)
