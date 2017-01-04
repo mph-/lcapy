@@ -2632,14 +2632,18 @@ class Super(Exprdict):
     def w(self):
         return self.select(omegasym)    
 
-    def time(self):
+    def time(self, **assumptions):
+        return self.inverse_laplace(**assumptions)
+    
+    def inverse_laplace(self, **assumptions):
+        """Attempt inverse Laplace transform."""
 
         result = self.time_class(0)
 
         # TODO, integrate noise
         for val in self.values():
             if hasattr(val, 'time'):
-                result += val.time()
+                result += val.inverse_laplace(**assumptions)
             else:
                 result += val
         return result
