@@ -2522,6 +2522,11 @@ class Super(Exprdict):
             return kind
 
         val = self.select(kind)
+        if kind in ('s', 'ivp') and (val.is_causal or val.is_dc or val.is_ac):
+            # Convert to time representation so that can re-infer
+            # causality, etc.
+            return '{%s}' % val.time()
+            
         return '%s {%s}' % (kind_keyword(kind), val)
     
     def _kind(self, value):

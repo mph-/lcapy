@@ -810,18 +810,12 @@ class SubNetlist(NetlistMixin, MNA):
 
     def __new__(cls, netlist, sourcenames, kind):
 
-        # Analyse circuit properties before calling select
-        # since for ivp we convert to s-domain and loose assumptions
-        # when save in netlist format.
-        analysis = netlist.analyse(sourcenames)
-
         # The unwanted sources are zeroed so that we can still refer
         # to them by name, say when wanting the current through them.
         obj = netlist.select(sourcenames, kind=kind)
-
         obj.kind = kind
         obj.__class__ = cls
-        obj._analysis = analysis
+        obj._analysis = obj.analyse(sourcenames)
         return obj
 
     def __init__(cls, netlist, sources, kind):

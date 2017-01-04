@@ -1,4 +1,4 @@
-from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn, Vt, sqrt
+from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn, Vt, sqrt, u
 from lcapy.core import Zs, s, t
 import unittest
 import sympy as sym
@@ -329,7 +329,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.C1.V.n.rms(), 5 * sqrt(2),
                          "Incorrect capacitor voltage")
 
-
     def test_noisy1(self):
 
         a = Circuit()
@@ -340,3 +339,14 @@ class LcapyTester(unittest.TestCase):
         b.add('R1 1 0 {R1 * R2 / (R1 + R2)}')
         bn = b.noisy()
         self.assertEqual(an[1].V.n, bn[1].V.n, "Incorrect noise")
+
+    def test_causal1(self):
+
+        a = Circuit()
+        a.add('V1 1 0 {4 + 2 * u(t)}; down')
+        a.add('R1 1 2 2; right=2')
+        a.add('L1 2 3 2; down')
+        a.add('W 0 3; right')
+
+        self.assertEqual(a.sub['s'].is_causal, True, "Causal incorrect")
+        self.assertEqual2(a.L1.v, 2 * exp(-t) * u(t), "L current incorrect")
