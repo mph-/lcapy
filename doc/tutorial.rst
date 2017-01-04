@@ -850,7 +850,7 @@ read from a file or created dynamically, for example,
 
    >>> from lcapy import Circuit
    >>> cct = Circuit()
-   >>> cct.add('V1 1 0 dc 10') 
+   >>> cct.add('V1 1 0 step 10') 
    >>> cct.add('Ra 1 2 3e3') 
    >>> cct.add('Rb 2 0 1e3') 
 
@@ -864,13 +864,13 @@ interrogated to find the voltage drop across an element or the current
 through an element, for example,
 
    >>> cct.V1.V
-   10.0
-   ────
-    s 
-   >>> cct.Rb.V
-    5 
-   ───
-   2⋅s
+   ⎧   10⎫
+   ⎨s: ──⎬
+   ⎩   s ⎭
+   >>> cct.Rb.V.s
+   ⎧    5 ⎫
+   ⎨s: ───⎬
+   ⎩   2⋅s⎭
 
 Notice, how the displayed voltages are Laplace domain voltages.  The
 transient voltages can be determined using an inverse Laplace transform:
@@ -888,36 +888,13 @@ The voltage between a node and ground can be determined with the node
 name as an index, for example,
 
    >>> cct[1].V
-   10
-   ───
-    s  
+   ⎧   10⎫
+   ⎨s: ──⎬
+   ⎩   s ⎭
    >>> cct[2].V
-    5 
-   ───
-   2⋅s
-
-
-The circuit has a number of attributes, including:
-
-- `V` s-domain voltage directory indexed by node name or branch name
-
-- `I` s-domain branch current directory indexed by component name
-
-- `v` t-domain voltage directory indexed by node name or branch name
-
-- `i` t-domain branch current directory indexed by component name
-
-
-The circuit also has a number of methods, including:
-
-- `admittance(N1, N2)` admittance between pair of nodes
-
-- `impedance(N1, N2)` impedance between pair of nodes
-
-- `Isc(N1, N2)` short-circuit current between pair of nodes
-
-- `Voc(N1, N2)` open-circuit current between pair of nodes
-
+   ⎧    5 ⎫
+   ⎨s: ───⎬
+   ⎩   2⋅s⎭
 
 Since Lcapy uses SymPy, circuit analysis can be performed
 symbolically.  This can be achieved by using symbolic arguments or by
@@ -940,8 +917,40 @@ use the component name for its value.  For example,
    ⎝V_s - V_s⋅ℯ     ⎠⋅Heaviside(t)
 
 
-Initial Conditions
-------------------
+Transform Domains
+-----------------
+
+Lcapy analyses a linear circuit using a number of transform domains
+and the principle of superposition.  For example, consider
+
+   >>> Voc = (Vdc(10) + Vac(20) + Vstep(30) + Vnoise(40)).Voc
+   >>> Voc
+   ⎧                  30       ⎫
+   ⎨dc: 10, n: 40, s: ──, ω: 20⎬
+   ⎩                  s        ⎭
+
+Here the open-circuit voltage is described by a dictionary of values
+for the different transform domains.  There are four types of
+transform domain: DC, phasor (for AC analysis), Laplace (for transient
+analysis), and noise.  The DC component is keyed by 'dc', the Laplace
+component is keyed by 's', the noise component is keyed by 'n', and
+the ac components are keyed by the angular frequency.  For example,
+
+   >>> Voc['s']
+   30
+   ──
+   s 
+
+The different domains can also be accessed using attributes, for example,
+
+   >>> Voc.s
+   30
+   ──
+   s    
+   
+
+Initial Value Problems
+----------------------
 
 The initial voltage difference across a capacitor or the initial
 current through an inductor can be specified as the second argument.
@@ -960,7 +969,11 @@ For example,
                s  + ─────           
                     C₁⋅L₁  
 
+When an initial condition is detected, the circuit is analysed in the
+s-domain as an initial value problem.  The values of sources are
+ignored for :math:`t<0` and the result is only defined for :math:`t\ge 0`.
 
+                    
 Transfer functions
 ------------------
 
@@ -1023,6 +1036,10 @@ response is causal.
 Other circuit methods
 ---------------------
 
+   cct.Vdict            Dictionary of node voltages
+
+   cct.Idict            Dictionary of branch currents
+
    cct.Isc(Np, Nm)      Short-circuit current between nodes Np and Nm.
 
    cct.Voc(Np, Nm)      Open-circuit voltage between nodes Np and Nm.
@@ -1031,9 +1048,9 @@ Other circuit methods
 
    cct.voc(Np, Nm)      Open-circuit t-domain voltage between nodes Np and Nm.
    
-   cct.admittance(Np, Nm)        Admittance between nodes Np and Nm.
+   cct.admittance(Np, Nm)        s-domain admittance between nodes Np and Nm.
   
-   cct.impedance(Np, Nm)         Impedance between nodes Np and Nm.
+   cct.impedance(Np, Nm)         s-domain impedance between nodes Np and Nm.
 
    cct.kill()           Remove independent sources.
 
@@ -1050,6 +1067,8 @@ Other circuit methods
         current flowing into N2p and out of N2m, V1 = V[N1p] - V[N1m], V2
         = V[N2p] - V[N2m].
 
+   cct.add(component) Add component from net list.
+        
    cct.remove(component) Remove component from net list.
 
    cct.netfile_add(filename) Add netlist from file.
@@ -1169,7 +1188,7 @@ Here's the result:
 The s-domain model can be drawn using:
 
    >>> from lcapy import R, C, L
-   >>> ((R(1) + L(2)) | C(3)).smodel().draw()
+   >>> ((R(1) + L(2)) | C(3)).s_model().draw()
 
 This produces:
 
