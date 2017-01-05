@@ -201,6 +201,9 @@ def inverse_laplace_special(expr, s, t):
     if not expr.has(sym.function.AppliedUndef):
         raise ValueError('Could not compute inverse Laplace transform for ' + str(expr))
 
+    ssym = sym.sympify(str(s))
+    expr = expr.subs(ssym, s)
+
     rest = sym.sympify(1)
     for factor in expr.as_ordered_factors():
         if isinstance(factor, sym.function.AppliedUndef):
@@ -253,15 +256,17 @@ def inverse_laplace_sympy(expr, s, t):
     return result
 
 
-def inverse_laplace_term1(expr, s, t):
+def inverse_laplace_term1(expr, s, t, **assumptions):
 
     try:
-        return inverse_laplace_ratfun(expr, s, t)
+        # Handle V(s), etc.
+        return sym.sympify(0), inverse_laplace_special(expr, s, t)
     except:
         pass
 
     try:
-        return sym.sympify(0), inverse_laplace_special(expr, s, t)
+        # This is the common case.
+        return inverse_laplace_ratfun(expr, s, t)
     except:
         pass
 
@@ -274,11 +279,11 @@ def inverse_laplace_term1(expr, s, t):
                      ' transform of %s with sympy' % expr)    
 
 
-def inverse_laplace_term(expr, s, t):
+def inverse_laplace_term(expr, s, t, **assumptions):
 
     expr, delay = delay_factor(expr, s)
 
-    result1, result2 = inverse_laplace_term1(expr, s, t)
+    result1, result2 = inverse_laplace_term1(expr, s, t, **assumptions)
 
     if delay != 0:
         result1 = result1.subs(t, t - delay)
@@ -286,11 +291,14 @@ def inverse_laplace_term(expr, s, t):
 
     # TODO, should check for delay < 0.  If so the causal
     # part is no longer causal.
-        
+
+    if assumptions.get('causal', False):
+        result2 = result2 * sym.Heaviside(t - delay)
+    
     return result1, result2
 
 
-def inverse_laplace_by_terms(expr, s, t):
+def inverse_laplace_by_terms(expr, s, t, **assumptions):
 
     terms = expr.as_ordered_terms()
 
@@ -298,7 +306,7 @@ def inverse_laplace_by_terms(expr, s, t):
     result2 = sym.sympify(0)    
 
     for term in terms:
-        part1, part2 = inverse_laplace_term(term, s, t)
+        part1, part2 = inverse_laplace_term(term, s, t, **assumptions)
         result1 += part1
         result2 += part2        
     return result1, result2
@@ -324,9 +332,9 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
         return result
 
     try:
-        result1, result2 = inverse_laplace_term(expr, s, t)
+        result1, result2 = inverse_laplace_term(expr, s, t, **assumptions)
     except:
-        result1, result2 = inverse_laplace_by_terms(expr, s, t)
+        result1, result2 = inverse_laplace_by_terms(expr, s, t, **assumptions)
         
     # result1 is known to be causal, result2 is unsure
 
@@ -335,11 +343,10 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
             raise ValueError('Inverse laplace transform weirdness for %s'
                              ' with is_ac True' % expr)
         result = result1 + result2
-    elif assumptions.get('causal', False):
-        # TODO, may need to simplify Heavisides...
-        result = result1 + result2 * sym.Heaviside(t)
-    else:
+    elif not assumptions.get('causal', False):
         result = sym.Piecewise((result1 + result2, t >= 0))
+    else:
+        result = result1 + result2        
         
     inverse_laplace_cache[key] = result
     return result
