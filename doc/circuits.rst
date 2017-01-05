@@ -23,9 +23,6 @@ can be approximated as linear around some constant value---small
 signal analysis).  Linearity also rules out capacitors where the
 capacitance varies with voltage and inductors with hysteresis.
 
-Superposition_ allows a circuit to be analysed by considering the
-effect of each independent current and voltage source in isolation and
-summing the results.
 
 
 Networks and netlists
@@ -81,36 +78,32 @@ There is no universal analytical technique to determine the voltages
 and currents in an LTI circuit.  Instead there are a number of methods
 that all try to side step having to solve simultaneous
 integro-differential equations.  These methods include DC analysis, AC
-analysis, and Laplace analysis.  Lcapy uses all three.
+analysis, and Laplace analysis.  Lcapy uses all three and the
+principle of superposition.  Superposition allows a circuit to be
+analysed by considering the effect of each independent current and
+voltage source in isolation and summing the results.
+
+If reactive components are found to have initial conditions, then the
+circuit is analysed as an initial value problem using Laplace methods.
+In this case, the sources are ignored for :math:`t<0` and the result
+is ony known for :math:`t\ge 0`.
+
+If the circuit has no initial conditions, Lcapy analyses all the
+independent sources and splits them into DC, AC, transient, and noise
+categories.  The circuit is then analysed separately for each category
+and the results are combined.
 
 
 DC analysis
 -----------
 
 The simplest special case is for a DC independent source.  DC is an
-idealised concept---it impossible to generate---but is a good 
+idealised concept---it impossible to generate---but is a good
 approximation for very slowly changing sources.  With a DC independent
 source the dependent sources are also DC and thus no voltages or
 currents change.  Thus capacitors can be replaced with open-circuits
-and inductors can be replaced with short-circuits.  
-
-Lcapy performs a DC analysis if all the independent sources are DC and
-no reactive component (L or C) has an initial condition explicitly
-specified.  The latter constraint may be relaxed one day if the
-initial condition can be proven not to create a transient.  A DC
-problem when the `is_dc` attribute is True.  For example:
-
-   >>> (Vdc(10) + C(1)).is_dc
-   True
-   >>> (Vdc(10) + C(1, 0)).is_dc
-   False
-
-The second example returns False since the capacitor has an explicit
-initial condition.  In this case it is solved as an initial value
-problem using Laplce analysis:
-
-   >>> (Vdc(10) + C(1, 0)).is_ivp
-   True
+and inductors can be replaced with short-circuits.  Note, each node
+must have a DC path to ground otherwise the circuit cannot be solved.
 
 
 AC analysis
@@ -119,17 +112,6 @@ AC analysis
 AC, like DC, is an idealised concept.  It allows circuits to be
 analysed using phasors and impedances.  The use of impedances avoids
 solving integro-differential equations in the time domain.
-
-Lcapy performs AC analysis if all the independent sources are AC (and
-of the same frequency) and no reactive component (L or C) has an
-initial condition explicitly specified.  An AC
-problem when the `is_ac` attribute is True.  For example:
-
-   >>> (Vac(10) + C(1)).is_ac
-   True
-   >>> (Vac(10) + C(1, 0)).is_ac
-   False
-
 
 
 Laplace analysis
@@ -171,9 +153,6 @@ circuit is to be analysed as an initial value problem with the
 independent sources ignored for :math:`t \ge 0`.  In this case a DC
 source is not DC since it is considered to switch on at :math:`t = 0`.
 
-Lcapy performs Laplace analysis when neither the `is_ac` nor the
-`is_dc` attribute is True.
-
 
 .. _switching-analysis:
 
@@ -188,14 +167,3 @@ used to determine the initial conditions for the circuit after the
 switched changed.  Lcapy requires that you do this!  The independent
 sources are ignored for :math:`t < 0` and the result is only known for
 :math:`t \ge 0`.
-
-
-Superposition
--------------
-
-In principle, Lcapy could perform a combination of DC, AC, and Laplace
-analysis to determine the overall result using superposition.
-
-Lcapy will happily kill a specified independent source using the
-`kill_except` method and thus s-domain superposition can be manually
-performed.

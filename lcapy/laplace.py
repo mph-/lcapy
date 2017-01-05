@@ -229,13 +229,20 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
     except:
 
         print('Determining inverse Laplace transform with sympy...')
-        
-        # Try splitting into partial fractions to help sympy.
-        expr = Ratfun(expr, s).partfrac()
-        
+
+        try:
+            # Try splitting into partial fractions to help sympy.
+            expr = Ratfun(expr, s).partfrac()
+        except:
+            pass
+            
         # This barfs when needing to generate Dirac deltas
         from sympy.integrals.transforms import inverse_laplace_transform
         result = inverse_laplace_transform(expr, t, s)
+
+        if isinstance(result.args[0], sym.InverseLaplaceTransform):
+            raise ValueError('Cannot determine inverse Laplace'
+                             ' transform of %s' % expr)
         
         if not assumptions.get('causal', False):
             result = sym.Piecewise((result, t >= 0))

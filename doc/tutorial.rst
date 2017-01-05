@@ -149,13 +149,11 @@ Here's an example of using these attributes and methods:
 
 Each domain has specific methods, including:
 
-- fourier  
+- fourier   -- Convert to Fourier domain
 
-- laplace
+- laplace   -- Convert to Laplace (s) domain
 
-- inverse_fourier
-
-- inverse_laplace
+- time      -- Convert to time domain
 
 
 Lcapy defines a number of functions that can be used in expressions, including:
@@ -867,7 +865,7 @@ through an element, for example,
    ⎧   10⎫
    ⎨s: ──⎬
    ⎩   s ⎭
-   >>> cct.Rb.V.s
+   >>> cct.Rb.V
    ⎧    5 ⎫
    ⎨s: ───⎬
    ⎩   2⋅s⎭
@@ -875,10 +873,10 @@ through an element, for example,
 Notice, how the displayed voltages are Laplace domain voltages.  The
 transient voltages can be determined using an inverse Laplace transform:
 
-   >>> cct.V1.V.inverse_laplace()
+   >>> cct.V1.V.time()
    10
 
-Alternatively, using the lowercase `v` attribute:
+Alternatively, this can be achieved using the lowercase `v` attribute:
 
    >>> cct.V1.v
    10
@@ -906,11 +904,13 @@ use the component name for its value.  For example,
    >>> cct.add('R1 1 2') 
    >>> cct.add('C1 2 0') 
    >>> cct[2].V
-        Vs     
-   ────────────
-          2    
-   C₁⋅R₁⋅s  + s
-   >>> : cct[2].V.inverse_laplace()
+   ⎧          V_s        ⎫
+   ⎪s: ──────────────────⎪
+   ⎨         ⎛ 2     s  ⎞⎬
+   ⎪   C₁⋅R₁⋅⎜s  + ─────⎟⎪
+   ⎩         ⎝     C₁⋅R₁⎠⎭
+
+   >>> : cct[2].v
    ⎛            -t  ⎞             
    ⎜           ─────⎟             
    ⎜           C₁⋅R₁⎟             
@@ -987,9 +987,9 @@ Here's an example using an arbitrary input voltage `V(s)`
    >>> cct.add('R1 1 2') 
    >>> cct.add('C1 2 0 C1 0') 
    >>> cct[2].V
-       V(s)   
-   ───────────
-   C₁⋅R₁⋅s + 1
+   ⎧       V(s)   ⎫
+   ⎨s: ───────────⎬
+   ⎩   C₁⋅R₁⋅s + 1⎭
 
    >>> H = cct[2].V.s / cct[1].V.s
    >>> H
