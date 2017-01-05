@@ -7,6 +7,15 @@ nodal analysis.
 Alternatively, Lcapy can analyse networks and circuits formed by
 combining one, two, and (some) three port networks.
 
+From version 25.0, Lcapy performs more comprehensive circuit analysis
+using combinations of DC, AC, and Laplace analysis.  It can also
+perform noise analysis.  This added functionality has resulted in a
+slight change of syntax.  cct.R1.V no longer prints the s-domain
+expression but the expressions for each of the transform domains.  The
+s-domain component can be shown using cct.R1.V.s.
+
+More comprehensive documentation can be found at http://lcapy.elec.canterbury.ac.nz
+
 
 Circuit analysis
 ----------------
@@ -18,7 +27,7 @@ example:
 
    >>> from lcapy import Circuit
    >>> cct = Circuit()
-   >>> cct.add('Vs 2 0') 
+   >>> cct.add('Vs 2 0 {5 * u(t)}') 
    >>> cct.add('Ra 2 1') 
    >>> cct.add('Rb 1 0') 
 
@@ -68,16 +77,16 @@ from lcapy import Vdc, R, L, C
 Here a is the name of the network formed with a 10 V DC voltage source in
 series with R1 and L1.
 
-The open circuit voltage across the network can be printed with:
-   >>> a.Voc
+The s-domain open circuit voltage across the network can be printed with:
+   >>> a.Voc.s
    10/s
 
 The time domain response is given by:
    >>> a.Voc.transientresponse()
    10*Heaviside(t)
 
-The short circuit current through the network can be printed with:
-   >>> a.Isc
+The s-domain short circuit current through the network can be printed with:
+   >>> a.Isc.s
    10/(L_1*s**2 + R_1*s)
 
 The time domain response is given by:
@@ -175,4 +184,4 @@ http://lcapy.elec.canterbury.ac.nz
 Alternatively, the tutorial can be viewed in a web browser after
 running 'make html' in the doc directory.
 
-Copyright 2014, 2015 Michael Hayes, UCECE
+Copyright 2014--2017 Michael Hayes, UCECE
