@@ -19,6 +19,7 @@ module = sys.modules[__name__]
 class Cpt(object):
 
     source = False
+    reactive = False
     need_branch_current = False
     need_control_current = False
 
@@ -401,6 +402,8 @@ class RC(RLC):
 
 
 class C(RC):
+
+    reactive = True
     
     def kill_initial(self):
         """Kill implicit sources due to initial conditions."""
@@ -575,6 +578,7 @@ class K(Cpt):
 class L(RLC):
     
     need_branch_current = True
+    reactive = True
 
     def kill_initial(self):
         """Kill implicit sources due to initial conditions."""

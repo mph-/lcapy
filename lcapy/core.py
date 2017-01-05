@@ -1660,7 +1660,7 @@ class Vconst(cExpr):
     def cpt(self):
         return Vdc(self)
 
-    def time(self):
+    def time(self, **assumptions):
         return Vt(self)
 
 
@@ -1674,7 +1674,7 @@ class Iconst(cExpr):
     def cpt(self):
         return Idc(self)
 
-    def time(self):
+    def time(self, **assumptions):
         return It(self)
 
 
@@ -2501,8 +2501,10 @@ class Super(Exprdict):
     def select(self, kind):
         if kind == 'super':
             return self
-        if kind == 'ivp':
+        elif kind == 'ivp':
             return self.laplace()
+        elif kind == 't':
+            return self.time(causal=True)            
             
         if kind not in self:
             if kind not in self.transform_domains:
@@ -2516,7 +2518,9 @@ class Super(Exprdict):
             if kind == 'n':
                 return 'noise'
             elif kind == 'ivp':
-                return 's'    
+                return 's'
+            elif kind == 't':
+                return ''                
             elif not isinstance(kind, str):
                 return 'ac'
             return kind
@@ -2823,7 +2827,7 @@ class Isuper(Super):
 def vtype_select(kind):
     try:
         return {'ivp' : Vs, 's' : Vs, 'n' : Vn,
-                'ac' : Vphasor, 'dc' : Vconst}[kind]
+                'ac' : Vphasor, 'dc' : Vconst, 't' : Vt}[kind]
     except KeyError:
         return Vphasor
 
@@ -2831,7 +2835,7 @@ def vtype_select(kind):
 def itype_select(kind):
     try:
         return {'ivp' : Is, 's' : Is, 'n' : In,
-                'ac' : Iphasor, 'dc' : Iconst}[kind]
+                'ac' : Iphasor, 'dc' : Iconst, 't' : It}[kind]
     except KeyError:
         return Iphasor
 

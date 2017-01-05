@@ -548,6 +548,11 @@ class NetlistMixin(object):
         return self.analysis['ivp']
 
     @property
+    def is_reactive(self):
+        """Return True if there is an inductor or capacitor."""
+        return self.analysis['reactive']    
+
+    @property
     def missing_ic(self):
         """Return components that allow initial conditions but do not have
         them explicitly defined."""
@@ -612,6 +617,7 @@ class NetlistMixin(object):
         ac_count = 0
         dc_count = 0
         causal = True
+        reactive = False
         independent_sources = []
         control_sources = []
         for key, elt in self.elements.items():
@@ -632,6 +638,8 @@ class NetlistMixin(object):
                     dc_count += 1
                 if not elt.is_causal:
                     causal = False
+            if elt.reactive:
+                reactive = True
 
         num_sources = len(independent_sources)
                     
@@ -645,6 +653,10 @@ class NetlistMixin(object):
         analysis['ac'] = ac_count > 0 and (num_sources == ac_count) and not hasic
         analysis['dc'] = dc_count > 0 and (num_sources == dc_count) and not hasic
         analysis['causal'] = causal and zeroic
+        analysis['reactive'] = reactive
+
+        if not reactive and hasic:
+            raise ValueError('Non-reactive component with initial conditions')
         return analysis
 
     
@@ -717,6 +729,24 @@ class Netlist(NetlistMixin, NetfileMixin):
                 else:
                     newgroups['ivp'] += sources
             groups = newgroups
+
+        elif not self.is_reactive and False:
+
+            # Most of the machinery is in place to handle a circuit
+            # without inductors and capacitors.  This can be solved
+            # purely in the time domain.  Unfortunately, the Super
+            # class decomposes signals in to the transform domains.
+            # This is not a problem until we convert back to the
+            # time-domain when we lose knowledge of the original
+            # signal for t < 0.
+
+            newgroups = {'t' : []}
+            for key, sources in groups.items():
+                if isinstance(key, str) and key[0] == 'n':
+                    newgroups[key] = sources
+                else:
+                    newgroups['t'] += sources
+            groups = newgroups            
         
         self._sub = Transformdomains()
 

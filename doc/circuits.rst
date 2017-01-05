@@ -167,3 +167,15 @@ used to determine the initial conditions for the circuit after the
 switched changed.  Lcapy requires that you do this!  The independent
 sources are ignored for :math:`t < 0` and the result is only known for
 :math:`t \ge 0`.
+
+
+Noise analysis
+--------------
+
+Noise sources are assumed to be uncorrelated and so they are summed in
+quadrature (on a power basis).  Lcapy analyses the circuit for each
+source independently and then combines the results.
+
+Each resistor in a circuit can be converted into a series combination
+of an ideal resistor and a noise voltage source using the
+`noise_model` method.
