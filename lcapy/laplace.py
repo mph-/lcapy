@@ -125,7 +125,7 @@ def laplace_transform(expr, t, s):
     return result
 
 
-def _inverse_laplace(expr, s, t, **assumptions):
+def inverse_laplace_ratfun(expr, s, t, **assumptions):
 
     N, D, delay = Ratfun(expr, s).as_ratfun_delay()
 
@@ -203,7 +203,49 @@ def _inverse_laplace(expr, s, t, **assumptions):
                 
     return sym.Piecewise((result1 + result2, t >= 0))
 
+
+def inverse_laplace_special(expr, s, t, **assumptions):
+
+    if expr.has(sym.function.AppliedUndef) and expr.args[0] == s:
+
+        # TODO, handle things like 3 * V(s), a * V(s), 3 * s * V(s), etc.
+        if isinstance(expr, sym.function.AppliedUndef):
+            # Convert V(s) to v(t), etc.
+            name = expr.func.__name__
+            name = name[0].lower() + name[1:] + '(t)'
+            return sym.sympify(name)
     
+    raise ValueError('Could not compute inverse Laplace transform for ' + str(expr))
+    
+    
+def inverse_laplace_term(expr, s, t, **assumptions):
+
+    try:
+        return inverse_laplace_ratfun(expr, s, t, **assumptions)
+    except:
+        pass
+
+    try:
+        return inverse_laplace_special(expr, s, t, **assumptions)
+    except:
+        pass
+    
+    try:
+        # Try splitting into partial fractions to help sympy.
+        expr = Ratfun(expr, s).partfrac()
+    except:
+        pass
+            
+    # This barfs when needing to generate Dirac deltas
+    from sympy.integrals.transforms import inverse_laplace_transform
+    result = inverse_laplace_transform(expr, t, s)
+    
+    if isinstance(result.args[0], sym.InverseLaplaceTransform):
+        raise ValueError('Cannot determine inverse Laplace'
+                         ' transform of %s' % expr)
+   
+    return result
+
 def inverse_laplace_transform(expr, s, t, **assumptions):
 
     # TODO, simplify
@@ -220,32 +262,24 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
         free_symbols = set([symbol.name for symbol in result.free_symbols])
         if 's' in free_symbols:
             raise ValueError('Something wonky going on, expecting dc.'
-                                 ' Perhaps have capacitors in series?')
+                             ' Perhaps have capacitors in series?')
         return result
 
     try:
-        result = _inverse_laplace(expr, s, t, **assumptions)
-
+        result = inverse_laplace_term(expr, s, t, **assumptions)
     except:
+        terms = expr.as_ordered_terms()
+        result = 0
 
-        print('Determining inverse Laplace transform with sympy...')
+        for term in terms:
+            result += inverse_laplace_term(term, s, t)
 
-        try:
-            # Try splitting into partial fractions to help sympy.
-            expr = Ratfun(expr, s).partfrac()
-        except:
-            pass
-            
-        # This barfs when needing to generate Dirac deltas
-        from sympy.integrals.transforms import inverse_laplace_transform
-        result = inverse_laplace_transform(expr, t, s)
+        # Perhaps could cache terms
 
-        if isinstance(result.args[0], sym.InverseLaplaceTransform):
-            raise ValueError('Cannot determine inverse Laplace'
-                             ' transform of %s' % expr)
+    if not assumptions.get('causal', False):
+        result = sym.Piecewise((result, t >= 0))
         
-        if not assumptions.get('causal', False):
-            result = sym.Piecewise((result, t >= 0))
-
     inverse_laplace_cache[key] = result
     return result
+
+    
