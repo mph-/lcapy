@@ -12,6 +12,8 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(Heaviside(t).laplace(), 1 / s, "Heaviside(t)")
         self.assertEqual(DiracDelta(t).laplace(), 1, "DiracDelta(t)")
+        self.assertEqual(Vt('x(t)').laplace(), Vs('X(s)'), "x(t)")
+        self.assertEqual(Vt('5 * x(t)').laplace(), Vs('5 * X(s)'), "5 * x(t)")
 
     def test_inverse_laplace(self):
 
