@@ -198,18 +198,28 @@ def inverse_laplace_ratfun(expr, s, t):
 
 def inverse_laplace_special(expr, s, t):
 
-    if expr.has(sym.function.AppliedUndef) and expr.args[0] == s:
+    if not expr.has(sym.function.AppliedUndef):
+        raise ValueError('Could not compute inverse Laplace transform for ' + str(expr))
 
-        # TODO, handle things like 3 * V(s), a * V(s), 3 * s * V(s), etc.
-        if isinstance(expr, sym.function.AppliedUndef):
+    rest = sym.sympify(1)
+    for factor in expr.as_ordered_factors():
+        if isinstance(factor, sym.function.AppliedUndef):
+            if factor.args[0] != s:
+                raise ValueError('Weird function %s not of s' % factor)
+                
             # Convert V(s) to v(t), etc.
-            name = expr.func.__name__
+            name = factor.func.__name__
             tsym = sym.sympify(str(t))
             func = name[0].lower() + name[1:] + '(%s)' % str(tsym)
             result = sym.sympify(func).subs(tsym, t)
-            return result
-    
-    raise ValueError('Could not compute inverse Laplace transform for ' + str(expr))
+        else:
+            if factor.has(s):
+                raise ValueError('TODO: need derivative of undefined'
+                                 ' function for %s' % factor)
+            rest *= factor
+
+    return rest * result
+
 
 def delay_factor(expr, var):
 
