@@ -240,9 +240,9 @@ def inverse_laplace_term(expr, s, t, **assumptions):
     from sympy.integrals.transforms import inverse_laplace_transform
     result = inverse_laplace_transform(expr, t, s)
     
-    if isinstance(result.args[0], sym.InverseLaplaceTransform):
+    if result.has(sym.InverseLaplaceTransform):
         raise ValueError('Cannot determine inverse Laplace'
-                         ' transform of %s' % expr)
+                         ' transform of %s with sympy' % expr)
    
     return result
 
