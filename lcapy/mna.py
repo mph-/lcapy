@@ -1,7 +1,7 @@
 """
 This module implements modified nodal analysis (MNA).
 
-Copyright 2014, 2015 Michael Hayes, UCECE
+Copyright 2014--2017 Michael Hayes, UCECE
 """
 
 from __future__ import division

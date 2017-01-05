@@ -12,7 +12,7 @@ This module performs schematic drawing using circuitikz from a netlist.
 >>> sch.add('W 0.2 0.2; right')
 >>> sch.draw()
 
-Copyright 2014, 2015, 2016 Michael Hayes, UCECE
+Copyright 2014--2017 Michael Hayes, UCECE
 """
 
 # Components are positioned using two graphs; one graph for

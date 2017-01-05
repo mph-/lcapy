@@ -1,7 +1,7 @@
 """
 This module performs plotting using matplotlib.
 
-Copyright 2014, 2015 Michael Hayes, UCECE
+Copyright 2014--2017 Michael Hayes, UCECE
 """
 
 import numpy as np

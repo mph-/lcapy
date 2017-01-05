@@ -7,7 +7,7 @@ print(x.canonical()).
 
 For additional documentation, see the Lcapy tutorial.
 
-Copyright 2014, 2015, 2016 Michael Hayes, UCECE
+Copyright 2014--2017 Michael Hayes, UCECE
 """
 
 from __future__ import division
