@@ -53,14 +53,14 @@ The two approaches have many attributes and methods in common.  For example,
 
 However, there are subtle differences.  For example,
 
-   >>> cct1.Voc
+   >>> cct1.Voc.s
       5   
    ──────
     2   s
    s  + ─
         2
 
-   >>> cct2.Voc(2, 0)
+   >>> cct2.Voc(2, 0).s
       5   
    ──────
     2   s
