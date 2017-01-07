@@ -717,7 +717,7 @@ class C(OnePort):
         self.C = Cval
         self.v0 = v0
         self._Z = Zs.C(Cval)
-        self._Voc = Vsuper(Vs(v0).integrate())
+        self._Voc = Vsuper(Vs(v0) / s)
         self.zeroic = self.v0 == 0
 
 

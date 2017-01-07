@@ -224,7 +224,9 @@ class MNA(object):
                 ' might be short-circuited, a current source might be'
                 ' open-circuited.%s' % comment)
 
-        results = sym.simplify(Ainv * self._Z)
+        # Bug in sympy DiracDelta.simplify where it has different API.
+        #results = sym.simplify(Ainv * self._Z)
+        results = Ainv * self._Z
 
         results = results.subs(self.context.symbols)
 
@@ -253,7 +255,7 @@ class MNA(object):
         for n in self.nodes:
             index = self._node_index(n)
             if index >= 0:
-                self._Vdict[n] = vtype(results[index].simplify(), **assumptions)
+                self._Vdict[n] = vtype(results[index], **assumptions).simplify()
             else:
                 self._Vdict[n] = vtype(0, **assumptions)
 
@@ -262,7 +264,7 @@ class MNA(object):
         # Create dictionary of branch currents through elements
         self._Idict = Branchdict()
         for m, key in enumerate(self.unknown_branch_currents):
-            self._Idict[key] = itype(results[m + num_nodes].simplify(), **assumptions)
+            self._Idict[key] = itype(results[m + num_nodes], **assumptions).simplify()
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
@@ -272,7 +274,7 @@ class MNA(object):
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
                 I = (V1 - V2) / elt.Z
-                self._Idict[elt.name] = itype(I.simplify(), **assumptions)
+                self._Idict[elt.name] = itype(I, **assumptions).simplify()
             elif elt.type in ('I', ):
                 self._Idict[elt.name] = elt.Isc
 

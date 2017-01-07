@@ -234,7 +234,7 @@ class Cpt(object):
         Y1 = self.cpt.Y
         if self.cct.kind in ('s', 'ivp'):
             return Y1
-        elif self.cct.kind == 'dc':
+        elif self.cct.kind in ('dc', 'time'):        
             return cExpr(Y1.jomega(0))
         elif self.cct.kind == 'n':        
             return Y1.jomega
@@ -247,7 +247,7 @@ class Cpt(object):
         Z1 = self.cpt.Z
         if self.cct.kind in ('s', 'ivp'):
             return Z1
-        elif self.cct.kind == 'dc':
+        elif self.cct.kind in ('dc', 'time'):
             return cExpr(Z1.jomega(0))
         elif self.cct.kind == 'n':        
             return Z1.jomega
@@ -860,17 +860,20 @@ class W(Dummy):
 
 class XT(Misc):
     """Crystal"""
-    pass
+
+    reactive = True    
 
 
 class Y(RC):
     """Admittance"""
-    pass
+
+    reactive = True
 
 
 class Z(RC):
     """Impedance"""
-    pass
+
+    reactive = True    
 
 
 classes = {}

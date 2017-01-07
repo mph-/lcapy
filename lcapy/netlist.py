@@ -179,7 +179,8 @@ class NetlistMixin(object):
         # to this component.
 
     def Voc(self, Np, Nm):
-        """Return open-circuit s-domain voltage between nodes Np and Nm."""
+        """Return open-circuit transform-domain voltage between nodes Np and
+        Nm."""
 
         return self.get_Vd(Np, Nm)
 
@@ -189,11 +190,12 @@ class NetlistMixin(object):
         return self.Voc(Np, Nm).time()
 
     def Isc(self, Np, Nm):
-        """Return short-circuit s-domain current between nodes Np and Nm."""
+        """Return short-circuit transform-domain current between nodes Np and
+        Nm."""
 
         self.add('Vshort_ %d %d 0' % (Np, Nm))
 
-        Isc = self.Vshort_.I * Ys(1)
+        Isc = self.Vshort_.I
         self.remove('Vshort_')
 
         return Isc
@@ -237,7 +239,7 @@ class NetlistMixin(object):
         If = -new.Vin_.I
         new.remove('Vin_')
 
-        return Ys(If.s)
+        return Ys(If.laplace())
 
     def impedance(self, Np, Nm):
         """Return s-domain impedance between nodes Np and Nm with independent
@@ -253,7 +255,7 @@ class NetlistMixin(object):
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
-        return Zs(Vf.s)
+        return Zs(Vf.laplace())
 
     def transfer(self, N1p, N1m, N2p, N2m):
         """Create voltage transfer function V2 / V1 where:
@@ -268,7 +270,7 @@ class NetlistMixin(object):
         V2 = new.Voc(N2p, N2m)
         V1 = new.V1_.V
 
-        return Hs(V2.s / V1.s, causal=True)
+        return Hs(V2.laplace() / V1.laplace(), causal=True)
 
     def Amatrix(self, N1p, N1m, N2p, N2m):
         """Create A matrix from network, where:
@@ -288,11 +290,11 @@ class NetlistMixin(object):
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
-            A11 = Hs(self.V1_.V.s / self.Voc(N2p, N2m).s)
+            A11 = Hs(self.V1_.V.laplace() / self.Voc(N2p, N2m).laplace())
 
             # A12 = V1 / I2 with V2 = 0
             # Apply V1 and measure I2 with port 2 short-circuit
-            A12 = Zs(self.V1_.V.s / self.Isc(N2p, N2m).s)
+            A12 = Zs(self.V1_.V.laplace() / self.Isc(N2p, N2m).laplace())
 
             self.remove('V1_')
 
@@ -300,11 +302,11 @@ class NetlistMixin(object):
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
-            A21 = Ys(-self.I['I1_'].s / self.Voc(N2p, N2m).s)
+            A21 = Ys(-self.I['I1_'].laplace() / self.Voc(N2p, N2m).laplace())
 
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure I2 with port 2 short-circuit
-            A22 = Hs(-self.I['I1_'].s / self.Isc(N2p, N2m).s)
+            A22 = Hs(-self.I['I1_'].laplace() / self.Isc(N2p, N2m).laplace())
 
             self.remove('I1_')
             return AMatrix(A11, A12, A21, A22)
@@ -548,9 +550,9 @@ class NetlistMixin(object):
         return self.analysis['ivp']
 
     @property
-    def is_reactive(self):
-        """Return True if there is an inductor or capacitor."""
-        return self.analysis['reactive']    
+    def is_time_domain(self):
+        """Return True if can analyse in time domain."""
+        return self.analysis['time_domain']
 
     @property
     def missing_ic(self):
@@ -653,7 +655,7 @@ class NetlistMixin(object):
         analysis['ac'] = ac_count > 0 and (num_sources == ac_count) and not hasic
         analysis['dc'] = dc_count > 0 and (num_sources == dc_count) and not hasic
         analysis['causal'] = causal and zeroic
-        analysis['reactive'] = reactive
+        analysis['time_domain'] = not reactive and not has_s
 
         if not reactive and hasic:
             raise ValueError('Non-reactive component with initial conditions')
@@ -713,7 +715,6 @@ class Netlist(NetlistMixin, NetfileMixin):
         groups = self.independent_source_groups()        
 
         if self.is_ivp:
-
             def namelist(elements):
                 return ', '.join([elt for elt in elements])
 
@@ -730,23 +731,19 @@ class Netlist(NetlistMixin, NetfileMixin):
                     newgroups['ivp'] += sources
             groups = newgroups
 
-        elif not self.is_reactive and False:
-
-            # Most of the machinery is in place to handle a circuit
-            # without inductors and capacitors.  This can be solved
-            # purely in the time domain.  Unfortunately, the Super
-            # class decomposes signals in to the transform domains.
-            # This is not a problem until we convert back to the
-            # time-domain when we lose knowledge of the original
-            # signal for t < 0.
-
-            newgroups = {'t' : []}
+        elif self.is_time_domain:
+            newgroups = {'time' : []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
                     newgroups[key] = sources
                 else:
-                    newgroups['t'] += sources
-            groups = newgroups            
+                    newgroups['time'] += sources
+            groups = newgroups
+
+        elif 't' in groups:
+            if 's' not in groups:
+                groups['s'] = []
+            groups['s'] += groups.pop('t')
         
         self._sub = Transformdomains()
 
@@ -803,7 +800,7 @@ class Netlist(NetlistMixin, NetfileMixin):
     def get_I(self, name):
         """Current through component"""
 
-        result = Vsuper()
+        result = Isuper()
         for sub in self.sub.values():
             I = sub.get_I(name)
             result.add(I)

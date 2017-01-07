@@ -95,15 +95,6 @@ sym.limit(sym.DiracDelta(t), t, 0, dir='-') -> 0
 Remove { when printing Piecewise with single condition?  Line 911
 sympy/printing/pretty/pretty.py
 
-Update the causal attribute on Expr when operations are performed.
-Currently, this is only defined in a few cases where the initial
-conditions are known to be zero.  Only when both operands are causal
-then so is the result.  I think.  This is true for
-addition/subtraction/multiplication since the latter is equivalent to
-a time domain convolution.  Division?  This can be set when creating a
-transfer function since by definition the initial conditions are all
-zero.
-
 Add drawing methods to TwoPorts.
 
 Add crystal for schematics (XT) but not supported by circuitikz.
@@ -135,18 +126,6 @@ Add crystal and ferrite bead components to Circuitikz.
 
 Add generic amplifier to Circuitikz or add up and down anchors to
 buffer and inverter.
-
-Perhaps prune transients when know have ac result?
-
-AC analysis for arbitrary sinusoids.
-
-What about Vac(2) | R(1)?  Currently we used Laplace analysis rather
-than ac analysis.  Probably, we should convert the AST to a netlist
-and then analyse the netlist with MNA.  The result would be the
-Thevenin equivalent.  With this approach, the responses of different
-independent sources can be combined with superposition.
-
-Fix cct._V assumptions.
 
 Fix thevenin/norton for simple ac/dc examples without going into s-domain.
 
@@ -186,4 +165,6 @@ U1 chip2120 1 2 .VDD 4 5 .VSS; right, pins=,,VSS,,VDD
 
 and refer to the nodes as U1.VDD U1.VSS etc.  However, this does not
 avoid the problem of dots in node names when passed to sympy.
+
+Tidy docs
 

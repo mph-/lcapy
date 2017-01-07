@@ -285,6 +285,7 @@ class Expr(object):
             if not hasattr(a, '__call__'):
                 if not isinstance(a, sym.Expr):
                     return a
+                ret = a(*args)                
                 if hasattr(self, 'assumptions'):
                     return self.__class__(ret, **self.assumptions)
                 return self.__class__(ret)
@@ -295,6 +296,9 @@ class Expr(object):
                 """This is wrapper for a SymPy function.
                 For help, see the SymPy documentation."""
 
+                if attr == 'simplify' and expr == DiracDelta(t).expr:
+                    args =(0, )
+                
                 ret = a(*args)
 
                 if not isinstance(ret, sym.Expr):
@@ -2378,7 +2382,7 @@ def delta(expr, *args):
 
 class Super(Exprdict):
 
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         super (Super, self).__init__()
 
         if any(args):
@@ -2403,7 +2407,7 @@ class Super(Exprdict):
 
         keys = []
         for key in self.keys():
-            if key not in ('dc', 's', 'n'):
+            if key not in ('dc', 's', 'n', 't'):
                 keys.append(key)
         return keys
 
@@ -2420,6 +2424,10 @@ class Super(Exprdict):
         return 's' in self
 
     @property
+    def has_t(self):
+        return 't' in self    
+
+    @property
     def has_n(self):
         return 'n' in self
 
@@ -2433,7 +2441,7 @@ class Super(Exprdict):
 
     @property
     def is_s(self):
-        return list(self.keys()) == ['s']
+        return list(self.keys()) == ['s'] or list(self.keys()) == ['t']
 
     @property
     def is_n(self):
@@ -2449,7 +2457,14 @@ class Super(Exprdict):
 
     def __add__(self, x):
 
-        new = self.__class__(self)
+        def _is_s_arg(x):
+            return isinstance(x, sExpr) or (isinstance(x, Super) and 's' in x)
+
+        if _is_s_arg(x):
+            new = self.transform()
+        else:
+            new = self.__class__(self)            
+
         if isinstance(x, Super):
             for value in x.values():
                 new.add(value)
@@ -2485,9 +2500,12 @@ class Super(Exprdict):
 
         # Cannot compare noise by subtraction.
         if isinstance(x, Super):
-            if self.items() != x.items():
+            # TODO, be smarter about transformations
+            x = x.transform()
+            y = self.transform()            
+            if y.items() != x.items():
                 return False
-            for kind, value in self.items():
+            for kind, value in y.items():
                 if value != x[kind]:
                     return False
             return True
@@ -2498,19 +2516,63 @@ class Super(Exprdict):
                 return False
         return True
 
+    def _decompose(self, value):
+
+        dc = value.expr.coeff(tsym, 0)
+        if dc != 0:
+            self.add(cExpr(dc))
+            value -= dc
+
+        if value == 0:
+            return
+
+        ac = 0
+        terms = value.expr.as_ordered_terms()
+        for term in terms:
+            if is_ac(term, tsym):
+                self.add(tExpr(term).phasor())
+                ac += term
+
+        value -= ac
+        if value == 0:
+            return
+
+        sval = value.laplace()
+        return self.add(sval)
+
+    def transform(self):
+        """Create a new representation in transform domains."""
+        
+        if hasattr(self, '_transform'):
+            return self._transform
+
+        new = self.__class__()
+        if 't' in self:
+            new._decompose(self['t'])
+        for kind, value in self.items():
+            if kind != 't':
+                new.add(value)
+        self._transform = new                
+        return new
+    
     def select(self, kind):
         if kind == 'super':
             return self
+        elif kind == 'time':
+            return self.time()
         elif kind == 'ivp':
             return self.laplace()
-        elif kind == 't':
-            return self.time(causal=True)            
+
+        obj = self
+        if 't' in self:
+            self.transform()
+            obj = self._transform
             
-        if kind not in self:
-            if kind not in self.transform_domains:
+        if kind not in obj:
+            if kind not in obj.transform_domains:
                 kind = 'ac'
-            return self.transform_domains[kind](0)
-        return self[kind]
+            return obj.transform_domains[kind](0)
+        return obj[kind]
 
     def netval(self, kind):
 
@@ -2519,7 +2581,7 @@ class Super(Exprdict):
                 return 'noise'
             elif kind == 'ivp':
                 return 's'
-            elif kind == 't':
+            elif kind == 'time':
                 return ''                
             elif not isinstance(kind, str):
                 return 'ac'
@@ -2548,30 +2610,6 @@ class Super(Exprdict):
                 return kind
         return None
 
-    def _decompose(self, value):
-
-        dc = value.expr.coeff(tsym, 0)
-        if dc != 0:
-            self.add(cExpr(dc))
-            value -= dc
-
-        if value == 0:
-            return
-
-        ac = 0
-        terms = value.expr.as_ordered_terms()
-        for term in terms:
-            if is_ac(term, tsym):
-                self.add(tExpr(term).phasor())
-                ac += term
-
-        value -= ac
-        if value == 0:
-            return
-
-        sval = value.laplace()
-        return self.add(sval)
-
     def _parse(self, string):
         """Parse t or s-domain expression or symbol, interpreted in time
         domain if not containing s, omega, or f.  Return most
@@ -2594,12 +2632,16 @@ class Super(Exprdict):
             # TODO, handle AC of different frequency
             return self.add(fExpr(string))
 
-        return self._decompose(tExpr(string))
+        return self.add(tExpr(string))
 
     def add(self, value):
+
         # Avoid triggering __eq__ for Super otherwise have infinite recursion
         if not isinstance(value, Super) and value == 0:
             return
+
+        if '_transform' in self:
+            delattr(self, '_transform')
 
         if isinstance(value, Super):
             for kind, value in value.items():
@@ -2620,9 +2662,6 @@ class Super(Exprdict):
         except:
             pass
         
-        if isinstance(value, tExpr):
-            return self._decompose(value)
-
         kind = self._kind(value)
         if kind is None:
             if value.__class__ in self.type_map:
@@ -2662,6 +2701,9 @@ class Super(Exprdict):
 
     @property
     def s(self):
+        if 't' in self.keys():
+            return self.select('t').laplace()
+            
         return self.select('s')
 
     @property
@@ -2743,8 +2785,10 @@ class Super(Exprdict):
 
 class Vsuper(Super):
 
-    type_map = {cExpr: Vconst, sExpr : Vs, noiseExpr: Vn, omegaExpr: Vphasor}
-    transform_domains = {'s': Vs, 'ac' : Vphasor, 'dc' : Vconst, 'n' : Vn}
+    type_map = {cExpr: Vconst, sExpr : Vs, noiseExpr: Vn, omegaExpr: Vphasor,
+                tExpr : Vt}
+    transform_domains = {'s': Vs, 'ac' : Vphasor, 'dc' : Vconst,
+                         'n' : Vn, 't' : Vt}
     time_class = Vt
     laplace_class = Vs    
 
@@ -2755,16 +2799,23 @@ class Vsuper(Super):
         if not isinstance(x, Ys):
             raise TypeError("Unsupported types for *: 'Vsuper' and '%s'" %
                             type(x).__name__)
+        obj = self
+        if x.has(s):
+            obj = self.transform()
+        
         new = Isuper()
-        if 'dc' in self:
+        if 'dc' in obj:
             # TODO, fix types
-            new += Iconst(self['dc'] * cExpr(x.jomega(0)))
-        for key in self.ac_keys():
-            new += self[key] * x.jomega(self[key].omega)
-        if 'n' in self:
-            new += self['n'] * x.jomega
-        if 's' in self:
-            new += self['s'] * x
+            new += Iconst(obj['dc'] * cExpr(x.jomega(0)))
+        for key in obj.ac_keys():
+            new += obj[key] * x.jomega(obj[key].omega)
+        if 'n' in obj:
+            new += obj['n'] * x.jomega
+        if 's' in obj:
+            new += obj['s'] * x
+        if 't' in obj:
+            new += self['t'] * tExpr(x)
+            
         return new
 
     def __div__(self, x):
@@ -2784,8 +2835,10 @@ class Vsuper(Super):
 
 class Isuper(Super):
 
-    type_map = {cExpr: Iconst, sExpr : Is, noiseExpr: In, omegaExpr: Iphasor}
-    transform_domains = {'s': Is, 'ac' : Iphasor, 'dc' : Iconst, 'n' : In}
+    type_map = {cExpr: Iconst, sExpr : Is, noiseExpr: In, omegaExpr: Iphasor,
+                tExpr : It}
+    transform_domains = {'s': Is, 'ac' : Iphasor, 'dc' : Iconst,
+                         'n' : In, 't' : It}
     time_class = It
     laplace_class = Is    
 
@@ -2796,16 +2849,22 @@ class Isuper(Super):
         if not isinstance(x, Zs):
             raise TypeError("Unsupported types for *: 'Isuper' and '%s'" %
                             type(x).__name__)
+        obj = self
+        if x.has(s):
+            obj = self.transform()
+
         new = Vsuper()
-        if 'dc' in self:
+        if 'dc' in obj:
             # TODO, fix types
-            new += Vconst(self['dc'] * cExpr(x.jomega(0)))
-        for key in self.ac_keys():
-            new += self[key] * x.jomega(self[key].omega)
-        if 'n' in self:
-            new += self['n'] * x.jomega
-        if 's' in self:
-            new += self['s'] * x
+            new += Vconst(obj['dc'] * cExpr(x.jomega(0)))
+        for key in obj.ac_keys():
+            new += obj[key] * x.jomega(obj[key].omega)
+        if 'n' in obj:
+            new += obj['n'] * x.jomega
+        if 's' in obj:
+            new += obj['s'] * x
+        if 't' in obj:
+            new += obj['t'] * tExpr(x)                        
         return new
 
     def __div__(self, x):
@@ -2827,7 +2886,7 @@ class Isuper(Super):
 def vtype_select(kind):
     try:
         return {'ivp' : Vs, 's' : Vs, 'n' : Vn,
-                'ac' : Vphasor, 'dc' : Vconst, 't' : Vt}[kind]
+                'ac' : Vphasor, 'dc' : Vconst, 't' : Vt, 'time' : Vt}[kind]
     except KeyError:
         return Vphasor
 
@@ -2835,7 +2894,7 @@ def vtype_select(kind):
 def itype_select(kind):
     try:
         return {'ivp' : Is, 's' : Is, 'n' : In,
-                'ac' : Iphasor, 'dc' : Iconst, 't' : It}[kind]
+                'ac' : Iphasor, 'dc' : Iconst, 't' : It, 'time' : It}[kind]
     except KeyError:
         return Iphasor
 
