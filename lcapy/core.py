@@ -2564,7 +2564,9 @@ class Super(Exprdict):
             return self.laplace()
 
         obj = self
-        if 't' in self:
+        if 't' in self and 't' != kind:
+            # The rationale here is that there may be
+            # DC and AC components included in the 't' part.
             self.transform()
             obj = self._transform
             
