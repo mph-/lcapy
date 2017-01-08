@@ -655,8 +655,6 @@ class Expr(object):
             # operatorname requires amsmath so switch to mathrm
             string = r'\mathrm{%s}' % match.groups()[0].replace('\\_', '_')
 
-        # sympy uses theta for Heaviside
-        string = string.replace(r'\theta\left', r'u\left')
         return latex_str(string)
 
     def latexans(self, name):
@@ -2381,6 +2379,23 @@ def delta(expr, *args):
 
 
 class Super(Exprdict):
+    """This class represents a superposition of different signal types.
+    
+    Where possible it represents a signal in the time-domain but for
+    most analysis it will decompose the signal into DC, AC, and
+    transient components.  The AC components are represented as
+    phasors for each AC frequency and the transient component is
+    represented in the s-domain.
+
+    The time-domain representation is returned with the time() method
+    and the Laplace representation is returned with the laplace()
+    method.
+
+    In addition, noise components are supported.  These are accessed
+    with the .n attribute and are ignored by the laplace() and time()
+    methods.
+
+    """
 
     def __init__(self, *args, **kwargs):
         super (Super, self).__init__()
@@ -2541,7 +2556,7 @@ class Super(Exprdict):
         return self.add(sval)
 
     def transform(self):
-        """Create a new representation in transform domains."""
+        """Create a new representation in the transform domains."""
         
         if hasattr(self, '_transform'):
             return self._transform
@@ -2556,6 +2571,18 @@ class Super(Exprdict):
         return new
     
     def select(self, kind):
+        """Select a component of the signal representation by kind where:
+        'super' : the entire superposition
+        'time' :  the time domain representation (equivalent to self.time())
+        'ivp' :  the s-domain representation (equivalent to self.laplace())
+        'dc' : the DC component
+        omega : the AC component with angular frequency omega
+        's' : the transient component in the s-domain
+        'n' : the noise component
+        't' : the time-domain component (this may or may not include the
+        DC and AC components).
+
+        """
         if kind == 'super':
             return self
         elif kind == 'time':
@@ -2583,7 +2610,7 @@ class Super(Exprdict):
                 return 'noise'
             elif kind == 'ivp':
                 return 's'
-            elif kind == 'time':
+            elif kind in (t, 'time'):
                 return ''                
             elif not isinstance(kind, str):
                 return 'ac'

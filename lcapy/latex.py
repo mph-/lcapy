@@ -39,7 +39,9 @@ class Latex(object):
 
 
 def latex_str(string):
-
+    
+    # sympy uses theta for Heaviside
+    string = string.replace(r'\theta\left', r'u\left')
     return Latex(string).__str__()
 
 
