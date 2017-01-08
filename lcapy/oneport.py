@@ -225,7 +225,7 @@ class OnePort(Network):
         return Par(Y1, I1)
 
     def s_model(self):
-        """Convert to s-domain"""
+        """Convert to s-domain."""
 
         if self._Voc is not None:
             if self._Voc == 0:
@@ -247,7 +247,16 @@ class OnePort(Network):
             return Y(self._Y)        
         raise ValueError('Internal error')
 
-        
+    def noise_model(self):
+        """Convert to noise model."""
+
+        R = self.Z.real
+        if R != 0:
+            Vn = Vnoise('sqrt(4 * k * T * %s)' % R)
+            return self + Vn
+        return self
+
+    
 class ParSer(OnePort):
     """Parallel/serial class"""
 
@@ -467,8 +476,13 @@ class ParSer(OnePort):
         return self.__class__(*newargs)
 
     def s_model(self):
-        """Convert to s-domain"""
+        """Convert to s-domain."""
         args = [arg.s_model() for arg in self.args]
+        return (self.__class__(*args))
+
+    def noise_model(self):
+        """Convert to noise model."""
+        args = [arg.noise_model() for arg in self.args]
         return (self.__class__(*args))
 
     @property

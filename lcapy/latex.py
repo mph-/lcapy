@@ -63,8 +63,11 @@ def format_label(s):
 
     # If have _, ^, \frac, etc.  need to be in math-mode.
     # Should prevent lcapy generating such strings and 
-    # warn user to explicity use math mode.
-    if '_' in s or '^' in s or '\\left' in s or '\\math' in s or '\\frac' in s:
-        return '$' + latex_str(s) + '$'
+    # warn user to explicity use math mode.  The tricky part is that
+    # arbitrary signals may have math symbols, say sqrt.
+    math_symbols = ('_',  '^', '\\left', '\\math', '\\frac', '\\sqrt')
+    for math_symbol in math_symbols:
+        if math_symbol in s:
+            return '$' + latex_str(s) + '$'
     return s
 
