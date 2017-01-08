@@ -83,16 +83,16 @@ principle of superposition.  Superposition allows a circuit to be
 analysed by considering the effect of each independent current and
 voltage source in isolation and summing the results.
 
-If reactive components are found to have initial conditions, then the
+Lcapy's algorithm for solving a circuit is:
+1. If a capacitor or inductor is found to have initial conditions, then the
 circuit is analysed as an initial value problem using Laplace methods.
 In this case, the sources are ignored for :math:`t<0` and the result
 is ony known for :math:`t\ge 0`.
+2. If there are no capacitors and inductors and if none of the independent sources are specified in the s-domain, then time-domain analysis is performed.
+3. Finally, Lcapy tries to decompose the sources into DC, AC, transient, and noise components.  The circuit is analysed for each source category using the appropriate transform domain (phasors for AC, s-domain for transients) and the results are added.
 
-If the circuit has no initial conditions, Lcapy analyses all the
-independent sources and splits them into DC, AC, transient, and noise
-categories.  The circuit is then analysed separately for each category
-and the results are combined.
-
+If there are noise sources, these are considered independently since they are assumed to be uncorrelated.  
+   
 
 DC analysis
 -----------
@@ -118,10 +118,9 @@ Laplace analysis
 ----------------
 
 The response due to a transient excitation from an independent source
-can be analysed using Laplace analysis.  This is what Lcapy was
-originally designed for.  Since the unilateral transform is not unique
-(it ignores the circuit behaviour for :math:`t < 0`), the response can
-only be determined for :math:`t \ge 0`.
+can be analysed using Laplace analysis.  Since the unilateral
+transform is not unique (it ignores the circuit behaviour for :math:`t
+< 0`), the response can only be determined for :math:`t \ge 0`.
 
 If the independent sources are known to be causal (a causal signal is
 zero for :math:`t < 0` analogous to a causal impulse response) and the
@@ -135,7 +134,7 @@ analysis techniques to determine the response for :math:`t < 0`,
 compute the pre-initial conditions, and then use Laplace analysis to
 determine the response for :math:`t \ge 0`.  Note, the pre-initial
 conditions at :math:`t = 0_{-}` are required.  These differ from the
-initial conditions at :math:`t = 0_{-}` whenever a Dirac delta (or its
+initial conditions at :math:`t = 0` whenever a Dirac delta (or its
 derivative) excitation is considered.  Determining the initial
 conditions is not straightforward for arbitrary excitations and at the
 moment Lcapy expects you to do this!
@@ -147,7 +146,7 @@ only known for :math:`t \ge 0`.
 
 Note if any of the pre-initial conditions are non-zero and the
 independent sources are causal then either we have an initial value
-problem or a mistake has been made.  Lcapy assumes that if all the
+problem or a mistake has been made.  Lcapy assumes that if any of the
 inductors and capacitors have explicit initial conditions, then the
 circuit is to be analysed as an initial value problem with the
 independent sources ignored for :math:`t \ge 0`.  In this case a DC
