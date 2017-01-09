@@ -2610,7 +2610,7 @@ class Super(Exprdict):
                 return 'noise'
             elif kind == 'ivp':
                 return 's'
-            elif kind in (t, 'time'):
+            elif kind in ('t', 'time'):
                 return ''                
             elif not isinstance(kind, str):
                 return 'ac'
