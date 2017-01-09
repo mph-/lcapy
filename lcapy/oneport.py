@@ -20,7 +20,7 @@ Copyright 2014--2017 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, Expr
+from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, Expr, omega
 from lcapy.core import cos, exp, symbol, j, Vphasor, Iphasor, It, Vconst, Iconst, Vn, In
 from lcapy.core import Vsuper, Isuper, pretty
 from lcapy.sympify import symbols_find
@@ -250,9 +250,12 @@ class OnePort(Network):
     def noise_model(self):
         """Convert to noise model."""
 
-        R = self.Z.real
-        if R != 0:
-            Vn = Vnoise('sqrt(4 * k * T * %s)' % R)
+        if not isinstance(self, (R, G, Y, Z)):
+            return self
+        
+        R1 = self.Z.real
+        if R1 != 0:
+            Vn = Vnoise('sqrt(4 * k * T * %s)' % R1(j * omega))
             return self + Vn
         return self
 
