@@ -71,27 +71,58 @@ def plot_frequency(obj, f, **kwargs):
     if isinstance(f, tuple):
         f = np.linspace(f[0], f[1], 400)
 
-    # TODO, handle different formats; real/imag, mag/phase
     if not hasattr(obj, 'part'):
-        ax = plot_frequency(obj.magnitude.dB, f, **kwargs)
-        ax2 = ax.twinx()
+        obj2 = None        
+        plot_type = kwargs.pop('plot_type', 'dB_phase')
+        if plot_type == 'dB_phase':
+            obj1 = obj.magnitude.dB
+            if not obj.is_positive:
+                obj2 = obj.phase
+        elif plot_type == 'mag_phase':
+            obj1 = obj.magnitude
+            if not obj.is_positive:
+                obj2 = obj.phase
+        elif plot_type == 'real_imag':
+            obj1 = obj.real
+            obj2 = obj.imag
+        else:
+            raise ValueError('Unknown plot type: %s' % plot_type)
+
+        if obj2 is None:
+            return plot_frequency(obj1, f, **kwargs)
+        
+        ax = plot_frequency(obj1, f, **kwargs)
         kwargs['axes'] = ax2
         kwargs['linestyle'] = '--'
-        if not obj.is_positive:
-            ax2 = plot_frequency(obj.phase, f, **kwargs)
+        ax2 = plot_frequency(obj2, f, **kwargs)
         return ax, ax2
-
-    V = obj.evaluate(f)
 
     ax = kwargs.pop('axes', None)
     if ax is None:
         fig = figure()
         ax = fig.add_subplot(111)
 
-    if kwargs.pop('log_scale', False):
-        ax.semilogx(f, V, **kwargs)
+    V = obj.evaluate(f)
+
+
+    log_magnitude = kwargs.pop('log_magnitude', False)
+    log_frequency = kwargs.pop('log_frequency', False)
+    if kwargs.pop('loglog', False):
+        log_magnitude = True 
+        log_frequency = True    
+
+    plots = {(True, True) : ax.loglog,
+             (True, False) : ax.semilogy,
+             (False, True) : ax.semilogx,
+             (False, True) : ax.plot}
+    
+    if obj.part == 'magnitude':    
+        plot = plots[(log_magnitude, log_frequency)]
     else:
-        ax.plot(f, V, **kwargs)
+        plot = plots[(True, x.log_frequency)]                    
+        
+    plot(f, V, **kwargs)
+            
     ax.set_xlabel(obj.domain_label)
     ax.set_ylabel(obj.label)
     ax.grid(True)
@@ -110,31 +141,7 @@ def plot_angular_frequency(obj, omega, **kwargs):
     if isinstance(omega, tuple):
         omega = np.linspace(omega[0], omega[1], 400)
 
-    # TODO, handle different formats; real/imag, mag/phase
-    if not hasattr(obj, 'part'):
-        ax = plot_angular_frequency(obj.magnitude.dB, omega, **kwargs)
-        ax2 = ax.twinx()
-        kwargs['axes'] = ax2
-        kwargs['linestyle'] = '--'
-        if not obj.is_positive:        
-            ax2 = plot_angular_frequency(obj.phase, omega, **kwargs)
-        return ax, ax2
-
-    V = obj.evaluate(omega)
-
-    ax = kwargs.pop('axes', None)
-    if ax is None:
-        fig = figure()
-        ax = fig.add_subplot(111)
-
-    if kwargs.pop('log_scale', False):
-        ax.semilogx(omega, V, **kwargs)
-    else:
-        ax.plot(omega, V, **kwargs)
-    ax.set_xlabel(obj.domain_label)
-    ax.set_ylabel(obj.label)
-    ax.grid(True)
-    return ax
+    return plot_frequency(obj, omega, **kwargs)
 
 
 def plot_time(obj, t, **kwargs):
