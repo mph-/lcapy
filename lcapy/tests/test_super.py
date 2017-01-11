@@ -57,8 +57,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(Vsuper(12) / Zs(2), Isuper(6), "Vsuper(12) / Zs(2)")
 
     def test_Vsuper_noise(self):
-        self.assertEqual2(Vn(3) + Vn(4), Vn(7), "Vn(3) + Vn(4)")
-        self.assertEqual2(Vsuper(Vn(3)) + Vsuper(Vn(4)), Vsuper(Vn(5)),
+        self.assertEqual((Vn(3) + Vn(4)).expr, Vn(5).expr, "Vn(3) + Vn(4)")
+        self.assertEqual((Vsuper(Vn(3)) + Vsuper(Vn(4))).n.expr,
+                          Vsuper(Vn(5)).n.expr,
                           "Vsuper(Vn(3)) + Vsuper(Vn(4))")
         
         

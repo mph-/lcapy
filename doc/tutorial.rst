@@ -923,18 +923,19 @@ Transform Domains
 Lcapy analyses a linear circuit using a number of transform domains
 and the principle of superposition.  For example, consider
 
-   >>> Voc = (Vdc(10) + Vac(20) + Vstep(30) + Vnoise(40)).Voc
+   >>> oc = (Vdc(10) + Vac(20) + Vstep(30) + Vnoise(40)).Voc
    >>> Voc
-   ⎧                  30       ⎫
-   ⎨dc: 10, n: 40, s: ──, ω: 20⎬
-   ⎩                  s        ⎭
+   ⎧                   30       ⎫
+   ⎨dc: 10, n1: 40, s: ──, ω: 20⎬
+   ⎩                   s        ⎭
 
 Here the open-circuit voltage is described by a dictionary of values
 for the different transform domains.  There are four types of
 transform domain: DC, phasor (for AC analysis), Laplace (for transient
 analysis), and noise.  The DC component is keyed by 'dc', the Laplace
-component is keyed by 's', the noise component is keyed by 'n', and
-the ac components are keyed by the angular frequency.  For example,
+component is keyed by 's', the noise components are keyed by noise
+identifiers of the form 'nx' (where x is an integer), and the ac
+components are keyed by the angular frequency.  For example,
 
    >>> Voc['s']
    30

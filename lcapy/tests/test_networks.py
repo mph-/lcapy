@@ -84,11 +84,11 @@ class LcapyTester(unittest.TestCase):
 
         a = Vac(40) + Vnoise(20) + Vstep(10) + R(5)
         self.assertEqual2(a.Voc.s, 10 / s, "Voc.s error")
-        self.assertEqual2(a.Voc.n, Vn(20), "Voc.n error")
+        self.assertEqual(a.Voc.n.expr, Vn(20).expr, "Voc.n error")
         self.assertEqual2(a.Voc.w, Vphasor(40), "Voc.w error")
         self.assertEqual2(a.Isc.s, 2 / s, "Isc.s error")
         # FIXME, this intermittently fails.
-        self.assertEqual2(a.Isc.n, In(4), "Isc.n error")
+        self.assertEqual(a.Isc.n.expr, In(4).expr, "Isc.n error")
         self.assertEqual2(a.Isc.w, Iphasor(8), "Isc.w error")        
         
     def test_ivp(self):

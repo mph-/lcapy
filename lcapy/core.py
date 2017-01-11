@@ -109,6 +109,7 @@ class Context(object):
         self.symbols = {}
         self.assumptions = {}
         self.previous = None
+        self.nid = 0
 
     def new(self):
 
@@ -207,7 +208,9 @@ class Expr(object):
         #      are primarily to help the inverse Laplace transform for sExpr
         #      classes.  The omega assumption is required for Phasors.
 
-        self.assumptions = assumptions
+        self.assumptions = assumptions.copy()
+        assumptions.pop('nid', None)
+        
         self.expr = sympify(arg, **assumptions)
 
     def infer_assumptions(self):
@@ -2105,13 +2108,116 @@ class If(fExpr):
 class noiseExpr(omegaExpr):
     """Frequency domain (one-sided) noise spectrum expression.  When
     performing arithmetic on two noiseExpr expressions it is assumed
-    that they are correlated, so 3 + 4 = 7 and not 5 if added on a
-    power basis.
+    that they are uncorrelated unless they have the same nid (noise
+    indentifier).   If the nid is not specified, a new one is created.
 
-    The Super class handles uncorrelated noise.
+    Uncorrelated noise expressions are added in quadrature (on a power
+    basis).  Thus (Vn(3) + Vn(4)).expr = 5 since 5 = sqrt(3**2 + 4**2)
+
+    Vn(3) != Vn(3) since they are different noise realisations albeit
+    with the same properties.  However, Vn(3).expr == Vn(3).expr.
+    Similarly, Vn(3, nid='n1') == Vn(3, nid='n1') since they have the
+    same noise identifier and thus have the same realisation.
+
+    Caution: The sum of two noise expressions generates a noise
+    expression with a new nid.  This can lead to unexpected results
+    since noise expressions with different nids are assumed to be
+    uncorrelated.  For example, consider:
+    a = Vn(3); b = Vn(4)
+    a + b - b gives sqrt(41) and  a + b - a gives sqrt(34).
+
+    This case is correctly handled by the Super class since each noise
+    component is stored and considered separately.
+
+    (Vsuper(a) + Vsuper(b) - Vsuper(b)).n gives 3 as expected.
 
     """
     one_sided = True
+
+    def _new_nid(self):
+        context.nid += 1
+        return 'n%d' % context.nid
+
+    def __init__(self, val, **assumptions):
+        if 'nid' not in assumptions or assumptions['nid'] is None:
+            if val == 0:
+                assumptions['nid'] = 'n0'
+            else:
+                assumptions['nid'] = self._new_nid()
+        super(noiseExpr, self).__init__(val, **assumptions)
+
+    @property
+    def nid(self):
+        return self.assumptions['nid']
+        
+    def __add__(self, x):
+        """Add noise spectra (on power basis if uncorrelated)."""
+
+        if not isinstance(x, noiseExpr):
+            raise ValueError('Cannot add %s and %s' % (self, x))
+        
+        if x == 0:
+            return self.__class__(self, nid=self.nid)
+        
+        if self.nid == x.nid:
+            return self.__class__(self.expr + x.expr, nid=self.nid)
+        
+        value1 = self.expr
+        value2 = x.expr
+        value1sq = sym.simplify(value1 * sym.conjugate(value1))
+        value2sq = sym.simplify(value2 * sym.conjugate(value2))                  
+        result = sym.simplify(sqrt((value1sq + value2sq)))
+        return self.__class__(result)
+
+    def __radd__(self, x):
+        raise ValueError('Cannot add %s and %s' % (self, x))        
+
+    def __sub__(self, x):
+        if not isinstance(x, noiseExpr):
+            raise ValueError('Cannot subtract %s and %s' % (self, x))
+
+        if x == 0:
+            return self.__class__(self, nid=self.nid)        
+
+        if self.nid == x.nid:
+            return self.__class__(self.expr - x.expr, nid=self.nid)        
+        return self + x
+
+    def __rsub__(self, x):
+        raise ValueError('Cannot subtract %s and %s' % (self, x))                
+
+    def __mul__(self, x):
+        if isinstance(x, noiseExpr) and self.nid != x.nid:
+            raise ValueError('Cannot multiply %s and %s' % (self, x))
+        return self.__class__(self.expr * x, nid=self.nid)
+
+    def __rmul__(self, x):
+        return self.__class__(self.expr * x, nid=self.nid)    
+
+    def __div__(self, x):
+        if isinstance(x, noiseExpr) and self.nid != x.nid:
+            raise ValueError('Cannot divide %s and %s' % (self, x))
+        return self.__class__(self.expr / x, nid=self.nid)
+
+    def __rdiv__(self, x):
+        return self.__class__(x / self.expr, nid=self.nid)        
+
+    def __eq__(self, x):
+        try:
+            if self.nid != x.nid:
+                return False
+        except:
+            pass
+
+        try:
+            if self.expr == x.expr:
+                return True
+        except:
+            pass
+        return self.expr == x
+
+    def __ne__(self, x):
+        return not (self == x)
 
     def rms(self):
         """Calculate rms value."""
@@ -2130,7 +2236,7 @@ class noiseExpr(omegaExpr):
         # Convert to two-sided spectrum
         S = self.subs(self.var, abs(self.var)) / sqrt(2)
         return S.inverse_fourier()
-
+   
 
 class Vn(noiseExpr):
 
@@ -2391,9 +2497,14 @@ class Super(Exprdict):
     and the Laplace representation is returned with the laplace()
     method.
 
-    In addition, noise components are supported.  These are accessed
-    with the .n attribute and are ignored by the laplace() and time()
-    methods.
+    In addition, noise components are supported.  Noise components
+    with different noise indentifiers are stored separately, keyed by
+    the noise identifier.  They are ignored by the laplace() and
+    time() methods.
+
+    The total noise can be accessed with the .n attribute.  This sums
+    each of the noise components in quadrature since they are
+    independent.
 
     """
 
@@ -2422,9 +2533,18 @@ class Super(Exprdict):
 
         keys = []
         for key in self.keys():
-            if key not in ('dc', 's', 'n', 't'):
+            if not isinstance(key, str) or key == 'w':
                 keys.append(key)
         return keys
+
+    def noise_keys(self):
+        """Return list of keys for all noise components."""
+
+        keys = []
+        for key in self.keys():
+            if isinstance(key, str) and key[0] == 'n':
+                keys.append(key)
+        return keys    
 
     @property
     def has_dc(self):
@@ -2444,7 +2564,7 @@ class Super(Exprdict):
 
     @property
     def has_n(self):
-        return 'n' in self
+        return self.noise_keys() != []
 
     @property
     def is_dc(self):
@@ -2460,7 +2580,7 @@ class Super(Exprdict):
 
     @property
     def is_n(self):
-        return list(self.keys()) == ['n']
+        return self.noise_keys() == list(self.keys())
 
     @property
     def is_causal(self):
@@ -2499,15 +2619,12 @@ class Super(Exprdict):
     def __neg__(self):
         new = self.__class__()
         for kind, value in self.items():
-            if kind != 'n':
-                value = -value
-            new[kind] = value
+            new[kind] = -value
         return new
 
     def __scale__(self, x):
         new = self.__class__()
         for kind, value in self.items():
-            # TODO: Perhaps should ensure 'n' field positive?
             new[kind] = value * x
         return new
 
@@ -2590,6 +2707,11 @@ class Super(Exprdict):
         elif kind == 'ivp':
             return self.laplace()
 
+        if isinstance(kind, str) and kind[0] == 'n':
+            if kind not in self:
+                return self.transform_domains['n'](0)
+            return self[kind]
+        
         obj = self
         if 't' in self and 't' != kind:
             # The rationale here is that there may be
@@ -2606,7 +2728,7 @@ class Super(Exprdict):
     def netval(self, kind):
 
         def kind_keyword(kind):
-            if kind == 'n':
+            if isinstance(kind, str) and kind[0] == 'n':
                 return 'noise'
             elif kind == 'ivp':
                 return 's'
@@ -2621,7 +2743,10 @@ class Super(Exprdict):
             # Convert to time representation so that can re-infer
             # causality, etc.
             return '{%s}' % val.time()
-            
+
+        if 'nid' in val.assumptions:
+            return '%s {%s} %s' % (kind_keyword(kind), val, val.nid)
+        
         return '%s {%s}' % (kind_keyword(kind), val)
     
     def _kind(self, value):
@@ -2663,6 +2788,15 @@ class Super(Exprdict):
 
         return self.add(tExpr(string))
 
+    def _add_noise(self, value):
+
+        if value.nid not in self:
+            self[value.nid] = value
+        else:
+            self[value.nid] += value
+            if self[value.nid] == 0:
+                self.pop(value.nid)
+    
     def add(self, value):
 
         # Avoid triggering __eq__ for Super otherwise have infinite recursion
@@ -2690,6 +2824,10 @@ class Super(Exprdict):
                 value = self.transform_domains['dc'](value)
         except:
             pass
+
+        if isinstance(value, noiseExpr):
+            self._add_noise(value)
+            return
         
         kind = self._kind(value)
         if kind is None:
@@ -2706,19 +2844,10 @@ class Super(Exprdict):
             raise ValueError('Cannot handle value %s of type %s' %
                              (value, type(value).__name__))
 
-        if kind == 'n':
-            valuesq = (value * value.conjugate).simplify()
-            if kind not in self:
-                self[kind] = sqrt(valuesq)
-            else:
-                # Assume noise uncorrelated.
-                value1sq = (self[kind] * self[kind].conjugate).simplify()
-                self[kind] = sqrt((value1sq + valuesq).simplify())
+        if kind not in self:
+            self[kind] = value
         else:
-            if kind not in self:
-                self[kind] = value
-            else:
-                self[kind] += value
+            self[kind] += value
 
     @property
     def dc(self):
@@ -2737,7 +2866,10 @@ class Super(Exprdict):
 
     @property
     def n(self):
-        return self.select('n')
+        result = self.transform_domains['n'](0)
+        for key in self.noise_keys():
+            result += self[key]
+        return result
 
     @property
     def w(self):
@@ -2838,8 +2970,8 @@ class Vsuper(Super):
             new += Iconst(obj['dc'] * cExpr(x.jomega(0)))
         for key in obj.ac_keys():
             new += obj[key] * x.jomega(obj[key].omega)
-        if 'n' in obj:
-            new += obj['n'] * x.jomega
+        for key in obj.noise_keys():            
+            new += obj[key] * x.jomega
         if 's' in obj:
             new += obj['s'] * x
         if 't' in obj:
@@ -2888,8 +3020,8 @@ class Isuper(Super):
             new += Vconst(obj['dc'] * cExpr(x.jomega(0)))
         for key in obj.ac_keys():
             new += obj[key] * x.jomega(obj[key].omega)
-        if 'n' in obj:
-            new += obj['n'] * x.jomega
+        for key in obj.noise_keys():            
+            new += obj[key] * x.jomega            
         if 's' in obj:
             new += obj['s'] * x
         if 't' in obj:
@@ -2913,6 +3045,8 @@ class Isuper(Super):
     
     
 def vtype_select(kind):
+    if isinstance(kind, str) and kind[0] == 'n':
+        return Vn
     try:
         return {'ivp' : Vs, 's' : Vs, 'n' : Vn,
                 'ac' : Vphasor, 'dc' : Vconst, 't' : Vt, 'time' : Vt}[kind]
@@ -2921,6 +3055,8 @@ def vtype_select(kind):
 
 
 def itype_select(kind):
+    if isinstance(kind, str) and kind[0] == 'n':
+        return In
     try:
         return {'ivp' : Is, 's' : Is, 'n' : In,
                 'ac' : Iphasor, 'dc' : Iconst, 't' : It, 'time' : It}[kind]

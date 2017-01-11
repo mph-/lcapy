@@ -33,7 +33,7 @@ sI: Iname Np Nm s [Value]; s-domain current source
 Idc: Iname Np Nm dc [Value]; DC current source
 Istep: Iname Np Nm step [Value]; Step current source
 Iac: Iname Np Nm ac [Value] [Phase]; AC current source
-Inoise: Iname Np Nm noise [Value]; Noise current source
+Inoise: Iname Np Nm noise [Value] [NID]; Noise current source
 Isin: Iname Np Nm sin Io Ia fo [td] [alpha] [Phase]; Sinusoidal current source
 J: Jname Nd Ng Ns [Value]; N channel JFET
 Jnjf: Jname Nd Ng Ns njf [Value]; N channel JFET
@@ -87,7 +87,7 @@ sV: Vname Np Nm s [Value]; s-domain voltage source
 Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vstep: Vname Np Nm step [Value]; Step voltage source
 Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
-Vnoise: Vname Np Nm noise [Value]; Noise voltage source
+Vnoise: Vname Np Nm noise [Value] [NID]; Noise voltage source
 Vsin: Vname Np Nm sin Vo Va fo [td] [alpha] [Phase]; Sinusoidal voltage source
 VM: VMname Np Nm; Voltmeter
 W: Wname Np Np; Wire
@@ -173,6 +173,7 @@ td: value; Time delay
 alpha: value; Damping factor
 Value: value; Value
 IC: value; Initial condition
+NID: value; Noise identifier
 Lname1: name; Inductor1 name 
 Lname2: name; Inductor2 name 
 Vcontrol: name; Control voltage name 

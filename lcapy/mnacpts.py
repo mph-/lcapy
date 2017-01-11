@@ -231,27 +231,29 @@ class Cpt(object):
     def Y(self):
         """Admittance"""
 
+        kind = self.cct.kind
         Y1 = self.cpt.Y
-        if self.cct.kind in ('s', 'ivp'):
+        if kind in ('s', 'ivp'):
             return Y1
-        elif self.cct.kind in ('dc', 'time'):        
+        elif kind in ('dc', 'time'):
             return cExpr(Y1.jomega(0))
-        elif self.cct.kind == 'n':        
+        elif isinstance(kind, str) and kind[0] == 'n':
             return Y1.jomega
-        return Y1.jomega(self.cct.kind)
+        return Y1.jomega(kind)
 
     @property
     def Z(self):
         """Impedance"""
 
+        kind = self.cct.kind
         Z1 = self.cpt.Z
-        if self.cct.kind in ('s', 'ivp'):
+        if kind in ('s', 'ivp'):
             return Z1
-        elif self.cct.kind in ('dc', 'time'):
+        elif kind in ('dc', 'time'):
             return cExpr(Z1.jomega(0))
-        elif self.cct.kind == 'n':        
+        elif isinstance(kind, str) and kind[0] == 'n':
             return Z1.jomega
-        return Z1.jomega(self.cct.kind)
+        return Z1.jomega(kind)
 
     @property
     def node_indexes(self):
@@ -506,6 +508,11 @@ class H(Dummy):
 class I(Cpt):
 
     source = True
+
+    def zero(self):
+        """Zero value of the current source,  This makes it open-circuit."""
+        return '%s %s %s {%s}; %s' % (
+            self.name, self.nodes[0], self.nodes[1], 0, self.opts)
 
     def select(self, kind=None):
         """Select domain kind for component."""

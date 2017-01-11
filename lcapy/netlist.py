@@ -568,10 +568,10 @@ class NetlistMixin(object):
 
         return self.analysis['independent_sources']        
 
-    def independent_source_groups(self):
+    def independent_source_groups(self, transform=False):
         """Return dictionary of source groups.  Each group is a list of
         sourcenames that can be analysed at the same time.  Noise
-        sources have separate groups since they are assumed
+        sources have separate groups since they are assumed to be
         uncorrelated.
 
         """
@@ -584,13 +584,16 @@ class NetlistMixin(object):
                 continue
             cpt = elt.cpt
             if cpt.voltage_source:
-                cpt_kinds = cpt.Voc.keys()
+                Voc = cpt.Voc
+                if transform:
+                    Voc = Voc.transform()
+                cpt_kinds = Voc.keys()
             else:
-                cpt_kinds = cpt.Isc.keys()                
+                Isc = cpt.Isc
+                if transform:
+                    Isc = Isc.transform()                
+                cpt_kinds = Isc.keys()                
             for cpt_kind in cpt_kinds:
-                if cpt_kind == 'n':
-                    noise_source_count += 1
-                    cpt_kind = 'n%d' % noise_source_count
                 if cpt_kind not in groups:
                     groups[cpt_kind] = []
                 groups[cpt_kind].append(key)
@@ -713,7 +716,7 @@ class Netlist(NetlistMixin, NetfileMixin):
             return self._sub
 
         groups = self.independent_source_groups()        
-
+            
         if self.is_ivp:
             def namelist(elements):
                 return ', '.join([elt for elt in elements])
@@ -732,6 +735,7 @@ class Netlist(NetlistMixin, NetfileMixin):
             groups = newgroups
 
         elif self.is_time_domain:
+            groups = self.independent_source_groups()            
             newgroups = {'time' : []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
@@ -740,18 +744,13 @@ class Netlist(NetlistMixin, NetfileMixin):
                     newgroups['time'] += sources
             groups = newgroups
 
-        elif 't' in groups:
-            if 's' not in groups:
-                groups['s'] = []
-            groups['s'] += groups.pop('t')
+        else:
+            groups = self.independent_source_groups(transform=True)        
         
         self._sub = Transformdomains()
 
         for key, sources in groups.items():
-            kind = key
-            if isinstance(kind, str) and kind[0] == 'n':
-                kind = 'n'
-            self._sub[key] = SubNetlist(self, sources, kind)
+            self._sub[key] = SubNetlist(self, sources, key)
 
         return self._sub
 

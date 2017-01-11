@@ -248,7 +248,9 @@ class MNA(object):
             assumptions = {'ac' : self.is_ac,
                            'dc' : self.is_dc,
                            'causal' : self.is_causal}
-        
+        elif isinstance(self.kind, str) and self.kind[0] == 'n':
+            assumptions = {'nid' : self.kind}
+       
         # Create dictionary of node voltages
         self._Vdict = Nodedict()
         self._Vdict['0'] = vtype(0, **assumptions)
@@ -273,7 +275,7 @@ class MNA(object):
                 n1, n2 = self.node_map[
                     elt.nodes[0]], self.node_map[elt.nodes[1]]
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
-                I = (V1 - V2) / elt.Z
+                I = (V1.expr - V2.expr) / elt.Z.expr
                 self._Idict[elt.name] = itype(I, **assumptions).simplify()
             elif elt.type in ('I', ):
                 self._Idict[elt.name] = elt.Isc

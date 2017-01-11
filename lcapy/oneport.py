@@ -850,10 +850,11 @@ class Vnoise(VoltageSource):
     netkeyword = 'noise'
     is_noisy = True
 
-    def __init__(self, V):
+    def __init__(self, V, nid=None):
 
-        self.args = (V, )
-        self._Voc = Vsuper(Vn(V))
+        V1 = Vn(V, nid=nid)
+        self.args = (V, V1.nid)
+        self._Voc = Vsuper(V1)
 
         
 class v(VoltageSource):
@@ -957,10 +958,11 @@ class Inoise(CurrentSource):
     netkeyword = 'noise'
     is_noisy = True
 
-    def __init__(self, I):
+    def __init__(self, I, nid=None):
 
-        self.args = (I, )
-        self._Isc = Isuper(In(I))
+        I1 = In(I, nid=nid)
+        self._Isc = Isuper(I1)
+        self.args = (I, I1.nid)
 
         
 class i(CurrentSource):
