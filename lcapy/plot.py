@@ -76,7 +76,7 @@ def plot_frequency(obj, f, **kwargs):
         plot_type = kwargs.pop('plot_type', 'dB_phase')
         if plot_type == 'dB_phase':
             obj1 = obj.magnitude.dB
-            if not obj.is_positive:
+            if obj.is_complex:
                 obj2 = obj.phase
         elif plot_type == 'mag_phase':
             obj1 = obj.magnitude
@@ -92,6 +92,7 @@ def plot_frequency(obj, f, **kwargs):
             return plot_frequency(obj1, f, **kwargs)
         
         ax = plot_frequency(obj1, f, **kwargs)
+        ax2 = ax.twinx()
         kwargs['axes'] = ax2
         kwargs['linestyle'] = '--'
         ax2 = plot_frequency(obj2, f, **kwargs)
@@ -113,12 +114,12 @@ def plot_frequency(obj, f, **kwargs):
     plots = {(True, True) : ax.loglog,
              (True, False) : ax.semilogy,
              (False, True) : ax.semilogx,
-             (False, True) : ax.plot}
+             (False, False) : ax.plot}
     
     if obj.part == 'magnitude':    
         plot = plots[(log_magnitude, log_frequency)]
     else:
-        plot = plots[(True, x.log_frequency)]                    
+        plot = plots[(False, log_frequency)]                    
         
     plot(f, V, **kwargs)
             
