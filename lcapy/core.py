@@ -1320,7 +1320,7 @@ class sExpr(sfwExpr):
 
         from lcapy.plot import plot_pole_zero
 
-        plot_pole_zero(self, **kwargs)
+        return plot_pole_zero(self, **kwargs)
 
 
 class fExpr(sfwExpr):
@@ -1370,7 +1370,7 @@ class fExpr(sfwExpr):
         """
 
         from lcapy.plot import plot_frequency
-        plot_frequency(self, fvector, **kwargs)
+        return plot_frequency(self, fvector, **kwargs)
 
 
 class omegaExpr(sfwExpr):
@@ -1420,7 +1420,7 @@ class omegaExpr(sfwExpr):
         """
 
         from lcapy.plot import plot_angular_frequency
-        plot_angular_frequency(self, wvector, **kwargs)
+        return plot_angular_frequency(self, wvector, **kwargs)
 
 
 class tExpr(Expr):
@@ -1497,7 +1497,7 @@ class tExpr(Expr):
     def plot(self, t=None, **kwargs):
 
         from lcapy.plot import plot_time
-        plot_time(self, t, **kwargs)
+        return plot_time(self, t, **kwargs)
 
 
 class cExpr(Expr):
@@ -1620,7 +1620,7 @@ class Phasor(Expr):
 
         if self.omega != omegasym:
             self.fourier.plot(fvector, **kwargs)
-        omegaExpr(self).plot(fvector, **kwargs)
+        return omegaExpr(self).plot(fvector, **kwargs)
 
 
 class Vphasor(Phasor):
@@ -2106,10 +2106,13 @@ class If(fExpr):
 
 
 class noiseExpr(omegaExpr):
-    """Frequency domain (one-sided) noise spectrum expression.  When
-    performing arithmetic on two noiseExpr expressions it is assumed
-    that they are uncorrelated unless they have the same nid (noise
-    indentifier).   If the nid is not specified, a new one is created.
+    """Frequency domain (one-sided) noise spectrum expression (amplitude
+    spectral density).
+
+    When performing arithmetic on two noiseExpr expressions it is
+    assumed that they are uncorrelated unless they have the same nid
+    (noise indentifier).  If the nid is not specified, a new one is
+    created.
 
     Uncorrelated noise expressions are added in quadrature (on a power
     basis).  Thus (Vn(3) + Vn(4)).expr = 5 since 5 = sqrt(3**2 + 4**2)
@@ -2239,8 +2242,7 @@ class noiseExpr(omegaExpr):
    
 
 class Vn(noiseExpr):
-
-    """f-domain noise voltage (units V/rtHz)."""
+    """Voltage noise amplitude spectral density (units V/rtHz)."""
 
     quantity = 'Voltage noise spectrum'
     units = 'V/rtHz'
@@ -2254,8 +2256,7 @@ class Vn(noiseExpr):
 
 
 class In(noiseExpr):
-
-    """f-domain noise current (units A/rtHz)."""
+    """Current noise amplitude spectral density (units A/rtHz)."""    
 
     quantity = 'Current noise spectrum'
     units = 'A/rtHz'
