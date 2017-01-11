@@ -189,7 +189,7 @@ and stores the result for each realisation separately.  For example,
    >>> a[2].V.n
    5
 
-Notice that the .n attribute returns the total noise found by adding each
+Notice that the `.n` attribute returns the total noise found by adding each
 noise component in quadrature since they have different nids and are thus
 independent.
 

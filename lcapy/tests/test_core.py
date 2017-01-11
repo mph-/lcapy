@@ -307,3 +307,9 @@ class LcapyTester(unittest.TestCase):
                           DiracDelta(t).laplace()).is_causal, True)
         self.assertEqual((Heaviside(t).laplace() *
                           cos(t).laplace()).is_causal, True)
+
+    def test_noise(self):
+        a = Vn(2)
+        self.assertEqual(a.nid, a.conjugate.nid, "Different nids for conjugate")
+        self.assertEqual(a.nid, a.real.nid, "Different nids for real")
+        self.assertEqual(a.nid, a.imag.nid, "Different nids for imag")                

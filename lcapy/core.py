@@ -671,13 +671,16 @@ class Expr(object):
     def conjugate(self):
         """Return complex conjugate."""
 
-        return self.__class__(sym.conjugate(self.expr))
+        return self.__class__(sym.conjugate(self.expr), **self.assumptions)
 
     @property
     def real(self):
         """Return real part."""
 
-        dst = self.__class__(sym.re(self.expr).simplify())
+        assumptions = self.assumptions.copy()
+        assumptions['real'] = True        
+
+        dst = self.__class__(sym.re(self.expr).simplify(), **assumptions)
         dst.part = 'real'
         return dst
 
@@ -685,7 +688,10 @@ class Expr(object):
     def imag(self):
         """Return imaginary part."""
 
-        dst = self.__class__(sym.im(self.expr).simplify())
+        assumptions = self.assumptions.copy()
+        assumptions['real'] = True
+        
+        dst = self.__class__(sym.im(self.expr).simplify(), **assumptions)
         dst.part = 'imaginary'
         return dst
 
@@ -2109,6 +2115,8 @@ class noiseExpr(omegaExpr):
     """Frequency domain (one-sided) noise spectrum expression (amplitude
     spectral density).
 
+    This characterises a zero-mean Gaussian noise process.
+
     When performing arithmetic on two noiseExpr expressions it is
     assumed that they are uncorrelated unless they have the same nid
     (noise indentifier).  If the nid is not specified, a new one is
@@ -2242,9 +2250,15 @@ class noiseExpr(omegaExpr):
    
 
 class Vn(noiseExpr):
-    """Voltage noise amplitude spectral density (units V/rtHz)."""
+    """Voltage noise amplitude spectral density (units V/rtHz).
+    This can be a function of angular frequency, omega.  For example,
+    to model an opamp voltage noise:
 
-    quantity = 'Voltage noise spectrum'
+    v = Vn(1e-8 / sqrt(omega) + 8e-9)
+    
+    """
+
+    quantity = 'Voltage noise spectral density'
     units = 'V/rtHz'
 
     def __init__(self, val, **assumptions):
@@ -2256,9 +2270,15 @@ class Vn(noiseExpr):
 
 
 class In(noiseExpr):
-    """Current noise amplitude spectral density (units A/rtHz)."""    
+    """Current noise amplitude spectral density (units A/rtHz).
 
-    quantity = 'Current noise spectrum'
+    This can be a function of angular frequency, omega.  For example,
+    to model an opamp current noise:
+
+    i = In(3e-12 / sqrt(omega) + 200e-15)
+    """
+
+    quantity = 'Current noise spectral density'
     units = 'A/rtHz'
 
     def __init__(self, val, **assumptions):
