@@ -30,14 +30,9 @@ a new Thevenin or Norton component was created.  This was efficient
 and worked well.  It was also more robust when converting zero
 impedances to admittances and vice-versa.  For example, 1 / (1 / 0)
 should give 0. However, it is tricky to handle superposition of
-multiple independent sources, say ac and dc.  So instead, the same
+multiple independent sources, say AC and DC.  So instead, the same
 circuit analysis is performed as for Circuit objects by converting the
 network to a netlist.
-
-The current approach needs more thought to deal with the ac/dc/laplace
-hackery.  A Component returns s-domain expressions for the `Voc` and
-`Isc` methods.  
-
 
 
 Values and Expressions
@@ -56,61 +51,41 @@ The constant must be real and positive.
 
 'sExpr' represents an s-domain expression.   This can be complex.
 
-'tsExpr' represents an s-domain expression but one that is first
-interpreted as a time domain expression.
+'omegaExpr' represents an angular frequency domain expression.  This
+can be complex.
+
+'fExpr' represents a frequency domain expression.  This can be
+complex.
+
+'noiseExpr' represents a noise expression (amplitude spectral
+density).  This is real.
+
+'Super' represents a superposition of different domains.
 
 
-Note SymPy considers that the two expressions x1 and x2 are different
-since they have different conditions, where
+Symbols
+-------
 
+Consider that the two expressions:
   x1 = sym.symbols('x')
   x2 = sym.symbols('x', real=True)
 
-Thus x1 - x2 does not simplify to zero.  To overcome this problem,
-Lcapy maintains a symbol cache and tries to replace symbols with their
-first definition.  The downside is that this may prevent
-simplification if the symbol is first defined without any conditions.
-
-
-C1 1 2 C v0
-
-Here C and v0 should both be real.
-
-V1 1 2 dc V
-
-Here V should be real since there is no phase at DC.
-
-V1 1 2 V
-
-Here V should be real since it should be interpreted as a time domain
-voltage.
-
-V1 1 2 s V
-
-Here V can be complex since it is an s-domain voltage.
-
-Things get tricky if we allow a complex s-domain symbol....
+SymPy regards x1 and x2 as being different since the symbol x is
+defined with different conditions.  Thus x1 - x2 does not simplify to
+zero.  To overcome this problem, Lcapy maintains a symbol cache and
+tries to replace symbols with their first definition.  The downside is
+that this may prevent simplification if the symbol is first defined
+without any conditions.
 
 Lcapy maintains a set of symbols for each circuit plus a set of
 additional symbols defined when creating other objects, such as V
 or C.  Symbol names are converted into a canonical format, V1 -> V_1.
 
 SymPy defines symbols Q, C, O, S, I, N, E.  It also consider E1 as the
-generalized exponential integral function. Thus sympify(5 * E1) fails.
+generalized exponential integral function.  Thus sympify(5 * E1) fails.
 
 Assumptions are useful for SymPy to simplify expressions.  For
 example, knowing that a symbol is real or real and positive.
-
-Perhaps symbols cannot be complex or negative?  Complex expressions
-could still be created, say Z = X + I * Y or Z = A * exp(phi).
-
-We still have symbols that we know are positive, say a resistance, and
-this helps with simplification.  However, initial conditions can be
-negative.
-
-C1 1 2 C v0
-
-Here C is real and positive but v0 is real and can be negative.
 
 
 Assumptions
@@ -174,11 +149,6 @@ equality?
 Rather than propagating assumptions, Lcapy assigns them to expressions
 after circuit analysis.
 
-Lcapy may need a Superposition class that acts as a container for
-different expressions, each with their own assumptions.  For example,
-a dc signal plus an ac signal.  Currently, when Vphasor (with ac=True)
-and Vs (with dc=True) are added we get a Vs but with no assumptions.
-
 
 Adding new components
 =====================
@@ -215,61 +185,6 @@ The steps of the algorithm are:
    positions of the known nodes the stretch per stretchy component can
    be calculated and thus the position of the node.  If the component
    has a dangling node the stretch is zero.
-
-
-Circuit analysis
-================
-
-Lcapy performs circuit analysis using modified nodal analysis (MNA) of
-the Laplace representations of signals and impedances.
-
-
-
-DC analysis
------------
-
-If all the independent sources are DC, Lcapy uses some sleight of
-hand.  First capacitors are replaced with open-circuits and inductors
-are replaced with short-circuits.  Laplace analysis is then performed
-but since there are no reactive components, there are no transients
-produced.  Thus all the voltages and currents have the form :math:`X /
-s`.  where :math:`X` is does not depend on :math:`s`.  Finally, when
-taking an inverse Laplace transform, the result is extrapolated for
-:math:`t < 0`.
-
-
-AC analysis
------------
-
-AC analysis uses phasors to represent voltages and currents and
-impedances to avoid differential equations.  Using Laplace analysis
-for AC analysis is tricky since we need to determine initial values
-since Laplace analysis assumes that the sources are zero for :math:`t
-< 0`.  Without the initial values, Laplace analysis can generate bogus
-transients.
-
-When Lcapy detects an AC circuit analysis problem, it uses phasors of
-angular frequency :math:`\omega_1`.  Note, :math:`\omega` is the
-angular frequency Lcapy uses for the Fourier domain.  Thus the `.V`
-and `.I` attributes return phasors for AC problems and s-domain
-signals for Laplace problems.
-
-
-General analysis
-----------------
-
-A circuit with a variety of independent sources, for example, ac and
-dc, the result can be determined using superposition of each source
-treated independently.  Currently, Lcapy does not do this
-automatically.  Instead, it is necessary to use the `kill_except`
-method to kill the other sources.
-
-General analysis is tricky with arbitrary switching sources since each
-change of amplitude, phase, or frequency generates a transient.
-Analysis is straightforward if all sources only switch once but if
-they switch multiple times we need to consider a number of dependent
-initial value problems.
-
 
 
 Expression manipulation

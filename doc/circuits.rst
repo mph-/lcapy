@@ -162,7 +162,7 @@ Whenever a circuit has a switch it is time variant.  The opening or
 closing of switch changes the circuit and can produce transients.
 While a switch violates the LTI requirements for linear circuit
 analysis, the circuit prior to the switch changing can be analysed and
-used to determine the initial conditions for the circuit after the
+Vnoiused to determine the initial conditions for the circuit after the
 switched changed.  Lcapy requires that you do this!  The independent
 sources are ignored for :math:`t < 0` and the result is only known for
 :math:`t \ge 0`.
@@ -171,9 +171,27 @@ sources are ignored for :math:`t < 0` and the result is only known for
 Noise analysis
 --------------
 
-Noise sources are assumed to be uncorrelated and so they are summed in
-quadrature (on a power basis).  Lcapy analyses the circuit for each
-source independently and then combines the results.
+Each noise source is assigned a noise indentifier (nid).  Noise
+expressions with different nids are assumed to be independent and thus
+represent different noise realisations.
+
+Lcapy analyses the circuit for each noise realisation independently
+and stores the result for each realisation separately.  For example,
+   >>> a = Circuit()
+   >>> a.add('Vn1 1 0 noise 3')
+   >>> a.add('Vn2 2 1 noise 4')
+   >>> a[2].V
+   {n1: 3, n2: 4}
+   >>> a[1].V
+   {n1: 3}
+   >>> a[2].V - a[1].V
+   {n1: 0, n2: 4}
+   >>> a[2].V.n
+   5
+
+Notice that the .n attribute returns the total noise found by adding each
+noise component in quadrature since they have different nids and are thus
+independent.
 
 Each resistor in a circuit can be converted into a series combination
 of an ideal resistor and a noise voltage source using the

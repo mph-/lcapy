@@ -7,14 +7,16 @@ nodal analysis.
 Alternatively, Lcapy can analyse networks and circuits formed by
 combining one, two, and (some) three port networks.
 
-From version 25.0, Lcapy performs more comprehensive circuit analysis
-using combinations of DC, AC, and Laplace analysis.  It can also
-perform noise analysis.  This added functionality has resulted in a
-slight change of syntax.  cct.R1.V no longer prints the s-domain
-expression but the expressions for each of the transform domains.
+From version 0.25.0, Lcapy performs more comprehensive circuit
+analysis using combinations of DC, AC, and Laplace analysis.  This
+added functionality has resulted in a slight change of syntax.
+cct.R1.V no longer prints the s-domain expression but the expressions
+for each of the transform domains.
 
-Version 25.1 adds time-time analysis for circuits without reactive
+Version 0.25.1 adds time-domain analysis for circuits without reactive
 components.
+
+Version 0.26.0 add noise analysis.
 
 More comprehensive documentation can be found at http://lcapy.elec.canterbury.ac.nz
 
