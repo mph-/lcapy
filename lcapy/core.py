@@ -878,13 +878,20 @@ class Expr(object):
                           'sqrt' : sqrt, 'exp' : exp},
                         "numpy", "sympy", "math"))
 
-        if np.isscalar(arg):
-            v1 = arg
-        else:
-            v1 = arg[0]
+        try:
+            arg = arg.evalf()
+        except:
+            pass
 
         try:
-            result = func(v1)
+            v1 = arg[0]
+            scalar = False
+        except:
+            v1 = arg
+            scalar = True
+
+        try:
+            result = func(np.float(v1))
             response = complex(result)
         except NameError:
             raise RuntimeError('Cannot evaluate expression %s' % self)
@@ -898,13 +905,13 @@ class Expr(object):
                 'Cannot evaluate expression %s,'
                 ' probably have a mysterious function' % self)
 
-        if np.isscalar(arg):
+        if scalar:
             if np.allclose(response.imag, 0.0):
                 response = response.real
             return response
 
         try:
-            response = np.array([complex(func(v1)) for v1 in arg])
+            response = np.array([complex(func(np.float(v1))) for v1 in arg])
         except TypeError:
             raise TypeError(
                 'Cannot evaluate expression %s,'
@@ -975,6 +982,7 @@ class Expr(object):
         if result == sym.Piecewise():
             result = sym.nan
 
+        # TODO: propagate assumptions?
         return cls(result)
 
     def __call__(self, arg):
@@ -1367,7 +1375,7 @@ class fExpr(sfwExpr):
         There are many plotting options, see matplotlib.pyplot.plot.
 
         For example:
-            V.plot(fvector, log_scale=True)
+            V.plot(fvector, log_frequency=True)
             V.real.plot(fvector, color='black')
             V.phase.plot(fvector, color='black', linestyle='--')
 
@@ -1405,7 +1413,6 @@ class omegaExpr(sfwExpr):
 
         return self(2 * pi * f).inverse_fourier()
 
-
     def time(self):
         """Alias for inverse_fourier."""
 
@@ -1417,7 +1424,7 @@ class omegaExpr(sfwExpr):
         There are many plotting options, see matplotlib.pyplot.plot.
 
         For example:
-            V.plot(fvector, log_scale=True)
+            V.plot(fvector, log_frequency=True)
             V.real.plot(fvector, color='black')
             V.phase.plot(fvector, color='black', linestyle='--')
 
@@ -2247,7 +2254,29 @@ class noiseExpr(omegaExpr):
         # Convert to two-sided spectrum
         S = self.subs(self.var, abs(self.var)) / sqrt(2)
         return S.inverse_fourier()
-   
+
+    def plot(self, fvector=None, **kwargs):
+        """Plot frequency response at values specified by fvector.
+
+        There are many plotting options, see matplotlib.pyplot.plot.
+
+        For example:
+            V.plot(fvector, log_frequency=True)
+            V.real.plot(fvector, color='black')
+            V.phase.plot(fvector, color='black', linestyle='--')
+
+        By default complex data is plotted as separate plots of magnitude (dB)
+        and phase.
+        """
+
+        from lcapy.plot import plot_frequency
+        # Hack so show as linear frequency. 
+        obj = self.subs(omega, 2 * pi * omega)
+        obj.domain_name = 'Frequency'
+        obj.domain_units = 'Hz'
+        if hasattr(self, 'part'):
+            obj.part = self.part
+        return plot_frequency(obj, fvector, **kwargs)    
 
 class Vn(noiseExpr):
     """Voltage noise amplitude spectral density (units V/rtHz).
