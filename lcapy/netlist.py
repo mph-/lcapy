@@ -664,7 +664,40 @@ class NetlistMixin(object):
             raise ValueError('Non-reactive component with initial conditions')
         return analysis
 
-    
+    def describe(self):
+        """Print a message describing how circuit is solved."""
+
+        def describe_sources(sources):
+            sources_string = ', '.join(sources)
+            if len(sources) == 1:
+                return 'source %s' % sources_string
+            return 'sources %s' % sources_string
+
+        def describe_analysis(method, sources):
+            return '%s analysis is used for %s.' % (method,
+                                                    describe_sources(sources))
+        
+        groups = self.independent_source_groups(transform=True)
+        
+        if self.is_time_domain:
+            print('This is solved in the time domain.')
+        elif self.is_ivp:
+            print('This has initial conditions so is an initial value problem '
+                  'solved in the s-domain using Laplace transforms.')
+        else:
+            if len(groups) > 1:
+                print('This is solved using superposition.')
+            for kind, sources in groups.items():
+                if not isinstance(kind, str):
+                    print(describe_analysis('Phasor', sources))
+                elif kind[0] == 'n':
+                    print(describe_analysis('Noise', sources))
+                elif kind == 'dc':
+                    print(describe_analysis('DC', sources))
+                elif kind == 's':
+                    print(describe_analysis('Laplace', sources))
+                    
+                
 class Transformdomains(dict):
 
     def __getattr__(self, attr):
