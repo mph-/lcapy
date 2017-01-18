@@ -676,12 +676,13 @@ class NetlistMixin(object):
         def describe_analysis(method, sources):
             return '%s analysis is used for %s.' % (method,
                                                     describe_sources(sources))
-        
-        groups = self.independent_source_groups(transform=True)
-        
+
         if self.is_time_domain:
-            print('This is solved in the time domain.')
-        elif self.is_ivp:
+            groups = self.independent_source_groups()
+        else:
+            groups = self.independent_source_groups(transform=True)
+        
+        if self.is_ivp:
             print('This has initial conditions so is an initial value problem '
                   'solved in the s-domain using Laplace transforms.')
         else:
@@ -696,6 +697,8 @@ class NetlistMixin(object):
                     print(describe_analysis('DC', sources))
                 elif kind == 's':
                     print(describe_analysis('Laplace', sources))
+                elif kind == 'time':
+                    print(describe_analysis('Time-domain', sources))
                     
                 
 class Transformdomains(dict):
