@@ -867,7 +867,10 @@ class Expr(object):
 
             if arg < 0:
                 return 1j * np.sqrt(-arg)
-            return np.sqrt(arg)
+            try:
+                return np.sqrt(arg)
+            except AttributeError:
+                return np.sqrt(float(arg))
 
         # For negative arguments, np.sqrt will return Nan.
         # np.lib.scimath.sqrt converts to complex but cannot be used
@@ -876,7 +879,7 @@ class Expr(object):
                         ({'DiracDelta' : dirac,
                           'Heaviside' : heaviside,
                           'sqrt' : sqrt, 'exp' : exp},
-                        "numpy", "sympy", "math"))
+                         "numpy", "sympy", "math"))
 
         try:
             arg = arg.evalf()
