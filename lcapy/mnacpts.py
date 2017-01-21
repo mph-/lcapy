@@ -2,18 +2,28 @@
 This module defines the components for modified nodal analysis.  The components
 are defined at the bottom of this file.
 
-Copyright 2015, 2016 Michael Hayes, UCECE
+Copyright 2015-2017 Michael Hayes, UCECE
 
 """
 
 from __future__ import print_function
 from lcapy.core import cExpr, s, sqrt, uppercase_name
+from lcapy.grammar import delimiters
 from copy import copy
 import lcapy
 import inspect
 import sys
 
 module = sys.modules[__name__]
+
+
+def arg_format(value):
+    """Place value string inside curly braces if it contains a delimiter."""
+    string = str(value)
+    for delimiter in delimiters:
+        if delimiter in string:
+            return '{' + string + '}'
+    return string
 
 
 class Cpt(object):
@@ -316,10 +326,10 @@ class RLC(Cpt):
     def s_model(self, var):
 
         if self.Voc == 0:        
-            return 'Z%s %s %s {%s};%s' % (self.name, 
-                                          self.nodes[0], self.nodes[1],
-                                          self.cpt.Z(var), 
-                                          self.opts)
+            return 'Z%s %s %s %s; %s' % (self.name, 
+                                        self.nodes[0], self.nodes[1],
+                                        arg_format(self.cpt.Z(var)), 
+                                        self.opts)
 
         dummy_node = self.dummy_node()
 
@@ -329,17 +339,18 @@ class RLC(Cpt):
         # in parallel with Z and V.
         voltage_opts = opts.strip_voltage_labels()
 
-        znet = 'Z%s %s %s {%s};%s' % (self.name, 
-                                      self.nodes[0], dummy_node,
-                                      self.cpt.Z(var), 
-                                      opts)
+        znet = 'Z%s %s %s %s; %s' % (self.name, 
+                                    self.nodes[0], dummy_node,
+                                    arg_format(self.cpt.Z(var)), 
+                                    opts)
 
         # Strip voltage and current labels from voltage source.
         opts.strip_all_labels()
 
-        vnet = 'V%s %s %s s {%s}; %s' % (self.name, 
-                                         dummy_node, self.nodes[1],
-                                         self.Voc.laplace()(var), opts)
+        vnet = 'V%s %s %s s %s; %s' % (self.name, 
+                                       dummy_node, self.nodes[1],
+                                       arg_format(self.Voc.laplace()(var)),
+                                       opts)
 
         if voltage_opts == {}:
             return znet + '\n' + vnet
@@ -368,14 +379,14 @@ class RC(RLC):
 
         opts = self.opts.copy()
 
-        rnet = '%s %s %s {%s};%s' % (self.name, 
-                                     self.nodes[0], dummy_node,
-                                     self.args[0],
-                                     opts)
+        rnet = '%s %s %s %s; %s' % (self.name, 
+                                    self.nodes[0], dummy_node,
+                                    arg_format(self.args[0]),
+                                    opts)
         
         Vn = 'sqrt(4 * k * T * %s)' % self.args[0]
-        vnet = 'Vn%s %s %s noise {%s};%s' % (
-            self.name, dummy_node, self.nodes[1], Vn, opts)
+        vnet = 'Vn%s %s %s noise %s; %s' % (
+            self.name, dummy_node, self.nodes[1], arg_format(Vn), opts)
         return rnet + '\n' + vnet
     
     def stamp(self, cct):
@@ -409,16 +420,17 @@ class C(RC):
     
     def kill_initial(self):
         """Kill implicit sources due to initial conditions."""
-        return '%s %s %s {%s}; %s' % (
-            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
+        return '%s %s %s %s; %s' % (
+            self.name, self.nodes[0], self.nodes[1], arg_format(self.args[0]),
+            self.opts)
 
     def pre_initial_model(self):
 
         if self.cpt.v0 == 0.0:
             return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
-        return 'V%s %s %s {%s}; %s' % (self.name,
+        return 'V%s %s %s %s; %s' % (self.name,
                                      self.nodes[0], self.nodes[1], 
-                                     self.cpt.v0, self.opts)       
+                                     arg_format(self.cpt.v0), self.opts)       
 
 
 class E(Dummy):
@@ -511,7 +523,7 @@ class I(Cpt):
 
     def zero(self):
         """Zero value of the current source,  This makes it open-circuit."""
-        return '%s %s %s {%s}; %s' % (
+        return '%s %s %s %s; %s' % (
             self.name, self.nodes[0], self.nodes[1], 0, self.opts)
 
     def select(self, kind=None):
@@ -541,9 +553,10 @@ class I(Cpt):
 
     def s_model(self, var):
 
-        return '%s %s %s s {%s}; %s' % (self.name, 
-                                        self.nodes[0], self.nodes[1],
-                                        self.Isc.laplace()(var), self.opts)
+        return '%s %s %s s %s; %s' % (self.name, 
+                                      self.nodes[0], self.nodes[1],
+                                      arg_format(self.Isc.laplace()(var)),
+                                      self.opts)
 
     def pre_initial_model(self):
 
@@ -589,8 +602,9 @@ class L(RLC):
 
     def kill_initial(self):
         """Kill implicit sources due to initial conditions."""
-        return '%s %s %s {%s}; %s' % (
-            self.name, self.nodes[0], self.nodes[1], self.args[0], self.opts)
+        return '%s %s %s %s; %s' % (
+            self.name, self.nodes[0], self.nodes[1], arg_format(self.args[0]),
+            self.opts)
 
     def stamp(self, cct):
 
@@ -622,9 +636,9 @@ class L(RLC):
         if self.cpt.i0 == 0.0:
             return 'W %s %s; %s' % (self.nodes[0], self.nodes[1],
                                     self.opts)
-        return 'I%s %s %s {%s}; %s' % (self.name,
+        return 'I%s %s %s %s; %s' % (self.name,
                                      self.nodes[0], self.nodes[1], 
-                                     self.cpt.i0, self.opts)       
+                                     arg_format(self.cpt.i0), self.opts)       
 
 class O(Dummy):
     """Open circuit"""
@@ -814,7 +828,7 @@ class V(Cpt):
         voltage source in the netlist.  This is required for dummy
         voltage sources that are required to specify the controlling
         current for CCVS and CCCS components."""
-        return '%s %s %s {%s}; %s' % (
+        return '%s %s %s %s; %s' % (
             self.name, self.nodes[0], self.nodes[1], 0, self.opts)
     
     def select(self, kind=None):
@@ -848,9 +862,10 @@ class V(Cpt):
 
     def s_model(self, var):
 
-        return '%s %s %s s {%s}; %s' % (self.name, 
-                                        self.nodes[0], self.nodes[1],
-                                        self.cpt.Voc.laplace()(var), self.opts)
+        return '%s %s %s s %s; %s' % (self.name, 
+                                      self.nodes[0], self.nodes[1],
+                                      arg_format(self.cpt.Voc.laplace()(var)),
+                                      self.opts)
 
     def pre_initial_model(self):
 
