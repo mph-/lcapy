@@ -65,7 +65,7 @@ class Cpt(object):
         return self.name.replace('.', '@')
 
     def __init__(self, sch, name, cpt_type, cpt_id, string,
-                 opts_string, node_names, *args):
+                 opts_string, node_names, keyword, *args):
 
         self.sch = sch
         self.type = cpt_type
@@ -917,12 +917,12 @@ class K(TF1):
     """Mutual coupling"""
 
     def __init__(self, sch, name, cpt_type, cpt_id, string,
-                 opts_string, node_names, *args):
+                 opts_string, node_names, keyword, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
         super (K, self).__init__(sch, name, cpt_type, cpt_id, string,
-                                 opts_string, node_names, *args[2:])
+                                 opts_string, node_names, keyword, *args[2:])
 
     @property
     def nodes(self):
@@ -1596,7 +1596,7 @@ class Uinverter(Chip):
 class Wire(OnePort):
 
     def __init__(self, sch, name, cpt_type, cpt_id, string,
-                 opts_string, node_names, *args):
+                 opts_string, node_names, keyword, *args):
 
         implicit = False
         for key in self.implicit_keys:
@@ -1611,7 +1611,7 @@ class Wire(OnePort):
             node_names = (node_names[0], name + '@_' + node_names[1])
         
         super (Wire, self).__init__(sch, name, cpt_type, cpt_id, string,
-                                    opts_string, node_names, *args)
+                                    opts_string, node_names, keyword, *args)
         self.implicit = implicit
 
     @property

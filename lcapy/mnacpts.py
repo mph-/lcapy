@@ -34,7 +34,7 @@ class Cpt(object):
     need_control_current = False
 
     def __init__(self, cct, name, cpt_type, cpt_id, string,
-                 opts_string, nodes, *args):
+                 opts_string, nodes, keyword, *args):
 
         self.cct = cct
         self.type = cpt_type
@@ -47,7 +47,9 @@ class Cpt(object):
         self.opts_string = opts_string
         self.nodes = nodes
         self.args = args
+        self.explicit_args = args        
         self.classname = self.__class__.__name__
+        self.keyword = keyword
         self.opts = {}
 
         if self.type in ('W', 'O', 'P'):
@@ -98,6 +100,27 @@ class Cpt(object):
         """Kill component."""
 
         raise ValueError('component not a source: %s' % self)
+
+    def rename_nodes(self, node_map):
+        """Rename the nodes using dictionary node_map."""
+
+        
+        string = self.type + self.id
+        field = 0
+        
+        for node in self.nodes:
+            string += ' ' + node_map[node]
+            field += 1
+            if field == self.keyword[0]:
+                string += ' ' + self.keyword[1]
+                field += 1                
+        for arg in self.explicit_args:
+            string += ' ' + arg_format(arg)
+            field += 1
+            if field == self.keyword[0]:
+                string += self.keyword[1]            
+        string += '; %s' % self.opts
+        return string
 
     def select(self, kind=None):
         """Select domain kind for component."""
@@ -567,12 +590,12 @@ class I(Cpt):
 class K(Cpt):
     
     def __init__(self, cct, name, cpt_type, cpt_id, string,
-                 opts_string, nodes, *args):
+                 opts_string, nodes, keyword, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
         super (K, self).__init__(cct, name, cpt_type, cpt_id, string,
-                                 opts_string, nodes, *args)
+                                 opts_string, nodes, keyword, *args)
 
 
     def stamp(self, cct):

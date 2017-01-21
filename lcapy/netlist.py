@@ -178,6 +178,27 @@ class NetlistMixin(object):
         # TODO, remove nodes that are only connected
         # to this component.
 
+    def renumber(self):
+        """Renumber nodes."""
+
+        new = self._new()
+        new.opts = copy(self.opts)
+
+        node_map = {}
+        
+        count = 1
+        for key, node in self.nodes.items():
+            if node.name == '0':
+                node_map[key] = '0'
+            else:
+                node_map[key] = '%d' % count
+                count += 1
+
+        for cpt in self._elements.values():
+            new._add(cpt.rename_nodes(node_map))
+        return new                
+
+        
     def Voc(self, Np, Nm):
         """Return open-circuit transform-domain voltage between nodes Np and
         Nm."""

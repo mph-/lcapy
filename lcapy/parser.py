@@ -202,12 +202,14 @@ class Parser(object):
         # keyword is not present, default to first rule pattern.
         # Perhaps a factory should sort this out?
         rule = self.ruledir[cpt_type][0]
+        keyword = ''
         for rule1 in self.ruledir[cpt_type]:
             pos = rule1.pos
             if pos is None:
                 continue
             if len(fields) > pos and fields[pos].lower() == rule1.params[pos]:
                 rule = rule1
+                keyword = rule1.params[pos]
                 break
 
         name = namespace + cpt_type + cpt_id
@@ -220,6 +222,8 @@ class Parser(object):
         fields = string.split(';')
         opts_string = fields[1].strip() if len(fields) > 1 else '' 
 
+        keyword = (pos, keyword)
+            
         return self.cpts.make(rule.classname, parent, name,
                               cpt_type, cpt_id, string, opts_string,
-                              tuple(nodes), *args)
+                              tuple(nodes), keyword, *args)
