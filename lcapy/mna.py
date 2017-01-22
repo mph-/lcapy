@@ -61,14 +61,12 @@ class MNA(object):
                 delattr(self, attr)
 
     @property
-    def lnodes(self):
-        """Determine linked nodes"""
+    def equipotential_nodes(self):
+        """Determine nodes connected by wires that are of the same potential."""
 
-        from copy import deepcopy
-
-        lnodes = {}
+        enodes = {}
         for key in self.nodes.keys():
-            lnodes[key] = [key]
+            enodes[key] = [key]
 
         # Then augment with nodes connected by wires.
         for m, elt in enumerate(self.elements.values()):
@@ -77,24 +75,18 @@ class MNA(object):
 
             n1, n2 = elt.nodes
 
-            for key1, nodes in lnodes.items():
+            for key1, nodes in enodes.items():
                 if n1 in nodes:
                     break
 
-            for key2, nodes in lnodes.items():
+            for key2, nodes in enodes.items():
                 if n2 in nodes:
                     break
 
             if key1 != key2:
-                lnodes[key1].extend(lnodes.pop(key2))
+                enodes[key1].extend(enodes.pop(key2))
 
-        # Remove nodes that are not linked.
-        pnodes = []
-        for nodes in lnodes.values():
-            if len(nodes) > 1:
-                pnodes.append(nodes)
-
-        return pnodes
+        return enodes
 
     @property
     def node_map(self):
@@ -103,13 +95,19 @@ class MNA(object):
         if hasattr(self, '_node_map'):
             return self._node_map
 
-        lnodes = self.lnodes
+        enodes = self.equipotential_nodes
+
+        # Remove nodes that are not linked.
+        pnodes = []
+        for nodes in enodes.values():
+            if len(nodes) > 1:
+                pnodes.append(nodes)
 
         node_map = {}
         for node in self.nodes:
 
             node_map[node] = node
-            for nodes in lnodes:
+            for nodes in pnodes:
                 if node in nodes:
                     # Use first of the linked nodes unless '0' in list
                     if '0' in nodes:
@@ -272,8 +270,8 @@ class MNA(object):
         # evaluated as required.
         for elt in self.elements.values():
             if elt.type in ('R', 'C'):
-                n1, n2 = self.node_map[
-                    elt.nodes[0]], self.node_map[elt.nodes[1]]
+                n1 = self.node_map[elt.nodes[0]]
+                n2 = self.node_map[elt.nodes[1]]                
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
                 I = (V1.expr - V2.expr) / elt.Z.expr
                 self._Idict[elt.name] = itype(I, **assumptions).simplify()
