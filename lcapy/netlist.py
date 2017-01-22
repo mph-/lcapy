@@ -245,12 +245,7 @@ class NetlistMixin(object):
         self._node_map = node_map
         return node_map
 
-    def renumber(self):
-        """Renumber nodes."""
-
-        new = self._new()
-        new.opts = copy(self.opts)
-
+    def create_node_map(self):
         # It would be desirable to renumber the nodes say from left to
         # right and top to bottom.  The schematic drawing algorithms
         # could help with this since they figure out the node
@@ -258,7 +253,7 @@ class NetlistMixin(object):
 
         enodes = self.equipotential_nodes
         node_map = {}
-
+        
         count = 1        
         for key, nodes in enodes.items():
             snodes = sorted(nodes)
@@ -270,6 +265,17 @@ class NetlistMixin(object):
             node_map[snodes[0]] = root
             for m, enode in enumerate(snodes[1:]):
                 node_map[enode] = root + '_%d' % (m + 1)
+        return node_map
+    
+    def renumber(self, node_map=None):
+        """Renumber nodes using specified node_map.  If node_map not specified
+        then a mapping is created."""
+
+        if node_map is None:
+            node_map = self.create_node_map()
+
+        new = self._new()
+        new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
             new._add(cpt.rename_nodes(node_map))
