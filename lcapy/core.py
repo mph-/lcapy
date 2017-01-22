@@ -2253,6 +2253,11 @@ class noiseExpr(omegaExpr):
               ', assumed zero: use rms()')
         return 0
 
+    def laplace(self):
+        print('Warning: no Laplace representation for noise expression'
+              ', assumed zero')
+        return 0    
+
     def autocorrelation(self):
         # Convert to two-sided spectrum
         S = self.subs(self.var, abs(self.var)) / sqrt(2)
