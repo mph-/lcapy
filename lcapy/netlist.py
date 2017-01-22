@@ -260,14 +260,20 @@ class NetlistMixin(object):
         # could help with this since they figure out the node
         # placement.  Similarly, nodes with the same potential could
         # use different suffixes.
-        
-        count = 1
-        for key, node in self.nodes.items():
-            if node.name == '0':
-                node_map[key] = '0'
+
+        enodes = self.equipotential_nodes
+
+        count = 1        
+        for key, nodes in enodes.items():
+            snodes = sorted(nodes)
+            if snodes[0] == '0':
+                root = '0'
             else:
-                node_map[key] = '%d' % count
+                root = '%d' % count            
                 count += 1
+            node_map[snodes[0]] = root
+            for m, enode in enumerate(snodes[1:]):
+                node_map[enode] = root + '_%d' % (m + 1)
 
         for cpt in self._elements.values():
             new._add(cpt.rename_nodes(node_map))
