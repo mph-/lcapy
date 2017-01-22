@@ -209,15 +209,13 @@ class NetlistMixin(object):
         # Alter keys to avoid underscore and to ensure that have a '0'
         # key if possible.
         for key, nodes in enodes.items():
+            nodes = sorted(nodes)
             if '0' in nodes:
-                enodes['0'] = enodes.pop(key)
-                continue
-            if '_' not in key:
-                continue
-            for node in nodes:
-                if '_' not in node:
-                    enodes[node] = enodes.pop(key)
-                    break
+                newkey = '0'
+            else:
+                newkey = nodes[0]
+            enodes.pop(key)
+            enodes[newkey] = nodes
                 
         return enodes
 
