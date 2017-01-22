@@ -206,6 +206,15 @@ class NetlistMixin(object):
             if key1 != key2:
                 enodes[key1].extend(enodes.pop(key2))
 
+        # Alter keys to avoid underscore is possible.
+        for key, nodes in enodes.items():
+            if '_' not in key:
+                continue
+            for node in nodes:
+                if '_' not in node:
+                    enodes[node] = enodes.pop(key)
+                    break
+                
         return enodes
 
     @property
