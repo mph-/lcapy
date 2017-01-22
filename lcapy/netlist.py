@@ -229,25 +229,12 @@ class NetlistMixin(object):
 
         enodes = self.equipotential_nodes
 
-        # Remove nodes that are not linked.
-        pnodes = []
-        for nodes in enodes.values():
-            if len(nodes) > 1:
-                pnodes.append(nodes)
-
-        node_map = {}
-        for node in self.nodes:
-
-            node_map[node] = node
-            for nodes in pnodes:
-                if node in nodes:
-                    # Use first of the linked nodes unless '0' in list
-                    if '0' in nodes:
-                        node_map[node] = '0'
-                    else:
-                        # Sort nodes so 8 before 8_1 etc.
-                        node_map[node] = sorted(nodes)[0]
-                    break
+        # Create inverted dictionary that maps the node names
+        # to the equipotential node names.
+        node_map = {}        
+        for key, nodes in enodes.items():
+            for node in nodes:
+                node_map[node] = key
 
         if '0' not in node_map:
             # Perhaps could hack a connection to an arbitrary node?
@@ -264,15 +251,13 @@ class NetlistMixin(object):
         new = self._new()
         new.opts = copy(self.opts)
 
-        node_map = {}
-
         # It would be desirable to renumber the nodes say from left to
         # right and top to bottom.  The schematic drawing algorithms
         # could help with this since they figure out the node
-        # placement.  Similarly, nodes with the same potential could
-        # use different suffixes.
+        # placement. 
 
         enodes = self.equipotential_nodes
+        node_map = {}
 
         count = 1        
         for key, nodes in enodes.items():
