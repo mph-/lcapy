@@ -68,7 +68,9 @@ class MNA(object):
             return self._node_list
 
         # Extract unique nodes.
-        node_list = list(set(self.node_map.values()))
+        node_list = self.equipotential_nodes.keys()
+        if '0' not in node_list:
+            print(self.equipotential_nodes)
         # Ensure node '0' is first in the list.
         node_list.insert(0, node_list.pop(node_list.index('0')))
 
