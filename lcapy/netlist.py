@@ -178,6 +178,75 @@ class NetlistMixin(object):
         # TODO, remove nodes that are only connected
         # to this component.
 
+    @property
+    def equipotential_nodes(self):
+        """Determine nodes connected by wires that are of the same potential.
+        This returns a dictionary keyed by the unique node names with
+        values being lists of nodes of the same potential."""
+
+        enodes = {}
+        for key in self.nodes.keys():
+            enodes[key] = [key]
+
+        # Then augment with nodes connected by wires.
+        for m, elt in enumerate(self.elements.values()):
+            if elt.type not in ('W', ):
+                continue
+
+            n1, n2 = elt.nodes
+
+            for key1, nodes in enodes.items():
+                if n1 in nodes:
+                    break
+
+            for key2, nodes in enodes.items():
+                if n2 in nodes:
+                    break
+
+            if key1 != key2:
+                enodes[key1].extend(enodes.pop(key2))
+
+        return enodes
+
+    @property
+    def node_map(self):
+        """Create dictionary mapping node names to the unique
+        equipotential node names."""
+
+        if hasattr(self, '_node_map'):
+            return self._node_map
+
+        enodes = self.equipotential_nodes
+
+        # Remove nodes that are not linked.
+        pnodes = []
+        for nodes in enodes.values():
+            if len(nodes) > 1:
+                pnodes.append(nodes)
+
+        node_map = {}
+        for node in self.nodes:
+
+            node_map[node] = node
+            for nodes in pnodes:
+                if node in nodes:
+                    # Use first of the linked nodes unless '0' in list
+                    if '0' in nodes:
+                        node_map[node] = '0'
+                    else:
+                        # Sort nodes so 8 before 8_1 etc.
+                        node_map[node] = sorted(nodes)[0]
+                    break
+
+        if '0' not in node_map:
+            # Perhaps could hack a connection to an arbitrary node?
+            # But then would need to make a copy of the circuit
+            # in case the user modified it.
+            raise RuntimeError('Nothing connected to ground node 0')
+
+        self._node_map = node_map
+        return node_map
+
     def renumber(self):
         """Renumber nodes."""
 
@@ -185,6 +254,12 @@ class NetlistMixin(object):
         new.opts = copy(self.opts)
 
         node_map = {}
+
+        # It would be desirable to renumber the nodes say from left to
+        # right and top to bottom.  The schematic drawing algorithms
+        # could help with this since they figure out the node
+        # placement.  Similarly, nodes with the same potential could
+        # use different suffixes.
         
         count = 1
         for key, node in self.nodes.items():
@@ -755,7 +830,8 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     def _invalidate(self):
 
-        for attr in ('_sch', '_sub', '_Vdict', '_Idict', '_analysis'):
+        for attr in ('_sch', '_sub', '_Vdict', '_Idict', '_analysis',
+                     '_node_map'):
             try:
                 delattr(self, attr)
             except:
