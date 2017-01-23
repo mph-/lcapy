@@ -791,6 +791,9 @@ class Schematic(NetfileMixin):
         if cpt.type in ('O', 'P', 'W') or id_label.find('#') != -1:
             id_label = None
 
+        if cpt.type in ('S', 'U'):
+            value_label = ''
+            
         if cpt.args != ():
 
             # TODO, extend for mechanical and acoustical components.
@@ -825,7 +828,6 @@ class Schematic(NetfileMixin):
 
         cpt.id_label = '' if id_label is None else format_label(id_label)
         cpt.value_label = cpt.id_label if value_label is None else format_label(value_label)
-        cpt.default_label = cpt.id_label if cpt.value_label == '' else cpt.value_label
 
         if cpt.opts_string != '':
             self.hints = True

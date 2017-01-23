@@ -191,7 +191,7 @@ class Cpt(object):
         elif self.up:
             angle = 90
         else:
-            angle = -90 if self.type in ('O', 'P') else 0
+            angle = -90 if self.type in ('P', ) else 0
         
         if 'rotate' in self.opts:
             angle += float(self.opts['rotate'])
@@ -464,15 +464,21 @@ class Cpt(object):
     def label(self, **kwargs):
 
         label_values = kwargs.get('label_values', True)
-        label_str = self.default_label if label_values else ''
+        label_ids = kwargs.get('label_ids', True)        
+
+        label_str = ''
+        if label_ids:
+            label_str = self.id_label
+        if label_values and self.value_label != '':
+            label_str = self.value_label        
 
         # Override label if specified.  There are no placement options.
-        str =  ','.join([format_label(val)
-                         for key, val in self.opts.items()
-                         if key in ('l', )])
+        string =  ','.join([format_label(val)
+                            for key, val in self.opts.items()
+                            if key in ('l', )])
 
-        if str != '':
-            label_str = str
+        if string != '':
+            label_str = string
         return label_str
 
     def label_make(self, label_pos='', **kwargs):
