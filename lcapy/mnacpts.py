@@ -28,7 +28,8 @@ def arg_format(value):
 
 class Cpt(object):
 
-    source = False
+    dependent_source = False
+    independent_source = False    
     reactive = False
     need_branch_current = False
     need_control_current = False
@@ -460,6 +461,7 @@ class E(Dummy):
     """VCVS"""
 
     need_branch_current = True
+    dependent_source = True        
 
     def stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
@@ -484,6 +486,7 @@ class F(Dummy):
     """CCCS"""
 
     need_control_current = True
+    dependent_source = True    
     
     def stamp(self, cct):
         n1, n2 = self.node_indexes
@@ -504,6 +507,8 @@ class FB(Misc):
 class G(Dummy):
     """VCCS"""
 
+    dependent_source = True    
+
     def stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
         G = cExpr(self.args[0]).expr
@@ -522,7 +527,8 @@ class H(Dummy):
     """CCVS"""
 
     need_branch_current = True
-    need_control_current = True    
+    need_control_current = True
+    dependent_source = True        
 
     def stamp(self, cct):
         n1, n2 = self.node_indexes
@@ -542,7 +548,7 @@ class H(Dummy):
 
 class I(Cpt):
 
-    source = True
+    independent_source = True
 
     def zero(self):
         """Zero value of the current source,  This makes it open-circuit."""
@@ -843,7 +849,7 @@ class TR(Dummy):
 
 class V(Cpt):
 
-    source = True
+    independent_source = True    
     need_branch_current = True
 
     def zero(self):

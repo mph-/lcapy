@@ -428,7 +428,7 @@ class NetlistMixin(object):
         for cpt in self._elements.values():
             if cpt.name in sourcenames:
                 net = cpt.select(kind)
-            elif cpt.source:
+            elif cpt.independent_source:
                 net = cpt.zero()
             elif kind != 'ivp':
                 net = cpt.kill_initial()
@@ -463,7 +463,7 @@ class NetlistMixin(object):
         """
 
         for arg in args:
-            if arg not in self.independent_sources and arg != 'ICs':
+            if arg not in self.sources and arg != 'ICs':
                 raise ValueError('Element %s is not a known source' % arg)
         sources = []
         for source in self.independent_sources:
@@ -490,7 +490,7 @@ class NetlistMixin(object):
         for arg in args:
             if arg == 'ICs':
                 sources.append(arg)
-            elif arg in self.independent_sources:
+            elif arg in self.sources:
                 sources.append(arg)
             else:
                 raise ValueError('Element %s is not a known source' % arg)
@@ -537,7 +537,6 @@ class NetlistMixin(object):
             resistors.append(arg)
 
         return self._noisy(resistors)
-    
 
     def twoport(self, N1p, N1m, N2p, N2m):
         """Create twoport model from network, where:
@@ -666,11 +665,24 @@ class NetlistMixin(object):
         return dict((key, cpt) for key, cpt in self.elements.items() if cpt.hasic is False)
 
     @property
+    def sources(self):
+        """Return dictionary of all sources (this does not include
+        implicit sources due to initial conditions)."""
+
+        return self.dependent_sources + self.independent_sources
+    
+    @property
     def independent_sources(self):
         """Return dictionary of independent sources (this does not include
         implicit sources due to initial conditions)."""
 
-        return self.analysis['independent_sources']        
+        return self.analysis['independent_sources']
+
+    @property
+    def dependent_sources(self):
+        """Return dictionary of dependent sources."""
+
+        return self.analysis['dependent_sources']            
 
     def independent_source_groups(self, transform=False):
         """Return dictionary of source groups.  Each group is a list of
@@ -684,7 +696,7 @@ class NetlistMixin(object):
         
         groups = {}
         for key, elt in self.elements.items():
-            if not elt.source:
+            if not elt.independent_source:
                 continue
             cpt = elt.cpt
             if cpt.voltage_source:
@@ -728,6 +740,7 @@ class NetlistMixin(object):
         causal = True
         reactive = False
         independent_sources = []
+        dependent_sources = []        
         control_sources = []
         for key, elt in self.elements.items():
             if elt.need_control_current:
@@ -737,7 +750,7 @@ class NetlistMixin(object):
                     hasic = True
                 if not elt.zeroic:
                     zeroic = False
-            if elt.source and (sources is None or key in sources):
+            if elt.independent_source and (sources is None or key in sources):
                 independent_sources.append(key)
                 if elt.has_s:
                     has_s = True
@@ -747,6 +760,8 @@ class NetlistMixin(object):
                     dc_count += 1
                 if not elt.is_causal:
                     causal = False
+            if elt.dependent_source:
+                dependent_sources.append(key)
             if elt.reactive:
                 reactive = True
 
@@ -757,6 +772,7 @@ class NetlistMixin(object):
         analysis['hasic'] = hasic
         analysis['ivp'] = hasic
         analysis['has_s'] = has_s
+        analysis['dependent_sources'] = dependent_sources        
         analysis['independent_sources'] = independent_sources
         analysis['control_sources'] = control_sources        
         analysis['ac'] = ac_count > 0 and (num_sources == ac_count) and not hasic
