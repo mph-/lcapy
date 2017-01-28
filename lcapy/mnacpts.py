@@ -262,11 +262,21 @@ class Cpt(object):
         return self.cpt.Voc.select(self.cct.kind)
 
     @property
+    def Ys(self):
+        """Admittance (s-domain)"""
+        return self.cpt.Y
+
+    @property
+    def Zs(self):
+        """Impedance (s-domain)"""
+        return self.cpt.Z
+    
+    @property
     def Y(self):
         """Admittance"""
 
         kind = self.cct.kind
-        Y1 = self.cpt.Y
+        Y1 = self.Ys
         if kind in ('s', 'ivp', 'super'):
             return Y1
         elif kind in ('dc', 'time'):
@@ -280,7 +290,7 @@ class Cpt(object):
         """Impedance"""
 
         kind = self.cct.kind
-        Z1 = self.cpt.Z
+        Z1 = self.Zs
         if kind in ('s', 'ivp', 'super'):
             return Z1
         elif kind in ('dc', 'time'):
@@ -352,7 +362,7 @@ class RLC(Cpt):
         if self.Voc == 0:        
             return 'Z%s %s %s %s; %s' % (self.name, 
                                          self.nodes[0], self.nodes[1],
-                                         arg_format(self.cpt.Z(var)), 
+                                         arg_format(self.Zs(var)), 
                                          self.opts)
 
         dummy_node = self.dummy_node()
@@ -365,7 +375,7 @@ class RLC(Cpt):
 
         znet = 'Z%s %s %s %s; %s' % (self.name, 
                                     self.nodes[0], dummy_node,
-                                    arg_format(self.cpt.Z(var)), 
+                                    arg_format(self.Zs(var)), 
                                     opts)
 
         # Strip voltage and current labels from voltage source.
@@ -606,16 +616,20 @@ class K(Cpt):
 
     def stamp(self, cct):
 
-        if cct.kind != 's':
-            raise ValueError('TODO')
+        if cct.kind == 'dc':
+            return
+        
+        if cct.kind in ('t', 'time'):
+            raise RuntimeError('Should not be evaluating mutual inductance in'
+                               ' time domain')
 
         L1 = self.nodes[0]
         L2 = self.nodes[1]
 
-        ZL1 = cct.elements[L1].cpt.Z
-        ZL2 = cct.elements[L2].cpt.Z
+        ZL1 = cct.elements[L1].Z
+        ZL2 = cct.elements[L2].Z
 
-        ZM = self.cpt.k * s * sqrt(ZL1 * ZL2 / s**2).simplify()
+        ZM = self.cpt.k * sqrt(ZL1 * ZL2).simplify()
 
         m1 = cct._branch_index(L1)
         m2 = cct._branch_index(L2)

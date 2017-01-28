@@ -94,6 +94,7 @@ class OnePort(Network):
 
     @property
     def Voc(self):
+        """Open-circuit voltage."""        
         if self._Voc is not None:
             return self._Voc
         if self._Isc is not None:
@@ -103,13 +104,25 @@ class OnePort(Network):
         if self._Y is not None:        
             return Isuper(0)
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)        
-
     @property
     def Isc(self):
+        """Short-circuit current."""        
         if self._Isc is not None:
             return self._Isc
         return self.Voc / self.Z
 
+    @property
+    def V(self):
+        """Open-circuit voltage."""
+        return self.Voc()
+
+#    This is probably too confusing.  For example, what is the
+#    current through an open-circuit current source?
+#    @property
+#    def I(self):
+#        """Open-circuit current.  This is zero for a one port component."""
+#        return Isuper(0)
+    
     def __add__(self, OP):
         """Series combination"""
 
@@ -160,18 +173,27 @@ class OnePort(Network):
 
     @property
     def voc(self):
+        """Open-circuit time-domain voltage."""
         return self.Voc.time()
 
     @property
     def isc(self):
+        """Short-circuit time-domain current."""        
         return self.Isc.time()
 
     @property
+    def v(self):
+        """Open-circuit time-domain voltage."""
+        return self.voc
+
+    @property
     def z(self):
+        """Impedance impulse-response."""
         return self.Z.time()
 
     @property
     def y(self):
+        """Admittance impulse-response."""        
         return self.Y.time()
 
     def thevenin(self):
