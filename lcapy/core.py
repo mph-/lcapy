@@ -3011,6 +3011,9 @@ class Vsuper(Super):
     time_class = Vt
     laplace_class = Vs    
 
+    def __rmul__(self, x):
+        return self.__mul__(x)
+
     def __mul__(self, x):
         if isinstance(x, (int, float)):
             return self.__scale__(x)
@@ -3061,6 +3064,9 @@ class Isuper(Super):
     time_class = It
     laplace_class = Is    
 
+    def __rmul__(self, x):
+        return self.__mul__(x)
+    
     def __mul__(self, x):
         if isinstance(x, (int, float)):
             return self.__scale__(x)
