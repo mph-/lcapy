@@ -106,7 +106,7 @@ def plot_frequency(obj, f, **kwargs):
     V = obj.evaluate(f)
 
     log_magnitude = kwargs.pop('log_magnitude', False)
-    log_frequency = kwargs.pop('log_frequency', False)
+    log_frequency = kwargs.pop('log_frequency', False) or kwargs.pop('log_scale', False)
     if kwargs.pop('loglog', False):
         log_magnitude = True 
         log_frequency = True    
