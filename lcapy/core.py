@@ -470,6 +470,9 @@ class Expr(object):
     def __mul__(self, x):
         """Multiply"""
 
+        if isinstance(x, Super):
+            return x.__mul__(self)
+        
         cls, self, x, assumptions = self.__compat_mul__(x, '*')
         return cls(self.expr * x.expr, **assumptions)
 
