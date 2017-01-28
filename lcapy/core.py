@@ -2582,6 +2582,13 @@ class Super(Exprdict):
         else:
             p.text(pretty(self))
 
+    def pprint(self):
+        """Pretty print"""
+
+        if not any(self):
+            return pprint(0)
+        return pprint(self)
+
     def __getitem__(self, key):
         # This allows a[omega] to work if omega used as key
         # instead of 'omega'.
