@@ -214,7 +214,8 @@ class Parser(object):
 
         name = namespace + cpt_type + cpt_id
         if cpt_id == '' and parent is not None:
-            name += parent._make_anon(cpt_type)
+            if name in parent.elements:
+                name += parent._make_anon(cpt_type)
 
         nodes, args = rule.process(self.paramdir, string, fields, name, 
                                    namespace)

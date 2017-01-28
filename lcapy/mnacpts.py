@@ -350,9 +350,9 @@ class RLC(Cpt):
 
         if self.Voc == 0:        
             return 'Z%s %s %s %s; %s' % (self.name, 
-                                        self.nodes[0], self.nodes[1],
-                                        arg_format(self.cpt.Z(var)), 
-                                        self.opts)
+                                         self.nodes[0], self.nodes[1],
+                                         arg_format(self.cpt.Z(var)), 
+                                         self.opts)
 
         dummy_node = self.dummy_node()
 
