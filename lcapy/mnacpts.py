@@ -266,7 +266,7 @@ class Cpt(object):
 
         kind = self.cct.kind
         Y1 = self.cpt.Y
-        if kind in ('s', 'ivp'):
+        if kind in ('s', 'ivp', 'super'):
             return Y1
         elif kind in ('dc', 'time'):
             return cExpr(Y1.jomega(0))
@@ -280,7 +280,7 @@ class Cpt(object):
 
         kind = self.cct.kind
         Z1 = self.cpt.Z
-        if kind in ('s', 'ivp'):
+        if kind in ('s', 'ivp', 'super'):
             return Z1
         elif kind in ('dc', 'time'):
             return cExpr(Z1.jomega(0))
