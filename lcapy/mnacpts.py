@@ -102,26 +102,36 @@ class Cpt(object):
 
         raise ValueError('component not a source: %s' % self)
 
-    def rename_nodes(self, node_map):
-        """Rename the nodes using dictionary node_map."""
+    def netmake(self, node_map=None, zero=False):
+        """Create a new net description.  If node_map is not None,
+        rename the nodes.  If zero is True, set args to zero."""
 
-        
         string = self.type + self.id
         field = 0
         
         for node in self.nodes:
-            string += ' ' + node_map[node]
+            if node_map is not None:
+                node = node_map[node]
+            string += ' ' + node
             field += 1
             if field == self.keyword[0]:
                 string += ' ' + self.keyword[1]
                 field += 1                
         for arg in self.explicit_args:
+            if zero:
+                arg = 0
             string += ' ' + arg_format(arg)
             field += 1
             if field == self.keyword[0]:
                 string += self.keyword[1]            
         string += '; %s' % self.opts
         return string
+        
+        
+    def rename_nodes(self, node_map):
+        """Rename the nodes using dictionary node_map."""
+
+        return self.netmake(node_map)
 
     def select(self, kind=None):
         """Select domain kind for component."""
@@ -355,6 +365,37 @@ class Dummy(Cpt):
     noisy = False
 
 
+class IndependentSource(Cpt):
+
+    independent_source = True
+    
+    def zero(self):
+        """Zero value of the source.  For a voltage source this makes it a
+        short-circuit; for a current source this makes it
+        open-circuit.  This effectively kills the source but keeps it
+        as a source in the netlist.  This is required for dummy
+        voltage sources that are required to specify the controlling
+        current for CCVS and CCCS components.
+
+        """
+        return self.netmake(zero=True)
+
+class DependentSource(Dummy):
+
+    dependent_source = True        
+    
+    def zero(self):
+        """Zero value of the source.  For a voltage source this makes it a
+        short-circuit; for a current source this makes it
+        open-circuit.  This effectively kills the source but keeps it
+        as a source in the netlist.  This is required for dummy
+        voltage sources that are required to specify the controlling
+        current for CCVS and CCCS components.
+
+        """
+        return self.netmake(zero=True)    
+
+    
 class RLC(Cpt):
 
     def s_model(self, var):
@@ -467,11 +508,10 @@ class C(RC):
                                      arg_format(self.cpt.v0), self.opts)       
 
 
-class E(Dummy):
+class E(DependentSource):
     """VCVS"""
 
     need_branch_current = True
-    dependent_source = True        
 
     def stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
@@ -491,12 +531,17 @@ class E(Dummy):
         if n4 >= 0:
             cct._C[m, n4] += A
 
+    def kill(self):
+        newopts = self.opts.copy()
+        newopts.strip_current_labels()
+        newopts.strip_labels()
 
-class F(Dummy):
+        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
+            
+class F(DependentSource):
     """CCCS"""
 
     need_control_current = True
-    dependent_source = True    
     
     def stamp(self, cct):
         n1, n2 = self.node_indexes
@@ -508,16 +553,20 @@ class F(Dummy):
         if n2 >= 0:
             cct._B[n2, m] += F
 
+    def kill(self):
+        newopts = self.opts.copy()
+        newopts.strip_voltage_labels()
+        newopts.strip_labels()
+
+        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)            
 
 class FB(Misc):
     """Ferrite bead"""
     pass
 
 
-class G(Dummy):
+class G(DependentSource):
     """VCCS"""
-
-    dependent_source = True    
 
     def stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
@@ -532,13 +581,18 @@ class G(Dummy):
         if n2 >= 0 and n4 >= 0:
             cct._G[n2, n4] -= G
 
+    def kill(self):
+        newopts = self.opts.copy()
+        newopts.strip_voltage_labels()
+        newopts.strip_labels()
 
-class H(Dummy):
+        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)            
+
+class H(DependentSource):
     """CCVS"""
 
     need_branch_current = True
     need_control_current = True
-    dependent_source = True        
 
     def stamp(self, cct):
         n1, n2 = self.node_indexes
@@ -555,15 +609,14 @@ class H(Dummy):
         G = cExpr(self.args[1]).expr
         cct._D[m, mc] -= G
 
+    def kill(self):
+        newopts = self.opts.copy()
+        newopts.strip_current_labels()
+        newopts.strip_labels()
 
-class I(Cpt):
+        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)        
 
-    independent_source = True
-
-    def zero(self):
-        """Zero value of the current source,  This makes it open-circuit."""
-        return '%s %s %s %s; %s' % (
-            self.name, self.nodes[0], self.nodes[1], 0, self.opts)
+class I(IndependentSource):
 
     def select(self, kind=None):
         """Select domain kind for component."""
@@ -612,7 +665,6 @@ class K(Cpt):
         self.Lname2 = args[1]
         super (K, self).__init__(cct, name, cpt_type, cpt_id, string,
                                  opts_string, nodes, keyword, *args)
-
 
     def stamp(self, cct):
 
@@ -861,19 +913,10 @@ class TR(Dummy):
             cct._C[m, n1] -= A
 
 
-class V(Cpt):
+class V(IndependentSource):
 
-    independent_source = True    
     need_branch_current = True
 
-    def zero(self):
-        """Zero value of the voltage source.  This kills it but keeps it as a
-        voltage source in the netlist.  This is required for dummy
-        voltage sources that are required to specify the controlling
-        current for CCVS and CCCS components."""
-        return '%s %s %s %s; %s' % (
-            self.name, self.nodes[0], self.nodes[1], 0, self.opts)
-    
     def select(self, kind=None):
         """Select domain kind for component."""
 
