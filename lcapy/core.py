@@ -3028,6 +3028,11 @@ class Vsuper(Super):
         if isinstance(x, (int, float)):
             return self.__scale__(x)
 
+        if isinstance(x, Super):
+            raise TypeError('Cannot multiply types %s and %s. '
+            'You need to extract a specific component, e.g., a.s * b.s' %
+            (type(self).__name__, type(x).__name__))
+
         if not isinstance(x, Ys):
             raise TypeError("Unsupported types for *: 'Vsuper' and '%s'" %
                             type(x).__name__)
@@ -3053,6 +3058,11 @@ class Vsuper(Super):
     def __div__(self, x):
         if isinstance(x, (int, float)):
             return self.__scale__(1 / x)
+
+        if isinstance(x, Super):
+            raise TypeError('Cannot divide types %s and %s. '
+            'You need to extract a specific component, e.g., a.s / b.s' %
+            (type(self).__name__, type(x).__name__))
 
         if not isinstance(x, Zs):
             raise TypeError("Unsupported types for /: 'Vsuper' and '%s'" %
@@ -3081,6 +3091,11 @@ class Isuper(Super):
         if isinstance(x, (int, float)):
             return self.__scale__(x)
 
+        if isinstance(x, Super):
+            raise TypeError('Cannot multiply types %s and %s. '
+            'You need to extract a specific component, e.g., a.s * b.s' %
+            (type(self).__name__, type(x).__name__))
+        
         if not isinstance(x, Zs):
             raise TypeError("Unsupported types for *: 'Isuper' and '%s'" %
                             type(x).__name__)
@@ -3105,6 +3120,11 @@ class Isuper(Super):
     def __div__(self, x):
         if isinstance(x, (int, float)):
             return self.__scale__(1 / x)
+
+        if isinstance(x, Super):
+            raise TypeError('Cannot divide types %s and %s. '
+            'You need to extract a specific component, e.g., a.s / b.s' %
+            (type(self).__name__, type(x).__name__))
 
         if not isinstance(x, Ys):
             raise TypeError("Unsupported types for /: 'Isuper' and '%s'" %
