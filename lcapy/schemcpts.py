@@ -550,8 +550,8 @@ class Cpt(object):
 
     def draw_label(self, pos, **kwargs):
 
-        return r'  \draw (%s) node[] {%s};''\n'% (
-            pos, self.label(**kwargs))
+        return r'  \draw[%s] (%s) node[] {%s};''\n'% (
+            self.args_str, pos, self.label(**kwargs))
 
 
 class StretchyCpt(Cpt):
