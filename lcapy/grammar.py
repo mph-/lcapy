@@ -52,6 +52,7 @@ Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor
 R: Rname Np Nm [Value]; Resistor
 Sbox: Sname box; Box
 Scircle: Sname circle; Circle
+Sellipse: Sname ellipse; Ellipse
 Striangle: Sname triangle; Triangle
 SPpp: SPname pp P P P; Summing point
 SPpm: SPname pm P P P; Summing point
@@ -132,6 +133,7 @@ dac: keyword;
 diffamp: keyword;
 box: keyword;
 circle: keyword;
+ellipse: keyword;
 triangle: keyword;
 box4: keyword;
 box12: keyword;

@@ -1233,7 +1233,7 @@ class Shape(FixedCpt):
 
 
 class Box2(Shape):
-    """Box"""
+    """Square box,  A rectangle is created by defining aspect."""
 
     shape = 'rectangle'
 
@@ -1281,10 +1281,11 @@ class Box(Shape):
     required_anchors = ('mid', )    
 
 
-class Circle(Shape):
-    """Circle"""
+class Ellipse(Shape):
+    """Ellipse"""
 
-    shape = 'circle'
+    # Ellipse needs the tikz shapes library.
+    shape = 'ellipse'
     anchors = {'nw' : (-0.3536, 0.3536), 'wnw' : (-0.4619, 0.1913),
                'w' : (-0.5, 0), 'wsw' : (-0.4619, -0.1913), 
                'sw' : (-0.3536, -0.3536), 'ssw' : (-0.1913, -0.4619),
@@ -1295,6 +1296,12 @@ class Circle(Shape):
                'n' : (0, 0.5), 'nnw' : (-0.1913, 0.4619),
                'mid' : (0.0, 0.0)}
     required_anchors = ('mid', )
+
+
+class Circle(Ellipse):
+    """Circle"""
+
+    shape = 'circle'
 
 
 class Circle2(Shape):
@@ -1318,7 +1325,8 @@ class Circle4(Shape):
 
 
 class Triangle(Shape):
-    """Triangle"""
+    """Equilateral triangle, The triangle shape can be altered by defining
+    defining aspect."""    
 
     shape = 'triangle'
     anchors = {'c1' : (0.0, 0.5774),
@@ -1876,6 +1884,7 @@ defcpt('R', OnePort, 'Resistor', 'R')
 
 defcpt('Sbox', Box, 'Box shape')
 defcpt('Scircle', Circle, 'Circle shape')
+defcpt('Sellipse', Ellipse, 'Ellipse shape')
 defcpt('Striangle', Triangle, 'Triangle shape')
 
 defcpt('SW', OnePort, 'Switch', 'closing switch')
