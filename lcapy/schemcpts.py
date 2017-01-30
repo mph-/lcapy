@@ -479,6 +479,9 @@ class Cpt(object):
 
         if string != '':
             label_str = string
+        # Remove curly braces.
+        if len(label_str) > 1 and label_str[0] == '{' and label_str[-1] == '}':
+            label_str = label_str[1:-1]
         return label_str
 
     def label_make(self, label_pos='', **kwargs):
