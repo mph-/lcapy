@@ -120,7 +120,7 @@ class Parser(object):
 
         fields = string.split(':')
         paramname = fields[0]
-        fields = fields[1].split(';')
+        fields = fields[1].split(';', 1)
         parambase = fields[0].strip()
         comment = fields[1].strip()
         
@@ -133,7 +133,7 @@ class Parser(object):
 
         fields = string.split(':')
         cpt_classname = fields[0]
-        fields = fields[1].split(';')
+        fields = fields[1].split(';', 1)
         string = fields[0].strip()
         comment = fields[1].strip()
         
@@ -220,7 +220,7 @@ class Parser(object):
         nodes, args = rule.process(self.paramdir, string, fields, name, 
                                    namespace)
 
-        fields = string.split(';')
+        fields = string.split(';', 1)
         opts_string = fields[1].strip() if len(fields) > 1 else '' 
 
         keyword = (pos, keyword)
