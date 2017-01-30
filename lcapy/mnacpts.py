@@ -1052,6 +1052,7 @@ defcpt('Qnpn', 'Q', 'NPN transistor')
 
 defcpt('Sbox', Misc, 'Box shape')
 defcpt('Scircle', Misc, 'Circle shape')
+defcpt('Striangle', Misc, 'Triangle shape')
 defcpt('SW', TimeVarying, 'Switch')
 defcpt('SWno', 'SW', 'Normally open switch')
 defcpt('SWnc', 'SW', 'Normally closed switch')

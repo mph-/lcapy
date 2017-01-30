@@ -1317,6 +1317,27 @@ class Circle4(Shape):
         return ((-0.5, 0), (0, -0.5), (0.5, 0), (0, 0.5))
 
 
+class Triangle(Shape):
+    """Triangle"""
+
+    shape = 'triangle'
+    anchors = {'c1' : (0.0, 0.5774),
+               'c2' : (-0.5, -0.2887),
+               'c3' : (0.5, -0.2887),
+               'mid' : (0.0, 0.0)}
+    required_anchors = ('mid', 'c1', 'c2', 'c3')
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        s = self.draw_path([self.node('c1').pos, self.node('c2').pos,
+                            self.node('c3').pos], closed=True)
+        s += self.draw_label(self.node('mid').pos)
+
+        return s
+
 class TR(Box2):
     """Transfer function"""
 
@@ -1855,6 +1876,7 @@ defcpt('R', OnePort, 'Resistor', 'R')
 
 defcpt('Sbox', Box, 'Box shape')
 defcpt('Scircle', Circle, 'Circle shape')
+defcpt('Striangle', Triangle, 'Triangle shape')
 
 defcpt('SW', OnePort, 'Switch', 'closing switch')
 defcpt('SWno', 'SW', 'Normally open switch', 'closing switch')
