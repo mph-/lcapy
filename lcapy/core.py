@@ -2576,18 +2576,22 @@ class Super(Exprdict):
             for arg in args:
                 self.add(arg)
 
-    def _repr_pretty_(self, p, cycle):
+    def _representation(self):
         if not any(self):
-            p.text(pretty(0))
-        else:
-            p.text(pretty(self))
+            return 0
+        if False:
+            return self
+        # The transform representation should avoid confusion?
+        return self.transform()
+                
+    def _repr_pretty_(self, p, cycle):
+
+        p.text(self._representation())
 
     def pprint(self):
         """Pretty print"""
 
-        if not any(self):
-            return pprint(0)
-        return pprint(self)
+        return pprint(self._representation())
 
     def __getitem__(self, key):
         # This allows a[omega] to work if omega used as key
