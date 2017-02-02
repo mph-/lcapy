@@ -1332,6 +1332,7 @@ class Triangle(Shape):
     defining aspect."""    
 
     shape = 'triangle'
+    # 1 / sqrt(3) approx 0.5774, 1 / (2 * sqrt(3)) approx 0.2887
     anchors = {'c1' : (0.0, 0.5774),
                'c2' : (-0.5, -0.2887),
                'c3' : (0.5, -0.2887),
