@@ -214,7 +214,8 @@ class Parser(object):
 
         name = namespace + cpt_type + cpt_id
         if cpt_id == '' and parent is not None:
-            # Need to make anon to avoid conflicts with attributes.
+            # Need to make anon name to avoid conflicts with attributes.
+            # For example, cct.Z.
             name += parent._make_anon(cpt_type)
 
         nodes, args = rule.process(self.paramdir, string, fields, name, 

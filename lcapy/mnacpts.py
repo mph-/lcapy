@@ -16,6 +16,8 @@ import sys
 
 module = sys.modules[__name__]
 
+# TODO: ponder use of anonymous names when manipulating nets with select, zero, etc.
+
 
 def arg_format(value):
     """Place value string inside curly braces if it contains a delimiter."""
@@ -621,8 +623,8 @@ class I(IndependentSource):
     def select(self, kind=None):
         """Select domain kind for component."""
 
-        return '%s %s %s %s; %s' % (
-            self.name, self.nodes[0], self.nodes[1],
+        return '%s%s %s %s %s; %s' % (
+            self.type, self.id, self.nodes[0], self.nodes[1],
             self.cpt.Isc.netval(kind), self.opts)
 
     def kill(self):
@@ -920,8 +922,8 @@ class V(IndependentSource):
     def select(self, kind=None):
         """Select domain kind for component."""
 
-        return '%s %s %s %s; %s' % (
-            self.name, self.nodes[0], self.nodes[1],
+        return '%s%s %s %s %s; %s' % (
+            self.type, self.id, self.nodes[0], self.nodes[1],
             self.cpt.Voc.netval(kind), self.opts)        
 
     def kill(self):
