@@ -20,6 +20,9 @@ Installation
 Lcapy installation for Linux (Ubuntu and variants)
 ==================================================
 
+The following instructions are for Python2.7.  For Python 3, replace
+the python with python3 in the package names and when running setup.py.
+
 - You need to install the SymPy package:
 
   >>> sudo apt-get install python-sympy
@@ -37,7 +40,7 @@ Lcapy installation for Linux (Ubuntu and variants)
   essential, if it is not loaded then an active internet connection is
   required.
 
-  >>> sudo-apt-get install libjs-mathjax fonts-mathjax
+  >>> sudo apt-get install libjs-mathjax fonts-mathjax
 
 - The easiest way to obtain the Lcapy sources is to use git:
 
@@ -50,7 +53,7 @@ Lcapy installation for Linux (Ubuntu and variants)
 
 - If you do not have root access, you can set the environment variable `PYTHONPATH` to find the source files for Lcapy.
 
-- While you are at it, it is worthwhile to install ipython, the interactive python shell  (this is also useful for displaying notebooks in a web browser)
+- While you are at it, it is worthwhile to install ipython, the interactive python shell (this is also useful for displaying notebooks in a web browser).
 
   >>> sudo apt-get install ipython
 
