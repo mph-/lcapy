@@ -20,7 +20,7 @@ Copyright 2014--2017 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, Expr, omega
+from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, Expr, omega, Heaviside
 from lcapy.core import cos, exp, symbol, j, Vphasor, Iphasor, It, Vconst, Iconst, Vn, In
 from lcapy.core import Vsuper, Isuper, pretty
 from lcapy.sympify import symbols_find
@@ -819,7 +819,7 @@ class Vstep(VoltageSource):
 
         self.args = (v, )
         v = cExpr(v)
-        self._Voc = Vsuper(Vs(tExpr(v).laplace(), causal=True))
+        self._Voc = Vsuper(tExpr(v) * Heaviside(t), causal=True)
         self.v0 = v
 
 
@@ -930,7 +930,7 @@ class Istep(CurrentSource):
 
         self.args = (i, )
         i = cExpr(i)
-        self._Isc = Isuper(Is(tExpr(i).laplace(), causal=True))        
+        self._Isc = Isuper(tExpr(i) * Heaviside(t), causal=True)
         self.i0 = i
 
 
