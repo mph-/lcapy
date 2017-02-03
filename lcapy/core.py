@@ -2624,7 +2624,7 @@ class Super(Exprdict):
 
     @property
     def has_dc(self):
-        return 'dc' in self
+        return 'dc' in self.transform()
 
     @property
     def has_ac(self):
@@ -2632,7 +2632,7 @@ class Super(Exprdict):
 
     @property
     def has_s(self):
-        return 's' in self
+        return 's' in self.transform()
 
     @property
     def has_t(self):
@@ -2644,7 +2644,7 @@ class Super(Exprdict):
 
     @property
     def is_dc(self):
-        return list(self.keys()) == ['dc']
+        return list(self.transform().keys()) == ['dc']
 
     @property
     def is_ac(self):
@@ -2652,7 +2652,7 @@ class Super(Exprdict):
 
     @property
     def is_s(self):
-        return list(self.keys()) == ['s'] or list(self.keys()) == ['t']
+        return list(self.transform().keys()) == ['s']
 
     @property
     def is_n(self):
@@ -2802,8 +2802,7 @@ class Super(Exprdict):
         if 't' in self and 't' != kind:
             # The rationale here is that there may be
             # DC and AC components included in the 't' part.
-            self.transform()
-            obj = self._transform
+            obj = self.transform()
             
         if kind not in obj:
             if kind not in obj.transform_domains:
@@ -2941,14 +2940,12 @@ class Super(Exprdict):
 
     @property
     def ac(self):
+        if 't' in self.keys():
+            self = self.transform()        
         return Exprdict({k: v for k, v in self.items() if k in self.ac_keys()})
 
     @property
     def s(self):
-        if 't' in self.keys():
-            x = self.transform()
-            return x.select('s')
-            
         return self.select('s')
 
     @property

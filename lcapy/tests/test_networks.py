@@ -83,6 +83,11 @@ class LcapyTester(unittest.TestCase):
         """Lcapy: check network superposition"""
 
         a = Vac(40) + Vnoise(20) + Vstep(10) + R(5)
+        self.assertEqual(a.Voc.dc, 0, "Voc.dc error")
+        self.assertEqual(a.Voc.has_dc, False, "Voc.has_dc error")
+        self.assertEqual(a.Voc.is_dc, False, "Voc.is_dc error")
+        self.assertEqual(a.Voc.has_ac, True, "Voc.has_ac error")
+        self.assertEqual(a.Voc.is_ac, False, "Voc.is_ac error")                                
         self.assertEqual2(a.Voc.s, 10 / s, "Voc.s error")
         self.assertEqual(a.Voc.n.expr, Vn(20).expr, "Voc.n error")
         self.assertEqual2(a.Voc.w, Vphasor(40), "Voc.w error")
