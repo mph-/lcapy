@@ -1,22 +1,19 @@
-Lcapy is an experimental Python package for teaching linear circuit
-analysis.  It uses SymPy for symbolic mathematics.
+Lcapy is a Python package for linear circuit analysis.  It uses SymPy
+for symbolic mathematics.
 
-Lcapy can analyse circuits described with netlists using modified
-nodal analysis.
-
-Alternatively, Lcapy can analyse networks and circuits formed by
-combining one, two, and (some) three port networks.
+Lcapy can analyse circuits described with netlists or by
+series/parallel combinations of components.  
 
 From version 0.25.0, Lcapy performs more comprehensive circuit
 analysis using combinations of DC, AC, and Laplace analysis.  This
 added functionality has resulted in a slight change of syntax.
-cct.R1.V no longer prints the s-domain expression but the expressions
-for each of the transform domains.
+cct.R1.V no longer prints the s-domain expression but the
+decomposition of a signal into each of the transform domains.
 
 Version 0.25.1 adds time-domain analysis for circuits without reactive
 components.
 
-Version 0.26.0 add noise analysis.
+Version 0.26.0 adds noise analysis.
 
 More comprehensive documentation can be found at http://lcapy.elec.canterbury.ac.nz
 
@@ -38,10 +35,10 @@ example:
 The circuit can then be interrogated to determine branch currents,
 branch voltages, and node voltages (with respect to the ground node 0).
 
-   >>> cct[1].V
-   >>> cct[2].V
-   >>> cct.Ra.I
-   >>> cct.Ra.V
+   >>> cct[1].v
+   >>> cct[2].v
+   >>> cct.Ra.i
+   >>> cct.Ra.V(s)
 
 
 One-port networks
@@ -61,8 +58,7 @@ These components are converted to s-domain models and so capacitor and
 inductor components can be specified with initial voltage and
 currents, respectively, to model transient responses.
 
-The components are represented by either Thevenin or Norton one-port
-networks with the following attributes:
+The components have the following attributes:
 
 Zoc open-circuit impedance
 Ysc short-circuit admittance
