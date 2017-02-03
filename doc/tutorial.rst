@@ -402,12 +402,12 @@ Let's consider a series R-C network in series with a DC voltage source
    >>> n = Vstep(20) + R(5) + C(10, 0)
    >>> n
    Vstep(20) + R(5) + C(10, 0)
-   >>> Voc = n.Voc.s
+   >>> Voc = n.Voc(s)
    >>> Voc
    20
    ──
    s 
-   >>> n.Isc.s
+   >>> n.Isc(s)
       4   
    ────────
    s + 1/50
@@ -419,9 +419,9 @@ Let's consider a series R-C network in series with a DC voltage source
    ⎪4⋅ℯ     for t ≥ 0
    ⎩                 
 
-Here `n` is network formed by the components in series, and `n.Voc.s` is
+Here `n` is network formed by the components in series, and `n.Voc(s)` is
 the open-circuit s-domain voltage across the network.  Note, this is the same
-as the s-domain value of the voltage source.  `n.Isc.s` is the
+as the s-domain value of the voltage source.  `n.Isc(s)` is the
 short-circuit s-domain voltage through the network.  The method
 `transient_response` converts this to the time-domain.  Note, since
 the capacitor has the initial value specified, this network is
@@ -436,12 +436,12 @@ Of course, the previous example can be performed symbolically,
    >>> n = Vstep('V_1') + R('R_1') + C('C_1', 0)
    >>> n
    Vstep(V₁) + R(R₁) + C(C₁, 0)
-   >>> Voc = n.Voc.s
+   >>> Voc = n.Voc(s)
    >>> Voc
    V₁
    ──
    s 
-   >>> n.Isc.s
+   >>> n.Isc(s)
          V₁      
    ──────────────
       ⎛      1  ⎞
@@ -873,7 +873,7 @@ through an element, for example,
 Notice, how the displayed voltages are Laplace domain voltages.  The
 transient voltages can be determined using an inverse Laplace transform:
 
-   >>> cct.V1.V.time()
+   >>> cct.V1.V(t)
    10
 
 Alternatively, this can be achieved using the lowercase `v` attribute:
@@ -921,34 +921,51 @@ Transform Domains
 -----------------
 
 Lcapy analyses a linear circuit using a number of transform domains
-and the principle of superposition.  For example, consider
+and the principle of superposition.  Voltage and current signals are
+decomposed into a DC component, one or more AC components (one for
+each angular frequency), a transient component, and noise components
+(one for each noise source).  NB, this decomposition is experimental
+and may change.
 
-   >>> oc = (Vdc(10) + Vac(20) + Vstep(30) + Vnoise(40)).Voc
+For example, consider:
+
+   >>> Voc = (Vdc(10) + Vac(20) + Vstep(30) + Vnoise(40)).Voc
    >>> Voc
    ⎧                   30       ⎫
    ⎨dc: 10, n1: 40, s: ──, ω: 20⎬
    ⎩                   s        ⎭
 
-Here the open-circuit voltage is described by a dictionary of values
-for the different transform domains.  There are four types of
-transform domain: DC, phasor (for AC analysis), Laplace (for transient
-analysis), and noise.  The DC component is keyed by 'dc', the Laplace
-component is keyed by 's', the noise components are keyed by noise
-identifiers of the form 'nx' (where x is an integer), and the ac
-components are keyed by the angular frequency.  For example,
-
-   >>> Voc['s']
-   30
-   ──
-   s 
-
-The different domains can also be accessed using attributes, for example,
+Here the open-circuit voltage is decomposed into four parts (stored in
+a dictionary).  The DC component is keyed by 'dc', the transient
+component is keyed by 's' (since this is analysed in the Laplace or
+s-domain), the noise components are keyed by noise identifiers of the
+form 'nx' (where x is an integer), and the ac components are keyed by
+the angular frequency.  The different parts of a decomposition can
+also be accessed using attributes, for example,
 
    >>> Voc.s
    30
    ──
    s    
-   
+
+Note, this only returns the Laplace transform of the transient
+component of the decomposition.  The full Laplace transform of the
+open-circuit voltage (ignoring the noise component) can be obtained using:
+
+   >>> from lcapy import s
+   >>> Voc(s)
+      ⎛   2      2⎞
+   20⋅⎝2⋅ω  + 3⋅s ⎠
+   ────────────────
+      ⎛ 2    2⎞   
+    s⋅⎝ω  + s ⎠
+
+Similarly, the time-domain representation (ignoring the noise component) can be determined using:
+
+   >>> from lcapy import t
+   >>> Voc(t)
+   20⋅cos(ω⋅t) + 30⋅Heaviside(t) + 10
+
 
 Initial Value Problems
 ----------------------
@@ -961,7 +978,7 @@ For example,
    >>> cct.add('V1 1 0 step Vs') 
    >>> cct.add('C1 2 1 C1 v0') 
    >>> cct.add('L1 2 0 L1 i0') 
-   >>> cct[2].V.s
+   >>> cct[2].V(s)
               ⎛        i₀          ⎞
    (V_s + v₀)⋅⎜- ────────────── + s⎟
               ⎝  C₁⋅V_s + C₁⋅v₀    ⎠
@@ -992,7 +1009,7 @@ Here's an example using an arbitrary input voltage `V(s)`
    ⎨s: ───────────⎬
    ⎩   C₁⋅R₁⋅s + 1⎭
 
-   >>> H = cct[2].V.s / cct[1].V.s
+   >>> H = cct[2].V(s) / cct[1].V(s)
    >>> H
         1     
    ───────────
