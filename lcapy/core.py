@@ -538,7 +538,11 @@ class Expr(object):
         if x is None:
             return False
 
-        cls, self, x, assumptions = self.__compat_add__(x, '==')
+        try:
+            cls, self, x, assumptions = self.__compat_add__(x, '==')
+        except ValueError:
+            return False
+            
         x = cls(x)
 
         # This fails if one of the operands has the is_real attribute
@@ -2586,7 +2590,7 @@ class Super(Exprdict):
                 
     def _repr_pretty_(self, p, cycle):
 
-        p.text(self._representation())
+        p.text(pretty(self._representation()))
 
     def pprint(self):
         """Pretty print"""
@@ -2661,6 +2665,16 @@ class Super(Exprdict):
     @property
     def is_superposition(self):
         return len(self.keys()) > 1
+
+    def __call__(self, arg):
+
+        if arg == t:
+            return self.time()
+        elif arg == s:
+            return self.laplace()
+        elif arg == f:
+            return self.fourier()                
+        raise ValueError('Can only return t, f, or s domains')
 
     def __add__(self, x):
 

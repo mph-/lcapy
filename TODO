@@ -169,3 +169,4 @@ avoid the problem of dots in node names when passed to sympy.
 Tidy docs
 
 s-model convert current, voltage labels to s-domain, say i -> I
+
