@@ -2946,7 +2946,8 @@ class Super(Exprdict):
     @property
     def s(self):
         if 't' in self.keys():
-            return self.select('t').laplace()
+            x = self.transform()
+            return x.select('s')
             
         return self.select('s')
 
