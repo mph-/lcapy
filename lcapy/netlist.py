@@ -685,10 +685,10 @@ class NetlistMixin(object):
         return self.analysis['dependent_sources']            
 
     def independent_source_groups(self, transform=False):
-        """Return dictionary of source groups.  Each group is a list of
-        sourcenames that can be analysed at the same time.  Noise
-        sources have separate groups since they are assumed to be
-        uncorrelated.
+        """Return dictionary of independent source groups.  Each group is a
+        list of sourcenames that can be analysed at the same time.
+        Noise sources have separate groups since they are assumed to
+        be uncorrelated.
 
         """
 
@@ -716,6 +716,29 @@ class NetlistMixin(object):
 
         return groups    
 
+    def source_groups(self, transform=False):
+        """Return dictionary of source groups.  Usually this is determined
+        from the independent sources.  Each group is
+        a list of sourcenames that can be analysed at the same time.
+        Noise sources have separate groups since they are assumed to
+        be uncorrelated.
+
+        If there are no independent sources, the dependent sources are
+        considered.  These are analysed using DC.
+
+        """
+        
+        groups = self.independent_source_groups(transform)
+        if groups != {}:
+            return groups
+            
+        for key, elt in self.elements.items():
+            if elt.dependent_source:
+                if 'dc' not in groups:
+                    groups['dc'] = []
+                groups['dc'].append(key)
+        return groups
+    
     @property
     def control_sources(self):
         """Return dictionary of voltage sources required to specify control
@@ -798,9 +821,9 @@ class NetlistMixin(object):
                                                     describe_sources(sources))
 
         if self.is_time_domain:
-            groups = self.independent_source_groups()
+            groups = self.source_groups()
         else:
-            groups = self.independent_source_groups(transform=True)
+            groups = self.source_groups(transform=True)
         
         if self.is_ivp:
             print('This has initial conditions so is an initial value problem '
@@ -872,7 +895,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         if hasattr(self, '_sub'):
             return self._sub
 
-        groups = self.independent_source_groups()        
+        groups = self.source_groups()        
             
         if self.is_ivp:
             def namelist(elements):
@@ -892,7 +915,7 @@ class Netlist(NetlistMixin, NetfileMixin):
             groups = newgroups
 
         elif self.is_time_domain:
-            groups = self.independent_source_groups()            
+            groups = self.source_groups()            
             newgroups = {'time' : []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
@@ -902,7 +925,7 @@ class Netlist(NetlistMixin, NetfileMixin):
             groups = newgroups
 
         else:
-            groups = self.independent_source_groups(transform=True)        
+            groups = self.source_groups(transform=True)        
         
         self._sub = Transformdomains()
 

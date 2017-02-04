@@ -366,7 +366,7 @@ class Dummy(Cpt):
     hasic = None
     noisy = False
 
-
+    
 class IndependentSource(Cpt):
 
     independent_source = True
