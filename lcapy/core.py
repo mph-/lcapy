@@ -2608,7 +2608,7 @@ class Super(Exprdict):
         """Return list of keys for all ac components."""
 
         keys = []
-        for key in self.keys():
+        for key in self.transform().keys():
             if not isinstance(key, str) or key == 'w':
                 keys.append(key)
         return keys
@@ -2632,7 +2632,7 @@ class Super(Exprdict):
 
     @property
     def has_s(self):
-        return 's' in self.transform()
+        return 's' in self
 
     @property
     def has_t(self):
