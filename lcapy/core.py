@@ -2679,8 +2679,13 @@ class Super(Exprdict):
         elif arg == s:
             return self.laplace()
         elif arg == f:
-            return self.fourier()                
-        raise ValueError('Can only return t, f, or s domains')
+            return self.fourier()
+        elif arg == omega:
+            x = self.transform()
+            if x.keys != [omega]:
+                print('Warning, this is not the full representation; there are other components')
+            return x.select(omega.expr)
+        raise ValueError('Can only return t, f, s, or omega domains')
 
     def __add__(self, x):
 
