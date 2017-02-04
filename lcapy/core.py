@@ -2550,22 +2550,20 @@ def delta(expr, *args):
 
 
 class Super(Exprdict):
-    """This class represents a superposition of different signal types.
+    """This class represents a superposition of different signal types:
+    DC, AC, transient, and noise.
     
-    Where possible it represents a signal in the time-domain but for
-    most analysis it will decompose the signal into DC, AC, and
-    transient components.  The AC components are represented as
-    phasors for each AC frequency and the transient component is
-    represented in the s-domain.
+    The time-domain representation is returned with the time method,
+    V.time(), or with the notation V(t).  This does not include the
+    noise component.
 
-    The time-domain representation is returned with the time() method
-    and the Laplace representation is returned with the laplace()
-    method.
+    The Laplace representation is returned with the laplace method,
+    V.laplace() or with the notation V(s).  This does not include the
+    noise component.
 
-    In addition, noise components are supported.  Noise components
-    with different noise indentifiers are stored separately, keyed by
-    the noise identifier.  They are ignored by the laplace() and
-    time() methods.
+    Noise components with different noise indentifiers are stored
+    separately, keyed by the noise identifier.  They are ignored by
+    the laplace() and time() methods.
 
     The total noise can be accessed with the .n attribute.  This sums
     each of the noise components in quadrature since they are
@@ -2573,6 +2571,11 @@ class Super(Exprdict):
 
     """
 
+    # Where possible this class represents a signal in the time-domain.
+    # It can decompose a signal into AC, DC, and transient components.
+    # The 't' key is the transient component viewed in the time domain.
+    # The 's' key is the transient component viewed in the Laplace domain.    
+    
     def __init__(self, *args, **kwargs):
         super (Super, self).__init__()
 
@@ -2585,7 +2588,10 @@ class Super(Exprdict):
             return 0
         if False:
             return self
-        # The transform representation should avoid confusion?
+        # It is probably less confusing for a user to display
+        # using a decomposition in the transform domains.
+        # We could present the result in the time-domain but this
+        # hides the underlying way the signal is analysed.
         return self.transform()
                 
     def _repr_pretty_(self, p, cycle):
@@ -2936,16 +2942,21 @@ class Super(Exprdict):
 
     @property
     def dc(self):
+        """Return the DC component."""        
         return self.select('dc')
 
     @property
     def ac(self):
+        """Return the AC components."""                
         if 't' in self.keys():
             self = self.transform()        
         return Exprdict({k: v for k, v in self.items() if k in self.ac_keys()})
 
     @property
     def s(self):
+        """Return the s-domain representation of the transient component.
+        This is not the full s-domain representation as returned by the
+        laplace method."""
         return self.select('s')
 
     @property
@@ -2956,7 +2967,13 @@ class Super(Exprdict):
         return result
 
     @property
+    def noise(self):
+        """Return the total noise."""
+        return self.n
+
+    @property
     def w(self):
+        """Return the AC component with angular frequency omega."""        
         return self.select(omegasym)    
 
     def time(self, **assumptions):
@@ -3008,10 +3025,6 @@ class Super(Exprdict):
 
         # TODO, could optimise
         return self.time().fourier()
-
-    @property
-    def t(self):
-        return self.time()
 
     def canonical(self):
         new = self.__class__()
