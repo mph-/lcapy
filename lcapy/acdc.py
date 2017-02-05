@@ -19,8 +19,11 @@ class CausalChecker(object):
             if len(coeffs) != 2:
                 return False
 
-            if (coeffs[0].is_positive 
-                and (coeffs[1].is_positive or coeffs[1].is_zero)):
+            # Look for something like func(a * t + b)
+            # If a positive and b negative then know func(a * t + b) = 0 for t < 0
+            # TODO, generalise.
+            a, b = coeffs
+            if (a.is_positive and (b.is_negative or b.is_zero)):
                 return True
 
         return False        
