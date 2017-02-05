@@ -833,103 +833,124 @@ class Expr(object):
         There can be no symbols in the expression except for the variable.
         """
 
+        def evaluate_expr(expr, var, arg):
+
+            def exp(arg):
+
+                # Hack to handle exp(-a * t) * Heaviside(t) for t < 0
+                # by trying to avoid inf when number overflows float.
+                if arg > 500:
+                    arg = 500;
+                return np.exp(arg)
+
+            def dirac(arg):
+                return np.inf if arg == 0.0 else 0.0
+
+            def heaviside(arg):
+                return 1.0 if arg >= 0.0 else 0.0
+
+            def sqrt(arg):
+                if arg < 0:
+                    return 1j * np.sqrt(-arg)
+                try:
+                    return np.sqrt(arg)
+                except AttributeError:
+                    return np.sqrt(float(arg))
+
+            try:
+                arg0 = arg[0]
+                scalar = False
+            except:
+                arg0 = arg
+                scalar = True
+
+            # For negative arguments, np.sqrt will return Nan.
+            # np.lib.scimath.sqrt converts to complex but cannot be used
+            # for lamdification!
+            func = lambdify(var, expr,
+                            ({'DiracDelta' : dirac,
+                              'Heaviside' : heaviside,
+                              'sqrt' : sqrt, 'exp' : exp},
+                             "numpy", "sympy", "math"))
+
+            try:
+                result = func(np.float(arg0))
+                response = complex(result)
+            except NameError:
+                raise RuntimeError('Cannot evaluate expression %s' % self)
+            except (AttributeError, TypeError):
+                if expr.is_Piecewise:
+                    raise RuntimeError(
+                        'Cannot evaluate expression %s,'
+                        ' due to undetermined conditional result' % self)
+
+                raise RuntimeError(
+                    'Cannot evaluate expression %s,'
+                    ' probably have a mysterious function' % self)
+
+            if scalar:
+                if np.allclose(response.imag, 0.0):
+                    response = response.real
+                return response
+
+            try:
+                response = np.array([complex(func(np.float(arg0))) for arg0 in arg])
+            except TypeError:
+                raise TypeError(
+                    'Cannot evaluate expression %s,'
+                    ' probably have undefined symbols' % self)
+
+            if np.allclose(response.imag, 0.0):
+                response = response.real
+            return response
+
+        expr = self.expr
         if hasattr(self, 'var'):
+            var = self.var
             # Use symbol names to avoid problems with symbols of the same
             # name with different assumptions.
-            varname = self.var.name
-            free_symbols = set([symbol.name for symbol in self.expr.free_symbols])
+            varname = var.name
+            free_symbols = set([symbol.name for symbol in expr.free_symbols])
             if varname in free_symbols:
                 free_symbols -= set((varname, ))
             if free_symbols != set():
                 raise ValueError('Undefined symbols %s in expression %s' % (tuple(free_symbols), self))
 
             if arg is None:
-                if self.expr.find(self.var) != set():
+                if expr.find(var) != set():
                     raise ValueError('Need value to evaluate expression at')
                 # The arg is irrelevant since the expression is a constant.
                 arg = 0
         else:
+            # Have no variable so must be a constant.
+            var = None
             arg = 0
-
-        # Perhaps should check if expr.args[1] == Heaviside('t') and not
-        # evaluate if t < 0?
-
-        def exp(arg):
-
-            # Hack to handle exp(-a * t) * Heaviside(t) for t < 0
-            # by trying to avoid inf when number overflows float.
-            if arg > 500:
-                arg = 500;
-            return np.exp(arg)
-
-        def dirac(arg):
-
-            return np.inf if arg == 0.0 else 0.0
-
-        def heaviside(arg):
-
-            return 1.0 if arg >= 0.0 else 0.0
-
-        def sqrt(arg):
-
-            if arg < 0:
-                return 1j * np.sqrt(-arg)
-            try:
-                return np.sqrt(arg)
-            except AttributeError:
-                return np.sqrt(float(arg))
-
-        # For negative arguments, np.sqrt will return Nan.
-        # np.lib.scimath.sqrt converts to complex but cannot be used
-        # for lamdification!
-        func = lambdify(self.var, self.expr,
-                        ({'DiracDelta' : dirac,
-                          'Heaviside' : heaviside,
-                          'sqrt' : sqrt, 'exp' : exp},
-                         "numpy", "sympy", "math"))
 
         try:
             arg = arg.evalf()
         except:
             pass
 
+        if not (expr.is_Piecewise and expr.args[0].args[1] == (tsym >= 0)):            
+            return evaluate_expr(expr, var, arg)
+
         try:
-            v1 = arg[0]
+            arg0 = arg[0]
             scalar = False
         except:
-            v1 = arg
+            arg0 = arg
             scalar = True
 
-        try:
-            result = func(np.float(v1))
-            response = complex(result)
-        except NameError:
-            raise RuntimeError('Cannot evaluate expression %s' % self)
-        except (AttributeError, TypeError):
-            if self.expr.is_Piecewise:
-                raise RuntimeError(
-                    'Cannot evaluate expression %s,'
-                    ' due to undetermined conditional result' % self)
-
-            raise RuntimeError(
-                'Cannot evaluate expression %s,'
-                ' probably have a mysterious function' % self)
-
+        expr = expr.args[0].args[0]
+            
         if scalar:
-            if np.allclose(response.imag, 0.0):
-                response = response.real
-            return response
-
-        try:
-            response = np.array([complex(func(np.float(v1))) for v1 in arg])
-        except TypeError:
-            raise TypeError(
-                'Cannot evaluate expression %s,'
-                ' probably have undefined symbols' % self)
-
-        if np.allclose(response.imag, 0.0):
-            response = response.real
-        return response
+            if arg0 >= 0:
+                return evaluate_expr(expr, var, arg)
+            else:
+                return sym.nan
+        result =  evaluate_expr(expr, var, arg)
+        result[arg < 0] = sym.nan
+        return result
 
     def has(self, subexpr):
         """Test whether the sub-expression is contained."""
