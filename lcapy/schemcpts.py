@@ -1658,7 +1658,7 @@ class Wire(OnePort):
         return ((0, 0), (1, 0))
 
     def draw_implicit(self, **kwargs):
-        """Draw implict wires, i.e., connections to ground, etc."""
+        """Draw implicit wires, i.e., connections to ground, etc."""
 
         kind = None
         for key in self.implicit_keys:
@@ -1668,15 +1668,15 @@ class Wire(OnePort):
 
         # I like the sground symbol for power supplies but rground symbol
         # is also common.
-        if kind == 'implicit':
+        if (kind is None) or (kind == 'implicit'):
             kind = 'sground'
         anchor = 'south west'
         if self.down:
             anchor = 'north west'
 
         n1, n2 = self.nodes
-        s = self.draw_path((n1.s, n2.s)) 
-        s += r'  \draw (%s) node[%s,scale=0.5,rotate=%d] {};''\n' % (
+        s = self.draw_path((n1.s, n2.s))
+        s += r'  \draw (%s) node[%s, scale=0.5, rotate=%d] {};''\n' % (
             n2.s, kind, self.angle + 90)
 
         if 'l' in self.opts:
