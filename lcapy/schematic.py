@@ -597,8 +597,8 @@ class Graph(dict):
         if stage != 0:
             self.analyse(stage=stage)
 
-        dotfile = open (filename, 'w')
-        dotfile.write ('strict digraph {\n\tgraph [rankdir=LR];\n')
+        dotfile = open(filename, 'w')
+        dotfile.write('strict digraph {\n\tgraph [rankdir=LR];\n')
 
         for gnode in self.values():
             if hasattr(gnode, 'fixed'):
@@ -612,17 +612,17 @@ class Graph(dict):
             if pos < 1e-6:
                 pos = 0
 
-            dotfile.write ('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (gnode.fmt_name, colour, fmt_dec(pos)))
+            dotfile.write('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (gnode.fmt_name, colour, fmt_dec(pos)))
 
         for gnode in self.values():
             for edge in gnode.fedges:
                 colour = 'black' if edge.stretch else 'red'
-                dotfile.write ('\t"%s" ->\t"%s" [ color=%s, label="%s%s" ];\n' % (
+                dotfile.write('\t"%s" ->\t"%s" [ color=%s, label="%s%s" ];\n' % (
                     gnode.fmt_name, edge.to_gnode.fmt_name, colour, 
                     fmt_dec(edge.size), '*' if edge.stretch else ''))
 
-        dotfile.write ('}\n')
-        dotfile.close ()
+        dotfile.write('}\n')
+        dotfile.close()
 
 
 class Node(object):

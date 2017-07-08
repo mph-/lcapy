@@ -1102,7 +1102,7 @@ class Opamp(FixedCpt):
         s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, self.node('out').s)
         s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('+').s)
         s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('-').s)
-        s += self.draw_label(centre.pos, **kwargs)
+        s += self.draw_label(centre.s, **kwargs)
         s += self.draw_nodes(**kwargs)
         return s
 
@@ -1154,11 +1154,11 @@ class FDOpamp(FixedCpt):
         s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             centre.s, self.args_str, 2 * 1.01 * self.scale, yscale,
             -self.angle, self.s)
-        s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, self.node('out+'))
-        s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, self.node('out-'))
-        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('+'))
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('-'))
-        s += self.draw_label(centre.pos, **kwargs)
+        s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, self.node('out+').s)
+        s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, self.node('out-').s)
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('+').s)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('-').s)
+        s += self.draw_label(centre.s, **kwargs)
         s += self.draw_nodes(**kwargs)
         return s
 
