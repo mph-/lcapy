@@ -1247,13 +1247,13 @@ class sExpr(sfwExpr):
 
         return self.__class__(self, **self.assumptions)
 
-    def fourier(self):
+    def fourier(self, **assumptions):
         """Convert to Fourier domain."""
 
-        if self.is_causal:
+        if assumptions.get('causal', False) or self.is_causal:
             return self(j * 2 * pi * f)
 
-        return self.time().fourier()
+        return self.time(**assumptions).fourier()
 
     def phasor(self, **assumptions):
 
