@@ -213,6 +213,17 @@ class Expr(object):
         
         self.expr = sympify(arg, **assumptions)
 
+    @property
+    def causal(self):
+        return self.is_causal
+        
+    @causal.setter
+    def causal(self, value):
+        self.assumptions['causal'] = value
+        if value:
+            self.assumptions['dc'] = False
+            self.assumptions['ac'] = False
+        
     def infer_assumptions(self):
         self.assumptions['dc'] = None
         self.assumptions['ac'] = None
@@ -1277,7 +1288,8 @@ class sExpr(sfwExpr):
     def step_response(self, tvector=None):
         """Evaluate step response."""
 
-        return (self / self.var).transient_response(tvector)
+        H = self.__class__(self / self.var, **self.assumptions)
+        return H.transient_response(tvector)
 
     def angular_frequency_response(self, wvector=None):
         """Convert to angular frequency domain and evaluate response if

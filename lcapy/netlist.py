@@ -343,7 +343,7 @@ class NetlistMixin(object):
         If = -new.Vin_.I
         new.remove('Vin_')
 
-        return Ys(If.laplace())
+        return Ys(If.laplace(), causal=True)
 
     def impedance(self, Np, Nm):
         """Return s-domain impedance between nodes Np and Nm with independent
@@ -359,7 +359,7 @@ class NetlistMixin(object):
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
-        return Zs(Vf.laplace())
+        return Zs(Vf.laplace(), causal=True)
 
     def transfer(self, N1p, N1m, N2p, N2m):
         """Create voltage transfer function V2 / V1 where:
