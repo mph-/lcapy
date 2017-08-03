@@ -1329,13 +1329,16 @@ class Circle4(Shape):
 
 class Triangle(Shape):
     """Equilateral triangle, The triangle shape can be altered by defining
-    defining aspect."""    
+    aspect."""    
 
     shape = 'triangle'
     # 1 / sqrt(3) approx 0.5774, 1 / (2 * sqrt(3)) approx 0.2887
     anchors = {'c1' : (0.0, 0.5774),
                'c2' : (-0.5, -0.2887),
                'c3' : (0.5, -0.2887),
+               'n' : (0.0, 0.5774),
+               'w' : (-0.5, -0.2887),
+               'e' : (0.5, -0.2887),
                'mid' : (0.0, 0.0)}
     required_anchors = ('mid', 'c1', 'c2', 'c3')
 
@@ -1346,7 +1349,7 @@ class Triangle(Shape):
 
         s = self.draw_path([self.node('c1').pos, self.node('c2').pos,
                             self.node('c3').pos], closed=True)
-        s += self.draw_label(self.node('mid').pos)
+        s += self.draw_label(self.node('mid').pos, **kwargs)
 
         return s
 
