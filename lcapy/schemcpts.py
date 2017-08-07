@@ -1339,6 +1339,7 @@ class Triangle(Shape):
                'n' : (0.0, 0.5774),
                'w' : (-0.5, -0.2887),
                'e' : (0.5, -0.2887),
+               's' : (0.0, -0.2887),
                'mid' : (0.0, 0.0)}
     required_anchors = ('mid', 'c1', 'c2', 'c3')
 
@@ -1348,7 +1349,7 @@ class Triangle(Shape):
             return ''
 
         s = self.draw_path([self.node('c1').pos, self.node('c2').pos,
-                            self.node('c3').pos], closed=True)
+                            self.node('c3').pos], closed=True, style='thick')
         s += self.draw_label(self.node('mid').pos, **kwargs)
 
         return s
