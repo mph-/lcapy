@@ -1,5 +1,6 @@
 from os import system, path, remove, mkdir, chdir, getcwd
 import re
+from sys import platform
 
 # System dependent functions
 
@@ -25,26 +26,18 @@ def convert_pdf_svg(pdf_filename, svg_filename):
 
 def convert_pdf_png(pdf_filename, png_filename, oversample=1):
 
-    system('convert -density %d %s %s' %
-           (oversample * 100, pdf_filename, png_filename))
-    if path.exists(png_filename):
-        return
+    if 'win' in platform:
+        # Windows has a program called convert, try magick convert
+        # for image magick convert.
+        system('magick convert -density %d %s %s' %
+               (oversample * 100, pdf_filename, png_filename))
+    else:
+        system('convert -density %d %s %s' %
+               (oversample * 100, pdf_filename, png_filename))
         
-    # Windows has a program called convert, try magick convert
-    # for image magick convert.
-    system('magick convert -density %d %s %s' %
-           (oversample * 100, pdf_filename, png_filename))
-    if path.exists(png_filename):
-        return
-
-    # Some Windows systems use im-convert.
-    system('im-convert -density %d %s %s' %
-           (oversample * 100, pdf_filename, png_filename))
-    if path.exists(png_filename):
-        return    
-
-    raise RuntimeError('Could not generate %s with convert' % 
-                       png_filename)
+    if not path.exists(png_filename):
+        raise RuntimeError('Could not generate %s with convert' % 
+                           png_filename)
 
 
 def latex_cleanup(tex_filename, wanted_filename=''):
