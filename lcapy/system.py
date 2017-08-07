@@ -30,12 +30,18 @@ def convert_pdf_png(pdf_filename, png_filename, oversample=1):
     if path.exists(png_filename):
         return
         
-    # Windows has a program called convert, try im-convert
+    # Windows has a program called convert, try magick convert
     # for image magick convert.
-    system('im-convert -density %d %s %s' %
+    system('magick convert -density %d %s %s' %
            (oversample * 100, pdf_filename, png_filename))
     if path.exists(png_filename):
         return
+
+    # Some Windows systems use im-convert.
+    system('im-convert -density %d %s %s' %
+           (oversample * 100, pdf_filename, png_filename))
+    if path.exists(png_filename):
+        return    
 
     raise RuntimeError('Could not generate %s with convert' % 
                        png_filename)
