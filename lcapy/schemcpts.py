@@ -42,6 +42,8 @@ class Cpt(object):
                     'v<', 'v>')
     current_keys = ('i', 'i_', 'i^', 'i_>',  'i_<', 'i^>', 'i^<',
                     'i>_', 'i<_', 'i>^', 'i<^', 'i>', 'i<')
+    flow_keys = ('f', 'f_', 'f^', 'f_>',  'f_<', 'f^>', 'f^<',
+                    'f>_', 'f<_', 'f>^', 'f<^', 'f>', 'f<')    
     label_keys = ('l', 'l_', 'l^')
     implicit_keys =  ('implicit', 'ground', 'sground', 'rground')
     # The following keys do not get passed through to circuitikz.
@@ -442,6 +444,11 @@ class Cpt(object):
         return self.opts_str(self.current_keys)
 
     @property
+    def flow_str(self):
+
+        return self.opts_str(self.flow_keys)    
+
+    @property
     def label_str(self):
 
         return self.opts_str(self.label_keys)
@@ -459,7 +466,7 @@ class Cpt(object):
 
         return ','.join([fmt(key, val) 
                          for key, val in self.opts.items()
-                         if key not in self.voltage_keys + self.current_keys + self.label_keys + self.misc_keys + self.implicit_keys])
+                         if key not in self.voltage_keys + self.current_keys + self.flow_keys + self.label_keys + self.misc_keys + self.implicit_keys])
 
     def label(self, **kwargs):
 
@@ -1018,7 +1025,7 @@ class OnePort(StretchyCpt):
         node_pair_str = self._node_pair_str(n1, n2, **kwargs)
 
         args_str = self.args_str
-        args_str2 = ','.join([self.voltage_str, self.current_str])
+        args_str2 = ','.join([self.voltage_str, self.current_str, self.flow_str])
 
         if self.mirror:
             args_str += ',mirror'
