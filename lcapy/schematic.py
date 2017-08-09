@@ -1041,7 +1041,7 @@ class Schematic(NetfileMixin):
 
         self.circuitikz_version = circuitikz_version()
         if self.circuitikz_version is None:
-            raise RuntimeError('circuititkz is not installed')
+            raise RuntimeError('circuitikz is not installed')
 
         content = self._tikz_draw(style_args=style_args, **kwargs)
         
