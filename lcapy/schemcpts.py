@@ -970,9 +970,10 @@ class OnePort(StretchyCpt):
 
         label_pos = '_'
         voltage_pos = '^'
-        if (self.type in ('V', 'I', 'E', 'F', 'G', 'H', 'BAT') and
-            (self.sch.circuitikz_version < '2016/01/01'
-             or self.sch.circuitikz_version >= '2017/05/28')):
+        if ((self.type in ('V', 'I', 'E', 'F', 'G', 'H', 'BAT')
+             and self.sch.circuitikz_version < '2016/01/01')
+            or (self.type in ('I', )
+                and self.sch.circuitikz_version >= '2017/05/28')):
 
             # Old versions of circuitikz expects the positive node
             # first, except for voltage and current sources!  So
