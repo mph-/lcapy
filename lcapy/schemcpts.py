@@ -972,7 +972,7 @@ class OnePort(StretchyCpt):
         voltage_pos = '^'
         if ((self.type in ('V', 'I', 'E', 'F', 'G', 'H', 'BAT')
              and self.sch.circuitikz_version < '2016/01/01')
-            or (self.type in ('I', )
+            or (self.type in ('I', 'F', 'G')
                 and self.sch.circuitikz_version >= '2017/05/28')):
 
             # Old versions of circuitikz expects the positive node
@@ -1044,7 +1044,10 @@ class VCS(OnePort):
 
 class CCS(OnePort):
     """Current controlled source"""
-    pass
+
+    @property
+    def required_node_names(self):
+        return self.explicit_node_names[0:2]    
 
 
 class Opamp(FixedCpt):
