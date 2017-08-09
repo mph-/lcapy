@@ -20,7 +20,7 @@ def convert_pdf_svg(pdf_filename, svg_filename):
 
     system('pdf2svg %s %s' % (pdf_filename, svg_filename))
     if not path.exists(svg_filename):
-        raise RuntimeError('Could not generate %s with pdf2svg' % 
+        raise RuntimeError('Could not generate %s with pdf2svg.  Is it installed?' % 
                            svg_filename)
 
 
