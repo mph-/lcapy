@@ -361,12 +361,44 @@ class NetlistMixin(object):
 
         return Zs(Vf.laplace(), causal=True)
 
+    def resistance(self, Np, Nm):
+        """Return resistance between nodes Np and Nm with independent
+        sources killed.  The result is in the AC (omega) domain.
+
+        """
+        return self.impedance(Np, Nm).jomega.real
+
+    def reactance(self, Np, Nm):
+        """Return reactance between nodes Np and Nm with independent
+        sources killed.  The result is in the AC (omega) domain.
+
+        """
+        return self.impedance(Np, Nm).jomega.imag * j
+
+    def conductance(self, Np, Nm):
+        """Return conductance (inverse resistance) between nodes Np and Nm
+        with independent sources killed.  The result is in the AC (omega)
+        domain.
+
+        """
+        return 1 / self.resistance
+
+    def susceptance(self, Np, Nm):
+        """Return susceptance (inverse reactance) between nodes Np and Nm with
+        independent sources killed.  The result is in the AC (omega)
+        domain.
+
+        """
+        return 1 / self.reactance
+        
     def transfer(self, N1p, N1m, N2p, N2m):
-        """Create voltage transfer function V2 / V1 where:
+        """Create s-domain voltage transfer function V2 / V1 where:
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
-        Note, independent sources are killed."""
+        Note, independent sources are killed.
+
+        """
 
         new = self.kill()
         new._add('V1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
