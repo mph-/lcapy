@@ -1067,27 +1067,27 @@ class Opamp(FixedCpt):
     # The Nm node is not used (ground).
     node_map = ('out', '', '+', '-')
     
-    panchors = {'out' : (2.4, 0.0),
+    panchors = {'out' : (2.5, 0.0),
                 '+' : (0.0, 0.5),
                 '-' : (0.0, -0.5),
-                'mid' : (1.2, 0.0),
-                'vdd' : (1.2, 0.5),
+                'mid' : (1.25, 0.0),
+                'vdd' : (1.25, 0.5),
                 'vdd2' : (0.8, 0.745),
                 'vss2' : (0.8, -0.745),
-                'vss' : (1.2, -0.5),
-                'ref' : (1.6, -0.255),
+                'vss' : (1.25, -0.5),
+                'ref' : (1.7, -0.255),
                 'r+' : (0.35, 0.25),
                 'r-' : (0.35, -0.25)}
     
-    nanchors = {'out' : (2.4, 0.0),
+    nanchors = {'out' : (2.5, 0.0),
                 '+' : (0.0, -0.5),
                 '-' : (0.0, 0.5),
-                'mid' : (1.2, 0.0),
-                'vdd' : (1.2, 0.5),
+                'mid' : (1.25, 0.0),
+                'vdd' : (1.25, 0.5),
                 'vdd2' : (0.8, 0.745),
                 'vss2' : (0.8, -0.745),
-                'vss' : (1.2, -0.5),
-                'ref' : (1.6, -0.255),
+                'vss' : (1.25, -0.5),
+                'ref' : (1.7, -0.255),
                 'r+' : (0.35, 0.25),
                 'r-' : (0.35, -0.25)}
 
@@ -1100,7 +1100,7 @@ class Opamp(FixedCpt):
         if not self.check():
             return ''
 
-        yscale = 2 * 1.019 * self.scale
+        yscale = 2 * 0.95 * self.scale        
         if not self.mirror:
             yscale = -yscale
 
@@ -1109,7 +1109,7 @@ class Opamp(FixedCpt):
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             centre.s,
-            self.args_str, 2 * 1.01 * self.scale, yscale,
+            self.args_str, 2 * self.scale, yscale,
             -self.angle, self.s)
         s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, self.node('out').s)
         s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('+').s)
@@ -1128,21 +1128,21 @@ class FDOpamp(FixedCpt):
 
     node_map = ('out+', 'out-', '+', '-')
     
-    panchors = {'out+' : (2.05, -0.5),
-                'out-' : (2.05, 0.5),                
+    panchors = {'out+' : (2.00, -0.5),
+                'out-' : (2.00, 0.5),                
                 '+' : (0.0, 0.5),
                 '-' : (0.0, -0.5),
-                'mid' : (1.2, 0.0),
+                'mid' : (1.25, 0.0),
                 'vdd' : (1.0, 0.62),
                 'vss' : (1.0, -0.62),
                 'r+' : (0.35, 0.25),
                 'r-' : (0.35, -0.25)}
     
-    nanchors = {'out+' : (2.05, 0.5),
-                'out-' : (2.05, -0.5),
+    nanchors = {'out+' : (2.00, 0.5),
+                'out-' : (2.00, -0.5),
                 '+' : (0.0, -0.5),
                 '-' : (0.0, 0.5),
-                'mid' : (1.2, 0.0),
+                'mid' : (1.25, 0.0),
                 'vdd' : (1.0, 0.62),
                 'vss' : (1.0, -0.62),
                 'r+' : (0.35, 0.25),
@@ -1159,12 +1159,12 @@ class FDOpamp(FixedCpt):
 
         centre = self.node('mid')
 
-        yscale = 2 * 1.02 * self.scale
+        yscale = 2 * 0.95 * self.scale
         if not self.mirror:
             yscale = -yscale
 
         s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            centre.s, self.args_str, 2 * 1.01 * self.scale, yscale,
+            centre.s, self.args_str, 2 * self.scale, yscale,
             -self.angle, self.s)
         s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, self.node('out+').s)
         s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, self.node('out-').s)
