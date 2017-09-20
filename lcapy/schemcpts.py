@@ -49,7 +49,7 @@ class Cpt(object):
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
-                 'aspect', 'pins', 'image')
+                 'aspect', 'pins', 'image', 'offset')
 
     can_rotate = True
     can_scale = False
@@ -212,6 +212,10 @@ class Cpt(object):
     @property
     def aspect(self):
         return float(self.opts.get('aspect', self.default_aspect))
+
+    @property
+    def offset(self):
+        return float(self.opts.get('offset', 0))
 
     def R(self, angle_offset=0):
         """Return rotation matrix"""
