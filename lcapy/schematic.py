@@ -219,6 +219,7 @@ class Schematic(NetfileMixin):
         self.cpt_size = 1.2
         self.node_spacing = 2.0
         self.scale = 1.0
+        self.dummy_node = 0
 
         if filename is not None:
             self.netfile_add(filename)
@@ -280,6 +281,37 @@ class Schematic(NetfileMixin):
 
     def _cpt_add(self, cpt):
 
+        if cpt.offset != 0 and len(cpt.node_names) == 2:
+            # Change component and add wires.
+
+            n1 = cpt.node_names[0]
+            n2 = cpt.node_names[1]
+            self.dummy_node += 1                            
+            on1 = n1 + '_o%d' % self.dummy_node
+            self.dummy_node += 1                            
+            on2 = n2 + '_o%d' % self.dummy_node
+
+            angle = 90
+            size = cpt.offset
+            if size < 0:
+                size = -size
+                angle = -angle
+            
+            w1 = 'W %s %s; rotate=%s, size=%s' % (n1, on1, cpt.angle + angle, size)
+            w2 = 'W %s %s; rotate=%s, size=%s' % (n2, on2, cpt.angle + angle, size)
+
+            self.add(w1)
+            self.add(w2)
+
+            # Rename nodes
+            parts = cpt.net.split(' ')
+            parts[1] = on1
+            parts[2] = on2
+            net = ' '.join(parts)
+            cpt.opts.strip('offset')
+            self.add('%s; %s' % (net, cpt.opts))
+            return
+        
         def tex_name(name, subscript=None):
 
             if subscript is None:
@@ -409,11 +441,16 @@ class Schematic(NetfileMixin):
         # nodes of orthogonal components get combined into a
         # common node.
         for m, elt in enumerate(self.elements.values()):
+
+            if elt.offset != 0:
+                raise ValueError('offset field should be removed')
+            
             elt.xlink(self.xgraph)
             elt.ylink(self.ygraph)
 
         # Now form forward and reverse directed graph using components
         # in the desired directions.
+        # Note, this must be done after the linking step.
         for m, elt in enumerate(self.elements.values()):
             elt.xplace(self.xgraph)
             elt.yplace(self.ygraph)

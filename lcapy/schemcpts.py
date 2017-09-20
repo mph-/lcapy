@@ -346,6 +346,9 @@ class Cpt(object):
                     graphs.link(n1.name, n2.name)
 
     def place(self, graphs, vals):
+
+        if self.offset != 0:
+            print('TODO: offset %s by %f' % (self, self.offset))
         
         size = self.size
         idx = np.argsort(vals)[::-1]

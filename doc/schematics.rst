@@ -424,8 +424,7 @@ A transmission line is a two-port device.  Here's an example:
 Wires
 =====
 
-Components can be directly connected or by using wires.   Wires need to
-be explicitly added to the netlist, for example,
+Wires are useful for schematic formatting, for example,
 
    W 1 2; right
 
@@ -434,6 +433,14 @@ Here an anonymous wire is created since it has no identifier.
 The line style of wires can be changed, such as dashed or dotted (see
 :ref:`linestyles`).
 
+Wires can be implicitly added using the `offset` attribute.  Here's an
+example to draw two parallel resistors:
+
+.. literalinclude:: examples/schematics/parallel.sch
+
+.. image:: examples/schematics/parallel.png
+   :width: 5cm
+     
 
 Arrows
 ------
@@ -647,6 +654,8 @@ Component attributes
 
 - `pins`: define pin labels for ICs
 
+- `offset`: distance to orthogonally offset component (useful for parallel components)
+  
 
 Here's an example using the variable attribute:
 
