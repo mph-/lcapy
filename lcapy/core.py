@@ -1673,11 +1673,11 @@ class Phasor(omegaExpr):
     def rms(self):
         return {Vphasor: Vt, Iphasor : It}[self.__class__](0.5 * self)
 
-    def plot(self, fvector=None, **kwargs):
+    # def plot(self, fvector=None, **kwargs):
 
-        if self.omega != omegasym:
-            self.fourier.plot(fvector, **kwargs)
-        return omegaExpr(self).plot(fvector, **kwargs)
+    #     if self.omega != omegasym:
+    #         self.fourier.plot(fvector, **kwargs)
+    #     return omegaExpr(self).plot(fvector, **kwargs)
 
 
 class Vphasor(Phasor):
