@@ -303,6 +303,11 @@ class Schematic(NetfileMixin):
             self.add(w1)
             self.add(w2)
 
+            # Add open-circuit to ensure alignment.
+            o = 'O %s %s; rotate=%s, size=%s' % (n1, n2, cpt.angle, cpt.size)
+            self.add(o)
+            
+
             # Rename nodes
             parts = cpt.net.split(' ')
             parts[1] = on1
