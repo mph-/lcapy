@@ -189,6 +189,7 @@ class Expr(object):
     # Perhaps have lookup table for operands to determine
     # the resultant type?  For example, Vs / Vs -> Hs
     # Vs / Is -> Zs,  Is * Zs -> Vs
+    # But what about Vs**2 ?
 
     def __init__(self, arg, **assumptions):
 
@@ -1584,7 +1585,7 @@ class cExpr(Expr):
         return self.time().laplace()
 
     
-class Phasor(Expr):
+class Phasor(omegaExpr):
 
     # Could convert Vphasor + Vconst -> VSuper but that is not really
     # the scope for types such as Vphasor and Vconst.
