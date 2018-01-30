@@ -81,10 +81,11 @@ def run_dot(dotfilename, filename):
 
 def circuitikz_version():
 
-    content = ('\\documentclass[a4paper]{standalone}\n'
-               '\\usepackage{circuitikz}\n'
-               '\\begin{document}\n'
-               '\\end{document}\n')
+    content = r"""
+    \documentclass[a4paper]{standalone}
+    \usepackage{circuitikz}
+    \begin{document}
+    \end{document}"""
 
     tex_filename = tmpfilename('.tex')
     open(tex_filename, 'w').write(content)
