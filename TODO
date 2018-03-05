@@ -170,3 +170,5 @@ Tidy docs
 
 s-model convert current, voltage labels to s-domain, say i -> I
 
+
+Add gyrator component

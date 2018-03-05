@@ -84,11 +84,17 @@ The component type is specified by the first letter(s) of the
 
 - Ideal transformer of turns ratio a:
 
-   TFname Np Nm a
+  TFname Np Nm Nip Nim a
 
-Np denotes the positive node; Np denotes the negative node.  Note,
-positive current flows from `positive-node` to `negative-node`.  Node
-names can be numeric or symbolic.  The ground node is designated `0`.
+- Ideal gyrator of gyration resistance R:
+
+   GYname Np Nm Nip Nim R  
+
+Np denotes the positive node; Np denotes the negative node.  Fot
+two-port devices, Nip denotes the positive input node and Nim denotes
+the negative input node.  Note, positive current flows from
+`positive-node` to `negative-node`.  Node names can be numeric or
+symbolic.  The ground node is designated `0`.
 
 
 Voltage and current sources

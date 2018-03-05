@@ -596,6 +596,17 @@ class FixedCpt(Cpt):
 
     can_stretch = False
 
+    @property
+    def centre(self):
+        if hasattr(self, 'anchors'):
+            # Look for centre anchor.
+            for node in self.nodes:
+                if node.name.split('.')[-1] == 'mid':
+                    return node.pos
+        
+        N = len(self.nodes)
+        return self.midpoint(self.nodes[0], self.nodes[N // 2])
+
     def tf(self, centre, offset, angle_offset=0.0):
         """Transform coordinate."""
 
@@ -958,6 +969,32 @@ class K(TF1):
         return [self.sch.nodes[n] for n in L1.node_names + L2.node_names]
 
 
+class Gyrator(FixedCpt):
+    """Gyrator"""
+
+    @property
+    def coords(self):
+        return ((1, 1), (1, 0), (0, 1), (0, 0))
+    
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        yscale = self.scale
+        if not self.mirror:
+            yscale = -yscale
+
+        s = r'  \draw (%s) node[gyrator, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
+            self.midpoint(self.nodes[1], self.nodes[3]),
+            self.args_str, 0.95 * self.scale, 0.89 * yscale,
+            -self.angle, self.s)        
+
+        s += self.draw_label(self.centre, **kwargs)
+        s += self.draw_nodes(**kwargs)        
+        return s
+
+    
 class OnePort(StretchyCpt):
     """OnePort"""
 
@@ -1213,17 +1250,6 @@ class Shape(FixedCpt):
     default_aspect = 1.0
     can_mirror = True
 
-
-    @property
-    def centre(self):
-        if hasattr(self, 'anchors'):
-            # Look for centre anchor.
-            for node in self.nodes:
-                if node.name.split('.')[-1] == 'mid':
-                    return node.pos
-        
-        N = len(self.nodes)
-        return self.midpoint(self.nodes[0], self.nodes[N // 2])
 
     @property
     def width(self):
@@ -1885,6 +1911,8 @@ defcpt('F', VCS, 'CCCS', 'american controlled current source')
 defcpt('G', CCS, 'VCCS', 'american controlled current source')
 defcpt('H', CCS, 'CCVS', 'american controlled voltage source')
 
+defcpt('GY', Gyrator, 'Gyrator', 'gyrator')
+
 defcpt('I', OnePort, 'Current source', 'I')
 defcpt('sI', OnePort, 'Current source', 'I')
 defcpt('Isin', 'I', 'Sinusoidal current source', 'sI')
@@ -1923,7 +1951,7 @@ defcpt('SWnc', 'SW', 'Normally closed switch', 'opening switch')
 defcpt('SWpush', 'SW', 'Pushbutton switch', 'push button')
 defcpt('SWspdt', SPDT, 'SPDT switch', 'spdt')
 
-defcpt('TF', Transformer, 'Transformer', 'transformer')
+defcpt('TF', Transformer, 'Transformer', 'ideal transformer')
 defcpt('TFcore', Transformer, 'Transformer with core', 'transformer core')
 defcpt('TFtapcore', TFtap, 'Tapped transformer with core', 'transformer core')
 defcpt('TP', TwoPort, 'Two port', '')

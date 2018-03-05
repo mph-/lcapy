@@ -27,6 +27,7 @@ Efdopamp: Ename Np Nm fdopamp Ncp Ncm [Value]; Fully differential opamp
 F: Fname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
 FB: FBname Np Nm; Ferrite bead
 G: Gname Np Nm Ncp Ncm [Value]; Voltage controlled current source
+GY: GYname Np Nm Ncp Ncm [Value]; Gyrator
 H: Hname Np Nm Vcontrol [Value]; Current controlled voltage source (note the control current is specified through a voltage source)
 I: Iname Np Nm [Value]; Current source
 sI: Iname Np Nm s [Value]; s-domain current source
@@ -63,7 +64,7 @@ SWnc: SWname Np Nm nc; Switch normally closed
 SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch
 SWspdt: SWname Nc Np Nm spdt; SPDT switch
-TF: TFname Np Nm Ncp Ncm [Value]; Transformer (works to DC!)
+TF: TFname Np Nm Ncp Ncm [Value]; Ideal transformer (works to DC!)
 TFcore: TFname Np Nm Ncp Ncm core [Value]; Transformer with core (works to DC!)
 TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value]; Tapped transformer (works to DC!)
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value]; Tapped transformer with core (works to DC!)

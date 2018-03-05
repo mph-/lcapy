@@ -250,6 +250,15 @@ Here's an example:
    :width: 10cm
 
 
+Gyrators
+--------
+
+.. literalinclude:: examples/schematics/GY1.sch
+
+.. image:: examples/schematics/GY1.png
+   :width: 2cm
+
+
 Integrated circuits
 -------------------
 

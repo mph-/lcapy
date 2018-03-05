@@ -34,6 +34,7 @@ class Cpt(object):
     independent_source = False    
     reactive = False
     need_branch_current = False
+    need_extra_branch_current = False    
     need_control_current = False
 
     def __init__(self, cct, name, cpt_type, cpt_id, string,
@@ -578,6 +579,49 @@ class G(DependentSource):
         newopts.strip_labels()
 
         return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)            
+
+class GY(Dummy):
+    """Gyrator"""    
+
+    need_branch_current = True
+    need_extra_branch_current = True
+
+    def stamp(self, cct):
+        
+        n1, n2, n3, n4 = self.node_indexes
+        m1 = self.cct._branch_index(self.name + 'X')
+        m2 = self.branch_index
+
+        # m1 is the input branch
+        # m2 is the output branch
+        # GY.I gives the current through the output branch
+
+        # Could generalise to have different input and output
+        # impedances, Z1 and Z2, but if Z1 != Z2 then the device is
+        # not passive.
+
+        # V2 = -I1 Z2     V1 = I2 Z1
+        # where V2 = V[n1] - V[n2] and V1 = V[n3] - V[n4]
+        
+        Z1 = cExpr(self.args[0]).expr                    
+        Z2 = Z1
+        
+        if n1 >= 0:
+            cct._B[n1, m2] += 1
+            cct._C[m1, n1] += 1
+        if n2 >= 0:
+            cct._B[n2, m2] -= 1
+            cct._C[m1, n2] -= 1
+        if n3 >= 0:
+            cct._B[n3, m1] += 1
+            cct._C[m2, n3] += 1
+        if n4 >= 0:
+            cct._B[n4, m1] -= 1
+            cct._C[m2, n4] -= 1                        
+
+        cct._D[m1, m1] += Z2
+        cct._D[m2, m2] -= Z1
+
 
 class H(DependentSource):
     """CCVS"""

@@ -34,7 +34,7 @@ the python with python3 in the package names and when running setup.py.
 - For schematic drawing you need pdflatex, the circuitikz package,
   imagemagick, and ghostscript.
 
-  >>> sudo apt-get install texlive-latex-base texlive-pictures imagemagick ghostscript
+  >>> sudo apt-get install texlive-latex-base texlive-pictures texlive-standalone imagemagick ghostscript
 
 - For nice rendering of maths you need mathjax.  This is not
   essential, if it is not loaded then an active internet connection is

@@ -114,6 +114,8 @@ class MNA(object):
         for elt in self.elements.values():
             if elt.need_branch_current:
                 self.unknown_branch_currents.append(elt.name)
+            if elt.need_extra_branch_current:
+                self.unknown_branch_currents.append(elt.name + 'X')
 
         # Generate stamps.
         num_nodes = len(self.node_list) - 1
@@ -151,10 +153,7 @@ class MNA(object):
             if self.kind == 'dc':
                 comment = '  Check there is a DC path between all nodes.'
             raise ValueError(
-                'The MNA A matrix is not invertible; some nodes may need'
-                ' connecting with high value resistors, a voltage source'
-                ' might be short-circuited, a current source might be'
-                ' open-circuited.%s' % comment)
+"""The MNA A matrix is not invertible for %s analysis; some nodes may need connecting with high value resistors, a voltage source might be short-circuited, a current source might be open-circuited.%s""" % (self.kind, comment))
 
         # Bug in sympy DiracDelta.simplify where it has different API.
         #results = sym.simplify(Ainv * self._Z)

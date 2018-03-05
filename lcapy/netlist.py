@@ -400,6 +400,8 @@ class NetlistMixin(object):
 
         """
 
+        # TODO, work with AC models
+
         new = self.kill()
         new._add('V1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
 
