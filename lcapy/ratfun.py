@@ -196,10 +196,10 @@ class Ratfun(object):
             K *= sym.exp(self.var * delay)
 
         # Divide by leading coefficient
-        N = N.monic()
-        D = D.monic()
+        Nm = N.monic()
+        Dm = D.monic()
 
-        expr = K * (N / D)
+        expr = K * (Nm / Dm)
 
         return expr
 

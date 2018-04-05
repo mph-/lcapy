@@ -110,7 +110,10 @@ class TwoPortMatrix(Matrix):
 
     def __new__(cls, *args):
 
-        args = [sym.simplify(arg) for arg in args]
+        try:
+            args = [arg.simplify() for arg in args]
+        except:
+            pass
 
         if len(args) == 4:
             return super(TwoPortMatrix, cls).__new__(
