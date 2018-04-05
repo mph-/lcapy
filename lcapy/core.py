@@ -1049,7 +1049,18 @@ class Expr(object):
 
         # Need to use lcapy sympify otherwise could use
         # getattr to call sym.limit.
-        ret = sym.limit(self.expr, sympify(var), sympify(value))
+
+        var = sympify(var)
+        value = sympify(value)
+
+        # Experimental.  Compare symbols by names.
+        symbols = list(self.expr.free_symbols)
+        symbolnames = [str(symbol) for symbol in symbols]
+        if str(var) not in symbolnames:
+            return self
+        var = symbols[symbolnames.index(str(var))]
+        
+        ret = sym.limit(self.expr, var, value)
         if hasattr(self, 'assumptions'):
             return self.__class__(ret, **self.assumptions)
         return self.__class__(ret)
