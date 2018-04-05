@@ -2793,6 +2793,27 @@ class Super(Exprdict):
                 return False
         return True
 
+
+    def __ne__(self, x):
+
+        # Cannot compare noise by subtraction.
+        if isinstance(x, Super):
+            # TODO, be smarter about transformations
+            x = x.transform()
+            y = self.transform()            
+            if y.items() != x.items():
+                return True
+            for kind, value in y.items():
+                if value != x[kind]:
+                    return True
+            return False
+        
+        diff = self - x
+        for kind, value in diff.items():
+            if value != 0:
+                return True
+        return False    
+
     def _decompose(self, value):
 
         dc = value.expr.coeff(tsym, 0)
