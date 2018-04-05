@@ -440,14 +440,15 @@ class NetlistMixin(object):
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
-            A21 = Ys(-self.I['I1_'].laplace() / self.Voc(N2p, N2m).laplace())
+            A21 = Ys(-self.I1_.I.laplace() / self.Voc(N2p, N2m).laplace())
 
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure I2 with port 2 short-circuit
-            A22 = Hs(-self.I['I1_'].laplace() / self.Isc(N2p, N2m).laplace())
+            A22 = Hs(-self.I1_.I.laplace() / self.Isc(N2p, N2m).laplace())
 
             self.remove('I1_')
-            return AMatrix(A11, A12, A21, A22)
+            A = AMatrix(A11, A12, A21, A22)
+            return A
 
         except ValueError:
             raise ValueError('Cannot create A matrix')

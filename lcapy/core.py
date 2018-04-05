@@ -1835,7 +1835,11 @@ class Matrix(sym.Matrix):
 
         return sym.Matrix(self).det()
 
+    def simplify(self):
+        # TODO
+        return self
 
+    
 class Vector(Matrix):
 
     def __new__(cls, *args):
