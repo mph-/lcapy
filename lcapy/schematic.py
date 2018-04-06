@@ -41,6 +41,7 @@ import re
 from lcapy.latex import latex_str, format_label
 from lcapy.core import Expr
 import lcapy.schemcpts as cpts
+import sympy as sym
 from lcapy.schemgraph import Graph
 from lcapy.schemmisc import Pos, Opts
 from lcapy.netfile import NetfileMixin
@@ -356,7 +357,11 @@ class Schematic(NetfileMixin):
             elif cpt.classname in ('Vs', 'Is'):
                 value_label = Expr(expr, cache=False).latex()
             elif cpt.classname == 'TF':
-                value_label = '1:%s' % expr
+                expr = sym.sympify(expr)
+                if expr.is_Pow and expr.args[1] == -1:
+                    value_label = '%s:1' % (1 / expr)
+                else:
+                    value_label = '1:%s' % expr
             elif cpt.classname not in ('TP',):
                 try:
                     value = float(expr)
