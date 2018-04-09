@@ -221,7 +221,18 @@ class Ratfun(object):
 
         See also canonical, mixedfrac, general, and ZPK"""
 
-        F, R, Q, delay = self.as_residue_parts()
+        try:
+            F, R, Q, delay = self.as_residue_parts()
+            
+        except ValueError:
+            # Try splitting into terms
+            expr = self.expr.expand()
+            if not expr.is_Add:
+                raise ValueError('Cannot convert to partial fraction')
+            result = 0
+            for arg in expr.args:
+                result += Ratfun(arg, self.var).partfrac()
+            return result
 
         expr = Q.as_expr()
         for f, r in zip(F, R):

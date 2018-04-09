@@ -290,7 +290,7 @@ def inverse_laplace_term1(expr, s, t, **assumptions):
 
 def inverse_laplace_term(expr, s, t, **assumptions):
 
-    expr, delay = delay_factor(expr, s)
+    expr, delay = delay_factor(sym.simplify(expr), s)
 
     result1, result2 = inverse_laplace_term1(expr, s, t, **assumptions)
 
@@ -309,6 +309,7 @@ def inverse_laplace_term(expr, s, t, **assumptions):
 
 def inverse_laplace_by_terms(expr, s, t, **assumptions):
 
+    expr = sym.expand(expr)
     terms = expr.as_ordered_terms()
 
     result1 = sym.sympify(0)
