@@ -23,7 +23,8 @@ def plot_pole_zero(obj, **kwargs):
 
     ax = kwargs.pop('axes', None)
     if ax is None:
-        fig = figure()
+        figsize = kwargs.pop('figsize', (8, 6))        
+        fig = figure(figsize=figsize)
         ax = fig.add_subplot(111)
     ax.axvline(0, color='0.7')
     ax.axhline(0, color='0.7')
@@ -100,7 +101,8 @@ def plot_frequency(obj, f, **kwargs):
 
     ax = kwargs.pop('axes', None)
     if ax is None:
-        fig = figure()
+        figsize = kwargs.pop('figsize', (8, 6))
+        fig = figure(figsize=figsize)        
         ax = fig.add_subplot(111)
 
     V = obj.evaluate(f)
@@ -120,11 +122,13 @@ def plot_frequency(obj, f, **kwargs):
         plot = plots[(log_magnitude, log_frequency)]
     else:
         plot = plots[(False, log_frequency)]                    
-        
+
+    xlabel = kwargs.pop('xlabel', obj.domain_label)
+    ylabel = kwargs.pop('ylabel', obj.label)        
     plot(f, V, **kwargs)
-            
-    ax.set_xlabel(obj.domain_label)
-    ax.set_ylabel(obj.label)
+
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)    
     ax.grid(True)
     return ax
 
@@ -158,10 +162,13 @@ def plot_time(obj, t, **kwargs):
 
     ax = kwargs.pop('axes', None)
     if ax is None:
-        fig = figure()
+        figsize = kwargs.pop('figsize', (8, 6))
+        fig = figure(figsize=figsize)
         ax = fig.add_subplot(111)
+    xlabel = kwargs.pop('xlabel', obj.domain_label)
+    ylabel = kwargs.pop('ylabel', obj.label)
     ax.plot(t, v, **kwargs)
-    ax.set_xlabel(obj.domain_label)
-    ax.set_ylabel(obj.label)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
     ax.grid(True)
     return ax
