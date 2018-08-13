@@ -847,27 +847,33 @@ class Expr(object):
 
         def evaluate_expr(expr, var, arg):
 
+            # For some reason the new lambdify will convert a float
+            # argument to complex
+            
             def exp(arg):
 
                 # Hack to handle exp(-a * t) * Heaviside(t) for t < 0
                 # by trying to avoid inf when number overflows float.
-                if arg > 500:
-                    arg = 500;
+
+                if isinstance(arg, complex):
+                    if arg.real > 500:
+                        arg = 500 + 1j * arg.imag
+                elif arg > 500:
+                    arg = 500;                        
+
                 return np.exp(arg)
 
             def dirac(arg):
                 return np.inf if arg == 0.0 else 0.0
 
             def heaviside(arg):
+
                 return 1.0 if arg >= 0.0 else 0.0
 
             def sqrt(arg):
-                if arg < 0:
-                    return 1j * np.sqrt(-arg)
-                try:
-                    return np.sqrt(arg)
-                except AttributeError:
-                    return np.sqrt(float(arg))
+                if not isinstance(arg, complex) and arg < 0:
+                    arg = arg + 0j
+                return np.sqrt(arg)
 
             try:
                 arg0 = arg[0]
