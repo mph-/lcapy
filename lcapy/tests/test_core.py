@@ -253,6 +253,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(t.evaluate(10), 10.0, "Evaluate fail for scalar")
         self.assertEqual(t.evaluate((10, 20))[0], 10.0, "Evaluate fail for vector")
         self.assertEqual((t * 5 + 1).evaluate((10, 20))[0], 51.0, "Evaluate fail for vector")
+        a = exp(t)
+        self.assertEqual(a.evaluate(0j), 1, "Evaluate fail for exp(0j)")
+        a = sqrt(t)
+        self.assertEqual(a.evaluate(0j), 0j, "Evaluate fail for sqrt(0j)")
+        self.assertEqual(a.evaluate(2j), 1 + 1j, "Evaluate fail for sqrt(1+1j)")
+        self.assertEqual(a.evaluate(4), 2, "Evaluate fail for sqrt(4)")
 
     def test_zp2k(self):
 
@@ -318,3 +324,4 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.nid, a.conjugate.nid, "Different nids for conjugate")
         self.assertEqual(a.nid, a.real.nid, "Different nids for real")
         self.assertEqual(a.nid, a.imag.nid, "Different nids for imag")                
+        

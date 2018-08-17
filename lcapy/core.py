@@ -892,7 +892,7 @@ class Expr(object):
                              "numpy", "sympy", "math"))
 
             try:
-                result = func(np.float(arg0))
+                result = func(arg0)
                 response = complex(result)
             except NameError:
                 raise RuntimeError('Cannot evaluate expression %s' % self)
@@ -912,7 +912,7 @@ class Expr(object):
                 return response
 
             try:
-                response = np.array([complex(func(np.float(arg0))) for arg0 in arg])
+                response = np.array([complex(func(arg0)) for arg0 in arg])
             except TypeError:
                 raise TypeError(
                     'Cannot evaluate expression %s,'
