@@ -886,3 +886,6 @@ example::
 
    ;;\draw[help lines] (0,0) grid [xstep=0.1, ystep=0.1] (10,5);  
   
+
+Unfortunately, the drawing quality depends on the installed version of
+circuitikz due to slight tweakings of component sizes.

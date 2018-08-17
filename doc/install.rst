@@ -25,22 +25,22 @@ the python with python3 in the package names and when running setup.py.
 
 - You need to install the SymPy package:
 
-  >>> sudo apt-get install python-sympy
+  >>> sudo apt install python-sympy
 
 - For plotting you need the Matplotlib and NumPy packages:
 
-  >>> sudo apt-get install python-numpy python-matplotlib
+  >>> sudo apt install python-numpy python-matplotlib
 
 - For schematic drawing you need pdflatex, the circuitikz package,
   imagemagick, and ghostscript.
 
-  >>> sudo apt-get install texlive-latex-base texlive-pictures texlive-standalone imagemagick ghostscript
+  >>> sudo apt install texlive-latex-base texlive-pictures texlive-latex-extra imagemagick ghostscript
 
 - For nice rendering of maths you need mathjax.  This is not
   essential, if it is not loaded then an active internet connection is
   required.
 
-  >>> sudo apt-get install libjs-mathjax fonts-mathjax
+  >>> sudo apt install libjs-mathjax fonts-mathjax
 
 - The easiest way to obtain the Lcapy sources is to use git:
 
@@ -55,5 +55,5 @@ the python with python3 in the package names and when running setup.py.
 
 - While you are at it, it is worthwhile to install ipython, the interactive python shell (this is also useful for displaying notebooks in a web browser).
 
-  >>> sudo apt-get install ipython
+  >>> sudo apt install ipython
 
