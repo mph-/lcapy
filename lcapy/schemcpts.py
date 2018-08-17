@@ -1153,7 +1153,7 @@ class Opamp(FixedCpt):
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             centre.s,
-            self.args_str, 2 * self.scale, yscale,
+            self.args_str, 2 * self.scale * 0.95, yscale,
             -self.angle, self.s)
         s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, self.node('out').s)
         s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('+').s)
@@ -1177,20 +1177,20 @@ class FDOpamp(FixedCpt):
                 '+' : (0.0, 0.5),
                 '-' : (0.0, -0.5),
                 'mid' : (1.25, 0.0),
-                'vdd' : (1.0, 0.62),
-                'vss' : (1.0, -0.62),
-                'r+' : (0.35, 0.25),
-                'r-' : (0.35, -0.25)}
+                'vdd' : (1.0, 0.645),
+                'vss' : (1.0, -0.645),
+                'r+' : (0.4, 0.25),
+                'r-' : (0.4, -0.25)}
     
     nanchors = {'out+' : (2.00, 0.5),
                 'out-' : (2.00, -0.5),
                 '+' : (0.0, -0.5),
                 '-' : (0.0, 0.5),
                 'mid' : (1.25, 0.0),
-                'vdd' : (1.0, 0.62),
-                'vss' : (1.0, -0.62),
-                'r+' : (0.35, 0.25),
-                'r-' : (0.35, -0.25)}
+                'vdd' : (1.0, 0.645),
+                'vss' : (1.0, -0.645),
+                'r+' : (0.4, 0.25),
+                'r-' : (0.4, -0.25)}
 
     @property
     def anchors(self):
@@ -1203,12 +1203,12 @@ class FDOpamp(FixedCpt):
 
         centre = self.node('mid')
 
-        yscale = 2 * 0.95 * self.scale
+        yscale = 2 * 0.952 * self.scale
         if not self.mirror:
             yscale = -yscale
 
         s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            centre.s, self.args_str, 2 * self.scale, yscale,
+            centre.s, self.args_str, 2 * self.scale * 0.95, yscale,
             -self.angle, self.s)
         s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, self.node('out+').s)
         s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, self.node('out-').s)

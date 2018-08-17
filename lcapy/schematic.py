@@ -549,12 +549,13 @@ class Schematic(NetfileMixin):
         s = r'\begin{tikzpicture}[%s]''\n' % opts
 
         help = float(kwargs.pop('help_lines', 0))
+        color = kwargs.pop('color', 'blue')
         if help != 0:
             start = Pos(-0.5, -0.5) * self.node_spacing
             stop = Pos(self.width + 0.5, self.height + 0.5) * self.node_spacing
 
-            s += r'\draw[help lines, blue] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
-                start, help, help, stop)
+            s += r'\draw[help lines, %s] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
+                color, start, help, help, stop)
 
         # Write coordinates
         for n in self.nodes.values():
