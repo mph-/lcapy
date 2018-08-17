@@ -5,8 +5,7 @@ PNGFILES = $(PYFILES:.py=.png) $(SCHFILES:.sch=.png)
 all: $(PNGFILES)
 
 %.png: %.py
-	# pylab option prevents ipython hanging on show
-	cd $(dir $@); ipython --pylab=gtk $(notdir $<)
+	cd $(dir $@); ipython --matplotlib=gtk3 $(notdir $<)
 
 %.png: %.sch
 	cd $(dir $@); schtex.py $(notdir $<) $(notdir $@) 
