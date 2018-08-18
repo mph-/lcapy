@@ -1027,8 +1027,10 @@ class Expr(object):
 
         result = self.expr.subs(old, expr)
 
-        # If get empty Piecewise, then result unknowable.
-        if result == sym.Piecewise():
+        # If get empty Piecewise, then result unknowable.  TODO: sympy
+        # 1.2 requires Piecewise constructor to have at least one
+        # pair.
+        if False and result.is_Piecewise and result == sym.Piecewise():
             result = sym.nan
 
         # TODO: propagate assumptions?
@@ -1233,7 +1235,9 @@ class sExpr(sfwExpr):
         """Return expression with s = j omega."""
 
         w = omegaExpr(omegasym)
-        return self(sym.I * w)
+        jw = sym.I * w
+        # Perform substitution
+        return self(jw)
 
     def initial_value(self):
         """Determine value at t = 0."""

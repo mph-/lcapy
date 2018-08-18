@@ -1,6 +1,11 @@
 from sympy.parsing.sympy_parser import parse_expr, auto_number, rationalize
-from sympy.parsing.sympy_tokenize import NUMBER, STRING, NAME, OP
+try:
+    from sympy.parsing.sympy_parser import NUMBER, STRING, NAME, OP        
+except:
+    from sympy.parsing.sympy_tokenize import NUMBER, STRING, NAME, OP
+    
 from sympy import Basic, Symbol, Expr
+from sympy.core.function import AppliedUndef
 import sympy as sym
 import re
 
@@ -70,16 +75,17 @@ def symbols_find(arg):
     if hasattr(arg, 'expr'):
         arg = arg.expr
 
-    if not isinstance(arg, (Symbol, Expr)):
+    if not isinstance(arg, (Symbol, Expr, AppliedUndef)):
         return []
-    return [symbol.name for symbol in arg.atoms(Symbol)]
+    return [repr(symbol) for symbol in arg.atoms(Symbol, AppliedUndef)]
 
 def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
+    """Handle arbitrary strings that may refer to multiple symbols."""
 
     cache = assumptions.pop('cache', True)
 
     def auto_symbol(tokens, local_dict, global_dict):
-        """Inserts calls to ``Symbol`` for undefined variables."""
+        """Inserts calls to ``Symbol`` or ``Function`` for undefined variables/functions."""
         result = []
         prevTok = (None, None)
 
@@ -111,7 +117,15 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
                     result.append((NAME, name))
                     continue
 
-                # Automatically add Symbol
+                # Automatically add Function.  We ignore the assumptions.
+                # These could be supported by modifying fourier.py/laplace.py
+                # to propagate assumptions when converting V(s) to v(t), etc.
+                if nextTokVal == '(':
+                    result.extend([(NAME, 'Function'),
+                                   (OP, '('), (NAME, repr(name)), (OP, ')')])
+                    continue
+
+                # Automatically add Symbol                
                 result.extend([(NAME, 'Symbol'),
                                (OP, '('), (NAME, repr(name))])
                 for assumption, val in assumptions.items():
@@ -134,26 +148,22 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
     if not cache:
         return s
 
-    # Look for newly defined symbols.
-    for symbol in s.atoms(Symbol):
-        if (False and symbol.name in symbols 
-            and symbols[symbol.name] != symbol):
-            # The symbol may have different assumptions, real,
-            # positive, etc.
-            print('Different assumptions for symbol %s when parsing %s' %
-                  (symbol.name, string))
-
-        if symbol.name not in symbols:
-            if False:
-                print('Added symbol %s: real=%s, positive=%s' %
-                      (symbol.name, symbol.is_real, symbol.is_positive))
-            symbols[symbol.name] = symbol
+    # Look for newly defined symbols/functions.
+    for symbol in s.atoms(Symbol, AppliedUndef):
+        name = repr(symbol)
+        if name not in symbols:
+            symbols[name] = symbol
 
     return s
 
 
 def sympify1(arg, symbols={}, evaluate=True, **assumptions):
-    """Create a sympy expression."""
+    """Create a sympy expression.
+
+    The purpose of this function is to head sympy off at the pass and
+    apply the defined assumptions.
+
+    """
 
     if hasattr(arg, 'expr'):
         return arg.expr
@@ -177,6 +187,7 @@ def sympify1(arg, symbols={}, evaluate=True, **assumptions):
         return sym.sympify(str(arg), rational=True, evaluate=evaluate)
         
     if isinstance(arg, str):
+        # Handle arbitrary strings that may refer to multiple symbols.
         return parse(arg, symbols, evaluate=evaluate,
                      local_dict=symbols, **assumptions)
 
