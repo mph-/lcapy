@@ -448,7 +448,7 @@ example to draw two parallel resistors:
 .. literalinclude:: examples/schematics/parallel.sch
 
 .. image:: examples/schematics/parallel.png
-   :width: 5cm
+   :width: 2cm
      
 
 Arrows
@@ -522,6 +522,13 @@ Boxes and circles
 and sixteen directions of the compass: `n`, `nne`, `ne`, `ene`, `e`,
 `ese`, `se`, `sse`, `s`, `ssw`, `sw`, `wsw`, `w`, `wnw`, `nw`, `nww`.
 
+.. image:: examples/schematics/Sbox2.png
+   :width: 5cm
+
+.. image:: examples/schematics/Scircle2.png
+   :width: 5cm        
+
+
 The aspect ratio of a box can be controlled with the `aspect`
 attribute.
 
@@ -531,6 +538,7 @@ Here's an example of their use:
 
 .. image:: examples/schematics/fir5.png
    :width: 5cm
+
 
 
 The label can be replaced by an image, using the `image` keyword.  For example,
