@@ -24,7 +24,7 @@ the node name or number as index, for example,
 >>> cct['fred'].V.pprint()
 >>> cct[1].V.pprint()
 
-Copyright 2014--2017 Michael Hayes, UCECE
+Copyright 2014--2018 Michael Hayes, UCECE
 """
 
 from lcapy.netlist import Netlist

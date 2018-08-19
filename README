@@ -15,6 +15,8 @@ components.
 
 Version 0.26.0 adds noise analysis.
 
+Version 0.28.0 works with Sympy 1.2.
+
 More comprehensive documentation can be found at http://lcapy.elec.canterbury.ac.nz
 
 
@@ -164,10 +166,10 @@ components.
 Node names containing a dot or underscore are not displayed.
 
 
-IPython Notebooks
+Jupyter Notebooks
 -----------------
 
-Lcapy can be used with IPython Notebooks (some example notebooks are
+Lcapy can be used with Jupyter Notebooks (some example notebooks are
 in the notebooks directory).  Schematics are drawn inline using png
 (svg output is currently disabled due to problems with multiple svg
 files sharing the same namespace).  The transient and frequency
@@ -184,4 +186,18 @@ http://lcapy.elec.canterbury.ac.nz
 Alternatively, the tutorial can be viewed in a web browser after
 running 'make html' in the doc directory.
 
-Copyright 2014--2017 Michael Hayes, UCECE
+
+Testing
+-------
+
+The testsuite can be run using
+
+   $ nosetests --pdb
+
+Better still, use the --pdb option to enter the Python debugger on a failure:
+
+   $ nosetests3 --pdb
+
+
+
+Copyright 2014--2018 Michael Hayes, UCECE
