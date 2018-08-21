@@ -515,22 +515,28 @@ Here's a example of a mixer:
    :width: 3cm
 
 
-Boxes and circles
------------------
+Shapes
+------
 
-`box` and `circle` have default anchor nodes based on the centre (`c`)
-and sixteen directions of the compass: `n`, `nne`, `ne`, `ene`, `e`,
-`ese`, `se`, `sse`, `s`, `ssw`, `sw`, `wsw`, `w`, `wnw`, `nw`, `nww`.
+Shapes include `box`, `circle`, `ellipse`, `triangle`.
+
+`box`, `circle`, `ellipse`, and `triangle` shapes have default anchor
+nodes based on the centre (`c`) and sixteen directions of the compass:
+`n`, `nne`, `ne`, `ene`, `e`, `ese`, `se`, `sse`, `s`, `ssw`, `sw`,
+`wsw`, `w`, `wnw`, `nw`, `nww`.
 
 .. image:: examples/schematics/Sbox2.png
    :width: 5cm
 
 .. image:: examples/schematics/Scircle2.png
-   :width: 5cm        
+   :width: 5cm
+
+.. image:: examples/schematics/Striangle2.png
+   :width: 5cm                
 
 
-The aspect ratio of a box can be controlled with the `aspect`
-attribute.
+The aspect ratio of `box`, `circle`, and `triangle` can be controlled
+with the `aspect` attribute.
 
 Here's an example of their use:
 
@@ -540,8 +546,10 @@ Here's an example of their use:
    :width: 5cm
 
 
+`triangle` is an equilateral triangle.  Its shape can be changed with the `aspect` attribute.   It has anchors `n`, `e`, `s`, `w`, `c`, `c1`, `c2`, `c3`,
+           
 
-The label can be replaced by an image, using the `image` keyword.  For example,
+The label of a shape can be replaced by an image, using the `image` keyword.  For example,
 
 .. literalinclude:: examples/schematics/image1.sch
 
