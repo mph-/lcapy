@@ -2357,7 +2357,7 @@ class noiseExpr(omegaExpr):
         x = np.random.randn(N)
         X = np.fft.rfft(x)
         
-        Y = X * np.sqrt(Sn * N / (2 * fs))
+        Y = X * np.sqrt(Sn * fs / 2)
         y = np.fft.irfft(Y)
         return y
 
