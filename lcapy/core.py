@@ -1577,6 +1577,12 @@ class tExpr(Expr):
         from lcapy.plot import plot_time
         return plot_time(self, t, **kwargs)
 
+    def sample(self, t):
+        """Return a discrete-time signal evaluated at time values specified by
+        vector t. """
+
+        return self.evaluate(t)
+    
 
 class cExpr(Expr):
 
@@ -2332,6 +2338,29 @@ class noiseExpr(omegaExpr):
         # TODO: Use rms class?
         return self._fourier_conjugate_class(rms)
 
+    def sample(self, t):
+        """Return a sample function (realisation) of the noise process
+        evaluated at time values specified by vector t."""
+
+        N = len(t)
+        if N < 3:
+            raise ValueError('Require at least 3 samples')            
+        
+        td = np.diff(t)
+        if not np.allclose(np.diff(td), 0):
+            raise ValueError('Require uniform sampling')
+
+        fs = 1 / td[0]
+        f = np.arange(N // 2 + 1) * fs / N
+        Sn = self.evaluate(f * 2 * np.pi)
+    
+        x = np.random.randn(N)
+        X = np.fft.rfft(x)
+        
+        Y = X * np.sqrt(Sn * N / (2 * fs))
+        y = np.fft.irfft(Y)
+        return y
+
     def time(self):
         print('Warning: no time representation for noise expression'
               ', assumed zero: use rms()')
@@ -2348,6 +2377,7 @@ class noiseExpr(omegaExpr):
         return S.inverse_fourier()
 
     def plot(self, fvector=None, **kwargs):
+
         """Plot frequency response at values specified by fvector.
 
         There are many plotting options, see matplotlib.pyplot.plot.
