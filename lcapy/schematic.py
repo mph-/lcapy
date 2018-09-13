@@ -417,8 +417,7 @@ class Schematic(NetfileMixin):
                 raise ValueError('Unknown node %s.' % node_name)
 
             parts = node_name.split('.')
-            cpt_name = parts[-2]
-            anchor = parts[-2]
+            cpt_name = '.'.join(parts[0:-1])
             if cpt_name not in self.elements:
                 raise ValueError('Unknown component name %s for node %s'
                                  % (cpt_name, node_name))

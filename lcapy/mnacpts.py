@@ -109,7 +109,7 @@ class Cpt(object):
         """Create a new net description.  If node_map is not None,
         rename the nodes.  If zero is True, set args to zero."""
 
-        string = self.type + self.id
+        string = self.name
         field = 0
         
         for node in self.nodes:
@@ -656,8 +656,8 @@ class I(IndependentSource):
     def select(self, kind=None):
         """Select domain kind for component."""
 
-        return '%s%s %s %s %s; %s' % (
-            self.type, self.id, self.nodes[0], self.nodes[1],
+        return '%s %s %s %s; %s' % (
+            self.name, self.nodes[0], self.nodes[1],
             self.cpt.Isc.netval(kind), self.opts)
 
     def kill(self):
@@ -955,8 +955,8 @@ class V(IndependentSource):
     def select(self, kind=None):
         """Select domain kind for component."""
 
-        return '%s%s %s %s %s; %s' % (
-            self.type, self.id, self.nodes[0], self.nodes[1],
+        return '%s %s %s %s; %s' % (
+            self.name, self.nodes[0], self.nodes[1],
             self.cpt.Voc.netval(kind), self.opts)        
 
     def kill(self):

@@ -55,6 +55,10 @@ class NetfileMixin(object):
             self._include(string)
             return None
 
+        if string[0:4] == '.pdb':
+            import pdb; pdb.set_trace()
+            return None
+
         cpt = self.parser.parse(namespace + string, self)
         return cpt
 
@@ -78,6 +82,7 @@ class NetfileMixin(object):
         to the negative node.
         """
 
+        string = string.strip()
         if '\n' in string:
             lines = string.split('\n')
             for line in lines:
