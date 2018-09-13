@@ -188,6 +188,9 @@ class Parser(object):
             namespace = '.'.join(parts[0:-1]) + '.'
         name = parts[-1]
 
+        if name[0] in self.comments:
+            return None
+        
         match = self.cpt_pattern.match(name)
         if match is None:
             raise ValueError('Unknown component for %s' % name)
