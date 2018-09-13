@@ -10,6 +10,18 @@ from optparse import OptionParser
 import sys
 import os
 
+def schtex_exception(type, value, tb):
+   if hasattr(sys, 'ps1') or not sys.stderr.isatty():
+      # We are not in interactive mode or we don't have a tty-like
+      # device, so call the default hook
+      sys.__excepthook__(type, value, tb)
+   else:
+      import traceback, pdb
+      # We are in interactive mode, print the exception...
+      traceback.print_exception(type, value, tb)
+      print()
+      # ...then start the debugger in post-mortem mode.
+      pdb.pm()
 
 def main (argv=None):
 
@@ -101,6 +113,10 @@ def main (argv=None):
                       dest='stage', default=0,
                       help='graph analysis stage')
 
+    parser.add_option('--pdb', action='store_true',
+                      default=False,
+                      help="enter python debugger on exception")    
+
     (options, args) = parser.parse_args()
 
     if len(args) < 1:
@@ -112,6 +128,9 @@ def main (argv=None):
     if len(args) > 1:
         outfilename = args[1]
 
+    if options.pdb:
+        sys.excepthook = schtex_exception
+        
     from lcapy import Circuit
 
     cct = Circuit(infilename)
