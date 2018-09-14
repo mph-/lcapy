@@ -49,9 +49,10 @@ class MNA(object):
     all the initial conditions are zero (explicitly or implicitly)
     then the time-domain results are causal.
 
-    5. Mixed analysis.  This is not yet supported.  When the
-    independent sources are mixed (say AC and DC), superposition can be
-    employed.
+    5. Noise analysis.
+
+    It is assumed that the use of this class uses superposition to
+    solve problems with mixed independent sources, such as DC and AC.
 
     """
 

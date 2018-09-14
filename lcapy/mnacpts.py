@@ -44,12 +44,25 @@ class Cpt(object):
         self.type = cpt_type
         self.id = cpt_id
         self.name = name
+        self.relname = name
+        self.namespace = ''
+        self.nodes = nodes
+        self.relnodes = nodes
+        
+        parts = name.split('.')
+        if len(parts) > 1:
+            self.namespace = '.'.join(parts[0:-1]) + '.'
+            self.relname = parts[-1]
+            self.relnodes = []
+            for node in nodes:
+                if node.startswith(self.namespace):
+                    node = node[len(self.namespace):]
+                self.relnodes.append(node)
 
         self.net = string.split(';')[0]
         # This is the initial opts_string from which the opts attribute
         # is derived.
         self.opts_string = opts_string
-        self.nodes = nodes
         self.args = args
         self.explicit_args = args        
         self.classname = self.__class__.__name__
@@ -112,7 +125,7 @@ class Cpt(object):
         string = self.name
         field = 0
         
-        for node in self.nodes:
+        for node in self.relnodes:
             if node_map is not None:
                 node = node_map[node]
             string += ' ' + node
@@ -393,10 +406,10 @@ class RLC(Cpt):
     def s_model(self, var):
 
         if self.Voc == 0:        
-            return 'Z%s %s %s %s; %s' % (self.name, 
-                                         self.nodes[0], self.nodes[1],
-                                         arg_format(self.Zs(var)), 
-                                         self.opts)
+            return '%sZ%s %s %s %s; %s' % (self.namespace, self.relname, 
+                                           self.relnodes[0], self.relnodes[1],
+                                           arg_format(self.Zs(var)), 
+                                           self.opts)
 
         dummy_node = self.dummy_node()
 
@@ -406,18 +419,18 @@ class RLC(Cpt):
         # in parallel with Z and V.
         voltage_opts = opts.strip_voltage_labels()
 
-        znet = 'Z%s %s %s %s; %s' % (self.name, 
-                                    self.nodes[0], dummy_node,
-                                    arg_format(self.Zs(var)), 
-                                    opts)
+        znet = '%sZ%s %s %s %s; %s' % (self.namespace, self.relname, 
+                                       self.relnodes[0], dummy_node,
+                                       arg_format(self.Zs(var)), 
+                                       opts)
 
         # Strip voltage and current labels from voltage source.
         opts.strip_all_labels()
 
-        vnet = 'V%s %s %s s %s; %s' % (self.name, 
-                                       dummy_node, self.nodes[1],
-                                       arg_format(self.Voc.laplace()(var)),
-                                       opts)
+        vnet = '%sV%s %s %s s %s; %s' % (self.namespace, self.relname, 
+                                         dummy_node, self.relnodes[1],
+                                         arg_format(self.Voc.laplace()(var)),
+                                         opts)
 
         if voltage_opts == {}:
             return znet + '\n' + vnet
@@ -433,8 +446,8 @@ class RLC(Cpt):
         for opt, val in voltage_opts.items():
             opts[opt] = uppercase_name(val)
             
-        onet = 'O%s %s %s; %s' % (self.name, 
-                                  self.nodes[0], self.nodes[1], opts)
+        onet = '%sO%s %s %s; %s' % (self.namespace, self.relname, 
+                                    self.relnodes[0], self.relnodes[1], opts)
         return znet + '\n' + vnet + '\n' + onet
 
 
@@ -447,13 +460,14 @@ class RC(RLC):
         opts = self.opts.copy()
 
         rnet = '%s %s %s %s; %s' % (self.name, 
-                                    self.nodes[0], dummy_node,
+                                    self.relnodes[0], dummy_node,
                                     arg_format(self.args[0]),
                                     opts)
         
         Vn = 'sqrt(4 * k * T * %s)' % self.args[0]
-        vnet = 'Vn%s %s %s noise %s; %s' % (
-            self.name, dummy_node, self.nodes[1], arg_format(Vn), opts)
+        vnet = '%sVn%s %s %s noise %s; %s' % (
+            self.namespace, self.relname, dummy_node,
+            self.relnodes[1], arg_format(Vn), opts)
         return rnet + '\n' + vnet
     
     def stamp(self, cct):
@@ -488,16 +502,17 @@ class C(RC):
     def kill_initial(self):
         """Kill implicit sources due to initial conditions."""
         return '%s %s %s %s; %s' % (
-            self.name, self.nodes[0], self.nodes[1], arg_format(self.args[0]),
-            self.opts)
+            self.name, self.relnodes[0], self.relnodes[1],
+            arg_format(self.args[0]), self.opts)
 
     def pre_initial_model(self):
 
         if self.cpt.v0 == 0.0:
-            return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
-        return 'V%s %s %s %s; %s' % (self.name,
-                                     self.nodes[0], self.nodes[1], 
-                                     arg_format(self.cpt.v0), self.opts)       
+            return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
+                                      self.relnodes[1], self.opts)
+        return '%sV%s %s %s %s; %s' % (self.namespace, self.relname,
+                                       self.relnodes[0], self.relnodes[1], 
+                                       arg_format(self.cpt.v0), self.opts)
 
 
 class E(DependentSource):
@@ -550,7 +565,7 @@ class F(DependentSource):
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)            
+        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
 
 class FB(Misc):
     """Ferrite bead"""
@@ -578,7 +593,7 @@ class G(DependentSource):
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)            
+        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
 
 class GY(Dummy):
     """Gyrator"""    
@@ -657,7 +672,7 @@ class I(IndependentSource):
         """Select domain kind for component."""
 
         return '%s %s %s %s; %s' % (
-            self.name, self.nodes[0], self.nodes[1],
+            self.name, self.relnodes[0], self.relnodes[1],
             self.cpt.Isc.netval(kind), self.opts)
 
     def kill(self):
@@ -733,8 +748,8 @@ class L(RLC):
     def kill_initial(self):
         """Kill implicit sources due to initial conditions."""
         return '%s %s %s %s; %s' % (
-            self.name, self.nodes[0], self.nodes[1], arg_format(self.args[0]),
-            self.opts)
+            self.name, self.relnodes[0], self.relnodes[1],
+            arg_format(self.args[0]), self.opts)
 
     def stamp(self, cct):
 
@@ -766,9 +781,9 @@ class L(RLC):
         if self.cpt.i0 == 0.0:
             return 'W %s %s; %s' % (self.nodes[0], self.nodes[1],
                                     self.opts)
-        return 'I%s %s %s %s; %s' % (self.name,
-                                     self.nodes[0], self.nodes[1], 
-                                     arg_format(self.cpt.i0), self.opts)       
+        return '%sI%s %s %s %s; %s' % (self.namespace, self.relname,
+                                       self.relnodes[0], self.relnodes[1], 
+                                       arg_format(self.cpt.i0), self.opts)
 
 class O(Dummy):
     """Open circuit"""
@@ -956,7 +971,7 @@ class V(IndependentSource):
         """Select domain kind for component."""
 
         return '%s %s %s %s; %s' % (
-            self.name, self.nodes[0], self.nodes[1],
+            self.name, self.relnodes[0], self.relnodes[1],
             self.cpt.Voc.netval(kind), self.opts)        
 
     def kill(self):
@@ -984,7 +999,7 @@ class V(IndependentSource):
     def s_model(self, var):
 
         return '%s %s %s s %s; %s' % (self.name, 
-                                      self.nodes[0], self.nodes[1],
+                                      self.relnodes[0], self.relnodes[1],
                                       arg_format(self.cpt.Voc.laplace()(var)),
                                       self.opts)
 
