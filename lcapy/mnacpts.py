@@ -543,7 +543,8 @@ class E(DependentSource):
         newopts.strip_current_labels()
         newopts.strip_labels()
 
-        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
+        return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
+                                  self.relnodes[1], newopts)
             
 class F(DependentSource):
     """CCCS"""
@@ -565,7 +566,8 @@ class F(DependentSource):
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
+        return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
+                                  self.relnodes[1], newopts)
 
 class FB(Misc):
     """Ferrite bead"""
@@ -593,7 +595,8 @@ class G(DependentSource):
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
+        return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
+                                  self.relnodes[1], newopts)
 
 class GY(Dummy):
     """Gyrator"""    
@@ -664,7 +667,8 @@ class H(DependentSource):
         newopts.strip_current_labels()
         newopts.strip_labels()
 
-        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)        
+        return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
+                                  self.relnodes[1], newopts)        
 
 class I(IndependentSource):
 
@@ -680,7 +684,8 @@ class I(IndependentSource):
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
+        return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
+                                  self.relnodes[1], newopts)
 
     def stamp(self, cct):
 
@@ -703,7 +708,8 @@ class I(IndependentSource):
     def pre_initial_model(self):
 
         # Assume IC zero.  FIXME
-        return 'O %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
+        return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
+                                  self.relnodes[1], self.opts)
 
 
 class K(Cpt):
@@ -779,8 +785,8 @@ class L(RLC):
     def pre_initial_model(self):
 
         if self.cpt.i0 == 0.0:
-            return 'W %s %s; %s' % (self.nodes[0], self.nodes[1],
-                                    self.opts)
+            return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
+                                      self.relnodes[1], self.opts)
         return '%sI%s %s %s %s; %s' % (self.namespace, self.relname,
                                        self.relnodes[0], self.relnodes[1], 
                                        arg_format(self.cpt.i0), self.opts)
@@ -979,7 +985,8 @@ class V(IndependentSource):
         newopts.strip_current_labels()
         newopts.strip_labels()
 
-        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], newopts)
+        return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
+                                  self.relnodes[1], newopts)
 
     def stamp(self, cct):
 
@@ -1006,7 +1013,8 @@ class V(IndependentSource):
     def pre_initial_model(self):
 
         # Assume IC zero.  FIXME
-        return 'W %s %s; %s' % (self.nodes[0], self.nodes[1], self.opts)
+        return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
+                                  self.relnodes[1], self.opts)
 
 
 class W(Dummy):

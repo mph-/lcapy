@@ -62,16 +62,18 @@ class Circuit(Netlist):
     The schematic can be saved to a file using:
     cct.draw('schematic.pdf')
 
-    The s-domain voltage across a component can be found using:
+    The transform domain voltages across a component can be found using:
     cct.V1.V
 
-    This is found using modified nodal analysis.  Once this is
-    performed, the results are cached until the network is modified.
+    This is found using modified nodal analysis for each type of
+    independent source in the circuit (AC, DC, transient, noise).
+    Once this is performed, the results are cached until the network
+    is modified.
 
-    The s-domain voltage through a component can be found using:
+    The transform domain currents through a component can be found using:
     cct.R1.I
 
-    The s-domain nodal voltages with respect to the ground node (0)
+    The transform domain nodal voltages with respect to the ground node (0)
     can be found using: 
     cct[2].V
 
@@ -94,7 +96,7 @@ class Circuit(Netlist):
     using:
     thevenin = cct.Thevenin(2, 0)
 
-    The s-domain modelcan be drawn using:
+    The s-domain model can be drawn using:
     cct.s_model().draw()
 
     """

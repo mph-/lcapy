@@ -56,6 +56,49 @@ class Node(object):
         self.list.append(cpt)
 
 
+class SubNetlist(object):
+
+    def __init__(self, namespace, netlist):
+
+        self.namespace = namespace
+        self.netlist = netlist
+
+    def __getitem__(self, name):
+        """Return element or node by name."""
+
+        name = self.namespace + '.' + name
+        netlist = self.netlist
+        
+        # If name is an integer, convert to a string.
+        if isinstance(name, int):
+            name = '%d' % name
+
+        if name in netlist.nodes:
+            return netlist.nodes[name]
+
+        if name in netlist._elements:
+            return netlist._elements[name]
+
+        # Try first anonymous name.
+        if name + 'anon1' in netlist._elements:
+            return netlist._elements[name + 'anon1']
+
+        if name in netlist.namespaces:
+            return SubNetlist(name, netlist)
+        
+        raise AttributeError('Unknown element or node name %s' % name)
+
+    def __getattr__(self, attr):
+        """Return element or node by name.  This gets called if there is no
+        explicit attribute attr for this instance.  This is primarily
+        for accessing elements and non-numerical node names.  It also
+        gets called if the called attr throws an AttributeError
+        exception.  The annoying thing is that hasattr uses getattr
+        and checks for an exception."""
+
+        return self.__getitem__(attr)
+
+        
 class NetlistMixin(object):
 
     def __init__(self, filename=None, context=None):
@@ -90,6 +133,9 @@ class NetlistMixin(object):
         if name + 'anon1' in self._elements:
             return self._elements[name + 'anon1']
 
+        if name in self.namespaces:
+            return SubNetlist(name, self)
+        
         raise AttributeError('Unknown element or node name %s' % name)
 
     def __getattr__(self, attr):
@@ -945,7 +991,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         self._sub = Transformdomains()
 
         for key, sources in groups.items():
-            self._sub[key] = SubNetlist(self, sources, key)
+            self._sub[key] = GroupNetlist(self, sources, key)
 
         return self._sub
 
@@ -1027,7 +1073,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         return self.get_Vd(Np, Nm).time()
 
     
-class SubNetlist(NetlistMixin, MNA):
+class GroupNetlist(NetlistMixin, MNA):
 
     def __new__(cls, netlist, sourcenames, kind):
 

@@ -5,8 +5,11 @@ from lcapy.parser import Parser
 class NetfileMixin(object):
 
     def _init_parser(self, cpts):
-        self.parser = Parser(cpts, grammar)        
+        self.parser = Parser(cpts, grammar)
+        # Current namespace
         self.namespace = ''
+        # All known namespaces
+        self.namespaces = []
         self._anon = {}
 
     def _make_anon(self, kind):
@@ -31,6 +34,7 @@ class NetfileMixin(object):
         name = parts[3]
         namespace = self.namespace
         self.namespace = name + '.' + namespace
+        self.namespaces.append(self.namespace[0:-1])
         ret = self._netfile_add(filename, self.namespace)        
         self.namespace = namespace
         return ret
@@ -96,7 +100,10 @@ class NetfileMixin(object):
     def _netfile_add(self, filename, namespace=''):
         """Add the nets from file with specified filename"""
 
-        file = open(filename, 'r')
+        try:
+            file = open(filename, 'r')
+        except:
+            file = open(filename + '.sch', 'r')            
 
         lines = file.readlines()
 
