@@ -66,13 +66,14 @@ class SubNetlist(object):
     def __getitem__(self, name):
         """Return element or node by name."""
 
-        name = self.namespace + '.' + name
         netlist = self.netlist
         
         # If name is an integer, convert to a string.
         if isinstance(name, int):
             name = '%d' % name
 
+        name = self.namespace + '.' + name
+            
         if name in netlist.nodes:
             return netlist.nodes[name]
 
