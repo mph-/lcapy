@@ -63,13 +63,13 @@ class SubNetlist(object):
         # Probably should select elements and nodes within
         # the specified namespace.
         self.namespace = namespace
-        self.netlist = netlist
+        self._netlist = netlist
         self.subnetlists = {}
 
     def __getitem__(self, name):
         """Return element or node by name."""
 
-        netlist = self.netlist
+        netlist = self._netlist
         
         # If name is an integer, convert to a string.
         if isinstance(name, int):
@@ -106,6 +106,17 @@ class SubNetlist(object):
 
         return self.__getitem__(attr)
 
+    def netlist(self):
+        """Return the current subnetlist."""
+
+        nlist = self._netlist
+        
+        return '\n'.join([str(cpt) for cpt in nlist._elements.values() if str(cpt).startswith(self.namespace)])
+
+    def __repr__(self):
+        
+        return self.netlist()
+
     @property
     def sch(self):
         """Generate schematic of subnetlist."""        
@@ -115,7 +126,7 @@ class SubNetlist(object):
 
         sch = Schematic()
 
-        netlist = self.netlist.netlist()
+        netlist = self._netlist.netlist()
         for net in netlist.split('\n'):
             if net.startswith(self.namespace):
                 sch.add(net)
@@ -156,7 +167,7 @@ class SubNetlist(object):
         if kwargs.pop('s_model', False):
             cct = cct.s_model()
 
-        return cct.sch.draw(filename=filename, opts=self.netlist.opts, **kwargs)
+        return cct.sch.draw(filename=filename, opts=self._netlist.opts, **kwargs)
     
         
 class NetlistMixin(object):
