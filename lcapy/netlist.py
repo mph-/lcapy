@@ -64,6 +64,7 @@ class SubNetlist(object):
         # the specified namespace.
         self.namespace = namespace
         self.netlist = netlist
+        self.subnetlists = {}
 
     def __getitem__(self, name):
         """Return element or node by name."""
