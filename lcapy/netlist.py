@@ -60,6 +60,8 @@ class SubNetlist(object):
 
     def __init__(self, namespace, netlist):
 
+        # Probably should select elements and nodes within
+        # the specified namespace.
         self.namespace = namespace
         self.netlist = netlist
 
@@ -84,8 +86,12 @@ class SubNetlist(object):
         if name + 'anon1' in netlist._elements:
             return netlist._elements[name + 'anon1']
 
-        if name in netlist.namespaces:
-            return SubNetlist(name, netlist)
+        if name in self.subnetlists:
+            if self.subnetlists[name] is not None:
+                return self.subnetlists[name]
+            subnetlist = SubNetlist(name, self)
+            self.subnetlists[name] = subnetlist
+            return subnetlist      
         
         raise AttributeError('Unknown element or node name %s' % name)
 
@@ -99,6 +105,30 @@ class SubNetlist(object):
 
         return self.__getitem__(attr)
 
+    @property
+    def sch(self):
+
+        if hasattr(self, '_sch'):
+            return self._sch
+
+        sch = Schematic()
+
+        netlist = self.netlist.netlist()
+        for net in netlist.split('\n'):
+            if net.startswith(self.namespace):
+                sch.add(net)
+
+        self._sch = sch
+        return sch
+
+    def draw(self, filename=None, **kwargs):
+
+        cct = self
+        if kwargs.pop('s_model', False):
+            cct = cct.s_model()
+
+        return cct.sch.draw(filename=filename, opts=self.netlist.opts, **kwargs)
+    
         
 class NetlistMixin(object):
 
@@ -134,8 +164,12 @@ class NetlistMixin(object):
         if name + 'anon1' in self._elements:
             return self._elements[name + 'anon1']
 
-        if name in self.namespaces:
-            return SubNetlist(name, self)
+        if name in self.subnetlists:
+            if self.subnetlists[name] is not None:
+                return self.subnetlists[name]
+            subnetlist = SubNetlist(name, self)
+            self.subnetlists[name] = subnetlist
+            return subnetlist      
         
         raise AttributeError('Unknown element or node name %s' % name)
 
@@ -945,6 +979,9 @@ class Netlist(NetlistMixin, NetfileMixin):
                 delattr(self, attr)
             except:
                 pass
+
+        for name in self.subnetlists:
+            self.subnetlists[name] = None
 
     @property
     def sub(self):

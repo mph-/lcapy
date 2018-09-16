@@ -8,8 +8,7 @@ class NetfileMixin(object):
         self.parser = Parser(cpts, grammar)
         # Current namespace
         self.namespace = ''
-        # All known namespaces
-        self.namespaces = []
+        self.subnetlists = {}
         self._anon = {}
 
     def _make_anon(self, kind):
@@ -34,7 +33,7 @@ class NetfileMixin(object):
         name = parts[3]
         namespace = self.namespace
         self.namespace = name + '.' + namespace
-        self.namespaces.append(self.namespace[0:-1])
+        self.subnetlists[self.namespace[0:-1]] = None
         ret = self._netfile_add(filename, self.namespace)        
         self.namespace = namespace
         return ret
