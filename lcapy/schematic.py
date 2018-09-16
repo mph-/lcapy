@@ -716,7 +716,6 @@ class Schematic(NetfileMixin):
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
 
-        import pdb; pdb.set_trace()
         png = 'png' in kwargs and kwargs.pop('png')
         svg = 'svg' in kwargs and kwargs.pop('svg')
 
