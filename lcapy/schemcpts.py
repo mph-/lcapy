@@ -601,7 +601,7 @@ class FixedCpt(Cpt):
         if hasattr(self, 'anchors'):
             # Look for centre anchor.
             for node in self.nodes:
-                if node.name.split('.')[-1] == 'mid':
+                if node.name.split('.')[-1] == '_mid':
                     return node.pos
         
         N = len(self.nodes)
@@ -1106,7 +1106,7 @@ class Opamp(FixedCpt):
     can_scale = True
     can_mirror = True
 
-    required_anchors = ('mid', )
+    required_anchors = ('_mid', )
 
     # The Nm node is not used (ground).
     node_map = ('out', '', '+', '-')
@@ -1114,7 +1114,7 @@ class Opamp(FixedCpt):
     panchors = {'out' : (2.5, 0.0),
                 '+' : (0.0, 0.5),
                 '-' : (0.0, -0.5),
-                'mid' : (1.25, 0.0),
+                '_mid' : (1.25, 0.0),
                 'vdd' : (1.25, 0.5),
                 'vdd2' : (0.8, 0.745),
                 'vss2' : (0.8, -0.745),
@@ -1126,7 +1126,7 @@ class Opamp(FixedCpt):
     nanchors = {'out' : (2.5, 0.0),
                 '+' : (0.0, -0.5),
                 '-' : (0.0, 0.5),
-                'mid' : (1.25, 0.0),
+                '_mid' : (1.25, 0.0),
                 'vdd' : (1.25, 0.5),
                 'vdd2' : (0.8, 0.745),
                 'vss2' : (0.8, -0.745),
@@ -1148,7 +1148,7 @@ class Opamp(FixedCpt):
         if not self.mirror:
             yscale = -yscale
 
-        centre = self.node('mid')
+        centre = self.node('_mid')
 
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
@@ -1168,7 +1168,7 @@ class FDOpamp(FixedCpt):
     can_scale = True
     can_mirror = True
 
-    required_anchors = ('mid', )
+    required_anchors = ('_mid', )
 
     node_map = ('out+', 'out-', '+', '-')
     
@@ -1176,7 +1176,7 @@ class FDOpamp(FixedCpt):
                 'out-' : (2.1, 0.5),                
                 '+' : (0.0, 0.5),
                 '-' : (0.0, -0.5),
-                'mid' : (1.25, 0.0),
+                '_mid' : (1.25, 0.0),
                 'vdd' : (1.0, 0.645),
                 'vss' : (1.0, -0.645),
                 'r+' : (0.4, 0.25),
@@ -1186,7 +1186,7 @@ class FDOpamp(FixedCpt):
                 'out-' : (2.1, -0.5),
                 '+' : (0.0, -0.5),
                 '-' : (0.0, 0.5),
-                'mid' : (1.25, 0.0),
+                '_mid' : (1.25, 0.0),
                 'vdd' : (1.0, 0.645),
                 'vss' : (1.0, -0.645),
                 'r+' : (0.4, 0.25),
@@ -1201,7 +1201,7 @@ class FDOpamp(FixedCpt):
         if not self.check():
             return ''
 
-        centre = self.node('mid')
+        centre = self.node('_mid')
 
         yscale = 2 * 0.952 * self.scale
         if not self.mirror:
@@ -1326,8 +1326,8 @@ class Box(Shape):
                'ne' : (0.5, 0.5), 'nne' : (0.25, 0.5),
                'n' : (0, 0.5), 'nnw' : (-0.25, 0.5),
                'c' : (0.0, 0.0),
-               'mid' : (0.0, 0.0)}
-    required_anchors = ('mid', )    
+               '_mid' : (0.0, 0.0)}
+    required_anchors = ('_mid', )    
 
 
 class Ellipse(Shape):
@@ -1344,8 +1344,8 @@ class Ellipse(Shape):
                'ne' : (0.3536, 0.35365), 'nne' : (0.1913, 0.4619),
                'n' : (0, 0.5), 'nnw' : (-0.1913, 0.4619),
                'c' : (0.0, 0.0),               
-               'mid' : (0.0, 0.0)}
-    required_anchors = ('mid', )
+               '_mid' : (0.0, 0.0)}
+    required_anchors = ('_mid', )
 
 
 class Circle(Ellipse):
@@ -1400,8 +1400,8 @@ class Triangle(Shape):
                'ene' : (0.375, -0.075),
                'wnw' : (-0.375, -0.075),                              
                'c' : (0.0, 0.0),               
-               'mid' : (0.0, 0.0)}
-    required_anchors = ('mid', 'c1', 'c2', 'c3')
+               '_mid' : (0.0, 0.0)}
+    required_anchors = ('_mid', 'c1', 'c2', 'c3')
 
     def draw(self, **kwargs):
 
@@ -1410,7 +1410,7 @@ class Triangle(Shape):
 
         s = self.draw_path([self.node('c1').pos, self.node('c2').pos,
                             self.node('c3').pos], closed=True, style='thick')
-        s += self.draw_label(self.node('mid').pos, **kwargs)
+        s += self.draw_label(self.node('_mid').pos, **kwargs)
 
         return s
 
