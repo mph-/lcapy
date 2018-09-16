@@ -151,7 +151,7 @@ class Node(object):
         self.elt_list = []
         self.pos = 'unknown'
         self.pinpos = None
-        self.pin = '.' in name
+        self.pin = False
         # Sanitised name
         self.s = name.replace('.', '@')
         self.label = name
@@ -177,9 +177,11 @@ class Node(object):
         return self._count
 
     def visible(self, draw_nodes):
-        """Return true if node drawn"""
+        """Return true if node drawn.
+        `draw_nodes' can be `all', 'none', 'connections', 'primary', None,
+        True, or False."""
 
-        if draw_nodes == 'all':
+        if draw_nodes in ('all', True):
             return True
 
         if self.pin:
@@ -198,7 +200,10 @@ class Node(object):
         if draw_nodes == 'connections':
             return self.count > 2
 
-        return '_' not in self.name
+        if draw_nodes == 'primary':        
+            return '_' not in self.name
+        
+        raise ValueError('Unknown argument %s for draw_nodes' % draw_nodes)
 
     @property
     def port(self):
@@ -711,6 +716,7 @@ class Schematic(NetfileMixin):
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
 
+        import pdb; pdb.set_trace()
         png = 'png' in kwargs and kwargs.pop('png')
         svg = 'svg' in kwargs and kwargs.pop('svg')
 

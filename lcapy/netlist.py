@@ -108,6 +108,7 @@ class SubNetlist(object):
 
     @property
     def sch(self):
+        """Generate schematic of subnetlist."""        
 
         if hasattr(self, '_sch'):
             return self._sch
@@ -123,6 +124,33 @@ class SubNetlist(object):
         return sch
 
     def draw(self, filename=None, **kwargs):
+        """Draw schematic of subnetlist.
+
+        filename specifies the name of the file to produce.  If None,
+        the schematic is displayed on the screen.
+
+        Note, if using Jupyter, then need to first issue command %matplotlib inline
+
+        kwargs include:
+           label_ids: True to show component ids
+           label_values: True to display component values
+           draw_nodes: True to show all nodes, False to show no nodes, 
+             'primary' to show primary nodes,
+             'connections' to show nodes that connect more than two components,
+             'all' to show all nodes
+           label_nodes: True to label all nodes, False to label no nodes, 
+             'primary' to label primary nodes,
+             'alpha' to label nodes starting with a letter,
+             'pins' to label nodes that are pins on a chip,
+             'all' to label all nodes
+           style: 'american', 'british', or 'european'
+           scale: schematic scale factor, default 1.0
+           node_spacing: spacing between component nodes, default 2.0
+           cpt_size: size of a component, default 1.5
+           oversample: oversampling factor for png or pdf files
+           help_lines: distance between lines in grid, default 0.0 (disabled)
+           debug: True to display debug information
+        """
 
         cct = self
         if kwargs.pop('s_model', False):
@@ -674,6 +702,7 @@ class NetlistMixin(object):
 
     @property
     def sch(self):
+        """Generate schematic of subnetlist."""                
 
         if hasattr(self, '_sch'):
             return self._sch
@@ -724,6 +753,33 @@ class NetlistMixin(object):
         return self.noisy()
     
     def draw(self, filename=None, **kwargs):
+        """Draw schematic of netlist.
+
+        filename specifies the name of the file to produce.  If None,
+        the schematic is displayed on the screen.
+
+        Note, if using Jupyter, then need to first issue command %matplotlib inline
+
+        kwargs include:
+           label_ids: True to show component ids
+           label_values: True to display component values
+           draw_nodes: True to show all nodes, False to show no nodes, 
+             'primary' to show primary nodes,
+             'connections' to show nodes that connect more than two components,
+             'all' to show all nodes
+           label_nodes: True to label all nodes, False to label no nodes, 
+             'primary' to label primary nodes,
+             'alpha' to label nodes starting with a letter,
+             'pins' to label nodes that are pins on a chip,
+             'all' to label all nodes
+           style: 'american', 'british', or 'european'
+           scale: schematic scale factor, default 1.0
+           node_spacing: spacing between component nodes, default 2.0
+           cpt_size: size of a component, default 1.5
+           oversample: oversampling factor for png or pdf files
+           help_lines: distance between lines in grid, default 0.0 (disabled)
+           debug: True to display debug information
+        """
 
         cct = self
         if kwargs.pop('s_model', False):
