@@ -192,6 +192,9 @@ class Node(object):
 
         if draw_nodes in ('none', None, False):
             return False
+
+        if '_' in self.name:
+            return False
         
         # Implied port
         if self.count == 1:
@@ -201,7 +204,7 @@ class Node(object):
             return self.count > 2
 
         if draw_nodes == 'primary':        
-            return '_' not in self.name
+            return True
         
         raise ValueError('Unknown argument %s for draw_nodes' % draw_nodes)
 
