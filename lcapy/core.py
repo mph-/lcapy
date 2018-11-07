@@ -1021,9 +1021,11 @@ class Expr(object):
 
         # Replace symbol names with symbol definitions to
         # avoid problems with real or positive attributes.
-        if name not in context.symbols:
-            raise ValueError('Unknown symbol %s' % old)
-        old = context.symbols[name]
+        if name in context.symbols:
+            old = context.symbols[name]
+        else:
+            # Perhaps have symbol defined using sympy?
+            pass
 
         result = self.expr.subs(old, expr)
 

@@ -172,3 +172,9 @@ s-model convert current, voltage labels to s-domain, say i -> I
 
 
 Add gyrator component
+
+Changing initial values, for example,
+
+cct.C.v0 = 10
+
+Note, cannot do cct.C.cpt.v0 = 10 since this does not change the netlist
