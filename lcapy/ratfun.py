@@ -259,6 +259,30 @@ class Ratfun(object):
 
         return expr
 
+    def timeconst(self):
+        """Convert rational function to time constant form with unity
+        lowest power of denominator.
+
+        See also canonical, general, partfrac, mixedfrac, and ZPK"""
+
+        try:
+            N, D, delay = self.as_ratfun_delay()
+        except ValueError:
+            # TODO: copy?
+            return self.expr
+
+        K = sym.cancel(N.EC() / D.EC())
+        if delay != 0:
+            K *= sym.exp(self.var * delay)
+
+        # Divide by leading coefficient
+        Nm = (N / N.EC()).simplify()
+        Dm = (D / D.EC()).simplify()
+        
+        expr = K * (Nm / Dm)
+
+        return expr
+
     def ZPK(self):
         """Convert to pole-zero-gain (PZK) form.
 
