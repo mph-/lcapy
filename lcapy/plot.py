@@ -20,7 +20,6 @@ def plot_pole_zero(obj, **kwargs):
     except TypeError:
         raise TypeError('Cannot plot poles and zeros of symbolic expression')
 
-
     ax = kwargs.pop('axes', None)
     if ax is None:
         figsize = kwargs.pop('figsize', (8, 6))        
@@ -50,13 +49,23 @@ def plot_pole_zero(obj, **kwargs):
     ax.set_xlim(x_min - 0.5 * x_extra, x_max + 0.5 * x_extra)
     ax.set_ylim(y_min - 0.5 * y_extra, y_max + 0.5 * y_extra)
 
-    # TODO, annotate with number of times a pole or zero is repeated.
+    def annotate(axes, poles, offset=None):
+        if offset is None:
+            xmin, xmax = axes.get_xlim()
+            offset = (xmax - xmin) / 40
+        
+        for pole, num in poles.items():
+            if num > 1:
+                p = complex(pole.evalf())
+                axes.text(p.real + offset, p.imag + offset, '%d' % num)
 
     # Marker size
     ms = kwargs.pop('ms', 10)
     fillstyle = kwargs.pop('fillstyle', 'none')
     ax.plot(z.real, z.imag, 'bo', fillstyle=fillstyle, ms=ms, **kwargs)
+    annotate(ax, zeros)
     ax.plot(p.real, p.imag, 'bx', fillstyle=fillstyle, ms=ms, **kwargs)
+    annotate(ax, poles)    
     return ax
 
 
