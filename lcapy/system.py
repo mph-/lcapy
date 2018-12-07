@@ -4,6 +4,10 @@ from sys import platform
 
 # System dependent functions
 
+# Note, sometime in 2018 ImageMagicks convert program by default
+# disallowed pdf file conversions.  A workaround is to edit
+# /etc/ImageMagick-6/policy.xml 
+
 def tmpfilename(suffix=''):
 
     from tempfile import gettempdir, NamedTemporaryFile
@@ -24,7 +28,7 @@ def convert_pdf_svg(pdf_filename, svg_filename):
                            svg_filename)
 
 
-def convert_pdf_png(pdf_filename, png_filename, oversample=1):
+def convert_pdf_png_convert(pdf_filename, png_filename, oversample=1):
 
     if 'win' in platform:
         # Windows has a program called convert, try magick convert
@@ -39,6 +43,21 @@ def convert_pdf_png(pdf_filename, png_filename, oversample=1):
         raise RuntimeError('Could not generate %s with convert' % 
                            png_filename)
 
+def convert_pdf_png_pdftoppm(pdf_filename, png_filename, oversample=1):
+
+    system('pdftoppm -r %d -png %s > %s' % (oversample * 200,
+                                            pdf_filename, png_filename))
+        
+    if not path.exists(png_filename):
+        raise RuntimeError('Could not generate %s with pdftoppm' % 
+                           png_filename)    
+
+def convert_pdf_png(pdf_filename, png_filename, oversample=1):
+    
+    try:
+        convert_pdf_png_pdftoppm(pdf_filename, png_filename, oversample)
+    except:
+        convert_pdf_png_convert(pdf_filename, png_filename, oversample)        
 
 def latex_cleanup(tex_filename, wanted_filename=''):
 
