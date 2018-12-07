@@ -75,6 +75,10 @@ class OnePort(Network):
     _Isc = None
 
     @property
+    def analysis(self):
+        return self.cct.analysis
+    
+    @property
     def Z(self):
         if self._Z is not None:
             return self._Z
@@ -103,7 +107,8 @@ class OnePort(Network):
             return Vsuper(0)
         if self._Y is not None:        
             return Isuper(0)
-        raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)        
+        raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
+    
     @property
     def Isc(self):
         """Short-circuit current."""        
