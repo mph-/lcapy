@@ -114,7 +114,7 @@ class OnePort(Network):
     @property
     def V(self):
         """Open-circuit voltage."""
-        return self.Voc()
+        return self.Voc
 
 #    This is probably too confusing.  For example, what is the
 #    current through an open-circuit current source?
