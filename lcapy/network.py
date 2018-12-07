@@ -182,8 +182,6 @@ class Network(object):
 
     @property    
     def is_causal(self):
-        import pdb; pdb.set_trace()
-
         return self.cct.is_causal    
 
     @property    
