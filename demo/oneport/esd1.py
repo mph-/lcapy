@@ -6,7 +6,7 @@ from matplotlib.pyplot import figure, savefig, show
 Cbody = 100e-12
 Rbody = 1.5e3
 
-# Voltage on body.
+# Open-circuit voltage on body.
 Vbody = 5e3
 
 # Device input capacitance.
@@ -20,14 +20,14 @@ t = np.linspace(0, 50e-9, 1000)
 
 fig = figure()
 ax = fig.add_subplot(111)
-ax.plot(t * 1e9, b1.V.impulse_response(t) / 1e3, linewidth=2)
+ax.plot(t * 1e9, b1.v.evaluate(t) / 1e3, linewidth=2)
 ax.legend()
 ax.set_xlabel('Time (ns)')
 ax.set_ylabel('Voltage (kV)')
 ax.grid(True)
 
-vdev = b1.V.impulse_response(t)
-idev = b1.I.impulse_response(t)
+vdev = b1.v.evaluate(t)
+idev = b1.i.evaluate(t)
 
 fig = figure()
 ax = fig.add_subplot(111)

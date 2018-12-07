@@ -2,9 +2,9 @@ from lcapy import Vstep, R, L, C
 import numpy as np
 from matplotlib.pyplot import figure, savefig, show
 
-a = (Vstep(5) + R(10)) | C(1)
+a = (Vstep(5) + R(5)) | C(0.5)
 
-t = np.linspace(0, 10, 1000)
+t = np.linspace(-1, 10, 1000)
 
 fig = figure()
 ax = fig.add_subplot(111)
