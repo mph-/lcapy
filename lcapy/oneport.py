@@ -66,18 +66,11 @@ class OnePort(Network):
     width = 1
     wsep = 0.5
 
-    netname = ''
-    netkeyword = ''
-
     _Z = None
     _Y = None
     _Voc = None
     _Isc = None
 
-    @property
-    def analysis(self):
-        return self.cct.analysis
-    
     @property
     def Z(self):
         if self._Z is not None:
@@ -176,6 +169,13 @@ class OnePort(Network):
 
         return self
 
+    def load(self, OP2):
+
+        if not issubclass(OP2.__class__, OnePort):
+            raise TypeError('Load argument not ', OnePort)
+
+        return LoadCircuit(self, OP2)
+    
     @property
     def voc(self):
         """Open-circuit time-domain voltage."""
@@ -1017,8 +1017,7 @@ class Xtal(OnePort):
         self.L1 = cExpr(L1)
         self.C1 = cExpr(C1)
 
-        N = self.expand()
-        super(Xtal, self).__init__(N.Z, N.V)
+        self._Z = self.expand()
         self.args = (C0, R1, L1, C1)
 
     def expand(self):
@@ -1040,8 +1039,7 @@ class FerriteBead(OnePort):
         self.Cp = cExpr(Cp)
         self.Lp = cExpr(Lp)
 
-        N = self.expand()
-        super(Xtal, self).__init__(N.Z, N.V)
+        self._Z = self.expand()
         self.args = (Rs, Rp, Cp, Lp)
 
     def expand(self):
@@ -1049,5 +1047,46 @@ class FerriteBead(OnePort):
         return R(self.Rs) + (R(self.Rp) + L(self.Lp) + C(self.Cp))
 
 
+class LoadCircuit(Network):
+    """Circuit comprised of a load oneport connected in parallel with a
+    source oneport."""
+
+    def __init__(self, source_OP, load_OP):
+
+        self.source_OP = source_OP
+        self.load_OP = load_OP
+
+        link = Vdc(0)
+        
+        self.vnet = source_OP | load_OP
+        self.inet = source_OP + load_OP
+        self.args = (source_OP, load_OP)
+
+    @property
+    def V(self):
+        """Voltage across load."""
+        return self.vnet.Voc
+
+    @property
+    def v(self):
+        """Time-domain voltage across load."""
+        return self.vnet.voc
+
+    @property
+    def I(self):
+        """Current into load."""
+        return self.inet.Isc
+
+    @property
+    def i(self):
+        """Time-domain current into load."""
+        return self.inet.isc
+
+    def net_make(self, net, n1=None, n2=None):
+
+        # TODO: draw this better rather than as a oneport.
+        return self.vnet.net_make(self.vnet, n1, n2)
+
+    
 # Import this at end to circumvent circular dependencies
 from lcapy.twoport import Ladder, LSection, TSection

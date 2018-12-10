@@ -22,6 +22,9 @@ class Network(object):
     # False if initial conditions are not specified.
     hasic = None
 
+    netname = ''
+    netkeyword = ''
+
     def __init__(self):
 
         super(Network, self).__init__()
@@ -72,6 +75,10 @@ class Network(object):
         argsrepr = ', '.join([latex_str(sym.latex(arg)) for arg in self._tweak_args()])
         return '\\mathrm{%s}(%s)' % (self.__class__.__name__, argsrepr)
 
+    @property
+    def analysis(self):
+        return self.cct.analysis
+    
     def simplify(self):
 
         return self

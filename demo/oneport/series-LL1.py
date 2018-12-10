@@ -1,4 +1,4 @@
-from lcapy import Vdc, R, L, C, pprint
+from lcapy import Vstep, R, L, C, pprint
 
 L1 = L(10)
 L2 = L(20)
