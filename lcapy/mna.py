@@ -154,7 +154,11 @@ class MNA(object):
             if self.kind == 'dc':
                 comment = '  Check there is a DC path between all nodes.'
             raise ValueError(
-"""The MNA A matrix is not invertible for %s analysis; some nodes may need connecting with high value resistors, a voltage source might be short-circuited, a current source might be open-circuited.%s""" % (self.kind, comment))
+"""The MNA A matrix is not invertible for %s analysis because:
+1. there may be capacitors in series;
+2. a voltage source might be short-circuited;
+3. a current source might be open-circuited.
+%s""" % (self.kind, comment))
 
         # Bug in sympy DiracDelta.simplify where it has different API.
         #results = sym.simplify(Ainv * self._Z)

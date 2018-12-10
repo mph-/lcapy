@@ -211,8 +211,9 @@ class OnePort(Network):
     def thevenin(self):
         """Simplify to a Thevenin network"""
 
-        Voc = self.Voc
-        Z = self.Z
+        new = self.simplify()
+        Voc = new.Voc
+        Z = new.Z
         
         if Voc.is_superposition and not Z.is_real:
             print('Warning, detected superposition with reactive impedance,'
@@ -236,8 +237,9 @@ class OnePort(Network):
     def norton(self):
         """Simplify to a Norton network"""
 
-        Isc = self.Isc
-        Y = self.Y
+        new = self.simplify()
+        Isc = new.Isc
+        Y = new.Y
         
         if Isc.is_superposition and not Y.is_real:
             print('Warning, detected superposition with reactive impedance,'

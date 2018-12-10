@@ -418,10 +418,10 @@ class NetlistMixin(object):
         """Return short-circuit transform-domain current between nodes Np and
         Nm."""
 
-        self.add('Vshort_ %d %d 0' % (Np, Nm))
-
-        Isc = self.Vshort_.I
-        self.remove('Vshort_')
+        new = self.copy()
+        new.add('Vshort_ %d %d 0' % (Np, Nm))
+        Isc = new.Vshort_.I
+        new.remove('Vshort_')
 
         return Isc
 
