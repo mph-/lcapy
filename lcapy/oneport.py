@@ -18,6 +18,13 @@ create a new one-port.
 Copyright 2014--2018 Michael Hayes, UCECE
 """
 
+# TODO.   Rethink best way to handle impedances.   These can either be
+# s-domain or omega domain (or DC as a special case where omega = 0).
+# Perhaps alays use Isuper and Vsuper and have these classes
+# handle multiplication/division with admittances/impedances?
+
+
+
 from __future__ import division
 import sympy as sym
 from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, Expr, omega, Heaviside
@@ -1017,12 +1024,18 @@ class Xtal(OnePort):
         self.L1 = cExpr(L1)
         self.C1 = cExpr(C1)
 
-        self._Z = self.expand()
+        self._Z = self.expand().Z
         self.args = (C0, R1, L1, C1)
 
     def expand(self):
 
         return (R(self.R1) + L(self.L1) + C(self.C1)) | C(self.C0)
+
+    def net_make(self, net, n1=None, n2=None):
+
+        # TODO: draw this with a symbol
+        net = self.expand()
+        return net.net_make(net, n1, n2)    
 
 
 class FerriteBead(OnePort):
@@ -1039,14 +1052,19 @@ class FerriteBead(OnePort):
         self.Cp = cExpr(Cp)
         self.Lp = cExpr(Lp)
 
-        self._Z = self.expand()
+        self._Z = self.expand().Z
         self.args = (Rs, Rp, Cp, Lp)
 
     def expand(self):
 
         return R(self.Rs) + (R(self.Rp) + L(self.Lp) + C(self.Cp))
 
+    def net_make(self, net, n1=None, n2=None):
 
+        # TODO: draw this with a symbol
+        net = self.expand()
+        return net.net_make(net, n1, n2)            
+    
 class LoadCircuit(Network):
     """Circuit comprised of a load oneport connected in parallel with a
     source oneport."""
