@@ -2782,17 +2782,17 @@ class Super(Exprdict):
     @property
     def is_dc(self):
         """True if only has a DC component."""                
-        return list(self.transform().keys()) == ['dc']
+        return self.has_dc and list(self.transform().keys()) == ['dc']
 
     @property
     def is_ac(self):
         """True if only has AC components."""                        
-        return self.ac_keys() == list(self.keys())
+        return self.has_ac and self.ac_keys() == list(self.keys())
 
     @property
     def is_n(self):
         """True if only has noise components."""                                
-        return self.noise_keys() == list(self.keys())
+        return self.has_n and self.noise_keys() == list(self.keys())
 
     @property
     def is_transient(self):
