@@ -398,15 +398,17 @@ class ParSer(OnePort):
                 return R(arg1.R + arg2.R)
             if isinstance(arg1, L):
                 # The currents should be the same!
-                if arg1.i0 != arg2.i0:
+                if arg1.i0 != arg2.i0 or arg1.hasic != arg2.hasic:
                     raise ValueError('Series inductors with different'
                           ' initial currents!')
-                return L(arg1.L + arg2.L, arg1.i0)
+                i0 = arg1.i0 if arg1.hasic else None
+                return L(arg1.L + arg2.L, i0)
             if isinstance(arg1, G):
                 return G(arg1.G * arg2.G / (arg1.G + arg2.G))
             if isinstance(arg1, C):
+                v0 = arg1.v0 + arg2.v0 if arg1.hasic or arg2.hasic else None
                 return C(
-                    arg1.C * arg2.C / (arg1.C + arg2.C), arg1.v0 + arg2.v0)
+                    arg1.C * arg2.C / (arg1.C + arg2.C), v0)
             return None
 
         elif self.__class__ == Par:
@@ -421,15 +423,17 @@ class ParSer(OnePort):
                 return G(arg1.G + arg2.G)
             if isinstance(arg1, C):
                 # The voltages should be the same!
-                if arg1.v0 != arg2.v0:
+                if arg1.v0 != arg2.v0 or arg1.hasic != arg2.hasic:
                     raise ValueError('Parallel capacitors with different'
                           ' initial voltages!')
-                return C(arg1.C + arg2.C, arg1.v0)
+                v0 = arg1.v0 if arg1.hasic else None
+                return C(arg1.C + arg2.C, v0)
             if isinstance(arg1, R):
                 return R(arg1.R * arg2.R / (arg1.R + arg2.R))
             if isinstance(arg1, L):
+                i0 = arg1.i0 + arg2.i0 if arg1.hasic or arg2.hasic else None
                 return L(
-                    arg1.L * arg2.L / (arg1.L + arg2.L), arg1.i0 + arg2.i0)
+                    arg1.L * arg2.L / (arg1.L + arg2.L), i0)
             return None
 
         else:
