@@ -796,6 +796,12 @@ class Expr(object):
         return self.magnitude
 
     @property
+    def sign(self):
+        """Return sign"""
+
+        return self.__class__(sym.sign(self.expr))
+
+    @property
     def dB(self):
         """Return magnitude in dB."""
 
