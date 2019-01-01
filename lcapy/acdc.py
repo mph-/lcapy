@@ -65,7 +65,7 @@ class ACChecker(object):
         if expr.func == cos:
             self.phase = 0
         elif expr.func == sin:
-            self.phase = pi / 2
+            self.phase = -pi / 2
         else:
             raise ValueError('%s not sin/cos' % expr)
             
