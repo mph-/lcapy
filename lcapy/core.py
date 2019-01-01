@@ -816,16 +816,17 @@ class Expr(object):
     def phase(self):
         """Return phase in radians."""
 
-        if self.is_real:
-            return self * 0
-
         R = self.rationalize_denominator()
         N = R.N
 
-        if N.real != 0 and N.imag != 0:
-            G = gcd(N.real, N.imag)
-            N = N / G
-        dst = atan2(N.imag, N.real)
+        if N.imag == 0:
+            dst = N.imag
+        else:
+            if N.real != 0:
+                G = gcd(N.real, N.imag)
+                N = N / G
+            dst = atan2(N.imag, N.real)
+            
         dst.part = 'phase'
         dst.units = 'rad'
         return dst
