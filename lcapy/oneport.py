@@ -407,8 +407,7 @@ class ParSer(OnePort):
                 return G(arg1.G * arg2.G / (arg1.G + arg2.G))
             if isinstance(arg1, C):
                 v0 = arg1.v0 + arg2.v0 if arg1.hasic or arg2.hasic else None
-                return C(
-                    arg1.C * arg2.C / (arg1.C + arg2.C), v0)
+                return C(arg1.C * arg2.C / (arg1.C + arg2.C), v0)
             return None
 
         elif self.__class__ == Par:
@@ -432,8 +431,7 @@ class ParSer(OnePort):
                 return R(arg1.R * arg2.R / (arg1.R + arg2.R))
             if isinstance(arg1, L):
                 i0 = arg1.i0 + arg2.i0 if arg1.hasic or arg2.hasic else None
-                return L(
-                    arg1.L * arg2.L / (arg1.L + arg2.L), i0)
+                return L(arg1.L * arg2.L / (arg1.L + arg2.L), i0)
             return None
 
         else:
