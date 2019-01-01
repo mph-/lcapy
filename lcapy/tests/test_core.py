@@ -21,8 +21,32 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2((j * omega).__class__,  omegaExpr, "j * omega fail.")
 
+    def test_Expr1(self):
+        """Lcapy: check Expr
+
+        """
+        a = Expr(3)
+        self.assertEqual2(a.N, Expr(3), "N incorrect.")
+        self.assertEqual2(a.D, Expr(1), "D incorrect.")
+        self.assertEqual2(a.real, Expr(3), "real incorrect.")
+        self.assertEqual2(a.imag, Expr(0), "imag incorrect.")
+        self.assertEqual2(a.magnitude, Expr(3), "magnitude incorrect.")
+        self.assertEqual2(a.phase, Expr(0), "phase incorrect.")
+        self.assertEqual2(a.phase_degrees, Expr(0), "phase incorrect.")        
+
+        a = Expr(3j)
+        self.assertEqual2(a.N, Expr(3j), "N incorrect.")
+        self.assertEqual2(a.D, Expr(1), "D incorrect.")
+        self.assertEqual2(a.real, Expr(0), "real incorrect.")
+        self.assertEqual2(a.imag, Expr(3), "imag incorrect.")        
+        self.assertEqual2(a.magnitude, Expr(3), "magnitude incorrect.")
+        self.assertEqual2(abs(a), Expr(3), "abs incorrect.")        
+        self.assertEqual2(a.phase, Expr(pi / 2), "phase incorrect.")
+        self.assertEqual2(a.phase_degrees, Expr(90), "phase incorrect.")
+
+        
     def test_sExpr1(self):
-        """Lcapy: check sExpr1
+        """Lcapy: check sExpr
 
         """
         a = sExpr('(s+2)/(s-2)')

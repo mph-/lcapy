@@ -201,9 +201,9 @@ class Parser(object):
 
         fields = split(fields[0], self.delimiters)
 
-        # Strip {}.
+        # Strip {} and "".
         for m, field in enumerate(fields):
-            if field[0] == '{':
+            if field[0] in '{"':
                 fields[m] = fields[m][1:-1]
         
         name = fields.pop(0)

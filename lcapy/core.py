@@ -185,6 +185,7 @@ class Expr(object):
     """Decorator class for sympy classes derived from sympy.Expr"""
 
     one_sided = False
+    var = None
 
     # Perhaps have lookup table for operands to determine
     # the resultant type?  For example, Vs / Vs -> Hs
@@ -198,7 +199,7 @@ class Expr(object):
                 assumptions = arg.assumptions.copy()
             arg = arg.expr
 
-        # Perhaps could set dc.
+        # Perhaps could set dc?
         if arg == 0:
             assumptions['causal'] = True
 
@@ -252,7 +253,7 @@ class Expr(object):
     def is_complex(self):
         if 'complex' not in self.assumptions:
             return False
-        return self.assumptions['complex']  == True
+        return self.assumptions['complex'] == True
 
     @property
     def val(self):
@@ -722,6 +723,9 @@ class Expr(object):
 
     @property
     def _ratfun(self):
+        if self.var is None:
+            raise ValueError('Not a rational function')
+        
         return Ratfun(self.expr, self.var)
 
     @property
@@ -734,11 +738,17 @@ class Expr(object):
     def D(self):
         """Return denominator of rational function."""
 
+        if self.var is None:
+            return self.__class__(1)
+        
         return self.denominator
 
     @property
     def numerator(self):
         """Return numerator of rational function."""
+
+        if self.var is None:
+            return self
 
         return self.__class__(self._ratfun.numerator)
 
@@ -801,14 +811,15 @@ class Expr(object):
         """Return phase in radians."""
 
         if self.is_real:
-            return 0
+            return self * 0
 
         R = self.rationalize_denominator()
         N = R.N
 
-        G = gcd(N.real, N.imag)
-        new = N / G
-        dst = atan2(new.imag, new.real)
+        if N.real != 0 and N.imag != 0:
+            G = gcd(N.real, N.imag)
+            N = N / G
+        dst = atan2(N.imag, N.real)
         dst.part = 'phase'
         dst.units = 'rad'
         return dst
@@ -817,7 +828,7 @@ class Expr(object):
     def phase_degrees(self):
         """Return phase in degrees."""
 
-        dst = self.phase * 180.0 / pi
+        dst = self.phase * 180.0 / sym.pi
         dst.part = 'phase'
         dst.units = 'degrees'
         return dst
