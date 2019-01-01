@@ -680,6 +680,11 @@ class Expr(object):
 
         return latex_str(string)
 
+    def math_latex(self):
+        """Make latex math-mode string."""
+
+        return '$' + self.latex() + '$'
+
     def latexans(self, name):
         """Print latex string with LHS name."""
 

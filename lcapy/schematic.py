@@ -92,6 +92,11 @@ class EngFormat(object):
         self.value = value
         self.unit = unit
 
+    def math_latex(self):
+        """Make latex math-mode string."""
+
+        return '$' + self.latex() + '$'
+        
     def latex(self, trim=True, hundreds=False):
         """If hundreds True format like 100 pF rather than 0.1 nF"""
 
@@ -361,9 +366,9 @@ class Schematic(NetfileMixin):
             expr = cpt.args[0]
             if cpt.classname in ('Vstep', 'Istep'):
                 expr = '(%s) * Heaviside(t)' % expr
-                value_label = Expr(expr, cache=False).latex()
+                value_label = Expr(expr, cache=False).math_latex()
             elif cpt.classname in ('Vs', 'Is'):
-                value_label = Expr(expr, cache=False).latex()
+                value_label = Expr(expr, cache=False).math_latex()
             elif cpt.classname == 'TF':
                 expr = sym.sympify(expr)
                 if expr.is_Pow and expr.args[1] == -1:
@@ -375,19 +380,18 @@ class Schematic(NetfileMixin):
                     value = float(expr)
                     if cpt.type in units_map:
                         value_label = EngFormat(
-                            value, units_map[cpt.type]).latex()
+                            value, units_map[cpt.type]).math_latex()
                     else:
-                        value_label = Expr(expr, cache=False).latex()
+                        value_label = Expr(expr, cache=False).math_latex()
 
                 except ValueError:
                     # This catches non numeric arg.
-                    value_label = Expr(expr, cache=False).latex()
+                    value_label = Expr(expr, cache=False).math_latex()
 
         # Currently, we only annnotated the component with the value,
         # expression, or symbol.  If this is not specified, it
         # defaults to the component identifier.  Note, some objects
         # we do not want to label, such as wires and ports.
-
         cpt.id_label = '' if id_label is None else format_label(id_label)
         cpt.value_label = cpt.id_label if value_label is None else format_label(value_label)
 
