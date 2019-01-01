@@ -1674,7 +1674,7 @@ class Phasor(omegaExpr):
                              ' with %s(%s, omega=%s)' %
                              (cls.__name__, self, self.omega,
                               xcls.__name__, x, x.omega))
-        return cls, self, x, {}
+        return cls, self, x, self.assumptions
 
     def __compat_mul__(self, x, op):
 

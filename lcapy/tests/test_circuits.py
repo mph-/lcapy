@@ -1,4 +1,4 @@
-from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn, Vt, sqrt, u
+from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn, Vt, It, sqrt, u
 from lcapy.core import Zs, s, t
 import unittest
 import sympy as sym
@@ -352,3 +352,41 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.sub['s'].is_causal, True, "Causal incorrect")
         self.assertEqual2(a.L1.v, 2 * exp(-t) * u(t), "L current incorrect")
+
+    def test_VR1_ac2(self):
+        """Lcapy: check VR circuit at ac for angular frequency 1
+
+        """
+
+        # This can be solved in the time-domain
+        a = Circuit()
+        a.add('V1 1 0 ac 5 0 1')
+        a.add('R1 1 0 1')
+        self.assertEqual(a.is_ivp, False, "Initial value problem incorrect")
+        self.assertEqual(a.is_dc, False, "DC incorrect")
+        self.assertEqual(a.is_ac, True, "AC incorrect")
+        self.assertEqual(a.is_causal, False, "Causal incorrect")
+        self.assertEqual(a.is_time_domain, True, "Time domain incorrect")
+        self.assertEqual(a.V1.v, Vt('5*cos(t)'), "V1 voltage incorrect")
+        self.assertEqual(a.R1.v, Vt('5*cos(t)'), "R1 voltage incorrect")
+        self.assertEqual(a.V1.i, It('-5*cos(t)'), "V1 current incorrect")
+        self.assertEqual(a.R1.i, It('5*cos(t)'), "R1 current incorrect")
+
+        
+    def test_VRL1_ac2(self):
+        """Lcapy: check VRL circuit at ac for angular frequency 1
+
+        """
+
+        a = Circuit()
+        a.add('V1 1 0 ac 5 0 1')
+        a.add('R1 1 2 3')
+        a.add('L1 2 0 4')
+        self.assertEqual(a.is_ivp, False, "Initial value problem incorrect")
+        self.assertEqual(a.is_dc, False, "DC incorrect")
+        self.assertEqual(a.is_ac, True, "AC incorrect")
+        self.assertEqual(a.is_causal, False, "Causal incorrect")
+        self.assertEqual(a.is_time_domain, False, "Time domain incorrect")
+        self.assertEqual(a.V1.v, Vt('5*cos(t)'), "V1 voltage incorrect")
+        self.assertEqual(a.R1.i, It('(4*sin(t)+3*cos(t))/5'), "R1 current incorrect")
+        
