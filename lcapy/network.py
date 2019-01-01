@@ -105,7 +105,8 @@ class Network(object):
 
         def quote(arg):
 
-            if ('(' in arg) or (')' in arg) or (' ' in arg) or (',' in arg):
+            # TODO: make more robust to catch expressions.
+            if ('(' in arg) or (')' in arg) or (' ' in arg) or (',' in arg) or ('*' in arg) or ('/' in arg):
                 return '{%s}' % arg
             return arg
 

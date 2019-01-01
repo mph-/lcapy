@@ -10,6 +10,34 @@ import re
 # Could use a script to generate parser and parsing tables if speed
 # was important.
 
+def split(s, delimiters):
+    """Split string by specified delimiters but not if a delimiter is
+    within curly brackets {} or ""."""
+
+    parts = []
+    current = []
+    close_bracket = ''
+    bracket_stack = []
+    for c in (s + delimiters[0]):
+        if c in delimiters and len(bracket_stack) == 0:
+            if len(current) > 0:
+                parts.append(''.join(current))
+            current = []
+        else:
+            if c == close_bracket:
+                close_bracket = bracket_stack.pop()                
+            elif c == '{':
+                bracket_stack.append(close_bracket)
+                close_bracket = '}'
+            elif c == '"':
+                bracket_stack.append(close_bracket)
+                close_bracket = '"'
+            current.append(c)
+    if close_bracket != '':
+        raise ValueError('Missing %s in %s' % (close_bracket, s))
+    return parts
+
+
 class Param(object):
 
     def __init__(self, name, base, comment):
@@ -92,7 +120,7 @@ class Parser(object):
         # A string defining parameters
         params = grammar.params
         # A string defining delimiter characters
-        delimiters = grammar.delimiters
+        self.delimiters = grammar.delimiters
         # A string defining comment characters
         self.comments = grammar.comments
 
@@ -109,9 +137,6 @@ class Parser(object):
         cpts = sorted(self.ruledir.keys(), key=len, reverse=True)
 
         self.cpt_pattern = re.compile("(%s)([#_\w']+)?" % '|'.join(cpts))
-        # strings in curly braces are expressions so do not split.
-        # Fix if have {expr1} {expr2}
-        self.param_pattern = re.compile('\{.*\}|".*"|[^%s]+' % delimiters)
 
     def _add_param(self, string):
 
@@ -174,9 +199,9 @@ class Parser(object):
         self.string = string
         fields = string.split(';', 1)
 
-        fields = self.param_pattern.findall(fields[0])
+        fields = split(fields[0], self.delimiters)
 
-        # Strip {}, perhaps should do with regexp.
+        # Strip {}.
         for m, field in enumerate(fields):
             if field[0] == '{':
                 fields[m] = fields[m][1:-1]

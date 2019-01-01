@@ -1200,7 +1200,7 @@ class GroupNetlist(NetlistMixin, MNA):
         self._solve()
         return self._Idict[name].canonical()
 
-    def get_i(self):
+    def get_i(self, name):
         """Time-domain current through component"""
 
         return self.get_I(name).time()

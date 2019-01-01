@@ -365,7 +365,7 @@ class Expr(object):
     def __abs__(self):
         """Absolute value."""
 
-        return self.__class__(abs(self.expr), **self.assumptions)
+        return self.__class__(self.abs, **self.assumptions)
 
     def __neg__(self):
         """Negation."""
@@ -824,7 +824,7 @@ class Expr(object):
 
     @property
     def angle(self):
-        """Return phase"""
+        """Return phase angle"""
 
         return self.phase
 
@@ -1629,7 +1629,8 @@ class Phasor(omegaExpr):
 
     def __init__(self, val, **assumptions):
 
-        assumptions['positive'] = True
+        assumptions['positive'] = True  # ????
+        assumptions['ac'] = True        
         super (Phasor, self).__init__(val, **assumptions)
 
     def __compat_add__(self, x, op):
@@ -1686,7 +1687,7 @@ class Phasor(omegaExpr):
         if self.is_complex:
             result = self.expr * exp(j * omega * t)
         else:
-            result = self.real.expr * cos(omega * t) + self.imag.expr * sin(omega * t)
+            result = self.real.expr * cos(omega * t) - self.imag.expr * sin(omega * t)
 
         if hasattr(self, '_laplace_conjugate_class'):
             return self._laplace_conjugate_class(result)
@@ -1725,13 +1726,7 @@ class Vphasor(Phasor):
         self._laplace_conjugate_class = Vt
 
     def cpt(self):
-
-        v = self
-        if v.is_number or self.is_ac:
-            return Vac(v)
-
-        return V(self)
-
+        return Vac(self, 0, self.omega)            
 
 class Iphasor(Phasor):
 
@@ -1741,18 +1736,13 @@ class Iphasor(Phasor):
         self._laplace_conjugate_class = It
 
     def cpt(self):
-
-        i = self
-        if i.is_number or self.is_ac:
-            return Iac(i)
-
-        return I(self)
-
+        return Iac(self, 0, self.omega)            
 
 class Vconst(cExpr):
 
     def __init__(self, val, **assumptions):
 
+        assumptions['dc'] = True        
         super(Vconst, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Vt
 
@@ -2690,6 +2680,17 @@ class Super(Exprdict):
     each of the noise components in quadrature since they are
     independent.
 
+    For example, consider V = Vsuper('cos(3 * t) + exp(-4 * t) + 5')
+
+    str(V(t)) gives 'cos(3*t) + 5 + exp(-4*t)'
+
+    str(V(s)) gives 's/(9*(s**2/9 + 1)) + 1/(4*(s/4 + 1)) + 5/s'
+
+    V.dc gives 5
+
+    V.ac gives {3: 1}
+
+    V.s gives 1/(s + 4)
     """
 
     # Where possible this class represents a signal in the time-domain.
@@ -2795,9 +2796,20 @@ class Super(Exprdict):
         return self.has_n and self.noise_keys() == list(self.keys())
 
     @property
-    def is_transient(self):
-        """True if only has transient component."""
+    def is_s_transient(self):
+        """True if only has s-domain transient component."""
         return list(self.transform().keys()) == ['s']
+
+    @property
+    def is_t_transient(self):
+        """True if only has t-domain transient component."""
+        return list(self.transform().keys()) == ['t']    
+
+    @property
+    def is_transient(self):
+        """True if only has transient component(s).  Note, should
+        not have both t and s components."""
+        return self.is_s_transient or self.is_t_transient
     
     @property
     def is_causal(self):
@@ -2816,8 +2828,9 @@ class Super(Exprdict):
         elif arg == f:
             return self.fourier()
         elif arg == omega:
+            # Hmmm, perhaps should only match j * omega ???
             x = self.transform()
-            if x.keys != [omega]:
+            if list(x.keys()) != [omega]:
                 print('Warning, this is not the full representation; there are other components')
             return x.select(omega.expr)
         raise ValueError('Can only return t, f, s, or omega domains')
@@ -2901,28 +2914,34 @@ class Super(Exprdict):
                 return True
         return False    
 
-    def _decompose(self, value):
+    def _decompose(self, expr):
+        """Decompose a t-domain expr into AC, DC, and s-domain
+        transient components."""
 
-        dc = value.expr.coeff(tsym, 0)
+        # Extract DC components
+        dc = expr.expr.coeff(tsym, 0)
         if dc != 0:
             self.add(cExpr(dc))
-            value -= dc
+            expr -= dc
 
-        if value == 0:
+        if expr == 0:
             return
 
+        # Extract AC components        
         ac = 0
-        terms = value.expr.as_ordered_terms()
+        terms = expr.expr.as_ordered_terms()
         for term in terms:
             if is_ac(term, tsym):
                 self.add(tExpr(term).phasor())
                 ac += term
 
-        value -= ac
-        if value == 0:
+        expr -= ac
+        if expr == 0:
             return
 
-        sval = value.laplace()
+        # The remaining components are considered transient
+        # so convert to Laplace representation.
+        sval = expr.laplace()
         return self.add(sval)
 
     def transform(self):
@@ -2996,10 +3015,15 @@ class Super(Exprdict):
             # causality, etc.
             return '{%s}' % val.time()
 
-        if 'nid' in val.assumptions:
-            return '%s {%s} %s' % (kind_keyword(kind), val, val.nid)
+        keyword = kind_keyword(kind)
         
-        return '%s {%s}' % (kind_keyword(kind), val)
+        if 'nid' in val.assumptions:
+            return '%s {%s} %s' % (keyword, val, val.nid)
+
+        if keyword == 'ac':
+            return '%s {%s} {%s} {%s}' % (keyword, val, 0, val.omega)
+
+        return '%s {%s}' % (keyword, val)
     
     def _kind(self, value):
         if isinstance(value, Phasor):
@@ -3117,7 +3141,9 @@ class Super(Exprdict):
     def s(self):
         """Return the s-domain representation of the transient component.
         This is not the full s-domain representation as returned by the
-        laplace method."""
+        laplace method V.laplace() or V(s).
+
+        This attribute may be deprecated due to possible confusion."""
         return self.select('s')
 
     @property
@@ -3263,6 +3289,7 @@ class Vsuper(Super):
         return self.__div__(x)
 
     def cpt(self):
+        # Perhaps should generate more specific components such as Vdc?
         return V(self.time())
 
 class Isuper(Super):
@@ -3325,6 +3352,7 @@ class Isuper(Super):
         return self.__div__(x)
 
     def cpt(self):
+        # Perhaps should generate more specific components such as Idc?        
         return I(self.time())
     
     

@@ -130,6 +130,7 @@ class MNA(object):
         self._Is = sym.zeros(num_nodes, 1)
         self._Es = sym.zeros(num_branches, 1)
 
+        # Iterate over circuit elements and fill in matrices.
         for elt in self.elements.values():
             elt.stamp(self)
 

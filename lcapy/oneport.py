@@ -214,18 +214,21 @@ class OnePort(Network):
         new = self.simplify()
         Voc = new.Voc
         Z = new.Z
-        
+
         if Voc.is_superposition and not Z.is_real:
             print('Warning, detected superposition with reactive impedance,'
                   ' using s-domain.')
-            Voc = Voc.laplace()
+            Z1 = Z.cpt()
+            V1 = Voc.laplace().cpt()
         elif Voc.is_ac:
-            Z = Z(j * Voc.ac_keys()[0])
+            Z1 = Z(j * Voc.ac_keys()[0]).cpt()
+            V1 = Voc(Voc.ac_keys()[0]).cpt()
         elif Voc.is_dc:
-            Z = Z(0)
-
-        V1 = Voc.cpt()
-        Z1 = Z.cpt()
+            Z1 = Z(0).cpt()
+            V1 = Voc(0).cpt()
+        else:
+            V1 = Voc.cpt()
+            Z1 = Z.cpt()
 
         if Voc == 0:
             return Z1
@@ -244,14 +247,17 @@ class OnePort(Network):
         if Isc.is_superposition and not Y.is_real:
             print('Warning, detected superposition with reactive impedance,'
                   ' using s-domain.')
-            Isc = Isc.laplace()
+            Y1 = Y.cpt()
+            I1 = Isc.laplace().cpt()
         elif Isc.is_ac:
-            Y = Y(j * Isc.ac_keys()[0])
+            Y1 = Y(j * Isc.ac_keys()[0]).cpt()
+            I1 = Isc(Isc.ac_keys()[0]).cpt()
         elif Isc.is_dc:
-            Y = Y(0)
-
-        I1 = Isc.cpt()
-        Y1 = Y.cpt()
+            Y1 = Y(0).cpt()
+            I1 = Isc(0).cpt()
+        else:
+            I1 = Isc.cpt()
+            Y1 = Y.cpt()
 
         if Isc == 0:
             return Y1
@@ -816,9 +822,7 @@ class sV(VoltageSource):
 
 
 class V(VoltageSource):
-    """Voltage source. If the expression contains s treat as s-domain
-    voltage otherwise time domain.  A constant V is considered DC
-    with an s-domain voltage V / s."""
+    """Arbitrary voltage source"""
 
     def __init__(self, Vval):
 
@@ -862,20 +866,35 @@ class Vac(VoltageSource):
 
     netkeyword = 'ac'
 
-    def __init__(self, V, phi=0):
+    def __init__(self, V, phi=None, omega=None):
 
-        self.args = (V, phi)
+        if phi is None and omega is None:
+            self.args = (V, )
+        elif phi is not None and omega is None:
+            self.args = (V, phi)
+        elif phi is None and omega is not None:
+            self.args = (V, 0, omega)            
+        else:
+            self.args = (V, phi, omega)            
+
+        if phi is None:
+            phi = 0
+            
+        if omega is None:
+            omega = symbol('omega', real=True)
+        else:
+            omega = Expr(omega)
+
         V = Expr(V)
         phi = Expr(phi)
 
         # Note, cos(-pi / 2) is not quite zero.
 
-        self.omega = symbol('omega', real=True)
+        self.omega = omega
         self.v0 = V
         self.phi = phi
         self._Voc = Vsuper(Vphasor(self.v0 * exp(j * self.phi), ac=True,
                                   omega=self.omega))
-
 
     @property
     def voc(self):
@@ -925,11 +944,7 @@ class sI(CurrentSource):
 
 
 class I(CurrentSource):
-    """Current source. If the expression contains s treat as s-domain
-    current otherwise time domain.  A constant I is considered DC with
-    an s-domain current I / s.
-
-    """
+    """Arbitrary current source"""
 
     def __init__(self, Ival):
 
@@ -973,13 +988,29 @@ class Iac(CurrentSource):
 
     netkeyword = 'ac'
 
-    def __init__(self, I, phi=0):
+    def __init__(self, I, phi=0, omega=None):
 
-        self.args = (I, phi)
+        if phi is None and omega is None:
+            self.args = (I, )
+        elif phi is not None and omega is None:
+            self.args = (I, phi)
+        elif phi is None and omega is not None:
+            self.args = (I, 0, omega)            
+        else:
+            self.args = (I, phi, omega)            
+
+        if phi is None:
+            phi = 0
+            
+        if omega is None:
+            omega = symbol('omega', real=True)
+        else:
+            omega = Expr(omega)
+
         I = Expr(I)
         phi = Expr(phi)
 
-        self.omega = symbol('omega', real=True)
+        self.omega = omega
         self.i0 = I
         self.phi = phi
         self._Isc = Isuper(Iphasor(self.i0 * exp(j * self.phi), ac=True,

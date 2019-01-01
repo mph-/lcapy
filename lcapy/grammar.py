@@ -5,7 +5,7 @@ Copyright 2015, 2016 Michael Hayes, UCECE
 """
 
 # SPICE also considers = a delimiter.
-delimiters = r' \t\(\),'
+delimiters = ' \t(),'
 
 # Comment characters; these must be in the first column.
 comments = r'#%*'
@@ -33,9 +33,9 @@ I: Iname Np Nm [Value]; Current source
 sI: Iname Np Nm s [Value]; s-domain current source
 Idc: Iname Np Nm dc [Value]; DC current source
 Istep: Iname Np Nm step [Value]; Step current source
-Iac: Iname Np Nm ac [Value] [Phase]; AC current source
-Inoise: Iname Np Nm noise [Value] [NID]; Noise current source
+Iac: Iname Np Nm ac [Value] [Phase] [Freq]; AC current source
 Isin: Iname Np Nm sin Io Ia fo [td] [alpha] [Phase]; Sinusoidal current source
+Inoise: Iname Np Nm noise [Value] [NID]; Noise current source
 J: Jname Nd Ng Ns [Value]; N channel JFET
 Jnjf: Jname Nd Ng Ns njf [Value]; N channel JFET
 Jpjf: Jname Nd Ng Ns pjf [Value]; P channel JFET
@@ -89,9 +89,9 @@ V: Vname Np Nm [Value]; Voltage source
 sV: Vname Np Nm s [Value]; s-domain voltage source
 Vdc: Vname Np Nm dc [Value]; DC voltage source
 Vstep: Vname Np Nm step [Value]; Step voltage source
-Vac: Vname Np Nm ac [Value] [Phase]; AC voltage source
-Vnoise: Vname Np Nm noise [Value] [NID]; Noise voltage source
+Vac: Vname Np Nm ac [Value] [Phase] [Freq]; AC voltage source
 Vsin: Vname Np Nm sin Vo Va fo [td] [alpha] [Phase]; Sinusoidal voltage source
+Vnoise: Vname Np Nm noise [Value] [NID]; Noise voltage source
 VM: VMname Np Nm; Voltmeter
 W: Wname Np Np; Wire
 XT: XTname Np Nm; Crystal
@@ -168,7 +168,8 @@ Np: node; Positive node
 Ns: node; Source node
 Nt: node; Tap node
 Nodelist: nodelist; List of nodes
-Phase: value; AC Phase
+Phase: value; AC phase
+Freq: value; AC frequency
 Vo: value; DC voltage offset
 Va: value; Sinewave voltage amplitude
 Io: value; DC current offset
