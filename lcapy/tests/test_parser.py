@@ -58,6 +58,11 @@ def test_Vexpr():
     
     assert_equals(type(parse('V1 1 2 {a * 5}')), schemcpts.classes['V'], 'Class not V')
 
+def test_Vac2():
+    '''Test ac voltage source'''
+    
+    assert_equals(type(parse('V1 1 2 ac {1j} {0} 3')), schemcpts.classes['Vac'], 'Class not Vac')    
+
 def test_Vquotes():
     '''Test voltage source with arg in quotes'''
     
