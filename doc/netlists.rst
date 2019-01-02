@@ -188,7 +188,7 @@ For example,
     -R₁⋅t              
     ──────             
       L₁               
-   ℯ      ⋅Heaviside(t)
+   e      ⋅Heaviside(t)
 
 
 Component attributes
@@ -201,7 +201,7 @@ Circuit elements (components) have attributes: `v`, `V`, `i`, and `I`.
     -R₁⋅t              
     ──────             
       L₁               
-   ℯ      ⋅Heaviside(t)   
+   e      ⋅Heaviside(t)   
    
 `i` is the time-domain current through the component, for example:
 
@@ -209,7 +209,7 @@ Circuit elements (components) have attributes: `v`, `V`, `i`, and `I`.
    ⎛      -R₁⋅t ⎞             
    ⎜      ──────⎟             
    ⎜        L₁  ⎟             
-   ⎜1    ℯ      ⎟             
+   ⎜1    e      ⎟             
    ⎜── - ───────⎟⋅Heaviside(t)
    ⎝R₁      R₁  ⎠             
 
