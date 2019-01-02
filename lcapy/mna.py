@@ -142,7 +142,7 @@ class MNA(object):
 
     def _solve(self):
         """Solve network."""
-
+        
         if hasattr(self, '_Vdict'):
             return
         self._analyse()

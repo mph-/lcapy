@@ -312,9 +312,6 @@ class Expr(object):
                 """This is wrapper for a SymPy function.
                 For help, see the SymPy documentation."""
 
-                if attr == 'simplify' and expr == DiracDelta(t).expr:
-                    args =(0, )
-                
                 ret = a(*args)
 
                 if not isinstance(ret, sym.Expr):
@@ -859,7 +856,16 @@ class Expr(object):
     @property
     def is_constant(self):
 
-        return self.expr.is_constant()
+        expr = self.expr
+
+        # Workaround for sympy bug
+        # a = sym.sympify('DiracDelta(t)')
+        # a.is_constant()
+        
+        if expr.has(sym.DiracDelta):
+            return False
+        
+        return expr.is_constant()
 
     def evaluate(self, arg=None):
         """Evaluate expression at arg.  arg may be a scalar, or a vector.
@@ -1097,6 +1103,12 @@ class Expr(object):
         if hasattr(self, 'assumptions'):
             return self.__class__(ret, **self.assumptions)
         return self.__class__(ret)
+
+    def simplify(self):
+        """Simplify expression."""
+        
+        ret = sym.simplify(self.expr)
+        return self.__class__(ret, **self.assumptions)
 
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
@@ -3118,6 +3130,7 @@ class Super(Exprdict):
             value = self.transform_domains['dc'](value)
 
         try:
+            
             # Look for I, 5 * I, etc.
             if value.is_constant():
                 value = self.transform_domains['dc'](value)

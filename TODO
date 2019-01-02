@@ -6,10 +6,6 @@ Switch to setuptools.
 
 Use single representation for netlists/AST
 
-Perhaps store initial circuit using time domain representation, then
-convert to s-domain for analysis, instead of waltzing straight into
-s-domain?
-
 Speed up residue calculation  (perhaps can try without taking limit...)
 
 Handle mechanical and acoustical components.  Perhaps lower case for
@@ -69,7 +65,7 @@ Vac know v(t) for all t; no discontinuities.  Use AC analysis.
 Vsin know v(t) for all t; no discontinuities.  Use AC analysis.
 V can evaluate v(t) for all t; hard to determine discontinuities.  Could consider special cases.
 
-Add Vsin and Isin.
+Add Vsin and Isin components.
 
 Add consistent mapping of unit step, dirac delta, etc.
 
@@ -171,10 +167,15 @@ Tidy docs
 s-model convert current, voltage labels to s-domain, say i -> I
 
 
-Add gyrator component
-
 Changing initial values, for example,
 
 cct.C.v0 = 10
 
 Note, cannot do cct.C.cpt.v0 = 10 since this does not change the netlist
+
+
+How to deal with special sympy symbols such as zeta?
+
+Conjugate of a complex symbol?
+
+Handling symbols of same name with different assumptions.

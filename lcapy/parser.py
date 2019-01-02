@@ -253,7 +253,7 @@ class Parser(object):
         opts_string = fields[1].strip() if len(fields) > 1 else '' 
 
         keyword = (pos, keyword)
-            
+
         return self.cpts.make(rule.classname, parent, name,
                               cpt_type, cpt_id, string, opts_string,
                               tuple(nodes), keyword, *args)
