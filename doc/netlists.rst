@@ -81,6 +81,10 @@ The component type is specified by the first letter(s) of the
 
    Vname Np Nm ac V p w  
 
+- Step voltage source of amplitude V
+
+   Vname Np Nm step V
+   
 - Arbitrary current source:
 
    Iname Np Nm Iexpr
@@ -106,6 +110,10 @@ The component type is specified by the first letter(s) of the
 - AC current source of complex current amplitude I and phase p (radians) with angular frequency w:
 
    Iname Np Nm ac I p w
+
+- Step current source of amplitude I
+
+   Iname Np Nm step I
 
 - Resistor:
 
