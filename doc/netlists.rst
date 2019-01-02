@@ -11,7 +11,7 @@ Circuits are described using a netlist of interconnected components (see :ref:`c
 Circuits
 ========
 
-A circuit can be created by loading a netlist from a file or by
+A circuit (or network) can be created by loading a netlist from a file or by
 dynamically adding nets.  For example,
 
    >>> cct = Circuit('circuit.sch')
@@ -20,6 +20,15 @@ or
 
    >>> cct = Circuit()
    >>> cct.add('R1 1 2')
+   >>> cct.add('L1 2 3')
+
+or
+   
+   >>> cct = Circuit()
+   >>> cct.add("""
+   >>> R1 1 2
+   >>> L1 2 3
+   >>> """)
 
 
 .. _component-specification:
@@ -35,32 +44,68 @@ general form:
 If no args are specified then the component value is assigned a
 symbolic name specified by `component-name`. 
 
+Arguments containing delimiters (space, tab, comma, left bracket,
+right bracket) can be escaped with brackets or double quotes.  For
+example:
+
+   V1 1 0 {cos(5 * t)}
+
 The component type is specified by the first letter(s) of the
 `component-name`.  For example,
+
+- Arbitrary voltage source:
+
+   Vname Np Nm Vexpr
+
+   For example,
+
+   V1 1 0 10
+  
+   V1 1 0 {2 * cos(5 * t)}
+  
+   V1 1 0 {2 * cos(5 * t) * u(t)}
+
+   V1 1 0 {10 / s}
+
+   V1 1 0 {s * 0 + 10}  ; This creates V1(s) = 10
 
 - DC voltage source of voltage V:
 
    Vname Np Nm dc V
 
-- AC voltage source of voltage V, frequency f, and phase p:
+- AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency :math:`\omega`:
 
-   Vname Np Nm ac V f p
+   Vname Np Nm ac V p
 
-- Arbitrary s-domain voltage source:
+- AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency w:
 
-   Vname Np Nm Vexpr
+   Vname Np Nm ac V p w  
+
+- Arbitrary current source:
+
+   Iname Np Nm Iexpr
+
+   For example,
+
+   I1 1 0 10
+  
+   I1 1 0 {2 * cos(5 * t)}
+  
+   I1 1 0 {2 * cos(5 * t) * u(t)}
+
+   I1 1 0 {10 / s}  
 
 - DC current source of current I:
 
    Iname Np Nm dc I
 
-- AC current source of current I, frequency f, and phase p:
+- AC current source of complex current amplitude I and phase p (radians) with angular frequency :math:`\omega`:
 
    Iname Np Nm ac I p
 
-- Arbitrary s-domain current source:
+- AC current source of complex current amplitude I and phase p (radians) with angular frequency w:
 
-   Iname Np Nm Iexpr
+   Iname Np Nm ac I p w
 
 - Resistor:
 
@@ -84,7 +129,7 @@ The component type is specified by the first letter(s) of the
 
 - Ideal transformer of turns ratio a:
 
-  TFname Np Nm Nip Nim a
+   TFname Np Nm Nip Nim a
 
 - Ideal gyrator of gyration resistance R:
 
@@ -97,59 +142,132 @@ the negative input node.  Note, positive current flows from
 symbolic.  The ground node is designated `0`.
 
 
-Voltage and current sources
----------------------------
+Circuit attributes
+------------------
 
-The netlist description for a voltage source has the form:
+A circuit is comprised of a collection of nodes and a collection of
+circuit elements (components).  For example,
 
-Vname Np Nm value
+   >>> cct = Circuit()
+   >>> cct.add('V1 1 0 {u(t)}')
+   >>> cct.add('R1 1 2')
+   >>> cct.add('L1 2 0')
+   >>>
+   >>> cct
+   V1 1 0 {u(t)}
+   R1 1 2
+   L1 2 0
 
-Here value can be an arbitrary expression; the expression must be
-enclosed in curly braces if it contains a delimiter such as a space,
-comma, left bracket, or right bracket.  For example, for a ramp
-voltage source
+A node object is obtained using indexing notation, for example:
 
-V1 1 0 {t * Heaviside(t)}
+   >>> cct[2]
 
-An s-domain value can be similarly described, for example
+A circuit element object is obtained using its name, for example:
 
-V1 1 0 {10 / s}
+   >>> cct.R1   
 
-But what about the following example?
 
-V1 1 2 10
+Node attributes
+---------------
 
-Here the value is not an expression of t or s and so is ambiguous.
-For Spice compatibility, Lcapy assumes a DC value of 10 (in the
-s-domain this is equivalent to 10 / s).  An s-domain value of 10 can
-be achieved using:
+Nodes have two attributes: `v` and `V`.  `v` is the time-domain
+voltage (with respect to the ground node 0).  `V` is a superposition
+of the node voltage in the different transform domains.
 
-V1 1 2 {0 * s + 10}
+For example,
+   
+   >>> cct[2].v
+    -R₁⋅t              
+    ──────             
+      L₁               
+   ℯ      ⋅Heaviside(t)
 
-or
 
-V1 1 2 s 10
+Component attributes
+--------------------
 
-or alternatively,
+Circuit elements (components) have attributes: `v`, `V`, `i`, and `I`.
+`v` is the time-domain voltage difference across the component, for example:
 
-V1 1 2 {10 * DiracDelta(t)}
+   >>> cct.R1.v   
+    -R₁⋅t              
+    ──────             
+      L₁               
+   ℯ      ⋅Heaviside(t)   
+   
+`i` is the time-domain current through the component, for example:
 
-To input an arbitrary time varying voltage use:
+   >>> cct.R1.i   
+   ⎛      -R₁⋅t ⎞             
+   ⎜      ──────⎟             
+   ⎜        L₁  ⎟             
+   ⎜1    ℯ      ⎟             
+   ⎜── - ───────⎟⋅Heaviside(t)
+   ⎝R₁      R₁  ⎠             
 
-V1 1 2 {v(t)}
+The `V` and `I` attributes display the voltage and current as a
+superposition in the transform domains.  For example,
 
-Here the value will be converted to V(s) for calculations but
-displayed on a schematic as v(t).   
+   >>> cct.V1.V
+   ⎧   1⎫
+   ⎨s: ─⎬
+   ⎩   s⎭
 
-Here's an example of a cosine current current of amplitude 20 A and
-frequency f
 
-I1 1 0 {20 * cos(2 * pi * f * t)}
+Circuit evaluation
+------------------
 
-Here's an example of a negative exponential current of amplitude 20 A
-and time constant 2 s
+The circuit node voltages are determined using Modified Nodal Analysis
+(MNA).  This is performed lazily as required with the results cached.
 
-I1 1 0 {20 * exp(-t / 4)}
+When a circuit has multiple independent sources, the circuit is
+decomposed into a number of sub-circuits; one for each source type.
+Again, this is performed lazily as required.  Each sub-circuit is
+evaluated independently and the results are summed using the principle
+of superposition.  For example, consider the circuit
+
+   >>> cct = Circuit()
+   >>> cct.add('V1 1 0 {1 + u(t)}')
+   >>> cct.add('R1 1 2')
+   >>> cct.add('L1 2 0')
+
+In this example, V1 can be considered the superposition of a DC source
+and a transient source.  The approach Lcapy uses to solve the circuit
+can be found using the `describe` method:
+
+   >>> cct.describe()
+   This is solved using superposition.
+   DC analysis is used for source V1.
+   Laplace analysis is used for source V1.
+
+For the curious, the sub-circuits can be found with the `sub` attribute:
+
+   >>> cct.sub
+   {'dc': V1 1 0 dc {1}
+          R1 1 2
+          L1 2 0 L_1,
+   's': V1 1 0 {Heaviside(t)}
+        R1 1 2
+        L1 2 0 L_1
+   }
+
+Here the first sub-circuit is solved using DC analysis and the second
+sub-circuit is solved using Laplace analysis in the s-domain.
+
+The properties of each sub-circuit can be found with the `analysis` attribute:
+
+   >>> cct.sub['dc'].analyse()
+   {'ac': False,
+   'causal': False,
+   'control_sources': [],
+   'dc': True,
+   'dependent_sources': [],
+   'has_s': False,
+   'hasic': False,
+   'independent_sources': ['V1'],
+   'ivp': False,
+   'time_domain': False,
+   'zeroic': True}
 
 
 Netlist analysis examples
@@ -162,7 +280,7 @@ V-R-C circuit (1)
 This example plots the transient voltage across a capacitor in a series R-L circuit:
 
 .. image:: examples/netlists/circuit-VRC1.png
-   :width: 7cm
+   :width: 10cm
 
 .. literalinclude:: examples/netlists/circuit-VRC1-vc.py
 
@@ -188,7 +306,7 @@ V-R-L-C circuit (1)
 This example plots the transient voltage across a resistor in a series R-L-C circuit:
 
 .. image:: examples/netlists/circuit-VRLC1.png
-   :width: 7cm
+   :width: 10cm
 
 .. literalinclude:: examples/netlists/circuit-VRLC1-vr.py
 
@@ -202,8 +320,8 @@ V-R-L-C circuit (2)
 
 This is the same as the previous example but with a different resistor value giving an underdamped response:
 
-.. image:: examples/netlists/circuit-VRLC2-vr.png
-   :width: 7cm
+.. image:: examples/netlists/circuit-VRLC2.png
+   :width: 10cm
 
 .. literalinclude:: examples/netlists/circuit-VRLC2-vr.py
 

@@ -36,9 +36,9 @@ circuit:
    >>> cct1 = (Vstep(10) + R(1)) | C(2)
 
    >>> cct2 = Circuit()
-   >>> cct2.add('V 1 0 step 10')
-   >>> cct2.add('R 1 2 1')
-   >>> cct2.add('C 2 0 2')
+   >>> cct2.add('V1 1 0 step 10')
+   >>> cct2.add('R1 1 2 1')
+   >>> cct2.add('C1 2 0 2')
 
 The two approaches have many attributes and methods in common.  For example,
 
@@ -53,14 +53,14 @@ The two approaches have many attributes and methods in common.  For example,
 
 However, there are subtle differences.  For example,
 
-   >>> cct1.Voc.s
+   >>> cct1.Voc.laplace()
       5   
    ──────
     2   s
    s  + ─
         2
 
-   >>> cct2.Voc(2, 0).s
+   >>> cct2.Voc(2, 0).laplace()
       5   
    ──────
     2   s
@@ -68,7 +68,16 @@ However, there are subtle differences.  For example,
         2
 
 Notice, the second example requires specific nodes to determine the
-open-circuit voltage across.
+open-circuit voltage across.  The advantage of the netlist approach is
+that component names can be used , for example,
+
+   >>> cct2.V1.V.laplace()
+      5   
+   ──────
+    2   s
+   s  + ─
+        2
+
 
 
 Linear circuit analysis
@@ -91,7 +100,7 @@ is ony known for :math:`t\ge 0`.
 2. If there are no capacitors and inductors and if none of the independent sources are specified in the s-domain, then time-domain analysis is performed.
 3. Finally, Lcapy tries to decompose the sources into DC, AC, transient, and noise components.  The circuit is analysed for each source category using the appropriate transform domain (phasors for AC, s-domain for transients) and the results are added.
 
-If there are noise sources, these are considered independently since they are assumed to be uncorrelated.  
+If there are multiple noise sources, these are considered independently since they are assumed to be uncorrelated.  
    
 
 DC analysis
@@ -103,7 +112,8 @@ approximation for very slowly changing sources.  With a DC independent
 source the dependent sources are also DC and thus no voltages or
 currents change.  Thus capacitors can be replaced with open-circuits
 and inductors can be replaced with short-circuits.  Note, each node
-must have a DC path to ground otherwise the circuit cannot be solved.
+must have a DC path to ground otherwise the circuit cannot be solved
+(for example, when capacitors are in series).
 
 
 AC analysis
