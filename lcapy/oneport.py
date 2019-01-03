@@ -15,7 +15,7 @@ currents, respectively, to model transient responses.
 One-ports can either be connected in series (+) or parallel (|) to
 create a new one-port.
 
-Copyright 2014--2018 Michael Hayes, UCECE
+Copyright 2014--2019 Michael Hayes, UCECE
 """
 
 # TODO.   Rethink best way to handle impedances.   These can either be

@@ -2,7 +2,7 @@
 This module defines and draws the schematic components using
 circuitikz.   The components are defined at the bottom of this file.
 
-Copyright 2015--2018 Michael Hayes, UCECE
+Copyright 2015--2019 Michael Hayes, UCECE
 """
 
 

@@ -8,7 +8,7 @@ analysis.  See lcapy.netlist
 Alternatively, Lcapy can analyse networks and circuits formed by
 combining one, two, and three port networks.
 
-Copyright 2014--2018 Michael Hayes, UCECE
+Copyright 2014--2019 Michael Hayes, UCECE
 """
 
 from __future__ import absolute_import, print_function

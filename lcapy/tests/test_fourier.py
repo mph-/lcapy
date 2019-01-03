@@ -10,7 +10,6 @@ class LcapyTester(unittest.TestCase):
 
     def test_fourier(self):
 
-        self.assertEqual(Heaviside(t).fourier(), 1 / s, "Heaviside(t)")
         self.assertEqual(DiracDelta(t).fourier(), 1, "DiracDelta(t)")
         self.assertEqual(Vt('x(t)').fourier(), Vf('X(f)'), "x(t)")
         self.assertEqual(Vt('5 * x(t)').fourier(), Vf('5 * X(f)'), "5 * x(t)")
