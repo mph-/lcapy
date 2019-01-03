@@ -78,6 +78,9 @@ class Cpt(object):
             if self.id != '':
                 value += '_' + self.id
 
+            if self.type in ('V', 'I') and keyword[1] == '':
+                value = value[0].lower() + value[1:] + '(t)'
+
             args += (value, )
             self.args = args
 
