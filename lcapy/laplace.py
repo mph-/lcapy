@@ -208,6 +208,9 @@ def inverse_laplace_ratfun(expr, s, t):
 
 def inverse_laplace_function(expr, s, t):
 
+    # Handle expressions with a function of s, e.g.,
+    # V(s), V(s) * Y(s),  3 * V(s) / s etc.
+    
     if not expr.has(sym.function.AppliedUndef):
         raise ValueError('Could not compute inverse Laplace transform for ' + str(expr))
 
@@ -297,7 +300,7 @@ def inverse_laplace_sympy(expr, s, t):
 def inverse_laplace_term1(expr, s, t, **assumptions):
 
     if expr.has(sym.function.AppliedUndef):
-        # Handle V(s), V(s) / Z(s) etc.
+        # Handle V(s), V(s) * Y(s),  3 * V(s) / s etc.
         return zero, inverse_laplace_function(expr, s, t)
 
     try:

@@ -9,7 +9,7 @@ by using Dirac deltas.  For example, a, cos(a * t), sin(a * t), exp(j
 * a * t).
 
 
-Copyright 2016 Michael Hayes, UCECE
+Copyright 2016-2019 Michael Hayes, UCECE
 
 """
 
@@ -30,29 +30,90 @@ def fourier_sympy(expr, t, f):
         # There is a bug in SymPy where it returns 0.
         raise ValueError('Could not compute Fourier transform for ' + str(expr))
 
+    if isinstance(result, sym.FourierTransform):
+        raise ValueError('Could not compute Fourier transform for ' + str(expr))
+    
     return result
 
 
-def fourier_term(expr, t, f, inverse=False):
+def fourier_function(expr, t, f, inverse=False):
 
-    if expr.has(sym.function.AppliedUndef) and expr.args[0] == t:
-        # TODO, handle things like 3 * v(t), a * v(t), 3 * t * v(t), v(t-T),
-        # v(4 * a * t), etc.
-        if not isinstance(expr, sym.function.AppliedUndef):
-            raise ValueError('Could not compute Fourier transform for ' + str(expr))
+    # Handle expressions with a function of FOO, e.g.,
+    # v(t), v(t) * y(t),  3 * v(t) / t etc.
+    #
+    # TODO, handle expressions like v(t-T), v(4 * a * t), etc.,
+    # using similarity theorem.
+    
+    if not expr.has(sym.function.AppliedUndef):
+        raise ValueError('Could not compute Fourier transform for ' + str(expr))
 
+    fsym = sym.sympify(str(f))
+
+    if isinstance(expr, sym.function.AppliedUndef):
         # Convert v(t) to V(f), etc.
         name = expr.func.__name__
         if inverse:
-            name = name[0].lower() + name[1:] + '(%s)' % -f
+            func = name[0].lower() + name[1:] + '(%s)' % f
         else:
-            name = name[0].upper() + name[1:] + '(%s)' % f
-        return sym.sympify(name)
+            func = name[0].upper() + name[1:] + '(%s)' % f
+        result = sym.sympify(func).subs(fsym, f)            
+        return result
+    
+    tsym = sym.sympify(str(t))
+    expr = expr.subs(tsym, t)
 
+    rest = sym.sympify(1)
+    undefs = []
+    for factor in expr.as_ordered_factors():
+        if isinstance(factor, sym.function.AppliedUndef):
+            if factor.args[0] != t:
+                raise ValueError('Weird function %s not of %s' % (factor, t))
+            undefs.append(factor)
+        else:
+            rest *= factor
+
+    if rest.has(sym.function.AppliedUndef):
+        # Have something like 1/v(t)
+        raise ValueError('Cannot compute Fourier transform of %s' % rest)
+            
+    exprs = undefs
+    if rest.has(t):
+        exprs = exprs + [rest]
+        rest = sym.sympify(1)
+
+    result = fourier_term(exprs[0], t, f, inverse) * rest
+        
+    if len(exprs) == 1:
+        return result
+
+    dummy = 'tau' if inverse else 'nu'
+
+    for m in range(len(exprs) - 1):
+        if m == 0:
+            nu = sym.sympify(dummy)
+        else:
+            nu = sym.sympify(dummy + '_%d' % m)
+        expr2 = fourier_term(exprs[m + 1], t, f, inverse)
+        result = sym.Integral(result.subs(f, f - nu) * expr2.subs(f, nu),
+                              (nu, -sym.oo, sym.oo))
+    
+    return result
+
+def fourier_term(expr, t, f, inverse=False):
+
+    # TODO, detect convolution integral and convert to a product
+    # of the transformed functions.
+
+    # TODO add u(t) <-->  delta(f) / 2 - j / (2 * pi * f)
+    
+    if expr.has(sym.function.AppliedUndef):
+        # Handle v(t), v(t) * y(t),  3 * v(t) / t etc.
+        return fourier_function(expr, t, f, inverse)
+
+    sf = -f if inverse else f
+    
     # Check for constant.
     if not expr.has(t):
-        if f.is_Mul and f.args[0] < 0:
-            f = -f
         return expr * sym.DiracDelta(f)
 
     one = sym.sympify(1)
@@ -83,21 +144,21 @@ def fourier_term(expr, t, f, inverse=False):
                 bar = foo.args[1] / t
                 if not bar.has(t) and bar.has(sym.I):
                     a = -(foo.args[0] * 2 * sym.pi * sym.I) / bar
-                    return const * sym.exp(-a * f) * sym.Heaviside(f * sym.sign(a))
+                    return const * sym.exp(-a * sf) * sym.Heaviside(sf * sym.sign(a))
 
         # Punt and use SymPy.  Should check for t**n, t**n * exp(-a * t), etc.
-        return fourier_sympy(expr, t, f)
+        return fourier_sympy(expr, t, sf)
 
     args = exps.args[0]
     foo = args / t
     if foo.has(t):
         # Have exp(a * t**n), SymPy might be able to handle this
-        return fourier_sympy(expr, t, f)
+        return fourier_sympy(expr, t, sf)
 
     if exps != 1 and foo.has(sym.I):
-        return const * sym.DiracDelta(f - foo / (sym.I * 2 * sym.pi))
+        return const * sym.DiracDelta(sf - foo / (sym.I * 2 * sym.pi))
         
-    return fourier_sympy(expr, t, f)
+    return fourier_sympy(expr, t, sf)
 
 
 def fourier_transform(expr, t, f, inverse=False):
@@ -115,7 +176,7 @@ def fourier_transform(expr, t, f, inverse=False):
         return fourier_cache[key]
     
     if inverse:
-        t, f = f, -t
+        t, f = f, t
 
     # The variable may have been created with different attributes,
     # say when using sym.sympify('DiracDelta(t)') since this will
