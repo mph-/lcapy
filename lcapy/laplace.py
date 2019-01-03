@@ -297,11 +297,12 @@ def inverse_laplace_sympy(expr, s, t):
     return result
 
 
-def inverse_laplace_term1(expr, s, t, **assumptions):
+def inverse_laplace_term1(expr, s, t):
 
     if expr.has(sym.function.AppliedUndef):
         # Handle V(s), V(s) * Y(s),  3 * V(s) / s etc.
-        return zero, inverse_laplace_function(expr, s, t)
+        # If causal is True it is assumed that the unknown functions are causal.
+        return inverse_laplace_function(expr, s, t), zero
 
     try:
         # This is the common case.
@@ -319,7 +320,7 @@ def inverse_laplace_term(expr, s, t, **assumptions):
 
     expr, delay = delay_factor(sym.simplify(expr), s)
 
-    result1, result2 = inverse_laplace_term1(expr, s, t, **assumptions)
+    result1, result2 = inverse_laplace_term1(expr, s, t)
 
     if delay != 0:
         result1 = result1.subs(t, t - delay)
@@ -350,6 +351,16 @@ def inverse_laplace_by_terms(expr, s, t, **assumptions):
 
 
 def inverse_laplace_transform(expr, s, t, **assumptions):
+    """Calculate inverse Laplace transform of X(s) and return x(t).
+
+    The unilateral Laplace transform cannot determine x(t) for t < 0
+    unless given additional information in the way of assumptions.
+
+    The assumptions are:
+    dc -- x(t) = constant so X(s) must have the form constant / s
+    causal -- x(t) = 0 for t < 0.
+    ac -- x(t) = A cos(a * t) + B * sin(b * t)
+    """
 
     # TODO, simplify
     key = (expr, s, t, assumptions.get('dc', False),
@@ -380,6 +391,8 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
         if result1 != 0:
             raise ValueError('Inverse laplace transform weirdness for %s'
                              ' with is_ac True' % expr)
+        # TODO, perform more checking of the result.
+        
     elif not assumptions.get('causal', False):
         result = sym.Piecewise((result, t >= 0))
         

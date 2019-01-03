@@ -24,10 +24,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual((s * 0 + 10).inverse_laplace(causal=True), 10
                          * DiracDelta(t), "0")
         self.assertEqual(Vs('V(s)').inverse_laplace(causal=True),
-                         Vt('v(t) * u(t)'), "V(s)")
+                         Vt('v(t)'), "V(s)")
         self.assertEqual(Vs('10 * V(s)').inverse_laplace(causal=True),
-                         Vt('10 * v(t) * u(t)'), "V(s)")
-        self.assertEqual(Vs('10 * V(s) * exp(-5 * s)').inverse_laplace(causal=True), Vt('10 * v(t - 5) * u(t - 5)'), "10 * V(s) * exp(-5 * s)")
+                         Vt('10 * v(t)'), "V(s)")
+        self.assertEqual(Vs('10 * V(s) * exp(-5 * s)').inverse_laplace(causal=True), Vt('10 * v(t - 5)'), "10 * V(s) * exp(-5 * s)")
         self.assertEqual(Vt('v(t)').laplace().inverse_laplace(causal=True),
-                         Vt('v(t) * u(t)'), "v(t)")
+                         Vt('v(t)'), "v(t)")
                          
