@@ -329,16 +329,16 @@ class NetlistMixin(object):
 
         # Alter keys to avoid underscore and to ensure that have a '0'
         # key if possible.
+        enodes2 = {}
         for key, nodes in enodes.items():
             nodes = sorted(nodes)
             if '0' in nodes:
                 newkey = '0'
             else:
                 newkey = nodes[0]
-            enodes.pop(key)
-            enodes[newkey] = nodes
+            enodes2[newkey] = nodes
                 
-        return enodes
+        return enodes2
 
     @property
     def node_map(self):
