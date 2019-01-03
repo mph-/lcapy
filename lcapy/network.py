@@ -150,13 +150,45 @@ class Network(object):
         self._sch = sch
         return sch
 
-    def draw(self, filename=None, label_ids=False,
-             label_values=True, draw_nodes='connections',
-             label_nodes=False):
+    def draw(self, filename=None, **kwargs):
+        """Draw schematic of network.
 
-        self.sch.draw(filename=filename, label_ids=label_ids, 
-                      label_values=label_values, 
-                      draw_nodes=draw_nodes, label_nodes=label_nodes)
+        filename specifies the name of the file to produce.  If None,
+        the schematic is displayed on the screen.
+
+        Note, if using Jupyter, then need to first issue command %matplotlib inline
+
+        kwargs include:
+           label_ids: True to show component ids
+           label_values: True to display component values
+           draw_nodes: True to show all nodes, False to show no nodes, 
+             'primary' to show primary nodes,
+             'connections' to show nodes that connect more than two components,
+             'all' to show all nodes
+           label_nodes: True to label all nodes, False to label no nodes, 
+             'primary' to label primary nodes,
+             'alpha' to label nodes starting with a letter,
+             'pins' to label nodes that are pins on a chip,
+             'all' to label all nodes
+           style: 'american', 'british', or 'european'
+           scale: schematic scale factor, default 1.0
+           node_spacing: spacing between component nodes, default 2.0
+           cpt_size: size of a component, default 1.5
+           oversample: oversampling factor for png or pdf files
+           help_lines: distance between lines in grid, default 0.0 (disabled)
+           debug: True to display debug information
+        """
+        
+        if 'label_ids' not in kwargs:
+            kwargs['label_ids'] = False
+        if 'label_values' not in kwargs:
+            kwargs['label_values'] = True
+        if 'label_nodes' not in kwargs:
+            kwargs['label_nodes'] = False
+        if 'draw_nodes' not in kwargs:
+            kwargs['draw_nodes'] = 'connections'
+
+        self.sch.draw(filename=filename, **kwargs)
         
     @property
     def cct(self):
