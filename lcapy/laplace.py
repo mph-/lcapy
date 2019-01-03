@@ -27,6 +27,7 @@ import sympy as sym
 laplace_cache = {}
 inverse_laplace_cache = {}
 
+zero = sym.sympify(0)
 
 def laplace_limits(expr, t, s, tmin, tmax):
     
@@ -141,7 +142,7 @@ def inverse_laplace_ratfun(expr, s, t):
 
     Q, M = N.div(D)
 
-    result1 = sym.sympify(0)
+    result1 = zero
 
     if Q:
         C = Q.all_coeffs()
@@ -155,7 +156,7 @@ def inverse_laplace_ratfun(expr, s, t):
 
     sexpr = Ratfun(expr, s)
     P = sexpr.poles()
-    result2 = sym.sympify(0)
+    result2 = zero
 
     P2 = P.copy()
 
@@ -205,37 +206,65 @@ def inverse_laplace_ratfun(expr, s, t):
     return result1, result2
 
 
-def inverse_laplace_special(expr, s, t):
+def inverse_laplace_function(expr, s, t):
 
     if not expr.has(sym.function.AppliedUndef):
         raise ValueError('Could not compute inverse Laplace transform for ' + str(expr))
 
+    tsym = sym.sympify(str(t))
+    
+    if isinstance(expr, sym.function.AppliedUndef):
+        # Convert V(s) to v(t), etc.
+        name = expr.func.__name__
+        func = name[0].lower() + name[1:] + '(%s)' % str(tsym)
+        result = sym.sympify(func).subs(tsym, t)
+        return result
+    
     ssym = sym.sympify(str(s))
     expr = expr.subs(ssym, s)
 
     rest = sym.sympify(1)
+    undefs = []
     for factor in expr.as_ordered_factors():
         if isinstance(factor, sym.function.AppliedUndef):
             if factor.args[0] != s:
-                raise ValueError('Weird function %s not of s' % factor)
-                
-            # Convert V(s) to v(t), etc.
-            name = factor.func.__name__
-            tsym = sym.sympify(str(t))
-            func = name[0].lower() + name[1:] + '(%s)' % str(tsym)
-            result = sym.sympify(func).subs(tsym, t)
+                raise ValueError('Weird function %s not of %s' % (factor, s))
+            undefs.append(factor)
         else:
-            if factor.has(s):
-                raise ValueError('TODO: need derivative of undefined'
-                                 ' function for %s' % factor)
             rest *= factor
 
-    return rest * result
+    if rest.has(sym.function.AppliedUndef):
+        # Have something like 1/Z(s)
+        raise ValueError('Cannot compute inverse Laplace transform of %s' % rest)
+            
+    exprs = undefs
+    if rest.has(s):
+        exprs = exprs + [rest]
+        rest = sym.sympify(1)
+                
+    if len(exprs) == 1:
+        result1, result2 = inverse_laplace_term1(exprs[0], s, t)
+        return (result1 + result2) * rest
+
+    result1, result2 = inverse_laplace_term1(exprs[0], s, t)
+    result = (result1 + result2) * rest
+
+    for m in range(len(exprs) - 1):
+        if m == 0:
+            tau = sym.sympify('tau')
+        else:
+            tau = sym.sympify('tau_%d' % m)
+        result1, result2 = inverse_laplace_term1(exprs[m + 1], s, t)
+        expr2 = result1 + result2
+        result = sym.Integral(result.subs(t, t - tau) * expr2.subs(t, tau),
+                              (tau, -sym.oo, sym.oo))
+    
+    return result
 
 
 def delay_factor(expr, var):
 
-    delay = sym.sympify(0)    
+    delay = zero    
     rest = sym.sympify(1)
     
     for f in expr.as_ordered_factors():
@@ -267,11 +296,9 @@ def inverse_laplace_sympy(expr, s, t):
 
 def inverse_laplace_term1(expr, s, t, **assumptions):
 
-    try:
-        # Handle V(s), etc.
-        return sym.sympify(0), inverse_laplace_special(expr, s, t)
-    except:
-        pass
+    if expr.has(sym.function.AppliedUndef):
+        # Handle V(s), V(s) / Z(s) etc.
+        return zero, inverse_laplace_function(expr, s, t)
 
     try:
         # This is the common case.
@@ -280,12 +307,9 @@ def inverse_laplace_term1(expr, s, t, **assumptions):
         pass
 
     try:
-        return sym.sympify(0), inverse_laplace_sympy(expr, s, t)
+        return zero, inverse_laplace_sympy(expr, s, t)
     except:
-        pass    
-    
-    raise ValueError('Cannot determine inverse Laplace'
-                     ' transform of %s with sympy' % expr)    
+        raise
 
 
 def inverse_laplace_term(expr, s, t, **assumptions):
@@ -312,8 +336,8 @@ def inverse_laplace_by_terms(expr, s, t, **assumptions):
     expr = sym.expand(expr)
     terms = expr.as_ordered_terms()
 
-    result1 = sym.sympify(0)
-    result2 = sym.sympify(0)    
+    result1 = zero
+    result2 = zero    
 
     for term in terms:
         part1, part2 = inverse_laplace_term(term, s, t, **assumptions)
@@ -347,18 +371,15 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
         result1, result2 = inverse_laplace_by_terms(expr, s, t, **assumptions)
         
     # result1 is known to be causal, result2 is unsure
+    result = result1 + result2    
 
     if assumptions.get('ac', False):
         if result1 != 0:
             raise ValueError('Inverse laplace transform weirdness for %s'
                              ' with is_ac True' % expr)
-        result = result1 + result2
     elif not assumptions.get('causal', False):
-        result = sym.Piecewise((result1 + result2, t >= 0))
-    else:
-        result = result1 + result2        
+        result = sym.Piecewise((result, t >= 0))
         
     inverse_laplace_cache[key] = result
     return result
 
-    
