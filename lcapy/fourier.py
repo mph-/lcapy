@@ -25,6 +25,8 @@ fourier_cache = {}
 
 def factor_const(expr, t):
 
+    # Perhaps use expr.as_coeff_Mul() ?
+    
     rest = sym.S.One
     const = sym.S.One
     for factor in expr.as_ordered_factors():
@@ -37,6 +39,25 @@ def factor_const(expr, t):
     return const, rest
 
 
+def scale_shift(expr, t):
+
+    if not expr.has(t):
+        raise ValueError('Expression does not contain %s: %s' % (t, expr))
+
+    terms = expr.as_ordered_terms()
+    if len(terms) > 2:
+        raise ValueError('Expression has too many terms: %s' % expr)
+
+    if len(terms) == 1:
+        return terms[0] / t, sym.S.Zero
+
+    scale = terms[0] / t
+    if not scale.is_constant():
+        raise ValueError('Expression not a scale and shift: %s' % expr)
+
+    return scale, terms[1]
+    
+    
 def fourier_sympy(expr, t, f):
 
     result = sym.fourier_transform(expr, t, f)
@@ -55,12 +76,7 @@ def fourier_func(expr, t, f, inverse=False):
     if not isinstance(expr, sym.function.AppliedUndef):
         raise ValueError('Expecting function for %s' % expr)
 
-    if not expr.has(t):
-        raise ValueError('Need function of t: %s' % expr)
-
-    scale = expr.args[0] / t
-    if not scale.is_constant():
-        raise ValueError('Need function of t: %s' % expr)
+    scale, shift = scale_shift(expr.args[0], t)
 
     fsym = sym.sympify(str(f))
     
@@ -72,16 +88,19 @@ def fourier_func(expr, t, f, inverse=False):
         func = name[0].upper() + name[1:] + '(%s)' % f
 
     result = sym.sympify(func).subs(fsym, f / scale) / abs(scale)
+
+    if shift != 0:
+        if inverse:
+            shift = -shift
+        result = result * sym.exp(2j * sym.pi * f * shift / scale)
+    
     return result
 
 
 def fourier_function(expr, t, f, inverse=False):
 
     # Handle expressions with a function of FOO, e.g.,
-    # v(t), v(t) * y(t),  3 * v(t) / t etc.
-    #
-    # TODO, handle expressions like v(t-T), v(4 * a * t), etc.,
-    # using similarity theorem.
+    # v(t), v(t) * y(t),  3 * v(t) / t, v(4 * a * t), etc.,
     
     if not expr.has(sym.function.AppliedUndef):
         raise ValueError('Could not compute Fourier transform for ' + str(expr))
