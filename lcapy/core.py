@@ -3312,9 +3312,8 @@ class Vsuper(Super):
             return self.__scale__(1 / x)
 
         if isinstance(x, Super):
-            raise TypeError('Cannot divide types %s and %s. '
-            'You need to extract a specific component, e.g., a.s / b.s' %
-            (type(self).__name__, type(x).__name__))
+            raise TypeError("""
+Cannot divide types %s and %s.  You need to extract a specific component, e.g., a.s / b.s.  If you want a transfer function use a.laplace() / b.laplace()""" % (type(self).__name__, type(x).__name__))
 
         if not isinstance(x, Zs):
             raise TypeError("Unsupported types for /: 'Vsuper' and '%s'" %
