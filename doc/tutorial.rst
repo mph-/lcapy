@@ -416,7 +416,7 @@ Let's consider a series R-C network in series with a DC voltage source
    ⎧   -t            
    ⎪   ───           
    ⎨    50           
-   ⎪4⋅ℯ     for t ≥ 0
+   ⎪4⋅e     for t ≥ 0
    ⎩                 
 
 Here `n` is network formed by the components in series, and `n.Voc(s)` is
@@ -452,7 +452,7 @@ Of course, the previous example can be performed symbolically,
    ⎧     -t             
    ⎪    ─────           
    ⎪    C₁⋅R₁           
-   ⎨V₁⋅ℯ                
+   ⎨V₁⋅e                
    ⎪─────────  for t ≥ 0
    ⎪    R₁              
    ⎩                    
@@ -760,7 +760,7 @@ a strictly proper rational function:
 
    >>> H.inverse_laplace()
    ⎧      -2⋅t       -3⋅t           
-   ⎨- 30⋅ℯ     + 35⋅ℯ      for t ≥ 0
+   ⎨- 30⋅e     + 35⋅e      for t ≥ 0
    ⎩                                
 
 Note that the unilateral inverse Laplace transform can only determine
@@ -769,7 +769,7 @@ causal, then use:
 
    >>> H.inverse_laplace(causal=True)
    ⎛      -2⋅t       -3⋅t⎞
-   ⎝- 30⋅ℯ     + 35⋅ℯ    ⎠⋅Heaviside(t)
+   ⎝- 30⋅e     + 35⋅e    ⎠⋅Heaviside(t)
 
 The Heaviside function is the unit step.
 
@@ -784,7 +784,7 @@ transform has Dirac deltas (and derivatives of Dirac deltas):
        s + 3   s + 2
    >>> H.inverse_laplace(causal=True)
    ⎛      -2⋅t       -3⋅t⎞                               
-   ⎝- 90⋅ℯ     + 70⋅ℯ    ⎠⋅Heaviside(t) + 5⋅DiracDelta(t)
+   ⎝- 90⋅e     + 70⋅e    ⎠⋅Heaviside(t) + 5⋅DiracDelta(t)
 
 
 Here's another example of a strictly proper rational function with a
@@ -804,7 +804,7 @@ repeated pole:
            (s + 3) 
    >>> H.inverse_laplace(causal=True)
    ⎛      -3⋅t      -3⋅t⎞             
-   ⎝10⋅t⋅ℯ     + 5⋅ℯ    ⎠⋅Heaviside(t)
+   ⎝10⋅t⋅e     + 5⋅e    ⎠⋅Heaviside(t)
 
 
 Rational functions with delays can also be handled:
@@ -815,13 +815,25 @@ Rational functions with delays can also be handled:
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * sym.exp(-s * T)
    >>> H.partfrac()
    ⎛      70      90 ⎞  -T⋅s
-   ⎜5 + ───── - ─────⎟⋅ℯ    
+   ⎜5 + ───── - ─────⎟⋅e    
    ⎝    s + 3   s + 2⎠      
    >>> H.inverse_laplace(causal=True)
    ⎛      2⋅T - 2⋅t       3⋅T - 3⋅t⎞                                         
-   ⎝- 90⋅ℯ          + 70⋅ℯ         ⎠⋅Heaviside(-T + t) + 5⋅DiracDelta(-T + t)
+   ⎝- 90⋅e          + 70⋅e         ⎠⋅Heaviside(-T + t) + 5⋅DiracDelta(-T + t)
 
+Lcapy can convert s-domain products to time domain convolutions, for example,
 
+   >>> from lcapy import Is
+   >>> Is('V(s) * Y(s)').inverse_laplace(causal=True)
+   ∞                  
+   ⌠                  
+   ⎮  v(t - τ)⋅y(τ) dτ
+   ⌡                  
+   -∞                 
+
+Here the class `Is` represents an s-domain current.
+   
+   
 
 Laplace transforms
 ==================
@@ -914,7 +926,7 @@ use the component name for its value.  For example,
    ⎛            -t  ⎞             
    ⎜           ─────⎟             
    ⎜           C₁⋅R₁⎟             
-   ⎝V_s - V_s⋅ℯ     ⎠⋅Heaviside(t)
+   ⎝V_s - V_s⋅e     ⎠⋅Heaviside(t)
 
 
 Transform Domains
@@ -1021,7 +1033,7 @@ The corresponding impulse response can found from an inverse Laplace transform:
      -t               
     ─────             
     C₁⋅R₁             
-   ℯ     ⋅Heaviside(t)
+   e     ⋅Heaviside(t)
    ───────────────────
           C₁⋅R₁ 
 
@@ -1046,7 +1058,7 @@ response is causal.
      -t               
     ─────             
     C₁⋅R₁             
-   ℯ     ⋅Heaviside(t)
+   e     ⋅Heaviside(t)
    ───────────────────
           C₁⋅R₁       
 
