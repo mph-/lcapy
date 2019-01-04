@@ -69,6 +69,22 @@ def laplace_0(expr, t, s):
 
     return laplace_limits(expr, t, s, 0, sym.oo)
 
+def laplace_func(expr, t, s):
+
+    if not isinstance(expr, sym.function.AppliedUndef):
+        raise ValueError('Expecting function for %s' % expr)
+
+    # TODO: use similarity theorem
+    if expr.args[0] != t:
+        raise ValueError('Need function of t: ' % expr)
+    
+    # Convert v(t) to V(s), etc.
+    name = expr.func.__name__
+    ssym = sym.sympify(str(s))
+    func = name[0].upper() + name[1:] + '(%s)' % str(ssym)
+    result = sym.sympify(func).subs(ssym, s)
+    return result
+
 def laplace_integral(expr, t, s):
 
     const, others = factor_const(expr)
@@ -111,7 +127,7 @@ def laplace_integral(expr, t, s):
     func2 = name[0].upper() + name[1:] + '(%s)' % str(ssym)    
 
     F1 = sym.sympify(func1).subs(ssym, s)
-    F2 = sym.sympify(func2).subs(ssym, s)        
+    F2 = sym.sympify(func2).subs(ssym, s)
     
     return F1 * F2
 
@@ -128,14 +144,7 @@ def laplace_term(expr, t, s):
         rest = sym.sympify(1)
         for factor in expr.as_ordered_factors():
             if isinstance(factor, sym.function.AppliedUndef):
-                if factor.args[0] != t:
-                    raise ValueError('Weird function %s not of t' % factor)
-                
-                # Convert v(t) to V(s), etc.
-                name = factor.func.__name__
-                ssym = sym.sympify(str(s))
-                func = name[0].upper() + name[1:] + '(%s)' % str(ssym)
-                result = sym.sympify(func).subs(ssym, s)
+                result = laplace_func(factor, t, s)
             else:
                 if factor.has(t):
                     raise ValueError('TODO: need derivative of undefined'
