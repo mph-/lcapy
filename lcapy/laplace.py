@@ -27,19 +27,19 @@ import sympy as sym
 laplace_cache = {}
 inverse_laplace_cache = {}
 
-zero = sym.sympify(0)
 
+def factor_const(expr, t):
 
-def factor_const(expr):
-
-    others = []
-    const = sym.sympify(1)
+    rest = sym.S.One
+    const = sym.S.One
     for factor in expr.as_ordered_factors():
-        if factor.is_constant():
+        # Cannot use factor.is_constant() since Sympy 1.2, 1.3
+        # barfs for Heaviside(t) and DiracDelta(t)
+        if not factor.has(t):
             const *= factor
         else:
-            others.append(factor)
-    return const, others
+            rest *= factor
+    return const, rest
 
 
 def laplace_limits(expr, t, s, tmin, tmax):
@@ -69,30 +69,39 @@ def laplace_0(expr, t, s):
 
     return laplace_limits(expr, t, s, 0, sym.oo)
 
-def laplace_func(expr, t, s):
+def laplace_func(expr, t, s, inverse=False):
 
     if not isinstance(expr, sym.function.AppliedUndef):
         raise ValueError('Expecting function for %s' % expr)
 
-    # TODO: use similarity theorem
-    if expr.args[0] != t:
-        raise ValueError('Need function of t: ' % expr)
+    if not expr.has(t):
+        raise ValueError('Need function of t: %s' % expr)
+
+    scale = expr.args[0] / t
+    if not scale.is_constant():
+        raise ValueError('Need function of multiple of t: %s' % expr)
+
+    ssym = sym.sympify(str(s))
     
     # Convert v(t) to V(s), etc.
     name = expr.func.__name__
-    ssym = sym.sympify(str(s))
-    func = name[0].upper() + name[1:] + '(%s)' % str(ssym)
-    result = sym.sympify(func).subs(ssym, s)
+    if inverse:
+        func = name[0].lower() + name[1:] + '(%s)' % s
+    else:
+        func = name[0].upper() + name[1:] + '(%s)' % s
+
+    result = sym.sympify(func).subs(ssym, s / scale) / abs(scale)
     return result
+
 
 def laplace_integral(expr, t, s):
 
-    const, others = factor_const(expr)
+    const, expr = factor_const(expr, t)
 
-    if len(others) != 1:
+    if len(expr.args) != 1:
         raise ValueError('Cannot compute Laplace transform of %s' % expr)
 
-    expr = others[0]
+    expr = expr.args[0]
     
     if not isinstance(expr, sym.Integral):
         raise ValueError('Cannot compute Laplace transform of %s' % expr)
@@ -103,14 +112,14 @@ def laplace_integral(expr, t, s):
     if (expr.args[1][1] != -sym.oo) or (expr.args[1][2] != sym.oo):
         raise ValueError('Need indefinite limits for %s' % expr)
     
-    const2, others = factor_const(expr.args[0])
-    if ((len(others) != 2)
-        or (not isinstance(others[0], sym.function.AppliedUndef))
-        or (not isinstance(others[1], sym.function.AppliedUndef))):
+    const2, expr = factor_const(expr.args[0], t)
+    if ((len(expr.args) != 2)
+        or (not isinstance(expr.args[0], sym.function.AppliedUndef))
+        or (not isinstance(expr.args[1], sym.function.AppliedUndef))):
         raise ValueError('Need integral of two functions: %s' % expr)        
 
-    f1 = others[0]
-    f2 = others[1]    
+    f1 = expr.args[0]
+    f2 = expr.args[1]    
 
     # TODO: apply similarity theorem if have f(a tau) etc.
     
@@ -133,15 +142,17 @@ def laplace_integral(expr, t, s):
 
 def laplace_term(expr, t, s):
 
+    const, expr = factor_const(expr, t)
+    
     tsym = sym.sympify(str(t))
     expr = expr.replace(tsym, t)
 
     if expr.has(sym.Integral):
-        return laplace_integral(expr, t, s)
+        return laplace_integral(expr, t, s) * const
     
     if expr.has(sym.function.AppliedUndef):
 
-        rest = sym.sympify(1)
+        rest = sym.S.One
         for factor in expr.as_ordered_factors():
             if isinstance(factor, sym.function.AppliedUndef):
                 result = laplace_func(factor, t, s)
@@ -150,18 +161,18 @@ def laplace_term(expr, t, s):
                     raise ValueError('TODO: need derivative of undefined'
                                      ' function for %s' % factor)
                 rest *= factor
-        return result * rest
+        return result * rest * const
 
     if expr.has(sym.Heaviside(t)):
-        return laplace_0(expr.replace(sym.Heaviside(t), 1), t, s)
+        return laplace_0(expr.replace(sym.Heaviside(t), 1), t, s) * const
 
     if expr.has(sym.DiracDelta) or expr.has(sym.Heaviside):
         try:
-            return laplace_0minus(expr, t, s)
+            return laplace_0minus(expr, t, s) * const
         except ValueError:
             pass
 
-    return laplace_0(expr, t, s)
+    return laplace_0(expr, t, s) * const
 
 
 def laplace_transform(expr, t, s):
@@ -213,7 +224,7 @@ def inverse_laplace_ratfun(expr, s, t):
 
     Q, M = N.div(D)
 
-    result1 = zero
+    result1 = sym.S.Zero
 
     if Q:
         C = Q.all_coeffs()
@@ -227,7 +238,7 @@ def inverse_laplace_ratfun(expr, s, t):
 
     sexpr = Ratfun(expr, s)
     P = sexpr.poles()
-    result2 = zero
+    result2 = sym.S.Zero
 
     P2 = P.copy()
 
@@ -285,19 +296,18 @@ def inverse_laplace_function(expr, s, t):
     if not expr.has(sym.function.AppliedUndef):
         raise ValueError('Could not compute inverse Laplace transform for ' + str(expr))
 
+    const, expr = factor_const(expr, s)
+    
     tsym = sym.sympify(str(t))
     
     if isinstance(expr, sym.function.AppliedUndef):
-        # Convert V(s) to v(t), etc.
-        name = expr.func.__name__
-        func = name[0].lower() + name[1:] + '(%s)' % str(tsym)
-        result = sym.sympify(func).subs(tsym, t)
-        return result
+        result = laplace_func(expr, s, t, True)
+        return result * const
     
     ssym = sym.sympify(str(s))
     expr = expr.subs(ssym, s)
 
-    rest = sym.sympify(1)
+    rest = sym.S.One
     undefs = []
     for factor in expr.as_ordered_factors():
         if isinstance(factor, sym.function.AppliedUndef):
@@ -314,11 +324,11 @@ def inverse_laplace_function(expr, s, t):
     exprs = undefs
     if rest.has(s):
         exprs = exprs + [rest]
-        rest = sym.sympify(1)
+        rest = sym.S.One
                 
     if len(exprs) == 1:
         result1, result2 = inverse_laplace_term1(exprs[0], s, t)
-        return (result1 + result2) * rest
+        return (result1 + result2) * rest * const
 
     result1, result2 = inverse_laplace_term1(exprs[0], s, t)
     result = (result1 + result2) * rest
@@ -333,13 +343,13 @@ def inverse_laplace_function(expr, s, t):
         result = sym.Integral(result.subs(t, t - tau) * expr2.subs(t, tau),
                               (tau, -sym.oo, sym.oo))
     
-    return result
+    return result * const
 
 
 def delay_factor(expr, var):
 
-    delay = zero    
-    rest = sym.sympify(1)
+    delay = sym.S.Zero    
+    rest = sym.S.One
     
     for f in expr.as_ordered_factors():
         b, e = f.as_base_exp()
@@ -373,7 +383,7 @@ def inverse_laplace_term1(expr, s, t):
     if expr.has(sym.function.AppliedUndef):
         # Handle V(s), V(s) * Y(s),  3 * V(s) / s etc.
         # If causal is True it is assumed that the unknown functions are causal.
-        return inverse_laplace_function(expr, s, t), zero
+        return inverse_laplace_function(expr, s, t), sym.S.Zero
 
     try:
         # This is the common case.
@@ -382,7 +392,7 @@ def inverse_laplace_term1(expr, s, t):
         pass
 
     try:
-        return zero, inverse_laplace_sympy(expr, s, t)
+        return sym.S.Zero, inverse_laplace_sympy(expr, s, t)
     except:
         raise
 
@@ -411,8 +421,8 @@ def inverse_laplace_by_terms(expr, s, t, **assumptions):
     expr = sym.expand(expr)
     terms = expr.as_ordered_terms()
 
-    result1 = zero
-    result2 = zero    
+    result1 = sym.S.Zero
+    result2 = sym.S.Zero    
 
     for term in terms:
         part1, part2 = inverse_laplace_term(term, s, t, **assumptions)

@@ -23,6 +23,20 @@ import sympy as sym
 
 fourier_cache = {}
 
+def factor_const(expr, t):
+
+    rest = sym.S.One
+    const = sym.S.One
+    for factor in expr.as_ordered_factors():
+        # Cannot use factor.is_constant() since Sympy 1.2, 1.3
+        # barfs for Heaviside(t) and DiracDelta(t)
+        if not factor.has(t):
+            const *= factor
+        else:
+            rest *= factor
+    return const, rest
+
+
 def fourier_sympy(expr, t, f):
 
     result = sym.fourier_transform(expr, t, f)
@@ -33,6 +47,31 @@ def fourier_sympy(expr, t, f):
     if isinstance(result, sym.FourierTransform):
         raise ValueError('Could not compute Fourier transform for ' + str(expr))
     
+    return result
+
+
+def fourier_func(expr, t, f, inverse=False):
+
+    if not isinstance(expr, sym.function.AppliedUndef):
+        raise ValueError('Expecting function for %s' % expr)
+
+    if not expr.has(t):
+        raise ValueError('Need function of t: %s' % expr)
+
+    scale = expr.args[0] / t
+    if not scale.is_constant():
+        raise ValueError('Need function of t: %s' % expr)
+
+    fsym = sym.sympify(str(f))
+    
+    # Convert v(t) to V(f), etc.
+    name = expr.func.__name__
+    if inverse:
+        func = name[0].lower() + name[1:] + '(%s)' % f
+    else:
+        func = name[0].upper() + name[1:] + '(%s)' % f
+
+    result = sym.sympify(func).subs(fsym, f / scale) / abs(scale)
     return result
 
 
@@ -47,22 +86,17 @@ def fourier_function(expr, t, f, inverse=False):
     if not expr.has(sym.function.AppliedUndef):
         raise ValueError('Could not compute Fourier transform for ' + str(expr))
 
+    const, expr = factor_const(expr, t)
+    
     fsym = sym.sympify(str(f))
 
     if isinstance(expr, sym.function.AppliedUndef):
-        # Convert v(t) to V(f), etc.
-        name = expr.func.__name__
-        if inverse:
-            func = name[0].lower() + name[1:] + '(%s)' % f
-        else:
-            func = name[0].upper() + name[1:] + '(%s)' % f
-        result = sym.sympify(func).subs(fsym, f)            
-        return result
+        return fourier_func(expr, t, f, inverse) * const
     
     tsym = sym.sympify(str(t))
     expr = expr.subs(tsym, t)
 
-    rest = sym.sympify(1)
+    rest = sym.S.One
     undefs = []
     for factor in expr.as_ordered_factors():
         if isinstance(factor, sym.function.AppliedUndef):
@@ -79,12 +113,12 @@ def fourier_function(expr, t, f, inverse=False):
     exprs = undefs
     if rest.has(t):
         exprs = exprs + [rest]
-        rest = sym.sympify(1)
+        rest = sym.S.One
 
     result = fourier_term(exprs[0], t, f, inverse) * rest
         
     if len(exprs) == 1:
-        return result
+        return result * const
 
     dummy = 'tau' if inverse else 'nu'
 
@@ -97,12 +131,9 @@ def fourier_function(expr, t, f, inverse=False):
         result = sym.Integral(result.subs(f, f - nu) * expr2.subs(f, nu),
                               (nu, -sym.oo, sym.oo))
     
-    return result
+    return result * const
 
 def fourier_term(expr, t, f, inverse=False):
-
-    # TODO, detect convolution integral and convert to a product
-    # of the transformed functions.
 
     # TODO add u(t) <-->  delta(f) / 2 - j / (2 * pi * f)
     
@@ -116,7 +147,7 @@ def fourier_term(expr, t, f, inverse=False):
     if not expr.has(t):
         return expr * sym.DiracDelta(f)
 
-    one = sym.sympify(1)
+    one = sym.S.One
     const = one
     other = one
     exps = one
