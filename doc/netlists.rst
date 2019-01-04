@@ -39,7 +39,7 @@ Component specification
 Each line in a netlist describes a single component, with the 
 general form:
 
-    component-name positive-node negative-node arg1 [arg2 etc.]
+    `component-name positive-node negative-node arg1 [arg2 etc.]`
 
 If no args are specified then the component value is assigned a
 symbolic name specified by `component-name`. 
@@ -48,106 +48,125 @@ Arguments containing delimiters (space, tab, comma, left bracket,
 right bracket) can be escaped with brackets or double quotes.  For
 example:
 
-   V1 1 0 {cos(5 * t)}
+   `V1 1 0 {cos(5 * t)}`
 
 The component type is specified by the first letter(s) of the
 `component-name`.  For example,
 
 - Arbitrary voltage source:
 
-   Vname Np Nm Vexpr
+   `Vname Np Nm Vexpr`
 
    For example,
 
-   V1 1 0 10
+   `V1 1 0 10`
   
-   V1 1 0 {2 * cos(5 * t)}
+   `V1 1 0 {2 * cos(5 * t)}`
   
-   V1 1 0 {2 * cos(5 * t) * u(t)}
+   `V1 1 0 {2 * cos(5 * t) * u(t)}`
 
-   V1 1 0 {10 / s}
+   `V1 1 0 {10 / s}`
 
-   V1 1 0 {s * 0 + 10}  ; This creates V1(s) = 10
+   `V1 1 0 {s * 0 + 10}`  This is equivalent to `V1 1 0 s 10`
+
+   `V1 1 0`  This is equivalent to `V1 1 0 {v_1(t)}`
 
 - DC voltage source of voltage V:
 
-   Vname Np Nm dc V
+   `Vname Np Nm dc V`
 
 - AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency :math:`\omega`:
 
-   Vname Np Nm ac V p
+   `Vname Np Nm ac V p`
 
 - AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency w:
 
-   Vname Np Nm ac V p w  
+   `Vname Np Nm ac V p w`  
 
 - Step voltage source of amplitude V
 
-   Vname Np Nm step V
+   `Vname Np Nm step V`
+
+- s-domain voltage source of complex amplitude V
+
+   `Vname Np Nm s V`  
    
 - Arbitrary current source:
 
-   Iname Np Nm Iexpr
+   `Iname Np Nm Iexpr`
 
    For example,
 
-   I1 1 0 10
+   `I1 1 0 10`
   
-   I1 1 0 {2 * cos(5 * t)}
+   `I1 1 0 {2 * cos(5 * t)}`
   
-   I1 1 0 {2 * cos(5 * t) * u(t)}
+   `I1 1 0 {2 * cos(5 * t) * u(t)}`
 
-   I1 1 0 {10 / s}  
+   `I1 1 0 {10 / s}`
+
+   `I1 1 0 {s * 0 + 10}`  This is equivalent to `I1 1 0 s 10`
+
+   `I1 1 0`  This is equivalent to `I1 1 0 {i_1(t)}`  
 
 - DC current source of current I:
 
-   Iname Np Nm dc I
+   `Iname Np Nm dc I`
 
 - AC current source of complex current amplitude I and phase p (radians) with angular frequency :math:`\omega`:
 
-   Iname Np Nm ac I p
+   `Iname Np Nm ac I p`
 
 - AC current source of complex current amplitude I and phase p (radians) with angular frequency w:
 
-   Iname Np Nm ac I p w
+   `Iname Np Nm ac I p w`
 
 - Step current source of amplitude I
 
-   Iname Np Nm step I
+   `Iname Np Nm step I`
 
-- Resistor:
+- s-domain current source of complex current I
 
-   Rname Np Nm R
+   `Iname Np Nm s I`
+
+  - Resistor:
+
+   `Rname Np Nm R`
 
 - Conductor:
 
-   Gname Np Nm G
+   `Gname Np Nm G`
 
 - Inductor:
 
-   Lname Np Nm L i0
+   `Lname Np Nm L i0`
 
 - Capacitor:
 
-   Cname Np Nm L v0
+   `Cname Np Nm L v0`
 
 - Voltage-controlled voltage source (VCVS) of gain H with controlling nodes Nip and Nim:
 
-   Ename Np Nm Nip Nim H
+   `Ename Np Nm Nip Nim H`
 
 - Ideal transformer of turns ratio a:
 
-   TFname Np Nm Nip Nim a
+   `TFname Np Nm Nip Nim a`
 
 - Ideal gyrator of gyration resistance R:
 
-   GYname Np Nm Nip Nim R  
+   `GYname Np Nm Nip Nim R`  
 
-Np denotes the positive node; Np denotes the negative node.  Fot
+Np denotes the positive node; Np denotes the negative node.  For
 two-port devices, Nip denotes the positive input node and Nim denotes
 the negative input node.  Note, positive current flows from
 `positive-node` to `negative-node`.  Node names can be numeric or
 symbolic.  The ground node is designated `0`.
+
+If the value is not explicity specified, the component name is used.
+For example,
+
+   `C1 1 0` is equivalent to `C1 1 0 C1`
 
 
 Circuit attributes
