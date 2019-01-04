@@ -17,7 +17,7 @@ undefined functions such as v(t) to V(s).
 
 These functions are for internal use by Lcapy.  
 
-Copyright 2016 Michael Hayes, UCECE
+Copyright 2016--2019 Michael Hayes, UCECE
 
 """
 
@@ -28,6 +28,19 @@ laplace_cache = {}
 inverse_laplace_cache = {}
 
 zero = sym.sympify(0)
+
+
+def factor_const(expr):
+
+    others = []
+    const = sym.sympify(1)
+    for factor in expr.as_ordered_factors():
+        if factor.is_constant():
+            const *= factor
+        else:
+            others.append(factor)
+    return const, others
+
 
 def laplace_limits(expr, t, s, tmin, tmax):
     
@@ -56,11 +69,60 @@ def laplace_0(expr, t, s):
 
     return laplace_limits(expr, t, s, 0, sym.oo)
 
+def laplace_integral(expr, t, s):
+
+    const, others = factor_const(expr)
+
+    if len(others) != 1:
+        raise ValueError('Cannot compute Laplace transform of %s' % expr)
+
+    expr = others[0]
+    
+    if not isinstance(expr, sym.Integral):
+        raise ValueError('Cannot compute Laplace transform of %s' % expr)
+
+    # Look for convolution integral
+    
+    var = expr.args[1][0]
+    if (expr.args[1][1] != -sym.oo) or (expr.args[1][2] != sym.oo):
+        raise ValueError('Need indefinite limits for %s' % expr)
+    
+    const2, others = factor_const(expr.args[0])
+    if ((len(others) != 2)
+        or (not isinstance(others[0], sym.function.AppliedUndef))
+        or (not isinstance(others[1], sym.function.AppliedUndef))):
+        raise ValueError('Need integral of two functions: %s' % expr)        
+
+    f1 = others[0]
+    f2 = others[1]    
+
+    # TODO: apply similarity theorem if have f(a tau) etc.
+    
+    if ((f1.args[0] != var or f2.args[0] != t - var)
+        and (f2.args[0] != var or f1.args[0] != t - var)):
+        raise ValueError('Cannot recognise convolution: %s' % expr)
+
+    ssym = sym.sympify(str(s))
+    
+    name = f1.func.__name__
+    func1 = name[0].upper() + name[1:] + '(%s)' % str(ssym)
+
+    name = f2.func.__name__
+    func2 = name[0].upper() + name[1:] + '(%s)' % str(ssym)    
+
+    F1 = sym.sympify(func1).subs(ssym, s)
+    F2 = sym.sympify(func2).subs(ssym, s)        
+    
+    return F1 * F2
+
 def laplace_term(expr, t, s):
 
     tsym = sym.sympify(str(t))
     expr = expr.replace(tsym, t)
 
+    if expr.has(sym.Integral):
+        return laplace_integral(expr, t, s)
+    
     if expr.has(sym.function.AppliedUndef):
 
         rest = sym.sympify(1)
@@ -128,7 +190,7 @@ def laplace_transform(expr, t, s):
         for term in terms:
             result += laplace_term(term, t, s)
     except ValueError:
-        raise ValueError('Could not compute Laplace transform for ' + str(expr))
+        raise
 
     result = result.simplify()
     laplace_cache[key] = result

@@ -9,7 +9,7 @@ by using Dirac deltas.  For example, a, cos(a * t), sin(a * t), exp(j
 * a * t).
 
 
-Copyright 2016-2019 Michael Hayes, UCECE
+Copyright 2016--2019 Michael Hayes, UCECE
 
 """
 
