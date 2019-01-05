@@ -6,7 +6,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 from __future__ import division
 from lcapy.core import cExpr, s, sqrt, Exprdict, vtype_select, itype_select
-from lcapy.core import Matrix, Vector, Expr, Vphasor
+from lcapy.core import Matrix, Vector, Expr, Vphasor, symsimplify
 import sympy as sym
 from copy import copy
 
@@ -161,9 +161,7 @@ class MNA(object):
 3. a current source might be open-circuited.
 %s""" % (self.kind, comment))
 
-        # Bug in sympy DiracDelta.simplify where it has different API.
-        #results = sym.simplify(Ainv * self._Z)
-        results = Ainv * self._Z
+        results = symsimplify(Ainv * self._Z)
 
         results = results.subs(self.context.symbols)
 

@@ -702,7 +702,7 @@ class Expr(object):
         assumptions = self.assumptions.copy()
         assumptions['real'] = True        
 
-        dst = self.__class__(sym.re(self.expr).simplify(), **assumptions)
+        dst = self.__class__(symsimplify(sym.re(self.expr)), **assumptions)
         dst.part = 'real'
         return dst
 
@@ -713,7 +713,7 @@ class Expr(object):
         assumptions = self.assumptions.copy()
         assumptions['real'] = True
         
-        dst = self.__class__(sym.im(self.expr).simplify(), **assumptions)
+        dst = self.__class__(symsimplify(sym.im(self.expr)), **assumptions)
         dst.part = 'imaginary'
         return dst
 
@@ -1107,7 +1107,7 @@ class Expr(object):
     def simplify(self):
         """Simplify expression."""
         
-        ret = sym.simplify(self.expr)
+        ret = symsimplify(self.expr)
         return self.__class__(ret, **self.assumptions)
 
     def subs(self, *args, **kwargs):
@@ -2314,9 +2314,9 @@ class noiseExpr(omegaExpr):
         
         value1 = self.expr
         value2 = x.expr
-        value1sq = sym.simplify(value1 * sym.conjugate(value1))
-        value2sq = sym.simplify(value2 * sym.conjugate(value2))                  
-        result = sym.simplify(sqrt((value1sq + value2sq)))
+        value1sq = symsimplify(value1 * sym.conjugate(value1))
+        value2sq = symsimplify(value2 * sym.conjugate(value2))                  
+        result = symsimplify(sqrt((value1sq + value2sq)))
         return self.__class__(result)
 
     def __radd__(self, x):
@@ -3410,4 +3410,22 @@ def itype_select(kind):
     except KeyError:
         return Iphasor
 
+
+def symsimplify(expr):
+    """This is a hack to work around problems with SymPy's simplify API."""
+
+    # Handle Matrix types
+    if hasattr(expr, 'applyfunc'):
+        return expr.applyfunc(lambda x: symsimplify(x))
+    
+    try:
+        if expr.is_Function and expr.func in (sym.Heaviside, sym.DiracDelta):
+            return expr
+    except:
+        pass
+
+    expr = sym.simplify(expr)
+    return expr
+        
+    
 from lcapy.oneport import L, C, R, G, Idc, Vdc, Iac, Vac, I, V, Z, Y
