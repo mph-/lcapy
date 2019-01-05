@@ -20,44 +20,10 @@ Copyright 2016--2019 Michael Hayes, UCECE
 
 
 import sympy as sym
+from lcapy.utils import factor_const, scale_shift
 
 fourier_cache = {}
 
-def factor_const(expr, t):
-
-    # Perhaps use expr.as_coeff_Mul() ?
-    
-    rest = sym.S.One
-    const = sym.S.One
-    for factor in expr.as_ordered_factors():
-        # Cannot use factor.is_constant() since Sympy 1.2, 1.3
-        # barfs for Heaviside(t) and DiracDelta(t)
-        if not factor.has(t):
-            const *= factor
-        else:
-            rest *= factor
-    return const, rest
-
-
-def scale_shift(expr, t):
-
-    if not expr.has(t):
-        raise ValueError('Expression does not contain %s: %s' % (t, expr))
-
-    terms = expr.as_ordered_terms()
-    if len(terms) > 2:
-        raise ValueError('Expression has too many terms: %s' % expr)
-
-    if len(terms) == 1:
-        return terms[0] / t, sym.S.Zero
-
-    scale = terms[0] / t
-    if not scale.is_constant():
-        raise ValueError('Expression not a scale and shift: %s' % expr)
-
-    return scale, terms[1]
-    
-    
 def fourier_sympy(expr, t, f):
 
     result = sym.fourier_transform(expr, t, f)
@@ -92,7 +58,7 @@ def fourier_func(expr, t, f, inverse=False):
     if shift != 0:
         if inverse:
             shift = -shift
-        result = result * sym.exp(2j * sym.pi * f * shift / scale)
+        result = result * sym.exp(2 * sym.I * sym.pi * f * shift / scale)
     
     return result
 
@@ -154,37 +120,42 @@ def fourier_function(expr, t, f, inverse=False):
 
 def fourier_term(expr, t, f, inverse=False):
 
+    const, expr = factor_const(expr, t)
+    
+    if isinstance(expr, sym.function.AppliedUndef):
+        return fourier_func(expr, t, f, inverse) * const
+    
     # TODO add u(t) <-->  delta(f) / 2 - j / (2 * pi * f)
     
     if expr.has(sym.function.AppliedUndef):
         # Handle v(t), v(t) * y(t),  3 * v(t) / t etc.
-        return fourier_function(expr, t, f, inverse)
+        return fourier_function(expr, t, f, inverse) * const
 
-    sf = -f if inverse else f
-    
     # Check for constant.
     if not expr.has(t):
-        return expr * sym.DiracDelta(f)
+        return expr * sym.DiracDelta(f) * const
 
     one = sym.S.One
-    const = one
+    const1 = const
     other = one
     exps = one
     factors = expr.as_ordered_factors()    
     for factor in factors:
         if not factor.has(t):
-            const *= factor
+            const1 *= factor
         else:
             if factor.is_Function and factor.func == sym.exp:
                 exps *= factor
             else:
                 other *= factor
 
+    sf = -f if inverse else f
+    
     if other != 1 and exps == 1:
         if other == t:
-            return const * sym.I * 2 * sym.pi * sym.DiracDelta(f, 1)
+            return const1 * sym.I * 2 * sym.pi * sym.DiracDelta(f, 1)
         if other == t**2:
-            return const * (sym.I * 2 * sym.pi)**2 * sym.DiracDelta(f, 2)
+            return const1 * (sym.I * 2 * sym.pi)**2 * sym.DiracDelta(f, 2)
 
         # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) *
         # Heaviside(t)
@@ -194,7 +165,7 @@ def fourier_term(expr, t, f, inverse=False):
                 bar = foo.args[1] / t
                 if not bar.has(t) and bar.has(sym.I):
                     a = -(foo.args[0] * 2 * sym.pi * sym.I) / bar
-                    return const * sym.exp(-a * sf) * sym.Heaviside(sf * sym.sign(a))
+                    return const1 * sym.exp(-a * sf) * sym.Heaviside(sf * sym.sign(a))
 
         # Punt and use SymPy.  Should check for t**n, t**n * exp(-a * t), etc.
         return fourier_sympy(expr, t, sf)
@@ -203,12 +174,12 @@ def fourier_term(expr, t, f, inverse=False):
     foo = args / t
     if foo.has(t):
         # Have exp(a * t**n), SymPy might be able to handle this
-        return fourier_sympy(expr, t, sf)
+        return const * fourier_sympy(expr, t, sf)
 
     if exps != 1 and foo.has(sym.I):
-        return const * sym.DiracDelta(sf - foo / (sym.I * 2 * sym.pi))
+        return const1 * sym.DiracDelta(sf - foo / (sym.I * 2 * sym.pi))
         
-    return fourier_sympy(expr, t, sf)
+    return const * fourier_sympy(expr, t, sf)
 
 
 def fourier_transform(expr, t, f, inverse=False):

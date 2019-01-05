@@ -25,4 +25,6 @@ class LcapyTester(unittest.TestCase):
                          Vt('10 * v(t)'), "V(f)")
         self.assertEqual(Vt('v(t)').fourier().inverse_fourier(),
                          Vt('v(t)'), "v(t)")
+        self.assertEqual(Vt('v(t/2)').fourier().inverse_fourier(),
+                         Vt('v(t/2)'), "v(t/2)")        
                          
