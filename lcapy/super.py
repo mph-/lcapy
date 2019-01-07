@@ -1,7 +1,6 @@
 from __future__ import division
 from .expr import Expr, Exprdict
-from .sympify import symbols_find
-from .sym import tsym, omegasym
+from .sym import tsym, omegasym, symbols_find
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .printing import pprint, pretty, print_str
 import six

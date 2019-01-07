@@ -1,5 +1,5 @@
 from .expr import Expr
-from .sympify import symbols_find
+from .sym import symbols_find
 
 __all__ = ('Vconst', 'Iconst')
 

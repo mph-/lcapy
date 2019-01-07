@@ -13,10 +13,9 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from .acdc import is_dc, is_ac, is_causal
 from .ratfun import Ratfun, _zp2tf
-from .sym import sympify, symsimplify, j, omegasym
+from .sym import sympify, symsimplify, j, omegasym, canonical_name
 from .context import context
 from .printing import pprint, pretty, print_str, latex
-from .sympify import canonical_name
 from .functions import sqrt, log10, atan2, gcd
 import numpy as np
 import sympy as sym

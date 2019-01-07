@@ -1,4 +1,4 @@
-from .sympify import sympify1
+from .sym import sympify1
 import sympy as sym
 from sympy import symbols, I, exp, cos, pi, sin, atan2, sqrt
 
