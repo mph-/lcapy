@@ -14,7 +14,7 @@ from .expr import Expr
 from .sexpr import Hs, Vs, Zs, Ys
 from .symbols import j, s, omega
 from .context import global_context
-from .sup import Vsuper, Isuper
+from .super import Vsuper, Isuper
 from .schematic import Schematic, Opts, SchematicOpts
 from .mna import MNA, Nodedict, Branchdict
 from .netfile import NetfileMixin

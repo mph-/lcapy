@@ -1147,7 +1147,7 @@ from .cexpr import cExpr, Iconst, Vconst
 from .sexpr import sExpr, Is, Vs, Ys, Zs
 from .texpr import tExpr
 from .noiseexpr import noiseExpr, In, Vn
-from .sup import Isuper, Vsuper
+from .super import Isuper, Vsuper
 from .phasor import Iphasor, Vphasor
 from .twoport import Ladder, LSection, TSection
 

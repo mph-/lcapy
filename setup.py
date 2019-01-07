@@ -20,7 +20,7 @@ setup(name='lcapy', version='0.28.7',
                   'lcapy.sexpr', 'lcapy.vector', 'lcapy.matrix',
                   'lcapy.symbols', 'lcapy.cexpr', 'lcapy.texpr',
                   'lcapy.fexpr', 'lcapy.omegaexpr', 'lcapy.sfwexpr',
-                  'lcapy.noiseexpr', 'lcapy.phasor', 'lcapy.sup',
+                  'lcapy.noiseexpr', 'lcapy.phasor', 'lcapy.super',
                   'lcapy.context', 'lcapy.sym', 'lcapy.functions',
                   'lcapy.printing'
       ], scripts=['scripts/schtex.py'],

@@ -44,7 +44,7 @@ from .texpr import *
 from .noiseexpr import *
 from .phasor import *
 from .omegaexpr import *
-from .sup import *
+from .super import *
 
 
 def show_version():

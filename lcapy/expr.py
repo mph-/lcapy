@@ -346,7 +346,7 @@ class Expr(object):
 
     def __mul__(self, x):
         """Multiply"""
-        from .sup import Super
+        from .super import Super
 
         if isinstance(x, Super):
             return x.__mul__(self)
