@@ -6,6 +6,7 @@ class Context(object):
         self.symbols = {}
         self.assumptions = {}
         self.previous = None
+        # Noise instance identifier
         self.nid = 0
 
     def new(self):

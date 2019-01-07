@@ -4,22 +4,31 @@ from .sympify import canonical_name, sympify1, symbols_find
 from .context import context
 
 def sympify(expr, evaluate=True, **assumptions):
-    """Create a sympy expression."""
+    """Create a sympy expression.
 
-    # By default, set symbols to be positive unless
-    # real is defined.
+    By default, symbols are assumed to be positive unless real is
+    defined.
+
+    """
+    
     if 'real' not in assumptions:
         assumptions['positive'] = True
-    return sympify1(expr, context.symbols,
-                    evaluate, **assumptions)
+    return sympify1(expr, context.symbols, evaluate, **assumptions)
+
 
 def symbol(name, **assumptions):
+    """Create a sympy symbol.
 
+    By default, symbols are assumed to be positive unless real is
+    defined.
+
+    """
     return sympify(name, **assumptions)
 
 
 def symsimplify(expr):
-    """This is a hack to work around problems with SymPy's simplify API."""
+    """Simplify a sympy expression.  This is a hack to work around
+    problems with SymPy's simplify API."""
 
     # Handle Matrix types
     if hasattr(expr, 'applyfunc'):

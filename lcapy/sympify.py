@@ -1,3 +1,10 @@
+# SymPy symbols to exclude
+global_ignore = ('C', 'O', 'S', 'N', 'E', 'E1', 'Q')
+
+# Aliases for SymPy symbols
+global_aliases = {'delta': 'DiracDelta', 'step': 'Heaviside', 'u': 'Heaviside',
+                  'j': 'I'}
+
 from sympy.parsing.sympy_parser import parse_expr, auto_number, rationalize
 try:
     from sympy.parsing.sympy_parser import NUMBER, STRING, NAME, OP        
@@ -11,13 +18,13 @@ import re
 
 global_dict = {}
 exec('from sympy import *', global_dict)
-global_ignore = ('C', 'O', 'S', 'N', 'E', 'E1', 'Q')
+
 for symbol in global_ignore:
     global_dict.pop(symbol)
-# delta gets printed as DiracDelta; could override
-global_dict['delta'] = global_dict['DiracDelta']
-global_dict['step'] = global_dict['Heaviside']
-global_dict['u'] = global_dict['Heaviside']
+
+for alias, name in global_aliases.items():
+    global_dict[alias] = global_dict[name]    
+
 
 cpt_names = ('C', 'E', 'F', 'G', 'H', 'I', 'L', 'R', 'V', 'Y', 'Z')
 cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
@@ -48,6 +55,7 @@ def canonical_name(name):
 
     return name
 
+
 def symbols_find(arg):
     """Return list of symbols in arg.  No symbols are cached."""
 
@@ -59,8 +67,6 @@ def symbols_find(arg):
             tokNum, tokVal = tok
             if tokNum == NAME:
                 name = tokVal
-                if name == 'j':
-                    name = 'I'
                 if name not in local_dict and name not in global_dict:
                     symbols.append(name)
         return ([(NUMBER, '0')])
@@ -79,6 +85,7 @@ def symbols_find(arg):
         return []
     return [repr(symbol) for symbol in arg.atoms(Symbol, AppliedUndef)]
 
+
 def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
     """Handle arbitrary strings that may refer to multiple symbols."""
 
@@ -95,9 +102,6 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
             nextTokNum, nextTokVal = nextTok
             if tokNum == NAME:
                 name = tokVal
-                if name == 'j':
-                    name = 'I'
-
                 if name in global_dict:
 
                     obj = global_dict[name]
@@ -139,7 +143,6 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
             prevTok = (tokNum, tokVal)
 
         return result
-
 
     s = parse_expr(string, transformations=(auto_symbol, auto_number,
                                             rationalize), 
