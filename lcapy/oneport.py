@@ -30,7 +30,6 @@ import sympy as sym
 from .functions import Heaviside, cos, exp
 from .sym import symbol
 from .symbols import j, t, s
-from .sympify import symbols_find
 from .network import Network
 
 

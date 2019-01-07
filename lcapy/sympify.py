@@ -1,10 +1,4 @@
-# SymPy symbols to exclude
-global_ignore = ('C', 'O', 'S', 'N', 'E', 'E1', 'Q')
-
-# Aliases for SymPy symbols
-global_aliases = {'delta': 'DiracDelta', 'step': 'Heaviside', 'u': 'Heaviside',
-                  'j': 'I'}
-
+from .config import exclude, aliases
 from sympy.parsing.sympy_parser import parse_expr, auto_number, rationalize
 try:
     from sympy.parsing.sympy_parser import NUMBER, STRING, NAME, OP        
@@ -19,10 +13,10 @@ import re
 global_dict = {}
 exec('from sympy import *', global_dict)
 
-for symbol in global_ignore:
+for symbol in exclude:
     global_dict.pop(symbol)
 
-for alias, name in global_aliases.items():
+for alias, name in aliases.items():
     global_dict[alias] = global_dict[name]    
 
 
