@@ -10,13 +10,15 @@ Copyright 2014--2019 Michael Hayes, UCECE
 # numerical quantisation.
 
 from __future__ import division
-from lcapy.core import pprint, Hs, Vs, Zs, Ys, Expr, tsym, Vt, It
-from lcapy.core import s, j, omega, uppercase_name, global_context
-from lcapy.core import Vsuper, Isuper
-from lcapy.schematic import Schematic, Opts, SchematicOpts
-from lcapy.mna import MNA, Nodedict, Branchdict
-from lcapy.netfile import NetfileMixin
-import lcapy.mnacpts as cpts
+from .expr import Expr
+from .sexpr import Hs, Vs, Zs, Ys
+from .symbols import j, s, omega
+from .context import global_context
+from .sup import Vsuper, Isuper
+from .schematic import Schematic, Opts, SchematicOpts
+from .mna import MNA, Nodedict, Branchdict
+from .netfile import NetfileMixin
+from . import mnacpts
 import re
 from copy import copy
 from collections import OrderedDict
@@ -180,7 +182,7 @@ class NetlistMixin(object):
             context = global_context.new()
         
         self.context = context
-        self._init_parser(cpts)
+        self._init_parser(mnacpts)
 
         self.opts = SchematicOpts()
 
@@ -433,7 +435,7 @@ class NetlistMixin(object):
     def thevenin(self, Np, Nm):
         """Return s-domain Thevenin model between nodes Np and Nm."""
 
-        from lcapy.oneport import V, Z
+        from .oneport import V, Z
 
         Voc = self.Voc(Np, Nm).laplace()
         Zoc = self.impedance(Np, Nm)
@@ -443,7 +445,7 @@ class NetlistMixin(object):
     def norton(self, Np, Nm):
         """Return s-domain Norton model between nodes Np and Nm."""
 
-        from lcapy.oneport import I, Y
+        from .oneport import I, Y
 
         Isc = self.Isc(Np, Nm).laplace()
         Ysc = self.admittance(Np, Nm)
@@ -539,7 +541,7 @@ class NetlistMixin(object):
         V2 is V[N2p] - V[N2m]
         """
 
-        from lcapy.twoport import AMatrix
+        from .twoport import AMatrix
 
         if self.Voc(N1p, N1m) != 0 or self.Voc(N2p, N2m) != 0:
             raise ValueError('Network contains independent sources')
@@ -702,7 +704,7 @@ class NetlistMixin(object):
         V2 is V[N2p] - V[N2m]
         """
 
-        from lcapy.twoport import TwoPortBModel
+        from .twoport import TwoPortBModel
 
         V2b = self.Voc(N2p, N2m)
         I2b = self.Isc(N2p, N2m)

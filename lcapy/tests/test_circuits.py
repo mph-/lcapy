@@ -1,5 +1,5 @@
 from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn, Vt, It, sqrt, u
-from lcapy.core import Zs, s, t
+from lcapy import Zs, s, t
 import unittest
 import sympy as sym
 

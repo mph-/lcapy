@@ -7,8 +7,11 @@ Copyright 2015--2019 Michael Hayes, UCECE
 """
 
 from __future__ import print_function
-from lcapy.core import cExpr, s, sqrt, uppercase_name
-from lcapy.grammar import delimiters
+from .cexpr import cExpr
+from .symbols import s
+from .functions import sqrt
+from .expr import uppercase_name
+from .grammar import delimiters
 from copy import copy
 import lcapy
 import inspect

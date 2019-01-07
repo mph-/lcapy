@@ -38,15 +38,15 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import print_function
 import numpy as np
 import re
-from lcapy.latex import latex_str, format_label
-from lcapy.core import Expr
-import lcapy.schemcpts as cpts
+from .latex import latex_str, format_label
+from .expr import Expr
+from . import schemcpts
 import sympy as sym
-from lcapy.schemgraph import Graph
-from lcapy.schemmisc import Pos, Opts
-from lcapy.netfile import NetfileMixin
-from lcapy.system import run_dot, run_latex, convert_pdf_png, convert_pdf_svg
-from lcapy.system import tmpfilename, circuitikz_version, latex_cleanup
+from .schemgraph import Graph
+from .schemmisc import Pos, Opts
+from .netfile import NetfileMixin
+from .system import run_dot, run_latex, convert_pdf_png, convert_pdf_svg
+from .system import tmpfilename, circuitikz_version, latex_cleanup
 from os import path, remove
 from collections import OrderedDict
 import math
@@ -229,7 +229,7 @@ class Schematic(NetfileMixin):
         # Shared nodes (with same voltage)
         self.snodes = {}
         self.hints = False
-        self._init_parser(cpts)
+        self._init_parser(schemcpts)
         self.cpt_size = 1.2
         self.node_spacing = 2.0
         self.scale = 1.0

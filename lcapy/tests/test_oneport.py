@@ -1,4 +1,5 @@
 from lcapy import *
+from lcapy.sym import symbol
 import unittest
 import sympy as sym
 

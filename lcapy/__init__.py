@@ -12,6 +12,8 @@ Copyright 2014--2019 Michael Hayes, UCECE
 """
 
 from __future__ import absolute_import, print_function
+del absolute_import, print_function
+
 from pkg_resources import get_distribution
 
 __version__ = get_distribution('lcapy').version
@@ -29,36 +31,20 @@ from sympy import init_printing
 init_printing()
 
 
-# List of symbols that get imported with 'from lcapy import *'
-__all__ = []
-
-# Add the modules that get searched to allow 'from lcapy import V'
-# rather then having to specify module, 'from lcapy.oneport import V'
-from . import core
-__all__.extend(core.__all__)
-from .core import *
-
-from . import oneport
-__all__.extend(oneport.__all__)
-from .oneport import *
-
-from . import twoport
-__all__.extend(twoport.__all__)
-from .twoport import *
-
-#from . import threeport
-#__all__.extend(threeport.__all__)
-#from .threeport import *
-
-from . import circuit
-__all__.extend(circuit.__all__)
+from .functions import *
+from .symbols import *
 from .circuit import *
-
-from . import schematic
-__all__.extend(schematic.__all__)
+from .oneport import *
+from .twoport import *
 from .schematic import *
-
-__all__.extend(('show_version', ))
+from .cexpr import *
+from .fexpr import *
+from .sexpr import *
+from .texpr import *
+from .noiseexpr import *
+from .phasor import *
+from .omegaexpr import *
+from .sup import *
 
 def show_version():
     

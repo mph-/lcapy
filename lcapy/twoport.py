@@ -7,11 +7,13 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import s, Vs, Is, Zs, Ys, Hs, cExpr, sExpr
-from lcapy.core import WyeDelta, DeltaWye, Vector, Matrix
-from lcapy.core import VsVector, IsVector, YsVector, ZsVector
-from lcapy.oneport import OnePort, I, V, Y, Z
-from lcapy.network import Network
+from .symbols import s
+from .sexpr import Vs, Is, Zs, Ys, Hs, sExpr, VsVector, IsVector, YsVector, ZsVector
+from .cexpr import cExpr
+from .vector import Vector
+from .matrix import Matrix
+from .oneport import OnePort, I, V, Y, Z
+from .network import Network
 
 
 # This needs to be generalised for superpositions.
@@ -97,6 +99,17 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2', 'Series',
            'OpampInverter', 'OpampIntegrator', 'OpampDifferentiator',
            'TSection', 'TwinTSection', 'BridgedTSection', 'PiSection',
            'LSection', 'Ladder', 'GeneralTxLine', 'LosslessTxLine', 'TxLine')
+
+def DeltaWye(Z1, Z2, Z3):
+
+    ZZ = (Z1 * Z2 + Z2 * Z3 + Z3 * Z1)
+    return (ZZ / Z1, ZZ / Z2, ZZ / Z3)
+
+
+def WyeDelta(Z1, Z2, Z3):
+
+    ZZ = Z1 + Z2 + Z3
+    return (Z2 * Z3 / ZZ, Z1 * Z3 / ZZ, Z1 * Z2 / ZZ)
 
 
 def _check_oneport_args(args):

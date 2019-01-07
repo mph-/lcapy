@@ -4,10 +4,11 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import sExpr, pretty
-from lcapy.latex import latex_str
-from lcapy.schematic import Schematic
-from lcapy.circuit import Circuit
+from .expr import pretty
+from .sexpr import sExpr
+from .latex import latex_str
+from .schematic import Schematic
+from .circuit import Circuit
 
 class Network(object):
 

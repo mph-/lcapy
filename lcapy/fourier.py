@@ -20,7 +20,7 @@ Copyright 2016--2019 Michael Hayes, UCECE
 
 
 import sympy as sym
-from lcapy.utils import factor_const, scale_shift
+from .utils import factor_const, scale_shift
 
 fourier_cache = {}
 

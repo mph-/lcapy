@@ -1,5 +1,4 @@
 from lcapy import *
-from lcapy.core import Zs, s, t
 import unittest
 import sympy as sym
 

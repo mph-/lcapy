@@ -1,4 +1,5 @@
 from lcapy import *
+from lcapy.cexpr import cExpr
 import unittest
 
 

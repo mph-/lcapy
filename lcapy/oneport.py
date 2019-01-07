@@ -27,11 +27,11 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from lcapy.core import t, s, Vs, Is, Zs, Ys, cExpr, sExpr, tExpr, Expr, omega, Heaviside
-from lcapy.core import cos, exp, symbol, j, Vphasor, Iphasor, It, Vconst, Iconst, Vn, In
-from lcapy.core import Vsuper, Isuper, pretty
-from lcapy.sympify import symbols_find
-from lcapy.network import Network
+from .functions import Heaviside, cos, exp
+from .sym import symbol
+from .symbols import j, t, s
+from .sympify import symbols_find
+from .network import Network
 
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
@@ -893,8 +893,8 @@ class Vac(VoltageSource):
         self.omega = omega
         self.v0 = V
         self.phi = phi
-        self._Voc = Vsuper(Vphasor(self.v0 * exp(j * self.phi), ac=True,
-                                  omega=self.omega))
+        self._Voc = Vsuper(Vphasor(self.v0 * exp(j * self.phi),
+                                   ac=True, omega=self.omega))
 
     @property
     def voc(self):
@@ -1013,8 +1013,8 @@ class Iac(CurrentSource):
         self.omega = omega
         self.i0 = I
         self.phi = phi
-        self._Isc = Isuper(Iphasor(self.i0 * exp(j * self.phi), ac=True,
-                                  omega=self.omega))
+        self._Isc = Isuper(Iphasor(self.i0 * exp(j * self.phi),
+                                   ac=True, omega=self.omega))
 
     @property
     def isc(self):
@@ -1141,5 +1141,13 @@ class LoadCircuit(Network):
         return self.vnet.net_make(self.vnet, n1, n2)
 
     
-# Import this at end to circumvent circular dependencies
-from lcapy.twoport import Ladder, LSection, TSection
+# Imports at end to circumvent circular dependencies
+from .expr import Expr
+from .cexpr import cExpr, Iconst, Vconst
+from .sexpr import sExpr, Is, Vs, Ys, Zs
+from .texpr import tExpr
+from .noiseexpr import noiseExpr, In, Vn
+from .sup import Isuper, Vsuper
+from .phasor import Iphasor, Vphasor
+from .twoport import Ladder, LSection, TSection
+

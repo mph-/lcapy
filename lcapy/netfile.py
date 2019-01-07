@@ -1,5 +1,5 @@
-import lcapy.grammar as grammar
-from lcapy.parser import Parser
+from . import grammar
+from .parser import Parser
 
 
 class NetfileMixin(object):

@@ -5,8 +5,15 @@ Copyright 2014--2019 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from lcapy.core import cExpr, s, sqrt, Exprdict, vtype_select, itype_select
-from lcapy.core import Matrix, Vector, Expr, Vphasor, symsimplify
+from .cexpr import Iconst, Vconst
+from .texpr import It, Vt
+from .sexpr import Is, Vs
+from .phasor import Iphasor, Vphasor
+from .noiseexpr import In, Vn
+from .vector import Vector
+from .matrix import Matrix
+from .sym import symsimplify
+from .expr import Exprdict
 import sympy as sym
 from copy import copy
 
@@ -15,6 +22,26 @@ from copy import copy
 # efficient and, more importantly, overcomes some of the wrapping
 # problems which casues the is_real attribute to be dropped.
 
+def vtype_select(kind):
+    if isinstance(kind, str) and kind[0] == 'n':
+        return Vn
+    try:
+        return {'ivp' : Vs, 's' : Vs, 'n' : Vn,
+                'ac' : Vphasor, 'dc' : Vconst, 't' : Vt, 'time' : Vt}[kind]
+    except KeyError:
+        return Vphasor
+
+
+def itype_select(kind):
+    if isinstance(kind, str) and kind[0] == 'n':
+        return In
+    try:
+        return {'ivp' : Is, 's' : Is, 'n' : In,
+                'ac' : Iphasor, 'dc' : Iconst, 't' : It, 'time' : It}[kind]
+    except KeyError:
+        return Iphasor
+
+    
 class Nodedict(Exprdict):
 
     def __getitem__(self, name):

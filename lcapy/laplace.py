@@ -21,8 +21,8 @@ Copyright 2016--2019 Michael Hayes, UCECE
 
 """
 
-from lcapy.ratfun import Ratfun
-from lcapy.utils import factor_const, scale_shift
+from .ratfun import Ratfun
+from .utils import factor_const, scale_shift
 import sympy as sym
 
 laplace_cache = {}

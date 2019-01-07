@@ -27,7 +27,7 @@ the node name or number as index, for example,
 Copyright 2014--2019 Michael Hayes, UCECE
 """
 
-from lcapy.netlist import Netlist
+from .netlist import Netlist
 
 __all__ = ('Circuit', )
 

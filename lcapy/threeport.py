@@ -9,10 +9,10 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from lcapy.core import Vs, Hs, Is, cExpr
-from lcapy.core import VsVector, IsVector, YsVector, ZsVector
-from lcapy.oneport import OnePort
-from lcapy.twoport import YMatrix, ZMatrix, TwoPortZModel, Series, TwoPort
+from .sexpr import Vs, Hs, Is, VsVector, IsVector, YsVector, ZsVector
+from .cexpr import cExpr
+from .oneport import OnePort
+from .twoport import YMatrix, ZMatrix, TwoPortZModel, Series, TwoPort
 
 __all__ = ('Opamp', )
 
