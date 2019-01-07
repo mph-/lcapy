@@ -1,5 +1,6 @@
 import sympy as sym
 import re
+from .latex import latex_str
 
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
@@ -32,10 +33,6 @@ class LcapyLatexPrinter(LatexPrinter):
         return super(LcapyLatexPrinter, self)._print(expr)
 
 
-def latex(expr, **settings):
-    return LcapyLatexPrinter(settings).doprint(expr)
-
-
 class LcapyPrettyPrinter(PrettyPrinter):
 
     def _print(self, expr):
@@ -48,6 +45,22 @@ class LcapyPrettyPrinter(PrettyPrinter):
         return super(LcapyPrettyPrinter, self)._print(expr)
 
 
+def print_str(expr):
+    return LcapyStrPrinter().doprint(expr)
+
+
+def latex(expr, **settings):
+    string = LcapyLatexPrinter(settings).doprint(expr)
+
+    match = func_pattern.match(string)
+    if match is not None:
+        # v_1(t) -> \operatorname{v\_1}\left( t \right)
+        # operatorname requires amsmath so switch to mathrm
+        string = r'\mathrm{%s}' % match.groups()[0].replace('\\_', '_')
+
+    return latex_str(string)
+
+
 def pretty(expr, **settings):
     return LcapyPrettyPrinter(settings).doprint(expr)
 
@@ -58,11 +71,8 @@ def pprint(expr):
     if hasattr(sys, 'ps1'):
         print(pretty(expr))
     else:
-        print(latex_str(latex(expr)))
+        print(latex(expr))
 
         
-def print_str(expr):
-
-    return LcapyStrPrinter().doprint(expr)
     
     

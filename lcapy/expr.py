@@ -11,12 +11,11 @@ Copyright 2014--2019 Michael Hayes, UCECE
 # performed.
 
 from __future__ import division
-from .latex import latex_str
 from .acdc import is_dc, is_ac, is_causal
 from .ratfun import Ratfun, _zp2tf
 from .sym import sympify, symsimplify, j, omegasym
 from .context import context
-from .printing import pprint, pretty, print_str
+from .printing import pprint, pretty, print_str, latex
 from .sympify import canonical_name
 from .functions import sqrt, log10, atan2, gcd
 import numpy as np
@@ -38,16 +37,13 @@ class Exprdict(dict):
 
     def pprint(self):
         """Pretty print"""
-
         return pprint(self)
 
     def latex(self):
         """Latex"""
-
-        return latex_str(latex(self))
+        return latex(self)
 
     def _repr_pretty_(self, p, cycle):
-
         p.text(pretty(self))
 
 
@@ -229,7 +225,7 @@ class Expr(object):
 
     def _repr_latex_(self):
 
-        return '$%s$' % latex_str(self.latex())
+        return latex(self.expr)
 
     def __abs__(self):
         """Absolute value."""
@@ -413,7 +409,12 @@ class Expr(object):
         return self.parallel(x)
 
     def __eq__(self, x):
-        """Equality"""
+        """Equality.
+
+        Note t == 't' since the second operand gets converted to the
+        type of the first operand.
+
+        """
 
         # Note, this is used by the in operator.
 
@@ -539,27 +540,16 @@ class Expr(object):
 
     def latex(self):
         """Make latex string."""
+        return latex(self.expr)
 
-        string = latex(self.expr)
-        match = func_pattern.match(string)
-        if match is not None:
-            # v_1(t) -> \operatorname{v\_1}\left( t \right)
-            # operatorname requires amsmath so switch to mathrm
-            string = r'\mathrm{%s}' % match.groups()[0].replace('\\_', '_')
-
-        return latex_str(string)
-
-    def math_latex(self):
+    def latex_math(self):
         """Make latex math-mode string."""
-
         return '$' + self.latex() + '$'
 
     def latexans(self, name):
         """Print latex string with LHS name."""
-
         expr = sym.Eq(sympify(name), self.expr)
-
-        return latex_str(latex(expr))
+        return latex(expr)
 
     @property
     def conjugate(self):

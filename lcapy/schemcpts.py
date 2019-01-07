@@ -7,7 +7,7 @@ Copyright 2015--2019 Michael Hayes, UCECE
 
 
 from __future__ import print_function
-from .latex import latex_str, format_label
+from .latex import format_label
 from .schemmisc import Pos, Opts
 import numpy as np
 import sys

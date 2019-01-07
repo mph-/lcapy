@@ -38,7 +38,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import print_function
 import numpy as np
 import re
-from .latex import latex_str, format_label
+from .latex import format_label
 from .expr import Expr
 from . import schemcpts
 import sympy as sym
@@ -92,7 +92,7 @@ class EngFormat(object):
         self.value = value
         self.unit = unit
 
-    def math_latex(self):
+    def latex_math(self):
         """Make latex math-mode string."""
 
         return '$' + self.latex() + '$'
@@ -366,9 +366,9 @@ class Schematic(NetfileMixin):
             expr = cpt.args[0]
             if cpt.classname in ('Vstep', 'Istep'):
                 expr = '(%s) * Heaviside(t)' % expr
-                value_label = Expr(expr, cache=False).math_latex()
+                value_label = Expr(expr, cache=False).latex_math()
             elif cpt.classname in ('Vs', 'Is'):
-                value_label = Expr(expr, cache=False).math_latex()
+                value_label = Expr(expr, cache=False).latex_math()
             elif cpt.classname == 'TF':
                 expr = sym.sympify(expr)
                 if expr.is_Pow and expr.args[1] == -1:
@@ -380,13 +380,13 @@ class Schematic(NetfileMixin):
                     value = float(expr)
                     if cpt.type in units_map:
                         value_label = EngFormat(
-                            value, units_map[cpt.type]).math_latex()
+                            value, units_map[cpt.type]).latex_math()
                     else:
-                        value_label = Expr(expr, cache=False).math_latex()
+                        value_label = Expr(expr, cache=False).latex_math()
 
                 except ValueError:
                     # This catches non numeric arg.
-                    value_label = Expr(expr, cache=False).math_latex()
+                    value_label = Expr(expr, cache=False).latex_math()
 
         # Currently, we only annnotated the component with the value,
         # expression, or symbol.  If this is not specified, it

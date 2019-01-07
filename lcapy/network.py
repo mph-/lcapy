@@ -4,9 +4,8 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from .expr import pretty
-from .sexpr import sExpr
-from .latex import latex_str
+from .expr import Expr
+from .printing import latex, pretty
 from .schematic import Schematic
 from .circuit import Circuit
 
@@ -37,25 +36,18 @@ class Network(object):
 
         modargs = []
         for arg in self.args:
-            if isinstance(arg, sExpr):
-                arg = arg.expr
-
+            arg = Expr(arg)
             modargs.append(arg)
         return modargs
 
     def __repr__(self):
 
-        argsrepr = ', '.join([arg.__repr__() for arg in self._tweak_args()])
+        argsrepr = ', '.join([repr(arg) for arg in self._tweak_args()])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
     def __str__(self):
 
-        def fmt(arg):
-            if False and isinstance(arg, str):
-                return "'" + arg + "'"
-            return arg.__str__()
-
-        argsrepr = ', '.join([fmt(arg) for arg in self._tweak_args()])
+        argsrepr = ', '.join([str(arg) for arg in self._tweak_args()])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
     def _repr_pretty_(self, p, cycle):
@@ -73,12 +65,16 @@ class Network(object):
 
     def latex(self):
 
-        argsrepr = ', '.join([latex_str(sym.latex(arg)) for arg in self._tweak_args()])
+        argsrepr = ', '.join([latex(arg) for arg in self._tweak_args()])
         return '\\mathrm{%s}(%s)' % (self.__class__.__name__, argsrepr)
 
     @property
     def analysis(self):
         return self.cct.analysis
+
+    def describe(self):
+        """Print a message describing how network is solved."""
+        return self.cct.describe()
     
     def simplify(self):
 

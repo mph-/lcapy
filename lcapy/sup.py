@@ -3,6 +3,7 @@ from .expr import Expr, Exprdict
 from .sympify import symbols_find
 from .sym import tsym, omegasym
 from .acdc import ACChecker, is_dc, is_ac, is_causal
+from .printing import pprint, pretty, print_str
 import six
 
 __all__ = ('Super', 'Vsuper', 'Isuper')
@@ -167,6 +168,11 @@ class Super(Exprdict):
         return len(self.keys()) > 1
 
     def __call__(self, arg):
+        """
+        't' or t: return time-domain representation
+        's' or s: return Laplace domain representation
+        'f' or f: return Fourier representation
+        """
 
         if arg == t:
             return self.time()
