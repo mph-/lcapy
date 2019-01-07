@@ -98,7 +98,8 @@ def delta(expr, *args):
 
 
 def conjugate(expr):
-
+    """Complex conjugate."""
+    
     return _funcwrap(sym.conjugate, expr)
 
 

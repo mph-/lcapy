@@ -13,7 +13,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from .acdc import is_dc, is_ac, is_causal
 from .ratfun import Ratfun, _zp2tf
-from .sym import sympify, symsimplify, j, omegasym, canonical_name
+from .sym import sympify, symsimplify, j, omegasym, canonical_name, capitalize_name
 from .context import context
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd
@@ -23,11 +23,6 @@ from sympy.utilities.lambdify import lambdify
 import sys
 from copy import copy
 import six
-
-
-def uppercase_name(name):
-
-    return name[0].upper() + name[1:]
 
 
 class Exprdict(dict):
@@ -1001,7 +996,7 @@ class Expr(object):
                 label += ' ' + self.part
         else:
             if hasattr(self, 'part'):
-                label += uppercase_name(self.part)
+                label += capitalize_name(self.part)
         if hasattr(self, 'units') and self.units != '':
             label += ' (%s)' % self.units
         return label

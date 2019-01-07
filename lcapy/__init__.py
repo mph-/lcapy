@@ -45,6 +45,8 @@ from .noiseexpr import *
 from .phasor import *
 from .omegaexpr import *
 from .super import *
+from .printing import *
+from .sym import *
 
 
 def show_version():

@@ -10,7 +10,7 @@ from __future__ import print_function
 from .cexpr import cExpr
 from .symbols import s
 from .functions import sqrt
-from .expr import uppercase_name
+from .sym import capitalize_name
 from .grammar import delimiters
 from copy import copy
 import lcapy
@@ -450,7 +450,7 @@ class RLC(Cpt):
         # v_C -> V_C
         # v_L(t) -> V_L(s)
         for opt, val in voltage_opts.items():
-            opts[opt] = uppercase_name(val)
+            opts[opt] = capitalize_name(val)
             
         onet = '%sO%s %s %s; %s' % (self.namespace, self.relname, 
                                     self.relnodes[0], self.relnodes[1], opts)

@@ -46,10 +46,14 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
 
 def print_str(expr):
+    """Convert expression into a string."""
+    
     return LcapyStrPrinter().doprint(expr)
 
 
 def latex(expr, **settings):
+    """Convert expression into a LaTeX string."""
+    
     string = LcapyLatexPrinter(settings).doprint(expr)
 
     match = func_pattern.match(string)
@@ -62,10 +66,17 @@ def latex(expr, **settings):
 
 
 def pretty(expr, **settings):
+    """Pretty print an expression."""
+    
     return LcapyPrettyPrinter(settings).doprint(expr)
 
 
 def pprint(expr):
+    """Pretty print an expression.
+
+    If have non-interactive shell a latex string is returned."""
+
+    import sys
 
     # If interactive use pretty, otherwise use latex
     if hasattr(sys, 'ps1'):

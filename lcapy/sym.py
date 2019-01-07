@@ -11,6 +11,8 @@ import sympy as sym
 import re
 from .context import context
 
+__all__ = ('symbol', 'sympify', 'simplify')
+
 
 global_dict = {}
 exec('from sympy import *', global_dict)
@@ -27,7 +29,18 @@ cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
 
 sub_super_pattern = re.compile(r"([_\^]){([\w]+)}")
 
+
+def capitalize_name(name):
+
+    return name[0].upper() + name[1:]
+
+
 def canonical_name(name):
+    """Convert symbol name to canonical form for SymPy to recognise.
+
+    R_{out} -> R_out
+    R1 -> R_1
+    """
 
     def foo(match):
         return match.group(1) + match.group(2)
@@ -35,7 +48,7 @@ def canonical_name(name):
     if not isinstance(name, str):
         return name
 
-    # Convert R_{out} to R_out for sympy to recognise.
+    # Convert R_{out} to R_out for SymPy to recognise.
     name = sub_super_pattern.sub(foo, name)
 
     if name.find('_') != -1:
@@ -157,9 +170,9 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
 
 
 def sympify1(arg, symbols={}, evaluate=True, **assumptions):
-    """Create a sympy expression.
+    """Create a SymPy expression.
 
-    The purpose of this function is to head sympy off at the pass and
+    The purpose of this function is to head SymPy off at the pass and
     apply the defined assumptions.
 
     """
@@ -170,7 +183,7 @@ def sympify1(arg, symbols={}, evaluate=True, **assumptions):
     if isinstance(arg, (Symbol, Expr)):
         return arg
 
-    # Why doesn't sympy do this?
+    # Why doesn't SymPy do this?
     if isinstance(arg, complex):
         re = sym.sympify(str(arg.real), rational=True, evaluate=evaluate)
         im = sym.sympify(str(arg.imag), rational=True, evaluate=evaluate)
@@ -195,7 +208,7 @@ def sympify1(arg, symbols={}, evaluate=True, **assumptions):
 
 
 def sympify(expr, evaluate=True, **assumptions):
-    """Create a sympy expression.
+    """Create an SymPy expression.
 
     By default, symbols are assumed to be positive unless real is
     defined.
@@ -208,7 +221,7 @@ def sympify(expr, evaluate=True, **assumptions):
 
 
 def symbol(name, **assumptions):
-    """Create a sympy symbol.
+    """Create an Lcapy symbol.
 
     By default, symbols are assumed to be positive unless real is
     defined.
@@ -218,7 +231,7 @@ def symbol(name, **assumptions):
 
 
 def symsimplify(expr):
-    """Simplify a sympy expression.  This is a hack to work around
+    """Simplify a SymPy expression.  This is a hack to work around
     problems with SymPy's simplify API."""
 
     # Handle Matrix types
@@ -233,6 +246,22 @@ def symsimplify(expr):
 
     expr = sym.simplify(expr)
     return expr
+
+
+def simplify(expr):
+    """Simplify an Lcapy expression."""
+
+    try:
+        return expr.simplify()
+    except:
+        pass
+    
+    try:
+        expr = expr.expr
+    except:
+        pass
+    return symsimplify(expr)
+
 
 ssym = symbol('s', real=False)
 tsym = symbol('t', real=True)
