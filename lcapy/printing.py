@@ -1,5 +1,6 @@
 import sympy as sym
 import re
+from .config import print_expr_map
 from .latex import latex_str
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
@@ -18,8 +19,8 @@ class LcapyStrPrinter(StrPrinter):
         if hasattr(expr, 'expr'):
             expr = expr.expr
 
-        if expr == sym.I:
-            return "j"
+        if expr in print_expr_map:
+            return print_expr_map[expr]        
         return super(LcapyStrPrinter, self)._print(expr)
 
 
@@ -30,8 +31,8 @@ class LcapyLatexPrinter(LatexPrinter):
         if hasattr(expr, 'expr'):
             expr = expr.expr
 
-        if expr is sym.I:
-            return "j"
+        if expr in print_expr_map:
+            return print_expr_map[expr]
         return super(LcapyLatexPrinter, self)._print(expr)
 
 
@@ -42,8 +43,8 @@ class LcapyPrettyPrinter(PrettyPrinter):
         if hasattr(expr, 'expr'):
             expr = expr.expr
 
-        if expr is sym.I:
-            return self._print_basestring("j")
+        if expr in print_expr_map:
+            return self._print_basestring(print_expr_map[expr])
         return super(LcapyPrettyPrinter, self)._print(expr)
 
 

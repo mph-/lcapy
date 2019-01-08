@@ -1,4 +1,5 @@
 import re
+from .config import latex_string_map
 
 sub_super_pattern = re.compile(r"([_\^]){([a-zA-Z]+)([0-9]*)}")
 
@@ -39,9 +40,9 @@ class Latex(object):
 
 
 def latex_str(string):
-    
-    # sympy uses theta for Heaviside
-    string = string.replace(r'\theta\left', r'u\left')
+
+    for old, new in latex_string_map.items():
+        string = string.replace(old, new)
     return Latex(string).__str__()
 
 
