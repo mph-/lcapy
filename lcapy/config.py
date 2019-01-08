@@ -11,3 +11,7 @@ latex_string_map = {r'\theta\left': r'u\left'}
 
 import sympy as sym
 print_expr_map = {sym.I: 'j'}
+
+# Hack to print i as j
+from sympy.printing.pretty.pretty_symbology import atoms_table
+atoms_table['ImaginaryUnit'] = '\u2149'
