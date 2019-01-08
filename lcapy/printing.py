@@ -18,9 +18,8 @@ class LcapyStrPrinter(StrPrinter):
 
         if hasattr(expr, 'expr'):
             expr = expr.expr
-
-        if expr in print_expr_map:
-            return print_expr_map[expr]        
+            if expr in print_expr_map:
+                return print_expr_map[expr]        
         return super(LcapyStrPrinter, self)._print(expr)
 
 
@@ -30,9 +29,8 @@ class LcapyLatexPrinter(LatexPrinter):
 
         if hasattr(expr, 'expr'):
             expr = expr.expr
-
-        if expr in print_expr_map:
-            return print_expr_map[expr]
+            if expr in print_expr_map:
+                return print_expr_map[expr]
         return super(LcapyLatexPrinter, self)._print(expr)
 
 
@@ -42,9 +40,8 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
         if hasattr(expr, 'expr'):
             expr = expr.expr
-
-        if expr in print_expr_map:
-            return self._print_basestring(print_expr_map[expr])
+            if expr in print_expr_map:
+                return self._print_basestring(print_expr_map[expr])
         return super(LcapyPrettyPrinter, self)._print(expr)
 
 
