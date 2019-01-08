@@ -9,5 +9,3 @@ W 6 2;right
 ;draw_nodes=connections, label_nodes=False, label_ids=False
 ;;\node[blue,draw,dashed,inner sep=5mm,anchor=north, fit=(1) (6) (0), label=Human body model] {};
 ;;\node[blue,draw,dashed,inner sep=5mm, fit=(2) (3) (4) (5), label=CMOS input model]{};
-
-

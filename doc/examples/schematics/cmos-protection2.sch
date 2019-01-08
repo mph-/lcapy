@@ -9,4 +9,3 @@ W U1._VSS 4_2; down=0.6, implicit, l=0V
 W U1._VDD 3_2; up=0.6, implicit, l=V_{DD}
 #; help_lines=0.05
 ;draw_nodes=connections,label_nodes=false
-

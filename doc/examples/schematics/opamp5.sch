@@ -3,4 +3,3 @@
 E1 1 0 opamp 2 3 A; right
 R1 2 3; down=1.5
 ;help_lines=1
-

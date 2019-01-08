@@ -13,7 +13,3 @@ W 8 10; down=0.5
 W 5 8;right, size=1.5
 W 7 9;right, size=1.5
 ;draw_nodes=connections, label_ids=False, label_nodes=alpha
-
-
-
-

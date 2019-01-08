@@ -4,4 +4,3 @@ W 3 U1.IN; right=0.5
 W 2 3V3; implicit, up=0.4, l=3V3
 W U1.GND GND; implicit, down=0.2, l=GND
 ; draw_labels=connections, help_lines=1
-

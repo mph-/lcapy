@@ -28,4 +28,3 @@ R6 2_3 7_3 Rb; right
 # FIXME, the following open circuit should not be required
 #O 2 3; right
 ; draw_nodes=connections, label_nodes=false, label_ids=false
-

@@ -10,4 +10,3 @@ W 2 U2.VDD; down
 U4 chip1310 ._IN .EN .GND ._NC ._OUT; right
 W U4._OUT 3; right
 W 3 U1.VDD; down
-

@@ -24,5 +24,3 @@ W 0_23 0_24; right=0.25
 ;;\node[blue,draw,dashed,inner sep=5mm,anchor=north, fit=(1) (5) (7), label=Device 1] {};
 ;;\node[blue,draw,dashed,inner sep=5mm,anchor=north, fit=(11) (13), label=Device 2] {};
 ;draw_nodes=connections, label_nodes=false
-
-

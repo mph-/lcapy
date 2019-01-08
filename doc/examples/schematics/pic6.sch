@@ -6,4 +6,3 @@ L2 4 0; down
 P2 2 0_2
 W 0_1 0; right
 W 0 0_2; right
-

@@ -8,4 +8,3 @@ W 3 U1._VDD; right=0.4, dashed
 W 5 U1._VSS; right=0.4, dashed
 W 1 U1._OUT; right, dashed
 ;draw_nodes=connections,label_nodes=false,thickness=2
-

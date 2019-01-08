@@ -14,4 +14,3 @@ W 5 5_1; up=0.5
 W 5 5_2; down=0.5
 R5 5 8 {Rs / 2}; right
 ; draw_nodes=connections, label_nodes=false, label_ids=false
-

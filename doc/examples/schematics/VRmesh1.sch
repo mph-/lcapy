@@ -10,5 +10,3 @@ R5 5 6;left=2, v=V
 R6 7 6;down=2, v=V
 R7 7 8;up=2, v=V
 R8 1 8;left=2, v=V
-
-

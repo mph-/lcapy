@@ -6,5 +6,3 @@ W 0 5; right
 P 2 6; down
 W 5 6; right=0.5
 ;draw_nodes=connections, label_nodes=false
-
-

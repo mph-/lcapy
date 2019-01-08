@@ -12,5 +12,3 @@ VDD 8 9;down
 W 5 8; right, size=1.5
 W 7 9; right, size=1.5
 ; draw_nodes=connections, label_nodes=false
-
-

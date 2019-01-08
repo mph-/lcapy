@@ -10,5 +10,3 @@ P2 3 0_3; down
 W 2_1 2; down=0.5
 W 3_1 3_2; down=1.25
 ; draw_nodes=all,label_nodes=all
-
-

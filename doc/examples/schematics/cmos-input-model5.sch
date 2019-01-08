@@ -8,5 +8,3 @@ C _3 _5;down
 ;draw_nodes=connections
 ;;\node[draw,dashed,fit=(C@1) (R@1)] {};
 #;;\node[draw,dashed,fit=(_2) (_3) (_4) (_5)] {};
-
-

@@ -15,4 +15,3 @@ W 8 11; right
 W 9 12; right
 VDD 11 12;down
 ; draw_nodes=connections, label_nodes=alpha
-

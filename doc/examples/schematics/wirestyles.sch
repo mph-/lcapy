@@ -6,5 +6,3 @@ W 5 6; right, ultra thick
 W 6 7; right, ultra thick, dashed
 W 7 8; right, line width=4pt
 ; help_lines=1
-
-

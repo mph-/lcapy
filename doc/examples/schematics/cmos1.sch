@@ -8,4 +8,3 @@ P1 in 0_2; down
 P2 out 0_3; down
 W 0_2 0;right
 W 0 0_3;right
-

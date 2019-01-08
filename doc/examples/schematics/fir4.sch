@@ -8,5 +8,3 @@ W 5 S2.w; right=0.5, endarrow=tri
 W S2.s 3; down
 W 3 S3.w; right=1.25, endarrow=tri
 S3 circle; right=0.5, l=$+$
-
-

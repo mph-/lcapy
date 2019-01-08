@@ -10,5 +10,3 @@ C _4 _7 C;right
 W _5 _8;right
 VDD _8 _9 {0.5 * V_DD};down
 ;draw_nodes=connections, label_ids=False
-
-

@@ -13,5 +13,3 @@ P 8 10; down, v^=v_{out}(t)
 W 0 9; right
 W 9 10; right
 ;draw_nodes=connections, label_nodes=False, help_lines=1
-
-

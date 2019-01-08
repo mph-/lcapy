@@ -10,4 +10,3 @@ P2 3 0_3; down
 W 2_1 2; down=0.5
 W 3_1 3_2; down
 ; draw_nodes=connections
-

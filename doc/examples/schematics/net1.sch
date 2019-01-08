@@ -5,4 +5,3 @@ W  1 5; down
 W  4 7; down
 R4 5 6; right
 R5 6 7; right
-

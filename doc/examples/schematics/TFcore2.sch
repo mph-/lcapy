@@ -5,7 +5,3 @@ W 4 7 ; right
 W 6 1 ; right
 W 5 2 ; right
 TF1 4 3 2 1 core 10
-
-
-
-

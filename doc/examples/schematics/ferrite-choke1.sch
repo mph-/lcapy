@@ -29,5 +29,3 @@ W 0_1 0_23; right
 W 0 0_1; right=0.25
 W 0_23 0_24; right=0.25
 ; draw_nodes=connections, label_nodes=false
-
-
