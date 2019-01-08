@@ -1,7 +1,7 @@
 from __future__ import division
 from .fourier import fourier_transform, inverse_fourier_transform
 from .sfwexpr import sfwExpr
-from .sym import fsym, ssym, tsym, omegasym
+from .sym import fsym, ssym, tsym, omegasym, j
 
 
 class omegaExpr(sfwExpr):
@@ -73,12 +73,12 @@ class Yomega(omegaExpr):
         if self.is_number:
             return G(self.expr)
 
-        y = self * sym.I * omega
+        y = self * j * omega
 
         if y.is_number:
             return L((1 / y).expr)
 
-        y = self / (sym.I * omega)
+        y = self / (j * omega)
 
         if y.is_number:
             return C(y.expr)
@@ -104,12 +104,12 @@ class Zomega(omegaExpr):
         if self.is_number:
             return R(self.expr)
 
-        z = self * sym.I * omega
+        z = self * j * omega
 
         if z.is_number:
             return C((1 / z).expr)
 
-        z = self / (sym.I * omega)
+        z = self / (j * omega)
 
         if z.is_number:
             return L(z.expr)
