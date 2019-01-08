@@ -871,6 +871,9 @@ class Expr(object):
         # such as positive or real.
         # Should check for bogus substitutions, such as t for s.
 
+        if new is old:
+            return self
+
         expr = new
         if isinstance(new, Expr):
             cls = new.__class__

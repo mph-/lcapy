@@ -170,23 +170,31 @@ class Super(Exprdict):
 
     def __call__(self, arg):
         """
-        't' or t: return time-domain representation
-        's' or s: return Laplace domain representation
-        'f' or f: return Fourier representation
+        arg determines the returned representation
+          t: time-domain representation
+          s: Laplace domain representation
+          f: Fourier representation
+          omega: Fourier representation (angular frequency)
+
+        For example, V(t) or V(2 * t)
+
         """
 
-        if arg == t:
-            return self.time()
-        elif arg == s:
-            return self.laplace()
-        elif arg == f:
-            return self.fourier()
-        elif arg == omega:
+        if not isinstance(arg, Expr):
+            raise ValueError('Can only return t, f, s, or omega domains')
+
+        if arg.has(t):
+            return self.time()(arg)
+        elif arg.has(s):
+            return self.laplace()(arg)
+        elif arg.has(f):
+            return self.fourier()(arg)
+        elif arg.has(omega):
             # Hmmm, perhaps should only match j * omega ???
             x = self.transform()
             if list(x.keys()) != [omega]:
                 print('Warning, this is not the full representation; there are other components')
-            return x.select(omega.expr)
+            return x.select(omega.expr)(arg)
         raise ValueError('Can only return t, f, s, or omega domains')
 
     def __add__(self, x):
