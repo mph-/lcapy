@@ -6,7 +6,9 @@ Lcapy can analyse circuits described with netlists using modified nodal
 analysis.  See lcapy.netlist
 
 Alternatively, Lcapy can analyse networks and circuits formed by
-combining one, two, and three port networks.
+combining one, two, and three port networks.  See lcapy.oneport
+
+For more detailed documentation see http://lcapy.elec.canterbury.ac.nz
 
 Copyright 2014--2019 Michael Hayes, UCECE
 """
@@ -50,6 +52,7 @@ from .sym import *
 
 
 def show_version():
+    """Show versions of Lcapy, SymPy, NumPy and Python."""
     
     from sys import version as python_version
     from sympy import __version__ as sympy_version
