@@ -13,7 +13,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from .acdc import is_dc, is_ac, is_causal
 from .ratfun import Ratfun, _zp2tf
-from .sym import sympify, symsimplify, j, omegasym, canonical_name, capitalize_name
+from .sym import sympify, symsimplify, j, omegasym, canonical_name, capitalize_name, tsym
 from .context import context
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd
@@ -32,6 +32,10 @@ class Exprdict(dict):
     def pprint(self):
         """Pretty print"""
         return pprint(self)
+
+    def pretty(self):
+        """Pretty print"""
+        return pretty(self)    
 
     def latex(self):
         """Latex"""

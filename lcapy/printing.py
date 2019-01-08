@@ -30,7 +30,7 @@ class LcapyLatexPrinter(LatexPrinter):
         if hasattr(expr, 'expr'):
             expr = expr.expr
 
-        if expr == sym.I:
+        if expr is sym.I:
             return "j"
         return super(LcapyLatexPrinter, self)._print(expr)
 
@@ -42,7 +42,7 @@ class LcapyPrettyPrinter(PrettyPrinter):
         if hasattr(expr, 'expr'):
             expr = expr.expr
 
-        if expr == sym.I:
+        if expr is sym.I:
             return self._print_basestring("j")
         return super(LcapyPrettyPrinter, self)._print(expr)
 

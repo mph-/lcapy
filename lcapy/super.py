@@ -40,6 +40,8 @@ class Super(Exprdict):
     V.s gives 1/(s + 4)
     """
 
+    # TODO: rework this class to better show 0 result.
+    
     # Where possible this class represents a signal in the time-domain.
     # It can decompose a signal into AC, DC, and transient components.
     # The 't' key is the transient component viewed in the time domain.
@@ -537,7 +539,7 @@ class Super(Exprdict):
         if tvector is None:
             return texpr
 
-        return evaluate(tvector)
+        return texpr.evaluate(tvector)
     
     def frequency_response(self, fvector=None):
         """Convert to frequency domain and evaluate response if frequency

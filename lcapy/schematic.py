@@ -535,6 +535,9 @@ class Schematic(NetfileMixin):
             elif label_nodes == 'alpha':
                 if not node.primary or not name[0].isalpha():
                     continue
+                # TODO: think this out...
+                if '.' in node.name:
+                    continue
             elif label_nodes == 'primary':
                 if not node.primary:
                     continue

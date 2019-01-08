@@ -1,7 +1,7 @@
 from __future__ import division
 from .laplace import laplace_transform, inverse_laplace_transform
 from .sfwexpr import sfwExpr
-from .sym import fsym, ssym, tsym, omegasym, j
+from .sym import fsym, ssym, tsym, omegasym, j, pi
 from .vector import Vector
 from .ratfun import _zp2tf
 
@@ -88,7 +88,8 @@ class sExpr(sfwExpr):
 
     def fourier(self, **assumptions):
         """Convert to Fourier domain."""
-
+        from .symbols import f
+        
         if assumptions.get('causal', False) or self.is_causal:
             return self(j * 2 * pi * f)
 
@@ -122,6 +123,7 @@ class sExpr(sfwExpr):
         angular frequency vector specified.
 
         """
+        from .symbols import omega        
 
         X = self(j * omega)
 
@@ -135,6 +137,7 @@ class sExpr(sfwExpr):
         vector specified.
 
         """
+        from .symbols import f        
 
         X = self(j * 2 * pi * f)
 
@@ -402,4 +405,4 @@ def zp2tf(zeros, poles, K=1, var=None):
 from .texpr import Ht, It, Vt, Yt, Zt, tExpr
 from .omegaexpr import omegaExpr
 s = sExpr('s')
-#from .symbols import s
+

@@ -22,6 +22,6 @@ setup(name='lcapy', version='0.28.7',
                   'lcapy.fexpr', 'lcapy.omegaexpr', 'lcapy.sfwexpr',
                   'lcapy.noiseexpr', 'lcapy.phasor', 'lcapy.super',
                   'lcapy.context', 'lcapy.sym', 'lcapy.functions',
-                  'lcapy.printing'
+                  'lcapy.printing', 'lcapy.config'
       ], scripts=['scripts/schtex.py'],
       license='LGPL' )
