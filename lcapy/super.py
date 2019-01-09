@@ -217,7 +217,7 @@ class Super(Exprdict):
         elif arg.has(omega):
             if self.has(omega):
                 raise ValueError('Cannot return angular Fourier domain representation for expression %s that depends on %s' % (self, omega))
-                return self.fourier()(arg)(omega / (2 * pi))
+            return self.fourier()(arg)(omega / (2 * pi))
         elif arg.is_constant():
                 return self.time()(arg)
         else:
