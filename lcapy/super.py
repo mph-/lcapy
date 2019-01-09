@@ -99,6 +99,16 @@ class Super(Exprdict):
                 keys.append(key)
         return keys    
 
+    def has(self, *patterns):
+        """Test if have any of the patterns.  For example,
+        V.has(s)
+        
+        """                        
+        for key,expr  in self.items():
+            if expr.has(*patterns):
+                return True
+        return False
+    
     @property
     def has_dc(self):
         """True if there is a DC component."""                
