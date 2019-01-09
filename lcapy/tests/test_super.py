@@ -60,6 +60,12 @@ class LcapyTester(unittest.TestCase):
                           Vsuper(Vn(5)).n.expr,
                           "Vsuper(Vn(3)) + Vsuper(Vn(4))")
         
-        
-        
-        
+    def test_Vsuper_has(self):
+
+        a = Vsuper('3 * exp(-t) * t * a')
+        self.assertEqual(a.has(3), True, "has(3)")
+        self.assertEqual(a.has(4), False, "has(4)")
+        self.assertEqual(a.has(t), True, "has(t)")
+        self.assertEqual(a.has_symbol(t), True, "has_symbol(t)")
+        self.assertEqual(a.has_symbol('a'), True, "has_symbol(a)")
+        self.assertEqual(a.has_symbol('b'), False, "has_symbol(b)")

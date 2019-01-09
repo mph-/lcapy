@@ -352,5 +352,16 @@ class LcapyTester(unittest.TestCase):
         a = Vn(2)
         self.assertEqual(a.nid, a.conjugate.nid, "Different nids for conjugate")
         self.assertEqual(a.nid, a.real.nid, "Different nids for real")
-        self.assertEqual(a.nid, a.imag.nid, "Different nids for imag")                
+        self.assertEqual(a.nid, a.imag.nid, "Different nids for imag")
+        
+    def test_has(self):
+
+        a = Expr('3 * exp(-t) * t * a')
+        self.assertEqual(a.has(3), True, "has(3)")
+        self.assertEqual(a.has(4), False, "has(4)")
+        self.assertEqual(a.has(t), True, "has(t)")
+        self.assertEqual(a.has_symbol(t), True, "has_symbol(t)")
+        self.assertEqual(a.has_symbol('a'), True, "has_symbol(a)")
+        self.assertEqual(a.has_symbol('b'), False, "has_symbol(b)")
+        
         

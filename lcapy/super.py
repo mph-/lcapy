@@ -1,6 +1,6 @@
 from __future__ import division
 from .expr import Expr, Exprdict
-from .sym import tsym, omegasym, symbols_find, sympify, pi
+from .sym import tsym, omegasym, symbols_find, sympify, pi, symbol
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .printing import pprint, pretty, print_str
 import six
@@ -99,15 +99,24 @@ class Super(Exprdict):
                 keys.append(key)
         return keys    
 
-    def has(self, *patterns):
-        """Test if have any of the patterns.  For example,
-        V.has(s)
-        
-        """                        
+    def has(self, subexpr):
+        """Test whether the sub-expression is contained.  For example,
+         V.has(exp(t)) 
+         V.has(t)
+
+        """        
         for key,expr  in self.items():
-            if expr.has(*patterns):
+            if expr.has(subexpr):
                 return True
         return False
+
+    def has_symbol(self, sym):
+        """Test if have symbol.  For example,
+        V.has_symbol('a')
+        V.has_symbol(t)
+        
+        """                        
+        return self.has(symbol(sym))
     
     @property
     def has_dc(self):

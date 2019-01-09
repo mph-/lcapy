@@ -13,7 +13,8 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from .acdc import is_dc, is_ac, is_causal
 from .ratfun import Ratfun, _zp2tf
-from .sym import sympify, symsimplify, j, omegasym, canonical_name, capitalize_name, tsym
+from .sym import sympify, symsimplify, j, omegasym, canonical_name
+from .sym import symbol, capitalize_name, tsym
 from .context import context
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd
@@ -860,11 +861,24 @@ class Expr(object):
         return result
 
     def has(self, subexpr):
-        """Test whether the sub-expression is contained."""
+        """Test whether the sub-expression is contained.  For example,
+         V.has(exp(t)) 
+         V.has(t)
+
+        """
+
         if hasattr(subexpr, 'expr'):
             subexpr = subexpr.expr
         return self.expr.has(subexpr)
 
+    def has_symbol(self, sym):
+        """Test if have symbol contained.  For example,
+        V.has_symbol('a')
+        V.has_symbol(t)
+        
+        """                        
+        return self.has(symbol(sym))
+    
     def _subs1(self, old, new, **kwargs):
 
         # This will fail if a variable has different attributes,
