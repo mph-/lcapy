@@ -203,29 +203,25 @@ class Super(Exprdict):
         """
 
         try:
-            if arg.has(t):
-                return self.time()(arg)
-            elif arg.has(s):
-                return self.laplace()(arg)
-            elif arg.has(f):
-                return self.fourier()(arg)
-            elif arg.has(omega):
-                # v(t) = 2 cos(omega * t)
-                # V(f) = delta(f - omega / 2 / pi) + delta(f + omega / 2 / pi)
-                # Cannot subs f = omega / (2 * pi) in Fourier transform.
-                # TODO: Could check if self uses omega....
-                raise ValueError('V(omega) not supported to avoid confusion')
+            arg.has(t)
         except:
-            pass
+            arg = sympify(arg)            
 
-        try:
-            arg = sympify(arg)
-            if arg.is_constant():
-                return self.time()(arg)
-        except:
-            pass
         
-        raise ValueError('Can only return t, f, or s domains')
+        if arg.has(t):
+            return self.time()(arg)
+        elif arg.has(s):
+            return self.laplace()(arg)
+        elif arg.has(f):
+            return self.fourier()(arg)
+        elif arg.has(omega):
+            if self.has(omega):
+                raise ValueError('Cannot return angular Fourier domain representation for expression %s that depends on %s' % (self, omega))
+                return self.fourier()(arg)(omega / (2 * pi))
+        elif arg.is_constant():
+                return self.time()(arg)
+        else:
+            raise ValueError('Can only return t, f, s, or omega domains')
 
     def __add__(self, x):
 

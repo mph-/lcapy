@@ -173,6 +173,9 @@ def laplace_transform(expr, t, s):
     key = (expr, t, s)
     if key in laplace_cache:
         return laplace_cache[key]
+
+    if expr.has(s):
+        raise ValueError('Cannot Laplace transform expression %s that depends on %s' % (expr, s))
     
     # The variable may have been created with different attributes,
     # say when using sym.sympify('Heaviside(t)') since this will
@@ -418,6 +421,9 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
     if key in inverse_laplace_cache:
         return inverse_laplace_cache[key]
 
+    if expr.has(t):
+        raise ValueError('Cannot inverse Laplace transform expression %s that depends on %s' % (expr, t))
+    
     if assumptions.get('dc', False):
         result = expr * s
             

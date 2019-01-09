@@ -195,6 +195,9 @@ def fourier_transform(expr, t, f, inverse=False):
     key = (expr, t, f, inverse)
     if key in fourier_cache:
         return fourier_cache[key]
+
+    if not inverse and expr.has(f):
+        raise ValueError('Cannot Fourier transform expression %s that depends on %s' % (expr, f))
     
     if inverse:
         t, f = f, t
@@ -235,6 +238,9 @@ def inverse_fourier_transform(expr, f, t):
 
     """
 
+    if expr.has(t):
+        raise ValueError('Cannot inverse Fourier transform expression %s that depends on %s' % (expr, t))
+    
     result = fourier_transform(expr, t, f, inverse=True)
     return sym.simplify(result)
 
