@@ -131,7 +131,10 @@ class Vt(tExpr):
         self._laplace_conjugate_class = Vs
         self._fourier_conjugate_class = Vf
 
-
+    def cpt(self):
+        from .oneport import V
+        return V(self)
+        
 class It(tExpr):
 
     """t-domain current (units A)."""
@@ -145,6 +148,10 @@ class It(tExpr):
         self._laplace_conjugate_class = Is
         self._fourier_conjugate_class = If
 
+    def cpt(self):
+        from .oneport import I
+        return I(self)
+        
 
 class Ht(tExpr):
 

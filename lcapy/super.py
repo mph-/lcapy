@@ -1,6 +1,6 @@
 from __future__ import division
 from .expr import Expr, Exprdict
-from .sym import tsym, omegasym, symbols_find
+from .sym import tsym, omegasym, symbols_find, sympify, pi
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .printing import pprint, pretty, print_str
 import six
@@ -86,7 +86,7 @@ class Super(Exprdict):
 
         keys = []
         for key in self.transform().keys():
-            if not isinstance(key, str) or key == 'w':
+            if not isinstance(key, str) or key is 'w':
                 keys.append(key)
         return keys
 
@@ -95,7 +95,7 @@ class Super(Exprdict):
 
         keys = []
         for key in self.keys():
-            if isinstance(key, str) and key[0] == 'n':
+            if isinstance(key, str) and key[0] is 'n':
                 keys.append(key)
         return keys    
 
@@ -176,26 +176,37 @@ class Super(Exprdict):
           f: Fourier representation
           omega: Fourier representation (angular frequency)
 
-        For example, V(t) or V(2 * t)
+        For example, V(t), V(f), or V(2 * t).
 
+        If arg is a constant, the time-domain representation
+        evaluated at the argument is returned, for example,
+        V(0) returns the dc value.
         """
 
-        if not isinstance(arg, Expr):
-            raise ValueError('Can only return t, f, s, or omega domains')
+        try:
+            if arg.has(t):
+                return self.time()(arg)
+            elif arg.has(s):
+                return self.laplace()(arg)
+            elif arg.has(f):
+                return self.fourier()(arg)
+            elif arg.has(omega):
+                # v(t) = 2 cos(omega * t)
+                # V(f) = delta(f - omega / 2 / pi) + delta(f + omega / 2 / pi)
+                # Cannot subs f = omega / (2 * pi) in Fourier transform.
+                # TODO: Could check if self uses omega....
+                raise ValueError('V(omega) not supported to avoid confusion')
+        except:
+            pass
 
-        if arg.has(t):
-            return self.time()(arg)
-        elif arg.has(s):
-            return self.laplace()(arg)
-        elif arg.has(f):
-            return self.fourier()(arg)
-        elif arg.has(omega):
-            # Hmmm, perhaps should only match j * omega ???
-            x = self.transform()
-            if list(x.keys()) != [omega]:
-                print('Warning, this is not the full representation; there are other components')
-            return x.select(omega.expr)(arg)
-        raise ValueError('Can only return t, f, s, or omega domains')
+        try:
+            arg = sympify(arg)
+            if arg.is_constant():
+                return self.time()(arg)
+        except:
+            pass
+        
+        raise ValueError('Can only return t, f, or s domains')
 
     def __add__(self, x):
 
@@ -334,14 +345,14 @@ class Super(Exprdict):
         DC and AC components).
 
         """
-        if kind == 'super':
+        if kind is 'super':
             return self
-        elif kind == 'time':
+        elif kind is 'time':
             return self.time()
-        elif kind == 'ivp':
+        elif kind is 'ivp':
             return self.laplace()
 
-        if isinstance(kind, str) and kind[0] == 'n':
+        if isinstance(kind, str) and kind[0] is 'n':
             if kind not in self:
                 return self.transform_domains['n'](0)
             return self[kind]
@@ -361,9 +372,9 @@ class Super(Exprdict):
     def netval(self, kind):
 
         def kind_keyword(kind):
-            if isinstance(kind, str) and kind[0] == 'n':
+            if isinstance(kind, str) and kind[0] is 'n':
                 return 'noise'
-            elif kind == 'ivp':
+            elif kind is 'ivp':
                 return 's'
             elif kind in ('t', 'time'):
                 return ''                
@@ -382,7 +393,7 @@ class Super(Exprdict):
         if 'nid' in val.assumptions:
             return '%s {%s} %s' % (keyword, val, val.nid)
 
-        if keyword == 'ac':
+        if keyword is 'ac':
             return '%s {%s} {%s} {%s}' % (keyword, val, 0, val.omega)
 
         return '%s {%s}' % (keyword, val)
@@ -600,7 +611,7 @@ class Vsuper(Super):
                                   Vconst, 'n': Vn, 't': Vt}
         self.time_class = Vt
         self.laplace_class = Vs    
-        
+
         super (Vsuper, self).__init__(*args, **kwargs)
         
     def __rmul__(self, x):
@@ -654,7 +665,7 @@ Cannot divide types %s and %s.  You need to extract a specific component, e.g., 
         return self.__div__(x)
 
     def cpt(self):
-        from oneport import V
+        from .oneport import V
         # Perhaps should generate more specific components such as Vdc?
         return V(self.time())
 
@@ -722,7 +733,7 @@ class Isuper(Super):
         return self.__div__(x)
 
     def cpt(self):
-        from oneport import I
+        from .oneport import I
         # Perhaps should generate more specific components such as Idc?        
         return I(self.time())
 

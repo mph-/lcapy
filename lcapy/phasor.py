@@ -119,7 +119,6 @@ class Vphasor(Phasor):
 class Iphasor(Phasor):
 
     def __init__(self, val, **assumptions):
-
         super(Iphasor, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = It
 

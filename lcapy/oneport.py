@@ -120,6 +120,11 @@ class OnePort(Network):
         """Open-circuit voltage."""
         return self.Voc
 
+    @property
+    def I(self):
+        """Open-circuit current.  Except for a current source this is zero."""
+        return Isuper(0)
+
 #    This is probably too confusing.  For example, what is the
 #    current through an open-circuit current source?
 #    @property
@@ -221,7 +226,7 @@ class OnePort(Network):
             V1 = Voc.laplace().cpt()
         elif Voc.is_ac:
             Z1 = Z(j * Voc.ac_keys()[0]).cpt()
-            V1 = Voc(Voc.ac_keys()[0]).cpt()
+            V1 = Voc.select(Voc.ac_keys()[0]).cpt()
         elif Voc.is_dc:
             Z1 = Z(0).cpt()
             V1 = Voc(0).cpt()
@@ -250,7 +255,7 @@ class OnePort(Network):
             I1 = Isc.laplace().cpt()
         elif Isc.is_ac:
             Y1 = Y(j * Isc.ac_keys()[0]).cpt()
-            I1 = Isc(Isc.ac_keys()[0]).cpt()
+            I1 = Isc.select(Isc.ac_keys()[0]).cpt()
         elif Isc.is_dc:
             Y1 = Y(0).cpt()
             I1 = Isc(0).cpt()
@@ -290,6 +295,8 @@ class OnePort(Network):
 
     def noise_model(self):
         """Convert to noise model."""
+
+        from .symbols import omega
 
         if not isinstance(self, (R, G, Y, Z)):
             return self
@@ -880,7 +887,7 @@ class Vac(VoltageSource):
             phi = 0
             
         if omega is None:
-            omega = symbol('omega', real=True)
+            from .symbols import omega
         else:
             omega = Expr(omega)
 
@@ -929,6 +936,12 @@ class CurrentSource(OnePort):
     netname = 'I'
     is_noisy = False    
 
+    @property
+    def I(self):
+        """Open-circuit current of a current source.  To achieve this the
+        open-circuit voltage needs to be infinite."""
+        return self.Isc
+    
     
 class sI(CurrentSource):
     """Arbitrary s-domain current source"""
@@ -1002,7 +1015,7 @@ class Iac(CurrentSource):
             phi = 0
             
         if omega is None:
-            omega = symbol('omega', real=True)
+            from .symbols import omega            
         else:
             omega = Expr(omega)
 
