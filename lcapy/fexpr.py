@@ -36,6 +36,14 @@ class fExpr(sfwExpr):
             result = tExpr(result)
         return result
 
+    def time(self, **assumptions):
+        return self.inverse_fourier()
+    
+    def laplace(self, **assumptions):
+        """Determine one-side Laplace transform with 0- as the lower limit."""
+
+        return self.time(**assumptions).laplace()
+    
     def plot(self, fvector=None, **kwargs):
         """Plot frequency response at values specified by fvector.
 
