@@ -129,7 +129,7 @@ The component type is specified by the first letter(s) of the
 
    `Iname Np Nm s I`
 
-  - Resistor:
+- Resistor:
 
    `Rname Np Nm R`
 

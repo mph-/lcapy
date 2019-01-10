@@ -19,10 +19,9 @@ stored as an abstract syntax tree (AST).
 
 The main attributes are `Voc` (open-circuit s-domain voltage), `Isc`
 (short-circuit s-domain voltage), `Z` (s-domain impedance), `Y`
-(s-domain admittance).  In addition, there is `Vocac` (open-circuit
-phasor voltage) and `Iscac` (short-circuit phasor current).  In
-addition, `I` is the component through the one-port (zero by
-definition) and `V` is equivalent to the open-circuit voltage `Voc`.
+(s-domain admittance).  In addition, `I` is the current through the
+one-port terminals (zero by definition) and `V` is equivalent to the
+open-circuit voltage `Voc`.
 
 Formerly all Oneport components were either a Thevenin or Norton
 component.  As these components were combined (in series or parallel)
@@ -60,7 +59,8 @@ complex.
 'noiseExpr' represents a noise expression (amplitude spectral
 density).  This is real.
 
-'Super' represents a superposition of different domains.
+'Super' represents a superposition of different domains.  This is the
+default representation for calculated results from circuit analysis.
 
 
 Symbols

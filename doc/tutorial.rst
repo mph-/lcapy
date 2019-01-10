@@ -355,7 +355,7 @@ vector of frequency values.  For example:
    >>> from numpy import linspace
    >>> n = Vstep(20) + R(5) + C(10, 0)
    >>> vf = linspace(0, 4, 400)
-   >>> Isc = n.Isc.frequency_response().evaluate(vf)
+   >>> Isc = n.Isc(f).evaluate(vf)
 
 Note, in this example, the initial capacitor voltage is specified to
 be zero.  If this initial condition is unspecified, the short circuit
@@ -378,18 +378,18 @@ A simpler approach is to use the plot method:
    >>> from numpy import linspace
    >>> n = Vstep(20) + R(5) + C(10, 0)
    >>> vf = linspace(0, 4, 400)
-   >>> n.Isc.frequency_response().plot(vf, log_scale=True)
+   >>> n.Isc(f).plot(vf, log_scale=True)
 
-.. image:: examples/netlists/series-VRC1-Isc.png
+.. image:: examples/networks/series-VRC1-Isc.png
    :width: 15cm
 
 Here's a complete example Python script to plot the impedance of a
 series R-L-C network:
 
-.. literalinclude:: examples/netlists/series-RLC3-Z.py
+.. literalinclude:: examples/networks/series-RLC3-Z.py
 
 
-.. image:: examples/netlists/series-RLC3-Z.png
+.. image:: examples/networks/series-RLC3-Z.png
    :width: 15cm
 
 
@@ -469,20 +469,20 @@ vector of time values.
 Then the transient response can be plotted.  Alternatively, the plot
 method can be used.
 
-.. literalinclude:: examples/netlists/series-VRC1-isc.py
+.. literalinclude:: examples/networks/series-VRC1-isc.py
 
 This produces:
 
-.. image:: examples/netlists/series-VRC1-isc.png
+.. image:: examples/networks/series-VRC1-isc.png
    :width: 15cm
 
 
 Here's a complete example Python script of the short-circuit current
 through an underdamped series RLC network:
 
-.. literalinclude:: examples/netlists/series-VRLC1-isc.py
+.. literalinclude:: examples/networks/series-VRLC1-isc.py
 
-.. image:: examples/netlists/series-VRLC1-isc.png
+.. image:: examples/networks/series-VRLC1-isc.png
    :width: 15cm
 
 
