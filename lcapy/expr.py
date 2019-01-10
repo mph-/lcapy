@@ -839,7 +839,7 @@ class Expr(object):
         except:
             pass
 
-        if not (expr.is_Piecewise and expr.args[0].args[1] == (tsym >= 0)):            
+        if not (expr.is_Piecewise and expr.args[0].args[1].has(tsym >= 0)):
             return evaluate_expr(expr, var, arg)
 
         try:

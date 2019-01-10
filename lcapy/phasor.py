@@ -79,13 +79,13 @@ class Phasor(omegaExpr):
             return self._laplace_conjugate_class(result)
         return tExpr(result)
 
-    def fourier(self):
+    def fourier(self, **assumptions):
         """Attempt Fourier transform."""
 
-        # TODO: Could optimise this...
-        return self.time().fourier()
+        # TODO, could optimise.
+        return self.time().fourier()        
 
-    def laplace(self):
+    def laplace(self, **assumptions):
         """Convert to Laplace domain representation."""
 
         return self.time().laplace()

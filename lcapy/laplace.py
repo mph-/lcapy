@@ -175,7 +175,7 @@ def laplace_transform(expr, t, s):
         return laplace_cache[key]
 
     if expr.has(s):
-        raise ValueError('Cannot Laplace transform expression %s that depends on %s' % (expr, s))
+        raise ValueError('Cannot Laplace transform for expression %s that depends on %s' % (expr, s))
     
     # The variable may have been created with different attributes,
     # say when using sym.sympify('Heaviside(t)') since this will
@@ -191,7 +191,7 @@ def laplace_transform(expr, t, s):
     # Unilateral LT ignores expr for t < 0 so
     # but barfs on a Piecewise so handle case here.
     expr = expr.replace(var, t)        
-    if expr.is_Piecewise and expr.args[0].args[1] == t >= 0:
+    if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
         expr = expr.args[0].args[0]
 
     terms = expr.as_ordered_terms()
@@ -422,7 +422,7 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
         return inverse_laplace_cache[key]
 
     if expr.has(t):
-        raise ValueError('Cannot inverse Laplace transform expression %s that depends on %s' % (expr, t))
+        raise ValueError('Cannot inverse Laplace transform for expression %s that depends on %s' % (expr, t))
     
     if assumptions.get('dc', False):
         result = expr * s

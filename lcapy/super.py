@@ -187,7 +187,7 @@ class Super(Exprdict):
     def is_superposition(self):
         return len(self.keys()) > 1
 
-    def __call__(self, arg):
+    def __call__(self, arg, **assumptions):
         """
         arg determines the returned representation
           t: time-domain representation
@@ -209,17 +209,17 @@ class Super(Exprdict):
 
         
         if arg.has(t):
-            return self.time()(arg)
+            return self.time(**assumptions)(arg)
         elif arg.has(s):
-            return self.laplace()(arg)
+            return self.laplace(**assumptions)(arg)
         elif arg.has(f):
-            return self.fourier()(arg)
+            return self.fourier(**assumptions)(arg)
         elif arg.has(omega):
             if self.has(omega):
                 raise ValueError('Cannot return angular Fourier domain representation for expression %s that depends on %s' % (self, omega))
-            return self.fourier()(arg)(omega / (2 * pi))
+            return self.fourier(**assumptions)(arg)(omega / (2 * pi))
         elif arg.is_constant():
-                return self.time()(arg)
+                return self.time(**assumptions)(arg)
         else:
             raise ValueError('Can only return t, f, s, or omega domains')
 
@@ -588,7 +588,7 @@ class Super(Exprdict):
 
         return X.evaluate(fvector)
 
-    def laplace(self):
+    def laplace(self, **assumptions):
         """Convert to s-domain."""                
 
         result = self.laplace_class(0)
@@ -596,11 +596,11 @@ class Super(Exprdict):
             result += val.laplace()
         return result
 
-    def fourier(self):
+    def fourier(self, **assumptions):
         """Convert to Fourier domain."""        
 
-        # TODO, could optimise
-        return self.time().fourier()
+        # TODO, could optimise.
+        return self.time(**assumptions).fourier(**assumptions)
 
     def canonical(self):
         new = self.__class__()

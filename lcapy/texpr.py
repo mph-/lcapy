@@ -47,27 +47,38 @@ class tExpr(Expr):
         if is_causal(self, var):
             self.assumptions['causal'] = True
 
-    def laplace(self):
+    def merge_assumptions(self, **assumptions):
+        
+        new_assumptions = self.assumptions.copy()
+        new_assumptions.update(assumptions)
+        return new_assumptions
+            
+    def laplace(self, **assumptions):
         """Determine one-side Laplace transform with 0- as the lower limit."""
 
         # The assumptions are required to help with the inverse Laplace
         # transform is required.
         self.infer_assumptions()
+
+        assumptions = self.merge_assumptions(**assumptions)
+        
         result = laplace_transform(self.expr, self.var, ssym)
 
         if hasattr(self, '_laplace_conjugate_class'):
-            result = self._laplace_conjugate_class(result, **self.assumptions)
+            result = self._laplace_conjugate_class(result, **assumptions)
         else:
-            result = sExpr(result, **self.assumptions)
+            result = sExpr(result, **assumptions)
         return result
 
-    def fourier(self):
+    def fourier(self, **assumptions):
         """Attempt Fourier transform."""
 
+        assumptions = self.merge_assumptions(**assumptions)
+        
         result = fourier_transform(self.expr, self.var, fsym)
 
         if hasattr(self, '_fourier_conjugate_class'):
-            result = self._fourier_conjugate_class(result, **self.assumptions)
+            result = self._fourier_conjugate_class(result, **assumptions)
         else:
             result = fExpr(result **self.assumptions)
         return result

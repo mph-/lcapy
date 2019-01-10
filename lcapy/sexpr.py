@@ -93,7 +93,7 @@ class sExpr(sfwExpr):
         if assumptions.get('causal', False) or self.is_causal:
             return self(j * 2 * pi * f)
 
-        return self.time(**assumptions).fourier()
+        return self.time(**assumptions).fourier(**assumptions)
 
     def phasor(self, **assumptions):
 
