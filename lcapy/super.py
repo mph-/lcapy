@@ -194,6 +194,7 @@ class Super(Exprdict):
           s: Laplace domain representation
           f: Fourier representation
           omega: Fourier representation (angular frequency)
+          jomega: Laplace domain representation with s = jomega
 
         For example, V(t), V(f), or V(2 * t).
 
@@ -207,13 +208,14 @@ class Super(Exprdict):
         except:
             arg = sympify(arg)            
 
-        
         if arg.has(t):
             return self.time(**assumptions)(arg)
         elif arg.has(s):
             return self.laplace(**assumptions)(arg)
         elif arg.has(f):
             return self.fourier(**assumptions)(arg)
+        elif arg.has(jomega):
+            return self.laplace(**assumptions)(arg)
         elif arg.has(omega):
             if self.has(omega):
                 raise ValueError('Cannot return angular Fourier domain representation for expression %s that depends on %s' % (self, omega))
@@ -759,4 +761,4 @@ from .texpr import Ht, It, Vt, Yt, Zt, tExpr
 from .noiseexpr import In, Vn, noiseExpr
 from .phasor import Iphasor, Vphasor, Phasor
 from .omegaexpr import omegaExpr
-from .symbols import s, t, f, omega
+from .symbols import s, t, f, omega, jomega
