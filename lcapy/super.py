@@ -1,5 +1,5 @@
 from __future__ import division
-from .expr import Expr, Exprdict
+from .expr import Expr, Exprdict, sympify
 from .sym import tsym, omegasym, symbols_find, sympify, pi, symbol
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .printing import pprint, pretty, print_str
@@ -121,7 +121,7 @@ class Super(Exprdict):
     @property
     def has_dc(self):
         """True if there is a DC component."""                
-        return 'dc' in self.transform()
+        return self == 0 or 'dc' in self.transform()
 
     @property
     def has_ac(self):
@@ -151,7 +151,7 @@ class Super(Exprdict):
     @property
     def is_dc(self):
         """True if only has a DC component."""                
-        return self.has_dc and list(self.transform().keys()) == ['dc']
+        return self == 0 or (self.has_dc and list(self.transform().keys()) == ['dc'])
 
     @property
     def is_ac(self):
@@ -203,27 +203,8 @@ class Super(Exprdict):
         V(0) returns the dc value.
         """
 
-        try:
-            arg.has(t)
-        except:
-            arg = sympify(arg)            
-
-        if arg.has(t):
-            return self.time(**assumptions)(arg)
-        elif arg.has(s):
-            return self.laplace(**assumptions)(arg)
-        elif arg.has(f):
-            return self.fourier(**assumptions)(arg)
-        elif arg.has(jomega):
-            return self.laplace(**assumptions)(arg)
-        elif arg.has(omega):
-            if self.has(omega):
-                raise ValueError('Cannot return angular Fourier domain representation for expression %s that depends on %s' % (self, omega))
-            return self.fourier(**assumptions)(arg)(omega / (2 * pi))
-        elif arg.is_constant():
-                return self.time(**assumptions)(arg)
-        else:
-            raise ValueError('Can only return t, f, s, or omega domains')
+        from .transform import transform
+        return transform(self, arg, **assumptions)
 
     def __add__(self, x):
 
@@ -487,7 +468,7 @@ class Super(Exprdict):
         try:
             
             # Look for I, 5 * I, etc.
-            if value.is_constant():
+            if value.is_constant:
                 value = self.transform_domains['dc'](value)
         except:
             pass
