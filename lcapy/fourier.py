@@ -168,7 +168,7 @@ def fourier_term(expr, t, f, inverse=False):
                     return const1 * sym.exp(-a * sf) * sym.Heaviside(sf * sym.sign(a))
 
         # Punt and use SymPy.  Should check for t**n, t**n * exp(-a * t), etc.
-        return fourier_sympy(expr, t, sf)
+        return const * fourier_sympy(expr, t, sf)
 
     args = exps.args[0]
     foo = args / t
@@ -241,7 +241,6 @@ def inverse_fourier_transform(expr, f, t):
     a * f).
 
     """
-
     if expr.has(t):
         raise ValueError('Cannot inverse Fourier transform for expression %s that depends on %s' % (expr, t))
     
