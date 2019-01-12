@@ -36,6 +36,7 @@ transfer_function methods.  Currently, these return s-domain
 expressions but if the circuit has only AC sources, should these
 return omega-domain expressions?
 
+4. Show Super classes as how they were created and not decomposition?
 
 Infrastructure
 ==============

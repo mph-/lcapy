@@ -22,7 +22,8 @@ from copy import copy
 # efficient and, more importantly, overcomes some of the wrapping
 # problems which casues the is_real attribute to be dropped.
 
-def vtype_select(kind):
+def _Vtype_select(kind):
+    
     if isinstance(kind, str) and kind[0] == 'n':
         return Vn
     try:
@@ -32,7 +33,7 @@ def vtype_select(kind):
         return Vphasor
 
 
-def itype_select(kind):
+def _Itype_select(kind):
     if isinstance(kind, str) and kind[0] == 'n':
         return In
     try:
@@ -201,8 +202,8 @@ class MNA(object):
 
         self.context.switch()
 
-        vtype = vtype_select(self.kind)
-        itype = itype_select(self.kind)
+        vtype = _Vtype_select(self.kind)
+        itype = _Itype_select(self.kind)
         assumptions = {}
         if vtype == Vphasor:
             assumptions['omega'] = self.kind

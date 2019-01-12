@@ -225,7 +225,7 @@ class LcapyTester(unittest.TestCase):
 
         """
 
-        a = s(omega)
+        a = s.subs(omega)
 
         self.assertEqual(a.expr.is_real, True, "Lost is_real.")
         self.assertEqual2(a, omega, "Substitution fail.")
@@ -235,7 +235,7 @@ class LcapyTester(unittest.TestCase):
 
         """
 
-        a1 = s(omega)
+        a1 = s.subs(omega)
         a2 = s.subs(s, omega)
 
         self.assertEqual(a1, a2, "Substitution fail.")

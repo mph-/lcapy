@@ -263,6 +263,10 @@ def simplify(expr):
     return symsimplify(expr)
 
 
+def is_sympy(expr):
+    return isinstance(expr, (Symbol, Expr, AppliedUndef))
+
+
 ssym = symbol('s', real=False)
 tsym = symbol('t', real=True)
 fsym = symbol('f', real=True)

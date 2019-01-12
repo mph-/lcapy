@@ -944,7 +944,13 @@ class Expr(object):
         # TODO: propagate assumptions?
         return cls(result)
 
-    def __call__(self, arg):
+    def transform(self, arg, **assumptions):
+        """Transform into a different domain."""
+        
+        from .transform import transform
+        return transform(self, arg, **assumptions)
+
+    def __call__(self, arg, **assumptions):
         """Substitute arg for variable.  If arg is an tuple or list
         return a list.  If arg is an numpy array, return
         numpy array.
@@ -958,7 +964,8 @@ class Expr(object):
         if isinstance(arg, np.ndarray):
             return np.array([self._subs1(self.var, arg1) for arg1 in arg])
 
-        return self._subs1(self.var, arg)
+        from .transform import call        
+        return call(self, arg, **assumptions)
 
     def limit(self, var, value, dir='+'):
         """Determine limit of expression(var) at var = value."""

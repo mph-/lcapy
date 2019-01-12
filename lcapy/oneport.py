@@ -225,10 +225,10 @@ class OnePort(Network):
             Z1 = Z.cpt()
             V1 = Voc.laplace().cpt()
         elif Voc.is_ac:
-            Z1 = Z(j * Voc.ac_keys()[0]).cpt()
+            Z1 = Z.subs(j * Voc.ac_keys()[0]).cpt()
             V1 = Voc.select(Voc.ac_keys()[0]).cpt()
         elif Voc.is_dc:
-            Z1 = Z(0).cpt()
+            Z1 = Z.subs(0).cpt()
             V1 = Voc(0).cpt()
         else:
             V1 = Voc.cpt()
@@ -254,10 +254,10 @@ class OnePort(Network):
             Y1 = Y.cpt()
             I1 = Isc.laplace().cpt()
         elif Isc.is_ac:
-            Y1 = Y(j * Isc.ac_keys()[0]).cpt()
+            Y1 = Y.subs(j * Isc.ac_keys()[0]).cpt()
             I1 = Isc.select(Isc.ac_keys()[0]).cpt()
         elif Isc.is_dc:
-            Y1 = Y(0).cpt()
+            Y1 = Y.subs(0).cpt()
             I1 = Isc(0).cpt()
         else:
             I1 = Isc.cpt()

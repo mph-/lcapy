@@ -8,9 +8,10 @@ Copyright 2015--2019 Michael Hayes, UCECE
 
 from __future__ import print_function
 from .cexpr import cExpr
-from .symbols import s
+from .omegaexpr import omegaExpr
+from .symbols import j, s, omega, jomega
 from .functions import sqrt
-from .sym import capitalize_name
+from .sym import capitalize_name, omegasym
 from .grammar import delimiters
 from copy import copy
 import lcapy
@@ -30,6 +31,20 @@ def arg_format(value):
             return '{' + string + '}'
     return string
 
+
+def _YZtype_select(expr, kind):
+    """Return appropriate admittance/impedance value for analysis kind."""
+
+    if kind in ('s', 'ivp', 'super'):
+        return expr
+    elif kind in ('dc', 'time'):
+        return cExpr(expr.subs(0))
+    elif isinstance(kind, str) and kind[0] == 'n':
+        return expr(jomega)
+    elif kind in (omegasym, omega):
+        return expr(jomega)
+    return omegaExpr(expr.subs(j * kind))
+    
 
 class Cpt(object):
 
@@ -148,7 +163,6 @@ class Cpt(object):
                 string += self.keyword[1]            
         string += '; %s' % self.opts
         return string
-        
         
     def rename_nodes(self, node_map):
         """Rename the nodes using dictionary node_map."""
@@ -296,29 +310,14 @@ class Cpt(object):
     def Y(self):
         """Admittance"""
 
-        kind = self.cct.kind
-        Y1 = self.Ys
-        if kind in ('s', 'ivp', 'super'):
-            return Y1
-        elif kind in ('dc', 'time'):
-            return cExpr(Y1.jomega(0))
-        elif isinstance(kind, str) and kind[0] == 'n':
-            return Y1.jomega
-        return Y1.jomega(kind)
+        return _YZtype_select(self.Ys, self.cct.kind)
 
     @property
     def Z(self):
         """Impedance"""
 
-        kind = self.cct.kind
-        Z1 = self.Zs
-        if kind in ('s', 'ivp', 'super'):
-            return Z1
-        elif kind in ('dc', 'time'):
-            return cExpr(Z1.jomega(0))
-        elif isinstance(kind, str) and kind[0] == 'n':
-            return Z1.jomega
-        return Z1.jomega(kind)
+        return _YZtype_select(self.Zs, self.cct.kind)        
+
 
     @property
     def node_indexes(self):

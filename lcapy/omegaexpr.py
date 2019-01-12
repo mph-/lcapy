@@ -1,7 +1,7 @@
 from __future__ import division
 from .fourier import fourier_transform, inverse_fourier_transform
 from .sfwexpr import sfwExpr
-from .sym import fsym, ssym, tsym, omegasym, j
+from .sym import fsym, ssym, tsym, omegasym, j, pi
 
 
 class omegaExpr(sfwExpr):
@@ -28,9 +28,13 @@ class omegaExpr(sfwExpr):
     def inverse_fourier(self):
         """Attempt inverse Fourier transform."""
 
-        from .symbols import f, pi        
-
-        return self(2 * pi * f).inverse_fourier()
+        expr = self.subs(2 * pi * fsym)
+        result = inverse_fourier_transform(expr, fsym, tsym)
+        if hasattr(self, '_fourier_conjugate_class'):
+            result = self._fourier_conjugate_class(result)
+        else:
+            result = tExpr(result)
+        return result
 
     def time(self):
         """Alias for inverse_fourier."""

@@ -40,10 +40,8 @@ class sExpr(sfwExpr):
     def jomega(self):
         """Return expression with s = j omega."""
 
-        w = omegaExpr(omegasym)
-        jw = j * w
-        # Perform substitution
-        return self(jw)
+        from .symbols import jomega
+        return self.subs(self.var, jomega)
 
     def initial_value(self):
         """Determine value at t = 0."""
@@ -91,7 +89,7 @@ class sExpr(sfwExpr):
         from .symbols import f
         
         if assumptions.get('causal', False) or self.is_causal:
-            return self(j * 2 * pi * f)
+            return self.subs(j * 2 * pi * f)
 
         return self.time(**assumptions).fourier(**assumptions)
 
@@ -125,7 +123,7 @@ class sExpr(sfwExpr):
         """
         from .symbols import omega        
 
-        X = self(j * omega)
+        X = self.subs(j * omega)
 
         if wvector is None:
             return X
@@ -139,7 +137,7 @@ class sExpr(sfwExpr):
         """
         from .symbols import f        
 
-        X = self(j * 2 * pi * f)
+        X = self.subs(j * 2 * pi * f)
 
         if fvector is None:
             return X

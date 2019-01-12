@@ -879,7 +879,7 @@ class NetlistMixin(object):
         """
 
         noise_source_count = 0
-        
+
         groups = {}
         for key, elt in self.elements.items():
             if not elt.independent_source:
@@ -888,12 +888,12 @@ class NetlistMixin(object):
             if cpt.voltage_source:
                 Voc = cpt.Voc
                 if transform:
-                    Voc = Voc.transform()
+                    Voc = Voc.decompose()
                 cpt_kinds = Voc.keys()
             else:
                 Isc = cpt.Isc
                 if transform:
-                    Isc = Isc.transform()                
+                    Isc = Isc.decompose()                
                 cpt_kinds = Isc.keys()                
             for cpt_kind in cpt_kinds:
                 if cpt_kind not in groups:
@@ -988,26 +988,27 @@ class NetlistMixin(object):
             groups = self.independent_source_groups(transform=True)
 
         if groups == {}:
-            print('This are no independent sources so everything is zero.')
+            print('There are no independent sources so everything is zero.')
             return
 
         if self.is_ivp:
             print('This has initial conditions so is an initial value problem '
                   'solved in the s-domain using Laplace transforms.')
-        else:
-            if len(groups) > 1:
-                print('This is solved using superposition.')
-            for kind, sources in groups.items():
-                if not isinstance(kind, str):
-                    print(describe_analysis('Phasor', sources))
-                elif kind[0] == 'n':
-                    print(describe_analysis('Noise', sources))
-                elif kind == 'dc':
-                    print(describe_analysis('DC', sources))
-                elif kind == 's':
-                    print(describe_analysis('Laplace', sources))
-                elif kind == 'time':
-                    print(describe_analysis('Time-domain', sources))
+            return
+
+        if len(groups) > 1:
+            print('This is solved using superposition.')
+        for kind, sources in groups.items():
+            if not isinstance(kind, str):
+                print(describe_analysis('Phasor', sources))
+            elif kind[0] == 'n':
+                print(describe_analysis('Noise', sources))
+            elif kind == 'dc':
+                print(describe_analysis('DC', sources))
+            elif kind == 's':
+                print(describe_analysis('Laplace', sources))
+            elif kind == 'time':
+                print(describe_analysis('Time-domain', sources))
                     
                 
 class Transformdomains(dict):

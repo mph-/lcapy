@@ -1,6 +1,6 @@
 from __future__ import division
 from .expr import Expr, Exprdict, sympify
-from .sym import tsym, omegasym, symbols_find, sympify, pi, symbol
+from .sym import tsym, omegasym, symbols_find, sympify, pi, symbol, is_sympy
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .printing import pprint, pretty, print_str
 import six
@@ -63,7 +63,7 @@ class Super(Exprdict):
         # using a decomposition in the transform domains.
         # We could present the result in the time-domain but this
         # hides the underlying way the signal is analysed.
-        return self.transform()
+        return self.decompose()
                 
     def _repr_pretty_(self, p, cycle):
 
@@ -85,7 +85,7 @@ class Super(Exprdict):
         """Return list of keys for all ac components."""
 
         keys = []
-        for key in self.transform().keys():
+        for key in self.decompose().keys():
             if not isinstance(key, str) or key is 'w':
                 keys.append(key)
         return keys
@@ -121,7 +121,7 @@ class Super(Exprdict):
     @property
     def has_dc(self):
         """True if there is a DC component."""                
-        return self == 0 or 'dc' in self.transform()
+        return self == 0 or 'dc' in self.decompose()
 
     @property
     def has_ac(self):
@@ -151,7 +151,7 @@ class Super(Exprdict):
     @property
     def is_dc(self):
         """True if only has a DC component."""                
-        return self == 0 or (self.has_dc and list(self.transform().keys()) == ['dc'])
+        return self == 0 or (self.has_dc and list(self.decompose().keys()) == ['dc'])
 
     @property
     def is_ac(self):
@@ -166,12 +166,12 @@ class Super(Exprdict):
     @property
     def is_s_transient(self):
         """True if only has s-domain transient component."""
-        return list(self.transform().keys()) == ['s']
+        return list(self.decompose().keys()) == ['s']
 
     @property
     def is_t_transient(self):
         """True if only has t-domain transient component."""
-        return list(self.transform().keys()) == ['t']    
+        return list(self.decompose().keys()) == ['t']    
 
     @property
     def is_transient(self):
@@ -203,6 +203,16 @@ class Super(Exprdict):
         V(0) returns the dc value.
         """
 
+        from .transform import call
+        return call(self, arg, **assumptions)        
+
+    def subs(self, *args, **kwargs):
+
+        return self.time().subs(*args, **kwargs)
+    
+    def transform(self, arg, **assumptions):
+        """Transform into a different domain."""        
+
         from .transform import transform
         return transform(self, arg, **assumptions)
 
@@ -212,7 +222,7 @@ class Super(Exprdict):
             return isinstance(x, sExpr) or (isinstance(x, Super) and 's' in x)
 
         if _is_s_arg(x):
-            new = self.transform()
+            new = self.decompose()
         else:
             new = self.__class__(self)            
 
@@ -249,8 +259,8 @@ class Super(Exprdict):
         # Cannot compare noise by subtraction.
         if isinstance(x, Super):
             # TODO, be smarter about transformations
-            x = x.transform()
-            y = self.transform()            
+            x = x.decompose()
+            y = self.decompose()            
             if y.items() != x.items():
                 return False
             for kind, value in y.items():
@@ -270,8 +280,8 @@ class Super(Exprdict):
         # Cannot compare noise by subtraction.
         if isinstance(x, Super):
             # TODO, be smarter about transformations
-            x = x.transform()
-            y = self.transform()            
+            x = x.decompose()
+            y = self.decompose()            
             if y.items() != x.items():
                 return True
             for kind, value in y.items():
@@ -292,7 +302,7 @@ class Super(Exprdict):
         # Extract DC components
         dc = expr.expr.coeff(tsym, 0)
         if dc != 0:
-            self.add(cExpr(dc))
+            self['dc'] = cExpr(dc)
             expr -= dc
 
         if expr == 0:
@@ -313,13 +323,14 @@ class Super(Exprdict):
         # The remaining components are considered transient
         # so convert to Laplace representation.
         sval = expr.laplace()
-        return self.add(sval)
 
-    def transform(self):
-        """Create a new representation in the transform domains."""
+        self['s'] = sval
+
+    def decompose(self):
+        """Decompose into a new representation in the transform domains."""
         
-        if hasattr(self, '_transform'):
-            return self._transform
+        if hasattr(self, '_decomposition'):
+            return self._decomposition
 
         new = self.__class__()
         if 't' in self:
@@ -327,7 +338,7 @@ class Super(Exprdict):
         for kind, value in self.items():
             if kind != 't':
                 new.add(value)
-        self._transform = new                
+        self._decomposition = new                
         return new
     
     def select(self, kind):
@@ -339,8 +350,8 @@ class Super(Exprdict):
         omega : the AC component with angular frequency omega
         's' : the transient component in the s-domain
         'n' : the noise component
-        't' : the time-domain component (this may or may not include the
-        DC and AC components).
+        't' : the time-domain transient component (this may or may not
+              include the DC and AC components).
 
         """
         if kind is 'super':
@@ -352,19 +363,19 @@ class Super(Exprdict):
 
         if isinstance(kind, str) and kind[0] is 'n':
             if kind not in self:
-                return self.transform_domains['n'](0)
+                return self.decompose_domains['n'](0)
             return self[kind]
         
         obj = self
         if 't' in self and 't' != kind:
             # The rationale here is that there may be
             # DC and AC components included in the 't' part.
-            obj = self.transform()
+            obj = self.decompose()
             
         if kind not in obj:
-            if kind not in obj.transform_domains:
+            if kind not in obj.decompose_domains:
                 kind = 'ac'
-            return obj.transform_domains[kind](0)
+            return obj.decompose_domains[kind](0)
         return obj[kind]
 
     def netval(self, kind):
@@ -406,7 +417,7 @@ class Super(Exprdict):
                 key = key.expr
             return key
 
-        for kind, mtype in self.transform_domains.items():
+        for kind, mtype in self.decompose_domains.items():
             if isinstance(value, mtype):
                 return kind
         return None
@@ -445,13 +456,14 @@ class Super(Exprdict):
                 self.pop(value.nid)
     
     def add(self, value):
+        """Add a value into the superposition."""
 
         # Avoid triggering __eq__ for Super otherwise have infinite recursion
         if not isinstance(value, Super) and value == 0:
             return
 
-        if '_transform' in self:
-            delattr(self, '_transform')
+        if '_decomposition' in self:
+            delattr(self, '_decomposition')
 
         if isinstance(value, Super):
             for kind, value in value.items():
@@ -461,22 +473,21 @@ class Super(Exprdict):
         if isinstance(value, six.string_types):
             return self._parse(value)
 
-        # DC should be real but allow const complex value.
-        if isinstance(value, (int, float, complex)):
-            value = self.transform_domains['dc'](value)
-
-        try:
-            
-            # Look for I, 5 * I, etc.
-            if value.is_constant:
-                value = self.transform_domains['dc'](value)
-        except:
-            pass
-
         if isinstance(value, noiseExpr):
             self._add_noise(value)
             return
         
+        # DC should be real but allow const complex value.
+        if isinstance(value, (int, float, complex)):
+            value = self.decompose_domains['dc'](value)
+        elif is_sympy(value):
+            try:
+                # Look for I, 5 * I, etc.
+                if value.is_constant:
+                    value = self.decompose_domains['dc'](value)
+            except:
+                pass
+
         kind = self._kind(value)
         if kind is None:
             if value.__class__ in self.type_map:
@@ -506,7 +517,7 @@ class Super(Exprdict):
     def ac(self):
         """Return the AC components."""                
         if 't' in self.keys():
-            self = self.transform()        
+            self = self.decompose()        
         return Exprdict({k: v for k, v in self.items() if k in self.ac_keys()})
 
     @property
@@ -520,7 +531,7 @@ class Super(Exprdict):
 
     @property
     def n(self):
-        result = self.transform_domains['n'](0)
+        result = self.decompose_domains['n'](0)
         for key in self.noise_keys():
             result += self[key]
         return result
@@ -605,7 +616,7 @@ class Vsuper(Super):
     def __init__(self, *args, **kwargs):
         self.type_map = {cExpr: Vconst, sExpr : Vs, noiseExpr: Vn,
                          omegaExpr: Vphasor, tExpr : Vt}
-        self.transform_domains = {'s': Vs, 'ac': Vphasor, 'dc':
+        self.decompose_domains = {'s': Vs, 'ac': Vphasor, 'dc':
                                   Vconst, 'n': Vn, 't': Vt}
         self.time_class = Vt
         self.laplace_class = Vs    
@@ -629,7 +640,7 @@ class Vsuper(Super):
                             type(x).__name__)
         obj = self
         if x.has(s):
-            obj = self.transform()
+            obj = self.decompose()
         
         new = Isuper()
         if 'dc' in obj:
@@ -673,7 +684,7 @@ class Isuper(Super):
 
         self.type_map = {cExpr: Iconst, sExpr : Is, noiseExpr: In,
                          omegaExpr: Iphasor, tExpr : It}
-        self.transform_domains = {'s': Is, 'ac': Iphasor, 'dc':
+        self.decompose_domains = {'s': Is, 'ac': Iphasor, 'dc':
                                   Iconst, 'n': In, 't': It}
         self.time_class = It
         self.laplace_class = Is
@@ -697,7 +708,7 @@ class Isuper(Super):
                             type(x).__name__)
         obj = self
         if x.has(s):
-            obj = self.transform()
+            obj = self.decompose()
 
         new = Vsuper()
         if 'dc' in obj:
