@@ -69,3 +69,16 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.has_symbol(t), True, "has_symbol(t)")
         self.assertEqual(a.has_symbol('a'), True, "has_symbol(a)")
         self.assertEqual(a.has_symbol('b'), False, "has_symbol(b)")
+
+    def test_Vsuper_transform(self):
+
+        V1 = Vsuper('3 * exp(-2 * t)')
+        self.assertEqual(V1.transform(s), 3 / (s + 2), 'transform(s)')        
+        self.assertEqual(V1.transform(jomega), 3 / (j * omega + 2), 'transform(jomega)')
+
+        V2 = Vsuper('3 * exp(-2 * t) * u(t)')
+        self.assertEqual(V2.transform(s), 3 / (s + 2), 'transform(s)')        
+        self.assertEqual(V2.transform(jomega), 3 / (j * omega + 2), 'transform(jomega)')
+        self.assertEqual(simplify(V2.transform(f) - 3 / (j * 2 * pi * f + 2)), 0, 'transform(f)')                
+
+        
