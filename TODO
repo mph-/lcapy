@@ -61,59 +61,6 @@ large matrix.
 
 7. Add || operator to SymPy but this will require Python mods!
 
-8. Rework notation for H, Y, and Z methods.
-
-   The V and I methods currently return a Vsuper and Isuper class
-   respectively.  This allows notation such as a.V1.V(t) and a.V1.V(s)
-   to return the time-domain and s-domain expressions.  However, this
-   notation does not work for H, Y, and Z methods.
-
-   Currently to get the impulse response of a transfer function
-   requires H.time() or H.impulse_response().  Using a wrapper class
-   for H, Y, and Z methods would allow a notation H(t).
-
-9. Generic wrapper classes.
-
-   There can be confusion with the __call__ methods.  The Super class
-   using the argument to determine the transformation, e.g., V(s), but
-   the other classes use this for substitution, e.g., V(2).  Consider
-
-   a1 = Vstep(5) + R(1)
-   v = a1.V(t)
-   v2 = v(f)
-
-   Here v2 is not the frequency response of the open-circuit voltage
-   as may be expected but the impulse response with f substituted for
-   t.   Perhaps, a warning should be issued for incompatible domains?
-
-   Another approach would use generic expression class for H, I, V, Y,
-   and Z.
-
-   This would have a default domain that is set when an instance of
-   the class is created.  The __call__ method would return a new
-   instance depending on the argument, for example:
-
-   V(t)
-   V(f)
-   V(s)
-   V(omega)   V(f) with f = omega / (2 * pi)
-   V(jomega)  V(s) with s = j * omega
-
-   If a constant is passed, the expression would be evaluated with the
-   default variable set to the constant, for example,
-   V(t)(3)
-
-   The results of operations using this class would be rewrapped with
-   the appropriate generic class.
-
-   A difficulty with the approach is indicating to the user the
-   current domain, especially for constants.  For example, does 3
-   represent v(t) = 3 or V(s) = 3?
-
-   Another consideration is whether symbols such as t or s should be
-   wrapped with this class.
-
-
 
 Testing
 =======
@@ -126,7 +73,7 @@ Documentation
 
 1. Add example notebooks
 
-2. Add user manual
+2. Restructure user manual
 
 3. Document underlying philosophy
 

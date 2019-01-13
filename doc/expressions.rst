@@ -193,6 +193,29 @@ SymPy relies on assumptions to help simplify expressions.  In
 addition, Lcapy requires assumptions to help determine inverse Laplace
 transforms.
 
+There are several attributes for determining assumptions:
+
+- `is_dc` -- constant
+
+- `is_ac` -- sinusoidal
+
+- `is_causal` -- zero for :math:`t < 0`
+
+- `is_real` -- real
+
+- `is_complex` -- complex
+
+- `is_positive` -- positive
+
+- `is_integer` -- integer
+    
+For example:
+  
+   >>> t.is_complex  
+   False
+   >>> s.is_complex
+   True
+  
 
 Assumptions for symbols
 -----------------------
@@ -213,6 +236,16 @@ Notes:
    2. SymPy considers variables of the same name but different assumptions to be different.  This can cause much confusion since the variables look identical when printed.  To avoid this problem, Lcapy creates a symbol cache for each circuit.  The assumptions associated with the symbol are from when it is created.
 
 
+The list of explicit assumptions for an expression can be found from
+the `assumptions` attribute.  For example,
+
+   >>> a = 2 * t + 3
+   >>> a.assumptions
+   {'real': True}
+
+The `assumptions0` attribute shows all the assumptions assumed by SymPy.   
+
+      
 Assumptions for inverse Laplace transform
 -----------------------------------------
 
@@ -274,4 +307,37 @@ Laplace domain entities there are the following classes:
 
 
   
+SymPy
+=====
+
+The underlying SymPy expression can be obtained using the `expr`
+attribute of an Lcapy expression.  For example,
+
+   >>> a = 2 * t + 3
+   >>> a.expr
+   2⋅t + 3
+
+The methods of the SymPy expression can be accessed from the Lcapy expression, for example,
+
+   >>> a.as_ordered_terms()
+   [2⋅t, 3]
+
+Another example is accessing the assumptions that SymPy considers:
+
+   >>> t.assumptions0
+   {'commutative': True,
+    'complex': True,
+    'hermitian': True,
+    'imaginary': False,
+    'real': True}
+
+Note, every real symbol is also considered complex although with no
+imaginary part.  The proper way to test assumptions is to use the
+attributes `is_complex`, `is_real`, etc.  For example,
+
+   >>>t.is_real
+   True
+   >>>t.is_complex
+   False
+
 

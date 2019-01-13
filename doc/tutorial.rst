@@ -78,31 +78,31 @@ Also note, real numbers are approximated by rationals.
 
 Lcapy expressions have a number of attributes, including:
 
-- numerator, N --  numerator of rational function
+- `numerator`, `N` --  numerator of rational function
 
-- denominator, D --  denominator of rational function
+- `denominator`, `D` --  denominator of rational function
 
-- magnitude -- magnitude
+- `magnitude` -- magnitude
 
-- angle -- angle
+- `angle` -- angle
 
-- real -- real part
+- `real` -- real part
 
-- imag -- imaginary part
+- `imag` -- imaginary part
 
-- conjugate -- complex conjugate
+- `conjugate` -- complex conjugate
 
-- expr -- the underlying SymPy expression
+- `expr` -- the underlying SymPy expression
 
-- val -- the expression as evaluated as a floating point value (if possible)
+- `val` -- the expression as evaluated as a floating point value (if possible)
 
 and a number of generic methods including:
 
-- symplify -- attempt simple simplification of the expression
+- `simplify` -- attempt simple simplification of the expression
 
-- rationalize_denominator -- multiply numerator and denominator by complex conjugate of denominator
+- `rationalize_denominator` -- multiply numerator and denominator by complex conjugate of denominator
 
-- evaluate -- evaluate at specified vector and return floating point vector
+- `evaluate` -- evaluate at specified vector and return floating point vector
 
 Here's an example of using these attributes and methods:
 
@@ -149,33 +149,32 @@ Here's an example of using these attributes and methods:
 
 Each domain has specific methods, including:
 
-- fourier   -- Convert to Fourier domain
+- `fourier`   -- Convert to Fourier domain
 
-- laplace   -- Convert to Laplace (s) domain
+- `laplace`   -- Convert to Laplace (s) domain
 
-- time      -- Convert to time domain
+- `time`      -- Convert to time domain
 
 
 Lcapy defines a number of functions that can be used in expressions, including:
 
-- u --  Heaviside's unit step
+- `u` --  Heaviside's unit step
 
-- H -- Heaviside's unit step
+- `H` -- Heaviside's unit step
 
-- delta -- Dirac delta
+- `delta` -- Dirac delta
 
-- cos -- cosine
+- `cos` -- cosine
 
-- sin -- sine
+- `sin` -- sine
 
-- sqrt -- square root
+- `sqrt` -- square root
 
-- exp -- exponential
+- `exp` -- exponential
 
-- log10 -- logarithm base 10
+- `log10` -- logarithm base 10
 
-- log -- natural logarithm
-
+- `log` -- natural logarithm
 
 
 
@@ -184,21 +183,23 @@ Simple circuit components
 
 The basic circuit components are two-terminal (one-port) devices:
 
-- I current source
+- `I` -- current source
 
-- V voltage source
+- `V` -- voltage source
 
-- R resistance
+- `R` -- resistance
 
-- C capacitance
+- `G` -- conductance
 
-- L inductance
+- `C` -- capacitance
+
+- `L` -- inductance
 
 These are augmented by generic s-domain components:
 
-- Y admittance
+- `Y` -- admittance
 
-- Z impedance
+- `Z` -- impedance
 
 
 Here are some examples of their creation:
@@ -372,7 +373,7 @@ Then the frequency response can be plotted.  For example,
    >>> ax.grid(True)
    >>> show()
 
-A simpler approach is to use the plot method:
+A simpler approach is to use the `plot` method:
 
    >>> from lcapy import *
    >>> from numpy import linspace
@@ -466,7 +467,7 @@ vector of time values.
    >>> t = linspace(0, 100, 400)
    >>> isc = n.Isc.transient_response(t)
 
-Then the transient response can be plotted.  Alternatively, the plot
+Then the transient response can be plotted.  Alternatively, the `plot`
 method can be used.
 
 .. literalinclude:: examples/networks/series-VRC1-isc.py
@@ -771,7 +772,13 @@ causal, then use:
    ⎛      -2⋅t       -3⋅t⎞
    ⎝- 30⋅e     + 35⋅e    ⎠⋅Heaviside(t)
 
-The Heaviside function is the unit step.
+The Heaviside function is also known as the unit step.
+
+There is a short-hand notation for inverse Laplace transforms:
+
+   >>> H(t, causal=True)
+   ⎛      -2⋅t       -3⋅t⎞
+   ⎝- 30⋅e     + 35⋅e    ⎠⋅Heaviside(t)
 
 When the rational function is not strictly proper, the inverse Laplace
 transform has Dirac deltas (and derivatives of Dirac deltas):
@@ -833,7 +840,6 @@ Lcapy can convert s-domain products to time domain convolutions, for example,
 
 Here the class `Is` represents an s-domain current.
    
-   
 
 Laplace transforms
 ==================
@@ -848,6 +854,14 @@ Lcapy can also perform Laplace transforms.   Here's an example:
        3   
       s   
 
+There is a short-hand notation for the Laplace transform:
+      
+   >>> v(s)
+   3⋅s + 20
+   ────────
+       3   
+      s         
+      
 
 Circuit analysis
 ================
@@ -1037,7 +1051,7 @@ The corresponding impulse response can found from an inverse Laplace transform:
    ───────────────────
           C₁⋅R₁ 
 
-Transfer functions can also be created using the transfer method of a
+Transfer functions can also be created using the `transfer` method of a
 circuit.  For example,
 
    >>> from lcapy import Circuit
@@ -1050,8 +1064,8 @@ circuit.  For example,
    ───────────
    C₁⋅R₁⋅s + 1
 
-In this example, the transfer method computes (V[1] - V[0]) / (V[2] -
-V[0]).  In general, all independent sources are killed and so the
+In this example, the `transfer` method computes `(V[1] - V[0]) / (V[2] -
+V[0])`.  In general, all independent sources are killed and so the
 response is causal.
 
    >>> H.inverse_laplace()
@@ -1226,7 +1240,7 @@ This produces:
    :width: 5cm
 
 Internally, Lcapy converts the network to a netlist and then draws the
-netlist.  The netlist can be found using the netlist method, for example,
+netlist.  The netlist can be found using the `netlist` method, for example,
 
    >>> from lcapy import R, C, L
    >>> print(((R(1) + L(2)) | C(3)).netlist())
