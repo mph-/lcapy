@@ -794,7 +794,7 @@ class Y(OnePort):
     def __init__(self, Yval):
 
         self.args = (Yval, )
-        Yval = Ys(Yval)
+        Yval = Ys(Yval, causal=True)
         self._Z = 1 / Yval
 
 
@@ -804,7 +804,7 @@ class Z(OnePort):
     def __init__(self, Zval):
 
         self.args = (Zval, )
-        Zval = Zs(Zval)
+        Zval = Zs(Zval, causal=True)
         self._Z = Zval
 
 

@@ -223,22 +223,22 @@ class Zs(sExpr):
     @classmethod
     def C(cls, Cval):
 
-        return cls(1 / (s * Cval))
+        return cls(1 / (s * Cval), causal=True)
 
     @classmethod
     def G(cls, Gval):
 
-        return cls(1 / Gval)
+        return cls(1 / Gval, causal=True)
 
     @classmethod
     def L(cls, Lval):
 
-        return cls(s * Lval)
+        return cls(s * Lval, causal=True)
 
     @classmethod
     def R(cls, Rval):
 
-        return cls(Rval)
+        return cls(Rval, causal=True)
 
     def cpt(self):
         from .oneport import R, C, L, Z
@@ -274,22 +274,22 @@ class Ys(sExpr):
     @classmethod
     def C(cls, Cval):
 
-        return cls(s * Cval)
+        return cls(s * Cval, causal=True)
 
     @classmethod
     def G(cls, Gval):
 
-        return cls(Gval)
+        return cls(Gval, causal=True)
 
     @classmethod
     def L(cls, Lval):
 
-        return cls(1 / (s * Lval))
+        return cls(1 / (s * Lval), causal=True)
 
     @classmethod
     def R(cls, Rval):
 
-        return cls(1 / Rval)
+        return cls(1 / Rval, causal=True)
 
     def cpt(self):
         from .oneport import G, C, L, Y
