@@ -1,6 +1,6 @@
 from __future__ import division
 from .expr import Expr, Exprdict, sympify
-from .sym import tsym, omegasym, symbols_find, sympify, pi, symbol, is_sympy
+from .sym import tsym, omegasym, symbols_find, sympify, pi, is_sympy, symsymbol
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .printing import pprint, pretty, print_str
 import six
@@ -116,7 +116,7 @@ class Super(Exprdict):
         V.has_symbol(t)
         
         """                        
-        return self.has(symbol(sym))
+        return self.has(symsymbol(sym))
     
     @property
     def has_dc(self):

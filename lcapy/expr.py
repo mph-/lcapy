@@ -14,7 +14,7 @@ from __future__ import division
 from .acdc import is_dc, is_ac, is_causal
 from .ratfun import Ratfun, _zp2tf
 from .sym import sympify, symsimplify, j, omegasym, canonical_name, symdebug
-from .sym import symbol, capitalize_name, tsym
+from .sym import capitalize_name, tsym, symsymbol
 from .context import context
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd
@@ -1091,6 +1091,17 @@ def expr(string, **assumptions):
     else:
         return cExpr(expr)            
 
+
+def symbol(name, **assumptions):
+    """Create an Lcapy symbol.
+
+    By default, symbols are assumed to be positive unless real is
+    defined or positive is defined as False.
+
+    """
+    return Expr(symsymbol(name, **assumptions))
+
+    
 from .cexpr import Iconst, Vconst, cExpr        
 from .fexpr import Hf, If, Vf, Yf, Zf, fExpr    
 from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr

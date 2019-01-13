@@ -11,17 +11,17 @@ import sympy as sym
 import re
 from .context import context
 
-__all__ = ('symbol', 'sympify', 'simplify')
+__all__ = ('symsymbol', 'sympify', 'simplify')
 
 
 global_dict = {}
 exec('from sympy import *', global_dict)
 
-for symbol in exclude:
-    global_dict.pop(symbol)
+for _symbol in exclude:
+    global_dict.pop(_symbol)
 
-for alias, name in aliases.items():
-    global_dict[alias] = global_dict[name]    
+for _alias, _name in aliases.items():
+    global_dict[_alias] = global_dict[_name]
 
 
 cpt_names = ('C', 'E', 'F', 'G', 'H', 'I', 'L', 'R', 'V', 'Y', 'Z')
@@ -215,13 +215,13 @@ def sympify(expr, evaluate=True, **assumptions):
 
     """
     
-    if 'real' not in assumptions:
+    if 'real' not in assumptions and 'positive' not in assumptions:
         assumptions['positive'] = True
     return sympify1(expr, context.symbols, evaluate, **assumptions)
 
 
-def symbol(name, **assumptions):
-    """Create an Lcapy symbol.
+def symsymbol(name, **assumptions):
+    """Create a SymPy symbol.
 
     By default, symbols are assumed to be positive unless real is
     defined.
@@ -299,10 +299,10 @@ def symdebug(expr, s='', indent=0):
     return s
 
 
-ssym = symbol('s', real=False)
-tsym = symbol('t', real=True)
-fsym = symbol('f', real=True)
-omegasym = symbol('omega', real=True)
+ssym = symsymbol('s', real=False)
+tsym = symsymbol('t', real=True)
+fsym = symsymbol('f', real=True)
+omegasym = symsymbol('omega', real=True)
 
 pi = sym.pi
 j = sym.I

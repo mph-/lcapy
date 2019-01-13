@@ -28,7 +28,6 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 import sympy as sym
 from .functions import Heaviside, cos, exp
-from .sym import symbol
 from .symbols import j, t, s
 from .network import Network
 
