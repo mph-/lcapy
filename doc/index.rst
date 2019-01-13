@@ -23,6 +23,7 @@ Contents:
 
    install.rst
    tutorial.rst
+   expressions.rst           
    circuits.rst
    networks.rst
    netlists.rst
