@@ -5,7 +5,7 @@ try:
 except:
     from sympy.parsing.sympy_tokenize import NUMBER, STRING, NAME, OP
     
-from sympy import Basic, Symbol, Expr
+from sympy import Basic, Symbol, Expr, Atom
 from sympy.core.function import AppliedUndef
 import sympy as sym
 import re
@@ -208,7 +208,7 @@ def sympify1(arg, symbols={}, evaluate=True, **assumptions):
 
 
 def sympify(expr, evaluate=True, **assumptions):
-    """Create an SymPy expression.
+    """Create a SymPy expression.
 
     By default, symbols are assumed to be positive unless real is
     defined.
@@ -265,6 +265,38 @@ def simplify(expr):
 
 def is_sympy(expr):
     return isinstance(expr, (Symbol, Expr, AppliedUndef))
+
+
+def symdebug(expr, s='', indent=0):
+
+    def _debug_args(args, s='', indent=0):
+
+        for m, arg in enumerate(args):
+            s = symdebug(arg, s, indent)
+            if m == len(expr.args) - 1:
+                s += ')\n'
+            else:
+                s += ',\n' + ' ' * indent
+        return s
+
+    if isinstance(expr, Symbol):
+        s += str(expr) + ': %s' % expr.assumptions0
+
+    elif isinstance(expr, Atom):                
+        s += str(expr)
+
+    elif isinstance(expr, Expr):
+        
+        name = expr.__class__.__name__
+        s += '%s(' % name
+        s = _debug_args(expr.args, s, indent + len(name) + 1)
+
+    elif isinstance(expr, AppliedUndef):
+        name = expr.func.__name__
+        s += name
+        s = _debug_args(expr.args, s, indent + len(name) + 1)
+
+    return s
 
 
 ssym = symbol('s', real=False)

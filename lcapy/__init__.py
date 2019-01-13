@@ -39,6 +39,7 @@ from .circuit import *
 from .oneport import *
 from .twoport import *
 from .schematic import *
+from .expr import *
 from .cexpr import *
 from .fexpr import *
 from .sexpr import *
