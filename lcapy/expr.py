@@ -13,7 +13,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from .acdc import is_dc, is_ac, is_causal
 from .ratfun import Ratfun, _zp2tf
-from .sym import sympify, symsimplify, j, omegasym, canonical_name
+from .sym import sympify, symsimplify, j, omegasym, canonical_name, symdebug
 from .sym import symbol, capitalize_name, tsym
 from .context import context
 from .printing import pprint, pretty, print_str, latex
@@ -1051,14 +1051,45 @@ class Expr(object):
 
     def debug(self):
 
-        expr = self.expr
-        print(expr)
-        for symbol in expr.free_symbols:
-            print('  %s: %s' % (symbol, symbol.assumptions0))
+        name = self.__class__.__name__
+        s = '%s(' % name
+        print(symdebug(self.expr, s , len(name) + 1))
 
     def canonical(self):
         return self.__class__(self)
 
+    @property
+    def symbols(self):
+        """Return list of symbols in the expression."""
+        return list(self.free_symbols)
+    
+
+def expr(string, **assumptions):
+    """Create Lcapy expression from string.
+
+    If a t symbol is found in the string a tExpr object is created.
+    If a s symbol is found in the string a sExpr object is created.
+    If a f symbol is found in the string an fExpr object is created.
+    If a omega symbol is found in the string an omegaExpr object is created.
+
+    For example, v = expr('3 * exp(-t / tau) * u(t)')
+
+    """
+
+    from .sym import tsym, fsym, ssym, omegasym
+    from .symbols import t, f, s, omega
+
+    expr = sympify(string)
+    if expr.has(tsym):
+        return tExpr(expr)
+    elif expr.has(ssym):
+        return sExpr(expr)        
+    elif expr.has(fsym):
+        return fExpr(expr)
+    elif expr.has(omegasym):
+        return omegaExpr(expr)
+    else:
+        return cExpr(expr)            
 
 from .cexpr import Iconst, Vconst, cExpr        
 from .fexpr import Hf, If, Vf, Yf, Zf, fExpr    
