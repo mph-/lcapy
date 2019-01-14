@@ -911,14 +911,12 @@ Alternatively, this can be achieved using the lowercase `v` attribute:
 The voltage between a node and ground can be determined with the node
 name as an index, for example,
 
-   >>> cct[1].V
-   ⎧   10⎫
-   ⎨s: ──⎬
-   ⎩   s ⎭
-   >>> cct[2].V
-   ⎧    5 ⎫
-   ⎨s: ───⎬
-   ⎩   2⋅s⎭
+   >>> cct[1].V(t)
+   10
+   >>> cct[2].V(t)
+   5
+   ─
+   2
 
 Since Lcapy uses SymPy, circuit analysis can be performed
 symbolically.  This can be achieved by using symbolic arguments or by
@@ -929,20 +927,21 @@ use the component name for its value.  For example,
    >>> cct.add('V1 1 0 step Vs') 
    >>> cct.add('R1 1 2') 
    >>> cct.add('C1 2 0') 
-   >>> cct[2].V
-   ⎧          V_s        ⎫
-   ⎪s: ──────────────────⎪
-   ⎨         ⎛ 2     s  ⎞⎬
-   ⎪   C₁⋅R₁⋅⎜s  + ─────⎟⎪
-   ⎩         ⎝     C₁⋅R₁⎠⎭
+   >>> cct[2].V(s)
+           V_s        
+    ──────────────────
+          ⎛ 2     s  ⎞
+    C₁⋅R₁⋅⎜s  + ─────⎟
+          ⎝     C₁⋅R₁⎠
 
-   >>> : cct[2].v
+   >>> : cct[2].V(t)
    ⎛            -t  ⎞             
    ⎜           ─────⎟             
    ⎜           C₁⋅R₁⎟             
    ⎝V_s - V_s⋅e     ⎠⋅Heaviside(t)
 
 
+   
 Transform Domains
 -----------------
 
@@ -1030,10 +1029,10 @@ Here's an example using an arbitrary input voltage `V(s)`
    >>> cct.add('V1 1 0 {V(s)}') 
    >>> cct.add('R1 1 2') 
    >>> cct.add('C1 2 0 C1 0') 
-   >>> cct[2].V
-   ⎧       V(s)   ⎫
-   ⎨s: ───────────⎬
-   ⎩   C₁⋅R₁⋅s + 1⎭
+   >>> cct[2].V(s)
+       V(s)   
+   ───────────
+   C₁⋅R₁⋅s + 1
 
    >>> H = cct[2].V(s) / cct[1].V(s)
    >>> H
@@ -1051,6 +1050,16 @@ The corresponding impulse response can found from an inverse Laplace transform:
    ───────────────────
           C₁⋅R₁ 
 
+or more simply using:
+
+   >>> H(t, causal=True)
+     -t               
+    ─────             
+    C₁⋅R₁             
+   e     ⋅Heaviside(t)
+   ───────────────────
+          C₁⋅R₁           
+          
 Transfer functions can also be created using the `transfer` method of a
 circuit.  For example,
 
@@ -1068,7 +1077,7 @@ In this example, the `transfer` method computes `(V[1] - V[0]) / (V[2] -
 V[0])`.  In general, all independent sources are killed and so the
 response is causal.
 
-   >>> H.inverse_laplace()
+   >>> H(t)
      -t               
     ─────             
     C₁⋅R₁             
