@@ -364,4 +364,63 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.has_symbol('a'), True, "has_symbol(a)")
         self.assertEqual(a.has_symbol('b'), False, "has_symbol(b)")
         
+    def test_expr(self):
+
+        a = expr('3 * exp(-t) * t * a')
+        self.assertEqual(isinstance(a, tExpr), True, "tExpr")        
+        self.assertEqual(a.has(3), True, "has(3)")
+        self.assertEqual(a.has(4), False, "has(4)")
+        self.assertEqual(a.has(t), True, "has(t)")
+        self.assertEqual(a.has_symbol(t), True, "has_symbol(t)")
+        self.assertEqual(a.has_symbol('a'), True, "has_symbol(a)")
+        self.assertEqual(a.has_symbol('b'), False, "has_symbol(b)")
+        #self.assertEqual(a.symbols[1].is_positive, True, "a is positive")
+        self.assertEqual(a.is_constant, False, "is_constant")                
+
+        a = expr('3')
+        self.assertEqual(a.is_constant, True, "3 is_constant")        
+
+        self.assertEqual(isinstance(expr(t), tExpr), True, "tExpr")
+        self.assertEqual(isinstance(expr(s), sExpr), True, "sExpr")
+        self.assertEqual(isinstance(expr(f), fExpr), True, "fExpr")
+        self.assertEqual(isinstance(expr(omega), omegaExpr), True, "omegaExpr")
+        
+        self.assertEqual(isinstance(symbol('c'), Expr), True, "symbol")
+
+
+    def test_comparison(self):
+
+        a = expr('3')
+        b = expr('4')
+        self.assertEqual(a < b, True, "a < b")
+        self.assertEqual(a > b, False, "a > b")
+        self.assertEqual(a <= b, True, "a <= b")
+        self.assertEqual(a >= b, False, "a >= b")        
+        self.assertEqual(a == b, False, "a == b")
+        self.assertEqual(a != b, True, "a != b")        
+
+    def test_rdiv(self):
+
+        self.assertEqual(3 / expr('3'), 1, "3 / expr('3')")
+
+    def test_div(self):
+
+        self.assertEqual(expr('3') / 3, 1, "expr('3') / 3")        
+        
+    def test_rsub(self):
+
+        self.assertEqual(3 - expr('3'), 0, "3 - expr('3')")
+
+    def test_sub(self):
+
+        self.assertEqual(expr('3') - 3, 0, "expr('3') - 3")
+
+    def test_parallel(self):
+
+        self.assertEqual(expr('4').parallel(expr('4')), 2, "parallel")
+
+    def test_limit(self):
+
+        self.assertEqual(expr('4').limit(t, 0), 4, "limit")
+        self.assertEqual(expr('t + 4').limit(t, 0), 4, "limit")        
         
