@@ -1,4 +1,4 @@
-from os import system, path, remove, mkdir, chdir, getcwd
+from os import system, path, remove, chdir, getcwd
 import re
 from sys import platform
 

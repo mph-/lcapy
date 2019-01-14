@@ -258,7 +258,6 @@ class Graph(dict):
             # Have dangling node, so no stretch needed.
             gnode.pos = from_gnode.pos + from_dist
             return True
-            unknown.discard(n)
 
         separation = to_gnode.pos - from_gnode.pos
         extent = to_dist + from_dist
@@ -445,6 +444,10 @@ class Graph(dict):
     def dot(self, filename=None, stage=None):
         """Generate directed graph using graphviz notation"""
 
+        from .system import tmpfilename, run_dot
+        from .schematic import display_matplotlib
+        from os import path
+        
         def fmt_dec(value):
             return ('%.2f' % value).rstrip('0').rstrip('.')
 

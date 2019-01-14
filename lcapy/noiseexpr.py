@@ -1,8 +1,11 @@
 from __future__ import division
-from .sym import j, omegasym, symsimplify
+from .sym import symsimplify
+from .functions import sqrt
+from .sym import pi
 from .context import context
 from .omegaexpr import omegaExpr
 import sympy as sym
+import numpy as np
 
 class noiseExpr(omegaExpr):
     """Frequency domain (one-sided) noise spectrum expression (amplitude
@@ -185,6 +188,8 @@ class noiseExpr(omegaExpr):
         """
 
         from .plot import plot_frequency
+        from .symbols import omega
+        
         # Hack so show as linear frequency. 
         obj = self.subs(omega, 2 * pi * omega)
         obj.domain_name = 'Frequency'
@@ -233,5 +238,4 @@ class In(noiseExpr):
         self._fourier_conjugate_class = It
 
         
-from .texpr import Ht, It, Vt, Yt, Zt, tExpr        
-        
+from .texpr import It, Vt        

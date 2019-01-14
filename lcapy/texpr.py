@@ -1,7 +1,7 @@
 from __future__ import division
 from .expr import Expr
-from .functions import sin, cos, exp
-from .sym import fsym, ssym, tsym, j, omegasym
+from .functions import exp
+from .sym import fsym, ssym, tsym, j
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .laplace import laplace_transform
 from .fourier import fourier_transform

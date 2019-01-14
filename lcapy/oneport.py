@@ -26,7 +26,6 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 
 from __future__ import division
-import sympy as sym
 from .functions import Heaviside, cos, exp
 from .symbols import j, t, s
 from .network import Network
@@ -1120,8 +1119,6 @@ class LoadCircuit(Network):
         self.source_OP = source_OP
         self.load_OP = load_OP
 
-        link = Vdc(0)
-        
         self.vnet = source_OP | load_OP
         self.inet = source_OP + load_OP
         self.args = (source_OP, load_OP)
@@ -1157,7 +1154,7 @@ from .expr import Expr
 from .cexpr import cExpr, Iconst, Vconst
 from .sexpr import sExpr, Is, Vs, Ys, Zs
 from .texpr import tExpr
-from .noiseexpr import noiseExpr, In, Vn
+from .noiseexpr import In, Vn
 from .super import Isuper, Vsuper
 from .phasor import Iphasor, Vphasor
 from .twoport import Ladder, LSection, TSection

@@ -168,7 +168,6 @@ class Parser(object):
         cpt_type = fields[0][0:-4]
         
         pos = None
-        newparams = ()
         for m, param in enumerate(params):
             if param[0] == '[':
                 param = param[1:-1]
@@ -181,10 +180,6 @@ class Parser(object):
             self.ruledir[cpt_type] = ()
         self.ruledir[cpt_type] += (Rule(cpt_type, cpt_classname,
                                         params, comment, pos), )
-
-    def _syntax_error(self, string):
-
-        raise ValueError('%s\nExpected format: %s' % (repr(rule)))
 
     def parse(self, string, parent=None):
         """Parse string and create object"""

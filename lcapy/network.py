@@ -3,7 +3,6 @@ Copyright 2014--2019 Michael Hayes, UCECE
 """
 
 from __future__ import division
-import sympy as sym
 from .expr import Expr
 from .printing import latex, pretty
 from .schematic import Schematic

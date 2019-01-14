@@ -1,6 +1,6 @@
 from .sym import sympify1
 import sympy as sym
-from sympy import symbols, I, exp, cos, pi, sin, atan2, sqrt
+from sympy import cos, pi, sin, atan2, sqrt
 
 class CausalChecker(object):
 

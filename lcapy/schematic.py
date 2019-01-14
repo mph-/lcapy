@@ -36,8 +36,6 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 
 from __future__ import print_function
-import numpy as np
-import re
 from .latex import format_label
 from .expr import Expr
 from . import schemcpts
@@ -45,7 +43,7 @@ import sympy as sym
 from .schemgraph import Graph
 from .schemmisc import Pos, Opts
 from .netfile import NetfileMixin
-from .system import run_dot, run_latex, convert_pdf_png, convert_pdf_svg
+from .system import run_latex, convert_pdf_png, convert_pdf_svg
 from .system import tmpfilename, circuitikz_version, latex_cleanup
 from os import path, remove
 from collections import OrderedDict
@@ -578,8 +576,6 @@ class Schematic(NetfileMixin):
         # Draw components
         for m, elt in enumerate(self.elements.values()):
             s += elt.draw(**kwargs)
-
-        wires = self._make_wires()
 
         s += self._label_nodes(**kwargs)
 

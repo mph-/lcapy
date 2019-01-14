@@ -42,9 +42,10 @@ class Ratfun(object):
         var = self.var
         N, D, delay = self.as_ratfun_delay()
 
-        Q, M = N.div(D)
-
+        # Perform polynomial long division so expr = Q + M / D
+        Q, M = sym.div(N, D, var)
         expr = M / D
+        
         sexpr = Ratfun(expr, var)
 
         P = sexpr.poles()
@@ -82,19 +83,16 @@ class Ratfun(object):
         expr = self.expr
         var = self.var
         
-        delay = sym.sympify(0)
+        delay = sym.S.Zero
     
         if expr.is_rational_function(var):
-            numer, denom = expr.as_numer_denom()
-            N = sym.Poly(numer, var)
-            D = sym.Poly(denom, var)
-        
+            N, D = expr.as_numer_denom()
             return N, D, delay
 
         # Note, there is a bug in sympy factor, TODO warn if detected.
         F = sym.factor(expr).as_ordered_factors()
 
-        rf = sym.sympify(1)
+        rf = sym.S.One
         for f in F:
             b, e = f.as_base_exp()
             if b == sym.E and e.is_polynomial(var):
@@ -112,9 +110,7 @@ class Ratfun(object):
             raise ValueError('Expression not a product of rational function'
                              ' and exponential')
 
-        numer, denom = rf.as_numer_denom()
-        N = sym.Poly(numer, var)
-        D = sym.Poly(denom, var)
+        N, D = rf.as_numer_denom()
     
         return N, D, delay
 
@@ -147,8 +143,8 @@ class Ratfun(object):
         poles2[pole] -= 1
         
         numer, denom = expr.as_numer_denom()
-        D = sym.Poly(denom, var)
-        K = D.LC()
+        Dpoly = sym.Poly(denom, var)
+        K = Dpoly.LC()
         
         D = [(var - p) ** poles2[p] for p in poles2]
         denom = sym.Mul(K, *D)
@@ -191,13 +187,17 @@ class Ratfun(object):
             # TODO: copy?
             return self.expr
 
-        K = sym.cancel(N.LC() / D.LC())
+        var = self.var        
+        Dpoly = sym.Poly(D, var)
+        Npoly = sym.Poly(N, var)
+
+        K = sym.cancel(Npoly.LC() / Dpoly.LC())
         if delay != 0:
             K *= sym.exp(self.var * delay)
 
         # Divide by leading coefficient
-        Nm = N.monic()
-        Dm = D.monic()
+        Nm = Npoly.monic()
+        Dm = Dpoly.monic()
 
         expr = K * (Nm / Dm)
 
@@ -249,10 +249,11 @@ class Ratfun(object):
         See also canonical, general, partfrac and ZPK"""
 
         N, D, delay = self.as_ratfun_delay()
+        var = self.var        
 
-        Q, M = N.div(D)
-
-        expr = Q + M / D
+        # Perform polynomial long division so expr = Q + M / D        
+        Q, M = sym.div(N, D, var)
+        expr = Q + sym.cancel(M / D, var)
 
         if delay != 0:
             expr *= sym.exp(-self.var * delay)
@@ -290,11 +291,15 @@ class Ratfun(object):
 
         N, D, delay = self.as_ratfun_delay()
 
-        K = sym.cancel(N.LC() / D.LC())
+        var = self.var        
+        Dpoly = sym.Poly(D, var)
+        Npoly = sym.Poly(N, var)
+        
+        K = sym.cancel(Npoly.LC() / Dpoly.LC())
         if delay != 0:
             K *= sym.exp(self.var * delay)
 
-        zeros = sym.roots(N)
-        poles = sym.roots(D)
+        zeros = sym.roots(Npoly)
+        poles = sym.roots(Dpoly)
 
         return _zp2tf(zeros, poles, K, self.var)

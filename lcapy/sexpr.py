@@ -1,9 +1,11 @@
 from __future__ import division
-from .laplace import laplace_transform, inverse_laplace_transform
+from .laplace import inverse_laplace_transform
 from .sfwexpr import sfwExpr
-from .sym import fsym, ssym, tsym, omegasym, j, pi
+from .sym import ssym, tsym, j, pi
 from .vector import Vector
-from .ratfun import _zp2tf
+from .ratfun import _zp2tf, Ratfun
+import sympy as sym
+import numpy as np
 
 
 class sExpr(sfwExpr):
@@ -154,9 +156,9 @@ class sExpr(sfwExpr):
         if not np.allclose(np.diff(t), np.ones(len(t) - 1) * dt):
             raise (ValueError, 't values not equally spaced')
 
-        N, D, delay = self._as_ratfun_delay()
-
-        Q, M = N.div(D)
+        # Perform polynomial long division so expr = Q + M / D                
+        N, D, delay = self.decompose()
+        Q, M = sym.div(N, D)
         expr = M / D
 
         N = len(t)
@@ -191,7 +193,7 @@ class sExpr(sfwExpr):
 
     def decompose(self):
 
-        N, D, delay = self._as_ratfun_delay()
+        N, D, delay = Ratfun(self, s).as_ratfun_delay()                
 
         return N, D, delay
 
@@ -401,6 +403,5 @@ def zp2tf(zeros, poles, K=1, var=None):
 
 
 from .texpr import Ht, It, Vt, Yt, Zt, tExpr
-from .omegaexpr import omegaExpr
 s = sExpr('s')
 

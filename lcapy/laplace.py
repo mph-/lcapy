@@ -213,12 +213,13 @@ def inverse_laplace_ratfun(expr, s, t):
     N, D, delay = Ratfun(expr, s).as_ratfun_delay()
     # The delay should be zero
 
-    Q, M = N.div(D)
+    Q, M = sym.div(N, D, s)
 
     result1 = sym.S.Zero
 
     if Q:
-        C = Q.all_coeffs()
+        Qpoly = sym.Poly(Q, s)        
+        C = Qpoly.all_coeffs()
         for n, c in enumerate(C):
             result1 += c * sym.diff(sym.DiracDelta(t), t, len(C) - n - 1)
 
@@ -364,7 +365,7 @@ def inverse_laplace_term1(expr, s, t):
         pass
 
     # As last resort see if can convert to convolutions...
-    return sym.Zero, const * inverse_laplace_product(expr, s, t)
+    return sym.S.Zero, const * inverse_laplace_product(expr, s, t)
     
     
 def inverse_laplace_term(expr, s, t, **assumptions):

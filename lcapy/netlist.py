@@ -10,8 +10,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 # numerical quantisation.
 
 from __future__ import division
-from .expr import Expr
-from .sexpr import Hs, Vs, Zs, Ys
+from .sexpr import Hs, Zs, Ys
 from .symbols import j, s, omega
 from .context import global_context
 from .super import Vsuper, Isuper
@@ -19,7 +18,6 @@ from .schematic import Schematic, Opts, SchematicOpts
 from .mna import MNA, Nodedict, Branchdict
 from .netfile import NetfileMixin
 from . import mnacpts
-import re
 from copy import copy
 from collections import OrderedDict
 
@@ -283,6 +281,8 @@ class NetlistMixin(object):
 
     def _new(self):
 
+        from .circuit import Circuit
+        
         # TODO.  Copy or share?
         context = self.context
         if self.__class__ == 'Circuit':
@@ -877,8 +877,6 @@ class NetlistMixin(object):
         uncorrelated.
 
         """
-
-        noise_source_count = 0
 
         groups = {}
         for key, elt in self.elements.items():

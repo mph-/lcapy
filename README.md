@@ -1,23 +1,32 @@
 Lcapy is a Python package for linear circuit analysis.  It uses SymPy
 for symbolic mathematics.
 
+[![Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/mph-/lcapy/master)
+
 Lcapy can analyse circuits described with netlists or by
-series/parallel combinations of components.  
+series/parallel combinations of components.
+
+Comprehensive documentation can be found at http://lcapy.elec.canterbury.ac.nz
+
+
+
+Updates
+-------
+
+Version 0.30.0 tweaks the syntax to perform transformations based on the argument, e.g., V(s) or V(t)
+
+Version 0.28.0 works with Sympy 1.2.
+
+Version 0.26.0 adds noise analysis.
+
+Version 0.25.1 adds time-domain analysis for circuits without reactive
+components.
 
 From version 0.25.0, Lcapy performs more comprehensive circuit
 analysis using combinations of DC, AC, and Laplace analysis.  This
 added functionality has resulted in a slight change of syntax.
 cct.R1.V no longer prints the s-domain expression but the
 decomposition of a signal into each of the transform domains.
-
-Version 0.25.1 adds time-domain analysis for circuits without reactive
-components.
-
-Version 0.26.0 adds noise analysis.
-
-Version 0.28.0 works with Sympy 1.2.
-
-More comprehensive documentation can be found at http://lcapy.elec.canterbury.ac.nz
 
 
 Circuit analysis

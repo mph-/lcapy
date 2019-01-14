@@ -1,4 +1,3 @@
-import sympy as sym
 import re
 from .config import print_expr_map
 from .latex import latex_str

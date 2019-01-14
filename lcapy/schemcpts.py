@@ -1017,7 +1017,7 @@ class OnePort(StretchyCpt):
             if self.type in ('C', 'R', 'L'):
                 tikz_cpt = 'v' + tikz_cpt
             else:
-                raise Error('Component %s not variable' % self.name)
+                raise ValueError('Component %s not variable' % self.name)
 
         label_pos = '_'
         voltage_pos = '^'

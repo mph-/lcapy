@@ -1,9 +1,9 @@
 from .config import exclude, aliases
 from sympy.parsing.sympy_parser import parse_expr, auto_number, rationalize
 try:
-    from sympy.parsing.sympy_parser import NUMBER, STRING, NAME, OP        
+    from sympy.parsing.sympy_parser import NUMBER, NAME, OP        
 except:
-    from sympy.parsing.sympy_tokenize import NUMBER, STRING, NAME, OP
+    from sympy.parsing.sympy_tokenize import NUMBER, NAME, OP
     
 from sympy import Basic, Symbol, Expr, Atom
 from sympy.core.function import AppliedUndef
@@ -103,7 +103,6 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
     def auto_symbol(tokens, local_dict, global_dict):
         """Inserts calls to ``Symbol`` or ``Function`` for undefined variables/functions."""
         result = []
-        prevTok = (None, None)
 
         tokens.append((None, None))  # so zip traverses all tokens
         for tok, nextTok in zip(tokens, tokens[1:]):
@@ -148,8 +147,6 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
 
             else:
                 result.append((tokNum, tokVal))
-
-            prevTok = (tokNum, tokVal)
 
         return result
 

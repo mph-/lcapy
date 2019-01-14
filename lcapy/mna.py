@@ -15,7 +15,6 @@ from .matrix import Matrix
 from .sym import symsimplify
 from .expr import Exprdict
 import sympy as sym
-from copy import copy
 
 # Note, all the maths is performed using sympy expressions and the
 # values and converted to Expr when required.  This is more

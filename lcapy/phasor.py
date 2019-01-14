@@ -1,5 +1,5 @@
 from __future__ import division
-from .sym import j, omegasym
+from .sym import j
 from .functions import sin, cos, exp
 
 __all__ = ('Phasor', 'Vphasor', 'Iphasor')
@@ -126,7 +126,7 @@ class Iphasor(Phasor):
         from .oneport import Iac
         return Iac(self, 0, self.omega)
 
-from .texpr import Ht, It, Vt, Yt, Zt
+from .texpr import It, Vt, tExpr
 from .expr import Expr
 from .phasor import Phasor
 

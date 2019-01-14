@@ -63,5 +63,5 @@ class Iconst(cExpr):
         return It(self)
 
 
-from .texpr import Ht, It, Vt, Yt, Zt, tExpr    
+from .texpr import It, Vt
 

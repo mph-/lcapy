@@ -125,6 +125,8 @@ class Circuit(Netlist):
 
 def test():
 
+    from .printing import pprint
+    
     cct = Circuit('Test')
 
     cct.add('V_s fred 0')

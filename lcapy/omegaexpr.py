@@ -1,5 +1,5 @@
 from __future__ import division
-from .fourier import fourier_transform, inverse_fourier_transform
+from .fourier import inverse_fourier_transform
 from .sfwexpr import sfwExpr
 from .sym import fsym, ssym, tsym, omegasym, j, pi
 

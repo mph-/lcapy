@@ -73,8 +73,6 @@ def fourier_function(expr, t, f, inverse=False):
 
     const, expr = factor_const(expr, t)
     
-    fsym = sym.sympify(str(f))
-
     if isinstance(expr, sym.function.AppliedUndef):
         return fourier_func(expr, t, f, inverse) * const
     

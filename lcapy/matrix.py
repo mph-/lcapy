@@ -1,4 +1,7 @@
 import sympy as sym
+from copy import copy
+from .printing import pprint, latex
+
 
 def msympify(expr):
     # If do nothing, will get a problem with matrices that

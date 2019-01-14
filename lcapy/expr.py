@@ -11,8 +11,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 # performed.
 
 from __future__ import division
-from .acdc import is_dc, is_ac, is_causal
-from .ratfun import Ratfun, _zp2tf
+from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, canonical_name, symdebug
 from .sym import capitalize_name, tsym, symsymbol
 from .context import context
@@ -21,10 +20,6 @@ from .functions import sqrt, log10, atan2, gcd
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
-import sys
-from copy import copy
-import six
-
 
 class Exprdict(dict):
 
@@ -167,7 +162,7 @@ class Expr(object):
             if not hasattr(a, '__call__'):
                 if not isinstance(a, sym.Expr):
                     return a
-                ret = a(*args)                
+                ret = a()                
                 if hasattr(self, 'assumptions'):
                     return self.__class__(ret, **self.assumptions)
                 return self.__class__(ret)
@@ -1077,7 +1072,6 @@ def expr(string, **assumptions):
     """
 
     from .sym import tsym, fsym, ssym, omegasym
-    from .symbols import t, f, s, omega
 
     expr = sympify(string)
     if expr.has(tsym):
@@ -1102,8 +1096,8 @@ def symbol(name, **assumptions):
     return Expr(symsymbol(name, **assumptions))
 
     
-from .cexpr import Iconst, Vconst, cExpr        
+from .cexpr import cExpr        
 from .fexpr import Hf, If, Vf, Yf, Zf, fExpr    
 from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr
-from .texpr import Ht, It, Vt, Yt, Zt, tExpr
+from .texpr import tExpr
 from .omegaexpr import Homega, Iomega, Vomega, Yomega, Zomega, omegaExpr

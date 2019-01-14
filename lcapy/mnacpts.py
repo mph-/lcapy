@@ -9,11 +9,10 @@ Copyright 2015--2019 Michael Hayes, UCECE
 from __future__ import print_function
 from .cexpr import cExpr
 from .omegaexpr import omegaExpr
-from .symbols import j, s, omega, jomega
+from .symbols import j, omega, jomega
 from .functions import sqrt
 from .sym import capitalize_name, omegasym
 from .grammar import delimiters
-from copy import copy
 import lcapy
 import inspect
 import sys

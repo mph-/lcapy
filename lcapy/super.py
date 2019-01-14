@@ -1,8 +1,8 @@
 from __future__ import division
-from .expr import Expr, Exprdict, sympify
-from .sym import tsym, omegasym, symbols_find, sympify, pi, is_sympy, symsymbol
-from .acdc import ACChecker, is_dc, is_ac, is_causal
-from .printing import pprint, pretty, print_str
+from .expr import Exprdict
+from .sym import tsym, omegasym, symbols_find, is_sympy, symsymbol
+from .acdc import is_ac
+from .printing import pprint, pretty
 import six
 
 __all__ = ('Super', 'Vsuper', 'Isuper')
@@ -747,10 +747,10 @@ class Isuper(Super):
         return I(self.time())
 
 from .cexpr import Iconst, Vconst, cExpr        
-from .fexpr import Hf, If, Vf, Yf, Zf, fExpr    
-from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr
-from .texpr import Ht, It, Vt, Yt, Zt, tExpr
+from .fexpr import fExpr    
+from .sexpr import Is, Vs, Ys, Zs, sExpr
+from .texpr import It, Vt, tExpr
 from .noiseexpr import In, Vn, noiseExpr
 from .phasor import Iphasor, Vphasor, Phasor
 from .omegaexpr import omegaExpr
-from .symbols import s, t, f, omega, jomega
+from .symbols import s

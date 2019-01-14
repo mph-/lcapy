@@ -5,13 +5,14 @@ Copyright 2014--2019 Michael Hayes, UCECE
 """
 
 import numpy as np
-from matplotlib.pyplot import figure
 
 # Perhaps add Formatter classes that will produce the plot data?
 
 
 def plot_pole_zero(obj, **kwargs):
 
+    from matplotlib.pyplot import figure
+    
     poles = obj.poles()
     zeros = obj.zeros()
     try:
@@ -144,8 +145,6 @@ def plot_frequency(obj, f, **kwargs):
 
 def plot_angular_frequency(obj, omega, **kwargs):
 
-    from matplotlib.pyplot import figure
-
     # FIXME, determine useful frequency range...
     if omega is None:
         omega = (0, np.pi)
@@ -159,6 +158,8 @@ def plot_angular_frequency(obj, omega, **kwargs):
 
 def plot_time(obj, t, **kwargs):
 
+    from matplotlib.pyplot import figure
+    
     # FIXME, determine useful time range...
     if t is None:
         t = (-0.2, 2)
