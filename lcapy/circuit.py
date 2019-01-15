@@ -121,20 +121,3 @@ class Circuit(Netlist):
         sources killed."""
 
         return self.impedance(Np, Nm)
-
-
-def test():
-
-    from .printing import pprint
-    
-    cct = Circuit('Test')
-
-    cct.add('V_s fred 0')
-    cct.add('R_a fred bert')
-    cct.add('R_b bert 0')
-
-    pprint(cct.V)
-
-    pprint(cct.I)
-
-    return cct

@@ -12,7 +12,6 @@ For more detailed documentation see http://lcapy.elec.canterbury.ac.nz
 
 Copyright 2014--2019 Michael Hayes, UCECE
 """
-
 from __future__ import absolute_import, print_function
 del absolute_import, print_function
 
