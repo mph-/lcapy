@@ -171,11 +171,12 @@ response of a circuit can also be drawn inline using the magic command
 Documentation
 -------------
 
-For additional documentation, see the Lcapy tutorial at
-http://lcapy.elec.canterbury.ac.nz
+For comprehensive documentation, see http://lcapy.elec.canterbury.ac.nz
 
-Alternatively, the tutorial can be viewed in a web browser after
+Alternatively, the documentation can be viewed in a web browser after
 running 'make html' in the doc directory.
+
+For another view on Lcapy see https://blog.ouseful.info/2018/08/07/an-easier-approach-to-electrical-circuit-diagram-generation-lcapy/
 
 
 Testing
@@ -183,35 +184,36 @@ Testing
 
 The testsuite can be run using
 
-   $ nosetests3 --pdb
+    $ nosetests3 --pdb
 
 Better still, use the --pdb option to enter the Python debugger on a failure:
 
-   $ nosetests3 --pdb
+    $ nosetests3 --pdb
 
 To check for coverage use:
 
-   $ nosetests3 -with-coverage --cover-package=lcapy --cover-html
+    $ nosetests3 -with-coverage --cover-package=lcapy --cover-html
 
-and then view cover/index.html in a www browser.
+and then view cover/index.html in a web browser.
 
 
 Updates
 -------
 
-Version 0.30.0 tweaks the syntax to perform transformations based on the argument, e.g., V(s) or V(t)
+- Version 0.30.0 tweaks the syntax to perform transformations based on the argument, e.g., V(s) or V(t)
 
-Version 0.28.0 works with Sympy 1.2.
+- Version 0.28.0 works with Sympy 1.2.
 
-Version 0.26.0 adds noise analysis.
+- Version 0.26.0 adds noise analysis.
 
-Version 0.25.1 adds time-domain analysis for circuits without reactive
+- Version 0.25.1 adds time-domain analysis for circuits without reactive
 components.
 
-From version 0.25.0, Lcapy performs more comprehensive circuit
+- From version 0.25.0, Lcapy performs more comprehensive circuit
 analysis using combinations of DC, AC, and Laplace analysis.  This
 added functionality has resulted in a slight change of syntax.
 cct.R1.V no longer prints the s-domain expression but the
 decomposition of a signal into each of the transform domains.
 
-Copyright 2014--2018 Michael Hayes, UCECE
+
+Copyright 2014--2019 Michael Hayes, UCECE
