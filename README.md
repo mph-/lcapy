@@ -1,6 +1,8 @@
 Lcapy is a Python package for linear circuit analysis.  It uses SymPy
 for symbolic mathematics.
 
+[![Travis-CI](https://api.travis-ci.org/mph-/lcapy.svg?branch=master)](https://travis-ci.org/mph-/lcapy)
+
 [![Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/mph-/lcapy/master)
 
 Lcapy can analyse circuits described with netlists or by series/parallel combinations of components.
