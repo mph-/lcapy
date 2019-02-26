@@ -1224,7 +1224,7 @@ class SPDT(StretchyCpt):
 
     @property
     def coords(self):
-        return ((0, 0.1565), (0.59, 0.313), (0.59, 0))
+        return ((0, 0.17), (0.64, 0.34), (0.64, 0))
 
     def draw(self, **kwargs):
 
