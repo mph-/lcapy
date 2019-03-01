@@ -1222,6 +1222,8 @@ class FDOpamp(FixedCpt):
 class SPDT(StretchyCpt):
     """SPDT switch"""
 
+    can_mirror = True
+    
     @property
     def coords(self):
         return ((0, 0.17), (0.64, 0.34), (0.64, 0))
@@ -1234,9 +1236,13 @@ class SPDT(StretchyCpt):
         n1, n2, n3 = self.nodes
 
         centre = n1.pos * 0.5 + (n2.pos + n3.pos) * 0.25
-        s = r'  \draw (%s) node[spdt, %s, rotate=%d] (%s) {};''\n' % (
-            centre, self.args_str, self.angle, self.s)
-        
+        if self.mirror:
+            s = r'  \draw (%s) node[spdt, yscale=-1, %s, rotate=%d] (%s) {};''\n' % (
+                centre, self.args_str, self.angle, self.s)
+        else:
+            s = r'  \draw (%s) node[spdt, %s, rotate=%d] (%s) {};''\n' % (
+                centre, self.args_str, self.angle, self.s)            
+            
         # TODO, fix label position.
         centre = (n1.pos + n3.pos) * 0.5 + Pos(0, -0.5)
         s += self.draw_label(centre, **kwargs)
