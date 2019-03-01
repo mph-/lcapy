@@ -526,7 +526,8 @@ class Schematic(NetfileMixin):
 
             name = node.name
             name = name.split('.')[-1]
-            
+
+            # TODO: allow combinations, e.g., ('pins', 'alpha')
             if label_nodes == 'pins':
                 if not node.pin:
                     continue

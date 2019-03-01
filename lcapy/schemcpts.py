@@ -466,15 +466,20 @@ class Cpt(object):
         return self.opts_str_list(self.label_keys)
 
     @property
-    def args_str(self):
+    def args_list(self):
 
         def fmt(key, val):
             return '%s=%s' % (key, format_label(val))
 
-        return ','.join([fmt(key, val) 
-                         for key, val in self.opts.items()
-                         if key not in self.voltage_keys + self.current_keys + self.flow_keys + self.label_keys + self.misc_keys + self.implicit_keys])
+        keys = self.voltage_keys + self.current_keys + self.flow_keys + self.label_keys + self.misc_keys + self.implicit_keys
+    
+        return [fmt(key, val) for key, val in self.opts.items() if key not in keys]
 
+    @property
+    def args_str(self):
+
+        return ','.join(self.args_list)
+    
     def label(self, **kwargs):
 
         label_values = kwargs.get('label_values', True)
