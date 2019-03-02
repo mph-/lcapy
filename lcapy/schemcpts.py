@@ -735,9 +735,10 @@ class MT(StretchyCpt):
 
         centre = (n1.pos + n2.pos) * 0.5
 
-        s = r'  \draw (%s) node[elmech, %s, rotate=%d] (%s) {%s};''\n' % (
-            centre, self.args_str, self.angle + 90, self.s,
-            self.label(**kwargs))
+        s = r'  \draw (%s) node[elmech, %s, rotate=%d] (%s) {};''\n' % (
+            centre, self.args_str, self.angle + 90, self.s)
+        # Draw label separately, shape border rotate does not seem to work
+        s += self.draw_label(centre, **kwargs)        
         s += r'  \draw (%s) |- (%s.north);''\n' % (n1.s, self.s)
         s += r'  \draw (%s.south) |- (%s);''\n' % (self.s, n2.s)
         s += self.draw_nodes(**kwargs)
