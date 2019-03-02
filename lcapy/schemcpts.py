@@ -717,6 +717,33 @@ class TwoPort(FixedCpt):
         return s
 
 
+class MT(StretchyCpt):
+    """Motor"""
+
+    can_scale = True
+
+    @property
+    def coords(self):
+        return ((-0.5, 0), (0.5, 0))
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        n1, n2 = self.nodes
+
+        centre = (n1.pos + n2.pos) * 0.5
+
+        s = r'  \draw (%s) node[elmech, %s, rotate=%d] (%s) {%s};''\n' % (
+            centre, self.args_str, self.angle + 90, self.s,
+            self.label(**kwargs))
+        s += r'  \draw (%s) |- (%s.north);''\n' % (n1.s, self.s)
+        s += r'  \draw (%s.south) |- (%s);''\n' % (self.s, n2.s)
+        s += self.draw_nodes(**kwargs)
+        return s
+
+    
 class MX(FixedCpt):
     """Mixer"""
 

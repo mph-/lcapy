@@ -44,6 +44,7 @@ L: Lname Np Nm [Value] [IC]; Inductance
 M: Mname Nd Ng Ns [Value]; N channel MOSFET
 Mnmos: Mname Nd Ng Ns nmos [Value]; N channel MOSFET
 Mpmos: Mname Nd Ng Ns pmos [Value]; P channel MOSFET
+MT: MTname Np Nm; Motor
 MX: MXname P P P; Mixer
 O: Oname Np Np [Value]; Open circuit
 P: Pname Np Np [Value]; Port
