@@ -1941,6 +1941,7 @@ def make(classname, parent, name, cpt_type, cpt_id,
     return cpt
 
 # Dynamically create classes.
+defcpt('ADC', OnePort, 'ADC', 'adc')
 defcpt('AM', OnePort, 'Ammeter', 'ammeter')
 
 defcpt('BAT', OnePort, 'Battery', 'battery')
@@ -1948,6 +1949,7 @@ defcpt('BAT', OnePort, 'Battery', 'battery')
 defcpt('C', OnePort, 'Capacitor', 'C')
 
 defcpt('D', OnePort, 'Diode', 'D')
+defcpt('DAC', OnePort, 'DAC', 'dac')
 defcpt('Dled', 'D', 'LED', 'leD')
 defcpt('Dphoto', 'D', 'Photo diode', 'pD')
 defcpt('Dschottky', 'D', 'Schottky diode', 'zD')
