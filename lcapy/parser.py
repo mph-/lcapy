@@ -166,7 +166,7 @@ class Parser(object):
         params = fields[1:]
 
         cpt_type = fields[0][0:-4]
-        
+
         pos = None
         for m, param in enumerate(params):
             if param[0] == '[':
