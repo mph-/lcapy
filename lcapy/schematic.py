@@ -409,14 +409,14 @@ class Schematic(NetfileMixin):
         for node in cpt.required_node_names + cpt.extra_node_names:
             self._node_add(node, cpt)
 
-    def match_nodes(self, node):
-
+    def match_nodes(self, cptname):
+        """Search for all nodes referencing cptname."""
+        
         nodes = set()
-        for nodename, node1 in self.nodes.items():
+        for nodename, node in self.nodes.items():
             fields = nodename.split('.')
-            if len(fields) >= 2 and fields[-2] == node:
-                if fields[-1][0] != '_':
-                    nodes.add(node1)
+            if len(fields) >= 2 and fields[-2] == cptname:
+                nodes.add(node)
         return list(nodes)
             
     def check_nodes(self):
@@ -563,7 +563,6 @@ class Schematic(NetfileMixin):
             s += r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
                 anchor, node.s, node.label.replace('_', r'\_'))
         return s
-
     
     def _assign_pins(self):
 
@@ -576,7 +575,6 @@ class Schematic(NetfileMixin):
                     node1.pin = True
                     continue
 
-                
     def _tikz_draw(self, style_args='', **kwargs):
 
         self._assign_pins()

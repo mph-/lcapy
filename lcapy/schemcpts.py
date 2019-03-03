@@ -606,7 +606,7 @@ class FixedCpt(Cpt):
         if hasattr(self, 'anchors'):
             # Look for centre anchor.
             for node in self.nodes:
-                if node.name.split('.')[-1] == '_mid':
+                if node.name.split('.')[-1] == 'c':
                     return node.pos
         
         N = len(self.nodes)
@@ -1139,15 +1139,12 @@ class Opamp(FixedCpt):
     can_scale = True
     can_mirror = True
 
-    required_anchors = ('_mid', )
+    required_anchors = ('c', )
 
-    # The Nm node is not used (ground).
-    node_map = ('out', '', '+', '-')
-    
     panchors = {'out' : (2.5, 0.0),
-                '+' : (0.0, 0.5),
-                '-' : (0.0, -0.5),
-                '_mid' : (1.25, 0.0),
+                'in+' : (0.0, 0.5),
+                'in-' : (0.0, -0.5),
+                'c' : (1.25, 0.0),
                 'vdd' : (1.25, 0.5),
                 'vdd2' : (0.8, 0.745),
                 'vss2' : (0.8, -0.745),
@@ -1157,9 +1154,9 @@ class Opamp(FixedCpt):
                 'r-' : (0.35, -0.25)}
     
     nanchors = {'out' : (2.5, 0.0),
-                '+' : (0.0, -0.5),
-                '-' : (0.0, 0.5),
-                '_mid' : (1.25, 0.0),
+                'in+' : (0.0, -0.5),
+                'in-' : (0.0, 0.5),
+                'c' : (1.25, 0.0),
                 'vdd' : (1.25, 0.5),
                 'vdd2' : (0.8, 0.745),
                 'vss2' : (0.8, -0.745),
@@ -1167,6 +1164,9 @@ class Opamp(FixedCpt):
                 'ref' : (1.7, -0.255),
                 'r+' : (0.35, 0.25),
                 'r-' : (0.35, -0.25)}
+
+    pinlabels = {'out+' : 'out-', 'out-' : '-', 'in+': '+', 'in-' : '-',
+                 'vdd' : 'VDD', 'vss' : 'VSS'}
 
     @property
     def anchors(self):
@@ -1181,7 +1181,7 @@ class Opamp(FixedCpt):
         if not self.mirror:
             yscale = -yscale
 
-        centre = self.node('_mid')
+        centre = self.node('c')
 
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
@@ -1201,30 +1201,31 @@ class FDOpamp(FixedCpt):
     can_scale = True
     can_mirror = True
 
-    required_anchors = ('_mid', )
+    required_anchors = ('c', )
 
-    node_map = ('out+', 'out-', '+', '-')
-    
     panchors = {'out+' : (2.1, -0.5),
                 'out-' : (2.1, 0.5),                
-                '+' : (0.0, 0.5),
-                '-' : (0.0, -0.5),
-                '_mid' : (1.25, 0.0),
-                'vdd' : (1.0, 0.645),
-                'vss' : (1.0, -0.645),
+                'in+' : (0.0, 0.5),
+                'in-' : (0.0, -0.5),
+                'c' : (1.25, 0.0),
+                'VDD' : (1.0, 0.645),
+                'VSS' : (1.0, -0.645),
                 'r+' : (0.4, 0.25),
                 'r-' : (0.4, -0.25)}
     
     nanchors = {'out+' : (2.1, 0.5),
                 'out-' : (2.1, -0.5),
-                '+' : (0.0, -0.5),
-                '-' : (0.0, 0.5),
-                '_mid' : (1.25, 0.0),
-                'vdd' : (1.0, 0.645),
-                'vss' : (1.0, -0.645),
+                'in+' : (0.0, -0.5),
+                'in-' : (0.0, 0.5),
+                'c' : (1.25, 0.0),
+                'VDD' : (1.0, 0.645),
+                'VSS' : (1.0, -0.645),
                 'r+' : (0.4, 0.25),
                 'r-' : (0.4, -0.25)}
 
+    pinlabels = {'out+' : 'out-', 'out-' : '-', 'in+': '+', 'in-' : '-',
+                 'vdd' : 'VDD', 'vss' : 'VSS'}
+    
     @property
     def anchors(self):
         return self.nanchors if self.mirror else self.panchors
@@ -1234,7 +1235,7 @@ class FDOpamp(FixedCpt):
         if not self.check():
             return ''
 
-        centre = self.node('_mid')
+        centre = self.node('c')
 
         yscale = 2 * 0.952 * self.scale
         if not self.mirror:
@@ -1288,7 +1289,7 @@ class Shape(FixedCpt):
 
     default_aspect = 1.0
     can_mirror = True
-
+    pinlabels = {}
 
     @property
     def width(self):
@@ -1364,9 +1365,8 @@ class Box(Shape):
                'e' : (0.5, 0), 'ene' : (0.5, 0.25),
                'ne' : (0.5, 0.5), 'nne' : (0.25, 0.5),
                'n' : (0, 0.5), 'nnw' : (-0.25, 0.5),
-               'c' : (0.0, 0.0),
-               '_mid' : (0.0, 0.0)}
-    required_anchors = ('_mid', )    
+               'c' : (0.0, 0.0)}
+    required_anchors = ('c', )    
 
 
 class Ellipse(Shape):
@@ -1382,9 +1382,8 @@ class Ellipse(Shape):
                'e' : (0.5, 0), 'ene' : (0.4619, 0.1913),
                'ne' : (0.3536, 0.35365), 'nne' : (0.1913, 0.4619),
                'n' : (0, 0.5), 'nnw' : (-0.1913, 0.4619),
-               'c' : (0.0, 0.0),               
-               '_mid' : (0.0, 0.0)}
-    required_anchors = ('_mid', )
+               'c' : (0.0, 0.0)}
+    required_anchors = ('c', )
 
 
 class Circle(Ellipse):
@@ -1438,9 +1437,8 @@ class Triangle(Shape):
                'ese' : (0.375, -0.2887),
                'ene' : (0.375, -0.075),
                'wnw' : (-0.375, -0.075),                              
-               'c' : (0.0, 0.0),               
-               '_mid' : (0.0, 0.0)}
-    required_anchors = ('_mid', 'c1', 'c2', 'c3')
+               'c' : (0.0, 0.0)}
+    required_anchors = ('c', 'c1', 'c2', 'c3')
 
     def draw(self, **kwargs):
 
@@ -1449,7 +1447,7 @@ class Triangle(Shape):
 
         s = self.draw_path([self.node('c1').pos, self.node('c2').pos,
                             self.node('c3').pos], closed=True, style='thick')
-        s += self.draw_label(self.node('_mid').pos, **kwargs)
+        s += self.draw_label(self.node('c').pos, **kwargs)
 
         return s
 
@@ -1464,7 +1462,7 @@ class Chip(Shape):
     """General purpose chip"""
 
     default_width = 2.0
-    required_anchors = ('_mid', )    
+    required_anchors = ('c', )    
 
     # Could allow can_scale but not a lot of point since nodes
     # will not be on the boundary of the chip.
@@ -1510,14 +1508,25 @@ class Chip(Shape):
         # pins=none        
 
         nodes = self.sch.match_nodes(self.name)
-        
-        pins = self.opts.get('pins', '')
-        if pins in ('', 'none'):
-            dpins = {}
+
+        def pinlabel(nodename):
+
+            fields = nodename.split('.')
+            pinname = fields[-1]
+            
+            try:
+                return self.pinlabel[pinname]
+            except:
+                pass
+            return pinname
+
+        pins = self.opts.get('pins', 'none')
+        if pins == 'none':
+            pinlabels = {}
+        elif pins in ('', 'auto'):
+            pinlabels = self.pinlabels
         elif pins == 'all':
-            dpins = {node.name:node for node in nodes}
-        elif pins == 'auto':
-            dpins = {node.name:node for node in nodes}            
+            pinlabels = {node.name:pinlabel(node.name) for node in nodes}
         else:
             if pins[0] != '{':
                 raise ValueError('Expecting { for pins in %s' % self)
@@ -1525,18 +1534,18 @@ class Chip(Shape):
                 raise ValueError('Expecting } for pins in %s' % self)
             pins = pins[1:-1]
 
-            dpins = {}
+            pinlabels = {}
             for pindef in pins.split(','):
                 fields = pindef.split('=')
                 if len(fields) > 1:
-                    dpins[fields[0]] = fields[1].strip()
+                    pinlabels[fields[0]] = fields[1].strip()
                 else:
-                    dpins[pindef] = pindef
+                    pinlabels[pindef] = pindef
 
         # Determine which pins are referenced.
         nodes = self.sch.match_nodes(self.name)
 
-        centre = self.node('_mid')
+        centre = self.node('c')
         for node in nodes:
             # Determine pin positions
             pos = node.pos
@@ -1549,18 +1558,18 @@ class Chip(Shape):
                 pinpos = 't' if dy > 0 else 'b'                
             node.pinpos = self.pinpos_rotate(pinpos, self.angle)
 
-            if node.name not in dpins:
+            if node.name not in pinlabels:
                 label = ''
             else:
-                label = dpins[node.name].pinname
-                
+                label = pinlabels[node.name]
+
+            # TODO, perhaps use pinlabel to indicate clock?
             node.clock = label != '' and label[0] == '>'
             if node.clock:
                 # Remove clock designator
                 label = label[1:]
 
             node.label = label
-            print(node.name, node.pinname, node.pinpos, node.label)
 
     def draw(self, **kwargs):
 
@@ -1569,7 +1578,7 @@ class Chip(Shape):
 
         self.name_pins()
 
-        centre = self.node('_mid')                
+        centre = self.node('c')                
         q = self.tf(centre.pos, self.path)
         s = self.draw_path(q, closed=True, style='thick')
         s += self.draw_label(centre.s, **kwargs)
@@ -1597,7 +1606,7 @@ class Uchip1310(Chip):
                's' : (0.5, -0.5),
                'se': (0.75, -0.5),
                'e': (1, 0),               
-               '_mid': (0.5, 0)}
+               'c': (0.5, 0)}
 
 
 class Uchip2121(Chip):
@@ -1608,9 +1617,16 @@ class Uchip2121(Chip):
                's' : (0.5, -0.5),
                'se': (1.0, -0.25),
                'ne': (1, 0.25),
-               'n': (0.5, 0.5),                              
-               '_mid': (0.5, 0)}
+               'n': (0.5, 0.5),
+               'in1' : (0, 0.25),
+               'in2' : (0, -0.25),
+               'vss' : (0.5, -0.5),
+               'out2': (1.0, -0.25),
+               'out1': (1, 0.25),
+               'vdd': (0.5, 0.5),
+               'c': (0.5, 0)}
 
+    pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD'}
 
 class Uchip3131(Chip):
     """Chip of size 3 1 3 1"""
@@ -1622,8 +1638,18 @@ class Uchip3131(Chip):
                'se': (0.5, -0.25),
                'e': (0.5, 0),               
                'ne': (0.5, 0.25),
-               'n': (0.0, 0.375),                              
-               '_mid': (0.0, 0.0)}    
+               'n': (0.0, 0.375),
+               'in1' : (-0.5, 0.25),
+               'in2' : (-0.5, 0),               
+               'in3' : (-0.5, -0.25),
+               'vss' : (0.0, -0.375),
+               'out3': (0.5, -0.25),
+               'out2': (0.5, 0),               
+               'out1': (0.5, 0.25),
+               'vdd': (0.0, 0.375),                              
+               'c': (0.0, 0.0)}
+    
+    pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD'}
 
     @property
     def path(self):
@@ -1646,7 +1672,7 @@ class Uchip4141(Chip):
                'ne': (0.5, 0.125),
                'nne': (0.5, 0.375),
                'n': (0.0, 0.5),                                             
-               '_mid': (0.0, 0.0)}        
+               'c': (0.0, 0.0)}        
 
 class Uadc(Chip):
     """ADC"""
@@ -1663,9 +1689,27 @@ class Uadc(Chip):
                'vref+' : (0.5, 0.5),
                'mid' : (0.5, 0)}
 
+    pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+',
+                 'vss': 'VSS', 'vdd' : 'VDD',
+                 'clk' : 'CLK', 'data' : 'DATA', 'fs' : 'FS'}
+
     @property
     def path(self):
         return ((-0.5, 0.0), (-0.25, -0.5), (0.5, -0.5), (0.5, 0.5), (-0.25, 0.5))
+
+    
+class Uregulator(Chip):
+    """Voltage regulator"""
+
+    default_aspect = 4.0 / 3.0
+    anchors = {'in' : (0, 0),
+               'en' : (0.25, -0.5),
+               'vss' : (0.5, -0.5),
+               'out': (1, 0),               
+               'c': (0.5, 0)}
+
+    pinlabels = {'e' : 'E', 'vss' : 'VSS', 'vdd' : 'VDD'}
+    
 
 class Udac(Chip):
     """DAC"""
@@ -1682,6 +1726,10 @@ class Udac(Chip):
                'vref+' : (0.5, 0.5),
                'mid' : (0.5, 0)}
 
+    pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+',
+                 'vss': 'VSS', 'vdd' : 'VDD',
+                 'clk' : 'CLK', 'data' : 'DATA', 'fs' : 'FS'}
+    
     @property
     def path(self):
         return ((-0.5, -0.5), (0.25, -0.5), (0.5, 0), (0.25, 0.5), (-0.5, 0.5))
@@ -1697,7 +1745,9 @@ class Udiffamp(Chip):
                'vss' : (0, -0.25),
                'out' : (0.5, 0),
                'vdd' : (0, 0.25),
-               '_mid' : (0, 0)}
+               'c' : (0, 0)}
+
+    pinlabels = {'in+' : '+', 'in+' : '-', 'vss' : 'VSS', 'vdd' : 'VDD'}
 
     @property
     def path(self):
@@ -1713,7 +1763,10 @@ class Ubuffer(Chip):
                'vss' : (0.5, -0.25),
                'out' : (1.0, 0),
                'vdd': (0.5, 0.25),
-               '_mid': (0.5, 0)}
+               'en': (0.25, 0.375),
+               'c': (0.5, 0)}
+
+    pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD', 'en' : 'E'}
 
     @property
     def path(self):
@@ -1729,7 +1782,10 @@ class Uinverter(Chip):
                'vss' : (0.5, -0.22),
                'out' : (1.0, 0),
                'vdd': (0.5, 0.22),
-               '_mid': (0.5, 0)}
+               'en': (0.25, 0.37),
+               'c': (0.5, 0)}
+    
+    pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD', 'en' : 'E'}
 
     @property
     def path(self):
@@ -1741,7 +1797,7 @@ class Uinverter(Chip):
         s = super(Uinverter, self).draw(**kwargs)
 
         # Append inverting circle.
-        centre = self.node('_mid')                
+        centre = self.node('c')                
         q = self.tf(centre.pos, ((0.45, 0)))
         s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (
             q, 1.8 * self.size * self.scale)
