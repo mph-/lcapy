@@ -74,20 +74,20 @@ TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value]; Tapped transformer with c
 TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 TR: TRname Pi Po [Value]; Transfer function
-Ubuffer: Uname buffer Pi PVss Po PVdd; Buffer with power supplies
-Uinverter: Uname inverter Pi PVss Po PVdd; Inverter with power supplies
-Udiffamp: Uname diffamp P P P P P; Differential amplifier
-Uadc: Uname adc P P P P P P P P; ADC
-Udac: Uname dac P P P P P P P P; DAC
-Ubox: Uname box P P; Box
-Ucircle: Uname circle P P; Circle
-Ubox4: Uname box4 P P P P; Box
-Ubox12: Uname box12 P P P P P P P P P P P P; Box
-Ucircle4: Uname circle4 P P P P; Circle
-Uchip1310: Uname chip1310 P P P P P; Chip
-Uchip2121: Uname chip2121 P P P P P P; Chip
-Uchip3131: Uname chip3131 P P P P P P P P; Chip
-Uchip4141: Uname chip4141 P P P P P P P P P P; Chip
+Ubuffer: Uname buffer; Buffer with power supplies
+Uinverter: Uname inverter; Inverter with power supplies
+Udiffamp: Uname diffamp; Differential amplifier
+Uadc: Uname adc; ADC
+Udac: Uname dac; DAC
+Ubox: Uname box; Box
+Ucircle: Uname circle; Circle
+Ubox4: Uname box4; Box
+Ubox12: Uname box12; Box
+Ucircle4: Uname circle4; Circle
+Uchip1310: Uname chip1310; Chip
+Uchip2121: Uname chip2121; Chip
+Uchip3131: Uname chip3131; Chip
+Uchip4141: Uname chip4141; Chip
 V: Vname Np Nm [Value]; Voltage source
 sV: Vname Np Nm s [Value]; s-domain voltage source
 Vdc: Vname Np Nm dc [Value]; DC voltage source

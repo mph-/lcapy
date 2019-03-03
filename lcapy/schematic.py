@@ -155,6 +155,7 @@ class Node(object):
         self.pos = 'unknown'
         self.pinpos = None
         self.pin = False
+        self.clock = False        
         # Sanitised name
         self.s = name.replace('.', '@')
         self.label = name
@@ -217,7 +218,11 @@ class Node(object):
 
         return self._port or self.count == 1
 
-
+    @property
+    def pinname(self):
+        fields = self.name.split('.')
+        return fields[-1]
+    
 class Schematic(NetfileMixin):
 
     def __init__(self, filename=None, **kwargs):
@@ -281,9 +286,6 @@ class Schematic(NetfileMixin):
         self.nodes[node].append(elt)
 
         vnode = self.nodes[node].rootname
-
-        if elt.type in ('U', 'MX', 'S', 'SP', 'TP', 'TR'):
-            self.nodes[node].pin = True
 
         if vnode not in self.snodes:
             self.snodes[vnode] = []
@@ -407,6 +409,16 @@ class Schematic(NetfileMixin):
         for node in cpt.required_node_names + cpt.extra_node_names:
             self._node_add(node, cpt)
 
+    def match_nodes(self, node):
+
+        nodes = set()
+        for nodename, node1 in self.nodes.items():
+            fields = nodename.split('.')
+            if len(fields) >= 2 and fields[-2] == node:
+                if fields[-1][0] != '_':
+                    nodes.add(node1)
+        return list(nodes)
+            
     def check_nodes(self):
 
         def check_explicit_node(node):
@@ -552,8 +564,23 @@ class Schematic(NetfileMixin):
                 anchor, node.s, node.label.replace('_', r'\_'))
         return s
 
+    
+    def _assign_pins(self):
+
+        for nodename, node1 in self.nodes.items():        
+            fields = nodename.split('.')
+            if len(fields) < 2:
+                continue
+            for elt_type in ('U', 'MX', 'S', 'SP', 'TP', 'TR'):
+                if fields[-2].startswith(elt_type):
+                    node1.pin = True
+                    continue
+
+                
     def _tikz_draw(self, style_args='', **kwargs):
 
+        self._assign_pins()
+        
         self._positions_calculate()
 
         # Note, scale does not scale the font size.
