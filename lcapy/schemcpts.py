@@ -1575,7 +1575,7 @@ class Chip(Shape):
 
         if not self.check():
             return ''
-
+        import pdb; pdb.set_trace()
         self.name_pins()
 
         centre = self.node('c')                
