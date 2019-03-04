@@ -30,10 +30,14 @@ module = sys.modules[__name__]
 
 # There are two paradigms used for specifying node coordinates:
 #
-# 1.  The old model.  required_node_names returns subset of
+# 1.  The old model.  The required_node_names method returns subset of
 # explicit_node_names as a list.
 #
-# 2.  The new model.  node_map specifies the subset of required nodes.
+# 2.  The new model.  The node_anchors attribute specifies the subset of
+# required nodes.  It is a list of anchor point names that are used to
+# find the anchor coordinates and thus the node coordinated.  Note,
+# some components to do not have any explicit nodes (shapes, chips,
+# etc).
 
 
 class Cpt(object):
@@ -57,7 +61,8 @@ class Cpt(object):
     can_stretch = True
     default_width = 1.0
     default_aspect = 1.0
-    node_map = ()
+    # node_anchors maps node numbers to anchor names
+    node_anchors = ()
     required_anchors = ()
     anchors = {}
 
@@ -239,12 +244,12 @@ class Cpt(object):
 
         # Old model.   The number of node names in the list
         # must match the number of entries in coords.
-        if self.node_map == ():
+        if self.node_anchors == ():
             return self.explicit_node_names
 
         # New model.
         node_names = []
-        for anchor, node_name in zip(self.node_map, self.explicit_node_names):
+        for anchor, node_name in zip(self.node_anchors, self.explicit_node_names):
             if anchor != '':
                 node_names.append(node_name)
         return tuple(node_names)
@@ -252,8 +257,8 @@ class Cpt(object):
     def node(self, anchor):
         """Return node by anchor"""
 
-        if anchor in self.node_map:
-            index = self.node_map.index(anchor)
+        if anchor in self.node_anchors:
+            index = self.node_anchors.index(anchor)
             node_name = self.explicit_node_names[index]
         else:
             node_name = self.name + '.' + anchor
@@ -294,7 +299,7 @@ class Cpt(object):
             node_name = node.name
             if node_name in self.explicit_node_names:
                 index = self.explicit_node_names.index(node_name)
-                anchor = self.node_map[index]
+                anchor = self.node_anchors[index]
             elif node_name in self.sch.nodes:
                 anchor = node_name.split('.')[-1]
             else:
@@ -664,17 +669,17 @@ class Transistor(FixedCpt):
 
 
 class JFET(Transistor):
-    """Transistor"""
+    """JFET"""
 
-    #node_map = ('c', 'b', 'e')
+    # ('c', 'b', 'e')
     npos = ((1, 1.5), (0, 0.48), (1, 0))
     ppos = ((1, 0), (0, 1.02), (1, 1.5))
 
 
 class MOSFET(Transistor):
-    """Transistor"""
+    """MOSFET"""
 
-    #node_map = ('d', 'g', 's')    
+    # ('d', 'g', 's')    
     npos = ((0.85, 1.64), (-0.25, 0.82), (0.85, 0))
     ppos = ((0.85, 0), (-0.25, 0.82), (0.85, 1.64))
 
@@ -1141,6 +1146,9 @@ class Opamp(FixedCpt):
 
     required_anchors = ('c', )
 
+    # The Nm node is not used (ground).
+    node_anchors = ('out', '', 'in+', 'in-')
+    
     panchors = {'out' : (2.5, 0.0),
                 'in+' : (0.0, 0.5),
                 'in-' : (0.0, -0.5),
@@ -1189,8 +1197,8 @@ class Opamp(FixedCpt):
             self.args_str, 2 * self.scale * 0.95, yscale,
             -self.angle, self.s)
         s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, self.node('out').s)
-        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('+').s)
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('-').s)
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('in+').s)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)
         s += self.draw_label(centre.s, **kwargs)
         s += self.draw_nodes(**kwargs)
         return s
@@ -1203,6 +1211,7 @@ class FDOpamp(FixedCpt):
 
     required_anchors = ('c', )
 
+    node_anchors = ('out+', 'out-', 'in+', 'in-')
     panchors = {'out+' : (2.1, -0.5),
                 'out-' : (2.1, 0.5),                
                 'in+' : (0.0, 0.5),
@@ -1246,8 +1255,8 @@ class FDOpamp(FixedCpt):
             -self.angle, self.s)
         s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, self.node('out+').s)
         s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, self.node('out-').s)
-        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('+').s)
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('-').s)
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('in+').s)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)
         s += self.draw_label(centre.s, **kwargs)
         s += self.draw_nodes(**kwargs)
         return s
