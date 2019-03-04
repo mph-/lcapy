@@ -63,6 +63,7 @@ class Cpt(object):
     default_aspect = 1.0
     # node_anchors maps node numbers to anchor names
     node_anchors = ()
+    # these are the anchors required by lcapy, usually to find the centre
     required_anchors = ()
     anchors = {}
 
@@ -1145,7 +1146,6 @@ class Opamp(FixedCpt):
     can_mirror = True
 
     required_anchors = ('c', )
-
     # The Nm node is not used (ground).
     node_anchors = ('out', '', 'in+', 'in-')
     
@@ -1210,8 +1210,8 @@ class FDOpamp(FixedCpt):
     can_mirror = True
 
     required_anchors = ('c', )
-
     node_anchors = ('out+', 'out-', 'in+', 'in-')
+
     panchors = {'out+' : (2.1, -0.5),
                 'out-' : (2.1, 0.5),                
                 'in+' : (0.0, 0.5),
@@ -1516,8 +1516,6 @@ class Chip(Shape):
         # pins=all  show all pins
         # pins=none show no pins       
 
-        nodes = self.sch.match_nodes(self.name)
-
         def pinlabel(nodename):
 
             fields = nodename.split('.')
@@ -1529,6 +1527,9 @@ class Chip(Shape):
                 pass
             return pinname
 
+        # Determine which pins are referenced.
+        nodes = self.sch.match_nodes(self.name)
+        
         pins = self.opts.get('pins', 'none')
         if pins == 'none':
             pinlabels = {}
@@ -1549,9 +1550,6 @@ class Chip(Shape):
                     pinlabels[fields[0].strip()] = fields[1].strip()
                 else:
                     pinlabels[pindef] = pindef
-
-        # Determine which pins are referenced.
-        nodes = self.sch.match_nodes(self.name)
 
         centre = self.node('c')
         for node in nodes:
