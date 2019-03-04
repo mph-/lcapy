@@ -1149,7 +1149,7 @@ class CCS(OnePort):
         return self.node_names[0:2]    
 
 
-class Opamp(FixedCpt):
+class Opamp(Shape):
 
     can_scale = True
     can_mirror = True
@@ -1212,7 +1212,7 @@ class Opamp(FixedCpt):
         return s
 
 
-class FDOpamp(FixedCpt):
+class FDOpamp(Shape):
 
     can_scale = True
     can_mirror = True
