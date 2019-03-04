@@ -1501,11 +1501,11 @@ class Chip(Shape):
 
     def name_pins(self):
 
-        # pins=     show only referenced pins without leading _
-        # pins=auto
-        # pins={pin1, pin2, ...}
-        # pins=all
-        # pins=none        
+        # pins=     show only pins with defined pinlabels
+        # pins=auto show only pins with defined pinlabels
+        # pins={pin1, pin2, ...} show specified pins
+        # pins=all  show all pins
+        # pins=none show no pins       
 
         nodes = self.sch.match_nodes(self.name)
 
@@ -1704,11 +1704,11 @@ class Uregulator(Chip):
     default_aspect = 4.0 / 3.0
     anchors = {'in' : (0, 0),
                'en' : (0.25, -0.5),
-               'vss' : (0.5, -0.5),
+               'gnd' : (0.5, -0.5),               
                'out': (1, 0),               
                'c': (0.5, 0)}
 
-    pinlabels = {'e' : 'E', 'vss' : 'VSS', 'vdd' : 'VDD'}
+    pinlabels = {'en' : 'E', 'gnd' : 'GND'}
     
 
 class Udac(Chip):

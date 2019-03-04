@@ -587,9 +587,16 @@ class Schematic(NetfileMixin):
         self._positions_calculate()
 
         # Note, scale does not scale the font size.
-        opts = r'scale=%.2f,transform shape,/tikz/circuitikz/bipoles/length=%.2fcm,%s' % (
-            self.scale, self.cpt_size, style_args)
-        s = r'\begin{tikzpicture}[%s]''\n' % opts
+        opts = ['scale=%.2f' % self.scale,
+                'transform shape',
+                '/tikz/circuitikz/bipoles/length=%.2fcm' % self.cpt_size]
+        opts.append(style_args)
+
+        if 'font' in kwargs:
+            font = kwargs.pop('font')            
+            opts.append('font=' + font)
+        
+        s = r'\begin{tikzpicture}[%s]''\n' % ', '.join(opts)
 
         help = float(kwargs.pop('help_lines', 0))
         color = kwargs.pop('color', 'blue')
