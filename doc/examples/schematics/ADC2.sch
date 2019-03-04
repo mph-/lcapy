@@ -1,2 +1,2 @@
-U1 adc .in .vref .vss .clk .data .fs .vdd .misc; left, pins=auto, mirror
+U1 adc; left, pins, mirror
 ; help_lines=1

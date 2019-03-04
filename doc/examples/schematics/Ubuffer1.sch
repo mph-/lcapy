@@ -1,2 +1,2 @@
-U1 buffer 1 VSS 2 VDD; right
+U1 buffer; right
 ; help_lines=1

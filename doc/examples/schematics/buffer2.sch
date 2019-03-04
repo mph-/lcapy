@@ -1,1 +1,1 @@
-U1 buffer .in .VSS .out .VDD; down, pins=auto
+U1 buffer; down, pins

@@ -1,2 +1,2 @@
-U1 chip4141 1 2 3 4 Vss 5 PIO1 PIO2 8 Vdd; right
+U1 chip4141; right, pins={out1=PIO1,out4=PIO2}
 ; draw_nodes=all, help_lines=1

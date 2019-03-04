@@ -1,2 +1,2 @@
-U1 diffamp .inp .inm .VSS .out .VDD; right, pins={$+$, $-$, a, b, c}
+U1 diffamp; right, pins
 ; help_lines=1
