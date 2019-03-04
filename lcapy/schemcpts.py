@@ -1533,12 +1533,11 @@ class Chip(Shape):
             if pins[-1] != '}':
                 raise ValueError('Expecting } for pins in %s' % self)
             pins = pins[1:-1]
-
             pinlabels = {}
             for pindef in pins.split(','):
                 fields = pindef.split('=')
                 if len(fields) > 1:
-                    pinlabels[fields[0]] = fields[1].strip()
+                    pinlabels[fields[0].strip()] = fields[1].strip()
                 else:
                     pinlabels[pindef] = pindef
 
@@ -1558,10 +1557,11 @@ class Chip(Shape):
                 pinpos = 't' if dy > 0 else 'b'                
             node.pinpos = self.pinpos_rotate(pinpos, self.angle)
 
-            if node.name not in pinlabels:
+            pinname = node.pinname
+            if pinname not in pinlabels:
                 label = ''
             else:
-                label = pinlabels[node.name]
+                label = pinlabels[pinname]
 
             # TODO, perhaps use pinlabel to indicate clock?
             node.clock = label != '' and label[0] == '>'
@@ -1575,7 +1575,7 @@ class Chip(Shape):
 
         if not self.check():
             return ''
-        import pdb; pdb.set_trace()
+
         self.name_pins()
 
         centre = self.node('c')                
@@ -1687,7 +1687,7 @@ class Uadc(Chip):
                'fs' : (1, 0.25),
                'vdd' : (0.75, 0.5),
                'vref+' : (0.5, 0.5),
-               'mid' : (0.5, 0)}
+               'c' : (0.5, 0)}
 
     pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+',
                  'vss': 'VSS', 'vdd' : 'VDD',
@@ -1724,7 +1724,7 @@ class Udac(Chip):
                'fs' : (0, 0.25),
                'vdd' : (0.25, 0.5),
                'vref+' : (0.5, 0.5),
-               'mid' : (0.5, 0)}
+               'c' : (0.5, 0)}
 
     pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+',
                  'vss': 'VSS', 'vdd' : 'VDD',

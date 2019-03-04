@@ -77,6 +77,7 @@ TR: TRname Pi Po [Value]; Transfer function
 Ubuffer: Uname buffer; Buffer with power supplies
 Uinverter: Uname inverter; Inverter with power supplies
 Udiffamp: Uname diffamp; Differential amplifier
+Uregulator: Uname regulator; Voltage regulator
 Uadc: Uname adc; ADC
 Udac: Uname dac; DAC
 Ubox: Uname box; Box
@@ -128,6 +129,7 @@ tap: keyword;
 tapcore: keyword;
 opamp: keyword;
 fdopamp: keyword;
+regulator: keyword;
 buffer: keyword;
 pbuffer: keyword;
 pinverter: keyword;

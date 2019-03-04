@@ -159,6 +159,11 @@ class Node(object):
         # Sanitised name
         self.s = name.replace('.', '@')
         self.label = name
+
+    #property
+    def pinname(self):
+        fields = self.name.split('.')
+        return fields[-1]
         
     def __repr__(self):
         return '%s @ (%s)' % (self.name, self.pos)
@@ -417,7 +422,7 @@ class Schematic(NetfileMixin):
             fields = nodename.split('.')
             if len(fields) >= 2 and fields[-2] == cptname:
                 nodes.add(node)
-        return list(nodes)
+        return sorted(list(nodes), key=lambda node:node.name)
             
     def check_nodes(self):
 
