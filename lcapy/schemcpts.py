@@ -31,11 +31,11 @@ module = sys.modules[__name__]
 # There are two paradigms used for specifying node coordinates:
 #
 # 1.  The old model.  The required_node_names method returns subset of
-# explicit_node_names as a list.
+# node_names as a list.
 #
 # 2.  The new model.  The node_anchors attribute specifies the subset of
 # required nodes.  It is a list of anchor point names that are used to
-# find the anchor coordinates and thus the node coordinated.  Note,
+# find the anchor coordinates and thus the node coordinates.  Note,
 # some components to do not have any explicit nodes (shapes, chips,
 # etc).
 
@@ -89,20 +89,27 @@ class Cpt(object):
         # Drawing hints
         self.opts = Opts(opts_string)
 
-        self.explicit_node_names = node_names
+        # The ordering of this list is important.
+        self.node_names = node_names
 
-        extra_node_names = []
+        # Auxiliary nodes are used by lcapy, usually for finding
+        # the centre of the shape.
+        auxiliary_node_names = []
         for anchor in self.required_anchors:
-            extra_node_names.append(name + '.' + anchor)
-        self.extra_node_names = tuple(extra_node_names)
-        
+            node_name = name + '.' + anchor
+            auxiliary_node_names.append(node_name)
+
+        self.auxiliary_node_names = tuple(auxiliary_node_names)
+
         anchor_node_names = []
         for anchor in self.anchors.keys():
-            anchor_node_names.append(name + '.' + anchor)
-        self.anchor_node_names = tuple(anchor_node_names)
+            node_name = name + '.' + anchor
+            anchor_node_names.append(node_name)
+        
+        self.all_node_names = tuple(list(self.required_node_names) +
+                                    auxiliary_node_names + anchor_node_names)
 
-        self.node_names = self.required_node_names + self.anchor_node_names
-
+        
     def __repr__(self):
         return self.__str__()
 
@@ -241,16 +248,18 @@ class Cpt(object):
 
     @property
     def required_node_names(self):
-        """Subset of explicit_node_names"""
+        """Subset of node_names.  This filters out nodes that are not
+        drawn.  For example, the ground node of an Eopamp is not drawn."""
 
         # Old model.   The number of node names in the list
         # must match the number of entries in coords.
         if self.node_anchors == ():
-            return self.explicit_node_names
+            return self.node_names
 
-        # New model.
+        # New model.  The node_anchors tuple specifies the required
+        # nodes.
         node_names = []
-        for anchor, node_name in zip(self.node_anchors, self.explicit_node_names):
+        for anchor, node_name in zip(self.node_anchors, self.node_names):
             if anchor != '':
                 node_names.append(node_name)
         return tuple(node_names)
@@ -260,7 +269,7 @@ class Cpt(object):
 
         if anchor in self.node_anchors:
             index = self.node_anchors.index(anchor)
-            node_name = self.explicit_node_names[index]
+            node_name = self.node_names[index]
         else:
             node_name = self.name + '.' + anchor
         for node in self.nodes:
@@ -277,7 +286,7 @@ class Cpt(object):
 
         # Perhaps determine coords here as well and cache them?
         
-        node_names = self.required_node_names + self.extra_node_names + self.anchor_node_names
+        node_names = self.all_node_names
         
         rnodes = []
         for n in node_names:
@@ -298,8 +307,8 @@ class Cpt(object):
         rcoords = []
         for node in self.nodes:
             node_name = node.name
-            if node_name in self.explicit_node_names:
-                index = self.explicit_node_names.index(node_name)
+            if node_name in self.node_names:
+                index = self.node_names.index(node_name)
                 anchor = self.node_anchors[index]
             elif node_name in self.sch.nodes:
                 anchor = node_name.split('.')[-1]
@@ -1129,7 +1138,7 @@ class VCS(OnePort):
 
     @property
     def required_node_names(self):
-        return self.explicit_node_names[0:2]
+        return self.node_names[0:2]
 
 
 class CCS(OnePort):
@@ -1137,7 +1146,7 @@ class CCS(OnePort):
 
     @property
     def required_node_names(self):
-        return self.explicit_node_names[0:2]    
+        return self.node_names[0:2]    
 
 
 class Opamp(FixedCpt):
@@ -1217,8 +1226,8 @@ class FDOpamp(FixedCpt):
                 'in+' : (0.0, 0.5),
                 'in-' : (0.0, -0.5),
                 'c' : (1.25, 0.0),
-                'VDD' : (1.0, 0.645),
-                'VSS' : (1.0, -0.645),
+                'vdd' : (1.0, 0.645),
+                'vss' : (1.0, -0.645),
                 'r+' : (0.4, 0.25),
                 'r-' : (0.4, -0.25)}
     
@@ -1227,8 +1236,8 @@ class FDOpamp(FixedCpt):
                 'in+' : (0.0, -0.5),
                 'in-' : (0.0, 0.5),
                 'c' : (1.25, 0.0),
-                'VDD' : (1.0, 0.645),
-                'VSS' : (1.0, -0.645),
+                'vdd' : (1.0, 0.645),
+                'vss' : (1.0, -0.645),
                 'r+' : (0.4, 0.25),
                 'r-' : (0.4, -0.25)}
 
@@ -1678,7 +1687,17 @@ class Uchip4141(Chip):
                'se': (0.5, -0.125),               
                'ne': (0.5, 0.125),
                'nne': (0.5, 0.375),
-               'n': (0.0, 0.5),                                             
+               'n': (0.0, 0.5),
+               'in1' : (-0.5, 0.375),
+               'in2' : (-0.5, 0.125),
+               'in3' : (-0.5, -0.125),               
+               'in4' : (-0.5, -0.375),
+               'vss' : (0.0, -0.5),
+               'out4': (0.5, -0.375),
+               'out3': (0.5, -0.125),               
+               'out2': (0.5, 0.125),
+               'out1': (0.5, 0.375),
+               'vdd': (0.0, 0.5),
                'c': (0.0, 0.0)}        
 
 class Uadc(Chip):

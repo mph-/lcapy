@@ -155,7 +155,8 @@ class Node(object):
         self.pos = 'unknown'
         self.pinpos = None
         self.pin = False
-        self.clock = False        
+        self.clock = False
+        self.auxiliary = False
         # Sanitised name
         self.s = name.replace('.', '@')
         self.label = name
@@ -190,6 +191,9 @@ class Node(object):
         `draw_nodes' can be `all', 'none', 'connections', 'primary', None,
         True, or False."""
 
+        if self.auxiliary:
+            return False
+        
         if draw_nodes in ('all', True):
             return True
 
@@ -284,11 +288,16 @@ class Schematic(NetfileMixin):
             if hasattr(self, attr):
                 delattr(self, attr)
 
-    def _node_add(self, node, elt):
+    def _node_add(self, node, elt, auxiliary=False):
 
         if node not in self.nodes:
             self.nodes[node] = Node(node)
         self.nodes[node].append(elt)
+
+        # Not explicit nodes are required for lcapy housekeeping
+        # They can be made explicit
+        if auxiliary:
+            self.nodes[node].auxiliary = True
 
         vnode = self.nodes[node].rootname
 
@@ -411,8 +420,12 @@ class Schematic(NetfileMixin):
 
         self.elements[cpt.name] = cpt
 
-        for node in cpt.required_node_names + cpt.extra_node_names:
-            self._node_add(node, cpt)
+        for node in cpt.auxiliary_node_names:
+            self._node_add(node, cpt, auxiliary=True)
+
+        # Note, an auxiliary node can be trumped...
+        for node in cpt.required_node_names:
+            self._node_add(node, cpt, auxiliary=False)
 
     def match_nodes(self, cptname):
         """Search for all nodes referencing cptname."""
@@ -426,18 +439,22 @@ class Schematic(NetfileMixin):
             
     def check_nodes(self):
 
-        def check_explicit_node(node):
+        def check_node(node):
 
             node_name = node.name            
             for elt in node.elt_list:
-                if node_name in elt.explicit_node_names:
+                if node_name in elt.required_node_names:
                     return True
+                if node_name in elt.auxiliary_node_names:
+                    return True                
             return False
         
         for node in self.nodes.values():
-            if check_explicit_node(node):
+            if check_node(node):
                 continue
-            
+
+            # We get here if a node has the wrong name.   This
+            # is to notify the user that there is something wrong.
             node_name = node.name
             if '.' not in node_name:
                 # Something is wrong...
@@ -540,6 +557,9 @@ class Schematic(NetfileMixin):
             return s
 
         for m, node in enumerate(self.nodes.values()):
+
+            if node.auxiliary:
+                continue
 
             name = node.name
             name = name.split('.')[-1]
