@@ -1149,126 +1149,6 @@ class CCS(OnePort):
         return self.node_names[0:2]    
 
 
-class Opamp(Shape):
-
-    can_scale = True
-    can_mirror = True
-
-    # The Nm node is not used (ground).
-    node_anchors = ('out', '', 'in+', 'in-')
-    
-    panchors = {'out' : (2.5, 0.0),
-                'in+' : (0.0, 0.5),
-                'in-' : (0.0, -0.5),
-                'mid' : (1.25, 0.0),
-                'vdd' : (1.25, 0.5),
-                'vdd2' : (0.8, 0.745),
-                'vss2' : (0.8, -0.745),
-                'vss' : (1.25, -0.5),
-                'ref' : (1.7, -0.255),
-                'r+' : (0.35, 0.25),
-                'r-' : (0.35, -0.25)}
-    
-    nanchors = {'out' : (2.5, 0.0),
-                'in+' : (0.0, -0.5),
-                'in-' : (0.0, 0.5),
-                'mid' : (1.25, 0.0),
-                'vdd' : (1.25, 0.5),
-                'vdd2' : (0.8, 0.745),
-                'vss2' : (0.8, -0.745),
-                'vss' : (1.25, -0.5),
-                'ref' : (1.7, -0.255),
-                'r+' : (0.35, 0.25),
-                'r-' : (0.35, -0.25)}
-
-    pinlabels = {'out+' : 'out-', 'out-' : '-', 'in+': '+', 'in-' : '-',
-                 'vdd' : 'VDD', 'vss' : 'VSS'}
-
-    @property
-    def anchors(self):
-        return self.nanchors if self.mirror else self.panchors
-    
-    def draw(self, **kwargs):
-
-        if not self.check():
-            return ''
-
-        yscale = 2 * 0.95 * self.scale        
-        if not self.mirror:
-            yscale = -yscale
-
-        centre = self.node('mid')
-
-        # Note, scale scales by area, xscale and yscale scale by length.
-        s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            centre.s,
-            self.args_str, 2 * self.scale * 0.95, yscale,
-            -self.angle, self.s)
-        s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, self.node('out').s)
-        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('in+').s)
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)
-        s += self.draw_label(centre.s, **kwargs)
-        s += self.draw_nodes(**kwargs)
-        return s
-
-
-class FDOpamp(Shape):
-
-    can_scale = True
-    can_mirror = True
-
-    node_anchors = ('out+', 'out-', 'in+', 'in-')
-
-    panchors = {'out+' : (2.1, -0.5),
-                'out-' : (2.1, 0.5),                
-                'in+' : (0.0, 0.5),
-                'in-' : (0.0, -0.5),
-                'mid' : (1.25, 0.0),
-                'vdd' : (1.0, 0.645),
-                'vss' : (1.0, -0.645),
-                'r+' : (0.4, 0.25),
-                'r-' : (0.4, -0.25)}
-    
-    nanchors = {'out+' : (2.1, 0.5),
-                'out-' : (2.1, -0.5),
-                'in+' : (0.0, -0.5),
-                'in-' : (0.0, 0.5),
-                'mid' : (1.25, 0.0),
-                'vdd' : (1.0, 0.645),
-                'vss' : (1.0, -0.645),
-                'r+' : (0.4, 0.25),
-                'r-' : (0.4, -0.25)}
-
-    pinlabels = {'out+' : 'out-', 'out-' : '-', 'in+': '+', 'in-' : '-',
-                 'vdd' : 'VDD', 'vss' : 'VSS'}
-    
-    @property
-    def anchors(self):
-        return self.nanchors if self.mirror else self.panchors
-    
-    def draw(self, **kwargs):
-
-        if not self.check():
-            return ''
-
-        centre = self.node('mid')
-
-        yscale = 2 * 0.952 * self.scale
-        if not self.mirror:
-            yscale = -yscale
-
-        s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            centre.s, self.args_str, 2 * self.scale * 0.95, yscale,
-            -self.angle, self.s)
-        s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, self.node('out+').s)
-        s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, self.node('out-').s)
-        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('in+').s)
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)
-        s += self.draw_label(centre.s, **kwargs)
-        s += self.draw_nodes(**kwargs)
-        return s
-
-
 class SPDT(StretchyCpt):
     """SPDT switch"""
 
@@ -1435,33 +1315,39 @@ class Box2(Shape):
     """Square box,  A rectangle is created by defining aspect."""
 
     shape = 'rectangle'
+    anchors = {'w' : (-0.5, 0),
+               'e' : (0.5, 0),
+               'mid' : (0, 0)}
 
-    @property
-    def coords(self):
-        return ((-0.5, 0), (0.5, 0))
-
-
+    
 class Box4(Shape):
     """Box4"""
 
     shape = 'rectangle'
-
-    @property
-    def coords(self):
-        return ((-0.5, 0), (0, -0.5), (0.5, 0), (0, 0.5))
+    anchors = {'w' : (-0.5, 0),
+               's' : (0, -0.5),
+               'e' : (0.5, 0),
+               'n' : (0, 0.5),
+               'mid' : (0, 0)}
 
 
 class Box12(Shape):
     """Box12"""
 
     shape = 'rectangle'
-
-    @property
-    def coords(self):
-        return ((-0.5, 0.25), (-0.5, 0), (-0.5, -0.25),
-                (-0.25, -0.5), (0, -0.5), (0.25, -0.5),
-                (0.5, -0.25), (0.5, 0), (0.5, 0.25),
-                (0.25, 0.5), (0, 0.5), (-0.25, 0.5))
+    anchors = {'wnw' : (-0.5, 0.25),
+               'w' : (-0.5, 0),
+               'wsw' : (-0.5, -0.25),
+               'ssw' : (-0.25, -0.5),                              
+               's' : (0, -0.5),
+               'sse' : (0.25, -0.5),
+               'ese' : (0.5, -0.25),                              
+               'e' : (0.5, 0),
+               'ene' : (0.5, 0.25),
+               'nne' : (0.25, 0.5),
+               'n' : (0, 0.5),
+               'nnw' : (-0.25, 0.5),               
+               'mid' : (0, 0)}    
 
 
 class Box(Shape):
@@ -1506,20 +1392,20 @@ class Circle2(Shape):
     """Circle"""
 
     shape = 'circle'
-
-    @property
-    def coords(self):
-        return ((-0.5, 0), (0.5, 0))
-
+    anchors = {'w' : (-0.5, 0),
+               'e' : (0.5, 0),
+               'mid' : (0, 0)}
+    
 
 class Circle4(Shape):
     """Circle4"""
 
     shape = 'circle'
-
-    @property
-    def coords(self):
-        return ((-0.5, 0), (0, -0.5), (0.5, 0), (0, 0.5))
+    anchors = {'w' : (-0.5, 0),
+               's' : (0, -0.5),
+               'e' : (0.5, 0),
+               'n' : (0, 0.5),
+               'mid' : (0, 0)}
 
 
 class Triangle(Shape):
@@ -1567,6 +1453,7 @@ class TR(Box2):
 
     default_width = 1.5
     default_aspect = 1.5
+    node_anchors = ('w', 'e')    
 
 
 class Chip(Shape):
@@ -1827,7 +1714,126 @@ class Uinverter(Chip):
         s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (
             q, 1.8 * self.size * self.scale)
         return s
+
+class Opamp(Chip):
+
+    can_scale = True
+    can_mirror = True
+
+    # The Nm node is not used (ground).
+    node_anchors = ('out', '', 'in+', 'in-')
     
+    panchors = {'out' : (2.5, 0.0),
+                'in+' : (0.0, 0.5),
+                'in-' : (0.0, -0.5),
+                'mid' : (1.25, 0.0),
+                'vdd' : (1.25, 0.5),
+                'vdd2' : (0.8, 0.745),
+                'vss2' : (0.8, -0.745),
+                'vss' : (1.25, -0.5),
+                'ref' : (1.7, -0.255),
+                'r+' : (0.35, 0.25),
+                'r-' : (0.35, -0.25)}
+    
+    nanchors = {'out' : (2.5, 0.0),
+                'in+' : (0.0, -0.5),
+                'in-' : (0.0, 0.5),
+                'mid' : (1.25, 0.0),
+                'vdd' : (1.25, 0.5),
+                'vdd2' : (0.8, 0.745),
+                'vss2' : (0.8, -0.745),
+                'vss' : (1.25, -0.5),
+                'ref' : (1.7, -0.255),
+                'r+' : (0.35, 0.25),
+                'r-' : (0.35, -0.25)}
+
+    pinlabels = {'out+' : 'out-', 'out-' : '-', 'in+': '+', 'in-' : '-',
+                 'vdd' : 'VDD', 'vss' : 'VSS'}
+
+    @property
+    def anchors(self):
+        return self.nanchors if self.mirror else self.panchors
+    
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        yscale = 2 * 0.95 * self.scale        
+        if not self.mirror:
+            yscale = -yscale
+
+        centre = self.node('mid')
+
+        # Note, scale scales by area, xscale and yscale scale by length.
+        s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
+            centre.s,
+            self.args_str, 2 * self.scale * 0.95, yscale,
+            -self.angle, self.s)
+        s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, self.node('out').s)
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('in+').s)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)
+        s += self.draw_label(centre.s, **kwargs)
+        s += self.draw_nodes(**kwargs)
+        return s
+
+
+class FDOpamp(Chip):
+
+    can_scale = True
+    can_mirror = True
+
+    node_anchors = ('out+', 'out-', 'in+', 'in-')
+
+    panchors = {'out+' : (2.1, -0.5),
+                'out-' : (2.1, 0.5),                
+                'in+' : (0.0, 0.5),
+                'in-' : (0.0, -0.5),
+                'mid' : (1.25, 0.0),
+                'vdd' : (1.0, 0.645),
+                'vss' : (1.0, -0.645),
+                'r+' : (0.4, 0.25),
+                'r-' : (0.4, -0.25)}
+    
+    nanchors = {'out+' : (2.1, 0.5),
+                'out-' : (2.1, -0.5),
+                'in+' : (0.0, -0.5),
+                'in-' : (0.0, 0.5),
+                'mid' : (1.25, 0.0),
+                'vdd' : (1.0, 0.645),
+                'vss' : (1.0, -0.645),
+                'r+' : (0.4, 0.25),
+                'r-' : (0.4, -0.25)}
+
+    pinlabels = {'out+' : 'out-', 'out-' : '-', 'in+': '+', 'in-' : '-',
+                 'vdd' : 'VDD', 'vss' : 'VSS'}
+    
+    @property
+    def anchors(self):
+        return self.nanchors if self.mirror else self.panchors
+    
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        centre = self.node('mid')
+
+        yscale = 2 * 0.952 * self.scale
+        if not self.mirror:
+            yscale = -yscale
+
+        s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
+            centre.s, self.args_str, 2 * self.scale * 0.95, yscale,
+            -self.angle, self.s)
+        s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, self.node('out+').s)
+        s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, self.node('out-').s)
+        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('in+').s)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)
+        s += self.draw_label(centre.s, **kwargs)
+        s += self.draw_nodes(**kwargs)
+        return s
+
 
 class Wire(OnePort):
 
