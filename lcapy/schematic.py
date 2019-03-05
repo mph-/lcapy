@@ -288,24 +288,27 @@ class Schematic(NetfileMixin):
             if hasattr(self, attr):
                 delattr(self, attr)
 
-    def _node_add(self, node, elt, auxiliary=False):
+    def _node_add(self, nodename, elt, auxiliary=False):
 
-        if node not in self.nodes:
-            self.nodes[node] = Node(node)
-        self.nodes[node].append(elt)
+        if nodename not in self.nodes:
+            self.nodes[nodename] = Node(nodename)
+        node = self.nodes[nodename]
+            
+        node.append(elt)
 
         # Not explicit nodes are required for lcapy housekeeping
         # They can be made explicit
         if auxiliary:
-            self.nodes[node].auxiliary = True
+            node.auxiliary = True
 
-        vnode = self.nodes[node].rootname
+        vnode = node.rootname
 
         if vnode not in self.snodes:
             self.snodes[vnode] = []
 
-        if node not in self.snodes[vnode]:
-            self.snodes[vnode].append(node)
+        if nodename not in self.snodes[vnode]:
+            self.snodes[vnode].append(nodename)
+        return node
 
     def _cpt_add(self, cpt):
 
@@ -485,8 +488,6 @@ class Schematic(NetfileMixin):
         # distance from the root of the graph.  To centre components,
         # a reverse graph is created and the distances are averaged.
 
-        self.check_nodes()
-        
         self.xgraph = Graph('horizontal', self.nodes)
         self.ygraph = Graph('vertical', self.nodes)
 
@@ -600,9 +601,29 @@ class Schematic(NetfileMixin):
                     node1.pin = True
                     continue
 
+    def _ref_nodes_check(self):
+        """Determine which nodes are referenced for each component."""
+
+        for elt in self.elements.values():
+            elt.ref_node_names = [node.name for node in self.match_nodes(elt.name)]
+
+    def _process_anchors(self):
+
+        for elt in self.elements.values():
+            elt.process_anchors()
+
+    def _process_nodes(self):
+        # This is called before node positions are assigned.
+
+        self.check_nodes()
+        self._ref_nodes_check()
+        self._assign_pins()
+        # Add additional anchor nodes so they get positioned.
+        self._process_anchors()
+                
     def _tikz_draw(self, style_args='', **kwargs):
 
-        self._assign_pins()
+        self._process_nodes()
         
         self._positions_calculate()
 
@@ -634,7 +655,13 @@ class Schematic(NetfileMixin):
         # Draw components
         for m, elt in enumerate(self.elements.values()):
             s += elt.draw(**kwargs)
+            s += elt.draw_nodes(**kwargs)
+            s += elt.draw_anchors()
 
+        # Add the labels
+        for m, elt in enumerate(self.elements.values()):
+            elt.assign_pin_positions()
+        
         s += self._label_nodes(**kwargs)
 
         s += '  ' + kwargs.pop('append', '')

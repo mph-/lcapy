@@ -99,16 +99,36 @@ class Cpt(object):
             node_name = name + '.' + anchor
             auxiliary_node_names.append(node_name)
 
-        self.auxiliary_node_names = tuple(auxiliary_node_names)
+        self.auxiliary_node_names = auxiliary_node_names
 
         anchor_node_names = []
         for anchor in self.anchors.keys():
             node_name = name + '.' + anchor
             anchor_node_names.append(node_name)
-        
-        self.all_node_names = tuple(list(self.required_node_names) +
-                                    auxiliary_node_names + anchor_node_names)
 
+        # These are all the anchor names belonging to the cpt.
+        self.anchor_node_names = anchor_node_names
+            
+        # These are all the anchor nodes required to be shown for the cpt.
+        # This is set by the process_anchors method.
+        self.drawn_anchors = []
+
+        self.all_node_names = list(self.required_node_names) + auxiliary_node_names + anchor_node_names
+
+        # Create dictionary of anchors sharing the same relative
+        # coords (anchor aliases).
+        coords = {}
+        for anchor, coord in self.anchors.items():
+            if coord not in coords:
+                coords[coord] = [anchor]
+            else:
+                coords[coord] += [anchor]
+
+        self.anchor_coords = coords
+        if False:
+            for coord, anchors in coords.items():
+                if len(anchors) > 1:
+                    print('%s: Anchor aliases: %s' % (self.name, anchors))
         
     def __repr__(self):
         return self.__str__()
@@ -430,10 +450,22 @@ class Cpt(object):
             s += self.draw_node(n, **kwargs)
         return s
 
+    def draw_anchors(self):
+
+        s = ''
+        for n in self.drawn_anchors:        
+            s += r'  \draw (%s) node[ocirc] {};''\n' % n.s
+        return s
+
     def draw(self, **kwargs):
         raise NotImplementedError('draw method not implemented for %s' % self)
 
+    def process_anchors(self):
+        return []
 
+    def assign_pin_positions(self):
+        pass
+    
     def opts_str_list(self, choices):
         """Format voltage, current, or label string as a key-value pair
         and return list of strings"""
@@ -556,7 +588,7 @@ class Cpt(object):
 
         if self.left + self.right + self.up + self.down > 1:
             raise ValueError('Mutually exclusive drawing directions for %s' % self.name)
-        
+
         return not self.invisible
 
     def tf(self, centre, offset, angle_offset=0.0):
@@ -674,7 +706,6 @@ class Transistor(FixedCpt):
             s += r'  \draw (%s.D) -- (%s) (%s.G) -- (%s) (%s.S) -- (%s);''\n' % (
                 self.s, n1.s, self.s, n2.s, self.s, n3.s)
 
-        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -728,7 +759,6 @@ class TwoPort(FixedCpt):
         s += r'  \draw (%s) node[text width=%.1fcm, align=center, %s] {%s};''\n' % (
             top, width, self.args_str, self.label(**kwargs))
 
-        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -756,7 +786,6 @@ class MT(StretchyCpt):
         s += self.draw_label(centre, **kwargs)        
         s += r'  \draw (%s) |- (%s.north);''\n' % (n1.s, self.s)
         s += r'  \draw (%s.south) |- (%s);''\n' % (self.s, n2.s)
-        s += self.draw_nodes(**kwargs)
         return s
 
     
@@ -901,7 +930,6 @@ class TL(StretchyCpt):
         s += self.draw_path((q[1], n2.s), join='|-')
         s += self.draw_path((q[2], n3.s))
         s += self.draw_path((q[3], n4.s), join='|-')
-        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -964,7 +992,6 @@ class Transformer(TF1):
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2.s, n1.s)
 
         s += super(Transformer, self).draw(link=False, **kwargs)
-        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -991,7 +1018,6 @@ class TFtap(TF1):
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2.s, n1.s)
 
         s += super(TFtap, self).draw(link=False, **kwargs)
-        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -1039,7 +1065,6 @@ class Gyrator(FixedCpt):
             -self.angle, self.s)        
 
         s += self.draw_label(self.centre, **kwargs)
-        s += self.draw_nodes(**kwargs)        
         return s
 
     
@@ -1176,7 +1201,6 @@ class SPDT(StretchyCpt):
         # TODO, fix label position.
         centre = (n1.pos + n3.pos) * 0.5 + Pos(0, -0.5)
         s += self.draw_label(centre, **kwargs)
-        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -1221,7 +1245,7 @@ class Shape(FixedCpt):
         pinpos = pinmap[index % len(pinmap)]
         return pinpos
 
-    def name_pins(self):
+    def parse_pins(self):
 
         # pins, pins=, pins=auto  label connected pins with defined pinlabels
         # pins={pin1, pin2, ...} label specified pins
@@ -1239,16 +1263,15 @@ class Shape(FixedCpt):
                 pass
             return pinname
 
-        # Determine which pins are referenced.
-        refnodes = self.sch.match_nodes(self.name)
-        
         pins = self.opts.get('pins', 'none')
         if pins == 'none':
-            pinlabels = {}
+            return {}
         elif pins in ('', 'auto'):
-            pinlabels = self.pinlabels
+            return self.pinlabels
+        elif pins == 'connected':
+            return {name:pinlabel(name) for name in self.ref_node_names}
         elif pins == 'all':
-            pinlabels = {node.name:pinlabel(node.name) for node in refnodes}
+            return {name:pinlabel(name) for name in self.anchor_node_names}
         else:
             if pins[0] != '{':
                 raise ValueError('Expecting { for pins in %s' % self)
@@ -1262,9 +1285,63 @@ class Shape(FixedCpt):
                     pinlabels[fields[0].strip()] = fields[1].strip()
                 else:
                     pinlabels[pindef] = pindef
+            return pinlabels
+
+    def parse_anchors(self):
+
+        # nodes, nodes=, nodes=auto  show connected nodes
+        # nodes={pin1, pin2, ...} show specified nodes
+        # nodes=all  show all nodes (connected or not)
+        # nodes=none show no nodes       
+
+        anchors = self.opts.get('anchors', 'none')
+        if anchors == 'none':
+            return []
+        elif anchors in ('', 'auto'):
+            return self.draw_nodes
+        elif anchors == 'connected':
+            return [name for name in self.ref_node_names]
+        elif anchors == 'all':
+            return self.anchor_node_names
+        else:
+            if anchors[0] != '{':
+                raise ValueError('Expecting { for anchors in %s' % self)
+            if anchors[-1] != '}':
+                raise ValueError('Expecting } for anchors in %s' % self)
+            anchors = anchors[1:-1]
+            return anchors.split(',')
+    
+    def process_anchors(self):
+
+        anchors = self.parse_anchors()
+
+        for anchor in anchors:
+            # Add anchor to nodes so that it will get allocated a coord.
+            node = self.sch._node_add(anchor, self)
+            self.drawn_anchors.append(node)
+
+        pinlabels = self.parse_pins()
+        
+        for node in self.nodes:
+            
+            node_name = node.name
+            if node_name not in pinlabels:
+                label = ''
+            else:
+                label = pinlabels[node_name]
+
+            # TODO, perhaps use pinlabel to indicate clock?
+            node.clock = label != '' and label[0] == '>'
+            if node.clock:
+                # Remove clock designator
+                label = label[1:]
+
+            node.label = label
+
+    def assign_pin_positions(self):
 
         centre = self.node('mid')
-        for node in refnodes:
+        for node in self.nodes:
             # Determine pin positions
             pos = node.pos
             dx = pos.x - centre.pos.x
@@ -1275,21 +1352,7 @@ class Shape(FixedCpt):
             else:
                 pinpos = 't' if dy > 0 else 'b'                
             node.pinpos = self.pinpos_rotate(pinpos, self.angle)
-
-            pinname = node.pinname
-            if pinname not in pinlabels:
-                label = ''
-            else:
-                label = pinlabels[pinname]
-
-            # TODO, perhaps use pinlabel to indicate clock?
-            node.clock = label != '' and label[0] == '>'
-            if node.clock:
-                # Remove clock designator
-                label = label[1:]
-
-            node.label = label
-
+            
     def draw(self, **kwargs):
 
         if not self.check():
@@ -1307,7 +1370,6 @@ class Shape(FixedCpt):
         s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%scm, minimum height=%scm, text width=%scm, align=center, shape border rotate=%s, draw, %s] (%s) {%s};''\n'% (
             self.centre, self.shape, self.width, self.height, 
             text_width, self.angle, self.args_str, self.s, label)
-
         return s
 
 
@@ -1478,8 +1540,6 @@ class Chip(Shape):
         if not self.check():
             return ''
 
-        self.name_pins()
-
         centre = self.node('mid')                
         q = self.tf(centre.pos, self.path)
         s = self.draw_path(q, closed=True, style='thick')
@@ -1495,7 +1555,6 @@ class Chip(Shape):
                 q = self.tf(n.pos, ((0, 0.125 * 0.707), (0.125, 0), 
                                     (0, -0.125 * 0.707)))
                 s += self.draw_path(q[0:3], style='thick')
-                
         return s
 
 
@@ -1774,7 +1833,6 @@ class Opamp(Chip):
         s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('in+').s)
         s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)
         s += self.draw_label(centre.s, **kwargs)
-        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -1831,7 +1889,6 @@ class FDOpamp(Chip):
         s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('in+').s)
         s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)
         s += self.draw_label(centre.s, **kwargs)
-        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -1926,7 +1983,6 @@ class Wire(OnePort):
         s = r'  \draw[%s-%s, %s, %s] (%s) to (%s);''\n' % (
             arrow_map(startarrow), arrow_map(endarrow), style,
             self.args_str, n1.s, n2.s)
-        s += self.draw_nodes(**kwargs)
 
         if self.voltage_str != '':
             print('There is no voltage drop across an ideal wire!')
@@ -1975,7 +2031,6 @@ class FB(StretchyCpt):
         s += self.draw_path((n1.s, q2[0]))
         s += self.draw_path((q2[1], n2.s))
         s += self.draw_label(q[4], **kwargs)
-        s += self.draw_nodes(**kwargs)
         return s
 
 
@@ -2008,7 +2063,6 @@ class XT(StretchyCpt):
         s += self.draw_path((q[0], n1.s), style='thick')
         s += self.draw_path((q[3], n2.s), style='thick')
         s += self.draw_label(q[10], **kwargs)
-        s += self.draw_nodes(**kwargs)
         return s
 
 
