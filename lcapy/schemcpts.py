@@ -1228,11 +1228,11 @@ class Shape(FixedCpt):
 
         """
 
-        pinmap = ['l', 't', 'r', 'b']
-        if pinpos not in pinmap:
+        pin_positions = ['l', 't', 'r', 'b']
+        if pinpos not in pin_positions:
             return pinpos
             
-        index = pinmap.index(pinpos)
+        index = pin_positions.index(pinpos)
         angle = int(angle)
         if angle < 0:
             angle += 360
@@ -1242,7 +1242,7 @@ class Shape(FixedCpt):
             raise ValueError('Cannot rotate pinpos %s by %s' % (pinpos, angle))
 
         index += angles.index(angle)
-        pinpos = pinmap[index % len(pinmap)]
+        pinpos = pin_positions[index % len(pin_positions)]
         return pinpos
 
     def parse_pins(self):
@@ -1340,6 +1340,10 @@ class Shape(FixedCpt):
 
     def assign_pin_positions(self):
 
+        outside = self.opts.get('outside', False)
+        if outside == '':
+            outside = True
+        
         centre = self.node('mid')
         for node in self.nodes:
             # Determine pin positions
@@ -1348,9 +1352,9 @@ class Shape(FixedCpt):
             dy = pos.y - centre.pos.y
 
             if abs(dx) > abs(dy):
-                pinpos = 'r' if dx > 0 else 'l'
+                pinpos = 'r' if (dx > 0) ^ outside else 'l'
             else:
-                pinpos = 't' if dy > 0 else 'b'                
+                pinpos = 't' if (dy > 0) ^ outside else 'b'                
             node.pinpos = self.pinpos_rotate(pinpos, self.angle)
             
     def draw(self, **kwargs):
@@ -1475,13 +1479,10 @@ class Triangle(Shape):
     aspect."""    
 
     shape = 'triangle'
-    required_anchors = ('mid', 'c1', 'c2', 'c3')
+    required_anchors = ('mid', 'n', 'w', 'e')
     
     # 1 / sqrt(3) approx 0.5774, 1 / (2 * sqrt(3)) approx 0.2887
-    anchors = {'c1' : (0.0, 0.5774),
-               'c2' : (-0.5, -0.2887),
-               'c3' : (0.5, -0.2887),
-               'n' : (0.0, 0.5774),
+    anchors = {'n' : (0.0, 0.5774),
                'ne' : (0.25, 0.14435),
                'nw' : (-0.25, 0.14435),
                'w' : (-0.5, -0.2887),
@@ -1504,8 +1505,8 @@ class Triangle(Shape):
         if not self.check():
             return ''
 
-        s = self.draw_path([self.node('c1').pos, self.node('c2').pos,
-                            self.node('c3').pos], closed=True, style='thick')
+        s = self.draw_path([self.node('n').pos, self.node('w').pos,
+                            self.node('e').pos], closed=True, style='thick')
         s += self.draw_label(self.node('mid').pos, **kwargs)
 
         return s

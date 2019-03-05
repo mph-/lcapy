@@ -156,7 +156,7 @@ class Node(object):
         self.pinpos = None
         self.pin = False
         self.clock = False
-        self.auxiliary = False
+        self.auxiliary = None
         # Sanitised name
         self.s = name.replace('.', '@')
         self.label = name
@@ -296,11 +296,12 @@ class Schematic(NetfileMixin):
             
         node.append(elt)
 
-        # Not explicit nodes are required for lcapy housekeeping
-        # They can be made explicit
-        if auxiliary:
-            node.auxiliary = True
-
+        if node.auxiliary is None:
+            node.auxiliary = auxiliary
+        elif node.auxiliary and not auxiliary:
+            # An auxiliary node can be made a proper node.
+            node.auxiliary = False
+        
         vnode = node.rootname
 
         if vnode not in self.snodes:
