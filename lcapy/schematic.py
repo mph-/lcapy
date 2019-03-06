@@ -193,7 +193,7 @@ class Node(object):
         fields = self.name.split('.')
         if len(fields) < 2:
             return False
-        return fields[-1] == cpt_name
+        return fields[-2] == cpt_name
     
     def visible(self, draw_nodes):
         """Return true if node drawn.
