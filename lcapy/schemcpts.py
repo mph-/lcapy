@@ -524,10 +524,11 @@ class Cpt(object):
             if node.pin:
                 if not node.belongs(self.name):
                     continue
-
                 s += self.draw_pin_label(node)
                 # Perhaps also allow node label...
             else:
+                if node.auxiliary:
+                    continue
                 s += self.draw_node_label(node, label_nodes)                
 
         return s
@@ -1538,10 +1539,10 @@ class Triangle(Shape):
     
     # 1 / sqrt(3) approx 0.5774, 1 / (2 * sqrt(3)) approx 0.2887
     anchors = {'n' : ('t', 0.0, 0.5774),
-               'ne' : ('l', 0.25, 0.14435),
-               'nw' : ('r', -0.25, 0.14435),
-               'w' : ('r', -0.5, -0.2887),
-               'e' : ('l', 0.5, -0.2887),
+               'ne' : ('r', 0.25, 0.14435),
+               'nw' : ('l', -0.25, 0.14435),
+               'w' : ('l', -0.5, -0.2887),
+               'e' : ('r', 0.5, -0.2887),
                's' : ('b', 0.0, -0.2887),
                'se' : ('b', 0.25, -0.2887),
                'sw' : ('b', -0.25, -0.2887),
@@ -1551,8 +1552,8 @@ class Triangle(Shape):
                'nnw' : ('l', -0.125, 0.355),
                'wsw' : ('b', -0.375, -0.2887),
                'ese' : ('b', 0.375, -0.2887),
-               'ene' : ('b', 0.375, -0.075),
-               'wnw' : ('b', -0.375, -0.075),                              
+               'ene' : ('r', 0.375, -0.075),
+               'wnw' : ('l', -0.375, -0.075),                              
                'mid' : ('c', 0.0, 0.0)}
 
     def draw(self, **kwargs):
