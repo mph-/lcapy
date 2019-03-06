@@ -496,7 +496,7 @@ class Cpt(object):
         name = node.basename
 
         # pins is for backward compatibility
-        if label_nodes in ('none', 'pins', 'false'):
+        if label_nodes in ('none', 'pins', 'false', False):
             return ''
         elif label_nodes == 'alpha':
             if not node.primary or not name[0].isalpha():
