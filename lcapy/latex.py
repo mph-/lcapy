@@ -8,7 +8,8 @@ class Latex(object):
 
     words = ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
              'mean', 'peak', 'pp', 'min', 'max', 'src', 'bat',
-             'cc', 'ee', 'dd', 'ss', 'ih', 'il', 'oh', 'ol')
+             'cc', 'ee', 'dd', 'ss', 'ih', 'il', 'oh', 'ol',
+             'typ', 'pkg', 'comp')
 
     def __init__(self, string):
 
