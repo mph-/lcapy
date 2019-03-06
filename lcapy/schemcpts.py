@@ -66,6 +66,8 @@ class Cpt(object):
     # these are the anchors required by lcapy, usually to find the centre
     required_anchors = ()
     anchors = {}
+    # pins that are shown by default
+    pins = ()
 
     @property
     def s(self):
@@ -978,11 +980,13 @@ class TL(StretchyCpt):
 
     # Dubious.  Perhaps should stretch this component in proportion to size?
     can_scale = True
+    node_anchors = ('out1', 'out2', 'in1', 'in2')
 
-    @property
-    def coords(self):
-        return ((1.25, 0.5), (1.25, 0), (0, 0.5), (0, 0))
-
+    anchors = {'in1' : ('l', 0, 0.5),
+               'in2' : ('l', 0, 0),
+               'out1' : ('r', 1.25, 0.5),
+               'out2' : ('r', 1.25, 0)}
+    
     def draw(self, **kwargs):
 
         if not self.check():
@@ -1583,7 +1587,7 @@ class Chip(Shape):
     # Could allow can_scale but not a lot of point since nodes
     # will not be on the boundary of the chip.
 
-    # TODO, tweak coord if pin name ends in \ using pinpos to
+    # TODO, tweak coord if pin name starts with \ using pinpos to
     # accomodate inverting circle.  This will require stripping of the
     # \ from the label. Alternatively, do not use inverting circle and
     # add overline to symbol name when printing.
@@ -1706,20 +1710,23 @@ class Uadc(Chip):
     """ADC"""
 
     anchors = {'in' : ('l', 0, 0),
-               'in+' : ('l', 0.25, 0.25),
-               'in-' : ('l', 0.25, -0.25),               
-               'vref-' : ('b', 0.5, -0.5),
-               'vss' : ('b', 0.75, -0.5),
+               'in+' : ('l', 0.0625, 0.125),
+               'in-' : ('l', 0.0625, -0.125),
+               'vref-' : ('l', 0.125, -0.25),
+               'vref+' : ('l', 0.125, 0.25),                              
+               'avss' : ('b', 0.5, -0.5),
+               'dvss' : ('b', 0.75, -0.5),
                'clk' : ('r', 1, -0.25),
                'data' : ('r', 1, 0),
                'fs' : ('r', 1, 0.25),
-               'vdd' : ('t', 0.75, 0.5),
-               'vref+' : ('t', 0.5, 0.5),
+               'dvdd' : ('t', 0.75, 0.5),
+               'avdd' : ('t', 0.5, 0.5),
                'mid' : ('s', 0.5, 0)}
 
     pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+',
-                 'vss': 'VSS', 'vdd' : 'VDD',
-                 'clk' : 'CLK', 'data' : 'DATA', 'fs' : 'FS'}
+                 'dvss': 'DVSS', 'dvdd' : 'DVDD',
+                 'avss': 'AVSS', 'avdd' : 'AVDD',                 
+                 'clk' : '<CLK', 'data' : 'DATA', 'fs' : 'FS'}
 
     @property
     def path(self):
@@ -1743,20 +1750,23 @@ class Udac(Chip):
     """DAC"""
 
     anchors = {'out' : ('r', 1, 0),
-               'out+' : ('r', 0.75, 0.25),
-               'out-' : ('r', 0.75, -0.25),               
-               'vref-' : ('b', 0.5, -0.5),
-               'vss' : ('b', 0.25, -0.5),
+               'out+' : ('r', 0.9375, 0.125),
+               'out-' : ('r', 0.9375, -0.125),               
+               'vref-' : ('r', 0.875, -0.25),
+               'vref+' : ('r', 0.875, 0.25),
+               'avss' : ('b', 0.5, -0.5),
+               'dvss' : ('b', 0.25, -0.5),
                'clk' : ('l', 0, -0.25),
                'data' : ('l', 0, 0),
                'fs' : ('l', 0, 0.25),
-               'vdd' : ('t', 0.25, 0.5),
-               'vref+' : ('t', 0.5, 0.5),
+               'dvdd' : ('t', 0.25, 0.5),
+               'avdd' : ('t', 0.5, 0.5),
                'mid' : ('c', 0.5, 0)}
 
     pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+',
-                 'vss': 'VSS', 'vdd' : 'VDD',
-                 'clk' : 'CLK', 'data' : 'DATA', 'fs' : 'FS'}
+                 'dvss': 'DVSS', 'dvdd' : 'DVDD',                 
+                 'avss': 'AVSS', 'avdd' : 'AVDD',                                  
+                 'clk' : '<CLK', 'data' : 'DATA', 'fs' : 'FS'}
     
     @property
     def path(self):
@@ -1831,6 +1841,55 @@ class Uinverter(Chip):
             q, 1.8 * self.size * self.scale)
         return s
 
+class Udff(Chip):
+    """D flip-flop"""
+
+    pins = ('d', 'clk', 'q', '\q')
+    
+    anchors = {'d' : ('l', -0.5, 0.25),
+               'clk' : ('l', -0.5, 0),               
+               'vss' : ('b', 0.0, -0.375),
+               '/q': ('r', 0.5, -0.25),
+               'q': ('r', 0.5, 0.25),
+               'vdd': ('t', 0.0, 0.375),                              
+               'mid': ('c', 0.0, 0.0)}
+    
+    pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
+                 'd' : 'D', 'q' : 'Q', '/q' : '\overline{Q}', 'clk' : '>'}
+
+class Ujkff(Chip):
+    """JK flip-flop"""
+
+    anchors = {'j' : ('l', -0.5, 0.25),
+               'clk' : ('l', -0.5, 0),
+               'k' : ('l', -0.5, -0.25),               
+               'vss' : ('b', 0.0, -0.375),
+               '/q': ('r', 0.5, -0.25),
+               'q': ('r', 0.5, 0.25),
+               'vdd': ('t', 0.0, 0.375),                              
+               'mid': ('c', 0.0, 0.0)}
+    
+    pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
+                 'j' : 'J', 'k' : 'K',
+                 'q' : 'Q', '/q' : '\overline{Q}', 'clk' : '>'}    
+
+
+class Urslatch(Chip):
+    """RS latch"""
+
+    anchors = {'r' : ('l', -0.5, 0.25),
+               's' : ('l', -0.5, -0.25),               
+               'vss' : ('b', 0.0, -0.375),
+               '/q': ('r', 0.5, -0.25),
+               'q': ('r', 0.5, 0.25),
+               'vdd': ('t', 0.0, 0.375),                              
+               'mid': ('c', 0.0, 0.0)}
+    
+    pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
+                 'r' : 'R', 's' : 'S',
+                 'q' : 'Q', '/q' : '\overline{Q}'}    
+    
+    
 class Opamp(Chip):
 
     can_scale = True

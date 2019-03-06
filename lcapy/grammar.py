@@ -89,6 +89,9 @@ Uchip1310: Uname chip1310; Chip
 Uchip2121: Uname chip2121; Chip
 Uchip3131: Uname chip3131; Chip
 Uchip4141: Uname chip4141; Chip
+Udff: Uname dff; D flip/flop
+Ujkff: Uname jkff; D flip/flop
+Urslatch: Uname rslatch; RS latch
 V: Vname Np Nm [Value]; Voltage source
 sV: Vname Np Nm s [Value]; s-domain voltage source
 Vdc: Vname Np Nm dc [Value]; DC voltage source
@@ -154,11 +157,12 @@ ppp: keyword;
 pmm: keyword;
 ppm: keyword;
 push: keyword;
+dff: keyword; D flip-flop
+jkff: keyword; JK flip-flop
+rslatch: keyword; RS latch
 P: pin; Pin
 Pi: pin; Input pin
 Po: pin; Output pin
-PVdd: pin; Vdd pin
-PVss: pin; Vss pin
 Nb: node; Base node
 Nc: node; Collector node
 Ncp: node; Positive control node
