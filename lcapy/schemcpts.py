@@ -305,7 +305,10 @@ class Cpt(object):
             return self._nodes
 
         # Perhaps determine coords here as well and cache them?
-        
+
+        # The ordering of the first nodes is important.   
+        # FIXME: there can be duplicates but cannot use a set to
+        # remove them since this will change the ordering.
         node_names = self.all_node_names
         
         rnodes = []
@@ -457,15 +460,86 @@ class Cpt(object):
             s += r'  \draw (%s) node[ocirc] {};''\n' % n.s
         return s
 
+    def draw_pin_label(self, node):
+
+        if node.pinlabel == '':
+            return ''
+
+        outside = self.opts.get('outside', False)
+        if outside == '':
+            outside = True
+        
+        centre = self.node('mid')
+        pos = node.pos
+        dx = pos.x - centre.pos.x
+        dy = pos.y - centre.pos.y
+
+        if abs(dx) > abs(dy):
+            pinpos = 'r' if (dx > 0) ^ outside else 'l'
+        else:
+            pinpos = 't' if (dy > 0) ^ outside else 'b'                
+        node.pinpos = self.pinpos_rotate(pinpos, self.angle)
+
+        anchors = {None: 'south east', 
+                   'l' : 'west', 'r' : 'east', 
+                   't' : 'north', 'b' : 'south'}
+        anchor = anchors[node.pinpos]
+
+        return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
+            anchor, node.s, node.pinlabel.replace('_', r'\_'))        
+
+    def draw_node_label(self, node, label_nodes):
+
+        if node.label == '':
+            return ''
+        
+        name = node.basename
+
+        # pins is for backward compatibility
+        if label_nodes in ('none', 'pins', 'false'):
+            return ''
+        elif label_nodes == 'alpha':
+            if not node.primary or not name[0].isalpha():
+                return ''
+        elif label_nodes == 'primary':
+            if not node.primary:
+                return ''
+            
+        anchors = {None: 'south east', 
+                   'l' : 'west', 'r' : 'east', 
+                   't' : 'north', 'b' : 'south'}
+        anchor = anchors[node.labelpos]
+
+        return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
+            anchor, node.s, node.label.replace('_', r'\_'))
+       
+    def draw_labels(self, **kwargs):
+
+        label_nodes = kwargs.get('label_nodes', 'primary')
+
+        s = ''
+        for node in self.nodes:
+
+            if node.pin:
+                if not node.belongs(self.name):
+                    continue
+                
+                s += self.draw_pin_label(node)
+                # Perhaps also allow node label...
+            else:
+                s += self.draw_node_label(node, label_nodes)                
+
+        return s
+    
     def draw(self, **kwargs):
         raise NotImplementedError('draw method not implemented for %s' % self)
 
     def process_anchors(self):
         return []
 
-    def assign_pin_positions(self):
-        pass
-    
+    def process_pins(self):
+        return []    
+
     def opts_str_list(self, choices):
         """Format voltage, current, or label string as a key-value pair
         and return list of strings"""
@@ -1263,11 +1337,13 @@ class Shape(FixedCpt):
                 pass
             return pinname
 
+        prefix = self.name + '.'
+        
         pins = self.opts.get('pins', 'none')
         if pins == 'none':
             return {}
         elif pins in ('', 'auto'):
-            return self.pinlabels
+            return {prefix + pinlabel:pinlabel for pinlabel in self.pinlabels}
         elif pins == 'connected':
             return {name:pinlabel(name) for name in self.ref_node_names}
         elif pins == 'all':
@@ -1282,9 +1358,9 @@ class Shape(FixedCpt):
             for pindef in pins.split(','):
                 fields = pindef.split('=')
                 if len(fields) > 1:
-                    pinlabels[fields[0].strip()] = fields[1].strip()
+                    pinlabels[prefix + fields[0].strip()] = fields[1].strip()
                 else:
-                    pinlabels[pindef] = pindef
+                    pinlabels[prefix + pindef] = pindef
             return pinlabels
 
     def parse_anchors(self):
@@ -1297,9 +1373,7 @@ class Shape(FixedCpt):
         anchors = self.opts.get('anchors', 'none')
         if anchors == 'none':
             return []
-        elif anchors in ('', 'auto'):
-            return self.draw_nodes
-        elif anchors == 'connected':
+        elif anchors in ('', 'connected', 'auto'):
             return [name for name in self.ref_node_names]
         elif anchors == 'all':
             return self.anchor_node_names
@@ -1309,54 +1383,34 @@ class Shape(FixedCpt):
             if anchors[-1] != '}':
                 raise ValueError('Expecting } for anchors in %s' % self)
             anchors = anchors[1:-1]
-            return anchors.split(',')
+            return [self.name + '.' + anchor for anchor in anchors.split(',')]
     
     def process_anchors(self):
 
         anchors = self.parse_anchors()
-
         for anchor in anchors:
             # Add anchor to nodes so that it will get allocated a coord.
-            node = self.sch._node_add(anchor, self)
+            node = self.sch._node_add(anchor, self, auxiliary=True)
+            node.pin = True            
             self.drawn_anchors.append(node)
 
+    def process_pins(self):
+
         pinlabels = self.parse_pins()
-        
-        for node in self.nodes:
-            
-            node_name = node.name
-            if node_name not in pinlabels:
-                label = ''
-            else:
-                label = pinlabels[node_name]
+
+        for anchor, pinlabel in pinlabels.items():
+            # Add pin to nodes so that it will get allocated a coord.
+            node = self.sch._node_add(anchor, self, auxiliary=True)
+            node.pin = True
 
             # TODO, perhaps use pinlabel to indicate clock?
-            node.clock = label != '' and label[0] == '>'
+            node.clock = pinlabel != '' and pinlabel[0] == '>'
             if node.clock:
                 # Remove clock designator
-                label = label[1:]
+                pinlabel = pinlabel[1:]
 
-            node.label = label
+            node.pinlabel = pinlabel
 
-    def assign_pin_positions(self):
-
-        outside = self.opts.get('outside', False)
-        if outside == '':
-            outside = True
-        
-        centre = self.node('mid')
-        for node in self.nodes:
-            # Determine pin positions
-            pos = node.pos
-            dx = pos.x - centre.pos.x
-            dy = pos.y - centre.pos.y
-
-            if abs(dx) > abs(dy):
-                pinpos = 'r' if (dx > 0) ^ outside else 'l'
-            else:
-                pinpos = 't' if (dy > 0) ^ outside else 'b'                
-            node.pinpos = self.pinpos_rotate(pinpos, self.angle)
-            
     def draw(self, **kwargs):
 
         if not self.check():

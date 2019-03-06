@@ -153,16 +153,19 @@ class Node(object):
         self.primary = len(parts) == 1
         self.elt_list = []
         self.pos = 'unknown'
+        # Sanitised name
+        self.s = name.replace('.', '@')
+        self.label = name
+        # TODO for label positioning
+        self.labelpos = None        
+        self.pinlabel = ''
         self.pinpos = None
         self.pin = False
         self.clock = False
         self.auxiliary = None
-        # Sanitised name
-        self.s = name.replace('.', '@')
-        self.label = name
 
-    #property
-    def pinname(self):
+    @property
+    def basename(self):
         fields = self.name.split('.')
         return fields[-1]
         
@@ -186,6 +189,12 @@ class Node(object):
 
         return self._count
 
+    def belongs(self, cpt_name):
+        fields = self.name.split('.')
+        if len(fields) < 2:
+            return False
+        return fields[-1] == cpt_name
+    
     def visible(self, draw_nodes):
         """Return true if node drawn.
         `draw_nodes' can be `all', 'none', 'connections', 'primary', None,
@@ -227,10 +236,6 @@ class Node(object):
 
         return self._port or self.count == 1
 
-    @property
-    def pinname(self):
-        fields = self.name.split('.')
-        return fields[-1]
     
 class Schematic(NetfileMixin):
 
@@ -509,7 +514,7 @@ class Schematic(NetfileMixin):
         for m, elt in enumerate(self.elements.values()):
             elt.xplace(self.xgraph)
             elt.yplace(self.ygraph)
-
+            
     def _positions_calculate(self):
 
         self.make_graphs()
@@ -550,47 +555,6 @@ class Schematic(NetfileMixin):
 
         return wires
 
-    def _label_nodes(self, **kwargs):
-
-        label_nodes = kwargs.get('label_nodes', 'primary')
-
-        s = ''
-        if not label_nodes:
-            return s
-
-        for m, node in enumerate(self.nodes.values()):
-
-            if node.auxiliary:
-                continue
-
-            name = node.name
-            name = name.split('.')[-1]
-
-            # TODO: allow combinations, e.g., ('pins', 'alpha')
-            if label_nodes == 'pins':
-                if not node.pin:
-                    continue
-            elif label_nodes == 'alpha':
-                if not node.primary or not name[0].isalpha():
-                    continue
-                # TODO: think this out...
-                if '.' in node.name:
-                    continue
-            elif label_nodes == 'primary':
-                if not node.primary:
-                    continue
-            anchors = {None: 'south east', 
-                       'l' : 'west', 'r' : 'east', 
-                       't' : 'north', 'b' : 'south'}
-            anchor = anchors[node.pinpos]
-
-            if node.pin and node.pinpos is None:
-                continue
-
-            s += r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
-                anchor, node.s, node.label.replace('_', r'\_'))
-        return s
-    
     def _assign_pins(self):
 
         for nodename, node1 in self.nodes.items():        
@@ -612,6 +576,7 @@ class Schematic(NetfileMixin):
 
         for elt in self.elements.values():
             elt.process_anchors()
+            elt.process_pins()            
 
     def _process_nodes(self):
         # This is called before node positions are assigned.
@@ -661,10 +626,9 @@ class Schematic(NetfileMixin):
 
         # Add the labels
         for m, elt in enumerate(self.elements.values()):
-            elt.assign_pin_positions()
-        
-        s += self._label_nodes(**kwargs)
+            s += elt.draw_labels(**kwargs)            
 
+        # Add postamble
         s += '  ' + kwargs.pop('append', '')
 
         s += r'\end{tikzpicture}''\n'
