@@ -1366,7 +1366,10 @@ class Shape(FixedCpt):
                 if len(fields) > 1:
                     pinlabels[prefix + fields[0].strip()] = fields[1].strip()
                 else:
-                    pinlabels[prefix + pindef] = pindef
+                    pinname = pindef
+                    if pindef in self.pinlabels:
+                        pinname = self.pinlabels[pindef]
+                    pinlabels[prefix + pindef] = pinname
             return pinlabels
 
     def parse_anchors(self):
@@ -1714,13 +1717,13 @@ class Uadc(Chip):
                'in-' : ('l', 0.0625, -0.125),
                'vref-' : ('l', 0.125, -0.25),
                'vref+' : ('l', 0.125, 0.25),                              
-               'avss' : ('b', 0.5, -0.5),
-               'dvss' : ('b', 0.75, -0.5),
+               'avss' : ('b', 0.4, -0.5),
+               'dvss' : ('b', 0.8, -0.5),
                'clk' : ('r', 1, -0.25),
                'data' : ('r', 1, 0),
                'fs' : ('r', 1, 0.25),
-               'dvdd' : ('t', 0.75, 0.5),
-               'avdd' : ('t', 0.5, 0.5),
+               'dvdd' : ('t', 0.8, 0.5),
+               'avdd' : ('t', 0.4, 0.5),
                'mid' : ('s', 0.5, 0)}
 
     pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+',
@@ -1754,13 +1757,13 @@ class Udac(Chip):
                'out-' : ('r', 0.9375, -0.125),               
                'vref-' : ('r', 0.875, -0.25),
                'vref+' : ('r', 0.875, 0.25),
-               'avss' : ('b', 0.5, -0.5),
-               'dvss' : ('b', 0.25, -0.5),
+               'avss' : ('b', 0.6, -0.5),
+               'dvss' : ('b', 0.2, -0.5),
                'clk' : ('l', 0, -0.25),
                'data' : ('l', 0, 0),
                'fs' : ('l', 0, 0.25),
-               'dvdd' : ('t', 0.25, 0.5),
-               'avdd' : ('t', 0.5, 0.5),
+               'dvdd' : ('t', 0.2, 0.5),
+               'avdd' : ('t', 0.6, 0.5),
                'mid' : ('c', 0.5, 0)}
 
     pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+',
