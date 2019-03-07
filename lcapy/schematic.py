@@ -572,11 +572,10 @@ class Schematic(NetfileMixin):
         for elt in self.elements.values():
             elt.ref_node_names = [node.name for node in self.match_nodes(elt.name)]
 
-    def _process_anchors(self):
+    def _process_pins(self):
 
         for elt in self.elements.values():
-            elt.process_anchors()
-            elt.process_pins()            
+            elt.process_pins()
 
     def _process_nodes(self):
         # This is called before node positions are assigned.
@@ -584,8 +583,8 @@ class Schematic(NetfileMixin):
         self.check_nodes()
         self._ref_nodes_check()
         self._assign_pins()
-        # Add additional anchor nodes so they get positioned.
-        self._process_anchors()
+        # Add additional pin nodes so they get positioned.
+        self._process_pins()
                 
     def _tikz_draw(self, style_args='', **kwargs):
 
@@ -622,7 +621,7 @@ class Schematic(NetfileMixin):
         for m, elt in enumerate(self.elements.values()):
             s += elt.draw(**kwargs)
             s += elt.draw_nodes(**kwargs)
-            s += elt.draw_anchors()
+            s += elt.draw_pins()
 
         # Add the labels
         for m, elt in enumerate(self.elements.values()):

@@ -33,11 +33,10 @@ module = sys.modules[__name__]
 # 1.  The old model.  The required_node_names method returns subset of
 # node_names as a list.
 #
-# 2.  The new model.  The node_anchors attribute specifies the subset of
-# required nodes.  It is a list of anchor point names that are used to
-# find the anchor coordinates and thus the node coordinates.  Note,
-# some components to do not have any explicit nodes (shapes, chips,
-# etc).
+# 2.  The new model.  The node_pinnames attribute specifies the subset
+# of required nodes.  It is a list of pinnames that are used to find
+# the pin coordinates and thus the node coordinates.  Note, some
+# components to do not have any explicit nodes (shapes, chips, etc).
 
 
 class Cpt(object):
@@ -63,13 +62,12 @@ class Cpt(object):
     can_stretch = True
     default_width = 1.0
     default_aspect = 1.0
-    # node_anchors maps node numbers to anchor names
-    node_anchors = ()
-    # these are the anchors required by lcapy, usually to find the centre
-    required_anchors = ()
-    anchors = {}
-    # pins that are shown by default
-    pins = ()
+    # node_pinnames maps node numbers to pinnames
+    node_pinnames = ()
+    # these are the pinnames required by lcapy, usually to find the centre
+    required_pins = ()
+    default_pins = ()
+    pins = {}
 
     @property
     def s(self):
@@ -99,40 +97,40 @@ class Cpt(object):
         # Auxiliary nodes are used by lcapy, usually for finding
         # the centre of the shape.
         auxiliary_node_names = []
-        for anchor in self.required_anchors:
-            node_name = name + '.' + anchor
+        for pin in self.required_pins:
+            node_name = name + '.' + pin
             auxiliary_node_names.append(node_name)
 
         self.auxiliary_node_names = auxiliary_node_names
 
-        anchor_node_names = []
-        for anchor in self.anchors.keys():
-            node_name = name + '.' + anchor
-            anchor_node_names.append(node_name)
+        pin_node_names = []
+        for pin in self.pins.keys():
+            node_name = name + '.' + pin
+            pin_node_names.append(node_name)
 
-        # These are all the anchor names belonging to the cpt.
-        self.anchor_node_names = anchor_node_names
+        # These are all the pin names belonging to the cpt.
+        self.pin_node_names = pin_node_names
             
-        # These are all the anchor nodes required to be shown for the cpt.
-        # This is set by the process_anchors method.
-        self.drawn_anchors = []
+        # These are all the pin nodes required to be shown for the cpt.
+        # This is set by the process_pins method.
+        self.drawn_pins = []
 
-        self.all_node_names = list(self.required_node_names) + auxiliary_node_names + anchor_node_names
+        self.all_node_names = list(self.required_node_names) + auxiliary_node_names + pin_node_names
 
-        # Create dictionary of anchors sharing the same relative
-        # coords (anchor aliases).
+        # Create dictionary of pinnames sharing the same relative
+        # coords (pinname aliases).
         coords = {}
-        for anchor, coord in self.anchors.items():
+        for pinname, coord in self.pins.items():
             if coord not in coords:
-                coords[coord] = [anchor]
+                coords[coord] = [pinname]
             else:
-                coords[coord] += [anchor]
+                coords[coord] += [pinname]
 
-        self.anchor_coords = coords
+        self.pinname_coords = coords
         if False:
-            for coord, anchors in coords.items():
-                if len(anchors) > 1:
-                    print('%s: Anchor aliases: %s' % (self.name, anchors))
+            for coord, pinnames in coords.items():
+                if len(pinnames) > 1:
+                    print('%s: pinname aliases: %s' % (self.name, pinnames))
         
     def __repr__(self):
         return self.__str__()
@@ -277,29 +275,29 @@ class Cpt(object):
 
         # Old model.   The number of node names in the list
         # must match the number of entries in coords.
-        if self.node_anchors == ():
+        if self.node_pinnames == ():
             return self.node_names
 
-        # New model.  The node_anchors tuple specifies the required
+        # New model.  The node_pinnames tuple specifies the required
         # nodes.
         node_names = []
-        for anchor, node_name in zip(self.node_anchors, self.node_names):
-            if anchor != '':
+        for pinname, node_name in zip(self.node_pinnames, self.node_names):
+            if pinname != '':
                 node_names.append(node_name)
         return tuple(node_names)
 
-    def node(self, anchor):
-        """Return node by anchor"""
+    def node(self, pinname):
+        """Return node by pinname"""
 
-        if anchor in self.node_anchors:
-            index = self.node_anchors.index(anchor)
+        if pinname in self.node_pinnames:
+            index = self.node_pinnames.index(pinname)
             node_name = self.node_names[index]
         else:
-            node_name = self.name + '.' + anchor
+            node_name = self.name + '.' + pinname
         for node in self.nodes:
             if node.name == node_name:
                 return node
-        raise ValueError('Unknown anchor %s for %s' % (anchor, self))
+        raise ValueError('Unknown pinname %s for %s' % (pinname, self))
 
     @property
     def nodes(self):
@@ -336,14 +334,14 @@ class Cpt(object):
             node_name = node.name
             if node_name in self.node_names:
                 index = self.node_names.index(node_name)
-                anchor = self.node_anchors[index]
+                pinname = self.node_pinnames[index]
             elif node_name in self.sch.nodes:
-                anchor = node_name.split('.')[-1]
+                pinname = node_name.split('.')[-1]
             else:
                 raise ValueError('Unknown node %s' % node_name)
 
-            if anchor != '':
-                rcoords.append(self.anchors[anchor][1:])
+            if pinname != '':
+                rcoords.append(self.pins[pinname][1:])
         return rcoords
 
     @property
@@ -457,10 +455,10 @@ class Cpt(object):
             s += self.draw_node(n, **kwargs)
         return s
 
-    def draw_anchors(self):
+    def draw_pins(self):
 
         s = ''
-        for n in self.drawn_anchors:        
+        for n in self.drawn_pins:        
             s += r'  \draw (%s) node[ocirc] {};''\n' % n.s
         return s
 
@@ -469,7 +467,7 @@ class Cpt(object):
         if node.pinlabel == '':
             return ''
 
-        pinpos = self.anchors[node.basename][0]
+        pinpos = self.pins[node.basename][0]
 
         pinpos = self.pinpos_rotate(pinpos, self.angle)
         
@@ -539,9 +537,6 @@ class Cpt(object):
     
     def draw(self, **kwargs):
         raise NotImplementedError('draw method not implemented for %s' % self)
-
-    def process_anchors(self):
-        return []
 
     def process_pins(self):
         return []    
@@ -730,8 +725,8 @@ class FixedCpt(Cpt):
 
     @property
     def centre(self):
-        if hasattr(self, 'anchors'):
-            # Look for centre anchor.
+        if hasattr(self, 'pins'):
+            # Look for centre pin.
             for node in self.nodes:
                 if node.name.split('.')[-1] == 'mid':
                     return node.pos
@@ -982,9 +977,9 @@ class TL(StretchyCpt):
 
     # Dubious.  Perhaps should stretch this component in proportion to size?
     can_scale = True
-    node_anchors = ('out1', 'out2', 'in1', 'in2')
+    node_pinnames = ('out1', 'out2', 'in1', 'in2')
 
-    anchors = {'in1' : ('l', 0, 0.5),
+    pins = {'in1' : ('l', 0, 0.5),
                'in2' : ('l', 0, 0),
                'out1' : ('r', 1.25, 0.5),
                'out2' : ('r', 1.25, 0)}
@@ -1293,8 +1288,8 @@ class Shape(FixedCpt):
     can_mirror = True
     pinlabels = {}
 
-    required_anchors = ('mid', )    
-    anchors = {'mid' : ('c', 0.0, 0.0)}    
+    required_pins = ('mid', )    
+    pins = {'mid' : ('c', 0.0, 0.0)}    
 
     @property
     def width(self):
@@ -1327,12 +1322,12 @@ class Shape(FixedCpt):
         pinpos = pin_positions[index % len(pin_positions)]
         return pinpos
 
-    def parse_pins(self):
+    def parse_pinlabels(self):
 
-        # pins, pins=, pins=auto  label connected pins with defined pinlabels
-        # pins={pin1, pin2, ...} label specified pins
-        # pins=all  label all pins (connected or not)
-        # pins=none label no pins       
+        # pinlabels, pinlabels=, pinlabels=auto  label connected pins with defined labels
+        # pinlabels={pin1, pin2, ...} label specified pins by pinname
+        # pinlabels=all  label all pins (connected or not)
+        # pinlabels=none label no pins       
 
         def pinlabel(nodename):
 
@@ -1346,72 +1341,67 @@ class Shape(FixedCpt):
             return pinname
 
         prefix = self.name + '.'
-        
-        pins = self.opts.get('pins', 'none')
-        if pins == 'none':
+
+        # For backwards compatibility, check pins option.
+        pinlabels = self.opts.get('pins', None)
+        if pinlabels is None:
+            pinlabels = self.opts.get('pinlabels', 'none')
+            
+        if pinlabels == 'none':
             return {}
-        elif pins in ('', 'auto'):
+        elif pinlabels in ('', 'auto'):
             return {prefix + pinlabel:pinlabel for pinlabel in self.pinlabels}
-        elif pins == 'connected':
+        elif pinlabels == 'connected':
             return {name:pinlabel(name) for name in self.ref_node_names}
-        elif pins == 'all':
-            return {name:pinlabel(name) for name in self.anchor_node_names}
+        elif pinlabels == 'all':
+            return {name:pinlabel(name) for name in self.pin_node_names}
         else:
-            if pins[0] != '{':
-                raise ValueError('Expecting { for pins in %s' % self)
-            if pins[-1] != '}':
-                raise ValueError('Expecting } for pins in %s' % self)
-            pins = pins[1:-1]
-            pinlabels = {}
-            for pindef in pins.split(','):
+            if pinlabels[0] != '{':
+                raise ValueError('Expecting { for pinlabels in %s' % self)
+            if pinlabels[-1] != '}':
+                raise ValueError('Expecting } for pinlabels in %s' % self)
+            pinlabels = pinlabels[1:-1]
+            foo = {}
+            for pindef in pinlabels.split(','):
                 fields = pindef.split('=')
                 if len(fields) > 1:
-                    pinlabels[prefix + fields[0].strip()] = fields[1].strip()
+                    foo[prefix + fields[0].strip()] = fields[1].strip()
                 else:
                     pinname = pindef
                     if pindef in self.pinlabels:
                         pinname = self.pinlabels[pindef]
-                    pinlabels[prefix + pindef] = pinname
-            return pinlabels
+                    foo[prefix + pindef] = pinname
+            return foo
 
-    def parse_anchors(self):
+    def parse_pinnodes(self):
 
-        # nodes, nodes=, nodes=auto  show connected nodes
-        # nodes={pin1, pin2, ...} show specified nodes
-        # nodes=all  show all nodes (connected or not)
-        # nodes=none show no nodes       
+        # pinnodes, pinnodes=, pinnodes=auto  show connected pinnodes
+        # pinnodes={pin1, pin2, ...} show specified pinnodes by pinname
+        # pinnodes=all  show all pinnodes (connected or not)
+        # pinnodes=none show no pinnodes       
 
-        anchors = self.opts.get('anchors', 'none')
-        if anchors == 'none':
+        pinnodes = self.opts.get('pinnodes', 'none')
+        if pinnodes == 'none':
             return []
-        elif anchors in ('', 'connected', 'auto'):
+        elif pinnodes in ('', 'connected', 'auto'):
             return [name for name in self.ref_node_names]
-        elif anchors == 'all':
-            return self.anchor_node_names
+        elif pinnodes == 'all':
+            return self.pin_node_names
         else:
-            if anchors[0] != '{':
-                raise ValueError('Expecting { for anchors in %s' % self)
-            if anchors[-1] != '}':
-                raise ValueError('Expecting } for anchors in %s' % self)
-            anchors = anchors[1:-1]
-            return [self.name + '.' + anchor for anchor in anchors.split(',')]
+            if pinnodes[0] != '{':
+                raise ValueError('Expecting { for pinnodes in %s' % self)
+            if pinnodes[-1] != '}':
+                raise ValueError('Expecting } for pinnodes in %s' % self)
+            pinnodes = pinnodes[1:-1]
+            return [self.name + '.' + pinnode for pinnode in pinnodes.split(',')]
     
-    def process_anchors(self):
+    def process_pinlabels(self):
 
-        anchors = self.parse_anchors()
-        for anchor in anchors:
-            # Add anchor to nodes so that it will get allocated a coord.
-            node = self.sch._node_add(anchor, self, auxiliary=True)
-            node.pin = True            
-            self.drawn_anchors.append(node)
+        pinlabels = self.parse_pinlabels()
 
-    def process_pins(self):
-
-        pinlabels = self.parse_pins()
-
-        for anchor, pinlabel in pinlabels.items():
+        for nodename, pinlabel in pinlabels.items():
             # Add pin to nodes so that it will get allocated a coord.
-            node = self.sch._node_add(anchor, self, auxiliary=True)
+            node = self.sch._node_add(nodename, self, auxiliary=True)
             node.pin = True
 
             # TODO, perhaps use pinlabel to indicate clock?
@@ -1422,6 +1412,20 @@ class Shape(FixedCpt):
 
             node.pinlabel = pinlabel
 
+    def process_pinnodes(self):
+
+        pinnodes = self.parse_pinnodes()
+        for pinnode in pinnodes:
+            # Add pinnode to nodes so that it will get allocated a coord.
+            node = self.sch._node_add(pinnode, self, auxiliary=True)
+            node.pin = True            
+            self.drawn_pins.append(node)
+            
+    def process_pins(self):
+
+        self.process_pinnodes()
+        self.process_pinlabels()
+            
     def draw(self, **kwargs):
 
         if not self.check():
@@ -1446,54 +1450,54 @@ class Box2(Shape):
     """Square box,  A rectangle is created by defining aspect."""
 
     shape = 'rectangle'
-    anchors = {'w' : ('l', -0.5, 0),
-               'e' : ('r', 0.5, 0),
-               'mid' : ('c', 0, 0)}
-
+    pins = {'w' : ('l', -0.5, 0),
+            'e' : ('r', 0.5, 0),
+            'mid' : ('c', 0, 0)}
+    
     
 class Box4(Shape):
     """Box4"""
 
     shape = 'rectangle'
-    anchors = {'w' : ('l', -0.5, 0),
-               's' : ('b', 0, -0.5),
-               'e' : ('r', 0.5, 0),
-               'n' : ('t', 0, 0.5),
-               'mid' : ('c', 0, 0)}
-
+    pins = {'w' : ('l', -0.5, 0),
+            's' : ('b', 0, -0.5),
+            'e' : ('r', 0.5, 0),
+            'n' : ('t', 0, 0.5),
+            'mid' : ('c', 0, 0)}
+    
 
 class Box12(Shape):
     """Box12"""
 
     shape = 'rectangle'
-    anchors = {'wnw' : ('l', -0.5, 0.25),
-               'w' : ('l', -0.5, 0),
-               'wsw' : ('l', -0.5, -0.25),
-               'ssw' : ('b', -0.25, -0.5),                              
-               's' : ('b', 0, -0.5),
-               'sse' : ('b', 0.25, -0.5),
-               'ese' : ('r', 0.5, -0.25),                              
-               'e' : ('r', 0.5, 0),
-               'ene' : ('r', 0.5, 0.25),
-               'nne' : ('t', 0.25, 0.5),
-               'n' : ('t', 0, 0.5),
-               'nnw' : ('t', -0.25, 0.5),               
-               'mid' : ('c', 0, 0)}    
+    pins = {'wnw' : ('l', -0.5, 0.25),
+            'w' : ('l', -0.5, 0),
+            'wsw' : ('l', -0.5, -0.25),
+            'ssw' : ('b', -0.25, -0.5),                              
+            's' : ('b', 0, -0.5),
+            'sse' : ('b', 0.25, -0.5),
+            'ese' : ('r', 0.5, -0.25),                              
+            'e' : ('r', 0.5, 0),
+            'ene' : ('r', 0.5, 0.25),
+            'nne' : ('t', 0.25, 0.5),
+            'n' : ('t', 0, 0.5),
+            'nnw' : ('t', -0.25, 0.5),               
+            'mid' : ('c', 0, 0)}    
 
 
 class Box(Shape):
     """Box"""
 
     shape = 'rectangle'    
-    anchors = {'nw' : ('t', -0.5, 0.5), 'wnw' : ('l', -0.5, 0.25),
-               'w' : ('l', -0.5, 0), 'wsw' : ('l', -0.5, -0.25), 
-               'sw' : ('b', -0.5, -0.5), 'ssw' : ('b', -0.25, -0.5),
-               's' : ('b', 0, -0.5), 'sse' : ('b', 0.25, -0.5),
-               'se' : ('b', 0.5, -0.5), 'ese' : ('r', 0.5, -0.25),
-               'e' : ('r', 0.5, 0), 'ene' : ('r', 0.5, 0.25),
-               'ne' : ('t', 0.5, 0.5), 'nne' : ('t', 0.25, 0.5),
-               'n' : ('t', 0, 0.5), 'nnw' : ('t', -0.25, 0.5),
-               'mid' : ('c', 0.0, 0.0)}
+    pins = {'nw' : ('t', -0.5, 0.5), 'wnw' : ('l', -0.5, 0.25),
+            'w' : ('l', -0.5, 0), 'wsw' : ('l', -0.5, -0.25), 
+            'sw' : ('b', -0.5, -0.5), 'ssw' : ('b', -0.25, -0.5),
+            's' : ('b', 0, -0.5), 'sse' : ('b', 0.25, -0.5),
+            'se' : ('b', 0.5, -0.5), 'ese' : ('r', 0.5, -0.25),
+            'e' : ('r', 0.5, 0), 'ene' : ('r', 0.5, 0.25),
+            'ne' : ('t', 0.5, 0.5), 'nne' : ('t', 0.25, 0.5),
+            'n' : ('t', 0, 0.5), 'nnw' : ('t', -0.25, 0.5),
+            'mid' : ('c', 0.0, 0.0)}
 
 
 class Ellipse(Shape):
@@ -1501,16 +1505,15 @@ class Ellipse(Shape):
 
     # Ellipse needs the tikz shapes library.
     shape = 'ellipse'
-    anchors = {'nw' : ('t', -0.3536, 0.3536), 'wnw' : ('l', -0.4619, 0.1913),
-               'w' : ('l', -0.5, 0), 'wsw' : ('l', -0.4619, -0.1913), 
-               'sw' : ('b', -0.3536, -0.3536), 'ssw' : ('b', -0.1913, -0.4619),
-               's' : ('b', 0, -0.5), 'sse' : ('b', 0.1913, -0.4619),
-               'se' : ('r', 0.3536, -0.3536), 'ese' : ('r', 0.4619, -0.1913),
-               'e' : ('r', 0.5, 0), 'ene' : ('r', 0.4619, 0.1913),
-               'ne' : ('r', 0.3536, 0.35365), 'nne' : ('t', 0.1913, 0.4619),
-               'n' : ('t', 0, 0.5), 'nnw' : ('t', -0.1913, 0.4619),
-               'mid' : ('c', 0.0, 0.0)}
-
+    pins = {'nw' : ('t', -0.3536, 0.3536), 'wnw' : ('l', -0.4619, 0.1913),
+            'w' : ('l', -0.5, 0), 'wsw' : ('l', -0.4619, -0.1913), 
+            'sw' : ('b', -0.3536, -0.3536), 'ssw' : ('b', -0.1913, -0.4619),
+            's' : ('b', 0, -0.5), 'sse' : ('b', 0.1913, -0.4619),
+            'se' : ('r', 0.3536, -0.3536), 'ese' : ('r', 0.4619, -0.1913),
+            'e' : ('r', 0.5, 0), 'ene' : ('r', 0.4619, 0.1913),
+            'ne' : ('r', 0.3536, 0.35365), 'nne' : ('t', 0.1913, 0.4619),
+            'n' : ('t', 0, 0.5), 'nnw' : ('t', -0.1913, 0.4619),
+            'mid' : ('c', 0.0, 0.0)}
 
 
 class Circle(Ellipse):
@@ -1523,20 +1526,20 @@ class Circle2(Shape):
     """Circle"""
 
     shape = 'circle'
-    anchors = {'w' : ('l', -0.5, 0),
-               'e' : ('r', 0.5, 0),
-               'mid' : ('c', 0, 0)}
+    pins = {'w' : ('l', -0.5, 0),
+            'e' : ('r', 0.5, 0),
+            'mid' : ('c', 0, 0)}
     
 
 class Circle4(Shape):
     """Circle4"""
 
     shape = 'circle'
-    anchors = {'w' : ('l', -0.5, 0),
-               's' : ('b', 0, -0.5),
-               'e' : ('r', 0.5, 0),
-               'n' : ('t', 0, 0.5),
-               'mid' : ('c', 0, 0)}
+    pins = {'w' : ('l', -0.5, 0),
+            's' : ('b', 0, -0.5),
+            'e' : ('r', 0.5, 0),
+            'n' : ('t', 0, 0.5),
+            'mid' : ('c', 0, 0)}
 
 
 class Triangle(Shape):
@@ -1544,26 +1547,26 @@ class Triangle(Shape):
     aspect."""    
 
     shape = 'triangle'
-    required_anchors = ('mid', 'n', 'w', 'e')
+    required_pins = ('mid', 'n', 'w', 'e')
     
     # 1 / sqrt(3) approx 0.5774, 1 / (2 * sqrt(3)) approx 0.2887
-    anchors = {'n' : ('t', 0.0, 0.5774),
-               'ne' : ('r', 0.25, 0.14435),
-               'nw' : ('l', -0.25, 0.14435),
-               'w' : ('l', -0.5, -0.2887),
-               'e' : ('r', 0.5, -0.2887),
-               's' : ('b', 0.0, -0.2887),
-               'se' : ('b', 0.25, -0.2887),
-               'sw' : ('b', -0.25, -0.2887),
-               'ssw' : ('b', -0.125, -0.2887),
-               'sse' : ('b', 0.125, -0.2887),
-               'nne' : ('r', 0.125, 0.355),
-               'nnw' : ('l', -0.125, 0.355),
-               'wsw' : ('b', -0.375, -0.2887),
-               'ese' : ('b', 0.375, -0.2887),
-               'ene' : ('r', 0.375, -0.075),
-               'wnw' : ('l', -0.375, -0.075),                              
-               'mid' : ('c', 0.0, 0.0)}
+    pins = {'n' : ('t', 0.0, 0.5774),
+            'ne' : ('r', 0.25, 0.14435),
+            'nw' : ('l', -0.25, 0.14435),
+            'w' : ('l', -0.5, -0.2887),
+            'e' : ('r', 0.5, -0.2887),
+            's' : ('b', 0.0, -0.2887),
+            'se' : ('b', 0.25, -0.2887),
+            'sw' : ('b', -0.25, -0.2887),
+            'ssw' : ('b', -0.125, -0.2887),
+            'sse' : ('b', 0.125, -0.2887),
+            'nne' : ('r', 0.125, 0.355),
+            'nnw' : ('l', -0.125, 0.355),
+            'wsw' : ('b', -0.375, -0.2887),
+            'ese' : ('b', 0.375, -0.2887),
+            'ene' : ('r', 0.375, -0.075),
+            'wnw' : ('l', -0.375, -0.075),                              
+            'mid' : ('c', 0.0, 0.0)}
 
     def draw(self, **kwargs):
 
@@ -1581,7 +1584,7 @@ class TR(Box2):
 
     default_width = 1.5
     default_aspect = 1.5
-    node_anchors = ('w', 'e')    
+    node_pinnames = ('w', 'e')    
 
 
 class Chip(Shape):
@@ -1628,53 +1631,53 @@ class Uchip1310(Chip):
     """Chip of size 1 3 1 0"""
 
     default_aspect = 4.0 / 3.0
-    anchors = {'w' : ('l', 0, 0),
-               'sw' : ('b', 0.25, -0.5),
-               's' : ('b', 0.5, -0.5),
-               'se': ('b', 0.75, -0.5),
-               'e': ('r', 1, 0),               
-               'mid': ('c', 0.5, 0)}
-
+    pins = {'w' : ('l', 0, 0),
+            'sw' : ('b', 0.25, -0.5),
+            's' : ('b', 0.5, -0.5),
+            'se': ('b', 0.75, -0.5),
+            'e': ('r', 1, 0),               
+            'mid': ('c', 0.5, 0)}
+    
 
 class Uchip2121(Chip):
     """Chip of size 2 1 2 1"""
 
-    anchors = {'nw' : ('l', 0, 0.25),
-               'sw' : ('l', 0, -0.25),
-               's' : ('b', 0.5, -0.5),
-               'se': ('r', 1.0, -0.25),
-               'ne': ('r', 1, 0.25),
-               'n': ('t', 0.5, 0.5),
-               'in1' : ('l', 0, 0.25),
-               'in2' : ('l', 0, -0.25),
-               'vss' : ('b', 0.5, -0.5),
-               'out2': ('r', 1.0, -0.25),
-               'out1': ('r', 1, 0.25),
-               'vdd': ('t', 0.5, 0.5),
-               'mid': ('c', 0.5, 0)}
-
+    pins = {'nw' : ('l', 0, 0.25),
+            'sw' : ('l', 0, -0.25),
+            's' : ('b', 0.5, -0.5),
+            'se': ('r', 1.0, -0.25),
+            'ne': ('r', 1, 0.25),
+            'n': ('t', 0.5, 0.5),
+            'in1' : ('l', 0, 0.25),
+            'in2' : ('l', 0, -0.25),
+            'vss' : ('b', 0.5, -0.5),
+            'out2': ('r', 1.0, -0.25),
+            'out1': ('r', 1, 0.25),
+            'vdd': ('t', 0.5, 0.5),
+            'mid': ('c', 0.5, 0)}
+    
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD'}
 
 class Uchip3131(Chip):
     """Chip of size 3 1 3 1"""
 
-    anchors = {'nw' : ('l', -0.5, 0.25),
-               'w' : ('l', -0.5, 0),               
-               'sw' : ('l', -0.5, -0.25),
-               's' : ('b', 0.0, -0.375),
-               'se': ('r', 0.5, -0.25),
-               'e': ('r', 0.5, 0),               
-               'ne': ('r', 0.5, 0.25),
-               'n': ('t', 0.0, 0.375),
-               'in1' : ('l', -0.5, 0.25),
-               'in2' : ('l', -0.5, 0),               
-               'in3' : ('l', -0.5, -0.25),
-               'vss' : ('b', 0.0, -0.375),
-               'out3': ('r', 0.5, -0.25),
-               'out2': ('r', 0.5, 0),               
-               'out1': ('r', 0.5, 0.25),
-               'vdd': ('t', 0.0, 0.375),                              
-               'mid': ('c', 0.0, 0.0)}
+    pins = {'nw' : ('l', -0.5, 0.25),
+            'w' : ('l', -0.5, 0),               
+            'sw' : ('l', -0.5, -0.25),
+            's' : ('b', 0.0, -0.375),
+            'se': ('r', 0.5, -0.25),
+            'e': ('r', 0.5, 0),               
+            'ne': ('r', 0.5, 0.25),
+            'n': ('t', 0.0, 0.375),
+            'in1' : ('l', -0.5, 0.25),
+            'in2' : ('l', -0.5, 0),               
+            'in3' : ('l', -0.5, -0.25),
+            'vss' : ('b', 0.0, -0.375),
+            'out3': ('r', 0.5, -0.25),
+            'out2': ('r', 0.5, 0),               
+            'out1': ('r', 0.5, 0.25),
+            'vdd': ('t', 0.0, 0.375),                              
+            'mid': ('c', 0.0, 0.0)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD'}
 
@@ -1689,45 +1692,45 @@ class Uchip4141(Chip):
     default_width = 2
     default_aspect = 0.5
 
-    anchors = {'nnw' : ('l', -0.5, 0.375),
-               'nw' : ('l', -0.5, 0.125),
-               'sw' : ('l', -0.5, -0.125),               
-               'ssw' : ('l', -0.5, -0.375),
-               's' : ('b', 0.0, -0.5),
-               'sse': ('r', 0.5, -0.375),
-               'se': ('r', 0.5, -0.125),               
-               'ne': ('r', 0.5, 0.125),
-               'nne': ('r', 0.5, 0.375),
-               'n': ('t', 0.0, 0.5),
-               'in1' : ('l', -0.5, 0.375),
-               'in2' : ('l', -0.5, 0.125),
-               'in3' : ('l', -0.5, -0.125),               
-               'in4' : ('l', -0.5, -0.375),
-               'vss' : ('b', 0.0, -0.5),
-               'out4': ('r', 0.5, -0.375),
-               'out3': ('r', 0.5, -0.125),               
-               'out2': ('r', 0.5, 0.125),
-               'out1': ('r', 0.5, 0.375),
-               'vdd': ('t', 0.0, 0.5),
-               'mid': ('c', 0.0, 0.0)}        
-
+    pins = {'nnw' : ('l', -0.5, 0.375),
+            'nw' : ('l', -0.5, 0.125),
+            'sw' : ('l', -0.5, -0.125),               
+            'ssw' : ('l', -0.5, -0.375),
+            's' : ('b', 0.0, -0.5),
+            'sse': ('r', 0.5, -0.375),
+            'se': ('r', 0.5, -0.125),               
+            'ne': ('r', 0.5, 0.125),
+            'nne': ('r', 0.5, 0.375),
+            'n': ('t', 0.0, 0.5),
+            'in1' : ('l', -0.5, 0.375),
+            'in2' : ('l', -0.5, 0.125),
+            'in3' : ('l', -0.5, -0.125),               
+            'in4' : ('l', -0.5, -0.375),
+            'vss' : ('b', 0.0, -0.5),
+            'out4': ('r', 0.5, -0.375),
+            'out3': ('r', 0.5, -0.125),               
+            'out2': ('r', 0.5, 0.125),
+            'out1': ('r', 0.5, 0.375),
+            'vdd': ('t', 0.0, 0.5),
+            'mid': ('c', 0.0, 0.0)}        
+    
 class Uadc(Chip):
     """ADC"""
 
-    anchors = {'in' : ('l', 0, 0),
-               'in+' : ('l', 0.0625, 0.125),
-               'in-' : ('l', 0.0625, -0.125),
-               'vref-' : ('l', 0.125, -0.25),
-               'vref+' : ('l', 0.125, 0.25),                              
-               'avss' : ('b', 0.4, -0.5),
-               'dvss' : ('b', 0.8, -0.5),
-               'clk' : ('r', 1, -0.25),
-               'data' : ('r', 1, 0),
-               'fs' : ('r', 1, 0.25),
-               'dvdd' : ('t', 0.8, 0.5),
-               'avdd' : ('t', 0.4, 0.5),
-               'mid' : ('s', 0.5, 0)}
-
+    pins = {'in' : ('l', 0, 0),
+            'in+' : ('l', 0.0625, 0.125),
+            'in-' : ('l', 0.0625, -0.125),
+            'vref-' : ('l', 0.125, -0.25),
+            'vref+' : ('l', 0.125, 0.25),                              
+            'avss' : ('b', 0.4, -0.5),
+            'dvss' : ('b', 0.8, -0.5),
+            'clk' : ('r', 1, -0.25),
+            'data' : ('r', 1, 0),
+            'fs' : ('r', 1, 0.25),
+            'dvdd' : ('t', 0.8, 0.5),
+            'avdd' : ('t', 0.4, 0.5),
+            'mid' : ('s', 0.5, 0)}
+    
     pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+',
                  'dvss': 'DVSS', 'dvdd' : 'DVDD',
                  'avss': 'AVSS', 'avdd' : 'AVDD',                 
@@ -1742,35 +1745,34 @@ class Uregulator(Chip):
     """Voltage regulator"""
 
     default_aspect = 4.0 / 3.0
-    anchors = {'in' : ('l', 0, 0),
-               'en' : ('b', 0.25, -0.5),
-               'gnd' : ('b', 0.5, -0.5),               
-               'out': ('r', 1, 0),               
-               'mid': ('c', 0.5, 0)}
-
+    pins = {'in' : ('l', 0, 0),
+            'en' : ('b', 0.25, -0.5),
+            'gnd' : ('b', 0.5, -0.5),               
+            'out': ('r', 1, 0),               
+            'mid': ('c', 0.5, 0)}
+    
     pinlabels = {'en' : 'E', 'gnd' : 'GND'}
     
 
 class Udac(Chip):
     """DAC"""
 
-    anchors = {'out' : ('r', 1, 0),
-               'out+' : ('r', 0.9375, 0.125),
-               'out-' : ('r', 0.9375, -0.125),               
-               'vref-' : ('r', 0.875, -0.25),
-               'vref+' : ('r', 0.875, 0.25),
-               'avss' : ('b', 0.6, -0.5),
-               'dvss' : ('b', 0.2, -0.5),
-               'clk' : ('l', 0, -0.25),
-               'data' : ('l', 0, 0),
-               'fs' : ('l', 0, 0.25),
-               'dvdd' : ('t', 0.2, 0.5),
-               'avdd' : ('t', 0.6, 0.5),
-               'mid' : ('c', 0.5, 0)}
-
-    pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+',
-                 'dvss': 'DVSS', 'dvdd' : 'DVDD',                 
-                 'avss': 'AVSS', 'avdd' : 'AVDD',                                  
+    pins = {'out' : ('r', 1, 0),
+            'out+' : ('r', 0.9375, 0.125),
+            'out-' : ('r', 0.9375, -0.125),               
+            'vref-' : ('r', 0.875, -0.25),
+            'vref+' : ('r', 0.875, 0.25),
+            'avss' : ('b', 0.6, -0.5),
+            'dvss' : ('b', 0.2, -0.5),
+            'clk' : ('l', 0, -0.25),
+            'data' : ('l', 0, 0),
+            'fs' : ('l', 0, 0.25),
+            'dvdd' : ('t', 0.2, 0.5),
+            'avdd' : ('t', 0.6, 0.5),
+            'mid' : ('c', 0.5, 0)}
+    
+    pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+', 'dvss': 'DVSS',
+                 'dvdd' : 'DVDD', 'avss': 'AVSS', 'avdd' : 'AVDD',
                  'clk' : '<CLK', 'data' : 'DATA', 'fs' : 'FS'}
     
     @property
@@ -1783,12 +1785,12 @@ class Udiffamp(Chip):
 
     default_width = 1.0
 
-    anchors = {'in+' : ('l', -0.5, 0.25),
-               'in-' : ('l', -0.5, -0.25),
-               'vss' : ('b', 0, -0.25),
-               'out' : ('r', 0.5, 0),
-               'vdd' : ('t', 0, 0.25),
-               'mid' : ('c', 0, 0)}
+    pins = {'in+' : ('l', -0.5, 0.25),
+            'in-' : ('l', -0.5, -0.25),
+            'vss' : ('b', 0, -0.25),
+            'out' : ('r', 0.5, 0),
+            'vdd' : ('t', 0, 0.25),
+            'mid' : ('c', 0, 0)}
 
     pinlabels = {'in+' : '+', 'in+' : '-', 'vss' : 'VSS', 'vdd' : 'VDD'}
 
@@ -1802,13 +1804,13 @@ class Ubuffer(Chip):
 
     default_width = 1.0
 
-    anchors = {'in' : ('l', 0, 0),
-               'vss' : ('b', 0.5, -0.25),
-               'out' : ('r', 1.0, 0),
-               'vdd': ('t', 0.5, 0.25),
-               'en': ('b', 0.25, 0.375),
-               'mid': ('b', 0.5, 0)}
-
+    pins = {'in' : ('l', 0, 0),
+            'vss' : ('b', 0.5, -0.25),
+            'out' : ('r', 1.0, 0),
+            'vdd': ('t', 0.5, 0.25),
+            'en': ('b', 0.25, 0.375),
+            'mid': ('b', 0.5, 0)}
+    
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD', 'en' : 'E'}
 
     @property
@@ -1821,12 +1823,12 @@ class Uinverter(Chip):
 
     default_width = 1.0
 
-    anchors = {'in' : ('l', 0, 0),
-               'vss' : ('b', 0.5, -0.22),
-               'out' : ('r', 1.0, 0),
-               'vdd': ('t', 0.5, 0.22),
-               'en': ('b', 0.25, 0.37),
-               'mid': ('c', 0.5, 0)}
+    pins = {'in' : ('l', 0, 0),
+            'vss' : ('b', 0.5, -0.22),
+            'out' : ('r', 1.0, 0),
+            'vdd': ('t', 0.5, 0.22),
+            'en': ('b', 0.25, 0.37),
+            'mid': ('c', 0.5, 0)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD', 'en' : 'E'}
 
@@ -1849,15 +1851,15 @@ class Uinverter(Chip):
 class Udff(Chip):
     """D flip-flop"""
 
-    pins = ('d', 'clk', 'q', '\q')
+    default_pins = ('d', 'clk', 'q', '\q')
     
-    anchors = {'d' : ('l', -0.5, 0.25),
-               'clk' : ('l', -0.5, 0),               
-               'vss' : ('b', 0.0, -0.375),
-               '/q': ('r', 0.5, -0.25),
-               'q': ('r', 0.5, 0.25),
-               'vdd': ('t', 0.0, 0.375),                              
-               'mid': ('c', 0.0, 0.0)}
+    pins = {'d' : ('l', -0.5, 0.25),
+            'clk' : ('l', -0.5, 0),               
+            'vss' : ('b', 0.0, -0.375),
+            '/q': ('r', 0.5, -0.25),
+            'q': ('r', 0.5, 0.25),
+            'vdd': ('t', 0.0, 0.375),                              
+            'mid': ('c', 0.0, 0.0)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
                  'd' : 'D', 'q' : 'Q', '/q' : '\overline{Q}', 'clk' : '>'}
@@ -1865,14 +1867,14 @@ class Udff(Chip):
 class Ujkff(Chip):
     """JK flip-flop"""
 
-    anchors = {'j' : ('l', -0.5, 0.25),
-               'clk' : ('l', -0.5, 0),
-               'k' : ('l', -0.5, -0.25),               
-               'vss' : ('b', 0.0, -0.375),
-               '/q': ('r', 0.5, -0.25),
-               'q': ('r', 0.5, 0.25),
-               'vdd': ('t', 0.0, 0.375),                              
-               'mid': ('c', 0.0, 0.0)}
+    pins = {'j' : ('l', -0.5, 0.25),
+            'clk' : ('l', -0.5, 0),
+            'k' : ('l', -0.5, -0.25),               
+            'vss' : ('b', 0.0, -0.375),
+            '/q': ('r', 0.5, -0.25),
+            'q': ('r', 0.5, 0.25),
+            'vdd': ('t', 0.0, 0.375),                              
+            'mid': ('c', 0.0, 0.0)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
                  'j' : 'J', 'k' : 'K',
@@ -1882,13 +1884,13 @@ class Ujkff(Chip):
 class Urslatch(Chip):
     """RS latch"""
 
-    anchors = {'r' : ('l', -0.5, 0.25),
-               's' : ('l', -0.5, -0.25),               
-               'vss' : ('b', 0.0, -0.375),
-               '/q': ('r', 0.5, -0.25),
-               'q': ('r', 0.5, 0.25),
-               'vdd': ('t', 0.0, 0.375),                              
-               'mid': ('c', 0.0, 0.0)}
+    pins = {'r' : ('l', -0.5, 0.25),
+            's' : ('l', -0.5, -0.25),               
+            'vss' : ('b', 0.0, -0.375),
+            '/q': ('r', 0.5, -0.25),
+            'q': ('r', 0.5, 0.25),
+            'vdd': ('t', 0.0, 0.375),                              
+            'mid': ('c', 0.0, 0.0)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
                  'r' : 'R', 's' : 'S',
@@ -1901,38 +1903,38 @@ class Opamp(Chip):
     can_mirror = True
 
     # The Nm node is not used (ground).
-    node_anchors = ('out', '', 'in+', 'in-')
+    node_pinnames = ('out', '', 'in+', 'in-')
     
-    panchors = {'out' : ('r', 2.5, 0.0),
-                'in+' : ('l', 0.0, 0.5),
-                'in-' : ('l', 0.0, -0.5),
-                'mid' : ('c', 1.25, 0.0),
-                'vdd' : ('t', 1.25, 0.5),
-                'vdd2' : ('t', 0.8, 0.745),
-                'vss2' : ('b', 0.8, -0.745),
-                'vss' : ('b', 1.25, -0.5),
-                'ref' : ('b', 1.7, -0.255),
-                'r+' : ('t', 0.35, 0.25),
-                'r-' : ('b', 0.35, -0.25)}
+    ppins = {'out' : ('r', 2.5, 0.0),
+             'in+' : ('l', 0.0, 0.5),
+             'in-' : ('l', 0.0, -0.5),
+             'mid' : ('c', 1.25, 0.0),
+             'vdd' : ('t', 1.25, 0.5),
+             'vdd2' : ('t', 0.8, 0.745),
+             'vss2' : ('b', 0.8, -0.745),
+             'vss' : ('b', 1.25, -0.5),
+             'ref' : ('b', 1.7, -0.255),
+             'r+' : ('t', 0.35, 0.25),
+             'r-' : ('b', 0.35, -0.25)}
     
-    nanchors = {'out' : ('r', 2.5, 0.0),
-                'in+' : ('l', 0.0, -0.5),
-                'in-' : ('l', 0.0, 0.5),
-                'mid' : ('c', 1.25, 0.0),
-                'vdd' : ('t', 1.25, 0.5),
-                'vdd2' : ('t', 0.8, 0.745),
-                'vss2' : ('b', 0.8, -0.745),
-                'vss' : ('b', 1.25, -0.5),
-                'ref' : ('b', 1.7, -0.255),
-                'r+' : ('t', 0.35, 0.25),
-                'r-' : ('b', 0.35, -0.25)}
-
+    npins = {'out' : ('r', 2.5, 0.0),
+             'in+' : ('l', 0.0, -0.5),
+             'in-' : ('l', 0.0, 0.5),
+             'mid' : ('c', 1.25, 0.0),
+             'vdd' : ('t', 1.25, 0.5),
+             'vdd2' : ('t', 0.8, 0.745),
+             'vss2' : ('b', 0.8, -0.745),
+             'vss' : ('b', 1.25, -0.5),
+             'ref' : ('b', 1.7, -0.255),
+             'r+' : ('t', 0.35, 0.25),
+             'r-' : ('b', 0.35, -0.25)}
+    
     pinlabels = {'out+' : 'out-', 'out-' : '-', 'in+': '+', 'in-' : '-',
                  'vdd' : 'VDD', 'vss' : 'VSS'}
 
     @property
-    def anchors(self):
-        return self.nanchors if self.mirror else self.panchors
+    def pins(self):
+        return self.npins if self.mirror else self.ppins
     
     def draw(self, **kwargs):
 
@@ -1962,34 +1964,34 @@ class FDOpamp(Chip):
     can_scale = True
     can_mirror = True
 
-    node_anchors = ('out+', 'out-', 'in+', 'in-')
+    node_pinnames = ('out+', 'out-', 'in+', 'in-')
 
-    panchors = {'out+' : ('r', 2.1, -0.5),
-                'out-' : ('r', 2.1, 0.5),                
-                'in+' : ('l', 0.0, 0.5),
-                'in-' : ('l', 0.0, -0.5),
-                'mid' : ('c', 1.25, 0.0),
-                'vdd' : ('t', 1.0, 0.645),
-                'vss' : ('b', 1.0, -0.645),
-                'r+' : ('t', 0.4, 0.25),
-                'r-' : ('b', 0.4, -0.25)}
+    ppins = {'out+' : ('r', 2.1, -0.5),
+             'out-' : ('r', 2.1, 0.5),                
+             'in+' : ('l', 0.0, 0.5),
+             'in-' : ('l', 0.0, -0.5),
+             'mid' : ('c', 1.25, 0.0),
+             'vdd' : ('t', 1.0, 0.645),
+             'vss' : ('b', 1.0, -0.645),
+             'r+' : ('t', 0.4, 0.25),
+             'r-' : ('b', 0.4, -0.25)}
     
-    nanchors = {'out+' : ('r', 2.1, 0.5),
-                'out-' : ('r', 2.1, -0.5),
-                'in+' : ('l', 0.0, -0.5),
-                'in-' : ('l', 0.0, 0.5),
-                'mid' : ('c', 1.25, 0.0),
-                'vdd' : ('t', 1.0, 0.645),
-                'vss' : ('b', 1.0, -0.645),
-                'r+' : ('t', 0.4, 0.25),
-                'r-' : ('b', 0.4, -0.25)}
-
+    npins = {'out+' : ('r', 2.1, 0.5),
+             'out-' : ('r', 2.1, -0.5),
+             'in+' : ('l', 0.0, -0.5),
+             'in-' : ('l', 0.0, 0.5),
+             'mid' : ('c', 1.25, 0.0),
+             'vdd' : ('t', 1.0, 0.645),
+             'vss' : ('b', 1.0, -0.645),
+             'r+' : ('t', 0.4, 0.25),
+             'r-' : ('b', 0.4, -0.25)}
+    
     pinlabels = {'out+' : 'out-', 'out-' : '-', 'in+': '+', 'in-' : '-',
                  'vdd' : 'VDD', 'vss' : 'VSS'}
     
     @property
-    def anchors(self):
-        return self.nanchors if self.mirror else self.panchors
+    def pins(self):
+        return self.npins if self.mirror else self.ppins
     
     def draw(self, **kwargs):
 
