@@ -1380,7 +1380,11 @@ class Shape(FixedCpt):
         # pinnodes=all  show all pinnodes (connected or not)
         # pinnodes=none show no pinnodes       
 
-        pinnodes = self.opts.get('pinnodes', 'none')
+        # For backwards compatibility, check anchors option.        
+        pinnodes = self.opts.get('anchors', None)
+        if pinnodes is None:
+            pinnodes = self.opts.get('pinnodes', 'none')
+            
         if pinnodes == 'none':
             return []
         elif pinnodes in ('', 'connected', 'auto'):

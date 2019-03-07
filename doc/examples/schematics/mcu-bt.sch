@@ -22,4 +22,4 @@ W U4.gnd 0_7; down=0.1, implicit, l=0V
 W U3.gnd 0_8; down=0.1, implicit, l=0V
 R 1 7; right
 W 7 0_9; down=0.1, implicit, l=0V
-; draw_nodes=connections, label_nodes=pins, node_spacing=2
+; draw_nodes=connections, label_nodes=none, node_spacing=2

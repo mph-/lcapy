@@ -273,10 +273,10 @@ In this example, the `chip2121` keyword specifies a block with two
 pins on the left, one on the bottom, two on the right, and one at the
 top.  The pins are enumerated anti-clockwise from top-left.  Since the
 pin names start with a dot the associated node names are prefixed by
-the name of the chip, for example, `U1.PIO1`.
+the name of the chip, for example, `U1.out1`.
 
-With the `pins` attribute set to `auto` the pins are labelled with
-their names unless the pin name starts with an underscore.
+With the `pins` attribute set to `all` or `connected`, the pins are labelled with
+their anchor names.
 
 The supported chips are:
  - `chip1310`
@@ -285,6 +285,7 @@ The supported chips are:
  - `chip4141`
  - `buffer`
  - `inverter`
+ - `regulator`  
 
 Here's another example where the pin labels are explicitly defined
 with the `pins` attribute:
@@ -467,7 +468,22 @@ Implicit wires
 --------------
 
 Implicit wires are commonly employed for power supply and ground
-connections.  They have the `implicit` attribute.
+connections.  They have one of the following attributes:
+ - `implicit` equivalent to signal ground
+ - `sground`  signal ground      
+ - `ground`  earth ground
+ - `cground`  chassis ground
+ - `nground`  noiseless ground
+ - `pground`  protected ground
+ - `rground`  reference ground          
+
+For example:
+   
+.. literalinclude:: examples/schematics/grounds.sch
+
+.. image:: examples/schematics/grounds.png
+   :width: 10cm
+  
 
 
 Block diagrams
@@ -602,7 +618,7 @@ with the color attribute, for example:
 Line styles
 -----------
 
-The line style of wires can be changed using the tikz attributes, `dashed`, `dotted`, `thick`, `ultra thick`, `line width`, and many others.  For example,
+The line style of wires can be changed using the tikz attributes, `dashed`, `dotted`, `thick`, `ultra thick`, `line width`, `densely dotted`, `loosely dashed` and many others.  For example,
 
 .. literalinclude:: examples/schematics/wirestyles.sch
 
@@ -678,6 +694,8 @@ Component attributes
 - `aspect`: set aspect ratio for boxes
 
 - `pins`: define pin labels for ICs
+
+- `anchors`: specify which anchors to show
 
 - `offset`: distance to orthogonally offset component (useful for parallel components)
   
