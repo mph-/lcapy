@@ -49,7 +49,9 @@ class Cpt(object):
     flow_keys = ('f', 'f_', 'f^', 'f_>',  'f_<', 'f^>', 'f^<',
                     'f>_', 'f<_', 'f>^', 'f<^', 'f>', 'f<')    
     label_keys = ('l', 'l_', 'l^')
-    implicit_keys =  ('implicit', 'ground', 'sground', 'rground')
+    implicit_keys =  ('implicit', 'ground', 'sground', 'rground',
+                      'cground', 'nground', 'pground', 'vss', 'vdd',
+                      'vee', 'vcc')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
