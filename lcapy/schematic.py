@@ -169,6 +169,13 @@ class Node(object):
     def basename(self):
         fields = self.name.split('.')
         return fields[-1]
+
+    @property
+    def cptname(self):
+        fields = self.name.split('.')
+        if len(fields) < 2:
+            return None
+        return fields[-2]
         
     def __repr__(self):
         return '%s @ (%s)' % (self.name, self.pos)
@@ -437,49 +444,6 @@ class Schematic(NetfileMixin):
         for node in cpt.required_node_names:
             self._node_add(node, cpt, auxiliary=False)
 
-    def match_nodes(self, cptname):
-        """Search for all nodes referencing cptname."""
-        
-        nodes = set()
-        for nodename, node in self.nodes.items():
-            fields = nodename.split('.')
-            if len(fields) >= 2 and fields[-2] == cptname:
-                nodes.add(node)
-        return sorted(list(nodes), key=lambda node:node.name)
-            
-    def check_nodes(self):
-
-        def check_node(node):
-
-            node_name = node.name            
-            for elt in node.elt_list:
-                if node_name in elt.required_node_names:
-                    return True
-                if node_name in elt.auxiliary_node_names:
-                    return True                
-            return False
-        
-        for node in self.nodes.values():
-            if check_node(node):
-                continue
-
-            # We get here if a node has the wrong name.   This
-            # is to notify the user that there is something wrong.
-            node_name = node.name
-            if '.' not in node_name:
-                # Something is wrong...
-                raise ValueError('Unknown node %s.' % node_name)
-
-            parts = node_name.split('.')
-            cpt_name = '.'.join(parts[0:-1])
-            if cpt_name not in self.elements:
-                raise ValueError('Unknown component name %s for node %s'
-                                 % (cpt_name, node_name))
-            node_names = self.elements[cpt_name].node_names
-            if node_name not in node_names:
-                raise ValueError('Unknown node %s. Possible names: %s' %
-                                 (node.name, ', '.join(node_names)))
-            
     def make_graphs(self):
 
         # The x and y positions of a component node are determined
@@ -556,40 +520,15 @@ class Schematic(NetfileMixin):
 
         return wires
 
-    def _assign_pins(self):
-
-        for nodename, node1 in self.nodes.items():        
-            fields = nodename.split('.')
-            if len(fields) < 2:
-                continue
-            for elt_type in ('U', 'MX', 'S', 'SP', 'TP', 'TR'):
-                if fields[-2].startswith(elt_type):
-                    node1.pin = True
-                    continue
-
-    def _ref_nodes_check(self):
-        """Determine which nodes are referenced for each component."""
-
-        for elt in self.elements.values():
-            elt.ref_node_names = [node.name for node in self.match_nodes(elt.name)]
-
-    def _process_pins(self):
-
-        for elt in self.elements.values():
-            elt.process_pins()
-
-    def _process_nodes(self):
+    def _setup(self):
         # This is called before node positions are assigned.
 
-        self.check_nodes()
-        self._ref_nodes_check()
-        self._assign_pins()
-        # Add additional pin nodes so they get positioned.
-        self._process_pins()
+        for elt in self.elements.values():
+            elt.setup()
                 
     def _tikz_draw(self, style_args='', **kwargs):
 
-        self._process_nodes()
+        self._setup()
         
         self._positions_calculate()
 

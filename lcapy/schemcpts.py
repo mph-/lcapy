@@ -54,7 +54,8 @@ class Cpt(object):
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
-                 'aspect', 'pins', 'image', 'offset')
+                 'aspect', 'pins', 'image', 'offset', 'pinlabels',
+                 'pinnames', 'pinnodes', 'outside', 'pinmap')
 
     can_rotate = True
     can_scale = False
@@ -566,8 +567,8 @@ class Cpt(object):
     def draw(self, **kwargs):
         raise NotImplementedError('draw method not implemented for %s' % self)
 
-    def process_pins(self):
-        return []    
+    def setup(self):
+        pass
 
     def opts_str_list(self, choices):
         """Format voltage, current, or label string as a key-value pair
@@ -1436,9 +1437,8 @@ class Shape(FixedCpt):
         # pinnames=all  show all pinnames (connected or not)
         # pinnames=none show no pinnames       
 
-        # For backwards compatibility, check anchors option.        
         pinnames = self.opts.get('pinnames', 'none')
-            
+
         if pinnames == 'none':
             return []
         elif pinnames in ('', 'connected', 'auto'):
@@ -1493,8 +1493,22 @@ class Shape(FixedCpt):
             node.pinpos = self.allpins[node.basename][0]            
             node.pinname = node.basename
             
-    def process_pins(self):
+    def find_ref_node_names(self):
+        """Determine which nodes are referenced for this component."""
 
+        ref_node_names = []
+
+        for nodename, node in self.sch.nodes.items():
+            if (node.cptname == self.name
+                and node.basename not in self.drawing_pins):
+                ref_node_names.append(node.name)
+                # Mark as pin
+                node.pin = True
+        return ref_node_names
+
+    def setup(self):
+        
+        self.ref_node_names = self.find_ref_node_names()
         self.process_pinnodes()
         self.process_pinlabels()
         self.process_pinnames()        
@@ -1656,7 +1670,6 @@ class TR(Box2):
     default_width = 1.5
     default_aspect = 1.5
     node_pinnames = ('w', 'e')    
-
 
 class Chip(Shape):
     """General purpose chip"""
