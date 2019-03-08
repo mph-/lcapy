@@ -198,10 +198,7 @@ class Node(object):
         return self._count
 
     def belongs(self, cpt_name):
-        fields = self.name.split('.')
-        if len(fields) < 2:
-            return False
-        return fields[-2] == cpt_name
+        return self.cptname == cpt_name
     
     def visible(self, draw_nodes):
         """Return true if node drawn.

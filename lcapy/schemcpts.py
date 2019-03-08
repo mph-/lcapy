@@ -1507,7 +1507,7 @@ class Shape(FixedCpt):
         ref_node_names = []
 
         for nodename, node in self.sch.nodes.items():
-            if (node.cptname == self.name
+            if (node.belongs(self.name)
                 and node.basename not in self.drawing_pins):
                 ref_node_names.append(node.name)
                 # Mark as pin
