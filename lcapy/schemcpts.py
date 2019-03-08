@@ -303,6 +303,14 @@ class Cpt(object):
                 return node
         raise ValueError('Unknown pinname %s for %s' % (pinname, self))
 
+    def pinpos(self, pinname):
+        """Return pinpos by pinname"""
+
+        if pinname not in self.allpins:
+            raise ValueError('Unknown pin %s for %s, known pins: %s'
+                             % (pinname, self.name, ', '.join(list(self.allpins))))
+        return self.allpins[pinname][0]        
+    
     @property
     def nodes(self):
         """Nodes used to draw the current element."""
@@ -1463,7 +1471,7 @@ class Shape(FixedCpt):
             # Add pin to nodes so that it will get allocated a coord.
             node = self.sch._node_add(nodename, self, auxiliary=True)
             node.pin = True
-            node.pinpos = self.allpins[node.basename][0]
+            node.pinpos = self.pinpos(node.basename)
 
             # TODO, perhaps use pinlabel to indicate clock?
             node.clock = pinlabel != '' and pinlabel[0] == '>'
@@ -1480,7 +1488,7 @@ class Shape(FixedCpt):
             # Add pin to nodes so that it will get allocated a coord.
             node = self.sch._node_add(pinnode, self, auxiliary=True)
             node.pin = True
-            node.pinpos = self.allpins[node.basename][0]            
+            node.pinpos = self.pinpos(node.basename)
             self.drawn_pins.append(node)
 
     def process_pinnames(self):
@@ -1490,7 +1498,7 @@ class Shape(FixedCpt):
             # Add pin to nodes so that it will get allocated a coord.
             node = self.sch._node_add(pinname, self, auxiliary=True)
             node.pin = True
-            node.pinpos = self.allpins[node.basename][0]            
+            node.pinpos = self.pinpos(node.basename)
             node.pinname = node.basename
             
     def find_ref_node_names(self):
