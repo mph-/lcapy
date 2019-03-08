@@ -64,10 +64,10 @@ class Cpt(object):
     default_aspect = 1.0
     # node_pinnames maps node numbers to pinnames
     node_pinnames = ()
-    # these are the pinnames required by lcapy, usually to find the centre
-    required_pins = ()
+    # pinnames required by lcapy for positioning and extent calculation
     default_pins = ()
     pins = {}
+    drawing_pins = {}
 
     @property
     def s(self):
@@ -97,12 +97,15 @@ class Cpt(object):
         # Auxiliary nodes are used by lcapy, usually for finding
         # the centre of the shape.
         auxiliary_node_names = []
-        for pin in self.required_pins:
+        for pin in self.drawing_pins:
             node_name = name + '.' + pin
             auxiliary_node_names.append(node_name)
 
         self.auxiliary_node_names = auxiliary_node_names
 
+        self.allpins = self.pins.copy()
+        self.allpins.update(self.drawing_pins)
+        
         pin_node_names = []
         for pin in self.pins.keys():
             node_name = name + '.' + pin
@@ -341,7 +344,7 @@ class Cpt(object):
                 raise ValueError('Unknown node %s' % node_name)
 
             if pinname != '':
-                rcoords.append(self.pins[pinname][1:])
+                rcoords.append(self.allpins[pinname][1:])
         return rcoords
 
     @property
@@ -462,13 +465,12 @@ class Cpt(object):
             s += r'  \draw (%s) node[ocirc] {};''\n' % n.s
         return s
 
-    def draw_pin_label(self, node):
+    def draw_pinlabel(self, node):
 
         if node.pinlabel == '':
             return ''
 
-        pinpos = self.pins[node.basename][0]
-
+        pinpos = node.pinpos
         pinpos = self.pinpos_rotate(pinpos, self.angle)
         
         outside = self.opts.get('outside', False)
@@ -479,7 +481,7 @@ class Cpt(object):
                        't' : 'b', 'b' : 't'}
             pinpos = mapping[pinpos]
             
-        node.pinpos = pinpos
+        node.labelpos = pinpos
 
         anchors = {None: 'south east',
                    'c': 'south east',
@@ -488,7 +490,32 @@ class Cpt(object):
         anchor = anchors[pinpos]
 
         return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
-            anchor, node.s, node.pinlabel.replace('_', r'\_'))        
+            anchor, node.s, node.pinlabel.replace('_', r'\_'))
+
+    def draw_pinname(self, node):
+
+        if node.pinname == '':
+            return ''
+
+        pinpos = node.pinpos        
+        pinpos = self.pinpos_rotate(pinpos, self.angle)
+
+        # Move pinnames to outside
+        mapping = {None: None,
+                   'c': 'c',
+                   'l' : 'r', 'r' : 'l', 
+                   't' : 'b', 'b' : 't'}
+        pinpos = mapping[pinpos]
+            
+        anchors = {None: 'south east',
+                   'c': 'south east',
+                   'l' : 'west', 'r' : 'east', 
+                   't' : 'north', 'b' : 'south'}
+        anchor = anchors[pinpos]
+
+        return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
+            anchor, node.s, node.pinname.replace('_', r'\_'))        
+    
 
     def draw_node_label(self, node, label_nodes):
 
@@ -526,8 +553,9 @@ class Cpt(object):
             if node.pin:
                 if not node.belongs(self.name):
                     continue
-                s += self.draw_pin_label(node)
-                # Perhaps also allow node label...
+                s += self.draw_pinname(node)
+                s += self.draw_pinlabel(node)
+
             else:
                 if node.auxiliary:
                     continue
@@ -1288,8 +1316,11 @@ class Shape(FixedCpt):
     can_mirror = True
     pinlabels = {}
 
-    required_pins = ('mid', )    
-    pins = {'mid' : ('c', 0.0, 0.0)}    
+    drawing_pins = {'mid' : ('c', 0.0, 0.0),
+                    'bl' : ('l', -0.5, -0.5),
+                    'br' : ('r', 0.5, -0.5),
+                    'tl' : ('l', -0.5, 0.5),
+                    'tr' : ('r', 0.5, 0.5)}
 
     @property
     def width(self):
@@ -1326,8 +1357,8 @@ class Shape(FixedCpt):
 
         # pinlabels, pinlabels=, pinlabels=auto  label connected pins with defined labels
         # pinlabels={pin1, pin2, ...} label specified pins by pinname
-        # pinlabels=all  label all pins (connected or not)
-        # pinlabels=none label no pins       
+        # pinlabels=all  label all pinlabels (pins connected or not)
+        # pinlabels=none label no pinlabels 
 
         def pinlabel(nodename):
 
@@ -1335,10 +1366,10 @@ class Shape(FixedCpt):
             pinname = fields[-1]
             
             try:
-                return self.pinlabel[pinname]
+                return self.pinlabels[pinname]
             except:
                 pass
-            return pinname
+            return ''
 
         prefix = self.name + '.'
 
@@ -1349,12 +1380,10 @@ class Shape(FixedCpt):
             
         if pinlabels == 'none':
             return {}
-        elif pinlabels in ('', 'auto'):
-            return {prefix + pinlabel:pinlabel for pinlabel in self.pinlabels}
-        elif pinlabels == 'connected':
-            return {name:pinlabel(name) for name in self.ref_node_names}
+        elif pinlabels in ('', 'auto', 'connected'):
+            return {name:pinlabel(name) for name in self.ref_node_names if pinlabel(name) != ''}
         elif pinlabels == 'all':
-            return {name:pinlabel(name) for name in self.pin_node_names}
+            return {name:pinlabel(name) for name in self.pin_node_names if pinlabel(name) != ''}
         else:
             if pinlabels[0] != '{':
                 raise ValueError('Expecting { for pinlabels in %s' % self)
@@ -1390,6 +1419,7 @@ class Shape(FixedCpt):
         elif pinnodes in ('', 'connected', 'auto'):
             return [name for name in self.ref_node_names]
         elif pinnodes == 'all':
+            # Perhaps show drawing pins as well?
             return self.pin_node_names
         else:
             if pinnodes[0] != '{':
@@ -1398,6 +1428,32 @@ class Shape(FixedCpt):
                 raise ValueError('Expecting } for pinnodes in %s' % self)
             pinnodes = pinnodes[1:-1]
             return [self.name + '.' + pinnode for pinnode in pinnodes.split(',')]
+
+    def parse_pinnames(self):
+
+        # pinnames, pinnames=, pinnames=auto  show connected pinnames
+        # pinnames={pin1, pin2, ...} show specified pinnames by pinname
+        # pinnames=all  show all pinnames (connected or not)
+        # pinnames=none show no pinnames       
+
+        # For backwards compatibility, check anchors option.        
+        pinnames = self.opts.get('pinnames', 'none')
+            
+        if pinnames == 'none':
+            return []
+        elif pinnames in ('', 'connected', 'auto'):
+            return [name for name in self.ref_node_names]
+        elif pinnames == 'all':
+            # Perhaps show drawing pins as well?
+            return self.pin_node_names
+        else:
+            if pinnames[0] != '{':
+                raise ValueError('Expecting { for pinnames in %s' % self)
+            if pinnames[-1] != '}':
+                raise ValueError('Expecting } for pinnames in %s' % self)
+            pinnames = pinnames[1:-1]
+            return [self.name + '.' + pinname for pinname in pinnames.split(',')]
+        
     
     def process_pinlabels(self):
 
@@ -1407,6 +1463,7 @@ class Shape(FixedCpt):
             # Add pin to nodes so that it will get allocated a coord.
             node = self.sch._node_add(nodename, self, auxiliary=True)
             node.pin = True
+            node.pinpos = self.allpins[node.basename][0]
 
             # TODO, perhaps use pinlabel to indicate clock?
             node.clock = pinlabel != '' and pinlabel[0] == '>'
@@ -1420,15 +1477,27 @@ class Shape(FixedCpt):
 
         pinnodes = self.parse_pinnodes()
         for pinnode in pinnodes:
-            # Add pinnode to nodes so that it will get allocated a coord.
+            # Add pin to nodes so that it will get allocated a coord.
             node = self.sch._node_add(pinnode, self, auxiliary=True)
-            node.pin = True            
+            node.pin = True
+            node.pinpos = self.allpins[node.basename][0]            
             self.drawn_pins.append(node)
+
+    def process_pinnames(self):
+
+        pinnames = self.parse_pinnames()
+        for pinname in pinnames:
+            # Add pin to nodes so that it will get allocated a coord.
+            node = self.sch._node_add(pinname, self, auxiliary=True)
+            node.pin = True
+            node.pinpos = self.allpins[node.basename][0]            
+            node.pinname = node.basename
             
     def process_pins(self):
 
         self.process_pinnodes()
         self.process_pinlabels()
+        self.process_pinnames()        
             
     def draw(self, **kwargs):
 
@@ -1455,8 +1524,7 @@ class Box2(Shape):
 
     shape = 'rectangle'
     pins = {'w' : ('l', -0.5, 0),
-            'e' : ('r', 0.5, 0),
-            'mid' : ('c', 0, 0)}
+            'e' : ('r', 0.5, 0)}
     
     
 class Box4(Shape):
@@ -1466,8 +1534,7 @@ class Box4(Shape):
     pins = {'w' : ('l', -0.5, 0),
             's' : ('b', 0, -0.5),
             'e' : ('r', 0.5, 0),
-            'n' : ('t', 0, 0.5),
-            'mid' : ('c', 0, 0)}
+            'n' : ('t', 0, 0.5)}
     
 
 class Box12(Shape):
@@ -1485,8 +1552,7 @@ class Box12(Shape):
             'ene' : ('r', 0.5, 0.25),
             'nne' : ('t', 0.25, 0.5),
             'n' : ('t', 0, 0.5),
-            'nnw' : ('t', -0.25, 0.5),               
-            'mid' : ('c', 0, 0)}    
+            'nnw' : ('t', -0.25, 0.5)}
 
 
 class Box(Shape):
@@ -1500,8 +1566,7 @@ class Box(Shape):
             'se' : ('b', 0.5, -0.5), 'ese' : ('r', 0.5, -0.25),
             'e' : ('r', 0.5, 0), 'ene' : ('r', 0.5, 0.25),
             'ne' : ('t', 0.5, 0.5), 'nne' : ('t', 0.25, 0.5),
-            'n' : ('t', 0, 0.5), 'nnw' : ('t', -0.25, 0.5),
-            'mid' : ('c', 0.0, 0.0)}
+            'n' : ('t', 0, 0.5), 'nnw' : ('t', -0.25, 0.5)}
 
 
 class Ellipse(Shape):
@@ -1516,8 +1581,7 @@ class Ellipse(Shape):
             'se' : ('r', 0.3536, -0.3536), 'ese' : ('r', 0.4619, -0.1913),
             'e' : ('r', 0.5, 0), 'ene' : ('r', 0.4619, 0.1913),
             'ne' : ('r', 0.3536, 0.35365), 'nne' : ('t', 0.1913, 0.4619),
-            'n' : ('t', 0, 0.5), 'nnw' : ('t', -0.1913, 0.4619),
-            'mid' : ('c', 0.0, 0.0)}
+            'n' : ('t', 0, 0.5), 'nnw' : ('t', -0.1913, 0.4619)}
 
 
 class Circle(Ellipse):
@@ -1531,8 +1595,7 @@ class Circle2(Shape):
 
     shape = 'circle'
     pins = {'w' : ('l', -0.5, 0),
-            'e' : ('r', 0.5, 0),
-            'mid' : ('c', 0, 0)}
+            'e' : ('r', 0.5, 0)}
     
 
 class Circle4(Shape):
@@ -1542,8 +1605,7 @@ class Circle4(Shape):
     pins = {'w' : ('l', -0.5, 0),
             's' : ('b', 0, -0.5),
             'e' : ('r', 0.5, 0),
-            'n' : ('t', 0, 0.5),
-            'mid' : ('c', 0, 0)}
+            'n' : ('t', 0, 0.5)}
 
 
 class Triangle(Shape):
@@ -1551,7 +1613,6 @@ class Triangle(Shape):
     aspect."""    
 
     shape = 'triangle'
-    required_pins = ('mid', 'n', 'w', 'e')
     
     # 1 / sqrt(3) approx 0.5774, 1 / (2 * sqrt(3)) approx 0.2887
     pins = {'n' : ('t', 0.0, 0.5774),
@@ -1569,16 +1630,22 @@ class Triangle(Shape):
             'wsw' : ('b', -0.375, -0.2887),
             'ese' : ('b', 0.375, -0.2887),
             'ene' : ('r', 0.375, -0.075),
-            'wnw' : ('l', -0.375, -0.075),                              
-            'mid' : ('c', 0.0, 0.0)}
+            'wnw' : ('l', -0.375, -0.075)}
+
+    drawing_pins = {'mid' : ('c', 0.0, 0.0),
+                    'bl' : ('l', -0.5, -0.2887),
+                    'br' : ('r', 0.5, -0.2887),
+                    't' : ('t', 0, 0.5774),                    
+                    'tl' : ('l', -0.5, 0.5774),
+                    'tr' : ('r', 0.5, 0.5774)}
 
     def draw(self, **kwargs):
 
         if not self.check():
             return ''
 
-        s = self.draw_path([self.node('n').pos, self.node('w').pos,
-                            self.node('e').pos], closed=True, style='thick')
+        s = self.draw_path([self.node('t').pos, self.node('bl').pos,
+                            self.node('br').pos], closed=True, style='thick')
         s += self.draw_label(self.node('mid').pos, **kwargs)
 
         return s
@@ -1635,30 +1702,28 @@ class Uchip1310(Chip):
     """Chip of size 1 3 1 0"""
 
     default_aspect = 4.0 / 3.0
-    pins = {'w' : ('l', 0, 0),
-            'sw' : ('b', 0.25, -0.5),
-            's' : ('b', 0.5, -0.5),
-            'se': ('b', 0.75, -0.5),
-            'e': ('r', 1, 0),               
-            'mid': ('c', 0.5, 0)}
+    pins = {'w' : ('l', -0.5, 0),
+            'sw' : ('b', -0.25, -0.5),
+            's' : ('b', 0, -0.5),
+            'se': ('b', 0.25, -0.5),
+            'e': ('r', 0.5, 0)}
     
 
 class Uchip2121(Chip):
     """Chip of size 2 1 2 1"""
 
-    pins = {'nw' : ('l', 0, 0.25),
-            'sw' : ('l', 0, -0.25),
-            's' : ('b', 0.5, -0.5),
-            'se': ('r', 1.0, -0.25),
-            'ne': ('r', 1, 0.25),
-            'n': ('t', 0.5, 0.5),
-            'in1' : ('l', 0, 0.25),
-            'in2' : ('l', 0, -0.25),
-            'vss' : ('b', 0.5, -0.5),
-            'out2': ('r', 1.0, -0.25),
-            'out1': ('r', 1, 0.25),
-            'vdd': ('t', 0.5, 0.5),
-            'mid': ('c', 0.5, 0)}
+    pins = {'nw' : ('l', -0.5, 0.25),
+            'sw' : ('l', -0.5, -0.25),
+            's' : ('b', 0, -0.5),
+            'se': ('r', 0.5, -0.25),
+            'ne': ('r', 0.5, 0.25),
+            'n': ('t', 0, 0.5),
+            'in1' : ('l', -0.5, 0.25),
+            'in2' : ('l', -0.5, -0.25),
+            'vss' : ('b', 0, -0.5),
+            'out2': ('r', 0.5, -0.25),
+            'out1': ('r', 0.5, 0.25),
+            'vdd': ('t', 0, 0.5)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD'}
 
@@ -1680,8 +1745,7 @@ class Uchip3131(Chip):
             'out3': ('r', 0.5, -0.25),
             'out2': ('r', 0.5, 0),               
             'out1': ('r', 0.5, 0.25),
-            'vdd': ('t', 0.0, 0.375),                              
-            'mid': ('c', 0.0, 0.0)}
+            'vdd': ('t', 0.0, 0.375)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD'}
 
@@ -1715,30 +1779,28 @@ class Uchip4141(Chip):
             'out3': ('r', 0.5, -0.125),               
             'out2': ('r', 0.5, 0.125),
             'out1': ('r', 0.5, 0.375),
-            'vdd': ('t', 0.0, 0.5),
-            'mid': ('c', 0.0, 0.0)}        
+            'vdd': ('t', 0.0, 0.5)}
     
 class Uadc(Chip):
     """ADC"""
 
-    pins = {'in' : ('l', 0, 0),
-            'in+' : ('l', 0.0625, 0.125),
-            'in-' : ('l', 0.0625, -0.125),
-            'vref-' : ('l', 0.125, -0.25),
-            'vref+' : ('l', 0.125, 0.25),                              
-            'avss' : ('b', 0.4, -0.5),
-            'dvss' : ('b', 0.8, -0.5),
-            'clk' : ('r', 1, -0.25),
-            'data' : ('r', 1, 0),
-            'fs' : ('r', 1, 0.25),
-            'dvdd' : ('t', 0.8, 0.5),
-            'avdd' : ('t', 0.4, 0.5),
-            'mid' : ('s', 0.5, 0)}
+    pins = {'in' : ('l', -0.5, 0),
+            'in+' : ('l', -0.4375, 0.125),
+            'in-' : ('l', -0.4375, -0.125),
+            'vref-' : ('l', -0.375, -0.25),
+            'vref+' : ('l', -0.375, 0.25),                              
+            'avss' : ('b', -0.1, -0.5),
+            'dvss' : ('b', 0.3, -0.5),
+            'clk' : ('r', 0.5, -0.25),
+            'data' : ('r', 0.5, 0),
+            'fs' : ('r', 0.5, 0.25),
+            'dvdd' : ('t', 0.3, 0.5),
+            'avdd' : ('t', -0.1, 0.5)}
     
     pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+',
                  'dvss': 'DVSS', 'dvdd' : 'DVDD',
                  'avss': 'AVSS', 'avdd' : 'AVDD',                 
-                 'clk' : '<CLK', 'data' : 'DATA', 'fs' : 'FS'}
+                 'clk' : '>', 'data' : 'DATA', 'fs' : 'FS'}
 
     @property
     def path(self):
@@ -1749,11 +1811,10 @@ class Uregulator(Chip):
     """Voltage regulator"""
 
     default_aspect = 4.0 / 3.0
-    pins = {'in' : ('l', 0, 0),
-            'en' : ('b', 0.25, -0.5),
-            'gnd' : ('b', 0.5, -0.5),               
-            'out': ('r', 1, 0),               
-            'mid': ('c', 0.5, 0)}
+    pins = {'in' : ('l', -0.5, 0),
+            'en' : ('b', -0.25, -0.5),
+            'gnd' : ('b', 0, -0.5),               
+            'out': ('r', 0.5, 0)}
     
     pinlabels = {'en' : 'E', 'gnd' : 'GND'}
     
@@ -1761,23 +1822,22 @@ class Uregulator(Chip):
 class Udac(Chip):
     """DAC"""
 
-    pins = {'out' : ('r', 1, 0),
-            'out+' : ('r', 0.9375, 0.125),
-            'out-' : ('r', 0.9375, -0.125),               
-            'vref-' : ('r', 0.875, -0.25),
-            'vref+' : ('r', 0.875, 0.25),
-            'avss' : ('b', 0.6, -0.5),
-            'dvss' : ('b', 0.2, -0.5),
-            'clk' : ('l', 0, -0.25),
-            'data' : ('l', 0, 0),
-            'fs' : ('l', 0, 0.25),
-            'dvdd' : ('t', 0.2, 0.5),
-            'avdd' : ('t', 0.6, 0.5),
-            'mid' : ('c', 0.5, 0)}
+    pins = {'out' : ('r', 0.5, 0),
+            'out+' : ('r', 0.4375, 0.125),
+            'out-' : ('r', 0.4375, -0.125),               
+            'vref-' : ('r', 0.375, -0.25),
+            'vref+' : ('r', 0.375, 0.25),
+            'avss' : ('b', 0.1, -0.5),
+            'dvss' : ('b', -0.3, -0.5),
+            'clk' : ('l', -0.5, -0.25),
+            'data' : ('l', -0.5, 0),
+            'fs' : ('l', -0.5, 0.25),
+            'dvdd' : ('t', -0.3, 0.5),
+            'avdd' : ('t', 0.1, 0.5)}
     
     pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+', 'dvss': 'DVSS',
                  'dvdd' : 'DVDD', 'avss': 'AVSS', 'avdd' : 'AVDD',
-                 'clk' : '<CLK', 'data' : 'DATA', 'fs' : 'FS'}
+                 'clk' : '>', 'data' : 'DATA', 'fs' : 'FS'}
     
     @property
     def path(self):
@@ -1793,8 +1853,7 @@ class Udiffamp(Chip):
             'in-' : ('l', -0.5, -0.25),
             'vss' : ('b', 0, -0.25),
             'out' : ('r', 0.5, 0),
-            'vdd' : ('t', 0, 0.25),
-            'mid' : ('c', 0, 0)}
+            'vdd' : ('t', 0, 0.25)}
 
     pinlabels = {'in+' : '+', 'in+' : '-', 'vss' : 'VSS', 'vdd' : 'VDD'}
 
@@ -1808,12 +1867,11 @@ class Ubuffer(Chip):
 
     default_width = 1.0
 
-    pins = {'in' : ('l', 0, 0),
-            'vss' : ('b', 0.5, -0.25),
-            'out' : ('r', 1.0, 0),
-            'vdd': ('t', 0.5, 0.25),
-            'en': ('b', 0.25, 0.375),
-            'mid': ('b', 0.5, 0)}
+    pins = {'in' : ('l', -0.5, 0),
+            'vss' : ('b', 0, -0.25),
+            'out' : ('r', 0.5, 0),
+            'vdd': ('t', 0, 0.25),
+            'en': ('b', -0.25, 0.375)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD', 'en' : 'E'}
 
@@ -1827,12 +1885,11 @@ class Uinverter(Chip):
 
     default_width = 1.0
 
-    pins = {'in' : ('l', 0, 0),
-            'vss' : ('b', 0.5, -0.22),
-            'out' : ('r', 1.0, 0),
-            'vdd': ('t', 0.5, 0.22),
-            'en': ('b', 0.25, 0.37),
-            'mid': ('c', 0.5, 0)}
+    pins = {'in' : ('l', -0.5, 0),
+            'vss' : ('b', 0, -0.22),
+            'out' : ('r', 0.5, 0),
+            'vdd': ('t', 0, 0.22),
+            'en': ('b', -0.25, 0.37)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD', 'en' : 'E'}
 
@@ -1862,8 +1919,7 @@ class Udff(Chip):
             'vss' : ('b', 0.0, -0.375),
             '/q': ('r', 0.5, -0.25),
             'q': ('r', 0.5, 0.25),
-            'vdd': ('t', 0.0, 0.375),                              
-            'mid': ('c', 0.0, 0.0)}
+            'vdd': ('t', 0.0, 0.375)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
                  'd' : 'D', 'q' : 'Q', '/q' : '\overline{Q}', 'clk' : '>'}
@@ -1877,8 +1933,7 @@ class Ujkff(Chip):
             'vss' : ('b', 0.0, -0.375),
             '/q': ('r', 0.5, -0.25),
             'q': ('r', 0.5, 0.25),
-            'vdd': ('t', 0.0, 0.375),                              
-            'mid': ('c', 0.0, 0.0)}
+            'vdd': ('t', 0.0, 0.375)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
                  'j' : 'J', 'k' : 'K',
@@ -1893,8 +1948,7 @@ class Urslatch(Chip):
             'vss' : ('b', 0.0, -0.375),
             '/q': ('r', 0.5, -0.25),
             'q': ('r', 0.5, 0.25),
-            'vdd': ('t', 0.0, 0.375),                              
-            'mid': ('c', 0.0, 0.0)}
+            'vdd': ('t', 0.0, 0.375)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
                  'r' : 'R', 's' : 'S',
@@ -1909,29 +1963,28 @@ class Opamp(Chip):
     # The Nm node is not used (ground).
     node_pinnames = ('out', '', 'in+', 'in-')
     
-    ppins = {'out' : ('r', 2.5, 0.0),
-             'in+' : ('l', 0.0, 0.5),
-             'in-' : ('l', 0.0, -0.5),
-             'mid' : ('c', 1.25, 0.0),
-             'vdd' : ('t', 1.25, 0.5),
-             'vdd2' : ('t', 0.8, 0.745),
-             'vss2' : ('b', 0.8, -0.745),
-             'vss' : ('b', 1.25, -0.5),
-             'ref' : ('b', 1.7, -0.255),
-             'r+' : ('t', 0.35, 0.25),
-             'r-' : ('b', 0.35, -0.25)}
-    
-    npins = {'out' : ('r', 2.5, 0.0),
-             'in+' : ('l', 0.0, -0.5),
-             'in-' : ('l', 0.0, 0.5),
-             'mid' : ('c', 1.25, 0.0),
-             'vdd' : ('t', 1.25, 0.5),
-             'vdd2' : ('t', 0.8, 0.745),
-             'vss2' : ('b', 0.8, -0.745),
-             'vss' : ('b', 1.25, -0.5),
-             'ref' : ('b', 1.7, -0.255),
-             'r+' : ('t', 0.35, 0.25),
-             'r-' : ('b', 0.35, -0.25)}
+    ppins = {'out' : ('r', 1.25, 0.0),
+             'in+' : ('l', -1.25, 0.5),
+             'in-' : ('l', -1.25, -0.5),
+             'vdd' : ('t', -0.45, 0.5),
+             'vdd2' : ('t', -0.45, 0.745),
+             'vss2' : ('b', -0.45, -0.745),
+             'vss' : ('b', 0, -0.5),
+             'ref' : ('b', 0.45, -0.255),
+             'r+' : ('t', -0.9, 0.25),
+             'r-' : ('b', -0.9, -0.25)}
+
+    npins = {'out' : ('r', 1.25, 0.0),
+             'in-' : ('l', -1.25, 0.5),
+             'in+' : ('l', -1.25, -0.5),
+             'vdd' : ('t', -0.45, 0.5),
+             'vdd2' : ('t', -0.45, 0.745),
+             'vss2' : ('b', -0.45, -0.745),
+             'vss' : ('b', 0, -0.5),
+             'ref' : ('b', 0.45, -0.255),
+             'r-' : ('t', -0.9, 0.25),
+             'r+' : ('b', -0.9, -0.25)}    
+
     
     pinlabels = {'out+' : 'out-', 'out-' : '-', 'in+': '+', 'in-' : '-',
                  'vdd' : 'VDD', 'vss' : 'VSS'}
@@ -1970,25 +2023,23 @@ class FDOpamp(Chip):
 
     node_pinnames = ('out+', 'out-', 'in+', 'in-')
 
-    ppins = {'out+' : ('r', 2.1, -0.5),
-             'out-' : ('r', 2.1, 0.5),                
-             'in+' : ('l', 0.0, 0.5),
-             'in-' : ('l', 0.0, -0.5),
-             'mid' : ('c', 1.25, 0.0),
-             'vdd' : ('t', 1.0, 0.645),
-             'vss' : ('b', 1.0, -0.645),
-             'r+' : ('t', 0.4, 0.25),
-             'r-' : ('b', 0.4, -0.25)}
-    
-    npins = {'out+' : ('r', 2.1, 0.5),
-             'out-' : ('r', 2.1, -0.5),
-             'in+' : ('l', 0.0, -0.5),
-             'in-' : ('l', 0.0, 0.5),
-             'mid' : ('c', 1.25, 0.0),
-             'vdd' : ('t', 1.0, 0.645),
-             'vss' : ('b', 1.0, -0.645),
-             'r+' : ('t', 0.4, 0.25),
-             'r-' : ('b', 0.4, -0.25)}
+    ppins = {'out+' : ('r', 0.85, -0.5),
+             'out-' : ('r', 0.85, 0.5),                
+             'in+' : ('l', -1.25, 0.5),
+             'in-' : ('l', -1.25, -0.5),
+             'vdd' : ('t', -0.25, 0.645),
+             'vss' : ('b', -0.25, -0.645),
+             'r+' : ('t', -0.85, 0.25),
+             'r-' : ('b', -0.85, -0.25)}
+
+    npins = {'out-' : ('r', 0.85, -0.5),
+             'out+' : ('r', 0.85, 0.5),                
+             'in-' : ('l', -1.25, 0.5),
+             'in+' : ('l', -1.25, -0.5),
+             'vdd' : ('t', -0.25, 0.645),
+             'vss' : ('b', -0.25, -0.645),
+             'r-' : ('t', -0.85, 0.25),
+             'r+' : ('b', -0.85, -0.25)}    
     
     pinlabels = {'out+' : 'out-', 'out-' : '-', 'in+': '+', 'in-' : '-',
                  'vdd' : 'VDD', 'vss' : 'VSS'}

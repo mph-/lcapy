@@ -1,2 +1,2 @@
-S1 box; right=2, anchors=all, pins=all, outside, l={}
+S1 box; right=2, pinnodes=all, pinnames=all, outside, l={}
 ; help_lines=1

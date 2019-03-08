@@ -1,8 +1,8 @@
-U1 chip3131; right=1.8, l=MCU, pins={out3=RXD, out2=TXD, out1=PIO1}, aspect=0.8
-U2 chip3131; right=1.8, l={\hspace{5mm}Bluetooth}, pins={in2=RXD, in3=TXD}, aspect=0.8
+U1 chip3131; right=1.8, l=MCU, pinnames={out3=RXD, out2=TXD, out1=PIO1}, aspect=0.8
+U2 chip3131; right=1.8, l={\hspace{5mm}Bluetooth}, pinnames={in2=RXD, in3=TXD}, aspect=0.8
 W U1.out2 U2.in2; right=2.5
 W U1.out3 U2.in3; right=2.5
-U3 regulator; right=1.5, aspect=1.5, pins={en=EN}, l=VREG
+U3 regulator; right=1.5, aspect=1.5, pinnames={en=EN}, l=VREG
 W U1.out1 1; right=0.25
 W 1 U3.en; up
 W U3.out 2; right=0.5

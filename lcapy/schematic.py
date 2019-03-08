@@ -156,9 +156,10 @@ class Node(object):
         # Sanitised name
         self.s = name.replace('.', '@')
         self.label = name
-        # TODO for label positioning
         self.labelpos = None        
         self.pinlabel = ''
+        self.namepos = None                
+        self.pinname = ''
         self.pinpos = None
         self.pin = False
         self.clock = False

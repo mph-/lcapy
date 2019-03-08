@@ -1,4 +1,4 @@
-U1 chip4141; right, pins={out1=PIO1,out3=PIO2}
+U1 chip4141; right, pinnames={out1=PIO1,out3=PIO2}
 W U1.vdd VDD; implicit, up=0.2, l=3V3
 W U1.vss 0; implicit, down=0.5, l=0V
 R1 U1.out1 1; right

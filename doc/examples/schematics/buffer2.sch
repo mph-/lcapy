@@ -1,1 +1,1 @@
-U1 buffer; down, pins
+U1 buffer; down, pinnames

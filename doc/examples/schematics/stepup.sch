@@ -1,4 +1,4 @@
-U1 chip2121; right, l=MCU, pins={out2=PWM2, out1=PWM1}
+U1 chip2121; right, l=MCU, pinnames={out2=PWM2, out1=PWM1}
 M1 9 10 11; right
 M2 12 13 14; right
 W U1.out1 10; right=0.1
