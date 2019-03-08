@@ -1,4 +1,4 @@
-U1 buffer; right, pinnames={vdd=VDDIO}
+U1 buffer; right, pinlabels={vdd=VDDIO}
 W U1.out 1; right=0.5
 R 1 2; right=2, i>^=I_o
 D 2 0_2 led; down, v=V_f, l={}
