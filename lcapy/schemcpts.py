@@ -30,7 +30,7 @@ module = sys.modules[__name__]
 
 # There are two paradigms used for specifying node coordinates:
 #
-# 1.  The old model.  The required_node_names method returns subset of
+# 1.  The old model.  The required_node_names method returns a subset of
 # node_names as a list.
 #
 # 2.  The new model.  The node_pinnames attribute specifies the subset
@@ -75,13 +75,14 @@ class Cpt(object):
         """Sanitised name"""
         return self.name.replace('.', '@')
 
-    def __init__(self, sch, name, cpt_type, cpt_id, string,
+    def __init__(self, sch, namespace, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
 
         self.sch = sch
         self.type = cpt_type
         self.id = cpt_id
         self.name = name
+        self.namespace = namespace
 
         self.net = string.split(';')[0]
         self.opts_string = opts_string
@@ -95,11 +96,20 @@ class Cpt(object):
         # The ordering of this list is important.
         self.node_names = node_names
 
+        # The relative node names start with a .
+        self.relative_node_names = []
+        for name in node_names:
+            fields = name.split('.')
+            if len(fields) < 2:
+                continue
+            if fields[-2] == self.name:
+                self.relative_node_names.append(name)
+        
         # Auxiliary nodes are used by lcapy, usually for finding
         # the centre of the shape.
         auxiliary_node_names = []
         for pin in self.drawing_pins:
-            node_name = name + '.' + pin
+            node_name = self.name + '.' + pin
             auxiliary_node_names.append(node_name)
 
         self.auxiliary_node_names = auxiliary_node_names
@@ -109,7 +119,7 @@ class Cpt(object):
         
         pin_node_names = []
         for pin in self.pins.keys():
-            node_name = name + '.' + pin
+            node_name = self.name + '.' + pin
             pin_node_names.append(node_name)
 
         # These are all the pin names belonging to the cpt.
@@ -575,8 +585,29 @@ class Cpt(object):
     def draw(self, **kwargs):
         raise NotImplementedError('draw method not implemented for %s' % self)
 
+    def find_ref_node_names(self):
+        """Determine which nodes are referenced for this component."""
+
+        ref_node_names = []
+
+        for nodename, node in self.sch.nodes.items():
+            if nodename in self.relative_node_names:
+                node.ref = self
+            elif node.belongs(self.name):
+                if node.basename not in self.allpins:
+                    continue
+                node.ref = self
+                node.pin = True
+                if node.basename not in self.drawing_pins:
+                    ref_node_names.append(node.name)
+            elif self.namespace != '' and nodename.startswith(self.namespace):
+                # Need to be lenient here since can have any old name.
+                node.ref = self                
+
+        return ref_node_names
+    
     def setup(self):
-        pass
+        self.find_ref_node_names()
 
     def opts_str_list(self, choices):
         """Format voltage, current, or label string as a key-value pair
@@ -1138,12 +1169,12 @@ class TFtap(TF1):
 class K(TF1):
     """Mutual coupling"""
 
-    def __init__(self, sch, name, cpt_type, cpt_id, string,
+    def __init__(self, sch, namespace, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super (K, self).__init__(sch, name, cpt_type, cpt_id, string,
+        super (K, self).__init__(sch, namespace, name, cpt_type, cpt_id, string,
                                  opts_string, node_names, keyword, *args[2:])
 
     @property
@@ -1470,6 +1501,7 @@ class Shape(FixedCpt):
         for nodename, pinlabel in pinlabels.items():
             # Add pin to nodes so that it will get allocated a coord.
             node = self.sch._node_add(nodename, self, auxiliary=True)
+            node.ref = self
             node.pin = True
             node.pinpos = self.pinpos(node.basename)
 
@@ -1487,7 +1519,8 @@ class Shape(FixedCpt):
         for pinnode in pinnodes:
             # Add pin to nodes so that it will get allocated a coord.
             node = self.sch._node_add(pinnode, self, auxiliary=True)
-            node.pin = True
+            node.ref = self
+            node.pin = True            
             node.pinpos = self.pinpos(node.basename)
             self.drawn_pins.append(node)
 
@@ -1497,25 +1530,13 @@ class Shape(FixedCpt):
         for pinname in pinnames:
             # Add pin to nodes so that it will get allocated a coord.
             node = self.sch._node_add(pinname, self, auxiliary=True)
-            node.pin = True
+            node.ref = self
+            node.pin = True            
             node.pinpos = self.pinpos(node.basename)
             node.pinname = node.basename
             
-    def find_ref_node_names(self):
-        """Determine which nodes are referenced for this component."""
-
-        ref_node_names = []
-
-        for nodename, node in self.sch.nodes.items():
-            if (node.belongs(self.name)
-                and node.basename not in self.drawing_pins):
-                ref_node_names.append(node.name)
-                # Mark as pin
-                node.pin = True
-        return ref_node_names
-
     def setup(self):
-        
+
         self.ref_node_names = self.find_ref_node_names()
         self.process_pinnodes()
         self.process_pinlabels()
@@ -2100,7 +2121,7 @@ class FDOpamp(Chip):
 
 class Wire(OnePort):
 
-    def __init__(self, sch, name, cpt_type, cpt_id, string,
+    def __init__(self, sch, namespace, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
 
         implicit = False
@@ -2115,7 +2136,8 @@ class Wire(OnePort):
             # not drawn.
             node_names = (node_names[0], name + '@_' + node_names[1])
         
-        super (Wire, self).__init__(sch, name, cpt_type, cpt_id, string,
+        super (Wire, self).__init__(sch, namespace, name, cpt_type,
+                                    cpt_id, string,
                                     opts_string, node_names, keyword, *args)
         self.implicit = implicit
 

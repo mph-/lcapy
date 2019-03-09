@@ -54,7 +54,7 @@ class Cpt(object):
     need_extra_branch_current = False    
     need_control_current = False
 
-    def __init__(self, cct, name, cpt_type, cpt_id, string,
+    def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
 
         self.cct = cct
@@ -718,12 +718,12 @@ class I(IndependentSource):
 
 class K(Cpt):
     
-    def __init__(self, cct, name, cpt_type, cpt_id, string,
+    def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super (K, self).__init__(cct, name, cpt_type, cpt_id, string,
+        super (K, self).__init__(cct, namespace, name, cpt_type, cpt_id, string,
                                  opts_string, nodes, keyword, *args)
 
     def stamp(self, cct):

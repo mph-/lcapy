@@ -249,6 +249,6 @@ class Parser(object):
 
         keyword = (pos, keyword)
 
-        return self.cpts.make(rule.classname, parent, name,
+        return self.cpts.make(rule.classname, parent, namespace, name,
                               cpt_type, cpt_id, string, opts_string,
                               tuple(nodes), keyword, *args)

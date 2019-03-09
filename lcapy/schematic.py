@@ -157,13 +157,15 @@ class Node(object):
         self.s = name.replace('.', '@')
         self.label = name
         self.labelpos = None        
+        self.pin = False
         self.pinlabel = ''
         self.namepos = None                
         self.pinname = ''
         self.pinpos = None
-        self.pin = False
         self.clock = False
         self.auxiliary = None
+        # Reference to node that defines the pin
+        self.ref = None
 
     @property
     def basename(self):
@@ -522,6 +524,13 @@ class Schematic(NetfileMixin):
 
         for elt in self.elements.values():
             elt.setup()
+
+        for nodename, node in self.nodes.items():
+            if node.ref is not None:
+                continue
+            if node.cptname is not None:
+                raise ValueError('Unreferenced pin connection %s for %s' % (node.name, node.elt_list))
+            
                 
     def _tikz_draw(self, style_args='', **kwargs):
 
