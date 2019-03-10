@@ -1540,7 +1540,11 @@ class Shape(FixedCpt):
 
         self.process_pinnodes()
         self.process_pinlabels()
-        self.process_pinnames()        
+        self.process_pinnames()
+
+        # Ensure all the nodes are marked as pins.
+        for node in self.nodes:
+            node.pin = True
             
     def draw(self, **kwargs):
 
@@ -1556,7 +1560,7 @@ class Shape(FixedCpt):
         text_width = self.width * 0.8
 
         # shape border rotate rotates the box but not the text
-        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%scm, minimum height=%scm, text width=%scm, align=center, shape border rotate=%s, draw, %s] (%s) {%s};''\n'% (
+        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%scm, minimum height=%scm, text width=%.2fcm, align=center, shape border rotate=%s, draw, %s] (%s) {%s};''\n'% (
             self.centre, self.shape, self.width, self.height, 
             text_width, self.angle, self.args_str, self.s, label)
         return s
@@ -1996,8 +2000,8 @@ class Opamp(Chip):
              'vss2' : ('b', -0.45, -0.745),
              'vss' : ('b', 0, -0.5),
              'ref' : ('b', 0.45, -0.255),
-             'r+' : ('t', -0.9, 0.25),
-             'r-' : ('b', -0.9, -0.25)}
+             'r+' : ('l', -1.25, 0.25),
+             'r-' : ('l', -1.25, -0.25)}
 
     npins = {'out' : ('r', 1.25, 0.0),
              'in-' : ('l', -1.25, 0.5),
@@ -2007,11 +2011,10 @@ class Opamp(Chip):
              'vss2' : ('b', -0.45, -0.745),
              'vss' : ('b', 0, -0.5),
              'ref' : ('b', 0.45, -0.255),
-             'r-' : ('t', -0.9, 0.25),
-             'r+' : ('b', -0.9, -0.25)}    
+             'r-' : ('l', -1.25, 0.25),
+             'r+' : ('l', -1.25, -0.25)}    
 
-    
-    pinlabels = {'out+' : 'out-', 'out-' : '-', 'in+': '+', 'in-' : '-',
+    pinlabels = {'out+' : '+', 'out-' : '-', 'in+': '+', 'in-' : '-',
                  'vdd' : 'VDD', 'vss' : 'VSS'}
 
     @property
@@ -2029,6 +2032,9 @@ class Opamp(Chip):
 
         centre = self.node('mid')
 
+        # TODO: perhaps draw ourselves rather than relying on circuitikz
+        # and not have connecting wires, the same as other chips?
+        
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             centre.s,
@@ -2054,8 +2060,8 @@ class FDOpamp(Chip):
              'in-' : ('l', -1.25, -0.5),
              'vdd' : ('t', -0.25, 0.645),
              'vss' : ('b', -0.25, -0.645),
-             'r+' : ('t', -0.85, 0.25),
-             'r-' : ('b', -0.85, -0.25)}
+             'r+' : ('l', -1.25, 0.25),
+             'r-' : ('l', -1.25, -0.25)}
 
     npins = {'out-' : ('r', 0.85, -0.5),
              'out+' : ('r', 0.85, 0.5),                
@@ -2063,10 +2069,10 @@ class FDOpamp(Chip):
              'in+' : ('l', -1.25, -0.5),
              'vdd' : ('t', -0.25, 0.645),
              'vss' : ('b', -0.25, -0.645),
-             'r-' : ('t', -0.85, 0.25),
-             'r+' : ('b', -0.85, -0.25)}    
+             'r-' : ('l', -1.25, 0.25),
+             'r+' : ('l', -1.25, -0.25)}    
     
-    pinlabels = {'out+' : 'out-', 'out-' : '-', 'in+': '+', 'in-' : '-',
+    pinlabels = {'out+' : '+', 'out-' : '-', 'in+': '+', 'in-' : '-',
                  'vdd' : 'VDD', 'vss' : 'VSS'}
     
     @property
