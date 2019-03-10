@@ -562,10 +562,10 @@ class Schematic(NetfileMixin):
             s += r'\draw[help lines, %s] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
                 color, start, help, help, stop)
 
-        # Write coordinates
+        # Write coordinates.  TODO, not all coordinates are needed
+        # so those can be weeded out.
         for n in self.nodes.values():
-            if not n.auxiliary:
-                s += r'  \coordinate (%s) at (%s);''\n' % (n.s, n.pos)
+            s += r'  \coordinate (%s) at (%s);''\n' % (n.s, n.pos)
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):
