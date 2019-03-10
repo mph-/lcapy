@@ -1055,8 +1055,8 @@ class Expr(object):
 
     @property
     def symbols(self):
-        """Return list of symbols in the expression."""
-        return list(self.free_symbols)
+        """Return dictionary of symbols in the expression keyed by name."""
+        return {sym.name:sym for sym in self.free_symbols}
     
 
 def expr(string, **assumptions):
