@@ -224,6 +224,37 @@ These options can be stored with the schematic netlist, for example::
   ; draw_nodes=connections, label_nodes=False, label_ids=False
 
 
+Node names
+---------  
+
+Circuit nodes are usually indentified by a number.  However, they can
+given arbitrary names with the exception of names containing a period
+(.) or an underscore (_).
+
+Node names starting with a period are a short-hand notation.  For
+example::
+
+  R1 1 .2; right
+  C1 R1.2 3; right
+
+is short-hand for::
+
+  R1 1 R1.2; right
+  C1 R1.2 3; right
+
+Nodes without an underscore in them are considered primary nodes.
+Nodes with an underscore are considered secondary nodes (usually they
+are at the same potential as a primary node and do not need to be
+labelled).
+
+Node names can also refer to pins of shape and chip components.  For example::
+
+  U1 regulator; right
+  W  1 U1.in; right
+  W  U1.gnd 0; down
+  
+  
+
 Components
 ==========
 
@@ -463,7 +494,7 @@ There are many arrow styles, see the tikz manual.  For example,
 .. image:: examples/schematics/arrows.png
    :width: 5cm
 
-
+           
 Implicit wires
 --------------
 

@@ -18,9 +18,9 @@ O 4 13; right
 O 6 11; right
 W 13 23; down, i=i_c
 C2 23 0_23; down, dashed, blue
-W 0_1 0_23; right, l={common ground}
-W 0 0_1; right=0.25
-W 0_23 0_24; right=0.25
+W 0_1 0_1g; down=0.1, ground
+W 0_23 0_23g; down=0.1, ground
+O 0_1 0_23; right
 ;;\node[blue,draw,dashed,inner sep=5mm,anchor=north, fit=(1) (5) (7), label=Device 1] {};
 ;;\node[blue,draw,dashed,inner sep=5mm,anchor=north, fit=(11) (13), label=Device 2] {};
 ;draw_nodes=connections, label_nodes=false

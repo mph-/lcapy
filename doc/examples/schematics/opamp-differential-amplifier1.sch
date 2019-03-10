@@ -11,3 +11,4 @@ W 0 0_3; right
 P2 3 0_3; down
 W 2_1 2; down
 W 3_1 3_2; down
+;draw_nodes=connections

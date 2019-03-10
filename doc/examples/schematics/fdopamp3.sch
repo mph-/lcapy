@@ -11,3 +11,4 @@ W 2 2_1; down
 R2 5_1 3_1; right
 W 6_2 6_1; down
 R4 2_1 6_1; right
+; draw_nodes=connections
