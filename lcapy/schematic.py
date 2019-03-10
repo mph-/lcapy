@@ -166,6 +166,9 @@ class Node(object):
         self.auxiliary = None
         # Reference to node that defines the pin
         self.ref = None
+        # Node is connected to a ground, etc. (an implicit power
+        # supply connection)
+        self.implicit = False
 
     @property
     def basename(self):
@@ -216,6 +219,9 @@ class Node(object):
         if self.pin:
             return False
 
+        if self.implicit:
+            return False        
+
         if self._port:
             return True
 
@@ -226,7 +232,7 @@ class Node(object):
         if self.count == 1:
             return True
 
-        if draw_nodes == 'connections':
+        if draw_nodes in ('connections', 'connected'):
             return self.count > 2
 
         if draw_nodes == 'primary':        

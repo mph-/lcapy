@@ -607,7 +607,7 @@ class Cpt(object):
         return ref_node_names
     
     def setup(self):
-        self.find_ref_node_names()
+        self.ref_node_names = self.find_ref_node_names()
 
     def opts_str_list(self, choices):
         """Format voltage, current, or label string as a key-value pair
@@ -1536,8 +1536,8 @@ class Shape(FixedCpt):
             node.pinname = node.basename
             
     def setup(self):
+        super (Shape, self).setup()
 
-        self.ref_node_names = self.find_ref_node_names()
         self.process_pinnodes()
         self.process_pinlabels()
         self.process_pinnames()        
@@ -2149,6 +2149,12 @@ class Wire(OnePort):
                 anchor, lpos, self.label(**kwargs))
         return s
 
+    def setup(self):
+        super (Wire, self).setup()
+
+        if self.implicit:
+            self.nodes[1].implicit = True        
+    
     def draw(self, **kwargs):
 
         if not self.check():
