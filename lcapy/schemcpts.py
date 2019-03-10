@@ -868,43 +868,6 @@ class MOSFET(Transistor):
     ppos = ((0.85, 0), (-0.25, 0.82), (0.85, 1.64))
 
 
-class TwoPort(FixedCpt):
-    """Two-port"""
-
-    # TODO
-    can_rotate = False
-
-    @property
-    def coords(self):
-        return ((1.5, 1), (1.5, 0), (0, 1), (0, 0))
-
-    def draw(self, **kwargs):
-
-        if not self.check():
-            return ''
-
-        n1, n2, n3, n4 = self.nodes
-        width = n2.pos.x - n4.pos.x
-        centre = (n1.pos + n2.pos + n3.pos + n4.pos) * 0.25
-
-        q = self.tf(centre, ((-1.5, -1.5), (-1.5, 1.5), (1.5, 1.5), (1.5, -1.5),
-                             (0, 1.15)))
-
-        top = q[4]
-
-        titlestr = ''
-        if len(self.args) > 0:
-            titlestr = "%s-parameter two-port" % self.args[0]
-
-        s = self.draw_path(q[0:4], closed=True)
-        s += r'  \draw (%s) node[text width=%.1fcm, align=center] (%s) {%s};''\n' % (
-            centre, width, titlestr, self.s)
-        s += r'  \draw (%s) node[text width=%.1fcm, align=center, %s] {%s};''\n' % (
-            top, width, self.args_str, self.label(**kwargs))
-
-        return s
-
-
 class MT(StretchyCpt):
     """Motor"""
 
@@ -1359,6 +1322,7 @@ class Shape(FixedCpt):
     drawing_pins = {'mid' : ('c', 0.0, 0.0),
                     'bl' : ('l', -0.5, -0.5),
                     'br' : ('r', 0.5, -0.5),
+                    't' : ('t', 0, 0.5),
                     'tl' : ('l', -0.5, 0.5),
                     'tr' : ('r', 0.5, 0.5)}
 
@@ -1697,6 +1661,14 @@ class Triangle(Shape):
 
         return s
 
+class TwoPort(Box12):
+    """Two-port"""
+
+    default_width = 1.5
+    default_aspect = 1.5
+    node_pinnames = ('nne', 'sse', 'nnw', 'ssw')
+    
+
 class TR(Box2):
     """Transfer function"""
 
@@ -1704,6 +1676,7 @@ class TR(Box2):
     default_aspect = 1.5
     node_pinnames = ('w', 'e')    
 
+    
 class Chip(Shape):
     """General purpose chip"""
 
