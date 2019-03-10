@@ -814,8 +814,8 @@ class FixedCpt(Cpt):
 class Transistor(FixedCpt):
     """Transistor"""
     
-    npos = ((1, 1.5), (0, 0.75), (1, 0))
-    ppos = ((1, 0), (0, 0.75), (1, 1.5))
+    npos = ((1, 1.6), (0, 0.8), (1, 0))
+    ppos = ((1, 0), (0, 0.8), (1, 1.6))
 
     can_mirror = True
     can_scale = True
