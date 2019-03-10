@@ -207,7 +207,26 @@ class sExpr(sfwExpr):
         from .plot import plot_pole_zero
         return plot_pole_zero(self, **kwargs)
 
+    def coeffs(self):
+        """Return list of coeffs assuming the expr is a polynomial in s.  The
+        highest powers come first.  This will fail for a rational
+        function.
 
+        """
+        z = sym.Poly(self.expr, self.var)
+        return z.all_coeffs()
+
+    def normcoeffs(self):
+        """Return list of coeffs (normalised so the highest power is 1)
+        assuming the expr is a polynomial in s.  The highest powers
+        come first.  This will fail for a rational function.
+
+        """
+        z = sym.Poly(self.expr, self.var)
+        c = z.all_coeffs()
+        return [sym.simplify(c1 / c[0]) for c1 in c]
+
+    
 # Perhaps use a factory to create the following classes?
 
 class Zs(sExpr):
