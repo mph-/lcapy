@@ -564,7 +564,8 @@ class Schematic(NetfileMixin):
 
         # Write coordinates
         for n in self.nodes.values():
-            s += r'  \coordinate (%s) at (%s);''\n' % (n.s, n.pos)
+            if not n.auxiliary:
+                s += r'  \coordinate (%s) at (%s);''\n' % (n.s, n.pos)
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):
