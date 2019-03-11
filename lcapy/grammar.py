@@ -87,6 +87,7 @@ Ubox12: Uname box12; Box
 Ucircle4: Uname circle4; Circle
 Uchip1310: Uname chip1310; Chip
 Uchip2121: Uname chip2121; Chip
+Uchip2222: Uname chip2222; Chip
 Uchip3131: Uname chip3131; Chip
 Uchip4141: Uname chip4141; Chip
 Udff: Uname dff; D flip/flop
@@ -149,6 +150,7 @@ box12: keyword;
 circle4: keyword;
 chip1310: keyword;
 chip2121: keyword;
+chip2222: keyword;
 chip3131: keyword;
 chip4141: keyword;
 pp: keyword;

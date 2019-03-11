@@ -55,7 +55,7 @@ class Cpt(object):
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
-                 'pinnames', 'pinnodes', 'outside', 'pinmap')
+                 'pinnames', 'pinnodes', 'pindefs', 'outside', 'pinmap')
 
     can_rotate = True
     can_scale = False
@@ -104,23 +104,29 @@ class Cpt(object):
                 continue
             if fields[-2] == self.name:
                 self.relative_node_names.append(name)
+
+        prefix = self.name + '.'
         
         # Auxiliary nodes are used by lcapy, usually for finding
         # the centre of the shape.
         auxiliary_node_names = []
         for pin in self.drawing_pins:
-            node_name = self.name + '.' + pin
-            auxiliary_node_names.append(node_name)
+            auxiliary_node_names.append(prefix + pin)
 
         self.auxiliary_node_names = auxiliary_node_names
 
         self.allpins = self.pins.copy()
         self.allpins.update(self.drawing_pins)
-        
+
         pin_node_names = []
+        
+        self.pindefs = self.parse_pindefs()
+        for nodename, pindef in self.pindefs.items():
+            self.allpins[pindef] = self.allpins[nodename]
+            pin_node_names.append(prefix + pindef)            
+        
         for pin in self.pins.keys():
-            node_name = self.name + '.' + pin
-            pin_node_names.append(node_name)
+            pin_node_names.append(prefix + pin)
 
         # These are all the pin names belonging to the cpt.
         self.pin_node_names = pin_node_names
@@ -609,6 +615,9 @@ class Cpt(object):
     def setup(self):
         self.ref_node_names = self.find_ref_node_names()
 
+    def parse_pindefs(self):
+        return {}
+        
     def opts_str_list(self, choices):
         """Format voltage, current, or label string as a key-value pair
         and return list of strings"""
@@ -1456,7 +1465,32 @@ class Shape(FixedCpt):
                 raise ValueError('Expecting } for pinnames in %s' % self)
             pinnames = pinnames[1:-1]
             return [self.name + '.' + pinname for pinname in pinnames.split(',')]
-        
+
+    def parse_pindefs(self):
+
+        # pindefs={pin1=alias1, pin2=alias2, ...} define pins
+
+        pindefs = self.opts.get('pindefs', None)
+        if pindefs is None:
+            return {}
+
+        if pindefs[0] != '{':
+            raise ValueError('Expecting { for pindefs in %s' % self)
+        if pindefs[-1] != '}':
+            raise ValueError('Expecting } for pindefs in %s' % self)
+        pindefs = pindefs[1:-1]
+        prefix = self.name + '.'
+        foo = {}
+        for pindef in pindefs.split(','):
+            fields = pindef.split('=')
+            if len(fields) < 2:
+                raise ValueError('Expecting = in pindef %s' % pindef)
+            pinname = fields[1]
+            pindef = fields[0]
+            if pinname not in self.pins:
+                raise ValueError('Unknown pin %s in pindef' % pinname)
+            foo[pinname] = pindef
+        return foo
     
     def process_pinlabels(self):
 
@@ -1661,6 +1695,7 @@ class Triangle(Shape):
 
         return s
 
+    
 class TwoPort(Box12):
     """Two-port"""
 
@@ -1722,9 +1757,9 @@ class Uchip1310(Chip):
 
     default_aspect = 4.0 / 3.0
     pins = {'in' : ('l', -0.5, 0),
-            'bot1' : ('b', -0.25, -0.5),
-            'bot2' : ('b', 0, -0.5),
-            'bot3': ('b', 0.25, -0.5),
+            'b1' : ('b', -0.25, -0.5),
+            'b2' : ('b', 0, -0.5),
+            'b3': ('b', 0.25, -0.5),
             'out': ('r', 0.5, 0)}
     
 
@@ -1740,6 +1775,7 @@ class Uchip2121(Chip):
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD'}
 
+    
 class Uchip3131(Chip):
     """Chip of size 3 1 3 1"""
 
@@ -1758,6 +1794,19 @@ class Uchip3131(Chip):
     def path(self):
         return ((-0.5, 0.375), (0.5, 0.375), (0.5, -0.375), (-0.5, -0.375))
 
+
+class Uchip2222(Chip):
+    """Chip of size 2 2 2 2"""
+
+    pins = {'l1' : ('l', -0.5, 0.25),
+            'l2' : ('l', -0.5, -0.25),
+            'b1' : ('b', -0.25, -0.5),
+            'b2' : ('b', 0.25, -0.5),
+            'r1' : ('r', 0.5, 0.25),
+            'r2' : ('r', 0.5, -0.25),
+            't1' : ('t', -0.25, 0.5),
+            't2' : ('t', 0.25, 0.5)}
+    
 
 class Uchip4141(Chip):
     """Chip of size 4 1 4 1"""
@@ -1873,6 +1922,8 @@ class Ubuffer(Chip):
             'vss' : ('b', 0, -0.25),
             'out' : ('r', 0.5, 0),
             'vdd': ('t', 0, 0.25),
+            'vdd1': ('t', -0.25, 0.375),
+            'vdd2': ('t', 0.25, 0.125),                        
             'en': ('b', -0.25, 0.375)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD', 'en' : 'E'}
