@@ -119,15 +119,21 @@ class Cpt(object):
         self.allpins.update(self.drawing_pins)
 
         pin_node_names = []
+        for pin in self.pins.keys():
+            pin_node_names.append(prefix + pin)
         
         self.pindefs = self.parse_pindefs()
         for nodename, pindef in self.pindefs.items():
-            self.allpins[pindef] = self.allpins[nodename]
+            if True:
+                # Remove old name.
+                self.allpins[pindef] = self.allpins.pop(nodename)
+                pin_node_names.remove(prefix + nodename)
+            else:
+                # Keep old name as an alias.  This will cause problems
+                # when printing pinnodes.
+                self.allpins[pindef] = self.allpins[nodename]                
             pin_node_names.append(prefix + pindef)            
         
-        for pin in self.pins.keys():
-            pin_node_names.append(prefix + pin)
-
         # These are all the pin names belonging to the cpt.
         self.pin_node_names = pin_node_names
             
