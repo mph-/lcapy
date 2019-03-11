@@ -1846,7 +1846,7 @@ class Uadc(Chip):
             'data' : ('r', 0.5, 0),
             'fs' : ('r', 0.5, 0.25),
             'dvdd' : ('t', 0.3, 0.5),
-            'dvd' : ('t', 0.1, 0.5),            
+            'vdd' : ('t', 0.1, 0.5),            
             'avdd' : ('t', -0.1, 0.5)}
     
     pinlabels = {'vref-' : 'VREF-', 'vref+' : 'VREF+',
