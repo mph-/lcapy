@@ -1963,8 +1963,8 @@ class Uinverter(Chip):
         # Append inverting circle.
         centre = self.node('mid')                
         q = self.tf(centre.pos, ((0.45, 0)))
-        s += r'  \draw[thick] (%s) node[ocirc, scale=%s] {};''\n' % (
-            q, 1.8 * self.size * self.scale)
+        s += r'  \draw[thick] (%s) node[ocirc, scale=%s, %s] {};''\n' % (
+            q, 1.8 * self.size * self.scale, self.args_str)
         return s
 
 class Udff(Chip):
