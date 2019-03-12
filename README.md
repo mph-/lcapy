@@ -201,7 +201,7 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
-- Version 0.30.2 reworks schematic drawing.  The syntax for chips has changed since there are no explicit nodes in the netlist.
+- Version 0.31.0 reworks schematic drawing.  The syntax for chips has changed since there are no explicit nodes in the netlist.
 
 - Version 0.30.0 tweaks the syntax to perform transformations based on the argument, e.g., V(s) or V(t)
 

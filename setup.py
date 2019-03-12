@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-setup(name='lcapy', version='0.30.2',
+setup(name='lcapy', version='0.31.0',
       description='Symbolic linear circuit analysis',
       author='Michael Hayes',
       requires=['sympy', 'numpy', 'scipy'],

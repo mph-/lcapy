@@ -317,6 +317,8 @@ The supported chips are:
  - `buffer`
  - `inverter`
  - `regulator`
+ - `adc`
+ - `dac`
  - `dff`
  - `jkff`
  - `rslatch` 
@@ -359,10 +361,10 @@ The supported chips are:
    :width: 5cm                                                   
 
 .. image:: examples/schematics/Uinverter.png
-   :width: 3cm
+   :width: 3.5cm
 
 .. image:: examples/schematics/Ubuffer.png
-   :width: 3cm                                                   
+   :width: 3.5cm                                                   
            
 
            
