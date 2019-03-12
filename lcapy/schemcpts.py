@@ -505,19 +505,18 @@ class Cpt(object):
         pinpos = self.pinpos_rotate(pinpos, self.angle)
         
         outside = self.opts.get('outside', False)
-        if outside == '':
-            mapping = {None: None,
-                       'c': 'c',
-                       'l' : 'r', 'r' : 'l', 
-                       't' : 'b', 'b' : 't'}
-            pinpos = mapping[pinpos]
-            
-        node.labelpos = pinpos
 
-        anchors = {None: 'south east',
-                   'c': 'south east',
-                   'l' : 'west', 'r' : 'east', 
-                   't' : 'north', 'b' : 'south'}
+        if outside == '':            
+            anchors = {None: 'south east',
+                       'c': 'south east',
+                       'l' : 'south east', 'r' : 'north west', 
+                       't' : 'north west', 'b' : 'south west'}
+        else:
+            anchors = {None: 'south east',
+                       'c': 'south east',
+                       'l' : 'west', 'r' : 'east', 
+                       't' : 'north', 'b' : 'south'}
+
         anchor = anchors[pinpos]
 
         return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
