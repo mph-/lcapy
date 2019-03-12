@@ -510,7 +510,7 @@ class Cpt(object):
             anchors = {None: 'south east',
                        'c': 'south east',
                        'l' : 'south east', 'r' : 'north west', 
-                       't' : 'north west', 'b' : 'south west'}
+                       't' : 'south west', 'b' : 'north west'}
         else:
             anchors = {None: 'south east',
                        'c': 'south east',
