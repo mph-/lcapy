@@ -85,7 +85,7 @@ Ucircle: Uname circle; Circle
 Ubox4: Uname box4; Box
 Ubox12: Uname box12; Box
 Ucircle4: Uname circle4; Circle
-Uchip1310: Uname chip1310; Chip
+Uchip1313: Uname chip1313; Chip
 Uchip2121: Uname chip2121; Chip
 Uchip2222: Uname chip2222; Chip
 Uchip3131: Uname chip3131; Chip
@@ -149,7 +149,7 @@ triangle: keyword;
 box4: keyword;
 box12: keyword;
 circle4: keyword;
-chip1310: keyword;
+chip1313: keyword;
 chip2121: keyword;
 chip2222: keyword;
 chip3131: keyword;

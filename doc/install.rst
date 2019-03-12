@@ -8,7 +8,7 @@ Installation
 
 - For plotting you need to install matplotlib (this requires NumPy).
 
-- For schematic drawing you need pdflatex, the circuitikz package (https://www.ctan.org/pkg/circuitikz), the imagemagick convert program (http://www.imagemagick.org/), and ghostscript (http://www.ghostscript.com/).
+- For schematic drawing you need pdflatex, the circuitikz package (https://www.ctan.org/pkg/circuitikz), the imagemagick convert program (http://www.imagemagick.org/), and ghostscript (http://www.ghostscript.com/).   Lcapy currently expects circuitikz version 2017/05/28.  Unfortunately, different circuitikz releases tweak component sizes.
 
 - For nice rendering of maths you need mathjax
   (https://www.mathjax.org/).  This is not essential, if it is not

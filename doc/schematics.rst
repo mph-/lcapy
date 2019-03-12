@@ -302,29 +302,77 @@ ICs can be drawn but not simulated.  Here's an example:
 
 In this example, the `chip2121` keyword specifies a block with two
 pins on the left, one on the bottom, two on the right, and one at the
-top.  The pins are enumerated anti-clockwise from top-left.  Since the
-pin names start with a dot the associated node names are prefixed by
-the name of the chip, for example, `U1.out1`.
-
-With the `pins` attribute set to `all` or `connected`, the pins are labelled with
-their anchor names.
+top.  The component has pre-defined pinnames, `l1`, `l2`, `vss`, `r2`,
+`r1`, and `vdd`; these can be modified.  Since the pin names start
+with a dot the associated node names are prefixed by the name of the
+chip, for example, `U1.out1`.
 
 The supported chips are:
- - `chip1310`
- - `chip2121`
+ - `chip1313`
+ - `chip2121`  
+ - `chip2222`
  - `chip3131`
+ - `chip3333`  
  - `chip4141`
  - `buffer`
  - `inverter`
- - `regulator`  
+ - `regulator`
+ - `dff`
+ - `jkff`
+ - `rslatch` 
 
-Here's another example where the pin labels are explicitly defined
-with the `pins` attribute:
 
-.. literalinclude:: examples/schematics/stepup.sch
+.. image:: examples/schematics/Uchip1313.png
+   :width: 5cm
 
-.. image:: examples/schematics/stepup.png
-   :width: 8cm
+.. image:: examples/schematics/Uchip2121.png
+   :width: 5cm
+
+.. image:: examples/schematics/Uchip2222.png
+   :width: 5cm
+        
+.. image:: examples/schematics/Uchip3131.png
+   :width: 5cm
+
+.. image:: examples/schematics/Uchip3333.png
+   :width: 5cm
+
+.. image:: examples/schematics/Uchip4141.png
+   :width: 5cm
+
+.. image:: examples/schematics/Uregulator.png
+   :width: 5cm
+
+.. image:: examples/schematics/Uadc.png
+   :width: 5cm                                        
+
+.. image:: examples/schematics/Udac.png
+   :width: 5cm
+
+.. image:: examples/schematics/Udff.png
+   :width: 5cm
+
+.. image:: examples/schematics/Ujkff.png
+   :width: 5cm
+
+.. image:: examples/schematics/Urslatch.png
+   :width: 5cm                                                   
+
+.. image:: examples/schematics/Uinverter.png
+   :width: 3cm
+
+.. image:: examples/schematics/Ubuffer.png
+   :width: 3cm                                                   
+           
+
+           
+Chips are subclassed from the shape class and thus the pins can be
+labelled, renamed, etc.  For example:
+
+.. literalinclude:: examples/schematics/pindefs1.sch
+
+.. image:: examples/schematics/pindefs1.png
+   :width: 4cm
 
 
 Meters
@@ -601,6 +649,33 @@ The label of a shape can be replaced by an image, using the `image` keyword.  Fo
 .. literalinclude:: examples/schematics/image1.sch
 
 
+Each shape has a number of predefined connection pins.  Associated
+with each pin is an optional label.
+
+
+The `pinlabels` option can be specified as:
+ - `all` : the default labels for all the pins are shown
+ - `connected` : the default labels for all the connected pins are shown  
+ - `none` : none of the default labels are shown
+ - `{pin1:label1, pin2:label2, ...}` : the labels are specified for the named pins.
+
+The names of the pins can be drawn using the `pinnames` option.  This has a syntax:
+ - `all` : the pin names for all the pins are shown
+ - `connected` : the pin names for all the connected pins are shown  
+ - `none` : none of the pin names are shown
+ - `{pin1, pin2, ...}` : the speficied pin names are shown.
+
+The nodes of the pins can be drawn using the `pinnodes` option.  This has a syntax:
+ - `all` : the pin nodes for all the pins are shown
+ - `connected` : the pin nodes for all the connected pins are shown  
+ - `none` : none of the pin nodes are shown
+ - `{pin1, pin2, ...}` : the speficied pin nodes are shown.     
+
+The pin names can be redefined by the `pindefs` option.  This has a syntax:
+  - `pindefs={new1=old1, new2=old2, ...}`
+
+
+                    
 Annotation
 ==========
 
