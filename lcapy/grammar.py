@@ -89,6 +89,7 @@ Uchip1310: Uname chip1310; Chip
 Uchip2121: Uname chip2121; Chip
 Uchip2222: Uname chip2222; Chip
 Uchip3131: Uname chip3131; Chip
+Uchip3333: Uname chip3333; Chip
 Uchip4141: Uname chip4141; Chip
 Udff: Uname dff; D flip/flop
 Ujkff: Uname jkff; D flip/flop
@@ -152,6 +153,7 @@ chip1310: keyword;
 chip2121: keyword;
 chip2222: keyword;
 chip3131: keyword;
+chip3333: keyword;
 chip4141: keyword;
 pp: keyword;
 pm: keyword;
