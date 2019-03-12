@@ -1,9 +1,9 @@
-U1 chip3131; right=1.8, l=MCU, pinlabels={out3=RXD, out2=TXD, out1=PIO1}, aspect=0.8
-U2 chip3131; right=1.8, l={\hspace{5mm}Bluetooth}, pinlabels={in2=RXD, in3=TXD}, aspect=0.8
-W U1.out2 U2.in2; right=2.5
-W U1.out3 U2.in3; right=2.5
+U1 chip3131; right=1.8, l=MCU, pinlabels={r3=RXD, r2=TXD, r1=PIO1}, aspect=0.8
+U2 chip3131; right=1.8, l={\hspace{5mm}Bluetooth}, pinlabels={l2=RXD, l3=TXD}, aspect=0.8
+W U1.r2 U2.l2; right=2.5
+W U1.r3 U2.l3; right=2.5
 U3 regulator; right=1.5, aspect=1.5, pinlabels={en=EN}, l=VREG
-W U1.out1 1; right=0.25
+W U1.r1 1; right=0.25
 W 1 U3.en; up
 W U3.out 2; right=0.5
 W 2 U2.vdd; down
