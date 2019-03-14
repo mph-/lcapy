@@ -687,7 +687,8 @@ class Schematic(NetfileMixin):
              'primary' to label primary nodes,
              'alpha' to label nodes starting with a letter,
              'pins' to label nodes that are pins on a chip,
-             'all' to label all nodes
+             'all' to label all nodes,
+             'none' to label no nodes
            style: 'american', 'british', or 'european'
            scale: schematic scale factor, default 1.0
            node_spacing: spacing between component nodes, default 2.0
