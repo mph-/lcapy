@@ -2,7 +2,7 @@ from __future__ import division
 from .expr import Exprdict
 from .sym import tsym, omegasym, symbols_find, is_sympy, symsymbol
 from .acdc import is_ac
-from .printing import pprint, pretty
+from .printing import pprint, pretty, latex
 import six
 
 __all__ = ('Super', 'Vsuper', 'Isuper')
@@ -64,7 +64,11 @@ class Super(Exprdict):
         # We could present the result in the time-domain but this
         # hides the underlying way the signal is analysed.
         return self.decompose()
-                
+
+    def latex(self):
+        """Latex"""
+        return latex(self._representation())
+    
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
         unicode."""
