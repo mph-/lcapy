@@ -55,7 +55,8 @@ class Cpt(object):
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
-                 'pinnames', 'pinnodes', 'pindefs', 'outside', 'pinmap')
+                 'pinnames', 'pinnodes', 'pindefs', 'outside', 'pinmap',
+                 'kind')
 
     can_rotate = True
     can_scale = False
@@ -278,6 +279,11 @@ class Cpt(object):
     def offset(self):
         return float(self.opts.get('offset', 0))
 
+    @property
+    def kind(self):
+        return self.opts.get('kind', None)
+
+    
     def R(self, angle_offset=0):
         """Return rotation matrix"""
         angle = self.angle + angle_offset
@@ -1213,6 +1219,17 @@ class OnePort(StretchyCpt):
                 tikz_cpt = 'v' + tikz_cpt
             else:
                 raise ValueError('Component %s not variable' % self.name)
+
+        if self.type == 'C':
+            if self.kind == 'electrolytic':
+                tikz_cpt = 'eC'
+            elif self.kind == 'polar':
+                tikz_cpt = 'pC'
+            elif self.kind == 'variable':
+                tikz_cpt = 'vC'
+        elif self.type == 'L':
+            if self.kind == 'variable':
+                tikz_cpt = 'vL'
 
         label_pos = '_'
         voltage_pos = '^'

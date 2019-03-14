@@ -797,6 +797,8 @@ Component attributes
 
 - `variable`: for variable resistors, inductors, and capacitors
 
+- `kind`: `electrolytic`, `polar`, or `variable` for capacitors; `variable` for inductors
+  
 - `fixed`: do not stretch
 
 - `aspect`: set aspect ratio for boxes
@@ -815,6 +817,15 @@ Here's an example using the variable attribute:
 .. image:: examples/schematics/variable1.png
    :width: 5cm
 
+Here's an example using the kind attribute to specify the type of capacitor.
+
+
+.. literalinclude:: examples/schematics/capacitors.sch
+
+.. image:: examples/schematics/capacitors.png
+   :width: 7cm
+
+           
 
 Schematic attributes
 --------------------
