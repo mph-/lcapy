@@ -37,6 +37,14 @@ class Exprdict(dict):
         """Latex"""
         return latex(self)
 
+    # def _repr_latex_(self):
+    #     """This is used by jupyter notebooks to display an expression using
+    #     LaTeX markup.  However, this requires matjax.  If this method
+    #     is not defined, jupyter falls back on _repr__pretty_ which
+    #     outputs unicode."""
+
+    #     return latex(self.expr)
+
     def _repr_pretty_(self, p, cycle):
         p.text(pretty(self))
 
@@ -214,12 +222,18 @@ class Expr(object):
         return '%s(%s)' % (self.__class__.__name__, self.expr)
 
     def _repr_pretty_(self, p, cycle):
+        """This is used by jupyter notebooks to display an expression using
+        unicode."""
 
         p.text(pretty(self.expr))
 
-    def _repr_latex_(self):
+    # def _repr_latex_(self):
+    #     """This is used by jupyter notebooks to display an expression using
+    #     LaTeX markup.  However, this requires matjax.  If this method
+    #     is not defined, jupyter falls back on _repr__pretty_ which
+    #     outputs unicode."""
 
-        return latex(self.expr)
+    #     return latex(self.expr)
 
     def __abs__(self):
         """Absolute value."""

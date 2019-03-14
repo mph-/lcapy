@@ -10,6 +10,9 @@ __all__ = ('pretty', 'pprint', 'latex', 'print_str')
 
 func_pattern = re.compile(r"\\operatorname{(.*)}")
 
+# Note, jupyter looks for methods called _repr_latex_ and
+# _repr_pretty_.  LaTeX markup is nicer but it requires mathjax.
+
 
 class LcapyStrPrinter(StrPrinter):
 
