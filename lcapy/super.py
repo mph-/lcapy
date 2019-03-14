@@ -69,7 +69,7 @@ class Super(Exprdict):
         """This is used by jupyter notebooks to display an expression using
         unicode."""
 
-        p.text(pretty(self.representation()))
+        p.text(pretty(self._representation()))
 
     def _repr_latex_(self):
         """This is used by jupyter notebooks to display an expression using
@@ -77,7 +77,7 @@ class Super(Exprdict):
         is not defined, jupyter falls back on _repr__pretty_ which
         outputs unicode."""
 
-        return '$$' + latex(self.representation()) + '$$'
+        return '$$' + latex(self._representation()) + '$$'
 
     def pprint(self):
         """Pretty print"""
