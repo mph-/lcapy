@@ -2305,38 +2305,6 @@ class FB(StretchyCpt):
         return s
 
 
-class XT(StretchyCpt):
-    """Crystal"""
-
-    can_scale = True
-
-    @property
-    def coords(self):
-        return ((-0.5, 0), (0.5, 0))
-
-    def draw(self, **kwargs):
-
-        if not self.check():
-            return ''
-
-        n1, n2 = self.nodes
-
-        centre = (n1.pos + n2.pos) * 0.5
-        q = self.tf(centre, ((-0.15, 0), (-0.15, 0.15), (-0.15, -0.15),
-                             (0.15, 0), (0.15, 0.15), (0.15, -0.15),
-                             (-0.06, 0.15), (0.06, 0.15),
-                             (0.06, -0.15), (-0.06, -0.15),
-                             (0.0, -0.3)))
-
-        s = self.draw_path((q[1], q[2]), style='thick')
-        s += self.draw_path((q[4], q[5]), style='thick')
-        s += self.draw_path(q[6:10], closed=True, style='thick')
-        s += self.draw_path((q[0], n1.s), style='thick')
-        s += self.draw_path((q[3], n2.s), style='thick')
-        s += self.draw_label(q[10], **kwargs)
-        return s
-
-
 classes = {}
 
 def defcpt(name, base, docstring, cpt=None):
@@ -2452,6 +2420,9 @@ defcpt('Vnoise', 'V', 'Noise voltage source', 'sV')
 defcpt('VM', OnePort, 'Voltmeter', 'voltmeter')
 
 defcpt('W', Wire, 'Wire', 'short')
+
+defcpt('XT', OnePort, 'Crystal', 'piezoelectric')
+
 defcpt('Y', OnePort, 'Admittance', 'european resistor')
 defcpt('Z', OnePort, 'Impedance', 'european resistor')
 
