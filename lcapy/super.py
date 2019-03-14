@@ -71,13 +71,13 @@ class Super(Exprdict):
 
         p.text(pretty(self.representation()))
 
-    # def _repr_latex_(self):
-    #     """This is used by jupyter notebooks to display an expression using
-    #     LaTeX markup.  However, this requires matjax.  If this method
-    #     is not defined, jupyter falls back on _repr__pretty_ which
-    #     outputs unicode."""
+    def _repr_latex_(self):
+        """This is used by jupyter notebooks to display an expression using
+        LaTeX markup.  However, this requires matjax.  If this method
+        is not defined, jupyter falls back on _repr__pretty_ which
+        outputs unicode."""
 
-    #     return latex(self.representation())
+        return '$$' + latex(self.representation()) + '$$'
 
     def pprint(self):
         """Pretty print"""
