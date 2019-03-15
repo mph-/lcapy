@@ -278,7 +278,7 @@ class Schematic(NetfileMixin):
 
     def netfile_add(self, filename):
         """Add the nets from file with specified filename"""
-        
+
         self._netfile_add(filename)
 
     def add(self, string):
@@ -533,7 +533,12 @@ class Schematic(NetfileMixin):
                 continue
             if node.cptname is not None:
                 raise ValueError('Unreferenced pin connection %s for %s' % (node.name, node.elt_list))
-            
+
+    def _postamble_add(self, s):
+        if s == '':
+            return s
+
+        return ' ' + s.replace('.', '@')
                 
     def _tikz_draw(self, style_args='', **kwargs):
 
@@ -578,7 +583,7 @@ class Schematic(NetfileMixin):
             s += elt.draw_labels(**kwargs)            
 
         # Add postamble
-        s += '  ' + kwargs.pop('append', '')
+        s += self._postamble_add(kwargs.pop('append', ''))
 
         s += r'\end{tikzpicture}''\n'
 
@@ -767,7 +772,7 @@ class Schematic(NetfileMixin):
             self.tikz_draw(filename=filename, **kwargs)
             display_matplotlib(filename)
             return
-        
+
         self.tikz_draw(filename=filename, **kwargs)
 
 def test():

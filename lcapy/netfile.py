@@ -50,6 +50,7 @@ class NetfileMixin(object):
             return None            
 
         if string[0] == ';':
+            # Strings starting with ;; are schematic options.
             if hasattr(self, 'opts'):
                 self.opts.add(string[1:])
             return None
