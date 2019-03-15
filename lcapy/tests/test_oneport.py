@@ -102,16 +102,16 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.Voc.dc, 10, "Voc incorrect.")
         self.assertEqual(a.V.dc, 10, "Voc incorrect.")
         self.assertEqual(a.I, 0, "I incorrect.")
-        self.assertEqual(a.V(0), 10, "Voc incorrect.")                
-        self.assertEqual(a.I(0), 0, "I incorrect.")                
+        self.assertEqual(a.v(0), 10, "Voc incorrect.")                
+        self.assertEqual(a.i(0), 0, "I incorrect.")                
 
         b = a.norton()
         self.assertEqual2(b.voc, Vdc(10).voc, "voc incorrect.")
         self.assertEqual(b.Voc.dc, 10, "Voc incorrect.")
         self.assertEqual(b.V.dc, 10, "Voc incorrect.")
         self.assertEqual(b.I, 0, "I incorrect.")
-        self.assertEqual(b.V(0), 10, "Voc incorrect.")                
-        self.assertEqual(b.I(0), 0, "I incorrect.")
+        self.assertEqual(b.v(0), 10, "Voc incorrect.")                
+        self.assertEqual(b.i(0), 0, "I incorrect.")
 
     def test_Vac_series_R(self):
         """Lcapy: check Vac + R
@@ -122,16 +122,16 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.Voc.ac[omega], Phasor(10), "Voc incorrect.")
         self.assertEqual(a.V.ac[omega], Phasor(10), "Voc incorrect.")
         self.assertEqual(a.I, 0, "I incorrect.")
-        self.assertEqual(a.V(0), 10, "Voc incorrect.")                
-        self.assertEqual(a.I(0), 0, "I incorrect.")                
+        self.assertEqual(a.v(0), 10, "Voc incorrect.")                
+        self.assertEqual(a.i(0), 0, "I incorrect.")                
 
         b = a.norton()
         self.assertEqual2(b.voc, Vac(10).voc, "voc incorrect.")
         self.assertEqual(b.Voc.ac[omega], Phasor(10), "Voc incorrect.")
         self.assertEqual(b.V.ac[omega], Phasor(10), "Voc incorrect.")
         self.assertEqual(b.I, 0, "I incorrect.")
-        self.assertEqual(b.V(0), 10, "Voc incorrect.")                
-        self.assertEqual(b.I(0), 0, "I incorrect.")        
+        self.assertEqual(b.v(0), 10, "Voc incorrect.")                
+        self.assertEqual(b.i(0), 0, "I incorrect.")        
         
     def test_R_series_L(self):
         """Lcapy: check R + L

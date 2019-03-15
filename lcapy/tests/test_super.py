@@ -82,3 +82,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(simplify(V2.transform(f) - 3 / (j * 2 * pi * f + 2)), 0, 'transform(f)')                
 
         
+    def test_Vsuper_subs(self):
+
+        a = Vsuper('V1')
+        b = a.subs('V1', 1)
+        c = Vsuper(1)
+        self.assertEqual(b, c, "Vsuper.subs")

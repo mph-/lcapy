@@ -123,12 +123,11 @@ class OnePort(Network):
         """Open-circuit current.  Except for a current source this is zero."""
         return Isuper(0)
 
-#    This is probably too confusing.  For example, what is the
-#    current through an open-circuit current source?
-#    @property
-#    def I(self):
-#        """Open-circuit current.  This is zero for a one port component."""
-#        return Isuper(0)
+    @property
+    def i(self):
+        """Open-circuit time-domain current.  Except for a current source this
+        is zero."""
+        return self.I.time()
     
     def __add__(self, OP):
         """Series combination"""

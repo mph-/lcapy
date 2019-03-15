@@ -222,7 +222,10 @@ class Super(Exprdict):
 
     def subs(self, *args, **kwargs):
 
-        return self.time().subs(*args, **kwargs)
+        new = self.__class__()
+        for kind, value in self.items():
+            new[kind] = value.subs(*args, **kwargs)
+        return new        
     
     def transform(self, arg, **assumptions):
         """Transform into a different domain."""        
