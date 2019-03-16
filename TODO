@@ -38,6 +38,8 @@ return omega-domain expressions?
 
 4. Show Super classes as how they were created and not decomposition?
 
+5. Add circuit subs method so can substitute values before analysis.
+
 
 Infrastructure
 ==============

@@ -24,47 +24,9 @@ for _alias, _name in aliases.items():
     global_dict[_alias] = global_dict[_name]
 
 
-cpt_names = ('C', 'E', 'F', 'G', 'H', 'I', 'L', 'R', 'V', 'Y', 'Z')
-cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
-
-sub_super_pattern = re.compile(r"([_\^]){([\w]+)}")
-
-
 def capitalize_name(name):
 
     return name[0].upper() + name[1:]
-
-
-def canonical_name(name):
-    """Convert symbol name to canonical form for printing.
-
-    R_{out} -> R_out
-    R1 -> R_1
-    XT2 -> XT_2
-    Vbat -> V_bat
-    """
-
-    def foo(match):
-        return match.group(1) + match.group(2)
-
-    if not isinstance(name, str):
-        return name
-
-    # Convert R_{out} to R_out for SymPy to recognise.
-    name = sub_super_pattern.sub(foo, name)
-
-    if name.find('_') != -1:
-        return name
-
-    # Rewrite R1 as R_1, etc.
-    match = cpt_name_pattern.match(name)
-    if match:
-        if match.groups()[1] == '':
-            return name
-        name = match.groups()[0] + '_' + match.groups()[1]
-        return name
-
-    return name
 
 
 def symbols_find(arg):
