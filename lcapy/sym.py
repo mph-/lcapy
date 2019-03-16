@@ -36,10 +36,12 @@ def capitalize_name(name):
 
 
 def canonical_name(name):
-    """Convert symbol name to canonical form for SymPy to recognise.
+    """Convert symbol name to canonical form for printing.
 
     R_{out} -> R_out
     R1 -> R_1
+    XT2 -> XT_2
+    Vbat -> V_bat
     """
 
     def foo(match):
@@ -120,8 +122,6 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
                     if callable(obj):
                         result.append((NAME, name))
                         continue
-
-                name = canonical_name(str(name))
 
                 if name in local_dict:
                     # print('Found %s' % name)

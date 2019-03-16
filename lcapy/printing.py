@@ -1,9 +1,12 @@
 import re
+from .sym import canonical_name
 from .config import print_expr_map
 from .latex import latex_str
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
 from sympy.printing.pretty.pretty import PrettyPrinter
+import sympy as sym
+from copy import deepcopy
 
 __all__ = ('pretty', 'pprint', 'latex', 'print_str')
 
@@ -20,6 +23,7 @@ class LcapyStrPrinter(StrPrinter):
 
         if hasattr(expr, 'expr'):
             expr = expr.expr
+            #expr = tweak_expr(deepcopy(expr.expr))                        
             if expr in print_expr_map:
                 return print_expr_map[expr]        
         return super(LcapyStrPrinter, self)._print(expr)
@@ -30,7 +34,8 @@ class LcapyLatexPrinter(LatexPrinter):
     def _print(self, expr):
 
         if hasattr(expr, 'expr'):
-            expr = expr.expr
+            expr = expr.expr            
+            #expr = tweak_expr(deepcopy(expr.expr))            
             if expr in print_expr_map:
                 return print_expr_map[expr]
         return super(LcapyLatexPrinter, self)._print(expr)
@@ -42,10 +47,15 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
         if hasattr(expr, 'expr'):
             expr = expr.expr
+            #expr = tweak_expr(deepcopy(expr.expr))
             if expr in print_expr_map:
                 return self._print_basestring(print_expr_map[expr])
         return super(LcapyPrettyPrinter, self)._print(expr)
 
+    def _print_Symbol(self, expr):
+        expr = sym.Symbol(canonical_name(expr.name))                
+        return super(LcapyPrettyPrinter, self)._print_Symbol(expr)
+    
 
 def print_str(expr):
     """Convert expression into a string."""

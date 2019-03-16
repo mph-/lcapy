@@ -201,6 +201,8 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
+- Version 0.32.0 changes the naming of symbolic values.  Previously R1 was converted to R_1 before being converted into a SymPy symbol.  This behaviour was not obvious for symbol substitution.  Now the symbol names are converted on printing.
+
 - Version 0.31.0 reworks schematic drawing.  The syntax for chips has changed since there are no explicit nodes in the netlist.
 
 - Version 0.30.0 tweaks the syntax to perform transformations based on the argument, e.g., V(s) or V(t)

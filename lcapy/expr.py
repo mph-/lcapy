@@ -12,7 +12,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 from __future__ import division
 from .ratfun import Ratfun
-from .sym import sympify, symsimplify, j, omegasym, canonical_name, symdebug
+from .sym import sympify, symsimplify, j, omegasym, symdebug
 from .sym import capitalize_name, tsym, symsymbol
 from .context import context
 from .printing import pprint, pretty, print_str, latex
@@ -929,7 +929,7 @@ class Expr(object):
         if (self.__class__, new.__class__) in class_map:
             cls = class_map[(self.__class__, new.__class__)]
 
-        name = canonical_name(old)
+        name = old
 
         if not isinstance(name, str):
             name = str(name)

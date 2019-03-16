@@ -95,6 +95,15 @@ class Super(Exprdict):
             key = key.expr
         return super(Super, self).__getitem__(key)
 
+    @property
+    def symbols(self):
+        """Return dictionary of symbols in the expression keyed by name."""
+
+        syms = {}
+        for expr in self.values():
+            syms.update(expr.symbols)
+        return syms
+
     def ac_keys(self):
         """Return list of keys for all ac components."""
 

@@ -91,14 +91,7 @@ class Cpt(object):
 
         if args is () or (self.type in ('F', 'H') and len(args) == 1):
             # Default value is the component name
-            value = self.type
-            if self.id != '':
-                if True:
-                    # This formats the symbolic name better but
-                    # can cause confusion when substituting the value.
-                    value += '_' + self.id
-                else:
-                    value += self.id                
+            value = self.type + self.id
 
             if self.type in ('V', 'I') and keyword[1] == '':
                 value = value[0].lower() + value[1:] + '(t)'
