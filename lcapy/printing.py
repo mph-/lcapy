@@ -56,10 +56,13 @@ class LcapyStrPrinter(StrPrinter):
 
         if hasattr(expr, 'expr'):
             expr = expr.expr
-            #expr = tweak_expr(deepcopy(expr.expr))                        
             if expr in print_expr_map:
                 return print_expr_map[expr]        
         return super(LcapyStrPrinter, self)._print(expr)
+
+    def _print_Symbol(self, expr):
+        expr = sym.Symbol(canonical_name(expr.name))                
+        return super(LcapyStrPrinter, self)._print_Symbol(expr)    
 
 
 class LcapyLatexPrinter(LatexPrinter):
@@ -68,10 +71,13 @@ class LcapyLatexPrinter(LatexPrinter):
 
         if hasattr(expr, 'expr'):
             expr = expr.expr            
-            #expr = tweak_expr(deepcopy(expr.expr))            
             if expr in print_expr_map:
                 return print_expr_map[expr]
         return super(LcapyLatexPrinter, self)._print(expr)
+
+    def _print_Symbol(self, expr):
+        expr = sym.Symbol(canonical_name(expr.name))                
+        return super(LcapyLatexPrinter, self)._print_Symbol(expr)    
 
 
 class LcapyPrettyPrinter(PrettyPrinter):
@@ -80,7 +86,6 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
         if hasattr(expr, 'expr'):
             expr = expr.expr
-            #expr = tweak_expr(deepcopy(expr.expr))
             if expr in print_expr_map:
                 return self._print_basestring(print_expr_map[expr])
         return super(LcapyPrettyPrinter, self)._print(expr)
