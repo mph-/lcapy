@@ -65,7 +65,9 @@ class LcapyStrPrinter(StrPrinter):
         return super(LcapyStrPrinter, self)._print(expr)
 
     def _print_Symbol(self, expr):
-        expr = sym.Symbol(canonical_name(expr.name))                
+        # Do not canonicalise name since this is required for name
+        # matching.  The only caller is the __str__ method for Expr.
+        expr = sym.Symbol(expr.name)
         return super(LcapyStrPrinter, self)._print_Symbol(expr)    
 
 

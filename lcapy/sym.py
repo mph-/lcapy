@@ -29,6 +29,9 @@ def capitalize_name(name):
     return name[0].upper() + name[1:]
 
 
+def symbol_name(symbol):
+    return str(symbol)
+
 def symbols_find(arg):
     """Return list of symbols in arg.  No symbols are cached."""
 
@@ -56,7 +59,7 @@ def symbols_find(arg):
 
     if not isinstance(arg, (Symbol, Expr, AppliedUndef)):
         return []
-    return [repr(symbol) for symbol in arg.atoms(Symbol, AppliedUndef)]
+    return [symbol_name(symbol) for symbol in arg.atoms(Symbol, AppliedUndef)]
 
 
 def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
@@ -121,7 +124,7 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
 
     # Look for newly defined symbols/functions.
     for symbol in s.atoms(Symbol, AppliedUndef):
-        name = repr(symbol)
+        name = symbol_name(symbol)
         if name not in symbols:
             symbols[name] = symbol
 

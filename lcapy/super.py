@@ -456,7 +456,6 @@ class Super(Exprdict):
         """
 
         symbols = symbols_find(string)
-
         if 's' in symbols:
             return self.add(sExpr(string))
 
