@@ -5,7 +5,7 @@ from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
 from sympy.printing.pretty.pretty import PrettyPrinter
 import sympy as sym
-from copy import deepcopy
+
 
 __all__ = ('pretty', 'pprint', 'latex', 'print_str')
 
@@ -39,6 +39,10 @@ def canonical_name(name):
     if name.find('_') != -1:
         return name
 
+    # TODO, add other special function names
+    if name in ('Heaviside', 'DiracDelta'):
+        return name
+    
     # Rewrite R1 as R_1, etc.
     match = cpt_name_pattern.match(name)
     if match:
@@ -93,7 +97,7 @@ class LcapyPrettyPrinter(PrettyPrinter):
     def _print_Symbol(self, expr):
         expr = sym.Symbol(canonical_name(expr.name))                
         return super(LcapyPrettyPrinter, self)._print_Symbol(expr)
-    
+
 
 def print_str(expr):
     """Convert expression into a string."""
@@ -133,3 +137,4 @@ def pprint(expr):
         print(pretty(expr))
     else:
         print(latex(expr))
+
