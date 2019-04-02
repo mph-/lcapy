@@ -53,10 +53,6 @@ def symbols_find(arg):
         
         return symbols
 
-    # Hack. FIXME
-    if hasattr(arg, 'expr'):
-        arg = arg.expr
-
     if not isinstance(arg, (Symbol, Expr, AppliedUndef)):
         return []
     return [symbol_name(symbol) for symbol in arg.atoms(Symbol, AppliedUndef)]
@@ -138,9 +134,6 @@ def sympify1(arg, symbols={}, evaluate=True, **assumptions):
     apply the defined assumptions.
 
     """
-
-    if hasattr(arg, 'expr'):
-        return arg.expr
 
     if isinstance(arg, (Symbol, Expr)):
         return arg
@@ -270,3 +263,4 @@ pi = sym.pi
 j = sym.I
 oo = sym.oo
 inf = sym.oo
+
