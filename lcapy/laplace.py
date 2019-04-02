@@ -282,17 +282,34 @@ def inverse_laplace_ratfun(expr, s, t):
 
 def inverse_laplace_product(expr, s, t):
 
-    # Handle expressions with a function of s, e.g.,
-    # V(s), V(s) * Y(s),  3 * V(s) / s etc.
+    # Handle expressions with a function of s, e.g., V(s) * Y(s), V(s)
+    # / s etc.
 
     const, expr = factor_const(expr, s)
 
     factors = expr.as_ordered_factors()
     if len(factors) < 2:
         raise ValueError('Expression does not have multiple factors: %s' % expr)
+
+    if len(factors) == 2 and isinstance(factors[1], sym.function.AppliedUndef):
+        factors = (factors[1], factors[0])
+
+    if len(factors) == 2 and isinstance(factors[0], sym.function.AppliedUndef):
+
+        # Handle differentiations...
+        if factors[1] == s:
+            # Convert V(s) * s to d v(t) / dt            
+            result = laplace_func(factors[0], s, t, True)
+            return const * sym.Derivative(result, t)
+        elif factors[1].is_Pow and factors[1].args[0] == s and factors[1].args[1] > 0:
+            # Convert V(s) * s ** 2 to d^2 v(t) / dt^2            
+            result = laplace_func(factors[0], s, t, True)        
+            return const * sym.Derivative(result. t, factors[1].args[1])            
+
+    # Handle convolutions...
     
     result1, result2 = inverse_laplace_term1(factors[0], s, t)
-    result = (result1 + result2)
+    result = result1 + result2
 
     for m in range(len(factors) - 1):
         if m == 0:
@@ -344,8 +361,9 @@ def inverse_laplace_term1(expr, s, t):
     const, expr = factor_const(expr, s)
 
     if isinstance(expr, sym.function.AppliedUndef):
-        # Handle V(s), V(s) * Y(s),  3 * V(s) / s etc.
-        # If causal is True it is assumed that the unknown functions are causal.
+        # Handle V(s), 3 * V(s) etc.  If causal is True it is assumed
+        # that the unknown functions are causal.  Note laplace_func
+        # just changes the name so it works as inverse_laplace_func.
         result = laplace_func(expr, s, t, True)
         return result * const, sym.S.Zero
     
