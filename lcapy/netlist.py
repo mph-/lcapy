@@ -17,6 +17,7 @@ from .super import Vsuper, Isuper
 from .schematic import Schematic, Opts, SchematicOpts
 from .mna import MNA, Nodedict, Branchdict
 from .netfile import NetfileMixin
+from .expr import Expr
 from . import mnacpts
 from copy import copy
 from collections import OrderedDict
@@ -1021,7 +1022,7 @@ class Transformdomains(dict):
             key = omega
         # This allows a[omega] to work if omega used as key
         # instead of 'omega'.
-        if hasattr(key, 'expr'):
+        if isinstance(key, Expr):
             key = key.expr
         return super(Transformdomains, self).__getitem__(key)
 

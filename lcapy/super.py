@@ -1,5 +1,5 @@
 from __future__ import division
-from .expr import Exprdict
+from .expr import Expr, Exprdict
 from .sym import tsym, omegasym, symbols_find, is_sympy, symsymbol
 from .acdc import is_ac
 from .printing import pprint, pretty, latex
@@ -91,7 +91,7 @@ class Super(Exprdict):
     def __getitem__(self, key):
         # This allows a[omega] to work if omega used as key
         # instead of 'omega'.
-        if hasattr(key, 'expr'):
+        if isinstance(key, Expr):
             key = key.expr
         return super(Super, self).__getitem__(key)
 
@@ -439,7 +439,7 @@ class Super(Exprdict):
             # for numerical values since cannot use x.3 syntax
             # say for an angular frequency of 3.
             key = value.omega
-            if hasattr(key, 'expr'):
+            if isinstance(key, Expr):
                 key = key.expr
             return key
 

@@ -66,7 +66,7 @@ class Phasor(omegaExpr):
         from .symbols import t
         
         omega = self.omega
-        if hasattr(omega, 'expr'):
+        if isinstance(omega, Expr):
             # TODO: Fix inconsistency.  Sometimes omega is a symbol.
             omega = omega.expr
             
@@ -129,5 +129,3 @@ class Iphasor(Phasor):
 from .texpr import It, Vt, tExpr
 from .expr import Expr
 from .phasor import Phasor
-
-

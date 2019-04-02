@@ -39,7 +39,7 @@ class Exprdict(dict):
 
     def _repr_latex_(self):
         """This is used by jupyter notebooks to display an expression using
-        LaTeX markup.  However, this requires matjax.  If this method
+        LaTeX markup.  However, this requires mathjax.  If this method
         is not defined, jupyter falls back on _repr__pretty_ which
         outputs unicode."""
 
@@ -876,7 +876,7 @@ class Expr(object):
 
         """
 
-        if hasattr(subexpr, 'expr'):
+        if isinstance(subexpr, Expr):
             subexpr = subexpr.expr
         return self.expr.has(subexpr)
 

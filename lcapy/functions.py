@@ -11,7 +11,7 @@ def _funcwrap(func, *args):
 
     result = func(*tweak_args)
 
-    if hasattr(args[0], 'expr'):
+    if isinstance(args[0], Expr):
         result = cls(result)
 
     return result

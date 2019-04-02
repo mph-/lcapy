@@ -17,13 +17,13 @@ __all__ = ('symsymbol', 'sympify', 'simplify')
 global_dict = {}
 exec('from sympy import *', global_dict)
 
-for _symbol in exclude:
-    global_dict.pop(_symbol)
-
 for _alias, _name in aliases.items():
     global_dict[_alias] = global_dict[_name]
 
+for _symbol in exclude:
+    global_dict.pop(_symbol)
 
+    
 def capitalize_name(name):
 
     return name[0].upper() + name[1:]
@@ -53,7 +53,7 @@ def symbols_find(arg):
         
         return symbols
 
-    # Hack
+    # Hack. FIXME
     if hasattr(arg, 'expr'):
         arg = arg.expr
 

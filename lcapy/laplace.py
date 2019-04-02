@@ -183,7 +183,7 @@ def laplace_transform(expr, t, s):
     # same representation, convert to the desired one.
 
     var = sym.Symbol(str(t))
-    if hasattr(expr, 'expr'):
+    if isinstance(expr, Expr):
         expr = expr.expr
     else:
         expr = sym.sympify(expr)
@@ -472,3 +472,4 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
     inverse_laplace_cache[key] = result
     return result
 
+from .expr import Expr

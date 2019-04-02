@@ -58,7 +58,8 @@ class LcapyStrPrinter(StrPrinter):
 
     def _print(self, expr):
 
-        if hasattr(expr, 'expr'):
+        from .expr import Expr
+        if isinstance(expr, Expr):
             expr = expr.expr
             if expr in print_expr_map:
                 return print_expr_map[expr]        
@@ -75,7 +76,8 @@ class LcapyLatexPrinter(LatexPrinter):
 
     def _print(self, expr):
 
-        if hasattr(expr, 'expr'):
+        from .expr import Expr
+        if isinstance(expr, Expr):        
             expr = expr.expr            
             if expr in print_expr_map:
                 return print_expr_map[expr]
@@ -90,7 +92,8 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
     def _print(self, expr):
 
-        if hasattr(expr, 'expr'):
+        from .expr import Expr
+        if isinstance(expr, Expr):        
             expr = expr.expr
             if expr in print_expr_map:
                 return self._print_basestring(print_expr_map[expr])
@@ -139,4 +142,3 @@ def pprint(expr):
         print(pretty(expr))
     else:
         print(latex(expr))
-

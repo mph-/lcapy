@@ -1,4 +1,4 @@
-# SymPy symbols to exclude
+# SymPy symbols to exclude.
 exclude  = ('C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta')
 
 # Aliases for SymPy symbols
