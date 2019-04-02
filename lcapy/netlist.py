@@ -1052,16 +1052,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         for name in self.subnetlists:
             self.subnetlists[name] = None
 
-    @property
-    def sub(self):
-        """Return dictionary of subnetlists keyed by transform domain kind.
-        Note, the subnetlists are not created until a specific one is
-        selected.
-
-        """
-
-        if hasattr(self, '_sub'):
-            return self._sub
+    def _sub_make(self):
 
         groups = self.independent_source_groups()        
             
@@ -1101,6 +1092,19 @@ class Netlist(NetlistMixin, NetfileMixin):
             self._sub[key] = GroupNetlist(self, sources, key)
 
         return self._sub
+        
+    @property
+    def sub(self):
+        """Return dictionary of subnetlists keyed by transform domain kind.
+        Note, the subnetlists are not created until a specific one is
+        selected.
+
+        """
+
+        if hasattr(self, '_sub'):
+            return self._sub
+
+        return self._sub_make()
 
     @property
     def kinds(self):

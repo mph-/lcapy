@@ -1163,12 +1163,14 @@ class K(TF1):
     @property
     def nodes(self):
 
-        # CHECKME
+        # This needs to be more robust; currently it depends on the order
+        # that the inductors are defined.
         
         # L1 and L2 need to be previously defined so we can find their nodes.
         L1 = self.sch.elements[self.Lname1]
         L2 = self.sch.elements[self.Lname2]
-        return [self.sch.nodes[n] for n in L1.node_names + L2.node_names]
+        # L1 is on the left; L2 is on the right
+        return [self.sch.nodes[n] for n in L2.node_names + L1.node_names]
 
 
 class Gyrator(FixedCpt):

@@ -41,7 +41,7 @@ Inoise: Iname Np Nm noise [Value] [NID]; Noise current source
 J: Jname Nd Ng Ns [Value]; N channel JFET
 Jnjf: Jname Nd Ng Ns njf [Value]; N channel JFET
 Jpjf: Jname Nd Ng Ns pjf [Value]; P channel JFET
-K: Kname Lname1 Lname2 [Value]; Mutual inductance
+K: Kname Lname1 Lname2 [Value]; Mutual inductance (L1 on left, L2 on right)
 L: Lname Np Nm [Value] [IC]; Inductance
 M: Mname Nd Ng Ns [Value]; N channel MOSFET
 Mnmos: Mname Nd Ng Ns nmos [Value]; N channel MOSFET

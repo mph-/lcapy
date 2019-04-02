@@ -86,7 +86,8 @@ class Cpt(object):
         self.keyword = keyword
         self.opts = {}
 
-        if self.type in ('W', 'O', 'P'):
+        # No defined cpt
+        if self.type in ('W', 'O', 'P', 'K'):
             return
 
         if args is () or (self.type in ('F', 'H') and len(args) == 1):
@@ -714,7 +715,7 @@ class I(IndependentSource):
                                   self.relnodes[1], self.opts)
 
 
-class K(Cpt):
+class K(Dummy):
     
     def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
@@ -723,6 +724,10 @@ class K(Cpt):
         self.Lname2 = args[1]
         super (K, self).__init__(cct, namespace, name, cpt_type, cpt_id, string,
                                  opts_string, nodes, keyword, *args)
+        if len(args) > 2:
+            self.K = args[2]
+        else:
+            self.K = self.type + self.id
 
     def stamp(self, cct):
 
@@ -733,13 +738,13 @@ class K(Cpt):
             raise RuntimeError('Should not be evaluating mutual inductance in'
                                ' time domain')
 
-        L1 = self.nodes[0]
-        L2 = self.nodes[1]
+        L1 = self.Lname1
+        L2 = self.Lname2
 
         ZL1 = cct.elements[L1].Z
         ZL2 = cct.elements[L2].Z
 
-        ZM = self.cpt.k * sqrt(ZL1 * ZL2).simplify()
+        ZM = self.K * sqrt(ZL1 * ZL2).simplify()
 
         m1 = cct._branch_index(L1)
         m2 = cct._branch_index(L2)
