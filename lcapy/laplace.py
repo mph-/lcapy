@@ -304,7 +304,7 @@ def inverse_laplace_product(expr, s, t):
         elif factors[1].is_Pow and factors[1].args[0] == s and factors[1].args[1] > 0:
             # Convert V(s) * s ** 2 to d^2 v(t) / dt^2            
             result = laplace_func(factors[0], s, t, True)        
-            return const * sym.Derivative(result. t, factors[1].args[1])            
+            return const * sym.Derivative(result, t, factors[1].args[1])            
 
     # Handle convolutions...
     
