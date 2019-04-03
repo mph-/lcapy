@@ -408,6 +408,12 @@ class Schematic(NetfileMixin):
                     value_label = '%s:1' % (1 / expr)
                 else:
                     value_label = '1:%s' % expr
+            elif cpt.type in ('F', 'H') and len(cpt.args) > 1:
+                # This is hard to give a reasonable label since the
+                # control current is specified by a voltage source.
+                # The user will have to override manually.
+                expr = cpt.args[1]
+                value_label = Expr(expr, cache=False).latex_math()
             elif cpt.classname not in ('TP',):
                 try:
                     value = float(expr)
