@@ -56,7 +56,7 @@ class Cpt(object):
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
                  'pinnames', 'pinnodes', 'pindefs', 'outside', 'pinmap',
-                 'kind')
+                 'kind', 'wire')
 
     can_rotate = True
     can_scale = False
@@ -226,6 +226,10 @@ class Cpt(object):
     @property
     def mirror(self):
         return self.boolattr('mirror')
+
+    @property
+    def wire(self):
+        return self.boolattr('wire')    
 
     @property
     def invisible(self):
@@ -1214,6 +1218,14 @@ class OnePort(StretchyCpt):
             return ''
 
         n1, n2 = self.nodes
+
+        if self.wire:
+            # With this option, draw component as a piece of wire.
+            # This is useful for hiding the control voltage source
+            # required for a CCVS and a CCCS.
+            s = r'  \draw[s-, %s] (%s) to (%s);''\n' % (
+                self.args_str, n1.s, n2.s)
+            return s
 
         tikz_cpt = self.tikz_cpt
         if self.variable:
