@@ -1223,7 +1223,7 @@ class OnePort(StretchyCpt):
             # With this option, draw component as a piece of wire.
             # This is useful for hiding the control voltage source
             # required for a CCVS and a CCCS.
-            s = r'  \draw[s-, %s] (%s) to (%s);''\n' % (
+            s = r'  \draw[-, %s] (%s) to (%s);''\n' % (
                 self.args_str, n1.s, n2.s)
             return s
 
