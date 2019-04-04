@@ -1067,8 +1067,13 @@ class Expr(object):
     @property
     def symbols(self):
         """Return dictionary of symbols in the expression keyed by name."""
-        return {sym.name:sym for sym in self.free_symbols}
-    
+        symdict = {sym.name:sym for sym in self.free_symbols}
+
+        # Look for V(s), etc.
+        funcdict = {atom.func.__name__:atom for atom in self.atoms(sym.function.AppliedUndef)}        
+
+        symdict.update(funcdict)
+        return symdict
 
 def expr(string, **assumptions):
     """Create Lcapy expression from string.
