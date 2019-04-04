@@ -1,5 +1,5 @@
 import re
-from .config import print_expr_map
+from .config import print_expr_map, words
 from .latex import latex_str
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
@@ -43,11 +43,11 @@ def canonical_name(name):
     if name.find('_') != -1:
         return name
 
-    # TODO, add other special function names
-    if name in ('Heaviside', 'DiracDelta'):
+    # Don't touch things like heaviside
+    if name.lower() in words:
         return name
     
-    # Rewrite R1 as R_1, etc.
+    # Convert R1 to R_1, etc.
     match = cpt_name_pattern.match(name)
     if match:
         if match.groups()[1] == '':
@@ -55,6 +55,17 @@ def canonical_name(name):
         name = match.groups()[0] + '_' + match.groups()[1]
         return name
 
+    if len(name) < 2:
+        return name
+
+    # Convert i1 to i_1, etc.
+    if name[1].isdigit:
+        return name[0] + '_' + name[1:]
+
+    # Convert irms to i_rms, etc.
+    if name[1:].lower() in words:
+        return name[0] + '_' + name[1:]    
+    
     return name
 
 

@@ -20,5 +20,8 @@ atoms_table['ImaginaryUnit'] = '\u2149'
 words = ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
          'mean', 'peak', 'pk', 'pk-pk', 'pp', 'min', 'max', 'src', 'bat',
          'cc', 'ee', 'dd', 'ss', 'ih', 'il', 'oh', 'ol',
-         'typ', 'pkg', 'comp')
+         'typ', 'pkg', 'comp', 'step', 'heaviside', 'diracdelta',
+         'alpha', 'beta', 'gamma', 'delta', 'eta', 'zeta', 'theta',
+         'iota', 'kappa', 'mu', 'nu', 'omicron', 'pi', 'rho', 'sigma', 'tau',
+         'upsilon', 'omega')
 
