@@ -1,5 +1,5 @@
 import re
-from .config import print_expr_map, words
+from .config import print_expr_map, words, junicode
 from .latex import latex_str
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
@@ -73,6 +73,9 @@ class LcapyStrPrinter(StrPrinter):
 
     def _print(self, expr):
 
+        if expr is sym.I:
+            return 'j'
+        
         from .expr import Expr
         if isinstance(expr, Expr):
             expr = expr.expr
@@ -111,6 +114,9 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
     def _print(self, expr):
 
+        if expr is sym.I:
+            return self._print_basestring(junicode)
+        
         from .expr import Expr
         if isinstance(expr, Expr):        
             expr = expr.expr

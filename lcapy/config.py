@@ -13,8 +13,9 @@ import sympy as sym
 print_expr_map = {sym.I: 'j'}
 
 # Hack to pretty print i as j
+junicode = '\u2149'
 from sympy.printing.pretty.pretty_symbology import atoms_table
-atoms_table['ImaginaryUnit'] = '\u2149'
+atoms_table['ImaginaryUnit'] = junicode
 
 # Words to format in Roman font for LaTeX expressions. 
 words = ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',

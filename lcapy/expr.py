@@ -218,8 +218,10 @@ class Expr(object):
         return print_str(self.expr)
 
     def __repr__(self):
-
-        return '%s(%s)' % (self.__class__.__name__, self.expr)
+        """This is called by repr(expr).  It is used, e.g., when printing
+        in the debugger."""
+        
+        return '%s(%s)' % (self.__class__.__name__, print_str(self.expr))
 
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using

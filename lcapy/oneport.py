@@ -219,17 +219,20 @@ class OnePort(Network):
         if Voc.is_superposition and not Z.is_real:
             print('Warning, detected superposition with reactive impedance,'
                   ' using s-domain.')
-            Z1 = Z.cpt()
-            V1 = Voc.laplace().cpt()
+            Z1 = Z
+            V1 = Voc.laplace()
         elif Voc.is_ac:
-            Z1 = Z.subs(j * Voc.ac_keys()[0]).cpt()
-            V1 = Voc.select(Voc.ac_keys()[0]).cpt()
+            Z1 = Z.subs(j * Voc.ac_keys()[0])
+            V1 = Voc.select(Voc.ac_keys()[0])
         elif Voc.is_dc:
-            Z1 = Z.subs(0).cpt()
-            V1 = Voc(0).cpt()
+            Z1 = Z.subs(0)
+            V1 = Voc(0)
         else:
-            V1 = Voc.cpt()
-            Z1 = Z.cpt()
+            V1 = Voc
+            Z1 = Z
+
+        V1 = V1.cpt()
+        Z1 = Z1.cpt()        
 
         if Voc == 0:
             return Z1
@@ -248,18 +251,21 @@ class OnePort(Network):
         if Isc.is_superposition and not Y.is_real:
             print('Warning, detected superposition with reactive impedance,'
                   ' using s-domain.')
-            Y1 = Y.cpt()
-            I1 = Isc.laplace().cpt()
+            Y1 = Y
+            I1 = Isc.laplace()
         elif Isc.is_ac:
-            Y1 = Y.subs(j * Isc.ac_keys()[0]).cpt()
-            I1 = Isc.select(Isc.ac_keys()[0]).cpt()
+            Y1 = Y.subs(j * Isc.ac_keys()[0])
+            I1 = Isc.select(Isc.ac_keys()[0])
         elif Isc.is_dc:
-            Y1 = Y.subs(0).cpt()
-            I1 = Isc(0).cpt()
+            Y1 = Y.subs(0)
+            I1 = Isc(0)
         else:
-            I1 = Isc.cpt()
-            Y1 = Y.cpt()
+            I1 = Isc
+            Y1 = Y
 
+        I1 = I1.cpt()
+        Y1 = Y1.cpt()        
+            
         if Isc == 0:
             return Y1
         if Y == 0:
