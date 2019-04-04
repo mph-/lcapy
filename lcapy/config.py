@@ -1,5 +1,5 @@
 # SymPy symbols to exclude.
-exclude  = ('C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta')
+exclude  = ('I', 'C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta')
 
 # Aliases for SymPy symbols
 aliases = {'delta': 'DiracDelta', 'step': 'Heaviside', 'u': 'Heaviside',
