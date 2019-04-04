@@ -30,6 +30,108 @@ def _zp2tf(zeros, poles, K=1, var=None):
     return uMul(K, *(zz + pp))
 
 
+def as_ratfun_delay(expr, var):
+    delay = sym.S.Zero
+    
+    if expr.is_rational_function(var):
+        N, D = expr.as_numer_denom()
+        return N, D, delay
+
+    F = sym.factor(expr).as_ordered_factors()
+
+    rf = sym.S.One
+    for f in F:
+        b, e = f.as_base_exp()
+        if b == sym.E and e.is_polynomial(var):
+            p = sym.Poly(e, var)
+            c = p.all_coeffs()
+            if p.degree() == 1:
+                delay -= c[0]
+                if c[1] != 0:
+                    rf *= sym.exp(c[1])
+                continue
+
+        rf *= f
+
+    if not rf.is_rational_function(var):
+        raise ValueError('Expression not a product of rational function'
+                         ' and exponential')
+
+    N, D = rf.as_numer_denom()
+    return N, D, delay
+
+
+def as_ratfun_delay_undef(expr, var):
+    delay = sym.S.Zero
+    undef = sym.S.One
+    
+    if expr.is_rational_function(var):
+        N, D = expr.as_numer_denom()
+        return N, D, delay, undef
+
+    F = sym.factor(expr).as_ordered_factors()
+
+    rf = sym.S.One
+    for f in F:
+        b, e = f.as_base_exp()
+        if b == sym.E and e.is_polynomial(var):
+            p = sym.Poly(e, var)
+            c = p.all_coeffs()
+            if p.degree() == 1:
+                delay -= c[0]
+                if c[1] != 0:
+                    rf *= sym.exp(c[1])
+                    continue
+        if isinstance(f, sym.function.AppliedUndef):
+            undef *= f
+            continue
+                
+        rf *= f
+
+    if not rf.is_rational_function(var):
+        raise ValueError('Expression not a product of rational function'
+                         ' exponential, and undefined functions')
+    
+    N, D = rf.as_numer_denom()
+    return N, D, delay, undef
+
+
+def as_residue_parts(expr, var):
+        
+    N, D, delay = as_ratfun_delay(expr, var)
+
+    # Perform polynomial long division so expr = Q + M / D
+    Q, M = sym.div(N, D, var)
+    expr = M / D
+        
+    sexpr = Ratfun(expr, var)
+
+    P = sexpr.poles()
+    F = []
+    R = []
+    for p in P:
+
+        # Number of occurrences of the pole.
+        N = P[p]
+
+        f = var - p
+
+        if N == 1:
+            F.append(f)
+            R.append(sexpr.residue(p, P))
+            continue
+
+        # Handle repeated poles.
+        expr2 = expr * f ** N
+        for n in range(1, N + 1):
+            m = N - n
+            F.append(f ** n)
+            dexpr = sym.diff(expr2, var, m)
+            R.append(sym.limit(dexpr, var, p) / sym.factorial(m))
+
+    return F, R, Q, delay
+
+
 class Ratfun(object):
 
     def __init__(self, expr, var):
@@ -39,40 +141,7 @@ class Ratfun(object):
     def as_residue_parts(self):
         """Return residues of expression"""
 
-        var = self.var
-        N, D, delay = self.as_ratfun_delay()
-
-        # Perform polynomial long division so expr = Q + M / D
-        Q, M = sym.div(N, D, var)
-        expr = M / D
-        
-        sexpr = Ratfun(expr, var)
-
-        P = sexpr.poles()
-        F = []
-        R = []
-        for p in P:
-
-            # Number of occurrences of the pole.
-            N = P[p]
-
-            f = var - p
-
-            if N == 1:
-                F.append(f)
-                R.append(sexpr.residue(p, P))
-                continue
-
-            # Handle repeated poles.
-            expr2 = expr * f ** N
-            for n in range(1, N + 1):
-                m = N - n
-                F.append(f ** n)
-                dexpr = sym.diff(expr2, var, m)
-                R.append(sym.limit(dexpr, var, p) / sym.factorial(m))
-
-        return F, R, Q, delay
-
+        return as_residue_parts(self.expr, self.var)
 
     def as_ratfun_delay(self):
         """Split expr as (N, D, delay)
@@ -80,40 +149,43 @@ class Ratfun(object):
         
         Note, delay only represents a delay when var is s."""
 
+        return as_ratfun_delay(self.expr, self.var)
+
+    def as_ratfun_delay_undef(self):
+        """Split expr as (N, D, delay, undef)
+        where expr = (N / D) * exp(var * delay) * undef
+        and where N is a polynomial in var,
+        D is a polynomial in var, and undef is the product
+        of undefined functions, e.g., V(s).
+        
+        Note, delay only represents a delay when var is s."""
+
+        return as_ratfun_delay_undef(self.expr, self.var)        
+
+    def as_const_undef_rest(self):
+        """Split expr as (const, undef, rest)
+        where expr = const * undef * rest"""
+
         expr = self.expr
         var = self.var
         
-        delay = sym.S.Zero
+        const = sym.S.One
+        undef = sym.S.One
+        rest = sym.S.One        
     
-        if expr.is_rational_function(var):
-            N, D = expr.as_numer_denom()
-            return N, D, delay
-
-        # Note, there is a bug in sympy factor, TODO warn if detected.
         F = sym.factor(expr).as_ordered_factors()
 
-        rf = sym.S.One
         for f in F:
-            b, e = f.as_base_exp()
-            if b == sym.E and e.is_polynomial(var):
-                p = sym.Poly(e, var)
-                c = p.all_coeffs()
-                if p.degree() == 1:
-                    delay -= c[0]
-                    if c[1] != 0:
-                        rf *= sym.exp(c[1])
-                    continue
-
-            rf *= f
-
-        if not rf.is_rational_function(var):
-            raise ValueError('Expression not a product of rational function'
-                             ' and exponential')
-
-        N, D = rf.as_numer_denom()
+            if isinstance(f, sym.function.AppliedUndef):
+                undef *= f
+                continue
+            if not f.has(var):
+                const *= f
+                continue
+            rest *= f
     
-        return N, D, delay
-
+        return const, undef, rest
+    
     def roots(self):
         """Return roots of expression as a dictionary
         Note this may not find them all."""
@@ -182,7 +254,7 @@ class Ratfun(object):
         See also general, partfrac, mixedfrac, and ZPK"""
 
         try:
-            N, D, delay = self.as_ratfun_delay()
+            N, D, delay, undef = self.as_ratfun_delay_undef()
         except ValueError:
             # TODO: copy?
             return self.expr
@@ -201,38 +273,41 @@ class Ratfun(object):
 
         expr = K * (Nm / Dm)
 
-        return expr
+        return expr * undef
 
     def general(self):
         """Convert rational function to general form.
 
         See also canonical, partfrac, mixedfrac, and ZPK"""
 
-        N, D, delay = self.as_ratfun_delay()
+        N, D, delay, undef = self.as_ratfun_delay_undef()
 
         expr = sym.cancel(N / D, self.var)
         if delay != 0:
             expr *= sym.exp(self.var * delay)
 
-        return expr
+        return expr * undef
 
     def partfrac(self):
         """Convert rational function into partial fraction form.
 
         See also canonical, mixedfrac, general, and ZPK"""
 
+        N, D, delay, undef = self.as_ratfun_delay_undef()
+        expr = N / D
+        
         try:
-            F, R, Q, delay = self.as_residue_parts()
+            F, R, Q, delay2 = as_residue_parts(expr, self.var)
             
         except ValueError:
             # Try splitting into terms
-            expr = self.expr.expand()
+            expr = expr.expand()
             if not expr.is_Add:
                 raise ValueError('Cannot convert to partial fraction')
             result = 0
             for arg in expr.args:
                 result += Ratfun(arg, self.var).partfrac()
-            return result
+            return result * undef
 
         expr = Q.as_expr()
         for f, r in zip(F, R):
@@ -241,14 +316,14 @@ class Ratfun(object):
         if delay != 0:
             expr *= sym.exp(-self.var * delay)
 
-        return expr
+        return expr * undef
 
     def mixedfrac(self):
         """Convert rational function into mixed fraction form.
 
         See also canonical, general, partfrac and ZPK"""
 
-        N, D, delay = self.as_ratfun_delay()
+        N, D, delay, undef = self.as_ratfun_delay_undef()
         var = self.var        
 
         # Perform polynomial long division so expr = Q + M / D        
@@ -258,7 +333,7 @@ class Ratfun(object):
         if delay != 0:
             expr *= sym.exp(-self.var * delay)
 
-        return expr
+        return expr * undef
 
     def timeconst(self):
         """Convert rational function to time constant form with unity
@@ -267,7 +342,7 @@ class Ratfun(object):
         See also canonical, general, partfrac, mixedfrac, and ZPK"""
 
         try:
-            N, D, delay = self.as_ratfun_delay()
+            N, D, delay, undef = self.as_ratfun_delay_undef()
         except ValueError:
             # TODO: copy?
             return self.expr
@@ -282,14 +357,14 @@ class Ratfun(object):
         
         expr = K * (Nm / Dm)
 
-        return expr
+        return expr * undef
 
     def ZPK(self):
         """Convert to pole-zero-gain (PZK) form.
 
         See also canonical, general, mixedfrac, and partfrac"""
 
-        N, D, delay = self.as_ratfun_delay()
+        N, D, delay, undef = self.as_ratfun_delay_undef()
 
         var = self.var        
         Dpoly = sym.Poly(D, var)
@@ -302,4 +377,4 @@ class Ratfun(object):
         zeros = sym.roots(Npoly)
         poles = sym.roots(Dpoly)
 
-        return _zp2tf(zeros, poles, K, self.var)
+        return _zp2tf(zeros, poles, K, self.var) * undef
