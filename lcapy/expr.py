@@ -515,19 +515,16 @@ class Expr(object):
         return printer._print(expr)
 
     def _latex(self, *args, **kwargs):
-        """Make latex string."""
+        """Make latex string.  This is called by sympy.latex when it
+        encounters an Expr type."""
 
         # This works in conjunction with LatexPrinter._print
         # It is a hack to allow printing of _Matrix types
         # and its elements.
-        expr = self.expr
+
+        # Give up on printer and use lcapy's one...
         printer = args[0]
-
-        string = printer._print(expr)
-        # sympy uses theta for Heaviside , use u(t) although I prefer H(t)
-        string = string.replace(r'\theta\left', r'u\left')
-
-        return string
+        return latex(self)
 
     def pretty(self):
         """Make pretty string."""

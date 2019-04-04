@@ -6,11 +6,15 @@ from sympy.printing.latex import LatexPrinter
 from sympy.printing.pretty.pretty import PrettyPrinter
 import sympy as sym
 
-
 __all__ = ('pretty', 'pprint', 'latex', 'print_str')
 
-# Note, jupyter looks for methods called _repr_latex_ and
-# _repr_pretty_.  LaTeX markup is nicer but it requires mathjax.
+# Note, there are some magic hooks that are used for printing custom types:
+#
+# jupyter looks for methods called _repr_latex_ and _repr_pretty_.
+#
+# sympy.latex() looks for methods called _latex
+
+# LaTeX markup is nicer but it requires mathjax.
 
 cpt_names = ('C', 'E', 'F', 'G', 'H', 'I', 'L', 'R', 'V', 'Y', 'Z')
 cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
@@ -87,6 +91,10 @@ class LcapyLatexPrinter(LatexPrinter):
         expr = sym.Symbol(canonical_name(expr.name))                
         return super(LcapyLatexPrinter, self)._print_Symbol(expr)    
 
+    def _print_AppliedUndef(self, expr):
+        name = canonical_name(expr.func.__name__)
+        args = [str(self._print(arg)) for arg in expr.args]        
+        return '%s(%s)' % (name, ','.join(args))
 
 class LcapyPrettyPrinter(PrettyPrinter):
 
@@ -112,7 +120,7 @@ def print_str(expr):
 
 def latex(expr, **settings):
     """Convert expression into a LaTeX string."""
-    
+
     string = LcapyLatexPrinter(settings).doprint(expr)
 
     match = func_pattern.match(string)

@@ -1,15 +1,11 @@
 import re
 from .config import latex_string_map
+from .config import words
 
 sub_super_pattern = re.compile(r"([_\^]){([a-zA-Z]+)([0-9]*)}")
 
 
 class Latex(object):
-
-    words = ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
-             'mean', 'peak', 'pp', 'min', 'max', 'src', 'bat',
-             'cc', 'ee', 'dd', 'ss', 'ih', 'il', 'oh', 'ol',
-             'typ', 'pkg', 'comp')
 
     def __init__(self, string):
 
@@ -27,7 +23,7 @@ class Latex(object):
 
             # Perhaps look up dictionary to find valid words?
             # Assume that if length 3 or more then a word.
-            if word.lower() in self.words or len(word) > 2:
+            if word.lower() in words or len(word) > 2:
                 suffix = r'{\mathrm{%s}}' % suffix
             else:
                 suffix = r'{%s}' % suffix
