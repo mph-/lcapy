@@ -81,10 +81,13 @@ class sExpr(sfwExpr):
         
         return self.inverse_laplace(**assumptions)
 
-    def laplace(self):
+    def laplace(self, **assumptions):
         """Convert to s-domain."""
 
-        return self.__class__(self, **self.assumptions)
+        if assumptions == {}:
+            assumptions = self.assumptions.copy()
+        
+        return self.__class__(self, **assumptions)
 
     def fourier(self, **assumptions):
         """Convert to Fourier domain."""

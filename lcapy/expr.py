@@ -963,8 +963,7 @@ class Expr(object):
         if False and result.is_Piecewise and result == sym.Piecewise():
             result = sym.nan
 
-        # TODO: propagate assumptions?
-        return cls(result)
+        return cls(result, **self.assumptions)
 
     def transform(self, arg, **assumptions):
         """Transform into a different domain."""

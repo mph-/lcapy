@@ -612,7 +612,7 @@ class Super(Exprdict):
 
         result = self.laplace_class(0)
         for val in self.values():
-            result += val.laplace()
+            result += val.laplace(**assumptions)
         return result
 
     def fourier(self, **assumptions):
