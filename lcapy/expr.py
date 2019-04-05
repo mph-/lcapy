@@ -25,6 +25,13 @@ class Exprdict(dict):
 
     """Decorator class for dictionary created by sympy."""
 
+    @property    
+    def pdb(self):
+        """Enter the python debugger."""
+        
+        import pdb; pdb.set_trace()
+        return self
+    
     def pprint(self):
         """Pretty print"""
         return pprint(self)
@@ -83,6 +90,13 @@ class Expr(object):
         assumptions.pop('nid', None)
         
         self.expr = sympify(arg, **assumptions)
+
+    @property        
+    def pdb(self):
+        """Enter the python debugger."""
+        
+        import pdb; pdb.set_trace()
+        return self
 
     @property
     def causal(self):
