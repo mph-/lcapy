@@ -20,6 +20,7 @@ Copyright 2016--2019 Michael Hayes, UCECE
 
 
 import sympy as sym
+from .sym import sympify
 from .utils import factor_const, scale_shift
 
 fourier_cache = {}
@@ -44,7 +45,7 @@ def fourier_func(expr, t, f, inverse=False):
 
     scale, shift = scale_shift(expr.args[0], t)
 
-    fsym = sym.sympify(str(f))
+    fsym = sympify(str(f))
     
     # Convert v(t) to V(f), etc.
     name = expr.func.__name__
@@ -53,7 +54,7 @@ def fourier_func(expr, t, f, inverse=False):
     else:
         func = name[0].upper() + name[1:] + '(%s)' % f
 
-    result = sym.sympify(func).subs(fsym, f / scale) / abs(scale)
+    result = sympify(func).subs(fsym, f / scale) / abs(scale)
 
     if shift != 0:
         if inverse:
@@ -76,7 +77,7 @@ def fourier_function(expr, t, f, inverse=False):
     if isinstance(expr, sym.function.AppliedUndef):
         return fourier_func(expr, t, f, inverse) * const
     
-    tsym = sym.sympify(str(t))
+    tsym = sympify(str(t))
     expr = expr.subs(tsym, t)
 
     rest = sym.S.One
@@ -107,9 +108,9 @@ def fourier_function(expr, t, f, inverse=False):
 
     for m in range(len(exprs) - 1):
         if m == 0:
-            nu = sym.sympify(dummy)
+            nu = sympify(dummy)
         else:
-            nu = sym.sympify(dummy + '_%d' % m)
+            nu = sympify(dummy + '_%d' % m)
         expr2 = fourier_term(exprs[m + 1], t, f, inverse)
         result = sym.Integral(result.subs(f, f - nu) * expr2.subs(f, nu),
                               (nu, -sym.oo, sym.oo))

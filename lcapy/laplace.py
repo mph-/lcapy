@@ -22,6 +22,7 @@ Copyright 2016--2019 Michael Hayes, UCECE
 """
 
 from .ratfun import Ratfun
+from .sym import sympify
 from .utils import factor_const, scale_shift
 import sympy as sym
 
@@ -66,7 +67,7 @@ def laplace_func(expr, t, s, inverse=False):
 
     scale, shift = scale_shift(expr.args[0], t)    
 
-    ssym = sym.sympify(str(s))
+    ssym = sympify(str(s))
     
     # Convert v(t) to V(s), etc.
     name = expr.func.__name__
@@ -75,7 +76,7 @@ def laplace_func(expr, t, s, inverse=False):
     else:
         func = name[0].upper() + name[1:] + '(%s)' % s
 
-    result = sym.sympify(func).subs(ssym, s / scale) / abs(scale)
+    result = sympify(func).subs(ssym, s / scale) / abs(scale)
 
     if shift != 0:
         result = result * sym.exp(s * shift / scale)    
@@ -115,7 +116,7 @@ def laplace_integral(expr, t, s):
         and (f2.args[0] != var or f1.args[0] != t - var)):
         raise ValueError('Cannot recognise convolution: %s' % expr)
 
-    ssym = sym.sympify(str(s))
+    ssym = sympify(str(s))
     
     name = f1.func.__name__
     func1 = name[0].upper() + name[1:] + '(%s)' % str(ssym)
@@ -123,8 +124,8 @@ def laplace_integral(expr, t, s):
     name = f2.func.__name__
     func2 = name[0].upper() + name[1:] + '(%s)' % str(ssym)    
 
-    F1 = sym.sympify(func1).subs(ssym, s)
-    F2 = sym.sympify(func2).subs(ssym, s)
+    F1 = sympify(func1).subs(ssym, s)
+    F2 = sympify(func2).subs(ssym, s)
     
     return F1 * F2
 
@@ -132,7 +133,7 @@ def laplace_term(expr, t, s):
 
     const, expr = factor_const(expr, t)
 
-    tsym = sym.sympify(str(t))
+    tsym = sympify(str(t))
     expr = expr.replace(tsym, t)
 
     if expr.has(sym.Integral):
@@ -178,7 +179,7 @@ def laplace_transform(expr, t, s):
         raise ValueError('Cannot Laplace transform for expression %s that depends on %s' % (expr, s))
     
     # The variable may have been created with different attributes,
-    # say when using sym.sympify('Heaviside(t)') since this will
+    # say when using sympify('Heaviside(t)') since this will
     # default to assuming that t is complex.  So if the symbol has the
     # same representation, convert to the desired one.
 
@@ -186,7 +187,7 @@ def laplace_transform(expr, t, s):
     if isinstance(expr, Expr):
         expr = expr.expr
     else:
-        expr = sym.sympify(expr)
+        expr = sympify(expr)
 
     # Unilateral LT ignores expr for t < 0 so
     # but barfs on a Piecewise so handle case here.
@@ -317,7 +318,7 @@ def inverse_laplace_product(expr, s, t, **assumptions):
         elif factors[1].is_Pow and factors[1].args[0] == s and factors[1].args[1] == -1:
             # Handle integration
             # Convert V(s) /s  to  \int v(t) dt
-            tau = sym.sympify('tau')            
+            tau = sympify('tau')            
             result = laplace_func(factors[0], s, tau, True)
             return const * sym.Integral(result, (tau, t1, t))
 
@@ -328,9 +329,9 @@ def inverse_laplace_product(expr, s, t, **assumptions):
 
     for m in range(len(factors) - 1):
         if m == 0:
-            tau = sym.sympify('tau')
+            tau = sympify('tau')
         else:
-            tau = sym.sympify('tau_%d' % m)
+            tau = sympify('tau_%d' % m)
         result1, result2 = inverse_laplace_term1(factors[m + 1], s, t)
         expr2 = result1 + result2
         result = sym.Integral(result.subs(t, t - tau) * expr2.subs(t, tau),
