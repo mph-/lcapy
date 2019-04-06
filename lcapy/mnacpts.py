@@ -289,10 +289,22 @@ class Cpt(object):
         return self.cpt.Isc.select(self.cct.kind)
 
     @property
+    def isc(self):
+        """Short-circuit time-domain current for circuit kind."""
+
+        return self.Isc.time()
+
+    @property
     def Voc(self):
         """Open-circuit voltage."""
 
         return self.cpt.Voc.select(self.cct.kind)
+
+    @property
+    def voc(self):
+        """Open-circuit time-domain voltage for circuit kind."""
+
+        return self.Voc.time()    
 
     @property
     def Ys(self):
