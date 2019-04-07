@@ -307,6 +307,12 @@ def inverse_laplace_product(expr, s, t, **assumptions):
     if len(factors) < 2:
         raise ValueError('Expression does not have multiple factors: %s' % expr)
 
+    if (len(factors) > 2 and not
+        # Help s * 1 / (s + R * C) * I(s)
+        isinstance(factors[1], sym.function.AppliedUndef) and
+        isinstance(factors[2], sym.function.AppliedUndef)):
+        factors = [factors[0], factors[2], factors[1]] + factors[3:]
+    
     if isinstance(factors[1], sym.function.AppliedUndef):
         # Try to expose more simple cases, e.g. (R + s * L) * V(s)
         terms = factors[0].as_ordered_terms()
