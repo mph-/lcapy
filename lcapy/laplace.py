@@ -312,31 +312,34 @@ def inverse_laplace_product(expr, s, t, **assumptions):
 
     intnum = 0
     for m in range(len(factors) - 1):
-        if m == 0 and factors[0] == s and isinstance(factors[1],
-                                                     sym.function.AppliedUndef):
-            # Handle differentiation
-            # Convert V(s) * s to d v(t) / dt                        
-            result = laplace_func(factors[1], s, t, True)            
-            result = sym.Derivative(result, t)
-        elif m == 0 and factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] > 0:
-            # Handle higher order differentiation
-            # Convert V(s) * s ** 2 to d^2 v(t) / dt^2                        
-            result = laplace_func(factors[1], s, t, True)            
-            result = sym.Derivative(result, t, factors[0].args[1])
-        elif m == 0 and factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] < 0:
-            # Handle integration
-            tau = dummyvar(intnum)
-            intnum += 1
-            result = laplace_func(factors[1], s, tau, True)
-            result = sym.Integral(result, (tau, t1, t))
-        else:
-            # Convert product to convolution
-            tau = dummyvar(intnum)
-            intnum += 1
-            result1, result2 = inverse_laplace_term1(factors[m + 1], s, t)
-            expr2 = result1 + result2
-            result = sym.Integral(result.subs(t, t - tau) * expr2.subs(t, tau),
-                                  (tau, t1, t2))
+        if m == 0 and isinstance(factors[1], sym.function.AppliedUndef):
+            # Note, as_ordered_factors puts powers of s before the functions.
+            if factors[0] == s:
+                # Handle differentiation
+                # Convert s * V(s) to d v(t) / dt                        
+                result = laplace_func(factors[1], s, t, True)            
+                result = sym.Derivative(result, t)
+                continue
+            elif factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] > 0:
+                # Handle higher order differentiation
+                # Convert s ** 2 * V(s) to d^2 v(t) / dt^2
+                result = laplace_func(factors[1], s, t, True)            
+                result = sym.Derivative(result, t, factors[0].args[1])
+                continue                
+            elif factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] == -1:
+                # Handle integration  1 / s * V(s)
+                tau = dummyvar(intnum)
+                intnum += 1
+                result = laplace_func(factors[1], s, tau, True)
+                result = sym.Integral(result, (tau, t1, t))
+                continue                
+        # Convert product to convolution
+        tau = dummyvar(intnum)
+        intnum += 1
+        result1, result2 = inverse_laplace_term1(factors[m + 1], s, t)
+        expr2 = result1 + result2
+        result = sym.Integral(result.subs(t, t - tau) * expr2.subs(t, tau),
+                              (tau, t1, t2))
     
     return result * const
 
