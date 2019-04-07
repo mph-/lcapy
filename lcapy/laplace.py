@@ -307,39 +307,36 @@ def inverse_laplace_product(expr, s, t, **assumptions):
     if len(factors) < 2:
         raise ValueError('Expression does not have multiple factors: %s' % expr)
 
-    if len(factors) == 2 and isinstance(factors[1], sym.function.AppliedUndef):
-        factors = (factors[1], factors[0])
-
-    if len(factors) == 2 and isinstance(factors[0], sym.function.AppliedUndef):
-
-        if factors[1] == s:
-            # Handle differentiation
-            # Convert V(s) * s to d v(t) / dt            
-            result = laplace_func(factors[0], s, t, True)
-            return const * sym.Derivative(result, t)
-        elif factors[1].is_Pow and factors[1].args[0] == s and factors[1].args[1] > 0:
-            # Handle higher order differentiation
-            # Convert V(s) * s ** 2 to d^2 v(t) / dt^2            
-            result = laplace_func(factors[0], s, t, True)        
-            return const * sym.Derivative(result, t, factors[1].args[1])
-        elif factors[1].is_Pow and factors[1].args[0] == s and factors[1].args[1] == -1:
-            # Handle integration
-            # Convert V(s) /s  to  \int v(t) dt
-            tau = dummyvar(0)
-            result = laplace_func(factors[0], s, tau, True)
-            return const * sym.Integral(result, (tau, t1, t))
-
-    # Convert products to convolutions...
-    
     result1, result2 = inverse_laplace_term1(factors[0], s, t)
     result = result1 + result2
 
+    intnum = 0
     for m in range(len(factors) - 1):
-        tau = dummyvar(m)
-        result1, result2 = inverse_laplace_term1(factors[m + 1], s, t)
-        expr2 = result1 + result2
-        result = sym.Integral(result.subs(t, t - tau) * expr2.subs(t, tau),
-                              (tau, t1, t2))
+        if m == 0 and factors[0] == s and isinstance(factors[1],
+                                                     sym.function.AppliedUndef):
+            # Handle differentiation
+            # Convert V(s) * s to d v(t) / dt                        
+            result = laplace_func(factors[1], s, t, True)            
+            result = sym.Derivative(result, t)
+        elif m == 0 and factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] > 0:
+            # Handle higher order differentiation
+            # Convert V(s) * s ** 2 to d^2 v(t) / dt^2                        
+            result = laplace_func(factors[1], s, t, True)            
+            result = sym.Derivative(result, t, factors[0].args[1])
+        elif m == 0 and factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] < 0:
+            # Handle integration
+            tau = dummyvar(intnum)
+            intnum += 1
+            result = laplace_func(factors[1], s, tau, True)
+            result = sym.Integral(result, (tau, t1, t))
+        else:
+            # Convert product to convolution
+            tau = dummyvar(intnum)
+            intnum += 1
+            result1, result2 = inverse_laplace_term1(factors[m + 1], s, t)
+            expr2 = result1 + result2
+            result = sym.Integral(result.subs(t, t - tau) * expr2.subs(t, tau),
+                                  (tau, t1, t2))
     
     return result * const
 
