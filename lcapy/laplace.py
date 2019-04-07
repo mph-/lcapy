@@ -288,7 +288,7 @@ def dummyvar(intnum=0):
         return sympify('tau_%d' % intnum)    
 
 
-def inverse_laplace_product(expr, s, t, intnum=0, **assumptions):
+def inverse_laplace_product(expr, s, t, **assumptions):
 
     # Handle expressions with a function of s, e.g., V(s) * Y(s), V(s)
     # / s etc.
@@ -325,7 +325,7 @@ def inverse_laplace_product(expr, s, t, intnum=0, **assumptions):
         elif factors[1].is_Pow and factors[1].args[0] == s and factors[1].args[1] == -1:
             # Handle integration
             # Convert V(s) /s  to  \int v(t) dt
-            tau = dummyvar(intnum)
+            tau = dummyvar(0)
             result = laplace_func(factors[0], s, tau, True)
             return const * sym.Integral(result, (tau, t1, t))
 
@@ -335,9 +335,8 @@ def inverse_laplace_product(expr, s, t, intnum=0, **assumptions):
     result = result1 + result2
 
     for m in range(len(factors) - 1):
-        tau = dummyvar(intnum)
-        intnum += 1
-        result1, result2 = inverse_laplace_term1(factors[m + 1], s, t, intnum)
+        tau = dummyvar(m)
+        result1, result2 = inverse_laplace_term1(factors[m + 1], s, t)
         expr2 = result1 + result2
         result = sym.Integral(result.subs(t, t - tau) * expr2.subs(t, tau),
                               (tau, t1, t2))
@@ -377,7 +376,7 @@ def inverse_laplace_sympy(expr, s, t):
     return result
 
 
-def inverse_laplace_term1(expr, s, t, intnum=0, **assumptions):
+def inverse_laplace_term1(expr, s, t, **assumptions):
 
     const, expr = factor_const(expr, s)
 
@@ -389,7 +388,7 @@ def inverse_laplace_term1(expr, s, t, intnum=0, **assumptions):
         return result * const, sym.S.Zero
     
     if expr.has(sym.function.AppliedUndef):
-        return const * inverse_laplace_product(expr, s, t, intnum,
+        return const * inverse_laplace_product(expr, s, t,
                                                **assumptions), sym.S.Zero
 
     try:
@@ -405,7 +404,7 @@ def inverse_laplace_term1(expr, s, t, intnum=0, **assumptions):
         pass
 
     # As last resort see if can convert to convolutions...
-    return sym.S.Zero, const * inverse_laplace_product(expr, s, t, intnum)
+    return sym.S.Zero, const * inverse_laplace_product(expr, s, t)
     
     
 def inverse_laplace_term(expr, s, t, **assumptions):
