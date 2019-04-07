@@ -1,6 +1,7 @@
 from lcapy import *
 from lcapy.laplace import inverse_laplace_ratfun
 import unittest
+import sympy as sym
 
 
 class LcapyTester(unittest.TestCase):
@@ -41,4 +42,3 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Vs('10 * V(s) * exp(-5 * s)').inverse_laplace(causal=True), Vt('10 * v(t - 5)'), "10 * V(s) * exp(-5 * s)")
         self.assertEqual(Vt('v(t)').laplace().inverse_laplace(causal=True),
                          Vt('v(t)'), "v(t)")
-                         

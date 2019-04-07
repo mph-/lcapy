@@ -307,6 +307,15 @@ def inverse_laplace_product(expr, s, t, **assumptions):
     if len(factors) < 2:
         raise ValueError('Expression does not have multiple factors: %s' % expr)
 
+    if isinstance(factors[1], sym.function.AppliedUndef):
+        # Try to expose more simple cases, e.g. (R + s * L) * V(s)
+        terms = factors[0].as_ordered_terms()
+        if len(terms) >= 2:
+            result = sym.S.Zero
+            for term in terms:
+                result += inverse_laplace_product(factors[1] * term, s, t)
+            return result * const
+
     result1, result2 = inverse_laplace_term1(factors[0], s, t)
     result = result1 + result2
 
