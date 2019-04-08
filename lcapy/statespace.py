@@ -34,14 +34,6 @@ class StateSpace(object):
         # voltage sources.
         self.sscct = sscct
 
-        # Nodal voltages        
-        self.v = {}
-        for node in cct.equipotential_nodes.keys():
-            if node != '0':
-                self.v[node] = self.sscct.get_vd(node, '0')
-
-        print(self.v)
-
         # Capacitors  i = C dv/dt  so need i through the C
         # Inductors  v = L di/dt  so need v across the L
         dotx_exprs = []
@@ -92,14 +84,25 @@ class StateSpace(object):
         self.B = Matrix(B)        
             
         # What should be the output vector?  Nodal voltages, branch
-        # currents. or both.
-        
-    @property
-    def u(self):
-        return self.independent_sources
+        # currents. or both.   Let's start with nodal voltages.
 
-    @property
-    def x(self):
-        return self.state_vars
+        # Nodal voltages
+        ynames = []
+        yexprs = []
+        for node in cct.equipotential_nodes.keys():
+            if node != '0':
+                ynames.append(node)
+                yexprs.append(self.sscct.get_vd(node, '0').subs(subsdict).expand())
 
+        Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
+        D, b = sym.linear_eq_to_matrix(yexprs, *sourcesyms)                
+
+        self.C = Matrix(Cmat)
+        self.D = Matrix(D)
+
+        self.x = Matrix(statevars)        
+        self.u = Matrix(sources)
+
+        self.dotx = Matrix([sym.Derivative(sym1, t) for sym1 in statevars])
     
+from .symbols import t
