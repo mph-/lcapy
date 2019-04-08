@@ -104,5 +104,19 @@ class StateSpace(object):
         self.u = Matrix(sources)
 
         self.dotx = Matrix([sym.Derivative(sym1, t) for sym1 in statevars])
-    
-from .symbols import t
+
+    @property
+    def equations(self):
+        """Return system of equations."""
+        
+        return sym.Eq(self.dotx, self.A * self.x + self.B * self.u)
+
+    @property
+    def Phi(self):
+        """Return s-domain state transition matrix."""
+
+        M = Matrix(sym.eye(len(self.x)) * s - self.A)
+        return M.inv()
+            
+        
+from .symbols import t, s
