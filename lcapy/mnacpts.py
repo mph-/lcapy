@@ -183,7 +183,12 @@ class Cpt(object):
     def s_model(self, var):
         """Return s-domain model of component."""
 
-        return self.copy()        
+        return self.copy()
+
+    def ss_model(self):
+        """Return preliminary state-space model of component."""
+
+        return self.copy()            
 
     def pre_initial_model(self):
         """Return pre-initial model of component."""
@@ -529,6 +534,12 @@ class C(RC):
                                        self.relnodes[0], self.relnodes[1], 
                                        arg_format(self.cpt.v0), self.opts)
 
+    def ss_model(self):
+        return '%sV%s %s %s; %s' % (self.namespace, self.relname,
+                                    self.relnodes[0], self.relnodes[1], 
+                                    self.opts)
+        
+    
 
 class E(DependentSource):
     """VCVS"""
@@ -801,6 +812,11 @@ class L(RLC):
             V = self.Voc.expr            
             cct._Es[m] += V
 
+    def ss_model(self):
+        return '%sI%s %s %s; %s' % (self.namespace, self.relname,
+                                    self.relnodes[0], self.relnodes[1], 
+                                    self.opts)
+    
     def pre_initial_model(self):
 
         if self.cpt.i0 == 0.0:

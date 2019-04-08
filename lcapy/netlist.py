@@ -16,6 +16,7 @@ from .context import global_context
 from .super import Vsuper, Isuper
 from .schematic import Schematic, Opts, SchematicOpts
 from .mna import MNA, Nodedict, Branchdict
+from .statespace import StateSpace
 from .netfile import NetfileMixin
 from .expr import Expr
 from . import mnacpts
@@ -730,6 +731,16 @@ class NetlistMixin(object):
         self._sch = sch
         return sch
 
+    @property
+    def ss(self):
+        """Generate state-space representation."""        
+
+        if hasattr(self, '_ss'):
+            return self._ss
+
+        self._ss = StateSpace(self)
+        return self._ss
+    
     def pre_initial_model(self):
         """Generate circuit model for determining the pre-initial
         conditions."""
@@ -751,7 +762,19 @@ class NetlistMixin(object):
         for cpt in self._elements.values():
             net = cpt.s_model(var)
             new._add(net)
-        return new        
+        return new
+
+    def ss_model(self):
+        """"Create preliminary state-space model by replacing inductors
+        with current sources and capacitors with voltage sources."""
+
+        new = self._new()
+        new.opts = copy(self.opts)
+
+        for cpt in self._elements.values():
+            net = cpt.ss_model()
+            new._add(net)
+        return new            
 
     def ac_model(self, var=omega):
         """"Create AC model for specified angular frequency (default
@@ -1044,7 +1067,7 @@ class Netlist(NetlistMixin, NetfileMixin):
     def _invalidate(self):
 
         for attr in ('_sch', '_sub', '_Vdict', '_Idict', '_analysis',
-                     '_node_map'):
+                     '_node_map', '_ss'):
             try:
                 delattr(self, attr)
             except:

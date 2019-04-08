@@ -91,11 +91,12 @@ class NetfileMixin(object):
             lines = string.split('\n')
             for line in lines:
                 self._add(line.strip(), namespace)
-            return
+            return None
 
         cpt = self._parse(string, namespace)
         if cpt is not None:
             self._cpt_add(cpt)
+        return cpt
 
     def _netfile_add(self, filename, namespace=''):
         """Add the nets from file with specified filename"""

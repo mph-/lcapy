@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-setup(name='lcapy', version='0.32.0',
+setup(name='lcapy', version='0.32.2',
       description='Symbolic linear circuit analysis',
       author='Michael Hayes',
       requires=['sympy', 'numpy', 'scipy'],
@@ -22,6 +22,7 @@ setup(name='lcapy', version='0.32.0',
                   'lcapy.fexpr', 'lcapy.omegaexpr', 'lcapy.sfwexpr',
                   'lcapy.noiseexpr', 'lcapy.phasor', 'lcapy.super',
                   'lcapy.context', 'lcapy.sym', 'lcapy.functions',
-                  'lcapy.printing', 'lcapy.config', 'lcapy.transform'
-      ], scripts=['scripts/schtex.py'],
+                  'lcapy.printing', 'lcapy.config', 'lcapy.transform',
+                  'lcapy.statespace'],
+      scripts=['scripts/schtex.py'],
       license='LGPL' )
