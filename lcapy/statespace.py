@@ -168,6 +168,11 @@ class StateSpace(object):
         return self.x.laplace()
 
     @property
+    def Y(self):
+        """Return Laplace transform of output vector."""        
+        return self.y.laplace()    
+
+    @property
     def H(self):
         """X(s) / U(s)"""
 
