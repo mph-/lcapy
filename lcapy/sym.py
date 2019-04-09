@@ -210,11 +210,11 @@ def simplify(expr):
         return expr.simplify()
     except:
         pass
-    
-    try:
+
+    from .expr import Expr as LExpr
+    if isinstance(expr, LExpr):
         expr = expr.expr
-    except:
-        pass
+
     return symsimplify(expr)
 
 
