@@ -1,3 +1,10 @@
+"""
+This module performs state-space analysis.
+
+Copyright 2019 Michael Hayes, UCECE
+
+"""
+
 from .mnacpts import L, C, I, V
 from .matrix import Matrix
 from .sym import sympify
