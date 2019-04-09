@@ -21,8 +21,14 @@ class StateSpace(object):
             cpt_map[name] = sselt.name
             
             if isinstance(elt, L):
+                if sselt.name in cct.elements:
+                    raise ValueError('Name conflict %s, either rename the component or iprove the code!' % sselt.name)
+
                 inductors.append(elt)
             elif isinstance(elt, C):
+                if sselt.name in cct.elements:
+                    raise ValueError('Name conflict %s, either rename the component or iprove the code!' % sselt.name)
+                
                 capacitors.append(elt)
             elif isinstance(elt, (I, V)):
                 independent_sources.append(elt)                
@@ -31,12 +37,12 @@ class StateSpace(object):
         self.capacitors = capacitors
         self.independent_sources = independent_sources
 
+        self.cct = cct
+        self.sscct = sscct
+        
         # Replace inductors with current sources and capacitors with
         # voltage sources.
-        self.sscct = sscct
 
-        # Capacitors  i = C dv/dt  so need i through the C
-        # Inductors  v = L di/dt  so need v across the L
         dotx_exprs = []
         statevars = []
         statenames = []
@@ -44,9 +50,11 @@ class StateSpace(object):
             name = cpt_map[elt.name]
 
             if isinstance(elt, L):
+                # Inductors  v = L di/dt  so need v across the L
                 expr = sscct[name].v / elt.cpt.L
                 var = sscct[name].isc
             else:
+                # Capacitors  i = C dv/dt  so need i through the C
                 expr = sscct[name].i / elt.cpt.C
                 var = sscct[name].voc
 
@@ -77,13 +85,9 @@ class StateSpace(object):
         for m, expr in enumerate(dotx_exprs):
             dotx_exprs[m] = expr.subs(subsdict).expr.expand()
                 
-
         A, b = sym.linear_eq_to_matrix(dotx_exprs, *statesyms)
         B, b = sym.linear_eq_to_matrix(dotx_exprs, *sourcesyms)
 
-        self.A = Matrix(A)
-        self.B = Matrix(B)        
-            
         # What should be the output vector?  Nodal voltages, branch
         # currents. or both.   Let's start with nodal voltages.
 
@@ -103,33 +107,36 @@ class StateSpace(object):
         Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
         D, b = sym.linear_eq_to_matrix(yexprs, *sourcesyms)
 
+        self.x = Matrix(statevars)
+
+        self.dotx = Matrix([sym.Derivative(x1, t) for x1 in self.x])
+
+        self.u = Matrix(sources)
+
+        self.A = Matrix(A)
+        self.B = Matrix(B)        
+            
+        # Perhaps could use v_R1(t) etc. as the output voltages?
         self.y = Matrix(y)
 
         self.C = Matrix(Cmat)
         self.D = Matrix(D)
 
-        self.x = Matrix(statevars)        
-        self.u = Matrix(sources)
-
-        self.dotx = Matrix([sym.Derivative(sym1, t) for sym1 in statevars])
-
-    @property
     def state_equations(self):
         """Return system of first-order differential state equations.
 
         dotx = A x + B u
         """
         
-        return sym.Eq(self.dotx, self.A * self.x + self.B * self.u)
+        return sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x), sym.MatMul(self.B, self.u)))
 
-    @property
     def output_equations(self):
         """Return system of output equations.
 
         y = C x + Du
         """
         
-        return sym.Eq(self.y, self.C * self.x + self.D * self.u)    
+        return sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x), sym.MatMul(self.D, self.u)))
 
     @property
     def Phi(self):
