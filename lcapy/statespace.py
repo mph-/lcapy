@@ -1,5 +1,6 @@
 from .mnacpts import L, C, I, V
 from .matrix import Matrix
+from .sym import sympify
 import sympy as sym
 
 class StateSpace(object):
@@ -64,8 +65,8 @@ class StateSpace(object):
             sources.append(expr)
             sourcenames.append(elt.name)
 
-        statesyms = sym.sympify(statenames)
-        sourcesyms = sym.sympify(sourcenames)            
+        statesyms = sympify(statenames)
+        sourcesyms = sympify(sourcenames)            
 
         subsdict = {}
         for var, sym1 in zip(statevars, statesyms):
@@ -89,13 +90,17 @@ class StateSpace(object):
         # Nodal voltages
         ynames = []
         yexprs = []
+        y = []
         for node in cct.equipotential_nodes.keys():
             if node != '0':
                 ynames.append(node)
                 yexprs.append(self.sscct.get_vd(node, '0').subs(subsdict).expand())
-
+                y.append(sympify('v%s(t)' % node))
+                
         Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
-        D, b = sym.linear_eq_to_matrix(yexprs, *sourcesyms)                
+        D, b = sym.linear_eq_to_matrix(yexprs, *sourcesyms)
+
+        self.y = Matrix(y)
 
         self.C = Matrix(Cmat)
         self.D = Matrix(D)
@@ -106,10 +111,22 @@ class StateSpace(object):
         self.dotx = Matrix([sym.Derivative(sym1, t) for sym1 in statevars])
 
     @property
-    def equations(self):
-        """Return system of equations."""
+    def state_equations(self):
+        """Return system of first-order differential state equations.
+
+        dotx = A x + B u
+        """
         
         return sym.Eq(self.dotx, self.A * self.x + self.B * self.u)
+
+    @property
+    def output_equations(self):
+        """Return system of output equations.
+
+        y = C x + Du
+        """
+        
+        return sym.Eq(self.y, self.C * self.x + self.D * self.u)    
 
     @property
     def Phi(self):
