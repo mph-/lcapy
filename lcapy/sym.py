@@ -204,7 +204,8 @@ def symsimplify(expr):
 
 
 def simplify(expr):
-    """Simplify an Lcapy expression."""
+    """Simplify an Lcapy expression.  This is not straightforward, see
+    sympy.simplify."""
 
     try:
         return expr.simplify()

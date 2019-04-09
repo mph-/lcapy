@@ -3,6 +3,9 @@ from .matrix import Matrix
 from .sym import sympify
 import sympy as sym
 
+# TODO, need a better Matrix class that preserves the class of each
+# element, where possible.  Although inverse may be tricky...
+
 class StateSpace(object):
     """This converts a circuit to state-space representation."""
 
@@ -104,6 +107,7 @@ class StateSpace(object):
         Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
         D, b = sym.linear_eq_to_matrix(yexprs, *sourcesyms)
 
+        # Note, Matrix strips the class from each element...
         self.x = Matrix(statevars)
 
         self.dotx = Matrix([sym.Derivative(x1, t) for x1 in self.x])
@@ -147,6 +151,34 @@ class StateSpace(object):
 
         M = Matrix(sym.eye(len(self.x)) * s - self.A)
         return M.inv()
-            
+
+    @property
+    def phi(self):
+        """Return state transition matrix."""        
+        return self.Phi.inverse_laplace(causal=True)
         
+    @property
+    def U(self):
+        """Return Laplace transform of input vector."""
+        return self.u.laplace()
+
+    @property
+    def X(self):
+        """Return Laplace transform of state-variable vector."""        
+        return self.x.laplace()
+
+    @property
+    def H(self):
+        """X(s) / U(s)"""
+
+        return self.Phi * self.B
+
+    @property
+    def G(self):
+        """Return system transfer functions: Y(s) / U(s)"""
+
+        return self.C * self.H + self.D
+
+    
 from .symbols import t, s
+from .texpr import It, Vt, tExpr

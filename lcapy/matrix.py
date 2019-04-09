@@ -2,13 +2,14 @@ import sympy as sym
 from copy import copy
 from .printing import pprint, latex
 from .expr import Expr
-
+from .laplace import laplace_transform, inverse_laplace_transform
 
 def msympify(expr):
     # If do nothing, will get a problem with matrices that
     # have mixed data types, e.g., A matrix.
 
-    if isinstance(expr, Expr):    
+    if isinstance(expr, Expr):
+        # Bye bye lcapy type information...
         return expr.expr
     return expr
         
@@ -67,6 +68,23 @@ class Matrix(sym.Matrix):
 
         return new
 
+    def laplace(self):
+
+        def lt(expr):
+            from .symbols import s, t
+            return laplace_transform(expr, t, s)
+        
+        return self.applyfunc(lt)
+
+    def inverse_laplace(self, **assumptions):
+
+        def lt(expr):
+            from .symbols import s, t
+            return inverse_laplace_transform(expr, s, t, **assumptions)
+        
+        return self.applyfunc(lt)    
+
+    
     def canonical(self):
 
         return self._reformat('canonical')
