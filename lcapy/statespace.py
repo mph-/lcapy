@@ -7,13 +7,12 @@ Copyright 2019 Michael Hayes, UCECE
 
 from .mnacpts import L, C, I, V
 from .matrix import Matrix
-from .sym import sympify
+from .sym import sympify, ssym
 import sympy as sym
 
 # TODO
-# 1. Fix sources with specified values.
-# 2. Choose better state var names for anonymous C and L. 
-# 3. Use a better Matrix class that preserves the class of each
+# 1. Choose better state var names for anonymous C and L. 
+# 2. Use a better Matrix class that preserves the class of each
 # element, where possible.
 
 # Independent sources
@@ -174,7 +173,7 @@ class StateSpace(object):
     def Phi(self):
         """Return s-domain state transition matrix."""
 
-        M = Matrix(sym.eye(len(self.x)) * s - self.A)
+        M = Matrix(sym.eye(len(self.x)) * ssym - self.A)
         return M.inv()
 
     @property
@@ -209,6 +208,79 @@ class StateSpace(object):
 
         return self.C * self.H + self.D
 
+    def characteristic_polynomial(self):
+        """Return characteristic polynomial (aka system polynomial).
+
+        lambda(s) = |s * I - A|
+        """
+
+        M = Matrix(sym.eye(len(self.x)) * ssym - self.A)        
+        return sExpr(M.det()).simplify()
+
+    @property
+    def P(self):
+        """Return characteristic polynomial (aka system polynomial).
+
+        lambda(s) = |s * I - A|
+        """        
+        return self.characteristic_polynomial()
+
+    @property        
+    def eigenvalues_dict(self):
+        """Return dictionary of eigenvalues, the roots of the characteristic
+        polynomial (equivalent to the poles of Phi(s)).  The
+        dictionary values are the multiplicity of the eigenvalues.
+
+        For a list of eigenvalues use eigenvalues.
+
+        """        
+
+        return self.characteristic_polynomial().roots()
+        
+    @property        
+    def eigenvalues(self):
+        """Return list of eigenvalues, the roots of the characteristic polynomial
+        (equivalent to the poles of Phi(s))."""
+        
+        roots = self.eigenvalues_dict
+        e = []
+
+        # Replicate duplicated eigenvalues and return as a list.
+        for v, n in roots.items():
+            for m in range(n):
+                e.append(v)
+        return e
+
+    @property    
+    def Lambda(self):
+        """Diagonal matrix of eigenvalues."""
+
+        # Perhaps faster to use diagonalize
+        # E, L = self.A.diagonalize()
+        # return L
+        
+        e = self.eigenvalues
+        
+        M = Matrix(sym.diag(*e))
+        return  M
+
+    @property        
+    def eigenvectors(self):
+        """Return list of tuples (eigenvalue, multiplicity of igenvalue,
+        basis of the eigenspace) of A.
+
+        """
+        return self.A.eigenvects()
+    
+    @property    
+    def M(self):
+        """Return modal matrix (eigenvectors of A)."""
+
+        E, L = self.A.diagonalize()
+        
+        return Matrix(E)
+    
     
 from .symbols import t, s
-from .texpr import It, Vt, tExpr
+from .texpr import Vt, tExpr
+from .sexpr import sExpr

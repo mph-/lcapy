@@ -78,12 +78,11 @@ class Matrix(sym.Matrix):
 
     def inverse_laplace(self, **assumptions):
 
-        def lt(expr):
+        def ilt(expr):
             from .sym import ssym, tsym
             return inverse_laplace_transform(expr, ssym, tsym, **assumptions)
         
-        return self.applyfunc(lt)    
-
+        return self.applyfunc(ilt)    
     
     def canonical(self):
 

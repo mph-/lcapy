@@ -20,6 +20,7 @@ from .functions import sqrt, log10, atan2, gcd
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
+from .sym import simplify
 
 class Exprdict(dict):
 
@@ -55,7 +56,10 @@ class Exprdict(dict):
     def _repr_pretty_(self, p, cycle):
         p.text(pretty(self))
 
+    def simplify(self):
+        return simplify(self)
 
+        
 class Expr(object):
 
     """Decorator class for sympy classes derived from sympy.Expr"""
