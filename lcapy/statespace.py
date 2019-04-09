@@ -4,6 +4,7 @@ from .sym import sympify
 import sympy as sym
 
 class StateSpace(object):
+    """This converts a circuit to state-space representation."""
 
     def __init__(self, cct):
 
@@ -33,10 +34,6 @@ class StateSpace(object):
             elif isinstance(elt, (I, V)):
                 independent_sources.append(elt)                
                 
-        self.inductors = inductors
-        self.capacitors = capacitors
-        self.independent_sources = independent_sources
-
         self.cct = cct
         self.sscct = sscct
         
@@ -123,17 +120,23 @@ class StateSpace(object):
         self.D = Matrix(D)
 
     def state_equations(self):
-        """Return system of first-order differential state equations.
+        """Return system of first-order differential state equations:
 
         dotx = A x + B u
+
+        where x is the state vector and u is the input vector.
         """
         
         return sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x), sym.MatMul(self.B, self.u)))
 
     def output_equations(self):
-        """Return system of output equations.
+        """Return system of output equations:
 
-        y = C x + Du
+        y = C x + D u
+
+        where y is the output vector, x is the state vector and u is
+        the input vector.
+
         """
         
         return sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x), sym.MatMul(self.D, self.u)))

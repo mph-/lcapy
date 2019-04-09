@@ -535,6 +535,8 @@ class C(RC):
                                        arg_format(self.cpt.v0), self.opts)
 
     def ss_model(self):
+        # Perhaps mangle name to ensure it does not conflict
+        # with another voltage source?
         return '%sV%s %s %s; %s' % (self.namespace, self.relname,
                                     self.relnodes[0], self.relnodes[1], 
                                     self.opts)
@@ -813,6 +815,8 @@ class L(RLC):
             cct._Es[m] += V
 
     def ss_model(self):
+        # Perhaps mangle name to ensure it does not conflict
+        # with another current source?        
         return '%sI%s %s %s; %s' % (self.namespace, self.relname,
                                     self.relnodes[0], self.relnodes[1], 
                                     self.opts)
