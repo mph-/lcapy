@@ -91,7 +91,10 @@ class StateSpace(object):
         ynames = []
         yexprs = []
         y = []
-        for node in cct.equipotential_nodes.keys():
+
+        enodes = list(cct.equipotential_nodes.keys())
+        enodes = sorted(enodes)
+        for node in enodes:
             if node != '0':
                 ynames.append(node)
                 yexprs.append(self.sscct.get_vd(node, '0').subs(subsdict).expand())
