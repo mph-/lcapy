@@ -727,9 +727,10 @@ class I(IndependentSource):
             cct._Is[n2] -= I
 
     def ss_model(self):
-        return '%s%s %s %s; %s' % (self.namespace, self.relname,
-                                   self.relnodes[0], self.relnodes[1], 
-                                   self.opts)
+        return '%s%s %s %s %s; %s' % (self.namespace, self.relname,
+                                      self.relnodes[0], self.relnodes[1],
+                                      self.relname.lower(),
+                                      self.opts)
 
     def s_model(self, var):
 
@@ -1048,9 +1049,10 @@ class V(IndependentSource):
         cct._Es[m] += V
 
     def ss_model(self):
-        return '%s%s %s %s; %s' % (self.namespace, self.relname,
-                                   self.relnodes[0], self.relnodes[1], 
-                                   self.opts)
+        return '%s%s %s %s %s; %s' % (self.namespace, self.relname,
+                                      self.relnodes[0], self.relnodes[1],
+                                      self.relname.lower(),
+                                      self.opts)
 
     def s_model(self, var):
 

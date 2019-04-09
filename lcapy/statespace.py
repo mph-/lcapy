@@ -14,7 +14,16 @@ import sympy as sym
 # 1. Fix sources with specified values.
 # 2. Choose better state var names for anonymous C and L. 
 # 3. Use a better Matrix class that preserves the class of each
-# element, where possible.  Although inverse may be tricky...
+# element, where possible.
+
+# Independent sources
+# V1 1 0
+# V1 1 0 {10 * u(t)}
+# V1 1 0 ac 10
+#
+# In each case, we use v1(t) as the independent source when determing
+# the A, B, C, D matrices.  We can then substitute the known value at
+# the end.
 
 class StateSpace(object):
     """This converts a circuit to state-space representation."""
@@ -73,15 +82,21 @@ class StateSpace(object):
             statenames.append(name)
 
         sources = []
+        sourcevars = []
         sourcenames = []
         for elt in independent_sources:
+            name = cpt_map[elt.name]
+            
             if isinstance(elt, V):
                 expr = elt.cpt.voc
+                var = sscct[name].voc                
             else:
                 expr = elt.cpt.isc
+                var = sscct[name].isc                
 
             sources.append(expr)
-            sourcenames.append(elt.name)
+            sourcevars.append(var)
+            sourcenames.append(name)
 
         statesyms = sympify(statenames)
         sourcesyms = sympify(sourcenames)            
@@ -89,8 +104,8 @@ class StateSpace(object):
         subsdict = {}
         for var, sym1 in zip(statevars, statesyms):
             subsdict[var] = sym1
-        for expr, sym1 in zip(sources, sourcesyms):
-            subsdict[expr] = sym1            
+        for var, sym1 in zip(sourcevars, sourcesyms):
+            subsdict[var] = sym1            
 
         for m, expr in enumerate(dotx_exprs):
             dotx_exprs[m] = expr.subs(subsdict).expr.expand()
