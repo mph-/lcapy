@@ -71,16 +71,16 @@ class Matrix(sym.Matrix):
     def laplace(self):
 
         def lt(expr):
-            from .symbols import s, t
-            return laplace_transform(expr, t, s)
+            from .sym import ssym, tsym
+            return laplace_transform(expr, tsym, ssym)
         
         return self.applyfunc(lt)
 
     def inverse_laplace(self, **assumptions):
 
         def lt(expr):
-            from .symbols import s, t
-            return inverse_laplace_transform(expr, s, t, **assumptions)
+            from .sym import ssym, tsym
+            return inverse_laplace_transform(expr, ssym, tsym, **assumptions)
         
         return self.applyfunc(lt)    
 

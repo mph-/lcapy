@@ -3,7 +3,10 @@ from .matrix import Matrix
 from .sym import sympify
 import sympy as sym
 
-# TODO, need a better Matrix class that preserves the class of each
+# TODO
+# 1. Fix sources with specified values.
+# 2. Choose better state var names for anonymous C and L. 
+# 3. Use a better Matrix class that preserves the class of each
 # element, where possible.  Although inverse may be tricky...
 
 class StateSpace(object):
@@ -102,8 +105,8 @@ class StateSpace(object):
             if node != '0':
                 ynames.append(node)
                 yexprs.append(self.sscct.get_vd(node, '0').subs(subsdict).expand())
-                y.append(sympify('v%s(t)' % node))
-                
+                y.append(Vt('v%s(t)' % node))
+
         Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
         D, b = sym.linear_eq_to_matrix(yexprs, *sourcesyms)
 

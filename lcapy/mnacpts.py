@@ -726,6 +726,11 @@ class I(IndependentSource):
         if n2 >= 0:
             cct._Is[n2] -= I
 
+    def ss_model(self):
+        return '%s%s %s %s; %s' % (self.namespace, self.relname,
+                                   self.relnodes[0], self.relnodes[1], 
+                                   self.opts)
+
     def s_model(self, var):
 
         return '%s %s %s s %s; %s' % (self.name, 
@@ -1041,6 +1046,11 @@ class V(IndependentSource):
 
         V = self.Voc.expr
         cct._Es[m] += V
+
+    def ss_model(self):
+        return '%s%s %s %s; %s' % (self.namespace, self.relname,
+                                   self.relnodes[0], self.relnodes[1], 
+                                   self.opts)
 
     def s_model(self, var):
 
