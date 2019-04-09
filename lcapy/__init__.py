@@ -49,6 +49,8 @@ from .omegaexpr import *
 from .super import *
 from .printing import *
 from .sym import *
+from .matrix import *
+from .vector import *
 
 
 def show_version():
