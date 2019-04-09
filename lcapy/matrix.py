@@ -1,16 +1,16 @@
 import sympy as sym
 from copy import copy
 from .printing import pprint, latex
+from .expr import Expr
 
 
 def msympify(expr):
     # If do nothing, will get a problem with matrices that
     # have mixed data types, e.g., A matrix.
 
-    try:
+    if isinstance(expr, Expr):    
         return expr.expr
-    except:
-        return expr
+    return expr
         
         
 class Matrix(sym.Matrix):
