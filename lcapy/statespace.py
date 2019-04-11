@@ -235,12 +235,13 @@ class StateSpace(object):
 
     @property
     def G(self):
-        """System impulse responses."""
+        """System transfer functions."""
 
         return self.C * self.H + self.D
 
     @property
     def g(self):
+        """System impulse responses."""        
         return selfGH.inverse_laplace(causal=True)
     
     def characteristic_polynomial(self):
@@ -258,7 +259,7 @@ class StateSpace(object):
 
         lambda(s) = |s * I - A|
         """        
-        return self.characteristic_polynomial()
+        return self.characteristic_polynomial().canonical()
 
     @property        
     def eigenvalues_dict(self):
@@ -284,7 +285,7 @@ class StateSpace(object):
         for v, n in roots.items():
             for m in range(n):
                 e.append(v)
-        return e
+        return Exprlist(e)
 
     @property    
     def Lambda(self):
@@ -317,5 +318,6 @@ class StateSpace(object):
     
     
 from .symbols import t, s
+from .expr import Exprlist
 from .texpr import Vt, It, tExpr
 from .sexpr import sExpr

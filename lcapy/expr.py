@@ -22,9 +22,7 @@ import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
 
-class Exprdict(dict):
-
-    """Decorator class for dictionary created by sympy."""
+class ExprMixin(object):
 
     @property    
     def pdb(self):
@@ -59,7 +57,19 @@ class Exprdict(dict):
     def simplify(self):
         return simplify(self)
 
-        
+    
+class Exprdict(dict, ExprMixin):
+
+    """Decorator class for dictionary created by sympy."""
+    pass
+
+
+class Exprlist(list, ExprMixin):
+
+    """Decorator class for list created by sympy."""
+    pass
+
+
 class Expr(object):
 
     """Decorator class for sympy classes derived from sympy.Expr"""
