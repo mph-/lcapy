@@ -122,9 +122,9 @@ class StateSpace(object):
         y = []
 
         if nodal_voltages:
-            enodes = list(cct.equipotential_nodes.keys())
-            enodes = sorted(enodes)
-            for node in enodes:
+            node_list = list(cct.equipotential_nodes.keys())
+            node_list = sorted(node_list)
+            for node in node_list:
                 if node != '0':
                     yexprs.append(self.sscct[node].v.subs(subsdict).expand())
                     y.append(Vt('v%s(t)' % node))
@@ -164,7 +164,8 @@ class StateSpace(object):
         where x is the state vector and u is the input vector.
         """
         
-        return sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x), sym.MatMul(self.B, self.u)))
+        return sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x),
+                                            sym.MatMul(self.B, self.u)))
 
     def output_equations(self):
         """System of output equations:
@@ -176,7 +177,8 @@ class StateSpace(object):
 
         """
         
-        return sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x), sym.MatMul(self.D, self.u)))
+        return sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x),
+                                         sym.MatMul(self.D, self.u)))
 
     @property
     def Phi(self):

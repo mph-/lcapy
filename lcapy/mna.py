@@ -97,6 +97,7 @@ class MNA(object):
 
         # Extract unique nodes.
         node_list = list(self.equipotential_nodes.keys())
+        node_list = sorted(node_list)
         # Ensure node '0' is first in the list.
         node_list.insert(0, node_list.pop(node_list.index('0')))
 
@@ -282,3 +283,13 @@ class MNA(object):
 
         self._solve()
         return self._Idict
+
+    def equations(self, inverse=False):
+        """System of equations used to find the unknowns.
+
+        If inverse is True, evaluate the Matrix inverse."""
+
+        if inverse:
+            return sym.Eq(self.X, sym.MatMul(self._A.inv(), self._Z))
+        
+        return sym.Eq(self.X, sym.MatMul(sym.Pow(self._A, -1), self._Z))
