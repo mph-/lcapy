@@ -242,7 +242,7 @@ class StateSpace(object):
     @property
     def g(self):
         """System impulse responses."""        
-        return selfGH.inverse_laplace(causal=True)
+        return self.G.inverse_laplace(causal=True)
     
     def characteristic_polynomial(self):
         """Characteristic polynomial (aka system polynomial).
@@ -302,7 +302,7 @@ class StateSpace(object):
 
     @property        
     def eigenvectors(self):
-        """List of tuples (eigenvalue, multiplicity of igenvalue,
+        """List of tuples (eigenvalue, multiplicity of eigenvalue,
         basis of the eigenspace) of A.
 
         """
