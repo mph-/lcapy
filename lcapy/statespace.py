@@ -11,8 +11,7 @@ from .sym import sympify, ssym
 import sympy as sym
 
 # TODO
-# 1. Choose better state var names for anonymous C and L. 
-# 2. Use a better Matrix class that preserves the class of each
+# 1. Use a better Matrix class that preserves the class of each
 # element, where possible.
 
 # Independent sources
@@ -23,6 +22,19 @@ import sympy as sym
 # In each case, we use v1(t) as the independent source when determing
 # the A, B, C, D matrices.  We can then substitute the known value at
 # the end.
+
+def hack_vars(exprs):
+    """Substitute iCanon1(t) with iC(t) etc. provided
+    there is no iCanon2(t)."""
+
+    for m, expr in enumerate(exprs):
+        for c in ('iV', 'iC', 'iL', 'vC'):
+            sym1 = sympify(c + 'anon1(t)')
+            sym2 = sympify(c + 'anon2(t)')            
+            if expr.has(sym1) and not expr.has(sym2):
+                expr = expr.subs(sym1, sympify(c + '(t)'))
+                exprs[m] = expr
+                
 
 class StateSpace(object):
     """This converts a circuit to state-space representation."""
@@ -140,6 +152,10 @@ class StateSpace(object):
         Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
         D, b = sym.linear_eq_to_matrix(yexprs, *sourcesyms)
 
+        # Rewrite vCanon1(t) as vC(t) etc if appropriate.
+        hack_vars(statevars)
+        hack_vars(sources)
+        
         # Note, Matrix strips the class from each element...
         self.x = Matrix(statevars)
 
@@ -164,8 +180,8 @@ class StateSpace(object):
         where x is the state vector and u is the input vector.
         """
         
-        return sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x),
-                                            sym.MatMul(self.B, self.u)))
+        return tExpr(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x),
+                                                  sym.MatMul(self.B, self.u))))
 
     def output_equations(self):
         """System of output equations:
@@ -177,8 +193,8 @@ class StateSpace(object):
 
         """
         
-        return sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x),
-                                         sym.MatMul(self.D, self.u)))
+        return tExpr(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x),
+                                               sym.MatMul(self.D, self.u))))
 
     @property
     def Phi(self):
