@@ -1086,6 +1086,183 @@ response is causal.
           C₁⋅R₁       
 
 
+State-space analysis
+--------------------
+
+Lcapy can identify state variables and generate the state and output
+equations for state-space analysis.  The state-space analysis is
+performed using the `ss` method of a circuit, e.g.,
+
+   >>> from lcapy import Circuit
+   >>> a = Circuit('ss1.sch')
+   >>> ss = a.ss
+
+For demonstration, consider the netlist stored in the file `ss1.sch`::
+
+   V 1 0 {v(t)}; down
+   R1 1 2; right
+   L 2 3; right=1.5, i={i_L}
+   R2 3 0_3; down=1.5, i={i_{R2}}, v={v_{R2}}
+   W 0 0_3; right
+   W 3 3_a; right
+   C 3_a 0_4; down, i={i_C}, v={v_C}
+   W 0_3 0_4; right
+
+.. image:: examples/netlists/ss1.png
+   :width: 8cm
+
+This circuit has two reactive components and thus there are two state
+variables; the current through `L` and the voltage across `C`.
+
+The state variable vector is shown using the `x` attribute:
+
+   >>> ss.x
+   ⎡iL(t)⎤
+   ⎢     ⎥
+   ⎣vC(t)⎦
+
+The independent source vector is shown using the `u` attribute.  In this example,
+there is a single independent source:
+
+   >>> ss.u
+   [v(t)]
+
+The output vector can either be the nodal voltages, the branch
+currents, or both.  By default the nodal voltages are chosen.  This
+vector is shown using the `y` attribute:
+
+   >>> ss.y
+   ⎡v₁(t)⎤
+   ⎢     ⎥
+   ⎢v₂(t)⎥
+   ⎢     ⎥
+   ⎣v₃(t)⎦
+
+The state equations are shown using the `state_equations` method:
+
+   >>> ss.state_equations()
+   ⎡d         ⎤   ⎡R₁   -1  ⎤                      
+   ⎢──(iL(t)) ⎥   ⎢──   ─── ⎥            ⎡1⎤       
+   ⎢dt        ⎥   ⎢L     L  ⎥ ⎡iL(t) ⎤   ⎢─⎥       
+   ⎢          ⎥ = ⎢         ⎥⋅⎢      ⎥ + ⎢L⎥⋅[v(t)]
+   ⎢d         ⎥   ⎢-1   -1  ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
+   ⎢──(v_C(t))⎥   ⎢───  ────⎥            ⎣0⎦       
+   ⎣dt        ⎦   ⎣ C   C⋅R₂⎦                      
+
+(Note, SymPy is a little inconsistent in subscript naming.)
+
+The output equations are shown using the `output_equations` method:
+
+   >>> ss.output_equations()
+   ⎡v₁(t)⎤   ⎡0   0⎤            ⎡1⎤       
+   ⎢     ⎥   ⎢     ⎥ ⎡iL(t) ⎤   ⎢ ⎥       
+   ⎢v₂(t)⎥ = ⎢R₁  0⎥⋅⎢      ⎥ + ⎢1⎥⋅[v(t)]
+   ⎢     ⎥   ⎢     ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
+   ⎣v₃(t)⎦   ⎣0   1⎦            ⎣0⎦       
+
+
+The `A`, `B`, `C`, and `D` matrices are obtained using the attributes
+of the same name.  For example,
+
+   >>> ss.A
+   ⎡R₁   -1  ⎤
+   ⎢──   ─── ⎥
+   ⎢L     L  ⎥
+   ⎢         ⎥
+   ⎢-1   -1  ⎥
+   ⎢───  ────⎥
+   ⎣ C   C⋅R₂⎦
+
+   >>> ss.B
+   ⎡1⎤
+   ⎢─⎥
+   ⎢L⎥
+   ⎢ ⎥
+   ⎣0⎦
+
+   >>> ss.C
+   ⎡0   0⎤
+   ⎢     ⎥
+   ⎢R₁  0⎥
+   ⎢     ⎥
+   ⎣0   1⎦
+
+   >>> ss.D
+   ⎡1⎤
+   ⎢ ⎥
+   ⎢1⎥
+   ⎢ ⎥
+   ⎣0⎦
+
+
+The Laplace transforms of the state variable vector, the independent
+source vector, and the output vector are accessed using the `X`, `U`,
+and `Y` attributes: For example,
+
+   >>> ss.X
+   ⎡IL(s)⎤
+   ⎢     ⎥
+   ⎣VC(s)⎦
+
+The s-domain state-transition matrix is given by the `Phi` attribute
+and the time-domain state-transition matrix is given by the `phi`
+attribute.  For example,
+
+   >>> ss.Phi
+   ⎡                1                                           ⎤
+   ⎢           s + ────                                         ⎥
+   ⎢               C⋅R₂                         -1              ⎥
+   ⎢  ─────────────────────────    ─────────────────────────────⎥
+   ⎢  ⎛     1  ⎞ ⎛    R₁⎞    1       ⎛⎛     1  ⎞ ⎛    R₁⎞    1 ⎞⎥
+   ⎢  ⎜s + ────⎟⋅⎜s - ──⎟ - ───    L⋅⎜⎜s + ────⎟⋅⎜s - ──⎟ - ───⎟⎥
+   ⎢  ⎝    C⋅R₂⎠ ⎝    L ⎠   C⋅L      ⎝⎝    C⋅R₂⎠ ⎝    L ⎠   C⋅L⎠⎥
+   ⎢                                                            ⎥
+   ⎢                                               R₁           ⎥
+   ⎢                                           s - ──           ⎥
+   ⎢             -1                                L            ⎥
+   ⎢─────────────────────────────    ─────────────────────────  ⎥
+   ⎢  ⎛⎛     1  ⎞ ⎛    R₁⎞    1 ⎞    ⎛     1  ⎞ ⎛    R₁⎞    1   ⎥
+   ⎢C⋅⎜⎜s + ────⎟⋅⎜s - ──⎟ - ───⎟    ⎜s + ────⎟⋅⎜s - ──⎟ - ───  ⎥
+   ⎣  ⎝⎝    C⋅R₂⎠ ⎝    L ⎠   C⋅L⎠    ⎝    C⋅R₂⎠ ⎝    L ⎠   C⋅L  ⎦
+
+
+The system transfer functions are given by the `G` attribute and the
+impulse responses are given by the `g` attributes, for example:
+
+  >>> ss.G
+  ⎡                1                ⎤
+  ⎢                                 ⎥
+  ⎢               ⎛     1  ⎞        ⎥
+  ⎢            R₁⋅⎜s + ────⎟        ⎥
+  ⎢               ⎝    C⋅R₂⎠        ⎥
+  ⎢1 + ─────────────────────────────⎥
+  ⎢      ⎛⎛     1  ⎞ ⎛    R₁⎞    1 ⎞⎥
+  ⎢    L⋅⎜⎜s + ────⎟⋅⎜s - ──⎟ - ───⎟⎥
+  ⎢      ⎝⎝    C⋅R₂⎠ ⎝    L ⎠   C⋅L⎠⎥
+  ⎢                                 ⎥
+  ⎢               -1                ⎥
+  ⎢ ─────────────────────────────── ⎥
+  ⎢     ⎛⎛     1  ⎞ ⎛    R₁⎞    1 ⎞ ⎥
+  ⎢ C⋅L⋅⎜⎜s + ────⎟⋅⎜s - ──⎟ - ───⎟ ⎥
+  ⎣     ⎝⎝    C⋅R₂⎠ ⎝    L ⎠   C⋅L⎠ ⎦
+   
+
+The characteristic polynomial (system polynomial) is given by the `P`
+attribute, for example,
+
+   >>> ss.P
+    2   s⋅(-C⋅R₁⋅R₂ + L)   -R₁ - R₂
+   s  + ──────────────── + ────────
+             C⋅L⋅R₂         C⋅L⋅R₂ 
+
+The roots of this polynomial are the eigenvalues of the system.  These
+are given by the `eigenvalues` attribute.  The corresponding
+eigenvectors are the coluns of the modal matrix given by the `M`
+attribute.  A diagonal matrix of the eigenvalues is returned by the
+`Lambda` attribute.
+
+
+          
 Other circuit methods
 ---------------------
 

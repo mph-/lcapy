@@ -87,6 +87,9 @@ Utility functions
 
 - `expr` create an expression
 
+Note, sympy does not allow symbol names that are Python keywords.  For example,
+`expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.
+  
   
 Transformation and substitution
 ===============================      

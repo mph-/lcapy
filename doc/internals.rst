@@ -193,3 +193,5 @@ Expression manipulation
 cos(x).rewrite(exp) ->  exp(j*x) / 2 + exp(-j*x)/2
 (exp(j*x) / 2 + exp(-j*x)/2).rewrite(cos) -> cos(x)
 (exp(j*x) / 2 + exp(-j*x)/2).rewrite(sin) -> cos(x)
+
+
