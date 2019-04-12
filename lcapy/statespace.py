@@ -79,6 +79,7 @@ class StateSpace(object):
         dotx_exprs = []
         statevars = []
         statenames = []
+        initialvalues = []
         for elt in inductors + capacitors:
             name = cpt_map[elt.name]
 
@@ -86,14 +87,17 @@ class StateSpace(object):
                 # Inductors  v = L di/dt  so need v across the L
                 expr = sscct[name].v / elt.cpt.L
                 var = sscct[name].isc
+                x0 = elt.cpt.i0
             else:
                 # Capacitors  i = C dv/dt  so need i through the C
                 expr = sscct[name].i / elt.cpt.C
                 var = sscct[name].voc
+                x0 = elt.cpt.v0
 
             dotx_exprs.append(expr)
             statevars.append(var)
             statenames.append(name)
+            initialvalues.append(x0)
 
         statesyms = sympify(statenames)
 
@@ -109,7 +113,7 @@ class StateSpace(object):
                 var = sscct[name].voc                
             else:
                 expr = elt.cpt.isc
-                var = sscct[name].isc                
+                var = sscct[name].isc
 
             sources.append(expr)
             sourcevars.append(var)
@@ -159,6 +163,8 @@ class StateSpace(object):
         # Note, Matrix strips the class from each element...
         self.x = Matrix(statevars)
 
+        self.x0 = Matrix(initialvalues)
+        
         self.dotx = Matrix([sym.Derivative(x1, t) for x1 in self.x])
 
         self.u = Matrix(sources)

@@ -942,7 +942,7 @@ use the component name for its value.  For example,
 
 
    
-Transform Domains
+Transform domains
 -----------------
 
 Lcapy analyses a linear circuit using a number of transform domains
@@ -992,7 +992,7 @@ Similarly, the time-domain representation (ignoring the noise component) can be 
    20⋅cos(ω⋅t) + 30⋅Heaviside(t) + 10
 
 
-Initial Value Problems
+Initial value problems
 ----------------------
 
 The initial voltage difference across a capacitor or the initial
@@ -1121,6 +1121,13 @@ The state variable vector is shown using the `x` attribute:
    ⎢     ⎥
    ⎣vC(t)⎦
 
+The initial values of the state variable vector are shown using the `x0` attribute:
+
+   >>> ss.x0
+   ⎡0⎤
+   ⎢ ⎥
+   ⎣0⎦   
+   
 The independent source vector is shown using the `u` attribute.  In this example,
 there is a single independent source:
 
