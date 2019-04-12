@@ -42,34 +42,11 @@ class ExprPrint(object):
 
     def _repr_latex_(self):
         """This is used by jupyter notebooks to display an expression using
-        LaTeX markup.  However, this requires matjax.  If this method
+        LaTeX markup.  However, this requires mathjax.  If this method
         is not defined, jupyter falls back on _repr__pretty_ which
         outputs unicode."""
 
         return '$$' + latex(self) + '$$'        
-
-    def _pretty(self, *args, **kwargs):
-        """Make pretty string."""
-
-        # This works in conjunction with Printer._print
-        # It is a hack to allow printing of _Matrix types
-        # and its elements.
-        expr = self.expr
-        printer = args[0]
-
-        return printer._print(expr)
-
-    def _latex(self, *args, **kwargs):
-        """Make latex string.  This is called by sympy.latex when it
-        encounters an Expr type."""
-
-        # This works in conjunction with LatexPrinter._print
-        # It is a hack to allow printing of _Matrix types
-        # and its elements.
-
-        # Give up on printer and use lcapy's one...
-        printer = args[0]
-        return latex(self)
 
     def pretty(self):
         """Make pretty string."""
@@ -101,6 +78,7 @@ class ExprPrint(object):
         expr = sym.Eq(sympify(name), self)
         return latex(expr)
 
+    
 class ExprMisc(object):
     
     def simplify(self):
@@ -169,6 +147,31 @@ class Expr(ExprPrint, ExprMisc):
         assumptions.pop('nid', None)
         
         self.expr = sympify(arg, **assumptions)
+
+    def _pretty(self, *args, **kwargs):
+        """Make pretty string."""
+
+        # This works in conjunction with Printer._print
+        # It is a hack to allow printing of _Matrix types
+        # and its elements.
+        expr = self.expr
+        printer = args[0]
+
+        return printer._print(expr)
+
+    def _latex(self, *args, **kwargs):
+        """Make latex string.  This is called by sympy.latex when it
+        encounters an Expr type."""
+
+        # This works in conjunction with LatexPrinter._print
+        # It is a hack to allow printing of _Matrix types
+        # and its elements.
+
+        expr = self.expr
+        
+        # Give up on printer and use lcapy's one...
+        printer = args[0]
+        return printer._print(expr)        
 
     @property
     def causal(self):

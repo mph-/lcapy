@@ -110,6 +110,7 @@ class LcapyLatexPrinter(LatexPrinter):
         args = [str(self._print(arg)) for arg in expr.args]        
         return '%s(%s)' % (name, ','.join(args))
 
+    
 class LcapyPrettyPrinter(PrettyPrinter):
 
     def _print(self, expr):
