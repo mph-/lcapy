@@ -1,3 +1,10 @@
+"""This module implements the sMatrix class for a matrix of
+Laplace-domain expressions.
+
+Copyright 2019 Michael Hayes, UCECE
+
+"""
+
 from .matrix import Matrix
 from .laplace import inverse_laplace_transform
 

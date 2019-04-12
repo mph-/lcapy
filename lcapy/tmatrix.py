@@ -1,3 +1,10 @@
+"""This module implements the tMatrix class for a matrix of
+time-domain expressions.
+
+Copyright 2019 Michael Hayes, UCECE
+
+"""
+
 from .matrix import Matrix
 from .laplace import laplace_transform
 
