@@ -1,5 +1,6 @@
 import sympy as sym
 from copy import copy
+from .sym import simplify
 from .printing import pprint, latex
 from .expr import Expr
 
@@ -56,41 +57,8 @@ class Matrix(sym.Matrix):
 
         return latex(self)
 
-    def _reformat(self, methodname):
-        """Helper method for reformatting expression."""
-
-        new = copy(self)
-
-        for i in range(self.rows):
-            for j in range(self.cols):
-                method = getattr(self[i, j], methodname)
-                new[i, j] = method()
-
-        return new
-
     def canonical(self):
-
-        return self._reformat('canonical')
-
-    def general(self):
-
-        return self._reformat('general')
-
-    def mixedfrac(self):
-
-        return self._reformat('mixedfrac')
-
-    def partfrac(self):
-
-        return self._reformat('partfrac')
-
-    def timeconst(self):
-
-        return self._reformat('timeconst')    
-
-    def ZPK(self):
-
-        return self._reformat('ZPK')
+        return self
 
     # TODO. There is probably a cunning way to automatically handle
     # the following.
@@ -104,8 +72,7 @@ class Matrix(sym.Matrix):
         return sym.Matrix(self).det()
 
     def simplify(self):
-        # TODO
-        return self
+        return self.applyfunc(simplify)
 
     
 

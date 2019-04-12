@@ -70,7 +70,6 @@ class sfwExpr(Expr):
 
         return self.__class__(self._ratfun.timeconst(), **self.assumptions)
 
-    
     def ZPK(self):
         """Convert to zero-pole-gain (ZPK) form.  For example,
 
