@@ -255,8 +255,7 @@ class StateSpace(object):
     def characteristic_polynomial(self):
         """Characteristic polynomial (aka system polynomial).
 
-        lambda(s) = |s * I - A|
-        """
+        lambda(s) = |s * I - A|"""
 
         M = Matrix(sym.eye(len(self.x)) * ssym - self.A)        
         return sExpr(M.det()).simplify()
@@ -265,8 +264,8 @@ class StateSpace(object):
     def P(self):
         """Characteristic polynomial (aka system polynomial).
 
-        lambda(s) = |s * I - A|
-        """        
+        lambda(s) = |s * I - A|"""        
+
         return self.characteristic_polynomial().canonical()
 
     @property        
@@ -275,9 +274,7 @@ class StateSpace(object):
         polynomial (equivalent to the poles of Phi(s)).  The
         dictionary values are the multiplicity of the eigenvalues.
 
-        For a list of eigenvalues use eigenvalues.
-
-        """        
+        For a list of eigenvalues use eigenvalues."""        
 
         return self.characteristic_polynomial().roots()
         
@@ -309,9 +306,8 @@ class StateSpace(object):
     @property        
     def eigenvectors(self):
         """List of tuples (eigenvalue, multiplicity of eigenvalue,
-        basis of the eigenspace) of A.
-
-        """
+        basis of the eigenspace) of A."""
+        
         return self.A.eigenvects()
     
     @property    
