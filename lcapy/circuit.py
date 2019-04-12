@@ -101,9 +101,12 @@ class Circuit(Netlist):
 
     """
 
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, netlist=None):
 
         super(Circuit, self).__init__(filename)
+
+        if netlist is not None:
+            self.add(netlist)
 
     def netfile_add(self, filename):
         """Add the nets from file with specified filename"""
