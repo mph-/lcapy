@@ -1,3 +1,9 @@
+"""
+This module implements a wrapper for the SymPy Matrix class.
+
+Copyright 2019 Michael Hayes, UCECE
+"""
+
 import sympy as sym
 from copy import copy
 from .sym import simplify

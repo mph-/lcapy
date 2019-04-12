@@ -22,7 +22,89 @@ import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
 
-class ExprMixin(object):
+class ExprPrint(object):
+
+    def __str__(self):
+
+        return print_str(self)
+
+    def __repr__(self):
+        """This is called by repr(expr).  It is used, e.g., when printing
+        in the debugger."""
+        
+        return '%s(%s)' % (self.__class__.__name__, print_str(self))
+
+    def _repr_pretty_(self, p, cycle):
+        """This is used by jupyter notebooks to display an expression using
+        unicode."""
+
+        p.text(pretty(self))
+
+    def _repr_latex_(self):
+        """This is used by jupyter notebooks to display an expression using
+        LaTeX markup.  However, this requires matjax.  If this method
+        is not defined, jupyter falls back on _repr__pretty_ which
+        outputs unicode."""
+
+        return '$$' + latex(self) + '$$'        
+
+    def _pretty(self, *args, **kwargs):
+        """Make pretty string."""
+
+        # This works in conjunction with Printer._print
+        # It is a hack to allow printing of _Matrix types
+        # and its elements.
+        expr = self.expr
+        printer = args[0]
+
+        return printer._print(expr)
+
+    def _latex(self, *args, **kwargs):
+        """Make latex string.  This is called by sympy.latex when it
+        encounters an Expr type."""
+
+        # This works in conjunction with LatexPrinter._print
+        # It is a hack to allow printing of _Matrix types
+        # and its elements.
+
+        # Give up on printer and use lcapy's one...
+        printer = args[0]
+        return latex(self)
+
+    def pretty(self):
+        """Make pretty string."""
+        return pretty(self)
+
+    def prettyans(self, name):
+        """Make pretty string with LHS name."""
+
+        return pretty(sym.Eq(sympify(name), self))
+
+    def pprint(self):
+        """Pretty print"""
+        pprint(self)
+
+    def pprintans(self, name):
+        """Pretty print string with LHS name."""
+        print(self.prettyans(name))
+
+    def latex(self):
+        """Make latex string."""
+        return latex(self)
+
+    def latex_math(self):
+        """Make latex math-mode string."""
+        return '$' + self.latex() + '$'
+
+    def latexans(self, name):
+        """Print latex string with LHS name."""
+        expr = sym.Eq(sympify(name), self)
+        return latex(expr)
+
+class ExprMisc(object):
+    
+    def simplify(self):
+        return simplify(self)
 
     @property    
     def pdb(self):
@@ -30,47 +112,30 @@ class ExprMixin(object):
         
         import pdb; pdb.set_trace()
         return self
-    
-    def pprint(self):
-        """Pretty print"""
-        return pprint(self)
 
-    def pretty(self):
-        """Pretty print"""
-        return pretty(self)    
+    def debug(self):
 
-    def latex(self):
-        """Latex"""
-        return latex(self)
+        name = self.__class__.__name__
+        s = '%s(' % name
+        print(symdebug(self.expr, s , len(name) + 1))
 
-    def _repr_latex_(self):
-        """This is used by jupyter notebooks to display an expression using
-        LaTeX markup.  However, this requires mathjax.  If this method
-        is not defined, jupyter falls back on _repr__pretty_ which
-        outputs unicode."""
-
-        return '$$' + latex(self.expr) + '$$'
-
-    def _repr_pretty_(self, p, cycle):
-        p.text(pretty(self))
-
-    def simplify(self):
-        return simplify(self)
+    def canonical(self):
+        return self.__class__(self)
 
     
-class Exprdict(dict, ExprMixin):
+class Exprdict(dict, ExprPrint, ExprMisc):
 
     """Decorator class for dictionary created by sympy."""
     pass
 
 
-class Exprlist(list, ExprMixin):
+class Exprlist(list, ExprPrint, ExprMisc):
 
     """Decorator class for list created by sympy."""
     pass
 
 
-class Expr(object):
+class Expr(ExprPrint, ExprMisc):
 
     """Decorator class for sympy classes derived from sympy.Expr"""
 
@@ -104,13 +169,6 @@ class Expr(object):
         assumptions.pop('nid', None)
         
         self.expr = sympify(arg, **assumptions)
-
-    @property        
-    def pdb(self):
-        """Enter the python debugger."""
-        
-        import pdb; pdb.set_trace()
-        return self
 
     @property
     def causal(self):
@@ -240,30 +298,6 @@ class Expr(object):
             return self.__class__(ret)
 
         return wrap1
-
-    def __str__(self):
-
-        return print_str(self.expr)
-
-    def __repr__(self):
-        """This is called by repr(expr).  It is used, e.g., when printing
-        in the debugger."""
-        
-        return '%s(%s)' % (self.__class__.__name__, print_str(self.expr))
-
-    def _repr_pretty_(self, p, cycle):
-        """This is used by jupyter notebooks to display an expression using
-        unicode."""
-
-        p.text(pretty(self.expr))
-
-    def _repr_latex_(self):
-        """This is used by jupyter notebooks to display an expression using
-        LaTeX markup.  However, this requires matjax.  If this method
-        is not defined, jupyter falls back on _repr__pretty_ which
-        outputs unicode."""
-
-        return '$$' + latex(self.expr) + '$$'        
 
     def __abs__(self):
         """Absolute value."""
@@ -532,59 +566,6 @@ class Expr(object):
         x = cls(x)
 
         return cls(self.expr * x.expr / (self.expr + x.expr), **assumptions)
-
-    def _pretty(self, *args, **kwargs):
-        """Make pretty string."""
-
-        # This works in conjunction with Printer._print
-        # It is a hack to allow printing of _Matrix types
-        # and its elements.
-        expr = self.expr
-        printer = args[0]
-
-        return printer._print(expr)
-
-    def _latex(self, *args, **kwargs):
-        """Make latex string.  This is called by sympy.latex when it
-        encounters an Expr type."""
-
-        # This works in conjunction with LatexPrinter._print
-        # It is a hack to allow printing of _Matrix types
-        # and its elements.
-
-        # Give up on printer and use lcapy's one...
-        printer = args[0]
-        return latex(self)
-
-    def pretty(self):
-        """Make pretty string."""
-        return pretty(self.expr)
-
-    def prettyans(self, name):
-        """Make pretty string with LHS name."""
-
-        return pretty(sym.Eq(sympify(name), self.expr))
-
-    def pprint(self):
-        """Pretty print"""
-        pprint(self)
-
-    def pprintans(self, name):
-        """Pretty print string with LHS name."""
-        print(self.prettyans(name))
-
-    def latex(self):
-        """Make latex string."""
-        return latex(self.expr)
-
-    def latex_math(self):
-        """Make latex math-mode string."""
-        return '$' + self.latex() + '$'
-
-    def latexans(self, name):
-        """Print latex string with LHS name."""
-        expr = sym.Eq(sympify(name), self.expr)
-        return latex(expr)
 
     @property
     def conjugate(self):
@@ -1083,15 +1064,6 @@ class Expr(object):
     def diff(self, arg=None):
 
         return self.differentiate(arg)
-
-    def debug(self):
-
-        name = self.__class__.__name__
-        s = '%s(' % name
-        print(symdebug(self.expr, s , len(name) + 1))
-
-    def canonical(self):
-        return self.__class__(self)
 
     @property
     def symbols(self):

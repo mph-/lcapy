@@ -12,7 +12,7 @@ class sMatrix(Matrix):
             from .sym import ssym, tsym
             return inverse_laplace_transform(expr, ssym, tsym, **assumptions)
         
-        return self.applyfunc(ilt)    
+        return tMatrix(self.applyfunc(ilt))
 
     def canonical(self):
 
@@ -37,4 +37,7 @@ class sMatrix(Matrix):
     def ZPK(self):
 
         return self.applyfunc(self._typewrap.ZPK)    
+    
+
+from .tmatrix import tMatrix
     

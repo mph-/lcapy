@@ -11,6 +11,6 @@ class tMatrix(Matrix):
             from .sym import ssym, tsym
             return laplace_transform(expr, tsym, ssym)
         
-        return self.applyfunc(lt)
-
+        return sMatrix(self.applyfunc(lt))
     
+from .smatrix import sMatrix
