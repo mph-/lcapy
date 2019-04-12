@@ -348,13 +348,17 @@ class Ratfun(object):
             # TODO: copy?
             return self.expr
 
-        K = sym.cancel(N.EC() / D.EC())
+        var = self.var        
+        Npoly = sym.Poly(N, var)
+        Dpoly = sym.Poly(D, var)
+        
+        K = sym.cancel(Npoly.EC() / Dpoly.EC())
         if delay != 0:
             K *= sym.exp(self.var * delay)
 
         # Divide by leading coefficient
-        Nm = (N / N.EC()).simplify()
-        Dm = (D / D.EC()).simplify()
+        Nm = (Npoly / Npoly.EC()).simplify()
+        Dm = (Dpoly / Dpoly.EC()).simplify()
         
         expr = K * (Nm / Dm)
 
@@ -368,8 +372,8 @@ class Ratfun(object):
         N, D, delay, undef = self.as_ratfun_delay_undef()
 
         var = self.var        
-        Dpoly = sym.Poly(D, var)
         Npoly = sym.Poly(N, var)
+        Dpoly = sym.Poly(D, var)
         
         K = sym.cancel(Npoly.LC() / Dpoly.LC())
         if delay != 0:
