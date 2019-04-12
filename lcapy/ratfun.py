@@ -7,15 +7,16 @@ Copyright 2016--2019 Michael Hayes, UCECE
 from __future__ import division
 import sympy as sym
 from sympy.core.mul import _unevaluated_Mul as uMul
+from .sym import sympify
 
 
 def _zp2tf(zeros, poles, K=1, var=None):
     """Create a transfer function from lists of zeros and poles,
     and from a constant gain"""
 
-    K = sym.sympify(K)
-    zeros = sym.sympify(zeros)
-    poles = sym.sympify(poles)
+    K = sympify(K)
+    zeros = sympify(zeros)
+    poles = sympify(poles)
 
     if isinstance(zeros, (tuple, list)):
         zz = [(var - z) for z in zeros]

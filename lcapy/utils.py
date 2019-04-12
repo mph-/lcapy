@@ -1,6 +1,6 @@
 import sympy as sym
 
-def factor_const(expr, t):
+def factor_const(expr, var):
 
     # Perhaps use expr.as_coeff_Mul() ?
 
@@ -9,7 +9,7 @@ def factor_const(expr, t):
     for factor in expr.as_ordered_factors():
         # Cannot use factor.is_constant() since SymPy 1.2, 1.3
         # barfs for Heaviside(t) and DiracDelta(t)
-        if not factor.has(t):
+        if not factor.has(var):
             const *= factor
         else:
             rest *= factor

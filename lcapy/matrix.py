@@ -2,7 +2,7 @@ import sympy as sym
 from copy import copy
 from .printing import pprint, latex
 from .expr import Expr
-from .laplace import laplace_transform, inverse_laplace_transform
+
 
 def msympify(expr):
     # If do nothing, will get a problem with matrices that
@@ -68,22 +68,6 @@ class Matrix(sym.Matrix):
 
         return new
 
-    def laplace(self):
-
-        def lt(expr):
-            from .sym import ssym, tsym
-            return laplace_transform(expr, tsym, ssym)
-        
-        return self.applyfunc(lt)
-
-    def inverse_laplace(self, **assumptions):
-
-        def ilt(expr):
-            from .sym import ssym, tsym
-            return inverse_laplace_transform(expr, ssym, tsym, **assumptions)
-        
-        return self.applyfunc(ilt)    
-    
     def canonical(self):
 
         return self._reformat('canonical')
@@ -123,5 +107,7 @@ class Matrix(sym.Matrix):
         # TODO
         return self
 
-#from lcapy.sexpr import sExpr
+    
+
+
 
