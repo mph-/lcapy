@@ -1,32 +1,36 @@
 Schematics
 ==========
 
-1. Automatically add wires with node splitting to avoid explicit wires
+1. Automatically add wires with node splitting to avoid explicit wires.
 
-2. Add motor symbol
+2. Add motor symbol.
 
-3. Add ferrite bead symbol (not supported by circuitikz)
+3. Add ferrite bead symbol (not supported by circuitikz).
 
-4. Add crystal symbol (not supported by circuitikz)
+4. Add drawing methods to TwoPorts.
 
-5. Add drawing methods to TwoPorts
-
-6. Handle multiple SVG images displayed in notebook due to problems with
+5. Handle multiple SVG images displayed in notebook due to problems with
 shared namespace.
 
-7. Automatically separate parallel components when drawing (except
+6. Automatically separate parallel components when drawing (except
 open circuits).  The tricky part is adding enough space for the
 labels.
 
-8. Warn if have disjoint components.
+7. Warn if have disjoint components.
 
-9. Add user configuration file.
+8. Add user configuration file.
+
+9. Convert voltage and current labels for s-models.  v(t) -> V(s), etc.
+
+10. Use better pdf to png converter for rendering schematics.
+
+11. Fix dot placement for mutual couplings.
 
 
 Circuit analysis
 ================
 
-1. Add Vsin and Isin components for better Spice compatibility
+1. Add Vsin and Isin components for better Spice compatibility.
 
 2. Generalise two-port representation to avoid transformations from a
 singular matrix.
@@ -39,6 +43,8 @@ return omega-domain expressions?
 4. Show Super classes as how they were created and not decomposition?
 
 5. Add circuit subs method so can substitute values before analysis.
+
+6. Conversion of MNA equations to state space formulation!
 
 
 Infrastructure
@@ -54,32 +60,41 @@ sympy/printing/pretty/pretty.py
 3. Support more Fourier/Laplace transformations, say using a table
 driven approach.
 
-4. Speed up residue calculation (perhaps can try without taking limit...)
+4. Speed up residue calculation (perhaps can try without taking limit...).
 
-5. Speed up comparisons using is instead of ==
+5. Speed up comparisons using is instead of ==.
 
 6. Warn user when calculations may take a while, say when inverting a
 large matrix.
 
 7. Add || operator to SymPy but this will require Python mods!
 
+8. Use better assumptions propagation.  Should have mechanism to
+   override assumptions based on user's coercion.  For example,
+   causal=True, causal=False, causal=None, where the latter says I don't know.
+
+9. Implement a Matrix class that does not lose the class information
+for each element.
+
 
 Testing
 =======
 
-1. Write more unit tests
+1. Write more unit tests.
 
 
 Documentation
 =============
 
-1. Add example notebooks
+1. Add more example notebooks.
 
-2. Restructure user manual
+2. Restructure user manual.
 
-3. Document underlying philosophy
+3. Document underlying philosophy.
 
-4. Fix shape node labels
+4. Fix shape node labels.
+
+5. Document quirks.
 
 
 Additional features
@@ -124,7 +139,7 @@ SymPy
 =====
 
 1. Advocate for SymPy to consider lower limit of Laplace transform integral
-to sneak past 0 so that DiracDelta(t) -> 1 instead of 0.5
+to sneak past 0 so that DiracDelta(t) -> 1 instead of 0.5.
 
-2. Contribute Fourier/Laplace code
+2. Contribute Fourier/Laplace code.
 

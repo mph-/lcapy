@@ -7,8 +7,9 @@ Copyright 2019 Michael Hayes, UCECE
 
 from .mnacpts import L, C, I, V
 from .matrix import Matrix
+from .smatrix import sMatrix
+from .tmatrix import tMatrix
 from .sym import sympify, ssym
-from .laplace import laplace_transform, inverse_laplace_transform
 import sympy as sym
 
 # TODO
@@ -37,33 +38,6 @@ def hack_vars(exprs):
                 exprs[m] = expr
                 
 
-class sMatrix(Matrix):
-    from .sexpr import sExpr    
-    _typewrap = sExpr
-
-
-    def inverse_laplace(self, **assumptions):
-
-        def ilt(expr):
-            from .sym import ssym, tsym
-            return inverse_laplace_transform(expr, ssym, tsym, **assumptions)
-        
-        return self.applyfunc(ilt)    
-
-    
-class tMatrix(Matrix):
-    from .texpr import tExpr    
-    _typewrap = tExpr    
-
-    def laplace(self):
-
-        def lt(expr):
-            from .sym import ssym, tsym
-            return laplace_transform(expr, tsym, ssym)
-        
-        return self.applyfunc(lt)
-
-    
 class StateSpace(object):
     """This converts a circuit to state-space representation."""
 

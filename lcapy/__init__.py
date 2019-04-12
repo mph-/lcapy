@@ -50,6 +50,8 @@ from .super import *
 from .printing import *
 from .sym import *
 from .matrix import *
+from .matrix import *
+from .tmatrix import *
 from .vector import *
 
 

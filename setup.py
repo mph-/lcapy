@@ -23,6 +23,6 @@ setup(name='lcapy', version='0.32.3',
                   'lcapy.noiseexpr', 'lcapy.phasor', 'lcapy.super',
                   'lcapy.context', 'lcapy.sym', 'lcapy.functions',
                   'lcapy.printing', 'lcapy.config', 'lcapy.transform',
-                  'lcapy.statespace'],
+                  'lcapy.statespace', 'lcapy.smatrix', 'lcapy.tmatrix'],
       scripts=['scripts/schtex.py'],
       license='LGPL' )
