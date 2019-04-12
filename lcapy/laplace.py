@@ -22,7 +22,7 @@ Copyright 2016--2019 Michael Hayes, UCECE
 """
 
 from .ratfun import Ratfun
-from .sym import sympify
+from .sym import sympify, simplify
 from .utils import factor_const, scale_shift
 import sympy as sym
 
@@ -424,7 +424,7 @@ def inverse_laplace_term1(expr, s, t, **assumptions):
     
 def inverse_laplace_term(expr, s, t, **assumptions):
 
-    expr, delay = delay_factor(sym.simplify(expr), s)
+    expr, delay = delay_factor(simplify(expr), s)
 
     result1, result2 = inverse_laplace_term1(expr, s, t, **assumptions)
 
