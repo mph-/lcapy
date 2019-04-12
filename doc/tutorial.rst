@@ -1236,23 +1236,22 @@ attribute.  For example,
 The system transfer functions are given by the `G` attribute and the
 impulse responses are given by the `g` attributes, for example:
 
-  >>> ss.G
-  ⎡                1                ⎤
-  ⎢                                 ⎥
-  ⎢               ⎛     1  ⎞        ⎥
-  ⎢            R₁⋅⎜s + ────⎟        ⎥
-  ⎢               ⎝    C⋅R₂⎠        ⎥
-  ⎢1 + ─────────────────────────────⎥
-  ⎢      ⎛⎛     1  ⎞ ⎛    R₁⎞    1 ⎞⎥
-  ⎢    L⋅⎜⎜s + ────⎟⋅⎜s - ──⎟ - ───⎟⎥
-  ⎢      ⎝⎝    C⋅R₂⎠ ⎝    L ⎠   C⋅L⎠⎥
-  ⎢                                 ⎥
-  ⎢               -1                ⎥
-  ⎢ ─────────────────────────────── ⎥
-  ⎢     ⎛⎛     1  ⎞ ⎛    R₁⎞    1 ⎞ ⎥
-  ⎢ C⋅L⋅⎜⎜s + ────⎟⋅⎜s - ──⎟ - ───⎟ ⎥
-  ⎣     ⎝⎝    C⋅R₂⎠ ⎝    L ⎠   C⋅L⎠ ⎦
-   
+   >>> ss.G
+   ⎡                       1                       ⎤
+   ⎢                                               ⎥
+   ⎢ 2   s⋅(-C⋅R₁⋅R₂ + C⋅R₁⋅R₂ + L)   -R₁ + R₁ - R₂⎥
+   ⎢s  + ────────────────────────── + ─────────────⎥
+   ⎢               C⋅L⋅R₂                 C⋅L⋅R₂   ⎥
+   ⎢───────────────────────────────────────────────⎥
+   ⎢         2   s⋅(-C⋅R₁⋅R₂ + L)   -R₁ - R₂       ⎥
+   ⎢        s  + ──────────────── + ────────       ⎥
+   ⎢                  C⋅L⋅R₂         C⋅L⋅R₂        ⎥
+   ⎢                                               ⎥
+   ⎢                     -1                        ⎥
+   ⎢    ──────────────────────────────────────     ⎥
+   ⎢        ⎛ 2   s⋅(-C⋅R₁⋅R₂ + L)   -R₁ - R₂⎞     ⎥
+   ⎢    C⋅L⋅⎜s  + ──────────────── + ────────⎟     ⎥
+   ⎣        ⎝          C⋅L⋅R₂         C⋅L⋅R₂ ⎠     ⎦
 
 The characteristic polynomial (system polynomial) is given by the `P`
 attribute, for example,
