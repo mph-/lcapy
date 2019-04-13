@@ -15,9 +15,9 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import absolute_import, print_function
 del absolute_import, print_function
 
-from pkg_resources import get_distribution
+import pkg_resources
 
-__version__ = get_distribution('lcapy').version
+__version__ = pkg_resources.require('lcapy')[0].version
 
 name = "lcapy"
 
