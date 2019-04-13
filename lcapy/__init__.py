@@ -19,6 +19,8 @@ from pkg_resources import get_distribution
 
 __version__ = get_distribution('lcapy').version
 
+name = "lcapy"
+
 import sys
 if sys.version_info[0] == 2 and sys.version_info[1] < 6:
     raise ImportError("Python Version 2.6 or above is required for Lcapy.")
@@ -49,7 +51,6 @@ from .matrix import *
 from .smatrix import *
 from .tmatrix import *
 from .vector import *
-
 
 def show_version():
     """Show versions of Lcapy, SymPy, NumPy and Python."""
