@@ -734,7 +734,6 @@ class Schematic(NetfileMixin):
             raise RuntimeWarning('No schematic drawing hints provided!')
 
         if in_ipynb() and filename is None:
-
             png = 'png' in kwargs and kwargs.pop('png')
             svg = 'svg' in kwargs and kwargs.pop('svg')
             

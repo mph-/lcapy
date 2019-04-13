@@ -4,8 +4,8 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setup(name='lcapy-mph',
-      version='0.32.4',
+setup(name='lcapy',
+      version='0.32.6',
       author='Michael Hayes',
       author_email='michael.hayes@canterbury.ac.nz',
       description='Symbolic linear circuit analysis',
