@@ -1,5 +1,5 @@
 import re
-from .config import print_expr_map, words, junicode
+from .config import print_expr_map, functions, words, subscripts, junicode
 from .latex import latex_str
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
@@ -44,7 +44,7 @@ def canonical_name(name):
         return name
 
     # Don't touch things like heaviside
-    if name.lower() in words and name.lower() != 'il':
+    if name.lower() in words + functions:
         return name
     
     # Convert R1 to R_1, etc.
@@ -63,7 +63,7 @@ def canonical_name(name):
         return name[0] + '_' + name[1:]
 
     # Convert irms to i_rms, etc.
-    if name[1:].lower() in words:
+    if name[1:].lower() in subscripts:
         return name[0] + '_' + name[1:]    
     
     return name

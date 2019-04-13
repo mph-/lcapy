@@ -1,6 +1,6 @@
 import re
 from .config import latex_string_map
-from .config import words
+from .config import subscripts
 
 sub_super_pattern = re.compile(r"([_\^]){([a-zA-Z]+)([0-9]*)}")
 
@@ -23,7 +23,7 @@ class Latex(object):
 
             # Perhaps look up dictionary to find valid words?
             # Assume that if length 3 or more then a word.
-            if word.lower() in words or len(word) > 2:
+            if word.lower() in subscripts or len(word) > 2:
                 suffix = r'{\mathrm{%s}}' % suffix
             else:
                 suffix = r'{%s}' % suffix
