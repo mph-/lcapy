@@ -832,13 +832,41 @@ Lcapy can convert s-domain products to time domain convolutions, for example,
 
    >>> from lcapy import Is
    >>> Is('V(s) * Y(s)').inverse_laplace(causal=True)
-   ∞                  
-   ⌠                  
-   ⎮  v(t - τ)⋅y(τ) dτ
-   ⌡                  
-   -∞                 
+   t                 
+   ⌠                 
+   ⎮ v(t - τ)⋅y(τ) dτ
+   ⌡                 
+   0                 
 
 Here the class `Is` represents an s-domain current.
+
+It can also recognise integrations and differentiations of arbitrary
+functions, for example,
+
+   >>> from lcapy import s, t
+   >>> (s * 'V(s)')(t, causal=True)
+   d       
+   ──(v(t))
+   dt      
+
+   >>> ('V(s)' / s)(t, causal=True)   
+   t        
+   ⌠        
+   ⎮ v(τ) dτ
+   ⌡        
+   0        
+
+These expressions also be written as:
+   
+   >>> from lcapy import expr, t
+   >>> expr('s * V(s)')(t, causal=True)
+   >>> expr('V(s) / s')(t, causal=True)
+
+or more explicitly:
+
+   >>> from lcapy import expr
+   >>> expr('s * V(s)').inverse_laplace(causal=True)
+   >>> expr('V(s) / s').inverse_laplace(causal=True)
    
 
 Laplace transforms
@@ -846,7 +874,7 @@ Laplace transforms
 
 Lcapy can also perform Laplace transforms.   Here's an example:
 
-   >>> from lcapy import t
+   >>> from lcapy import s, t
    >>> v = 10 * t ** 2 + 3 * t
    >>> v.laplace()
    3⋅s + 20
@@ -896,8 +924,18 @@ through an element, for example,
    ⎨s: ───⎬
    ⎩   2⋅s⎭
 
-Notice, how the displayed voltages are Laplace domain voltages.  The
-transient voltages can be determined using an inverse Laplace transform:
+Notice, how the displayed voltages are a dictionary.  This represents
+the result as a superposition of a number of transform domains (DC,
+AC, Laplace, etc.).  In this case `s` denotes the Laplace domain
+result of the transient component.  The full Laplace response is
+returned using
+
+   >>> cct.V1.V(s)
+   10
+   ──
+   s
+
+The time domain response is found using:
 
    >>> cct.V1.V(t)
    10
@@ -949,8 +987,7 @@ Lcapy analyses a linear circuit using a number of transform domains
 and the principle of superposition.  Voltage and current signals are
 decomposed into a DC component, one or more AC components (one for
 each angular frequency), a transient component, and noise components
-(one for each noise source).  NB, this decomposition is experimental
-and may change.
+(one for each noise source).
 
 For example, consider:
 
@@ -1117,9 +1154,9 @@ variables; the current through `L` and the voltage across `C`.
 The state variable vector is shown using the `x` attribute:
 
    >>> ss.x
-   ⎡iL(t)⎤
-   ⎢     ⎥
-   ⎣vC(t)⎦
+   ⎡i_L(t)⎤
+   ⎢      ⎥
+   ⎣v_C(t)⎦
 
 The initial values of the state variable vector are shown using the `x0` attribute:
 
@@ -1149,20 +1186,19 @@ The state equations are shown using the `state_equations` method:
 
    >>> ss.state_equations()
    ⎡d         ⎤   ⎡R₁   -1  ⎤                      
-   ⎢──(iL(t)) ⎥   ⎢──   ─── ⎥            ⎡1⎤       
-   ⎢dt        ⎥   ⎢L     L  ⎥ ⎡iL(t) ⎤   ⎢─⎥       
+   ⎢──(i_L(t))⎥   ⎢──   ─── ⎥            ⎡1⎤       
+   ⎢dt        ⎥   ⎢L     L  ⎥ ⎡i_L(t)⎤   ⎢─⎥       
    ⎢          ⎥ = ⎢         ⎥⋅⎢      ⎥ + ⎢L⎥⋅[v(t)]
    ⎢d         ⎥   ⎢-1   -1  ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
    ⎢──(v_C(t))⎥   ⎢───  ────⎥            ⎣0⎦       
    ⎣dt        ⎦   ⎣ C   C⋅R₂⎦                      
 
-(Note, SymPy is a little inconsistent in subscript naming.)
 
 The output equations are shown using the `output_equations` method:
 
    >>> ss.output_equations()
    ⎡v₁(t)⎤   ⎡0   0⎤            ⎡1⎤       
-   ⎢     ⎥   ⎢     ⎥ ⎡iL(t) ⎤   ⎢ ⎥       
+   ⎢     ⎥   ⎢     ⎥ ⎡i_L(t)⎤   ⎢ ⎥       
    ⎢v₂(t)⎥ = ⎢R₁  0⎥⋅⎢      ⎥ + ⎢1⎥⋅[v(t)]
    ⎢     ⎥   ⎢     ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
    ⎣v₃(t)⎦   ⎣0   1⎦            ⎣0⎦       
