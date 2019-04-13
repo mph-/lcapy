@@ -733,43 +733,45 @@ class Schematic(NetfileMixin):
         if not self.hints:
             raise RuntimeWarning('No schematic drawing hints provided!')
 
-        png = 'png' in kwargs and kwargs.pop('png')
-        svg = 'svg' in kwargs and kwargs.pop('svg')
-
-        if not png and not svg:
-            png = True
-
         if in_ipynb() and filename is None:
 
-            if png:
-                from IPython.display import Image, display_png
-
-                pngfilename = tmpfilename('.png')
-                self.tikz_draw(pngfilename, **kwargs)
-
-                # Create and display PNG image object.
-                # There are two problems:
-                # 1. The image metadata (width, height) is ignored
-                #    when the ipynb file is loaded.
-                # 2. The image metadata (width, height) is not stored
-                #    when the ipynb file is written non-interactively.
-                display_png(Image(filename=pngfilename,
-                                  width=self.width * 100, 
-                                  height=self.height * 100))
-                return
+            png = 'png' in kwargs and kwargs.pop('png')
+            svg = 'svg' in kwargs and kwargs.pop('svg')
+            
+            if not png and not svg:
+                svg = True
 
             if svg:
-                from IPython.display import SVG, display_svg
+                try:
+                    from IPython.display import SVG, display_svg
 
-                svgfilename = tmpfilename('.svg')
-                self.tikz_draw(svgfilename, **kwargs)
+                    svgfilename = tmpfilename('.svg')
+                    self.tikz_draw(svgfilename, **kwargs)
+                    
+                    # Create and display SVG image object.
+                    # Note, there is a problem displaying multiple SVG
+                    # files since the later ones inherit the namespace of
+                    # the first ones.
+                    display_svg(SVG(filename=svgfilename)) 
+                    return
+                except:
+                    pass
 
-                # Create and display SVG image object.
-                # Note, there is a problem displaying multiple SVG
-                # files since the later ones inherit the namespace of
-                # the first ones.
-                display_svg(SVG(filename=svgfilename)) 
-                return
+            from IPython.display import Image, display_png
+
+            pngfilename = tmpfilename('.png')
+            self.tikz_draw(pngfilename, **kwargs)
+            
+            # Create and display PNG image object.
+            # There are two problems:
+            # 1. The image metadata (width, height) is ignored
+            #    when the ipynb file is loaded.
+            # 2. The image metadata (width, height) is not stored
+            #    when the ipynb file is written non-interactively.
+            display_png(Image(filename=pngfilename,
+                              width=self.width * 100, 
+                              height=self.height * 100))
+            return
 
         if filename is None:
             filename = tmpfilename('.png')
