@@ -739,7 +739,7 @@ class Schematic(NetfileMixin):
             svg = 'svg' in kwargs and kwargs.pop('svg')
             
             if not png and not svg:
-                svg = True
+                svg = False
 
             if svg:
                 try:
