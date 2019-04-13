@@ -768,9 +768,7 @@ class Schematic(NetfileMixin):
                 # Note, there is a problem displaying multiple SVG
                 # files since the later ones inherit the namespace of
                 # the first ones.
-                display_svg(SVG(filename=pngfilename, 
-                                width=self.width * 100,
-                                height=self.height * 100))
+                display_svg(SVG(filename=svgfilename)) 
                 return
 
         if filename is None:
