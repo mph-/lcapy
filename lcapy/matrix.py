@@ -7,7 +7,7 @@ Copyright 2019 Michael Hayes, UCECE
 import sympy as sym
 from copy import copy
 from .sym import simplify
-from .printing import pprint, latex
+from .printing import pprint, latex, pretty
 from .expr import Expr
 
 
@@ -34,8 +34,7 @@ class Matrix(sym.Matrix):
     # What's worse, is that calling _sympify on each element creates
     # different variables than what we are expecting.  For example,
     # the sExpr s looks the same but gets different attributes.  We
-    # prevent this by defining _simpify to do nothing instead of
-    # sym.sympify.
+    # prevent this by defining _sympify.
     
     # _typewrap = sExpr
 
@@ -46,7 +45,7 @@ class Matrix(sym.Matrix):
         item = super(Matrix, self).__getitem__(key)
 
         # The following line is to handle slicing used
-        # by latex method.
+        # by the latex method.
         if isinstance(item, sym.Matrix):
             return item
 
@@ -54,6 +53,20 @@ class Matrix(sym.Matrix):
             return self._typewrap(item)
 
         return item
+
+    def _repr_pretty_(self, p, cycle):
+        """This is used by jupyter notebooks to display an expression using
+        unicode."""
+
+        p.text(pretty(self))
+
+    def _repr_latex_(self):
+        """This is used by jupyter notebooks to display an expression using
+        LaTeX markup.  However, this requires mathjax.  If this method
+        is not defined, jupyter falls back on _repr__pretty_ which
+        outputs unicode."""
+        import pdb; pdb.set_trace()
+        return '$$' + latex(self) + '$$'
 
     def pprint(self):
 

@@ -168,3 +168,10 @@ def pprint(expr):
         print(pretty(expr))
     else:
         print(latex(expr))
+
+
+from sympy import init_printing
+init_printing()
+
+
+        

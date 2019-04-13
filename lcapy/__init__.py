@@ -28,10 +28,6 @@ else:  # Python 3
 
 del sys
 
-from sympy import init_printing
-init_printing()
-
-
 from .functions import *
 from .symbols import *
 from .circuit import *
