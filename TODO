@@ -3,28 +3,25 @@ Schematics
 
 1. Automatically add wires with node splitting to avoid explicit wires.
 
-2. Add motor symbol.
+2. Add ferrite bead symbol (not supported by circuitikz).
 
-3. Add ferrite bead symbol (not supported by circuitikz).
+3. Add drawing methods to TwoPorts.
 
-4. Add drawing methods to TwoPorts.
-
-5. Handle multiple SVG images displayed in notebook due to problems with
-shared namespace.
-
-6. Automatically separate parallel components when drawing (except
+4. Automatically separate parallel components when drawing (except
 open circuits).  The tricky part is adding enough space for the
 labels.
 
-7. Warn if have disjoint components.
+5. Warn if have disjoint components.
 
-8. Add user configuration file.
+6. Add user configuration file.
 
-9. Convert voltage and current labels for s-models.  v(t) -> V(s), etc.
+7. Convert voltage and current labels for s-models.  v(t) -> V(s), etc.
 
-10. Use better pdf to png converter for rendering schematics.
+8. Fix dot placement for mutual couplings.
 
-11. Fix dot placement for mutual couplings.
+9. Generate system equations using nodal analysis.
+
+10. Generate system equations using loop analysis.
 
 
 Circuit analysis
