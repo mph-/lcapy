@@ -30,7 +30,10 @@ class ExprPrint(object):
 
     def prettyans(self, name):
         """Make pretty string with LHS name."""
-        return pretty(sym.Eq(sympify(name), self))
+        expr = self
+        if isinstance(expr, Expr):
+            expr = expr.expr
+        return pretty(sym.Eq(sympify(name), expr))
 
     def pprint(self):
         """Pretty print"""
@@ -50,8 +53,10 @@ class ExprPrint(object):
 
     def latexans(self, name):
         """Print latex string with LHS name."""
-        expr = sym.Eq(sympify(name), self)
-        return latex(expr)
+        expr = self
+        if isinstance(expr, Expr):
+            expr = expr.expr
+        return latex(sym.Eq(sympify(name), expr))
 
     
 class ExprMisc(object):
@@ -242,7 +247,7 @@ class Expr(ExprPrint, ExprMisc):
 
 # This will allow sym.sympify to magically extract the sympy expression
 # but it will also bypass our __rmul__, __radd__, etc. methods that get called
-# when sympy punts.
+# when sympy punts.  Thus pi * t becomes a Mul rather than tExpr.
 #
 #    def _sympy_(self):
 #        # This is called from sym.sympify
