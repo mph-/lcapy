@@ -142,6 +142,7 @@ def laplace_term(expr, t, s):
     if expr.has(sym.function.AppliedUndef):
 
         rest = sym.S.One
+        expr = expr.cancel()
         for factor in expr.as_ordered_factors():
             if isinstance(factor, sym.function.AppliedUndef):
                 result = laplace_func(factor, t, s)
@@ -195,6 +196,7 @@ def laplace_transform(expr, t, s):
     if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
         expr = expr.args[0].args[0]
 
+    expr = sym.expand(expr)        
     terms = expr.as_ordered_terms()
     result = 0
 
