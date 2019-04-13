@@ -12,3 +12,7 @@ test: lcapy/*.py
 
 cover: lcapy/*.py
 	nosetests3 --pdb --with-coverage --cover-package=lcapy --cover-html
+
+.PHONY: doc
+doc:
+	cd doc; make html
