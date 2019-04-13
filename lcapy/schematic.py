@@ -54,16 +54,16 @@ __all__ = ('Schematic', )
 
 def display_matplotlib(filename):
         
-    from matplotlib.pyplot import figure
+    from matplotlib.pyplot import figure, figaspect
     from matplotlib.image import imread
     
     img = imread(filename)
-    
-    fig = figure()
+    w, h = figaspect(img)
+    fig = figure(figsize=(w, h))
     ax = fig.add_subplot(111)
     ax.imshow(img)
-    ax.axis('equal')
     ax.axis('off')
+    fig.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.05)
 
 
 class SchematicOpts(Opts):
