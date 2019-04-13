@@ -980,13 +980,18 @@ format is useful for including schematics into LaTeX documents.  The
 tex format generates a standalone LaTeX file.  If no filename is
 specified, the schematic is displayed on the screen.
 
+By default, the png format is used for interactive drawing.  First
+LaTeX is used to create a temporary pdf file; this is then converted
+to png format using `pdftoppm` or `convert` (ImageMagick).  When using
+a Jupyter notebook, the svg format can be used with `draw(svg=True`).
+
 
 
 schtex.py
 =========
 
 `schtex.py` is a Python script that will generate a schematic from a
-netlist file.  For example, here's how a PNG file can be generated:
+netlist file.  For example, here's how a png file can be generated:
 
    >>> schtex.py Dbridge.sch Dbridge.png
 
