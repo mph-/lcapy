@@ -45,8 +45,8 @@ def convert_pdf_png_convert(pdf_filename, png_filename, oversample=1):
 
 def convert_pdf_png_pdftoppm(pdf_filename, png_filename, oversample=1):
 
-    system('pdftoppm -r %d -png %s > %s' % (oversample * 200,
-                                            pdf_filename, png_filename))
+    system('pdftoppm -r %d  -png %s -thinlinemode shape > %s' %
+           (oversample * 150, pdf_filename, png_filename))
         
     if not path.exists(png_filename):
         raise RuntimeError('Could not generate %s with pdftoppm' % 
