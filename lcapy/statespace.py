@@ -41,9 +41,9 @@ def hack_vars(exprs):
 class StateSpace(object):
     """This converts a circuit to state-space representation."""
 
-    def __init__(self, cct, nodal_voltages=True, branch_currents=False):
+    def __init__(self, cct, node_voltages=True, branch_currents=False):
 
-        if not nodal_voltages and not branch_currents:
+        if not node_voltages and not branch_currents:
             raise ValueError('No outputs')
         
         inductors = []
@@ -139,7 +139,7 @@ class StateSpace(object):
         yexprs = []
         y = []
 
-        if nodal_voltages:
+        if node_voltages:
             node_list = list(cct.equipotential_nodes.keys())
             node_list = sorted(node_list)
             for node in node_list:
