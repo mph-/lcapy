@@ -103,8 +103,13 @@ class Circuit(Netlist):
 
     def __init__(self, filename=None, netlist=None):
 
-        super(Circuit, self).__init__(filename)
-
+        # Treat filename as netlist if it has a newline.
+        if '\n' in filename:
+            super(Circuit, self).__init__()
+            self.add(filename)
+        else:
+            super(Circuit, self).__init__(filename)
+            
         if netlist is not None:
             self.add(netlist)
 
