@@ -18,10 +18,11 @@ The netlists can be loaded from a file or created at run-time.  For
 example:
 
     >>> from lcapy import Circuit
-    >>> cct = Circuit()
-    >>> cct.add('Vs 2 0 {5 * u(t)}') 
-    >>> cct.add('Ra 2 1') 
-    >>> cct.add('Rb 1 0') 
+    >>> cct = Circuit(netlist="""
+    >>> Vs 2 0 {5 * u(t)}
+    >>> Ra 2 1
+    >>> Rb 1 0
+    >>> """)
 
 The circuit can then be interrogated to determine branch currents,
 branch voltages, and node voltages (with respect to the ground node 0).

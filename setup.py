@@ -1,28 +1,22 @@
 #!/usr/bin/env python
+from setuptools import setup, find_packages
 
-from distutils.core import setup
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
-setup(name='lcapy', version='0.32.3',
-      description='Symbolic linear circuit analysis',
+setup(name='lcapy-mph',
+      version='0.32.4',
       author='Michael Hayes',
-      requires=['sympy', 'numpy', 'scipy'],
       author_email='michael.hayes@canterbury.ac.nz',
+      description='Symbolic linear circuit analysis',
+      long_description = long_description,
+      long_description_content_type="text/markdown",
+      requires=['sympy', 'numpy', 'scipy'],
       url='https://github.com/mph-/lcapy',
       download_url='https://github.com/mph-/lcapy',
-      py_modules=['lcapy.netlist', 'lcapy.oneport',
-                  'lcapy.twoport', 'lcapy.threeport', 'lcapy.schematic',
-                  'lcapy.mna', 'lcapy.plot', 'lcapy.latex', 'lcapy.grammar',
-                  'lcapy.parser', 'lcapy.schemcpts', 'lcapy.schemmisc',
-                  'lcapy.schemgraph', 'lcapy.mnacpts', 
-                  'lcapy.acdc', 'lcapy.network', 'lcapy.circuit',
-                  'lcapy.netfile', 'lcapy.system', 'lcapy.laplace',
-                  'lcapy.fourier', 'lcapy.ratfun', 'lcapy.utils', 'lcapy.expr',
-                  'lcapy.sexpr', 'lcapy.vector', 'lcapy.matrix',
-                  'lcapy.symbols', 'lcapy.cexpr', 'lcapy.texpr',
-                  'lcapy.fexpr', 'lcapy.omegaexpr', 'lcapy.sfwexpr',
-                  'lcapy.noiseexpr', 'lcapy.phasor', 'lcapy.super',
-                  'lcapy.context', 'lcapy.sym', 'lcapy.functions',
-                  'lcapy.printing', 'lcapy.config', 'lcapy.transform',
-                  'lcapy.statespace', 'lcapy.smatrix', 'lcapy.tmatrix'],
-      scripts=['scripts/schtex.py'],
-      license='LGPL' )
+      packages=find_packages(),
+      scripts=['scripts/schtex.py'],classifiers=[
+          "Programming Language :: Python :: 3",
+          "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
+          "Operating System :: OS Independent",])      
+
