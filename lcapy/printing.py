@@ -136,20 +136,6 @@ def print_str(expr):
     return LcapyStrPrinter().doprint(expr)
 
 
-def latex(expr, **settings):
-    """Convert expression into a LaTeX string."""
-
-    string = LcapyLatexPrinter(settings).doprint(expr)
-
-    match = func_pattern.match(string)
-    if match is not None:
-        # v_1(t) -> \operatorname{v\_1}\left( t \right)
-        # operatorname requires amsmath so switch to mathrm
-        string = r'\mathrm{%s}' % match.groups()[0].replace('\\_', '_')
-
-    return latex_str(string)
-
-
 def pretty(expr, **settings):
     """Pretty print an expression."""
     
@@ -170,8 +156,46 @@ def pprint(expr):
         print(latex(expr))
 
 
-from sympy import init_printing
-init_printing()
+def latex(expr, fold_frac_powers=False, fold_func_brackets=False,
+    fold_short_frac=None, inv_trig_style="abbreviated",
+    itex=False, ln_notation=False, long_frac_ratio=None,
+    mat_delim="[", mat_str=None, mode="plain", mul_symbol=None,
+    order=None, symbol_names=None):
 
+    # This is mostly lifted from sympy/printing/latex.py when all we needed
+    # was a hook...
+    
+    if symbol_names is None:
+        symbol_names = {}
+
+    settings = {
+        'fold_frac_powers' : fold_frac_powers,
+        'fold_func_brackets' : fold_func_brackets,
+        'fold_short_frac' : fold_short_frac,
+        'inv_trig_style' : inv_trig_style,
+        'itex' : itex,
+        'ln_notation' : ln_notation,
+        'long_frac_ratio' : long_frac_ratio,
+        'mat_delim' : mat_delim,
+        'mat_str' : mat_str,
+        'mode' : mode,
+        'mul_symbol' : mul_symbol,
+        'order' : order,
+        'symbol_names' : symbol_names,
+    }
+
+    string = LcapyLatexPrinter(settings).doprint(expr)
+
+    match = func_pattern.match(string)
+    if match is not None:
+        # v_1(t) -> \operatorname{v\_1}\left( t \right)
+        # operatorname requires amsmath so switch to mathrm
+        string = r'\mathrm{%s}' % match.groups()[0].replace('\\_', '_')
+
+    return latex_str(string)
+
+
+from sympy import init_printing
+init_printing(latex_printer=latex, pretty_printer=pretty, str_printer=print_str)
 
         
