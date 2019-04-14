@@ -17,12 +17,12 @@ arbitrary node names (except for the ground node which is labelled 0).
 The netlists can be loaded from a file or created at run-time.  For
 example:
 
-    >>> from lcapy import Circuit
+    >>> from lcapy import Circuit, s
     >>> cct = Circuit("""
-    >>> Vs 2 0 {5 * u(t)}
-    >>> Ra 2 1
-    >>> Rb 1 0
-    >>> """)
+    ... Vs 2 0 {5 * u(t)}
+    ... Ra 2 1
+    ... Rb 1 0
+    ... """)
 
 The circuit can then be interrogated to determine branch currents,
 branch voltages, and node voltages (with respect to the ground node 0).
@@ -76,7 +76,7 @@ The s-domain open circuit voltage across the network can be printed with:
 The time domain open circuit voltage is given by:
 
     >>> a.V(t)
-    10*Heaviside(t)
+    10
 
 The s-domain short circuit current through the network can be printed with:
 
@@ -86,7 +86,7 @@ The s-domain short circuit current through the network can be printed with:
 The time domain short circuit current is given by:
 
     >>> a.Isc(t)
-    10*Heaviside(t)/R_1 - 10*exp(-R_1*t/L_1)*Heaviside(t)/R_1
+    10/R_1
 
 
 Two-port networks
@@ -97,6 +97,7 @@ are provided to determine transfer responses between the ports.
 
 Here's an example of creating a voltage divider (L section)
 
+    >>> from lcapy import *
     >>> a = LSection(R('R_1'), R('R_2'))
 
 
@@ -118,13 +119,13 @@ Additional drawing hints, such as direction and size are required.
 
     >>> from lcapy import Circuit
     >>> cct = Circuit("""
-    >>> P1 1 0.1; down
-    >>> R1 3 1; right
-    >>> L1 2 3; right
-    >>> C1 3 0; down
-    >>> P2 2 0.2; down
-    >>> W 0 0.1; right
-    >>> W 0.2 0.2; right""")
+    ... P1 1 0; down
+    ... R1 1 3; right
+    ... L1 3 2; right
+    ... C1 3 0_1; down
+    ... P2 2 0_2; down
+    ... W 0 0_1; right
+    ... W 0_1 0_2; right""")
     >>> cct.draw(filename='pic.tex')
 
 In this example, P denotes a port (open-circuit) and W denotes a wire
@@ -137,13 +138,13 @@ For example,
 
     >>> from lcapy import Circuit
     >>> cct = Circuit("""
-    >>> V1 1 0; down
-    >>> R1 1 2; left, i=I_1, v=V_{R_1}
-    >>> R2 1 3; right, i=I_2, v=V_{R_2}
-    >>> L1 2 0.1; down, i=I_1, v=V_{L_1}
-    >>> L2 3 0.3; down, i=I_1, v=V_{L_2}
-    >>> W 0 0.3; right
-    >>> W 0 0.1; left""")
+    ... V1 1 0; down
+    ... R1 1 2; left=2, i=I_1, v=V_{R_1}
+    ... R2 1 3; right=2, i=I_2, v=V_{R_2}
+    ... L1 2 0_1; down, i=I_1, v=V_{L_1}
+    ... L2 3 0_3; down, i=I_1, v=V_{L_2}
+    ... W 0 0_3; right
+    ... W 0 0_1; left""")
     >>> cct.draw(scale=3, filename='pic2.svg')
 
 The drawing direction is with respect to the positive node; i.e., the
