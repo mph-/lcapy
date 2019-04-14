@@ -18,7 +18,7 @@ The netlists can be loaded from a file or created at run-time.  For
 example:
 
     >>> from lcapy import Circuit
-    >>> cct = Circuit(netlist="""
+    >>> cct = Circuit("""
     >>> Vs 2 0 {5 * u(t)}
     >>> Ra 2 1
     >>> Rb 1 0
@@ -60,7 +60,7 @@ The components have the following attributes:
 The component values can be specified numerically or symbolically
 using strings, for example,
 
-    >>> from lcapy import Vdc, R, L, C
+    >>> from lcapy import Vdc, R, L, C, s, t
     >>> R1 = R('R_1') 
     >>> L1 = L('L_1')
     >>> a = Vdc(10) + R1 + L1
@@ -117,14 +117,14 @@ LaTeX schematics can be generated using circuitikz from the netlist.
 Additional drawing hints, such as direction and size are required.
 
     >>> from lcapy import Circuit
-    >>> cct = Circuit()
-    >>> cct.add('P1 1 0.1; down')
-    >>> cct.add('R1 3 1; right')
-    >>> cct.add('L1 2 3; right')
-    >>> cct.add('C1 3 0; down')
-    >>> cct.add('P2 2 0.2; down')
-    >>> cct.add('W 0 0.1; right')
-    >>> cct.add('W 0.2 0.2; right')
+    >>> cct = Circuit("""
+    >>> P1 1 0.1; down
+    >>> R1 3 1; right
+    >>> L1 2 3; right
+    >>> C1 3 0; down
+    >>> P2 2 0.2; down
+    >>> W 0 0.1; right
+    >>> W 0.2 0.2; right""")
     >>> cct.draw(filename='pic.tex')
 
 In this example, P denotes a port (open-circuit) and W denotes a wire
@@ -136,14 +136,14 @@ voltage and current labels are specified with the v and i keywords.
 For example,
 
     >>> from lcapy import Circuit
-    >>> cct = Circuit()
-    >>> cct.add('V1 1 0; down')
-    >>> cct.add('R1 1 2; left, i=I_1, v=V_{R_1}')
-    >>> cct.add('R2 1 3; right, i=I_2, v=V_{R_2}')
-    >>> cct.add('L1 2 0.1; down, i=I_1, v=V_{L_1}')
-    >>> cct.add('L2 3 0.3; down, i=I_1, v=V_{L_2}')
-    >>> cct.add('W 0 0.3; right')
-    >>> cct.add('W 0 0.1; left')
+    >>> cct = Circuit("""
+    >>> V1 1 0; down
+    >>> R1 1 2; left, i=I_1, v=V_{R_1}
+    >>> R2 1 3; right, i=I_2, v=V_{R_2}
+    >>> L1 2 0.1; down, i=I_1, v=V_{L_1}
+    >>> L2 3 0.3; down, i=I_1, v=V_{L_2}
+    >>> W 0 0.3; right
+    >>> W 0 0.1; left""")
     >>> cct.draw(scale=3, filename='pic2.svg')
 
 The drawing direction is with respect to the positive node; i.e., the
