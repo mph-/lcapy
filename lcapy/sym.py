@@ -169,7 +169,7 @@ def sympify(expr, evaluate=True, **assumptions):
     defined.
 
     """
-    
+
     if 'real' not in assumptions and 'positive' not in assumptions:
         assumptions['positive'] = True
     return sympify1(expr, context.symbols, evaluate, **assumptions)

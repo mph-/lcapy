@@ -406,7 +406,22 @@ class NetlistMixin(object):
             new._add(cpt.rename_nodes(node_map))
         return new                
 
-        
+    @property
+    def node_list(self):
+        """Determine list of sorted unique node names."""
+
+        if hasattr(self, '_node_list'):
+            return self._node_list
+
+        # Extract unique nodes.
+        node_list = list(self.equipotential_nodes.keys())
+        node_list = sorted(node_list)
+        # Ensure node '0' is first in the list.
+        node_list.insert(0, node_list.pop(node_list.index('0')))
+
+        self._node_list = node_list
+        return node_list
+
     def Voc(self, Np, Nm):
         """Return open-circuit transform-domain voltage between nodes Np and
         Nm."""
@@ -1067,7 +1082,7 @@ class Netlist(NetlistMixin, NetfileMixin):
     def _invalidate(self):
 
         for attr in ('_sch', '_sub', '_Vdict', '_Idict', '_analysis',
-                     '_node_map', '_ss'):
+                     '_node_map', '_ss', '_node_list'):
             try:
                 delattr(self, attr)
             except:

@@ -84,25 +84,9 @@ class MNA(object):
     """
 
     def _invalidate(self):
-        for attr in ('_A', '_Vdict', '_Idict', '_node_list'):
+        for attr in ('_A', '_Vdict', '_Idict'):
             if hasattr(self, attr):
                 delattr(self, attr)
-
-    @property
-    def node_list(self):
-        """Determine list of unique nodes"""
-
-        if hasattr(self, '_node_list'):
-            return self._node_list
-
-        # Extract unique nodes.
-        node_list = list(self.equipotential_nodes.keys())
-        node_list = sorted(node_list)
-        # Ensure node '0' is first in the list.
-        node_list.insert(0, node_list.pop(node_list.index('0')))
-
-        self._node_list = node_list
-        return node_list
 
     def _node_index(self, node):
         """Return node index; ground is -1"""

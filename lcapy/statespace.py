@@ -140,9 +140,7 @@ class StateSpace(object):
         y = []
 
         if node_voltages:
-            node_list = list(cct.equipotential_nodes.keys())
-            node_list = sorted(node_list)
-            for node in node_list:
+            for node in cct.node_list:
                 if node != '0':
                     yexprs.append(self.sscct[node].v.subs(subsdict).expand())
                     y.append(Vt('v%s(t)' % node))
