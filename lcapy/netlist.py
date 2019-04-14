@@ -433,8 +433,7 @@ class NetlistMixin(object):
 
         self._branch_list = []
         for key, elt in self.elements.items():
-            # Ignore L since the current through it is a state variable.
-            if elt.type not in ('W', 'O', 'P', 'K', 'L'):
+            if elt.type not in ('W', 'O', 'P', 'K'):
                 self._branch_list.append(elt.name)                
         return self._branch_list
 

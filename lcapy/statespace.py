@@ -150,6 +150,8 @@ class Statespace(object):
 
         if branch_currents:
             for name in cct.branch_list:
+                # Perhaps ignore L since the current through it is a
+                # state variable?
                 name2 = cpt_map[name]                    
                 yexprs.append(self.sscct[name2].i.subs(subsdict).expand())
                 y.append(It('i%s(t)' % name))                    
