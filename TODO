@@ -23,6 +23,10 @@ labels.
 
 10. Generate system equations using loop analysis.
 
+11. Independent namespaces for SVG files so they can be loaded into Jupyter notebook.
+
+12. Draw twoports.
+
 
 Circuit analysis
 ================

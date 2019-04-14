@@ -55,6 +55,9 @@ wrapper for a SymPy expression.  Unfortunately, SymPy does not provide
 a generic SymPy expression class so `Expr` stores the SymPy expression
 as its `expr` attribute.
 
+`Expr` is the base class for Lcapy expressions.  There are a number of
+classes that inherit from this class:
+
 `cExpr` represents a constant, such as the resistance of a resistor.
 The constant must be real and positive.
 
@@ -71,17 +74,13 @@ complex.
 `noiseExpr` represents a noise expression (amplitude spectral
 density).  This is real.
 
-`Super` represents a superposition of different domains.  This is the
-default representation for calculated results from circuit analysis.
 
-`tMatrix` represents a matrix of time domain expressions (each element
-is `tExpr`).
+Expressions with units
+----------------------
 
-`sMatrix` represents a matrix of s-domain expressions  (each element
-is `sExpr`).
-
-There are many additional classes that inherit from these classes.  For example,
-the following classes all inhereit from `sExpr`.
+There are many classes that inherit from the `Expr` classes that
+include implicit units, such as voltage or current.  For example, the
+following classes all inherit from `sExpr`:
 
 `Vs` is a s-domain voltage.
 
@@ -92,6 +91,38 @@ the following classes all inhereit from `sExpr`.
 `Ys` is a s-domain admittance.
 
 `Zs` is a s-domain impedance.
+
+
+Super classes
+-------------
+
+`Super` represents a superposition of different domains.  This is the
+default representation for calculated results from circuit analysis.
+There are two classes that inherit from `Super`:
+
+`Vsuper` represents a superposition of voltages.
+
+`Isuper` represents a superposition of currents.
+
+
+Container classes
+-----------------
+
+`Matrix` represents a generic matrix.
+
+`tMatrix` represents a matrix of time domain expressions (each element
+is `tExpr`).
+
+`sMatrix` represents a matrix of s-domain expressions  (each element
+is `sExpr`).
+
+`Vector` represents a generic column vector.
+
+`Exprdict` represents a dictionary of `Expr` instances.
+
+`Exprlist` represents a list of `Expr` instances.
+
+`Exprdict` represents a dictionary of `Expr` instances.
 
 
 Expression manipulation
@@ -120,7 +151,7 @@ without any conditions.
 Lcapy maintains a set of symbols for each circuit plus a set of
 additional symbols defined when creating other objects, such as `V`
 or `C`.  Symbol names are converted into a canonical format, `V1 -> V_1`,
-when they are printed
+when they are printed.
 
 Assumptions are useful for SymPy to simplify expressions.  For
 example, knowing that a symbol is real or real and positive.
@@ -132,7 +163,8 @@ Assumptions
 Assumptions are required to simplify expressions and to help with
 inverse Laplace transforms.
 
-There are two types of assumptions.
+There are two types of assumptions:
+
 1. Assumptions used by SymPy, such as real, positive, etc.
 2. Assumptions used by Lcapy, such as dc, real, causal, etc.
 
@@ -155,7 +187,7 @@ example,
    >>> from sympy import Symbol, Q, exp, I, pi
    >>> from sympy.assumptions.assume import global_assumptions
 
->>> x = Symbol('x')
+   >>> x = Symbol('x')
    >>> global_assumptions.add(Q.integer(x))
    >>> z = exp(2 * pi * I * x)
    >>> z = z.refine()
@@ -191,9 +223,11 @@ after circuit analysis.
 Adding new components
 =====================
 
-# Define in grammar.py
-# Add class in mnacpts.py for simulation
-# Add class in schemcpts.py for drawing
+1. Define in grammar.py.
+
+2. Add class in mnacpts.py for simulation.
+
+3. Add class in schemcpts.py for drawing.
 
 
 Schematic layout

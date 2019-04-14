@@ -16,3 +16,7 @@ cover: lcapy/*.py
 .PHONY: doc
 doc:
 	cd doc; make html
+
+.PHONY: clean
+clean:
+	-rm -rf build lcapy.egg-info
