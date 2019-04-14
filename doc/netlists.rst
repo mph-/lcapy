@@ -349,7 +349,7 @@ This is the same as the previous example but with a different resistor value giv
 
 .. image:: examples/netlists/circuit-VRLC2.png
    :width: 10cm
-
+           
 .. literalinclude:: examples/netlists/circuit-VRLC2-vr.py
 
 .. image:: examples/netlists/circuit-VRLC2-vr.png

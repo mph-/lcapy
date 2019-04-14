@@ -1,4 +1,4 @@
-from lcapy import Circuit
+from lcapy import Circuit, t
 from matplotlib.pyplot import savefig, show
 from numpy import linspace
 
@@ -11,13 +11,14 @@ cct.add('C1 2 3')
 cct.add('R1 3 0')
 
 Vr = cct[3].V
-vr = Vr.transient_response()
+vr = Vr(t)
 
 vr.pprintans('v_R(t)')
 
-if False:
+vr = vr.subs({'L1':1, 'C1':0.1, 'R1':10, 'V1':1})
+
+if True:
     tv = linspace(0, 2, 400)
     vr.plot(tv)
     
-    show()
     savefig('circuit-VRLC2b-vr.png')

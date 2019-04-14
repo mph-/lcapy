@@ -14,7 +14,7 @@ Lcapy has a number of pre-defined constants, variables, and functions.
 
 
 Constants
---------
+---------
 
 - `pi` 3.141592653589793...
 

@@ -187,6 +187,7 @@ represent different noise realisations.
 
 Lcapy analyses the circuit for each noise realisation independently
 and stores the result for each realisation separately.  For example,
+
    >>> a = Circuit()
    >>> a.add('Vn1 1 0 noise 3')
    >>> a.add('Vn2 2 1 noise 4')

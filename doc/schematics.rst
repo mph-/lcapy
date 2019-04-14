@@ -225,7 +225,7 @@ These options can be stored with the schematic netlist, for example::
 
 
 Node names
----------  
+----------
 
 Circuit nodes are usually indentified by a number.  However, they can
 given arbitrary names with the exception of names containing a period
@@ -550,13 +550,13 @@ Implicit wires
 
 Implicit wires are commonly employed for power supply and ground
 connections.  They have one of the following attributes:
- - `implicit` equivalent to signal ground
- - `sground`  signal ground      
- - `ground`  earth ground
- - `cground`  chassis ground
- - `nground`  noiseless ground
- - `pground`  protected ground
- - `rground`  reference ground          
+- `implicit` equivalent to signal ground
+- `sground`  signal ground      
+- `ground`  earth ground
+- `cground`  chassis ground
+- `nground`  noiseless ground
+- `pground`  protected ground
+- `rground`  reference ground          
 
 For example:
    

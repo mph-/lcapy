@@ -381,7 +381,7 @@ A simpler approach is to use the `plot` method:
    >>> vf = linspace(0, 4, 400)
    >>> n.Isc(f).plot(vf, log_scale=True)
 
-.. image:: examples/networks/series-VRC1-Isc.png
+.. image:: examples/networks/series-VRC1-Isc-f.png
    :width: 15cm
 
 Here's a complete example Python script to plot the impedance of a

@@ -1,10 +1,11 @@
 from lcapy import Circuit
-cct = Circuit()
-
-cct.add('V 1 0 step 10')
-cct.add('L 1 2 1e-3')
-cct.add('C 2 3 1e-4')
-cct.add('R 3 0 10')
+cct = Circuit("""
+V 1 0 step 10; down
+L 1 2 1e-3; right, size=1.2
+C 2 3 1e-4; right, size=1.2
+R 3 0_1 10; down
+W 0 0_1; right
+""")
 
 import numpy as np
 t = np.linspace(0, 0.01, 1000)
