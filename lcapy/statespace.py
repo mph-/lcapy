@@ -12,6 +12,8 @@ from .tmatrix import tMatrix
 from .sym import sympify, ssym
 import sympy as sym
 
+__all__ = ('Statespace', )
+
 # TODO
 # 1. Use a better Matrix class that preserves the class of each
 # element, where possible.
@@ -25,7 +27,7 @@ import sympy as sym
 # the A, B, C, D matrices.  We can then substitute the known value at
 # the end.
 
-def hack_vars(exprs):
+def _hack_vars(exprs):
     """Substitute iCanon1(t) with iC(t) etc. provided
     there is no iCanon2(t)."""
 
@@ -38,7 +40,7 @@ def hack_vars(exprs):
                 exprs[m] = expr
                 
 
-class StateSpace(object):
+class Statespace(object):
     """This converts a circuit to state-space representation."""
 
     def __init__(self, cct, node_voltages=True, branch_currents=False):
@@ -146,19 +148,17 @@ class StateSpace(object):
                     y.append(Vt('v%s(t)' % node))
 
         if branch_currents:
-            for key, elt in cct.elements.items():
-                # Ignore L since the current through it is a state variable.
-                if elt.type not in ('W', 'O', 'P', 'K', 'L'):
-                    name = cpt_map[elt.name]                    
-                    yexprs.append(self.sscct[name].i.subs(subsdict).expand())
-                    y.append(It('i%s(t)' % elt.name))                    
+            for name in cct.branch_list:
+                name2 = cpt_map[name]                    
+                yexprs.append(self.sscct[name2].i.subs(subsdict).expand())
+                y.append(It('i%s(t)' % name))                    
 
         Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
         D, b = sym.linear_eq_to_matrix(yexprs, *sourcesyms)
 
         # Rewrite vCanon1(t) as vC(t) etc if appropriate.
-        hack_vars(statevars)
-        hack_vars(sources)
+        _hack_vars(statevars)
+        _hack_vars(sources)
         
         # Note, Matrix strips the class from each element...
         self.x = tMatrix(statevars)

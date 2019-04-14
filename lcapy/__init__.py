@@ -51,6 +51,7 @@ from .matrix import *
 from .smatrix import *
 from .tmatrix import *
 from .vector import *
+from .statespace import *
 
 def show_version():
     """Show versions of Lcapy, SymPy, NumPy and Python."""

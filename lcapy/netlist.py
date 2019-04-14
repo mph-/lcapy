@@ -16,7 +16,7 @@ from .context import global_context
 from .super import Vsuper, Isuper
 from .schematic import Schematic, Opts, SchematicOpts
 from .mna import MNA, Nodedict, Branchdict
-from .statespace import StateSpace
+from .statespace import Statespace
 from .netfile import NetfileMixin
 from .expr import Expr
 from . import mnacpts
@@ -408,7 +408,8 @@ class NetlistMixin(object):
 
     @property
     def node_list(self):
-        """Determine list of sorted unique node names."""
+        """Determine list of sorted unique node names, e.g.,
+        ['0', '1', '2']."""
 
         if hasattr(self, '_node_list'):
             return self._node_list
@@ -421,6 +422,21 @@ class NetlistMixin(object):
 
         self._node_list = node_list
         return node_list
+
+    @property
+    def branch_list(self):
+        """Determine list of names of branch elements, e.g.,
+        ['C1', 'V1', 'R1', 'R2'b]."""
+
+        if hasattr(self, '_branch_list'):
+            return self._branch_list
+
+        self._branch_list = []
+        for key, elt in self.elements.items():
+            # Ignore L since the current through it is a state variable.
+            if elt.type not in ('W', 'O', 'P', 'K', 'L'):
+                self._branch_list.append(elt.name)                
+        return self._branch_list
 
     def Voc(self, Np, Nm):
         """Return open-circuit transform-domain voltage between nodes Np and
@@ -753,7 +769,7 @@ class NetlistMixin(object):
         if hasattr(self, '_ss'):
             return self._ss
 
-        self._ss = StateSpace(self)
+        self._ss = Statespace(self)
         return self._ss
     
     def pre_initial_model(self):
@@ -1082,7 +1098,7 @@ class Netlist(NetlistMixin, NetfileMixin):
     def _invalidate(self):
 
         for attr in ('_sch', '_sub', '_Vdict', '_Idict', '_analysis',
-                     '_node_map', '_ss', '_node_list'):
+                     '_node_map', '_ss', '_node_list', '_branch_list'):
             try:
                 delattr(self, attr)
             except:
