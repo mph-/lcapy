@@ -143,9 +143,10 @@ class Statespace(object):
 
         if node_voltages:
             for node in cct.node_list:
-                if node != '0':
-                    yexprs.append(self.sscct[node].v.subs(subsdict).expand())
-                    y.append(Vt('v%s(t)' % node))
+                if node == '0':
+                    continue
+                yexprs.append(self.sscct[node].v.subs(subsdict).expand())
+                y.append(Vt('v%s(t)' % node))
 
         if branch_currents:
             for name in cct.branch_list:
