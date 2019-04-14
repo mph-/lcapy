@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='lcapy',
-      version='0.32.7',
+      version='0.32.8',
       author='Michael Hayes',
       author_email='michael.hayes@canterbury.ac.nz',
       description='Symbolic linear circuit analysis',
@@ -14,6 +14,7 @@ setup(name='lcapy',
       requires=['sympy', 'numpy', 'scipy'],
       url='https://github.com/mph-/lcapy',
       download_url='https://github.com/mph-/lcapy',
+      install_requires=['numpy', 'matplotlib', 'sympy'],
       packages=find_packages(),
       scripts=['scripts/schtex.py'],classifiers=[
           "Programming Language :: Python :: 3",
