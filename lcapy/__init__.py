@@ -59,7 +59,9 @@ def show_version():
     from sys import version as python_version
     from sympy import __version__ as sympy_version
     from numpy import __version__ as numpy_version
+    from matplotlib import __version__ as matplotlib_version    
 
-    print('Python: %s\nSymPy: %s\nNumPy: %s\nLcapy: %s' % 
-          (python_version, sympy_version, numpy_version, __version__))
+    print('Python: %s\nSymPy: %s\nNumPy: %s\nMatplotlib: %s\nLcapy: %s' % 
+          (python_version, sympy_version, numpy_version,
+           matplotlib_version, __version__))
 
