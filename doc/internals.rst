@@ -2,6 +2,10 @@
 Internals
 =========
 
+Where possible Lcapy performs lazy evaluation and caches the results.
+The cached results (except for Laplace and Fourier transformations)
+are cleared whenever a netlist is modified.
+
 
 Circuits
 ========
@@ -223,11 +227,11 @@ after circuit analysis.
 Adding new components
 =====================
 
-1. Define in grammar.py.
+1. Define in `grammar.py`.
 
-2. Add class in mnacpts.py for simulation.
+2. Add class in `mnacpts.py` for simulation.
 
-3. Add class in schemcpts.py for drawing.
+3. Add class in `schemcpts.py` for drawing.
 
 
 Schematic layout
@@ -259,3 +263,32 @@ The steps of the algorithm are:
    has a dangling node the stretch is zero.
 
 
+Customisation
+=============
+
+Most configuration options are defined in `config.py`.
+
+   
+Debugging
+=========
+
+The Python debugger (pdb) can be invoked when a unit test fails using::
+
+   $ nosetests3 --pdb
+
+
+Expressions
+-----------
+
+The underlying SymPy expression can be found with the `.expr`
+attribute.  The Lcapy assumptions are listed with the `.assumptions`
+attribute.  The SymPy assumptions are listed with
+`.expr.assumptions0`.  The symbols used in an expression can be found
+using the `.symbols` attribute.
+
+All the known symbols can be found using:
+
+   >>> cct.context.symbols
+
+The `.pdb` method of an `Expr` instance invokes the Python debugger
+(pdb).
