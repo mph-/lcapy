@@ -46,6 +46,8 @@ class NetfileMixin(object):
         to the negative node.
         """
 
+        string = string.strip('... ')
+        
         if string == '':
             return None            
 
