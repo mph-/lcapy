@@ -1,12 +1,12 @@
 from lcapy import Circuit
 
-cct = Circuit()
-cct.add('V 1 0 step 20')
-cct.add('R 1 2 10')
-cct.add('C 2 0 1e-4')
+cct = Circuit("""
+V 1 0 step 20
+R 1 2 10
+C 2 0 1e-4
+""")
 
-# Determine transient response at node 2.
-vc = cct[2].v
+vc = cct.C.v
 
 from matplotlib.pyplot import figure, savefig
 import numpy as np

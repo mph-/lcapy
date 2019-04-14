@@ -1,5 +1,5 @@
 from lcapy import Circuit, t
-from matplotlib.pyplot import savefig, show
+from matplotlib.pyplot import savefig
 from numpy import linspace
 
 

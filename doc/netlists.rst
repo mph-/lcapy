@@ -30,6 +30,15 @@ or
    >>> L1 2 3
    >>> """)
 
+or
+   
+   >>> cct = Circuit("""
+   >>> R1 1 2
+   >>> L1 2 3
+   >>> """)
+
+This last version requires more than one net otherwise it is interpreted as a filename.   
+   
 
 .. _component-specification:
 
