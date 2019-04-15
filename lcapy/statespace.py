@@ -12,7 +12,7 @@ from .tmatrix import tMatrix
 from .sym import sympify, ssym
 import sympy as sym
 
-__all__ = ('Statespace', )
+__all__ = ('StateSpace', )
 
 # TODO
 # 1. Use a better Matrix class that preserves the class of each
@@ -40,7 +40,7 @@ def _hack_vars(exprs):
                 exprs[m] = expr
                 
 
-class Statespace(object):
+class StateSpace(object):
     """This converts a circuit to state-space representation."""
 
     def __init__(self, cct, node_voltages=True, branch_currents=False):

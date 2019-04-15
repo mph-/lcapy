@@ -16,7 +16,7 @@ from .context import global_context
 from .super import Vsuper, Isuper
 from .schematic import Schematic, Opts, SchematicOpts
 from .mna import MNA, Nodedict, Branchdict
-from .statespace import Statespace
+from .statespace import StateSpace
 from .netfile import NetfileMixin
 from .expr import Expr
 from . import mnacpts
@@ -768,7 +768,7 @@ class NetlistMixin(object):
         if hasattr(self, '_ss'):
             return self._ss
 
-        self._ss = Statespace(self)
+        self._ss = StateSpace(self)
         return self._ss
     
     def pre_initial_model(self):
