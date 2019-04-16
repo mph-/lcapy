@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """schtex V0.1
-Copyright (c) 2014 Michael P. Hayes, UC ECE, NZ
+Copyright (c) 2014--2019 Michael P. Hayes, UC ECE, NZ
 
 Usage: schtex infile.sch [outfile.tex|pdf|png|svg]
 """
