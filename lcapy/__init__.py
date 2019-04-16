@@ -54,14 +54,15 @@ from .vector import *
 from .statespace import *
 
 def show_version():
-    """Show versions of Lcapy, SymPy, NumPy and Python."""
+    """Show versions of Lcapy, SymPy, NumPy, MatplotLib, SciPy, and Python."""
     
     from sys import version as python_version
     from sympy import __version__ as sympy_version
     from numpy import __version__ as numpy_version
+    from scipy import __version__ as scipy_version    
     from matplotlib import __version__ as matplotlib_version    
 
-    print('Python: %s\nSymPy: %s\nNumPy: %s\nMatplotlib: %s\nLcapy: %s' % 
+    print('Python: %s\nSymPy: %s\nNumPy: %s\nMatplotlib: %s\nSciPy: %s\nLcapy: %s' % 
           (python_version, sympy_version, numpy_version,
-           matplotlib_version, __version__))
+           matplotlib_version, scipy_version, __version__))
 
