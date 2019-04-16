@@ -122,11 +122,11 @@ is `sExpr`).
 
 `Vector` represents a generic column vector.
 
-`Exprdict` represents a dictionary of `Expr` instances.
+`ExprDict` represents a dictionary of `Expr` instances.
 
-`Exprlist` represents a list of `Expr` instances.
+`ExprList` represents a list of `Expr` instances.
 
-`Exprdict` represents a dictionary of `Expr` instances.
+`ExprTuple` represents a tuple of `Expr` instances.
 
 
 Expression manipulation
