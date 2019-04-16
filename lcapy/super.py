@@ -1,5 +1,5 @@
 from __future__ import division
-from .expr import Expr, Exprdict
+from .expr import Expr, ExprDict
 from .sym import tsym, omegasym, symbols_find, is_sympy, symsymbol
 from .acdc import is_ac
 from .printing import pprint, pretty, latex
@@ -7,7 +7,7 @@ import six
 
 __all__ = ('Super', 'Vsuper', 'Isuper')
 
-class Super(Exprdict):
+class Super(ExprDict):
     """This class represents a superposition of different signal types:
     DC, AC, transient, and noise.
     
@@ -543,7 +543,7 @@ class Super(Exprdict):
         """Return the AC components."""                
         if 't' in self.keys():
             self = self.decompose()        
-        return Exprdict({k: v for k, v in self.items() if k in self.ac_keys()})
+        return ExprDict({k: v for k, v in self.items() if k in self.ac_keys()})
 
     @property
     def s(self):

@@ -1,4 +1,4 @@
-from .expr import Expr, Exprdict
+from .expr import Expr, ExprDict
 
 class sfwExpr(Expr):
 
@@ -10,7 +10,7 @@ class sfwExpr(Expr):
         """Return roots of expression as a dictionary
         Note this may not find them all."""
 
-        return Exprdict(self._ratfun.roots())
+        return ExprDict(self._ratfun.roots())
 
     def zeros(self):
         """Return zeroes of expression as a dictionary

@@ -291,7 +291,7 @@ class StateSpace(object):
         for v, n in roots.items():
             for m in range(n):
                 e.append(v)
-        return Exprlist(e)
+        return ExprList(e)
 
     @property    
     def Lambda(self):
@@ -321,6 +321,6 @@ class StateSpace(object):
     
     
 from .symbols import t, s
-from .expr import Exprlist
+from .expr import ExprList
 from .texpr import Vt, It, tExpr
 from .sexpr import sExpr

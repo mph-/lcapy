@@ -81,19 +81,19 @@ class ExprMisc(object):
         return self.__class__(self)
 
     
-class Exprdict(dict, ExprPrint, ExprMisc):
+class ExprDict(dict, ExprPrint, ExprMisc):
 
     """Decorator class for dictionary created by sympy."""
     pass
 
 
-class Exprlist(list, ExprPrint, ExprMisc):
+class ExprList(list, ExprPrint, ExprMisc):
 
     """Decorator class for list created by sympy."""
     pass
 
 
-class Exprtuple(tuple, ExprPrint, ExprMisc):
+class ExprTuple(tuple, ExprPrint, ExprMisc):
 
     """Decorator class for list created by sympy."""
     pass

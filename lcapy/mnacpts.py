@@ -493,7 +493,7 @@ class RC(RLC):
     def stamp(self, cct):
 
         # L's can also be added with this stamp but if have coupling
-        # it is easier to generate stamp that requires branch current
+        # it is easier to generate a stamp that requires the branch current
         # through the L.
         n1, n2 = self.node_indexes
 

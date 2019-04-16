@@ -13,7 +13,7 @@ from .noiseexpr import In, Vn
 from .vector import Vector
 from .matrix import Matrix
 from .sym import symsimplify
-from .expr import Exprdict
+from .expr import ExprDict
 import sympy as sym
 
 # Note, all the maths is performed using sympy expressions and the
@@ -42,7 +42,7 @@ def _Itype_select(kind):
         return Iphasor
 
     
-class Nodedict(Exprdict):
+class Nodedict(ExprDict):
 
     def __getitem__(self, name):
         """Return node by name or number."""
@@ -53,7 +53,7 @@ class Nodedict(Exprdict):
         return super(Nodedict, self).__getitem__(name)
 
 
-class Branchdict(Exprdict):
+class Branchdict(ExprDict):
     pass
     
 
