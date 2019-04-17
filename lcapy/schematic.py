@@ -477,6 +477,8 @@ class Schematic(NetfileMixin):
 
             if elt.offset != 0:
                 raise ValueError('offset field should be removed')
+            if elt.ignore:
+                continue
             
             elt.xlink(self.xgraph)
             elt.ylink(self.ygraph)
@@ -485,6 +487,8 @@ class Schematic(NetfileMixin):
         # in the desired directions.
         # Note, this must be done after the linking step.
         for m, elt in enumerate(self.elements.values()):
+            if elt.ignore:
+                continue            
             elt.xplace(self.xgraph)
             elt.yplace(self.ygraph)
             
@@ -580,12 +584,16 @@ class Schematic(NetfileMixin):
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):
+            if elt.ignore:
+                continue            
             s += elt.draw(**kwargs)
             s += elt.draw_nodes(**kwargs)
             s += elt.draw_pins()
 
         # Add the labels
         for m, elt in enumerate(self.elements.values()):
+            if elt.ignore:
+                continue            
             s += elt.draw_labels(**kwargs)            
 
         # Add postamble

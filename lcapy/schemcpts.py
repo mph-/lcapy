@@ -56,7 +56,7 @@ class Cpt(object):
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
                  'pinnames', 'pinnodes', 'pindefs', 'outside', 'pinmap',
-                 'kind', 'wire')
+                 'kind', 'wire', 'ignore')
 
     can_rotate = True
     can_scale = False
@@ -234,6 +234,10 @@ class Cpt(object):
     @property
     def invisible(self):
         return self.boolattr('invisible')
+
+    @property
+    def ignore(self):
+        return self.boolattr('ignore')    
 
     @property
     def variable(self):

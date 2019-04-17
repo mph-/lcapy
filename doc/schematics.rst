@@ -791,7 +791,9 @@ Component attributes
 
 - `mirror`: mirror component in x-axis (opamps, transistors)
 
-- `invisible`: do not draw
+- `invisible`: connect to the other components but do not draw
+
+- `ignore`: do not connect to the other components and do not draw (this is useful for  simulating multiple mutual inductances but where it it is too hard to show them on a schematic)
 
 - `color`: component color
 
@@ -1036,8 +1038,8 @@ Sometimes it is necessary to add a short interconnecting wire.
 The stretching of components can be prevented by specifying the
 `fixed` attribute.
 
-Additional constraints can be supplied by using an invisible
-component, for example, an open-circuit.
+Additional constraints can be supplied by using an open-circuit to
+align components.
 
 Grid lines can be added to a schematic using some Tikz markup.  For
 example::
