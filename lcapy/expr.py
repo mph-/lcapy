@@ -21,6 +21,7 @@ import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
+from collections import OrderedDict
 
 class ExprPrint(object):
 
@@ -81,7 +82,7 @@ class ExprMisc(object):
         return self.__class__(self)
 
     
-class ExprDict(dict, ExprPrint, ExprMisc):
+class ExprDict(OrderedDict, ExprPrint, ExprMisc):
 
     """Decorator class for dictionary created by sympy."""
     pass
