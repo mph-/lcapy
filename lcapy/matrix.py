@@ -8,7 +8,6 @@ import sympy as sym
 from copy import copy
 from .sym import simplify
 from .printing import pprint, latex, pretty
-from .expr import Expr
 
 
 def msympify(expr):
@@ -93,7 +92,30 @@ class Matrix(sym.Matrix):
     def simplify(self):
         return self.applyfunc(simplify)
 
+
+def matrix(mat):
+    """Create Lcapy Matrix from a SymPy Matrix.
+
+    If a t symbol is found in an element a tMatrix object is created.
+    If a s symbol is found in an element an sMatrix object is created.
+
+    """
+
+    from .sym import tsym, ssym
+    from .smatrix import sMatrix
+    from .tmatrix import tMatrix
     
+    elt = mat[0]
+    try:
+        elt = elt[0]
+    except:
+        pass    
+    
+    if elt.has(tsym):
+        return tMatrix(mat)
+    elif elt.has(ssym):
+        return sMatrix(mat)        
+    else:
+        return mat
 
-
-
+from .expr import Expr
