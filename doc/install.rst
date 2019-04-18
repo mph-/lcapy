@@ -4,56 +4,44 @@
 Installation
 ============
 
-- You need to install SymPy, see http://docs.sympy.org/latest/install.html.
+Lcapy (and its python dependencies) can be installed using:
 
-- For plotting you need to install matplotlib (this requires NumPy).
+>>> pip3 install lcapy
 
-- For schematic drawing you need pdflatex, the circuitikz package (https://www.ctan.org/pkg/circuitikz), the imagemagick convert program (http://www.imagemagick.org/), and ghostscript (http://www.ghostscript.com/).   Lcapy currently expects circuitikz version 2017/05/28.  Unfortunately, different circuitikz releases tweak component sizes.
+For schematic drawing you require:
 
-- For nice rendering of maths you need mathjax
-  (https://www.mathjax.org/).  This is not essential, if it is not
-  loaded then an active internet connection is required.
+1. pdflatex
 
-- Lcapy can be downloaded from https://github.com/mph-/lcapy using git or as a .zip file.
+2. circuitikz (https://www.ctan.org/pkg/circuitikz).  Lcapy currently
+   expects circuitikz version 2017/05/28.  Unfortunately, different
+   circuitikz releases tweak component sizes.
+
+3. imagemagick convert (http://www.imagemagick.org/) or `pdftoppm`
+
+4. ghostscript (http://www.ghostscript.com/)
+
+For nice maths formatting in a jupyter notebook you require mathjax (https://www.mathjax.org/).  This is not essential; if it is not loaded then an active internet connection is required.
 
 
-Lcapy installation for Linux (Ubuntu and variants)
-==================================================
+Installation for Linux (Ubuntu and variants)
+============================================
 
-The following instructions are for Python2.7.  For Python 3, replace
-the python with python3 in the package names and when running setup.py.
+All the other packages required for Lcapy can be installed using:
 
-- You need to install the SymPy package:
+   >>> sudo apt install texlive-latex-base texlive-pictures texlive-latex-extra imagemagick ghostscript libjs-mathjax fonts-mathjax
 
-  >>> sudo apt install python-sympy
+   
+Installation from github
+========================
 
-- For plotting you need the Matplotlib and NumPy packages:
+1. Lcapy can be downloaded from https://github.com/mph-/lcapy as a .zip file or preferably using git::
+     
+   >>> git clone https://github.com/mph-/lcap
 
-  >>> sudo apt install python-numpy python-matplotlib
 
-- For schematic drawing you need pdflatex, the circuitikz package,
-  imagemagick, and ghostscript.
-
-  >>> sudo apt install texlive-latex-base texlive-pictures texlive-latex-extra imagemagick ghostscript
-
-- For nice rendering of maths you need mathjax.  This is not
-  essential, if it is not loaded then an active internet connection is
-  required.
-
-  >>> sudo apt install libjs-mathjax fonts-mathjax
-
-- The easiest way to obtain the Lcapy sources is to use git:
-
-  >>> git clone https://github.com/mph-/lcapy
-
-- Lcapy can be installed using:
+2.  Lcapy can be installed using:
 
   >>> cd lcapy
   >>> sudo python setup.py install
 
-- If you do not have root access, you can set the environment variable `PYTHONPATH` to find the source files for Lcapy.
-
-- While you are at it, it is worthwhile to install ipython, the interactive python shell (this is also useful for displaying notebooks in a web browser).
-
-  >>> sudo apt install ipython
-
+  Note, if you do not have root access, you can use  `virtualenv` or  set the environment variable `PYTHONPATH` to find the source files for Lcapy.
