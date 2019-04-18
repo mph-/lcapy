@@ -160,15 +160,18 @@ components.
 Node names containing a dot or underscore are not displayed.
 
 
-Jupyter Notebooks
+Jupyter notebooks
 -----------------
 
-Lcapy can be used with Jupyter Notebooks (some example notebooks are
-in the notebooks directory).  Schematics are drawn inline using png
-(svg output is currently disabled due to problems with multiple svg
-files sharing the same namespace).  The transient and frequency
-response of a circuit can also be drawn inline using the magic command
-`%matplotlib`.
+Lcapy can be used with [Jupyter Notebooks](https://jupyter.org/).  For a number of examples see https://github.com/mph-/lcapy/tree/master/doc/examples/notebooks .  These include:
+
+- [AC analysis of a first-order RC filter](https://github.com/mph-/lcapy/blob/master/doc/examples/notebooks/RC-lpf1.ipynb)
+
+- [A demonstration of the principle of superposition](https://github.com/mph-/lcapy/blob/master/doc/examples/notebooks/superposition2.ipynb)
+
+- [Non-inverting operational amplifier](https://github.com/mph-/lcapy/blob/master/doc/examples/notebooks/opamp-noninverting-amplifier1.ipynb)
+
+- [State-space analysis](https://github.com/mph-/lcapy/blob/master/doc/examples/notebooks/state-space1.ipynb)
 
 
 Documentation
@@ -202,6 +205,10 @@ and then view cover/index.html in a web browser.
 
 Updates
 -------
+
+- Version 0.34 switched to sing setuptools and pushed to https::pypi.org
+
+- Version 0.33 reworked expression printing infrastructure
 
 - Version 0.32.3 introduces state-space analysis.  The API is experimental and may change.
 
