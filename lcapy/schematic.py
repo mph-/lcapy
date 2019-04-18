@@ -561,6 +561,8 @@ class Schematic(NetfileMixin):
                 'transform shape',
                 '/tikz/circuitikz/bipoles/length=%.2fcm' % self.cpt_size]
         opts.append(style_args)
+        if 'preamble' in kwargs:
+            opts.append(kwargs.pop('preamble'))
 
         if 'font' in kwargs:
             font = kwargs.pop('font')            
@@ -782,7 +784,10 @@ class Schematic(NetfileMixin):
 
         if filename is None:
             filename = tmpfilename('.png')
-            self.tikz_draw(filename=filename, **kwargs)
+            # Thicken up lines to reduce aliasing causing them to
+            # disappear, especially when using pdftoppm.
+            self.tikz_draw(filename=filename, preamble='bipoles/thickness=2',
+                           **kwargs)
             display_matplotlib(filename)
             return
 
