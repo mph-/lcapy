@@ -45,7 +45,9 @@ return omega-domain expressions?
 
 5. Add circuit subs method so can substitute values before analysis.
 
-6. Conversion of MNA equations to state space formulation!
+6. Add methods ac, dc, transient to netlists and networks.  These
+could be a wrapper for the subs method.  Could also have a laplace
+method to convert netlist to s-domain.
 
 
 Infrastructure

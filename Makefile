@@ -7,6 +7,9 @@ package:
 upload-test: package
 	python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
+upload: package
+	python3 -m twine upload dist/*
+
 test: lcapy/*.py
 	nosetests3 --pdb
 
