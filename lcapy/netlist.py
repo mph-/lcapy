@@ -361,12 +361,6 @@ class NetlistMixin(object):
             for node in nodes:
                 node_map[node] = key
 
-        if '0' not in node_map:
-            # Perhaps could hack a connection to an arbitrary node?
-            # But then would need to make a copy of the circuit
-            # in case the user modified it.
-            raise RuntimeError('Nothing connected to ground node 0')
-
         self._node_map = node_map
         return node_map
 
@@ -418,7 +412,8 @@ class NetlistMixin(object):
         node_list = list(self.equipotential_nodes.keys())
         node_list = sorted(node_list)
         # Ensure node '0' is first in the list.
-        node_list.insert(0, node_list.pop(node_list.index('0')))
+        if '0' in node_list:
+            node_list.insert(0, node_list.pop(node_list.index('0')))
 
         self._node_list = node_list
         return node_list
@@ -608,7 +603,7 @@ class NetlistMixin(object):
         except ValueError:
             raise ValueError('Cannot create A matrix')
 
-    def select(self, sourcenames, kind):
+    def select(self, kind, sourcenames=[]):
         """Return new netlist with transform domain kind selected for
         specified source.  Sources not in sourcenames are set to zero."""
 
@@ -1142,8 +1137,8 @@ class Netlist(NetlistMixin, NetfileMixin):
         
         self._sub = Transformdomains()
 
-        for key, sources in groups.items():
-            self._sub[key] = GroupNetlist(self, sources, key)
+        for kind, sources in groups.items():
+            self._sub[kind] = GroupNetlist(self, kind, sources)
 
         return self._sub
         
@@ -1240,17 +1235,17 @@ class Netlist(NetlistMixin, NetfileMixin):
     
 class GroupNetlist(NetlistMixin, MNA):
 
-    def __new__(cls, netlist, sourcenames, kind):
+    def __new__(cls, netlist, kind, sourcenames=[]):
 
         # The unwanted sources are zeroed so that we can still refer
         # to them by name, say when wanting the current through them.
-        obj = netlist.select(sourcenames, kind=kind)
+        obj = netlist.select(kind=kind, sourcenames=sourcenames)
         obj.kind = kind
         obj.__class__ = cls
         obj._analysis = obj.analyse(sourcenames)
         return obj
 
-    def __init__(cls, netlist, sources, kind):
+    def __init__(cls, netlist, kind, sourcenames=[]):
         pass
 
     def get_I(self, name):

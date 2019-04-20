@@ -62,7 +62,7 @@ class MNA(object):
     components.  There are several variants:
     
     1. DC analysis if all the independent sources are DC.  The .V and .I
-    methods return s-domain expressions with the dc assumption set.
+    methods return DC expressions with the dc assumption set.
 
     2. AC analysis if all the independent sources are AC.  The .V and .I
     methods return phasors.
@@ -118,9 +118,6 @@ class MNA(object):
         if hasattr(self, '_s_model'):
             raise RuntimeError('Cannot analyse s-domain model')
             
-        if '0' not in self.node_map:
-            raise RuntimeError('Nothing connected to ground node 0')
-
         # Determine which branch currents are needed.
         self.unknown_branch_currents = []
 
@@ -159,6 +156,9 @@ class MNA(object):
             return
         self._analyse()
 
+        if '0' not in self.node_map:
+            raise RuntimeError('Cannot solve: nothing connected to ground node 0')
+        
         # Solve for the nodal voltages
         try:
             Ainv = self._A.inv()
@@ -255,15 +255,16 @@ class MNA(object):
 
     @property
     def Vdict(self):
-        """Return dictionary of s-domain node voltages indexed by node name"""
+        """Return dictionary of transform domain node voltages indexed by node
+        name"""
 
         self._solve()
         return self._Vdict
 
     @property
     def Idict(self):
-        """Return dictionary of s-domain branch currents indexed
-        by component name"""
+        """Return dictionary of transform domain branch currents indexed by
+        component name"""
 
         self._solve()
         return self._Idict
