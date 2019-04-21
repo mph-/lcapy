@@ -626,10 +626,9 @@ class NetlistMixin(object):
         except ValueError:
             raise ValueError('Cannot create A matrix')
 
-    def select(self, kind, sourcenames=[]):
+    def select(self, kind):
         """Return new netlist with transform domain kind selected for
-        specified sources in sourcenames.  Sources not in sourcenames
-        are set to zero.
+        specified sources in sourcenames. 
 
         """
 
@@ -989,11 +988,11 @@ class NetlistMixin(object):
     def analysis(self):
 
         if not hasattr(self, '_analysis'):
-            self._analysis = self.analyse(None)
+            self._analysis = self.analyse()
 
         return self._analysis
 
-    def analyse(self, sources=None):
+    def analyse(self):
 
         hasic = False
         zeroic = True
@@ -1013,7 +1012,7 @@ class NetlistMixin(object):
                     hasic = True
                 if not elt.zeroic:
                     zeroic = False
-            if elt.independent_source and (sources is None or key in sources):
+            if elt.independent_source:
                 independent_sources.append(key)
                 if elt.has_s:
                     has_s = True
@@ -1064,7 +1063,7 @@ class NetlistMixin(object):
                                                 self.is_time_domain)
 
         if groups == {}:
-            print('There are no independent sources so everything is zero.')
+            print('There are no non-zero independent sources so everything is zero.')
             return
 
         if self.is_ivp:
@@ -1164,7 +1163,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         self._sub = Transformdomains()
 
         for kind, sources in groups.items():
-            self._sub[kind] = SubNetlist(self, kind, sources)
+            self._sub[kind] = SubNetlist(self, kind)
 
         return self._sub
         
@@ -1263,18 +1262,16 @@ class SubNetlist(NetlistMixin, MNA):
     """This is a representation of a netlist for a particular
     transformation domain, such as ac, dc, transient, or noise."""
 
-    def __new__(cls, netlist, kind, sourcenames=[]):
+    def __new__(cls, netlist, kind):
 
-        # The unwanted sources are zeroed so that we can still refer
-        # to them by name, say when wanting the current through them.
-        obj = netlist.select(kind=kind, sourcenames=sourcenames)
+        obj = netlist.select(kind=kind)
         obj.kind = kind
         obj.__class__ = cls
-        obj._analysis = obj.analyse(sourcenames)
+        obj._analysis = obj.analyse()
         return obj
 
-    def __init__(cls, netlist, kind, sourcenames=[]):
-        """ kind can be 't', 'dc', 'ac', 's', 'time', 'ivp', omega,
+    def __init__(cls, netlist, kind):
+        """ kind can be 't', 'dc', 'ac', 's', 'time', 'ivp', 'n*', omega, 
         or an integer"""
         
         if kind == omega:
