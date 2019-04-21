@@ -58,15 +58,15 @@ class Node(object):
         self.list.append(cpt)
 
 
-class SubNetlist(object):
+class NetlistNamespace(object):
 
     def __init__(self, namespace, netlist):
 
-        # Probably should select elements and nodes within
-        # the specified namespace.
+        # The namespace name, e.g., a or a.b
         self.namespace = namespace
         self._netlist = netlist
-        self.subnetlists = {}
+        # The children namespaces
+        self.namespaces = {}
 
     def __getitem__(self, name):
         """Return element or node by name."""
@@ -89,27 +89,25 @@ class SubNetlist(object):
         if name + 'anon1' in netlist._elements:
             return netlist._elements[name + 'anon1']
 
-        if name in self.subnetlists:
-            if self.subnetlists[name] is not None:
-                return self.subnetlists[name]
-            subnetlist = SubNetlist(name, self)
-            self.subnetlists[name] = subnetlist
-            return subnetlist      
+        if name in self.namespaces:
+            return self.namespaces[name]
         
         raise AttributeError('Unknown element or node name %s' % name)
 
     def __getattr__(self, attr):
-        """Return element or node by name.  This gets called if there is no
-        explicit attribute attr for this instance.  This is primarily
-        for accessing elements and non-numerical node names.  It also
-        gets called if the called attr throws an AttributeError
-        exception.  The annoying thing is that hasattr uses getattr
-        and checks for an exception."""
+        """Return element, node, or another NetlistNamespace object by name.
+        This gets called if there is no explicit attribute attr for
+        this instance.  This is primarily for accessing elements and
+        non-numerical node names.  It also gets called if the called
+        attr throws an AttributeError exception.  The annoying thing
+        is that hasattr uses getattr and checks for an exception.
+
+        """
 
         return self.__getitem__(attr)
 
     def netlist(self):
-        """Return the current subnetlist."""
+        """Return the current netlist for this namespace."""
 
         nlist = self._netlist
         
@@ -121,7 +119,7 @@ class SubNetlist(object):
 
     @property
     def sch(self):
-        """Generate schematic of subnetlist."""        
+        """Generate schematic for this namespace."""        
 
         if hasattr(self, '_sch'):
             return self._sch
@@ -170,13 +168,14 @@ class SubNetlist(object):
             cct = cct.s_model()
 
         return cct.sch.draw(filename=filename, opts=self._netlist.opts, **kwargs)
-    
-        
+
+
 class NetlistMixin(object):
 
     def __init__(self, filename=None, context=None):
 
         self._elements = OrderedDict()
+        self.namespaces = {}
         self.nodes = {}
         if context is None:
             context = global_context.new()
@@ -206,12 +205,8 @@ class NetlistMixin(object):
         if name + 'anon1' in self._elements:
             return self._elements[name + 'anon1']
 
-        if name in self.subnetlists:
-            if self.subnetlists[name] is not None:
-                return self.subnetlists[name]
-            subnetlist = SubNetlist(name, self)
-            self.subnetlists[name] = subnetlist
-            return subnetlist      
+        if name in self.namespaces:
+            return self.namespaces[name]
         
         raise AttributeError('Unknown element or node name %s' % name)
 
@@ -271,6 +266,24 @@ class NetlistMixin(object):
         for node in cpt.nodes:
             self._node_add(node, cpt)
 
+        self._namespace_add(cpt.namespace)
+
+    def _namespace_add(self, namespace):
+
+        namespace = namespace.strip('.')
+        if namespace == '':
+            return
+
+        parts = namespace.split('.')
+        namespaces = self.namespaces
+        namespace = ''
+        for part in parts:
+            if part not in namespaces:
+                namespace += part
+                namespaces[part] = NetlistNamespace(namespace, self)
+                namespace += '.'
+                namespaces = namespaces[part].namespaces
+            
     def copy(self):
         """Create a copy of the netlist"""
 
@@ -925,6 +938,12 @@ class NetlistMixin(object):
         sources have separate groups since they are assumed to be
         uncorrelated.
 
+        If transform is True, the source values are decomposed into
+        the different transform domains to determine which domains are
+        required.  In this case, a source can appear in multiple
+        groups.  For example, if a voltage source V1 has a value 10 +
+        5 * cos(omega * t), V1 will be added to the dc and ac groups.
+
         """
 
         groups = {}
@@ -1029,10 +1048,9 @@ class NetlistMixin(object):
         def describe_analysis(method, sources):
             return '%s analysis is used for %s.' % (method,
                                                     describe_sources(sources))
-        if self.is_time_domain:
-            groups = self.independent_source_groups()
-        else:
-            groups = self.independent_source_groups(transform=True)
+
+        groups = self.independent_source_groups(transform=not
+                                                self.is_time_domain)
 
         if groups == {}:
             print('There are no independent sources so everything is zero.')
@@ -1076,9 +1094,9 @@ class Transformdomains(dict):
 
     
 class Netlist(NetlistMixin, NetfileMixin):
-    """This classes handles a generic netlist with multiple sources.
+    """This class handles a generic netlist with multiple sources.
     During analysis, subnetlists are created for each source kind (dc,
-    ac, etc).  Since linearity is assumed, superposition is
+    ac, transient, etc).  Since linearity is assumed, superposition is
     employed.
 
     """
@@ -1097,9 +1115,6 @@ class Netlist(NetlistMixin, NetfileMixin):
                 delattr(self, attr)
             except:
                 pass
-
-        for name in self.subnetlists:
-            self.subnetlists[name] = None
 
     def _sub_make(self):
 
