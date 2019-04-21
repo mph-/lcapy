@@ -249,7 +249,7 @@ class MNA(object):
 
         self._analyse()
         
-        V = [self.Vname('V%s' % node) for node in self.node_list[1:]]
+        V = [self.Vname('Vn%s' % node) for node in self.node_list[1:]]
         I = [self.Iname('I%s' % branch) for branch in self.unknown_branch_currents]
         return Vector(V + I)
 

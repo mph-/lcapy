@@ -146,7 +146,7 @@ class StateSpace(object):
                 if node == '0':
                     continue
                 yexprs.append(self.sscct[node].v.subs(subsdict).expand())
-                y.append(Vt('v%s(t)' % node))
+                y.append(Vt('vn%s(t)' % node))
 
         if branch_currents:
             for name in cct.branch_list:
