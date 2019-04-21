@@ -34,13 +34,13 @@ def arg_format(value):
 def _YZtype_select(expr, kind):
     """Return appropriate admittance/impedance value for analysis kind."""
 
-    if kind in ('s', 'ivp', 'super'):
+    if kind in ('s', 'ivp', 'super', 'laplace'):
         return expr
     elif kind in ('dc', 'time'):
         return cExpr(expr.subs(0))
     elif isinstance(kind, str) and kind[0] == 'n':
         return expr(jomega)
-    elif kind in (omegasym, omega):
+    elif kind in (omegasym, omega, 'ac'):
         return expr(jomega)
     return omegaExpr(expr.subs(j * kind))
     
@@ -170,7 +170,7 @@ class Cpt(object):
     def select(self, kind=None):
         """Select domain kind for component."""
 
-        raise ValueError('component not a source: %s' % self)    
+        raise ValueError('Component not a source: %s' % self)    
 
     def zero(self):
         """Zero value of the voltage source.  This kills it but keeps it as a
@@ -178,7 +178,7 @@ class Cpt(object):
         voltage sources that are required to specify the controlling
         current for CCVS and CCCS components."""        
 
-        raise ValueError('component not a source: %s' % self)        
+        raise ValueError('Component not a source: %s' % self)        
 
     def s_model(self, var):
         """Return s-domain model of component."""

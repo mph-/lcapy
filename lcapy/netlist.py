@@ -13,7 +13,7 @@ from __future__ import division
 from .sexpr import Hs, Zs, Ys
 from .symbols import j, s, omega
 from .context import global_context
-from .super import Vsuper, Isuper
+from .super import Vsuper, Isuper, Vname, Iname
 from .schematic import Schematic, Opts, SchematicOpts
 from .mna import MNA, Nodedict, Branchdict
 from .statespace import StateSpace
@@ -58,15 +58,25 @@ class Node(object):
         self.list.append(cpt)
 
 
-class SubNetlist(object):
+class NetlistNamespace(object):
+    """This class allows elements, nodes, or other namespaces
+    in a heirachical namespace to be accessed by name, via __getattr__.
+    
+    For example,
+
+    >>> a = Circuit('''
+    ... b.L1 1 2'''
+    >>> a.b.L1.v
+
+    """
 
     def __init__(self, namespace, netlist):
 
-        # Probably should select elements and nodes within
-        # the specified namespace.
+        # The namespace name, e.g., a or a.b
         self.namespace = namespace
         self._netlist = netlist
-        self.subnetlists = {}
+        # The children namespaces
+        self.namespaces = {}
 
     def __getitem__(self, name):
         """Return element or node by name."""
@@ -89,27 +99,25 @@ class SubNetlist(object):
         if name + 'anon1' in netlist._elements:
             return netlist._elements[name + 'anon1']
 
-        if name in self.subnetlists:
-            if self.subnetlists[name] is not None:
-                return self.subnetlists[name]
-            subnetlist = SubNetlist(name, self)
-            self.subnetlists[name] = subnetlist
-            return subnetlist      
+        if name in self.namespaces:
+            return self.namespaces[name]
         
         raise AttributeError('Unknown element or node name %s' % name)
 
     def __getattr__(self, attr):
-        """Return element or node by name.  This gets called if there is no
-        explicit attribute attr for this instance.  This is primarily
-        for accessing elements and non-numerical node names.  It also
-        gets called if the called attr throws an AttributeError
-        exception.  The annoying thing is that hasattr uses getattr
-        and checks for an exception."""
+        """Return element, node, or another NetlistNamespace object by name.
+        This gets called if there is no explicit attribute attr for
+        this instance.  This is primarily for accessing elements and
+        non-numerical node names.  It also gets called if the called
+        attr throws an AttributeError exception.  The annoying thing
+        is that hasattr uses getattr and checks for an exception.
+
+        """
 
         return self.__getitem__(attr)
 
     def netlist(self):
-        """Return the current subnetlist."""
+        """Return the current netlist for this namespace."""
 
         nlist = self._netlist
         
@@ -121,7 +129,7 @@ class SubNetlist(object):
 
     @property
     def sch(self):
-        """Generate schematic of subnetlist."""        
+        """Generate schematic for this namespace."""        
 
         if hasattr(self, '_sch'):
             return self._sch
@@ -170,13 +178,14 @@ class SubNetlist(object):
             cct = cct.s_model()
 
         return cct.sch.draw(filename=filename, opts=self._netlist.opts, **kwargs)
-    
-        
+
+
 class NetlistMixin(object):
 
     def __init__(self, filename=None, context=None):
 
         self._elements = OrderedDict()
+        self.namespaces = {}
         self.nodes = {}
         if context is None:
             context = global_context.new()
@@ -206,12 +215,8 @@ class NetlistMixin(object):
         if name + 'anon1' in self._elements:
             return self._elements[name + 'anon1']
 
-        if name in self.subnetlists:
-            if self.subnetlists[name] is not None:
-                return self.subnetlists[name]
-            subnetlist = SubNetlist(name, self)
-            self.subnetlists[name] = subnetlist
-            return subnetlist      
+        if name in self.namespaces:
+            return self.namespaces[name]
         
         raise AttributeError('Unknown element or node name %s' % name)
 
@@ -271,6 +276,24 @@ class NetlistMixin(object):
         for node in cpt.nodes:
             self._node_add(node, cpt)
 
+        self._namespace_add(cpt.namespace)
+
+    def _namespace_add(self, namespace):
+
+        namespace = namespace.strip('.')
+        if namespace == '':
+            return
+
+        parts = namespace.split('.')
+        namespaces = self.namespaces
+        namespace = ''
+        for part in parts:
+            if part not in namespaces:
+                namespace += part
+                namespaces[part] = NetlistNamespace(namespace, self)
+                namespace += '.'
+                namespaces = namespaces[part].namespaces
+            
     def copy(self):
         """Create a copy of the netlist"""
 
@@ -361,12 +384,6 @@ class NetlistMixin(object):
             for node in nodes:
                 node_map[node] = key
 
-        if '0' not in node_map:
-            # Perhaps could hack a connection to an arbitrary node?
-            # But then would need to make a copy of the circuit
-            # in case the user modified it.
-            raise RuntimeError('Nothing connected to ground node 0')
-
         self._node_map = node_map
         return node_map
 
@@ -418,7 +435,8 @@ class NetlistMixin(object):
         node_list = list(self.equipotential_nodes.keys())
         node_list = sorted(node_list)
         # Ensure node '0' is first in the list.
-        node_list.insert(0, node_list.pop(node_list.index('0')))
+        if '0' in node_list:
+            node_list.insert(0, node_list.pop(node_list.index('0')))
 
         self._node_list = node_list
         return node_list
@@ -608,18 +626,18 @@ class NetlistMixin(object):
         except ValueError:
             raise ValueError('Cannot create A matrix')
 
-    def select(self, sourcenames, kind):
+    def select(self, kind):
         """Return new netlist with transform domain kind selected for
-        specified source.  Sources not in sourcenames are set to zero."""
+        specified sources in sourcenames. 
+
+        """
 
         new = self._new()
         new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
-            if cpt.name in sourcenames:
-                net = cpt.select(kind)
-            elif cpt.independent_source:
-                net = cpt.zero()
+            if cpt.independent_source:
+                net = cpt.select(kind)                
             elif kind != 'ivp':
                 net = cpt.kill_initial()
             else:
@@ -930,6 +948,12 @@ class NetlistMixin(object):
         sources have separate groups since they are assumed to be
         uncorrelated.
 
+        If transform is True, the source values are decomposed into
+        the different transform domains to determine which domains are
+        required.  In this case, a source can appear in multiple
+        groups.  For example, if a voltage source V1 has a value 10 +
+        5 * cos(omega * t), V1 will be added to the dc and ac groups.
+
         """
 
         groups = {}
@@ -964,11 +988,11 @@ class NetlistMixin(object):
     def analysis(self):
 
         if not hasattr(self, '_analysis'):
-            self._analysis = self.analyse(None)
+            self._analysis = self.analyse()
 
         return self._analysis
 
-    def analyse(self, sources=None):
+    def analyse(self):
 
         hasic = False
         zeroic = True
@@ -988,7 +1012,7 @@ class NetlistMixin(object):
                     hasic = True
                 if not elt.zeroic:
                     zeroic = False
-            if elt.independent_source and (sources is None or key in sources):
+            if elt.independent_source:
                 independent_sources.append(key)
                 if elt.has_s:
                     has_s = True
@@ -1034,13 +1058,12 @@ class NetlistMixin(object):
         def describe_analysis(method, sources):
             return '%s analysis is used for %s.' % (method,
                                                     describe_sources(sources))
-        if self.is_time_domain:
-            groups = self.independent_source_groups()
-        else:
-            groups = self.independent_source_groups(transform=True)
+
+        groups = self.independent_source_groups(transform=not
+                                                self.is_time_domain)
 
         if groups == {}:
-            print('There are no independent sources so everything is zero.')
+            print('There are no non-zero independent sources so everything is zero.')
             return
 
         if self.is_ivp:
@@ -1061,7 +1084,13 @@ class NetlistMixin(object):
                 print(describe_analysis('Laplace', sources))
             elif kind == 'time':
                 print(describe_analysis('Time-domain', sources))
-                    
+
+    def Vname(self, name):
+        return Vname(name, self.kind)
+
+    def Iname(self, name):
+        return Iname(name, self.kind)    
+
                 
 class Transformdomains(dict):
 
@@ -1081,9 +1110,9 @@ class Transformdomains(dict):
 
     
 class Netlist(NetlistMixin, NetfileMixin):
-    """This classes handles a generic netlist with multiple sources.
+    """This class handles a generic netlist with multiple sources.
     During analysis, subnetlists are created for each source kind (dc,
-    ac, etc).  Since linearity is assumed, superposition is
+    ac, transient, etc).  Since linearity is assumed, superposition is
     employed.
 
     """
@@ -1102,9 +1131,6 @@ class Netlist(NetlistMixin, NetfileMixin):
                 delattr(self, attr)
             except:
                 pass
-
-        for name in self.subnetlists:
-            self.subnetlists[name] = None
 
     def _sub_make(self):
 
@@ -1142,8 +1168,8 @@ class Netlist(NetlistMixin, NetfileMixin):
         
         self._sub = Transformdomains()
 
-        for key, sources in groups.items():
-            self._sub[key] = GroupNetlist(self, sources, key)
+        for kind, sources in groups.items():
+            self._sub[kind] = SubNetlist(self, kind)
 
         return self._sub
         
@@ -1237,21 +1263,72 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         return self.get_Vd(Np, Nm).time()
 
+    def dc(self):
+        """Return subnetlist for dc components of independent sources.
+
+        See also, ac, transient, laplace.
+        """
+        return SubNetlist(self, 'dc')
+
+    def ac(self):
+        """Return subnetlist for ac components of independent sources
+        for angular frequency omega.
+
+        See also, dc, transient, laplace.
+        """
+        # Could look at all the ac frequencies and if there is only
+        # one use that?  If have multiple ac frequencies should issue
+        # warning.
+        return SubNetlist(self, omega)    
+
+    def transient(self):
+        """Return subnetlist for transient components of independent
+        sources.  Note, unlike the similar laplace method, dc and ac 
+        components are ignored.
+
+        See also, dc, ac, laplace.
+
+        """        
+        return SubNetlist(self, 's')
+
+    def laplace(self):
+        """Return subnetlist for Laplace representations of independent
+        source values.
+
+        See also, dc, ac, transient.
+        
+        """        
+        return SubNetlist(self, 'laplace')    
     
-class GroupNetlist(NetlistMixin, MNA):
+    
+class SubNetlist(NetlistMixin, MNA):
+    """This is a representation of a netlist for a particular
+    transformation domain, such as ac, dc, transient, or noise."""
 
-    def __new__(cls, netlist, sourcenames, kind):
+    def __new__(cls, netlist, kind):
 
-        # The unwanted sources are zeroed so that we can still refer
-        # to them by name, say when wanting the current through them.
-        obj = netlist.select(sourcenames, kind=kind)
+        obj = netlist.select(kind=kind)
+        # Need own context to avoid conflicts with Vn1 and Vn1(s), etc.
+        obj.context = global_context.new()        
         obj.kind = kind
         obj.__class__ = cls
-        obj._analysis = obj.analyse(sourcenames)
+        obj._analysis = obj.analyse()
         return obj
 
-    def __init__(cls, netlist, sources, kind):
-        pass
+    def __init__(cls, netlist, kind):
+        """ kind can be 't', 'dc', 'ac', 's', 'time', 'ivp', 'n*', omega, 
+        or an integer"""
+        
+        if kind == omega:
+            return
+        if not isinstance(kind, str):
+            return
+        if kind[0] == 'n':
+            return
+        kinds = ('t', 'dc', 'ac', 's', 'time', 'ivp', 'laplace')
+        if kind not in kinds:
+            raise ValueError('Expected one of %s for kind, got %s' %
+                             (', '.join(kinds), kind))
 
     def get_I(self, name):
         """Current through component"""

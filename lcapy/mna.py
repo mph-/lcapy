@@ -5,15 +5,12 @@ Copyright 2014--2019 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from .cexpr import Iconst, Vconst
-from .texpr import It, Vt, tExpr
-from .sexpr import Is, Vs
 from .phasor import Iphasor, Vphasor
-from .noiseexpr import In, Vn
 from .vector import Vector
 from .matrix import Matrix
 from .sym import symsimplify
-from .expr import ExprDict
+from .expr import ExprDict, expr
+from .super import Vtype, Itype
 import sympy as sym
 
 # Note, all the maths is performed using sympy expressions and the
@@ -21,27 +18,6 @@ import sympy as sym
 # efficient and, more importantly, overcomes some of the wrapping
 # problems which casues the is_real attribute to be dropped.
 
-def _Vtype_select(kind):
-    
-    if isinstance(kind, str) and kind[0] == 'n':
-        return Vn
-    try:
-        return {'ivp' : Vs, 's' : Vs, 'n' : Vn,
-                'ac' : Vphasor, 'dc' : Vconst, 't' : Vt, 'time' : Vt}[kind]
-    except KeyError:
-        return Vphasor
-
-
-def _Itype_select(kind):
-    if isinstance(kind, str) and kind[0] == 'n':
-        return In
-    try:
-        return {'ivp' : Is, 's' : Is, 'n' : In,
-                'ac' : Iphasor, 'dc' : Iconst, 't' : It, 'time' : It}[kind]
-    except KeyError:
-        return Iphasor
-
-    
 class Nodedict(ExprDict):
 
     def __getitem__(self, name):
@@ -62,7 +38,7 @@ class MNA(object):
     components.  There are several variants:
     
     1. DC analysis if all the independent sources are DC.  The .V and .I
-    methods return s-domain expressions with the dc assumption set.
+    methods return DC expressions with the dc assumption set.
 
     2. AC analysis if all the independent sources are AC.  The .V and .I
     methods return phasors.
@@ -118,9 +94,6 @@ class MNA(object):
         if hasattr(self, '_s_model'):
             raise RuntimeError('Cannot analyse s-domain model')
             
-        if '0' not in self.node_map:
-            raise RuntimeError('Nothing connected to ground node 0')
-
         # Determine which branch currents are needed.
         self.unknown_branch_currents = []
 
@@ -159,6 +132,9 @@ class MNA(object):
             return
         self._analyse()
 
+        if '0' not in self.node_map:
+            raise RuntimeError('Cannot solve: nothing connected to ground node 0')
+        
         # Solve for the nodal voltages
         try:
             Ainv = self._A.inv()
@@ -186,8 +162,8 @@ class MNA(object):
 
         self.context.switch()
 
-        vtype = _Vtype_select(self.kind)
-        itype = _Itype_select(self.kind)
+        vtype = Vtype(self.kind)
+        itype = Itype(self.kind)
         assumptions = {}
         if vtype == Vphasor:
             assumptions['omega'] = self.kind
@@ -248,22 +224,23 @@ class MNA(object):
         """Return X vector (of unknowns) for MNA"""
 
         self._analyse()
-
-        V = ['V%s(%s)' % (node, self.kind) for node in self.node_list[1:]]
-        I = ['I%s(%s)' % (branch, self.kind) for branch in self.unknown_branch_currents]
+        
+        V = [self.Vname('Vn%s' % node) for node in self.node_list[1:]]
+        I = [self.Iname('I%s' % branch) for branch in self.unknown_branch_currents]
         return Vector(V + I)
 
     @property
     def Vdict(self):
-        """Return dictionary of s-domain node voltages indexed by node name"""
+        """Return dictionary of transform domain node voltages indexed by node
+        name"""
 
         self._solve()
         return self._Vdict
 
     @property
     def Idict(self):
-        """Return dictionary of s-domain branch currents indexed
-        by component name"""
+        """Return dictionary of transform domain branch currents indexed by
+        component name"""
 
         self._solve()
         return self._Idict
@@ -273,7 +250,9 @@ class MNA(object):
 
         If inverse is True, evaluate the Matrix inverse."""
 
+        self._analyse()        
+
         if inverse:
-            return tExpr(sym.Eq(self.X, sym.MatMul(self._A.inv(), self._Z)))
+            return expr(sym.Eq(self.X, sym.MatMul(self._A.inv(), self._Z)))
         
-        return tExpr(sym.Eq(self.X, sym.MatMul(sym.Pow(self._A, -1), self._Z)))
+        return expr(sym.Eq(self.X, sym.MatMul(sym.Pow(self._A, -1), self._Z)))

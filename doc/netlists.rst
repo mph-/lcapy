@@ -68,23 +68,23 @@ The component type is specified by the first letter(s) of the
 
    For example,
 
-   `V1 1 0 10`
+   `V1 1 0`  This is equivalent to `V1 1 0 {v1(t)}`
+
+   `V1 1 0 10`  This is a DC source of 10 V
   
-   `V1 1 0 {2 * cos(5 * t)}`
+   `V1 1 0 {2 * cos(5 * t)}` This is an AC source
   
-   `V1 1 0 {2 * cos(5 * t) * u(t)}`
+   `V1 1 0 {2 * cos(5 * t) * u(t)}`  This is a transient source
 
-   `V1 1 0 {10 / s}`
+   `V1 1 0 {10 / s}` This is a transient source defined in the s-domain
 
-   `V1 1 0 {s * 0 + 10}`  This is equivalent to `V1 1 0 s 10`
-
-   `V1 1 0`  This is equivalent to `V1 1 0 {v_1(t)}`
+   `V1 1 0 {s * 0 + 10}`  This is a transient source defined in the s-domain, equivalent to `V1 1 0 s 10`
 
 - DC voltage source of voltage V:
 
    `Vname Np Nm dc V`
 
-- AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency :math:`\omega`:
+- AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency :math:`\omega`:  (omega)
 
    `Vname Np Nm ac V p`
 
@@ -104,25 +104,23 @@ The component type is specified by the first letter(s) of the
 
    `Iname Np Nm Iexpr`
 
-   For example,
+   `I1 1 0`  This is equivalent to `I1 1 0 {v1(t)}`
 
-   `I1 1 0 10`
+   `I1 1 0 10`  This is a DC source of 10 I
   
-   `I1 1 0 {2 * cos(5 * t)}`
+   `I1 1 0 {2 * cos(5 * t)}` This is an AC source
   
-   `I1 1 0 {2 * cos(5 * t) * u(t)}`
+   `I1 1 0 {2 * cos(5 * t) * u(t)}`  This is a transient source
 
-   `I1 1 0 {10 / s}`
+   `I1 1 0 {10 / s}` This is a transient source defined in the s-domain
 
-   `I1 1 0 {s * 0 + 10}`  This is equivalent to `I1 1 0 s 10`
-
-   `I1 1 0`  This is equivalent to `I1 1 0 {i_1(t)}`  
+   `I1 1 0 {s * 0 + 10}`  This is a transient source defined in the s-domain, equivalent to `I1 1 0 s 10`
 
 - DC current source of current I:
 
    `Iname Np Nm dc I`
 
-- AC current source of complex current amplitude I and phase p (radians) with angular frequency :math:`\omega`:
+- AC current source of complex current amplitude I and phase p (radians) with angular frequency :math:`\omega`:  (omega)
 
    `Iname Np Nm ac I p`
 
@@ -148,11 +146,15 @@ The component type is specified by the first letter(s) of the
 
 - Inductor:
 
-   `Lname Np Nm L i0`
+   `Lname Np Nm L`
+  
+   `Lname Np Nm L i0`  Here `i0` is the initial current through the inductor.  If this is specified then the circuit is solved as an initial value problem.
 
 - Capacitor:
 
-   `Cname Np Nm L v0`
+   `Cname Np Nm L`
+ 
+   `Cname Np Nm L v0`   Here `i0` is the voltage across the capacitor.  If this is specified then the circuit is solved as an initial value problem.
 
 - Voltage-controlled voltage source (VCVS) of gain H with controlling nodes Nip and Nim:
 

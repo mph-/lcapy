@@ -79,6 +79,10 @@ large matrix.
 9. Implement a Matrix class that does not lose the class information
 for each element.
 
+10. Improve context switching to avoid sharing of symbols between
+different netlists.  Could use Python context manager with __enter__
+and __exit__ methods so that can use with statement.
+
 
 Testing
 =======

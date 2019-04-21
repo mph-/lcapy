@@ -1098,7 +1098,7 @@ def expr(string, **assumptions):
     If a t symbol is found in the string a tExpr object is created.
     If a s symbol is found in the string a sExpr object is created.
     If a f symbol is found in the string an fExpr object is created.
-    If a omega symbol is found in the string an omegaExpr object is created.
+    If an omega symbol is found in the string an omegaExpr object is created.
 
     For example, v = expr('3 * exp(-t / tau) * u(t)')
 
@@ -1106,17 +1106,17 @@ def expr(string, **assumptions):
 
     from .sym import tsym, fsym, ssym, omegasym
 
-    expr = sympify(string)
+    expr = sympify(string, **assumptions)
     if expr.has(tsym):
-        return tExpr(expr)
+        return tExpr(expr, **assumptions)
     elif expr.has(ssym):
-        return sExpr(expr)        
+        return sExpr(expr, **assumptions)
     elif expr.has(fsym):
-        return fExpr(expr)
+        return fExpr(expr, **assumptions)
     elif expr.has(omegasym):
-        return omegaExpr(expr)
+        return omegaExpr(expr, **assumptions)
     else:
-        return cExpr(expr)            
+        return cExpr(expr, **assumptions)
 
 
 def symbol(name, **assumptions):
