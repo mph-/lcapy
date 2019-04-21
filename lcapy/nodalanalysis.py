@@ -78,7 +78,7 @@ class NodalAnalysis(object):
             if node == '0':
                 ydict[node] = 0
             else:
-                ydict[node] = self.Vname('V' + node)
+                ydict[node] = self.Vname('Vn' + node)
         return ydict
 
     def _make_equations(self):
