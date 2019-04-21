@@ -1257,6 +1257,19 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         return self.get_Vd(Np, Nm).time()
 
+    def dc(self):
+        """Return subnetlist for dc components of independent sources."""
+        return SubNetlist(self, 'dc')
+
+    def ac(self):
+        """Return subnetlist for ac components of independent sources."""        
+        return SubNetlist(self, 'ac')    
+
+    def transient(self):
+        """Return subnetlist for transient components of independent
+        sources."""        
+        return SubNetlist(self, 's')
+    
     
 class SubNetlist(NetlistMixin, MNA):
     """This is a representation of a netlist for a particular
