@@ -59,6 +59,16 @@ class Node(object):
 
 
 class NetlistNamespace(object):
+    """This class allows elements, nodes, or other namespaces
+    in a heirachical namespace to be accessed by name, via __getattr__.
+    
+    For example,
+
+    >>> a = Circuit('''
+    ... b.L1 1 2'''
+    >>> a.b.L1.v
+
+    """
 
     def __init__(self, namespace, netlist):
 
@@ -1153,7 +1163,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         self._sub = Transformdomains()
 
         for kind, sources in groups.items():
-            self._sub[kind] = GroupNetlist(self, kind, sources)
+            self._sub[kind] = SubNetlist(self, kind, sources)
 
         return self._sub
         
@@ -1248,7 +1258,9 @@ class Netlist(NetlistMixin, NetfileMixin):
         return self.get_Vd(Np, Nm).time()
 
     
-class GroupNetlist(NetlistMixin, MNA):
+class SubNetlist(NetlistMixin, MNA):
+    """This is a representation of a netlist for a particular
+    transformation domain, such as ac, dc, transient, or noise."""
 
     def __new__(cls, netlist, kind, sourcenames=[]):
 
