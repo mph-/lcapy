@@ -394,7 +394,7 @@ class Super(ExprDict):
             return self[kind]
         
         obj = self
-        if 't' in self and 't' != kind:
+        if 't' in self and (kind == omega or 't' != kind):
             # The rationale here is that there may be
             # DC and AC components included in the 't' part.
             obj = self.decompose()
