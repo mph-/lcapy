@@ -1264,21 +1264,40 @@ class Netlist(NetlistMixin, NetfileMixin):
         return self.get_Vd(Np, Nm).time()
 
     def dc(self):
-        """Return subnetlist for dc components of independent sources."""
+        """Return subnetlist for dc components of independent sources.
+
+        See also, ac, transient, laplace.
+        """
         return SubNetlist(self, 'dc')
 
     def ac(self):
-        """Return subnetlist for ac components of independent sources."""        
+        """Return subnetlist for ac components of independent sources
+        for angular frequency omega.
+
+        See also, dc, transient, laplace.
+        """
+        # Could look at all the ac frequencies and if there is only
+        # one use that?  If have multiple ac frequencies should issue
+        # warning.
         return SubNetlist(self, omega)    
 
     def transient(self):
         """Return subnetlist for transient components of independent
-        sources."""        
+        sources.  Note, unlike the similar laplace method, dc and ac 
+        components are ignored.
+
+        See also, dc, ac, laplace.
+
+        """        
         return SubNetlist(self, 's')
 
     def laplace(self):
-        """Return subnetlist for Laplace representations independent
-        sources."""        
+        """Return subnetlist for Laplace representations of independent
+        source values.
+
+        See also, dc, ac, transient.
+        
+        """        
         return SubNetlist(self, 'laplace')    
     
     
