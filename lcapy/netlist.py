@@ -628,16 +628,17 @@ class NetlistMixin(object):
 
     def select(self, kind, sourcenames=[]):
         """Return new netlist with transform domain kind selected for
-        specified source.  Sources not in sourcenames are set to zero."""
+        specified sources in sourcenames.  Sources not in sourcenames
+        are set to zero.
+
+        """
 
         new = self._new()
         new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
-            if cpt.name in sourcenames:
-                net = cpt.select(kind)
-            elif cpt.independent_source:
-                net = cpt.zero()
+            if cpt.independent_source:
+                net = cpt.select(kind)                
             elif kind != 'ivp':
                 net = cpt.kill_initial()
             else:
@@ -1273,7 +1274,19 @@ class SubNetlist(NetlistMixin, MNA):
         return obj
 
     def __init__(cls, netlist, kind, sourcenames=[]):
-        pass
+        """ kind can be 't', 'dc', 'ac', 's', 'time', 'ivp', omega,
+        or an integer"""
+        
+        if kind == omega:
+            return
+        if not isinstance(kind, str):
+            return
+        if kind[0] == 'n':
+            return
+        kinds = ('t', 'dc', 'ac', 's', 'time', 'ivp')
+        if kind not in kinds:
+            raise ValueError('Expected one of %s for kind, got %s' %
+                             (', '.join(kinds), kind))
 
     def get_I(self, name):
         """Current through component"""
