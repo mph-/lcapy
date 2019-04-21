@@ -36,10 +36,11 @@ Installation from github
 
 1. Lcapy can be downloaded from https://github.com/mph-/lcapy as a .zip file or preferably using git::
      
-   >>> git clone https://github.com/mph-/lcap
+   >>> git clone https://github.com/mph-/lcapy
 
-
-2.  Lcapy can be installed using:
+2.  You will also need to install scipy, numpy, matplotlib, and networkx.
+   
+3.  Lcapy can be installed using:
 
   >>> cd lcapy
   >>> sudo python setup.py install
