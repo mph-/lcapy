@@ -1098,7 +1098,7 @@ def expr(string, **assumptions):
     If a t symbol is found in the string a tExpr object is created.
     If a s symbol is found in the string a sExpr object is created.
     If a f symbol is found in the string an fExpr object is created.
-    If a omega symbol is found in the string an omegaExpr object is created.
+    If an omega symbol is found in the string an omegaExpr object is created.
 
     For example, v = expr('3 * exp(-t / tau) * u(t)')
 

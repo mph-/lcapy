@@ -6,14 +6,14 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 from __future__ import division
 from .cexpr import Iconst, Vconst
-from .texpr import It, Vt, tExpr
+from .texpr import It, Vt
 from .sexpr import Is, Vs
 from .phasor import Iphasor, Vphasor
 from .noiseexpr import In, Vn
 from .vector import Vector
 from .matrix import Matrix
 from .sym import symsimplify
-from .expr import ExprDict
+from .expr import ExprDict, expr
 import sympy as sym
 
 # Note, all the maths is performed using sympy expressions and the
@@ -275,6 +275,6 @@ class MNA(object):
         If inverse is True, evaluate the Matrix inverse."""
 
         if inverse:
-            return tExpr(sym.Eq(self.X, sym.MatMul(self._A.inv(), self._Z)))
+            return expr(sym.Eq(self.X, sym.MatMul(self._A.inv(), self._Z)))
         
-        return tExpr(sym.Eq(self.X, sym.MatMul(sym.Pow(self._A, -1), self._Z)))
+        return expr(sym.Eq(self.X, sym.MatMul(sym.Pow(self._A, -1), self._Z)))
