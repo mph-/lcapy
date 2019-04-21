@@ -5,15 +5,12 @@ Copyright 2014--2019 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from .cexpr import Iconst, Vconst
-from .texpr import It, Vt
-from .sexpr import Is, Vs
 from .phasor import Iphasor, Vphasor
-from .noiseexpr import In, Vn
 from .vector import Vector
 from .matrix import Matrix
 from .sym import symsimplify
 from .expr import ExprDict, expr
+from .super import Vtype, Itype
 import sympy as sym
 
 # Note, all the maths is performed using sympy expressions and the
@@ -21,27 +18,6 @@ import sympy as sym
 # efficient and, more importantly, overcomes some of the wrapping
 # problems which casues the is_real attribute to be dropped.
 
-def _Vtype_select(kind):
-    
-    if isinstance(kind, str) and kind[0] == 'n':
-        return Vn
-    try:
-        return {'ivp' : Vs, 's' : Vs, 'n' : Vn,
-                'ac' : Vphasor, 'dc' : Vconst, 't' : Vt, 'time' : Vt}[kind]
-    except KeyError:
-        return Vphasor
-
-
-def _Itype_select(kind):
-    if isinstance(kind, str) and kind[0] == 'n':
-        return In
-    try:
-        return {'ivp' : Is, 's' : Is, 'n' : In,
-                'ac' : Iphasor, 'dc' : Iconst, 't' : It, 'time' : It}[kind]
-    except KeyError:
-        return Iphasor
-
-    
 class Nodedict(ExprDict):
 
     def __getitem__(self, name):
@@ -186,8 +162,8 @@ class MNA(object):
 
         self.context.switch()
 
-        vtype = _Vtype_select(self.kind)
-        itype = _Itype_select(self.kind)
+        vtype = Vtype(self.kind)
+        itype = Itype(self.kind)
         assumptions = {}
         if vtype == Vphasor:
             assumptions['omega'] = self.kind
@@ -273,6 +249,8 @@ class MNA(object):
         """System of equations used to find the unknowns.
 
         If inverse is True, evaluate the Matrix inverse."""
+
+        self._analyse()        
 
         if inverse:
             return expr(sym.Eq(self.X, sym.MatMul(self._A.inv(), self._Z)))

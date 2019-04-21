@@ -371,6 +371,7 @@ class Super(ExprDict):
         """Select a component of the signal representation by kind where:
         'super' : the entire superposition
         'time' :  the time domain representation (equivalent to self.time())
+        'laplace' :  the laplace domain representation (equivalent to self.laplace())
         'ivp' :  the s-domain representation (equivalent to self.laplace())
         'dc' : the DC component
         'ac' : the AC component with angular frequency omega
@@ -385,7 +386,7 @@ class Super(ExprDict):
             return self
         elif kind is 'time':
             return self.time()
-        elif kind is 'ivp':
+        elif kind in ('ivp', 'laplace'):
             return self.laplace()
 
         if isinstance(kind, str) and kind[0] is 'n':
@@ -410,7 +411,7 @@ class Super(ExprDict):
         def kind_keyword(kind):
             if isinstance(kind, str) and kind[0] is 'n':
                 return 'noise'
-            elif kind is 'ivp':
+            elif kind in ('ivp', 'laplace'):
                 return 's'
             elif kind in ('t', 'time'):
                 return ''                
@@ -795,6 +796,25 @@ def Iname(name, kind):
     return expr(name)            
 
 
+def Vtype(kind):
+    
+    if isinstance(kind, str) and kind[0] == 'n':
+        return Vn
+    try:
+        return {'ivp' : Vs, 's' : Vs, 'n' : Vn,
+                'ac' : Vphasor, 'dc' : Vconst, 't' : Vt, 'time' : Vt}[kind]
+    except KeyError:
+        return Vphasor
+
+
+def Itype(kind):
+    if isinstance(kind, str) and kind[0] == 'n':
+        return In
+    try:
+        return {'ivp' : Is, 's' : Is, 'n' : In,
+                'ac' : Iphasor, 'dc' : Iconst, 't' : It, 'time' : It}[kind]
+    except KeyError:
+        return Iphasor
     
 from .cexpr import Iconst, Vconst, cExpr        
 from .fexpr import fExpr    
