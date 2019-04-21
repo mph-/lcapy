@@ -78,7 +78,7 @@ class NodalAnalysis(object):
             if node == '0':
                 ydict[node] = 0
             else:
-                ydict[node] = Vsuper('v%s(t)' % node).select(self.cct.kind)
+                ydict[node] = self.Vname('V' + node)
         return ydict
 
     def _make_equations(self):

@@ -13,7 +13,7 @@ from __future__ import division
 from .sexpr import Hs, Zs, Ys
 from .symbols import j, s, omega
 from .context import global_context
-from .super import Vsuper, Isuper
+from .super import Vsuper, Isuper, Vname, Iname
 from .schematic import Schematic, Opts, SchematicOpts
 from .mna import MNA, Nodedict, Branchdict
 from .statespace import StateSpace
@@ -1084,7 +1084,13 @@ class NetlistMixin(object):
                 print(describe_analysis('Laplace', sources))
             elif kind == 'time':
                 print(describe_analysis('Time-domain', sources))
-                    
+
+    def Vname(self, name):
+        return Vname(name, self.kind)
+
+    def Iname(self, name):
+        return Iname(name, self.kind)    
+
                 
 class Transformdomains(dict):
 
@@ -1263,7 +1269,7 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     def ac(self):
         """Return subnetlist for ac components of independent sources."""        
-        return SubNetlist(self, 'ac')    
+        return SubNetlist(self, omega)    
 
     def transient(self):
         """Return subnetlist for transient components of independent

@@ -40,7 +40,7 @@ def _YZtype_select(expr, kind):
         return cExpr(expr.subs(0))
     elif isinstance(kind, str) and kind[0] == 'n':
         return expr(jomega)
-    elif kind in (omegasym, omega):
+    elif kind in (omegasym, omega, 'ac'):
         return expr(jomega)
     return omegaExpr(expr.subs(j * kind))
     

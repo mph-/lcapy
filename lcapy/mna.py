@@ -248,9 +248,9 @@ class MNA(object):
         """Return X vector (of unknowns) for MNA"""
 
         self._analyse()
-
-        V = ['V%s(%s)' % (node, self.kind) for node in self.node_list[1:]]
-        I = ['I%s(%s)' % (branch, self.kind) for branch in self.unknown_branch_currents]
+        
+        V = [self.Vname('V%s' % node) for node in self.node_list[1:]]
+        I = [self.Iname('I%s' % branch) for branch in self.unknown_branch_currents]
         return Vector(V + I)
 
     @property

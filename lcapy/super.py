@@ -1,5 +1,5 @@
 from __future__ import division
-from .expr import Expr, ExprDict
+from .expr import Expr, ExprDict, expr
 from .sym import tsym, omegasym, symbols_find, is_sympy, symsymbol
 from .acdc import is_ac
 from .printing import pprint, pretty, latex
@@ -373,6 +373,7 @@ class Super(ExprDict):
         'time' :  the time domain representation (equivalent to self.time())
         'ivp' :  the s-domain representation (equivalent to self.laplace())
         'dc' : the DC component
+        'ac' : the AC component with angular frequency omega
         omega : the AC component with angular frequency omega
         's' : the transient component in the s-domain
         'n' : the noise component
@@ -771,6 +772,30 @@ class Isuper(Super):
         # Perhaps should generate more specific components such as Idc?        
         return I(self.time())
 
+
+def Vname(name, kind):
+    
+    if kind == 's':
+        return Vs(name + '(s)')
+    elif kind == 't':
+        return Vt(name + '(t)')
+    elif kind in (omegasym, omega, 'ac'):
+        return Vphasor(name + '(omega)')
+    return expr(name)
+
+
+def Iname(name, kind):
+    
+    if kind == 's':
+        return Is(name + '(s)')
+    elif kind == 't':
+        return It(name + '(t)')
+    elif kind in (omegasym, omega, 'ac'):    
+        return Iphasor(name + '(omega)')
+    return expr(name)            
+
+
+    
 from .cexpr import Iconst, Vconst, cExpr        
 from .fexpr import fExpr    
 from .sexpr import Is, Vs, Ys, Zs, sExpr
@@ -778,4 +803,4 @@ from .texpr import It, Vt, tExpr
 from .noiseexpr import In, Vn, noiseExpr
 from .phasor import Iphasor, Vphasor, Phasor
 from .omegaexpr import omegaExpr
-from .symbols import s
+from .symbols import s, omega
