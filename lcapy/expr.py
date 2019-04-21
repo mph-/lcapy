@@ -1106,17 +1106,17 @@ def expr(string, **assumptions):
 
     from .sym import tsym, fsym, ssym, omegasym
 
-    expr = sympify(string)
+    expr = sympify(string, **assumptions)
     if expr.has(tsym):
-        return tExpr(expr)
+        return tExpr(expr, **assumptions)
     elif expr.has(ssym):
-        return sExpr(expr)        
+        return sExpr(expr, **assumptions)
     elif expr.has(fsym):
-        return fExpr(expr)
+        return fExpr(expr, **assumptions)
     elif expr.has(omegasym):
-        return omegaExpr(expr)
+        return omegaExpr(expr, **assumptions)
     else:
-        return cExpr(expr)            
+        return cExpr(expr, **assumptions)
 
 
 def symbol(name, **assumptions):
