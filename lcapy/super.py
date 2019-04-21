@@ -774,7 +774,7 @@ class Isuper(Super):
         return I(self.time())
 
 
-def Vname(name, kind):
+def Vname(name, kind, cache=False):
     
     if kind == 's':
         return Vs(name + '(s)')
@@ -782,10 +782,13 @@ def Vname(name, kind):
         return Vt(name + '(t)')
     elif kind in (omegasym, omega, 'ac'):
         return Vphasor(name + '(omega)')
-    return expr(name)
+    # Not caching is a hack to avoid conflicts of Vn1 with Vn1(s) etc.
+    # when using subnetlists.  The alternative is a proper context
+    # switch.  This would require every method to set the context.
+    return expr(name, cache=cache)            
 
 
-def Iname(name, kind):
+def Iname(name, kind, cache=False):
     
     if kind == 's':
         return Is(name + '(s)')
@@ -793,7 +796,7 @@ def Iname(name, kind):
         return It(name + '(t)')
     elif kind in (omegasym, omega, 'ac'):    
         return Iphasor(name + '(omega)')
-    return expr(name)            
+    return expr(name, cache=cache)            
 
 
 def Vtype(kind):
