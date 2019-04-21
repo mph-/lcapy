@@ -1275,6 +1275,11 @@ class Netlist(NetlistMixin, NetfileMixin):
         """Return subnetlist for transient components of independent
         sources."""        
         return SubNetlist(self, 's')
+
+    def laplace(self):
+        """Return subnetlist for Laplace representations independent
+        sources."""        
+        return SubNetlist(self, 'laplace')    
     
     
 class SubNetlist(NetlistMixin, MNA):
@@ -1284,6 +1289,8 @@ class SubNetlist(NetlistMixin, MNA):
     def __new__(cls, netlist, kind):
 
         obj = netlist.select(kind=kind)
+        # Need own context to avoid conflicts with Vn1 and Vn1(s), etc.
+        obj.context = global_context.new()        
         obj.kind = kind
         obj.__class__ = cls
         obj._analysis = obj.analyse()
@@ -1299,7 +1306,7 @@ class SubNetlist(NetlistMixin, MNA):
             return
         if kind[0] == 'n':
             return
-        kinds = ('t', 'dc', 'ac', 's', 'time', 'ivp')
+        kinds = ('t', 'dc', 'ac', 's', 'time', 'ivp', 'laplace')
         if kind not in kinds:
             raise ValueError('Expected one of %s for kind, got %s' %
                              (', '.join(kinds), kind))

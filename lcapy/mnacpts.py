@@ -34,7 +34,7 @@ def arg_format(value):
 def _YZtype_select(expr, kind):
     """Return appropriate admittance/impedance value for analysis kind."""
 
-    if kind in ('s', 'ivp', 'super'):
+    if kind in ('s', 'ivp', 'super', 'laplace'):
         return expr
     elif kind in ('dc', 'time'):
         return cExpr(expr.subs(0))
