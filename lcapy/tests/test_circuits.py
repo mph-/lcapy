@@ -6,7 +6,7 @@ import sympy as sym
 
 class LcapyTester(unittest.TestCase):
 
-    """Unit tests for lcapy
+    """Unit tests for lcapy circuits
 
     """
 
