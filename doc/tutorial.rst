@@ -1131,19 +1131,16 @@ equations for state-space analysis.  The state-space analysis is
 performed using the `ss` method of a circuit, e.g.,
 
    >>> from lcapy import Circuit
-   >>> a = Circuit('ss1.sch')
+   >>> a = Circuit("""
+   ... V 1 0 {v(t)}; down
+   ... R1 1 2; right
+   ... L 2 3; right=1.5, i={i_L}
+   ... R2 3 0_3; down=1.5, i={i_{R2}}, v={v_{R2}}
+   ... W 0 0_3; right
+   ... W 3 3_a; right
+   ... C 3_a 0_4; down, i={i_C}, v={v_C}
+   ... W 0_3 0_4; right""")
    >>> ss = a.ss
-
-For demonstration, consider the netlist stored in the file `ss1.sch`::
-
-   V 1 0 {v(t)}; down
-   R1 1 2; right
-   L 2 3; right=1.5, i={i_L}
-   R2 3 0_3; down=1.5, i={i_{R2}}, v={v_{R2}}
-   W 0 0_3; right
-   W 3 3_a; right
-   C 3_a 0_4; down, i={i_C}, v={v_C}
-   W 0_3 0_4; right
 
 .. image:: examples/netlists/ss1.png
    :width: 8cm
@@ -1176,11 +1173,11 @@ currents, or both.  By default the nodal voltages are chosen.  This
 vector is shown using the `y` attribute:
 
    >>> ss.y
-   ⎡v₁(t)⎤
-   ⎢     ⎥
-   ⎢v₂(t)⎥
-   ⎢     ⎥
-   ⎣v₃(t)⎦
+   ⎡vₙ₁(t)⎤
+   ⎢      ⎥
+   ⎢vₙ₂(t)⎥
+   ⎢      ⎥
+   ⎣vₙ₃(t)⎦
 
 The state equations are shown using the `state_equations` method:
 
@@ -1193,15 +1190,14 @@ The state equations are shown using the `state_equations` method:
    ⎢──(v_C(t))⎥   ⎢───  ────⎥            ⎣0⎦       
    ⎣dt        ⎦   ⎣ C   C⋅R₂⎦                      
 
-
 The output equations are shown using the `output_equations` method:
 
    >>> ss.output_equations()
-   ⎡v₁(t)⎤   ⎡0   0⎤            ⎡1⎤       
-   ⎢     ⎥   ⎢     ⎥ ⎡i_L(t)⎤   ⎢ ⎥       
-   ⎢v₂(t)⎥ = ⎢R₁  0⎥⋅⎢      ⎥ + ⎢1⎥⋅[v(t)]
-   ⎢     ⎥   ⎢     ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
-   ⎣v₃(t)⎦   ⎣0   1⎦            ⎣0⎦       
+   ⎡vₙ₁(t)⎤   ⎡0   0⎤            ⎡1⎤       
+   ⎢      ⎥   ⎢     ⎥ ⎡i_L(t)⎤   ⎢ ⎥       
+   ⎢vₙ₂(t)⎥ = ⎢R₁  0⎥⋅⎢      ⎥ + ⎢1⎥⋅[v(t)]
+   ⎢      ⎥   ⎢     ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
+   ⎣vₙ₃(t)⎦   ⎣0   1⎦            ⎣0⎦       
 
 
 The `A`, `B`, `C`, and `D` matrices are obtained using the attributes
@@ -1243,9 +1239,9 @@ source vector, and the output vector are accessed using the `X`, `U`,
 and `Y` attributes: For example,
 
    >>> ss.X
-   ⎡IL(s)⎤
-   ⎢     ⎥
-   ⎣VC(s)⎦
+   ⎡I_L(s)⎤
+   ⎢      ⎥
+   ⎣V_C(s)⎦
 
 The s-domain state-transition matrix is given by the `Phi` attribute
 and the time-domain state-transition matrix is given by the `phi`
@@ -1304,6 +1300,78 @@ attribute.  A diagonal matrix of the eigenvalues is returned by the
 `Lambda` attribute.
 
 
+Modified nodal analysis
+-----------------------
+
+Lcapy uses modified nodal analysis for its calculations.  For reactive circuits it does this independently for the DC, AC, and transient components nad uses superposition to combine the results.  For resistive circuits, it can perform this in the time-domain.
+
+Here's an example with an independent source (V1) that as a DC component and an unknown component that is considered as a transient component:
+
+   >>> from lcapy import Circuit
+   >>> a = Circuit("""
+   ... V1 1 0 {10 + v(t)}; down
+   ... R1 1 2; right
+   ... L1 2 3; right=1.5, i={i_L}
+   ... R2 3 0_3; down=1.5, i={i_{R2}}, v={v_{R2}}
+   ... W 0 0_3; right
+   ... W 3 3_a; right
+   ... C1 3_a 0_4; down, i={i_C}, v={v_C}
+   ... W 0_3 0_4; right""")
+
+The corresponding circuit for DC analysis can be found using the `dc` method:
+
+   >>> a.dc()
+   V1 1 0 dc {10}; down
+   R1 1 2; right
+   L1 2 3 L1; right=1.5, i={i_L}
+   R2 3 0_3; i={i_{R2}}, down=1.5, v={v_{R2}}
+   W 0 0_3; right
+   W 3 3_a; right
+   C1 3_a 0_4 C1; i={i_C}, down, v={v_C}
+   W 0_3 0_4; right
+
+The equations used to solve this can be found with the `equations` method:
+
+   >>> ac.dc().equations()
+            ⎛⎡1    -1            ⎤⎞       
+            ⎜⎢──   ───  0   1  0 ⎥⎟       
+            ⎜⎢R₁    R₁           ⎥⎟       
+   ⎡Vₙ₁ ⎤   ⎜⎢                   ⎥⎟   ⎡0 ⎤
+   ⎢    ⎥   ⎜⎢-1   1             ⎥⎟   ⎢  ⎥
+   ⎢Vₙ₂ ⎥   ⎜⎢───  ──   0   0  1 ⎥⎟   ⎢0 ⎥
+   ⎢    ⎥   ⎜⎢ R₁  R₁            ⎥⎟   ⎢  ⎥
+   ⎢Vₙ₃ ⎥ = ⎜⎢                   ⎥⎟  ⋅⎢0 ⎥
+   ⎢    ⎥   ⎜⎢          1        ⎥⎟   ⎢  ⎥
+   ⎢I_V1⎥   ⎜⎢ 0    0   ──  0  -1⎥⎟   ⎢10⎥
+   ⎢    ⎥   ⎜⎢          R₂       ⎥⎟   ⎢  ⎥
+   ⎣I_L1⎦   ⎜⎢                   ⎥⎟   ⎣0 ⎦
+            ⎜⎢ 1    0   0   0  0 ⎥⎟       
+            ⎜⎢                   ⎥⎟       
+            ⎝⎣ 0    1   -1  0  0 ⎦⎠       
+
+Here `Vn1`, `Vn2`, and `Vn3` are the unknown node voltages for nodes 1, 2, and 3.  `I_V1` is the current through V1 and `I_L1` is the current through L1.
+
+
+The equations are similar for the transient response:
+
+   >>> a.transient().equations()
+                                                -1       
+               ⎛⎡1    -1                      ⎤⎞         
+               ⎜⎢──   ───      0      1    0  ⎥⎟         
+               ⎜⎢R₁    R₁                     ⎥⎟         
+   ⎡Vₙ₁(s) ⎤   ⎜⎢                             ⎥⎟   ⎡ 0  ⎤
+   ⎢       ⎥   ⎜⎢-1   1                       ⎥⎟   ⎢    ⎥
+   ⎢Vₙ₂(s) ⎥   ⎜⎢───  ──       0      0    1  ⎥⎟   ⎢ 0  ⎥
+   ⎢       ⎥   ⎜⎢ R₁  R₁                      ⎥⎟   ⎢    ⎥
+   ⎢Vₙ₃(s) ⎥ = ⎜⎢                             ⎥⎟  ⋅⎢ 0  ⎥
+   ⎢       ⎥   ⎜⎢                 1           ⎥⎟   ⎢    ⎥
+   ⎢I_V1(s)⎥   ⎜⎢ 0    0   C₁⋅s + ──  0   -1  ⎥⎟   ⎢V(s)⎥
+   ⎢       ⎥   ⎜⎢                 R₂          ⎥⎟   ⎢    ⎥
+   ⎣I_L1(s)⎦   ⎜⎢                             ⎥⎟   ⎣ 0  ⎦
+               ⎜⎢ 1    0       0      0    0  ⎥⎟         
+               ⎜⎢                             ⎥⎟         
+               ⎝⎣ 0    1      -1      0  -L₁⋅s⎦⎠         
+
           
 Other circuit methods
 ---------------------
@@ -1348,6 +1416,14 @@ Other circuit methods
    cct.s_model()         Convert circuit to s-domain model.
 
    cct.pre_initial_model()   Convert circuit to pre-initial model.
+
+   cct.ac()           Create subnetlist for AC components of independent sources.
+
+   cct.dc()           Create subnetlist for DC components of independent sources.
+
+   cct.transient()    Create subnetlist for transient components of independent sources.
+
+   cct.laplace()      Create subnetlist with Laplace representations of independent source values.
 
 
 Plotting
