@@ -74,6 +74,15 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
             nextTokNum, nextTokVal = nextTok
             if tokNum == NAME:
                 name = tokVal
+
+                # Automatically add Function.  We ignore the assumptions.
+                # These could be supported by modifying fourier.py/laplace.py
+                # to propagate assumptions when converting V(s) to v(t), etc.
+                if (nextTokVal == '(' and name not in global_dict):
+                    result.extend([(NAME, 'Function'),
+                                   (OP, '('), (NAME, repr(name)), (OP, ')')])
+                    continue
+
                 if name in global_dict:
 
                     obj = global_dict[name]
@@ -89,14 +98,6 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
                     # print('Found %s' % name)
                     # Could check assumptions.
                     result.append((NAME, name))
-                    continue
-
-                # Automatically add Function.  We ignore the assumptions.
-                # These could be supported by modifying fourier.py/laplace.py
-                # to propagate assumptions when converting V(s) to v(t), etc.
-                if nextTokVal == '(':
-                    result.extend([(NAME, 'Function'),
-                                   (OP, '('), (NAME, repr(name)), (OP, ')')])
                     continue
 
                 # Automatically add Symbol                
@@ -119,11 +120,12 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
     if not cache:
         return s
 
-    # Look for newly defined symbols.  Ignore functions.
-    # If add functions then need to update parse to recognise them.
+    # Add newly defined symbols.
     for symbol in s.atoms(Symbol):
         name = symbol_name(symbol)
         if name not in symbols:
+            if name == 'ivp':
+                raise ValueError('Huh')
             symbols[name] = symbol
 
     return s
@@ -156,6 +158,10 @@ def sympify1(arg, symbols={}, evaluate=True, **assumptions):
         return sym.sympify(str(arg), rational=True, evaluate=evaluate)
         
     if isinstance(arg, str):
+        # Quickly handle the simple case.  
+        if arg in symbols:
+            return symbols[arg]
+        
         # Handle arbitrary strings that may refer to multiple symbols.
         return parse(arg, symbols, evaluate=evaluate,
                      local_dict=symbols, **assumptions)
