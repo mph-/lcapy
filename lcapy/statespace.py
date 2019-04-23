@@ -17,6 +17,7 @@ __all__ = ('StateSpace', )
 # TODO
 # 1. Use a better Matrix class that preserves the class of each
 # element, where possible.
+# 2. Handle namespaces
 
 # Independent sources
 # V1 1 0
@@ -52,6 +53,9 @@ class StateSpace(object):
         capacitors = []
         independent_sources = []
 
+        # Determine state variables (current through inductors and
+        # voltage across acapacitors) and replace inductors with
+        # current sources and capacitors with voltage sources.
         sscct = cct._new()
         cpt_map = {}
 
@@ -76,10 +80,10 @@ class StateSpace(object):
                 
         self.cct = cct
         self.sscct = sscct
+
+        # sscct can be analysed in the time domain since it has not
+        # reactive components.
         
-        # Determine sate variables (current through inductors and
-        # voltage across acapacitors) and replace inductors with
-        # current sources and capacitors with voltage sources.
         dotx_exprs = []
         statevars = []
         statenames = []
@@ -125,15 +129,17 @@ class StateSpace(object):
 
         sourcesyms = sympify(sourcenames)            
 
+        # linear_eq_to_matrix expects only Symbols and not AppliedUndefs,
+        # so substitute.
         subsdict = {}
         for var, sym1 in zip(statevars, statesyms):
-            subsdict[var] = sym1
+            subsdict[var.expr] = sym1
         for var, sym1 in zip(sourcevars, sourcesyms):
-            subsdict[var] = sym1            
+            subsdict[var.expr] = sym1       
 
         for m, expr in enumerate(dotx_exprs):
             dotx_exprs[m] = expr.subs(subsdict).expr.expand()
-                
+
         A, b = sym.linear_eq_to_matrix(dotx_exprs, *statesyms)
         B, b = sym.linear_eq_to_matrix(dotx_exprs, *sourcesyms)
 
@@ -190,7 +196,8 @@ class StateSpace(object):
         """
         
         return tExpr(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x),
-                                                  sym.MatMul(self.B, self.u))))
+                                                  sym.MatMul(self.B, self.u)),
+                            evaluate=False))
 
     def output_equations(self):
         """System of output equations:
@@ -203,7 +210,8 @@ class StateSpace(object):
         """
         
         return tExpr(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x),
-                                               sym.MatMul(self.D, self.u))))
+                                               sym.MatMul(self.D, self.u)),
+                            evaluate=False))
 
     @property
     def Phi(self):
