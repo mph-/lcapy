@@ -253,6 +253,8 @@ class MNA(object):
         self._analyse()        
 
         if inverse:
-            return expr(sym.Eq(self.X, sym.MatMul(self._A.inv(), self._Z)))
+            return expr(sym.Eq(self.X, sym.MatMul(self._A.inv(), self._Z),
+                               evaluate=False))
         
-        return expr(sym.Eq(self.X, sym.MatMul(sym.Pow(self._A, -1), self._Z)))
+        return expr(sym.Eq(self.X, sym.MatMul(sym.Pow(self._A, -1), self._Z),
+                               evaluate=False))                           
