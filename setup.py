@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='lcapy',
-      version='0.35.0',
+      version='0.35.1',
       author='Michael Hayes',
       author_email='michael.hayes@canterbury.ac.nz',
       description='Symbolic linear circuit analysis',
@@ -21,10 +21,9 @@ setup(name='lcapy',
                         'networkx',
       ],
       packages=find_packages(),
-      py_modules=['schtex'],       
       entry_points={
           'console_scripts': [
-              'schtex=schtex:main',
+              'schtex=scripts.schtex:main',
           ],
       },      
       classifiers=[
