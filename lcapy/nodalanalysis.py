@@ -1,6 +1,5 @@
-"""
-This module performs nodal analysis.  It is primarily for showing
-the equations rather than evaluating them.
+"""This module performs nodal analysis.  It is primarily for showing
+the equations rather than for evaluating them.
 
 Copyright 2019 Michael Hayes, UCECE
 
@@ -39,9 +38,19 @@ class NodalAnalysis(object):
     ... W 2 6; up
     ... C1 5 6; right=2
     ...''')    
-    >>>
-    >>> na = NodalAnalysis(cct.sub['s'])
+
+    To perform nodal analysis in the Laplace domain:
+
+    >>> na = NodalAnalysis(cct.laplace)
+    
+    To display the system of equations (in matrix form) that needs to
+    be solved:
+    
     >>> na.equations().pprint()
+    
+    To display the equations found by applying KCL at each node:
+    
+    >>> na.nodal_equations().pprint()
 
     """
 
@@ -139,7 +148,6 @@ class NodalAnalysis(object):
         """Return the equations in matrix form."""
         
         return expr(Eq(sym.MatMul(self.A, self.y), self.b))
-
 
 from .expr import Expr, ExprDict, expr
 from .texpr import Vt
