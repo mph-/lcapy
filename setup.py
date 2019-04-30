@@ -20,7 +20,7 @@ setup(name='lcapy',
                         'sympy',
                         'networkx',
       ],
-      packages=find_packages(),
+      packages=find_packages(exclude=['demo']),
       entry_points={
           'console_scripts': [
               'schtex=scripts.schtex:main',
