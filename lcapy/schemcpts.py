@@ -1085,11 +1085,18 @@ class TF1(FixedCpt):
 
         p = [node.pos for node in self.nodes]
 
+        centre1 = (p[0] + p[1]) * 0.5
+        centre2 = (p[2] + p[3]) * 0.5        
         centre = (p[0] + p[1] + p[2] + p[3]) * 0.25
-        q = self.tf(centre, ((-0.35, 0.3), (0.35, 0.3), (0, 0.375)))
+
+        q = self.tf(centre1, ((-0.1, 0.375), ))
         primary_dot = q[0]
-        secondary_dot = q[1]
-        labelpos = q[2]
+
+        q = self.tf(centre2, ((0.1, 0.375), ))        
+        secondary_dot = q[0]
+
+        q = self.tf(centre, ((0, 0.375),))
+        labelpos = q[0]
 
         s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
         s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
