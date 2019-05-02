@@ -552,7 +552,10 @@ class Schematic(NetfileMixin):
         if s == '':
             return s
 
-        return ' ' + s.replace('.', '@')
+        # It would be useful to sanitise known coordinates with a dot in them,
+        # e.g., (S1.c) -> (S1@c)
+        # However, also need to handle arguments of form (3.0cm)
+        return ' ' + s
                 
     def _tikz_draw(self, style_args='', **kwargs):
 
