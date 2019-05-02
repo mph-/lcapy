@@ -4,9 +4,9 @@ Copyright 2019 Michael Hayes, UCECE
 
 """
 
-# SymPy symbols to exclude.
+# SymPy symbols to exclude.  It might be easier to add the ones we want...
 exclude  = ('I', 'C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta',
-            'Le', 'Lt', 'Ge', 'Gt')
+            'Le', 'Lt', 'Ge', 'Gt', 'Ci')
 
 # Aliases for SymPy symbols
 aliases = {'delta': 'DiracDelta', 'step': 'Heaviside', 'u': 'Heaviside',
