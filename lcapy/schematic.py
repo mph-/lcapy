@@ -34,6 +34,10 @@ Copyright 2014--2019 Michael Hayes, UCECE
 #      of the nodes are assigned based on the distance along the
 #      longest path.
 
+# Strings starting with ;; are schematic options.  They are parsed in
+# netfile.py and added to the opts attribute of the netlist.  They get
+# passed to the draw method of the Schematic class.
+
 
 from __future__ import print_function
 from .latex import format_label
@@ -719,6 +723,8 @@ class Schematic(NetfileMixin):
            debug: True to display debug information
         """
 
+        # Add schematic options defined with ;; are stored in the append
+        # field of opts.
         for key, val in opts.items():
             if key not in kwargs or kwargs[key] is None:
                 kwargs[key] = val

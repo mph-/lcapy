@@ -109,7 +109,7 @@ class Cpt(object):
         prefix = self.name + '.'
         
         # Auxiliary nodes are used by lcapy, usually for finding
-        # the centre of the shape.
+        # the centre of the shape or to define a bounding box.
         auxiliary_node_names = []
         for pin in self.drawing_pins:
             auxiliary_node_names.append(prefix + pin)
