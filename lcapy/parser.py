@@ -213,7 +213,7 @@ class Parser(object):
         
         match = self.cpt_pattern.match(name)
         if match is None:
-            raise ValueError('Unknown component for %s' % name)
+            raise ValueError('Unknown component %s while parsing "%s"' % (name, string))
 
         groups = match.groups()
         cpt_type, cpt_id = groups[0], groups[1]
