@@ -17,15 +17,15 @@ labels.
 
 7. Convert voltage and current labels for s-models.  v(t) -> V(s), etc.
 
-8. Fix dot placement for mutual couplings.
+8. Generate system equations using nodal analysis.
 
-9. Generate system equations using nodal analysis.
+9. Generate system equations using loop analysis.
 
-10. Generate system equations using loop analysis.
+10. Independent namespaces for SVG files so they can be loaded into Jupyter notebook.
 
-11. Independent namespaces for SVG files so they can be loaded into Jupyter notebook.
+11. Draw twoports.
 
-12. Draw twoports.
+12. Treat ;; as dummy component so that can emit strings or process commands on the fly.
 
 
 Circuit analysis
