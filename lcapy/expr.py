@@ -159,6 +159,11 @@ class Expr(ExprPrint, ExprMisc):
         # This works in conjunction with LatexPrinter._print
         # It is a hack to allow printing of _Matrix types
         # and its elements.
+        # This also catches sym.latex(expr) where expr is
+        # an Lcapy expr.
+
+        if True:
+            return self.latex(**kwargs)
 
         expr = self.expr
         
