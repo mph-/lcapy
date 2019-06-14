@@ -27,6 +27,7 @@ labels.
 
 12. Treat ;; as dummy component so that can emit strings or process commands on the fly.
 
+13. If component has invisible attribute, do not count the connections
 
 Circuit analysis
 ================

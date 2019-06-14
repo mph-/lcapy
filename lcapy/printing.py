@@ -16,6 +16,7 @@ __all__ = ('pretty', 'pprint', 'latex', 'print_str')
 
 # LaTeX markup is nicer but it requires mathjax.
 
+# FIXME: should import from parser
 cpt_names = ('C', 'E', 'F', 'G', 'H', 'I', 'L', 'R', 'V', 'Y', 'Z', 'i', 'v')
 cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
 sub_super_pattern = re.compile(r"([_\^]){([\w]+)}")

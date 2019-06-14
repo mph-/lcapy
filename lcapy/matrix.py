@@ -71,9 +71,9 @@ class Matrix(sym.Matrix):
 
         return pprint(self)
 
-    def latex(self):
+    def latex(self, **kwargs):
 
-        return latex(self)
+        return latex(self, **kwargs)
 
     def canonical(self):
         return self

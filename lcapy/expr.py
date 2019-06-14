@@ -44,20 +44,20 @@ class ExprPrint(object):
         """Pretty print string with LHS name."""
         print(self.prettyans(name))
 
-    def latex(self):
+    def latex(self, **kwargs):
         """Make latex string."""
-        return latex(self)
+        return latex(self, **kwargs)
 
-    def latex_math(self):
+    def latex_math(self, **kwargs):
         """Make latex math-mode string."""
-        return '$' + self.latex() + '$'
+        return '$' + self.latex(**kwargs) + '$'
 
-    def latexans(self, name):
+    def latexans(self, name, **kwargs):
         """Print latex string with LHS name."""
         expr = self
         if isinstance(expr, Expr):
             expr = expr.expr
-        return latex(sym.Eq(sympify(name), expr))
+        return latex(sym.Eq(sympify(name), expr), **kwargs)
 
     
 class ExprMisc(object):

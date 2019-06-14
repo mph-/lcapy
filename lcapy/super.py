@@ -65,9 +65,9 @@ class Super(ExprDict):
         # hides the underlying way the signal is analysed.
         return self.decompose()
 
-    def latex(self):
+    def latex(self, **kwargs):
         """Latex"""
-        return latex(self._representation())
+        return latex(self._representation(), **kwargs)
     
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using

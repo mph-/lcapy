@@ -62,9 +62,9 @@ class Network(object):
         argsrepr = ', '.join([pretty(arg) for arg in self._tweak_args()])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
-    def latex(self):
+    def latex(self, **kwargs):
 
-        argsrepr = ', '.join([latex(arg) for arg in self._tweak_args()])
+        argsrepr = ', '.join([latex(arg, **kwargs) for arg in self._tweak_args()])
         return '\\mathrm{%s}(%s)' % (self.__class__.__name__, argsrepr)
 
     @property
