@@ -173,13 +173,18 @@ def sympify1(arg, symbols={}, evaluate=True, **assumptions):
 def sympify(expr, evaluate=True, **assumptions):
     """Create a SymPy expression.
 
-    By default, symbols are assumed to be positive unless real is
-    defined.
+    By default, symbols are assumed to be positive if no assumptions
+    are explicitly defined.
+
+    Note, this will not modify previously defined symbols with the
+    same name.  Thus you cannot change the assumptions.
 
     """
 
-    if 'real' not in assumptions and 'positive' not in assumptions:
+    if assumptions == {}:
         assumptions['positive'] = True
+        # Note this implies that imag is False.   Also note that all
+        # reals are considered complex (but with a zero imag part).
     return sympify1(expr, context.symbols, evaluate, **assumptions)
 
 
