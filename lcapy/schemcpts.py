@@ -1338,7 +1338,7 @@ class CCS(OnePort):
         return self.node_names[0:2]    
 
 
-class SPDT(StretchyCpt):
+class SPDT(FixedCpt):
     """SPDT switch"""
 
     can_mirror = True
@@ -1363,7 +1363,7 @@ class SPDT(StretchyCpt):
                 centre, self.args_str, self.angle, self.s)            
             
         # TODO, fix label position.
-        centre = (n1.pos + n3.pos) * 0.5 + Pos(0, -0.5)
+        centre = (n1.pos + n3.pos) * 0.5 + Pos(0.5, -0.5)
         s += self.draw_label(centre, **kwargs)
         return s
 

@@ -391,7 +391,7 @@ class Schematic(NetfileMixin):
         if cpt.type in ('O', 'P', 'W') or id_label.find('#') != -1:
             id_label = None
 
-        if cpt.type in ('S', 'U'):
+        if cpt.type in ('S', 'SW', 'U'):
             value_label = ''
             
         if cpt.args != ():
