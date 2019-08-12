@@ -284,10 +284,6 @@ class Cpt(object):
         return float(self.opts.get('aspect', self.default_aspect))
 
     @property
-    def anchor(self):
-        return self.opts.get('anchor', 'south west')
-    
-    @property
     def offset(self):
         return float(self.opts.get('offset', 0))
 
@@ -812,8 +808,8 @@ class A(Cpt):
     def draw(self, **kwargs):
 
         n = self.nodes[0]
-
-        s = r'  \draw [anchor=%s] (%s) node {%s};''\n' % (self.anchor, n.s, self.label(**kwargs))
+        s = r'  \draw [%s] (%s) node {%s};''\n' % (self.args_str, n.s,
+                                                   self.label(**kwargs))
         return s
     
         
