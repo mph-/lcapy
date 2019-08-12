@@ -1371,7 +1371,7 @@ class SPDT(FixedCpt):
     
     @property
     def coords(self):
-        return ((0, 0.17), (0.64, 0.34), (0.64, 0))
+        return ((0, 0.169), (0.632, 0.338), (0.632, 0))
 
     def draw(self, **kwargs):
 
