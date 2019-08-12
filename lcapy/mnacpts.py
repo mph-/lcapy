@@ -1125,6 +1125,7 @@ def make(classname, parent, name, cpt_type, cpt_id,
 
 
 # Dynamically create classes.
+defcpt('A', Misc, 'Annotation')
 defcpt('ADC', Misc, 'ADC')
 defcpt('AM', W, 'Ammeter')
 

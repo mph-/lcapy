@@ -225,7 +225,7 @@ class Cpt(object):
 
     @property
     def mirror(self):
-        return self.boolattr('mirror')
+        return self.boolattr('mirror')    
 
     @property
     def wire(self):
@@ -283,6 +283,10 @@ class Cpt(object):
     def aspect(self):
         return float(self.opts.get('aspect', self.default_aspect))
 
+    @property
+    def anchor(self):
+        return self.opts.get('anchor', 'south west')
+    
     @property
     def offset(self):
         return float(self.opts.get('offset', 0))
@@ -790,7 +794,29 @@ class Cpt(object):
         return r'  \draw[%s] (%s) node[] {%s};''\n'% (
             self.args_str, pos, self.label(**kwargs))
 
+class A(Cpt):
+    """Annotation."""
 
+    def xlink(self, graphs):
+        pass
+
+    def ylink(self, graphs):
+        pass
+
+    def xplace(self, graphs):
+        pass
+
+    def yplace(self, graphs):
+        pass        
+    
+    def draw(self, **kwargs):
+
+        n = self.nodes[0]
+
+        s = r'  \draw [anchor=%s] (%s) node {%s};''\n' % (self.anchor, n.s, self.label(**kwargs))
+        return s
+    
+        
 class StretchyCpt(Cpt):
 
     can_stretch = True

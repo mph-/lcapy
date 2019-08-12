@@ -12,6 +12,7 @@ comments = r'#%*'
 
 # Optional params are in square brackets.
 rules = r"""
+A: Aname Np; Annotation
 ADC: ADCname Np Nm; ADC
 AM: AMname Np Nm; Ammeter
 BAT: BATname Np Nm [Value]; Battery
