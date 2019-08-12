@@ -196,7 +196,7 @@ class Node(object):
             self._port = True
 
         self.elt_list.append(elt)
-        if elt.type not in ('O', ):
+        if elt.type not in ('A', 'O'):
             self._count += 1
 
     @property
