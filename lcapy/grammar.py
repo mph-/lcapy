@@ -49,8 +49,8 @@ Mnmos: Mname Nd Ng Ns nmos [Value]; N channel MOSFET
 Mpmos: Mname Nd Ng Ns pmos [Value]; P channel MOSFET
 MT: MTname Np Nm; Motor
 MX: MXname P P P; Mixer
-O: Oname Np Np [Value]; Open circuit
-P: Pname Np Np [Value]; Port
+O: Oname Np Np; Open circuit
+P: Pname Np Np; Port
 Q: Qname Nc Nb Ne [Value]; NPN transistor
 Qnpn: Qname Nc Nb Ne npn [Value]; NPN transistor
 Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor 
