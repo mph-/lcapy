@@ -16,7 +16,7 @@ from .sym import sympify, symsimplify, j, omegasym, symdebug
 from .sym import capitalize_name, tsym, symsymbol
 from .context import context
 from .printing import pprint, pretty, print_str, latex
-from .functions import sqrt, log10, atan2, gcd
+from .functions import sqrt, log10, atan2, gcd, exp
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
@@ -747,6 +747,18 @@ class Expr(ExprPrint, ExprMisc):
 
         return self.phase
 
+    @property
+    def polar(self):
+        """Return in polar format"""
+
+        return self.abs * exp(j * self.phase)
+
+    @property
+    def cartesian(self):
+        """Return in Cartesian format"""
+
+        return self.real + j * self.imag
+    
     @property
     def is_number(self):
 
