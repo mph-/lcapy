@@ -1111,16 +1111,10 @@ def make(classname, parent, name, cpt_type, cpt_id,
     # Create instance of component object
     newclass = classes[classname]
 
-    # Switch context
-    parent.context.switch()
-
     cpt = newclass(parent, name, cpt_type, cpt_id, string, opts_string, 
                    nodes, *args)
     # Add named attributes for the args?   Lname1, etc.
 
-    # Restore context
-    parent.context.restore()
-        
     return cpt
 
 

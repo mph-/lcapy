@@ -9,7 +9,7 @@ from sympy import Basic, Symbol, Expr, Atom
 from sympy.core.function import AppliedUndef
 import sympy as sym
 import re
-from .context import context
+from .state import state
 
 __all__ = ('symsymbol', 'sympify', 'simplify')
 
@@ -185,7 +185,7 @@ def sympify(expr, evaluate=True, **assumptions):
         assumptions['positive'] = True
         # Note this implies that imag is False.   Also note that all
         # reals are considered complex (but with a zero imag part).
-    return sympify1(expr, context.symbols, evaluate, **assumptions)
+    return sympify1(expr, state.context.symbols, evaluate, **assumptions)
 
 
 def symsymbol(name, **assumptions):

@@ -1,6 +1,6 @@
 from . import grammar
 from .parser import Parser
-
+from .state import state
 
 class NetfileMixin(object):
 
@@ -78,9 +78,12 @@ class NetfileMixin(object):
         to the negative node.
         """
 
+        # Switch context to capture new symbol definitions
+        state.switch_context(self.context)
         self._add(string)
         self._invalidate()
-
+        state.restore_context()
+        
     def _add(self, string, namespace=''):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive node and Nm is the negative node.

@@ -2,7 +2,7 @@ from __future__ import division
 from .sym import symsimplify
 from .functions import sqrt
 from .sym import pi
-from .context import context
+from .state import state
 from .omegaexpr import omegaExpr
 import sympy as sym
 import numpy as np
@@ -42,8 +42,8 @@ class noiseExpr(omegaExpr):
     one_sided = True
 
     def _new_nid(self):
-        context.nid += 1
-        return 'n%d' % context.nid
+        state.context.nid += 1
+        return 'n%d' % state.context.nid
 
     def __init__(self, val, **assumptions):
         if 'nid' not in assumptions or assumptions['nid'] is None:

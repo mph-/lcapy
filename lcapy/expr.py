@@ -14,7 +14,7 @@ from __future__ import division
 from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, symdebug
 from .sym import capitalize_name, tsym, symsymbol
-from .context import context
+from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp
 import numpy as np
@@ -977,8 +977,10 @@ class Expr(ExprPrint, ExprMisc):
 
         # Replace symbol names with symbol definitions to
         # avoid problems with real or positive attributes.
-        if name in context.symbols:
-            old = context.symbols[name]
+        if name in state.context.symbols:
+            old = state.context.symbols[name]
+        elif name in state.global_context.symbols:
+            old = state.global_context.symbols[name]            
         else:
             # Perhaps have symbol defined using sympy?
             pass

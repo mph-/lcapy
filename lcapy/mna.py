@@ -160,8 +160,6 @@ class MNA(object):
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
             branchdict[elt.name] = (n1, n2)
 
-        self.context.switch()
-
         vtype = Vtype(self.kind)
         itype = Itype(self.kind)
         assumptions = {}
@@ -202,8 +200,6 @@ class MNA(object):
                 self._Idict[elt.name] = itype(I, **assumptions).simplify()
             elif elt.type in ('I', ):
                 self._Idict[elt.name] = elt.Isc
-
-        self.context.restore()
 
     @property
     def A(self):

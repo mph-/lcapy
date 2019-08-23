@@ -12,13 +12,14 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from .sexpr import Hs, Zs, Ys
 from .symbols import j, s, omega
-from .context import global_context
+from .context import Context
 from .super import Vsuper, Isuper, Vname, Iname
 from .schematic import Schematic, Opts, SchematicOpts
 from .mna import MNA, Nodedict, Branchdict
 from .statespace import StateSpace
 from .netfile import NetfileMixin
 from .expr import Expr
+from .state import state
 from . import mnacpts
 from copy import copy
 from collections import OrderedDict
@@ -188,7 +189,7 @@ class NetlistMixin(object):
         self.namespaces = {}
         self.nodes = {}
         if context is None:
-            context = global_context.new()
+            context = Context()
         
         self.context = context
         self._init_parser(mnacpts)
@@ -234,6 +235,16 @@ class NetlistMixin(object):
         
         return self.netlist()
 
+    @property
+    def symbols(self):
+        return self.context.symbols
+
+    @property
+    def all_symbols(self):
+        symbols = self.context.symbols
+        symbols.update(state.global_context.symbols)
+        return symbols
+    
     @property
     def elements(self):
 
@@ -1309,7 +1320,7 @@ class SubNetlist(NetlistMixin, MNA):
 
         obj = netlist.select(kind=kind)
         # Need own context to avoid conflicts with Vn1 and Vn1(s), etc.
-        obj.context = global_context.new()        
+        obj.context = Context()        
         obj.kind = kind
         obj.__class__ = cls
         obj._analysis = obj.analyse()
