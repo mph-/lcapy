@@ -1,3 +1,9 @@
+"""This file provides the State class that maintains the global state.
+
+Copyright 2014--2019 Michael Hayes, UCECE
+
+"""
+
 from sympy.assumptions.assume import global_assumptions
 
 from .context import Context

@@ -20,6 +20,7 @@ from .statespace import StateSpace
 from .netfile import NetfileMixin
 from .expr import Expr
 from .state import state
+from .attrdict import AttrDict
 from . import mnacpts
 from copy import copy
 from collections import OrderedDict
@@ -187,7 +188,7 @@ class NetlistMixin(object):
 
         self._elements = OrderedDict()
         self.namespaces = {}
-        self.nodes = {}
+        self.nodes = AttrDict()
         if context is None:
             context = Context()
         

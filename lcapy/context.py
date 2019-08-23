@@ -1,14 +1,16 @@
-class AttrDict(dict):
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
+"""This file provides the Context class that maintains the context
+for a Circuit.
 
-        
+Copyright 2014--2019 Michael Hayes, UCECE
+
+"""
+
+from .attrdict import AttrDict
+
 class Context(object):
 
     def __init__(self):
         self.symbols = AttrDict()
         self.assumptions = {}
-        self.previous = None
         # Noise instance identifier
         self.nid = 0
