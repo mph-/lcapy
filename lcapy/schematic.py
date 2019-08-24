@@ -40,7 +40,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 
 from __future__ import print_function
-from .latex import format_label
+from .latex import format_label, latex_str
 from .expr import Expr
 from . import schemcpts
 import sympy as sym
@@ -153,12 +153,17 @@ class Node(object):
         self._port = False
         self._count = 0
         parts = name.split('_')
-        self.primary = len(parts) == 1
+        # Primary 1, 2, a, a_3.  Not primary _1, _2, _a, _a_3, 0_3, a_b_c
+        self.primary = (name[0] != '_' and len(parts) <= 2) and not (name[0].isdigit() and len(parts) != 1)
         self.elt_list = []
         self.pos = 'unknown'
         # Sanitised name
         self.s = name.replace('.', '@')
-        self.label = name
+
+        if self.primary and len(parts) > 1:
+            self.label = latex_str('$%s_{%s}$' % (parts[0], parts[1]))
+        else:
+            self.label = '$' + name.replace('_', r'\_') + '$'
         self.labelpos = None        
         self.pin = False
         self.pinlabel = ''
@@ -239,7 +244,7 @@ class Node(object):
             return self.count > 2
 
         if draw_nodes == 'primary':        
-            return '_' not in self.name
+            return self.primary
         
         raise ValueError('Unknown argument %s for draw_nodes' % draw_nodes)
 
@@ -249,6 +254,24 @@ class Node(object):
 
         return self._port or self.count == 1
 
+    def show_label(self, label_nodes):
+        
+        if self.label == '':
+            return False
+        
+        name = self.basename
+
+        # pins is for backward compatibility
+        if label_nodes in ('none', 'pins', 'false', False):
+            return False
+        elif label_nodes == 'alpha':
+            if not self.primary or not name[0].isalpha():
+                return False
+        elif label_nodes == 'primary':
+            if not self.primary:
+                return False
+
+        return True
     
 class Schematic(NetfileMixin):
 

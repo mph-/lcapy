@@ -560,23 +560,10 @@ class Cpt(object):
         return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
             anchor, node.s, node.pinname.replace('_', r'\_'))        
     
-
     def draw_node_label(self, node, label_nodes):
 
-        if node.label == '':
+        if not node.show_label(label_nodes):
             return ''
-        
-        name = node.basename
-
-        # pins is for backward compatibility
-        if label_nodes in ('none', 'pins', 'false', False):
-            return ''
-        elif label_nodes == 'alpha':
-            if not node.primary or not name[0].isalpha():
-                return ''
-        elif label_nodes == 'primary':
-            if not node.primary:
-                return ''
             
         anchors = {None: 'south east',
                    'c': 'south east',                   
@@ -585,7 +572,7 @@ class Cpt(object):
         anchor = anchors[node.labelpos]
 
         return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
-            anchor, node.s, node.label.replace('_', r'\_'))
+            anchor, node.s, node.label)
        
     def draw_labels(self, **kwargs):
 
