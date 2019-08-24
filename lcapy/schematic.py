@@ -153,7 +153,6 @@ class Node(object):
         self._port = False
         self._count = 0
         parts = name.split('_')
-        self.rootname = parts[0] if name[0] != '_' else name
         self.primary = len(parts) == 1
         self.elt_list = []
         self.pos = 'unknown'
@@ -257,8 +256,6 @@ class Schematic(NetfileMixin):
 
         self.elements = OrderedDict()
         self.nodes = {}
-        # Shared nodes (with same voltage)
-        self.snodes = {}
         self.hints = False
         self._init_parser(schemcpts)
         self.cpt_size = 1.2
@@ -321,13 +318,6 @@ class Schematic(NetfileMixin):
             # An auxiliary node can be made a proper node.
             node.auxiliary = False
         
-        vnode = node.rootname
-
-        if vnode not in self.snodes:
-            self.snodes[vnode] = []
-
-        if nodename not in self.snodes[vnode]:
-            self.snodes[vnode].append(nodename)
         return node
 
     def _cpt_add(self, cpt):
@@ -506,35 +496,6 @@ class Schematic(NetfileMixin):
         scale = self.node_spacing
         for n, node in self.nodes.items():
             node.pos = Pos(xpos[n] * scale, ypos[n] * scale)
-
-    def _make_wires1(self, snode_list):
-
-        num_wires = len(snode_list) - 1
-        if num_wires == 0:
-            return []
-
-        wires = []
-
-        # TODO: remove overdrawn wires...
-        for n in range(num_wires):
-            n1 = snode_list[n]
-            n2 = snode_list[n + 1]
-            
-            wires.append(self._parse('W_ %s %s' % (n1, n2)))
-
-        return wires
-
-    def _make_wires(self):
-        """Create implicit wires between common nodes."""
-
-        wires = []
-
-        snode_dir = self.snodes
-
-        for m, snode_list in enumerate(snode_dir.values()):
-            wires.extend(self._make_wires1(snode_list))
-
-        return wires
 
     def _setup(self):
         # This is called before node positions are assigned.
