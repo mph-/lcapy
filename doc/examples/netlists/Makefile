@@ -8,4 +8,4 @@ all: $(PNGFILES)
 	cd $(dir $@); ipython --matplotlib=gtk3 $(notdir $<)
 
 %.png: %.sch
-	cd $(dir $@); schtex.py $(notdir $<) $(notdir $@) 
+	cd $(dir $@); schtex $(notdir $<) $(notdir $@) 

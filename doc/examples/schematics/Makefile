@@ -12,16 +12,16 @@ pdf: $(PDF)
 tex: $(TEX)
 
 %.pytex: %.sch
-	cd $(dir $@); schtex.py $(notdir $<) $(notdir $@) 
+	cd $(dir $@); schtex $(notdir $<) $(notdir $@) 
 
 %.pdf: %.sch
-	cd $(dir $@); schtex.py $(notdir $<) $(notdir $@) 
+	cd $(dir $@); schtex $(notdir $<) $(notdir $@) 
 
 %.tex: %.sch
-	cd $(dir $@); schtex.py $(notdir $<) $(notdir $@) 
+	cd $(dir $@); schtex $(notdir $<) $(notdir $@) 
 
 %.png: %.sch
-	cd $(dir $@); schtex.py $(notdir $<) $(notdir $@) 
+	cd $(dir $@); schtex $(notdir $<) $(notdir $@) 
 
 clean:
 	-rm *.pdf

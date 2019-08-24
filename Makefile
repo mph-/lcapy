@@ -20,6 +20,7 @@ doc-install: doc
 	scp -r doc/_build/html/* lcapy.elec.canterbury.ac.nz:/var/www/lcapy/
 
 push:
+	git push
 	git push --tags
 
 .PHONY: doc
