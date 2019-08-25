@@ -7,6 +7,7 @@ from .expr import Expr
 from .printing import latex, pretty
 from .schematic import Schematic
 from .circuit import Circuit
+from .state import state
 
 class Network(object):
 
@@ -224,5 +225,18 @@ class Network(object):
     def kinds(self):
         """Return list of transform domain kinds."""        
         return self.cct.kinds
-    
 
+    @property
+    def symbols(self):
+        """Return dictionary of symbols defined in the network."""
+        
+        return self.cct.symbols
+
+    @property
+    def all_symbols(self):
+        """Return dictionary of symbols defined in the network and global
+        symbols."""
+
+        symbols = self.symbols
+        symbols.update(state.global_context.symbols)
+        return symbols

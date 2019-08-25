@@ -238,11 +238,16 @@ class NetlistMixin(object):
 
     @property
     def symbols(self):
+        """Return dictionary of symbols defined in the circuit."""
+        
         return self.context.symbols
 
     @property
     def all_symbols(self):
-        symbols = self.context.symbols
+        """Return dictionary of symbols defined in the circuit and global
+        symbols."""
+
+        symbols = self.symbols
         symbols.update(state.global_context.symbols)
         return symbols
     
