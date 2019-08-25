@@ -1098,10 +1098,10 @@ class TF1(FixedCpt):
         centre2 = (p[2] + p[3]) * 0.5        
         centre = (p[0] + p[1] + p[2] + p[3]) * 0.25
 
-        q = self.tf(centre1, ((-0.1, 0.375), ))
+        q = self.tf(centre1, ((-0.1, 0.25), ))
         primary_dot = q[0]
 
-        q = self.tf(centre2, ((0.1, 0.375), ))        
+        q = self.tf(centre2, ((0.1, 0.25), ))        
         secondary_dot = q[0]
 
         q = self.tf(centre, ((0, 0.375),))
