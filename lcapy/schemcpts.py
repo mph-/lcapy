@@ -2057,7 +2057,7 @@ class Udff(Chip):
             'vdd': ('t', 0.0, 0.5)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
-                 'd' : 'D', 'q' : 'Q', '/q' : '\overline{Q}', 'clk' : '>'}
+                 'd' : 'D', 'q' : 'Q', '/q' : '$\overline{\mathrm{Q}}$', 'clk' : '>'}
 
 class Ujkff(Chip):
     """JK flip-flop"""
@@ -2072,7 +2072,7 @@ class Ujkff(Chip):
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
                  'j' : 'J', 'k' : 'K',
-                 'q' : 'Q', '/q' : '\overline{Q}', 'clk' : '>'}    
+                 'q' : 'Q', '/q' : '$\overline{\mathrm{Q}}$', 'clk' : '>'}    
 
 
 class Urslatch(Chip):
@@ -2087,7 +2087,7 @@ class Urslatch(Chip):
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
                  'r' : 'R', 's' : 'S',
-                 'q' : 'Q', '/q' : '\overline{Q}'}    
+                 'q' : 'Q', '/q' : '$\overline{\mathrm{Q}}$'}    
     
     
 class Opamp(Chip):
