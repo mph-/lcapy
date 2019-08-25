@@ -108,5 +108,5 @@ class LcapyTester(unittest.TestCase):
         a = Vstep(10) + C('C1')
         self.assertEqual(a.is_causal, True, "causal fail")
         self.assertEqual(a.Isc.is_causal, True, "causal fail")        
-
+        
         

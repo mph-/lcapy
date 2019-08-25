@@ -37,7 +37,7 @@ def _hack_vars(exprs):
             sym1 = sympify(c + 'anon1(t)')
             sym2 = sympify(c + 'anon2(t)')            
             if expr.has(sym1) and not expr.has(sym2):
-                expr = expr.subs(sym1, sympify(c + '(t)'))
+                expr = expr.subs(sym1, sympify(c + '_(t)'))
                 exprs[m] = expr
                 
 
@@ -152,7 +152,8 @@ class StateSpace(object):
                 if node == '0':
                     continue
                 yexprs.append(self.sscct[node].v.subs(subsdict).expand())
-                y.append(Vt('vn%s(t)' % node))
+                # Note, this can introduce a name conflict
+                y.append(Vt('v_%s(t)' % node))
 
         if branch_currents:
             for name in cct.branch_list:
@@ -160,7 +161,7 @@ class StateSpace(object):
                 # state variable?
                 name2 = cpt_map[name]                    
                 yexprs.append(self.sscct[name2].i.subs(subsdict).expand())
-                y.append(It('i%s(t)' % name))                    
+                y.append(It('i_%s(t)' % name))                    
 
         Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
         D, b = sym.linear_eq_to_matrix(yexprs, *sourcesyms)
