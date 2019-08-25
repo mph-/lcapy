@@ -583,11 +583,11 @@ class Schematic(NetfileMixin):
             s += elt.draw_nodes(**kwargs)
             s += elt.draw_pins()
 
-        # Add the labels
+        # Add the node labels
         for m, elt in enumerate(self.elements.values()):
             if elt.ignore:
                 continue            
-            s += elt.draw_labels(**kwargs)            
+            s += elt.draw_node_labels(**kwargs)            
 
         # Add postamble
         s += self._postamble_add(kwargs.pop('append', ''))

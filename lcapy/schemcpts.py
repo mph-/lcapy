@@ -574,7 +574,7 @@ class Cpt(object):
         return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
             anchor, node.s, node.label)
        
-    def draw_labels(self, **kwargs):
+    def draw_node_labels(self, **kwargs):
 
         label_nodes = kwargs.get('label_nodes', 'primary')
 
@@ -2220,9 +2220,9 @@ class Wire(OnePort):
 
         if implicit:
             # Rename second node since this is spatially different from
-            # other nodes of the same name.  Add underscore so node
+            # other nodes of the same name.  Add underscore at start so node
             # not drawn.
-            node_names = (node_names[0], name + '@_' + node_names[1])
+            node_names = (node_names[0], '_' + name + '@' + node_names[1])
         
         super (Wire, self).__init__(sch, namespace, name, cpt_type,
                                     cpt_id, string,
