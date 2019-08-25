@@ -7,7 +7,7 @@ Copyright 2015--2019 Michael Hayes, UCECE
 
 
 from __future__ import print_function
-from .latex import format_label
+from .latex import latex_format_label
 from .schemmisc import Pos, Opts
 import numpy as np
 import sys
@@ -629,7 +629,7 @@ class Cpt(object):
         and return list of strings"""
 
         def fmt(key, val):
-            label = format_label(val)
+            label = latex_format_label(val)
             if label == '':
                 label = '{}'
             if not (label[0] == '{' and label[-1] == '}'):

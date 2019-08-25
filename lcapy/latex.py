@@ -64,7 +64,7 @@ def latex_str(string):
     return Latex(string).__str__()
 
 
-def format_label(s):
+def latex_format_label(s):
 
     if s == '':
         return s
@@ -89,3 +89,19 @@ def format_label(s):
         if math_symbol in s:
             return '$' + latex_str(s) + '$'
     return s
+
+
+def latex_format_node_label(s):
+
+    if s[0] == '_':
+        return s.replace('_', r'\_')
+
+    parts = s.split('_')
+    if len(parts) > 2:
+        raise ValueError('Double subscript in %s' % s)
+    elif len(parts) == 2:
+        return '%s$_{\mathrm{%s}$' % (parts[0], parts[1])
+
+    return s
+
+    

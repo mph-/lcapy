@@ -40,7 +40,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 
 from __future__ import print_function
-from .latex import format_label, latex_str
+from .latex import latex_format_label, latex_format_node_label
 from .expr import Expr
 from . import schemcpts
 import sympy as sym
@@ -164,11 +164,7 @@ class Node(object):
         self.pos = 'unknown'
         # Sanitised name
         self.s = name.replace('.', '@')
-
-        if self.primary and len(parts) > 1:
-            self.label = latex_str('$%s_{%s}$' % (parts[0], parts[1]))
-        else:
-            self.label = '$' + name.replace('_', r'\_') + '$'
+        self.label = latex_format_node_label(self.name)
         self.labelpos = None        
         self.pin = False
         self.pinlabel = ''
@@ -453,8 +449,8 @@ class Schematic(NetfileMixin):
         # expression, or symbol.  If this is not specified, it
         # defaults to the component identifier.  Note, some objects
         # we do not want to label, such as wires and ports.
-        cpt.id_label = '' if id_label is None else format_label(id_label)
-        cpt.value_label = cpt.id_label if value_label is None else format_label(value_label)
+        cpt.id_label = '' if id_label is None else latex_format_label(id_label)
+        cpt.value_label = cpt.id_label if value_label is None else latex_format_label(value_label)
 
         if cpt.opts_string != '':
             self.hints = True
