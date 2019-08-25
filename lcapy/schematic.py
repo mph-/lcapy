@@ -155,6 +155,11 @@ class Node(object):
         parts = name.split('_')
         # Primary 1, 2, a, a_3.  Not primary _1, _2, _a, _a_3, 0_3, a_b_c
         self.primary = (name[0] != '_' and len(parts) <= 2) and not (name[0].isdigit() and len(parts) != 1)
+
+        # See MX1.sch for example.
+        if '._' in name:
+            self.primary = False
+        
         self.elt_list = []
         self.pos = 'unknown'
         # Sanitised name
