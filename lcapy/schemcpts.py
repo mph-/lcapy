@@ -674,7 +674,7 @@ class Cpt(object):
     def args_list(self):
 
         def fmt(key, val):
-            return '%s=%s' % (key, format_label(val))
+            return '%s=%s' % (key, latex_format_label(val))
 
         keys = self.voltage_keys + self.current_keys + self.flow_keys + self.label_keys + self.misc_keys + self.implicit_keys
     
@@ -697,7 +697,7 @@ class Cpt(object):
             label_str = self.value_label        
 
         # Override label if specified.  There are no placement options.
-        string =  ','.join([format_label(val)
+        string =  ','.join([latex_format_label(val)
                             for key, val in self.opts.items()
                             if key in ('l', )])
 
@@ -1098,13 +1098,13 @@ class TF1(FixedCpt):
         centre2 = (p[2] + p[3]) * 0.5        
         centre = (p[0] + p[1] + p[2] + p[3]) * 0.25
 
-        q = self.tf(centre1, ((-0.1, 0.25), ))
+        q = self.tf(centre1, ((-0.1, 0.275), ))
         primary_dot = q[0]
 
-        q = self.tf(centre2, ((0.1, 0.25), ))        
+        q = self.tf(centre2, ((0.1, 0.275), ))        
         secondary_dot = q[0]
 
-        q = self.tf(centre, ((0, 0.375),))
+        q = self.tf(centre, ((0, 0.4),))
         labelpos = q[0]
 
         s = r'  \draw (%s) node[circ] {};''\n' % primary_dot

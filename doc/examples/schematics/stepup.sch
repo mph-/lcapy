@@ -1,4 +1,4 @@
-U1 chip2121; right, l=MCU, pinlabels={l2=PWM2, l1=PWM1}
+U1 chip2121; right, l=MCU, pinlabels={r2=PWM2, r1=PWM1}
 M1 9 10 11; right
 M2 12 13 14; right
 W U1.r1 10; right=0.1
