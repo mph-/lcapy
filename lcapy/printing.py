@@ -41,6 +41,12 @@ def canonical_name(name):
     # Convert R_{out} to R_out for SymPy to recognise.
     name = sub_super_pattern.sub(foo, name)
 
+    # Convert v_Cfoo to v_C_foo, etc.   This is required for
+    # state-space state variables.
+    if (len(name) >= 3 and name[0:2] in ('v_', 'V_', 'i_', 'I_') and
+        name[2] in ('L', 'C')):
+        return name[0:2] + canonical_name(name[2:])
+    
     if name.find('_') != -1:
         return name
 
@@ -66,7 +72,7 @@ def canonical_name(name):
     # Convert irms to i_rms, etc.
     if name[1:].lower() in subscripts:
         return name[0] + '_' + name[1:]    
-    
+
     return name
 
 

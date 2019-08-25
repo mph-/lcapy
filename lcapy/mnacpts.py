@@ -537,7 +537,7 @@ class C(RC):
     def ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another voltage source?
-        return '%sV%s %s %s; %s' % (self.namespace, self.relname,
+        return '%sV_%s %s %s; %s' % (self.namespace, self.relname,
                                     self.relnodes[0], self.relnodes[1], 
                                     self.opts)
         
@@ -823,7 +823,7 @@ class L(RLC):
     def ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another current source?        
-        return '%sI%s %s %s; %s' % (self.namespace, self.relname,
+        return '%sI_%s %s %s; %s' % (self.namespace, self.relname,
                                     self.relnodes[0], self.relnodes[1], 
                                     self.opts)
     

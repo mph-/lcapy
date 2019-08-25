@@ -4,6 +4,37 @@ from .config import subscripts
 
 sub_super_pattern = re.compile(r"([_\^]){([a-zA-Z]+)([0-9]*)}")
 
+# Perhaps could generalise?  For now, just look for symbols
+# generated for state-space state variables.
+double_sub_pattern = re.compile(r"([viVI])[_]([CL])[_]([a-zA-Z0-9]+)")
+
+def latex_mathrm(s):
+        
+    def foo(match):
+        
+        word = match.group(2)
+        suffix = word + match.group(3)
+        
+        # Perhaps look up dictionary to find valid words?
+        # Assume that if length 3 or more then a word.
+        if word.lower() in subscripts or len(word) > 2:
+            suffix = r'{\mathrm{%s}}' % suffix
+        else:
+            suffix = r'{%s}' % suffix
+        return match.group(1) + suffix
+
+    return sub_super_pattern.sub(foo, s)
+
+
+def latex_double_sub(s):
+
+    def foo(match):
+
+        s = '%s_{%s_{%s}}' % (match.group(1), match.group(2), match.group(3))
+        return s
+
+    return double_sub_pattern.sub(foo, s)
+
 
 class Latex(object):
 
@@ -14,27 +45,17 @@ class Latex(object):
     def mathrm(self):
         """Place words in sub- or super-scripts inside a mathrm.
         For example V_{rms} -> V_{\mathrm{rms}}"""
-        
-        
-        def foo(match):
-            
-            word = match.group(2)
-            suffix = word + match.group(3)
 
-            # Perhaps look up dictionary to find valid words?
-            # Assume that if length 3 or more then a word.
-            if word.lower() in subscripts or len(word) > 2:
-                suffix = r'{\mathrm{%s}}' % suffix
-            else:
-                suffix = r'{%s}' % suffix
-            return match.group(1) + suffix
-
-        return sub_super_pattern.sub(foo, self.str)
+        return latex_mathrm(self.str)
 
     def __str__(self):
-        
-        return self.mathrm()
 
+        s = self.str
+
+        s = latex_double_sub(s)
+
+        return latex_mathrm(s)
+            
 
 def latex_str(string):
 
@@ -68,4 +89,3 @@ def format_label(s):
         if math_symbol in s:
             return '$' + latex_str(s) + '$'
     return s
-
