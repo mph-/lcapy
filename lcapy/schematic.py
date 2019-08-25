@@ -108,7 +108,7 @@ class EngFormat(object):
 
         value = self.value
         if value == 0:
-            return '0' + self.unit
+            return '0' + '\,' + r'\mbox{' + self.unit + r'}'
 
         m = math.log10(abs(value))
 
