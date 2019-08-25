@@ -204,7 +204,7 @@ class Super(ExprDict):
     
     @property
     def is_causal(self):
-        return self.is_transient and self.s.is_causal
+        return (self.is_transient and self.s.is_causal) or self == 0
 
     @property
     def is_superposition(self):

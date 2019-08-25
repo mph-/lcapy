@@ -848,7 +848,7 @@ class Vstep(VoltageSource):
 
         self.args = (v, )
         v = cExpr(v)
-        self._Voc = Vsuper(tExpr(v) * Heaviside(t), causal=True)
+        self._Voc = Vsuper(tExpr(v) * Heaviside(t))
         self.v0 = v
 
 
@@ -976,7 +976,7 @@ class Istep(CurrentSource):
 
         self.args = (i, )
         i = cExpr(i)
-        self._Isc = Isuper(tExpr(i) * Heaviside(t), causal=True)
+        self._Isc = Isuper(tExpr(i) * Heaviside(t))
         self.i0 = i
 
 

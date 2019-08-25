@@ -33,15 +33,15 @@ class LcapyTester(unittest.TestCase):
 
         ss = a.ss
         
-        self.assertEqual2(expr(ss.x[0]), expr('vC1(t)'), "Incorrect state variable")
+        self.assertEqual2(expr(ss.x[0]), expr('v_C1(t)'), "Incorrect state variable")
         self.assertEqual2(expr(ss.y[0]), expr('vn1(t)'), "Incorrect output variable1")
         self.assertEqual2(expr(ss.y[1]), expr('vn2(t)'), "Incorrect output variable2")        
         self.assertEqual2(expr(ss.A[0]), expr('-1/(R1 * C1)'), "Incorrect A matrix")
         self.assertEqual2(expr(ss.B[0]), expr('1/(R1 * C1)'), "Incorrect B matrix")
-        self.assertEqual2(expr(ss.C[0]), expr(0), "Incorrect C[0] matrix")
-        self.assertEqual2(expr(ss.C[1]), expr(1), "Incorrect C[1] matrix")
-        self.assertEqual2(expr(ss.D[0]), expr(0), "Incorrect D[0] matrix")
-        self.assertEqual2(expr(ss.D[1]), expr(0), "Incorrect D[1] matrix")
+        self.assertEqual2(expr(ss.C[0]), expr(0), "Incorrect C[0] matrix element")
+        self.assertEqual2(expr(ss.C[1]), expr(1), "Incorrect C[1] matrix element")
+        self.assertEqual2(expr(ss.D[0]), expr(0), "Incorrect D[0] matrix element")
+        self.assertEqual2(expr(ss.D[1]), expr(0), "Incorrect D[1] matrix element")
         self.assertEqual2(expr(ss.eigenvalues[0]), expr('-1/(R1 * C1)'), "Incorrect eigenvalues")
         
         

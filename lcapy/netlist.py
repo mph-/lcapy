@@ -483,10 +483,14 @@ class NetlistMixin(object):
         Nm."""
 
         new = self.copy()
-        new.add('Vshort_ %d %d 0' % (Np, Nm))
+        if new.is_causal:
+            new.add('Vshort_ %d %d step 0' % (Np, Nm))
+        else:
+            new.add('Vshort_ %d %d 0' % (Np, Nm))            
+
         Isc = new.Vshort_.I
         new.remove('Vshort_')
-
+        
         return Isc
 
     def isc(self, Np, Nm):
