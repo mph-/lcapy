@@ -524,10 +524,10 @@ class NetlistMixin(object):
         return I(Isc) | Y(Ysc)
 
     def admittance(self, Np, Nm):
-        """Return s-domain admittance between nodes Np and Nm with independent 
-        sources killed.
-
-        """
+        """Return s-domain admittance between nodes Np and Nm with independent
+        sources killed and initial conditions ignored.  Since the
+        result is causal, the frequency domain admittance can be found by
+        substituting j * omega for s. """        
 
         new = self.kill()
 
@@ -541,9 +541,9 @@ class NetlistMixin(object):
 
     def impedance(self, Np, Nm):
         """Return s-domain impedance between nodes Np and Nm with independent
-        sources killed.
-
-        """
+        sources killed and initial conditions ignored.  Since the
+        result is causal, the frequency domain impedance can be found by
+        substituting j * omega for s. """
 
         new = self.kill()
 
@@ -586,15 +586,13 @@ class NetlistMixin(object):
         return 1 / self.reactance
         
     def transfer(self, N1p, N1m, N2p, N2m):
-        """Create s-domain voltage transfer function V2 / V1 where:
+        """Create s-domain voltage transfer function V2(s) / V1(s) where:
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
-        Note, independent sources are killed.
-
-        """
-
-        # TODO, work with AC models
+        Note, independent sources are killed and initial conditions
+        are ignored.  Since the result is causal, the frequency response
+        can be found by substituting j * omega for s."""
 
         new = self.kill()
         new._add('V1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
