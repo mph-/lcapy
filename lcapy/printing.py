@@ -109,8 +109,17 @@ class LcapyLatexPrinter(LatexPrinter):
         return super(LcapyLatexPrinter, self)._print(expr)
 
     def _print_Symbol(self, expr):
+
         expr = sym.Symbol(canonical_name(expr.name))                
-        return super(LcapyLatexPrinter, self)._print_Symbol(expr)    
+        parts = expr.name.split('_')        
+        s = super(LcapyLatexPrinter, self)._print_Symbol(expr)
+        if len(parts) >= 2:
+            # Sympy cannot print a symbol name with a double subscript
+            # using LaTeX.  This should be fixed in Sympy.
+            # Need to convert v_{C 1} to v_{C_{1}}
+            parts = s.split(' ')
+            s = parts[0] + '_{' + ''.join(parts[1:])[:-1] + '}}'
+        return s
 
     def _print_AppliedUndef(self, expr):
         name = canonical_name(expr.func.__name__)
@@ -133,7 +142,15 @@ class LcapyPrettyPrinter(PrettyPrinter):
         return super(LcapyPrettyPrinter, self)._print(expr)
 
     def _print_Symbol(self, expr):
+
         expr = sym.Symbol(canonical_name(expr.name))                
+        parts = expr.name.split('_')        
+        if len(parts) >= 2:
+            # Due to unicode limitations, Sympy cannot print a symbol
+            # name with a double subscript.  As a work-around combine
+            # the subscripts.  Note, Sympy converts 'v_C1' into
+            # 'v_C_1' so we need to clean up.
+            expr.name = parts[0] + '_' + ''.join(parts[1:])
         return super(LcapyPrettyPrinter, self)._print_Symbol(expr)
 
 
