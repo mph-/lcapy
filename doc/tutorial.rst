@@ -1173,11 +1173,11 @@ currents, or both.  By default the nodal voltages are chosen.  This
 vector is shown using the `y` attribute:
 
    >>> ss.y
-   ⎡vₙ₁(t)⎤
-   ⎢      ⎥
-   ⎢vₙ₂(t)⎥
-   ⎢      ⎥
-   ⎣vₙ₃(t)⎦
+   ⎡v₁(t)⎤
+   ⎢     ⎥
+   ⎢v₂(t)⎥
+   ⎢     ⎥
+   ⎣v₃(t)⎦
 
 The state equations are shown using the `state_equations` method:
 
@@ -1193,11 +1193,11 @@ The state equations are shown using the `state_equations` method:
 The output equations are shown using the `output_equations` method:
 
    >>> ss.output_equations()
-   ⎡vₙ₁(t)⎤   ⎡0   0⎤            ⎡1⎤       
-   ⎢      ⎥   ⎢     ⎥ ⎡i_L(t)⎤   ⎢ ⎥       
-   ⎢vₙ₂(t)⎥ = ⎢R₁  0⎥⋅⎢      ⎥ + ⎢1⎥⋅[v(t)]
-   ⎢      ⎥   ⎢     ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
-   ⎣vₙ₃(t)⎦   ⎣0   1⎦            ⎣0⎦       
+   ⎡v₁(t)⎤   ⎡0   0⎤            ⎡1⎤       
+   ⎢     ⎥   ⎢     ⎥ ⎡i_L(t)⎤   ⎢ ⎥       
+   ⎢v₂(t)⎥ = ⎢R₁  0⎥⋅⎢      ⎥ + ⎢1⎥⋅[v(t)]
+   ⎢     ⎥   ⎢     ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
+   ⎣v₃(t)⎦   ⎣0   1⎦            ⎣0⎦       
 
 
 The `A`, `B`, `C`, and `D` matrices are obtained using the attributes
@@ -1336,11 +1336,11 @@ The equations used to solve this can be found with the `equations` method:
             ⎛⎡1    -1            ⎤⎞       
             ⎜⎢──   ───  0   1  0 ⎥⎟       
             ⎜⎢R₁    R₁           ⎥⎟       
-   ⎡Vₙ₁ ⎤   ⎜⎢                   ⎥⎟   ⎡0 ⎤
+   ⎡V₁  ⎤   ⎜⎢                   ⎥⎟   ⎡0 ⎤
    ⎢    ⎥   ⎜⎢-1   1             ⎥⎟   ⎢  ⎥
-   ⎢Vₙ₂ ⎥   ⎜⎢───  ──   0   0  1 ⎥⎟   ⎢0 ⎥
+   ⎢V₂  ⎥   ⎜⎢───  ──   0   0  1 ⎥⎟   ⎢0 ⎥
    ⎢    ⎥   ⎜⎢ R₁  R₁            ⎥⎟   ⎢  ⎥
-   ⎢Vₙ₃ ⎥ = ⎜⎢                   ⎥⎟  ⋅⎢0 ⎥
+   ⎢V₃  ⎥ = ⎜⎢                   ⎥⎟  ⋅⎢0 ⎥
    ⎢    ⎥   ⎜⎢          1        ⎥⎟   ⎢  ⎥
    ⎢I_V1⎥   ⎜⎢ 0    0   ──  0  -1⎥⎟   ⎢10⎥
    ⎢    ⎥   ⎜⎢          R₂       ⎥⎟   ⎢  ⎥
@@ -1349,7 +1349,7 @@ The equations used to solve this can be found with the `equations` method:
             ⎜⎢                   ⎥⎟       
             ⎝⎣ 0    1   -1  0  0 ⎦⎠       
 
-Here `Vn1`, `Vn2`, and `Vn3` are the unknown node voltages for nodes 1, 2, and 3.  `I_V1` is the current through V1 and `I_L1` is the current through L1.
+Here `V1`, `V2`, and `V3` are the unknown node voltages for nodes 1, 2, and 3.  `I_V1` is the current through V1 and `I_L1` is the current through L1.
 
 
 The equations are similar for the transient response:
@@ -1359,11 +1359,11 @@ The equations are similar for the transient response:
                ⎛⎡1    -1                      ⎤⎞         
                ⎜⎢──   ───      0      1    0  ⎥⎟         
                ⎜⎢R₁    R₁                     ⎥⎟         
-   ⎡Vₙ₁(s) ⎤   ⎜⎢                             ⎥⎟   ⎡ 0  ⎤
+   ⎡V₁(s)  ⎤   ⎜⎢                             ⎥⎟   ⎡ 0  ⎤
    ⎢       ⎥   ⎜⎢-1   1                       ⎥⎟   ⎢    ⎥
-   ⎢Vₙ₂(s) ⎥   ⎜⎢───  ──       0      0    1  ⎥⎟   ⎢ 0  ⎥
+   ⎢V₂(s)  ⎥   ⎜⎢───  ──       0      0    1  ⎥⎟   ⎢ 0  ⎥
    ⎢       ⎥   ⎜⎢ R₁  R₁                      ⎥⎟   ⎢    ⎥
-   ⎢Vₙ₃(s) ⎥ = ⎜⎢                             ⎥⎟  ⋅⎢ 0  ⎥
+   ⎢V₃(s)  ⎥ = ⎜⎢                             ⎥⎟  ⋅⎢ 0  ⎥
    ⎢       ⎥   ⎜⎢                 1           ⎥⎟   ⎢    ⎥
    ⎢I_V1(s)⎥   ⎜⎢ 0    0   C₁⋅s + ──  0   -1  ⎥⎟   ⎢V(s)⎥
    ⎢       ⎥   ⎜⎢                 R₂          ⎥⎟   ⎢    ⎥
