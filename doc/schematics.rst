@@ -985,28 +985,28 @@ a Jupyter notebook, the svg format can be used with `draw(svg=True`).
 
 
 
-schtex.py
-=========
+schtex
+======
 
-`schtex.py` is a Python script that will generate a schematic from a
+`schtex` is a Python script that will generate a schematic from a
 netlist file.  For example, here's how a png file can be generated:
 
-   >>> schtex.py Dbridge.sch Dbridge.png
+   >>> schtex Dbridge.sch Dbridge.png
 
 The generated stand-alone LaTeX file can be obtained using:
 
-   >>> schtex.py Dbridge.sch Dbridge.tex
+   >>> schtex Dbridge.sch Dbridge.tex
 
 If you wish to include the schematic into a LaTeX file use:
 
-   >>> schtex.py Dbridge.sch Dbridge.schtex
+   >>> schtex Dbridge.sch Dbridge.schtex
 
 and then include the file with `\\input{Dbridge.schtex}`.
 
-`schtex.py` has many command line options to configure the drawing.
+`schtex` has many command line options to configure the drawing.
 These override the options specified in the netlist file.  For example:
 
-   >>> schtex.py --draw_nodes=connections --label_nodes=false --cpt-size=1 --help_lines=1 Dbridge.sch Dbridge.pdf
+   >>> schtex --draw_nodes=connections --label_nodes=false --cpt-size=1 --help_lines=1 Dbridge.sch Dbridge.pdf
 
 
 Drawing tips
