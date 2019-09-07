@@ -313,25 +313,45 @@ class Cpt(object):
 
     @property
     def Ys(self):
-        """Admittance (s-domain) of component in isolation."""
-        return self.cpt.Y
+        """Admittance (s-domain) measured across component.
+        For the admittance of the component in isolation use
+        .cpt.Y"""
+
+        return self.cct.admittance(*self.nodes)
 
     @property
     def Zs(self):
-        """Impedance (s-domain) of component in isolation."""
-        return self.cpt.Z
+        """Impedance (s-domain) measured across component.
+        For the impedance of the component in isolation use
+        .cpt.Z"""        
+
+        return self.cct.impedance(*self.nodes)    
     
     @property
     def Y(self):
-        """Admittance of component in isolation."""
+        """Admittance measured across component.  For the admittance of the
+        component in isolation use .cptY"""        
 
         return _YZtype_select(self.Ys, self.cct.kind)
 
     @property
     def Z(self):
+        """Impedance measured across component.  For the impedance of the
+        component in isolation use .cptZ"""
+
+        return _YZtype_select(self.Zs, self.cct.kind)
+
+    @property
+    def cptY(self):
+        """Admittance of component in isolation."""
+
+        return _YZtype_select(self.cpt.Y, self.cct.kind)
+
+    @property
+    def cptZ(self):
         """Impedance of component in isolation."""
 
-        return _YZtype_select(self.Zs, self.cct.kind)        
+        return _YZtype_select(self.cpt.Z, self.cct.kind)                
 
     @property
     def node_indexes(self):
@@ -499,7 +519,7 @@ class RC(RLC):
         if self.type == 'C' and cct.kind == 'dc':
             Y = 0
         else:
-            Y = self.Y.expr
+            Y = self.cptY.expr
 
         if n1 >= 0 and n2 >= 0:
             cct._G[n1, n2] -= Y
@@ -771,8 +791,8 @@ class K(Dummy):
         L1 = self.Lname1
         L2 = self.Lname2
 
-        ZL1 = cct.elements[L1].Z
-        ZL2 = cct.elements[L2].Z
+        ZL1 = cct.elements[L1].cptZ
+        ZL2 = cct.elements[L2].cptZ
 
         ZM = self.K * sqrt(ZL1 * ZL2).simplify()
 
@@ -811,7 +831,7 @@ class L(RLC):
         if cct.kind == 'dc':
             Z = 0
         else:
-            Z = self.Z.expr
+            Z = self.cptZ.expr
 
         cct._D[m, m] += -Z
 
