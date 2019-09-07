@@ -489,9 +489,9 @@ class NetlistMixin(object):
 
         new = self.copy()
         if new.is_causal:
-            new.add('Vshort_ %d %d step 0' % (Np, Nm))
+            new.add('Vshort_ %s %s step 0' % (Np, Nm))
         else:
-            new.add('Vshort_ %d %d 0' % (Np, Nm))            
+            new.add('Vshort_ %s %s 0' % (Np, Nm))            
 
         Isc = new.Vshort_.I
         new.remove('Vshort_')
@@ -535,7 +535,7 @@ class NetlistMixin(object):
 
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
-        new._add('Vin_ %d %d {DiracDelta(t)}' % (Np, Nm))
+        new._add('Vin_ %s %s {DiracDelta(t)}' % (Np, Nm))
         If = -new.Vin_.I
         new.remove('Vin_')
 
@@ -553,7 +553,7 @@ class NetlistMixin(object):
 
         # Connect 1 A s-domain current source between nodes and
         # measure voltage.
-        new._add('Iin_ %d %d {DiracDelta(t)}' % (Np, Nm))
+        new._add('Iin_ %s %s {DiracDelta(t)}' % (Np, Nm))
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
@@ -602,7 +602,7 @@ class NetlistMixin(object):
         if '0' not in new.nodes:
             new.add('W %s 0' % Nm)
         
-        new._add('V1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
+        new._add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
         V2 = new.Voc(N2p, N2m)
         V1 = new.V1_.V
@@ -623,7 +623,7 @@ class NetlistMixin(object):
             raise ValueError('Network contains independent sources')
 
         try:
-            self.add('V1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
+            self.add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
@@ -635,7 +635,7 @@ class NetlistMixin(object):
 
             self.remove('V1_')
 
-            self.add('I1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
+            self.add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
