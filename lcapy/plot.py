@@ -114,7 +114,7 @@ def plot_frequency(obj, f, **kwargs):
         ax2 = ax.twinx()
         kwargs['axes'] = ax2
         kwargs['linestyle'] = '--'
-        ax2 = plot_frequency(obj2, f, **kwargs)
+        ax2 = plot_frequency(obj2, f, second=True, **kwargs)
         return ax, ax2
 
     ax = kwargs.pop('axes', None)
@@ -142,11 +142,13 @@ def plot_frequency(obj, f, **kwargs):
         plot = plots[(False, log_frequency)]                    
 
     xlabel = kwargs.pop('xlabel', obj.domain_label)
-    ylabel = kwargs.pop('ylabel', obj.label)        
-    plot(f, V, **kwargs)
+    ylabel = kwargs.pop('ylabel', obj.label)                
+    ylabel2 = kwargs.pop('ylabel2', obj.label)
+    second = kwargs.pop('second', False)
 
+    plot(f, V, **kwargs)
     ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)    
+    ax.set_ylabel(ylabel2 if second else ylabel)
     ax.grid(True)
     return ax
 

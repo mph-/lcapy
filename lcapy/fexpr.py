@@ -45,12 +45,14 @@ class fExpr(sfwExpr):
         return self.time(**assumptions).laplace()
     
     def plot(self, fvector=None, **kwargs):
-        """Plot frequency response at values specified by fvector.
+        """Plot frequency response at values specified by fvector.  If fvector
+        is a tuple, this sets the frequency limits.
 
         plot_type can be 'dB_phase', 'mag-phase', 'real-imag', 'mag', 'phase',
         'real', or 'imag'.
 
-        There are many plotting options, see matplotlib.pyplot.plot.
+        There are many plotting options, see lcapy.plot and
+        matplotlib.pyplot.plot.
 
         For example:
             V.plot(fvector, log_frequency=True)
@@ -59,6 +61,7 @@ class fExpr(sfwExpr):
 
         By default complex data is plotted as separate plots of magnitude (dB)
         and phase.
+
         """
 
         from .plot import plot_frequency
