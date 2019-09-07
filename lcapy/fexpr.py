@@ -47,6 +47,9 @@ class fExpr(sfwExpr):
     def plot(self, fvector=None, **kwargs):
         """Plot frequency response at values specified by fvector.
 
+        plot_type can be 'dB_phase', 'mag-phase', 'real-imag', 'mag', 'phase',
+        'real', or 'imag'.
+
         There are many plotting options, see matplotlib.pyplot.plot.
 
         For example:

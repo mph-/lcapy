@@ -96,6 +96,14 @@ def plot_frequency(obj, f, **kwargs):
         elif plot_type == 'real_imag':
             obj1 = obj.real
             obj2 = obj.imag
+        elif plot_type == 'mag':
+            obj1 = obj.magnitude
+        elif plot_type == 'phase':
+            obj1 = obj.phase
+        elif plot_type == 'real':
+            obj1 = obj.real 
+        elif plot_type == 'imag':
+            obj1 = obj.imag
         else:
             raise ValueError('Unknown plot type: %s' % plot_type)
 
