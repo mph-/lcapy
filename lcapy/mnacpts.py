@@ -186,7 +186,7 @@ class Cpt(object):
         return self.copy()
 
     def ss_model(self):
-        """Return preliminary state-space model of component."""
+        """Return state-space model of component."""
 
         return self.copy()            
 
@@ -313,26 +313,25 @@ class Cpt(object):
 
     @property
     def Ys(self):
-        """Admittance (s-domain)"""
+        """Admittance (s-domain) of component in isolation."""
         return self.cpt.Y
 
     @property
     def Zs(self):
-        """Impedance (s-domain)"""
+        """Impedance (s-domain) of component in isolation."""
         return self.cpt.Z
     
     @property
     def Y(self):
-        """Admittance"""
+        """Admittance of component in isolation."""
 
         return _YZtype_select(self.Ys, self.cct.kind)
 
     @property
     def Z(self):
-        """Impedance"""
+        """Impedance of component in isolation."""
 
         return _YZtype_select(self.Zs, self.cct.kind)        
-
 
     @property
     def node_indexes(self):

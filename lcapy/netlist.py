@@ -530,6 +530,8 @@ class NetlistMixin(object):
         substituting j * omega for s. """        
 
         new = self.kill()
+        if '0' not in new.nodes:
+            new.add('W %s 0' % Nm)        
 
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
@@ -546,6 +548,8 @@ class NetlistMixin(object):
         substituting j * omega for s. """
 
         new = self.kill()
+        if '0' not in new.nodes:
+            new.add('W %s 0' % Nm)
 
         # Connect 1 A s-domain current source between nodes and
         # measure voltage.
@@ -595,6 +599,9 @@ class NetlistMixin(object):
         can be found by substituting j * omega for s."""
 
         new = self.kill()
+        if '0' not in new.nodes:
+            new.add('W %s 0' % Nm)
+        
         new._add('V1_ %d %d {DiracDelta(t)}' % (N1p, N1m))
 
         V2 = new.Voc(N2p, N2m)
