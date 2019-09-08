@@ -1155,6 +1155,8 @@ defcpt('Dzener', 'D', 'Zener diode')
 defcpt('Eopamp', E, 'Opamp')
 defcpt('Efdopamp', E, 'Fully differential opamp')
 
+defcpt('FS', Misc, 'Fuse')
+
 defcpt('sI', I, 's-domain current source')
 defcpt('Isin', I, 'Sinusoidal current source')
 defcpt('Idc', I, 'DC current source')

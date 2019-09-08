@@ -29,6 +29,7 @@ Eopamp: Ename Np Nm opamp Ncp Ncm [Value]; Opamp
 Efdopamp: Ename Np Nm fdopamp Ncp Ncm [Value]; Fully differential opamp
 F: Fname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
 FB: FBname Np Nm; Ferrite bead
+FS: FSname Np Nm; Fuse
 G: Gname Np Nm Ncp Ncm [Value]; Voltage controlled current source
 GY: GYname Np Nm Ncp Ncm [Value]; Gyrator
 H: Hname Np Nm Vcontrol [Value]; Current controlled voltage source (note the control current is specified through a voltage source)

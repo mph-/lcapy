@@ -2404,6 +2404,9 @@ defcpt('F', VCS, 'CCCS', 'american controlled current source')
 defcpt('G', CCS, 'VCCS', 'american controlled current source')
 defcpt('H', CCS, 'CCVS', 'american controlled voltage source')
 
+
+defcpt('FS', OnePort, 'Fuse', 'fuse')
+
 defcpt('GY', Gyrator, 'Gyrator', 'gyrator')
 
 defcpt('I', OnePort, 'Current source', 'I')
