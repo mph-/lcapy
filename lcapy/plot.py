@@ -11,7 +11,7 @@ import numpy as np
 
 def plot_pole_zero(obj, **kwargs):
 
-    from matplotlib.pyplot import figure
+    from matplotlib.pyplot import subplots
     
     poles = obj.poles()
     zeros = obj.zeros()
@@ -23,9 +23,7 @@ def plot_pole_zero(obj, **kwargs):
 
     ax = kwargs.pop('axes', None)
     if ax is None:
-        figsize = kwargs.pop('figsize', (8, 6))        
-        fig = figure(figsize=figsize)
-        ax = fig.add_subplot(111)
+        fig, ax = subplots(1)
     ax.axvline(0, color='0.7')
     ax.axhline(0, color='0.7')
     ax.axis('equal')
@@ -72,7 +70,7 @@ def plot_pole_zero(obj, **kwargs):
 
 def plot_frequency(obj, f, **kwargs):
 
-    from matplotlib.pyplot import figure
+    from matplotlib.pyplot import subplots
 
     # FIXME, determine useful frequency range...
     if f is None:
@@ -119,9 +117,7 @@ def plot_frequency(obj, f, **kwargs):
 
     ax = kwargs.pop('axes', None)
     if ax is None:
-        figsize = kwargs.pop('figsize', (8, 6))
-        fig = figure(figsize=figsize)        
-        ax = fig.add_subplot(111)
+        fig, ax = subplots(1)        
 
     V = obj.evaluate(f)
 
@@ -168,7 +164,7 @@ def plot_angular_frequency(obj, omega, **kwargs):
 
 def plot_time(obj, t, **kwargs):
 
-    from matplotlib.pyplot import figure
+    from matplotlib.pyplot import subplots
     
     # FIXME, determine useful time range...
     if t is None:
@@ -182,9 +178,7 @@ def plot_time(obj, t, **kwargs):
 
     ax = kwargs.pop('axes', None)
     if ax is None:
-        figsize = kwargs.pop('figsize', (8, 6))
-        fig = figure(figsize=figsize)
-        ax = fig.add_subplot(111)
+        fig, ax = subplots(1)        
     xlabel = kwargs.pop('xlabel', obj.domain_label)
     ylabel = kwargs.pop('ylabel', obj.label)
     ax.plot(t, v, **kwargs)
