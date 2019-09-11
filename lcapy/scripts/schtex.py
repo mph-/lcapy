@@ -2,7 +2,7 @@
 """schtex V0.1
 Copyright (c) 2014--2019 Michael P. Hayes, UC ECE, NZ
 
-Usage: schtex infile.sch [outfile.tex|pdf|png|svg]
+Usage: schtex infile.sch [outfile.tex|pdf|png|svg|sch]
 """
 
 from __future__ import print_function
@@ -143,6 +143,11 @@ def main (argv=None):
     if options.p_model:
         cct = cct.pre_initial_model()
 
+    base, ext = os.path.splitext(outfilename)
+    if ext == '.sch':
+       open(outfilename, 'w').write(str(cct))
+       return 0
+        
     if options.label_nodes not in ('none', 'all', 'alpha', 'pins', 'primary', False, None):
         raise ValueError('Illegal option %s for label_nodes' % options.label_nodes)
 
