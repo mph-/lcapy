@@ -425,6 +425,35 @@ class NetlistMixin(object):
             for m, enode in enumerate(snodes[1:]):
                 node_map[enode] = root + '_%d' % (m + 1)
         return node_map
+
+    def augment_node_map(self, node_map):
+        """Create a mapping dict for all nodes."""
+
+        numbers = {}
+        for m in range(len(self.nodes)):
+            numbers['%s' % (m + 1)] = m + 1
+        
+        for old, new in node_map.items():
+            if old not in self.nodes:
+                raise ValueError('Unknown node %s' % old)
+            if new in numbers:
+                numbers.pop(new)
+
+        numbers = list(numbers)
+                
+        full_node_map = node_map.copy()
+        for node in self.nodes:
+            if node not in full_node_map:
+                if node == '0':
+                    full_node_map[node] = node
+                else:
+                    full_node_map[node] = '?' + node
+
+        for node in self.nodes:
+            if full_node_map[node][0] == '?':
+                full_node_map[node] = numbers.pop()
+
+        return full_node_map
     
     def renumber(self, node_map=None):
         """Renumber nodes using specified node_map.  If node_map not specified
@@ -432,6 +461,9 @@ class NetlistMixin(object):
 
         if node_map is None:
             node_map = self.create_node_map()
+            
+        if len(node_map) != len(self.nodes):
+            node_map = self.augment_node_map(node_map)
 
         new = self._new()
         new.opts = copy(self.opts)
