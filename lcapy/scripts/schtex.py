@@ -117,6 +117,10 @@ def main (argv=None):
                       default=False,
                       help="enter python debugger on exception")    
 
+    parser.add_option('--renumber', type='str',
+                      dest='renumber', default=None,
+                      help='renumber nodes, e.g, 10:1, 11:2')
+    
     (options, args) = parser.parse_args()
 
     if len(args) < 1:
@@ -143,10 +147,21 @@ def main (argv=None):
     if options.p_model:
         cct = cct.pre_initial_model()
 
+    if options.renumber:
+        parts = options.renumber.split(',')
+        node_map = {}
+        for part in parts:
+            part = part.strip()
+            fields = part.split(':')
+            if len(fields) != 2:
+                raise ValueError('Expecting mapping of form a:b got %s' % part)
+            node_map[fields[0]] = fields[1]
+        cct = cct.renumber(node_map)
+        
     base, ext = os.path.splitext(outfilename)
     if ext == '.sch':
-       open(outfilename, 'w').write(str(cct))
-       return 0
+        open(outfilename, 'w').write(str(cct))
+        return 0
         
     if options.label_nodes not in ('none', 'all', 'alpha', 'pins', 'primary', False, None):
         raise ValueError('Illegal option %s for label_nodes' % options.label_nodes)
