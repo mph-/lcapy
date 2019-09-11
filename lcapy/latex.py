@@ -51,9 +51,6 @@ class Latex(object):
     def __str__(self):
 
         s = self.str
-
-        s = latex_double_sub(s)
-
         return latex_mathrm(s)
             
 

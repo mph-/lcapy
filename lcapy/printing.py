@@ -1,6 +1,6 @@
 import re
 from .config import print_expr_map, functions, words, subscripts, junicode
-from .latex import latex_str
+from .latex import latex_str, latex_double_sub
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
 from sympy.printing.pretty.pretty import PrettyPrinter
@@ -117,8 +117,12 @@ class LcapyLatexPrinter(LatexPrinter):
             # Sympy cannot print a symbol name with a double subscript
             # using LaTeX.  This should be fixed in Sympy.
             # Need to convert v_{C 1} to v_{C_{1}}
-            parts = s.split(' ')
-            s = parts[0] + '_{' + ''.join(parts[1:])[:-1] + '}}'
+            parts2 = s.split(' ')
+            if len(parts2) >= 2:
+                s = parts2[0] + '_{' + ''.join(parts2[1:])[:-1] + '}}'
+
+        #s = latex_double_sub(s)
+        s = latex_str(s)
         return s
 
     def _print_AppliedUndef(self, expr):
@@ -151,9 +155,10 @@ class LcapyPrettyPrinter(PrettyPrinter):
             # the subscripts.  Note, Sympy converts 'v_C1' into
             # 'v_C_1' so we need to clean up.
             expr.name = parts[0] + '_' + ''.join(parts[1:])
-        return super(LcapyPrettyPrinter, self)._print_Symbol(expr)
+        s = super(LcapyPrettyPrinter, self)._print_Symbol(expr)
+        return s
 
-
+    
 def print_str(expr):
     """Convert expression into a string."""
     
@@ -216,7 +221,7 @@ def latex(expr, fold_frac_powers=False, fold_func_brackets=False,
         # operatorname requires amsmath so switch to mathrm
         string = r'\mathrm{%s}' % match.groups()[0].replace('\\_', '_')
 
-    return latex_str(string)
+    return string
 
 
 from sympy import init_printing
