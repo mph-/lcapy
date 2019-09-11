@@ -403,65 +403,64 @@ class NetlistMixin(object):
 
         self._node_map = node_map
         return node_map
+    
+    def augment_node_map(self, node_map={}):
+        """Create a mapping dict for all nodes."""
 
-    def create_node_map(self):
         # It would be desirable to renumber the nodes say from left to
         # right and top to bottom.  The schematic drawing algorithms
         # could help with this since they figure out the node
         # placement. 
-
-        enodes = self.equipotential_nodes
-        node_map = {}
         
-        count = 1        
-        for key, nodes in enodes.items():
-            snodes = sorted(nodes)
-            if snodes[0] == '0':
-                root = '0'
-            else:
-                root = '%d' % count            
-                count += 1
-            node_map[snodes[0]] = root
-            for m, enode in enumerate(snodes[1:]):
-                node_map[enode] = root + '_%d' % (m + 1)
-        return node_map
+        enodes = self.equipotential_nodes
 
-    def augment_node_map(self, node_map):
-        """Create a mapping dict for all nodes."""
-
-        numbers = {}
-        for m in range(len(self.nodes)):
-            numbers['%s' % (m + 1)] = m + 1
+        if '0' in self.nodes and '0' not in node_map:
+            node_map['0'] = '0'
+        
+        numbers = []
+        for m in range(len(enodes)):
+            numbers.append('%s' % (m + 1))
         
         for old, new in node_map.items():
             if old not in self.nodes:
                 raise ValueError('Unknown node %s' % old)
             if new in numbers:
-                numbers.pop(new)
+                numbers.remove(new)
 
-        numbers = list(numbers)
+        # Ensure that enode keys are the nodes to be renamed.
+        enodes2 = {}
+        for key, nodes in enodes.items():
+            newkey = None
+            for node in nodes:
+                if node not in node_map:
+                    continue
+                if newkey is not None:
+                    # TODO, FIXME
+                    raise ValueError('Cannot rename two nodes of same potential')
+                newkey = node_map[node]
+            if newkey is None:
+                newkey = numbers.pop(0)
+            enodes2[key] = (newkey, nodes)
+
+        for key, foo in enodes2.items():
+
+            newkey, nodes = foo
+            
+            snodes = sorted(nodes.copy())
+
+            root = newkey
+            snodes.remove(key)
+            node_map[key] = root
                 
-        full_node_map = node_map.copy()
-        for node in self.nodes:
-            if node not in full_node_map:
-                if node == '0':
-                    full_node_map[node] = node
-                else:
-                    full_node_map[node] = '?' + node
+            for m, enode in enumerate(snodes):
+                node_map[enode] = root + '_%d' % (m + 1)
 
-        for node in self.nodes:
-            if full_node_map[node][0] == '?':
-                full_node_map[node] = numbers.pop()
-
-        return full_node_map
+        return node_map
     
-    def renumber(self, node_map=None):
+    def renumber(self, node_map={}):
         """Renumber nodes using specified node_map.  If node_map not specified
         then a mapping is created."""
 
-        if node_map is None:
-            node_map = self.create_node_map()
-            
         if len(node_map) != len(self.nodes):
             node_map = self.augment_node_map(node_map)
 
