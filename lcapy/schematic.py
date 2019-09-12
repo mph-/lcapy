@@ -265,6 +265,8 @@ class Node(object):
         # pins is for backward compatibility
         if label_nodes in ('none', 'pins', 'false', False):
             return False
+        elif label_nodes in ('all', 'true', True):
+            return True
         elif label_nodes == 'alpha':
             if not self.primary or not name[0].isalpha():
                 return False
@@ -272,7 +274,12 @@ class Node(object):
             if not self.primary:
                 return False
 
-        return True
+        # handle label_nodes = '{1, 2}' etc.
+        if label_nodes[0] == '{' and label_nodes[-1] == '}':
+            label_nodes = label_nodes[1:-1]
+        labels = [foo.strip() for foo in label_nodes.split(',')]
+        return self.label in labels
+    
     
 class Schematic(NetfileMixin):
 

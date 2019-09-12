@@ -47,7 +47,7 @@ def main (argv=None):
 
     parser.add_option('--label-nodes', type='str',
                       dest='label_nodes', default=None,
-                      help='label nodes, choice: none, alpha, pins, primary, all')
+                      help='label nodes, choice: none, alpha, pins, primary, all or a list of comma separated node names in braces, e.g, {1, 2, 3}')
 
     parser.add_option('--nolabel-nodes', action='store_false',
                       dest='label_nodes',
