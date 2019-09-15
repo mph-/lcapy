@@ -181,20 +181,32 @@ class Parser(object):
         self.ruledir[cpt_type] += (Rule(cpt_type, cpt_classname,
                                         params, comment, pos), )
 
-    def parse(self, string, parent=None):
+    def parse(self, string, namespace='', parent=None):
         """Parse string and create object"""
 
-        string = string.strip()
-        if string == '':
-            return None
+        directive = False
+        net = string.strip()
+        if net == '':
+            directive = True
+        elif net[0] in self.comments:
+            directive = True            
+        elif net[0] == ';':
+            directive = True                        
+        elif net[0] == '.':
+            directive = True
 
-        if string[0] in self.comments:
-            return None
+        if directive:
+            cpt_type = 'XX'
+            cpt_id = ''
+            name = 'XX'
+            name += parent._make_anon(cpt_type)
+            return self.cpts.make('XX', parent, '', name, cpt_type,
+                                  cpt_id, string, '', (), '')
 
-        self.string = string
-        fields = string.split(';', 1)
-
-        fields = split(fields[0], self.delimiters)
+        net = namespace + net
+        parts = net.split(';', 1)
+        
+        fields = split(parts[0], self.delimiters)
 
         # Strip {} and "".
         for m, field in enumerate(fields):
@@ -208,12 +220,9 @@ class Parser(object):
             namespace = '.'.join(parts[0:-1]) + '.'
         name = parts[-1]
 
-        if name[0] in self.comments:
-            return None
-        
         match = self.cpt_pattern.match(name)
         if match is None:
-            raise ValueError('Unknown component %s while parsing "%s"' % (name, string))
+            raise ValueError('Unknown component %s while parsing "%s"' % (name, net))
 
         groups = match.groups()
         cpt_type, cpt_id = groups[0], groups[1]
@@ -241,14 +250,14 @@ class Parser(object):
             # For example, cct.Z.
             name += parent._make_anon(cpt_type)
 
-        nodes, args = rule.process(self.paramdir, string, fields, name, 
+        nodes, args = rule.process(self.paramdir, net, fields, name, 
                                    namespace)
 
-        fields = string.split(';', 1)
-        opts_string = fields[1].strip() if len(fields) > 1 else '' 
+        parts = net.split(';', 1)
+        opts_string = parts[1].strip() if len(parts) > 1 else '' 
 
         keyword = (pos, keyword)
 
         return self.cpts.make(rule.classname, parent, namespace, name,
-                              cpt_type, cpt_id, string, opts_string,
+                              cpt_type, cpt_id, net, opts_string,
                               tuple(nodes), keyword, *args)

@@ -53,6 +53,7 @@ class Cpt(object):
     need_branch_current = False
     need_extra_branch_current = False    
     need_control_current = False
+    directive = False    
 
     def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
@@ -76,7 +77,8 @@ class Cpt(object):
                     node = node[len(self.namespace):]
                 self.relnodes.append(node)
 
-        self.net = string.split(';')[0]
+        self.string = string
+        #self.net = string.split(';')[0]
         # This is the initial opts_string from which the opts attribute
         # is derived.
         self.opts_string = opts_string
@@ -87,7 +89,7 @@ class Cpt(object):
         self.opts = {}
 
         # No defined cpt
-        if self.type in ('W', 'O', 'P', 'K'):
+        if self.type in ('W', 'O', 'P', 'K', 'XX'):
             return
 
         if args is () or (self.type in ('F', 'H') and len(args) == 1):
@@ -114,10 +116,7 @@ class Cpt(object):
         return self.__str__()
 
     def __str__(self):
-
-        if self.opts == {}:
-            return self.net
-        return self.net + '; ' + str(self.opts)
+        return self.string
 
     def stamp(self, cct):
         raise NotImplementedError('stamp method not implemented for %s' % self)
@@ -399,17 +398,6 @@ class Misc(Invalid):
         raise NotImplementedError('Cannot analyse misc component: %s' % self)
 
 
-class Directive(Cpt):
-
-    def __init__(self, cct, namespace, string):
-
-        super (Directive, self).__init__(cct, namespace, '?', '?', '?',
-                                         string, '', [], '')
-
-    def stamp(self, cct):
-        pass
-
-
 class Dummy(Cpt):
 
     causal = True
@@ -418,6 +406,13 @@ class Dummy(Cpt):
     zeroic = True
     hasic = None
     noisy = False
+
+
+class XX(Dummy):
+    directive = True
+    
+    def stamp(self, cct):
+        pass
 
     
 class IndependentSource(Cpt):

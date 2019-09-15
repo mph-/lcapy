@@ -54,23 +54,18 @@ class NetfileMixin(object):
             string = string[3:].strip()
         
         if string == '':
-            return self._directive(string, namespace)
-
-        if string[0] == ';':
+            pass
+        elif string[0] == ';':
             # Strings starting with ;; are schematic options.
             if hasattr(self, 'opts'):
                 self.opts.add(string[1:])
-            return self._directive(string, namespace)                
-
-        if string[0:9] == '.include ':
+        elif string[0:9] == '.include ':
             self._include(string)
-            return self._directive(string, namespace)
-
-        if string[0:4] == '.pdb':
-            import pdb; pdb.set_trace()
             return None
+        elif string[0:4] == '.pdb':
+            import pdb; pdb.set_trace()
 
-        cpt = self.parser.parse(namespace + string, self)
+        cpt = self.parser.parse(string, namespace, self)
         return cpt
 
     def add(self, string):

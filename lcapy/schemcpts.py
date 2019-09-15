@@ -70,6 +70,7 @@ class Cpt(object):
     default_pins = ()
     pins = {}
     drawing_pins = {}
+    directive = False        
 
     @property
     def s(self):
@@ -85,6 +86,7 @@ class Cpt(object):
         self.name = name
         self.namespace = namespace
 
+        self.string = string
         self.net = string.split(';')[0]
         self.opts_string = opts_string
 
@@ -163,10 +165,7 @@ class Cpt(object):
         return self.__str__()
 
     def __str__(self):
-
-        if self.opts == {}:
-            return self.net
-        return self.net + '; ' + str(self.opts)
+        return self.string
 
     @property
     def size(self):
@@ -1181,8 +1180,8 @@ class K(TF1):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super (K, self).__init__(sch, namespace, name, cpt_type, cpt_id, string,
-                                 opts_string, node_names, keyword, *args[2:])
+        super(K, self).__init__(sch, namespace, name, cpt_type, cpt_id, string,
+                                opts_string, node_names, keyword, *args[2:])
 
     @property
     def nodes(self):
@@ -1590,7 +1589,7 @@ class Shape(FixedCpt):
             node.pinname = node.basename
             
     def setup(self):
-        super (Shape, self).setup()
+        super(Shape, self).setup()
 
         self.process_pinnodes()
         self.process_pinlabels()
@@ -2218,11 +2217,16 @@ class Wire(OnePort):
             # Rename second node since this is spatially different from
             # other nodes of the same name.  Add underscore at start so node
             # not drawn.
+
+            # For example, the following nets share the ground node 0:
+            # W 1 0; implicit
+            # W 2 0; implicit            
+            
             node_names = (node_names[0], '_' + name + '@' + node_names[1])
         
-        super (Wire, self).__init__(sch, namespace, name, cpt_type,
-                                    cpt_id, string,
-                                    opts_string, node_names, keyword, *args)
+        super(Wire, self).__init__(sch, namespace, name, cpt_type,
+                                   cpt_id, string,
+                                   opts_string, node_names, keyword, *args)
         self.implicit = implicit
 
     @property
@@ -2258,7 +2262,7 @@ class Wire(OnePort):
         return s
 
     def setup(self):
-        super (Wire, self).setup()
+        super(Wire, self).setup()
 
         if self.implicit:
             self.nodes[1].implicit = True        
@@ -2352,13 +2356,9 @@ class FB(StretchyCpt):
         return s
 
 
-class Directive(Cpt):
-
-    def __init__(self, cct, namespace, string):
-
-        super (Directive, self).__init__(cct, namespace, '?', '?', '?',
-                                         string, '', [], '')
-
+class XX(Cpt):
+    directive = True
+    
     
 classes = {}
 

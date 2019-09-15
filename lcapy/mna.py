@@ -155,7 +155,7 @@ class MNA(object):
 
         branchdict = {}
         for elt in self.elements.values():
-            if elt.type == 'K':
+            if elt.type == 'K' or elt.directive:
                 continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
             branchdict[elt.name] = (n1, n2)

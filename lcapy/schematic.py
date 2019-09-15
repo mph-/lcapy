@@ -379,7 +379,6 @@ class Schematic(NetfileMixin):
             o = 'O %s %s; rotate=%s, size=%s' % (n1, n2, cpt.angle, cpt.size)
             self.add(o)
             
-
             # Rename nodes
             parts = cpt.net.split(' ')
             parts[1] = on1
@@ -502,7 +501,7 @@ class Schematic(NetfileMixin):
 
             if elt.offset != 0:
                 raise ValueError('offset field should be removed')
-            if elt.ignore:
+            if elt.directive or elt.ignore:
                 continue
             
             elt.xlink(self.xgraph)
@@ -512,7 +511,7 @@ class Schematic(NetfileMixin):
         # in the desired directions.
         # Note, this must be done after the linking step.
         for m, elt in enumerate(self.elements.values()):
-            if elt.ignore:
+            if elt.directive or elt.ignore:
                 continue            
             elt.xplace(self.xgraph)
             elt.yplace(self.ygraph)
@@ -537,7 +536,7 @@ class Schematic(NetfileMixin):
         for nodename, node in self.nodes.items():
             if node.ref is not None:
                 continue
-            if node.cptname is not None:
+            if node.cptname is not None and not node.implicit:
                 raise ValueError('Unreferenced pin connection %s for %s' % (node.name, node.elt_list))
 
     def _postamble_add(self, s):
@@ -585,7 +584,7 @@ class Schematic(NetfileMixin):
 
         # Draw components
         for m, elt in enumerate(self.elements.values()):
-            if elt.ignore:
+            if elt.directive or elt.ignore:
                 continue            
             s += elt.draw(**kwargs)
             s += elt.draw_nodes(**kwargs)
@@ -593,7 +592,7 @@ class Schematic(NetfileMixin):
 
         # Add the node labels
         for m, elt in enumerate(self.elements.values()):
-            if elt.ignore:
+            if elt.directive or elt.ignore:
                 continue            
             s += elt.draw_node_labels(**kwargs)            
 
