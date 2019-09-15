@@ -38,6 +38,10 @@ class NetfileMixin(object):
         self.namespace = namespace
         return ret
 
+    def _directive(self, string, namespace=''):
+        
+        return self.parser.cpts.Directive(self, string, namespace)
+        
     def _parse(self, string, namespace=''):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive node and Nm is the negative node.
@@ -50,17 +54,17 @@ class NetfileMixin(object):
             string = string[3:].strip()
         
         if string == '':
-            return None            
+            return self._directive(string, namespace)
 
         if string[0] == ';':
             # Strings starting with ;; are schematic options.
             if hasattr(self, 'opts'):
                 self.opts.add(string[1:])
-            return None
+            return self._directive(string, namespace)                
 
         if string[0:9] == '.include ':
             self._include(string)
-            return None
+            return self._directive(string, namespace)
 
         if string[0:4] == '.pdb':
             import pdb; pdb.set_trace()

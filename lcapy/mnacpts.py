@@ -399,6 +399,17 @@ class Misc(Invalid):
         raise NotImplementedError('Cannot analyse misc component: %s' % self)
 
 
+class Directive(Cpt):
+
+    def __init__(self, cct, namespace, string):
+
+        super (Directive, self).__init__(cct, namespace, '?', '?', '?',
+                                         string, '', [], '')
+
+    def stamp(self, cct):
+        pass
+
+
 class Dummy(Cpt):
 
     causal = True

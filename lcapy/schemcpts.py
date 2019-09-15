@@ -2352,6 +2352,14 @@ class FB(StretchyCpt):
         return s
 
 
+class Directive(Cpt):
+
+    def __init__(self, cct, namespace, string):
+
+        super (Directive, self).__init__(cct, namespace, '?', '?', '?',
+                                         string, '', [], '')
+
+    
 classes = {}
 
 def defcpt(name, base, docstring, cpt=None):
