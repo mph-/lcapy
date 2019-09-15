@@ -157,12 +157,7 @@ def main (argv=None):
                 raise ValueError('Expecting mapping of form a:b got %s' % part)
             node_map[fields[0]] = fields[1]
         cct = cct.renumber(node_map)
-        
-    base, ext = os.path.splitext(outfilename)
-    if ext == '.sch':
-        open(outfilename, 'w').write(str(cct))
-        return 0
-        
+
     if options.label_nodes not in ('none', 'all', 'alpha', 'pins', 'primary', False, None):
         raise ValueError('Illegal option %s for label_nodes' % options.label_nodes)
 
@@ -170,6 +165,12 @@ def main (argv=None):
                                   False, None):
         raise ValueError('Illegal option %s for draw_nodes' % options.draw_nodes)
 
+    if outfilename is not None:
+       base, ext = os.path.splitext(outfilename)
+       if ext == '.sch':
+          open(outfilename, 'w').write(str(cct))
+          return 0
+        
     nosave = options.xgraph or options.ygraph
 
     if not options.xgraph and not options.ygraph:
