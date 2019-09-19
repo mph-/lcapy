@@ -877,6 +877,12 @@ class R(RC):
     pass
 
 
+class RP(RC):
+
+    # TODO.  Can simulate as series resistors (1 - alpha) R and alpha R. 
+    pass
+
+
 class SPpp(Dummy):
 
     need_branch_current = True

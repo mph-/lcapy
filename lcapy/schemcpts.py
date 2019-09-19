@@ -956,7 +956,7 @@ class MX(FixedCpt):
         s += self.draw_label(q, **kwargs)
         return s
 
-
+    
 class SP(FixedCpt):
     """Summing point"""
 
@@ -1236,7 +1236,7 @@ class OnePort(StretchyCpt):
         if not self.check():
             return ''
 
-        n1, n2 = self.nodes
+        n1, n2 = self.nodes[0:2]
 
         if self.wire:
             # With this option, draw component as a piece of wire.
@@ -1329,7 +1329,15 @@ class OnePort(StretchyCpt):
             node_pair_str, self.s, n2.s)
         return s
 
+    
+class Potentiometer(OnePort):
+    """Potentiometer  Np, Nm, No"""
 
+    @property
+    def coords(self):
+        return ((0, 0), (1, 0), (0.5, 0.3))
+    
+    
 class VCS(OnePort):
     """Voltage controlled source"""
 
@@ -2443,6 +2451,7 @@ defcpt('Qpnp', 'Q', 'PNP transistor', 'pnp')
 defcpt('Qnpn', 'Q', 'NPN transistor', 'npn')
 
 defcpt('R', OnePort, 'Resistor', 'R')
+defcpt('RP', Potentiometer, 'Potentiometer', 'pR')
 
 defcpt('Sbox', Box, 'Box shape')
 defcpt('Scircle', Circle, 'Circle shape')
