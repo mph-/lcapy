@@ -97,7 +97,7 @@ def latex_format_node_label(s):
     if len(parts) > 2:
         raise ValueError('Double subscript in %s' % s)
     elif len(parts) == 2:
-        return '%s$_{\mathrm{%s}$' % (parts[0], parts[1])
+        return '%s$_{\mathrm{%s}}$' % (parts[0], parts[1])
 
     return s
 
