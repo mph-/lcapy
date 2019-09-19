@@ -1333,6 +1333,8 @@ class OnePort(StretchyCpt):
 class Potentiometer(OnePort):
     """Potentiometer  Np, Nm, No"""
 
+    can_stretch = False
+    
     @property
     def coords(self):
         return ((0, 0), (1, 0), (0.5, 0.3))
@@ -2451,7 +2453,7 @@ defcpt('Qpnp', 'Q', 'PNP transistor', 'pnp')
 defcpt('Qnpn', 'Q', 'NPN transistor', 'npn')
 
 defcpt('R', OnePort, 'Resistor', 'R')
-defcpt('RP', Potentiometer, 'Potentiometer', 'pR')
+defcpt('RV', Potentiometer, 'Potentiometer', 'pR')
 
 defcpt('Sbox', Box, 'Box shape')
 defcpt('Scircle', Circle, 'Circle shape')

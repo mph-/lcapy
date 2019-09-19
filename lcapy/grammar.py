@@ -56,7 +56,7 @@ Q: Qname Nc Nb Ne [Value]; NPN transistor
 Qnpn: Qname Nc Nb Ne npn [Value]; NPN transistor
 Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor 
 R: Rname Np Nm [Value]; Resistor
-RP: RPname Np Nm No [Value] [Value]; Potentiometer
+RV: RVname Np Nm No [Value] [Value]; Potentiometer
 Sbox: Sname box; Box
 Scircle: Sname circle; Circle
 Sellipse: Sname ellipse; Ellipse

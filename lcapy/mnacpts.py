@@ -877,7 +877,7 @@ class R(RC):
     pass
 
 
-class RP(RC):
+class RV(RC):
 
     # TODO.  Can simulate as series resistors (1 - alpha) R and alpha R. 
     pass

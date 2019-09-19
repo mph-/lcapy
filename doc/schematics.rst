@@ -423,6 +423,22 @@ fdopamp argument to a VCCS.  For example:
 .. image:: examples/schematics/fdopamp1.png
    :width: 5cm
 
+           
+Potentiometers
+--------------
+
+.. literalinclude:: examples/schematics/RV1.sch
+
+.. image:: examples/schematics/RV1.png
+   :width: 1.6cm
+
+Alternatively, a variable resistor can be defined using:
+
+.. literalinclude:: examples/schematics/RV2.sch
+
+.. image:: examples/schematics/RV2.png
+   :width: 1.4cm
+
 
 Switches
 --------
