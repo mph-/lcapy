@@ -594,9 +594,17 @@ Here's an example showing negative feedback:
 .. literalinclude:: examples/schematics/negative-feedback3.sch
 
 .. image:: examples/schematics/negative-feedback3.png
-   :width: 8cm
+    :width: 8cm
 
 
+Here's a more complicated example for a causal system:
+
+.. literalinclude:: examples/schematics/LTFT.sch
+
+.. image:: examples/schematics/LTFT.png
+   :width: 12cm        
+
+           
 Summing points
 --------------
 
@@ -1025,6 +1033,13 @@ These override the options specified in the netlist file.  For example:
    >>> schtex --draw_nodes=connections --label_nodes=false --cpt-size=1 --help_lines=1 Dbridge.sch Dbridge.pdf
 
 
+One useful option is to renumber the nodes in a netlist.  For example,
+
+   >>> schtex --renumber='10:1, 11:2' infile.sch outfile.sch
+
+This will choose small integers for the node numbers, honoring the provided mapping.  Equipoential nodes will be distinguished using enumerated subscripts, e.g., 1_1, 1_2, 1_3 etc.   
+
+   
 Drawing tips
 ============
 
