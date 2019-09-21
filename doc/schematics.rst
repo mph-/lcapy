@@ -264,19 +264,21 @@ Diodes can be drawn but not simulated.   A standard diode is described using:
 
      Dname Np Nm
 
-Other diodes are specified with an additional argument:
+Different kinds of diodes can be specified by the `kind` option, for example,
+           
+.. literalinclude:: examples/schematics/diodes3.sch
 
-     Dname Np Nm schottky|led|zener|tunnel|photo 
-
-
-Here's an example:
-
-.. literalinclude:: examples/schematics/diodes.sch
-
-.. image:: examples/schematics/diodes.png
+.. image:: examples/schematics/diodes3.png
    :width: 10cm
 
+The drawn style is controlled by the style option, for example, 
 
+.. literalinclude:: examples/schematics/diodes2.sch
+
+.. image:: examples/schematics/diodes2.png
+   :width: 5cm
+           
+           
 Gyrators
 --------
 
