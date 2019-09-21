@@ -56,7 +56,7 @@ class Cpt(object):
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
                  'pinnames', 'pinnodes', 'pindefs', 'outside', 'pinmap',
-                 'kind', 'wire', 'ignore')
+                 'kind', 'wire', 'ignore', 'style')
 
     can_rotate = True
     can_scale = False
@@ -225,7 +225,7 @@ class Cpt(object):
     @property
     def mirror(self):
         return self.boolattr('mirror')    
-
+   
     @property
     def wire(self):
         return self.boolattr('wire')    
@@ -290,6 +290,9 @@ class Cpt(object):
     def kind(self):
         return self.opts.get('kind', None)
 
+    @property
+    def style(self):
+        return self.opts.get('style', None)
     
     def R(self, angle_offset=0):
         """Return rotation matrix"""
@@ -1253,16 +1256,31 @@ class OnePort(StretchyCpt):
             else:
                 raise ValueError('Component %s not variable' % self.name)
 
-        if self.type == 'C':
-            if self.kind == 'electrolytic':
-                tikz_cpt = 'eC'
-            elif self.kind == 'polar':
-                tikz_cpt = 'pC'
-            elif self.kind == 'variable':
-                tikz_cpt = 'vC'
-        elif self.type == 'L':
-            if self.kind == 'variable':
-                tikz_cpt = 'vL'
+        cpts = {'C' : {'name': 'capacitor',
+                       'kinds': {'electrolytic': 'eC', 'polar': 'pC', 'variable': 'vC'},
+                       'styles' : {}},
+                'L' : {'name': 'inductor', 'kinds': {'variable': 'vL'},
+                       'styles' : {}},
+                'D' : {'name': 'diode',
+                       'kinds': {'led': 'leD', 'photo': 'pD', 'schottky' : 'sD',
+                                 'zener': 'zD', 'zzener': 'zzD', 'tunnel' : 'tD'},
+                       'styles' : {'empty': '', 'full': '*', 'stroke': '-'}}}
+        if self.type in cpts:
+            cpt = cpts[self.type]
+            
+            if self.kind is not None:
+                kinds = cpt['kinds']
+                if self.kind not in kinds:
+                    raise ValueError('Unknown %s kind %s: known kinds %s'
+                                     % (cpt['name'], self.kind, ', '.join(kinds.keys())))
+                tikz_cpt = kinds[self.kind]
+
+            if self.style is not None:
+                styles = cpt['styles']                
+                if self.style not in styles:
+                    raise ValueError('Unknown %s style %s: known styles %s'
+                                     % (cpt['name'], self.style, ', '.join(styles.keys())))
+                tikz_cpt += styles[self.style]                            
 
         label_pos = '_'
         voltage_pos = '^'
