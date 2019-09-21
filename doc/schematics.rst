@@ -266,9 +266,9 @@ Diodes can be drawn but not simulated.   A standard diode is described using:
 
 Different kinds of diodes can be specified by the `kind` option, for example,
            
-.. literalinclude:: examples/schematics/diodes3.sch
+.. literalinclude:: examples/schematics/diodes.sch
 
-.. image:: examples/schematics/diodes3.png
+.. image:: examples/schematics/diodes.png
    :width: 10cm
 
 The drawn style is controlled by the style option, for example, 
