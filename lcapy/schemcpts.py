@@ -1289,7 +1289,7 @@ class OnePort(StretchyCpt):
             or (self.type in ('I', 'F', 'G')
                 and self.sch.circuitikz_version >= '2017/05/28')):
 
-            # Old versions of circuitikz expects the positive node
+            # Old versions of circuitikz expect the positive node
             # first, except for voltage and current sources!  So
             # swap the nodes otherwise they are drawn the wrong
             # way around.
@@ -2503,6 +2503,11 @@ defcpt('Vdc', 'V', 'DC voltage source', 'V')
 defcpt('Vstep', 'V', 'Step voltage source', 'V')
 defcpt('Vac', 'V', 'AC voltage source', 'sV')
 defcpt('Vnoise', 'V', 'Noise voltage source', 'sV')
+
+defcpt('VCVS', VCS, 'VCVS', 'american controlled voltage source')
+defcpt('CCCS', VCS, 'CCCS', 'american controlled current source')
+defcpt('VCCS', CCS, 'VCCS', 'american controlled current source')
+defcpt('CCVS', CCS, 'CCVS', 'american controlled voltage source')
 
 defcpt('VM', OnePort, 'Voltmeter', 'voltmeter')
 

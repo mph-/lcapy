@@ -1233,6 +1233,11 @@ defcpt('Vstep', V, 'Step voltage source')
 defcpt('Vac', V, 'AC voltage source')
 defcpt('Vnoise', V, 'Noise voltage source')
 
+defcpt('VCVS', E, 'VCVS')
+defcpt('CCCS', F, 'CCCS')
+defcpt('VCCS', G, 'VCCS')
+defcpt('CCVS', H, 'CCVS')
+
 defcpt('VM', O, 'Voltmeter')
 
 # Append classes defined in this module but not imported.

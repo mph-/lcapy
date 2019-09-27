@@ -25,14 +25,18 @@ Dphoto: Dname Np Nm photo; Photo diode
 Dtunnel: Dname Np Nm tunnel; Tunnel diode
 Dschottky: Dname Np Nm schottky; Schottky diode
 E: Ename Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
+VCVS: VCVSname Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
 Eopamp: Ename Np Nm opamp Ncp Ncm [Value]; Opamp
 Efdopamp: Ename Np Nm fdopamp Ncp Ncm [Value]; Fully differential opamp
 F: Fname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
+CCCS: CCCSname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
 FB: FBname Np Nm; Ferrite bead
 FS: FSname Np Nm; Fuse
 G: Gname Np Nm Ncp Ncm [Value]; Voltage controlled current source
+VCCS: VCCSname Np Nm Ncp Ncm [Value]; Voltage controlled current source
 GY: GYname Np Nm Ncp Ncm [Value]; Gyrator
-H: Hname Np Nm Vcontrol [Value]; Current controlled voltage source (note the control current is specified through a voltage source)
+H: CCVSname Np Nm Vcontrol [Value]; Current controlled voltage source (note the control current is specified through a voltage source)
+CCVS: Hname Np Nm Vcontrol [Value]; Current controlled voltage source (note the control current is specified through a voltage source)
 I: Iname Np Nm [Value]; Current source
 sI: Iname Np Nm s [Value]; s-domain current source
 Idc: Iname Np Nm dc [Value]; DC current source
