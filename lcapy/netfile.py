@@ -109,7 +109,10 @@ class NetfileMixin(object):
         try:
             file = open(filename, 'r')
         except:
-            file = open(filename + '.sch', 'r')            
+            try:
+                file = open(filename + '.sch', 'r')
+            except:
+                raise FileNotFoundError('Could not open ' + filename)
 
         lines = file.readlines()
 
