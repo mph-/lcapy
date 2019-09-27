@@ -240,12 +240,16 @@ class Ratfun(object):
         
         numer, denom = self.expr.as_numer_denom()
 
-        # Remove common factor, chosen to normalise highest power of denom.
-        Dpoly = sym.Poly(denom, self.var)
-        K = Dpoly.LC()
-        N = (numer / K).simplify()
-        D = (denom / K).simplify()
-        return N, D
+        if False:
+            # FIXME.  The sympy choice of numer and denom is not
+            # always what one would expect.  The following removes a
+            # common factor from numer and denom but does not always
+            # give what one would expect for other rational functions.
+            Dpoly = sym.Poly(denom, self.var)
+            K = Dpoly.LC()
+            numer = (numer / K).simplify()
+            denom = (denom / K).simplify()
+        return numer, denom
         
     @property
     def numerator(self):
