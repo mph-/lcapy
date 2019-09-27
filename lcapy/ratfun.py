@@ -235,20 +235,33 @@ class Ratfun(object):
         return sym.limit(tmp, var, pole)
 
     @property
+    def numerator_denominator(self):
+        """Return numerator and denominator of rational function"""
+        
+        numer, denom = self.expr.as_numer_denom()
+
+        # Remove common factor, chosen to normalise highest power of denom.
+        Dpoly = sym.Poly(denom, self.var)
+        K = Dpoly.LC()
+        N = (numer / K).simplify()
+        D = (denom / K).simplify()
+        return N, D
+        
+    @property
     def numerator(self):
         """Return numerator of rational function"""
 
-        numer, denom = self.expr.as_numer_denom()
+        numer, denom = self.numerator_denominator
         return numer
 
     @property
     def denominator(self):
         """Return denominator of rational function"""
 
-        numer, denom = self.expr.as_numer_denom()
+        numer, denom = self.numerator_denominator
         return denom
 
-    def canonical(self):
+    def canonical(self, factor_const=True):
         """Convert rational function to canonical form with unity
         highest power of denominator.
 
@@ -264,17 +277,25 @@ class Ratfun(object):
         Dpoly = sym.Poly(D, var)
         Npoly = sym.Poly(N, var)
 
-        K = sym.cancel(Npoly.LC() / Dpoly.LC())
-        if delay != 0:
-            K *= sym.exp(self.var * delay)
+        if factor_const:
+            K = sym.cancel(Npoly.LC() / Dpoly.LC())
+            if delay != 0:
+                K *= sym.exp(self.var * delay)
 
-        # Divide by leading coefficient
-        Nm = Npoly.monic()
-        Dm = Dpoly.monic()
+            # Divide by leading coefficient
+            Nm = Npoly.monic()
+            Dm = Dpoly.monic()
 
-        expr = K * (Nm / Dm)
+            expr = K * (Nm / Dm) * undef
+        else:
+            C = Dpoly.LC()
+            Dm = Dpoly.monic()
+            Nm = (Npoly / C).simplify()
+            expr = Nm / Dm
+            if delay != 0:
+                expr *= sym.exp(self.var * delay)            
 
-        return expr * undef
+        return expr
 
     def general(self):
         """Convert rational function to general form.

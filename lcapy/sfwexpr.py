@@ -24,7 +24,7 @@ class sfwExpr(Expr):
 
         return self.D.roots()
 
-    def canonical(self):
+    def canonical(self, factor_const=True):
         """Convert rational function to canonical form with unity
         highest power of denominator.   For example,
 
@@ -32,7 +32,7 @@ class sfwExpr(Expr):
 
         See also general, partfrac, mixedfrac, timeconst, and ZPK"""
 
-        return self.__class__(self._ratfun.canonical(), **self.assumptions)
+        return self.__class__(self._ratfun.canonical(factor_const), **self.assumptions)
 
     def general(self):
         """Convert rational function to general form.  For example,

@@ -78,7 +78,7 @@ class ExprMisc(object):
         s = '%s(' % name
         print(symdebug(self.expr, s , len(name) + 1))
 
-    def canonical(self):
+    def canonical(self, factor_const=True):
         return self.__class__(self)
 
     
