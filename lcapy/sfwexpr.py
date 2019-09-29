@@ -1,4 +1,4 @@
-from .expr import Expr, ExprDict
+from .expr import Expr, ExprDict, ExprList
 
 class sfwExpr(Expr):
 
@@ -24,13 +24,20 @@ class sfwExpr(Expr):
 
         return self.D.roots()
 
+    def residues(self):
+        """Return list of residues of partial fraction expansion."""
+
+        return ExprList(self._ratfun.residues())
+
     def canonical(self, factor_const=True):
-        """Convert rational function to canonical form with unity
-        highest power of denominator.   For example,
+        """Convert rational function to canonical form (standard form) with
+        unity highest power of denominator.  For example,
 
         5 * (s**2 + s + 1) / (s**2 + 4)
 
-        See also general, partfrac, mixedfrac, timeconst, and ZPK"""
+        See also general, partfrac, mixedfrac, timeconst, and ZPK
+
+        """
 
         return self.__class__(self._ratfun.canonical(factor_const), **self.assumptions)
 
@@ -71,10 +78,22 @@ class sfwExpr(Expr):
         return self.__class__(self._ratfun.timeconst(), **self.assumptions)
 
     def ZPK(self):
-        """Convert to zero-pole-gain (ZPK) form.  For example,
+        """Convert to zero-pole-gain (ZPK) form (factored form).  For example,
 
         5 * (s + 1)**2 / ((s - 2 * j) * (s + 2 * j))
 
-        See also canonical, general, mixedfrac, partfrac, and timeconst."""
+        See also canonical, general, mixedfrac, partfrac, and timeconst.
+
+        """
 
         return self.__class__(self._ratfun.ZPK(), **self.assumptions)
+
+    def expandcanonical(self):
+        """Expand in terms for different powers with each term
+        expressed in canonical form.  For example,
+
+        s / (s**2 + 4) + 5 / (s**2 + 4)
+
+        See also canonical, general, partfrac, timeconst, and ZPK."""
+
+        return self.__class__(self._ratfun.expandcanonical(), **self.assumptions)

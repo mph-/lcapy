@@ -9,6 +9,43 @@ import sympy as sym
 from sympy.core.mul import _unevaluated_Mul as uMul
 from .sym import sympify
 
+def as_numer_denom_poly(expr, var):
+
+    N = sym.S.One
+    D = sym.S.One    
+    for f in expr.as_ordered_factors():
+        if f.is_Pow and f.args[1] == -1:
+            D *= f.args[0]
+        else:
+            N *= f
+
+    try:
+        Dpoly = sym.Poly(D, var)
+        Npoly = sym.Poly(N, var)        
+    except:
+        D, N = expr.as_numer_denom()
+        Dpoly = sym.Poly(D, var)
+        Npoly = sym.Poly(N, var)                
+        
+    return Npoly, Dpoly
+
+def as_numer_denom(expr, var):
+
+    N = sym.S.One
+    D = sym.S.One    
+    for f in expr.as_ordered_factors():
+        if f.is_Pow and f.args[1] == -1:
+            D *= f.args[0]
+        else:
+            N *= f
+
+    try:
+        Dpoly = sym.Poly(D, var)
+        Npoly = sym.Poly(N, var)
+        return N, D
+    except:
+        return expr.as_numer_denom()
+
 
 def _zp2tf(zeros, poles, K=1, var=None):
     """Create a transfer function from lists of zeros and poles,
@@ -67,7 +104,7 @@ def as_ratfun_delay_undef(expr, var):
     undef = sym.S.One
     
     if expr.is_rational_function(var):
-        N, D = expr.as_numer_denom()
+        N, D = as_numer_denom(expr, var)
         return N, D, delay, undef
 
     F = sym.factor(expr).as_ordered_factors()
@@ -238,18 +275,7 @@ class Ratfun(object):
     def numerator_denominator(self):
         """Return numerator and denominator of rational function"""
         
-        numer, denom = self.expr.as_numer_denom()
-
-        if False:
-            # FIXME.  The sympy choice of numer and denom is not
-            # always what one would expect.  The following removes a
-            # common factor from numer and denom but does not always
-            # give what one would expect for other rational functions.
-            Dpoly = sym.Poly(denom, self.var)
-            K = Dpoly.LC()
-            numer = (numer / K).simplify()
-            denom = (denom / K).simplify()
-        return numer, denom
+        return as_numer_denom(self.expr, self.var)
         
     @property
     def numerator(self):
@@ -311,6 +337,25 @@ class Ratfun(object):
         expr = sym.cancel(N / D, self.var)
         if delay != 0:
             expr *= sym.exp(self.var * delay)
+
+        return expr * undef
+
+    def expandcanonical(self):
+        """Expand in terms for different powers with each term
+        expressed in canonical form."""        
+
+        N, D, delay, undef = self.as_ratfun_delay_undef()
+
+        Npoly = sym.Poly(N, self.var)
+        
+        expr = sym.S.Zero
+
+        for m, c in enumerate(reversed(Npoly.all_coeffs())):
+            term = sym.Mul(c.simplify() * self.var ** m, 1 / D)
+            expr += term
+
+        if delay != 0:
+            expr *= sym.exp(-self.var * delay)
 
         return expr * undef
 
@@ -408,3 +453,9 @@ class Ratfun(object):
         poles = sym.roots(Dpoly)
 
         return _zp2tf(zeros, poles, K, self.var) * undef
+
+    def residues(self):
+
+        F, R, Q, delay = self.as_residue_parts()
+        return R
+    
