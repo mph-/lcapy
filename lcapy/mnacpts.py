@@ -453,7 +453,7 @@ class RLC(Cpt):
         if self.Voc == 0:        
             return '%sZ%s %s %s %s; %s' % (self.namespace, self.relname, 
                                            self.relnodes[0], self.relnodes[1],
-                                           arg_format(self.Zs(var)), 
+                                           arg_format(self.cptZ(var)), 
                                            self.opts)
 
         dummy_node = self.dummy_node()
@@ -466,7 +466,7 @@ class RLC(Cpt):
 
         znet = '%sZ%s %s %s %s; %s' % (self.namespace, self.relname, 
                                        self.relnodes[0], dummy_node,
-                                       arg_format(self.Zs(var)), 
+                                       arg_format(self.cptZ(var)), 
                                        opts)
 
         # Strip voltage and current labels from voltage source.

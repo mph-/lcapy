@@ -455,7 +455,8 @@ class Ratfun(object):
         return _zp2tf(zeros, poles, K, self.var) * undef
 
     def residues(self):
-
+        """Return residues of partial fraction expansion."""
+        
         F, R, Q, delay = self.as_residue_parts()
         return R
     
