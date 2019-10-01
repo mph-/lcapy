@@ -196,7 +196,8 @@ class MNA(object):
                 n1 = self.node_map[elt.nodes[0]]
                 n2 = self.node_map[elt.nodes[1]]                
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
-                I = (V1.expr - V2.expr) / elt.cptZ.expr
+                # FIXME.  Need to remove C initial voltage v0 / s.
+                I = (V1.expr - V2.expr - elt.cptV0) / elt.cptZ.expr
                 self._Idict[elt.name] = itype(I, **assumptions).simplify()
             elif elt.type in ('I', ):
                 self._Idict[elt.name] = elt.Isc

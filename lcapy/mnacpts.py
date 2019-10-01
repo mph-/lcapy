@@ -9,7 +9,7 @@ Copyright 2015--2019 Michael Hayes, UCECE
 from __future__ import print_function
 from .cexpr import cExpr
 from .omegaexpr import omegaExpr
-from .symbols import j, omega, jomega
+from .symbols import j, omega, jomega, s
 from .functions import sqrt
 from .sym import capitalize_name, omegasym
 from .grammar import delimiters
@@ -353,6 +353,12 @@ class Cpt(object):
         return _YZtype_select(self.cpt.Z, self.cct.kind)                
 
     @property
+    def cptV0(self):
+        """Initial voltage (for capacitors only)."""
+
+        return 0
+    
+    @property
     def node_indexes(self):
 
         return (self.cct._node_index(n) for n in self.nodes)
@@ -566,6 +572,13 @@ class C(RC):
                                     self.relnodes[0], self.relnodes[1], 
                                     self.opts)
         
+    @property
+    def cptV0(self):
+        """Initial voltage (for capacitors only)."""
+
+        if self.cct.kind == 'ivp' and self.cpt.hasic:
+            return self.cpt.v0 / s
+        return 0
     
 
 class E(DependentSource):
