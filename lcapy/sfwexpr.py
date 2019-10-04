@@ -97,3 +97,23 @@ class sfwExpr(Expr):
         See also canonical, general, partfrac, timeconst, and ZPK."""
 
         return self.__class__(self._ratfun.expandcanonical(), **self.assumptions)
+
+    def coeffs(self):
+        """Return list of coeffs assuming the expr is a polynomial in s.  The
+        highest powers come first.  This will fail for a rational function.
+        Instead use expr.N.coeffs or expr.D.coeffs for numerator
+        or denominator respectively."""
+
+        z = sym.Poly(self.expr, self.var)
+        return z.all_coeffs()
+
+    def normcoeffs(self):
+        """Return list of coeffs (normalised so the highest power is 1)
+        assuming the expr is a polynomial in s.  The highest powers
+        come first.  This will fail for a rational function.  Instead
+        use expr.N.normcoeffs or expr.D.normcoeffs for numerator or
+        denominator respectively."""
+        
+        z = sym.Poly(self.expr, self.var)
+        c = z.all_coeffs()
+        return [sym.simplify(c1 / c[0]) for c1 in c]

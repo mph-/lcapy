@@ -460,3 +460,14 @@ class Ratfun(object):
         F, R, Q, delay = self.as_residue_parts()
         return R
     
+    def coeffs(self):
+
+        N, D, delay, undef = self.as_ratfun_delay_undef()
+
+        var = self.var        
+        Npoly = sym.Poly(N, var)
+        Dpoly = sym.Poly(D, var)
+
+        return Npoly.all_coeffs(), Dpoly.all_coeffs()
+    
+        
