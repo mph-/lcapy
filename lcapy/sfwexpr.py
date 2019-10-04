@@ -1,4 +1,5 @@
 from .expr import Expr, ExprDict, ExprList
+import sympy as sym
 
 class sfwExpr(Expr):
 
