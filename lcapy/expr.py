@@ -63,6 +63,8 @@ class ExprPrint(object):
 class ExprMisc(object):
 
     def simplify(self):
+        """Simplify each element."""
+        
         return simplify(self)
 
     @property    
@@ -79,15 +81,40 @@ class ExprMisc(object):
         print(symdebug(self.expr, s , len(name) + 1))
 
     def canonical(self, factor_const=True):
+        """Convert each element to canonical form."""
+        
         return self.__class__(self)
 
+    def evaluate(self):
+        
+        """Evaluate each element to convert to floating point."""        
+        return self.__class__([v.evalf() for v in self])
+    
     
 class ExprDict(OrderedDict, ExprPrint, ExprMisc):
 
     """Decorator class for dictionary created by sympy."""
-    pass
 
+    def evaluate(self):
+        """Evaluate each element to convert to floating point.
+        The keys are also converted if possible to handle
+        dictionaries of poles/zeros."""
 
+        new = self.__class__()
+        for k, v in self.items():
+            try:
+                k = k.evalf()
+            except:
+                pass
+            try:
+                v = v.evalf()
+            except:
+                pass            
+                
+            new[k] = v
+        return new
+
+    
 class ExprList(list, ExprPrint, ExprMisc):
 
     """Decorator class for list created by sympy."""
