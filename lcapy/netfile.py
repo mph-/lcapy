@@ -116,5 +116,7 @@ class NetfileMixin(object):
 
         lines = file.readlines()
 
+        state.switch_context(self.context)        
         for line in lines:
             self._add(line, namespace)
+        state.restore_context()

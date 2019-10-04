@@ -30,6 +30,7 @@ def capitalize_name(name):
 
 
 def symbol_name(symbol):
+
     return str(symbol)
 
 
@@ -126,6 +127,8 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
         if name not in symbols:
             if name == 'ivp':
                 raise ValueError('Huh')
+            if False:
+                print('Adding symbol %s' % name)
             symbols[name] = symbol
 
     return s
