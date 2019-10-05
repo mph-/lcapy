@@ -139,6 +139,11 @@ class ExprList(ExprPrint, ExprMisc, list):
         eargs = [expr(e) for e in arglist]
         return super (ExprList, self).__init__(eargs)
 
+    def subs(self, *args, **kwargs):
+        """Substitute variables in expression, see sympy.subs for usage."""
+        
+        return expr([e.subs(*args, **kwargs) for e in self])
+        
     
 class ExprTuple(ExprPrint, ExprMisc, tuple):
     """Decorator class for tuple created by sympy."""
@@ -147,7 +152,12 @@ class ExprTuple(ExprPrint, ExprMisc, tuple):
         eargs = (expr(e) for e in arglist)
         return super (ExprTuple, self).__init__(eargs)
 
+    def subs(self, *args, **kwargs):
+        """Substitute variables in expression, see sympy.subs for usage."""
+        
+        return expr((e.subs(*args, **kwargs) for e in self))
 
+    
 class Expr(ExprPrint, ExprMisc):
     """Decorator class for sympy classes derived from sympy.Expr"""
 
