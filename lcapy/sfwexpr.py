@@ -105,7 +105,10 @@ class sfwExpr(Expr):
         Instead use expr.N.coeffs or expr.D.coeffs for numerator
         or denominator respectively."""
 
-        z = sym.Poly(self.expr, self.var)
+        try:
+            z = sym.Poly(self.expr, self.var)
+        except:
+            raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')
         return z.all_coeffs()
 
     def normcoeffs(self):
@@ -114,7 +117,10 @@ class sfwExpr(Expr):
         come first.  This will fail for a rational function.  Instead
         use expr.N.normcoeffs or expr.D.normcoeffs for numerator or
         denominator respectively."""
-        
-        z = sym.Poly(self.expr, self.var)
+
+        try:
+            z = sym.Poly(self.expr, self.var)
+        except:
+            raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')            
         c = z.all_coeffs()
         return [sym.simplify(c1 / c[0]) for c1 in c]
