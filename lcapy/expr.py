@@ -25,6 +25,10 @@ from collections import OrderedDict
 
 class ExprPrint(object):
 
+    def _repr_pretty_(self, p, cycle):
+
+        p.text(pretty(self))    
+        
     def pretty(self):
         """Make pretty string."""
         return pretty(self)
@@ -91,7 +95,7 @@ class ExprMisc(object):
         return self.__class__([v.evalf() for v in self])
     
     
-class ExprDict(OrderedDict, ExprPrint, ExprMisc):
+class ExprDict(ExprPrint, ExprMisc, OrderedDict):
 
     """Decorator class for dictionary created by sympy."""
 
@@ -115,20 +119,27 @@ class ExprDict(OrderedDict, ExprPrint, ExprMisc):
         return new
 
     
-class ExprList(list, ExprPrint, ExprMisc):
-
+class ExprList(ExprPrint, ExprMisc, list):
     """Decorator class for list created by sympy."""
-    pass
 
+    # Have ExprPrint first so that its _repr__pretty_ is called
+    # in preference to list's one.  Alternatively, add explicit
+    # _repr_pretty_ method here.
+    
+    def __init__(self, arglist):
+        eargs = [Expr(e) for e in arglist]
+        return super (ExprList, self).__init__(eargs)
 
-class ExprTuple(tuple, ExprPrint, ExprMisc):
+    
+class ExprTuple(ExprPrint, ExprMisc, tuple):
+    """Decorator class for tuple created by sympy."""
 
-    """Decorator class for list created by sympy."""
-    pass
+    def __init__(self, arglist):
+        eargs = (Expr(e) for e in arglist)
+        return super (ExprTuple, self).__init__(eargs)
 
 
 class Expr(ExprPrint, ExprMisc):
-
     """Decorator class for sympy classes derived from sympy.Expr"""
 
     one_sided = False
@@ -206,7 +217,7 @@ class Expr(ExprPrint, ExprMisc):
 
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
-        unicode."""
+        unicode.  It is also called by IPython when displaying an expression.""" 
 
         p.text(pretty(self))
 
@@ -295,7 +306,6 @@ class Expr(ExprPrint, ExprMisc):
 
         # FIXME.  This propagates the assumptions.  There is a
         # possibility that the operation may violate them.
-
         expr = self.expr
         if hasattr(expr, attr):
             a = getattr(expr, attr)

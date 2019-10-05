@@ -167,7 +167,7 @@ def print_str(expr):
 
 def pretty(expr, **settings):
     """Pretty print an expression."""
-    
+
     return LcapyPrettyPrinter(settings).doprint(expr)
 
 
