@@ -63,6 +63,14 @@ class ExprPrint(object):
             expr = expr.expr
         return latex(sym.Eq(sympify(name), expr), **kwargs)
 
+    def symbols(self):
+        """Return dictionary of symbols in the expression keyed by name."""
+        
+        symbols = {}
+        for expr in list(self):
+            symbols.update(expr.symbols)
+        return symbols
+        
     
 class ExprMisc(object):
 
