@@ -49,6 +49,14 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.sign, Expr(j), "sign incorrect.")
         self.assertEqual2(-a.sign, Expr(-j), "sign incorrect.")        
 
+
+    def test_cExpr1(self):
+        """Lcapy: check cExpr1
+
+        """
+        a = cExpr('1')
+        self.assertEqual2(a.evaluate(), 1, "evaluate incorrect.")
+        
         
     def test_sExpr1(self):
         """Lcapy: check sExpr1

@@ -909,25 +909,24 @@ class Expr(ExprPrint, ExprMisc):
             return response
 
         expr = self.expr
-        if hasattr(self, 'var'):
-            var = self.var
-            # Use symbol names to avoid problems with symbols of the same
-            # name with different assumptions.
-            varname = var.name
-            free_symbols = set([symbol.name for symbol in expr.free_symbols])
-            if varname in free_symbols:
-                free_symbols -= set((varname, ))
+
+        if not hasattr(self, 'var') or self.var is None:
+            return expr.evalf()
+            
+        var = self.var
+        # Use symbol names to avoid problems with symbols of the same
+        # name with different assumptions.
+        varname = var.name
+        free_symbols = set([symbol.name for symbol in expr.free_symbols])
+        if varname in free_symbols:
+            free_symbols -= set((varname, ))
             if free_symbols != set():
                 raise ValueError('Undefined symbols %s in expression %s' % (tuple(free_symbols), self))
 
-            if arg is None:
-                if expr.find(var) != set():
-                    raise ValueError('Need value to evaluate expression at')
-                # The arg is irrelevant since the expression is a constant.
-                arg = 0
-        else:
-            # Have no variable so must be a constant.
-            var = None
+        if arg is None:
+            if expr.find(var) != set():
+                raise ValueError('Need value to evaluate expression at')
+            # The arg is irrelevant since the expression is a constant.
             arg = 0
 
         try:
@@ -952,7 +951,7 @@ class Expr(ExprPrint, ExprMisc):
                 return evaluate_expr(expr, var, arg)
             else:
                 return sym.nan
-        result =  evaluate_expr(expr, var, arg)
+        result = evaluate_expr(expr, var, arg)
         result[arg < 0] = sym.nan
         return result
 
