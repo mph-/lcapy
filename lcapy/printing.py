@@ -12,6 +12,8 @@ __all__ = ('pretty', 'pprint', 'latex', 'print_str')
 #
 # jupyter looks for methods called _repr_latex_ and _repr_pretty_.
 #
+# IPython looks for _repr_pretty
+#
 # sympy.latex() looks for methods called _latex
 
 # LaTeX markup is nicer but it requires mathjax.

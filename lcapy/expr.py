@@ -26,9 +26,19 @@ from collections import OrderedDict
 class ExprPrint(object):
 
     def _repr_pretty_(self, p, cycle):
+        """This is used by jupyter notebooks to display an expression using
+        unicode.  It is also called by IPython when displaying an expression.""" 
 
-        p.text(pretty(self))    
-        
+        p.text(pretty(self))
+
+    def _repr_latex_(self):
+        """This is used by jupyter notebooks to display an expression using
+        LaTeX markup.  However, this requires mathjax.  If this method
+        is not defined, jupyter falls back on _repr_pretty_ which
+        outputs unicode."""
+
+        return '$$' + latex(self) + '$$'        
+
     def pretty(self):
         """Make pretty string."""
         return pretty(self)
@@ -198,6 +208,18 @@ class Expr(ExprPrint, ExprMisc):
         """String representation of expression."""
         return print_str(self)
 
+    def _latex(self, *args, **kwargs):
+        """Make latex string.  This is called by sympy.latex when it
+        encounters an Expr type."""
+
+        # This works in conjunction with LatexPrinter._print
+        # It is a hack to allow printing of _Matrix types
+        # and its elements.
+        # This also catches sym.latex(expr) where expr is
+        # an Lcapy expr.
+
+        return self.latex(**kwargs)
+
     def _pretty(self, *args, **kwargs):
         """Make pretty string."""
 
@@ -209,44 +231,11 @@ class Expr(ExprPrint, ExprMisc):
 
         return printer._print(expr)
 
-    def _latex(self, *args, **kwargs):
-        """Make latex string.  This is called by sympy.latex when it
-        encounters an Expr type."""
-
-        # This works in conjunction with LatexPrinter._print
-        # It is a hack to allow printing of _Matrix types
-        # and its elements.
-        # This also catches sym.latex(expr) where expr is
-        # an Lcapy expr.
-
-        if True:
-            return self.latex(**kwargs)
-
-        expr = self.expr
-        
-        # Give up on printer and use lcapy's one...
-        printer = args[0]
-        return printer._print(expr)        
-
     def __repr__(self):
         """This is called by repr(expr).  It is used, e.g., when printing
         in the debugger."""
         
         return '%s(%s)' % (self.__class__.__name__, print_str(self))
-
-    def _repr_pretty_(self, p, cycle):
-        """This is used by jupyter notebooks to display an expression using
-        unicode.  It is also called by IPython when displaying an expression.""" 
-
-        p.text(pretty(self))
-
-    def _repr_latex_(self):
-        """This is used by jupyter notebooks to display an expression using
-        LaTeX markup.  However, this requires mathjax.  If this method
-        is not defined, jupyter falls back on _repr__pretty_ which
-        outputs unicode."""
-
-        return '$$' + latex(self) + '$$'        
 
     @property
     def causal(self):
@@ -1157,6 +1146,7 @@ class Expr(ExprPrint, ExprMisc):
         symdict.update(funcdict)
         return symdict
 
+    
 def expr(arg, **assumptions):
     """Create Lcapy expression from arg.
 
