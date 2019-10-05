@@ -13,7 +13,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, symdebug
-from .sym import capitalize_name, tsym, symsymbol
+from .sym import capitalize_name, tsym, symsymbol, symbol_map
 from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp
@@ -1016,21 +1016,7 @@ class Expr(ExprPrint, ExprMisc):
         if (self.__class__, new.__class__) in class_map:
             cls = class_map[(self.__class__, new.__class__)]
 
-        name = old
-
-        if not isinstance(name, str):
-            name = str(name)
-
-        # Replace symbol names with symbol definitions to
-        # avoid problems with real or positive attributes.
-        if name in state.context.symbols:
-            old = state.context.symbols[name]
-        elif name in state.global_context.symbols:
-            old = state.global_context.symbols[name]            
-        else:
-            # Perhaps have symbol defined using sympy?
-            pass
-
+        old = symbol_map(old)
         result = self.expr.subs(old, expr)
 
         # If get empty Piecewise, then result unknowable.  TODO: sympy

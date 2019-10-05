@@ -271,6 +271,23 @@ def symdebug(expr, s='', indent=0):
     return s
 
 
+def symbol_map(name):
+
+    new = name
+    if not isinstance(name, str):
+        name = str(name)
+    
+    # Replace symbol names with symbol definitions to
+    # avoid problems with real or positive attributes.
+    if name in state.context.symbols:
+        new = state.context.symbols[name]
+    elif name in state.global_context.symbols:
+        new = state.global_context.symbols[name]            
+    else:
+        # Perhaps have symbol defined using sympy?
+        pass
+    return new
+
 ssym = symsymbol('s', real=False)
 tsym = symsymbol('t', real=True)
 fsym = symsymbol('f', real=True)
