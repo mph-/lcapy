@@ -1,4 +1,4 @@
-from .expr import Expr, ExprDict, ExprList
+from .expr import Expr, expr
 import sympy as sym
 
 class sfwExpr(Expr):
@@ -11,7 +11,7 @@ class sfwExpr(Expr):
         """Return roots of expression as a dictionary
         Note this may not find them all."""
 
-        return ExprDict(self._ratfun.roots())
+        return expr(self._ratfun.roots())
 
     def zeros(self):
         """Return zeroes of expression as a dictionary
@@ -28,7 +28,7 @@ class sfwExpr(Expr):
     def residues(self):
         """Return list of residues of partial fraction expansion."""
 
-        return ExprList(self._ratfun.residues())
+        return expr(self._ratfun.residues())
 
     def canonical(self, factor_const=True):
         """Convert rational function to canonical form (standard form) with
@@ -109,7 +109,7 @@ class sfwExpr(Expr):
             z = sym.Poly(self.expr, self.var)
         except:
             raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')
-        return z.all_coeffs()
+        return expr(z.all_coeffs())
 
     def normcoeffs(self):
         """Return list of coeffs (normalised so the highest power is 1)
@@ -123,4 +123,4 @@ class sfwExpr(Expr):
         except:
             raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')            
         c = z.all_coeffs()
-        return [sym.simplify(c1 / c[0]) for c1 in c]
+        return expr([sym.simplify(c1 / c[0]) for c1 in c])

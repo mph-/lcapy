@@ -288,6 +288,7 @@ def symbol_map(name):
         pass
     return new
 
+
 ssym = symsymbol('s', real=False)
 tsym = symsymbol('t', real=True)
 fsym = symsymbol('f', real=True)

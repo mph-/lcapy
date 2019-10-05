@@ -63,7 +63,7 @@ class ExprPrint(object):
             expr = expr.expr
         return latex(sym.Eq(sympify(name), expr), **kwargs)
 
-    @property
+    @property    
     def symbols(self):
         """Return dictionary of symbols in the expression keyed by name."""
         
@@ -136,7 +136,7 @@ class ExprList(ExprPrint, ExprMisc, list):
     # _repr_pretty_ method here.
     
     def __init__(self, arglist):
-        eargs = [Expr(e) for e in arglist]
+        eargs = [expr(e) for e in arglist]
         return super (ExprList, self).__init__(eargs)
 
     
@@ -144,7 +144,7 @@ class ExprTuple(ExprPrint, ExprMisc, tuple):
     """Decorator class for tuple created by sympy."""
 
     def __init__(self, arglist):
-        eargs = (Expr(e) for e in arglist)
+        eargs = (expr(e) for e in arglist)
         return super (ExprTuple, self).__init__(eargs)
 
 
@@ -1132,6 +1132,11 @@ class Expr(ExprPrint, ExprMisc):
 
         return self.differentiate(arg)
 
+    def solve(self, *symbols, **flags):
+
+        symbols = [symbol_map(symbol) for symbol in symbols]
+        return expr(sym.solve(self.expr, *symbols, **flags))
+
     @property
     def symbols(self):
         """Return dictionary of symbols in the expression keyed by name."""
@@ -1143,13 +1148,14 @@ class Expr(ExprPrint, ExprMisc):
         symdict.update(funcdict)
         return symdict
 
-def expr(string, **assumptions):
-    """Create Lcapy expression from string.
+def expr(arg, **assumptions):
+    """Create Lcapy expression from arg.
 
-    If a t symbol is found in the string a tExpr object is created.
-    If a s symbol is found in the string a sExpr object is created.
-    If a f symbol is found in the string an fExpr object is created.
-    If an omega symbol is found in the string an omegaExpr object is created.
+    If arg is a string:
+       If a t symbol is found in the string a tExpr object is created.
+       If a s symbol is found in the string a sExpr object is created.
+       If a f symbol is found in the string an fExpr object is created.
+       If an omega symbol is found in the string an omegaExpr object is created.
 
     For example, v = expr('3 * exp(-t / tau) * u(t)')
 
@@ -1157,7 +1163,16 @@ def expr(string, **assumptions):
 
     from .sym import tsym, fsym, ssym, omegasym
 
-    expr = sympify(string, **assumptions)
+    if isinstance(arg, (Expr, ExprList, ExprTuple, ExprDict)):
+        return arg
+    elif isinstance(arg, list):
+        return ExprList(arg)
+    elif isinstance(arg, tuple):
+        return ExprTuple(arg)
+    elif isinstance(arg, dict):
+        return ExprDict(arg)    
+    
+    expr = sympify(arg, **assumptions)
     if expr.has(tsym):
         return tExpr(expr, **assumptions)
     elif expr.has(ssym):
