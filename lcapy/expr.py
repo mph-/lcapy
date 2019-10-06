@@ -25,20 +25,6 @@ from collections import OrderedDict
 
 class ExprPrint(object):
 
-    def _repr_pretty_(self, p, cycle):
-        """This is used by jupyter notebooks to display an expression using
-        unicode.  It is also called by IPython when displaying an expression.""" 
-
-        p.text(pretty(self))
-
-    def _repr_latex_(self):
-        """This is used by jupyter notebooks to display an expression using
-        LaTeX markup.  However, this requires mathjax.  If this method
-        is not defined, jupyter falls back on _repr_pretty_ which
-        outputs unicode."""
-
-        return '$$' + latex(self) + '$$'        
-
     def pretty(self):
         """Make pretty string."""
         return pretty(self)
@@ -202,11 +188,30 @@ class Expr(ExprPrint, ExprMisc):
         
         self.expr = sympify(arg, **assumptions)
 
-    # If the following is put in ExprPrint then tuples, lists, and
-    # dictionaries to no pretty print in jupyter notebooks.
-    def __str__(self):
+    def __str__(self, printer=None):
         """String representation of expression."""
         return print_str(self)
+
+    def __repr__(self):
+        """This is called by repr(expr).  It is used, e.g., when printing
+        in the debugger."""
+        
+        return '%s(%s)' % (self.__class__.__name__, print_str(self))
+
+    def _repr_pretty_(self, p, cycle):
+        """This is used by jupyter notebooks to display an expression using
+        unicode.  It is also called by IPython when displaying an expression.""" 
+
+        p.text(pretty(self))
+
+    def _repr_latex_(self):
+        """This is used by jupyter notebooks to display an expression using
+        LaTeX markup.  However, this requires mathjax.  If this method
+        is not defined, jupyter falls back on _repr_pretty_ which
+        outputs unicode."""
+
+        # This is called for Expr but not ExprList
+        return '$$' + latex(self) + '$$'        
 
     def _latex(self, *args, **kwargs):
         """Make latex string.  This is called by sympy.latex when it
@@ -230,12 +235,6 @@ class Expr(ExprPrint, ExprMisc):
         printer = args[0]
 
         return printer._print(expr)
-
-    def __repr__(self):
-        """This is called by repr(expr).  It is used, e.g., when printing
-        in the debugger."""
-        
-        return '%s(%s)' % (self.__class__.__name__, print_str(self))
 
     @property
     def causal(self):
@@ -307,6 +306,9 @@ class Expr(ExprPrint, ExprMisc):
 
     def __getattr__(self, attr):
 
+        if False:
+            print(self.__class__.__name__, attr)
+        
         # This gets called if there is no explicit attribute attr for
         # this instance.  We call the method of the wrapped sympy
         # class and rewrap the returned value if it is a sympy Expr
@@ -1199,3 +1201,19 @@ from .fexpr import Hf, If, Vf, Yf, Zf, fExpr
 from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr
 from .texpr import tExpr
 from .omegaexpr import Homega, Iomega, Vomega, Yomega, Zomega, omegaExpr
+
+# Horrible hack to work with IPython around Sympy's back for LaTeX
+# formatting.  The problem is that Sympy does not check for the
+# _repr_latex method and instead relies on a predefined list of known
+# types.  See _can_print_latex method in sympy/interactive/printing.py
+
+import sys
+try:
+    from .printing import latex
+    formatter = sys.displayhook.shell.display_formatter.formatters['text/latex']
+    
+    for cls in (ExprList, ExprTuple, ExprDict):
+        formatter.type_printers[cls] = Expr._repr_latex_
+except:
+    pass
+        
