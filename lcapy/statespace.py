@@ -28,18 +28,18 @@ __all__ = ('StateSpace', )
 # the A, B, C, D matrices.  We can then substitute the known value at
 # the end.
 
+
 def _hack_vars(exprs):
-    """Substitute iCanon1(t) with iC(t) etc. provided
-    there is no iCanon2(t)."""
+    """Substitute i_Canon1(t) with i_C(t) etc. provided
+    there is no i_Canon2(t)."""
 
     for m, expr in enumerate(exprs):
-        for c in ('iV', 'iC', 'iL', 'vC'):
+        for c in ('i_V', 'i_C', 'i_L', 'v_C'):
             sym1 = sympify(c + 'anon1(t)')
             sym2 = sympify(c + 'anon2(t)')            
             if expr.has(sym1) and not expr.has(sym2):
-                expr = expr.subs(sym1, sympify(c + '_(t)'))
+                expr = expr.subs(sym1, sympify(c + '(t)'))
                 exprs[m] = expr
-                
 
 class StateSpace(object):
     """This converts a circuit to state-space representation."""
