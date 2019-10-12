@@ -986,7 +986,10 @@ class Expr(ExprPrint, ExprMisc):
 
         expr = new
         if isinstance(new, Expr):
-            cls = new.__class__
+            if old == self.var:
+                cls = new.__class__
+            else:
+                cls = self.__class__                
             expr = new.expr
         else:
             cls = self.__class__
