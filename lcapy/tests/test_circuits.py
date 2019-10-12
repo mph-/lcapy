@@ -248,7 +248,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, True, "AC incorrect")
         self.assertEqual(a.R1.I, a.L1.I, "currents different")
-        self.assertEqual(-a.V1.I, a.L1.I, "currents different")
+        self.assertEqual(a.V1.I, a.L1.I, "currents different")
 
 
     def test_transfer(self):
@@ -369,7 +369,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_time_domain, True, "Time domain incorrect")
         self.assertEqual(a.V1.v, Vt('5*cos(t)'), "V1 voltage incorrect")
         self.assertEqual(a.R1.v, Vt('5*cos(t)'), "R1 voltage incorrect")
-        self.assertEqual(a.V1.i, It('-5*cos(t)'), "V1 current incorrect")
+        self.assertEqual(a.V1.i, It('5*cos(t)'), "V1 current incorrect")
         self.assertEqual(a.R1.i, It('5*cos(t)'), "R1 current incorrect")
 
         

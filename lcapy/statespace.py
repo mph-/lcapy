@@ -24,7 +24,7 @@ __all__ = ('StateSpace', )
 # V1 1 0 {10 * u(t)}
 # V1 1 0 ac 10
 #
-# In each case, we use v1(t) as the independent source when determing
+# In each case, we use v1(t) as the independent source when determining
 # the A, B, C, D matrices.  We can then substitute the known value at
 # the end.
 
@@ -67,12 +67,12 @@ class StateSpace(object):
             
             if isinstance(elt, L):
                 if sselt.name in cct.elements:
-                    raise ValueError('Name conflict %s, either rename the component or iprove the code!' % sselt.name)
+                    raise ValueError('Name conflict %s, either rename the component or improve the code!' % sselt.name)
 
                 inductors.append(elt)
             elif isinstance(elt, C):
                 if sselt.name in cct.elements:
-                    raise ValueError('Name conflict %s, either rename the component or iprove the code!' % sselt.name)
+                    raise ValueError('Name conflict %s, either rename the component or improve the code!' % sselt.name)
                 
                 capacitors.append(elt)
             elif isinstance(elt, (I, V)):
@@ -80,8 +80,7 @@ class StateSpace(object):
                 
         self.cct = cct
         self.sscct = sscct
-
-        # sscct can be analysed in the time domain since it has not
+        # sscct can be analysed in the time domain since it has no
         # reactive components.
         
         dotx_exprs = []
@@ -94,11 +93,12 @@ class StateSpace(object):
             if isinstance(elt, L):
                 # Inductors  v = L di/dt  so need v across the L
                 expr = sscct[name].v / elt.cpt.L
-                var = sscct[name].isc
+                var = -sscct[name].isc
                 x0 = elt.cpt.i0
             else:
                 # Capacitors  i = C dv/dt  so need i through the C
-                expr = sscct[name].i / elt.cpt.C
+                # The current is negated since it is from a source V_Cx
+                expr = -sscct[name].i / elt.cpt.C
                 var = sscct[name].voc
                 x0 = elt.cpt.v0
 
@@ -151,7 +151,7 @@ class StateSpace(object):
             for node in cct.node_list:
                 if node == '0':
                     continue
-                yexprs.append(self.sscct[node].v.subs(subsdict).expand())
+                yexprs.append(self.sscct[node].v.subs(subsdict).expand().expr)
                 # Note, this can introduce a name conflict
                 y.append(Vt('v_%s(t)' % node))
 
@@ -160,7 +160,7 @@ class StateSpace(object):
                 # Perhaps ignore L since the current through it is a
                 # state variable?
                 name2 = cpt_map[name]                    
-                yexprs.append(self.sscct[name2].i.subs(subsdict).expand())
+                yexprs.append(self.sscct[name2].i.subs(subsdict).expand().expr)
                 y.append(It('i_%s(t)' % name))                    
 
         Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)

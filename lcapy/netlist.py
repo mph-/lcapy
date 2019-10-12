@@ -524,7 +524,8 @@ class NetlistMixin(object):
         else:
             new.add('Vshort_ %s %s 0' % (Np, Nm))            
 
-        Isc = new.Vshort_.I
+        # Negate current since Vshort is a considered a source.
+        Isc = -new.Vshort_.I
         new.remove('Vshort_')
         
         return Isc
@@ -567,7 +568,7 @@ class NetlistMixin(object):
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
         new._add('Vin_ %s %s {DiracDelta(t)}' % (Np, Nm))
-        If = -new.Vin_.I
+        If = new.Vin_.I
         new.remove('Vin_')
 
         return Ys(If.laplace(), causal=True)

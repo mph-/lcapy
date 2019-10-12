@@ -69,7 +69,7 @@ However, there are subtle differences.  For example,
 
 Notice, the second example requires specific nodes to determine the
 open-circuit voltage across.  The advantage of the netlist approach is
-that component names can be used , for example,
+that component names can be used, for example,
 
    >>> cct2.V1.V.laplace()
       5   

@@ -338,9 +338,38 @@ Note, every real symbol is also considered complex although with no
 imaginary part.  The proper way to test assumptions is to use the
 attributes `is_complex`, `is_real`, etc.  For example,
 
-   >>>t.is_real
+   >>> t.is_real
    True
-   >>>t.is_complex
+   >>> t.is_complex
    False
 
+There can be difficulties with symbol assumptions when working with
+SymPy.  By default sympy creates symbols with few assumptions, for example,
 
+   >>> from sympy import Symbol
+   >>> R1 = Symbol('R')
+   >>> R1.assumptions0
+   {'commutative': True}
+
+
+On the other hand, by default, Lcapy assumes that symbols are
+positive.  For example,
+
+   >>> from lcapy import symbol
+   >>> R2 = symbol('R')
+   >>> R2.assumptions0
+   {'commutative': True,
+   'complex': True,
+   'hermitian': True,
+   'imaginary': False,
+   'negative': False,
+   'nonnegative': True,
+   'nonpositive': False,
+   'nonzero': True,
+   'positive': True,
+   'real': True,
+   'zero': False}
+
+
+Since `R1` and `R2` have different assumptions, SymPy considers them different symbols even though they are both defined as `R`.
+   

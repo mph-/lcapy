@@ -53,7 +53,8 @@ class Cpt(object):
     need_branch_current = False
     need_extra_branch_current = False    
     need_control_current = False
-    directive = False    
+    directive = False
+    flip_branch_current = False    
 
     def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
@@ -195,6 +196,11 @@ class Cpt(object):
         return self.copy()        
 
     @property
+    def is_source(self):
+        """Return True if component is a source (dependent or independent)"""
+        return self.dependent_source or self.independent_source
+
+    @property
     def is_causal(self):
         """Return True if causal component or if source produces
         a causal signal."""
@@ -264,13 +270,17 @@ class Cpt(object):
 
     @property
     def I(self):
-        """Current through component."""
+        """Current through component.  The current is defined to be into the
+        positive node for passive devices and out of the positive node
+        for sources."""
 
         return self.cct.get_I(self.name)
 
     @property
     def i(self):
-        """Time-domain current through component."""
+        """Time-domain current through component.  The current is
+        defined to be into the positive node for passive devices and
+        out of the positive node for sources."""
 
         return self.cct.get_i(self.name)
 
@@ -569,8 +579,8 @@ class C(RC):
         # Perhaps mangle name to ensure it does not conflict
         # with another voltage source?
         return '%sV_%s %s %s; %s' % (self.namespace, self.relname,
-                                    self.relnodes[0], self.relnodes[1], 
-                                    self.opts)
+                                     self.relnodes[0], self.relnodes[1], 
+                                     self.opts)
         
     @property
     def cptV0(self):
@@ -861,9 +871,9 @@ class L(RLC):
     def ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another current source?        
-        return '%sI_%s %s %s; %s' % (self.namespace, self.relname,
-                                    self.relnodes[0], self.relnodes[1], 
-                                    self.opts)
+        return '%sI_%s %s %s {-i_%s(t)}; %s' % (self.namespace, self.relname,
+                                                self.relnodes[0], self.relnodes[1],
+                                                self.relname, self.opts)
     
     def pre_initial_model(self):
 
@@ -1061,6 +1071,7 @@ class TR(Dummy):
 class V(IndependentSource):
 
     need_branch_current = True
+    flip_branch_current = True        
 
     def select(self, kind=None):
         """Select domain kind for component."""

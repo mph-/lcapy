@@ -88,7 +88,7 @@ class MNA(object):
 
         # TODO: think this out.  When a circuit is converted
         # to a s-domain model we get Z (and perhaps Y) components.
-        # We also loose the ability to determine the voltage
+        # We also lose the ability to determine the voltage
         # across a capacitor or inductor since they get split
         # into a Thevenin model and renamed.
         if hasattr(self, '_s_model'):
@@ -187,7 +187,10 @@ class MNA(object):
         # Create dictionary of branch currents through elements
         self._Idict = Branchdict()
         for m, key in enumerate(self.unknown_branch_currents):
-            self._Idict[key] = itype(results[m + num_nodes], **assumptions).simplify()
+            I = results[m + num_nodes]
+            if key in self.elements and self.elements[key].is_source:
+                I = -I
+            self._Idict[key] = itype(I, **assumptions).simplify()
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
@@ -196,7 +199,6 @@ class MNA(object):
                 n1 = self.node_map[elt.nodes[0]]
                 n2 = self.node_map[elt.nodes[1]]                
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
-                # FIXME.  Need to remove C initial voltage v0 / s.
                 I = (V1.expr - V2.expr - elt.cptV0) / elt.cptZ.expr
                 self._Idict[elt.name] = itype(I, **assumptions).simplify()
             elif elt.type in ('I', ):

@@ -34,6 +34,17 @@ Preliminaries
   >>> ipython --pylab
 
 
+Conventions
+===========
+
+Lcapy uses the passive sign convention.  Thus for a passive device (R,
+L, C), current flows into the positive node, and for an active device (V, I),
+currents flows out of the positive node.
+
+.. image:: examples/netlists/VIRLC.png
+   :width: 15cm
+
+  
 Expressions
 ===========
 
@@ -63,7 +74,7 @@ and a s-domain expression can be created using:
    ─────
    s - 4
 
-For steady-state signals, the s-domain can be converted to the angular
+For steady-state causal signals, the s-domain can be converted to the angular
 frequency domain by substituting :math:`\mathrm{j} \omega` for :math:`s`
 
    >>> from lcapy import s, j, omega
@@ -945,7 +956,9 @@ Alternatively, this can be achieved using the lowercase `v` attribute:
    >>> cct.V1.v
    10
 
+The current through a component is obtained with the `I` attribute.  For a source the current is assumed to flow out of the positive node, however, for a passive device (R, L, C) it is assumed to flow into the positive node.
 
+   
 The voltage between a node and ground can be determined with the node
 name as an index, for example,
 
@@ -1182,9 +1195,9 @@ vector is shown using the `y` attribute:
 The state equations are shown using the `state_equations` method:
 
    >>> ss.state_equations()
-   ⎡d         ⎤   ⎡R₁   -1  ⎤                      
-   ⎢──(i_L(t))⎥   ⎢──   ─── ⎥            ⎡1⎤       
-   ⎢dt        ⎥   ⎢L     L  ⎥ ⎡i_L(t)⎤   ⎢─⎥       
+   ⎡d         ⎤   ⎡-R₁  -1  ⎤                      
+   ⎢──(i_L(t))⎥   ⎢───  ─── ⎥            ⎡1⎤       
+   ⎢dt        ⎥   ⎢ L    L  ⎥ ⎡i_L(t)⎤   ⎢─⎥       
    ⎢          ⎥ = ⎢         ⎥⋅⎢      ⎥ + ⎢L⎥⋅[v(t)]
    ⎢d         ⎥   ⎢-1   -1  ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
    ⎢──(v_C(t))⎥   ⎢───  ────⎥            ⎣0⎦       
@@ -1193,24 +1206,24 @@ The state equations are shown using the `state_equations` method:
 The output equations are shown using the `output_equations` method:
 
    >>> ss.output_equations()
-   ⎡v₁(t)⎤   ⎡0   0⎤            ⎡1⎤       
-   ⎢     ⎥   ⎢     ⎥ ⎡i_L(t)⎤   ⎢ ⎥       
-   ⎢v₂(t)⎥ = ⎢R₁  0⎥⋅⎢      ⎥ + ⎢1⎥⋅[v(t)]
-   ⎢     ⎥   ⎢     ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
-   ⎣v₃(t)⎦   ⎣0   1⎦            ⎣0⎦       
+   ⎡v₁(t)⎤   ⎡0    0⎤            ⎡1⎤       
+   ⎢     ⎥   ⎢      ⎥ ⎡i_L(t)⎤   ⎢ ⎥       
+   ⎢v₂(t)⎥ = ⎢-R₁  0⎥⋅⎢      ⎥ + ⎢1⎥⋅[v(t)]
+   ⎢     ⎥   ⎢      ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
+   ⎣v₃(t)⎦   ⎣0    1⎦            ⎣0⎦       
 
 
 The `A`, `B`, `C`, and `D` matrices are obtained using the attributes
 of the same name.  For example,
 
    >>> ss.A
-   ⎡R₁   -1  ⎤
-   ⎢──   ─── ⎥
-   ⎢L     L  ⎥
-   ⎢         ⎥
-   ⎢-1   -1  ⎥
-   ⎢───  ────⎥
-   ⎣ C   C⋅R₂⎦
+   ⎡-R₁   -1  ⎤
+   ⎢───   ─── ⎥
+   ⎢ L     L  ⎥
+   ⎢          ⎥
+   ⎢ 1    -1  ⎥
+   ⎢───   ────⎥
+   ⎣ C    C⋅R₂⎦
 
    >>> ss.B
    ⎡1⎤
@@ -1220,11 +1233,11 @@ of the same name.  For example,
    ⎣0⎦
 
    >>> ss.C
-   ⎡0   0⎤
-   ⎢     ⎥
-   ⎢R₁  0⎥
-   ⎢     ⎥
-   ⎣0   1⎦
+   ⎡0    0⎤
+   ⎢      ⎥
+   ⎢-R₁  0⎥
+   ⎢      ⎥
+   ⎣0    1⎦
 
    >>> ss.D
    ⎡1⎤
@@ -1248,50 +1261,51 @@ and the time-domain state-transition matrix is given by the `phi`
 attribute.  For example,
 
    >>> ss.Phi
-   ⎡                1                                           ⎤
-   ⎢           s + ────                                         ⎥
-   ⎢               C⋅R₂                         -1              ⎥
-   ⎢  ─────────────────────────    ─────────────────────────────⎥
-   ⎢  ⎛     1  ⎞ ⎛    R₁⎞    1       ⎛⎛     1  ⎞ ⎛    R₁⎞    1 ⎞⎥
-   ⎢  ⎜s + ────⎟⋅⎜s - ──⎟ - ───    L⋅⎜⎜s + ────⎟⋅⎜s - ──⎟ - ───⎟⎥
-   ⎢  ⎝    C⋅R₂⎠ ⎝    L ⎠   C⋅L      ⎝⎝    C⋅R₂⎠ ⎝    L ⎠   C⋅L⎠⎥
-   ⎢                                                            ⎥
-   ⎢                                               R₁           ⎥
-   ⎢                                           s - ──           ⎥
-   ⎢             -1                                L            ⎥
-   ⎢─────────────────────────────    ─────────────────────────  ⎥
-   ⎢  ⎛⎛     1  ⎞ ⎛    R₁⎞    1 ⎞    ⎛     1  ⎞ ⎛    R₁⎞    1   ⎥
-   ⎢C⋅⎜⎜s + ────⎟⋅⎜s - ──⎟ - ───⎟    ⎜s + ────⎟⋅⎜s - ──⎟ - ───  ⎥
-   ⎣  ⎝⎝    C⋅R₂⎠ ⎝    L ⎠   C⋅L⎠    ⎝    C⋅R₂⎠ ⎝    L ⎠   C⋅L  ⎦
+   ⎡                  1                                                   ⎤
+   ⎢             s + ────                                                 ⎥
+   ⎢                 C⋅R₂                              -1                 ⎥
+   ⎢  ──────────────────────────────    ──────────────────────────────────⎥
+   ⎢   2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂      ⎛ 2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂⎞⎥
+   ⎢  s  + ─────────────── + ───────    L⋅⎜s  + ─────────────── + ───────⎟⎥
+   ⎢            C⋅L⋅R₂        C⋅L⋅R₂      ⎝          C⋅L⋅R₂        C⋅L⋅R₂⎠⎥
+   ⎢                                                                      ⎥
+   ⎢                                                      R₁              ⎥
+   ⎢                                                  s + ──              ⎥
+   ⎢                1                                     L               ⎥
+   ⎢──────────────────────────────────    ──────────────────────────────  ⎥
+   ⎢  ⎛ 2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂⎞     2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂  ⎥
+   ⎢C⋅⎜s  + ─────────────── + ───────⎟    s  + ─────────────── + ───────  ⎥
+   ⎣  ⎝          C⋅L⋅R₂        C⋅L⋅R₂⎠              C⋅L⋅R₂        C⋅L⋅R₂  ⎦
 
 
 The system transfer functions are given by the `G` attribute and the
 impulse responses are given by the `g` attributes, for example:
 
    >>> ss.G
-   ⎡                       1                       ⎤
-   ⎢                                               ⎥
-   ⎢ 2   s⋅(-C⋅R₁⋅R₂ + C⋅R₁⋅R₂ + L)   -R₁ + R₁ - R₂⎥
-   ⎢s  + ────────────────────────── + ─────────────⎥
-   ⎢               C⋅L⋅R₂                 C⋅L⋅R₂   ⎥
-   ⎢───────────────────────────────────────────────⎥
-   ⎢         2   s⋅(-C⋅R₁⋅R₂ + L)   -R₁ - R₂       ⎥
-   ⎢        s  + ──────────────── + ────────       ⎥
-   ⎢                  C⋅L⋅R₂         C⋅L⋅R₂        ⎥
-   ⎢                                               ⎥
-   ⎢                     -1                        ⎥
-   ⎢    ──────────────────────────────────────     ⎥
-   ⎢        ⎛ 2   s⋅(-C⋅R₁⋅R₂ + L)   -R₁ - R₂⎞     ⎥
-   ⎢    C⋅L⋅⎜s  + ──────────────── + ────────⎟     ⎥
-   ⎣        ⎝          C⋅L⋅R₂         C⋅L⋅R₂ ⎠     ⎦
+   ⎡                 1                  ⎤
+   ⎢                                    ⎥
+   ⎢           2    s      1            ⎥
+   ⎢          s  + ──── + ───           ⎥
+   ⎢               C⋅R₂   C⋅L           ⎥
+   ⎢   ──────────────────────────────   ⎥
+   ⎢    2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂   ⎥
+   ⎢   s  + ─────────────── + ───────   ⎥
+   ⎢             C⋅L⋅R₂        C⋅L⋅R₂   ⎥
+   ⎢                                    ⎥
+   ⎢                 1                  ⎥
+   ⎢────────────────────────────────────⎥
+   ⎢    ⎛ 2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂⎞⎥
+   ⎢C⋅L⋅⎜s  + ─────────────── + ───────⎟⎥
+   ⎣    ⎝          C⋅L⋅R₂        C⋅L⋅R₂⎠⎦
+
 
 The characteristic polynomial (system polynomial) is given by the `P`
 attribute, for example,
 
    >>> ss.P
-    2   s⋅(-C⋅R₁⋅R₂ + L)   -R₁ - R₂
-   s  + ──────────────── + ────────
-             C⋅L⋅R₂         C⋅L⋅R₂ 
+    2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂
+   s  + ─────────────── + ────────
+             C⋅L⋅R₂        C⋅L⋅R₂ 
 
 The roots of this polynomial are the eigenvalues of the system.  These
 are given by the `eigenvalues` attribute.  The corresponding
