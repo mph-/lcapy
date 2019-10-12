@@ -7,23 +7,29 @@ class sfwExpr(Expr):
 
         super(sfwExpr, self).__init__(val, **assumptions)
 
-    def roots(self):
+    def roots(self, aslist=False):
         """Return roots of expression as a dictionary
         Note this may not find them all."""
 
-        return expr(self._ratfun.roots())
-
-    def zeros(self):
+        roots = expr(self._ratfun.roots())
+        if not aslist:
+            return roots
+        rootslist = []
+        for root, count in roots.items():
+            rootslist += [root] * count
+        return rootslist
+            
+    def zeros(self, aslist=False):
         """Return zeroes of expression as a dictionary
         Note this may not find them all."""
 
-        return self.N.roots()
+        return self.N.roots(aslist)
 
-    def poles(self):
+    def poles(self, aslist=False):
         """Return poles of expression as a dictionary
         Note this may not find them all."""
 
-        return self.D.roots()
+        return self.D.roots(aslist)
 
     def residues(self):
         """Return list of residues of partial fraction expansion."""
