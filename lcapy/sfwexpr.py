@@ -11,13 +11,13 @@ class sfwExpr(Expr):
         """Return roots of expression as a dictionary
         Note this may not find them all."""
 
-        roots = expr(self._ratfun.roots())
+        roots = self._ratfun.roots()
         if not aslist:
-            return roots
+            return expr(roots)
         rootslist = []
         for root, count in roots.items():
             rootslist += [root] * count
-        return rootslist
+        return expr(rootslist)
             
     def zeros(self, aslist=False):
         """Return zeroes of expression as a dictionary
