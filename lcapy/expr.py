@@ -829,7 +829,8 @@ class Expr(ExprPrint, ExprMisc):
         """Evaluate expression at arg.  arg may be a scalar, or a vector.
         The result is of type float or complex.
 
-        There can be no symbols in the expression except for the variable.
+        There can be only one or fewer undefined variables in the expression.
+        This is replaced by arg and then evaluated to obtain a result.
         """
 
         def evaluate_expr(expr, var, arg):
@@ -912,7 +913,19 @@ class Expr(ExprPrint, ExprMisc):
         expr = self.expr
 
         if not hasattr(self, 'var') or self.var is None:
-            return expr.evalf()
+            symbols = list(expr.free_symbols)
+            if arg is None:
+                if len(symbols) == 0:
+                    return expr.evalf()                    
+                raise ValueError('Undefined symbols %s in expression %s' % (tuple(symbols), self))                                    
+            if len(symbols) == 0:
+                print('Ignoring arg %s' % arg)
+                return expr.evalf()                
+            elif len(symbols) == 1:            
+                return evaluate_expr(expr, symbols[0], arg)
+            else:
+                raise ValueError('Undefined symbols %s in expression %s' % (tuple(symbols), self))                
+                
             
         var = self.var
         # Use symbol names to avoid problems with symbols of the same
@@ -1198,7 +1211,7 @@ def symbol(name, **assumptions):
     """
     return Expr(symsymbol(name, **assumptions))
 
-    
+
 from .cexpr import cExpr        
 from .fexpr import Hf, If, Vf, Yf, Zf, fExpr    
 from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr
