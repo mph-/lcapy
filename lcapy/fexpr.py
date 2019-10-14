@@ -1,10 +1,17 @@
+"""This file provides the fExpr class to represent f-domain (Fourier
+domain) expressions.
+
+Copyright 2014--2019 Michael Hayes, UCECE
+
+"""
+
 from __future__ import division
 from .fourier import inverse_fourier_transform
-from .sfwexpr import sfwExpr
+from .expr import Expr
 from .sym import fsym, ssym, tsym
 #import .texpr as texpr
 
-class fExpr(sfwExpr):
+class fExpr(Expr):
 
     """Fourier domain expression or symbol."""
 

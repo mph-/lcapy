@@ -181,5 +181,3 @@ from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr
 from .fexpr import Hf, If, Vf, Yf, Zf, fExpr
 from .phasor import Phasor
 t = tExpr('t')
-
-

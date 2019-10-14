@@ -127,7 +127,7 @@ def as_ratfun_delay_undef(expr, var):
         rf *= f
 
     if not rf.is_rational_function(var):
-        raise ValueError('Expression not a product of rational function'
+        raise ValueError('Expression not a product of rational function,'
                          ' exponential, and undefined functions')
     
     N, D = rf.as_numer_denom()
@@ -469,5 +469,12 @@ class Ratfun(object):
         Dpoly = sym.Poly(D, var)
 
         return Npoly.all_coeffs(), Dpoly.all_coeffs()
-    
+
+    def degree(self):
+        """Return the degree (order) of the rational function.
+
+        This the maximum of the numerator and denominator degrees.
+        Note zero has a degree of -inf."""
         
+        Npoly, Dpoly = as_numer_denom_poly(self.expr, self.var)
+        return max(Npoly.degree(), Dpoly.degree())

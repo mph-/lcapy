@@ -31,6 +31,10 @@ class cExpr(Expr):
 
         return self.time().laplace()
 
+    def canonical(self, factor_const=True):
+        # Minor optimisation
+        return self
+    
 
 class Vconst(cExpr):
 

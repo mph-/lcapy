@@ -1,10 +1,17 @@
+"""This file provides the omegaExpr class to represent omega-domain
+(angular frequency Fourier domain) expressions.
+
+Copyright 2014--2019 Michael Hayes, UCECE
+
+"""
+
 from __future__ import division
 from .fourier import inverse_fourier_transform
-from .sfwexpr import sfwExpr
+from .expr import Expr
 from .sym import fsym, ssym, tsym, omegasym, j, pi
 
 
-class omegaExpr(sfwExpr):
+class omegaExpr(Expr):
 
     """Fourier domain expression or symbol (angular frequency)."""
 

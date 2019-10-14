@@ -1,14 +1,21 @@
+"""This file provides the sExpr class to represent s-domain (Laplace
+domain) expressions.
+
+Copyright 2014--2019 Michael Hayes, UCECE
+
+"""
+
 from __future__ import division
 from .laplace import inverse_laplace_transform
-from .sfwexpr import sfwExpr
 from .sym import ssym, tsym, j, pi
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
+from .expr import Expr
 import sympy as sym
 import numpy as np
 
 
-class sExpr(sfwExpr):
+class sExpr(Expr):
     """s-domain expression or symbol."""
 
     var = ssym
