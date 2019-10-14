@@ -26,7 +26,7 @@ Constants
 
 
 Variables
----------    
+---------
 
 Lcapy has five predefined variables:
 
@@ -70,8 +70,142 @@ Lcapy has the following built-in functions: `sin`, `cos`, `tan`,
 `H`, `u`, `DiracDelta`, `delta`, and `conjugate`.
 
 
-Printing functions
+Attributes
+==========
+
+All Lcapy expressions have the following attributes:
+
+- `abs` return absolute value
+
+- `angle` return phase angle (radians)
+  
+- `cartesian` return expression in form `real + j * imag`
+
+- `coeffs` return list of coefficients if expression is a polynomial; the highest powers come first.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
+  
+- `conjugate` return complex conjugate
+
+- `dB` return magnitude in decibels: `20 * log10(magnitude)`
+  
+- `D` return denominator
+
+- `denominator` return denominator
+
+- `degree` return degree (order).  If expression is a rational function the degree is the maximum degree of the numerator and denominator.
+
+- `domain_label` return string describing domain of expression
+  
+- `evalf` return floating point number if expression can be evaluated
+
+- `imag` return imaginary part
+
+- `is_ac` return True if AC signal
+
+- `is_causal` return True if signal is causal, i.e, is 0 for :math:`t < 0`
+
+- `is_constant` return True if expression constant
+
+- `is_dc` return True if DC signal    
+
+- `is_number` return True if expression is a number
+
+- `label` return string describing expression to use as a plot label
+
+- `magnitude` return absolute value  
+
+- `N` return numerator
+
+- `normcoeffs` return list of coefficients if expression is a polynomial; the highest powers come first.  The coefficiens are normalised so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
+  
+- `numerator` return numerator
+
+- `phase` return phase (radians)
+
+- `phase_degrees` return phase (degrees)    
+
+- `polar` return expression in form `mag * exp(j * phase)`
+
+- `real` return real part  
+
+- `real_imag` return expression in form `real + j * imag`
+
+- `sign` return sign
+
+- `symbols` return dictionary of symbols used in the expression keyed by their names
+  
+
+Methods
+=======
+
+Poles and zeros
+---------------
+
+- `poles` return poles of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the poles.   
+
+- `roots` return roots of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the roots.
+
+- `zeros` return zeros of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the zeros.   
+  
+  
+
+
+Formatting methods
 ------------------
+
+Lcapy expressions can be displayed in many forms.  For example,
+consider the s-domain rational-function:
+
+   >>> H = 5 * (s**2 + 1) / (s**2 + 5*s + 4)     
+
+   >>> H.canonical()
+      ⎛ 2    ⎞ 
+    5⋅⎝s  + 1⎠ 
+   ────────────
+    2          
+   s  + 5⋅s + 4
+
+   >>> H.general()
+        2      
+     5⋅s  + 5  
+   ────────────
+    2          
+   s  + 5⋅s + 4
+
+   >>> H.ZPK()
+   5⋅(s - ⅉ)⋅(s + ⅉ)
+   ─────────────────
+    (s + 1)⋅(s + 4) 
+
+   >>> H.partfrac()
+           85          10   
+   5 - ───────── + ─────────
+       3⋅(s + 4)   3⋅(s + 1)
+
+   >>> H.mixedfrac()
+      25⋅s + 15      
+   - ──────────── + 5
+      2              
+     s  + 5⋅s + 4    
+
+   >>> H.timeconst()
+        ⎛ 2    ⎞   
+      5⋅⎝s  + 1⎠   
+   ────────────────
+     ⎛ 2          ⎞
+     ⎜s    5⋅s    ⎟
+   4⋅⎜── + ─── + 1⎟
+     ⎝4     4     ⎠
+
+   >>> H.expandcanonical()  
+          2                   
+       5⋅s             5      
+   ──────────── + ────────────
+    2              2          
+   s  + 5⋅s + 4   s  + 5⋅s + 4
+
+
+Printing methods
+----------------
 
 - `pprint` pretty print an expression
 
@@ -79,13 +213,13 @@ Printing functions
 
 - `pretty` convert an expression to a string with a prettified form
 
-
+   
 Utility functions
------------------
+=================
 
 - `symbol`  create a symbol
 
-- `expr` create an expression
+- `expr` create an expression.  This can also create lists, tuples, and dictionaries of expressions.
 
 Note, sympy does not allow symbol names that are Python keywords.  For example,
 `expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.

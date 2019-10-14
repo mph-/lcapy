@@ -459,7 +459,8 @@ class Ratfun(object):
         
         F, R, Q, delay = self.as_residue_parts()
         return R
-    
+
+    @property    
     def coeffs(self):
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
@@ -470,6 +471,7 @@ class Ratfun(object):
 
         return Npoly.all_coeffs(), Dpoly.all_coeffs()
 
+    @property
     def degree(self):
         """Return the degree (order) of the rational function.
 

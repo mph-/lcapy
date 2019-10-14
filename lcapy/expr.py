@@ -121,6 +121,8 @@ class ExprMisc(object):
     def residues(self):
         """Return list of residues of partial fraction expansion."""
 
+        # TODO, return as dictionary keyed by pole
+        
         return expr(self._ratfun.residues())
 
     def canonical(self, factor_const=True):
@@ -192,6 +194,7 @@ class ExprMisc(object):
 
         return self.__class__(self._ratfun.expandcanonical(), **self.assumptions)
 
+    @property    
     def coeffs(self):
         """Return list of coeffs assuming the expr is a polynomial in s.  The
         highest powers come first.  This will fail for a rational function.
@@ -204,6 +207,7 @@ class ExprMisc(object):
             raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')
         return expr(z.all_coeffs())
 
+    @property
     def normcoeffs(self):
         """Return list of coeffs (normalised so the highest power is 1)
         assuming the expr is a polynomial in s.  The highest powers
@@ -218,13 +222,14 @@ class ExprMisc(object):
         c = z.all_coeffs()
         return expr([sym.simplify(c1 / c[0]) for c1 in c])
 
+    @property
     def degree(self):
         """Return the degree (order) of the rational function.
 
         This the maximum of the numerator and denominator degrees.
         Note zero has a degree of -inf."""
         
-        return self.__class__(self._ratfun.degree(), **self.assumptions)
+        return self._ratfun.degree
     
     
 class ExprDict(ExprPrint, ExprMisc, OrderedDict):
@@ -409,6 +414,13 @@ class Expr(ExprPrint, ExprMisc):
         otherwise the expression."""
 
         return self.evalf()
+
+    @property
+    def evalf(self):
+        """Return floating point value of expression if it can be evaluated,
+        otherwise the expression."""
+
+        return self.expr.evalf()    
 
     @property
     def omega(self):
