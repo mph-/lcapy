@@ -194,20 +194,25 @@ class ExprMisc(object):
 
         return self.__class__(self._ratfun.expandcanonical(), **self.assumptions)
 
-    @property    
-    def coeffs(self):
+    def coeffs(self, norm=False):
         """Return list of coeffs assuming the expr is a polynomial in s.  The
         highest powers come first.  This will fail for a rational function.
         Instead use expr.N.coeffs or expr.D.coeffs for numerator
-        or denominator respectively."""
+        or denominator respectively.
+        
+        If norm is True, normalise coefficients to highest power is 1."""
 
         try:
             z = sym.Poly(self.expr, self.var)
         except:
             raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')
-        return expr(z.all_coeffs())
 
-    @property
+        c = z.all_coeffs()
+        if norm:
+            return expr([sym.simplify(c1 / c[0]) for c1 in c])
+            
+        return expr(c)
+
     def normcoeffs(self):
         """Return list of coeffs (normalised so the highest power is 1)
         assuming the expr is a polynomial in s.  The highest powers
@@ -215,12 +220,7 @@ class ExprMisc(object):
         use expr.N.normcoeffs or expr.D.normcoeffs for numerator or
         denominator respectively."""
 
-        try:
-            z = sym.Poly(self.expr, self.var)
-        except:
-            raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')            
-        c = z.all_coeffs()
-        return expr([sym.simplify(c1 / c[0]) for c1 in c])
+        return self.coeffs(norm=True)
 
     @property
     def degree(self):

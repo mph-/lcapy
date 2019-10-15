@@ -81,8 +81,6 @@ All Lcapy expressions have the following attributes:
   
 - `cartesian` return expression in form `real + j * imag`
 
-- `coeffs` return list of coefficients if expression is a polynomial; the highest powers come first.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
-  
 - `conjugate` return complex conjugate
 
 - `dB` return magnitude in decibels: `20 * log10(magnitude)`
@@ -115,8 +113,6 @@ All Lcapy expressions have the following attributes:
 
 - `N` return numerator
 
-- `normcoeffs` return list of coefficients if expression is a polynomial; the highest powers come first.  The coefficiens are normalised so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
-  
 - `numerator` return numerator
 
 - `phase` return phase (radians)
@@ -140,6 +136,10 @@ Methods
 Poles and zeros
 ---------------
 
+- `coeffs` return list of coefficients if expression is a polynomial; the highest powers come first.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
+
+- `normcoeffs` return list of coefficients if expression is a polynomial; the highest powers come first.  The coefficiens are normalised so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
+
 - `poles` return poles of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the poles.   
 
 - `roots` return roots of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the roots.
@@ -147,6 +147,14 @@ Poles and zeros
 - `zeros` return zeros of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the zeros.   
   
 
+Miscellaneous
+-------------
+
+- `initial_value` return result at :math:`t = 0`
+
+- `final_value` return result at :math:`t = oo`  
+
+  
 
 Formatting methods
 ------------------
@@ -212,6 +220,8 @@ Printing methods
 
 - `pretty` convert an expression to a string with a prettified form
 
+- `plot` plot the expression, provided there are no free symbols
+  
 
 SymPy methods
 -------------
