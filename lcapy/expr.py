@@ -231,6 +231,24 @@ class ExprMisc(object):
         
         return self._ratfun.degree
     
+    def prune_HOT(self, degree):
+        """Prune higher order terms if expression is a polynomial
+        so that resultant approximate expression has the desired degree."""
+
+        coeffs = self.coeffs
+        if len(coeffs) < degree:
+            return self
+
+        coeffs = coeffs[::-1]
+
+        expr = sym.S.Zero
+        var = self.var
+        for m in range(degree + 1):
+            term = coeffs[m].expr * var ** m
+            expr += term
+
+        return self.__class__(expr, **self.assumptions)            
+
     
 class ExprDict(ExprPrint, ExprMisc, OrderedDict):
 
