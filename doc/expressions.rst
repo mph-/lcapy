@@ -146,7 +146,6 @@ Poles and zeros
 
 - `zeros` return zeros of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the zeros.   
   
-  
 
 
 Formatting methods
@@ -213,6 +212,17 @@ Printing methods
 
 - `pretty` convert an expression to a string with a prettified form
 
+
+SymPy methods
+-------------
+
+If Lcapy does not have a method defined but the underlying SymPy
+expression does, the SymPy method is used.  For example,
+
+- `diff`
+
+- `simplify`
+  
    
 Utility functions
 =================
