@@ -1,7 +1,7 @@
 from __future__ import division
 from .expr import Expr
 from .functions import exp
-from .sym import fsym, ssym, tsym, j
+from .sym import fsym, ssym, tsym, j, oo
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .laplace import laplace_transform
 from .fourier import fourier_transform
@@ -101,6 +101,16 @@ class tExpr(Expr):
         vector t. """
 
         return self.evaluate(t)
+
+    def initial_value(self):
+        """Determine value at t = 0."""
+
+        return self.subs(0)
+
+    def final_value(self):
+        """Determine value at t = oo."""
+
+        return self.__class__(sym.limit(self.expr, self.var, oo))
     
 
 class Yt(tExpr):
