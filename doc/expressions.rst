@@ -527,3 +527,5 @@ positive.  For example,
 
 Since `R1` and `R2` have different assumptions, SymPy considers them different symbols even though they are both defined as `R`.
    
+
+Lcapy represents floating point numbers as rationals.  This ensures expected simplifications of expressions.

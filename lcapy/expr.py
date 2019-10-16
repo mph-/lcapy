@@ -1009,10 +1009,13 @@ class Expr(ExprPrint, ExprMisc):
                 return np.inf if arg == 0.0 else 0.0
 
             def heaviside(arg):
-
                 return 1.0 if arg >= 0.0 else 0.0
 
             def sqrt(arg):
+                # Large numbers get converted to ints and int has no sqrt
+                # attribute so convert to float.
+                if isinstance(arg, int):
+                    arg = float(arg)
                 if not isinstance(arg, complex) and arg < 0:
                     arg = arg + 0j
                 return np.sqrt(arg)
@@ -1031,23 +1034,26 @@ class Expr(ExprPrint, ExprMisc):
                             ({'DiracDelta' : dirac,
                               'Heaviside' : heaviside,
                               'sqrt' : sqrt, 'exp' : exp},
-                             "numpy", "sympy", "math"))
+                             "scipy", "numpy", "math", "sympy"))
 
             try:
                 result = func(arg0)
                 response = complex(result)
-            except NameError:
-                raise RuntimeError('Cannot evaluate expression %s' % self)
-            except (AttributeError, TypeError):
-                if expr.is_Piecewise:
+            except NameError as e:
+                raise RuntimeError('Cannot evaluate expression %s: %s' % (self, e))
+            except AttributeError as e:
+                if False and expr.is_Piecewise:
                     raise RuntimeError(
                         'Cannot evaluate expression %s,'
                         ' due to undetermined conditional result' % self)
 
                 raise RuntimeError(
                     'Cannot evaluate expression %s,'
-                    ' probably have a mysterious function' % self)
+                    ' probably have a mysterious function: %s' % (self, e))
 
+            except TypeError as e:
+                raise RuntimeError('Cannot evaluate expression %s: %s' % (self, e))
+            
             if scalar:
                 if np.allclose(response.imag, 0.0):
                     response = response.real
@@ -1102,26 +1108,7 @@ class Expr(ExprPrint, ExprMisc):
         except:
             pass
 
-        if not (expr.is_Piecewise and expr.args[0].args[1].has(tsym >= 0)):
-            return evaluate_expr(expr, var, arg)
-
-        try:
-            arg0 = arg[0]
-            scalar = False
-        except:
-            arg0 = arg
-            scalar = True
-
-        expr = expr.args[0].args[0]
-            
-        if scalar:
-            if arg0 >= 0:
-                return evaluate_expr(expr, var, arg)
-            else:
-                return sym.nan
-        result = evaluate_expr(expr, var, arg)
-        result[arg < 0] = sym.nan
-        return result
+        return evaluate_expr(expr, var, arg)
 
     def has(self, subexpr):
         """Test whether the sub-expression is contained.  For example,

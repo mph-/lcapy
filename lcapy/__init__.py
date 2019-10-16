@@ -68,3 +68,8 @@ def show_version():
           (python_version, sympy_version, numpy_version,
            matplotlib_version, scipy_version, __version__))
 
+from sympy.core.sympify import converter
+from sympy import Symbol
+converter['j'] = j
+converter[Symbol('j')] = j
+
