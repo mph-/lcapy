@@ -68,6 +68,9 @@ def show_version():
           (python_version, sympy_version, numpy_version,
            matplotlib_version, scipy_version, __version__))
 
+# The following is to help sympify deal with j.   
+# A better fix might be to define an Lcapy clss for j and to
+# use the __sympy_ method.
 from sympy.core.sympify import converter
 from sympy import Symbol
 converter['j'] = j
