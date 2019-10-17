@@ -74,7 +74,7 @@ class ExprMisc(object):
     def simplify(self):
         """Simplify each element."""
         
-        return simplify(self)
+        return self.__class__([simplify(v) for v in self])
 
     @property    
     def pdb(self):
@@ -271,6 +271,14 @@ class ExprDict(ExprPrint, ExprMisc, OrderedDict):
                 pass            
                 
             new[k] = v
+        return new
+
+    def simplify(self):
+        """Simplify each element but not the keys."""
+
+        new = self.__class__()
+        for k, v in self.items():
+            new[k] = simplify(v)
         return new
 
     
