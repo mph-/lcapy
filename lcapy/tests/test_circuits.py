@@ -1,4 +1,4 @@
-from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn, Vt, It, sqrt, u
+from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn, Vt, It, sqrt, u, sympify
 from lcapy import Zs, s, t
 import unittest
 import sympy as sym
@@ -414,6 +414,57 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.C.I, "R + C current different")
         self.assertEqual(a.V.I, a.C.I, "V + C current different")
-        self.assertEqual(a.V.V,  a.R.V + a.C.V, "KVL fail")                
+        self.assertEqual(a.V.V,  a.R.V + a.C.V, "KVL fail")
 
+
+    def test_VRL_ivp(self):
+        """Lcapy: check VRL IVP"""
+
+        a = Circuit("""
+        V 1 0 dc; down
+        R 1 2; right
+        L 2 3 L I0; down
+        W 0 3; right""")
+
+        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.R.I, a.L.I, "R + L current different")
+        self.assertEqual(a.V.I, a.L.I, "V + L current different")
+        self.assertEqual(a.V.V,  a.R.V + a.L.V, "KVL fail")        
+
+        a = Circuit("""
+        V 1 0 dc; down
+        R 2 3; right
+        L 1 2 L I0; down
+        W 0 3; right""")
+
+        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.R.I, a.L.I, "R + L current different")
+        self.assertEqual(a.V.I, a.L.I, "V + L current different")
+        self.assertEqual(a.V.V,  a.R.V + a.L.V, "KVL fail")                        
+
+    def test_RL_ivp(self):
+        """Lcapy: check RL IVP"""
+
+        a = Circuit("""
+        L 1 0 L i0
+        R 1 0""")
+
+        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        # Note, a positive current through an inductor is from the
+        # positive node to the negative node.
+        self.assertEqual(a.R.I, -a.L.I, "R + L current different")
+        self.assertEqual(a.R.V, a.L.V, "R + L voltage different")
+        self.assertEqual(a.L.I(s), sympify('i0 / (s + R / L)'), "L current wrong")
+
+    def test_RC_ivp(self):
+        """Lcapy: check RC IVP"""
+
+        a = Circuit("""
+        C 1 0 C v0
+        R 1 0""")
+
+        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.R.I, -a.C.I, "R + C current different")
+        self.assertEqual(a.R.V, a.C.V, "R + C voltage different")
+        self.assertEqual(a.C.I(s), sympify('-v0 / (s * R + 1 / C)'), "C current wrong")
         
