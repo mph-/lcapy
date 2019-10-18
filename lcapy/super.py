@@ -281,41 +281,26 @@ class Super(ExprDict):
         return new
 
     def __eq__(self, x):
+        """ Test for mathematical equality as far as possible.
+        This cannot be guaranteed since it depends on simplification.
+        Note, SymPy comparison is for structural equality.  
 
-        # Cannot compare noise by subtraction.
-        if isinstance(x, Super):
-            # TODO, be smarter about transformations
-            x = x.decompose()
-            y = self.decompose()            
-            if y.items() != x.items():
-                return False
-            for kind, value in y.items():
-                if value != x[kind]:
-                    return False
-            return True
+        Also note, noise cannot be compared."""
         
-        diff = self - x
+        diff = (self - x).simplify().decompose()
         for kind, value in diff.items():
             if value != 0:
                 return False
         return True
 
-
     def __ne__(self, x):
+        """ Test for mathematical inequality as far as possible.
+        This cannot be guaranteed since it depends on simplification.
+        Note, SymPy comparison is for structural equality.  
 
-        # Cannot compare noise by subtraction.
-        if isinstance(x, Super):
-            # TODO, be smarter about transformations
-            x = x.decompose()
-            y = self.decompose()            
-            if y.items() != x.items():
-                return True
-            for kind, value in y.items():
-                if value != x[kind]:
-                    return True
-            return False
+        Also note, noise cannot be compared."""
         
-        diff = self - x
+        diff = (self - x).simplify().decompose()
         for kind, value in diff.items():
             if value != 0:
                 return True

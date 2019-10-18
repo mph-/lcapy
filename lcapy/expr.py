@@ -714,12 +714,12 @@ class Expr(ExprPrint, ExprMisc):
         return self.parallel(x)
 
     def __eq__(self, x):
-        """Equality.
+        """Test for mathematical equality as far as possible.
+        This cannot be guaranteed since it depends on simplification.
+        Note, SymPy comparison is for structural equality.
 
         Note t == 't' since the second operand gets converted to the
-        type of the first operand.
-
-        """
+        type of the first operand."""
 
         # Note, this is used by the in operator.
 
@@ -735,10 +735,12 @@ class Expr(ExprPrint, ExprMisc):
 
         # This fails if one of the operands has the is_real attribute
         # and the other doesn't...
-        return self.expr == x.expr
+        return sym.simplify(self.expr - x.expr) == 0
 
     def __ne__(self, x):
-        """Inequality"""
+        """Test for mathematical inequality as far as possible.
+        This cannot be guaranteed since it depends on simplification.
+        Note, SymPy comparison is for structural equality."""
 
         if x is None:
             return True
@@ -746,7 +748,7 @@ class Expr(ExprPrint, ExprMisc):
         cls, self, x, assumptions = self.__compat_add__(x, '!=')
         x = cls(x)
 
-        return self.expr != x.expr
+        return sym.simplify(self.expr - x.expr) != 0        
 
     def __gt__(self, x):
         """Greater than"""

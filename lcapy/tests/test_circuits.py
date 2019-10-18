@@ -395,7 +395,7 @@ class LcapyTester(unittest.TestCase):
         """Lcapy: check VRC IVP"""
 
         a = Circuit("""
-        V 1 0; down
+        V 1 0 dc; down
         R 1 2; right
         C 2 3 C V0; down
         W 0 3; right""")
@@ -403,15 +403,17 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.C.I, "R + C current different")
         self.assertEqual(a.V.I, a.C.I, "V + C current different")
+        self.assertEqual(a.V.V,  a.R.V + a.C.V, "KVL fail")        
 
         a = Circuit("""
-        V 1 0; down
+        V 1 0 dc; down
         R 2 3; right
         C 1 2 C V0; down
         W 0 3; right""")
 
         self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.C.I, "R + C current different")
-        self.assertEqual(a.V.I, a.C.I, "V + C current different")        
-        
+        self.assertEqual(a.V.I, a.C.I, "V + C current different")
+        self.assertEqual(a.V.V,  a.R.V + a.C.V, "KVL fail")                
+
         

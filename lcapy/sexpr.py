@@ -167,7 +167,7 @@ class sExpr(Expr):
             raise (ValueError, 't values not equally spaced')
 
         # Perform polynomial long division so expr = Q + M / D                
-        N, D, delay = self.decompose()
+        N, D, delay = self._decompose()
         Q, M = sym.div(N, D)
         expr = M / D
 
@@ -201,7 +201,7 @@ class sExpr(Expr):
 
         return y
 
-    def decompose(self):
+    def _decompose(self):
 
         N, D, delay = Ratfun(self, s).as_ratfun_delay()                
 
