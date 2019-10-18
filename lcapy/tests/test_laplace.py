@@ -42,3 +42,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Vs('10 * V(s) * exp(-5 * s)').inverse_laplace(causal=True), Vt('10 * v(t - 5)'), "10 * V(s) * exp(-5 * s)")
         self.assertEqual(Vt('v(t)').laplace().inverse_laplace(causal=True),
                          Vt('v(t)'), "v(t)")
+        self.assertEqual(expr('1/(s+a)').inverse_laplace(causal=True), expr('exp(-a * t) * u(t)'), "1/(s+a)")
+        self.assertEqual(expr('1/(s**2)').inverse_laplace(causal=True), expr('t * u(t)'), "1/(s**2)")        
+        self.assertEqual(expr('s/(s+a)').inverse_laplace(causal=True), expr('-a * exp(-a * t) * u(t) + delta(t)'), "s/(s+a)")
+        self.assertEqual(expr('s/(s**2+a**2)').inverse_laplace(causal=True), expr('cos(a * t) * u(t)'), "s/(s**2+a**2)")
+        self.assertEqual(expr('a/(s**2+a**2)').inverse_laplace(causal=True), expr('sin(a * t) * u(t)'), "a/(s**2+a**2)")                                                                           

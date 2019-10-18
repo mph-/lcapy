@@ -426,7 +426,7 @@ def inverse_laplace_term1(expr, s, t, **assumptions):
     
 def inverse_laplace_term(expr, s, t, **assumptions):
 
-    expr, delay = delay_factor(simplify(expr), s)
+    expr, delay = delay_factor(expr, s)
 
     result1, result2 = inverse_laplace_term1(expr, s, t, **assumptions)
 
