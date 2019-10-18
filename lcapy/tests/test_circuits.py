@@ -390,3 +390,28 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.V1.v, Vt('5*cos(t)'), "V1 voltage incorrect")
         self.assertEqual(a.R1.i, It('(4*sin(t)+3*cos(t))/5'), "R1 current incorrect")
         
+
+    def test_VRC_ivp(self):
+        """Lcapy: check VRC IVP"""
+
+        a = Circuit("""
+        V 1 0; down
+        R 1 2; right
+        C 2 3 C V0; down
+        W 0 3; right""")
+
+        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.R.I, a.C.I, "R + C current different")
+        self.assertEqual(a.V.I, a.C.I, "V + C current different")
+
+        a = Circuit("""
+        V 1 0; down
+        R 2 3; right
+        C 1 2 C V0; down
+        W 0 3; right""")
+
+        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.R.I, a.C.I, "R + C current different")
+        self.assertEqual(a.V.I, a.C.I, "V + C current different")        
+        
+        

@@ -371,7 +371,7 @@ class Cpt(object):
     @property
     def node_indexes(self):
 
-        return (self.cct._node_index(n) for n in self.nodes)
+        return [self.cct._node_index(n) for n in self.nodes]
 
     @property
     def branch_index(self):
@@ -551,9 +551,12 @@ class RC(RLC):
         if n2 >= 0:
             cct._G[n2, n2] += Y
 
-        if cct.kind == 'ivp' and self.cpt.hasic and n1 >= 0:
-            I = self.Isc.expr            
-            cct._Is[n1] += I
+        if cct.kind == 'ivp' and self.cpt.hasic:
+            I = self.Isc.expr
+            if n1 >= 0:
+                cct._Is[n1] += I 
+            if n2 >= 0:
+                cct._Is[n2] -= I               
 
 
 class C(RC):
