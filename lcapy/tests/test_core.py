@@ -426,7 +426,6 @@ class LcapyTester(unittest.TestCase):
         
         self.assertEqual(isinstance(symbol('c'), Expr), True, "symbol")
 
-
     def test_comparison(self):
 
         a = expr('3')
@@ -463,3 +462,20 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(expr('4').limit(t, 0), 4, "limit")
         self.assertEqual(expr('t + 4').limit(t, 0), 4, "limit")        
         
+    def test_parameterize(self):
+
+        a = 2 / (s + 3)
+        p, defs = a.parameterize()
+        self.assertEqual(a, p.subs(defs), "parameterize")
+
+        a =  (s + 3) / 6
+        p, defs = a.parameterize()
+        self.assertEqual(a, p.subs(defs), "parameterize")
+
+        a =  (2 * s + 3) / (s + 4)
+        p, defs = a.parameterize()
+        self.assertEqual(a, p.subs(defs), "parameterize")
+
+        a =  (s + 3) / (s**2 + 4 * s + 4)
+        p, defs = a.parameterize()
+        self.assertEqual(a, p.subs(defs), "parameterize")                        

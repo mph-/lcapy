@@ -10,7 +10,7 @@ from .laplace import inverse_laplace_transform
 from .sym import ssym, tsym, j, pi
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
-from .expr import Expr, symbol, expr
+from .expr import Expr, symbol, expr, ExprDict
 from .functions import sqrt
 import sympy as sym
 import numpy as np
@@ -220,38 +220,41 @@ class sExpr(Expr):
 
     def parameterize(self):
 
-        def def1(symbolname, value):
-            sym1 = symbol(symbolname).expr
-            def1 = expr(sym.Eq(sym1, value.expr, evaluate=False))
-            return sym1, def1
+        def def1(defs, symbolname, value):
+            sym1 = symbol(symbolname)
+            defs[symbolname] = value
+            return sym1
 
         ndegree = self.N.degree        
         ddegree = self.D.degree
         ncoeffs = self.N.coeffs(norm=True)
         dcoeffs = self.D.coeffs(norm=True)
+
+        defs = ExprDict()
+        
         K = self.K
         if ndegree < 1 and ddegree < 1:
-            return self, expr([])
+            return self, defs
         if ndegree == 1 and ddegree == 1:
-            K, Kdef = def1('K', K)
-            alpha, alphadef = def1('alpha', dcoeffs[1])
-            beta, betadef = def1('beta', ncoeffs[1])
-            return K * (s + beta) / (s + alpha), expr([Kdef, alphadef, betadef])
+            K = def1(defs, 'K', K)
+            alpha = def1(defs, 'alpha', dcoeffs[1])
+            beta = def1(defs, 'beta', ncoeffs[1])
+            return K * (s + beta) / (s + alpha), defs
         if ndegree == 1 and ddegree == 0:
-            K, Kdef = def1('K', K)
-            beta, betadef = def1('beta', ncoeffs[1])
-            return K * (s + beta), (Kdef, betadef)
+            K = def1(defs, 'K', K)
+            beta = def1(defs, 'beta', ncoeffs[1])
+            return K * (s + beta), defs
         if ndegree == 0 and ddegree == 1:
-            K, Kdef = def1('K', K)
-            alpha, alphadef = def1('alpha', dcoeffs[1])
-            return K / (s + alpha), expr([Kdef, alphadef])
+            K = def1(defs, 'K', K)
+            alpha = def1(defs, 'alpha', dcoeffs[1])
+            return K / (s + alpha), defs
         if ddegree == 2:
-            K, Kdef = def1('K', K)
-            omega0, omega0def = def1('omega_0', sqrt(dcoeffs[2]))
-            zeta, zetadef = def1('zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
-            return K * (self.N / ncoeffs[0]) / (s**2 + 2 * zeta * omega0 + omega0**2), expr([Kdef, omega0def, zetadef])
+            K = def1(defs, 'K', K)
+            omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]))
+            zeta = def1(defs, 'zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
+            return K * (self.N / ncoeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2), defs
         
-        return self, expr([])
+        return self, defs
     
     
 # Perhaps use a factory to create the following classes?
