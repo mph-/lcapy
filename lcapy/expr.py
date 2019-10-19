@@ -282,7 +282,7 @@ class ExprDict(ExprPrint, ExprMisc, OrderedDict):
         return new
 
     
-class ExprList(ExprPrint, ExprMisc, list):
+class ExprList(list, ExprPrint, ExprMisc):
     """Decorator class for list created by sympy."""
 
     # Have ExprPrint first so that its _repr__pretty_ is called
@@ -291,7 +291,7 @@ class ExprList(ExprPrint, ExprMisc, list):
     
     def __init__(self, arglist):
         eargs = [expr(e) for e in arglist]
-        return super (ExprList, self).__init__(eargs)
+        super (ExprList, self).__init__(eargs)
 
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
@@ -299,12 +299,12 @@ class ExprList(ExprPrint, ExprMisc, list):
         return expr([e.subs(*args, **kwargs) for e in self])
         
     
-class ExprTuple(ExprPrint, ExprMisc, tuple):
+class ExprTuple(tuple, ExprPrint, ExprMisc):
     """Decorator class for tuple created by sympy."""
 
     def __init__(self, arglist):
-        eargs = (expr(e) for e in arglist)
-        return super (ExprTuple, self).__init__(eargs)
+        eargs = [expr(e) for e in arglist]
+        super (ExprTuple, self).__init__(tuple(eargs))
 
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
@@ -840,6 +840,12 @@ class Expr(ExprPrint, ExprMisc):
     def _ratfun(self):
         return Ratfun(self.expr, self.var)
 
+    @property
+    def K(self):
+        """Return gain."""
+
+        return self.N.coeffs()[0] / self.D.coeffs()[0] 
+    
     @property
     def N(self):
         """Return numerator of rational function."""

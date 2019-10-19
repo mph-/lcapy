@@ -10,7 +10,8 @@ from .laplace import inverse_laplace_transform
 from .sym import ssym, tsym, j, pi
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
-from .expr import Expr
+from .expr import Expr, symbol, expr
+from .functions import sqrt
 import sympy as sym
 import numpy as np
 
@@ -217,6 +218,41 @@ class sExpr(Expr):
         from .plot import plot_pole_zero
         return plot_pole_zero(self, **kwargs)
 
+    def parameterize(self):
+
+        def def1(symbolname, value):
+            sym1 = symbol(symbolname).expr
+            def1 = expr(sym.Eq(sym1, value.expr, evaluate=False))
+            return sym1, def1
+
+        ndegree = self.N.degree        
+        ddegree = self.D.degree
+        ncoeffs = self.N.coeffs(norm=True)
+        dcoeffs = self.D.coeffs(norm=True)
+        K = self.K
+        if ndegree < 1 and ddegree < 1:
+            return self, expr([])
+        if ndegree == 1 and ddegree == 1:
+            K, Kdef = def1('K', K)
+            alpha, alphadef = def1('alpha', dcoeffs[1])
+            beta, betadef = def1('beta', ncoeffs[1])
+            return K * (s + beta) / (s + alpha), expr([Kdef, alphadef, betadef])
+        if ndegree == 1 and ddegree == 0:
+            K, Kdef = def1('K', K)
+            beta, betadef = def1('beta', ncoeffs[1])
+            return K * (s + beta), (Kdef, betadef)
+        if ndegree == 0 and ddegree == 1:
+            K, Kdef = def1('K', K)
+            alpha, alphadef = def1('alpha', dcoeffs[1])
+            return K / (s + alpha), expr([Kdef, alphadef])
+        if ddegree == 2:
+            K, Kdef = def1('K', K)
+            omega0, omega0def = def1('omega_0', sqrt(dcoeffs[2]))
+            zeta, zetadef = def1('zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
+            return K * (self.N / ncoeffs[0]) / (s**2 + 2 * zeta * omega0 + omega0**2), expr([Kdef, omega0def, zetadef])
+        
+        return self, expr([])
+    
     
 # Perhaps use a factory to create the following classes?
 
