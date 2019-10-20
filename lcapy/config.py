@@ -17,12 +17,16 @@ aliases = {'delta': 'DiracDelta', 'step': 'Heaviside', 'u': 'Heaviside',
 latex_string_map = {r'\theta\left': r'u\left'}
 
 import sympy as sym
-print_expr_map = {sym.I: 'j'}
+str_expr_map = {sym.I: 'j'}
+
+latex_expr_map = {sym.I: '\mathrm{j}'}
 
 # Hack to pretty print i as j
 junicode = '\u2149'
 from sympy.printing.pretty.pretty_symbology import atoms_table
 atoms_table['ImaginaryUnit'] = junicode
+
+pretty_expr_map = {sym.I: junicode}
 
 functions = ('heaviside', 'diracdelta', 'cos', 'sin', 'exp')
 

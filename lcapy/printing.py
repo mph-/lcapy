@@ -1,5 +1,6 @@
 import re
-from .config import print_expr_map, functions, words, subscripts, junicode
+from .config import latex_expr_map, pretty_expr_map, str_expr_map
+from .config import functions, words, subscripts
 from .latex import latex_str, latex_double_sub
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
@@ -82,14 +83,16 @@ class LcapyStrPrinter(StrPrinter):
 
     def _print(self, expr):
 
-        if expr is sym.I:
-            return 'j'
-        
         from .expr import Expr
         if isinstance(expr, Expr):
             expr = expr.expr
-            if expr in print_expr_map:
-                return print_expr_map[expr]        
+
+        # Convert sym.I to j etc.
+        try:            
+            if expr in pretty_expr_map:        
+                return str_expr_map[expr]
+        except:
+            pass
         return super(LcapyStrPrinter, self)._print(expr)
 
     def _print_Symbol(self, expr):
@@ -105,9 +108,14 @@ class LcapyLatexPrinter(LatexPrinter):
 
         from .expr import Expr
         if isinstance(expr, Expr):        
-            expr = expr.expr            
-            if expr in print_expr_map:
-                return print_expr_map[expr]
+            expr = expr.expr
+
+        # Convert sym.I to j etc.
+        try:
+            if expr in latex_expr_map:
+                return latex_expr_map[expr]
+        except:
+            pass
         return super(LcapyLatexPrinter, self)._print(expr)
 
     def _print_Symbol(self, expr):
@@ -137,14 +145,15 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
     def _print(self, expr):
 
-        if expr is sym.I:
-            return self._print_basestring(junicode)
-        
         from .expr import Expr
         if isinstance(expr, Expr):        
             expr = expr.expr
-            if expr in print_expr_map:
-                return self._print_basestring(print_expr_map[expr])
+
+        try:            
+            if expr in pretty_expr_map:
+                return self._print_basestring(pretty_expr_map[expr])
+        except:
+            pass
         return super(LcapyPrettyPrinter, self)._print(expr)
 
     def _print_Symbol(self, expr):

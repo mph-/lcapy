@@ -37,16 +37,9 @@ class ExprPrint(object):
         expression.""" 
 
         p.text(pretty(self))
-    
-    def _repr_latex_(self):
-        """This is used by jupyter notebooks to display an expression using
-        LaTeX markup.  However, this requires mathjax.  If this method
-        is not defined, jupyter falls back on _repr_pretty_ which
-        outputs unicode."""
 
-        # This is called for Expr but not ExprList
-        return '$$' + latex(self) + '$$'        
-
+    # Note, _repr_latex_ is handled at the end of this file.
+        
     def pretty(self):
         """Make pretty string."""
         return pretty(self)
