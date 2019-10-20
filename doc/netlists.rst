@@ -243,7 +243,7 @@ Circuit elements (components) have attributes: `v`, `V`, `i`, and `I`.
    ⎜── - ───────⎟⋅Heaviside(t)
    ⎝R₁      R₁  ⎠             
 
-The `V` and `I` attributes display the voltage and current as a
+The `V` and `I` attributes provide the voltage and current as a
 superposition in the transform domains.  For example,
 
    >>> cct.V1.V
@@ -251,7 +251,28 @@ superposition in the transform domains.  For example,
    ⎨s: ─⎬
    ⎩   s⎭
 
+The `Y` and `Z` attributes provide the admittance and impedance of the
+component, for example,
 
+   >>> cct.L1.Z
+   L₁⋅s
+
+   >>> cct.R1.Z
+   R₁
+
+The driving point admittance and impedance can be found using `dpY` and `dpZ`, for example,
+
+   >>> cct.L1.dpZ
+    R₁⋅s 
+   ──────
+       R₁
+   s + ──
+       L₁
+
+Note, this is the total impedance across `L1`.
+       
+
+   
 Circuit evaluation
 ------------------
 

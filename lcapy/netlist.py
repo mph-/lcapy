@@ -556,10 +556,10 @@ class NetlistMixin(object):
         return I(Isc) | Y(Ysc)
 
     def admittance(self, Np, Nm):
-        """Return s-domain admittance between nodes Np and Nm with independent
-        sources killed and initial conditions ignored.  Since the
-        result is causal, the frequency domain admittance can be found by
-        substituting j * omega for s. """        
+        """Return s-domain driving-point admittance between nodes Np and Nm
+        with independent sources killed and initial conditions
+        ignored.  Since the result is causal, the frequency domain
+        admittance can be found by substituting j * omega for s."""        
 
         new = self.kill()
         if '0' not in new.nodes:
@@ -574,10 +574,10 @@ class NetlistMixin(object):
         return Ys(If.laplace(), causal=True)
 
     def impedance(self, Np, Nm):
-        """Return s-domain impedance between nodes Np and Nm with independent
-        sources killed and initial conditions ignored.  Since the
-        result is causal, the frequency domain impedance can be found by
-        substituting j * omega for s. """
+        """Return s-domain driving-point mpedance between nodes Np and Nm with
+        independent sources killed and initial conditions ignored.
+        Since the result is causal, the frequency domain impedance can
+        be found by substituting j * omega for s."""
 
         new = self.kill()
         if '0' not in new.nodes:

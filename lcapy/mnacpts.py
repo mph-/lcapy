@@ -321,34 +321,46 @@ class Cpt(object):
         return self.Voc.time()    
 
     @property
-    def Ys(self):
-        """Admittance (s-domain) measured across component.
-        For the admittance of the component in isolation use
-        .cpt.Y"""
+    def Y(self):
+        """Self admittance of component.  For the driving point
+        admittance measured across the component use .dpY"""        
+
+        return self.cptY
+
+    @property
+    def Z(self):
+        """Self impedance of component.  For the driving point
+        impedance measured across the component use .dpZ"""        
+
+        return self.cptZ
+
+    @property
+    def dpYs(self):
+        """Driving point admittance (s-domain) measured across component.
+        For the admittance of the component in isolation use .cpt.Y"""
 
         return self.cct.admittance(*self.nodes)
 
     @property
-    def Zs(self):
-        """Impedance (s-domain) measured across component.
-        For the impedance of the component in isolation use
-        .cpt.Z"""        
+    def dpZs(self):
+        """Driving point impedance (s-domain) measured across component.  For
+        the impedance of the component in isolation use .cpt.Z"""        
 
         return self.cct.impedance(*self.nodes)    
     
     @property
-    def Y(self):
-        """Admittance measured across component.  For the admittance of the
-        component in isolation use .cptY"""        
+    def dpY(self):
+        """Driving point admittance measured across component.  For the
+        admittance of the component in isolation use .cptY"""        
 
-        return _YZtype_select(self.Ys, self.cct.kind)
+        return _YZtype_select(self.dpYs, self.cct.kind)
 
     @property
-    def Z(self):
-        """Impedance measured across component.  For the impedance of the
-        component in isolation use .cptZ"""
+    def dpZ(self):
+        """Driving point impedance measured across component.  For the
+        impedance of the component in isolation use .cptZ"""
 
-        return _YZtype_select(self.Zs, self.cct.kind)
+        return _YZtype_select(self.dpZs, self.cct.kind)
 
     @property
     def cptY(self):
