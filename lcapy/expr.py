@@ -25,6 +25,28 @@ from collections import OrderedDict
 
 class ExprPrint(object):
 
+    def __repr__(self):
+        """This is called by repr(expr).  It is used, e.g., when printing
+        in the debugger."""
+        
+        return '%s(%s)' % (self.__class__.__name__, print_str(self))
+
+    def _repr_pretty_(self, p, cycle):
+        """This is used by jupyter notebooks to display an expression using
+        unicode.  It is also called by IPython when displaying an
+        expression.""" 
+
+        p.text(pretty(self))
+    
+    def _repr_latex_(self):
+        """This is used by jupyter notebooks to display an expression using
+        LaTeX markup.  However, this requires mathjax.  If this method
+        is not defined, jupyter falls back on _repr_pretty_ which
+        outputs unicode."""
+
+        # This is called for Expr but not ExprList
+        return '$$' + latex(self) + '$$'        
+
     def pretty(self):
         """Make pretty string."""
         return pretty(self)
@@ -59,6 +81,14 @@ class ExprPrint(object):
             expr = expr.expr
         return latex(sym.Eq(sympify(name), expr), **kwargs)
 
+    
+class ExprMisc(object):
+
+    def simplify(self):
+        """Simplify each element."""
+        
+        return self.__class__([simplify(v) for v in self])
+
     @property    
     def symbols(self):
         """Return dictionary of symbols in the expression keyed by name."""
@@ -68,14 +98,6 @@ class ExprPrint(object):
             symbols.update(expr.symbols)
         return symbols
         
-    
-class ExprMisc(object):
-
-    def simplify(self):
-        """Simplify each element."""
-        
-        return self.__class__([simplify(v) for v in self])
-
     @property    
     def pdb(self):
         """Enter the python debugger."""
@@ -282,7 +304,7 @@ class ExprDict(ExprPrint, ExprMisc, OrderedDict):
         return new
 
     
-class ExprList(list, ExprPrint, ExprMisc):
+class ExprList(ExprPrint, list, ExprMisc):
     """Decorator class for list created by sympy."""
 
     # Have ExprPrint first so that its _repr__pretty_ is called
@@ -299,7 +321,7 @@ class ExprList(list, ExprPrint, ExprMisc):
         return expr([e.subs(*args, **kwargs) for e in self])
         
     
-class ExprTuple(tuple, ExprPrint, ExprMisc):
+class ExprTuple(ExprPrint, tuple, ExprMisc):
     """Decorator class for tuple created by sympy."""
 
     def __init__(self, arglist):
@@ -358,7 +380,8 @@ class Expr(ExprPrint, ExprMisc):
 
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
-        unicode.  It is also called by IPython when displaying an expression.""" 
+        unicode.  It is also called by IPython when displaying an
+        expression.""" 
 
         p.text(pretty(self))
 
@@ -655,7 +678,7 @@ class Expr(ExprPrint, ExprMisc):
 
         if isinstance(x, Super):
             return x.__mul__(self)
-        
+
         cls, self, x, assumptions = self.__compat_mul__(x, '*')
         return cls(self.expr * x.expr, **assumptions)
 
