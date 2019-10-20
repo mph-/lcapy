@@ -1315,6 +1315,9 @@ class Expr(ExprPrint, ExprMisc):
 
         if arg is None:
             arg = self.var
+        if isinstance(arg, Expr):
+            arg = arg.expr        
+            
         return self.__class__(sym.diff(self.expr, arg))
 
     def diff(self, arg=None):
