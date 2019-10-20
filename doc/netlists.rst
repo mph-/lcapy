@@ -208,9 +208,11 @@ A circuit element object is obtained using its name, for example:
 Node attributes
 ---------------
 
-Nodes have two attributes: `v` and `V`.  `v` is the time-domain
-voltage (with respect to the ground node 0).  `V` is a superposition
-of the node voltage in the different transform domains.
+Nodes have two attributes: `v`, `V`, `dpY`, and `dpZ`.
+
+`v` is the time-domain voltage (with respect to the ground node 0).
+`V` is a superposition of the node voltage in the different transform
+domains.
 
 For example,
    
@@ -221,10 +223,23 @@ For example,
    e      ⋅Heaviside(t)
 
 
+`dpY` and `dpZ` return the driving-point admittance and impedance for the node with respect to ground, for example,
+
+   >>> cct[2].dpZ
+    R₁⋅s 
+   ──────
+       R₁
+   s + ──
+       L₁
+
+
+   
 Component attributes
 --------------------
 
-Circuit elements (components) have attributes: `v`, `V`, `i`, and `I`.
+Circuit elements (components) have attributes: `v`, `V`, `i`, `I`,
+`Y`, `Z`, `dpY`, and `dpZ`.
+
 `v` is the time-domain voltage difference across the component, for example:
 
    >>> cct.R1.v   
@@ -244,7 +259,7 @@ Circuit elements (components) have attributes: `v`, `V`, `i`, and `I`.
    ⎝R₁      R₁  ⎠             
 
 The `V` and `I` attributes provide the voltage and current as a
-superposition in the transform domains.  For example,
+superposition in the transform domains, for example,
 
    >>> cct.V1.V
    ⎧   1⎫

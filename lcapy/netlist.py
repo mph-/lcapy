@@ -52,6 +52,18 @@ class Node(object):
 
         return self.cct.get_vd(self.name, '0')
 
+    @property
+    def dpY(self):
+        """Driving point admittance with respect to ground."""
+
+        return self.cct.admittance(self.name, '0')
+
+    @property
+    def dpZ(self):
+        """Driving point impedance with respect to ground."""
+
+        return self.cct.impedance(self.name, '0')        
+    
     def append(self, cpt):
 
         if cpt.type in ('P', ):
