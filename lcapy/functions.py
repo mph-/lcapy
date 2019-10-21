@@ -42,6 +42,20 @@ def atan2(expr1, expr2):
     return _funcwrap(sym.atan2, expr1, expr2)
 
 
+def sinh(expr):
+
+    return _funcwrap(sym.sinh, expr)
+
+
+def cosh(expr):
+
+    return _funcwrap(sym.cosh, expr)
+
+
+def tanh(expr):
+
+    return _funcwrap(sym.tanh, expr)
+
 def gcd(expr1, expr2):
 
     return _funcwrap(sym.gcd, expr1, expr2)
