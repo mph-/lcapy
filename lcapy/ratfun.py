@@ -29,6 +29,7 @@ def as_numer_denom_poly(expr, var):
         
     return Npoly, Dpoly
 
+
 def as_numer_denom(expr, var):
 
     N = sym.S.One
@@ -276,7 +277,15 @@ class Ratfun(object):
         """Return numerator and denominator of rational function"""
         
         return as_numer_denom(self.expr, self.var)
-        
+
+    @property
+    def N(self):
+        return self.numerator
+
+    @property
+    def D(self):
+        return self.denominator
+    
     @property
     def numerator(self):
         """Return numerator of rational function"""
@@ -460,7 +469,6 @@ class Ratfun(object):
         F, R, Q, delay = self.as_residue_parts()
         return R
 
-    @property    
     def coeffs(self):
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
