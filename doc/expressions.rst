@@ -411,13 +411,14 @@ The unilateral Laplace transform ignores the function for :math:`t <
 the result for :math:`t <0` unless it has additional information.
 This is provided using assumptions:
 
--  `causal` this says the signal is zero for :math:`t < 0`.
+-  `causal` says the signal is zero for :math:`t < 0`.
 
--  `ac` this says the signal is sinusoidal.
+-  `ac` says the signal is sinusoidal.
 
--  `dc` this says the signal is constant.
+-  `dc` says the signal is constant.
 
-
+-  `damped_sin` says to write response of a second-order system as a damped sinusoid.
+   
 For example,
 
    >>> H = 1 / (s + 2)

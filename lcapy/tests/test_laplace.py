@@ -47,3 +47,16 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(expr('s/(s+a)').inverse_laplace(causal=True), expr('-a * exp(-a * t) * u(t) + delta(t)'), "s/(s+a)")
         self.assertEqual(expr('s/(s**2+a**2)').inverse_laplace(causal=True), expr('cos(a * t) * u(t)'), "s/(s**2+a**2)")
         self.assertEqual(expr('a/(s**2+a**2)').inverse_laplace(causal=True), expr('sin(a * t) * u(t)'), "a/(s**2+a**2)")                                                                           
+
+    def test_damped_sin(self):
+
+        H1 = 2 / (2 * s ** 2 + 5 * s + 6)
+        H2 = H1 * s
+        H3 = H1 * s * s
+
+        self.assertEqual(H1(t, damped_sin=True)(s), H1, "damped sin1")
+        self.assertEqual(H2(t, damped_sin=True)(s), H2, "damped sin2")
+        self.assertEqual(H3(t, damped_sin=True)(s), H3, "damped sin3")
+        self.assertEqual((H1 + H2)(t, damped_sin=True)(s), H1 + H2, "damped sin1, 2")
+        self.assertEqual((H1 + H3)(t, damped_sin=True)(s), H1 + H3, "damped sin1, 3")
+        self.assertEqual((H1 + H2 + H3)(t, damped_sin=True)(s), H1 + H2 + H3, "damped sin1, 2, 3")                

@@ -230,23 +230,33 @@ def inverse_laplace_damped_sin(expr, s, t, **assumptions):
 
     sigma1 = zeta * omega0
     omega1 = omega0 * sym.sqrt(1 - zeta**2)
+    K = K / omega1
 
-    h = K / omega1 * sym.exp(-sigma1 * t) * sym.sin(omega1 * t)
+    E = sym.exp(-sigma1 * t)
+    S = sym.sin(omega1 * t)
+
+    h = K * E * S
 
     # If overdamped
-    #h = K * omega0 / mu * sym.exp(-sigma1 * t) * sym.sinh(omega0 * mu * t)
+    #h = K * sym.exp(-sigma1 * t) * sym.sinh(omega0 * mu * t)
         
     if len(ncoeffs) == 1:
         return sym.S.Zero, h
 
-    hd = h.diff(t)    
-
+    C = sym.cos(omega1 * t)
+    kCd = omega1
+    kSd = -sigma1
+    hd = K * E * (kCd * C + kSd * S)
+    
     if len(ncoeffs) == 2:
-        return sym.S.Zero, hd + ncoeffs[1] * h
+        return sym.S.Zero, K * E * (kCd * C + (ncoeffs[1] + kSd) * S)
 
-    hdd = hd.diff(t)    
+    kCdd = -2 * omega1 * sigma1
+    kSdd = sigma1**2 - omega1**2
 
-    return hd * sym.DiracDelta(t), hdd + ncoeffs[1] * hd + ncoeffs[2] * h
+    G = K * E * ((kCdd + ncoeffs[1] * kCd) * C + (kSdd + ncoeffs[1] * kSd + ncoeffs[2]) * S)
+    
+    return K * kCd * sym.DiracDelta(t), G
 
 
 def inverse_laplace_ratfun(expr, s, t, **assumptions):
