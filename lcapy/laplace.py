@@ -211,9 +211,53 @@ def laplace_transform(expr, t, s):
     return result
 
 
-def inverse_laplace_ratfun(expr, s, t):
+def inverse_laplace_damped_sin(expr, s, t, **assumptions):
 
-    N, D, delay = Ratfun(expr, s).as_ratfun_delay()
+    ncoeffs, dcoeffs = expr.coeffs()
+    K = ncoeffs[0] / dcoeffs[0]
+
+    ncoeffs = [(c / ncoeffs[0]) for c in ncoeffs]
+    dcoeffs = [(c / dcoeffs[0]) for c in dcoeffs]        
+
+    if len(ncoeffs) > 3 or len(dcoeffs) > 3:
+        raise ValueError('Not a second-order response')
+    
+    omega0 = sym.sqrt(dcoeffs[2])
+    zeta = dcoeffs[1] / (2 * omega0)
+
+    if zeta.is_constant() and zeta > 1:
+        print('Warning: expression is overdamped')
+
+    sigma1 = zeta * omega0
+    omega1 = omega0 * sym.sqrt(1 - zeta**2)
+
+    h = K / omega1 * sym.exp(-sigma1 * t) * sym.sin(omega1 * t)
+
+    # If overdamped
+    #h = K * omega0 / mu * sym.exp(-sigma1 * t) * sym.sinh(omega0 * mu * t)
+        
+    if len(ncoeffs) == 1:
+        return h, sym.S.Zero
+
+    hd = h.diff(t)    
+
+    if len(ncoeffs) == 2:
+        return hd + ncoeffs[1] * h, sym.S.Zero
+
+    hdd = hd.diff(t)    
+
+    return hdd + ncoeffs[1] * hd + ncoeffs[2] * h, 2 * hd * sym.DiracDelta(t)
+
+
+def inverse_laplace_ratfun(expr, s, t, **assumptions):
+
+    sexpr = Ratfun(expr, s)
+
+    if assumptions.get('damped_sin', False):
+        if sexpr.degree == 2:
+            return inverse_laplace_damped_sin(sexpr, s, t, **assumptions)
+    
+    N, D, delay = sexpr.as_ratfun_delay()
     # The delay should be zero
 
     Q, M = sym.div(N, D, s)
@@ -255,7 +299,7 @@ def inverse_laplace_ratfun(expr, s, t):
                 # Remove conjugate from poles and process pole with its
                 # conjugate.  Unfortunately, for symbolic expressions
                 # we cannot tell if a quadratic has two real poles,
-                # a repeat real pole, or a complex conjugate pair of poles.
+                # a repeated real pole, or a complex conjugate pair of poles.
                 P2[pc] = 0
                 
                 p_re = sym.re(p)
@@ -410,7 +454,7 @@ def inverse_laplace_term1(expr, s, t, **assumptions):
 
     try:
         # This is the common case.
-        result1, result2 = inverse_laplace_ratfun(expr, s, t)
+        result1, result2 = inverse_laplace_ratfun(expr, s, t, **assumptions)
         return const * result1, const * result2
     except:
         pass
@@ -473,7 +517,8 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
     # TODO, simplify
     key = (expr, s, t, assumptions.get('dc', False),
            assumptions.get('ac', False),
-           assumptions.get('causal', False))
+           assumptions.get('causal', False),
+           assumptions.get('damped_sin', None))
     
     if key in inverse_laplace_cache:
         return inverse_laplace_cache[key]

@@ -231,7 +231,7 @@ class sExpr(Expr):
         dcoeffs = self.D.coeffs(norm=True)
 
         defs = ExprDict()
-        
+
         K = self.K
         if ndegree < 1 and ddegree < 1:
             return self, defs
@@ -252,7 +252,8 @@ class sExpr(Expr):
             K = def1(defs, 'K', K)
             omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]))
             zeta = def1(defs, 'zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
-            return K * (self.N / ncoeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2), defs
+            coeffs = self.N.coeffs()
+            return K * (self.N / coeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2), defs
         
         return self, defs
     
