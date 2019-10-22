@@ -218,7 +218,30 @@ class sExpr(Expr):
         from .plot import plot_pole_zero
         return plot_pole_zero(self, **kwargs)
 
-    def parameterize(self):
+    def parameterize(self, zeta=True):
+        """Parameterize first and second-order expressions.
+
+        For first order systems, parameterize as:
+
+        K * (s + beta) / (s + alpha)
+
+        K / (s + alpha)
+
+        K (s + beta)
+
+        where appropriate.
+
+        If `zeta` is True, parameterize second-order expression
+        using damping factor and natural frequency representation,
+        i.e. 
+
+        N(s) / (s**2 + 2 * zeta * omega_0 * s + omega_0**2)
+        
+        otherwise parameterize as
+        
+        N(s) / (s**2 + 2 * sigma_1 * s + omega_1**2 + sigma_1**2)
+
+        """
 
         def def1(defs, symbolname, value):
             sym1 = symbol(symbolname)
@@ -250,9 +273,16 @@ class sExpr(Expr):
             return K / (s + alpha), defs
         if ddegree == 2:
             K = def1(defs, 'K', K)
+            coeffs = self.N.coeffs()
+
+            if not zeta:
+                sigma1 = def1(defs, 'sigma_1', dcoeffs[1] / 2)
+                omega1 = def1(defs, 'omega_1',
+                              sqrt(dcoeffs[2] - (dcoeffs[1] / 2)**2).simplify())
+                return K * (self.N / coeffs[0]) / (s**2 + 2 * sigma1 * s + sigma1**2 + omega1**2), defs
+                
             omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]))
             zeta = def1(defs, 'zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
-            coeffs = self.N.coeffs()
             return K * (self.N / coeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2), defs
         
         return self, defs
