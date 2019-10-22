@@ -16,7 +16,7 @@ from .sym import sympify, symsimplify, j, omegasym, symdebug
 from .sym import capitalize_name, tsym, symsymbol, symbol_map
 from .state import state
 from .printing import pprint, pretty, print_str, latex
-from .functions import sqrt, log10, atan2, gcd, exp
+from .functions import sqrt, log10, atan2, gcd, exp, Function
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
@@ -1149,7 +1149,7 @@ class Expr(ExprPrint, ExprMisc):
 
         """
 
-        if isinstance(subexpr, Expr):
+        if isinstance(subexpr, (Expr, Function)):
             subexpr = subexpr.expr
         return self.expr.has(subexpr)
 
