@@ -228,9 +228,9 @@ def inverse_laplace_damped_sin(expr, s, t, **assumptions):
     if zeta.is_constant() and zeta > 1:
         print('Warning: expression is overdamped')
 
-    sigma1 = zeta * omega0
-    omega1 = omega0 * sym.sqrt(1 - zeta**2)
-    K = K / omega1
+    sigma1 = (zeta * omega0).simplify()
+    omega1 = (omega0 * sym.sqrt(1 - zeta**2)).simplify()
+    K = (K / omega1).simplify()
 
     E = sym.exp(-sigma1 * t)
     S = sym.sin(omega1 * t)
@@ -266,6 +266,8 @@ def inverse_laplace_ratfun(expr, s, t, **assumptions):
     if assumptions.get('damped_sin', False):
         if sexpr.degree == 2:
             return inverse_laplace_damped_sin(sexpr, s, t, **assumptions)
+        if False and sexpr.degree == 3 and Ratfun(expr * s).degree == 2:
+            return inverse_laplace_damped_sin3(sexpr, s, t, **assumptions)
     
     N, D, delay = sexpr.as_ratfun_delay()
     # The delay should be zero
