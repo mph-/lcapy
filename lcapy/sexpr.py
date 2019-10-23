@@ -231,9 +231,9 @@ class sExpr(Expr):
 
         where appropriate.
 
-        If `zeta` is True, parameterize second-order expression
-        using damping factor and natural frequency representation,
-        i.e. 
+        If `zeta` is True, parameterize second-order expression in
+        standard form using damping factor and natural frequency
+        representation, i.e.
 
         N(s) / (s**2 + 2 * zeta * omega_0 * s + omega_0**2)
         
