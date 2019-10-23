@@ -479,3 +479,7 @@ class LcapyTester(unittest.TestCase):
         a =  (s + 3) / (s**2 + 4 * s + 4)
         p, defs = a.parameterize()
         self.assertEqual(a, p.subs(defs), "parameterize")                        
+
+    def test_integrate(self):
+
+        self.assertEqual(t.integrate((t, 0, t)), t**2 / 2, "integrate t")                                

@@ -522,9 +522,10 @@ class Expr(ExprPrint, ExprMisc):
                     return ret
 
                 # Wrap the return value
+                cls = self.__class__
                 if hasattr(self, 'assumptions'):
-                    return self.__class__(ret, **self.assumptions)
-                return self.__class__(ret)
+                    return cls(ret, **self.assumptions)
+                return cls(ret)
 
             return wrap
 
@@ -1315,14 +1316,34 @@ class Expr(ExprPrint, ExprMisc):
 
         if arg is None:
             arg = self.var
-        if isinstance(arg, Expr):
-            arg = arg.expr        
+        arg = self._tweak_arg(arg)
             
         return self.__class__(sym.diff(self.expr, arg))
 
     def diff(self, arg=None):
 
         return self.differentiate(arg)
+
+    def _tweak_arg(self, arg):
+
+        if isinstance(arg, Expr):
+            return arg.expr
+
+        if isinstance(arg, tuple):
+            return tuple([self._tweak_arg(arg1) for arg1 in arg])
+
+        if isinstance(arg, list):
+            return [self._tweak_arg(arg1) for arg1 in arg]
+
+        return arg
+
+    def integrate(self, arg=None, **kwargs):
+
+        if arg is None:
+            arg = self.var
+
+        arg = self._tweak_arg(arg)
+        return self.__class__(sym.integrate(self.expr, arg, **kwargs))
 
     def solve(self, *symbols, **flags):
 

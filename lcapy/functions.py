@@ -11,13 +11,18 @@ class Function(object):
 
         tweak_args = list(args)
         for m, arg in enumerate(args):
-            if isinstance(arg, Expr):
+            if isinstance(arg, (Expr, Function)):
                 tweak_args[m] = arg.expr
 
         result = self.expr(*tweak_args)
 
         if isinstance(args[0], Expr):
             result = cls(result)
+
+        for m, arg in enumerate(args[1:]):
+            if isinstance(arg, (Expr, Function)):
+                result = result.subs(tweak_args[m], arg)
+
         return result
 
     
