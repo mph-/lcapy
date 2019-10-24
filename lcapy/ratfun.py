@@ -488,3 +488,26 @@ class Ratfun(object):
         
         Npoly, Dpoly = as_numer_denom_poly(self.expr, self.var)
         return max(Npoly.degree(), Dpoly.degree())
+
+    @property
+    def Ndegree(self):
+        """Return the degree (order) of the numerator of a rational function.
+        Note zero has a degree of -inf."""
+        
+        Npoly, Dpoly = as_numer_denom_poly(self.expr, self.var)
+        return Npoly.degree()
+
+    @property
+    def Ddegree(self):
+        """Return the degree (order) of the denominator of a rational function.
+        Note zero has a degree of -inf."""
+        
+        Npoly, Dpoly = as_numer_denom_poly(self.expr, self.var)
+        return Dpoly.degree()    
+    
+    @property
+    def strictly_proper(self):
+        """Return True if the degree of the dominator is greater
+        than the degree of the numerator."""
+
+        return self.Ddegree > self.Ndegree

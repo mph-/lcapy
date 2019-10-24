@@ -245,6 +245,37 @@ class ExprMisc(object):
         Note zero has a degree of -inf."""
         
         return self._ratfun.degree
+
+    @property
+    def Ndegree(self):
+        """Return the degree (order) of the numerator of a rational function.
+        This will throw an exception if the expression is not a
+        rational function.
+
+        Note zero has a degree of -inf.
+
+        """
+        
+        return self._ratfun.Ndegree
+
+    @property
+    def Ddegree(self):
+        """Return the degree (order) of the denominator of a rational function.
+        This will throw an exception if the expression is not a
+        rational function.
+
+        Note zero has a degree of -inf."""
+        
+        return self._ratfun.Ddegree
+
+    @property
+    def strictly_proper(self):
+        """Return True if the degree of the dominator is greater
+        than the degree of the numerator.
+        This will throw an exception if the expression is not a
+        rational function."""
+
+        return self._ratfun.strictly_proper
     
     def prune_HOT(self, degree):
         """Prune higher order terms if expression is a polynomial

@@ -84,8 +84,12 @@ All Lcapy expressions have the following attributes:
 - `conjugate` return complex conjugate
 
 - `dB` return magnitude in decibels: `20 * log10(magnitude)`
+
+- `degree` return degree of rational function (maximum of numerator and denominator degrees)
   
 - `D` return denominator
+
+- `Ddegree` return degree of denominator
 
 - `denominator` return denominator
 
@@ -113,6 +117,8 @@ All Lcapy expressions have the following attributes:
 
 - `N` return numerator
 
+- `Ndegree` return degree of numerator    
+
 - `numerator` return numerator
 
 - `phase` return phase (radians)
@@ -127,6 +133,8 @@ All Lcapy expressions have the following attributes:
 
 - `sign` return sign
 
+- `strictly_proper` return True if degree of denominator greater than degree of numerator
+  
 - `symbols` return dictionary of symbols used in the expression keyed by their names
   
 

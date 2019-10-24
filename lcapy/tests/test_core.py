@@ -65,6 +65,10 @@ class LcapyTester(unittest.TestCase):
         a = sExpr('(s+2)/(s-2)')
         self.assertEqual2(a.N, sExpr('s+2'), "N incorrect.")
         self.assertEqual2(a.D, sExpr('s-2'), "D incorrect.")
+        self.assertEqual2(a.Ndegree, 1, "N degree incorrect.")
+        self.assertEqual2(a.Ddegree, 1, "D degree incorrect.")
+        self.assertEqual2(a.degree, 1, "Degree incorrect.")
+        self.assertEqual2(a.strictly_proper, False, "strictly proper incorrect.")        
 
         self.assertEqual2(sorted(a.poles()), [2], "poles incorrect.")
         self.assertEqual2(sorted(a.zeros()), [-2], "zeros incorrect.")
@@ -110,6 +114,10 @@ class LcapyTester(unittest.TestCase):
         a = (s**2 + 5 * s + 6) / (s - 2)
         self.assertEqual2(a.N, s ** 2 + 5 * s + 6, "N incorrect.")
         self.assertEqual2(a.D, s - 2, "D incorrect.")
+        self.assertEqual2(a.Ndegree, 2, "N degree incorrect.")
+        self.assertEqual2(a.Ddegree, 1, "D degree incorrect.")
+        self.assertEqual2(a.degree, 2, "Degree incorrect.")
+        self.assertEqual2(a.strictly_proper, False, "strictly proper incorrect.")
 
         self.assertEqual2(sorted(a.poles()), [2], "poles incorrect.")
         self.assertEqual2(sorted(a.zeros()), sorted([-3, -2]), "zeros incorrect.")
@@ -482,4 +490,5 @@ class LcapyTester(unittest.TestCase):
 
     def test_integrate(self):
 
-        self.assertEqual(t.integrate((t, 0, t)), t**2 / 2, "integrate t")                                
+        self.assertEqual(t.integrate((t, 0, t)), t**2 / 2, "integrate t")
+        
