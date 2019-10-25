@@ -301,8 +301,6 @@ def inverse_laplace_ratfun(expr, s, t, **assumptions):
         if N == 0:
             continue
 
-        f = s - p
-
         if N == 1:
             r = sexpr.residue(p, P)
 
@@ -326,7 +324,7 @@ def inverse_laplace_ratfun(expr, s, t, **assumptions):
             continue
 
         # Handle repeated poles.
-        expr2 = expr * f ** N
+        expr2 = expr * (s - p) ** N
         for n in range(1, N + 1):
             m = N - n
             r = sym.limit(

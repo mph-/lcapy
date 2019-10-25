@@ -304,7 +304,7 @@ class Ratfun(object):
         """Convert rational function to canonical form with unity
         highest power of denominator.
 
-        See also general, partfrac, mixedfrac, and ZPK"""
+        See also general, partfrac, mixedfrac, timeconst, and ZPK"""
 
         try:
             N, D, delay, undef = self.as_ratfun_delay_undef()
@@ -339,7 +339,7 @@ class Ratfun(object):
     def general(self):
         """Convert rational function to general form.
 
-        See also canonical, partfrac, mixedfrac, and ZPK"""
+        See also canonical, partfrac, mixedfrac, timeconst, and ZPK"""
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
 
@@ -371,7 +371,7 @@ class Ratfun(object):
     def partfrac(self):
         """Convert rational function into partial fraction form.
 
-        See also canonical, mixedfrac, general, and ZPK"""
+        See also canonical, mixedfrac, general, timeconst, and ZPK"""
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
         expr = N / D
@@ -401,7 +401,7 @@ class Ratfun(object):
     def mixedfrac(self):
         """Convert rational function into mixed fraction form.
 
-        See also canonical, general, partfrac and ZPK"""
+        See also canonical, general, partfrac, timeconst, and ZPK"""
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
         var = self.var        
@@ -446,7 +446,7 @@ class Ratfun(object):
     def ZPK(self):
         """Convert to pole-zero-gain (PZK) form.
 
-        See also canonical, general, mixedfrac, and partfrac"""
+        See also canonical, general, mixedfrac, timeconst, and partfrac"""
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
 
@@ -511,3 +511,91 @@ class Ratfun(object):
         than the degree of the numerator."""
 
         return self.Ddegree > self.Ndegree
+
+    def _decompose(self, combine_conjugates=False):
+
+        N, D, delay, undef = self.as_ratfun_delay_undef()
+        var = self.var
+
+        # Perform polynomial long division so expr = Q + M / D
+        Q, M = sym.div(N, D, var)
+        expr = M / D
+
+        sexpr = Ratfun(expr, var)
+        P = sexpr.poles()
+
+        P2 = P.copy()
+
+        R = []
+        D = []
+
+        for p in P2:
+        
+            # Number of occurrences of the pole.
+            N = P2[p]
+            if N == 0:
+                continue
+            
+            pc = p.conjugate()
+            if combine_conjugates and pc != p and pc in P:
+                P2[pc] = 0
+
+                D2 = sym.simplify(var**2 - (p + pc) * var + p * pc)
+                    
+                if N == 1:
+                    r = sexpr.residue(p, P)                    
+                    rc = r.conjugate()
+
+                    r = sym.simplify(r * (var - pc) + rc * (var - p))
+                    R.append(r)
+                    D.append(D2)
+                else:
+                    # Handle repeated complex pole pairs.
+                    expr2 = expr * (var - p) ** N                
+                    for n in range(1, N + 1):
+                        m = N - n
+                        r = sym.limit(
+                            sym.diff(expr2, var, m), var, p) / sym.factorial(m)
+                        rc = r.conjugate()
+                        r = sym.simplify(r * (var - pc) ** n + rc * (var - p) ** n)
+                        R.append(r)
+                        D.append(D2 ** n)
+            else:
+                D2 = var - p
+
+                if N == 1:
+                    r = sexpr.residue(p, P)
+                    R.append(r)
+                    D.append(D2)
+                else:
+                    # Handle repeated real poles.
+                    expr2 = expr * (var - p) ** N
+                    for n in range(1, N + 1):
+                        m = N - n
+                        r = sym.limit(
+                            sym.diff(expr2, var, m), var, p) / sym.factorial(m)
+
+                        R.append(r)
+                        D.append(D2 ** n)                        
+                                   
+        return Q, R, D, delay, undef
+    
+    def sumfrac(self, combine_conjugates=True):
+        """Convert rational function into sum of first order and second order
+        fractions.
+
+        See also canonical, general, partfrac, timeconst, and ZPK"""
+
+        Q, R, D, delay, undef = self._decompose(combine_conjugates)
+
+        result = Q
+        for R, D in zip(R, D):
+            result += R / D
+
+        if delay != 0:
+            result *= sym.exp(self.var * delay)
+
+        result *= undef
+        return result
+    
+            
