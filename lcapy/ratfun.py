@@ -120,7 +120,7 @@ def as_ratfun_delay_undef(expr, var):
                 delay -= c[0]
                 if c[1] != 0:
                     rf *= sym.exp(c[1])
-                    continue
+                continue
         if isinstance(f, sym.function.AppliedUndef):
             undef *= f
             continue
@@ -368,35 +368,36 @@ class Ratfun(object):
 
         return expr * undef
 
-    def partfrac(self):
+    def partfrac(self, combine_conjugates=False):
         """Convert rational function into partial fraction form.
 
-        See also canonical, mixedfrac, general, timeconst, and ZPK"""
+        If combine_conjugates is True then the pair of partial
+        fractions for complex conjugate poles are combined.
 
-        N, D, delay, undef = self.as_ratfun_delay_undef()
-        expr = N / D
-        
+        See also canonical, mixedfrac, general, timeconst, and ZPK
+
+        """
         try:
-            F, R, Q, delay2 = as_residue_parts(expr, self.var)
-            
+            Q, R, D, delay, undef = self._decompose(combine_conjugates)
         except ValueError:
             # Try splitting into terms
-            expr = expr.expand()
-            if not expr.is_Add:
-                raise ValueError('Cannot convert to partial fraction')
             result = 0
-            for arg in expr.args:
-                result += Ratfun(arg, self.var).partfrac()
-            return result * undef
+            for term in self.expr.as_ordered_terms():
+                try:
+                    result += Ratfun(term, self.var).partfrac(combine_conjugates)
+                except ValueError:
+                    result += term
+            return result           
 
-        expr = Q.as_expr()
-        for f, r in zip(F, R):
-            expr += r / f
+        result = Q
+        for R, D in zip(R, D):
+            result += R / D
 
         if delay != 0:
-            expr *= sym.exp(-self.var * delay)
+            result *= sym.exp(-self.var * delay)
 
-        return expr * undef
+        result *= undef
+        return result
 
     def mixedfrac(self):
         """Convert rational function into mixed fraction form.
@@ -512,15 +513,25 @@ class Ratfun(object):
 
         return self.Ddegree > self.Ndegree
 
-    def _decompose(self, combine_conjugates=False):
+    def _decompose1(self):
+        """Decompose expression into Q, M, D, delay, undef where
+
+        expression = (Q + M / D) * exp(-delay * var) * undef"""
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
-        var = self.var
 
         # Perform polynomial long division so expr = Q + M / D
-        Q, M = sym.div(N, D, var)
-        expr = M / D
+        Q, M = sym.div(N, D, self.var)
 
+        return Q, M, D, delay, undef
+        
+    def _decompose(self, combine_conjugates=False):
+
+        Q, M, D, delay, undef = self._decompose1()
+
+        expr = M / D
+        var = self.var
+        
         sexpr = Ratfun(expr, var)
         P = sexpr.poles()
 
@@ -579,23 +590,4 @@ class Ratfun(object):
                         D.append(D2 ** n)                        
                                    
         return Q, R, D, delay, undef
-    
-    def sumfrac(self, combine_conjugates=True):
-        """Convert rational function into sum of first order and second order
-        fractions.
-
-        See also canonical, general, partfrac, timeconst, and ZPK"""
-
-        Q, R, D, delay, undef = self._decompose(combine_conjugates)
-
-        result = Q
-        for R, D in zip(R, D):
-            result += R / D
-
-        if delay != 0:
-            result *= sym.exp(self.var * delay)
-
-        result *= undef
-        return result
-    
             

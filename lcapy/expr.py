@@ -161,14 +161,18 @@ class ExprMisc(object):
 
         return self.__class__(self._ratfun.general(), **self.assumptions)
 
-    def partfrac(self):
+    def partfrac(self, combine_conjugates=False):
         """Convert rational function into partial fraction form.   For example,
 
         5 + (5 - 15 * j / 4) / (s + 2 * j) + (5 + 15 * j / 4) / (s - 2 * j)
 
+        If combine_conjugates is True then the pair of partial
+        fractions for complex conjugate poles are combined.
+
         See also canonical, mixedfrac, general, timeconst, and ZPK."""
 
-        return self.__class__(self._ratfun.partfrac(), **self.assumptions)
+        return self.__class__(self._ratfun.partfrac(combine_conjugates),
+                              **self.assumptions)
 
     def mixedfrac(self):
         """Convert rational function into mixed fraction form.  For example,
