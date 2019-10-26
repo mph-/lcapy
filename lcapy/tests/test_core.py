@@ -486,9 +486,96 @@ class LcapyTester(unittest.TestCase):
 
         a =  (s + 3) / (s**2 + 4 * s + 4)
         p, defs = a.parameterize()
-        self.assertEqual(a, p.subs(defs), "parameterize")                        
+        self.assertEqual(a, p.subs(defs), "parameterize")
 
     def test_integrate(self):
 
         self.assertEqual(t.integrate((t, 0, t)), t**2 / 2, "integrate t")
+        
+
+    def test_partfrac(self):
+
+        H = expr('F(s)') / (s**2 + 3 * s + 6)
+        
+        self.assertEqual(H.partfrac(), H,  "undef partfrac")
+        self.assertEqual(H.partfrac(True), H,  "undef partfrac")
+
+        G = H * exp(-3 * s)
+
+        self.assertEqual(G.partfrac(), G,  "undef delay partfrac")
+        self.assertEqual(G.partfrac(True), G,  "undef delay partfrac")
+
+        F = G + exp(-4 * s)
+
+        self.assertEqual(F.partfrac(), F,  "undef delay sum partfrac")
+        self.assertEqual(F.partfrac(True), F,  "undef delay sum partfrac")
+
+        H = expr('F(s)') / (s**2 + 3 * s + 2)
+        
+        self.assertEqual(H.partfrac(), H,  "undef partfrac")
+        self.assertEqual(H.partfrac(True), H,  "undef partfrac")
+
+        G = H * exp(-3 * s)
+
+        self.assertEqual(G.partfrac(), G,  "undef delay partfrac")
+        self.assertEqual(G.partfrac(True), G,  "undef delay partfrac")
+
+        F = G + exp(-4 * s)
+
+        self.assertEqual(F.partfrac(), F,  "undef delay sum partfrac")
+        self.assertEqual(F.partfrac(True), F,  "undef delay sum partfrac")
+
+        H = expr('F(s)') / ((s + 2)**2)
+        
+        self.assertEqual(H.partfrac(), H,  "undef partfrac")
+        self.assertEqual(H.partfrac(True), H,  "undef partfrac")
+
+        G = H * exp(-3 * s)
+
+        self.assertEqual(G.partfrac(), G,  "undef delay partfrac")
+        self.assertEqual(G.partfrac(True), G,  "undef delay partfrac")
+
+        F = G + exp(-4 * s)
+
+        self.assertEqual(F.partfrac(), F,  "undef delay sum partfrac")
+        self.assertEqual(F.partfrac(True), F,  "undef delay sum partfrac")                
+
+
+    def test_mixedfrac(self):
+
+        H = expr('F(s)') / (s**2 + 3 * s + 6)
+        
+        self.assertEqual(H.mixedfrac(), H,  "undef mixedfrac")
+
+        G = H * exp(-3 * s)
+
+        self.assertEqual(G.mixedfrac(), G,  "undef delay mixedfrac")
+
+        F = G + exp(-4 * s)
+
+        self.assertEqual(F.mixedfrac(), F,  "undef delay sum mixedfrac")
+
+        H = expr('F(s)') / (s**2 + 3 * s + 2)
+        
+        self.assertEqual(H.mixedfrac(), H,  "undef mixedfrac")
+
+        G = H * exp(-3 * s)
+
+        self.assertEqual(G.mixedfrac(), G,  "undef delay mixedfrac")
+
+        F = G + exp(-4 * s)
+
+        self.assertEqual(F.mixedfrac(), F,  "undef delay sum mixedfrac")
+
+        H = expr('F(s)') / ((s + 2)**2)
+        
+        self.assertEqual(H.mixedfrac(), H,  "undef mixedfrac")
+
+        G = H * exp(-3 * s)
+
+        self.assertEqual(G.mixedfrac(), G,  "undef delay mixedfrac")
+
+        F = G + exp(-4 * s)
+
+        self.assertEqual(F.mixedfrac(), F,  "undef delay sum mixedfrac")
         

@@ -135,52 +135,11 @@ def as_ratfun_delay_undef(expr, var):
     return N, D, delay, undef
 
 
-def as_residue_parts(expr, var):
-        
-    N, D, delay = as_ratfun_delay(expr, var)
-
-    # Perform polynomial long division so expr = Q + M / D
-    Q, M = sym.div(N, D, var)
-    expr = M / D
-        
-    sexpr = Ratfun(expr, var)
-
-    P = sexpr.poles()
-    F = []
-    R = []
-    for p in P:
-
-        # Number of occurrences of the pole.
-        N = P[p]
-
-        f = var - p
-
-        if N == 1:
-            F.append(f)
-            R.append(sexpr.residue(p, P))
-            continue
-
-        # Handle repeated poles.
-        expr2 = expr * f ** N
-        for n in range(1, N + 1):
-            m = N - n
-            F.append(f ** n)
-            dexpr = sym.diff(expr2, var, m)
-            R.append(sym.limit(dexpr, var, p) / sym.factorial(m))
-
-    return F, R, Q, delay
-
-
 class Ratfun(object):
 
     def __init__(self, expr, var):
         self.expr = expr
         self.var = var
-
-    def as_residue_parts(self):
-        """Return residues of expression"""
-
-        return as_residue_parts(self.expr, self.var)
 
     def as_ratfun_delay(self):
         """Split expr as (N, D, delay)
@@ -378,7 +337,7 @@ class Ratfun(object):
 
         """
         try:
-            Q, R, D, delay, undef = self._decompose(combine_conjugates)
+            Q, R, D, delay, undef = self.as_QRD(combine_conjugates)
         except ValueError:
             # Try splitting into terms
             result = 0
@@ -402,14 +361,25 @@ class Ratfun(object):
     def mixedfrac(self):
         """Convert rational function into mixed fraction form.
 
+        This is the sum of strictly proper rational function and a
+        polynomial.
+
         See also canonical, general, partfrac, timeconst, and ZPK"""
 
-        N, D, delay, undef = self.as_ratfun_delay_undef()
-        var = self.var        
+        try:
+            Q, M, D, delay, undef = self.as_QMD()
 
-        # Perform polynomial long division so expr = Q + M / D        
-        Q, M = sym.div(N, D, var)
-        expr = Q + sym.cancel(M / D, var)
+        except ValueError:
+            # Try splitting into terms
+            result = 0
+            for term in self.expr.as_ordered_terms():
+                try:
+                    result += Ratfun(term, self.var).mixedfrac()
+                except ValueError:
+                    result += term
+            return result                       
+        
+        expr = Q + sym.cancel(M / D, self.var)
 
         if delay != 0:
             expr *= sym.exp(-self.var * delay)
@@ -464,10 +434,13 @@ class Ratfun(object):
 
         return _zp2tf(zeros, poles, K, self.var) * undef
 
-    def residues(self):
-        """Return residues of partial fraction expansion."""
-        
-        F, R, Q, delay = self.as_residue_parts()
+    def residues(self, combine_conjugates=False):
+        """Return residues of partial fraction expansion.
+
+        This is not much use without the corresponding poles.
+        It is better to use as_QRD."""
+
+        Q, R, D, delay, undef = self.as_QRD(combine_conjugates)
         return R
 
     def coeffs(self):
@@ -513,7 +486,7 @@ class Ratfun(object):
 
         return self.Ddegree > self.Ndegree
 
-    def _decompose1(self):
+    def as_QMD(self):
         """Decompose expression into Q, M, D, delay, undef where
 
         expression = (Q + M / D) * exp(-delay * var) * undef"""
@@ -525,9 +498,12 @@ class Ratfun(object):
 
         return Q, M, D, delay, undef
         
-    def _decompose(self, combine_conjugates=False):
+    def as_QRD(self, combine_conjugates=False):
+        """Decompose expression into Q, R, D, delay, undef where
 
-        Q, M, D, delay, undef = self._decompose1()
+        expression = (Q + sum_n R_n / D_n) * exp(-delay * var) * undef"""
+
+        Q, M, D, delay, undef = self.as_QMD()
 
         expr = M / D
         var = self.var

@@ -179,7 +179,12 @@ class ExprMisc(object):
 
         (5 * s - 5) / (s**2 + 4) + 5
 
-        See also canonical, general, partfrac, timeconst, and ZPK."""
+        This is the sum of strictly proper rational function and a
+        polynomial.
+
+        See also canonical, general, partfrac, timeconst, and ZPK.
+
+        """
 
         return self.__class__(self._ratfun.mixedfrac(), **self.assumptions)
 
