@@ -129,6 +129,7 @@ def laplace_integral(expr, t, s):
     
     return F1 * F2
 
+
 def laplace_term(expr, t, s):
 
     const, expr = factor_const(expr, t)
@@ -268,11 +269,8 @@ def inverse_laplace_ratfun(expr, s, t, **assumptions):
             return inverse_laplace_damped_sin(sexpr, s, t, **assumptions)
         if False and sexpr.degree == 3 and Ratfun(expr * s).degree == 2:
             return inverse_laplace_damped_sin3(sexpr, s, t, **assumptions)
-    
-    N, D, delay = sexpr.as_ratfun_delay()
-    # The delay should be zero
 
-    Q, M = sym.div(N, D, s)
+    Q, M, D, delay, undef = sexpr.as_QMD()
 
     result1 = sym.S.Zero
 
