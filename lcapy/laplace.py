@@ -191,8 +191,8 @@ def laplace_transform(expr, t, s):
     else:
         expr = sympify(expr)
 
-    # Unilateral LT ignores expr for t < 0 so
-    # but barfs on a Piecewise so handle case here.
+    # SymPy laplace barfs on Piecewise but unilateral LT ignores expr
+    # for t < 0 so remove Piecewise.
     expr = expr.replace(var, t)        
     if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
         expr = expr.args[0].args[0]
@@ -497,7 +497,6 @@ def inverse_laplace_term(expr, s, t, **assumptions):
 
 def inverse_laplace_by_terms(expr, s, t, **assumptions):
 
-    expr = sym.expand(expr)
     terms = expr.as_ordered_terms()
 
     result1 = sym.S.Zero
@@ -543,10 +542,15 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
                              ' Perhaps have capacitors in series?')
         return result
 
-    try:
-        result1, result2 = inverse_laplace_term(expr, s, t, **assumptions)
-    except:
+    if expr.is_Add:
         result1, result2 = inverse_laplace_by_terms(expr, s, t, **assumptions)
+    else:
+        try:
+            result1, result2 = inverse_laplace_term(expr, s, t, **assumptions)
+        except:
+            expr = sym.expand(expr)
+            result1, result2 = inverse_laplace_by_terms(expr, s, t,
+                                                        **assumptions)
         
     # result1 is known to be causal, result2 is unsure
     result = result1 + result2    
