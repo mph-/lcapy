@@ -264,6 +264,8 @@ def inverse_laplace_ratfun(expr, s, t, **assumptions):
 
     sexpr = Ratfun(expr, s)
 
+    damping = assumptions.get('damping', None)
+
     if assumptions.get('damped_sin', False):
         if sexpr.degree == 2:
             return inverse_laplace_damped_sin(sexpr, s, t, **assumptions)
@@ -286,29 +288,34 @@ def inverse_laplace_ratfun(expr, s, t, **assumptions):
             return factor
 
     sexpr = Ratfun(expr, s)
-    P = sexpr.poles()
+    poles = sexpr.poles(damping=damping)
+    polesdict = {}
+    for pole in poles:
+        polesdict[pole.expr] = pole.n
+    
     result2 = sym.S.Zero
 
-    P2 = P.copy()
+    for pole in poles:
 
-    for p in P2:
+        p = pole.expr
 
         # Number of occurrences of the pole.
-        N = P2[p]
+        o = polesdict[p]        
 
-        if N == 0:
+        if o == 0:
             continue
 
-        if N == 1:
-            r = sexpr.residue(p, P)
-
-            pc = p.conjugate()
-            if pc != p and pc in P:
+        if o == 1:
+            pc = pole.conjugate
+            r = sexpr.residue(p, poles)
+            
+            if pc != p and pc in polesdict:
                 # Remove conjugate from poles and process pole with its
                 # conjugate.  Unfortunately, for symbolic expressions
                 # we cannot tell if a quadratic has two real poles,
                 # a repeated real pole, or a complex conjugate pair of poles.
-                P2[pc] = 0
+
+                polesdict[pc] -= 1
                 
                 p_re = sym.re(p)
                 p_im = sym.im(p)
@@ -322,9 +329,9 @@ def inverse_laplace_ratfun(expr, s, t, **assumptions):
             continue
 
         # Handle repeated poles.
-        expr2 = expr * (s - p) ** N
-        for n in range(1, N + 1):
-            m = N - n
+        expr2 = expr * (s - p) ** o
+        for n in range(1, o + 1):
+            m = o - n
             r = sym.limit(
                 sym.diff(expr2, s, m), s, p) / sym.factorial(m)
             result2 += r * sym.exp(p * t) * t**(n - 1)
@@ -525,6 +532,7 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
     key = (expr, s, t, assumptions.get('dc', False),
            assumptions.get('ac', False),
            assumptions.get('causal', False),
+           assumptions.get('damping', None),           
            assumptions.get('damped_sin', None))
     
     if key in inverse_laplace_cache:

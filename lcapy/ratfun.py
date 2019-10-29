@@ -9,6 +9,102 @@ import sympy as sym
 from sympy.core.mul import _unevaluated_Mul as uMul
 from .sym import sympify
 
+class Pole(object):
+
+    def __init__(self, expr, n, damping=None):
+        self.damping = damping
+        self.n = n
+        self.orig_expr = expr
+        self.d = self._decompose(expr)
+        self.expr = self._rewrite()
+
+    def _decompose_bar(self, expr):
+
+        # Look for scale * sqrt(dexpr) where dexpr = aexpr - bexpr
+    
+        dexpr = None
+        scale = sym.S.One
+    
+        for factor in expr.as_ordered_factors():
+            if (factor.is_Pow and factor.args[1] == sym.S.One / 2 and
+                factor.args[0].is_Add and factor.args[0].args[1].is_Mul and
+                factor.args[0].args[1].args[0] < 0):
+                if dexpr is not None:
+                    return None
+                dexpr = factor.args[0]
+            else:
+                scale *= factor
+        if dexpr is None:
+            return None
+        return scale, dexpr
+
+    def _decompose_foo(self, expr):
+
+        # Look for offset + scale * sqrt(dexpr) where dexpr = aexpr - bexpr
+    
+        offset = sym.S.Zero
+        scale = sym.S.One
+        found = False
+        dexpr = None
+
+        for term in expr.as_ordered_terms():
+            p = self._decompose_bar(term)
+            if p is None:
+                offset += term
+            elif dexpr is not None:
+                return None
+            else:
+                scale, dexpr = p
+
+        return offset, scale, dexpr
+
+    def _decompose(self, expr):
+
+        scale = sym.S.One
+        scale2 = sym.S.One    
+        offset = sym.S.One
+        dexpr = None
+    
+        for factor in expr.as_ordered_factors():
+            if factor.is_Add:
+                p = self._decompose_foo(factor)
+                if p is None:
+                    scale *= factor
+                elif dexpr is not None:
+                    return None
+                else:
+                    offset, scale2, dexpr = p
+            else:
+                scale *= factor
+
+        if dexpr is None:
+            dexpr = sym.S.Zero
+        return scale, offset, scale2, dexpr
+
+    @property
+    def conjugate(self):
+        return self._rewrite(conjugate=True)        
+        
+    def _rewrite(self, conjugate=False):
+
+        if self.damping in (None, 'over') or self.d is None:
+            return self.orig_expr.conjugate() if conjugate else self.orig_expr
+
+        d = self.d
+
+        if self.damping == 'under':
+            if conjugate:
+                return d[0] * (d[1] - 1j * d[2] * sym.sqrt(-d[3]))
+            else:
+                return d[0] * (d[1] + 1j * d[2] * sym.sqrt(-d[3]))
+
+        elif self.damping == 'critical':
+            # This puts constraints on variables since d[2] == 0.
+            return (d[0] * d[1]).conjugate() if conjugate else d[0] * d[1]
+        else:
+            raise ValueError('Unknown damping %s' % self.damping)
+
+
 def as_numer_denom_poly(expr, var):
 
     N = sym.S.One
@@ -196,27 +292,40 @@ class Ratfun(object):
 
         return Ratfun(self.numerator, self.var).roots()    
 
-    def poles(self):
-        """Return poles of expression as a dictionary
-        Note this may not find them all."""
+    def poles(self, damping=None):
+        """Return poles of expression as a dictionary of Pole objects.
+        Note this may not find all the poles."""
 
-        return Ratfun(self.denominator, self.var).roots()    
+        poles = []
+        for p, n in Ratfun(self.denominator, self.var).roots().items():
+
+            pole = Pole(p, n=n, damping=damping)
+            for q in poles:
+                if q.expr == pole.expr:
+                    q.n += pole.n
+                    pole.n = 0
+                    break
+            if pole.n != 0:
+                poles.append(pole)
+        
+        return poles
 
     def residue(self, pole, poles):
 
         expr = self.expr
         var = self.var
-        
-        # Remove pole from list of poles; sym.cancel
+
+        # Remove occurrence of pole; sym.cancel
         # doesn't always work, for example, for complex poles.
-        poles2 = poles.copy()
-        poles2[pole] -= 1
+        occurrences = []
+        for p in poles:
+            occurrences += [p.n - 1 if p.expr == pole else p.n]
         
         numer, denom = expr.as_numer_denom()
         Dpoly = sym.Poly(denom, var)
         K = Dpoly.LC()
         
-        D = [(var - p) ** poles2[p] for p in poles2]
+        D = [(var - p.expr) ** o for p, o in zip(poles, occurrences)]
         denom = sym.Mul(K, *D)
         
         d = sym.limit(denom, var, pole)
@@ -327,7 +436,7 @@ class Ratfun(object):
 
         return expr * undef
 
-    def partfrac(self, combine_conjugates=False):
+    def partfrac(self, combine_conjugates=False, damping=None):
         """Convert rational function into partial fraction form.
 
         If combine_conjugates is True then the pair of partial
@@ -337,7 +446,7 @@ class Ratfun(object):
 
         """
         try:
-            Q, R, D, delay, undef = self.as_QRD(combine_conjugates)
+            Q, R, D, delay, undef = self.as_QRD(combine_conjugates, damping)
         except ValueError:
             # Try splitting into terms
             result = 0
@@ -434,13 +543,13 @@ class Ratfun(object):
 
         return _zp2tf(zeros, poles, K, self.var) * undef
 
-    def residues(self, combine_conjugates=False):
+    def residues(self, combine_conjugates=False, damping=None):
         """Return residues of partial fraction expansion.
 
         This is not much use without the corresponding poles.
         It is better to use as_QRD."""
 
-        Q, R, D, delay, undef = self.as_QRD(combine_conjugates)
+        Q, R, D, delay, undef = self.as_QRD(combine_conjugates, damping)
         return R
 
     def coeffs(self):
@@ -498,7 +607,7 @@ class Ratfun(object):
 
         return Q, M, D, delay, undef
         
-    def as_QRD(self, combine_conjugates=False):
+    def as_QRD(self, combine_conjugates=False, damping=None):
         """Decompose expression into Q, R, D, delay, undef where
 
         expression = (Q + sum_n R_n / D_n) * exp(-delay * var) * undef"""
@@ -509,38 +618,47 @@ class Ratfun(object):
         var = self.var
         
         sexpr = Ratfun(expr, var)
-        P = sexpr.poles()
+        poles = sexpr.poles(damping=damping)
 
-        P2 = P.copy()
+        if damping == 'critical':
+            # Critical damping puts constraints on variables.  If
+            # these variables do not occur in numerator of expr
+            # perhaps the following code will work.
+            raise ValueError('Critical damping not supported')
+        
+        polesdict = {}
+        for pole in poles:
+            polesdict[pole.expr] = pole.n
 
         R = []
         D = []
 
-        for p in P2:
+        for pole in poles:
         
             # Number of occurrences of the pole.
-            N = P2[p]
-            if N == 0:
+            o = polesdict[pole.expr]
+            if o == 0:
                 continue
-            
-            pc = p.conjugate()
-            if combine_conjugates and pc != p and pc in P:
-                P2[pc] = 0
+
+            p = pole.expr
+            pc = pole.conjugate
+            if combine_conjugates and pc != p and pc in polesdict:
+                polesdict[pc] -= 1
 
                 D2 = sym.simplify(var**2 - (p + pc) * var + p * pc)
                     
-                if N == 1:
-                    r = sexpr.residue(p, P)                    
-                    rc = r.conjugate()
+                if o == 1:
+                    r = sexpr.residue(p, poles)                    
+                    rc = sexpr.residue(pc, poles)
 
                     r = sym.simplify(r * (var - pc) + rc * (var - p))
                     R.append(r)
                     D.append(D2)
                 else:
                     # Handle repeated complex pole pairs.
-                    expr2 = expr * (var - p) ** N                
-                    for n in range(1, N + 1):
-                        m = N - n
+                    expr2 = expr * (var - p) ** o                
+                    for n in range(1, o + 1):
+                        m = o - n
                         r = sym.limit(
                             sym.diff(expr2, var, m), var, p) / sym.factorial(m)
                         rc = r.conjugate()
@@ -550,15 +668,15 @@ class Ratfun(object):
             else:
                 D2 = var - p
 
-                if N == 1:
-                    r = sexpr.residue(p, P)
+                if o == 1:
+                    r = sexpr.residue(p, poles)
                     R.append(r)
                     D.append(D2)
                 else:
                     # Handle repeated real poles.
-                    expr2 = expr * (var - p) ** N
-                    for n in range(1, N + 1):
-                        m = N - n
+                    expr2 = expr * (var - p) ** o
+                    for n in range(1, o + 1):
+                        m = o - n
                         r = sym.limit(
                             sym.diff(expr2, var, m), var, p) / sym.factorial(m)
 
