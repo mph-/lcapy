@@ -74,9 +74,14 @@ class ExprPrint(object):
             expr = expr.expr
         return latex(sym.Eq(sympify(name), expr), **kwargs)
 
-    
-class ExprMisc(object):
 
+class ExprContainer(object):    
+
+    def evaluate(self):
+        
+        """Evaluate each element to convert to floating point."""        
+        return self.__class__([v.evalf() for v in self])
+    
     def simplify(self):
         """Simplify each element."""
         
@@ -90,7 +95,10 @@ class ExprMisc(object):
         for expr in list(self):
             symbols.update(expr.symbols)
         return symbols
-        
+
+    
+class ExprMisc(object):
+
     @property    
     def pdb(self):
         """Enter the python debugger."""
@@ -104,208 +112,8 @@ class ExprMisc(object):
         s = '%s(' % name
         print(symdebug(self.expr, s , len(name) + 1))
 
-    def evaluate(self):
-        
-        """Evaluate each element to convert to floating point."""        
-        return self.__class__([v.evalf() for v in self])
-
-    def roots(self, aslist=False):
-        """Return roots of expression as a dictionary
-        Note this may not find them all."""
-
-        roots = self._ratfun.roots()
-        if not aslist:
-            return expr(roots)
-        rootslist = []
-        for root, count in roots.items():
-            rootslist += [root] * count
-        return expr(rootslist)
-            
-    def zeros(self, aslist=False):
-        """Return zeroes of expression as a dictionary
-        Note this may not find them all."""
-
-        return self.N.roots(aslist)
-
-    def poles(self, aslist=False):
-        """Return poles of expression as a dictionary
-        Note this may not find them all."""
-
-        return self.D.roots(aslist)
-
-    def residues(self):
-        """Return list of residues of partial fraction expansion."""
-
-        # TODO, return as dictionary keyed by pole
-        
-        return expr(self._ratfun.residues())
-
-    def canonical(self, factor_const=True):
-        """Convert rational function to canonical form (standard form) with
-        unity highest power of denominator.  For example,
-
-        5 * (s**2 + s + 1) / (s**2 + 4)
-
-        See also general, partfrac, mixedfrac, timeconst, and ZPK
-
-        """
-
-        return self.__class__(self._ratfun.canonical(factor_const), **self.assumptions)
-
-    def general(self):
-        """Convert rational function to general form.  For example,
-
-        (5 * s**2 + 10 * s + 5) / (s**2 + 4)
-
-        See also canonical, partfrac, mixedfrac, timeconst, and ZPK."""
-
-        return self.__class__(self._ratfun.general(), **self.assumptions)
-
-    def partfrac(self, combine_conjugates=False):
-        """Convert rational function into partial fraction form.   For example,
-
-        5 + (5 - 15 * j / 4) / (s + 2 * j) + (5 + 15 * j / 4) / (s - 2 * j)
-
-        If combine_conjugates is True then the pair of partial
-        fractions for complex conjugate poles are combined.
-
-        See also canonical, mixedfrac, general, timeconst, and ZPK."""
-
-        return self.__class__(self._ratfun.partfrac(combine_conjugates),
-                              **self.assumptions)
-
-    def mixedfrac(self):
-        """Convert rational function into mixed fraction form.  For example,
-
-        (5 * s - 5) / (s**2 + 4) + 5
-
-        This is the sum of strictly proper rational function and a
-        polynomial.
-
-        See also canonical, general, partfrac, timeconst, and ZPK.
-
-        """
-
-        return self.__class__(self._ratfun.mixedfrac(), **self.assumptions)
-
-    def timeconst(self):
-        """Convert rational function into time constant form.  For example,
-
-        5 * (s**2 + 2 * s + 1) / (4 * (s**2 / 4 + 1))
-
-        See also canonical, general, mixedfrac, partfrac and ZPK."""
-
-        return self.__class__(self._ratfun.timeconst(), **self.assumptions)
-
-    def ZPK(self):
-        """Convert to zero-pole-gain (ZPK) form (factored form).  For example,
-
-        5 * (s + 1)**2 / ((s - 2 * j) * (s + 2 * j))
-
-        See also canonical, general, mixedfrac, partfrac, and timeconst.
-
-        """
-
-        return self.__class__(self._ratfun.ZPK(), **self.assumptions)
-
-    def expandcanonical(self):
-        """Expand in terms for different powers with each term
-        expressed in canonical form.  For example,
-
-        s / (s**2 + 4) + 5 / (s**2 + 4)
-
-        See also canonical, general, partfrac, timeconst, and ZPK."""
-
-        return self.__class__(self._ratfun.expandcanonical(), **self.assumptions)
-
-    def coeffs(self, norm=False):
-        """Return list of coeffs assuming the expr is a polynomial in s.  The
-        highest powers come first.  This will fail for a rational function.
-        Instead use expr.N.coeffs or expr.D.coeffs for numerator
-        or denominator respectively.
-        
-        If norm is True, normalise coefficients to highest power is 1."""
-
-        try:
-            z = sym.Poly(self.expr, self.var)
-        except:
-            raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')
-
-        c = z.all_coeffs()
-        if norm:
-            return expr([sym.simplify(c1 / c[0]) for c1 in c])
-            
-        return expr(c)
-
-    def normcoeffs(self):
-        """Return list of coeffs (normalised so the highest power is 1)
-        assuming the expr is a polynomial in s.  The highest powers
-        come first.  This will fail for a rational function.  Instead
-        use expr.N.normcoeffs or expr.D.normcoeffs for numerator or
-        denominator respectively."""
-
-        return self.coeffs(norm=True)
-
-    @property
-    def degree(self):
-        """Return the degree (order) of the rational function.
-
-        This the maximum of the numerator and denominator degrees.
-        Note zero has a degree of -inf."""
-        
-        return self._ratfun.degree
-
-    @property
-    def Ndegree(self):
-        """Return the degree (order) of the numerator of a rational function.
-        This will throw an exception if the expression is not a
-        rational function.
-
-        Note zero has a degree of -inf.
-
-        """
-        
-        return self._ratfun.Ndegree
-
-    @property
-    def Ddegree(self):
-        """Return the degree (order) of the denominator of a rational function.
-        This will throw an exception if the expression is not a
-        rational function.
-
-        Note zero has a degree of -inf."""
-        
-        return self._ratfun.Ddegree
-
-    @property
-    def strictly_proper(self):
-        """Return True if the degree of the dominator is greater
-        than the degree of the numerator.
-        This will throw an exception if the expression is not a
-        rational function."""
-
-        return self._ratfun.strictly_proper
     
-    def prune_HOT(self, degree):
-        """Prune higher order terms if expression is a polynomial
-        so that resultant approximate expression has the desired degree."""
-
-        coeffs = self.coeffs
-        if len(coeffs) < degree:
-            return self
-
-        coeffs = coeffs[::-1]
-
-        expr = sym.S.Zero
-        var = self.var
-        for m in range(degree + 1):
-            term = coeffs[m].expr * var ** m
-            expr += term
-
-        return self.__class__(expr, **self.assumptions)            
-
-    
-class ExprDict(ExprPrint, ExprMisc, OrderedDict):
+class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
 
     """Decorator class for dictionary created by sympy."""
 
@@ -337,7 +145,7 @@ class ExprDict(ExprPrint, ExprMisc, OrderedDict):
         return new
 
     
-class ExprList(ExprPrint, list, ExprMisc):
+class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
     """Decorator class for list created by sympy."""
 
     # Have ExprPrint first so that its _repr__pretty_ is called
@@ -354,7 +162,7 @@ class ExprList(ExprPrint, list, ExprMisc):
         return expr([e.subs(*args, **kwargs) for e in self])
         
     
-class ExprTuple(ExprPrint, tuple, ExprMisc):
+class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
     """Decorator class for tuple created by sympy."""
 
     def __init__(self, arglist):
@@ -1401,6 +1209,210 @@ class Expr(ExprPrint, ExprMisc):
         symdict.update(funcdict)
         return symdict
 
+    def roots(self, aslist=False):
+        """Return roots of expression as a dictionary
+        Note this may not find them all."""
+
+        roots = self._ratfun.roots()
+        if not aslist:
+            return expr(roots)
+        rootslist = []
+        for root, count in roots.items():
+            rootslist += [root] * count
+        return expr(rootslist)
+            
+    def zeros(self, aslist=False):
+        """Return zeroes of expression as a dictionary
+        Note this may not find them all."""
+
+        return self.N.roots(aslist)
+
+    def poles(self, aslist=False, damping=None):
+        """Return poles of expression as a dictionary
+        Note this may not find them all."""
+
+        poles = self._ratfun.poles(damping=damping)
+        
+        if not aslist:
+            polesdict = {}
+            for pole in poles:
+                key = pole.expr
+                if key in polesdict:
+                    polesdict[pole.expr] += pole.n
+                else:
+                    polesdict[pole.expr] = pole.n
+            return expr(polesdict)
+            
+        poleslist = []
+        for pole in poles:
+            poleslist += [pole.expr] * pole.n
+        return expr(poleslist)
+
+    def canonical(self, factor_const=True):
+        """Convert rational function to canonical form (standard form) with
+        unity highest power of denominator.  For example,
+
+        5 * (s**2 + s + 1) / (s**2 + 4)
+
+        See also general, partfrac, mixedfrac, timeconst, and ZPK
+
+        """
+
+        return self.__class__(self._ratfun.canonical(factor_const), **self.assumptions)
+
+    def general(self):
+        """Convert rational function to general form.  For example,
+
+        (5 * s**2 + 10 * s + 5) / (s**2 + 4)
+
+        See also canonical, partfrac, mixedfrac, timeconst, and ZPK."""
+
+        return self.__class__(self._ratfun.general(), **self.assumptions)
+
+    def partfrac(self, combine_conjugates=False, damping=None):
+        """Convert rational function into partial fraction form.   For example,
+
+        5 + (5 - 15 * j / 4) / (s + 2 * j) + (5 + 15 * j / 4) / (s - 2 * j)
+
+        If combine_conjugates is True then the pair of partial
+        fractions for complex conjugate poles are combined.
+
+        See also canonical, mixedfrac, general, timeconst, and ZPK."""
+
+        return self.__class__(self._ratfun.partfrac(combine_conjugates,
+                                                    damping),
+                              **self.assumptions)
+
+    def mixedfrac(self):
+        """Convert rational function into mixed fraction form.  For example,
+
+        (5 * s - 5) / (s**2 + 4) + 5
+
+        This is the sum of strictly proper rational function and a
+        polynomial.
+
+        See also canonical, general, partfrac, timeconst, and ZPK.
+
+        """
+
+        return self.__class__(self._ratfun.mixedfrac(), **self.assumptions)
+
+    def timeconst(self):
+        """Convert rational function into time constant form.  For example,
+
+        5 * (s**2 + 2 * s + 1) / (4 * (s**2 / 4 + 1))
+
+        See also canonical, general, mixedfrac, partfrac and ZPK."""
+
+        return self.__class__(self._ratfun.timeconst(), **self.assumptions)
+
+    def ZPK(self):
+        """Convert to zero-pole-gain (ZPK) form (factored form).  For example,
+
+        5 * (s + 1)**2 / ((s - 2 * j) * (s + 2 * j))
+
+        See also canonical, general, mixedfrac, partfrac, and timeconst.
+
+        """
+
+        return self.__class__(self._ratfun.ZPK(), **self.assumptions)
+
+    def expandcanonical(self):
+        """Expand in terms for different powers with each term
+        expressed in canonical form.  For example,
+
+        s / (s**2 + 4) + 5 / (s**2 + 4)
+
+        See also canonical, general, partfrac, timeconst, and ZPK."""
+
+        return self.__class__(self._ratfun.expandcanonical(), **self.assumptions)
+
+    def coeffs(self, norm=False):
+        """Return list of coeffs assuming the expr is a polynomial in s.  The
+        highest powers come first.  This will fail for a rational function.
+        Instead use expr.N.coeffs or expr.D.coeffs for numerator
+        or denominator respectively.
+        
+        If norm is True, normalise coefficients to highest power is 1."""
+
+        try:
+            z = sym.Poly(self.expr, self.var)
+        except:
+            raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')
+
+        c = z.all_coeffs()
+        if norm:
+            return expr([sym.simplify(c1 / c[0]) for c1 in c])
+            
+        return expr(c)
+
+    def normcoeffs(self):
+        """Return list of coeffs (normalised so the highest power is 1)
+        assuming the expr is a polynomial in s.  The highest powers
+        come first.  This will fail for a rational function.  Instead
+        use expr.N.normcoeffs or expr.D.normcoeffs for numerator or
+        denominator respectively."""
+
+        return self.coeffs(norm=True)
+
+    @property
+    def degree(self):
+        """Return the degree (order) of the rational function.
+
+        This the maximum of the numerator and denominator degrees.
+        Note zero has a degree of -inf."""
+        
+        return self._ratfun.degree
+
+    @property
+    def Ndegree(self):
+        """Return the degree (order) of the numerator of a rational function.
+        This will throw an exception if the expression is not a
+        rational function.
+
+        Note zero has a degree of -inf.
+
+        """
+        
+        return self._ratfun.Ndegree
+
+    @property
+    def Ddegree(self):
+        """Return the degree (order) of the denominator of a rational function.
+        This will throw an exception if the expression is not a
+        rational function.
+
+        Note zero has a degree of -inf."""
+        
+        return self._ratfun.Ddegree
+
+    @property
+    def strictly_proper(self):
+        """Return True if the degree of the dominator is greater
+        than the degree of the numerator.
+        This will throw an exception if the expression is not a
+        rational function."""
+
+        return self._ratfun.strictly_proper
+    
+    def prune_HOT(self, degree):
+        """Prune higher order terms if expression is a polynomial
+        so that resultant approximate expression has the desired degree."""
+
+        coeffs = self.coeffs
+        if len(coeffs) < degree:
+            return self
+
+        coeffs = coeffs[::-1]
+
+        expr = sym.S.Zero
+        var = self.var
+        for m in range(degree + 1):
+            term = coeffs[m].expr * var ** m
+            expr += term
+
+        return self.__class__(expr, **self.assumptions)            
+    
     
 def expr(arg, **assumptions):
     """Create Lcapy expression from arg.
