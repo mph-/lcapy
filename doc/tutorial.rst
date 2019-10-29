@@ -297,11 +297,11 @@ Let's consider a series R-L-C network
    >>> n
    R(4) + L(10) + C(20)
    >>> n.Z
-      ⎛ 2   2⋅s    1 ⎞
-   10⋅⎜s  + ─── + ───⎟
-      ⎝      5    200⎠
-   ───────────────────
-            s         
+       2         1 
+   10⋅s  + 4⋅s + ──
+                 20
+   ────────────────
+          s        
 
 Notice the result is a rational function of `s`.  Remember impedance
 is a frequency domain concept.  A rational function can be formatted
@@ -314,16 +314,14 @@ in a number of different ways, for example,
       ⎝      20     5⎠ ⎝      20     5⎠
    ────────────────────────────────────
                     s                 
-   >>> n.Z.canonical()
-      ⎛ 2   2⋅s    1 ⎞
-   10⋅⎜s  + ─── + ───⎟
-      ⎝      5    200⎠
-   ───────────────────
-            s         
+
+   >>> n.Z.standard()
+               1  
+   10⋅s + 4 + ────
+              20⋅s
 
 Here `ZPK()` prints the impedance in ZPK (zero-pole-gain) form while
-`canonical()` prints the numerator and denominator of the rational
-function in monic form (with unity leading coefficient).
+`standard()` prints the rational function as the sum of a polynomial and a stricltly proper rational function.
 
 The corresponding parallel R-L-C network yields
 

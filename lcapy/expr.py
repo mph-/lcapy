@@ -1248,13 +1248,20 @@ class Expr(ExprPrint, ExprMisc):
             poleslist += [pole.expr] * pole.n
         return expr(poleslist)
 
-    def canonical(self, factor_const=True):
-        """Convert rational function to canonical form (standard form) with
-        unity highest power of denominator.  For example,
+    def canonical(self, factor_const=False):
+        """Convert rational function to canonical form (aka polynomial form);
+        this is like general form but with a unity highest power of
+        denominator.  For example,
+
+        (5 * s**2 + 5 * s + 5) / (s**2 + 4)
+
+        If factor_const is True, factor constants from numerator, for example,
 
         5 * (s**2 + s + 1) / (s**2 + 4)
 
-        See also general, partfrac, mixedfrac, timeconst, and ZPK
+        This is also called gain-polynomial form.
+
+        See also general, partfrac, standard, timeconst, and ZPK
 
         """
 
@@ -1265,7 +1272,7 @@ class Expr(ExprPrint, ExprMisc):
 
         (5 * s**2 + 10 * s + 5) / (s**2 + 4)
 
-        See also canonical, partfrac, mixedfrac, timeconst, and ZPK."""
+        See also canonical, partfrac, standard, timeconst, and ZPK."""
 
         return self.__class__(self._ratfun.general(), **self.assumptions)
 
@@ -1277,13 +1284,13 @@ class Expr(ExprPrint, ExprMisc):
         If combine_conjugates is True then the pair of partial
         fractions for complex conjugate poles are combined.
 
-        See also canonical, mixedfrac, general, timeconst, and ZPK."""
+        See also canonical, standard, general, timeconst, and ZPK."""
 
         return self.__class__(self._ratfun.partfrac(combine_conjugates,
                                                     damping),
                               **self.assumptions)
 
-    def mixedfrac(self):
+    def standard(self):
         """Convert rational function into mixed fraction form.  For example,
 
         (5 * s - 5) / (s**2 + 4) + 5
@@ -1295,14 +1302,19 @@ class Expr(ExprPrint, ExprMisc):
 
         """
 
-        return self.__class__(self._ratfun.mixedfrac(), **self.assumptions)
+        return self.__class__(self._ratfun.standard(), **self.assumptions)
+
+    def mixedfrac(self):
+        """This is an alias for standard and my be deprecated."""
+        
+        return self.standard()
 
     def timeconst(self):
         """Convert rational function into time constant form.  For example,
 
         5 * (s**2 + 2 * s + 1) / (4 * (s**2 / 4 + 1))
 
-        See also canonical, general, mixedfrac, partfrac and ZPK."""
+        See also canonical, general, standard, partfrac and ZPK."""
 
         return self.__class__(self._ratfun.timeconst(), **self.assumptions)
 
@@ -1311,12 +1323,24 @@ class Expr(ExprPrint, ExprMisc):
 
         5 * (s + 1)**2 / ((s - 2 * j) * (s + 2 * j))
 
-        See also canonical, general, mixedfrac, partfrac, and timeconst.
+        See also canonical, general, standard, partfrac, and timeconst.
 
         """
 
         return self.__class__(self._ratfun.ZPK(), **self.assumptions)
 
+    def factored(self):
+        """Convert to factored form.  For example,
+
+        5 * (s + 1)**2 / ((s - 2 * j) * (s + 2 * j))
+
+        This is an alias for ZPK.  See also canonical, general,
+        standard, partfrac, and timeconst.
+
+        """
+
+        return self.__class__(self._ratfun.ZPK(), **self.assumptions)
+    
     def expandcanonical(self):
         """Expand in terms for different powers with each term
         expressed in canonical form.  For example,

@@ -173,11 +173,22 @@ consider the s-domain rational-function:
    >>> H = 5 * (s**2 + 1) / (s**2 + 5*s + 4)     
 
    >>> H.canonical()
+     ⎛   2    ⎞ 
+     ⎝5⋅s  + 5⎠   
+   ────────────
+    2          
+   s  + 5⋅s + 4
+
+This has a unity coefficient for the highest power in the denominator.  It is sometimes called polynomial form.
+
+   >>> H.canonical(factor_const=True)
       ⎛ 2    ⎞ 
     5⋅⎝s  + 1⎠ 
    ────────────
     2          
    s  + 5⋅s + 4
+
+This has a unity coefficient for the highest power in the denominator and with contants factored in the numerator.   It is sometimes called gain-polynomial form.
 
    >>> H.general()
         2      
@@ -186,31 +197,39 @@ consider the s-domain rational-function:
     2          
    s  + 5⋅s + 4
 
-   >>> H.ZPK()
+This is the general form of a rational function shown as the ratio of two polynomails.   Unlike the canonical form, the coeficient for the highest power in the denominator may not be unity.
+   
+   >>> H.factored()
    5⋅(s - ⅉ)⋅(s + ⅉ)
    ─────────────────
     (s + 1)⋅(s + 4) 
+
+Here both the numerator and denominator polynomials are factored.  It is an alias for `ZPK` (zero-pole-gain) form.
 
    >>> H.partfrac()
            85          10   
    5 - ───────── + ─────────
        3⋅(s + 4)   3⋅(s + 1)
 
-   >>> H.mixedfrac()
+This splits the rational function into partial fraction form.
+       
+   >>> H.standard()
       25⋅s + 15      
    - ──────────── + 5
       2              
      s  + 5⋅s + 4    
 
+This expresses the rational function into the sum of a polynomial and a strictly proper rational function.
+     
    >>> H.timeconst()
-        ⎛ 2    ⎞   
-      5⋅⎝s  + 1⎠   
-   ────────────────
-     ⎛ 2          ⎞
-     ⎜s    5⋅s    ⎟
-   4⋅⎜── + ─── + 1⎟
-     ⎝4     4     ⎠
+   5⋅(-ⅉ⋅s + 1)⋅(ⅉ⋅s + 1)
+   ──────────────────────
+       ⎛s    ⎞           
+     4⋅⎜─ + 1⎟⋅(s + 1)   
+       ⎝4    ⎠           
 
+This expresses the rational function in gain-time constant form.
+       
    >>> H.expandcanonical()  
           2                   
        5⋅s             5      
@@ -538,3 +557,21 @@ Since `R1` and `R2` have different assumptions, SymPy considers them different s
    
 
 Lcapy represents floating point numbers as rationals.  This ensures expected simplifications of expressions.
+
+
+Be careful with zero substitutions; in general it is best to evaluate
+a limit at zero.  For example,
+
+    >>> x = symbol('x')
+    >>> (x * (s + 1 / x)).subs(x, 0)
+    0
+
+    >>> x = symbol('x')
+    >>> (x * (s + 1 / x)).limit(x, 0)
+    1
+    
+Another approach is expand the expression to avoid the division:
+
+    >>> x = symbol('x')
+    >>> (x * (s + 1 / x)).expand().subs(x, 0)
+    1

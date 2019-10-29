@@ -145,8 +145,10 @@ def as_numer_denom(expr, var):
 
 
 def _zp2tf(zeros, poles, K=1, var=None):
-    """Create a transfer function from lists of zeros and poles,
-    and from a constant gain"""
+    """Create a transfer function from lists (or dictionaries) of zeros
+    and poles, and from a constant gain
+
+    """
 
     K = sympify(K)
     zeros = sympify(zeros)
@@ -162,6 +164,53 @@ def _zp2tf(zeros, poles, K=1, var=None):
     else:
         pp = [1 / (var - p) ** poles[p] for p in poles]
         
+    return uMul(K, *(zz + pp))
+
+
+def _tc2tf(zeros, poles, K=1, var=None):
+    """Create a transfer function in time-constant form from lists (or
+    dictionaries) of zeros and poles, and from a constant gain
+
+    """
+
+    K = sympify(K)
+    zeros = sympify(zeros)
+    poles = sympify(poles)
+
+    zz = []
+    pp = []
+    
+    if isinstance(zeros, (tuple, list)):
+        for z in zeros:
+            if z == 0:
+                zz.append(var)
+            else:
+                zz.append((var / -z + 1))
+                K *= z
+    else:
+        for z, o in zeros.items():
+            if z == 0:
+                zz.append(var ** o)
+            else:
+                zz.append((var / -z + 1) ** zeros[z])
+                K *= z ** o       
+
+    if isinstance(zeros, (tuple, list)):
+        for p in poles:
+            if p == 0:
+                pp.append(p)
+            else:
+                pp.append(1 / (var / -p + 1))
+                K /= p
+    else:
+        for p, o in poles.items():
+            if p == 0:
+                pp.append(var ** o)
+            else:
+                pp.append(1 / (var / -p + 1) ** o)
+                K /= p ** o        
+
+    K = K.simplify()
     return uMul(K, *(zz + pp))
 
 
@@ -368,11 +417,20 @@ class Ratfun(object):
         numer, denom = self.numerator_denominator
         return denom
 
-    def canonical(self, factor_const=True):
-        """Convert rational function to canonical form with unity
-        highest power of denominator.
+    def canonical(self, factor_const=False):
+        """Convert rational function to canonical form; this is like general
+        form but with a unity highest power of denominator.  For
+        example,
 
-        See also general, partfrac, mixedfrac, timeconst, and ZPK"""
+        (5 * s**2 + 5 * s + 5) / (s**2 + 4)
+
+        If factor_const is True, factor constants from numerator, for example,
+
+        5 * (s**2 + s + 1) / (s**2 + 4)
+
+        See also general, partfrac, standard, timeconst, and ZPK
+
+        """        
 
         try:
             N, D, delay, undef = self.as_ratfun_delay_undef()
@@ -400,14 +458,15 @@ class Ratfun(object):
             Nm = (Npoly / C).simplify()
             expr = Nm / Dm
             if delay != 0:
-                expr *= sym.exp(self.var * delay)            
+                expr *= sym.exp(self.var * delay)
+            expr *= undef
 
         return expr
 
     def general(self):
         """Convert rational function to general form.
 
-        See also canonical, partfrac, mixedfrac, timeconst, and ZPK"""
+        See also canonical, partfrac, standard, timeconst, and ZPK"""
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
 
@@ -442,7 +501,7 @@ class Ratfun(object):
         If combine_conjugates is True then the pair of partial
         fractions for complex conjugate poles are combined.
 
-        See also canonical, mixedfrac, general, timeconst, and ZPK
+        See also canonical, standard, general, timeconst, and ZPK
 
         """
         try:
@@ -467,7 +526,7 @@ class Ratfun(object):
         result *= undef
         return result
 
-    def mixedfrac(self):
+    def standard(self):
         """Convert rational function into mixed fraction form.
 
         This is the sum of strictly proper rational function and a
@@ -483,7 +542,7 @@ class Ratfun(object):
             result = 0
             for term in self.expr.as_ordered_terms():
                 try:
-                    result += Ratfun(term, self.var).mixedfrac()
+                    result += Ratfun(term, self.var).standard()
                 except ValueError:
                     result += term
             return result                       
@@ -499,34 +558,27 @@ class Ratfun(object):
         """Convert rational function to time constant form with unity
         lowest power of denominator.
 
-        See also canonical, general, partfrac, mixedfrac, and ZPK"""
+        See also canonical, general, partfrac, standard, and ZPK"""
 
-        try:
-            N, D, delay, undef = self.as_ratfun_delay_undef()
-        except ValueError:
-            # TODO: copy?
-            return self.expr
+        N, D, delay, undef = self.as_ratfun_delay_undef()
 
         var = self.var        
         Npoly = sym.Poly(N, var)
         Dpoly = sym.Poly(D, var)
         
-        K = sym.cancel(Npoly.EC() / Dpoly.EC())
+        K = sym.cancel(Npoly.LC() / Dpoly.LC())
         if delay != 0:
             K *= sym.exp(self.var * delay)
 
-        # Divide by leading coefficient
-        Nm = (Npoly / Npoly.EC()).simplify()
-        Dm = (Dpoly / Dpoly.EC()).simplify()
-        
-        expr = K * (Nm / Dm)
+        zeros = sym.roots(Npoly)
+        poles = sym.roots(Dpoly)
 
-        return expr * undef
+        return _tc2tf(zeros, poles, K, self.var) * undef
 
     def ZPK(self):
-        """Convert to pole-zero-gain (PZK) form.
+        """Convert to zero-pole-gain (ZPK) form.
 
-        See also canonical, general, mixedfrac, timeconst, and partfrac"""
+        See also canonical, general, standard, timeconst, and partfrac"""
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
 
