@@ -19,6 +19,9 @@ cover: lcapy/*.py
 doc-install: doc
 	scp -r doc/_build/html/* lcapy.elec.canterbury.ac.nz:/var/www/lcapy/
 
+release: push
+	cd /tmp; git clone git@github.com:mph-/lcapy.git; cd lcapy; make test; make upload
+
 push:
 	git push
 	git push --tags
