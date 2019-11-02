@@ -141,10 +141,15 @@ def plot_frequency(obj, f, **kwargs):
     ylabel = kwargs.pop('ylabel', obj.label)                
     ylabel2 = kwargs.pop('ylabel2', obj.label)
     second = kwargs.pop('second', False)
+    xscale = kwargs.pop('xscale', 1)
+    yscale = kwargs.pop('yscale', 1)            
 
-    plot(f, V, **kwargs)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel2 if second else ylabel)
+    plot(f * xscale, V * yscale, **kwargs)
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    ylabel = ylabel2 if second else ylabel
+    if ylabel is not None:        
+        ax.set_ylabel(ylabel)
     ax.grid(True)
     return ax
 
@@ -181,8 +186,12 @@ def plot_time(obj, t, **kwargs):
         fig, ax = subplots(1)        
     xlabel = kwargs.pop('xlabel', obj.domain_label)
     ylabel = kwargs.pop('ylabel', obj.label)
-    ax.plot(t, v, **kwargs)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
+    xscale = kwargs.pop('xscale', 1)
+    yscale = kwargs.pop('yscale', 1)        
+    ax.plot(t * xscale, v * yscale, **kwargs)
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    if ylabel is not None:        
+        ax.set_ylabel(ylabel)
     ax.grid(True)
     return ax
