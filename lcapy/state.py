@@ -13,11 +13,11 @@ class State(object):
     def __init__(self):
         self.global_context = Context()
         self.context = self.global_context
-        self.previous_context = None
+        self.previous_context = []
 
     def switch_context(self, context):
-        
-        self.previous_context = self.context
+
+        self.previous_context.append(self.context)
         self.context = context
 
         global_assumptions.clear()
@@ -28,8 +28,7 @@ class State(object):
 
         self.context.assumptions.update(global_assumptions)
         
-        self.context = self.previous_context
-        self.previous_context = None
+        self.context = self.previous_context.pop()
         
         global_assumptions.clear()
         global_assumptions.update(self.context.assumptions)
