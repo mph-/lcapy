@@ -482,10 +482,21 @@ class LcapyTester(unittest.TestCase):
 
     def test_IV_series(self):
 
-        a = Circuit("""V 2 1 dc;down 
-        I 1 0 dc; down 
-        R 2 0; down""")
+        a = Circuit("""
+        V 2 1 dc
+        I 1 0 dc
+        R 2 0""")
 
         self.assertEqual(a.R.v, expr('I * R'), "R voltage incorrect")
         self.assertEqual(a.R.i, expr('I'), "R current incorrect")
+
+    def test_IV_parallel(self):
+
+        a = Circuit("""
+        V 1 0 dc
+        I 1 0 dc
+        R 1 0""")
+
+        self.assertEqual(a.R.v, expr('V'), "R voltage incorrect")
+        self.assertEqual(a.R.i, expr('V / R'), "R current incorrect")        
         
