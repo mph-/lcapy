@@ -127,15 +127,10 @@ class Cpt(object):
         
         return str(self)
     
-    def kill_initial(self):
-        """Kill implicit sources due to initial conditions."""
+    def kill(self):
+        """Kill sources."""
 
         return self.copy()
-
-    def kill(self):
-        """Kill component."""
-
-        raise ValueError('component not a source: %s' % self)
 
     def netmake(self, node_map=None, zero=False):
         """Create a new net description.  If node_map is not None,
@@ -575,7 +570,7 @@ class C(RC):
 
     reactive = True
     
-    def kill_initial(self):
+    def kill(self):
         """Kill implicit sources due to initial conditions."""
         return '%s %s %s %s; %s' % (
             self.name, self.relnodes[0], self.relnodes[1],
@@ -852,7 +847,7 @@ class L(RLC):
     need_branch_current = True
     reactive = True
 
-    def kill_initial(self):
+    def kill(self):
         """Kill implicit sources due to initial conditions."""
         return '%s %s %s %s; %s' % (
             self.name, self.relnodes[0], self.relnodes[1],

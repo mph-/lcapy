@@ -704,10 +704,8 @@ class NetlistMixin(object):
         for cpt in self._elements.values():
             if cpt.independent_source:
                 net = cpt.select(kind)                
-            elif isinstance(kind, str) and kind == 'ivp':
-                net = cpt.copy()
             else:
-                net = cpt.kill_initial()
+                net = cpt.copy()
             new._add(net)
         return new        
 
@@ -719,12 +717,8 @@ class NetlistMixin(object):
         for cpt in self._elements.values():
             if cpt.name in self.control_sources:
                 net = cpt.zero()                
-            elif cpt.name in sourcenames:
-                net = cpt.kill()
-            elif 'ICs' in sourcenames:
-                net = cpt.kill_initial()
             else:
-                net = cpt.copy()
+                net = cpt.kill()
             new._add(net)
         return new        
 
