@@ -1,4 +1,4 @@
-from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn, Vt, It, sqrt, u, sympify
+from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn, Vt, It, sqrt, u, sympify, expr
 from lcapy import Zs, s, t
 import unittest
 import sympy as sym
@@ -479,4 +479,13 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.ac().R1.V, 0, "AC model incorrect")
         self.assertEqual(a.dc().R1.V, 0, "DC model incorrect")                
 
+
+    def test_IV_series(self):
+
+        a = Circuit("""V 2 1 dc;down 
+        I 1 0 dc; down 
+        R 2 0; down""")
+
+        self.assertEqual(a.R.v, expr('I * R'), "R voltage incorrect")
+        self.assertEqual(a.R.i, expr('I'), "R current incorrect")
         
