@@ -297,30 +297,30 @@ class Zs(sExpr):
     quantity = 'Impedance'
     units = 'ohms'
 
-    def __init__(self, val, **assumptions):
+    def __init__(self, val, causal=True, **assumptions):
 
-        super(Zs, self).__init__(val, **assumptions)
+        super(Zs, self).__init__(val, causal=causal, **assumptions)
         self._laplace_conjugate_class = Zt
 
     @classmethod
     def C(cls, Cval):
 
-        return cls(1 / (s * Cval), causal=True)
+        return cls(1 / (s * Cval))
 
     @classmethod
     def G(cls, Gval):
 
-        return cls(1 / Gval, causal=True)
+        return cls(1 / Gval)
 
     @classmethod
     def L(cls, Lval):
 
-        return cls(s * Lval, causal=True)
+        return cls(s * Lval)
 
     @classmethod
     def R(cls, Rval):
 
-        return cls(Rval, causal=True)
+        return cls(Rval)
 
     def cpt(self):
         from .oneport import R, C, L, Z
@@ -348,30 +348,30 @@ class Ys(sExpr):
     quantity = 'Admittance'
     units = 'siemens'
 
-    def __init__(self, val, **assumptions):
+    def __init__(self, val, causal=True, **assumptions):
 
-        super(Ys, self).__init__(val, **assumptions)
+        super(Ys, self).__init__(val, causal=causal, **assumptions)
         self._laplace_conjugate_class = Yt
 
     @classmethod
     def C(cls, Cval):
 
-        return cls(s * Cval, causal=True)
+        return cls(s * Cval)
 
     @classmethod
     def G(cls, Gval):
 
-        return cls(Gval, causal=True)
+        return cls(Gval)
 
     @classmethod
     def L(cls, Lval):
 
-        return cls(1 / (s * Lval), causal=True)
+        return cls(1 / (s * Lval))
 
     @classmethod
     def R(cls, Rval):
 
-        return cls(1 / Rval, causal=True)
+        return cls(1 / Rval)
 
     def cpt(self):
         from .oneport import G, C, L, Y
