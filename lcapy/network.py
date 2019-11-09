@@ -3,7 +3,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from .expr import Expr
+from .expr import expr
 from .printing import latex, pretty
 from .schematic import Schematic
 from .circuit import Circuit
@@ -36,7 +36,7 @@ class Network(object):
 
         modargs = []
         for arg in self.args:
-            arg = Expr(arg)
+            arg = expr(arg)
             modargs.append(arg)
         return modargs
 
