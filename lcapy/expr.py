@@ -187,22 +187,25 @@ class Expr(ExprPrint, ExprMisc):
     # But what about Vs**2 ?
 
     def __init__(self, arg, **assumptions):
+        """
+
+         There are two types of assumptions:
+           1. The sympy assumptions associated with symbols, for example,
+              real=True.
+           2. The expr assumptions such as dc, ac, causal.  These
+              are primarily to help the inverse Laplace transform for sExpr
+              classes.  The omega assumption is required for Phasors."""
 
         if isinstance(arg, Expr):
             if assumptions == {}:
                 assumptions = arg.assumptions.copy()
-            arg = arg.expr
-
+            self.assumptions = assumptions.copy()
+            self.expr = arg.expr
+            return
+            
         # Perhaps could set dc?
         if arg == 0:
             assumptions['causal'] = True
-
-        # There are two types of assumptions.
-        #   1. There are the sympy assumptions that are only associated
-        #      with symbols, for example, real=True.
-        #   2. The expr assumptions such as dc, ac, causal.  These
-        #      are primarily to help the inverse Laplace transform for sExpr
-        #      classes.  The omega assumption is required for Phasors.
 
         self.assumptions = assumptions.copy()
         assumptions.pop('nid', None)
