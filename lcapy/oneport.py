@@ -549,15 +549,6 @@ class ParSer(OnePort):
     def Voc(self):
         return self.cct.Voc(1, 0)
 
-    @property
-    def Y(self):
-        # Could extract directly if have Y || I or Z + V
-        return self.cct.admittance(1, 0)
-
-    @property
-    def Z(self):
-        # Could extract directly if have Y || I or Z + V
-        return self.cct.impedance(1, 0)
 
 class Par(ParSer):
     """Parallel class"""
@@ -655,6 +646,16 @@ class Par(ParSer):
         s.append('W %s %s; right=%s' % (n4, n2, self.wsep))
         return '\n'.join(s)
 
+    @property
+    def Y(self):
+        Y = 0
+        for arg in self.args:
+            Y += arg.Y
+        return Ys(Y)
+
+    @property
+    def Z(self):
+        return Zs(1 / self.Y)
 
 class Ser(ParSer):
     """Series class"""
@@ -712,7 +713,18 @@ class Ser(ParSer):
         s.append(self.args[-1].net_make(net, n1, n2))
         return '\n'.join(s)
 
+    @property
+    def Z(self):
+        Z = 0
+        for arg in self.args:
+            Z += arg.Z
+        return Zs(Z)
 
+    @property
+    def Y(self):
+        return Ys(1 / self.Z)
+    
+    
 class R(OnePort):
     """Resistor"""
 
@@ -797,7 +809,7 @@ class Y(OnePort):
     def __init__(self, Yval):
 
         self.args = (Yval, )
-        Yval = Ys(Yval, causal=True)
+        Yval = Ys(Yval)
         self._Z = 1 / Yval
 
 
@@ -807,7 +819,7 @@ class Z(OnePort):
     def __init__(self, Zval):
 
         self.args = (Zval, )
-        Zval = Zs(Zval, causal=True)
+        Zval = Zs(Zval)
         self._Z = Zval
 
 
