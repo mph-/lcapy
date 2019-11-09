@@ -468,3 +468,15 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.R.V, a.C.V, "R + C voltage different")
         self.assertEqual(a.C.I(s), sympify('-v0 / (s * R + 1 / C)'), "C current wrong")
         
+
+    def test_sub(self):
+
+        a = Circuit("""
+        V1 1 0 {u(t)}
+        R1 1 2
+        L1 2 0""")
+
+        self.assertEqual(a.ac().R1.V, 0, "AC model incorrect")
+        self.assertEqual(a.dc().R1.V, 0, "DC model incorrect")                
+
+        

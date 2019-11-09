@@ -568,10 +568,11 @@ class NetlistMixin(object):
         return I(Isc) | Y(Ysc)
 
     def admittance(self, Np, Nm):
-        """Return s-domain driving-point admittance between nodes Np and Nm
-        with independent sources killed and initial conditions
-        ignored.  Since the result is causal, the frequency domain
-        admittance can be found by substituting j * omega for s."""        
+        """Return generalized s-domain driving-point admittance between nodes
+        Np and Nm with independent sources killed and initial
+        conditions ignored.  Since the result is causal, the frequency
+        domain admittance can be found by substituting j * omega for
+        s."""        
 
         new = self.kill()
         if '0' not in new.nodes:
@@ -586,10 +587,11 @@ class NetlistMixin(object):
         return Ys(If.laplace(), causal=True)
 
     def impedance(self, Np, Nm):
-        """Return s-domain driving-point mpedance between nodes Np and Nm with
-        independent sources killed and initial conditions ignored.
-        Since the result is causal, the frequency domain impedance can
-        be found by substituting j * omega for s."""
+        """Return generalized s-domain driving-point impedance between nodes
+        Np and Nm with independent sources killed and initial
+        conditions ignored.  Since the result is causal, the frequency
+        domain impedance can be found by substituting j * omega for
+        s."""
 
         new = self.kill()
         if '0' not in new.nodes:
@@ -606,31 +608,25 @@ class NetlistMixin(object):
     def resistance(self, Np, Nm):
         """Return resistance between nodes Np and Nm with independent
         sources killed.  The result is in the AC (omega) domain.
-
-        """
+        See also conductance, reactance, susceptance."""
         return self.impedance(Np, Nm).jomega.real
 
     def reactance(self, Np, Nm):
         """Return reactance between nodes Np and Nm with independent
         sources killed.  The result is in the AC (omega) domain.
-
-        """
+        See also conductance, resistance, susceptance."""
         return self.impedance(Np, Nm).jomega.imag * j
 
     def conductance(self, Np, Nm):
         """Return conductance (inverse resistance) between nodes Np and Nm
         with independent sources killed.  The result is in the AC (omega)
-        domain.
-
-        """
+        domain.    See also resistance, reactance, susceptance."""
         return 1 / self.resistance
 
     def susceptance(self, Np, Nm):
         """Return susceptance (inverse reactance) between nodes Np and Nm with
         independent sources killed.  The result is in the AC (omega)
-        domain.
-
-        """
+        domain.   See also conductance, reactance, resistance."""
         return 1 / self.reactance
         
     def transfer(self, N1p, N1m, N2p, N2m):
@@ -708,10 +704,10 @@ class NetlistMixin(object):
         for cpt in self._elements.values():
             if cpt.independent_source:
                 net = cpt.select(kind)                
-            elif kind != 'ivp':
-                net = cpt.kill_initial()
-            else:
+            elif isinstance(kind, str) and kind == 'ivp':
                 net = cpt.copy()
+            else:
+                net = cpt.kill_initial()
             new._add(net)
         return new        
 
