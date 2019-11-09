@@ -17,17 +17,14 @@ labels.
 
 7. Convert voltage and current labels for s-models.  v(t) -> V(s), etc.
 
-8. Generate system equations using nodal analysis.
+8. Independent namespaces for SVG files so they can be loaded into Jupyter notebook.
 
-9. Generate system equations using loop analysis.
+10 Draw twoports.
 
-10. Independent namespaces for SVG files so they can be loaded into Jupyter notebook.
+11. Treat ;; as dummy component so that can emit strings or process commands on the fly.
 
-11. Draw twoports.
+12. If component has invisible attribute, do not count the connections
 
-12. Treat ;; as dummy component so that can emit strings or process commands on the fly.
-
-13. If component has invisible attribute, do not count the connections
 
 Circuit analysis
 ================
@@ -37,18 +34,15 @@ Circuit analysis
 2. Generalise two-port representation to avoid transformations from a
 singular matrix.
 
-3. Consider the behaviour of the impedance, admittance, and
-transfer_function methods.  Currently, these return s-domain
-expressions but if the circuit has only AC sources, should these
-return omega-domain expressions?
+3. Consider the behaviour of the impedance and admittance methods.
+Currently, these return s-domain expressions but if the circuit has
+only AC sources, should these return omega-domain expressions?
+Perhaps have gimpedance for generalized s-domain impedance and
+impedance for AC domain?
 
 4. Show Super classes as how they were created and not decomposition?
 
 5. Add circuit subs method so can substitute values before analysis.
-
-6. Add methods ac, dc, transient to netlists and networks.  These
-could be a wrapper for the subs method.  Could also have a laplace
-method to convert netlist to s-domain.
 
 
 Infrastructure
@@ -88,7 +82,7 @@ and __exit__ methods so that can use with statement.
 Testing
 =======
 
-1. Write more unit tests.
+1. Write more unit tests to improve code coverage.
 
 
 Documentation

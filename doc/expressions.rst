@@ -61,6 +61,8 @@ They are also implicitly created using Lcapy's `expr` function:
 Note, symbols created with `symbol` and `expr` are assumed to be
 positive, unless explicitly specified not be.
 
+There are restrictions on symbol names that can be used.  Currently, this excludes names that are Python keywords.  For example, `Is` is not allowed.
+
 
 Mathematical functions
 ----------------------

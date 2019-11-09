@@ -92,11 +92,26 @@ class tExpr(Expr):
         return phasor
 
     def plot(self, t=None, **kwargs):
+        """Plot the time waveform.  If t is not specified, it defaults to the
+        range (-0.2, 2).  t can be a vector of specified instants, a
+        tuple specifing the range, or a constant specifying the
+        maximum value with the minimum value set to 0.
+
+        kwargs include:
+        axes - the plot axes to use otherwise a new figure is created
+        xlabel - the x-axis label
+        ylabel - the y-axis label
+        xscale - the x-axis scaling, say for plotting as ms
+        yscale - the y-axis scaling, say for plotting mV
+        in addition to those supported by the matplotlib plot command.
+        
+        The plot axes are returned."""
 
         from .plot import plot_time
         return plot_time(self, t, **kwargs)
 
     def sample(self, t):
+
         """Return a discrete-time signal evaluated at time values specified by
         vector t. """
 

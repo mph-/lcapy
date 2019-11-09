@@ -200,9 +200,20 @@ A node object is obtained using indexing notation, for example:
 
    >>> cct[2]
 
-A circuit element object is obtained using its name, for example:
+A component object is obtained using its name, for example:
 
-   >>> cct.R1   
+   >>> cct.R1
+
+
+
+Circuit methods
+---------------
+
+`Y(Np, Nm)` returns the s-domain admittance between nodes `Np` and `Nm`.
+
+`Z(Np, Nm)` returns the s-domain impedance between nodes `Np` and `Nm`.
+
+
 
 
 Node attributes
@@ -237,8 +248,7 @@ For example,
 Component attributes
 --------------------
 
-Circuit elements (components) have attributes: `v`, `V`, `i`, `I`,
-`Y`, `Z`, `dpY`, and `dpZ`.
+Circuit elements (components) have are members of the class `Cpt` and have attributes hat include: `v`, `V`, `i`, `I`, `Y`, `Z`, `dpY`, and `dpZ`.
 
 `v` is the time-domain voltage difference across the component, for example:
 
@@ -266,8 +276,7 @@ superposition in the transform domains, for example,
    ⎨s: ─⎬
    ⎩   s⎭
 
-The `Y` and `Z` attributes provide the admittance and impedance of the
-component, for example,
+The `Y` and `Z` attributes provide the generalized s-domain admittance and impedance of the component, for example,
 
    >>> cct.L1.Z
    L₁⋅s
@@ -275,7 +284,7 @@ component, for example,
    >>> cct.R1.Z
    R₁
 
-The driving point admittance and impedance can be found using `dpY` and `dpZ`, for example,
+The generalized s-domain driving point admittance and impedance can be found using `dpY` and `dpZ`, for example,
 
    >>> cct.L1.dpZ
     R₁⋅s 
@@ -284,7 +293,7 @@ The driving point admittance and impedance can be found using `dpY` and `dpZ`, f
    s + ──
        L₁
 
-Note, this is the total impedance across `L1`.
+Note, this is the total impedance across `L1`, not just the impedance of the component as given by `cct.L1.Z`.
        
 
    
