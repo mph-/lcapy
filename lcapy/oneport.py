@@ -566,11 +566,12 @@ class Par(ParSer):
                 if isinstance(arg1, V) and isinstance(arg2, V):
                     raise ValueError('Voltage sources connected in parallel'
                                      ' %s and %s' % (arg1, arg2))
-                if isinstance(arg1, V) or isinstance(arg2, V):
-                    # Should simplify by removing redundant component to
-                    # save later grief with Norton or Thevenin transformation.
-                    print('Warn: parallel connection with voltage source:'
-                          ' %s and %s' % (arg1, arg2))
+                elif isinstance(arg1, V):
+                    print('Warn: redundant component %s in parallel with voltage source %s' % (arg2, arg1))
+
+                elif isinstance(arg2, V):
+                    print('Warn: redundant component %s in parallel with voltage source %s' % (arg1, arg2))
+
 
     @property
     def width(self):
@@ -673,11 +674,11 @@ class Ser(ParSer):
                 if isinstance(arg1, I) and isinstance(arg2, I):
                     raise ValueError('Current sources connected in series'
                                      ' %s and %s' % (arg1, arg2))
-                if isinstance(arg1, I) or isinstance(arg2, I):
-                    # Should simplify by removing redundant component to
-                    # save later grief with Norton or Thevenin transformation.
-                    print('Warn: series connection with current source:'
-                          ' %s and %s' % (arg1, arg2))
+                elif isinstance(arg1, I):
+                    print('Warn: redundant component %s in series with current source %s' % (arg2, arg1))
+
+                elif isinstance(arg2, I):
+                    print('Warn: redundant component %s in series with current source %s' % (arg1, arg2))                    
 
     @property
     def height(self):
@@ -714,16 +715,16 @@ class Ser(ParSer):
         return '\n'.join(s)
 
     @property
+    def Y(self):
+        return Ys(1 / self.Z)
+    
+    @property
     def Z(self):
         Z = 0
         for arg in self.args:
             Z += arg.Z
         return Zs(Z)
 
-    @property
-    def Y(self):
-        return Ys(1 / self.Z)
-    
     
 class R(OnePort):
     """Resistor"""
