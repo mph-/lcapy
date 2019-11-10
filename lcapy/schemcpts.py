@@ -77,12 +77,13 @@ class Cpt(object):
         """Sanitised name"""
         return self.name.replace('.', '@')
 
-    def __init__(self, sch, namespace, name, cpt_type, cpt_id, string,
+    def __init__(self, sch, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
 
         self.sch = sch
         self.type = cpt_type
         self.id = cpt_id
+        self.defname = defname        
         self.name = name
         self.namespace = namespace
 
@@ -1178,13 +1179,14 @@ class TFtap(TF1):
 class K(TF1):
     """Mutual coupling"""
 
-    def __init__(self, sch, namespace, name, cpt_type, cpt_id, string,
+    def __init__(self, sch, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super(K, self).__init__(sch, namespace, name, cpt_type, cpt_id, string,
-                                opts_string, node_names, keyword, *args[2:])
+        super(K, self).__init__(sch, namespace, defname, name,
+                                cpt_type, cpt_id, string, opts_string,
+                                node_names, keyword, *args[2:])
 
     @property
     def nodes(self):
@@ -2232,7 +2234,7 @@ class FDOpamp(Chip):
 
 class Wire(OnePort):
 
-    def __init__(self, sch, namespace, name, cpt_type, cpt_id, string,
+    def __init__(self, sch, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
 
         implicit = False
@@ -2252,7 +2254,7 @@ class Wire(OnePort):
             
             node_names = (node_names[0], '_' + name + '@' + node_names[1])
         
-        super(Wire, self).__init__(sch, namespace, name, cpt_type,
+        super(Wire, self).__init__(sch, namespace, defname, name, cpt_type,
                                    cpt_id, string,
                                    opts_string, node_names, keyword, *args)
         self.implicit = implicit

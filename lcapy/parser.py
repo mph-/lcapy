@@ -244,7 +244,8 @@ class Parser(object):
                 keyword = rule1.params[pos]
                 break
 
-        name = namespace + cpt_type + cpt_id
+        defname = namespace + cpt_type + cpt_id
+        name = defname
         if cpt_id == '' and parent is not None:
             # Need to make anon name to avoid conflicts with attributes.
             # For example, cct.Z.
@@ -258,6 +259,7 @@ class Parser(object):
 
         keyword = (pos, keyword)
 
-        return self.cpts.make(rule.classname, parent, namespace, name,
-                              cpt_type, cpt_id, net, opts_string,
-                              tuple(nodes), keyword, *args)
+        return self.cpts.make(rule.classname, parent, namespace,
+                              defname, name, cpt_type, cpt_id, net,
+                              opts_string, tuple(nodes), keyword,
+                              *args)

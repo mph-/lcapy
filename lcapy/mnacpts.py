@@ -56,12 +56,13 @@ class Cpt(object):
     directive = False
     flip_branch_current = False    
 
-    def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
+    def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
 
         self.cct = cct
         self.type = cpt_type
         self.id = cpt_id
+        self.defname = defname
         self.name = name
         self.relname = name
         self.namespace = ''
@@ -136,7 +137,7 @@ class Cpt(object):
         """Create a new net description.  If node_map is not None,
         rename the nodes.  If zero is True, set args to zero."""
 
-        string = self.name
+        string = self.defname
         field = 0
         
         for node in self.relnodes:
@@ -531,7 +532,7 @@ class RC(RLC):
 
         opts = self.opts.copy()
 
-        rnet = '%s %s %s %s; %s' % (self.name, 
+        rnet = '%s %s %s %s; %s' % (self.defname, 
                                     self.relnodes[0], dummy_node,
                                     arg_format(self.args[0]),
                                     opts)
@@ -577,7 +578,7 @@ class C(RC):
     def kill(self):
         """Kill implicit sources due to initial conditions."""
         return '%s %s %s %s; %s' % (
-            self.name, self.relnodes[0], self.relnodes[1],
+            self.defname, self.relnodes[0], self.relnodes[1],
             arg_format(self.args[0]), self.opts)
 
     def pre_initial_model(self):
@@ -697,7 +698,7 @@ class GY(Dummy):
     def stamp(self, cct):
         
         n1, n2, n3, n4 = self.node_indexes
-        m1 = self.cct._branch_index(self.name + 'X')
+        m1 = self.cct._branch_index(self.defname + 'X')
         m2 = self.branch_index
 
         # m1 is the input branch
@@ -766,7 +767,7 @@ class I(IndependentSource):
         """Select domain kind for component."""
 
         return '%s %s %s %s; %s' % (
-            self.name, self.relnodes[0], self.relnodes[1],
+            self.defname, self.relnodes[0], self.relnodes[1],
             self.cpt.Isc.netval(kind), self.opts)
 
     def kill(self):
@@ -796,7 +797,7 @@ class I(IndependentSource):
 
     def s_model(self, var):
 
-        return '%s %s %s s %s; %s' % (self.name, 
+        return '%s %s %s s %s; %s' % (self.defname, 
                                       self.nodes[0], self.nodes[1],
                                       arg_format(self.Isc.laplace()(var)),
                                       self.opts)
@@ -810,12 +811,13 @@ class I(IndependentSource):
 
 class K(Dummy):
     
-    def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
+    def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super (K, self).__init__(cct, namespace, name, cpt_type, cpt_id, string,
+        super (K, self).__init__(cct, namespace, defname, name,
+                                 cpt_type, cpt_id, string,
                                  opts_string, nodes, keyword, *args)
         if len(args) > 2:
             self.K = args[2]
@@ -854,7 +856,7 @@ class L(RLC):
     def kill(self):
         """Kill implicit sources due to initial conditions."""
         return '%s %s %s %s; %s' % (
-            self.name, self.relnodes[0], self.relnodes[1],
+            self.defname, self.relnodes[0], self.relnodes[1],
             arg_format(self.args[0]), self.opts)
 
     def stamp(self, cct):
@@ -1091,7 +1093,7 @@ class V(IndependentSource):
         """Select domain kind for component."""
 
         return '%s %s %s %s; %s' % (
-            self.name, self.relnodes[0], self.relnodes[1],
+            self.defname, self.relnodes[0], self.relnodes[1],
             self.cpt.Voc.netval(kind), self.opts)        
 
     def kill(self):
@@ -1125,7 +1127,7 @@ class V(IndependentSource):
 
     def s_model(self, var):
 
-        return '%s %s %s s %s; %s' % (self.name, 
+        return '%s %s %s s %s; %s' % (self.defname, 
                                       self.relnodes[0], self.relnodes[1],
                                       arg_format(self.cpt.Voc.laplace()(var)),
                                       self.opts)
