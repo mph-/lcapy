@@ -60,3 +60,13 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual((H1 + H2)(t, damped_sin=True)(s), H1 + H2, "damped sin1, 2")
         self.assertEqual((H1 + H3)(t, damped_sin=True)(s), H1 + H3, "damped sin1, 3")
         self.assertEqual((H1 + H2 + H3)(t, damped_sin=True)(s), H1 + H2 + H3, "damped sin1, 2, 3")                
+
+
+    def test_derivative_undef(self):
+
+        H = s * 'I(s)'
+        h = H(t)
+        H2 = h(s)
+
+        self.assertEqual(H, H2, "derivative of undef")        
+        

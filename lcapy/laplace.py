@@ -129,6 +129,19 @@ def laplace_integral(expr, t, s):
     
     return F1 * F2
 
+def laplace_derivative_undef(expr, t, s):
+    
+    if not isinstance(expr, sym.Derivative):
+        raise ValueError('Cannot compute Laplace transform of %s' % expr)
+    
+    if (not isinstance(expr.args[0], sym.function.AppliedUndef) and
+        not expr.args[1] != t):
+        raise ValueError('Cannot compute Laplace transform of %s' % expr)
+
+    ssym = sympify(str(s))    
+    name = expr.args[0].func.__name__    
+    func1 = name[0].upper() + name[1:] + '(%s)' % str(ssym)    
+    return sympify(func1).subs(ssym, s) * s
 
 def laplace_term(expr, t, s):
 
@@ -139,8 +152,11 @@ def laplace_term(expr, t, s):
 
     if expr.has(sym.Integral):
         return laplace_integral(expr, t, s) * const
-    
+
     if expr.has(sym.function.AppliedUndef):
+
+        if expr.has(sym.Derivative):
+            return laplace_derivative_undef(expr, t, s) * const    
 
         rest = sym.S.One
         expr = expr.cancel()
