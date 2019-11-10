@@ -389,6 +389,10 @@ class Cpt(object):
 
         return '_' + self.cct._make_anon('node')
 
+    def oneport(self):
+        """Create oneport object."""
+        return self.cct.oneport(self.nodes[1], self.nodes[0])
+    
 
 class Invalid(Cpt):
     

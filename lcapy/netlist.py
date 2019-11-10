@@ -71,6 +71,10 @@ class Node(object):
 
         self.list.append(cpt)
 
+    def oneport(self, node2=0):
+        """Create oneport object."""
+        return self.cct.oneport(self.name, node2)
+        
 
 class NetlistNamespace(object):
     """This class allows elements, nodes, or other namespaces
@@ -547,6 +551,16 @@ class NetlistMixin(object):
 
         return self.Isc(Np, Nm).time()
 
+    def oneport(self, Np, Nm):
+        """Return oneport object between nodes Np and Nm."""
+
+        from .oneport import V, Z
+
+        Voc = self.Voc(Np, Nm)
+        Zoc = self.impedance(Np, Nm)
+
+        return (V(Voc) + Z(Zoc)).simplify()
+    
     def thevenin(self, Np, Nm):
         """Return s-domain Thevenin model between nodes Np and Nm."""
 
