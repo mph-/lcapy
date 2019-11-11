@@ -74,9 +74,9 @@ class Node(object):
     def oneport(self, node=0):
         """Create oneport object with respect to specified node
         (default ground)."""
-        
-        return self.cct.oneport(self.name, node)
 
+        return self.cct.oneport(self.name, node)        
+        
     def thevenin(self, node=0):
         """Create Thevenin oneport object with respect to specified
         node (default ground)."""
@@ -566,11 +566,16 @@ class NetlistMixin(object):
         return self.Isc(Np, Nm).time()
 
     def oneport(self, Np, Nm):
-        """Return oneport object between nodes Np and Nm."""
+        """Return oneport object between nodes Np and Nm.  This might be a
+        Thevenin network, a Norton network, or a single component."""
 
-        return self.thevenin(Np, Nm)
+        try:
+            return self.norton(Np,Nm).simplify()
+        except:
+            return self.thevenin(Np, Nm).simplify()
     
     def thevenin(self, Np, Nm):
+
         """Return s-domain Thevenin oneport model between nodes Np and Nm."""
 
         from .oneport import V, Z
@@ -581,7 +586,7 @@ class NetlistMixin(object):
         # Convert to time-domain to handle arbitrary sources.  Either
         # this or define a way to represent a superposition in a
         # netlist.
-        return (V(Voc.time()) + Z(Zoc)).simplify()
+        return V(Voc.time()) + Z(Zoc)
 
     def norton(self, Np, Nm):
         """Return s-domain Norton model between nodes Np and Nm."""
@@ -594,7 +599,7 @@ class NetlistMixin(object):
         # Convert to time-domain to handle arbitrary sources.  Either
         # this or define a way to represent a superposition in a
         # netlist.        
-        return (I(Isc.time()) | Y(Ysc)).simplify()
+        return I(Isc.time()) | Y(Ysc)
 
     def admittance(self, Np, Nm):
         """Return generalized s-domain driving-point admittance between nodes
