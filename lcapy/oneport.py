@@ -128,6 +128,26 @@ class OnePort(Network):
         """Open-circuit time-domain current.  Except for a current source this
         is zero."""
         return self.I.time()
+
+    @property
+    def R(self):
+        """Resistance."""
+        return self.Z.jomega.real
+
+    @property
+    def X(self):
+        """Reactance."""
+        return self.Z.jomega.imag
+
+    @property
+    def G(self):
+        """Conductance."""
+        return self.Y.jomega.real
+
+    @property
+    def B(self):
+        """Susceptance."""
+        return -self.Y.jomega.imag
     
     def __add__(self, OP):
         """Series combination"""
@@ -385,18 +405,18 @@ class ParSer(OnePort):
                     return arg2
                 if isinstance(arg2, V) and arg2.Voc == 0:
                     return arg1
-                if isinstance(arg1, Z) and arg1.Z == 0:
+                if isinstance(arg1, (R, Z)) and arg1.Z == 0:
                     return arg2
-                if isinstance(arg2, Z) and arg2.Z == 0:
+                if isinstance(arg2, (R, Z)) and arg2.Z == 0:
                     return arg1
             if self.__class__ == Par:
                 if isinstance(arg1, I) and arg1.Isc == 0:
                     return arg2
                 if isinstance(arg2, I) and arg2.Isc == 0:
                     return arg1
-                if isinstance(arg1, Y) and arg1.Y == 0:
+                if isinstance(arg1, (Y, G)) and arg1.Y == 0:
                     return arg2
-                if isinstance(arg2, Y) and arg2.Y == 0:
+                if isinstance(arg2, (Y, G)) and arg2.Y == 0:
                     return arg1
 
             return None
@@ -410,7 +430,7 @@ class ParSer(OnePort):
             if isinstance(arg1, V):
                 return V(arg1 + arg2)
             if isinstance(arg1, R):
-                return R(arg1.R + arg2.R)
+                return R(arg1._R + arg2._R)
             if isinstance(arg1, L):
                 # The currents should be the same!
                 if arg1.i0 != arg2.i0 or arg1.hasic != arg2.hasic:
@@ -419,7 +439,7 @@ class ParSer(OnePort):
                 i0 = arg1.i0 if arg1.hasic else None
                 return L(arg1.L + arg2.L, i0)
             if isinstance(arg1, G):
-                return G(arg1.G * arg2.G / (arg1.G + arg2.G))
+                return G(arg1._G * arg2._G / (arg1._G + arg2._G))
             if isinstance(arg1, C):
                 v0 = arg1.v0 + arg2.v0 if arg1.hasic or arg2.hasic else None
                 return C(arg1.C * arg2.C / (arg1.C + arg2.C), v0)
@@ -434,7 +454,7 @@ class ParSer(OnePort):
             if isinstance(arg1, I):
                 return I(arg1 + arg2)
             if isinstance(arg1, G):
-                return G(arg1.G + arg2.G)
+                return G(arg1._G + arg2._G)
             if isinstance(arg1, C):
                 # The voltages should be the same!
                 if arg1.v0 != arg2.v0 or arg1.hasic != arg2.hasic:
@@ -443,7 +463,7 @@ class ParSer(OnePort):
                 v0 = arg1.v0 if arg1.hasic else None
                 return C(arg1.C + arg2.C, v0)
             if isinstance(arg1, R):
-                return R(arg1.R * arg2.R / (arg1.R + arg2.R))
+                return R(arg1._R * arg2._R / (arg1._R + arg2._R))
             if isinstance(arg1, L):
                 i0 = arg1.i0 + arg2.i0 if arg1.hasic or arg2.hasic else None
                 return L(arg1.L * arg2.L / (arg1.L + arg2.L), i0)
@@ -732,8 +752,8 @@ class R(OnePort):
     def __init__(self, Rval):
 
         self.args = (Rval, )
-        self.R = cExpr(Rval)
-        self._Z = Zs.R(self.R)
+        self._R = cExpr(Rval)
+        self._Z = Zs.R(self._R)
 
 
 class G(OnePort):
@@ -742,8 +762,8 @@ class G(OnePort):
     def __init__(self, Gval):
 
         self.args = (Gval, )
-        self.G = cExpr(Gval)
-        self._Z = 1 / Ys.G(self.G)
+        self._G = cExpr(Gval)
+        self._Z = 1 / Ys.G(self._G)
 
     def net_make(self, net, n1=None, n2=None):
 
@@ -751,7 +771,7 @@ class G(OnePort):
             n1 = net.node
         if n2 == None:
             n2 = net.node
-        return 'R %s %s {%s}; right' % (n1, n2, 1 / self.G)
+        return 'R %s %s {%s}; right' % (n1, n2, 1 / self._G)
 
 
 class L(OnePort):
