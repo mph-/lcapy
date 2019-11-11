@@ -294,13 +294,15 @@ class Cpt(object):
 
     @property
     def Isc(self):
-        """Short-circuit current."""
+        """Short-circuit current, i.e, current in wire connected across
+        component."""
 
         return self.cpt.Isc.select(self.cct.kind)
 
     @property
     def isc(self):
-        """Short-circuit time-domain current for circuit kind."""
+        """Short-circuit time-domain current i.e, current in wire connected
+        across component."""
 
         return self.Isc.time()
 
@@ -331,16 +333,34 @@ class Cpt(object):
         return self.cptZ
 
     @property
+    def Ys(self):
+        """Self generalized admittance (s-domain) of component.  For the
+        driving point admittance measured across the component use
+        .dpY"""        
+
+        return self._cptYselect(s)
+
+    @property
+    def Zs(self):
+        """Self generalized impedance (s-domain) of component.  For the
+        driving point impedance measured across the component use
+        .dpZ"""        
+
+        return self._cptZselect(s)
+
+    @property
     def dpYs(self):
-        """Driving point admittance (s-domain) measured across component.
-        For the admittance of the component in isolation use .cpt.Y"""
+        """Driving point generalized admittance (s-domain) measured across
+        component.  For the admittance of the component in isolation
+        use .cpt.Y"""
 
         return self.cct.admittance(*self.nodes)
 
     @property
     def dpZs(self):
-        """Driving point impedance (s-domain) measured across component.  For
-        the impedance of the component in isolation use .cpt.Z"""        
+        """Driving point generalized impedance (s-domain) measured across
+        component.  For the impedance of the component in isolation
+        use .cpt.Z"""        
 
         return self.cct.impedance(*self.nodes)    
     
@@ -349,26 +369,52 @@ class Cpt(object):
         """Driving point admittance measured across component.  For the
         admittance of the component in isolation use .cptY"""        
 
-        return _YZtype_select(self.dpYs, self.cct.kind)
+        return self.dpYs(omega)
 
     @property
     def dpZ(self):
         """Driving point impedance measured across component.  For the
         impedance of the component in isolation use .cptZ"""
 
-        return _YZtype_select(self.dpZs, self.cct.kind)
+        return self.dpZs(omega)
 
     @property
     def cptY(self):
         """Admittance of component in isolation."""
 
-        return _YZtype_select(self.cpt.Y, self.cct.kind)
+        # This will change to be a function of omega
+        return self._cptYselect        
 
     @property
     def cptZ(self):
         """Impedance of component in isolation."""
 
-        return _YZtype_select(self.cpt.Z, self.cct.kind)                
+        # This will change to be a function of omega        
+        return self._cptZselect
+
+    @property
+    def cptYs(self):
+        """Generalized admittance of component in isolation."""
+
+        return self._cptYselect(s)
+
+    @property
+    def cptZs(self):
+        """Generalized impedance of component in isolation."""
+
+        return self._cptZselect(s)        
+
+    @property
+    def _cptYselect(self):
+        """Impedance of component in isolation."""
+
+        return _YZtype_select(self.cpt.Ys, self.cct.kind)
+
+    @property
+    def _cptZselect(self):
+        """Impedance of component in isolation."""
+
+        return _YZtype_select(self.cpt.Zs, self.cct.kind)                        
 
     @property
     def cptV0(self):

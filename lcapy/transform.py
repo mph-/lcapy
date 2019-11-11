@@ -35,6 +35,8 @@ def transform(expr, arg, **assumptions):
     elif isinstance(arg, omegaExpr):
         if isinstance(expr, fExpr):
             result = expr.subs(omega / (2 * pi))
+        elif isinstance(expr, cExpr):
+            result = expr
         else:
             result = expr.fourier(**assumptions).subs(omega / (2 * pi))
     elif sarg.is_constant():
@@ -59,6 +61,7 @@ def call(expr, arg, **assumptions):
     return expr.subs(arg)
 
 
+from .cexpr import cExpr    
 from .fexpr import fExpr    
 from .sexpr import sExpr
 from .texpr import tExpr

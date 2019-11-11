@@ -76,7 +76,7 @@ class OnePort(Network):
     _Isc = None
 
     @property
-    def Z(self):
+    def Zs(self):
         if self._Z is not None:
             return self._Z
         if self._Y is not None:
@@ -88,11 +88,21 @@ class OnePort(Network):
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
 
     @property
-    def Y(self):
+    def Z(self):
+        # This will change to be a function of omega
+        return self.Zs
+    
+    @property
+    def Ys(self):
         if self._Y is not None:
             return self._Y
         return Ys(1 / self.Z)
 
+    @property
+    def Y(self):
+        # This will change to be a function of omega
+        return self.Ys
+    
     @property
     def Voc(self):
         """Open-circuit voltage."""        
