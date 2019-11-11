@@ -500,3 +500,42 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.R.v, expr('V'), "R voltage incorrect")
         self.assertEqual(a.R.i, expr('V / R'), "R current incorrect")        
         
+    def test_oneport(self):
+
+        a = Circuit("""
+        V 2 0 s
+        L 2 1
+        R 1 0""")
+
+        th = a[1].thevenin()
+        no = a[1].norton()
+
+        self.assertEqual(th.Voc, no.Voc, "Voc incorrect")
+        self.assertEqual(th.Isc, no.Isc, "Isc incorrect")
+        self.assertEqual(th.Z, no.Z, "Z incorrect")
+        self.assertEqual(th.Y, no.Y, "Y incorrect")
+
+        th = a[2].thevenin(1)
+        no = a[2].norton(1)
+
+        self.assertEqual(th.Voc, no.Voc, "Voc incorrect")
+        self.assertEqual(th.Isc, no.Isc, "Isc incorrect")
+        self.assertEqual(th.Z, no.Z, "Z incorrect")
+        self.assertEqual(th.Y, no.Y, "Y incorrect")
+
+        th = a.L.thevenin()
+        no = a.L.norton()
+
+        self.assertEqual(th.Voc, no.Voc, "Voc incorrect")
+        self.assertEqual(th.Isc, no.Isc, "Isc incorrect")
+        self.assertEqual(th.Z, no.Z, "Z incorrect")
+        self.assertEqual(th.Y, no.Y, "Y incorrect")
+
+        th = a.thevenin(2, 1)
+        no = a.norton(2, 1)
+
+        self.assertEqual(th.Voc, no.Voc, "Voc incorrect")
+        self.assertEqual(th.Isc, no.Isc, "Isc incorrect")
+        self.assertEqual(th.Z, no.Z, "Z incorrect")
+        self.assertEqual(th.Y, no.Y, "Y incorrect")
+        

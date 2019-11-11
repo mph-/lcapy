@@ -71,9 +71,23 @@ class Node(object):
 
         self.list.append(cpt)
 
-    def oneport(self, node2=0):
-        """Create oneport object."""
-        return self.cct.oneport(self.name, node2)
+    def oneport(self, node=0):
+        """Create oneport object with respect to specified node
+        (default ground)."""
+        
+        return self.cct.oneport(self.name, node)
+
+    def thevenin(self, node=0):
+        """Create Thevenin oneport object with respect to specified
+        node (default ground)."""
+        
+        return self.cct.thevenin(self.name, node)
+
+    def norton(self, node=0):
+        """Create Norton oneport object with respect to specified node
+        (default ground)."""
+        
+        return self.cct.norton(self.name, node)    
         
 
 class NetlistNamespace(object):
@@ -554,32 +568,33 @@ class NetlistMixin(object):
     def oneport(self, Np, Nm):
         """Return oneport object between nodes Np and Nm."""
 
+        return self.thevenin(Np, Nm)
+    
+    def thevenin(self, Np, Nm):
+        """Return s-domain Thevenin oneport model between nodes Np and Nm."""
+
         from .oneport import V, Z
 
         Voc = self.Voc(Np, Nm)
         Zoc = self.impedance(Np, Nm)
 
-        return (V(Voc) + Z(Zoc)).simplify()
-    
-    def thevenin(self, Np, Nm):
-        """Return s-domain Thevenin model between nodes Np and Nm."""
-
-        from .oneport import V, Z
-
-        Voc = self.Voc(Np, Nm).laplace()
-        Zoc = self.impedance(Np, Nm)
-
-        return V(Voc) + Z(Zoc)
+        # Convert to time-domain to handle arbitrary sources.  Either
+        # this or define a way to represent a superposition in a
+        # netlist.
+        return (V(Voc.time()) + Z(Zoc)).simplify()
 
     def norton(self, Np, Nm):
         """Return s-domain Norton model between nodes Np and Nm."""
 
         from .oneport import I, Y
 
-        Isc = self.Isc(Np, Nm).laplace()
+        Isc = self.Isc(Np, Nm)
         Ysc = self.admittance(Np, Nm)
-        
-        return I(Isc) | Y(Ysc)
+
+        # Convert to time-domain to handle arbitrary sources.  Either
+        # this or define a way to represent a superposition in a
+        # netlist.        
+        return (I(Isc.time()) | Y(Ysc)).simplify()
 
     def admittance(self, Np, Nm):
         """Return generalized s-domain driving-point admittance between nodes

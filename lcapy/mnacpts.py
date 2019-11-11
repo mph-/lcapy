@@ -392,7 +392,18 @@ class Cpt(object):
 
     def oneport(self):
         """Create oneport object."""
+        
         return self.cct.oneport(self.nodes[1], self.nodes[0])
+
+    def thevenin(self):
+        """Create Thevenin oneport object."""
+        
+        return self.cct.thevenin(self.nodes[1], self.nodes[0])
+
+    def norton(self):
+        """Create Norton oneport object."""
+        
+        return self.cct.norton(self.nodes[1], self.nodes[0])    
     
 
 class Invalid(Cpt):
