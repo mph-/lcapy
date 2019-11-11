@@ -135,13 +135,13 @@ def laplace_derivative_undef(expr, t, s):
         raise ValueError('Cannot compute Laplace transform of %s' % expr)
     
     if (not isinstance(expr.args[0], sym.function.AppliedUndef) and
-        not expr.args[1] != t):
+        expr.args[1][0] != t):
         raise ValueError('Cannot compute Laplace transform of %s' % expr)
 
     ssym = sympify(str(s))    
     name = expr.args[0].func.__name__    
     func1 = name[0].upper() + name[1:] + '(%s)' % str(ssym)    
-    return sympify(func1).subs(ssym, s) * s
+    return sympify(func1).subs(ssym, s) * s ** expr.args[1][1]
 
 def laplace_term(expr, t, s):
 

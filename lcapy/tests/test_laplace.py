@@ -68,5 +68,11 @@ class LcapyTester(unittest.TestCase):
         h = H(t)
         H2 = h(s)
 
-        self.assertEqual(H, H2, "derivative of undef")        
+        self.assertEqual(H, H2, "derivative of undef")
+
+        H = s**2 * 'I(s)'
+        h = H(t)
+        H2 = h(s)
+
+        self.assertEqual(H, H2, "second derivative of undef")                
         
