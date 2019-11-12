@@ -565,21 +565,31 @@ class NetlistMixin(object):
 
         return self.Isc(Np, Nm).time()
 
-    def oneport(self, Np, Nm):
+    def oneport(self, Np, Nm=None):
         """Return oneport object between nodes Np and Nm.  This might be a
-        Thevenin network, a Norton network, or a single component."""
+        Thevenin network, a Norton network, or a single component.
+
+        If Np is a component name, create model using the component nodes."""
 
         try:
-            return self.norton(Np,Nm).simplify()
+            return self.norton(Np, Nm).simplify()
         except:
             return self.thevenin(Np, Nm).simplify()
     
-    def thevenin(self, Np, Nm):
+    def thevenin(self, Np, Nm=None):
+        """Return s-domain Thevenin oneport model between nodes Np and Nm.
 
-        """Return s-domain Thevenin oneport model between nodes Np and Nm."""
+        If Np is a component name, create model using the component nodes."""
 
         from .oneport import V, Z
 
+        if Nm is None:
+            cpt = self[Np]
+            if isinstance(cpt, Node):
+                Np, Nm = cpt.name, 0
+            else:
+                Np, Nm = cpt.nodes[0:2]
+        
         Voc = self.Voc(Np, Nm)
         Zoc = self.impedance(Np, Nm)
 
@@ -588,10 +598,19 @@ class NetlistMixin(object):
         # netlist.
         return V(Voc.time()) + Z(Zoc)
 
-    def norton(self, Np, Nm):
-        """Return s-domain Norton model between nodes Np and Nm."""
+    def norton(self, Np, Nm=None):
+        """Return s-domain Norton model between nodes Np and Nm.
+
+        If Np is a component name, create model using the component nodes."""
 
         from .oneport import I, Y
+
+        if Nm is None:
+            cpt = self[Np]
+            if isinstance(cpt, Node):
+                Np, Nm = cpt.name, 0
+            else:
+                Np, Nm = cpt.nodes[0:2]            
 
         Isc = self.Isc(Np, Nm)
         Ysc = self.admittance(Np, Nm)
