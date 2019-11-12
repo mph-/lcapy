@@ -208,7 +208,11 @@ class Expr(ExprPrint, ExprMisc):
             assumptions['causal'] = True
 
         self.assumptions = assumptions.copy()
+        # Remove Lcapy assumptions from SymPy expr.
         assumptions.pop('nid', None)
+        assumptions.pop('ac', None)
+        assumptions.pop('dc', None)
+        assumptions.pop('causal', None)                        
         
         self.expr = sympify(arg, **assumptions)
 
