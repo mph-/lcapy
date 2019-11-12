@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='lcapy',
-      version='0.36.1',
+      version='0.36.2',
       author='Michael Hayes',
       author_email='michael.hayes@canterbury.ac.nz',
       description='Symbolic linear circuit analysis',

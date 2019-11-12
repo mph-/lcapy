@@ -219,7 +219,7 @@ class ThreePort(object):
         p = port - 1
 
         Y = self.Y
-        Y[p, p] += OP.Y
+        Y[p, p] += OP.Ys
         Isc = self.Isc
         Isc[p] += OP.Isc
         Z = Y.Z

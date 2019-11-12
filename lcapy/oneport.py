@@ -29,6 +29,7 @@ from __future__ import division
 from .functions import Heaviside, cos, exp
 from .symbols import j, t, s
 from .network import Network
+from .immitance import Immitance
 
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
@@ -43,7 +44,7 @@ def _check_oneport_args(args):
             raise ValueError('%s not a OnePort' % arg1)
 
 
-class OnePort(Network):
+class OnePort(Network, Immitance):
     """One-port network
 
     There are four major types of OnePort:
@@ -89,19 +90,17 @@ class OnePort(Network):
 
     @property
     def Z(self):
-        # This will change to be a function of omega
-        return self.Zs
+        return self.Zs.jomega
     
     @property
     def Ys(self):
         if self._Y is not None:
             return self._Y
-        return Ys(1 / self.Z)
+        return Ys(1 / self.Zs)
 
     @property
     def Y(self):
-        # This will change to be a function of omega
-        return self.Ys
+        return self.Ys.jomega
     
     @property
     def Voc(self):
@@ -109,7 +108,7 @@ class OnePort(Network):
         if self._Voc is not None:
             return self._Voc
         if self._Isc is not None:
-            return self._Isc * self.Z
+            return self._Isc * self.Zs
         if self._Z is not None:        
             return Vsuper(0)
         if self._Y is not None:        
@@ -121,7 +120,7 @@ class OnePort(Network):
         """Short-circuit current."""        
         if self._Isc is not None:
             return self._Isc
-        return self.Voc / self.Z
+        return self.Voc / self.Zs
 
     @property
     def V(self):
@@ -139,26 +138,6 @@ class OnePort(Network):
         is zero."""
         return self.I.time()
 
-    @property
-    def R(self):
-        """Resistance."""
-        return self.Z.jomega.real
-
-    @property
-    def X(self):
-        """Reactance."""
-        return self.Z.jomega.imag
-
-    @property
-    def G(self):
-        """Conductance."""
-        return self.Y.jomega.real
-
-    @property
-    def B(self):
-        """Susceptance."""
-        return -self.Y.jomega.imag
-    
     def __add__(self, OP):
         """Series combination"""
 
@@ -232,19 +211,19 @@ class OnePort(Network):
     @property
     def z(self):
         """Impedance impulse-response."""
-        return self.Z.time()
+        return self.Zs.time()
 
     @property
     def y(self):
         """Admittance impulse-response."""        
-        return self.Y.time()
+        return self.Ys.time()
 
     def thevenin(self):
         """Simplify to a Thevenin network"""
 
         new = self.simplify()
         Voc = new.Voc
-        Z = new.Z
+        Z = new.Zs
 
         if Voc.is_superposition and not Z.is_real:
             print('Warning, detected superposition with reactive impedance,'
@@ -276,7 +255,7 @@ class OnePort(Network):
 
         new = self.simplify()
         Isc = new.Isc
-        Y = new.Y
+        Y = new.Ys
         
         if Isc.is_superposition and not Y.is_real:
             print('Warning, detected superposition with reactive impedance,'
@@ -308,18 +287,18 @@ class OnePort(Network):
 
         if self._Voc is not None:
             if self._Voc == 0:
-                return Z(self.Z)
+                return Z(self.Zs)
             Voc = self._Voc.laplace()
             if self.Z == 0:
                 return V(Voc)
-            return Ser(V(Voc), Z(self.Z))
+            return Ser(V(Voc), Z(self.Zs))
         elif self._Isc is not None:
             if self._Isc == 0:
-                return Y(self.Y)
+                return Y(self.Ys)
             Isc = self._Isc.laplace()
-            if self.Y == 0:
+            if self.Ys == 0:
                 return I(Isc)
-            return Par(I(Isc), Y(self.Y))
+            return Par(I(Isc), Y(self.Ys))
         elif self._Z is not None:
             return Z(self._Z)
         elif self._Y is not None:
@@ -334,7 +313,7 @@ class OnePort(Network):
         if not isinstance(self, (R, G, Y, Z)):
             return self
         
-        R1 = self.Z.real
+        R1 = self.R
         if R1 != 0:
             Vn = Vnoise('sqrt(4 * k * T * %s)' % R1(j * omega))
             return self + Vn
@@ -415,18 +394,18 @@ class ParSer(OnePort):
                     return arg2
                 if isinstance(arg2, V) and arg2.Voc == 0:
                     return arg1
-                if isinstance(arg1, (R, Z)) and arg1.Z == 0:
+                if isinstance(arg1, (R, Z)) and arg1.Zs == 0:
                     return arg2
-                if isinstance(arg2, (R, Z)) and arg2.Z == 0:
+                if isinstance(arg2, (R, Z)) and arg2.Zs == 0:
                     return arg1
             if self.__class__ == Par:
                 if isinstance(arg1, I) and arg1.Isc == 0:
                     return arg2
                 if isinstance(arg2, I) and arg2.Isc == 0:
                     return arg1
-                if isinstance(arg1, (Y, G)) and arg1.Y == 0:
+                if isinstance(arg1, (Y, G)) and arg1.Ys == 0:
                     return arg2
-                if isinstance(arg2, (Y, G)) and arg2.Y == 0:
+                if isinstance(arg2, (Y, G)) and arg2.Ys == 0:
                     return arg1
 
             return None
@@ -678,15 +657,15 @@ class Par(ParSer):
         return '\n'.join(s)
 
     @property
-    def Y(self):
+    def Ys(self):
         Y = 0
         for arg in self.args:
-            Y += arg.Y
+            Y += arg.Ys
         return Ys(Y)
 
     @property
-    def Z(self):
-        return Zs(1 / self.Y)
+    def Zs(self):
+        return Zs(1 / self.Ys)
 
 class Ser(ParSer):
     """Series class"""
@@ -745,14 +724,14 @@ class Ser(ParSer):
         return '\n'.join(s)
 
     @property
-    def Y(self):
-        return Ys(1 / self.Z)
+    def Ys(self):
+        return Ys(1 / self.Zs)
     
     @property
-    def Z(self):
+    def Zs(self):
         Z = 0
         for arg in self.args:
-            Z += arg.Z
+            Z += arg.Zs
         return Zs(Z)
 
     
@@ -1117,7 +1096,7 @@ class Xtal(OnePort):
         self.L1 = cExpr(L1)
         self.C1 = cExpr(C1)
 
-        self._Z = self.expand().Z
+        self._Z = self.expand().Zs
         self.args = (C0, R1, L1, C1)
 
     def expand(self):
@@ -1145,7 +1124,7 @@ class FerriteBead(OnePort):
         self.Cp = cExpr(Cp)
         self.Lp = cExpr(Lp)
 
-        self._Z = self.expand().Z
+        self._Z = self.expand().Zs
         self.args = (Rs, Rp, Cp, Lp)
 
     def expand(self):

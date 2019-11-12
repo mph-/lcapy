@@ -101,7 +101,7 @@ class sExpr(Expr):
         """Convert to Fourier domain."""
         from .symbols import f
         
-        if assumptions.get('causal', False) or self.is_causal:
+        if assumptions.get('causal', self.is_causal):
             return self.subs(j * 2 * pi * f)
 
         return self.time(**assumptions).fourier(**assumptions)

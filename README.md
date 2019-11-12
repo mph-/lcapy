@@ -206,7 +206,16 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
-- Version 0.34 switched to sing setuptools and pushed to https::pypi.org
+- Version 0.37 changes the API for admittances and impedances.  The
+  attributes Y and Z return the impedance in terms of omega rather
+  than s as in the previous versions.  The old behaviour is provided
+  with the Ys and Zs attributes (generalized admittance and
+  impedance).  It also has better distinction between the impedance of
+  a component and the driving point impedance.
+
+- Version 0.36 has improved handling of complex conjugate poles.
+
+- Version 0.34 switched to using setuptools and pushed to https::pypi.org
 
 - Version 0.33 reworked expression printing infrastructure
 

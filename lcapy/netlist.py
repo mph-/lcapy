@@ -533,21 +533,33 @@ class NetlistMixin(object):
                 self._branch_list.append(elt.name)                
         return self._branch_list
 
-    def Voc(self, Np, Nm):
+    def _parse_node_args(self, Np, Nm=None):
+        
+        if Nm is None:
+            cpt = self[Np]
+            if isinstance(cpt, Node):
+                Np, Nm = cpt.name, 0
+            else:
+                Np, Nm = cpt.nodes[0:2]
+        return Np, Nm
+    
+    def Voc(self, Np, Nm=None):
         """Return open-circuit transform-domain voltage between nodes Np and
         Nm."""
 
         return self.get_Vd(Np, Nm)
 
-    def voc(self, Np, Nm):
+    def voc(self, Np, Nm=None):
         """Return open-circuit t-domain voltage between nodes Np and Nm."""
 
         return self.Voc(Np, Nm).time()
 
-    def Isc(self, Np, Nm):
+    def Isc(self, Np, Nm=None):
         """Return short-circuit transform-domain current between nodes Np and
         Nm."""
 
+        Np, Nm = self._parse_node_args(Np, Nm)
+        
         new = self.copy()
         if new.is_causal:
             new.add('Vshort_ %s %s step 0' % (Np, Nm))
@@ -560,7 +572,7 @@ class NetlistMixin(object):
         
         return Isc
 
-    def isc(self, Np, Nm):
+    def isc(self, Np, Nm=None):
         """Return short-circuit t-domain current between nodes Np and Nm."""
 
         return self.Isc(Np, Nm).time()
@@ -583,15 +595,9 @@ class NetlistMixin(object):
 
         from .oneport import V, Z
 
-        if Nm is None:
-            cpt = self[Np]
-            if isinstance(cpt, Node):
-                Np, Nm = cpt.name, 0
-            else:
-                Np, Nm = cpt.nodes[0:2]
-        
+        Np, Nm = self._parse_node_args(Np, Nm)
         Voc = self.Voc(Np, Nm)
-        Zoc = self.impedance(Np, Nm)
+        Zoc = self.generalized_impedance(Np, Nm)
 
         # Convert to time-domain to handle arbitrary sources.  Either
         # this or define a way to represent a superposition in a
@@ -605,28 +611,24 @@ class NetlistMixin(object):
 
         from .oneport import I, Y
 
-        if Nm is None:
-            cpt = self[Np]
-            if isinstance(cpt, Node):
-                Np, Nm = cpt.name, 0
-            else:
-                Np, Nm = cpt.nodes[0:2]            
-
+        Np, Nm = self._parse_node_args(Np, Nm)
         Isc = self.Isc(Np, Nm)
-        Ysc = self.admittance(Np, Nm)
+        Ysc = self.generalized_admittance(Np, Nm)
 
         # Convert to time-domain to handle arbitrary sources.  Either
         # this or define a way to represent a superposition in a
         # netlist.        
         return I(Isc.time()) | Y(Ysc)
 
-    def admittance(self, Np, Nm):
+    def generalized_admittance(self, Np, Nm=None):
         """Return generalized s-domain driving-point admittance between nodes
         Np and Nm with independent sources killed and initial
         conditions ignored.  Since the result is causal, the frequency
         domain admittance can be found by substituting j * omega for
         s."""        
 
+        Np, Nm = self._parse_node_args(Np, Nm)
+        
         new = self.kill()
         if '0' not in new.nodes:
             new.add('W %s 0' % Nm)        
@@ -639,13 +641,15 @@ class NetlistMixin(object):
 
         return Ys(If.laplace(), causal=True)
 
-    def impedance(self, Np, Nm):
+    def generalized_impedance(self, Np, Nm=None):
         """Return generalized s-domain driving-point impedance between nodes
         Np and Nm with independent sources killed and initial
         conditions ignored.  Since the result is causal, the frequency
         domain impedance can be found by substituting j * omega for
         s."""
 
+        Np, Nm = self._parse_node_args(Np, Nm)
+        
         new = self.kill()
         if '0' not in new.nodes:
             new.add('W %s 0' % Nm)
@@ -658,25 +662,39 @@ class NetlistMixin(object):
 
         return Zs(Vf.laplace(), causal=True)
 
-    def resistance(self, Np, Nm):
+    def admittance(self, Np, Nm=None):
+        """Return driving-point admittance between nodes Np and Nm with
+        independent sources killed and initial conditions ignored.
+        The result is causal."""
+
+        return self.generalized_admittance(Np, Nm).jomega
+    
+    def impedance(self, Np, Nm=None):
+        """Return driving-point impedance between nodes Np and Nm with
+        independent sources killed and initial conditions ignored.
+        The result is causal."""
+
+        return self.generalized_impedance(Np, Nm).jomega
+    
+    def resistance(self, Np, Nm=None):
         """Return resistance between nodes Np and Nm with independent
         sources killed.  The result is in the AC (omega) domain.
         See also conductance, reactance, susceptance."""
-        return self.impedance(Np, Nm).jomega.real
+        return self.impedance(Np, Nm).real
 
-    def reactance(self, Np, Nm):
+    def reactance(self, Np, Nm=None):
         """Return reactance between nodes Np and Nm with independent
         sources killed.  The result is in the AC (omega) domain.
         See also conductance, resistance, susceptance."""
-        return self.impedance(Np, Nm).jomega.imag * j
+        return self.impedance(Np, Nm).imag * j
 
-    def conductance(self, Np, Nm):
+    def conductance(self, Np, Nm=None):
         """Return conductance (inverse resistance) between nodes Np and Nm
         with independent sources killed.  The result is in the AC (omega)
         domain.    See also resistance, reactance, susceptance."""
         return 1 / self.resistance
 
-    def susceptance(self, Np, Nm):
+    def susceptance(self, Np, Nm=None):
         """Return susceptance (inverse reactance) between nodes Np and Nm with
         independent sources killed.  The result is in the AC (omega)
         domain.   See also conductance, reactance, resistance."""
@@ -1356,7 +1374,7 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         return self.get_I(name).time()
 
-    def get_Vd(self, Np, Nm):
+    def get_Vd(self, Np, Nm=None):
         """Voltage drop between nodes"""
 
         if isinstance(Nm, int):
@@ -1371,7 +1389,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         result = result.canonical()
         return result
 
-    def get_vd(self, Np, Nm):
+    def get_vd(self, Np, Nm=None):
         """Time-domain voltage drop between nodes"""
 
         return self.get_Vd(Np, Nm).time()
@@ -1454,13 +1472,13 @@ class SubNetlist(NetlistMixin, MNA):
 
         return self.get_I(name).time()
 
-    def get_Vd(self, Np, Nm):
+    def get_Vd(self, Np, Nm=None):
         """Voltage drop between nodes"""
 
         self._solve()
         return (self._Vdict[Np] - self._Vdict[Nm]).canonical()
 
-    def get_vd(self, Np, Nm):
+    def get_vd(self, Np, Nm=None):
         """Time-domain voltage drop between nodes"""
 
         return self.get_Vd(Np, Nm).time()

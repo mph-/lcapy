@@ -2037,7 +2037,7 @@ class Series(TwoPortBModel):
         self.OP = OP
         self.args = (OP, )
         _check_oneport_args(self.args)
-        super(Series, self).__init__(BMatrix.Zseries(OP.Z), Vs(OP.Voc.laplace()), Is(0))
+        super(Series, self).__init__(BMatrix.Zseries(OP.Zs), Vs(OP.Voc.laplace()), Is(0))
 
 
 class Shunt(TwoPortBModel):
@@ -2064,7 +2064,7 @@ class Shunt(TwoPortBModel):
         self.OP = OP
         self.args = (OP, )
         _check_oneport_args(self.args)
-        super(Shunt, self).__init__(BMatrix.Yshunt(OP.Y), Vs(0),
+        super(Shunt, self).__init__(BMatrix.Yshunt(OP.Ys), Vs(0),
                                     Is(OP.Isc.laplace()))
 
 

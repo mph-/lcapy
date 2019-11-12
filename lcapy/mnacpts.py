@@ -13,6 +13,7 @@ from .symbols import j, omega, jomega, s
 from .functions import sqrt
 from .sym import capitalize_name, omegasym
 from .grammar import delimiters
+from .immitance import Immitance
 import lcapy
 import inspect
 import sys
@@ -45,7 +46,7 @@ def _YZtype_select(expr, kind):
     return omegaExpr(expr.subs(j * kind))
     
 
-class Cpt(object):
+class Cpt(Immitance):
 
     dependent_source = False
     independent_source = False    
@@ -321,14 +322,14 @@ class Cpt(object):
     @property
     def Y(self):
         """Self admittance of component.  For the driving point
-        admittance measured across the component use .dpY"""        
+        admittance measured across the component use .dpY or .oneport().Y"""
 
         return self.cptY
 
     @property
     def Z(self):
-        """Self impedance of component.  For the driving point
-        impedance measured across the component use .dpZ"""        
+        """Self impedance of component.  For the driving point impedance
+        measured across the component use .dpZ or .oneport().Z"""        
 
         return self.cptZ
 
@@ -336,73 +337,79 @@ class Cpt(object):
     def Ys(self):
         """Self generalized admittance (s-domain) of component.  For the
         driving point admittance measured across the component use
-        .dpY"""        
+        .dpY or .oneport().Ys"""        
 
-        return self._cptYselect(s)
+        return self.cptYs
 
     @property
     def Zs(self):
         """Self generalized impedance (s-domain) of component.  For the
         driving point impedance measured across the component use
-        .dpZ"""        
+        .dpZs or .oneport().Zs"""        
 
-        return self._cptZselect(s)
+        return self.cptZs
 
     @property
     def dpYs(self):
         """Driving point generalized admittance (s-domain) measured across
         component.  For the admittance of the component in isolation
-        use .cpt.Y"""
+        use .Ys"""
 
-        return self.cct.admittance(*self.nodes)
+        return self.cct.generalised_admittance(*self.nodes)
 
     @property
     def dpZs(self):
         """Driving point generalized impedance (s-domain) measured across
         component.  For the impedance of the component in isolation
-        use .cpt.Z"""        
+        use .Zs"""        
 
-        return self.cct.impedance(*self.nodes)    
+        return self.cct.generalised_impedance(*self.nodes)    
     
     @property
     def dpY(self):
         """Driving point admittance measured across component.  For the
-        admittance of the component in isolation use .cptY"""        
+        admittance of the component in isolation use .Y"""        
 
-        return self.dpYs(omega)
+        return self.cct.admittance(*self.nodes)        
 
     @property
     def dpZ(self):
         """Driving point impedance measured across component.  For the
-        impedance of the component in isolation use .cptZ"""
+        impedance of the component in isolation use .Z"""
 
-        return self.dpZs(omega)
+        return self.cct.impedance(*self.nodes)                
 
     @property
     def cptY(self):
         """Admittance of component in isolation."""
 
-        # This will change to be a function of omega
-        return self._cptYselect        
+        return self.cptYs(omega)
 
     @property
     def cptZ(self):
         """Impedance of component in isolation."""
 
-        # This will change to be a function of omega        
-        return self._cptZselect
+        return self.cptZs(omega)
 
     @property
     def cptYs(self):
         """Generalized admittance of component in isolation."""
 
-        return self._cptYselect(s)
+        Ys = self.cpt.Ys
+        # The following is not be required if C and L removed from dc model.
+        if self.cct.kind in ('dc', 'time'):
+            Ys = Ys(0)
+        return Ys
 
     @property
     def cptZs(self):
         """Generalized impedance of component in isolation."""
 
-        return self._cptZselect(s)        
+        Zs = self.cpt.Zs
+        # The following is not be required if C and L removed from dc model.
+        if self.cct.kind in ('dc', 'time'):
+            Zs = Zs(0)
+        return Zs
 
     @property
     def _cptYselect(self):
@@ -538,7 +545,7 @@ class RLC(Cpt):
         if self.Voc == 0:        
             return '%sZ%s %s %s %s; %s' % (self.namespace, self.relname, 
                                            self.relnodes[0], self.relnodes[1],
-                                           arg_format(self.cptZ(var)), 
+                                           arg_format(self._cptZselect(var)), 
                                            self.opts)
 
         dummy_node = self.dummy_node()
@@ -551,7 +558,7 @@ class RLC(Cpt):
 
         znet = '%sZ%s %s %s %s; %s' % (self.namespace, self.relname, 
                                        self.relnodes[0], dummy_node,
-                                       arg_format(self.cptZ(var)), 
+                                       arg_format(self._cptZselect(var)), 
                                        opts)
 
         # Strip voltage and current labels from voltage source.
@@ -610,7 +617,7 @@ class RC(RLC):
         if self.type == 'C' and cct.kind == 'dc':
             Y = 0
         else:
-            Y = self.cptY.expr
+            Y = self._cptYselect.expr
 
         if n1 >= 0 and n2 >= 0:
             cct._G[n1, n2] -= Y
@@ -631,6 +638,10 @@ class RC(RLC):
 class C(RC):
 
     reactive = True
+
+    @property
+    def C(self):
+        return self.cpt.C
     
     def kill(self):
         """Kill implicit sources due to initial conditions."""
@@ -893,8 +904,8 @@ class K(Dummy):
         L1 = self.Lname1
         L2 = self.Lname2
 
-        ZL1 = cct.elements[L1].cptZ
-        ZL2 = cct.elements[L2].cptZ
+        ZL1 = cct.elements[L1]._cptZselect
+        ZL2 = cct.elements[L2]._cptZselect
 
         ZM = self.K * sqrt(ZL1 * ZL2).simplify()
 
@@ -910,6 +921,10 @@ class L(RLC):
     need_branch_current = True
     reactive = True
 
+    @property
+    def L(self):
+        return self.cpt.L
+    
     def kill(self):
         """Kill implicit sources due to initial conditions."""
         return '%s %s %s %s; %s' % (
@@ -933,7 +948,7 @@ class L(RLC):
         if cct.kind == 'dc':
             Z = 0
         else:
-            Z = self.cptZ.expr
+            Z = self._cptZselect.expr
 
         cct._D[m, m] += -Z
 
