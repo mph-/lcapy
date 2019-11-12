@@ -21,6 +21,7 @@ class cExpr(Expr):
                 raise ValueError(
                     'constant expression %s cannot depend on %s' % (val, symbol))
 
+        assumptions['dc'] = True        
         super(cExpr, self).__init__(val, **assumptions)
 
     def rms(self):
@@ -34,13 +35,16 @@ class cExpr(Expr):
     def canonical(self, factor_const=True):
         # Minor optimisation
         return self
-    
+
+    def time(self, **assumptions):
+        """Convert to time domain."""
+        
+        return tExpr(self)
 
 class Vconst(cExpr):
 
     def __init__(self, val, **assumptions):
 
-        assumptions['dc'] = True        
         super(Vconst, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = Vt
 
@@ -67,5 +71,5 @@ class Iconst(cExpr):
         return It(self)
 
 
-from .texpr import It, Vt
-
+from .texpr import t, It, Vt, tExpr
+from .sexpr import s
