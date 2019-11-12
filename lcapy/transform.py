@@ -1,7 +1,21 @@
+"""This file performs transformations between domains.
+
+Copyright 2018--2019 Michael Hayes, UCECE
+
+"""
+
 from .sym import sympify, pi
 from .symbols import f, s, t, omega, jomega
 
 def transform(expr, arg, **assumptions):
+    """If arg is f, s, t, omega, jomega perform domain substitution,
+    otherwise perform substitution.
+
+    Note (5 * s)(omega) will fail since 5 * s is assumed not to be
+    causal and so Fourier transform is unknown.  However, Zs(5 *
+    s)(omega) will work since Zs assumed to be causal.
+
+    """
 
     if isinstance(expr, arg.__class__) and not isinstance(expr, Super):
         return expr.subs(arg)
