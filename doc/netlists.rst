@@ -209,10 +209,6 @@ circuit elements (Components).  For example,
 Circuit methods
 ---------------
 
-`generalized_admittance(Np, Nm)` returns the s-domain generalized driving-point admittance between nodes `Np` and `Nm`.
-
-`generalized_impedance(Np, Nm)` returns the s-domain generalized driving-point impedance between nodes `Np` and `Nm`.
-
 `admittance(Np, Nm)` returns the driving-point admittance between nodes `Np` and `Nm`.
 
 `impedance(Np, Nm)` returns the driving-point impedance between nodes `Np` and `Nm`.

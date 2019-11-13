@@ -32,20 +32,6 @@ def arg_format(value):
     return string
 
 
-def _YZtype_select(expr, kind):
-    """Return appropriate admittance/impedance value for analysis kind."""
-
-    if kind in ('s', 'ivp', 'super', 'laplace'):
-        return expr
-    elif kind in ('dc', 'time'):
-        return cExpr(expr.subs(0))
-    elif isinstance(kind, str) and kind[0] == 'n':
-        return expr(jomega)
-    elif kind in (omegasym, omega, 'ac'):
-        return expr(jomega)
-    return omegaExpr(expr.subs(j * kind))
-    
-
 class Cpt(Immitance):
 
     dependent_source = False
@@ -324,30 +310,14 @@ class Cpt(Immitance):
         """Self admittance of component.  For the driving point
         admittance measured across the component use .dpY or .oneport().Y"""
 
-        return self.cptY
+        return self.YY
 
     @property
     def Z(self):
         """Self impedance of component.  For the driving point impedance
         measured across the component use .dpZ or .oneport().Z"""        
 
-        return self.cptZ
-
-    @property
-    def generalized_admittance(self):
-        """Self generalized admittance (s-domain) of component.  For the
-        driving point admittance measured across the component use
-        .dpY or .oneport().Ys"""        
-
-        return self.cptYs
-
-    @property
-    def generalized_impedance(self):
-        """Self generalized impedance (s-domain) of component.  For the
-        driving point impedance measured across the component use
-        .dpZs or .oneport().Zs"""        
-
-        return self.cptZs
+        return self.ZZ
 
     @property
     def dpYs(self):
@@ -355,7 +325,7 @@ class Cpt(Immitance):
         component.  For the admittance of the component in isolation
         use .Ys"""
 
-        return self.cct.generalized_admittance(*self.nodes)
+        return self.cct.YY(*self.nodes)
 
     @property
     def dpZs(self):
@@ -363,7 +333,7 @@ class Cpt(Immitance):
         component.  For the impedance of the component in isolation
         use .Zs"""        
 
-        return self.cct.generalized_impedance(*self.nodes)    
+        return self.cct.ZZ(*self.nodes)    
     
     @property
     def dpY(self):
@@ -415,13 +385,13 @@ class Cpt(Immitance):
     def _cptYselect(self):
         """Impedance of component in isolation."""
 
-        return _YZtype_select(self.cpt.Ys, self.cct.kind)
+        return self.cpt.YY.select(self.cct.kind)
 
     @property
     def _cptZselect(self):
         """Impedance of component in isolation."""
 
-        return _YZtype_select(self.cpt.Zs, self.cct.kind)                        
+        return self.cpt.ZZ.select(self.cct.kind)        
 
     @property
     def cptV0(self):

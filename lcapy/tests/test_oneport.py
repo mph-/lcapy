@@ -36,8 +36,8 @@ class LcapyTester(unittest.TestCase):
         a = L(10, 5)
         self.assertEqual2(a.Zs, 10 * s, "Zs incorrect.")
         self.assertEqual2(a.Ys, 1 / (10 * s), "Ys incorrect.")
-        self.assertEqual2(a.Z, 10 * j * omega, "Z incorrect.")
-        self.assertEqual2(a.Y, 1 / (10 * j * omega), "Y incorrect.")                
+        self.assertEqual2(a.Zw, 10 * j * omega, "Z incorrect.")
+        self.assertEqual2(a.Yw, 1 / (10 * j * omega), "Y incorrect.")                
         self.assertEqual2(a.Voc.s, -10 * 5, "Voc incorrect.")
         self.assertEqual2(a.Isc.s, -5 / s, "Isc incorrect.")        
 
@@ -49,8 +49,8 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(a.Zs, 1 / (10 * s), "Zs incorrect.")
         self.assertEqual2(a.Ys, 10 * s, "Ys incorrect.")
-        self.assertEqual2(a.Z, 1 / (10 * j * omega), "Z incorrect.")
-        self.assertEqual2(a.Y, 10 * j * omega, "Y incorrect.")                
+        self.assertEqual2(a.Zw, 1 / (10 * j * omega), "Z incorrect.")
+        self.assertEqual2(a.Yw, 10 * j * omega, "Y incorrect.")                
         self.assertEqual2(a.Voc.s, 5 / s, "Voc incorrect.")
         self.assertEqual(a.Isc.s, 50, "Isc incorrect.")        
 
@@ -74,7 +74,7 @@ class LcapyTester(unittest.TestCase):
         b = a.simplify()
         self.assertEqual2(b.L, 15, "L incorrect.")
         self.assertEqual2(b.Zs, 15 * s, "Zs incorrect.")
-        self.assertEqual2(b.Z, 15 * j * omega, "Z incorrect.")        
+        self.assertEqual2(b.Zw, 15 * j * omega, "Z incorrect.")        
         self.assertEqual2(type(b), L, "type incorrect.")
 
     def test_C_series_C(self):
@@ -85,7 +85,7 @@ class LcapyTester(unittest.TestCase):
         b = a.simplify()
         self.assertEqual2(b.C, 6, "C incorrect.")
         self.assertEqual2(b.Zs, 1 / (6 * s), "Zs incorrect.")
-        self.assertEqual2(b.Z, 1 / (6 * j * omega), "Z incorrect.")        
+        self.assertEqual2(b.Zw, 1 / (6 * j * omega), "Z incorrect.")        
         self.assertEqual2(type(b), C, "type incorrect.")
 
     def test_Vdc_series_Vdc(self):

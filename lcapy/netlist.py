@@ -22,6 +22,7 @@ from .expr import Expr
 from .state import state
 from .attrdict import AttrDict
 from .immitance import Immitance
+from .zy import YY, ZZ
 from . import mnacpts
 from copy import copy
 from collections import OrderedDict
@@ -54,18 +55,16 @@ class Node(Immitance):
         return self.cct.get_vd(self.name, '0')
 
     @property
-    def generalized_admittance(self):
-        """Driving-point generalized admittance (s-domain) between node and
-        ground."""
+    def admittance(self):
+        """Driving-point admittance between node and ground."""
 
-        return self.cct.generalized_admittance(self.name, '0')
+        return self.cct.admittance(self.name, '0')
 
     @property
-    def generalized_impedance(self):
-        """Driving-point generalized impedance (s-domain) between node and
-        ground."""        
+    def impedance(self):
+        """Driving-point impedance between node and ground."""        
 
-        return self.cct.generalized_impedance(self.name, '0')        
+        return self.cct.impedance(self.name, '0')        
 
     def append(self, cpt):
 
@@ -600,7 +599,7 @@ class NetlistMixin(object):
 
         Np, Nm = self._parse_node_args(Np, Nm)
         Voc = self.Voc(Np, Nm)
-        Zoc = self.generalized_impedance(Np, Nm)
+        Zoc = self.impedance(Np, Nm)
 
         # Convert to time-domain to handle arbitrary sources.  Either
         # this or define a way to represent a superposition in a
@@ -616,15 +615,15 @@ class NetlistMixin(object):
 
         Np, Nm = self._parse_node_args(Np, Nm)
         Isc = self.Isc(Np, Nm)
-        Ysc = self.generalized_admittance(Np, Nm)
+        Ysc = self.admittance(Np, Nm)
 
         # Convert to time-domain to handle arbitrary sources.  Either
         # this or define a way to represent a superposition in a
         # netlist.        
         return I(Isc.time()) | Y(Ysc)
 
-    def generalized_admittance(self, Np, Nm=None):
-        """Return generalized s-domain driving-point admittance between nodes
+    def admittance(self, Np, Nm=None):
+        """Return driving-point admittance between nodes
         Np and Nm with independent sources killed and initial
         conditions ignored.  Since the result is causal, the frequency
         domain admittance can be found by substituting j * omega for
@@ -642,10 +641,10 @@ class NetlistMixin(object):
         If = new.Vin_.I
         new.remove('Vin_')
 
-        return Ys(If.laplace(), causal=True)
+        return YY(If.laplace(), kind=self.kind)
 
-    def generalized_impedance(self, Np, Nm=None):
-        """Return generalized s-domain driving-point impedance between nodes
+    def impedance(self, Np, Nm=None):
+        """Return driving-point impedance between nodes
         Np and Nm with independent sources killed and initial
         conditions ignored.  Since the result is causal, the frequency
         domain impedance can be found by substituting j * omega for
@@ -663,45 +662,31 @@ class NetlistMixin(object):
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
-        return Zs(Vf.laplace(), causal=True)
+        return ZZ(Vf.laplace(), kind=self.kind)
 
-    def admittance(self, Np, Nm=None):
-        """Return driving-point admittance between nodes Np and Nm with
-        independent sources killed and initial conditions ignored.
-        The result is causal."""
-
-        return self.generalized_admittance(Np, Nm).jomega
-    
-    def impedance(self, Np, Nm=None):
-        """Return driving-point impedance between nodes Np and Nm with
-        independent sources killed and initial conditions ignored.
-        The result is causal."""
-
-        return self.generalized_impedance(Np, Nm).jomega
-    
     def resistance(self, Np, Nm=None):
         """Return resistance between nodes Np and Nm with independent
         sources killed.  The result is in the AC (omega) domain.
         See also conductance, reactance, susceptance."""
-        return self.impedance(Np, Nm).real
+        return self.impedance(Np, Nm).R
 
     def reactance(self, Np, Nm=None):
         """Return reactance between nodes Np and Nm with independent
         sources killed.  The result is in the AC (omega) domain.
         See also conductance, resistance, susceptance."""
-        return self.impedance(Np, Nm).imag * j
+        return self.impedance(Np, Nm).X
 
     def conductance(self, Np, Nm=None):
         """Return conductance (inverse resistance) between nodes Np and Nm
         with independent sources killed.  The result is in the AC (omega)
         domain.    See also resistance, reactance, susceptance."""
-        return 1 / self.resistance
+        return self.impedance(Np, Nm).G
 
     def susceptance(self, Np, Nm=None):
         """Return susceptance (inverse reactance) between nodes Np and Nm with
         independent sources killed.  The result is in the AC (omega)
         domain.   See also conductance, reactance, resistance."""
-        return 1 / self.reactance
+        return self.impedance(Np, Nm).B
         
     def transfer(self, N1p, N1m, N2p, N2m):
         """Create s-domain voltage transfer function V2(s) / V1(s) where:

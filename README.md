@@ -206,6 +206,8 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
+- Version 0.38 reverts the experimental behaviour of 0.37.  Instead it introduces new classes for general immitances that tries to display them in the most suitable format.
+
 - Version 0.37 changes the API for admittances and impedances.  The
   attributes Y and Z return the impedance in terms of omega rather
   than s as in the previous versions.  The old behaviour is provided
@@ -213,7 +215,7 @@ Updates
   impedance).  It also has better distinction between the impedance of
   a component and the driving point impedance.
 
-- Version 0.36 has improved handling of complex conjugate poles.
+- Version 0.36 has improved handling of complex conjugate poles.        
 
 - Version 0.34 switched to using setuptools and pushed to https::pypi.org
 

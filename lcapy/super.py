@@ -647,7 +647,7 @@ class Vsuper(Super):
             'You need to extract a specific component, e.g., a.s * b.s' %
             (type(self).__name__, type(x).__name__))
 
-        if not isinstance(x, Ys):
+        if not isinstance(x, YY):
             raise TypeError("Unsupported types for *: 'Vsuper' and '%s'" %
                             type(x).__name__)
         obj = self
@@ -677,10 +677,10 @@ class Vsuper(Super):
             raise TypeError("""
 Cannot divide types %s and %s.  You need to extract a specific component, e.g., a.s / b.s.  If you want a transfer function use a.laplace() / b.laplace()""" % (type(self).__name__, type(x).__name__))
 
-        if not isinstance(x, Zs):
+        if not isinstance(x, ZZ):
             raise TypeError("Unsupported types for /: 'Vsuper' and '%s'" %
                             type(x).__name__)
-        return self * Ys(1 / x)
+        return self * YY(1 / x)
 
     def __truediv__(self, x):
         return self.__div__(x)
@@ -715,7 +715,7 @@ class Isuper(Super):
             'You need to extract a specific component, e.g., a.s * b.s' %
             (type(self).__name__, type(x).__name__))
         
-        if not isinstance(x, Zs):
+        if not isinstance(x, ZZ):
             raise TypeError("Unsupported types for *: 'Isuper' and '%s'" %
                             type(x).__name__)
         obj = self
@@ -745,10 +745,10 @@ class Isuper(Super):
             'You need to extract a specific component, e.g., a.s / b.s' %
             (type(self).__name__, type(x).__name__))
 
-        if not isinstance(x, Ys):
+        if not isinstance(x, YY):
             raise TypeError("Unsupported types for /: 'Isuper' and '%s'" %
                             type(x).__name__)
-        return self * Zs(1 / x)
+        return self * ZZ(1 / x)
 
     def __truediv__(self, x):
         return self.__div__(x)
@@ -806,9 +806,10 @@ def Itype(kind):
     
 from .cexpr import Iconst, Vconst, cExpr        
 from .fexpr import fExpr    
-from .sexpr import Is, Vs, Ys, Zs, sExpr
+from .sexpr import Is, Vs, sExpr
 from .texpr import It, Vt, tExpr
 from .noiseexpr import In, Vn, noiseExpr
 from .phasor import Iphasor, Vphasor, Phasor
+from .zy import YY, ZZ
 from .omegaexpr import omegaExpr
 from .symbols import s, omega

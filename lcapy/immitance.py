@@ -10,7 +10,7 @@ class Immitance(object):
     @property
     def R(self):
         """Resistance."""
-        return self.Z.real
+        return self.Zw.real
 
     @property
     def resistance(self):
@@ -20,7 +20,7 @@ class Immitance(object):
     @property
     def X(self):
         """Reactance."""
-        return self.Z.imag
+        return self.Zw.imag
 
     @property
     def reactance(self):
@@ -30,7 +30,7 @@ class Immitance(object):
     @property
     def G(self):
         """Conductance."""
-        return self.Y.real
+        return self.Yw.real
 
     @property
     def conductance(self):
@@ -40,7 +40,7 @@ class Immitance(object):
     @property
     def B(self):
         """Susceptance."""
-        return -self.Y.imag
+        return -self.Yw.imag
 
     @property
     def susceptance(self):
@@ -49,31 +49,40 @@ class Immitance(object):
 
     @property
     def admittance(self):
-        """Admittance."""
-        return self.generalized_admittance.jomega
+        """Admittance  Y(omega)."""
+        return self.YY
 
     @property
     def impedance(self):
-        """Impedance."""
-        return self.generalized_impedance.jomega
+        """Impedance  Z(omega)."""
+        return self.ZZ
 
     @property
     def Y(self):
         """Admittance."""
-        return self.generalized_admittance.jomega
+        return self.YY
 
     @property
     def Z(self):
         """Impedance."""
-        return self.generalized_impedance.jomega    
+        return self.ZZ
+
+    @property
+    def Yw(self):
+        """Admittance  Y(omega)."""
+        return self.YY.jomega
+
+    @property
+    def Zw(self):
+        """Impedance  Z(omega)."""
+        return self.ZZ.jomega        
 
     @property
     def Ys(self):
-        """Generalized admittance."""
-        return self.generalized_admittance
+        """Generalized admittance  Y(s)."""
+        return self.YY.s
 
     @property
     def Zs(self):
-        """Generalized impedance."""
-        return self.generalized_impedance
-    
+        """Generalized impedance  Z(s)."""
+        return self.ZZ.s

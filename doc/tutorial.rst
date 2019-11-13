@@ -297,6 +297,10 @@ Let's consider a series R-L-C network
    >>> n
    R(4) + L(10) + C(20)
    >>> n.Z
+                 ⅉ  
+   10⋅ⅉ⋅ω + 4 - ────
+                20⋅ω
+   >>> n.Zs
        2         1 
    10⋅s  + 4⋅s + ──
                  20
@@ -307,7 +311,7 @@ Notice the result is a rational function of `s`.  Remember impedance
 is a frequency domain concept.  A rational function can be formatted
 in a number of different ways, for example,
 
-   >>> n.Z.ZPK()
+   >>> n.Zs.ZPK()
       ⎛      ____    ⎞ ⎛      ____    ⎞
       ⎜    ╲╱ 14    1⎟ ⎜    ╲╱ 14    1⎟
    10⋅⎜s - ────── + ─⎟⋅⎜s + ────── + ─⎟
@@ -315,7 +319,7 @@ in a number of different ways, for example,
    ────────────────────────────────────
                     s                 
 
-   >>> n.Z.standard()
+   >>> n.Zs.standard()
                1  
    10⋅s + 4 + ────
               20⋅s
@@ -329,33 +333,33 @@ The corresponding parallel R-L-C network yields
    >>> n = R(5) | L(20) | C(10)
    >>> n
    R(5) | L(20) | C(10)
-   >>> n.Z
+   >>> n.Zs
            s         
    ──────────────────
       ⎛ 2   s     1 ⎞
    10⋅⎜s  + ── + ───⎟
       ⎝     50   200⎠
 
-   >>> n.Z.ZPK()
+   >>> n.Zs.ZPK()
                    s                 
    ──────────────────────────────────
       ⎛     1    7⋅j⎞ ⎛     1    7⋅j⎞
    10⋅⎜s + ─── - ───⎟⋅⎜s + ─── + ───⎟
       ⎝    100   100⎠ ⎝    100   100⎠
-   >>> n.Z.canonical()
+   >>> n.Zs.canonical()
            s         
    ──────────────────
       ⎛ 2   s     1 ⎞
    10⋅⎜s  + ── + ───⎟
       ⎝     50   200⎠
-   >>> n.Y
+   >>> n.Ys
         2          
    200⋅s  + 4⋅s + 1
    ────────────────
          20⋅s      
 
-Notice how `n.Y` returns the admittance of the network, the reciprocal
-of the impedance `n.Z`.
+Notice how `n.Ys` returns the s-domain admittance of the network, the reciprocal
+of the impedance `n.Zs`.
 
 
 The frequency response can be evaluated numerically by specifying a

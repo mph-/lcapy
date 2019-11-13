@@ -119,13 +119,13 @@ class Circuit(Netlist):
         self._netfile_add(filename)
 
     def Y(self, Np, Nm):
-        """Return generalized s-domain admittance between nodes Np and Nm with
+        """Return admittance between nodes Np and Nm with
         independent sources killed."""
 
         return self.admittance(Np, Nm)
 
     def Z(self, Np, Nm):
-        """Return generalized s-domain impedance between nodes Np and Nm with
+        """Return impedance between nodes Np and Nm with
         independent sources killed."""
 
         return self.impedance(Np, Nm)

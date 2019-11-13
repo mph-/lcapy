@@ -302,26 +302,6 @@ class Zs(sExpr):
         super(Zs, self).__init__(val, causal=causal, **assumptions)
         self._laplace_conjugate_class = Zt
 
-    @classmethod
-    def C(cls, Cval):
-
-        return cls(1 / (s * Cval))
-
-    @classmethod
-    def G(cls, Gval):
-
-        return cls(1 / Gval)
-
-    @classmethod
-    def L(cls, Lval):
-
-        return cls(s * Lval)
-
-    @classmethod
-    def R(cls, Rval):
-
-        return cls(Rval)
-
     def cpt(self):
         from .oneport import R, C, L, Z
 
@@ -352,26 +332,6 @@ class Ys(sExpr):
 
         super(Ys, self).__init__(val, causal=causal, **assumptions)
         self._laplace_conjugate_class = Yt
-
-    @classmethod
-    def C(cls, Cval):
-
-        return cls(s * Cval)
-
-    @classmethod
-    def G(cls, Gval):
-
-        return cls(Gval)
-
-    @classmethod
-    def L(cls, Lval):
-
-        return cls(1 / (s * Lval))
-
-    @classmethod
-    def R(cls, Rval):
-
-        return cls(1 / Rval)
 
     def cpt(self):
         from .oneport import G, C, L, Y

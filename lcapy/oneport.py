@@ -30,6 +30,7 @@ from .functions import Heaviside, cos, exp
 from .symbols import j, t, s
 from .network import Network
 from .immitance import Immitance
+from .zy import YY, ZZ
 
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
@@ -77,22 +78,22 @@ class OnePort(Network, Immitance):
     _Isc = None
 
     @property
-    def generalized_impedance(self):
+    def ZZ(self):
         if self._Z is not None:
             return self._Z
         if self._Y is not None:
-            return Zs(1 / self._Y)
+            return ZZ(1 / self._Y)
         if self._Voc is not None:        
-            return Zs(0)
+            return ZZ(0)
         if self._Isc is not None:        
-            return Zs(1 / Ys(0))
+            return ZZ(1 / YY(0))
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
 
     @property
-    def generalized_admittance(self):
+    def YY(self):
         if self._Y is not None:
             return self._Y
-        return Ys(1 / self.generalized_impedance)
+        return YY(1 / self.ZZ)
 
     @property
     def Voc(self):
@@ -100,7 +101,7 @@ class OnePort(Network, Immitance):
         if self._Voc is not None:
             return self._Voc
         if self._Isc is not None:
-            return self._Isc * self.Zs
+            return self._Isc * self.ZZ
         if self._Z is not None:        
             return Vsuper(0)
         if self._Y is not None:        
@@ -112,7 +113,7 @@ class OnePort(Network, Immitance):
         """Short-circuit current."""        
         if self._Isc is not None:
             return self._Isc
-        return self.Voc / self.Zs
+        return self.Voc / self.ZZ
 
     @property
     def V(self):
@@ -203,19 +204,19 @@ class OnePort(Network, Immitance):
     @property
     def z(self):
         """Impedance impulse-response."""
-        return self.Zs.time()
+        return self.ZZ.time()
 
     @property
     def y(self):
         """Admittance impulse-response."""        
-        return self.Ys.time()
+        return self.YY.time()
 
     def thevenin(self):
         """Simplify to a Thevenin network"""
 
         new = self.simplify()
         Voc = new.Voc
-        Z = new.Zs
+        Z = new.ZZ
 
         if Voc.is_superposition and not Z.is_real:
             print('Warning, detected superposition with reactive impedance,'
@@ -247,7 +248,7 @@ class OnePort(Network, Immitance):
 
         new = self.simplify()
         Isc = new.Isc
-        Y = new.Ys
+        Y = new.YY
         
         if Isc.is_superposition and not Y.is_real:
             print('Warning, detected superposition with reactive impedance,'
@@ -279,18 +280,18 @@ class OnePort(Network, Immitance):
 
         if self._Voc is not None:
             if self._Voc == 0:
-                return Z(self.Zs)
+                return Z(self.ZZ)
             Voc = self._Voc.laplace()
             if self.Z == 0:
                 return V(Voc)
-            return Ser(V(Voc), Z(self.Zs))
+            return Ser(V(Voc), Z(self.ZZ))
         elif self._Isc is not None:
             if self._Isc == 0:
-                return Y(self.Ys)
+                return Y(self.YY)
             Isc = self._Isc.laplace()
-            if self.Ys == 0:
+            if self.YY == 0:
                 return I(Isc)
-            return Par(I(Isc), Y(self.Ys))
+            return Par(I(Isc), Y(self.YY))
         elif self._Z is not None:
             return Z(self._Z)
         elif self._Y is not None:
@@ -386,18 +387,18 @@ class ParSer(OnePort):
                     return arg2
                 if isinstance(arg2, V) and arg2.Voc == 0:
                     return arg1
-                if isinstance(arg1, (R, Z)) and arg1.Zs == 0:
+                if isinstance(arg1, (R, Z)) and arg1.ZZ == 0:
                     return arg2
-                if isinstance(arg2, (R, Z)) and arg2.Zs == 0:
+                if isinstance(arg2, (R, Z)) and arg2.ZZ == 0:
                     return arg1
             if self.__class__ == Par:
                 if isinstance(arg1, I) and arg1.Isc == 0:
                     return arg2
                 if isinstance(arg2, I) and arg2.Isc == 0:
                     return arg1
-                if isinstance(arg1, (Y, G)) and arg1.Ys == 0:
+                if isinstance(arg1, (Y, G)) and arg1.YY == 0:
                     return arg2
-                if isinstance(arg2, (Y, G)) and arg2.Ys == 0:
+                if isinstance(arg2, (Y, G)) and arg2.YY == 0:
                     return arg1
 
             return None
@@ -649,15 +650,15 @@ class Par(ParSer):
         return '\n'.join(s)
 
     @property
-    def generalized_admittance(self):
+    def YY(self):
         Y = 0
         for arg in self.args:
-            Y += arg.Ys
-        return Ys(Y)
+            Y += arg.YY
+        return YY(Y)
 
     @property
-    def generalized_impedance(self):
-        return Zs(1 / self.Ys)
+    def ZZ(self):
+        return ZZ(1 / self.YY)
 
 class Ser(ParSer):
     """Series class"""
@@ -716,15 +717,15 @@ class Ser(ParSer):
         return '\n'.join(s)
 
     @property
-    def generalized_admittance(self):
-        return Ys(1 / self.Zs)
+    def YY(self):
+        return YY(1 / self.ZZ)
     
     @property
-    def generalized_impedance(self):
+    def ZZ(self):
         Z = 0
         for arg in self.args:
-            Z += arg.Zs
-        return Zs(Z)
+            Z += arg.ZZ
+        return ZZ(Z)
 
     
 class R(OnePort):
@@ -734,7 +735,7 @@ class R(OnePort):
 
         self.args = (Rval, )
         self._R = cExpr(Rval)
-        self._Z = Zs.R(self._R)
+        self._Z = ZZ(self._R)
 
 
 class G(OnePort):
@@ -744,7 +745,7 @@ class G(OnePort):
 
         self.args = (Gval, )
         self._G = cExpr(Gval)
-        self._Z = 1 / Ys.G(self._G)
+        self._Z = 1 / YY(self._G)
 
     def net_make(self, net, n1=None, n2=None):
 
@@ -775,7 +776,7 @@ class L(OnePort):
         i0 = cExpr(i0)
         self.L = Lval
         self.i0 = i0
-        self._Z = Zs.L(Lval)
+        self._Z = ZZ(s * Lval)
         self._Voc = Vsuper(-Vs(i0 * Lval))
         self.zeroic = self.i0 == 0 
 
@@ -800,7 +801,7 @@ class C(OnePort):
         v0 = cExpr(v0)
         self.C = Cval
         self.v0 = v0
-        self._Z = Zs.C(Cval)
+        self._Z = ZZ(1 / (s * Cval))
         self._Voc = Vsuper(Vs(v0) / s)
         self.zeroic = self.v0 == 0
 
@@ -811,7 +812,7 @@ class Y(OnePort):
     def __init__(self, Yval):
 
         self.args = (Yval, )
-        Yval = Ys(Yval)
+        Yval = YY(Yval)
         self._Z = 1 / Yval
 
 
@@ -821,7 +822,7 @@ class Z(OnePort):
     def __init__(self, Zval):
 
         self.args = (Zval, )
-        Zval = Zs(Zval)
+        Zval = ZZ(Zval)
         self._Z = Zval
 
 
@@ -1088,7 +1089,7 @@ class Xtal(OnePort):
         self.L1 = cExpr(L1)
         self.C1 = cExpr(C1)
 
-        self._Z = self.expand().Zs
+        self._Z = self.expand().ZZ
         self.args = (C0, R1, L1, C1)
 
     def expand(self):
@@ -1116,7 +1117,7 @@ class FerriteBead(OnePort):
         self.Cp = cExpr(Cp)
         self.Lp = cExpr(Lp)
 
-        self._Z = self.expand().Zs
+        self._Z = self.expand().ZZ
         self.args = (Rs, Rp, Cp, Lp)
 
     def expand(self):

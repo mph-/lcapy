@@ -25,35 +25,36 @@ from collections import OrderedDict
 
 class ExprPrint(object):
 
+    @property
+    def pexpr(self):
+        return self.expr
+    
     def __repr__(self):
         """This is called by repr(expr).  It is used, e.g., when printing
         in the debugger."""
         
-        return '%s(%s)' % (self.__class__.__name__, print_str(self))
+        return '%s(%s)' % (self.__class__.__name__, print_str(self.pexpr))
 
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
         unicode.  It is also called by IPython when displaying an
         expression.""" 
 
-        p.text(pretty(self))
+        p.text(pretty(self.pexpr))
 
     # Note, _repr_latex_ is handled at the end of this file.
         
     def pretty(self):
         """Make pretty string."""
-        return pretty(self)
+        return pretty(self.pexpr)
 
     def prettyans(self, name):
         """Make pretty string with LHS name."""
-        expr = self
-        if isinstance(expr, Expr):
-            expr = expr.expr
-        return pretty(sym.Eq(sympify(name), expr))
+        return pretty(sym.Eq(sympify(name), self.pexpr))
 
     def pprint(self):
         """Pretty print"""
-        pprint(self)
+        pprint(self.pexpr)
 
     def pprintans(self, name):
         """Pretty print string with LHS name."""
@@ -69,10 +70,7 @@ class ExprPrint(object):
 
     def latexans(self, name, **kwargs):
         """Print latex string with LHS name."""
-        expr = self
-        if isinstance(expr, Expr):
-            expr = expr.expr
-        return latex(sym.Eq(sympify(name), expr), **kwargs)
+        return latex(sym.Eq(sympify(name), self.pexpr), **kwargs)
 
 
 class ExprContainer(object):    
@@ -186,6 +184,10 @@ class Expr(ExprPrint, ExprMisc):
     # Vs / Is -> Zs,  Is * Zs -> Vs
     # But what about Vs**2 ?
 
+    @property
+    def pexpr(self):
+        return self.expr
+    
     def __init__(self, arg, **assumptions):
         """
 
@@ -218,20 +220,20 @@ class Expr(ExprPrint, ExprMisc):
 
     def __str__(self, printer=None):
         """String representation of expression."""
-        return print_str(self)
+        return print_str(self.pexpr)
 
     def __repr__(self):
         """This is called by repr(expr).  It is used, e.g., when printing
         in the debugger."""
         
-        return '%s(%s)' % (self.__class__.__name__, print_str(self))
+        return '%s(%s)' % (self.__class__.__name__, print_str(self.pexpr))
 
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
         unicode.  It is also called by IPython when displaying an
         expression.""" 
 
-        p.text(pretty(self))
+        p.text(pretty(self.pexpr))
 
     def _repr_latex_(self):
         """This is used by jupyter notebooks to display an expression using
@@ -240,7 +242,7 @@ class Expr(ExprPrint, ExprMisc):
         outputs unicode."""
 
         # This is called for Expr but not ExprList
-        return '$$' + latex(self) + '$$'        
+        return '$$' + latex(self.pexpr) + '$$'        
 
     def _latex(self, *args, **kwargs):
         """Make latex string.  This is called by sympy.latex when it
@@ -260,7 +262,7 @@ class Expr(ExprPrint, ExprMisc):
         # This works in conjunction with Printer._print
         # It is a hack to allow printing of _Matrix types
         # and its elements.
-        expr = self.expr
+        expr = self.pexpr
         printer = args[0]
 
         return printer._print(expr)
@@ -1042,11 +1044,15 @@ class Expr(ExprPrint, ExprMisc):
                      (Vs, omegaExpr) : Vomega,
                      (Ys, omegaExpr) : Yomega,
                      (Zs, omegaExpr) : Zomega,
+                     (YY, omegaExpr) : Yomega,
+                     (ZZ, omegaExpr) : Zomega,                     
                      (Hs, fExpr) : Hf,
                      (Is, fExpr) : If,
                      (Vs, fExpr) : Vf,
                      (Ys, fExpr) : Yf,
                      (Zs, fExpr) : Zf,
+                     (YY, fExpr) : Yf,
+                     (ZZ, fExpr) : Zf,                     
                      (Hf, omegaExpr) : Homega,
                      (If, omegaExpr) : Iomega,
                      (Vf, omegaExpr) : Vomega,
@@ -1056,7 +1062,9 @@ class Expr(ExprPrint, ExprMisc):
                      (Iomega, fExpr) : If,
                      (Vomega, fExpr) : Vf,
                      (Yomega, fExpr) : Yf,
-                     (Zomega, fExpr) : Zf}
+                     (Zomega, fExpr) : Zf,
+                     (YY, sExpr) : Ys,
+                     (ZZ, sExpr) : Zs}                     
 
         if (self.__class__, new.__class__) in class_map:
             cls = class_map[(self.__class__, new.__class__)]
@@ -1496,6 +1504,7 @@ from .cexpr import cExpr
 from .fexpr import Hf, If, Vf, Yf, Zf, fExpr    
 from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr
 from .texpr import tExpr
+from .zy import ZZ, YY
 from .omegaexpr import Homega, Iomega, Vomega, Yomega, Zomega, omegaExpr
 
 # Horrible hack to work with IPython around Sympy's back for LaTeX
