@@ -1011,10 +1011,25 @@ class NetlistMixin(object):
         return self.analysis['ac']
 
     @property
+    def has_dc(self):
+        """Return True if any independent source has a DC component."""
+        return self.analysis['has_dc']
+
+    @property
+    def has_ac(self):
+        """Return True if any independent source has an AC component."""
+        return self.analysis['has_ac']
+
+    @property
     def has_s(self):
         """Return True if any independent source has an s-domain component."""
-        return self.analysis['has_s']
+        return self.analysis['has_s']    
 
+    @property    
+    def has_transient(self):
+        """Return True if any independent source has a transient component."""
+        return self.analysis['has_transient']    
+    
     @property
     def zeroic(self):
         """Return True if the initial conditions for all components are zero."""
@@ -1116,6 +1131,7 @@ class NetlistMixin(object):
         hasic = False
         zeroic = True
         has_s = False
+        has_transient = False        
         ac_count = 0
         dc_count = 0
         causal = True
@@ -1135,6 +1151,8 @@ class NetlistMixin(object):
                 independent_sources.append(key)
                 if elt.has_s:
                     has_s = True
+                if elt.has_transient:
+                    has_transient = True                    
                 if elt.is_ac:
                     ac_count += 1
                 if elt.is_dc:
@@ -1150,9 +1168,12 @@ class NetlistMixin(object):
                     
         analysis = {} 
         analysis['zeroic'] = zeroic
-        analysis['hasic'] = hasic
+        analysis['has_ic'] = hasic        
         analysis['ivp'] = hasic
+        analysis['has_dc'] = dc_count > 0
+        analysis['has_ac'] = ac_count > 0        
         analysis['has_s'] = has_s
+        analysis['has_transient'] = has_transient
         analysis['dependent_sources'] = dependent_sources        
         analysis['independent_sources'] = independent_sources
         analysis['control_sources'] = control_sources        

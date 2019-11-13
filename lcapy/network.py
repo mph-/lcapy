@@ -224,7 +224,19 @@ class Network(object):
 
     @property    
     def is_causal(self):
-        return self.cct.is_causal    
+        return self.cct.is_causal
+
+    @property
+    def has_dc(self):
+        return self.cct.has_dc
+
+    @property    
+    def has_ac(self):
+        return self.cct.has_ac
+
+    @property    
+    def has_transient(self):
+        return self.cct.has_transient
 
     @property    
     def kinds(self):

@@ -226,7 +226,18 @@ class Cpt(Immitance):
         elif self.cpt.current_source:
             return self.cpt.Isc.has_s
         else:
-            raise ValueError('%s is not a source' % self)        
+            raise ValueError('%s is not a source' % self)
+
+    @property
+    def has_transient(self):
+        """Return True if source has a transient component."""
+
+        if self.cpt.voltage_source:
+            return self.cpt.Voc.has_transient
+        elif self.cpt.current_source:
+            return self.cpt.Isc.has_transient
+        else:
+            raise ValueError('%s is not a source' % self)                
         
     @property
     def is_noisy(self):
