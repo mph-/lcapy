@@ -189,7 +189,7 @@ class Network(object):
         
     @property
     def cct(self):
-        """Convert a Network object into a Circuit object for debugging."""
+        """Convert a Network object into a Circuit object."""
 
         if hasattr(self, '_cct'):
             return self._cct
@@ -200,6 +200,11 @@ class Network(object):
             cct.add(net)
         self._cct = cct
         return cct
+
+    def circuit(self):
+        """Convert a Network object into a Circuit object."""
+
+        return self.cct
 
     @property    
     def initial_value_problem(self):
