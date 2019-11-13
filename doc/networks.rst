@@ -33,26 +33,40 @@ formed by connecting `R1` and `R2` in series.
    :width: 4cm
 
 
+.. _network_attributes:
+           
 Network attributes
 ------------------
 
-Each network has a number of attributes, including:
+Each network oneport has a number of attributes, including:
 
-- `Voc` s-domain open-circuit voltage
+- `Voc` transform-domain open-circuit voltage
 
-- `Isc` s-domain short-circuit current
+- `Isc` transform-domain short-circuit current
 
-- `I` s-domain current through network terminals (zero by definition)
-
-- `Z` s-domain impedance
-
-- `Y` s-domain admittance
+- `I` transform-domain current through network terminals (zero by definition)
 
 - `voc` t-domain open-circuit voltage
 
 - `isc` t-domain short-circuit current
 
 - `isc` t-domain current through network terminals (zero by definition)
+
+- `B` susceptance
+
+- `G` conductance    
+  
+- `R` resistance
+
+- `X` reactance
+  
+- `Y` admittance
+
+- `Z` impedance
+
+- `Ys` s-domain generalized admittance    
+
+- `Zs` s-domain generalized impedance
 
 - `y` t-domain impulse response of admittance
 
@@ -65,7 +79,6 @@ Each network has a number of attributes, including:
 - `is_ivp` initial value problem
 
 - `is_causal` causal response
-
 
 
 Here's an example:
@@ -92,6 +105,20 @@ Here's an example:
 .. image:: examples/networks/VRseries.png
    :width: 4cm
 
+
+.. _network_methods:
+           
+Network methods
+---------------
+
+- `circuit()` create a Circuit object from the network.
+
+- `describe()` print a message describing how network is solved.
+
+- `draw()` draw the schematic.
+
+- `netist()` create an equivalent netlist.
+           
 
 Network simplification
 ----------------------

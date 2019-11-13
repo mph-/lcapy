@@ -40,6 +40,15 @@ or
 This last version requires more than one net otherwise it is interpreted as a filename.   
    
 
+A Node object is obtained from a Circuit object using indexing notation, for example:
+
+   >>> cct[2]
+
+A Component object is obtained from a Circuit object using member notation, for example:
+
+   >>> cct.R1
+
+
 .. _component-specification:
 
 Component specification
@@ -183,8 +192,8 @@ For example,
 Circuit attributes
 ------------------
 
-A circuit is comprised of a collection of nodes and a collection of
-circuit elements (components).  For example,
+A circuit is comprised of a collection of Nodes and a collection of
+circuit elements (Components).  For example,
 
    >>> cct = Circuit()
    >>> cct.add('V1 1 0 {u(t)}')
@@ -196,30 +205,38 @@ circuit elements (components).  For example,
    R1 1 2
    L1 2 0
 
-A node object is obtained using indexing notation, for example:
-
-   >>> cct[2]
-
-A component object is obtained using its name, for example:
-
-   >>> cct.R1
-
-
 
 Circuit methods
 ---------------
 
-`Y(Np, Nm)` returns the s-domain admittance between nodes `Np` and `Nm`.
+`generalized_admittance(Np, Nm)` returns the s-domain generalized driving-point admittance between nodes `Np` and `Nm`.
 
-`Z(Np, Nm)` returns the s-domain impedance between nodes `Np` and `Nm`.
+`generalized_impedance(Np, Nm)` returns the s-domain generalized driving-point impedance between nodes `Np` and `Nm`.
 
+`admittance(Np, Nm)` returns the driving-point admittance between nodes `Np` and `Nm`.
 
+`impedance(Np, Nm)` returns the driving-point impedance between nodes `Np` and `Nm`.
+
+The above methods can be called with a component name, for example,
+
+   >>> a.admittance('L1')
+
+This calculates the driving-point admittance that would be measured across the nodes of `L1`.      
+   
+
+Nodes
+=====
+
+A node object is obtained using indexing notation.  For example,
+
+    >>> n1 = cct[1]
+    >>> n2 = cct['2']
 
 
 Node attributes
 ---------------
 
-Nodes have two attributes: `v`, `V`, `dpY`, and `dpZ`.
+Nodes have many attributes including: `name`, `v`, `V`, `dpY`, and `dpZ`.
 
 `v` is the time-domain voltage (with respect to the ground node 0).
 `V` is a superposition of the node voltage in the different transform
@@ -243,13 +260,60 @@ For example,
    s + ──
        L₁
 
+Circuit components
+==================
 
-   
+A Component object is obtained from a Circuit object using member notation.  For example,
+
+   >>> cpt = cct.R1
+
+
 Component attributes
 --------------------
 
-Circuit elements (components) have are members of the class `Cpt` and have attributes hat include: `v`, `V`, `i`, `I`, `Y`, `Z`, `dpY`, and `dpZ`.
+Each Component object has a number of attributes, including:
 
+- `Voc` transform-domain open-circuit voltage
+
+- `Isc` transform-domain short-circuit current
+
+- `I` transform-domain current through network terminals (zero by definition)
+
+- `voc` t-domain open-circuit voltage
+
+- `isc` t-domain short-circuit current
+
+- `isc` t-domain current through network terminals (zero by definition)
+
+- `B` susceptance
+
+- `G` conductance    
+  
+- `R` resistance
+
+- `X` reactance
+  
+- `Y` admittance
+
+- `Z` impedance
+
+- `Ys` s-domain generalized admittance    
+
+- `Zs` s-domain generalized impedance
+
+- `y` t-domain impulse response of admittance
+
+- `z` t-domain impulse response of impedance
+
+- `is_dc` DC network
+
+- `is_ac` AC network
+
+- `is_ivp` initial value problem
+
+- `is_causal` causal response
+
+  
 `v` is the time-domain voltage difference across the component, for example:
 
    >>> cct.R1.v   
@@ -276,29 +340,85 @@ superposition in the transform domains, for example,
    ⎨s: ─⎬
    ⎩   s⎭
 
-The `Y` and `Z` attributes provide the generalized s-domain admittance and impedance of the component, for example,
+The `Ys` and `Zs` attributes provide the generalized s-domain admittance and impedance of the component, for example,
 
-   >>> cct.L1.Z
+   >>> cct.L1.Zs
    L₁⋅s
 
-   >>> cct.R1.Z
+   >>> cct.R1.Zs
    R₁
 
-The generalized s-domain driving point admittance and impedance can be found using `dpY` and `dpZ`, for example,
+The generalized s-domain driving point admittance and impedance can be found using `dpYs` and `dpZs`, for example,
 
-   >>> cct.L1.dpZ
+   >>> cct.L1.dpZs
     R₁⋅s 
    ──────
        R₁
    s + ──
        L₁
 
-Note, this is the total impedance across `L1`, not just the impedance of the component as given by `cct.L1.Z`.
+Note, this is the total impedance across `L1`, not just the impedance of the component as given by `cct.L1.Zs`.
        
 
+Oneports
+========
+
+A Oneport object is defined by a pair of nodes or by a component name.
+There are three circuit methods that will create a Oneport object from
+a Circuit object:
+
+- `thevenin(Np, Nm)`  This creates a series combination of a voltage source and an impedance.
+
+- `norton(Np, Nm)`  This creates a parallel combination of a current source and an impedance.
+
+- `oneport(Np, Nm)` This creates either a Norton model, Thevenin model, source, or impedance as appropriate.
+
+A Oneport object is a Network object so shares the same attributes and
+methods, see :ref:`network_attributes` and :ref:`network_methods`.
    
-Circuit evaluation
-------------------
+
+Here's an example of creating and using a Oneport object:
+
+   >>> cct = Circuit("""
+   >>> R1 3 2
+   >>> L 2 1
+   >>> C 1 0
+   >>> R2 3 0""")
+   >>> o = cct.oneport('R1')
+
+Alternatively, a Oneport object can be created using a pair of nodes:
+
+   >>> o = cct.oneport(3, 2)
+
+A third way is from a node object and another node name, for example,
+
+   >>> o = a[3].oneport(2)   
+
+Here's an example,
+
+   >>> cct = Circuit("""
+   >>> R1 3 2
+   >>> L 2 1
+   >>> C 1 0
+   >>> R2 3 0""")
+   >>> cct.oneport('R1').Z
+           ⎛   2   ⅉ⋅R₂⋅ω    1 ⎞ 
+    C⋅L⋅R₁⋅⎜- ω  + ────── + ───⎟ 
+           ⎝         L      C⋅L⎠ 
+   ──────────────────────────────
+          2                      
+   - C⋅L⋅ω  + ⅉ⋅C⋅ω⋅(R₁ + R₂) + 1
+   >>> cct.oneport('R1').Zs
+           ⎛ 2   R₂⋅s    1 ⎞ 
+    C⋅L⋅R₁⋅⎜s  + ──── + ───⎟ 
+           ⎝      L     C⋅L⎠ 
+   ──────────────────────────
+        2                    
+   C⋅L⋅s  + C⋅s⋅(R₁ + R₂) + 1
+
+
+Netlist evaluation
+==================
 
 The circuit node voltages are determined using Modified Nodal Analysis
 (MNA).  This is performed lazily as required with the results cached.

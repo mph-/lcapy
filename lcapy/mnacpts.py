@@ -334,7 +334,7 @@ class Cpt(Immitance):
         return self.cptZ
 
     @property
-    def Ys(self):
+    def generalized_admittance(self):
         """Self generalized admittance (s-domain) of component.  For the
         driving point admittance measured across the component use
         .dpY or .oneport().Ys"""        
@@ -342,7 +342,7 @@ class Cpt(Immitance):
         return self.cptYs
 
     @property
-    def Zs(self):
+    def generalized_impedance(self):
         """Self generalized impedance (s-domain) of component.  For the
         driving point impedance measured across the component use
         .dpZs or .oneport().Zs"""        
@@ -355,7 +355,7 @@ class Cpt(Immitance):
         component.  For the admittance of the component in isolation
         use .Ys"""
 
-        return self.cct.generalised_admittance(*self.nodes)
+        return self.cct.generalized_admittance(*self.nodes)
 
     @property
     def dpZs(self):
@@ -363,7 +363,7 @@ class Cpt(Immitance):
         component.  For the impedance of the component in isolation
         use .Zs"""        
 
-        return self.cct.generalised_impedance(*self.nodes)    
+        return self.cct.generalized_impedance(*self.nodes)    
     
     @property
     def dpY(self):

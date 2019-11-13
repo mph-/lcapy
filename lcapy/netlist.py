@@ -21,12 +21,13 @@ from .netfile import NetfileMixin
 from .expr import Expr
 from .state import state
 from .attrdict import AttrDict
+from .immitance import Immitance
 from . import mnacpts
 from copy import copy
 from collections import OrderedDict
 
 
-class Node(object):
+class Node(Immitance):
 
     def __init__(self, cct, name):
 
@@ -53,17 +54,19 @@ class Node(object):
         return self.cct.get_vd(self.name, '0')
 
     @property
-    def dpY(self):
-        """Driving point admittance with respect to ground."""
+    def generalized_admittance(self):
+        """Driving-point generalized admittance (s-domain) between node and
+        ground."""
 
-        return self.cct.admittance(self.name, '0')
+        return self.cct.generalized_admittance(self.name, '0')
 
     @property
-    def dpZ(self):
-        """Driving point impedance with respect to ground."""
+    def generalized_impedance(self):
+        """Driving-point generalized impedance (s-domain) between node and
+        ground."""        
 
-        return self.cct.impedance(self.name, '0')        
-    
+        return self.cct.generalized_impedance(self.name, '0')        
+
     def append(self, cpt):
 
         if cpt.type in ('P', ):

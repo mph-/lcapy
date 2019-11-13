@@ -50,20 +50,30 @@ class Immitance(object):
     @property
     def admittance(self):
         """Admittance."""
-        return self.Y
+        return self.generalized_admittance.jomega
 
     @property
     def impedance(self):
         """Impedance."""
-        return self.Z
+        return self.generalized_impedance.jomega
 
     @property
-    def generalized_admittance(self):
+    def Y(self):
+        """Admittance."""
+        return self.generalized_admittance.jomega
+
+    @property
+    def Z(self):
+        """Impedance."""
+        return self.generalized_impedance.jomega    
+
+    @property
+    def Ys(self):
         """Generalized admittance."""
-        return self.Ys
+        return self.generalized_admittance
 
     @property
-    def generalized_impedance(self):
+    def Zs(self):
         """Generalized impedance."""
-        return self.Zs
+        return self.generalized_impedance
     

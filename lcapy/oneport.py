@@ -77,7 +77,7 @@ class OnePort(Network, Immitance):
     _Isc = None
 
     @property
-    def Zs(self):
+    def generalized_impedance(self):
         if self._Z is not None:
             return self._Z
         if self._Y is not None:
@@ -89,19 +89,11 @@ class OnePort(Network, Immitance):
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
 
     @property
-    def Z(self):
-        return self.Zs.jomega
-    
-    @property
-    def Ys(self):
+    def generalized_admittance(self):
         if self._Y is not None:
             return self._Y
-        return Ys(1 / self.Zs)
+        return Ys(1 / self.generalized_impedance)
 
-    @property
-    def Y(self):
-        return self.Ys.jomega
-    
     @property
     def Voc(self):
         """Open-circuit voltage."""        
@@ -657,14 +649,14 @@ class Par(ParSer):
         return '\n'.join(s)
 
     @property
-    def Ys(self):
+    def generalized_admittance(self):
         Y = 0
         for arg in self.args:
             Y += arg.Ys
         return Ys(Y)
 
     @property
-    def Zs(self):
+    def generalized_impedance(self):
         return Zs(1 / self.Ys)
 
 class Ser(ParSer):
@@ -724,11 +716,11 @@ class Ser(ParSer):
         return '\n'.join(s)
 
     @property
-    def Ys(self):
+    def generalized_admittance(self):
         return Ys(1 / self.Zs)
     
     @property
-    def Zs(self):
+    def generalized_impedance(self):
         Z = 0
         for arg in self.args:
             Z += arg.Zs
