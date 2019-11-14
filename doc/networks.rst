@@ -117,7 +117,7 @@ Network methods
 
 - `draw()` draw the schematic.
 
-- `netist()` create an equivalent netlist.
+- `netlist()` create an equivalent netlist.
            
 
 Network simplification

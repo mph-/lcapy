@@ -96,7 +96,7 @@ Lcapy's algorithm for solving a circuit is:
 1. If a capacitor or inductor is found to have initial conditions, then the
 circuit is analysed as an initial value problem using Laplace methods.
 In this case, the sources are ignored for :math:`t<0` and the result
-is ony known for :math:`t\ge 0`.
+is only known for :math:`t\ge 0`.
 2. If there are no capacitors and inductors and if none of the independent sources are specified in the s-domain, then time-domain analysis is performed.
 3. Finally, Lcapy tries to decompose the sources into DC, AC, transient, and noise components.  The circuit is analysed for each source category using the appropriate transform domain (phasors for AC, s-domain for transients) and the results are added.
 
@@ -181,7 +181,7 @@ sources are ignored for :math:`t < 0` and the result is only known for
 Noise analysis
 --------------
 
-Each noise source is assigned a noise indentifier (nid).  Noise
+Each noise source is assigned a noise identifier (nid).  Noise
 expressions with different nids are assumed to be independent and thus
 represent different noise realisations.
 

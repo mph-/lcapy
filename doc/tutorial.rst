@@ -325,7 +325,7 @@ in a number of different ways, for example,
               20⋅s
 
 Here `ZPK()` prints the impedance in ZPK (zero-pole-gain) form while
-`standard()` prints the rational function as the sum of a polynomial and a stricltly proper rational function.
+`standard()` prints the rational function as the sum of a polynomial and a strictly proper rational function.
 
 The corresponding parallel R-L-C network yields
 
@@ -1311,7 +1311,7 @@ attribute, for example,
 
 The roots of this polynomial are the eigenvalues of the system.  These
 are given by the `eigenvalues` attribute.  The corresponding
-eigenvectors are the coluns of the modal matrix given by the `M`
+eigenvectors are the columns of the modal matrix given by the `M`
 attribute.  A diagonal matrix of the eigenvalues is returned by the
 `Lambda` attribute.
 
@@ -1319,7 +1319,7 @@ attribute.  A diagonal matrix of the eigenvalues is returned by the
 Modified nodal analysis
 -----------------------
 
-Lcapy uses modified nodal analysis for its calculations.  For reactive circuits it does this independently for the DC, AC, and transient components nad uses superposition to combine the results.  For resistive circuits, it can perform this in the time-domain.
+Lcapy uses modified nodal analysis for its calculations.  For reactive circuits it does this independently for the DC, AC, and transient components and uses superposition to combine the results.  For resistive circuits, it can perform this in the time-domain.
 
 Here's an example with an independent source (V1) that as a DC component and an unknown component that is considered as a transient component:
 

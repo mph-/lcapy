@@ -226,7 +226,7 @@ These options can be stored with the schematic netlist, for example::
 Node names
 ----------
 
-Circuit nodes are usually indentified by a number.  They can be given arbitrary names provided they do not contain a period (.).  By default, nodes with names starting with an underscore are not drawn.  The name can contain an underscore to denote a subscript or a caret to denote a superscript.  For example, `T_123`.
+Circuit nodes are usually identified by a number.  They can be given arbitrary names provided they do not contain a period (.).  By default, nodes with names starting with an underscore are not drawn.  The name can contain an underscore to denote a subscript or a caret to denote a superscript.  For example, `T_123`.
 
 Node names starting with a period are a short-hand notation.  For
 example::
@@ -687,13 +687,13 @@ The names of the pins can be drawn using the `pinnames` option.  This has a synt
  - `all` : the pin names for all the pins are shown
  - `connected` : the pin names for all the connected pins are shown  
  - `none` : none of the pin names are shown
- - `{pin1, pin2, ...}` : the speficied pin names are shown.
+ - `{pin1, pin2, ...}` : the specified pin names are shown.
 
 The nodes of the pins can be drawn using the `pinnodes` option.  This has a syntax:
  - `all` : the pin nodes for all the pins are shown
  - `connected` : the pin nodes for all the connected pins are shown  
  - `none` : none of the pin nodes are shown
- - `{pin1, pin2, ...}` : the speficied pin nodes are shown.     
+ - `{pin1, pin2, ...}` : the specified pin nodes are shown.     
 
 The pin names can be redefined by the `pindefs` option.  This has a syntax:
   - `pindefs={new1=old1, new2=old2, ...}`
@@ -1000,7 +1000,7 @@ File formats
 
 Lcapy uses the filename extension to determine the file format to
 produce.  This must be one of tex, schtex, pgf, png, svg, or pdf.  The
-schtex format is useful for including schematics into LaTeX documents.
+pgf format is useful for including schematics into LaTeX documents.
 The tex, schtex, and pgf extension generates a standalone LaTeX file.
 If no filename is specified, the schematic is displayed on the screen.
 
@@ -1027,9 +1027,9 @@ The generated stand-alone LaTeX file can be obtained using:
 
 If you wish to include the schematic into a LaTeX file use:
 
-   >>> schtex Dbridge.sch Dbridge.schtex
+   >>> schtex Dbridge.sch Dbridge.pgf
 
-and then include the file with `\\input{Dbridge.schtex}`.
+and then include the file with `\\input{Dbridge.pgf}`.
 
 `schtex` has many command line options to configure the drawing.
 These override the options specified in the netlist file.  For example:
@@ -1041,7 +1041,7 @@ One useful option is to renumber the nodes in a netlist.  For example,
 
    >>> schtex --renumber='10:1, 11:2' infile.sch outfile.sch
 
-This will choose small integers for the node numbers, honoring the provided mapping.  Equipoential nodes will be distinguished using enumerated subscripts, e.g., 1_1, 1_2, 1_3 etc.   
+This will choose small integers for the node numbers, honoring the provided mapping.  Equipotential nodes will be distinguished using enumerated subscripts, e.g., 1_1, 1_2, 1_3 etc.   
 
 
 Schematics in LaTeX

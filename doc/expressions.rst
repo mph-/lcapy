@@ -148,7 +148,7 @@ Poles and zeros
 
 - `coeffs` return list of coefficients if expression is a polynomial; the highest powers come first.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
 
-- `normcoeffs` return list of coefficients if expression is a polynomial; the highest powers come first.  The coefficiens are normalised so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
+- `normcoeffs` return list of coefficients if expression is a polynomial; the highest powers come first.  The coefficients are normalised so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
 
 - `poles` return poles of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the poles.   
 
@@ -190,7 +190,7 @@ This has a unity coefficient for the highest power in the denominator.  It is so
     2          
    s  + 5⋅s + 4
 
-This has a unity coefficient for the highest power in the denominator and with contants factored in the numerator.   It is sometimes called gain-polynomial form.
+This has a unity coefficient for the highest power in the denominator and with constants factored in the numerator.   It is sometimes called gain-polynomial form.
 
    >>> H.general()
         2      
@@ -199,7 +199,7 @@ This has a unity coefficient for the highest power in the denominator and with c
     2          
    s  + 5⋅s + 4
 
-This is the general form of a rational function shown as the ratio of two polynomails.   Unlike the canonical form, the coeficient for the highest power in the denominator may not be unity.
+This is the general form of a rational function shown as the ratio of two polynomials.   Unlike the canonical form, the coefficient for the highest power in the denominator may not be unity.
    
    >>> H.factored()
    5⋅(s - ⅉ)⋅(s + ⅉ)
