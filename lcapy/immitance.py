@@ -5,7 +5,74 @@ Copyright 2019 Michael Hayes, UCECE
 
 """
 
-class Immitance(object):
+from .cexpr import cExpr
+from .sexpr import sExpr
+from .omegaexpr import omegaExpr
+from .symbols import j, omega, jomega, s
+from .sym import omegasym
+
+class Immitance(sExpr):
+    
+    def __init__(self, val, kind=None, causal=True, **assumptions):
+
+        super(Immitance, self).__init__(val, causal=causal, **assumptions)
+        self.kind = kind
+
+    @property
+    def pexpr(self):
+
+        kind = self.kind
+        if kind is None:
+            # Default to printing impedance as Z(omega)
+            kind = omega
+        
+        return self.select(kind).expr
+        
+    @property            
+    def jomega(self):
+        return self(jomega)
+
+    @property    
+    def s(self):
+        return self(s)    
+
+    def select(self, kind=None):
+
+        if kind is None:
+            kind = self.kind
+
+        if kind in ('s', 'ivp', 'super', 'laplace'):
+            return self
+        elif kind in ('dc', 'time'):
+            return cExpr(self.subs(0))
+        elif isinstance(kind, str) and kind[0] == 'n':
+            return self(jomega)
+        elif kind in (omegasym, omega, 'ac'):
+            return self(jomega)
+        return omegaExpr(self.subs(j * kind))    
+
+    @property
+    def R(self):
+        """Resistance."""
+        return self.Zw.real
+
+    @property
+    def X(self):
+        """Reactance."""
+        return self.Zw.imag
+
+    @property
+    def G(self):
+        """Conductance."""
+        return self.Yw.real
+
+    @property
+    def B(self):
+        """Susceptance."""
+        return -self.Yw.imag    
+
+    
+class ImmitanceMixin(object):
 
     @property
     def R(self):

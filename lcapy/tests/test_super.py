@@ -46,13 +46,13 @@ class LcapyTester(unittest.TestCase):
                           "Isuper(2) - Isuper(3)")
         
     def test_Isuper_mul_div(self):
-        self.assertEqual2(Isuper(3) * ZZ(2), Vsuper(6), "Isuper(3) * ZZ(2)")
-        self.assertEqual2(Isuper(12) / YY(2), Vsuper(6), "Isuper(12) / YY(2)")
+        self.assertEqual2(Isuper(3) * Impedance(2), Vsuper(6), "Isuper(3) * Impedance(2)")
+        self.assertEqual2(Isuper(12) / Admittance(2), Vsuper(6), "Isuper(12) / Admittance(2)")
 
         
     def test_Vsuper_mul_div(self):
-        self.assertEqual2(Vsuper(3) * YY(2), Isuper(6), "Vsuper(3) * YY(2)")
-        self.assertEqual2(Vsuper(12) / ZZ(2), Isuper(6), "Vsuper(12) / ZZ(2)")
+        self.assertEqual2(Vsuper(3) * Admittance(2), Isuper(6), "Vsuper(3) * Admittance(2)")
+        self.assertEqual2(Vsuper(12) / Impedance(2), Isuper(6), "Vsuper(12) / Impedance(2)")
 
     def test_Vsuper_noise(self):
         self.assertEqual((Vn(3) + Vn(4)).expr, Vn(5).expr, "Vn(3) + Vn(4)")

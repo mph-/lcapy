@@ -21,14 +21,15 @@ from .netfile import NetfileMixin
 from .expr import Expr
 from .state import state
 from .attrdict import AttrDict
-from .immitance import Immitance
-from .zy import YY, ZZ
+from .immitance import ImmitanceMixin
+from .impedance import Impedance
+from .admittance import Admittance
 from . import mnacpts
 from copy import copy
 from collections import OrderedDict
 
 
-class Node(Immitance):
+class Node(ImmitanceMixin):
 
     def __init__(self, cct, name):
 
@@ -641,7 +642,7 @@ class NetlistMixin(object):
         If = new.Vin_.I
         new.remove('Vin_')
 
-        return YY(If.laplace(), kind=self.kind)
+        return Admittance(If.laplace(), kind=self.kind)
 
     def impedance(self, Np, Nm=None):
         """Return driving-point impedance between nodes
@@ -662,7 +663,7 @@ class NetlistMixin(object):
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
-        return ZZ(Vf.laplace(), kind=self.kind)
+        return Impedance(Vf.laplace(), kind=self.kind)
 
     def resistance(self, Np, Nm=None):
         """Return resistance between nodes Np and Nm with independent

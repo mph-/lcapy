@@ -13,7 +13,7 @@ from .symbols import j, omega, jomega, s
 from .functions import sqrt
 from .sym import capitalize_name, omegasym
 from .grammar import delimiters
-from .immitance import Immitance
+from .immitance import ImmitanceMixin
 import lcapy
 import inspect
 import sys
@@ -32,7 +32,7 @@ def arg_format(value):
     return string
 
 
-class Cpt(Immitance):
+class Cpt(ImmitanceMixin):
 
     dependent_source = False
     independent_source = False    

@@ -1044,15 +1044,15 @@ class Expr(ExprPrint, ExprMisc):
                      (Vs, omegaExpr) : Vomega,
                      (Ys, omegaExpr) : Yomega,
                      (Zs, omegaExpr) : Zomega,
-                     (YY, omegaExpr) : Yomega,
-                     (ZZ, omegaExpr) : Zomega,                     
+                     (Admittance, omegaExpr) : Yomega,
+                     (Impedance, omegaExpr) : Zomega,                     
                      (Hs, fExpr) : Hf,
                      (Is, fExpr) : If,
                      (Vs, fExpr) : Vf,
                      (Ys, fExpr) : Yf,
                      (Zs, fExpr) : Zf,
-                     (YY, fExpr) : Yf,
-                     (ZZ, fExpr) : Zf,                     
+                     (Admittance, fExpr) : Yf,
+                     (Impedance, fExpr) : Zf,                     
                      (Hf, omegaExpr) : Homega,
                      (If, omegaExpr) : Iomega,
                      (Vf, omegaExpr) : Vomega,
@@ -1063,8 +1063,8 @@ class Expr(ExprPrint, ExprMisc):
                      (Vomega, fExpr) : Vf,
                      (Yomega, fExpr) : Yf,
                      (Zomega, fExpr) : Zf,
-                     (YY, sExpr) : Ys,
-                     (ZZ, sExpr) : Zs}                     
+                     (Admittance, sExpr) : Ys,
+                     (Impedance, sExpr) : Zs}                     
 
         if (self.__class__, new.__class__) in class_map:
             cls = class_map[(self.__class__, new.__class__)]
@@ -1504,7 +1504,8 @@ from .cexpr import cExpr
 from .fexpr import Hf, If, Vf, Yf, Zf, fExpr    
 from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr
 from .texpr import tExpr
-from .zy import ZZ, YY
+from .impedance import Impedance
+from .admittance import Admittance
 from .omegaexpr import Homega, Iomega, Vomega, Yomega, Zomega, omegaExpr
 
 # Horrible hack to work with IPython around Sympy's back for LaTeX
