@@ -13,7 +13,8 @@ from __future__ import division
 from .sexpr import Hs, Zs, Ys
 from .symbols import j, s, omega
 from .context import Context
-from .super import Voltage, Current, Vname, Iname
+from .voltage import Voltage, Vname
+from .current import Current, Iname
 from .schematic import Schematic, Opts, SchematicOpts
 from .mna import MNA, Nodedict, Branchdict
 from .statespace import StateSpace

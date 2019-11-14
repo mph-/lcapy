@@ -10,7 +10,8 @@ from .vector import Vector
 from .matrix import Matrix
 from .sym import symsimplify
 from .expr import ExprDict, expr
-from .super import Vtype, Itype
+from .voltage import Vtype
+from .current import Itype
 import sympy as sym
 
 # Note, all the maths is performed using sympy expressions and the

@@ -151,5 +151,5 @@ class NodalAnalysis(object):
 
 from .expr import Expr, ExprDict, expr
 from .texpr import Vt
-from .super import Voltage
+from .voltage import Voltage
 from .matrix import matrix

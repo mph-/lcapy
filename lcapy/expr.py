@@ -26,35 +26,39 @@ from collections import OrderedDict
 class ExprPrint(object):
 
     @property
-    def pexpr(self):
-        return self.expr
+    def _pexpr(self):
+        """Return expression for printing."""
+        
+        if hasattr(self, 'expr'):
+            return self.expr
+        return self
     
     def __repr__(self):
         """This is called by repr(expr).  It is used, e.g., when printing
         in the debugger."""
         
-        return '%s(%s)' % (self.__class__.__name__, print_str(self.pexpr))
+        return '%s(%s)' % (self.__class__.__name__, print_str(self._pexpr))
 
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
         unicode.  It is also called by IPython when displaying an
         expression.""" 
 
-        p.text(pretty(self.pexpr))
+        p.text(pretty(self._pexpr))
 
     # Note, _repr_latex_ is handled at the end of this file.
         
     def pretty(self):
         """Make pretty string."""
-        return pretty(self.pexpr)
+        return pretty(self._pexpr)
 
     def prettyans(self, name):
         """Make pretty string with LHS name."""
-        return pretty(sym.Eq(sympify(name), self.pexpr))
+        return pretty(sym.Eq(sympify(name), self._pexpr))
 
     def pprint(self):
         """Pretty print"""
-        pprint(self.pexpr)
+        pprint(self._pexpr)
 
     def pprintans(self, name):
         """Pretty print string with LHS name."""
@@ -70,7 +74,7 @@ class ExprPrint(object):
 
     def latexans(self, name, **kwargs):
         """Print latex string with LHS name."""
-        return latex(sym.Eq(sympify(name), self.pexpr), **kwargs)
+        return latex(sym.Eq(sympify(name), self._pexpr), **kwargs)
 
 
 class ExprContainer(object):    
@@ -185,9 +189,10 @@ class Expr(ExprPrint, ExprMisc):
     # But what about Vs**2 ?
 
     @property
-    def pexpr(self):
+    def _pexpr(self):
+        """Return expression for printing."""
         return self.expr
-    
+
     def __init__(self, arg, **assumptions):
         """
 
@@ -220,20 +225,20 @@ class Expr(ExprPrint, ExprMisc):
 
     def __str__(self, printer=None):
         """String representation of expression."""
-        return print_str(self.pexpr)
+        return print_str(self._pexpr)
 
     def __repr__(self):
         """This is called by repr(expr).  It is used, e.g., when printing
         in the debugger."""
         
-        return '%s(%s)' % (self.__class__.__name__, print_str(self.pexpr))
+        return '%s(%s)' % (self.__class__.__name__, print_str(self._pexpr))
 
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
         unicode.  It is also called by IPython when displaying an
         expression.""" 
 
-        p.text(pretty(self.pexpr))
+        p.text(pretty(self._pexpr))
 
     def _repr_latex_(self):
         """This is used by jupyter notebooks to display an expression using
@@ -242,7 +247,7 @@ class Expr(ExprPrint, ExprMisc):
         outputs unicode."""
 
         # This is called for Expr but not ExprList
-        return '$$' + latex(self.pexpr) + '$$'        
+        return '$$' + latex(self._pexpr) + '$$'        
 
     def _latex(self, *args, **kwargs):
         """Make latex string.  This is called by sympy.latex when it
@@ -262,7 +267,7 @@ class Expr(ExprPrint, ExprMisc):
         # This works in conjunction with Printer._print
         # It is a hack to allow printing of _Matrix types
         # and its elements.
-        expr = self.pexpr
+        expr = self._pexpr
         printer = args[0]
 
         return printer._print(expr)

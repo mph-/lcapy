@@ -1,3 +1,11 @@
+"""This file provides the Impedance class.  This is a generalized
+impedance (s-domain) and converts to other representations.
+
+Copyright 2019 Michael Hayes, UCECE
+
+"""
+
+
 from .symbols import s
 from .immitance import Immitance
 
@@ -13,6 +21,8 @@ class Impedance(Immitance):
         return self.jomega
 
     def cpt(self):
+        """Create oneport component."""
+        
         from .oneport import R, C, L, Z
 
         if self.is_number or self.is_dc:

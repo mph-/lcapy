@@ -44,7 +44,10 @@ from .texpr import *
 from .noiseexpr import *
 from .phasor import *
 from .omegaexpr import *
-from .super import *
+from .voltage import *
+from .current import *
+from .admittance import *
+from .impedance import *
 from .printing import *
 from .sym import *
 from .matrix import *

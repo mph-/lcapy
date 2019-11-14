@@ -1,5 +1,5 @@
-"""This file provides the immittance class for admittances and
-impedances and the rest of the menagerie.
+"""This file provides the Immittance class, the base class for
+Admittance and Impedance and the rest of the menagerie.
 
 Copyright 2019 Michael Hayes, UCECE
 
@@ -19,7 +19,8 @@ class Immitance(sExpr):
         self.kind = kind
 
     @property
-    def pexpr(self):
+    def _pexpr(self):
+        """Return expression for printing."""
 
         kind = self.kind
         if kind is None:

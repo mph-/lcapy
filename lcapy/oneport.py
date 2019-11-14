@@ -1176,7 +1176,8 @@ from .cexpr import cExpr, Iconst, Vconst
 from .sexpr import sExpr, Is, Vs, Ys, Zs
 from .texpr import tExpr
 from .noiseexpr import In, Vn
-from .super import Current, Voltage
+from .voltage import Voltage
+from .current import Current
 from .phasor import Iphasor, Vphasor
 from .twoport import Ladder, LSection, TSection
 

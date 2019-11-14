@@ -1,3 +1,10 @@
+"""This file provides the Admittance class.  This is a generalized
+impedance (s-domain) and converts to other representations.
+
+Copyright 2019 Michael Hayes, UCECE
+
+"""
+
 from .symbols import s
 from .immitance import Immitance
 
@@ -13,6 +20,8 @@ class Admittance(Immitance):
         return 1 / self.Yw
 
     def cpt(self):
+        """Create oneport component."""
+
         from .oneport import G, C, L, Y
 
         if self.is_number or self.is_dc:

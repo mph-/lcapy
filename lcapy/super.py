@@ -533,6 +533,11 @@ class Super(ExprDict):
         return ExprDict({k: v for k, v in self.items() if k in self.ac_keys()})
 
     @property
+    def transient(self):
+        """Return the transient component."""        
+        return self.select('s').time()
+    
+    @property
     def s(self):
         """Return the s-domain representation of the transient component.
         This is not the full s-domain representation as returned by the
@@ -622,195 +627,11 @@ class Super(ExprDict):
 
         return new
 
-
-class Voltage(Super):
-
-    def __init__(self, *args, **kwargs):
-        self.type_map = {cExpr: Vconst, sExpr : Vs, noiseExpr: Vn,
-                         omegaExpr: Vphasor, tExpr : Vt}
-        self.decompose_domains = {'s': Vs, 'ac': Vphasor, 'dc':
-                                  Vconst, 'n': Vn, 't': Vt}
-        self.time_class = Vt
-        self.laplace_class = Vs    
-
-        super (Voltage, self).__init__(*args, **kwargs)
-        
-    def __rmul__(self, x):
-        return self.__mul__(x)
-
-    def __mul__(self, x):
-        if isinstance(x, (int, float)):
-            return self.__scale__(x)
-
-        if isinstance(x, Super):
-            raise TypeError('Cannot multiply types %s and %s. '
-            'You need to extract a specific component, e.g., a.s * b.s' %
-            (type(self).__name__, type(x).__name__))
-
-        if not isinstance(x, Admittance):
-            raise TypeError("Unsupported types for *: 'Voltage' and '%s'" %
-                            type(x).__name__)
-        obj = self
-        if x.has(s):
-            obj = self.decompose()
-        
-        new = Current()
-        if 'dc' in obj:
-            # TODO, fix types
-            new += Iconst(obj['dc'] * cExpr(x.jomega(0)))
-        for key in obj.ac_keys():
-            new += obj[key] * x.jomega(obj[key].omega)
-        for key in obj.noise_keys():            
-            new += obj[key] * x.jomega
-        if 's' in obj:
-            new += obj['s'] * x
-        if 't' in obj:
-            new += self['t'] * tExpr(x)
-            
-        return new
-
-    def __div__(self, x):
-        if isinstance(x, (int, float)):
-            return self.__scale__(1 / x)
-
-        if isinstance(x, Super):
-            raise TypeError("""
-Cannot divide types %s and %s.  You need to extract a specific component, e.g., a.s / b.s.  If you want a transfer function use a.laplace() / b.laplace()""" % (type(self).__name__, type(x).__name__))
-
-        if not isinstance(x, Impedance):
-            raise TypeError("Unsupported types for /: 'Voltage' and '%s'" %
-                            type(x).__name__)
-        return self * Admittance(1 / x)
-
-    def __truediv__(self, x):
-        return self.__div__(x)
-
-    def cpt(self):
-        from .oneport import V
-        # Perhaps should generate more specific components such as Vdc?
-        return V(self.time())
-
-class Current(Super):
-
-    def __init__(self, *args, **kwargs):    
-
-        self.type_map = {cExpr: Iconst, sExpr : Is, noiseExpr: In,
-                         omegaExpr: Iphasor, tExpr : It}
-        self.decompose_domains = {'s': Is, 'ac': Iphasor, 'dc':
-                                  Iconst, 'n': In, 't': It}
-        self.time_class = It
-        self.laplace_class = Is
-
-        super (Current, self).__init__(*args, **kwargs)
-
-    def __rmul__(self, x):
-        return self.__mul__(x)
-    
-    def __mul__(self, x):
-        if isinstance(x, (int, float)):
-            return self.__scale__(x)
-
-        if isinstance(x, Super):
-            raise TypeError('Cannot multiply types %s and %s. '
-            'You need to extract a specific component, e.g., a.s * b.s' %
-            (type(self).__name__, type(x).__name__))
-        
-        if not isinstance(x, Impedance):
-            raise TypeError("Unsupported types for *: 'Current' and '%s'" %
-                            type(x).__name__)
-        obj = self
-        if x.has(s):
-            obj = self.decompose()
-
-        new = Voltage()
-        if 'dc' in obj:
-            # TODO, fix types
-            new += Vconst(obj['dc'] * cExpr(x.jomega(0)))
-        for key in obj.ac_keys():
-            new += obj[key] * x.jomega(obj[key].omega)
-        for key in obj.noise_keys():            
-            new += obj[key] * x.jomega            
-        if 's' in obj:
-            new += obj['s'] * x
-        if 't' in obj:
-            new += obj['t'] * tExpr(x)                        
-        return new
-
-    def __div__(self, x):
-        if isinstance(x, (int, float)):
-            return self.__scale__(1 / x)
-
-        if isinstance(x, Super):
-            raise TypeError('Cannot divide types %s and %s. '
-            'You need to extract a specific component, e.g., a.s / b.s' %
-            (type(self).__name__, type(x).__name__))
-
-        if not isinstance(x, Admittance):
-            raise TypeError("Unsupported types for /: 'Current' and '%s'" %
-                            type(x).__name__)
-        return self * Impedance(1 / x)
-
-    def __truediv__(self, x):
-        return self.__div__(x)
-
-    def cpt(self):
-        from .oneport import I
-        # Perhaps should generate more specific components such as Idc?        
-        return I(self.time())
-
-
-def Vname(name, kind, cache=False):
-    
-    if kind == 's':
-        return Vs(name + '(s)')
-    elif kind == 't':
-        return Vt(name + '(t)')
-    elif kind in (omegasym, omega, 'ac'):
-        return Vphasor(name + '(omega)')
-    # Not caching is a hack to avoid conflicts of Vn1 with Vn1(s) etc.
-    # when using subnetlists.  The alternative is a proper context
-    # switch.  This would require every method to set the context.
-    return expr(name, cache=cache)            
-
-
-def Iname(name, kind, cache=False):
-    
-    if kind == 's':
-        return Is(name + '(s)')
-    elif kind == 't':
-        return It(name + '(t)')
-    elif kind in (omegasym, omega, 'ac'):    
-        return Iphasor(name + '(omega)')
-    return expr(name, cache=cache)            
-
-
-def Vtype(kind):
-    
-    if isinstance(kind, str) and kind[0] == 'n':
-        return Vn
-    try:
-        return {'ivp' : Vs, 's' : Vs, 'n' : Vn,
-                'ac' : Vphasor, 'dc' : Vconst, 't' : Vt, 'time' : Vt}[kind]
-    except KeyError:
-        return Vphasor
-
-
-def Itype(kind):
-    if isinstance(kind, str) and kind[0] == 'n':
-        return In
-    try:
-        return {'ivp' : Is, 's' : Is, 'n' : In,
-                'ac' : Iphasor, 'dc' : Iconst, 't' : It, 'time' : It}[kind]
-    except KeyError:
-        return Iphasor
-    
-from .cexpr import Iconst, Vconst, cExpr        
+from .cexpr import cExpr        
 from .fexpr import fExpr    
-from .sexpr import Is, Vs, sExpr
-from .texpr import It, Vt, tExpr
-from .noiseexpr import In, Vn, noiseExpr
-from .phasor import Iphasor, Vphasor, Phasor
-from .impedance import Impedance
-from .admittance import Admittance
+from .sexpr import sExpr
+from .texpr import tExpr
+from .noiseexpr import noiseExpr
+from .phasor import Phasor
 from .omegaexpr import omegaExpr
 from .symbols import s, omega

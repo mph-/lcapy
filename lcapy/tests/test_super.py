@@ -88,3 +88,10 @@ class LcapyTester(unittest.TestCase):
         b = a.subs('V1', 1)
         c = Voltage(1)
         self.assertEqual(b, c, "Voltage.subs")
+
+        
+    def test_voltage_decompose(self):
+
+        V1 = Voltage('1 + 3 * u(t) + cos(2 * pi * 3 * t)')
+        self.assertEqual(V1.dc, 1, '.dc')
+        self.assertEqual(V1.transient, expr('3 * u(t)'), '.transient')
