@@ -2,7 +2,7 @@
 """schtex V0.1
 Copyright (c) 2014--2019 Michael P. Hayes, UC ECE, NZ
 
-Usage: schtex infile.sch [outfile.tex|pdf|png|svg|sch]
+Usage: schtex infile.sch [outfile.tex|pdf|png|svg|sch|pgf]
 """
 
 from __future__ import print_function
@@ -30,8 +30,9 @@ def main (argv=None):
 
     version = __doc__.split('\n')[0]
 
-    parser = OptionParser(usage='%prog schematic-file [output-file]', version=version, 
-                          description=__doc__)
+    parser = OptionParser(usage="""
+%prog schematic-file [outfile.tex|pdf|png|svg|sch|pgf]""",
+                          version=version, description=__doc__)
 
     parser.add_option('--debug', action='store_true',
                       dest='debug', default=None,
