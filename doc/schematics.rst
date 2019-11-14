@@ -999,15 +999,17 @@ File formats
 ============
 
 Lcapy uses the filename extension to determine the file format to
-produce.  This must be one of tex, schtex, png, svg, or pdf.  The schtex
-format is useful for including schematics into LaTeX documents.  The
-tex format generates a standalone LaTeX file.  If no filename is
-specified, the schematic is displayed on the screen.
+produce.  This must be one of tex, schtex, pgf, png, svg, or pdf.  The
+schtex format is useful for including schematics into LaTeX documents.
+The tex, schtex, and pgf extension generates a standalone LaTeX file.
+If no filename is specified, the schematic is displayed on the screen.
 
 By default, the png format is used for interactive drawing.  First
 LaTeX is used to create a temporary pdf file; this is then converted
-to png format using `pdftoppm` or `convert` (ImageMagick).  When using
-a Jupyter notebook, the svg format can be used with `draw(svg=True`).
+to png format using `pdftoppm` or `convert` (ImageMagick); `convert`
+does a better job but does not come installed with the required
+permissions.  When using a Jupyter notebook, the svg format can be
+used with `draw(svg=True`).
 
 
 
@@ -1040,6 +1042,22 @@ One useful option is to renumber the nodes in a netlist.  For example,
    >>> schtex --renumber='10:1, 11:2' infile.sch outfile.sch
 
 This will choose small integers for the node numbers, honoring the provided mapping.  Equipoential nodes will be distinguished using enumerated subscripts, e.g., 1_1, 1_2, 1_3 etc.   
+
+
+Schematics in LaTeX
+===================
+
+Here's an example of how to include an Lcapy schematic in a LaTeX document.
+
+.. literalinclude:: examples/schematics/pic4-demo.tex
+
+A PDF file can be produced using:
+                    
+.. code:: bash
+          
+          $ schtex pic4.sch pic4.pgf
+          $ pdflatex pic4-demo
+
 
    
 Drawing tips
