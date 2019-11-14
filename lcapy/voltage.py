@@ -80,11 +80,12 @@ class Voltage(Super):
 
         if isinstance(x, Super):
             raise TypeError("""
-Cannot divide types %s and %s.  You need to extract a specific component, e.g., a.s / b.s.  If you want a transfer function use a.laplace() / b.laplace()""" % (type(self).__name__, type(x).__name__))
+            Cannot divide %s by %s.  You need to extract a specific component, e.g., a.s / b.s.  If you want a transfer function use a(s) / b(s)""" % (type(self).__name__, type(x).__name__))
 
         if not isinstance(x, Impedance):
-            raise TypeError("Unsupported types for /: 'Voltage' and '%s'" %
-                            type(x).__name__)
+            raise TypeError("Cannot divide '%s' by '%s'; require Impedance" %
+                            (type(self).__name__, type(x).__name__))        
+
         return self * Admittance(1 / x)
 
     def __truediv__(self, x):
