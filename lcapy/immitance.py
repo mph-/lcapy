@@ -115,41 +115,31 @@ class ImmitanceMixin(object):
         return self.B
 
     @property
-    def admittance(self):
-        """Admittance  Y(omega)."""
-        return self.YY
-
-    @property
-    def impedance(self):
-        """Impedance  Z(omega)."""
-        return self.ZZ
-
-    @property
     def Y(self):
         """Admittance."""
-        return self.YY
+        return self.admittance
 
     @property
     def Z(self):
         """Impedance."""
-        return self.ZZ
+        return self.impedance
 
     @property
     def Yw(self):
         """Admittance  Y(omega)."""
-        return self.YY.jomega
+        return self.admittance.jomega
 
     @property
     def Zw(self):
         """Impedance  Z(omega)."""
-        return self.ZZ.jomega        
+        return self.impedance.jomega        
 
     @property
     def Ys(self):
         """Generalized admittance  Y(s)."""
-        return self.YY.s
+        return self.admittance.s
 
     @property
     def Zs(self):
         """Generalized impedance  Z(s)."""
-        return self.ZZ.s
+        return self.impedance.s

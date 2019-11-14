@@ -79,7 +79,7 @@ class OnePort(Network, ImmitanceMixin):
     _Isc = None
 
     @property
-    def ZZ(self):
+    def impedance(self):
         if self._Z is not None:
             return self._Z
         if self._Y is not None:
@@ -91,10 +91,10 @@ class OnePort(Network, ImmitanceMixin):
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
 
     @property
-    def YY(self):
+    def admittance(self):
         if self._Y is not None:
             return self._Y
-        return Admittance(1 / self.ZZ)
+        return Admittance(1 / self.impedance)
 
     @property
     def Voc(self):
@@ -102,7 +102,7 @@ class OnePort(Network, ImmitanceMixin):
         if self._Voc is not None:
             return self._Voc
         if self._Isc is not None:
-            return self._Isc * self.ZZ
+            return self._Isc * self.impedance
         if self._Z is not None:        
             return Vsuper(0)
         if self._Y is not None:        
@@ -114,7 +114,7 @@ class OnePort(Network, ImmitanceMixin):
         """Short-circuit current."""        
         if self._Isc is not None:
             return self._Isc
-        return self.Voc / self.ZZ
+        return self.Voc / self.impedance
 
     @property
     def V(self):
@@ -205,19 +205,19 @@ class OnePort(Network, ImmitanceMixin):
     @property
     def z(self):
         """Impedance impulse-response."""
-        return self.ZZ.time()
+        return self.impedance.time()
 
     @property
     def y(self):
         """Admittance impulse-response."""        
-        return self.YY.time()
+        return self.admittance.time()
 
     def thevenin(self):
         """Simplify to a Thevenin network"""
 
         new = self.simplify()
         Voc = new.Voc
-        Z = new.ZZ
+        Z = new.impedance
 
         if Voc.is_superposition and not Z.is_real:
             print('Warning, detected superposition with reactive impedance,'
@@ -249,7 +249,7 @@ class OnePort(Network, ImmitanceMixin):
 
         new = self.simplify()
         Isc = new.Isc
-        Y = new.YY
+        Y = new.admittance
         
         if Isc.is_superposition and not Y.is_real:
             print('Warning, detected superposition with reactive impedance,'
@@ -281,18 +281,18 @@ class OnePort(Network, ImmitanceMixin):
 
         if self._Voc is not None:
             if self._Voc == 0:
-                return Z(self.ZZ)
+                return Z(self.impedance)
             Voc = self._Voc.laplace()
             if self.Z == 0:
                 return V(Voc)
-            return Ser(V(Voc), Z(self.ZZ))
+            return Ser(V(Voc), Z(self.impedance))
         elif self._Isc is not None:
             if self._Isc == 0:
-                return Y(self.YY)
+                return Y(self.admittance)
             Isc = self._Isc.laplace()
-            if self.YY == 0:
+            if self.admittance == 0:
                 return I(Isc)
-            return Par(I(Isc), Y(self.YY))
+            return Par(I(Isc), Y(self.admittance))
         elif self._Z is not None:
             return Z(self._Z)
         elif self._Y is not None:
@@ -388,18 +388,18 @@ class ParSer(OnePort):
                     return arg2
                 if isinstance(arg2, V) and arg2.Voc == 0:
                     return arg1
-                if isinstance(arg1, (R, Z)) and arg1.ZZ == 0:
+                if isinstance(arg1, (R, Z)) and arg1.impedance == 0:
                     return arg2
-                if isinstance(arg2, (R, Z)) and arg2.ZZ == 0:
+                if isinstance(arg2, (R, Z)) and arg2.impedance == 0:
                     return arg1
             if self.__class__ == Par:
                 if isinstance(arg1, I) and arg1.Isc == 0:
                     return arg2
                 if isinstance(arg2, I) and arg2.Isc == 0:
                     return arg1
-                if isinstance(arg1, (Y, G)) and arg1.YY == 0:
+                if isinstance(arg1, (Y, G)) and arg1.admittance == 0:
                     return arg2
-                if isinstance(arg2, (Y, G)) and arg2.YY == 0:
+                if isinstance(arg2, (Y, G)) and arg2.admittance == 0:
                     return arg1
 
             return None
@@ -651,15 +651,15 @@ class Par(ParSer):
         return '\n'.join(s)
 
     @property
-    def YY(self):
+    def admittance(self):
         Y = 0
         for arg in self.args:
-            Y += arg.YY
+            Y += arg.admittance
         return Admittance(Y)
 
     @property
-    def ZZ(self):
-        return Impedance(1 / self.YY)
+    def impedance(self):
+        return Impedance(1 / self.admittance)
 
 class Ser(ParSer):
     """Series class"""
@@ -719,13 +719,13 @@ class Ser(ParSer):
 
     @property
     def Admittance(self):
-        return Admittance(1 / self.ZZ)
+        return Admittance(1 / self.impedance)
     
     @property
-    def ZZ(self):
+    def impedance(self):
         Z = 0
         for arg in self.args:
-            Z += arg.ZZ
+            Z += arg.impedance
         return Impedance(Z)
 
     
@@ -1090,7 +1090,7 @@ class Xtal(OnePort):
         self.L1 = cExpr(L1)
         self.C1 = cExpr(C1)
 
-        self._Z = self.expand().ZZ
+        self._Z = self.expand().impedance
         self.args = (C0, R1, L1, C1)
 
     def expand(self):
@@ -1118,7 +1118,7 @@ class FerriteBead(OnePort):
         self.Cp = cExpr(Cp)
         self.Lp = cExpr(Lp)
 
-        self._Z = self.expand().ZZ
+        self._Z = self.expand().impedance
         self.args = (Rs, Rp, Cp, Lp)
 
     def expand(self):

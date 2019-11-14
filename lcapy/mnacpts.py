@@ -317,18 +317,18 @@ class Cpt(ImmitanceMixin):
         return self.Voc.time()    
 
     @property
-    def Y(self):
+    def admittance(self):
         """Self admittance of component.  For the driving point
         admittance measured across the component use .dpY or .oneport().Y"""
 
-        return self.YY
+        return self.admittance
 
     @property
-    def Z(self):
+    def impedance(self):
         """Self impedance of component.  For the driving point impedance
         measured across the component use .dpZ or .oneport().Z"""        
 
-        return self.ZZ
+        return self.impedance
 
     @property
     def dpYs(self):
@@ -336,7 +336,7 @@ class Cpt(ImmitanceMixin):
         component.  For the admittance of the component in isolation
         use .Ys"""
 
-        return self.cct.YY(*self.nodes)
+        return self.cct.admittance(*self.nodes)
 
     @property
     def dpZs(self):
@@ -344,7 +344,7 @@ class Cpt(ImmitanceMixin):
         component.  For the impedance of the component in isolation
         use .Zs"""        
 
-        return self.cct.ZZ(*self.nodes)    
+        return self.cct.impedance(*self.nodes)    
     
     @property
     def dpY(self):
@@ -396,13 +396,13 @@ class Cpt(ImmitanceMixin):
     def _cptYselect(self):
         """Impedance of component in isolation."""
 
-        return self.cpt.YY.select(self.cct.kind)
+        return self.cpt.admittance.select(self.cct.kind)
 
     @property
     def _cptZselect(self):
         """Impedance of component in isolation."""
 
-        return self.cpt.ZZ.select(self.cct.kind)        
+        return self.cpt.impedance.select(self.cct.kind)        
 
     @property
     def cptV0(self):
