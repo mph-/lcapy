@@ -17,52 +17,52 @@ class LcapyTester(unittest.TestCase):
             ans2.pprint()
             raise AssertionError(e)
 
-    def test_Vsuper_properties(self):
-        self.assertEqual(Vsuper(3).is_dc, True, "Vsuper(3).is_dc")
-        self.assertEqual(Vsuper(Vphasor(3)).is_ac, True, "Vsuper(Vphasor(3)).is_ac")
-        self.assertEqual(Vsuper(Vconst(2), Vphasor(3)).is_ac, False,
-                          "Vsuper(Vconst(2), Vphasor(3)).is_ac")
-        self.assertEqual(Vsuper(Vconst(2), Vphasor(3)).is_ac, False,
-                          "Vsuper(Vconst(2), Vphasor(3)).is_dc")
+    def test_Voltage_properties(self):
+        self.assertEqual(Voltage(3).is_dc, True, "Voltage(3).is_dc")
+        self.assertEqual(Voltage(Vphasor(3)).is_ac, True, "Voltage(Vphasor(3)).is_ac")
+        self.assertEqual(Voltage(Vconst(2), Vphasor(3)).is_ac, False,
+                          "Voltage(Vconst(2), Vphasor(3)).is_ac")
+        self.assertEqual(Voltage(Vconst(2), Vphasor(3)).is_ac, False,
+                          "Voltage(Vconst(2), Vphasor(3)).is_dc")
 
-    def test_Vsuper_add_sub_dc(self):
-        self.assertEqual2(Vsuper(3).dc, 3, "Vsuper(3).dc")
-        self.assertEqual2(Vsuper(2, 3).dc, 5, "Vsuper(2, 3).dc")
-        self.assertEqual2(Vsuper(2, 3).ac, {}, "Vsuper(2, 3).ac")
-        self.assertEqual2(-Vsuper(2).dc, -2, "-Vsuper(2).dc")
-        self.assertEqual2(Vsuper(2) + Vsuper(3), Vsuper(5),
-                          "Vsuper(2) + Vsuper(3)")
-        self.assertEqual2(Vsuper(2) - Vsuper(3), Vsuper(-1),
-                          "Vsuper(2) - Vsuper(3)")
+    def test_Voltage_add_sub_dc(self):
+        self.assertEqual2(Voltage(3).dc, 3, "Voltage(3).dc")
+        self.assertEqual2(Voltage(2, 3).dc, 5, "Voltage(2, 3).dc")
+        self.assertEqual2(Voltage(2, 3).ac, {}, "Voltage(2, 3).ac")
+        self.assertEqual2(-Voltage(2).dc, -2, "-Voltage(2).dc")
+        self.assertEqual2(Voltage(2) + Voltage(3), Voltage(5),
+                          "Voltage(2) + Voltage(3)")
+        self.assertEqual2(Voltage(2) - Voltage(3), Voltage(-1),
+                          "Voltage(2) - Voltage(3)")
 
-    def test_Isuper_add_sub_dc(self):
-        self.assertEqual2(Isuper(3).dc, 3, "Isuper(3).dc")
-        self.assertEqual2(Isuper(2, 3).dc, 5, "Isuper(2, 3).dc")
-        self.assertEqual2(Isuper(2, 3).ac, {}, "Isuper(2, 3).ac")
-        self.assertEqual2(-Isuper(2).dc, -2, "-Isuper(2).dc")
-        self.assertEqual2(Isuper(2) + Isuper(3), Isuper(5),
-                          "Isuper(2) + Isuper(3)")
-        self.assertEqual2(Isuper(2) - Isuper(3), Isuper(-1),
-                          "Isuper(2) - Isuper(3)")
+    def test_Current_add_sub_dc(self):
+        self.assertEqual2(Current(3).dc, 3, "Current(3).dc")
+        self.assertEqual2(Current(2, 3).dc, 5, "Current(2, 3).dc")
+        self.assertEqual2(Current(2, 3).ac, {}, "Current(2, 3).ac")
+        self.assertEqual2(-Current(2).dc, -2, "-Current(2).dc")
+        self.assertEqual2(Current(2) + Current(3), Current(5),
+                          "Current(2) + Current(3)")
+        self.assertEqual2(Current(2) - Current(3), Current(-1),
+                          "Current(2) - Current(3)")
         
-    def test_Isuper_mul_div(self):
-        self.assertEqual2(Isuper(3) * Impedance(2), Vsuper(6), "Isuper(3) * Impedance(2)")
-        self.assertEqual2(Isuper(12) / Admittance(2), Vsuper(6), "Isuper(12) / Admittance(2)")
+    def test_Current_mul_div(self):
+        self.assertEqual2(Current(3) * Impedance(2), Voltage(6), "Current(3) * Impedance(2)")
+        self.assertEqual2(Current(12) / Admittance(2), Voltage(6), "Current(12) / Admittance(2)")
 
         
-    def test_Vsuper_mul_div(self):
-        self.assertEqual2(Vsuper(3) * Admittance(2), Isuper(6), "Vsuper(3) * Admittance(2)")
-        self.assertEqual2(Vsuper(12) / Impedance(2), Isuper(6), "Vsuper(12) / Impedance(2)")
+    def test_Voltage_mul_div(self):
+        self.assertEqual2(Voltage(3) * Admittance(2), Current(6), "Voltage(3) * Admittance(2)")
+        self.assertEqual2(Voltage(12) / Impedance(2), Current(6), "Voltage(12) / Impedance(2)")
 
-    def test_Vsuper_noise(self):
+    def test_Voltage_noise(self):
         self.assertEqual((Vn(3) + Vn(4)).expr, Vn(5).expr, "Vn(3) + Vn(4)")
-        self.assertEqual((Vsuper(Vn(3)) + Vsuper(Vn(4))).n.expr,
-                          Vsuper(Vn(5)).n.expr,
-                          "Vsuper(Vn(3)) + Vsuper(Vn(4))")
+        self.assertEqual((Voltage(Vn(3)) + Voltage(Vn(4))).n.expr,
+                          Voltage(Vn(5)).n.expr,
+                          "Voltage(Vn(3)) + Voltage(Vn(4))")
         
-    def test_Vsuper_has(self):
+    def test_Voltage_has(self):
 
-        a = Vsuper('3 * exp(-t) * t * a')
+        a = Voltage('3 * exp(-t) * t * a')
         self.assertEqual(a.has(3), True, "has(3)")
         self.assertEqual(a.has(4), False, "has(4)")
         self.assertEqual(a.has(t), True, "has(t)")
@@ -70,21 +70,21 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.has_symbol('a'), True, "has_symbol(a)")
         self.assertEqual(a.has_symbol('b'), False, "has_symbol(b)")
 
-    def test_Vsuper_transform(self):
+    def test_Voltage_transform(self):
 
-        V1 = Vsuper('3 * exp(-2 * t)')
+        V1 = Voltage('3 * exp(-2 * t)')
         self.assertEqual(V1.transform(s), 3 / (s + 2), 'transform(s)')        
         self.assertEqual(V1.transform(jomega), 3 / (j * omega + 2), 'transform(jomega)')
 
-        V2 = Vsuper('3 * exp(-2 * t) * u(t)')
+        V2 = Voltage('3 * exp(-2 * t) * u(t)')
         self.assertEqual(V2.transform(s), 3 / (s + 2), 'transform(s)')        
         self.assertEqual(V2.transform(jomega), 3 / (j * omega + 2), 'transform(jomega)')
         self.assertEqual(simplify(V2.transform(f) - 3 / (j * 2 * pi * f + 2)), 0, 'transform(f)')                
 
         
-    def test_Vsuper_subs(self):
+    def test_Voltage_subs(self):
 
-        a = Vsuper('V1')
+        a = Voltage('V1')
         b = a.subs('V1', 1)
-        c = Vsuper(1)
-        self.assertEqual(b, c, "Vsuper.subs")
+        c = Voltage(1)
+        self.assertEqual(b, c, "Voltage.subs")

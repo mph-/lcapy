@@ -36,7 +36,7 @@ class noiseExpr(omegaExpr):
     This case is correctly handled by the Super class since each noise
     component is stored and considered separately.
 
-    (Vsuper(a) + Vsuper(b) - Vsuper(b)).n gives 3 as expected.
+    (Voltage(a) + Voltage(b) - Voltage(b)).n gives 3 as expected.
 
     """
     one_sided = True

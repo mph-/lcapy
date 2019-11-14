@@ -284,7 +284,7 @@ explicitly controlled using the `subs` and `transform` methods, for
 example,
 
    >>> from lcapy import *
-   >>> V1 = Vsuper('3 * exp(-2 * t)')
+   >>> V1 = Voltage('3 * exp(-2 * t)')
    >>> V1.transform(s)
      3  
    ─────
@@ -316,7 +316,7 @@ Transformation
 For example:
 
    >>> from lcapy import *
-   >>> V1 = Vsuper('3 * exp(-2 * t)')
+   >>> V1 = Voltage('3 * exp(-2 * t)')
    >>> V1(t)
       -2⋅t
    3⋅e    

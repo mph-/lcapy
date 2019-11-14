@@ -20,7 +20,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 # TODO.   Rethink best way to handle impedances.   These can either be
 # s-domain or omega domain (or DC as a special case where omega = 0).
-# Perhaps alays use Isuper and Vsuper and have these classes
+# Perhaps alays use Current and Voltage and have these classes
 # handle multiplication/division with admittances/impedances?
 
 
@@ -104,9 +104,9 @@ class OnePort(Network, ImmitanceMixin):
         if self._Isc is not None:
             return self._Isc * self.impedance
         if self._Z is not None:        
-            return Vsuper(0)
+            return Voltage(0)
         if self._Y is not None:        
-            return Isuper(0)
+            return Current(0)
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
     
     @property
@@ -124,7 +124,7 @@ class OnePort(Network, ImmitanceMixin):
     @property
     def I(self):
         """Open-circuit current.  Except for a current source this is zero."""
-        return Isuper(0)
+        return Current(0)
 
     @property
     def i(self):
@@ -778,7 +778,7 @@ class L(OnePort):
         self.L = Lval
         self.i0 = i0
         self._Z = Impedance(s * Lval)
-        self._Voc = Vsuper(-Vs(i0 * Lval))
+        self._Voc = Voltage(-Vs(i0 * Lval))
         self.zeroic = self.i0 == 0 
 
 
@@ -803,7 +803,7 @@ class C(OnePort):
         self.C = Cval
         self.v0 = v0
         self._Z = Impedance(1 / (s * Cval))
-        self._Voc = Vsuper(Vs(v0) / s)
+        self._Voc = Voltage(Vs(v0) / s)
         self.zeroic = self.v0 == 0
 
 
@@ -843,7 +843,7 @@ class sV(VoltageSource):
 
         self.args = (Vval, )
         Vval = sExpr(Vval)
-        self._Voc = Vsuper(Vs(Vval))
+        self._Voc = Voltage(Vs(Vval))
 
 
 class V(VoltageSource):
@@ -852,7 +852,7 @@ class V(VoltageSource):
     def __init__(self, Vval):
 
         self.args = (Vval, )
-        self._Voc = Vsuper(Vval)
+        self._Voc = Voltage(Vval)
 
         
 class Vstep(VoltageSource):
@@ -864,7 +864,7 @@ class Vstep(VoltageSource):
 
         self.args = (v, )
         v = cExpr(v)
-        self._Voc = Vsuper(tExpr(v) * Heaviside(t))
+        self._Voc = Voltage(tExpr(v) * Heaviside(t))
         self.v0 = v
 
 
@@ -878,7 +878,7 @@ class Vdc(VoltageSource):
 
         self.args = (v, )
         v = cExpr(v)
-        self._Voc = Vsuper(Vconst(v, dc=True))
+        self._Voc = Voltage(Vconst(v, dc=True))
         self.v0 = v
 
     @property
@@ -918,7 +918,7 @@ class Vac(VoltageSource):
         self.omega = omega
         self.v0 = V
         self.phi = phi
-        self._Voc = Vsuper(Vphasor(self.v0 * exp(j * self.phi),
+        self._Voc = Voltage(Vphasor(self.v0 * exp(j * self.phi),
                                    ac=True, omega=self.omega))
 
     @property
@@ -936,7 +936,7 @@ class Vnoise(VoltageSource):
 
         V1 = Vn(V, nid=nid)
         self.args = (V, V1.nid)
-        self._Voc = Vsuper(V1)
+        self._Voc = Voltage(V1)
 
         
 class v(VoltageSource):
@@ -946,7 +946,7 @@ class v(VoltageSource):
 
         self.args = (vval, )
         Vval = tExpr(vval)
-        self._Voc = Vsuper(Vval)
+        self._Voc = Voltage(Vval)
 
 
 class CurrentSource(OnePort):
@@ -971,7 +971,7 @@ class sI(CurrentSource):
 
         self.args = (Ival, )
         Ival = sExpr(Ival)
-        self._Isc = Isuper(Is(Ival))
+        self._Isc = Current(Is(Ival))
 
 
 class I(CurrentSource):
@@ -980,7 +980,7 @@ class I(CurrentSource):
     def __init__(self, Ival):
 
         self.args = (Ival, )
-        self._Isc = Isuper(Ival)
+        self._Isc = Current(Ival)
 
             
 class Istep(CurrentSource):
@@ -992,7 +992,7 @@ class Istep(CurrentSource):
 
         self.args = (i, )
         i = cExpr(i)
-        self._Isc = Isuper(tExpr(i) * Heaviside(t))
+        self._Isc = Current(tExpr(i) * Heaviside(t))
         self.i0 = i
 
 
@@ -1006,7 +1006,7 @@ class Idc(CurrentSource):
 
         self.args = (i, )
         i = cExpr(i)
-        self._Isc = Isuper(Iconst(i, dc=True))
+        self._Isc = Current(Iconst(i, dc=True))
         self.i0 = i
 
     @property
@@ -1044,7 +1044,7 @@ class Iac(CurrentSource):
         self.omega = omega
         self.i0 = I
         self.phi = phi
-        self._Isc = Isuper(Iphasor(self.i0 * exp(j * self.phi),
+        self._Isc = Current(Iphasor(self.i0 * exp(j * self.phi),
                                    ac=True, omega=self.omega))
 
     @property
@@ -1061,7 +1061,7 @@ class Inoise(CurrentSource):
     def __init__(self, I, nid=None):
 
         I1 = In(I, nid=nid)
-        self._Isc = Isuper(I1)
+        self._Isc = Current(I1)
         self.args = (I, I1.nid)
 
         
@@ -1072,7 +1072,7 @@ class i(CurrentSource):
 
         self.args = (ival, )
         Ival = tExpr(ival)
-        self._Isc = Isuper(Ival)
+        self._Isc = Current(Ival)
 
 
 class Xtal(OnePort):
@@ -1176,7 +1176,7 @@ from .cexpr import cExpr, Iconst, Vconst
 from .sexpr import sExpr, Is, Vs, Ys, Zs
 from .texpr import tExpr
 from .noiseexpr import In, Vn
-from .super import Isuper, Vsuper
+from .super import Current, Voltage
 from .phasor import Iphasor, Vphasor
 from .twoport import Ladder, LSection, TSection
 

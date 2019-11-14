@@ -13,7 +13,7 @@ from __future__ import division
 from .sexpr import Hs, Zs, Ys
 from .symbols import j, s, omega
 from .context import Context
-from .super import Vsuper, Isuper, Vname, Iname
+from .super import Voltage, Current, Vname, Iname
 from .schematic import Schematic, Opts, SchematicOpts
 from .mna import MNA, Nodedict, Branchdict
 from .statespace import StateSpace
@@ -1345,7 +1345,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         for sub in self.sub.values():
             for node, value in sub.Vdict.items():
                 if node not in result:
-                    result[node] = Vsuper()
+                    result[node] = Voltage()
                 result[node].add(value)
 
         self._Vdict = result
@@ -1364,7 +1364,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         for sub in self.sub.values():
             for node, value in sub.Idict.items():
                 if node not in result:
-                    result[node] = Isuper()
+                    result[node] = Current()
                 result[node].add(value)
         self._Idict = result                    
         return result    
@@ -1372,7 +1372,7 @@ class Netlist(NetlistMixin, NetfileMixin):
     def get_I(self, name):
         """Current through component"""
 
-        result = Isuper()
+        result = Current()
         for sub in self.sub.values():
             I = sub.get_I(name)
             result.add(I)
@@ -1392,7 +1392,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         if isinstance(Np, int):
             Np = '%s' % Np            
 
-        result = Vsuper()
+        result = Voltage()
         for sub in self.sub.values():
             Vd = sub.get_Vd(Np, Nm)
             result.add(Vd)

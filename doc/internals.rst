@@ -23,7 +23,7 @@ Sub-circuits
 When a circuit contains independent sources of different types, e.g.,
 AC and DC, it decomposes the circuit into a sub-circuits for each
 type.  These are evaluated independently and the results superimposed
-using the `Vsuper` class for voltages and the `Isuper` class for
+using the `Voltage` class for voltages and the `Current` class for
 currents.
 
 
@@ -104,9 +104,9 @@ Super classes
 default representation for calculated results from circuit analysis.
 There are two classes that inherit from `Super`:
 
-`Vsuper` represents a superposition of voltages.
+`Voltage` represents a superposition of voltages.
 
-`Isuper` represents a superposition of currents.
+`Current` represents a superposition of currents.
 
 
 Container classes

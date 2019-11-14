@@ -107,7 +107,7 @@ class NodalAnalysis(object):
                 n1 = self.G.node_map[elt.nodes[0]]
                 n2 = self.G.node_map[elt.nodes[1]]
 
-                V = Vsuper(elt.voc).select(self.cct.kind)
+                V = Voltage(elt.voc).select(self.cct.kind)
                 
                 eq = Eq(self.ydict[n1], self.ydict[n2] + V)
 
@@ -151,5 +151,5 @@ class NodalAnalysis(object):
 
 from .expr import Expr, ExprDict, expr
 from .texpr import Vt
-from .super import Vsuper
+from .super import Voltage
 from .matrix import matrix

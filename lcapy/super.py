@@ -5,7 +5,7 @@ from .acdc import is_ac
 from .printing import pprint, pretty, latex
 import six
 
-__all__ = ('Super', 'Vsuper', 'Isuper')
+__all__ = ('Super', 'Voltage', 'Current')
 
 class Super(ExprDict):
     """This class represents a superposition of different signal types:
@@ -27,7 +27,7 @@ class Super(ExprDict):
     each of the noise components in quadrature since they are
     independent.
 
-    For example, consider V = Vsuper('cos(3 * t) + exp(-4 * t) + 5')
+    For example, consider V = Voltage('cos(3 * t) + exp(-4 * t) + 5')
 
     str(V(t)) gives 'cos(3*t) + 5 + exp(-4*t)'
 
@@ -623,7 +623,7 @@ class Super(ExprDict):
         return new
 
 
-class Vsuper(Super):
+class Voltage(Super):
 
     def __init__(self, *args, **kwargs):
         self.type_map = {cExpr: Vconst, sExpr : Vs, noiseExpr: Vn,
@@ -633,7 +633,7 @@ class Vsuper(Super):
         self.time_class = Vt
         self.laplace_class = Vs    
 
-        super (Vsuper, self).__init__(*args, **kwargs)
+        super (Voltage, self).__init__(*args, **kwargs)
         
     def __rmul__(self, x):
         return self.__mul__(x)
@@ -648,13 +648,13 @@ class Vsuper(Super):
             (type(self).__name__, type(x).__name__))
 
         if not isinstance(x, Admittance):
-            raise TypeError("Unsupported types for *: 'Vsuper' and '%s'" %
+            raise TypeError("Unsupported types for *: 'Voltage' and '%s'" %
                             type(x).__name__)
         obj = self
         if x.has(s):
             obj = self.decompose()
         
-        new = Isuper()
+        new = Current()
         if 'dc' in obj:
             # TODO, fix types
             new += Iconst(obj['dc'] * cExpr(x.jomega(0)))
@@ -678,7 +678,7 @@ class Vsuper(Super):
 Cannot divide types %s and %s.  You need to extract a specific component, e.g., a.s / b.s.  If you want a transfer function use a.laplace() / b.laplace()""" % (type(self).__name__, type(x).__name__))
 
         if not isinstance(x, Impedance):
-            raise TypeError("Unsupported types for /: 'Vsuper' and '%s'" %
+            raise TypeError("Unsupported types for /: 'Voltage' and '%s'" %
                             type(x).__name__)
         return self * Admittance(1 / x)
 
@@ -690,7 +690,7 @@ Cannot divide types %s and %s.  You need to extract a specific component, e.g., 
         # Perhaps should generate more specific components such as Vdc?
         return V(self.time())
 
-class Isuper(Super):
+class Current(Super):
 
     def __init__(self, *args, **kwargs):    
 
@@ -701,7 +701,7 @@ class Isuper(Super):
         self.time_class = It
         self.laplace_class = Is
 
-        super (Isuper, self).__init__(*args, **kwargs)
+        super (Current, self).__init__(*args, **kwargs)
 
     def __rmul__(self, x):
         return self.__mul__(x)
@@ -716,13 +716,13 @@ class Isuper(Super):
             (type(self).__name__, type(x).__name__))
         
         if not isinstance(x, Impedance):
-            raise TypeError("Unsupported types for *: 'Isuper' and '%s'" %
+            raise TypeError("Unsupported types for *: 'Current' and '%s'" %
                             type(x).__name__)
         obj = self
         if x.has(s):
             obj = self.decompose()
 
-        new = Vsuper()
+        new = Voltage()
         if 'dc' in obj:
             # TODO, fix types
             new += Vconst(obj['dc'] * cExpr(x.jomega(0)))
@@ -746,7 +746,7 @@ class Isuper(Super):
             (type(self).__name__, type(x).__name__))
 
         if not isinstance(x, Admittance):
-            raise TypeError("Unsupported types for /: 'Isuper' and '%s'" %
+            raise TypeError("Unsupported types for /: 'Current' and '%s'" %
                             type(x).__name__)
         return self * Impedance(1 / x)
 
