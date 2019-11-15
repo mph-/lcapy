@@ -12,7 +12,6 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from .sexpr import Hs, Zs, Ys
 from .symbols import j, s, omega
-from .context import Context
 from .voltage import Voltage, Vname
 from .current import Current, Iname
 from .schematic import Schematic, Opts, SchematicOpts
@@ -224,7 +223,7 @@ class NetlistMixin(object):
         self.namespaces = {}
         self.nodes = AttrDict()
         if context is None:
-            context = Context()
+            context = state.new_context()
         
         self.context = context
         self._init_parser(mnacpts)
@@ -1451,7 +1450,7 @@ class SubNetlist(NetlistMixin, MNA):
 
         obj = netlist.select(kind=kind)
         # Need own context to avoid conflicts with Vn1 and Vn1(s), etc.
-        obj.context = Context()        
+        obj.context = state.new_context()
         obj.kind = kind
         obj.__class__ = cls
         obj._analysis = obj.analyse()

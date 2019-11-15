@@ -7,6 +7,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from sympy.assumptions.assume import global_assumptions
 
 from .context import Context
+from copy import copy
 
 class State(object):
 
@@ -15,6 +16,12 @@ class State(object):
         self.context = self.global_context
         self.previous_context = []
 
+    def new_context(self):
+
+        context = Context()
+        context.symbols = copy(self.global_context.symbols)
+        return context
+        
     def switch_context(self, context):
 
         self.previous_context.append(self.context)
@@ -23,7 +30,6 @@ class State(object):
         global_assumptions.clear()
         global_assumptions.update(self.context.assumptions)
 
-        
     def restore_context(self):
 
         self.context.assumptions.update(global_assumptions)
