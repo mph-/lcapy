@@ -8,8 +8,8 @@ V1 = Voltage('1 + 2 * cos(2 * pi * 3 * t) + 3 * u(t)')
 
 V1(t) returns the time domain expression
 V1(s) returns the Laplace domain expression
-V(omega) returns the Fourier domain expression with angular frequency
-V(f) returns the Fourier domain expression with linear frequency
+V1(omega) returns the Fourier domain expression with angular frequency
+V1(f) returns the Fourier domain expression with linear frequency
 
 V1.dc returns the DC component
 V1.ac returns a dictionary of the AC components, keyed by the frequency
@@ -48,7 +48,7 @@ class Voltage(Super):
             return self.__scale__(x)
 
         if isinstance(x, Super):
-            raise TypeError('Cannot multiply types %s and %s. '
+            raise TypeError('Cannot multiply %s by %s. '
             'You need to extract a specific component, e.g., a.s * b.s' %
             (type(self).__name__, type(x).__name__))
 

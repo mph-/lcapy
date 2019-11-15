@@ -158,7 +158,7 @@ class Super(ExprDict):
 
     @property
     def has_t(self):
-        """True if have transient component defined in the time-domain."""        
+        """True if have transient component defined in the time-domain."""
         return 't' in self
 
     @property
@@ -627,6 +627,10 @@ class Super(ExprDict):
 
         return new
 
+    def oneport(self):
+        """Create oneport component."""
+        return self.cpt()
+    
 from .cexpr import cExpr        
 from .fexpr import fExpr    
 from .sexpr import sExpr

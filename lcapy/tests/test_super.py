@@ -95,3 +95,16 @@ class LcapyTester(unittest.TestCase):
         V1 = Voltage('1 + 3 * u(t) + cos(2 * pi * 3 * t)')
         self.assertEqual(V1.dc, 1, '.dc')
         self.assertEqual(V1.transient, expr('3 * u(t)'), '.transient')
+
+    def test_Voltage_oneport(self):
+
+        V1 = V(3)
+
+        self.assertEqual(V1.V.oneport().V, V1.V, 'oneport')
+
+    def test_Current_oneport(self):
+
+        I1 = I(3)
+
+        self.assertEqual(I1.I.oneport().I, I1.I, 'oneport')                
+        

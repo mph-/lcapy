@@ -413,6 +413,76 @@ Here's an example,
    C⋅L⋅s  + C⋅s⋅(R₁ + R₂) + 1
 
 
+Immitances
+==========
+
+Immitances are represented using the `Impedance` and `Admittance` classes.
+
+
+Immitance attributes
+--------------------
+
+- `B` susceptance
+
+- `G` conductance    
+  
+- `R` resistance
+
+- `X` reactance
+  
+- `Y` admittance
+
+- `Z` impedance
+
+
+Immitance methods
+-----------------
+  
+- `oneport()` returns a `Oneport` object corresponding to the immitance.  This may be a `R`, `C`, `L`, `G`, `Y`, or `Z` object.
+
+
+
+Voltages and currents
+=====================
+
+Voltages and currents are represented using the `Voltage` and
+`Current` classes.  These classes have similar behaviour; they
+represent an arbitrary voltage or current signal as a superposition of
+DC, AC, and transient signals.
+
+For example, the following expression is a superposition of a DC
+component, an AC component, and a transient component:
+
+   >>> V1 = Voltage('1 + 2 * cos(2 * pi * 3 * t) + 3 * u(t)')
+
+The signal can be coverted to another domain using:
+
+- `V1(t)` returns the time domain expression
+- `V1(s)` returns the Laplace domain expression
+- `V1(omega)` returns the Fourier domain expression with angular frequency
+- `V1(f)` returns the Fourier domain expression with linear frequency
+
+
+Voltage and current attributes
+------------------------------
+
+- `dc` returns the DC component
+- `ac` returns a dictionary of the AC components, keyed by the frequency
+- `transient` returns the time-domain transient component
+- `is_dc` returns True if a pure DC signal
+- `is_ac` returns True if a pure AC signal
+- `is_transient` returns True if a pure transient signal
+- `has_dc` returns True if has a DC signal
+- `has_ac` returns True if has an AC signal
+- `has_transient` returns True if has a transient signal
+
+
+Voltage and current methods
+---------------------------
+
+- `oneport()` returns a `Oneport` object corresponding to the immitance.  This may be a `V` or `I` object.
+
+
 Netlist evaluation
 ==================
 

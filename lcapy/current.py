@@ -8,8 +8,8 @@ I1 = Current('1 + 2 * cos(2 * pi * 3 * t) + 3 * u(t)')
 
 I1(t) returns the time domain expression
 I1(s) returns the Laplace domain expression
-I(omega) returns the Fourier domain expression with angular frequency
-I(f) returns the Fourier domain expression with linear frequency
+I1(omega) returns the Fourier domain expression with angular frequency
+I1(f) returns the Fourier domain expression with linear frequency
 
 I1.dc returns the DC component
 I1.ac returns a dictionary of the AC components, keyed by the frequency

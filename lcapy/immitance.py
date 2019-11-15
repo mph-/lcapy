@@ -72,6 +72,10 @@ class Immitance(sExpr):
         """Susceptance."""
         return -self.Yw.imag    
 
+    def oneport(self):
+        """Create oneport component."""
+        return self.cpt()
+
     
 class ImmitanceMixin(object):
 
