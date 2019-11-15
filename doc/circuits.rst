@@ -124,8 +124,8 @@ analysed using phasors and impedances.  The use of impedances avoids
 solving integro-differential equations in the time domain.
 
 
-Laplace analysis
-----------------
+Transient analysis
+------------------
 
 The response due to a transient excitation from an independent source
 can be analysed using Laplace analysis.  Since the unilateral
