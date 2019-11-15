@@ -10,7 +10,7 @@ are cleared whenever a netlist is modified.
 Circuits
 ========
 
-Circuits are represented using netlists of `Mnacpt`s.  These are
+Circuits are represented using netlists of `Mnacpt` classes.  These are
 wrappers around `Oneport` classes.  Analysis is performed with
 modified nodal analysis (MNA).  State-space representations can be
 generated but this is not used for calculating node voltages or branch
@@ -77,6 +77,10 @@ complex.
 
 `noiseExpr` represents a noise expression (amplitude spectral
 density).  This is real.
+
+`Impedance` represents a generalized impedance.
+
+`Admittance` represents a generalized admittance.
 
 
 Expressions with units
@@ -278,7 +282,7 @@ The Python debugger (pdb) can be invoked when a unit test fails using::
    
 
 Expressions
------------
+===========
 
 The underlying SymPy expression can be found with the `.expr`
 attribute.  The Lcapy assumptions are listed with the `.assumptions`
