@@ -71,73 +71,78 @@ Lcapy has the following built-in functions: `sin`, `cos`, `tan`,
 `atan`, `atan2`, `gcd`, `exp`, `sqrt`, `log`, `log10`, `Heaviside`,
 `H`, `u`, `DiracDelta`, `delta`, and `conjugate`.
 
+Other SymPy functions can be converted to Lcapy functions using the
+`Function` class, for example:
+
+   >>> gamma = Function(sym.gamma)   
+
 
 Attributes
 ==========
 
 All Lcapy expressions have the following attributes:
 
-- `abs` return absolute value
+- `abs` returns absolute value
 
-- `angle` return phase angle (radians)
+- `angle` returns phase angle (radians)
   
-- `cartesian` return expression in form `real + j * imag`
+- `cartesian` returns expression in form `real + j * imag`
 
-- `conjugate` return complex conjugate
+- `conjugate` returns complex conjugate
 
-- `dB` return magnitude in decibels: `20 * log10(magnitude)`
+- `dB` returns magnitude in decibels: `20 * log10(magnitude)`
 
-- `degree` return degree of rational function (maximum of numerator and denominator degrees)
+- `degree` returns degree of rational function (maximum of numerator and denominator degrees)
   
-- `D` return denominator
+- `D` returns denominator
 
-- `Ddegree` return degree of denominator
+- `Ddegree` returns degree of denominator
 
-- `denominator` return denominator
+- `denominator` returns denominator
 
-- `degree` return degree (order).  If expression is a rational function the degree is the maximum degree of the numerator and denominator.
+- `degree` returns degree (order).  If expression is a rational function the degree is the maximum degree of the numerator and denominator.
 
-- `domain_label` return string describing domain of expression
+- `domain_label` returns string describing domain of expression
   
-- `evalf` return floating point number if expression can be evaluated
+- `evalf` returns floating point number if expression can be evaluated
 
-- `imag` return imaginary part
+- `imag` returns imaginary part
 
-- `is_ac` return True if AC signal
+- `is_ac` returns True if AC signal
 
-- `is_causal` return True if signal is causal, i.e, is 0 for :math:`t < 0`
+- `is_causal` returns True if signal is causal, i.e, is 0 for :math:`t < 0`
 
-- `is_constant` return True if expression constant
+- `is_constant` returns True if expression constant
 
-- `is_dc` return True if DC signal    
+- `is_dc` returns True if DC signal    
 
-- `is_number` return True if expression is a number
+- `is_number` returns True if expression is a number
 
-- `label` return string describing expression to use as a plot label
+- `label` returns string describing expression to use as a plot label
 
-- `magnitude` return absolute value  
+- `magnitude` returns absolute value  
 
-- `N` return numerator
+- `N` returns numerator
 
-- `Ndegree` return degree of numerator    
+- `Ndegree` returns degree of numerator    
 
-- `numerator` return numerator
+- `numerator` returns numerator
 
-- `phase` return phase (radians)
+- `phase` returns phase (radians)
 
-- `phase_degrees` return phase (degrees)    
+- `phase_degrees` returns phase (degrees)    
 
-- `polar` return expression in form `mag * exp(j * phase)`
+- `polar` returns expression in form `mag * exp(j * phase)`
 
-- `real` return real part  
+- `real` returns real part  
 
-- `real_imag` return expression in form `real + j * imag`
+- `real_imag` returns expression in form `real + j * imag`
 
-- `sign` return sign
+- `sign` returns sign
 
-- `strictly_proper` return True if degree of denominator greater than degree of numerator
+- `strictly_proper` returns True if degree of denominator greater than degree of numerator
   
-- `symbols` return dictionary of symbols used in the expression keyed by their names
+- `symbols` returns dictionary of symbols used in the expression keyed by their names
   
 
 Methods
@@ -146,23 +151,23 @@ Methods
 Poles and zeros
 ---------------
 
-- `coeffs` return list of coefficients if expression is a polynomial; the highest powers come first.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
+- `coeffs()` returns list of coefficients if expression is a polynomial; the highest powers come first.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
 
-- `normcoeffs` return list of coefficients if expression is a polynomial; the highest powers come first.  The coefficients are normalised so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
+- `normcoeffs()` returns list of coefficients if expression is a polynomial; the highest powers come first.  The coefficients are normalised so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
 
-- `poles` return poles of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the poles.   
+- `poles()` returns poles of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the poles.   
 
-- `roots` return roots of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the roots.
+- `roots(s)` returns roots of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the roots.
 
-- `zeros` return zeros of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the zeros.   
+- `zeros()` returns zeros of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the zeros.   
   
 
 Miscellaneous
 -------------
 
-- `initial_value` return result at :math:`t = 0`
+- `initial_value()` returns result at :math:`t = 0`
 
-- `final_value` return result at :math:`t = oo`  
+- `final_value()` returns result at :math:`t = oo`  
 
   
 
@@ -243,13 +248,13 @@ This expresses the rational function in gain-time constant form.
 Printing methods
 ----------------
 
-- `pprint` pretty print an expression
+- `pprint()` pretty print an expression
 
-- `latex`  convert an expression to LaTeX string representation
+- `latex()`  convert an expression to LaTeX string representation
 
-- `pretty` convert an expression to a string with a prettified form
+- `pretty()` convert an expression to a string with a prettified form
 
-- `plot` plot the expression, provided there are no free symbols
+- `plot()` plot the expression, provided there are no free symbols
   
 
 SymPy methods
@@ -258,17 +263,17 @@ SymPy methods
 If Lcapy does not have a method defined but the underlying SymPy
 expression does, the SymPy method is used.  For example,
 
-- `diff`
+- `diff()`
 
-- `simplify`
+- `simplify()`
   
    
 Utility functions
 =================
 
-- `symbol`  create a symbol
+- `symbol()`  create a symbol
 
-- `expr` create an expression.  This can also create lists, tuples, and dictionaries of expressions.
+- `expr()` create an expression.  This can also create lists, tuples, and dictionaries of expressions.
 
 Note, sympy does not allow symbol names that are Python keywords.  For example,
 `expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.
@@ -366,7 +371,7 @@ Phasors
 Phasors represent signals of the form :math:`v(t) = A \cos(\omega t +
 \phi)` as a complex amplitude :math:`X = A \exp(\mathrm{j} \phi)` where
 :math:`A` is the amplitude, :math:`\phi` is the phase, and the angular
-frequency, :math:`\omega` is implied.
+frequency, :math:`\omega`, is implied.
 
 The signal :math:`v(t) = A \sin(\omega t)` has a phase
 :math:`\phi=-\pi/2`.
