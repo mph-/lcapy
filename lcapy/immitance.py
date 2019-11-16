@@ -5,6 +5,7 @@ Copyright 2019 Michael Hayes, UCECE
 
 """
 
+from .expr import expr
 from .cexpr import cExpr
 from .sexpr import sExpr
 from .omegaexpr import omegaExpr
@@ -15,6 +16,10 @@ class Immitance(sExpr):
     
     def __init__(self, val, kind=None, causal=True, **assumptions):
 
+        val = expr(val)
+        if isinstance(val, omegaExpr):
+            val = val.subs(omega, s / j)
+        
         super(Immitance, self).__init__(val, causal=causal, **assumptions)
         self.kind = kind
 
@@ -101,7 +106,16 @@ class ImmitanceMixin(object):
 
     @property
     def G(self):
-        """Conductance."""
+        """Conductance.
+        
+        Note Y = G + j * B = 1 / Z = 1 / (R + j * X)
+        and so G = R / (R**2 + X**2).
+
+        Thus for DC, when X = 0, then G = 1 / R and is infinite for R
+        = 0.  Hower, if Z is purely imaginary, i.e, R = 0 then G = 0,
+        not infinity as might be expected.
+
+        """
         return self.Yw.real
 
     @property

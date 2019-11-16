@@ -9,7 +9,25 @@ from .symbols import s
 from .immitance import Immitance
 
 class Admittance(Immitance):    
-    """Generic admittance class."""
+    """Generic admittance class.
+
+    Y(omega) = G(omega) + j * B(omega)
+
+    where G is the conductance and B is the susceptance.
+
+    Admittance is the reciprocal of impedance,
+
+    Z(omega) = 1 / Y(omega)
+
+    """
+
+    @property
+    def Y(self):
+        return self    
+    
+    @property
+    def Z(self):
+        return 1 / self
 
     @property
     def Yw(self):

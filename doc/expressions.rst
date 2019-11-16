@@ -3,7 +3,7 @@ Expressions
 ===========
 
 Lcapy expressions are similar to SymPy expressions except they have a
-specific domain depending on the predefined variables `t`, `s`, `f`,
+specific domain depending on the predefined domain variables `t`, `s`, `f`,
 `omega`, and `jomega`.
 
 
@@ -25,10 +25,10 @@ Constants
 - `zoo` complex infinity
 
 
-Variables
----------
+Domain variables
+----------------
 
-Lcapy has five predefined variables:
+Lcapy has five predefined domain variables:
 
 - `s` Laplace domain complex frequency
 
@@ -278,10 +278,10 @@ Transformation and substitution
 ===============================      
 
 Substitution and transformation use a similar syntax `V(arg)`.  If
-`arg` is `t`, `f`, `s`, `omega`, or `jomega`, transformation is
-performed, otherwise substitution is performed.  This behaviour can be
-explicitly controlled using the `subs` and `transform` methods, for
-example,
+`arg` is a domain variable `t`, `f`, `s`, `omega`, or `jomega`,
+transformation is performed, otherwise substitution is performed.
+This behaviour can be explicitly controlled using the `subs` and
+`transform` methods, for example,
 
    >>> from lcapy import *
    >>> V1 = Voltage('3 * exp(-2 * t)')
@@ -375,8 +375,49 @@ The signal :math:`v(t) = A \sin(\omega t)` has a phase
 Immitances
 ==========
 
-Immitances are represented using the `Impedance` and `Admittance` classes.
+Immitances (impedances and admittances) are represented using the
+`Impedance` and `Admittance` classes.  They are primarily for internal
+use.
 
+Immitances can be initialised using either `omega` -domain or
+`s` -domain expressions, for example:
+
+   >>> Z1 = Impedance(5 * s)
+   >>> Z2 = Impedance(5 * j * omega)
+
+The impedance can be converted to a specific domain using a domain variable
+as an argument.  For example,
+
+   >>> Z1(s)
+   >>> Z1(omega)
+
+The time-domain representation of the immitance is the inverse Laplace
+transform of the s-domain immittance, for example:
+
+   >>> Impedance(1 / s)(t)
+   Heaviside(t)
+   >>> Impedance(1)(t)
+   δ(t)
+   >>> Impedance(s)(t)
+    (1)    
+   δ    (t)
+
+The common way for creating an `Immitance` uses the `Y` or `Z` attribute of a
+`Oneport` component, for example:
+
+   >>> C(3).Z
+   -ⅉ 
+   ───
+   3⋅ω
+
+   >>> C(3).Z(s)
+    1 
+   ───
+   3⋅s
+   >>> C(3).Y(s)
+   3⋅s
+
+   
 
 Immitance attributes
 --------------------
@@ -400,7 +441,6 @@ Immitance methods
 - `oneport()` returns a `Oneport` object corresponding to the immitance.  This may be a `R`, `C`, `L`, `G`, `Y`, or `Z` object.
 
 
-
 Voltages and currents
 =====================
 
@@ -414,12 +454,15 @@ component, an AC component, and a transient component:
 
    >>> V1 = Voltage('1 + 2 * cos(2 * pi * 3 * t) + 3 * u(t)')
 
-The signal can be coverted to another domain using:
+The signal can be converted to another domain using a domain variable
+as an argument:
 
 - `V1(t)` returns the time domain expression
+- `V1(f)` returns the Fourier domain expression with linear frequency
 - `V1(s)` returns the Laplace domain expression
 - `V1(omega)` returns the Fourier domain expression with angular frequency
-- `V1(f)` returns the Fourier domain expression with linear frequency
+- `V1(jomega)` returns the Fourier domain expression with angular frequency    
+
 
 
 Voltage and current attributes

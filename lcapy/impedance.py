@@ -10,8 +10,26 @@ from .symbols import s
 from .immitance import Immitance
 
 class Impedance(Immitance):
-    """Generic impedance class."""
+    """Generic impedance class.
 
+    Z(omega) = R(omega) + j * X(omega)
+
+    where R is the resistance and X is the reactance.
+
+    Impedance is the reciprocal of admittance,
+
+    Y(omega) = 1 / Z(omega)
+
+    """
+
+    @property
+    def Y(self):
+        return 1 / self
+    
+    @property
+    def Z(self):
+        return self    
+    
     @property
     def Yw(self):
         return 1 / self.Zw

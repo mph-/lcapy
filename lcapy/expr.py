@@ -513,6 +513,9 @@ class Expr(ExprPrint, ExprMisc):
         if cls in (Expr, cExpr):
             return xcls, cls(self), x, assumptions
 
+        if cls in (Impedance, Admittance) and isinstance(x, omegaExpr):
+            return cls, self, cls(x), assumptions        
+
         raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' %
                          (cls.__name__, self, xcls.__name__, x, op))
 
