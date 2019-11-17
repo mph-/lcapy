@@ -391,6 +391,12 @@ class Cpt(ImmitanceMixin):
         """Initial voltage (for capacitors only)."""
 
         return 0
+
+    @property
+    def cptI0(self):
+        """Initial current (for inductors only)."""
+
+        return 0    
     
     @property
     def node_indexes(self):
@@ -884,6 +890,14 @@ class L(RLC):
     need_branch_current = True
     reactive = True
 
+    @property
+    def cptI0(self):
+        """Initial current (for capacitors only)."""
+
+        if self.cct.kind == 'ivp' and self.cpt.hasic:
+            return self.cpt.i0 / s
+        return 0
+    
     @property
     def L(self):
         return self.cpt.L
