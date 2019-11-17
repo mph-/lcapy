@@ -321,14 +321,14 @@ class Cpt(ImmitanceMixin):
         """Self admittance of component.  For the driving point
         admittance measured across the component use .dpY or .oneport().Y"""
 
-        return self.admittance
+        return self.cpt.admittance
 
     @property
     def impedance(self):
         """Self impedance of component.  For the driving point impedance
         measured across the component use .dpZ or .oneport().Z"""        
 
-        return self.impedance
+        return self.cpt.impedance
 
     @property
     def dpYs(self):

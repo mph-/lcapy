@@ -34,7 +34,7 @@ class Branchdict(ExprDict):
     pass
     
 
-class MNA(object):
+class MNAMixin(object):
     """This class performs modified nodal analysis (MNA) on a netlist of
     components.  There are several variants:
     

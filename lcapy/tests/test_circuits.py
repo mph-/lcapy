@@ -40,6 +40,13 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(
             a.Y(1, 0), (R('R1') + C('C1')).Y, "Y incorrect for R1 + C1.")
         self.assertEqual2(a.Isc(1, 0), I(0).Isc, "Isc incorrect")
+        self.assertEqual(a.R1.Z, expr('R1'), "Z incorrect")
+        self.assertEqual(a.R1.R, expr('R1'), "R incorrect")
+        self.assertEqual(a.R1.X, 0, "X incorrect")
+        self.assertEqual(a.C1.Y, expr('j * omega * C1'), "Y incorrect")
+        self.assertEqual(a.C1.G, 0, "G incorrect")
+        self.assertEqual(a.C1.B, expr('-omega * C1'), "B incorrect")        
+        
 
     def test_VRC1(self):
         """Lcapy: check VRC circuit

@@ -15,7 +15,7 @@ from .symbols import j, s, omega
 from .voltage import Voltage, Vname
 from .current import Current, Iname
 from .schematic import Schematic, Opts, SchematicOpts
-from .mna import MNA, Nodedict, Branchdict
+from .mna import MNAMixin, Nodedict, Branchdict
 from .statespace import StateSpace
 from .netfile import NetfileMixin
 from .expr import Expr
@@ -1442,7 +1442,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         return SubNetlist(self, 'laplace')    
     
     
-class SubNetlist(NetlistMixin, MNA):
+class SubNetlist(NetlistMixin, MNAMixin):
     """This is a representation of a netlist for a particular
     transformation domain, such as ac, dc, transient, or noise."""
 
