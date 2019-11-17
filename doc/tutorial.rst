@@ -38,8 +38,8 @@ Conventions
 ===========
 
 Lcapy uses the passive sign convention.  Thus for a passive device (R,
-L, C), current flows into the positive node, and for an active device (V, I),
-currents flows out of the positive node.
+L, C), current flows into the positive node, and for a source (V, I),
+current flows out of the positive node.
 
 .. image:: examples/netlists/VIRLC.png
    :width: 15cm

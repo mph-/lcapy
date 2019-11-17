@@ -116,7 +116,7 @@ class ImmitanceMixin(object):
         and so G = R / (R**2 + X**2).
 
         Thus for DC, when X = 0, then G = 1 / R and is infinite for R
-        = 0.  Hower, if Z is purely imaginary, i.e, R = 0 then G = 0,
+        = 0.  However, if Z is purely imaginary, i.e, R = 0 then G = 0,
         not infinity as might be expected.
 
         """

@@ -269,17 +269,35 @@ Component attributes
 
 Each Component object has a number of attributes, including:
 
-- `Voc` transform-domain open-circuit voltage
+- `V` transform-domain voltage across component
+  
+- `I` transform-domain current through component
 
-- `Isc` transform-domain short-circuit current
+- `v` t-domain voltage across component
+  
+- `i` t-domain current through component
 
-- `I` transform-domain current through network terminals (zero by definition)
+Lcapy uses the passive sign convention.  Thus for a passive device (R,
+L, C), current flows into the positive node, and for a source (V, I),
+current flows out of the positive node.
 
-- `voc` t-domain open-circuit voltage
+Note, the above attributes are influenced by other components in the
+circuit.  The following attributes assume that the component is not in
+circuit:
+  
+- `Voc` transform-domain open-circuit voltage; it is zero for passive
+  components and infinite for current sources
 
-- `isc` t-domain short-circuit current
+- `Isc` transform-domain short-circuit current (the current flowing
+  through the component when it is short-circuited); it is zero for
+  passive components and infinite for voltage sources
 
-- `isc` t-domain current through network terminals (zero by definition)
+- `voc` t-domain open-circuit voltage; it is zero for passive
+  components and infinite for current sources
+
+- `isc` t-domain short-circuit current (the current flowing through
+  the component when it is short-circuited); it is zero for passive
+  components and infinite for voltage sources
 
 - `B` susceptance
 

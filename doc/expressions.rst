@@ -377,6 +377,8 @@ The signal :math:`v(t) = A \sin(\omega t)` has a phase
 :math:`\phi=-\pi/2`.
       
 
+.. _immitances:
+      
 Immitances
 ==========
 
@@ -439,6 +441,31 @@ Immitance attributes
 
 - `Z` impedance
 
+Impedance is related to resistance and reactance by
+  
+:math:`Z = R + \mathrm{j} X`
+
+Admittance is related to conductance and susceptance by      
+
+:math:`Y = G + \mathrm{j} B`
+        
+Since admittance is the reciprocal of impedance,
+
+:math:`Y = \frac{1}{Z} = \frac{R}{R^2 + X^2} - \mathrm{j} \frac{X}{R^2 + X^2}`
+
+Thus
+
+:math:`G = \frac{R}{R^2 + X^2}`
+
+and
+
+:math:`B = \frac{-X}{R^2 + X^2}`      
+      
+      
+Note, at DC, when :math:`X = 0`, then :math:`G = 1 / R` and is
+infinite for :math:`R= 0`.  Hower, if Z is purely imaginary, i.e,
+:math:`R = 0` then :math:`G = 0`, not infinity as might be expected.
+  
 
 Immitance methods
 -----------------
