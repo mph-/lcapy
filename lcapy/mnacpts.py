@@ -292,112 +292,114 @@ class Cpt(ImmitanceMixin):
 
     @property
     def Isc(self):
-        """Short-circuit current, i.e, current in wire connected across
-        component."""
+        """Short-circuit current for component in isolation, i.e, current in
+        wire connected across component."""
 
         return self.cpt.Isc.select(self.cct.kind)
 
     @property
     def isc(self):
-        """Short-circuit time-domain current i.e, current in wire connected
-        across component."""
+        """Short-circuit time-domain current for component in isolation, i.e,
+        current in wire connected across component."""
 
         return self.Isc.time()
 
     @property
     def Voc(self):
-        """Open-circuit voltage."""
+        """Open-circuit voltage for component in isolation."""
 
         return self.cpt.Voc.select(self.cct.kind)
 
     @property
     def voc(self):
-        """Open-circuit time-domain voltage for circuit kind."""
+        """Open-circuit time-domain voltage for component in isolation."""
 
         return self.Voc.time()    
+    
+    @property
+    def V0(self):
+        """Initial voltage (for capacitors only)."""
+
+        return 0
 
     @property
+    def I0(self):
+        """Initial current (for inductors only)."""
+
+        return 0    
+    
+    @property
     def admittance(self):
-        """Self admittance of component.  For the driving point
+        """Self admittance of component.  For the driving-point
         admittance measured across the component use .dpY or .oneport().Y"""
 
         return self.cpt.admittance.new(self.cct.kind)        
 
     @property
     def impedance(self):
-        """Self impedance of component.  For the driving point impedance
+        """Self impedance of component.  For the driving-point impedance
         measured across the component use .dpZ or .oneport().Z"""        
 
         return self.cpt.impedance.new(self.cct.kind)
 
     @property
-    def cptY(self):
-        """Admittance of component in isolation.  This is an alias for .Y"""
+    def dpIsc(self):
+        """Driving-point short-circuit current, i.e, current in wire
+        connected across component connected in-circuit.
 
-        return self.Y
-
-    @property
-    def cptZ(self):
-        """Impedance of component in isolation.  This is an alias for .Z"""
-
-        return self.Z
+        """
+        return self.oneport().Isc
 
     @property
-    def cptYs(self):
-        """Generalized admittance of component in isolation.  This is an alias
-        for .Ys"""
+    def dpisc(self):
+        """Driving-point short-circuit time-domain current i.e, current in
+        wire connected across component in-circuit."""
 
-        return self.Ys
+        return self.dpIsc.time()
 
     @property
-    def cptZs(self):
-        """Generalized impedance of component in isolation.  This is an alias
-        for .Zs"""
+    def dpVoc(self):
+        """Driving-point open-circuit voltage across component in-circuit."""
 
-        return self.Zs
+        return self.oneport().V
+
+    @property
+    def dpvoc(self):
+        """Driving-point open-circuit time-domain voltage across component in
+        circuit."""
+
+        return self.dpVoc.time()    
 
     @property
     def dpYs(self):
-        """Driving point generalized admittance (s-domain) measured across
-        component.  For the admittance of the component in isolation
+        """Driving-point generalized admittance (s-domain) measured across
+        component in-circuit.  For the admittance of the component in isolation
         use .Ys"""
 
         return self.oneport().Ys
 
     @property
     def dpZs(self):
-        """Driving point generalized impedance (s-domain) measured across
-        component.  For the impedance of the component in isolation
+        """Driving-point generalized impedance (s-domain) measured across
+        component in-circuit.  For the impedance of the component in isolation
         use .Zs"""        
 
         return self.oneport().Zs
     
     @property
     def dpY(self):
-        """Driving point admittance measured across component.  For the
-        admittance of the component in isolation use .Y"""        
+        """Driving-point admittance measured across component in-circuit.  For
+        the admittance of the component in isolation use .Y"""        
 
         return self.oneport().Y
 
     @property
     def dpZ(self):
-        """Driving point impedance measured across component.  For the
-        impedance of the component in isolation use .Z"""
+        """Driving-point impedance measured across component in-circuit.  For
+        the impedance of the component in isolation use .Z"""
 
         return self.oneport().Z
 
-    @property
-    def cptV0(self):
-        """Initial voltage (for capacitors only)."""
-
-        return 0
-
-    @property
-    def cptI0(self):
-        """Initial current (for inductors only)."""
-
-        return 0    
-    
     @property
     def node_indexes(self):
 
@@ -635,7 +637,7 @@ class C(RC):
                                      self.opts)
         
     @property
-    def cptV0(self):
+    def V0(self):
         """Initial voltage (for capacitors only)."""
 
         if self.cct.kind == 'ivp' and self.cpt.hasic:
@@ -891,7 +893,7 @@ class L(RLC):
     reactive = True
 
     @property
-    def cptI0(self):
+    def I0(self):
         """Initial current (for capacitors only)."""
 
         if self.cct.kind == 'ivp' and self.cpt.hasic:
