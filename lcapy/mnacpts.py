@@ -321,14 +321,40 @@ class Cpt(ImmitanceMixin):
         """Self admittance of component.  For the driving point
         admittance measured across the component use .dpY or .oneport().Y"""
 
-        return self.cpt.admittance
+        return self.cpt.admittance.new(self.cct.kind)        
 
     @property
     def impedance(self):
         """Self impedance of component.  For the driving point impedance
         measured across the component use .dpZ or .oneport().Z"""        
 
-        return self.cpt.impedance
+        return self.cpt.impedance.new(self.cct.kind)
+
+    @property
+    def cptY(self):
+        """Admittance of component in isolation.  This is an alias for .Y"""
+
+        return self.Y
+
+    @property
+    def cptZ(self):
+        """Impedance of component in isolation.  This is an alias for .Z"""
+
+        return self.Z
+
+    @property
+    def cptYs(self):
+        """Generalized admittance of component in isolation.  This is an alias
+        for .Ys"""
+
+        return self.Ys
+
+    @property
+    def cptZs(self):
+        """Generalized impedance of component in isolation.  This is an alias
+        for .Zs"""
+
+        return self.Zs
 
     @property
     def dpYs(self):
@@ -336,7 +362,7 @@ class Cpt(ImmitanceMixin):
         component.  For the admittance of the component in isolation
         use .Ys"""
 
-        return self.cct.admittance(*self.nodes)
+        return self.oneport().Ys
 
     @property
     def dpZs(self):
@@ -344,65 +370,21 @@ class Cpt(ImmitanceMixin):
         component.  For the impedance of the component in isolation
         use .Zs"""        
 
-        return self.cct.impedance(*self.nodes)    
+        return self.oneport().Zs
     
     @property
     def dpY(self):
         """Driving point admittance measured across component.  For the
         admittance of the component in isolation use .Y"""        
 
-        return self.cct.admittance(*self.nodes)        
+        return self.oneport().Y
 
     @property
     def dpZ(self):
         """Driving point impedance measured across component.  For the
         impedance of the component in isolation use .Z"""
 
-        return self.cct.impedance(*self.nodes)                
-
-    @property
-    def cptY(self):
-        """Admittance of component in isolation."""
-
-        return self.cptYs(omega)
-
-    @property
-    def cptZ(self):
-        """Impedance of component in isolation."""
-
-        return self.cptZs(omega)
-
-    @property
-    def cptYs(self):
-        """Generalized admittance of component in isolation."""
-
-        Ys = self.cpt.Ys
-        # The following is not be required if C and L removed from dc model.
-        if self.cct.kind in ('dc', 'time'):
-            Ys = Ys(0)
-        return Ys
-
-    @property
-    def cptZs(self):
-        """Generalized impedance of component in isolation."""
-
-        Zs = self.cpt.Zs
-        # The following is not be required if C and L removed from dc model.
-        if self.cct.kind in ('dc', 'time'):
-            Zs = Zs(0)
-        return Zs
-
-    @property
-    def _cptYselect(self):
-        """Impedance of component in isolation."""
-
-        return self.cpt.admittance.select(self.cct.kind)
-
-    @property
-    def _cptZselect(self):
-        """Impedance of component in isolation."""
-
-        return self.cpt.impedance.select(self.cct.kind)        
+        return self.oneport().Z
 
     @property
     def cptV0(self):
@@ -526,7 +508,7 @@ class RLC(Cpt):
         if self.Voc == 0:        
             return '%sZ%s %s %s %s; %s' % (self.namespace, self.relname, 
                                            self.relnodes[0], self.relnodes[1],
-                                           arg_format(self._cptZselect(var)), 
+                                           arg_format(self.Z(var)), 
                                            self.opts)
 
         dummy_node = self.dummy_node()
@@ -539,7 +521,7 @@ class RLC(Cpt):
 
         znet = '%sZ%s %s %s %s; %s' % (self.namespace, self.relname, 
                                        self.relnodes[0], dummy_node,
-                                       arg_format(self._cptZselect(var)), 
+                                       arg_format(self.Z(var)), 
                                        opts)
 
         # Strip voltage and current labels from voltage source.
@@ -598,7 +580,7 @@ class RC(RLC):
         if self.type == 'C' and cct.kind == 'dc':
             Y = 0
         else:
-            Y = self._cptYselect.expr
+            Y = self.Y.expr
 
         if n1 >= 0 and n2 >= 0:
             cct._G[n1, n2] -= Y
@@ -885,8 +867,8 @@ class K(Dummy):
         L1 = self.Lname1
         L2 = self.Lname2
 
-        ZL1 = cct.elements[L1]._cptZselect
-        ZL2 = cct.elements[L2]._cptZselect
+        ZL1 = cct.elements[L1].Z
+        ZL2 = cct.elements[L2].Z
 
         ZM = self.K * sqrt(ZL1 * ZL2).simplify()
 
@@ -929,7 +911,7 @@ class L(RLC):
         if cct.kind == 'dc':
             Z = 0
         else:
-            Z = self._cptZselect.expr
+            Z = self.Z.expr
 
         cct._D[m, m] += -Z
 

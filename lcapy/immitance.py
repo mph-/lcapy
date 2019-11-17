@@ -17,7 +17,7 @@ class Immitance(sExpr):
     def __init__(self, val, kind=None, causal=True, **assumptions):
 
         val = expr(val)
-        if isinstance(val, omegaExpr):
+        if isinstance(val, omegaExpr) and kind is None:
             val = val.subs(omega, s / j)
         
         super(Immitance, self).__init__(val, causal=causal, **assumptions)
@@ -55,7 +55,11 @@ class Immitance(sExpr):
             return self(jomega)
         elif kind in (omegasym, omega, 'ac'):
             return self(jomega)
-        return omegaExpr(self.subs(j * kind))    
+        return omegaExpr(self.subs(j * kind))
+
+    def new(self, kind):
+
+        return self.__class__(self.select(kind), kind)
 
     @property
     def R(self):
