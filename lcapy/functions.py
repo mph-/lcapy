@@ -51,6 +51,8 @@ cos = Function(sym.cos)
 
 tan = Function(sym.tan)
 
+cot = Function(sym.cot)
+
 asin = Function(sym.asin)
 
 acos = Function(sym.acos)
@@ -58,6 +60,8 @@ acos = Function(sym.acos)
 atan = Function(sym.atan)
 
 atan2 = Function(sym.atan2)
+
+acot = Function(sym.acot)
 
 sinh = Function(sym.sinh)
 
