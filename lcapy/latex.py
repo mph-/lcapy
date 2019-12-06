@@ -67,9 +67,9 @@ def latex_format_label(s):
         return s
 
     # With leading $ and no trailing $, e.g., v=$V1, try to
-    # automagically convert to LateX string, otherwise pass
+    # automagically convert to LaTeX string, otherwise pass
     # verbatim.  Currently, this only converts words in sub- or
-    # super- scripts to roman. TODO, handle more cases.
+    # super- scripts to roman.  TODO, handle more cases.
     if s[0] == '$' and s[-1] != '$':
         return '$' + latex_str(s[1:]) + '$'
 

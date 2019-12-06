@@ -28,7 +28,10 @@ atoms_table['ImaginaryUnit'] = junicode
 
 pretty_expr_map = {sym.I: junicode}
 
-functions = ('heaviside', 'diracdelta', 'cos', 'sin', 'exp')
+functions = ('heaviside', 'diracdelta',
+             'conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos', 'tan',
+             'asin', 'acos', 'atan', 'atan2', 'sinh', 'cosh', 'tanh', 'asinh',
+             'acosh', 'atanh', 'gcd')
 
 # Words to format in Roman font for LaTeX expressions. 
 subscripts = ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',

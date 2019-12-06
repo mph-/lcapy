@@ -136,6 +136,7 @@ class LcapyLatexPrinter(LatexPrinter):
         return s
 
     def _print_AppliedUndef(self, expr):
+
         name = canonical_name(expr.func.__name__)
         args = [str(self._print(arg)) for arg in expr.args]        
         return '%s(%s)' % (name, ','.join(args))
