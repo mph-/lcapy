@@ -9,6 +9,7 @@ class Function(object):
 
         cls = args[0].__class__
 
+        # Unwrap expressions
         tweak_args = list(args)
         for m, arg in enumerate(args):
             if isinstance(arg, (Expr, Function)):
@@ -19,9 +20,11 @@ class Function(object):
         if isinstance(args[0], Expr):
             result = cls(result)
 
-        for m, arg in enumerate(args[1:]):
-            if isinstance(arg, (Expr, Function)):
-                result = result.subs(tweak_args[m], arg)
+        if False:
+            for m, arg in enumerate(args[1:]):
+                if isinstance(arg, (Expr, Function)):
+                    # Need to avoid substituting constants
+                    result = result.subs(tweak_args[m], arg)
 
         return result
 
