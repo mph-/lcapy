@@ -208,12 +208,23 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.inverse_laplace(causal=True), t * exp(-4 * t) * Heaviside(t), "inverse Laplace incorrect.")        
 
 
-    def test_sExpr1(self):
+    def test_sExpr7(self):
         """Lcapy: check sExpr7 (delay)
 
         """
         a = sExpr('(s+1)*exp(-3*s)/((s+3)*(s+4))')
         self.assertEqual(a.inverse_laplace(causal=True), (3 * exp(-4 * t  + 12) - 2 * exp(-3 * t + 9)) * H(t- 3), "inverse Laplace incorrect.")
+
+
+    def test_sExpr8(self):
+        """Lcapy: check sExpr8 (jomega)
+
+        """
+        a = expr('a')
+        H = a * s / (a * s + 1)
+        Hw = H(j * omega)
+
+        self.assertEqual(Hw.phase, atan2(1, a * omega), 'phase')
         
 
     def test_wExpr1(self):
