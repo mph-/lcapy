@@ -2426,6 +2426,8 @@ defcpt('AM', OnePort, 'Ammeter', 'ammeter')
 defcpt('BAT', OnePort, 'Battery', 'battery')
 
 defcpt('C', OnePort, 'Capacitor', 'C')
+# TODO, change symbol
+defcpt('CPE', OnePort, 'Constant phase element', 'piezoelectric')
 
 defcpt('D', OnePort, 'Diode', 'D')
 defcpt('DAC', OnePort, 'DAC', 'dac')

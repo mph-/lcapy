@@ -37,7 +37,7 @@ from .admittance import Admittance
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
            'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac', 'sV', 'sI',
            'Iac', 'Vnoise', 'Inoise', 
-           'Par', 'Ser', 'Xtal', 'FerriteBead')
+           'Par', 'Ser', 'Xtal', 'FerriteBead', 'CPE')
 
 def _check_oneport_args(args):
 
@@ -805,6 +805,22 @@ class C(OnePort):
         self._Z = Impedance(1 / (s * Cval))
         self._Voc = Voltage(Vs(v0) / s)
         self.zeroic = self.v0 == 0
+
+
+class CPE(OnePort):
+    """Constant phase element
+
+     Constant Q0, power n"""
+
+    def __init__(self, Q0, n):
+
+        self.args = (Q0, n)
+
+        Q0 = cExpr(Q0)
+        n = cExpr(n)
+        self.Q0 = Q0
+        self.n = n
+        self._Z = Impedance(1 / (s ** n * Q0))
 
 
 class Y(OnePort):

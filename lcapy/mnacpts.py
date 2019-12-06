@@ -643,7 +643,15 @@ class C(RC):
         if self.cct.kind == 'ivp' and self.cpt.hasic:
             return self.cpt.v0 / s
         return 0
-    
+
+
+class CPE(RC):
+
+    # If n != 0, then reactive
+    # reactive = True
+
+    pass
+
 
 class E(DependentSource):
     """VCVS"""
