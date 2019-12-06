@@ -31,8 +31,12 @@ class Function(object):
     
 class Log10(Function):
 
-        def __call__(self, arg):
-            return super(Log10, self).__call__(arg, 10)
+    # TODO, figure out how to print as log10(x) rather than
+    # the expansion log(x) / log(10).  This will require
+    # deferment of the expansion.
+    
+    def __call__(self, arg):
+        return super(Log10, self).__call__(arg, 10)
     
 
 conjugate = Function(sym.conjugate)

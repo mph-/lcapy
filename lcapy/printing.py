@@ -120,6 +120,8 @@ class LcapyLatexPrinter(LatexPrinter):
 
     def _print_Symbol(self, expr):
 
+        # Note, SymPy prints atan2 as atan_{2}.
+        
         expr = sym.Symbol(canonical_name(expr.name))                
         parts = expr.name.split('_')        
         s = super(LcapyLatexPrinter, self)._print_Symbol(expr)
