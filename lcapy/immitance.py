@@ -85,6 +85,31 @@ class Immitance(sExpr):
         """Create oneport component."""
         return self.cpt()
 
+    @property
+    def real(self):
+        """Real part of Z(omega)."""
+        return self.Zw.real
+
+    @property
+    def imag(self):
+        """Imaginary part of Z(omega)."""
+        return self.Zw.imag
+
+    @property
+    def abs(self):
+        """Absolute part of Z(omega)."""
+        return self.Zw.abs
+
+    @property
+    def phase(self):
+        """Phase of Z(omega) (radians)."""
+        return self.Zw.phase
+
+    @property
+    def phase_degrees(self):
+        """Phase of Z(omega) (degrees)."""
+        return self.Zw.phase_degrees        
+    
     
 class ImmitanceMixin(object):
 
