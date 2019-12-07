@@ -257,6 +257,25 @@ Components
 Only linear, time-invariant, components can be analyzed.
 
 
+Crystals
+--------
+
+.. literalinclude:: examples/schematics/XT1.sch
+
+.. image:: examples/schematics/XT1.png
+   :width: 2cm
+
+
+Constant phase elements (CPE)
+-----------------------------
+
+.. literalinclude:: examples/schematics/CPE1.sch
+
+.. image:: examples/schematics/CPE1.png
+   :width: 2cm        
+
+
+
 Diodes
 ------
 
@@ -277,7 +296,17 @@ The drawn style is controlled by the style option, for example,
 
 .. image:: examples/schematics/diodes2.png
    :width: 5cm
-           
+
+
+Ferrite beads
+-------------
+
+.. literalinclude:: examples/schematics/FB1.sch
+
+.. image:: examples/schematics/FB1.png
+   :width: 2cm
+
+
            
 Gyrators
 --------
