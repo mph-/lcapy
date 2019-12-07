@@ -2372,18 +2372,49 @@ class FB(StretchyCpt):
 
         centre = (n1.pos + n2.pos) * 0.5
         w = 0.125
-        h = 0.4
+        h = 0.2
         
-        q = self.tf(centre, ((-0.5 * w, -0.5 * h), (-0.5 * w, 0.5 * h),
-                             (0.5 * w, 0.5 * h), (0.5 * w, -0.5 * h),
-                             (0, h)), -30)
-        q2 = self.tf(centre, ((-0.53 * w, 0), (0.53 * w, 0), (0, h)))
+        q1 = self.tf(centre, ((-0.5 * w, -h), (-0.5 * w, h),
+                              (0.5 * w, h), (0.5 * w, -h)), -30)
+        q = self.tf(centre, ((-0.53 * w, 0), (0.53 * w, 0), (-w, 2 * h)))
 
-        s = self.draw_path(q[0:4], closed=True, style='thick')
-        s += self.draw_path((n1.s, q2[0]))
-        s += self.draw_path((q2[1], n2.s))
-        s += self.draw_label(q[4], **kwargs)
+        s = self.draw_path(q1, closed=True, style='thick')
+        s += self.draw_path((n1.s, q[0]))
+        s += self.draw_path((q[1], n2.s))
+        s += self.draw_label(q[2], **kwargs)
         return s
+
+
+class CPE(StretchyCpt):
+    """Constant phase element"""
+
+    can_scale = True
+
+    @property
+    def coords(self):
+        return ((-0.5, 0), (0.5, 0))
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        n1, n2 = self.nodes
+
+        centre = (n1.pos + n2.pos) * 0.5
+        w = 0.125
+        h = 0.2
+        
+        q1 = self.tf(centre, ((0, -h), (-w, 0), (0, h)), 0)
+        q2 = self.tf(centre, ((w, -h), (0, 0), (w, h)), 0)
+        q = self.tf(centre, ((-w, 0), (0, 0), (-w, 2 * h)))
+
+        s = self.draw_path(q1, closed=False, style='thick')
+        s += self.draw_path(q2, closed=False, style='thick')                     
+        s += self.draw_path((n1.s, q[0]))
+        s += self.draw_path((q[1], n2.s))
+        s += self.draw_label(q[2], **kwargs)
+        return s    
 
 
 class XX(Cpt):
@@ -2426,8 +2457,6 @@ defcpt('AM', OnePort, 'Ammeter', 'ammeter')
 defcpt('BAT', OnePort, 'Battery', 'battery')
 
 defcpt('C', OnePort, 'Capacitor', 'C')
-# TODO, change symbol
-defcpt('CPE', OnePort, 'Constant phase element', 'piezoelectric')
 
 defcpt('D', OnePort, 'Diode', 'D')
 defcpt('DAC', OnePort, 'DAC', 'dac')

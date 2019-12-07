@@ -3,27 +3,23 @@ Schematics
 
 1. Automatically add wires with node splitting to avoid explicit wires.
 
-2. Add ferrite bead symbol (not supported by circuitikz).
+2. Add drawing methods to TwoPorts.
 
-3. Add drawing methods to TwoPorts.
-
-4. Automatically separate parallel components when drawing (except
+3. Automatically separate parallel components when drawing (except
 open circuits).  The tricky part is adding enough space for the
 labels.
 
-5. Warn if have disjoint components.
+4. Warn if have disjoint components.
 
-6. Add user configuration file.
+5. Add user configuration file.
 
-7. Convert voltage and current labels for s-models.  v(t) -> V(s), etc.
+6. Convert voltage and current labels for s-models.  v(t) -> V(s), etc.
 
-8. Independent namespaces for SVG files so they can be loaded into Jupyter notebook.
+7. Independent namespaces for SVG files so they can be loaded into Jupyter notebook.
 
-10 Draw twoports.
+8. Upgrade to latest Circuitikz
 
-11. Treat ;; as dummy component so that can emit strings or process commands on the fly.
-
-12. If component has invisible attribute, do not count the connections
+9. If component has invisible attribute, do not count the connections
 
 
 Circuit analysis
