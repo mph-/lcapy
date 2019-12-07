@@ -546,3 +546,13 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(th.Z, no.Z, "Z incorrect")
         self.assertEqual(th.Y, no.Y, "Y incorrect")
         
+    def test_directive(self):
+
+        # This has a deliberate empty line.
+        a = Circuit("""
+        V 2 0 10
+
+        R 2 0 1""")
+
+        self.assertEqual(a.R.i, 10, "i incorrect")        
+        

@@ -200,8 +200,9 @@ class Parser(object):
             cpt_id = ''
             name = 'XX'
             name += parent._make_anon(cpt_type)
-            return self.cpts.make('XX', parent, '', name, cpt_type,
-                                  cpt_id, string, '', (), '')
+            defname = namespace + cpt_type + cpt_id            
+            return self.cpts.make('XX', parent, '', defname, name,
+                                  cpt_type, cpt_id, string, '', (), '')
 
         net = namespace + net
         parts = net.split(';', 1)
