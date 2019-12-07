@@ -2376,7 +2376,7 @@ class FB(StretchyCpt):
         
         q1 = self.tf(centre, ((-0.5 * w, -h), (-0.5 * w, h),
                               (0.5 * w, h), (0.5 * w, -h)), -30)
-        q = self.tf(centre, ((-0.53 * w, 0), (0.53 * w, 0), (-w, 2 * h)))
+        q = self.tf(centre, ((-0.53 * w, 0), (0.53 * w, 0), (-w, -2 * h)))
 
         s = self.draw_path(q1, closed=True, style='thick')
         s += self.draw_path((n1.s, q[0]))
@@ -2407,7 +2407,7 @@ class CPE(StretchyCpt):
         
         q1 = self.tf(centre, ((0, -h), (-w, 0), (0, h)), 0)
         q2 = self.tf(centre, ((w, -h), (0, 0), (w, h)), 0)
-        q = self.tf(centre, ((-w, 0), (0, 0), (-w, 2 * h)))
+        q = self.tf(centre, ((-w, 0), (0, 0), (-w, -2 * h)))
 
         s = self.draw_path(q1, closed=False, style='thick')
         s += self.draw_path(q2, closed=False, style='thick')                     
