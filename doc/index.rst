@@ -28,6 +28,7 @@ Contents:
    networks.rst
    netlists.rst
    schematics.rst
+   problems.rst                          
    internals.rst            
    api.rst
 
