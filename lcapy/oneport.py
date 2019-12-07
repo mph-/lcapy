@@ -810,7 +810,15 @@ class C(OnePort):
 class CPE(OnePort):
     """Constant phase element
 
-     Constant Q0, power n"""
+    This has an impedance 1 / (s**n * Q0).   When n==0,
+    the CPE is equivalent to a resistor of resistance Q0.
+    When n==1, the CPE is equivalent to a capacitor of
+    capacitance Q0.
+
+    Note, when n is non-integral, the impedance cannot
+    be represented as a rational function and so there are
+    no poles or zeros.  So don't be suprised if Lcapy
+    throws an occasional wobbly."""
 
     def __init__(self, Q0, n):
 

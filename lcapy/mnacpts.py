@@ -647,8 +647,8 @@ class C(RC):
 
 class CPE(RC):
 
-    # If n != 0, then reactive
-    # reactive = True
+    # If n == 0, then not reactive
+    reactive = True
 
     pass
 

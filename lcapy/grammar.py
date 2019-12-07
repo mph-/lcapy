@@ -17,7 +17,7 @@ ADC: ADCname Np Nm; ADC
 AM: AMname Np Nm; Ammeter
 BAT: BATname Np Nm [Value]; Battery
 C: Cname Np Nm [Value] [IC]; Capacitor
-CPE: CPEname Np Nm [Value]; Constant phase element
+CPE: CPEname Np Nm [Value] [Power]; Constant phase element
 D: Dname Np Nm; Diode
 DAC: DACname Np Nm; DAC
 Dled: Dname Np Nm led; Light emitting diode
@@ -201,6 +201,7 @@ alpha: value; Damping factor
 Value: value; Value
 IC: value; Initial condition
 NID: value; Noise identifier
+Power: value; Power
 Lname1: name; Inductor1 name 
 Lname2: name; Inductor2 name 
 Vcontrol: name; Control voltage name 
