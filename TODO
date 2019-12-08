@@ -74,6 +74,8 @@ for each element.
 different netlists.  Could use Python context manager with __enter__
 and __exit__ methods so that can use with statement.
 
+11. Simplify phase.
+
 
 Testing
 =======

@@ -436,6 +436,27 @@ def inverse_laplace_product(expr, s, t, **assumptions):
     return result * const
 
 
+def inverse_laplace_power(expr, s, t, **assumptions):
+
+    # Handle expressions with a power of s.
+    if not (expr.is_Pow and expr.args[0] == s):
+        raise ValueError('Expression %s is not a power of s' % expr)
+    exponent = expr.args[1]
+
+    # Have many possible forms; the common ones are:
+    # s**a, s**-a, s**(1+a), s**(1-a), s**-(1+a), s**(a-1)
+    # Cannot tell if 1-a is positive.
+
+    if exponent.is_positive:
+        # Unfortunately, SymPy does not seem to support fractional
+        # derivatives...
+        return sym.Derivative(sym.DiracDelta(t), t, exponent, evaluate=False)
+
+    if exponent.is_negative:
+        return sym.Pow(t, -exponent - 1) / sym.Gamma(-exponent)
+
+    raise ValueError('Cannot determine sign of exponent for %s' % expr)
+
 def delay_factor(expr, var):
 
     delay = sym.S.Zero    
@@ -495,6 +516,9 @@ def inverse_laplace_term1(expr, s, t, **assumptions):
     except:
         pass
 
+    if expr.is_Pow and expr.args[0] == s:
+        return sym.S.Zero, const * inverse_laplace_power(expr, s, t)
+    
     # As last resort see if can convert to convolutions...
     return sym.S.Zero, const * inverse_laplace_product(expr, s, t)
     
