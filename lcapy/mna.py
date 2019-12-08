@@ -147,7 +147,8 @@ class MNAMixin(object):
 """The MNA A matrix is not invertible for %s analysis because:
 1. there may be capacitors in series;
 2. a voltage source might be short-circuited;
-3. a current source might be open-circuited.
+3. a current source might be open-circuited;
+4. a dc current source is connected to a capacitor (use step current source).
 %s""" % (self.kind, comment))
 
         results = symsimplify(Ainv * self._Z)
