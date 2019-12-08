@@ -250,3 +250,25 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.isc, 10 * cos(omega * t), "AC incorrect.")
 
 
+    def test_CPE(self):
+        """Lcapy: check CPE
+
+        """
+        a = CPE(10, 1)
+
+        self.assertEqual2(a.Zs, 1 / (10 * s), "Zs incorrect.")
+        self.assertEqual2(a.Ys, 10 * s, "Ys incorrect.")
+        self.assertEqual2(a.Zw, 1 / (10 * j * omega), "Zw incorrect.")
+        self.assertEqual2(a.Yw, 10 * j * omega, "Yw incorrect.")                
+
+        a = CPE(10, 0)
+
+        self.assertEqual2(a.Zs, 1 / 10, "Zs incorrect.")
+        self.assertEqual2(a.Ys, 10, "Ys incorrect.")
+        self.assertEqual2(a.Zw, 1 / 10, "Zw incorrect.")
+        self.assertEqual2(a.Yw, 10, "Yw incorrect.")
+
+        a = CPE(10, 0.5)
+
+        self.assertEqual2(a.Ys, 10 * sqrt(s), "Ys incorrect.")
+

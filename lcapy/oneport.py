@@ -810,25 +810,27 @@ class C(OnePort):
 class CPE(OnePort):
     """Constant phase element
 
-    This has an impedance 1 / (s**n * Q0).  When n == 0, the CPE is
-    equivalent to a resistor of resistance Q0.  When n == 1, the CPE is
-    equivalent to a capacitor of capacitance Q0.
+    This has an impedance 1 / (s**alpha * K).  When alpha == 0, the CPE is
+    equivalent to a resistor of resistance 1 / K.  When alpha == 1, the CPE is
+    equivalent to a capacitor of capacitance K.
 
-    When n == 0.5 (default) the CPE is a Warburg element.
+    When alpha == 0.5 (default), the CPE is a Warburg element.
 
-    Note, when n is non-integral, the impedance cannot be represented
+    The phase of the impedance is -pi * alpha / 2.
+
+    Note, when alpha is non-integral, the impedance cannot be represented
     as a rational function and so there are no poles or zeros.  So
     don't be suprised if Lcapy throws an occasional wobbly."""
 
-    def __init__(self, Q0, n=0.5):
+    def __init__(self, K, alpha=0.5):
 
-        self.args = (Q0, n)
+        self.args = (K, alpha)
 
-        Q0 = cExpr(Q0)
-        n = cExpr(n)
-        self.Q0 = Q0
-        self.n = n
-        self._Z = Impedance(1 / (s ** n * Q0))
+        K = cExpr(K)
+        alpha = cExpr(alpha)
+        self.K = K
+        self.alpha = alpha
+        self._Z = Impedance(1 / (s ** alpha * K))
 
 
 class Y(OnePort):
