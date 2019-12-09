@@ -271,8 +271,7 @@ class Node(object):
             if not self.primary or not name[0].isalpha():
                 return False
         elif label_nodes == 'primary':
-            if not self.primary:
-                return False
+            return self.primary
 
         # handle label_nodes = '{1, 2}' etc.
         if label_nodes[0] == '{' and label_nodes[-1] == '}':
