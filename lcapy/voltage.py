@@ -121,7 +121,8 @@ def Vtype(kind):
     except KeyError:
         return Vphasor
 
-    
+
+from .expr import expr    
 from .cexpr import Vconst, Iconst, cExpr        
 from .fexpr import fExpr    
 from .sexpr import Vs, sExpr
@@ -133,3 +134,4 @@ from .admittance import Admittance
 from .omegaexpr import omegaExpr
 from .symbols import s, omega
 from .current import Current
+from .sym import omegasym
