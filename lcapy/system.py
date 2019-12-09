@@ -1,4 +1,4 @@
-from os import system, path, remove, chdir, getcwd
+from os import system, path, remove, chdir, getcwd, stat
 import re
 from sys import platform
 
@@ -42,6 +42,10 @@ def convert_pdf_png_convert(pdf_filename, png_filename, oversample=1):
     if not path.exists(png_filename):
         raise RuntimeError('Could not generate %s with convert' % 
                            png_filename)
+    if os.stat(png_filename).st_size == 0:
+        raise RuntimeError('Could not generate %s with convert, empty file' % 
+                           png_filename)
+    
 
 def convert_pdf_png_pdftoppm(pdf_filename, png_filename, oversample=1):
 
@@ -52,12 +56,14 @@ def convert_pdf_png_pdftoppm(pdf_filename, png_filename, oversample=1):
         raise RuntimeError('Could not generate %s with pdftoppm' % 
                            png_filename)    
 
+    
 def convert_pdf_png(pdf_filename, png_filename, oversample=1):
     
     try:
-        convert_pdf_png_pdftoppm(pdf_filename, png_filename, oversample)
+        convert_pdf_png_convert(pdf_filename, png_filename, oversample)
     except:
-        convert_pdf_png_convert(pdf_filename, png_filename, oversample)        
+        convert_pdf_png_pdftoppm(pdf_filename, png_filename, oversample)
+
 
 def latex_cleanup(tex_filename, wanted_filename=''):
 
