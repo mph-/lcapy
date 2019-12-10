@@ -1240,6 +1240,32 @@ class VCCS(ControlledSource):
 class Dummy(OnePort):
     pass
 
+
+class W(Dummy):
+    """Wire (short)"""
+
+    def __init__(self):
+
+        self.args = ()
+        self._Z = Impedance(0)
+
+        
+class O(Dummy):
+    """Open circuit"""
+
+    def __init__(self):
+
+        self.args = ()
+        self._Y = Admittance(0)
+
+        
+class P(O):
+    """Port (open circuit)"""
+    pass
+
+
+
+        
     
 # Imports at end to circumvent circular dependencies
 from .expr import Expr

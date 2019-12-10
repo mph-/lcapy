@@ -9,11 +9,12 @@ Copyright 2015--2019 Michael Hayes, UCECE
 from __future__ import print_function
 from .cexpr import cExpr
 from .omegaexpr import omegaExpr
-from .symbols import j, omega, jomega, s
+from .symbols import j, omega, jomega, s, t
 from .functions import sqrt
 from .sym import capitalize_name, omegasym
 from .grammar import delimiters
 from .immitance import ImmitanceMixin
+from .current import Current
 import lcapy
 import inspect
 import sys
@@ -78,11 +79,12 @@ class Cpt(ImmitanceMixin):
         self.opts = {}
 
         # No defined cpt
-        if self.type in ('W', 'O', 'P', 'K', 'XX'):
+        if self.type in ('K', 'XX'):
             self.cpt = lcapy.oneport.Dummy()
             return
 
-        if args is () or (self.type in ('F', 'H', 'CCCS', 'CCVS') and len(args) == 1):
+        if ((args is () and not self.type in ('W', 'O', 'P'))
+            or (self.type in ('F', 'H', 'CCCS', 'CCVS') and len(args) == 1)):
             # Default value is the component name
             value = self.type + self.id
 
@@ -966,6 +968,14 @@ class O(Dummy):
     def stamp(self, cct):
         pass
 
+    @property
+    def I(self):
+        return Current(0)
+
+    @property
+    def i(self):
+        return Current(0)(t)
+    
 
 class P(O):
     """Port"""
@@ -1205,6 +1215,15 @@ class W(Dummy):
     def stamp(self, cct):
         pass
 
+    @property
+    def I(self):
+        raise ValueError('Cannot determine current through wire, use a 0 V voltage source')
+
+    @property
+    def i(self):
+        raise ValueError('Cannot determine current through wire, use a 0 V voltage source')    
+    
+    
 
 class XT(Misc):
     """Crystal"""
