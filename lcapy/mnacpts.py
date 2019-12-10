@@ -496,17 +496,9 @@ class IndependentSource(Cpt):
 class DependentSource(Dummy):
 
     dependent_source = True        
-    
-    def zero(self):
-        """Zero value of the source.  For a voltage source this makes it a
-        short-circuit; for a current source this makes it
-        open-circuit.  This effectively kills the source but keeps it
-        as a source in the netlist.  This is required for dummy
-        voltage sources that are required to specify the controlling
-        current for CCVS and CCCS components.
 
-        """
-        return self.netmake(zero=True)    
+    def zero(self):
+        return self.copy()
 
     
 class RLC(Cpt):
