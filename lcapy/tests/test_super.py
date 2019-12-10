@@ -108,7 +108,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(I1.I.oneport().I, I1.I, 'oneport')                
         
-
     def test_Vname(self):
 
         self.assertEqual(Vname('V', 't'), 'V(t)', 'V(t)')

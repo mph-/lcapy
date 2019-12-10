@@ -180,6 +180,17 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(a.R2.V, V(10).Voc, "Incorrect voltage")
 
+        
+    def test_CCVS2(self):
+        """Lcapy: check CCVS
+
+        """
+        a = Circuit()
+        a.add('H1 1 0 H1 -4')
+        t = a.thevenin(1, 0)
+        self.assertEqual(t.V, 0, "Incorrect Thevenin voltage")
+        self.assertEqual(t.Z, -4, "Incorrect Thevenin impedance")        
+
 
     def test_V1(self):
         """Lcapy: test V1"""
