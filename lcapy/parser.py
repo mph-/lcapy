@@ -72,7 +72,7 @@ class Rule(object):
 
         raise ValueError('Syntax error: %s when parsing %s\nExpected format: %s' % (error, string, repr(self)))        
 
-    def process(self, paramdir, string, fields, name, namespace):
+    def process(self, paramdict, string, fields, name, namespace):
 
         params = self.params
         if len(fields) > len(params):
@@ -96,14 +96,14 @@ class Rule(object):
 
             field = fields[m]
 
-            if paramdir[param].base in ('pin', 'node'):
+            if paramdict[param].base in ('pin', 'node'):
                 if field[0] == '.':
                     # Note name contains namespace
                     field = name + field
                 else:
                     field = namespace + field
                 nodes.append(field)
-            elif paramdir[param].base != 'keyword':
+            elif paramdict[param].base != 'keyword':
                 args.append(field)
 
         return tuple(nodes), args
@@ -125,8 +125,8 @@ class Parser(object):
         self.comments = grammar.comments
 
         self.cpts = cpts
-        self.paramdir = {}
-        self.ruledir = {}
+        self.paramdict = {}
+        self.ruledict = {}
         
         for param in params.split('\n'):
             self._add_param(param)
@@ -134,7 +134,7 @@ class Parser(object):
         for rule in rules.split('\n'):
             self._add_rule(rule)
 
-        cpts = sorted(self.ruledir.keys(), key=len, reverse=True)
+        cpts = sorted(self.ruledict.keys(), key=len, reverse=True)
 
         self.cpt_pattern = re.compile("(%s)([#_\w']+)?" % '|'.join(cpts))
 
@@ -149,7 +149,7 @@ class Parser(object):
         parambase = fields[0].strip()
         comment = fields[1].strip()
         
-        self.paramdir[paramname] = Param(paramname, parambase, comment)
+        self.paramdict[paramname] = Param(paramname, parambase, comment)
 
     def _add_rule(self, string):
 
@@ -165,20 +165,21 @@ class Parser(object):
         fields = string.split(' ')
         params = fields[1:]
 
+        # Skip the name part in the rule, e.g., only consider D from Dname.
         cpt_type = fields[0][0:-4]
 
         pos = None
         for m, param in enumerate(params):
             if param[0] == '[':
                 param = param[1:-1]
-            if param not in self.paramdir:
+            if param not in self.paramdict:
                 raise ValueError('Unknown parameter %s for %s' % (param, string))
-            if pos is None and self.paramdir[param].base == 'keyword':
+            if pos is None and self.paramdict[param].base == 'keyword':
                 pos = m
 
-        if cpt_type not in self.ruledir:
-            self.ruledir[cpt_type] = ()
-        self.ruledir[cpt_type] += (Rule(cpt_type, cpt_classname,
+        if cpt_type not in self.ruledict:
+            self.ruledict[cpt_type] = ()
+        self.ruledict[cpt_type] += (Rule(cpt_type, cpt_classname,
                                         params, comment, pos), )
 
     def parse(self, string, namespace='', parent=None):
@@ -234,9 +235,9 @@ class Parser(object):
         # choose the rule pattern based on a keyword.  If the
         # keyword is not present, default to first rule pattern.
         # Perhaps a factory should sort this out?
-        rule = self.ruledir[cpt_type][0]
+        rule = self.ruledict[cpt_type][0]
         keyword = ''
-        for rule1 in self.ruledir[cpt_type]:
+        for rule1 in self.ruledict[cpt_type]:
             pos = rule1.pos
             if pos is None:
                 continue
@@ -252,7 +253,7 @@ class Parser(object):
             # For example, cct.Z.
             name += parent._make_anon(cpt_type)
 
-        nodes, args = rule.process(self.paramdir, net, fields, name, 
+        nodes, args = rule.process(self.paramdict, net, fields, name, 
                                    namespace)
 
         parts = net.split(';', 1)

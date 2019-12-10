@@ -1205,6 +1205,7 @@ class CCVS(ControlledSource):
 
     def __init__(self, control, value):
 
+        self.args = (control, value)        
         self._Voc = Voltage(0)
         self._Z = Impedance(0)
 
@@ -1213,26 +1214,32 @@ class CCCS(ControlledSource):
 
     def __init__(self, control, value):
 
+        self.args = (control, value)        
         self._Isc = Current(0)
         self._Y = Admittance(0)     
 
         
 class VCVS(ControlledSource):
 
-    def __init__(self, Ncp, NCm, value):
+    def __init__(self, value):
 
+        self.args = (value, )        
         self._Voc = Voltage(0)
         self._Z = Impedance(0)
 
         
 class VCCS(ControlledSource):
 
-    def __init__(self, Ncp, NCm, value):
+    def __init__(self, value):
 
+        self.args = (value, )
         self._Isc = Current(0)
         self._Y = Admittance(0)     
         
-    
+
+class Dummy(OnePort):
+    pass
+
     
 # Imports at end to circumvent circular dependencies
 from .expr import Expr

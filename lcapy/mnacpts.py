@@ -79,9 +79,10 @@ class Cpt(ImmitanceMixin):
 
         # No defined cpt
         if self.type in ('W', 'O', 'P', 'K', 'XX'):
+            self.cpt = lcapy.oneport.Dummy
             return
 
-        if args is () or (self.type in ('F', 'H') and len(args) == 1):
+        if args is () or (self.type in ('F', 'H', 'CCCS', 'CCVS') and len(args) == 1):
             # Default value is the component name
             value = self.type + self.id
 
@@ -91,13 +92,18 @@ class Cpt(ImmitanceMixin):
             args += (value, )
             self.args = args
 
+        classname = self.classname            
         try:
-            newclass = getattr(lcapy.oneport, self.classname)
+            if classname in ('E', 'F', 'G', 'H'):
+                classname = {'E' : 'VCVS', 'F' : 'CCCS',
+                             'G' : 'VCCS',  'H' : 'CCVS'}[classname]
+            
+            newclass = getattr(lcapy.oneport, classname)
         except:
             try:
-                newclass = getattr(lcapy.twoport, self.classname)
+                newclass = getattr(lcapy.twoport, classname)
             except:
-                return
+                raise NotImplementedError('Internal error for %s' % classname)
                 
         self.cpt = newclass(*args)
 
@@ -645,7 +651,7 @@ class CPE(RC):
     pass
 
 
-class E(DependentSource):
+class VCVS(DependentSource):
     """VCVS"""
 
     need_branch_current = True
@@ -676,7 +682,7 @@ class E(DependentSource):
         return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
                                   self.relnodes[1], newopts)
             
-class F(DependentSource):
+class CCCS(DependentSource):
     """CCCS"""
 
     need_control_current = True
@@ -704,7 +710,7 @@ class FB(Misc):
     pass
 
 
-class G(DependentSource):
+class VCCS(DependentSource):
     """VCCS"""
 
     def stamp(self, cct):
@@ -771,7 +777,7 @@ class GY(Dummy):
         cct._D[m2, m2] -= Z1
 
 
-class H(DependentSource):
+class CCVS(DependentSource):
     """CCVS"""
 
     need_branch_current = True
@@ -1255,10 +1261,16 @@ defcpt('Dschottky', 'D', 'Schottky diode')
 defcpt('Dtunnel', 'D', 'Tunnel diode')
 defcpt('Dzener', 'D', 'Zener diode')
 
-defcpt('Eopamp', E, 'Opamp')
-defcpt('Efdopamp', E, 'Fully differential opamp')
+defcpt('E', VCVS, 'VCVS')
+defcpt('Eopamp', VCVS, 'Opamp')
+defcpt('Efdopamp', VCVS, 'Fully differential opamp')
 
+defcpt('F', CCCS, 'CCCS')
 defcpt('FS', Misc, 'Fuse')
+
+defcpt('G', VCCS, 'VCCS')
+
+defcpt('H', CCVS, 'CCVS')
 
 defcpt('sI', I, 's-domain current source')
 defcpt('Isin', I, 'Sinusoidal current source')
@@ -1323,12 +1335,6 @@ defcpt('Vdc', V, 'DC voltage source')
 defcpt('Vstep', V, 'Step voltage source')
 defcpt('Vac', V, 'AC voltage source')
 defcpt('Vnoise', V, 'Noise voltage source')
-
-defcpt('VCVS', E, 'VCVS')
-defcpt('CCCS', F, 'CCCS')
-defcpt('VCCS', G, 'VCCS')
-defcpt('CCVS', H, 'CCVS')
-
 defcpt('VM', O, 'Voltmeter')
 
 # Append classes defined in this module but not imported.

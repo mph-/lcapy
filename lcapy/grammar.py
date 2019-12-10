@@ -1,7 +1,7 @@
 """
 This module defines a grammar for SPICE-like netlists.
 
-Copyright 2015, 2016 Michael Hayes, UCECE
+Copyright 2015--2019 Michael Hayes, UCECE
 """
 
 # SPICE also considers = a delimiter.
@@ -10,7 +10,11 @@ delimiters = ' \t(),'
 # Comment characters; these must be in the first column.
 comments = r'#%*'
 
-# Optional params are in square brackets.
+# Each line defines a rule. The field before the colon is the classname.  This
+# must be unique.
+# The second field (up to name) is used to match the rule along with the optional
+# keyword parameter.
+# Optional parameters are in square brackets.
 rules = r"""
 A: Aname Np; Annotation
 ADC: ADCname Np Nm; ADC
@@ -36,8 +40,8 @@ FS: FSname Np Nm; Fuse
 G: Gname Np Nm Ncp Ncm [Value]; Voltage controlled current source
 VCCS: VCCSname Np Nm Ncp Ncm [Value]; Voltage controlled current source
 GY: GYname Np Nm Ncp Ncm [Value]; Gyrator
-H: CCVSname Np Nm Vcontrol [Value]; Current controlled voltage source (note the control current is specified through a voltage source)
-CCVS: Hname Np Nm Vcontrol [Value]; Current controlled voltage source (note the control current is specified through a voltage source)
+H: Hname Np Nm Vcontrol [Value]; Current controlled voltage source (note the control current is specified through a voltage source)
+CCVS: CCVSname Np Nm Vcontrol [Value]; Current controlled voltage source (note the control current is specified through a voltage source)
 I: Iname Np Nm [Value]; Current source
 sI: Iname Np Nm s [Value]; s-domain current source
 Idc: Iname Np Nm dc [Value]; DC current source
