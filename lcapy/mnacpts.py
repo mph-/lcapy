@@ -79,7 +79,7 @@ class Cpt(ImmitanceMixin):
 
         # No defined cpt
         if self.type in ('W', 'O', 'P', 'K', 'XX'):
-            self.cpt = lcapy.oneport.Dummy
+            self.cpt = lcapy.oneport.Dummy()
             return
 
         if args is () or (self.type in ('F', 'H', 'CCCS', 'CCVS') and len(args) == 1):
@@ -92,12 +92,15 @@ class Cpt(ImmitanceMixin):
             args += (value, )
             self.args = args
 
-        classname = self.classname            
+        classname = self.classname
+        # Handle aliases.
         try:
-            if classname in ('E', 'F', 'G', 'H'):
-                classname = {'E' : 'VCVS', 'F' : 'CCCS',
-                             'G' : 'VCCS',  'H' : 'CCVS'}[classname]
-            
+            classname = {'E' : 'VCVS', 'F' : 'CCCS',
+                         'G' : 'VCCS',  'H' : 'CCVS'}[classname]
+        except:
+            pass
+                
+        try:
             newclass = getattr(lcapy.oneport, classname)
         except:
             try:
