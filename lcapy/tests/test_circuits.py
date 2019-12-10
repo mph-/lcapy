@@ -189,7 +189,9 @@ class LcapyTester(unittest.TestCase):
         a.add('H1 1 0 H1 -4')
         t = a.thevenin(1, 0)
         self.assertEqual(t.V, 0, "Incorrect Thevenin voltage")
-        self.assertEqual(t.Z, -4, "Incorrect Thevenin impedance")        
+        self.assertEqual(t.Z, -4, "Incorrect Thevenin impedance")
+        self.assertEqual(a.H1.Voc, 0, "Incorrect cpt voltage")
+        self.assertEqual(a.H1.Z, 0, "Incorrect cpt impedance")         
 
 
     def test_V1(self):

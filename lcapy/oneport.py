@@ -1195,6 +1195,44 @@ class LoadCircuit(Network):
         # TODO: draw this better rather than as a oneport.
         return self.vnet.net_make(self.vnet, n1, n2)
 
+
+class ControlledSource(OnePort):
+    """These components are controlled one-ports."""
+    pass
+
+
+class CCVS(ControlledSource):
+
+    def __init__(self, control, value):
+
+        self._Voc = Voltage(0)
+        self._Z = Impedance(0)
+
+        
+class CCCS(ControlledSource):
+
+    def __init__(self, control, value):
+
+        self._Isc = Current(0)
+        self._Y = Admittance(0)     
+
+        
+class VCVS(ControlledSource):
+
+    def __init__(self, Ncp, NCm, value):
+
+        self._Voc = Voltage(0)
+        self._Z = Impedance(0)
+
+        
+class VCCS(ControlledSource):
+
+    def __init__(self, Ncp, NCm, value):
+
+        self._Isc = Current(0)
+        self._Y = Admittance(0)     
+        
+    
     
 # Imports at end to circumvent circular dependencies
 from .expr import Expr
