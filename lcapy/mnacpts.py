@@ -18,6 +18,7 @@ from .current import Current
 import lcapy
 import inspect
 import sys
+import sympy as sym
 
 module = sys.modules[__name__]
 
@@ -79,12 +80,13 @@ class Cpt(ImmitanceMixin):
         self.opts = {}
 
         # No defined cpt
-        if self.type in ('K', 'XX'):
+        if self.type in ('XX', ):
             self.cpt = lcapy.oneport.Dummy()
             return
 
         if ((args is () and not self.type in ('W', 'O', 'P'))
-            or (self.type in ('F', 'H', 'CCCS', 'CCVS') and len(args) == 1)):
+            or (self.type in ('F', 'H', 'CCCS', 'CCVS') and len(args) == 1)
+            or (self.type == 'K' and len(args) == 2)):
             # Default value is the component name
             value = self.type + self.id
 
@@ -869,10 +871,6 @@ class K(Dummy):
         super (K, self).__init__(cct, namespace, defname, name,
                                  cpt_type, cpt_id, string,
                                  opts_string, nodes, keyword, *args)
-        if len(args) > 2:
-            self.K = args[2]
-        else:
-            self.K = self.type + self.id
 
     def stamp(self, cct):
 
@@ -885,17 +883,17 @@ class K(Dummy):
 
         L1 = self.Lname1
         L2 = self.Lname2
+        K = self.cpt.K
 
-        ZL1 = cct.elements[L1].Z
-        ZL2 = cct.elements[L2].Z
-
-        ZM = self.K * sqrt(ZL1 * ZL2).simplify()
+        ZL1 = cct.elements[L1].Z.expr
+        ZL2 = cct.elements[L2].Z.expr
+        ZM = K.expr * sym.sqrt(ZL1 * ZL2)
 
         m1 = cct._branch_index(L1)
         m2 = cct._branch_index(L2)
 
-        cct._D[m1, m2] += -ZM.expr
-        cct._D[m2, m1] += -ZM.expr
+        cct._D[m1, m2] += -ZM
+        cct._D[m2, m1] += -ZM
 
 
 class L(RLC):

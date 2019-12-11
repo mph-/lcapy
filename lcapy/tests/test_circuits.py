@@ -569,3 +569,23 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.R.i, 10, "i incorrect")        
         
+
+    def test_K(self):
+
+        a = Circuit("""
+        V1 1 0 ac; down
+        W 1 1_1; right
+        L1 1_1 0_1 L; down
+        W 0 0_1; right
+        W 0_1 0_2; right
+        W 0_1 0_2; right
+        L2 2 0_2 L; down
+        W 2 2_1; right
+        R1 2_1 0_3; down
+        W 0_2 0_3; right
+        K L1 L2 1; invisible""")
+
+        self.assertEqual(a.R1.v, expr('V1 * cos(omega * t) * abs(omega) / omega'),
+                         "coupling incorrect")
+        
+

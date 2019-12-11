@@ -1241,6 +1241,15 @@ class Dummy(OnePort):
     pass
 
 
+class K(Dummy):
+    """Coupling coefficient"""
+
+    def __init__(self, L1, L2, K):
+
+        self.args = (L1, L2, K)
+        self.K = cExpr(K)
+
+
 class W(Dummy):
     """Wire (short)"""
 
@@ -1263,9 +1272,6 @@ class P(O):
     """Port (open circuit)"""
     pass
 
-
-
-        
     
 # Imports at end to circumvent circular dependencies
 from .expr import Expr

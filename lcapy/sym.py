@@ -20,6 +20,8 @@ exec('from sympy import *', global_dict)
 for _alias, _name in aliases.items():
     global_dict[_alias] = global_dict[_name]
 
+global_dict['abs'] = sym.Abs
+
 for _symbol in exclude:
     global_dict.pop(_symbol)
 

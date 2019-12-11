@@ -21,6 +21,8 @@ labels.
 
 9. If component has invisible attribute, do not count the connections
 
+10. Fix drawing mutual inductance
+
 
 Circuit analysis
 ================
@@ -75,6 +77,8 @@ different netlists.  Could use Python context manager with __enter__
 and __exit__ methods so that can use with statement.
 
 11. Simplify phase.
+
+12. Fix Impedance * Impedance, etc. (correctly set kind)
 
 
 Testing

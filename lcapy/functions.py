@@ -40,7 +40,9 @@ class Log10(Function):
     
 
 conjugate = Function(sym.conjugate)
-    
+
+abs = Function(sym.Abs)
+
 sqrt = Function(sym.sqrt)
 
 exp = Function(sym.exp)
