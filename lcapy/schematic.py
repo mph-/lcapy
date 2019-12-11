@@ -643,7 +643,7 @@ class Schematic(NetfileMixin):
             # print(self.xgraph.cnodes)
             # print(self.ygraph.cnodes)
 
-        if ext in ('.pytex', '.schtex', '.pgf', '.tex'):
+        if ext in ('.pytex', '.schtex', '.pgf'):
             open(filename, 'w').write(content)
             return
 
