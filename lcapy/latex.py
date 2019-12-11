@@ -1,5 +1,4 @@
 import re
-from .config import latex_string_map
 from .config import subscripts
 
 sub_super_pattern = re.compile(r"([_\^]){([a-zA-Z]+)([0-9]*)}")
@@ -56,8 +55,6 @@ class Latex(object):
 
 def latex_str(string):
 
-    for old, new in latex_string_map.items():
-        string = string.replace(old, new)
     return Latex(string).__str__()
 
 

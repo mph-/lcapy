@@ -118,10 +118,18 @@ class LcapyLatexPrinter(LatexPrinter):
             pass
         return super(LcapyLatexPrinter, self)._print(expr)
 
+    def _print_Heaviside(self, expr, exp=None):
+
+        tex = r"%s\left(%s\right)" % (latex_expr_map[sym.Heaviside],
+                                      self._print(expr.args[0]))
+        if exp:
+            tex = r"\left(%s\right)^{%s}" % (tex, exp)
+        return tex
+    
     def _print_Symbol(self, expr):
 
         # Note, SymPy prints atan2 as atan_{2}.
-        
+
         expr = sym.Symbol(canonical_name(expr.name))                
         parts = expr.name.split('_')        
         s = super(LcapyLatexPrinter, self)._print_Symbol(expr)
