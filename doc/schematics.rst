@@ -1041,6 +1041,7 @@ permissions.  When using a Jupyter notebook, the svg format can be
 used with `draw(svg=True`).
 
 
+.. _schtex:
 
 schtex
 ======

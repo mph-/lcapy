@@ -1,0 +1,27 @@
+\documentclass[a4paper, 12pt]{article}
+\usepackage{sympytex}
+\usepackage{circuitikz}
+\usepackage{amsmath}
+
+\begin{document}
+
+\begin{figure}
+  \centering
+  \input{demo1.pgf}
+  \caption{RLC network.}
+\end{figure}
+
+\begin{sympysilent}
+  from lcapy import Circuit, s, t
+  cct = Circuit('demo1.sch')
+\end{sympysilent}
+
+\begin{equation}
+  V_C(s) = \sympy{cct.C.V(s).simplify()}
+\end{equation}
+
+\begin{equation}
+  v_C(t) = \sympy{cct.C.V(t).simplify()}
+\end{equation}
+
+\end{document}

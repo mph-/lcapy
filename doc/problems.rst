@@ -1,6 +1,6 @@
-========
-Problems
-========
+===============
+Troubleshooting
+===============
 
 
 Symbol aliases
