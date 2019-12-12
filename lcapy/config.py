@@ -5,8 +5,8 @@ Copyright 2019 Michael Hayes, UCECE
 """
 
 # SymPy symbols to exclude.  It might be easier to add the ones we want...
-exclude  = ('I', 'C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta',
-            'Le', 'Lt', 'Ge', 'Gt', 'Ci')
+excludes = ['I', 'C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta',
+            'Le', 'Lt', 'Ge', 'Gt', 'Ci']
 
 # Aliases for SymPy symbols
 aliases = {'delta': 'DiracDelta', 'step': 'Heaviside', 'u': 'Heaviside',
@@ -24,12 +24,13 @@ atoms_table['ImaginaryUnit'] = junicode
 
 pretty_expr_map = {sym.I: junicode}
 
+# Words to format in Roman font for LaTeX expressions. 
+
 functions = ('heaviside', 'diracdelta', 'conjugate', 'sqrt', 'exp',
              'log', 'log10', 'sin', 'cos', 'tan', 'cot' 'asin',
              'acos', 'atan', 'atan2', 'acot', 'sinh', 'cosh', 'tanh', 'asinh',
              'acosh', 'atanh', 'gcd', 'abs')
 
-# Words to format in Roman font for LaTeX expressions. 
 subscripts = ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
               'mean', 'peak', 'pk', 'pk-pk', 'pp', 'min', 'max', 'src', 'bat',
               'cc', 'ee', 'dd', 'ss', 'ih', 'il', 'oh', 'ol',

@@ -28,7 +28,8 @@ Contents:
    networks.rst
    netlists.rst
    schematics.rst
-   latex.rst                                        
+   latex.rst
+   config.rst                                                      
    problems.rst                          
    internals.rst            
    api.rst

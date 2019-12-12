@@ -1,4 +1,4 @@
-from .config import exclude, aliases
+from .config import excludes, aliases
 from sympy.parsing.sympy_parser import parse_expr, auto_number, rationalize
 try:
     from sympy.parsing.sympy_parser import NUMBER, NAME, OP        
@@ -22,7 +22,7 @@ for _alias, _name in aliases.items():
 
 global_dict['abs'] = sym.Abs
 
-for _symbol in exclude:
+for _symbol in excludes:
     global_dict.pop(_symbol)
 
     
