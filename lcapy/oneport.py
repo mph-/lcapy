@@ -1238,7 +1238,10 @@ class VCCS(ControlledSource):
         
 
 class Dummy(OnePort):
-    pass
+
+    def __init__(self, *args):
+
+        self.args = args
 
 
 class K(Dummy):

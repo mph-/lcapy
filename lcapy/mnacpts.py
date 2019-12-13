@@ -110,7 +110,7 @@ class Cpt(ImmitanceMixin):
             try:
                 newclass = getattr(lcapy.twoport, classname)
             except:
-                raise NotImplementedError('Internal error for %s' % classname)
+                return
                 
         self.cpt = newclass(*args)
 
