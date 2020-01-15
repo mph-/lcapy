@@ -56,7 +56,7 @@ class Cpt(object):
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
                  'pinnames', 'pinnodes', 'pindefs', 'outside', 'pinmap',
-                 'kind', 'wire', 'ignore', 'style')
+                 'kind', 'wire', 'ignore', 'style', 'nowires')
 
     can_rotate = True
     can_scale = False
@@ -229,7 +229,11 @@ class Cpt(object):
    
     @property
     def wire(self):
-        return self.boolattr('wire')    
+        return self.boolattr('wire')
+
+    @property
+    def nowires(self):
+        return self.boolattr('nowires')        
 
     @property
     def invisible(self):
@@ -582,7 +586,7 @@ class Cpt(object):
         label_nodes = kwargs.get('label_nodes', 'primary')
 
         s = ''
-        for node in self.nodes:
+        for node in self.drawn_nodes:
 
             if node.pin:
                 if not node.belongs(self.name):
@@ -1047,14 +1051,23 @@ class TL(StretchyCpt):
     """Transmission line"""
 
     # Dubious.  Perhaps should stretch this component in proportion to size?
+    # Applying an xscale without a corresponding scale changes the ellipse.
+    # This should be fixed in circuitikz.
     can_scale = True
     node_pinnames = ('out1', 'out2', 'in1', 'in2')
 
     pins = {'in1' : ('l', 0, 0.5),
             'in2' : ('l', 0, 0),
-            'out1' : ('r', 1.25, 0.5),
-            'out2' : ('r', 1.25, 0)}
+            'out1' : ('r', 1.3, 0.5),
+            'out2' : ('r', 1.3, 0)}
     
+    @property
+    def drawn_nodes(self):
+        
+        if self.nowires:
+            return self.nodes[0:1]
+        return self.nodes
+
     def draw(self, **kwargs):
 
         if not self.check():
@@ -1069,15 +1082,17 @@ class TL(StretchyCpt):
                               (-0.35, -0.145),
                               (-0.65, 0)))
 
-        # Rotation creates an ellipse!
+        # Newer versions of circuitikz have a tline component with
+        # wires on each end.  Rotation creates an ellipse!
         s = r'  \draw (%s) node[tlinestub, xscale=%s, rotate=%s] {};''\n' % (
             q[4], self.scale, self.angle)
         s += self.draw_label(centre, **kwargs)
 
         s += self.draw_path((q[0], n1.s))
-        s += self.draw_path((q[1], n2.s), join='|-')
-        s += self.draw_path((q[2], n3.s))
-        s += self.draw_path((q[3], n4.s), join='|-')
+        s += self.draw_path((q[2], n3.s))        
+        if not self.nowires:
+            s += self.draw_path((q[1], n2.s), join='|-')
+            s += self.draw_path((q[3], n4.s), join='|-')
         return s
 
 
