@@ -1,5 +1,13 @@
 from __future__ import print_function
 
+def unique(alist):
+
+    # Order preserving...  list(set(alist)) gives different results
+    # for different runs.
+    used = set()
+    return [x for x in alist if x not in used and (used.add(x) or True)]
+
+
 class Cnodes(dict):
     """Common nodes"""
 
@@ -7,6 +15,7 @@ class Cnodes(dict):
 
         super (Cnodes, self).__init__()
         for node in nodes:
+            # Use tuple so hashable.
             self[node] = (node, )
 
     def link(self, n1, n2):
@@ -14,8 +23,8 @@ class Cnodes(dict):
 
         set1 = self[n1]
         set2 = self[n2]
-        # Convert to set to remove duplicates.
-        newset = tuple(set(set1 + set2))
+
+        newset = tuple(unique(set1 + set2))
 
         for n in self[n1]:
             self[n] = newset
@@ -163,8 +172,7 @@ class Graph(dict):
 
     @property
     def all_nodes(self):
-        # Use set to remove duplicates.
-        return list(set(self.cnodes.values()))
+        return unique(self.cnodes.values())
 
     def add_start_nodes(self):
 
@@ -201,12 +209,12 @@ class Graph(dict):
         This stage is not needed but provides a minor optimisation."""
         
         changes = True
-        while changes and unknown != set():
+        while changes and unknown != []:
             for n in unknown:
                 gnode = self[n]
                 changes = self.assign_fixed1(gnode)
                 if changes:
-                    unknown.discard(n)
+                    unknown.remove(n)
                     break
 
     def assign_stretch1(self, gnode):
@@ -280,12 +288,12 @@ class Graph(dict):
         """
 
         changes = True
-        while changes and unknown != set():
+        while changes and unknown != []:
             for n in unknown:
                 gnode = self[n]
                 changes = self.assign_stretch1(gnode)
                 if changes:
-                    unknown.discard(n)
+                    unknown.remove(n)
                     self.assign_fixed(unknown)
                     break
 
@@ -296,11 +304,11 @@ class Graph(dict):
         for gnode in self.values():
             gnode.pos = None
 
-        unknown = set(self.keys())
-        unknown.discard('start')
-        unknown.discard('end')
+        unknown = list(self.keys())
+        unknown.remove('start')
+        unknown.remove('end')
 
-        if unknown == set():
+        if unknown == []:
             pos = {}
             for n, gnode in self.cnodes.items():
                 pos[n] = 0
@@ -313,7 +321,10 @@ class Graph(dict):
             # Nodes on the longest path have known positions.
             gnode = self['end']
             while gnode != None and gnode.name != 'start':
-                unknown.discard(gnode.name)
+                if gnode.name in unknown:
+                    unknown.remove(gnode.name)
+                else:
+                    print('Warning: node %s not in graph' % gnode.name)
                 gnode.path = True
                 gnode.pos = gnode.dist
                 gnode.fixed = True
@@ -333,7 +344,7 @@ class Graph(dict):
 
         self.assign_stretch(unknown)
 
-        if unknown != set():
+        if unknown != []:
             raise ValueError('Cannot assign nodes %s for %s graph:\n%s' %
                              (unknown, self.name, self))
             
