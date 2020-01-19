@@ -106,6 +106,7 @@ Uchip4141: Uname chip4141; Chip
 Uchip4444: Uname chip4444; Chip
 Uchip8181: Uname chip8181; Chip
 Uchip8888: Uname chip8888; Chip
+Umux21: Uname mux21; 2-1 multiplexer
 Udff: Uname dff; D flip/flop
 Ujkff: Uname jkff; D flip/flop
 Urslatch: Uname rslatch; RS latch
@@ -173,6 +174,7 @@ chip4141: keyword;
 chip4444: keyword;
 chip8181: keyword;
 chip8888: keyword;
+mux21: keyword;
 pp: keyword;
 pm: keyword;
 ppp: keyword;

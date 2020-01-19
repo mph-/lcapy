@@ -1877,6 +1877,18 @@ class Uchip2121(Chip):
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD'}
 
+
+class Umux21(Chip):
+    """Multiplexer 2 to 1"""
+
+    pins = {'l1' : ('l', -0.25, 0.25),
+            'l2' : ('l', -0.25, -0.25),
+            'b1' : ('b', 0, -0.5),
+            'r': ('r', 0.25, 0.0)}
+
+    @property
+    def path(self):
+        return ((-0.25, -0.5), (-0.25, 0.5), (0.25, 0.25), (0.25, -0.25), (-0.25, -0.5))    
     
 class Uchip3131(Chip):
     """Chip of size 3 1 3 1"""
