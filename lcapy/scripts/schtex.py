@@ -121,6 +121,12 @@ def main (argv=None):
                         dest='renumber', default=None,
                         help='renumber nodes, e.g, 10:1, 11:2')
 
+    parser.add_argument('--font', type=str, default=None,
+                        help='specify default font, e.g., \small, \sffamily\tiny')    
+
+    parser.add_argument('--preamble', type=str, default=None,
+                        help='specify preamble options')    
+
     parser.add_argument('filename', type=str, help='schematic filename')
     parser.add_argument('outfilename', type=str, nargs='?',
                         help='output filename', default=None)    
@@ -172,6 +178,12 @@ def main (argv=None):
     nosave = args.xgraph or args.ygraph
 
     if not args.xgraph and not args.ygraph:
+        kwargs = {}
+        if args.preamble != None:
+            kwargs['preamble'] = args.preamble
+        if args.font != None:
+            kwargs['font'] = args.font          
+       
         cct.draw(label_nodes=args.label_nodes,
                  draw_nodes=args.draw_nodes,
                  label_ids=args.label_ids,
@@ -179,7 +191,7 @@ def main (argv=None):
                  filename=outfilename, scale=args.scale,
                  node_spacing=args.node_spacing, cpt_size=args.cpt_size,
                  help_lines=args.help_lines, debug=args.debug,
-                 nosave=nosave)
+                 nosave=nosave, **kwargs)
 
     if args.xgraph:
         cct.sch.make_graphs()
