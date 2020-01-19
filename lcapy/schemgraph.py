@@ -490,7 +490,7 @@ class Graph(dict):
                 colour = 'green'
 
             pos = gnode.pos
-            if pos < 1e-6:
+            if pos is None or pos < 1e-6:
                 pos = 0
 
             dotfile.write('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (gnode.fmt_name, colour, fmt_dec(pos)))
