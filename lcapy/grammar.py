@@ -103,6 +103,7 @@ Uchip2222: Uname chip2222; Chip
 Uchip3131: Uname chip3131; Chip
 Uchip3333: Uname chip3333; Chip
 Uchip4141: Uname chip4141; Chip
+Uchip8181: Uname chip8181; Chip
 Udff: Uname dff; D flip/flop
 Ujkff: Uname jkff; D flip/flop
 Urslatch: Uname rslatch; RS latch
@@ -167,6 +168,7 @@ chip2222: keyword;
 chip3131: keyword;
 chip3333: keyword;
 chip4141: keyword;
+chip8181: keyword;
 pp: keyword;
 pm: keyword;
 ppp: keyword;

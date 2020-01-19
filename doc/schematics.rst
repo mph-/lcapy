@@ -552,7 +552,14 @@ A transmission line is a two-port device.  Here's an example:
 .. literalinclude:: examples/schematics/tline3.sch
 
 .. image:: examples/schematics/tline3.png
-   :width: 8cm
+:width: 8cm
+
+The ground wires can be removed using the `nowires` attribute:
+        
+.. literalinclude:: examples/schematics/tline5.sch
+
+.. image:: examples/schematics/tline5.png
+   :width: 8cm        
 
 
 Wires
