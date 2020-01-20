@@ -268,8 +268,7 @@ class Node(object):
         elif label_nodes in ('all', 'true', True):
             return True
         elif label_nodes == 'alpha':
-            if not self.primary or not name[0].isalpha():
-                return False
+            return self.primary and name[0].isalpha()
         elif label_nodes == 'primary':
             return self.primary
 
