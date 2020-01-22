@@ -2482,16 +2482,33 @@ class Wire(OnePort):
                 arrow_map(startarrow), arrow_map(endarrow), style,
                 self.args_str, n1.s, n2.s)
         else:
-            if self.zigzag not in ('|-|', '-|-'):
-                raise ValueError('Expecting zigzag argument |-| or -|-')
-            
-            type1 = self.zigzag[0:2]
-            type2 = self.zigzag[1:3]            
+            pathstr = self.zigzag            
+            Nhoriz = pathstr.count('-')
+            Nvert = pathstr.count('|')
 
-            midpos = (n1.pos + n2.pos) * 0.5            
-            s = r'  \draw[%s-%s, %s, %s] (%s) %s (%s) %s (%s);''\n' % (
+            if Nhoriz == 0 or Nvert == 0:
+                raise ValueError('Need at least one | and one - in path specification')
+
+            p1 = n1.pos
+            p2 = n2.pos            
+            
+            dx = (p2.x - p1.x) / Nhoriz
+            dy = (p2.y - p1.y) / Nvert
+
+            pos = p1
+            path = '(%s)' % pos
+            for c in pathstr:
+                if c == '-':
+                    pos = pos + Pos(dx, 0)
+                elif c == '|':
+                    pos = pos + Pos(0, dy)
+                else:
+                    raise ValueError('Unhandled character %s in path specification' % c)
+                path += ' to (%s)' % pos
+
+            s = r'  \draw[%s-%s, %s, %s] %s;''\n' % (
                 arrow_map(startarrow), arrow_map(endarrow), style,
-                self.args_str, n1.s, type1, midpos, type2, n2.s)
+                self.args_str, path)
 
         if self.voltage_str != '':
             print('There is no voltage drop across an ideal wire!')
