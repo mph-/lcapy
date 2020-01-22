@@ -1221,7 +1221,6 @@ class W(Dummy):
     def i(self):
         raise ValueError('Cannot determine current through wire, use a 0 V voltage source')    
     
-    
 
 class XT(Misc):
     """Crystal"""

@@ -56,7 +56,7 @@ class Cpt(object):
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
                  'pinnames', 'pinnodes', 'pindefs', 'outside', 'pinmap',
-                 'kind', 'wire', 'ignore', 'style', 'nowires')
+                 'kind', 'wire', 'ignore', 'style', 'nowires', 'zigzag')
 
     can_rotate = True
     can_scale = False
@@ -290,6 +290,10 @@ class Cpt(object):
     @property
     def offset(self):
         return float(self.opts.get('offset', 0))
+
+    @property
+    def zigzag(self):
+        return self.opts.get('zigzag', None)
 
     @property
     def kind(self):
@@ -2391,6 +2395,19 @@ class Wire(OnePort):
     def coords(self):
         return ((0, 0), (1, 0))
 
+    # Zig zag wires have no graph constraints.
+    def xlink(self, graphs):
+        if self.zigzag is None:
+            super (Wire, self).xlink(graphs)
+
+    def ylink(self, graphs):
+        if self.zigzag is None:
+            super (Wire, self).ylink(graphs)        
+
+    def place(self, graphs, vals):
+        if self.zigzag is None:
+             super (Wire, self).place(graphs, vals)                
+
     def draw_implicit(self, **kwargs):
         """Draw implicit wires, i.e., connections to ground, etc."""
 
@@ -2460,9 +2477,21 @@ class Wire(OnePort):
 
         # TODO, add arrow shapes for earth symbol.
 
-        s = r'  \draw[%s-%s, %s, %s] (%s) to (%s);''\n' % (
-            arrow_map(startarrow), arrow_map(endarrow), style,
-            self.args_str, n1.s, n2.s)
+        if self.zigzag is None:
+            s = r'  \draw[%s-%s, %s, %s] (%s) to (%s);''\n' % (
+                arrow_map(startarrow), arrow_map(endarrow), style,
+                self.args_str, n1.s, n2.s)
+        else:
+            if self.zigzag not in ('|-|', '-|-'):
+                raise ValueError('Expecting zigzag argument |-| or -|-')
+            
+            type1 = self.zigzag[0:2]
+            type2 = self.zigzag[1:3]            
+
+            midpos = (n1.pos + n2.pos) * 0.5            
+            s = r'  \draw[%s-%s, %s, %s] (%s) %s (%s) %s (%s);''\n' % (
+                arrow_map(startarrow), arrow_map(endarrow), style,
+                self.args_str, n1.s, type1, midpos, type2, n2.s)
 
         if self.voltage_str != '':
             print('There is no voltage drop across an ideal wire!')
@@ -2655,7 +2684,6 @@ defcpt('Ucircle', Circle2, 'Circle')
 defcpt('Ubox4', Box4, 'Box')
 defcpt('Ubox12', Box12, 'Box')
 defcpt('Ucircle4', Circle4, 'Circle')
-
 
 defcpt('V', OnePort, 'Voltage source', 'V')
 defcpt('sV', OnePort, 'Voltage source', 'V')

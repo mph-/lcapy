@@ -122,7 +122,7 @@ def main (argv=None):
                         help='renumber nodes, e.g, 10:1, 11:2')
 
     parser.add_argument('--font', type=str, default=None,
-                        help='specify default font, e.g., \small, \sffamily\tiny')    
+                        help=r'specify default font, e.g., \small, \sffamily\tiny')    
 
     parser.add_argument('--preamble', type=str, default=None,
                         help='specify preamble options')    
