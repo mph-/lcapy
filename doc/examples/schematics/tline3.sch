@@ -6,4 +6,4 @@ W U1.vss 11; down
 W 11 4; right=0.5
 W 11 10; down=0.1, implicit, l=Vss
 W 5 U1.in; right=0.5
-;draw_nodes=connections, help_lines=0.1
+;draw_nodes=connections
