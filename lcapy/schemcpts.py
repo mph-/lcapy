@@ -48,6 +48,7 @@ class Cpt(object):
     flow_keys = ('f', 'f_', 'f^', 'f_>',  'f_<', 'f^>', 'f^<',
                     'f>_', 'f<_', 'f>^', 'f<^', 'f>', 'f<')    
     label_keys = ('l', 'l_', 'l^')
+    inner_label_keys = ('t', )    
     implicit_keys =  ('implicit', 'ground', 'sground', 'rground',
                       'cground', 'nground', 'pground', 'vss', 'vdd',
                       'vee', 'vcc')
@@ -56,7 +57,7 @@ class Cpt(object):
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
                  'pinnames', 'pinnodes', 'pindefs', 'outside', 'pinmap',
-                 'kind', 'wire', 'ignore', 'style', 'nowires', 'zigzag')
+                 'kind', 'wire', 'ignore', 'style', 'nowires', 'line', 'free')
 
     can_rotate = True
     can_scale = False
@@ -292,8 +293,12 @@ class Cpt(object):
         return float(self.opts.get('offset', 0))
 
     @property
-    def zigzag(self):
-        return self.opts.get('zigzag', None)
+    def line(self):
+        return self.opts.get('line', None)
+
+    @property
+    def free(self):
+        return self.boolattr('free')
 
     @property
     def kind(self):
@@ -430,6 +435,9 @@ class Cpt(object):
 
     def xlink(self, graphs):
 
+        if self.free:
+            return
+        
         xvals = self.xvals
         for m1, n1 in enumerate(self.nodes):
             for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
@@ -438,6 +446,9 @@ class Cpt(object):
 
     def ylink(self, graphs):
 
+        if self.free:
+            return        
+
         yvals = self.yvals
         for m1, n1 in enumerate(self.nodes):
             for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
@@ -445,6 +456,9 @@ class Cpt(object):
                     graphs.link(n1.name, n2.name)
 
     def place(self, graphs, vals):
+
+        if self.free:
+            return        
 
         if self.offset != 0:
             print('TODO: offset %s by %f' % (self, self.offset))
@@ -682,12 +696,17 @@ class Cpt(object):
         return self.opts_str_list(self.label_keys)
 
     @property
+    def inner_label_str(self):
+
+        return self.opts_str(self.inner_label_keys)    
+
+    @property
     def args_list(self):
 
         def fmt(key, val):
             return '%s=%s' % (key, latex_format_label(val))
 
-        keys = self.voltage_keys + self.current_keys + self.flow_keys + self.label_keys + self.misc_keys + self.implicit_keys
+        keys = self.voltage_keys + self.current_keys + self.flow_keys + self.label_keys + self.inner_label_keys + self.misc_keys + self.implicit_keys
     
         return [fmt(key, val) for key, val in self.opts.items() if key not in keys]
 
@@ -708,9 +727,9 @@ class Cpt(object):
             label_str = self.value_label        
 
         # Override label if specified.  There are no placement options.
-        string =  ','.join([latex_format_label(val)
-                            for key, val in self.opts.items()
-                            if key in ('l', )])
+        string = ','.join([latex_format_label(val)
+                           for key, val in self.opts.items()
+                           if key in ('l', )])
 
         if string != '':
             label_str = string
@@ -741,6 +760,9 @@ class Cpt(object):
         # Override label if specified.
         if self.label_str != '':
             label_str = self.label_str
+
+        if self.inner_label_str != '':
+            label_str += ',t=' + self.inner_label_str
         return label_str
 
     def check(self):
@@ -2395,19 +2417,6 @@ class Wire(OnePort):
     def coords(self):
         return ((0, 0), (1, 0))
 
-    # Zig zag wires have no graph constraints.
-    def xlink(self, graphs):
-        if self.zigzag is None:
-            super (Wire, self).xlink(graphs)
-
-    def ylink(self, graphs):
-        if self.zigzag is None:
-            super (Wire, self).ylink(graphs)        
-
-    def place(self, graphs, vals):
-        if self.zigzag is None:
-             super (Wire, self).place(graphs, vals)                
-
     def draw_implicit(self, **kwargs):
         """Draw implicit wires, i.e., connections to ground, etc."""
 
@@ -2477,12 +2486,12 @@ class Wire(OnePort):
 
         # TODO, add arrow shapes for earth symbol.
 
-        if self.zigzag is None:
+        if self.line is None:
             s = r'  \draw[%s-%s, %s, %s] (%s) to (%s);''\n' % (
                 arrow_map(startarrow), arrow_map(endarrow), style,
                 self.args_str, n1.s, n2.s)
         else:
-            pathstr = self.zigzag            
+            pathstr = self.line            
             Nhoriz = pathstr.count('-')
             Nvert = pathstr.count('|')
 

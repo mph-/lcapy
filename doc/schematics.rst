@@ -582,7 +582,22 @@ example to draw two parallel resistors:
 .. image:: examples/schematics/parallel.png
    :width: 2cm
      
+Zig-zag wires can be drawn using the `line` attribute.  For example:
 
+.. literalinclude:: examples/schematics/line1.sch
+
+.. image:: examples/schematics/line1.png
+   :width: 3cm
+
+
+.. literalinclude:: examples/schematics/line2.sch
+
+.. image:: examples/schematics/line2.png
+   :width: 3cm        
+
+In these examples, the `free` attribute is used so that the wire places no constraints on the node positions.   Thus the `size` and `rotate` attributes are ignored.   The open-circuit component is used to fix the node locations.
+           
+           
 Arrows
 ------
 
@@ -592,7 +607,7 @@ There are many arrow styles, see the tikz manual.  For example,
 .. literalinclude:: examples/schematics/arrows.sch
 
 .. image:: examples/schematics/arrows.png
-   :width: 5cm
+   :width: 10cm
 
            
 Implicit wires
@@ -860,8 +875,10 @@ Component attributes
 
 - `invisible`: connect to the other components but do not draw
 
-- `ignore`: do not connect to the other components and do not draw (this is useful for  simulating multiple mutual inductances but where it it is too hard to show them on a schematic)
+- `ignore`: do not connect to the other components and do not draw (this is useful for simulating multiple mutual inductances but where it it is too hard to show them on a schematic)
 
+- `free`: place no constraints on the noe positions; this is useful for zig-zag wires.  With this attribute the `size` and `rotate` attributes are ignored.
+  
 - `color`: component color
 
 - `variable`: for variable resistors, inductors, and capacitors
