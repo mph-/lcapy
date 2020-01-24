@@ -8,7 +8,7 @@ Copyright 2015--2019 Michael Hayes, UCECE
 
 from __future__ import print_function
 from .latex import latex_format_label
-from .schemmisc import Pos, Opts
+from .schemmisc import Pos, Opts, Steps
 import numpy as np
 import sys
 
@@ -2491,28 +2491,11 @@ class Wire(OnePort):
                 arrow_map(startarrow), arrow_map(endarrow), style,
                 self.args_str, n1.s, n2.s)
         else:
-            pathstr = self.steps    
-            Nhoriz = pathstr.count('-')
-            Nvert = pathstr.count('|')
 
-            if Nhoriz == 0 or Nvert == 0:
-                raise ValueError('Need at least one | and one - in path specification')
+            steps = Steps(self.steps, n1.pos, n2.pos)
 
-            p1 = n1.pos
-            p2 = n2.pos            
-            
-            dx = (p2.x - p1.x) / Nhoriz
-            dy = (p2.y - p1.y) / Nvert
-
-            pos = p1
-            path = '(%s)' % pos
-            for c in pathstr:
-                if c == '-':
-                    pos = pos + Pos(dx, 0)
-                elif c == '|':
-                    pos = pos + Pos(0, dy)
-                else:
-                    raise ValueError('Unhandled character %s in path specification' % c)
+            path = '(%s)' % n1.pos
+            for pos in steps:
                 path += ' to (%s)' % pos
 
             s = r'  \draw[%s-%s, %s, %s] %s;''\n' % (
