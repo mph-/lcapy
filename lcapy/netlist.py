@@ -190,11 +190,13 @@ class NetlistNamespace(object):
         kwargs include:
            label_ids: True to show component ids
            label_values: True to display component values
-           draw_nodes: True to show all nodes, False to show no nodes, 
+           draw_nodes: True to show all nodes,
+             False or 'none' to show no nodes, 
              'primary' to show primary nodes,
              'connections' to show nodes that connect more than two components,
              'all' to show all nodes
-           label_nodes: True to label all nodes, False to label no nodes, 
+           label_nodes: True to label all nodes,
+              False or 'none' to label no nodes, 
              'primary' to label primary nodes,
              'alpha' to label nodes starting with a letter,
              'pins' to label nodes that are pins on a chip,
