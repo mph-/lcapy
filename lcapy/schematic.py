@@ -70,6 +70,21 @@ def display_matplotlib(filename):
     fig.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.05)
 
 
+def png_image_size(filename):
+
+    import struct
+    
+    with open(filename, 'rb') as f:
+        header = f.read(25)
+
+    if (header[:8] != b'\211PNG\r\n\032\n' and (header[12:16] != b'IHDR')):
+        raise Exception('%s not a png image' % filename)        
+    w, h = struct.unpack('>LL', header[16:24])
+    width = int(w)
+    height = int(h)
+    return width, height
+
+    
 class SchematicOpts(Opts):
 
     def __init__(self):
@@ -739,7 +754,7 @@ class Schematic(NetfileMixin):
 
                 kernapp = cfg['IPKernelApp']
 
-                # Check if processing ipynb file.
+                # Check if processing ipynb file for Jupyter notebook.
                 if 'connection_file' in kernapp:
                     return True
                 elif kernapp and kernapp['parent_appname'] == 'ipython-notebook':
@@ -786,9 +801,13 @@ class Schematic(NetfileMixin):
             #    when the ipynb file is loaded.
             # 2. The image metadata (width, height) is not stored
             #    when the ipynb file is written non-interactively.
+            width, height = png_image_size(pngfilename)
+            # TODO, determine scale factor for display width.
+            scale = 0.5
+            width = int(width * scale)
+            height = int(height * scale)
             display_png(Image(filename=pngfilename,
-                              width=self.width * 100, 
-                              height=self.height * 100))
+                              width=width, height=height))
             return
 
         if filename is None:
