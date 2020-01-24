@@ -6,7 +6,9 @@ Installation
 
 Lcapy (and its python dependencies) can be installed using:
 
->>> pip3 install lcapy
+.. code-block:: console
+                
+    $ pip3 install lcapy
 
 For schematic drawing you require:
 
@@ -28,21 +30,28 @@ Installation for Linux (Ubuntu and variants)
 
 All the other packages required for Lcapy can be installed using:
 
-   >>> sudo apt install texlive-latex-base texlive-pictures texlive-latex-extra imagemagick ghostscript libjs-mathjax fonts-mathjax
+.. code-block:: console
+                
+   $ sudo apt install texlive-latex-base texlive-pictures texlive-latex-extra imagemagick ghostscript libjs-mathjax fonts-mathjax
 
    
 Installation from github
 ========================
 
 1. Lcapy can be downloaded from https://github.com/mph-/lcapy as a .zip file or preferably using git::
-     
-   >>> git clone https://github.com/mph-/lcapy
+
+.. code-block:: console
+                     
+   $ git clone https://github.com/mph-/lcapy
 
 2.  You will also need to install scipy, numpy, matplotlib, and networkx.
    
 3.  Lcapy can be installed using:
 
-  >>> cd lcapy
-  >>> sudo python setup.py install
+.. code-block:: console
+    
+  $ cd lcapy
+  $ sudo python setup.py install
 
-  Note, if you do not have root access, you can use  `virtualenv` or  set the environment variable `PYTHONPATH` to find the source files for Lcapy.
+  
+Note, if you do not have root access, you can use  `virtualenv` or  set the environment variable `PYTHONPATH` to find the source files for Lcapy.

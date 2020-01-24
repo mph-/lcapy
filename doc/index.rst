@@ -4,16 +4,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to lcapy's documentation!
-====================================
+Welcome to Lcapy's documentation!
+=================================
 
-Lcapy is a Python package for linear circuit analysis.  Lcapy uses
-SymPy (symbolic Python) for symbolic analysis.  Lcapy can
-semi-automate the drawing of schematics from a netlist, including
-diodes and transistors.
+Lcapy (el-cap-ee) is a Python package for linear circuit analysis.  It uses
+SymPy (symbolic Python) for symbolic analysis.  As well as circuit analysis, Lcapy can semi-automate the drawing of high-quality schematics from a netlist, including diodes, transistors, and other non-linear components..
 
 .. image:: examples/schematics/lpf1-buffer-loaded2.png
-   :width: 9cm
+   :width: 11cm
 
 Contents:
 =========
@@ -32,7 +30,6 @@ Contents:
    config.rst                                                      
    problems.rst                          
    internals.rst            
-   api.rst
 
 
 Indices and tables

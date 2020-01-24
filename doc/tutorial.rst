@@ -16,6 +16,8 @@ with time.
 Networks and circuits can be described using netlists or combinations
 of network elements.  These can be drawn semi-automatically.
 
+As well as performing circuit analysis, Lcapy can output the systems of equations for modified nodal analysis and state-space analysis.
+
 Lcapy cannot directly analyse non-linear devices such as diodes or
 transistors although it does support simple opamps without saturation.
 Nevertheless, it can draw them!
@@ -33,6 +35,8 @@ Preliminaries
 
   >>> ipython --pylab
 
+- Alternatively, you can use a Jupyter notebook.
+  
 
 Conventions
 ===========
@@ -1589,5 +1593,7 @@ number of examples are provided in the `lcapy/doc/examples/notebooks`
 directory.  Before these notebooks can be viewed in a browser you need
 to start a Jupyter notebook server.
 
-   >>> cd lcapy/doc/examples/notebooks
-   >>> ipython notebook
+.. code-block:: console
+                
+   $ cd lcapy/doc/examples/notebooks
+   $ jupyter notebook
