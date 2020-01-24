@@ -581,18 +581,22 @@ example to draw two parallel resistors:
 
 .. image:: examples/schematics/parallel.png
    :width: 2cm
-     
-Stepped wires can be drawn using the `line` attribute.  For example:
 
-.. literalinclude:: examples/schematics/line1.sch
 
-.. image:: examples/schematics/line1.png
+Stepped wires
+-------------
+           
+Stepped wires can be drawn using the `steps` attribute.  For example:
+
+.. literalinclude:: examples/schematics/steppedwire1.sch
+
+.. image:: examples/schematics/steppedwire1.png
    :width: 3cm
 
 
-.. literalinclude:: examples/schematics/line2.sch
+.. literalinclude:: examples/schematics/steppedwire2.sch
 
-.. image:: examples/schematics/line2.png
+.. image:: examples/schematics/steppedwire2.png
    :width: 3cm        
 
 In these examples, the `free` attribute is used so that the wire places no constraints on the node positions.   Thus the `size` and `rotate` attributes are ignored.   The open-circuit component is used to fix the node locations.

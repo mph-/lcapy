@@ -57,7 +57,7 @@ class Cpt(object):
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
                  'pinnames', 'pinnodes', 'pindefs', 'outside', 'pinmap',
-                 'kind', 'wire', 'ignore', 'style', 'nowires', 'line', 'free')
+                 'kind', 'wire', 'ignore', 'style', 'nowires', 'steps', 'free')
 
     can_rotate = True
     can_scale = False
@@ -293,8 +293,8 @@ class Cpt(object):
         return float(self.opts.get('offset', 0))
 
     @property
-    def line(self):
-        return self.opts.get('line', None)
+    def steps(self):
+        return self.opts.get('steps', None)
 
     @property
     def free(self):
@@ -2486,12 +2486,12 @@ class Wire(OnePort):
 
         # TODO, add arrow shapes for earth symbol.
 
-        if self.line is None:
+        if self.steps is None:
             s = r'  \draw[%s-%s, %s, %s] (%s) to (%s);''\n' % (
                 arrow_map(startarrow), arrow_map(endarrow), style,
                 self.args_str, n1.s, n2.s)
         else:
-            pathstr = self.line            
+            pathstr = self.steps    
             Nhoriz = pathstr.count('-')
             Nvert = pathstr.count('|')
 
