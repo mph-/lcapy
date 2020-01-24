@@ -323,8 +323,6 @@ class Graph(dict):
             while gnode != None and gnode.name != 'start':
                 if gnode.name in unknown:
                     unknown.remove(gnode.name)
-                else:
-                    print('Warning: node %s not in graph' % gnode.name)
                 gnode.path = True
                 gnode.pos = gnode.dist
                 gnode.fixed = True
