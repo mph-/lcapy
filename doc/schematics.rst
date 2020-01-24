@@ -582,7 +582,7 @@ example to draw two parallel resistors:
 .. image:: examples/schematics/parallel.png
    :width: 2cm
      
-Zig-zag wires can be drawn using the `line` attribute.  For example:
+Stepped wires can be drawn using the `line` attribute.  For example:
 
 .. literalinclude:: examples/schematics/line1.sch
 
@@ -877,7 +877,7 @@ Component attributes
 
 - `ignore`: do not connect to the other components and do not draw (this is useful for simulating multiple mutual inductances but where it it is too hard to show them on a schematic)
 
-- `free`: place no constraints on the noe positions; this is useful for zig-zag wires.  With this attribute the `size` and `rotate` attributes are ignored.
+- `free`: place no constraints on the noe positions; this is useful for stepped wires.  With this attribute the `size` and `rotate` attributes are ignored.
   
 - `color`: component color
 
