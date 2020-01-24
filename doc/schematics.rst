@@ -600,7 +600,17 @@ Stepped wires can be drawn using the `steps` attribute.  For example:
    :width: 3cm        
 
 In these examples, the `free` attribute is used so that the wire places no constraints on the node positions.   Thus the `size` and `rotate` attributes are ignored.   The open-circuit component is used to fix the node locations.
-           
+
+The `-` character represents a horizontal step and the `|` character represents a vertical step.   The shape of the line is controlled by the step pattern.  For example `--|-` represents two steps horizontally, one step vertically, and then one step horizontally.  A number before the `-` or `|` symbol specifies the number of repeats of the step.  For example, `steps=-4|-` is equivalent to `steps=-||||-`.
+
+If the step pattern is not specified, a default step pattern `-|` is chosen if the horizontal extent is longer than the vertical extent and `|-` is chosen otherwise.  For example,
+
+.. literalinclude:: examples/schematics/steppedwire0.sch
+
+.. image:: examples/schematics/steppedwire0.png
+   :width: 3cm        
+
+
            
 Arrows
 ------
@@ -881,7 +891,7 @@ Component attributes
 
 - `ignore`: do not connect to the other components and do not draw (this is useful for simulating multiple mutual inductances but where it it is too hard to show them on a schematic)
 
-- `free`: place no constraints on the noe positions; this is useful for stepped wires.  With this attribute the `size` and `rotate` attributes are ignored.
+- `free`: place no constraints on the node positions; this is useful for stepped wires.  With this attribute the `size` and `rotate` attributes are ignored.
   
 - `color`: component color
 
