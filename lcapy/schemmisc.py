@@ -83,9 +83,6 @@ class Opts(dict):
 
         if string == '':
             return
-        if string[0] == ';':
-            self['append'] += string[1:] + '\n'
-            return
 
         for part in split(string):
             part = part.strip()
@@ -123,6 +120,9 @@ class Opts(dict):
         
         return self.__class__(super(Opts, self).copy())
 
+    def remove(self, arg):
+        self.pop(arg)
+            
     def strip(self, *args):
 
         stripped = Opts()
@@ -150,6 +150,7 @@ class Opts(dict):
         self.strip_current_labels()
         self.strip_labels()
 
+        
 class Steps(object):
 
     def __init__(self, string, pos1, pos2):

@@ -1070,6 +1070,16 @@ Examples
    :width: 4cm
 
 
+Customisation
+=============
+
+Circuitikz commands can be embedded in a netlist.  Here's an example that embeds a circuitikz command to change the inductor style:
+
+.. literalinclude:: examples/schematics/L1.sch
+
+.. image:: examples/schematics/L1.png
+   :width: 6cm
+
 
 File formats
 ============

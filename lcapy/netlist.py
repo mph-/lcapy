@@ -14,7 +14,7 @@ from .sexpr import Hs, Zs, Ys
 from .symbols import j, s, omega
 from .voltage import Voltage, Vname
 from .current import Current, Iname
-from .schematic import Schematic, Opts, SchematicOpts
+from .schematic import Schematic, Opts
 from .mna import MNAMixin, Nodedict, Branchdict
 from .statespace import StateSpace
 from .netfile import NetfileMixin
@@ -214,7 +214,7 @@ class NetlistNamespace(object):
         if kwargs.pop('s_model', False):
             cct = cct.s_model()
 
-        return cct.sch.draw(filename=filename, opts=self._netlist.opts, **kwargs)
+        return cct.sch.draw(filename=filename, **kwargs)
 
 
 class NetlistMixin(object):
@@ -229,8 +229,6 @@ class NetlistMixin(object):
         
         self.context = context
         self._init_parser(mnacpts)
-
-        self.opts = SchematicOpts()
 
         if filename is not None:
             self.netfile_add(filename)
@@ -350,7 +348,6 @@ class NetlistMixin(object):
         """Create a copy of the netlist"""
 
         new = self._new()
-        new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
             new._add(cpt.copy())
@@ -500,7 +497,6 @@ class NetlistMixin(object):
             node_map = self.augment_node_map(node_map)
 
         new = self._new()
-        new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
             new._add(cpt.rename_nodes(node_map))
@@ -761,7 +757,6 @@ class NetlistMixin(object):
         """
 
         new = self._new()
-        new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
             if cpt.independent_source:
@@ -774,7 +769,6 @@ class NetlistMixin(object):
     def _kill(self, sourcenames):
 
         new = self._new()
-        new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
             if cpt.name in self.control_sources:
@@ -830,7 +824,6 @@ class NetlistMixin(object):
     def _noisy(self, resistornames):
 
         new = self._new()
-        new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
             if cpt.name in resistornames:
@@ -916,7 +909,6 @@ class NetlistMixin(object):
         conditions."""
 
         new = self._new()
-        new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
             net = cpt.pre_initial_model()
@@ -927,7 +919,6 @@ class NetlistMixin(object):
         """"Create s-domain model."""
 
         new = self._new()
-        new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
             net = cpt.s_model(var)
@@ -939,7 +930,6 @@ class NetlistMixin(object):
         with current sources and capacitors with voltage sources."""
 
         new = self._new()
-        new.opts = copy(self.opts)
 
         for cpt in self._elements.values():
             net = cpt.ss_model()
@@ -992,7 +982,7 @@ class NetlistMixin(object):
         if kwargs.pop('s_model', False):
             cct = cct.s_model()
 
-        return cct.sch.draw(filename=filename, opts=self.opts, **kwargs)
+        return cct.sch.draw(filename=filename, **kwargs)
 
     @property
     def is_causal(self):

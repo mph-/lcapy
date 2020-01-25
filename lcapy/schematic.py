@@ -97,7 +97,6 @@ class SchematicOpts(Opts):
              'scale' : 1.0,
              'cpt_size' : 1.5,
              'node_spacing' : 2.0,
-             'append' : '',
              'help_lines' : 0.0,
              'style' : 'american'})
 
@@ -553,15 +552,6 @@ class Schematic(NetfileMixin):
             if node.cptname is not None and not node.implicit:
                 raise ValueError('Unreferenced pin connection %s for %s' % (node.name, node.elt_list))
 
-    def _postamble_add(self, s):
-        if s == '':
-            return s
-
-        # It would be useful to sanitise known coordinates with a dot in them,
-        # e.g., (S1.c) -> (S1@c)
-        # However, also need to handle arguments of form (3.0cm)
-        return ' ' + s
-                
     def _tikz_draw(self, style_args='', **kwargs):
 
         self._setup()
@@ -573,8 +563,8 @@ class Schematic(NetfileMixin):
                 'transform shape',
                 '/tikz/circuitikz/bipoles/length=%.2fcm' % self.cpt_size]
         opts.append(style_args)
-        if 'preamble' in kwargs:
-            opts.append(kwargs.pop('preamble'))
+        if 'options' in kwargs:
+            opts.append(kwargs.pop('options'))
 
         if 'font' in kwargs:
             font = kwargs.pop('font')            
@@ -582,6 +572,10 @@ class Schematic(NetfileMixin):
         
         s = r'\begin{tikzpicture}[%s]''\n' % ', '.join(opts)
 
+        # Add preamble        
+        if 'preamble' in kwargs:
+            s += '  ' + kwargs.pop('preamble') + '\n'
+        
         help = float(kwargs.pop('help_lines', 0))
         color = kwargs.pop('color', 'blue')
         if help != 0:
@@ -596,22 +590,33 @@ class Schematic(NetfileMixin):
         for n in self.nodes.values():
             s += r'  \coordinate (%s) at (%s);''\n' % (n.s, n.pos)
 
+        # keyword args for second pass
+        kwargs2 = kwargs.copy()
+            
         # Draw components
         for elt in self.elements.values():
             if elt.ignore:
-                continue            
+                continue
+            if elt.directive:            
+                for key, val in elt.opts.items():
+                    kwargs[key] = val 
+                   
             s += elt.draw(**kwargs)
             s += elt.draw_nodes(**kwargs)
             s += elt.draw_pins()
 
         # Add the node labels
         for elt in self.elements.values():
-            if elt.directive or elt.ignore:
-                continue            
-            s += elt.draw_node_labels(**kwargs)            
+            if elt.ignore:
+                continue                        
+            if elt.directive:
+                for key, val in elt.opts.items():
+                    kwargs2[key] = val
+            s += elt.draw_node_labels(**kwargs2)            
 
         # Add postamble
-        s += self._postamble_add(kwargs.pop('append', ''))
+        if 'postamble' in kwargs:
+            s += '  ' + kwargs.pop('postamble') + '\n'        
 
         s += r'\end{tikzpicture}''\n'
 
@@ -702,7 +707,7 @@ class Schematic(NetfileMixin):
 
         raise RuntimeError('Cannot create file of type %s' % ext)
 
-    def draw(self, filename=None, opts={}, **kwargs):
+    def draw(self, filename=None, **kwargs):
         """
         filename specifies the name of the file to produce.  If None,
         the schematic is displayed on the screen.
@@ -733,19 +738,29 @@ class Schematic(NetfileMixin):
            debug: True to display debug information
         """
 
-        if 'label_ids' not in kwargs:
-            kwargs['label_ids'] = False
-        if 'label_values' not in kwargs:
-            kwargs['label_values'] = True
-        if 'label_nodes' not in kwargs:
-            kwargs['label_nodes'] = False
-        if 'draw_nodes' not in kwargs:
-            kwargs['draw_nodes'] = 'connections'
+        # None means don't care, so remove.
+        for key in list(kwargs.keys()):
+            if kwargs[key] is None:
+                kwargs.pop(key)
 
-        # Add schematic options defined with ;; are stored in the append
-        # field of opts.
+        # Remove options that may be overridden
+        for elt in self.elements.values():
+            for key in list(elt.opts.keys()):
+                if key in kwargs:
+                    elt.opts.remove(key)
+
+        # Default options
+        opts = SchematicOpts()
         for key, val in opts.items():
-            if key not in kwargs or kwargs[key] is None:
+            if key not in kwargs:            
+                kwargs[key] = val            
+
+        # Global options (at end of list for historical reasons)
+        for eltname in reversed(self.elements):
+            elt = self.elements[eltname]
+            if not elt.directive:
+                break
+            for key, val in elt.opts.items():
                 kwargs[key] = val
 
         def in_ipynb():
@@ -815,7 +830,7 @@ class Schematic(NetfileMixin):
             filename = tmpfilename('.png')
             # Thicken up lines to reduce aliasing causing them to
             # disappear, especially when using pdftoppm.
-            self.tikz_draw(filename=filename, preamble='bipoles/thickness=2',
+            self.tikz_draw(filename=filename, options='bipoles/thickness=2',
                            **kwargs)
             display_matplotlib(filename)
             return

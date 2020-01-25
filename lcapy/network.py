@@ -175,6 +175,15 @@ class Network(object):
            help_lines: distance between lines in grid, default 0.0 (disabled)
            debug: True to display debug information
         """
+
+        if 'label_ids' not in kwargs:
+            kwargs['label_ids'] = False
+        if 'label_values' not in kwargs:
+            kwargs['label_values'] = True
+        if 'label_nodes' not in kwargs:
+            kwargs['label_nodes'] = False
+        if 'draw_nodes' not in kwargs:
+            kwargs['draw_nodes'] = 'connections'
         
         self.sch.draw(filename=filename, **kwargs)
         

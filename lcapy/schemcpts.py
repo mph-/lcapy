@@ -828,8 +828,8 @@ class A(Cpt):
     def draw(self, **kwargs):
 
         n = self.nodes[0]
-        s = r'  \draw [%s] (%s) node {%s};''\n' % (self.args_str, n.s,
-                                                   self.label(**kwargs))
+        s = r'  \draw[%s] (%s) node {%s};''\n' % (self.args_str, n.s,
+                                                  self.label(**kwargs))
         return s
     
         
@@ -1129,12 +1129,10 @@ class TF1(FixedCpt):
     def coords(self):
         return ((0.5, 1), (0.5, 0), (0, 1), (0, 0))
 
-    def draw(self, **kwargs):
+    def draw(self, link=True, **kwargs):
 
         if not self.check():
             return ''
-
-        link = kwargs.get('link', True)
 
         p = [node.pos for node in self.nodes]
 
@@ -1161,7 +1159,7 @@ class TF1(FixedCpt):
             width = p[0].x - p[2].x
             arcpos = Pos((p[0].x + p[2].x) / 2, secondary_dot.y - width / 2 + 0.3)
 
-            s += r'  \draw [<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (
+            s += r'  \draw[<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (
                 width / 2, arcpos, width / 2)
 
         if self.classname in ('TFcore', 'TFtapcore'):
@@ -2441,7 +2439,7 @@ class Wire(OnePort):
 
         if 'l' in self.opts:
             lpos = self.tf(n2.pos, (0.125, 0))
-            s += r'  \draw [anchor=%s] (%s) node {%s};''\n' % (
+            s += r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
                 anchor, lpos, self.label(**kwargs))
         return s
 

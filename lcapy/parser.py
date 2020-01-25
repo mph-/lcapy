@@ -1,7 +1,7 @@
 """This module performs parsing of SPICE-like netlists.  It uses a
 custom parser rather than lex/yacc to give better error messages.
 
-Copyright 2015, 2016 Michael Hayes, UCECE
+Copyright 2015--2020 Michael Hayes, UCECE
 
 """
 
@@ -201,9 +201,15 @@ class Parser(object):
             cpt_id = ''
             name = 'XX'
             name += parent._make_anon(cpt_type)
-            defname = namespace + cpt_type + cpt_id            
+            defname = namespace + cpt_type + cpt_id
+
+            if string.startswith(';') and not string.startswith(';;'):
+                opts_string = string[1:]
+            else:
+                opts_string = ''                
+                
             return self.cpts.make('XX', parent, '', defname, name,
-                                  cpt_type, cpt_id, string, '', (), '')
+                                  cpt_type, cpt_id, string, opts_string, (), '')
 
         net = namespace + net
         parts = net.split(';', 1)

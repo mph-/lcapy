@@ -124,8 +124,14 @@ def main (argv=None):
     parser.add_argument('--font', type=str, default=None,
                         help=r'specify default font, e.g., \small, \sffamily\tiny')    
 
+    parser.add_argument('--options', type=str, default=None,
+                        help='specify circuitikz options')
+    
     parser.add_argument('--preamble', type=str, default=None,
-                        help='specify preamble options')    
+                        help='specify circuitikz commands at start')
+
+    parser.add_argument('--postamble', type=str, default=None,
+                        help='specify circuitikz commands at end')
 
     parser.add_argument('filename', type=str, help='schematic filename')
     parser.add_argument('outfilename', type=str, nargs='?',
@@ -179,8 +185,12 @@ def main (argv=None):
 
     if not args.xgraph and not args.ygraph:
         kwargs = {}
+        if args.options != None:
+            kwargs['options'] = args.options
         if args.preamble != None:
             kwargs['preamble'] = args.preamble
+        if args.postamble != None:
+            kwargs['postamble'] = args.postamble            
         if args.font != None:
             kwargs['font'] = args.font          
        
