@@ -1148,7 +1148,7 @@ class TF1(FixedCpt):
         q = self.tf(centre2, ((0.1, 0.275), ))        
         secondary_dot = q[0]
 
-        q = self.tf(centre, ((0, 0.4),))
+        q = self.tf(centre, ((0, 0.45),))
         labelpos = q[0]
 
         s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
@@ -2589,7 +2589,7 @@ class XX(Cpt):
     def draw(self, **kwargs):
 
         if self.string.startswith(';;'):
-            return self.string[2:]
+            return ' ' + self.string[2:] + '\n'
         return ''
 
     
