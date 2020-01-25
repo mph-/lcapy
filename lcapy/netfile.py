@@ -55,10 +55,6 @@ class NetfileMixin(object):
         
         if string == '':
             pass
-        elif string[0] == ';':
-            # Strings starting with ;; are schematic options.
-            if hasattr(self, 'opts'):
-                self.opts.add(string[1:])
         elif string[0:9] == '.include ':
             self._include(string)
             return None

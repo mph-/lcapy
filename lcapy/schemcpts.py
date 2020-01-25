@@ -2585,7 +2585,13 @@ class CPE(StretchyCpt):
 
 class XX(Cpt):
     directive = True
-    
+
+    def draw(self, **kwargs):
+
+        if self.string.startswith(';;'):
+            return self.string[2:]
+        return ''
+
     
 classes = {}
 

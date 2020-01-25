@@ -592,20 +592,20 @@ class Schematic(NetfileMixin):
                 color, start, help, help, stop)
 
         # Write coordinates.  TODO, not all coordinates are needed
-        # so those can be weeded out.
+        # so those can be weeded out to simplify the generated file.
         for n in self.nodes.values():
             s += r'  \coordinate (%s) at (%s);''\n' % (n.s, n.pos)
 
         # Draw components
-        for m, elt in enumerate(self.elements.values()):
-            if elt.directive or elt.ignore:
+        for elt in self.elements.values():
+            if elt.ignore:
                 continue            
             s += elt.draw(**kwargs)
             s += elt.draw_nodes(**kwargs)
             s += elt.draw_pins()
 
         # Add the node labels
-        for m, elt in enumerate(self.elements.values()):
+        for elt in self.elements.values():
             if elt.directive or elt.ignore:
                 continue            
             s += elt.draw_node_labels(**kwargs)            
