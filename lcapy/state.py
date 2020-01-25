@@ -1,6 +1,6 @@
 """This file provides the State class that maintains the global state.
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 
 """
 

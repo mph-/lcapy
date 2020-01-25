@@ -1,3 +1,9 @@
+"""This module provides miscellaneous support for schematic drawing.
+
+Copyright 2014--2020 Michael Hayes, UCECE
+
+"""
+
 import numpy as np
 
 class Pos(object):

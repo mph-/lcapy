@@ -12,7 +12,7 @@ This module performs schematic drawing using circuitikz from a netlist.
 >>> sch.add('W 0.2 0.2; right')
 >>> sch.draw()
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 """
 
 # Components are positioned using two graphs; one graph for
@@ -306,6 +306,7 @@ class Schematic(NetfileMixin):
         self.node_spacing = 2.0
         self.scale = 1.0
         self.dummy_node = 0
+        self.context = None       
 
         if filename is not None:
             self.netfile_add(filename)

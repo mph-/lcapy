@@ -78,10 +78,12 @@ class NetfileMixin(object):
         """
 
         # Switch context to capture new symbol definitions
-        state.switch_context(self.context)
+        if self.context is not None:
+            state.switch_context(self.context)
         self._add(string)
         self._invalidate()
-        state.restore_context()
+        if self.context is not None:        
+            state.restore_context()
         
     def _add(self, string, namespace=''):
         """The general form is: 'Name Np Nm symbol'
@@ -116,7 +118,9 @@ class NetfileMixin(object):
 
         lines = file.readlines()
 
-        state.switch_context(self.context)        
+        if self.context is not None:        
+            state.switch_context(self.context)        
         for line in lines:
             self._add(line, namespace)
-        state.restore_context()
+        if self.context is not None:                    
+            state.restore_context()

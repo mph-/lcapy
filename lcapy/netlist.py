@@ -1,7 +1,7 @@
 """This module provides support for the common aspects of Circuit and
 Network classes.
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 
 """
 
