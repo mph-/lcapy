@@ -1815,7 +1815,7 @@ class Triangle(Shape):
         if not self.check():
             return ''
 
-        s = self.draw_path([self.node('t').pos, self.node('bl').pos,
+        s = self.draw_path([self.node('top').pos, self.node('bl').pos,
                             self.node('br').pos], closed=True, style='thick')
         s += self.draw_label(self.node('mid').pos, **kwargs)
 
