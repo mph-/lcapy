@@ -267,6 +267,32 @@ The steps of the algorithm are:
    has a dangling node the stretch is zero.
 
 
+Schematic sizing
+================   
+
+The default node spacing is 2 units where the default unit for
+PGF/Tikz macros is 1 cm.  By default Circuitikz uses a default bipole
+length of 1.4 cm; this produces resistors with a zig-zag of length
+1.16 units.  Lcapy sets the default bipole length to 1.5 cm; this
+results in a zig-zag of length of 1.2 cm.  The bipole length can be
+changed used the `cpt_size` argument.
+
+Schematics are displayed in notebooks using bit-mapped PNG files (since SVG does not properly work).   There are two steps:
+
+1. A PDF file is created using pdflatex from the Circuitikz macros.
+   
+2. The PDF file is converted to a bit-mapped PNG file.
+
+pdflatex (Tex live) uses `\pdfpkresolution=600` to produce a PDF document with
+600 dots per inch (dpi).   The output file dimensions are in points (72 points to the inch).
+
+The PDF is converted to a PNG using Image Magick convert with a default
+density of 150 dpi (`-density 150`).  This uses ghostscript with `-r
+150x150` to do the image conversion.
+
+For example, a resistor by default will be 2 cm long (node to node).   This is equivalent to 0.787 inch.   With dpi=150, the resultant PNG is 118 pixels wide.
+
+
 Customisation
 =============
 
