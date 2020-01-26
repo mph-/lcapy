@@ -97,6 +97,7 @@ class SchematicOpts(Opts):
              'label_ids': True,
              'label_nodes': 'primary',
              'scale' : 1.0,
+             'dpi' : 150,             
              'cpt_size' : 1.5,
              'node_spacing' : 2.0,
              'help_lines' : 0.0,
@@ -624,12 +625,13 @@ class Schematic(NetfileMixin):
 
         return s
 
-    def tikz_draw(self, filename, dpi=150, **kwargs):
+    def tikz_draw(self, filename, **kwargs):
 
         root, ext = path.splitext(filename)
 
         debug = kwargs.pop('debug', False)
         style = kwargs.pop('style', 'american')
+        self.dpi = float(kwargs.pop('dpi', 150))        
         self.cpt_size = float(kwargs.pop('cpt_size', 1.2))
         self.node_spacing = float(kwargs.pop('node_spacing', 2.0))
         self.scale = float(kwargs.pop('scale', 1.0))
@@ -657,8 +659,8 @@ class Schematic(NetfileMixin):
             return
 
         if debug:
-            print('width = %d, height = %d, dpi = %d, cpt_size = %.2f, node_spacing = %.2f, scale = %.2f'
-                  % (self.width, self.height, dpi, 
+            print('width=%d, height=%d, dpi=%d, cpt_size=%.2f, node_spacing=%.2f, scale=%.2f'
+                  % (self.width, self.height, self.dpi, 
                      self.cpt_size, self.node_spacing, self.scale))
             print(self.nodes)
             # print(self.xgraph.cnodes)
@@ -701,7 +703,7 @@ class Schematic(NetfileMixin):
             return
 
         if ext == '.png':
-            convert_pdf_png(pdf_filename, root + '.png', dpi)
+            convert_pdf_png(pdf_filename, root + '.png', self.dpi)
             if not debug:
                 remove(pdf_filename)
             return
@@ -739,8 +741,6 @@ class Schematic(NetfileMixin):
            debug: True to display debug information
         """
 
-        dpi = float(kwargs.pop('dpi', 150))            
-        
         # None means don't care, so remove.
         for key in list(kwargs.keys()):
             if kwargs[key] is None:
@@ -764,6 +764,7 @@ class Schematic(NetfileMixin):
             if not elt.directive:
                 break
             for key, val in elt.opts.items():
+                # val is a str
                 kwargs[key] = val
 
         def in_ipynb():
@@ -798,7 +799,7 @@ class Schematic(NetfileMixin):
                     from IPython.display import SVG, display_svg
 
                     svgfilename = tmpfilename('.svg')
-                    self.tikz_draw(svgfilename, dpi=dpi, **kwargs)
+                    self.tikz_draw(svgfilename, **kwargs)
                     
                     # Create and display SVG image object.
                     # Note, there is a problem displaying multiple SVG
@@ -812,7 +813,7 @@ class Schematic(NetfileMixin):
             from IPython.display import Image, display_png
 
             pngfilename = tmpfilename('.png')
-            self.tikz_draw(pngfilename, dpi=dpi, **kwargs)
+            self.tikz_draw(pngfilename, **kwargs)
             
             # Create and display PNG image object.
             # There are two problems:
@@ -821,6 +822,7 @@ class Schematic(NetfileMixin):
             # 2. The image metadata (width, height) is not stored
             #    when the ipynb file is written non-interactively.
             width, height = png_image_size(pngfilename)
+            # width, height specify the image dimension in pixels
             display_png(Image(filename=pngfilename,
                               width=width, height=height))
             return
@@ -829,13 +831,13 @@ class Schematic(NetfileMixin):
             filename = tmpfilename('.png')
             # Thicken up lines to reduce aliasing causing them to
             # disappear, especially when using pdftoppm.
-            self.tikz_draw(filename=filename, dpi=dpi,
+            self.tikz_draw(filename=filename, 
                            options='bipoles/thickness=2',
                            **kwargs)
-            display_matplotlib(filename, dpi)
+            display_matplotlib(filename, self.dpi)
             return
 
-        self.tikz_draw(filename=filename, dpi=dpi, **kwargs)
+        self.tikz_draw(filename=filename, **kwargs)
 
 def test():
 
