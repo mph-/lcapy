@@ -1,6 +1,6 @@
 from os import system, path, remove, chdir, getcwd, stat
 import re
-from sys import platform
+import platform
 
 # System dependent functions
 
@@ -30,14 +30,13 @@ def convert_pdf_svg(pdf_filename, svg_filename):
 
 def convert_pdf_png_convert(pdf_filename, png_filename, dpi=300):
 
-    if 'win' in platform:
-        # Windows has a program called convert, try magick convert
-        # for image magick convert.
-        system('magick convert -density %d %s %s' %
-               (dpi, pdf_filename, png_filename))
-    else:
-        system('convert -density %d %s %s' %
-               (dpi, pdf_filename, png_filename))
+    program = 'convert'    
+    if platform.system() == 'Windows':
+        program = 'magick convert'
+
+    command = '%s -density %d %s %s' % (program, int(dpi), pdf_filename,
+                                        png_filename)
+    system(command)
         
     if not path.exists(png_filename):
         raise RuntimeError('Could not generate %s with convert' % 
@@ -47,10 +46,23 @@ def convert_pdf_png_convert(pdf_filename, png_filename, dpi=300):
                            png_filename)
     
 
+def convert_pdf_png_ghostscript(pdf_filename, png_filename, dpi=300):
+
+    program = 'gs'    
+    if platform.system() == 'Windows':
+        program = 'gswin32'
+        if platform.machine().endswith('64'):
+            program = 'gswin64'            
+            
+    command = '%s -q -dQUIET -dSAFER -dBATCH -dNOPAUSE -dNOPROMPT -dMaxBitmap=500000000 -dAlignToPixels=0 -dGridFitTT=2 -sDEVICE=pngalpha -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -r%dx%d -sOutputFile=%s %s' % (program, int(dpi), int(dpi), png_filename, pdf_filename)
+
+    system(command)
+
+    
 def convert_pdf_png_pdftoppm(pdf_filename, png_filename, dpi=300):
 
     system('pdftoppm -r %d  -png %s -thinlinemode shape > %s' %
-           (dpi, pdf_filename, png_filename))
+           (int(dpi), pdf_filename, png_filename))
         
     if not path.exists(png_filename):
         raise RuntimeError('Could not generate %s with pdftoppm' % 
@@ -59,12 +71,13 @@ def convert_pdf_png_pdftoppm(pdf_filename, png_filename, dpi=300):
     
 def convert_pdf_png(pdf_filename, png_filename, dpi=300):
 
-    # TODO, use ghostscript...
-    
     try:
-        convert_pdf_png_convert(pdf_filename, png_filename, dpi)
+        convert_pdf_png_ghostscript(pdf_filename, png_filename, dpi)
     except:
-        convert_pdf_png_pdftoppm(pdf_filename, png_filename, dpi)
+        try:
+            convert_pdf_png_convert(pdf_filename, png_filename, dpi)
+        except:
+            convert_pdf_png_pdftoppm(pdf_filename, png_filename, dpi)
 
 
 def latex_cleanup(tex_filename, wanted_filename=''):
