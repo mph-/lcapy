@@ -50,7 +50,7 @@ def convert_pdf_png_convert(pdf_filename, png_filename, dpi=300):
 def convert_pdf_png_pdftoppm(pdf_filename, png_filename, dpi=300):
 
     system('pdftoppm -r %d  -png %s -thinlinemode shape > %s' %
-           (dpi * 150, pdf_filename, png_filename))
+           (dpi, pdf_filename, png_filename))
         
     if not path.exists(png_filename):
         raise RuntimeError('Could not generate %s with pdftoppm' % 
@@ -59,6 +59,8 @@ def convert_pdf_png_pdftoppm(pdf_filename, png_filename, dpi=300):
     
 def convert_pdf_png(pdf_filename, png_filename, dpi=300):
 
+    # TODO, use ghostscript...
+    
     try:
         convert_pdf_png_convert(pdf_filename, png_filename, dpi)
     except:

@@ -56,14 +56,16 @@ import math
 __all__ = ('Schematic', )
 
 
-def display_matplotlib(filename):
+def display_matplotlib(filename, dpi=150, scale=2):
         
     from matplotlib.pyplot import figure, figaspect
     from matplotlib.image import imread
     
     img = imread(filename)
-    w, h = figaspect(img)
-    fig = figure(figsize=(w, h))
+    h, w, d = img.shape
+    width = scale * w / dpi
+    height = scale * h / dpi
+    fig = figure(figsize=(width, height))
     ax = fig.add_subplot(111)
     ax.imshow(img)
     ax.axis('off')
@@ -622,12 +624,11 @@ class Schematic(NetfileMixin):
 
         return s
 
-    def tikz_draw(self, filename, **kwargs):
+    def tikz_draw(self, filename, dpi=150, **kwargs):
 
         root, ext = path.splitext(filename)
 
         debug = kwargs.pop('debug', False)
-        dpi = float(kwargs.pop('dpi', 300))
         style = kwargs.pop('style', 'american')
         self.cpt_size = float(kwargs.pop('cpt_size', 1.2))
         self.node_spacing = float(kwargs.pop('node_spacing', 2.0))
@@ -738,6 +739,8 @@ class Schematic(NetfileMixin):
            debug: True to display debug information
         """
 
+        dpi = float(kwargs.pop('dpi', 150))            
+        
         # None means don't care, so remove.
         for key in list(kwargs.keys()):
             if kwargs[key] is None:
@@ -795,7 +798,7 @@ class Schematic(NetfileMixin):
                     from IPython.display import SVG, display_svg
 
                     svgfilename = tmpfilename('.svg')
-                    self.tikz_draw(svgfilename, **kwargs)
+                    self.tikz_draw(svgfilename, dpi=dpi, **kwargs)
                     
                     # Create and display SVG image object.
                     # Note, there is a problem displaying multiple SVG
@@ -809,7 +812,7 @@ class Schematic(NetfileMixin):
             from IPython.display import Image, display_png
 
             pngfilename = tmpfilename('.png')
-            self.tikz_draw(pngfilename, **kwargs)
+            self.tikz_draw(pngfilename, dpi=dpi, **kwargs)
             
             # Create and display PNG image object.
             # There are two problems:
@@ -818,10 +821,6 @@ class Schematic(NetfileMixin):
             # 2. The image metadata (width, height) is not stored
             #    when the ipynb file is written non-interactively.
             width, height = png_image_size(pngfilename)
-            # TODO, determine scale factor for display width.
-            scale = 0.5
-            width = int(width * scale)
-            height = int(height * scale)
             display_png(Image(filename=pngfilename,
                               width=width, height=height))
             return
@@ -830,12 +829,13 @@ class Schematic(NetfileMixin):
             filename = tmpfilename('.png')
             # Thicken up lines to reduce aliasing causing them to
             # disappear, especially when using pdftoppm.
-            self.tikz_draw(filename=filename, options='bipoles/thickness=2',
+            self.tikz_draw(filename=filename, dpi=dpi,
+                           options='bipoles/thickness=2',
                            **kwargs)
-            display_matplotlib(filename)
+            display_matplotlib(filename, dpi)
             return
 
-        self.tikz_draw(filename=filename, **kwargs)
+        self.tikz_draw(filename=filename, dpi=dpi, **kwargs)
 
 def test():
 

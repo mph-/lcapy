@@ -1073,13 +1073,41 @@ Examples
 Customisation
 =============
 
-Circuitikz commands can be embedded in a netlist.  Here's an example that embeds a circuitikz command to change the inductor style:
+Circuitikz commands (indeed any TikZ/PGF macros) can be embedded in a netlist.  Here's an example that embeds a circuitikz command to change the inductor style:
 
 .. literalinclude:: examples/schematics/L1.sch
 
 .. image:: examples/schematics/L1.png
    :width: 6cm
 
+           
+The default node spacing is 2 units where the default unit for
+PGF/Tikz macros is 1 cm.  By default Circuitikz uses a default bipole
+length of 1.4 cm; this produces resistors with a zig-zag of length
+1.16 units.  Lcapy sets the default bipole length to 1.5 cm; this
+results in a zig-zag of length of 1.2 cm.  The bipole length can be
+changed used the `cpt_size` argument.
+
+pdflatex (Tex live) uses `\pdfpkresolution=600` to produce a PDF document with
+600 dpi.   The output file dimensions are in points (72 points to the inch).
+
+The PDF is converted to a PNG using Image Magick convert with a
+density of 200 (`-density 200`).  This uses ghostscript with `-r
+200x200` to do the image conversion.
+
+For example, an image of 4 cm by 2 cm becomes a PDF file of size 113.6
+by 57 points.  The resultant PNG file has 474 by 238 pixels or 118.5
+pixels per cm.  The number of horizontal pixels is given by 114 / 72 *
+300 = 473.2
+
+
+
+
+When converting to PNG files, 300 dpi is used by default (118.1 pixels/cm).
+
+
+
+           
 
 File formats
 ============

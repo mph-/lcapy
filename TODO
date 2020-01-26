@@ -21,7 +21,7 @@ labels.
 
 9. If component has invisible attribute, do not count the connections
 
-10. Fix drawing mutual inductance
+10. Fix scaling of bipoles;  the current method also scales the nodes
 
 
 Circuit analysis
