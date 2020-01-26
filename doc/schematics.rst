@@ -930,24 +930,26 @@ Here's an example using the kind attribute to specify the type of capacitor.
 Schematic attributes
 --------------------
 
-- `node_spacing`: scale factor for distance between component nodes (default 2)
+- `node_spacing`: scale factor for distance between component nodes (default 2).
 
-- `cpt_size`: length of component (default 1.5)
+- `cpt_size`: length of component (default 1.5).
 
-- `scale`: scale factor (default 1)
+- `scale`: scale factor (default 1).
 
-- `help_lines`: spacing between help lines (default 0 to disable)
+- `help_lines`: spacing between help lines (default 0 to disable).
 
 - `draw_nodes`: specifies which nodes to draw (default `primary`). Its argument can either be `all`, `connections` (nodes that connect at least two components), `none`, or `primary` (node names not starting with an underscore).
 
 - `label_nodes`: specifies which nodes to label (default `primary`).  Its argument can either be `all`, `alpha` (node names starting with a letter), `none`, or `primary` (node names not starting with an underscore).
 
-- `label_ids`: specifies whether component ids are drawn (default `true`)
+- `label_ids`: specifies whether component ids are drawn (default `true`).
 
-- `label_values`: specifies whether component values are drawn (default `true`)
+- `label_values`: specifies whether component values are drawn (default `true`).
 
 - `style`: specifies the component style.  This is either `american`,  `british`, or `european` (default `american`).
 
+- `dpi`: dots per inch (default 150) when converting to a PNG file (as used for displaying Jupyter notebooks).  This will change the displayed size of the schematic on the screen.
+  
 Schematic attributes apply to the whole schematic.  They can be specified by starting a netlist with a semicolon, for example,
 
     ;help_lines=1, draw_nodes=connections
