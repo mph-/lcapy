@@ -205,7 +205,7 @@ class NetlistNamespace(object):
            scale: schematic scale factor, default 1.0
            node_spacing: spacing between component nodes, default 2.0
            cpt_size: size of a component, default 1.5
-           oversample: oversampling factor for png or pdf files
+           dpi: dots per inch for png files
            help_lines: distance between lines in grid, default 0.0 (disabled)
            debug: True to display debug information
         """
@@ -973,7 +973,7 @@ class NetlistMixin(object):
            scale: schematic scale factor, default 1.0
            node_spacing: spacing between component nodes, default 2.0
            cpt_size: size of a component, default 1.5
-           oversample: oversampling factor for png or pdf files
+           dpi: dots per inch for png files
            help_lines: distance between lines in grid, default 0.0 (disabled)
            debug: True to display debug information
         """

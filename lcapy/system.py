@@ -4,9 +4,9 @@ from sys import platform
 
 # System dependent functions
 
-# Note, sometime in 2018 ImageMagicks convert program by default
-# disallowed pdf file conversions.  A workaround is to edit
-# /etc/ImageMagick-6/policy.xml 
+# Note, sometime in 2018 ImageMagick's convert program by default
+# disallowed pdf file conversions.  A work-around is to edit
+# /etc/ImageMagick-6/policy.xml to enable this conversion.
 
 def tmpfilename(suffix=''):
 
@@ -28,41 +28,41 @@ def convert_pdf_svg(pdf_filename, svg_filename):
                            svg_filename)
 
 
-def convert_pdf_png_convert(pdf_filename, png_filename, oversample=1):
+def convert_pdf_png_convert(pdf_filename, png_filename, dpi=300):
 
     if 'win' in platform:
         # Windows has a program called convert, try magick convert
         # for image magick convert.
         system('magick convert -density %d %s %s' %
-               (oversample * 100, pdf_filename, png_filename))
+               (dpi, pdf_filename, png_filename))
     else:
         system('convert -density %d %s %s' %
-               (oversample * 100, pdf_filename, png_filename))
+               (dpi, pdf_filename, png_filename))
         
     if not path.exists(png_filename):
         raise RuntimeError('Could not generate %s with convert' % 
                            png_filename)
-    if os.stat(png_filename).st_size == 0:
+    if stat(png_filename).st_size == 0:
         raise RuntimeError('Could not generate %s with convert, empty file' % 
                            png_filename)
     
 
-def convert_pdf_png_pdftoppm(pdf_filename, png_filename, oversample=1):
+def convert_pdf_png_pdftoppm(pdf_filename, png_filename, dpi=300):
 
     system('pdftoppm -r %d  -png %s -thinlinemode shape > %s' %
-           (oversample * 150, pdf_filename, png_filename))
+           (dpi * 150, pdf_filename, png_filename))
         
     if not path.exists(png_filename):
         raise RuntimeError('Could not generate %s with pdftoppm' % 
                            png_filename)    
 
     
-def convert_pdf_png(pdf_filename, png_filename, oversample=1):
-    
+def convert_pdf_png(pdf_filename, png_filename, dpi=300):
+
     try:
-        convert_pdf_png_convert(pdf_filename, png_filename, oversample)
+        convert_pdf_png_convert(pdf_filename, png_filename, dpi)
     except:
-        convert_pdf_png_pdftoppm(pdf_filename, png_filename, oversample)
+        convert_pdf_png_pdftoppm(pdf_filename, png_filename, dpi)
 
 
 def latex_cleanup(tex_filename, wanted_filename=''):

@@ -96,6 +96,9 @@ def main (argv=None):
     parser.add_argument('--cpt-size', type=float,
                         dest='cpt_size', default=None,
                         help='this specifies the size of a component; it needs to be smaller than node_spacing')
+
+    parser.add_argument('--dpi', type=float, default=None,
+                        help='this specifies the number of dots per inch when creating a png file')    
     
     parser.add_argument('--help-lines', type=float,
                         dest='help_lines', default=None,
@@ -201,7 +204,7 @@ def main (argv=None):
                  filename=outfilename, scale=args.scale,
                  node_spacing=args.node_spacing, cpt_size=args.cpt_size,
                  help_lines=args.help_lines, debug=args.debug,
-                 nosave=nosave, **kwargs)
+                 dpi=args.dpi, nosave=nosave, **kwargs)
 
     if args.xgraph:
         cct.sch.make_graphs()

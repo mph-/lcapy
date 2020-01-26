@@ -582,7 +582,7 @@ class Schematic(NetfileMixin):
             start = Pos(-0.5, -0.5) * self.node_spacing
             stop = Pos(self.width + 0.5, self.height + 0.5) * self.node_spacing
 
-            s += r'\draw[help lines, %s] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
+            s += r'  \draw[help lines, %s] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
                 color, start, help, help, stop)
 
         # Write coordinates.  TODO, not all coordinates are needed
@@ -627,7 +627,7 @@ class Schematic(NetfileMixin):
         root, ext = path.splitext(filename)
 
         debug = kwargs.pop('debug', False)
-        oversample = float(kwargs.pop('oversample', 2))
+        dpi = float(kwargs.pop('dpi', 300))
         style = kwargs.pop('style', 'american')
         self.cpt_size = float(kwargs.pop('cpt_size', 1.2))
         self.node_spacing = float(kwargs.pop('node_spacing', 2.0))
@@ -656,8 +656,8 @@ class Schematic(NetfileMixin):
             return
 
         if debug:
-            print('width = %d, height = %d, oversample = %d, cpt_size = %.2f, node_spacing = %.2f, scale = %.2f'
-                  % (self.width, self.height, oversample, 
+            print('width = %d, height = %d, dpi = %d, cpt_size = %.2f, node_spacing = %.2f, scale = %.2f'
+                  % (self.width, self.height, dpi, 
                      self.cpt_size, self.node_spacing, self.scale))
             print(self.nodes)
             # print(self.xgraph.cnodes)
@@ -700,7 +700,7 @@ class Schematic(NetfileMixin):
             return
 
         if ext == '.png':
-            convert_pdf_png(pdf_filename, root + '.png', oversample)
+            convert_pdf_png(pdf_filename, root + '.png', dpi)
             if not debug:
                 remove(pdf_filename)
             return
@@ -733,7 +733,7 @@ class Schematic(NetfileMixin):
            scale: schematic scale factor, default 1.0
            node_spacing: spacing between component nodes, default 2.0
            cpt_size: size of a component, default 1.5
-           oversample: oversampling factor for png or pdf files
+           dpi: dots per inch for png files
            help_lines: distance between lines in grid, default 0.0 (disabled)
            debug: True to display debug information
         """
