@@ -5,6 +5,7 @@ from .functions import sin, cos, exp
 __all__ = ('Phasor', 'Vphasor', 'Iphasor')
 
 from .omegaexpr import omegaExpr
+from .cexpr import cExpr
 
 
 class Phasor(omegaExpr):
@@ -47,7 +48,7 @@ class Phasor(omegaExpr):
         if not isinstance(x, Expr):
             return cls, self, cls(x), self.assumptions
 
-        if isinstance(x, omegaExpr):
+        if isinstance(x, (omegaExpr, cExpr)):
             return cls, self, x, self.assumptions
 
         if not isinstance(x, Phasor):
