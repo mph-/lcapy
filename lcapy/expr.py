@@ -773,6 +773,14 @@ class Expr(ExprPrint, ExprMisc):
 
         return Nnew / Dnew
 
+    def divide_top_and_bottom(self, factor):
+        """Divide numerator and denominator by common factor."""
+
+        N = (self.N / factor).expand()
+        D = (self.D / factor).expand()
+
+        return N / D
+    
     @property
     def magnitude(self):
         """Return magnitude"""
