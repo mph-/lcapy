@@ -840,7 +840,7 @@ class Y(OnePort):
 
         self.args = (Yval, )
         Yval = Admittance(Yval)
-        self._Z = 1 / Yval
+        self._Y = Yval
 
 
 class Z(OnePort):

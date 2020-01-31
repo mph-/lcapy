@@ -272,3 +272,10 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(a.Ys, 10 * sqrt(s), "Ys incorrect.")
 
+    def simplify1(self):
+
+        a = I(0) + Y(1)
+        b = a.simplify()
+
+        self.assertEqual2(b._Z, None, "Z incorrect.")
+        self.assertEqual2(b._Y, 1, "Y incorrect.")                
