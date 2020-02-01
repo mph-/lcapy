@@ -1,7 +1,7 @@
 """
 This module performs plotting using matplotlib.
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 """
 
 import numpy as np
@@ -72,13 +72,23 @@ def plot_frequency(obj, f, **kwargs):
 
     from matplotlib.pyplot import subplots
 
+    npoints = kwargs.pop('npoints', 400)    
+    log_magnitude = kwargs.get('log_magnitude', False)
+    log_frequency = kwargs.get('log_frequency', False) or kwargs.pop('log_scale', False)
+    if kwargs.pop('loglog', False):
+        log_magnitude = True 
+        log_frequency = True    
+
     # FIXME, determine useful frequency range...
     if f is None:
         f = (0, 2)
     if isinstance(f, (int, float)):
         f = (0, f)
     if isinstance(f, tuple):
-        f = np.linspace(f[0], f[1], 400)
+        if log_frequency:
+            f = np.logspace(f[0], f[1], npoints)
+        else:
+            f = np.linspace(f[0], f[1], npoints)            
 
     if not hasattr(obj, 'part'):
         obj2 = None        
@@ -121,17 +131,14 @@ def plot_frequency(obj, f, **kwargs):
 
     V = obj.evaluate(f)
 
-    log_magnitude = kwargs.pop('log_magnitude', False)
-    log_frequency = kwargs.pop('log_frequency', False) or kwargs.pop('log_scale', False)
-    if kwargs.pop('loglog', False):
-        log_magnitude = True 
-        log_frequency = True    
+    kwargs.pop('log_frequency', None)
+    kwargs.pop('log_magnitude', None)    
 
     plots = {(True, True) : ax.loglog,
              (True, False) : ax.semilogy,
              (False, True) : ax.semilogx,
              (False, False) : ax.plot}
-    
+
     if obj.part == 'magnitude':    
         plot = plots[(log_magnitude, log_frequency)]
     else:
@@ -156,13 +163,15 @@ def plot_frequency(obj, f, **kwargs):
 
 def plot_angular_frequency(obj, omega, **kwargs):
 
+    npoints = kwargs.pop('npoints', 400)        
+
     # FIXME, determine useful frequency range...
     if omega is None:
         omega = (0, np.pi)
     if isinstance(omega, (int, float)):
         omega = (0, omega)
     if isinstance(omega, tuple):
-        omega = np.linspace(omega[0], omega[1], 400)
+        omega = np.linspace(omega[0], omega[1], npoints)
 
     return plot_frequency(obj, omega, **kwargs)
 
@@ -170,6 +179,8 @@ def plot_angular_frequency(obj, omega, **kwargs):
 def plot_time(obj, t, **kwargs):
 
     from matplotlib.pyplot import subplots
+
+    npoints = kwargs.pop('npoints', 400)        
     
     # FIXME, determine useful time range...
     if t is None:
@@ -177,7 +188,7 @@ def plot_time(obj, t, **kwargs):
     if isinstance(t, (int, float)):
         t = (0, t)
     if isinstance(t, tuple):
-        t = np.linspace(t[0], t[1], 400)
+        t = np.linspace(t[0], t[1], npoints)
 
     v = obj.evaluate(t)
 
