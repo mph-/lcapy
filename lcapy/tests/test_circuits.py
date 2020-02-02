@@ -589,3 +589,26 @@ class LcapyTester(unittest.TestCase):
                          "coupling incorrect")
         
 
+    def test_kill(self):
+
+        a = Circuit("""
+        V1 1 2 6
+        V2 2 0 4
+        R 1 0 2""")
+
+        self.assertEqual(a.R.V, 10, "incorrect series voltage")
+
+        b = a.kill('V1')
+
+        self.assertEqual(b.R.V, 4, "incorrect voltage with V1 killed")
+
+        c = a.kill('V2')
+
+        self.assertEqual(c.R.V, 6, "incorrect voltage with V2 killed")
+
+        d = a.kill_except('V1')
+
+        self.assertEqual(d.R.V, 6, "incorrect voltage with all killed except V1")
+        
+        
+        
