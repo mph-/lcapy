@@ -92,19 +92,20 @@ def plot_frequency(obj, f, **kwargs):
 
     if not hasattr(obj, 'part'):
         obj2 = None        
-        plot_type = kwargs.pop('plot_type', 'dB_phase')
-        if plot_type == 'dB_phase':
+        plot_type = kwargs.pop('plot_type', 'dB-phase')
+        if plot_type in ('dB_phase', 'dB-phase'):
             obj1 = obj.magnitude.dB
             if obj.is_complex:
                 obj2 = obj.phase
-        elif plot_type == 'mag_phase':
+        elif plot_type in ('mag_phase', 'magnitude_phase', 'mag-phase',
+                           'magnitude-phase'):
             obj1 = obj.magnitude
             if not obj.is_positive:
                 obj2 = obj.phase
-        elif plot_type == 'real_imag':
+        elif plot_type in ('real_imag', 'real-imag'):
             obj1 = obj.real
             obj2 = obj.imag
-        elif plot_type == 'mag':
+        elif plot_type in ('mag', 'magnitude'):
             obj1 = obj.magnitude
         elif plot_type == 'phase':
             obj1 = obj.phase
