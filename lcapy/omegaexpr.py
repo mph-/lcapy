@@ -166,6 +166,15 @@ class Homega(omegaExpr):
         super(Homega, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Ht
 
+        
+def omegaexpr(arg):
+    """Create omegaExpr object.  If `arg` is omegasym return omega"""
+
+    if arg is omegasym:
+        return omega
+    return omegaExpr(arg)
+
+        
 from .texpr import Ht, It, Vt, Yt, Zt, tExpr
 omega = omegaExpr('omega')
 

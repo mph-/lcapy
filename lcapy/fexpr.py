@@ -149,5 +149,13 @@ class If(fExpr):
         super(If, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = It
 
+
+def fexpr(arg):
+    """Create fExpr object.  If `arg` is fsym return f"""
+
+    if arg is fsym:
+        return f
+    return fExpr(arg)
+        
 from .texpr import Ht, It, Vt, Yt, Zt, tExpr
 f = fExpr('f')

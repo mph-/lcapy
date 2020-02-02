@@ -445,6 +445,15 @@ class LcapyTester(unittest.TestCase):
         
         self.assertEqual(isinstance(symbol('c'), Expr), True, "symbol")
 
+        if expr('f') is not f:
+            raise AssertionError('Not f')
+        if expr('s') is not s:
+            raise AssertionError('Not s')
+        if expr('t') is not t:
+            raise AssertionError('Not t')
+        if expr('omega') is not omega:
+            raise AssertionError('Not omega')
+
     def test_comparison(self):
 
         a = expr('3')
@@ -549,8 +558,8 @@ class LcapyTester(unittest.TestCase):
         F = G + exp(-4 * s)
 
         self.assertEqual(F.partfrac(), F,  "undef delay sum partfrac")
-        self.assertEqual(F.partfrac(True), F,  "undef delay sum partfrac")                
-
+        self.assertEqual(F.partfrac(True), F,  "undef delay sum partfrac")
+        
 
     def test_mixedfrac(self):
 

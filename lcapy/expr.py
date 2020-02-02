@@ -1502,14 +1502,15 @@ def expr(arg, **assumptions):
         return ExprDict(arg)    
     
     expr = sympify(arg, **assumptions)
+    
     if expr.has(tsym):
-        return tExpr(expr, **assumptions)
+        return texpr(expr, **assumptions)
     elif expr.has(ssym):
-        return sExpr(expr, **assumptions)
+        return sexpr(expr, **assumptions)
     elif expr.has(fsym):
-        return fExpr(expr, **assumptions)
+        return fexpr(expr, **assumptions)
     elif expr.has(omegasym):
-        return omegaExpr(expr, **assumptions)
+        return omegaexpr(expr, **assumptions)
     else:
         return cExpr(expr, **assumptions)
 
@@ -1525,12 +1526,12 @@ def symbol(name, **assumptions):
 
 
 from .cexpr import cExpr        
-from .fexpr import Hf, If, Vf, Yf, Zf, fExpr    
-from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr
-from .texpr import tExpr
+from .fexpr import Hf, If, Vf, Yf, Zf, fExpr, fexpr
+from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr, sexpr
+from .texpr import tExpr, texpr
 from .impedance import Impedance
 from .admittance import Admittance
-from .omegaexpr import Homega, Iomega, Vomega, Yomega, Zomega, omegaExpr
+from .omegaexpr import Homega, Iomega, Vomega, Yomega, Zomega, omegaExpr, omegaexpr
 
 # Horrible hack to work with IPython around Sympy's back for LaTeX
 # formatting.  The problem is that Sympy does not check for the

@@ -171,7 +171,7 @@ Miscellaneous
 
 - `rationalize_denominator` multiplies numerator and denominator by complex conjugate of denominator
 
-- `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
+b- `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
 - `multiply_top_and_bottom(expr)` multiplies numerator and denominator by `expr`.
   

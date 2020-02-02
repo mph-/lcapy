@@ -1,3 +1,11 @@
+"""This file contains functions for handling symbols and in particular
+for integrating with SymPy.
+
+Copyright 2014--2020 Michael Hayes, UCECE
+
+"""
+
+
 from .config import excludes, aliases
 from sympy.parsing.sympy_parser import parse_expr, auto_number, rationalize
 try:
@@ -185,7 +193,6 @@ def sympify(expr, evaluate=True, **assumptions):
     same name.  Thus you cannot change the assumptions.
 
     """
-
     if assumptions == {}:
         assumptions['positive'] = True
         # Note this implies that imag is False.   Also note that all
@@ -291,6 +298,7 @@ def symbol_map(name):
     return new
 
 
+# The following are all SymPy symbols.
 ssym = symsymbol('s', real=False)
 tsym = symsymbol('t', real=True)
 fsym = symsymbol('f', real=True)

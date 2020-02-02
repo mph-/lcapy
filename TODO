@@ -80,6 +80,10 @@ and __exit__ methods so that can use with statement.
 
 12. Fix Impedance * Impedance, etc. (correctly set kind)
 
+13. Check transforms.  Perhaps handle expr('f') as expr(f) ?
+
+14. Speed ups.  Note, default args such as Is(0) have to be constructed.
+
 
 Testing
 =======

@@ -442,6 +442,14 @@ def zp2tf(zeros, poles, K=1, var=None):
     return Hs(_zp2tf(zeros, poles, K, var))
 
 
+def sexpr(arg):
+    """Create sExpr object.  If `arg` is ssym return s"""
+
+    if arg is ssym:
+        return s
+    return sExpr(arg)
+
+
 from .texpr import Ht, It, Vt, Yt, Zt, tExpr
 s = sExpr('s')
 
