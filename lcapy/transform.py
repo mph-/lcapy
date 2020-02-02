@@ -31,7 +31,8 @@ def transform(expr, arg, **assumptions):
         else:
             return expr.fourier(**assumptions)    
 
-    # Handle expr(texpr), expr(sexpr), expr(fexpr)    
+    # Handle expr(texpr), expr(sexpr), expr(fexpr).  For example,
+    # expr(2 * f).
     result = None 
     if isinstance(arg, tExpr):
         result = expr.time(**assumptions)
