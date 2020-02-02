@@ -780,6 +780,14 @@ class Expr(ExprPrint, ExprMisc):
         D = (self.D / factor).expand()
 
         return N / D
+
+    def multiply_top_and_bottom(self, factor):
+        """Multiply numerator and denominator by common factor."""
+
+        N = (self.N * factor).expand()
+        D = (self.D * factor).expand()
+
+        return N / D    
     
     @property
     def magnitude(self):

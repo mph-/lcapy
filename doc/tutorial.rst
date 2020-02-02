@@ -113,11 +113,15 @@ Lcapy expressions have a number of attributes, including:
 
 and a number of generic methods including:
 
-- `simplify` -- attempt simple simplification of the expression
+- `simplify()` -- attempt simple simplification of the expression
 
-- `rationalize_denominator` -- multiply numerator and denominator by complex conjugate of denominator
+- `rationalize_denominator()` -- multiply numerator and denominator by complex conjugate of denominator
 
-- `evaluate` -- evaluate at specified vector and return floating point vector
+- `divide_top_and_bottom(expr)` -- divides numerator and denominator by `expr`.
+
+- `multiply_top_and_bottom(expr)` -- multiplies numerator and denominator by `expr`.    
+
+- `evaluate()` -- evaluate at specified vector and return floating point vector
 
 Here's an example of using these attributes and methods:
 
