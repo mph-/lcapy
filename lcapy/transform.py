@@ -20,6 +20,18 @@ def transform(expr, arg, **assumptions):
     if isinstance(expr, arg.__class__) and not isinstance(expr, Super):
         return expr.subs(arg)
 
+    # Handle expr(t), expr(s), expr(f)
+    if arg is t:
+        return expr.time(**assumptions)
+    elif arg is s:
+        return expr.laplace(**assumptions)
+    elif arg is f:
+        if isinstance(expr, omegaExpr):
+            return expr.subs(2 * pi * f)
+        else:
+            return expr.fourier(**assumptions)    
+
+    # Handle expr(texpr), expr(sexpr), expr(fexpr)    
     result = None 
     if isinstance(arg, tExpr):
         result = expr.time(**assumptions)
@@ -32,7 +44,7 @@ def transform(expr, arg, **assumptions):
             result = expr.fourier(**assumptions)
 
     if result is not None:
-        return result.subs(arg)
+        return result.__class__(result.subs(arg))
 
     sarg = arg
     try:
