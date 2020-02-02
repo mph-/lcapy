@@ -269,6 +269,13 @@ class NetlistMixin(object):
         
         return self.netlist()
 
+    @property    
+    def pdb(self):
+        """Enter the python debugger."""
+        
+        import pdb; pdb.set_trace()
+        return self
+
     @property
     def symbols(self):
         """Return dictionary of symbols defined in the circuit."""
@@ -771,10 +778,13 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            if cpt.name in self.control_sources:
-                net = cpt.zero()                
+            if cpt.name in sourcenames:
+                if cpt.name in self.control_sources:
+                    net = cpt.zero()                
+                else:
+                    net = cpt.kill()
             else:
-                net = cpt.kill()
+                net = cpt.copy()                
             new._add(net)
         return new        
 
