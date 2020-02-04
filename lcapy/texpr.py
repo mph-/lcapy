@@ -1,3 +1,9 @@
+"""This file provides the tExpr class to represent time domain expressions.
+
+Copyright 2014--2019 Michael Hayes, UCECE
+
+"""
+
 from __future__ import division
 from .expr import Expr
 from .functions import exp
