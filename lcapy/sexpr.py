@@ -289,6 +289,15 @@ class sExpr(Expr):
             return K * (self.N / coeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2), defs
         
         return self, defs
+
+    def bilinear_transform(self):
+
+        from .symbols import z, dt
+
+        # s = ln(z) / dt gives the exact solution
+        
+        return self.subs((2 / dt) * (1 - z**-1) / (1 + z**-1))
+        
     
     
 # Perhaps use a factory to create the following classes?

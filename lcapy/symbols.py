@@ -15,6 +15,6 @@ from .kexpr import k
 from .zexpr import z
 
 # Ipmort common SymPy symbols.
-from .sym import pi, j, oo, inf
+from .sym import pi, j, oo, inf, dt, df
 
 jomega = j * omega

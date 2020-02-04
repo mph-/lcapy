@@ -7,9 +7,9 @@ Copyright 2020 Michael Hayes, UCECE
 from __future__ import division
 from .expr import Expr
 from .functions import exp
-from .sym import fsym, ssym, tsym, j, oo
+from .sym import ksym, zsym, nsym, j, oo
 from .acdc import ACChecker, is_dc, is_ac, is_causal
-#from .ztransform import ztransform_transform
+from .ztransform import ztransform
 #from .fourier import fourier_transform
 
 __all__ = ('Hn', 'In', 'Vn', 'Yn', 'Zn')
@@ -19,9 +19,9 @@ class nExpr(Expr):
 
     """t-domain expression or symbol."""
 
-    var = tsym
-    domain_name = 'Time'
-    domain_units = 's'
+    var = nsym
+    domain_name = 'Sample'
+    domain_units = ''
 
     def __init__(self, val, **assumptions):
 
@@ -31,9 +31,9 @@ class nExpr(Expr):
         #self._fourier_conjugate_class = fExpr
         self._ztransform_conjugate_class = zExpr
 
-        if self.expr.find(ssym) != set():
+        if self.expr.find(zsym) != set():
             raise ValueError(
-                't-domain expression %s cannot depend on s' % self.expr)
+                'n-domain expression %s cannot depend on s' % self.expr)
 
     def infer_assumptions(self):
 
@@ -60,17 +60,15 @@ class nExpr(Expr):
         return new_assumptions
 
     def ztransform(self, **assumptions):
-        """Determine one-side Ztransform transform with 0- as the lower limit."""
+        """Determine one-sided z-transform."""
 
-        # The assumptions are required to help with the inverse Ztransform
-        # transform is required.
         self.infer_assumptions()
 
         assumptions = self.merge_assumptions(**assumptions)
 
         # TODO
         result = None
-        #result = ztransform_transform(self.expr, self.var, ssym)
+        result = ztransform(self.expr, self.var, zsym)
 
         if hasattr(self, '_ztransform_conjugate_class'):
             result = self._ztransform_conjugate_class(result, **assumptions)

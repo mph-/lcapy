@@ -60,6 +60,7 @@ from .vector import *
 from .statespace import *
 from .nodalanalysis import *
 from .loopanalysis import *
+from .ztransform import *
 
 def show_version():
     """Show versions of Lcapy, SymPy, NumPy, MatplotLib, SciPy, and Python."""

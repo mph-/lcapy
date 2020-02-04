@@ -18,9 +18,13 @@ __all__ = ('Hz', 'Iz', 'Vz', 'Yz', 'Zz')
 
 # TODO:
 # add method to create difference equations, say difference_equations(output='y', input='x')
-# Add BZT algorithm to convert sExpr to zExpr
 # Approximate tExpr with nExpr
 # Add kExpr for discrete frequency domain as conjugate to nExpr
+# Impulse function
+# Z transforms
+# Sequences -> sum of delayed impulses
+# Rewrite rational functions in terms of z^-1
+# Symbol for z^-1, say invz?  Would need special casing to handle invz * z etc.
 
 class zExpr(Expr):
     """z-domain expression or symbol."""
@@ -287,6 +291,14 @@ class zExpr(Expr):
         
         return self, defs
     
+    def inverse_bilinear_transform(self):
+
+        from .symbols import s, dt
+
+        # z = exp(s * dt) gives the exact solution
+        
+        return self.subs((1 + s * dt / 2) / (1 - s * dt / 2))
+
     
 # Perhaps use a factory to create the following classes?
 
