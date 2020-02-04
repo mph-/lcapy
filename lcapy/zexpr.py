@@ -6,16 +6,21 @@ Copyright 2020 Michael Hayes, UCECE
 
 from __future__ import division
 #from .ztransform import inverse_ztransform
-from .sym import zsym, tsym, j, pi
+from .sym import zsym, tsym, j, pi, dt
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict
-from .functions import sqrt
+from .functions import sqrt, exp
 import sympy as sym
 import numpy as np
 
 __all__ = ('Hz', 'Iz', 'Vz', 'Yz', 'Zz')
 
+# TODO:
+# add method to create difference equations, say difference_equations(output='y', input='x')
+# Add BZT algorithm to convert sExpr to zExpr
+# Approximate tExpr with nExpr
+# Add kExpr for discrete frequency domain as conjugate to nExpr
 
 class zExpr(Expr):
     """z-domain expression or symbol."""
@@ -91,14 +96,15 @@ class zExpr(Expr):
         
         return self.__class__(self, **assumptions)
 
-    def fourier(self, **assumptions):
-        """Convert to Fourier domain."""
+    def DTFT(self, **assumptions):
+        """Convert to Fourier domain using discrete time Fourier transform."""
         from .symbols import f
         
         if assumptions.get('causal', self.is_causal):
-            return self.subs(j * 2 * pi * f)
+            return self.subs(exp(j * 2 * pi * f * dt))
 
-        return self.time(**assumptions).fourier(**assumptions)
+        raise RuntimeError('TODO')
+        #return self.discrete_time(**assumptions).discrete_fourier(**assumptions)
 
     def phasor(self, **assumptions):
 

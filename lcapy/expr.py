@@ -1490,7 +1490,7 @@ def expr(arg, **assumptions):
 
     """
 
-    from .sym import tsym, fsym, ssym, omegasym
+    from .sym import tsym, fsym, ssym, omegasym, nsym, zsym
 
     if isinstance(arg, (Expr, ExprList, ExprTuple, ExprDict)):
         return arg
@@ -1502,15 +1502,23 @@ def expr(arg, **assumptions):
         return ExprDict(arg)    
     
     expr = sympify(arg, **assumptions)
+
+    symbols = expr.symbols
     
-    if expr.has(tsym):
+    if tsym in symbols:
         return texpr(expr, **assumptions)
-    elif expr.has(ssym):
+    elif ssym in symbols:
         return sexpr(expr, **assumptions)
-    elif expr.has(fsym):
+    elif fsym in symbols:
         return fexpr(expr, **assumptions)
-    elif expr.has(omegasym):
+    elif omega in symbols:
         return omegaexpr(expr, **assumptions)
+    elif nsym in symbols:
+        return nexpr(expr, **assumptions)
+    elif ksym in symbols:
+        return kexpr(expr, **assumptions)    
+    elif zsym in symbols:
+        return zexpr(expr, **assumptions)    
     else:
         return cExpr(expr, **assumptions)
 
@@ -1529,6 +1537,9 @@ from .cexpr import cExpr
 from .fexpr import Hf, If, Vf, Yf, Zf, fExpr, fexpr
 from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr, sexpr
 from .texpr import tExpr, texpr
+from .nexpr import nexpr, nExpr
+from .kexpr import kexpr, kExpr
+from .zexpr import zexpr, zExpr
 from .impedance import Impedance
 from .admittance import Admittance
 from .omegaexpr import Homega, Iomega, Vomega, Yomega, Zomega, omegaExpr, omegaexpr
