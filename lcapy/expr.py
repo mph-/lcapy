@@ -1490,7 +1490,7 @@ def expr(arg, **assumptions):
 
     """
 
-    from .sym import tsym, fsym, ssym, omegasym, nsym, zsym
+    from .sym import tsym, fsym, ssym, omegasym, nsym, ksym, zsym
 
     if isinstance(arg, (Expr, ExprList, ExprTuple, ExprDict)):
         return arg
@@ -1503,7 +1503,7 @@ def expr(arg, **assumptions):
     
     expr = sympify(arg, **assumptions)
 
-    symbols = expr.symbols
+    symbols = expr.free_symbols
     
     if tsym in symbols:
         return texpr(expr, **assumptions)
@@ -1511,7 +1511,7 @@ def expr(arg, **assumptions):
         return sexpr(expr, **assumptions)
     elif fsym in symbols:
         return fexpr(expr, **assumptions)
-    elif omega in symbols:
+    elif omegasym in symbols:
         return omegaexpr(expr, **assumptions)
     elif nsym in symbols:
         return nexpr(expr, **assumptions)
