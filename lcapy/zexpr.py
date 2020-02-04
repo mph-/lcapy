@@ -1,13 +1,12 @@
-"""This file provides the sExpr class to represent s-domain (Laplace
-domain) expressions.
+"""This file provides the zExpr class to represent z-domain expressions.
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2020 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
-from .laplace import inverse_laplace_transform
-from .sym import ssym, tsym, j, pi
+#from .ztransform import inverse_ztransform
+from .sym import zsym, tsym, j, pi
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict
@@ -15,31 +14,30 @@ from .functions import sqrt
 import sympy as sym
 import numpy as np
 
+__all__ = ('Hz', 'Iz', 'Vz', 'Yz', 'Zz')
 
-__all__ = ('Hs', 'Is', 'Vs', 'Ys', 'Zs')
 
+class zExpr(Expr):
+    """z-domain expression or symbol."""
 
-class sExpr(Expr):
-    """s-domain expression or symbol."""
-
-    var = ssym
+    var = zsym
 
     def __init__(self, val, **assumptions):
 
-        super(sExpr, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = tExpr
+        super(zExpr, self).__init__(val, **assumptions)
+        self._ztransform_conjugate_class = None
 
         if self.expr.find(tsym) != set():
             raise ValueError(
-                's-domain expression %s cannot depend on t' % self.expr)
+                'z-domain expression %s cannot depend on t' % self.expr)
 
     def differentiate(self):
-        """Differentiate (multiply by s)."""
+        """Differentiate (multiply by z)."""
 
         return self.__class__(self.expr * self.var)
 
     def integrate(self):
-        """Integrate (divide by s)."""
+        """Integrate (divide by z)."""
 
         return self.__class__(self.expr / self.var)
 
@@ -49,51 +47,44 @@ class sExpr(Expr):
         T = self.__class__(T)
         return self.__class__(self.expr * sym.exp(-s * T))
 
-    @property
-    def jomega(self):
-        """Return expression with s = j omega."""
-
-        from .symbols import jomega
-        return self.subs(self.var, jomega)
-
     def initial_value(self):
-        """Determine value at t = 0."""
+        """Determine value at n = 0."""
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, sym.oo))
 
     def final_value(self):
-        """Determine value at t = oo."""
+        """Determine value at n = oo."""
 
         return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
 
-    def inverse_laplace(self, **assumptions):
-        """Attempt inverse Laplace transform.
+    def inverse_ztransform(self, **assumptions):
+        """Attempt inverse Znransform transform.
 
-        If causal=True the response is zero for t < 0 and
+        If causal=True the response is zero for n < 0 and
         the result is multiplied by Heaviside(t)
-        If ac=True or dc=True the result is extrapolated for t < 0.
-        Otherwise the result is only known for t >= 0.
+        If ac=True or dc=True the result is extrapolated for n < 0.
+        Otherwise the result is only known for n >= 0.
 
         """
 
         if assumptions == {}:
             assumptions = self.assumptions.copy()
 
-        result = inverse_laplace_transform(self.expr, self.var, tsym, **assumptions)
+        result = inverse_ztransform_transform(self.expr, self.var, tsym, **assumptions)
 
-        if hasattr(self, '_laplace_conjugate_class'):
-            result = self._laplace_conjugate_class(result)
+        if hasattr(self, '_ztransform_conjugate_class'):
+            result = self._ztransform_conjugate_class(result)
         else:
-            result = tExpr(result)
+            result = nexpr(result)
         return result
 
     def time(self, **assumptions):
         """Convert to time domain."""
         
-        return self.inverse_laplace(**assumptions)
+        return self.inverse_ztransform(**assumptions)
 
-    def laplace(self, **assumptions):
-        """Convert to s-domain."""
+    def ztransform(self, **assumptions):
+        """Convert to z-domain."""
 
         if assumptions == {}:
             assumptions = self.assumptions.copy()
@@ -179,7 +170,7 @@ class sExpr(Expr):
 
         # Evaluate transient response.
         th = np.arange(N) * dt - dt
-        h = sExpr(expr).transient_response(th)
+        h = zExpr(expr).transient_response(th)
 
         print('Convolving...')
         ty = t
@@ -213,7 +204,7 @@ class sExpr(Expr):
 
     def evaluate(self, svector=None):
 
-        return super(sExpr, self).evaluate(svector)
+        return super(zExpr, self).evaluate(svector)
 
     def plot(self, t=None, **kwargs):
         """Plot pole-zero map."""
@@ -293,134 +284,89 @@ class sExpr(Expr):
     
 # Perhaps use a factory to create the following classes?
 
-class Zs(sExpr):
+class Zz(zExpr):
 
-    """s-domain impedance value."""
+    """z-domain impedance value."""
 
     quantity = 'Impedance'
     units = 'ohms'
 
     def __init__(self, val, causal=True, **assumptions):
 
-        super(Zs, self).__init__(val, causal=causal, **assumptions)
-        self._laplace_conjugate_class = Zt
-
-    def cpt(self):
-        from .oneport import R, C, L, Z
-
-        if self.is_number or self.is_dc:
-            return R(self.expr)
-
-        z = self * s
-
-        if z.is_number:
-            return C((1 / z).expr)
-
-        z = self / s
-
-        if z.is_number:
-            return L(z.expr)
-
-        return Z(self)
+        super(Zz, self).__init__(val, causal=causal, **assumptions)
+        self._ztransform_conjugate_class = Zn
 
 
-class Ys(sExpr):
+class Yz(zExpr):
 
-    """s-domain admittance value."""
+    """z-domain admittance value."""
 
     quantity = 'Admittance'
     units = 'siemens'
 
     def __init__(self, val, causal=True, **assumptions):
 
-        super(Ys, self).__init__(val, causal=causal, **assumptions)
-        self._laplace_conjugate_class = Yt
-
-    def cpt(self):
-        from .oneport import G, C, L, Y
-
-        if self.is_number or self.is_dc:
-            return G(self.expr)
-
-        y = self * s
-
-        if y.is_number:
-            return L((1 / y).expr)
-
-        y = self / s
-
-        if y.is_number:
-            return C(y.expr)
-
-        return Y(self)
+        super(Yz, self).__init__(val, causal=causal, **assumptions)
+        self._ztransform_conjugate_class = Yn
 
 
-class Vs(sExpr):
+class Vz(zExpr):
 
-    """s-domain voltage (units V s / radian)."""
+    """z-domain voltage (units V s / radian)."""
 
-    quantity = 's-Voltage'
+    quantity = 'z-Voltage'
     units = 'V/Hz'
 
     def __init__(self, val, **assumptions):
 
-        super(Vs, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Vt
-
-    def cpt(self):
-        from .oneport import V
-        return V(self)
+        super(Vz, self).__init__(val, **assumptions)
+        self._ztransform_conjugate_class = Vn
 
 
-class Is(sExpr):
+class Iz(zExpr):
 
-    """s-domain current (units A s / radian)."""
+    """z-domain current (units A s / radian)."""
 
-    quantity = 's-Current'
+    quantity = 'z-Current'
     units = 'A/Hz'
 
     def __init__(self, val, **assumptions):
 
-        super(Is, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = It
-
-    def cpt(self):
-        from .oneport import I
-        
-        return I(self)
+        super(Iz, self).__init__(val, **assumptions)
+        self._ztransform_conjugate_class = In
 
 
-class Hs(sExpr):
+class Hz(zExpr):
 
-    """s-domain ratio"""
+    """z-domain ratio"""
 
-    quantity = 's-ratio'
+    quantity = 'z-ratio'
     units = ''
 
     def __init__(self, val, **assumptions):
 
-        super(Hs, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Ht
+        super(Hz, self).__init__(val, **assumptions)
+        self._ztransform_conjugate_class = Hn
 
         
-class VsVector(Vector):
+class VzVector(Vector):
 
-    _typewrap = Vs
-
-
-class IsVector(Vector):
-
-    _typewrap = Is
+    _typewrap = Vz
 
 
-class YsVector(Vector):
+class IzVector(Vector):
 
-    _typewrap = Ys
+    _typewrap = Iz
 
 
-class ZsVector(Vector):
+class YzVector(Vector):
 
-    _typewrap = Zs
+    _typewrap = Yz
+
+
+class ZzVector(Vector):
+
+    _typewrap = Zz
 
 
 def tf(numer, denom=1, var=None):
@@ -428,12 +374,12 @@ def tf(numer, denom=1, var=None):
     for the numerator and denominator."""
 
     if var is None:
-        var = ssym
+        var = zsym
 
     N = sym.Poly(numer, var)
     D = sym.Poly(denom, var)
 
-    return Hs(N / D)
+    return Hz(N / D)
 
 
 def zp2tf(zeros, poles, K=1, var=None):
@@ -441,18 +387,18 @@ def zp2tf(zeros, poles, K=1, var=None):
     and from a constant gain."""
 
     if var is None:
-        var = ssym
-    return Hs(_zp2tf(zeros, poles, K, var))
+        var = zsym
+    return Hz(_zp2tf(zeros, poles, K, var))
 
 
-def sexpr(arg):
-    """Create sExpr object.  If `arg` is ssym return s"""
+def zexpr(arg):
+    """Create zExpr object.  If `arg` is zsym return z"""
 
-    if arg is ssym:
-        return s
-    return sExpr(arg)
+    if arg is zsym:
+        return z
+    return zExpr(arg)
 
 
-from .texpr import Ht, It, Vt, Yt, Zt, tExpr
-s = sExpr('s')
+from .nexpr import Hn, In, Vn, Yn, Zn, nExpr
+z = zExpr('z')
 

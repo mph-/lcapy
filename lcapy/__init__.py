@@ -41,6 +41,8 @@ from .cexpr import *
 from .fexpr import *
 from .sexpr import *
 from .texpr import *
+from .nexpr import *
+from .zexpr import *
 from .noiseexpr import *
 from .phasor import *
 from .omegaexpr import *

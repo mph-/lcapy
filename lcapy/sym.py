@@ -303,6 +303,9 @@ ssym = symsymbol('s', real=False)
 tsym = symsymbol('t', real=True)
 fsym = symsymbol('f', real=True)
 omegasym = symsymbol('omega', real=True)
+nsym = symsymbol('n', real=True)
+zsym = symsymbol('z', real=False)
+
 
 pi = sym.pi
 j = sym.I
