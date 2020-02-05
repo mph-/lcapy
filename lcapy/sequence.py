@@ -19,12 +19,32 @@ class Sequence(ExprList):
     def latex(self):
 
         items = []
-        for v1, n1 in zip(self.n, self):
-            s = v.latex()
+        for v1, n1 in zip(self, self.n):
+            try:
+                s = v1.latex()
+            except:
+                s = str(v1)
+            
             if n1 == 0:
                 s = r'\underline{%s}' % v1
             items.append(s)
 
-        return '\left{%s\right\}' % ', '.join(items)
+        return r'\left\{%s\right\}' % ', '.join(items)
     
+
+    def pretty(self):
+
+        items = []
+        for v1, n1 in zip(self, self.n):
+            try:
+                s = v1.pretty()
+            except:
+                s = str(v1)
             
+            if n1 == 0:
+                s = '_%s_' % v1
+            items.append(s)
+
+        return r'{%s}' % ', '.join(items)
+    
+    
