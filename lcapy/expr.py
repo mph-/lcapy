@@ -590,6 +590,13 @@ class Expr(ExprPrint, ExprMisc):
         cls, self, x, assumptions = self.__compat_mul__(x, '**')
         return cls(self.expr ** x.expr, **assumptions)
 
+    def __rpow__(self, x):
+        """Pow"""
+
+        # TODO: FIXME
+        cls, self, x, assumptions = self.__compat_mul__(x, '**')
+        return cls(self.expr ** x.expr, **assumptions)    
+
     def __or__(self, x):
         """Parallel combination"""
 
