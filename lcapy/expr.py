@@ -154,8 +154,17 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
     # in preference to list's one.  Alternatively, add explicit
     # _repr_pretty_ method here.
     
-    def __init__(self, arglist):
-        eargs = [expr(e) for e in arglist]
+    def __init__(self, arglist, evalf=False):
+
+        eargs = []
+        for item in arglist:
+            if evalf:
+                try:
+                    item = item.evalf
+                except:
+                    pass
+            eargs.append(item)
+        
         super (ExprList, self).__init__(eargs)
 
     def subs(self, *args, **kwargs):

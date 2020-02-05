@@ -6,14 +6,12 @@ Copyright 2020 Michael Hayes, UCECE
 
 from .expr import ExprList
 
+
 class Sequence(ExprList):
 
-    def __init__(self, seq, n=None):
+    def __init__(self, seq, n=None, evalf=False):
 
-        super (Sequence, self).__init__(seq)
-
-        # Save the indexes.  Ideally, should annotate which item
-        # in sequence corresponds to n = 0.
+        super (Sequence, self).__init__(seq, evalf)
         self.n = n
 
     def latex(self):

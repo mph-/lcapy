@@ -121,7 +121,7 @@ class nExpr(Expr):
 
         return self.__class__(sym.limit(self.expr, self.var, oo))
 
-    def seq(self, n=None):
+    def seq(self, n=None, evalf=True):
 
         if n is None:
             n = (-10, 10)
@@ -130,7 +130,7 @@ class nExpr(Expr):
 
         v = self.evaluate(n)
 
-        return Sequence(v, list(n))
+        return Sequence(v, list(n), evalf)
 
     
 class Yn(nExpr):
