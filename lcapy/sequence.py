@@ -6,12 +6,13 @@ Copyright 2020 Michael Hayes, UCECE
 
 from .expr import ExprList
 
+# TODO using underlining of 0th element for pretty print
 
 class Sequence(ExprList):
 
-    def __init__(self, seq, n=None, evalf=False):
+    def __init__(self, seq, n=None, evaulate=False):
 
-        super (Sequence, self).__init__(seq, evalf)
+        super (Sequence, self).__init__(seq, evaulate)
         self.n = n
 
     def latex(self):

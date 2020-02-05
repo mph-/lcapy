@@ -121,16 +121,16 @@ class nExpr(Expr):
 
         return self.__class__(sym.limit(self.expr, self.var, oo))
 
-    def seq(self, n=None, evalf=True):
+    def seq(self, n=None, evaluate=True):
 
         if n is None:
             n = (-10, 10)
         if isinstance(n, tuple):
             n = range(n[0], n[1] + 1)
 
-        v = self.evaluate(n)
+        v = self(n)
 
-        return Sequence(v, list(n), evalf)
+        return Sequence(v, list(n), evaluate)
 
     
 class Yn(nExpr):

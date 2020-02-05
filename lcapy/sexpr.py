@@ -16,7 +16,7 @@ import sympy as sym
 import numpy as np
 
 
-__all__ = ('Hs', 'Is', 'Vs', 'Ys', 'Zs')
+__all__ = ('Hs', 'Is', 'Vs', 'Ys', 'Zs', 'zp2tf', 'tf')
 
 
 class sExpr(Expr):
