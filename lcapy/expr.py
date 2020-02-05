@@ -1490,7 +1490,7 @@ def expr(arg, **assumptions):
 
     """
 
-    from .sym import tsym, fsym, ssym, omegasym, nsym, ksym, zsym
+    from .sym import tsym, fsym, ssym, omegasym
 
     if isinstance(arg, (Expr, ExprList, ExprTuple, ExprDict)):
         return arg

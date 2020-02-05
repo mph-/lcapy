@@ -284,7 +284,8 @@ class zExpr(Expr):
     
     def inverse_bilinear_transform(self):
 
-        from .symbols import s, dt
+        from .symbols import s
+        from .discretetime import dt
 
         # z = exp(s * dt) gives the exact solution
         

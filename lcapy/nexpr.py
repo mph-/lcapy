@@ -11,7 +11,8 @@ from .sym import j, oo
 from .dsym import nsym, ksym, zsym
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .ztransform import ztransform
-#from .fourier import fourier_transform
+from .sequence import Sequence
+
 
 __all__ = ('Hn', 'In', 'Vn', 'Yn', 'Zn')
 
@@ -67,8 +68,6 @@ class nExpr(Expr):
 
         assumptions = self.merge_assumptions(**assumptions)
 
-        # TODO
-        result = None
         result = ztransform(self.expr, self.var, zsym)
 
         if hasattr(self, '_ztransform_conjugate_class'):
@@ -90,17 +89,9 @@ class nExpr(Expr):
     #         result = fExpr(result **self.assumptions)
     #     return result
 
-    def phasor(self, **assumptions):
-
-        check = ACChecker(self, t)
-        if not check.is_ac:
-            raise ValueError('Do not know how to convert %s to phasor' % self)
-        phasor = Phasor(check.amp * exp(j * check.phase), omega=check.omega)
-        return phasor
-
-    def plot(self, t=None, **kwargs):
-        """Plot the time waveform.  If t is not specified, it defaults to the
-        range (-0.2, 2).  t can be a vector of specified instants, a
+    def plot(self, n=None, **kwargs):
+        """Plot the time waveform.  If n is not specified, it defaults to the
+        range (-20, 20).  n can be a vector of specified instants, a
         tuple specifing the range, or a constant specifying the
         maximum value with the minimum value set to 0.
 
@@ -114,27 +105,34 @@ class nExpr(Expr):
         
         The plot axes are returned."""
 
-        from .plot import plot_time
-        return plot_time(self, t, **kwargs)
-
-    def sample(self, t):
-
-        """Return a discrete-time signal evaluated at time values specified by
-        vector t. """
-
-        return self.evaluate(t)
+        if n is None:
+            n = (-20, 20)
+        
+        from .plot import plot_sequence
+        return plot_sequence(self, n, **kwargs)
 
     def initial_value(self):
-        """Determine value at t = 0."""
+        """Determine value at n = 0."""
 
         return self.subs(0)
 
     def final_value(self):
-        """Determine value at t = oo."""
+        """Determine value at n = oo."""
 
         return self.__class__(sym.limit(self.expr, self.var, oo))
-    
 
+    def seq(self, n=None):
+
+        if n is None:
+            n = (-10, 10)
+        if isinstance(n, tuple):
+            n = range(n[0], n[1] + 1)
+
+        v = self.evaluate(n)
+
+        return Sequence(v, list(n))
+
+    
 class Yn(nExpr):
 
     """t-domain 'admittance' value."""

@@ -1,3 +1,9 @@
+"""This module provides functions.
+
+Copyright 2014--2020 Michael Hayes, UCECE
+"""
+
+
 import sympy as sym
 
 class Function(object):
@@ -38,17 +44,7 @@ class Log10(Function):
     def __call__(self, arg):
         return super(Log10, self).__call__(arg, 10)
 
-    
-class UnitImpulse(Function):
-
-    # SymPy should have a default second arg of 0 for KroneckerDelta
-    # For some reason, the args get swapped
-    # TODO: print as delta[n] or delta(n)
-    
-    def __call__(self, arg):
-        return super(UnitImpulse, self).__call__(arg, 0)    
-    
-
+   
 conjugate = Function(sym.conjugate)
 
 abs = Function(sym.Abs)
@@ -96,7 +92,5 @@ gcd = Function(sym.gcd)
 u = H = Heaviside = Function(sym.Heaviside)
 
 delta = DiracDelta = Function(sym.DiracDelta)
-
-unitimpulse = UnitImpulse(sym.KroneckerDelta)
 
 from .expr import Expr

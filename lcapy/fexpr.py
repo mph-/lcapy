@@ -9,7 +9,6 @@ from __future__ import division
 from .fourier import inverse_fourier_transform
 from .expr import Expr
 from .sym import fsym, ssym, tsym
-#import .texpr as texpr
 
 class fExpr(Expr):
 

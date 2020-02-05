@@ -207,3 +207,34 @@ def plot_time(obj, t, **kwargs):
         ax.set_ylabel(ylabel)
     ax.grid(True)
     return ax
+
+
+def plot_sequence(obj, n, **kwargs):
+
+    from matplotlib.pyplot import subplots
+
+    npoints = kwargs.pop('npoints', 400)        
+    
+    # FIXME, determine useful range...
+    if n is None:
+        n = (-20, 20)
+    if isinstance(n, tuple):
+        n = np.arange(n[0], n[1] + 1)
+
+    v = obj.evaluate(n)
+
+    ax = kwargs.pop('axes', None)
+    if ax is None:
+        fig, ax = subplots(1)        
+    xlabel = kwargs.pop('xlabel', obj.domain_label)
+    ylabel = kwargs.pop('ylabel', obj.label)
+    xscale = kwargs.pop('xscale', 1)
+    yscale = kwargs.pop('yscale', 1)
+    # TODO, make nice lollipops
+    ax.stem(n * xscale, v * yscale, **kwargs)
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    if ylabel is not None:        
+        ax.set_ylabel(ylabel)
+    ax.grid(True)
+    return ax

@@ -292,7 +292,7 @@ class sExpr(Expr):
 
     def bilinear_transform(self):
 
-        from .symbols import z, dt
+        from .discretetime import z, dt
 
         # s = ln(z) / dt gives the exact solution
         
