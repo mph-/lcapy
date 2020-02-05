@@ -36,12 +36,9 @@ def expr(arg, **assumptions):
     return expr1(arg, **assumptions)
 
 # TODO:
-# add method to create difference equations, say difference_equations(output='y', input='x')
+# Add method to create difference equations, say difference_equations(output='y', input='x')
 # Approximate tExpr with nExpr
-# Add kExpr for discrete frequency domain as conjugate to nExpr
 # Impulse function
-# Z transforms
-# Sequences -> sum of delayed impulses
 # Rewrite rational functions in terms of z^-1
 # Symbol for z^-1, say invz?  Would need special casing to handle invz * z etc.
 # Transforms, perhaps have a Transformer class with registered transforms?
