@@ -60,4 +60,3 @@ class UnitImpulse(Function):
 ui = unitimpulse = UnitImpulse(sym.KroneckerDelta)
 
 print('Warning this is experimental and probably riddled with bugs')
-

@@ -29,7 +29,6 @@ class Sequence(ExprList):
 
         return r'\left\{%s\right\}' % ', '.join(items)
     
-
     def pretty(self):
 
         items = []
@@ -45,4 +44,14 @@ class Sequence(ExprList):
 
         return r'{%s}' % ', '.join(items)
     
+    def sum_delayed_impulses(self, var):
+
+        from .discretetime import unitimpulse
+        
+        result = var * 0
+        for v1, n1 in zip(self, self.n):        
+            result += v1 * unitimpulse(var - n1)
+        return result
+
+
     
