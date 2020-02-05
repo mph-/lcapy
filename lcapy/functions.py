@@ -93,4 +93,17 @@ u = H = Heaviside = Function(sym.Heaviside)
 
 delta = DiracDelta = Function(sym.DiracDelta)
 
+class UnitImpulse(Function):
+
+    # SymPy should have a default second arg of 0 for KroneckerDelta
+    # For some reason, the args get swapped
+    # TODO: print as delta[n] or delta(n)
+    
+    def __call__(self, arg):
+        return super(UnitImpulse, self).__call__(arg, 0)    
+    
+
+ui = unitimpulse = UnitImpulse(sym.KroneckerDelta)
+
+
 from .expr import Expr

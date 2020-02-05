@@ -5,7 +5,7 @@ Copyright 2020 Michael Hayes, UCECE
 """
 
 from __future__ import division
-#from .ztransform import inverse_ztransform
+from .ztransform import inverse_ztransform
 from .sym import j, pi
 from .dsym import nsym, ksym, zsym, dt
 from .vector import Vector
@@ -25,7 +25,7 @@ class zExpr(Expr):
     def __init__(self, val, **assumptions):
 
         super(zExpr, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = None
+        self._ztransform_conjugate_class = nExpr
 
         if self.expr.find(nsym) != set():
             raise ValueError(
@@ -70,7 +70,7 @@ class zExpr(Expr):
         if assumptions == {}:
             assumptions = self.assumptions.copy()
 
-        result = inverse_ztransform_transform(self.expr, self.var, tsym, **assumptions)
+        result = inverse_ztransform(self.expr, self.var, nsym, **assumptions)
 
         if hasattr(self, '_ztransform_conjugate_class'):
             result = self._ztransform_conjugate_class(result)
