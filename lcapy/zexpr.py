@@ -6,7 +6,8 @@ Copyright 2020 Michael Hayes, UCECE
 
 from __future__ import division
 #from .ztransform import inverse_ztransform
-from .sym import zsym, tsym, j, pi, dt
+from .sym import j, pi
+from .dsym import nsym, ksym, zsym, dt
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict
@@ -15,16 +16,6 @@ import sympy as sym
 import numpy as np
 
 __all__ = ('Hz', 'Iz', 'Vz', 'Yz', 'Zz')
-
-# TODO:
-# add method to create difference equations, say difference_equations(output='y', input='x')
-# Approximate tExpr with nExpr
-# Add kExpr for discrete frequency domain as conjugate to nExpr
-# Impulse function
-# Z transforms
-# Sequences -> sum of delayed impulses
-# Rewrite rational functions in terms of z^-1
-# Symbol for z^-1, say invz?  Would need special casing to handle invz * z etc.
 
 class zExpr(Expr):
     """z-domain expression or symbol."""
@@ -36,9 +27,9 @@ class zExpr(Expr):
         super(zExpr, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = None
 
-        if self.expr.find(tsym) != set():
+        if self.expr.find(nsym) != set():
             raise ValueError(
-                'z-domain expression %s cannot depend on t' % self.expr)
+                'z-domain expression %s cannot depend on n' % self.expr)
 
     def differentiate(self):
         """Differentiate (multiply by z)."""
@@ -385,28 +376,6 @@ class YzVector(Vector):
 class ZzVector(Vector):
 
     _typewrap = Zz
-
-
-def tf(numer, denom=1, var=None):
-    """Create a transfer function from lists of the coefficient
-    for the numerator and denominator."""
-
-    if var is None:
-        var = zsym
-
-    N = sym.Poly(numer, var)
-    D = sym.Poly(denom, var)
-
-    return Hz(N / D)
-
-
-def zp2tf(zeros, poles, K=1, var=None):
-    """Create a transfer function from lists of zeros and poles,
-    and from a constant gain."""
-
-    if var is None:
-        var = zsym
-    return Hz(_zp2tf(zeros, poles, K, var))
 
 
 def zexpr(arg):

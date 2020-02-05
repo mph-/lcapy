@@ -8,7 +8,7 @@ Copyright 2020 Michael Hayes, UCECE
 from __future__ import division
 from .fourier import inverse_fourier_transform
 from .expr import Expr
-from .sym import ksym, zsym, nsym
+from .dsym import nsym, ksym, zsym, dt, df
 
 
 class kExpr(Expr):

@@ -1513,12 +1513,6 @@ def expr(arg, **assumptions):
         return fexpr(expr, **assumptions)
     elif omegasym in symbols:
         return omegaexpr(expr, **assumptions)
-    elif nsym in symbols:
-        return nexpr(expr, **assumptions)
-    elif ksym in symbols:
-        return kexpr(expr, **assumptions)    
-    elif zsym in symbols:
-        return zexpr(expr, **assumptions)    
     else:
         return cExpr(expr, **assumptions)
 
@@ -1537,9 +1531,6 @@ from .cexpr import cExpr
 from .fexpr import Hf, If, Vf, Yf, Zf, fExpr, fexpr
 from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr, sexpr
 from .texpr import tExpr, texpr
-from .nexpr import nexpr, nExpr
-from .kexpr import kexpr, kExpr
-from .zexpr import zexpr, zExpr
 from .impedance import Impedance
 from .admittance import Admittance
 from .omegaexpr import Homega, Iomega, Vomega, Yomega, Zomega, omegaExpr, omegaexpr

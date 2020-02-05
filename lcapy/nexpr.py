@@ -7,7 +7,8 @@ Copyright 2020 Michael Hayes, UCECE
 from __future__ import division
 from .expr import Expr
 from .functions import exp
-from .sym import ksym, zsym, nsym, j, oo
+from .sym import j, oo
+from .dsym import nsym, ksym, zsym
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .ztransform import ztransform
 #from .fourier import fourier_transform

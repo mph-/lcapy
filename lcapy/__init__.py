@@ -41,9 +41,6 @@ from .cexpr import *
 from .fexpr import *
 from .sexpr import *
 from .texpr import *
-from .nexpr import *
-from .kexpr import *
-from .zexpr import *
 from .noiseexpr import *
 from .phasor import *
 from .omegaexpr import *
@@ -60,7 +57,7 @@ from .vector import *
 from .statespace import *
 from .nodalanalysis import *
 from .loopanalysis import *
-from .ztransform import *
+
 
 def show_version():
     """Show versions of Lcapy, SymPy, NumPy, MatplotLib, SciPy, and Python."""

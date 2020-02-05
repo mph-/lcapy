@@ -10,11 +10,8 @@ from .fexpr import f
 from .texpr import t
 from .sexpr import s
 from .omegaexpr import omega
-from .nexpr import n
-from .kexpr import k
-from .zexpr import z
 
 # Ipmort common SymPy symbols.
-from .sym import pi, j, oo, inf, dt, df
+from .sym import pi, j, oo, inf
 
 jomega = j * omega

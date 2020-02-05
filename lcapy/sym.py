@@ -303,12 +303,6 @@ ssym = symsymbol('s', real=False)
 tsym = symsymbol('t', real=True)
 fsym = symsymbol('f', real=True)
 omegasym = symsymbol('omega', real=True)
-nsym = symsymbol('n', real=True)
-ksym = symsymbol('k', real=True)
-zsym = symsymbol('z', real=False)
-
-dt = symsymbol('Delta_t', real=True)
-df = symsymbol('Delta_f', real=True)
 
 pi = sym.pi
 j = sym.I
