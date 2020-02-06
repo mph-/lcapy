@@ -210,6 +210,9 @@ class zExpr(Expr):
     def plot(self, t=None, **kwargs):
         """Plot pole-zero map."""
 
+        if 'unitcircle' not in kwargs:
+            kwargs['unitcircle'] = True
+
         from .plot import plot_pole_zero
         return plot_pole_zero(self, **kwargs)
 

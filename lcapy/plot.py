@@ -11,7 +11,7 @@ import numpy as np
 
 def plot_pole_zero(obj, **kwargs):
 
-    from matplotlib.pyplot import subplots
+    from matplotlib.pyplot import subplots, Circle
     
     poles = obj.poles()
     zeros = obj.zeros()
@@ -21,12 +21,17 @@ def plot_pole_zero(obj, **kwargs):
     except TypeError:
         raise TypeError('Cannot plot poles and zeros of symbolic expression')
 
+    unitcircle = kwargs.pop('unitcircle', False)    
     ax = kwargs.pop('axes', None)
     if ax is None:
         fig, ax = subplots(1)
     ax.axvline(0, color='0.7')
     ax.axhline(0, color='0.7')
     ax.axis('equal')
+
+    if unitcircle:
+        ax.add_artist(Circle((0, 0), 1, color='blue', linestyle='--', fill=False))
+    
     ax.grid()
 
     a = np.hstack((p, z))
@@ -35,6 +40,16 @@ def plot_pole_zero(obj, **kwargs):
     y_min = a.imag.min()
     y_max = a.imag.max()
 
+    if unitcircle:
+        if x_min > -1:
+            x_min = -1
+        if x_max < 1:
+            x_max = 1
+        if y_min > -1:
+            y_min = -1
+        if y_max < 1:
+            y_max = 1                        
+    
     x_extra, y_extra = 0.0, 0.0
 
     # This needs tweaking for better bounds.
