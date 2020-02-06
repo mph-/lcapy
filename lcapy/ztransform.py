@@ -294,12 +294,12 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
                 result = result.subs(n, n + factors[0].args[1])                
                 continue                
         # Convert product to convolution
-        m = dummyvar(intnum)
+        dummy = dummyvar(intnum)
         intnum += 1
         result1, result2 = inverse_ztransform_term1(factors[m + 1], z, n)
         expr2 = result1 + result2
-        result = sym.Sum(result.subs(n, n - m) * expr2.subs(n, m),
-                         (m, n1, n2))
+        result = sym.Sum(result.subs(n, n - dummy) * expr2.subs(n, dummy),
+                         (dummy, n1, n2))
     
     return result * const
 
