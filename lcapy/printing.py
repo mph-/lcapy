@@ -125,6 +125,13 @@ class LcapyLatexPrinter(LatexPrinter):
         if exp:
             tex = r"\left(%s\right)^{%s}" % (tex, exp)
         return tex
+
+    def _print_UnitImpulse(self, expr, exp=None):
+
+        tex = r"\delta\left[%s\right]" % self._print(expr.args[0])
+        if exp:
+            tex = r"\delta\left[%s\right]^{%s}" % (tex, exp)
+        return tex    
     
     def _print_Symbol(self, expr):
 
@@ -180,6 +187,19 @@ class LcapyPrettyPrinter(PrettyPrinter):
         s = super(LcapyPrettyPrinter, self)._print_Symbol(expr)
         return s
 
+    def _print_UnitImpulse(self, e):
+
+        from sympy.printing.pretty.stringpict import prettyForm
+        from sympy.printing.pretty.pretty_symbology import greek_unicode
+        
+        if self._use_unicode:
+            pform = self._print(e.args[0])
+            pform = prettyForm(*pform.parens(left='[', right=']'))
+            pform = prettyForm(*pform.left(greek_unicode['delta']))
+            return pform
+        else:
+            return self._print_Function(e)
+    
     
 def print_str(expr):
     """Convert expression into a string."""

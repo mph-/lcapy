@@ -93,17 +93,27 @@ u = H = Heaviside = Function(sym.Heaviside)
 
 delta = DiracDelta = Function(sym.DiracDelta)
 
-class UnitImpulse(Function):
+from sympy.core import S, Integer
+from sympy.core.logic import fuzzy_not
 
-    # SymPy should have a default second arg of 0 for KroneckerDelta
-    # For some reason, the args get swapped
-    # TODO: print as delta[n] or delta(n)
-    
-    def __call__(self, arg):
-        return super(UnitImpulse, self).__call__(arg, 0)    
-    
 
-ui = unitimpulse = UnitImpulse(sym.KroneckerDelta)
+class UnitImpulse(sym.Function):
+
+    is_integer = True
+    
+    @classmethod
+    def eval(cls, nval):
+        """
+        Evaluates the discrete unit impulse function.
+        """
+        
+        if nval.is_zero:
+            return S.One
+        elif fuzzy_not(nval.is_zero):
+            return S.Zero
+
+
+ui = unitimpulse = Function(UnitImpulse)
 
 
 from .expr import Expr
