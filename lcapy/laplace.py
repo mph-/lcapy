@@ -599,7 +599,7 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
             expr = sym.expand(expr)
             result1, result2 = inverse_laplace_by_terms(expr, s, t,
                                                         **assumptions)
-        
+
     # result1 is known to be causal, result2 is unsure
     result = result1 + result2    
 
