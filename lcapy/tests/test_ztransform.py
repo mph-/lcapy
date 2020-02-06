@@ -34,4 +34,4 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(zexpr(1).inverse_ztransform(), unitimpulse(n), "1")
         self.assertEqual((z**-1).inverse_ztransform(), unitimpulse(n-1), "z**-1")
         self.assertEqual((z**-2).inverse_ztransform(), unitimpulse(n-2), "z**-2")
-        self.assertEqual(zexpr('1 / (1 - a * z)').inverse_ztransform(), a**n * u[n], "1 / (1 - a * z)")                        
+        self.assertEqual(zexpr('1 / (1 - a * z ** -1)').inverse_ztransform(causal=True), nexpr('a**n * u(n)'), "1 / (1 - a * z)")                        
