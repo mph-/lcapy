@@ -1345,6 +1345,26 @@ class Expr(ExprPrint, ExprMisc):
                                                     damping),
                               **self.assumptions)
 
+    def recippartfrac(self, combine_conjugates=False, damping=None):
+        """Convert rational function into partial fraction form
+        using reciprocal of variable.
+        For example,
+
+        If combine_conjugates is True then the pair of partial
+        fractions for complex conjugate poles are combined.
+
+        See also canonical, standard, general, partfrac, timeconst, and ZPK."""
+
+        tmpsym = symsymbol('qtmp')
+
+        expr = self.subs(tmpsym)
+        ratfun = Ratfun(expr, tmpsym)
+
+        nexpr = expr.partfrac(combine_conjugates, damping)
+        nexpr = nexpr.subs(tmpsym, 1 / self.var)
+        
+        return self.__class__(nexpr, **self.assumptions)
+    
     def standard(self):
         """Convert rational function into mixed fraction form.  For example,
 
