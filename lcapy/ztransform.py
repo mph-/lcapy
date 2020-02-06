@@ -7,7 +7,7 @@ Copyright 2020 Michael Hayes, UCECE
 from .ratfun import Ratfun
 from .sym import sympify, simplify, symsymbol
 from .utils import factor_const, scale_shift
-from .functions import UnitImpulse
+from .functions import UnitImpulse, unitimpulse
 import sympy as sym
 
 ztransform_cache = {}
