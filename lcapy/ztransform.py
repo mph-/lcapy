@@ -7,7 +7,7 @@ Copyright 2020 Michael Hayes, UCECE
 from .ratfun import Ratfun
 from .sym import sympify, simplify, symsymbol
 from .utils import factor_const, scale_shift
-from .functions import unitimpulse
+from .functions import UnitImpulse
 import sympy as sym
 
 ztransform_cache = {}
@@ -84,10 +84,10 @@ def ztransform_term(expr, n, z):
     result = None
     args = expr.args
     
-    if expr.is_Function and expr.func == sym.KroneckerDelta:
-        if (args[0] == 0 and args[1] is n) or (args[0] is n and args[1] == 0):
+    if expr.is_Function and expr.func == UnitImpulse:
+        if args[0] is n:
             result = 1
-        delay = -(args[1] - args[0] - n)
+        delay = n - args[0]
         if not delay.has(n):
             result = invz ** delay
 
