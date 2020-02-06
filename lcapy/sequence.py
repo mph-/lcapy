@@ -10,10 +10,11 @@ from .expr import ExprList
 
 class Sequence(ExprList):
 
-    def __init__(self, seq, n=None, evaulate=False):
+    def __init__(self, seq, n=None, evaulate=False, var=None):
 
         super (Sequence, self).__init__(seq, evaulate)
         self.n = n
+        self.var = var
 
     def latex(self):
 
@@ -45,9 +46,14 @@ class Sequence(ExprList):
 
         return r'{%s}' % ', '.join(items)
     
-    def sum_delayed_impulses(self, var):
+    def as_impulses(self, var=None):
 
-        from .discretetime import unitimpulse
+        from .functions import unitimpulse
+
+        if var is None:
+            var = self.var
+        if var is None:
+            raise ValueError('var not specified')
         
         result = var * 0
         for v1, n1 in zip(self, self.n):        

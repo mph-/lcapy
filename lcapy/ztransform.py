@@ -13,6 +13,8 @@ import sympy as sym
 ztransform_cache = {}
 inverse_ztransform_cache = {}
 
+# TODO handle convolution -> product
+
 
 def ztransform_func(expr, n, z, inverse=False):
 

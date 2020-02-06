@@ -27,6 +27,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(expr('v(n / 3)').ztransform(), expr('V(z**3)'), "v(n/3)")
         self.assertEqual(expr('3 * v(n / 3)').ztransform(), expr('3 * V(z**3)'), "3 * v(n/3)")
         self.assertEqual(expr('v(n-3)').ztransform(), expr('V(z) / z**3'), "v(n - 3)")
+        self.assertEqual(nexpr('x(n)').ztransform(), zexpr('X(z)'), "x(n)")
                          
 
     def test_inverse_ztransform(self):
@@ -35,3 +36,4 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual((z**-1).inverse_ztransform(), unitimpulse(n-1), "z**-1")
         self.assertEqual((z**-2).inverse_ztransform(), unitimpulse(n-2), "z**-2")
         self.assertEqual(zexpr('1 / (1 - a * z ** -1)').inverse_ztransform(causal=True), nexpr('a**n * u(n)'), "1 / (1 - a * z)")                        
+        self.assertEqual(zexpr('X(z)').inverse_ztransform(), nexpr('x(n)'), "X(z)")

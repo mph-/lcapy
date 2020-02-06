@@ -291,6 +291,15 @@ class zExpr(Expr):
         
         return self.subs((1 + s * dt / 2) / (1 - s * dt / 2))
 
+    def discrete_time_fourier_transform(self):
+
+        return self.subs(exp(2 * j * pi * f * dt))
+
+    def DTFT(self):
+        """Discrete-time Fourier transform."""
+    
+        return self.discrete_time_fourier_transform() 
+    
     
 # Perhaps use a factory to create the following classes?
 
