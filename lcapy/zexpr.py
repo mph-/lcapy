@@ -91,20 +91,6 @@ class zExpr(Expr):
         
         return self.__class__(self, **assumptions)
 
-    def DTFT(self, **assumptions):
-        """Convert to Fourier domain using discrete time Fourier transform."""
-        from .symbols import f
-        
-        if assumptions.get('causal', self.is_causal):
-            return self.subs(exp(j * 2 * pi * f * dt))
-
-        raise RuntimeError('TODO')
-        #return self.discrete_time(**assumptions).discrete_fourier(**assumptions)
-
-    def phasor(self, **assumptions):
-
-        return self.time(**assumptions).phasor(**assumptions)
-
     def transient_response(self, tvector=None):
         """Evaluate transient (impulse) response."""
 
@@ -121,7 +107,7 @@ class zExpr(Expr):
     def step_response(self, tvector=None):
         """Evaluate step response."""
 
-        H = self.__class__(self / self.var, **self.assumptions)
+        H = self.__class__(self / (1 - 1 / self.var), **self.assumptions)
         return H.transient_response(tvector)
 
     def angular_frequency_response(self, wvector=None):
@@ -216,75 +202,6 @@ class zExpr(Expr):
         from .plot import plot_pole_zero
         return plot_pole_zero(self, **kwargs)
 
-    def parameterize(self, zeta=True):
-        """Parameterize first and second-order expressions.
-
-        For first order systems, parameterize as:
-
-        K * (s + beta) / (s + alpha)
-
-        K / (s + alpha)
-
-        K (s + beta)
-
-        where appropriate.
-
-        If `zeta` is True, parameterize second-order expression in
-        standard form using damping factor and natural frequency
-        representation, i.e.
-
-        N(s) / (s**2 + 2 * zeta * omega_0 * s + omega_0**2)
-        
-        otherwise parameterize as
-        
-        N(s) / (s**2 + 2 * sigma_1 * s + omega_1**2 + sigma_1**2)
-
-        """
-
-        def def1(defs, symbolname, value):
-            sym1 = symbol(symbolname)
-            defs[symbolname] = value
-            return sym1
-
-        ndegree = self.N.degree        
-        ddegree = self.D.degree
-        ncoeffs = self.N.coeffs(norm=True)
-        dcoeffs = self.D.coeffs(norm=True)
-
-        defs = ExprDict()
-
-        K = self.K
-        if ndegree < 1 and ddegree < 1:
-            return self, defs
-        if ndegree == 1 and ddegree == 1:
-            K = def1(defs, 'K', K)
-            alpha = def1(defs, 'alpha', dcoeffs[1])
-            beta = def1(defs, 'beta', ncoeffs[1])
-            return K * (s + beta) / (s + alpha), defs
-        if ndegree == 1 and ddegree == 0:
-            K = def1(defs, 'K', K)
-            beta = def1(defs, 'beta', ncoeffs[1])
-            return K * (s + beta), defs
-        if ndegree == 0 and ddegree == 1:
-            K = def1(defs, 'K', K)
-            alpha = def1(defs, 'alpha', dcoeffs[1])
-            return K / (s + alpha), defs
-        if ddegree == 2:
-            K = def1(defs, 'K', K)
-            coeffs = self.N.coeffs()
-
-            if not zeta:
-                sigma1 = def1(defs, 'sigma_1', dcoeffs[1] / 2)
-                omega1 = def1(defs, 'omega_1',
-                              sqrt(dcoeffs[2] - (dcoeffs[1] / 2)**2).simplify())
-                return K * (self.N / coeffs[0]) / (s**2 + 2 * sigma1 * s + sigma1**2 + omega1**2), defs
-                
-            omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]))
-            zeta = def1(defs, 'zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
-            return K * (self.N / coeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2), defs
-        
-        return self, defs
-    
     def inverse_bilinear_transform(self):
 
         from .symbols import s
@@ -294,14 +211,20 @@ class zExpr(Expr):
         
         return self.subs((1 + s * dt / 2) / (1 - s * dt / 2))
 
-    def discrete_time_fourier_transform(self):
+    def discrete_time_fourier_transform(self, **assumptions):
+        """Convert to Fourier domain using discrete time Fourier transform."""
 
-        return self.subs(exp(2 * j * pi * f * dt))
+        from .symbols import f
 
-    def DTFT(self):
-        """Discrete-time Fourier transform."""
+        if assumptions.get('causal', self.is_causal):
+            return self.subs(exp(j * 2 * pi * f * dt))
+
+        raise RuntimeError('TODO')
+
+    def DTFT(self, **assumptions):
+        """Convert to Fourier domain using discrete time Fourier transform."""
     
-        return self.discrete_time_fourier_transform() 
+        return self.discrete_time_fourier_transform(**assumptions) 
     
     
 # Perhaps use a factory to create the following classes?

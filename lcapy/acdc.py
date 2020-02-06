@@ -1,4 +1,5 @@
 from .sym import sympify1
+from .functions import UnitImpulse
 import sympy as sym
 from sympy import cos, pi, sin, atan2, sqrt
 
@@ -11,7 +12,8 @@ class CausalChecker(object):
             if factor == 0:
                 return True
             if (not factor.is_Function 
-                or factor.func not in (sym.Heaviside, sym.DiracDelta)):
+                or factor.func not in (sym.Heaviside, sym.DiracDelta,
+                                       UnitImpulse)):
                 continue
 
             p = sym.Poly(factor.args[0], self.var)
