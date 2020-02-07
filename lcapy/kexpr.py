@@ -38,24 +38,6 @@ class kExpr(Expr):
             raise ValueError(
                 'k-domain expression %s cannot depend on n' % self.expr)
 
-    def inverse_fourier(self):
-        """Attempt inverse Fourier transform."""
-
-        result = inverse_fourier_transform(self.expr, self.var, nsym)
-        if hasattr(self, '_fourier_conjugate_class'):
-            result = self._fourier_conjugate_class(result)
-        else:
-            result = nexpr(result)
-        return result
-
-    def time(self, **assumptions):
-        return self.inverse_fourier()
-    
-    def laplace(self, **assumptions):
-        """Determine one-side Laplace transform with 0- as the lower limit."""
-
-        return self.time(**assumptions).laplace()
-    
     def plot(self, kvector=None, **kwargs):
         """Plot frequency response at values specified by kvector.  If kvector
         is a tuple, this sets the frequency limits.
@@ -89,6 +71,31 @@ class kExpr(Expr):
         from .plot import plot_frequency
         return plot_frequency(self, kvector, **kwargs)
 
+    def IDFT(self, N=None, evaluate=True):
+
+        from .nexpr import n
+        from sympy import Sum, summation
+
+        if N is None:
+            from .expr import expr
+            from .sym import sympify
+            
+            N = sympify('N')
+
+        foo = self.expr * exp(2 * j * pi * nsym * ksym / N) / N
+
+        if evaluate:
+            result = summation(foo, (ksym, 0, N))       
+        else:
+            result = Sum(foo, (ksym, 0, N))
+
+        if hasattr(self, '_fourier_conjugate_class'):
+            result = self._fourier_conjugate_class(result)
+        else:
+            result = nExpr(result, check=False)
+            
+        return result
+    
 
 class Yk(kExpr):
 

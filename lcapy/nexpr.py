@@ -147,11 +147,16 @@ class nExpr(Expr):
         foo = self.expr * exp(-2 * j * pi * nsym * ksym / N)
 
         if evaluate:
-            dft = summation(foo, (nsym, 0, N))                        
+            result = summation(foo, (nsym, 0, N))                        
         else:
-            dft = Sum(foo, (nsym, 0, N))
+            result = Sum(foo, (nsym, 0, N))
 
-        return kExpr(dft, check=False)
+        if hasattr(self, '_fourier_conjugate_class'):
+            result = self._fourier_conjugate_class(result)
+        else:
+            result = kExpr(result, check=False)
+            
+        return result
     
     
 class Yn(nExpr):

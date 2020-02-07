@@ -45,6 +45,7 @@ def expr(arg, **assumptions):
 # Difference operator D() for first-order differences
 # Perhaps transforms ZT(), IZT(), FT(), IFT(), LT(), ILT() ?
 # Fix summations over unit impulses
+# Vn used for noise voltages  Vnoise is a noise voltage source
 
 
 print('Warning this is experimental and probably riddled with bugs')
