@@ -147,9 +147,9 @@ class nExpr(Expr):
         foo = self.expr * exp(-2 * j * pi * nsym * ksym / N)
 
         if evaluate:
-            dft = summation(foo, (n, 0, N))                        
+            dft = summation(foo, (nsym, 0, N))                        
         else:
-            dft = Sum(foo, (n, 0, N))
+            dft = Sum(foo, (nsym, 0, N))
 
         return kExpr(dft, check=False)
     
