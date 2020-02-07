@@ -1,4 +1,4 @@
-from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vn, Vt, It, sqrt, u, sympify, expr
+from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vnoisy, Vt, It, sqrt, u, sympify, expr
 from lcapy import Zs, s, t
 import unittest
 import sympy as sym
@@ -309,7 +309,7 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2 2')
         a.add('R2 2 0 4')
         V1 = a.R1.V.n
-        self.assertEqual2(V1, Vn(1, nid=V1.nid), "Incorrect ratio")
+        self.assertEqual2(V1, Vnoisy(1, nid=V1.nid), "Incorrect ratio")
 
     def test_noise2(self):
         """Lcapy: check circuit noise for pair of sources"""
@@ -319,7 +319,7 @@ class LcapyTester(unittest.TestCase):
         a.add('V2 2 1 noise 4')
         a.add('R1 2 0 5')
         V1 = a.R1.V.n
-        self.assertEqual2(V1, Vn(5, nid=V1.nid), "Incorrect noise sum")        
+        self.assertEqual2(V1, Vnoisy(5, nid=V1.nid), "Incorrect noise sum")        
         
     def test_filtered_noise1(self):
         """Lcapy: check circuit filtered noise"""
@@ -328,7 +328,7 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 noise 3') 
         a.add('R1 1 2 2')
         a.add('C1 2 0 4')         
-#        self.assertEqual2(a.R1.V.n, Vn(1), "Incorrect ratio")
+#        self.assertEqual2(a.R1.V.n, Vnoisy(1), "Incorrect ratio")
 
 
     def test_filtered_noise2(self):

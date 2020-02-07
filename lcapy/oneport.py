@@ -960,7 +960,7 @@ class Vnoise(VoltageSource):
 
     def __init__(self, V, nid=None):
 
-        V1 = Vn(V, nid=nid)
+        V1 = Vnoisy(V, nid=nid)
         self.args = (V, V1.nid)
         self._Voc = Voltage(V1)
 
@@ -1086,7 +1086,7 @@ class Inoise(CurrentSource):
 
     def __init__(self, I, nid=None):
 
-        I1 = In(I, nid=nid)
+        I1 = Inoisy(I, nid=nid)
         self._Isc = Current(I1)
         self.args = (I, I1.nid)
 
@@ -1281,7 +1281,7 @@ from .expr import Expr
 from .cexpr import cExpr, Iconst, Vconst
 from .sexpr import sExpr, Is, Vs, Ys, Zs
 from .texpr import tExpr
-from .noiseexpr import In, Vn
+from .noiseexpr import Inoisy, Vnoisy
 from .voltage import Voltage
 from .current import Current
 from .phasor import Iphasor, Vphasor

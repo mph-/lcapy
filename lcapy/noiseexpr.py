@@ -19,18 +19,18 @@ class noiseExpr(omegaExpr):
     created.
 
     Uncorrelated noise expressions are added in quadrature (on a power
-    basis).  Thus (Vn(3) + Vn(4)).expr = 5 since 5 = sqrt(3**2 + 4**2)
+    basis).  Thus (Vnoisy(3) + Vnoisy(4)).expr = 5 since 5 = sqrt(3**2 + 4**2)
 
-    Vn(3) != Vn(3) since they are different noise realisations albeit
-    with the same properties.  However, Vn(3).expr == Vn(3).expr.
-    Similarly, Vn(3, nid='n1') == Vn(3, nid='n1') since they have the
+    Vnoisy(3) != Vnoisy(3) since they are different noise realisations albeit
+    with the same properties.  However, Vnoisy(3).expr == Vnoisy(3).expr.
+    Similarly, Vnoisy(3, nid='n1') == Vnoisy(3, nid='n1') since they have the
     same noise identifier and thus have the same realisation.
 
     Caution: The sum of two noise expressions generates a noise
     expression with a new nid.  This can lead to unexpected results
     since noise expressions with different nids are assumed to be
     uncorrelated.  For example, consider:
-    a = Vn(3); b = Vn(4)
+    a = Vnoisy(3); b = Vnoisy(4)
     a + b - b gives sqrt(41) and  a + b - a gives sqrt(34).
 
     This case is correctly handled by the Super class since each noise
@@ -198,12 +198,12 @@ class noiseExpr(omegaExpr):
             obj.part = self.part
         return plot_frequency(obj, fvector, **kwargs)    
 
-class Vn(noiseExpr):
+class Vnoisy(noiseExpr):
     """Voltage noise amplitude spectral density (units V/rtHz).
     This can be a function of angular frequency, omega.  For example,
     to model an opamp voltage noise:
 
-    v = Vn(1e-8 / sqrt(omega) + 8e-9)
+    v = Vnoisy(1e-8 / sqrt(omega) + 8e-9)
     
     """
 
@@ -213,18 +213,18 @@ class Vn(noiseExpr):
     def __init__(self, val, **assumptions):
 
         assumptions['positive'] = True
-        super(Vn, self).__init__(val, **assumptions)
+        super(Vnoisy, self).__init__(val, **assumptions)
         # FIXME
         self._fourier_conjugate_class = Vt
 
 
-class In(noiseExpr):
+class Inoisy(noiseExpr):
     """Current noise amplitude spectral density (units A/rtHz).
 
     This can be a function of angular frequency, omega.  For example,
     to model an opamp current noise:
 
-    i = In(3e-12 / sqrt(omega) + 200e-15)
+    i = Inoisy(3e-12 / sqrt(omega) + 200e-15)
     """
 
     quantity = 'Current noise spectral density'
@@ -233,7 +233,7 @@ class In(noiseExpr):
     def __init__(self, val, **assumptions):
 
         assumptions['positive'] = True
-        super(In, self).__init__(val, **assumptions)
+        super(Inoisy, self).__init__(val, **assumptions)
         # FIXME
         self._fourier_conjugate_class = It
 

@@ -31,10 +31,10 @@ from .super import Super
 class Voltage(Super):
 
     def __init__(self, *args, **kwargs):
-        self.type_map = {cExpr: Vconst, sExpr : Vs, noiseExpr: Vn,
+        self.type_map = {cExpr: Vconst, sExpr : Vs, noiseExpr: Vnoisy,
                          omegaExpr: Vphasor, tExpr : Vt}
         self.decompose_domains = {'s': Vs, 'ac': Vphasor, 'dc':
-                                  Vconst, 'n': Vn, 't': Vt}
+                                  Vconst, 'n': Vnoisy, 't': Vt}
         self.time_class = Vt
         self.laplace_class = Vs    
 
@@ -114,9 +114,9 @@ def Vname(name, kind, cache=False):
 def Vtype(kind):
     
     if isinstance(kind, str) and kind[0] == 'n':
-        return Vn
+        return Vnoisy
     try:
-        return {'ivp' : Vs, 's' : Vs, 'n' : Vn,
+        return {'ivp' : Vs, 's' : Vs, 'n' : Vnoisy,
                 'ac' : Vphasor, 'dc' : Vconst, 't' : Vt, 'time' : Vt}[kind]
     except KeyError:
         return Vphasor
@@ -127,7 +127,7 @@ from .cexpr import Vconst, Iconst, cExpr
 from .fexpr import fExpr    
 from .sexpr import Vs, sExpr
 from .texpr import Vt, tExpr
-from .noiseexpr import Vn, noiseExpr
+from .noiseexpr import Vnoisy, noiseExpr
 from .phasor import Vphasor, Phasor
 from .impedance import Impedance
 from .admittance import Admittance

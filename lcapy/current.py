@@ -32,10 +32,10 @@ class Current(Super):
 
     def __init__(self, *args, **kwargs):    
 
-        self.type_map = {cExpr: Iconst, sExpr : Is, noiseExpr: In,
+        self.type_map = {cExpr: Iconst, sExpr : Is, noiseExpr: Inoisy,
                          omegaExpr: Iphasor, tExpr : It}
         self.decompose_domains = {'s': Is, 'ac': Iphasor, 'dc':
-                                  Iconst, 'n': In, 't': It}
+                                  Iconst, 'n': Inoisy, 't': It}
         self.time_class = It
         self.laplace_class = Is
 
@@ -110,9 +110,9 @@ def Iname(name, kind, cache=False):
 
 def Itype(kind):
     if isinstance(kind, str) and kind[0] == 'n':
-        return In
+        return Inoisy
     try:
-        return {'ivp' : Is, 's' : Is, 'n' : In,
+        return {'ivp' : Is, 's' : Is, 'n' : Inoisy,
                 'ac' : Iphasor, 'dc' : Iconst, 't' : It, 'time' : It}[kind]
     except KeyError:
         return Iphasor
@@ -123,7 +123,7 @@ from .cexpr import Vconst, Iconst, cExpr
 from .fexpr import fExpr    
 from .sexpr import Is, sExpr
 from .texpr import It, tExpr
-from .noiseexpr import In, noiseExpr
+from .noiseexpr import Inoisy, noiseExpr
 from .phasor import Iphasor, Phasor
 from .impedance import Impedance
 from .admittance import Admittance

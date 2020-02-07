@@ -407,7 +407,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Heaviside(-2 * t - 1).is_causal, False, "Heaviside(-2 * t - 1).is_causal")
         
     def test_noise(self):
-        a = Vn(2)
+        a = Vnoisy(2)
         self.assertEqual(a.nid, a.conjugate.nid, "Different nids for conjugate")
         self.assertEqual(a.nid, a.real.nid, "Different nids for real")
         self.assertEqual(a.nid, a.imag.nid, "Different nids for imag")
