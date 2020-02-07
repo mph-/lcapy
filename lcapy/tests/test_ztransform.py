@@ -37,3 +37,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual((z**-2).inverse_ztransform(), unitimpulse(n-2), "z**-2")
         self.assertEqual(zexpr('1 / (1 - a * z ** -1)').inverse_ztransform(causal=True), nexpr('a**n * u(n)'), "1 / (1 - a * z)")                        
         self.assertEqual(zexpr('X(z)').inverse_ztransform(), nexpr('x(n)'), "X(z)")
+
+
+    def test_misc(self):
+
+        x = 3 * unitimpulse(n - 2)
+        y = x.differentiate()
+        X = x.ZT().ndifferentiate().IZT()
+        
+        

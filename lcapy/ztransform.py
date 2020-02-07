@@ -217,6 +217,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
 
         # Handle repeated poles.
         expr2 = expr * (invz - p) ** o
+        expr2 = expr2.simplify()
         for i in range(1, o + 1):
             m = o - i
             r = sym.limit(

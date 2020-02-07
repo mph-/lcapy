@@ -31,21 +31,17 @@ class zExpr(Expr):
             raise ValueError(
                 'z-domain expression %s cannot depend on n' % self.expr)
 
-    def differentiate(self):
-        """Differentiate (multiply by z)."""
+    def ndifferentiate(self):
+        """First order difference in n-domain."""
 
-        return self.__class__(self.expr * self.var)
+        q = 1 / (1 - 1 / self.var) * dt
+        return self.__class__(self.expr / q)
 
-    def integrate(self):
-        """Integrate (divide by z)."""
+    def nintegrate(self):
+        """First order integration in n-domain."""
 
-        return self.__class__(self.expr / self.var)
-
-    def delay(self, T):
-        """Apply delay of T seconds by multiplying by exp(-s T)."""
-
-        T = self.__class__(T)
-        return self.__class__(self.expr * sym.exp(-s * T))
+        q = 1 / (1 - 1 / self.var) * dt       
+        return self.__class__(self.expr * q)
 
     def initial_value(self):
         """Determine value at n = 0."""
@@ -78,18 +74,13 @@ class zExpr(Expr):
             result = nexpr(result)
         return result
 
+    def IZT(self, **assumptions):
+        return self.inverse_ztransform(**assumptions)
+
     def time(self, **assumptions):
         """Convert to time domain."""
         
         return self.inverse_ztransform(**assumptions)
-
-    def ztransform(self, **assumptions):
-        """Convert to z-domain."""
-
-        if assumptions == {}:
-            assumptions = self.assumptions.copy()
-        
-        return self.__class__(self, **assumptions)
 
     def transient_response(self, tvector=None):
         """Evaluate transient (impulse) response."""
@@ -107,7 +98,8 @@ class zExpr(Expr):
     def step_response(self, tvector=None):
         """Evaluate step response."""
 
-        H = self.__class__(self / (1 - 1 / self.var), **self.assumptions)
+        q = 1 / (1 - 1 / self.var)
+        H = self.__class__(self * q, **self.assumptions)
         return H.transient_response(tvector)
 
     def angular_frequency_response(self, wvector=None):

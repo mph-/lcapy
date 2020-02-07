@@ -8,10 +8,11 @@ from __future__ import division
 from .expr import Expr
 from .functions import exp
 from .sym import j, oo, pi
-from .dsym import nsym, ksym, zsym
+from .dsym import nsym, ksym, zsym, dt
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .ztransform import ztransform
 from .sequence import Sequence
+from sympy import Sum, summation
 
 
 __all__ = ('Hn', 'In', 'Vn', 'Yn', 'Zn')
@@ -61,6 +62,22 @@ class nExpr(Expr):
         new_assumptions.update(assumptions)
         return new_assumptions
 
+    def differentiate(self):
+        """First order difference."""
+
+        return self.__class__((self.expr - self.subs(n - 1).expr) / dt)
+
+    def integrate(self):
+        """First order integration."""
+
+        from .sym import sympify
+        
+        msym = sympify('m')
+        
+        result = dt * summation(self.subs(msym).expr, (msym, 0, nsym)) + self.subs(0).expr
+        
+        return self.__class__(result)
+
     def ztransform(self, **assumptions):
         """Determine one-sided z-transform."""
 
@@ -76,18 +93,8 @@ class nExpr(Expr):
             result = zExpr(result, **assumptions)
         return result
 
-    # def fourier(self, **assumptions):
-    #     """Attempt Fourier transform."""
-
-    #     assumptions = self.merge_assumptions(**assumptions)
-        
-    #     result = fourier_transform(self.expr, self.var, fsym)
-
-    #     if hasattr(self, '_fourier_conjugate_class'):
-    #         result = self._fourier_conjugate_class(result, **assumptions)
-    #     else:
-    #         result = fExpr(result **self.assumptions)
-    #     return result
+    def ZT(self, **assumptions):
+        return self.ztransform(**assumptions)
 
     def plot(self, n=None, **kwargs):
         """Plot the time waveform.  If n is not specified, it defaults to the
@@ -136,7 +143,6 @@ class nExpr(Expr):
     def DFT(self, N=None, evaluate=True):
 
         from .kexpr import k
-        from sympy import Sum, summation
 
         if N is None:
             from .expr import expr

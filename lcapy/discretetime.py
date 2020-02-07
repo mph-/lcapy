@@ -44,8 +44,7 @@ def expr(arg, **assumptions):
 # Unit lag operator L() ? 
 # Difference operator D() for first-order differences
 # Perhaps transforms ZT(), IZT(), FT(), IFT(), LT(), ILT() ?
-# Fix summations over unit impulses
-# Vn used for noise voltages  Vnoise is a noise voltage source
-
+# Perhaps have min bound for N to help simplify DFT?
+# Perhaps have Voltage() for Vn, Vk, VZ etc.
 
 print('Warning this is experimental and probably riddled with bugs')

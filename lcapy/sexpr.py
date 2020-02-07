@@ -33,13 +33,13 @@ class sExpr(Expr):
             raise ValueError(
                 's-domain expression %s cannot depend on t' % self.expr)
 
-    def differentiate(self):
-        """Differentiate (multiply by s)."""
+    def tdifferentiate(self):
+        """Differentiate in t-domain (multiply by s)."""
 
         return self.__class__(self.expr * self.var)
 
-    def integrate(self):
-        """Integrate (divide by s)."""
+    def tintegrate(self):
+        """Integrate in t-domain (divide by s)."""
 
         return self.__class__(self.expr / self.var)
 

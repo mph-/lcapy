@@ -346,6 +346,7 @@ def inverse_laplace_ratfun(expr, s, t, **assumptions):
 
         # Handle repeated poles.
         expr2 = expr * (s - p) ** o
+        expr2 = expr2.simplify()        
         for n in range(1, o + 1):
             m = o - n
             r = sym.limit(
