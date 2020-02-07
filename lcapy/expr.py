@@ -938,6 +938,9 @@ class Expr(ExprPrint, ExprMisc):
             def dirac(arg):
                 return np.inf if arg == 0.0 else 0.0
 
+            def unitimpulse(arg):
+                return 1.0 if arg == 0 else 0.0            
+
             def heaviside(arg):
                 return 1.0 if arg >= 0.0 else 0.0
 
@@ -963,6 +966,7 @@ class Expr(ExprPrint, ExprMisc):
             func = lambdify(var, expr,
                             ({'DiracDelta' : dirac,
                               'Heaviside' : heaviside,
+                              'UnitImpulse' : unitimpulse,
                               'sqrt' : sqrt, 'exp' : exp},
                              "scipy", "numpy", "math", "sympy"))
 

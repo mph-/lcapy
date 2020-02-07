@@ -7,7 +7,7 @@ Copyright 2020 Michael Hayes, UCECE
 from __future__ import division
 from .expr import Expr
 from .functions import exp
-from .sym import j, oo
+from .sym import j, oo, pi
 from .dsym import nsym, ksym, zsym
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .ztransform import ztransform
@@ -133,6 +133,26 @@ class nExpr(Expr):
 
         return Sequence(v, nvals, evaluate, self.var)
 
+    def DFT(self, N=None, evaluate=True):
+
+        from .kexpr import k
+        from sympy import Sum, summation
+
+        if N is None:
+            from .expr import expr
+            from .sym import sympify
+            
+            N = sympify('N')
+
+        foo = self.expr * exp(-2 * j * pi * nsym * ksym / N)
+
+        if evaluate:
+            dft = summation(foo, (n, 0, N))                        
+        else:
+            dft = Sum(foo, (n, 0, N))
+
+        return kExpr(dft, check=False)
+    
     
 class Yn(nExpr):
 
@@ -144,7 +164,7 @@ class Yn(nExpr):
 
         super(Yn, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Yz
-        #self._fourier_conjugate_class = Yf
+        self._fourier_conjugate_class = Yk
 
 
 class Zn(nExpr):
@@ -157,7 +177,7 @@ class Zn(nExpr):
 
         super(Zn, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Zz
-        #self._fourier_conjugate_class = Zf
+        self._fourier_conjugate_class = Zk
 
 
 class Vn(nExpr):
@@ -171,7 +191,7 @@ class Vn(nExpr):
 
         super(Vn, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Vz
-        #self._fourier_conjugate_class = Vf
+        self._fourier_conjugate_class = Vk
 
 class In(nExpr):
 
@@ -184,7 +204,7 @@ class In(nExpr):
 
         super(In, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Iz
-        #self._fourier_conjugate_class = If
+        self._fourier_conjugate_class = Ik
 
 
 class Hn(nExpr):
@@ -198,7 +218,7 @@ class Hn(nExpr):
 
         super(Hn, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Hz
-        #self._fourier_conjugate_class = Hf
+        self._fourier_conjugate_class = Hk
 
 def nexpr(arg):
     """Create nExpr object.  If `arg` is nsym return n"""
@@ -208,7 +228,5 @@ def nexpr(arg):
     return nExpr(arg)
 
 from .zexpr import Hz, Iz, Vz, Yz, Zz, zExpr
-# kexpr?
-#from .fexpr import Hf, If, Vf, Yf, Zf, fExpr
-from .phasor import Phasor
+from .kexpr import Hk, Ik, Vk, Yk, Zk, kExpr
 n = nExpr('n')

@@ -39,8 +39,12 @@ def expr(arg, **assumptions):
 # Add method to create difference equations, say difference_equations(output='y', input='x')
 # Approximate tExpr with nExpr
 # Rewrite rational functions in terms of z^-1
-# Symbol for z^-1, say invz?  Would need special casing to handle invz * z etc.
+# Symbol for z^-1, say invz or iz?  Would need special casing to handle invz * z etc.
 # Transforms, perhaps have a Transformer class with registered transforms?
+# Unit lag operator L() ? 
+# Difference operator D() for first-order differences
+# Perhaps transforms ZT(), IZT(), FT(), IFT(), LT(), ILT() ?
+# Fix summations over unit impulses
 
 
 print('Warning this is experimental and probably riddled with bugs')

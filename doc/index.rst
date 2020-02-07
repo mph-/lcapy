@@ -21,7 +21,8 @@ Contents:
 
    install.rst
    tutorial.rst
-   expressions.rst           
+   expressions.rst
+   discretetime.rst                         
    circuits.rst
    networks.rst
    netlists.rst

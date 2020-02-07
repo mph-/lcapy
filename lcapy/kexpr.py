@@ -8,7 +8,8 @@ Copyright 2020 Michael Hayes, UCECE
 from __future__ import division
 from .fourier import inverse_fourier_transform
 from .expr import Expr
-from .dsym import nsym, ksym, zsym, dt, df
+from .dsym import nsym, ksym, zsym
+import sympy as sym
 
 
 class kExpr(Expr):
@@ -22,16 +23,20 @@ class kExpr(Expr):
     def __init__(self, val, **assumptions):
 
         assumptions['real'] = True
+        check = assumptions.pop('check', True)
+        
         super(kExpr, self).__init__(val, **assumptions)
         # Define when class defined.
         self._fourier_conjugate_class = nexpr
 
-        if self.expr.find(zsym) != set():
+        expr = self.expr
+
+        if check and expr.find(zsym) != set():
             raise ValueError(
                 'k-domain expression %s cannot depend on z' % self.expr)
-        if self.expr.find(nsym) != set():
+        if check and expr.find(nsym) != set() and not expr.has(sym.Sum):
             raise ValueError(
-                'f-domain expression %s cannot depend on t' % self.expr)
+                'k-domain expression %s cannot depend on n' % self.expr)
 
     def inverse_fourier(self):
         """Attempt inverse Fourier transform."""
@@ -51,8 +56,8 @@ class kExpr(Expr):
 
         return self.time(**assumptions).laplace()
     
-    def plot(self, fvector=None, **kwargs):
-        """Plot frequency response at values specified by fvector.  If fvector
+    def plot(self, kvector=None, **kwargs):
+        """Plot frequency response at values specified by kvector.  If kvector
         is a tuple, this sets the frequency limits.
 
         kwargs include:
@@ -72,9 +77,9 @@ class kExpr(Expr):
         matplotlib.pyplot.plot.
 
         For example:
-            V.plot(fvector, log_frequency=True)
-            V.real.plot(fvector, color='black')
-            V.phase.plot(fvector, color='black', linestyle='--')
+            V.plot(kvector, log_frequency=True)
+            V.real.plot(kvector, color='black')
+            V.phase.plot(kvector, color='black', linestyle='--')
 
         By default complex data is plotted as separate plots of magnitude (dB)
         and phase.
@@ -82,10 +87,10 @@ class kExpr(Expr):
         """
 
         from .plot import plot_frequency
-        return plot_frequency(self, fvector, **kwargs)
+        return plot_frequency(self, kvector, **kwargs)
 
 
-class Yf(kExpr):
+class Yk(kExpr):
 
     """f-domain admittance"""
 
@@ -94,11 +99,11 @@ class Yf(kExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Yf, self).__init__(val, **assumptions)
+        super(Yk, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Yn
 
 
-class Zf(kExpr):
+class Zk(kExpr):
 
     """f-domain impedance"""
 
@@ -107,11 +112,11 @@ class Zf(kExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Zf, self).__init__(val, **assumptions)
+        super(Zk, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Zn
 
 
-class Hf(kExpr):
+class Hk(kExpr):
 
     """f-domain transfer function response."""
 
@@ -120,11 +125,11 @@ class Hf(kExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Hf, self).__init__(val, **assumptions)
+        super(Hk, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Hn
 
 
-class Vf(kExpr):
+class Vk(kExpr):
 
     """f-domain voltage (units V/Hz)."""
 
@@ -133,11 +138,11 @@ class Vf(kExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Vf, self).__init__(val, **assumptions)
+        super(Vk, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Vn
 
 
-class If(kExpr):
+class Ik(kExpr):
 
     """f-domain current (units A/Hz)."""
 
@@ -146,7 +151,7 @@ class If(kExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(If, self).__init__(val, **assumptions)
+        super(Ik, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = In
 
 
