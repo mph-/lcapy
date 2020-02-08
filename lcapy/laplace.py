@@ -185,9 +185,7 @@ def laplace_term(expr, t, s):
 def laplace_transform(expr, t, s):
     """Compute unilateral Laplace transform of expr with lower limit 0-.
 
-    Undefined functions such as v(t) are converted to V(s)
-
-    """
+    Undefined functions such as v(t) are converted to V(s)."""
 
     key = (expr, t, s)
     if key in laplace_cache:
@@ -615,5 +613,28 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
         
     inverse_laplace_cache[key] = result
     return result
+
+
+def LT(expr, t, s, **assumptions):
+    """Compute unilateral Laplace transform of expr with lower limit 0-.
+
+    Undefined functions such as v(t) are converted to V(s)."""
+    
+    return laplace_transform(expr, t, s, **assumptions)
+
+
+def ILT(expr, s, t, **assumptions):
+    """Calculate inverse Laplace transform of X(s) and return x(t).
+
+    The unilateral Laplace transform cannot determine x(t) for t < 0
+    unless given additional information in the way of assumptions.
+
+    The assumptions are:
+    dc -- x(t) = constant so X(s) must have the form constant / s
+    causal -- x(t) = 0 for t < 0.
+    ac -- x(t) = A cos(a * t) + B * sin(b * t)
+    """
+    
+    return inverse_laplace_transform(expr, s, t, **assumptions)
 
 from .expr import Expr

@@ -187,9 +187,7 @@ def fourier_transform(expr, t, f, inverse=False):
     Undefined functions such as v(t) are converted to V(f)
 
     This also handles some expressions that do not really have a Fourier
-    transform, such as a, cos(a * t), sin(a * t), exp(I * a * t).
-
-    """
+    transform, such as a, cos(a * t), sin(a * t), exp(I * a * t)."""
 
     key = (expr, t, f, inverse)
     if key in fourier_cache:
@@ -237,9 +235,8 @@ def inverse_fourier_transform(expr, f, t):
 
     This also handles some expressions that do not really have an
     inverse Fourier transform, such as a, cos(a * f), sin(a * f), exp(I *
-    a * f).
-
-    """
+    a * f)."""
+    
     if expr.has(t):
         raise ValueError('Cannot inverse Fourier transform for expression %s that depends on %s' % (expr, t))
     
@@ -247,16 +244,24 @@ def inverse_fourier_transform(expr, f, t):
     return sym.simplify(result)
 
 
-def test():
+def FT(expr, t, f, **assumptions):
+    """Compute bilateral Fourier transform of expr.
 
-     t, f, a = sym.symbols('t f a', real=True)
-     a = sym.symbols('a', positive=True)
+    Undefined functions such as v(t) are converted to V(f)
 
-     print(fourier_transform(a, t, f))
-     print(fourier_transform(sym.exp(-sym.I * 2 * sym.pi * a * t), t, f))
-     print(fourier_transform(sym.cos(2 * sym.pi * a * t), t, f))
-     print(fourier_transform(sym.sin(2 * sym.pi * a * t), t, f))
-     print(fourier_transform(a * t, t, f))
-     print(fourier_transform(sym.exp(-a * t) * sym.Heaviside(t), t, f))
-     print(inverse_fourier_transform(a, f, t))
-     print(inverse_fourier_transform(1 / (sym.I * 2 * sym.pi * f + a), f, t))
+    This also handles some expressions that do not really have a Fourier
+    transform, such as a, cos(a * t), sin(a * t), exp(I * a * t)."""    
+    
+    return fourier_transform(expr, t, f, **assumptions)
+
+
+def IFT(expr, f, t, **assumptions):
+    """Compute bilateral inverse Fourier transform of expr.
+
+    Undefined functions such as V(f) are converted to v(t)
+
+    This also handles some expressions that do not really have an
+    inverse Fourier transform, such as a, cos(a * f), sin(a * f), exp(I *
+    a * f)."""    
+    
+    return inverse_fourier_transform(expr, f, t, **assumptions)
