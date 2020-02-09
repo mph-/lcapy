@@ -232,9 +232,9 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
 
 def dummyvar(intnum=0):
     if intnum == 0:
-        return sympify('m')
+        return sympify('m', real=True)
     else:
-        return sympify('m_%d' % intnum)    
+        return sympify('m_%d' % intnum, real=True)
 
 
 def inverse_ztransform_product(expr, z, n, **assumptions):
@@ -455,3 +455,7 @@ def inverse_ztransform(expr, z, n, **assumptions):
     return result
 
 from .expr import Expr
+
+# expr('g(n)').integrate().ZT()  fails
+# expr('g(n)').ZT().nintegrate().IZT()  upper limit n
+

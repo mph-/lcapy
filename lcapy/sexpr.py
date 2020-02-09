@@ -36,12 +36,12 @@ class sExpr(Expr):
     def tdifferentiate(self):
         """Differentiate in t-domain (multiply by s)."""
 
-        return self.__class__(self.expr * self.var)
+        return self.__class__(self.expr * self.var, **self.assumptions)
 
     def tintegrate(self):
         """Integrate in t-domain (divide by s)."""
 
-        return self.__class__(self.expr / self.var)
+        return self.__class__(self.expr / self.var, **self.assumptions)
 
     def delay(self, T):
         """Apply delay of T seconds by multiplying by exp(-s T)."""

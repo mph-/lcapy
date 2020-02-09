@@ -65,7 +65,7 @@ class nExpr(Expr):
     def differentiate(self):
         """First order difference."""
 
-        return self.__class__((self.expr - self.subs(n - 1).expr) / dt)
+        return self.__class__((self.expr - self.subs(n - 1).expr) / dt, **self.assumptions)
 
     def integrate(self):
         """First order integration."""
@@ -74,9 +74,9 @@ class nExpr(Expr):
         
         msym = sympify('m')
         
-        result = dt * summation(self.subs(msym).expr, (msym, 0, nsym)) + self.subs(0).expr
+        result = dt * summation(self.subs(msym).expr, (msym, -oo, nsym))
         
-        return self.__class__(result)
+        return self.__class__(result, **self.assumptions)
 
     def ztransform(self, **assumptions):
         """Determine one-sided z-transform."""

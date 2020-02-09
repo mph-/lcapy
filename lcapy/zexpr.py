@@ -35,13 +35,13 @@ class zExpr(Expr):
         """First order difference in n-domain."""
 
         q = 1 / (1 - 1 / self.var) * dt
-        return self.__class__(self.expr / q)
+        return self.__class__(self.expr / q, **self.assumptions)
 
     def nintegrate(self):
         """First order integration in n-domain."""
 
         q = 1 / (1 - 1 / self.var) * dt       
-        return self.__class__(self.expr * q)
+        return self.__class__(self.expr * q, **self.assumptions)
 
     def initial_value(self):
         """Determine value at n = 0."""
