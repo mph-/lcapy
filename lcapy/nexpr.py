@@ -71,9 +71,15 @@ class nExpr(Expr):
         """First order integration."""
 
         from .sym import sympify
+        from .utils import factor_const
+        from .functions import UnitImpulse, u
+
+        expr = self.expr
+        const, expr = factor_const(expr, nsym)
+        if expr.is_Function and expr.func == UnitImpulse:
+            return dt * u(expr.args[0]) * const
         
-        msym = sympify('m')
-        
+        msym = sympify('m', real=True)
         result = dt * summation(self.subs(msym).expr, (msym, -oo, nsym))
         
         return self.__class__(result, **self.assumptions)

@@ -89,7 +89,7 @@ atanh = Function(sym.atanh)
 
 gcd = Function(sym.gcd)
 
-u = H = Heaviside = Function(sym.Heaviside)
+u = H = heaviside = Heaviside = Function(sym.Heaviside)
 
 delta = DiracDelta = Function(sym.DiracDelta)
 

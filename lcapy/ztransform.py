@@ -58,10 +58,65 @@ def ztransform_func(expr, n, z, inverse=False):
     return result
 
 
+def ztransform_sum(expr, n, z):
+
+    const, expr = factor_const(expr, n)
+
+    if len(expr.args) != 2:
+        raise ValueError('Cannot compute z-transform of %s' % expr)
+
+    if not isinstance(expr, sym.Sum):
+        raise ValueError('Cannot compute z-transform of %s' % expr)
+
+    # Look for integration of function
+    if (isinstance(expr.args[0], sym.function.AppliedUndef)
+        and expr.args[1][0] == expr.args[0].args[0]
+        and expr.args[1][1] == -sym.oo
+        and expr.args[1][2] == n):
+        return ztransform_func(expr.args[0].subs(expr.args[0].args[0], n), n, z) / (1 - 1 / z)
+    
+    # Look for convolution sum
+    
+    var = expr.args[1][0]
+    if (expr.args[1][1] != -sym.oo) or (expr.args[1][2] != sym.oo):
+        raise ValueError('Need indefinite limits for %s' % expr)
+    
+    const2, expr = factor_const(expr.args[0], n)
+    if ((len(expr.args) != 2)
+        or (not isinstance(expr.args[0], sym.function.AppliedUndef))
+        or (not isinstance(expr.args[1], sym.function.AppliedUndef))):
+        raise ValueError('Need sum of two functions: %s' % expr)        
+
+    f1 = expr.args[0]
+    f2 = expr.args[1]    
+
+    # TODO: apply similarity theorem if have f(a tau) etc.
+    
+    if ((f1.args[0] != var or f2.args[0] != n - var)
+        and (f2.args[0] != var or f1.args[0] != n - var)):
+        raise ValueError('Cannot recognise convolution: %s' % expr)
+
+    zsym = sympify(str(z))
+    
+    name = f1.func.__name__
+    func1 = name[0].upper() + name[1:] + '(%s)' % str(zsym)
+
+    name = f2.func.__name__
+    func2 = name[0].upper() + name[1:] + '(%s)' % str(zsym)    
+
+    F1 = sympify(func1).subs(zsym, z)
+    F2 = sympify(func2).subs(zsym, z)
+    
+    return F1 * F2
+
+
 def ztransform_term(expr, n, z):
 
     const, expr = factor_const(expr, n)
 
+    if expr.has(sym.Sum):
+        return ztransform_sum(expr, n, z) * const
+    
     nsym = sympify(str(n))
     expr = expr.replace(nsym, n)
 
@@ -258,6 +313,17 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
     if len(factors) < 2:
         raise ValueError('Expression does not have multiple factors: %s' % expr)
 
+    if (len(factors) == 3 and factors[0] == z and
+        isinstance(factors[2], sym.function.AppliedUndef) and
+        factors[1].is_Pow and factors[1].args[1] == -1 and
+        factors[1].args[0].is_Add and factors[1].args[0].args[0] == -1
+        and factors[1].args[0].args[1] == z):
+        # Handle cumulative sum  z / (z - 1) * V(z)
+        m = dummyvar()
+        result = ztransform_func(factors[2], z, m, True)                
+        result = sym.Sum(result, (m, n1, n))
+        return result
+    
     # TODO, is this useful?
     if (len(factors) > 2 and not
         isinstance(factors[1], sym.function.AppliedUndef) and
@@ -307,12 +373,12 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
                   factors[0].args[0].args[1].args[1].is_Pow and
                   factors[0].args[0].args[1].args[1].args[1] == -1 and
                   factors[0].args[0].args[1].args[1].args[0] is zsym):
-                # Handle integration  1 / (1 - 1 / z) * V(z)
+                # Handle cumulative sum  1 / (1 - 1 / z) * V(z)
                 m = dummyvar(intnum)
-                result = IZT(factors[1], z, m)                
+                result = ztransform_func(factors[1], z, m, True)                
                 intnum += 1
                 result = sym.Sum(result, (m, n1, n))
-                continue                
+                continue
 
         # Convert product to convolution
         dummy = dummyvar(intnum)
@@ -496,7 +562,4 @@ def IZT(expr, z, n, **assumptions):
     return inverse_ztransform(expr, z, n, **assumptions)
 
 from .expr import Expr
-
-# expr('g(n)').integrate().ZT()  fails
-# expr('g(n)').ZT().nintegrate().IZT()  upper limit n
 
