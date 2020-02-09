@@ -120,7 +120,7 @@ def ztransform_term(expr, n, z):
 
 
 def ztransform(expr, n, z):
-    """Compute unilateral z-transform of expr with lower limit 0-.
+    """Compute unilateral z-transform of expr with lower limit 0.
 
     Undefined functions such as v[n] are converted to V(z)
 
@@ -242,6 +242,8 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
     # Handle expressions with a function of z, e.g., V(z) * Y(z), V(z)
     # / z etc.
 
+    zsym = sympify(str(z))    
+
     if assumptions.get('causal', False):
         # Assume that all functions are causal in the expression.
         n1 = sym.S.Zero
@@ -295,7 +297,23 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
                 # Handle time-delay  1 / z ** k * V(z)
                 result = ztransform_func(factors[1], z, nau, True)
                 result = result.subs(n, n + factors[0].args[1])                
+                continue
+            elif (factors[0].is_Pow and
+                  factors[0].args[0].is_Add and
+                  factors[0].args[1] == -1 and                  
+                  factors[0].args[0].args[0] == 1 and
+                  factors[0].args[0].args[1].is_Mul and
+                  factors[0].args[0].args[1].args[0] == -1 and
+                  factors[0].args[0].args[1].args[1].is_Pow and
+                  factors[0].args[0].args[1].args[1].args[1] == -1 and
+                  factors[0].args[0].args[1].args[1].args[0] is zsym):
+                # Handle integration  1 / (1 - 1 / z) * V(z)
+                m = dummyvar(intnum)
+                result = IZT(factors[1], z, m)                
+                intnum += 1
+                result = sym.Sum(result, (m, n1, n))
                 continue                
+
         # Convert product to convolution
         dummy = dummyvar(intnum)
         intnum += 1
@@ -453,6 +471,29 @@ def inverse_ztransform(expr, z, n, **assumptions):
     result = result1 + result2    
     inverse_ztransform_cache[key] = result
     return result
+
+
+def ZT(expr, n, z, **assumptions):
+    """Compute unilateral Z-Transform transform of expr with lower limit 0.
+
+    Undefined functions such as v[n] are converted to V(z)."""
+    
+    return ztransform(expr, n, z, **assumptions)
+
+
+def IZT(expr, z, n, **assumptions):
+    """Calculate inverse z-Transform of X(s) and return x[n].
+
+    The unilateral Z-Transform transform cannot determine x[n] for n < 0
+    unless given additional information in the way of assumptions.
+
+    The assumptions are:
+    dc -- x[n] = constant
+    causal -- x[n] = 0 for n < 0.
+    ac -- x[n] = A cos(a * n) + B * sin(b * n)
+    """
+    
+    return inverse_ztransform(expr, z, n, **assumptions)
 
 from .expr import Expr
 

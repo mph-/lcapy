@@ -43,7 +43,6 @@ def expr(arg, **assumptions):
 # Transforms, perhaps have a Transformer class with registered transforms?
 # Unit lag operator L() ? 
 # Difference operator D() for first-order differences
-# Perhaps transforms ZT(), IZT(), FT(), IFT(), LT(), ILT() ?
 # Perhaps have min bound for N to help simplify DFT?
 # Perhaps have Voltage() for Vn, Vk, VZ etc.
 
