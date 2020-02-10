@@ -78,11 +78,6 @@ class zExpr(dExpr):
     def IZT(self, **assumptions):
         return self.inverse_ztransform(**assumptions)
 
-    def time(self, **assumptions):
-        """Convert to time domain."""
-        
-        return self.inverse_ztransform(**assumptions)
-
     def transient_response(self, tvector=None):
         """Evaluate transient (impulse) response."""
 
@@ -102,20 +97,6 @@ class zExpr(dExpr):
         q = 1 / (1 - 1 / self.var)
         H = self.__class__(self * q, **self.assumptions)
         return H.transient_response(tvector)
-
-    def angular_frequency_response(self, wvector=None):
-        """Convert to angular frequency domain and evaluate response if
-        angular frequency vector specified.
-
-        """
-        from .symbols import omega        
-
-        X = self.subs(j * omega)
-
-        if wvector is None:
-            return X
-
-        return X.evaluate(wvector)
 
     def frequency_response(self, fvector=None):
         """Convert to frequency domain and evaluate response if frequency
