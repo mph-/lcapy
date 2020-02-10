@@ -171,6 +171,11 @@ class nExpr(dExpr):
             
         return result
     
+    def delay(self,m):
+        """Delay signal by m samples."""
+
+        return self.subs(n - m)
+
     
 class Yn(nExpr):
 
