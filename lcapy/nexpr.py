@@ -262,7 +262,7 @@ def nexpr(arg):
 
     from .seq import seq
     
-    if isinstance(arg, str):
+    if isinstance(arg, str) and arg.startswith('{'):
         return seq(arg)
     
     from numpy import ndarray
