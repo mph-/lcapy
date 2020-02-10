@@ -1222,7 +1222,8 @@ class Expr(ExprPrint, ExprMisc):
         if hasattr(self, 'domain_name'):
             label += '%s' % self.domain_name
         if hasattr(self, 'domain_units'):
-            label += ' (%s)' % self.domain_units
+            if self.domain_units != '':
+                label += ' (%s)' % self.domain_units
         return label
 
     def differentiate(self, arg=None):
