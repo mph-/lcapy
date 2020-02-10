@@ -10,9 +10,9 @@ from .expr import ExprList
 
 class Sequence(ExprList):
 
-    def __init__(self, seq, n=None, evaulate=False, var=None):
+    def __init__(self, seq, n=None, evaluate=False, var=None):
 
-        super (Sequence, self).__init__(seq, evaulate)
+        super (Sequence, self).__init__(seq, evaluate)
         self.n = n
         self.var = var
 
@@ -60,5 +60,3 @@ class Sequence(ExprList):
             result += v1 * unitimpulse(var - n1)
         return result
 
-
-    
