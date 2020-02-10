@@ -10,14 +10,15 @@ from .sym import j, pi
 from .dsym import nsym, ksym, zsym, dt
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
-from .expr import Expr, symbol, expr, ExprDict
+from .dexpr import dExpr
+from .expr import symbol, expr, ExprDict
 from .functions import sqrt, exp
 import sympy as sym
 import numpy as np
 
 __all__ = ('Hz', 'Iz', 'Vz', 'Yz', 'Zz')
 
-class zExpr(Expr):
+class zExpr(dExpr):
     """z-domain expression or symbol."""
 
     var = zsym

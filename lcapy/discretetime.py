@@ -16,7 +16,9 @@ from .kexpr import kexpr, kExpr, k
 from .zexpr import zexpr, zExpr, z
 from .dsym import nsym, ksym, zsym, dt, df
 
-from lcapy import expr as expr1
+from .expr import expr as expr1
+from .transform import transform as transform1
+from .transform import call as call1
 from .functions import Function
 from .ztransform import *
 from .seq import seq
@@ -37,6 +39,39 @@ def expr(arg, **assumptions):
 
     return expr1(arg, **assumptions)
 
+
+def transform(expr, arg, **assumptions):
+
+    # Is this wise?   It makes sense for Voltage and Impedance objects
+    # but may cause too much confusion for other expressions
+    if arg is n and isinstance(expr, zExpr):
+        return expr.IZT(**assumptions)
+    elif arg is n and isinstance(expr, kExpr):
+        return expr.IDFT(**assumptions)        
+    elif arg is z and isinstance(expr, nExpr):
+        return expr.ZT(**assumptions)
+    elif arg is z and isinstance(expr, kExpr):
+        return expr.IDFT(**assumptions).ZT(**assumptions)
+    elif arg is k and isinstance(expr, nExpr):
+        return expr.DFT(**assumptions)
+    elif arg is k and isinstance(expr, zExpr):
+        return expr.IZT(**assumptions).DFT(**assumptions)
+
+    return transform1(expr, arg, **assumptions)    
+
+
+def call(expr, arg, **assumptions):
+
+    if id(arg) in (id(n), id(z), id(k)):
+        return transform(expr, arg, **assumptions)
+
+    if arg in (n, k, z):
+        return transform(expr, arg, **assumptions)    
+    
+    return call1(expr, arg, **assumptions)
+
+
+
 # TODO:
 # Add method to create difference equations, say difference_equations(output='y', input='x')
 # Approximate tExpr with nExpr
@@ -48,5 +83,6 @@ def expr(arg, **assumptions):
 # Perhaps have min bound for N to help simplify DFT?
 # Perhaps have Voltage() for Vn, Vk, VZ etc.
 # Coerce sympy to print ordered sum of delayed impulses
+# Teach IDFT of DFT
 
 print('Warning, this is experimental and probably riddled with bugs!')

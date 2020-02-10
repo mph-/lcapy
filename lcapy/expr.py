@@ -1131,11 +1131,17 @@ class Expr(ExprPrint, ExprMisc):
         return transform(self, arg, **assumptions)
 
     def __call__(self, arg, **assumptions):
-        """Substitute arg for variable.  If arg is an tuple or list
-        return a list.  If arg is an numpy array, return
-        numpy array.
+        """Transform domain or substitute arg for variable. 
+        
+        Substitution is performed if arg is a tuple, list, numpy
+        array, or constant.  If arg is a tuple or list return a list.
+        If arg is an numpy array, return numpy array.
+
+        Domain transformation is performed if arg is a domain variable
+        or an expression of a domain variable.
 
         See also evaluate.
+
         """
 
         if isinstance(arg, (tuple, list)):

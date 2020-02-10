@@ -120,10 +120,10 @@ def ztransform_term(expr, n, z):
     nsym = sympify(str(n))
     expr = expr.replace(nsym, n)
 
-    factors = expr.as_ordered_factors()
-    foo = 1 / (1 - 1 / z)
-    if foo in factors:
-        print('FOO')
+    # foo = 1 / (1 - 1 / z)
+    # factors = expr.as_ordered_factors()
+    # if foo in factors:
+    #     could remove factor, find ZT of rest, and then integrate....
     
     if expr.has(sym.function.AppliedUndef):
 
@@ -180,7 +180,7 @@ def ztransform_term(expr, n, z):
 
 
 def ztransform(expr, n, z):
-    """Compute unilateral z-transform of expr with lower limit 0.
+    """Compute unilateral z-transform of expr with lower index 0.
 
     Undefined functions such as v[n] are converted to V(z)
 

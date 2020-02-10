@@ -7,12 +7,14 @@ Copyright 2020 Michael Hayes, UCECE
 
 from __future__ import division
 from .fourier import inverse_fourier_transform
-from .expr import Expr
+from .functions import exp
+from .sym import j, oo, pi
+from .dexpr import dExpr
 from .dsym import nsym, ksym, zsym
 import sympy as sym
 
 
-class kExpr(Expr):
+class kExpr(dExpr):
 
     """Fourier domain expression or symbol."""
 

@@ -13,7 +13,7 @@ def transform(expr, arg, **assumptions):
 
     Note (5 * s)(omega) will fail since 5 * s is assumed not to be
     causal and so Fourier transform is unknown.  However, Zs(5 *
-    s)(omega) will work since Zs assumed to be causal.
+    s)(omega) will work since Zs is assumed to be causal.
 
     """
 

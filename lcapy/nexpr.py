@@ -5,7 +5,7 @@ Copyright 2020 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from .expr import Expr
+from .dexpr import dExpr
 from .functions import exp
 from .sym import j, oo, pi
 from .dsym import nsym, ksym, zsym, dt
@@ -18,7 +18,7 @@ from sympy import Sum, summation
 __all__ = ('Hn', 'In', 'Vn', 'Yn', 'Zn')
 
 
-class nExpr(Expr):
+class nExpr(dExpr):
 
     """t-domain expression or symbol."""
 
