@@ -57,6 +57,7 @@ from .vector import *
 from .statespace import *
 from .nodalanalysis import *
 from .loopanalysis import *
+from .laplace import *
 
 
 def show_version():

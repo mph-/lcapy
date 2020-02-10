@@ -10,10 +10,10 @@ from .utils import factor_const, scale_shift
 from .functions import UnitImpulse, unitimpulse
 import sympy as sym
 
+__all__ = ('ZT', 'IZT')
+
 ztransform_cache = {}
 inverse_ztransform_cache = {}
-
-# TODO handle convolution -> product
 
 
 def ztransform_func(expr, n, z, inverse=False):
@@ -116,10 +116,15 @@ def ztransform_term(expr, n, z):
 
     if expr.has(sym.Sum):
         return ztransform_sum(expr, n, z) * const
-    
+
     nsym = sympify(str(n))
     expr = expr.replace(nsym, n)
 
+    factors = expr.as_ordered_factors()
+    foo = 1 / (1 - 1 / z)
+    if foo in factors:
+        print('FOO')
+    
     if expr.has(sym.function.AppliedUndef):
 
         rest = sym.S.One
