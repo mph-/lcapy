@@ -49,14 +49,25 @@ class Sequence(ExprList):
     def as_impulses(self, var=None):
 
         from .functions import unitimpulse
+        from sympy import Add
 
         if var is None:
             var = self.var
         if var is None:
             raise ValueError('var not specified')
-        
+
+        # This can reorder terms
         result = var * 0
         for v1, n1 in zip(self, self.n):        
             result += v1 * unitimpulse(var - n1)
+
+        # but so does the unevaluated Add...
+        # items = []
+        # for v1, n1 in zip(self, self.n):        
+        #     items.append(v1 * unitimpulse(var.var - n1))
+        #
+        # expr = Add(*items, evaluate=False)
+        # result = var.__class__(expr)
+        
         return result
 

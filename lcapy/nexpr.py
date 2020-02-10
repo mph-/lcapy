@@ -74,6 +74,7 @@ class nExpr(Expr):
         from .utils import factor_const
         from .functions import UnitImpulse, u
 
+        # TODO, get SymPy to optimize this case.
         expr = self.expr
         const, expr = factor_const(expr, nsym)
         if expr.is_Function and expr.func == UnitImpulse:

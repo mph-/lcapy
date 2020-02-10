@@ -19,6 +19,7 @@ from .dsym import nsym, ksym, zsym, dt, df
 from lcapy import expr as expr1
 from .functions import Function
 from .ztransform import *
+from .seq import seq
 
 
 def expr(arg, **assumptions):
@@ -46,5 +47,6 @@ def expr(arg, **assumptions):
 # Difference operator D() for first-order differences
 # Perhaps have min bound for N to help simplify DFT?
 # Perhaps have Voltage() for Vn, Vk, VZ etc.
+# Coerce sympy to print ordered sum of delayed impulses
 
-print('Warning this is experimental and probably riddled with bugs')
+print('Warning, this is experimental and probably riddled with bugs!')
