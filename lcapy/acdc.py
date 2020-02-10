@@ -41,8 +41,13 @@ class CausalChecker(object):
 
     def __init__(self, expr, var):        
 
-        self.var = getattr(var, 'expr', sympify1(var)) 
-        self.is_causal = self._is_causal(getattr(expr, 'expr', sympify1(expr)))
+        self.var = getattr(var, 'expr', sympify1(var))
+        try:
+            expr = expr.expr
+        except:
+            expr = sympify1(expr)
+        
+        self.is_causal = self._is_causal(expr)
 
 
 class DCChecker(object):
@@ -54,7 +59,12 @@ class DCChecker(object):
     def __init__(self, expr, var):        
 
         self.var = getattr(var, 'expr', sympify1(var))
-        self.is_dc = self._is_dc(getattr(expr, 'expr', sympify1(expr)))
+        try:
+            expr = expr.expr
+        except:
+            expr = sympify1(expr)
+        
+        self.is_dc = self._is_dc(expr)
 
 
 class ACChecker(object):
@@ -135,7 +145,13 @@ class ACChecker(object):
         self.omega = 0
         self.freq = 0
         self.phase = 0
-        self.is_ac = self._is_ac(getattr(expr, 'expr', sympify1(expr)))
+
+        try:
+            expr = expr.expr
+        except:
+            expr = sympify1(expr)        
+        
+        self.is_ac = self._is_ac(expr)
 
 
 def is_dc(expr, var):

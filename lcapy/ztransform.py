@@ -115,7 +115,10 @@ def ztransform_term(expr, n, z):
     const, expr = factor_const(expr, n)
 
     if expr.has(sym.Sum):
-        return ztransform_sum(expr, n, z) * const
+        try:
+            return ztransform_sum(expr, n, z) * const
+        except:
+            pass
 
     nsym = sympify(str(n))
     expr = expr.replace(nsym, n)
@@ -175,6 +178,7 @@ def ztransform_term(expr, n, z):
 
     if result is None:
         # Use m instead of n to avoid n and z in same expr.
+        # TODO, check if m already used...
         msym = sympify('m', real=True)        
         nsym = sympify(str(n))        
         zsym = sympify(str(z))
