@@ -176,7 +176,18 @@ class nExpr(dExpr):
 
         return self.subs(n - m)
 
-    
+    def extent(self, n1=-100, n2=100):
+        """Determine extent of the signal.
+
+        For example, nexpr([1, 1]).extent = 2
+                     nexpr([1, 0, 1]).extent = 3
+                     nexpr([0, 1, 0, 1]).extent = 3
+
+        This performs a search between n=n1 and n=n2."""
+
+        return self.seq((n1, n2)).extent()
+
+        
 class Yn(nExpr):
 
     """t-domain 'admittance' value."""
@@ -248,6 +259,17 @@ def nexpr(arg):
 
     if arg is nsym:
         return n
+
+    from .seq import seq
+    
+    if isinstance(arg, str):
+        return seq(arg)
+    
+    from numpy import ndarray
+    
+    if isinstance(arg, (list, ndarray)):
+        return Sequence(arg, var=n).as_impulses()
+    
     return nExpr(arg)
 
 from .zexpr import Hz, Iz, Vz, Yz, Zz, zExpr

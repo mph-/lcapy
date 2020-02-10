@@ -6,13 +6,18 @@ Copyright 2020 Michael Hayes, UCECE
 
 from .expr import ExprList
 
-# TODO using underlining of 0th element for pretty print
+# Perhaps subclass numpy ndarray?  But then could not have symbolic
+# elements in the sequence.
 
 class Sequence(ExprList):
 
     def __init__(self, seq, n=None, evaluate=False, var=None):
 
         super (Sequence, self).__init__(seq, evaluate)
+
+        if n is None:
+            n = list(range(len(seq)))
+        
         self.n = n
         self.var = var
 
@@ -41,7 +46,7 @@ class Sequence(ExprList):
                 s = str(v1)
             
             if n1 == 0:
-                s = '_%s_' % v1
+                s = '_%s' % v1
             items.append(s)
 
         return r'{%s}' % ', '.join(items)
@@ -71,3 +76,20 @@ class Sequence(ExprList):
         
         return result
 
+    def extent(self):
+        """Determine extent of the sequence.
+
+        For example, Sequence([1, 1]).extent = 2
+                     Sequence([1, 0, 1]).extent = 3
+                     Sequence([0, 1, 0, 1]).extent = 3
+        """
+        
+        from numpy import argwhere
+
+        # Note, each element is an Expr.
+        nz = [elt != 0 for elt in self]
+        w = argwhere(nz)
+        if len(w) == 0:
+            return 0
+
+        return (max(w) - min(w))[0] + 1
