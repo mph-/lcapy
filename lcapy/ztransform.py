@@ -174,7 +174,11 @@ def ztransform_term(expr, n, z):
             result = (sym.sin(aconst) * invz) / (1 - 2 * sym.cos(aconst) * invz + invz ** 2)            
 
     if result is None:
-        raise ValueError('Do not know z-transform of %s' % expr)
+        # Use m instead of n to avoid n and z in same expr.
+        msym = sympify('m', real=True)        
+        nsym = sympify(str(n))        
+        zsym = sympify(str(z))
+        result = sym.Sum(expr.subs(nsym, msym) * zsym**msym, (msym, 0, sym.oo))
         
     return result * const
 
