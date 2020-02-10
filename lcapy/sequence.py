@@ -112,7 +112,6 @@ class Sequence(ExprList):
 
         return self.as_impulses().plot(n, **kwargs)
 
-
     def __call__(self, arg, **assumptions):
         """Transform domain or substitute arg for variable. 
         
@@ -131,3 +130,17 @@ class Sequence(ExprList):
 
     def ZT(self, **assumptions):
         return self.as_impulses().ZT(**assumptions)    
+
+
+    def _repr_pretty_(self, p, cycle):
+        """This is used by jupyter notebooks to display an expression using
+        unicode.  It is also called by IPython when displaying an
+        expression.""" 
+
+        # Note, the method in ExprPrint is bypassed since list
+        # has this methodx.
+        
+        from .printing import pretty
+        p.text(self.pretty())
+        
+        
