@@ -93,3 +93,41 @@ class Sequence(ExprList):
             return 0
 
         return (max(w) - min(w))[0] + 1
+
+    def plot(self, n=None, **kwargs):
+        """Plot the sequence.  If n is not specified, it defaults to the
+        range (-20, 20).  n can be a vector of specified instants, a
+        tuple specifing the range, or a constant specifying the
+        maximum value with the minimum value set to 0.
+
+        kwargs include:
+        axes - the plot axes to use otherwise a new figure is created
+        xlabel - the x-axis label
+        ylabel - the y-axis label
+        xscale - the x-axis scaling, say for plotting as ms
+        yscale - the y-axis scaling, say for plotting mV
+        in addition to those supported by the matplotlib plot command.
+        
+        The plot axes are returned."""
+
+        return self.as_impulses().plot(n, **kwargs)
+
+
+    def __call__(self, arg, **assumptions):
+        """Transform domain or substitute arg for variable. 
+        
+        Substitution is performed if arg is a tuple, list, numpy
+        array, or constant.  If arg is a tuple or list return a list.
+        If arg is an numpy array, return numpy array.
+
+        Domain transformation is performed if arg is a domain variable
+        or an expression of a domain variable.
+
+        See also evaluate.
+
+        """
+
+        return self.as_impulses().__call__(arg, **assumptions)
+
+    def ZT(self, **assumptions):
+        return self.as_impulses().ZT(**assumptions)    

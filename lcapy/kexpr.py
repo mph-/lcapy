@@ -98,7 +98,10 @@ class kExpr(dExpr):
             
         return result
     
+    def ZT(self, **assumptions):
+        return self.IDFT().ZT(**assumptions)
 
+    
 class Yk(kExpr):
 
     """f-domain admittance"""

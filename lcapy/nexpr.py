@@ -104,7 +104,7 @@ class nExpr(dExpr):
         return self.ztransform(**assumptions)
 
     def plot(self, n=None, **kwargs):
-        """Plot the time waveform.  If n is not specified, it defaults to the
+        """Plot the sequence.  If n is not specified, it defaults to the
         range (-20, 20).  n can be a vector of specified instants, a
         tuple specifing the range, or a constant specifying the
         maximum value with the minimum value set to 0.
