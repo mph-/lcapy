@@ -32,8 +32,6 @@ def plot_pole_zero(obj, **kwargs):
     if unitcircle:
         ax.add_artist(Circle((0, 0), 1, color='blue', linestyle='--', fill=False))
     
-    ax.grid()
-
     a = np.hstack((p, z))
     x_min = a.real.min()
     x_max = a.real.max()
@@ -79,7 +77,10 @@ def plot_pole_zero(obj, **kwargs):
     ax.plot(z.real, z.imag, 'bo', fillstyle=fillstyle, ms=ms, **kwargs)
     annotate(ax, zeros)
     ax.plot(p.real, p.imag, 'bx', fillstyle=fillstyle, ms=ms, **kwargs)
-    annotate(ax, poles)    
+    annotate(ax, poles)
+
+    ax.grid()
+    
     return ax
 
 
