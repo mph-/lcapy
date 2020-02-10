@@ -155,3 +155,32 @@ to sneak past 0 so that DiracDelta(t) -> 1 instead of 0.5.
 
 2. Contribute Fourier/Laplace code.
 
+3. Support unit impulse (or KroneckerDelta with single arg)
+
+
+Discrete-time
+=============
+
+1. Add method to create difference equations, say difference_equations(output='y', input='x').
+
+2. Approximate tExpr with nExpr.
+
+3. Rewrite rational functions in terms of z^-1.
+
+4. Symbol for z^-1, say invz or iz?  Would need special casing to handle invz * z etc.
+
+5. Perhaps have a Transformer class with registered transforms?
+
+6. Unit lag operator L() ? 
+
+7. Difference operator D() for first-order differences?
+
+8. Perhaps have min bound for N to help simplify DFT?
+
+9. Perhaps have Voltage() for Vn, Vk, VZ etc.
+
+10. Coerce sympy to print ordered sum of delayed impulses.
+
+11. Teach IDFT of DFT.
+
+12. Inverse z-transform cos(2*pi*dt*n)(z)(n).

@@ -71,18 +71,4 @@ def call(expr, arg, **assumptions):
     return call1(expr, arg, **assumptions)
 
 
-
-# TODO:
-# Add method to create difference equations, say difference_equations(output='y', input='x')
-# Approximate tExpr with nExpr
-# Rewrite rational functions in terms of z^-1
-# Symbol for z^-1, say invz or iz?  Would need special casing to handle invz * z etc.
-# Transforms, perhaps have a Transformer class with registered transforms?
-# Unit lag operator L() ? 
-# Difference operator D() for first-order differences
-# Perhaps have min bound for N to help simplify DFT?
-# Perhaps have Voltage() for Vn, Vk, VZ etc.
-# Coerce sympy to print ordered sum of delayed impulses
-# Teach IDFT of DFT
-
 print('Warning, this is experimental and probably riddled with bugs!')
