@@ -9,9 +9,22 @@ import numpy as np
 # Perhaps add Formatter classes that will produce the plot data?
 
 
+def make_axes(figsize=None, axes=None):
+
+    from matplotlib.pyplot import subplots
+    
+    if axes is not None:
+        fig = axes.figure
+    elif figsize is not None :
+        fig, axes = subplots(1, figsize=figsize)
+    else:
+        fig, axes = subplots(1)
+
+    return fig, axes
+
 def plot_pole_zero(obj, **kwargs):
 
-    from matplotlib.pyplot import subplots, Circle
+    from matplotlib.pyplot import Circle
     
     poles = obj.poles()
     zeros = obj.zeros()
@@ -21,10 +34,11 @@ def plot_pole_zero(obj, **kwargs):
     except TypeError:
         raise TypeError('Cannot plot poles and zeros of symbolic expression')
 
+    fig, ax = make_axes(figsize=kwargs.pop('figsize', None),
+                        axes=kwargs.pop('axes', None))
+
     unitcircle = kwargs.pop('unitcircle', False)    
-    ax = kwargs.pop('axes', None)
-    if ax is None:
-        fig, ax = subplots(1)
+    
     ax.axvline(0, color='0.7')
     ax.axhline(0, color='0.7')
     ax.axis('equal')
@@ -86,8 +100,6 @@ def plot_pole_zero(obj, **kwargs):
 
 def plot_frequency(obj, f, **kwargs):
 
-    from matplotlib.pyplot import subplots
-
     npoints = kwargs.pop('npoints', 400)    
     log_magnitude = kwargs.get('log_magnitude', False)
     log_frequency = kwargs.get('log_frequency', False) or kwargs.pop('log_scale', False)
@@ -142,9 +154,8 @@ def plot_frequency(obj, f, **kwargs):
         ax2 = plot_frequency(obj2, f, second=True, **kwargs)
         return ax, ax2
 
-    ax = kwargs.pop('axes', None)
-    if ax is None:
-        fig, ax = subplots(1)        
+    fig, ax = make_axes(figsize=kwargs.pop('figsize', None),
+                        axes=kwargs.pop('axes', None))
 
     V = obj.evaluate(f)
 
@@ -195,8 +206,6 @@ def plot_angular_frequency(obj, omega, **kwargs):
 
 def plot_time(obj, t, **kwargs):
 
-    from matplotlib.pyplot import subplots
-
     npoints = kwargs.pop('npoints', 400)        
     
     # FIXME, determine useful time range...
@@ -209,9 +218,9 @@ def plot_time(obj, t, **kwargs):
 
     v = obj.evaluate(t)
 
-    ax = kwargs.pop('axes', None)
-    if ax is None:
-        fig, ax = subplots(1)        
+    fig, ax = make_axes(figsize=kwargs.pop('figsize', None),
+                        axes=kwargs.pop('axes', None))    
+
     xlabel = kwargs.pop('xlabel', obj.domain_label)
     ylabel = kwargs.pop('ylabel', obj.label)
     xscale = kwargs.pop('xscale', 1)
@@ -227,8 +236,6 @@ def plot_time(obj, t, **kwargs):
 
 def plot_sequence(obj, n, **kwargs):
 
-    from matplotlib.pyplot import subplots
-
     npoints = kwargs.pop('npoints', 400)        
     
     # FIXME, determine useful range...
@@ -239,9 +246,9 @@ def plot_sequence(obj, n, **kwargs):
 
     v = obj.evaluate(n)
 
-    ax = kwargs.pop('axes', None)
-    if ax is None:
-        fig, ax = subplots(1)        
+    fig, ax = make_axes(figsize=kwargs.pop('figsize', None),
+                        axes=kwargs.pop('axes', None))
+
     xlabel = kwargs.pop('xlabel', obj.domain_label)
     ylabel = kwargs.pop('ylabel', obj.label)
     xscale = kwargs.pop('xscale', 1)
