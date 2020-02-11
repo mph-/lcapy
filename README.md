@@ -206,6 +206,14 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
+- Version 0.42 bug fixes for discrete-time signals
+
+- Version 0.41 introduces experimental discrete-time signals
+
+- Version 0.40 fixes schematics
+
+- Version 0.39 miscellaneous bug fixes
+
 - Version 0.38 reverts the experimental behaviour of 0.37.  Instead it introduces new classes for general immitances that tries to display them in the most suitable format.
 
 - Version 0.37 changes the API for admittances and impedances.  The
