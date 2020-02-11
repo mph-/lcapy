@@ -187,6 +187,16 @@ class nExpr(dExpr):
 
         return self.seq((n1, n2)).extent()
 
+    def discrete_time_fourier_transform(self, **assumptions):
+        """Convert to Fourier domain using discrete time Fourier transform."""
+
+        return self.ZT(**assumptions).DTFT()
+
+    def DTFT(self, **assumptions):
+        """Convert to Fourier domain using discrete time Fourier transform."""
+    
+        return self.discrete_time_fourier_transform(**assumptions)
+
     def difference_equation(self, input='x', output='y'):
 
         x = nexpr('%s(n)' % input)
