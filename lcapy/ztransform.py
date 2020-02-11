@@ -374,7 +374,7 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
                 continue                
             elif factors[0].is_Pow and factors[0].args[0] == z and factors[0].args[1] < 0:
                 # Handle time-delay  1 / z ** k * V(z)
-                result = ztransform_func(factors[1], z, nau, True)
+                result = ztransform_func(factors[1], z, n, True)
                 result = result.subs(n, n + factors[0].args[1])                
                 continue
             elif (factors[0].is_Pow and

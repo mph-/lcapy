@@ -12,7 +12,7 @@ from .dsym import nsym, ksym, zsym, dt
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .ztransform import ztransform
 from .sequence import Sequence
-from sympy import Sum, summation
+from sympy import Sum, summation, Eq
 
 
 __all__ = ('Hn', 'In', 'Vn', 'Yn', 'Zn')
@@ -187,6 +187,20 @@ class nExpr(dExpr):
 
         return self.seq((n1, n2)).extent()
 
+    def difference_equation(self, input='x', output='y'):
+
+        x = nexpr('%s(n)' % input)
+        y = nexpr('%s(n)' % output)
+
+        X = x.ZT()
+        Y = y.ZT()
+        H = self.ZT().partfrac()
+
+        # FIR form
+        lhs = y
+        rhs = (H * X).IZT()        
+        return nExpr(Eq(lhs.expr, rhs.expr))
+    
         
 class Yn(nExpr):
 
