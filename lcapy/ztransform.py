@@ -239,10 +239,6 @@ def ztransform(expr, n, z):
 
 def inverse_ztransform_ratfun(expr, z, n, **assumptions):
 
-    if expr.is_Equality:
-        return sym.Eq(inverse_ztransform(expr.args[0], z, n, **assumptions),
-                      inverse_ztransform(expr.args[1], z, n, **assumptions))
-    
     damping = assumptions.get('damping', None)
 
     invz = symsymbol('invz', real=False)
@@ -513,6 +509,10 @@ def inverse_ztransform(expr, z, n, **assumptions):
     causal -- x[n] = 0 for n < 0.
     ac -- x[n] = A cos(a * t) + B * sin(b * t)
     """
+
+    if expr.is_Equality:
+        return sym.Eq(inverse_ztransform(expr.args[0], z, n, **assumptions),
+                      inverse_ztransform(expr.args[1], z, n, **assumptions))
 
     # TODO, simplify
     key = (expr, z, n, assumptions.get('dc', False),
