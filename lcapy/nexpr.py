@@ -7,12 +7,12 @@ Copyright 2020 Michael Hayes, UCECE
 from __future__ import division
 from .dexpr import dExpr
 from .functions import exp
-from .sym import j, oo, pi
+from .sym import j, oo, pi, fsym
 from .dsym import nsym, ksym, zsym, dt
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .ztransform import ztransform
 from .sequence import Sequence
-from sympy import Sum, summation, Eq
+from sympy import Sum, summation, Eq, limit
 
 
 __all__ = ('Hn', 'In', 'Vn', 'Yn', 'Zn')
@@ -133,7 +133,7 @@ class nExpr(dExpr):
     def final_value(self):
         """Determine value at n = oo."""
 
-        return self.__class__(sym.limit(self.expr, self.var, oo))
+        return self.__class__(limit(self.expr, self.var, oo))
 
     def seq(self, nvals=None, evaluate=False):
 
@@ -190,7 +190,12 @@ class nExpr(dExpr):
     def discrete_time_fourier_transform(self, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
 
-        return self.ZT(**assumptions).DTFT()
+        if assumptions.get('causal', False):        
+            return self.ZT(**assumptions).DTFT()
+
+        from .fexpr import fexpr
+        
+        return fexpr(summation(self.subs(nsym).expr * exp(-2 * j * pi * fsym * nsym * dt), (nsym, -oo, oo)))
 
     def DTFT(self, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""

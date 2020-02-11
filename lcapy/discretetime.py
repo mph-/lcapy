@@ -57,6 +57,8 @@ def transform(expr, arg, **assumptions):
     elif arg is k and isinstance(expr, zExpr):
         return expr.IZT(**assumptions).DFT(**assumptions)
 
+    # Perhaps if arg is f, use DTFT?
+    
     return transform1(expr, arg, **assumptions)    
 
 

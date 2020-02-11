@@ -193,7 +193,7 @@ class zExpr(dExpr):
         if assumptions.get('causal', self.is_causal):
             return self.subs(exp(j * 2 * pi * f * dt))
 
-        raise RuntimeError('TODO')
+        return self.IZT(**assumptions).DTFT()
 
     def DTFT(self, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
