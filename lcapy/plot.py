@@ -20,7 +20,8 @@ def make_axes(figsize=None, axes=None):
     else:
         fig, axes = subplots(1)
 
-    return fig, axes
+    return axes
+
 
 def plot_pole_zero(obj, **kwargs):
 
@@ -34,14 +35,13 @@ def plot_pole_zero(obj, **kwargs):
     except TypeError:
         raise TypeError('Cannot plot poles and zeros of symbolic expression')
 
-    fig, ax = make_axes(figsize=kwargs.pop('figsize', None),
-                        axes=kwargs.pop('axes', None))
+    ax = make_axes(figsize=kwargs.pop('figsize', None),
+                   axes=kwargs.pop('axes', None))
 
     unitcircle = kwargs.pop('unitcircle', False)    
     
     ax.axvline(0, color='0.7')
     ax.axhline(0, color='0.7')
-    ax.axis('equal')
 
     if unitcircle:
         ax.add_artist(Circle((0, 0), 1, color='blue', linestyle='--', fill=False))
@@ -72,8 +72,19 @@ def plot_pole_zero(obj, **kwargs):
     if y_extra == 0:
         y_extra += 1.0
 
-    ax.set_xlim(x_min - 0.5 * x_extra, x_max + 0.5 * x_extra)
-    ax.set_ylim(y_min - 0.5 * y_extra, y_max + 0.5 * y_extra)
+    x_min -= 0.5 * x_extra
+    x_max += 0.5 * x_extra
+    if unitcircle:
+        bbox = ax.get_window_extent()
+        aspect = bbox.width / bbox.height
+        
+        x_min *= aspect
+        x_max *= aspect       
+        
+    ax.axis('equal')
+    ax.set_xlim(x_min, x_max)
+    # overconstrained so ignored
+    #ax.set_ylim(y_min - 0.5 * y_extra, y_max + 0.5 * y_extra)
 
     def annotate(axes, poles, offset=None):
         if offset is None:
@@ -154,8 +165,8 @@ def plot_frequency(obj, f, **kwargs):
         ax2 = plot_frequency(obj2, f, second=True, **kwargs)
         return ax, ax2
 
-    fig, ax = make_axes(figsize=kwargs.pop('figsize', None),
-                        axes=kwargs.pop('axes', None))
+    ax = make_axes(figsize=kwargs.pop('figsize', None),
+                   axes=kwargs.pop('axes', None))
 
     V = obj.evaluate(f)
 
@@ -218,8 +229,8 @@ def plot_time(obj, t, **kwargs):
 
     v = obj.evaluate(t)
 
-    fig, ax = make_axes(figsize=kwargs.pop('figsize', None),
-                        axes=kwargs.pop('axes', None))    
+    ax = make_axes(figsize=kwargs.pop('figsize', None),
+                   axes=kwargs.pop('axes', None))    
 
     xlabel = kwargs.pop('xlabel', obj.domain_label)
     ylabel = kwargs.pop('ylabel', obj.label)
@@ -246,8 +257,8 @@ def plot_sequence(obj, n, **kwargs):
 
     v = obj.evaluate(n)
 
-    fig, ax = make_axes(figsize=kwargs.pop('figsize', None),
-                        axes=kwargs.pop('axes', None))
+    ax = make_axes(figsize=kwargs.pop('figsize', None),
+                   axes=kwargs.pop('axes', None))
 
     xlabel = kwargs.pop('xlabel', obj.domain_label)
     ylabel = kwargs.pop('ylabel', obj.label)
