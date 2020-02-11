@@ -194,6 +194,10 @@ def ztransform(expr, n, z):
 
     """
 
+    if expr.is_Equality:
+        return sym.Eq(ztransform(expr.args[0], n, z),
+                      ztransform(expr.args[1], n, z))
+
     key = (expr, n, z)
     if key in ztransform_cache:
         return ztransform_cache[key]
@@ -235,6 +239,10 @@ def ztransform(expr, n, z):
 
 def inverse_ztransform_ratfun(expr, z, n, **assumptions):
 
+    if expr.is_Equality:
+        return sym.Eq(inverse_ztransform(expr.args[0], z, n, **assumptions),
+                      inverse_ztransform(expr.args[1], z, n, **assumptions))
+    
     damping = assumptions.get('damping', None)
 
     invz = symsymbol('invz', real=False)

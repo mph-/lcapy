@@ -189,6 +189,10 @@ def laplace_transform(expr, t, s):
 
     Undefined functions such as v(t) are converted to V(s)."""
 
+    if expr.is_Equality:
+        return sym.Eq(laplace_transform(expr.args[0], t, s),
+                      laplace_transform(expr.args[1], t, s))
+    
     key = (expr, t, s)
     if key in laplace_cache:
         return laplace_cache[key]
@@ -568,6 +572,12 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
     causal -- x(t) = 0 for t < 0.
     ac -- x(t) = A cos(a * t) + B * sin(b * t)
     """
+
+    if expr.is_Equality:
+        return sym.Eq(inverse_laplace_transform(expr.args[0], s, t,
+                                                **assumptions),
+                      inverse_laplace_transform(expr.args[1], s, t,
+                                                **assumptions))    
 
     # TODO, simplify
     key = (expr, s, t, assumptions.get('dc', False),

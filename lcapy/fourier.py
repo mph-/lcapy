@@ -191,6 +191,10 @@ def fourier_transform(expr, t, f, inverse=False):
     This also handles some expressions that do not really have a Fourier
     transform, such as a, cos(a * t), sin(a * t), exp(I * a * t)."""
 
+    if expr.is_Equality:
+        return sym.Eq(fourier_transform(expr.args[0], t, f, inverse),
+                      fourier_transform(expr.args[1], t, f, inverse))    
+
     key = (expr, t, f, inverse)
     if key in fourier_cache:
         return fourier_cache[key]
