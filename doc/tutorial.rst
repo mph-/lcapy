@@ -1589,15 +1589,17 @@ yields::
 Note, the components have anonymous identifiers.
 
 
-Jupyter (IPython) Notebooks
+Jupyter (IPython) notebooks
 ===========================
 
 Jupyter notebooks allow interactive markup of python code and text.  A
 number of examples are provided in the `lcapy/doc/examples/notebooks`
-directory.  Before these notebooks can be viewed in a browser you need
-to start a Jupyter notebook server.
+directory.  Before these notebooks can be viewed in a browser you need to start a Jupyter notebook server.
 
 .. code-block:: console
                 
    $ cd lcapy/doc/examples/notebooks
    $ jupyter notebook
+
+Alternatively, they can be viewed online at
+https://github.com/mph-/lcapy/tree/master/doc/examples/notebooks.
