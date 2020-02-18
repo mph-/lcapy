@@ -51,7 +51,7 @@ class Cpt(object):
     inner_label_keys = ('t', )    
     implicit_keys =  ('implicit', 'ground', 'sground', 'rground',
                       'cground', 'nground', 'pground', 'vss', 'vdd',
-                      'vee', 'vcc')
+                      'vee', 'vcc', 'pin')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
@@ -2432,6 +2432,23 @@ class Wire(OnePort):
 
         n1, n2 = self.nodes
         s = self.draw_path((n1.s, n2.s))
+
+        label_pos = n2
+        if kind == 'pin':
+            h = 0.4
+            w1 = 0.4
+            w2 = 0.6
+
+            q = self.tf(n2.pos, ((0.0, h / 2), (w1, h / 2),
+                                 (w2, 0), (w1, -h / 2), (0, -h / 2)))
+            s += self.draw_path(q, closed=True)
+
+            if 'l' in self.opts:
+                lpos = self.tf(n2.pos, (w2 / 2, 0))
+                s += r'  \draw[align=center] (%s) node {%s};''\n' % (
+                    lpos, self.label(**kwargs))                
+            return s
+                
         s += r'  \draw (%s) node[%s, scale=0.5, rotate=%d] {};''\n' % (
             n2.s, kind, self.angle + 90)
 
