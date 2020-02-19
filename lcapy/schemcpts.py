@@ -57,7 +57,8 @@ class Cpt(object):
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
                  'pinnames', 'pinnodes', 'pindefs', 'outside', 'pinmap',
-                 'kind', 'wire', 'ignore', 'style', 'nowires', 'steps', 'free')
+                 'kind', 'wire', 'ignore', 'style', 'nowires', 'steps', 'free',
+                 'fliplr', 'flipud')
 
     can_rotate = True
     can_scale = False
@@ -226,7 +227,15 @@ class Cpt(object):
 
     @property
     def mirror(self):
-        return self.boolattr('mirror')    
+        return self.boolattr('mirror')
+
+    @property
+    def fliplr(self):
+        return self.boolattr('fliplr')
+
+    @property
+    def flipud(self):
+        return self.boolattr('flipud')        
    
     @property
     def wire(self):
@@ -422,7 +431,8 @@ class Cpt(object):
         if hasattr(self, '_tcoords'):
             return self._tcoords
 
-        self._tcoords = np.dot(self.scoords, self.R())
+        self._tcoords = np.array(self.tf((0, 0),
+                                         self.scoords.tolist(), scale=1))
         return self._tcoords
 
     @property
@@ -545,6 +555,17 @@ class Cpt(object):
         
         outside = self.opts.get('outside', False)
 
+        if self.fliplr:
+            if pinpos == 'l':
+                pinpos = 'r'
+            elif pinpos == 'r':
+                pinpos = 'l'
+        if self.flipud:
+            if pinpos == 't':
+                pinpos = 'b'
+            elif pinpos == 'b':
+                pinpos = 't'                                
+        
         if outside == '':            
             anchors = {None: 'south east',
                        'c': 'south east',
@@ -847,14 +868,22 @@ class StretchyCpt(Cpt):
         return centre + np.dot((offset[0] * self.w * self.scale, offset[1] * self.h), self.R(angle_offset)) * self.sch.node_spacing
 
 
-    def tf(self, centre, offset, angle_offset=0.0):
+    def tf(self, centre, offset, angle_offset=0.0, scale=None):
         """Transform coordinate."""
 
         # Note the size attribute is not used.
-        if isinstance(offset[0], tuple):
-            return [self.tf(centre, offset1, angle_offset) for offset1 in offset]
+        if hasattr(offset[0], '__iter__'):        
+            return [self.tf(centre, offset1, angle_offset, scale) for offset1 in offset]
+        x, y = offset
+        if self.flipud:
+            y = -y
+        if self.fliplr:
+            x = -x
 
-        return centre + np.dot((offset[0] * self.w, offset[1] * self.h), self.R(angle_offset)) * self.scale * self.sch.node_spacing
+        if scale is None:
+            scale = self.scale * self.sch.node_spacing
+        
+        return centre + np.dot((x * self.w, y * self.h), self.R(angle_offset)) * scale
 
 
 class FixedCpt(Cpt):
@@ -872,13 +901,22 @@ class FixedCpt(Cpt):
         N = len(self.nodes)
         return self.midpoint(self.nodes[0], self.nodes[N // 2])
 
-    def tf(self, centre, offset, angle_offset=0.0):
+    def tf(self, centre, offset, angle_offset=0.0, scale=None):
         """Transform coordinate."""
 
-        if isinstance(offset[0], tuple):
-            return [self.tf(centre, offset1, angle_offset) for offset1 in offset]
+        if hasattr(offset[0], '__iter__'):
+            return [self.tf(centre, offset1, angle_offset, scale) for offset1 in offset]
 
-        return centre + np.dot((offset[0] * self.w, offset[1] * self.h), self.R(angle_offset)) * self.size * self.scale * self.sch.node_spacing
+        x, y = offset
+        if self.flipud:
+            y = -y
+        if self.fliplr:
+            x = -x                    
+
+        if scale is None:
+            scale = self.scale * self.sch.node_spacing * self.size
+            
+        return centre + np.dot((x * self.w, y * self.h), self.R(angle_offset)) * scale
 
 
 class Transistor(FixedCpt):
@@ -1376,10 +1414,10 @@ class OnePort(StretchyCpt):
         args_str2 = ','.join([self.voltage_str, self.current_str, self.flow_str])
 
         if self.mirror:
-            args_str += ',mirror'
+            args_str += ', mirror'
 
         if self.scale != 1.0:
-            args_str2 += ',bipoles/length=%.2fcm' % (self.sch.cpt_size * self.scale)
+            args_str2 += ', bipoles/length=%.2fcm' % (self.sch.cpt_size * self.scale)
 
         label_str = self.label_make(label_pos, **kwargs)
             
@@ -1677,7 +1715,7 @@ class Shape(FixedCpt):
         if 'image' in self.opts:
             # Override label with image
             label = r'\includegraphics[width=%.2fcm]{%s}' % (self.width - 0.5,
-                                                           self.opts['image'])
+                                                             self.opts['image'])
 
         text_width = self.width * 0.8
 
@@ -1867,7 +1905,6 @@ class Chip(Shape):
         # Draw clock symbols
         for m, n in enumerate(self.nodes):
             if n.clock:
-                # TODO, tweak for pinpos
                 q = self.tf(n.pos, ((0, 0.125 * 0.707), (0.125, 0), 
                                     (0, -0.125 * 0.707)))
                 s += self.draw_path(q[0:3], style='thick')
