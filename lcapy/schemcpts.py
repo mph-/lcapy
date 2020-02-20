@@ -2260,7 +2260,13 @@ class Uinverter(Chip):
             q, 1.8 * self.size * self.scale, self.args_str)
         return s
 
-class Udff(Chip):
+    
+class Flipflop(Chip):
+
+    default_width = 1.0    
+
+    
+class Udff(Flipflop):
     """D flip-flop"""
 
     default_pins = ('d', 'clk', 'q', '\q')
@@ -2274,8 +2280,9 @@ class Udff(Chip):
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD',
                  'd' : 'D', 'q' : 'Q', '/q' : '$\overline{\mathrm{Q}}$', 'clk' : '>'}
+    
 
-class Ujkff(Chip):
+class Ujkff(Flipflop):
     """JK flip-flop"""
 
     pins = {'j' : ('l', -0.5, 0.25),
@@ -2291,7 +2298,7 @@ class Ujkff(Chip):
                  'q' : 'Q', '/q' : '$\overline{\mathrm{Q}}$', 'clk' : '>'}    
 
 
-class Urslatch(Chip):
+class Urslatch(Flipflop):
     """RS latch"""
 
     pins = {'r' : ('l', -0.5, 0.25),
