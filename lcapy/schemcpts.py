@@ -2496,20 +2496,24 @@ class Wire(OnePort):
             if kind == 'output':
                 q = self.tf(n2.pos, ((0, h / 2), (w, h / 2),
                                      (w + a, 0), (w, -h / 2), (0, -h / 2)))
+                x = (w + a) / 2
             elif kind == 'input':
                 q = self.tf(n2.pos, ((0, 0), (a, h / 2), (a + w, h / 2),
                                      (a + w, -h / 2), (a, -h / 2)))
+                x = (w + a) / 2
             elif kind == 'bidir':
                 q = self.tf(n2.pos, ((0, 0), (a, h / 2), (a + w, h / 2),
                                      (2 * a + w, 0), (a + w, -h / 2), (a, -h / 2)))
+                x = a + w / 2                
             elif kind == 'pad':
                 q = self.tf(n2.pos, ((0, h / 2), (w, h / 2),
                                      (w, -h / 2), (0, -h / 2)))
+                x = w / 2                
             
             s += self.draw_path(q, closed=True)
 
             if 'l' in self.opts:
-                lpos = self.tf(n2.pos, (w2 / 2, 0))
+                lpos = self.tf(n2.pos, (x, 0))
                 s += r'  \draw[align=center] (%s) node {%s};''\n' % (
                     lpos, self.label(**kwargs))                
             return s
