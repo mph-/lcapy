@@ -2489,31 +2489,34 @@ class Wire(OnePort):
             except:
                 scale = 1.0
 
-            h = 0.4 * scale
-            w = 0.4 * scale
-            a = 0.2 * scale
+            h = 0.5 * scale * 1.2
+            w = 0.75 * scale * 1.2
+            a = 0.25 * scale * 1.2
+
+            x = (w + a) / 2
             
             if kind == 'output':
                 q = self.tf(n2.pos, ((0, h / 2), (w, h / 2),
-                                     (w + a, 0), (w, -h / 2), (0, -h / 2)))
-                x = (w + a) / 2
+                                     (w + a, 0), (w, -h / 2), (0, -h / 2)),
+                            scale=1)
             elif kind == 'input':
                 q = self.tf(n2.pos, ((0, 0), (a, h / 2), (a + w, h / 2),
-                                     (a + w, -h / 2), (a, -h / 2)))
-                x = (w + a) / 2
+                                     (a + w, -h / 2), (a, -h / 2)),
+                            scale=1)
             elif kind == 'bidir':
-                q = self.tf(n2.pos, ((0, 0), (a, h / 2), (a + w, h / 2),
-                                     (2 * a + w, 0), (a + w, -h / 2), (a, -h / 2)))
-                x = a + w / 2                
+                q = self.tf(n2.pos, ((0, 0), (a, h / 2), (w, h / 2),
+                                     (a + w, 0), (w, -h / 2),
+                                     (a, -h / 2)),
+                            scale=1)                            
             elif kind == 'pad':
-                q = self.tf(n2.pos, ((0, h / 2), (w, h / 2),
-                                     (w, -h / 2), (0, -h / 2)))
-                x = w / 2                
+                q = self.tf(n2.pos, ((0, h / 2), (w + a, h / 2),
+                                     (w + a, -h / 2), (0, -h / 2)),
+                            scale=1)
             
             s += self.draw_path(q, closed=True)
 
             if 'l' in self.opts:
-                lpos = self.tf(n2.pos, (x, 0))
+                lpos = self.tf(n2.pos, (x, 0), scale=1)
                 s += r'  \draw[align=center] (%s) node {%s};''\n' % (
                     lpos, self.label(**kwargs))                
             return s
@@ -2522,7 +2525,7 @@ class Wire(OnePort):
             n2.s, kind, self.angle + 90)
 
         if 'l' in self.opts:
-            lpos = self.tf(n2.pos, (0.125, 0))
+            lpos = self.tf(n2.pos, (0.125, 0), scale=1)
             s += r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
                 anchor, lpos, self.label(**kwargs))
         return s
