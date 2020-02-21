@@ -23,6 +23,8 @@ labels.
 
 10. Fix scaling of bipoles;  the current method also scales the nodes
 
+13. Add input, output, bidir pins for implicit wires
+
 
 Circuit analysis
 ================
@@ -188,4 +190,5 @@ Discrete-time
 
 13. Handle Eq in z-transform
 
+14. Fourier series?
 

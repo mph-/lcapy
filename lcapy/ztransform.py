@@ -239,6 +239,9 @@ def ztransform(expr, n, z):
 
 def inverse_ztransform_ratfun(expr, z, n, **assumptions):
 
+    # Maybe better doing partial fraction expansion of X(z) / z
+    # the multiplying by z.
+    
     damping = assumptions.get('damping', None)
 
     invz = symsymbol('invz', real=False)
