@@ -68,8 +68,7 @@ class Cpt(object):
     default_aspect = 1.0
     # node_pinnames maps node numbers to pinnames
     node_pinnames = ()
-    # pinnames required by lcapy for positioning and extent calculation
-    default_pins = ()
+    default_pinlabels = None
     pins = {}
     drawing_pins = {}
     directive = False        
@@ -1549,7 +1548,7 @@ class Shape(FixedCpt):
         prefix = self.name + '.'
 
         # For backwards compatibility, check pins option.
-        pinlabels = self.opts.get('pins', None)
+        pinlabels = self.opts.get('pins', self.default_pins)
         if pinlabels is None:
             pinlabels = self.opts.get('pinlabels', 'none')
             
@@ -1567,6 +1566,7 @@ class Shape(FixedCpt):
             pinlabels = pinlabels[1:-1]
             foo = {}
             for pindef in pinlabels.split(','):
+                pindef = pindef.strip()
                 fields = pindef.split('=')
                 if len(fields) > 1:
                     foo[prefix + fields[0].strip()] = fields[1].strip()
@@ -2269,7 +2269,7 @@ class Flipflop(Chip):
 class Udff(Flipflop):
     """D flip-flop"""
 
-    default_pins = ('d', 'clk', 'q', '\q')
+    default_pins = '{d, clk, q}'
     
     pins = {'d' : ('l', -0.5, 0.25),
             'clk' : ('l', -0.5, 0),               
@@ -2285,6 +2285,8 @@ class Udff(Flipflop):
 class Ujkff(Flipflop):
     """JK flip-flop"""
 
+    default_pins = '{j, k, clk, q}'
+    
     pins = {'j' : ('l', -0.5, 0.25),
             'clk' : ('l', -0.5, 0),
             'k' : ('l', -0.5, -0.25),               
@@ -2301,6 +2303,8 @@ class Ujkff(Flipflop):
 class Urslatch(Flipflop):
     """RS latch"""
 
+    default_pins = '{r, s, q}'
+    
     pins = {'r' : ('l', -0.5, 0.25),
             's' : ('l', -0.5, -0.25),               
             'vss' : ('b', 0.0, -0.5),
