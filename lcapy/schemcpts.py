@@ -51,7 +51,7 @@ class Cpt(object):
     inner_label_keys = ('t', )    
     implicit_keys =  ('implicit', 'ground', 'sground', 'rground',
                       'cground', 'nground', 'pground', 'vss', 'vdd',
-                      'vee', 'vcc', 'input', 'output', 'bidir')
+                      'vee', 'vcc', 'input', 'output', 'bidir', 'pad')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
@@ -2482,7 +2482,7 @@ class Wire(OnePort):
         s = self.draw_path((n1.s, n2.s))
 
         label_pos = n2
-        if kind in ('input', 'output', 'bidir'):
+        if kind in ('input', 'output', 'bidir', 'pad'):
 
             try:
                 scale = float(self.opts[kind])
@@ -2499,9 +2499,12 @@ class Wire(OnePort):
             elif kind == 'input':
                 q = self.tf(n2.pos, ((0, 0), (a, h / 2), (a + w, h / 2),
                                      (a + w, -h / 2), (a, -h / 2)))
-            else:
+            elif kind == 'bidir':
                 q = self.tf(n2.pos, ((0, 0), (a, h / 2), (a + w, h / 2),
                                      (2 * a + w, 0), (a + w, -h / 2), (a, -h / 2)))
+            elif kind == 'pad':
+                q = self.tf(n2.pos, ((0, h / 2), (w, h / 2),
+                                     (w, -h / 2), (0, -h / 2)))
             
             s += self.draw_path(q, closed=True)
 
