@@ -629,22 +629,65 @@ Implicit wires
 
 Implicit wires are commonly employed for power supply and ground
 connections.  They have one of the following attributes:
+
 - `implicit` equivalent to signal ground
 - `sground`  signal ground      
 - `ground`  earth ground
 - `cground`  chassis ground
 - `nground`  noiseless ground
 - `pground`  protected ground
-- `rground`  reference ground          
+- `rground`  reference ground
+- `vcc`      positive power supply (voltage to collectors)
+- `vdd`      positive power supply (voltage to drains ;-)
+- `vee`      negative power supply (voltage to emitters)
+- `vss`      negative power supply (voltage to sources)    
 
-For example:
+Here are some ground examples:
    
 .. literalinclude:: examples/schematics/grounds.sch
 
 .. image:: examples/schematics/grounds.png
-   :width: 10cm
-  
+    :width: 15cm
 
+
+Here are some power supply examples:
+   
+.. literalinclude:: examples/schematics/supplies.sch
+
+.. image:: examples/schematics/supplies.png
+    :width: 3cm
+        
+
+
+Connections
+-----------
+
+These are similar to implicit wires but are useful for denoting an off-sheet connection or an IC pin.   They have one of the attributes:
+
+- `input`   input connection
+- `output`  output connection
+- `bidir`   bidirectional connection
+- `pad`     generic connection
+
+
+For example:
+   
+.. literalinclude:: examples/schematics/connections1.sch
+
+.. image:: examples/schematics/connections1.png
+   :width: 10cm  
+    
+The sizes of the pads can be controlled with the `width` and `aspect`
+attributes.
+
+For example:
+   
+.. literalinclude:: examples/schematics/connections2.sch
+
+.. image:: examples/schematics/connections2.png
+   :width: 15cm  
+
+           
 
 Block diagrams
 ==============

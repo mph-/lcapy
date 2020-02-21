@@ -2484,6 +2484,8 @@ class Wire(OnePort):
         label_pos = n2
         if kind in ('input', 'output', 'bidir', 'pad'):
 
+            # TODO: create node shapes
+            
             try:
                 scale = float(self.opts[kind])
             except:
