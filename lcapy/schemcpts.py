@@ -68,7 +68,7 @@ class Cpt(object):
     default_aspect = 1.0
     # node_pinnames maps node numbers to pinnames
     node_pinnames = ()
-    default_pinlabels = None
+    default_pins = None
     pins = {}
     drawing_pins = {}
     directive = False        
