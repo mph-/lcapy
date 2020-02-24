@@ -1719,11 +1719,10 @@ class Shape(FixedCpt):
 
         text_width = self.width * 0.8
 
-        if label != '':
-            # shape border rotate rotates the box but not the text
-            s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%.2fcm, minimum height=%.2fcm, text width=%.2fcm, align=center, shape border rotate=%s, draw, %s] (%s) {%s};''\n'% (
-                self.centre, self.shape, self.width, self.height, 
-                text_width, self.angle, self.args_str, self.s, label)
+        # shape border rotate rotates the box but not the text
+        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%.2fcm, minimum height=%.2fcm, text width=%.2fcm, align=center, shape border rotate=%s, draw, %s] (%s) {%s};''\n'% (
+            self.centre, self.shape, self.width, self.height, 
+            text_width, self.angle, self.args_str, self.s, label)
         return s
 
 
@@ -2373,9 +2372,10 @@ class Opamp(Chip):
             centre.s,
             self.args_str, 2 * self.scale * 0.95, yscale,
             -self.angle, self.s)
-        s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, self.node('out').s)
-        s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('in+').s)
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)
+        if not self.nowires:
+            s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, self.node('out').s)
+            s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('in+').s)
+            s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)
         s += self.draw_label(centre.s, **kwargs)
         return s
 
