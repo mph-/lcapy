@@ -659,6 +659,7 @@ class Schematic(NetfileMixin):
             return
 
         if debug:
+            print('circuitikz version %s' % self.circuitikz_version)
             print('width=%d, height=%d, dpi=%d, cpt_size=%.2f, node_spacing=%.2f, scale=%.2f'
                   % (self.width, self.height, self.dpi, 
                      self.cpt_size, self.node_spacing, self.scale))
