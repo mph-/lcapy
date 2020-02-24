@@ -132,11 +132,14 @@ def circuitikz_version():
 
     log_filename = tex_filename.replace('.tex', '.log')
     run_latex(tex_filename)
-    
-    log = open(log_filename, 'r').read()
-    latex_cleanup(tex_filename)    
 
-    match = re.search(r'circuitikz ([0-9/]+)', log)
-    if match is None:
-        return None
-    return match.group(1)
+    with open(log_filename, 'rt') as logfile:
+        lines = logfile.readlines()
+        for m, line in enumerate(lines):
+            if line.startswith('Package: circuitikz'):
+                match = re.search(r'circuitikz ([0-9/]+)', line)
+                date = match.group(1)
+                version = lines[m + 1].strip()
+                return date, version
+    return None, None
+

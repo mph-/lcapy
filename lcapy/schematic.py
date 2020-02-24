@@ -649,8 +649,8 @@ class Schematic(NetfileMixin):
         # For debugging when do not want to write to file
         nosave = kwargs.pop('nosave', False)
 
-        self.circuitikz_version = circuitikz_version()
-        if self.circuitikz_version is None:
+        self.circuitikz_date, self.circuitikz_version = circuitikz_version()
+        if self.circuitikz_date is None:
             raise RuntimeError('circuitikz is not installed')
 
         content = self._tikz_draw(style_args=style_args, **kwargs)
@@ -659,7 +659,8 @@ class Schematic(NetfileMixin):
             return
 
         if debug:
-            print('circuitikz version %s' % self.circuitikz_version)
+            print('circuitikz version %s (%s)' % (self.circuitikz_version,
+                                                  self.circuitikz_date))
             print('width=%d, height=%d, dpi=%d, cpt_size=%.2f, node_spacing=%.2f, scale=%.2f'
                   % (self.width, self.height, self.dpi, 
                      self.cpt_size, self.node_spacing, self.scale))
