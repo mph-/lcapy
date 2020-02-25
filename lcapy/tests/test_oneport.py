@@ -263,9 +263,9 @@ class LcapyTester(unittest.TestCase):
 
         a = CPE(10, 0)
 
-        self.assertEqual2(a.Zs, 1 / 10, "Zs incorrect.")
+        self.assertEqual2(a.Zs, 1.0 / 10, "Zs incorrect.")
         self.assertEqual2(a.Ys, 10, "Ys incorrect.")
-        self.assertEqual2(a.Zw, 1 / 10, "Zw incorrect.")
+        self.assertEqual2(a.Zw, 1.0 / 10, "Zw incorrect.")
         self.assertEqual2(a.Yw, 10, "Yw incorrect.")
 
         a = CPE(10, 0.5)
