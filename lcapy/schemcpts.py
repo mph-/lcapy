@@ -1119,10 +1119,11 @@ class TL(StretchyCpt):
     can_scale = True
     node_pinnames = ('out1', 'out2', 'in1', 'in2')
 
+    w = 1
     pins = {'in1' : ('l', 0, 0.5),
             'in2' : ('l', 0, 0),
-            'out1' : ('r', 1.3, 0.5),
-            'out2' : ('r', 1.3, 0)}
+            'out1' : ('r', w, 0.5),
+            'out2' : ('r', w, 0)}
     
     @property
     def drawn_nodes(self):
@@ -1138,23 +1139,37 @@ class TL(StretchyCpt):
 
         n1, n2, n3, n4 = self.nodes
 
-        centre = (n1.pos + n3.pos) * 0.5
-        q = self.xtf(centre, ((0.32, 0),
-                              (0.27, -0.145),
-                              (-0.35, 0),
-                              (-0.35, -0.145),
-                              (-0.65, 0)))
+        centre = (n1.pos + n3.pos) * 0.5 + Pos(1 - self.w, 0)
+
+        if self.sch.circuitikz_version >= '1.0':
+            q = self.xtf(centre, ((0.23, 0),
+                                  (0.20, -0.1),
+                                  (-0.35, 0),
+                                  (-0.27, -0.11)))
+        else:
+            # TODO, fix for old versions...
+            q = self.xtf(centre, ((0.32, 0),
+                                  (0.27, -0.145),
+                                  (-0.35, 0),
+                                  (-0.35, -0.145)))
+
+        pos = n3.pos
 
         # Newer versions of circuitikz have a tline component with
         # wires on each end.  Rotation creates an ellipse!
         s = r'  \draw (%s) node[tlinestub, xscale=%s, rotate=%s] {};''\n' % (
-            q[4], self.scale, self.angle)
+            pos, self.scale, self.angle)
+
         s += self.draw_label(centre, **kwargs)
 
+        # Output wire
         s += self.draw_path((q[0], n1.s))
+        # Extra input wire
         s += self.draw_path((q[2], n3.s))        
         if not self.nowires:
+            # Output ground wire
             s += self.draw_path((q[1], n2.s), join='|-')
+            # Input ground wire            
             s += self.draw_path((q[3], n4.s), join='|-')
         return s
 
