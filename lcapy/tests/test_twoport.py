@@ -1,6 +1,6 @@
 from lcapy import *
 import unittest
-import sympy as sym
+from sympy import Rational
 
 
 class LcapyTester(unittest.TestCase):
@@ -93,28 +93,29 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.B.B11, 1, "incorrect B11.")
         self.assertEqual(a.B.B12, -10, "incorrect B12.")
-        self.assertEqual(a.B.B21, -0.05, "incorrect B21.")
+        # Note, -1 / 20 = -0.5 cannot be represented exactly as a float
+        self.assertEqual(a.B.B21, Rational(-1) / 20, "incorrect B21.")
         self.assertEqual(a.B.B22, 1.5, "incorrect B22.")
 
         b = a.Zmodel
 
         self.assertEqual(b.B.B11, 1, "incorrect B11.")
         self.assertEqual(b.B.B12, -10, "incorrect B12.")
-        self.assertEqual(b.B.B21, -0.05, "incorrect B21.")
+        self.assertEqual(b.B.B21, Rational(-1) / 20, "incorrect B21.")
         self.assertEqual(b.B.B22, 1.5, "incorrect B22.")
 
         c = a.Ymodel
 
         self.assertEqual(c.B.B11, 1, "incorrect B11.")
         self.assertEqual(c.B.B12, -10, "incorrect B12.")
-        self.assertEqual(c.B.B21, -0.05, "incorrect B21.")
+        self.assertEqual(c.B.B21, Rational(-1) / 20, "incorrect B21.")
         self.assertEqual(c.B.B22, 1.5, "incorrect B22.")
 
         d = a.Hmodel
 
         self.assertEqual(d.B.B11, 1, "incorrect B11.")
         self.assertEqual(d.B.B12, -10, "incorrect B12.")
-        self.assertEqual(d.B.B21, -0.05, "incorrect B21.")
+        self.assertEqual(d.B.B21, Rational(-1) / 20, "incorrect B21.")
         self.assertEqual(d.B.B22, 1.5, "incorrect B22.")
 
     def test_load(self):
@@ -302,26 +303,26 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.B.B11, 1, "incorrect B11.")
         self.assertEqual(a.B.B12, -10, "incorrect B12.")
-        self.assertEqual(a.B.B21, -0.05, "incorrect B21.")
+        self.assertEqual(a.B.B21, Rational(-1) / 20, "incorrect B21.")
         self.assertEqual(a.B.B22, 1.5, "incorrect B22.")
 
         b = a.Zmodel
 
         self.assertEqual(b.B.B11, 1, "incorrect B11.")
         self.assertEqual(b.B.B12, -10, "incorrect B12.")
-        self.assertEqual(b.B.B21, -0.05, "incorrect B21.")
+        self.assertEqual(b.B.B21, Rational(-1) / 20, "incorrect B21.")
         self.assertEqual(b.B.B22, 1.5, "incorrect B22.")
 
         c = a.Ymodel
 
         self.assertEqual(c.B.B11, 1, "incorrect B11.")
         self.assertEqual(c.B.B12, -10, "incorrect B12.")
-        self.assertEqual(c.B.B21, -0.05, "incorrect B21.")
+        self.assertEqual(c.B.B21, Rational(-1) / 20, "incorrect B21.")
         self.assertEqual(c.B.B22, 1.5, "incorrect B22.")
 
         d = a.Hmodel
 
         self.assertEqual(d.B.B11, 1, "incorrect B11.")
         self.assertEqual(d.B.B12, -10, "incorrect B12.")
-        self.assertEqual(d.B.B21, -0.05, "incorrect B21.")
+        self.assertEqual(d.B.B21, Rational(-1) / 20, "incorrect B21.")
         self.assertEqual(d.B.B22, 1.5, "incorrect B22.")

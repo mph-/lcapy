@@ -1,4 +1,4 @@
-sympy==1.4
+sympy==1.5.1
 numpy
 matplotlib
 git+https://github.com/mph-/lcapy.git

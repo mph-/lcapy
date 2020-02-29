@@ -7,8 +7,8 @@ Copyright 2019 Michael Hayes, UCECE
 
 from .expr import expr
 from .cexpr import cExpr
-from .sexpr import sExpr
-from .omegaexpr import omegaExpr
+from .sexpr import sExpr, Zs, Ys
+from .omegaexpr import omegaExpr, Zomega, Yomega
 from .symbols import j, omega, jomega, s
 from .sym import omegasym
 
@@ -32,34 +32,27 @@ class Immitance(sExpr):
             # Default to printing impedance as Z(omega)
             kind = omega
         
-        return self.select(kind).expr
+        return self.selectexpr(kind)
         
-    @property            
-    def jomega(self):
-        return self(jomega)
-
-    @property    
-    def s(self):
-        return self(s)    
-
-    def select(self, kind=None):
+    def selectexpr(self, kind=None):
 
         if kind is None:
             kind = self.kind
 
+        expr = self.expr
+            
         if kind in ('s', 'ivp', 'super', 'laplace'):
-            return self
+            return expr
         elif kind in ('dc', 'time'):
-            return cExpr(self.subs(0))
-        elif isinstance(kind, str) and kind[0] == 'n':
-            return self(jomega)
-        elif kind in (omegasym, omega, 'ac'):
-            return self(jomega)
-        return omegaExpr(self.subs(j * kind))
+            return expr.subs(self.var, 0)
+        elif kind in (omegasym, omega, 'ac') or (isinstance (kind, str)
+                                                 and kind.startswith('n')):
+            return expr.subs(self.var, jomega.expr)
+        return expr.subs(self.var, j * kind)
 
     def new(self, kind):
 
-        return self.__class__(self.select(kind), kind)
+        return self.__class__(self.selectexpr(kind), kind)
 
     @property
     def R(self):
@@ -175,19 +168,19 @@ class ImmitanceMixin(object):
     @property
     def Yw(self):
         """Admittance  Y(omega)."""
-        return self.admittance.jomega
+        return Yomega(self.admittance.selectexpr(omega))
 
     @property
     def Zw(self):
         """Impedance  Z(omega)."""
-        return self.impedance.jomega        
+        return Zomega(self.impedance.selectexpr(omega))
 
     @property
     def Ys(self):
         """Generalized admittance  Y(s)."""
-        return self.admittance.s
+        return Ys(self.admittance.selectexpr(s))
 
     @property
     def Zs(self):
         """Generalized impedance  Z(s)."""
-        return self.impedance.s
+        return Zs(self.impedance.selectexpr(s))

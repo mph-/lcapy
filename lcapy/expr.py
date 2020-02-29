@@ -192,6 +192,11 @@ class Expr(ExprPrint, ExprMisc):
     one_sided = False
     var = None
 
+    # This needs to be larger than what sympy defines so
+    # that the __rmul__, __radd__ methods get called.
+    # Otherwise pi * t becomes a Mul rather than a tExpr object.
+    _op_priority = 1000
+    
     # Perhaps have lookup table for operands to determine
     # the resultant type?  For example, Vs / Vs -> Hs
     # Vs / Is -> Zs,  Is * Zs -> Vs
@@ -360,7 +365,13 @@ class Expr(ExprPrint, ExprMisc):
 
         if False:
             print(self.__class__.__name__, attr)
-        
+
+        expr = self.expr            
+        try:
+            a = getattr(expr, attr)
+        except:
+            raise
+            
         # This gets called if there is no explicit attribute attr for
         # this instance.  We call the method of the wrapped sympy
         # class and rewrap the returned value if it is a sympy Expr
@@ -368,57 +379,35 @@ class Expr(ExprPrint, ExprMisc):
 
         # FIXME.  This propagates the assumptions.  There is a
         # possibility that the operation may violate them.
-        expr = self.expr
-        if hasattr(expr, attr):
-            a = getattr(expr, attr)
 
-            # If it is not callable, directly wrap it.
-            if not hasattr(a, '__call__'):
-                if not isinstance(a, sym.Expr):
-                    return a
-                ret = a()                
-                if hasattr(self, 'assumptions'):
-                    return self.__class__(ret, **self.assumptions)
-                return self.__class__(ret)
-
-            # If it is callable, create a function to pass arguments
-            # through and wrap its return value.
-            def wrap(*args):
-                """This is wrapper for a SymPy function.
-                For help, see the SymPy documentation."""
-
-                ret = a(*args)
-
-                if not isinstance(ret, sym.Expr):
-                    return ret
-
-                # Wrap the return value
-                cls = self.__class__
-                if hasattr(self, 'assumptions'):
-                    return cls(ret, **self.assumptions)
-                return cls(ret)
-
-            return wrap
-
-        # Try looking for a sympy function with the same name,
-        # such as sqrt, log, etc.
-        # On second thoughts, this may confuse the user since
-        # we will pick up methods such as laplace_transform.
-        # Perhaps should have a list of allowable functions?
-        if True or not hasattr(sym, attr):
-            raise AttributeError(
-                "%s has no attribute %s." % (self.__class__.__name__, attr))
-
-        def wrap1(*args):
-
-            ret = getattr(sym, attr)(expr, *args)
-            if not isinstance(ret, sym.Expr):
-                return ret
-
-            # Wrap the return value
+        # If it is not callable, directly wrap it.
+        if not hasattr(a, '__call__'):
+            if not isinstance(a, sym.Expr):
+                return a
+            ret = a()                
+            if hasattr(self, 'assumptions'):
+                return self.__class__(ret, **self.assumptions)
             return self.__class__(ret)
 
-        return wrap1
+        # If it is callable, create a function to pass arguments
+        # through and wrap its return value.
+        def wrap(*args, **kwargs):
+            """This is wrapper for a SymPy function.
+            For help, see the SymPy documentation."""
+
+            ret = a(*args, **kwargs)
+            
+            if not isinstance(ret, sym.Expr):
+                # May have tuple, etc.
+                return ret
+            
+            # Wrap the return value
+            cls = self.__class__
+            if hasattr(self, 'assumptions'):
+                return cls(ret, **self.assumptions)
+            return cls(ret)
+        
+        return wrap
 
     def __abs__(self):
         """Absolute value."""
@@ -624,6 +613,10 @@ class Expr(ExprPrint, ExprMisc):
         if x is None:
             return False
 
+        # Handle self == []
+        if isinstance(x, list):
+            return False
+        
         try:
             cls, self, x, assumptions = self.__compat_add__(x, '==')
         except ValueError:

@@ -14,7 +14,7 @@ class LcapyTester(unittest.TestCase):
 
         a = 0 * t + 1
         r1, r2 = inverse_laplace_ratfun(a.expr, s.var, t.var)
-        self.assertEqual(r1, delta(t), "inverse_laplace_ratfun")
+        self.assertEqual(r1, delta(t).expr, "inverse_laplace_ratfun")
         self.assertEqual(r2, 0, "inverse_laplace_ratfun")        
 
         a = 1 / (s + 2)
