@@ -417,21 +417,14 @@ class Cpt(object):
         return rcoords
 
     @property
-    def scoords(self):
-        """Scaled coordinates for each of the nodes"""
-
-        c = np.array(self.coords)
-        S = np.array(((self.w, self.h),) * c.shape[0])
-        return c * S
-
-    @property
     def tcoords(self):
         """Transformed coordinates for each of the nodes"""
+
         if hasattr(self, '_tcoords'):
             return self._tcoords
 
         self._tcoords = np.array(self.tf((0, 0),
-                                         self.scoords.tolist(), scale=1))
+                                         self.coords, scale=1))
         return self._tcoords
 
     @property
