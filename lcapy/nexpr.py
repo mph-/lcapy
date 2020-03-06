@@ -190,6 +190,10 @@ class nExpr(dExpr):
     def discrete_time_fourier_transform(self, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
 
+        self.infer_assumptions()
+
+        assumptions = self.merge_assumptions(**assumptions)
+        
         if assumptions.get('causal', False):        
             return self.ZT(**assumptions).DTFT()
 
