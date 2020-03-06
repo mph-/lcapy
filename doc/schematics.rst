@@ -463,6 +463,16 @@ fdopamp argument to a VCCS.  For example:
 .. image:: examples/schematics/fdopamp1.png
    :width: 5cm
 
+
+Opamps and fully differential opamps have additional pins that can be connected to:
+           
+.. image:: examples/schematics/opamps.png
+    :width: 10cm
+
+.. image:: examples/schematics/fdopamps.png
+   :width: 10cm                   
+
+           
            
 Potentiometers
 --------------
