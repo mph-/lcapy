@@ -294,6 +294,10 @@ class Node(object):
             label_nodes = label_nodes[1:-1]
         labels = [foo.strip() for foo in label_nodes.split(',')]
         return self.label in labels
+
+    def debug(self):
+        print(' %s @ (%s), count=%d, pin=%s' % (self.name, self.pos,
+                                                self.count, self.pin))
     
     
 class Schematic(NetfileMixin):
@@ -664,7 +668,9 @@ class Schematic(NetfileMixin):
             print('width=%d, height=%d, dpi=%d, cpt_size=%.2f, node_spacing=%.2f, scale=%.2f'
                   % (self.width, self.height, self.dpi, 
                      self.cpt_size, self.node_spacing, self.scale))
-            print(self.nodes)
+            print('Nodes:')
+            for node in self.nodes.values():
+                node.debug()
             # print(self.xgraph.cnodes)
             # print(self.ygraph.cnodes)
 
