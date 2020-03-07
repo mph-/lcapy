@@ -70,7 +70,9 @@ class Cpt(object):
     node_pinnames = ()
     default_pins = None
     pins = {}
-    drawing_pins = {}
+    # Auxiliary nodes are used for finding the centre of the shape or
+    # to define a bounding box.
+    auxiliary = {}
     directive = False        
 
     @property
@@ -112,16 +114,14 @@ class Cpt(object):
 
         prefix = self.name + '.'
         
-        # Auxiliary nodes are used by lcapy, usually for finding
-        # the centre of the shape or to define a bounding box.
         auxiliary_node_names = []
-        for pin in self.drawing_pins:
+        for pin in self.auxiliary:
             auxiliary_node_names.append(prefix + pin)
 
         self.auxiliary_node_names = auxiliary_node_names
 
         self.allpins = self.pins.copy()
-        self.allpins.update(self.drawing_pins)
+        self.allpins.update(self.auxiliary)
 
         pin_node_names = []
         for pin in self.pins.keys():
@@ -369,7 +369,17 @@ class Cpt(object):
         if pinname not in self.allpins:
             raise ValueError('Unknown pin %s for %s, known pins: %s'
                              % (pinname, self.name, ', '.join(list(self.allpins))))
-        return self.allpins[pinname][0]        
+        return self.allpins[pinname][0][0]
+
+    def fakepin(self, pinname):
+        """Return True if pinname is a fake pin"""
+
+        # Check if known pinname; it might be a netlist node name
+        if pinname not in self.allpins:
+            return True
+
+        # Fake pins have a pinpos like lx, rx, tx, or bx
+        return len(self.allpins[pinname][0]) == 1
     
     @property
     def nodes(self):
@@ -398,10 +408,9 @@ class Cpt(object):
         return self.nodes
 
     @property
-    def coords(self):
+    def required_pins(self):
 
-        # Determine the required coords.
-        rcoords = []
+        rpins = []
         for node in self.nodes:
             node_name = node.name
             if node_name in self.node_names:
@@ -413,8 +422,28 @@ class Cpt(object):
                 raise ValueError('Unknown node %s' % node_name)
 
             if pinname != '':
-                rcoords.append(self.allpins[pinname][1:])
-        return rcoords
+                rpins.append(self.allpins[pinname])
+        return rpins
+
+    @property
+    def coords(self):
+
+        rpins = self.required_pins
+        coords = [pin[1:] for pin in rpins]
+        return coords
+
+    @property
+    def scales(self):
+
+        rpins = self.required_pins
+        scales = []
+        for pin in rpins:
+            scale = 1
+            pinpos = pin[0]
+            if pinpos.endswith('x'):
+                scale = self.scale
+            scales.append(scale)
+        return scales
 
     @property
     def tcoords(self):
@@ -423,8 +452,7 @@ class Cpt(object):
         if hasattr(self, '_tcoords'):
             return self._tcoords
 
-        self._tcoords = np.array(self.tf((0, 0),
-                                         self.coords, scale=1))
+        self._tcoords = np.array(self.tf((0, 0), self.coords, scale=1))
         return self._tcoords
 
     @property
@@ -647,8 +675,8 @@ class Cpt(object):
                 if node.basename not in self.allpins:
                     continue
                 node.ref = self
-                node.pin = True
-                if node.basename not in self.drawing_pins:
+                node.pin = not self.fakepin(node.basename)
+                if node.basename not in self.auxiliary:
                     ref_node_names.append(node.name)
             elif self.namespace != '' and nodename.startswith(self.namespace):
                 # Need to be lenient here since can have any old name.
@@ -911,6 +939,131 @@ class FixedCpt(Cpt):
         return centre + np.dot((x * self.w, y * self.h), self.R(angle_offset)) * scale
 
 
+class Bipole(StretchyCpt):
+    """Bipole"""
+
+    can_mirror = True
+    can_scale = True
+
+    node_pinnames = ('1', '2')
+
+    pins = {'1' : ('lx', -0.5, 0),
+            '2' : ('rx', 0.5, 0)}
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        n1, n2 = self.nodes[0:2]
+
+        if self.wire:
+            # With this option, draw component as a piece of wire.
+            # This is useful for hiding the control voltage source
+            # required for a CCVS and a CCCS.
+            s = r'  \draw[-, %s] (%s) to (%s);''\n' % (
+                self.args_str, n1.s, n2.s)
+            return s
+
+        tikz_cpt = self.tikz_cpt
+        if self.variable:
+            if self.type in ('C', 'R', 'L'):
+                tikz_cpt = 'v' + tikz_cpt
+            else:
+                raise ValueError('Component %s not variable' % self.name)
+
+        cpts = {'C' : {'name': 'capacitor',
+                       'kinds': {'electrolytic': 'eC', 'polar': 'pC', 'variable': 'vC'},
+                       'styles' : {}},
+                'L' : {'name': 'inductor', 'kinds': {'variable': 'vL'},
+                       'styles' : {}},
+                'D' : {'name': 'diode',
+                       'kinds': {'led': 'leD', 'photo': 'pD', 'schottky' : 'sD',
+                                 'zener': 'zD', 'zzener': 'zzD', 'tunnel' : 'tD'},
+                       'styles' : {'empty': '', 'full': '*', 'stroke': '-'}}}
+        if self.type in cpts:
+            cpt = cpts[self.type]
+            
+            if self.kind is not None:
+                kinds = cpt['kinds']
+                if self.kind not in kinds:
+                    raise ValueError('Unknown %s kind %s: known kinds %s'
+                                     % (cpt['name'], self.kind, ', '.join(kinds.keys())))
+                tikz_cpt = kinds[self.kind]
+
+            if self.style is not None:
+                styles = cpt['styles']                
+                if self.style not in styles:
+                    raise ValueError('Unknown %s style %s: known styles %s'
+                                     % (cpt['name'], self.style, ', '.join(styles.keys())))
+                tikz_cpt += styles[self.style]                            
+
+        label_pos = '_'
+        voltage_pos = '^'
+        if ((self.type in ('V', 'I', 'E', 'F', 'G', 'H', 'BAT')
+             and self.sch.circuitikz_date < '2016/01/01')
+            or (self.type in ('I', 'F', 'G')
+                and self.sch.circuitikz_date >= '2017/05/28')):
+
+            # Old versions of circuitikz expect the positive node
+            # first, except for voltage and current sources!  So
+            # swap the nodes otherwise they are drawn the wrong
+            # way around.
+            n1, n2 = n2, n1
+                
+            if self.right or self.up:
+                # Draw label on LHS for vertical cpt and below
+                # for horizontal cpt.
+                label_pos = '^'
+                voltage_pos = '_'
+        else:
+            if self.left or self.down:
+                # Draw label on LHS for vertical cpt and below
+                # for horizontal cpt.
+                label_pos = '^'
+                voltage_pos = '_'
+
+        # Add modifier to place voltage label on other side
+        # from component identifier label.
+        if 'v' in self.opts:
+            self.opts['v' + voltage_pos] = self.opts.pop('v')
+
+        # Reversed voltage.
+        if 'vr' in self.opts:
+            self.opts['v' + voltage_pos + '>'] = self.opts.pop('vr')
+
+        current_pos = label_pos
+        # Add modifier to place current label on other side
+        # from voltage marks.
+        if 'i' in self.opts:
+            self.opts['i' + current_pos] = self.opts.pop('i')
+
+        # Reversed current.
+        if 'ir' in self.opts:
+            self.opts['i' + current_pos + '<'] = self.opts.pop('ir')
+
+        if 'l' in self.opts:
+            self.opts['l' + label_pos] = self.opts.pop('l')
+
+        node_pair_str = self._node_pair_str(n1, n2, **kwargs)
+
+        args_str = self.args_str
+        args_str2 = ','.join([self.voltage_str, self.current_str, self.flow_str])
+
+        if self.mirror:
+            args_str += ', mirror'
+
+        if self.scale != 1.0:
+            args_str2 += ', bipoles/length=%.2fcm' % (self.sch.cpt_size * self.scale)
+
+        label_str = self.label_make(label_pos, **kwargs)
+            
+        s = r'  \draw[%s] (%s) to [%s,%s,%s,%s,n=%s] (%s);''\n' % (
+            args_str, n1.s, tikz_cpt, label_str, args_str2,
+            node_pair_str, self.s, n2.s)
+        return s
+    
+
 class Transistor(FixedCpt):
     """Transistor"""
     
@@ -968,14 +1121,8 @@ class MOSFET(Transistor):
     ppos = ((0.85, 0), (-0.25, 0.82), (0.85, 1.64))
 
 
-class MT(StretchyCpt):
+class MT(Bipole):
     """Motor"""
-
-    can_scale = True
-
-    @property
-    def coords(self):
-        return ((-0.5, 0), (0.5, 0))
 
     def draw(self, **kwargs):
 
@@ -1106,17 +1253,18 @@ class SPppm(SP):
 class TL(StretchyCpt):
     """Transmission line"""
 
-    # Dubious.  Perhaps should stretch this component in proportion to size?
-    # Applying an xscale without a corresponding scale changes the ellipse.
-    # This should be fixed in circuitikz.
-    can_scale = True
+    # Allowing can_scale is dubious.  Perhaps should stretch this
+    # component in proportion to size?  Applying an xscale without a
+    # corresponding scale changes the ellipse.  This should be fixed
+    # in circuitikz.
+
     node_pinnames = ('out1', 'out2', 'in1', 'in2')
 
     w = 1
-    pins = {'in1' : ('l', 0, 0.5),
-            'in2' : ('l', 0, 0),
-            'out1' : ('r', w, 0.5),
-            'out2' : ('r', w, 0)}
+    pins = {'in1' : ('lx', 0, 0.5),
+            'in2' : ('lx', 0, 0),
+            'out1' : ('rx', w, 0.5),
+            'out2' : ('rx', w, 0)}
     
     @property
     def drawn_nodes(self):
@@ -1309,132 +1457,8 @@ class Gyrator(FixedCpt):
         s += self.draw_label(self.centre, **kwargs)
         return s
 
-    
-class OnePort(StretchyCpt):
-    """OnePort"""
-
-    can_mirror = True
-    can_scale = True
-
-    @property
-    def coords(self):
-        return ((0, 0), (1, 0))
-
-    def draw(self, **kwargs):
-
-        if not self.check():
-            return ''
-
-        n1, n2 = self.nodes[0:2]
-
-        if self.wire:
-            # With this option, draw component as a piece of wire.
-            # This is useful for hiding the control voltage source
-            # required for a CCVS and a CCCS.
-            s = r'  \draw[-, %s] (%s) to (%s);''\n' % (
-                self.args_str, n1.s, n2.s)
-            return s
-
-        tikz_cpt = self.tikz_cpt
-        if self.variable:
-            if self.type in ('C', 'R', 'L'):
-                tikz_cpt = 'v' + tikz_cpt
-            else:
-                raise ValueError('Component %s not variable' % self.name)
-
-        cpts = {'C' : {'name': 'capacitor',
-                       'kinds': {'electrolytic': 'eC', 'polar': 'pC', 'variable': 'vC'},
-                       'styles' : {}},
-                'L' : {'name': 'inductor', 'kinds': {'variable': 'vL'},
-                       'styles' : {}},
-                'D' : {'name': 'diode',
-                       'kinds': {'led': 'leD', 'photo': 'pD', 'schottky' : 'sD',
-                                 'zener': 'zD', 'zzener': 'zzD', 'tunnel' : 'tD'},
-                       'styles' : {'empty': '', 'full': '*', 'stroke': '-'}}}
-        if self.type in cpts:
-            cpt = cpts[self.type]
-            
-            if self.kind is not None:
-                kinds = cpt['kinds']
-                if self.kind not in kinds:
-                    raise ValueError('Unknown %s kind %s: known kinds %s'
-                                     % (cpt['name'], self.kind, ', '.join(kinds.keys())))
-                tikz_cpt = kinds[self.kind]
-
-            if self.style is not None:
-                styles = cpt['styles']                
-                if self.style not in styles:
-                    raise ValueError('Unknown %s style %s: known styles %s'
-                                     % (cpt['name'], self.style, ', '.join(styles.keys())))
-                tikz_cpt += styles[self.style]                            
-
-        label_pos = '_'
-        voltage_pos = '^'
-        if ((self.type in ('V', 'I', 'E', 'F', 'G', 'H', 'BAT')
-             and self.sch.circuitikz_date < '2016/01/01')
-            or (self.type in ('I', 'F', 'G')
-                and self.sch.circuitikz_date >= '2017/05/28')):
-
-            # Old versions of circuitikz expect the positive node
-            # first, except for voltage and current sources!  So
-            # swap the nodes otherwise they are drawn the wrong
-            # way around.
-            n1, n2 = n2, n1
-                
-            if self.right or self.up:
-                # Draw label on LHS for vertical cpt and below
-                # for horizontal cpt.
-                label_pos = '^'
-                voltage_pos = '_'
-        else:
-            if self.left or self.down:
-                # Draw label on LHS for vertical cpt and below
-                # for horizontal cpt.
-                label_pos = '^'
-                voltage_pos = '_'
-
-        # Add modifier to place voltage label on other side
-        # from component identifier label.
-        if 'v' in self.opts:
-            self.opts['v' + voltage_pos] = self.opts.pop('v')
-
-        # Reversed voltage.
-        if 'vr' in self.opts:
-            self.opts['v' + voltage_pos + '>'] = self.opts.pop('vr')
-
-        current_pos = label_pos
-        # Add modifier to place current label on other side
-        # from voltage marks.
-        if 'i' in self.opts:
-            self.opts['i' + current_pos] = self.opts.pop('i')
-
-        # Reversed current.
-        if 'ir' in self.opts:
-            self.opts['i' + current_pos + '<'] = self.opts.pop('ir')
-
-        if 'l' in self.opts:
-            self.opts['l' + label_pos] = self.opts.pop('l')
-
-        node_pair_str = self._node_pair_str(n1, n2, **kwargs)
-
-        args_str = self.args_str
-        args_str2 = ','.join([self.voltage_str, self.current_str, self.flow_str])
-
-        if self.mirror:
-            args_str += ', mirror'
-
-        if self.scale != 1.0:
-            args_str2 += ', bipoles/length=%.2fcm' % (self.sch.cpt_size * self.scale)
-
-        label_str = self.label_make(label_pos, **kwargs)
-            
-        s = r'  \draw[%s] (%s) to [%s,%s,%s,%s,n=%s] (%s);''\n' % (
-            args_str, n1.s, tikz_cpt, label_str, args_str2,
-            node_pair_str, self.s, n2.s)
-        return s
-
-    
-class Potentiometer(OnePort):
+        
+class Potentiometer(StretchyCpt):
     """Potentiometer  Np, Nm, No"""
 
     can_stretch = False
@@ -1444,7 +1468,7 @@ class Potentiometer(OnePort):
         return ((0, 0), (1, 0), (0.5, 0.3))
     
     
-class VCS(OnePort):
+class VCS(Bipole):
     """Voltage controlled source"""
 
     @property
@@ -1452,7 +1476,7 @@ class VCS(OnePort):
         return self.node_names[0:2]
 
 
-class CCS(OnePort):
+class CCS(Bipole):
     """Current controlled source"""
 
     @property
@@ -1497,12 +1521,12 @@ class Shape(FixedCpt):
     can_mirror = True
     pinlabels = {}
 
-    drawing_pins = {'mid' : ('c', 0.0, 0.0),
-                    'bl' : ('l', -0.5, -0.5),
-                    'br' : ('r', 0.5, -0.5),
-                    'top' : ('t', 0, 0.5),
-                    'tl' : ('l', -0.5, 0.5),
-                    'tr' : ('r', 0.5, 0.5)}
+    auxiliary = {'mid' : ('c', 0.0, 0.0),
+                 'bl' : ('l', -0.5, -0.5),
+                 'br' : ('r', 0.5, -0.5),
+                 'top' : ('t', 0, 0.5),
+                 'tl' : ('l', -0.5, 0.5),
+                 'tr' : ('r', 0.5, 0.5)}
 
     @property
     def width(self):
@@ -1670,7 +1694,7 @@ class Shape(FixedCpt):
             # Add pin to nodes so that it will get allocated a coord.
             node = self.sch._node_add(nodename, self, auxiliary=True)
             node.ref = self
-            node.pin = True
+            node.pin = not self.fakepin(node.basename)                        
             node.pinpos = self.pinpos(node.basename)
 
             # TODO, perhaps use pinlabel to indicate clock?
@@ -1688,7 +1712,7 @@ class Shape(FixedCpt):
             # Add pin to nodes so that it will get allocated a coord.
             node = self.sch._node_add(pinnode, self, auxiliary=True)
             node.ref = self
-            node.pin = True            
+            node.pin = not self.fakepin(node.basename)            
             node.pinpos = self.pinpos(node.basename)
             self.drawn_pins.append(node)
 
@@ -1699,7 +1723,7 @@ class Shape(FixedCpt):
             # Add pin to nodes so that it will get allocated a coord.
             node = self.sch._node_add(pinname, self, auxiliary=True)
             node.ref = self
-            node.pin = True            
+            node.pin = not self.fakepin(node.basename)
             node.pinpos = self.pinpos(node.basename)
             node.pinname = node.basename
             
@@ -1712,7 +1736,7 @@ class Shape(FixedCpt):
 
         # Ensure all the shape nodes are marked as pins.
         for node in self.nodes:
-            node.pin = True
+            node.pin = not self.fakepin(node.basename)
             
     def draw(self, **kwargs):
 
@@ -1847,12 +1871,12 @@ class Triangle(Shape):
             'ene' : ('r', 0.375, -0.075),
             'wnw' : ('l', -0.375, -0.075)}
 
-    drawing_pins = {'mid' : ('c', 0.0, 0.0),
-                    'bl' : ('l', -0.5, -0.2887),
-                    'br' : ('r', 0.5, -0.2887),
-                    'top' : ('t', 0, 0.5774),                    
-                    'tl' : ('l', -0.5, 0.5774),
-                    'tr' : ('r', 0.5, 0.5774)}
+    auxiliary = {'mid' : ('c', 0.0, 0.0),
+                 'bl' : ('l', -0.5, -0.2887),
+                 'br' : ('r', 0.5, -0.2887),
+                 'top' : ('t', 0, 0.5774),                    
+                 'tl' : ('l', -0.5, 0.5774),
+                 'tr' : ('r', 0.5, 0.5774)}
 
     def draw(self, **kwargs):
 
@@ -2328,13 +2352,14 @@ class Opamp(Chip):
 
     can_scale = True
     can_mirror = True
+    default_width = 1.0    
 
     # The Nm node is not used (ground).
     node_pinnames = ('out', '', 'in+', 'in-')
     
-    ppins = {'out' : ('r', 1.25, 0.0),
-             'in+' : ('l', -1.25, 0.5),
-             'in-' : ('l', -1.25, -0.5),
+    ppins = {'out' : ('rx', 1.25, 0.0),
+             'in+' : ('lx', -1.25, 0.5),
+             'in-' : ('lx', -1.25, -0.5),
              'vdd' : ('t', 0, 0.5),
              'vdd2' : ('t', -0.45, 0.755),
              'vss2' : ('b', -0.45, -0.755),
@@ -2343,9 +2368,9 @@ class Opamp(Chip):
              'r+' : ('l', -0.85, 0.25),
              'r-' : ('l', -0.85, -0.25)}
 
-    npins = {'out' : ('r', 1.25, 0.0),
-             'in-' : ('l', -1.25, 0.5),
-             'in+' : ('l', -1.25, -0.5),
+    npins = {'out' : ('rx', 1.25, 0.0),
+             'in-' : ('lx', -1.25, 0.5),
+             'in+' : ('lx', -1.25, -0.5),
              'vdd' : ('t', 0, 0.5),
              'vdd2' : ('t', -0.45, 0.755),
              'vss2' : ('b', -0.45, -0.755),
@@ -2359,7 +2384,7 @@ class Opamp(Chip):
     @property
     def pins(self):
         return self.npins if self.mirror else self.ppins
-    
+
     def draw(self, **kwargs):
 
         if not self.check():
@@ -2391,6 +2416,7 @@ class FDOpamp(Chip):
 
     can_scale = True
     can_mirror = True
+    default_width = 1.0        
 
     node_pinnames = ('out+', 'out-', 'in+', 'in-')
 
@@ -2442,7 +2468,7 @@ class FDOpamp(Chip):
         return s
 
 
-class Wire(OnePort):
+class Wire(Bipole):
 
     def __init__(self, sch, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
@@ -2468,10 +2494,6 @@ class Wire(OnePort):
                                    cpt_id, string,
                                    opts_string, node_names, keyword, *args)
         self.implicit = implicit
-
-    @property
-    def coords(self):
-        return ((0, 0), (1, 0))
 
     def draw_implicit(self, **kwargs):
         """Draw implicit wires, i.e., connections to ground, etc."""
@@ -2619,14 +2641,8 @@ class Wire(OnePort):
         return s
 
 
-class FB(StretchyCpt):
+class FB(Bipole):
     """Ferrite bead"""
-
-    can_scale = True
-
-    @property
-    def coords(self):
-        return ((-0.5, 0), (0.5, 0))
 
     def draw(self, **kwargs):
 
@@ -2650,14 +2666,8 @@ class FB(StretchyCpt):
         return s
 
 
-class CPE(StretchyCpt):
+class CPE(Bipole):
     """Constant phase element"""
-
-    can_scale = True
-
-    @property
-    def coords(self):
-        return ((-0.5, 0), (0.5, 0))
 
     def draw(self, **kwargs):
 
@@ -2722,15 +2732,15 @@ def make(classname, parent, name, cpt_type, cpt_id,
     return cpt
 
 # Dynamically create classes.
-defcpt('ADC', OnePort, 'ADC', 'adc')
-defcpt('AM', OnePort, 'Ammeter', 'ammeter')
+defcpt('ADC', Bipole, 'ADC', 'adc')
+defcpt('AM', Bipole, 'Ammeter', 'ammeter')
 
-defcpt('BAT', OnePort, 'Battery', 'battery')
+defcpt('BAT', Bipole, 'Battery', 'battery')
 
-defcpt('C', OnePort, 'Capacitor', 'C')
+defcpt('C', Bipole, 'Capacitor', 'C')
 
-defcpt('D', OnePort, 'Diode', 'D')
-defcpt('DAC', OnePort, 'DAC', 'dac')
+defcpt('D', Bipole, 'Diode', 'D')
+defcpt('DAC', Bipole, 'DAC', 'dac')
 defcpt('Dled', 'D', 'LED', 'leD')
 defcpt('Dphoto', 'D', 'Photo diode', 'pD')
 defcpt('Dschottky', 'D', 'Schottky diode', 'zD')
@@ -2745,12 +2755,12 @@ defcpt('G', CCS, 'VCCS', 'american controlled current source')
 defcpt('H', CCS, 'CCVS', 'american controlled voltage source')
 
 
-defcpt('FS', OnePort, 'Fuse', 'fuse')
+defcpt('FS', Bipole, 'Fuse', 'fuse')
 
 defcpt('GY', Gyrator, 'Gyrator', 'gyrator')
 
-defcpt('I', OnePort, 'Current source', 'I')
-defcpt('sI', OnePort, 'Current source', 'I')
+defcpt('I', Bipole, 'Current source', 'I')
+defcpt('sI', Bipole, 'Current source', 'I')
 defcpt('Isin', 'I', 'Sinusoidal current source', 'sI')
 defcpt('Idc', 'I', 'DC current source', 'I')
 defcpt('Istep', 'I', 'Step current source', 'I')
@@ -2761,20 +2771,20 @@ defcpt('J', JFET, 'N JFET transistor', 'njfet')
 defcpt('Jnjf', 'J', 'N JFET transistor', 'njfet')
 defcpt('Jpjf', 'J', 'P JFET transistor', 'pjfet')
 
-defcpt('L', OnePort, 'Inductor', 'L')
+defcpt('L', Bipole, 'Inductor', 'L')
 
 defcpt('M', MOSFET, 'N MOSJFET transistor', 'nmos')
 defcpt('Mnmos', 'M', 'N channel MOSJFET transistor', 'nmos')
 defcpt('Mpmos', 'M', 'P channel MOSJFET transistor', 'pmos')
 
-defcpt('O', OnePort, 'Open circuit', 'open')
-defcpt('P', OnePort, 'Port', 'open')
+defcpt('O', Bipole, 'Open circuit', 'open')
+defcpt('P', Bipole, 'Port', 'open')
 
 defcpt('Q', Transistor, 'NPN transistor', 'npn')
 defcpt('Qpnp', 'Q', 'PNP transistor', 'pnp')
 defcpt('Qnpn', 'Q', 'NPN transistor', 'npn')
 
-defcpt('R', OnePort, 'Resistor', 'R')
+defcpt('R', Bipole, 'Resistor', 'R')
 defcpt('RV', Potentiometer, 'Potentiometer', 'pR')
 
 defcpt('Sbox', Box, 'Box shape')
@@ -2782,7 +2792,7 @@ defcpt('Scircle', Circle, 'Circle shape')
 defcpt('Sellipse', Ellipse, 'Ellipse shape')
 defcpt('Striangle', Triangle, 'Triangle shape')
 
-defcpt('SW', OnePort, 'Switch', 'closing switch')
+defcpt('SW', Bipole, 'Switch', 'closing switch')
 defcpt('SWno', 'SW', 'Normally open switch', 'closing switch')
 defcpt('SWnc', 'SW', 'Normally closed switch', 'opening switch')
 defcpt('SWpush', 'SW', 'Pushbutton switch', 'push button')
@@ -2799,8 +2809,8 @@ defcpt('Ubox4', Box4, 'Box')
 defcpt('Ubox12', Box12, 'Box')
 defcpt('Ucircle4', Circle4, 'Circle')
 
-defcpt('V', OnePort, 'Voltage source', 'V')
-defcpt('sV', OnePort, 'Voltage source', 'V')
+defcpt('V', Bipole, 'Voltage source', 'V')
+defcpt('sV', Bipole, 'Voltage source', 'V')
 defcpt('Vsin', 'V', 'Sinusoidal voltage source', 'sV')
 defcpt('Vdc', 'V', 'DC voltage source', 'V')
 defcpt('Vstep', 'V', 'Step voltage source', 'V')
@@ -2812,14 +2822,14 @@ defcpt('CCCS', VCS, 'CCCS', 'american controlled current source')
 defcpt('VCCS', CCS, 'VCCS', 'american controlled current source')
 defcpt('CCVS', CCS, 'CCVS', 'american controlled voltage source')
 
-defcpt('VM', OnePort, 'Voltmeter', 'voltmeter')
+defcpt('VM', Bipole, 'Voltmeter', 'voltmeter')
 
 defcpt('W', Wire, 'Wire', 'short')
 
-defcpt('XT', OnePort, 'Crystal', 'piezoelectric')
+defcpt('XT', Bipole, 'Crystal', 'piezoelectric')
 
-defcpt('Y', OnePort, 'Admittance', 'european resistor')
-defcpt('Z', OnePort, 'Impedance', 'european resistor')
+defcpt('Y', Bipole, 'Admittance', 'european resistor')
+defcpt('Z', Bipole, 'Impedance', 'european resistor')
 
 # Perhaps AM for ammeter, VM for voltmeter, VR for variable resistor?
 # Currently, a variable resistor is supported with the variable
