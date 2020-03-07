@@ -1165,9 +1165,10 @@ class MX(FixedCpt):
     # Dubious
     can_scale = True
 
-    @property
-    def coords(self):
-        return ((0.25, 0.25), (-0.25, 0.25), (0, 0))
+    node_pinnames = ('in1', 'in2', 'out')    
+    pins = {'in1' : ('lx', 0.25, 0.25),
+            'in2' : ('lx', -0.25, 0.25),
+            'out' : ('rx', 0, 0)}
 
     def draw(self, **kwargs):
 
@@ -1192,12 +1193,20 @@ class SP(FixedCpt):
     can_scale = True
     can_mirror = True
 
-    @property
-    def coords(self):
-        if self.mirror:
-            return ((-0.25, 0), (0, 0.25), (0.25, 0), (0, -0.25))
-        return ((-0.25, 0), (0, -0.25), (0.25, 0), (0, 0.25))
+    node_pinnames = ('in1', 'in2', 'out', 'in3')    
+    ppins = {'in1' : ('lx', -0.25, 0),
+             'in2' : ('bx', 0, -0.25),
+             'out' : ('rx', 0.25, 0),
+             'in3' : ('tx', 0, 0.25)}
+    npins = {'in1' : ('lx', -0.25, 0),
+             'in2' : ('tx', 0, 0.25),
+             'out' : ('rx', 0.25, 0),
+             'in3' : ('bx', 0, -0.25)}    
 
+    @property
+    def pins(self):
+        return self.npins if self.mirror else self.ppins
+    
     def draw(self, **kwargs):
 
         if not self.check():
@@ -1230,11 +1239,17 @@ class SP(FixedCpt):
 class SP3(SP):
     """Summing point"""
 
+    node_pinnames = ('in1', 'in2', 'out')    
+    ppins = {'in1' : ('lx', -0.25, 0),
+             'in2' : ('bx', 0, -0.25),
+             'out' : ('rx', 0.25, 0)}
+    npins = {'in1' : ('lx', -0.25, 0),
+             'in2' : ('tx', 0, 0.25),
+             'out' : ('rx', 0.25, 0)}
+
     @property
-    def coords(self):
-        if self.mirror:
-            return ((-0.25, 0), (0, 0.25), (0.25, 0))
-        return ((-0.25, 0), (0, -0.25), (0.25, 0))
+    def pins(self):
+        return self.npins if self.mirror else self.ppins
 
 
 class SPpp(SP3):
@@ -1269,11 +1284,12 @@ class SPppm(SP):
 
 class TL(StretchyCpt):
     """Transmission line"""
-
-    # Allowing can_scale is dubious.  Perhaps should stretch this
+ 
+    # This is dubious.  Perhaps should stretch this
     # component in proportion to size?  Applying an xscale without a
     # corresponding scale changes the ellipse.  This should be fixed
     # in circuitikz.
+    can_scale = True
 
     node_pinnames = ('out1', 'out2', 'in1', 'in2')
 
@@ -1335,9 +1351,11 @@ class TL(StretchyCpt):
 class TF1(FixedCpt):
     """Transformer"""
 
-    @property
-    def coords(self):
-        return ((0.5, 1), (0.5, 0), (0, 1), (0, 0))
+    node_pinnames = ('out+', 'out-', 'in+', 'in-')    
+    pins = {'out+' : ('rx', 0.5, 1),
+            'out-' : ('rx', 0.5, 0),
+            'in+' : ('lx', 0, 1),
+            'in-' : ('lx', 0, 0)}
 
     def draw(self, link=True, **kwargs):
 
@@ -1402,9 +1420,13 @@ class Transformer(TF1):
 class TFtap(TF1):
     """Transformer"""
 
-    @property
-    def coords(self):
-        return ((0.5, 1), (0.5, 0), (0, 1), (0, 0), (-0.125, 0.55), (0.625, 0.55))
+    node_pinnames = ('out+', 'out-', 'in+', 'in-', 'outtap', 'intap')    
+    pins = {'out+' : ('rx', 0.5, 1),
+            'out-' : ('rx', 0.5, 0),
+            'in+' : ('lx', 0, 1),
+            'in-' : ('lx', 0, 0),
+            'outtap' : ('rx', -0.125, 0.55),
+            'intap' : ('lx', 0.625, 0.55)}
 
     @property
     def drawn_nodes(self):
@@ -1438,6 +1460,14 @@ class K(TF1):
                                 node_names, keyword, *args[2:])
 
     @property
+    def coords(self):
+        return ((0.5, 1), (0.5, 0), (0, 1), (0, 0))
+
+    @property
+    def scales(self):
+        return [self.scale] * len(self.coords)
+        
+    @property
     def nodes(self):
 
         # This needs to be more robust; currently it depends on the order
@@ -1453,9 +1483,11 @@ class K(TF1):
 class Gyrator(FixedCpt):
     """Gyrator"""
 
-    @property
-    def coords(self):
-        return ((1, 1), (1, 0), (0, 1), (0, 0))
+    node_pinnames = ('out+', 'out-', 'in+', 'in-')    
+    pins = {'out+' : ('rx', 1, 1),
+            'out-' : ('rx', 1, 0),
+            'in+' : ('lx', 0, 1),
+            'in-' : ('lx', 0, 0)}
     
     def draw(self, **kwargs):
 
@@ -1475,14 +1507,17 @@ class Gyrator(FixedCpt):
         return s
 
         
-class Potentiometer(StretchyCpt):
+class Potentiometer(Bipole):
     """Potentiometer  Np, Nm, No"""
 
+    # This is not really a bipole but circuitikz treats it as such
+
     can_stretch = False
-    
-    @property
-    def coords(self):
-        return ((0, 0), (1, 0), (0.5, 0.3))
+
+    node_pinnames = ('1', '2', 'wiper')    
+    pins = {'1' : ('rx', 0, 0),
+            '2' : ('rx', 1, 0),
+            'wiper' : ('lx', 0.5, 0.3)}
     
     
 class VCS(Bipole):
@@ -1505,11 +1540,12 @@ class SPDT(FixedCpt):
     """SPDT switch"""
 
     can_mirror = True
-    
-    @property
-    def coords(self):
-        return ((0, 0.169), (0.632, 0.338), (0.632, 0))
 
+    node_pinnames = ('1', '2', 'common')    
+    pins = {'1' : ('lx', 0, 0.169),
+            '2' : ('rx', 0.632, 0.338),
+            'common' : ('lx', 0.632, 0)}
+    
     def draw(self, **kwargs):
 
         if not self.check():
