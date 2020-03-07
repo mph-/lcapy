@@ -1067,18 +1067,15 @@ class Bipole(StretchyCpt):
 class Transistor(FixedCpt):
     """Transistor"""
     
-    npos = ((1, 1.6), (0, 0.8), (1, 0))
-    ppos = ((1, 0), (0, 0.8), (1, 1.6))
-
     can_mirror = True
     can_scale = True
 
     @property
-    def coords(self):
+    def pins(self):
         if self.classname in ('Qpnp', 'Mpmos', 'Jpjf'):
-            return self.npos if self.mirror else self.ppos
+            return self.npins if self.mirror else self.ppins
         else:
-            return self.ppos if self.mirror else self.npos
+            return self.ppins if self.mirror else self.npins
 
     def draw(self, **kwargs):
 
@@ -1105,20 +1102,40 @@ class Transistor(FixedCpt):
         return s
 
 
+class BJT(Transistor):
+    """BJT"""
+
+    node_pinnames = ('e', 'b', 'c')    
+    ppins = {'e' : ('lx', 1, 0),
+             'b' : ('lx', 0, 0.8),
+             'c' : ('lx', 1, 1.6)}
+    npins = {'e' : ('lx', 1, 1.6),
+             'b' : ('lx', 0, 0.8),
+             'c' : ('lx', 1, 0)}    
+
+    
 class JFET(Transistor):
     """JFET"""
 
-    # ('d', 'g', 's')
-    npos = ((1, 1.5), (0, 0.46), (1, 0))
-    ppos = ((1, 0), (0, 1.04), (1, 1.5))
+    node_pinnames = ('d', 'g', 's')    
+    ppins = {'d' : ('lx', 1, 0),
+             'g' : ('lx', 0, 1.04),
+             's' : ('lx', 1, 1.5)}
+    npins = {'d' : ('lx', 1, 1.5),
+             'g' : ('lx', 0, 0.46),
+             's' : ('lx', 1, 0)}        
 
 
 class MOSFET(Transistor):
     """MOSFET"""
 
-    # ('d', 'g', 's')    
-    npos = ((0.85, 1.64), (-0.25, 0.82), (0.85, 0))
-    ppos = ((0.85, 0), (-0.25, 0.82), (0.85, 1.64))
+    node_pinnames = ('d', 'g', 's')    
+    ppins = {'d' : ('lx', 0.85, 0),
+             'g' : ('lx', -0.25, 0.82),
+             's' : ('lx', 0.85, 1.64)}
+    npins = {'d' : ('lx', 0.85, 1.64),
+             'g' : ('lx', -0.25, 0.82),
+             's' : ('lx', 0.85, 0)}        
 
 
 class MT(Bipole):
@@ -2780,7 +2797,7 @@ defcpt('Mpmos', 'M', 'P channel MOSJFET transistor', 'pmos')
 defcpt('O', Bipole, 'Open circuit', 'open')
 defcpt('P', Bipole, 'Port', 'open')
 
-defcpt('Q', Transistor, 'NPN transistor', 'npn')
+defcpt('Q', BJT, 'NPN transistor', 'npn')
 defcpt('Qpnp', 'Q', 'PNP transistor', 'pnp')
 defcpt('Qnpn', 'Q', 'NPN transistor', 'npn')
 
