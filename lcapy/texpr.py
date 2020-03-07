@@ -60,10 +60,10 @@ class tExpr(Expr):
         return new_assumptions
 
     def laplace(self, **assumptions):
-        """Determine one-side Laplace transform with 0- as the lower limit."""
+        """Determine one-sided Laplace transform with 0- as the lower limit."""
 
         # The assumptions are required to help with the inverse Laplace
-        # transform is required.
+        # transform if required.
         self.infer_assumptions()
 
         assumptions = self.merge_assumptions(**assumptions)
