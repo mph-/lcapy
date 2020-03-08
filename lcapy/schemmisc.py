@@ -29,6 +29,13 @@ class Pos(object):
 
         return Pos(self.x + arg.x, self.y + arg.y)
 
+    def __sub__(self, arg):
+
+        if not isinstance(arg, Pos):
+            arg = Pos(arg)
+
+        return Pos(self.x - arg.x, self.y - arg.y)    
+
     def __str__(self):
 
         xstr = ('%.3f' % self.x).rstrip('0').rstrip('.')

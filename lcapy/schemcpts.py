@@ -478,8 +478,9 @@ class Cpt(object):
             return
         
         xvals = self.xvals
-        for m1, n1 in enumerate(self.nodes):
-            for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
+        nodes = self.nodes
+        for m1, n1 in enumerate(nodes):
+            for m2, n2 in enumerate(nodes[m1 + 1:], m1 + 1):
                 if xvals[m2] == xvals[m1]:
                     graphs.link(n1.name, n2.name)
 
@@ -489,8 +490,9 @@ class Cpt(object):
             return        
 
         yvals = self.yvals
-        for m1, n1 in enumerate(self.nodes):
-            for m2, n2 in enumerate(self.nodes[m1 + 1:], m1 + 1):
+        nodes = self.nodes        
+        for m1, n1 in enumerate(nodes):
+            for m2, n2 in enumerate(nodes[m1 + 1:], m1 + 1):
                 if yvals[m2] == yvals[m1]:
                     graphs.link(n1.name, n2.name)
 
@@ -503,12 +505,13 @@ class Cpt(object):
             print('TODO: offset %s by %f' % (self, self.offset))
         
         size = self.size
+        nodes = self.nodes                
         idx = np.argsort(vals)[::-1]
         for i in range(len(idx) - 1):
             m1 = idx[i]
             m2 = idx[i + 1]
-            n1 = self.nodes[m1]
-            n2 = self.nodes[m2]
+            n1 = nodes[m1]
+            n2 = nodes[m2]
             value = (vals[m2] - vals[m1]) * size
             graphs.add(self, n1.name, n2.name, value, self.stretch)
 
@@ -832,7 +835,7 @@ class Cpt(object):
 
         return not self.invisible
 
-    def tf(self, centre, offset, angle_offset=0.0):
+    def tf(self, centre, offset, angle_offset=0.0, scale=None):
         """Transform coordinate"""
 
         raise NotImplementedError('tf method not implemented for %s' % self)
@@ -1360,44 +1363,42 @@ class TL(StretchyCpt):
 class TF1(FixedCpt):
     """Transformer"""
 
-    node_pinnames = ('out+', 'out-', 'in+', 'in-')    
-    pins = {'out+' : ('rx', 0.5, 1),
-            'out-' : ('rx', 0.5, 0),
-            'in+' : ('lx', 0, 1),
-            'in-' : ('lx', 0, 0)}
+    w = 0.8
+    default_aspect = w
+    node_pinnames = ('s+', 's-', 'p+', 'p-')
+    pins = {'s+' : ('rx', w, 1),
+            's-' : ('rx', w, 0),
+            'p+' : ('lx', 0, 1),
+            'p-' : ('lx', 0, 0)}
+    misc = {'pdot' : (0.1 - 0.5 * w, 0.32),
+            'sdot' : (0.5 * w - 0.1, 0.32),
+            'link' : (0, 0.15),                 
+            'label' : (0, 0.48)}
 
     def draw(self, link=True, **kwargs):
 
         if not self.check():
             return ''
 
-        p = [node.pos for node in self.nodes]
+        n1, n2, n3, n4 = self.nodes[0:4]
+        centre = (n1.pos + n4.pos) * 0.5
 
-        centre1 = (p[0] + p[1]) * 0.5
-        centre2 = (p[2] + p[3]) * 0.5        
-        centre = (p[0] + p[1] + p[2] + p[3]) * 0.25
+        pdot_pos = self.tf(centre, self.misc['pdot'])
+        sdot_pos = self.tf(centre, self.misc['sdot'])
+        label_pos = self.tf(centre, self.misc['label'])
 
-        q = self.tf(centre1, ((-0.1, 0.275), ))
-        primary_dot = q[0]
-
-        q = self.tf(centre2, ((0.1, 0.275), ))        
-        secondary_dot = q[0]
-
-        q = self.tf(centre, ((0, 0.45),))
-        labelpos = q[0]
-
-        s = r'  \draw (%s) node[circ] {};''\n' % primary_dot
-        s += r'  \draw (%s) node[circ] {};''\n' % secondary_dot
+        s = r'  \draw (%s) node[circ] {};''\n' % pdot_pos
+        s += r'  \draw (%s) node[circ] {};''\n' % sdot_pos
         s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-            labelpos, 0.5, self.s, self.label(**kwargs))
+            label_pos, 0.5, self.s, self.label(**kwargs))
 
         if link:
             # TODO: allow for rotation
-            width = p[0].x - p[2].x
-            arcpos = Pos((p[0].x + p[2].x) / 2, secondary_dot.y - width / 2 + 0.3)
+            width = (sdot_pos - pdot_pos).x
+            link_pos = self.tf(centre, self.misc['link'])
 
             s += r'  \draw[<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (
-                width / 2, arcpos, width / 2)
+                width / 2, link_pos, width / 2)
 
         if self.classname in ('TFcore', 'TFtapcore'):
             # Draw core
@@ -1417,7 +1418,7 @@ class Transformer(TF1):
         if not self.check():
             return ''
 
-        n1, n2, n3, n4 = self.nodes
+        n1, n2, n3, n4 = self.nodes[0:4]
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3.s, n4.s)
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2.s, n1.s)
@@ -1429,14 +1430,15 @@ class Transformer(TF1):
 class TFtap(TF1):
     """Transformer"""
 
-    node_pinnames = ('out+', 'out-', 'in+', 'in-', 'outtap', 'intap')    
-    pins = {'out+' : ('rx', 0.5, 1),
-            'out-' : ('rx', 0.5, 0),
-            'in+' : ('lx', 0, 1),
-            'in-' : ('lx', 0, 0),
-            'outtap' : ('rx', -0.125, 0.55),
-            'intap' : ('lx', 0.625, 0.55)}
-
+    node_pinnames = ('s+', 's-', 'p+', 'p-', 'ptap', 'stap')
+    w = 0.8
+    pins = {'s+' : ('rx', w, 1),
+            's-' : ('rx', w, 0),
+            'p+' : ('lx', 0, 1),
+            'p-' : ('lx', 0, 0),
+            'ptap' : ('lx', 0, 0.5),
+            'stap' : ('rx', w, 0.5)}
+    
     @property
     def drawn_nodes(self):
         # Do not draw the taps.
@@ -1447,7 +1449,7 @@ class TFtap(TF1):
         if not self.check():
             return ''
 
-        n1, n2, n3, n4, n5, n6 = self.nodes
+        n1, n2, n3, n4 = self.nodes[0:4]
 
         s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3.s, n4.s)
         s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2.s, n1.s)
@@ -1486,7 +1488,8 @@ class K(TF1):
         L1 = self.sch.elements[self.Lname1]
         L2 = self.sch.elements[self.Lname2]
         # L1 is on the left; L2 is on the right
-        return [self.sch.nodes[n] for n in L2.node_names + L1.node_names]
+        nodes = [self.sch.nodes[n] for n in L2.node_names + L1.node_names]
+        return nodes
 
 
 class Gyrator(FixedCpt):
@@ -1508,7 +1511,7 @@ class Gyrator(FixedCpt):
             yscale = -yscale
 
         s = r'  \draw (%s) node[gyrator, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            self.midpoint(self.nodes[1], self.nodes[3]),
+            self.midpoint(self.nodes[0], self.nodes[3]),
             self.args_str, 0.95 * self.scale, 0.89 * yscale,
             -self.angle, self.s)        
 
