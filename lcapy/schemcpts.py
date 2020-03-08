@@ -435,13 +435,16 @@ class Cpt(object):
     @property
     def scales(self):
 
+        if not self.can_scale:
+            return [1] * len(self.coords)
+
         rpins = self.required_pins
         scales = []
         for pin in rpins:
             scale = 1
             pinpos = pin[0]
-            if pinpos.endswith('x'):
-                scale = self.scale
+            if not pinpos.endswith('x'):
+                scale = 2 * self.scale / self.width
             scales.append(scale)
         return scales
 
@@ -452,7 +455,13 @@ class Cpt(object):
         if hasattr(self, '_tcoords'):
             return self._tcoords
 
-        self._tcoords = np.array(self.tf((0, 0), self.coords, scale=1))
+        coords = self.coords
+        scales = self.scales
+
+        tcoords = np.zeros((len(coords), 2))
+        for m in range(len(coords)):
+            tcoords[m] = self.tf((0, 0), coords[m], scale=scales[m])
+        self._tcoords = tcoords
         return self._tcoords
 
     @property
@@ -2405,7 +2414,7 @@ class Opamp(Chip):
 
     can_scale = True
     can_mirror = True
-    default_width = 1.0    
+    default_width = 1.0
 
     # The Nm node is not used (ground).
     node_pinnames = ('out', '', 'in+', 'in-')
