@@ -56,9 +56,9 @@ class Cpt(object):
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
-                 'pinnames', 'pinnodes', 'pindefs', 'outside', 'pinmap',
-                 'kind', 'wire', 'ignore', 'style', 'nowires', 'steps', 'free',
-                 'fliplr', 'flipud')
+                 'pinnames', 'pinnodes', 'pindefs', 'outside',
+                 'pinmap', 'kind', 'wire', 'ignore', 'style',
+                 'nowires', 'steps', 'free', 'fliplr', 'flipud')
 
     can_rotate = True
     can_scale = False
@@ -379,7 +379,7 @@ class Cpt(object):
             return True
 
         # Fake pins have a pinpos like lx, rx, tx, or bx
-        return len(self.allpins[pinname][0]) == 1
+        return len(self.allpins[pinname][0]) == 2
     
     @property
     def nodes(self):
