@@ -1159,7 +1159,6 @@ class MT(Bipole):
             return ''
 
         n1, n2 = self.nodes
-
         centre = (n1.pos + n2.pos) * 0.5
 
         s = r'  \draw (%s) node[elmech, %s, rotate=%d] (%s) {};''\n' % (
@@ -1188,7 +1187,6 @@ class MX(FixedCpt):
             return ''
 
         n1, n2, n3 = self.nodes
-
         centre = (n1.pos + n2.pos) * 0.5
         q = self.tf(centre, ((0, 0.35)))
 
@@ -1225,7 +1223,6 @@ class SP(FixedCpt):
             return ''
 
         n = self.nodes
-
         centre = (n[0].pos + n[2].pos) * 0.5
         q = self.tf(centre, ((0.3, 0.3), (-0.125, 0), (0, -0.125),
                              (0, 0.125), (0, 0.125)))
@@ -1324,7 +1321,6 @@ class TL(StretchyCpt):
             return ''
 
         n1, n2, n3, n4 = self.nodes
-
         centre = (n1.pos + n3.pos) * 0.5 + Pos(1 - self.w, 0)
 
         if self.sch.circuitikz_version >= '1.0':
@@ -1380,9 +1376,7 @@ class TF1(FixedCpt):
         if not self.check():
             return ''
 
-        n1, n2, n3, n4 = self.nodes[0:4]
-        centre = (n1.pos + n4.pos) * 0.5
-
+        centre = self.midpoint(self.nodes[0], self.nodes[3])
         pdot_pos = self.tf(centre, self.misc['pdot'])
         sdot_pos = self.tf(centre, self.misc['sdot'])
         label_pos = self.tf(centre, self.misc['label'])
@@ -1564,8 +1558,8 @@ class SPDT(FixedCpt):
             return ''
 
         n1, n2, n3 = self.nodes
-
         centre = n1.pos * 0.5 + (n2.pos + n3.pos) * 0.25
+        
         if self.mirror:
             s = r'  \draw (%s) node[spdt, yscale=-1, %s, rotate=%d] (%s) {};''\n' % (
                 centre, self.args_str, self.angle, self.s)
@@ -2715,7 +2709,6 @@ class FB(Bipole):
             return ''
 
         n1, n2 = self.nodes
-
         centre = (n1.pos + n2.pos) * 0.5
         w = 0.125
         h = 0.2
@@ -2740,7 +2733,6 @@ class CPE(Bipole):
             return ''
 
         n1, n2 = self.nodes
-
         centre = (n1.pos + n2.pos) * 0.5
         w = 0.125
         h = 0.2
