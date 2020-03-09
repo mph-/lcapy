@@ -1324,15 +1324,17 @@ class Cable(Shape):
     """Cable"""
  
     default_aspect = 2
-    pins = {'in+' : ('l', -0.5, 0.25),
+    a = 0.3
+    pins = {'in+' : ('l', -0.5, a),
             'in' : ('l', -0.5, 0),
-            'in-' : ('l', -0.5, 0.25),
+            'in-' : ('l', -0.5, -a),
             'ignd' : ('l', -0.5, -0.5),
-            'mid' : ('c', 0, 0),            
-            'out+' : ('r', 0.5, 0.25),
+            'out+' : ('r', 0.5, a),
             'out' : ('r', 0.5, 0),
-            'out-' : ('r', 0.5, -0.25),
-            'ognd' : ('r', 0.5, -0.5)}
+            'out-' : ('r', 0.5, -a),
+            'ognd' : ('r', 0.5, -0.5),
+            't' : ('c', 0, 0.5),                        
+            'b' : ('c', 0, -0.5)}
     
     def draw(self, **kwargs):
 
@@ -1344,13 +1346,55 @@ class Cable(Shape):
         length = self.width
         width = self.height
 
-        #s = r' \draw[%s] (%s) node[cylinder, draw, shape border rotate=%s, minimum width=%scm, minimum height=%scm] {%s};' % (self.args_str, centre, self.angle + 180, width, length, self.label(**kwargs))
+        kind = self.kind
+        if kind is None:
+            kind = 'coax'
 
-        s = r' \draw[%s] (%s) node[cylinder, draw, rotate=%s, minimum width=%scm, minimum height=%scm] {%s};' % (self.args_str, centre, self.angle, width, length, self.label(**kwargs))        
+        if kind not in ('coax', 'twinax', 'twistedpair', 'shieldedtwistedpair'):
+            raise ValueError('Unknown cable kind %s' % kind)
+            
+        s = ''
 
-        # Twisted pair; need to specify number of twists
-        #\draw (1,1) cos (2,0) sin (3,-1) cos (4,0) sin (5,1);
-        #\draw[color=blue] (1,-1) cos (2,0) sin (3,1) cos (4,0) sin (5,-1);
+        if kind in ('coax', 'twinax', 'shieldedtwistedpair'):
+            xscale = -1.05
+        
+            s += r'  \draw[%s] (%s) node[cylinder, draw, rotate=%s, minimum width=%scm, minimum height=%scm, xscale=%s] {};''\n' % (self.args_str, centre, self.angle, width, length, xscale)        
+
+        if self.kind in ('twistedpair', 'shieldedtwistedpair'):
+            # Needs to be even...
+            twists = 4
+            sections = twists * 4
+            deltax = length / sections
+            startx = centre.x - length / 2
+            w = self.a * width
+            
+            x = startx
+            y = self.node('mid').pos.y
+            s += r'  \draw (%.2f,%.2f)' % (x, y + w)            
+            # 0 -1 0 1
+            for m in range(sections):
+                x += deltax
+                a = [0, -1, 0, 1][m % 4] * w
+                s += r' %s (%.2f,%.2f)' % (('cos', 'sin')[m % 2], x, y + a)
+            s += ';\n'
+
+            x = startx
+            s += r'  \draw (%.2f,%.2f)' % (x, y - w)
+            # 0 1 0 -1            
+            for m in range(sections):
+                x += deltax
+                a = [0, -1, 0, 1][m % 4] * w
+                s += r' %s (%.2f,%.2f)' % (('cos', 'sin')[m % 2], x, y - a)
+            s += ';\n'
+
+        elif self.kind == 'coax':
+            s += r'  \draw[-] (%s) to (%s);''\n' % (self.node('in').s,
+                                                    self.node('out').s)
+        elif self.kind == 'twinax':
+            s += r'  \draw[-] (%s) to (%s);''\n' % (self.node('in-').s,
+                                                    self.node('out-').s)
+            s += r'  \draw[-] (%s) to (%s);''\n' % (self.node('in+').s,
+                                                    self.node('out+').s)
         return s
 
     
