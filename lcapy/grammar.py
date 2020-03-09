@@ -1,7 +1,7 @@
 """
 This module defines a grammar for SPICE-like netlists.
 
-Copyright 2015--2019 Michael Hayes, UCECE
+Copyright 2015--2020 Michael Hayes, UCECE
 """
 
 # SPICE also considers = a delimiter.
@@ -10,7 +10,7 @@ delimiters = ' \t(),'
 # Comment characters; these must be in the first column.
 comments = r'#%*'
 
-# Each line defines a rule. The field before the colon is the classname.  This
+# Each line defines a rule.  The field before the colon is the classname.  This
 # must be unique.
 # The second field (up to name) is used to match the rule along with the optional
 # keyword parameter.
@@ -21,6 +21,7 @@ ADC: ADCname Np Nm; ADC
 AM: AMname Np Nm; Ammeter
 BAT: BATname Np Nm [Value]; Battery
 C: Cname Np Nm [Value] [IC]; Capacitor
+Cable: Cablename; Cable
 CPE: CPEname Np Nm [Value] [Power]; Constant phase element
 D: Dname Np Nm; Diode
 DAC: DACname Np Nm; DAC

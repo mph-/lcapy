@@ -1125,6 +1125,12 @@ class TL(Misc):
     pass
 
 
+class Cable(Misc):
+    """Cable"""
+
+    pass
+
+
 class TP(Misc):
     """Two port"""
 

@@ -98,7 +98,7 @@ class Rule(object):
 
             if paramdict[param].base in ('pin', 'node'):
                 if field[0] == '.':
-                    # Note name contains namespace
+                    # Note, name contains namespace
                     field = name + field
                 else:
                     field = namespace + field
