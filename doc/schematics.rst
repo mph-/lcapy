@@ -712,7 +712,8 @@ Cables
 
 The kind of cable is specified with the `kind` attribute.  This can be
 `coax`, `twinax`, `twistedpair`, `shieldedtwistedpair`, or `tline`
-(transmission line).  The default is `coax`.
+(transmission line).  The default is `coax`.  Note, this component is
+experimental and the syntax may change.
 
 .. image:: examples/schematics/cable.png
    :width: 7.5cm  
@@ -743,7 +744,13 @@ Here are some examples:
 .. literalinclude:: examples/schematics/cable-tline.sch
 
 .. image:: examples/schematics/cable-tline.png
-   :width: 7.5cm                     
+   :width: 7.5cm
+
+
+.. literalinclude:: examples/schematics/guard1.sch
+
+.. image:: examples/schematics/guard1.png
+   :width: 12cm                             
 
            
 
