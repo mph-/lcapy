@@ -706,7 +706,47 @@ For example:
 .. image:: examples/schematics/connections2.png
    :width: 15cm  
 
+
+Cables
+======
+
+The kind of cable is specified with the `kind` attribute.  This can be
+`coax`, `twinax`, `twistedpair`, `shieldedtwistedpair`, or `tline`
+(transmission line).  The default is `coax`.
+
+.. image:: examples/schematics/cable.png
+   :width: 7.5cm  
+
+Here are some examples:
+
+.. literalinclude:: examples/schematics/cable-coax.sch
+
+.. image:: examples/schematics/cable-coax.png
+   :width: 7.5cm
+
+.. literalinclude:: examples/schematics/cable-twinax.sch
+
+.. image:: examples/schematics/cable-twinax.png
+   :width: 7.5cm
+
+
+.. literalinclude:: examples/schematics/cable-tp.sch
+
+.. image:: examples/schematics/cable-tp.png
+   :width: 7.5cm
+
+.. literalinclude:: examples/schematics/cable-utp.sch
+
+.. image:: examples/schematics/cable-utp.png
+   :width: 7.5cm
+
+.. literalinclude:: examples/schematics/cable-tline.sch
+
+.. image:: examples/schematics/cable-tline.png
+   :width: 7.5cm                     
+
            
+
 
 Block diagrams
 ==============

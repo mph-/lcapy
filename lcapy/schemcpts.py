@@ -1323,7 +1323,7 @@ class Shape(FixedCpt):
 class Cable(Shape):
     """Cable"""
  
-    default_aspect = 2
+    default_aspect = 4
     a = 0.3
     pins = {'in+' : ('l', -0.5, a),
             'in' : ('l', -0.5, 0),
@@ -1350,12 +1350,13 @@ class Cable(Shape):
         if kind is None:
             kind = 'coax'
 
-        if kind not in ('coax', 'twinax', 'twistedpair', 'shieldedtwistedpair'):
+        if kind not in ('coax', 'twinax', 'twistedpair', 'shieldedtwistedpair',
+                        'tline'):
             raise ValueError('Unknown cable kind %s' % kind)
             
         s = ''
 
-        if kind in ('coax', 'twinax', 'shieldedtwistedpair'):
+        if kind in ('coax', 'twinax', 'shieldedtwistedpair', 'tline'):
             xscale = -1.05
         
             s += r'  \draw[%s] (%s) node[cylinder, draw, rotate=%s, minimum width=%scm, minimum height=%scm, xscale=%s] {};''\n' % (self.args_str, centre, self.angle, width, length, xscale)        
