@@ -312,7 +312,8 @@ class Schematic(NetfileMixin):
         self.node_spacing = 2.0
         self.scale = 1.0
         self.dummy_node = 0
-        self.context = None       
+        self.context = None
+        self.debug = False
 
         if filename is not None:
             self.netfile_add(filename)
@@ -511,8 +512,8 @@ class Schematic(NetfileMixin):
         # distance from the root of the graph.  To centre components,
         # a reverse graph is created and the distances are averaged.
 
-        self.xgraph = Graph('horizontal', self.nodes)
-        self.ygraph = Graph('vertical', self.nodes)
+        self.xgraph = Graph('horizontal', self.nodes, self.debug)
+        self.ygraph = Graph('vertical', self.nodes, self.debug)
 
         # Use components in orthogonal directions as constraints.  The
         # nodes of orthogonal components get combined into a
@@ -561,6 +562,8 @@ class Schematic(NetfileMixin):
 
     def _tikz_draw(self, style_args='', **kwargs):
 
+        self.debug = kwargs.pop('debug', False)
+        
         self._setup()
         
         self._positions_calculate()
@@ -633,7 +636,6 @@ class Schematic(NetfileMixin):
 
         root, ext = path.splitext(filename)
 
-        debug = kwargs.pop('debug', False)
         style = kwargs.pop('style', 'american')
         self.dpi = float(kwargs.pop('dpi', 150))        
         self.cpt_size = float(kwargs.pop('cpt_size', 1.2))
@@ -662,7 +664,7 @@ class Schematic(NetfileMixin):
         if nosave:
             return
 
-        if debug:
+        if self.debug:
             print('circuitikz version %s (%s)' % (self.circuitikz_version,
                                                   self.circuitikz_date))
             print('width=%d, height=%d, dpi=%d, cpt_size=%.2f, node_spacing=%.2f, scale=%.2f'
@@ -694,7 +696,7 @@ class Schematic(NetfileMixin):
 
         pdf_filename = tex_filename.replace('.tex', '.pdf')
         run_latex(tex_filename)
-        if not debug:
+        if not self.debug:
             latex_cleanup(tex_filename, pdf_filename)
 
         if not path.exists(pdf_filename):
@@ -706,13 +708,13 @@ class Schematic(NetfileMixin):
 
         if ext == '.svg':
             convert_pdf_svg(pdf_filename, root + '.svg')
-            if not debug:
+            if not self.debug:
                 remove(pdf_filename)
             return
 
         if ext == '.png':
             convert_pdf_png(pdf_filename, root + '.png', self.dpi)
-            if not debug:
+            if not self.debug:
                 remove(pdf_filename)
             return
 

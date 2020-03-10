@@ -102,10 +102,11 @@ class Gnode(object):
     
 class Graph(dict):
 
-    def __init__(self, name, nodes):
+    def __init__(self, name, nodes, debug=False):
 
         self.cnodes = Cnodes(nodes)
         self.name = name
+        self.debug = debug
 
     def __repr__(self):
 
@@ -329,8 +330,11 @@ class Graph(dict):
                 gnode = gnode.prev.from_gnode
                 self['start'].pos = 0
         except AttributeError:
-            raise AttributeError("The %s schematic graph is dodgy, probably a "
-                                 "component is attached to the wrong nodes:\n%s" % (self.name, self))            
+            msg = "The %s schematic graph is dodgy, probably a "
+            "component is attached to the wrong nodes.\n" % self.name
+            if self.debug:
+                msg += str(self)
+            raise AttributeError(msg)
 
         if stage == 1:
             return
@@ -343,7 +347,7 @@ class Graph(dict):
         self.assign_stretch(unknown)
 
         if unknown != []:
-            raise ValueError('Cannot assign nodes %s for %s graph:\n%s' %
+            raise ValueError('Cannot assign nodes %s for %s graph.\n%s' %
                              (unknown, self.name, self))
             
         self.check_positions()
@@ -355,8 +359,10 @@ class Graph(dict):
 
         except KeyError:
             # TODO determine which components are not connected.
-            raise KeyError("The %s schematic graph is dodgy, probably a "
-                           "component is unattached:\n%s" % (self.name, self))
+            msg = "The %s schematic graph is dodgy, probably a component is attached to the wrong nodes.\n" % self.name
+            if self.debug:
+                msg += str(self)
+            raise AttributeError(msg)            
 
         distance_max = self['end'].pos
 
@@ -392,9 +398,11 @@ class Graph(dict):
         try:
             return traverse(start)
         except RuntimeError:
-            raise RuntimeError(
-                ("The %s schematic graph is dodgy, probably a component"
-                 " is connected to the wrong node:\n%s") % (self.name, self))
+            msg = "The %s schematic graph is dodgy, probably a component is attached to the wrong nodes.\n" % self.name
+            if self.debug:
+                msg += str(self)
+            raise RuntimeError(msg)
+
 
     def longest_path(self, start, forward=True):
         """Find longest path through DAG."""
@@ -425,10 +433,12 @@ class Graph(dict):
         try:
             traverse(start)
         except RuntimeError:
-            raise RuntimeError(
-                ("The %s schematic graph is dodgy, probably a component"
-                 " is connected to the wrong node:\n%s") % (self.name, self))
-
+            msg = "The %s schematic graph is dodgy, probably a "
+            "component is attached to the wrong nodes.\n" % self.name
+            if self.debug:
+                msg += str(self)
+            
+            raise RuntimeError(msg)
 
     def check_positions(self):
 
