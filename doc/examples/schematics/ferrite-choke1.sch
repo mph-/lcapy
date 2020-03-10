@@ -2,8 +2,8 @@ C1 1 0_1; down, dashed, blue
 V1 2 1; down, l=v_c
 W 2 3; up=0.5, i=i_c
 W 3 4; right=1.5
-V2 5 4; down=1.25, fixed, l=\frac{v_d}{2}
-V3 4 22; down=1.25, fixed, l=\frac{v_d}{2}
+V2 5 4; down=1.4, fixed, l=\frac{v_d}{2}
+V3 4 22; down=1.4, fixed, l=\frac{v_d}{2}
 W 5 6; right
 W 6 7; down
 W 7 8; right=2, i={\frac{i_c}{2} + i_d}
