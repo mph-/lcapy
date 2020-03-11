@@ -58,7 +58,7 @@ class Cpt(object):
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
                  'pinnames', 'pinnodes', 'pindefs', 'outside',
                  'pinmap', 'kind', 'wire', 'ignore', 'style',
-                 'nowires', 'steps', 'free', 'fliplr', 'flipud')
+                 'nowires', 'steps', 'free', 'fliplr', 'flipud', 'nodots')
 
     can_rotate = True
     can_scale = False
@@ -234,7 +234,11 @@ class Cpt(object):
 
     @property
     def flipud(self):
-        return self.boolattr('flipud')        
+        return self.boolattr('flipud')
+
+    @property
+    def nodots(self):
+        return self.boolattr('nodots')            
    
     @property
     def wire(self):
@@ -1709,8 +1713,11 @@ class TF1(FixedCpt):
         sdot_pos = self.tf(centre, self.misc['sdot'])
         label_pos = self.tf(centre, self.misc['label'])
 
-        s = r'  \draw (%s) node[circ] {};''\n' % pdot_pos
-        s += r'  \draw (%s) node[circ] {};''\n' % sdot_pos
+        s = ''
+        if not self.nodots:
+            s += r'  \draw (%s) node[circ] {};''\n' % pdot_pos
+            s += r'  \draw (%s) node[circ] {};''\n' % sdot_pos
+            
         s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
             label_pos, 0.5, self.s, self.label(**kwargs))
 
