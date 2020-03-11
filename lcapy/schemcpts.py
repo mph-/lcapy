@@ -1749,8 +1749,10 @@ class Transformer(TF1):
 
         n1, n2, n3, n4 = self.nodes[0:4]
 
-        s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3.s, n4.s)
-        s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2.s, n1.s)
+        s = r' \draw[%s] (%s) to [inductor] (%s);''\n' % (
+            self.args_str, n3.s, n4.s)
+        s += r' \draw[%s] (%s) to [inductor] (%s);''\n' % (
+            self.args_str, n2.s, n1.s)
 
         s += super(Transformer, self).draw(link=False, **kwargs)
         return s
