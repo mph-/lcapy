@@ -433,8 +433,7 @@ class Graph(dict):
         try:
             traverse(start)
         except RuntimeError:
-            msg = "The %s schematic graph is dodgy, probably a "
-            "component is attached to the wrong nodes.\n" % self.name
+            msg = "The %s schematic graph is dodgy, probably a component is attached to the wrong nodes.\n" % self.name
             if self.debug:
                 msg += str(self)
             
