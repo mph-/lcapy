@@ -779,13 +779,18 @@ class Cpt(object):
         if label_values and self.value_label != '':
             label_str = self.value_label        
 
-        # Override label if specified.  There are no placement options.
-        string = ','.join([latex_format_label(val)
-                           for key, val in self.opts.items()
-                           if key in ('l', )])
+        has_label = False
+        for key, val in self.opts.items():
+            if key in ('l', ):
+                has_label = True
+                break
 
-        if string != '':
-            label_str = string
+        if has_label:
+            # Override label if specified.  There are no placement options.
+            label_str = ','.join([latex_format_label(val)
+                                  for key, val in self.opts.items()
+                                  if key in ('l', )])
+
         # Remove curly braces.
         if len(label_str) > 1 and label_str[0] == '{' and label_str[-1] == '}':
             label_str = label_str[1:-1]
