@@ -2625,9 +2625,11 @@ class Wire(Bipole):
     def __init__(self, sch, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
 
+        opts = Opts(opts_string)
+        
         implicit = False
         for key in self.implicit_keys:
-            if key in opts_string:
+            if key in opts:
                 implicit = True
                 break
 
