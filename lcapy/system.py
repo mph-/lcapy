@@ -1,4 +1,5 @@
 from os import system, path, remove, chdir, getcwd, stat
+from subprocess import call, DEVNULL
 import re
 import platform
 
@@ -103,7 +104,8 @@ def run_latex(tex_filename):
     if dirname != '':
         chdir(path.abspath(dirname))
         
-    system('pdflatex -interaction batchmode %s.tex' % baseroot)
+    call(['pdflatex', '-interaction', 'batchmode', '%s.tex' %
+          baseroot], stderr=DEVNULL, stdout=DEVNULL)
     
     if dirname != '':
         chdir(cwd)            
