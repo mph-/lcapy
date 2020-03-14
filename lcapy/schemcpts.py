@@ -58,7 +58,8 @@ class Cpt(object):
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
                  'pinnames', 'pinnodes', 'pindefs', 'outside',
                  'pinmap', 'kind', 'wire', 'ignore', 'style',
-                 'nowires', 'steps', 'free', 'fliplr', 'flipud', 'nodots')
+                 'nowires', 'steps', 'free', 'fliplr', 'flipud', 'nodots',
+                 'draw_nodes')
 
     can_rotate = True
     can_scale = False
@@ -317,6 +318,10 @@ class Cpt(object):
         return self.opts.get('kind', None)
 
     @property
+    def draw_nodes_opt(self):
+        return self.opts.get('draw_nodes', None)
+
+    @property
     def style(self):
         return self.opts.get('style', None)
     
@@ -530,7 +535,9 @@ class Cpt(object):
 
     def _node_str(self, node1, **kwargs):
 
-        draw_nodes = kwargs.get('draw_nodes', True)
+        draw_nodes = self.draw_nodes_opt
+        if draw_nodes is None:
+            draw_nodes = kwargs.get('draw_nodes', True)
 
         s = ''
         if node1.visible(draw_nodes) and not node1.pin:
@@ -551,7 +558,14 @@ class Cpt(object):
 
     def draw_node(self, n, **kwargs):
 
-        draw_nodes = kwargs.get('draw_nodes', True)        
+        # Don't draw nodes for open-circuits.  Use port
+        # if want nodes drawn.
+        if self.type == 'O':
+            return ''
+        
+        draw_nodes = self.draw_nodes_opt
+        if draw_nodes is None:
+            draw_nodes = kwargs.get('draw_nodes', True)
 
         s = ''
         if not draw_nodes:
@@ -1066,7 +1080,10 @@ class Bipole(StretchyCpt):
         if 'l' in self.opts:
             self.opts['l' + label_pos] = self.opts.pop('l')
 
-        node_pair_str = self._node_pair_str(n1, n2, **kwargs)
+        if self.type == 'O':
+            node_pair_str = ''
+        else:
+            node_pair_str = self._node_pair_str(n1, n2, **kwargs)
 
         args_str = self.args_str
         args_str2 = ','.join([self.voltage_str, self.current_str, self.flow_str])

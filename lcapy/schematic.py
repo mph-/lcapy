@@ -610,7 +610,7 @@ class Schematic(NetfileMixin):
             if elt.directive:            
                 for key, val in elt.opts.items():
                     kwargs[key] = val 
-                   
+
             s += elt.draw(**kwargs)
             s += elt.draw_nodes(**kwargs)
             s += elt.draw_pins()
