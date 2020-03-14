@@ -113,11 +113,6 @@ class Circuit(Netlist):
         if netlist is not None:
             self.add(netlist)
 
-    def netfile_add(self, filename):
-        """Add the nets from file with specified filename"""
-        
-        self._netfile_add(filename)
-
     def Y(self, Np, Nm):
         """Return admittance between nodes Np and Nm with
         independent sources killed."""

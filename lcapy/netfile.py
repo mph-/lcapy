@@ -1,6 +1,7 @@
 from . import grammar
 from .parser import Parser
 from .state import state
+from os.path import dirname, join
 
 class NetfileMixin(object):
 
@@ -10,6 +11,7 @@ class NetfileMixin(object):
         self.namespace = ''
         self.subnetlists = {}
         self._anon = {}
+        self.dirname = None
 
     def _make_anon(self, kind):
         """Make identifier for anonymous component"""
@@ -101,18 +103,39 @@ class NetfileMixin(object):
             self._cpt_add(cpt)
         return cpt
 
+    def netfile_add(self, filename):
+        """Add the nets from file with specified filename"""
+
+        self.dirname = dirname(filename)
+        self._netfile_add(filename)
+    
     def _netfile_add(self, filename, namespace=''):
         """Add the nets from file with specified filename"""
 
-        try:
-            file = open(filename, 'r')
-        except:
-            try:
-                file = open(filename + '.sch', 'r')
-            except:
-                raise FileNotFoundError('Could not open ' + filename)
+        netfile = None
 
-        lines = file.readlines()
+        try:
+            netfile = open(filename, 'r')
+        except:
+            pass
+
+        if netfile is None:
+            try:
+                netfile = open(filename + '.sch', 'r')
+            except:
+                pass
+
+        if netfile is None:
+            try:
+                netfile = open(join(self.dirname, filename), 'r')
+            except:
+                pass            
+
+        if netfile is None:            
+            raise FileNotFoundError('Could not open ' + filename)
+
+        lines = netfile.readlines()
+        netfile.close()
 
         if self.context is not None:        
             state.switch_context(self.context)        
