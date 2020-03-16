@@ -1,7 +1,15 @@
 from os import system, path, remove, chdir, getcwd, stat
-from subprocess import call, DEVNULL
+from subprocess import call
 import re
 import platform
+
+try:
+    from subprocess import DEVNULL
+except ImportError:
+    # For python 2.7
+    import os
+    DEVNULL = open(os.devnull, 'wb')
+
 
 # System dependent functions
 
