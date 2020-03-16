@@ -1383,9 +1383,11 @@ class Cable(Shape):
         s = ''
 
         if kind in ('coax', 'twinax', 'shieldedtwistedpair', 'tline'):
-            xscale = -1.05
+            xscale = -1.025
+
+            q = self.tf(centre, ((0.0125, 0)))
         
-            s += r'  \draw[%s] (%s) node[cylinder, draw, rotate=%s, minimum width=%scm, minimum height=%scm, xscale=%s] {};''\n' % (self.args_str, centre, self.angle, width, length, xscale)        
+            s += r'  \draw[%s] (%s) node[cylinder, draw, rotate=%s, minimum width=%scm, minimum height=%scm, xscale=%s] {};''\n' % (self.args_str, q, self.angle, width, length, xscale)        
 
         if self.kind in ('twistedpair', 'shieldedtwistedpair'):
             # Needs to be even...
