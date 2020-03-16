@@ -1389,6 +1389,12 @@ class Cable(Shape):
         
             s += r'  \draw[%s] (%s) node[cylinder, draw, rotate=%s, minimum width=%scm, minimum height=%scm, xscale=%s] {};''\n' % (self.args_str, q, self.angle, width, length, xscale)        
 
+        if kind == 'tline':
+            s += self.draw_label(centre, **kwargs)
+        else:
+            q = self.tf(centre, ((0, 0.9)))            
+            s += self.draw_label(q, **kwargs)            
+            
         if self.kind in ('twistedpair', 'shieldedtwistedpair'):
             # Needs to be even...
             twists = 4
