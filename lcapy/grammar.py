@@ -87,9 +87,10 @@ TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value]; Tapped transformer with c
 TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm [Value]; Two port
 TR: TRname Pi Po [Value]; Transfer function
-Ubuffer: Uname buffer; Buffer with power supplies
-Uinverter: Uname inverter; Inverter with power supplies
+Ubuffer: Uname buffer; Buffer
+Uinverter: Uname inverter; Inverter
 Udiffamp: Uname diffamp; Differential amplifier
+Uopamp: Uname opamp; Opamp
 Uregulator: Uname regulator; Voltage regulator
 Uadc: Uname adc; ADC
 Udac: Uname dac; DAC

@@ -881,10 +881,15 @@ class Cpt(object):
 
         return r'  \draw%s %s;''\n' % (s, path)
 
-    def draw_label(self, pos, **kwargs):
+    def annotate(self, pos, label, args_str=''):
 
         return r'  \draw[%s] (%s) node[] {%s};''\n'% (
-            self.args_str, pos, self.label(**kwargs))
+            args_str, pos, label)        
+    
+    def draw_label(self, pos, **kwargs):
+
+        return self.annotate(pos, self.label(**kwargs), self.args_str)
+    
 
 class A(Cpt):
     """Annotation."""
@@ -2526,6 +2531,8 @@ class Urslatch(Flipflop):
     
     
 class Opamp(Chip):
+    """This is for an opamp created with the E netlist type as used for
+    simulation."""
 
     can_scale = True
     can_mirror = True
@@ -2573,8 +2580,7 @@ class Opamp(Chip):
 
         centre = self.node('mid')
 
-        # TODO: perhaps draw ourselves rather than relying on circuitikz
-        # and not have connecting wires, the same as other chips?
+        # The circuitikz opamp has short wires on input and output.
         
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
@@ -2588,6 +2594,56 @@ class Opamp(Chip):
         s += self.draw_label(centre.s, **kwargs)
         return s
 
+
+class Uopamp(Chip):
+    """This is for an opamp created with the U netlist type.  It has no wires.
+    See also Opamp for an opamp created with the E netlist type."""
+    can_mirror = True
+
+    auxiliary = {'l+' : ('c', -0.375, 0.25),                        
+                 'l-' : ('c', -0.375, -0.25)}
+    auxiliary.update(Chip.auxiliary)
+    
+    ppins = {'out' : ('r', 0.5, 0.0),
+             'in+' : ('l', -0.5, 0.25),
+             'in-' : ('l', -0.5, -0.25),
+             'vdd' : ('t', 0, 0.25),
+             'vdd2' : ('t', -0.225, 0.365),
+             'vss2' : ('b', -0.225, -0.365),
+             'vss' : ('b', 0, -0.25),
+             'ref' : ('b', 0.225, -0.135),
+             'r+' : ('l', -0.5, 0.125),
+             'r-' : ('l', -0.5, -0.125)}
+
+    npins = {'out' : ('r', 0.5, 0.0),
+             'in-' : ('l', -0.5, 0.25),
+             'in+' : ('l', -0.5, -0.25),
+             'vdd' : ('t', 0, 0.25),
+             'vdd2' : ('t', -0.225, 0.365),
+             'vss2' : ('b', -0.225, -0.365),
+             'vss' : ('b', 0, -0.25),
+             'ref' : ('b', 0.225, -0.135),
+             'r-' : ('l', -0.5, 0.125),
+             'r+' : ('l', -0.5, -0.125)}    
+
+    pinlabels = {'vdd' : 'VDD', 'vss' : 'VSS'}
+
+    @property
+    def pins(self):
+        return self.npins if self.mirror else self.ppins
+
+    @property
+    def path(self):
+        return ((-0.5, -0.5), (-0.5, 0.5), (0.5, 0))
+
+    def draw(self, **kwargs):
+
+        s = super (Uopamp, self).draw(**kwargs)
+
+        s += self.annotate(self.node('l+').s, '{\large $+$}')
+        s += self.annotate(self.node('l-').s, '{\large $-$}')        
+        return s
+    
 
 class FDOpamp(Chip):
 
