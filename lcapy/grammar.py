@@ -91,6 +91,7 @@ Ubuffer: Uname buffer; Buffer
 Uinverter: Uname inverter; Inverter
 Udiffamp: Uname diffamp; Differential amplifier
 Uopamp: Uname opamp; Opamp
+Ufdopamp: Uname fdopamp; Fully differential opamp
 Uregulator: Uname regulator; Voltage regulator
 Uadc: Uname adc; ADC
 Udac: Uname dac; DAC
