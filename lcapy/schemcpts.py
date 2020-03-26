@@ -881,8 +881,15 @@ class Cpt(object):
 
         return r'  \draw%s %s;''\n' % (s, path)
 
-    def annotate(self, pos, label, args_str=''):
+    def annotate(self, pos, label, args_str='', bold=False):
 
+        if bold:
+            if label.startswith('$'):
+                # It would be better with boldsymbol but this requires amssym.
+                label = r'\boldmath{%s}' % label
+            else:
+                label = r'\textbf{%s}' % label
+        
         return r'  \draw[%s] (%s) node[] {%s};''\n'% (
             args_str, pos, label)        
     
@@ -2420,7 +2427,8 @@ class Udac(Chip):
 
 
 class Udiffamp(Chip):
-    """Amplifier."""
+    """Amplifier.  This may be deprecated.  It is not automatically
+    annotated with + and - symbols for inputs."""
 
     default_width = 1.0
 
@@ -2430,7 +2438,7 @@ class Udiffamp(Chip):
             'out' : ('r', 0.5, 0),
             'vdd' : ('t', 0, 0.25)}
 
-    pinlabels = {'in+' : '+', 'in-' : '-', 'vss' : 'VSS', 'vdd' : 'VDD'}
+    pinlabels = {'in+' : '$+$', 'in-' : '$-$', 'vss' : 'VSS', 'vdd' : 'VDD'}
 
     @property
     def path(self):
@@ -2714,11 +2722,11 @@ class Uopamp(Chip):
         s = super (Uopamp, self).draw(**kwargs)
 
         if self.mirror:
-            s += self.annotate(self.node('lin+').s, '{\large $-$}')
-            s += self.annotate(self.node('lin-').s, '{\large $+$}')
+            s += self.annotate(self.node('lin+').s, '$-$', bold=True)
+            s += self.annotate(self.node('lin-').s, '$+$', bold=True)
         else:
-            s += self.annotate(self.node('lin+').s, '{\large $+$}')
-            s += self.annotate(self.node('lin-').s, '{\large $-$}')
+            s += self.annotate(self.node('lin+').s, '$+$', bold=True)
+            s += self.annotate(self.node('lin-').s, '$-$', bold=True)
         return s    
 
     
@@ -2769,15 +2777,15 @@ class Ufdopamp(Chip):
 
         if self.mirror:
             
-            s += self.annotate(self.node('lin+').s, '{\large $-$}')
-            s += self.annotate(self.node('lin-').s, '{\large $+$}')
-            s += self.annotate(self.node('lout+').s, '{\large $-$}')
-            s += self.annotate(self.node('lout-').s, '{\large $+$}')            
+            s += self.annotate(self.node('lin+').s, '$-$', bold=True)
+            s += self.annotate(self.node('lin-').s, '$+$', bold=True)
+            s += self.annotate(self.node('lout+').s, '$-$', bold=True)
+            s += self.annotate(self.node('lout-').s, '$+$', bold=True)
         else:
-            s += self.annotate(self.node('lin+').s, '{\large $+$}')
-            s += self.annotate(self.node('lin-').s, '{\large $-$}')
-            s += self.annotate(self.node('lout+').s, '{\large $+$}')
-            s += self.annotate(self.node('lout-').s, '{\large $-$}')
+            s += self.annotate(self.node('lin+').s, '$+$', bold=True)
+            s += self.annotate(self.node('lin-').s, '$-$', bold=True)
+            s += self.annotate(self.node('lout+').s, '$+$', bold=True)
+            s += self.annotate(self.node('lout-').s, '$-$', bold=True)
         return s
 
     

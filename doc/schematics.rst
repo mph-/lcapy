@@ -358,8 +358,9 @@ The supported chips are:
  - `dff`
  - `jkff`
  - `rslatch`
- - `opamp`
  - `fdopamp`
+ - `inamp`
+ - `opamp`  
  - `mux21`
  - `mux42`   
 
@@ -391,6 +392,24 @@ The supported chips are:
 .. image:: examples/schematics/Udac.png
    :width: 5cm
 
+.. image:: examples/schematics/Uopamp.png
+   :width: 5cm
+
+.. image:: examples/schematics/Uinamp.png
+   :width: 5cm        
+
+.. image:: examples/schematics/Ufdopamp.png
+   :width: 5cm
+
+.. image:: examples/schematics/Umux21.png
+   :width: 5cm
+
+.. image:: examples/schematics/Umux41.png
+   :width: 5cm
+
+.. image:: examples/schematics/Umux42.png
+   :width: 5cm
+
 .. image:: examples/schematics/Udff.png
    :width: 5cm
 
@@ -405,21 +424,7 @@ The supported chips are:
 
 .. image:: examples/schematics/Ubuffer.png
     :width: 5cm
-
-.. image:: examples/schematics/Uopamp.png
-   :width: 5cm
-
-.. image:: examples/schematics/Ufdopamp.png
-   :width: 5cm
-
-.. image:: examples/schematics/Umux21.png
-   :width: 5cm
-
-.. image:: examples/schematics/Umux41.png
-   :width: 5cm
-
-.. image:: examples/schematics/Umux42.png
-   :width: 5cm                                                                                   
+        
            
 Chips are subclassed from the shape class and thus the pins can be
 labelled, renamed, etc.  For example:
