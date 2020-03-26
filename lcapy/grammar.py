@@ -91,6 +91,7 @@ Ubuffer: Uname buffer; Buffer
 Uinverter: Uname inverter; Inverter
 Udiffamp: Uname diffamp; Differential amplifier
 Uopamp: Uname opamp; Opamp
+Uinamp: Uname inamp; Instrumentation amplifier
 Ufdopamp: Uname fdopamp; Fully differential opamp
 Uregulator: Uname regulator; Voltage regulator
 Uadc: Uname adc; ADC
@@ -154,6 +155,7 @@ spdt: keyword;
 tap: keyword;
 tapcore: keyword;
 opamp: keyword;
+inamp: keyword;
 fdopamp: keyword;
 regulator: keyword;
 buffer: keyword;

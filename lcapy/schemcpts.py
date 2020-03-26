@@ -2420,7 +2420,7 @@ class Udac(Chip):
 
 
 class Udiffamp(Chip):
-    """Amplifier"""
+    """Amplifier."""
 
     default_width = 1.0
 
@@ -2430,7 +2430,7 @@ class Udiffamp(Chip):
             'out' : ('r', 0.5, 0),
             'vdd' : ('t', 0, 0.25)}
 
-    pinlabels = {'in+' : '+', 'in+' : '-', 'vss' : 'VSS', 'vdd' : 'VDD'}
+    pinlabels = {'in+' : '+', 'in-' : '-', 'vss' : 'VSS', 'vdd' : 'VDD'}
 
     @property
     def path(self):
@@ -2608,123 +2608,14 @@ class Opamp(Chip):
         return s
 
 
-class Ufdopamp(Chip):
-    """This is for a fully differential opamp created with the U netlist
-    type.  It has no wires.  See also FDOpamp for a fully differential
-    opamp created with the E netlist type.
-
-    """
-    can_mirror = True
-
-    auxiliary = {'lin+' : ('c', -0.375, 0.2),
-                 'lin-' : ('c', -0.375, -0.2),
-                 'lout+' : ('c', 0, -0.17),
-                 'lout-' : ('c', 0, 0.17)}
-                 
-    auxiliary.update(Chip.auxiliary)
-    
-    ppins = {'out-' : ('r', 0.1, -0.2),
-             'out+' : ('r', 0.1, 0.2),             
-             'in+' : ('l', -0.5, 0.2),
-             'in-' : ('l', -0.5, -0.2),
-             'vdd' : ('t', -0.1, 0.3),
-             'vss' : ('b', -0.1, -0.3),
-             'vocm' : ('l', -0.5, 0)}
-
-    npins = {'out+' : ('r', 0.1, -0.2),
-             'out-' : ('r', 0.1, 0.2),             
-             'in-' : ('l', -0.5, 0.2),
-             'in+' : ('l', -0.5, -0.2),
-             'vdd' : ('t', -0.1, 0.3),
-             'vss' : ('b', -0.1, -0.3),
-             'vocm' : ('l', -0.5, 0)}    
-
-    pinlabels = {'vdd' : 'VDD', 'vss' : 'VSS'}
-
-    @property
-    def pins(self):
-        return self.npins if self.mirror else self.ppins
-
-    @property
-    def path(self):
-        return ((-0.5, -0.5), (-0.5, 0.5), (0.5, 0))
-
-    def draw(self, **kwargs):
-
-        s = super (Ufdopamp, self).draw(**kwargs)
-
-        if self.mirror:
-            s += self.annotate(self.node('lin+').s, '{\large $+$}')
-            s += self.annotate(self.node('lin-').s, '{\large $-$}')
-            s += self.annotate(self.node('lout+').s, '{\large $+$}')
-            s += self.annotate(self.node('lout-').s, '{\large $-$}')
-        else:
-            s += self.annotate(self.node('lin+').s, '{\large $-$}')
-            s += self.annotate(self.node('lin-').s, '{\large $+$}')
-            s += self.annotate(self.node('lout+').s, '{\large $-$}')
-            s += self.annotate(self.node('lout-').s, '{\large $+$}')            
-        return s
-
-
-class Uopamp(Chip):
-    """This is for an opamp created with the U netlist type.  It has no wires.
-    See also Opamp for an opamp created with the E netlist type."""
-    can_mirror = True
-
-    auxiliary = {'lin+' : ('c', -0.375, 0.25),                        
-                 'lin-' : ('c', -0.375, -0.25)}
-    auxiliary.update(Chip.auxiliary)
-    
-    ppins = {'out' : ('r', 0.5, 0.0),
-             'in+' : ('l', -0.5, 0.25),
-             'in-' : ('l', -0.5, -0.25),
-             'vdd' : ('t', 0, 0.25),
-             'vdd2' : ('t', -0.225, 0.365),
-             'vss2' : ('b', -0.225, -0.365),
-             'vss' : ('b', 0, -0.25),
-             'ref' : ('b', 0.225, -0.135),
-             'r+' : ('l', -0.5, 0.125),
-             'r-' : ('l', -0.5, -0.125)}
-
-    npins = {'out' : ('r', 0.5, 0.0),
-             'in-' : ('l', -0.5, 0.25),
-             'in+' : ('l', -0.5, -0.25),
-             'vdd' : ('t', 0, 0.25),
-             'vdd2' : ('t', -0.225, 0.365),
-             'vss2' : ('b', -0.225, -0.365),
-             'vss' : ('b', 0, -0.25),
-             'ref' : ('b', 0.225, -0.135),
-             'r-' : ('l', -0.5, 0.125),
-             'r+' : ('l', -0.5, -0.125)}    
-
-    pinlabels = {'vdd' : 'VDD', 'vss' : 'VSS'}
-
-    @property
-    def pins(self):
-        return self.npins if self.mirror else self.ppins
-
-    @property
-    def path(self):
-        return ((-0.5, -0.5), (-0.5, 0.5), (0.5, 0))
-
-    def draw(self, **kwargs):
-
-        s = super (Uopamp, self).draw(**kwargs)
-
-        if self.mirror:
-            s += self.annotate(self.node('lin+').s, '{\large $+$}')
-            s += self.annotate(self.node('lin-').s, '{\large $-$}')
-        else:
-            s += self.annotate(self.node('lin+').s, '{\large $-$}')
-            s += self.annotate(self.node('lin-').s, '{\large $+$}')            
-        return s    
-    
-
 class FDOpamp(Chip):
+    """This is for a fully differential opamp created with the E netlist
+    type.  See also Ufdopamp for a fully differential opamp created
+    with the U netlist type."""    
 
     can_scale = True
     can_mirror = True
-    default_width = 1.0        
+    default_width = 1.0    
 
     node_pinnames = ('out+', 'out-', 'in+', 'in-')
 
@@ -2776,6 +2667,152 @@ class FDOpamp(Chip):
         return s
 
 
+class Uopamp(Chip):
+    """This is for an opamp created with the U netlist type.  It has no wires.
+    See also Opamp for an opamp created with the E netlist type."""
+
+    can_mirror = True
+
+    auxiliary = {'lin+' : ('c', -0.375, 0.25),                        
+                 'lin-' : ('c', -0.375, -0.25)}
+    auxiliary.update(Chip.auxiliary)
+    
+    ppins = {'out' : ('r', 0.5, 0.0),
+             'in+' : ('l', -0.5, 0.25),
+             'in-' : ('l', -0.5, -0.25),
+             'vdd' : ('t', 0, 0.25),
+             'vdd2' : ('t', -0.225, 0.365),
+             'vss2' : ('b', -0.225, -0.365),
+             'vss' : ('b', 0, -0.25),
+             'ref' : ('b', 0.225, -0.135),
+             'r+' : ('l', -0.5, 0.125),
+             'r-' : ('l', -0.5, -0.125)}
+
+    npins = {'out' : ('r', 0.5, 0.0),
+             'in-' : ('l', -0.5, 0.25),
+             'in+' : ('l', -0.5, -0.25),
+             'vdd' : ('t', 0, 0.25),
+             'vdd2' : ('t', -0.225, 0.365),
+             'vss2' : ('b', -0.225, -0.365),
+             'vss' : ('b', 0, -0.25),
+             'ref' : ('b', 0.225, -0.135),
+             'r-' : ('l', -0.5, 0.125),
+             'r+' : ('l', -0.5, -0.125)}    
+
+    pinlabels = {'vdd' : 'VDD', 'vss' : 'VSS'}
+
+    @property
+    def pins(self):
+        return self.npins if self.mirror else self.ppins
+
+    @property
+    def path(self):
+        return ((-0.5, -0.5), (-0.5, 0.5), (0.5, 0))
+
+    def draw(self, **kwargs):
+
+        s = super (Uopamp, self).draw(**kwargs)
+
+        if self.mirror:
+            s += self.annotate(self.node('lin+').s, '{\large $-$}')
+            s += self.annotate(self.node('lin-').s, '{\large $+$}')
+        else:
+            s += self.annotate(self.node('lin+').s, '{\large $+$}')
+            s += self.annotate(self.node('lin-').s, '{\large $-$}')
+        return s    
+
+    
+class Ufdopamp(Chip):
+    """This is for a fully differential opamp created with the U netlist
+    type.  It has no wires.  See also FDOpamp for a fully differential
+    opamp created with the E netlist type.
+
+    """
+    can_mirror = True
+
+    auxiliary = {'lin+' : ('c', -0.375, 0.2),
+                 'lin-' : ('c', -0.375, -0.2),
+                 'lout+' : ('c', 0, -0.17),
+                 'lout-' : ('c', 0, 0.17)}
+                 
+    auxiliary.update(Chip.auxiliary)
+    
+    ppins = {'out-' : ('r', 0.1, -0.2),
+             'out+' : ('r', 0.1, 0.2),             
+             'in+' : ('l', -0.5, 0.2),
+             'in-' : ('l', -0.5, -0.2),
+             'vdd' : ('t', -0.1, 0.3),
+             'vss' : ('b', -0.1, -0.3),
+             'vocm' : ('l', -0.5, 0)}
+
+    npins = {'out+' : ('r', 0.1, -0.2),
+             'out-' : ('r', 0.1, 0.2),             
+             'in-' : ('l', -0.5, 0.2),
+             'in+' : ('l', -0.5, -0.2),
+             'vdd' : ('t', -0.1, 0.3),
+             'vss' : ('b', -0.1, -0.3),
+             'vocm' : ('l', -0.5, 0)}    
+
+    pinlabels = {'vdd' : 'VDD', 'vss' : 'VSS'}
+
+    @property
+    def pins(self):
+        return self.npins if self.mirror else self.ppins
+
+    @property
+    def path(self):
+        return ((-0.5, -0.5), (-0.5, 0.5), (0.5, 0))
+
+    def draw(self, **kwargs):
+
+        s = super (Ufdopamp, self).draw(**kwargs)
+
+        if self.mirror:
+            
+            s += self.annotate(self.node('lin+').s, '{\large $-$}')
+            s += self.annotate(self.node('lin-').s, '{\large $+$}')
+            s += self.annotate(self.node('lout+').s, '{\large $-$}')
+            s += self.annotate(self.node('lout-').s, '{\large $+$}')            
+        else:
+            s += self.annotate(self.node('lin+').s, '{\large $+$}')
+            s += self.annotate(self.node('lin-').s, '{\large $-$}')
+            s += self.annotate(self.node('lout+').s, '{\large $+$}')
+            s += self.annotate(self.node('lout-').s, '{\large $-$}')
+        return s
+
+    
+class Uinamp(Uopamp):
+    """Instrumentation amplifier created with U netlist type."""
+
+    can_mirror = True
+
+    auxiliary = {'lin+' : ('c', -0.375, 0.3),                        
+                 'lin-' : ('c', -0.375, -0.3)}
+    auxiliary.update(Chip.auxiliary)
+    
+    ppins = {'out' : ('r', 0.5, 0.0),
+             'in+' : ('l', -0.5, 0.3),
+             'in-' : ('l', -0.5, -0.3),
+             'vdd' : ('t', 0, 0.25),
+             'vdd2' : ('t', -0.225, 0.365),
+             'vss2' : ('b', -0.225, -0.365),
+             'vss' : ('b', 0, -0.25),
+             'ref' : ('b', 0.225, -0.135),
+             'r+' : ('l', -0.5, 0.2),
+             'r-' : ('l', -0.5, -0.2)}
+
+    npins = {'out' : ('r', 0.5, 0.0),
+             'in-' : ('l', -0.5, 0.3),
+             'in+' : ('l', -0.5, -0.3),
+             'vdd' : ('t', 0, 0.25),
+             'vdd2' : ('t', -0.225, 0.365),
+             'vss2' : ('b', -0.225, -0.365),
+             'vss' : ('b', 0, -0.25),
+             'ref' : ('b', 0.225, -0.135),
+             'r-' : ('l', -0.5, 0.2),
+             'r+' : ('l', -0.5, -0.2)}    
+
+    
 class Wire(Bipole):
 
     def __init__(self, sch, namespace, defname, name, cpt_type, cpt_id, string,
