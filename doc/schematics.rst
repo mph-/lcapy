@@ -357,7 +357,9 @@ The supported chips are:
  - `dac`
  - `dff`
  - `jkff`
- - `rslatch` 
+ - `rslatch`
+ - `opamp`
+ - `fdopamp`    
 
 
 .. image:: examples/schematics/Uchip1313.png
@@ -397,10 +399,16 @@ The supported chips are:
    :width: 5cm                                                   
 
 .. image:: examples/schematics/Uinverter.png
-   :width: 3.5cm
+   :width: 5cm
 
 .. image:: examples/schematics/Ubuffer.png
-   :width: 3.5cm                                                   
+    :width: 5cm
+
+.. image:: examples/schematics/Uopamp.png
+   :width: 5cm
+
+.. image:: examples/schematics/Ufdopamp.png
+   :width: 5cm                                                           
            
 
            
@@ -464,13 +472,33 @@ fdopamp argument to a VCCS.  For example:
    :width: 5cm
 
 
-Opamps and fully differential opamps have additional pins that can be connected to:
+Opamps and fully differential opamps have additional pins that can be connected:
            
 .. image:: examples/schematics/opamps.png
     :width: 10cm
 
 .. image:: examples/schematics/fdopamps.png
    :width: 10cm                   
+
+Opamps and fully differential opamps can also be drawn without the
+wires using the integrated circuit syntax.  However, these cannot be
+analysed electrically.  For example:
+
+
+.. literalinclude:: examples/schematics/Uopamp1.sch
+
+.. image:: examples/schematics/Uopamp1.png
+   :width: 7.5cm
+
+Here are the named connections:
+           
+.. image:: examples/schematics/Uopamps.png
+    :width: 10cm
+
+.. image:: examples/schematics/Ufdopamps.png
+   :width: 10cm                   
+
+
 
            
            
