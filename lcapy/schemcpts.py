@@ -2674,8 +2674,8 @@ class Efdopamp(Chip):
         s += self.draw_label(centre.s, **kwargs)
         return s
 
-class Evca(Chip):
-    """Voltage controlled amplifier."""
+class Eamp(Chip):
+    """Amplifier."""
 
     can_scale = True
     default_width = 1.0

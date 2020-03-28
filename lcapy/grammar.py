@@ -34,7 +34,7 @@ E: Ename Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
 VCVS: VCVSname Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
 Eopamp: Ename Np Nm opamp Ncp Ncm [Value]; Opamp
 Efdopamp: Ename Np Nm fdopamp Ncp Ncm [Value]; Fully differential opamp
-Evca: Ename Np Nm vca Ncp Ncm [Value]; Voltage controlled amplifier
+Eamp: Ename Np Nm amp Ncp Ncm [Value]; Amplifier
 F: Fname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
 CCCS: CCCSname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
 FB: FBname Np Nm; Ferrite bead
@@ -158,7 +158,7 @@ tapcore: keyword;
 opamp: keyword;
 inamp: keyword;
 fdopamp: keyword;
-vca: keyword;
+amp: keyword;
 regulator: keyword;
 buffer: keyword;
 pbuffer: keyword;

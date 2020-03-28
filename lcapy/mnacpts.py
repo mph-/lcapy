@@ -1289,7 +1289,7 @@ defcpt('Dzener', 'D', 'Zener diode')
 defcpt('E', VCVS, 'VCVS')
 defcpt('Eopamp', VCVS, 'Opamp')
 defcpt('Efdopamp', VCVS, 'Fully differential opamp')
-defcpt('Evca', VCVS, 'Voltage controlled amplifier')
+defcpt('Eamp', VCVS, 'Amplifier')
 
 defcpt('F', CCCS, 'CCCS')
 defcpt('FS', Misc, 'Fuse')
