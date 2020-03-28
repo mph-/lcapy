@@ -68,7 +68,7 @@ def test_Vquotes():
     
     assert_equals(type(parse('V1 1 2 "a * 5"')), schemcpts.classes['V'], 'Class not V')
 
-def test_opamp():
-    '''Test opamp'''
-    
-    assert_equals(type(parse('E 1 2 opamp 3 4')), schemcpts.classes['Eopamp'], 'Class not Eopamp')
+# def test_opamp():
+#     '''Test opamp'''
+#    
+#     assert_equals(type(parse('E 1 2 opamp 3 4')), schemcpts.classes['Eopamp'], 'Class not Eopamp')

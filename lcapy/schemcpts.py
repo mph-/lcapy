@@ -2551,7 +2551,7 @@ class Urslatch(Flipflop):
                  'q' : 'Q', '/q' : '$\overline{\mathrm{Q}}$'}    
     
     
-class Opamp(Chip):
+class Eopamp(Chip):
     """This is for an opamp created with the E netlist type as used for
     simulation."""
 
@@ -2616,7 +2616,7 @@ class Opamp(Chip):
         return s
 
 
-class FDOpamp(Chip):
+class Efdopamp(Chip):
     """This is for a fully differential opamp created with the E netlist
     type.  See also Ufdopamp for a fully differential opamp created
     with the U netlist type."""    
@@ -2671,6 +2671,49 @@ class FDOpamp(Chip):
         s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, self.node('out-').s)
         s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('in+').s)
         s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)
+        s += self.draw_label(centre.s, **kwargs)
+        return s
+
+class Evca(Chip):
+    """Voltage controlled amplifier."""
+
+    can_scale = True
+    default_width = 1.0
+
+    # The Nm and Ncm nodes are not used (ground).
+    node_pinnames = ('out', '', 'in', '')
+    
+    pins = {'out' : ('rx', 1.25, 0.0),
+            'in' : ('lx', -1.25, 0.0),
+            'vdd' : ('t', 0, 0.5),
+            'vdd2' : ('t', -0.45, 0.755),
+            'vss2' : ('b', -0.45, -0.755),
+            'vss' : ('b', 0, -0.5),
+            'ref' : ('b', 0.45, -0.245),
+            'r+' : ('l', -0.85, 0.25),
+            'r-' : ('l', -0.85, -0.25)}
+
+    pinlabels = {'vdd' : 'VDD', 'vss' : 'VSS'}
+
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        centre = self.node('mid')
+        yscale = 2 * 0.952 * self.scale        
+
+        # The circuitikz buffer has short wires on input and output.
+        
+        # Note, scale scales by area, xscale and yscale scale by length.
+        s = r'  \draw (%s) node[buffer, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
+            centre.s,
+            self.args_str, 2 * self.scale * 0.95, yscale,
+            -self.angle, self.s)
+        if not self.nowires:
+            s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, self.node('out').s)
+            s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in').s)
         s += self.draw_label(centre.s, **kwargs)
         return s
 
@@ -3101,8 +3144,6 @@ defcpt('Dtunnel', 'D', 'Tunnel diode', 'tD')
 defcpt('Dzener', 'D', 'Zener diode', 'zD')
 
 defcpt('E', VCS, 'VCVS', 'american controlled voltage source')
-defcpt('Eopamp', Opamp, 'Opamp')
-defcpt('Efdopamp', FDOpamp, 'Fully differential opamp')
 defcpt('F', VCS, 'CCCS', 'american controlled current source')
 defcpt('G', CCS, 'VCCS', 'american controlled current source')
 defcpt('H', CCS, 'CCVS', 'american controlled voltage source')
