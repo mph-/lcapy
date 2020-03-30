@@ -884,9 +884,9 @@ class Cpt(object):
     def annotate(self, pos, label, args_str='', bold=False):
 
         if bold:
-            if label.startswith('$'):
+            if label.startswith('$') and label.endswith('$'):
                 # It would be better with boldsymbol but this requires amssym.
-                label = r'\boldmath{%s}' % label
+                label = r'$\boldmath{%s}$' % label[1:-1]
             else:
                 label = r'\textbf{%s}' % label
         
