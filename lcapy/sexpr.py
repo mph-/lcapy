@@ -247,8 +247,10 @@ class sExpr(Expr):
         """
 
         def def1(defs, symbolname, value):
+            from .cexpr import cExpr
+            
             sym1 = symbol(symbolname)
-            defs[symbolname] = value
+            defs[symbolname] = cExpr(value)
             return sym1
 
         ndegree = self.N.degree        
