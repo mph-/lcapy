@@ -81,7 +81,7 @@ def canonical_name(name):
 
 class LcapyStrPrinter(StrPrinter):
 
-    def _print(self, expr):
+    def _print(self, expr, exp=None):
 
         from .expr import Expr
         if isinstance(expr, Expr):
@@ -104,7 +104,7 @@ class LcapyStrPrinter(StrPrinter):
 
 class LcapyLatexPrinter(LatexPrinter):
 
-    def _print(self, expr):
+    def _print(self, expr, exp=None):
 
         from .expr import Expr
         if isinstance(expr, Expr):        
@@ -161,7 +161,7 @@ class LcapyLatexPrinter(LatexPrinter):
     
 class LcapyPrettyPrinter(PrettyPrinter):
 
-    def _print(self, expr):
+    def _print(self, expr, exp=None):
 
         from .expr import Expr
         if isinstance(expr, Expr):        
@@ -187,18 +187,31 @@ class LcapyPrettyPrinter(PrettyPrinter):
         s = super(LcapyPrettyPrinter, self)._print_Symbol(expr)
         return s
 
-    def _print_UnitImpulse(self, e):
+    def _print_Heaviside(self, expr):
+
+        from sympy.printing.pretty.stringpict import prettyForm
+        
+        if self._use_unicode:
+            pform = self._print(expr.args[0])
+            pform = prettyForm(*pform.parens(left='(', right=')'))
+            pform = prettyForm(*pform.left(pretty_expr_map[sym.Heaviside]))
+            return pform
+        else:
+            return self._print_Function(expr)
+        return tex
+
+    def _print_UnitImpulse(self, expr):
 
         from sympy.printing.pretty.stringpict import prettyForm
         from sympy.printing.pretty.pretty_symbology import greek_unicode
         
         if self._use_unicode:
-            pform = self._print(e.args[0])
+            pform = self._print(expr.args[0])
             pform = prettyForm(*pform.parens(left='[', right=']'))
             pform = prettyForm(*pform.left(greek_unicode['delta']))
             return pform
         else:
-            return self._print_Function(e)
+            return self._print_Function(expr)
     
     
 def print_str(expr):

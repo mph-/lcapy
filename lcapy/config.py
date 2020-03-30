@@ -22,7 +22,7 @@ junicode = '\u2149'
 from sympy.printing.pretty.pretty_symbology import atoms_table
 atoms_table['ImaginaryUnit'] = junicode
 
-pretty_expr_map = {sym.I: junicode}
+pretty_expr_map = {sym.I: junicode, sym.Heaviside: 'u'}
 
 # Words to format in Roman font for LaTeX expressions. 
 
