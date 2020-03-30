@@ -224,6 +224,12 @@ class sExpr(Expr):
     def parameterize(self, zeta=True):
         """Parameterize first and second-order expressions.
 
+        For example, pexpr, defs = expr.parameterize()
+
+        If parameterization is successful, defs is a dictionary
+        of the paramters.  The original expression can be obtained
+        with pexpr.subs(defs)
+
         For first order systems, parameterize as:
 
         K * (s + beta) / (s + alpha)
@@ -289,6 +295,15 @@ class sExpr(Expr):
             omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]))
             zeta = def1(defs, 'zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
             return K * (self.N / coeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2), defs
+
+        if ddegree == 3:
+
+            P, defs = (self * s).parameterize(zeta) 
+            if defs != {}:
+                return P / s, defs
+            P, defs = (self / s).parameterize(zeta)
+            if defs != {}:            
+                return P * s, defs
         
         return self, defs
 
