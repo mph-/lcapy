@@ -360,8 +360,10 @@ The supported chips are:
  - `rslatch`
  - `fdopamp`
  - `inamp`
+ - `isoamp`  
  - `opamp`  
  - `mux21`
+ - `mux41`  
  - `mux42`   
 
 
@@ -399,6 +401,9 @@ The supported chips are:
    :width: 5cm        
 
 .. image:: examples/schematics/Ufdopamp.png
+   :width: 5cm        
+
+.. image:: examples/schematics/Uisoamp.png
    :width: 5cm
 
 .. image:: examples/schematics/Umux21.png

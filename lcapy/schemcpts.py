@@ -1138,9 +1138,7 @@ class Shape(FixedCpt):
 
     def pinpos_rotate(self, pinpos, angle):
         """Rotate pinpos by multiple of 90 degrees.  pinpos is either 'l',
-        't', 'r', 'b'.
-
-        """
+        't', 'r', 'b'."""
 
         pin_positions = ['l', 't', 'r', 'b']
         if pinpos not in pin_positions:
@@ -2117,9 +2115,17 @@ class Chip(Shape):
         if not self.check():
             return ''
 
-        centre = self.node('mid')                
-        q = self.tf(centre.pos, self.path)
-        s = self.draw_path(q, closed=True, style='thick')
+        centre = self.node('mid')
+
+        s = ''
+        if isinstance(self.path, list):
+            # For multiple paths, e.g., isoamp
+            for path in self.path:
+                q = self.tf(centre.pos, path)
+                s += self.draw_path(q, closed=True, style='thick')
+        else:
+            q = self.tf(centre.pos, self.path)
+            s = self.draw_path(q, closed=True, style='thick')
 
         label = self.label(**kwargs)
         if label != '':
@@ -2788,16 +2794,16 @@ class Ufdopamp(Chip):
                  
     auxiliary.update(Chip.auxiliary)
     
-    ppins = {'out-' : ('r', 0.1, -0.2),
-             'out+' : ('r', 0.1, 0.2),             
+    ppins = {'out-' : ('r', 0.1, 0.2),
+             'out+' : ('r', 0.1, -0.2),             
              'in+' : ('l', -0.5, 0.2),
              'in-' : ('l', -0.5, -0.2),
              'vdd' : ('t', -0.1, 0.3),
              'vss' : ('b', -0.1, -0.3),
              'vocm' : ('l', -0.5, 0)}
 
-    npins = {'out+' : ('r', 0.1, -0.2),
-             'out-' : ('r', 0.1, 0.2),             
+    npins = {'out+' : ('r', 0.1, +0.2),
+             'out-' : ('r', 0.1, -0.2),             
              'in-' : ('l', -0.5, 0.2),
              'in+' : ('l', -0.5, -0.2),
              'vdd' : ('t', -0.1, 0.3),
@@ -2863,6 +2869,29 @@ class Uinamp(Uopamp):
              'r-' : ('l', -0.5, 0.2),
              'r+' : ('l', -0.5, -0.2)}    
 
+
+class Uisoamp(Ufdopamp):
+    """Isolated amplifier created with U netlist type."""
+
+    auxiliary = {'lin+' : ('c', -0.375, 0.2),
+                 'lin-' : ('c', -0.375, -0.2),
+                 'lout+' : ('c', 0.1, 0.12),
+                 'lout-' : ('c', 0.1, -0.12)}    
+    auxiliary.update(Chip.auxiliary)
+    
+    pins = {'out-' : ('r', 0.2, -0.15),
+            'out+' : ('r', 0.2, 0.15),             
+            'in+' : ('l', -0.5, 0.2),
+            'in-' : ('l', -0.5, -0.2),
+            'vdd1' : ('t', -0.3, 0.4),
+            'vss1' : ('b', -0.3, -0.4),
+            'vdd2' : ('t', 0.0, 0.25),
+            'vss2' : ('b', 0.0, -0.25)}
+
+    @property
+    def path(self):
+        return [((-0.5, -0.5), (-0.5, 0.5), (-0.2, 0.35), (-0.2, -0.35)),
+                ((-0.1, -0.3), (-0.1, 0.3), (0.5, 0), (-0.1, -0.3))]
     
 class Wire(Bipole):
 

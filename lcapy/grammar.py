@@ -93,6 +93,7 @@ Uinverter: Uname inverter; Inverter
 Udiffamp: Uname diffamp; Differential amplifier
 Uopamp: Uname opamp; Opamp
 Uinamp: Uname inamp; Instrumentation amplifier
+Uisoamp: Uname isoamp; Isolated amplifier
 Ufdopamp: Uname fdopamp; Fully differential opamp
 Uregulator: Uname regulator; Voltage regulator
 Uadc: Uname adc; ADC
@@ -157,6 +158,7 @@ tap: keyword;
 tapcore: keyword;
 opamp: keyword;
 inamp: keyword;
+isoamp: keyword;
 fdopamp: keyword;
 amp: keyword;
 regulator: keyword;
