@@ -58,8 +58,8 @@ class Cpt(object):
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
                  'pinnames', 'pinnodes', 'pindefs', 'outside',
                  'pinmap', 'kind', 'wire', 'ignore', 'style',
-                 'nowires', 'steps', 'free', 'fliplr', 'flipud', 'nodots',
-                 'draw_nodes')
+                 'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
+                 'nodots', 'draw_nodes')
 
     can_rotate = True
     can_scale = False
@@ -239,7 +239,11 @@ class Cpt(object):
 
     @property
     def nodots(self):
-        return self.boolattr('nodots')            
+        return self.boolattr('nodots')
+
+    @property
+    def nolabels(self):
+        return self.boolattr('nolabels')
    
     @property
     def wire(self):
@@ -2434,7 +2438,8 @@ class Udac(Chip):
 
 class Udiffamp(Chip):
     """Amplifier.  This may be deprecated.  It is not automatically
-    annotated with + and - symbols for inputs."""
+    annotated with + and - symbols for inputs.   This can be achieved using
+    opamp with nolabels."""
 
     default_width = 1.0
 
@@ -2770,12 +2775,13 @@ class Uopamp(Chip):
 
         s = super (Uopamp, self).draw(**kwargs)
 
-        if self.mirror:
-            s += self.annotate(self.node('lin+').s, '$-$', bold=True)
-            s += self.annotate(self.node('lin-').s, '$+$', bold=True)
-        else:
-            s += self.annotate(self.node('lin+').s, '$+$', bold=True)
-            s += self.annotate(self.node('lin-').s, '$-$', bold=True)
+        if not self.nolabels:
+            if self.mirror:
+                s += self.annotate(self.node('lin+').s, '$-$', bold=True)
+                s += self.annotate(self.node('lin-').s, '$+$', bold=True)
+            else:
+                s += self.annotate(self.node('lin+').s, '$+$', bold=True)
+                s += self.annotate(self.node('lin-').s, '$-$', bold=True)
         return s    
 
     
@@ -2824,17 +2830,17 @@ class Ufdopamp(Chip):
 
         s = super (Ufdopamp, self).draw(**kwargs)
 
-        if self.mirror:
-            
-            s += self.annotate(self.node('lin+').s, '$-$', bold=True)
-            s += self.annotate(self.node('lin-').s, '$+$', bold=True)
-            s += self.annotate(self.node('lout+').s, '$-$', bold=True)
-            s += self.annotate(self.node('lout-').s, '$+$', bold=True)
-        else:
-            s += self.annotate(self.node('lin+').s, '$+$', bold=True)
-            s += self.annotate(self.node('lin-').s, '$-$', bold=True)
-            s += self.annotate(self.node('lout+').s, '$+$', bold=True)
-            s += self.annotate(self.node('lout-').s, '$-$', bold=True)
+        if not self.nolabels:        
+            if self.mirror:
+                s += self.annotate(self.node('lin+').s, '$-$', bold=True)
+                s += self.annotate(self.node('lin-').s, '$+$', bold=True)
+                s += self.annotate(self.node('lout+').s, '$-$', bold=True)
+                s += self.annotate(self.node('lout-').s, '$+$', bold=True)
+            else:
+                s += self.annotate(self.node('lin+').s, '$+$', bold=True)
+                s += self.annotate(self.node('lin-').s, '$-$', bold=True)
+                s += self.annotate(self.node('lout+').s, '$+$', bold=True)
+                s += self.annotate(self.node('lout-').s, '$-$', bold=True)
         return s
 
     
@@ -2873,16 +2879,18 @@ class Uinamp(Uopamp):
 class Uisoamp(Ufdopamp):
     """Isolated amplifier created with U netlist type."""
 
-    auxiliary = {'lin+' : ('c', -0.375, 0.2),
-                 'lin-' : ('c', -0.375, -0.2),
+    auxiliary = {'lin+' : ('c', -0.4, 0.2),
+                 'lin-' : ('c', -0.4, -0.2),
                  'lout+' : ('c', 0.1, 0.12),
                  'lout-' : ('c', 0.1, -0.12)}    
     auxiliary.update(Chip.auxiliary)
     
     pins = {'out-' : ('r', 0.2, -0.15),
-            'out+' : ('r', 0.2, 0.15),             
+            'out+' : ('r', 0.2, 0.15),
+            'out' : ('r', 0.5, 0),                         
             'in+' : ('l', -0.5, 0.2),
             'in-' : ('l', -0.5, -0.2),
+            'in' : ('l', -0.5, 0.0),            
             'vdd1' : ('t', -0.3, 0.4),
             'vss1' : ('b', -0.3, -0.4),
             'vdd2' : ('t', 0.0, 0.25),
