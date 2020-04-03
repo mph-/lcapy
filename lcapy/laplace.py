@@ -365,9 +365,9 @@ def inverse_laplace_ratfun(expr, s, t, **assumptions):
 
 def dummyvar(intnum=0):
     if intnum == 0:
-        return sympify('tau')
+        return sympify('tau', real=True)
     else:
-        return sympify('tau_%d' % intnum)    
+        return sympify('tau_%d' % intnum, real=True)    
 
 
 def inverse_laplace_product(expr, s, t, **assumptions):
