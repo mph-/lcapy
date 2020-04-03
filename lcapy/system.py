@@ -1,4 +1,4 @@
-from os import system, path, remove, chdir, getcwd, stat
+from os import path, remove, chdir, getcwd, stat
 from subprocess import call
 import re
 import platform
@@ -17,6 +17,56 @@ except ImportError:
 # disallowed pdf file conversions.  A work-around is to edit
 # /etc/ImageMagick-6/policy.xml to enable this conversion.
 
+programs = {}
+
+def which(program):
+
+    import os
+    
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    for path in os.environ["PATH"].split(os.pathsep):
+        exe_file = os.path.join(path, program)
+        if is_exe(exe_file):
+            return exe_file
+
+    return None
+
+
+def hasexe(program):
+
+    try:
+        return programs[program]
+    except:
+        if which(program) is not None:
+            programs[program] = True
+        else:
+            programs[program] = which(program + '.exe') is not None
+
+    return programs[program]        
+
+
+def checkexe(command):
+
+    if isinstance(command, list):
+        program = command[0]
+        command = ' '.join(command)
+    else:
+        program = command.split(' ')[0]
+
+    if False:
+        print('Trying to run: %s' % command)
+    if not hasexe(program):
+        raise RuntimeError('%s is not installed', program)
+
+
+def run(command, stderr=DEVNULL, stdout=DEVNULL):
+
+    checkexe(command)
+    call(command, stderr=stderr, stdout=stdout)
+    
+    
 def tmpfilename(suffix=''):
 
     from tempfile import gettempdir, NamedTemporaryFile
@@ -31,7 +81,7 @@ def tmpfilename(suffix=''):
 
 def convert_pdf_svg(pdf_filename, svg_filename):
 
-    system('pdf2svg %s %s' % (pdf_filename, svg_filename))
+    run(['pdf2svg', pdf_filename, svg_filename])
     if not path.exists(svg_filename):
         raise RuntimeError('Could not generate %s with pdf2svg.  Is it installed?' % 
                            svg_filename)
@@ -43,9 +93,7 @@ def convert_pdf_png_convert(pdf_filename, png_filename, dpi=300):
     if platform.system() == 'Windows':
         program = 'magick convert'
 
-    command = '%s -density %d %s %s' % (program, int(dpi), pdf_filename,
-                                        png_filename)
-    system(command)
+    run([program, '-density %d' % int(dpi), pdf_filename, png_filename])
         
     if not path.exists(png_filename):
         raise RuntimeError('Could not generate %s with convert' % 
@@ -62,16 +110,25 @@ def convert_pdf_png_ghostscript(pdf_filename, png_filename, dpi=300):
         program = 'gswin32'
         if platform.machine().endswith('64'):
             program = 'gswin64'            
-            
-    command = '%s -q -dQUIET -dSAFER -dBATCH -dNOPAUSE -dNOPROMPT -dMaxBitmap=500000000 -dAlignToPixels=0 -dGridFitTT=2 -sDEVICE=pngalpha -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -r%dx%d -sOutputFile=%s %s' % (program, int(dpi), int(dpi), png_filename, pdf_filename)
 
-    system(command)
+    run([program, '-q', '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE',
+         '-dNOPROMPT',  '-dMaxBitmap=500000000',  '-dAlignToPixels=0',
+         '-dGridFitTT=2',  '-sDEVICE=pngalpha',  '-dTextAlphaBits=4',
+         '-dGraphicsAlphaBits=4',  '-r%dx%d' % (int(dpi), int(dpi)),
+         '-sOutputFile=' + png_filename, pdf_filename])
 
     
 def convert_pdf_png_pdftoppm(pdf_filename, png_filename, dpi=300):
 
-    system('pdftoppm -r %d  -png %s -thinlinemode shape > %s' %
-           (int(dpi), pdf_filename, png_filename))
+    root, ext = path.splitext(png_filename)
+    args = ['pdftoppm', '-r %d' % int(dpi), '-png', '-thinlinemode shape', '-singlefile', pdf_filename, root]
+    if False:
+        # TODO, determine why this fails...
+        run(args)
+    else:
+        from os import system
+        checkexe(args)
+        system(' '.join(args))
         
     if not path.exists(png_filename):
         raise RuntimeError('Could not generate %s with pdftoppm' % 
@@ -80,13 +137,17 @@ def convert_pdf_png_pdftoppm(pdf_filename, png_filename, dpi=300):
     
 def convert_pdf_png(pdf_filename, png_filename, dpi=300):
 
-    try:
-        convert_pdf_png_ghostscript(pdf_filename, png_filename, dpi)
-    except:
+    conversions = (('ghostscript', convert_pdf_png_ghostscript),
+                   ('convert', convert_pdf_png_convert),
+                   ('pdftoppm', convert_pdf_png_pdftoppm))
+
+    for conversion, func in conversions:
         try:
-            convert_pdf_png_convert(pdf_filename, png_filename, dpi)
+            return func(pdf_filename, png_filename, dpi)
         except:
-            convert_pdf_png_pdftoppm(pdf_filename, png_filename, dpi)
+            pass
+
+    raise RuntimeError("""Could not convert pdf to png, tried: %s.  Check that one of these programs is installed.""" % ', '.join([conversion for conversion, func in conversions]))
 
 
 def latex_cleanup(tex_filename, wanted_filename=''):
@@ -105,6 +166,8 @@ def latex_cleanup(tex_filename, wanted_filename=''):
 
 def run_latex(tex_filename):
 
+    checkexe('pdflatex')
+    
     root, ext = path.splitext(tex_filename)
     dirname = path.dirname(tex_filename)
     baseroot = path.basename(root)
@@ -112,8 +175,7 @@ def run_latex(tex_filename):
     if dirname != '':
         chdir(path.abspath(dirname))
         
-    call(['pdflatex', '-interaction', 'batchmode', '%s.tex' %
-          baseroot], stderr=DEVNULL, stdout=DEVNULL)
+    run(['pdflatex', '-interaction', 'batchmode', baseroot + '.tex'])
     
     if dirname != '':
         chdir(cwd)            
@@ -124,7 +186,7 @@ def run_latex(tex_filename):
 def run_dot(dotfilename, filename):
 
     base, ext = path.splitext(filename)
-    system('dot -T %s -o %s %s' % (ext[1:], filename, dotfilename))
+    program(['dot', '-T ' + ext[1:], '-o ' + filename, dotfilename])
     remove(dotfilename)            
     return
 
