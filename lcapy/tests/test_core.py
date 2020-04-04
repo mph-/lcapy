@@ -599,3 +599,13 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(F.mixedfrac(), F,  "undef delay sum mixedfrac")
         
+    def force_causal(self):
+
+        X = 1 / (1 + s)
+        x = X(t)
+
+        self.assertEqual(x.force_causal(), exp(-t) * Heaviside(t), "force causal")
+
+        x = X(t, causal=True)
+        self.assertEqual(x.force_causal(), exp(-t) * Heaviside(t), "force causal if already causal")
+        

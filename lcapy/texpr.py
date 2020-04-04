@@ -11,6 +11,7 @@ from .sym import fsym, ssym, tsym, j, oo
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .laplace import laplace_transform
 from .fourier import fourier_transform
+import sympy as sym
 
 __all__ = ('Ht', 'It', 'Vt', 'Yt', 'Zt')
 
@@ -132,8 +133,31 @@ class tExpr(Expr):
         """Determine value at t = oo."""
 
         return self.__class__(sym.limit(self.expr, self.var, oo))
-    
 
+    def strip_condition(self):
+        """Remove the piecewise condition from the expression.
+        See also force_causal."""
+
+        expr = self.expr
+        if not expr.is_Piecewise:
+            return self
+        expr = expr.args[0].args[0]
+        return self.__class__(expr)
+
+    def force_causal(self):
+        """Remove the piecewise condition from the expression
+        and multiply by Heaviside function.  See also strip_condition."""
+
+        if self.is_causal:
+            return self
+        
+        expr = self.expr
+        if expr.is_Piecewise:
+            expr = expr.args[0].args[0]            
+        expr = expr * sym.Heaviside(t)
+        return self.__class__(expr)        
+
+    
 class Yt(tExpr):
 
     """t-domain 'admittance' value."""

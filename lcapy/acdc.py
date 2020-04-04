@@ -16,6 +16,10 @@ class CausalChecker(object):
                                        UnitImpulse)):
                 continue
 
+            # If have Heaviside(t), etc., then is causal
+            if factor.args[0] == self.var:
+                return True
+            
             p = sym.Poly(factor.args[0], self.var)
             coeffs = p.all_coeffs()
             if len(coeffs) != 2:
