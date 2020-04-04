@@ -1065,6 +1065,12 @@ class NetlistMixin(object):
         implicit sources due to initial conditions)."""
 
         return self.dependent_sources + self.independent_sources
+
+    @property
+    def reactances(self):
+        """Return dictionary of reactances."""
+
+        return self.analysis['reactances']
     
     @property
     def independent_sources(self):
@@ -1142,6 +1148,8 @@ class NetlistMixin(object):
         independent_sources = []
         dependent_sources = []        
         control_sources = []
+        reactances = []
+        
         for key, elt in self.elements.items():
             if elt.need_control_current:
                 control_sources.append(elt.args[0])
@@ -1166,6 +1174,7 @@ class NetlistMixin(object):
                 dependent_sources.append(key)
             if elt.reactive:
                 reactive = True
+                reactances.append(key)                
 
         num_sources = len(independent_sources)
                     
@@ -1177,6 +1186,7 @@ class NetlistMixin(object):
         analysis['has_ac'] = ac_count > 0        
         analysis['has_s'] = has_s
         analysis['has_transient'] = has_transient
+        analysis['reactances'] = reactances 
         analysis['dependent_sources'] = dependent_sources        
         analysis['independent_sources'] = independent_sources
         analysis['control_sources'] = control_sources        

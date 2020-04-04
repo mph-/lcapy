@@ -169,10 +169,10 @@ Switching analysis
 ------------------
 
 Whenever a circuit has a switch it is time variant.  The opening or
-closing of switch changes the circuit and can produce transients.
-While a switch violates the LTI requirements for linear circuit
+closing of the switch changes the circuit and can produce transients.
+While a switch violates the time-invariance requirements for linear circuit
 analysis, the circuit prior to the switch changing can be analysed and
-Vnoiused to determine the initial conditions for the circuit after the
+used to determine the initial conditions for the circuit after the
 switched changed.  Lcapy requires that you do this!  The independent
 sources are ignored for :math:`t < 0` and the result is only known for
 :math:`t \ge 0`.
