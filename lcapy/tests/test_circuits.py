@@ -30,15 +30,15 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2')
         a.add('C1 2 0')
 
-        self.assertEqual2(a.Z(1, 2), R('R1').Z, "Z incorrect for R1.")
-        self.assertEqual2(a.Z(2, 0), C('C1').Z, "Z incorrect for C1.")
+        self.assertEqual2(a.impedance(1, 2), R('R1').impedance, "Z incorrect for R1.")
+        self.assertEqual2(a.impedance(2, 0), C('C1').impedance, "Z incorrect for C1.")
         self.assertEqual2(
-            a.Z(1, 0), (R('R1') + C('C1')).Z, "Z incorrect for R1 + C1.")
+            a.impedance(1, 0), (R('R1') + C('C1')).impedance, "Z incorrect for R1 + C1.")
 
-        self.assertEqual2(a.Y(1, 2), R('R1').Y, "Y incorrect for R1.")
-        self.assertEqual2(a.Y(2, 0), C('C1').Y, "Y incorrect for C1.")
+        self.assertEqual2(a.admittance(1, 2), R('R1').Y, "Y incorrect for R1.")
+        self.assertEqual2(a.admittance(2, 0), C('C1').Y, "Y incorrect for C1.")
         self.assertEqual2(
-            a.Y(1, 0), (R('R1') + C('C1')).Y, "Y incorrect for R1 + C1.")
+            a.admittance(1, 0), (R('R1') + C('C1')).Y, "Y incorrect for R1 + C1.")
         self.assertEqual2(a.Isc(1, 0), I(0).Isc, "Isc incorrect")
         self.assertEqual(a.R1.Z, expr('R1'), "Z incorrect")
         self.assertEqual(a.R1.R, expr('R1'), "R incorrect")
@@ -59,17 +59,17 @@ class LcapyTester(unittest.TestCase):
 
         # Note, V1 acts as a short-circuit for the impedance/admittance
         self.assertEqual2(
-            a.Z(1, 2), (R('R1') | C('C1')).Z, "Z incorrect across R1")
+            a.impedance(1, 2), (R('R1') | C('C1')).Z, "Z incorrect across R1")
         self.assertEqual2(
-            a.Z(2, 0), (R('R1') | C('C1')).Z, "Z incorrect across C1")
-        self.assertEqual2(a.Z(1, 0), R(0).Z, "Z incorrect across V1")
+            a.impedance(2, 0), (R('R1') | C('C1')).Z, "Z incorrect across C1")
+        self.assertEqual2(a.impedance(1, 0), R(0).Z, "Z incorrect across V1")
 
         self.assertEqual2(
-            a.Y(1, 2), (R('R1') | C('C1')).Y, "Y incorrect across R1")
+            a.admittance(1, 2), (R('R1') | C('C1')).Y, "Y incorrect across R1")
         self.assertEqual2(
-            a.Y(2, 0), (R('R1') | C('C1')).Y, "Y incorrect across C1")
+            a.admittance(2, 0), (R('R1') | C('C1')).Y, "Y incorrect across C1")
         # This has a non-invertible A matrix.
-        # self.assertEqual2(a.Y(1, 0), R(0).Y, "Y incorrect across V1")
+        # self.assertEqual2(a.admittance(1, 0), R(0).Y, "Y incorrect across V1")
 
         self.assertEqual2(a.Voc(1, 0).s, V('V1 / s').Voc.s, "Voc incorrect across V1")
         self.assertEqual(a.is_ivp, False, "Initial value problem incorrect")
@@ -93,23 +93,23 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(
             a.thevenin(1, 2).Voc, a.Voc(1, 2), "incorrect thevenin voltage")
         self.assertEqual2(
-            a.thevenin(1, 2).Z, a.Z(1, 2), "incorrect thevenin impedance")
+            a.thevenin(1, 2).Z, a.impedance(1, 2), "incorrect thevenin impedance")
         self.assertEqual2(
             a.norton(1, 2).Isc, a.Isc(1, 2), "incorrect norton current")
         self.assertEqual2(
-            a.norton(1, 2).Y, a.Y(1, 2), "incorrect norton admittance")
+            a.norton(1, 2).Y, a.admittance(1, 2), "incorrect norton admittance")
         self.assertEqual2(
-            a.Z(1, 2), (R('R1') | L('L1')).Z, "Z incorrect across R1")
+            a.impedance(1, 2), (R('R1') | L('L1')).Z, "Z incorrect across R1")
         self.assertEqual2(
-            a.Z(2, 0), (R('R1') | L('L1')).Z, "Z incorrect across L1")
-        self.assertEqual2(a.Z(1, 0), R(0).Z, "Z incorrect across V1")
+            a.impedance(2, 0), (R('R1') | L('L1')).Z, "Z incorrect across L1")
+        self.assertEqual2(a.impedance(1, 0), R(0).Z, "Z incorrect across V1")
 
         self.assertEqual2(
-            a.Y(1, 2), (R('R1') | L('L1')).Y, "Y incorrect across R1")
+            a.admittance(1, 2), (R('R1') | L('L1')).Y, "Y incorrect across R1")
         self.assertEqual2(
-            a.Y(2, 0), (R('R1') | L('L1')).Y, "Y incorrect across L1")
+            a.admittance(2, 0), (R('R1') | L('L1')).Y, "Y incorrect across L1")
         # This has a non-invertible A matrix.
-        # self.assertEqual2(a.Y(1, 0), R(0).Y, "Y incorrect across V1")
+        # self.assertEqual2(a.admittance(1, 0), R(0).Y, "Y incorrect across V1")
 
         self.assertEqual2(a.Voc(1, 0), V('V1' / s).Voc,
                           "Voc incorrect across V1")

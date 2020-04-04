@@ -112,15 +112,3 @@ class Circuit(Netlist):
             
         if netlist is not None:
             self.add(netlist)
-
-    def Y(self, Np, Nm):
-        """Return admittance between nodes Np and Nm with
-        independent sources killed."""
-
-        return self.admittance(Np, Nm)
-
-    def Z(self, Np, Nm):
-        """Return impedance between nodes Np and Nm with
-        independent sources killed."""
-
-        return self.impedance(Np, Nm)
