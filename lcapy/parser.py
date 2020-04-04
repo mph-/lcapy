@@ -136,7 +136,7 @@ class Parser(object):
 
         cpts = sorted(self.ruledict.keys(), key=len, reverse=True)
 
-        self.cpt_pattern = re.compile("(%s)([#_\w']+)?" % '|'.join(cpts))
+        self.cpt_pattern = re.compile("(%s)([#_\w'?]+)?" % '|'.join(cpts))
 
     def _add_param(self, string):
 
@@ -254,10 +254,11 @@ class Parser(object):
 
         defname = namespace + cpt_type + cpt_id
         name = defname
-        if cpt_id == '' and parent is not None:
-            # Need to make anon name to avoid conflicts with attributes.
-            # For example, cct.Z.
+        if cpt_id == '' and parent is not None and cpt_type in ('W', 'O', 'P'):
             name += parent._make_anon(cpt_type)
+        elif cpt_id == '?':
+            # Automatically enumerate cpt names
+            name = name[:-1] + parent._make_anon(cpt_type)
 
         nodes, args = rule.process(self.paramdict, net, fields, name, 
                                    namespace)

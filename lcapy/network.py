@@ -116,7 +116,7 @@ class Network(object):
         if n2 == None:
             n2 = net.node
 
-        netname = self.__class__.__name__ if self.netname == '' else self.netname
+        netname = self.__class__.__name__ if self.netname == '' else self.netname + '?'
 
         if self.netkeyword != '':
             return '%s %s %s %s %s; right' % (netname, n1, n2, 

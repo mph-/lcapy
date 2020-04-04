@@ -754,7 +754,7 @@ class G(OnePort):
             n1 = net.node
         if n2 == None:
             n2 = net.node
-        return 'R %s %s {%s}; right' % (n1, n2, 1 / self._G)
+        return 'R? %s %s {%s}; right' % (n1, n2, 1 / self._G)
 
 
 class L(OnePort):
