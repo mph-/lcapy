@@ -138,9 +138,9 @@ class tExpr(Expr):
         """Remove the piecewise condition from the expression.
         See also force_causal."""
 
-        expr = self.expr
-        if not expr.is_Piecewise:
+        if not self.is_conditional:
             return self
+        expr = self.expr
         expr = expr.args[0].args[0]
         return self.__class__(expr)
 
@@ -152,7 +152,7 @@ class tExpr(Expr):
             return self
         
         expr = self.expr
-        if expr.is_Piecewise:
+        if self.is_conditional:
             expr = expr.args[0].args[0]            
         expr = expr * sym.Heaviside(t)
         return self.__class__(expr)        

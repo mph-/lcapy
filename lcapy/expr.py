@@ -327,6 +327,15 @@ class Expr(ExprPrint, ExprMisc):
         return self.assumptions['complex'] == True
 
     @property
+    def is_conditional(self):
+        """Return True if expression has a condition, such as t >= 0."""
+        
+        expr = self.expr
+        # Could be more specific, such as self.var >= 0, but might
+        # have self.var >= t1.
+        return expr.is_Piecewise
+    
+    @property
     def val(self):
         """Return floating point value of expression if it can be evaluated,
         otherwise the expression."""
