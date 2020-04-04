@@ -134,7 +134,7 @@ class tExpr(Expr):
 
         return self.__class__(sym.limit(self.expr, self.var, oo))
 
-    def strip_condition(self):
+    def remove_condition(self):
         """Remove the piecewise condition from the expression.
         See also force_causal."""
 
@@ -146,7 +146,7 @@ class tExpr(Expr):
 
     def force_causal(self):
         """Remove the piecewise condition from the expression
-        and multiply by Heaviside function.  See also strip_condition."""
+        and multiply by Heaviside function.  See also remove_condition."""
 
         if self.is_causal:
             return self

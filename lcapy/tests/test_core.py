@@ -609,3 +609,15 @@ class LcapyTester(unittest.TestCase):
         x = X(t, causal=True)
         self.assertEqual(x.force_causal(), exp(-t) * Heaviside(t), "force causal if already causal")
         
+
+    def strip_condition(self):
+
+        X = 1 / (1 + s)
+        x = X(t)
+
+        self.assertEqual(x.strip_condition(), exp(-t), "remove condition")
+
+        x = X(t, condition=True)
+        self.assertEqual(x.strip_condition(), exp(-t), "remove condition if causal")
+        
+        

@@ -783,23 +783,36 @@ a strictly proper rational function:
    >>> H.inverse_laplace()
    ⎧      -2⋅t       -3⋅t           
    ⎨- 30⋅e     + 35⋅e      for t ≥ 0
+   ⎩
+
+or alternatively
+   
+>>> H(t)
+   ⎧      -2⋅t       -3⋅t           
+   ⎨- 30⋅e     + 35⋅e      for t ≥ 0
    ⎩                                
 
 Note that the unilateral inverse Laplace transform can only determine
 the result for :math:`t \ge 0`.  If you know that the system is
 causal, then use:
 
-   >>> H.inverse_laplace(causal=True)
-   ⎛      -2⋅t       -3⋅t⎞
-   ⎝- 30⋅e     + 35⋅e    ⎠⋅Heaviside(t)
-
-The Heaviside function is also known as the unit step.
-
-There is a short-hand notation for inverse Laplace transforms:
-
    >>> H(t, causal=True)
    ⎛      -2⋅t       -3⋅t⎞
    ⎝- 30⋅e     + 35⋅e    ⎠⋅Heaviside(t)
+
+The Heaviside function is also known as the unit step.  Alternatively,
+you can force the result to be causal
+
+   >>> H(t).force_causal()
+   ⎛      -2⋅t       -3⋅t⎞
+   ⎝- 30⋅e     + 35⋅e    ⎠⋅Heaviside(t)
+
+or remove the condition that :math:`t \ge 0`,
+
+   >>> H(t).remove_condition()
+         -2⋅t       -3⋅t
+   - 30⋅e     + 35⋅e    
+   
 
 When the rational function is not strictly proper, the inverse Laplace
 transform has Dirac deltas (and derivatives of Dirac deltas):
