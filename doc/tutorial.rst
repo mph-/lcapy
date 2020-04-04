@@ -1577,7 +1577,7 @@ One-port networks can be drawn with a horizontal layout.  Here's an example:
 Here's the result:
 
 .. image:: examples/networks/pickup.png
-   :width: 5cm
+   :width: 6cm
 
 The s-domain model can be drawn using:
 
@@ -1587,7 +1587,7 @@ The s-domain model can be drawn using:
 This produces:
 
 .. image:: examples/networks/pickup-s.png
-   :width: 5cm
+   :width: 7cm
 
 Internally, Lcapy converts the network to a netlist and then draws the
 netlist.  The netlist can be found using the `netlist` method, for example,
