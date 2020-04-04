@@ -864,15 +864,15 @@ Rational functions with delays can also be handled:
 
 Lcapy can convert s-domain products to time domain convolutions, for example,
 
-   >>> from lcapy import Is
-   >>> Is('V(s) * Y(s)').inverse_laplace(causal=True)
+   >>> from lcapy import expr
+   >>> expr('V(s) * Y(s)')(t, causal=True)
    t                 
    ⌠                 
    ⎮ v(t - τ)⋅y(τ) dτ
    ⌡                 
    0                 
 
-Here the class `Is` represents an s-domain current.
+Here the function expr converts a sring argument to an Lcapy expression.
 
 It can also recognise integrations and differentiations of arbitrary
 functions, for example,
@@ -940,9 +940,17 @@ read from a file or created dynamically, for example,
    >>> cct.add('Ra 1 2 3e3') 
    >>> cct.add('Rb 2 0 1e3') 
 
-This creates a circuit comprised of a 10 V DC voltage source connected
-to two resistors in series.  The node named 0 denotes the ground which
-the other voltages are referenced to.
+This creates a circuit comprised of a 10 V step voltage source
+connected to two resistors in series.  The node named 0 denotes the
+ground which the other voltages are referenced to.  Here's a more
+compact way to specify the netlist:
+
+   >>> from lcapy import Circuit
+   >>> cct = Circuit("""
+   ... V1 1 0 step 10
+   ... Ra 1 2 3e
+   ... Rb 2 0 1e3""")
+
 
 The circuit has an attribute for each circuit element (and for each
 node starting with an alphabetical character).  These can be
@@ -997,10 +1005,10 @@ symbolically.  This can be achieved by using symbolic arguments or by
 not specifying a component value.  In the latter case, Lcapy will
 use the component name for its value.  For example,
 
-   >>> cct = Circuit()
-   >>> cct.add('V1 1 0 step Vs') 
-   >>> cct.add('R1 1 2') 
-   >>> cct.add('C1 2 0') 
+   >>> cct = Circuit("""
+   ... V1 1 0 step Vs
+   ... R1 1 2
+   ... C1 2 0""")
    >>> cct[2].V(s)
            V_s        
     ──────────────────
@@ -1069,13 +1077,13 @@ Initial value problems
 ----------------------
 
 The initial voltage difference across a capacitor or the initial
-current through an inductor can be specified as the second argument.
+current through an inductor can be specified as an additional argument.
 For example,
 
-   >>> cct = Circuit()
-   >>> cct.add('V1 1 0 step Vs') 
-   >>> cct.add('C1 2 1 C1 v0') 
-   >>> cct.add('L1 2 0 L1 i0') 
+   >>> cct = Circuit("""
+   ... V1 1 0 step Vs
+   ... C1 2 1 C1 v0 
+   ... L1 2 0 L1 i0""")
    >>> cct[2].V(s)
               ⎛        i₀          ⎞
    (V_s + v₀)⋅⎜- ────────────── + s⎟
@@ -1085,6 +1093,10 @@ For example,
                s  + ─────           
                     C₁⋅L₁  
 
+Note, the component values need to be specified as well as the initial
+value; thus `C1 2 1 C1 v0` and not `C1 2 1 v0` since the latter
+specifies the capacitance to be `v0`.
+                    
 When an initial condition is detected, the circuit is analysed in the
 s-domain as an initial value problem.  The values of sources are
 ignored for :math:`t<0` and the result is only defined for :math:`t\ge 0`.
@@ -1098,10 +1110,10 @@ quantities such as voltage or current with zero initial conditions.
 Here's an example using an arbitrary input voltage `V(s)`
 
    >>> from lcapy import Circuit
-   >>> cct = Circuit()
-   >>> cct.add('V1 1 0 {V(s)}') 
-   >>> cct.add('R1 1 2') 
-   >>> cct.add('C1 2 0 C1 0') 
+   >>> cct = Circuit("""
+   ... V1 1 0 {V(s)}
+   ... R1 1 2
+   ... C1 2 0 C1 0""")
    >>> cct[2].V(s)
        V(s)   
    ───────────
@@ -1137,9 +1149,9 @@ Transfer functions can also be created using the `transfer` method of a
 circuit.  For example,
 
    >>> from lcapy import Circuit
-   >>> cct = Circuit()
-   >>> cct.add('R1 1 2') 
-   >>> cct.add('C1 2 0') 
+   >>> cct = Circuit("""
+   ... R1 1 2 
+   ... C1 2 0""")
    >>> H = cct.transfer(1, 0, 2, 0)
    >>> H
         1     
@@ -1439,10 +1451,7 @@ Other circuit methods
 
    cct.norton(Np, Nm)    Norton model between nodes Np and Nm.
 
-   cct.twoport(self, N1p, N1m, N2p, N2m) Create two-port component where
-        I1 is the current flowing into N1p and out of N1m, I2 is the
-        current flowing into N2p and out of N2m, V1 = V[N1p] - V[N1m], V2
-        = V[N2p] - V[N2m].
+   cct.twoport(self, N1p, N1m, N2p, N2m) Create two-port component where I1 is the current flowing into N1p and out of N1m, I2 is the current flowing into N2p and out of N2m, V1 = V[N1p] - V[N1m], V2 = V[N2p] - V[N2m].
 
    cct.add(component) Add component from net list.
         
@@ -1504,11 +1513,11 @@ different coordinates.  For more details see :ref:`schematics`.
 
 Here's an example:
    >>> from lcapy import Circuit
-   >>> cct = Circuit()
-   >>> cct.add('V1 1 0 {V(s)}; down') 
-   >>> cct.add('R1 1 2; right') 
-   >>> cct.add('C1 2 0_2; down') 
-   >>> cct.add('W1 0 0_2; right') 
+   >>> cct = Circuit("""
+   ... V1 1 0 {V(s)}; down
+   ... R1 1 2; right
+   ... C1 2 0_2; down
+   ... W1 0 0_2; right""")
    >>> cct.draw('schematic.pdf')
 
 Note, the orientation hints are appended to the netlist strings with a
