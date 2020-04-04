@@ -645,6 +645,54 @@ Laplace domain entities there are the following classes:
 - `Zs` Laplace-domain impedance
 
 
+Parameterization
+================
+
+Lcapy can parameterize a number of first order, second order, and third order s-domain expressions.  For example, 
+
+   >>> H1 = 3 / (s + 2)
+   >>> H1p, defs = H1.parameterize()
+   >>> H1p
+     K  
+   ─────
+   α + s
+   >>> defs                                                                    
+   {K: 3, alpha: 2}
+
+Here `defs` is dictionary of the parameter definitions.
+   
+The original expression can be obtained by substituting the parameter definitions into the parameterized expression:
+
+   >>> H1p.subs(defs)                                                           
+     3  
+   ─────
+   s + 2
+
+Here's a second order example:
+
+   >>> H2 = 3 / (s**2 + 2*s + 4)
+   >>> H2p, defs = H2.parameterize()
+   >>> H2p
+              K         
+   ───────────────────
+     2               2
+   ω₀  + 2⋅ω₀⋅s⋅ζ + s 
+ 
+   >>> defs
+   {K: 3, omega_0: 2, zeta: 1/2}
+
+Second order systems can be parameterized in many ways.  Here's another:
+
+   >>> H2p, defs = H2.parameterize(zeta=False)
+   >>> H2p
+               K           
+   ───────────────────────
+     2    2              2
+   ω₁  + s  + 2⋅s⋅σ₁ + σ₁ 
+
+   >>> defs
+   {K: 3, omega_1: √3, sigma_1: 1}
+   
   
 SymPy
 =====
