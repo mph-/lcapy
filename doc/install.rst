@@ -62,7 +62,7 @@ Installation for development
                      
    $ git clone https://github.com/mph-/lcapy
 
-3.  Instal Lcapy using:
+3.  Install Lcapy using:
 
 .. code-block:: console
     

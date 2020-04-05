@@ -126,7 +126,7 @@ All Lcapy expressions have the following attributes:
 
 - `is_causal` returns True if signal is causal, i.e, is 0 for :math:`t < 0`
 
-- `is_conditional` returns True if expression is conditional, e.g, :math:`\exp(-t)\;\; \ge 0`
+- `is_conditional` returns True if expression is conditional, e.g., :math:`\exp(-t)\;\; \ge 0`
 
 - `is_constant` returns True if expression constant
 
