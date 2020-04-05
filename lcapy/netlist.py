@@ -913,6 +913,22 @@ class NetlistMixin(object):
 
         self._ss = StateSpace(self)
         return self._ss
+
+    def initialize(self, cct, time):
+
+        new = self._new()
+
+        for cpt in self._elements.values():
+            ic = 0
+            if cpt.name in cct.reactances:
+                if cpt.type == 'C':
+                    ic = cct[cpt.name].v.remove_condition()(time)
+                else:
+                    ic = cct[cpt.name].i.remove_condition()(time) 
+                    
+            net = cpt.initialize(ic)
+            new._add(net)
+        return new                
     
     def pre_initial_model(self):
         """Generate circuit model for determining the pre-initial

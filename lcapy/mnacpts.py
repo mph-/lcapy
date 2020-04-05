@@ -133,6 +133,11 @@ class Cpt(ImmitanceMixin):
 
         return self.copy()
 
+    def initialize(self, ic):
+        """Change initial condition to ic."""
+
+        return self.copy()    
+
     def netmake(self, node_map=None, zero=False):
         """Create a new net description.  If node_map is not None,
         rename the nodes.  If zero is True, set args to zero."""
@@ -625,6 +630,13 @@ class C(RC):
             self.defname, self.relnodes[0], self.relnodes[1],
             arg_format(self.args[0]), self.opts)
 
+    def initialize(self, ic):
+        """Change initial condition to ic."""
+        return '%s %s %s %s %s; %s' % (self.defname,
+                                       self.relnodes[0], self.relnodes[1], 
+                                       arg_format(self.args[0]),
+                                       arg_format(ic), self.opts)
+
     def pre_initial_model(self):
 
         if self.cpt.v0 == 0.0:
@@ -919,6 +931,12 @@ class L(RLC):
             self.defname, self.relnodes[0], self.relnodes[1],
             arg_format(self.args[0]), self.opts)
 
+    def initialize(self, ic):
+        """Change initial condition to ic."""
+        return '%s %s %s %s %s; %s' % (self.defname,
+                                       self.relnodes[0], self.relnodes[1],
+                                       arg_format(self.args[0]),
+                                       arg_format(ic), self.opts)
     def stamp(self, cct):
 
         # This formulation adds the inductor current to the unknowns

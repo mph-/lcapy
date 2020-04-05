@@ -177,6 +177,41 @@ switched changed.  Lcapy requires that you do this!  The independent
 sources are ignored for :math:`t < 0` and the result is only known for
 :math:`t \ge 0`.
 
+Lcapy can help automate the analysis using the `initialize()` method.
+For example,
+      
+   >>> from lcapy import *
+   >>> a1 = Circuit("""
+   ... V 1 0 dc; down
+   ... R1 1 2; right
+   ... C 2 0_2; down
+   ... W 0 0_2; right
+   ... """)
+   >>> a2 = Circuit("""
+   ... V 1 0 dc; down
+   ... R1 1 2; right
+   ... C 2 0_2 C; down
+   ... W 0 0_2; right
+   ... W 2 3; right
+   ... R2 3 0_3; down
+   ... W 0_2 0_3; right
+   ... """)
+   ... a2i = a2.initialize(a1, 't1')
+   >>> a2i
+   V 1 0 dc; down
+   R1 1 2; right
+   C 2 0_2 C V; down
+   W 0 0_2; right
+   W 2 3; right
+   R2 3 0_3; down
+   W 0_2 0_3; right
+
+The `initialize()` method adds the initial values based on another circuit
+at a specified time.  In this case the capacitor `C` is initialized
+with the corresponding capacitor voltage for the circuit `a1` at time
+`t1`.  Note, it is assumed that `t1` is a valid time for the results
+of circuit `a1`.
+
 
 Noise analysis
 --------------
@@ -200,8 +235,9 @@ and stores the result for each realisation separately.  For example,
    >>> a[2].V.n
    5
 
-Notice that the `.n` attribute returns the total noise found by adding each
-noise component in quadrature since they have different nids and are thus
+Notice that the `.n` attribute returns the total noise found by adding
+each noise component in quadrature, i.e., :math:`\sqrt{3^2 + 4^2},`
+since the noise components have different nids and are thus
 independent.
 
 Each resistor in a circuit can be converted into a series combination

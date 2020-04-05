@@ -257,7 +257,7 @@ class Parser(object):
         if cpt_id == '' and parent is not None and cpt_type in ('W', 'O', 'P'):
             name += parent._make_anon(cpt_type)
         elif cpt_id == '?':
-            # Automatically enumerate cpt names
+            # Automatically name cpts to ensure they are unique
             name = name[:-1] + parent._make_anon(cpt_type)
 
         nodes, args = rule.process(self.paramdict, net, fields, name, 
