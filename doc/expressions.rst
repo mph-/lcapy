@@ -51,7 +51,11 @@ Similarly, a Laplace-domain expression is produced using the `s`
 variable, for example,
   
    >>> V = s / (s**2 + 2 * s + 3)
-  
+
+   
+User defined symbols
+--------------------
+
 Symbols can also be created with Lcapy's `symbol` function:
 
    >>> tau = symbol('tau', real=True)
@@ -60,10 +64,14 @@ They are also implicitly created using Lcapy's `expr` function:
    
    >>> v = expr('exp(-t / tau) * u(t)')
 
-Note, symbols created with `symbol` and `expr` are assumed to be
-positive, unless explicitly specified not be.
+Notes:
 
-There are restrictions on symbol names that can be used.  Currently, this excludes names that are Python keywords.  For example, `Is` is not allowed.
+1. Symbols created with `symbol` and `expr` are assumed to be
+   positive, unless explicitly specified not be.
+
+2. Redefining a symbol does change the assumptions.  Instead, the symbol needs to be deleted with `symbol_delete` before being redefined.
+
+3. There are restrictions on symbol names that can be used.  Currently, this excludes names that are Python keywords.  For example, `Is` is not allowed.
 
 
 Mathematical functions

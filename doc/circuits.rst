@@ -170,47 +170,45 @@ Switching analysis
 
 Whenever a circuit has a switch it is time variant.  The opening or
 closing of the switch changes the circuit and can produce transients.
-While a switch violates the time-invariance requirements for linear circuit
-analysis, the circuit prior to the switch changing can be analysed and
-used to determine the initial conditions for the circuit after the
-switched changed.  Lcapy requires that you do this!  The independent
-sources are ignored for :math:`t < 0` and the result is only known for
-:math:`t \ge 0`.
-
-Lcapy can help automate the analysis using the `initialize()` method.
-For example,
+While a switch violates the time-invariance requirements for linear
+circuit analysis, the circuit prior to the switch changing can be
+analysed and used to determine the initial conditions for the circuit
+after the switched changed.  Lcapy can help automate this with the
+`initialize()` method.  For example,
       
    >>> from lcapy import *
    >>> a1 = Circuit("""
    ... V 1 0 dc; down
-   ... R1 1 2; right
+   ... R 1 2; right
    ... C 2 0_2; down
    ... W 0 0_2; right
    ... """)
    >>> a2 = Circuit("""
-   ... V 1 0 dc; down
-   ... R1 1 2; right
+   ... V 1 0 step; down
+   ... R 1 2; right
    ... C 2 0_2 C; down
    ... W 0 0_2; right
    ... W 2 3; right
-   ... R2 3 0_3; down
+   ... L 3 0_3; down
    ... W 0_2 0_3; right
    ... """)
-   ... a2i = a2.initialize(a1, 't1')
+   >>> t1 = expr('t1', positive=True)
+   >>> a2i = a2.initialize(a1, t1)
    >>> a2i
    V 1 0 dc; down
-   R1 1 2; right
-   C 2 0_2 C V; down
+   R 1 2; right
+   C 2 0_2 C {V*(C*R - C*R*exp(-t1/(C*R)))/(C*R)}; down
    W 0 0_2; right
    W 2 3; right
-   R2 3 0_3; down
+   L 3 0_3; down
    W 0_2 0_3; right
 
-The `initialize()` method adds the initial values based on another circuit
-at a specified time.  In this case the capacitor `C` is initialized
-with the corresponding capacitor voltage for the circuit `a1` at time
-`t1`.  Note, it is assumed that `t1` is a valid time for the results
-of circuit `a1`.
+In this example, the circuit defined as `a1` changes to the circuit
+defined as `a2` at the instant `t1`.  The `initialize()` method adds
+the initial values for `a2` based on the values from `a1` at `t1`.  In
+this case the capacitor `C` is initialized with the corresponding
+capacitor voltage for the circuit `a1` at time `t1`.  Note, it is
+assumed that `t1` is a valid time for the results of circuit `a1`.
 
 
 Noise analysis
