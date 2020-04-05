@@ -641,7 +641,7 @@ class Ratfun(object):
         return Dpoly.degree()    
     
     @property
-    def strictly_proper(self):
+    def is_strictly_proper(self):
         """Return True if the degree of the dominator is greater
         than the degree of the numerator."""
 

@@ -334,6 +334,21 @@ class Expr(ExprPrint, ExprMisc):
         # Could be more specific, such as self.var >= 0, but might
         # have self.var >= t1.
         return expr.is_Piecewise
+
+    @property
+    def is_rational_function(self):
+        """Return True if expression is a rational function."""
+
+        return self.expr.is_rational_function(self.var)
+    
+    @property
+    def is_strictly_proper(self):
+        """Return True if the degree of the dominator is greater
+        than the degree of the numerator.
+        This will throw an exception if the expression is not a
+        rational function."""
+
+        return self._ratfun.is_strictly_proper
     
     @property
     def val(self):
@@ -1498,15 +1513,6 @@ class Expr(ExprPrint, ExprMisc):
         
         return self._ratfun.Ddegree
 
-    @property
-    def strictly_proper(self):
-        """Return True if the degree of the dominator is greater
-        than the degree of the numerator.
-        This will throw an exception if the expression is not a
-        rational function."""
-
-        return self._ratfun.strictly_proper
-    
     def prune_HOT(self, degree):
         """Prune higher order terms if expression is a polynomial
         so that resultant approximate expression has the desired degree."""

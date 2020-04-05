@@ -116,11 +116,15 @@ All Lcapy expressions have the following attributes:
   
 - `evalf` returns floating point number if expression can be evaluated
 
+- `expr` returns the underlying SymPy expression
+  
 - `imag` returns imaginary part
 
 - `is_ac` returns True if AC signal
 
 - `is_causal` returns True if signal is causal, i.e, is 0 for :math:`t < 0`
+
+- `is_conditional` returns True if expression is conditional, e.g, :math:`\exp(-t)\;\; \ge 0`
 
 - `is_constant` returns True if expression constant
 
@@ -128,6 +132,10 @@ All Lcapy expressions have the following attributes:
 
 - `is_number` returns True if expression is a number
 
+- `is_rational_function` returns True if expression is a rational function
+
+- `is_strictly_proper` returns True if degree of denominator greater than degree of numerator
+  
 - `label` returns string describing expression to use as a plot label
 
 - `magnitude` returns absolute value  
@@ -150,11 +158,11 @@ All Lcapy expressions have the following attributes:
 
 - `sign` returns sign
 
-- `strictly_proper` returns True if degree of denominator greater than degree of numerator
-  
 - `symbols` returns dictionary of symbols used in the expression keyed by their names
   
-
+- `var` returns the underlying SymPy symbol representing the domain
+    
+  
 Methods
 =======
 

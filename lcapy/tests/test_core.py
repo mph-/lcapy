@@ -68,7 +68,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.Ndegree, 1, "N degree incorrect.")
         self.assertEqual2(a.Ddegree, 1, "D degree incorrect.")
         self.assertEqual2(a.degree, 1, "Degree incorrect.")
-        self.assertEqual2(a.strictly_proper, False, "strictly proper incorrect.")        
+        self.assertEqual2(a.is_rational_function, True, "is_rational_function incorrect.")                
+        self.assertEqual2(a.is_strictly_proper, False, "is_strictly_proper incorrect.")        
 
         self.assertEqual2(sorted(a.poles()), [2], "poles incorrect.")
         self.assertEqual2(sorted(a.zeros()), [-2], "zeros incorrect.")
@@ -117,7 +118,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.Ndegree, 2, "N degree incorrect.")
         self.assertEqual2(a.Ddegree, 1, "D degree incorrect.")
         self.assertEqual2(a.degree, 2, "Degree incorrect.")
-        self.assertEqual2(a.strictly_proper, False, "strictly proper incorrect.")
+        self.assertEqual2(a.is_strictly_proper, False, "is_strictly_proper incorrect.")
 
         self.assertEqual2(sorted(a.poles()), [2], "poles incorrect.")
         self.assertEqual2(sorted(a.zeros()), sorted([-3, -2]), "zeros incorrect.")
