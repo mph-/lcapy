@@ -42,9 +42,12 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Lcapy'
-copyright = u'2014--2019, Michael Hayes'
+copyright = u'2014--2020, Michael Hayes'
 
-from lcapy import __version__
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from version import __version__
+print('Version ' + __version__)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

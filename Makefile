@@ -22,6 +22,9 @@ doc-install: doc
 release: doc push
 	cd /tmp; rm -rf lcapy; git clone git@github.com:mph-/lcapy.git; cd lcapy; make test; make upload
 
+release-test: doc push
+	cd /tmp; rm -rf lcapy; git clone git@github.com:mph-/lcapy.git; cd lcapy; make test
+
 push:
 	git push
 	git push --tags

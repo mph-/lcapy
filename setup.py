@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
+from .version import __version__
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='lcapy',
-      version='0.47.0',
+      version=__version__,
       author='Michael Hayes',
       author_email='michael.hayes@canterbury.ac.nz',
       description='Symbolic linear circuit analysis',
