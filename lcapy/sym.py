@@ -19,7 +19,7 @@ import sympy as sym
 import re
 from .state import state
 
-__all__ = ('symsymbol', 'sympify', 'simplify')
+__all__ = ('symsymbol', 'sympify', 'simplify', 'symbol_delete')
 
 
 global_dict = {}
@@ -279,6 +279,13 @@ def symdebug(expr, s='', indent=0):
 
     return s
 
+
+def symbol_delete(sym):
+    """Delete symbol.  This is useful if a symbol needs to be redefined
+    with different assumptions."""
+    
+    state.context.symbols.pop(sym)
+    
 
 def symbol_map(name):
 
