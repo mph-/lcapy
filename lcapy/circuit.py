@@ -7,10 +7,10 @@ The netlists can be loaded from a file or created at run-time.  For
 example:
 
 >>> from lcapy import Circuit
->>> cct = Circuit('Voltage divider')
->>> cct.add('V_s fred 0')
->>> cct.add('R_a fred 1')
->>> cct.add('R_b 1 0')
+>>> cct = Circuit('''
+V_s fred 0
+R_a fred 1
+R_b 1 0''')
 
 Branch currents and branch voltage differences can be found using the
 component name as an attribute, for example,
@@ -24,7 +24,7 @@ the node name or number as index, for example,
 >>> cct['fred'].V.pprint()
 >>> cct[1].V.pprint()
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 """
 
 from .netlist import Netlist
@@ -35,11 +35,11 @@ class Circuit(Netlist):
 
     """Here's an example of using the Circuit class:
 
-    cct = Circuit()
-    cct.add('V1 1 0 V; down')
-    cct.add('R1 1 2 R; right')
-    cct.add('C1 2 0_2 C; down')
-    cct.add('W 0 0_2; right')
+    cct = Circuit('''
+    V1 1 0 V; down
+    R1 1 2 R; right
+    C1 2 0_2 C; down
+    W 0 0_2; right''')
 
     The directions after the semicolon are hints for drawing the
     schematic and are ignored for the circuit analysis.  The last net

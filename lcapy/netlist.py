@@ -914,7 +914,19 @@ class NetlistMixin(object):
         self._ss = StateSpace(self)
         return self._ss
 
+    def subs(self, subs_dict):
+        """Substitute values using dictionary of subsitutions."""        
+
+        new = self._new()
+
+        for cpt in self._elements.values():
+            net = cpt.subs(subs_dict)
+            new._add(net)
+        return new                        
+    
     def initialize(self, cct, time):
+        """Set the initial values for this netlist based on the values
+        computed for netlist cct at specified time."""        
 
         new = self._new()
 

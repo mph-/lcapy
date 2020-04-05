@@ -5,7 +5,7 @@
 Netlists
 ========
 
-Circuits are described using a netlist of interconnected components (see :ref:`component-specification`).  Each line of a netlist describes a component using a Spice-like syntax.
+Lcapy circuits are described using a netlist of interconnected components (see :ref:`component-specification`).  Each line of a netlist describes a component using a Spice-like syntax.
 
 
 Circuits
@@ -195,16 +195,19 @@ Circuit attributes
 A circuit is comprised of a collection of Nodes and a collection of
 circuit elements (Components).  For example,
 
-   >>> cct = Circuit()
-   >>> cct.add('V1 1 0 {u(t)}')
-   >>> cct.add('R1 1 2')
-   >>> cct.add('L1 2 0')
-   >>>
+   >>> cct = Circuit("""
+   ... V1 1 0 {u(t)}
+   ... R1 1 2
+   ... L1 2 0""")
    >>> cct
    V1 1 0 {u(t)}
    R1 1 2
    L1 2 0
 
+   >>> cct.R1
+   R1 1 2
+
+   
 
 Circuit methods
 ---------------
@@ -218,6 +221,18 @@ The above methods can be called with a component name, for example,
    >>> a.admittance('L1')
 
 This calculates the driving-point admittance that would be measured across the nodes of `L1`.      
+
+`subs(subs_dict)` substitutes arguments in the Circuit use a dictionary of symbols `subs_dict`.  For example,
+
+   >>> cct = Circuit("""
+   ... V1 1 0 Vs}
+   ... R1 1 2
+   ... L1 2 0""")
+   >>> cct2 = cct.subs({'R1': 2, 'L1': 3})
+   >>> cct2
+V1 1 0 Vs
+R1 1 2 2
+L1 2 0 3
    
 
 Nodes

@@ -7,6 +7,7 @@ Copyright 2015--2019 Michael Hayes, UCECE
 """
 
 from __future__ import print_function
+from .expr import expr
 from .cexpr import cExpr
 from .omegaexpr import omegaExpr
 from .symbols import j, omega, jomega, s, t
@@ -133,12 +134,17 @@ class Cpt(ImmitanceMixin):
 
         return self.copy()
 
+    def subs(self, subs_dict):
+        """Substitute values using dictionary of subsitutions."""
+
+        return self.netmake(subs_dict=subs_dict)
+
     def initialize(self, ic):
         """Change initial condition to ic."""
 
         return self.copy()    
 
-    def netmake(self, node_map=None, zero=False):
+    def netmake(self, node_map=None, zero=False, subs_dict=None):
         """Create a new net description.  If node_map is not None,
         rename the nodes.  If zero is True, set args to zero."""
 
@@ -152,15 +158,28 @@ class Cpt(ImmitanceMixin):
             field += 1
             if field == self.keyword[0]:
                 string += ' ' + self.keyword[1]
-                field += 1                
-        for arg in self.explicit_args:
+                field += 1
+
+        if subs_dict is None:
+            args = self.explicit_args
+        else:
+            args = self.args
+                
+        for arg in self.args:
             if zero:
                 arg = 0
+
+            # Perform substitutions
+            if subs_dict is not None:
+                arg = str(expr(arg).subs(subs_dict))
+                
             string += ' ' + arg_format(arg)
             field += 1
             if field == self.keyword[0]:
-                string += self.keyword[1]            
-        string += '; %s' % self.opts
+                string += self.keyword[1]
+        opts_str = str(self.opts)
+        if opts_str != '':
+            string += '; ' + opts_str
         return string
         
     def rename_nodes(self, node_map):
