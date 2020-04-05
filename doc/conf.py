@@ -44,9 +44,7 @@ master_doc = 'index'
 project = u'Lcapy'
 copyright = u'2014--2020, Michael Hayes'
 
-import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from version import __version__
+from lcapy import __version__
 print('Version ' + __version__)
 
 # The version info for the project you're documenting, acts as replacement for
