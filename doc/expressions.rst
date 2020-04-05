@@ -26,6 +26,8 @@ Constants
 
 - `zoo` complex infinity
 
+Lcapy represents floating point numbers as rationals.  This ensures expected simplifications of expressions.    
+
 
 Domain variables
 ----------------
@@ -258,7 +260,7 @@ This expresses the rational function into the sum of a polynomial and a strictly
      4⋅⎜─ + 1⎟⋅(s + 1)   
        ⎝4    ⎠           
 
-This expresses the rational function in gain-time constant form.
+This expresses the rational function in gain-time-constant form.
        
    >>> H.expandcanonical()  
           2                   
