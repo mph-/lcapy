@@ -184,7 +184,7 @@ def ztransform_term(expr, n, z):
         zsym = sympify(str(z))
         result = sym.Sum(expr.subs(nsym, msym) * zsym**msym, (msym, 0, sym.oo))
         
-    return result * const
+    return const * result
 
 
 def ztransform(expr, n, z):
@@ -201,7 +201,7 @@ def ztransform(expr, n, z):
     const, expr = factor_const(expr, n)    
     key = (expr, n, z)
     if key in ztransform_cache:
-        return ztransform_cache[key] * const
+        return const * ztransform_cache[key]
 
     if expr.has(z):
         raise ValueError('Cannot Z transform expression %s that depends on %s' % (expr, z))
@@ -235,7 +235,7 @@ def ztransform(expr, n, z):
 
     result = result.simplify()
     ztransform_cache[key] = result
-    return (result * const).simplify()
+    return (const * result).simplify()
 
 
 def inverse_ztransform_ratfun(expr, z, n, **assumptions):
@@ -246,13 +246,13 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
 
     Q, M, D, delay, undef = zexpr.as_QMD()
 
-    result1 = sym.S.Zero
+    cresult = sym.S.Zero
 
     if Q:
         Qpoly = sym.Poly(Q, z)        
         C = Qpoly.all_coeffs()
         for m, c in enumerate(C):
-            result1 += c * unitimpulse(n - len(C) + m + 1)
+            cresult += c * unitimpulse(n - len(C) + m + 1)
 
     # There is problem with determining residues if
     # have 1/(z*(-a/z + 1)) instead of 1/(-a + z).  Hopefully,
@@ -268,7 +268,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
     for pole in poles:
         polesdict[pole.expr] = pole.n
     
-    result2 = sym.S.Zero
+    uresult = sym.S.Zero
 
     for pole in poles:
 
@@ -287,9 +287,9 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             # See laplace.py
 
             if p == 0:
-                result1 += r * UnitImpulse(n)
+                cresult += r * UnitImpulse(n)
             else:
-                result2 += (r * p ** n).simplify()
+                uresult += (r * p ** n).simplify()
             continue
 
         # Handle repeated poles.
@@ -302,14 +302,14 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
                 sym.diff(expr2, z, m), z, p) / sym.factorial(m)
 
             if p == 0:
-                result1 += r * UnitImpulse(n - i + 1)
+                cresult += r * UnitImpulse(n - i + 1)
             else:            
-                result2 += r * (p ** n) * n**(i - 1)
+                uresult += r * (p ** n) * n**(i - 1)
 
-    # result1 is a sum of Dirac deltas and its derivatives so is known
+    # cresult is a sum of Dirac deltas and its derivatives so is known
     # to be causal.
 
-    return result1, result2
+    return cresult, uresult
 
 
 def dummyvar(intnum=0):
@@ -364,10 +364,10 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
             result = sym.S.Zero
             for term in terms:
                 result += inverse_ztransform_product(factors[1] * term, z, n)
-            return result * const
+            return const * result
 
-    result1, result2 = inverse_ztransform_term1(factors[0], z, n)
-    result = result1 + result2
+    cresult, uresult = inverse_ztransform_term1(factors[0], z, n)
+    result = cresult + uresult
 
     intnum = 0
     for m in range(len(factors) - 1):
@@ -410,12 +410,12 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
         # Convert product to convolution
         dummy = dummyvar(intnum)
         intnum += 1
-        result1, result2 = inverse_ztransform_term1(factors[m + 1], z, n)
-        expr2 = result1 + result2
+        cresult, uresult = inverse_ztransform_term1(factors[m + 1], z, n)
+        expr2 = cresult + uresult
         result = sym.Sum(result.subs(n, n - dummy) * expr2.subs(n, dummy),
                          (dummy, n1, n2))
     
-    return result * const
+    return const * result
 
 
 def inverse_ztransform_power(expr, z, n, **assumptions):
@@ -458,20 +458,20 @@ def inverse_ztransform_term1(expr, z, n, **assumptions):
         # that the unknown functions are causal.  Note ztransform_func
         # just changes the name so it works as inverse_ztransform_func.
         result = ztransform_func(expr, z, n, True)
-        return result * const, sym.S.Zero
+        return const * result, sym.S.Zero
     
     if expr.has(sym.function.AppliedUndef):
         return const * inverse_ztransform_product(expr, z, n,
                                                **assumptions), sym.S.Zero
 
     if expr.is_Pow and expr.args[0] == z:
-        result1, result2 = inverse_ztransform_power(expr, z, n, **assumptions)
-        return const * result1, const * result2    
+        cresult, uresult = inverse_ztransform_power(expr, z, n, **assumptions)
+        return const * cresult, const * uresult    
 
     try:
         # This is the common case.
-        result1, result2 = inverse_ztransform_ratfun(expr, z, n, **assumptions)
-        return const * result1, const * result2
+        cresult, uresult = inverse_ztransform_ratfun(expr, z, n, **assumptions)
+        return const * cresult, const * uresult
     except:
         pass
 
@@ -487,26 +487,26 @@ def inverse_ztransform_term1(expr, z, n, **assumptions):
     
 def inverse_ztransform_term(expr, z, n, **assumptions):
 
-    result1, result2 = inverse_ztransform_term1(expr, z, n, **assumptions)
+    cresult, uresult = inverse_ztransform_term1(expr, z, n, **assumptions)
 
     if assumptions.get('causal', False):
-        result2 = result2 * sym.Heaviside(n)
+        uresult = uresult * sym.Heaviside(n)
     
-    return result1, result2
+    return cresult, uresult
 
 
 def inverse_ztransform_by_terms(expr, z, n, **assumptions):
 
     terms = expr.as_ordered_terms()
 
-    result1 = sym.S.Zero
-    result2 = sym.S.Zero    
+    cresult = sym.S.Zero
+    uresult = sym.S.Zero    
 
     for term in terms:
         part1, part2 = inverse_ztransform_term(term, z, n, **assumptions)
-        result1 += part1
-        result2 += part2        
-    return result1, result2
+        cresult += part1
+        uresult += part2        
+    return cresult, uresult
 
 
 def inverse_ztransform(expr, z, n, **assumptions):
@@ -525,6 +525,8 @@ def inverse_ztransform(expr, z, n, **assumptions):
         return sym.Eq(inverse_ztransform(expr.args[0], z, n, **assumptions),
                       inverse_ztransform(expr.args[1], z, n, **assumptions))
 
+    const, expr = factor_const(expr, z)
+    
     # TODO, simplify
     key = (expr, z, n, assumptions.get('dc', False),
            assumptions.get('ac', False),
@@ -532,7 +534,7 @@ def inverse_ztransform(expr, z, n, **assumptions):
            assumptions.get('damping', None))
     
     if key in inverse_ztransform_cache:
-        return inverse_ztransform_cache[key]
+        return const * inverse_ztransform_cache[key]
 
     if expr.has(n):
         raise ValueError('Cannot inverse z-transform  %s that depends on %s' % (expr, t))
@@ -543,32 +545,32 @@ def inverse_ztransform(expr, z, n, **assumptions):
         free_symbols = set([symbol.name for symbol in result.free_symbols])
         if 'z' in free_symbols:
             raise ValueError('Something wonky going on, expecting dc.')
-        return result
+        return const * result
 
     if expr.is_Add:
-        result1, result2 = inverse_ztransform_by_terms(expr, z, n, **assumptions)
+        cresult, uresult = inverse_ztransform_by_terms(expr, z, n, **assumptions)
     else:
         try:
-            result1, result2 = inverse_ztransform_term(expr, z, n, **assumptions)
+            cresult, uresult = inverse_ztransform_term(expr, z, n, **assumptions)
         except:
             expr = sym.expand(expr)
-            result1, result2 = inverse_ztransform_by_terms(expr, z, n,
-                                                           **assumptions)
+            cresult, uresult = inverse_ztransform_by_terms(expr, z, n,
+                                                            **assumptions)
         
-    # result1 is known to be causal, result2 is unsure
+    # cresult is known to be causal, uresult is unsure
 
     if assumptions.get('ac', False):
-        if result1 != 0:
+        if cresult != 0:
             raise ValueError('Inverse z-transform weirdness for %s'
                              ' with is_ac True' % expr)
         # TODO, perform more checking of the result.
 
-    elif not assumptions.get('causal', False) and  result2 != 0:
-        result2 = sym.Piecewise((result2, n >= 0))        
+    elif not assumptions.get('causal', False) and uresult != 0:
+        uresult = sym.Piecewise((uresult, n >= 0))        
 
-    result = result1 + result2    
+    result = cresult + uresult    
     inverse_ztransform_cache[key] = result
-    return result
+    return const * result
 
 
 def ZT(expr, n, z, **assumptions):
