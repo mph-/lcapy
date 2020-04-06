@@ -557,9 +557,9 @@ def inverse_laplace_by_terms(expr, s, t, **assumptions):
     uresult = sym.S.Zero    
 
     for term in terms:
-        part1, part2 = inverse_laplace_term(term, s, t, **assumptions)
-        cresult += part1
-        uresult += part2        
+        const, part1, part2 = inverse_laplace_transform1(term, s, t, **assumptions)
+        cresult += const * part1
+        uresult += const * part2        
     return cresult, uresult
 
 
@@ -587,6 +587,34 @@ def inverse_laplace_make(t, const, cresult, uresult, **assumptions):
     return result
 
 
+def inverse_laplace_transform1(expr, s, t, **assumptions):
+
+    const, expr = factor_const(expr, s)
+    
+    # TODO, simplify
+    key = (expr, s, t,
+           assumptions.get('causal', False),                      
+           assumptions.get('damping', None),           
+           assumptions.get('damped_sin', None))
+    
+    if key in inverse_laplace_cache:
+        cresult, uresult = inverse_laplace_cache[key]        
+        return const, cresult, uresult
+    
+    if expr.is_Add:
+        cresult, uresult = inverse_laplace_by_terms(expr, s, t, **assumptions)
+    else:
+        try:
+            cresult, uresult = inverse_laplace_term(expr, s, t, **assumptions)
+        except:
+            expr = sym.expand(expr)
+            cresult, uresult = inverse_laplace_by_terms(expr, s, t,
+                                                        **assumptions)
+
+    inverse_laplace_cache[key] = cresult, uresult
+    return const, cresult, uresult
+
+
 def inverse_laplace_transform(expr, s, t, **assumptions):
     """Calculate inverse Laplace transform of X(s) and return x(t).
 
@@ -605,32 +633,10 @@ def inverse_laplace_transform(expr, s, t, **assumptions):
                       inverse_laplace_transform(expr.args[1], s, t,
                                                 **assumptions))    
 
-    const, expr = factor_const(expr, s)
-    
-    # TODO, simplify
-    key = (expr, s, t,
-           assumptions.get('causal', False),                      
-           assumptions.get('damping', None),           
-           assumptions.get('damped_sin', None))
-    
-    if key in inverse_laplace_cache:
-        return inverse_laplace_make(t, const, *inverse_laplace_cache[key],
-                                    **assumptions)
-
     if expr.has(t):
         raise ValueError('Cannot inverse Laplace transform for expression %s that depends on %s' % (expr, t))
-    
-    if expr.is_Add:
-        cresult, uresult = inverse_laplace_by_terms(expr, s, t, **assumptions)
-    else:
-        try:
-            cresult, uresult = inverse_laplace_term(expr, s, t, **assumptions)
-        except:
-            expr = sym.expand(expr)
-            cresult, uresult = inverse_laplace_by_terms(expr, s, t,
-                                                        **assumptions)
 
-    inverse_laplace_cache[key] = cresult, uresult
+    const, cresult, uresult = inverse_laplace_transform1(expr, s, t, **assumptions)
     return inverse_laplace_make(t, const, cresult, uresult, **assumptions)    
 
 
