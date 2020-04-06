@@ -71,6 +71,3 @@ def call(expr, arg, **assumptions):
         return transform(expr, arg, **assumptions)    
     
     return call1(expr, arg, **assumptions)
-
-
-print('Warning, this is experimental and probably riddled with bugs!')

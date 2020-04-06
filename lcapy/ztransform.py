@@ -198,9 +198,10 @@ def ztransform(expr, n, z):
         return sym.Eq(ztransform(expr.args[0], n, z),
                       ztransform(expr.args[1], n, z))
 
+    const, expr = factor_const(expr, n)    
     key = (expr, n, z)
     if key in ztransform_cache:
-        return ztransform_cache[key]
+        return ztransform_cache[key] * const
 
     if expr.has(z):
         raise ValueError('Cannot Z transform expression %s that depends on %s' % (expr, z))
@@ -234,37 +235,34 @@ def ztransform(expr, n, z):
 
     result = result.simplify()
     ztransform_cache[key] = result
-    return result
+    return (result * const).simplify()
 
 
 def inverse_ztransform_ratfun(expr, z, n, **assumptions):
 
-    # Maybe better doing partial fraction expansion of X(z) / z
-    # the multiplying by z.
-    
     damping = assumptions.get('damping', None)
 
-    invz = symsymbol('invz', real=False)
-    expr = expr.subs(z, 1 / invz)
-    
-    zexpr = Ratfun(expr, invz)
+    zexpr = Ratfun(expr / z, z)
 
     Q, M, D, delay, undef = zexpr.as_QMD()
 
     result1 = sym.S.Zero
 
     if Q:
-        Qpoly = sym.Poly(Q, invz)        
+        Qpoly = sym.Poly(Q, z)        
         C = Qpoly.all_coeffs()
         for m, c in enumerate(C):
             result1 += c * unitimpulse(n - len(C) + m + 1)
 
-    expr = M / D
+    # There is problem with determining residues if
+    # have 1/(z*(-a/z + 1)) instead of 1/(-a + z).  Hopefully,
+    # simplify will fix things...
+    expr = (M / D).simplify()
     for factor in expr.as_ordered_factors():
         if factor == sym.oo:
             return factor
 
-    zexpr = Ratfun(expr, invz)
+    zexpr = Ratfun(expr, z)
     poles = zexpr.poles(damping=damping)
     polesdict = {}
     for pole in poles:
@@ -286,18 +284,27 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             r = zexpr.residue(p, poles)
 
             # TODO combine conjugates to get a real result
-            
-            result2 -= (r * p ** (-n - 1)).simplify()
+            # See laplace.py
+
+            if p == 0:
+                result1 += r * UnitImpulse(n)
+            else:
+                result2 += (r * p ** n).simplify()
             continue
 
         # Handle repeated poles.
-        expr2 = expr * (invz - p) ** o
+        
+        expr2 = expr * (z - p) ** o
         expr2 = expr2.simplify()
         for i in range(1, o + 1):
             m = o - i
             r = sym.limit(
-                sym.diff(expr2, invz, m), invz, p) / sym.factorial(m)
-            result2 += r * (p ** n) * n**(i - 1)
+                sym.diff(expr2, z, m), z, p) / sym.factorial(m)
+
+            if p == 0:
+                result1 += r * UnitImpulse(n - i + 1)
+            else:            
+                result2 += r * (p ** n) * n**(i - 1)
 
     # result1 is a sum of Dirac deltas and its derivatives so is known
     # to be causal.
@@ -419,11 +426,10 @@ def inverse_ztransform_power(expr, z, n, **assumptions):
     exponent = expr.args[1]
 
     if exponent.is_positive:
-        # TODO, fix
-        return unitimpulse(n + exponent)
+        return sym.S.Zero, unitimpulse(n + exponent)
 
     if exponent.is_negative:
-        return unitimpulse(n + exponent)
+        return unitimpulse(n + exponent), sym.S.Zero
 
     raise ValueError('Cannot determine sign of exponent for %s' % expr)
 
@@ -458,6 +464,10 @@ def inverse_ztransform_term1(expr, z, n, **assumptions):
         return const * inverse_ztransform_product(expr, z, n,
                                                **assumptions), sym.S.Zero
 
+    if expr.is_Pow and expr.args[0] == z:
+        result1, result2 = inverse_ztransform_power(expr, z, n, **assumptions)
+        return const * result1, const * result2    
+
     try:
         # This is the common case.
         result1, result2 = inverse_ztransform_ratfun(expr, z, n, **assumptions)
@@ -470,8 +480,6 @@ def inverse_ztransform_term1(expr, z, n, **assumptions):
     except:
         pass
 
-    if expr.is_Pow and expr.args[0] == z:
-        return sym.S.Zero, const * inverse_ztransform_power(expr, z, n)
     
     # As last resort see if can convert to convolutions...
     return sym.S.Zero, const * inverse_ztransform_product(expr, z, n)

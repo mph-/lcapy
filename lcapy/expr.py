@@ -934,6 +934,8 @@ class Expr(ExprPrint, ExprMisc):
         This is replaced by arg and then evaluated to obtain a result.
         """
 
+        is_causal = self.is_causal
+        
         def evaluate_expr(expr, var, arg):
 
             # For some reason the new lambdify will convert a float
@@ -980,12 +982,22 @@ class Expr(ExprPrint, ExprMisc):
             # For negative arguments, np.sqrt will return Nan.
             # np.lib.scimath.sqrt converts to complex but cannot be used
             # for lamdification!
-            func = lambdify(var, expr,
+            func1 = lambdify(var, expr,
                             ({'DiracDelta' : dirac,
                               'Heaviside' : heaviside,
                               'UnitImpulse' : unitimpulse,
                               'sqrt' : sqrt, 'exp' : exp},
                              "scipy", "numpy", "math", "sympy"))
+
+            def func(arg):
+                # Lambdify barfs on (-1)**n if for negative values of n.
+                # even if have (-1)**n * Heaviside(n)
+                # So this function heads Lambdify off at the pass,
+                # if the function is causal.
+                
+                if is_causal and arg < 0:
+                    return 0
+                return func1(arg)
 
             try:
                 result = func(arg0)

@@ -36,7 +36,7 @@ class nExpr(dExpr):
 
         if self.expr.find(zsym) != set():
             raise ValueError(
-                'n-domain expression %s cannot depend on s' % self.expr)
+                'n-domain expression %s cannot depend on z' % self.expr)
 
     def infer_assumptions(self):
 
