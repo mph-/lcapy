@@ -110,10 +110,25 @@ def ztransform_sum(expr, n, z):
     return F1 * F2
 
 
+def remove_heaviside(expr, n):
+
+    rest = sym.S.One
+    for factor in expr.as_ordered_factors():
+        if (factor.is_Function and factor.func == sym.Heaviside and
+            factor.args[0] == n):
+            # Could remove Heaviside[n+m] where m > 0
+            pass
+        else:
+            rest *= factor
+    return rest
+
+
 def ztransform_term(expr, n, z):
 
     const, expr = factor_const(expr, n)
 
+    expr = remove_heaviside(expr, n)
+    
     if expr.has(sym.Sum):
         try:
             return ztransform_sum(expr, n, z) * const
@@ -176,6 +191,16 @@ def ztransform_term(expr, n, z):
         if aexpr == n:
             result = (sym.sin(aconst) * invz) / (1 - 2 * sym.cos(aconst) * invz + invz ** 2)            
 
+    # Handle a**n
+    elif expr.is_Pow and expr.args[1] == n:
+        # TODO, handle n + m, etc.
+        result = 1 / (1 - expr.args[0] * invz)
+
+    # Handle a**(-n)
+    elif (expr.is_Pow and expr.args[1].is_Mul and
+          expr.args[1].args[0] == -1 and expr.args[1].args[1] == n):
+        result = 1 / (1 - (1 / expr.args[0]) * invz)          
+            
     if result is None:
         # Use m instead of n to avoid n and z in same expr.
         # TODO, check if m already used...
@@ -247,6 +272,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
     Q, M, D, delay, undef = zexpr.as_QMD()
 
     cresult = sym.S.Zero
+    uresult = sym.S.Zero
 
     if Q:
         Qpoly = sym.Poly(Q, z)        
@@ -260,7 +286,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
     expr = (M / D).simplify()
     for factor in expr.as_ordered_factors():
         if factor == sym.oo:
-            return factor
+            return factor, factor
 
     zexpr = Ratfun(expr, z)
     poles = zexpr.poles(damping=damping)
@@ -268,8 +294,6 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
     for pole in poles:
         polesdict[pole.expr] = pole.n
     
-    uresult = sym.S.Zero
-
     for pole in poles:
 
         p = pole.expr
@@ -289,7 +313,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             if p == 0:
                 cresult += r * UnitImpulse(n)
             else:
-                uresult += (r * p ** n).simplify()
+                uresult += r * p ** n
             continue
 
         # Handle repeated poles.
