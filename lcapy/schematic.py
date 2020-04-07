@@ -461,14 +461,16 @@ class Schematic(NetfileMixin):
                 value_label = Expr(expr, cache=False).latex_math()
             elif cpt.classname not in ('TP',):
                 try:
-                    value = float(expr)
+                    # Handle things like 9/1000 that can occur
+                    # when substituting cpt values.  
+                    value = float(sym.Rational(expr))
                     if cpt.type in units_map:
                         value_label = EngFormat(
                             value, units_map[cpt.type]).latex_math()
                     else:
                         value_label = Expr(expr, cache=False).latex_math()
 
-                except ValueError:
+                except (ValueError, TypeError):
                     # This catches non numeric arg.
                     value_label = Expr(expr, cache=False).latex_math()
 
