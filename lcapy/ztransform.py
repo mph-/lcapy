@@ -311,7 +311,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             # See laplace.py
 
             if p == 0:
-                cresult += r * UnitImpulse(n)
+                cresult += r * unitimpulse(n)
             else:
                 uresult += r * p ** n
             continue
@@ -326,7 +326,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
                 sym.diff(expr2, z, m), z, p) / sym.factorial(m)
 
             if p == 0:
-                cresult += r * UnitImpulse(n - i + 1)
+                cresult += r * unitimpulse(n - i + 1)
             else:            
                 uresult += r * (p ** n) * n**(i - 1)
 
@@ -533,6 +533,58 @@ def inverse_ztransform_by_terms(expr, z, n, **assumptions):
     return cresult, uresult
 
 
+def inverse_ztransform_make(n, const, cresult, uresult, **assumptions):
+
+    result = const * (cresult + uresult)
+    
+    if assumptions.get('dc', False):
+        free_symbols = set([symbol.name for symbol in result.free_symbols])
+        if 'n' in free_symbols:
+            raise ValueError('Something wonky going on, expecting dc.')
+    
+    elif assumptions.get('ac', False):
+
+        if cresult != 0:
+            raise ValueError('Inverse z-transform weirdness for %s with is_ac True' % expr)
+        # TODO, perform more checking of the result.
+        
+    elif not assumptions.get('causal', False):
+
+        if uresult != 0:
+            # Note, the causal part is included in the Piecewise to
+            # simplify notation        
+            result = sym.Piecewise((result, n >= 0))
+            
+    return result    
+
+
+def inverse_ztransform1(expr, z, n, **assumptions):
+
+    const, expr = factor_const(expr, z)
+    
+    key = (expr, z, n, 
+           assumptions.get('causal', False),
+           assumptions.get('damping', None))
+    
+    if key in inverse_ztransform_cache:
+        cresult, uresult = inverse_ztransform_cache[key]        
+        return const, cresult, uresult        
+
+    if expr.is_Add:
+        cresult, uresult = inverse_ztransform_by_terms(expr, z, n, **assumptions)
+    else:
+        try:
+            cresult, uresult = inverse_ztransform_term(expr, z, n, **assumptions)
+        except:
+            expr = sym.expand(expr)
+            cresult, uresult = inverse_ztransform_by_terms(expr, z, n,
+                                                            **assumptions)
+        
+    # cresult is known to be causal, uresult is unsure
+    inverse_ztransform_cache[key] = cresult, uresult
+    return const, cresult, uresult    
+
+
 def inverse_ztransform(expr, z, n, **assumptions):
     """Calculate inverse z-transform of X(z) and return x[n].
 
@@ -549,52 +601,11 @@ def inverse_ztransform(expr, z, n, **assumptions):
         return sym.Eq(inverse_ztransform(expr.args[0], z, n, **assumptions),
                       inverse_ztransform(expr.args[1], z, n, **assumptions))
 
-    const, expr = factor_const(expr, z)
-    
-    # TODO, simplify
-    key = (expr, z, n, assumptions.get('dc', False),
-           assumptions.get('ac', False),
-           assumptions.get('causal', False),
-           assumptions.get('damping', None))
-    
-    if key in inverse_ztransform_cache:
-        return const * inverse_ztransform_cache[key]
-
     if expr.has(n):
         raise ValueError('Cannot inverse z-transform  %s that depends on %s' % (expr, t))
-    
-    if assumptions.get('dc', False):
-        result = expr * (z - 1) / z
-            
-        free_symbols = set([symbol.name for symbol in result.free_symbols])
-        if 'z' in free_symbols:
-            raise ValueError('Something wonky going on, expecting dc.')
-        return const * result
 
-    if expr.is_Add:
-        cresult, uresult = inverse_ztransform_by_terms(expr, z, n, **assumptions)
-    else:
-        try:
-            cresult, uresult = inverse_ztransform_term(expr, z, n, **assumptions)
-        except:
-            expr = sym.expand(expr)
-            cresult, uresult = inverse_ztransform_by_terms(expr, z, n,
-                                                            **assumptions)
-        
-    # cresult is known to be causal, uresult is unsure
-
-    if assumptions.get('ac', False):
-        if cresult != 0:
-            raise ValueError('Inverse z-transform weirdness for %s'
-                             ' with is_ac True' % expr)
-        # TODO, perform more checking of the result.
-
-    elif not assumptions.get('causal', False) and uresult != 0:
-        uresult = sym.Piecewise((uresult, n >= 0))        
-
-    result = cresult + uresult    
-    inverse_ztransform_cache[key] = result
-    return const * result
+    const, cresult, uresult = inverse_ztransform1(expr, z, n, **assumptions)
+    return inverse_ztransform_make(n, const, cresult, uresult, **assumptions)
 
 
 def ZT(expr, n, z, **assumptions):

@@ -581,8 +581,11 @@ def inverse_laplace_make(t, const, cresult, uresult, **assumptions):
         # TODO, perform more checking of the result.
         
     elif not assumptions.get('causal', False):
-        
-        result = sym.Piecewise((result, t >= 0))
+
+        if uresult != 0:        
+            # Note, the causal part is included in the Piecewise to
+            # simplify notation
+            result = sym.Piecewise((result, t >= 0))
         
     return result
 
@@ -591,7 +594,6 @@ def inverse_laplace_transform1(expr, s, t, **assumptions):
 
     const, expr = factor_const(expr, s)
     
-    # TODO, simplify
     key = (expr, s, t,
            assumptions.get('causal', False),                      
            assumptions.get('damping', None),           
@@ -611,6 +613,7 @@ def inverse_laplace_transform1(expr, s, t, **assumptions):
             cresult, uresult = inverse_laplace_by_terms(expr, s, t,
                                                         **assumptions)
 
+    # cresult is known to be causal, uresult is unsure            
     inverse_laplace_cache[key] = cresult, uresult
     return const, cresult, uresult
 
