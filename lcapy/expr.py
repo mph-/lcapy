@@ -1541,6 +1541,35 @@ class Expr(ExprPrint, ExprMisc):
             expr += term
 
         return self.__class__(expr, **self.assumptions)            
+
+    def ratfloat(self):
+        """This converts rational numbers in an expression to floats.
+        See also floatrat.
+
+        For example, t / 5 -> 0.2 * t
+        """
+
+        expr = self.expr
+        expr = expr.replace(lambda expr: expr.is_Rational,
+                            lambda expr: sym.Float(expr))
+
+        return self.__class__(expr, **self.assumptions)
+    
+
+    def floatrat(self):
+        """This converts floating point numbers to rational numbers in an
+        expression.  See also ratfloat.
+
+        For example, 0.2 * t - > t / 5
+
+        """
+
+        expr = self.expr
+        # FIXME...
+        expr = expr.replace(lambda expr: expr.is_Float,
+                            lambda expr: sym.Rational(expr))
+
+        return self.__class__(expr, **self.assumptions)            
     
     
 def expr(arg, **assumptions):
