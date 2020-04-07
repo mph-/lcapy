@@ -121,30 +121,38 @@ class Cpt(ImmitanceMixin):
     def __str__(self):
         return self.string
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         raise NotImplementedError('stamp method not implemented for %s' % self)
 
-    def copy(self):
+    def _copy(self):
         """Make copy of net."""
         
         return str(self)
     
-    def kill(self):
+    def _kill(self):
         """Kill sources."""
 
-        return self.copy()
+        return self._copy()
 
-    def subs(self, subs_dict):
-        """Substitute values using dictionary of subsitutions."""
+    def _subs(self, subs_dict):
+        """Substitute values using dictionary of substitutions.
+        If a scalar is passed, this is substituted for the component value.
 
-        return self.netmake(subs_dict=subs_dict)
+        For example, given a component, cpt, defined as 'R1 1 2' then
+        cpt.subs(5) and cpt.subs({'R1': 5}) are equivalent.  In both
+        cases, the result is 'R1 1 2 5'."""
 
-    def initialize(self, ic):
+        if not isinstance(subs_dict, dict):
+            subs_dict = {self.args[0]: subs_dict}
+
+        return self._netmake(subs_dict=subs_dict)
+
+    def _initialize(self, ic):
         """Change initial condition to ic."""
 
-        return self.copy()    
+        return self._copy()    
 
-    def netmake(self, node_map=None, zero=False, subs_dict=None):
+    def _netmake(self, node_map=None, zero=False, subs_dict=None):
         """Create a new net description.  If node_map is not None,
         rename the nodes.  If zero is True, set args to zero."""
 
@@ -182,17 +190,17 @@ class Cpt(ImmitanceMixin):
             string += '; ' + opts_str
         return string
         
-    def rename_nodes(self, node_map):
+    def _rename_nodes(self, node_map):
         """Rename the nodes using dictionary node_map."""
 
-        return self.netmake(node_map)
+        return self._netmake(node_map)
 
-    def select(self, kind=None):
+    def _select(self, kind=None):
         """Select domain kind for component."""
 
         raise ValueError('Component not a source: %s' % self)    
 
-    def zero(self):
+    def _zero(self):
         """Zero value of the voltage source.  This kills it but keeps it as a
         voltage source in the netlist.  This is required for dummy
         voltage sources that are required to specify the controlling
@@ -200,20 +208,20 @@ class Cpt(ImmitanceMixin):
 
         raise ValueError('Component not a source: %s' % self)        
 
-    def s_model(self, var):
+    def _s_model(self, var):
         """Return s-domain model of component."""
 
-        return self.copy()
+        return self._copy()
 
-    def ss_model(self):
+    def _ss_model(self):
         """Return state-space model of component."""
 
-        return self.copy()            
+        return self._copy()            
 
-    def pre_initial_model(self):
+    def _pre_initial_model(self):
         """Return pre-initial model of component."""
 
-        return self.copy()        
+        return self._copy()        
 
     @property
     def is_source(self):
@@ -476,25 +484,25 @@ class Invalid(Cpt):
 
 class NonLinear(Invalid):
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         raise NotImplementedError('Cannot analyse non-linear component: %s' % self)
 
 
 class TimeVarying(Invalid):
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         raise NotImplementedError('Cannot analyse time-varying component: %s' % self)
 
 
 class Logic(Invalid):
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         raise NotImplementedError('Cannot analyse logic component: %s' % self)
 
 
 class Misc(Invalid):
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         raise NotImplementedError('Cannot analyse misc component: %s' % self)
 
 
@@ -511,7 +519,7 @@ class Dummy(Cpt):
 class XX(Dummy):
     directive = True
     
-    def stamp(self, cct):
+    def _stamp(self, cct):
         pass
 
     
@@ -519,7 +527,7 @@ class IndependentSource(Cpt):
 
     independent_source = True
     
-    def zero(self):
+    def _zero(self):
         """Zero value of the source.  For a voltage source this makes it a
         short-circuit; for a current source this makes it
         open-circuit.  This effectively kills the source but keeps it
@@ -528,19 +536,20 @@ class IndependentSource(Cpt):
         current for CCVS and CCCS components.
 
         """
-        return self.netmake(zero=True)
+        return self._netmake(zero=True)
+    
 
 class DependentSource(Dummy):
 
     dependent_source = True        
 
-    def zero(self):
-        return self.copy()
+    def _zero(self):
+        return self._copy()
 
     
 class RLC(Cpt):
 
-    def s_model(self, var):
+    def _s_model(self, var):
 
         if self.Voc == 0:        
             return '%sZ%s %s %s %s; %s' % (self.namespace, self.relname, 
@@ -590,7 +599,7 @@ class RLC(Cpt):
 
 class RC(RLC):
 
-    def noisy(self):
+    def _noisy(self):
 
         dummy_node = self.dummy_node()
 
@@ -607,7 +616,7 @@ class RC(RLC):
             self.relnodes[1], arg_format(Vn), opts)
         return rnet + '\n' + vnet
     
-    def stamp(self, cct):
+    def _stamp(self, cct):
 
         # L's can also be added with this stamp but if have coupling
         # it is easier to generate a stamp that requires the branch current
@@ -643,20 +652,20 @@ class C(RC):
     def C(self):
         return self.cpt.C
     
-    def kill(self):
+    def _kill(self):
         """Kill implicit sources due to initial conditions."""
         return '%s %s %s %s; %s' % (
             self.defname, self.relnodes[0], self.relnodes[1],
             arg_format(self.args[0]), self.opts)
 
-    def initialize(self, ic):
+    def _initialize(self, ic):
         """Change initial condition to ic."""
         return '%s %s %s %s %s; %s' % (self.defname,
                                        self.relnodes[0], self.relnodes[1], 
                                        arg_format(self.args[0]),
                                        arg_format(ic), self.opts)
 
-    def pre_initial_model(self):
+    def _pre_initial_model(self):
 
         if self.cpt.v0 == 0.0:
             return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
@@ -665,7 +674,7 @@ class C(RC):
                                        self.relnodes[0], self.relnodes[1], 
                                        arg_format(self.cpt.v0), self.opts)
 
-    def ss_model(self):
+    def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another voltage source?
         return '%sV_%s %s %s; %s' % (self.namespace, self.relname,
@@ -694,7 +703,7 @@ class VCVS(DependentSource):
 
     need_branch_current = True
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
         m = self.branch_index
 
@@ -712,7 +721,7 @@ class VCVS(DependentSource):
         if n4 >= 0:
             cct._C[m, n4] += A
 
-    def kill(self):
+    def _kill(self):
         newopts = self.opts.copy()
         newopts.strip_current_labels()
         newopts.strip_labels()
@@ -725,7 +734,7 @@ class CCCS(DependentSource):
 
     need_control_current = True
     
-    def stamp(self, cct):
+    def _stamp(self, cct):
         n1, n2 = self.node_indexes
         m = cct._branch_index(self.args[0])
         F = cExpr(self.args[1]).expr
@@ -735,7 +744,7 @@ class CCCS(DependentSource):
         if n2 >= 0:
             cct._B[n2, m] += F
 
-    def kill(self):
+    def _kill(self):
         newopts = self.opts.copy()
         newopts.strip_voltage_labels()
         newopts.strip_labels()
@@ -751,7 +760,7 @@ class FB(Misc):
 class VCCS(DependentSource):
     """VCCS"""
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
         G = cExpr(self.args[0]).expr
 
@@ -764,7 +773,7 @@ class VCCS(DependentSource):
         if n2 >= 0 and n4 >= 0:
             cct._G[n2, n4] -= G
 
-    def kill(self):
+    def _kill(self):
         newopts = self.opts.copy()
         newopts.strip_voltage_labels()
         newopts.strip_labels()
@@ -778,7 +787,7 @@ class GY(Dummy):
     need_branch_current = True
     need_extra_branch_current = True
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         
         n1, n2, n3, n4 = self.node_indexes
         m1 = self.cct._branch_index(self.defname + 'X')
@@ -821,7 +830,7 @@ class CCVS(DependentSource):
     need_branch_current = True
     need_control_current = True
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         n1, n2 = self.node_indexes
         m = self.branch_index
 
@@ -836,7 +845,7 @@ class CCVS(DependentSource):
         G = cExpr(self.args[1]).expr
         cct._D[m, mc] -= G
 
-    def kill(self):
+    def _kill(self):
         newopts = self.opts.copy()
         newopts.strip_current_labels()
         newopts.strip_labels()
@@ -846,14 +855,14 @@ class CCVS(DependentSource):
 
 class I(IndependentSource):
 
-    def select(self, kind=None):
+    def _select(self, kind=None):
         """Select domain kind for component."""
 
         return '%s %s %s %s; %s' % (
             self.defname, self.relnodes[0], self.relnodes[1],
             self.cpt.Isc.netval(kind), self.opts)
 
-    def kill(self):
+    def _kill(self):
         newopts = self.opts.copy()
         newopts.strip_voltage_labels()
         newopts.strip_labels()
@@ -861,7 +870,7 @@ class I(IndependentSource):
         return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
                                   self.relnodes[1], newopts)
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
 
         n1, n2 = self.node_indexes
 
@@ -872,20 +881,20 @@ class I(IndependentSource):
         if n2 >= 0:
             cct._Is[n2] -= I
 
-    def ss_model(self):
+    def _ss_model(self):
         return '%s%s %s %s {%s(t)}; %s' % (self.namespace, self.relname,
                                            self.relnodes[0], self.relnodes[1],
                                            self.relname.lower(),
                                            self.opts)
 
-    def s_model(self, var):
+    def _s_model(self, var):
 
         return '%s %s %s s %s; %s' % (self.defname, 
                                       self.nodes[0], self.nodes[1],
                                       arg_format(self.Isc.laplace()(var)),
                                       self.opts)
 
-    def pre_initial_model(self):
+    def _pre_initial_model(self):
 
         # Assume IC zero.  FIXME
         return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
@@ -903,7 +912,7 @@ class K(Dummy):
                                  cpt_type, cpt_id, string,
                                  opts_string, nodes, keyword, *args)
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
 
         if cct.kind == 'dc':
             return
@@ -944,19 +953,19 @@ class L(RLC):
     def L(self):
         return self.cpt.L
     
-    def kill(self):
+    def _kill(self):
         """Kill implicit sources due to initial conditions."""
         return '%s %s %s %s; %s' % (
             self.defname, self.relnodes[0], self.relnodes[1],
             arg_format(self.args[0]), self.opts)
 
-    def initialize(self, ic):
+    def _initialize(self, ic):
         """Change initial condition to ic."""
         return '%s %s %s %s %s; %s' % (self.defname,
                                        self.relnodes[0], self.relnodes[1],
                                        arg_format(self.args[0]),
                                        arg_format(ic), self.opts)
-    def stamp(self, cct):
+    def _stamp(self, cct):
 
         # This formulation adds the inductor current to the unknowns
 
@@ -981,14 +990,14 @@ class L(RLC):
             V = self.Voc.expr            
             cct._Es[m] += V
 
-    def ss_model(self):
+    def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another current source?        
         return '%sI_%s %s %s {-i_%s(t)}; %s' % (self.namespace, self.relname,
                                                 self.relnodes[0], self.relnodes[1],
                                                 self.relname, self.opts)
     
-    def pre_initial_model(self):
+    def _pre_initial_model(self):
 
         if self.cpt.i0 == 0.0:
             return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
@@ -1000,7 +1009,7 @@ class L(RLC):
 class O(Dummy):
     """Open circuit"""
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         pass
 
     @property
@@ -1031,7 +1040,7 @@ class SPpp(Dummy):
 
     need_branch_current = True
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         n1, n2, n3 = self.node_indexes
         m = self.branch_index
 
@@ -1049,7 +1058,7 @@ class SPpm(Dummy):
 
     need_branch_current = True
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         n1, n2, n3 = self.node_indexes
         m = self.branch_index
 
@@ -1066,7 +1075,7 @@ class SPppp(Dummy):
 
     need_branch_current = True
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
         m = self.branch_index
 
@@ -1085,7 +1094,7 @@ class SPpmm(Dummy):
 
     need_branch_current = True
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
         m = self.branch_index
 
@@ -1105,7 +1114,7 @@ class SPppm(Dummy):
 
     need_branch_current = True
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
         m = self.branch_index
 
@@ -1126,7 +1135,7 @@ class TF(Cpt):
 
     need_branch_current = True
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
 
         n1, n2, n3, n4 = self.node_indexes
         m = self.branch_index
@@ -1151,7 +1160,7 @@ class TF(Cpt):
 class TFtap(Cpt):
     """Tapped transformer"""    
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         raise NotImplementedError('Cannot analyse tapped transformer %s' % self)
 
 
@@ -1181,7 +1190,7 @@ class TR(Dummy):
 
     need_branch_current = True
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         n1, n2 = self.node_indexes
         m = self.branch_index
 
@@ -1200,14 +1209,14 @@ class V(IndependentSource):
     need_branch_current = True
     flip_branch_current = True        
 
-    def select(self, kind=None):
+    def _select(self, kind=None):
         """Select domain kind for component."""
 
         return '%s %s %s %s; %s' % (
             self.defname, self.relnodes[0], self.relnodes[1],
             self.cpt.Voc.netval(kind), self.opts)        
 
-    def kill(self):
+    def _kill(self):
         newopts = self.opts.copy()
         newopts.strip_current_labels()
         newopts.strip_labels()
@@ -1215,7 +1224,7 @@ class V(IndependentSource):
         return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
                                   self.relnodes[1], newopts)
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
 
         n1, n2 = self.node_indexes
         m = self.branch_index
@@ -1230,20 +1239,20 @@ class V(IndependentSource):
         V = self.Voc.expr
         cct._Es[m] += V
 
-    def ss_model(self):
+    def _ss_model(self):
         return '%s%s %s %s {%s(t)}; %s' % (self.namespace, self.relname,
                                            self.relnodes[0], self.relnodes[1],
                                            self.relname.lower(),
                                            self.opts)
 
-    def s_model(self, var):
+    def _s_model(self, var):
 
         return '%s %s %s s %s; %s' % (self.defname, 
                                       self.relnodes[0], self.relnodes[1],
                                       arg_format(self.cpt.Voc.laplace()(var)),
                                       self.opts)
 
-    def pre_initial_model(self):
+    def _pre_initial_model(self):
 
         # Assume IC zero.  FIXME
         return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
@@ -1253,7 +1262,7 @@ class V(IndependentSource):
 class W(Dummy):
     """Wire"""
 
-    def stamp(self, cct):
+    def _stamp(self, cct):
         pass
 
     @property

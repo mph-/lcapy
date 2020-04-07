@@ -60,7 +60,7 @@ class StateSpace(object):
         cpt_map = {}
 
         for key, elt in cct.elements.items():
-            ssnet = elt.ss_model()
+            ssnet = elt._ss_model()
             sselt = sscct._add(ssnet)
             name = elt.name
             cpt_map[name] = sselt.name

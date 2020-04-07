@@ -212,7 +212,7 @@ class NetlistNamespace(object):
 
         cct = self
         if kwargs.pop('s_model', False):
-            cct = cct.s_model()
+            cct = cct._s_model()
 
         return cct.sch.draw(filename=filename, **kwargs)
 
@@ -357,7 +357,7 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            new._add(cpt.copy())
+            new._add(cpt._copy())
         return new        
 
     def _new(self):
@@ -506,7 +506,7 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            new._add(cpt.rename_nodes(node_map))
+            new._add(cpt._rename_nodes(node_map))
         return new                
 
     @property
@@ -767,9 +767,9 @@ class NetlistMixin(object):
 
         for cpt in self._elements.values():
             if cpt.independent_source:
-                net = cpt.select(kind)                
+                net = cpt._select(kind)                
             else:
-                net = cpt.copy()
+                net = cpt._copy()
             new._add(net)
         return new        
 
@@ -780,11 +780,11 @@ class NetlistMixin(object):
         for cpt in self._elements.values():
             if cpt.name in sourcenames:
                 if cpt.name in self.control_sources:
-                    net = cpt.zero()                
+                    net = cpt._zero()                
                 else:
-                    net = cpt.kill()
+                    net = cpt._kill()
             else:
-                net = cpt.copy()                
+                net = cpt._copy()                
             new._add(net)
         return new        
 
@@ -837,9 +837,9 @@ class NetlistMixin(object):
 
         for cpt in self._elements.values():
             if cpt.name in resistornames:
-                net = cpt.noisy()
+                net = cpt._noisy()
             else:
-                net = cpt.copy()
+                net = cpt._copy()
             new._add(net)
         return new        
 
@@ -920,7 +920,7 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            net = cpt.subs(subs_dict)
+            net = cpt._subs(subs_dict)
             new._add(net)
         return new                        
     
@@ -938,7 +938,7 @@ class NetlistMixin(object):
                 else:
                     ic = cct[cpt.name].i.remove_condition()(time) 
                     
-            net = cpt.initialize(ic)
+            net = cpt._initialize(ic)
             new._add(net)
         return new                
     
@@ -949,7 +949,7 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            net = cpt.pre_initial_model()
+            net = cpt._pre_initial_model()
             new._add(net)
         return new        
 
@@ -959,7 +959,7 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            net = cpt.s_model(var)
+            net = cpt._s_model(var)
             new._add(net)
         return new
 
@@ -970,7 +970,7 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            net = cpt.ss_model()
+            net = cpt._ss_model()
             new._add(net)
         return new            
 

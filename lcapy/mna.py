@@ -118,7 +118,7 @@ class MNAMixin(object):
 
         # Iterate over circuit elements and fill in matrices.
         for elt in self.elements.values():
-            elt.stamp(self)
+            elt._stamp(self)
 
         # Augment the admittance matrix to form A matrix.
         self._A = self._G.row_join(self._B).col_join(self._C.row_join(self._D))
