@@ -230,9 +230,9 @@ This calculates the driving-point admittance that would be measured across the n
    ... L1 2 0""")
    >>> cct2 = cct.subs({'R1': 2, 'L1': 3})
    >>> cct2
-V1 1 0 Vs
-R1 1 2 2
-L1 2 0 3
+   V1 1 0 Vs
+   R1 1 2 2
+   L1 2 0 3
    
 
 Nodes
@@ -240,8 +240,8 @@ Nodes
 
 A node object is obtained using indexing notation.  For example,
 
-    >>> n1 = cct[1]
-    >>> n2 = cct['2']
+   >>> n1 = cct[1]
+   >>> n2 = cct['2']
 
 
 Node attributes
