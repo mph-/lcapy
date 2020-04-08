@@ -212,7 +212,7 @@ class nExpr(dExpr):
         """
 
         H = self.ZT()
-        return H.difference_equation(x, y, form)
+        return H.difference_equation(input, output, form)
 
     
 class Yn(nExpr):
