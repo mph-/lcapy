@@ -12,7 +12,7 @@ from .dsym import nsym, ksym, zsym, dt
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .ztransform import ztransform
 from .sequence import Sequence
-from sympy import Sum, summation, Eq, limit
+from sympy import Sum, summation, limit
 
 
 __all__ = ('Hn', 'In', 'Vn', 'Yn', 'Zn')
@@ -205,21 +205,16 @@ class nExpr(dExpr):
     
         return self.discrete_time_fourier_transform(**assumptions)
 
-    def difference_equation(self, input='x', output='y'):
+    def difference_equation(self, input='x', output='y', form='iir'):
+        """Create difference equation from impulse response.
 
-        x = nexpr('%s(n)' % input)
-        y = nexpr('%s(n)' % output)
+        form can be fir or iir.
+        """
 
-        X = x.ZT()
-        Y = y.ZT()
-        H = self.ZT().partfrac()
+        H = self.ZT()
+        return H.difference_equation(x, y, form)
 
-        # FIR form
-        lhs = y
-        rhs = (H * X).IZT()        
-        return nExpr(Eq(lhs.expr, rhs.expr))
     
-        
 class Yn(nExpr):
 
     """t-domain 'admittance' value."""

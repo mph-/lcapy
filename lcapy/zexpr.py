@@ -13,8 +13,9 @@ from .ratfun import _zp2tf, Ratfun
 from .dexpr import dExpr
 from .expr import symbol, expr, ExprDict
 from .functions import sqrt, exp
-import sympy as sym
 import numpy as np
+from sympy import Eq, div, limit, oo
+
 
 __all__ = ('Hz', 'Iz', 'Vz', 'Yz', 'Zz')
 
@@ -47,12 +48,12 @@ class zExpr(dExpr):
     def initial_value(self):
         """Determine value at n = 0."""
 
-        return self.__class__(sym.limit(self.expr * self.var, self.var, sym.oo))
+        return self.__class__(limit(self.expr * self.var, self.var, oo))
 
     def final_value(self):
         """Determine value at n = oo."""
 
-        return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
+        return self.__class__(limit(self.expr * self.var, self.var, 0))
 
     def inverse_ztransform(self, **assumptions):
         """Attempt inverse Znransform transform.
@@ -124,7 +125,7 @@ class zExpr(dExpr):
 
         # Perform polynomial long division so expr = Q + M / D                
         N, D, delay = self._decompose()
-        Q, M = sym.div(N, D)
+        Q, M = div(N, D)
         expr = M / D
 
         N = len(t)
@@ -200,6 +201,39 @@ class zExpr(dExpr):
     
         return self.discrete_time_fourier_transform(**assumptions) 
     
+    def difference_equation(self, input='x', output='y', form='iir'):
+        """Create difference equation from transfer function.
+
+        form can be fir or iir.
+        """
+
+        H = self
+        x = nexpr('%s(n)' % input)
+        y = nexpr('%s(n)' % output)
+
+        X = x.ZT()
+        Y = y.ZT()
+
+        if form == 'iir':
+            invz = zExpr('invz')
+            H1 = H.replace(z, 1 / invz)
+            N = H1.N.replace(invz, 1 / z)
+            D = H1.D.replace(invz, 1 / z)
+            
+            A = 1 - D
+            lhs = y
+            rhs = (A * Y).IZT(causal=True) + (N * X).IZT(causal=True)
+            
+        elif form == 'fir':
+            H = H.partfrac()
+            lhs = y
+            rhs = (H * X).IZT(causal=True)
+
+        else:
+            raise ValueError('Unhandled form ' + form)    
+
+        return nExpr(Eq(lhs.expr, rhs.expr))        
+        
     
 # Perhaps use a factory to create the following classes?
 
@@ -296,6 +330,5 @@ def zexpr(arg, **assumptions):
     return zExpr(arg, **assumptions)
 
 
-from .nexpr import Hn, In, Vn, Yn, Zn, nExpr
+from .nexpr import Hn, In, Vn, Yn, Zn, nExpr, nexpr
 z = zExpr('z')
-
