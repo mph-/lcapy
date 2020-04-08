@@ -36,11 +36,11 @@ class LcapyTester(unittest.TestCase):
 
     def test_inverse_ztransform(self):
 
-        self.assertEqual(zexpr(1).IZT(), unitimpulse(n), "1")
-        self.assertEqual((z**-1).IZT(), unitimpulse(n-1), "z**-1")
-        self.assertEqual((z**-2).IZT(), unitimpulse(n-2), "z**-2")
+        self.assertEqual(zexpr(1).IZT(causal=True), unitimpulse(n), "1")
+        self.assertEqual((z**-1).IZT(causal=True), unitimpulse(n-1), "z**-1")
+        self.assertEqual((z**-2).IZT(causal=True), unitimpulse(n-2), "z**-2")
         self.assertEqual(zexpr('1 / (1 - a * z ** -1)').IZT(causal=True), nexpr('a**n * u(n)'), "1 / (1 - a * z)")                        
-        self.assertEqual(zexpr('X(z)').IZT(), nexpr('x(n)'), "X(z)")
+        self.assertEqual(zexpr('X(z)').IZT(causal=True), nexpr('x(n)'), "X(z)")
 
 
     def test_misc(self):
@@ -60,7 +60,7 @@ class LcapyTester(unittest.TestCase):
 
         a = expr('a(n)')
         b = expr('b(n)')        
-        c = (a.ZT() * b.ZT()).IZT()
-        d = expr('Sum(a(-m + n)*b(m), (m, -oo, oo))')
+        c = (a.ZT() * b.ZT()).IZT(causal=True)
+        d = expr('Sum(a(-m + n)*b(m), (m, 0, n))')
         
         self.assertEqual(c, d, "convolution")

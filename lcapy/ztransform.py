@@ -265,9 +265,40 @@ def ztransform(expr, n, z):
 
 def inverse_ztransform_ratfun(expr, z, n, **assumptions):
 
-    damping = assumptions.get('damping', None)
+    expr = expr / z
+    
+    # Handle special case 1 / (z**m * (z - 1)) since this becomes u[n - m]
+    # The default method produces u[n] - delta[n] for u[n-1].  This is correct
+    # but can be simplified.
+    # In general, 1 / (z**m * (z - a)) becomes a**n * u[n - m]
 
-    zexpr = Ratfun(expr / z, z)
+    if (len(expr.args) == 2 and expr.args[1].is_Pow and
+        expr.args[1].args[0].is_Add and
+        expr.args[1].args[0].args[0] == -1 and
+        expr.args[1].args[0].args[1] == z):
+
+        delay = None
+        if expr.args[0] == z:
+            delay = 1
+        elif expr.args[0].is_Pow and expr.args[0].args[0] == z:
+            a = expr.args[0].args[1]
+            if a.is_positive:
+                print('Warning, dodgy z-transform.  Have advance of unit step.')
+            delay = -a
+        elif (expr.args[0].is_Pow and expr.args[0].args[0].is_Pow and
+              expr.args[0].args[0].args[0] == z and
+              expr.args[0].args[0].args[1] == -1):              
+            a = expr.args[0].args[1]
+            if a.is_negative:
+                print('Warning, dodgy z-transform.  Have advance of unit step.')
+            delay = a            
+
+        if delay is not None:
+            return sym.Heaviside(n - delay), sym.S.Zero
+        
+    damping = assumptions.get('damping', None)
+    
+    zexpr = Ratfun(expr, z)
 
     Q, M, D, delay, undef = zexpr.as_QMD()
 
@@ -288,10 +319,6 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
         if factor == sym.oo:
             return factor, factor
 
-    # TODO: special case 1 / (z**m * (z - 1)) since this becomes u[n - m]
-    # The current method produces u[n] - delta[n] for u[n-1]
-    # In general, 1 / (z**m * (z - a)) becomes a**n * u[n - m]    
-        
     zexpr = Ratfun(expr, z)
     poles = zexpr.poles(damping=damping)
     polesdict = {}
@@ -454,7 +481,8 @@ def inverse_ztransform_power(expr, z, n, **assumptions):
     exponent = expr.args[1]
 
     if exponent.is_positive:
-        return sym.S.Zero, unitimpulse(n + exponent)
+        print('Warning, dodgy z-transform.  Have advance of unit impulse.')
+        return unitimpulse(n + exponent), sym.S.Zero
 
     if exponent.is_negative:
         return unitimpulse(n + exponent), sym.S.Zero
@@ -490,8 +518,12 @@ def inverse_ztransform_term1(expr, z, n, **assumptions):
     
     if expr.has(sym.function.AppliedUndef):
         return const * inverse_ztransform_product(expr, z, n,
-                                               **assumptions), sym.S.Zero
+                                                  **assumptions), sym.S.Zero
 
+    if expr == z:
+        print('Warning, dodgy z-transform.  Have advance of unit impulse.') 
+        return const * unitimpulse(n + 1), sym.S.Zero        
+    
     if expr.is_Pow and expr.args[0] == z:
         cresult, uresult = inverse_ztransform_power(expr, z, n, **assumptions)
         return const * cresult, const * uresult    
@@ -554,10 +586,8 @@ def inverse_ztransform_make(n, const, cresult, uresult, **assumptions):
         
     elif not assumptions.get('causal', False):
 
-        if uresult != 0:
-            # Note, the causal part is included in the Piecewise to
-            # simplify notation        
-            result = sym.Piecewise((result, n >= 0))
+        # Cannot determine result for n < 0
+        result = sym.Piecewise((result, n >= 0))
             
     return result    
 

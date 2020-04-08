@@ -223,7 +223,7 @@ class Expr(ExprPrint, ExprMisc):
             self.assumptions = assumptions.copy()
             self.expr = arg.expr
             return
-            
+
         # Perhaps could set dc?
         if arg == 0:
             assumptions['causal'] = True
