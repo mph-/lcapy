@@ -17,13 +17,10 @@ labels.
 
 7. Independent namespaces for SVG files so they can be loaded into Jupyter notebook.
 
-8. Upgrade to latest Circuitikz
+8. If component has invisible attribute, do not count the connections
 
-9. If component has invisible attribute, do not count the connections
+9. Fix scaling of bipoles;  the current method also scales the nodes
 
-10. Fix scaling of bipoles;  the current method also scales the nodes
-
-13. Add input, output, bidir pins for implicit wires
 
 
 Circuit analysis
@@ -34,15 +31,8 @@ Circuit analysis
 2. Generalise two-port representation to avoid transformations from a
 singular matrix.
 
-3. Consider the behaviour of the impedance and admittance methods.
-Currently, these return s-domain expressions but if the circuit has
-only AC sources, should these return omega-domain expressions?
-Perhaps have gimpedance for generalized s-domain impedance and
-impedance for AC domain?
+3. Show Super classes as how they were created and not decomposition?
 
-4. Show Super classes as how they were created and not decomposition?
-
-5. Add circuit subs method so can substitute values before analysis.
 
 
 Infrastructure
@@ -86,7 +76,6 @@ and __exit__ methods so that can use with statement.
 
 14. Speed ups.  Note, default args such as Is(0) have to be constructed.
 
-15. Handle Eq in Laplace transform
 
 Testing
 =======
@@ -156,39 +145,42 @@ SymPy
 1. Advocate for SymPy to consider lower limit of Laplace transform integral
 to sneak past 0 so that DiracDelta(t) -> 1 instead of 0.5.
 
-2. Contribute Fourier/Laplace code.
+2. Contribute Fourier/Laplace code to SymPy.
 
-3. Support unit impulse (or KroneckerDelta with single arg)
+3. Contribute z-transform code to SymPy.
+
+4. Support unit impulse (or KroneckerDelta with single arg).
 
 
 Discrete-time
 =============
 
-1. Add method to create difference equations, say difference_equations(output='y', input='x').
+1. Approximate tExpr with nExpr.
 
-2. Approximate tExpr with nExpr.
+2. Rewrite rational functions in terms of z^-1.
 
-3. Rewrite rational functions in terms of z^-1.
+3. Symbol for z^-1, say invz or iz?  Would need special casing to handle invz * z etc.  Better to not allow mixed expressions with z and invz.  Would need special handling to invz correctly printed.
 
-4. Symbol for z^-1, say invz or iz?  Would need special casing to handle invz * z etc.
+4. Perhaps have a Transformer class with registered transforms?
 
-5. Perhaps have a Transformer class with registered transforms?
+5. Unit lag operator L() ? 
 
-6. Unit lag operator L() ? 
+6. Difference operator D() for first-order differences?
 
-7. Difference operator D() for first-order differences?
+7. Perhaps have min bound for N to help simplify DFT?
 
-8. Perhaps have min bound for N to help simplify DFT?
+8. Perhaps have Voltage() for Vn, Vk, VZ etc.
 
-9. Perhaps have Voltage() for Vn, Vk, VZ etc.
+9. Coerce sympy to print ordered sum of delayed impulses.
 
-10. Coerce sympy to print ordered sum of delayed impulses.
+10. Teach IDFT of DFT.
 
-11. Teach IDFT of DFT.
+11. Inverse z-transform cos(2*pi*dt*n)(z)(n).
 
-12. Inverse z-transform cos(2*pi*dt*n)(z)(n).
+12. Fourier series?
 
-13. Handle Eq in z-transform
+13. Add domain variable F for normalized frequency.
 
-14. Fourier series?
+14. Perhaps add f-like domain variable for DTFT?
+
 
