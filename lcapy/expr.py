@@ -1208,6 +1208,21 @@ class Expr(ExprPrint, ExprMisc):
         ret = symsimplify(self.expr)
         return self.__class__(ret, **self.assumptions)
 
+    def replace(self, query, value, map=False, simultaneous=True, exact=None):
+
+        try:
+            query = query.expr
+        except:
+            pass
+
+        try:
+            value = value.expr
+        except:
+            pass        
+
+        ret = self.expr.replace(query, value, map, simultaneous, exact)
+        return self.__class__(ret, **self.assumptions)        
+        
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
 
