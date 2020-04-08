@@ -28,7 +28,6 @@ class nExpr(dExpr):
 
     def __init__(self, val, **assumptions):
 
-        assumptions['real'] = True
         super(nExpr, self).__init__(val, **assumptions)
 
         #self._fourier_conjugate_class = fExpr
@@ -287,7 +286,7 @@ class Hn(nExpr):
         self._ztransform_conjugate_class = Hz
         self._fourier_conjugate_class = Hk
 
-def nexpr(arg):
+def nexpr(arg, **assumptions):
     """Create nExpr object.  If `arg` is nsym return n"""
 
     if arg is nsym:
@@ -302,8 +301,8 @@ def nexpr(arg):
     
     if isinstance(arg, (list, ndarray)):
         return Sequence(arg, var=n).as_impulses()
-    
-    return nExpr(arg)
+
+    return nExpr(arg, **assumptions)
 
 from .zexpr import Hz, Iz, Vz, Yz, Zz, zExpr
 from .kexpr import Hk, Ik, Vk, Yk, Zk, kExpr

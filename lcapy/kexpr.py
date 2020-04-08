@@ -24,7 +24,6 @@ class kExpr(dExpr):
 
     def __init__(self, val, **assumptions):
 
-        assumptions['real'] = True
         check = assumptions.pop('check', True)
         
         super(kExpr, self).__init__(val, **assumptions)
@@ -167,12 +166,12 @@ class Ik(kExpr):
         self._fourier_conjugate_class = In
 
 
-def kexpr(arg):
+def kexpr(arg, **assumptions):
     """Create kExpr object.  If `arg` is ksym return k"""
 
     if arg is ksym:
         return k
-    return kExpr(arg)
+    return kExpr(arg, **assumptions)
         
 from .nexpr import Hn, In, Vn, Yn, Zn, nexpr
 k = kExpr('k')

@@ -288,12 +288,12 @@ class ZzVector(Vector):
     _typewrap = Zz
 
 
-def zexpr(arg):
+def zexpr(arg, **assumptions):
     """Create zExpr object.  If `arg` is zsym return z"""
 
     if arg is zsym:
         return z
-    return zExpr(arg)
+    return zExpr(arg, **assumptions)
 
 
 from .nexpr import Hn, In, Vn, Yn, Zn, nExpr
