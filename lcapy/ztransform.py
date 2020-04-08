@@ -284,6 +284,8 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             a = expr.args[0].args[1]
             if a.is_positive:
                 print('Warning, dodgy z-transform.  Have advance of unit step.')
+            elif not a.is_negative:
+                print('Warning, dodgy z-transform.  May have advance of unit step.')                
             delay = -a
         elif (expr.args[0].is_Pow and expr.args[0].args[0].is_Pow and
               expr.args[0].args[0].args[0] == z and
@@ -291,6 +293,8 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             a = expr.args[0].args[1]
             if a.is_negative:
                 print('Warning, dodgy z-transform.  Have advance of unit step.')
+            elif not a.is_positive:
+                print('Warning, dodgy z-transform.  May have advance of unit step.')                
             delay = a            
 
         if delay is not None:
@@ -476,18 +480,30 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
 def inverse_ztransform_power(expr, z, n, **assumptions):
 
     # Handle expressions with a power of z.
-    if not (expr.is_Pow and expr.args[0] == z):
-        raise ValueError('Expression %s is not a power of z' % expr)
-    exponent = expr.args[1]
+    if (expr.is_Pow and expr.args[0] == z):
+        exponent = expr.args[1]
 
-    if exponent.is_positive:
-        print('Warning, dodgy z-transform.  Have advance of unit impulse.')
+        if exponent.is_positive:
+            print('Warning, dodgy z-transform.  Have advance of unit impulse.')
+        elif not exponent.is_negative:
+            print('Warning, dodgy z-transform.  May have advance of unit impulse.')
+        
         return unitimpulse(n + exponent), sym.S.Zero
 
-    if exponent.is_negative:
-        return unitimpulse(n + exponent), sym.S.Zero
+    # Handle expressions with a power of (1 / z).
+    if (expr.is_Pow and expr.args[0].is_Pow and
+        expr.args[0].args[0] == z and expr.args[0].args[1] == -1):
 
-    raise ValueError('Cannot determine sign of exponent for %s' % expr)
+        exponent = expr.args[1]
+
+        if exponent.is_negative:
+            print('Warning, dodgy z-transform.  Have advance of unit impulse.')
+        elif not exponent.is_positive:
+            print('Warning, dodgy z-transform.  May have advance of unit impulse.')
+        
+        return unitimpulse(n - exponent), sym.S.Zero        
+
+    raise ValueError('Expression %s is not a power of z' % expr)
 
 
 def inverse_ztransform_sympy(expr, z, n):
@@ -523,11 +539,14 @@ def inverse_ztransform_term1(expr, z, n, **assumptions):
     if expr == z:
         print('Warning, dodgy z-transform.  Have advance of unit impulse.') 
         return const * unitimpulse(n + 1), sym.S.Zero        
-    
-    if expr.is_Pow and expr.args[0] == z:
-        cresult, uresult = inverse_ztransform_power(expr, z, n, **assumptions)
-        return const * cresult, const * uresult    
 
+    if (expr.is_Pow and
+        (expr.args[0] == z or
+         (expr.args[0].is_Pow and
+          expr.args[0].args[0] == z and expr.args[0].args[1] == -1))):
+        cresult, uresult = inverse_ztransform_power(expr, z, n, **assumptions)
+        return const * cresult, const * uresult        
+        
     try:
         # This is the common case.
         cresult, uresult = inverse_ztransform_ratfun(expr, z, n, **assumptions)
