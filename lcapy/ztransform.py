@@ -177,7 +177,7 @@ def ztransform_term(expr, n, z):
         if args[0] is n:
             result = 1 / (1 - invz)
         else:
-            delay = args[0] - n
+            delay = n - args[0]
             if not delay.has(n):
                 result = invz ** delay * 1 / (1 - invz)
 
@@ -288,6 +288,10 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
         if factor == sym.oo:
             return factor, factor
 
+    # TODO: special case 1 / (z**m * (z - 1)) since this becomes u[n - m]
+    # The current method produces u[n] - delta[n] for u[n-1]
+    # In general, 1 / (z**m * (z - a)) becomes a**n * u[n - m]    
+        
     zexpr = Ratfun(expr, z)
     poles = zexpr.poles(damping=damping)
     polesdict = {}
