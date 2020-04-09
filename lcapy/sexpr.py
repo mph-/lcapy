@@ -314,7 +314,6 @@ class sExpr(Expr):
         # s = ln(z) / dt gives the exact solution
         
         return self.subs((2 / dt) * (1 - z**-1) / (1 + z**-1))
-        
     
     
 # Perhaps use a factory to create the following classes?

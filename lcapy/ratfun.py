@@ -128,6 +128,9 @@ def as_numer_denom_poly(expr, var):
 
 def as_numer_denom(expr, var):
 
+    if expr.has(1 / var):
+        expr = expr.cancel()
+    
     N = sym.S.One
     D = sym.S.One    
     for f in expr.as_ordered_factors():
