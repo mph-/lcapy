@@ -89,6 +89,8 @@ Other SymPy functions can be converted to Lcapy functions using the
    >>> gamma = Function(sym.gamma)   
 
 
+.. _expressionsattributes:     
+
 Attributes
 ==========
 
@@ -164,7 +166,9 @@ All Lcapy expressions have the following attributes:
   
 - `var` returns the underlying SymPy symbol representing the domain
     
-  
+
+.. _expressionsmethods:  
+
 Methods
 =======
 
@@ -194,6 +198,12 @@ Miscellaneous
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
 - `multiply_top_and_bottom(expr)` multiplies numerator and denominator by `expr`.
+
+- `replace(query, value)` replace `query` with `value`.
+
+- `factor_const` factor into constant part and the rest.
+
+- `factor_term` split into constant part and the rest.    
   
 
 Formatting methods
@@ -204,6 +214,8 @@ consider the s-domain rational-function:
 
    >>> H = 5 * (s**2 + 1) / (s**2 + 5*s + 4)     
 
+The canonical form has a unity coefficient for the highest power in the denominator.  It is sometimes called polynomial form.
+   
    >>> H.canonical()
      ⎛   2    ⎞ 
      ⎝5⋅s  + 5⎠   
@@ -211,8 +223,8 @@ consider the s-domain rational-function:
     2          
    s  + 5⋅s + 4
 
-This has a unity coefficient for the highest power in the denominator.  It is sometimes called polynomial form.
-
+There is a variation of the canonical form which has a unity coefficient for the highest power in the denominator and with constants factored in the numerator.   It is sometimes called gain-polynomial form.
+   
    >>> H.canonical(factor_const=True)
       ⎛ 2    ⎞ 
     5⋅⎝s  + 1⎠ 
@@ -220,8 +232,8 @@ This has a unity coefficient for the highest power in the denominator.  It is so
     2          
    s  + 5⋅s + 4
 
-This has a unity coefficient for the highest power in the denominator and with constants factored in the numerator.   It is sometimes called gain-polynomial form.
-
+The general form of a rational function is shown as the ratio of two polynomials.   Unlike the canonical form, the coefficient for the highest power in the denominator may not be unity.
+   
    >>> H.general()
         2      
      5⋅s  + 5  
@@ -229,21 +241,22 @@ This has a unity coefficient for the highest power in the denominator and with c
     2          
    s  + 5⋅s + 4
 
-This is the general form of a rational function shown as the ratio of two polynomials.   Unlike the canonical form, the coefficient for the highest power in the denominator may not be unity.
+The factored form show both the numerator and denominator polynomials  factored.  It is an alias for `ZPK` (zero-pole-gain) form.
+   
    
    >>> H.factored()
    5⋅(s - ⅉ)⋅(s + ⅉ)
    ─────────────────
     (s + 1)⋅(s + 4) 
 
-Here both the numerator and denominator polynomials are factored.  It is an alias for `ZPK` (zero-pole-gain) form.
-
+The partial fraction form has terms that are strictly proper.
+    
    >>> H.partfrac()
            85          10   
    5 - ───────── + ─────────
        3⋅(s + 4)   3⋅(s + 1)
 
-This splits the rational function into partial fraction form.
+The standard form expresses the rational function as the sum of a polynomial and a strictly proper rational function.
        
    >>> H.standard()
       25⋅s + 15      
@@ -251,8 +264,8 @@ This splits the rational function into partial fraction form.
       2              
      s  + 5⋅s + 4    
 
-This expresses the rational function into the sum of a polynomial and a strictly proper rational function.
-     
+The time constant form factors the rational function into gain-time-constant form.
+   
    >>> H.timeconst()
    5⋅(-ⅉ⋅s + 1)⋅(ⅉ⋅s + 1)
    ──────────────────────
@@ -260,7 +273,7 @@ This expresses the rational function into the sum of a polynomial and a strictly
      4⋅⎜─ + 1⎟⋅(s + 1)   
        ⎝4    ⎠           
 
-This expresses the rational function in gain-time-constant form.
+The expanded canonical form expresses the rational function into the sum of rational functions where the numerator of each term contains a unique monomial.
        
    >>> H.expandcanonical()  
           2                   

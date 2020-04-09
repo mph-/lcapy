@@ -91,7 +91,7 @@ frequency domain by substituting :math:`\mathrm{j} \omega` for :math:`s`
 
 Also note, real numbers are approximated by rationals.
 
-Lcapy expressions have a number of attributes, including:
+Lcapy expressions have a number of attributes  (see :ref:`expressionsattributes`) including:
 
 - `numerator`, `N` --  numerator of rational function
 
@@ -111,7 +111,7 @@ Lcapy expressions have a number of attributes, including:
 
 - `val` -- the expression as evaluated as a floating point value (if possible)
 
-and a number of generic methods including:
+and a number of generic methods (see :ref:`expressionsmethods`) including:
 
 - `simplify()` -- attempt simple simplification of the expression
 
