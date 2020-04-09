@@ -813,6 +813,20 @@ class Expr(ExprPrint, ExprMisc):
 
         return N / D
 
+    def factor_const(self):
+
+        from .utils import factor_const
+
+        c, r = factor_const(self, self.var)
+        return cExpr(c), self.__class__(r, **self.assumptions)
+
+    def term_const(self):
+
+        from .utils import term_const
+
+        c, r = term_const(self, self.var)
+        return cExpr(c), self.__class__(r, **self.assumptions)    
+
     def multiply_top_and_bottom(self, factor):
         """Multiply numerator and denominator by common factor."""
 

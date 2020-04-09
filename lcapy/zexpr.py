@@ -200,6 +200,23 @@ class zExpr(dExpr):
         """Convert to Fourier domain using discrete time Fourier transform."""
     
         return self.discrete_time_fourier_transform(**assumptions) 
+
+    def decompose_AB(self):
+
+        C, R = self.factor_const()
+        
+        invz = expr('invz')
+        H = R.replace(z, 1 / invz).factor()
+        r = Ratfun(H, invz.expr)
+        B = zExpr(r.N).replace(invz, 1 / z)
+        A = zExpr(r.D).replace(invz, 1 / z)
+
+        C1, R1 = A.term_const()
+        if C1.is_negative:
+            A = -A
+            B = -B
+        
+        return A, B * C
     
     def difference_equation(self, input='x', output='y', form='iir'):
         """Create difference equation from transfer function.
@@ -215,14 +232,10 @@ class zExpr(dExpr):
         Y = y.ZT()
 
         if form == 'iir':
-            invz = zExpr('invz')
-            H1 = H.replace(z, 1 / invz)
-            N = H1.N.replace(invz, 1 / z)
-            D = H1.D.replace(invz, 1 / z)
+            A, B = self.decompose_AB()
             
-            A = 1 - D
-            lhs = y
-            rhs = (A * Y).IZT(causal=True) + (N * X).IZT(causal=True)
+            lhs = (A * Y).IZT(causal=True)
+            rhs = (B * X).IZT(causal=True)
             
         elif form == 'fir':
             H = H.partfrac()

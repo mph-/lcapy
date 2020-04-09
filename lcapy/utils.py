@@ -16,6 +16,20 @@ def factor_const(expr, var):
     return const, rest
 
 
+def term_const(expr, var):
+
+    rest = sym.S.One
+    const = sym.S.Zero
+    for term in expr.as_ordered_terms():
+        # Cannot use factor.is_constant() since SymPy 1.2, 1.3
+        # barfs for Heaviside(t) and DiracDelta(t)
+        if not term.has(var):
+            const += term
+        else:
+            rest += term
+    return const, rest
+
+
 def scale_shift(expr, t):
 
     if not expr.has(t):
