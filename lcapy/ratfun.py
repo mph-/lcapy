@@ -379,18 +379,42 @@ class Ratfun(object):
         
         D = [(var - p.expr) ** o for p, o in zip(poles, occurrences)]
         denom = sym.Mul(K, *D)
+
+        def method1(numer, denom, var, pole):
         
-        d = sym.limit(denom, var, pole)
-        
-        if d != 0:
+            d = sym.limit(denom, var, pole)
+            
+            if d != 0:
+                tmp = (numer / denom).simplify()
+                
+                # Sometimes this takes ages...
+                return sym.limit(tmp, var, pole)
+
+            # Use l'Hopital's rule
             tmp = numer / denom
+            tmp = sym.diff(tmp, var)
+
             return sym.limit(tmp, var, pole)
 
-        # Use l'Hopital's rule
-        tmp = numer / denom
-        tmp = sym.diff(tmp, var)
+        def method2(numer, denom, var, pole):
+
+            d = denom.subs(var, pole)            
+            n = numer.subs(var, pole)
+            
+            if d != 0:
+                return n / d
+
+            ddenom = sym.diff(demon, var)
+            return n / ddenom.subs(pole)
+
+        #m1 = method1(numer, denom, var, pole)
+        m2 = method2(numer, denom, var, pole)        
+
+        #if m1 != m2:
+        #    import pdb; pdb.set_trace()
+        return m2
         
-        return sym.limit(tmp, var, pole)
+
 
     @property
     def numerator_denominator(self):
