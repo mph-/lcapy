@@ -309,6 +309,8 @@ class sExpr(Expr):
 
     def bilinear_transform(self):
 
+        # TODO: add frequency warping as an option
+
         from .discretetime import z, dt
 
         # s = ln(z) / dt gives the exact solution

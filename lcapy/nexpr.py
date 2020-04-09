@@ -208,7 +208,7 @@ class nExpr(dExpr):
     def difference_equation(self, input='x', output='y', form='iir'):
         """Create difference equation from impulse response.
 
-        form can be fir or iir.
+        form can be 'fir' or 'iir' ('direct form I').
         """
 
         H = self.ZT()

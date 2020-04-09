@@ -23,8 +23,8 @@ For schematic drawing you require:
 For nice maths formatting in a jupyter notebook you require mathjax (https://www.mathjax.org/).  This is not essential; if it is not loaded then an active internet connection is required.
 
 
-Installation for Linux (using apt)
-==================================
+Installation for Linux
+======================
 
 1. Lcapy (and its python dependencies) can be installed using:
 
@@ -32,7 +32,7 @@ Installation for Linux (using apt)
                 
     $ pip3 install lcapy
 
-2. All the other packages required for Lcapy can be installed using:
+2. For systems using apt, all the other packages required for Lcapy can be installed using:
 
 .. code-block:: console
                 

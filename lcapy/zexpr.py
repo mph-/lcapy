@@ -221,7 +221,7 @@ class zExpr(dExpr):
     def difference_equation(self, input='x', output='y', form='iir'):
         """Create difference equation from transfer function.
 
-        form can be fir or iir.
+        form can be 'fir' or 'iir' ('direct form I').
         """
 
         H = self
@@ -231,7 +231,8 @@ class zExpr(dExpr):
         X = x.ZT()
         Y = y.ZT()
 
-        if form == 'iir':
+        if form in ('iir', 'direct form I'):
+            # Direct form I
             A, B = self.decompose_AB()
             
             lhs = (A * Y).IZT(causal=True)

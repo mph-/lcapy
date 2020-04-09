@@ -189,11 +189,11 @@ Poles and zeros
 Miscellaneous
 -------------
 
-- `initial_value()` returns result at :math:`t = 0`
+- `initial_value()` returns result at :math:`t = 0`.
 
-- `final_value()` returns result at :math:`t = oo`  
+- `final_value()` returns result at :math:`t = oo`.
 
-- `rationalize_denominator` multiplies numerator and denominator by complex conjugate of denominator
+- `rationalize_denominator` multiplies numerator and denominator by complex conjugate of denominator.
 
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
