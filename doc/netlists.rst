@@ -113,7 +113,7 @@ The component type is specified by the first letter(s) of the
 
    `Iname Np Nm Iexpr`
 
-   `I1 1 0`  This is equivalent to `I1 1 0 {v1(t)}`
+   `I1 1 0`  This is equivalent to `I1 1 0 {i1(t)}`
 
    `I1 1 0 10`  This is a DC source of 10 I
   
@@ -161,9 +161,9 @@ The component type is specified by the first letter(s) of the
 
 - Capacitor:
 
-   `Cname Np Nm L`
+   `Cname Np Nm C`
  
-   `Cname Np Nm L v0`   Here `i0` is the voltage across the capacitor.  If this is specified then the circuit is solved as an initial value problem.
+   `Cname Np Nm C v0`   Here `v0` is the voltage across the capacitor.  If this is specified then the circuit is solved as an initial value problem.
 
 - Voltage-controlled voltage source (VCVS) of gain H with controlling nodes Nip and Nim:
 
@@ -177,6 +177,25 @@ The component type is specified by the first letter(s) of the
 
    `GYname Np Nm Nip Nim R`  
 
+- Mechanical spring:
+
+   `kname Np Nm k`
+
+   `kname Np Nm k u0` Here `u0` is the initial speed.  If this is specified then the circuit is solved as an initial value problem.
+
+
+- Mechanical mass:
+
+   `mname Np Nm m`
+
+   `mname Np Nm m f0` Here `f0` is the initial force.  If this is specified then the circuit is solved as an initial value problem.
+
+
+- Mechanical damper:
+
+   `rname Np Nm r`
+   
+   
 Np denotes the positive node; Np denotes the negative node.  For
 two-port devices, Nip denotes the positive input node and Nim denotes
 the negative input node.  Note, positive current flows from
@@ -371,10 +390,10 @@ superposition in the transform domains, for example,
 
 The `Ys` and `Zs` attributes provide the generalized s-domain admittance and impedance of the component, for example,
 
-   >>> cct.L1.Zs
+   >>> cct.L1.Z(s)
    L₁⋅s
 
-   >>> cct.R1.Zs
+   >>> cct.R1.Z(s)
    R₁
 
 The generalized s-domain driving point admittance and impedance can be found using `dpYs` and `dpZs`, for example,
@@ -386,7 +405,7 @@ The generalized s-domain driving point admittance and impedance can be found usi
    s + ──
        L₁
 
-Note, this is the total impedance across `L1`, not just the impedance of the component as given by `cct.L1.Zs`.
+Note, this is the total impedance across `L1`, not just the impedance of the component as given by `cct.L1.Z(s)`.
        
 
 Oneports
@@ -430,14 +449,14 @@ Here's an example,
    >>> L 2 1
    >>> C 1 0
    >>> R2 3 0""")
-   >>> cct.oneport('R1').Z
+   >>> cct.oneport('R1').Z(omega)
            ⎛   2   ⅉ⋅R₂⋅ω    1 ⎞ 
     C⋅L⋅R₁⋅⎜- ω  + ────── + ───⎟ 
            ⎝         L      C⋅L⎠ 
    ──────────────────────────────
           2                      
    - C⋅L⋅ω  + ⅉ⋅C⋅ω⋅(R₁ + R₂) + 1
-   >>> cct.oneport('R1').Zs
+   >>> cct.oneport('R1').Z(s)
            ⎛ 2   R₂⋅s    1 ⎞ 
     C⋅L⋅R₁⋅⎜s  + ──── + ───⎟ 
            ⎝      L     C⋅L⎠ 
