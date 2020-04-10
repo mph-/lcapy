@@ -33,6 +33,66 @@ formed by connecting `R1` and `R2` in series.
    :width: 4cm
 
 
+Network components
+------------------           
+
+- `C` capacitor
+
+- `CPE` constant phase element
+  
+- `Damper` mechanical damper
+
+- `FeriteBead` ferrite bead (lossy inductor)
+
+- `G` conductance  
+
+- `I` arbitrary current source
+
+- `i` arbitrary time-domain current source        
+
+- `Iac` ac current source    
+  
+- `Idc` dc current source
+
+- `Inoise` noise current source            
+  
+- `Istep` step current source
+
+- `L` inductor  
+
+- `Mass` mass
+
+- `O` open-circuit
+
+- `R` resistor
+
+- `Spring` spring
+
+- `sV` s-domain voltage source
+
+- `sI` s-domain current source
+
+- `V` arbitrary voltage source
+
+- `v` arbitrary time-domain voltage source    
+
+- `Vac` ac voltage source    
+  
+- `Vdc` dc voltage source
+
+- `Vnoise` noise voltage source        
+  
+- `Vstep` step voltage source    
+
+- `Xtal` crystal
+  
+- `W` wire
+
+- `Y` generalised admittance
+
+- `Z` generalised impedance      
+
+  
 .. _network_attributes:
            
 Network attributes

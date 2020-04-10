@@ -23,7 +23,10 @@ import sympy as sym
 
 module = sys.modules[__name__]
 
-# TODO: ponder use of anonymous names when manipulating nets with select, zero, etc.
+cptaliases = {'E': 'VCVS', 'F': 'CCCS',
+              'G': 'VCCS',  'H': 'CCVS',
+              'r': 'Damper', 'm': 'Mass',
+              'k': 'Spring'}
 
 
 def arg_format(value):
@@ -100,8 +103,7 @@ class Cpt(ImmitanceMixin):
         classname = self.classname
         # Handle aliases.
         try:
-            classname = {'E' : 'VCVS', 'F' : 'CCCS',
-                         'G' : 'VCCS',  'H' : 'CCVS'}[classname]
+            classname = cptaliases[classname]
         except:
             pass
                 
@@ -1312,7 +1314,6 @@ def make(classname, parent, name, cpt_type, cpt_id,
 
     cpt = newclass(parent, name, cpt_type, cpt_id, string, opts_string, 
                    nodes, *args)
-    # Add named attributes for the args?   Lname1, etc.
 
     return cpt
 
@@ -1419,11 +1420,12 @@ defcpt('Vac', V, 'AC voltage source')
 defcpt('Vnoise', V, 'Noise voltage source')
 defcpt('VM', O, 'Voltmeter')
 
-# These could easily be modelled but need someway of choosing
-# with electromechanical analogue.
-defcpt('m', Misc, 'Mass')
-defcpt('k', Misc, 'Spring')
-defcpt('r', Misc, 'Damper')
+# Let's choose mechanical analogue II (the impedance analogue) where
+# force is equivalent to voltage and velocity is equivalent to
+# current.  With this analogy parallel and serial have to be switched.
+defcpt('m', L, 'Mass')
+defcpt('k', C, 'Spring')
+defcpt('r', R, 'Damper')
 
 # Append classes defined in this module but not imported.
 clsmembers = inspect.getmembers(module, lambda member: inspect.isclass(member) and member.__module__ == __name__)

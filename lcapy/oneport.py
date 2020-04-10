@@ -1275,6 +1275,27 @@ class P(O):
     """Port (open circuit)"""
     pass
 
+
+class Mass(L):
+    """Mass
+
+    Mass mval, initial velocity v0"""
+    pass
+
+
+class Spring(C):
+    """Spring
+
+    Spring constant kval, initial force f0"""
+    pass
+
+
+class Damper(R):
+    """Damper
+
+    Friction coeff rval"""
+    pass
+
     
 # Imports at end to circumvent circular dependencies
 from .expr import Expr

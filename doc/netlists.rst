@@ -561,5 +561,25 @@ This is the same as the previous example but with a different resistor value giv
    :width: 15cm
 
 
+Mechanical netlists
+===================
 
+Linear mechanical networks comprising masses, springs, and dampers can
+be simulated.  The machanical analogue II (impedance analogue) is
+employed where voltage is equivalent to force and current is
+equivalent to speed.  Thus a mass is analogous to a capacitor, a
+spring is analogous to a capacitor, and a damper is analogous to a
+resistor.
 
+For example,
+   >>> a = Circuit("""
+   m 1 2; right
+   k 2 3; right
+   r 3 4; right""")
+   >>> Z = a.impedance(1, 4)
+   >>> Z(s).partfrac() 
+              1 
+   m⋅s + r + ───
+             k⋅s
+
+With this analogue d'Alemberts law is equivalent to Kirchhoff's voltage law.  Thus every loop in the electrical circuit is analogous to a point in the mechanical system.   This also means that series combinations transform to parallel combinations and vice-versa.
