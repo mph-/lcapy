@@ -10,9 +10,8 @@ import numpy as np
 t = np.linspace(0, 0.01, 1000)
 vc = cct.C.v.evaluate(t)
 
-from matplotlib.pyplot import figure, savefig
-fig = figure()
-ax = fig.add_subplot(111)
+from matplotlib.pyplot import subplots, savefig
+fig, ax = subplots(1)
 ax.plot(t, vc, linewidth=2)
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Capacitor voltage (V)')

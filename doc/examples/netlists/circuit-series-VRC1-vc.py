@@ -1,6 +1,6 @@
 from lcapy import *
 import numpy as np
-from matplotlib.pyplot import figure, savefig
+from matplotlib.pyplot import subplots, savefig
 
 t = np.linspace(0, 0.01, 1000)
 
@@ -12,8 +12,7 @@ cct.add('C1 2 0 1e-4')
 
 vc = cct.C1.v.evaluate(t)
 
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = subplots(1)
 ax.plot(t, vc, linewidth=2)
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Capacitor voltage (V)')

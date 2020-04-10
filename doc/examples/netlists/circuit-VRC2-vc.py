@@ -8,13 +8,11 @@ C 2 0 1e-4
 
 vc = cct.C.v
 
-from matplotlib.pyplot import figure, savefig
 import numpy as np
-
 t = np.linspace(0, 0.01, 1000)
 
-fig = figure()
-ax = fig.add_subplot(111)
+from matplotlib.pyplot import subplots, savefig
+fig, ax = subplots(1)
 vc.plot(t, axes=ax)
 
 savefig('circuit-VRC2-vc.png')

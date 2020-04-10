@@ -1,6 +1,6 @@
 from lcapy import Circuit
 import numpy as np
-from matplotlib.pyplot import figure, savefig
+from matplotlib.pyplot import subplots, savefig
 
 t = np.linspace(0, 0.01, 1000)
 
@@ -14,8 +14,7 @@ cct.add('R1 3 0 100')
 Vr = cct[3].V
 vr = Vr.transient_response(t)
 
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = subplots(1)
 ax.plot(t, vr, linewidth=2)
 ax.set_xlabel('Time (s)')
 ax.set_ylabel('Resistor voltage (V)')
