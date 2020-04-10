@@ -302,9 +302,9 @@ The `partfrac()` and `recippartfrac()` methods have a `combine_conjugates` argum
      2⋅(s + ⅉ)   2⋅(s - ⅉ)   s
    >>> H.partfrac(combine_conjugates=True)
          5⋅s     5
-   - ────── + ─
-      2       s
-     s  + 1    
+      - ────── + ─
+         2       s
+        s  + 1    
   
    
 
