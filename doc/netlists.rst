@@ -556,7 +556,7 @@ V-R-L-C circuit (1)
 
 This example plots the transient voltage across a resistor in a series R-L-C circuit:
 
-.. image:: examples/netlists/circuit-VRLC1.png
+.. image:: examples/netlists/circuit-VRLaC1.png
    :width: 10cm
 
 .. literalinclude:: examples/netlists/circuit-VRLC1-vr.py
@@ -586,7 +586,7 @@ Mechanical netlists
 Linear mechanical networks comprising masses, springs, and dampers can
 be simulated.  The machanical analogue II (impedance analogue) is
 employed where voltage is equivalent to force and current is
-equivalent to speed.  Thus a mass is analogous to a capacitor, a
+equivalent to speed.  Thus a mass is analogous to an inductor, a
 spring is analogous to a capacitor, and a damper is analogous to a
 resistor.
 
