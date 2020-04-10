@@ -1419,6 +1419,12 @@ defcpt('Vac', V, 'AC voltage source')
 defcpt('Vnoise', V, 'Noise voltage source')
 defcpt('VM', O, 'Voltmeter')
 
+# These could easily be modelled but need someway of choosing
+# with electromechanical analogue.
+defcpt('m', Misc, 'Mass')
+defcpt('k', Misc, 'Spring')
+defcpt('r', Misc, 'Damper')
+
 # Append classes defined in this module but not imported.
 clsmembers = inspect.getmembers(module, lambda member: inspect.isclass(member) and member.__module__ == __name__)
 for name, cls in clsmembers:

@@ -258,7 +258,6 @@ Node names can also refer to pins of shape and chip components.  For example::
   W  1 U1.in; right
   W  U1.gnd 0; down
   
-  
 
 Components
 ==========
@@ -282,7 +281,6 @@ Constant phase elements (CPE)
 
 .. image:: examples/schematics/CPE1.png
    :width: 2cm        
-
 
 
 Diodes
@@ -517,9 +515,6 @@ Here are the named connections:
 .. image:: examples/schematics/Ufdopamps.png
    :width: 10cm                   
 
-
-
-           
            
 Potentiometers
 --------------
@@ -628,6 +623,18 @@ The ground wires can be removed using the `nowires` attribute:
    :width: 8cm        
 
 
+Mechanical components
+---------------------
+
+Masses, springs, and dampers can be drawn, for example,
+
+.. literalinclude:: examples/schematics/massspringdamper1.sch
+
+.. image:: examples/schematics/massspringdamper1.png
+   :width: 8cm        
+
+
+           
 Wires
 =====
 
@@ -676,7 +683,6 @@ If the step pattern is not specified, a default step pattern `-|` is chosen if t
 .. image:: examples/schematics/steppedwire0.png
    :width: 3cm        
 
-
            
 Arrows
 ------
@@ -723,7 +729,6 @@ Here are some power supply examples:
 .. image:: examples/schematics/supplies.png
     :width: 3cm
         
-
 
 Connections
 -----------
@@ -798,8 +803,6 @@ Here are some examples:
 
 .. image:: examples/schematics/guard1.png
    :width: 12cm                             
-
-           
 
 
 Block diagrams
@@ -918,7 +921,6 @@ The nodes of the pins can be drawn using the `pinnodes` option.  This has a synt
 
 The pin names can be redefined by the `pindefs` option.  This has a syntax:
   - `pindefs={new1=old1, new2=old2, ...}`
-
 
                     
 Annotation

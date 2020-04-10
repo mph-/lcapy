@@ -54,8 +54,10 @@ Inoise: Iname Np Nm noise [Value] [NID]; Noise current source
 J: Jname Nd Ng Ns [Value]; N channel JFET
 Jnjf: Jname Nd Ng Ns njf [Value]; N channel JFET
 Jpjf: Jname Nd Ng Ns pjf [Value]; P channel JFET
+k: kname Np Nm [Value] [IC]; Spring
 K: Kname Lname1 Lname2 [Value]; Mutual inductance (L1 on left, L2 on right)
 L: Lname Np Nm [Value] [IC]; Inductance
+m: mname Np Nm [Value] [IC]; Mass
 M: Mname Nd Ng Ns [Value]; N channel MOSFET
 Mnmos: Mname Nd Ng Ns nmos [Value]; N channel MOSFET
 Mpmos: Mname Nd Ng Ns pmos [Value]; P channel MOSFET
@@ -66,6 +68,7 @@ P: Pname Np Np; Port
 Q: Qname Nc Nb Ne [Value]; NPN transistor
 Qnpn: Qname Nc Nb Ne npn [Value]; NPN transistor
 Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor 
+r: rname Np Nm [Value]; Damper
 R: Rname Np Nm [Value]; Resistor
 RV: RVname Np Nm No [Value] [Value]; Potentiometer
 Sbox: Sname box; Box
