@@ -1416,7 +1416,10 @@ class Expr(ExprPrint, ExprMisc):
     def recippartfrac(self, combine_conjugates=False, damping=None):
         """Convert rational function into partial fraction form
         using reciprocal of variable.
-        For example,
+
+        For example, if H = 5 * (s**2 + 1) / (s**2 + 5*s + 4)     
+        then H.recippartfrac() gives 
+        5/4 - 10/(3*(1 + 1/s)) + 85/(48*(1/4 + 1/s))
 
         If combine_conjugates is True then the pair of partial
         fractions for complex conjugate poles are combined.
@@ -1425,10 +1428,10 @@ class Expr(ExprPrint, ExprMisc):
 
         tmpsym = symsymbol('qtmp')
 
-        expr = self.subs(tmpsym)
-        ratfun = Ratfun(expr, tmpsym)
+        expr = self.subs(1 / tmpsym)
+        ratfun = Ratfun(expr.expr, tmpsym)
 
-        nexpr = expr.partfrac(combine_conjugates, damping)
+        nexpr = ratfun.partfrac(combine_conjugates, damping)
         nexpr = nexpr.subs(tmpsym, 1 / self.var)
         
         return self.__class__(nexpr, **self.assumptions)

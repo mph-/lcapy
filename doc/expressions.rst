@@ -256,6 +256,16 @@ The partial fraction form has terms that are strictly proper.
    5 - ───────── + ─────────
        3⋅(s + 4)   3⋅(s + 1)
 
+The `recippartfrac()` method generates a partial fraction expansion using the reciprocal of the variable:
+
+   >>>H.recipartfrac()
+   5       10          85    
+   ─ - ───────── + ──────────
+   4     ⎛    1⎞      ⎛1   1⎞
+       3⋅⎜1 + ─⎟   48⋅⎜─ + ─⎟
+         ⎝    s⎠      ⎝4   s⎠
+
+       
 The standard form expresses the rational function as the sum of a polynomial and a strictly proper rational function.
        
    >>> H.standard()
@@ -282,6 +292,21 @@ The expanded canonical form expresses the rational function into the sum of rati
     2              2          
    s  + 5⋅s + 4   s  + 5⋅s + 4
 
+
+The `partfrac()` and `recippartfrac()` methods have a `combine_conjugates` argument.  If this is True, quadractic factors will not be split into two terms.  For example,
+
+   >>> H = 5 / (s * (s**2 + 1))
+   >>> H.partfrac()
+         5           5       5
+   - ───────── - ───────── + ─
+     2⋅(s + ⅉ)   2⋅(s - ⅉ)   s
+   >>> H.partfrac(combine_conjugates=True)
+         5⋅s     5
+   - ────── + ─
+      2       s
+     s  + 1    
+  
+   
 
 Printing methods
 ----------------

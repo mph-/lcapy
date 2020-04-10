@@ -380,6 +380,9 @@ class Ratfun(object):
         D = [(var - p.expr) ** o for p, o in zip(poles, occurrences)]
         denom = sym.Mul(K, *D)
 
+        # Could calculate all residues simultaneously using
+        # system of linear equations.
+        
         def method1(numer, denom, var, pole):
         
             d = sym.limit(denom, var, pole)
@@ -407,13 +410,8 @@ class Ratfun(object):
             ddenom = sym.diff(demon, var)
             return n / ddenom.subs(pole)
 
-        #m1 = method1(numer, denom, var, pole)
         m2 = method2(numer, denom, var, pole)        
-
-        #if m1 != m2:
-        #    import pdb; pdb.set_trace()
         return m2
-        
 
 
     @property
