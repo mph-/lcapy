@@ -320,5 +320,5 @@ All the known symbols can be found using:
 
    >>> cct.context.symbols
 
-The `.pdb` method of an `Expr` instance invokes the Python debugger
+The `.pdb()` method of an `Expr` instance invokes the Python debugger
 (pdb).

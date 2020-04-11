@@ -626,7 +626,7 @@ The ground wires can be removed using the `nowires` attribute:
 Mechanical components
 ---------------------
 
-Masses, springs, and dampers can be drawn, for example,
+Springs, dampers (dashpots), and masses are oneport components for modelling mechanical systems, for example,
 
 .. literalinclude:: examples/schematics/massspringdamper1.sch
 
@@ -925,6 +925,14 @@ The pin names can be redefined by the `pindefs` option.  This has a syntax:
                     
 Annotation
 ==========
+
+Nodes can be annotated using the `A` net.   For example,
+
+.. literalinclude:: examples/schematics/annotate1.sch
+
+.. image:: examples/schematics/annotate1.png
+   :width: 7cm
+                    
 
 Schematics can be annotated using additional tikz commands in the
 netlist.  These are delimited by a line starting with two semicolons,
