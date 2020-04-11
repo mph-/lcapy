@@ -77,6 +77,11 @@ class tExpr(Expr):
             result = sExpr(result, **assumptions)
         return result
 
+    def LT(self, **assumptions):
+        """Convert to s-domain.   This is an alias for laplace."""
+
+        return self.laplace(**assumptions)
+    
     def fourier(self, **assumptions):
         """Attempt Fourier transform."""
 
@@ -89,6 +94,11 @@ class tExpr(Expr):
         else:
             result = fExpr(result **self.assumptions)
         return result
+
+    def FT(self, **assumptions):
+        """Convert to f-domain.   This is an alias for fourier."""
+
+        return self.fourier(**assumptions)    
 
     def phasor(self, **assumptions):
 

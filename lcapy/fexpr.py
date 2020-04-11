@@ -42,6 +42,11 @@ class fExpr(Expr):
             result = tExpr(result)
         return result
 
+    def IFT(self, **assumptions):
+        """Convert to t-domain.   This is an alias for inverse_fourier."""
+
+        return self.inverse_fourier(**assumptions)    
+    
     def time(self, **assumptions):
         return self.inverse_fourier()
     

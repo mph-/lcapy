@@ -87,6 +87,11 @@ class sExpr(Expr):
             result = tExpr(result)
         return result
 
+    def ILT(self, **assumptions):
+        """Convert to t-domain.   This is an alias for inverse_laplace."""
+
+        return self.inverse_laplace(**assumptions)
+    
     def time(self, **assumptions):
         """Convert to time domain."""
         
@@ -100,6 +105,7 @@ class sExpr(Expr):
         
         return self.__class__(self, **assumptions)
 
+    
     def fourier(self, **assumptions):
         """Convert to Fourier domain."""
         from .symbols import f
