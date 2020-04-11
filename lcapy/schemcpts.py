@@ -59,7 +59,7 @@ class Cpt(object):
                  'pinnames', 'pinnodes', 'pindefs', 'outside',
                  'pinmap', 'kind', 'wire', 'ignore', 'style',
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
-                 'nodots', 'draw_nodes')
+                 'nodots', 'draw_nodes', 'label_nodes')
 
     can_rotate = True
     can_scale = False
