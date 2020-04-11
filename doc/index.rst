@@ -20,7 +20,7 @@ Contents:
    :maxdepth: 3
 
    install.rst
-   tutorial.rst
+   overview.rst
    expressions.rst
    discretetime.rst                         
    circuits.rst

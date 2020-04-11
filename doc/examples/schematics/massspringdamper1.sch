@@ -1,3 +1,3 @@
-m 1 2; right
-k 2 3; right
-r 3 4; right
+k 1 2; right
+r 2 3; right
+m 3 0; right

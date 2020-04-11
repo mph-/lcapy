@@ -18,11 +18,11 @@ the same potential but with different coordinates.
 
 Here's an example:
    >>> from lcapy import Circuit
-   >>> cct = Circuit()
-   >>> cct.add('V 1 0 {V(s)}; down') 
-   >>> cct.add('R 1 2; right') 
-   >>> cct.add('C 2 _0_2; down') 
-   >>> cct.add('W 0 _0_2; right') 
+   >>> cct = Circuit("""
+   ... V 1 0 {V(s)}; down
+   ... R 1 2; right
+   ... C 2 _0_2; down
+   ... W 0 _0_2; right"")
    >>> cct.draw('schematic.pdf')
 
 Note, the orientation hints are appended to the netlist strings with a
@@ -262,7 +262,7 @@ Node names can also refer to pins of shape and chip components.  For example::
 Components
 ==========
 
-Only linear, time-invariant, components can be analyzed.
+Only linear, time-invariant, components can be analyzed by Lcapy.   However, many others can be drawn.
 
 
 Crystals

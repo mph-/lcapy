@@ -28,7 +28,7 @@ Constants
 
 Lcapy represents floating point numbers as rationals.  This ensures expected simplifications of expressions.    
 
-
+.. _domain_variables:
 Domain variables
 ----------------
 
@@ -76,6 +76,8 @@ Notes:
 3. There are restrictions on symbol names that can be used.  Currently, this excludes names that are Python keywords.  For example, `Is` is not allowed.
 
 
+..functions
+   
 Mathematical functions
 ----------------------
 
@@ -306,7 +308,6 @@ The `partfrac()` and `recippartfrac()` methods have a `combine_conjugates` argum
          2       s
         s  + 1    
   
-   
 
 Printing methods
 ----------------
@@ -700,6 +701,8 @@ Laplace domain entities there are the following classes:
 
 - `Zs` Laplace-domain impedance
 
+
+.. _parameterization
 
 Parameterization
 ================

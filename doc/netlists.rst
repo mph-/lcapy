@@ -592,9 +592,9 @@ resistor.
 
 For example,
    >>> a = Circuit("""
-   m 1 2; right
-   k 2 3; right
-   r 3 4; right""")
+   k 1 2; right
+   r 2 3; right
+   m 3 4; right""")
    >>> Z = a.impedance(1, 4)
    >>> Z(s).partfrac() 
               1 

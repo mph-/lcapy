@@ -1,5 +1,5 @@
 ================
-Circuit Analysis
+Circuit analysis
 ================
 
 

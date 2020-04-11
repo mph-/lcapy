@@ -50,7 +50,7 @@ circuit analysis is performed as for Circuit objects by converting the
 network to a netlist.
 
 
-Values and Expressions
+Values and expressions
 ======================
 
 Lcapy uses a number of classes to represent a value or expression.
