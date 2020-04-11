@@ -1,8 +1,8 @@
-.. TODO, split into manual and tutorial
+========
+Overview
+========
 
-========
-Tutorial
-========
+This document provides an overview of Lcapy's capabilities.
 
 
 Introduction
@@ -52,7 +52,7 @@ current flows out of the positive node.
 Expressions
 ===========
 
-Lcapy defines a number of symbols corresponding to different domains:
+Lcapy defines a number of symbols corresponding to different domains (see :ref:`domainvariables`):
 
 - t -- time (real)
 
@@ -165,7 +165,6 @@ Here's an example of using these attributes and methods:
           ω  + 16       
 
 
-
 Each domain has specific methods, including:
 
 - `fourier`   -- Convert to Fourier domain
@@ -175,7 +174,7 @@ Each domain has specific methods, including:
 - `time`      -- Convert to time domain
 
 
-Lcapy defines a number of functions that can be used in expressions, including:
+Lcapy defines a number of functions (see :ref:`functions`) that can be used in expressions, including:
 
 - `u` --  Heaviside's unit step
 
@@ -304,11 +303,11 @@ Let's consider a series R-L-C network
    >>> n = R(4) + L(10) + C(20)
    >>> n
    R(4) + L(10) + C(20)
-   >>> n.Z
+   >>> n.Z(omega)
                  ⅉ  
    10⋅ⅉ⋅ω + 4 - ────
                 20⋅ω
-   >>> n.Zs
+   >>> n.Z(s)
        2         1 
    10⋅s  + 4⋅s + ──
                  20
@@ -319,7 +318,7 @@ Notice the result is a rational function of `s`.  Remember impedance
 is a frequency domain concept.  A rational function can be formatted
 in a number of different ways, for example,
 
-   >>> n.Zs.ZPK()
+   >>> n.Z(s).ZPK()
       ⎛      ____    ⎞ ⎛      ____    ⎞
       ⎜    ╲╱ 14    1⎟ ⎜    ╲╱ 14    1⎟
    10⋅⎜s - ────── + ─⎟⋅⎜s + ────── + ─⎟
@@ -327,7 +326,7 @@ in a number of different ways, for example,
    ────────────────────────────────────
                     s                 
 
-   >>> n.Zs.standard()
+   >>> n.Z(s).standard()
                1  
    10⋅s + 4 + ────
               20⋅s
@@ -341,33 +340,32 @@ The corresponding parallel R-L-C network yields
    >>> n = R(5) | L(20) | C(10)
    >>> n
    R(5) | L(20) | C(10)
-   >>> n.Zs
+   >>> n.Z(s)
            s         
    ──────────────────
       ⎛ 2   s     1 ⎞
    10⋅⎜s  + ── + ───⎟
       ⎝     50   200⎠
 
-   >>> n.Zs.ZPK()
+   >>> n.Z(s).ZPK()
                    s                 
    ──────────────────────────────────
       ⎛     1    7⋅j⎞ ⎛     1    7⋅j⎞
    10⋅⎜s + ─── - ───⎟⋅⎜s + ─── + ───⎟
       ⎝    100   100⎠ ⎝    100   100⎠
-   >>> n.Zs.canonical()
+   >>> n.Z(s).canonical()
            s         
    ──────────────────
       ⎛ 2   s     1 ⎞
    10⋅⎜s  + ── + ───⎟
       ⎝     50   200⎠
-   >>> n.Ys
+   >>> n.Y(s)
         2          
    200⋅s  + 4⋅s + 1
    ────────────────
          20⋅s      
 
-Notice how `n.Ys` returns the s-domain admittance of the network, the reciprocal
-of the impedance `n.Zs`.
+Notice how `n.Y(s)` returns the s-domain admittance of the network, the reciprocal of the impedance `n.Z(s)`.
 
 
 The frequency response can be evaluated numerically by specifying a
@@ -678,16 +676,30 @@ impedance has a non specified Y matrix.
 Transfer functions
 ==================
 
-Transfer functions can be created in a similar manner to Matlab,
+Transfer functions can be created for netlists using the `transfer()` method.  Here's an example for an RC low-pass filter
+
+   >>> cct = Circuit("""
+   ... R 1 2
+   ... C 2 0""")
+   >>> H = cct.transfer(1, 0, 2, 0)
+   >>> H(s)
+         1      
+   ─────────────
+       ⎛     1 ⎞
+   C⋅R⋅⎜s + ───⎟
+       ⎝    C⋅R⎠
+
+
+Transfer functions can also be created in a similar manner to Matlab,
 either using lists of numerator and denominator coefficients:
 
-    >>> from lcapy import *
-    >>> H1 = tf(0.001, [1, 0.05, 0])
-    >>> H1
-        0.001     
-    ───────────────
-         2         
-    1.0⋅s  + 0.05⋅s
+   >>> from lcapy import *
+   >>> H1 = tf(0.001, [1, 0.05, 0])
+   >>> H1
+       0.001     
+   ───────────────
+        2         
+   1.0⋅s  + 0.05⋅s
 
 from lists of poles and zeros (and optional gain):
 
@@ -720,6 +732,29 @@ for example,
    ───────────────────
    (-p₁ + s)⋅(-p₂ + s)
 
+
+Parameterization
+================
+   
+Transfer functions (or any d-domain expression) can be parameterized with the `parameterize()` method (see :ref:`parameterization`).  This returns a tuple.  The first element is the parameterized expression and the second element is a dictionary of substitutions.
+
+Here's a second order example:
+
+   >>> H2 = 3 / (s**2 + 2*s + 4)
+   >>> H2
+        3      
+   ────────────
+    2          
+   s  + 2⋅s + 4
+   >>> H2p, defs = H2.parameterize()
+   >>> H2p
+              K         
+   ───────────────────
+     2               2
+   ω₀  + 2⋅ω₀⋅s⋅ζ + s 
+ 
+   >>> defs
+   {K: 3, omega_0: 2, zeta: 1/2}
 
 
 Partial fraction analysis
@@ -766,11 +801,10 @@ Similarly, the zeros can be found using the zeros function:
 Lcapy can also handle rational functions with a delay.
 
 
-
 Inverse Laplace transforms
 ==========================
 
-Lcapy can perform inverse Laplace transforms.   Here's an example for
+Lcapy can perform inverse Laplace transforms.  Here's an example for
 a strictly proper rational function:
 
    >>> from lcapy import s
@@ -787,7 +821,7 @@ a strictly proper rational function:
 
 or alternatively
    
->>> H(t)
+   >>> H(t)
    ⎧      -2⋅t       -3⋅t           
    ⎨- 30⋅e     + 35⋅e      for t ≥ 0
    ⎩                                
@@ -1501,7 +1535,7 @@ Schematics
 Schematics can be generated from a netlist and from one-port networks.
 In both cases the drawing is performed using the LaTeX Circuitikz
 package.  The schematic can be displayed interactively or saved to a
-pdf or png file.
+pdf, png, or pgf file.
 
 
 Netlist schematics
