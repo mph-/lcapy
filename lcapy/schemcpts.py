@@ -326,6 +326,10 @@ class Cpt(object):
         return self.opts.get('draw_nodes', None)
 
     @property
+    def label_nodes_opt(self):
+        return self.opts.get('label_nodes', None)    
+
+    @property
     def style(self):
         return self.opts.get('style', None)
     
@@ -676,7 +680,9 @@ class Cpt(object):
        
     def draw_node_labels(self, **kwargs):
 
-        label_nodes = kwargs.get('label_nodes', 'primary')
+        label_nodes = self.label_nodes_opt
+        if label_nodes is None:
+            label_nodes = kwargs.get('label_nodes', 'primary')
 
         s = ''
         for node in self.drawn_nodes:
