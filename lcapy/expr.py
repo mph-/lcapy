@@ -108,10 +108,11 @@ class ExprMisc(object):
         return self
 
     def debug(self):
+        """Print assumptions for all symbols in the expression."""
 
         name = self.__class__.__name__
         s = '%s(' % name
-        print(symdebug(self.expr, s , len(name) + 1))
+        print(symdebug(self.expr, s, len(name) + 1))
 
     
 class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
