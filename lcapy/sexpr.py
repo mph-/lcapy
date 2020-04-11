@@ -259,10 +259,21 @@ class sExpr(Expr):
             defs[symbolname] = cExpr(value)
             return sym1
 
-        ndegree = self.N.degree        
-        ddegree = self.D.degree
-        ncoeffs = self.N.coeffs(norm=True)
-        dcoeffs = self.D.coeffs(norm=True)
+        factors = self.as_ordered_factors()
+
+        spowers = [s**-4, s**-3, s**-2, s**-1, s, s**2, s**3, s**4]
+        for spower in spowers:
+            if spower in factors:
+                result, defs = (self / spower).parameterize(zeta)
+                return result * spower, defs
+        
+        N = self.N
+        D = self.D
+        
+        ndegree = N.degree        
+        ddegree = D.degree
+        ncoeffs = N.coeffs(norm=True)
+        dcoeffs = D.coeffs(norm=True)
 
         result = None
         defs = ExprDict()
@@ -287,30 +298,15 @@ class sExpr(Expr):
             K = def1(defs, 'K', K)
             coeffs = self.N.coeffs()
 
-            if dcoeffs[2] == 0:
-                P, defs = (self * s).parameterize(zeta) 
-                if defs != {}:
-                    result = P / s
+            if not zeta:
+                sigma1 = def1(defs, 'sigma_1', dcoeffs[1] / 2)
+                omega1 = def1(defs, 'omega_1',
+                              sqrt(dcoeffs[2] - (dcoeffs[1] / 2)**2).simplify())
+                result = K * (self.N / coeffs[0]) / (s**2 + 2 * sigma1 * s + sigma1**2 + omega1**2)
             else:
-                if not zeta:
-                    sigma1 = def1(defs, 'sigma_1', dcoeffs[1] / 2)
-                    omega1 = def1(defs, 'omega_1',
-                                  sqrt(dcoeffs[2] - (dcoeffs[1] / 2)**2).simplify())
-                    result = K * (self.N / coeffs[0]) / (s**2 + 2 * sigma1 * s + sigma1**2 + omega1**2)
-                else:
-                    omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]))
-                    zeta = def1(defs, 'zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
-                    result = K * (self.N / coeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2)
-
-        elif ddegree == 3:
-
-            P, defs = (self * s).parameterize(zeta) 
-            if defs != {}:
-                result = P / s
-            else:
-                P, defs = (self / s).parameterize(zeta)
-                if defs != {}:            
-                    result = P * s
+                omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]))
+                zeta = def1(defs, 'zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
+                result = K * (self.N / coeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2)
 
         if result is None:
             # Copy?
