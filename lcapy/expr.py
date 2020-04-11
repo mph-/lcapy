@@ -101,7 +101,6 @@ class ExprContainer(object):
     
 class ExprMisc(object):
 
-    @property    
     def pdb(self):
         """Enter the python debugger."""
         
