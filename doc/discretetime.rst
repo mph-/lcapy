@@ -106,3 +106,52 @@ The bilinear transform can be used to approximate an s-domain expression with a 
    ──────────────────────
    Δₜ⋅a⋅(z + 1) - 2⋅z + 2
 
+Here's another example, an RC low-pass filter.
+
+   >>> from lcapy import Circuit, s, t
+   >>> net = Circuit("""
+   R 1 2; right
+   W 0 0_2; right
+   C 2 0_2; down
+   W 2 3; right=0.5
+   W 0_2 0_3; right=0.5""")
+
+This has a transfer function :
+
+   >>> H = net.transfer(1, 0, 3, 0)
+   >>> H
+      1      
+─────────────
+    ⎛     1 ⎞
+C⋅R⋅⎜s + ───⎟
+    ⎝    C⋅R⎠
+
+and an impulse response:
+
+   >>> H(t)
+    -t      
+    ───     
+    C⋅R     
+   ℯ   ⋅u(t)
+   ─────────
+      C⋅R   
+
+Using the bilinear transform, the discrete-time transfer function is
+
+   >>> H.bilinear_transform().canonical()                                      
+             Δₜ⋅(z + 1)          
+   ──────────────────────────────
+   ⎛    -2⋅C⋅R + Δₜ⎞             
+   ⎜z + ───────────⎟⋅(2⋅C⋅R + Δₜ)
+   ⎝     2⋅C⋅R + Δₜ⎠             
+
+with a discrete-time impulse response
+   
+   >>> from lcapy.discretetime import n
+   >>> H.bilinear_transform()(n).simplify()                                   
+      ⎛                  n                         ⎞
+      ⎜      ⎛2⋅C⋅R - Δₜ⎞                          ⎟
+   Δₜ⋅⎜4⋅C⋅R⋅⎜──────────⎟ ⋅u(n) - (2⋅C⋅R + Δₜ)⋅δ[n]⎟
+      ⎝      ⎝2⋅C⋅R + Δₜ⎠                          ⎠
+   ─────────────────────────────────────────────────
+               (2⋅C⋅R - Δₜ)⋅(2⋅C⋅R + Δₜ)     

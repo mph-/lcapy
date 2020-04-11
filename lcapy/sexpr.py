@@ -264,48 +264,59 @@ class sExpr(Expr):
         ncoeffs = self.N.coeffs(norm=True)
         dcoeffs = self.D.coeffs(norm=True)
 
+        result = None
         defs = ExprDict()
 
         K = self.K
         if ndegree < 1 and ddegree < 1:
-            return self, defs
-        if ndegree == 1 and ddegree == 1:
+            result = self
+        elif ndegree == 1 and ddegree == 1:
             K = def1(defs, 'K', K)
             alpha = def1(defs, 'alpha', dcoeffs[1])
             beta = def1(defs, 'beta', ncoeffs[1])
-            return K * (s + beta) / (s + alpha), defs
-        if ndegree == 1 and ddegree == 0:
+            result = K * (s + beta) / (s + alpha)
+        elif ndegree == 1 and ddegree == 0:
             K = def1(defs, 'K', K)
             beta = def1(defs, 'beta', ncoeffs[1])
-            return K * (s + beta), defs
-        if ndegree == 0 and ddegree == 1:
+            result = K * (s + beta)
+        elif ndegree == 0 and ddegree == 1:
             K = def1(defs, 'K', K)
             alpha = def1(defs, 'alpha', dcoeffs[1])
-            return K / (s + alpha), defs
-        if ddegree == 2:
+            result = K / (s + alpha)
+        elif ddegree == 2:
             K = def1(defs, 'K', K)
             coeffs = self.N.coeffs()
 
-            if not zeta:
-                sigma1 = def1(defs, 'sigma_1', dcoeffs[1] / 2)
-                omega1 = def1(defs, 'omega_1',
-                              sqrt(dcoeffs[2] - (dcoeffs[1] / 2)**2).simplify())
-                return K * (self.N / coeffs[0]) / (s**2 + 2 * sigma1 * s + sigma1**2 + omega1**2), defs
-                
-            omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]))
-            zeta = def1(defs, 'zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
-            return K * (self.N / coeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2), defs
+            if dcoeffs[2] == 0:
+                P, defs = (self * s).parameterize(zeta) 
+                if defs != {}:
+                    result = P / s
+            else:
+                if not zeta:
+                    sigma1 = def1(defs, 'sigma_1', dcoeffs[1] / 2)
+                    omega1 = def1(defs, 'omega_1',
+                                  sqrt(dcoeffs[2] - (dcoeffs[1] / 2)**2).simplify())
+                    result = K * (self.N / coeffs[0]) / (s**2 + 2 * sigma1 * s + sigma1**2 + omega1**2)
+                else:
+                    omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]))
+                    zeta = def1(defs, 'zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
+                    result = K * (self.N / coeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2)
 
-        if ddegree == 3:
+        elif ddegree == 3:
 
             P, defs = (self * s).parameterize(zeta) 
             if defs != {}:
-                return P / s, defs
-            P, defs = (self / s).parameterize(zeta)
-            if defs != {}:            
-                return P * s, defs
-        
-        return self, defs
+                result = P / s
+            else:
+                P, defs = (self / s).parameterize(zeta)
+                if defs != {}:            
+                    result = P * s
+
+        if result is None:
+            # Copy?
+            result = self
+
+        return self.__class__(result, **self.assumptions), defs
 
     def bilinear_transform(self):
 
