@@ -174,7 +174,7 @@ Each domain has specific methods, including:
 - `time`      -- Convert to time domain
 
 
-Lcapy defines a number of functions (see :ref:`functions`) that can be used in expressions, including:
+Lcapy defines a number of functions (see :ref:`expressionsfunctions`) that can be used in expressions, including:
 
 - `u` --  Heaviside's unit step
 
