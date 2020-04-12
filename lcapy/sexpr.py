@@ -217,6 +217,33 @@ class sExpr(Expr):
 
         return N, D, delay
 
+    def differential_equation(self, input='x', output='y'):
+        """Create differential equation from transfer function. 
+
+        For example,  
+        >>> H = (s + 3) / (s**2 + 4)  
+        >>> H.differential_equation()
+                 d                    d       
+        3⋅y(t) + ──(y(t)) = 4⋅x(t) + ───(x(t))
+                 dt                    2      
+                                     dt       
+        """
+
+        H = self
+        x = texpr('%s(t)' % input)
+        y = texpr('%s(t)' % output)
+
+        X = x.LT()
+        Y = y.LT()
+
+        N = self.N
+        D = self.D
+        
+        lhs = (N * Y).ILT(causal=True)
+        rhs = (D * X).ILT(causal=True)
+
+        return tExpr(sym.Eq(lhs.expr, rhs.expr))
+
     def evaluate(self, svector=None):
 
         return super(sExpr, self).evaluate(svector)
@@ -493,6 +520,6 @@ def sexpr(arg):
     return sExpr(arg)
 
 
-from .texpr import Ht, It, Vt, Yt, Zt, tExpr
+from .texpr import Ht, It, Vt, Yt, Zt, tExpr, texpr
 s = sExpr('s')
 
