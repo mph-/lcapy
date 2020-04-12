@@ -58,7 +58,7 @@ class NodalAnalysis(object):
 
         # In principle we could generate the system of
         # integro-differential equations in the time domain.
-        if cct.kind is 'super':
+        if cct.kind == 'super':
             raise ValueError('Can only handle sub-circuits at present')
         
         self.cct = cct

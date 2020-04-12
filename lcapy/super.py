@@ -109,7 +109,7 @@ class Super(ExprDict):
 
         keys = []
         for key in self.decompose().keys():
-            if not isinstance(key, str) or key is 'w':
+            if not isinstance(key, str) or key == 'w':
                 keys.append(key)
         return keys
 
@@ -118,7 +118,7 @@ class Super(ExprDict):
 
         keys = []
         for key in self.keys():
-            if isinstance(key, str) and key[0] is 'n':
+            if isinstance(key, str) and key[0] == 'n':
                 keys.append(key)
         return keys    
 
@@ -367,14 +367,14 @@ class Super(ExprDict):
               include the DC and AC components).
 
         """
-        if kind is 'super':
+        if kind == 'super':
             return self
-        elif kind is 'time':
+        elif kind == 'time':
             return self.time()
         elif kind in ('ivp', 'laplace'):
             return self.laplace()
 
-        if isinstance(kind, str) and kind[0] is 'n':
+        if isinstance(kind, str) and kind[0] == 'n':
             if kind not in self:
                 return self.decompose_domains['n'](0)
             return self[kind]
@@ -394,7 +394,7 @@ class Super(ExprDict):
     def netval(self, kind):
 
         def kind_keyword(kind):
-            if isinstance(kind, str) and kind[0] is 'n':
+            if isinstance(kind, str) and kind[0] == 'n':
                 return 'noise'
             elif kind in ('ivp', 'laplace'):
                 return 's'
@@ -415,7 +415,7 @@ class Super(ExprDict):
         if 'nid' in val.assumptions:
             return '%s {%s} %s' % (keyword, val, val.nid)
 
-        if keyword is 'ac':
+        if keyword == 'ac':
             return '%s {%s} {%s} {%s}' % (keyword, val, 0, val.omega)
 
         return '%s {%s}' % (keyword, val)
