@@ -51,7 +51,8 @@ class Cpt(object):
     inner_label_keys = ('t', )    
     implicit_keys =  ('implicit', 'ground', 'sground', 'rground',
                       'cground', 'nground', 'pground', 'vss', 'vdd',
-                      'vee', 'vcc', 'input', 'output', 'bidir', 'pad')
+                      'vee', 'vcc', 'input', 'output', 'bidir', 'pad',
+                      'antenna', 'rxantenna', 'txantenna')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'scale', 'invisible', 'variable', 'fixed',
@@ -3004,9 +3005,13 @@ class Wire(Bipole):
                 s += r'  \draw[align=center] (%s) node {%s};''\n' % (
                     lpos, self.label(**kwargs))                
             return s
-                
+
+        rotate = 90
+        if kind in ('antenna', 'rxantenna', 'txantenna'):
+            rotate = 0
+        
         s += r'  \draw (%s) node[%s, scale=0.5, rotate=%d] {};''\n' % (
-            n2.s, kind, self.angle + 90)
+            n2.s, kind, self.angle + rotate)
 
         if 'l' in self.opts:
             lpos = self.tf(n2.pos, (0.125, 0), scale=1)
