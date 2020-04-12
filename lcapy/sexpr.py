@@ -224,7 +224,7 @@ class sExpr(Expr):
         >>> H = (s + 3) / (s**2 + 4)  
         >>> H.differential_equation()
                  d                    d       
-        3⋅y(t) + ──(y(t)) = 4⋅x(t) + ───(x(t))
+        3.y(t) + ──(y(t)) = 4.x(t) + ───(x(t))
                  dt                    2      
                                      dt       
         """
