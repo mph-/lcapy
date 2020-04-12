@@ -3,8 +3,8 @@ Using Lcapy with LaTeX
 ======================
 
 Lcapy can generate `.pgf` image files for both schematics and plots.
-These have the advantage is that they use the same fonts as the
-document.
+This format has the advantages of vector graphics and the same fonts
+as the LaTeX document.
 
 Lcapy can also generate expressions using LaTeX math markup.  These
 can be automatically embedded using the `sympytex` LaTeX package (see

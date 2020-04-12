@@ -20,7 +20,7 @@ As well as performing circuit analysis, Lcapy can output the systems of equation
 
 Lcapy cannot directly analyse non-linear devices such as diodes or
 transistors although it does support simple opamps without saturation.
-Nevertheless, it can draw them!
+Nevertheless, it can draw them!  Lcapy can generate text-book quality schematics using vector graphics (unlike the bit-mapped graphics used in this document).
 
 Lcapy uses SymPy (symbolic Python) for its values and expressions
 and thus the circuit analysis can be performed symbolically.  See http://docs.sympy.org/latest/tutorial/index.html for the SymPy tutorial.

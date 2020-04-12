@@ -7,9 +7,10 @@ Printing
 ========
 
 There are three ways to print an expression:
-# string (mostly for use in the debugger)
-# unicode (for the python/Ipython command line)
-# latex (for jupyter notebooks and LaTeX files)
+
+1. string (mostly for use in the debugger)
+2. unicode (for the python/Ipython command line)
+3. latex (for jupyter notebooks and LaTeX files)
 
 For each way, the output representation of an expression can be changed using the dictionaries `str_expr_map`, `pretty_expr_map`, and `latex_expr_map`.  For example, to print the Heaviside "function" as an `H` instead of the default `u`, for the LaTeX representation use:
 
