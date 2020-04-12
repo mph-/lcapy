@@ -1034,6 +1034,8 @@ class Bipole(StretchyCpt):
                        'styles' : {}},
                 'L' : {'name': 'inductor', 'kinds': {'variable': 'vL'},
                        'styles' : {}},
+                'BAT' : {'name': 'battery', 'kinds': {'cell1': 'battery1'},
+                         'styles' : {}},                
                 'D' : {'name': 'diode',
                        'kinds': {'led': 'leD', 'photo': 'pD', 'schottky' : 'sD',
                                  'zener': 'zD', 'zzener': 'zzD', 'tunnel' : 'tD'},

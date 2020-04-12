@@ -265,6 +265,15 @@ Components
 Only linear, time-invariant, components can be analyzed by Lcapy.   However, many others can be drawn.
 
 
+Batteries
+---------
+
+.. literalinclude:: examples/schematics/batteries.sch
+
+.. image:: examples/schematics/batteries.png
+   :width: 3cm
+
+
 Crystals
 --------
 
