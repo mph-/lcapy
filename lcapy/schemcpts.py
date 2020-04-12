@@ -1055,7 +1055,12 @@ class Bipole(StretchyCpt):
                 if self.style not in styles:
                     raise ValueError('Unknown %s style %s: known styles %s'
                                      % (cpt['name'], self.style, ', '.join(styles.keys())))
-                tikz_cpt += styles[self.style]                            
+                tikz_cpt += styles[self.style]
+
+        elif self.type == 'MISC':
+            if self.kind is None:
+                raise ValueError('kind must be specified for %s' % self)
+            tikz_cpt = self.kind
 
         label_pos = '_'
         voltage_pos = '^'
@@ -3193,7 +3198,6 @@ defcpt('F', VCS, 'CCCS', 'american controlled current source')
 defcpt('G', CCS, 'VCCS', 'american controlled current source')
 defcpt('H', CCS, 'CCVS', 'american controlled voltage source')
 
-
 defcpt('FS', Bipole, 'Fuse', 'fuse')
 
 defcpt('GY', Gyrator, 'Gyrator', 'gyrator')
@@ -3215,6 +3219,7 @@ defcpt('L', Bipole, 'Inductor', 'L')
 defcpt('M', MOSFET, 'N MOSJFET transistor', 'nmos')
 defcpt('Mnmos', 'M', 'N channel MOSJFET transistor', 'nmos')
 defcpt('Mpmos', 'M', 'P channel MOSJFET transistor', 'pmos')
+defcpt('MISC', Bipole, 'Generic circuitikz component', '')
 
 defcpt('O', Bipole, 'Open circuit', 'open')
 defcpt('P', Bipole, 'Port', 'open')

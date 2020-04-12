@@ -61,6 +61,7 @@ m: mname Np Nm [Value] [IC]; Mass
 M: Mname Nd Ng Ns [Value]; N channel MOSFET
 Mnmos: Mname Nd Ng Ns nmos [Value]; N channel MOSFET
 Mpmos: Mname Nd Ng Ns pmos [Value]; P channel MOSFET
+MISC: MISCname Np Nm; Miscellaneous circuitikz bipole
 MT: MTname Np Nm; Motor
 MX: MXname P P P; Mixer
 O: Oname Np Np; Open circuit

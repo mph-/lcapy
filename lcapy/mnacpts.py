@@ -1359,6 +1359,7 @@ defcpt('Jpjf', 'J', 'P JFET transistor')
 defcpt('M', NonLinear, 'N MOSJFET transistor')
 defcpt('Mnmos', 'M', 'N channel MOSJFET transistor')
 defcpt('Mpmos', 'M', 'P channel MOSJFET transistor')
+defcpt('MISC', Misc, 'Generic circuitikz bipole')
 defcpt('MT', Misc, 'Motor')
 defcpt('MX', Misc, 'Mixer')
 

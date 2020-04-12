@@ -458,6 +458,20 @@ Here's an example using a voltmeter and an ammeter:
    :width: 5cm
 
 
+Miscellanous components
+-----------------------
+
+Miscellaneous Circuitikz bipole components can be drawn using a `MISC`
+component.  For example,
+
+.. literalinclude:: examples/schematics/misc.sch
+
+.. image:: examples/schematics/misc.png
+   :width: 5cm
+
+See the Circuitikz manual for bipole components that can be drawn.
+           
+
 Opamps
 ------
 
