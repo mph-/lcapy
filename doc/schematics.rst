@@ -74,7 +74,7 @@ positive x axis.  For example,
 
    >>> cct.add('D1 1 2; rotate=45')
 
-The component orientation can also be specified by a direction keyword: 
+The component orientation can also be specified by a direction keyword.  Note, this rotates the component:
 
 - right (0 degrees)
 
@@ -572,7 +572,14 @@ Here's an example:
 .. image:: examples/schematics/switches.png
    :width: 8cm
 
+Switches can be mirrored and inverted, for example:
 
+.. literalinclude:: examples/schematics/switches2.sch
+
+.. image:: examples/schematics/switches2.png
+   :width: 8cm
+
+           
 Transformers
 ------------
 

@@ -38,6 +38,15 @@ module = sys.modules[__name__]
 # the pin coordinates and thus the node coordinates.  Note, some
 # components to do not have any explicit nodes (shapes, chips, etc).
 
+# The direction commands rotate the component:
+# right (0 degrees)
+# up    (90 degrees)
+# left  (180 degrees)
+# down  (-90 degrees)
+#
+# Lcapy uses this information to position the second node with respect
+# to the first.   Circuitikz then infers the rotation.
+
 
 class Cpt(object):
 
@@ -55,7 +64,7 @@ class Cpt(object):
                       'antenna', 'rxantenna', 'txantenna')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
-                 'mirror', 'scale', 'invisible', 'variable', 'fixed',
+                 'mirror', 'invert', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
                  'pinnames', 'pinnodes', 'pindefs', 'outside',
                  'pinmap', 'kind', 'wire', 'ignore', 'style',
@@ -65,6 +74,7 @@ class Cpt(object):
     can_rotate = True
     can_scale = False
     can_mirror = False
+    can_invert = False    
     can_stretch = True
     default_width = 1.0
     default_aspect = 1.0
@@ -229,6 +239,10 @@ class Cpt(object):
     @property
     def mirror(self):
         return self.boolattr('mirror')
+
+    @property
+    def invert(self):
+        return self.boolattr('invert')    
 
     @property
     def fliplr(self):
@@ -864,6 +878,9 @@ class Cpt(object):
         if not self.can_mirror and self.mirror:
             raise ValueError('Cannot mirror component %s' % self.name)
 
+        if not self.can_invert and self.invert:
+            raise ValueError('Cannot invert component %s' % self.name)        
+
         if self.left + self.right + self.up + self.down > 1:
             raise ValueError('Mutually exclusive drawing directions for %s' % self.name)
 
@@ -1001,6 +1018,7 @@ class Bipole(StretchyCpt):
     """Bipole"""
 
     can_mirror = True
+    can_invert = True    
     can_scale = True
 
     node_pinnames = ('1', '2')
@@ -1119,7 +1137,13 @@ class Bipole(StretchyCpt):
         args_str2 = ','.join([self.voltage_str, self.current_str, self.flow_str])
 
         if self.mirror:
-            args_str += ', mirror'
+            args_str2 += ', mirror'
+        if self.invert:
+            args_str2 += ', invert'            
+        if self.fliplr:
+            args_str2 += ', xscale=-1'
+        if self.flipud:
+            args_str2 += ', yscale=-1'            
 
         if self.scale != 1.0:
             args_str2 += ', bipoles/length=%.2fcm' % (self.sch.cpt_size * self.scale)
@@ -1936,6 +1960,7 @@ class SPDT(FixedCpt):
     """SPDT switch"""
 
     can_mirror = True
+    can_invert = True    
 
     node_pinnames = ('1', '2', 'common')    
     pins = {'1' : ('lx', 0, 0.169),
@@ -1949,13 +1974,16 @@ class SPDT(FixedCpt):
 
         n1, n2, n3 = self.nodes
         centre = n1.pos * 0.5 + (n2.pos + n3.pos) * 0.25
+
+        args_str = 'rotate=%d' % self.angle
         
         if self.mirror:
-            s = r'  \draw (%s) node[spdt, yscale=-1, %s, rotate=%d] (%s) {};''\n' % (
-                centre, self.args_str, self.angle, self.s)
-        else:
-            s = r'  \draw (%s) node[spdt, %s, rotate=%d] (%s) {};''\n' % (
-                centre, self.args_str, self.angle, self.s)            
+            args_str += ', mirror'
+        if self.invert:
+            args_str += ', invert'            
+        
+        s = r'  \draw (%s) node[spdt, %s, %s] (%s) {};''\n' % (
+            centre, self.args_str, args_str, self.s)            
             
         # TODO, fix label position.
         centre = (n1.pos + n3.pos) * 0.5 + Pos(0.5, -0.5)
@@ -3009,9 +3037,15 @@ class Wire(Bipole):
         rotate = 90
         if kind in ('antenna', 'rxantenna', 'txantenna'):
             rotate = 0
-        
-        s += r'  \draw (%s) node[%s, scale=0.5, rotate=%d] {};''\n' % (
-            n2.s, kind, self.angle + rotate)
+
+        args_str = 'scale=0.5, rotate=%d' % (self.angle + rotate)
+
+        if self.fliplr:
+            args_str += ', xscale=-1'
+        if self.flipud:
+            args_str += ', yscale=-1'            
+            
+        s += r'  \draw (%s) node[%s, %s] {};''\n' % (n2.s, kind, args_str)
 
         if 'l' in self.opts:
             lpos = self.tf(n2.pos, (0.125, 0), scale=1)
