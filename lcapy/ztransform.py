@@ -559,7 +559,6 @@ def inverse_ztransform_term1(expr, z, n, **assumptions):
     except:
         pass
 
-    
     # As last resort see if can convert to convolutions...
     return sym.S.Zero, const * inverse_ztransform_product(expr, z, n)
     
@@ -623,15 +622,18 @@ def inverse_ztransform1(expr, z, n, **assumptions):
         cresult, uresult = inverse_ztransform_cache[key]        
         return const, cresult, uresult        
 
-    if expr.is_Add:
-        cresult, uresult = inverse_ztransform_by_terms(expr, z, n, **assumptions)
-    else:
-        try:
-            cresult, uresult = inverse_ztransform_term(expr, z, n, **assumptions)
-        except:
-            expr = sym.expand(expr)
-            cresult, uresult = inverse_ztransform_by_terms(expr, z, n,
-                                                            **assumptions)
+    try:
+        if expr.is_Add:
+            cresult, uresult = inverse_ztransform_by_terms(expr, z, n, **assumptions)
+        else:
+            try:
+                cresult, uresult = inverse_ztransform_term(expr, z, n, **assumptions)
+            except:
+                expr = sym.expand(expr)
+                cresult, uresult = inverse_ztransform_by_terms(expr, z, n,
+                                                               **assumptions)
+    except:
+        raise ValueError('Cannot determine z-transform of %s' % expr)
         
     # cresult is known to be causal, uresult is unsure
     inverse_ztransform_cache[key] = cresult, uresult
