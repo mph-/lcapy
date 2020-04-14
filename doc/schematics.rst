@@ -107,15 +107,16 @@ Here's an example of how to draw a diode bridge:
    :width: 4cm
 
 
-Components can be mirrored about the x-axis using the `mirror`
-attribute.  For example, to switch the order of the inverting and
-non-inverting inputs of an opamp use:
+Most components can be mirrored about the x-axis using the `mirror` or
+`flipud` attributes and mirrored about the y axis with the `invert` or
+`fliplr` attribute.  For example, to switch the order of the inverting
+and non-inverting inputs of an opamp use:
 
    >>> cct.add('E1 1 2 opamp 3 0; right, mirror')
 
-Shapes, chips, and connections can be flipped with the `fliplr` (flip left-right) and `flipud` (flup up-down) attributes.  Note, the flipping is performed before rotations are applied.
+Note, the mirroring is performed before rotations are applied.
 
-Here's an example of using `fliplr` to mirror a D flip-flop in the y-axis, compared to rotating the flip-flop:
+Here's an example of using `invert` to mirror a D flip-flop in the y-axis, compared to rotating the flip-flop:
 
 .. literalinclude:: examples/schematics/fliplr1.sch
 

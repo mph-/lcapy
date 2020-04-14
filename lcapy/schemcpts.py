@@ -74,7 +74,8 @@ class Cpt(object):
     can_rotate = True
     can_scale = False
     can_mirror = False
-    can_invert = False    
+    can_invert = False
+    do_transpose = False    
     can_stretch = True
     default_width = 1.0
     default_aspect = 1.0
@@ -238,19 +239,11 @@ class Cpt(object):
 
     @property
     def mirror(self):
-        return self.boolattr('mirror')
+        return self.boolattr('mirror') or self.boolattr('flipud')
 
     @property
     def invert(self):
-        return self.boolattr('invert')    
-
-    @property
-    def fliplr(self):
-        return self.boolattr('fliplr')
-
-    @property
-    def flipud(self):
-        return self.boolattr('flipud')
+        return self.boolattr('invert') or self.boolattr('fliplr')
 
     @property
     def nodots(self):
@@ -628,12 +621,12 @@ class Cpt(object):
         
         outside = self.opts.get('outside', False)
 
-        if self.fliplr:
+        if self.invert:
             if pinpos == 'l':
                 pinpos = 'r'
             elif pinpos == 'r':
                 pinpos = 'l'
-        if self.flipud:
+        if self.mirror:
             if pinpos == 't':
                 pinpos = 'b'
             elif pinpos == 'b':
@@ -970,11 +963,13 @@ class StretchyCpt(Cpt):
         if hasattr(offset[0], '__iter__'):        
             return [self.tf(centre, offset1, angle_offset, scale) for offset1 in offset]
         x, y = offset
-        if self.flipud:
-            y = -y
-        if self.fliplr:
-            x = -x
 
+        if self.do_transpose:
+            if self.mirror:
+                y = -y
+            if self.invert:
+                x = -x
+        
         if scale is None:
             scale = self.scale * self.sch.node_spacing
         
@@ -1003,11 +998,13 @@ class FixedCpt(Cpt):
             return [self.tf(centre, offset1, angle_offset, scale) for offset1 in offset]
 
         x, y = offset
-        if self.flipud:
-            y = -y
-        if self.fliplr:
-            x = -x                    
 
+        if self.do_transpose:
+            if self.mirror:
+                y = -y
+            if self.invert:
+                x = -x
+        
         if scale is None:
             scale = self.scale * self.sch.node_spacing * self.size
             
@@ -1140,10 +1137,6 @@ class Bipole(StretchyCpt):
             args_str2 += ', mirror'
         if self.invert:
             args_str2 += ', invert'            
-        if self.fliplr:
-            args_str2 += ', xscale=-1'
-        if self.flipud:
-            args_str2 += ', yscale=-1'            
 
         if self.scale != 1.0:
             args_str2 += ', bipoles/length=%.2fcm' % (self.sch.cpt_size * self.scale)
@@ -1160,7 +1153,8 @@ class Shape(FixedCpt):
     """General purpose shape"""
 
     default_aspect = 1.0
-    can_mirror = True
+    can_mirror = True    
+    can_invert = True
     pinlabels = {}
 
     auxiliary = {'mid' : ('c', 0.0, 0.0),
@@ -2142,6 +2136,7 @@ class TR(Box2):
 class Chip(Shape):
     """General purpose chip"""
 
+    do_transpose = True
     default_width = 2.0
 
     # Could allow can_scale but not a lot of point since nodes
@@ -2610,6 +2605,7 @@ class Eopamp(Chip):
 
     can_scale = True
     can_mirror = True
+    do_transpose = False
     default_width = 1.0
 
     # The Nm node is not used (ground).
@@ -2676,6 +2672,7 @@ class Efdopamp(Chip):
 
     can_scale = True
     can_mirror = True
+    do_transpose = False
     default_width = 1.0    
 
     node_pinnames = ('out+', 'out-', 'in+', 'in-')
@@ -2723,7 +2720,8 @@ class Efdopamp(Chip):
         s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, self.node('out+').s)
         s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, self.node('out-').s)
         s += r'  \draw (%s.+) |- (%s);''\n' % (self.s, self.node('in+').s)
-        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)
+        s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in-').s)  
+
         s += self.draw_label(centre.s, **kwargs)
         return s
 
@@ -2731,6 +2729,7 @@ class Eamp(Chip):
     """Amplifier."""
 
     can_scale = True
+    do_transpose = False    
     default_width = 1.0
 
     # The Nm and Ncm nodes are not used (ground).
@@ -3039,12 +3038,12 @@ class Wire(Bipole):
             rotate = 0
 
         args_str = 'scale=0.5, rotate=%d' % (self.angle + rotate)
-
-        if self.fliplr:
-            args_str += ', xscale=-1'
-        if self.flipud:
-            args_str += ', yscale=-1'            
-            
+        # mirror and invert keywords are ignored by circuitikz
+        if self.mirror:
+            args_str += ', yscale=-1'
+        if self.invert:
+            args_str += ', xscale=-1'            
+        
         s += r'  \draw (%s) node[%s, %s] {};''\n' % (n2.s, kind, args_str)
 
         if 'l' in self.opts:
@@ -3170,7 +3169,7 @@ class CPE(Bipole):
         q = self.tf(centre, ((-w, 0), (0, 0), (-w, -2 * h)))
 
         s = self.draw_path(q1, closed=False, style='thick')
-        s += self.draw_path(q2, closed=False, style='thick')                     
+        s += self.draw_path(q2, closed=False, style='thick')
         s += self.draw_path((n1.s, q[0]))
         s += self.draw_path((q[1], n2.s))
         s += self.draw_label(q[2], **kwargs)
