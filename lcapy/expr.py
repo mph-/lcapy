@@ -1628,6 +1628,53 @@ class Expr(ExprPrint, ExprMisc):
 
         return self.__class__(expr, **self.assumptions)            
     
+    def approximate_fractional_power(self, order=2):
+        """This is an experimental method to approximate
+        s**a, where a is fractional, with a rational function using
+        a Pade approximant."""
+
+        v = self.var
+        
+        def query(expr):
+
+            if not expr.is_Pow:
+                return False
+            if expr.args[0] != v:
+                return False
+            if expr.args[1].is_Number and not expr.args[1].is_Integer:
+                return True
+            if expr.args[1].is_Symbol and not expr.args[1].is_Integer:
+                return True
+            return False
+
+        def value1(expr):
+
+            a = expr.args[1]
+
+            n = v * (a + 1) + (1 - a)
+            d = v * (a - 1) + (1 + a)
+            return n / d
+
+        def value2(expr):
+
+            a = expr.args[1]
+
+            n = v**2 * (a**2 + 3 * a + 2) + v * (8 - a**2) + (a**2 - 3 * a + 2)
+            d = v**2 * (a**2 - 3 * a + 2) + v * (8 - a**2) + (a**2 + 3 * a + 2)
+            return n / d        
+
+        if order == 1:
+            value = value1
+        elif order == 2:
+            value = value2
+        else:
+            raise ValueError('Can only handle order 1 and 2 at the moment')
+        
+        expr = self.expr
+        expr = expr.replace(query, value)
+
+        return self.__class__(expr, **self.assumptions)
+
     
 def expr(arg, **assumptions):
     """Create Lcapy expression from arg.
