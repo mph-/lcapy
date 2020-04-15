@@ -28,7 +28,16 @@ class Network(object):
     def __init__(self):
 
         super(Network, self).__init__()
+        self._anon = {}
 
+    def _make_id(self, kind):
+        """Make identifier"""
+
+        if kind not in self._anon:
+            self._anon[kind] = 0
+        self._anon[kind] += 1
+        return self._anon[kind]
+        
     def _tweak_args(self):
 
         if not hasattr(self, 'args'):
@@ -118,11 +127,14 @@ class Network(object):
 
         netname = self.__class__.__name__ if self.netname == '' else self.netname + '?'
 
+        netid = net._make_id(netname)
         if self.netkeyword != '':
-            return '%s %s %s %s %s; right' % (netname, n1, n2, 
-                                              self.netkeyword, self.netargs())
+            return '%s%s %s %s %s %s; right' % (netname, netid,
+                                                n1, n2, 
+                                                self.netkeyword, self.netargs())
         else:
-            return '%s %s %s %s; right' % (netname, n1, n2, self.netargs())
+            return '%s%s %s %s %s; right' % (netname, netid,
+                                             n1, n2, self.netargs())
 
     def netlist(self):
 
