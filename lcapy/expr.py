@@ -146,6 +146,23 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
             new[k] = simplify(v)
         return new
 
+    def subs(self, *args, **kwargs):
+        """Substitute variables in expression, see sympy.subs for usage."""
+
+        new = self.__class__()
+        for k, v in self.items():
+            try:
+                k = k.subs(*args, **kwargs)
+            except:
+                pass
+            try:
+                v = v.subs(*args, **kwargs)
+            except:
+                pass            
+                
+            new[k] = v
+        return new
+
     
 class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
     """Decorator class for list created by sympy."""
