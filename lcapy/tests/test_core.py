@@ -622,3 +622,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(x.strip_condition(), exp(-t), "remove condition if causal")
         
         
+    def test_val(self):
+
+        a = expr('3 / 4')
+
+        self.assertEqual(a.val, 0.75, "val")
+        self.assertEqual(a.evalf(), 0.75, "evalf")                

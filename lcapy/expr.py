@@ -177,7 +177,7 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
         for item in iterable:
             if evalf:
                 try:
-                    item = item.evalf
+                    item = item.evalf()
                 except:
                     pass
             else:
@@ -378,7 +378,6 @@ class Expr(ExprPrint, ExprMisc):
 
         return self.evalf()
 
-    @property
     def evalf(self):
         """Return floating point value of expression if it can be evaluated,
         otherwise the expression."""

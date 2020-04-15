@@ -121,8 +121,6 @@ All Lcapy expressions have the following attributes:
 
 - `domain_label` returns string describing domain of expression
   
-- `evalf` returns floating point number if expression can be evaluated
-
 - `expr` returns the underlying SymPy expression
   
 - `imag` returns imaginary part
@@ -166,7 +164,9 @@ All Lcapy expressions have the following attributes:
 - `sign` returns sign
 
 - `symbols` returns dictionary of symbols used in the expression keyed by their names
-  
+
+- `val` returns floating point number if expression can be evaluated
+
 - `var` returns the underlying SymPy symbol representing the domain
     
 
@@ -204,11 +204,13 @@ Miscellaneous
 
 - `replace(query, value)` replace `query` with `value`.
 
-- `factor_const` factor into constant part and the rest.
+- `factor_const()` factor into constant part and the rest.
 
-- `factor_term` split into constant part and the rest.    
+- `factor_term()` split into constant part and the rest.    
   
-
+- `evalf()` returns floating point number if expression can be evaluated
+    
+  
 Formatting methods
 ------------------
 
