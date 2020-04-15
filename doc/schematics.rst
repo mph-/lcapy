@@ -1046,8 +1046,32 @@ employed.  For example,
 >>> cct.add('R1 1 2; right, i=$I_1$, v=$V_{R_1}$')
 
 The label position, current and voltage direction can be controlled
-with attributes _ ^ < and >, for example i^<=I_1.  See the Circuitikz
-manual for details.
+with attributes `_`, `^`, `<`, and `>`.  The `^` attribute positions
+the label above the component and the `_` attribute positions the
+label below the component.  For currents, '>' positions the label at
+the end of the component, whereas `<' positions the label at the start
+of the component.  Without specific positioning attributes, defaults
+are chosen.  See the Circuitikz manual for further details.
+
+Here are some examples of label positioning:
+
+.. literalinclude:: examples/schematics/labels1.sch
+
+.. image:: examples/schematics/labels1.png
+   :width: 8cm
+
+
+.. literalinclude:: examples/schematics/labels2.sch
+
+.. image:: examples/schematics/labels2.png
+   :width: 8cm
+
+
+.. literalinclude:: examples/schematics/labels3.sch
+
+.. image:: examples/schematics/labels3.png
+   :width: 13cm                
+
 
 By default, if a component has a value label it is displayed,
 otherwise the component identifier is displayed.  Both can be
