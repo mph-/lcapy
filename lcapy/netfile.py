@@ -13,13 +13,18 @@ class NetfileMixin(object):
         self._anon = {}
         self.dirname = None
 
-    def _make_anon(self, kind):
-        """Make identifier for anonymous component"""
+    def _make_id(self, kind):
+        """Make identifier"""
 
         if kind not in self._anon:
             self._anon[kind] = 0
-        self._anon[kind] += 1        
-        return 'anon' + str(self._anon[kind])
+        self._anon[kind] += 1
+        return self._anon[kind]
+        
+    def _make_anon(self, kind):
+        """Make identifier for anonymous component"""
+
+        return 'anon' + str(self._make_id(kind))
 
     def _include(self, string):
 
