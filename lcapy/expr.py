@@ -154,31 +154,35 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
     # in preference to list's one.  Alternatively, add explicit
     # _repr_pretty_ method here.
     
-    def __init__(self, arglist, evalf=False):
+    def __init__(self, iterable, evalf=False):
 
-        eargs = []
-        for item in arglist:
+        eiterable = []
+        for item in iterable:
             if evalf:
                 try:
                     item = item.evalf
                 except:
                     pass
-            eargs.append(item)
+            else:
+                item = expr(item)
+            eiterable.append(item)
         
-        super (ExprList, self).__init__(eargs)
+        super (ExprList, self).__init__(eiterable)
 
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
         
         return expr([e.subs(*args, **kwargs) for e in self])
         
-    
+
 class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
     """Decorator class for tuple created by sympy."""
 
-    def __init__(self, arglist):
-        eargs = [expr(e) for e in arglist]
-        super (ExprTuple, self).__init__(tuple(eargs))
+    # Tuples are immutable, need to use __new__
+    def __new__(cls, iterable):
+
+        eiterable = [expr(e) for e in iterable]
+        return super (ExprTuple, cls).__new__(cls, eiterable)
 
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
@@ -1332,44 +1336,48 @@ class Expr(ExprPrint, ExprMisc):
         symdict.update(funcdict)
         return symdict
 
+    def _fmt_roots(self, roots, aslist=False):
+
+        if not aslist:
+            rootsdict = {}
+            for root, n in roots.items():
+                rootsdict[expr(root)] = n
+            return expr(rootsdict)
+            
+        rootslist = []
+        for root, n in roots.items():
+            rootslist += [expr(root)] * n        
+        return expr(rootslist)        
+    
     def roots(self, aslist=False):
         """Return roots of expression as a dictionary
         Note this may not find them all."""
 
         roots = self._ratfun.roots()
-        if not aslist:
-            return expr(roots)
-        rootslist = []
-        for root, count in roots.items():
-            rootslist += [root] * count
-        return expr(rootslist)
+        return self._fmt_roots(roots, aslist)        
             
     def zeros(self, aslist=False):
         """Return zeroes of expression as a dictionary
         Note this may not find them all."""
 
-        return self.N.roots(aslist)
+        zeros = self._ratfun.zeros()
+        return self._fmt_roots(zeros, aslist)        
 
     def poles(self, aslist=False, damping=None):
         """Return poles of expression as a dictionary
         Note this may not find them all."""
 
         poles = self._ratfun.poles(damping=damping)
-        
-        if not aslist:
-            polesdict = {}
-            for pole in poles:
-                key = pole.expr
-                if key in polesdict:
-                    polesdict[pole.expr] += pole.n
-                else:
-                    polesdict[pole.expr] = pole.n
-            return expr(polesdict)
-            
-        poleslist = []
+
+        polesdict = {}
         for pole in poles:
-            poleslist += [pole.expr] * pole.n
-        return expr(poleslist)
+            key = pole.expr
+            if key in polesdict:
+                polesdict[key] += pole.n
+            else:
+                polesdict[key] = pole.n        
+
+        return self._fmt_roots(polesdict, aslist)
 
     def canonical(self, factor_const=False):
         """Convert rational function to canonical form (aka polynomial form);

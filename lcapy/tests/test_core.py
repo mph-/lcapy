@@ -144,7 +144,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.N, 1, "N incorrect.")
         self.assertEqual2(a.D, (s - j) * (s + j), "D incorrect.")
 
-        self.assertEqual2(set(a.poles()), set([-j, j]), "poles incorrect.")
+        self.assertEqual2(set(a.poles()), set(expr([-j, j])), "poles incorrect.")
         self.assertEqual2(a.zeros(), {}, "zeros incorrect.")
 
         # This depends on if 2 * (s + j) is expanded to 2 * s + 2 * j
@@ -169,7 +169,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.N, 1, "N incorrect.")
         self.assertEqual2(a.D, (s - j) * (s + j), "D incorrect.")
 
-        self.assertEqual2(set(a.poles()), set([-j, j]), "poles incorrect.")
+        self.assertEqual2(set(a.poles()), set(expr([-j, j])), "poles incorrect.")
         self.assertEqual2(len(a.zeros()), 0, "zeros incorrect.")
 
         # This depends on if 2 * (s + j) is expanded to 2 * s + 2 * j
