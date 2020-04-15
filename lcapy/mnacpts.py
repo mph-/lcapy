@@ -1149,7 +1149,7 @@ class TF(Cpt):
             cct._B[n2, m] -= 1
             cct._C[m, n2] -= 1
         
-        T = self.cpt.alpha
+        T = self.cpt.alpha.expr
 
         if n3 >= 0:
             cct._B[n3, m] -= T

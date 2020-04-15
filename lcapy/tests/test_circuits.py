@@ -611,4 +611,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(d.R.V, 6, "incorrect voltage with all killed except V1")
         
         
-        
+    def test_TF(self):
+
+        a = Circuit("""
+        TF 2 0 1 0 k
+        R 2 0""")        
+
+        self.assertEqual(a.impedance(1, 0), expr('R / k**2'), "incorrect impedance")
