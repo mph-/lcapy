@@ -192,24 +192,24 @@ Poles and zeros
 Miscellaneous
 -------------
 
-- `initial_value()` returns result at :math:`t = 0`.
-
-- `final_value()` returns result at :math:`t = oo`.
-
-- `rationalize_denominator` multiplies numerator and denominator by complex conjugate of denominator.
-
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
-- `multiply_top_and_bottom(expr)` multiplies numerator and denominator by `expr`.
-
-- `replace(query, value)` replace `query` with `value`.
+- `evalf()` returns floating point number if expression can be evaluated
+    
+- `initial_value()` returns result at :math:`t = 0`.
 
 - `factor_const()` factor into constant part and the rest.
 
 - `factor_term()` split into constant part and the rest.    
   
-- `evalf()` returns floating point number if expression can be evaluated
-    
+- `final_value()` returns result at :math:`t = oo`.
+
+- `multiply_top_and_bottom(expr)` multiplies numerator and denominator by `expr`.
+
+- `rationalize_denominator` multiplies numerator and denominator by complex conjugate of denominator.
+
+- `replace(query, value)` replace `query` with `value`.
+
   
 Formatting methods
 ------------------

@@ -1031,13 +1031,15 @@ Labels
 ------
 
 Each component has a component identifier label and a value label.
-These can be augmented by explicit voltage and current labels.
-
-- i=label -- annotate current through component with label
- 
-- v=label -- annotate voltage across component with label
+These can be augmented by explicit voltage, current, and flow labels.
 
 - l=label -- component label
+
+- i=label -- current label
+ 
+- v=label -- voltage label
+
+- f=label -- flow label
 
 The label name can be displayed using LaTeX math mode by enclosing the
 name between dollar signs.  Thus superscripts and subscripts can be
@@ -1045,33 +1047,37 @@ employed.  For example,
 
 >>> cct.add('R1 1 2; right, i=$I_1$, v=$V_{R_1}$')
 
-The label position, current and voltage direction can be controlled
-with attributes `_`, `^`, `<`, and `>`.  The `^` attribute positions
-the label above the component and the `_` attribute positions the
-label below the component.  For currents, '>' positions the label at
-the end of the component, whereas `<' positions the label at the start
-of the component.  Without specific positioning attributes, defaults
-are chosen.  See the Circuitikz manual for further details.
-
-Here are some examples of label positioning:
+The component and voltage label positions can be controlled with the
+`^` and `_` attrbutes.  The `^` attribute positions the label above
+the component and the `_` attribute positions the label below the
+component.  For example,
 
 .. literalinclude:: examples/schematics/labels1.sch
 
 .. image:: examples/schematics/labels1.png
    :width: 8cm
 
+.. literalinclude:: examples/schematics/voltage_labels1.sch
 
-.. literalinclude:: examples/schematics/labels2.sch
-
-.. image:: examples/schematics/labels2.png
+.. image:: examples/schematics/voltage_labels1.png
    :width: 8cm
 
+The current and flow labels have additional `<` and `>` attributes to
+specify the flow direction.  If these come before the `^` and `_`
+attributes, the label is positioned at the start of the component
+otherwise it is positioned at the end of the component.
 
-.. literalinclude:: examples/schematics/labels3.sch
+Here are some examples of current and flow label positioning:
 
-.. image:: examples/schematics/labels3.png
-   :width: 13cm                
+.. literalinclude:: examples/schematics/current_labels1.sch
 
+.. image:: examples/schematics/current_labels1.png
+   :width: 20cm
+
+.. literalinclude:: examples/schematics/flow_labels1.sch
+
+.. image:: examples/schematics/flow_labels1.png
+   :width: 20cm                        
 
 By default, if a component has a value label it is displayed,
 otherwise the component identifier is displayed.  Both can be
@@ -1221,17 +1227,26 @@ name of the component, for example::
 Examples
 ========
 
+Inverting opamp amplifier
+-------------------------
+
 .. literalinclude:: examples/schematics/opamp-inverting-amplifier.sch
 
 .. image:: examples/schematics/opamp-inverting-amplifier.png
    :width: 5cm
 
+           
+Non-Inverting opamp amplifier
+-----------------------------
 
 .. literalinclude:: examples/schematics/opamp-noninverting-amplifier.sch
 
 .. image:: examples/schematics/opamp-noninverting-amplifier.png
    :width: 5cm
 
+           
+Inverting opamp integrator
+--------------------------
 
 .. literalinclude:: examples/schematics/opamp-inverting-integrator.sch
 
@@ -1239,11 +1254,17 @@ Examples
    :width: 5cm
 
 
+CMOS inverter
+-------------
+
 .. literalinclude:: examples/schematics/cmos1.sch
 
 .. image:: examples/schematics/cmos1.png
    :width: 5cm
 
+
+Diode bridge
+------------
 
 .. literalinclude:: examples/schematics/D4.sch
 
@@ -1251,17 +1272,8 @@ Examples
    :width: 3.5cm
 
 
-.. literalinclude:: examples/schematics/pic6.sch
-
-.. image:: examples/schematics/pic6.png
-   :width: 3.5cm
-
-
-.. literalinclude:: examples/schematics/K1.sch
-
-.. image:: examples/schematics/K1.png
-   :width: 2.5cm
-
+Labelled circuit
+----------------           
 
 .. literalinclude:: examples/schematics/VRL2.sch
 
@@ -1269,11 +1281,17 @@ Examples
    :width: 8cm
 
 
+Loaded opamp model
+------------------           
+
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded2.sch
 
 .. image:: examples/schematics/lpf1-buffer-loaded2.png
    :width: 10.5cm
 
+
+Sallen Key filter           
+-----------------
 
 .. literalinclude:: examples/schematics/sallen-key-lpf1.sch
 
@@ -1281,16 +1299,33 @@ Examples
    :width: 9cm
 
 
+CMOS back-drive
+---------------           
+           
 .. literalinclude:: examples/schematics/cmos-backdrive2.sch
 
 .. image:: examples/schematics/cmos-backdrive2.png
    :width: 9cm
 
 
+Pierce oscillator
+-----------------
+           
 .. literalinclude:: examples/schematics/pierce-oscillator.sch
 
 .. image:: examples/schematics/pierce-oscillator.png
-   :width: 4cm
+    :width: 4cm
+
+            
+Accelerometer
+-------------
+
+In this example, a dashed wire connects the electrical and mechanical grounds for simulation.
+            
+.. literalinclude:: examples/schematics/accelerometer1.sch
+
+.. image:: examples/schematics/accelerometer1.png
+   :width: 10cm        
 
 
 Customisation
