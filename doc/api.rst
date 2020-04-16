@@ -1,8 +1,0 @@
-===
-API
-===
-
-.. automodule:: lcapy
-   :members:
-
-

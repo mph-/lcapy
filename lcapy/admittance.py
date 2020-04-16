@@ -1,4 +1,4 @@
-"""This file provides the Admittance class.  This is a generalized
+"""This module provides the Admittance class.  This is a generalized
 impedance (s-domain) and converts to other representations.
 
 Copyright 2019 Michael Hayes, UCECE

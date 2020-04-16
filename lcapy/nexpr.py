@@ -1,4 +1,4 @@
-"""This file provides the nExpr class to represent discrete-time expressions.
+"""This module provides the nExpr class to represent discrete-time expressions.
 
 Copyright 2020 Michael Hayes, UCECE
 

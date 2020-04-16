@@ -1,4 +1,4 @@
-"""This file provides the omegaExpr class to represent omega-domain
+"""This module provides the omegaExpr class to represent omega-domain
 (angular frequency Fourier domain) expressions.
 
 Copyright 2014--2019 Michael Hayes, UCECE

@@ -1,4 +1,4 @@
-"""This file defines special symbols f, s, t, and omega.
+"""This module defines special symbols f, s, t, and omega.
 
 Copyright 2014--2020 Michael Hayes, UCECE
 

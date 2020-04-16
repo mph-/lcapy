@@ -1,4 +1,4 @@
-"""This file provides the Current class.  This represents currents
+"""This module provides the Current class.  This represents currents
 as a superposition in different transform domains.
 
 For example, the following expression is a superposition of a DC

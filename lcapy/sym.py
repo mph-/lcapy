@@ -1,4 +1,4 @@
-"""This file contains functions for handling symbols and in particular
+"""This module contains functions for handling symbols and in particular
 for integrating with SymPy.
 
 Copyright 2014--2020 Michael Hayes, UCECE

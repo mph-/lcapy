@@ -1,3 +1,9 @@
+"""This module provides printing support.
+
+Copyright 2014--2020 Michael Hayes, UCECE
+
+"""
+
 import re
 from .config import latex_expr_map, pretty_expr_map, str_expr_map
 from .config import functions, words, subscripts

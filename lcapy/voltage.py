@@ -1,4 +1,4 @@
-"""This file provides the Voltage class.  This represents voltages
+"""This module provides the Voltage class.  This represents voltages
 as a superposition in different transform domains.
 
 For example, the following expression is a superposition of a DC

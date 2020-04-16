@@ -8,7 +8,7 @@ import six
 __all__ = ('Super', 'Voltage', 'Current')
 
 class Super(ExprDict):
-    """This class represents a superposition of different signal types:
+    """This class represents a superposition of different signal types,
     DC, AC, transient, and noise.
     
     The time-domain representation is returned with the time method,

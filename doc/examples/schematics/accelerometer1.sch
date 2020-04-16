@@ -3,7 +3,7 @@ W 1 0_1; down, dashed
 Pm2 2 0_2; down, v=f_2
 W 2 0_2; down, dashed
 Lm1 1 3; right=3, i>^=u_1
-Lm2 3 2; right=2, i^<=u_2
+Lm2 3 2; right=3, i^<=u_2
 Rm 3 4; down
 Cm 4 5; down
 TF 5 6 9 0 k; right

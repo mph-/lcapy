@@ -1,4 +1,4 @@
-"""This file provides the Expr class.  This attempts to create a
+"""This module provides the Expr class.  This attempts to create a
 consistent interface to SymPy's expressions.
 
 Copyright 2014--2019 Michael Hayes, UCECE

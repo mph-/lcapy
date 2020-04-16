@@ -1,4 +1,4 @@
-"""This file provides the kExpr class to represent k-domain (discrete Fourier
+"""This module provides the kExpr class to represent k-domain (discrete Fourier
 domain) expressions.
 
 Copyright 2020 Michael Hayes, UCECE
@@ -16,7 +16,7 @@ import sympy as sym
 
 class kExpr(dExpr):
 
-    """Fourier domain expression or symbol."""
+    """Discrete Fourier domain expression or symbol."""
 
     var = ksym
     domain_name = 'Frequency'

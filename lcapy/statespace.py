@@ -265,7 +265,7 @@ class StateSpace(object):
     def characteristic_polynomial(self):
         """Characteristic polynomial (aka system polynomial).
 
-        lambda(s) = |s * I - A|"""
+        `lambda(s) = |s * I - A|`"""
 
         M = Matrix(sym.eye(len(self.x)) * ssym - self.A)        
         return sExpr(M.det()).simplify()
@@ -274,7 +274,7 @@ class StateSpace(object):
     def P(self):
         """Characteristic polynomial (aka system polynomial).
 
-        lambda(s) = |s * I - A|"""        
+        `lambda(s) = |s * I - A|`"""        
 
         return self.characteristic_polynomial().canonical()
 

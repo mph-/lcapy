@@ -1,7 +1,7 @@
-"""This file provides the Context class that maintains the context
+"""This module provides the Context class that maintains the context
 for a Circuit.
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 
 """
 

@@ -1336,7 +1336,7 @@ Circuitikz commands (indeed any TikZ/PGF macros) can be embedded in a netlist.  
 .. literalinclude:: examples/schematics/L1.sch
 
 .. image:: examples/schematics/L1.png
-   :width: 6cm
+   :width: 5cm
 
            
 File formats

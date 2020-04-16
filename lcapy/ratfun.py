@@ -1,7 +1,7 @@
 """
 This module provides support for rational functions.
 
-Copyright 2016--2019 Michael Hayes, UCECE
+Copyright 2016--2020 Michael Hayes, UCECE
 """
 
 from __future__ import division

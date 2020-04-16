@@ -1,4 +1,4 @@
-"""This file provides the Immittance class, the base class for
+"""This module provides the Immittance class, the base class for
 Admittance and Impedance and the rest of the menagerie.
 
 Copyright 2019 Michael Hayes, UCECE

@@ -1,3 +1,10 @@
+"""This module wraps system dependent programs for pdf generation, etc.
+
+Copyright 2014--2020 Michael Hayes, UCECE
+
+"""
+
+
 from os import path, remove, chdir, getcwd, stat
 from subprocess import call
 import re

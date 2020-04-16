@@ -1,4 +1,4 @@
-"""This file provides the fExpr class to represent f-domain (Fourier
+"""This module provides the fExpr class to represent f-domain (Fourier
 domain) expressions.
 
 Copyright 2014--2019 Michael Hayes, UCECE

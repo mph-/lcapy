@@ -1,4 +1,4 @@
-"""This file performs transformations between domains.
+"""This module performs transformations between domains.
 
 Copyright 2018--2019 Michael Hayes, UCECE
 

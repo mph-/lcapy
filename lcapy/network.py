@@ -10,6 +10,7 @@ from .circuit import Circuit
 from .state import state
 
 class Network(object):
+    """This is the base class for network objects."""
 
     voltage_source = False
     current_source = False

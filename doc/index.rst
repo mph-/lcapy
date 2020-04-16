@@ -31,7 +31,7 @@ Contents:
    config.rst                                                      
    problems.rst                          
    internals.rst            
-
+   modules.rst
 
 Indices and tables
 ==================

@@ -1,3 +1,10 @@
+"""This module provides classes for schematic layout.
+
+Copyright 2014--2020 Michael Hayes, UCECE
+
+"""
+
+
 from __future__ import print_function
 
 def unique(alist):
@@ -33,6 +40,7 @@ class Cnodes(dict):
 
 
 class Gedge(object):
+    """Edge between common nodes"""
 
     def __init__(self, cpt, from_gnode, to_gnode, size, stretch=False):
 
@@ -57,6 +65,7 @@ class Gedge(object):
 
 
 class Gnode(object):
+    """Drawing node"""
 
     def __init__(self, name):
 
@@ -101,6 +110,7 @@ class Gnode(object):
 
     
 class Graph(dict):
+    """Drawing graph"""
 
     def __init__(self, name, nodes, debug=False):
 

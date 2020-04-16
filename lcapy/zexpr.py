@@ -1,4 +1,4 @@
-"""This file provides the zExpr class to represent z-domain expressions.
+"""This module provides the zExpr class to represent z-domain expressions.
 
 Copyright 2020 Michael Hayes, UCECE
 
