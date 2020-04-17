@@ -72,6 +72,10 @@ def main (argv=None):
     parser.add_argument('--s-model', action='store_true',
                         dest='s_model', default=False,
                         help='generate s-domain model schematic')
+
+    parser.add_argument('--noisy-model', action='store_true',
+                        dest='noisy_model', default=False,
+                        help='generate noisy model schematic')
     
     parser.add_argument('--ac-model', action='store_true',
                         dest='ac_model', default=False,
@@ -159,6 +163,8 @@ def main (argv=None):
         cct = cct.ac_model()
     if args.p_model:
         cct = cct.pre_initial_model()
+    if args.noisy_model:
+        cct = cct.noisy()        
 
     if args.renumber:
         parts = args.renumber.split(',')
