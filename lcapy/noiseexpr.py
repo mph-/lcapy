@@ -1,7 +1,7 @@
 from __future__ import division
 from .sym import symsimplify
 from .functions import sqrt
-from .sym import pi, omegasym
+from .sym import pi, omegasym, fsym
 from .state import state
 from .expr import Expr
 import sympy as sym
@@ -45,18 +45,59 @@ class noiseExpr(Expr):
         state.context.nid += 1
         return 'n%d' % state.context.nid
 
-    def __init__(self, val, **assumptions):
+    def __init__(self, val, var=None, **assumptions):
         if 'nid' not in assumptions or assumptions['nid'] is None:
             if val == 0:
                 assumptions['nid'] = 'n0'
             else:
                 assumptions['nid'] = self._new_nid()
-        self.var = omegasym
+
+        if var is None:
+            var = omegasym
+                
+        if var not in (fsym, omegasym):
+            raise ValueError('Cannot use var %s for noiseExpr' % var)
+        if var == omegasym:
+            self.domain_name = 'Angular frequency'
+            self.domain_units = 'rad/s'
+        else:
+            self.domain_name = 'Frequency'
+            self.domain_units = 'Hz'            
+
+        self.var = var
         super(noiseExpr, self).__init__(val, **assumptions)
 
     @property
     def nid(self):
         return self.assumptions['nid']
+
+    def __call__(self, arg, **assumptions):
+        """Transform domain or substitute arg for variable. 
+        
+        Substitution is performed if arg is a tuple, list, numpy
+        array, or constant.  If arg is a tuple or list return a list.
+        If arg is an numpy array, return numpy array.
+
+        Domain transformation is performed if arg is a domain variable
+        or an expression of a domain variable.
+
+        See also evaluate.
+
+        """
+
+        if id(arg) == id(self.var):
+            return self.copy()
+
+        if arg == fsym:
+            # Convert omegasym to fsym
+            return self.__class__(self.subs(self.var, 2 * pi * arg),
+                                  arg, **assumptions)
+        elif arg == omegasym:
+            # Convert fsym to omegasym
+            return self.__class__(self.subs(self.var, arg / (2 * pi)),
+                                  arg, **assumptions)
+
+        return super(noiseExpr, self).__call__(arg, **assumptions)
         
     def __add__(self, x):
         """Add noise spectra (on power basis if uncorrelated)."""
@@ -130,7 +171,9 @@ class noiseExpr(Expr):
     def rms(self):
         """Calculate rms value."""
 
-        P = sym.integrate(self.expr**2, (self.var, 0, sym.oo)) / (2 * sym.pi)
+        P = sym.integrate(self.expr**2, (self.var, 0, sym.oo))
+        if self.var == omegasym:
+            P /= 2 * sym.pi
         rms = sym.sqrt(P)
         # TODO: Use rms class?
         return self._fourier_conjugate_class(rms)
@@ -141,15 +184,17 @@ class noiseExpr(Expr):
 
         N = len(t)
         if N < 3:
-            raise ValueError('Require at least 3 samples')            
+            raise ValueError('Require at least 3 samples')
+        if N & 1:
+            raise ValueError('Require even number of samples')                    
         
         td = np.diff(t)
         if not np.allclose(np.diff(td), 0):
             raise ValueError('Require uniform sampling')
 
         fs = 1 / td[0]
-        f = np.arange(N // 2 + 1) * fs / N
-        Sn = self.evaluate(f * 2 * np.pi)
+        vf = np.arange(N // 2 + 1) * fs / N
+        Sn = self(f).evaluate(vf)
     
         x = np.random.randn(N)
         X = np.fft.rfft(x)
@@ -187,17 +232,9 @@ class noiseExpr(Expr):
         By default complex data is plotted as separate plots of magnitude (dB)
         and phase.
         """
-
         from .plot import plot_frequency
-        from .symbols import omega
         
-        # Hack so show as linear frequency. 
-        obj = self.subs(omega, 2 * pi * omega)
-        obj.domain_name = 'Frequency'
-        obj.domain_units = 'Hz'
-        if hasattr(self, 'part'):
-            obj.part = self.part
-        return plot_frequency(obj, fvector, **kwargs)    
+        return plot_frequency(self, fvector, **kwargs)    
 
 class Vnoisy(noiseExpr):
     """Voltage noise amplitude spectral density (units V/rtHz).
@@ -211,10 +248,10 @@ class Vnoisy(noiseExpr):
     quantity = 'Voltage noise spectral density'
     units = 'V/rtHz'
 
-    def __init__(self, val, **assumptions):
+    def __init__(self, val, var=None, **assumptions):
 
         assumptions['positive'] = True
-        super(Vnoisy, self).__init__(val, **assumptions)
+        super(Vnoisy, self).__init__(val, var, **assumptions)
         # FIXME
         self._fourier_conjugate_class = Vt
 
@@ -231,7 +268,7 @@ class Inoisy(noiseExpr):
     quantity = 'Current noise spectral density'
     units = 'A/rtHz'
 
-    def __init__(self, val, **assumptions):
+    def __init__(self, val, var=None, **assumptions):
 
         assumptions['positive'] = True
         super(Inoisy, self).__init__(val, **assumptions)
@@ -239,4 +276,5 @@ class Inoisy(noiseExpr):
         self._fourier_conjugate_class = It
 
         
-from .texpr import It, Vt        
+from .texpr import It, Vt
+from .fexpr import f

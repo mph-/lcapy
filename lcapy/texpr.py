@@ -54,12 +54,6 @@ class tExpr(Expr):
         if is_causal(self, var):
             self.assumptions['causal'] = True
 
-    def merge_assumptions(self, **assumptions):
-        
-        new_assumptions = self.assumptions.copy()
-        new_assumptions.update(assumptions)
-        return new_assumptions
-
     def laplace(self, **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit."""
 

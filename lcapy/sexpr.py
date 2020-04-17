@@ -104,7 +104,6 @@ class sExpr(Expr):
             assumptions = self.assumptions.copy()
         
         return self.__class__(self, **assumptions)
-
     
     def fourier(self, **assumptions):
         """Convert to Fourier domain."""
