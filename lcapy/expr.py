@@ -1610,7 +1610,6 @@ class Expr(ExprPrint, ExprMisc):
                             lambda expr: sym.Float(expr))
 
         return self.__class__(expr, **self.assumptions)
-    
 
     def floatrat(self):
         """This converts floating point numbers to rational numbers in an

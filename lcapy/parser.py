@@ -136,6 +136,8 @@ class Parser(object):
 
         cpts = sorted(self.ruledict.keys(), key=len, reverse=True)
 
+        # The symbol name must be a valid Sympy symbol name so
+        # it cannot include symbols such as + and -.
         self.cpt_pattern = re.compile("(%s)([#_\w'?]+)?" % '|'.join(cpts))
 
     def _add_param(self, string):
