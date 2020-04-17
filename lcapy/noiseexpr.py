@@ -1,13 +1,13 @@
 from __future__ import division
 from .sym import symsimplify
 from .functions import sqrt
-from .sym import pi
+from .sym import pi, omegasym
 from .state import state
-from .omegaexpr import omegaExpr
+from .expr import Expr
 import sympy as sym
 import numpy as np
 
-class noiseExpr(omegaExpr):
+class noiseExpr(Expr):
     """Frequency domain (one-sided) noise spectrum expression (amplitude
     spectral density).
 
@@ -51,6 +51,7 @@ class noiseExpr(omegaExpr):
                 assumptions['nid'] = 'n0'
             else:
                 assumptions['nid'] = self._new_nid()
+        self.var = omegasym
         super(noiseExpr, self).__init__(val, **assumptions)
 
     @property
