@@ -312,6 +312,14 @@ Ztransform
    :undoc-members:
    :show-inheritance:         
 
+Transform
+---------
+
+.. automodule:: lcapy.transform
+   :members:
+   :undoc-members:
+   :show-inheritance:
+      
 Plot
 ----
 
