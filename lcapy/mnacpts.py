@@ -29,15 +29,6 @@ cptaliases = {'E': 'VCVS', 'F': 'CCCS',
               'k': 'Spring'}
 
 
-def arg_format(value):
-    """Place value string inside curly braces if it contains a delimiter."""
-    string = str(value)
-    for delimiter in delimiters:
-        if delimiter in string:
-            return '{' + string + '}'
-    return string
-
-
 class Cpt(ImmitanceMixin):
 
     dependent_source = False
@@ -131,6 +122,14 @@ class Cpt(ImmitanceMixin):
         
         return str(self)
     
+    def _arg_format(self, value):
+        """Place value string inside curly braces if it contains a delimiter."""
+        string = str(value)
+        for delimiter in delimiters:
+            if delimiter in string:
+                return '{' + string + '}'
+        return string
+
     def _kill(self):
         """Kill sources."""
 
@@ -147,14 +146,14 @@ class Cpt(ImmitanceMixin):
         if not isinstance(subs_dict, dict):
             subs_dict = {self.args[0]: subs_dict}
 
-        return self._netmake(subs_dict=subs_dict)
+        return self._netsubs(subs_dict=subs_dict)
 
     def _initialize(self, ic):
         """Change initial condition to ic."""
 
         return self._copy()    
 
-    def _netmake(self, node_map=None, zero=False, subs_dict=None):
+    def _netsubs(self, node_map=None, zero=False, subs_dict=None):
         """Create a new net description.  If node_map is not None,
         rename the nodes.  If zero is True, set args to zero."""
 
@@ -183,11 +182,11 @@ class Cpt(ImmitanceMixin):
             if subs_dict is not None:
                 arg = str(expr(arg).subs(subs_dict))
                 
-            string += ' ' + arg_format(arg)
+            string += ' ' + self._arg_format(arg)
             field += 1
             if field == self.keyword[0]:
                 string += self.keyword[1]
-        opts_str = str(self.opts)
+        opts_str = str(self.opts).strip()
         if opts_str != '':
             string += '; ' + opts_str
         return string
@@ -195,8 +194,55 @@ class Cpt(ImmitanceMixin):
     def _rename_nodes(self, node_map):
         """Rename the nodes using dictionary node_map."""
 
-        return self._netmake(node_map)
+        return self._netsubs(node_map)
 
+    def _netmake1(self, name, nodes=None, args=None, opts=None):
+
+        if nodes is None:
+            nodes = self.relnodes
+
+        if args is None:
+            args = self.args
+
+        if not isinstance(args, tuple):
+            args = (args, )
+
+        if opts is None:
+            opts = self.opts
+            
+        fmtargs = []
+        for arg in args:
+            fmtargs.append(self._arg_format(arg))
+
+        if len(fmtargs) == 1 and fmtargs[0] == name:
+            fmtargs = []
+
+        parts = [name]
+        parts.extend(nodes)
+        parts.extend(fmtargs)
+        
+        net = ' '.join(parts)
+        opts_str = str(opts).strip()
+        if opts_str != '':
+            net += '; ' + opts_str
+        return net
+    
+    def _netmake(self, nodes=None, args=None, opts=None):
+        """This keeps the same cpt name"""                
+
+        return self._netmake1(self.namespace + self.relname, nodes, args)
+
+    def _netmake_anon(self, newid, nodes=None, args=None, opts=None):
+        """This is used for changing cpt name from C1 to O"""        
+
+        return self._netmake1(self.namespace + newid, nodes, args, opts)
+        
+    def _netmake_variant(self, newid, nodes=None, args=None, opts=None):
+        """This is used for changing cpt name from C1 to ZC1"""
+
+        return self._netmake1(self.namespace + newid + self.relname,
+                              nodes, args, opts)
+    
     def _select(self, kind=None):
         """Select domain kind for component."""
 
@@ -538,7 +584,7 @@ class IndependentSource(Cpt):
         current for CCVS and CCCS components.
 
         """
-        return self._netmake(zero=True)
+        return self._netsubs(zero=True)
     
 
 class DependentSource(Dummy):
@@ -553,11 +599,8 @@ class RLC(Cpt):
 
     def _s_model(self, var):
 
-        if self.Voc == 0:        
-            return '%sZ%s %s %s %s; %s' % (self.namespace, self.relname, 
-                                           self.relnodes[0], self.relnodes[1],
-                                           arg_format(self.Z(var)), 
-                                           self.opts)
+        if self.Voc == 0:
+            self._netmake_variant('Z', args=self.Z(var))
 
         dummy_node = self.dummy_node()
 
@@ -567,19 +610,14 @@ class RLC(Cpt):
         # in parallel with Z and V.
         voltage_opts = opts.strip_voltage_labels()
 
-        znet = '%sZ%s %s %s %s; %s' % (self.namespace, self.relname, 
-                                       self.relnodes[0], dummy_node,
-                                       arg_format(self.Z(var)), 
-                                       opts)
+        znet = self._netmake_variant('Z', nodes=(self.relnodes[0], dummy_node),
+                                     args=self.Z(var), opts=opts)
 
         # Strip voltage and current labels from voltage source.
         opts.strip_all_labels()
 
-        vnet = '%sV%s %s %s s %s; %s' % (self.namespace, self.relname, 
-                                         dummy_node, self.relnodes[1],
-                                         arg_format(self.Voc.laplace()(var)),
-                                         opts)
-
+        vnet = self._netmake_variant('V', nodes=(dummy_node, self.relnodes[1]),
+                                     args=self.Voc.laplace()(var), opts=opts)
         if voltage_opts == {}:
             return znet + '\n' + vnet
 
@@ -593,9 +631,8 @@ class RLC(Cpt):
         # v_L(t) -> V_L(s)
         for opt, val in voltage_opts.items():
             opts[opt] = capitalize_name(val)
-            
-        onet = '%sO%s %s %s; %s' % (self.namespace, self.relname, 
-                                    self.relnodes[0], self.relnodes[1], opts)
+
+        onet = self._netmake_variant('O', opts=opts)
         return znet + '\n' + vnet + '\n' + onet
 
 
@@ -607,15 +644,12 @@ class RC(RLC):
 
         opts = self.opts.copy()
 
-        rnet = '%s %s %s %s; %s' % (self.defname, 
-                                    self.relnodes[0], dummy_node,
-                                    arg_format(self.args[0]),
-                                    opts)
+        rnet = self._netmake(nodes=(self.relnodes[0], dummy_node),
+                             opts=opts)                                  
         
         Vn = 'sqrt(4 * k * T * %s)' % self.args[0]
-        vnet = '%sVn%s %s %s noise %s; %s' % (
-            self.namespace, self.relname, dummy_node,
-            self.relnodes[1], arg_format(Vn), opts)
+        vnet = self._netmake_variant('Vn', nodes=(dummy_node, self.relnodes[1]),
+                                     args=('noise', Vn), opts=opts)
         return rnet + '\n' + vnet
     
     def _stamp(self, cct):
@@ -658,30 +692,25 @@ class C(RC):
         """Kill implicit sources due to initial conditions."""
         return '%s %s %s %s; %s' % (
             self.defname, self.relnodes[0], self.relnodes[1],
-            arg_format(self.args[0]), self.opts)
+            self._arg_format(self.args[0]), self.opts)
 
     def _initialize(self, ic):
         """Change initial condition to ic."""
         return '%s %s %s %s %s; %s' % (self.defname,
                                        self.relnodes[0], self.relnodes[1], 
-                                       arg_format(self.args[0]),
-                                       arg_format(ic), self.opts)
+                                       self._arg_format(self.args[0]),
+                                       self._arg_format(ic), self.opts)
 
     def _pre_initial_model(self):
 
         if self.cpt.v0 == 0.0:
-            return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
-                                      self.relnodes[1], self.opts)
-        return '%sV%s %s %s %s; %s' % (self.namespace, self.relname,
-                                       self.relnodes[0], self.relnodes[1], 
-                                       arg_format(self.cpt.v0), self.opts)
+            return self._netmake_anon('O')
+        return self._netmake_variant('V', args=self.cpt.v0)
 
     def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another voltage source?
-        return '%sV_%s %s %s; %s' % (self.namespace, self.relname,
-                                     self.relnodes[0], self.relnodes[1], 
-                                     self.opts)
+        return self._make_variant('V_')
         
     @property
     def V0(self):
@@ -884,16 +913,16 @@ class I(IndependentSource):
             cct._Is[n2] -= I
 
     def _ss_model(self):
-        return '%s%s %s %s {%s(t)}; %s' % (self.namespace, self.relname,
-                                           self.relnodes[0], self.relnodes[1],
-                                           self.relname.lower(),
-                                           self.opts)
+        return '%s %s %s {%s(t)}; %s' % (self.defname,
+                                         self.relnodes[0], self.relnodes[1],
+                                         self.relname.lower(),
+                                         self.opts)
 
     def _s_model(self, var):
 
         return '%s %s %s s %s; %s' % (self.defname, 
                                       self.nodes[0], self.nodes[1],
-                                      arg_format(self.Isc.laplace()(var)),
+                                      self._arg_format(self.Isc.laplace()(var)),
                                       self.opts)
 
     def _pre_initial_model(self):
@@ -959,14 +988,14 @@ class L(RLC):
         """Kill implicit sources due to initial conditions."""
         return '%s %s %s %s; %s' % (
             self.defname, self.relnodes[0], self.relnodes[1],
-            arg_format(self.args[0]), self.opts)
+            self._arg_format(self.args[0]), self.opts)
 
     def _initialize(self, ic):
         """Change initial condition to ic."""
         return '%s %s %s %s %s; %s' % (self.defname,
                                        self.relnodes[0], self.relnodes[1],
-                                       arg_format(self.args[0]),
-                                       arg_format(ic), self.opts)
+                                       self._arg_format(self.args[0]),
+                                       self._arg_format(ic), self.opts)
     def _stamp(self, cct):
 
         # This formulation adds the inductor current to the unknowns
@@ -994,19 +1023,15 @@ class L(RLC):
 
     def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
-        # with another current source?        
-        return '%sI_%s %s %s {-i_%s(t)}; %s' % (self.namespace, self.relname,
-                                                self.relnodes[0], self.relnodes[1],
-                                                self.relname, self.opts)
+        # with another current source?
+        return self._netmake_variant('I_', args='-i_%s(t)' % self.relname)
     
     def _pre_initial_model(self):
 
         if self.cpt.i0 == 0.0:
             return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
                                       self.relnodes[1], self.opts)
-        return '%sI%s %s %s %s; %s' % (self.namespace, self.relname,
-                                       self.relnodes[0], self.relnodes[1], 
-                                       arg_format(self.cpt.i0), self.opts)
+        return self._netmake_variant('I', args=self.cpt.i0)
 
 class O(Dummy):
     """Open circuit"""
@@ -1242,16 +1267,16 @@ class V(IndependentSource):
         cct._Es[m] += V
 
     def _ss_model(self):
-        return '%s%s %s %s {%s(t)}; %s' % (self.namespace, self.relname,
-                                           self.relnodes[0], self.relnodes[1],
-                                           self.relname.lower(),
-                                           self.opts)
+        return '%s %s %s {%s(t)}; %s' % (self.defname,
+                                         self.relnodes[0], self.relnodes[1],
+                                         self.relname.lower(),
+                                         self.opts)
 
     def _s_model(self, var):
 
         return '%s %s %s s %s; %s' % (self.defname, 
                                       self.relnodes[0], self.relnodes[1],
-                                      arg_format(self.cpt.Voc.laplace()(var)),
+                                      self._arg_format(self.cpt.Voc.laplace()(var)),
                                       self.opts)
 
     def _pre_initial_model(self):
