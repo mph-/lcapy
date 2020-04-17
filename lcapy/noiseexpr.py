@@ -91,14 +91,17 @@ class noiseExpr(Expr):
         if arg == fsym:
             # Convert omegasym to fsym
             return self.__class__(self.subs(self.var, 2 * pi * arg),
-                                  arg, **assumptions)
+                                  arg, nid=self.nid, **assumptions)
         elif arg == omegasym:
             # Convert fsym to omegasym
             return self.__class__(self.subs(self.var, arg / (2 * pi)),
-                                  arg, **assumptions)
+                                  arg, nid=self.nid, **assumptions)
 
-        return super(noiseExpr, self).__call__(arg, **assumptions)
-        
+        return super(noiseExpr, self).__call__(arg, nid=self.nid, **assumptions)
+
+    def subs(self, *args, **kwargs):
+        return super(noiseExpr, self).subs(*args, nid=self.nid, **kwargs)
+
     def __add__(self, x):
         """Add noise spectra (on power basis if uncorrelated)."""
 
