@@ -301,67 +301,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(H, 1 / (s * 'R1' * 'C1' + 1),  "Incorrect ratio")
     
-    def test_noise1(self):
-        """Lcapy: check circuit noise for voltage divider"""
-
-        a = Circuit()
-        a.add('V1 1 0 noise 3') 
-        a.add('R1 1 2 2')
-        a.add('R2 2 0 4')
-        V1 = a.R1.V.n
-        self.assertEqual2(V1, Vnoisy(1, nid=V1.nid), "Incorrect ratio")
-
-    def test_noise2(self):
-        """Lcapy: check circuit noise for pair of sources"""
-
-        a = Circuit()
-        a.add('V1 1 0 noise 3')
-        a.add('V2 2 1 noise 4')
-        a.add('R1 2 0 5')
-        V1 = a.R1.V.n
-        self.assertEqual2(V1, Vnoisy(5, nid=V1.nid), "Incorrect noise sum")        
-        
-    def test_filtered_noise1(self):
-        """Lcapy: check circuit filtered noise"""
-
-        a = Circuit()
-        a.add('V1 1 0 noise 3') 
-        a.add('R1 1 2 2')
-        a.add('C1 2 0 4')         
-#        self.assertEqual2(a.R1.V.n, Vnoisy(1), "Incorrect ratio")
-
-
-    def test_filtered_noise2(self):
-        """Lcapy: check circuit filtered noise"""
-
-        a = Circuit()
-        a.add('V1 1 0 noise {sqrt(4 * k * T * R)}') 
-        a.add('R1 1 2 R')
-        a.add('C1 2 0 C')         
-        self.assertEqual2(a.C1.V.n.rms(), Vt('sqrt(k * T / C)'),
-                          "Incorrect capacitor voltage")
-
-    def test_filtered_noise3(self):
-        """Lcapy: check circuit filtered noise"""
-
-        a = Circuit()
-        a.add('V1 1 0 noise 20') 
-        a.add('R1 1 2 1')
-        a.add('C1 2 0 2')         
-        self.assertEqual(a.C1.V.n.rms(), 5 * sqrt(2),
-                         "Incorrect capacitor voltage")
-
-    def test_noisy1(self):
-
-        a = Circuit()
-        a.add('R1 1 0')
-        a.add('R2 1 0')
-        an = a.noisy()
-        b = Circuit()
-        b.add('R1 1 0 {R1 * R2 / (R1 + R2)}')
-        bn = b.noisy()
-        self.assertEqual(an[1].V.n.expr, bn[1].V.n.expr, "Incorrect noise")
-
     def test_causal1(self):
 
         a = Circuit()

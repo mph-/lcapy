@@ -4,10 +4,7 @@ import unittest
 
 
 class LcapyTester(unittest.TestCase):
-
-    """Unit tests for lcapy
-
-    """
+    """Unit tests for lcapy"""
 
     def assertEqual2(self, ans1, ans2, comment):
 
@@ -407,12 +404,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Heaviside(2 * t - 1).is_causal, True, "Heaviside(2 * t - 1).is_causal")
         self.assertEqual(Heaviside(-2 * t - 1).is_causal, False, "Heaviside(-2 * t - 1).is_causal")
         
-    def test_noise(self):
-        a = Vnoisy(2)
-        self.assertEqual(a.nid, a.conjugate.nid, "Different nids for conjugate")
-        self.assertEqual(a.nid, a.real.nid, "Different nids for real")
-        self.assertEqual(a.nid, a.imag.nid, "Different nids for imag")
-        
     def test_has(self):
 
         a = Expr('3 * exp(-t) * t * a')
@@ -627,4 +618,5 @@ class LcapyTester(unittest.TestCase):
         a = expr('3 / 4')
 
         self.assertEqual(a.val, 0.75, "val")
-        self.assertEqual(a.evalf(), 0.75, "evalf")                
+        self.assertEqual(a.evalf(), 0.75, "evalf")
+        
