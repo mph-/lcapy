@@ -158,3 +158,4 @@ figs:
 	cd examples/networks; make
 	cd examples/discretetime; make
 	cd examples/tutorials/RCnoise; make
+	cd examples/tutorials/opampnoise; make

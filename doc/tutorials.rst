@@ -90,3 +90,100 @@ Finally, the rms noise voltage can be found using the `rms()` method.  This inte
    √T⋅√k
    ─────
      √C 
+
+
+Opamp non-inverting amplifier
+-----------------------------
+
+This tutorial looks at the noise from an opamp non-inverting
+amplifier.  It uses an ideal opamp with open-loop gain `A` augmented
+with a voltage source representing the input-referred opamp voltage
+noise, and current sources representing the input-referred opamp
+current noise.
+
+   >>> from lcapy import *
+   >>> a = Circuit("""
+   ... Rs 1 0; down
+   ... Vn 1 2 noise; right
+   ... W 2 3; right
+   ... In1 2 0_2 noise; down, l=I_{n+}
+   ... W 0 0_2; right
+   ... In2 5 0_5 noise; down, l=I_{n-}
+   ... W 5 4; right
+   ... W 0_2 0_5; right
+   ... W 4 6; down
+   ... R1 6 0_6; down
+   ... W 0_5 0_6; right
+   ... R2 6 7; right
+   ... W 8 7; down
+   ... E 8 0 opamp 3 4 A; right
+   ... W 8 9; right
+   ... W 0_6 0_9; right
+   ... P 9 0_9; down
+   ... ; draw_nodes=connections, label_nodes=none""")
+   >>> a.draw()
+
+.. image:: examples/tutorials/opampnoise/opamp-noninverting-amplifier.png
+   :width: 10cm
+
+The noise ASD at the input of the opamp is
+           
+   >>> a[3].V.n
+      ____________________________
+     ╱    ⎛   2           ⎞     2 
+   ╲╱  Rₛ⋅⎝Iₙ₁ ⋅Rₛ + 4⋅T⋅k⎠ + Vₙ  
+
+This is independent of frequency and thus is white.  In practice, the voltage and current noise of an opamp has a 1/f component at low frequencies.
+
+The noise at the output of the amplifier is
+
+   >>> a[8].V.n   
+        _____________________________________________________
+       ╱    2   2          2      2   2   2     2          2 
+   A⋅╲╱  Iₙ₁ ⋅Rₛ ⋅(R₁ + R₂)  + Iₙ₂ ⋅R₁ ⋅R₂  + Vₙ ⋅(R₁ + R₂)  
+   ──────────────────────────────────────────────────────────
+                         A⋅R₁ + R₁ + R₂                      
+
+Assuming an infinite open-loop gain this simplifies to
+
+   >>> a[8].V.n.limit('A', oo)
+      _____________________________________________________
+     ╱    2   2          2      2   2   2     2          2 
+   ╲╱  Iₙ₁ ⋅Rₛ ⋅(R₁ + R₂)  + Iₙ₂ ⋅R₁ ⋅R₂  + Vₙ ⋅(R₁ + R₂)  
+   ────────────────────────────────────────────────────────
+                              R₁                           
+
+This is simply the input noise scaled by the amplfier gain :math:`1 + R_2/R_1`.
+
+So far the analysis has ignored the noise due to the feedback resistors.   The noise from these resistors can be modelled with the `noisy()` method of the circuit object.
+
+   >>> b = a.noisy()
+   >>> b.draw()
+
+.. image:: examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.png
+   :width: 10cm
+
+
+Let's choose :math:`R2 = (G - 1) R_1` where :math:`G` is the closed-loop gain:
+
+   >>> c = b.subs({'R2':'(G - 1) * R1'})
+   >>> c[8].V.n.limit('A', oo)
+
+Unfortunately, this becomes unmanageable since SymPy has to assume that :math:`G` may be less than one.   So instead, let's choose :math:`G=10`,
+
+   >>> c = b.subs({'R2':'(10 - 1) * R1'})
+   >>> c[8].V.n.limit('A', oo)
+      ________________________________________________________________
+     ╱        2   2         2   2                                   2 
+   ╲╱  100⋅Iₙ₁ ⋅Rₛ  + 81⋅Iₙ₂ ⋅R₁  + 360⋅R₁⋅T⋅k + 400⋅Rₛ⋅T⋅k + 100⋅Vₙ  
+
+In practice, both noise current sources have the same ASD.  Thus
+
+   >>> c = b.subs({'R2':'(10 - 1) * R1', 'In2':'In1'})
+   >>> c[8].V.n.limit('A', oo)
+      _________________________________________________________________
+     ╱        2   2        ⎛     2            ⎞                      2 
+   ╲╱  100⋅Iₙ₁ ⋅Rₛ  + 9⋅R₁⋅⎝9⋅Iₙ₁ ⋅R₁ + 40⋅T⋅k⎠ + 400⋅Rₛ⋅T⋅k + 100⋅Vₙ  
+
+The noise is minimised by keeping `R1` as small as possible.  However, for high gains, the noise is dominated by the opamp noise.  Ideally, `Rs` needs to be minimised.  However, if it is large, it is imperative to choose a CMOS opamp with a low noise current.   Unfortunately, these amplifiers have a higher noise voltage than bipolar opamps.
+   
