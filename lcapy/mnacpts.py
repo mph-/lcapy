@@ -124,7 +124,12 @@ class Cpt(ImmitanceMixin):
     
     def _arg_format(self, value):
         """Place value string inside curly braces if it contains a delimiter."""
+
         string = str(value)
+
+        if string.startswith('{'):
+            return string
+        
         for delimiter in delimiters:
             if delimiter in string:
                 return '{' + string + '}'
@@ -229,23 +234,20 @@ class Cpt(ImmitanceMixin):
     
     def _netmake(self, nodes=None, args=None, opts=None):
         """This keeps the same cpt name"""                
+        return self._netmake1(self.namespace + self.relname, nodes, args, opts)
 
-        return self._netmake1(self.namespace + self.relname, nodes, args)
-
-    def _netmake_anon(self, newid, nodes=None, args=None, opts=None):
+    def _netmake_anon(self, newtype, nodes=None, opts=None):
         """This is used for changing cpt name from C1 to O"""        
-
-        return self._netmake1(self.namespace + newid, nodes, args, opts)
+        return self._netmake1(self.namespace + newtype, nodes, args=(),
+                              opts=opts)
         
-    def _netmake_variant(self, newid, nodes=None, args=None, opts=None):
+    def _netmake_variant(self, newtype, nodes=None, args=None, opts=None):
         """This is used for changing cpt name from C1 to ZC1"""
-
-        return self._netmake1(self.namespace + newid + self.relname,
+        return self._netmake1(self.namespace + newtype + self.relname,
                               nodes, args, opts)
     
     def _select(self, kind=None):
         """Select domain kind for component."""
-
         raise ValueError('Component not a source: %s' % self)    
 
     def _zero(self):
@@ -258,17 +260,14 @@ class Cpt(ImmitanceMixin):
 
     def _s_model(self, var):
         """Return s-domain model of component."""
-
         return self._copy()
 
     def _ss_model(self):
         """Return state-space model of component."""
-
         return self._copy()            
 
     def _pre_initial_model(self):
         """Return pre-initial model of component."""
-
         return self._copy()        
 
     @property
@@ -690,16 +689,11 @@ class C(RC):
     
     def _kill(self):
         """Kill implicit sources due to initial conditions."""
-        return '%s %s %s %s; %s' % (
-            self.defname, self.relnodes[0], self.relnodes[1],
-            self._arg_format(self.args[0]), self.opts)
+        return self.netmake(args=self.args[0])
 
     def _initialize(self, ic):
         """Change initial condition to ic."""
-        return '%s %s %s %s %s; %s' % (self.defname,
-                                       self.relnodes[0], self.relnodes[1], 
-                                       self._arg_format(self.args[0]),
-                                       self._arg_format(ic), self.opts)
+        return self._netmake(args=(self.args[0], ic))
 
     def _pre_initial_model(self):
 
@@ -710,7 +704,7 @@ class C(RC):
     def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another voltage source?
-        return self._make_variant('V_')
+        return self._netmake_variant('V_', args=())
         
     @property
     def V0(self):
@@ -757,9 +751,9 @@ class VCVS(DependentSource):
         newopts.strip_current_labels()
         newopts.strip_labels()
 
-        return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
-                                  self.relnodes[1], newopts)
-            
+        return self._netmake_anon('W', opts=newopts)
+
+    
 class CCCS(DependentSource):
     """CCCS"""
 
@@ -780,8 +774,8 @@ class CCCS(DependentSource):
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
-                                  self.relnodes[1], newopts)
+        return self._netmake_anon('O', opts=newopts)
+
 
 class FB(Misc):
     """Ferrite bead"""
@@ -809,8 +803,7 @@ class VCCS(DependentSource):
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
-                                  self.relnodes[1], newopts)
+        return self._netmake_anon('O', opts=newopts)        
 
 class GY(Dummy):
     """Gyrator"""    
@@ -881,25 +874,21 @@ class CCVS(DependentSource):
         newopts.strip_current_labels()
         newopts.strip_labels()
 
-        return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
-                                  self.relnodes[1], newopts)        
+        return self._netmake_anon('O', opts=newopts)                
+
 
 class I(IndependentSource):
 
     def _select(self, kind=None):
         """Select domain kind for component."""
-
-        return '%s %s %s %s; %s' % (
-            self.defname, self.relnodes[0], self.relnodes[1],
-            self.cpt.Isc.netval(kind), self.opts)
+        return self._netmake(args=self.cpt.Isc.netval(kind))
 
     def _kill(self):
         newopts = self.opts.copy()
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
-                                  self.relnodes[1], newopts)
+        return self._netmake_anon('O', opts=newopts)                        
 
     def _stamp(self, cct):
 
@@ -913,23 +902,15 @@ class I(IndependentSource):
             cct._Is[n2] -= I
 
     def _ss_model(self):
-        return '%s %s %s {%s(t)}; %s' % (self.defname,
-                                         self.relnodes[0], self.relnodes[1],
-                                         self.relname.lower(),
-                                         self.opts)
+        return self._netmake(args='%s(t)' % self.relname.lower)
 
     def _s_model(self, var):
-
-        return '%s %s %s s %s; %s' % (self.defname, 
-                                      self.nodes[0], self.nodes[1],
-                                      self._arg_format(self.Isc.laplace()(var)),
-                                      self.opts)
+        return self._netmake(args=self.Isc.laplace()(var))
 
     def _pre_initial_model(self):
 
         # Assume IC zero.  FIXME
-        return '%sO %s %s; %s' % (self.namespace, self.relnodes[0],
-                                  self.relnodes[1], self.opts)
+        return self._netmake_anon('O', opts=newopts)
 
 
 class K(Dummy):
@@ -986,16 +967,12 @@ class L(RLC):
     
     def _kill(self):
         """Kill implicit sources due to initial conditions."""
-        return '%s %s %s %s; %s' % (
-            self.defname, self.relnodes[0], self.relnodes[1],
-            self._arg_format(self.args[0]), self.opts)
+        return self.netmake(args=self.args[0])        
 
     def _initialize(self, ic):
         """Change initial condition to ic."""
-        return '%s %s %s %s %s; %s' % (self.defname,
-                                       self.relnodes[0], self.relnodes[1],
-                                       self._arg_format(self.args[0]),
-                                       self._arg_format(ic), self.opts)
+        return self._netmake(args=(self.args[0], ic))
+
     def _stamp(self, cct):
 
         # This formulation adds the inductor current to the unknowns
@@ -1029,8 +1006,7 @@ class L(RLC):
     def _pre_initial_model(self):
 
         if self.cpt.i0 == 0.0:
-            return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
-                                      self.relnodes[1], self.opts)
+            return self._netmake_anon('W')                    
         return self._netmake_variant('I', args=self.cpt.i0)
 
 class O(Dummy):
@@ -1238,18 +1214,14 @@ class V(IndependentSource):
 
     def _select(self, kind=None):
         """Select domain kind for component."""
-
-        return '%s %s %s %s; %s' % (
-            self.defname, self.relnodes[0], self.relnodes[1],
-            self.cpt.Voc.netval(kind), self.opts)        
+        return self._netmake(args=self.cpt.Voc.netval(kind))
 
     def _kill(self):
         newopts = self.opts.copy()
         newopts.strip_current_labels()
         newopts.strip_labels()
 
-        return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
-                                  self.relnodes[1], newopts)
+        return self._netmake_anon('W', opts=newopts)                            
 
     def _stamp(self, cct):
 
@@ -1267,23 +1239,15 @@ class V(IndependentSource):
         cct._Es[m] += V
 
     def _ss_model(self):
-        return '%s %s %s {%s(t)}; %s' % (self.defname,
-                                         self.relnodes[0], self.relnodes[1],
-                                         self.relname.lower(),
-                                         self.opts)
+        return self._netmake(args='%s(t)' % self.relname.lower())
 
     def _s_model(self, var):
-
-        return '%s %s %s s %s; %s' % (self.defname, 
-                                      self.relnodes[0], self.relnodes[1],
-                                      self._arg_format(self.cpt.Voc.laplace()(var)),
-                                      self.opts)
+        return self._netmake(args=self.cpt.Voc.laplace()(var))
 
     def _pre_initial_model(self):
 
         # Assume IC zero.  FIXME
-        return '%sW %s %s; %s' % (self.namespace, self.relnodes[0],
-                                  self.relnodes[1], self.opts)
+        return self._netmake_anon('W')
 
 
 class W(Dummy):

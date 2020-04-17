@@ -408,17 +408,17 @@ class Super(ExprDict):
         if kind in ('s', 'ivp') and (val.is_causal or val.is_dc or val.is_ac):
             # Convert to time representation so that can re-infer
             # causality, etc.
-            return '{%s}' % val.time()
+            return val.time()
 
         keyword = kind_keyword(kind)
         
         if 'nid' in val.assumptions:
-            return '%s {%s} %s' % (keyword, val, val.nid)
+            return keyword, val, val.nid
 
         if keyword == 'ac':
-            return '%s {%s} {%s} {%s}' % (keyword, val, 0, val.omega)
+            return keyword, val, 0, val.omega
 
-        return '%s {%s}' % (keyword, val)
+        return keyword, val
     
     def _kind(self, value):
         if isinstance(value, Phasor):
