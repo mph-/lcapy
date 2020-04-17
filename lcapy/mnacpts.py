@@ -569,6 +569,9 @@ class XX(Dummy):
     def _stamp(self, cct):
         pass
 
+    def _subs(self, subs_dict):
+        return self._copy()
+    
     
 class IndependentSource(Cpt):
 
