@@ -32,7 +32,7 @@ class Current(Super):
 
     def __init__(self, *args, **kwargs):    
 
-        self.type_map = {cExpr: Iconst, sExpr : Is, noiseExpr: Inoisy,
+        self.type_map = {cExpr: Iconst, sExpr : Is, noiseomegaExpr: Inoisy,
                          omegaExpr: Iphasor, tExpr : It}
         self.decompose_domains = {'s': Is, 'ac': Iphasor, 'dc':
                                   Iconst, 'n': Inoisy, 't': It}
@@ -123,7 +123,8 @@ from .cexpr import Vconst, Iconst, cExpr
 from .fexpr import fExpr    
 from .sexpr import Is, sExpr
 from .texpr import It, tExpr
-from .noiseexpr import Inoisy, noiseExpr
+from .noisy import Inoisy
+from .noiseomegaexpr import noiseomegaExpr
 from .phasor import Iphasor, Phasor
 from .impedance import Impedance
 from .admittance import Admittance

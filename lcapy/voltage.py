@@ -31,7 +31,7 @@ from .super import Super
 class Voltage(Super):
 
     def __init__(self, *args, **kwargs):
-        self.type_map = {cExpr: Vconst, sExpr : Vs, noiseExpr: Vnoisy,
+        self.type_map = {cExpr: Vconst, sExpr : Vs, noiseomegaExpr: Vnoisy,
                          omegaExpr: Vphasor, tExpr : Vt}
         self.decompose_domains = {'s': Vs, 'ac': Vphasor, 'dc':
                                   Vconst, 'n': Vnoisy, 't': Vt}
@@ -127,7 +127,8 @@ from .cexpr import Vconst, Iconst, cExpr
 from .fexpr import fExpr    
 from .sexpr import Vs, sExpr
 from .texpr import Vt, tExpr
-from .noiseexpr import Vnoisy, noiseExpr
+from .noisy import Vnoisy
+from .noiseomegaexpr import noiseomegaExpr
 from .phasor import Vphasor, Phasor
 from .impedance import Impedance
 from .admittance import Admittance

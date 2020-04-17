@@ -45,59 +45,19 @@ class noiseExpr(Expr):
         state.context.nid += 1
         return 'n%d' % state.context.nid
 
-    def __init__(self, val, var=None, **assumptions):
+    def __init__(self, val, **assumptions):
         if 'nid' not in assumptions or assumptions['nid'] is None:
             if val == 0:
                 assumptions['nid'] = 'n0'
             else:
                 assumptions['nid'] = self._new_nid()
 
-        if var is None:
-            var = omegasym
-                
-        if var not in (fsym, omegasym):
-            raise ValueError('Cannot use var %s for noiseExpr' % var)
-        if var == omegasym:
-            self.domain_name = 'Angular frequency'
-            self.domain_units = 'rad/s'
-        else:
-            self.domain_name = 'Frequency'
-            self.domain_units = 'Hz'            
-
-        self.var = var
         super(noiseExpr, self).__init__(val, **assumptions)
 
     @property
     def nid(self):
         return self.assumptions['nid']
 
-    def __call__(self, arg, **assumptions):
-        """Transform domain or substitute arg for variable. 
-        
-        Substitution is performed if arg is a tuple, list, numpy
-        array, or constant.  If arg is a tuple or list return a list.
-        If arg is an numpy array, return numpy array.
-
-        Domain transformation is performed if arg is a domain variable
-        or an expression of a domain variable.
-
-        See also evaluate.
-
-        """
-
-        if id(arg) == id(self.var):
-            return self.copy()
-
-        if arg == fsym:
-            # Convert omegasym to fsym
-            return self.__class__(self.subs(self.var, 2 * pi * arg),
-                                  arg, nid=self.nid, **assumptions)
-        elif arg == omegasym:
-            # Convert fsym to omegasym
-            return self.__class__(self.subs(self.var, arg / (2 * pi)),
-                                  arg, nid=self.nid, **assumptions)
-
-        return super(noiseExpr, self).__call__(arg, nid=self.nid, **assumptions)
 
     def subs(self, *args, **kwargs):
         return super(noiseExpr, self).subs(*args, nid=self.nid, **kwargs)
@@ -222,7 +182,6 @@ class noiseExpr(Expr):
         return S.inverse_fourier()
 
     def plot(self, fvector=None, **kwargs):
-
         """Plot frequency response at values specified by fvector.
 
         There are many plotting options, see matplotlib.pyplot.plot.
@@ -235,49 +194,14 @@ class noiseExpr(Expr):
         By default complex data is plotted as separate plots of magnitude (dB)
         and phase.
         """
-        from .plot import plot_frequency
-        
-        return plot_frequency(self, fvector, **kwargs)    
+        from .plot import plot_frequency, plot_angular_frequency
 
-class Vnoisy(noiseExpr):
-    """Voltage noise amplitude spectral density (units V/rtHz).
-    This can be a function of angular frequency, omega.  For example,
-    to model an opamp voltage noise:
+        if self.var == fsym:
+            return plot_frequency(self, fvector, **kwargs)
+        elif self.var == omegasym:
+            return plot_angular_frequency(self, fvector, **kwargs)
+        raise ValueError('Invalid var for noiseExpr')
 
-    v = Vnoisy(1e-8 / sqrt(omega) + 8e-9)
     
-    """
-
-    quantity = 'Voltage noise spectral density'
-    units = 'V/rtHz'
-
-    def __init__(self, val, var=None, **assumptions):
-
-        assumptions['positive'] = True
-        super(Vnoisy, self).__init__(val, var, **assumptions)
-        # FIXME
-        self._fourier_conjugate_class = Vt
-
-
-class Inoisy(noiseExpr):
-    """Current noise amplitude spectral density (units A/rtHz).
-
-    This can be a function of angular frequency, omega.  For example,
-    to model an opamp current noise:
-
-    i = Inoisy(3e-12 / sqrt(omega) + 200e-15)
-    """
-
-    quantity = 'Current noise spectral density'
-    units = 'A/rtHz'
-
-    def __init__(self, val, var=None, **assumptions):
-
-        assumptions['positive'] = True
-        super(Inoisy, self).__init__(val, **assumptions)
-        # FIXME
-        self._fourier_conjugate_class = It
-
-        
-from .texpr import It, Vt
 from .fexpr import f
+from .omegaexpr import omega

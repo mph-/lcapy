@@ -1302,7 +1302,7 @@ from .expr import Expr
 from .cexpr import cExpr, Iconst, Vconst
 from .sexpr import sExpr, Is, Vs, Ys, Zs
 from .texpr import tExpr
-from .noiseexpr import Inoisy, Vnoisy
+from .noisy import Inoisy, Vnoisy
 from .voltage import Voltage
 from .current import Current
 from .phasor import Iphasor, Vphasor
