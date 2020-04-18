@@ -43,6 +43,8 @@ class cExpr(Expr):
 
 class Vconst(cExpr):
 
+    superkind = 'Voltage'
+    
     def __init__(self, val, **assumptions):
 
         super(Vconst, self).__init__(val, **assumptions)
@@ -58,6 +60,8 @@ class Vconst(cExpr):
     
 class Iconst(cExpr):
 
+    superkind = 'Current'
+    
     def __init__(self, val, **assumptions):
 
         super(Iconst, self).__init__(val, **assumptions)

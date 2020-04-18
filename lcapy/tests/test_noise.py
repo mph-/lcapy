@@ -98,4 +98,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Vn1.nid, Vn2.nid, "Incorrect noise nid")
         self.assertEqual(Vn1, Vn2, "Incorrect noise nid")
 
-    
+    def test_noisy_transform_add1(self):
+
+        a = Vnoisy(2 * omega)
+        b = Vnoisy(3 + omega)
+        

@@ -62,6 +62,14 @@ class noiseExpr(Expr):
     def subs(self, *args, **kwargs):
         return super(noiseExpr, self).subs(*args, nid=self.nid, **kwargs)
 
+    def __compat__(self, x):
+
+        if not isinstance(x, noiseExpr):
+            return x
+        if self.var == x.var:
+            return x
+        return x(self.var)
+    
     def __add__(self, x):
         """Add noise spectra (on power basis if uncorrelated)."""
 
@@ -70,6 +78,8 @@ class noiseExpr(Expr):
         
         if x == 0:
             return self.__class__(self, nid=self.nid)
+
+        x = self.__compat__(x)
         
         if self.nid == x.nid:
             return self.__class__(self.expr + x.expr, nid=self.nid)
@@ -89,7 +99,9 @@ class noiseExpr(Expr):
             raise ValueError('Cannot subtract %s and %s' % (self, x))
 
         if x == 0:
-            return self.__class__(self, nid=self.nid)        
+            return self.__class__(self, nid=self.nid)
+
+        x = self.__compat__(x)        
 
         if self.nid == x.nid:
             return self.__class__(self.expr - x.expr, nid=self.nid)        
@@ -101,6 +113,8 @@ class noiseExpr(Expr):
     def __mul__(self, x):
         if isinstance(x, noiseExpr) and self.nid != x.nid:
             raise ValueError('Cannot multiply %s and %s' % (self, x))
+
+        x = self.__compat__(x)
         return self.__class__(self.expr * x, nid=self.nid)
 
     def __rmul__(self, x):
@@ -121,6 +135,7 @@ class noiseExpr(Expr):
         except:
             pass
 
+        x = self.__compat__(x)        
         try:
             if self.expr == x.expr:
                 return True

@@ -604,6 +604,13 @@ class Expr(ExprPrint, ExprMisc):
     def __add__(self, x):
         """Add"""
 
+        # Convert Vs + Vt -> Voltage, etc.
+        if (hasattr(self, 'superkind') and hasattr(x, 'superkind') and
+            self.__class__ != x.__class__ and self.superkind ==
+            x.superkind):
+            cls = {'Voltage' : Voltage, 'Current' : Current}[self.superkind]
+            return cls(self) + cls(x)
+        
         cls, self, x, assumptions = self.__compat_add__(x, '+')
         return cls(self.expr + x.expr, **assumptions)
 
@@ -621,6 +628,13 @@ class Expr(ExprPrint, ExprMisc):
 
     def __sub__(self, x):
         """Subtract"""
+
+        # Convert Vs - Vt -> Voltage, etc.
+        if (hasattr(self, 'superkind') and hasattr(x, 'superkind') and
+            self.__class__ != x.__class__ and self.superkind ==
+            x.superkind):            
+            cls = {'Voltage' : Voltage, 'Current' : Current}[self.superkind]
+            return cls(self) - cls(x)        
 
         cls, self, x, assumptions = self.__compat_add__(x, '-')
         return cls(self.expr - x.expr, **assumptions)
@@ -1736,6 +1750,8 @@ from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr, sexpr
 from .texpr import tExpr, texpr
 from .impedance import Impedance
 from .admittance import Admittance
+from .voltage import Voltage
+from .current import Current
 from .omegaexpr import Homega, Iomega, Vomega, Yomega, Zomega, omegaExpr, omegaexpr
 
 # Horrible hack to work with IPython around Sympy's back for LaTeX

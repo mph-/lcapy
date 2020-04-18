@@ -427,6 +427,7 @@ class Vs(sExpr):
 
     quantity = 's-Voltage'
     units = 'V/Hz'
+    superkind = 'Voltage'
 
     def __init__(self, val, **assumptions):
 
@@ -444,6 +445,7 @@ class Is(sExpr):
 
     quantity = 's-Current'
     units = 'A/Hz'
+    superkind = 'Current'
 
     def __init__(self, val, **assumptions):
 

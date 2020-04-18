@@ -134,6 +134,7 @@ class Vf(fExpr):
 
     quantity = 'Voltage spectrum'
     units = 'V/Hz'
+    superkind = 'Voltage'        
 
     def __init__(self, val, **assumptions):
 
@@ -147,6 +148,7 @@ class If(fExpr):
 
     quantity = 'Current spectrum'
     units = 'A/Hz'
+    superkind = 'Current'    
 
     def __init__(self, val, **assumptions):
 

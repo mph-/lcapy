@@ -194,6 +194,7 @@ class Vt(tExpr):
 
     quantity = 'Voltage'
     units = 'V'
+    superkind = 'Voltage'        
 
     def __init__(self, val, **assumptions):
 
@@ -204,13 +205,15 @@ class Vt(tExpr):
     def cpt(self):
         from .oneport import V
         return V(self)
-        
+
+    
 class It(tExpr):
 
     """t-domain current (units A)."""
 
     quantity = 'Current'
     units = 'A'
+    superkind = 'Current'    
 
     def __init__(self, val, **assumptions):
 
