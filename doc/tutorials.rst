@@ -46,7 +46,7 @@ The noise voltage across the capacitor can be found using:
      ╱  2  2  2     
    ╲╱  C ⋅R ⋅ω  + 1 
 
-Note, this is the amplitude spectral density with units of volts per root hertz.  Here `T` is the absolute temperature in degrees kelvin, `k` is Boltzmann's constant, and :math:`\omega` is the angular frequency.  The expression can be made a function of linear frequency using:
+Note, this is the (one-sided) amplitude spectral density with units of volts per root hertz.  Here `T` is the absolute temperature in degrees kelvin, `k` is Boltzmann's constant, and :math:`\omega` is the angular frequency.  The expression can be made a function of linear frequency using:
 
    >>> Vn(f)
          2⋅√R⋅√T⋅√k      
