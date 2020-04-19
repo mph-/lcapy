@@ -114,7 +114,7 @@ class ExprMisc(object):
         s = '%s(' % name
         print(symdebug(self.expr, s, len(name) + 1))
 
-    
+        
 class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
 
     """Decorator class for dictionary created by sympy."""
@@ -369,6 +369,9 @@ class Expr(ExprPrint, ExprMisc):
         This will throw an exception if the expression is not a
         rational function."""
 
+        if self._ratfun is None:
+            return False
+        
         return self._ratfun.is_strictly_proper
     
     @property
@@ -742,6 +745,10 @@ class Expr(ExprPrint, ExprMisc):
 
         return cls(self.expr * x.expr / (self.expr + x.expr), **assumptions)
 
+    def copy(self):
+        """Copy the expression."""
+        return self.__class__(self.expr, **self.assumptions)
+
     @property
     def conjugate(self):
         """Return complex conjugate."""
@@ -778,7 +785,15 @@ class Expr(ExprPrint, ExprMisc):
 
     @property
     def _ratfun(self):
-        return Ratfun(self.expr, self.var)
+
+        if hasattr(self, '__ratfun'):
+            return self.__ratfun
+
+        if self.var is None:
+            self.__ratfun = None
+        else:
+            self.__ratfun = Ratfun(self.expr, self.var)
+        return self.__ratfun
 
     @property
     def K(self):
@@ -796,17 +811,14 @@ class Expr(ExprPrint, ExprMisc):
     def D(self):
         """Return denominator of rational function."""
 
-        if self.var is None:
-            return self.__class__(1)
-        
         return self.denominator
 
     @property
     def numerator(self):
         """Return numerator of rational function."""
 
-        if self.var is None:
-            return self
+        if self._ratfun is None:
+            return self.copy()
 
         return self.__class__(self._ratfun.numerator)
 
@@ -814,6 +826,9 @@ class Expr(ExprPrint, ExprMisc):
     def denominator(self):
         """Return denominator of rational function."""
 
+        if self._ratfun is None:
+            return self.__class__(1)
+        
         return self.__class__(self._ratfun.denominator)
 
     def rationalize_denominator(self):
@@ -1381,20 +1396,29 @@ class Expr(ExprPrint, ExprMisc):
         """Return roots of expression as a dictionary
         Note this may not find them all."""
 
-        roots = self._ratfun.roots()
+        if self._ratfun is None:
+            roots = {}
+        else:
+            roots = self._ratfun.roots()
         return self._fmt_roots(roots, aslist)        
             
     def zeros(self, aslist=False):
         """Return zeroes of expression as a dictionary
         Note this may not find them all."""
 
-        zeros = self._ratfun.zeros()
+        if self._ratfun is None:
+            zeros = {}
+        else:
+            zeros = self._ratfun.zeros()
         return self._fmt_roots(zeros, aslist)        
 
     def poles(self, aslist=False, damping=None):
         """Return poles of expression as a dictionary
         Note this may not find them all."""
 
+        if self._ratfun is None:
+            return self._fmt_roots({}, aslist)            
+        
         poles = self._ratfun.poles(damping=damping)
 
         polesdict = {}
@@ -1423,7 +1447,8 @@ class Expr(ExprPrint, ExprMisc):
         See also general, partfrac, standard, timeconst, and ZPK
 
         """
-
+        if self._ratfun is None:
+            return self.copy()
         return self.__class__(self._ratfun.canonical(factor_const), **self.assumptions)
 
     def general(self):
@@ -1433,6 +1458,8 @@ class Expr(ExprPrint, ExprMisc):
 
         See also canonical, partfrac, standard, timeconst, and ZPK."""
 
+        if self._ratfun is None:
+            return self.copy()
         return self.__class__(self._ratfun.general(), **self.assumptions)
 
     def partfrac(self, combine_conjugates=False, damping=None):
@@ -1445,6 +1472,8 @@ class Expr(ExprPrint, ExprMisc):
 
         See also canonical, standard, general, timeconst, and ZPK."""
 
+        if self._ratfun is None:
+            return self.copy()        
         return self.__class__(self._ratfun.partfrac(combine_conjugates,
                                                     damping),
                               **self.assumptions)
@@ -1462,6 +1491,9 @@ class Expr(ExprPrint, ExprMisc):
 
         See also canonical, standard, general, partfrac, timeconst, and ZPK."""
 
+        if self._ratfun is None:
+            return self.copy()
+        
         tmpsym = symsymbol('qtmp')
 
         expr = self.subs(1 / tmpsym)
@@ -1483,7 +1515,8 @@ class Expr(ExprPrint, ExprMisc):
         See also canonical, general, partfrac, timeconst, and ZPK.
 
         """
-
+        if self._ratfun is None:
+            return self.copy()        
         return self.__class__(self._ratfun.standard(), **self.assumptions)
 
     def mixedfrac(self):
@@ -1498,6 +1531,8 @@ class Expr(ExprPrint, ExprMisc):
 
         See also canonical, general, standard, partfrac and ZPK."""
 
+        if self._ratfun is None:
+            return self.copy()        
         return self.__class__(self._ratfun.timeconst(), **self.assumptions)
 
     def ZPK(self):
@@ -1509,6 +1544,8 @@ class Expr(ExprPrint, ExprMisc):
 
         """
 
+        if self._ratfun is None:
+            return self.copy()        
         return self.__class__(self._ratfun.ZPK(), **self.assumptions)
 
     def factored(self):
@@ -1520,7 +1557,9 @@ class Expr(ExprPrint, ExprMisc):
         standard, partfrac, and timeconst.
 
         """
-
+        
+        if self._ratfun is None:
+            return self.copy()
         return self.__class__(self._ratfun.ZPK(), **self.assumptions)
     
     def expandcanonical(self):
@@ -1531,6 +1570,8 @@ class Expr(ExprPrint, ExprMisc):
 
         See also canonical, general, partfrac, timeconst, and ZPK."""
 
+        if self._ratfun is None:
+            return self.copy()        
         return self.__class__(self._ratfun.expandcanonical(), **self.assumptions)
 
     def coeffs(self, norm=False):
@@ -1541,6 +1582,9 @@ class Expr(ExprPrint, ExprMisc):
         
         If norm is True, normalise coefficients to highest power is 1."""
 
+        if self._ratfun is None:
+            return expr([])
+        
         try:
             z = sym.Poly(self.expr, self.var)
         except:
@@ -1567,6 +1611,9 @@ class Expr(ExprPrint, ExprMisc):
 
         This the maximum of the numerator and denominator degrees.
         Note zero has a degree of -inf."""
+
+        if self._ratfun is None:
+            return 1
         
         return self._ratfun.degree
 
@@ -1579,6 +1626,9 @@ class Expr(ExprPrint, ExprMisc):
         Note zero has a degree of -inf.
 
         """
+
+        if self._ratfun is None:
+            return 1
         
         return self._ratfun.Ndegree
 
@@ -1589,6 +1639,9 @@ class Expr(ExprPrint, ExprMisc):
         rational function.
 
         Note zero has a degree of -inf."""
+
+        if self._ratfun is None:
+            return 1        
         
         return self._ratfun.Ddegree
 

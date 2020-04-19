@@ -1,6 +1,6 @@
 """This module provides the tExpr class to represent time domain expressions.
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 
 """
 

@@ -1,3 +1,13 @@
+"""This module provides the Phasor class to represent phasors for AC analysis.
+
+A phasor represents the amplitude and phase for a single sinusoid.  By
+default the angular frequency is omega_0 but it can be any number or
+symbol.
+
+Copyright 2014--2020 Michael Hayes, UCECE
+
+"""
+
 from __future__ import division
 from .sym import j, omega0sym
 from .functions import sin, cos, exp
@@ -10,20 +20,20 @@ from .cexpr import cExpr
 
 class Phasor(Expr):
 
-    var = omega0sym    
-
     def __init__(self, val, **assumptions):
 
         assumptions['positive'] = True  # ????
-        assumptions['ac'] = True        
+        assumptions['ac'] = True
+
+        if 'omega' not in assumptions:
+            assumptions['omega'] = omega0sym        
+        
         super (Phasor, self).__init__(val, **assumptions)
 
     @property
     def omega(self):
         """Return angular frequency."""
 
-        if 'omega' not in self.assumptions:
-            return omega0sym
         return self.assumptions['omega']
 
     def __compat_add__(self, x, op):
