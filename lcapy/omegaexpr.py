@@ -8,7 +8,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from .fourier import inverse_fourier_transform
 from .expr import Expr
-from .sym import fsym, ssym, tsym, omegasym, j, pi
+from .sym import fsym, ssym, tsym, omegasym, omega0sym, j, pi
 
 
 class omegaExpr(Expr):
@@ -31,6 +31,14 @@ class omegaExpr(Expr):
         if self.expr.find(tsym) != set():
             raise ValueError(
                 'omega-domain expression %s cannot depend on t' % self.expr)
+
+    @property
+    def omega(self):
+        """Return angular frequency."""
+
+        if 'omega' not in self.assumptions:
+            return omega0sym
+        return self.assumptions['omega']
 
     def inverse_fourier(self):
         """Attempt inverse Fourier transform."""
@@ -174,9 +182,11 @@ def omegaexpr(arg):
 
     if arg is omegasym:
         return omega
+    if arg is omega0sym:
+        return omega0    
     return omegaExpr(arg)
 
         
 from .texpr import Ht, It, Vt, Yt, Zt, tExpr
 omega = omegaExpr('omega')
-
+omega0 = omegaExpr('omega_0')

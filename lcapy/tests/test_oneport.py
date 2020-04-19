@@ -1,6 +1,7 @@
 from lcapy import *
 import unittest
 import sympy as sym
+from lcapy.sym import omega0sym
 
 class LcapyTester(unittest.TestCase):
 
@@ -125,16 +126,16 @@ class LcapyTester(unittest.TestCase):
         """
         a = Vac(10) + R(5)
         self.assertEqual2(a.voc, Vac(10).voc, "voc incorrect.")
-        self.assertEqual(a.Voc.ac[omegasym], Phasor(10), "Voc incorrect.")
-        self.assertEqual(a.V.ac[omegasym], Phasor(10), "Voc incorrect.")
+        self.assertEqual(a.Voc.ac[omega0sym], Phasor(10), "Voc incorrect.")
+        self.assertEqual(a.V.ac[omega0sym], Phasor(10), "Voc incorrect.")
         self.assertEqual(a.I, 0, "I incorrect.")
         self.assertEqual(a.v(0), 10, "Voc incorrect.")                
         self.assertEqual(a.i(0), 0, "I incorrect.")                
 
         b = a.norton()
         self.assertEqual2(b.voc, Vac(10).voc, "voc incorrect.")
-        self.assertEqual(b.Voc.ac[omegasym], Phasor(10), "Voc incorrect.")
-        self.assertEqual(b.V.ac[omegasym], Phasor(10), "Voc incorrect.")
+        self.assertEqual(b.Voc.ac[omega0sym], Phasor(10), "Voc incorrect.")
+        self.assertEqual(b.V.ac[omega0sym], Phasor(10), "Voc incorrect.")
         self.assertEqual(b.I, 0, "I incorrect.")
         self.assertEqual(b.v(0), 10, "Voc incorrect.")                
         self.assertEqual(b.i(0), 0, "I incorrect.")        
@@ -223,7 +224,7 @@ class LcapyTester(unittest.TestCase):
     def test_v(self):
         """Lcapy: check inverse Laplace for voltage sources"""
 
-        omega = symbol('omega', real=True)
+        omega0 = symbol('omega_0', real=True)
 
         a = Vdc(10)
         self.assertEqual(a.voc, 10, "DC incorrect.")        
@@ -232,13 +233,13 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.voc, 10 * Heaviside(t), "Step incorrect.")
 
         a = Vac(10)
-        self.assertEqual2(a.voc, 10 * cos(omega * t), "AC incorrect.")
+        self.assertEqual2(a.voc, 10 * cos(omega0 * t), "AC incorrect.")
 
 
     def test_i(self):
         """Lcapy: check inverse Laplace for current sources"""
 
-        omega = symbol('omega', real=True)
+        omega0 = symbol('omega_0', real=True)
 
         a = Idc(10)
         self.assertEqual(a.isc, 10, "DC incorrect.")        
@@ -247,7 +248,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.isc, 10 * Heaviside(t), "Step incorrect.")
 
         a = Iac(10)
-        self.assertEqual2(a.isc, 10 * cos(omega * t), "AC incorrect.")
+        self.assertEqual2(a.isc, 10 * cos(omega0 * t), "AC incorrect.")
 
 
     def test_CPE(self):

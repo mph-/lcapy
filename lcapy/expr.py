@@ -384,14 +384,6 @@ class Expr(ExprPrint, ExprMisc):
 
         return self.expr.evalf()    
 
-    @property
-    def omega(self):
-        """Return angular frequency."""
-
-        if 'omega' not in self.assumptions:
-            return omegasym
-        return self.assumptions['omega']
-
     def __hash__(self):
         # This is needed for Python3 so can create a dict key,
         # say for subs.

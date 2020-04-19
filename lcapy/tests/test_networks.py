@@ -73,9 +73,9 @@ class LcapyTester(unittest.TestCase):
         """
         a = (Vac('1') + C(2)) | R(3)
         
-        self.assertEqual(a.norton().isc, It(-2 * omega * sin(omega * t)),
+        self.assertEqual(a.norton().isc, It(-2 * omega0 * sin(omega0 * t)),
                          "Isc incorrect")
-        self.assertEqual(a.thevenin().isc,  It(-2 * omega * sin(omega * t)),
+        self.assertEqual(a.thevenin().isc,  It(-2 * omega0 * sin(omega0 * t)),
                          "Isc incorrect")
         
     def test_superposition(self):

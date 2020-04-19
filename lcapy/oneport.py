@@ -27,6 +27,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 from __future__ import division
 from .functions import Heaviside, cos, exp
+from .sym import omega0sym
 from .symbols import j, t, s
 from .network import Network
 from .immitance import ImmitanceMixin
@@ -932,9 +933,8 @@ class Vac(VoltageSource):
             phi = 0
             
         if omega is None:
-            from .symbols import omega
-        else:
-            omega = Expr(omega)
+            omega = omega0sym
+        omega = Expr(omega)
 
         V = Expr(V)
         phi = Expr(phi)
@@ -1060,9 +1060,8 @@ class Iac(CurrentSource):
             phi = 0
             
         if omega is None:
-            from .symbols import omega            
-        else:
-            omega = Expr(omega)
+            omega = omega0sym
+        omega = Expr(omega)
 
         I = Expr(I)
         phi = Expr(phi)

@@ -1071,9 +1071,9 @@ For example, consider:
 
    >>> Voc = (Vdc(10) + Vac(20) + Vstep(30) + Vnoise(40)).Voc
    >>> Voc
-   ⎧                   30       ⎫
-   ⎨dc: 10, n1: 40, s: ──, ω: 20⎬
-   ⎩                   s        ⎭
+   ⎧                   30        ⎫
+   ⎨dc: 10, n1: 40, s: ──, ω₀: 20⎬
+   ⎩                   s         ⎭
 
 Here the open-circuit voltage is decomposed into four parts (stored in
 a dictionary).  The DC component is keyed by 'dc', the transient
@@ -1094,17 +1094,17 @@ open-circuit voltage (ignoring the noise component) can be obtained using:
 
    >>> from lcapy import s
    >>> Voc(s)
-      ⎛   2      2⎞
-   20⋅⎝2⋅ω  + 3⋅s ⎠
-   ────────────────
-      ⎛ 2    2⎞   
-    s⋅⎝ω  + s ⎠
+      ⎛    2      2⎞
+   20⋅⎝2⋅ω₀  + 3⋅s ⎠
+   ─────────────────
+        ⎛  2    2⎞  
+      s⋅⎝ω₀  + s ⎠
 
 Similarly, the time-domain representation (ignoring the noise component) can be determined using:
 
    >>> from lcapy import t
    >>> Voc(t)
-   20⋅cos(ω⋅t) + 30⋅Heaviside(t) + 10
+   20⋅cos(ω₀⋅t) + 30⋅u(t) + 10
 
 
 Initial value problems

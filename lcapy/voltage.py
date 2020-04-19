@@ -22,11 +22,12 @@ V1.has_dc returns True if has a DC signal
 V1.has_ac returns True if has an AC signal
 V1.has_transient returns True if has a transient signal
 
-Copyright 2019 Michael Hayes, UCECE
+Copyright 2019--2020 Michael Hayes, UCECE
 
 """
 
 from .super import Super
+from .sym import omega0sym
 
 class Voltage(Super):
 
@@ -103,8 +104,8 @@ def Vname(name, kind, cache=False):
         return Vs(name + '(s)')
     elif kind == 't':
         return Vt(name + '(t)')
-    elif kind in (omegasym, omega, 'ac'):
-        return Vphasor(name + '(omega)')
+    elif kind in (omega0sym, omega0, 'ac'):
+        return Vphasor(name + '(omega_0)')
     # Not caching is a hack to avoid conflicts of Vn1 with Vn1(s) etc.
     # when using subnetlists.  The alternative is a proper context
     # switch.  This would require every method to set the context.
@@ -133,6 +134,6 @@ from .phasor import Vphasor, Phasor
 from .impedance import Impedance
 from .admittance import Admittance
 from .omegaexpr import omegaExpr
-from .symbols import s, omega
+from .symbols import s, omega0
 from .current import Current
-from .sym import omegasym
+

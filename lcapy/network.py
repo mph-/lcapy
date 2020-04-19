@@ -145,7 +145,13 @@ class Network(object):
         n2 = self.node        
         return self.net_make(self, n2, n1)
 
-
+    @property    
+    def pdb(self):
+        """Enter the python debugger."""
+        
+        import pdb; pdb.set_trace()
+        return self
+    
     @property
     def sch(self):
         """Convert a Network object into a Schematic object."""

@@ -50,7 +50,7 @@ Network components
 
 - `i` arbitrary time-domain current source        
 
-- `Iac` ac current source    
+- `Iac` ac current source (default angular frequency :math:`\omega_0`)
   
 - `Idc` dc current source
 
@@ -76,7 +76,7 @@ Network components
 
 - `v` arbitrary time-domain voltage source    
 
-- `Vac` ac voltage source    
+- `Vac` ac voltage source (default angular frequency :math:`\omega_0`)
   
 - `Vdc` dc voltage source
 

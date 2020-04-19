@@ -524,7 +524,7 @@ class LcapyTester(unittest.TestCase):
         W 0_2 0_3; right
         K L1 L2 1; invisible""")
 
-        self.assertEqual(a.R1.v, expr('V1 * cos(omega * t) * abs(omega) / omega'),
+        self.assertEqual(a.R1.v, expr('V1 * cos(omega_0 * t) * abs(omega_0) / omega_0'),
                          "coupling incorrect")
         
 

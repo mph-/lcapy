@@ -9,9 +9,9 @@ Copyright 2014--2020 Michael Hayes, UCECE
 from .fexpr import f
 from .texpr import t
 from .sexpr import s
-from .omegaexpr import omega
+from .omegaexpr import omega, omega0
 
-# Ipmort common SymPy symbols.
+# Import common SymPy symbols.
 from .sym import pi, j, oo, inf
 
 jomega = j * omega

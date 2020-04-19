@@ -22,11 +22,12 @@ I1.has_dc returns True if has a DC signal
 I1.has_ac returns True if has an AC signal
 I1.has_transient returns True if has a transient signal
 
-Copyright 2019 Michael Hayes, UCECE
+Copyright 2019--2020 Michael Hayes, UCECE
 
 """
 
 from .super import Super
+from .sym import omega0sym
 
 class Current(Super):
 
@@ -103,8 +104,8 @@ def Iname(name, kind, cache=False):
         return Is(name + '(s)')
     elif kind == 't':
         return It(name + '(t)')
-    elif kind in (omegasym, omega, 'ac'):    
-        return Iphasor(name + '(omega)')
+    elif kind in (omega0sym, omega0, 'ac'):    
+        return Iphasor(name + '(omega_0)')
     return expr(name, cache=cache)            
 
 
@@ -129,6 +130,6 @@ from .phasor import Iphasor, Phasor
 from .impedance import Impedance
 from .admittance import Admittance
 from .omegaexpr import omegaExpr
-from .symbols import s, omega
+from .symbols import s, omega0
 from .voltage import Voltage
-from .sym import omegasym
+

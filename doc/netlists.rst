@@ -93,11 +93,11 @@ The component type is specified by the first letter(s) of the
 
    `Vname Np Nm dc V`
 
-- AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency :math:`\omega`:  (omega)
+- AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency :math:`\omega_0`
 
    `Vname Np Nm ac V p`
 
-- AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency w:
+- AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency :math:`\omega_0`
 
    `Vname Np Nm ac V p w`  
 
@@ -129,11 +129,11 @@ The component type is specified by the first letter(s) of the
 
    `Iname Np Nm dc I`
 
-- AC current source of complex current amplitude I and phase p (radians) with angular frequency :math:`\omega`:  (omega)
+- AC current source of complex current amplitude I and phase p (radians) with angular frequency :math:`\omega_0`
 
    `Iname Np Nm ac I p`
 
-- AC current source of complex current amplitude I and phase p (radians) with angular frequency w:
+- AC current source of complex current amplitude I and phase p (radians) with angular frequency :math:`\omega_0`
 
    `Iname Np Nm ac I p w`
 

@@ -1,5 +1,5 @@
 from __future__ import division
-from .sym import j
+from .sym import j, omega0sym
 from .functions import sin, cos, exp
 
 __all__ = ('Phasor', 'Vphasor', 'Iphasor')
@@ -9,6 +9,8 @@ from .cexpr import cExpr
 
 
 class Phasor(omegaExpr):
+
+    var = omega0sym    
 
     def __init__(self, val, **assumptions):
 
@@ -103,7 +105,7 @@ class Phasor(omegaExpr):
 
 class Vphasor(Phasor):
     """t-domain voltage (units V) parameterized as a phasor
-    of a single angular frequency, omega."""
+    of a single angular frequency, omega0."""
         
     quantity = 'Voltage'
     units = 'V'
@@ -121,7 +123,7 @@ class Vphasor(Phasor):
     
 class Iphasor(Phasor):
     """t-domain current (units V) parameterized as a phasor
-    of a single angular frequency, omega."""    
+    of a single angular frequency, omega0."""    
 
     quantity = 'Current'
     units = 'A'

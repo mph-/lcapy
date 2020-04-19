@@ -78,6 +78,8 @@ and __exit__ methods so that can use with statement.
 
 15. cct.subs() does not change cct.symbols...
 
+16. Phasor().phase -> cExpr
+
 
 Testing
 =======

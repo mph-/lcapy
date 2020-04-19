@@ -1,6 +1,6 @@
 from __future__ import division
 from .expr import Expr, ExprDict, expr
-from .sym import tsym, omegasym, symbols_find, is_sympy, symsymbol
+from .sym import tsym, omega0sym, symbols_find, is_sympy, symsymbol
 from .acdc import is_ac
 from .printing import pprint, pretty, latex
 import six
@@ -19,7 +19,7 @@ class Super(ExprDict):
     V.laplace() or with the notation V(s).  This does not include the
     noise component.
 
-    Noise components with different noise indentifiers are stored
+    Noise components with different noise identifiers are stored
     separately, keyed by the noise identifier.  They are ignored by
     the laplace() and time() methods.
 
@@ -359,7 +359,7 @@ class Super(ExprDict):
         'laplace' :  the laplace domain representation (equivalent to self.laplace())
         'ivp' :  the s-domain representation (equivalent to self.laplace())
         'dc' : the DC component
-        'ac' : the AC component with angular frequency omega
+        'ac' : the AC component with angular frequency omega0
         omega : the AC component with angular frequency omega
         's' : the transient component in the s-domain
         'n' : the noise component
@@ -560,8 +560,9 @@ class Super(ExprDict):
 
     @property
     def w(self):
-        """Return the AC component with angular frequency omega."""        
-        return self.select(omegasym)    
+        """Return the AC component with angular frequency omega0.
+        This should be deprecated."""
+        return self.select(omega0sym)    
 
     def time(self, **assumptions):
         """Convert to time domain."""

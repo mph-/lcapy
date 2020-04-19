@@ -310,6 +310,7 @@ ssym = symsymbol('s', real=False)
 tsym = symsymbol('t', real=True)
 fsym = symsymbol('f', real=True)
 omegasym = symsymbol('omega', real=True)
+omega0sym = symsymbol('omega_0', real=True)
 
 pi = sym.pi
 j = sym.I
