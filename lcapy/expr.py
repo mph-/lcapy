@@ -786,12 +786,16 @@ class Expr(ExprPrint, ExprMisc):
     @property
     def _ratfun(self):
 
-        if hasattr(self, '__ratfun'):
+        try:
             return self.__ratfun
+        except:
+            pass
 
         if self.var is None:
             self.__ratfun = None
         else:
+            # Note, this handles expressions that are products of
+            # rational functions and arbitrary delays.  
             self.__ratfun = Ratfun(self.expr, self.var)
         return self.__ratfun
 

@@ -529,18 +529,8 @@ class Ratfun(object):
         See also canonical, standard, general, timeconst, and ZPK
 
         """
-        try:
-            Q, R, D, delay, undef = self.as_QRD(combine_conjugates, damping)
-        except ValueError:
-            # Try splitting into terms
-            result = 0
-            for term in self.expr.as_ordered_terms():
-                try:
-                    result += Ratfun(term, self.var).partfrac(combine_conjugates)
-                except ValueError:
-                    result += term
-            return result           
 
+        Q, R, D, delay, undef = self.as_QRD(combine_conjugates, damping)
         result = Q
         for R, D in zip(R, D):
             result += R / D
@@ -559,19 +549,7 @@ class Ratfun(object):
 
         See also canonical, general, partfrac, timeconst, and ZPK"""
 
-        try:
-            Q, M, D, delay, undef = self.as_QMD()
-
-        except ValueError:
-            # Try splitting into terms
-            result = 0
-            for term in self.expr.as_ordered_terms():
-                try:
-                    result += Ratfun(term, self.var).standard()
-                except ValueError:
-                    result += term
-            return result                       
-        
+        Q, M, D, delay, undef = self.as_QMD()
         expr = Q + sym.cancel(M / D, self.var)
 
         if delay != 0:
