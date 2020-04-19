@@ -129,9 +129,10 @@ def plot_frequency(obj, f, **kwargs):
         else:
             f = np.linspace(f[0], f[1], npoints)            
 
+    plot_type = kwargs.pop('plot_type', 'dB-phase')
+            
     if not hasattr(obj, 'part'):
         obj2 = None        
-        plot_type = kwargs.pop('plot_type', 'dB-phase')
         if plot_type in ('dB_phase', 'dB-phase'):
             obj1 = obj.magnitude.dB
             if obj.is_complex:
