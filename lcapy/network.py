@@ -145,7 +145,6 @@ class Network(object):
         n2 = self.node        
         return self.net_make(self, n2, n1)
 
-    @property    
     def pdb(self):
         """Enter the python debugger."""
         

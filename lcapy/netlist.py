@@ -269,7 +269,6 @@ class NetlistMixin(object):
         
         return self.netlist()
 
-    @property    
     def pdb(self):
         """Enter the python debugger."""
         
