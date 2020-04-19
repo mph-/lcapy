@@ -9,16 +9,16 @@ import numpy as np
 # Perhaps add Formatter classes that will produce the plot data?
 
 
-def make_axes(figsize=None, axes=None):
+def make_axes(figsize=None, axes=None, **kwargs):
 
     from matplotlib.pyplot import subplots
     
     if axes is not None:
         fig = axes.figure
     elif figsize is not None :
-        fig, axes = subplots(1, figsize=figsize)
+        fig, axes = subplots(1, figsize=figsize, **kwargs)
     else:
-        fig, axes = subplots(1)
+        fig, axes = subplots(1, **kwargs)
 
     return axes
 
@@ -272,4 +272,17 @@ def plot_sequence(obj, n, **kwargs):
     if ylabel is not None:        
         ax.set_ylabel(ylabel)
     ax.grid(True)
+    return ax
+
+
+def plot_phasor(obj, **kwargs):
+
+    ax = make_axes(figsize=kwargs.pop('figsize', None),
+                   axes=kwargs.pop('axes', None),
+                   subplot_kw=dict(polar=True))
+
+    phi = obj.phase.val
+    mag = obj.magnitude.val
+    
+    ax.plot((phi, phi), (0, mag), **kwargs)
     return ax

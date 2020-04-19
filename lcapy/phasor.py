@@ -95,13 +95,16 @@ class Phasor(omegaExpr):
     def rms(self):
         return {Vphasor: Vt, Iphasor : It}[self.__class__](0.5 * self)
 
-    def plot(self, tvector=None, **kwargs):
-        # Plot in time domain
-        return self.time().plot(tvector, **kwargs)
+    def plot(self, **kwargs):
+
+        from .plot import plot_phasor
+        return plot_phasor(self, **kwargs)
 
 
 class Vphasor(Phasor):
-
+    """t-domain voltage (units V) parameterized as a phasor
+    of a single angular frequency, omega."""
+        
     quantity = 'Voltage'
     units = 'V'
     superkind = 'Voltage'    
@@ -117,6 +120,8 @@ class Vphasor(Phasor):
 
     
 class Iphasor(Phasor):
+    """t-domain current (units V) parameterized as a phasor
+    of a single angular frequency, omega."""    
 
     quantity = 'Current'
     units = 'A'
