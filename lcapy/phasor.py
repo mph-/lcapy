@@ -10,9 +10,6 @@ from .cexpr import cExpr
 
 class Phasor(omegaExpr):
 
-    # Could convert Vphasor + Vconst -> VSuper but that is not really
-    # the scope for types such as Vphasor and Vconst.
-
     def __init__(self, val, **assumptions):
 
         assumptions['positive'] = True  # ????
@@ -98,15 +95,17 @@ class Phasor(omegaExpr):
     def rms(self):
         return {Vphasor: Vt, Iphasor : It}[self.__class__](0.5 * self)
 
-    # def plot(self, fvector=None, **kwargs):
-
-    #     if self.omega != omegasym:
-    #         self.fourier.plot(fvector, **kwargs)
-    #     return omegaExpr(self).plot(fvector, **kwargs)
+    def plot(self, tvector=None, **kwargs):
+        # Plot in time domain
+        return self.time().plot(tvector, **kwargs)
 
 
 class Vphasor(Phasor):
 
+    quantity = 'Voltage'
+    units = 'V'
+    superkind = 'Voltage'    
+    
     def __init__(self, val, **assumptions):
 
         super(Vphasor, self).__init__(val, **assumptions)
@@ -118,6 +117,10 @@ class Vphasor(Phasor):
 
     
 class Iphasor(Phasor):
+
+    quantity = 'Current'
+    units = 'A'
+    superkind = 'Current'
 
     def __init__(self, val, **assumptions):
         super(Iphasor, self).__init__(val, **assumptions)
