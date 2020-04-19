@@ -206,6 +206,8 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
+- Version 0.50 changes phasors to have a default angular frequeny of omega_0 instead of omega to avoid confusion with angular frequency in Fourier transforms, adds preliminary phasor plots, improves noise signal classes, improves the infrastructure, and fixes many bugs.
+
 - Version 0.49 adds mechanical components, better parameterization, faster partical fraction expansion, improved Z transforms, IIR difference equations, and differential equations.
 
 - Version 0.48 fixes z-transforms, adds better caching for Laplace and z-transforms, convert rational numbers to floats on schematics, fixes expr rpow.
