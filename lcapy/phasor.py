@@ -2,13 +2,13 @@ from __future__ import division
 from .sym import j, omega0sym
 from .functions import sin, cos, exp
 
-__all__ = ('Phasor', 'Vphasor', 'Iphasor')
+__all__ = ('Vphasor', 'Iphasor')
 
-from .omegaexpr import omegaExpr
+from .expr import Expr
 from .cexpr import cExpr
 
 
-class Phasor(omegaExpr):
+class Phasor(Expr):
 
     var = omega0sym    
 
@@ -17,6 +17,14 @@ class Phasor(omegaExpr):
         assumptions['positive'] = True  # ????
         assumptions['ac'] = True        
         super (Phasor, self).__init__(val, **assumptions)
+
+    @property
+    def omega(self):
+        """Return angular frequency."""
+
+        if 'omega' not in self.assumptions:
+            return omega0sym
+        return self.assumptions['omega']
 
     def __compat_add__(self, x, op):
 

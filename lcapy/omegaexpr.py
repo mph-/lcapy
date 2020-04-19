@@ -1,7 +1,7 @@
 """This module provides the omegaExpr class to represent omega-domain
 (angular frequency Fourier domain) expressions.
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 
 """
 
@@ -31,14 +31,6 @@ class omegaExpr(Expr):
         if self.expr.find(tsym) != set():
             raise ValueError(
                 'omega-domain expression %s cannot depend on t' % self.expr)
-
-    @property
-    def omega(self):
-        """Return angular frequency."""
-
-        if 'omega' not in self.assumptions:
-            return omega0sym
-        return self.assumptions['omega']
 
     def inverse_fourier(self):
         """Attempt inverse Fourier transform."""
