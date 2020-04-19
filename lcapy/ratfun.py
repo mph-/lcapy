@@ -520,7 +520,7 @@ class Ratfun(object):
 
         return expr * undef
 
-    def partfrac(self, combine_conjugates=False, damping=None):
+    def partfrac(self, combine_conjugates=False, damping=None, split=True):
         """Convert rational function into partial fraction form.
 
         If combine_conjugates is True then the pair of partial
@@ -529,8 +529,19 @@ class Ratfun(object):
         See also canonical, standard, general, timeconst, and ZPK
 
         """
+        try:
+            Q, R, D, delay, undef = self.as_QRD(combine_conjugates, damping)
+        except ValueError:
+            if not split:
+                raise
+            
+            # Try splitting into terms
+            result = 0
+            for term in self.expr.as_ordered_terms():
+                result += Ratfun(term, self.var).partfrac(combine_conjugates,
+                                                          split=False)
+            return result           
 
-        Q, R, D, delay, undef = self.as_QRD(combine_conjugates, damping)
         result = Q
         for R, D in zip(R, D):
             result += R / D
@@ -541,7 +552,7 @@ class Ratfun(object):
         result *= undef
         return result
 
-    def standard(self):
+    def standard(self, split=True):
         """Convert rational function into mixed fraction form.
 
         This is the sum of strictly proper rational function and a
@@ -549,7 +560,18 @@ class Ratfun(object):
 
         See also canonical, general, partfrac, timeconst, and ZPK"""
 
-        Q, M, D, delay, undef = self.as_QMD()
+        try:
+            Q, M, D, delay, undef = self.as_QMD()
+        except ValueError:
+            if not split:
+                raise
+            
+            # Try splitting into terms
+            result = 0
+            for term in self.expr.as_ordered_terms():
+                result += Ratfun(term, self.var).standard(False)
+            return result                       
+        
         expr = Q + sym.cancel(M / D, self.var)
 
         if delay != 0:
