@@ -107,13 +107,6 @@ class ExprMisc(object):
         import pdb; pdb.set_trace()
         return self
 
-    def debug(self):
-        """Print assumptions for all symbols in the expression."""
-
-        name = self.__class__.__name__
-        s = '%s(' % name
-        print(symdebug(self.expr, s, len(name) + 1))
-
         
 class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
 
@@ -448,6 +441,23 @@ class Expr(ExprPrint, ExprMisc):
         
         return wrap
 
+    def debug(self):
+        """Print the SymPy epxression and the assumptions for all symbols in
+        the expression."""
+
+        name = self.__class__.__name__
+        s = '%s(' % name
+        print(symdebug(self.expr, s, len(name) + 1))
+
+    @property
+    def func(self):
+        """Return the top-level function in the Sympy Expression.
+
+        For example, this returns Mul for the expression `3 * s`.
+        See also .args(), to return the args, in this case `(3, s)`"""
+
+        return self.expr.func
+    
     def __abs__(self):
         """Absolute value."""
 
