@@ -875,10 +875,12 @@ class Expr(ExprPrint, ExprMisc):
     def multiply_top_and_bottom(self, factor):
         """Multiply numerator and denominator by common factor."""
 
-        N = (self.N * factor).expand()
-        D = (self.D * factor).expand()
+        N = self.N.expr
+        D = self.D.expr
 
-        return N / D    
+        return self.__class__(sym.Mul(sym.Mul(N, factor, evaluate=False),
+                                      1 / sym.Mul(D, factor, evaluate=False),
+                                      evaluate=False))
     
     def merge_assumptions(self, **assumptions):
         
