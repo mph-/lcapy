@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-__version__ = '0.50.0'
+__version__ = '0.50.1'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -20,6 +20,7 @@ setup(name='lcapy',
                         'numpy',                        
                         'sympy',
                         'networkx',
+                        'setuptools'
       ],
       packages=find_packages(exclude=['demo']),
       entry_points={
