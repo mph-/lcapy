@@ -20,7 +20,8 @@ setup(name='lcapy',
                         'numpy',                        
                         'sympy',
                         'networkx',
-                        'setuptools'
+                        'setuptools',
+                        'wheel'
       ],
       packages=find_packages(exclude=['demo']),
       entry_points={
