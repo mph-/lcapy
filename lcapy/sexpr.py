@@ -1,7 +1,7 @@
 """This module provides the sExpr class to represent s-domain (Laplace
 domain) expressions.
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 
 """
 

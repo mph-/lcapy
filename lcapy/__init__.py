@@ -10,16 +10,17 @@ combining one, two, and three port networks.  See lcapy.oneport
 
 For more detailed documentation see http://lcapy.elec.canterbury.ac.nz
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 """
 from __future__ import absolute_import, print_function
 del absolute_import, print_function
 
+name = "lcapy"
+
 import pkg_resources
 
 __version__ = pkg_resources.require('lcapy')[0].version
-
-name = "lcapy"
+lcapy_version = __version__
 
 import sys
 if sys.version_info[0] == 2 and sys.version_info[1] < 6:
@@ -72,7 +73,7 @@ def show_version():
 
     print('Python: %s\nSymPy: %s\nNumPy: %s\nMatplotlib: %s\nSciPy: %s\nLcapy: %s' % 
           (python_version, sympy_version, numpy_version,
-           matplotlib_version, scipy_version, __version__))
+           matplotlib_version, scipy_version, lcapy_version))
 
 # The following is to help sympify deal with j.   
 # A better fix might be to define an Lcapy class for j and to
@@ -81,4 +82,5 @@ from sympy.core.sympify import converter
 from sympy import Symbol
 converter['j'] = j
 converter[Symbol('j')] = j
+
 
