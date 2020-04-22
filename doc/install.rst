@@ -69,5 +69,18 @@ Installation for development
   $ cd lcapy
   $ sudo python setup.py install
 
-  
 Note, if you do not have root access, you can use  `virtualenv` or  set the environment variable `PYTHONPATH` to find the source files for Lcapy.
+
+4. For testing you need nosetests.  For example, using apt:
+
+.. code-block:: console
+                     
+   $ sudo apt install python3-nose
+
+
+5. For building the docs you need sphinx.  For example, using apt:
+
+.. code-block:: console
+                     
+   $ sudo apt install python3-sphinx
+   
