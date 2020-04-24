@@ -259,4 +259,4 @@ cct.R1.V no longer prints the s-domain expression but the
 decomposition of a signal into each of the transform domains.
 
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
