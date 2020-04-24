@@ -26,11 +26,6 @@ class Network(object):
     netname = ''
     netkeyword = ''
 
-    def __init__(self):
-
-        super(Network, self).__init__()
-        self._anon = {}
-
     def _make_id(self, kind):
         """Make identifier"""
 
@@ -126,7 +121,7 @@ class Network(object):
         if n2 == None:
             n2 = net.node
 
-        netname = self.__class__.__name__ if self.netname == '' else self.netname + '?'
+        netname = self.__class__.__name__ if self.netname == '' else self.netname
 
         netid = net._make_id(netname)
         if self.netkeyword != '':
@@ -141,6 +136,7 @@ class Network(object):
 
         # Enumerate from node 0
         self.node_counter = 0
+        self._anon = {}
         n1 = self.node
         n2 = self.node        
         return self.net_make(self, n2, n1)
