@@ -1348,12 +1348,20 @@ pgf format is useful for including schematics into LaTeX documents.
 The tex, schtex, and pgf extension generates a standalone LaTeX file.
 If no filename is specified, the schematic is displayed on the screen.
 
-By default, the png format is used for interactive drawing.  First
-LaTeX is used to create a temporary pdf file; this is then converted
-to png format using `pdftoppm` or `convert` (ImageMagick); `convert`
-does a better job but does not come installed with the required
-permissions.  When using a Jupyter notebook, the svg format can be
-used with `draw(svg=True`).
+By default, the png format is used for interactive drawing.  However,
+being a bit-mapped image, the quality is poor.  First, LaTeX is used to
+create a temporary pdf file; this is then converted to png format.
+Several strategies are tried to do the conversion:
+
+ 1. `ghostscript`
+
+ 2. ImageMagick `convert` (By default pdf conversions are disabled.  On a Linux system
+wout need to edit `/etc/ImageMagick-6/policy.xml` to enable this conversion.)
+
+ 3. `pdftoppm` (this does a poor job with thin lines)
+
+When using a Jupyter notebook, the svg format can be used with
+`draw(svg=True`).  However, Jupyter has problems loading multiple svg files.
 
 
 .. _schtex:
