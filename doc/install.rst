@@ -71,16 +71,19 @@ Installation for development
 
 Note, if you do not have root access, you can use  `virtualenv` or  set the environment variable `PYTHONPATH` to find the source files for Lcapy.
 
-4. For testing you need nosetests.  For example, using apt:
+4. For testing you need `nosetests`.  For example, using apt:
 
 .. code-block:: console
                      
    $ sudo apt install python3-nose
 
 
-5. For building the docs you need sphinx.  For example, using apt:
+5. For building the docs you need `sphinx`.  For example, using apt:
 
 .. code-block:: console
                      
    $ sudo apt install python3-sphinx
    
+6. For making releases you need `wheel` and `twine`
+
+   $ sudo apt install python3-wheel twine   
