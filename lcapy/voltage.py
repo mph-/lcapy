@@ -128,8 +128,7 @@ from .cexpr import Vconst, Iconst, cExpr
 from .fexpr import fExpr    
 from .sexpr import Vs, sExpr
 from .texpr import Vt, tExpr
-from .noisy import Vnoisy
-from .noiseomegaexpr import noiseomegaExpr
+from .noiseomegaexpr import noiseomegaExpr, Vnoisy
 from .phasor import Vphasor, Phasor
 from .impedance import Impedance
 from .admittance import Admittance

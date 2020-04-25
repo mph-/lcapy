@@ -1,9 +1,16 @@
+"""This module provides the noisefExpr class to represent
+f-domain (Fourier domain) noise expressions.
+
+Copyright 2014--2019 Michael Hayes, UCECE
+
+"""
 from __future__ import division
 from .sym import symsimplify
 from .functions import sqrt
 from .sym import pi, omegasym, fsym
 from .state import state
 from .noiseexpr import noiseExpr
+from .omegaexpr import omega, omegaExpr
 import sympy as sym
 import numpy as np
 
@@ -86,7 +93,48 @@ class noisefExpr(noiseExpr):
 
         return plot_frequency(self, fvector, **kwargs)
 
+
+class Vfnoisy(noisefExpr):
+    """Voltage noise amplitude spectral density (units V/rtHz).
+    This can be a function of linear frequency, f.  For example,
+    to model an opamp voltage noise:
+
+    v = Vfnoisy(1e-8 / sqrt(f) + 8e-9)
+    
+    """
+
+    quantity = 'Voltage noise spectral density'
+    units = 'V/rtHz'
+
+    
+    def __init__(self, val, **assumptions):
+
+        super(Vfnoisy, self).__init__(val, **assumptions)
+        # FIXME
+        self._fourier_conjugate_class = Vt
+        self._subs_classes = {omegaExpr: Vnoisy}    
+
+
+class Ifnoisy(noisefExpr):
+    """Current noise amplitude spectral density (units A/rtHz).
+
+    This can be a function of linear frequency, f.  For example,
+    to model an opamp current noise:
+
+    i = Ifnoisy(3e-12 / sqrt(f) + 200e-15)
+    """
+
+    quantity = 'Current noise spectral density'
+    units = 'A/rtHz'
+
+    def __init__(self, val, **assumptions):
+
+        super(Ifnoisy, self).__init__(val, **assumptions)
+        # FIXME
+        self._fourier_conjugate_class = It
+        self._subs_classes = {omegaExpr: Inoisy}    
+
     
 from .texpr import It, Vt
 from .fexpr import f
-from .omegaexpr import omega
+from .noiseomegaexpr import Vnoisy, Inoisy

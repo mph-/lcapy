@@ -1,6 +1,6 @@
 """This module performs transformations between domains.
 
-Copyright 2018--2019 Michael Hayes, UCECE
+Copyright 2018--2020 Michael Hayes, UCECE
 
 """
 
@@ -8,7 +8,7 @@ from .sym import sympify, pi
 from .symbols import f, s, t, omega, jomega
 
 def transform(expr, arg, **assumptions):
-    """If arg is f, s, t, omega, jomega perform domain substitution,
+    """If arg is f, s, t, omega, jomega perform domain transformation,
     otherwise perform substitution.
 
     Note (5 * s)(omega) will fail since 5 * s is assumed not to be
@@ -17,6 +17,7 @@ def transform(expr, arg, **assumptions):
 
     """
 
+    # handle things like (3 * s)(5 * s)
     if isinstance(expr, arg.__class__) and not isinstance(expr, Super):
         return expr.subs(arg)
 

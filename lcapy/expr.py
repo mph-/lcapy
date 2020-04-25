@@ -1194,35 +1194,38 @@ class Expr(ExprPrint, ExprMisc):
             cls = self.__class__
             expr = sympify(expr)
 
-        class_map = {(Hs, omegaExpr) : Homega,
-                     (Is, omegaExpr) : Iomega,
-                     (Vs, omegaExpr) : Vomega,
-                     (Ys, omegaExpr) : Yomega,
-                     (Zs, omegaExpr) : Zomega,
-                     (Admittance, omegaExpr) : Yomega,
-                     (Impedance, omegaExpr) : Zomega,                     
-                     (Hs, fExpr) : Hf,
-                     (Is, fExpr) : If,
-                     (Vs, fExpr) : Vf,
-                     (Ys, fExpr) : Yf,
-                     (Zs, fExpr) : Zf,
-                     (Admittance, fExpr) : Yf,
-                     (Impedance, fExpr) : Zf,                     
-                     (Hf, omegaExpr) : Homega,
-                     (If, omegaExpr) : Iomega,
-                     (Vf, omegaExpr) : Vomega,
-                     (Yf, omegaExpr) : Yomega,
-                     (Zf, omegaExpr) : Zomega,
-                     (Homega, fExpr) : Hf,
-                     (Iomega, fExpr) : If,
-                     (Vomega, fExpr) : Vf,
-                     (Yomega, fExpr) : Yf,
-                     (Zomega, fExpr) : Zf,
-                     (Admittance, sExpr) : Ys,
-                     (Impedance, sExpr) : Zs}                     
+        try:    
+            cls = self._subs_classes[new.__class__]
+        except:
+            class_map = {(Hs, omegaExpr) : Homega,
+                         (Is, omegaExpr) : Iomega,
+                         (Vs, omegaExpr) : Vomega,
+                         (Ys, omegaExpr) : Yomega,
+                         (Zs, omegaExpr) : Zomega,
+                         (Admittance, omegaExpr) : Yomega,
+                         (Impedance, omegaExpr) : Zomega,                     
+                         (Hs, fExpr) : Hf,
+                         (Is, fExpr) : If,
+                         (Vs, fExpr) : Vf,
+                         (Ys, fExpr) : Yf,
+                         (Zs, fExpr) : Zf,
+                         (Admittance, fExpr) : Yf,
+                         (Impedance, fExpr) : Zf,                     
+                         (Hf, omegaExpr) : Homega,
+                         (If, omegaExpr) : Iomega,
+                         (Vf, omegaExpr) : Vomega,
+                         (Yf, omegaExpr) : Yomega,
+                         (Zf, omegaExpr) : Zomega,
+                         (Homega, fExpr) : Hf,
+                         (Iomega, fExpr) : If,
+                         (Vomega, fExpr) : Vf,
+                         (Yomega, fExpr) : Yf,
+                         (Zomega, fExpr) : Zf,
+                         (Admittance, sExpr) : Ys,
+                         (Impedance, sExpr) : Zs}                     
 
-        if (self.__class__, new.__class__) in class_map:
-            cls = class_map[(self.__class__, new.__class__)]
+            if (self.__class__, new.__class__) in class_map:
+                cls = class_map[(self.__class__, new.__class__)]
 
         old = symbol_map(old)
         result = self.expr.subs(old, expr)

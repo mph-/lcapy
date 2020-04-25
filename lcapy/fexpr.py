@@ -1,7 +1,7 @@
 """This module provides the fExpr class to represent f-domain (Fourier
 domain) expressions.
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 
 """
 

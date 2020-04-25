@@ -1,9 +1,17 @@
+"""This module provides the noiseomegaExpr class to represent
+omega-domain (angular Fourier domain) noise expressions.
+
+Copyright 2014--2019 Michael Hayes, UCECE
+
+"""
+
 from __future__ import division
 from .sym import symsimplify
 from .functions import sqrt
 from .sym import pi, omegasym, fsym
 from .state import state
 from .noiseexpr import noiseExpr
+from .fexpr import f, fExpr
 import sympy as sym
 import numpy as np
 
@@ -85,6 +93,47 @@ class noiseomegaExpr(noiseExpr):
         from .plot import plot_angular_frequency
 
         return plot_angular_frequency(self, omegavector, **kwargs)
-        
-from .fexpr import f
+
+class Vnoisy(noiseomegaExpr):
+    """Voltage noise amplitude spectral density (units V/rtrad/s).
+    This can be a function of angular frequency, omega.  For example,
+    to model an opamp voltage noise:
+
+    v = Vnoisy(1e-8 / sqrt(omega) + 8e-9)
+    
+    """
+
+    quantity = 'Voltage noise spectral density'
+    units = 'V/rtrad/s'
+
+    def __init__(self, val, **assumptions):
+
+        super(Vnoisy, self).__init__(val, **assumptions)
+        # FIXME
+        self._fourier_conjugate_class = Vt
+        self._subs_classes = {fExpr: Vfnoisy}    
+
+
+class Inoisy(noiseomegaExpr):
+    """Current noise amplitude spectral density (units A/rtrad/s).
+
+    This can be a function of angular frequency, omega.  For example,
+    to model an opamp current noise:
+
+    i = Inoisy(3e-12 / sqrt(omega) + 200e-15)
+    """
+
+    quantity = 'Current noise spectral density'
+    units = 'A/rtrad/s'
+
+    def __init__(self, val, **assumptions):
+
+        super(Inoisy, self).__init__(val, **assumptions)
+        # FIXME
+        self._fourier_conjugate_class = It
+        self._subs_classes = {fExpr: Ifnoisy}
+    
+
+from .texpr import It, Vt
 from .omegaexpr import omega
+from .noisefexpr import Vfnoisy, Ifnoisy

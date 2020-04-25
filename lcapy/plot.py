@@ -104,7 +104,7 @@ def plot_pole_zero(obj, **kwargs):
     ax.plot(p.real, p.imag, 'bx', fillstyle=fillstyle, ms=ms, **kwargs)
     annotate(ax, poles)
 
-    ax.grid()
+    ax.grid(True)
     
     return ax
 
@@ -133,7 +133,7 @@ def plot_frequency(obj, f, **kwargs):
     # as real, imag, phase, magnitude.  If this is defined,
     # `plot_type` is ignored.
             
-    if not hasattr(obj, 'part'):
+    if not obj.is_real and not hasattr(obj, 'part'):
 
         plot_type = kwargs.pop('plot_type', 'dB-phase')
 
@@ -184,7 +184,7 @@ def plot_frequency(obj, f, **kwargs):
              (False, True) : ax.semilogx,
              (False, False) : ax.plot}
 
-    if obj.part == 'magnitude':    
+    if (hasattr(obj, 'part') and obj.part == 'magnitude') or obj.is_positive:
         plot = plots[(log_magnitude, log_frequency)]
     else:
         plot = plots[(False, log_frequency)]                    

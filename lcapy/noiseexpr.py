@@ -41,6 +41,7 @@ class noiseExpr(Expr):
     """
     one_sided = True
     is_real = True
+    is_positive = True
 
     def _new_nid(self):
         state.context.nid += 1
