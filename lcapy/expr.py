@@ -1239,7 +1239,14 @@ class Expr(ExprPrint, ExprMisc):
         return cls(result, **self.assumptions)
 
     def transform(self, arg, **assumptions):
-        """Transform into a different domain."""
+        """Transform into a different domain.
+
+        If arg is f, s, t, omega, jomega perform domain transformation,
+        otherwise perform substitution.
+
+        Note (5 * s)(omega) will fail since 5 * s is assumed not to be
+        causal and so Fourier transform is unknown.  However, Zs(5 *
+        s)(omega) will work since Zs is assumed to be causal."""
         
         from .transform import transform
         return transform(self, arg, **assumptions)
@@ -1257,14 +1264,13 @@ class Expr(ExprPrint, ExprMisc):
         See also evaluate.
 
         """
-
         if isinstance(arg, (tuple, list)):
             return [self._subs1(self.var, arg1) for arg1 in arg]
 
         if isinstance(arg, np.ndarray):
             return np.array([self._subs1(self.var, arg1) for arg1 in arg])
 
-        from .transform import call        
+        from .transform import call
         return call(self, arg, **assumptions)
 
     def limit(self, var, value, dir='+'):

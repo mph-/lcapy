@@ -81,10 +81,10 @@ def transform(expr, arg, **assumptions):
 def call(expr, arg, **assumptions):
 
     if id(arg) in (id(f), id(s), id(t), id(omega), id(jomega)):
-        return transform(expr, arg, **assumptions)
+        return expr.transform(arg, **assumptions)
 
     if arg in (f, s, t, omega, jomega):
-        return transform(expr, arg, **assumptions)    
+        return expr.transform(arg, **assumptions)    
     
     return expr.subs(arg)
 
