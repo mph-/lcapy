@@ -834,16 +834,16 @@ class Expr(ExprPrint, ExprMisc):
         if self._ratfun is None:
             return self.copy()
 
-        return self.__class__(self._ratfun.numerator)
+        return self.__class__(self._ratfun.numerator, **self.assumptions)
 
     @property
     def denominator(self):
         """Return denominator of rational function."""
 
         if self._ratfun is None:
-            return self.__class__(1)
+            return self.__class__(1, **self.assumptions)
         
-        return self.__class__(self._ratfun.denominator)
+        return self.__class__(self._ratfun.denominator, **self.assumptions)
 
     def rationalize_denominator(self):
         """Rationalize denominator by multiplying numerator and denominator by
@@ -924,7 +924,7 @@ class Expr(ExprPrint, ExprMisc):
     def sign(self):
         """Return sign"""
 
-        return self.__class__(sym.sign(self.expr))
+        return self.__class__(sym.sign(self.expr), **self.assumptions)
 
     @property
     def dB(self):
@@ -1275,9 +1275,7 @@ class Expr(ExprPrint, ExprMisc):
         var = symbols[symbolnames.index(str(var))]
         
         ret = sym.limit(self.expr, var, value)
-        if hasattr(self, 'assumptions'):
-            return self.__class__(ret, **self.assumptions)
-        return self.__class__(ret)
+        return self.__class__(ret, **self.assumptions)
 
     def simplify(self):
         """Simplify expression."""
@@ -1352,7 +1350,7 @@ class Expr(ExprPrint, ExprMisc):
             arg = self.var
         arg = self._tweak_arg(arg)
             
-        return self.__class__(sym.diff(self.expr, arg))
+        return self.__class__(sym.diff(self.expr, arg), **self.assumptions)
 
     def diff(self, arg=None):
 
@@ -1377,7 +1375,8 @@ class Expr(ExprPrint, ExprMisc):
             arg = self.var
 
         arg = self._tweak_arg(arg)
-        return self.__class__(sym.integrate(self.expr, arg, **kwargs))
+        return self.__class__(sym.integrate(self.expr, arg, **kwargs),
+                              **self.assumptions)
 
     def solve(self, *symbols, **flags):
 
@@ -1465,7 +1464,8 @@ class Expr(ExprPrint, ExprMisc):
         """
         if self._ratfun is None:
             return self.copy()
-        return self.__class__(self._ratfun.canonical(factor_const), **self.assumptions)
+        return self.__class__(self._ratfun.canonical(factor_const),
+                              **self.assumptions)
 
     def general(self):
         """Convert rational function to general form.  For example,

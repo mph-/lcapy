@@ -58,7 +58,6 @@ class noiseExpr(Expr):
     def nid(self):
         return self.assumptions['nid']
 
-
     def subs(self, *args, **kwargs):
         return super(noiseExpr, self).subs(*args, nid=self.nid, **kwargs)
 
@@ -108,7 +107,7 @@ class noiseExpr(Expr):
         return self + x
 
     def __rsub__(self, x):
-        raise ValueError('Cannot subtract %s and %s' % (self, x))                
+        raise ValueError('Cannot subtract %s and %s' % (self, x))          
 
     def __mul__(self, x):
         if isinstance(x, noiseExpr) and self.nid != x.nid:
