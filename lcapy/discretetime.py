@@ -39,35 +39,3 @@ def expr(arg, **assumptions):
 
     return expr1(arg, **assumptions)
 
-
-def transform(expr, arg, **assumptions):
-
-    # Is this wise?   It makes sense for Voltage and Impedance objects
-    # but may cause too much confusion for other expressions
-    if arg is n and isinstance(expr, zExpr):
-        return expr.IZT(**assumptions)
-    elif arg is n and isinstance(expr, kExpr):
-        return expr.IDFT(**assumptions)        
-    elif arg is z and isinstance(expr, nExpr):
-        return expr.ZT(**assumptions)
-    elif arg is z and isinstance(expr, kExpr):
-        return expr.IDFT(**assumptions).ZT(**assumptions)
-    elif arg is k and isinstance(expr, nExpr):
-        return expr.DFT(**assumptions)
-    elif arg is k and isinstance(expr, zExpr):
-        return expr.IZT(**assumptions).DFT(**assumptions)
-
-    # Perhaps if arg is f, use DTFT?
-    
-    return transform1(expr, arg, **assumptions)    
-
-
-def call(expr, arg, **assumptions):
-
-    if id(arg) in (id(n), id(z), id(k)):
-        return transform(expr, arg, **assumptions)
-
-    if arg in (n, k, z):
-        return transform(expr, arg, **assumptions)    
-    
-    return call1(expr, arg, **assumptions)
