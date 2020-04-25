@@ -17,7 +17,6 @@ class Vnoisy(noiseomegaExpr):
 
     def __init__(self, val, **assumptions):
 
-        assumptions['positive'] = True
         super(Vnoisy, self).__init__(val, **assumptions)
         # FIXME
         self._fourier_conjugate_class = Vt
@@ -37,7 +36,6 @@ class Inoisy(noiseomegaExpr):
 
     def __init__(self, val, **assumptions):
 
-        assumptions['positive'] = True
         super(Inoisy, self).__init__(val, **assumptions)
         # FIXME
         self._fourier_conjugate_class = It

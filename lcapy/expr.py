@@ -781,8 +781,12 @@ class Expr(ExprPrint, ExprMisc):
         """Return imaginary part."""
 
         assumptions = self.assumptions.copy()
-        assumptions['real'] = True
+        if self.is_real:
+            dst = self.__class__(0, **assumptions)
+            dst.part = 'imaginary'
+            return dst
         
+        assumptions['real'] = True
         dst = self.__class__(symsimplify(sym.im(self.expr)), **assumptions)
         dst.part = 'imaginary'
         return dst
@@ -903,13 +907,15 @@ class Expr(ExprPrint, ExprMisc):
         """Return magnitude"""
 
         if self.is_real:
-            dst = self
-        else:
-            R = self.rationalize_denominator()
-            N = R.N
-            Dnew = R.D
-            Nnew = sqrt((N.real**2 + N.imag**2).simplify())
-            dst = Nnew / Dnew
+            dst = self.copy()
+            dst.part = 'real'            
+            return dst
+
+        R = self.rationalize_denominator()
+        N = R.N
+        Dnew = R.D
+        Nnew = sqrt((N.real**2 + N.imag**2).simplify())
+        dst = Nnew / Dnew
 
         dst.part = 'magnitude'
         return dst

@@ -21,7 +21,6 @@ class omegaExpr(Expr):
 
     def __init__(self, val, **assumptions):
 
-        assumptions['real'] = True
         super(omegaExpr, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = tExpr
 

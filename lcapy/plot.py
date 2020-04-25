@@ -129,9 +129,14 @@ def plot_frequency(obj, f, **kwargs):
         else:
             f = np.linspace(f[0], f[1], npoints)            
 
-    plot_type = kwargs.pop('plot_type', 'dB-phase')
+    # Objects can have a `part` attribute that is set by methods such
+    # as real, imag, phase, magnitude.  If this is defined,
+    # `plot_type` is ignored.
             
     if not hasattr(obj, 'part'):
+
+        plot_type = kwargs.pop('plot_type', 'dB-phase')
+
         obj2 = None        
         if plot_type in ('dB_phase', 'dB-phase'):
             obj1 = obj.magnitude.dB

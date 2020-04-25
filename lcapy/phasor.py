@@ -22,7 +22,6 @@ class Phasor(Expr):
 
     def __init__(self, val, **assumptions):
 
-        assumptions['positive'] = True  # ????
         assumptions['ac'] = True
 
         if 'omega' not in assumptions:
