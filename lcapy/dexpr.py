@@ -69,7 +69,8 @@ class dExpr(Expr):
         elif arg is k and isinstance(expr, zExpr):
             return expr.IZT(**assumptions).DFT(**assumptions)
         
-        # Perhaps if arg is f, use DTFT?
+        # Perhaps if arg is f, use DTFT?   We really need a different f
+        # that wraps around.  Alternativel, use F for normalised frequency.
         
         # Do we really want to this?   
         super(dExpr, self).transform(arg, **assumptions)            

@@ -64,6 +64,16 @@ class omegaExpr(Expr):
         from .plot import plot_angular_frequency
         return plot_angular_frequency(self, wvector, **kwargs)
 
+    def transform(self, arg, **assumptions):
+        """Transform into a different domain."""
+
+        from .fexpr import fExpr, f
+
+        if isinstance(arg, fExpr):
+            result = self.subs(2 * pi * f)
+            return result.__class__(result.subs(arg))    
+        super(omegaExpr, self).transform(arg, **assumptions)
+        
 
 class Yomega(omegaExpr):
 

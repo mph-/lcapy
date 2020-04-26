@@ -60,7 +60,7 @@ def transform(expr, arg, **assumptions):
             return result
         else:
             result = expr.laplace(**assumptions)
-    elif isinstance(arg, omegaExpr):
+    elif isinstance(arg, omegaExgpr):
         if isinstance(expr, fExpr):
             result = expr.subs(omega / (2 * pi))
         elif isinstance(expr, cExpr):

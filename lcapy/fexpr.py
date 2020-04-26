@@ -8,7 +8,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 from __future__ import division
 from .fourier import inverse_fourier_transform
 from .expr import Expr
-from .sym import fsym, ssym, tsym
+from .sym import fsym, ssym, tsym, pi
 
 class fExpr(Expr):
 
@@ -88,6 +88,16 @@ class fExpr(Expr):
         from .plot import plot_frequency
         return plot_frequency(self, fvector, **kwargs)
 
+    def transform(self, arg, **assumptions):
+        """Transform into a different domain."""
+
+        from .omegaexpr import omegaExpr, omega
+        
+        if isinstance(arg, omegaExpr):
+            result = self.subs(omega / (2 * pi))
+            return result.__class__(result.subs(arg))    
+        super(fExpr, self).transform(arg, **assumptions)
+        
 
 class Yf(fExpr):
 
