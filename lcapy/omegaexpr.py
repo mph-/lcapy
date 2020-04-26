@@ -7,7 +7,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 from __future__ import division
 from .fourier import inverse_fourier_transform
-from .expr import Expr
+from .expr import Expr, expr
 from .sym import fsym, ssym, tsym, omegasym, omega0sym, j, pi
 
 
@@ -69,9 +69,10 @@ class omegaExpr(Expr):
 
         from .fexpr import fExpr, f
 
+        arg = expr(arg)        
         if isinstance(arg, fExpr):
             result = self.subs(2 * pi * f)
-            return result.__class__(result.subs(arg))    
+            return result.subs(arg, **assumptions)
         return super(omegaExpr, self).transform(arg, **assumptions)
         
 
@@ -178,14 +179,14 @@ class Homega(omegaExpr):
         self._fourier_conjugate_class = Ht
 
         
-def omegaexpr(arg):
+def omegaexpr(arg, **assumptions):
     """Create omegaExpr object.  If `arg` is omegasym return omega"""
 
     if arg is omegasym:
         return omega
     if arg is omega0sym:
         return omega0    
-    return omegaExpr(arg)
+    return omegaExpr(arg, **assumptions)
 
         
 from .texpr import Ht, It, Vt, Yt, Zt, tExpr

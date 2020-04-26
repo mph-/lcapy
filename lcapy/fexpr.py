@@ -7,7 +7,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 from __future__ import division
 from .fourier import inverse_fourier_transform
-from .expr import Expr
+from .expr import Expr, expr
 from .sym import fsym, ssym, tsym, pi
 
 class fExpr(Expr):
@@ -92,10 +92,11 @@ class fExpr(Expr):
         """Transform into a different domain."""
 
         from .omegaexpr import omegaExpr, omega
-        
+
+        arg = expr(arg)        
         if isinstance(arg, omegaExpr):
             result = self.subs(omega / (2 * pi))
-            return result.__class__(result.subs(arg))    
+            return result.subs(arg, **assumptions)
         return super(fExpr, self).transform(arg, **assumptions)
         
 
@@ -166,12 +167,12 @@ class If(fExpr):
         self._fourier_conjugate_class = It
 
 
-def fexpr(arg):
+def fexpr(arg, **assumptions):
     """Create fExpr object.  If `arg` is fsym return f"""
 
     if arg is fsym:
         return f
-    return fExpr(arg)
+    return fExpr(arg, **assumptions)
         
 from .texpr import Ht, It, Vt, Yt, Zt, tExpr
 f = fExpr('f')

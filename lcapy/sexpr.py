@@ -356,6 +356,40 @@ class sExpr(Expr):
         
         return self.subs((2 / dt) * (1 - z**-1) / (1 + z**-1))
     
+    def transform(self, arg, **assumptions):
+        """Transform into a different domain."""
+
+        from .fexpr import fExpr, f
+        from .omegaexpr import omegaExpr, omega
+        from .symbols import jomega        
+
+        arg = expr(arg)
+
+        is_causal = assumptions.get('causal', self.is_causal)
+        
+        if arg.has(jomega):
+            if not is_causal:
+                raise ValueError('Cannot convert non-causal s-expression to jomega domain')
+            result = self.subs(jomega)
+            # Handle args like 5 * jomega,  This might be too cute.
+            return result.subs(arg / j, **assumptions)
+
+        elif isinstance(arg, omegaExpr):
+            if not is_causal:
+                raise ValueError('Cannot convert non-causal s-expression to omega domain')
+            result = self.subs(jomega)
+            # Handle args like 5 * omega,  This might be too cute.
+            return result.subs(arg, **assumptions)
+
+        elif isinstance(arg, fExpr):
+            if not is_causal:
+                raise ValueError('Cannot convert non-causal s-expression to f domain')
+            result = self.subs(j * 2 * pi * f)
+            # Handle args like 5 * f,  This might be too cute.
+            return result.subs(arg, **assumptions)        
+        
+        return super(sExpr, self).transform(arg, **assumptions)    
+
     
 # Perhaps use a factory to create the following classes?
 
@@ -513,12 +547,12 @@ def zp2tf(zeros, poles, K=1, var=None):
     return Hs(_zp2tf(zeros, poles, K, var))
 
 
-def sexpr(arg):
+def sexpr(arg, **assumptions):
     """Create sExpr object.  If `arg` is ssym return s"""
 
     if arg is ssym:
         return s
-    return sExpr(arg)
+    return sExpr(arg, **assumptions)
 
 
 from .texpr import Ht, It, Vt, Yt, Zt, tExpr, texpr

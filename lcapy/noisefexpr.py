@@ -9,6 +9,7 @@ from .sym import symsimplify
 from .functions import sqrt
 from .sym import pi, omegasym, fsym
 from .state import state
+from .expr import expr
 from .noiseexpr import noiseExpr
 from .omegaexpr import omega, omegaExpr
 from .fexpr import fExpr
@@ -73,6 +74,7 @@ class noisefExpr(noiseExpr):
     def transform(self, arg, **assumptions):
         """Transform into a different domain."""
 
+        arg = expr(arg)        
         if isinstance(arg, omegaExpr):
             result = self.subs(omega / (2 * pi))
             return result.subs(arg, **assumptions)            

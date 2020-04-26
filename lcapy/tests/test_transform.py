@@ -56,6 +56,40 @@ class LcapyTester(unittest.TestCase):
         c = a(f)
         d = c(omega)
 
-        self.assertEqual(a, b, 'transform(omega)')
-        self.assertEqual(a, d, 'transform(omega)')        
+        self.assertEqual(a, b, 'noisyomega -> noisyomega')
+        self.assertEqual(a, d, 'noisyomega -> noisyf -> noisyomega')
+        
+    def test_s_to_jomega(self):
+
+        a = expr(2 * s, causal=True)
+        b = a.transform(jomega)
+
+        self.assertEqual(b, 2 * jomega, 'explicit transform s -> jomega')
+
+        a = 2 * s
+        b = a.transform(jomega, causal=True)        
+        self.assertEqual(b, 2 * jomega, 'explicit transform s -> jomega')
+
+    def test_s_to_omega(self):
+
+        a = expr(2 * s, causal=True)
+        b = a.transform(omega)
+
+        self.assertEqual(b, 2 * j * omega, 'explicit transform s -> omega')
+
+        a = 2 * s
+        b = a.transform(omega, causal=True)        
+        self.assertEqual(b, 2 * j * omega, 'explicit transform s -> omega')
+
+    def test_s_to_f(self):
+
+        a = expr(2 * s, causal=True)
+        b = a.transform(f)
+
+        self.assertEqual(b, j * 4 * pi * f, 'explicit transform s -> f')
+
+        a = 2 * s
+        b = a.transform(f, causal=True)        
+        self.assertEqual(b, j * 4 * pi * f, 'explicit transform s -> f')
+        
         

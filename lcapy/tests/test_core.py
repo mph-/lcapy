@@ -78,7 +78,7 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.inverse_laplace(causal=True), 4 * exp(2 * t) * H(t) + DiracDelta(t), "inverse Laplace incorrect.")
 
-        aw = a(j * omega)
+        aw = a(j * omega, causal=True)
         self.assertEqual2(aw.real, (omega**2 - 4) / (omega**2 + 4), "real part incorrect.")
         self.assertEqual2(aw.imag, -4 * omega / (omega**2 + 4), "imag part incorrect.")
 
@@ -220,7 +220,7 @@ class LcapyTester(unittest.TestCase):
         """
         a = expr('a')
         H = a * s / (a * s + 1)
-        Hw = H(j * omega)
+        Hw = H(j * omega, causal=True)
 
         self.assertEqual(Hw.phase, atan2(1, a * omega), 'phase')
         
@@ -271,7 +271,7 @@ class LcapyTester(unittest.TestCase):
         """
 
         a = sExpr('s+2')
-        b = a(j * omega)
+        b = a(j * omega, causal=True)
 
         self.assertEqual2(b, j * omega + 2, "Substitution failed.")
         self.assertEqual2(a.jomega, j * omega + 2, "jomega failed.")
@@ -367,8 +367,8 @@ class LcapyTester(unittest.TestCase):
 
     def test_inverse_fourier(self):
 
-        self.assertEqual((1 / (s + 1))(j * omega).inverse_fourier(), exp(-t) * Heaviside(t))
-        self.assertEqual((1 / (s + 1))(j * omega)(2 * pi * f).inverse_fourier(), exp(-t) * Heaviside(t))
+        self.assertEqual((1 / (s + 1))(j * omega, causal=True).inverse_fourier(), exp(-t) * Heaviside(t))
+        self.assertEqual((1 / (s + 1))(j * omega, causal=True)(2 * pi * f).inverse_fourier(), exp(-t) * Heaviside(t))
 
     def test_rms(self):
 

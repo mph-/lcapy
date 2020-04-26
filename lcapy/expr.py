@@ -1781,11 +1781,15 @@ def expr(arg, **assumptions):
 
     For example, v = expr('3 * exp(-t / tau) * u(t)')
 
+    V = expr('5 * s', causal=True)
     """
 
     from .sym import tsym, fsym, ssym, omegasym
 
-    if isinstance(arg, (Expr, ExprList, ExprTuple, ExprDict)):
+    if isinstance(arg, Expr) and assumptions == {}:
+        return arg
+    
+    if isinstance(arg, (ExprList, ExprTuple, ExprDict)):
         return arg
     elif isinstance(arg, list):
         return ExprList(arg)
@@ -1793,7 +1797,7 @@ def expr(arg, **assumptions):
         return ExprTuple(arg)
     elif isinstance(arg, dict):
         return ExprDict(arg)    
-    
+
     expr = sympify(arg, **assumptions)
 
     symbols = expr.free_symbols
