@@ -96,7 +96,7 @@ class fExpr(Expr):
         if isinstance(arg, omegaExpr):
             result = self.subs(omega / (2 * pi))
             return result.__class__(result.subs(arg))    
-        super(fExpr, self).transform(arg, **assumptions)
+        return super(fExpr, self).transform(arg, **assumptions)
         
 
 class Yf(fExpr):

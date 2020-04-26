@@ -74,7 +74,7 @@ class noiseomegaExpr(noiseExpr):
         if arg == fsym:
             # Convert omegasym to fsym
             return noisefExpr(self.subs(self.var, 2 * pi * arg),
-                                  nid=self.nid, **assumptions)
+                              nid=self.nid, **assumptions)
         return super(noiseomegaExpr, self).__call__(arg, nid=self.nid, **assumptions)
 
     def plot(self, omegavector=None, **kwargs):

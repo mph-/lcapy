@@ -72,7 +72,7 @@ class omegaExpr(Expr):
         if isinstance(arg, fExpr):
             result = self.subs(2 * pi * f)
             return result.__class__(result.subs(arg))    
-        super(omegaExpr, self).transform(arg, **assumptions)
+        return super(omegaExpr, self).transform(arg, **assumptions)
         
 
 class Yomega(omegaExpr):

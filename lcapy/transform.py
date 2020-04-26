@@ -6,6 +6,7 @@ Copyright 2018--2020 Michael Hayes, UCECE
 
 from .sym import sympify, pi
 from .symbols import f, s, t, omega, jomega
+from .expr import expr as expr1
 
 def transform(expr, arg, **assumptions):
     """If arg is f, s, t, omega, jomega perform domain transformation,
@@ -17,6 +18,8 @@ def transform(expr, arg, **assumptions):
 
     """
 
+    arg = expr1(arg)
+
     # handle things like (3 * s)(5 * s)
     if isinstance(expr, arg.__class__) and not isinstance(expr, Super):
         return expr.subs(arg)
@@ -27,10 +30,8 @@ def transform(expr, arg, **assumptions):
     elif arg is s:
         return expr.laplace(**assumptions)
     elif arg is f:
-        if isinstance(expr, omegaExpr):
-            return expr.subs(2 * pi * f)
-        else:
-            return expr.fourier(**assumptions)    
+        # Note, conversion of f->omega handled by fExpr        
+        return expr.fourier(**assumptions)    
 
     # Handle expr(texpr), expr(sexpr), expr(fexpr).  For example,
     # expr(2 * f).
@@ -40,42 +41,24 @@ def transform(expr, arg, **assumptions):
     elif isinstance(arg, sExpr):
         result = expr.laplace(**assumptions)
     elif isinstance(arg, fExpr):
-        if isinstance(expr, omegaExpr):
-            result = expr.subs(2 * pi * f)
-        else:
-            result = expr.fourier(**assumptions)
-
-    if result is not None:
-        return result.__class__(result.subs(arg))
-
-    sarg = arg
-    try:
-        sarg.has(t)
-    except:
-        sarg = sympify(arg)            
-
-    if sarg.has(jomega):
+        # Note, conversion of f->omega handled by fExpr
+        result = expr.fourier(**assumptions)
+    elif arg.has(jomega):
+        # Perhaps restrict this to jomega and not expressions like 5 * jomega ?
         if isinstance(expr, sExpr):
             result = expr.subs(arg)
             return result
         else:
             result = expr.laplace(**assumptions)
-    elif isinstance(arg, omegaExgpr):
-        if isinstance(expr, fExpr):
-            result = expr.subs(omega / (2 * pi))
-        elif isinstance(expr, cExpr):
-            result = expr
-        else:
-            result = expr.fourier(**assumptions).subs(omega / (2 * pi))
-    elif sarg.is_constant():
+    elif arg.is_constant():
         if not isinstance(expr, Super):
             result = expr.time(**assumptions)
         else:
             result = expr
     else:
         raise ValueError('Can only return t, f, s, or omega domains')
-    
-    return result.subs(arg)
+
+    return result.subs(arg, **assumptions)    
 
 
 def call(expr, arg, **assumptions):
