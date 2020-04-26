@@ -34,7 +34,8 @@ class Current(Super):
     def __init__(self, *args, **kwargs):    
 
         self.type_map = {cExpr: Iconst, sExpr : Is, noiseomegaExpr: Inoisy,
-                         omegaExpr: Iphasor, tExpr : It}
+                         fExpr: If, noisefExpr: Ifnoisy, omegaExpr: Iomega,
+                         Phasor: Iphasor, tExpr : It}
         self.decompose_domains = {'s': Is, 'ac': Iphasor, 'dc':
                                   Iconst, 'n': Inoisy, 't': It}
         self.time_class = It
@@ -121,10 +122,12 @@ def Itype(kind):
 
 from .expr import expr
 from .cexpr import Vconst, Iconst, cExpr        
-from .fexpr import fExpr    
-from .sexpr import Is, sExpr
-from .texpr import It, tExpr
+from .fexpr import fExpr, If
+from .omegaexpr import omegaExpr, Iomega
+from .sexpr import sExpr, Is
+from .texpr import tExpr, It
 from .noiseomegaexpr import noiseomegaExpr, Inoisy
+from .noisefexpr import noisefExpr, Ifnoisy
 from .phasor import Iphasor, Phasor
 from .impedance import Impedance
 from .admittance import Admittance

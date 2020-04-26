@@ -33,7 +33,8 @@ class Voltage(Super):
 
     def __init__(self, *args, **kwargs):
         self.type_map = {cExpr: Vconst, sExpr : Vs, noiseomegaExpr: Vnoisy,
-                         omegaExpr: Vphasor, tExpr : Vt}
+                         fExpr: Vf, noisefExpr: Vfnoisy, omegaExpr: Vomega,
+                         Phasor: Vphasor, tExpr : Vt}
         self.decompose_domains = {'s': Vs, 'ac': Vphasor, 'dc':
                                   Vconst, 'n': Vnoisy, 't': Vt}
         self.time_class = Vt
@@ -124,15 +125,16 @@ def Vtype(kind):
 
 
 from .expr import expr    
-from .cexpr import Vconst, Iconst, cExpr        
-from .fexpr import fExpr    
-from .sexpr import Vs, sExpr
-from .texpr import Vt, tExpr
+from .cexpr import Vconst, Iconst, cExpr
+from .fexpr import fExpr, Vf
+from .omegaexpr import omegaExpr, Vomega
+from .sexpr import sExpr, Vs
+from .texpr import tExpr, Vt
 from .noiseomegaexpr import noiseomegaExpr, Vnoisy
+from .noisefexpr import noisefExpr, Vfnoisy
 from .phasor import Vphasor, Phasor
 from .impedance import Impedance
 from .admittance import Admittance
 from .omegaexpr import omegaExpr
 from .symbols import s, omega0
 from .current import Current
-
