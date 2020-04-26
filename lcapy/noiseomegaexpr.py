@@ -76,7 +76,7 @@ class noiseomegaExpr(noiseExpr):
         """Transform into a different domain."""
 
         if isinstance(arg, fExpr):
-            result = self.subs(f / (2 * pi))
+            result = self.subs(f * 2 * pi)
             return result.subs(arg, **assumptions)
         elif isinstance(arg, omegaExpr):
             return self.subs(arg, **assumptions)        
