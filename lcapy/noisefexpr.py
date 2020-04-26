@@ -11,6 +11,7 @@ from .sym import pi, omegasym, fsym
 from .state import state
 from .noiseexpr import noiseExpr
 from .omegaexpr import omega, omegaExpr
+from .fexpr import fExpr
 import sympy as sym
 import numpy as np
 
@@ -52,30 +53,6 @@ class noisefExpr(noiseExpr):
     domain_name = 'Frequency'
     domain_units = 'Hz'    
 
-    def __call__(self, arg, **assumptions):
-        """Transform domain or substitute arg for variable. 
-        
-        Substitution is performed if arg is a tuple, list, numpy
-        array, or constant.  If arg is a tuple or list return a list.
-        If arg is an numpy array, return numpy array.
-
-        Domain transformation is performed if arg is a domain variable
-        or an expression of a domain variable.
-
-        See also evaluate.
-
-        """
-        from .noiseomegaexpr import noiseomegaExpr        
-
-        if id(arg) == id(self.var):
-            return self.copy()
-
-        if arg == omegasym:
-            # Convert fsym to omegasym
-            return noiseomegaExpr(self.subs(self.var, arg / (2 * pi)),
-                                  nid=self.nid, **assumptions)
-        return super(noisefExpr, self).__call__(arg, nid=self.nid, **assumptions)
-
     def plot(self, fvector=None, **kwargs):
         """Plot frequency response at values specified by fvector.
 
@@ -93,6 +70,17 @@ class noisefExpr(noiseExpr):
 
         return plot_frequency(self, fvector, **kwargs)
 
+    def transform(self, arg, **assumptions):
+        """Transform into a different domain."""
+
+        if isinstance(arg, omegaExpr):
+            result = self.subs(omega / (2 * pi))
+            return result.subs(arg, **assumptions)            
+        elif isinstance(arg, fExpr):
+            return self.subs(arg, **assumptions)
+
+        return super(noisefExpr, self).transform(arg, **assumptions)
+    
 
 class Vfnoisy(noisefExpr):
     """Voltage noise amplitude spectral density (units V/rtHz).
@@ -112,7 +100,7 @@ class Vfnoisy(noisefExpr):
         super(Vfnoisy, self).__init__(val, **assumptions)
         # FIXME
         self._fourier_conjugate_class = Vt
-        self._subs_classes = {omegaExpr: Vnoisy}    
+        self._subs_classes = {omegaExpr: Vnoisy, fExpr: Vfnoisy}
 
 
 class Ifnoisy(noisefExpr):
@@ -132,7 +120,7 @@ class Ifnoisy(noisefExpr):
         super(Ifnoisy, self).__init__(val, **assumptions)
         # FIXME
         self._fourier_conjugate_class = It
-        self._subs_classes = {omegaExpr: Inoisy}    
+        self._subs_classes = {omegaExpr: Inoisy, fExpr: Ifnoisy}
 
     
 from .texpr import It, Vt

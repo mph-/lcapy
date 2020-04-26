@@ -50,7 +50,7 @@ def transform(expr, arg, **assumptions):
             return result
         else:
             result = expr.laplace(**assumptions)
-    elif arg.is_constant():
+    elif arg.is_constant:
         if not isinstance(expr, Super):
             result = expr.time(**assumptions)
         else:
