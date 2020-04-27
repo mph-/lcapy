@@ -349,27 +349,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(zp2tf([], [0, -1]), 1 / (s * (s + 1)), "zp2tf")
 
-    def test_fourier(self):
-
-        self.assertEqual((t * 0 + 1).fourier(), DiracDelta(f))
-        self.assertEqual((t * 0 + 1).fourier().inverse_fourier(), 1)
-        self.assertEqual(t.fourier(), 2 * j * pi * DiracDelta(f, 1))
-        self.assertEqual(2 * cos(2 * pi * t).fourier(),
-                         DiracDelta(f - 1) + DiracDelta(f + 1))
-        self.assertEqual(2 * sin(2 * pi * t).fourier(),
-                         -j * DiracDelta(f - 1) + j * DiracDelta(f + 1))
-        self.assertEqual(exp(j * 2 * pi * t).fourier(), DiracDelta(f - 1))
-        self.assertEqual(exp(j * 2 * pi * t).fourier().inverse_fourier(),
-                         exp(j * 2 * pi * t))
-        self.assertEqual(exp(-j * 2 * pi * t).fourier(), DiracDelta(f + 1))
-        self.assertEqual(exp(-j * 2 * pi * t).fourier().inverse_fourier(),
-                         exp(-j * 2 * pi * t))
-
-    def test_inverse_fourier(self):
-
-        self.assertEqual((1 / (s + 1))(j * omega, causal=True).inverse_fourier(), exp(-t) * Heaviside(t))
-        self.assertEqual((1 / (s + 1))(j * omega, causal=True)(2 * pi * f).inverse_fourier(), exp(-t) * Heaviside(t))
-
     def test_rms(self):
 
         self.assertEqual(Vconst(2).rms(), Vt(2))

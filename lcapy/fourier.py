@@ -154,7 +154,7 @@ def fourier_term(expr, t, f, inverse=False):
     
     if other != 1 and exps == 1:
         if other == t:
-            return const1 * sym.I * 2 * sym.pi * sym.DiracDelta(f, 1)
+            return const1 * sym.I * 2 * sym.pi * f * sym.DiracDelta(f, 1)
         if other == t**2:
             return const1 * (sym.I * 2 * sym.pi)**2 * sym.DiracDelta(f, 2)
 
@@ -168,6 +168,9 @@ def fourier_term(expr, t, f, inverse=False):
                     a = -(foo.args[0] * 2 * sym.pi * sym.I) / bar
                     return const1 * sym.exp(-a * sf) * sym.Heaviside(sf * sym.sign(a))
 
+        if expr == t * sym.DiracDelta(t, 1):
+            return const * sf / (-sym.I * 2 * sym.pi)
+                
         # Punt and use SymPy.  Should check for t**n, t**n * exp(-a * t), etc.
         return const * fourier_sympy(expr, t, sf)
 
@@ -188,8 +191,9 @@ def fourier_transform(expr, t, f, inverse=False):
 
     Undefined functions such as v(t) are converted to V(f)
 
-    This also handles some expressions that do not really have a Fourier
-    transform, such as a, cos(a * t), sin(a * t), exp(I * a * t)."""
+    This also handles some expressions that do not really have a
+    Fourier transform, such as a, cos(a * t), sin(a * t), exp(I * a *
+    t).  These expressions all require the use of the Dirac delta."""
 
     if expr.is_Equality:
         return sym.Eq(fourier_transform(expr.args[0], t, f, inverse),
