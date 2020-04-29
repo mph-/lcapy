@@ -500,6 +500,11 @@ class Super(ExprDict):
             except:
                 pass
 
+        # TODO, perhaps handle Fourier domain expressions in the
+        # decomposition?  For now, convert to time domain.
+        if isinstance(value, (fExpr, omegaExpr)):
+            value = value.time()
+
         kind = self._kind(value)
         if kind is None:
             if value.__class__ in self.type_map:
