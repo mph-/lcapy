@@ -1,7 +1,7 @@
 """This module performs nodal analysis.  It is primarily for showing
 the equations rather than for evaluating them.
 
-Copyright 2019 Michael Hayes, UCECE
+Copyright 2019-202 Michael Hayes, UCECE
 
 """
 
@@ -9,8 +9,10 @@ from .circuitgraph import CircuitGraph
 from .tmatrix import tMatrix
 import sympy as sym
 
+__all__ = ('NodalAnalysis', )
 
-def Eq(expr1, expr2):
+
+def equation(expr1, expr2):
 
     class1 = expr1.__class__
     
@@ -20,7 +22,7 @@ def Eq(expr1, expr2):
     if isinstance(expr2, Expr):
         expr2 = expr2.expr
 
-    return class1(sym.Eq(expr1, expr2, evaluate=False))
+    return class1(sym.equation(expr1, expr2, evaluate=False))
 
 
 class NodalAnalysis(object):
@@ -109,7 +111,7 @@ class NodalAnalysis(object):
 
                 V = Voltage(elt.voc).select(self.cct.kind)
                 
-                eq = Eq(self.ydict[n1], self.ydict[n2] + V)
+                eq = equation(self.ydict[n1], self.ydict[n2] + V)
 
             else:
                 expr = 0
@@ -126,7 +128,7 @@ class NodalAnalysis(object):
                         raise ValueError('Component %s does not have node %d' % (elt, node))
                     expr += (self.ydict[n1] - self.ydict[n2]) * elt.cpt.Y
                     
-                eq = Eq(expr, 0)
+                eq = equation(expr, 0)
 
             equations_dict[node] = eq
 
@@ -147,7 +149,7 @@ class NodalAnalysis(object):
     def equations(self):
         """Return the equations in matrix form."""
         
-        return expr(Eq(sym.MatMul(self.A, self.y), self.b))
+        return expr(equation(sym.MatMul(self.A, self.y), self.b))
 
 from .expr import Expr, ExprDict, expr
 from .texpr import Vt
