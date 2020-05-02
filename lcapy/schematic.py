@@ -499,8 +499,11 @@ class Schematic(NetfileMixin):
         for node in cpt.required_node_names:
             self._node_add(node, cpt, auxiliary=False)
 
-    def make_graphs(self):
+    def make_graphs(self, debug=None):
 
+        if debug is None:
+            debug = self.debug
+        
         # The x and y positions of a component node are determined
         # independently.  The principle is that each component has a
         # minimum size (usually 1 but changeable with the size option)
@@ -514,8 +517,8 @@ class Schematic(NetfileMixin):
         # distance from the root of the graph.  To centre components,
         # a reverse graph is created and the distances are averaged.
 
-        self.xgraph = Graph('horizontal', self.nodes, self.debug)
-        self.ygraph = Graph('vertical', self.nodes, self.debug)
+        self.xgraph = Graph('horizontal', self.nodes, debug)
+        self.ygraph = Graph('vertical', self.nodes, debug)
 
         # Use components in orthogonal directions as constraints.  The
         # nodes of orthogonal components get combined into a

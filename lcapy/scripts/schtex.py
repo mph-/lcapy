@@ -213,12 +213,12 @@ def main (argv=None):
                  dpi=args.dpi, nosave=nosave, **kwargs)
 
     if args.xgraph:
-        cct.sch.make_graphs()
+        cct.sch.make_graphs(debug=args.debug)
         cct.sch.xgraph.dot(outfilename, stage=args.stage)
         return 0
 
     if args.ygraph:
-        cct.sch.make_graphs()
+        cct.sch.make_graphs(debug=args.debug)
         cct.sch.ygraph.dot(outfilename, stage=args.stage)
         return 0
 

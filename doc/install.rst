@@ -88,3 +88,9 @@ Note, if you do not have root access, you can use  `virtualenv` or  set the envi
 
    $ sudo apt install python3-wheel
    $ pip3 install twine   
+
+7. For debugging schematic graphs `dot` is required:
+
+.. code-block:: console
+                     
+   $ sudo apt install graphviz   

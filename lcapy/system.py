@@ -65,13 +65,13 @@ def checkexe(command):
     if False:
         print('Trying to run: %s' % command)
     if not hasexe(program):
-        raise RuntimeError('%s is not installed', program)
+        raise RuntimeError('%s is not installed' % program)
 
 
-def run(command, stderr=DEVNULL, stdout=DEVNULL):
+def run(command, stderr=DEVNULL, stdout=DEVNULL, shell=False):
 
     checkexe(command)
-    call(command, stderr=stderr, stdout=stdout)
+    call(command, stderr=stderr, stdout=stdout, shell=shell)
     
     
 def tmpfilename(suffix=''):
@@ -193,7 +193,7 @@ def run_latex(tex_filename):
 def run_dot(dotfilename, filename):
 
     base, ext = path.splitext(filename)
-    program(['dot', '-T ' + ext[1:], '-o ' + filename, dotfilename])
+    run(['dot', '-T ' + ext[1:], '-o ' + filename, dotfilename])
     remove(dotfilename)            
     return
 

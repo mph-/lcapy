@@ -21,6 +21,7 @@ labels.
 
 9. Fix scaling of bipoles;  the current method also scales the nodes
 
+10. Fix graph traversal for node positioning
 
 
 Circuit analysis
