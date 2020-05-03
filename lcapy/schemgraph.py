@@ -136,7 +136,7 @@ class GraphPath(list):
             if edge.from_gnode == match_node:
                 return True
 
-        return edge.to_node == match_node
+        return edge.to_gnode == match_node
 
     def to_dist(self, match_node):
 
@@ -260,18 +260,20 @@ class Graph(dict):
         return unique(self.cnodes.values())
 
     def add_start_nodes(self):
+        """Nodes without forward edges are connected to the end node.
+        Nodes without reverse edges are connected to the start node."""
 
         if 'start' in self:
             return
 
-        gnodes = self.values()
         start = self.add_node('start')
         end = self.add_node('end')
 
+        gnodes = self.values()
         for gnode in gnodes:
-            if gnode.redges == []:
+            if gnode.redges == [] and gnode != start:
                 self.add_edges(None, start, gnode, 0, True)
-            if gnode.fedges == []:
+            if gnode.fedges == [] and gnode != end:
                 self.add_edges(None, gnode, end, 0, True)
 
     def assign_fixed1(self, gnode):
@@ -317,8 +319,8 @@ class Graph(dict):
         # TODO, check for multiple paths with a conflict, for example,
         # a stretchy path of a longer distance than a fixed path.
         
-        to_path = self.longest_path_to_known(gnode, forward=True)
-        from_path = self.longest_path_to_known(gnode, forward=False)
+        to_path = self.path_to_closest_known(gnode, forward=True)
+        from_path = self.path_to_closest_known(gnode, forward=False)
 
         to_gnode = to_path.to_gnode
         # Note, from_path is reversed (the edges are backward edges)
@@ -458,18 +460,74 @@ class Graph(dict):
 
         return pos, distance_max
 
-    def longest_path_to_known1(self, start, forward=True):
-        """Find longest path through DAG to a node with a known position."""
+    def longest_path(self, from_gnode, to_gnode, forward=True):
+        """Find longest path through DAG from from_gnode to to_gnode
+        or to a gnode with a known position."""
 
+        # gnode.dist specifies the distance to the to_gnode.  It is
+        # None if the distance has yet to be determined and is -1 if
+        # the to_gnode cannot be reached from gnode.
+        for gnode in self.values():
+            gnode.dist = None
+            gnode.next = None            
+
+        def traverse(gnode):
+
+            # If have visited this gnode before then know dist.
+            if gnode.dist is not None:
+                return gnode.dist
+
+            # If have reached goal, return dist of 0.
+            if gnode == to_gnode or gnode.pos is not None:
+                gnode.dist = 0                
+                return 0
+
+            gnode.dist = -1
+
+            edges = gnode.fedges if forward else gnode.redges
+            for edge in edges:
+                dist = traverse(edge.to_gnode)
+                if dist >= 0 and gnode.dist < dist + edge.size:
+                    gnode.dist = dist + edge.size
+                    # Mark current best edge
+                    gnode.next = edge
+
+            return gnode.dist
+
+        try:
+            traverse(from_gnode)
+        except RuntimeError:
+            msg = "The %s schematic graph is dodgy, probably a component is attached to the wrong nodes.\n" % self.name
+            if self.debug:
+                msg += str(self)
+            
+            raise RuntimeError(msg)
+
+        return self.makepath(from_gnode)
+
+    def makepath(self, from_gnode):
+        
+        # Construct path
         path = GraphPath()
+        gnode = from_gnode
+        while gnode.next is not None:
+            path.append(gnode.next)
+            gnode = gnode.next.to_gnode
+            
+        return path
+        
+    def path_to_closest_known(self, from_gnode, forward=True):
+        """Find path through DAG to the closest node with a known pos."""
 
-        def traverse(gnode, path):
+        def traverse(gnode):
 
             if gnode.name in ('start', 'end'):
                 # Choose as last resort
+                gnode.next = None
                 return 1000
 
             if gnode.pos is not None:
+                gnode.next = None
                 return gnode.pos
 
             edges = gnode.fedges if forward else gnode.redges
@@ -477,16 +535,16 @@ class Graph(dict):
             for edge in edges:
                 next_gnode = edge.to_gnode
                 # TODO, memoize
-                dist = traverse(next_gnode, path) - edge.size
+                dist = traverse(next_gnode) - edge.size
                 if dist < min_dist:
                     min_dist = dist
-                    path.append(edge)
+                    next_gnode.prev = edge
+                    gnode.next = edge
             return min_dist
 
-        start.dist = 0
+        from_gnode.dist = 0
         try:
-            traverse(start, path)
-            return path
+            traverse(from_gnode)
         except RuntimeError:
             # W a b; right
             # W c d; right
@@ -497,108 +555,8 @@ class Graph(dict):
                 msg += str(self)
             raise RuntimeError(msg)
 
-
-    def longest_path_to_known(self, from_gnode, forward=True):
-        """Find longest path through DAG from from_gnode to gnode with known
-        position."""
-
-        for gnode in self.values():
-            gnode.dist = -1
-
-        path = GraphPath()
-            
-        def traverse(gnode, path):
-
-            if gnode.pos is not None:
-                return True
-
-            edges = gnode.fedges if forward else gnode.redges
-            for edge in edges:
-                next_gnode = edge.to_gnode
-                dist = gnode.dist + edge.size
-                if dist > next_gnode.dist:
-                    next_gnode.dist = dist
-                    path.append(edge)
-                    if traverse(next_gnode, path):
-                        return True
-            return False
-
-        from_gnode.dist = 0
-        try:
-            traverse(from_gnode, path)
-            return path
-        except RuntimeError:
-            msg = "The %s schematic graph is dodgy, probably a component is attached to the wrong nodes.\n" % self.name
-            if self.debug:
-                msg += str(self)
-            
-            raise RuntimeError(msg)
-
-
-    def longest_path(self, from_gnode, to_gnode, forward=True):
-        """Find longest path through DAG from from_gnode to to_gnode."""
-
-        path = GraphPath()
-
-        for gnode in self.values():
-            gnode.dist = None        
-
-
-        def makepath(gnode):
-
-            dist_max = -1
-
-            best_edge = None
-            edges = gnode.fedges if forward else gnode.redges
-            for edge in edges:
-                to_gnode = edge.to_gnode
-
-                # Skip edges back to node...
-                if gnode == to_gnode:
-                    continue
-                
-                if to_gnode.dist > dist_max:
-                    best_edge = edge
-                    dist_max = to_gnode.dist
-            if best_edge is not None:
-                path.append(best_edge)
-                makepath(best_edge.to_gnode)
-            
-        def traverse(gnode, to_gnode):
-
-            if gnode == to_gnode:
-                gnode.dist = 0                
-                return 0
-
-            if gnode.dist is not None:
-                return gnode.dist
-
-            gnode.dist = -1
-
-            edges = gnode.fedges if forward else gnode.redges
-            for edge in edges:
-                # Skip edges back to node...
-                if gnode == edge.to_gnode:
-                    continue
-                dist = traverse(edge.to_gnode, to_gnode)
-                if dist >= 0 and gnode.dist < dist + edge.size:
-                    gnode.dist = dist + edge.size
-
-            return gnode.dist
-
-        try:
-            traverse(from_gnode, to_gnode)
-
-            makepath(from_gnode)
-            
-            return path
-        except RuntimeError:
-            msg = "The %s schematic graph is dodgy, probably a component is attached to the wrong nodes.\n" % self.name
-            if self.debug:
-                msg += str(self)
-            
-            raise RuntimeError(msg)
-
+        return self.makepath(from_gnode)
+        
     def check_positions(self):
 
         for gnode in self.values():
@@ -646,7 +604,7 @@ class Graph(dict):
             self.analyse(stage=stage)
 
         dotfile = open(filename, 'w')
-        dotfile.write('strict digraph {\n\tgraph [rankdir=LR];\n')
+        dotfile.write('digraph {\n\tgraph [rankdir=LR];\n')
 
         for gnode in self.values():
             if hasattr(gnode, 'fixed'):
