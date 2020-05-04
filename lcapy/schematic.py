@@ -379,10 +379,8 @@ class Schematic(NetfileMixin):
 
             n1 = cpt.node_names[0]
             n2 = cpt.node_names[1]
-            self.dummy_node += 1                            
-            on1 = n1 + '_o%d' % self.dummy_node
-            self.dummy_node += 1                            
-            on2 = n2 + '_o%d' % self.dummy_node
+            on1 = n1 + 'off1'
+            on2 = n2 + 'off2'
 
             angle = 90
             size = cpt.offset
