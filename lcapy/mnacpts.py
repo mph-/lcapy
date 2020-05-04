@@ -571,6 +571,11 @@ class XX(Dummy):
 
     def _subs(self, subs_dict):
         return self._copy()
+
+    def _rename_nodes(self, node_map):
+        """Rename the nodes using dictionary node_map."""
+
+        return self._copy()
     
     
 class IndependentSource(Cpt):
