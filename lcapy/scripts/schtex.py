@@ -6,6 +6,7 @@ Usage: schtex infile.sch [outfile.tex|pdf|png|svg|sch|pgf]
 """
 
 from __future__ import print_function
+from matplotlib.pyplot import show
 from argparse import ArgumentParser
 import sys
 import os
@@ -143,6 +144,10 @@ def main (argv=None):
     parser.add_argument('filename', type=str, help='schematic filename')
     parser.add_argument('outfilename', type=str, nargs='?',
                         help='output filename', default=None)    
+
+    parser.add_argument('--show', action='store_true',
+                        dest='show', default=None,
+                        help="show image")
     
     args = parser.parse_args()    
 
@@ -215,13 +220,14 @@ def main (argv=None):
     if args.xgraph:
         cct.sch.make_graphs(debug=args.debug)
         cct.sch.xgraph.dot(outfilename, stage=args.stage)
-        return 0
 
     if args.ygraph:
         cct.sch.make_graphs(debug=args.debug)
         cct.sch.ygraph.dot(outfilename, stage=args.stage)
-        return 0
 
+    if args.show:
+        show()
+        
     return 0
 
 
