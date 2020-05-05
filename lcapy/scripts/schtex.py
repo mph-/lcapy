@@ -127,7 +127,7 @@ def main (argv=None):
     
     parser.add_argument('--renumber', type=str,
                         dest='renumber', default=None,
-                        help='renumber nodes, e.g, 10:1, 11:2')
+                        help='renumber nodes, e.g, 10:1, 11:2 or all')
 
     parser.add_argument('--font', type=str, default=None,
                         help=r'specify default font, e.g., \small, \sffamily\tiny')    
@@ -171,7 +171,9 @@ def main (argv=None):
     if args.noisy_model:
         cct = cct.noisy()        
 
-    if args.renumber:
+    if args.renumber == 'all':
+       cct = cct.renumber()
+    elif args.renumber:
         parts = args.renumber.split(',')
         node_map = {}
         for part in parts:
