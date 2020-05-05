@@ -5,7 +5,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 """
 
 
-from os import path, remove, chdir, getcwd, stat
+from os import path, remove, chdir, getcwd, stat, system
 from subprocess import call
 import re
 import platform
@@ -193,7 +193,8 @@ def run_latex(tex_filename):
 def run_dot(dotfilename, filename):
 
     base, ext = path.splitext(filename)
-    run(['dot', '-T ' + ext[1:], '-o ' + filename, dotfilename])
+    #run([which('dot'), '-T ' + ext[1:], '-o ' + filename, dotfilename])
+    system('dot -T %s -o %s %s' % (ext[1:], filename, dotfilename))
     remove(dotfilename)            
     return
 
