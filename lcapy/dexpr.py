@@ -39,10 +39,10 @@ class dExpr(Expr):
             return np.array([self._subs1(self.var, arg1) for arg1 in arg])
 
         if id(arg) in (id(n), id(z), id(k)):
-            return self.transform(expr, arg, **assumptions)
+            return self.transform(arg, **assumptions)
 
         if arg in (n, k, z):
-            return self.transform(expr, arg, **assumptions)    
+            return self.transform(arg, **assumptions)    
 
         # Do we really want to this?   
         super(dExpr, self).__call__(arg, **assumptions)
@@ -50,24 +50,24 @@ class dExpr(Expr):
 
     def transform(self, arg, **assumptions):
 
-        from .nexpr import nExpr
-        from .kexpr import kExpr
-        from .zexpr import zExpr
+        from .nexpr import nExpr, n
+        from .kexpr import kExpr, k
+        from .zexpr import zExpr, z
 
         # Is this wise?   It makes sense for Voltage and Impedance objects
         # but may cause too much confusion for other expressions
-        if arg is n and isinstance(expr, zExpr):
-            return expr.IZT(**assumptions)
-        elif arg is n and isinstance(expr, kExpr):
-            return expr.IDFT(**assumptions)        
-        elif arg is z and isinstance(expr, nExpr):
-            return expr.ZT(**assumptions)
-        elif arg is z and isinstance(expr, kExpr):
-            return expr.IDFT(**assumptions).ZT(**assumptions)
-        elif arg is k and isinstance(expr, nExpr):
-            return expr.DFT(**assumptions)
-        elif arg is k and isinstance(expr, zExpr):
-            return expr.IZT(**assumptions).DFT(**assumptions)
+        if arg is n and isinstance(self, zExpr):
+            return self.IZT(**assumptions)
+        elif arg is n and isinstance(self, kExpr):
+            return self.IDFT(**assumptions)        
+        elif arg is z and isinstance(self, nExpr):
+            return self.ZT(**assumptions)
+        elif arg is z and isinstance(self, kExpr):
+            return self.IDFT(**assumptions).ZT(**assumptions)
+        elif arg is k and isinstance(self, nExpr):
+            return self.DFT(**assumptions)
+        elif arg is k and isinstance(self, zExpr):
+            return self.IZT(**assumptions).DFT(**assumptions)
         
         # Perhaps if arg is f, use DTFT?   We really need a different f
         # that wraps around.  Alternativel, use F for normalised frequency.
