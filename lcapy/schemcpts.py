@@ -69,7 +69,7 @@ class Cpt(object):
                  'pinnames', 'pinnodes', 'pindefs', 'outside',
                  'pinmap', 'kind', 'wire', 'ignore', 'style',
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
-                 'nodots', 'draw_nodes', 'label_nodes')
+                 'nodots', 'draw_nodes', 'label_nodes', 'nodraw')
 
     can_rotate = True
     can_scale = False
@@ -264,6 +264,10 @@ class Cpt(object):
     @property
     def invisible(self):
         return self.boolattr('invisible')
+
+    @property
+    def nodraw(self):
+        return self.boolattr('nodraw')    
 
     @property
     def ignore(self):
@@ -1385,10 +1389,14 @@ class Shape(FixedCpt):
 
         text_width = self.width * 0.8
 
+        args_str = self.args_str
+        if not self.nodraw:
+            args_str += ', draw'
+        
         # shape border rotate rotates the box but not the text
-        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%.2fcm, minimum height=%.2fcm, text width=%.2fcm, align=center, shape border rotate=%s, draw, %s] (%s) {%s};''\n'% (
+        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%.2fcm, minimum height=%.2fcm, text width=%.2fcm, align=center, shape border rotate=%s, %s] (%s) {%s};''\n'% (
             self.centre, self.shape, self.width, self.height, 
-            text_width, self.angle, self.args_str, self.s, label)
+            text_width, self.angle, args_str, self.s, label)
         return s
 
 
