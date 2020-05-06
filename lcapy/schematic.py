@@ -379,8 +379,11 @@ class Schematic(NetfileMixin):
 
             n1 = cpt.node_names[0]
             n2 = cpt.node_names[1]
-            on1 = n1 + 'off1'
-            on2 = n2 + 'off2'
+            # If have only two parallel components, can used fixed node names.
+            self.dummy_node += 1                            
+            on1 = n1 + 'off%d' % self.dummy_node
+            self.dummy_node += 1                            
+            on2 = n2 + 'off%d' % self.dummy_node
 
             angle = 90
             size = cpt.offset

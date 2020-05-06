@@ -23,6 +23,8 @@ labels.
 
 10. Fix graph traversal for node positioning
 
+11. Perhaps use dvipng?
+
 
 Circuit analysis
 ================

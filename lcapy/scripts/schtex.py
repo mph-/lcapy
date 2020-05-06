@@ -119,7 +119,7 @@ def main (argv=None):
     
     parser.add_argument('--stage', type=int,
                         dest='stage', default=0,
-                        help='graph analysis stage')
+                        help='select graph analysis stage 0--4')
     
     parser.add_argument('--pdb', action='store_true',
                         default=False,

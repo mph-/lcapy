@@ -71,9 +71,23 @@ class Gnode(object):
 
         self.name = name
         self.dist = 0
-        self.pos = None
+        self._pos = None
         self.fedges = []
         self.redges = []
+
+    @property
+    def pos(self):
+        return self._pos
+
+    @pos.setter    
+    def pos(self, value):
+
+        if value is not None and self._pos is not None:
+            raise RuntimeError('Changing node %s pos' % self)
+        if False and value is not None:
+            print('Setting node %s to pos %f' % (self, value))
+            
+        self._pos = value
 
     def add_fedge(self, edge):
 
@@ -181,8 +195,8 @@ class GraphPath(list):
     def from_gnode(self):
 
         return self[0].from_gnode
-    
-    
+
+                
 class Graph(dict):
     """Drawing graph"""
 
@@ -294,7 +308,7 @@ class Graph(dict):
         """ Assign node positions to nodes with fixed edge lengths to
         nodes with known positions.  Iterate until no more changes.
         This stage is not needed but provides a minor optimisation."""
-        
+
         changes = True
         while changes and unknown != []:
             for n in unknown:
@@ -304,7 +318,7 @@ class Graph(dict):
                     unknown.remove(n)
                     break
 
-    def assign_stretch1(self, gnode):
+    def assign_stretchy1(self, gnode, unknown):
 
         # For each node, find the longest path between nodes with
         # known positions.  The path between the nodes with known
@@ -331,52 +345,52 @@ class Graph(dict):
             # unlucky gnode. 
             return False
 
-        if from_gnode.name == 'start':
+        if from_gnode.name == 'start' and len(to_path) == 1:
             # Have dangling node, so no stretch needed.
             gnode.pos = to_gnode.pos - to_path.dist
+            unknown.remove(gnode.name)
             return True
 
-        if to_gnode.name == 'end':
+        if to_gnode.name == 'end' and len(from_path) == 1:
             # Have dangling node, so no stretch needed.
             gnode.pos = from_gnode.pos + from_path.dist
+            unknown.remove(gnode.name)
             return True
 
-        # path = self.longest_path(from_gnode, to_gnode)
+        path = self.longest_path(from_gnode, to_gnode)
 
-        # if not path.on(gnode):
-        #     # The node is not on the longest path.   Try again.
-        #     return False
-
-        # to_gnode = path.to_gnode
-        # from_gnode = path.from_gnode
-
-        # to_dist = path.to_dist(gnode)
-        # from_dist = path.from_dist(gnode)
-
-        to_dist = to_path.dist
-        from_dist = from_path.dist
-        to_stretches = to_path.stretches
-        from_stretches = from_path.stretches                
+        if len(path) == 1:
+            return False
         
+        # The gnode may not be on this path but this does not matter.
+        # It will be processed asain later.
+
+        stretches = path.stretches
         separation = to_gnode.pos - from_gnode.pos
-        extent = to_dist + from_dist
+        extent = path.dist        
+
         if extent - separation > 1e-6:
-            raise ValueError('Inconsistent %s schematic graph, component will not fit:  separation %s between %s and %s, need %s.\n%s' % (self.name, separation, from_gnode, to_gnode, extent, self))
-            
-        if from_stretches == 0:
-            gnode.pos = from_gnode.pos + from_dist
-        elif to_stretches == 0:
-            gnode.pos = to_gnode.pos - to_dist
-        else:
-            stretch = (separation - extent) / (to_stretches + from_stretches)
-            gnode.pos = from_gnode.pos + from_dist + stretch * from_stretches
+            raise ValueError('Inconsistent %s schematic graph, component(s) will not fit:  separation %s between %s and %s, need %s.\n%s' % (self.name, separation, from_gnode, to_gnode, extent, self))
+
+        
+        # This how much each component needs to stretch.
+        stretch = (separation - extent) / stretches
+
+        pos = from_gnode.pos
+        for edge in path:
+            pos += edge.size
+            if edge.stretch:
+                pos += stretch
+
+            if edge != path[-1]:
+                edge.to_gnode.pos = pos
+                unknown.remove(edge.to_gnode.name)
+
         return True
 
-    def assign_stretch(self, unknown):
+    def assign_stretchy(self, unknown):
         """Use a worklist algorithm to assign nodes with unknown positions
-        that are connected via stretchable edges to the known nodes.
-
-        """
+        that are connected via stretchable edges to the known nodes."""
 
         changes = True
         while changes and unknown != []:
@@ -386,25 +400,91 @@ class Graph(dict):
                     unknown.remove(n)
                     break
                 
-                changes = self.assign_stretch1(gnode)
+                changes = self.assign_stretchy1(gnode, unknown)
                 if changes:
-                    unknown.remove(n)
                     self.assign_fixed(unknown)
                     break
 
     def assign_longest(self, path, unknown):
 
-        dist = 0
+        if path == []:
+            raise RuntimeError('Empty path')
+        
+        pos = 0
         for edge in path:
-            edge.from_gnode.pos = dist
-            dist += edge.size
+            edge.from_gnode.pos = pos
+            pos += edge.size
             unknown.remove(edge.from_gnode.name)
-            
-        edge.to_gnode.pos = dist
+
+        edge = path[-1]
+        edge.to_gnode.pos = pos
         unknown.remove(edge.to_gnode.name)
 
-    def analyse(self, stage=None):
+    def prune(self):
+        """Remove redundant paths from graph.  If there are two
+        parallel stretchy edges, the longest is chosen."""
 
+        for gnode in self.values():
+
+            def check(edges, grizzle=False):
+
+                # If don't have multiple edges, cannot have redundancy
+                if len(edges) < 2:
+                    return edges
+                
+                fromto = {}
+                for edge in edges:
+                    key = (edge.from_gnode, edge.to_gnode)
+                    if key not in fromto:
+                        fromto[key] = []
+                    fromto[key].append(edge)
+
+                newedges = []                        
+                for key, edges in fromto.items():
+
+                    best_edge = edges[0]
+                    fixed = False
+                    size = 0
+                    for edge in edges:
+                        if not edge.stretch:
+                            fixed = True
+                            size = edge.size
+                            best_edge = edge
+                            break
+
+                    if fixed and grizzle:
+                        for edge in edges:
+                            if edge.size != size and not edge.stretch:
+                                print('Component fixed size violation for %s, expected %f, got %f' % (edge.cpt, size, edge.size))
+                            elif edge.size > size:                                
+                                print('Component size violation for %s, expected %f or less, got %f' % (edge.cpt, size, edge.size))
+                                
+                    elif not fixed:
+                        # Choose largest component size since all are stretchy
+                        for edge in edges:
+                            if edge.size > size:
+                                size = edge.size
+                                best_edge = edge
+
+                    newedges.append(best_edge)
+
+                return newedges
+                    
+
+            gnode.fedges = check(gnode.fedges, grizzle=True)
+            gnode.redges = check(gnode.redges)            
+
+    def analyse(self, stage=None):
+        """
+        Analyse graph assigning gnode positions.
+
+        stage 0 --- add start/end gnodes
+        stage 1 --- prune redundant edges
+        stage 2 --- assign gnode positions on longest path
+        stage 3 --- assign gnode positions with fixed positions to known gnodes
+        stage 4 --- assign all gnode positions
+        """
+        
         unknown = list(self.keys())
 
         if unknown == []:
@@ -418,25 +498,33 @@ class Graph(dict):
         unknown.append('start')
         unknown.append('end')        
 
-        for gnode in self.values():
-            gnode.pos = None
+        if stage == 0:
+            return
 
-        # Find longest path through the graph.
-        path = self.longest_path(self['start'], self['end'])
-
-        # Nodes on the longest path have known positions.        
-        self.assign_longest(path, unknown)
+        # Prune redundant edges from graph.        
+        self.prune()
 
         if stage == 1:
             return
+            
+        # Find longest path through the graph.  This provides the
+        # dimension for the graph.
+        path = self.longest_path(self['start'], self['end'])
 
-        # Assign nodes at a fixed distance from nodes with known positions.
-        self.assign_fixed(unknown)
-
+        # Assign gnodes on the longest path.        
+        self.assign_longest(path, unknown)
+        
         if stage == 2:
             return
 
-        self.assign_stretch(unknown)
+        # Assign gnodes at a fixed distance from nodes with known positions.
+        self.assign_fixed(unknown)
+
+        if stage == 3:
+            return
+
+        # Assign remaining gnodes.
+        self.assign_stretchy(unknown)
 
         if unknown != []:
             raise ValueError('Cannot assign nodes %s for %s graph.\n%s' %
@@ -478,9 +566,13 @@ class Graph(dict):
                 return gnode.dist
 
             # If have reached goal, return dist of 0.
-            if gnode == to_gnode or gnode.pos is not None:
+            if gnode == to_gnode:
                 gnode.dist = 0                
                 return 0
+
+            # Do not traverse nodes at known positions.
+            if gnode.pos is not None and gnode != from_gnode:
+                return -1
 
             gnode.dist = -1
 
@@ -600,8 +692,7 @@ class Graph(dict):
             run_dot(dotfilename, filename)
             return
 
-        if stage != 0:
-            self.analyse(stage=stage)
+        self.analyse(stage=stage)
 
         dotfile = open(filename, 'w')
         dotfile.write('digraph {\n\tgraph [rankdir=LR];\n')

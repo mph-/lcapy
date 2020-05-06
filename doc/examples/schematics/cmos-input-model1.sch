@@ -1,8 +1,8 @@
 P PIO GND; down
 W PIO 1; right
 W GND 3; right
-D 1 2; up
-D 3 1; up
+D1 1 2; up
+D2 3 1; up
 W 1 4; right
 W 4 5; up, size=0.25
 W 4 6; down, size=0.25
