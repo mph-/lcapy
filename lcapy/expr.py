@@ -892,9 +892,12 @@ class Expr(ExprPrint, ExprMisc):
         N = self.N.expr
         D = self.D.expr
 
-        return self.__class__(sym.Mul(sym.Mul(N, factor, evaluate=False),
-                                      1 / sym.Mul(D, factor, evaluate=False),
-                                      evaluate=False))
+        N = sym.Mul(N, factor, evaluate=False)
+        D = sym.Mul(D, factor, evaluate=False)
+        ID = sym.Pow(D, -1, evaluate=False)
+        expr = sym.Mul(N, ID, evaluate=False)
+        
+        return self.__class__(expr)
     
     def merge_assumptions(self, **assumptions):
         
