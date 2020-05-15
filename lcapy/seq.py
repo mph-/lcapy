@@ -1,4 +1,5 @@
 from numpy import ndarray
+from .expr import expr
 from .sequence import Sequence
 from .nexpr import n
 
@@ -24,13 +25,8 @@ def seq(arg):
                 raise ValueError('Cannot have multiple zero index indicators')
             m0 = m
             item = item[1:]
-        try:
-            val = int(item)
-        except ValueError:
-            try:
-                val = float(item)
-            except ValueError:
-                val = complex(item)
+
+        val = expr(item)
         vals.append(val)
 
     if m0 is None:
