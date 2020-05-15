@@ -12,7 +12,7 @@ class dExpr(Expr):
 
     """Superclass of discrete-time, discrete-frequency, and z-domain
     expressions."""
-    
+
 
     def __call__(self, arg, **assumptions):
         """Transform domain or substitute arg for variable. 

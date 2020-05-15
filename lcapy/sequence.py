@@ -4,7 +4,7 @@ Copyright 2020 Michael Hayes, UCECE
 
 """
 
-from .expr import ExprList
+from .expr import ExprList, expr
 
 # Perhaps subclass numpy ndarray?  But then could not have symbolic
 # elements in the sequence.
@@ -21,6 +21,38 @@ class Sequence(ExprList):
         self.n = n
         self.var = var
 
+    @property
+    def vals(self):
+        return list(self)
+        
+    def __getitem__(self, n):
+        """Note this returns the element with index matching n.
+        This is not necessarily the nth element in the sequence."""
+
+        # TODO, support slices, etc.
+        try:
+            nindex = self.n.index(n)
+        except ValueError:
+            return expr(0)            
+
+        return super(Sequence, self).__getitem__(nindex)
+
+    def prune(self):
+
+        vals = self.vals
+        
+        m1 = 0        
+        while vals[m1] == 0:
+            m1 += 1
+
+        m2 = len(vals) - 1
+        while vals[m2] != 0:
+            return Sequence(vals[m1:], self.n[m1:])
+        
+        while vals[m2] == 0:
+            m2 -= 1        
+        return Sequence(vals[m1:m2 + 1], self.n[m1:m2 + 1])
+        
     def latex(self):
 
         items = []
@@ -142,5 +174,3 @@ class Sequence(ExprList):
         
         from .printing import pretty
         p.text(self.pretty())
-        
-        
