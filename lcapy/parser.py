@@ -256,7 +256,8 @@ class Parser(object):
 
         defname = namespace + cpt_type + cpt_id
         name = defname
-        if cpt_id == '' and parent is not None and cpt_type in ('W', 'O', 'P'):
+        if (cpt_id == '' and parent is not None
+            and cpt_type in ('A', 'W', 'O', 'P')):
             name += parent._make_anon(cpt_type)
         elif cpt_id == '?':
             # Automatically name cpts to ensure they are unique
