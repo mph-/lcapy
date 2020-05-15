@@ -103,7 +103,7 @@ class Sequence(ExprList):
                 s = str(v1)
             
             if n1 == 0:
-                s = '_%s' % v1
+                s = '_' + s
             items.append(s)
 
         return r'{%s}' % ', '.join(items)
@@ -233,8 +233,22 @@ class Sequence(ExprList):
         n = self.n
         return self.__class__(y, n=n, var=self.var)
     
-    def convolve(self, h):
+    def convolve(self, h, mode='full'):
         """Convolve with h."""
+
+        x = self
+        h = Sequence(h)
         
-        return self.lfilter(h, a=[1])
+        Lx = x.extent()
+        Lh = h.extent()
+        Ly = Lx + Lh - 1
+        
+        if mode == 'full':
+            x = x.zeropad(Ly - Lx)
+        elif mode == 'same':
+            x = x.zeropad(max(Lx, Ly) - Lx)            
+        else:
+            raise ValueError('Unknown mode ' + mode)
+        
+        return x.lfilter(h, a=[1])
     
