@@ -1,8 +1,14 @@
+from numpy import ndarray
 from .sequence import Sequence
 from .nexpr import n
 
-def seq(s):
+def seq(arg):
 
+    if isinstance(arg, (tuple, list, ndarray)):
+        nv = list(range(len(arg)))
+        return Sequence(arg, nv, var=n)        
+
+    s = arg
     if s.startswith('{'):
         if not s.endswith('}'):
             raise ValueError('Mismatched braces for %s' % s)
