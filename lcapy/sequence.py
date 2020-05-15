@@ -90,6 +90,11 @@ class Sequence(ExprList):
     
     def pretty(self):
 
+        # FIXME, this does not work well if values require multiple
+        # lines, such as a^2
+        # See _print_seq in pretty.py of SymPy but how to denote
+        # the underline?
+        
         items = []
         for v1, n1 in zip(self, self.n):
             try:
@@ -195,7 +200,13 @@ class Sequence(ExprList):
         p.text(self.pretty())
 
     def lfilter(self, b=[], a=[1]):
+        """implement digital filter specified by a transfer function.  The
+        transfer function is described by a vector `b` of coefficients
+        for the numerator and a `a` vector of coefficients for the
+        denominator.
 
+        For a FIR filter a = [1]."""
+        
         x = self.vals
         y = []
 
@@ -221,4 +232,9 @@ class Sequence(ExprList):
         #n = self.n + list(range(self.n[-1] + 1, len(y)))
         n = self.n
         return self.__class__(y, n=n, var=self.var)
+    
+    def convolve(self, h):
+        """Convolve with h."""
+        
+        return self.lfilter(h, a=[1])
     
