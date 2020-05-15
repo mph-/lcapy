@@ -38,6 +38,9 @@ class Sequence(ExprList):
         return super(Sequence, self).__getitem__(nindex)
 
     def prune(self):
+        """Remove zeros from ends of sequence.
+
+        {0, 0, 1, 2, 3, 0} -> {1, 2, 3}"""
 
         vals = self.vals
         
@@ -52,7 +55,24 @@ class Sequence(ExprList):
         while vals[m2] == 0:
             m2 -= 1        
         return Sequence(vals[m1:m2 + 1], self.n[m1:m2 + 1])
+
+    def zeropad(self, M):
+        """Add M zeros to end of sequence:
         
+        For example, with M = 3
+
+        {1, 2, 3} -> {1, 2, 3, 0, 0, 0}"""
+
+        vals = self.vals
+        n = self.n
+
+        zero = expr(0)
+        for m in range(M):
+            vals.append(zero)
+
+        n = self.n + list(range(self.n[-1] + 1, len(vals)))
+        return self.__class__(vals, n=n, var=self.var)        
+    
     def latex(self):
 
         items = []
@@ -163,7 +183,6 @@ class Sequence(ExprList):
     def ZT(self, **assumptions):
         return self.as_impulses().ZT(**assumptions)    
 
-
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
         unicode.  It is also called by IPython when displaying an
@@ -174,3 +193,32 @@ class Sequence(ExprList):
         
         from .printing import pretty
         p.text(self.pretty())
+
+    def lfilter(self, b=[], a=[1]):
+
+        x = self.vals
+        y = []
+
+        a0 = a[0]
+
+        for n, x1 in enumerate(x):
+            y.append(expr(0))
+            
+            for m, b1 in enumerate(b):
+                try:
+                    y[-1] += b1 * x[n - m] / a0
+                except:
+                    pass                
+
+            yn = y[-1]
+            for m, a1 in enumerate(a[1:]):
+                try:
+                    yn += a1 * y[-m - 2] / a0
+                except:
+                    pass
+            y[-1] = yn
+                
+        #n = self.n + list(range(self.n[-1] + 1, len(y)))
+        n = self.n
+        return self.__class__(y, n=n, var=self.var)
+    
