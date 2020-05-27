@@ -17,7 +17,7 @@ def msympify(expr):
     if isinstance(expr, Expr):
         # Bye bye lcapy type information...
         return expr.expr
-    return expr
+    return sym.sympify(expr)
         
         
 class Matrix(sym.Matrix):
