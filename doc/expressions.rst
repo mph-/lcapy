@@ -530,7 +530,7 @@ and
       
       
 Note, at DC, when :math:`X = 0`, then :math:`G = 1 / R` and is
-infinite for :math:`R= 0`.  Hower, if Z is purely imaginary, i.e,
+infinite for :math:`R= 0`.  However, if Z is purely imaginary, i.e,
 :math:`R = 0` then :math:`G = 0`, not infinity as might be expected.
   
 
