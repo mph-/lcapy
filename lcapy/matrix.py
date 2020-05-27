@@ -1,7 +1,7 @@
 """
 This module implements a wrapper for the SymPy Matrix class.
 
-Copyright 2019 Michael Hayes, UCECE
+Copyright 2019--2020 Michael Hayes, UCECE
 """
 
 import sympy as sym
