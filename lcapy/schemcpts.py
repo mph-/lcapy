@@ -821,7 +821,7 @@ class Cpt(object):
 
         has_label = False
         for key, val in self.opts.items():
-            if key in ('l', ):
+            if key in ('l', 'l^', 'l_'):
                 has_label = True
                 break
 
@@ -829,7 +829,7 @@ class Cpt(object):
             # Override label if specified.  There are no placement options.
             label_str = ','.join([latex_format_label(val)
                                   for key, val in self.opts.items()
-                                  if key in ('l', )])
+                                  if key in ('l', 'l^', 'l_')])
 
         # Remove curly braces.
         if len(label_str) > 1 and label_str[0] == '{' and label_str[-1] == '}':
