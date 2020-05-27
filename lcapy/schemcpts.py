@@ -808,7 +808,7 @@ class Cpt(object):
 
         return ','.join(self.args_list)
     
-    def label(self, **kwargs):
+    def label(self, keys=('l', 'l^', 'l_'), default=True, **kwargs):
 
         label_values = kwargs.get('label_values', True)
         label_ids = kwargs.get('label_ids', True)        
@@ -829,7 +829,9 @@ class Cpt(object):
             # Override label if specified.  There are no placement options.
             label_str = ','.join([latex_format_label(val)
                                   for key, val in self.opts.items()
-                                  if key in ('l', 'l^', 'l_')])
+                                  if key in keys])
+        elif not default:
+            return ''
 
         # Remove curly braces.
         if len(label_str) > 1 and label_str[0] == '{' and label_str[-1] == '}':
@@ -918,9 +920,10 @@ class Cpt(object):
         return r'  \draw[%s] (%s) node[] {%s};''\n'% (
             args_str, pos, label)        
     
-    def draw_label(self, pos, **kwargs):
+    def draw_label(self, pos, keys=('l', 'l^', 'l_'), default=True, **kwargs):
 
-        return self.annotate(pos, self.label(**kwargs), self.args_str)
+        return self.annotate(pos, self.label(keys, default=default,
+                                             **kwargs), self.args_str)
     
 
 class A(Cpt):
@@ -3174,13 +3177,15 @@ class CPE(Bipole):
         
         q1 = self.tf(centre, ((0, -h), (-w, 0), (0, h)), 0)
         q2 = self.tf(centre, ((w, -h), (0, 0), (w, h)), 0)
-        q = self.tf(centre, ((-w, 0), (0, 0), (-w, -2 * h)))
+        q = self.tf(centre, ((-w, 0), (0, 0), (-w, -2 * h), (-w, 2 * h)))
 
         s = self.draw_path(q1, closed=False, style='thick')
         s += self.draw_path(q2, closed=False, style='thick')
         s += self.draw_path((n1.s, q[0]))
         s += self.draw_path((q[1], n2.s))
-        s += self.draw_label(q[2], **kwargs)
+        # FOO
+        s += self.draw_label(q[2], ('l', 'l_'), default=True, **kwargs)
+        s += self.draw_label(q[3], ('l^', ), default=False, **kwargs)        
         return s    
 
 
