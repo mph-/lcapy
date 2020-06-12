@@ -540,7 +540,11 @@ class Expr(ExprPrint, ExprMisc):
         xcls = x.__class__
 
         if isinstance(self, sExpr) and isinstance(x, sExpr):
-            if self.assumptions == x.assumptions:
+            if self.is_causal and x.is_causal:
+                assumptions = {'causal' : True}
+            elif self.is_dc and x.is_dc:
+                assumptions = self.assumptions
+            elif self.is_ac and x.is_ac:
                 assumptions = self.assumptions
         
         if cls == xcls:
