@@ -1411,7 +1411,7 @@ class Expr(ExprPrint, ExprMisc):
         symdict = {sym.name:sym for sym in self.free_symbols}
 
         # Look for V(s), etc.
-        funcdict = {atom.func.__name__:atom for atom in self.atoms(sym.function.AppliedUndef)}        
+        funcdict = {atom.func.__name__:atom for atom in self.atoms(sym.core.function.AppliedUndef)}        
 
         symdict.update(funcdict)
         return symdict

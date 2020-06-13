@@ -25,6 +25,7 @@ from .ratfun import Ratfun
 from .sym import sympify, simplify
 from .utils import factor_const, scale_shift
 import sympy as sym
+from sympy.core.function import AppliedUndef
 
 __all__ = ('LT', 'ILT')
 
@@ -64,7 +65,7 @@ def laplace_0(expr, t, s):
 
 def laplace_func(expr, t, s, inverse=False):
 
-    if not isinstance(expr, sym.function.AppliedUndef):
+    if not isinstance(expr, AppliedUndef):
         raise ValueError('Expecting function for %s' % expr)
 
     scale, shift = scale_shift(expr.args[0], t)    
@@ -105,8 +106,8 @@ def laplace_integral(expr, t, s):
     
     const2, expr = factor_const(expr.args[0], t)
     if ((len(expr.args) != 2)
-        or (not isinstance(expr.args[0], sym.function.AppliedUndef))
-        or (not isinstance(expr.args[1], sym.function.AppliedUndef))):
+        or (not isinstance(expr.args[0], AppliedUndef))
+        or (not isinstance(expr.args[1], AppliedUndef))):
         raise ValueError('Need integral of two functions: %s' % expr)        
 
     f1 = expr.args[0]
@@ -136,7 +137,7 @@ def laplace_derivative_undef(expr, t, s):
     if not isinstance(expr, sym.Derivative):
         raise ValueError('Cannot compute Laplace transform of %s' % expr)
     
-    if (not isinstance(expr.args[0], sym.function.AppliedUndef) and
+    if (not isinstance(expr.args[0], AppliedUndef) and
         expr.args[1][0] != t):
         raise ValueError('Cannot compute Laplace transform of %s' % expr)
 
@@ -155,7 +156,7 @@ def laplace_term(expr, t, s):
     if expr.has(sym.Integral):
         return laplace_integral(expr, t, s) * const
 
-    if expr.has(sym.function.AppliedUndef):
+    if expr.has(AppliedUndef):
 
         if expr.has(sym.Derivative):
             return laplace_derivative_undef(expr, t, s) * const    
@@ -163,7 +164,7 @@ def laplace_term(expr, t, s):
         rest = sym.S.One
         expr = expr.cancel()
         for factor in expr.as_ordered_factors():
-            if isinstance(factor, sym.function.AppliedUndef):
+            if isinstance(factor, AppliedUndef):
                 result = laplace_func(factor, t, s)
             else:
                 if factor.has(t):
@@ -393,11 +394,11 @@ def inverse_laplace_product(expr, s, t, **assumptions):
 
     if (len(factors) > 2 and not
         # Help s * 1 / (s + R * C) * I(s)
-        isinstance(factors[1], sym.function.AppliedUndef) and
-        isinstance(factors[2], sym.function.AppliedUndef)):
+        isinstance(factors[1], AppliedUndef) and
+        isinstance(factors[2], AppliedUndef)):
         factors = [factors[0], factors[2], factors[1]] + factors[3:]
     
-    if isinstance(factors[1], sym.function.AppliedUndef):
+    if isinstance(factors[1], AppliedUndef):
         # Try to expose more simple cases, e.g. (R + s * L) * V(s)
         terms = factors[0].as_ordered_terms()
         if len(terms) >= 2:
@@ -411,7 +412,7 @@ def inverse_laplace_product(expr, s, t, **assumptions):
 
     intnum = 0
     for m in range(len(factors) - 1):
-        if m == 0 and isinstance(factors[1], sym.function.AppliedUndef):
+        if m == 0 and isinstance(factors[1], AppliedUndef):
             # Note, as_ordered_factors puts powers of s before the functions.
             if factors[0] == s:
                 # Handle differentiation
@@ -500,14 +501,14 @@ def inverse_laplace_term1(expr, s, t, **assumptions):
 
     const, expr = factor_const(expr, s)
 
-    if isinstance(expr, sym.function.AppliedUndef):
+    if isinstance(expr, AppliedUndef):
         # Handle V(s), 3 * V(s) etc.  If causal is True it is assumed
         # that the unknown functions are causal.  Note laplace_func
         # just changes the name so it works as inverse_laplace_func.
         result = laplace_func(expr, s, t, True)
         return result * const, sym.S.Zero
     
-    if expr.has(sym.function.AppliedUndef):
+    if expr.has(AppliedUndef):
         return const * inverse_laplace_product(expr, s, t,
                                                **assumptions), sym.S.Zero
 

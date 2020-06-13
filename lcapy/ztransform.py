@@ -18,7 +18,7 @@ inverse_ztransform_cache = {}
 
 def ztransform_func(expr, n, z, inverse=False):
 
-    if not isinstance(expr, sym.function.AppliedUndef):
+    if not isinstance(expr, sym.core.function.AppliedUndef):
         raise ValueError('Expecting function for %s' % expr)
 
     scale, shift = scale_shift(expr.args[0], n)    
@@ -69,7 +69,7 @@ def ztransform_sum(expr, n, z):
         raise ValueError('Cannot compute z-transform of %s' % expr)
 
     # Look for integration of function
-    if (isinstance(expr.args[0], sym.function.AppliedUndef)
+    if (isinstance(expr.args[0], sym.core.function.AppliedUndef)
         and expr.args[1][0] == expr.args[0].args[0]
         and expr.args[1][1] == -sym.oo
         and expr.args[1][2] == n):
@@ -83,8 +83,8 @@ def ztransform_sum(expr, n, z):
     
     const2, expr = factor_const(expr.args[0], n)
     if ((len(expr.args) != 2)
-        or (not isinstance(expr.args[0], sym.function.AppliedUndef))
-        or (not isinstance(expr.args[1], sym.function.AppliedUndef))):
+        or (not isinstance(expr.args[0], sym.core.function.AppliedUndef))
+        or (not isinstance(expr.args[1], sym.core.function.AppliedUndef))):
         raise ValueError('Need sum of two functions: %s' % expr)        
 
     f1 = expr.args[0]
@@ -143,12 +143,12 @@ def ztransform_term(expr, n, z):
     # if foo in factors:
     #     could remove factor, find ZT of rest, and then integrate....
     
-    if expr.has(sym.function.AppliedUndef):
+    if expr.has(sym.core.function.AppliedUndef):
 
         rest = sym.S.One
         expr = expr.cancel()
         for factor in expr.as_ordered_factors():
-            if isinstance(factor, sym.function.AppliedUndef):
+            if isinstance(factor, sym.core.function.AppliedUndef):
                 result = ztransform_func(factor, n, z)
             else:
                 if factor.has(n):
@@ -400,7 +400,7 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
         raise ValueError('Expression does not have multiple factors: %s' % expr)
 
     if (len(factors) == 3 and factors[0] == z and
-        isinstance(factors[2], sym.function.AppliedUndef) and
+        isinstance(factors[2], sym.core.function.AppliedUndef) and
         factors[1].is_Pow and factors[1].args[1] == -1 and
         factors[1].args[0].is_Add and factors[1].args[0].args[0] == -1
         and factors[1].args[0].args[1] == z):
@@ -412,12 +412,12 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
     
     # TODO, is this useful?
     if (len(factors) > 2 and not
-        isinstance(factors[1], sym.function.AppliedUndef) and
-        isinstance(factors[2], sym.function.AppliedUndef)):
+        isinstance(factors[1], sym.core.function.AppliedUndef) and
+        isinstance(factors[2], sym.core.function.AppliedUndef)):
         factors = [factors[0], factors[2], factors[1]] + factors[3:]
 
     # TODO, is this useful?        
-    if isinstance(factors[1], sym.function.AppliedUndef):
+    if isinstance(factors[1], sym.core.function.AppliedUndef):
         terms = factors[0].as_ordered_terms()
         if len(terms) >= 2:
             result = sym.S.Zero
@@ -430,7 +430,7 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
 
     intnum = 0
     for m in range(len(factors) - 1):
-        if m == 0 and isinstance(factors[1], sym.function.AppliedUndef):
+        if m == 0 and isinstance(factors[1], sym.core.function.AppliedUndef):
             # Note, as_ordered_factors puts powers of z before the functions.
             if factors[0] == z:
                 # Handle time-advance
@@ -525,14 +525,14 @@ def inverse_ztransform_term1(expr, z, n, **assumptions):
     if expr == 1:
         return const * unitimpulse(n), sym.S.Zero
     
-    if isinstance(expr, sym.function.AppliedUndef):
+    if isinstance(expr, sym.core.function.AppliedUndef):
         # Handle V(z), 3 * V(z) etc.  If causal is True it is assumed
         # that the unknown functions are causal.  Note ztransform_func
         # just changes the name so it works as inverse_ztransform_func.
         result = ztransform_func(expr, z, n, True)
         return const * result, sym.S.Zero
     
-    if expr.has(sym.function.AppliedUndef):
+    if expr.has(sym.core.function.AppliedUndef):
         return const * inverse_ztransform_product(expr, z, n,
                                                   **assumptions), sym.S.Zero
 

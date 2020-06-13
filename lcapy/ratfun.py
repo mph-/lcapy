@@ -269,7 +269,7 @@ def as_ratfun_delay_undef(expr, var):
                 if c[1] != 0:
                     rf *= sym.exp(c[1])
                 continue
-        if isinstance(f, sym.function.AppliedUndef):
+        if isinstance(f, sym.core.function.AppliedUndef):
             undef *= f
             continue
                 
@@ -322,7 +322,7 @@ class Ratfun(object):
         F = sym.factor(expr).as_ordered_factors()
 
         for f in F:
-            if isinstance(f, sym.function.AppliedUndef):
+            if isinstance(f, sym.core.function.AppliedUndef):
                 undef *= f
                 continue
             if not f.has(var):
