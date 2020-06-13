@@ -19,7 +19,7 @@ Copyright 2016--2020 Michael Hayes, UCECE
 # This should give 2 * sin(2 * pi * t)
 
 import sympy as sym
-from .sym import sympify
+from .sym import sympify, AppliedUndef
 from .utils import factor_const, scale_shift
 
 __all__ = ('FT', 'IFT')
@@ -42,7 +42,7 @@ def fourier_sympy(expr, t, f):
 
 def fourier_func(expr, t, f, inverse=False):
 
-    if not isinstance(expr, sym.core.function.AppliedUndef):
+    if not isinstance(expr, AppliedUndef):
         raise ValueError('Expecting function for %s' % expr)
 
     scale, shift = scale_shift(expr.args[0], t)
@@ -71,12 +71,12 @@ def fourier_function(expr, t, f, inverse=False):
     # Handle expressions with a function of FOO, e.g.,
     # v(t), v(t) * y(t),  3 * v(t) / t, v(4 * a * t), etc.,
     
-    if not expr.has(sym.core.function.AppliedUndef):
+    if not expr.has(AppliedUndef):
         raise ValueError('Could not compute Fourier transform for ' + str(expr))
 
     const, expr = factor_const(expr, t)
     
-    if isinstance(expr, sym.core.function.AppliedUndef):
+    if isinstance(expr, AppliedUndef):
         return fourier_func(expr, t, f, inverse) * const
     
     tsym = sympify(str(t))
@@ -85,14 +85,14 @@ def fourier_function(expr, t, f, inverse=False):
     rest = sym.S.One
     undefs = []
     for factor in expr.as_ordered_factors():
-        if isinstance(factor, sym.core.function.AppliedUndef):
+        if isinstance(factor, AppliedUndef):
             if factor.args[0] != t:
                 raise ValueError('Weird function %s not of %s' % (factor, t))
             undefs.append(factor)
         else:
             rest *= factor
 
-    if rest.has(sym.core.function.AppliedUndef):
+    if rest.has(AppliedUndef):
         # Have something like 1/v(t)
         raise ValueError('Cannot compute Fourier transform of %s' % rest)
             
@@ -123,12 +123,12 @@ def fourier_term(expr, t, f, inverse=False):
 
     const, expr = factor_const(expr, t)
     
-    if isinstance(expr, sym.core.function.AppliedUndef):
+    if isinstance(expr, AppliedUndef):
         return fourier_func(expr, t, f, inverse) * const
     
     # TODO add u(t) <-->  delta(f) / 2 - j / (2 * pi * f)
     
-    if expr.has(sym.core.function.AppliedUndef):
+    if expr.has(AppliedUndef):
         # Handle v(t), v(t) * y(t),  3 * v(t) / t etc.
         return fourier_function(expr, t, f, inverse) * const
 

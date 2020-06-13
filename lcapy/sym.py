@@ -317,3 +317,7 @@ j = sym.I
 oo = sym.oo
 inf = sym.oo
 
+try:
+    from sympy.core.function import AppliedUndef
+except:
+    from sympy.function import AppliedUndef    

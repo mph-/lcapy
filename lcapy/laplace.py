@@ -22,10 +22,9 @@ Copyright 2016--2019 Michael Hayes, UCECE
 """
 
 from .ratfun import Ratfun
-from .sym import sympify, simplify
+from .sym import sympify, simplify, AppliedUndef
 from .utils import factor_const, scale_shift
 import sympy as sym
-from sympy.core.function import AppliedUndef
 
 __all__ = ('LT', 'ILT')
 

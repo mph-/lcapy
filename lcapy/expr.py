@@ -12,7 +12,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 from __future__ import division
 from .ratfun import Ratfun
-from .sym import sympify, symsimplify, j, omegasym, symdebug
+from .sym import sympify, symsimplify, j, omegasym, symdebug, AppliedUndef
 from .sym import capitalize_name, tsym, symsymbol, symbol_map
 from .state import state
 from .printing import pprint, pretty, print_str, latex
@@ -1411,7 +1411,7 @@ class Expr(ExprPrint, ExprMisc):
         symdict = {sym.name:sym for sym in self.free_symbols}
 
         # Look for V(s), etc.
-        funcdict = {atom.func.__name__:atom for atom in self.atoms(sym.core.function.AppliedUndef)}        
+        funcdict = {atom.func.__name__:atom for atom in self.atoms(AppliedUndef)}        
 
         symdict.update(funcdict)
         return symdict

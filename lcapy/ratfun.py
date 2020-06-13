@@ -7,7 +7,7 @@ Copyright 2016--2020 Michael Hayes, UCECE
 from __future__ import division
 import sympy as sym
 from sympy.core.mul import _unevaluated_Mul as uMul
-from .sym import sympify
+from .sym import sympify, AppliedUndef
 
 class Pole(object):
 
@@ -269,7 +269,7 @@ def as_ratfun_delay_undef(expr, var):
                 if c[1] != 0:
                     rf *= sym.exp(c[1])
                 continue
-        if isinstance(f, sym.core.function.AppliedUndef):
+        if isinstance(f, AppliedUndef):
             undef *= f
             continue
                 
@@ -322,7 +322,7 @@ class Ratfun(object):
         F = sym.factor(expr).as_ordered_factors()
 
         for f in F:
-            if isinstance(f, sym.core.function.AppliedUndef):
+            if isinstance(f, AppliedUndef):
                 undef *= f
                 continue
             if not f.has(var):
