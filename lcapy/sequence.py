@@ -24,7 +24,19 @@ class Sequence(ExprList):
     @property
     def vals(self):
         return list(self)
-        
+
+    def __str__(self):
+
+        items = []
+        for v1, n1 in zip(self, self.n):
+            s = str(v1)
+            
+            if n1 == 0:
+                s = '_' + s
+            items.append(s)
+
+        return r'{%s}' % ', '.join(items)
+    
     def __getitem__(self, n):
         """Note this returns the element with index matching n.
         This is not necessarily the nth element in the sequence."""
