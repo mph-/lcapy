@@ -343,12 +343,12 @@ class ParSer(OnePort):
 
         return '$%s$' % self.latex()
 
-    def pretty(self):
+    def pretty(self, **kwargs):
 
         str = ''
 
         for m, arg in enumerate(self.args):
-            argstr = arg.pretty()
+            argstr = arg.pretty(**kwargs)
 
             if isinstance(arg, ParSer) and arg.__class__ != self.__class__:
                 argstr = '(' + argstr + ')'

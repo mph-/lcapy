@@ -100,7 +100,7 @@ class Sequence(ExprList):
 
         return r'\left\{%s\right\}' % ', '.join(items)
     
-    def pretty(self):
+    def pretty(self, **kwargs):
 
         # FIXME, this does not work well if values require multiple
         # lines, such as a^2

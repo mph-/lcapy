@@ -48,21 +48,21 @@ class ExprPrint(object):
 
     # Note, _repr_latex_ is handled at the end of this file.
         
-    def pretty(self):
+    def pretty(self, **kwargs):
         """Make pretty string."""
-        return pretty(self._pexpr)
+        return pretty(self._pexpr, **kwargs)
 
-    def prettyans(self, name):
+    def prettyans(self, name, **kwargs):
         """Make pretty string with LHS name."""
-        return pretty(sym.Eq(sympify(name), self._pexpr))
+        return pretty(sym.Eq(sympify(name), self._pexpr), **kwargs)
 
-    def pprint(self):
+    def pprint(self, **kwargs):
         """Pretty print"""
-        pprint(self._pexpr)
+        pprint(self._pexpr, **kwargs)
 
-    def pprintans(self, name):
+    def pprintans(self, name, **kwargs):
         """Pretty print string with LHS name."""
-        print(self.prettyans(name))
+        print(self.prettyans(name, **kwargs))
 
     def latex(self, **kwargs):
         """Make latex string."""

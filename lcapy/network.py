@@ -63,9 +63,9 @@ class Network(object):
 
         return '$%s$' % self.latex()
 
-    def pretty(self):
+    def pretty(self, **kwargs):
 
-        argsrepr = ', '.join([pretty(arg) for arg in self._tweak_args()])
+        argsrepr = ', '.join([pretty(arg, **kwargs) for arg in self._tweak_args()])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
     def latex(self, **kwargs):

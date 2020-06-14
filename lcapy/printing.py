@@ -232,7 +232,7 @@ def pretty(expr, **settings):
     return LcapyPrettyPrinter(settings).doprint(expr)
 
 
-def pprint(expr):
+def pprint(expr, **kwargs):
     """Pretty print an expression.
 
     If have non-interactive shell a latex string is returned."""
@@ -241,9 +241,9 @@ def pprint(expr):
 
     # If interactive use pretty, otherwise use latex
     if hasattr(sys, 'ps1'):
-        print(pretty(expr))
+        print(pretty(expr, **kwargs))
     else:
-        print(latex(expr))
+        print(latex(expr, **kwargs))
 
 
 def latex(expr, fold_frac_powers=False, fold_func_brackets=False,
