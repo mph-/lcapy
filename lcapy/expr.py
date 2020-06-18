@@ -825,33 +825,33 @@ class Expr(ExprPrint, ExprMisc):
     
     @property
     def N(self):
-        """Return numerator of rational function."""
+        """Return numerator of rational function.
+        The denominator is chosen so that it is a polynomial."""
 
         return self.numerator
 
     @property
     def D(self):
-        """Return denominator of rational function."""
+        """Return denominator of rational function.
+        The denominator is chosen so that it is a polynomial."""
 
         return self.denominator
 
     @property
     def numerator(self):
-        """Return numerator of rational function."""
+        """Return numerator of rational function.
+        The denominator is chosen so that it is a polynomial."""
 
-        if self._ratfun is None:
-            return self.copy()
-
-        return self.__class__(self._ratfun.numerator, **self.assumptions)
+        N, D = self.as_N_D()
+        return N
 
     @property
     def denominator(self):
-        """Return denominator of rational function."""
+        """Return denominator of rational function.
+        The denominator is chosen so that it is a polynomial."""
 
-        if self._ratfun is None:
-            return self.__class__(1, **self.assumptions)
-        
-        return self.__class__(self._ratfun.denominator, **self.assumptions)
+        N, D = self.as_N_D()
+        return D
 
     def rationalize_denominator(self):
         """Rationalize denominator by multiplying numerator and denominator by
