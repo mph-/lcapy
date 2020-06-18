@@ -1510,11 +1510,14 @@ class Expr(ExprPrint, ExprMisc):
 
         See also canonical, standard, general, timeconst, and ZPK."""
 
-        if self._ratfun is None:
-            return self.copy()        
-        return self.__class__(self._ratfun.partfrac(combine_conjugates,
-                                                    damping),
-                              **self.assumptions)
+        try:
+            if self._ratfun is None:
+                return self.copy()        
+            return self.__class__(self._ratfun.partfrac(combine_conjugates,
+                                                        damping),
+                                  **self.assumptions)
+        except ValueError:
+            return self.as_sum().partfrac(combine_conjugates, damping)
 
     def recippartfrac(self, combine_conjugates=False, damping=None):
         """Convert rational function into partial fraction form
@@ -1776,6 +1779,82 @@ class Expr(ExprPrint, ExprMisc):
 
         return self.__class__(expr, **self.assumptions)
 
+    def as_N_D(self):
+        """Responses due to a sum of delayed transient responses
+        cannot be factored into ZPK form with a constant delay.
+        For example, sometimes SymPy gives:
+
+            ⎛    s⋅τ     ⎞  -s⋅τ
+            ⎝V₁⋅ℯ    - V₂⎠⋅ℯ    
+        I = ────────────────────
+               s⋅(L⋅s + R)     
+
+        This method tries to extract the numerator and denominator
+        where the denominator is a polynomial.
+
+        N, D = I.as_N_D()
+
+                     -s⋅τ
+        N = V₁ - V₂⋅ℯ    
+        D =  s⋅(L⋅s + R)
+        """
+        
+        N = 1
+        D = 1
+        factors = self.expr.as_ordered_factors()
+
+        # I.as_ordered_factors()    
+        #
+        # ⎡1     1         s⋅τ        -s⋅τ⎤
+        # ⎢─, ───────, V₁⋅ℯ    - V₂, ℯ    ⎥
+        # ⎣s  L⋅s + R                     ⎦
+        
+        for factor in factors:
+            a, b = factor.as_numer_denom()
+            N *= a
+            if b.is_polynomial(self.var):
+                D *= b
+            else:
+                N /= b
+                
+        N = N.simplify()
+                
+        return self.__class__(N, **self.assumptions), self.__class__(D, **self.assumptions)                
+
+    def as_sum(self):
+        """Responses due to a sum of delayed transient responses
+        cannot be factored into ZPK form with a constant delay.
+        For example, sometimes SymPy gives:
+
+            ⎛    s⋅τ     ⎞  -s⋅τ
+            ⎝V₁⋅ℯ    - V₂⎠⋅ℯ    
+        I = ────────────────────
+               s⋅(L⋅s + R)     
+
+        While this cannot be factored into ZPK form, it can be
+        expressed as a sum of ZPK forms or as a partial fraction
+        expansion.  However, SymPy does not play ball if trying to
+        express as a sum of terms:
+
+        I.as_ordered_terms()  
+                                                 
+        ⎡⎛    s⋅τ     ⎞  -s⋅τ⎤
+        ⎢⎝V₁⋅ℯ    - V₂⎠⋅ℯ    ⎥
+        ⎢────────────────────⎥
+        ⎣    s⋅(L⋅s + R)     ⎦
+
+        Instead, it appears necessary to split into N / D where
+        D is a polynomial.  Then N can be split.
+        """
+
+        N, D = self.as_N_D()
+        N = N.simplify()
+
+        result = 0
+        for term in N.as_ordered_terms ():
+            result += term / D
+        return result
+               
     
 def expr(arg, **assumptions):
     """Create Lcapy expression from arg.

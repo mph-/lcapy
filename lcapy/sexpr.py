@@ -94,8 +94,11 @@ class sExpr(Expr):
     
     def time(self, **assumptions):
         """Convert to time domain."""
-        
-        return self.inverse_laplace(**assumptions)
+
+        try:
+            return self.inverse_laplace(**assumptions)
+        except ValueError:
+            return self.as_sum().inverse_laplace(**assumptions)            
 
     def laplace(self, **assumptions):
         """Convert to s-domain."""
