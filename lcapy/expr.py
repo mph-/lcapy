@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """This module provides the Expr class.  This attempts to create a
 consistent interface to SymPy's expressions.
 
