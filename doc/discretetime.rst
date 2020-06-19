@@ -29,9 +29,6 @@ Sequences
 
 Note, the underscore marks the item in the sequence where `n = 0`.
        
-   >>> seq.as_impulses()
-   >>> δ[n] + 2⋅δ[n - 2]
-
 The extent of the sequence is given by the `extent()` method.   
 
    >>> seq.extent()
@@ -42,6 +39,13 @@ Sequences can be convolved together, for example,
    >>> seq((1, 2, 3)).convolve(seq((1, 1))
    {_1, 3, 5, 3}
 
+Sequences can be converted to n-domain or k-domain expressions, for example,
+   
+   >>> seq((1, 2))(n)
+   δ[n] + 2⋅δ[n - 2]
+
+   >>> seq((1, 2))(k)
+   δ[k] + 2⋅δ[k - 2]   
 
 
 Z-transform
