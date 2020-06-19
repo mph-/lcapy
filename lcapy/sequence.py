@@ -148,9 +148,9 @@ class Sequence(ExprList):
     def extent(self):
         """Determine extent of the sequence.
 
-        For example, Sequence([1, 1]).extent = 2
-                     Sequence([1, 0, 1]).extent = 3
-                     Sequence([0, 1, 0, 1]).extent = 3
+        For example, Sequence([1, 1]).extent() = 2
+                     Sequence([1, 0, 1]).extent() = 3
+                     Sequence([0, 1, 0, 1]).extent() = 3
         """
         
         from numpy import argwhere
@@ -162,6 +162,16 @@ class Sequence(ExprList):
             return 0
 
         return (max(w) - min(w))[0] + 1
+
+    def discrete_time_fourier_transform(self, **assumptions):
+        """Convert to Fourier domain using discrete time Fourier transform."""
+
+        return self.as_impulses().discrete_time_fourier_transform(**assumptions)
+
+    def DTFT(self, **assumptions):
+        """Convert to Fourier domain using discrete time Fourier transform."""
+    
+        return self.discrete_time_fourier_transform(**assumptions)
 
     def plot(self, n=None, **kwargs):
         """Plot the sequence.  If n is not specified, it defaults to the
