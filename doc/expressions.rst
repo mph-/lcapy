@@ -404,15 +404,15 @@ Transformation
 --------------
 
 
-- :math:`V(t)` returns the time domain transformation
+- `V(t)` returns the time domain transformation
 
-- :math:`V(f)` returns the Fourier domain transformation      
+- `V(f)` returns the Fourier domain transformation      
 
-- :math:`V(s)` returns the Laplace domain (s-domain) transformation
+- `V(s)` returns the Laplace domain (s-domain) transformation
 
-- :math:`V(omega)` returns the angular Fourier domain transformation
+- `V(omega)` returns the angular Fourier domain transformation
 
-- :math:`V(jomega)` returns the angular Fourier domain transformation
+- `V(jomega)` returns the angular Fourier domain transformation
   obtained from the Laplace domain transformation with :math:`s = j
   \omega`.
 
@@ -752,7 +752,7 @@ Lcapy can parameterize a number of first order, second order, and third order s-
    >>> defs                                                                    
    {K: 3, alpha: 2}
 
-Here `defs` is dictionary of the parameter definitions.
+Here `defs` is a dictionary of the parameter definitions.
    
 The original expression can be obtained by substituting the parameter definitions into the parameterized expression:
 

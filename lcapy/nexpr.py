@@ -178,9 +178,9 @@ class nExpr(dExpr):
     def extent(self, n1=-100, n2=100):
         """Determine extent of the signal.
 
-        For example, nexpr([1, 1]).extent = 2
-                     nexpr([1, 0, 1]).extent = 3
-                     nexpr([0, 1, 0, 1]).extent = 3
+        For example, nexpr([1, 1]).extent() = 2
+                     nexpr([1, 0, 1]).extent() = 3
+                     nexpr([0, 1, 0, 1]).extent() = 3
 
         This performs a search between n=n1 and n=n2."""
 

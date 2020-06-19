@@ -2,7 +2,7 @@
 Discrete-time signals
 =====================
 
-Discrete-time signal support is experimental and requires the  `discretetime` to be explicitly imported.  It introduces three new domain variables:
+Discrete-time signal support is experimental and requires the `discretetime` module to be explicitly imported.  It introduces three new domain variables:
 
   - `n` for discrete-time signals, for example, `3 * u(n - 2)`
   - `k` for discrete-frequency spectra
@@ -10,7 +10,6 @@ Discrete-time signal support is experimental and requires the  `discretetime` to
 
 The `n`, `k`, and `z` variables share many of the attributes and methods of their continuous-time equivalents, `t`, `f`, and `s`, :ref:`expressions`.
     
-
 The discrete-time signal can be plotted using the `plot()` method.
 For example,
 
@@ -33,8 +32,16 @@ Note, the underscore marks the item in the sequence where `n = 0`.
    >>> seq.as_impulses()
    >>> δ[n] + 2⋅δ[n - 2]
 
+The extent of the sequence is given by the `extent()` method.   
+
    >>> seq.extent()
    >>> 3
+
+Sequences can be convolved together, for example,
+
+   >>> seq((1, 2, 3)).convolve(seq((1, 1))
+   {_1, 3, 5, 3}
+
 
 
 Z-transform
@@ -66,7 +73,8 @@ The inverse unilateral z-transform is not unique and is only defined for :math:`
    ⎩             
 
    
-If the result is known to be causal, then use:   
+If the result is known to be causal, then use:
+
    >>> H(n, causal=True)
     n     
    a ⋅u(n)
@@ -116,15 +124,15 @@ Here's another example, an RC low-pass filter.
    W 2 3; right=0.5
    W 0_2 0_3; right=0.5""")
 
-This has a transfer function :
+This has a transfer function:
 
    >>> H = net.transfer(1, 0, 3, 0)
    >>> H
-      1      
-─────────────
-    ⎛     1 ⎞
-C⋅R⋅⎜s + ───⎟
-    ⎝    C⋅R⎠
+         1      
+   ─────────────
+       ⎛     1 ⎞
+   C⋅R⋅⎜s + ───⎟
+       ⎝    C⋅R⎠
 
 and an impulse response:
 
@@ -132,7 +140,7 @@ and an impulse response:
     -t      
     ───     
     C⋅R     
-   ℯ   ⋅u(t)
+   e   ⋅u(t)
    ─────────
       C⋅R   
 
