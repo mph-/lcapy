@@ -9,12 +9,12 @@ from __future__ import division
 from .fourier import inverse_fourier_transform
 from .functions import exp
 from .sym import j, oo, pi
-from .dexpr import dExpr
+from .seqexpr import seqExpr
 from .dsym import nsym, ksym, zsym
 import sympy as sym
 
 
-class kExpr(dExpr):
+class kExpr(seqExpr):
 
     """Discrete Fourier domain expression or symbol."""
 

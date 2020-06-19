@@ -5,20 +5,19 @@ Copyright 2020 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from .dexpr import dExpr
+from .seqexpr import seqExpr
 from .functions import exp
 from .sym import j, oo, pi, fsym
 from .dsym import nsym, ksym, zsym, dt
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .ztransform import ztransform
-from .sequence import Sequence
 from sympy import Sum, summation, limit
 
 
 __all__ = ('Hn', 'In', 'Vn', 'Yn', 'Zn')
 
 
-class nExpr(dExpr):
+class nExpr(seqExpr):
 
     """t-domain expression or symbol."""
 
@@ -133,18 +132,6 @@ class nExpr(dExpr):
         """Determine value at n = oo."""
 
         return self.__class__(limit(self.expr, self.var, oo))
-
-    def seq(self, nvals=None, evaluate=False):
-
-        if nvals is None:
-            nvals = (-10, 10)
-        if isinstance(nvals, tuple):
-            nvals = range(nvals[0], nvals[1] + 1)
-
-        nvals = list(nvals)
-        v = self(nvals)
-
-        return Sequence(v, nvals, evaluate, self.var)
 
     def DFT(self, N=None, evaluate=True):
 

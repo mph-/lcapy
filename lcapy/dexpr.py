@@ -73,5 +73,3 @@ class dExpr(Expr):
         
         # Do we really want to this?   
         super(dExpr, self).transform(arg, **assumptions)            
-
-        
