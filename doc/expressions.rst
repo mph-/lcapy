@@ -45,7 +45,6 @@ Lcapy has five predefined domain variables:
 
 - `jomega` Fourier domain angular frequency times `j`
 
-
 A time-domain expression is produced using the `t` variable, for example,
   
    >>> v = exp(-3 * t) * u(t)
@@ -55,6 +54,8 @@ variable, for example,
   
    >>> V = s / (s**2 + 2 * s + 3)
 
+The `discretetime` module adds additional domain variables `n`, `k`, and `z`.
+   
    
 User defined symbols
 --------------------
@@ -74,7 +75,7 @@ Notes:
 
 2. Redefining a symbol does change the assumptions.  Instead, the symbol needs to be deleted with `symbol_delete` before being redefined.
 
-3. There are restrictions on symbol names that can be used.  Currently, this excludes names that are Python keywords.  For example, `Is` is not allowed.
+3. There are restrictions on symbol names that can be used.  Currently, this excludes names that are Python keywords.  For example, `Is` is not allowed but `I_s` is valid.
 
 
 .. _expressionsfunctions:
@@ -92,12 +93,42 @@ Other SymPy functions can be converted to Lcapy functions using the
    >>> gamma = Function(sym.gamma)   
 
 
+.. _expressionsrationalfunctions:
+   
+Rational functions
+==================
+
+Linear time-invariant systems have transfer functions that are rational functions; the ratio of two polynomials:
+
+.. math::
+   H(s) = \frac{N(s)}{D(s)},
+
+The numerator can be found using the `N` attribute and denominator can
+be found using the `D` attribute.
+   
+
+.. _expressionsresponses:
+   
+Responses
+=========
+
+Often, s-domain responses are rational functions but not always.  In general, Lcapy tries to interpret responses as
+
+.. math::
+   Y(s) = \sum_{i} \frac{N_i(s)}{D(s)} \exp(-s \tau_i),
+
+where :math:`\tau_i` are time delays.   This representation is returned by the `as_sum()` method.  Note, these expressions cannot be represent in ZPK form.  The `D` attribute returns :math:`D(s)` and the `N` attribute returns
+
+.. math::
+   N(s) = \sum_{i} N_i(s) \exp(-s \tau_i).
+
+
 .. _expressionsattributes:     
 
 Attributes
 ==========
 
-All Lcapy expressions have the following attributes:
+All Lcapy expressions have the following attributes (see :ref:`expressionsrationalfunctions` and :ref:`expressionsresponses` for definitions of numerator and denominator):
 
 - `abs` returns absolute value
 
@@ -109,16 +140,14 @@ All Lcapy expressions have the following attributes:
 
 - `dB` returns magnitude in decibels: `20 * log10(magnitude)`
 
-- `degree` returns degree of rational function (maximum of numerator and denominator degrees)
-  
 - `D` returns denominator
 
 - `Ddegree` returns degree of denominator
 
 - `denominator` returns denominator
 
-- `degree` returns degree (order).  If expression is a rational function the degree is the maximum degree of the numerator and denominator.
-
+- `degree` returns degree (order) of rational function (maximum of numerator and denominator degrees)
+  
 - `domain_label` returns string describing domain of expression
   
 - `expr` returns the underlying SymPy expression
@@ -192,9 +221,11 @@ Poles and zeros
 Miscellaneous
 -------------
 
+- `as_sum()` rewrite expression as a sum of terms where the denominator of each term has a common polynomial expression (see :ref:`expressionsresponses`).
+
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
-- `evalf()` returns floating point number if expression can be evaluated
+- `evalf()` returns floating point number if expression can be evaluated.
     
 - `initial_value()` returns result at :math:`t = 0`.
 
@@ -263,7 +294,7 @@ The partial fraction form has terms that are strictly proper.
 
 The `recippartfrac()` method generates a partial fraction expansion using the reciprocal of the variable:
 
-   >>>H.recipartfrac()
+   >>> H.recipartfrac()
    5       10          85    
    ─ - ───────── + ──────────
    4     ⎛    1⎞      ⎛1   1⎞
