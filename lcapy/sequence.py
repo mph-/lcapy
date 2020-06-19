@@ -7,7 +7,8 @@ Copyright 2020 Michael Hayes, UCECE
 from .expr import ExprList, expr
 
 # Perhaps subclass numpy ndarray?  But then could not have symbolic
-# elements in the sequence.
+# elements in the sequence.  Perhaps have flavours for n-domain and
+# k-domain sequences?
 
 class Sequence(ExprList):
 
