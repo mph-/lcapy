@@ -45,8 +45,7 @@ class dExpr(Expr):
             return self.transform(arg, **assumptions)    
 
         # Do we really want to this?   
-        super(dExpr, self).__call__(arg, **assumptions)
-
+        return super(dExpr, self).__call__(arg, **assumptions)
 
     def transform(self, arg, **assumptions):
 

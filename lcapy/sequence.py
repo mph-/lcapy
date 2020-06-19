@@ -122,6 +122,9 @@ class Sequence(ExprList):
         return r'{%s}' % ', '.join(items)
     
     def as_impulses(self, var=None):
+        """Convert to discrete-time signal in the form of
+        a weighted sum of delayed impulses.  For example,
+        {1, 2, 3} -> ui[n] + 2 * ui[n - 1] + 3 * ui[n - 2]"""
 
         from .functions import unitimpulse
         from sympy import Add
@@ -193,20 +196,16 @@ class Sequence(ExprList):
         return self.as_impulses().plot(n, **kwargs)
 
     def __call__(self, arg, **assumptions):
-        """Transform domain or substitute arg for variable. 
-        
-        Substitution is performed if arg is a tuple, list, numpy
-        array, or constant.  If arg is a tuple or list return a list.
-        If arg is an numpy array, return numpy array.
+        """Convert sequence to n-domain or k-domain expression.
+        For example, seq((1, 2, 3))(n)"""
 
-        Domain transformation is performed if arg is a domain variable
-        or an expression of a domain variable.
+        from .nexpr import n
+        from .kexpr import k
 
-        See also evaluate.
-
-        """
-
-        return self.as_impulses().__call__(arg, **assumptions)
+        if id(arg) in (id(n), id(k)):
+            return self.as_impulses(arg)
+        if arg in (n, k):
+            return self.as_impulses(arg)        
 
     def ZT(self, **assumptions):
         return self.as_impulses().ZT(**assumptions)    
