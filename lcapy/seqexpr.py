@@ -44,9 +44,13 @@ class seqExpr(dExpr):
 
     def seq(self, nvals=None, evaluate=False):
 
-        n1 = self.first_index()
-        n2 = self.last_index()        
+        n1 = self.first_index(nvals)
+        n2 = self.last_index(nvals)        
 
+        # Perhaps if find self(n2 + 1) != 0 or self(n1 - 1) != 0 then
+        # likely to have infinite extent sequence.  Maybe this could
+        # be shown using ellipsis when the sequence is printed?
+        
         nvals = arange(n1, n2 + 1)
         v = self(nvals)
         
