@@ -7,7 +7,7 @@ Copyright 2020 Michael Hayes, UCECE
 from .ratfun import Ratfun
 from .sym import sympify, simplify, symsymbol, AppliedUndef
 from .utils import factor_const, scale_shift
-from .functions import UnitImpulse, unitimpulse
+from .functions import UnitImpulse, unitimpulse, UnitStep
 import sympy as sym
 
 __all__ = ('ZT', 'IZT')
@@ -114,7 +114,7 @@ def remove_heaviside(expr, n):
 
     rest = sym.S.One
     for factor in expr.as_ordered_factors():
-        if (factor.is_Function and factor.func == sym.Heaviside and
+        if (factor.is_Function and factor.func in (sym.Heaviside, UnitStep) and
             factor.args[0] == n):
             # Could remove Heaviside[n+m] where m > 0
             pass
@@ -173,7 +173,7 @@ def ztransform_term(expr, n, z):
         # Unilateral ZT
         result = 1 / (1 - invz)
         
-    elif expr.is_Function and expr.func == sym.Heaviside:
+    elif expr.is_Function and expr.func in (sym.Heaviside, UnitStep):
         if args[0] is n:
             result = 1 / (1 - invz)
         else:
@@ -298,7 +298,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             delay = a            
 
         if delay is not None:
-            return sym.Heaviside(n - delay), sym.S.Zero
+            return UnitStep(n - delay), sym.S.Zero
         
     damping = assumptions.get('damping', None)
     
@@ -568,7 +568,7 @@ def inverse_ztransform_term(expr, z, n, **assumptions):
     cresult, uresult = inverse_ztransform_term1(expr, z, n, **assumptions)
 
     if assumptions.get('causal', False):
-        uresult = uresult * sym.Heaviside(n)
+        uresult = uresult * UnitStep(n)
     
     return cresult, uresult
 

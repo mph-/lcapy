@@ -1,5 +1,5 @@
 from .sym import sympify1
-from .functions import UnitImpulse
+from .functions import UnitImpulse, UnitStep
 import sympy as sym
 from sympy import cos, pi, sin, atan2, sqrt
 
@@ -13,7 +13,7 @@ class CausalChecker(object):
                 return True
             if (not factor.is_Function 
                 or factor.func not in (sym.Heaviside, sym.DiracDelta,
-                                       UnitImpulse)):
+                                       UnitImpulse, UnitStep)):
                 continue
 
             # If have Heaviside(t), etc., then is causal

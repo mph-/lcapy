@@ -137,7 +137,14 @@ class LcapyLatexPrinter(LatexPrinter):
         tex = r"\delta\left[%s\right]" % self._print(expr.args[0])
         if exp:
             tex = r"\delta\left[%s\right]^{%s}" % (tex, exp)
-        return tex    
+        return tex
+
+    def _print_UnitStep(self, expr, exp=None):
+
+        tex = r"u\left[%s\right]" % self._print(expr.args[0])
+        if exp:
+            tex = r"u\left[%s\right]^{%s}" % (tex, exp)
+        return tex        
     
     def _print_Symbol(self, expr):
 
@@ -218,6 +225,18 @@ class LcapyPrettyPrinter(PrettyPrinter):
             return pform
         else:
             return self._print_Function(expr)
+
+    def _print_UnitStep(self, expr):
+
+        from sympy.printing.pretty.stringpict import prettyForm
+        
+        if self._use_unicode:
+            pform = self._print(expr.args[0])
+            pform = prettyForm(*pform.parens(left='[', right=']'))
+            pform = prettyForm(*pform.left('u'))
+            return pform
+        else:
+            return self._print_Function(expr)        
     
     
 def print_str(expr):

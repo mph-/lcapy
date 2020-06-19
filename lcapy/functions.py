@@ -114,4 +114,22 @@ class UnitImpulse(sym.Function):
 ui = unitimpulse = Function(UnitImpulse)
 
 
+class UnitStep(sym.Function):
+
+    is_integer = True
+    
+    @classmethod
+    def eval(cls, nval):
+        """
+        Evaluates the discrete unit step function.
+        """
+        
+        if nval.is_nonnegative:
+            return S.One
+        elif nval.is_negative:
+            return S.Zero
+
+us = unitstep = Function(UnitStep)
+
+
 from .expr import Expr
