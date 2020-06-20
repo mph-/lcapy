@@ -27,7 +27,8 @@ class dExpr(Expr):
         See also evaluate.
 
         """
- 
+
+        from .fexpr import f
         from .nexpr import n
         from .kexpr import k
         from .zexpr import z
@@ -38,10 +39,10 @@ class dExpr(Expr):
         if isinstance(arg, np.ndarray):
             return np.array([self._subs1(self.var, arg1) for arg1 in arg])
 
-        if id(arg) in (id(n), id(z), id(k)):
+        if id(arg) in (id(n), id(z), id(k), id(f)):
             return self.transform(arg, **assumptions)
 
-        if arg in (n, k, z):
+        if arg in (n, k, z, f):
             return self.transform(arg, **assumptions)    
 
         # Do we really want to this?   
@@ -52,6 +53,7 @@ class dExpr(Expr):
         from .nexpr import nExpr, n
         from .kexpr import kExpr, k
         from .zexpr import zExpr, z
+        from .fexpr import f        
 
         # Is this wise?   It makes sense for Voltage and Impedance objects
         # but may cause too much confusion for other expressions
@@ -67,9 +69,10 @@ class dExpr(Expr):
             return self.DFT(**assumptions)
         elif arg is k and isinstance(self, zExpr):
             return self.IZT(**assumptions).DFT(**assumptions)
-        
-        # Perhaps if arg is f, use DTFT?   We really need a different f
-        # that wraps around.  Alternativel, use F for normalised frequency.
+        elif arg is f and isinstance(self, nExpr):
+            return self.DTFT(**assumptions)
+        elif arg is f and isinstance(self, zExpr):
+            return self.DTFT(**assumptions)                
         
         # Do we really want to this?   
         super(dExpr, self).transform(arg, **assumptions)            

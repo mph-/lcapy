@@ -7,13 +7,23 @@ Copyright 2020 Michael Hayes, UCECE
 
 from .dexpr import dExpr
 from .sequence import Sequence
+from .functions import Heaviside, UnitStep, DiracDelta, UnitImpulse
 from numpy import arange
 
 
 class seqExpr(dExpr):
-
     """Superclass of discrete-time and discrete-frequency expressions."""
 
+    def __init__(self, val, **assumptions):
+
+        super(seqExpr, self).__init__(val, **assumptions)
+
+        if self.has(Heaviside):
+            self.expr = self.replace(Heaviside, UnitStep).expr
+        if self.has(DiracDelta):
+            self.expr = self.replace(DiracDelta, UnitImpulse).expr
+
+    
     def first_index(self, nvals=None):
 
         if nvals is None:

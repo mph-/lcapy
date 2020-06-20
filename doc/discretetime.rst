@@ -47,6 +47,57 @@ Sequences can be converted to n-domain or k-domain expressions, for example,
    >>> seq((1, 2))(k)
    δ[k] + 2⋅δ[k - 2]   
 
+   
+Discrete-time expressions
+=========================
+
+Lcapy refers to Discrete-time expressions as n-domain expressions.  They are of class `nExpr` and can be created explicitly using the n-domain variable `n`.  For example,
+
+   >>> 2 * us(n) + ui(n - 1)
+   2⋅u[n] + δ[n - 1]
+
+Here `ui` is an abbreviation for unit impulse and `us` is an abbreviation for unit step.   Square brackets are used to reduce confusion with the Dirac delta and Heaviside function.
+
+Discrete-time expressions can be converted to sequences using the `seq()` method.  For example,
+
+   >>> (ui(n) + 2 * ui(n - 1) + 3 * ui(n - 3)).seq()
+   {_1, 2, 0, 3}
+
+The `seq` method has an argument to specify the extent of the sequence.  This is required if the sequences have infinite extent.  For example,
+
+   >>> (2 * us(n) + ui(n - 1)).seq((-10, 10))
+   {_2, 3, 2, 2, 2, 2, 2, 2, 2, 2}
+
+In this example the zero samples have been removed but the sequence has been truncated.
+
+The z-transform of a discrete-time expression can be found with the `ZT()` method:
+
+   >>> (ui(n) + 2 * ui(n - 2)).ZT()
+       2 
+   1 + ──
+        2
+       z 
+
+A more compact notation is to pass `z` as an argument:       
+
+   >>> (ui(n) + 2 * ui(n - 2))(z)
+       2 
+   1 + ──
+        2
+       z
+
+       
+
+Discrete-frequency expressions
+==============================
+
+Lcapy refers to Discrete-frequency hexpressions as k-domain expressions.  They are of class `kExpr` and can be created explicitly using the k-domain variable `n`.  For example,
+
+   >>> 2 * us(k) + ui(k - 1)
+   2⋅u[k] + δ[k - 1]
+
+
+   
 
 Z-transform
 ===========
