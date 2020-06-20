@@ -184,23 +184,25 @@ class NetlistNamespace(object):
 
         filename specifies the name of the file to produce.  If None,
         the schematic is displayed on the screen.
-
+        
         Note, if using Jupyter, then need to first issue command %matplotlib inline
 
         kwargs include:
            label_ids: True to show component ids
            label_values: True to display component values
-           draw_nodes: True to show all nodes,
-             False or 'none' to show no nodes, 
-             'primary' to show primary nodes,
-             'connections' to show nodes that connect more than two components,
-             'all' to show all nodes
-           label_nodes: True to label all nodes,
-              False or 'none' to label no nodes, 
-             'primary' to label primary nodes,
-             'alpha' to label nodes starting with a letter,
-             'pins' to label nodes that are pins on a chip,
-             'all' to label all nodes
+           draw_nodes:
+              True to show all nodes,
+              False or 'none' to show no nodes, 
+              'primary' to show primary nodes,
+              'connections' to show nodes that connect more than two components,
+              'all' to show all nodes
+           label_nodes:
+               True to label all nodes,
+               False or 'none' to label no nodes, 
+               'primary' to label primary nodes,
+               'alpha' to label nodes starting with a letter,
+               'pins' to label nodes that are pins on a chip,
+               'all' to label all nodes
            style: 'american', 'british', or 'european'
            scale: schematic scale factor, default 1.0
            node_spacing: spacing between component nodes, default 2.0

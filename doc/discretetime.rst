@@ -17,12 +17,21 @@ For example,
 
 .. image:: examples/discretetime/dt1-plot1.png
    :width: 15cm   
+
+
+Functions
+=========
+
+There are two special discrete functions:
+
+ - `delta(n)` the discrete unit impulse.  This is one when `n=0` and zero otherwise.
+ - `u(n)` the discrete unit step.   This is one when `n>=0` and zero otherwise.
    
 
 Sequences
 =========
 
-   >>> x = unitimpulse(n) + 2 * unitimpulse(n - 2)
+   >>> x = delta(n) + 2 * delta(n - 2)
    >>> seq = x.seq((-5, 5))
    >>> seq
        {0, 0, 0, 0, 0, _1, 0, 2, 0, 0, 0}
@@ -48,31 +57,32 @@ Sequences can be converted to n-domain or k-domain expressions, for example,
    δ[k] + 2⋅δ[k - 2]   
 
    
-Discrete-time expressions
-=========================
+Discrete-time (n-domain) expressions
+====================================
 
 Lcapy refers to Discrete-time expressions as n-domain expressions.  They are of class `nExpr` and can be created explicitly using the n-domain variable `n`.  For example,
 
-   >>> 2 * us(n) + ui(n - 1)
+   >>> 2 * u(n) + delta(n - 1)
    2⋅u[n] + δ[n - 1]
 
-Here `ui` is an abbreviation for unit impulse and `us` is an abbreviation for unit step.   Square brackets are used to reduce confusion with the Dirac delta and Heaviside function.
+In this expression `u(n)` denotes the unit step and `delta(n)` denotes
+the unit impulse.  Square brackets are used in printing to reduce confusion with the Heaviside function and Dirac delta.
 
 Discrete-time expressions can be converted to sequences using the `seq()` method.  For example,
 
-   >>> (ui(n) + 2 * ui(n - 1) + 3 * ui(n - 3)).seq()
+   >>> (delta(n) + 2 * delta(n - 1) + 3 * delta(n - 3)).seq()
    {_1, 2, 0, 3}
 
 The `seq` method has an argument to specify the extent of the sequence.  This is required if the sequences have infinite extent.  For example,
 
-   >>> (2 * us(n) + ui(n - 1)).seq((-10, 10))
+   >>> (2 * u(n) + delta(n - 1)).seq((-10, 10))
    {_2, 3, 2, 2, 2, 2, 2, 2, 2, 2}
 
 In this example the zero samples have been removed but the sequence has been truncated.
 
 The z-transform of a discrete-time expression can be found with the `ZT()` method:
 
-   >>> (ui(n) + 2 * ui(n - 2)).ZT()
+   >>> (delta(n) + 2 * delta(n - 2)).ZT()
        2 
    1 + ──
         2
@@ -80,21 +90,90 @@ The z-transform of a discrete-time expression can be found with the `ZT()` metho
 
 A more compact notation is to pass `z` as an argument:       
 
-   >>> (ui(n) + 2 * ui(n - 2))(z)
+   >>> (delta(n) + 2 * delta(n - 2))(z)
        2 
    1 + ──
         2
        z
 
-       
+The discrete-time Fourier transform (DTFT) of a discrete-time expression can be found with the `DFTFT()` method:
 
-Discrete-frequency expressions
-==============================
+   >>> (delta(n) + 2 * delta(n - 2)).DTFT()
+          -4⋅ⅉ⋅π⋅Δₜ⋅f
+   1 + 2⋅ℯ           
 
-Lcapy refers to Discrete-frequency hexpressions as k-domain expressions.  They are of class `kExpr` and can be created explicitly using the k-domain variable `n`.  For example,
+A more compact notation is to pass `f` as an argument:       
 
-   >>> 2 * us(k) + ui(k - 1)
+   >>> (delta(n) + 2 * delta(n - 2))(f)
+          -4⋅ⅉ⋅π⋅Δₜ⋅f
+   1 + 2⋅ℯ           
+
+The discrete Fourier transform (DFT) converts a discrete-time expression to a discrete-frequency expression.  This is performed using the `DFT()` method or using a `k` argument.  For example,
+
+   >>> (delta(n) + 2 * delta(n - 2))(k)
+          -4⋅ⅉ⋅π⋅k                 -2⋅ⅉ⋅π⋅k          
+          ─────────                ─────────         
+              N          -2⋅ⅉ⋅π⋅k      N             
+   1 + 2⋅ℯ          - 2⋅ℯ        ⋅ℯ         ⋅δ[N - 1]
+
+Note, the unit impulse is not removed since SymPy does not realise that `N>1`.  If `N` is known, it can be specified as an argument.  For example,
+
+   >>> (delta(n) + 2 * delta(n - 2))(k, N=4)
+          -ⅉ⋅π⋅k
+   1 + 2⋅ℯ      
+   
+Evaluation of the DFT can be prevented by setting `evaluate=False`,
+
+   >>> (delta(n) + 2 * delta(n - 2))(k, evaluate=False)
+     N                                   
+    ____                                 
+    ╲                                    
+     ╲                        -2⋅ⅉ⋅π⋅k⋅n 
+      ╲                       ───────────
+      ╱                            N     
+     ╱   (δ[n] + 2⋅δ[n - 2])⋅ℯ           
+    ╱                                    
+    ‾‾‾‾                                 
+   n = 0              
+   
+
+Discrete-frequency (k-domain) expressions
+=========================================
+
+Lcapy refers to discrete-frequency expressions as k-domain expressions.  They are of class `kExpr` and can be created explicitly using the k-domain variable `n`.  For example,
+
+   >>> 2 * u(k) + delta(k - 1)
    2⋅u[k] + δ[k - 1]
+
+
+Discrete-frequency expressions can be converted to sequences using the `seq()` method.  For example,
+
+   >>> (delta(k) + 2 * delta(k - 1) + 3 * delta(k - 3)).seq()
+   {_1, 2, 0, 3}   
+
+   
+
+Z-domain expressions
+====================
+
+Z-domain expressions can be constructed using the z-domain variable `z`, for example,
+
+   >>> 1 + 1 / z
+       1
+   1 + ─
+       z
+
+Alternatively, they can be generated using a z-transform of a discrete-time signal. 
+
+Z-domain expressions are objects of the `zExpr` class.  They are functions of the complex variable `z` and are similar to `sExpr` objects.   The general form of a z-domain expression is a rational function so all the s-domain formatting methods are applicable (see :ref:`expressionsprinting`).
+
+The poles and zeros of a z-domain expression can be plotted using the `plot()` method.  For example,
+
+.. literalinclude:: examples/discretetime/dt1-pole-zero-plot1.py
+
+.. image:: examples/discretetime/dt1-pole-zero-plot1.png
+   :width: 15cm
+
 
 
    
@@ -104,7 +183,7 @@ Z-transform
 
 Lcapy uses the unilateral z-transform.  It is performed explicitly with the `ZT` method:
 
-   >>> x = unitimpulse(n) + 2 * unitimpulse(n - 2)
+   >>> x = delta(n) + 2 * delta(n - 2)
    >>> x.ZT()
    >>>      2 
        1 + ──
@@ -133,17 +212,6 @@ If the result is known to be causal, then use:
    >>> H(n, causal=True)
     n     
    a ⋅u(n)
-
-
-Z-domain expressions are objects of the `zExpr` class.  They are functions of the complex variable `z` and are similar to `sExpr` objects.
-
-
-The poles and zeros of a z-domain expression can be plotted using the `plot()` method.  For example,
-
-.. literalinclude:: examples/discretetime/dt1-pole-zero-plot1.py
-
-.. image:: examples/discretetime/dt1-pole-zero-plot1.png
-   :width: 15cm
 
 
 Discrete time Fourier transform (DTFT)
@@ -218,3 +286,4 @@ with a discrete-time impulse response
       ⎝      ⎝2⋅C⋅R + Δₜ⎠                          ⎠
    ─────────────────────────────────────────────────
                (2⋅C⋅R - Δₜ)⋅(2⋅C⋅R + Δₜ)     
+               

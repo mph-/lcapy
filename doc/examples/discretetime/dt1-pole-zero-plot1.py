@@ -1,8 +1,8 @@
-from lcapy import ui
+from lcapy import delta
 from lcapy.discretetime import n, z
 from matplotlib.pyplot import savefig
 
-x = ui(n) + ui(n - 2)
+x = delta(n) + delta(n - 2)
 X = x(z)
 X.plot()
 

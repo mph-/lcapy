@@ -242,6 +242,8 @@ Miscellaneous
 - `replace(query, value)` replace `query` with `value`.
 
   
+.. _expressionsprinting:  
+  
 Formatting methods
 ------------------
 

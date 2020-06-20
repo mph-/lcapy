@@ -56,7 +56,7 @@ Installation for development
 
 1. Install Lcapy and its dependencies as per instructions for your platform
 
-2. Download Lcapy sources from https://github.com/mph-/lcapy as a .zip file or preferably using git::
+2. Download Lcapy sources from https://github.com/mph-/lcapy as a .zip file or preferably using git:
 
 .. code-block:: console
                      
@@ -66,8 +66,8 @@ Installation for development
 
 .. code-block:: console
     
-  $ cd lcapy
-  $ sudo python setup.py install
+   $ cd lcapy
+   $ sudo python setup.py install
 
 Note, if you do not have root access, you can use  `virtualenv` or  set the environment variable `PYTHONPATH` to find the source files for Lcapy.
 
@@ -94,3 +94,5 @@ Note, if you do not have root access, you can use  `virtualenv` or  set the envi
 .. code-block:: console
                      
    $ sudo apt install graphviz   
+
+  
