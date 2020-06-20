@@ -556,7 +556,7 @@ V-R-L-C circuit (1)
 
 This example plots the transient voltage across a resistor in a series R-L-C circuit:
 
-.. image:: examples/netlists/circuit-VRLaC1.png
+.. image:: examples/netlists/circuit-VRLC1.png
    :width: 10cm
 
 .. literalinclude:: examples/netlists/circuit-VRLC1-vr.py
