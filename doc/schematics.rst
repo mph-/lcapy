@@ -1355,8 +1355,7 @@ Several strategies are tried to do the conversion:
 
  1. `ghostscript`
 
- 2. ImageMagick `convert` (By default pdf conversions are disabled.  On a Linux system
-wout need to edit `/etc/ImageMagick-6/policy.xml` to enable this conversion.)
+ 2. ImageMagick `convert` (By default pdf conversions are disabled.  On a Linux system edit `/etc/ImageMagick-6/policy.xml` to enable this conversion.)
 
  3. `pdftoppm` (this does a poor job with thin lines)
 

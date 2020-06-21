@@ -83,6 +83,10 @@ and __exit__ methods so that can use with statement.
 
 16. Phasor().phase -> cExpr
 
+17. Add module to evaluate DFTs.  x(n) -> X(k).
+
+18. Have evaluate argument for Laplace, z-tranform, etc.
+
 
 Testing
 =======

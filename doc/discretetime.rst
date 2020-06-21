@@ -96,7 +96,7 @@ A more compact notation is to pass `z` as an argument:
         2
        z
 
-The discrete-time Fourier transform (DTFT) of a discrete-time expression can be found with the `DFTFT()` method:
+The discrete-time Fourier transform (DTFT) of a discrete-time expression can be found with the `DTFT()` method:
 
    >>> (delta(n) + 2 * delta(n - 2)).DTFT()
           -4⋅ⅉ⋅π⋅Δₜ⋅f
@@ -111,12 +111,18 @@ A more compact notation is to pass `f` as an argument:
 The discrete Fourier transform (DFT) converts a discrete-time expression to a discrete-frequency expression.  This is performed using the `DFT()` method or using a `k` argument.  For example,
 
    >>> (delta(n) + 2 * delta(n - 2))(k)
-          -4⋅ⅉ⋅π⋅k                 -2⋅ⅉ⋅π⋅k          
-          ─────────                ─────────         
-              N          -2⋅ⅉ⋅π⋅k      N             
-   1 + 2⋅ℯ          - 2⋅ℯ        ⋅ℯ         ⋅δ[N - 1]
+   N - 1                                 
+    ____                                 
+    ╲                                    
+     ╲                        -2⋅ⅉ⋅π⋅k⋅n 
+      ╲                       ───────────
+      ╱                            N     
+     ╱   (δ[n] + 2⋅δ[n - 2])⋅ℯ           
+    ╱                                    
+    ‾‾‾‾                                 
+   n = 0   
 
-Note, the unit impulse is not removed since SymPy does not realise that `N>1`.  If `N` is known, it can be specified as an argument.  For example,
+Note, SymPy does not simplifies this since it does not know that `N>1`.  However, if `N` is known, it can be specified as an argument.  For example,
 
    >>> (delta(n) + 2 * delta(n - 2))(k, N=4)
           -ⅉ⋅π⋅k
@@ -124,7 +130,7 @@ Note, the unit impulse is not removed since SymPy does not realise that `N>1`.  
    
 Evaluation of the DFT can be prevented by setting `evaluate=False`,
 
-   >>> (delta(n) + 2 * delta(n - 2))(k, evaluate=False)
+   >>> (delta(n) + 2 * delta(n - 2))(k, N=4, evaluate=False)
      N                                   
     ____                                 
     ╲                                    
@@ -175,13 +181,22 @@ The poles and zeros of a z-domain expression can be plotted using the `plot()` m
    :width: 15cm
 
 
+Transforms
+==========
 
+Lcapy implements a number of transforms for converting between different domains.
    
 
 Z-transform
-===========
+-----------
 
-Lcapy uses the unilateral z-transform.  It is performed explicitly with the `ZT` method:
+Lcapy uses the unilateral z-transform, defined as:
+
+.. math::
+
+   X(z) = \sum_{n=0}^{\infty} x(n) z^{-n}
+
+The z-transform is performed explicitly with the `ZT` method:
 
    >>> x = delta(n) + 2 * delta(n - 2)
    >>> x.ZT()
@@ -198,6 +213,10 @@ It is also performed implicitly with `z` as an argument:
            2
           z
 
+
+Inverse z-transform
+-------------------
+          
 The inverse unilateral z-transform is not unique and is only defined for :math:`n \ge 0`.  For example,
 
    >>> H = z / (z - 'a')
@@ -215,9 +234,17 @@ If the result is known to be causal, then use:
 
 
 Discrete time Fourier transform (DTFT)
-======================================
+--------------------------------------
 
-The DTFT converts an n-domain or z-domain expression into the f-domain (continuous Fourier domain).  Note, unlike the Fourier transform, this is periodic with period :math:`1/\Delta t`.  For example,
+The DTFT converts an n-domain or z-domain expression into the f-domain (continuous Fourier domain).  Note, unlike the Fourier transform, this is periodic with period :math:`1/\Delta t`.  It is defined by
+
+.. math::
+
+   X_{\frac{1}{\Delta t}}(f) = \sum_{n=0}^{\infty} x(n) e^{-2 \mathrm{j} \pi n \Delta t f}
+
+If the signal :math:`x(n)` is causal, the DTFT can be found by substituting :math:`z = \exp(-2 \mathrm{j} \pi \Delta t f)` into the z-transform of :math:`x(n)`.
+
+Here's an example of the DTFT:
 
 .. literalinclude:: examples/discretetime/dt1-DTFT-plot1.py
 
@@ -225,8 +252,29 @@ The DTFT converts an n-domain or z-domain expression into the f-domain (continuo
    :width: 15cm
 
 
+Discrete Fourier transform (DFT)
+--------------------------------
+
+The DFT converts an n-domain expression to a k-domain expression.  The definition used by Lcapy is:
+
+.. math::
+
+   X(k) = \sum_{k=0}^{N - 1} x(n) e^{\frac{-2 \mathrm{j} \pi k n}{N}}
+           
+
+Inverse discrete Fourier transform (IDFT)
+-----------------------------------------
+
+The IDFT converts a k-domain expression to an n-domain expression.  The definition used by Lcapy is:
+
+.. math::
+
+   x[n] = \frac{\sum_{k=0}^{N - 1} X(k) e^{\frac{2 \mathrm{j} \pi k n}{N}}}{N}
+
+           
+
 Bilinear transform
-==================
+------------------
 
 The bilinear transform can be used to approximate an s-domain expression with a z-domain expression using :math:`s \approx \frac{2}{\Delta t} \frac{1 - z^{-1}}{1 + z^{-1}}`.   This is performed by the `bilinear_transform()` method of s-domain objects, for example,
 
