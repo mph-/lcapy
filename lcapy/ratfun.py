@@ -442,7 +442,7 @@ class Ratfun(object):
         numer, denom = self.numerator_denominator
         return denom
 
-    def canonical(self, factor_const=False):
+    def canonical(self, factor_const=True):
         """Convert rational function to canonical form; this is like general
         form but with a unity highest power of denominator.  For
         example,
