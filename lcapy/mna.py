@@ -149,6 +149,7 @@ class MNAMixin(object):
 2. a voltage source might be short-circuited;
 3. a current source might be open-circuited;
 4. a dc current source is connected to a capacitor (use step current source).
+5. part of the circuit is not referenced to ground
 %s""" % (self.kind, comment))
 
         results = symsimplify(Ainv * self._Z)
