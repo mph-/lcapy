@@ -1781,7 +1781,7 @@ class Expr(ExprPrint, ExprMisc):
 
         return self.__class__(expr, **self.assumptions)
 
-    def as_N_D(self):
+    def as_N_D(self, monic_denominator=False):
         """Responses due to a sum of delayed transient responses
         cannot be factored into ZPK form with a constant delay.
         For example, sometimes SymPy gives:
@@ -1798,8 +1798,7 @@ class Expr(ExprPrint, ExprMisc):
 
                      -s⋅τ
         N = V₁ - V₂⋅ℯ    
-        D =  s⋅(L⋅s + R)
-        """
+        D =  s⋅(L⋅s + R)"""
         
         N = 1
         D = 1
@@ -1820,6 +1819,12 @@ class Expr(ExprPrint, ExprMisc):
                 N /= b
                 
         N = N.simplify()
+
+        if monic_denominator:
+            Dpoly = sym.Poly(D, self.var)            
+            LC = Dpoly.LC()
+            D = Dpoly.monic().as_expr()
+            N = (N / LC).simplify()
                 
         return self.__class__(N, **self.assumptions), self.__class__(D, **self.assumptions)                
 
@@ -1853,7 +1858,7 @@ class Expr(ExprPrint, ExprMisc):
         N = N.simplify()
 
         result = 0
-        for term in N.as_ordered_terms ():
+        for term in N.expand().as_ordered_terms ():
             result += term / D
         return result
                
