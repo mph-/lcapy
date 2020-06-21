@@ -473,19 +473,20 @@ class Ratfun(object):
                 K *= sym.exp(self.var * delay)
 
             # Divide by leading coefficient
-            Nm = Npoly.monic()
-            Dm = Dpoly.monic()
+            N = Npoly.monic().as_expr()
+            D = Dpoly.monic().as_expr()
 
-            expr = K * (Nm / Dm) * undef
+            expr = sym.Mul(K, sym.Mul(N, 1 / D, evaluate=False), undef,
+                           evaluate=False)
         else:
             C = Dpoly.LC()
-            Dm = Dpoly.monic()
-            Nm = (Npoly / C).simplify()
-            expr = Nm / Dm
+            D = Dpoly.monic().as_expr()
+            N = (Npoly.as_expr() / C).simplify()
+            expr = sym.Mul(N, 1 / D, evaluate=False)
             if delay != 0:
                 expr *= sym.exp(self.var * delay)
             expr *= undef
-
+            
         return expr
 
     def general(self):
