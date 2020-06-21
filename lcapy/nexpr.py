@@ -146,9 +146,9 @@ class nExpr(seqExpr):
         foo = self.expr * exp(-2 * j * pi * nsym * ksym / N)
 
         if evaluate:
-            result = summation(foo, (nsym, 0, N))                        
+            result = summation(foo, (nsym, 0, N - 1))
         else:
-            result = Sum(foo, (nsym, 0, N))
+            result = Sum(foo, (nsym, 0, N - 1))
 
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)

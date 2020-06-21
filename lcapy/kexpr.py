@@ -83,12 +83,12 @@ class kExpr(seqExpr):
             
             N = sympify('N')
 
-        foo = self.expr * exp(2 * j * pi * nsym * ksym / N) / N
+        foo = self.expr * exp(2 * j * pi * nsym * ksym / N)
 
         if evaluate:
-            result = summation(foo, (ksym, 0, N))       
+            result = summation(foo, (ksym, 0, N - 1)) / N
         else:
-            result = Sum(foo, (ksym, 0, N))
+            result = Sum(foo, (ksym, 0, N - 1)) / N
 
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
