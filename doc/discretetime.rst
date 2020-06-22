@@ -259,7 +259,7 @@ The DFT converts an n-domain expression to a k-domain expression.  The definitio
 
 .. math::
 
-   X(k) = \sum_{k=0}^{N - 1} x(n) e^{\frac{-2 \mathrm{j} \pi k n}{N}}
+   X(k) = \sum_{k=0}^{N - 1} x(n) e^{\frac{-\mathrm{j} 2\pi k n}{N}}
            
 
 Inverse discrete Fourier transform (IDFT)
@@ -269,7 +269,7 @@ The IDFT converts a k-domain expression to an n-domain expression.  The definiti
 
 .. math::
 
-   x[n] = \frac{\sum_{k=0}^{N - 1} X(k) e^{\frac{2 \mathrm{j} \pi k n}{N}}}{N}
+   x[n] = \frac{1}{N} \sum_{k=0}^{N - 1} X(k) e^{\frac{\mathrm{j} 2 \pi k n}{N}}
 
            
 
