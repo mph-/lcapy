@@ -59,7 +59,7 @@ class tExpr(Expr):
         if is_causal(self, var):
             self.assumptions['causal'] = True
 
-    def laplace(self, **assumptions):
+    def laplace(self, evaluate=True, **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit."""
 
         # The assumptions are required to help with the inverse Laplace
@@ -68,7 +68,7 @@ class tExpr(Expr):
 
         assumptions = self.merge_assumptions(**assumptions)
         
-        result = laplace_transform(self.expr, self.var, ssym)
+        result = laplace_transform(self.expr, self.var, ssym, evaluate=evaluate)
 
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result, **assumptions)

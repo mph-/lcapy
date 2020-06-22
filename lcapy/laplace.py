@@ -184,7 +184,7 @@ def laplace_term(expr, t, s):
     return laplace_0(expr, t, s) * const
 
 
-def laplace_transform(expr, t, s):
+def laplace_transform(expr, t, s, evaluate=True):
     """Compute unilateral Laplace transform of expr with lower limit 0-.
 
     Undefined functions such as v(t) are converted to V(s)."""
@@ -193,6 +193,12 @@ def laplace_transform(expr, t, s):
         return sym.Eq(laplace_transform(expr.args[0], t, s),
                       laplace_transform(expr.args[1], t, s))
 
+    if not evaluate:
+        t0 = sympify('t0')
+        result = sym.Limit(sym.Integral(expr * sym.exp(-s * t), (t, t0, sym.oo)),
+                           t0, 0, dir='-')
+        return result
+    
     const, expr = factor_const(expr, t)    
     
     key = (expr, t, s)
