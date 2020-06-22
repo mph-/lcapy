@@ -12,7 +12,7 @@ from .sym import j, oo, pi
 from .seqexpr import seqExpr
 from .dsym import nsym, ksym, zsym
 from .dft import IDFT
-import sympy as sym
+from sympy import Sum
 
 
 class kExpr(seqExpr):
@@ -29,16 +29,16 @@ class kExpr(seqExpr):
         
         super(kExpr, self).__init__(val, **assumptions)
         # Define when class defined.
-        self._fourier_conjugate_class = nexpr
+        self._discrete_fourier_conjugate_class = nexpr
 
         expr = self.expr
 
         if check and expr.find(zsym) != set():
             raise ValueError(
-                'k-domain expression %s cannot depend on z' % self.expr)
-        if check and expr.find(nsym) != set() and not expr.has(sym.Sum):
+                'k-domain expression %s cannot depend on z' % expr)
+        if check and expr.find(nsym) != set() and not expr.has(Sum):
             raise ValueError(
-                'k-domain expression %s cannot depend on n' % self.expr)
+                'k-domain expression %s cannot depend on n' % expr)
 
     def plot(self, kvector=None, **kwargs):
         """Plot frequency response at values specified by kvector.  If kvector
@@ -76,7 +76,6 @@ class kExpr(seqExpr):
     def IDFT(self, N=None, evaluate=True):
 
         from .nexpr import n
-        from sympy import Sum, summation
 
         if N is None:
             from .sym import sympify
@@ -85,8 +84,8 @@ class kExpr(seqExpr):
 
         result = IDFT(self.expr, ksym, nsym, N, evaluate=evaluate)
 
-        if hasattr(self, '_fourier_conjugate_class'):
-            result = self._fourier_conjugate_class(result)
+        if hasattr(self, '_discrete_fourier_conjugate_class'):
+            result = self._discrete_fourier_conjugate_class(result)
         else:
             result = nExpr(result, check=False)
             
@@ -106,7 +105,7 @@ class Yk(kExpr):
     def __init__(self, val, **assumptions):
 
         super(Yk, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Yn
+        self._discrete_fourier_conjugate_class = Yn
 
 
 class Zk(kExpr):
@@ -119,7 +118,7 @@ class Zk(kExpr):
     def __init__(self, val, **assumptions):
 
         super(Zk, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Zn
+        self._discrete_fourier_conjugate_class = Zn
 
 
 class Hk(kExpr):
@@ -132,7 +131,7 @@ class Hk(kExpr):
     def __init__(self, val, **assumptions):
 
         super(Hk, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Hn
+        self._discrete_fourier_conjugate_class = Hn
 
 
 class Vk(kExpr):
@@ -145,7 +144,7 @@ class Vk(kExpr):
     def __init__(self, val, **assumptions):
 
         super(Vk, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Vn
+        self._discrete_fourier_conjugate_class = Vn
 
 
 class Ik(kExpr):
@@ -158,7 +157,7 @@ class Ik(kExpr):
     def __init__(self, val, **assumptions):
 
         super(Ik, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = In
+        self._discrete_fourier_conjugate_class = In
 
 
 def kexpr(arg, **assumptions):

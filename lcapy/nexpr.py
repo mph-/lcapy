@@ -28,14 +28,21 @@ class nExpr(seqExpr):
 
     def __init__(self, val, **assumptions):
 
+        check = assumptions.pop('check', True)
+        
         super(nExpr, self).__init__(val, **assumptions)
 
-        #self._fourier_conjugate_class = fExpr
+        self._discrete_fourier_conjugate_class = kExpr
         self._ztransform_conjugate_class = zExpr
 
-        if self.expr.find(zsym) != set():
+        expr = self.expr
+        
+        if check and expr.find(zsym) != set():
             raise ValueError(
-                'n-domain expression %s cannot depend on z' % self.expr)
+                'n-domain expression %s cannot depend on z' % expr)
+        if check and expr.find(ksym) != set() and not expr.has(Sum):
+            raise ValueError(
+                'n-domain expression %s cannot depend on k' % expr)            
 
     def infer_assumptions(self):
 
@@ -145,8 +152,8 @@ class nExpr(seqExpr):
 
         result = DFT(self.expr, nsym, ksym, N, evaluate=evaluate)
 
-        if hasattr(self, '_fourier_conjugate_class'):
-            result = self._fourier_conjugate_class(result)
+        if hasattr(self, '_discrete_fourier_conjugate_class'):
+            result = self._discrete_fourier_conjugate_class(result)
         else:
             result = kExpr(result, check=False)
             
@@ -179,7 +186,8 @@ class nExpr(seqExpr):
             return self.ZT(**assumptions).DTFT()
 
         from .fexpr import fexpr
-        
+
+        # TODO, handle evaluation keyword
         return fexpr(summation(self.subs(nsym).expr * exp(-2 * j * pi * fsym * nsym * dt), (nsym, -oo, oo)))
 
     def DTFT(self, **assumptions):
@@ -207,7 +215,7 @@ class Yn(nExpr):
 
         super(Yn, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Yz
-        self._fourier_conjugate_class = Yk
+        self._discrete_fourier_conjugate_class = Yk
 
 
 class Zn(nExpr):
@@ -220,7 +228,7 @@ class Zn(nExpr):
 
         super(Zn, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Zz
-        self._fourier_conjugate_class = Zk
+        self._discrete_fourier_conjugate_class = Zk
 
 
 class Vn(nExpr):
@@ -234,7 +242,7 @@ class Vn(nExpr):
 
         super(Vn, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Vz
-        self._fourier_conjugate_class = Vk
+        self._discrete_fourier_conjugate_class = Vk
 
 class In(nExpr):
 
@@ -247,7 +255,7 @@ class In(nExpr):
 
         super(In, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Iz
-        self._fourier_conjugate_class = Ik
+        self._discrete_fourier_conjugate_class = Ik
 
 
 class Hn(nExpr):
@@ -261,7 +269,7 @@ class Hn(nExpr):
 
         super(Hn, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Hz
-        self._fourier_conjugate_class = Hk
+        self._discrete_fourier_conjugate_class = Hk
 
 def nexpr(arg, **assumptions):
     """Create nExpr object.  If `arg` is nsym return n"""
