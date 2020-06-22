@@ -212,7 +212,7 @@ def ztransform_term(expr, n, z):
     return const * result
 
 
-def ztransform(expr, n, z):
+def ztransform(expr, n, z, evaluate=True):
     """Compute unilateral z-transform of expr with lower index 0.
 
     Undefined functions such as v[n] are converted to V(z)
@@ -223,6 +223,10 @@ def ztransform(expr, n, z):
         return sym.Eq(ztransform(expr.args[0], n, z),
                       ztransform(expr.args[1], n, z))
 
+    if not evaluate:
+        result = sym.Sum(expr * z**(-n), (n, 0, sym.oo))
+        return result
+    
     const, expr = factor_const(expr, n)    
     key = (expr, n, z)
     if key in ztransform_cache:

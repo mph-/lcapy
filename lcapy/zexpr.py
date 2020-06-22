@@ -14,7 +14,7 @@ from .dexpr import dExpr
 from .expr import symbol, expr, ExprDict
 from .functions import sqrt, exp
 import numpy as np
-from sympy import Eq, div, limit, oo
+from sympy import Eq, div, limit, oo, Sum
 
 
 __all__ = ('Hz', 'Iz', 'Vz', 'Yz', 'Zz')
@@ -26,12 +26,18 @@ class zExpr(dExpr):
 
     def __init__(self, val, **assumptions):
 
+        check = assumptions.pop('check', True)
+
         super(zExpr, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = nExpr
 
-        if self.expr.find(nsym) != set():
+        expr = self.expr
+        if check and expr.find(nsym) != set() and not expr.has(Sum):
             raise ValueError(
-                'z-domain expression %s cannot depend on n' % self.expr)
+                'z-domain expression %s cannot depend on n' % expr)
+        if check and expr.find(ksym) != set() and not expr.has(Sum):
+            raise ValueError(
+                'z-domain expression %s cannot depend on k' % expr)
 
     def ndifferentiate(self):
         """First order difference in n-domain."""

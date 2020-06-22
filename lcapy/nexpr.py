@@ -36,7 +36,7 @@ class nExpr(seqExpr):
         self._ztransform_conjugate_class = zExpr
 
         expr = self.expr
-        if check and expr.find(zsym) != set():
+        if check and expr.find(zsym) != set() and not expr.has(Sum):
             raise ValueError(
                 'n-domain expression %s cannot depend on z' % expr)
         if check and expr.find(ksym) != set() and not expr.has(Sum):
@@ -90,14 +90,14 @@ class nExpr(seqExpr):
         
         return self.__class__(result, **self.assumptions)
 
-    def ztransform(self, **assumptions):
+    def ztransform(self, evaluate=True, **assumptions):
         """Determine one-sided z-transform."""
 
         self.infer_assumptions()
 
         assumptions = self.merge_assumptions(**assumptions)
 
-        result = ztransform(self.expr, self.var, zsym)
+        result = ztransform(self.expr, self.var, zsym, evaluate)
 
         if hasattr(self, '_ztransform_conjugate_class'):
             result = self._ztransform_conjugate_class(result, **assumptions)
