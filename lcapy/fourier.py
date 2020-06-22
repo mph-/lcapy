@@ -19,7 +19,7 @@ Copyright 2016--2020 Michael Hayes, UCECE
 # This should give 2 * sin(2 * pi * t)
 
 import sympy as sym
-from .sym import sympify, AppliedUndef
+from .sym import sympify, AppliedUndef, j, pi
 from .utils import factor_const, scale_shift
 
 __all__ = ('FT', 'IFT')
@@ -186,7 +186,7 @@ def fourier_term(expr, t, f, inverse=False):
     return const * fourier_sympy(expr, t, sf)
 
 
-def fourier_transform(expr, t, f, inverse=False):
+def fourier_transform(expr, t, f, inverse=False, evaluate=True):
     """Compute bilateral Fourier transform of expr.
 
     Undefined functions such as v(t) are converted to V(f)
@@ -197,7 +197,14 @@ def fourier_transform(expr, t, f, inverse=False):
 
     if expr.is_Equality:
         return sym.Eq(fourier_transform(expr.args[0], t, f, inverse),
-                      fourier_transform(expr.args[1], t, f, inverse))    
+                      fourier_transform(expr.args[1], t, f, inverse))
+
+    if not evaluate:
+        if inverse:
+            result = sym.Integral(expr * sym.exp(j * 2 * pi * f * t), (f, -sym.oo, sym.oo))
+        else:
+            result = sym.Integral(expr * sym.exp(-j * 2 * pi * f * t), (t, -sym.oo, sym.oo))
+        return result
 
     key = (expr, t, f, inverse)
     if key in fourier_cache:
@@ -238,7 +245,7 @@ def fourier_transform(expr, t, f, inverse=False):
     return result
 
 
-def inverse_fourier_transform(expr, f, t):
+def inverse_fourier_transform(expr, f, t, evaluate=True):
     """Compute bilateral inverse Fourier transform of expr.
 
     Undefined functions such as V(f) are converted to v(t)
@@ -250,7 +257,7 @@ def inverse_fourier_transform(expr, f, t):
     if expr.has(t):
         raise ValueError('Cannot inverse Fourier transform for expression %s that depends on %s' % (expr, t))
     
-    result = fourier_transform(expr, t, f, inverse=True)
+    result = fourier_transform(expr, t, f, inverse=True, evaluate=evaluate)
     return sym.simplify(result)
 
 

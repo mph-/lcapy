@@ -9,6 +9,7 @@ from __future__ import division
 from .fourier import inverse_fourier_transform
 from .expr import Expr, expr
 from .sym import fsym, ssym, tsym, pi
+from sympy import Integral
 
 class fExpr(Expr):
 
@@ -20,22 +21,23 @@ class fExpr(Expr):
 
     def __init__(self, val, **assumptions):
 
+        check = assumptions.pop('check', True)        
         assumptions['real'] = True
         super(fExpr, self).__init__(val, **assumptions)
         # Define when class defined.
         self._fourier_conjugate_class = tExpr
 
-        if self.expr.find(ssym) != set():
+        expr = self.expr        
+        if check and expr.find(ssym) != set() and not expr.has(Integral):
             raise ValueError(
-                'f-domain expression %s cannot depend on s' % self.expr)
-        if self.expr.find(tsym) != set():
+                'f-domain expression %s cannot depend on s' % expr)
+        if check and expr.find(tsym) != set() and not expr.has(Integral):
             raise ValueError(
-                'f-domain expression %s cannot depend on t' % self.expr)
-
-    def inverse_fourier(self):
+                'f-domain expression %s cannot depend on t' % expr)                            
+    def inverse_fourier(self, evaluate=True, **assumptions):
         """Attempt inverse Fourier transform."""
 
-        result = inverse_fourier_transform(self.expr, self.var, tsym)
+        result = inverse_fourier_transform(self.expr, self.var, tsym, evaluate=evaluate)
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         else:

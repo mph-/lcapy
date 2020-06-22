@@ -11,7 +11,7 @@ from .sym import fsym, ssym, tsym, j, oo
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .laplace import laplace_transform
 from .fourier import fourier_transform
-import sympy as sym
+from sympy import Heaviside, limit, Integral
 
 __all__ = ('Ht', 'It', 'Vt', 'Yt', 'Zt')
 
@@ -26,15 +26,20 @@ class tExpr(Expr):
 
     def __init__(self, val, **assumptions):
 
+        check = assumptions.pop('check', True)        
         assumptions['real'] = True
         super(tExpr, self).__init__(val, **assumptions)
 
         self._fourier_conjugate_class = fExpr
         self._laplace_conjugate_class = sExpr
 
-        if self.expr.find(ssym) != set():
+        expr = self.expr        
+        if check and expr.find(ssym) != set() and not expr.has(Integral):
             raise ValueError(
-                't-domain expression %s cannot depend on s' % self.expr)
+                't-domain expression %s cannot depend on s' % expr)
+        if check and expr.find(fsym) != set() and not expr.has(Integral):
+            raise ValueError(
+                't-domain expression %s cannot depend on f' % expr)                            
 
     def infer_assumptions(self):
 
@@ -76,12 +81,12 @@ class tExpr(Expr):
 
         return self.laplace(**assumptions)
     
-    def fourier(self, **assumptions):
+    def fourier(self, evaluate=True, **assumptions):
         """Attempt Fourier transform."""
 
         assumptions = self.merge_assumptions(**assumptions)
         
-        result = fourier_transform(self.expr, self.var, fsym)
+        result = fourier_transform(self.expr, self.var, fsym, evaluate=evaluate)
 
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result, **assumptions)
@@ -136,7 +141,7 @@ class tExpr(Expr):
     def final_value(self):
         """Determine value at t = oo."""
 
-        return self.__class__(sym.limit(self.expr, self.var, oo))
+        return self.__class__(limit(self.expr, self.var, oo))
 
     def remove_condition(self):
         """Remove the piecewise condition from the expression.
@@ -158,7 +163,7 @@ class tExpr(Expr):
         expr = self.expr
         if self.is_conditional:
             expr = expr.args[0].args[0]            
-        expr = expr * sym.Heaviside(t)
+        expr = expr * Heaviside(t)
         return self.__class__(expr)        
 
     

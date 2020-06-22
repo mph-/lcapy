@@ -12,8 +12,8 @@ from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict
 from .functions import sqrt
-import sympy as sym
 import numpy as np
+from sympy import limit, exp, Poly, Integral, div, oo, Eq
 
 
 __all__ = ('Hs', 'Is', 'Vs', 'Ys', 'Zs', 'zp2tf', 'tf')
@@ -26,10 +26,15 @@ class sExpr(Expr):
 
     def __init__(self, val, **assumptions):
 
+        check = assumptions.pop('check', True)                
         super(sExpr, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = tExpr
 
-        if self.expr.find(tsym) != set():
+        expr = self.expr        
+        if check and expr.find(tsym) != set() and not expr.has(Integral):
+            raise ValueError(
+                's-domain expression %s cannot depend on t' % expr)
+        if check and expr.find(tsym) != set() and not expr.has(Integral):
             raise ValueError(
                 's-domain expression %s cannot depend on t' % self.expr)
 
@@ -47,7 +52,7 @@ class sExpr(Expr):
         """Apply delay of T seconds by multiplying by exp(-s T)."""
 
         T = self.__class__(T)
-        return self.__class__(self.expr * sym.exp(-s * T))
+        return self.__class__(self.expr * exp(-s * T))
 
     @property
     def jomega(self):
@@ -59,12 +64,12 @@ class sExpr(Expr):
     def initial_value(self):
         """Determine value at t = 0."""
 
-        return self.__class__(sym.limit(self.expr * self.var, self.var, sym.oo))
+        return self.__class__(limit(self.expr * self.var, self.var, oo))
 
     def final_value(self):
         """Determine value at t = oo."""
 
-        return self.__class__(sym.limit(self.expr * self.var, self.var, 0))
+        return self.__class__(limit(self.expr * self.var, self.var, 0))
 
     def inverse_laplace(self, **assumptions):
         """Attempt inverse Laplace transform.
@@ -180,7 +185,7 @@ class sExpr(Expr):
 
         # Perform polynomial long division so expr = Q + M / D                
         N, D, delay = self._decompose()
-        Q, M = sym.div(N, D)
+        Q, M = div(N, D)
         expr = M / D
 
         N = len(t)
@@ -244,7 +249,7 @@ class sExpr(Expr):
         lhs = (N * Y).ILT(causal=True)
         rhs = (D * X).ILT(causal=True)
 
-        return tExpr(sym.Eq(lhs.expr, rhs.expr))
+        return tExpr(Eq(lhs.expr, rhs.expr))
 
     def evaluate(self, svector=None):
 
@@ -535,8 +540,8 @@ def tf(numer, denom=1, var=None):
     if var is None:
         var = ssym
 
-    N = sym.Poly(numer, var)
-    D = sym.Poly(denom, var)
+    N = Poly(numer, var)
+    D = Poly(denom, var)
 
     return Hs(N / D)
 

@@ -26,13 +26,11 @@ class kExpr(seqExpr):
     def __init__(self, val, **assumptions):
 
         check = assumptions.pop('check', True)
-        
         super(kExpr, self).__init__(val, **assumptions)
         # Define when class defined.
         self._discrete_fourier_conjugate_class = nexpr
 
         expr = self.expr
-
         if check and expr.find(zsym) != set():
             raise ValueError(
                 'k-domain expression %s cannot depend on z' % expr)

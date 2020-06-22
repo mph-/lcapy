@@ -36,7 +36,6 @@ class nExpr(seqExpr):
         self._ztransform_conjugate_class = zExpr
 
         expr = self.expr
-        
         if check and expr.find(zsym) != set():
             raise ValueError(
                 'n-domain expression %s cannot depend on z' % expr)
