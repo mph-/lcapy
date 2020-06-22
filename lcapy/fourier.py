@@ -2,7 +2,7 @@
 wrapper for SymPy's Fourier transform.  It calculates the bilateral
 Fourier transform using:
 
-   S(f) = \int_{-\infty}^{\infty} s(t) e^{-j * 2* \pi * t} dt
+   S(f) = \int_{-\infty}^{\infty} s(t) e^{-j * 2 * \pi * t} dt
 
 It also allows functions that strictly do not have a Fourier transform
 by using Dirac deltas.  For example, a, cos(a * t), sin(a * t), exp(j

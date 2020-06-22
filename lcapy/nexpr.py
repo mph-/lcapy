@@ -11,6 +11,7 @@ from .sym import j, oo, pi, fsym
 from .dsym import nsym, ksym, zsym, dt
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .ztransform import ztransform
+from .dft import DFT
 from sympy import Sum, summation, limit
 
 
@@ -138,17 +139,11 @@ class nExpr(seqExpr):
         from .kexpr import k
 
         if N is None:
-            from .expr import expr
             from .sym import sympify
             
             N = sympify('N')
 
-        foo = self.expr * exp(-2 * j * pi * nsym * ksym / N)
-
-        if evaluate:
-            result = summation(foo, (nsym, 0, N - 1))
-        else:
-            result = Sum(foo, (nsym, 0, N - 1))
+        result = DFT(self.expr, nsym, ksym, N, evaluate=evaluate)
 
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)

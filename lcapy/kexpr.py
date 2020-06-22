@@ -11,6 +11,7 @@ from .functions import exp
 from .sym import j, oo, pi
 from .seqexpr import seqExpr
 from .dsym import nsym, ksym, zsym
+from .dft import IDFT
 import sympy as sym
 
 
@@ -78,17 +79,11 @@ class kExpr(seqExpr):
         from sympy import Sum, summation
 
         if N is None:
-            from .expr import expr
             from .sym import sympify
             
             N = sympify('N')
 
-        foo = self.expr * exp(2 * j * pi * nsym * ksym / N)
-
-        if evaluate:
-            result = summation(foo, (ksym, 0, N - 1)) / N
-        else:
-            result = Sum(foo, (ksym, 0, N - 1)) / N
+        result = IDFT(self.expr, ksym, nsym, N, evaluate=evaluate)
 
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
