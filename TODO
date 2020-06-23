@@ -83,6 +83,7 @@ and __exit__ methods so that can use with statement.
 
 16. Phasor().phase -> cExpr
 
+17. expr('A*t/T*u(t)*u(T-t)+A*u(t-T)')(s)(t)
 
 Testing
 =======

@@ -23,7 +23,7 @@ Copyright 2016--2019 Michael Hayes, UCECE
 
 from .ratfun import Ratfun
 from .sym import sympify, simplify, AppliedUndef
-from .utils import factor_const, scale_shift
+from .utils import factor_const, scale_shift, as_sum_terms
 import sympy as sym
 
 __all__ = ('LT', 'ILT')
@@ -555,20 +555,6 @@ def inverse_laplace_term(expr, s, t, **assumptions):
     return cresult, uresult
 
 
-def inverse_laplace_by_terms(expr, s, t, **assumptions):
-
-    terms = expr.as_ordered_terms()
-
-    cresult = sym.S.Zero
-    uresult = sym.S.Zero    
-
-    for term in terms:
-        const, part1, part2 = inverse_laplace_transform1(term, s, t, **assumptions)
-        cresult += const * part1
-        uresult += const * part2        
-    return cresult, uresult
-
-
 def inverse_laplace_make(t, const, cresult, uresult, **assumptions):
 
     result = const * (cresult + uresult)
@@ -606,16 +592,20 @@ def inverse_laplace_transform1(expr, s, t, **assumptions):
     if key in inverse_laplace_cache:
         cresult, uresult = inverse_laplace_cache[key]        
         return const, cresult, uresult
-    
-    if expr.is_Add:
-        cresult, uresult = inverse_laplace_by_terms(expr, s, t, **assumptions)
+
+    # This will break how the user constructs the expression but
+    # it is more likely to produce a tidy result.
+    terms = as_sum_terms(expr, s)
+    if len(terms) == 1:
+        cresult, uresult = inverse_laplace_term(terms[0], s, t, **assumptions)
     else:
-        try:
-            cresult, uresult = inverse_laplace_term(expr, s, t, **assumptions)
-        except:
-            expr = sym.expand(expr)
-            cresult, uresult = inverse_laplace_by_terms(expr, s, t,
-                                                        **assumptions)
+        cresult = sym.S.Zero
+        uresult = sym.S.Zero    
+
+        for term in terms:
+            const1, part1, part2 = inverse_laplace_transform1(term, s, t, **assumptions)
+            cresult += const1 * part1
+            uresult += const1 * part2
 
     # cresult is known to be causal, uresult is unsure            
     inverse_laplace_cache[key] = cresult, uresult

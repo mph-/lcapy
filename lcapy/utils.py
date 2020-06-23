@@ -47,3 +47,44 @@ def scale_shift(expr, t):
         raise ValueError('Expression not a scale and shift: %s' % expr)
 
     return scale, terms[1]
+
+
+def as_N_D(expr, var, monic_denominator=False):
+
+    N = 1
+    D = 1
+    factors = expr.as_ordered_factors()
+    
+    for factor in factors:
+        a, b = factor.as_numer_denom()
+        N *= a
+        if b.is_polynomial(var):
+            D *= b
+        else:
+            N /= b
+                
+    N = N.simplify()
+
+    if monic_denominator:
+        Dpoly = sym.Poly(D, var)            
+        LC = Dpoly.LC()
+        D = Dpoly.monic().as_expr()
+        N = (N / LC).simplify()
+
+    return N, D
+
+
+def as_sum_terms(expr, var):
+        
+    N, D = as_N_D(expr, var)
+    N = N.simplify()
+
+    return [term / D for term in N.expand().as_ordered_terms ()]
+
+
+def as_sum(expr, var):
+        
+    result = 0
+    for term in as_sum_terms(expr, var):
+        result += term
+    return result

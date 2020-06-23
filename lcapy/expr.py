@@ -19,6 +19,7 @@ from .sym import capitalize_name, tsym, symsymbol, symbol_map
 from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function
+from .utils import as_N_D, as_sum
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
@@ -1799,34 +1800,9 @@ class Expr(ExprPrint, ExprMisc):
                      -s⋅τ
         N = V₁ - V₂⋅ℯ    
         D =  s⋅(L⋅s + R)"""
-        
-        N = 1
-        D = 1
-        factors = self.expr.as_ordered_factors()
 
-        # I.as_ordered_factors()    
-        #
-        # ⎡1     1         s⋅τ        -s⋅τ⎤
-        # ⎢─, ───────, V₁⋅ℯ    - V₂, ℯ    ⎥
-        # ⎣s  L⋅s + R                     ⎦
-        
-        for factor in factors:
-            a, b = factor.as_numer_denom()
-            N *= a
-            if b.is_polynomial(self.var):
-                D *= b
-            else:
-                N /= b
-                
-        N = N.simplify()
-
-        if monic_denominator:
-            Dpoly = sym.Poly(D, self.var)            
-            LC = Dpoly.LC()
-            D = Dpoly.monic().as_expr()
-            N = (N / LC).simplify()
-                
-        return self.__class__(N, **self.assumptions), self.__class__(D, **self.assumptions)                
+        N, D = as_N_D(self.expr, self.var, monic_denominator)
+        return self.__class__(N, **self.assumptions), self.__class__(D, **self.assumptions)
 
     def as_sum(self):
         """Responses due to a sum of delayed transient responses
@@ -1854,14 +1830,8 @@ class Expr(ExprPrint, ExprMisc):
         D is a polynomial.  Then N can be split.
         """
 
-        N, D = self.as_N_D()
-        N = N.simplify()
-
-        result = 0
-        for term in N.expand().as_ordered_terms ():
-            result += term / D
-        return result
-               
+        result = as_sum(self.expr, self.var)
+        return self.__class__(result, **self.assumptions)
     
 def expr(arg, **assumptions):
     """Create Lcapy expression from arg.
