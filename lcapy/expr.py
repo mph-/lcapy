@@ -1165,16 +1165,15 @@ class Expr(ExprPrint, ExprMisc):
 
         return evaluate_expr(expr, var, arg)
 
-    def has(self, subexpr):
-        """Test whether the sub-expression is contained.  For example,
+    def has(self, *patterns):
+        """Test whether any subexpressions matches any of the patterns.  For example,
          V.has(exp(t)) 
          V.has(t)
 
         """
 
-        if isinstance(subexpr, (Expr, Function)):
-            subexpr = subexpr.expr
-        return self.expr.has(subexpr)
+        tweak_patterns = [pattern.expr if isinstance(pattern, (Expr, Function)) else pattern for pattern in patterns]
+        return self.expr.has(*tweak_patterns)
 
     def has_symbol(self, sym):
         """Test if have symbol contained.  For example,
