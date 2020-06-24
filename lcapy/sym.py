@@ -306,7 +306,7 @@ def symbol_map(name):
 
 
 # The following are all SymPy symbols.
-ssym = symsymbol('s', real=False)
+ssym = symsymbol('s', complex=True)
 tsym = symsymbol('t', real=True)
 fsym = symsymbol('f', real=True)
 omegasym = symsymbol('omega', real=True)
