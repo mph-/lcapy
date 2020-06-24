@@ -401,9 +401,9 @@ class Expr(ExprPrint, ExprMisc):
         if False:
             print(self.__class__.__name__, attr)
 
-        expr = self.expr            
+        expr1 = self.expr            
         try:
-            a = getattr(expr, attr)
+            a = getattr(expr1, attr)
         except:
             raise
             
@@ -433,7 +433,9 @@ class Expr(ExprPrint, ExprMisc):
             ret = a(*args, **kwargs)
             
             if not isinstance(ret, sym.Expr):
-                # May have tuple, etc.
+                # May have tuple, etc.   These could be wrapped but
+                # it appears that this leads to more grief when working
+                # with SymPy.
                 return ret
             
             # Wrap the return value
@@ -1848,6 +1850,9 @@ def expr(arg, **assumptions):
 
     from .sym import tsym, fsym, ssym, omegasym
 
+    if arg is None:
+        return arg
+    
     if isinstance(arg, Expr) and assumptions == {}:
         return arg
     
