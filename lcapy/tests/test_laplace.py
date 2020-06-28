@@ -27,6 +27,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Vt('x(t)').laplace(), Vs('X(s)'), "x(t)")
         self.assertEqual(Vt('5 * x(t)').laplace(), Vs('5 * X(s)'), "5 * x(t)")
 
+        v = expr('R0 * exp(-alpha * t) * i(t)') 
+        V = expr('R0 * I(s + alpha)')
+
+        self.assertEqual(v.laplace(), V, "R0 * exp(-alpha * t) * i(t)")
+        
+        
     def test_inverse_laplace(self):
 
         self.assertEqual((1 / s).inverse_laplace(causal=True), Heaviside(t),

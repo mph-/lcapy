@@ -160,17 +160,19 @@ def laplace_term(expr, t, s):
         if expr.has(sym.Derivative):
             return laplace_derivative_undef(expr, t, s) * const    
 
-        rest = sym.S.One
-        expr = expr.cancel()
-        for factor in expr.as_ordered_factors():
-            if isinstance(factor, AppliedUndef):
-                result = laplace_func(factor, t, s)
-            else:
-                if factor.has(t):
-                    raise ValueError('TODO: need derivative of undefined'
-                                     ' function for %s' % factor)
-                rest *= factor
-        return result * rest * const
+        factors = expr.as_ordered_factors()
+        if len(factors) == 1:
+            return const * laplace_func(factors[0], t, s)
+        elif len(factors) > 2:
+            raise ValueError('TODO: cannot handle product %s' % expr)
+
+        foo = factors[1]
+        if foo.is_Function and foo.func == sym.exp and foo.args[0].has(t):
+            scale, shift = scale_shift(foo.args[0], t)
+            if shift == 0: 
+                result = laplace_func(factors[0], t, s)
+                return const * result.subs(s, s - scale)
+        raise ValueError('TODO: cannot handle product %s' % expr)
 
     if expr.has(sym.Heaviside(t)):
         return laplace_0(expr.replace(sym.Heaviside(t), 1), t, s) * const
@@ -371,11 +373,11 @@ def inverse_laplace_ratfun(expr, s, t, **assumptions):
     return cresult, uresult
 
 
-def dummyvar(intnum=0):
+def dummyvar(intnum=0, var='tau'):
     if intnum == 0:
-        return sympify('tau', real=True)
+        return sympify(var, real=True)
     else:
-        return sympify('tau_%d' % intnum, real=True)    
+        return sympify('%s_%d' % (var, intnum), real=True)    
 
 
 def inverse_laplace_product(expr, s, t, **assumptions):
@@ -433,13 +435,13 @@ def inverse_laplace_product(expr, s, t, **assumptions):
                 continue                
             elif factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] == -1:
                 # Handle integration  1 / s * V(s)
-                tau = dummyvar(intnum)
+                tau = dummyvar(intnum, 'tau')
                 intnum += 1
                 result = laplace_func(factors[1], s, tau, True)
                 result = sym.Integral(result, (tau, t1, t))
                 continue                
         # Convert product to convolution
-        tau = dummyvar(intnum)
+        tau = dummyvar(intnum, 'tau')
         intnum += 1
         cresult, uresult = inverse_laplace_term1(factors[m + 1], s, t)
         expr2 = cresult + uresult
