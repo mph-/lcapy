@@ -302,12 +302,12 @@ class Node(object):
     
 class Schematic(NetfileMixin):
 
-    def __init__(self, filename=None, **kwargs):
+    def __init__(self, filename=None, allow_anon=False, **kwargs):
 
         self.elements = OrderedDict()
         self.nodes = {}
         self.hints = False
-        self._init_parser(schemcpts)
+        self._init_parser(schemcpts, allow_anon)
         self.cpt_size = 1.2
         self.node_spacing = 2.0
         self.scale = 1.0

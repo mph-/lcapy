@@ -5,8 +5,8 @@ from os.path import dirname, join
 
 class NetfileMixin(object):
 
-    def _init_parser(self, cpts):
-        self.parser = Parser(cpts, grammar)
+    def _init_parser(self, cpts, allow_anon=False):
+        self.parser = Parser(cpts, grammar, allow_anon)
         # Current namespace
         self.namespace = ''
         self.subnetlists = {}

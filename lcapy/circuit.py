@@ -101,14 +101,14 @@ class Circuit(Netlist):
 
     """
 
-    def __init__(self, filename=None, netlist=None):
+    def __init__(self, filename=None, netlist=None, allow_anon=False):
 
         # Treat filename as netlist if it has a newline.
         if filename is not None and '\n' in filename:
-            super(Circuit, self).__init__()
+            super(Circuit, self).__init__(allow_anon=allow_anon)
             self.add(filename)
         else:
-            super(Circuit, self).__init__(filename)
+            super(Circuit, self).__init__(filename, allow_anon=allow_anon)
             
         if netlist is not None:
             self.add(netlist)

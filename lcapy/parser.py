@@ -111,7 +111,7 @@ class Rule(object):
 
 class Parser(object):
 
-    def __init__(self, cpts, grammar):
+    def __init__(self, cpts, grammar, allow_anon=False):
         """cpts is a module containing a class for each component
         grammar is a module defining the syntax of a netlist"""
 
@@ -123,6 +123,7 @@ class Parser(object):
         self.delimiters = grammar.delimiters
         # A string defining comment characters
         self.comments = grammar.comments
+        self.allow_anon = allow_anon
 
         self.cpts = cpts
         self.paramdict = {}
@@ -257,7 +258,7 @@ class Parser(object):
         defname = namespace + cpt_type + cpt_id
         name = defname
         if (cpt_id == '' and parent is not None
-            and cpt_type in ('A', 'W', 'O', 'P')):
+            and (cpt_type in ('A', 'W', 'O', 'P')) or self.allow_anon):
             name += parent._make_anon(cpt_type)
         elif cpt_id == '?':
             # Automatically name cpts to ensure they are unique

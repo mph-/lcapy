@@ -112,6 +112,7 @@ class NetlistNamespace(object):
         self._netlist = netlist
         # The children namespaces
         self.namespaces = {}
+        self.allow_anon = False
 
     def __getitem__(self, name):
         """Return element or node by name."""
@@ -169,7 +170,7 @@ class NetlistNamespace(object):
         if hasattr(self, '_sch'):
             return self._sch
 
-        sch = Schematic()
+        sch = Schematic(allow_anon=self.allow_anon)
 
         netlist = self._netlist.netlist()
         for net in netlist.split('\n'):
@@ -221,7 +222,7 @@ class NetlistNamespace(object):
 
 class NetlistMixin(object):
 
-    def __init__(self, filename=None, context=None):
+    def __init__(self, filename=None, context=None, allow_anon=False):
 
         self._elements = OrderedDict()
         self.namespaces = {}
@@ -230,7 +231,8 @@ class NetlistMixin(object):
             context = state.new_context()
         
         self.context = context
-        self._init_parser(mnacpts)
+        self.allow_anon = allow_anon
+        self._init_parser(mnacpts, allow_anon=allow_anon)
 
         if filename is not None:
             self.netfile_add(filename)
@@ -896,7 +898,7 @@ class NetlistMixin(object):
         if hasattr(self, '_sch'):
             return self._sch
 
-        sch = Schematic()
+        sch = Schematic(allow_anon=self.allow_anon)
 
         netlist = self.netlist()
         for net in netlist.split('\n'):
@@ -1299,9 +1301,9 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     """
 
-    def __init__(self, filename=None, context=None):
+    def __init__(self, filename=None, context=None, allow_anon=False):
 
-        super (Netlist, self).__init__(filename, context)
+        super (Netlist, self).__init__(filename, context, allow_anon=allow_anon)
         self._invalidate()
         self.kind = 'super'
 

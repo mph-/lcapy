@@ -123,7 +123,11 @@ def main (argv=None):
     
     parser.add_argument('--pdb', action='store_true',
                         default=False,
-                        help="enter python debugger on exception")    
+                        help="enter python debugger on exception")
+
+    parser.add_argument('--allow-anon', action='store_true',
+                        default=False,
+                        help="allow anonymous component ids")        
     
     parser.add_argument('--renumber', type=str,
                         dest='renumber', default=None,
@@ -159,7 +163,7 @@ def main (argv=None):
         
     from lcapy import Circuit
 
-    cct = Circuit(infilename)
+    cct = Circuit(infilename, allow_anon=args.allow_anon)
     if args.k_model:
         cct = cct.kill()
     if args.s_model:
