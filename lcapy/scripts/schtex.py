@@ -89,6 +89,10 @@ def main (argv=None):
     parser.add_argument('--k-model', action='store_true',
                         dest='k_model', default=False,
                         help='generate schematic with independent sources killed')
+
+    parser.add_argument('--kill-zero', action='store_true',
+                        default=False,
+                        help='generate schematic with zero independent sources killed')    
     
     parser.add_argument('--scale', type=float,
                         dest='scale', default=None,
@@ -166,6 +170,8 @@ def main (argv=None):
     cct = Circuit(infilename, allow_anon=args.allow_anon)
     if args.k_model:
         cct = cct.kill()
+    if args.kill_zero:
+        cct = cct.kill_zero()        
     if args.s_model:
         cct = cct.s_model()
     if args.ac_model:

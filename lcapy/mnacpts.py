@@ -343,6 +343,18 @@ class Cpt(ImmitanceMixin):
             raise ValueError('%s is not a source' % self)        
 
     @property
+    def is_voltage_source(self):
+        """Return True if component is a voltage source (dependent or
+        independent)"""
+        return self.cpt.voltage_source
+
+    @property
+    def is_current_source(self):
+        """Return True if component is a current source (dependent or
+        independent)"""
+        return self.cpt.current_source    
+        
+    @property
     def zeroic(self):
         """Return True if initial conditions are zero (or unspecified)."""
 

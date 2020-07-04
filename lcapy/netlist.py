@@ -834,6 +834,22 @@ class NetlistMixin(object):
 
         return self._kill(sources)
 
+    def kill_zero(self):
+        """Return a new circuit with the independent zero voltage sources and
+        zero current sources killed."""
+
+        new = self._new()
+
+        for cpt in self._elements.values():
+            if (cpt.independent_source and 
+                (cpt.is_voltage_source and cpt.Voc == 0) or
+                (cpt.is_current_source and cpt.Isc == 0)):
+                net = cpt._kill()
+            else:
+                net = cpt._copy()
+            new._add(net)
+        return new            
+
     def _noisy(self, resistornames):
 
         new = self._new()
