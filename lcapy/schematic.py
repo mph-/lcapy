@@ -45,7 +45,8 @@ from .expr import Expr
 from . import schemcpts
 import sympy as sym
 from .schemgraph import Graph
-from .schemmisc import Pos, Opts
+from .schemmisc import Pos
+from .opts import Opts
 from .netfile import NetfileMixin
 from .system import run_latex, convert_pdf_png, convert_pdf_svg
 from .system import tmpfilename, circuitikz_version, latex_cleanup

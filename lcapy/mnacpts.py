@@ -16,6 +16,7 @@ from .sym import capitalize_name, omegasym
 from .grammar import delimiters
 from .immitance import ImmitanceMixin
 from .current import Current
+from .opts import Opts
 import lcapy
 import inspect
 import sys
@@ -72,7 +73,7 @@ class Cpt(ImmitanceMixin):
         self.explicit_args = args        
         self.classname = self.__class__.__name__
         self.keyword = keyword
-        self.opts = {}
+        self.opts = Opts(self.opts_string)
 
         # No defined cpt
         if self.type in ('XX', ):

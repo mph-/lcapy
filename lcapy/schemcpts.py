@@ -8,7 +8,8 @@ Copyright 2015--2020 Michael Hayes, UCECE
 
 from __future__ import print_function
 from .latex import latex_format_label
-from .schemmisc import Pos, Opts, Steps
+from .schemmisc import Pos, Steps
+from .opts import Opts
 import numpy as np
 import sys
 
@@ -106,6 +107,7 @@ class Cpt(object):
         self.string = string
         self.net = string.split(';')[0]
         self.opts_string = opts_string
+        self.opts = Opts(self.opts_string)        
 
         self.args = args
         self.classname = self.__class__.__name__

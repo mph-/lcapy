@@ -14,7 +14,7 @@ from .sexpr import Hs, Zs, Ys
 from .symbols import j, s, omega
 from .voltage import Voltage, Vname
 from .current import Current, Iname
-from .schematic import Schematic, Opts
+from .schematic import Schematic
 from .mna import MNAMixin, Nodedict, Branchdict
 from .statespace import StateSpace
 from .netfile import NetfileMixin
@@ -316,9 +316,6 @@ class NetlistMixin(object):
 
     def _cpt_add(self, cpt):
 
-        opts = Opts(cpt.opts_string)
-        cpt.opts = opts
-
         if cpt.name in self._elements:
             print('Overriding component %s' % cpt.name)
             # Need to search lists and update component.
@@ -445,7 +442,7 @@ class NetlistMixin(object):
 
         self._node_map = node_map
         return node_map
-    
+
     def augment_node_map(self, node_map={}):
         """Create a mapping dict for all nodes."""
 
