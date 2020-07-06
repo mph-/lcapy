@@ -660,6 +660,19 @@ class NetlistMixin(object):
         # netlist.        
         return I(Isc.time()) | Y(Ysc)
 
+    def match(self, pattern):
+        """Return list of components names matching regular 
+        expression pattern."""
+
+        from re import match
+
+        elts = []
+        for cpt in self._elements.values():
+            if match(pattern, cpt.name):
+                elts.append(cpt.name)
+        return elts
+
+    
     def admittance(self, Np, Nm=None):
         """Return driving-point admittance between nodes
         Np and Nm with independent sources killed and initial
