@@ -443,6 +443,38 @@ class NetlistMixin(object):
         self._node_map = node_map
         return node_map
 
+    def annotate_current(self, cpts, var=None, flow=False, pos=''):
+
+        new = self._new()        
+        for cpt in self._elements.values():
+            net = cpt._copy()
+            if cpt.name in cpts:
+                I = cpt.I
+                if var is not None:
+                    I = I(var)
+
+                net += ', ' if ';' in net else '; '
+                if flow:
+                    net += ', f%s=$%s$' % (pos, I.latex())
+                else:
+                    net += ', i%s=$%s$' % (pos, I.latex())
+            new.add(net)
+        return new
+
+    def annotate_voltage(self, cpts, var=None):
+
+        new = self._new()                
+        for cpt in self._elements.values():
+            net = cpt._copy()
+            if cpt.name in cpts:
+                V = cpt.V
+                if var is not None:
+                    V = V(var)
+                net += ', ' if ';' in net else '; '                    
+                net += 'v=$%s$' % V.latex()
+            new.add(newcpt)
+        return new                
+    
     def augment_node_map(self, node_map={}):
         """Create a mapping dict for all nodes."""
 

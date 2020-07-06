@@ -64,7 +64,7 @@ class Cpt(ImmitanceMixin):
                     node = node[len(self.namespace):]
                 self.relnodes.append(node)
 
-        self.string = string
+        self._string = string
         #self.net = string.split(';')[0]
         # This is the initial opts_string from which the opts attribute
         # is derived.
@@ -113,7 +113,8 @@ class Cpt(ImmitanceMixin):
         return self.__str__()
 
     def __str__(self):
-        return self.string
+        # TODO, use self._netmake() but fix for XX
+        return self._string        
 
     def _stamp(self, cct):
         raise NotImplementedError('stamp method not implemented for %s' % self)
@@ -226,6 +227,9 @@ class Cpt(ImmitanceMixin):
         parts = [name]
         parts.extend(nodes)
         parts.extend(fmtargs)
+
+        # Insert keyword...
+        
         
         net = ' '.join(parts)
         opts_str = str(opts).strip()
@@ -589,6 +593,9 @@ class XX(Dummy):
         """Rename the nodes using dictionary node_map."""
 
         return self._copy()
+
+    def __str__(self):        
+        return self._string
     
     
 class IndependentSource(Cpt):
