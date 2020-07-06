@@ -807,6 +807,13 @@ class NetlistMixin(object):
         except ValueError:
             raise ValueError('Cannot create A matrix')
 
+    def save(self, filename):
+        """Save netlist to file."""
+
+        f = open(filename, 'w')
+        f.writelines(str(self))
+        f.close()
+        
     def select(self, kind):
         """Return new netlist with transform domain kind selected for
         specified sources in sourcenames. 
