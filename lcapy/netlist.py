@@ -444,6 +444,8 @@ class NetlistMixin(object):
         return node_map
 
     def annotate_current(self, cpts, var=None, flow=False, pos=''):
+        """Annotate specified list of component names `cpts` with current (or
+        flow).  `pos` specifies where to position the labels."""
 
         new = self._new()        
         for cpt in self._elements.values():
@@ -461,7 +463,9 @@ class NetlistMixin(object):
             new.add(net)
         return new
 
-    def annotate_voltage(self, cpts, var=None):
+    def annotate_voltage(self, cpts, var=None, pos=''):
+        """Annotate specified list of component names `cpts` with voltage.
+        `pos` specifies where to position the labels."""
 
         new = self._new()                
         for cpt in self._elements.values():
@@ -471,11 +475,12 @@ class NetlistMixin(object):
                 if var is not None:
                     V = V(var)
                 net += ', ' if ';' in net else '; '                    
-                net += 'v=$%s$' % V.latex()
-            new.add(newcpt)
+                net += 'v%s=$%s$' % (pos, V.latex())
+            new.add(net)
         return new                
     
     def augment_node_map(self, node_map={}):
+
         """Create a mapping dict for all nodes."""
 
         # It would be desirable to renumber the nodes say from left to
