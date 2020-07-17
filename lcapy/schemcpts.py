@@ -70,7 +70,8 @@ class Cpt(object):
                  'pinnames', 'pinnodes', 'pindefs', 'outside',
                  'pinmap', 'kind', 'wire', 'ignore', 'style',
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
-                 'nodots', 'draw_nodes', 'label_nodes', 'nodraw')
+                 'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
+                 'mirrorinputs')
 
     can_rotate = True
     can_scale = False
@@ -240,12 +241,16 @@ class Cpt(object):
         return self.opts[opt]
 
     @property
+    def mirrorinputs(self):
+        return self.boolattr('mirrorinputs')
+    
+    @property
     def mirror(self):
-        return self.boolattr('mirror')
+        return self.boolattr('mirror') or self.flipud
 
     @property
     def invert(self):
-        return self.boolattr('invert')
+        return self.boolattr('invert')  or self.fliplr
 
     @property
     def flipud(self):
@@ -635,12 +640,12 @@ class Cpt(object):
         
         outside = self.opts.get('outside', False)
 
-        if self.fliplr:
+        if self.invert:
             if pinpos == 'l':
                 pinpos = 'r'
             elif pinpos == 'r':
                 pinpos = 'l'
-        if self.flipud:
+        if self.mirror:
             if pinpos == 't':
                 pinpos = 'b'
             elif pinpos == 'b':
@@ -884,7 +889,7 @@ class Cpt(object):
         if not self.can_scale and self.scale != 1:
             raise ValueError('Cannot scale component %s' % self.name)
 
-        if not self.can_mirror and self.mirror:
+        if not self.can_mirror and (self.mirror or self.mirrorinputs):
             raise ValueError('Cannot mirror component %s' % self.name)
 
         if not self.can_invert and self.invert:
@@ -982,9 +987,9 @@ class StretchyCpt(Cpt):
         x, y = offset
 
         if self.do_transpose:
-            if self.flipud:
+            if self.mirror:
                 y = -y
-            if self.flilpr:
+            if self.invert:
                 x = -x
         
         if scale is None:
@@ -1017,9 +1022,9 @@ class FixedCpt(Cpt):
         x, y = offset
 
         if self.do_transpose:
-            if self.flipud:
+            if self.mirror:
                 y = -y
-            if self.fliplr:
+            if self.invert:
                 x = -x
         
         if scale is None:
@@ -2658,7 +2663,7 @@ class Eopamp(Chip):
 
     @property
     def pins(self):
-        return self.npins if self.mirror else self.ppins
+        return self.npins if (self.mirrorinputs ^ self.mirror) else self.ppins
 
     def draw(self, **kwargs):
 
@@ -2666,7 +2671,7 @@ class Eopamp(Chip):
             return ''
 
         yscale = 2 * 0.95 * self.scale        
-        if not self.mirror:
+        if not (self.mirror ^ self.mirrorinputs):
             yscale = -yscale
 
         centre = self.node('mid')
@@ -2722,7 +2727,7 @@ class Efdopamp(Chip):
     
     @property
     def pins(self):
-        return self.npins if self.mirror else self.ppins
+        return self.npins if (self.mirrorinputs ^ self.mirror) else self.ppins
     
     def draw(self, **kwargs):
 
@@ -2732,7 +2737,7 @@ class Efdopamp(Chip):
         centre = self.node('mid')
 
         yscale = 2 * 0.952 * self.scale
-        if not self.mirror:
+        if not (self.mirror ^ self.mirrorinputs):        
             yscale = -yscale
 
         s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
@@ -2827,7 +2832,7 @@ class Uopamp(Chip):
 
     @property
     def pins(self):
-        return self.npins if self.mirror else self.ppins
+        return self.npins if self.mirrorinputs else self.ppins
 
     @property
     def path(self):
@@ -2838,7 +2843,7 @@ class Uopamp(Chip):
         s = super (Uopamp, self).draw(**kwargs)
 
         if not self.nolabels:
-            if self.mirror:
+            if self.mirrorinputs:
                 s += self.annotate(self.node('lin+').s, '$-$', bold=True)
                 s += self.annotate(self.node('lin-').s, '$+$', bold=True)
             else:
@@ -2882,7 +2887,7 @@ class Ufdopamp(Chip):
 
     @property
     def pins(self):
-        return self.npins if self.mirror else self.ppins
+        return self.npins if self.mirrorinputs else self.ppins
 
     @property
     def path(self):
@@ -2892,8 +2897,8 @@ class Ufdopamp(Chip):
 
         s = super (Ufdopamp, self).draw(**kwargs)
 
-        if not self.nolabels:        
-            if self.mirror:
+        if not self.nolabels:
+            if self.mirrorinputs:            
                 s += self.annotate(self.node('lin+').s, '$-$', bold=True)
                 s += self.annotate(self.node('lin-').s, '$+$', bold=True)
                 s += self.annotate(self.node('lout+').s, '$-$', bold=True)

@@ -114,7 +114,7 @@ and non-inverting inputs of an opamp use:
 
    >>> cct.add('E1 1 2 opamp 3 0; right, mirror')
 
-Note, the mirroring is performed before rotations are applied.
+Note, the mirroring is performed before rotations are applied.  Opamps also have a `mirrorinputs` option that switches the inverting and non-inverting inputs pwithout mirroring the entire component.
 
 Here's an example of using `invert` to mirror a D flip-flop in the y-axis, compared to rotating the flip-flop:
 
@@ -1113,6 +1113,8 @@ Component attributes
 - `rotate`: angle in degrees to rotate component anti-clockwise
 
 - `mirror`: mirror component in x-axis (opamps, transistors)
+
+- `mirrorinputs`: mirror inputs for opamps
 
 - `invisible`: connect to the other components but do not draw
 
