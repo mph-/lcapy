@@ -206,6 +206,8 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
+- Version 0.63 fixes mirroring of opamps in schematics and introduces mirrorinputs option
+
 - Version 0.62 adds search, save, annotate_voltage, annotate_current, kill_zero methods.  Fixes solve.
 
 - Version 0.61 improves Laplace and z-transforms.
