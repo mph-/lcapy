@@ -206,6 +206,12 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
+- Version 0.62 adds search, save, annotate_voltage, annotate_current, kill_zero methods.  Fixes solve.
+
+- Version 0.61 improves Laplace and z-transforms.
+
+- Version 0.60 replaces DiracDelta with UnitImpulse and Heaviside with UnitStep for discrete-time expressions.
+
 - Version 0.52 improves the component positioning algorithm for schematics.
 
 - Version 0.51 improves the domain transformation infrastructure,
