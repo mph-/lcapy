@@ -241,11 +241,19 @@ class Cpt(object):
 
     @property
     def mirror(self):
-        return self.boolattr('mirror') or self.boolattr('flipud')
+        return self.boolattr('mirror')
 
     @property
     def invert(self):
-        return self.boolattr('invert') or self.boolattr('fliplr')
+        return self.boolattr('invert')
+
+    @property
+    def flipud(self):
+        return self.boolattr('flipud')
+
+    @property
+    def fliplr(self):
+        return self.boolattr('fliplr')    
 
     @property
     def nodots(self):
@@ -627,12 +635,12 @@ class Cpt(object):
         
         outside = self.opts.get('outside', False)
 
-        if self.invert:
+        if self.fliplr:
             if pinpos == 'l':
                 pinpos = 'r'
             elif pinpos == 'r':
                 pinpos = 'l'
-        if self.mirror:
+        if self.flipud:
             if pinpos == 't':
                 pinpos = 'b'
             elif pinpos == 'b':
@@ -974,9 +982,9 @@ class StretchyCpt(Cpt):
         x, y = offset
 
         if self.do_transpose:
-            if self.mirror:
+            if self.flipud:
                 y = -y
-            if self.invert:
+            if self.flilpr:
                 x = -x
         
         if scale is None:
@@ -1009,9 +1017,9 @@ class FixedCpt(Cpt):
         x, y = offset
 
         if self.do_transpose:
-            if self.mirror:
+            if self.flipud:
                 y = -y
-            if self.invert:
+            if self.fliplr:
                 x = -x
         
         if scale is None:
