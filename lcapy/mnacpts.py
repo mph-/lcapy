@@ -968,7 +968,8 @@ class K(Dummy):
         ZL1 = cct.elements[L1].Z.expr
         ZL2 = cct.elements[L2].Z.expr
         ZM = K.expr * sym.sqrt(ZL1 * ZL2)
-
+        ZM = ZM.replace(s ** 2, s)
+            
         m1 = cct._branch_index(L1)
         m2 = cct._branch_index(L2)
 
