@@ -599,3 +599,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.val, 0.75, "val")
         self.assertEqual(a.evalf(), 0.75, "evalf")
         
+    def test_dirac_delta_simplify(self):
+
+        self.assertEqual(expr('delta(t) * exp(-3 * t)').simplify(),
+                         expr('delta(t)'),
+                         "delta(t) * exp(-3 * t)")
+
+        self.assertEqual(expr('exp(-3 * t) * delta(t)').simplify(),
+                         expr('delta(t)'),
+                         "exp(-3 * t) * delta(t)")

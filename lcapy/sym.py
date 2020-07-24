@@ -210,6 +210,37 @@ def symsymbol(name, **assumptions):
     return sympify(name, **assumptions)
 
 
+def simplify_dirac_delta(expr):
+    """ Simplify f(t) * DiracDelta(t) to f(0) * DiracDelta(t)."""
+
+    if not expr.has(sym.DiracDelta):
+        return expr
+    
+    def query(expr):
+
+        return expr.is_Mul and expr.has(sym.DiracDelta)
+
+    def value(expr):
+
+        arg = None
+        factors = expr.args
+        dirac = None
+        parts = []
+        for factor in factors:
+            if factor.is_Function and factor.func == sym.DiracDelta:
+                arg = factor.args[0]
+                dirac = factor
+            else:
+                parts.append(factor)        
+
+        # TODO: handle DiracDelta(symbol + constant).
+        if arg is None or not arg.is_Symbol:
+            return expr
+        const = sym.Mul(*parts).subs(arg, 0)
+        return const * dirac
+
+    return expr.replace(query, value)
+
 def symsimplify(expr):
     """Simplify a SymPy expression.  This is a hack to work around
     problems with SymPy's simplify API."""
@@ -225,6 +256,10 @@ def symsimplify(expr):
         pass
 
     expr = sym.simplify(expr)
+
+    if expr.has(sym.DiracDelta):
+        expr = simplify_dirac_delta(expr)
+    
     return expr
 
 
