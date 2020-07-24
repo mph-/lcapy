@@ -210,7 +210,7 @@ def symsymbol(name, **assumptions):
     return sympify(name, **assumptions)
 
 
-def simplify_dirac_delta(expr):
+def simplify_dirac_delta_term(expr):
     """ Simplify f(t) * DiracDelta(t) to f(0) * DiracDelta(t)."""
 
     if not expr.has(sym.DiracDelta):
@@ -241,6 +241,21 @@ def simplify_dirac_delta(expr):
 
     return expr.replace(query, value)
 
+
+def simplify_dirac_delta(expr, expand=False):
+    """Simplify f(t) * DiracDelta(t) to f(0) * DiracDelta(t)."""
+
+    if not expr.has(sym.DiracDelta):
+        return expr
+
+    if not expand:
+        return simplify_dirac_delta_term(expr)
+    
+    terms = expr.expand().as_ordered_terms()
+
+    return sym.Add(*[simplify_dirac_delta_term(term) for term in terms])
+
+
 def symsimplify(expr):
     """Simplify a SymPy expression.  This is a hack to work around
     problems with SymPy's simplify API."""
@@ -248,6 +263,9 @@ def symsimplify(expr):
     # Handle Matrix types
     if hasattr(expr, 'applyfunc'):
         return expr.applyfunc(lambda x: symsimplify(x))
+
+    if expr.has(sym.DiracDelta):
+        expr = simplify_dirac_delta(expr)
     
     try:
         if expr.is_Function and expr.func in (sym.Heaviside, sym.DiracDelta):
@@ -257,9 +275,6 @@ def symsimplify(expr):
 
     expr = sym.simplify(expr)
 
-    if expr.has(sym.DiracDelta):
-        expr = simplify_dirac_delta(expr)
-    
     return expr
 
 
