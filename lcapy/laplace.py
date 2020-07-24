@@ -17,7 +17,7 @@ undefined functions such as v(t) to V(s).
 
 These functions are for internal use by Lcapy.  
 
-Copyright 2016--2019 Michael Hayes, UCECE
+Copyright 2016--2020 Michael Hayes, UCECE
 
 """
 
@@ -582,8 +582,10 @@ def inverse_laplace_make(t, const, cresult, uresult, **assumptions):
     return result
 
 
-def inverse_laplace_transform1(expr, s, t, **assumptions):
-
+def inverse_laplace_transform1(expr, s, t, verbatim=False, **assumptions):
+    """If verbatim is True, do not rewrite expression to assist
+    inverse Laplace transform evaluation."""
+    
     const, expr = factor_const(expr, s)
     
     key = (expr, s, t,
@@ -595,9 +597,12 @@ def inverse_laplace_transform1(expr, s, t, **assumptions):
         cresult, uresult = inverse_laplace_cache[key]        
         return const, cresult, uresult
 
-    # This will break how the user constructs the expression but
-    # it is more likely to produce a tidy result.
-    terms = as_sum_terms(expr, s)
+    if verbatim:
+        terms = as_ordered_terms()
+    else:
+        # This will break how the user constructs the expression but
+        # it is more likely to produce a tidy result.
+        terms = as_sum_terms(expr, s)
     if len(terms) == 1:
         cresult, uresult = inverse_laplace_term(terms[0], s, t, **assumptions)
     else:
