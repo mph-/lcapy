@@ -81,10 +81,9 @@ class sExpr(Expr):
 
         """
 
-        if assumptions == {}:
-            assumptions = self.assumptions.copy()
-
-        result = inverse_laplace_transform(self.expr, self.var, tsym, **assumptions)
+        assumptions = self.merge_assumptions(**assumptions)
+        result = inverse_laplace_transform(self.expr, self.var, tsym,
+                                           **assumptions)
 
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result)
@@ -108,9 +107,7 @@ class sExpr(Expr):
     def laplace(self, **assumptions):
         """Convert to s-domain."""
 
-        if assumptions == {}:
-            assumptions = self.assumptions.copy()
-        
+        assumptions = self.merge_assumptions(**assumptions)
         return self.__class__(self, **assumptions)
     
     def fourier(self, **assumptions):
