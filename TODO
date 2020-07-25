@@ -85,6 +85,12 @@ and __exit__ methods so that can use with statement.
 
 17. expr('A*t/T*u(t)*u(T-t)+A*u(t-T)')(s)(t)
 
+18. Overhaul immitances.  Perhaps default to s-domain unless impedance
+calculated for other domains?  The problem at the moment is the kind
+attribute.  This gets lost, say when using .limit().  Note,
+Z(s).limit() works as expected.
+
+
 Testing
 =======
 
