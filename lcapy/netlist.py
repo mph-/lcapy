@@ -1037,7 +1037,7 @@ class NetlistMixin(object):
         return new
 
     def ss_model(self):
-        """"Create preliminary state-space model by replacing inductors
+        """"Create state-space model by replacing inductors
         with current sources and capacitors with voltage sources."""
 
         new = self._new()
@@ -1045,7 +1045,13 @@ class NetlistMixin(object):
         for cpt in self._elements.values():
             net = cpt._ss_model()
             new._add(net)
-        return new            
+        return new
+
+    def state_space_model(self):
+        """"Create state-space model by replacing inductors
+        with current sources and capacitors with voltage sources."""
+        
+        return self.ss_model()
 
     def ac_model(self, var=omega):
         """"Create AC model for specified angular frequency (default

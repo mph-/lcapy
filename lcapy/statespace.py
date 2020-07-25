@@ -141,7 +141,10 @@ class StateSpace(object):
             dotx_exprs[m] = expr.subs(subsdict).expr.expand()
 
         A, b = sym.linear_eq_to_matrix(dotx_exprs, *statesyms)
-        B, b = sym.linear_eq_to_matrix(dotx_exprs, *sourcesyms)
+        if sourcesyms != []:
+            B, b = sym.linear_eq_to_matrix(dotx_exprs, *sourcesyms)
+        else:
+            B = []
 
         # Determine output variables.
         yexprs = []
@@ -164,7 +167,10 @@ class StateSpace(object):
                 y.append(It('i_%s(t)' % name))                    
 
         Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
-        D, b = sym.linear_eq_to_matrix(yexprs, *sourcesyms)
+        if sourcesyms != []:        
+            D, b = sym.linear_eq_to_matrix(yexprs, *sourcesyms)
+        else:
+            D = []
 
         # Rewrite vCanon1(t) as vC(t) etc if appropriate.
         _hack_vars(statevars)
