@@ -35,6 +35,12 @@ class Phasor(Expr):
 
         return self.assumptions['omega']
 
+    @property
+    def var(self):
+        """Return angular frequency."""
+
+        return self.omega
+
     def __compat_add__(self, x, op):
 
         cls = self.__class__
