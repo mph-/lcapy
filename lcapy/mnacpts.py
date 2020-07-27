@@ -627,7 +627,7 @@ class RLC(Cpt):
     def _s_model(self, var):
 
         if self.Voc == 0:
-            self._netmake_variant('Z', args=self.Z(var))
+            return self._netmake_variant('Z', args=self.Z(var))
 
         dummy_node = self.dummy_node()
 
