@@ -263,9 +263,13 @@ class Cpt(ImmitanceMixin):
 
         raise ValueError('Component not a source: %s' % self)        
 
+    def _r_model(self):
+        """Return resistive model of component."""
+        return self._copy()
+
     def _s_model(self, var):
         """Return s-domain model of component."""
-        return self._copy()
+        return self._copy()    
 
     def _ss_model(self):
         """Return state-space model of component."""
@@ -623,6 +627,24 @@ class DependentSource(Dummy):
 
     
 class RLC(Cpt):
+
+    def _r_model(self):
+
+        dummy_node = self.dummy_node()
+        opts = self.opts.copy()        
+        # Strip voltage and current labels.  FIXME
+        opts = opts.strip_all_labels()
+
+        Req = 'R_%seq' % self.type
+        Veq = 'V_%seq' % self.type        
+        
+        rnet = self._netmake_variant('R', nodes=(self.relnodes[0], dummy_node),
+                                     args=Req, opts=opts)
+
+        vnet = self._netmake_variant('V', nodes=(dummy_node, self.relnodes[1]),
+                                     args=Veq, opts=opts)
+
+        return rnet + '\n' + vnet
 
     def _s_model(self, var):
 
@@ -1064,7 +1086,9 @@ class P(O):
 
 
 class R(RC):
-    pass
+
+    def _r_model(self):    
+        return self._copy()
 
 
 class RV(RC):

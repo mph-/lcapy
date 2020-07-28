@@ -1026,6 +1026,17 @@ class NetlistMixin(object):
             new._add(net)
         return new        
 
+    def r_model(self):
+        """"Create resistive equivalent model using companion circuits.
+        This is experimental!"""
+
+        new = self._new()
+
+        for cpt in self._elements.values():
+            net = cpt._r_model()
+            new._add(net)
+        return new
+    
     def s_model(self, var=s):
         """"Create s-domain model."""
 
