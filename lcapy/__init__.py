@@ -60,6 +60,7 @@ from .statespace import *
 from .nodalanalysis import *
 from .loopanalysis import *
 from .laplace import *
+from .nettransform import *
 
 
 def show_version():
