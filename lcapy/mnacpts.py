@@ -246,10 +246,12 @@ class Cpt(ImmitanceMixin):
         return self._netmake1(self.namespace + newtype, nodes, args=(),
                               opts=opts)
         
-    def _netmake_variant(self, newtype, nodes=None, args=None, opts=None):
+    def _netmake_variant(self, newtype, nodes=None, args=None, opts=None,
+                         suffix=''):
         """This is used for changing cpt name from C1 to ZC1"""
-        return self._netmake1(self.namespace + newtype + self.relname,
-                              nodes, args, opts)
+
+        name = self.namespace + newtype + self.relname + suffix
+        return self._netmake1(name, nodes, args, opts)
     
     def _select(self, kind=None):
         """Select domain kind for component."""
@@ -635,13 +637,18 @@ class RLC(Cpt):
         # Strip voltage and current labels.  FIXME
         opts = opts.strip_all_labels()
 
+        # Use Thevenin model.  This will require the current through
+        # the voltage source to be explicitly computed.
+        
         Req = 'R_%seq' % self.type
         Veq = 'V_%seq' % self.type        
         
-        rnet = self._netmake_variant('R', nodes=(self.relnodes[0], dummy_node),
+        rnet = self._netmake_variant('R', suffix='eq',
+                                     nodes=(self.relnodes[0], dummy_node),
                                      args=Req, opts=opts)
 
-        vnet = self._netmake_variant('V', nodes=(dummy_node, self.relnodes[1]),
+        vnet = self._netmake_variant('V', suffix='eq',
+                                     nodes=(dummy_node, self.relnodes[1]),
                                      args=Veq, opts=opts)
 
         return rnet + '\n' + vnet
