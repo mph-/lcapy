@@ -598,7 +598,7 @@ def inverse_laplace_transform1(expr, s, t, verbatim=False, **assumptions):
         return const, cresult, uresult
 
     if verbatim:
-        terms = as_ordered_terms()
+        terms = expr.as_ordered_terms()
     else:
         # This will break how the user constructs the expression but
         # it is more likely to produce a tidy result.
