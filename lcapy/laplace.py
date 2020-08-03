@@ -582,9 +582,14 @@ def inverse_laplace_make(t, const, cresult, uresult, **assumptions):
     return result
 
 
-def inverse_laplace_transform1(expr, s, t, verbatim=False, **assumptions):
+def inverse_laplace_transform1(expr, s, t, verbatim=False, cache_lookup=True,
+                               **assumptions):
     """If verbatim is True, do not rewrite expression to assist
-    inverse Laplace transform evaluation."""
+    inverse Laplace transform evaluation.
+
+    If cache_lookup is True, try looking for previously cached result.
+
+    """
     
     const, expr = factor_const(expr, s)
     
