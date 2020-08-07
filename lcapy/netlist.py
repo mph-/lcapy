@@ -578,6 +578,17 @@ class NetlistMixin(object):
                 self._branch_list.append(elt.name)                
         return self._branch_list
 
+    def _check_nodes(self, *nodes):
+
+        str_nodes = []
+        for node in nodes:
+            if isinstance(node, int):
+                node = '%s' % node
+            if node not in self.nodes:
+                raise ValueError('Unknown node %s' % node)
+            str_nodes.append(node)
+        return str_nodes
+    
     def _parse_node_args(self, Np, Nm=None):
         
         if Nm is None:
@@ -604,6 +615,7 @@ class NetlistMixin(object):
         Nm."""
 
         Np, Nm = self._parse_node_args(Np, Nm)
+        Np, Nm = self._check_nodes(Np, Nm)
         
         new = self.copy()
         if new.is_causal:
@@ -641,6 +653,7 @@ class NetlistMixin(object):
         from .oneport import V, Z
 
         Np, Nm = self._parse_node_args(Np, Nm)
+        Np, Nm = self._check_nodes(Np, Nm)        
         Voc = self.Voc(Np, Nm)
         Zoc = self.impedance(Np, Nm)
 
@@ -657,6 +670,7 @@ class NetlistMixin(object):
         from .oneport import I, Y
 
         Np, Nm = self._parse_node_args(Np, Nm)
+        Np, Nm = self._check_nodes(Np, Nm)                        
         Isc = self.Isc(Np, Nm)
         Ysc = self.admittance(Np, Nm)
 
@@ -686,6 +700,7 @@ class NetlistMixin(object):
         s."""        
 
         Np, Nm = self._parse_node_args(Np, Nm)
+        Np, Nm = self._check_nodes(Np, Nm)
         
         new = self.kill()
         if '0' not in new.nodes:
@@ -707,6 +722,7 @@ class NetlistMixin(object):
         s."""
 
         Np, Nm = self._parse_node_args(Np, Nm)
+        Np, Nm = self._check_nodes(Np, Nm)        
         
         new = self.kill()
         if '0' not in new.nodes:
@@ -753,9 +769,11 @@ class NetlistMixin(object):
         are ignored.  Since the result is causal, the frequency response
         can be found by substituting j * omega for s."""
 
+        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+        
         new = self.kill()
         if '0' not in new.nodes:
-            new.add('W %s 0' % Nm)
+            new.add('W %s 0' % N1m)
         
         new._add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
@@ -774,6 +792,7 @@ class NetlistMixin(object):
 
         from .twoport import AMatrix
 
+        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)        
         net = self.kill()        
         if '0' not in net.nodes:
             net.add('W %s 0' % N1m)                           
@@ -802,7 +821,7 @@ class NetlistMixin(object):
             A22 = Hs(-net.I1_.I(s) / net.Isc(N2p, N2m)(s))
 
             net.remove('I1_')
-            A = AMatrix(A11, A12, A21, A22)
+            A = AMatrix(((A11, A12), (A21, A22)))
             return A
 
         except ValueError:
@@ -819,6 +838,7 @@ class NetlistMixin(object):
 
         from .twoport import ZMatrix
 
+        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)        
         net = self.kill()
         if '0' not in net.nodes:
             net.add('W %s 0' % N1m)
@@ -848,7 +868,7 @@ class NetlistMixin(object):
 
             net.remove('I2_')            
 
-            Z = ZMatrix(Z11, Z12, Z21, Z22)
+            Z = ZMatrix(((Z11, Z12), (Z21, Z22)))
             return Z
 
         except ValueError:
@@ -1583,20 +1603,21 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         return self.get_I(name).time()
 
-    def get_Vd(self, Np, Nm=None):
-        """Voltage drop between nodes"""
-
-        if isinstance(Nm, int):
-            Nm = '%s' % Nm
-        if isinstance(Np, int):
-            Np = '%s' % Np            
-
+    def _get_Vd(self, Np, Nm=None):
+        """This does not check nodes."""
+        
         result = Voltage()
         for sub in self.sub.values():
             Vd = sub.get_Vd(Np, Nm)
             result.add(Vd)
         result = result.canonical()
         return result
+
+    def get_Vd(self, Np, Nm=None):
+        """Voltage drop between nodes"""
+
+        Np, Nm = self._check_nodes(Np, Nm)
+        return self._get_Vd(Np, Nm)
 
     def get_vd(self, Np, Nm=None):
         """Time-domain voltage drop between nodes"""
