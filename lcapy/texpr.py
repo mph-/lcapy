@@ -7,7 +7,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 from __future__ import division
 from .expr import Expr
 from .functions import exp
-from .sym import fsym, ssym, tsym, j, oo
+from .sym import fsym, ssym, tsym, j, oo, tausym
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .laplace import laplace_transform
 from .fourier import fourier_transform
@@ -165,6 +165,18 @@ class tExpr(Expr):
             expr = expr.args[0].args[0]            
         expr = expr * Heaviside(t)
         return self.__class__(expr)        
+
+    def convolve(self, impulseresponse, **assumptions):
+        """Convolve self with impulse response."""
+
+        if not isinstance(impulseresponse, tExpr):
+            raise ValueError('Expecting tExpr for impulse response')
+
+        expr = self.expr
+        result = Integral(expr.subs(self.var, self.var - tausym) *
+                          impulseresponse.expr.subs(self.var, tausym),
+                          (tausym, -oo, oo))
+        return self.__class__(result, **assumptions)
 
     
 class Yt(tExpr):
