@@ -89,10 +89,10 @@ def laplace_integral(expr, t, s):
 
     const, expr = factor_const(expr, t)
 
-    if len(expr.args) != 1:
+    if len(expr.args) != 2:
         raise ValueError('Cannot compute Laplace transform of %s' % expr)
 
-    expr = expr.args[0]
+    integrand = expr.args[0]
     
     if not isinstance(expr, sym.Integral):
         raise ValueError('Cannot compute Laplace transform of %s' % expr)
@@ -103,7 +103,7 @@ def laplace_integral(expr, t, s):
     if (expr.args[1][1] != -sym.oo) or (expr.args[1][2] != sym.oo):
         raise ValueError('Need indefinite limits for %s' % expr)
     
-    const2, expr = factor_const(expr.args[0], t)
+    const2, expr = factor_const(integrand, var)
     if ((len(expr.args) != 2)
         or (not isinstance(expr.args[0], AppliedUndef))
         or (not isinstance(expr.args[1], AppliedUndef))):

@@ -388,6 +388,17 @@ class Expr(ExprPrint, ExprMisc):
         # say for subs.
         return hash(self.expr)
 
+
+    def _to_class(self, cls, expr):
+
+        if isinstance(expr, list):
+            return ExprList(expr)
+        elif isinstance(expr, tuple):
+            return ExprTuple(expr)
+        elif isinstance(expr, dict):
+            return ExprDict(expr)
+        return cls(expr)
+    
 # This will allow sym.sympify to magically extract the sympy expression
 # but it will also bypass our __rmul__, __radd__, etc. methods that get called
 # when sympy punts.  Thus pi * t becomes a Mul rather than tExpr.
@@ -422,7 +433,7 @@ class Expr(ExprPrint, ExprMisc):
             ret = a()                
             if hasattr(self, 'assumptions'):
                 return self.__class__(ret, **self.assumptions)
-            return self.__class__(ret)
+            return self._to_class(self.__class__, ret)
 
         # If it is callable, create a function to pass arguments
         # through and wrap its return value.
@@ -442,7 +453,7 @@ class Expr(ExprPrint, ExprMisc):
             cls = self.__class__
             if hasattr(self, 'assumptions'):
                 return cls(ret, **self.assumptions)
-            return cls(ret)
+            return self._to_class(self.__class__, ret)            
         
         return wrap
 
