@@ -121,19 +121,6 @@ def _check_oneport_args(args):
 
 class TwoPortMatrix(Matrix):
 
-    def __new__(cls, *args):
-
-        try:
-            args = [arg.simplify() for arg in args]
-        except:
-            pass
-
-        if len(args) == 4:
-            return super(TwoPortMatrix, cls).__new__(
-                cls, ((args[0], args[1]), (args[2], args[3])))
-
-        return super(TwoPortMatrix, cls).__new__(cls, *args)
-
     # The following properties are fallbacks when other conversions have
     # not been defined.
 
@@ -313,16 +300,16 @@ class AMatrix(TwoPortMatrix):
         det = self.det()
         if det == 0:
             warn('Producing dodgy B matrix')
-        return BMatrix(self.A22 / det, -self.A12 / det,
-                       -self.A21 / det, self.A11 / det)
+        return BMatrix(((self.A22 / det, -self.A12 / det),
+                        (-self.A21 / det, self.A11 / det)))
 
     @property
     def H(self):
 
         if self.A22 == 0:
             warn('Producing dodgy H matrix')
-        return HMatrix(self.A12 / self.A22, self.det() / self.A22,
-                       -1 / self.A22, self.A21 / self.A22)
+        return HMatrix(((self.A12 / self.A22, self.det() / self.A22),
+                        (-1 / self.A22, self.A21 / self.A22)))
 
     @property
     def Y(self):
@@ -331,8 +318,8 @@ class AMatrix(TwoPortMatrix):
         # shunt element).   Note, it doesn't use A21.
         if self.A12 == 0:
             warn('Producing dodgy Y matrix')
-        return YMatrix(self.A22 / self.A12, -self.det() / self.A12,
-                       -1 / self.A12, self.A11 / self.A12)
+        return YMatrix(((self.A22 / self.A12, -self.det() / self.A12),
+                        (-1 / self.A12, self.A11 / self.A12)))
 
     @property
     def Z(self):
@@ -341,8 +328,8 @@ class AMatrix(TwoPortMatrix):
         # series element).   Note, it doesn't use A12.
         if self.A21 == 0:
             warn('Producing dodgy Z matrix')
-        return ZMatrix(self.A11 / self.A21, self.det() / self.A21,
-                       1 / self.A21, self.A22 / self.A21)
+        return ZMatrix(((self.A11 / self.A21, self.det() / self.A21),
+                        (1 / self.A21, self.A22 / self.A21)))
 
     @property
     def Z1oc(self):
@@ -356,7 +343,7 @@ class AMatrix(TwoPortMatrix):
         if not isinstance(Zval, Zs):
             raise ValueError('Zval not Zs')
 
-        return cls(1, Zval, 0, 1)
+        return cls(((1, Zval), (0, 1)))
 
     @classmethod
     def Yseries(cls, Yval):
@@ -364,7 +351,7 @@ class AMatrix(TwoPortMatrix):
         if not isinstance(Yval, Ys):
             raise ValueError('Yval not Ys')
 
-        return cls(1, 1 / Yval, 0, 1)
+        return cls(((1, 1 / Yval), (0, 1)))
 
     @classmethod
     def Yshunt(cls, Yval):
@@ -372,7 +359,7 @@ class AMatrix(TwoPortMatrix):
         if not isinstance(Yval, Ys):
             raise ValueError('Yval not Ys')
 
-        return cls(1, 0, Yval, 1)
+        return cls(((1, 0), (Yval, 1)))
 
     @classmethod
     def Zshunt(cls, Zval):
@@ -380,21 +367,21 @@ class AMatrix(TwoPortMatrix):
         if not isinstance(Zval, Zs):
             raise ValueError('Zval not Zs')
 
-        return cls(1, 0, 1 / Zval, 1)
+        return cls(((1, 0), (1 / Zval, 1)))
 
     @classmethod
     def transformer(cls, alpha):
 
         alpha = cExpr(alpha)
 
-        return cls(1 / alpha, 0, 0, alpha)
+        return cls(((1 / alpha, 0), (0, alpha)))
 
     @classmethod
     def gyrator(cls, R):
 
         R = cExpr(R)
 
-        return cls(0, R, 1 / R, 0)
+        return cls(((0, R), (1 / R, 0)))
 
     @classmethod
     def Lsection(cls, Z1, Z2):
@@ -441,8 +428,8 @@ class BMatrix(TwoPortMatrix):
     def A(self):
         # Inverse
         det = self.det()
-        return AMatrix(
-            self.B22 / det, -self.B12 / det, -self.B21 / det, self.B11 / det)
+        return AMatrix(((self.B22 / det, -self.B12 / det),
+                        (-self.B21 / det, self.B11 / det)))
 
     @property
     def B(self):
@@ -452,26 +439,26 @@ class BMatrix(TwoPortMatrix):
     @property
     def G(self):
 
-        return GMatrix(-self.B21 / self.B22, -1 / self.B22,
-                       self.det() / self.B22, -self.B12 / self.B22)
+        return GMatrix(((-self.B21 / self.B22, -1 / self.B22),
+                        (self.det() / self.B22, -self.B12 / self.B22)))
 
     @property
     def H(self):
 
-        return HMatrix(-self.B12 / self.B11, 1 / self.B11, -
-                       self.det() / self.B11, -self.B21 / self.B11)
+        return HMatrix(((-self.B12 / self.B11, 1 / self.B11),
+                        (-self.det() / self.B11, -self.B21 / self.B11)))
 
     @property
     def Y(self):
 
-        return YMatrix(-self.B11 / self.B12, 1 / self.B12,
-                       self.det() / self.B12, -self.B22 / self.B12)
+        return YMatrix(((-self.B11 / self.B12, 1 / self.B12),
+                        (self.det() / self.B12, -self.B22 / self.B12)))
 
     @property
     def Z(self):
 
-        return ZMatrix(-self.B22 / self.B21, -1 / self.B21, -
-                       self.det() / self.B21, -self.B11 / self.B21)
+        return ZMatrix(((-self.B22 / self.B21, -1 / self.B21),
+                        (-self.det() / self.B21, -self.B11 / self.B21)))
 
     @property
     def Z1oc(self):
@@ -485,7 +472,7 @@ class BMatrix(TwoPortMatrix):
         if not isinstance(Zval, Zs):
             raise ValueError('Zval not Zs')
 
-        return cls(1, -Zval, 0, 1)
+        return cls(((1, -Zval), (0, 1)))
 
     @classmethod
     def Yseries(cls, Yval):
@@ -493,7 +480,7 @@ class BMatrix(TwoPortMatrix):
         if not isinstance(Yval, Ys):
             raise ValueError('Yval not Ys')
 
-        return cls(1, -1 / Yval, 0, 1)
+        return cls(((1, -1 / Yval), (0, 1)))
 
     @classmethod
     def Yshunt(cls, Yval):
@@ -501,7 +488,7 @@ class BMatrix(TwoPortMatrix):
         if not isinstance(Yval, Ys):
             raise ValueError('Yval not Ys')
 
-        return cls(1, 0, -Yval, 1)
+        return cls(((1, 0), (-Yval, 1)))
 
     @classmethod
     def Zshunt(cls, Zval):
@@ -509,7 +496,7 @@ class BMatrix(TwoPortMatrix):
         if not isinstance(Zval, Zs):
             raise ValueError('Zval not Zs')
 
-        return cls(1, 0, -1 / Zval, 1)
+        return cls(((1, 0), (-1 / Zval, 1)))
 
     @classmethod
     def voltage_amplifier(cls, Af, Ar=1e-9, Yin=1e-9, Zout=1e-9):
@@ -550,8 +537,8 @@ class BMatrix(TwoPortMatrix):
         # Perhaps default Ar, Yin, and Zout to 1e-10 to get a reasonable
         # B matrix?
 
-        return cls(1 / Ar, -1 / (Ar * Yin), -1 / (Ar * Zout), -
-                   1 / (Ar * Yin * Zout * (Af * Ar - 1)))
+        return cls(((1 / Ar, -1 / (Ar * Yin),
+                    ( -1 / (Ar * Zout)), -1 / (Ar * Yin * Zout * (Af * Ar - 1)))))
 
     @classmethod
     def current_amplifier(cls, Af, Ar=1e-9, Zin=1e-9, Yout=1e-9):
@@ -589,8 +576,8 @@ class BMatrix(TwoPortMatrix):
         # A = lim x->0  [1/x  -0/x]
         #               [0/x   -Af]
 
-        return cls(1 / Ar, -1 / (Ar * Yout), -1 / (Ar * Zin), -
-                   1 / (Ar * Yout * Zin * (Af * Ar - 1)))
+        return cls(((1 / Ar, -1 / (Ar * Yout)),
+                    (-1 / (Ar * Zin), -1 / (Ar * Yout * Zin * (Af * Ar - 1)))))
 
     @classmethod
     def voltage_differentiator(cls, Av=1):
@@ -617,27 +604,27 @@ class BMatrix(TwoPortMatrix):
 
         alpha = cExpr(alpha)
 
-        return cls(alpha, 0, 0, 1 / alpha)
+        return cls(((alpha, 0), (0, 1 / alpha)))
 
     @classmethod
     def gyrator(cls, R):
 
         R = cExpr(R)
 
-        return cls(0, R, 1 / R, 0)
+        return cls(((0, R), (1 / R, 0)))
 
     @classmethod
     def Lsection(cls, Z1, Z2):
 
         Y = 1 / Z2
-        return cls(1 + Y * Z1, -Z1, -Y, 1)
+        return cls(((1 + Y * Z1), (-Z1, -Y, 1)))
         # return cls.Zseries(Z1).chain(cls.Zshunt(Z2))
 
     @classmethod
     def Tsection(cls, Z1, Z2, Z3):
 
         Y = 1 / Z2
-        return cls(1 + Y * Z1, -Z1 - Z3 * (1 + Y * Z1), -Y, 1 + Y * Z3)
+        return cls(((1 + Y * Z1, -Z1 - Z3 * (1 + Y * Z1)), (-Y, 1 + Y * Z3)))
         # return cls.Lsection(Z1, Z2).chain(cls.Zseries(Z3))
 
     @classmethod
@@ -676,14 +663,14 @@ class GMatrix(TwoPortMatrix):
     @property
     def A(self):
         # return self.H.A
-        return AMatrix(1 / self.G21, self.G22 / self.G21,
-                       self.G11 / self.G21, self.det() / self.G21)
+        return AMatrix(((1 / self.G21, self.G22 / self.G21),
+                        (self.G11 / self.G21, self.det() / self.G21)))
 
     @property
     def B(self):
         # return self.H.B
-        return BMatrix(-self.det() / self.G12, self.G22 /
-                       self.G12, self.G11 / self.G12, -1 / self.G12)
+        return BMatrix(((-self.det() / self.G12),
+                        (self.G22 / self.G12, self.G11 / self.G12, -1 / self.G12)))
 
     @property
     def G(self):
@@ -722,13 +709,13 @@ class HMatrix(TwoPortMatrix):
 
     @property
     def A(self):
-        return AMatrix(-self.det() / self.H21, -self.H11 /
-                       self.H21, -self.H22 / self.H21, -1 / self.H21)
+        return AMatrix(((-self.det() / self.H21),
+                        (-self.H11 / self.H21, -self.H22 / self.H21, -1 / self.H21)))
 
     @property
     def B(self):
-        return BMatrix(1 / self.H12, -self.H11 / self.H12, -
-                       self.H22 / self.H12, self.det() / self.H12)
+        return BMatrix(((1 / self.H12, -self.H11 / self.H12),
+                        (-self.H22 / self.H12, self.det() / self.H12)))
 
     @property
     def H(self):
@@ -737,13 +724,13 @@ class HMatrix(TwoPortMatrix):
 
     @property
     def Y(self):
-        return YMatrix(1 / self.H11, -self.H12 / self.H11,
-                       self.H21 / self.H11, self.det() / self.H11)
+        return YMatrix(((1 / self.H11, -self.H12 / self.H11),
+                        (self.H21 / self.H11, self.det() / self.H11)))
 
     @property
     def Z(self):
-        return ZMatrix(self.det() / self.H22, self.H12 / self.H22,
-                       -self.H21 / self.H22, 1 / self.H22)
+        return ZMatrix(((self.det() / self.H22, self.H12 / self.H22),
+                        (-self.H21 / self.H22, 1 / self.H22)))
 
 
 class YMatrix(TwoPortMatrix):
@@ -769,18 +756,18 @@ class YMatrix(TwoPortMatrix):
 
     @property
     def A(self):
-        return AMatrix(-self.Y22 / self.Y21, -1 / self.Y21, -
-                       self.det() / self.Y21, -self.Y11 / self.Y21)
+        return AMatrix(((-self.Y22 / self.Y21, -1 / self.Y21),
+                        (-self.det() / self.Y21, -self.Y11 / self.Y21)))
 
     @property
     def B(self):
-        return BMatrix(-self.Y11 / self.Y12, 1 / self.Y12,
-                       self.det() / self.Y12, -self.Y22 / self.Y12)
+        return BMatrix(((-self.Y11 / self.Y12, 1 / self.Y12),
+                        (self.det() / self.Y12, -self.Y22 / self.Y12)))
 
     @property
     def H(self):
-        return HMatrix(1 / self.Y11, -self.Y12 / self.Y11,
-                       self.Y21 / self.Y11, self.det() / self.Y11)
+        return HMatrix(((1 / self.Y11, -self.Y12 / self.Y11),
+                        (self.Y21 / self.Y11, self.det() / self.Y11)))
 
     @property
     def Y(self):
@@ -791,8 +778,8 @@ class YMatrix(TwoPortMatrix):
     def Z(self):
         # Inverse
         det = self.det()
-        return ZMatrix(
-            self.Y22 / det, -self.Y12 / det, -self.Y21 / det, self.Y11 / det)
+        return ZMatrix(((self.Y22 / det, -self.Y12 / det),
+                        (-self.Y21 / det, self.Y11 / det)))
 
 
 class ZMatrix(TwoPortMatrix):
@@ -818,25 +805,25 @@ class ZMatrix(TwoPortMatrix):
 
     @property
     def A(self):
-        return AMatrix(self.Z11 / self.Z21, self.det() / self.Z21,
-                       1 / self.Z21, self.Z22 / self.Z21)
+        return AMatrix(((self.Z11 / self.Z21, self.det() / self.Z21),
+                        (1 / self.Z21, self.Z22 / self.Z21)))
 
     @property
     def B(self):
-        return BMatrix(self.Z22 / self.Z12, -self.det() /
-                       self.Z12, -1 / self.Z12, self.Z11 / self.Z12)
+        return BMatrix(((self.Z22 / self.Z12, -self.det() / self.Z12),
+                        (-1 / self.Z12, self.Z11 / self.Z12)))
 
     @property
     def H(self):
-        return HMatrix(self.det() / self.Z22, self.Z12 / self.Z22,
-                       -self.Z21 / self.Z22, 1 / self.Z22)
+        return HMatrix(((self.det() / self.Z22, self.Z12 / self.Z22),
+                        (-self.Z21 / self.Z22, 1 / self.Z22)))
 
     @property
     def Y(self):
         # Inverse
         det = self.det()
-        return YMatrix(
-            self.Z22 / det, -self.Z12 / det, -self.Z21 / det, self.Z11 / det)
+        return YMatrix(((self.Z22 / det, -self.Z12 / det),
+                        (-self.Z21 / det, self.Z11 / det)))
 
     @property
     def Z(self):
@@ -852,7 +839,7 @@ class ZMatrix(TwoPortMatrix):
         # Note if Z3 is infinity then all elements of Z are infinite.
         # Thus we cannot model a single series R with a Z matrix.
         # A single shunt R works though.
-        return cls(Z1 + Z2, Z2, Z2, Z2 + Z3)
+        return cls(((Z1 + Z2, Z2), (Z2, Z2 + Z3)))
 
     @classmethod
     def Pisection(cls, Z1, Z2, Z3):
@@ -2227,7 +2214,8 @@ class OpampInverter(TwoPortBModel):
         R2 = cExpr(R2)
         # FIXME for initial voltages.
         super(OpampInverter, self).__init__(
-            AMatrix(-R1.Z / R2.Z, 0, -1 / R2.Z, 0).B)
+            AMatrix(((-R1.Z / R2.Z, 0),
+                     (-1 / R2.Z, 0).B)))
         self.args = (R1, R2)
 
 
@@ -2241,7 +2229,7 @@ class OpampIntegrator(TwoPortBModel):
         C1 = cExpr(C1)
         # FIXME for initial voltages.
         super(OpampIntegrator, self).__init__(
-            AMatrix(-R1.Z / C1.Z, 0, -1 / C1.Z, 0).B)
+            AMatrix(((-R1.Z / C1.Z, 0), (-1 / C1.Z, 0))).B)
         self.args = (R1, C1)
 
 
@@ -2255,7 +2243,7 @@ class OpampDifferentiator(TwoPortBModel):
         C1 = cExpr(C1)
         # FIXME for initial voltages.
         super(OpampDifferentiator, self).__init__(
-            AMatrix(-R1.Z * C1.Z, 0, -R1.Z, 0).B)
+            AMatrix(((-R1.Z * C1.Z, 0), (-R1.Z, 0))).B)
         self.args = (R1, C1)
 
 
@@ -2492,7 +2480,7 @@ class GeneralTxLine(TwoPortBModel):
         B21 = 0.5 * (1 / H - H) / Z0
         B22 = 0.5 * (H + 1 / H)
 
-        super(GeneralTxLine, self).__init__(BMatrix(B11, B12, B21, B22))
+        super(GeneralTxLine, self).__init__(BMatrix(((B11, B12), (B21, B22))))
         self.args = (Z0, gamma, l)
 
 
