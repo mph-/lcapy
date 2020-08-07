@@ -98,7 +98,7 @@ def laplace_integral(expr, t, s):
         raise ValueError('Cannot compute Laplace transform of %s' % expr)
 
     # Look for convolution integral
-    
+    # TODO, handle convolution with causal functions.
     var = expr.args[1][0]
     if (expr.args[1][1] != -sym.oo) or (expr.args[1][2] != sym.oo):
         raise ValueError('Need indefinite limits for %s' % expr)

@@ -774,38 +774,85 @@ class NetlistMixin(object):
 
         from .twoport import AMatrix
 
-        if self.Voc(N1p, N1m) != 0 or self.Voc(N2p, N2m) != 0:
-            raise ValueError('Network contains independent sources')
+        net = self.kill()        
+        if '0' not in net.nodes:
+            net.add('W %s 0' % N1m)                           
 
         try:
-            self.add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+            net.add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
-            A11 = Hs(self.V1_.V.laplace() / self.Voc(N2p, N2m).laplace())
+            A11 = Hs(net.V1_.V(s) / net.Voc(N2p, N2m)(s))
 
             # A12 = V1 / I2 with V2 = 0
             # Apply V1 and measure I2 with port 2 short-circuit
-            A12 = Zs(self.V1_.V.laplace() / self.Isc(N2p, N2m).laplace())
+            A12 = Zs(net.V1_.V(s) / net.Isc(N2p, N2m)(s))
 
-            self.remove('V1_')
+            net.remove('V1_')
 
-            self.add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+            net.add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
-            A21 = Ys(-self.I1_.I.laplace() / self.Voc(N2p, N2m).laplace())
+            A21 = Ys(-net.I1_.I(s) / net.Voc(N2p, N2m)(s))
 
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure I2 with port 2 short-circuit
-            A22 = Hs(-self.I1_.I.laplace() / self.Isc(N2p, N2m).laplace())
+            A22 = Hs(-net.I1_.I(s) / net.Isc(N2p, N2m)(s))
 
-            self.remove('I1_')
+            net.remove('I1_')
             A = AMatrix(A11, A12, A21, A22)
             return A
 
         except ValueError:
             raise ValueError('Cannot create A matrix')
+
+
+    def Zmatrix(self, N1p, N1m, N2p, N2m):
+        """Create Z matrix from network, where:
+        I1 is the current flowing into N1p and out of N1m
+        I2 is the current flowing into N2p and out of N2m
+        V1 is V[N1p] - V[N1m]
+        V2 is V[N2p] - V[N2m]
+        """
+
+        from .twoport import ZMatrix
+
+        net = self.kill()
+        if '0' not in net.nodes:
+            net.add('W %s 0' % N1m)
+
+        try:
+            net.add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+
+            # Z11 = V1 / I1 with I2 = 0
+            # Apply I1 and measure V1 with port 2 open-circuit
+            Z11 = Zs(net.Voc(N1p, N1m)(s) / net.I1_.I(s))
+
+            # Z21 = V2 / I1 with I2 = 0
+            # Apply I1 and measure V2 with port 2 open-circuit
+            Z21 = Zs(net.Voc(N2p, N2m)(s) / net.I1_.I(s))          
+
+            net.remove('I1_')
+
+            net.add('I2_ %s %s {DiracDelta(t)}' % (N2p, N2m))
+
+            # Z12 = V1 / I2 with I1 = 0
+            # Apply I2 and measure V1 with port 1 open-circuit
+            Z12 = Zs(net.Voc(N1p, N1m)(s) / net.I2_.I(s))
+
+            # Z22 = V2 / I2 with I1 = 0
+            # Apply I2 and measure V2 with port 1 open-circuit
+            Z22 = Zs(net.Voc(N2p, N2m)(s) / net.I2_.I(s))          
+
+            net.remove('I2_')            
+
+            Z = ZMatrix(Z11, Z12, Z21, Z22)
+            return Z
+
+        except ValueError:
+            raise ValueError('Cannot create Z matrix')        
 
     def save(self, filename):
         """Save netlist to file."""
@@ -944,22 +991,44 @@ class NetlistMixin(object):
 
         return self._noisy(resistors)
 
-    def twoport(self, N1p, N1m, N2p, N2m):
-        """Create twoport model from network, where:
+    def twoport(self, N1p, N1m, N2p, N2m, model='B'):
+        """Create s-domain twoport model from network, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
         """
 
-        from .twoport import TwoPortBModel
+        from .twoport import TwoPortBModel, TwoPortHModel, TwoPortYModel, TwoPortZModel
 
-        V2b = self.Voc(N2p, N2m)
-        I2b = self.Isc(N2p, N2m)
+        # TODO, generalise for not just s-domain.
 
-        A = self.kill().Amatrix(N1p, N1m, N2p, N2m)
+        net = self.copy()
+        if '0' not in net.nodes:
+            net.add('W %s 0' % N1m)        
 
-        return TwoPortBModel(A.B, V2b, I2b)
+        if model == 'B':
+            V2b = net.Voc(N2p, N2m)(s)
+            I2b = net.Isc(N2p, N2m)(s)
+            A = net.Amatrix(N1p, N1m, N2p, N2m)
+            return TwoPortBModel(A.B, V2b, I2b)
+        elif model == 'Z':
+            V1 = net.Voc(N1p, N1m)(s)
+            V2 = net.Voc(N2p, N2m)(s)
+            Z = net.Zmatrix(N1p, N1m, N2p, N2m)            
+            return TwoPortZModel(Z, V1, V2)
+        elif model == 'Z':
+            I1 = net.Isc(N1p, N1m)(s)
+            I2 = net.Isc(N2p, N2m)(s)
+            Z = net.Zmatrix(N1p, N1m, N2p, N2m)            
+            return TwoPortYModel(Z.Y, I1, I2)        
+        elif model == 'H':
+            V1 = net.Voc(N1p, N1m)(s)
+            I2 = net.Isc(N2p, N2m)(s)
+            Z = net.Zmatrix(N1p, N1m, N2p, N2m)            
+            return TwoPortHModel(Z.H, V1, I2)
+        else:
+            raise ValueError('Model %s unknown, must be B, H, Y, or Z' % model)
 
     @property
     def sch(self):
