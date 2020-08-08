@@ -138,6 +138,10 @@ class MNAMixin(object):
         
         # Solve for the nodal voltages
         try:
+            # The default method, Gaussian elimination, is the fastest
+            # but hangs on some matrices.
+            # Comparative times for the testsuites are:
+            # GE 66, ADJ 73, LU 76.
             Ainv = self._A.inv()
         except ValueError:
             comment = ''
