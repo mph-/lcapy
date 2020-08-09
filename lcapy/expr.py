@@ -1324,7 +1324,7 @@ class Expr(ExprPrint, ExprMisc):
         """Simplify terms in expression individually."""
 
         result = 0
-        for term in self.expr.as_ordered_terms():
+        for term in self.expr.expand().as_ordered_terms():
             result += symsimplify(term)
         return self.__class__(result, **self.assumptions)
 
@@ -1332,8 +1332,8 @@ class Expr(ExprPrint, ExprMisc):
         """Simplify factors in expression individually."""
 
         result = 0
-        for factor in self.expr.as_ordered_factors():
-            result += symsimplify(factor)
+        for factor in self.expr.factor().as_ordered_factors():
+            result *= symsimplify(factor)
         return self.__class__(result, **self.assumptions)        
 
     def replace(self, query, value, map=False, simultaneous=True, exact=None):
