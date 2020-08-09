@@ -10,7 +10,7 @@ excludes = ['I', 'C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta',
 
 # Aliases for SymPy symbols
 aliases = {'delta': 'DiracDelta', 'step': 'Heaviside', 'u': 'Heaviside',
-           'j': 'I'}
+           'H': 'Heaviside', 'j': 'I'}
 
 import sympy as sym
 str_expr_map = {sym.I: 'j'}
