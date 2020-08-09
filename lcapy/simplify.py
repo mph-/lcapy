@@ -4,7 +4,7 @@ Copyright 2020 Michael Hayes, UCECE
 
 """
 
-from sympy import Add, Mul, DiracDelta, Heaviside, Integral
+from sympy import Add, Mul, DiracDelta, Heaviside, Integral, oo
 
 
 def simplify_dirac_delta_term(expr):
@@ -76,21 +76,25 @@ def simplify_heaviside(expr):
         lower_limit = expr.args[1][1]
         upper_limit = expr.args[1][2]
 
+        # Rewrite integral limits if Heaviside is a factor of the
+        # integrand.
+        # TODO, be more clever if limits not infinite, say using min(l1, l2)
+        
         result = 1
         for factor in integrand.as_ordered_factors():
             if isinstance(factor, Heaviside):
                 arg = factor.args[0]
-                if arg == var:
+                if arg == var and lower_limit == -oo:
                     lower_limit = 0
                     factor = 1
-                elif arg == -var:
+                elif arg == -var and upper_limit == oo:
                     upper_limit = 0
                     factor = 1
-                elif arg.is_Add and arg.has(-var):
-                    upper_limit = arg + var
+                elif arg.is_Add and arg.has(-var) and upper_limit == -oo:
+                    upper_limit = var + arg
                     factor = 1
-                elif arg.is_Add and arg.has(var):
-                    lower_limit = arg - var
+                elif arg.is_Add and arg.has(var) and lower_limit == oo:
+                    lower_limit = var - arg
                     factor = 1                                        
                     
             result *= factor
