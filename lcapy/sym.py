@@ -256,6 +256,47 @@ def simplify_dirac_delta(expr, expand=False):
     return sym.Add(*[simplify_dirac_delta_term(term) for term in terms])
 
 
+def simplify_heaviside(expr):
+
+    if not expr.has(sym.Heaviside):
+        return expr
+
+    # H(t) x H(t) = H(t)
+
+    if not expr.has(sym.Integral):
+        return expr
+
+    def query(expr):
+
+        if not isinstance(expr, sym.Integral):
+            return False
+        return expr.has(sym.Heaviside)
+
+    def value(expr):
+
+        integrand = expr.args[0]
+        var = expr.args[1][0]
+        lower_limit = expr.args[1][1]
+        upper_limit = expr.args[1][2]
+
+        result = 1
+        for factor in integrand.as_ordered_factors():
+            if isinstance(factor, sym.Heaviside):
+                arg = factor.args[0]
+                if arg == var:
+                    lower_limit = 0
+                    factor = 1
+                elif arg == -var:
+                    upper_limit = 0
+                    factor = 1                    
+            result *= factor
+
+        return sym.Integral(result, (var, lower_limit, upper_limit))
+    
+    expr = expr.replace(query, value)
+    
+    return expr
+
 def symsimplify(expr):
     """Simplify a SymPy expression.  This is a hack to work around
     problems with SymPy's simplify API."""
@@ -266,6 +307,8 @@ def symsimplify(expr):
 
     if expr.has(sym.DiracDelta):
         expr = simplify_dirac_delta(expr)
+    if expr.has(sym.Heaviside):
+        expr = simplify_heaviside(expr)        
     
     try:
         if expr.is_Function and expr.func in (sym.Heaviside, sym.DiracDelta):
