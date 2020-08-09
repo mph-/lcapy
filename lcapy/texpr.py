@@ -166,15 +166,18 @@ class tExpr(Expr):
         expr = expr * Heaviside(t)
         return self.__class__(expr)        
 
-    def convolve(self, impulseresponse, **assumptions):
+    def convolve(self, impulseresponse, commutate=False, **assumptions):
         """Convolve self with impulse response."""
 
         if not isinstance(impulseresponse, tExpr):
             raise ValueError('Expecting tExpr for impulse response')
 
-        expr = self.expr
-        result = Integral(expr.subs(self.var, self.var - tausym) *
-                          impulseresponse.expr.subs(self.var, tausym),
+        f1 = self.expr
+        f2 = impulseresponse.expr
+        if commutate:
+            f1, f2 = f2, f1
+        result = Integral(f1.subs(self.var, self.var - tausym) *
+                          f2.subs(self.var, tausym),
                           (tausym, -oo, oo))
         return self.__class__(result, **assumptions)
 
