@@ -85,7 +85,14 @@ def simplify_heaviside(expr):
                     factor = 1
                 elif arg == -var:
                     upper_limit = 0
-                    factor = 1                    
+                    factor = 1
+                elif arg.is_Add and arg.has(-var):
+                    upper_limit = arg + var
+                    factor = 1
+                elif arg.is_Add and arg.has(var):
+                    lower_limit = arg - var
+                    factor = 1                                        
+                    
             result *= factor
 
         return Integral(result, (var, lower_limit, upper_limit))
