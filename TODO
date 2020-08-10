@@ -90,6 +90,15 @@ calculated for other domains?  The problem at the moment is the kind
 attribute.  This gets lost, say when using .limit().  Note,
 Z(s).limit() works as expected.
 
+19. Teach sifting theorem for Dirac delta.
+
+20. Add LT for Integral(x(t - tau) * Heaviside(tau), (tau, -oo, oo))
+
+21. Add LT for Integral(x(t - tau), (tau, 0, oo))
+
+22. Warn about coupled inductors at DC?  LT methods will blindly give
+an answer that appears valid for DC.
+
 
 Testing
 =======

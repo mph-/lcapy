@@ -9,20 +9,16 @@ import random
 
 class RandomNetworkMaker(object):
 
-    def __init__(self, NR=3, NL=0, NC=0, NV=1, NI=0, kind='transient'):
+    def __init__(self, NR=3, NL=0, NC=0, NV=1, NI=0,
+                 Nparallel=None, kind='transient'):
         
         self.NR = NR
         self.NL = NL
         self.NC = NC
         self.NV = NV
         self.NI = NI
+        self.Nparallel = Nparallel
         self.kind = kind
-
-    def __call__(self):
-
-        return self.make()
-
-    def make(self):
 
         cpts = []
         cpts.extend(self._add_cpts(R, self.NR))
@@ -41,11 +37,29 @@ class RandomNetworkMaker(object):
         else:
             raise ValueError('Unknown circuit kind %s' % self.kind)
 
-        cpts = random.sample(cpts, len(cpts))
+        self.cpts = cpts
+
+        Nconnections = len(cpts) - 1
+        
+        if Nparallel is None:
+            self.connections = random.choices((True, False), k=Nconnections)
+        else:
+            Nparallel = min(Nparallel, Nconnections)
+            Nseries = Nconnections - Nparallel
+            self.connections = [True] * Nparallel + [False] * Nseries
+
+    def __call__(self):
+
+        return self.make()
+
+    def make(self):
+
+        cpts = random.sample(self.cpts, len(self.cpts))
+        connections = random.sample(self.connections, len(self.connections))        
 
         net = cpts[0]
-        for cpt in cpts[1:]:
-            if random.choice((True, False)):
+        for cpt, connection in zip(cpts[1:], connections):
+            if connection:
                 net = net.parallel(cpt)
             else:
                 net = net.series(cpt)            
@@ -59,8 +73,8 @@ class RandomNetworkMaker(object):
         return cpts
 
     
-def random_network(NR=3, NL=0, NC=0, NV=1, NI=0, kind='transient'):
+def random_network(NR=3, NL=0, NC=0, NV=1, NI=0, Nparallel=None, kind='transient'):
 
-    return RandomNetworkMaker(NR, NL, NV, NV, NI, kind).make()
+    return RandomNetworkMaker(NR, NL, NV, NV, NI, Nparallel, kind).make()
 
 
