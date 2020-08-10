@@ -3,7 +3,7 @@ networks.
 
 Copyright 2020 Michael Hayes, UCECE"""
 
-from .oneport import V, I, Vstep, Istep, Vac, Iac, R, L, C
+from .oneport import Vdc, Idc, Vstep, Istep, Vac, Iac, R, L, C
 import random
 
 
@@ -32,10 +32,10 @@ class RandomNetworkMaker(object):
         if self.kind == 'transient':
             cpts.extend(self._add_cpts(Vstep, self.NV))
             cpts.extend(self._add_cpts(Istep, self.NI))
-        elif kind == 'dc':
-            cpts.extend(self._add_cpts(Vstep, self.NV))
-            cpts.extend(self._add_cpts(Istep, self.NI))
-        elif kind == 'ac':
+        elif self.kind == 'dc':
+            cpts.extend(self._add_cpts(Vdc, self.NV))
+            cpts.extend(self._add_cpts(Idc, self.NI))
+        elif self.kind == 'ac':
             cpts.extend(self._add_cpts(Vac, self.NV))
             cpts.extend(self._add_cpts(Iac, self.NI))            
         else:
