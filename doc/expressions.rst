@@ -377,7 +377,12 @@ Utility functions
 
 Note, SymPy does not allow symbol names that are Python keywords.  For example,
 `expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.
-  
+
+- `simplify_terms()` expand expression into terms and simplify each term.
+
+- `simplify_factor()` factor expression and simplify each factor.
+
+- `limit()` compute a limit.  
   
 Transformation and substitution
 ===============================      
