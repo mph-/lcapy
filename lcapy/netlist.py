@@ -856,11 +856,11 @@ class NetlistMixin(object):
 
             # Z11 = V1 / I1 with I2 = 0
             # Apply I1 and measure V1 with port 2 open-circuit
-            Z11 = Zs(net.Voc(N1p, N1m)(s) / net.I1_.I(s))
+            Z11 = Zs(net.Voc(N1p, N1m)(s))
 
             # Z21 = V2 / I1 with I2 = 0
             # Apply I1 and measure V2 with port 2 open-circuit
-            Z21 = Zs(net.Voc(N2p, N2m)(s) / net.I1_.I(s))          
+            Z21 = Zs(net.Voc(N2p, N2m)(s))          
 
             net.remove('I1_')
 
@@ -868,11 +868,11 @@ class NetlistMixin(object):
 
             # Z12 = V1 / I2 with I1 = 0
             # Apply I2 and measure V1 with port 1 open-circuit
-            Z12 = Zs(net.Voc(N1p, N1m)(s) / net.I2_.I(s))
+            Z12 = Zs(net.Voc(N1p, N1m)(s))
 
             # Z22 = V2 / I2 with I1 = 0
             # Apply I2 and measure V2 with port 1 open-circuit
-            Z22 = Zs(net.Voc(N2p, N2m)(s) / net.I2_.I(s))          
+            Z22 = Zs(net.Voc(N2p, N2m)(s))          
 
             net.remove('I2_')            
 
