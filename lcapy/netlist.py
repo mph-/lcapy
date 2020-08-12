@@ -814,11 +814,18 @@ class NetlistMixin(object):
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure I2 with port 2 open-circuit
-            A21 = Ys(-net.I1_.I(s) / net.Voc(N2p, N2m)(s))
+            try:
+                A21 = Ys(-1 / net.Voc(N2p, N2m)(s))                
+            except ValueError:
+                # It is likely there is an open-circuit.                
+                net2 = net.copy()
+                net2.add('W %s %s' % (N2p, N2m))
+                A21 = Ys(-net2.I1_.I(s) / net2.Voc(N2p, N2m)(s))
+                A21 = 0                
 
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure I2 with port 2 short-circuit
-            A22 = Hs(-net.I1_.I(s) / net.Isc(N2p, N2m)(s))
+            A22 = Hs(1 / net.Isc(N2p, N2m)(s))
 
             net.remove('I1_')
             A = AMatrix(((A11, A12), (A21, A22)))
