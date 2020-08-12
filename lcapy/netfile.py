@@ -87,6 +87,7 @@ class NetfileMixin(object):
         self._invalidate()
         if self.context is not None:        
             state.restore_context()
+        return self
         
     def _add(self, string, namespace=''):
         """The general form is: 'Name Np Nm symbol'

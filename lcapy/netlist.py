@@ -381,6 +381,7 @@ class NetlistMixin(object):
         self._elements.pop(name)
         # TODO, remove nodes that are only connected
         # to this component.
+        return self        
 
     @property
     def equipotential_nodes(self):
