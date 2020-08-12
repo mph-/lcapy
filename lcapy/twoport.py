@@ -343,7 +343,8 @@ class AMatrix(TwoPortMatrix):
         if not isinstance(Zval, Zs):
             raise ValueError('Zval not Zs')
 
-        return cls(((1, Zval), (0, 1)))
+        return cls(((1, Zval),
+                    (0, 1)))
 
     @classmethod
     def Yseries(cls, Yval):
@@ -351,7 +352,8 @@ class AMatrix(TwoPortMatrix):
         if not isinstance(Yval, Ys):
             raise ValueError('Yval not Ys')
 
-        return cls(((1, 1 / Yval), (0, 1)))
+        return cls(((1, 1 / Yval),
+                    (0, 1)))
 
     @classmethod
     def Yshunt(cls, Yval):
@@ -359,7 +361,8 @@ class AMatrix(TwoPortMatrix):
         if not isinstance(Yval, Ys):
             raise ValueError('Yval not Ys')
 
-        return cls(((1, 0), (Yval, 1)))
+        return cls(((1, 0),
+                    (Yval, 1)))
 
     @classmethod
     def Zshunt(cls, Zval):
@@ -367,21 +370,24 @@ class AMatrix(TwoPortMatrix):
         if not isinstance(Zval, Zs):
             raise ValueError('Zval not Zs')
 
-        return cls(((1, 0), (1 / Zval, 1)))
+        return cls(((1, 0),
+                    (1 / Zval, 1)))
 
     @classmethod
     def transformer(cls, alpha):
 
         alpha = cExpr(alpha)
 
-        return cls(((1 / alpha, 0), (0, alpha)))
+        return cls(((1 / alpha, 0),
+                    (0, alpha)))
 
     @classmethod
     def gyrator(cls, R):
 
         R = cExpr(R)
 
-        return cls(((0, R), (1 / R, 0)))
+        return cls(((0, R),
+                    (1 / R, 0)))
 
     @classmethod
     def Lsection(cls, Z1, Z2):
@@ -472,7 +478,8 @@ class BMatrix(TwoPortMatrix):
         if not isinstance(Zval, Zs):
             raise ValueError('Zval not Zs')
 
-        return cls(((1, -Zval), (0, 1)))
+        return cls(((1, -Zval),
+                    (0, 1)))
 
     @classmethod
     def Yseries(cls, Yval):
@@ -480,7 +487,8 @@ class BMatrix(TwoPortMatrix):
         if not isinstance(Yval, Ys):
             raise ValueError('Yval not Ys')
 
-        return cls(((1, -1 / Yval), (0, 1)))
+        return cls(((1, -1 / Yval),
+                    (0, 1)))
 
     @classmethod
     def Yshunt(cls, Yval):
@@ -488,7 +496,8 @@ class BMatrix(TwoPortMatrix):
         if not isinstance(Yval, Ys):
             raise ValueError('Yval not Ys')
 
-        return cls(((1, 0), (-Yval, 1)))
+        return cls(((1, 0),
+                    (-Yval, 1)))
 
     @classmethod
     def Zshunt(cls, Zval):
@@ -496,7 +505,8 @@ class BMatrix(TwoPortMatrix):
         if not isinstance(Zval, Zs):
             raise ValueError('Zval not Zs')
 
-        return cls(((1, 0), (-1 / Zval, 1)))
+        return cls(((1, 0),
+                    (-1 / Zval, 1)))
 
     @classmethod
     def voltage_amplifier(cls, Af, Ar=1e-9, Yin=1e-9, Zout=1e-9):
@@ -604,27 +614,31 @@ class BMatrix(TwoPortMatrix):
 
         alpha = cExpr(alpha)
 
-        return cls(((alpha, 0), (0, 1 / alpha)))
+        return cls(((alpha, 0),
+                    (0, 1 / alpha)))
 
     @classmethod
     def gyrator(cls, R):
 
         R = cExpr(R)
 
-        return cls(((0, R), (1 / R, 0)))
+        return cls(((0, R),
+                    (1 / R, 0)))
 
     @classmethod
     def Lsection(cls, Z1, Z2):
 
         Y = 1 / Z2
-        return cls(((1 + Y * Z1), (-Z1, -Y, 1)))
+        return cls(((1 + Y * Z1, -Z1),
+                    (-Y, 1)))
         # return cls.Zseries(Z1).chain(cls.Zshunt(Z2))
 
     @classmethod
     def Tsection(cls, Z1, Z2, Z3):
 
         Y = 1 / Z2
-        return cls(((1 + Y * Z1, -Z1 - Z3 * (1 + Y * Z1)), (-Y, 1 + Y * Z3)))
+        return cls(((1 + Y * Z1, -Z1 - Z3 * (1 + Y * Z1)),
+                    (-Y, 1 + Y * Z3)))
         # return cls.Lsection(Z1, Z2).chain(cls.Zseries(Z3))
 
     @classmethod
@@ -839,7 +853,8 @@ class ZMatrix(TwoPortMatrix):
         # Note if Z3 is infinity then all elements of Z are infinite.
         # Thus we cannot model a single series R with a Z matrix.
         # A single shunt R works though.
-        return cls(((Z1 + Z2, Z2), (Z2, Z2 + Z3)))
+        return cls(((Z1 + Z2, Z2),
+                    (Z2, Z2 + Z3)))
 
     @classmethod
     def Pisection(cls, Z1, Z2, Z3):
@@ -2518,3 +2533,17 @@ class TxLine(GeneralTxLine):
         Z0 = sym.sqrt(Z / Y)
 
         super(TxLine, self).__init__(Z0, gamma, l)
+
+if False:        
+    A = AMatrix(((expr('a11'), expr('a12')),
+                 (expr('a21'), expr('a22'))))
+    
+    Y = YMatrix(((expr('y11'), expr('y12')),
+                 (expr('y21'), expr('y22'))))
+    
+    Z = ZMatrix(((expr('z11'), expr('z12')),
+                 (expr('z21'), expr('z22'))))
+
+
+
+                  
