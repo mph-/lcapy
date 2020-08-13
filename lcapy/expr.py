@@ -1250,6 +1250,14 @@ class Expr(ExprPrint, ExprMisc):
                 cls = class_map[(self.__class__, new.__class__)]
 
         old = symbol_map(old)
+
+        if isinstance(expr, list):
+            # Get lists from solve.  These stymy sympy's subs.
+            if len(expr) == 1:
+                expr = expr[0]
+            else:
+                print('Warning, substituting a list...')
+        
         result = self.expr.subs(old, expr)
 
         # If get empty Piecewise, then result unknowable.  TODO: sympy
