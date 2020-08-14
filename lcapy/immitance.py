@@ -14,7 +14,7 @@ from .sym import omegasym
 
 class Immitance(sExpr):
     
-    def __init__(self, val, kind=None, causal=True, positive=True, **assumptions):
+    def __init__(self, val, kind=None, causal=True, positive=False, **assumptions):
         """Create an immittance (impedance/admittance).
 
         Note, by default, `positive` is False.  Thus if `val` is a
