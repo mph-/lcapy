@@ -15,7 +15,7 @@ def msympify(expr):
     # have mixed data types, e.g., A matrix.
 
     if isinstance(expr, Expr):
-        # Bye bye lcapy type information...
+        # Bye bye Lcapy type information...
         return expr.expr
     return sym.sympify(expr)
         
@@ -76,6 +76,7 @@ class Matrix(sym.Matrix):
         return latex(self, **kwargs)
 
     def canonical(self):
+        
         return self
 
     # TODO. There is probably a cunning way to automatically handle
@@ -90,8 +91,17 @@ class Matrix(sym.Matrix):
         return sym.Matrix(self).det()
 
     def simplify(self):
+        
         return self.applyfunc(simplify)
 
+    @property
+    def symbols(self):
+
+        symbols = {}
+        for elt in self:
+            symbols.update(expr(elt).symbols)
+        return symbols        
+    
 
 def matrix(mat):
     """Create Lcapy Matrix from a SymPy Matrix.
@@ -118,4 +128,4 @@ def matrix(mat):
     else:
         return mat
 
-from .expr import Expr
+from .expr import Expr, expr
