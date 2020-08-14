@@ -88,7 +88,13 @@ class Matrix(sym.Matrix):
 
     def det(self):
 
-        return sym.Matrix(self).det()
+        return expr(super(Matrix, self).det())        
+
+    def norm(self):
+
+        return expr(super(Matrix, self).norm())
+
+    # TODO, either need to explicitly wrap methods or use some cunning implicit method.
 
     def simplify(self):
         
