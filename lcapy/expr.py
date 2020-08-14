@@ -1926,6 +1926,17 @@ def symbol(name, **assumptions):
     return Expr(symsymbol(name, **assumptions))
 
 
+def symbols(names, **assumptions):
+
+    from .parser import split
+
+    namelist = split(names, ", ")
+    symbols = []
+    for name in namelist:
+        symbols.append(symbol(name, **assumptions))
+    return symbols
+
+
 from .cexpr import cExpr        
 from .fexpr import Hf, If, Vf, Yf, Zf, fExpr, fexpr
 from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr, sexpr
