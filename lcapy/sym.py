@@ -198,6 +198,10 @@ def sympify(expr, evaluate=True, **assumptions):
         assumptions['positive'] = True
         # Note this implies that imag is False.   Also note that all
         # reals are considered complex (but with a zero imag part).
+    elif 'positive' in assumptions:
+        if not assumptions['positive']:
+            assumptions.pop('positive')
+        
     return sympify1(expr, state.context.symbols, evaluate, **assumptions)
 
 

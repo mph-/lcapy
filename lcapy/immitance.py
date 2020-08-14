@@ -1,7 +1,7 @@
 """This module provides the Immittance class, the base class for
 Admittance and Impedance and the rest of the menagerie.
 
-Copyright 2019 Michael Hayes, UCECE
+Copyright 2019-202 Michael Hayes, UCECE
 
 """
 
@@ -14,9 +14,17 @@ from .sym import omegasym
 
 class Immitance(sExpr):
     
-    def __init__(self, val, kind=None, causal=True, **assumptions):
+    def __init__(self, val, kind=None, causal=True, positive=False, **assumptions):
+        """Create an immittance (impedance/admittance).
 
-        val = expr(val)
+        Note, by default, `positive` is False.  Thus if `val` is a
+        string, any symbols specified in the string will be assumed to
+        be complex.  For example, `Impedance('Z')`.  However, the
+        symbols R and L in `Impedance('R + s * L')` will be assumed to
+        be complex unless these symbols have been previously defined
+        otherwise.  This may stymy some simplification."""
+        
+        val = expr(val, positive=positive)
         if isinstance(val, omegaExpr) and kind is None:
             val = val.subs(omega, s / j)
         
@@ -25,6 +33,7 @@ class Immitance(sExpr):
 
     @property
     def _pexpr(self):
+
         """Return expression for printing."""
 
         kind = self.kind
