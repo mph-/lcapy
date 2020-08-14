@@ -1,7 +1,7 @@
 """This module provides the Immittance class, the base class for
 Admittance and Impedance and the rest of the menagerie.
 
-Copyright 2019-202 Michael Hayes, UCECE
+Copyright 2019-2020 Michael Hayes, UCECE
 
 """
 
@@ -14,7 +14,7 @@ from .sym import omegasym
 
 class Immitance(sExpr):
     
-    def __init__(self, val, kind=None, causal=True, positive=False, **assumptions):
+    def __init__(self, val, kind=None, causal=True, positive=True, **assumptions):
         """Create an immittance (impedance/admittance).
 
         Note, by default, `positive` is False.  Thus if `val` is a
