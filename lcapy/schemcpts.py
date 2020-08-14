@@ -54,7 +54,7 @@ class Cpt(object):
     voltage_keys = ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
                     'v<', 'v>')
     current_keys = ('i', 'i_', 'i^', 'i_>',  'i_<', 'i^>', 'i^<',
-                    'i>_', 'i<_', 'i>^', 'i<^', 'i>', 'i<')
+                    'i>_', 'i<_', 'i>^', 'i<^', 'i>', 'i<', 'ir')
     flow_keys = ('f', 'f_', 'f^', 'f_>',  'f_<', 'f^>', 'f^<',
                     'f>_', 'f<_', 'f>^', 'f<^', 'f>', 'f<')    
     label_keys = ('l', 'l_', 'l^')
@@ -786,6 +786,10 @@ class Cpt(object):
     @property
     def current_str(self):
 
+        if 'ir' in self.opts:
+            label = self.opts.pop('ir')
+            self.opts.add('i_<=' + label)
+        
         return self.opts_str(self.current_keys)
 
     @property
@@ -2991,7 +2995,6 @@ class Wire(Bipole):
             # W 2 0; implicit            
             
             node_names = (node_names[0], '_' + name + '@' + node_names[1])
-        
         super(Wire, self).__init__(sch, namespace, defname, name, cpt_type,
                                    cpt_id, string,
                                    opts_string, node_names, keyword, *args)
