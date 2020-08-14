@@ -11,7 +11,7 @@ class Function(object):
     def __init__(self, arg):
         self.expr = arg
     
-    def __call__(self, *args):
+    def __call__(self, *args, evaluate=False):
 
         cls = args[0].__class__
 
@@ -32,7 +32,7 @@ class Function(object):
                     # Need to avoid substituting constants
                     result = result.subs(tweak_args[m], arg)
 
-        return result
+        return expr(result)
 
     
 class Log10(Function):
@@ -91,6 +91,33 @@ u = H = heaviside = Heaviside = Function(sym.Heaviside)
 
 delta = DiracDelta = Function(sym.DiracDelta)
 
+
+class Eq(sym.Eq):
+    def __new__(cls, lhs, rhs=None, **options):
+        return expr(super(Eq, cls).__new__(cls, lhs, rhs, **options))
+
+
+class Add(sym.Add):
+    def __new__(cls, op1, op2, **options):
+        return expr(super(Add, cls).__new__(cls, op1, op2, **options))
+
+    
+class Mul(sym.Mul):
+    def __new__(cls, op1, op2, **options):
+        return expr(super(Mul, cls).__new__(cls, op1, op2, **options))
+
+    
+class MatAdd(sym.MatAdd):
+    def __new__(cls, op1, op2, **options):
+        return expr(super(MatAdd, cls).__new__(cls, op1, op2, **options))
+
+    
+class MatMul(sym.MatMul):
+    def __new__(cls, op1, op2, **options):
+        return expr(super(MatMul, cls).__new__(cls, op1, op2, **options))                
+
+
+
 from sympy.core import S, Integer
 from sympy.core.logic import fuzzy_not
 
@@ -132,4 +159,4 @@ class UnitStep(sym.Function):
 us = unitstep = Function(UnitStep)
 
 
-from .expr import Expr
+from .expr import Expr, expr
