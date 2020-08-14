@@ -684,7 +684,7 @@ example to draw two parallel resistors:
 .. literalinclude:: examples/schematics/parallel.sch
 
 .. image:: examples/schematics/parallel.png
-   :width: 2cm
+   :width: 2.5cm
 
 
 Stepped wires
@@ -1073,6 +1073,11 @@ Here are some examples of current and flow label positioning:
 
 .. image:: examples/schematics/current_labels1.png
    :width: 20cm
+
+.. literalinclude:: examples/schematics/current_labels2.sch
+
+.. image:: examples/schematics/current_labels2.png
+   :width: 20cm           
 
 .. literalinclude:: examples/schematics/flow_labels1.sch
 
