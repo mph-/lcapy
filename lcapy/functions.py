@@ -91,30 +91,35 @@ u = H = heaviside = Heaviside = Function(sym.Heaviside)
 
 delta = DiracDelta = Function(sym.DiracDelta)
 
+def _ex(expr):
+    if hasattr(expr, 'expr'):
+        return expr.expr
+    return expr
+
 
 class Eq(sym.Eq):
     def __new__(cls, lhs, rhs=None, **options):
-        return expr(super(Eq, cls).__new__(cls, lhs, rhs, **options))
+        return expr(super(Eq, cls).__new__(cls, _ex(lhs), _ex(rhs), **options))
 
 
 class Add(sym.Add):
     def __new__(cls, op1, op2, **options):
-        return expr(super(Add, cls).__new__(cls, op1, op2, **options))
+        return expr(super(Add, cls).__new__(cls, _ex(op1), _ex(op2), **options))
 
     
 class Mul(sym.Mul):
     def __new__(cls, op1, op2, **options):
-        return expr(super(Mul, cls).__new__(cls, op1, op2, **options))
+        return expr(super(Mul, cls).__new__(cls, _ex(op1), _ex(op2), **options))
 
     
 class MatAdd(sym.MatAdd):
     def __new__(cls, op1, op2, **options):
-        return expr(super(MatAdd, cls).__new__(cls, op1, op2, **options))
+        return expr(super(MatAdd, cls).__new__(cls, _ex(op1), _ex(op2), **options))
 
     
 class MatMul(sym.MatMul):
     def __new__(cls, op1, op2, **options):
-        return expr(super(MatMul, cls).__new__(cls, op1, op2, **options))                
+        return expr(super(MatMul, cls).__new__(cls, _ex(op1), _ex(op2), **options))
 
 
 
