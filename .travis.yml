@@ -8,7 +8,6 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - python -c "from lcapy import show_version; show_version()"
   - nosetests
 notifications:
   email:
