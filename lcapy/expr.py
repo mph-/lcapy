@@ -426,11 +426,12 @@ class Expr(ExprPrint, ExprMisc):
         # FIXME.  This propagates the assumptions.  There is a
         # possibility that the operation may violate them.
 
+
         # If it is not callable, directly wrap it.
         if not hasattr(a, '__call__'):
             if not isinstance(a, sym.Expr):
                 return a
-            ret = a()                
+            ret = a
             if hasattr(self, 'assumptions'):
                 return self.__class__(ret, **self.assumptions)
             return self._to_class(self.__class__, ret)
@@ -1920,13 +1921,13 @@ def symbol(name, **assumptions):
     """Create an Lcapy symbol.
 
     By default, symbols are assumed to be positive unless real is
-    defined or positive is defined as False.
-
-    """
+    defined or positive is defined as False."""
     return Expr(symsymbol(name, **assumptions))
 
 
 def symbols(names, **assumptions):
+    """Create Lcapy symbols from whitespace or comma delimiter string of
+    symbol names.  See also symbol."""
 
     from .parser import split
 
@@ -1961,4 +1962,3 @@ try:
         formatter.type_printers[cls] = Expr._repr_latex_
 except:
     pass
-        
