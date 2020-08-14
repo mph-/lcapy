@@ -11,7 +11,7 @@ class Function(object):
     def __init__(self, arg):
         self.expr = arg
     
-    def __call__(self, *args, evaluate=False):
+    def __call__(self, *args):
 
         cls = args[0].__class__
 
