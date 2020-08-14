@@ -122,7 +122,10 @@ class LcapyLatexPrinter(LatexPrinter):
                 return latex_expr_map[expr]
         except:
             pass
-        return super(LcapyLatexPrinter, self)._print(expr)
+
+        if exp is None:
+            return super(LcapyLatexPrinter, self)._print(expr)
+        return super(LcapyLatexPrinter, self)._print(expr, exp=exp)        
 
     def _print_Heaviside(self, expr, exp=None):
 
