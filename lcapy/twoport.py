@@ -14,6 +14,7 @@ from .vector import Vector
 from .matrix import Matrix
 from .oneport import OnePort, I, V, Y, Z
 from .network import Network
+from .functions import Eq, MatMul
 
 
 # This needs to be generalised for superpositions.
@@ -288,6 +289,14 @@ class AMatrix(TwoPortMatrix):
     A = inv(B)
     """
 
+    @classmethod
+    def generic(cls):
+        return cls((('A_11', 'A_12'), ('A_21', 'A_22')))        
+
+    def equation(self):
+        return Eq(Matrix(('V1', 'I1')), MatMul(self, Matrix(('V2', '-I2'))),
+                  evaluate=False)
+    
     @property
     def A(self):
         # Perhaps we should make a copy?
@@ -430,6 +439,14 @@ class BMatrix(TwoPortMatrix):
     B = inv(A)
     """
 
+    @classmethod
+    def generic(cls):
+        return cls((('B_11', 'B_12'), ('B_21', 'B_22')))
+
+    def equation(self):
+        return Eq(Matrix(('V2', '-I2')), MatMul(self, Matrix(('V1', 'I1'))),
+                  evaluate=False)
+        
     @property
     def A(self):
         # Inverse
@@ -674,6 +691,14 @@ class GMatrix(TwoPortMatrix):
     G = inv(H)
     """
 
+    @classmethod
+    def generic(cls):
+        return cls((('G_11', 'G_12'), ('G_21', 'G_22')))
+
+    def equation(self):
+        return Eq(Matrix(('I1', 'V2')), MatMul(self, Matrix(('V1', 'I2'))),
+                  evaluate=False)
+        
     @property
     def A(self):
         # return self.H.A
@@ -721,6 +746,14 @@ class HMatrix(TwoPortMatrix):
     H = inv(G)
     """
 
+    @classmethod
+    def generic(cls):
+        return cls((('H_11', 'H_12'), ('H_21', 'H_22')))    
+
+    def equation(self):
+        return Eq(Matrix(('V1', 'I2')), MatMul(self, Matrix(('I1', 'V2'))),
+                  evaluate=False)
+        
     @property
     def A(self):
         return AMatrix(((-self.det() / self.H21),
@@ -764,6 +797,14 @@ class YMatrix(TwoPortMatrix):
     Y = inv(Z)
     """
 
+    @classmethod
+    def generic(cls):
+        return cls((('Y_11', 'Y_12'), ('Y_21', 'Y_22')))
+
+    def equation(self):
+        return Eq(Matrix(('I1', 'I2')), MatMul(self, Matrix(('V1', 'V2'))),
+                  evaluate=False)
+        
     @property
     def Ysc(self):
         return YsVector(self.Y11, self.Y22)
@@ -813,6 +854,14 @@ class ZMatrix(TwoPortMatrix):
     Z = inv(Y)
     """
 
+    @classmethod
+    def generic(cls):
+        return cls((('Z_11', 'Z_12'), ('Z_21', 'Z_22')))
+
+    def equation(self):
+        return Eq(Matrix(('V1', 'V2')), MatMul(self, Matrix(('I1', 'I2'))),
+                  evaluate=False)
+        
     @property
     def Zoc(self):
         return ZsVector(self.Z11, self.Z22)
