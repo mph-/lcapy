@@ -1275,32 +1275,42 @@ class TwoPort(Network, TwoPortMixin):
 
     @property
     def Aparams(self):
-        """Return chain matrix"""
+        """Return chain parameters"""
         return self._M.Aparams
 
     @property
     def Bparams(self):
-        """Return inverse chain matrix"""
+        """Return inverse chain parameters"""
         return self._M.Bparams
 
     @property
     def Gparams(self):
-        """Return inverse hybrid matrix"""
+        """Return inverse hybrid parameters"""
         return self._M.Gparams
 
     @property
     def Hparams(self):
-        """Return hybrid matrix"""
+        """Return hybrid parameters"""
         return self._M.Hparams
 
     @property
+    def Sparams(self):
+        """Return scattering parameters"""
+        return self._M.Sparams
+
+    @property
+    def Tparams(self):
+        """Return scattering transfer parameters"""
+        return self._M.Tparams    
+
+    @property
     def Yparams(self):
-        """Return admittance matrix"""
+        """Return admittance parameters"""
         return self._M.Yparams
 
     @property
     def Zparams(self):
-        """Return impedance matrix"""
+        """Return impedance parameters"""
         return self._M.Zparams
 
     @property
