@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-__version__ = '0.65.0-dev'
+__version__ = '0.66.0'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
