@@ -91,15 +91,18 @@ from .functions import Eq, MatMul
 # matrix.  However, things will go wrong when we transform to the Y or
 # Z matrix for specific cases.
 
-__all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2', 'Series',
-           'Shunt', 'IdealTransformer', 'IdealGyrator', 'VoltageFollower',
-           'VoltageAmplifier', 'IdealVoltageAmplifier', 'IdealDelay',
+__all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
+           'Series', 'Shunt', 'IdealTransformer', 'IdealGyrator',
+           'VoltageFollower', 'VoltageAmplifier',
+           'IdealVoltageAmplifier', 'IdealDelay',
            'IdealVoltageDifferentiator', 'IdealVoltageIntegrator',
            'CurrentFollower', 'IdealCurrentAmplifier',
            'IdealCurrentDifferentiator', 'IdealCurrentIntegrator',
            'OpampInverter', 'OpampIntegrator', 'OpampDifferentiator',
            'TSection', 'TwinTSection', 'BridgedTSection', 'PiSection',
-           'LSection', 'Ladder', 'GeneralTxLine', 'LosslessTxLine', 'TxLine')
+           'LSection', 'Ladder', 'GeneralTxLine', 'LosslessTxLine',
+           'TxLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
+           'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix')
 
 def DeltaWye(Z1, Z2, Z3):
 
@@ -269,6 +272,38 @@ class TwoPortMatrix(Matrix):
         """Open-cicuit output impedance"""
         return self.Z[1, 1]
 
+    @property
+    def S11(self):
+        return self.S[0, 0]
+
+    @property
+    def S12(self):
+        return self.S[0, 1]
+
+    @property
+    def S21(self):
+        return self.S[1, 0]
+
+    @property
+    def S22(self):
+        return self.S[1, 1]
+
+    @property
+    def T11(self):
+        return self.T[0, 0]
+
+    @property
+    def T12(self):
+        return self.T[0, 1]
+
+    @property
+    def T21(self):
+        return self.T[1, 0]
+
+    @property
+    def T22(self):
+        return self.T[1, 1]        
+
 
 class AMatrix(TwoPortMatrix):
 
@@ -319,6 +354,16 @@ class AMatrix(TwoPortMatrix):
             warn('Producing dodgy H matrix')
         return HMatrix(((self.A12 / self.A22, self.det() / self.A22),
                         (-1 / self.A22, self.A21 / self.A22)))
+
+
+    @property
+    def S(self):
+        Z0 = Zs('Z_0')
+        d = self.A12 + Z0 * (self.A11 + self.A22) + Z0**2 * self.A21
+        return SMatrix((((self.A12 + Z0 * (self.A11 - self.A22) - Z0**2 * self.A21) / d,
+                         (2 * Z0 * (self.A11 * self.A22 - self.A12 * self.A21)) / d),
+                         (2 * Z0 / d, (self.A12 - Z0 * (self.A11 - self.A22) - Z0**2 * self.A21) / d)))
+
 
     @property
     def Y(self):
@@ -2583,16 +2628,45 @@ class TxLine(GeneralTxLine):
 
         super(TxLine, self).__init__(Z0, gamma, l)
 
-if False:        
-    A = AMatrix(((expr('a11'), expr('a12')),
-                 (expr('a21'), expr('a22'))))
+
+class SMatrix(TwoPortMatrix):
+    """Scattering parameters."""
+
+    @classmethod
+    def generic(cls):
+        return cls((('S_11', 'S_12'), ('S_21', 'S_22')))
+
+    def equation(self):
+        return Eq(Matrix(('b1', 'b2')), MatMul(self, Matrix(('a1', 'a2'))),
+                  evaluate=False)
+
+    @property
+    def A(self):
+        det = self.det()
+        Z0 = Zs('Z_0')
+        return AMatrix(((1 + self.S11 - self.S22 - det,
+                         (1 + self.S11 + self.S22 + det) * Z0),
+                        ((1 - self.S11 - self.S22 + det) / Z0,
+                         1 - self.S11 + self.S22 - det))) / (2 * self.S21)
+
+    @property
+    def S(self):
+        return self    
+
     
-    Y = YMatrix(((expr('y11'), expr('y12')),
-                 (expr('y21'), expr('y22'))))
+class TMatrix(TwoPortMatrix):
+    """Scattering transfer parameters."""
+
+    @classmethod
+    def generic(cls):
+        return cls((('T_11', 'T_12'), ('T_21', 'T_22')))
     
-    Z = ZMatrix(((expr('z11'), expr('z12')),
-                 (expr('z21'), expr('z22'))))
+    # Note, another convention uses b1, a1
+    def equation(self):
+        return Eq(Matrix(('a1', 'a2')), MatMul(self, Matrix(('b1', 'b2'))),
+                  evaluate=False)
 
-
-
-                  
+        
+    @property
+    def T(self):
+        return self    
