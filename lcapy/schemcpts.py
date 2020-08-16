@@ -2147,12 +2147,25 @@ class Triangle(Shape):
         return s
 
     
-class TwoPort(Box12):
+class TwoPort(Shape):
     """Two-port"""
 
-    default_width = 1.5
-    default_aspect = 1.5
-    node_pinnames = ('nne', 'sse', 'nnw', 'ssw')
+    default_width = 2
+    default_aspect = 1
+    shape = 'rectangle'
+    pins = {'wnw' : ('l', -0.5, 0.375),
+            'w' : ('l', -0.5, 0),
+            'wsw' : ('l', -0.5, -0.375),
+            'ssw' : ('b', -0.25, -0.5),                              
+            's' : ('b', 0, -0.5),
+            'sse' : ('b', 0.25, -0.5),
+            'ese' : ('r', 0.5, -0.375),                              
+            'e' : ('r', 0.5, 0),
+            'ene' : ('r', 0.5, 0.375),
+            'nne' : ('t', 0.25, 0.5),
+            'n' : ('t', 0, 0.5),
+            'nnw' : ('t', -0.25, 0.5)}
+    node_pinnames = ('ene', 'ese', 'wnw', 'wsw')
     
 
 class TR(Box2):
