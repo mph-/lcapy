@@ -1608,14 +1608,14 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Ymodel(self):
 
-        if self.isshunt:
+        if self.is_shunt:
             warn('Converting a shunt two-port to a Y model is dodgy...')
         return TwoPortYModel(self.Yparams, self.I1y, self.I2y)
 
     @property
     def Zmodel(self):
 
-        if self.isseries:
+        if self.is_series:
             warn('Converting a series two-port to a Z model is dodgy...')
         return TwoPortZModel(self.Zparams, self.V1z, self.V2z)
 
