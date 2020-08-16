@@ -206,6 +206,16 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
+- Version 0.66 tidies up two-port parameters.  S and T parameters are
+  added.  The A, B, G, H, Y, Z parameters are renamed to Aparams, etc. to avoid conflict with
+  matrix transpose and Hermitian transpose operators.  issymmetrical, isshunt renamed to is_symmetrical,
+  is+shunt, etc.   Eq, MatMul, MatAdd, Mul, Add functions added.  Expr.__getattr_ converts lists to ExprList.
+  Adds symbols attribute to Matrix.  Ensures symbols in immitance default to complex.
+
+- Version 0.65 introduces random networks.  Adds simplification for DiracDelta and Heaviside.  Adds node checking for Netlist methods.
+
+- Version 0.64 adds wye-delta, delta-wye transformations.  Adds resistive companion models.  Fix state-space if have no sources.  Fixes assumption merging.  Adds verbatim argument for laplace_transform.   Simplifies mutual inductance.
+
 - Version 0.63 fixes mirroring of opamps in schematics and introduces mirrorinputs option
 
 - Version 0.62 adds search, save, annotate_voltage, annotate_current, kill_zero methods.  Fixes solve.
