@@ -788,12 +788,14 @@ class NetlistMixin(object):
 
         return Hs(V2.laplace() / V1.laplace(), causal=True)
 
-    def Amatrix(self, N1p, N1m, N2p, N2m):
-        """Create A matrix from network, where:
+    def Aparams(self, N1p, N1m, N2p, N2m):
+        """Create A-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
+
+        See also  Bparams, Gparams, Hparams, Sparams, Tparams, Yparams, and Zparams.
         """
 
         from .twoport import AMatrix
@@ -840,15 +842,81 @@ class NetlistMixin(object):
         except ValueError:
             raise ValueError('Cannot create A matrix')
 
-
-    def Zmatrix(self, N1p, N1m, N2p, N2m):
-        """Create Z matrix from network, where:
+    def Bparams(self, N1p, N1m, N2p, N2m):
+        """Create B-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
-        """
 
+        See also  Aparams, Gparams, Hparams, Sparams, Tparams, Yparams, and Zparams.
+        """
+        return self.Aparams(N1p, N1m, N2p, N2m).Bparams
+
+    def Gparams(self, N1p, N1m, N2p, N2m):
+        """Create G-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
+        I1 is the current flowing into N1p and out of N1m
+        I2 is the current flowing into N2p and out of N2m
+        V1 is V[N1p] - V[N1m]
+        V2 is V[N2p] - V[N2m]
+
+        See also  Aparams, Bparams, Hparams, Sparams, Tparams, Yparams, and Zparams.
+        """
+        return self.Aparams(N1p, N1m, N2p, N2m).Gparams
+
+    def Hparams(self, N1p, N1m, N2p, N2m):
+        """Create H-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
+        I1 is the current flowing into N1p and out of N1m
+        I2 is the current flowing into N2p and out of N2m
+        V1 is V[N1p] - V[N1m]
+        V2 is V[N2p] - V[N2m]
+
+        See also  Aparams, Bparams, Gparams, Sparams, Tparams, Yparams, and Zparams.
+        """
+        return self.Aparams(N1p, N1m, N2p, N2m).Hparams
+
+    def Sparams(self, N1p, N1m, N2p, N2m):
+        """Create S-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
+        I1 is the current flowing into N1p and out of N1m
+        I2 is the current flowing into N2p and out of N2m
+        V1 is V[N1p] - V[N1m]
+        V2 is V[N2p] - V[N2m]
+
+        See also  Aparams, Bparams, Gparams, Hparams, Tparams, Yparams, and Zparams.
+        """
+        return self.Aparams(N1p, N1m, N2p, N2m).Sparams
+
+    def Tparams(self, N1p, N1m, N2p, N2m):
+        """Create T-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
+        I1 is the current flowing into N1p and out of N1m
+        I2 is the current flowing into N2p and out of N2m
+        V1 is V[N1p] - V[N1m]
+        V2 is V[N2p] - V[N2m]
+
+        See also  Aparams, Bparams, Gparams, Hparams, Sparams, Yparams, and Zparams.
+        """
+        return self.Tparams(N1p, N1m, N2p, N2m).Hparams
+
+    def Yparams(self, N1p, N1m, N2p, N2m):
+        """Create Y-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
+        I1 is the current flowing into N1p and out of N1m
+        I2 is the current flowing into N2p and out of N2m
+        V1 is V[N1p] - V[N1m]
+        V2 is V[N2p] - V[N2m]
+
+        See also  Aparams, Bparams, Gparams, Hparams, Sparams, Tparams, and Zparams.
+        """
+        return self.Zparams(N1p, N1m, N2p, N2m).Yparams            
+
+    def Zparams(self, N1p, N1m, N2p, N2m):
+        """Create Z-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
+        I1 is the current flowing into N1p and out of N1m
+        I2 is the current flowing into N2p and out of N2m
+        V1 is V[N1p] - V[N1m]
+        V2 is V[N2p] - V[N2m]
+
+        See also  Aparams, Bparams, Gparams, Hparams, Sparams, Tparams, and Yparams.
+        """
         from .twoport import ZMatrix
 
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)        
@@ -1025,7 +1093,7 @@ class NetlistMixin(object):
         return self._noisy(resistors)
 
     def twoport(self, N1p, N1m, N2p, N2m, model='B'):
-        """Create s-domain twoport model from network, where:
+        """Create s-domain twoport model for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
         V1 is V[N1p] - V[N1m]
@@ -1043,22 +1111,22 @@ class NetlistMixin(object):
         if model == 'B':
             V2b = net.Voc(N2p, N2m)(s)
             I2b = net.Isc(N2p, N2m)(s)
-            A = net.Amatrix(N1p, N1m, N2p, N2m)
+            A = net.Aparams(N1p, N1m, N2p, N2m)
             return TwoPortBModel(A.B, V2b, I2b)
         elif model == 'Z':
             V1 = net.Voc(N1p, N1m)(s)
             V2 = net.Voc(N2p, N2m)(s)
-            Z = net.Zmatrix(N1p, N1m, N2p, N2m)            
+            Z = net.Zparams(N1p, N1m, N2p, N2m)            
             return TwoPortZModel(Z, V1, V2)
         elif model == 'Z':
             I1 = net.Isc(N1p, N1m)(s)
             I2 = net.Isc(N2p, N2m)(s)
-            Z = net.Zmatrix(N1p, N1m, N2p, N2m)            
+            Z = net.Zparams(N1p, N1m, N2p, N2m)            
             return TwoPortYModel(Z.Y, I1, I2)        
         elif model == 'H':
             V1 = net.Voc(N1p, N1m)(s)
             I2 = net.Isc(N2p, N2m)(s)
-            Z = net.Zmatrix(N1p, N1m, N2p, N2m)            
+            Z = net.Zparams(N1p, N1m, N2p, N2m)            
             return TwoPortHModel(Z.H, V1, I2)
         else:
             raise ValueError('Model %s unknown, must be B, H, Y, or Z' % model)
