@@ -91,32 +91,32 @@ class LcapyTester(unittest.TestCase):
         """
         a = LSection(R(10) + Vdc(5), R(20))
 
-        self.assertEqual(a.B.B11, 1, "incorrect B11.")
-        self.assertEqual(a.B.B12, -10, "incorrect B12.")
+        self.assertEqual(a.Bparams.B11, 1, "incorrect B11.")
+        self.assertEqual(a.Bparams.B12, -10, "incorrect B12.")
         # Note, -1 / 20 = -0.5 cannot be represented exactly as a float
-        self.assertEqual(a.B.B21, Rational(-1) / 20, "incorrect B21.")
-        self.assertEqual(a.B.B22, 1.5, "incorrect B22.")
+        self.assertEqual(a.Bparams.B21, Rational(-1) / 20, "incorrect B21.")
+        self.assertEqual(a.Bparams.B22, 1.5, "incorrect B22.")
 
         b = a.Zmodel
 
-        self.assertEqual(b.B.B11, 1, "incorrect B11.")
-        self.assertEqual(b.B.B12, -10, "incorrect B12.")
-        self.assertEqual(b.B.B21, Rational(-1) / 20, "incorrect B21.")
-        self.assertEqual(b.B.B22, 1.5, "incorrect B22.")
+        self.assertEqual(b.Bparams.B11, 1, "incorrect B11.")
+        self.assertEqual(b.Bparams.B12, -10, "incorrect B12.")
+        self.assertEqual(b.Bparams.B21, Rational(-1) / 20, "incorrect B21.")
+        self.assertEqual(b.Bparams.B22, 1.5, "incorrect B22.")
 
         c = a.Ymodel
 
-        self.assertEqual(c.B.B11, 1, "incorrect B11.")
-        self.assertEqual(c.B.B12, -10, "incorrect B12.")
-        self.assertEqual(c.B.B21, Rational(-1) / 20, "incorrect B21.")
-        self.assertEqual(c.B.B22, 1.5, "incorrect B22.")
+        self.assertEqual(c.Bparams.B11, 1, "incorrect B11.")
+        self.assertEqual(c.Bparams.B12, -10, "incorrect B12.")
+        self.assertEqual(c.Bparams.B21, Rational(-1) / 20, "incorrect B21.")
+        self.assertEqual(c.Bparams.B22, 1.5, "incorrect B22.")
 
         d = a.Hmodel
 
-        self.assertEqual(d.B.B11, 1, "incorrect B11.")
-        self.assertEqual(d.B.B12, -10, "incorrect B12.")
-        self.assertEqual(d.B.B21, Rational(-1) / 20, "incorrect B21.")
-        self.assertEqual(d.B.B22, 1.5, "incorrect B22.")
+        self.assertEqual(d.Bparams.B11, 1, "incorrect B11.")
+        self.assertEqual(d.Bparams.B12, -10, "incorrect B12.")
+        self.assertEqual(d.Bparams.B21, Rational(-1) / 20, "incorrect B21.")
+        self.assertEqual(d.Bparams.B22, 1.5, "incorrect B22.")
 
     def test_load(self):
         """Lcapy: check load
@@ -301,28 +301,52 @@ class LcapyTester(unittest.TestCase):
         """
         a = LSection(R(10) + Vdc(5), R(20))
 
-        self.assertEqual(a.B.B11, 1, "incorrect B11.")
-        self.assertEqual(a.B.B12, -10, "incorrect B12.")
-        self.assertEqual(a.B.B21, Rational(-1) / 20, "incorrect B21.")
-        self.assertEqual(a.B.B22, 1.5, "incorrect B22.")
+        self.assertEqual(a.Bparams.B11, 1, "incorrect B11.")
+        self.assertEqual(a.Bparams.B12, -10, "incorrect B12.")
+        self.assertEqual(a.Bparams.B21, Rational(-1) / 20, "incorrect B21.")
+        self.assertEqual(a.Bparams.B22, 1.5, "incorrect B22.")
 
         b = a.Zmodel
 
-        self.assertEqual(b.B.B11, 1, "incorrect B11.")
-        self.assertEqual(b.B.B12, -10, "incorrect B12.")
-        self.assertEqual(b.B.B21, Rational(-1) / 20, "incorrect B21.")
-        self.assertEqual(b.B.B22, 1.5, "incorrect B22.")
+        self.assertEqual(b.Bparams.B11, 1, "incorrect B11.")
+        self.assertEqual(b.Bparams.B12, -10, "incorrect B12.")
+        self.assertEqual(b.Bparams.B21, Rational(-1) / 20, "incorrect B21.")
+        self.assertEqual(b.Bparams.B22, 1.5, "incorrect B22.")
 
         c = a.Ymodel
 
-        self.assertEqual(c.B.B11, 1, "incorrect B11.")
-        self.assertEqual(c.B.B12, -10, "incorrect B12.")
-        self.assertEqual(c.B.B21, Rational(-1) / 20, "incorrect B21.")
-        self.assertEqual(c.B.B22, 1.5, "incorrect B22.")
+        self.assertEqual(c.Bparams.B11, 1, "incorrect B11.")
+        self.assertEqual(c.Bparams.B12, -10, "incorrect B12.")
+        self.assertEqual(c.Bparams.B21, Rational(-1) / 20, "incorrect B21.")
+        self.assertEqual(c.Bparams.B22, 1.5, "incorrect B22.")
 
         d = a.Hmodel
 
-        self.assertEqual(d.B.B11, 1, "incorrect B11.")
-        self.assertEqual(d.B.B12, -10, "incorrect B12.")
-        self.assertEqual(d.B.B21, Rational(-1) / 20, "incorrect B21.")
-        self.assertEqual(d.B.B22, 1.5, "incorrect B22.")
+        self.assertEqual(d.Bparams.B11, 1, "incorrect B11.")
+        self.assertEqual(d.Bparams.B12, -10, "incorrect B12.")
+        self.assertEqual(d.Bparams.B21, Rational(-1) / 20, "incorrect B21.")
+        self.assertEqual(d.Bparams.B22, 1.5, "incorrect B22.")
+
+    def test_transforms(self):
+
+        A = AMatrix.generic()        
+        self.assertEqual(A.Aparams.Aparams.simplify(), A, "A.Aparams.Aparams")
+        self.assertEqual(A.Bparams.Aparams.simplify(), A, "A.Bparams.Aparams")
+        self.assertEqual(A.Gparams.Aparams.simplify(), A, "A.Gparams.Aparams")
+        self.assertEqual(A.Hparams.Aparams.simplify(), A, "A.Hparams.Aparams")
+        self.assertEqual(A.Sparams.Aparams.simplify(), A, "A.Sparams.Aparams")
+        self.assertEqual(A.Tparams.Aparams.simplify(), A, "A.Tparams.Aparams")
+        self.assertEqual(A.Yparams.Aparams.simplify(), A, "A.Yparams.Aparams")
+        self.assertEqual(A.Zparams.Aparams.simplify(), A, "A.Zparams.Aparams")
+
+        Z = ZMatrix.generic()            
+        self.assertEqual(Z.Aparams.Zparams.simplify(), Z, "Z.Aparams.Zparams")
+        self.assertEqual(Z.Bparams.Zparams.simplify(), Z, "Z.Bparams.Zparams")
+        self.assertEqual(Z.Gparams.Zparams.simplify(), Z, "Z.Gparams.Zparams")
+        self.assertEqual(Z.Hparams.Zparams.simplify(), Z, "Z.Hparams.Zparams")
+        self.assertEqual(Z.Sparams.Zparams.simplify(), Z, "Z.Sparams.Zparams")
+        self.assertEqual(Z.Tparams.Zparams.simplify(), Z, "Z.Tparams.Zparams")
+        self.assertEqual(Z.Yparams.Zparams.simplify(), Z, "Z.Yparams.Zparams")
+        self.assertEqual(Z.Zparams.Zparams.simplify(), Z, "Z.Zparams.Zparams")        
+        
+        
