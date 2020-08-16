@@ -414,6 +414,21 @@ The elements can be accessed by name, for example:
 Note, in this example, the A-parameters are converted to S-parameters.
 
 
+Each parameterisation has the following attributes:
+
+- `is_buffered`: True if the two-port is buffered, i.e., any load on the output has no affect on the input.
+
+- `is_bilateral`: True if the two-port is bilateral.
+
+- `is_reciprocal`: True if the  two-port is reciprocal.
+
+- `is_symmetrical`: True if the two-port is symmetrical.
+
+- `is_series`: True if the two-port is a series network.
+
+- `is_shunt`: True if two-port is a shunt network.
+
+
 A-parameters (ABCD)
 -------------------
 

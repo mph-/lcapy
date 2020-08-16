@@ -126,6 +126,41 @@ def _check_oneport_args(args):
 class TwoPortMixin(object):
 
     @property
+    def is_buffered(self):
+        """Return true if two-port is buffered, i.e., any load
+        on the output has no affect on the input. """
+        # return self._A12 == 0 and self._A22 == 0
+        return self._B12 == 0 and self._B22 == 0
+
+    @property
+    def is_bilateral(self):
+        """Return true if two-port is bilateral. """
+        return self.Bparams.det() == 1
+
+    @property
+    def is_reciprocal(self):
+        """Return true if two-port is reciprocal. """
+        # This also applies to Y12 == Y21, S12 == S21, or Aparams.det() == 1.
+        return self._Z12 == self._Z21
+    
+    @property
+    def is_symmetrical(self):
+        """Return true if two-port is symmetrical. """
+        return self._B11 == self._B22
+
+    @property
+    def is_series(self):
+        """Return true if two-port is a series network. """
+        # return (self._A11 == 1) and (self._A22 == 1) and (self._A21 == 0)
+        return (self._B11 == 1) and (self._B22 == 1) and (self._B21 == 0)
+
+    @property
+    def is_shunt(self):
+        """Return true if two-port is a shunt network. """
+        # return (self._A11 == 1) and (self._A22 == 1) and (self._A12 == 0)
+        return (self._B11 == 1) and (self._B22 == 1) and (self._B12 == 0)
+
+    @property
     def _A11(self):
         """Open-circuit inverse voltage ratio"""
         return self.Aparams[0, 0]
@@ -1243,35 +1278,6 @@ class TwoPort(Network, TwoPortMixin):
         for arg1 in self.args:
             if not isinstance(arg1, TwoPort):
                 raise ValueError('%s not a TwoPort' % arg1)
-
-    @property
-    def isbuffered(self):
-        """Return true if two-port is buffered, i.e., any load
-        on the output has no affect on the input. """
-        # return self._A12 == 0 and self._A22 == 0
-        return self._B12 == 0 and self._B22 == 0
-
-    @property
-    def isbilateral(self):
-        """Return true if two-port is bilateral. """
-        return self.Bparams.det() == 1
-
-    @property
-    def issymmetrical(self):
-        """Return true if two-port is symmetrical. """
-        return self._B11 == self._B22
-
-    @property
-    def isseries(self):
-        """Return true if two-port is a series network. """
-        # return (self._A11 == 1) and (self._A22 == 1) and (self._A21 == 0)
-        return (self._B11 == 1) and (self._B22 == 1) and (self._B21 == 0)
-
-    @property
-    def isshunt(self):
-        """Return true if two-port is a shunt network. """
-        # return (self._A11 == 1) and (self._A22 == 1) and (self._A12 == 0)
-        return (self._B11 == 1) and (self._B22 == 1) and (self._B12 == 0)
 
     @property
     def Aparams(self):
