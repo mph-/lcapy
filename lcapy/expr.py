@@ -596,15 +596,24 @@ class Expr(ExprPrint, ExprMisc):
     def __rtruediv__(self, x):
         """Reverse true divide"""
 
+        from .matrix import Matrix
+        
+        if isinstance(x, Matrix):
+            return x / self.expr
+
         cls, self, x, assumptions = self.__compat_mul__(x, '/')
         return cls(x.expr / self.expr, **assumptions)
 
     def __mul__(self, x):
         """Multiply"""
         from .super import Super
+        from .matrix import Matrix
 
+        # Could return NotImplemented to trigger __rmul__ of x.
         if isinstance(x, Super):
             return x.__mul__(self)
+        elif isinstance(x, Matrix):
+            return x * self.expr
 
         cls, self, x, assumptions = self.__compat_mul__(x, '*')
         return cls(self.expr * x.expr, **assumptions)
@@ -630,12 +639,17 @@ class Expr(ExprPrint, ExprMisc):
     def __add__(self, x):
         """Add"""
 
+        from .matrix import Matrix
+
         # Convert Vs + Vt -> Voltage, etc.
         if (hasattr(self, 'superkind') and hasattr(x, 'superkind') and
             self.__class__ != x.__class__ and self.superkind ==
             x.superkind):
             cls = {'Voltage' : Voltage, 'Current' : Current}[self.superkind]
             return cls(self) + cls(x)
+
+        elif isinstance(x, Matrix):
+            return x + self.expr
         
         cls, self, x, assumptions = self.__compat_add__(x, '+')
         return cls(self.expr + x.expr, **assumptions)
