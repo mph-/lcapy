@@ -252,6 +252,59 @@ This calculates the driving-point admittance that would be measured across the n
    V1 1 0 Vs
    R1 1 2 2
    L1 2 0 3
+
+`transfer(N1p, N1m, N2p, N2m)` returns the s-domain transfer function
+`V2(s) / V1(s)`, between the ports defined by nodes `N1p`, `N1m`,
+`N2p`, and `N2m` where `V1 = V[N1p] - V[N1m]` and `V2 = V[N2p] -
+V[N2m]`.
+
+`Aparams(N1p, N1m, N2p, N2m)` returns the A-parameters matrix for the
+two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1`
+is the current flowing into `N1p` and out of `N1m`, `I2` is the
+current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`,
+and `V2 = V[N2p] - V[N2m]`.   See :ref:`A-parameters`.
+
+`Bparams(N1p, N1m, N2p, N2m)` returns the B-parameters matrix for the
+two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1`
+is the current flowing into `N1p` and out of `N1m`, `I2` is the
+current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`,
+and `V2 = V[N2p] - V[N2m]`.   See :ref:`B-parameters`.
+
+`Gparams(N1p, N1m, N2p, N2m)` returns the G-parameters matrix for the
+two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1`
+is the current flowing into `N1p` and out of `N1m`, `I2` is the
+current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`,
+and `V2 = V[N2p] - V[N2m]`.   See :ref:`G-parameters`.
+
+`Hparams(N1p, N1m, N2p, N2m)` returns the H-parameters matrix for the
+two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1`
+is the current flowing into `N1p` and out of `N1m`, `I2` is the
+current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`,
+and `V2 = V[N2p] - V[N2m]`.   See :ref:`H-parameters`.
+
+`Sparams(N1p, N1m, N2p, N2m)` returns the S-parameters matrix for the
+two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1`
+is the current flowing into `N1p` and out of `N1m`, `I2` is the
+current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`,
+and `V2 = V[N2p] - V[N2m]`.   See :ref:`S-parameters`.
+
+`Tparams(N1p, N1m, N2p, N2m)` returns the T-parameters matrix for the
+two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1`
+is the current flowing into `N1p` and out of `N1m`, `I2` is the
+current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`,
+and `V2 = V[N2p] - V[N2m]`.   See :ref:`T-parameters`.
+
+`Yparams(N1p, N1m, N2p, N2m)` returns the Y-parameters matrix for the
+two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1`
+is the current flowing into `N1p` and out of `N1m`, `I2` is the
+current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`,
+and `V2 = V[N2p] - V[N2m]`.   See :ref:`Y-parameters`.
+
+`Zparams(N1p, N1m, N2p, N2m)` returns the Z-parameters matrix for the
+two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1`
+is the current flowing into `N1p` and out of `N1m`, `I2` is the
+current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`,
+and `V2 = V[N2p] - V[N2m]`.   See :ref:`Z-parameters`.
    
 
 Nodes

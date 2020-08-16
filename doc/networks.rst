@@ -381,15 +381,20 @@ Parallel R-L-C network
 
 
 
-Two-port networks
-=================
+Two-port network parameters
+===========================
 
-Lcapy desribes two-port networks in the Laplace domain using A, B, G,
+Lcapy describes two-port networks in the Laplace domain using A, B, G,
 H, S, T, Y, and Z matrices.  These are defined in the following sections.
 Note, for some network configurations some of these matrices can be
 singular.
 
-Each matrix has methods for converting to the other parameterisations:  For example,
+
+.. image:: examples/schematics/twoport1.png
+   :width: 12cm
+
+
+Each matrix has methods for converting to the other parameterisations, for example,
 
 >>> A = AMatrix.generic()
 
@@ -416,19 +421,19 @@ Note, in this example, the A-parameters are converted to S-parameters.
 
 Each parameterisation has the following attributes:
 
-- `is_buffered`: True if the two-port is buffered, i.e., any load on the output has no affect on the input.
+`is_buffered`: True if the two-port is buffered, i.e., any load on the output has no affect on the input.
 
-- `is_bilateral`: True if the two-port is bilateral.
+`is_bilateral`: True if the two-port is bilateral.
 
-- `is_reciprocal`: True if the  two-port is reciprocal.
+`is_reciprocal`: True if the  two-port is reciprocal.
 
-- `is_symmetrical`: True if the two-port is symmetrical.
+`is_symmetrical`: True if the two-port is symmetrical.
 
-- `is_series`: True if the two-port is a series network.
+`is_series`: True if the two-port is a series network.
 
-- `is_shunt`: True if two-port is a shunt network.
+`is_shunt`: True if two-port is a shunt network.
 
-
+.. _A-parameters:
 A-parameters (ABCD)
 -------------------
 
@@ -439,6 +444,7 @@ A-parameters (ABCD)
 The A matrix is the inverse of the B matrix.            
 
 
+.. _B-parameters:
 B-parameters (inverse ABCD)
 ---------------------------
 
@@ -449,6 +455,7 @@ B-parameters (inverse ABCD)
 The B matrix is the inverse of the A matrix.    
 
 
+.. _G-parameters:
 G-parameters (inverse hybrid)
 -----------------------------
 
@@ -459,6 +466,7 @@ G-parameters (inverse hybrid)
 The G matrix is the inverse of the H matrix.        
 
 
+.. _H-parameters:
 H-parameters (hybrid)
 ---------------------
 
@@ -469,6 +477,7 @@ H-parameters (hybrid)
 The H matrix is the inverse of the G matrix.    
 
 
+.. _S-parameters:
 S-parameters (scattering)
 -------------------------
 
@@ -477,6 +486,7 @@ S-parameters (scattering)
     \left[\begin{matrix}b_{1}\\b_{2}\end{matrix}\right] = \left[\begin{matrix}S_{11} & S_{12}\\S_{21} & S_{22}\end{matrix}\right] \left[\begin{matrix}a_{1}\\a_{2}\end{matrix}\right]
 
 
+.. _T-parameters:    
 T-parameters (scattering transfer)
 ----------------------------------
 
@@ -484,7 +494,8 @@ T-parameters (scattering transfer)
    
     \left[\begin{matrix}b_{1}\\a_{1}\end{matrix}\right] = \left[\begin{matrix}T_{11} & T_{12}\\T_{21} & T_{22}\end{matrix}\right] \left[\begin{matrix}a_{2}\\b_{2}\end{matrix}\right]
 
-    
+
+.. _Y-parameters:    
 Y-parameters (admittance)
 -------------------------
 
@@ -495,6 +506,7 @@ Y-parameters (admittance)
 The Y matrix is the inverse of the Z matrix.           
 
 
+.. _Z-parameters:
 Z-parameters (impedance)
 ------------------------
 
