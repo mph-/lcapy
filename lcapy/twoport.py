@@ -10,6 +10,7 @@ import sympy as sym
 from .symbols import s
 from .sexpr import Vs, Is, Zs, Ys, Hs, sExpr, VsVector, IsVector, YsVector, ZsVector
 from .cexpr import cExpr
+from .expr import expr
 from .vector import Vector
 from .matrix import Matrix
 from .oneport import OnePort, I, V, Y, Z
@@ -122,8 +123,322 @@ def _check_oneport_args(args):
         if not isinstance(arg1, OnePort):
             raise ValueError('%s not a OnePort' % arg1)
 
+class TwoPortMixin(object):
 
-class TwoPortMatrix(Matrix):
+    @property
+    def _A11(self):
+        """Open-circuit inverse voltage ratio"""
+        return self.Aparams[0, 0]
+
+    @property
+    def _A12(self):
+        """Negative short-circuit transfer impedance"""
+        return self.Aparams[0, 1]
+
+    @property
+    def _A21(self):
+        """Negative short-circuit inverse current ratio"""
+        return self.Aparams[1, 0]
+
+    @property
+    def _A22(self):
+        """Open circuit transfer admittance"""
+        return self.Aparams[1, 1]
+
+    @property
+    def _B11(self):
+        """Open-circuit voltage gain"""
+        return self.Bparams[0, 0]
+
+    @property
+    def _B12(self):
+        """Negative short-circuit transfer impedance"""
+        return self.Bparams[0, 1]
+
+    @property
+    def _B21(self):
+        """Negative short-circuit current gain"""
+        return self.Bparams[1, 0]
+
+    @property
+    def _B22(self):
+        """Open-circuit transfer admittance"""
+        return self.Bparams[1, 1]
+
+    @property
+    def _G11(self):
+        """Open-circuit input admittance"""
+        return self.Gparams[0, 0]
+
+    @property
+    def _G12(self):
+        """Short-circuit reverse current gain"""
+        return self.Gparams[0, 1]
+
+    @property
+    def _G21(self):
+        """Open-circuit forward voltage gain"""
+        return self.Gparams[1, 0]
+
+    @property
+    def _G22(self):
+        """Short-circuit output impedance"""
+        return self.Gparams[1, 1]
+
+    @property
+    def _H11(self):
+        """Short-circuit input impedance"""
+        return self.Hparams[0, 0]
+
+    @property
+    def _H12(self):
+        """Open-circuit reverse voltage gain"""
+        return self.Hparams[0, 1]
+
+    @property
+    def _H21(self):
+        """Short-circuit forward current gain"""
+        return self.Hparams[1, 0]
+
+    @property
+    def _H22(self):
+        """Open-circuit output admittance"""
+        return self.Hparams[1, 1]
+
+    @property
+    def _S11(self):
+        return self.Sparams[0, 0]
+
+    @property
+    def _S12(self):
+        return self.Sparams[0, 1]
+
+    @property
+    def _S21(self):
+        return self.Sparams[1, 0]
+
+    @property
+    def _S22(self):
+        return self.Sparams[1, 1]
+
+    @property
+    def _T11(self):
+        return self.Tparams[0, 0]
+
+    @property
+    def _T12(self):
+        return self.Tparams[0, 1]
+
+    @property
+    def _T21(self):
+        return self.Tparams[1, 0]
+
+    @property
+    def _T22(self):
+        return self.Tparams[1, 1]        
+
+    @property
+    def _Y11(self):
+        """Short-circuit input admittance"""
+        return self.Yparams[0, 0]
+
+    @property
+    def _Y12(self):
+        """Short-circuit reverse transfer admittance"""
+        return self.Yparams[0, 1]
+
+    @property
+    def _Y21(self):
+        """Short-circuit transfer admittance"""
+        return self.Yparams[1, 0]
+
+    @property
+    def _Y22(self):
+        """Short-circuit output admittance"""
+        return self.Yparams[1, 1]
+
+    @property
+    def _Z11(self):
+        """Open-cicuit input impedance"""
+        return self.Zparams[0, 0]
+
+    @property
+    def _Z12(self):
+        """Open-cicuit transfer impedance"""
+        return self.Zparams[0, 1]
+
+    @property
+    def _Z21(self):
+        """Open-cicuit reverse transfer impedance"""
+        return self.Zparams[1, 0]
+
+    @property
+    def _Z22(self):
+        """Open-cicuit output impedance"""
+        return self.Zparams[1, 1]
+
+    @property
+    def A11(self):
+        """Open-circuit inverse voltage ratio"""
+        return expr(self._A11)
+
+    @property
+    def A12(self):
+        """Negative short-circuit transfer impedance"""
+        return expr(self._A12)
+
+    @property
+    def A21(self):
+        """Negative short-circuit inverse current ratio"""
+        return expr(self._A21)
+
+    @property
+    def A22(self):
+        """Open circuit transfer admittance"""
+        return expr(self._A22)
+
+    @property
+    def B11(self):
+        """Open-circuit voltage gain"""
+        return expr(self._B11)
+
+    @property
+    def B12(self):
+        """Negative short-circuit transfer impedance"""
+        return expr(self._B12)
+
+    @property
+    def B21(self):
+        """Negative short-circuit current gain"""
+        return expr(self._B21)
+
+    @property
+    def B22(self):
+        """Open-circuit transfer admittance"""
+        return expr(self._B22)
+
+    @property
+    def G11(self):
+        """Open-circuit input admittance"""
+        return expr(self._G11)
+
+    @property
+    def G12(self):
+        """Short-circuit reverse current gain"""
+        return expr(self._G12)
+
+    @property
+    def G21(self):
+        """Open-circuit forward voltage gain"""
+        return expr(self._G21)
+
+    @property
+    def G22(self):
+        """Short-circuit output impedance"""
+        return expr(self._G22)
+
+    @property
+    def H11(self):
+        """Short-circuit input impedance"""
+        return expr(self._H11)
+
+    @property
+    def H12(self):
+        """Open-circuit reverse voltage gain"""
+        return expr(self._H12)
+
+    @property
+    def H21(self):
+        """Short-circuit forward current gain"""
+        return expr(self._H21)
+
+    @property
+    def H22(self):
+        """Open-circuit output admittance"""
+        return expr(self._H22)
+
+    @property
+    def S11(self):
+        """S11"""
+        return expr(self._S11)
+
+    @property
+    def S12(self):
+        """S12"""        
+        return expr(self._S12)
+
+    @property
+    def S21(self):
+        """S21"""        
+        return expr(self._S21)
+
+    @property
+    def S22(self):
+        """S22"""        
+        return expr(self._S22)
+
+    @property
+    def T11(self):
+        """T11"""        
+        return expr(self._T11)
+
+    @property
+    def T12(self):
+        """T12"""        
+        return expr(self._T12)
+
+    @property
+    def T21(self):
+        """T21"""        
+        return expr(self._T21)
+
+    @property
+    def T22(self):
+        """T22"""
+        return expr(self._T22)
+
+    @property
+    def Y11(self):
+        """Short-circuit input admittance"""
+        return expr(self._Y11)
+
+    @property
+    def Y12(self):
+        """Short-circuit reverse transfer admittance"""
+        return expr(self._Y12)
+
+    @property
+    def Y21(self):
+        """Short-circuit transfer admittance"""
+        return expr(self._Y21)
+
+    @property
+    def Y22(self):
+        """Short-circuit output admittance"""
+        return expr(self._Y22)
+
+    @property
+    def Z11(self):
+        """Open-cicuit input impedance"""
+        return expr(self._Z11)
+
+    @property
+    def Z12(self):
+        """Open-cicuit transfer impedance"""
+        return expr(self._Z12)
+
+    @property
+    def Z21(self):
+        """Open-cicuit reverse transfer impedance"""
+        return expr(self._Z21)
+
+    @property
+    def Z22(self):
+        """Open-cicuit output impedance"""
+        return expr(self._Z22)
+        
+
+class TwoPortMatrix(Matrix, TwoPortMixin):
 
     # The following default properties are fallbacks when other conversions have
     # not been defined.
@@ -159,158 +474,6 @@ class TwoPortMatrix(Matrix):
     @property
     def Zparams(self):
         return ZMatrix(self.Yparams.inv())
-
-    @property
-    def A11(self):
-        """Open-circuit inverse voltage ratio"""
-        return self.Aparams[0, 0]
-
-    @property
-    def A12(self):
-        """Negative short-circuit transfer impedance"""
-        return self.Aparams[0, 1]
-
-    @property
-    def A21(self):
-        """Negative short-circuit inverse current ratio"""
-        return self.Aparams[1, 0]
-
-    @property
-    def A22(self):
-        """Open circuit transfer admittance"""
-        return self.Aparams[1, 1]
-
-    @property
-    def B11(self):
-        """Open-circuit voltage gain"""
-        return self.Bparams[0, 0]
-
-    @property
-    def B12(self):
-        """Negative short-circuit transfer impedance"""
-        return self.Bparams[0, 1]
-
-    @property
-    def B21(self):
-        """Negative short-circuit current gain"""
-        return self.Bparams[1, 0]
-
-    @property
-    def B22(self):
-        """Open-circuit transfer admittance"""
-        return self.Bparams[1, 1]
-
-    @property
-    def G11(self):
-        """Open-circuit input admittance"""
-        return self.Gparams[0, 0]
-
-    @property
-    def G12(self):
-        """Short-circuit reverse current gain"""
-        return self.Gparams[0, 1]
-
-    @property
-    def G21(self):
-        """Open-circuit forward voltage gain"""
-        return self.Gparams[1, 0]
-
-    @property
-    def G22(self):
-        """Short-circuit output impedance"""
-        return self.Gparams[1, 1]
-
-    @property
-    def H11(self):
-        """Short-circuit input impedance"""
-        return self.Hparams[0, 0]
-
-    @property
-    def H12(self):
-        """Open-circuit reverse voltage gain"""
-        return self.Hparams[0, 1]
-
-    @property
-    def H21(self):
-        """Short-circuit forward current gain"""
-        return self.Hparams[1, 0]
-
-    @property
-    def H22(self):
-        """Open-circuit output admittance"""
-        return self.Hparams[1, 1]
-
-    @property
-    def Y11(self):
-        """Short-circuit input admittance"""
-        return self.Yparams[0, 0]
-
-    @property
-    def Y12(self):
-        """Short-circuit reverse transfer admittance"""
-        return self.Yparams[0, 1]
-
-    @property
-    def Y21(self):
-        """Short-circuit transfer admittance"""
-        return self.Yparams[1, 0]
-
-    @property
-    def Y22(self):
-        """Short-circuit output admittance"""
-        return self.Yparams[1, 1]
-
-    @property
-    def Z11(self):
-        """Open-cicuit input impedance"""
-        return self.Zparams[0, 0]
-
-    @property
-    def Z12(self):
-        """Open-cicuit transfer impedance"""
-        return self.Zparams[0, 1]
-
-    @property
-    def Z21(self):
-        """Open-cicuit reverse transfer impedance"""
-        return self.Zparams[1, 0]
-
-    @property
-    def Z22(self):
-        """Open-cicuit output impedance"""
-        return self.Zparams[1, 1]
-
-    @property
-    def S11(self):
-        return self.Sparams[0, 0]
-
-    @property
-    def S12(self):
-        return self.Sparams[0, 1]
-
-    @property
-    def S21(self):
-        return self.Sparams[1, 0]
-
-    @property
-    def S22(self):
-        return self.Sparams[1, 1]
-
-    @property
-    def T11(self):
-        return self.Tparams[0, 0]
-
-    @property
-    def T12(self):
-        return self.Tparams[0, 1]
-
-    @property
-    def T21(self):
-        return self.Tparams[1, 0]
-
-    @property
-    def T22(self):
-        return self.Tparams[1, 1]        
 
     def pdb(self):
         import pdb; pdb.set_trace()
@@ -356,25 +519,25 @@ class AMatrix(TwoPortMatrix):
         det = self.det()
         if det == 0:
             warn('Producing dodgy B matrix')
-        return BMatrix(((self.A22 / det, -self.A12 / det),
-                        (-self.A21 / det, self.A11 / det)))
+        return BMatrix(((self._A22 / det, -self._A12 / det),
+                        (-self._A21 / det, self._A11 / det)))
 
     @property
     def Hparams(self):
 
-        if self.A22 == 0:
+        if self._A22 == 0:
             warn('Producing dodgy H matrix')
-        return HMatrix(((self.A12 / self.A22, self.det() / self.A22),
-                        (-1 / self.A22, self.A21 / self.A22)))
+        return HMatrix(((self._A12 / self._A22, self.det() / self._A22),
+                        (-1 / self._A22, self._A21 / self._A22)))
 
 
     @property
     def Sparams(self):
         Z0 = Zs('Z_0')
-        d = self.A12 + Z0 * (self.A11 + self.A22) + Z0**2 * self.A21
-        return SMatrix((((self.A12 + Z0 * (self.A11 - self.A22) - Z0**2 * self.A21) / d,
-                         (2 * Z0 * (self.A11 * self.A22 - self.A12 * self.A21)) / d),
-                         (2 * Z0 / d, (self.A12 - Z0 * (self.A11 - self.A22) - Z0**2 * self.A21) / d)))
+        d = self._A12 + Z0 * (self._A11 + self._A22) + Z0**2 * self._A21
+        return SMatrix((((self._A12 + Z0 * (self._A11 - self._A22) - Z0**2 * self._A21) / d,
+                         (2 * Z0 * (self._A11 * self._A22 - self._A12 * self._A21)) / d),
+                         (2 * Z0 / d, (self._A12 - Z0 * (self._A11 - self._A22) - Z0**2 * self._A21) / d)))
 
 
     @property
@@ -382,26 +545,26 @@ class AMatrix(TwoPortMatrix):
 
         # This produces a bogus Y matrix when A12 is zero (say for a
         # shunt element).   Note, it doesn't use A21.
-        if self.A12 == 0:
+        if self._A12 == 0:
             warn('Producing dodgy Y matrix')
-        return YMatrix(((self.A22 / self.A12, -self.det() / self.A12),
-                        (-1 / self.A12, self.A11 / self.A12)))
+        return YMatrix(((self._A22 / self._A12, -self.det() / self._A12),
+                        (-1 / self._A12, self._A11 / self._A12)))
 
     @property
     def Zparams(self):
 
         # This produces a bogus Z matrix when A21 is zero (say for a
         # series element).   Note, it doesn't use A12.
-        if self.A21 == 0:
+        if self._A21 == 0:
             warn('Producing dodgy Z matrix')
-        return ZMatrix(((self.A11 / self.A21, self.det() / self.A21),
-                        (1 / self.A21, self.A22 / self.A21)))
+        return ZMatrix(((self._A11 / self._A21, self.det() / self._A21),
+                        (1 / self._A21, self._A22 / self._A21)))
 
     @property
     def Z1oc(self):
         """open-circuit input impedance"""
         # Z11
-        return Zs(self.A11 / self.A21)
+        return Zs(self._A11 / self._A21)
 
     @classmethod
     def Zseries(cls, Zval):
@@ -508,8 +671,8 @@ class BMatrix(TwoPortMatrix):
     def Aparams(self):
         # Inverse
         det = self.det()
-        return AMatrix(((self.B22 / det, -self.B12 / det),
-                        (-self.B21 / det, self.B11 / det)))
+        return AMatrix(((self._B22 / det, -self._B12 / det),
+                        (-self._B21 / det, self._B11 / det)))
 
     @property
     def Bparams(self):
@@ -519,32 +682,32 @@ class BMatrix(TwoPortMatrix):
     @property
     def Gparams(self):
 
-        return GMatrix(((-self.B21 / self.B22, -1 / self.B22),
-                        (self.det() / self.B22, -self.B12 / self.B22)))
+        return GMatrix(((-self._B21 / self._B22, -1 / self._B22),
+                        (self.det() / self._B22, -self._B12 / self._B22)))
 
     @property
     def Hparams(self):
 
-        return HMatrix(((-self.B12 / self.B11, 1 / self.B11),
-                        (-self.det() / self.B11, -self.B21 / self.B11)))
+        return HMatrix(((-self._B12 / self._B11, 1 / self._B11),
+                        (-self.det() / self._B11, -self._B21 / self._B11)))
 
     @property
     def Yparams(self):
 
-        return YMatrix(((-self.B11 / self.B12, 1 / self.B12),
-                        (self.det() / self.B12, -self.B22 / self.B12)))
+        return YMatrix(((-self._B11 / self._B12, 1 / self._B12),
+                        (self.det() / self._B12, -self._B22 / self._B12)))
 
     @property
     def Zparams(self):
 
-        return ZMatrix(((-self.B22 / self.B21, -1 / self.B21),
-                        (-self.det() / self.B21, -self.B11 / self.B21)))
+        return ZMatrix(((-self._B22 / self._B21, -1 / self._B21),
+                        (-self.det() / self._B21, -self._B11 / self._B21)))
 
     @property
     def Z1oc(self):
         """open-circuit input impedance"""
         # Z11
-        return Zs(-self.B22 / self.B21)
+        return Zs(-self._B22 / self._B21)
 
     @classmethod
     def Zseries(cls, Zval):
@@ -759,14 +922,14 @@ class GMatrix(TwoPortMatrix):
     @property
     def Aparams(self):
         # return self.Hparams.Aparams
-        return AMatrix(((1 / self.G21, self.G22 / self.G21),
-                        (self.G11 / self.G21, self.det() / self.G21)))
+        return AMatrix(((1 / self._G21, self._G22 / self._G21),
+                        (self._G11 / self._G21, self.det() / self._G21)))
 
     @property
     def Bparams(self):
         # return self.Hparams.Bparams
-        return BMatrix(((-self.det() / self.G12),
-                        (self.G22 / self.G12, self.G11 / self.G12, -1 / self.G12)))
+        return BMatrix(((-self.det() / self._G12),
+                        (self._G22 / self._G12, self._G11 / self._G12, -1 / self._G12)))
 
     @property
     def Gparams(self):
@@ -813,13 +976,13 @@ class HMatrix(TwoPortMatrix):
         
     @property
     def Aparams(self):
-        return AMatrix(((-self.det() / self.H21, -self.H11 / self.H21),
-                        (-self.H22 / self.H21, -1 / self.H21)))
+        return AMatrix(((-self.det() / self._H21, -self._H11 / self._H21),
+                        (-self._H22 / self._H21, -1 / self._H21)))
 
     @property
     def Bparams(self):
-        return BMatrix(((1 / self.H12, -self.H11 / self.H12),
-                        (-self.H22 / self.H12, self.det() / self.H12)))
+        return BMatrix(((1 / self._H12, -self._H11 / self._H12),
+                        (-self._H22 / self._H12, self.det() / self._H12)))
 
     @property
     def Hparams(self):
@@ -828,13 +991,13 @@ class HMatrix(TwoPortMatrix):
 
     @property
     def Yparams(self):
-        return YMatrix(((1 / self.H11, -self.H12 / self.H11),
-                        (self.H21 / self.H11, self.det() / self.H11)))
+        return YMatrix(((1 / self._H11, -self._H12 / self._H11),
+                        (self._H21 / self._H11, self.det() / self._H11)))
 
     @property
     def Zparams(self):
-        return ZMatrix(((self.det() / self.H22, self.H12 / self.H22),
-                        (-self.H21 / self.H22, 1 / self.H22)))
+        return ZMatrix(((self.det() / self._H22, self._H12 / self._H22),
+                        (-self._H21 / self._H22, 1 / self._H22)))
 
 
 class SMatrix(TwoPortMatrix):
@@ -859,10 +1022,10 @@ class SMatrix(TwoPortMatrix):
     def Aparams(self):
         det = self.det()
         Z0 = Zs('Z_0')
-        A = AMatrix(((1 + self.S11 - self.S22 - det,
-                         (1 + self.S11 + self.S22 + det) * Z0),
-                        ((1 - self.S11 - self.S22 + det) / Z0,
-                         1 - self.S11 + self.S22 - det))) / (2 * self.S21)
+        A = AMatrix(((1 + self._S11 - self._S22 - det,
+                         (1 + self._S11 + self._S22 + det) * Z0),
+                        ((1 - self._S11 - self._S22 + det) / Z0,
+                         1 - self._S11 + self._S22 - det))) / (2 * self._S21)
         return A.simplify()
 
     @property
@@ -875,8 +1038,8 @@ class SMatrix(TwoPortMatrix):
 
     @property
     def Tparams(self):
-        return TMatrix(((-self.det() / self.S21, self.S11 / self.S21),
-                        (-self.S22 / self.S21, 1 / self.S21)))
+        return TMatrix(((-self.det() / self._S21, self._S11 / self._S21),
+                        (-self._S22 / self._S21, 1 / self._S21)))
 
     @property
     def Zparams(self):
@@ -912,8 +1075,8 @@ class TMatrix(TwoPortMatrix):
 
     @property
     def Sparams(self):
-        return SMatrix(((self.T12 / self.T22, self.det() / self.T22),
-                        (1 / self.T22, -self.T21 / self.T22)))
+        return SMatrix(((self._T12 / self._T22, self.det() / self._T22),
+                        (1 / self._T22, -self._T21 / self._T22)))
     
     @property
     def Tparams(self):
@@ -952,22 +1115,22 @@ class YMatrix(TwoPortMatrix):
         
     @property
     def Ysc(self):
-        return YsVector(self.Y11, self.Y22)
+        return YsVector(self._Y11, self._Y22)
 
     @property
     def Aparams(self):
-        return AMatrix(((-self.Y22 / self.Y21, -1 / self.Y21),
-                        (-self.det() / self.Y21, -self.Y11 / self.Y21)))
+        return AMatrix(((-self._Y22 / self._Y21, -1 / self._Y21),
+                        (-self.det() / self._Y21, -self._Y11 / self._Y21)))
 
     @property
     def Bparams(self):
-        return BMatrix(((-self.Y11 / self.Y12, 1 / self.Y12),
-                        (self.det() / self.Y12, -self.Y22 / self.Y12)))
+        return BMatrix(((-self._Y11 / self._Y12, 1 / self._Y12),
+                        (self.det() / self._Y12, -self._Y22 / self._Y12)))
 
     @property
     def Hparams(self):
-        return HMatrix(((1 / self.Y11, -self.Y12 / self.Y11),
-                        (self.Y21 / self.Y11, self.det() / self.Y11)))
+        return HMatrix(((1 / self._Y11, -self._Y12 / self._Y11),
+                        (self._Y21 / self._Y11, self.det() / self._Y11)))
 
     @property
     def Yparams(self):
@@ -978,8 +1141,8 @@ class YMatrix(TwoPortMatrix):
     def Zparams(self):
         # Inverse
         det = self.det()
-        return ZMatrix(((self.Y22 / det, -self.Y12 / det),
-                        (-self.Y21 / det, self.Y11 / det)))
+        return ZMatrix(((self._Y22 / det, -self._Y12 / det),
+                        (-self._Y21 / det, self._Y11 / det)))
 
 
 class ZMatrix(TwoPortMatrix):
@@ -1009,29 +1172,29 @@ class ZMatrix(TwoPortMatrix):
         
     @property
     def Zoc(self):
-        return ZsVector(self.Z11, self.Z22)
+        return ZsVector(self._Z11, self._Z22)
 
     @property
     def Aparams(self):
-        return AMatrix(((self.Z11 / self.Z21, self.det() / self.Z21),
-                        (1 / self.Z21, self.Z22 / self.Z21)))
+        return AMatrix(((self._Z11 / self._Z21, self.det() / self._Z21),
+                        (1 / self._Z21, self._Z22 / self._Z21)))
 
     @property
     def Bparams(self):
-        return BMatrix(((self.Z22 / self.Z12, -self.det() / self.Z12),
-                        (-1 / self.Z12, self.Z11 / self.Z12)))
+        return BMatrix(((self._Z22 / self._Z12, -self.det() / self._Z12),
+                        (-1 / self._Z12, self._Z11 / self._Z12)))
 
     @property
     def Hparams(self):
-        return HMatrix(((self.det() / self.Z22, self.Z12 / self.Z22),
-                        (-self.Z21 / self.Z22, 1 / self.Z22)))
+        return HMatrix(((self.det() / self._Z22, self._Z12 / self._Z22),
+                        (-self._Z21 / self._Z22, 1 / self._Z22)))
 
     @property
     def Yparams(self):
         # Inverse
         det = self.det()
-        return YMatrix(((self.Z22 / det, -self.Z12 / det),
-                        (-self.Z21 / det, self.Z11 / det)))
+        return YMatrix(((self._Z22 / det, -self._Z12 / det),
+                        (-self._Z21 / det, self._Z11 / det)))
 
     @property
     def Zparams(self):
@@ -1057,10 +1220,10 @@ class ZMatrix(TwoPortMatrix):
         return cls.Tsection(Za, Zb, Zc)
 
 
-class TwoPort(Network):
+class TwoPort(Network, TwoPortMixin):
 
     """
-    General class to two-port networks.  Two-port networks are
+    General class for two-port networks.  Two-port networks are
     constrained to have the same current at each port (but flowing in
     opposite directions).  This is called the port condition.
     """
@@ -1082,107 +1245,11 @@ class TwoPort(Network):
                 raise ValueError('%s not a TwoPort' % arg1)
 
     @property
-    def A11(self):
-        return self.Aparams[0, 0]
-
-    @property
-    def A12(self):
-        return self.Aparams[0, 1]
-
-    @property
-    def A21(self):
-        return self.Aparams[1, 0]
-
-    @property
-    def A22(self):
-        return self.Aparams[1, 1]
-
-    @property
-    def B11(self):
-        return self.Bparams[0, 0]
-
-    @property
-    def B12(self):
-        return self.Bparams[0, 1]
-
-    @property
-    def B21(self):
-        return self.Bparams[1, 0]
-
-    @property
-    def B22(self):
-        return self.Bparams[1, 1]
-
-    @property
-    def G11(self):
-        return self.Gparams[0, 0]
-
-    @property
-    def G12(self):
-        return self.Gparams[0, 1]
-
-    @property
-    def G21(self):
-        return self.Gparams[1, 0]
-
-    @property
-    def G22(self):
-        return self.Gparams[1, 1]
-
-    @property
-    def H11(self):
-        return self.Hparams[0, 0]
-
-    @property
-    def H12(self):
-        return self.Hparams[0, 1]
-
-    @property
-    def H21(self):
-        return self.Hparams[1, 0]
-
-    @property
-    def H22(self):
-        return self.Hparams[1, 1]
-
-    @property
-    def Y11(self):
-        return self.Yparams[0, 0]
-
-    @property
-    def Y12(self):
-        return self.Yparams[0, 1]
-
-    @property
-    def Y21(self):
-        return self.Yparams[1, 0]
-
-    @property
-    def Y22(self):
-        return self.Yparams[1, 1]
-
-    @property
-    def Z11(self):
-        return self.Zparams[0, 0]
-
-    @property
-    def Z12(self):
-        return self.Zparams[0, 1]
-
-    @property
-    def Z21(self):
-        return self.Zparams[1, 0]
-
-    @property
-    def Z22(self):
-        return self.Zparams[1, 1]
-
-    @property
     def isbuffered(self):
         """Return true if two-port is buffered, i.e., any load
         on the output has no affect on the input. """
-        # return self.A12 == 0 and self.A22 == 0
-        return self.B12 == 0 and self.B22 == 0
+        # return self._A12 == 0 and self._A22 == 0
+        return self._B12 == 0 and self._B22 == 0
 
     @property
     def isbilateral(self):
@@ -1192,19 +1259,19 @@ class TwoPort(Network):
     @property
     def issymmetrical(self):
         """Return true if two-port is symmetrical. """
-        return self.B11 == self.B22
+        return self._B11 == self._B22
 
     @property
     def isseries(self):
         """Return true if two-port is a series network. """
-        # return (self.A11 == 1) and (self.A22 == 1) and (self.A21 == 0)
-        return (self.B11 == 1) and (self.B22 == 1) and (self.B21 == 0)
+        # return (self._A11 == 1) and (self._A22 == 1) and (self._A21 == 0)
+        return (self._B11 == 1) and (self._B22 == 1) and (self._B21 == 0)
 
     @property
     def isshunt(self):
         """Return true if two-port is a shunt network. """
-        # return (self.A11 == 1) and (self.A22 == 1) and (self.A12 == 0)
-        return (self.B11 == 1) and (self.B22 == 1) and (self.B12 == 0)
+        # return (self._A11 == 1) and (self._A22 == 1) and (self._A12 == 0)
+        return (self._B11 == 1) and (self._B22 == 1) and (self._B12 == 0)
 
     @property
     def Aparams(self):
@@ -1238,44 +1305,44 @@ class TwoPort(Network):
 
     @property
     def I1a(self):
-        return Is(-self.V2b / self.B12)
+        return Is(-self.V2b / self._B12)
 
     @property
     def V1a(self):
         # CHECKME
-        return Vs(-self.I2b / self.B21)
+        return Vs(-self.I2b / self._B21)
 
     @property
     def I1g(self):
-        return Is(-self.I2b / self.B22)
+        return Is(-self.I2b / self._B22)
 
     @property
     def V2g(self):
-        return Vs(self.V2b - self.B12 / self.B22 * self.I2b)
+        return Vs(self.V2b - self._B12 / self._B22 * self.I2b)
 
     @property
     def V1h(self):
-        return Vs(-self.V2b / self.B11)
+        return Vs(-self.V2b / self._B11)
 
     @property
     def I2h(self):
-        return Is(-self.V2b * self.B21 / self.B11) - self.I2b
+        return Is(-self.V2b * self._B21 / self._B11) - self.I2b
 
     @property
     def I1y(self):
-        return Is(-self.V2b / self.B12)
+        return Is(-self.V2b / self._B12)
 
     @property
     def I2y(self):
-        return Is(self.V2b * self.B22 / self.B12) - self.I2b
+        return Is(self.V2b * self._B22 / self._B12) - self.I2b
 
     @property
     def V1z(self):
-        return Vs(-self.I2b / self.B21)
+        return Vs(-self.I2b / self._B21)
 
     @property
     def V2z(self):
-        return self.V2b - Vs(self.I2b * self.B11 / self.B21)
+        return self.V2b - Vs(self.I2b * self._B11 / self._B21)
 
     @property
     def Yoc(self):
@@ -1347,9 +1414,9 @@ class TwoPort(Network):
         if inport == outport:
             return Hs(1)
         if inport == 1 and outport == 2:
-            return Hs(1 / self.A11)
+            return Hs(1 / self._A11)
         if inport == 2 and outport == 1:
-            return Hs(1 / self.B11)
+            return Hs(1 / self._B11)
         raise ValueError('bad port values')
 
     def Igain(self, inport=1, outport=2):
@@ -1362,9 +1429,9 @@ class TwoPort(Network):
         if inport == outport:
             return Hs(1)
         if inport == 1 and outport == 2:
-            return Hs(-1 / self.A22)
+            return Hs(-1 / self._A22)
         if inport == 2 and outport == 1:
-            return Hs(-1 / self.B22)
+            return Hs(-1 / self._B22)
         raise ValueError('bad port values')
 
     @property
@@ -1443,7 +1510,7 @@ class TwoPort(Network):
          Y21 = -1 / A12 = det(B) / B12
          """
 
-        return Ys(self.Y21)
+        return Ys(self._Y21)
 
     @property
     def Ytransfer(self):
@@ -1468,7 +1535,7 @@ class TwoPort(Network):
         Z21 = 1 / A21 = -det(B) / B21
         """
 
-        return Zs(self.Z21)
+        return Zs(self._Z21)
 
     @property
     def Ztransfer(self):
@@ -1765,27 +1832,27 @@ class TwoPortBModel(TwoPort):
 
     @property
     def V1h(self):
-        return Vs(-self.V2b / self.B11)
+        return Vs(-self.V2b / self._B11)
 
     @property
     def I2h(self):
-        return Is(-self.V2b * self.B21 / self.B11) - self.I2b
+        return Is(-self.V2b * self._B21 / self._B11) - self.I2b
 
     @property
     def I1y(self):
-        return Is(-self.V2b / self.B12)
+        return Is(-self.V2b / self._B12)
 
     @property
     def I2y(self):
-        return Is(self.V2b * self.B22 / self.B12) - self.I2b
+        return Is(self.V2b * self._B22 / self._B12) - self.I2b
 
     @property
     def V1z(self):
-        return Vs(-self.I2b / self.B21)
+        return Vs(-self.I2b / self._B21)
 
     @property
     def V2z(self):
-        return self.V2b - Vs(self.I2b * self.B11 / self.B21)
+        return self.V2b - Vs(self.I2b * self._B11 / self._B21)
 
 
 class TwoPortGModel(TwoPort):
@@ -1822,14 +1889,14 @@ class TwoPortGModel(TwoPort):
         """Return V2b"""
 
         # FIXME
-        return Vs(self.I1g / self.Gparams.G12)
+        return Vs(self.I1g / self.Gparams._G12)
 
     @property
     def I2b(self):
         """Return I2b"""
 
         # FIXME
-        return Is(self.G.G22 / self.G.G12 * self.I1g) - self.V2g
+        return Is(self.G._G22 / self.G._G12 * self.I1g) - self.V2g
 
     @property
     def I1g(self):
@@ -1894,13 +1961,13 @@ class TwoPortHModel(TwoPort):
     def V2b(self):
         """Return V2b"""
 
-        return Vs(self.V1h / self.Hparams.H12)
+        return Vs(self.V1h / self.Hparams._H12)
 
     @property
     def I2b(self):
         """Return I2b"""
 
-        return Is(self.H.H22 / self.H.H12 * self.V1h) - self.I2h
+        return Is(self.H._H22 / self.H._H12 * self.V1h) - self.I2h
 
     @property
     def V1h(self):
@@ -1963,11 +2030,11 @@ class TwoPortYModel(TwoPort):
 
     @property
     def I2b(self):
-        return Is(-self.I1y * self.Y11 * self.Y22 / self.Y12) - self.I2y
+        return Is(-self.I1y * self._Y11 * self._Y22 / self._Y12) - self.I2y
 
     @property
     def V2b(self):
-        return Vs(self.I1y * self.Y11 / self.Y22)
+        return Vs(self.I1y * self._Y11 / self._Y22)
 
     @property
     def I1y(self):
@@ -2029,23 +2096,23 @@ class TwoPortZModel(TwoPort):
 
     @property
     def I2b(self):
-        return Is(self.V1z / self.Z12)
+        return Is(self.V1z / self._Z12)
 
     @property
     def V2b(self):
-        return self.V2z - Vs(self.V1z * self.Z22 / self.Z12)
+        return self.V2z - Vs(self.V1z * self._Z22 / self._Z12)
 
     @property
     def I1y(self):
 
         Zdet = self.Zparams.det()
-        return Is(-self.V1z * self.Z22 / Zdet - self.V2z * self.Z12 / Zdet)
+        return Is(-self.V1z * self._Z22 / Zdet - self.V2z * self._Z12 / Zdet)
 
     @property
     def I2y(self):
 
         Zdet = self.Zparams.det()
-        return Is(self.V1z * self.Z21 / Zdet - self.V2z * self.Z11 / Zdet)
+        return Is(self.V1z * self._Z21 / Zdet - self.V2z * self._Z11 / Zdet)
 
     @property
     def V1z(self):
