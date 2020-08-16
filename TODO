@@ -99,6 +99,8 @@ Z(s).limit() works as expected.
 22. Warn about coupled inductors at DC?  LT methods will blindly give
 an answer that appears valid for DC.
 
+23. Simplify convolutions.
+
 
 Testing
 =======
@@ -122,6 +124,7 @@ Documentation
 6. Update the examples.
 
 7. Have worked examples.
+
 
 
 Additional features

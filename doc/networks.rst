@@ -379,3 +379,112 @@ Parallel R-L-C network
 .. image:: examples/networks/parallel-IRLC1-voc.png
    :width: 15cm
 
+
+
+Two-port networks
+=================
+
+Lcapy desribes two-port networks in the Laplace domain using A, B, G,
+H, S, T, Y, and Z matrices.  These are defined in the following sections.
+Note, for some network configurations some of these matrices can be
+singular.
+
+Each matrix has methods for converting to the other parameterisations:  For example,
+
+>>> A = AMatrix.generic()
+
+.. math::
+
+    \left[\begin{matrix}A_{11} & A_{12}\\A_{21} & A_{22}\end{matrix}\right]
+
+>>> A.Zparams    
+
+.. math::
+   
+    \left[\begin{matrix}\frac{A_{11}}{A_{21}} & \frac{A_{11} A_{22} - A_{12} A_{21}}{A_{21}}\\\frac{1}{A_{21}} & \frac{A_{22}}{A_{21}}\end{matrix}\right]
+
+The elements can be accessed by name, for example:
+
+>>> A.S11
+
+.. math::
+
+   \frac{A_{12} - A_{21} Z_{0}^{2} + Z_{0} \left(A_{11} - A_{22}\right)}{A_{12} + A_{21} Z_{0}^{2} + Z_{0} \left(A_{11} + A_{22}\right)}
+
+Note, in this example, the A-parameters are converted to S-parameters.
+
+
+A-parameters (ABCD)
+-------------------
+
+.. math::
+
+    \left[\begin{matrix}V_{1}\\I_{1}\end{matrix}\right] = \left[\begin{matrix}A_{11} & A_{12}\\A_{21} & A_{22}\end{matrix}\right] \left[\begin{matrix}V_{2}\\- I_{2}\end{matrix}\right]
+
+The A matrix is the inverse of the B matrix.            
+
+
+B-parameters (inverse ABCD)
+---------------------------
+
+.. math::
+
+    \left[\begin{matrix}V_{2}\\I_{2}\end{matrix}\right] = \left[\begin{matrix}B_{11} & B_{12}\\B_{21} & B_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\- I_{1}\end{matrix}\right]
+
+The B matrix is the inverse of the A matrix.    
+
+
+G-parameters (inverse hybrid)
+-----------------------------
+
+.. math::
+
+    \left[\begin{matrix}I_{1}\\V_{2}\end{matrix}\right] = \left[\begin{matrix}G_{11} & G_{12}\\G_{21} & G_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\I_{2}\end{matrix}\right]
+
+The G matrix is the inverse of the H matrix.        
+
+
+H-parameters (hybrid)
+---------------------
+
+.. math::
+
+    \left[\begin{matrix}V_{1}\\I_{2}\end{matrix}\right] = \left[\begin{matrix}H_{11} & H_{12}\\H_{21} & H_{22}\end{matrix}\right] \left[\begin{matrix}I_{1}\\V_{2}\end{matrix}\right]
+   
+The H matrix is the inverse of the G matrix.    
+
+
+S-parameters (scattering)
+-------------------------
+
+.. math::
+   
+    \left[\begin{matrix}b_{1}\\b_{2}\end{matrix}\right] = \left[\begin{matrix}S_{11} & S_{12}\\S_{21} & S_{22}\end{matrix}\right] \left[\begin{matrix}a_{1}\\a_{2}\end{matrix}\right]
+
+
+T-parameters (scattering transfer)
+----------------------------------
+
+.. math::
+   
+    \left[\begin{matrix}b_{1}\\a_{1}\end{matrix}\right] = \left[\begin{matrix}T_{11} & T_{12}\\T_{21} & T_{22}\end{matrix}\right] \left[\begin{matrix}a_{2}\\b_{2}\end{matrix}\right]
+
+    
+Y-parameters (admittance)
+-------------------------
+
+.. math::    
+
+    \left[\begin{matrix}I_{1}\\I_{2}\end{matrix}\right] = \left[\begin{matrix}Y_{11} & Y_{12}\\Y_{21} & Y_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\V_{2}\end{matrix}\right]
+
+The Y matrix is the inverse of the Z matrix.           
+
+
+Z-parameters (impedance)
+------------------------
+
+.. math::
+
+   \left[\begin{matrix}V_{1}\\V_{2}\end{matrix}\right] = \left[\begin{matrix}Z_{11} & Z_{12}\\Z_{21} & Z_{22}\end{matrix}\right] \left[\begin{matrix}I_{1}\\I_{2}\end{matrix}\right]
+
+The Z matrix is the inverse of the Y matrix.       

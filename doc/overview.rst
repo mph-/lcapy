@@ -617,16 +617,16 @@ series one-port.
 Two-port matrices
 -----------------
 
-Two-port networks can be represented by six two by two matrices, A, B,
-G, H, Y, Z.  Each has their own merits (see
+Two-port networks can be parameterised by eight different two by two
+matrices, A, B, G, H, S, T, Y, Z.  Each has their own merits (see
 http://en.wikipedia.org/wiki/Two-port_network).
 
 Consider an L section comprised of two resistors:
    >>> from lcapy import *
-   >>> n = LSection(R('R_1'), R('R_2')))
+   >>> n = LSection(R('R_1'), R('R_2'))
 
 The different matrix representations can be shown using:
-   >>> n.A
+   >>> n.Aparams
    ⎡R₁ + R₂    ⎤
    ⎢───────  R₁⎥
    ⎢   R₂      ⎥
@@ -634,13 +634,13 @@ The different matrix representations can be shown using:
    ⎢  1        ⎥
    ⎢  ──     1 ⎥
    ⎣  R₂       ⎦
-   >>> n.B
+   >>> n.Bparams
    ⎡ 1    -R₁  ⎤
    ⎢           ⎥
    ⎢-1   R₁    ⎥
    ⎢───  ── + 1⎥
    ⎣ R₂  R₂    ⎦
-   >>> n.G
+   >>> n.Gparams
    ⎡   1       -R₂  ⎤
    ⎢───────  ───────⎥
    ⎢R₁ + R₂  R₁ + R₂⎥
@@ -648,13 +648,13 @@ The different matrix representations can be shown using:
    ⎢   R₂     R₁⋅R₂ ⎥
    ⎢───────  ───────⎥
    ⎣R₁ + R₂  R₁ + R₂⎦
-   >>> n.H
+   >>> n.Hparams
    ⎡R₁  1 ⎤
    ⎢      ⎥
    ⎢    1 ⎥
    ⎢-1  ──⎥
    ⎣    R₂⎦
-   >>> n.Y
+   >>> n.Yparams
    ⎡1      -1   ⎤
    ⎢──     ───  ⎥
    ⎢R₁      R₁  ⎥
@@ -662,7 +662,7 @@ The different matrix representations can be shown using:
    ⎢-1   R₁ + R₂⎥
    ⎢───  ───────⎥
    ⎣ R₁   R₁⋅R₂ ⎦
-   >>> n.Z
+   >>> n.Zparams
    ⎡R₁ + R₂  R₂⎤
    ⎢           ⎥
    ⎣  R₂     R₂⎦
