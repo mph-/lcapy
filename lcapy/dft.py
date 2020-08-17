@@ -10,10 +10,11 @@ Copyright 2020 Michael Hayes, UCECE
 
 import sympy as sym
 from .sym import sympify, AppliedUndef, j, pi
-from .functions import UnitImpulse, UnitStep
+from .functions import UnitImpulse, UnitStep, exp
 from .utils import factor_const, scale_shift
+from .matrix import Matrix
 
-__all__ = ('DFT', 'IDFT')
+__all__ = ('DFT', 'IDFT', 'DFTmatrix', 'IDFTmatrix')
 
 
 discrete_fourier_cache = {}
@@ -220,3 +221,29 @@ def IDFT(expr, k, n, N, **assumptions):
     """    
     
     return inverse_discrete_fourier_transform(expr, k, n, N, **assumptions)
+
+
+def DFTmatrix(N):
+    """Return DFT matrix of size `N` x `N`."""    
+
+    w = exp(-j * 2 * pi / N)
+
+    a = Matrix.zeros(N)
+    
+    for row in range(N):
+        for col in range(N):
+            a[row, col] = w ** (row * col)
+    return a
+
+
+def IDFTmatrix(N):
+    """Return inverse DFT matrix of size `N` x `N`."""
+
+    w = exp(j * 2 * pi / N)
+
+    a = Matrix.zeros(N)
+    
+    for row in range(N):
+        for col in range(N):
+            a[row, col] = w ** (row * col)
+    return a / N
