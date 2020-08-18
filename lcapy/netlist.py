@@ -919,6 +919,8 @@ class NetlistMixin(object):
         """
         from .twoport import ZMatrix
 
+        # TODO, generalise to multiports.
+        
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)        
         net = self.kill()
         if '0' not in net.nodes:
@@ -1626,6 +1628,10 @@ class Netlist(NetlistMixin, NetfileMixin):
             return self._sub
 
         return self._sub_make()
+
+    @property
+    def subcircuits(self):
+        return self.sub
 
     @property
     def kinds(self):
