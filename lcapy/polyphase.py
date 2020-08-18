@@ -16,11 +16,11 @@ class PolyphaseVector(Vector):
     pass
 
 
-class PolyphaseVoltages(PolyphaseVector):
+class PolyphaseVoltageVector(PolyphaseVector):
     pass
 
 
-class PolyphaseCurrents(PolyphaseVector):
+class PolyphaseCurrentVector(PolyphaseVector):
     pass
 
 
@@ -38,58 +38,58 @@ class PolyphaseSequence(object):
         return A * self
 
     
-class PhaseVoltages(PolyphaseVoltages, PolyphasePhase):
+class PhaseVoltageVector(PolyphaseVoltageVector, PolyphasePhase):
 
     def sequence(self):
-        """Convert to sequence voltages."""
-        return SequenceVoltages(super(PhaseVoltages, self).sequence())
+        """Convert to sequence voltage vector."""
+        return SequenceVoltageVector(super(PhaseVoltageVector, self).sequence())
 
     def line(self):
-        """Convert to line voltages."""        
+        """Convert to line voltage vector."""        
         D = phase_to_line_matrix(len(self))
-        return LineVoltages(D * self)
+        return LineVoltageVector(D * self)
 
     
-class PhaseCurrents(PolyphaseCurrents, PolyphasePhase):
+class PhaseCurrentVector(PolyphaseCurrentVector, PolyphasePhase):
 
     def sequence(self):
-        """Convert to sequence currents."""        
-        return SequenceCurrents(super(PhaseCurrents, self).sequence())    
+        """Convert to sequence current vector."""        
+        return SequenceCurrentVector(super(PhaseCurrentVector, self).sequence())    
 
     def line(self):
-        """Convert to line currents."""
+        """Convert to line current vector."""
         D = phase_to_line_matrix(len(self))
-        return LineCurrents(D * self)
+        return LineCurrentVector(D * self)
     
 
-class SequenceVoltages(PolyphaseVoltages, PolyphaseSequence):
+class SequenceVoltageVector(PolyphaseVoltageVector, PolyphaseSequence):
 
     def phase(self):
-        """Convert to phase voltages."""                
-        return PhaseVoltages(super(SequenceVoltages, self).phase())    
+        """Convert to phase voltage vector."""                
+        return PhaseVoltageVector(super(SequenceVoltageVector, self).phase())    
 
     def line(self):
-        """Convert to line voltages."""        
+        """Convert to line voltage vector."""        
         return self.phase().line()
 
     
-class SequenceCurrents(PolyphaseCurrents, PolyphaseSequence):
+class SequenceCurrentVector(PolyphaseCurrentVector, PolyphaseSequence):
 
     def phase(self):
-        """Convert to phase currents."""                        
-        return PhaseCurrents(super(SequenceCurrents, self).phase())        
+        """Convert to phase current vector."""                        
+        return PhaseCurrentVector(super(SequenceCurrentVector, self).phase())
 
     def line(self):
-        """Convert to line currents."""        
+        """Convert to line current vector."""        
         return self.phase().line()
     
     
-class LineVoltages(PolyphaseVoltages):
+class LineVoltageVector(PolyphaseVoltageVector):
     """These are also known as phase to phase voltages."""
     pass
 
 
-class LineCurrents(PolyphaseCurrents):
+class LineCurrentVector(PolyphaseCurrentVector):
     """These are also known as phase to phase currents."""
     pass
 
