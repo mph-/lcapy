@@ -73,8 +73,10 @@ class RandomNetworkMaker(object):
         return cpts
 
     
-def random_network(NR=3, NL=0, NC=0, NV=1, NI=0, Nparallel=None, kind='transient'):
+def random_network(NR=3, NL=0, NC=0, NV=1, NI=0, Nparallel=None,
+                   kind='transient'):
 
-    return RandomNetworkMaker(NR, NL, NV, NV, NI, Nparallel, kind).make()
+    return RandomNetworkMaker(NR=NR, NL=NL, NC=NC, NV=NV, NI=NI,
+                              Nparallel=Nparallel, kind=kind).make()
 
 
