@@ -68,14 +68,22 @@ class SequenceVoltages(PolyphaseVoltages, PolyphaseSequence):
         """Convert to phase voltages."""                
         return PhaseVoltages(super(SequenceVoltages, self).phase())    
 
+    def line(self):
+        """Convert to line voltages."""        
+        return self.phase().line()
 
+    
 class SequenceCurrents(PolyphaseCurrents, PolyphaseSequence):
 
     def phase(self):
         """Convert to phase currents."""                        
         return PhaseCurrents(super(SequenceCurrents, self).phase())        
 
-
+    def line(self):
+        """Convert to line currents."""        
+        return self.phase().line()
+    
+    
 class LineVoltages(PolyphaseVoltages):
     """These are also known as phase to phase voltages."""
     pass
