@@ -16,61 +16,93 @@ class PolyphaseVector(Vector):
     pass
 
 
-class PolyphaseVoltage(PolyphaseVector):
+class PolyphaseVoltages(PolyphaseVector):
     pass
 
 
-class PolyphaseCurrent(PolyphaseVector):
+class PolyphaseCurrents(PolyphaseVector):
     pass
 
 
-class PolyphaseUnbalanced(object):
+class PolyphasePhase(object):
 
     def sequence(self):
-
         A = polyphase_decompose_matrix(len(self))
         return A * self    
 
 
 class PolyphaseSequence(object):
 
-    def unbalanced(self):
-
+    def phase(self):
         A = polyphase_compose_matrix(len(self))
         return A * self
 
     
-class PolyphaseUnbalancedVoltage(PolyphaseVoltage, PolyphaseUnbalanced):
+class PhaseVoltages(PolyphaseVoltages, PolyphasePhase):
 
     def sequence(self):
-        return PolyphaseSequenceVoltage(super(PolyphaseUnbalancedVoltage, self).sequence())
+        """Convert to sequence voltages."""
+        return SequenceVoltages(super(PhaseVoltages, self).sequence())
 
+    def line(self):
+        """Convert to line voltages."""        
+        D = phase_to_line_matrix(len(self))
+        return LineVoltages(D * self)
 
-class PolyphaseUnbalancedCurrent(PolyphaseCurrent, PolyphaseUnbalanced):
+    
+class PhaseCurrents(PolyphaseCurrents, PolyphasePhase):
 
     def sequence(self):
-        return PolyphaseSequenceCurrent(super(PolyphaseUnbalancedCurrent, self).sequence())    
+        """Convert to sequence currents."""        
+        return SequenceCurrents(super(PhaseCurrents, self).sequence())    
+
+    def line(self):
+        """Convert to line currents."""
+        D = phase_to_line_matrix(len(self))
+        return LineCurrents(D * self)
+    
+
+class SequenceVoltages(PolyphaseVoltages, PolyphaseSequence):
+
+    def phase(self):
+        """Convert to phase voltages."""                
+        return PhaseVoltages(super(SequenceVoltages, self).phase())    
 
 
-class PolyphaseSequenceVoltage(PolyphaseVoltage, PolyphaseSequence):
+class SequenceCurrents(PolyphaseCurrents, PolyphaseSequence):
 
-    def unbalanced(self):
-        return PolyphaseUnbalancedVoltage(super(PolyphaseSequenceVoltage, self).unbalanced())    
+    def phase(self):
+        """Convert to phase currents."""                        
+        return PhaseCurrents(super(SequenceCurrents, self).phase())        
 
 
-class PolyphaseSequenceCurrent(PolyphaseCurrent, PolyphaseSequence):
+class LineVoltages(PolyphaseVoltages):
+    """These are also known as phase to phase voltages."""
+    pass
 
-    def unbalanced(self):
-        return PolyphaseUnbalancedCurrent(super(PolyphaseSequenceCurrent, self).unbalanced())        
 
+class LineCurrents(PolyphaseCurrents):
+    """These are also known as phase to phase currents."""
+    pass
+
+
+def phase_to_line_matrix(N=3):
+
+    a = Matrix.zeros(N)
+    
+    for row in range(N):
+        a[row, row] = 1
+        col = (row + 1) % N
+        a[row, col] = -1
+    return a
 
 
 def polyphase_decompose_matrix(N=3, alpha=None):
-    """Matrix to decompose vector of unbalanced polyphase phasors into the
+    """Matrix to decompose vector of phase components into the
     sequence components.  The matrix dimension is `N` x `N`.  This
-    matrix is equivalent to IDFTmatrix.
-
-    """
+    matrix is equivalent to IDFTmatrix.  The transformation is only
+    valid for positive frequency components; the complex conjugate is
+    required for negative frequency components."""
 
     if alpha is None:
         alpha = exp(j * 2 * pi / N)
@@ -86,9 +118,11 @@ def polyphase_decompose_matrix(N=3, alpha=None):
 
 
 def polyphase_compose_matrix(N=3):
-    """Matrix to compose sequence components into a vector of unbalanced
-    polyphase phasors.  The matrix dimension is `N` x `N`.  This
-    matrix is equivalent to DFTmatrix."""
+    """Matrix to compose sequence components into a vector of phase
+    components.  The matrix dimension is `N` x `N`.  This
+    matrix is equivalent to DFTmatrix.  The transformation is only
+    valid for positive frequency components; the complex conjugate is
+    required for negative frequency components."""
 
     alpha = exp(-j * 2 * pi / N)
 
@@ -98,3 +132,8 @@ def polyphase_compose_matrix(N=3):
         for col in range(N):
             a[row, col] = alpha ** (row * col)
     return a
+
+
+def polyphase_alpha(N):
+
+    return exp(-j * 2 * pi / N)
