@@ -12,6 +12,6 @@ from .sexpr import s
 from .omegaexpr import omega, omega0
 
 # Import common SymPy symbols.
-from .sym import pi, j, oo, inf
+from .sym import pi, j, oo, inf, one
 
 jomega = j * omega

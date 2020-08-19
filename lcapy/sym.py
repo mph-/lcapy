@@ -329,6 +329,7 @@ pi = sym.pi
 j = sym.I
 oo = sym.oo
 inf = sym.oo
+one = sym.S.One
 
 try:
     from sympy.core.function import AppliedUndef

@@ -82,7 +82,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(aw.real, (omega**2 - 4) / (omega**2 + 4), "real part incorrect.")
         self.assertEqual2(aw.imag, -4 * omega / (omega**2 + 4), "imag part incorrect.")
 
-
     def test_sExpr2(self):
         """Lcapy: check sExpr2
 
@@ -223,7 +222,17 @@ class LcapyTester(unittest.TestCase):
         Hw = H(j * omega, causal=True)
 
         self.assertEqual(Hw.phase, atan2(1, a * omega), 'phase')
-        
+
+    def test_sExpr9(self):
+        """Lcapy: check sExpr9 (non-monic factor)
+
+        """
+        H = 1 / ((s + 1) * (3 * s + 2))
+        # Note, one is used to convert 2 to a SymPy Integer and thus
+        # 2 / 3 is not converted into a floating point value
+        # before becoming a rational number.
+        H2 = 1 / (s + one * 2 / 3) - 1 / (s + 1)
+        self.assertEqual2(H.partfrac(), H2, "partfrac incorrect.")        
 
     def test_wExpr1(self):
         """Lcapy: check wExpr1

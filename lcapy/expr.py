@@ -1635,6 +1635,9 @@ class Expr(ExprPrint, ExprMisc):
 
         5 * (s + 1)**2 / ((s - 2 * j) * (s + 2 * j))
 
+        Note, both the numerator and denominator are expressed as
+        products of monic factors, i.e., (s + 1 / 3) rather than (3 * s + 1).
+
         See also canonical, general, standard, partfrac, and timeconst.
 
         """

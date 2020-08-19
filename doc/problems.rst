@@ -92,6 +92,30 @@ The results from slow computations are cached to improve the speed.
 Some SymPy operations can take an unexpectedly long time, for example, `limit()`.
 
 
+Floating point values
+---------------------
+
+Lcapy approximates floating point values as rational numbers.   This helps when simplifying expressions.  However, the conversion is an approximation.  For example, consider
+
+   >>> s + 2 / 3
+
+This becomes:
+   
+       3333333333333333
+   s + ────────────────
+       5000000000000000
+
+In this case, Python evaluates 2 / 3 as a floating point number which is then converted to a rational number.  Unfortunately, this is not quite the same as 2 / 3.   The approximation can be avoided by bypassing the conversion of 2 / 3 to 0.666666666666, say by using:
+
+   >>> expr('s + 2 / 3')
+   s + 2/3
+
+Another approach is to use:
+ 
+   >>> s + one * 2 / 3
+   s + 2/3
+
+
 
 Debugging
 =========
