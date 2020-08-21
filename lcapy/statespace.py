@@ -42,7 +42,10 @@ def _hack_vars(exprs):
                 exprs[m] = expr
 
 class StateSpace(object):
-    """This converts a circuit to state-space representation."""
+    """This converts a circuit to state-space representation.
+
+    It can take a long time for a symbolic circuit with many reactive
+    components."""
 
     def __init__(self, cct, node_voltages=True, branch_currents=False):
 
@@ -81,7 +84,8 @@ class StateSpace(object):
         self.cct = cct
         self.sscct = sscct
         # sscct can be analysed in the time domain since it has no
-        # reactive components.
+        # reactive components.  However, for large circuits
+        # this can take a long time due to inversion of the MNA matrix.
         
         dotx_exprs = []
         statevars = []
