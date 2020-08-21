@@ -88,3 +88,30 @@ def as_sum(expr, var):
     for term in as_sum_terms(expr, var):
         result += term
     return result
+
+
+def merge_common(lists):
+    # From www.geeksforgeeks.org
+
+    from collections import defaultdict     
+    
+    neighbours = defaultdict(set) 
+    visited = set() 
+    for each in lists: 
+        for item in each: 
+            neighbours[item].update(each) 
+
+    def comp(node, neighbours=neighbours, visited=visited, visit=visited.add): 
+
+        nodes = set([node]) 
+        next_node = nodes.pop 
+        while nodes: 
+            node = next_node() 
+            visit(node) 
+            nodes |= neighbours[node] - visited 
+            yield node
+            
+    for node in neighbours: 
+        if node not in visited: 
+            yield sorted(comp(node))
+  

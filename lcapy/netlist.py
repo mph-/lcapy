@@ -386,7 +386,23 @@ class NetlistMixin(object):
         self._elements.pop(name)
         # TODO, remove nodes that are only connected
         # to this component.
-        return self        
+        return self
+
+    @property
+    def super_nodes(self):
+        """Super nodes are nodes linked by voltage sources."""
+
+        snodes = []
+
+        for elt in self.elements.values():
+            if not elt.is_voltage_source:
+                continue
+            snodes.append(elt.nodes[0:2])
+
+        from .utils import merge_common
+
+        # Merge supernodes to create super-supernodes...
+        return list(merge_common(snodes))
 
     @property
     def equipotential_nodes(self):
