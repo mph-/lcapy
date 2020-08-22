@@ -5,7 +5,7 @@ Copyright 2019 Michael Hayes, UCECE
 
 """
 
-from .mnacpts import I, V
+from .mnacpts import I, V, C, L
 from .matrix import Matrix
 from .smatrix import sMatrix
 from .tmatrix import tMatrix
