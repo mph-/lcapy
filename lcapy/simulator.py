@@ -141,7 +141,7 @@ class SimulationResults(object):
 
         V1 = self.node_voltages_get(cpt.nodes[0])
         V2 = self.node_voltages_get(cpt.nodes[1])        
-        return V2 - V1
+        return V1 - V2
 
     def cpt_voltage_get(self, cptname, n):
 
@@ -149,7 +149,7 @@ class SimulationResults(object):
         
         V1 = self.node_voltages_get(cpt.nodes[0])[n]
         V2 = self.node_voltages_get(cpt.nodes[1])[n]     
-        return V2 - V1
+        return V1 - V2
 
     def cpt_currents_get(self, cptname):
 
@@ -162,8 +162,11 @@ class SimulationResults(object):
                 # For a capacitor we can find the current through the
                 # companion resistor or voltage source.
                 return self.cpt_currents_get('V%seq' % cptname)
-            
-            Vd = self.voltages_get(cptname)
+
+            Vd = self.cpt_voltages_get(cptname)            
+            if cpt.is_resistor:
+                return Vd / cpt.R.expr
+                
             # Need to determine resistance of the cpt
             raise ValueError('FIXME')            
 
