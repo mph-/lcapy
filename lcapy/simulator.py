@@ -46,7 +46,7 @@ class SimulatedCapacitorTrapezoid(SimulatedCapacitor):
         Req = dt / (2 * C)
         Ieq = -2 * C * V / dt
         Veq = Req * Ieq
-        #import pdb; pdb.set_trace()
+
         return {self.Reqsym:Req, self.Veqsym:Veq}    
 
 
@@ -62,13 +62,27 @@ class SimulatedInductorTrapezoid(SimulatedInductor):
         Veq = -2 * L * I / dt
         return {self.Reqsym:Req, self.Veqsym:Veq}    
 
-    
+
+class SimulationResultsNode(object):
+
+    def __init__(self, v):
+        self.v = v
+
+
+class SimulationResultsCpt(object):
+
+    def __init__(self, v, i):
+        self.v = v
+        self.i = i
+
+        
 class SimulationResults(object):
 
-    def __init__(self, tv, cct, node_list, branch_list):
+    def __init__(self, tv, cct, r_model, node_list, branch_list):
 
         self.t = tv
         self.cct = cct
+        self.r_model = r_model
         
         N = len(tv)
 
@@ -87,18 +101,18 @@ class SimulationResults(object):
     def __getitem__(self, name):
         """Return element or node by name."""
 
-        netlist = self.cct._netlist
+        cct = self.cct
         
         # If name is an integer, convert to a string.
         if isinstance(name, int):
             name = '%d' % name
 
-        if name in netlist.nodes:
-            return netlist.nodes[name]
-
-        if name in netlist._elements:
-            return netlist._elements[name]
-
+        if name in cct.nodes:
+            return SimulationResultsNode(self.node_voltages_get(name))
+        
+        if name in cct._elements:
+            return SimulationResultsCpt(self.cpt_voltages_get(name),
+                                        self.cpt_currents_get(name))
 
         raise AttributeError('Unknown element or node name %s' % name)
 
@@ -116,7 +130,7 @@ class SimulationResults(object):
 
     def node_voltages_get(self, n):
 
-        index = self.cct._node_index(n)
+        index = self.r_model._node_index(n)
         if index < 0:
             return self.t * 0
         return self.node_voltages[index]
@@ -135,22 +149,27 @@ class SimulationResults(object):
         
         V1 = self.node_voltages_get(cpt.nodes[0])[n]
         V2 = self.node_voltages_get(cpt.nodes[1])[n]     
-        return V2 - V1    
+        return V2 - V1
+
+    def cpt_currents_get(self, cptname):
+
+        try:
+            index = self.r_model._branch_index(cptname)
+            return self.branch_currents[index]
+        except:
+            cpt = self.cct._elements[cptname]
+            if cpt.is_capacitor:
+                # For a capacitor we can find the current through the
+                # companion resistor or voltage source.
+                return self.cpt_currents_get('V%seq' % cptname)
+            
+            Vd = self.voltages_get(cptname)
+            # Need to determine resistance of the cpt
+            raise ValueError('FIXME')            
 
     def cpt_current_get(self, cptname, n):
 
-        try:
-            index = self.cct._branch_index(cptname)
-            return self.branch_currents[index][n]
-        except:
-            Vd = self.voltage_get(cptname, n)
-            # TODO: determine resistance of cpt but cannot do this for
-            # a capacitor since it is time dependent.  So if desire a
-            # capacitor current, will need to determine it as we go...
-            # Alternatively, we need to record how the resistance
-            # changes with time.  Or, we numerically approximate
-            # i = C dv / dt.
-            raise ValueError('FIXME')
+        return self.cpt_currents_get(cptname)[n]
         
     @property
     def V(self, node):
@@ -250,7 +269,7 @@ class Simulator(object):
         self.A = r_model._A
         self.Z = r_model._Z
         
-        results = SimulationResults(tv, r_model, r_model.node_list,
+        results = SimulationResults(tv, self.cct, r_model, r_model.node_list,
                                     r_model.unknown_branch_currents)
         
         for n, t1 in enumerate(tv):
