@@ -2,7 +2,7 @@
 This module defines the components for modified nodal analysis.  The components
 are defined at the bottom of this file.
 
-Copyright 2015--2019 Michael Hayes, UCECE
+Copyright 2015--2020 Michael Hayes, UCECE
 
 """
 
@@ -354,10 +354,25 @@ class Cpt(ImmitanceMixin):
             raise ValueError('%s is not a source' % self)        
 
     @property
+    def is_inductor(self):
+        """Return True if component is an inductor."""
+        return self.cpt.inductor
+
+    @property
+    def is_capacitor(self):
+        """Return True if component is a capacitor."""
+        return self.cpt.capacitor
+
+    @property
+    def is_resistor(self):
+        """Return True if component is a resistor."""
+        return self.cpt.resistor        
+
+    @property
     def is_voltage_source(self):
         """Return True if component is a voltage source (dependent or
         independent)"""
-        return self.cpt.voltage_source
+        return self.cpt.voltage_source    
 
     @property
     def is_current_source(self):
@@ -630,29 +645,6 @@ class DependentSource(Dummy):
     
 class RLC(Cpt):
 
-    def _r_model(self):
-
-        dummy_node = self.dummy_node()
-        opts = self.opts.copy()        
-        # Strip voltage and current labels.  FIXME
-        opts = opts.strip_all_labels()
-
-        # Use Thevenin model.  This will require the current through
-        # the voltage source to be explicitly computed.
-        
-        Req = 'R_%seq' % self.type
-        Veq = 'V_%seq' % self.type        
-        
-        rnet = self._netmake_variant('R', suffix='eq',
-                                     nodes=(self.relnodes[0], dummy_node),
-                                     args=Req, opts=opts)
-
-        vnet = self._netmake_variant('V', suffix='eq',
-                                     nodes=(dummy_node, self.relnodes[1]),
-                                     args=Veq, opts=opts)
-
-        return rnet + '\n' + vnet
-
     def _s_model(self, var):
 
         if self.Voc == 0:
@@ -757,6 +749,29 @@ class C(RC):
         if self.cpt.v0 == 0.0:
             return self._netmake_anon('O')
         return self._netmake_variant('V', args=self.cpt.v0)
+
+    def _r_model(self):
+
+        dummy_node = self.dummy_node()
+        opts = self.opts.copy()        
+        # Strip voltage and current labels.  FIXME
+        opts = opts.strip_all_labels()
+
+        # Use Thevenin model.  This will require the current through
+        # the voltage source to be explicitly computed.
+        
+        Req = 'R%seq' % self.name
+        Ieq = 'I%seq' % self.name  
+        
+        rnet = self._netmake_variant('R', suffix='eq',
+                                     nodes=(self.relnodes[0], dummy_node),
+                                     args=Req, opts=opts)
+
+        inet = self._netmake_variant('I', suffix='eq',
+                                     nodes=(dummy_node, self.relnodes[1]),
+                                     args=('dc', Ieq), opts=opts)
+
+        return rnet + '\n' + inet
 
     def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
@@ -1015,6 +1030,29 @@ class L(RLC):
     
     need_branch_current = True
     reactive = True
+
+    def _r_model(self):
+
+        dummy_node = self.dummy_node()
+        opts = self.opts.copy()        
+        # Strip voltage and current labels.  FIXME
+        opts = opts.strip_all_labels()
+
+        # Use Thevenin model.  This will require the current through
+        # the voltage source to be explicitly computed.
+        
+        Req = 'R%seq' % self.name
+        Veq = 'V%seq' % self.name        
+        
+        rnet = self._netmake_variant('R', suffix='eq',
+                                     nodes=(self.relnodes[0], dummy_node),
+                                     args=Req, opts=opts)
+
+        vnet = self._netmake_variant('V', suffix='eq',
+                                     nodes=(dummy_node, self.relnodes[1]),
+                                     args=('dc', Veq), opts=opts)
+
+        return rnet + '\n' + vnet
 
     @property
     def I0(self):
