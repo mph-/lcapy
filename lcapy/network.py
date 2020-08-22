@@ -14,6 +14,9 @@ class Network(object):
 
     voltage_source = False
     current_source = False
+    inductor = False
+    capacitor = False
+    resistor = False
 
     # True if initial conditions are zero (or unspecified).
     zeroic = True

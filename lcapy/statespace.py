@@ -5,7 +5,7 @@ Copyright 2019 Michael Hayes, UCECE
 
 """
 
-from .mnacpts import L, C, I, V
+from .mnacpts import I, V
 from .matrix import Matrix
 from .smatrix import sMatrix
 from .tmatrix import tMatrix
@@ -68,12 +68,12 @@ class StateSpace(object):
             name = elt.name
             cpt_map[name] = sselt.name
             
-            if isinstance(elt, L):
+            if elt.is_inductor:
                 if sselt.name in cct.elements:
                     raise ValueError('Name conflict %s, either rename the component or improve the code!' % sselt.name)
 
                 inductors.append(elt)
-            elif isinstance(elt, C):
+            elif elt.is_capacitor:
                 if sselt.name in cct.elements:
                     raise ValueError('Name conflict %s, either rename the component or improve the code!' % sselt.name)
                 

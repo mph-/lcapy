@@ -733,6 +733,8 @@ class Ser(ParSer):
 class R(OnePort):
     """Resistor"""
 
+    resistor = True    
+    
     def __init__(self, Rval):
 
         self.args = (Rval, )
@@ -742,6 +744,8 @@ class R(OnePort):
 
 class G(OnePort):
     """Conductance"""
+
+    resistor = True    
 
     def __init__(self, Gval):
 
@@ -762,6 +766,8 @@ class L(OnePort):
     """Inductor
 
     Inductance Lval, initial current i0"""
+
+    inductor = True
 
     def __init__(self, Lval, i0=None):
 
@@ -787,6 +793,8 @@ class C(OnePort):
     """Capacitor
 
     Capacitance Cval, initial voltage v0"""
+
+    capacitor = True    
 
     def __init__(self, Cval, v0=None):
 
