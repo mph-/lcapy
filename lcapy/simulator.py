@@ -158,7 +158,7 @@ class SimulationResults(object):
             return self.branch_currents[index]
         except:
             cpt = self.cct._elements[cptname]
-            if cpt.is_capacitor:
+            if cpt.is_capacitor or cpt.is_inductor:
                 # For a capacitor we can find the current through the
                 # companion resistor or voltage source.
                 return self.cpt_currents_get('V%seq' % cptname)
