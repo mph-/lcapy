@@ -1,7 +1,7 @@
 """
 This module performs state-space analysis.
 
-Copyright 2019 Michael Hayes, UCECE
+Copyright 2019-2020 Michael Hayes, UCECE
 
 """
 

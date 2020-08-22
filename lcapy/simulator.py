@@ -222,12 +222,11 @@ class Simulator(object):
 
     def _step(self, foo, n, tv, results):
 
-        # Can symbolically invert the MNA matrix and perform
-        # substitutions at each time step.  The symbolic matrix
-        # inversion will be slow but the substitution is fast.  The
-        # alternative is to substitute and then perform numerical
-        # matrix inversion.  The latter is likely to be faster for
-        # large problems.
+        # Substitute values into the MNA A matrix and Z vector,
+        # then perform numerical inversion of the A matrix.
+        # Alternatively, a faster way, if the A matrix was small,
+        # would be to symbolically invert the A matrix and
+        # then substitute values.
 
         if n == 0:
             return
@@ -241,14 +240,15 @@ class Simulator(object):
 
         for L1 in self.inductors:
             subsdict.update(L1.subsdict(n, dt, results))            
-            
-        Z = self.Z.subs(subsdict)
+
         A = self.A.subs(subsdict)
+        Z = self.Z.subs(subsdict)
 
-        # TODO, need to evaluate functions such as Heaviside(t)
-
-        # Could you lambdify but this is only advantageous if
-        # evaluating a function for multiple values.
+        if n == 1:
+            symbols = A.free_symbols.union(Z.free_symbols)
+            if symbols != set():
+                raise ValueError('There are undefined symbols %s: use subs to replace with numerical values' % symbols)
+        
         A1 = array(A).astype(float)
         Z1 = array(Z).astype(float)        
         
