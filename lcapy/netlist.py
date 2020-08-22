@@ -17,6 +17,7 @@ from .current import Current, Iname
 from .schematic import Schematic
 from .mna import MNAMixin, Nodedict, Branchdict
 from .statespace import StateSpace
+from .simulator import Simulator
 from .netfile import NetfileMixin
 from .expr import Expr
 from .state import state
@@ -1165,6 +1166,16 @@ class NetlistMixin(object):
         self._sch = sch
         return sch
 
+    @property
+    def sim(self):
+        """Generate simulation object."""        
+
+        if hasattr(self, '_sim'):
+            return self._sim
+
+        self._sim = Simulator(self)
+        return self._sim
+    
     @property
     def ss(self):
         """Generate state-space representation."""        
