@@ -62,6 +62,7 @@ from .loopanalysis import *
 from .laplace import *
 from .nettransform import *
 from .randomnetwork import *
+from .simulator import *
 
 
 def show_version():

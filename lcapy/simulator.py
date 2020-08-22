@@ -7,6 +7,8 @@ Copyright 2020 Michael Hayes, UCECE
 from numpy import zeros, array, float, linalg, dot
 from .sym import tsym, symbol_map
 
+__all__ = ('Simulator', )
+
 
 class SimulatedCapacitor(object):
 
@@ -190,35 +192,30 @@ class SimulationResults(object):
     
 class Simulator(object):
 
-    def __init__(self, cct, integrator='trapezoid'):
-
-        if integrator == 'trapezoid':
-            Ccls = SimulatedCapacitorTrapezoid
-            Lcls = SimulatedInductorTrapezoid
-        else:
-            raise ValueError('Unknown integrator ' + integrator)
-            
-        self.cct = cct
+    def __init__(self, cct):
+        """Create simulation object for the circuit specified by `cct`.
         
-        inductors = []
-        capacitors = []
+        All the symbolic circuit component values need to be replaced
+        with numerical values (using the subs method) except for
+        functions of t, such as Heaviside(t).
 
-        for key, elt in cct.elements.items():
-            if elt.is_inductor:
-                inductors.append(elt)
-            elif elt.is_capacitor:
-                capacitors.append(elt)
+        Here's an example of use:
+
+        cct = Circuit('circuit.sch')
+        sim = Simulator(cct)
+        t = np.linspace(0, 1, 100)
+        results = sim(t)
+
+        plot(t, results.C1.v)
+
+        """
+
+        self.cct = cct
 
         # Companion resistor model
         self.r_model = cct.r_model().subcircuits['time']
+      
 
-        self.capacitors = []
-        for C1 in capacitors:
-            self.capacitors.append(Ccls(C1))
-
-        self.inductors = []
-        for L1 in inductors:
-            self.inductors.append(Lcls(L1))            
 
     def _step(self, foo, n, tv, results):
 
@@ -260,8 +257,41 @@ class Simulator(object):
         results.node_voltages[:, n] = results1[0:num_nodes]
         results.branch_currents[:, n] = results1[num_nodes:]        
 
-    def __call__(self, tv):
+    def __call__(self, tv, integrator='trapezoid'):
+        """Numerically evaluate circuit using time-stepping numerical
+        integration at the vector of times specified by `tv`.
 
+        Currently the only supported integrator is trapezoidal
+        integration (others would be trivial to add).  This integrator
+        is accurate but can be unstable producing some oscillations.
+        Unfortunately, there is no ideal numerical integrator and
+        there is always a tradeoff between accuracy and stability.
+
+        """
+
+        if integrator == 'trapezoid':
+            Ccls = SimulatedCapacitorTrapezoid
+            Lcls = SimulatedInductorTrapezoid
+        else:
+            raise ValueError('Unknown integrator ' + integrator)
+
+        inductors = []
+        capacitors = []
+
+        for key, elt in self.cct.elements.items():
+            if elt.is_inductor:
+                inductors.append(elt)
+            elif elt.is_capacitor:
+                capacitors.append(elt)
+
+        self.capacitors = []
+        for C1 in capacitors:
+            self.capacitors.append(Ccls(C1))
+
+        self.inductors = []
+        for L1 in inductors:
+            self.inductors.append(Lcls(L1))            
+        
         N = len(tv)
         
         r_model = self.r_model
@@ -279,4 +309,3 @@ class Simulator(object):
             self._step(r_model, n, tv, results)
 
         return results
-    
