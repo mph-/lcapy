@@ -761,17 +761,17 @@ class C(RC):
         # the voltage source to be explicitly computed.
         
         Req = 'R%seq' % self.name
-        Ieq = 'I%seq' % self.name  
+        Veq = 'V%seq' % self.name  
         
         rnet = self._netmake_variant('R', suffix='eq',
                                      nodes=(self.relnodes[0], dummy_node),
                                      args=Req, opts=opts)
 
-        inet = self._netmake_variant('I', suffix='eq',
+        vnet = self._netmake_variant('V', suffix='eq',
                                      nodes=(dummy_node, self.relnodes[1]),
-                                     args=('dc', Ieq), opts=opts)
+                                     args=('dc', Veq), opts=opts)
 
-        return rnet + '\n' + inet
+        return rnet + '\n' + vnet
 
     def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict

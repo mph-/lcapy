@@ -15,9 +15,9 @@ class SimulatedCapacitor(object):
         self.nodes = C.nodes
         self.Cval = C.C.expr
         self.Reqname = 'R%seq' % C.name
-        self.Ieqname = 'I%seq' % C.name
+        self.Veqname = 'V%seq' % C.name
         self.Reqsym = symbol_map(self.Reqname)
-        self.Ieqsym = symbol_map(self.Ieqname)                
+        self.Veqsym = symbol_map(self.Veqname)                
 
     
 class SimulatedInductor(object):
@@ -40,13 +40,14 @@ class SimulatedCapacitorTrapezoid(SimulatedCapacitor):
         V1 = results.node_voltages_get(self.nodes[0])[n - 1]
         V2 = results.node_voltages_get(self.nodes[1])[n - 1]                
 
-        V = V1 - V2
+        V = V2 - V1
         C = self.Cval     
 
         Req = dt / (2 * C)
         Ieq = -2 * C * V / dt
+        Veq = Req * Ieq
         #import pdb; pdb.set_trace()
-        return {self.Reqsym:Req, self.Ieqsym:Ieq}    
+        return {self.Reqsym:Req, self.Veqsym:Veq}    
 
 
 class SimulatedInductorTrapezoid(SimulatedInductor):
