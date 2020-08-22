@@ -1,3 +1,11 @@
+"""This module provides the Super class.  It is the base class for
+Current and Voltage.  It represents voltages and currents as a
+superposition in different transform domains.
+
+Copyright 2019--2020 Michael Hayes, UCECE
+
+"""
+
 from __future__ import division
 from .expr import Expr, ExprDict, expr
 from .sym import tsym, omega0sym, symbols_find, is_sympy, symsymbol
