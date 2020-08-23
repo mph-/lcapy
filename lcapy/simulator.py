@@ -40,14 +40,14 @@ class SimulatedCapacitorTrapezoid(SimulatedCapacitor):
         """Create a dictionary of substitutions."""
 
         V1 = results.node_voltages_get(self.nodes[0])[n - 1]
-        V2 = results.node_voltages_get(self.nodes[1])[n - 1]                
+        V2 = results.node_voltages_get(self.nodes[1])[n - 1]
+        I = results.cpt_current_get(self.Veqname, n - 1)        
 
-        V = V2 - V1
+        V = V1 - V2
         C = self.Cval     
 
         Req = dt / (2 * C)
-        Ieq = -2 * C * V / dt
-        Veq = Req * Ieq
+        Veq = V + I * dt / (2 * C)
 
         return {self.Reqsym:Req, self.Veqsym:Veq}    
 
@@ -57,11 +57,15 @@ class SimulatedInductorTrapezoid(SimulatedInductor):
     def subsdict(self, n, dt, results):
         """Create a dictionary of substitutions."""        
 
-        I = results.cpt_current_get(self.Veqname, n - 1)        
+        V1 = results.node_voltages_get(self.nodes[0])[n - 1]
+        V2 = results.node_voltages_get(self.nodes[1])[n - 1]        
+        I = results.cpt_current_get(self.Veqname, n - 1)
+
+        V = V1 - V2        
         L = self.Lval
         
         Req = 2 * L / dt
-        Veq = -2 * L * I / dt
+        Veq = -V - 2 * L * I / dt
         return {self.Reqsym:Req, self.Veqsym:Veq}    
 
 
