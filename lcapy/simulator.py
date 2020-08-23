@@ -300,12 +300,13 @@ class Simulator(object):
         """Numerically evaluate circuit using time-stepping numerical
         integration at the vector of times specified by `tv`.
 
-        Currently the only supported integrators are trapezoidal and
-        backward-euler (others would be trivial to add).  The
-        Trapezoidal integrator is the default since it is accurate but
-        it can be unstable producing some oscillations.
-        Unfortunately, there is no ideal numerical integrator and
-        there is always a tradeoff between accuracy and stability.
+        Currently the only supported integration methods are
+        trapezoidal and backward-euler (others would be trivial to
+        add).  The trapezoidal integration method is the default since
+        it is accurate but it can be unstable producing some
+        oscillations.  Unfortunately, there is no ideal numerical
+        integration method and there is always a tradeoff between
+        accuracy and stability.
 
         """
 

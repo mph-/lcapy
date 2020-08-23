@@ -1,16 +1,15 @@
-from lcapy import *
-import numpy as np
+from lcapy import Circuit
+from numpy import linspace
+from matplotlib.pyplot import savefig
 
-a = Circuit("""
-V1 1 0 step 10; down
-R1 1 2 5; right
-L1 2 0_2 2; down
-W 0 0_2; right""")
+cct = Circuit('sim1.sch')
 
-tv = np.linspace(0, 1, 100)
+tv = linspace(0, 1, 100)
 
-sim = a.sim
-results = sim(tv, integrator='backward-euler')
+results = cct.sim(tv, integrator='backward-euler')
 
-ax = a.R1.v.plot(tv)
-ax.plot(tv, results.R1.v)
+ax = cct.R1.v.plot(tv, label='analytic')
+ax.plot(tv, results.R1.v, label='simulated')
+ax.legend()
+
+savefig('sim1be.png')

@@ -241,3 +241,53 @@ independent.
 Each resistor in a circuit can be converted into a series combination
 of an ideal resistor and a noise voltage source using the
 `noise_model` method.
+
+
+Simulation
+==========
+
+Lcapy can perform time-stepping simulation of a circuit using
+numerical integration.  Currently, only linear circuit elements can be
+simulated although this could be extended to non-linear components
+such as diodes and transistors.
+
+Here's an example that compares the analytic and numerical results for
+an R-L circuit:
+
+   >>> from lcapy import Circuit
+   >>> from numpy import linspace
+   >>> from matplotlib.pyplot import savefig
+   >>> 
+   >>> cct = Circuit("""
+   >>> V1 1 0 step 10; down
+   >>> R1 1 2 5; right
+   >>> L1 2 0_2 2; down
+   >>> W 0 0_2; right""")
+   >>> 
+   >>> tv = linspace(0, 1, 100)
+   >>> 
+   >>> results = cct.sim(tv)
+   >>> 
+   >>> ax = cct.R1.v.plot(tv, label='analytic')
+   >>> ax.plot(tv, results.R1.v, label='simulated')
+   >>> ax.legend()
+   >>> 
+   >>> savefig('sim1.png')
+
+.. image:: examples/simulation/sim1.png
+   :width: 12cm
+   
+
+Integration methods
+-------------------
+
+Currently the only supported numerical integration methods are
+trapezoidal and backward-Euler (others would be trivial to add).  The
+trapezoidal method is the default since it is accurate but it can be
+unstable producing some oscillations.  Unfortunately, there is no
+ideal numerical integration method and there is always a tradeoff
+between accuracy and stability.
+
+Here's an example of using the backward-Euler integration method:
+
+   >>> results = cct.sim(tv, integrator='backward-euler')
