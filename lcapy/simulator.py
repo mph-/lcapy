@@ -9,12 +9,17 @@ from .sym import tsym, symbol_map
 
 __all__ = ('Simulator', )
 
+# The companion circuits use a Thevenin model.  This simplifies
+# determination of the current through reactive components.  If the
+# currents are not required, the Norton model would be faster since
+# fewer nodes are needed and so the matrices are smaller.
 
 class SimulatedCapacitor(object):
 
     def __init__(self, C):
 
         self.nodes = C.nodes
+        self.name = C.name
         self.Cval = C.C.expr
         self.Reqname = 'R%seq' % C.name
         self.Veqname = 'V%seq' % C.name
@@ -26,7 +31,8 @@ class SimulatedInductor(object):
 
     def __init__(self, L):
 
-        self.nodes = L.nodes        
+        self.nodes = L.nodes
+        self.name = L.name        
         self.Lval = L.L.expr
         self.Reqname = 'R%seq' % L.name
         self.Veqname = 'V%seq' % L.name
@@ -36,72 +42,60 @@ class SimulatedInductor(object):
 
 class SimulatedCapacitorTrapezoid(SimulatedCapacitor):
 
-    def subsdict(self, n, dt, results):
+    def subsdict(self, n, dt, v1, v2, i):
         """Create a dictionary of substitutions."""
 
-        V1 = results.node_voltages_get(self.nodes[0])[n - 1]
-        V2 = results.node_voltages_get(self.nodes[1])[n - 1]
-        I = results.cpt_current_get(self.Veqname, n - 1)        
+        v = v1[n - 1] - v2[n - 1]
 
-        V = V1 - V2
-        C = self.Cval     
+        C = self.Cval
 
         Req = dt / (2 * C)
-        Veq = V + I * dt / (2 * C)
+        veq = v + i[n - 1] * dt / (2 * C)
 
-        return {self.Reqsym:Req, self.Veqsym:Veq}    
+        return {self.Reqsym:Req, self.Veqsym:veq}    
 
 
 class SimulatedInductorTrapezoid(SimulatedInductor):
 
-    def subsdict(self, n, dt, results):
+    def subsdict(self, n, dt, v1, v2, i):
         """Create a dictionary of substitutions."""        
 
-        V1 = results.node_voltages_get(self.nodes[0])[n - 1]
-        V2 = results.node_voltages_get(self.nodes[1])[n - 1]        
-        I = results.cpt_current_get(self.Veqname, n - 1)
-
-        V = V1 - V2        
+        v = v1[n - 1] - v2[n - 1]
+        
         L = self.Lval
         
         Req = 2 * L / dt
-        Veq = -V - 2 * L * I / dt
-        return {self.Reqsym:Req, self.Veqsym:Veq}
+        veq = -v - 2 * L * i[n - 1] / dt
+        return {self.Reqsym:Req, self.Veqsym:veq}
 
 
 class SimulatedCapacitorBackwardEuler(SimulatedCapacitor):
 
-    def subsdict(self, n, dt, results):
+    def subsdict(self, n, dt, v1, v2, i):
         """Create a dictionary of substitutions."""
 
-        V1 = results.node_voltages_get(self.nodes[0])[n - 1]
-        V2 = results.node_voltages_get(self.nodes[1])[n - 1]
-        I = results.cpt_current_get(self.Veqname, n - 1)        
-
-        V = V1 - V2
+        v = v1[n - 1] - v2[n - 1]
+        
         C = self.Cval     
 
         Req = dt / C
-        Veq = V
+        veq = v
 
-        return {self.Reqsym:Req, self.Veqsym:Veq}    
+        return {self.Reqsym:Req, self.Veqsym:veq}    
 
 
 class SimulatedInductorBackwardEuler(SimulatedInductor):
 
-    def subsdict(self, n, dt, results):
+    def subsdict(self, n, dt, v1, v2, i):
         """Create a dictionary of substitutions."""        
 
-        V1 = results.node_voltages_get(self.nodes[0])[n - 1]
-        V2 = results.node_voltages_get(self.nodes[1])[n - 1]        
-        I = results.cpt_current_get(self.Veqname, n - 1)
+        v = v1[n - 1] - v2[n - 1]        
 
-        V = V1 - V2        
         L = self.Lval
         
         Req = L / dt
-        Veq = -L * I / dt
-        return {self.Reqsym:Req, self.Veqsym:Veq}        
+        veq = -L * i[n - 1] / dt
+        return {self.Reqsym:Req, self.Veqsym:veq}        
 
 
 class SimulationResultsNode(object):
@@ -135,7 +129,7 @@ class SimulationResults(object):
         self.num_nodes = len(node_list) - 1
         self.num_branches = len(branch_list)
         
-        self.node_voltages = zeros((self.num_nodes, N))
+        self.node_voltages = zeros((self.num_nodes + 1, N))
         self.branch_currents = zeros((self.num_branches, N))
 
 
@@ -172,25 +166,24 @@ class SimulationResults(object):
     def node_voltages_get(self, n):
 
         index = self.r_model._node_index(n)
-        if index < 0:
-            return self.t * 0
+        # NB, node_voltages is zero for index = -1
         return self.node_voltages[index]
         
     def cpt_voltages_get(self, cptname):
 
         cpt = self.cct.elements[cptname]        
 
-        V1 = self.node_voltages_get(cpt.nodes[0])
-        V2 = self.node_voltages_get(cpt.nodes[1])        
-        return V1 - V2
+        v1 = self.node_voltages_get(cpt.nodes[0])
+        v2 = self.node_voltages_get(cpt.nodes[1])        
+        return v1 - v2
 
     def cpt_voltage_get(self, cptname, n):
 
         cpt = self.cct.elements[cptname]
         
-        V1 = self.node_voltages_get(cpt.nodes[0])[n]
-        V2 = self.node_voltages_get(cpt.nodes[1])[n]     
-        return V1 - V2
+        v1 = self.node_voltages_get(cpt.nodes[0])[n]
+        v2 = self.node_voltages_get(cpt.nodes[1])[n]     
+        return v1 - v2
 
     def cpt_currents_get(self, cptname):
 
@@ -254,8 +247,6 @@ class Simulator(object):
         # Companion resistor model
         self.r_model = cct.r_model().subcircuits['time']
       
-
-
     def _step(self, foo, n, tv, results):
 
         # Substitute values into the MNA A matrix and Z vector,
@@ -271,11 +262,14 @@ class Simulator(object):
 
         subsdict = {tsym: tv[n]}
         
-        for C1 in self.capacitors:
-            subsdict.update(C1.subsdict(n, dt, results))
+        for cpt in self.reactive_cpts:
 
-        for L1 in self.inductors:
-            subsdict.update(L1.subsdict(n, dt, results))            
+            # NB, node_voltages is zero for index = -1            
+            v1 = results.node_voltages[cpt.v1_index]
+            v2 = results.node_voltages[cpt.v2_index]            
+            i = results.branch_currents[cpt.i_index]
+            
+            subsdict.update(cpt.subsdict(n, dt, v1, v2, i))
 
         A = self.A.subs(subsdict)
         Z = self.Z.subs(subsdict)
@@ -293,7 +287,7 @@ class Simulator(object):
         results1 = dot(A1inv, Z1).squeeze()
 
         num_nodes = results.num_nodes
-        results.node_voltages[:, n] = results1[0:num_nodes]
+        results.node_voltages[0:num_nodes, n] = results1[0:num_nodes]
         results.branch_currents[:, n] = results1[num_nodes:]        
 
     def __call__(self, tv, integrator='trapezoid'):
@@ -319,6 +313,14 @@ class Simulator(object):
         else:
             raise ValueError('Unknown integrator ' + integrator)
 
+        r_model = self.r_model
+
+        # Construct MNA matrices.
+        r_model._analyse()
+
+        self.A = r_model._A
+        self.Z = r_model._Z
+        
         inductors = []
         capacitors = []
 
@@ -328,23 +330,17 @@ class Simulator(object):
             elif elt.is_capacitor:
                 capacitors.append(elt)
 
-        self.capacitors = []
-        for C1 in capacitors:
-            self.capacitors.append(Ccls(C1))
+        self.reactive_cpts = []
+        for elt in capacitors:
+            self.reactive_cpts.append(Ccls(elt))
 
-        self.inductors = []
-        for L1 in inductors:
-            self.inductors.append(Lcls(L1))            
-        
-        N = len(tv)
-        
-        r_model = self.r_model
+        for elt in inductors:
+            self.reactive_cpts.append(Lcls(elt))
 
-        # Construct MNA matrices.
-        r_model._analyse()
-
-        self.A = r_model._A
-        self.Z = r_model._Z
+        for cpt in self.reactive_cpts:
+            cpt.v1_index = r_model._node_index(cpt.nodes[0])
+            cpt.v2_index = r_model._node_index(cpt.nodes[1])
+            cpt.i_index = r_model._branch_index('V%seq' % cpt.name)
         
         results = SimulationResults(tv, self.cct, r_model, r_model.node_list,
                                     r_model.unknown_branch_currents)
