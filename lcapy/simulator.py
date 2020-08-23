@@ -66,7 +66,42 @@ class SimulatedInductorTrapezoid(SimulatedInductor):
         
         Req = 2 * L / dt
         Veq = -V - 2 * L * I / dt
+        return {self.Reqsym:Req, self.Veqsym:Veq}
+
+
+class SimulatedCapacitorBackwardEuler(SimulatedCapacitor):
+
+    def subsdict(self, n, dt, results):
+        """Create a dictionary of substitutions."""
+
+        V1 = results.node_voltages_get(self.nodes[0])[n - 1]
+        V2 = results.node_voltages_get(self.nodes[1])[n - 1]
+        I = results.cpt_current_get(self.Veqname, n - 1)        
+
+        V = V1 - V2
+        C = self.Cval     
+
+        Req = dt / C
+        Veq = V
+
         return {self.Reqsym:Req, self.Veqsym:Veq}    
+
+
+class SimulatedInductorBackwardEuler(SimulatedInductor):
+
+    def subsdict(self, n, dt, results):
+        """Create a dictionary of substitutions."""        
+
+        V1 = results.node_voltages_get(self.nodes[0])[n - 1]
+        V2 = results.node_voltages_get(self.nodes[1])[n - 1]        
+        I = results.cpt_current_get(self.Veqname, n - 1)
+
+        V = V1 - V2        
+        L = self.Lval
+        
+        Req = L / dt
+        Veq = -L * I / dt
+        return {self.Reqsym:Req, self.Veqsym:Veq}        
 
 
 class SimulationResultsNode(object):
@@ -265,9 +300,10 @@ class Simulator(object):
         """Numerically evaluate circuit using time-stepping numerical
         integration at the vector of times specified by `tv`.
 
-        Currently the only supported integrator is trapezoidal
-        integration (others would be trivial to add).  This integrator
-        is accurate but can be unstable producing some oscillations.
+        Currently the only supported integrators are trapezoidal and
+        backward-euler (others would be trivial to add).  The
+        Trapezoidal integrator is the default since it is accurate but
+        it can be unstable producing some oscillations.
         Unfortunately, there is no ideal numerical integrator and
         there is always a tradeoff between accuracy and stability.
 
@@ -276,6 +312,9 @@ class Simulator(object):
         if integrator == 'trapezoid':
             Ccls = SimulatedCapacitorTrapezoid
             Lcls = SimulatedInductorTrapezoid
+        elif integrator == 'backward-euler':
+            Ccls = SimulatedCapacitorBackwardEuler
+            Lcls = SimulatedInductorBackwardEuler            
         else:
             raise ValueError('Unknown integrator ' + integrator)
 
