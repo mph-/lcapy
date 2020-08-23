@@ -243,10 +243,12 @@ of an ideal resistor and a noise voltage source using the
 `noise_model` method.
 
 
-Simulation
-==========
+.. _simulation:
 
-Lcapy can perform time-stepping simulation of a circuit using
+Numerical simulation
+====================
+
+Lcapy can perform time-stepping numerical simulation of a circuit using
 numerical integration.  Currently, only linear circuit elements can be
 simulated although this could be extended to non-linear components
 such as diodes and transistors.

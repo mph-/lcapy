@@ -8,10 +8,13 @@ This document provides an overview of Lcapy's capabilities.
 Introduction
 ============
 
-Lcapy is a Python package for linear circuit analysis.  It will only
-solve linear, time invariant networks.  In other words, networks
+Lcapy is a Python package for linear circuit analysis.  Its primary
+purpose is for symbolic circuit analysis but it can also simulate
+circuits using numerical integration.  Lcapy can only symbolically
+analyse linear, time invariant networks.  In other words, networks
 comprised of basic circuit components (R, L, C, etc.) that do not vary
-with time.
+with time.  However, changes in circuit topology can be analysed as a
+sequence of initial value problems.
 
 Networks and circuits can be described using netlists or combinations
 of network elements.  These can be drawn semi-automatically.
@@ -24,6 +27,25 @@ Nevertheless, it can draw them!  Lcapy can generate text-book quality schematics
 
 Lcapy uses SymPy (symbolic Python) for its values and expressions
 and thus the circuit analysis can be performed symbolically.  See http://docs.sympy.org/latest/tutorial/index.html for the SymPy tutorial.
+
+Lcapy can perform many other circuit analysis operations, including:
+
+1. Two-port parameters (A, B, G, H, S, T, Y, and Z)
+
+2. Norton/Thevenin transforms
+
+3. Wye-delta transforms
+
+4. Polyphase transforms
+
+5. Laplace transforms
+
+6. Fourier transforms   
+   
+7. Discrete Fourier transforms
+
+8. z-transforms
+
 
 
 Preliminaries
@@ -392,7 +414,7 @@ Then the frequency response can be plotted.  For example,
    >>> ax.grid(True)
    >>> show()
 
-A simpler approach is to use the `plot` method:
+A simpler approach is to use the `plot()` method:
 
    >>> from lcapy import *
    >>> from numpy import linspace
@@ -431,7 +453,7 @@ Let's consider a series R-C network in series with a DC voltage source
       4   
    ────────
    s + 1/50
-   >>> isc = n.Isc.transient_response()
+   >>> isc = n.Isc(t)
    >>> isc
    ⎧   -t            
    ⎪   ───           
@@ -439,15 +461,15 @@ Let's consider a series R-C network in series with a DC voltage source
    ⎪4⋅e     for t ≥ 0
    ⎩                 
 
-Here `n` is network formed by the components in series, and `n.Voc(s)` is
-the open-circuit s-domain voltage across the network.  Note, this is the same
-as the s-domain value of the voltage source.  `n.Isc(s)` is the
-short-circuit s-domain voltage through the network.  The method
-`transient_response` converts this to the time-domain.  Note, since
-the capacitor has the initial value specified, this network is
-analysed as an initial value problem and thus the result is not known
-for :math:`t<0`.  If the initial capacitor voltage is not specified,
-the network cannot be analysed.
+Here `n` is network formed by the components in series, and `n.Voc(s)`
+is the open-circuit s-domain voltage across the network.  Note, this
+is the same as the s-domain value of the voltage source.  `n.Isc(s)`
+is the short-circuit s-domain voltage through the network and
+`n.Isc(t)` is the the time-domain response.  Note, since the capacitor
+has the initial value specified, this network is analysed as an
+initial value problem and thus the result is not known for
+:math:`t<0`.  If the initial capacitor voltage is not specified, the
+network cannot be analysed.
 
 
 Of course, the previous example can be performed symbolically,
@@ -467,7 +489,7 @@ Of course, the previous example can be performed symbolically,
       ⎛      1  ⎞
    R₁⋅⎜s + ─────⎟
       ⎝    C₁⋅R₁⎠
-   >>> isc = n.Isc.transient_response()
+   >>> isc = n.Isc(t)
    >>> isc
    ⎧     -t             
    ⎪    ─────           
@@ -478,15 +500,15 @@ Of course, the previous example can be performed symbolically,
    ⎩                    
 
 The transient response can be evaluated numerically by specifying a
-vector of time values.
+vector of time values to the `evaluate()` method:
 
    >>> from lcapy import *
    >>> from numpy import linspace
    >>> n = Vstep(20) + R(5) + C(10, 0)
-   >>> t = linspace(0, 100, 400)
-   >>> isc = n.Isc.transient_response(t)
+   >>> tv = linspace(0, 100, 400)
+   >>> isc = n.Isc(t).evaluate(tv)
 
-Then the transient response can be plotted.  Alternatively, the `plot`
+Then the transient response can be plotted.  Alternatively, the `plot()`
 method can be used.
 
 .. literalinclude:: examples/networks/series-VRC1-isc.py
@@ -1179,7 +1201,7 @@ or more simply using:
    ───────────────────
           C₁⋅R₁           
           
-Transfer functions can also be created using the `transfer` method of a
+Transfer functions can also be created using the `transfer()` method of a
 circuit.  For example,
 
    >>> from lcapy import Circuit
@@ -1261,7 +1283,7 @@ vector is shown using the `y` attribute:
    ⎢     ⎥
    ⎣v₃(t)⎦
 
-The state equations are shown using the `state_equations` method:
+The state equations are shown using the `state_equations()` method:
 
    >>> ss.state_equations()
    ⎡d         ⎤   ⎡-R₁  -1  ⎤                      
@@ -1272,7 +1294,7 @@ The state equations are shown using the `state_equations` method:
    ⎢──(v_C(t))⎥   ⎢───  ────⎥            ⎣0⎦       
    ⎣dt        ⎦   ⎣ C   C⋅R₂⎦                      
 
-The output equations are shown using the `output_equations` method:
+The output equations are shown using the `output_equations()` method:
 
    >>> ss.output_equations()
    ⎡v₁(t)⎤   ⎡0    0⎤            ⎡1⎤       
@@ -1401,7 +1423,7 @@ Here's an example with an independent source (V1) that as a DC component and an 
    ... C1 3_a 0_4; down, i={i_C}, v={v_C}
    ... W 0_3 0_4; right""")
 
-The corresponding circuit for DC analysis can be found using the `dc` method:
+The corresponding circuit for DC analysis can be found using the `dc()` method:
 
    >>> a.dc()
    V1 1 0 dc {10}; down
@@ -1413,7 +1435,7 @@ The corresponding circuit for DC analysis can be found using the `dc` method:
    C1 3_a 0_4 C1; i={i_C}, down, v={v_C}
    W 0_3 0_4; right
 
-The equations used to solve this can be found with the `equations` method:
+The equations used to solve this can be found with the `equations()` method:
 
    >>> ac.dc().equations()
             ⎛⎡1    -1            ⎤⎞       
@@ -1509,8 +1531,8 @@ Other circuit methods
 Plotting
 ========
 
-Lcapy expressions have a plot method; this differs depending on the
-domain.  For example, the plot method for s-domain expressions
+Lcapy expressions have a `plot()` method; this differs depending on the
+domain.  For example, the `plot()` method for s-domain expressions
 produces a pole-zero plot.  Here's an example:
 
 .. literalinclude:: examples/netlists/tf1-pole-zero-plot.py
@@ -1519,7 +1541,7 @@ produces a pole-zero plot.  Here's an example:
    :width: 15cm
 
 
-The plot method for f-domain and :math:`\omega` -domain expressions
+The `plot()` method for f-domain and :math:`\omega` -domain expressions
 produce spectral plots, for example, 
 
 
@@ -1624,7 +1646,7 @@ This produces:
    :width: 7cm
 
 Internally, Lcapy converts the network to a netlist and then draws the
-netlist.  The netlist can be found using the `netlist` method, for example,
+netlist.  The netlist can be found using the `netlist()` method, for example,
 
    >>> from lcapy import R, C, L
    >>> print(((R(1) + L(2)) | C(3)).netlist())
