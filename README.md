@@ -206,6 +206,8 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
+- Version 0.67 adds time-stepping simulation, supernode detection, and polyphase circuits.
+
 - Version 0.66 tidies up two-port parameters.  S and T parameters are
   added.  The A, B, G, H, Y, Z parameters are renamed to Aparams, etc. to avoid conflict with
   matrix transpose and Hermitian transpose operators.  issymmetrical, isshunt renamed to is_symmetrical,
