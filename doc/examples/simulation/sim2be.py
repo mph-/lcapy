@@ -2,7 +2,7 @@ from lcapy import Circuit
 from numpy import linspace
 from matplotlib.pyplot import savefig
 
-cct = Circuit('sim2.sch')
+cct = Circuit('VRC1.sch')
 
 tv = linspace(0, 1, 100)
 

@@ -274,6 +274,9 @@ an R-L circuit:
    >>> 
    >>> savefig('sim1.png')
 
+.. image:: examples/simulation/VRL1.png
+   :width: 6cm
+   
 .. image:: examples/simulation/sim1.png
    :width: 12cm
    
