@@ -754,23 +754,26 @@ class C(RC):
 
         dummy_node = self.dummy_node()
         opts = self.opts.copy()        
-        # Strip voltage and current labels.  FIXME
-        opts = opts.strip_all_labels()
 
         # Use Thevenin model.  This will require the current through
         # the voltage source to be explicitly computed.
         
         Req = 'R%seq' % self.name
         Veq = 'V%seq' % self.name  
-        
+
+        opts.strip_voltage_labels()
         rnet = self._netmake_variant('R', suffix='eq',
                                      nodes=(self.relnodes[0], dummy_node),
                                      args=Req, opts=opts)
 
+        opts.strip_current_labels()        
         vnet = self._netmake_variant('V', suffix='eq',
                                      nodes=(dummy_node, self.relnodes[1]),
                                      args=('dc', Veq), opts=opts)
 
+        # TODO: the voltage labels should be added across an
+        # open-circuit object.
+        
         return rnet + '\n' + vnet
 
     def _ss_model(self):
@@ -1035,22 +1038,25 @@ class L(RLC):
 
         dummy_node = self.dummy_node()
         opts = self.opts.copy()        
-        # Strip voltage and current labels.  FIXME
-        opts = opts.strip_all_labels()
 
         # Use Thevenin model.  This will require the current through
         # the voltage source to be explicitly computed.
         
         Req = 'R%seq' % self.name
         Veq = 'V%seq' % self.name        
-        
+
+        opts.strip_voltage_labels()
         rnet = self._netmake_variant('R', suffix='eq',
                                      nodes=(self.relnodes[0], dummy_node),
                                      args=Req, opts=opts)
 
+        opts.strip_current_labels()                
         vnet = self._netmake_variant('V', suffix='eq',
                                      nodes=(dummy_node, self.relnodes[1]),
                                      args=('dc', Veq), opts=opts)
+
+        # TODO: the voltage labels should be added across an
+        # open-circuit object.
 
         return rnet + '\n' + vnet
 
