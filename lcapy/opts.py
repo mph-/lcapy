@@ -88,9 +88,12 @@ class Opts(dict):
         return self.strip('v', 'vr', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<')
 
     def strip_current_labels(self):
-
+        """Strip current and flow labels."""
+        
         return self.strip('i', 'ir', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
-                          'i>_', 'i<_', 'i>^', 'i<^')
+                          'i>_', 'i<_', 'i>^', 'i<^',
+                          'f', 'fr', 'f_', 'f^', 'f_>', 'f_<', 'f^>', 'f^<',
+                          'f>_', 'f<_', 'f>^', 'f<^')
 
     def strip_labels(self):
 
