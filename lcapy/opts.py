@@ -98,6 +98,10 @@ class Opts(dict):
 
     def strip_all_labels(self):
 
-        self.strip_voltage_labels()
-        self.strip_current_labels()
-        self.strip_labels()
+        stripped = Opts()
+        
+        stripped.update(self.strip_voltage_labels())
+        stripped.update(self.strip_current_labels())
+        stripped.update(self.strip_labels())
+
+        return stripped
