@@ -81,9 +81,7 @@ class SimulatedCapacitorTrapezoid(SimulatedCapacitor):
 
         v = v1[n - 1] - v2[n - 1]
 
-        C = self.Cval
-
-        geq = (2 * C) / dt
+        geq = (2 * self.Cval) / dt
         veq = v + i[n - 1] / geq
         return geq, veq
     
@@ -94,9 +92,7 @@ class SimulatedInductorTrapezoid(SimulatedInductor):
 
         v = v1[n - 1] - v2[n - 1]
         
-        L = self.Lval
-        
-        geq = dt / (2 * L)
+        geq = dt / (2 * self.Lval)
         veq = -v - i[n - 1] / geq
         return geq, veq        
 
@@ -107,9 +103,7 @@ class SimulatedCapacitorBackwardEuler(SimulatedCapacitor):
 
         v = v1[n - 1] - v2[n - 1]
         
-        C = self.Cval     
-
-        geq = C / dt
+        geq = self.Cval / dt
         veq = v
         return geq, veq                
 
@@ -117,13 +111,10 @@ class SimulatedCapacitorBackwardEuler(SimulatedCapacitor):
 class SimulatedInductorBackwardEuler(SimulatedInductor):
 
     def geq_veq(self, n, dt, v1, v2, i):
-        """Create a dictionary of substitutions."""        
 
         v = v1[n - 1] - v2[n - 1]        
 
-        L = self.Lval
-        
-        geq = dt / L
+        geq = dt / self.Lval
         veq = -i[n - 1] / geq
         return geq, veq                
 
