@@ -14,32 +14,45 @@ __all__ = ('Simulator', )
 # currents are not required, the Norton model would be faster since
 # fewer nodes are needed and so the matrices are smaller.
 
-class SimulatedCapacitor(object):
+# TODO:  speed up subs
+# Replace 1 / R_eq with g_eq in A matrix.
+# Record row, col, sign for each g_eq
+# Replace g_eq with 0
+# When time-stepping, add g_eq values into A matrix using stored info.
 
-    def __init__(self, C):
+class SimulatedComponent(object):
 
-        self.nodes = C.nodes
-        self.name = C.name
-        self.Cval = C.C.expr
-        self.Reqname = 'R%seq' % C.name
-        self.Veqname = 'V%seq' % C.name
+    def __init__(self, cpt, v1_index, v2_index, i_index):
+        
+        self.nodes = cpt.nodes
+        self.name = cpt.name
+        self.Reqname = 'R%seq' % cpt.name
+        self.Veqname = 'V%seq' % cpt.name
         self.Reqsym = symbol_map(self.Reqname)
         self.Veqsym = symbol_map(self.Veqname)                
+        self.v1_index = v1_index
+        self.v2_index = v2_index
+        self.i_index = i_index
+        
+
+class SimulatedCapacitor(SimulatedComponent):
+
+    def __init__(self, C, v1_index, v2_index, i_index):
+
+        super (SimulatedCapacitor, self).__init__(C, v1_index, v2_index,
+                                                  i_index)
+        self.Cval = C.C.expr
 
     
-class SimulatedInductor(object):
+class SimulatedInductor(SimulatedComponent):
 
-    def __init__(self, L):
+    def __init__(self, L, v1_index, v2_index, i_index):
 
-        self.nodes = L.nodes
-        self.name = L.name        
+        super (SimulatedInductor, self).__init__(L, v1_index, v2_index,
+                                                 i_index)
         self.Lval = L.L.expr
-        self.Reqname = 'R%seq' % L.name
-        self.Veqname = 'V%seq' % L.name
-        self.Reqsym = symbol_map(self.Reqname)
-        self.Veqsym = symbol_map(self.Veqname)        
 
-
+        
 class SimulatedCapacitorTrapezoid(SimulatedCapacitor):
 
     def subsdict(self, n, dt, v1, v2, i):
@@ -321,26 +334,18 @@ class Simulator(object):
         self.A = r_model._A
         self.Z = r_model._Z
         
-        inductors = []
-        capacitors = []
-
+        self.reactive_cpts = []        
         for key, elt in self.cct.elements.items():
+            if not (elt.is_inductor or elt.is_capacitor):
+                continue
+            v1_index = r_model._node_index(elt.nodes[0])
+            v2_index = r_model._node_index(elt.nodes[1])
+            i_index = r_model._branch_index('V%seq' % elt.name)
             if elt.is_inductor:
-                inductors.append(elt)
-            elif elt.is_capacitor:
-                capacitors.append(elt)
-
-        self.reactive_cpts = []
-        for elt in capacitors:
-            self.reactive_cpts.append(Ccls(elt))
-
-        for elt in inductors:
-            self.reactive_cpts.append(Lcls(elt))
-
-        for cpt in self.reactive_cpts:
-            cpt.v1_index = r_model._node_index(cpt.nodes[0])
-            cpt.v2_index = r_model._node_index(cpt.nodes[1])
-            cpt.i_index = r_model._branch_index('V%seq' % cpt.name)
+                cls = Lcls
+            else:
+                cls = Ccls
+            self.reactive_cpts.append(cls(elt, v1_index, v2_index, i_index))
         
         results = SimulationResults(tv, self.cct, r_model, r_model.node_list,
                                     r_model.unknown_branch_currents)
