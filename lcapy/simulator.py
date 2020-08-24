@@ -6,6 +6,7 @@ Copyright 2020 Michael Hayes, UCECE
 
 from numpy import zeros, array, float, linalg, dot
 from .sym import tsym, symbol_map
+from .symbols import oo
 
 __all__ = ('Simulator', )
 
@@ -14,15 +15,10 @@ __all__ = ('Simulator', )
 # currents are not required, the Norton model would be faster since
 # fewer nodes are needed and so the matrices are smaller.
 
-# TODO:  speed up subs
-# Replace 1 / R_eq with g_eq in A matrix.
-# Record row, col, sign for each g_eq
-# Replace g_eq with 0
-# When time-stepping, add g_eq values into A matrix using stored info.
 
 class SimulatedComponent(object):
 
-    def __init__(self, cpt, v1_index, v2_index, i_index):
+    def __init__(self, cpt, v1_index, v2_index, v3_index, i_index):
         
         self.nodes = cpt.nodes
         self.name = cpt.name
@@ -32,83 +28,104 @@ class SimulatedComponent(object):
         self.Veqsym = symbol_map(self.Veqname)                
         self.v1_index = v1_index
         self.v2_index = v2_index
+        # This is the dummy node required for the Thevenin companion circuit.
+        self.v3_index = v3_index        
         self.i_index = i_index
+
+    def subsdict(self, n, dt, v1, v2, i):
+        """Create a dictionary of substitutions."""
+
+        geq, veq = self.geq_veq(n, dt, v1, v2, i)
+
+        return {self.Reqsym:1 / geq, self.Veqsym:veq}    
+
+    def stamp(self, A, Z, num_nodes, n, dt, v1, v2, i):
+
+        geq, veq = self.geq_veq(n, dt, v1, v2, i)
+        
+        n1, n2 = self.v1_index, self.v3_index
+
+        if n1 >= 0 and n2 >= 0:
+            A[n1, n2] -= geq
+            A[n2, n1] -= geq
+        if n1 >= 0:
+            A[n1, n1] += geq
+        if n2 >= 0:
+            A[n2, n2] += geq
+
+        m = self.i_index + num_nodes
+        Z[m] += veq
         
 
 class SimulatedCapacitor(SimulatedComponent):
 
-    def __init__(self, C, v1_index, v2_index, i_index):
+    def __init__(self, C, v1_index, v2_index, v3_index, i_index):
 
         super (SimulatedCapacitor, self).__init__(C, v1_index, v2_index,
-                                                  i_index)
+                                                  v3_index, i_index)
         self.Cval = C.C.expr
 
     
 class SimulatedInductor(SimulatedComponent):
 
-    def __init__(self, L, v1_index, v2_index, i_index):
+    def __init__(self, L, v1_index, v2_index, v3_index, i_index):
 
         super (SimulatedInductor, self).__init__(L, v1_index, v2_index,
-                                                 i_index)
+                                                 v3_index, i_index)
         self.Lval = L.L.expr
 
         
 class SimulatedCapacitorTrapezoid(SimulatedCapacitor):
 
-    def subsdict(self, n, dt, v1, v2, i):
-        """Create a dictionary of substitutions."""
+    def geq_veq(self, n, dt, v1, v2, i):
 
         v = v1[n - 1] - v2[n - 1]
 
         C = self.Cval
 
-        Req = dt / (2 * C)
-        veq = v + i[n - 1] * dt / (2 * C)
-
-        return {self.Reqsym:Req, self.Veqsym:veq}    
-
+        geq = (2 * C) / dt
+        veq = v + i[n - 1] / geq
+        return geq, veq
+    
 
 class SimulatedInductorTrapezoid(SimulatedInductor):
 
-    def subsdict(self, n, dt, v1, v2, i):
-        """Create a dictionary of substitutions."""        
+    def geq_veq(self, n, dt, v1, v2, i):
 
         v = v1[n - 1] - v2[n - 1]
         
         L = self.Lval
         
-        Req = 2 * L / dt
-        veq = -v - 2 * L * i[n - 1] / dt
-        return {self.Reqsym:Req, self.Veqsym:veq}
+        geq = dt / (2 * L)
+        veq = -v - i[n - 1] / geq
+        return geq, veq        
 
 
 class SimulatedCapacitorBackwardEuler(SimulatedCapacitor):
 
-    def subsdict(self, n, dt, v1, v2, i):
-        """Create a dictionary of substitutions."""
+    def geq_veq(self, n, dt, v1, v2, i):
 
         v = v1[n - 1] - v2[n - 1]
         
         C = self.Cval     
 
-        Req = dt / C
+        geq = C / dt
         veq = v
-
-        return {self.Reqsym:Req, self.Veqsym:veq}    
+        return geq, veq                
 
 
 class SimulatedInductorBackwardEuler(SimulatedInductor):
 
-    def subsdict(self, n, dt, v1, v2, i):
+    def geq_veq(self, n, dt, v1, v2, i):
         """Create a dictionary of substitutions."""        
 
         v = v1[n - 1] - v2[n - 1]        
 
         L = self.Lval
         
-        Req = L / dt
-        veq = -L * i[n - 1] / dt
-        return {self.Reqsym:Req, self.Veqsym:veq}        
+        geq = dt / L
+        veq = -i[n - 1] / geq
+        return geq, veq                
 
 
 class SimulationResultsNode(object):
@@ -275,29 +292,28 @@ class Simulator(object):
 
         subsdict = {tsym: tv[n]}
         
+        Zsym = self.Zsym
+        Zsym = Zsym.subs(subsdict)        
+        Z = array(Zsym).astype(float).squeeze()
+
+        if n == 1 and Zsym.free_symbols != set():
+            raise ValueError('Undefined symbols %s in Z vector; use subs to replace with numerical values' % Zsym.free_symbols)
+
+        # Ensure have a copy.
+        A = self.A + 0
+        
         for cpt in self.reactive_cpts:
 
             # NB, node_voltages is zero for index = -1            
             v1 = results.node_voltages[cpt.v1_index]
             v2 = results.node_voltages[cpt.v2_index]            
             i = results.branch_currents[cpt.i_index]
-            
-            subsdict.update(cpt.subsdict(n, dt, v1, v2, i))
 
-        A = self.A.subs(subsdict)
-        Z = self.Z.subs(subsdict)
+            cpt.stamp(A, Z, results.num_nodes, n, dt, v1, v2, i)
 
-        if n == 1:
-            symbols = A.free_symbols.union(Z.free_symbols)
-            if symbols != set():
-                raise ValueError('There are undefined symbols %s: use subs to replace with numerical values' % symbols)
+        Ainv = linalg.inv(A)
         
-        A1 = array(A).astype(float)
-        Z1 = array(Z).astype(float)        
-        
-        A1inv = linalg.inv(A1)
-        
-        results1 = dot(A1inv, Z1).squeeze()
+        results1 = dot(Ainv, Z)
 
         num_nodes = results.num_nodes
         results.node_voltages[0:num_nodes, n] = results1[0:num_nodes]
@@ -331,9 +347,8 @@ class Simulator(object):
         # Construct MNA matrices.
         r_model._analyse()
 
-        self.A = r_model._A
-        self.Z = r_model._Z
-        
+        Asubsdict = {}
+        Zsubsdict = {}        
         self.reactive_cpts = []        
         for key, elt in self.cct.elements.items():
             if not (elt.is_inductor or elt.is_capacitor):
@@ -341,11 +356,33 @@ class Simulator(object):
             v1_index = r_model._node_index(elt.nodes[0])
             v2_index = r_model._node_index(elt.nodes[1])
             i_index = r_model._branch_index('V%seq' % elt.name)
+            relt = self.r_model.elements['R%seq' % elt.name]
+            v3_index = r_model._node_index(relt.nodes[1])            
+            
             if elt.is_inductor:
                 cls = Lcls
             else:
                 cls = Ccls
-            self.reactive_cpts.append(cls(elt, v1_index, v2_index, i_index))
+
+            simcpt = cls(elt, v1_index, v2_index, v3_index, i_index)
+            self.reactive_cpts.append(simcpt)
+
+            Asubsdict[simcpt.Reqsym] = oo
+            Zsubsdict[simcpt.Veqsym] = 0
+
+        # Remove 1 / Req entries
+        Asym = r_model._A.subs(Asubsdict)
+        # Remove Veq entries        
+        Zsym = r_model._Z.subs(Zsubsdict)
+
+        self.Asym = Asym
+        self.Zsym = Zsym
+
+        if Asym.free_symbols != set():
+            raise ValueError('Undefined symbols %s in A matrix; use subs to replace with numerical values' % Asym.free_symbols)
+        
+        # Convert to numpy ndarray
+        self.A = array(Asym).astype(float)        
         
         results = SimulationResults(tv, self.cct, r_model, r_model.node_list,
                                     r_model.unknown_branch_currents)
