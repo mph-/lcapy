@@ -35,13 +35,15 @@ class SimulatedComponent(object):
     def subsdict(self, n, dt, v1, v2, i):
         """Create a dictionary of substitutions."""
 
-        geq, veq = self.geq_veq(n, dt, v1, v2, i)
+        geq = self.geq(n, dt, v1, v2, i)        
+        veq = self.veq(n, dt, v1, v2, i)
 
         return {self.Reqsym:1 / geq, self.Veqsym:veq}    
 
     def stamp(self, A, Z, num_nodes, n, dt, v1, v2, i):
 
-        geq, veq = self.geq_veq(n, dt, v1, v2, i)
+        geq = self.geq(n, dt, v1, v2, i)
+        veq = self.veq(n, dt, v1, v2, i)        
         
         n1, n2 = self.v1_index, self.v3_index
 
@@ -77,46 +79,64 @@ class SimulatedInductor(SimulatedComponent):
         
 class SimulatedCapacitorTrapezoid(SimulatedCapacitor):
 
-    def geq_veq(self, n, dt, v1, v2, i):
+    def geq(self, n, dt, v1, v2, i):
 
+        return (2 * self.Cval) / dt
+
+    def veq(self, n, dt, v1, v2, i):
+
+        if n < 1:
+            return 0
+        
         v = v1[n - 1] - v2[n - 1]
 
         geq = (2 * self.Cval) / dt
         veq = v + i[n - 1] / geq
-        return geq, veq
+        return veq    
     
 
 class SimulatedInductorTrapezoid(SimulatedInductor):
 
-    def geq_veq(self, n, dt, v1, v2, i):
+    def geq(self, n, dt, v1, v2, i):
+
+        return dt / (2 * self.Lval)
+
+    def veq(self, n, dt, v1, v2, i):
+
+        if n < 1:
+            return 0
 
         v = v1[n - 1] - v2[n - 1]
         
         geq = dt / (2 * self.Lval)
         veq = -v - i[n - 1] / geq
-        return geq, veq        
-
+        return veq        
 
 class SimulatedCapacitorBackwardEuler(SimulatedCapacitor):
 
-    def geq_veq(self, n, dt, v1, v2, i):
+    def geq(self, n, dt, v1, v2, i):
 
-        v = v1[n - 1] - v2[n - 1]
-        
-        geq = self.Cval / dt
-        veq = v
-        return geq, veq                
+        return self.Cval / dt
+
+    def veq(self, n, dt, v1, v2, i):
+
+        if n < 1:
+            return 0
+
+        return v1[n - 1] - v2[n - 1]
 
 
 class SimulatedInductorBackwardEuler(SimulatedInductor):
 
-    def geq_veq(self, n, dt, v1, v2, i):
+    def geq(self, n, dt, v1, v2, i):
 
-        v = v1[n - 1] - v2[n - 1]        
+        return dt / self.Lval
+
+    def veq(self, n, dt, v1, v2, i):
 
         geq = dt / self.Lval
         veq = -i[n - 1] / geq
-        return geq, veq                
+        return veq                    
 
 
 class SimulationResultsNode(object):
@@ -280,8 +300,7 @@ class Simulator(object):
             return
 
         dt = tv[n] - tv[n - 1]
-
-        subsdict = {tsym: tv[n]}
+        subsdict = {tsym: tv[n]}            
         
         Zsym = self.Zsym
         Zsym = Zsym.subs(subsdict)        
