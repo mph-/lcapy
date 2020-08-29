@@ -61,8 +61,8 @@ class sExpr(Expr):
         from .symbols import jomega
         return self.subs(self.var, jomega)
 
-    def initial_value(self):
-        """Determine value at t = 0."""
+    def post_initial_value(self):
+        """Determine post-initial value at t = 0+."""
 
         return self.__class__(limit(self.expr * self.var, self.var, oo))
 
@@ -352,14 +352,36 @@ class sExpr(Expr):
         return self.__class__(result, **self.assumptions), defs
 
     def bilinear_transform(self):
+        """Approximate s = ln(z)
+
+        by s = (2 / dt) * (1 - z**-1) / (1 + z**-1)
+
+        This is also called Tustin's method and is equivalent to the
+        trapezoidal method."""
 
         # TODO: add frequency warping as an option
 
         from .discretetime import z, dt
 
-        # s = ln(z) / dt gives the exact solution
-        
         return self.subs((2 / dt) * (1 - z**-1) / (1 + z**-1))
+
+    def forward_euler_transform(self):
+        """Approximate s = ln(z)
+
+        by s = (1 / dt) * (1 - z**-1) / z**-1"""
+
+        from .discretetime import z, dt
+        
+        return self.subs((1 / dt) * (1 - z**-1) / (z**-1))
+
+    def backward_euler_transform(self):
+        """Approximate s = ln(z)
+
+        by s = (1 / dt) * (1 - z**-1)"""
+
+        from .discretetime import z, dt
+        
+        return self.subs((1 / dt) * (1 - z**-1))        
     
     def transform(self, arg, **assumptions):
         """Transform into a different domain."""
