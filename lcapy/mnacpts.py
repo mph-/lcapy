@@ -1110,8 +1110,6 @@ class L(RLC):
     
     def _pre_initial_model(self):
 
-        if self.cpt.i0 == 0.0:
-            return self._netmake_anon('W')                    
         return self._netmake_variant('I', args=self.cpt.i0)
 
 class O(Dummy):
