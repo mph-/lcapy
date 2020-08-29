@@ -746,8 +746,6 @@ class C(RC):
 
     def _pre_initial_model(self):
 
-        if self.cpt.v0 == 0.0:
-            return self._netmake_anon('O')
         return self._netmake_variant('V', args=self.cpt.v0)
 
     def _r_model(self):
