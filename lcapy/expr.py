@@ -1319,7 +1319,9 @@ class Expr(ExprPrint, ExprMisc):
         return call(self, arg, **assumptions)
 
     def limit(self, var, value, dir='+'):
-        """Determine limit of expression(var) at var = value."""
+        """Determine limit of expression(var) at var = value.
+        If `dir == '+'` search from right else if `dir == '-'`
+        search from left."""
 
         # Need to use lcapy sympify otherwise could use
         # getattr to call sym.limit.
@@ -1334,7 +1336,7 @@ class Expr(ExprPrint, ExprMisc):
             return self
         var = symbols[symbolnames.index(str(var))]
         
-        ret = sym.limit(self.expr, var, value)
+        ret = sym.limit(self.expr, var, value, dir=dir)
         return self.__class__(ret, **self.assumptions)
 
     def simplify(self):

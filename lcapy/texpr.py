@@ -134,14 +134,27 @@ class tExpr(Expr):
         return self.evaluate(t)
 
     def initial_value(self):
-        """Determine value at t = 0."""
+        """Determine value at t = 0. 
+        See also pre_initial_value and post_initial_value"""
 
         return self.subs(0)
+
+    def pre_initial_value(self):
+        """Determine value at t = 0-.
+        See also initial_value and post_initial_value"""
+
+        return self.limit(self.var, 0, dir='-')
+
+    def post_initial_value(self):
+        """Determine value at t = 0+.
+        See also pre_initial_value and initial_value"""
+
+        return self.limit(self.var, 0, dir='+')    
 
     def final_value(self):
         """Determine value at t = oo."""
 
-        return self.__class__(limit(self.expr, self.var, oo))
+        return self.limit(self.var, oo)
 
     def remove_condition(self):
         """Remove the piecewise condition from the expression.

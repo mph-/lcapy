@@ -244,6 +244,29 @@ class Super(ExprDict):
             new[kind] = value.subs(*args, **kwargs)
         return new        
     
+    def initial_value(self):
+        """Determine value at t = 0. 
+        See also pre_initial_value and post_initial_value"""
+
+        return self.time().initial_value()
+
+    def pre_initial_value(self):
+        """Determine value at t = 0-.
+        See also initial_value and post_initial_value"""
+
+        return self.time().pre_initial_value()
+
+    def post_initial_value(self):
+        """Determine value at t = 0+.
+        See also pre_initial_value and initial_value"""
+
+        return self.time().post_initial_value()
+
+    def final_value(self):
+        """Determine value at t = oo."""
+
+        return self.time().final_value()
+
     def transform(self, arg, **assumptions):
         """Transform into a different domain."""        
 
