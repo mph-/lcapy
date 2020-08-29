@@ -982,8 +982,7 @@ class I(IndependentSource):
 
     def _pre_initial_model(self):
 
-        # Assume IC zero.  FIXME
-        return self._netmake_anon('O', opts=newopts)
+        return self._netmake(args=self.cpt.Isc.pre_initial_value())        
 
 
 class K(Dummy):
@@ -1351,8 +1350,7 @@ class V(IndependentSource):
 
     def _pre_initial_model(self):
 
-        # Assume IC zero.  FIXME
-        return self._netmake_anon('W')
+        return self._netmake(args=self.cpt.Voc.pre_initial_value())
 
 
 class W(Dummy):
