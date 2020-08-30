@@ -685,10 +685,11 @@ The `assumptions0` attribute shows all the assumptions assumed by SymPy.
 Assumptions for inverse Laplace transform
 -----------------------------------------
 
-The unilateral Laplace transform ignores the function for :math:`t <
-0`.  The unilateral inverse Laplace transform thus cannot determine
-the result for :math:`t <0` unless it has additional information.
-This is provided using assumptions:
+Lcapy uses the :math:`\mathcal{L}_{-}` unilateral Laplace transform
+(see :ref:`laplace_transforms`).  This ignores the function for
+:math:`t <0` and thus the unilateral inverse Laplace transform thus
+cannot determine the result for :math:`t <0` unless it has additional
+information.  This is provided using assumptions:
 
 -  `causal` says the signal is zero for :math:`t < 0`.
 

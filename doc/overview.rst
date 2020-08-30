@@ -979,6 +979,10 @@ There is a short-hand notation for the Laplace transform:
    ────────
        3   
       s         
+
+Note, Lcapy uses the :math:`\mathcal{L}_{-}` unilateral Laplace transform
+whereas SymPy which uses the :math:`\mathcal{L}` unilateral Laplace
+transform, see :ref:`laplace_transforms`.
       
 
 Circuit analysis

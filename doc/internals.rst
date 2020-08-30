@@ -322,3 +322,51 @@ All the known symbols can be found using:
 
 The `.pdb()` method of an `Expr` instance invokes the Python debugger
 (pdb).
+
+.. _laplace_transforms:
+
+
+Laplace transforms
+==================
+
+There are three variants of the unilateral Laplace transform used in
+circuit theory texts.  Lcapy uses the :math:`\mathcal{L}_{-}` form where:
+
+.. math::
+
+    \mathcal{L}_{-}\{v(t)\} = \int_{0^{-}}^{\infty} v(t) \exp(-s t) \mathrm{d}t
+
+SymPy uses the :math:`\mathcal{L}` form where:
+
+.. math::
+
+    \mathcal{L}\{v(t)\} = \int_{0}^{\infty} v(t) \exp(-s t) \mathrm{d}t
+
+
+The third form is :math:`\mathcal{L}_{+}` where:
+
+.. math::
+
+    \mathcal{L}_{+}\{v(t)\} = \int_{0^{+}}^{\infty} v(t) \exp(-s t) \mathrm{d}t
+
+
+The choice of lower limit is most important for the Dirac delta
+distribution (and its derivatives):
+:math:`\mathcal{L}_{-}\{\delta(t)\} = 1` but
+:math:`\mathcal{L}\{\delta(t)\} = 0.5` and
+:math:`\mathcal{L}_{+}\{\delta(t)\} = 0`.
+
+      
+The :math:`\mathcal{L}_{-}` form is advocated for circuit analysis in
+the paper *Initial conditions, generalized functions, and the Laplace
+transform: Troubles at the origin*
+by K. Lundberg, H. Miller, R. Haynes, and D. Trumper in IEEE Control
+Systems Magazine, Vol 27, No 1, pp. 22--35, 2007,  http://dedekind.mit.edu/~hrm/papers/lmt.pdf
+
+The time-derivative rule for the :math:`\mathcal{L}_{-}` Laplace transform is:
+
+.. math::
+
+   \mathcal{L}_{-}\{v'(t)\} = s V(s) - v(0^{-}),
+
+where :math:`v(0^{-})` is the pre-initial value of :math:`v`.
