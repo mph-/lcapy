@@ -4,7 +4,7 @@ from matplotlib.pyplot import savefig
 
 cct = Circuit('VRL1.sch')
 
-tv = linspace(0, 1, 100)
+tv = linspace(0, 1, 101)
 
 results = cct.sim(tv)
 
