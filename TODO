@@ -36,6 +36,8 @@ singular matrix.
 
 3. Show Super classes as how they were created and not decomposition?
 
+4. Add simplify method.  This could remove zero current and zero voltage sources and
+combine series/parallel components.
 
 
 Infrastructure

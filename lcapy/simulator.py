@@ -15,6 +15,10 @@ __all__ = ('Simulator', )
 # currents are not required, the Norton model would be faster since
 # fewer nodes are needed and so the matrices are smaller.
 
+# TODO:
+# 1. handle initial values
+# 2. offset correction
+
 
 class SimulatedComponent(object):
 
@@ -297,6 +301,12 @@ class Simulator(object):
         # then substitute values.
 
         if n == 0:
+            if not self.cct.is_ivp:
+                # Initial voltages and currents all zero.
+                return
+            p_model = self.cct.pre_initial_model()
+            # Evaluate model and copy node voltages and branch currents...
+            
             return
 
         dt = tv[n] - tv[n - 1]
@@ -363,6 +373,10 @@ class Simulator(object):
         for key, elt in self.cct.elements.items():
             if not (elt.is_inductor or elt.is_capacitor):
                 continue
+
+            if not elt.hasic:
+                print('Warning, initial conditions for %s ignored' % elt.name)
+            
             v1_index = r_model._node_index(elt.nodes[0])
             v2_index = r_model._node_index(elt.nodes[1])
             i_index = r_model._branch_index('V%seq' % elt.name)
