@@ -119,7 +119,7 @@ def as_numer_denom_poly(expr, var):
         Dpoly = sym.Poly(D, var)
         Npoly = sym.Poly(N, var)        
     except:
-        D, N = expr.as_numer_denom()
+        N, D = expr.as_numer_denom()
         Dpoly = sym.Poly(D, var)
         Npoly = sym.Poly(N, var)                
         
