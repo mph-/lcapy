@@ -1683,7 +1683,7 @@ class Expr(ExprPrint, ExprMisc):
         If norm is True, normalise coefficients to highest power is 1."""
 
         if self._ratfun is None:
-            return expr([])
+            return expr([self])
         
         try:
             z = sym.Poly(self.expr, self.var)
@@ -1912,7 +1912,7 @@ class Expr(ExprPrint, ExprMisc):
                 foo(D / R, var)
 
         foo(self.expr, self.var)
-        return coeffs
+        return expr(coeffs)
     
     def as_continuous_fraction(self):
         """Convert expression into continuous fraction."""
