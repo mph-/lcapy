@@ -1888,6 +1888,45 @@ class Expr(ExprPrint, ExprMisc):
 
         result = as_sum(self.expr, self.var)
         return self.__class__(result, **self.assumptions)
+
+    def as_nonmonic_terms(self):
+
+        result = 0
+        for term in self.expr.as_ordered_terms():
+            N, D = as_N_D(term, self.var, monic_denominator=False)
+            result += N / D
+        return self.__class__(result, **self.assumptions)            
+
+    def continuous_fraction_coeffs(self):
+
+        coeffs = []
+        
+        def foo(expr, var):
+
+            N, D = expr.as_numer_denom()            
+            Q, R = sym.div(N, D, var)
+
+            coeffs.append(Q)
+
+            if R !=0:
+                foo(D / R, var)
+
+        foo(self.expr, self.var)
+        return coeffs
+    
+    def as_continuous_fraction(self):
+        """Convert expression into continuous fraction."""
+
+        def foo(expr, var):
+
+            N, D = expr.as_numer_denom()            
+            Q, R = sym.div(N, D, var)
+
+            if R !=0:
+                return Q + 1 / foo(D / R, var)
+            return Q
+
+        return self.__class__(foo(self.expr, self.var), **self.assumptions)
     
 def expr(arg, **assumptions):
     """Create Lcapy expression from arg.
