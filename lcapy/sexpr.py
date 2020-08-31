@@ -450,6 +450,12 @@ class Zs(sExpr):
 
         return Z(self)
 
+    def network(self, form='CauerI'):
+
+        from .synthesis import synthesise
+        
+        return synthesise(self, form)
+
 
 class Ys(sExpr):
 
@@ -480,6 +486,12 @@ class Ys(sExpr):
             return C(y.expr)
 
         return Y(self)
+
+    def network(self, form='CauerI'):
+
+        from .synthesis import synthesise
+        
+        return synthesise(1 / self, form)    
 
 
 class Vs(sExpr):
