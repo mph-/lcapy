@@ -28,11 +28,6 @@ class Impedance(Immitance):
         from .admittance import Admittance
         return Admittance(x / self.expr)
 
-    # For python 2.7
-    def __rdiv__(self, x):
-        from .admittance import Admittance
-        return Admittance(x / self.expr)    
-    
     @property
     def Y(self):
         return 1 / self
