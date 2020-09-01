@@ -290,7 +290,7 @@ class Synthesis(object):
 
         # TODO: If strictly proper, need to expand 1 / lexpr.
         
-        coeffs = lexpr.continuous_fraction_coeffs()
+        coeffs = lexpr.continued_fraction_coeffs()
 
         def series_net(cls1, a1, cls0, a0):
 

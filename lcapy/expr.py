@@ -1912,7 +1912,7 @@ class Expr(ExprPrint, ExprMisc):
             result += N / D
         return self.__class__(result, **self.assumptions)            
 
-    def continuous_fraction_coeffs(self):
+    def continued_fraction_coeffs(self):
 
         coeffs = []
         
@@ -1929,7 +1929,7 @@ class Expr(ExprPrint, ExprMisc):
         foo(self.expr, self.var)
         return expr(coeffs)
     
-    def as_continuous_fraction(self):
+    def as_continued_fraction(self):
         """Convert expression into continuous fraction."""
 
         def foo(expr, var):
