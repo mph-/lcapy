@@ -1,7 +1,7 @@
 """This module provides the Admittance class.  This is a generalized
 impedance (s-domain) and converts to other representations.
 
-Copyright 2019 Michael Hayes, UCECE
+Copyright 2019-2020 Michael Hayes, UCECE
 
 """
 
@@ -20,6 +20,13 @@ class Admittance(Immitance):
     Z(omega) = 1 / Y(omega)
 
     """
+
+    def __rtruediv__(self, x):
+        """Reverse true divide"""
+
+        # TODO: handle Current / Admittance -> Voltage etc.
+        from .impedance import Impedance
+        return Impedance(x / self.expr)
 
     @property
     def Y(self):

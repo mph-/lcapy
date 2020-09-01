@@ -1,10 +1,9 @@
 """This module provides the Impedance class.  This is a generalized
 impedance (s-domain) and converts to other representations.
 
-Copyright 2019 Michael Hayes, UCECE
+Copyright 2019-2020 Michael Hayes, UCECE
 
 """
-
 
 from .symbols import s
 from .immitance import Immitance
@@ -22,6 +21,13 @@ class Impedance(Immitance):
 
     """
 
+    def __rtruediv__(self, x):
+        """Reverse true divide"""
+
+        # TODO: handle Voltage / Impedance -> Current etc.
+        from .admittance import Admittance
+        return Admittance(x / self.expr)
+    
     @property
     def Y(self):
         return 1 / self
@@ -66,5 +72,3 @@ class Impedance(Immitance):
         components."""
         
         return self(s).network(form)
-    
-    
