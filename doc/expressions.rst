@@ -793,6 +793,21 @@ Second order systems can be parameterized in many ways.  Here's another:
 
    >>> defs
    {K: 3, omega_1: √3, sigma_1: 1}
+
+
+Network synthesis
+=================
+
+Lcapy has experimental support for a number of network synthesis.
+This produces a network model from an s-domain impedance or admittance
+expresion.  It has several methods, including Foster and Cauer
+synthesis.
+
+   >>> Impedance(3 * s / (6 * s**2 + 1)).network()                            
+   C(2) | L(3)
+
+
+
    
   
 SymPy

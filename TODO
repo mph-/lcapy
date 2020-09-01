@@ -103,6 +103,9 @@ an answer that appears valid for DC.
 
 23. Simplify convolutions.
 
+24. Support Impedance * Current -> Voltage
+, etc. 
+
 
 Testing
 =======
