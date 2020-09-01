@@ -62,10 +62,10 @@ class zExpr(dExpr):
         return self.__class__(limit(self.expr * self.var, self.var, 0))
 
     def inverse_ztransform(self, **assumptions):
-        """Attempt inverse Znransform transform.
+        """Attempt inverse Z ransform.
 
         If causal=True the response is zero for n < 0 and
-        the result is multiplied by Heaviside(t)
+        the result is multiplied by UnitStep(n)
         If ac=True or dc=True the result is extrapolated for n < 0.
         Otherwise the result is only known for n >= 0.
 

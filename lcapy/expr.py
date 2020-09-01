@@ -1942,6 +1942,51 @@ class Expr(ExprPrint, ExprMisc):
             return Q
 
         return self.__class__(foo(self.expr, self.var), **self.assumptions)
+
+    def continued_fraction_inverse_coeffs(self):
+
+        coeffs = []
+        
+        def foo(expr, var):
+
+            N, D = expr.as_numer_denom()
+            Npoly = sym.Poly(N, var)
+            Dpoly = sym.Poly(D, var)
+
+            # There must be a simpler way to do this...
+            NET = Npoly.ET()            
+            DET = Dpoly.ET()
+            
+            Q = NET[1] * NET[0].as_expr() / (DET[1] * DET[0].as_expr())
+            coeffs.append(Q)
+            
+            R = expr - Q
+            if R !=0:
+                foo(1 / R, var)
+
+        foo(self.expr, self.var)
+        return expr(coeffs)
+
+    def as_continued_fraction_inverse(self):
+
+        def foo(expr, var):
+
+            N, D = expr.as_numer_denom()
+            Npoly = sym.Poly(N, var)
+            Dpoly = sym.Poly(D, var)
+
+            # There must be a simpler way to do this...
+            NET = Npoly.ET()            
+            DET = Dpoly.ET()
+            
+            Q = NET[1] * NET[0].as_expr() / (DET[1] * DET[0].as_expr())
+            R = expr - Q
+
+            if R !=0:
+                return Q + 1 / foo(1 / R, var)
+            return Q
+
+        return self.__class__(foo(self.expr, self.var), **self.assumptions)
     
 def expr(arg, **assumptions):
     """Create Lcapy expression from arg.
