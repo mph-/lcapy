@@ -377,11 +377,16 @@ class Expr(ExprPrint, ExprMisc):
 
         return self.evalf()
 
-    def evalf(self):
-        """Return floating point value of expression if it can be evaluated,
-        otherwise the expression."""
+    def evalf(self, n=15, *args, **kwargs):
+        """Convert constants in an expression to floats, evaluated to `n`
+        decimal places.  If the expression is a constant, return the
+        floating point result.
 
-        return self.expr.evalf()    
+        See sympy.evalf for more details.
+
+        """
+
+        return self.expr.evalf(n, *args, **kwargs)    
 
     def __hash__(self):
         # This is needed for Python3 so can create a dict key,
