@@ -386,7 +386,8 @@ class Expr(ExprPrint, ExprMisc):
 
         """
 
-        return self.expr.evalf(n, *args, **kwargs)    
+        val = self.expr.evalf(n, *args, **kwargs)
+        return self.__class__(val, **self.assumptions)    
 
     def __hash__(self):
         # This is needed for Python3 so can create a dict key,
@@ -1164,11 +1165,11 @@ class Expr(ExprPrint, ExprMisc):
             symbols = list(expr.free_symbols)
             if arg is None:
                 if len(symbols) == 0:
-                    return expr.evalf()                    
+                    return expr.evalf()
                 raise ValueError('Undefined symbols %s in expression %s' % (tuple(symbols), self))                                    
             if len(symbols) == 0:
                 print('Ignoring arg %s' % arg)
-                return expr.evalf()                
+                return expr.evalf()
             elif len(symbols) == 1:            
                 return evaluate_expr(expr, symbols[0], arg)
             else:
@@ -1622,7 +1623,7 @@ class Expr(ExprPrint, ExprMisc):
         return self.__class__(self._ratfun.standard(), **self.assumptions)
 
     def mixedfrac(self):
-        """This is an alias for standard and my be deprecated."""
+        """This is an alias for standard and may be deprecated."""
         
         return self.standard()
 
@@ -1631,11 +1632,20 @@ class Expr(ExprPrint, ExprMisc):
 
         5 * (s**2 + 2 * s + 1) / (4 * (s**2 / 4 + 1))
 
-        See also canonical, general, standard, partfrac and ZPK."""
+        See also timeconst_terms, canonical, general, standard,
+        partfrac and ZPK."""
 
         if self._ratfun is None:
             return self.copy()        
         return self.__class__(self._ratfun.timeconst(), **self.assumptions)
+
+    def timeconst_terms(self):
+        """Convert each term of expression into time constant form."""
+
+        result = 0
+        for term in self.expr.as_ordered_terms():
+            result += self.__class__(term).timeconst()
+        return self.__class__(result, **self.assumptions)            
 
     def ZPK(self):
         """Convert to zero-pole-gain (ZPK) form (factored form).  For example,

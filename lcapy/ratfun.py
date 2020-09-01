@@ -592,14 +592,11 @@ class Ratfun(object):
         Npoly = sym.Poly(N, var)
         Dpoly = sym.Poly(D, var)
         
-        K = sym.cancel(Npoly.LC() / Dpoly.LC())
-        if delay != 0:
-            K *= sym.exp(self.var * delay)
+        K = Dpoly.EC()
 
-        zeros = sym.roots(Npoly)
-        poles = sym.roots(Dpoly)
-
-        return _tc2tf(zeros, poles, K, self.var) * undef
+        D = D / K
+        N = N / K
+        return sym.Mul(N, sym.Pow(D, -1), evaluate=False) * sym.exp(self.var * delay) * undef
 
     def ZPK(self):
         """Convert to zero-pole-gain (ZPK) form.
