@@ -751,7 +751,7 @@ class G(OnePort):
 
         self.args = (Gval, )
         self._G = cExpr(Gval)
-        self._Z = 1 / Admittance(self._G)
+        self._Z = Impedance(1 / self._G)
 
     def net_make(self, net, n1=None, n2=None):
 
