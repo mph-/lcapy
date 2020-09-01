@@ -193,3 +193,4 @@ class ImmitanceMixin(object):
     def Zs(self):
         """Generalized impedance  Z(s)."""
         return Zs(self.impedance.selectexpr(s))
+

@@ -7,6 +7,8 @@ Copyright 2020 Michael Hayes, UCECE
 from .oneport import L, C, R, G, Par
 from .sexpr import s, Zs, sExpr
 
+# Should check that args to L, C, R, G contains s and raise
+# exception since the circuit is not realisable.
 
 # Could make this a mixin for Zs and Ys but would need a Z flavour
 # and a Y flavour.

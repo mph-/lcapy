@@ -38,7 +38,7 @@ class Admittance(Immitance):
         return 1 / self.Yw
 
     def cpt(self):
-        """Create oneport component."""
+        """Create oneport component.  See also network."""        
 
         from .oneport import G, C, L, Y
 
@@ -56,3 +56,14 @@ class Admittance(Immitance):
             return C(y.expr)
 
         return Y(self)    
+
+    def network(self, form='default'):
+        """Synthesise a network with an equivalent admittance.
+        `form` includes: cauerI, cauerII, fosterI, fosterII.
+
+        Note some methods generate networks with negative value
+        components."""
+        
+        return self(s).network(form)
+    
+    
