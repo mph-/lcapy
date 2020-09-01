@@ -287,6 +287,8 @@ class Synthesis(object):
     def cauerI(self, lexpr):
 
         # This can result in negative valued components.
+
+        # TODO: If strictly proper, need to expand 1 / lexpr.
         
         coeffs = lexpr.continuous_fraction_coeffs()
 
@@ -339,6 +341,9 @@ class Synthesis(object):
                     net = net1 | net
         return net
 
+    def cauerII(self, lexpr):
+        raise NotImplementedError('TODO')
+    
     def network(self, lexpr, form='default'):
 
         if form == 'default':
@@ -348,8 +353,10 @@ class Synthesis(object):
             raise ValueError('Expression needs to be Zs object')
 
         # Should test if a positive real function.
-        
+
+        # Perhaps just use getattr?
         forms = {'cauerI': self.cauerI,
+                 'cauerII': self.cauerII,
                  'fosterI': self.fosterI,
                  'fosterII': self.fosterII,
                  'RLC': self.RLC,                 
