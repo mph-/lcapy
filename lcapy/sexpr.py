@@ -450,11 +450,11 @@ class Zs(sExpr):
 
         return Z(self)
 
-    def network(self, form='CauerI'):
+    def network(self, form='default'):
 
-        from .synthesis import synthesise
+        from .synthesis import network
         
-        return synthesise(self, form)
+        return network(self, form)
 
 
 class Ys(sExpr):
@@ -487,13 +487,13 @@ class Ys(sExpr):
 
         return Y(self)
 
-    def network(self, form='CauerI'):
+    def network(self, form='default'):
 
-        from .synthesis import synthesise
+        from .synthesis import network
         
-        return synthesise(1 / self, form)    
+        return network(1 / self, form)
 
-
+    
 class Vs(sExpr):
 
     """s-domain voltage (units V s / radian)."""
