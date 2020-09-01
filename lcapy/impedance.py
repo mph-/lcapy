@@ -27,6 +27,11 @@ class Impedance(Immitance):
         # TODO: handle Voltage / Impedance -> Current etc.
         from .admittance import Admittance
         return Admittance(x / self.expr)
+
+    # For python 2.7
+    def __rdiv__(self, x):
+        from .admittance import Admittance
+        return Admittance(x / self.expr)    
     
     @property
     def Y(self):
