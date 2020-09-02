@@ -1953,16 +1953,17 @@ class Expr(ExprPrint, ExprMisc):
             Npoly = sym.Poly(N, var)
             Dpoly = sym.Poly(D, var)
 
-            # There must be a simpler way to do this...
+            # There must be a simpler way to do this...   Is Dpoly.ET
+            # always 1?
             NET = Npoly.ET()            
             DET = Dpoly.ET()
             
             Q = NET[1] * NET[0].as_expr() / (DET[1] * DET[0].as_expr())
-            coeffs.append(Q)
-            
-            R = expr - Q
+            coeffs.append(1 / Q)
+
+            R = ((D / N) - 1 / Q).simplify()            
             if R != 0:
-                foo(1 / R, var)
+                foo(R, var)
 
         foo(self.expr, self.var)
         return expr(coeffs)
@@ -1980,10 +1981,10 @@ class Expr(ExprPrint, ExprMisc):
             DET = Dpoly.ET()
             
             Q = NET[1] * NET[0].as_expr() / (DET[1] * DET[0].as_expr())
-            R = expr - Q
+            R = ((D / N) - 1 / Q).simplify()
 
             if R != 0:
-                return Q + 1 / foo(1 / R, var)
+                return Q + 1 / foo(R, var)
             return Q
 
         return self.__class__(foo(self.expr, self.var), **self.assumptions)
