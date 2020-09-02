@@ -1932,62 +1932,50 @@ class Expr(ExprPrint, ExprMisc):
     def as_continued_fraction(self):
         """Convert expression into continuous fraction."""
 
-        def foo(expr, var):
+        def foo(coeffs):
 
-            N, D = expr.as_numer_denom()            
-            Q, R = sym.div(N, D, var)
+            if len(coeffs) == 1:
+                return coeffs[0]
+            return coeffs[0] + 1 / foo(coeffs[1:])
 
-            if R != 0:
-                return Q + 1 / foo(D / R, var)
-            return Q
-
-        return self.__class__(foo(self.expr, self.var), **self.assumptions)
+        coeffs = self.continued_fraction_coeffs()
+        result = foo(coeffs)
+        return self.__class__(result, **self.assumptions)
 
     def continued_fraction_inverse_coeffs(self):
 
         coeffs = []
         
-        def foo(expr, var):
-
-            N, D = expr.as_numer_denom()
-            Npoly = sym.Poly(N, var)
-            Dpoly = sym.Poly(D, var)
-
-            # There must be a simpler way to do this...   Is Dpoly.ET
-            # always 1?
-            NET = Npoly.ET()            
-            DET = Dpoly.ET()
-            
-            Q = NET[1] * NET[0].as_expr() / (DET[1] * DET[0].as_expr())
-            coeffs.append(1 / Q)
-
-            R = ((D / N) - 1 / Q).simplify()            
-            if R != 0:
-                foo(R, var)
-
-        foo(self.expr, self.var)
-        return expr(coeffs)
-
-    def as_continued_fraction_inverse(self):
-
-        def foo(expr, var):
-
-            N, D = expr.as_numer_denom()
-            Npoly = sym.Poly(N, var)
-            Dpoly = sym.Poly(D, var)
+        def foo(Npoly, Dpoly):
 
             # There must be a simpler way to do this...
             NET = Npoly.ET()            
             DET = Dpoly.ET()
-            
             Q = NET[1] * NET[0].as_expr() / (DET[1] * DET[0].as_expr())
-            R = ((D / N) - 1 / Q).simplify()
+            
+            coeffs.append(1 / Q)
+            
+            Npoly2 = Q * Dpoly - Npoly
+            if Npoly2 != 0:
+                foo(Npoly2, Q * Npoly)
 
-            if R != 0:
-                return Q + 1 / foo(R, var)
-            return Q
+        N, D = self.expr.as_numer_denom()
+        Npoly = sym.Poly(N, self.var)
+        Dpoly = sym.Poly(D, self.var)
+        foo(Npoly, Dpoly)
+        return expr(coeffs)
 
-        return self.__class__(foo(self.expr, self.var), **self.assumptions)
+    def as_continued_fraction_inverse(self):
+
+        def foo(coeffs):
+
+            if len(coeffs) == 1:
+                return coeffs[0]
+            return coeffs[0] + 1 / foo(coeffs[1:])
+
+        coeffs = self.continued_fraction_inverse_coeffs()
+        result = foo(coeffs)
+        return self.__class__(result, **self.assumptions)
     
 def expr(arg, **assumptions):
     """Create Lcapy expression from arg.

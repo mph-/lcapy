@@ -339,10 +339,10 @@ class Synthesis(object):
         net = None
         for m, coeff in enumerate(reversed(coeffs)):
             n = len(coeffs) - m - 1            
-            if n & 1 == 1:
-                net = self._series(net, self.seriesRL(sExpr(coeff)))
+            if n & 1 == 0:
+                net = self._parallel(net, self.seriesRL(sExpr(1 / coeff)))
             else:
-                net = self._parallel(net, self.parallelGC(sExpr(1 / coeff)))
+                net = self._series(net, self.parallelGC(sExpr(coeff)))
         return net                                     
     
     def network(self, lexpr, form='default'):
