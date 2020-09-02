@@ -1923,7 +1923,7 @@ class Expr(ExprPrint, ExprMisc):
 
             coeffs.append(Q)
 
-            if R !=0:
+            if R != 0:
                 foo(D / R, var)
 
         foo(self.expr, self.var)
@@ -1937,7 +1937,7 @@ class Expr(ExprPrint, ExprMisc):
             N, D = expr.as_numer_denom()            
             Q, R = sym.div(N, D, var)
 
-            if R !=0:
+            if R != 0:
                 return Q + 1 / foo(D / R, var)
             return Q
 
@@ -1961,7 +1961,7 @@ class Expr(ExprPrint, ExprMisc):
             coeffs.append(Q)
             
             R = expr - Q
-            if R !=0:
+            if R != 0:
                 foo(1 / R, var)
 
         foo(self.expr, self.var)
@@ -1982,7 +1982,7 @@ class Expr(ExprPrint, ExprMisc):
             Q = NET[1] * NET[0].as_expr() / (DET[1] * DET[0].as_expr())
             R = expr - Q
 
-            if R !=0:
+            if R != 0:
                 return Q + 1 / foo(1 / R, var)
             return Q
 

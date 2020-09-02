@@ -14,6 +14,22 @@ from .sexpr import s, Zs, sExpr
 # and a Y flavour.
 class Synthesis(object):
 
+    def _series(self, net1, net2):
+
+        if net1 is None:
+            return net2
+        if net2 is None:
+            return net1        
+        return net1 + net2
+
+    def _parallel(self, net1, net2):
+
+        if net1 is None:
+            return net2        
+        if net2 is None:
+            return net1
+        return net1 | net2
+
     def seriesRL(self, lexpr):
         """Z = s * L + R"""
         
@@ -32,10 +48,7 @@ class Synthesis(object):
 
         a = d.pop(var, None)
         if a is not None:
-            if net is None:
-                net = L(a)
-            else:
-                net = net + L(a)            
+            net = self._series(net, L(a))
 
         if d != {}:
             raise ValueError('Not series RL')
@@ -59,15 +72,36 @@ class Synthesis(object):
 
         a = d.pop(1 / var, None)
         if a is not None:
-            if net is None:
-                net = C(1 / a)
-            else:
-                net = net + C(1 / a)            
+            net = self._series(net, C(1 / a))
 
         if d != {}:
             raise ValueError('Not series RC')
 
         return net
+
+    def seriesGC(self, lexpr):
+        """Z = 1 / G + 1 / (s * C)"""
+
+        if lexpr == 0:
+            raise ValueError('Not series GC')
+
+        var = lexpr.var
+        lexpr = lexpr.partfrac()        
+        d = lexpr.expr.collect(var, evaluate=False)
+
+        net = None
+        a = d.pop(1, None)
+        if a is not None:
+            net = G(1 / a)
+
+        a = d.pop(1 / var, None)
+        if a is not None:
+            net = self._series(net, C(1 / a))
+
+        if d != {}:
+            raise ValueError('Not series GC')
+
+        return net    
 
     def seriesLC(self, lexpr):
         """Z = s * L + 1 / (s * C)"""
@@ -90,10 +124,7 @@ class Synthesis(object):
 
         a = d.pop(var, None)
         if a is not None:
-            if net is None:
-                net = L(a)
-            else:
-                net = net + L(a)                            
+            net = self._series(net, L(a))            
 
         if d != {}:
             raise ValueError('Not series LC')
@@ -117,17 +148,11 @@ class Synthesis(object):
 
         a = d.pop(1 / var, None)
         if a is not None:
-            if net is None:
-                net = C(1 / a)
-            else:
-                net = net + C(1 / a)
+            net = self._series(net, C(1 / a))
 
         a = d.pop(var, None)
         if a is not None:
-            if net is None:
-                net = L(a)
-            else:
-                net = net + L(a)                            
+            net = self._series(net, L(a))            
 
         if d != {}:
             raise ValueError('Not series RLC')
@@ -152,10 +177,7 @@ class Synthesis(object):
 
         a = d.pop(1 / var, None)
         if a is not None:
-            if net is None:
-                net = L(1 / a)
-            else:
-                net = net | L(1 / a)            
+            net = self._parallel(net, L(1 / a))
 
         if d != {}:
             raise ValueError('Not parallel RL')
@@ -179,15 +201,36 @@ class Synthesis(object):
 
         a = d.pop(var, None)
         if a is not None:
-            if net is None:
-                net = C(a)
-            else:
-                net = net | C(a)            
+            net = self._parallel(net, C(a))
 
         if d != {}:
             raise ValueError('Not parallel RC')
 
         return net
+
+    def parallelGC(self, lexpr):
+        """Y = s * C + G"""
+
+        if lexpr == 0:
+            raise ValueError('Not parallel GC')
+
+        var = lexpr.var
+        yexpr = (1 / lexpr).partfrac()        
+        d = yexpr.expr.collect(var, evaluate=False)
+
+        net = None
+        a = d.pop(1, None)
+        if a is not None:
+            net = G(a)
+
+        a = d.pop(var, None)
+        if a is not None:
+            net = self._parallel(net, C(a))            
+
+        if d != {}:
+            raise ValueError('Not parallel GC')
+
+        return net    
 
     def parallelLC(self, lexpr):
         """Y = s * C + 1 / (s * L)"""
@@ -210,10 +253,7 @@ class Synthesis(object):
 
         a = d.pop(1 / var, None)
         if a is not None:
-            if net is None:
-                net = L(1 / a)
-            else:
-                net = net | L(1 / a)                            
+            net = self._parallel(net, L(1 / a))
 
         if d != {}:
             raise ValueError('Not parallel LC')
@@ -258,17 +298,14 @@ class Synthesis(object):
         except:
             return self.parallelRLC(lexpr)
 
+
     def fosterI(self, lexpr):
 
         expr = lexpr.partfrac(combine_conjugates=True)
 
         net = None
         for term in expr.as_ordered_terms():
-            net1 = self.parallelRLC(sExpr(term))
-            if net is None:
-                net = net1
-            else:
-                net = net + net1
+            net = self._series(net, self.parallelRLC(sExpr(term)))
         return net
 
     def fosterII(self, lexpr):
@@ -277,72 +314,36 @@ class Synthesis(object):
 
         net = None
         for term in expr.as_ordered_terms():
-            net1 = self.seriesRLC(sExpr(1 / term))
-            if net is None:
-                net = net1
-            else:
-                net = net | net1
+            net = self._parallel(net, self.seriesRLC(sExpr(1 / term)))
         return net    
         
     def cauerI(self, lexpr):
-
-        # This can result in negative valued components.
-
         # TODO: If strictly proper, need to expand 1 / lexpr.
         
         coeffs = lexpr.continued_fraction_coeffs()
 
-        def series_net(cls1, a1, cls0, a0):
-
-            if a1 == 0 and a0 == 0:
-                return None
-            if a1 == 0:
-                return cls0(a0)
-            if a0 == 0:
-                return cls1(a1)
-            return cls1(a1) + cls0(a0)
-
         net = None
         for m, coeff in enumerate(reversed(coeffs)):
-
-            n = len(coeffs) - m - 1
-            
-            parts = coeff.coeffs()
-            if len(parts) > 2:
-                raise ValueError('cannot express %s as a network' % coeff)
-            
+            n = len(coeffs) - m - 1            
             if n & 1 == 0:
-                if len(parts) == 2:
-                    net1 = series_net(L, parts[0], R, parts[1])
-                    if net1 is None:
-                        continue
-                else:
-                    if parts[0] == 0:
-                        continue
-                    net1 = R(parts[0])
-                
-                if net is None:
-                    net = net1
-                else:
-                    net = net1 + net
+                net = self._series(net, self.seriesRL(sExpr(coeff)))
             else:
-                if len(parts) == 2:                
-                    net1 = series_net(C, parts[0], G, parts[1])
-                    if net1 is None:
-                        continue
-                else:
-                    if parts[0] == 0:
-                        continue
-                    net1 = G(parts[0])                    
-
-                if net is None:
-                    net = net1
-                else:
-                    net = net1 | net
+                net = self._parallel(net, self.parallelGC(sExpr(1 / coeff)))
         return net
 
     def cauerII(self, lexpr):
-        raise NotImplementedError('TODO')
+        # TODO: If strictly proper, need to expand 1 / lexpr.
+        
+        coeffs = lexpr.continued_fraction_inverse_coeffs()
+
+        net = None
+        for m, coeff in enumerate(reversed(coeffs)):
+            n = len(coeffs) - m - 1            
+            if n & 1 == 1:
+                net = self._series(net, self.seriesRL(sExpr(coeff)))
+            else:
+                net = self._parallel(net, self.parallelGC(sExpr(1 / coeff)))
+        return net                                     
     
     def network(self, lexpr, form='default'):
 
@@ -362,10 +363,12 @@ class Synthesis(object):
                  'RLC': self.RLC,                 
                  'seriesRL': self.seriesRL,
                  'seriesRC': self.seriesRC,
+                 'seriesGC': self.seriesGC,
                  'seriesLC': self.seriesLC,                 
                  'seriesRLC': self.seriesRLC,
                  'parallelRL': self.parallelRL,
                  'parallelRC': self.parallelRC,
+                 'parallelGC': self.parallelGC,                 
                  'parallelLC': self.parallelLC,                 
                  'parallelRLC': self.parallelRLC}                 
 
