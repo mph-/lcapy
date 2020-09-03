@@ -33,7 +33,10 @@ __all__ = ('Circuit', )
 
 class Circuit(Netlist):
 
-    """Here's an example of using the Circuit class:
+    """The Circuit class is used for describing networks using
+    netlists.  Despite the name, it does not require a closed path.
+
+    Here's an example of using the Circuit class:
 
     cct = Circuit('''
     V1 1 0 V; down
