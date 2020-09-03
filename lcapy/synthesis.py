@@ -298,7 +298,18 @@ class Synthesis(object):
         except:
             return self.parallelRLC(lexpr)
 
+    def parallelseriesRL(self):
+        """(R('R1') + L('L1')) | (R('R2') + L('L2'))"""
+        # Like Foster II
+        
+        raise NotImplementedError('TODO')
 
+    def seriesparallelgRL(self):
+        """(R('R1') | L('L1')) + (R('R2') | L('L2'))"""
+        # Like Foster I
+                
+        raise NotImplementedError('TODO')    
+        
     def fosterI(self, lexpr):
 
         expr = lexpr.partfrac(combine_conjugates=True)
@@ -355,26 +366,13 @@ class Synthesis(object):
 
         # Should test if a positive real function.
 
-        # Perhaps just use getattr?
-        forms = {'cauerI': self.cauerI,
-                 'cauerII': self.cauerII,
-                 'fosterI': self.fosterI,
-                 'fosterII': self.fosterII,
-                 'RLC': self.RLC,                 
-                 'seriesRL': self.seriesRL,
-                 'seriesRC': self.seriesRC,
-                 'seriesGC': self.seriesGC,
-                 'seriesLC': self.seriesLC,                 
-                 'seriesRLC': self.seriesRLC,
-                 'parallelRL': self.parallelRL,
-                 'parallelRC': self.parallelRC,
-                 'parallelGC': self.parallelGC,                 
-                 'parallelLC': self.parallelLC,                 
-                 'parallelRLC': self.parallelRLC}                 
-
-        if form not in forms:
+        try:
+            method = getattr(self, form)
+        except AttributeError:
             raise ValueError('Unknown form %s, known forms: %s' % forms.keys())
-        return forms[form](lexpr)
+
+        net = method(lexpr)
+        return net
 
     
 def network(lexpr, form='default'):        
