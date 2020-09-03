@@ -1904,13 +1904,27 @@ class Expr(ExprPrint, ExprMisc):
         result = as_sum(self.expr, self.var)
         return self.__class__(result, **self.assumptions)
 
+    def as_monic_terms(self):
+        """Rewrite terms so that each denominator is monic.
+
+        This does not expand the expression first; use `.expand()`."""
+
+        result = 0
+        for term in self.expr.as_ordered_terms():
+            N, D = as_N_D(term, self.var, monic_denominator=True)
+            result += N / D
+        return self.__class__(result, **self.assumptions)
+
     def as_nonmonic_terms(self):
+        """Rewrite terms so that each denominator is not monic.
+
+        This does not expand the expression first; use `.expand()`."""
 
         result = 0
         for term in self.expr.as_ordered_terms():
             N, D = as_N_D(term, self.var, monic_denominator=False)
             result += N / D
-        return self.__class__(result, **self.assumptions)            
+        return self.__class__(result, **self.assumptions)                
 
     def continued_fraction_coeffs(self):
 
