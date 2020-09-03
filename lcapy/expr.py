@@ -1915,8 +1915,9 @@ class Expr(ExprPrint, ExprMisc):
     def continued_fraction_coeffs(self):
 
         coeffs = []
+        var = self.var
         
-        def foo(expr, var):
+        def foo(expr):
 
             N, D = expr.as_numer_denom()            
             Q, R = sym.div(N, D, var)
@@ -1924,9 +1925,9 @@ class Expr(ExprPrint, ExprMisc):
             coeffs.append(Q)
 
             if R != 0:
-                foo(D / R, var)
+                foo(D / R)
 
-        foo(self.expr, self.var)
+        foo(self.expr)
         return expr(coeffs)
     
     def as_continued_fraction(self):
