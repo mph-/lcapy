@@ -274,3 +274,14 @@ class Network(object):
         symbols = self.symbols
         symbols.update(state.global_context.symbols)
         return symbols
+
+    def transform(self, form='causerI'):
+        """Transform the network into an alternative form.  The transformation
+        is performed using network synthesis of the network's
+        impedance (note, this ignores the sources).  `form` includes:
+        cauerI, cauerII, fosterI, fosterII.
+
+        Note some methods generate networks with negative value
+        components."""
+
+        return self.Z(s).network(form)
