@@ -108,6 +108,16 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Z1, Z1.network('fosterI').Z(s), 'fosterI')
         self.assertEqual(Z1, Z1.network('fosterII').Z(s), 'fosterII')        
         self.assertEqual(Z1, Z1.network('cauerI').Z(s), 'cauerI')
-        self.assertEqual(Z1, Z1.network('cauerII').Z(s), 'cauerII')        
+        self.assertEqual(Z1, Z1.network('cauerII').Z(s), 'cauerII')
+
+    def test_Z3(self):
+
+        n = (R(2) | L(3)) + (R(4) | L(5))
+        Z1 = n.Z(s)
+
+        self.assertEqual(Z1, Z1.network('fosterI').Z(s), 'fosterI')
+        self.assertEqual(Z1, Z1.network('fosterII').Z(s), 'fosterII')        
+        self.assertEqual(Z1, Z1.network('cauerI').Z(s), 'cauerI')
+        self.assertEqual(Z1, Z1.network('cauerII').Z(s), 'cauerII')                
 
         
