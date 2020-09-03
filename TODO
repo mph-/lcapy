@@ -17,13 +17,13 @@ labels.
 
 7. Independent namespaces for SVG files so they can be loaded into Jupyter notebook.
 
-8. If component has invisible attribute, do not count the connections
+8. If component has invisible attribute, do not count the connections.
 
-9. Fix scaling of bipoles;  the current method also scales the nodes
+9. Fix scaling of bipoles;  the current method also scales the nodes.
 
-10. Fix graph traversal for node positioning
+10. Perhaps use dvipng?
 
-11. Perhaps use dvipng?
+11. Draw network as a ladder network.
 
 
 Circuit analysis

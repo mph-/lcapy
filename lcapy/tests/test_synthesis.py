@@ -97,10 +97,17 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Z1, Z1.network('fosterI').Z(s), 'fosterI')
         self.assertEqual(Z1, Z1.network('fosterII').Z(s), 'fosterII')
         self.assertEqual(Z1, Z1.network('cauerI').Z(s), 'cauerI')
-        #self.assertEqual(Z1, Z1.network('cauerII').Z(s), 'cauerII')
+        self.assertEqual(Z1, Z1.network('cauerII').Z(s), 'cauerII')
         
-    def test_C2(self):
+    def test_Z2(self):
 
+        # Cauer II form.
         n = ((C(2) | L(3)) + C(4)) | L(5)
-        Z = n.Z(s)
+        Z1 = n.Z(s)
+
+        self.assertEqual(Z1, Z1.network('fosterI').Z(s), 'fosterI')
+        self.assertEqual(Z1, Z1.network('fosterII').Z(s), 'fosterII')        
+        self.assertEqual(Z1, Z1.network('cauerI').Z(s), 'cauerI')
+        self.assertEqual(Z1, Z1.network('cauerII').Z(s), 'cauerII')        
+
         
