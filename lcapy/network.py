@@ -29,14 +29,6 @@ class Network(object):
     netname = ''
     netkeyword = ''
 
-    def _make_id(self, kind):
-        """Make identifier"""
-
-        if kind not in self._anon:
-            self._anon[kind] = 0
-        self._anon[kind] += 1
-        return self._anon[kind]
-        
     def _tweak_args(self):
 
         if not hasattr(self, 'args'):
@@ -97,26 +89,7 @@ class Network(object):
         # Hack, create ground reference.
         self._add('W %d 0' % (self._node - 1))
 
-    @property 
-    def _depth(self):
-        from .oneport import Ser, Par
-        
-        if not isinstance(self, (Ser, Par)):
-            return 0
-        
-        depths = [net._depth for net in self.args]
-        return 1 + max(depths)
-        
-    @property 
-    def _node(self):
-
-        if not hasattr(self, '_node_counter'):
-            self._node_counter = 0
-        ret = self._node_counter
-        self._node_counter += 1
-        return ret
-
-    def netargs(self):
+    def _netargs(self):
 
         def quote(arg):
 
@@ -127,33 +100,48 @@ class Network(object):
 
         return ' '.join([quote(str(arg)) for arg in self.args])
 
-    def net_make(self, net, n1=None, n2=None):
+    def _net_make(self, netlist, n1=None, n2=None, dir='right'):
 
+        net = self
         if n1 == None:
             n1 = net._node
         if n2 == None:
             n2 = net._node
+        
+        netname = net.__class__.__name__ if net.netname == '' else net.netname
 
-        netname = self.__class__.__name__ if self.netname == '' else self.netname
-
-        netid = net._make_id(netname)
-        if self.netkeyword != '':
-            return '%s%s %s %s %s %s; right' % (netname, netid,
-                                                n1, n2, 
-                                                self.netkeyword, self.netargs())
+        netid = netlist._make_id(netname)
+        if net.netkeyword != '':
+            return '%s%s %s %s %s %s; %s' % (netname, netid,
+                                             n1, n2, 
+                                             net.netkeyword,
+                                             net._netargs(), dir)
         else:
-            return '%s%s %s %s %s; right' % (netname, netid,
-                                             n1, n2, self.netargs())
+            return '%s%s %s %s %s; %s' % (netname, netid,
+                                          n1, n2, net._netargs(), dir)
 
+    @property 
+    def _depths(self):
+        return [net._depth for net in self.args]
+        
+    @property 
+    def _depth(self):
+        from .oneport import Ser, Par
+        
+        if not isinstance(self, (Ser, Par)):
+            return 0
+        
+        depths = self._depths
+        return 1 + max(depths)
+        
     def netlist(self, form='default'):
 
-        # Enumerate from node 0
-        self._node_counter = 0
-        self._anon = {}
-        n1 = self._node
-        n2 = self._node
+        if form == 'ladder':
+            from .laddermaker import LadderMaker
+            return LadderMaker(self)()
 
-        return self.net_make(self, n2, n1)
+        from .netlistmaker import NetlistMaker        
+        return NetlistMaker(self)()
 
     def pdb(self):
         """Enter the python debugger."""
@@ -161,21 +149,17 @@ class Network(object):
         import pdb; pdb.set_trace()
         return self
     
-    @property
-    def sch(self):
+    def sch(self, form):
         """Convert a Network object into a Schematic object."""
 
-        if hasattr(self, '_sch'):
-            return self._sch
-
-        netlist = self.netlist()
+        netlist = self.netlist(form)
         sch = Schematic()
         for net in netlist.split('\n'):
             sch.add(net)
-        self._sch = sch
+
         return sch
 
-    def draw(self, filename=None, **kwargs):
+    def draw(self, filename=None, form='default', **kwargs):
         """Draw schematic of network.
 
         filename specifies the name of the file to produce.  If None,
@@ -213,7 +197,7 @@ class Network(object):
         if 'draw_nodes' not in kwargs:
             kwargs['draw_nodes'] = 'connections'
         
-        self.sch.draw(filename=filename, **kwargs)
+        self.sch(form).draw(filename=filename, **kwargs)
         
     @property
     def cct(self):
