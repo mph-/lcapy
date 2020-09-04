@@ -599,8 +599,8 @@ class Par(ParSer):
 
         s = []
         if n1 is None:
-            n1 = net.node
-        n3, n4 =  net.node, net.node
+            n1 = net._node
+        n3, n4 =  net._node, net._node
 
         H = [(arg.height + self.hsep) * 0.5 for arg in self.args]
         
@@ -623,7 +623,7 @@ class Par(ParSer):
             else:
                 sep = H[N // 2 - n] + H[N // 2 - 1 - n]
 
-            nc, nd =  net.node, net.node
+            nc, nd =  net._node, net._node
             s.append('W %s %s; up=%s' % (na, nc, sep))
             s.append('W %s %s; up=%s' % (nb, nd, sep))
             s.append(self.args[N // 2 - 1 - n].net_make(net, nc, nd))
@@ -639,14 +639,14 @@ class Par(ParSer):
             else:
                 sep = H[(N + 1) // 2 + n] + H[(N + 1) // 2 - 1 + n]
 
-            nc, nd =  net.node, net.node
+            nc, nd =  net._node, net._node
             s.append('W %s %s; down=%s' % (na, nc, sep))
             s.append('W %s %s; down=%s' % (nb, nd, sep))
             s.append(self.args[(N + 1) // 2 + n].net_make(net, nc, nd))
             na, nb = nc, nd
 
         if n2 is None:
-            n2 = net.node
+            n2 = net._node
 
         s.append('W %s %s; right=%s' % (n4, n2, self.wsep))
         return '\n'.join(s)
@@ -706,15 +706,15 @@ class Ser(ParSer):
 
         s = []
         if n1 is None:
-            n1 = net.node
+            n1 = net._node
         for arg in self.args[:-1]:
-            n3 = net.node
+            n3 = net._node
             s.append(arg.net_make(net, n1, n3))
-            n1 = net.node
+            n1 = net._node
             s.append('W %s %s; right=%s' % (n3, n1, self.wsep))
 
         if n2 is None:
-            n2 = net.node
+            n2 = net._node
         s.append(self.args[-1].net_make(net, n1, n2))
         return '\n'.join(s)
 
@@ -756,9 +756,9 @@ class G(OnePort):
     def net_make(self, net, n1=None, n2=None):
 
         if n1 == None:
-            n1 = net.node
+            n1 = net._node
         if n2 == None:
-            n2 = net.node
+            n2 = net._node
         return 'R? %s %s {%s}; right' % (n1, n2, 1 / self._G)
 
 

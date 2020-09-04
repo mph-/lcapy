@@ -95,15 +95,25 @@ class Network(object):
             self._add(net)
 
         # Hack, create ground reference.
-        self._add('W %d 0' % (self.node - 1))
+        self._add('W %d 0' % (self._node - 1))
 
     @property 
-    def node(self):
+    def _depth(self):
+        from .oneport import Ser, Par
+        
+        if not isinstance(self, (Ser, Par)):
+            return 0
+        
+        depths = [net._depth for net in self.args]
+        return 1 + max(depths)
+        
+    @property 
+    def _node(self):
 
-        if not hasattr(self, 'node_counter'):
-            self.node_counter = 0
-        ret = self.node_counter
-        self.node_counter += 1
+        if not hasattr(self, '_node_counter'):
+            self._node_counter = 0
+        ret = self._node_counter
+        self._node_counter += 1
         return ret
 
     def netargs(self):
@@ -120,9 +130,9 @@ class Network(object):
     def net_make(self, net, n1=None, n2=None):
 
         if n1 == None:
-            n1 = net.node
+            n1 = net._node
         if n2 == None:
-            n2 = net.node
+            n2 = net._node
 
         netname = self.__class__.__name__ if self.netname == '' else self.netname
 
@@ -135,13 +145,14 @@ class Network(object):
             return '%s%s %s %s %s; right' % (netname, netid,
                                              n1, n2, self.netargs())
 
-    def netlist(self):
+    def netlist(self, form='default'):
 
         # Enumerate from node 0
-        self.node_counter = 0
+        self._node_counter = 0
         self._anon = {}
-        n1 = self.node
-        n2 = self.node        
+        n1 = self._node
+        n2 = self._node
+
         return self.net_make(self, n2, n1)
 
     def pdb(self):

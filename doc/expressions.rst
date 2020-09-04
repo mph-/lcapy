@@ -803,11 +803,8 @@ This produces a network model from an s-domain impedance or admittance
 expresion.  It has several methods, including Foster and Cauer
 synthesis.
 
-   >>> Impedance(3 * s / (6 * s**2 + 1)).network()                            
+   >>> Impedance(3 * s / (6 * s**2 + 1)).network('cauerI')
    C(2) | L(3)
-
-
-
    
   
 SymPy
