@@ -255,7 +255,7 @@ Here's the result:
 The s-domain model can be drawn using:
 
    >>> from lcapy import R, C, L
-   >>> ((R(1) + L(2)) | C(3)).smodel().draw()
+   >>> ((R(1) + L(2)) | C(3)).s_model().draw()
 
 This produces:
 
