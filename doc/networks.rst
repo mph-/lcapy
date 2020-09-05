@@ -241,8 +241,7 @@ A Norton or Thevenin equivalent network can be created using the
 Network schematics
 ==================
 
-Networks are drawn with the `draw()` method.  By default, one port
-networks are drawn with a horizontal layout.  Here's an example:
+Networks are drawn with the `draw()` method.  Here's an example:
 
    >>> from lcapy import R, C, L
    >>> ((R(1) + L(2)) | C(3)).draw()
@@ -251,6 +250,19 @@ Here's the result:
 
 .. image:: examples/networks/pickup.png
    :width: 5cm
+
+By default, one port networks are drawn with a horizontal layout.
+This can be changed to a vertical layout or as a ladder layout using the
+`form` argument to the `draw()` method.  For example,
+
+   >>> from lcapy import R, C
+   >>> n = C('C1') | (R('R1') + (C('C2') | (R('R2') + (C('C3') | (R('R3') + C('C4'))))))
+   >>> n.draw(form='ladder')
+
+
+.. image:: examples/networks/ladderRC3.png
+   :width: 6cm
+           
 
 The s-domain model can be drawn using:
 
@@ -291,20 +303,6 @@ For example,
 .. image:: examples/networks/par3.png
    :width: 3cm
 
-
-Ladder networks
----------------
-
-Networks can be drawn as a ladder using the argument `form='ladder'`.  For example,
-
-   >>> from lcapy import R, C
-   >>> n = C('C1') | (R('R1') + (C('C2') | (R('R2') + (C('C3') | (R('R3') + C('C4'))))))
-   >>> n.draw(form='ladder')
-
-
-.. image:: examples/networks/ladderRC3.png
-   :width: 6cm
-           
 
 Random networks
 ===============
