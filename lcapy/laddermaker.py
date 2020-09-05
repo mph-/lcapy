@@ -8,6 +8,9 @@ class LadderMaker(NetlistHelper):
 
         self.net = net
         self.s = ''
+        self.first_cpt = None
+        self.first_series = None
+        self.first_parallel = None
 
     def _add(self, s):
 
@@ -18,9 +21,25 @@ class LadderMaker(NetlistHelper):
 
     def _net_add(self, net, n1, n2, dir='right'):
         self._add(net._net_make(self, n1, n2, dir))
+
+    def _wire_add(self, n1, n2, dir='right'):
+        self._add('W %s %s; %s\n' % (n1, n2, dir))
+
+    def _split(self, net, cpt):
+
+        if isinstance(net.args[0], cpt.__class__):
+            return net.args[0], net.args[1]
+        if isinstance(net.args[1], cpt.__class__):
+            return net.args[1], net.args[0]
+
+        # Do not have symmetry so choose...
+        print('Missing ladder symmetry')
+        return net.args[0], net.args[1]        
         
     def _section_make(self, net, n1, n2):
 
+        # Should have alternating Par, Ser
+        
         if not isinstance(net, (Ser, Par)):
             return self._net_add(net, n1, n2, dir='down')
 
@@ -31,41 +50,41 @@ class LadderMaker(NetlistHelper):
             raise ValueError('Cannot draw as ladder network')
 
         if isinstance(net, Par):
-            # TODO handle last Par in AST.   This has a depth 1.
-            
-            mm = None
-            for m, net1 in enumerate(net.args):
-                if depths[m] != 0:
-                    mm = m
-                    continue
-                # TODO, for parallel, need extra wires
-                self._net_add(net1, n1, n2, dir='down')
+            if len(net.args) > 2:
+                raise ValueError('FIXME for more than two parallel cpts')
 
-            if mm is None:
+            if self.first_parallel is None:
+                self.first_parallel = net.args[self._min_depth(depths)]
+
+            cpt, rest = self._split(net, self.first_parallel)
+            self._net_add(cpt, n1, n2, dir='down')
+
+            if not isinstance(rest, (Ser, Par)):
+                n1p = self._node
+                n2p = self._node                                
+                self._net_add(rest, n1, n1p, dir='right')
+                self._add('W %s %s; right\n' % (n2, n2p))
+                self._add('W %s %s; down\n' % (n1p, n2p))
                 return
-            return self._section_make(net.args[mm], n1, n2)
+
+            return self._section_make(rest, n1, n2)
 
         elif isinstance(net, Ser):
-            # TODO handle last Ser in AST.   This has a depth 1.
 
+            if self.first_series is None:
+                self.first_series = net.args[self._min_depth(depths)]
+            
             # TODO handle balanced/unbalanced by halving series
             # impedance and inserting in each branch.
             
             n1p = self._node
-            n2p = self._node            
-            
-            mm = None
-            for m, net1 in enumerate(net.args):
-                if depths[m] != 0:
-                    mm = m
-                    continue
-                self._net_add(net1, n1, n1p, dir='right')
+            n2p = self._node
 
-            self._add('W %s %s; dir=right\n' % (n2, n2p))
-                
-            if mm is None:
-                return
-            return self._section_make(net.args[mm], n1p, n2p)
+            cpt, rest = self._split(net, self.first_series)
+            self._net_add(cpt, n1, n1p, dir='right')
+            self._add('W %s %s; right\n' % (n2, n2p))            
+
+            return self._section_make(rest, n1p, n2p)            
 
         else:
             raise ValueError('Unhandled component %s' % net)
