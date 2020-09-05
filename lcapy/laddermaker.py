@@ -25,6 +25,9 @@ class LadderMaker(NetlistHelper):
     def _wire_add(self, n1, n2, dir='right'):
         self._add('W %s %s; %s\n' % (n1, n2, dir))
 
+    def _port_add(self, n1, n2, dir='right'):
+        self._add('P %s %s; %s\n' % (n1, n2, dir))        
+
     def _split(self, net, cpt):
 
         if isinstance(net.args[0], cpt.__class__):
@@ -43,11 +46,8 @@ class LadderMaker(NetlistHelper):
         if not isinstance(net, (Ser, Par)):
             return self._net_add(net, n1, n2, dir='down')
 
-        # Have Par or Ser.  Only one arg can have a depth more than 1.
+        # Have Par or Ser.
         depths = net._depths
-        num = sum([depth > 0 for depth in depths])
-        if num > 1:
-            raise ValueError('Cannot draw as ladder network')
 
         if isinstance(net, Par):
             if len(net.args) > 2:
@@ -63,8 +63,8 @@ class LadderMaker(NetlistHelper):
                 n1p = self._node
                 n2p = self._node                                
                 self._net_add(rest, n1, n1p, dir='right')
-                self._add('W %s %s; right\n' % (n2, n2p))
-                self._add('W %s %s; down\n' % (n1p, n2p))
+                self._wire_add(n2, n2p, 'right')
+                self._wire_add(n1p, n2p, 'down')
                 return
 
             return self._section_make(rest, n1, n2)
@@ -82,7 +82,7 @@ class LadderMaker(NetlistHelper):
 
             cpt, rest = self._split(net, self.first_series)
             self._net_add(cpt, n1, n1p, dir='right')
-            self._add('W %s %s; right\n' % (n2, n2p))            
+            self._wire_add(n2, n2p, 'right')
 
             return self._section_make(rest, n1p, n2p)            
 
@@ -102,11 +102,14 @@ class LadderMaker(NetlistHelper):
         if not isinstance(net, (Ser, Par)):
             return self._net_add(net, n1, n2, dir='down')
 
+        self._port_add(n1, n2, dir='down')        
+
         # Add wires at start if Par
         if isinstance(net, Par):
             n1p = self._node
             n2p = self._node
-            self._add('W %s %s; right=0.5\nW %s %s; right=0.5\n' % (n2, n2p, n1, n1p))
+            self._wire_add(n1, n1p, 'right=0.5')            
+            self._wire_add(n2, n2p, 'right=0.5')
             n1, n2 = n1p, n2p
 
         depths = net._depths
