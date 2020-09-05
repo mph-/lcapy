@@ -103,10 +103,10 @@ class Network(object):
     def _net_make(self, netlist, n1=None, n2=None, dir='right'):
 
         net = self
-        if n1 == None:
-            n1 = net._node
         if n2 == None:
             n2 = net._node
+        if n1 == None:
+            n1 = net._node
         
         netname = net.__class__.__name__ if net.netname == '' else net.netname
 
