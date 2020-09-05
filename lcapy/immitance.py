@@ -25,7 +25,11 @@ class Immitance(sExpr):
         otherwise.  This may stymy some simplification."""
         
         val = expr(val, positive=positive)
-        if isinstance(val, omegaExpr) and kind is None:
+
+        if isinstance(val, sExpr) and kind is None:
+            kind = 's'
+        elif isinstance(val, omegaExpr) and kind is None:
+            kind = omegasym
             val = val.subs(omega, s / j)
         
         super(Immitance, self).__init__(val, causal=causal, **assumptions)
