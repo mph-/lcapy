@@ -138,10 +138,10 @@ class Network(object):
 
         if form == 'ladder':
             from .laddermaker import LadderMaker
-            return LadderMaker(self)()
+            return LadderMaker(self)(form)
 
         from .netlistmaker import NetlistMaker        
-        return NetlistMaker(self)()
+        return NetlistMaker(self)(form)
 
     def pdb(self):
         """Enter the python debugger."""

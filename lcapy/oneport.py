@@ -615,6 +615,11 @@ class Par(ParSer):
 
         s.append('W %s %s; %s=%s' % (n1, n3, dir, self.wsep))
 
+        if dir == 'right':
+            updir, downdir = 'up', 'down'
+        else:
+            updir, downdir = 'right', 'left'
+
         # Draw components above centre
         for n in range(num_branches):
 
@@ -624,8 +629,8 @@ class Par(ParSer):
                 sep = H[N // 2 - n] + H[N // 2 - 1 - n]
 
             nc, nd =  netlist._node, netlist._node
-            s.append('W %s %s; up=%s' % (na, nc, sep))
-            s.append('W %s %s; up=%s' % (nb, nd, sep))
+            s.append('W %s %s; %s=%s' % (na, nc, updir, sep))
+            s.append('W %s %s; %s=%s' % (nb, nd, updir, sep))
             s.append(self.args[N // 2 - 1 - n]._net_make(netlist, nc, nd, dir))
             na, nb = nc, nd
 
@@ -640,8 +645,8 @@ class Par(ParSer):
                 sep = H[(N + 1) // 2 + n] + H[(N + 1) // 2 - 1 + n]
 
             nc, nd =  netlist._node, netlist._node
-            s.append('W %s %s; down=%s' % (na, nc, sep))
-            s.append('W %s %s; down=%s' % (nb, nd, sep))
+            s.append('W %s %s; %s=%s' % (na, nc, downdir, sep))
+            s.append('W %s %s; %s=%s' % (nb, nd, downdir, sep))
             s.append(self.args[(N + 1) // 2 + n]._net_make(netlist, nc, nd, dir))
             na, nb = nc, nd
 
@@ -709,13 +714,13 @@ class Ser(ParSer):
             n1 = netlist._node
         for arg in self.args[:-1]:
             n3 = netlist._node
-            s.append(arg._net_make(netlist, n1, n3))
+            s.append(arg._net_make(netlist, n1, n3, dir))
             n1 = netlist._node
             s.append('W %s %s; %s=%s' % (n3, n1, dir, self.wsep))
 
         if n2 is None:
             n2 = netlist._node
-        s.append(self.args[-1]._net_make(netlist, n1, n2))
+        s.append(self.args[-1]._net_make(netlist, n1, n2, dir))
         return '\n'.join(s)
 
     @property
@@ -1130,11 +1135,11 @@ class Xtal(OnePort):
 
         return (R(self.R1) + L(self.L1) + C(self.C1)) | C(self.C0)
 
-    def _net_make(self, netlist, n1=None, n2=None):
+    def _net_make(self, netlist, n1=None, n2=None, dir='right'):
 
         # TODO: draw this with a symbol
         net = self.expand()
-        return net._net_make(netlist, n1, n2)    
+        return net._net_make(netlist, n1, n2, dir)    
 
 
 class FerriteBead(OnePort):
@@ -1158,11 +1163,11 @@ class FerriteBead(OnePort):
 
         return R(self.Rs) + (R(self.Rp) + L(self.Lp) + C(self.Cp))
 
-    def _net_make(self, netlist, n1=None, n2=None):
+    def _net_make(self, netlist, n1=None, n2=None, dir='right'):
 
         # TODO: draw this with a symbol
         net = self.expand()
-        return net._net_make(netlist, n1, n2)            
+        return net._net_make(netlist, n1, n2, dir)            
     
 class LoadCircuit(Network):
     """Circuit comprised of a load oneport connected in parallel with a
@@ -1197,10 +1202,10 @@ class LoadCircuit(Network):
         """Time-domain current into load."""
         return self.inet.isc
 
-    def _net_make(self, netlist, n1=None, n2=None):
+    def _net_make(self, netlist, n1=None, n2=None, dir='right'):
 
         # TODO: draw this better rather than as a oneport.
-        return self.vnet._net_make(netlist, n1, n2)
+        return self.vnet._net_make(netlist, n1, n2, dir)
 
 
 class ControlledSource(OnePort):

@@ -241,7 +241,8 @@ A Norton or Thevenin equivalent network can be created using the
 Network schematics
 ==================
 
-One port networks can be drawn with a horizontal layout.  Here's an example:
+Networks are drawn with the `draw()` method.  By default, one port
+networks are drawn with a horizontal layout.  Here's an example:
 
    >>> from lcapy import R, C, L
    >>> ((R(1) + L(2)) | C(3)).draw()
@@ -269,18 +270,16 @@ netlist.  The netlist can be found using the netlist method, for example,
 
 yields::
 
-   W 1 3; right, size=0.5
-   W 3 4; up, size=0.4
-   W 3 5; down, size=0.4
-   W 6 2; right, size=0.5
-   W 6 7; up, size=0.4
-   W 6 8; down, size=0.4
-   R 4 9 1; right
-   W 9 10; right, size=0.5
-   L 10 7 2 0; right
-   C 5 8 3 0; right
-
-Note, the components have anonymous identifiers.
+   W 1 2; right=0.5
+   W 2 4; up=0.4
+   W 3 5; up=0.4
+   R1 4 6 1; right
+   W 6 7; right=0.5
+   L1 7 5 2; right
+   W 2 8; down=0.4
+   W 3 9; down=0.4
+   C1 8 9 3; right
+   W 3 0; right=0.5
 
 
 To create a schematic with multiple components in parallel, use `Par`.
@@ -292,6 +291,20 @@ For example,
 .. image:: examples/networks/par3.png
    :width: 3cm
 
+
+Ladder networks
+---------------
+
+Networks can be drawn as a ladder using the argument `form='ladder'`.  For example,
+
+   >>> from lcapy import R, C
+   >>> n = C('C1') | (R('R1') + (C('C2') | (R('R2') + (C('C3') | (R('R3') + C('C4'))))))
+   >>> n.draw(form='ladder')
+
+
+.. image:: examples/networks/ladderRC3.png
+   :width: 6cm
+           
 
 Random networks
 ===============

@@ -93,7 +93,7 @@ class LadderMaker(NetlistHelper):
 
         return np.argmin(depths)
 
-    def __call__(self):
+    def __call__(self, form='ladder'):
 
         net = self.net
         n2 = self._node           # 0
