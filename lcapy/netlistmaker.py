@@ -8,7 +8,7 @@ class NetlistMaker(NetlistHelper):
     
     def __call__(self, form='horizontal'):
 
-        if form in ('horizontal', 'default'):
+        if form == 'horizontal':
             dir = 'right'
         elif form == 'vertical':
             dir = 'down'

@@ -159,7 +159,7 @@ class Network(object):
 
         return sch
 
-    def draw(self, filename=None, form='default', **kwargs):
+    def draw(self, filename=None, form='horizontal', **kwargs):
         """Draw schematic of network.
 
         filename specifies the name of the file to produce.  If None,
@@ -167,7 +167,9 @@ class Network(object):
 
         Note, if using Jupyter, then need to first issue command %matplotlib inline
 
-        kwargs include:
+        `form` is either 'horizontal', 'vertical', or 'ladder'.
+
+        `kwargs` include:
            label_ids: True to show component ids
            label_values: True to display component values
            draw_nodes: True to show all nodes, False to show no nodes, 
