@@ -313,7 +313,6 @@ class Synthesis(object):
         return net    
         
     def cauerI(self, lexpr):
-        # TODO: If strictly proper, need to expand 1 / lexpr.
         
         coeffs = lexpr.continued_fraction_coeffs()
 
@@ -327,9 +326,8 @@ class Synthesis(object):
         return net
 
     def cauerII(self, lexpr):
-        # TODO: If strictly proper, need to expand 1 / lexpr.
-        
-        coeffs = lexpr.continued_fraction_inverse_coeffs()
+
+        coeffs = (1 / lexpr).continued_fraction_inverse_coeffs()
 
         net = None
         for m, coeff in enumerate(reversed(coeffs)):
@@ -353,7 +351,7 @@ class Synthesis(object):
         try:
             method = getattr(self, form)
         except AttributeError:
-            raise ValueError('Unknown form %s, known forms: %s' % forms.keys())
+            raise ValueError('Unknown form %s, known forms: %s' % form.keys())
 
         net = method(lexpr)
         return net

@@ -1933,14 +1933,16 @@ class Expr(ExprPrint, ExprMisc):
         
         def foo(Npoly, Dpoly):
 
-            NLC = Npoly.LC()            
-            DLC = Dpoly.LC()
-            Q = (NLC / DLC) * var**(Npoly.degree() - Dpoly.degree())
+            # This seems rather complicated to extract the leading terms.
+            NLM, NLC = Npoly.LT()
+            DLM, DLC = Dpoly.LT()
+            NLT = sym.Poly(NLM.as_expr() * NLC, var)
+            DLT = sym.Poly(DLM.as_expr() * DLC, var)
+
+            Q = NLT / DLT
             coeffs.append(Q)
 
-            Qpoly = sym.Poly(Q, var)
-            
-            Npoly2 = Npoly - Qpoly * Dpoly
+            Npoly2 = sym.Poly(Npoly.as_expr() - Q * Dpoly.as_expr(), var)            
             if Npoly2 != 0:
                 foo(Dpoly, Npoly2)
 
@@ -1976,20 +1978,28 @@ class Expr(ExprPrint, ExprMisc):
         
         def foo(Npoly, Dpoly):
 
-            # There must be a simpler way to do this...
-            NET = Npoly.ET()            
-            DET = Dpoly.ET()
-            Q = NET[1] * NET[0].as_expr() / (DET[1] * DET[0].as_expr())
+            # This seems rather complicated to extract the last non-zero terms.
+            NEM, NEC = Npoly.ET()
+            DEM, DEC = Dpoly.ET()
+            NET = NEM.as_expr() * NEC
+            DET = DEM.as_expr() * DEC
             
-            coeffs.append(1 / Q)
+            if sym.Poly(NET, var).degree() > sym.Poly(DET, var).degree():
+                coeffs.append(0)
+                foo(Dpoly, Npoly)
+                return
+
+            Q = NET / DET
+            coeffs.append(Q)
             
-            Npoly2 = Q * Dpoly - Npoly
+            Npoly2 = sym.Poly(Npoly.as_expr() - Q * Dpoly.as_expr(), var)
             if Npoly2 != 0:
-                foo(Npoly2, Q * Npoly)
+                foo(Dpoly, Npoly2)
 
         N, D = self.expr.as_numer_denom()
         Npoly = sym.Poly(N, var)
         Dpoly = sym.Poly(D, var)
+
         foo(Npoly, Dpoly)
         return expr(coeffs)
 
