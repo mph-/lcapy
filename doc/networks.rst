@@ -304,6 +304,12 @@ For example,
    :width: 3cm
 
 
+Network synthsis
+================
+
+Networks can be created using network synthesis techniques given an impedance or admittance expression, see :ref:`network-synthesis`.
+
+           
 Random networks
 ===============
 

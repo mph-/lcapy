@@ -795,16 +795,22 @@ Second order systems can be parameterized in many ways.  Here's another:
    {K: 3, omega_1: √3, sigma_1: 1}
 
 
+.. _network-synthesis:
+   
 Network synthesis
 =================
 
 Lcapy has experimental support for a number of network synthesis.
 This produces a network model from an s-domain impedance or admittance
-expresion.  It has several methods, including Foster and Cauer
-synthesis.
+expression.  There are many methods, some specifically for simple
+network such as R-L networks, and more general methods including
+Foster and Cauer synthesis.
 
    >>> Impedance(3 * s / (6 * s**2 + 1)).network('cauerI')
    C(2) | L(3)
+
+
+
    
   
 SymPy

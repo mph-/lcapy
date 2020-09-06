@@ -1929,23 +1929,35 @@ class Expr(ExprPrint, ExprMisc):
     def continued_fraction_coeffs(self):
 
         coeffs = []
-        var = self.var
+        var = self.var        
         
-        def foo(expr):
+        def foo(Npoly, Dpoly):
 
-            N, D = expr.as_numer_denom()            
-            Q, R = sym.div(N, D, var)
-
+            NLC = Npoly.LC()            
+            DLC = Dpoly.LC()
+            Q = (NLC / DLC) * var**(Npoly.degree() - Dpoly.degree())
             coeffs.append(Q)
 
-            if R != 0:
-                foo(D / R)
+            Qpoly = sym.Poly(Q, var)
+            
+            Npoly2 = Npoly - Qpoly * Dpoly
+            if Npoly2 != 0:
+                foo(Dpoly, Npoly2)
 
-        foo(self.expr)
+        N, D = self.expr.as_numer_denom()
+        Npoly = sym.Poly(N, var)
+        Dpoly = sym.Poly(D, var)
+
+        if Dpoly.degree() > Npoly.degree():
+            coeffs.append(0)
+            Npoly, Dpoly = Dpoly, Npoly
+        
+        foo(Npoly, Dpoly)
+
         return expr(coeffs)
     
     def as_continued_fraction(self):
-        """Convert expression into continuous fraction."""
+        """Convert expression into acontinued fraction."""
 
         def foo(coeffs):
 
@@ -1960,6 +1972,7 @@ class Expr(ExprPrint, ExprMisc):
     def continued_fraction_inverse_coeffs(self):
 
         coeffs = []
+        var = self.var
         
         def foo(Npoly, Dpoly):
 
@@ -1975,8 +1988,8 @@ class Expr(ExprPrint, ExprMisc):
                 foo(Npoly2, Q * Npoly)
 
         N, D = self.expr.as_numer_denom()
-        Npoly = sym.Poly(N, self.var)
-        Dpoly = sym.Poly(D, self.var)
+        Npoly = sym.Poly(N, var)
+        Dpoly = sym.Poly(D, var)
         foo(Npoly, Dpoly)
         return expr(coeffs)
 
