@@ -561,6 +561,9 @@ class Par(ParSer):
 
     def __init__(self, *args):
 
+        if len(args) < 2:
+            raise ValueError('Par requires at least two args')
+        
         _check_oneport_args(args)
         super(Par, self).__init__()
         self.args = args
@@ -674,6 +677,9 @@ class Ser(ParSer):
 
     def __init__(self, *args):
 
+        if len(args) < 2:
+            raise ValueError('Ser requires at least two args')
+        
         _check_oneport_args(args)
         super(Ser, self).__init__()
         self.args = args
@@ -1308,7 +1314,33 @@ class Damper(R):
     Friction coeff rval"""
     pass
 
-    
+
+def series(*args):
+    """Create a series combination of a number of components.
+    Args that are None are ignored.  If there is only one
+    non-None component, return that component."""
+
+    args = [net for net in args if net is not None]
+    if args == []:
+        return None
+    if len(args) == 1:
+        return args[0]
+    return Ser(*args)
+
+
+def parallel(*args):
+    """Create a parallel combination of a number of components.
+    Args that are None are ignored.  If there is only one
+    non-None component, return that component."""    
+
+    args = [net for net in args if net is not None]
+    if args == []:
+        return None
+    if len(args) == 1:
+        return args[0]
+    return Par(*args)
+
+
 # Imports at end to circumvent circular dependencies
 from .expr import Expr
 from .cexpr import cExpr, Iconst, Vconst
