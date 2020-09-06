@@ -38,7 +38,7 @@ from .admittance import Admittance
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
            'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac', 'sV', 'sI',
            'Iac', 'Vnoise', 'Inoise', 
-           'Par', 'Ser', 'Xtal', 'FerriteBead', 'CPE')
+           'Par', 'Ser', 'Xtal', 'FerriteBead', 'CPE', 'series', 'parallel', 'ladder')
 
 def _check_oneport_args(args):
 
@@ -1339,6 +1339,17 @@ def parallel(*args):
     if len(args) == 1:
         return args[0]
     return Par(*args)
+
+
+def ladder(*args):
+
+    net = None
+    for m, arg in enumerate(args):
+        if m & 1:
+            net = series(net, arg)
+        else:
+            net = parallel(net, arg)
+    return net
 
 
 # Imports at end to circumvent circular dependencies
