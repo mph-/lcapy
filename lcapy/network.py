@@ -134,7 +134,10 @@ class Network(object):
         depths = self._depths
         return 1 + max(depths)
         
-    def netlist(self, form='default'):
+    def netlist(self, form='horizontal'):
+        """Create a netlist.
+
+        `form` can be 'horizontal', 'vertical', or 'ladder'."""
 
         if form == 'ladder':
             from .laddermaker import LadderMaker
