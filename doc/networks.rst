@@ -178,7 +178,24 @@ Network methods
 - `draw()` draw the schematic.
 
 - `netlist()` create an equivalent netlist.
-           
+
+
+Network functions
+-----------------
+
+- `series()` connect one-port components in series.  This is similar to `Ser()` but is robust to `None` components and single components in series.
+
+- `parallel()` connect one-port components in parallel.  This is similar to `Par()` but is robust to `None` components and single components in parallel.
+
+- `ladder()` connect cone-port components as a one-port ladder network.  This is an alternating sequence of series and parallel connections.   For example,
+
+   >>> ladder(R(1), C(2), R(3))
+   R(1) + (C(1) | R(3))
+
+   >>> ladder(None, C(2), R(3), C(3))
+   C(2) | (R(3) + C(3))
+  
+  
 
 Network simplification
 ----------------------
