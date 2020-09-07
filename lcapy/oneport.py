@@ -1341,17 +1341,25 @@ def parallel(*args):
     return Par(*args)
 
 
-def ladder(*args):
+def ladder(*args, start_series=True):
+    """Create a ladder oneport network with alternating series and shunt components.
+    If an arg is None, the component is ignored.
 
-    net = None
-    for m, arg in enumerate(args):
-        if m & 1:
-            net = series(net, arg)
-        else:
-            net = parallel(net, arg)
-    return net
+    ladder(R(1), C(2), R(3)) is equivalent to R(1) + (C(1) | R(3))
 
+    ladder(None, R(1), C(2), R(3)) is equivalent to R(1) | (C(1) + R(3))
+    """
 
+    if len(args) == 0:
+        return None
+    elif len(args) == 1:
+        return args[0]
+    elif start_series:
+        return series(args[0], ladder(*args[1:], start_series = not start_series))
+    else:
+        return parallel(args[0], ladder(*args[1:], start_series = not start_series))
+
+    
 # Imports at end to circumvent circular dependencies
 from .expr import Expr
 from .cexpr import cExpr, Iconst, Vconst
