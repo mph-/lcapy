@@ -44,7 +44,7 @@ class sExpr(Expr):
 
         See also from_zeros_poles_gain, from_numer_denom"""        
 
-        return cls(pr2tf(poles, residues, cls.var))
+        return cls(pr2tf(poles, residues, cls.var), causal=True)
 
     @classmethod
     def from_zeros_poles_gain(cls, zeros, poles, K=1):
@@ -53,7 +53,7 @@ class sExpr(Expr):
 
         See also from_poles_residues, from_numer_denom"""        
 
-        return cls(zp2tf(zeros, poles, K, cls.var))
+        return cls(zp2tf(zeros, poles, K, cls.var), causal=True)
 
     @classmethod
     def from_numer_denom(cls, numer, denom):
@@ -62,7 +62,7 @@ class sExpr(Expr):
 
         See also from_zeros_poles_gain, from_poles_residues"""        
 
-        return cls(tf(numer, denom, cls.var))        
+        return cls(tf(numer, denom, cls.var), causal=True)
         
     def tdifferentiate(self):
         """Differentiate in t-domain (multiply by s)."""
@@ -610,7 +610,7 @@ def tf(numer, denom=1, var=None):
     N = Poly(numer, var)
     D = Poly(denom, var)
 
-    return Hs(N / D)
+    return Hs(N / D, causal=True)
 
 
 def zp2tf(zeros, poles, K=1, var=None):
@@ -619,7 +619,7 @@ def zp2tf(zeros, poles, K=1, var=None):
 
     if var is None:
         var = ssym
-    return Hs(_zp2tf(zeros, poles, K, var))
+    return Hs(_zp2tf(zeros, poles, K, var), causal=True)
 
 
 def pr2tf(poles, residues, var=None):
@@ -627,7 +627,7 @@ def pr2tf(poles, residues, var=None):
 
     if var is None:
         var = ssym
-    return Hs(_pr2tf(poles, residues, var))
+    return Hs(_pr2tf(poles, residues, var), causal=True)
 
 
 def sexpr(arg, **assumptions):
