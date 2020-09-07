@@ -7,10 +7,10 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 from __future__ import division
 from .laplace import inverse_laplace_transform
-from .sym import ssym, tsym, j, pi
+from .sym import ssym, tsym, j, pi, sympify
 from .vector import Vector
 from .ratfun import _zp2tf, _pr2tf, Ratfun
-from .expr import Expr, symbol, expr, ExprDict
+from .expr import Expr, symbol, expr, ExprDict, exprcontainer
 from .functions import sqrt
 import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq
@@ -607,19 +607,20 @@ def tf(numer, denom=1, var=None):
     if var is None:
         var = ssym
 
-    N = Poly(numer, var)
-    D = Poly(denom, var)
+    N = Poly(sympify(numer), var)
+    D = Poly(sympify(denom), var)
 
     return Hs(N / D, causal=True)
 
 
 def zp2tf(zeros, poles, K=1, var=None):
-    """Create a transfer function from lists of zeros and poles,
+    """Create a transfer function from lists (or dictionaries) of zeros and poles,
     and from a constant gain."""
 
     if var is None:
         var = ssym
-    return Hs(_zp2tf(zeros, poles, K, var), causal=True)
+    return Hs(_zp2tf(sympify(zeros), sympify(poles),
+                     sympify(K), var), causal=True)
 
 
 def pr2tf(poles, residues, var=None):
@@ -627,7 +628,7 @@ def pr2tf(poles, residues, var=None):
 
     if var is None:
         var = ssym
-    return Hs(_pr2tf(poles, residues, var), causal=True)
+    return Hs(_pr2tf(sympify(poles), sympify(residues), var), causal=True)
 
 
 def sexpr(arg, **assumptions):
