@@ -1341,7 +1341,7 @@ def parallel(*args):
     return Par(*args)
 
 
-def ladder(*args, start_series=True):
+def ladder(*args, **kwargs):
     """Create a ladder oneport network with alternating series and shunt components.
     If an arg is None, the component is ignored.
 
@@ -1350,6 +1350,8 @@ def ladder(*args, start_series=True):
     ladder(None, R(1), C(2), R(3)) is equivalent to R(1) | (C(1) + R(3))
     """
 
+    start_series = kwargs.pop('start_series', True)
+    
     if len(args) == 0:
         return None
     elif len(args) == 1:
