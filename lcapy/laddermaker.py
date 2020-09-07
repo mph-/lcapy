@@ -4,9 +4,10 @@ from .netlisthelper import NetlistHelper
 
 class LadderMaker(NetlistHelper):
 
-    def __init__(self, net):
+    def __init__(self, net, form='ladder'):
 
         self.net = net
+        self.form = form
         self.s = ''
         self.first_cpt = None
         self.first_series = None
@@ -93,7 +94,7 @@ class LadderMaker(NetlistHelper):
 
         return np.argmin(depths)
 
-    def __call__(self, form='ladder'):
+    def __call__(self):
 
         net = self.net
         n2 = self._node           # 0

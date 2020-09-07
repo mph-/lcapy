@@ -2,19 +2,19 @@ from .netlisthelper import NetlistHelper
 
 class NetlistMaker(NetlistHelper):
 
-    def __init__(self, net):
+    def __init__(self, net, form='horizontal'):
 
         self.net = net
-    
-    def __call__(self, form='horizontal'):
 
         if form == 'horizontal':
-            dir = 'right'
+            self.dir = 'right'
         elif form == 'vertical':
-            dir = 'down'
+            self.dir = 'down'
         else:
             raise ValueError('Unknown form ' + form)
 
+    def __call__(self):
+
         n1 = self._node
         n2 = self._node        
-        return self.net._net_make(self, n2, n1, dir)    
+        return self.net._net_make(self, n2, n1, self.dir)    
