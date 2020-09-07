@@ -333,7 +333,8 @@ class Synthesis(object):
         for m, coeff in enumerate(reversed(coeffs)):
             n = len(coeffs) - m - 1            
             if n & 1 == 0:
-                net = parallel(net, self.seriesRL(sExpr(1 / coeff)))
+                if not (n == 0 and coeff == 0):
+                    net = parallel(net, self.seriesRL(sExpr(1 / coeff)))
             else:
                 net = series(net, self.parallelGC(sExpr(coeff)))
         return net                                     
