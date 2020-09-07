@@ -1,5 +1,7 @@
 class NetlistHelper(object):
 
+    evalf = False
+    
     @property 
     def _node(self):
 
@@ -20,3 +22,19 @@ class NetlistHelper(object):
         self._anon[kind] += 1
         return self._anon[kind]
     
+    def _netargs(self, net):
+
+        def process(arg):
+
+            if self.evalf:
+                arg = arg.evalf(n=self.evalf)
+
+            arg = str(arg)
+
+            # TODO: make more robust to catch expressions.
+            if ('(' in arg) or (')' in arg) or (' ' in arg) or (',' in arg) or ('*' in arg) or ('/' in arg):
+                return '{%s}' % arg
+            return arg
+
+        return ' '.join([process(arg) for arg in net.args])
+

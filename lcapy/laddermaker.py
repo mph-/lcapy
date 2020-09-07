@@ -4,10 +4,11 @@ from .netlisthelper import NetlistHelper
 
 class LadderMaker(NetlistHelper):
 
-    def __init__(self, net, form='ladder'):
+    def __init__(self, net, form='ladder', evalf=None):
 
         self.net = net
         self.form = form
+        self.evalf = evalf
         self.s = ''
         self.first_cpt = None
         self.first_series = None

@@ -89,17 +89,6 @@ class Network(object):
         # Hack, create ground reference.
         self._add('W %d 0' % (self._node - 1))
 
-    def _netargs(self):
-
-        def quote(arg):
-
-            # TODO: make more robust to catch expressions.
-            if ('(' in arg) or (')' in arg) or (' ' in arg) or (',' in arg) or ('*' in arg) or ('/' in arg):
-                return '{%s}' % arg
-            return arg
-
-        return ' '.join([quote(str(arg)) for arg in self.args])
-
     def _net_make(self, netlist, n1=None, n2=None, dir='right'):
 
         net = self
@@ -115,10 +104,10 @@ class Network(object):
             return '%s%s %s %s %s %s; %s' % (netname, netid,
                                              n1, n2, 
                                              net.netkeyword,
-                                             net._netargs(), dir)
+                                             netlist._netargs(net), dir)
         else:
             return '%s%s %s %s %s; %s' % (netname, netid,
-                                          n1, n2, net._netargs(), dir)
+                                          n1, n2, netlist._netargs(net), dir)
 
     @property 
     def _depths(self):
@@ -134,17 +123,21 @@ class Network(object):
         depths = self._depths
         return 1 + max(depths)
         
-    def netlist(self, form='horizontal'):
+    def netlist(self, form='horizontal', evalf=None):
         """Create a netlist.
 
-        `form` can be 'horizontal', 'vertical', or 'ladder'."""
+        `form` can be 'horizontal', 'vertical', or 'ladder'.
+
+        `evalf` can be False or an integer specifying the number of
+        decimal places used to evaluate floats.
+        """
 
         if form == 'ladder':
             from .laddermaker import LadderMaker
-            return LadderMaker(self, form=form)()
+            return LadderMaker(self, form=form, evalf=evalf)()
 
         from .netlistmaker import NetlistMaker        
-        return NetlistMaker(self, form=form)()
+        return NetlistMaker(self, form=form, evalf=evalf)()
 
     def pdb(self):
         """Enter the python debugger."""
@@ -152,17 +145,17 @@ class Network(object):
         import pdb; pdb.set_trace()
         return self
     
-    def sch(self, form):
+    def sch(self, form, evalf=False):
         """Convert a Network object into a Schematic object."""
 
-        netlist = self.netlist(form)
+        netlist = self.netlist(form=form, evalf=evalf)
         sch = Schematic()
         for net in netlist.split('\n'):
             sch.add(net)
 
         return sch
 
-    def draw(self, filename=None, form='horizontal', **kwargs):
+    def draw(self, filename=None, form='horizontal', evalf=False, **kwargs):
         """Draw schematic of network.
 
         filename specifies the name of the file to produce.  If None,
@@ -171,6 +164,9 @@ class Network(object):
         Note, if using Jupyter, then need to first issue command %matplotlib inline
 
         `form` is either 'horizontal', 'vertical', or 'ladder'.
+
+        `evalf` can be False or an integer specifying the number of
+        decimal places used to evaluate floats.
 
         `kwargs` include:
            label_ids: True to show component ids
@@ -202,7 +198,7 @@ class Network(object):
         if 'draw_nodes' not in kwargs:
             kwargs['draw_nodes'] = 'connections'
         
-        self.sch(form).draw(filename=filename, **kwargs)
+        self.sch(form=form, evalf=evalf).draw(filename=filename, **kwargs)
         
     @property
     def cct(self):

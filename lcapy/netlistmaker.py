@@ -2,9 +2,10 @@ from .netlisthelper import NetlistHelper
 
 class NetlistMaker(NetlistHelper):
 
-    def __init__(self, net, form='horizontal'):
+    def __init__(self, net, form='horizontal', evalf=None):
 
         self.net = net
+        self.evalf = evalf        
 
         if form == 'horizontal':
             self.dir = 'right'
