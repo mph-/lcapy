@@ -2014,6 +2014,26 @@ class Expr(ExprPrint, ExprMisc):
         coeffs = self.continued_fraction_inverse_coeffs()
         result = foo(coeffs)
         return self.__class__(result, **self.assumptions)
+
+
+def exprcontainer(arg, **assumptions):
+
+    if isinstance(arg, (ExprList, ExprTuple, ExprDict)):
+        return arg
+    elif isinstance(arg, list):
+        return ExprList(arg)
+    elif isinstance(arg, tuple):
+        return ExprTuple(arg)
+    elif isinstance(arg, dict):
+        return ExprDict(arg)    
+    elif isinstance(arg, np.ndarray):
+        from .vector import Vector
+        if arg.ndim > 1:
+            raise ValueError('Multidimensional arrays unsupported; convert to Matrix')
+        return Vector(arg)
+    
+    raise ValueError('Unsupported exprcontainer %s' % arg.__class__.name)
+
     
 def expr(arg, **assumptions):
     """Create Lcapy expression from arg.
@@ -2037,15 +2057,9 @@ def expr(arg, **assumptions):
     if isinstance(arg, Expr) and assumptions == {}:
         return arg
     
-    if isinstance(arg, (ExprList, ExprTuple, ExprDict)):
-        return arg
-    elif isinstance(arg, list):
-        return ExprList(arg)
-    elif isinstance(arg, tuple):
-        return ExprTuple(arg)
-    elif isinstance(arg, dict):
-        return ExprDict(arg)    
-
+    if not isinstance(arg, str) and hasattr(arg, '__iter__'):
+        return exprcontainer(arg)
+    
     expr = sympify(arg, **assumptions)
 
     symbols = expr.free_symbols
