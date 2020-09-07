@@ -7,6 +7,7 @@ Copyright 2016--2020 Michael Hayes, UCECE
 from __future__ import division
 import sympy as sym
 from sympy.core.mul import _unevaluated_Mul as uMul
+from sympy.core.add import _unevaluated_Add as uAdd
 from .sym import sympify, AppliedUndef
 
 class Pole(object):
@@ -215,6 +216,16 @@ def _tc2tf(zeros, poles, K=1, var=None):
 
     K = K.simplify()
     return uMul(K, *(zz + pp))
+
+
+def _pr2tf(poles, residues, var=None):
+    """Create a transfer function from lists of poles and residues.
+
+    """
+    poles = sympify(poles)
+    residues = sympify(residues)
+
+    return uAdd(*[r / (var - p) for r, p in zip(residues, poles)])
 
 
 def as_ratfun_delay(expr, var):

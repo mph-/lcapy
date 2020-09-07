@@ -9,14 +9,14 @@ from __future__ import division
 from .laplace import inverse_laplace_transform
 from .sym import ssym, tsym, j, pi
 from .vector import Vector
-from .ratfun import _zp2tf, Ratfun
+from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict
 from .functions import sqrt
 import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq
 
 
-__all__ = ('Hs', 'Is', 'Vs', 'Ys', 'Zs', 'zp2tf', 'tf')
+__all__ = ('Hs', 'Is', 'Vs', 'Ys', 'Zs', 'zp2tf', 'tf', 'pr2tf')
 
 
 class sExpr(Expr):
@@ -38,6 +38,32 @@ class sExpr(Expr):
             raise ValueError(
                 's-domain expression %s cannot depend on t' % self.expr)
 
+    @classmethod
+    def from_poles_residues(cls, poles, residues):
+        """Create a transfer function from lists of poles and residues.
+
+        See also from_zeros_poles_gain, from_numer_denom"""        
+
+        return cls(pr2tf(poles, residues, cls.var))
+
+    @classmethod
+    def from_zeros_poles_gain(cls, zeros, poles, K=1):
+        """Create a transfer function from lists of zeros and poles,
+        and from a constant gain.
+
+        See also from_poles_residues, from_numer_denom"""        
+
+        return cls(zp2tf(zeros, poles, K, cls.var))
+
+    @classmethod
+    def from_numer_denom(cls, numer, denom):
+        """Create a transfer function from lists of the coefficient
+        for the numerator and denominator.
+
+        See also from_zeros_poles_gain, from_poles_residues"""        
+
+        return cls(tf(numer, denom, cls.var))        
+        
     def tdifferentiate(self):
         """Differentiate in t-domain (multiply by s)."""
 
@@ -594,6 +620,14 @@ def zp2tf(zeros, poles, K=1, var=None):
     if var is None:
         var = ssym
     return Hs(_zp2tf(zeros, poles, K, var))
+
+
+def pr2tf(poles, residues, var=None):
+    """Create a transfer function from lists of poles and residues."""
+
+    if var is None:
+        var = ssym
+    return Hs(_pr2tf(poles, residues, var))
 
 
 def sexpr(arg, **assumptions):
