@@ -25,6 +25,7 @@ from .attrdict import AttrDict
 from .immitance import ImmitanceMixin
 from .impedance import Impedance
 from .admittance import Admittance
+from .matrix import Matrix
 from . import mnacpts
 from copy import copy
 from collections import OrderedDict
@@ -1005,10 +1006,10 @@ class NetlistMixin(object):
             Z = Matrix.zeros(len(ports))
             
             for col in range(len(ports)):
-                net.add('I_ %s %s {DiracDelta(t)}' % ports[col])
+                net.add('I_ %s %s {DiracDelta(t)}' % (ports[col][0], ports[col][1]))
 
                 for row in range(len(ports)):                
-                    Z[row, col] = Zs(net.Voc(ports[row])(s))
+                    Z[row, col] = Zs(net.Voc(ports[row][0], ports[row][1])(s))
 
                 net.remove('I_')
             return Z
