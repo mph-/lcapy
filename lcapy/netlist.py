@@ -975,6 +975,39 @@ class NetlistMixin(object):
         except ValueError:
             raise ValueError('Cannot create Z matrix')
 
+    def Zparamsn(self, *nodes):
+        """Create Z-parameters for N-port defined by list of node-pairs.
+
+        See also Zparams for a two port.
+
+        """
+
+        nodes = self._check_nodes(*nodes)
+        if len(nodes) % 2 == 1:
+            raise ValueError('Need an even number of nodes.')
+        ports = []
+        for m in range(len(nodes) // 2):
+            ports.append((nodes[m * 2], nodes[m * 2 + 1]))
+        
+        net = self.kill()
+        if '0' not in net.nodes:
+            net.add('W %s 0' % N1m)
+
+        try:
+
+            Z = Matrix.zeros(len(ports))
+            
+            for col in range(len(ports)):
+                net.add('I_ %s %s {DiracDelta(t)}' % (ports[col][0], ports[col][1]))
+
+                for row in range(len(ports)):                
+                    Z[row, col] = Zs(net.Voc(ports[row][0], ports[row][1])(s))
+
+                net.remove('I_')
+            return Z
+
+        except ValueError:
+            raise ValueError('Cannot create Z matrix')
 
     def Zparams3(self, N1p, N1m, N2p, N2m, N3p, N3m):
         """Create Z-parameters for three-port defined by nodes N1p, N1m, N2p,
@@ -990,7 +1023,6 @@ class NetlistMixin(object):
         See also Zparams for a two port.
 
         """
-        from .twoport import ZMatrix
 
         N1p, N1m, N2p, N2m, N3p, N3m = self._check_nodes(N1p, N1m,
                                                          N2p, N2m, N3p, N3m)
@@ -1015,7 +1047,7 @@ class NetlistMixin(object):
             return Z
 
         except ValueError:
-            raise ValueError('Cannot create Z matrix')                
+            raise ValueError('Cannot create Z matrix')                        
 
     def save(self, filename):
         """Save netlist to file."""

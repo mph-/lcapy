@@ -106,6 +106,10 @@ an answer that appears valid for DC.
 24. Support Impedance * Current -> Voltage
 , etc. 
 
+25. Polynodes?
+
+26. Generate n-port Z and Y matrices
+
 
 Testing
 =======
