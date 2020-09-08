@@ -806,11 +806,16 @@ expression.  There are many methods, some specifically for simple
 network such as R-L networks, and more general methods including
 Foster and Cauer synthesis.
 
-   >>> Impedance(3 * s / (6 * s**2 + 1)).network('cauerI')
-   C(2) | L(3)
+    >>> Z = (4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)
+    >>> n = Z.network('cauerI')
+    >>> n
+    ((C(1) + R(2)) | C(3)) + R(4)
+    >>> n.Z(s).canonical()
+    
+    :math:`\frac{4 s^{2} + 3 s + \frac{1}{6}}{s^{2} + \frac{2 s}{3}}`
 
-
-
+    >>> n.draw(form='ladder')
+          
    
   
 SymPy

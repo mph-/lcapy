@@ -141,8 +141,9 @@ class MNAMixin(object):
             # The default method, Gaussian elimination, is the fastest
             # but hangs on some matrices.
             # Comparative times for the testsuites are:
-            # GE 66, ADJ 73, LU 76.
-            Ainv = self._A.inv()
+            # GE 66, ADJ 73, LU 76. 
+            #Ainv = self._A.inv()           
+            Ainv = self._A.inv(method='ADJ')
         except ValueError:
             comment = ''
             if self.kind == 'dc':
