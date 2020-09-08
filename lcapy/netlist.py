@@ -972,7 +972,49 @@ class NetlistMixin(object):
             return Z
 
         except ValueError:
-            raise ValueError('Cannot create Z matrix')        
+            raise ValueError('Cannot create Z matrix')
+
+
+    def Zparams3(self, N1p, N1m, N2p, N2m, N3p, N3m):
+        """Create Z-parameters for three-port defined by nodes N1p, N1m, N2p,
+        N2m, N3p, and N3m, where:
+
+        I1 is the current flowing into N1p and out of N1m
+        I2 is the current flowing into N2p and out of N2m
+        I3 is the current flowing into N3p and out of N3m
+        V1 is V[N1p] - V[N1m]
+        V2 is V[N2p] - V[N2m]
+        V3 is V[N3p] - V[N3m]
+
+        See also Zparams for a two port.
+
+        """
+        from .twoport import ZMatrix
+
+        N1p, N1m, N2p, N2m, N3p, N3m = self._check_nodes(N1p, N1m,
+                                                         N2p, N2m, N3p, N3m)
+
+        ports = ((N1p, N1m), (N2p, N2m), (N3p, N3m))
+        
+        net = self.kill()
+        if '0' not in net.nodes:
+            net.add('W %s 0' % N1m)
+
+        try:
+
+            Z = Matrix.zeros(len(ports))
+            
+            for col in range(len(ports)):
+                net.add('I_ %s %s {DiracDelta(t)}' % ports[col])
+
+                for row in range(len(ports)):                
+                    Z[row, col] = Zs(net.Voc(ports[row])(s))
+
+                net.remove('I_')
+            return Z
+
+        except ValueError:
+            raise ValueError('Cannot create Z matrix')                
 
     def save(self, filename):
         """Save netlist to file."""
