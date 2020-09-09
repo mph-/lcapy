@@ -100,6 +100,12 @@ class Matrix(sym.Matrix):
         
         return self.applyfunc(simplify)
 
+    def subs(self, *args, **kwargs):
+        """Substitute variables in expression, see sympy.subs for usage."""
+
+        f = lambda x: expr(x).subs(*args, **kwargs).expr
+        return self.applyfunc(f)
+    
     @property
     def symbols(self):
 
