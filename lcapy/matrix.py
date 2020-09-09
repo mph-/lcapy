@@ -82,9 +82,9 @@ class Matrix(sym.Matrix):
     # TODO. There is probably a cunning way to automatically handle
     # the following.
 
-    def inv(self):
+    def inv(self, method='ADJ'):
 
-        return self.__class__(sym.Matrix(self).inv())
+        return self.__class__(sym.Matrix(self).inv(method=method))
 
     def det(self):
 
