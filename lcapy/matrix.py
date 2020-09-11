@@ -96,6 +96,21 @@ class Matrix(sym.Matrix):
 
     # TODO, either need to explicitly wrap methods or use some cunning implicit method.
 
+    def replace(self, query, value, map=False, simultaneous=True, exact=None):
+
+        try:
+            query = query.expr
+        except:
+            pass
+
+        try:
+            value = value.expr
+        except:
+            pass        
+
+        ret = super(Matrix, self).replace(query, value, map, simultaneous, exact)
+        return self.__class__(ret)
+
     def simplify(self):
         
         return self.applyfunc(simplify)
