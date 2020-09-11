@@ -170,12 +170,12 @@ class PolyphaseVoltageCurrentVector(PolyphaseVector):
     @property
     def V(self):
         N = self.N_phases
-        return PolyPhaseVoltageVector(self[0:N])
+        return PolyphaseVoltageVector(self[0:N])
 
     @property
     def I(self):
         N = self.N_phases
-        return PolyPhaseCurrentVector(self[N:])    
+        return PolyphaseCurrentVector(self[N:])    
 
     @property    
     def Va(self):
