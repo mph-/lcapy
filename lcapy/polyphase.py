@@ -177,7 +177,31 @@ class PolyphaseVoltageCurrentVector(PolyphaseVector):
         N = self.N_phases
         return PolyPhaseCurrentVector(self[N:])    
 
+    @property    
+    def Va(self):
+        return self.V[0]
 
+    @property    
+    def Vb(self):
+        return self.V[1]
+
+    @property    
+    def Vc(self):
+        return self.V[2]
+
+    @property    
+    def Ia(self):
+        return self.I[0]
+
+    @property    
+    def Ib(self):
+        return self.I[1]
+
+    @property    
+    def Ic(self):
+        return self.I[2]    
+
+    
 class LineVoltageCurrentVector(PolyphaseVoltageCurrentVector):
     """These are also known as phase to phase voltages."""
     pass
