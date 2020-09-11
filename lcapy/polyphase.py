@@ -56,7 +56,7 @@ class PhaseCurrentVector(PolyphaseCurrentVector, PolyphasePhase):
 
     def sequence(self):
         """Convert to sequence current vector."""        
-        return SequenceCurrentVector(super(PhaseCurrentVector, self).sequence())    
+        return SequenceCurrentVector(super(PhaseCurrentVector, self).sequence())
 
     def line(self):
         """Convert to line current vector."""
@@ -68,7 +68,7 @@ class SequenceVoltageVector(PolyphaseVoltageVector, PolyphaseSequence):
 
     def phase(self):
         """Convert to phase voltage vector."""                
-        return PhaseVoltageVector(super(SequenceVoltageVector, self).phase())    
+        return PhaseVoltageVector(super(SequenceVoltageVector, self).phase())
 
     def line(self):
         """Convert to line voltage vector."""        
@@ -177,6 +177,26 @@ class PolyphaseVoltageCurrentVector(PolyphaseVector):
         N = self.N_phases
         return PolyphaseCurrentVector(self[N:])    
 
+    
+class LineVoltageCurrentVector(PolyphaseVoltageCurrentVector):
+    """These are also known as phase to phase voltages."""
+    pass
+
+
+class PhaseVoltageCurrentVector(PolyphaseVoltageCurrentVector):
+    
+    def sequence(self):
+        """Convert to sequence voltageCurrent vector."""
+
+        A = polyphase_decompose_matrix(len(self))
+        return SequenceVoltageCurrentVector(self.vstack(A * self.V, A * self.I))
+
+    def line(self):
+        """Convert to line voltageCurrent vector."""        
+        D = phase_to_line_matrix(len(self))
+
+        return LineVoltageCurrentVector((self.vstack(D * self.V, D * self.I)))
+
     @property    
     def Va(self):
         return self.V[0]
@@ -201,25 +221,6 @@ class PolyphaseVoltageCurrentVector(PolyphaseVector):
     def Ic(self):
         return self.I[2]    
 
-    
-class LineVoltageCurrentVector(PolyphaseVoltageCurrentVector):
-    """These are also known as phase to phase voltages."""
-    pass
-
-
-class PhaseVoltageCurrentVector(PolyphaseVoltageCurrentVector):
-    
-    def sequence(self):
-        """Convert to sequence voltageCurrent vector."""
-
-        A = polyphase_decompose_matrix(len(self))
-        return SequenceVoltageCurrentVector(self.vstack(A * self.V, A * self.I))
-
-    def line(self):
-        """Convert to line voltageCurrent vector."""        
-        D = phase_to_line_matrix(len(self))
-
-        return LineVoltageCurrentVector((self.vstack(D * self.V, D * self.I)))
 
 class SequenceVoltageCurrentVector(PolyphaseVoltageCurrentVector):
 
@@ -233,3 +234,35 @@ class SequenceVoltageCurrentVector(PolyphaseVoltageCurrentVector):
     def line(self):
         """Convert to line voltageCurrent vector."""        
         return self.phase().line()    
+                                     
+    @property    
+    def V0(self):
+        """Zero sequence voltage component"""
+        return self.V[0]
+
+    @property    
+    def V1(self):
+        """Positive sequence voltage component"""
+        return self.V[1]
+
+    @property    
+    def V2(self):
+        """Negative sequence voltage component"""
+        return self.V[2]
+
+    @property    
+    def I0(self):
+        """Zero sequence current component"""
+        return self.I[0]
+
+    @property    
+    def I1(self):
+        """Positive sequence current component"""
+        return self.I[1]
+
+    @property    
+    def I2(self):
+        """Negative sequence current component"""
+        return self.I[2]    
+
+                                     
