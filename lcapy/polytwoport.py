@@ -1,5 +1,5 @@
 from .matrix import Matrix
-from .expr import expr
+from .expr import expr, Expr
 from .polyphase import polyphase_decompose_matrix, polyphase_compose_matrix
 
 class Polytwoport(Matrix):
@@ -73,6 +73,9 @@ class Polytwoport(Matrix):
 
     def transform(self, W=None, Winv=None, alpha=None):
 
+        if isinstance(alpha, Expr):
+            alpha = alpha.expr
+
         if W is None:
             W = polyphase_decompose_matrix(self.N, alpha=alpha)
         
@@ -86,4 +89,26 @@ class Polytwoport(Matrix):
         new.C = Winv * self.C * W
         new.D = Winv * self.D * W
 
-        return new
+        return new.alpha_simplify(alpha)
+
+    def alpha_simplify(self, alpha=None):
+
+        if self.N != 3:
+            return self
+        
+        return alpha_simplify3(self, alpha)
+
+    
+def alpha_simplify3(self, alpha=None):    
+        
+    if alpha is None:
+        alpha = expr('alpha')
+        
+    new1 = self.expand()
+    new2 = new1.replace(alpha**4, alpha)
+    new3 = new2.replace(alpha**3, 1)
+    new4 = new3.replace(alpha**2, -1 - alpha)
+    new = new4.simplify()
+    
+    return new
+    
