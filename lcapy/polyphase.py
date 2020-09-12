@@ -138,7 +138,7 @@ def phase_to_line_matrix(N=3):
     return a
 
 
-def polyphase_decompose_matrix(N=3, alpha=None):
+def polyphase_decompose_matrix(N=3, expand=False):
     """Matrix to decompose vector of phase components into the symmetrical
     sequence components.  The matrix dimension is `N` x `N`.  This
     matrix is equivalent to IDFTmatrix.  The transformation is only
@@ -146,11 +146,11 @@ def polyphase_decompose_matrix(N=3, alpha=None):
     required for negative frequency components.
 
     """
-
-    if alpha is None:
-        alpha = exp(j * 2 * pi / N)
+    
+    if expand:
+        alpha = polyphase_alpha(N)
     else:
-        alpha = expr(alpha)
+        alpha = expr('alpha')
 
     a = Matrix.zeros(N)
     
@@ -160,7 +160,7 @@ def polyphase_decompose_matrix(N=3, alpha=None):
     return a
 
 
-def polyphase_compose_matrix(N=3, alpha=None, invalpha=False):
+def polyphase_compose_matrix(N=3, expand=False):
     """Matrix to compose symmetrical sequence components into a vector of
     phase components.  The matrix dimension is `N` x `N`.  This matrix
     is equivalent to DFTmatrix.  The transformation is only valid for
@@ -169,26 +169,22 @@ def polyphase_compose_matrix(N=3, alpha=None, invalpha=False):
 
     """
 
-    if alpha is None:
-        alpha = exp(j * 2 * pi / N)
+    if expand:
+        alpha = polyphase_alpha(N)
     else:
-        alpha = expr(alpha)    
+        alpha = expr('alpha')
 
     a = Matrix.zeros(N)
     
     for row in range(N):
         for col in range(N):
-            if invalpha:
-                a[row, col] = (1 / alpha) ** ((row * col) % N)
-            else:
-                a[row, col] = alpha ** ((-row * col) % N)
+            a[row, col] = alpha ** ((-row * col) % N)
     return a
 
 
 def polyphase_alpha(N):
 
     return exp(-j * 2 * pi / N)
-
 
 
 class PolyphaseVoltageCurrentVector(PolyphaseVector):

@@ -71,16 +71,13 @@ class Polytwoport(Matrix):
     def D(self, D):
         self[self.N:, self.N:] = D
 
-    def transform(self, W=None, Winv=None, alpha=None):
-
-        if isinstance(alpha, Expr):
-            alpha = alpha.expr
+    def transform(self, W=None, Winv=None):
 
         if W is None:
-            W = polyphase_decompose_matrix(self.N, alpha=alpha)
+            W = polyphase_decompose_matrix(self.N)
         
         if Winv is None:
-            Winv = polyphase_decompose_matrix(self.N, alpha=alpha)
+            Winv = polyphase_decompose_matrix(self.N)
 
         new = self * 0
         
@@ -89,7 +86,7 @@ class Polytwoport(Matrix):
         new.C = Winv * self.C * W
         new.D = Winv * self.D * W
 
-        return new.alpha_simplify(alpha)
+        return new.alpha_simplify()
 
     def alpha_simplify(self, alpha=None):
 
