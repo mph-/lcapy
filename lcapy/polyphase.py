@@ -157,7 +157,7 @@ def polyphase_decompose_matrix(N=3, expand=False):
     
     for row in range(N):
         for col in range(N):
-            a[row, col] = alpha ** ((row * col) % N)
+            a[row, col] = alpha ** ((row * col) % N) / N
     return a
 
 
@@ -329,3 +329,15 @@ class SequenceVoltageCurrentVector(PolyphaseVoltageCurrentVector):
         return Iphasor(self.I[2])
 
                                      
+def alpha_simplify3(self, alpha=None):    
+        
+    if alpha is None:
+        alpha = expr('alpha')
+        
+    new1 = self.expand()
+    new2 = new1.replace(alpha**4, alpha)
+    new3 = new2.replace(alpha**3, 1)
+    new4 = new3.replace(alpha**2, -1 - alpha)
+    new = new4.simplify()
+    
+    return new
