@@ -258,32 +258,38 @@ This calculates the driving-point admittance that would be measured across the n
 `N2p`, and `N2m` where `V1 = V[N1p] - V[N1m]` and `V2 = V[N2p] -
 V[N2m]`.
 
-`Aparams(N1p, N1m, N2p, N2m)` returns the A-parameters matrix for the
+`Aparams(N1p, N1m, N2p, N2m)` returns the two-port A-parameters matrix for the
 two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1`
 is the current flowing into `N1p` and out of `N1m`, `I2` is the
 current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`,
 and `V2 = V[N2p] - V[N2m]`.   See :ref:`A-parameters`.
 
-`Bparams(N1p, N1m, N2p, N2m)` returns the B-parameters matrix.  See
+`Bparams(N1p, N1m, N2p, N2m)` returns the two-port B-parameters matrix.  See
 :ref:`B-parameters`.
 
-`Gparams(N1p, N1m, N2p, N2m)` returns the G-parameters matrix.  See
+`Gparams(N1p, N1m, N2p, N2m)` returns the two-port G-parameters matrix.  See
 :ref:`G-parameters`.
 
-`Hparams(N1p, N1m, N2p, N2m)` returns the H-parameters matrix.  See
+`Hparams(N1p, N1m, N2p, N2m)` returns the two-port H-parameters matrix.  See
 :ref:`H-parameters`.
 
-`Sparams(N1p, N1m, N2p, N2m)` returns the S-parameters matrix.  See
+`Sparams(N1p, N1m, N2p, N2m)` returns the two-port S-parameters matrix.  See
 :ref:`S-parameters`.
 
-`Tparams(N1p, N1m, N2p, N2m)` returns the T-parameters matrix.  See
+`Tparams(N1p, N1m, N2p, N2m)` returns the two-port T-parameters matrix.  See
 :ref:`T-parameters`.
 
-`Yparams(N1p, N1m, N2p, N2m)` returns the Y-parameters matrix.  See
+`Yparams(N1p, N1m, N2p, N2m)` returns the two-port Y-parameters matrix.  See
 :ref:`Y-parameters`.
 
-`Zparams(N1p, N1m, N2p, N2m)` returns the Z-parameters matrix.  See
+`Zparams(N1p, N1m, N2p, N2m)` returns the two-port Z-parameters matrix.  See
 :ref:`Z-parameters`.
+
+`Yparamsn(N1p, N1m, N2p, N2m, ...)` returns the n-port Y-parameters matrix.  See
+:ref:`Y-parameters`.
+
+`Zparamsn(N1p, N1m, N2p, N2m, ...)` returns the n-port Z-parameters matrix.  See
+:ref:`Z-parameters`.     
    
 
 Nodes
