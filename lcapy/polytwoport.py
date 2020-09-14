@@ -1,3 +1,12 @@
+"""This module provides preliminary support for polyphase two-ports.
+For three-phase systems, these are actually six-ports.  They extend
+the concept of cascade matrices (ABCD matrices) for polyphase systems.
+
+Copyright 2020 Michael Hayes, UCECE
+
+"""
+
+
 from .matrix import Matrix
 from .expr import expr, Expr
 from .polyphase import polyphase_decompose_matrix, polyphase_compose_matrix
@@ -5,31 +14,31 @@ from .polyphase import polyphase_decompose_matrix, polyphase_compose_matrix
 class Polytwoport(Matrix):
 
     @classmethod
-    def series(cls, Za, Zb, Zc, Zn):
+    def series(cls, Za, Zb, Zc, Zg=0):
 
         # TODO: generalise for N phases
-        Za, Zb, Zc, Zn = expr(Za), expr(Zb), expr(Zc), expr(Zn)
+        Za, Zb, Zc, Zg = expr(Za), expr(Zb), expr(Zc), expr(Zg)
         
-        return cls(((1, 0, 0, Za + Zn, Zn, Zn),
-                    (0, 1, 0, Zn, Zb + Zn, Zn),
-                    (0, 0, 1, Zn, Zn, Zc + Zn),
+        return cls(((1, 0, 0, Za + Zg, Zg, Zg),
+                    (0, 1, 0, Zg, Zb + Zg, Zg),
+                    (0, 0, 1, Zg, Zg, Zc + Zg),
                     (0, 0, 0, 1, 0, 0),
                     (0, 0, 0, 0, 1, 0),
                     (0, 0, 0, 0, 0, 1)))
 
     
     @classmethod
-    def shunt(cls, Yan, Ybn, Ycn):
+    def shunt(cls, Yag, Ybg, Ycg):
 
         # TODO: generalise for N phases        
-        Yan, Ybn, Ycn = expr(Yan), expr(Ybn), expr(Ycn)
+        Yag, Ybg, Ycg = expr(Yag), expr(Ybg), expr(Ycg)
 
         return cls(((1, 0, 0, 0, 0, 0),
                     (0, 1, 0, 0, 0, 0),
                     (0, 0, 1, 0, 0, 0),
-                    (Yan, 0, 0, 1, 0, 0),
-                    (0, Ybn, 0, 0, 1, 0),
-                    (0, 0, Ycn, 0, 0, 1)))
+                    (Yag, 0, 0, 1, 0, 0),
+                    (0, Ybg, 0, 0, 1, 0),
+                    (0, 0, Ycg, 0, 0, 1)))
 
     @property
     def N_phases(self):
@@ -94,18 +103,3 @@ class Polytwoport(Matrix):
             return self
         
         return alpha_simplify3(self, alpha)
-
-    
-def alpha_simplify3(self, alpha=None):    
-        
-    if alpha is None:
-        alpha = expr('alpha')
-        
-    new1 = self.expand()
-    new2 = new1.replace(alpha**4, alpha)
-    new3 = new2.replace(alpha**3, 1)
-    new4 = new3.replace(alpha**2, -1 - alpha)
-    new = new4.simplify()
-    
-    return new
-    
