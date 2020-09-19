@@ -26,10 +26,12 @@ class Polytwoport(Matrix):
         args = [expr(arg) for arg in args]
         N = len(args)
 
+        I = Matrix.eye(N)        
+        
         obj = cls(Matrix.zeros(2 * N))
-        obj.A = Matrix.eye(N)
+        obj.A = I
         obj.B = Matrix.diag(args)
-        obj.D = Matrix.eye(N)
+        obj.D = I
         return obj
 
     @classmethod
@@ -40,18 +42,25 @@ class Polytwoport(Matrix):
 
         """
 
-        args = [expr(arg) for arg in args]
+        args = [expr(arg).expr for arg in args]        
         N = len(args)
 
-        A = Matrix.eye(N)
-        B = A * 0
-        C = A * 0        
-        D = Matrix.diag(args)        
+        Ysum = Add(*args)        
 
+        I = Matrix.eye(N)        
+        C = Matrix.zeros(N)
+
+        for i in range(N):
+            for j in range(N):
+                if i == j:
+                    C[i, j] = args[i]
+                else:
+                    C[i, j] = - args[i] * args[j] / Ysum
+        
         obj = cls(Matrix.zeros(2 * N))
-        obj.A = Matrix.eye(N)
-        obj.C = Matrix.diag(args)
-        obj.D = Matrix.eye(N)
+        obj.A = I
+        obj.C = C
+        obj.D = I
         return obj
 
     @classmethod
@@ -76,10 +85,10 @@ class Polytwoport(Matrix):
         
         obj = cls(Matrix.zeros(2 * N))
         obj.A = I
-        obj.B = Matrix((( Yas * d1,  -Yas * Ybs, -Yas * Ycs),
+        obj.B = I * 0
+        obj.C = Matrix((( Yas * d1,  -Yas * Ybs, -Yas * Ycs),
                         (-Yas * Ybs,  Ybs * d1,  -Ybs * Ycs),
                         (-Yas * Ycs, -Ybs * Ycs,  Ycs * d1))) / d
-        obj.C = I * 0
         obj.D = I
         return obj
         
@@ -123,7 +132,7 @@ class Polytwoport(Matrix):
     def D(self, D):
         self[self.N:, self.N:] = D
 
-    def transform(self, W=None, Winv=None):
+    def transform(self, W=None, Winv=None, simplify=True):
 
         if W is None:
             W = polyphase_decompose_matrix(self.N)
@@ -138,7 +147,10 @@ class Polytwoport(Matrix):
         new.C = Winv * self.C * W
         new.D = Winv * self.D * W
 
-        return new.alpha_simplify()
+        if simplify:
+            new = new.alpha_simplify()
+        
+        return new
 
     def alpha_simplify(self, alpha=None):
 
