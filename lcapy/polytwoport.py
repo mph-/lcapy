@@ -76,9 +76,9 @@ class Polytwoport(Matrix):
         
         obj = cls(Matrix.zeros(2 * N))
         obj.A = I
-        obj.B = Matrix(((d1 * Yas, -Yas * Ybs, -Yas * Ycs),
-                        (Yas * Ybs, Ybs * d1, Ybs * Ycs),
-                        (Yas * Ycs, Ybs * Ycs, Ycs * d1))) / d
+        obj.B = Matrix((( Yas * d1,  -Yas * Ybs, -Yas * Ycs),
+                        (-Yas * Ybs,  Ybs * d1,  -Ybs * Ycs),
+                        (-Yas * Ycs, -Ybs * Ycs,  Ycs * d1))) / d
         obj.C = I * 0
         obj.D = I
         return obj
