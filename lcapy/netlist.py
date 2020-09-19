@@ -839,7 +839,7 @@ class NetlistMixin(object):
             net.add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
             # A21 = I1 / V2 with I2 = 0
-            # Apply I1 and measure I2 with port 2 open-circuit
+            # Apply I1 and measure V2 with port 2 open-circuit
             try:
                 A21 = Ys(-1 / net.Voc(N2p, N2m)(s))                
             except ValueError:

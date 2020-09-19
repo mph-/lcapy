@@ -10,36 +10,79 @@ Copyright 2020 Michael Hayes, UCECE
 from .matrix import Matrix
 from .expr import expr, Expr
 from .polyphase import polyphase_decompose_matrix, polyphase_compose_matrix
+from .polyphase import alpha_simplify3
+from sympy import Add
 
 class Polytwoport(Matrix):
 
     @classmethod
-    def series(cls, Za, Zb, Zc, Zg=0):
-
-        # TODO: generalise for N phases
-        Za, Zb, Zc, Zg = expr(Za), expr(Zb), expr(Zc), expr(Zg)
+    def series(cls, *args):
+        """The args are series impedances, for example:
         
-        return cls(((1, 0, 0, Za + Zg, Zg, Zg),
-                    (0, 1, 0, Zg, Zb + Zg, Zg),
-                    (0, 0, 1, Zg, Zg, Zc + Zg),
-                    (0, 0, 0, 1, 0, 0),
-                    (0, 0, 0, 0, 1, 0),
-                    (0, 0, 0, 0, 0, 1)))
+         X = Polytwoport.series('Za', 'Zb', 'Zc')
 
-    
+        """
+
+        args = [expr(arg) for arg in args]
+        N = len(args)
+
+        obj = cls(Matrix.zeros(2 * N))
+        obj.A = Matrix.eye(N)
+        obj.B = Matrix.diag(args)
+        obj.D = Matrix.eye(N)
+        return obj
+
     @classmethod
-    def shunt(cls, Yag, Ybg, Ycg):
+    def shunt(cls, *args):
+        """The args are shunt admittances to the common node, for example:
+        
+         X = Polytwoport.shunt('Ya', 'Yb', 'Yc')
 
-        # TODO: generalise for N phases        
-        Yag, Ybg, Ycg = expr(Yag), expr(Ybg), expr(Ycg)
+        """
 
-        return cls(((1, 0, 0, 0, 0, 0),
-                    (0, 1, 0, 0, 0, 0),
-                    (0, 0, 1, 0, 0, 0),
-                    (Yag, 0, 0, 1, 0, 0),
-                    (0, Ybg, 0, 0, 1, 0),
-                    (0, 0, Ycg, 0, 0, 1)))
+        args = [expr(arg) for arg in args]
+        N = len(args)
 
+        A = Matrix.eye(N)
+        B = A * 0
+        C = A * 0        
+        D = Matrix.diag(args)        
+
+        obj = cls(Matrix.zeros(2 * N))
+        obj.A = Matrix.eye(N)
+        obj.C = Matrix.diag(args)
+        obj.D = Matrix.eye(N)
+        return obj
+
+    @classmethod
+    def star(cls, *args):
+        """The args are shunt admittances to the common node, for example:
+        
+         X = Polytwoport.star('Yas', 'Ybs', 'Ycs', 'Ysg')
+
+        """
+
+        args = [expr(arg).expr for arg in args]
+        N = len(args) - 1
+
+        if N != 3:
+            raise ValueError('Can only handle N=3')
+
+        I = Matrix.eye(N)
+
+        d1 = Add(*args[0:-1])        
+        d = Add(*args)
+        Yas, Ybs, Ycs, Ysg = args
+        
+        obj = cls(Matrix.zeros(2 * N))
+        obj.A = I
+        obj.B = Matrix(((d1 * Yas, -Yas * Ybs, -Yas * Ycs),
+                        (Yas * Ybs, Ybs * d1, Ybs * Ycs),
+                        (Yas * Ycs, Ybs * Ycs, Ycs * d1))) / d
+        obj.C = I * 0
+        obj.D = I
+        return obj
+        
     @property
     def N_phases(self):
         return self.shape[0] // 2
