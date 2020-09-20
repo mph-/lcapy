@@ -16,7 +16,7 @@ from sympy import Add
 class Polytwoport(Matrix):
 
     @classmethod
-    def series(cls, *args):
+    def series(cls, *args, Zn=0):
         """The args are series impedances, for example:
         
          X = Polytwoport.series('Za', 'Zb', 'Zc')
@@ -26,11 +26,13 @@ class Polytwoport(Matrix):
         args = [expr(arg) for arg in args]
         N = len(args)
 
+        Zn = expr(Zn).expr
+        
         I = Matrix.eye(N)        
         
         obj = cls(Matrix.zeros(2 * N))
         obj.A = I
-        obj.B = Matrix.diag(args)
+        obj.B = Matrix.diag(args) + Matrix.ones(N) * Zn
         obj.D = I
         return obj
 

@@ -991,7 +991,7 @@ class NetlistMixin(object):
         
         net = self.kill()
         if '0' not in net.nodes:
-            net.add('W %s 0' % N1m)
+            net.add('W %s 0' % nodes[1])
 
         try:
 
@@ -1048,7 +1048,7 @@ class NetlistMixin(object):
         
         net = self.kill()
         if '0' not in net.nodes:
-            net.add('W %s 0' % N1m)
+            net.add('W %s 0' % nodes[1])
 
         try:
 
