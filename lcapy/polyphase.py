@@ -191,6 +191,11 @@ def polyphase_alpha(N):
 class PolyphaseVoltageCurrentVector(PolyphaseVector):
     """This is a stacked vector of voltages and currents."""
 
+    @classmethod
+    def from_voltage_current(cls, V, I):
+        """Create stacked voltage/current vector."""
+        return cls(V.vstack(V, I))
+
     @property
     def N_phases(self):
         return self.shape[0] // 2
@@ -198,7 +203,7 @@ class PolyphaseVoltageCurrentVector(PolyphaseVector):
     @property
     def N(self):
         return self.N_phases
-    
+
     
 class LineVoltageCurrentVector(PolyphaseVoltageCurrentVector):
     """These are also known as phase to phase voltages/currents."""
@@ -242,13 +247,14 @@ class PhaseVoltageCurrentVector(PolyphaseVoltageCurrentVector):
         """Convert to sequence voltageCurrent vector."""
 
         A = polyphase_decompose_matrix(self.N)
-        return SequenceVoltageCurrentVector(self.vstack(A * self.V, A * self.I))
-
+        return SequenceVoltageCurrentVector.from_voltage_current(A * self.V,
+                                                                 A * self.I)
     def line(self):
         """Convert to line voltageCurrent vector."""        
         D = phase_to_line_matrix(self.N)
 
-        return LineVoltageCurrentVector((self.vstack(D * self.V, D * self.I)))
+        return LineVoltageCurrentVector.from_voltage_current(D * self.V,
+                                                             D * self.I)
 
     @property    
     def Va(self):
@@ -292,11 +298,13 @@ class SequenceVoltageCurrentVector(PolyphaseVoltageCurrentVector):
 
         A = polyphase_compose_matrix(self.N)
         
-        return PhaseVoltageCurrentVector((self.vstack(A * self.V, A * self.I)))
-
+        return PhaseVoltageCurrentVector.from_voltage_current(A * self.V,
+                                                              A * self.I)
+    
     def line(self):
         """Convert to line voltageCurrent vector."""        
-        return LineVoltageCurrentVector(self.vstack(self.V.line(), self.I.line()))
+        return LineVoltageCurrentVector.from_voltage_current(self.V.line(),
+                                                             self.I.line())
                                      
     @property    
     def V0(self):
