@@ -272,12 +272,12 @@ class Ht(tExpr):
         self._laplace_conjugate_class = Hs
         self._fourier_conjugate_class = Hf
 
-def texpr(arg):
+def texpr(arg, **assumptions):
     """Create tExpr object.  If `arg` is tsym return t"""
 
     if arg is tsym:
         return t
-    return tExpr(arg)
+    return tExpr(arg, **assumptions)
 
 from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr
 from .fexpr import Hf, If, Vf, Yf, Zf, fExpr
