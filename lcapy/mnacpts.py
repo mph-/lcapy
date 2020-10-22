@@ -812,12 +812,19 @@ class VCVS(DependentSource):
             cct._B[n2, m] -= 1
             cct._C[m, n2] -= 1
 
-        A = cExpr(self.args[0]).expr
-        
+        Ad = cExpr(self.args[0]).expr
+        if len(self.args) > 1:
+            Ac = cExpr(self.args[1]).expr
+        else:
+            Ac = 0
+
+        Ap = (Ac / 2 + Ad)
+        Am = (Ac / 2 - Ad)        
+            
         if n3 >= 0:
-            cct._C[m, n3] -= A
+            cct._C[m, n3] -= Ap
         if n4 >= 0:
-            cct._C[m, n4] += A
+            cct._C[m, n4] -= Am
 
     def _kill(self):
         newopts = self.opts.copy()
