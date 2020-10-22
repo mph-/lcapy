@@ -48,6 +48,12 @@ module = sys.modules[__name__]
 # Lcapy uses this information to position the second node with respect
 # to the first.   Circuitikz then infers the rotation.
 
+def check_boolean(value):
+
+    if value not in (True, False, 'none', None, 'true', 'false'):
+        raise ValueError('Unexpected Boolean value %s' % value)
+    return value in (True, 'true')
+
 
 class Cpt(object):
 
@@ -830,11 +836,9 @@ class Cpt(object):
     def label(self, keys=('l', 'l^', 'l_'), default=True, **kwargs):
 
         label_values = kwargs.get('label_values', True)
-        if label_values == 'none':
-            label_values = False        
+        label_values = check_boolean(label_values)
         label_ids = kwargs.get('label_ids', True)
-        if label_ids == 'none':
-            label_ids = False
+        label_ids = check_boolean(label_ids)        
 
         label_str = ''
         if label_ids is True:
@@ -866,11 +870,9 @@ class Cpt(object):
         # TODO merge with label
 
         label_values = kwargs.get('label_values', True)
-        if label_values == 'none':
-            label_values = False                
+        label_values = check_boolean(label_values)                
         label_ids = kwargs.get('label_ids', True)
-        if label_ids == 'none':
-            label_ids = False        
+        label_ids = check_boolean(label_ids)        
 
         # Generate default label.
         if (label_ids and label_values and self.id_label != '' 
