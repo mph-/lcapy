@@ -165,9 +165,25 @@ The component type is specified by the first letter(s) of the
  
    `Cname Np Nm C v0`   Here `v0` is the voltage across the capacitor.  If this is specified then the circuit is solved as an initial value problem.
 
-- Voltage-controlled voltage source (VCVS) of gain H with controlling nodes Nip and Nim:
+- Voltage-controlled voltage source (VCVS) of voltage gain E with controlling nodes Nip and Nim:
 
-   `Ename Np Nm Nip Nim H`
+   `Ename Np Nm Nip Nim E`
+
+- Opamp of differential gain Ad and common-mode gain Ac (default 0) with controlling nodes Nip and Nim.   The common-mode voltage is with respect to node Nm:
+
+   `Ename Np Nm opamp Nip Nim Ad Ac`    
+
+- Current-controlled current source (CCVS) of current gain F.  The control current is defined as the current flowing through the voltage souce Vcontrol.
+
+   `Fname Np Nm Vcontrol F`
+   
+- Voltage-controlled current source (VCCS) of transadmittance G with controlling nodes Nip and Nim:
+
+   `Gname Np Nm Nip Nim G`
+
+- Current-controlled voltage source (VCCS) of transimpedance H.  The control current is defined as the current flowing through the voltage souce Vcontrol.
+
+   `Hname Np Nm Vcontrol H`   
 
 - Ideal transformer of turns ratio a:
 
