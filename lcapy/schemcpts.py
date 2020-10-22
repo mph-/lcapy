@@ -830,10 +830,14 @@ class Cpt(object):
     def label(self, keys=('l', 'l^', 'l_'), default=True, **kwargs):
 
         label_values = kwargs.get('label_values', True)
-        label_ids = kwargs.get('label_ids', True)        
+        if label_values == 'none':
+            label_values = False        
+        label_ids = kwargs.get('label_ids', True)
+        if label_ids == 'none':
+            label_ids = False
 
         label_str = ''
-        if label_ids:
+        if label_ids is True:
             label_str = self.id_label
         if label_values and self.value_label != '':
             label_str = self.value_label        
@@ -862,7 +866,11 @@ class Cpt(object):
         # TODO merge with label
 
         label_values = kwargs.get('label_values', True)
+        if label_values == 'none':
+            label_values = False                
         label_ids = kwargs.get('label_ids', True)
+        if label_ids == 'none':
+            label_ids = False        
 
         # Generate default label.
         if (label_ids and label_values and self.id_label != '' 
