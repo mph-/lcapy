@@ -12,4 +12,4 @@ W 1 1_2; right
 P 1_2 0; down
 W 0_1 0_2; right
 W 0_2 0; right
-; draw_nodes=connections, label_ids=none, label_nodes=none
+; draw_nodes=connections, label_ids=none, label_nodes=primary
