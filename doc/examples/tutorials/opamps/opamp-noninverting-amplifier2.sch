@@ -1,4 +1,4 @@
-E 1 0 opamp 3 2 Ad; right
+E 1 0 opamp 3 2 Ad Ac; right
 W 2 2_1; down
 R1 2_1 0_2 R1; down
 R2 2_1 1_1 R2; right

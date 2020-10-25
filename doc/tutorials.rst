@@ -5,7 +5,7 @@ Tutorials
 Opamps
 ======
 
-An opamp is represented by a voltage controlled voltage source,  The netlist has the form
+An ideal opamp is represented by a voltage controlled voltage source,  The netlist has the form
 
    >>> E out+ gnd opamp in+ in-  Ac  Ad
 
@@ -17,13 +17,13 @@ Non-inverting amplifier
 
    >>> from lcapy import Circuit, t, oo
    >>> a = Circuit("""
-   ... E 1 0 opamp 3 2 Ad Ac; right
+   ... E 1 0 opamp 3 2 Ad; right
    ... W 2 2_1; down
    ... R1 2_1 0_2 R1; down
    ... R2 2_1 1_1 R2; right
    ... W 1 1_1; down
    ... W 3_1 3_2; down
-   ... V1 3_2 0_3  Vs; down
+   ... Vs 3_2 0_3 Vs; down
    ... W 0_3 0_1; down
    ... W 3_1 3_3; right
    ... W 3_3 3; right
@@ -35,29 +35,78 @@ Non-inverting amplifier
    >>> a.draw()
 
 .. image:: examples/tutorials/opamps/opamp-noninverting-amplifier1.png
-   :width: 9cm
+   :width: 12cm
 
 The output voltage (at node 1) can be found using::           
 
    >>> Vo = a[1].V(t)
    >>> Vo.pprint()
+   Vₛ⋅(A_d⋅R₁ + A_d⋅R₂)
+   ────────────────────
+      A_d⋅R₁ + R₁ + R₂
+
+When the open-loop differential gain is infinite, the gain just depends on the resistor values::      
+           
+   >>> Vo.limit('Ad', oo).pprint()
+   Vₛ⋅(R₁ + R₂)
+   ────────────
+        R₁     
+
+Let's now add some common-mode gain to the opamp by overriding the `E` component::
+
+   >>> b = a.copy()
+   >>> b.add('E 1 0 opamp 3 2 Ad Ac; right')
+           
+The output voltage (at node 1) is now::           
+
+   >>> Vo = b[1].V(t)
+   >>> Vo.pprint()
    Vₛ⋅(A_c⋅R₁ + A_c⋅R₂ + 2⋅A_d⋅R₁ + 2⋅A_d⋅R₂)
    ──────────────────────────────────────────
         -A_c⋅R₁ + 2⋅A_d⋅R₁ + 2⋅R₁ + 2⋅R₂
 
-This can be simplified by setting the open-loop common-mode gain to zero::
+Setting the open-loop common-mode gain to zero gives the same result as before::
         
    >>> Vo.limit('Ac', 0).pprint()
    A_d⋅R₁⋅Vₛ + A_d⋅R₂⋅Vₛ
    ─────────────────────
       A_d⋅R₁ + R₁ + R₂
 
-When the open-loop differnential gain is infinite, the gain just depends on the resistor values::      
+When the open-loop differential gain is infinite, the common-mode gain
+of the opamp is insignificant and the gain of the amplifier just
+depends on the resistor values::
            
    >>> Vo.limit('Ad', oo).pprint()
    Vₛ⋅(R₁ + R₂)
    ────────────
         R₁     
+
+Let's now consider the input impedance of the amplifier::
+
+   >>> a.impedance(3, 0).pprint()
+   0
+
+This is not the desired answer since node 3 is shorted to node 0 by the voltage source `Vs`.  If we try to remove this, we get::
+
+   >>> c = a.copy()
+   >>> c.remove('Vs')
+   >>> c.impedance(3, 0).pprint()  
+   ValueError: The MNA A matrix is not invertible for time analysis because:
+   1. there may be capacitors in series;
+   2. a voltage source might be short-circuited;
+   3. a current source might be open-circuited;
+   4. a dc current source is connected to a capacitor (use step current source).
+   5. part of the circuit is not referenced to ground
+
+In this case it is reason 3.  This is because Lcapy connects a 1\,A current source across nodes 3 and 0 and tries to measure the voltage to determine the impedance.   However, node 3 is floating since an ideal opamp has infinite input impedance.  To keep Lcapy happy, we can explicitly add a resistor between nodes 3 and 0,
+
+   >>> c.add('Rin 3 0')
+   >>> c.impedance(3, 0).pprint()
+
+Now, not surprisingly,
+
+   >>> c.impedance(3, 0).pprint()  
+   Rᵢₙ
 
 
 
