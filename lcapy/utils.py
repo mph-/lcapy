@@ -43,7 +43,7 @@ def scale_shift(expr, t):
         return terms[0] / t, sym.S.Zero
 
     scale = terms[0] / t
-    if not scale.is_constant():
+    if scale.has(t):
         raise ValueError('Expression not a scale and shift: %s' % expr)
 
     return scale, terms[1]

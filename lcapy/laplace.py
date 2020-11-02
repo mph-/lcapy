@@ -145,6 +145,23 @@ def laplace_derivative_undef(expr, t, s):
     func1 = name[0].upper() + name[1:] + '(%s)' % str(ssym)    
     return sympify(func1).subs(ssym, s) * s ** expr.args[1][1]
 
+
+def laplace_sin_cos(expr, t, s):
+
+    # Sympy sometimes has problems with this...
+    
+    if not expr.is_Function or expr.func not in (sym.sin, sym.cos):
+        raise ValueError('Expression not sin or cos')
+    arg = expr.args[0]
+    a, b = scale_shift(arg, t)
+
+    d = s**2 + a**2
+
+    if expr.func is sym.sin:
+        return (a * sym.cos(b) + s * sym.sin(b)) / d
+    else:
+        return (-a * sym.sin(b) + s * sym.cos(b)) / d        
+
 def laplace_term(expr, t, s):
 
     const, expr = factor_const(expr, t)
@@ -155,6 +172,9 @@ def laplace_term(expr, t, s):
     if expr.has(sym.Integral):
         return laplace_integral(expr, t, s) * const
 
+    if expr.is_Function and expr.func in (sym.sin, sym.cos) and expr.args[0].has(t):
+        return laplace_sin_cos(expr, t, s) * const
+    
     if expr.has(AppliedUndef):
 
         if expr.has(sym.Derivative):
