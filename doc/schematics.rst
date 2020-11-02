@@ -1013,6 +1013,15 @@ with the color attribute, for example:
 
    >>> cct.add('R1 1 2; right, color=blue')
 
+Colors can be specified many ways, see https://en.wikibooks.org/wiki/LaTeX/Colors and https://latexcolor.com/
+
+Here are some examples using the `fill` attribute:
+
+.. image:: examples/schematics/colors1.png
+   :width: 20cm
+
+Shading can be performed using the `top color` and `bottom color` attributes, see https://pgf-tikz.github.io/pgf/pgfmanual.pdf
+           
 
 .. _linestyles:
 
@@ -1024,7 +1033,7 @@ The line style of wires can be changed using the tikz attributes, `dashed`, `dot
 .. literalinclude:: examples/schematics/wirestyles.sch
 
 .. image:: examples/schematics/wirestyles.png
-   :width: 8cm
+   :width: 12cm
 
 
 Labels
