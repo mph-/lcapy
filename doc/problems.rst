@@ -2,6 +2,8 @@
 Troubleshooting
 ===============
 
+Most Lcapy problems are due to symbol assumptions and approximation of floating point values as rational numbers.  If you want to report a bug, see :ref:`issues`.  If you would like to debug the problem, see :ref:`debugging`.
+
 
 Common problems
 ===============
@@ -13,8 +15,23 @@ Symbol aliases
 SymPy treats symbols with different assumptions as different symbols
 even if they have the same name.  To reduce this confusion, Lcapy
 assumes that symbol names are not aliased.  It achieves this by
-maintaining a list of defined symbols for each circuit.  However, it
+maintaining a dictionary of defined symbols for each circuit.  However, it
 is unaware of symbols created by SymPy.
+
+Here's an example of how to access the symbols:
+
+    >>> from lcapy import symbol
+    >>> x = symbol('x')
+    >>> state.context.symbols
+    {'s': s,
+    't': t,
+    'f': f,
+    'omega': omega,
+    'omega_0': omega_0,
+    'tau': tau,
+    'x': x}
+
+This shows the pre-defined symbols and the newly defined symbol.   Each directory entry is a SymPy symbol.    
 
 
 Symbol assumptions
@@ -89,7 +106,8 @@ substitute symbolic values with numerical values.
 
 The results from slow computations are cached to improve the speed.
 
-Some SymPy operations can take an unexpectedly long time, for example, `limit()`.
+Some SymPy operations can take an unexpectedly long time, for example, `limit()`.   With some versions of SymPy, matrix inversions are really slow.
+
 
 
 Floating point values
@@ -116,6 +134,13 @@ Another approach is to use:
    s + 2/3
 
 
+Working with SymPy
+------------------
+
+Lcapy wraps many of SymPy's methods but if you know how to use SymPy, you can extract the underlying SymPy expression using the `expr` attribute of an Lcapy expression.
+
+   
+.. _debugging:   
 
 Debugging
 =========
@@ -140,12 +165,36 @@ debug method
 
 Expressions have a `debug()` method that prints the representation of the expresison, including symbol assumptions.  For example,
 
-   >>> (1 / (s + 'a')).debug()                                                 
-   sExpr(Pow(Add(s: {'nonpositive': False, 'nonzero': False, 'composite': False, 'real': False, 'negative': False, 'even': False, 'odd': False, 'prime': False, 'positive': False, 'nonnegative': False, 'integer': False, 'commutative': True, 'rational': False, 'zero': False, 'irrational': False},
-              a: {'nonpositive': False, 'extended_nonpositive': False, 'hermitian': True, 'extended_positive': True, 'real': True, 'imaginary': False, 'negative': False, 'extended_real': True, 'infinite': False, 'extended_negative': False, 'extended_nonnegative': True, 'positive': True, 'nonnegative': True, 'extended_nonzero': True, 'finite': True, 'commutative': True, 'zero': False, 'complex': True, 'nonzero': True})
-,
-          -1)
+   >>> (1 / (s + 'a')).debug()
+   sExpr(Pow(Add(s: {'nonpositive': False, 'nonzero': False, 'composite': False, 'real': False, 'negative': False, 'even': False, 'odd': False, 'prime': False, 'positive': False, 'nonnegative': False, 'integer': False, 'commutative': True, 'rational': False, 'zero': False, 'irrational': False}, a: {'nonpositive': False, 'extended_nonpositive': False, 'hermitian': True, 'extended_positive': True, 'real': True, 'imaginary': False, 'negative': False, 'extended_real': True, 'infinite': False, 'extended_negative': False, 'extended_nonnegative': True, 'positive': True, 'nonnegative': True, 'extended_nonzero': True, 'finite': True, 'commutative': True, 'zero': False, 'complex': True, 'nonzero': True}), -1)
 
 
+Testing
+=======
 
+If you fix a problem, please add a nose test in `lcapy/lcapy/tests`.   The tests can be run using
+
+.. code-block:: console
+                
+    $ make test
+
+or   
+
+.. code-block:: console
+                
+    $ nosetests3
+
+
+.. _issues:
+
+Issue reporting
+===============
+
+If Lcapy crashes or returns an incorrect value please create a issue at https://github.com/mph-/lcapy/issues.
+
+Please attach the output from running
+
+    >>> from lcapy.import show_versions
+    >>> show_versions()
+    
    
