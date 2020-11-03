@@ -1497,6 +1497,12 @@ class NetlistMixin(object):
         """Return dictionary of reactances."""
 
         return self.analysis['reactances']
+
+    @property
+    def ics(self):
+        """Return dictionary of components with initial conditions."""
+
+        return self.analysis['ics']    
     
     @property
     def independent_sources(self):
@@ -1575,6 +1581,7 @@ class NetlistMixin(object):
         dependent_sources = []        
         control_sources = []
         reactances = []
+        ics = []
         
         for key, elt in self.elements.items():
             if elt.need_control_current:
@@ -1582,6 +1589,7 @@ class NetlistMixin(object):
             if elt.hasic is not None:
                 if elt.hasic:
                     hasic = True
+                    ics.append(key)
                 if not elt.zeroic:
                     zeroic = False
             if elt.independent_source:
@@ -1612,7 +1620,8 @@ class NetlistMixin(object):
         analysis['has_ac'] = ac_count > 0        
         analysis['has_s'] = has_s
         analysis['has_transient'] = has_transient
-        analysis['reactances'] = reactances 
+        analysis['reactances'] = reactances
+        analysis['ics'] = ics         
         analysis['dependent_sources'] = dependent_sources        
         analysis['independent_sources'] = independent_sources
         analysis['control_sources'] = control_sources        
@@ -1646,8 +1655,9 @@ class NetlistMixin(object):
             return
 
         if self.is_ivp:
-            print('This has initial conditions so is an initial value problem '
-                  'solved in the s-domain using Laplace transforms.')
+            print('This has initial conditions for %s so is an initial value '
+                  'problem solved in the s-domain using Laplace transforms.' %
+                  ', '.join(self.ics))
             return
 
         if len(groups) > 1:
