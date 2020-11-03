@@ -270,7 +270,17 @@ Here's the result:
 
 By default, one port networks are drawn with a horizontal layout.
 This can be changed to a vertical layout or as a ladder layout using the
-`form` argument to the `draw()` method.  For example,
+`form` argument to the `draw()` method.
+
+Here's an example of a vertical layout,
+
+   >>> from lcapy import R, C, L
+   >>> ((R(1) + L(2)) | C(3)).draw(form='vertical')
+
+.. image:: examples/networks/pickupv.png
+   :width: 2.2cm
+
+Here's an example of a network drawn with ladder layout,
 
    >>> from lcapy import R, C
    >>> n = C('C1') | (R('R1') + (C('C2') | (R('R2') + (C('C3') | (R('R3') + C('C4'))))))
