@@ -1721,7 +1721,7 @@ class Netlist(NetlistMixin, NetfileMixin):
             except:
                 pass
 
-    def _sub_make(self):
+    def _groups(self):
 
         groups = self.independent_source_groups()        
             
@@ -1755,6 +1755,11 @@ class Netlist(NetlistMixin, NetfileMixin):
         else:
             groups = self.independent_source_groups(transform=True)        
         
+        return groups
+        
+    def _sub_make(self):
+
+        groups = self._groups()
         self._sub = Transformdomains()
 
         for kind, sources in groups.items():
