@@ -898,6 +898,7 @@ class VCCS(DependentSource):
 
         return self._netmake_anon('O', opts=newopts)        
 
+    
 class GY(Dummy):
     """Gyrator"""    
 
@@ -1131,6 +1132,7 @@ class L(RLC):
 
         return self._netmake_variant('I', args=self.cpt.i0)
 
+    
 class O(Dummy):
     """Open circuit"""
 
@@ -1198,6 +1200,7 @@ class SPpm(Dummy):
         if n2 >= 0:
             cct._C[m, n2] += 1
 
+            
 class SPppp(Dummy):
 
     need_branch_current = True
@@ -1217,6 +1220,7 @@ class SPppp(Dummy):
         if n4 >= 0:
             cct._C[m, n4] -= 1
 
+            
 class SPpmm(Dummy):
 
     need_branch_current = True
@@ -1302,8 +1306,7 @@ class Cable(Ignored):
     """Cable"""
 
     equipotential_nodes = (('in+', 'out+'), ('in-', 'out-'), ('in', 'out'),
-                           ('ignd', 'ognd'), ('t', 'b'), ('b', 'ognd'),
-                           ('mid', 'out'))
+                           ('ignd', 'ognd', 'b', 't'), ('mid', 'out'))
 
 
 class TP(Misc):

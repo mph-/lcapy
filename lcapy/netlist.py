@@ -119,7 +119,14 @@ class EquipotentialNodes(dict):
         if key1 != key2:
             # Merge equipotential nodes.
             self[key1].extend(self.pop(key2))
-    
+
+    def add_wires(self, nodes):
+
+        # Iterate over all pairs.
+        for i in range(len(nodes)):
+            for j in range(i + 1, len(nodes)):
+                self.add_wire(nodes[i], nodes[j])
+            
 
 class NetlistNamespace(object):
     """This class allows elements, nodes, or other namespaces
@@ -446,9 +453,8 @@ class NetlistMixin(object):
             if elt.type == 'W':
                 enodes.add_wire(*elt.nodes)
             else:
-                for pair in elt.equipotential_nodes:
-                    enodes.add_wire(elt.name + '.' + pair[0],
-                                    elt.name + '.' + pair[1])
+                for connections in elt.equipotential_nodes:
+                    enodes.add_wires([elt.name + '.' + n for n in connections])
 
         # Alter keys to avoid underscore and to ensure that have a '0'
         # key if possible.
