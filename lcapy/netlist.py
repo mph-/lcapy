@@ -1693,7 +1693,7 @@ class NetlistMixin(object):
                 print(describe_analysis('DC', sources))
             elif kind == 's':
                 print(describe_analysis('Laplace', sources))
-            elif kind == 'time':
+            elif kind in ('t', 'time'):
                 print(describe_analysis('Time-domain', sources))
 
     def Vname(self, name):

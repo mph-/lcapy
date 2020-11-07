@@ -98,9 +98,29 @@ Lcapy's algorithm for solving a circuit is:
    
 2. If there are no capacitors and inductors and if none of the independent sources are specified in the s-domain, then time-domain analysis is performed.
    
-3. Finally, Lcapy tries to decompose the sources into DC, AC, transient, and noise components.  The circuit is analysed for each source category using the appropriate transform domain (phasors for AC, s-domain for transients) and the results are added.
+3. Finally, Lcapy tries to decompose the sources into DC, AC, transient, and noise components.  The circuit is analysed for each source category using the appropriate transform domain (phasors for AC, s-domain for transients) and the results are added.  If there are multiple noise sources, these are considered independently since they are assumed to be uncorrelated.  
 
-If there are multiple noise sources, these are considered independently since they are assumed to be uncorrelated.  
+The method that Lcapy uses can be found using the `describe` method.   For example,
+
+   >>> cct = Circuit("""
+   ... V1 1 0 {1 + u(t)}
+   ... R1 1 2
+   ... L1 2 0""")
+   >>> cct.describe()
+   This is solved using superposition.
+   DC analysis is used for source V1.
+   Laplace analysis is used for source V1.
+
+
+   >>> cct = Circuit("""
+   ... V1 1 0 {1 + u(t)}
+   ... R1 1 2
+   ... V2 2 0 ac""")
+   >>> cct.describe()
+   This is solved using superposition.
+   Time-domain analysis is used for source V1.
+   Phasor analysis is used for source V2.
+
    
 
 DC analysis
