@@ -349,3 +349,116 @@ In practice, both noise current sources have the same ASD.  Thus
 
 The noise is minimised by keeping `R1` as small as possible.  However, for high gains, the noise is dominated by the opamp noise.  Ideally, `Rs` needs to be minimised.  However, if it is large, it is imperative to choose a CMOS opamp with a low noise current.   Unfortunately, these amplifiers have a higher noise voltage than bipolar opamps.
    
+
+
+Shield guard
+============
+
+Electrostatic shields are important to avoid capacitive coupling of intefererence into signals.  However, the capacitance between the signal and cable shields lowers the input impedance of an amplifier.
+
+
+   >>> from lcapy import Circuit, t, oo
+   >>> a = Circuit("""
+   ... Vs 14 12 ac; down
+   ... Rs 14 1; right
+   ... Cable1; right=4, dashed, kind=coax, l=
+   ... W 1 Cable1.in; right=0.5
+   ... W Cable1.out 2; right=0.5
+   ... W Cable1.ognd 10; down=0.5
+   ... Cc Cable1.mid Cable1.b; down=0.2, dashed, scale=0.6
+   ... W 2 11; right=0.75
+   ... W 7 10; up=0.5
+   ... E2 15 0 opamp 11 17 A_1; right, scale=0.5
+   ... W 17 18; down
+   ... W 12 7; right
+   ... W 7 18; right
+   ... W 18 0; down=0.2, sground
+   ... Rin 11 17; down
+   ... ; label_nodes=none, draw_nodes=connections
+   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
+   >>> a.draw()
+
+.. image:: examples/tutorials/shield-guard/shield-ground.png
+   :width: 30cm
+
+
+To find the input impedance it is first necessary to disconnect the
+source, for example,
+
+    >>> a.remove(('Vs', 'Rs'))
+
+The impedance seen across `Rin` can be then found using:
+
+    >>> Z = a.impedance('Rin')           
+        1        
+    ─────────────────
+        ⎛       1   ⎞
+    C_c⋅⎜s + ───────⎟
+        ⎝    C_c⋅Rᵢₙ⎠
+
+This impedance is the parallel comination of the input resistance Rin and the impedance of the cable capacitance.   Thus at high frequencies the impedance drops.
+        
+
+Shield guard circuits are used to mitigate the capacitance between a cable signal and the cable shield.  For example:
+
+
+   >>> from lcapy import Circuit, t, oo
+   >>> b = Circuit("""
+   ... Vs 14 12 ac; down
+   ... Rs 14 1; right
+   ... Cable1; right=4, dashed, kind=coax, l=
+   ... W 1 Cable1.in; right=0.5
+   ... W Cable1.out 2; right=0.5
+   ... W Cable1.ognd 10; down=0.5
+   ... Cc Cable1.mid Cable1.b; down=0.2, dashed, scale=0.6
+   ... W 2 3; right=1.5
+   ... W 3 11; right=0.75
+   ... W 3 4; down=0.5
+   ... W 5 6; down=0.5
+   ... W 6 7; left
+   ... W 7 10; up=0.5
+   ... R 10 8; right
+   ... E1 8 0 opamp 4 5 A_2; left=0.5, mirror, scale=0.5
+   ... E2 15 0 opamp 11 17 A_1; right, scale=0.5
+   ... W 17 18; down
+   ... W 12 18; right
+   ... W 18 0; down=0.2, sground
+   ... Rin 11 17; down
+   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
+   >>> a.draw()
+
+.. image:: examples/tutorials/shield-guard/shield-guard.png
+   :width: 25cm
+
+Again, to find the input impedance it is first necessary to disconnect the
+source, for example,
+
+    >>> b.remove(('Vs', 'Rs'))
+
+The impedance seen across `Rin` can be then found using:
+
+    >>> Z = b.impedance('Rin')
+    ⎛Rᵢₙ⋅(A₂ + C_c⋅R⋅s + 1)⎞
+    ⎜──────────────────────⎟
+    ⎝    C_c⋅(R + Rᵢₙ)     ⎠
+    ────────────────────────
+               A₂ + 1       
+      s + ───────────────   
+          C_c⋅R + C_c⋅Rᵢₙ   
+
+If the shield-guard amplifier is disconnected, say by setting A2 to zero, then
+
+    >>>  Z.limit('A_2', 0)
+        C_c⋅R⋅Rᵢₙ⋅s + Rᵢₙ   
+    ───────────────────────
+     C_c⋅R⋅s + C_c⋅Rᵢₙ⋅s + 1
+
+The input impedance can thus be seen to be affected by the cable capacitance, Cc, between the signal and shield.
+
+
+However, when the open-loop gain, A2, of the shield-guard amplifier is large then
+
+    >>> Z.limit('A_2', oo)
+     Rᵢₙ
+
+Thus the input impedance does not depend on Cc.
