@@ -39,7 +39,10 @@ class Cpt(ImmitanceMixin):
     need_extra_branch_current = False    
     need_control_current = False
     directive = False
-    flip_branch_current = False    
+    flip_branch_current = False
+    ignore = False
+    equipotential_nodes = ()
+    
 
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
@@ -76,7 +79,7 @@ class Cpt(ImmitanceMixin):
         self.opts = Opts(self.opts_string)
 
         # No defined cpt
-        if self.type in ('XX', ):
+        if self.type in ('XX', 'Cable'):
             self.cpt = lcapy.oneport.Dummy()
             return
 
@@ -591,6 +594,15 @@ class Misc(Invalid):
         raise NotImplementedError('Cannot analyse misc component: %s' % self)
 
 
+class Ignored(Cpt):
+
+    ignore = True
+
+    def _stamp(self, cct):
+        # Could print warning
+        pass
+    
+
 class Dummy(Cpt):
 
     causal = True
@@ -603,6 +615,7 @@ class Dummy(Cpt):
 
 class XX(Dummy):
     directive = True
+    ignore = True
     
     def _stamp(self, cct):
         pass
@@ -1278,17 +1291,18 @@ class TFtap(Cpt):
         raise NotImplementedError('Cannot analyse tapped transformer %s' % self)
 
 
-class TL(Misc):
+class TL(Ignored):
     """Transmission line"""
 
-    # TODO
-    pass
+    equipotential_nodes = (('out1', 'in1'),
+                           ('out2', 'in2'))
+    
 
-
-class Cable(Misc):
+class Cable(Ignored):
     """Cable"""
 
-    pass
+    equipotential_nodes = (('in+', 'out+'), ('in-', 'out-'), ('in', 'out'),
+                           ('ignd', 'ognd'), ('t', 'b'), ('mid', 'out'))
 
 
 class TP(Misc):

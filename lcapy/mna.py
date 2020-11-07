@@ -163,7 +163,7 @@ class MNAMixin(object):
 
         branchdict = {}
         for elt in self.elements.values():
-            if elt.type == 'K' or elt.directive:
+            if elt.type == 'K' or elt.ignore:
                 continue
             n1, n2 = self.node_map[elt.nodes[0]], self.node_map[elt.nodes[1]]
             branchdict[elt.name] = (n1, n2)

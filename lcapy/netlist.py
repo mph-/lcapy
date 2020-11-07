@@ -434,11 +434,15 @@ class NetlistMixin(object):
 
         enodes = EquipotentialNodes()
         enodes.add(self.nodes.keys())
-        
+
         # Then augment with nodes connected by wires.
         for m, elt in enumerate(self.elements.values()):
             if elt.type == 'W':
                 enodes.add_wire(*elt.nodes)
+            else:
+                for pair in elt.equipotential_nodes:
+                    enodes.add_wire(elt.name + '.' + pair[0],
+                                    elt.name + '.' + pair[1])
 
         # Alter keys to avoid underscore and to ensure that have a '0'
         # key if possible.
