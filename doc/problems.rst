@@ -172,7 +172,7 @@ Expressions have a `debug()` method that prints the representation of the expres
 Testing
 =======
 
-If you fix a problem, please add a nose test in `lcapy/lcapy/tests`.   The tests can be run using
+If you fix a problem, please add a test in `lcapy/lcapy/tests`.  These use the nose format, see https://pythontesting.net/framework/nose/nose-introduction/  The tests can be run using
 
 .. code-block:: console
                 
@@ -194,7 +194,7 @@ If Lcapy crashes or returns an incorrect value please create a issue at https://
 
 Please attach the output from running
 
-    >>> from lcapy.import show_versions
+    >>> from lcapy import show_versions
     >>> show_versions()
     
    
