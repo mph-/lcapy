@@ -446,19 +446,9 @@ The impedance seen across `Rin` can be then found using:
       s + ───────────────   
           C_c⋅R + C_c⋅Rᵢₙ   
 
-If the shield-guard amplifier is disconnected, say by setting A2 to zero, then
-
-    >>>  Z.limit('A_2', 0)
-        C_c⋅R⋅Rᵢₙ⋅s + Rᵢₙ   
-    ───────────────────────
-     C_c⋅R⋅s + C_c⋅Rᵢₙ⋅s + 1
-
-The input impedance can thus be seen to be affected by the cable capacitance, Cc, between the signal and shield.
-
-
 However, when the open-loop gain, A2, of the shield-guard amplifier is large then
 
     >>> Z.limit('A_2', oo)
      Rᵢₙ
 
-Thus the input impedance does not depend on Cc.
+Thus the input impedance does not depend on Cc.  In practice, the open-loop gain is not infinite and reduces with frequency and so the guarding does not help at very high frequencies.
