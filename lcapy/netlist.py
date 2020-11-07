@@ -93,7 +93,27 @@ class Node(ImmitanceMixin):
         (default ground)."""
         
         return self.cct.norton(self.name, node)    
-        
+
+
+class EquipotentialNodes(dict):
+
+    def add(self, nodenames):
+        for key in nodenames:
+            self[key] = [key]
+
+    def add_wire(self, n1, n2):
+
+        for key1, nodes in self.items():
+            if n1 in nodes:
+                break
+
+        for key2, nodes in self.items():
+            if n2 in nodes:
+                break
+
+        if key1 != key2:
+            self[key1].extend(self.pop(key2))
+    
 
 class NetlistNamespace(object):
     """This class allows elements, nodes, or other namespaces
@@ -412,27 +432,13 @@ class NetlistMixin(object):
         This returns a dictionary keyed by the unique node names with
         values being lists of nodes of the same potential."""
 
-        enodes = {}
-        for key in self.nodes.keys():
-            enodes[key] = [key]
-
+        enodes = EquipotentialNodes()
+        enodes.add(self.nodes.keys())
+        
         # Then augment with nodes connected by wires.
         for m, elt in enumerate(self.elements.values()):
-            if elt.type not in ('W', ):
-                continue
-
-            n1, n2 = elt.nodes
-
-            for key1, nodes in enodes.items():
-                if n1 in nodes:
-                    break
-
-            for key2, nodes in enodes.items():
-                if n2 in nodes:
-                    break
-
-            if key1 != key2:
-                enodes[key1].extend(enodes.pop(key2))
+            if elt.type == 'W':
+                enodes.add_wire(*elt.nodes)
 
         # Alter keys to avoid underscore and to ensure that have a '0'
         # key if possible.
