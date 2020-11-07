@@ -101,17 +101,23 @@ class EquipotentialNodes(dict):
         for key in nodenames:
             self[key] = [key]
 
+    def find_key(self, n):
+
+        for key, nodes in self.items():
+            if n in nodes:
+                return key
+        return None
+
     def add_wire(self, n1, n2):
 
-        for key1, nodes in self.items():
-            if n1 in nodes:
-                break
+        key1 = self.find_key(n1)
+        key2 = self.find_key(n2)
 
-        for key2, nodes in self.items():
-            if n2 in nodes:
-                break
+        if key1 is None or key2 is None:
+            return
 
         if key1 != key2:
+            # Merge equipotential nodes.
             self[key1].extend(self.pop(key2))
     
 

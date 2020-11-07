@@ -1302,7 +1302,8 @@ class Cable(Ignored):
     """Cable"""
 
     equipotential_nodes = (('in+', 'out+'), ('in-', 'out-'), ('in', 'out'),
-                           ('ignd', 'ognd'), ('t', 'b'), ('mid', 'out'))
+                           ('ignd', 'ognd'), ('t', 'b'), ('b', 'ognd'),
+                           ('mid', 'out'))
 
 
 class TP(Misc):
