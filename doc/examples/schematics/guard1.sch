@@ -4,7 +4,7 @@ W Cable1.out 2; right=0.5
 # Provide electrical connection
 W Cable1.in Cable1.out; free, invisible
 W Cable1.ognd 10; down=0.5
-Cin Cable1.mid Cable1.b; down=0.2, dashed, scale=0.6, l=
+Cc Cable1.mid Cable1.b; down=0.2, dashed, scale=0.6
 W 2 3; right=1.5
 W 3 11; right=0.5
 W 3 4; down=0.5

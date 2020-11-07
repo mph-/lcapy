@@ -156,14 +156,18 @@ The component type is specified by the first letter(s) of the
 - Inductor:
 
    `Lname Np Nm L`
-  
-   `Lname Np Nm L i0`  Here `i0` is the initial current through the inductor.  If this is specified then the circuit is solved as an initial value problem.
+
+   `Lname Np Nm L i0`
+
+   Here `i0` is the initial current through the inductor.  If this is specified then the circuit is solved as an initial value problem.
 
 - Capacitor:
 
    `Cname Np Nm C`
- 
-   `Cname Np Nm C v0`   Here `v0` is the voltage across the capacitor.  If this is specified then the circuit is solved as an initial value problem.
+
+   `Cname Np Nm C v0`
+
+   Here `v0` is the initial voltage across the capacitor.  If this is specified then the circuit is solved as an initial value problem.
 
 - Voltage-controlled voltage source (VCVS) of voltage gain E with controlling nodes Nip and Nim:
 
@@ -218,7 +222,7 @@ the negative input node.  Note, positive current flows from
 `positive-node` to `negative-node`.  Node names can be numeric or
 symbolic.  The ground node is designated `0`.
 
-If the value is not explicity specified, the component name is used.
+If the value is not explicitly specified, the component name is used.
 For example,
 
    `C1 1 0` is equivalent to `C1 1 0 C1`
@@ -531,10 +535,10 @@ Again, this is performed lazily as required.  Each sub-circuit is
 evaluated independently and the results are summed using the principle
 of superposition.  For example, consider the circuit
 
-   >>> cct = Circuit()
-   >>> cct.add('V1 1 0 {1 + u(t)}')
-   >>> cct.add('R1 1 2')
-   >>> cct.add('L1 2 0')
+   >>> cct = Circuit("""
+   ... V1 1 0 {1 + u(t)}
+   ... R1 1 2
+   ... L1 2 0""")
 
 In this example, V1 can be considered the superposition of a DC source
 and a transient source.  The approach Lcapy uses to solve the circuit
@@ -545,9 +549,9 @@ can be found using the `describe` method:
    DC analysis is used for source V1.
    Laplace analysis is used for source V1.
 
-For the curious, the sub-circuits can be found with the `sub` attribute:
+For the curious, the sub-circuits can be found with the `subcircuits` attribute:
 
-   >>> cct.sub
+   >>> cct.subcircuits
    {'dc': V1 1 0 dc {1}
           R1 1 2
           L1 2 0 L_1,
