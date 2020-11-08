@@ -2,12 +2,13 @@
 This module provides a class to represent circuits as graphs.
 This is primarily for loop analysis but is also used for nodal analysis.
 
-Copyright 2019 Michael Hayes, UCECE
+Copyright 2019--2020 Michael Hayes, UCECE
 
 """
 
-from matplotlib.pyplot import subplots
+from matplotlib.pyplot import subplots, savefig
 import networkx as nx
+
 
 # MultiGraph handles parallel edges.
 
@@ -53,7 +54,7 @@ class CircuitGraph(nx.MultiGraph):
                     loops.append(cycle)        
         return loops
 
-    def draw(self):
+    def draw(self, filename=None):
         """Use matplotlib to draw circuit graph."""
 
         fig, ax = subplots(1)
@@ -67,6 +68,10 @@ class CircuitGraph(nx.MultiGraph):
         edge_labels = dict([((u, v), d['name'])
                             for u, v, d in G.edges(data=True)])
         nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+
+        if filename is not None:
+            savefig(filename, bbox_inches='tight')
+        
 
     def node_edges(self, node):
 
