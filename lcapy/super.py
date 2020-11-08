@@ -160,22 +160,22 @@ class Super(ExprDict):
         return self.ac_keys() != []
 
     @property
-    def has_s(self):
+    def has_s_transient(self):
         """True if have transient component defined in the s-domain."""
         return 's' in self
 
     @property
-    def has_t(self):
+    def has_t_transient(self):
         """True if have transient component defined in the time-domain."""
         return 't' in self
 
     @property
     def has_transient(self):
         """True if have transient component."""        
-        return self.has_s or self.has_t
+        return self.has_s_transient or self.has_t_transient
 
     @property
-    def has_n(self):
+    def has_noisy(self):
         """True if there is a noise component."""                
         return self.noise_keys() != []
 
@@ -190,9 +190,9 @@ class Super(ExprDict):
         return self.has_ac and self.ac_keys() == list(self.keys())
 
     @property
-    def is_n(self):
+    def is_noisy(self):
         """True if only has noise components."""                                
-        return self.has_n and self.noise_keys() == list(self.keys())
+        return self.has_noisy and self.noise_keys() == list(self.keys())
 
     @property
     def is_s_transient(self):

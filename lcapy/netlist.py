@@ -123,6 +123,12 @@ class NetlistNamespace(object):
 
         return self.__getitem__(attr)
 
+    @property
+    def components(self):
+        """Return ordered dictionary of components."""
+
+        return self.elements
+
     def netlist(self):
         """Return the current netlist for this namespace."""
 
@@ -1408,8 +1414,8 @@ class NetlistMixin(object):
         return self.analysis['has_ac']
 
     @property
-    def has_s(self):
-        """Return True if any independent source has an s-domain component."""
+    def has_s_transient(self):
+        """Return True if any independent source has a transient component defined in s-domain."""
         return self.analysis['has_s']    
 
     @property    
@@ -1441,7 +1447,7 @@ class NetlistMixin(object):
         """Return components that allow initial conditions but do not have
         them explicitly defined."""
 
-        return dict((key, cpt) for key, cpt in self.elements.items() if cpt.hasic is False)
+        return dict((key, cpt) for key, cpt in self.elements.items() if cpt.has_ic is False)
 
     @property
     def sources(self):
@@ -1513,7 +1519,7 @@ class NetlistMixin(object):
 
     @property
     def control_sources(self):
-        """Return dictionary of voltage sources required to specify control
+        """Return list of voltage sources required to specify control
         current for CCVS and CCCS components."""
         return self.analysis['control_sources']        
 
@@ -1527,7 +1533,7 @@ class NetlistMixin(object):
 
     def analyse(self):
 
-        hasic = False
+        has_ic = False
         zeroic = True
         has_s = False
         has_transient = False        
@@ -1544,15 +1550,15 @@ class NetlistMixin(object):
         for key, elt in self.elements.items():
             if elt.need_control_current:
                 control_sources.append(elt.args[0])
-            if elt.hasic is not None:
-                if elt.hasic:
-                    hasic = True
+            if elt.has_ic is not None:
+                if elt.has_ic:
+                    has_ic = True
                     ics.append(key)
                 if not elt.zeroic:
                     zeroic = False
             if elt.independent_source:
                 independent_sources.append(key)
-                if elt.has_s:
+                if elt.has_s_transient:
                     has_s = True
                 if elt.has_transient:
                     has_transient = True                    
@@ -1572,8 +1578,8 @@ class NetlistMixin(object):
                     
         analysis = {} 
         analysis['zeroic'] = zeroic
-        analysis['has_ic'] = hasic        
-        analysis['ivp'] = hasic
+        analysis['has_ic'] = has_ic        
+        analysis['ivp'] = has_ic
         analysis['has_dc'] = dc_count > 0
         analysis['has_ac'] = ac_count > 0        
         analysis['has_s'] = has_s
@@ -1583,12 +1589,12 @@ class NetlistMixin(object):
         analysis['dependent_sources'] = dependent_sources        
         analysis['independent_sources'] = independent_sources
         analysis['control_sources'] = control_sources        
-        analysis['ac'] = ac_count > 0 and (num_sources == ac_count) and not hasic
-        analysis['dc'] = dc_count > 0 and (num_sources == dc_count) and not hasic
+        analysis['ac'] = ac_count > 0 and (num_sources == ac_count) and not has_ic
+        analysis['dc'] = dc_count > 0 and (num_sources == dc_count) and not has_ic
         analysis['causal'] = causal and zeroic
         analysis['time_domain'] = not reactive and not has_s
 
-        if not reactive and hasic:
+        if not reactive and has_ic:
             raise ValueError('Non-reactive component with initial conditions')
         return analysis
 

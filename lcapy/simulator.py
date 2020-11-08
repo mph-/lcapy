@@ -374,7 +374,7 @@ class Simulator(object):
             if not (elt.is_inductor or elt.is_capacitor):
                 continue
 
-            if not elt.hasic:
+            if not elt.has_ic:
                 print('Warning, initial conditions for %s ignored' % elt.name)
             
             v1_index = r_model._node_index(elt.nodes[0])

@@ -24,7 +24,7 @@ class Network(object):
     # None if component does not have initial conditions.
     # True if initial conditions are specified.
     # False if initial conditions are not specified.
-    hasic = None
+    has_ic = None
 
     netname = ''
     netkeyword = ''

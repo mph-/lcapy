@@ -417,15 +417,15 @@ class ParSer(OnePort):
                 return R(arg1._R + arg2._R)
             if isinstance(arg1, L):
                 # The currents should be the same!
-                if arg1.i0 != arg2.i0 or arg1.hasic != arg2.hasic:
+                if arg1.i0 != arg2.i0 or arg1.has_ic != arg2.has_ic:
                     raise ValueError('Series inductors with different'
                           ' initial currents!')
-                i0 = arg1.i0 if arg1.hasic else None
+                i0 = arg1.i0 if arg1.has_ic else None
                 return L(arg1.L + arg2.L, i0)
             if isinstance(arg1, G):
                 return G(arg1._G * arg2._G / (arg1._G + arg2._G))
             if isinstance(arg1, C):
-                v0 = arg1.v0 + arg2.v0 if arg1.hasic or arg2.hasic else None
+                v0 = arg1.v0 + arg2.v0 if arg1.has_ic or arg2.has_ic else None
                 return C(arg1.C * arg2.C / (arg1.C + arg2.C), v0)
             return None
 
@@ -441,15 +441,15 @@ class ParSer(OnePort):
                 return G(arg1._G + arg2._G)
             if isinstance(arg1, C):
                 # The voltages should be the same!
-                if arg1.v0 != arg2.v0 or arg1.hasic != arg2.hasic:
+                if arg1.v0 != arg2.v0 or arg1.has_ic != arg2.has_ic:
                     raise ValueError('Parallel capacitors with different'
                           ' initial voltages!')
-                v0 = arg1.v0 if arg1.hasic else None
+                v0 = arg1.v0 if arg1.has_ic else None
                 return C(arg1.C + arg2.C, v0)
             if isinstance(arg1, R):
                 return R(arg1._R * arg2._R / (arg1._R + arg2._R))
             if isinstance(arg1, L):
-                i0 = arg1.i0 + arg2.i0 if arg1.hasic or arg2.hasic else None
+                i0 = arg1.i0 + arg2.i0 if arg1.has_ic or arg2.has_ic else None
                 return L(arg1.L * arg2.L / (arg1.L + arg2.L), i0)
             return None
 
@@ -782,11 +782,11 @@ class L(OnePort):
 
     def __init__(self, Lval, i0=None):
 
-        self.hasic = i0 is not None
+        self.has_ic = i0 is not None
         if i0 is None:
             i0 = 0
 
-        if self.hasic:
+        if self.has_ic:
             self.args = (Lval, i0)
         else:
             self.args = (Lval, )
@@ -809,11 +809,11 @@ class C(OnePort):
 
     def __init__(self, Cval, v0=None):
 
-        self.hasic = v0 is not None
+        self.has_ic = v0 is not None
         if v0 is None:
             v0 = 0
 
-        if self.hasic:
+        if self.has_ic:
             self.args = (Cval, v0)
         else:
             self.args = (Cval, )

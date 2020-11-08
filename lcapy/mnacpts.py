@@ -290,60 +290,79 @@ class Cpt(ImmitanceMixin):
         return self.dependent_source or self.independent_source
 
     @property
+    def is_dependent_source(self):
+        """Return True if component is a dependent source"""
+        return self.dependent_source
+
+    @property
+    def is_independent_source(self):
+        """Return True if component is an independent source"""
+        return self.independent_source
+
+    @property
+    def _source_IV(self):
+
+        if self.cpt.voltage_source:
+            return self.cpt.Voc
+        elif self.cpt.current_source:
+            return self.cpt.Isc
+        else:
+            raise ValueError('%s is not a source' % self)        
+
+    @property
     def is_causal(self):
         """Return True if causal component or if source produces
         a causal signal."""
 
-        if self.cpt.voltage_source:
-            return self.cpt.Voc.is_causal
-        elif self.cpt.current_source:
-            return self.cpt.Isc.is_causal
-        else:
-            raise ValueError('%s is not a source' % self)
+        return self._source_IV.is_causal
 
     @property
     def is_dc(self):
         """Return True if source is dc."""
-        
-        if self.cpt.voltage_source:
-            return self.cpt.Voc.is_dc
-        elif self.cpt.current_source:
-            return self.cpt.Isc.is_dc
-        else:
-            raise ValueError('%s is not a source' % self)
+
+        return self._source_IV.is_dc
 
     @property
     def is_ac(self):
         """Return True if source is ac."""
 
-        if self.cpt.voltage_source:
-            return self.cpt.Voc.is_ac
-        elif self.cpt.current_source:
-            return self.cpt.Isc.is_ac
-        else:
-            raise ValueError('%s is not a source' % self)
+        return self._source_IV.is_ac
 
     @property
-    def has_s(self):
-        """Return True if source has s-domain component."""
+    def has_ac(self):
+        """Return True if source has ac component."""
 
-        if self.cpt.voltage_source:
-            return self.cpt.Voc.has_s
-        elif self.cpt.current_source:
-            return self.cpt.Isc.has_s
-        else:
-            raise ValueError('%s is not a source' % self)
+        return self._source_IV.has_ac
+
+    @property
+    def has_dc(self):
+        """Return True if source has dc component."""
+
+        return self._source_IV.has_dc    
+
+    @property
+    def has_noisy(self):
+        """Return True if source has noisy component."""
+
+        return self._source_IV.has_noisy
+    
+    @property
+    def has_s_transient(self):
+        """Return True if source has transient component defined in s-domain."""
+
+        return self._source_IV.has_s_transient
+
+    @property
+    def has_t_transient(self):
+        """Return True if source has transient component defined in time domain."""
+
+        return self._source_IV.has_t_transient        
 
     @property
     def has_transient(self):
         """Return True if source has a transient component."""
 
-        if self.cpt.voltage_source:
-            return self.cpt.Voc.has_transient
-        elif self.cpt.current_source:
-            return self.cpt.Isc.has_transient
-        else:
-            raise ValueError('%s is not a source' % self)                
+        return self._source_IV.has_transient        
         
     @property
     def is_noisy(self):
@@ -390,10 +409,10 @@ class Cpt(ImmitanceMixin):
         return self.cpt.zeroic
 
     @property
-    def hasic(self):
+    def has_ic(self):
         """Return True if initial conditions are specified."""
 
-        return self.cpt.hasic
+        return self.cpt.has_ic
 
     @property
     def I(self):
@@ -636,7 +655,7 @@ class Dummy(Cpt):
     dc = False
     ac = False
     zeroic = True
-    hasic = None
+    has_ic = None
     noisy = False
 
 
@@ -760,7 +779,7 @@ class RC(RLC):
         if n2 >= 0:
             cct._G[n2, n2] += Y
 
-        if cct.kind == 'ivp' and self.cpt.hasic:
+        if cct.kind == 'ivp' and self.cpt.has_ic:
             I = self.Isc.expr
             if n1 >= 0:
                 cct._Is[n1] += I 
@@ -823,7 +842,7 @@ class C(RC):
     def V0(self):
         """Initial voltage (for capacitors only)."""
 
-        if self.cct.kind == 'ivp' and self.cpt.hasic:
+        if self.cct.kind == 'ivp' and self.cpt.has_ic:
             return self.cpt.v0 / s
         return 0
 
@@ -1109,7 +1128,7 @@ class L(RLC):
     def I0(self):
         """Initial current (for capacitors only)."""
 
-        if self.cct.kind == 'ivp' and self.cpt.hasic:
+        if self.cct.kind == 'ivp' and self.cpt.has_ic:
             return self.cpt.i0 / s
         return 0
     
@@ -1146,7 +1165,7 @@ class L(RLC):
 
         cct._D[m, m] += -Z
 
-        if cct.kind == 'ivp' and self.cpt.hasic:
+        if cct.kind == 'ivp' and self.cpt.has_ic:
             V = self.Voc.expr            
             cct._Es[m] += V
 
