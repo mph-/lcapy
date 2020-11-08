@@ -69,9 +69,8 @@ class Node(ImmitanceMixin):
         
         return self.cct.norton(self.name, node)    
 
-    @property
     def connected(self):
-        """Return list of elements connected to the node."""
+        """Return list of components connected to the node."""
         
         return self._connected
 

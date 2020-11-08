@@ -562,7 +562,28 @@ class Cpt(ImmitanceMixin):
         
         return self.cct.norton(self.nodes[1], self.nodes[0])    
     
+    def connected(self):
+        """Return list of components connected to this component."""
 
+        cpts = set()
+        for nodename in self.nodes:
+            node = self.cct.nodes[nodename]
+            cpts = cpts.union(set(node.connected))
+        
+        return list(cpts)
+
+    def is_connected(self, cpt):
+        """Return True if cpt is connected to this component."""
+
+        if isinstance(cpt, str):
+            for cpt1 in self.connected:
+                if cpt1.name == cpt:
+                    return True
+            return False
+        
+        return cpt in self.connected
+
+    
 class Invalid(Cpt):
     
     @property
