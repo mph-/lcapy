@@ -20,6 +20,9 @@ class Node(ImmitanceMixin):
         # List of elements connected to this node.
         self._connected = []
 
+    def __repr__(self):
+        return "Node('%s')" % self.name
+        
     @property
     def V(self):
         """Node voltage with respect to ground."""

@@ -54,7 +54,7 @@ class Cpt(ImmitanceMixin):
         self.name = name
         self.relname = name
         self.namespace = ''
-        self.nodes = nodes
+        self.nodenames = nodes
         self.relnodes = nodes
         
         parts = name.split('.')
@@ -415,13 +415,13 @@ class Cpt(ImmitanceMixin):
     def V(self):
         """Voltage drop across component."""
 
-        return self.cct.get_Vd(self.nodes[0], self.nodes[1])
+        return self.cct.get_Vd(self.nodenames[0], self.nodenames[1])
 
     @property
     def v(self):
         """Time-domain voltage drop across component."""
 
-        return self.cct.get_vd(self.nodes[0], self.nodes[1])
+        return self.cct.get_vd(self.nodenames[0], self.nodenames[1])
 
     @property
     def Isc(self):
@@ -536,7 +536,7 @@ class Cpt(ImmitanceMixin):
     @property
     def node_indexes(self):
 
-        return [self.cct._node_index(n) for n in self.nodes]
+        return [self.cct._node_index(n) for n in self.nodenames]
 
     @property
     def branch_index(self):
@@ -550,24 +550,30 @@ class Cpt(ImmitanceMixin):
     def oneport(self):
         """Create oneport object."""
         
-        return self.cct.oneport(self.nodes[1], self.nodes[0])
+        return self.cct.oneport(self.nodenames[1], self.nodenames[0])
 
     def thevenin(self):
         """Create Thevenin oneport object."""
         
-        return self.cct.thevenin(self.nodes[1], self.nodes[0])
+        return self.cct.thevenin(self.nodenames[1], self.nodenames[0])
 
     def norton(self):
         """Create Norton oneport object."""
         
-        return self.cct.norton(self.nodes[1], self.nodes[0])    
+        return self.cct.norton(self.nodenames[1], self.nodenames[0])
+
+    @property
+    def nodes(self):
+        """Return list of nodes for this component.   See also
+        nodenames."""
+
+        return [self.cct.nodes[nodename] for nodename in self.nodenames]
     
     def connected(self):
         """Return list of components connected to this component."""
 
         cpts = set()
-        for nodename in self.nodes:
-            node = self.cct.nodes[nodename]
+        for node in self.nodes:
             cpts = cpts.union(set(node.connected))
         
         return list(cpts)

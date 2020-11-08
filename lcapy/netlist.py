@@ -301,7 +301,7 @@ class NetlistMixin(object):
 
         self._elements[cpt.name] = cpt
 
-        for node in cpt.nodes:
+        for node in cpt.nodenames:
             self._node_add(node, cpt)
 
         self._namespace_add(cpt.namespace)
@@ -368,7 +368,7 @@ class NetlistMixin(object):
         for elt in self.elements.values():
             if not elt.is_voltage_source:
                 continue
-            snodes.append(elt.nodes[0:2])
+            snodes.append(elt.nodenames[0:2])
 
         from .utils import merge_common
 
@@ -387,7 +387,7 @@ class NetlistMixin(object):
         # Then augment with nodes connected by wires.
         for m, elt in enumerate(self.elements.values()):
             if elt.type == 'W':
-                enodes.add_wire(*elt.nodes)
+                enodes.add_wire(*elt.nodenames)
             else:
                 for connections in elt.equipotential_nodes:
                     enodes.add_wires([elt.name + '.' + n for n in connections])
@@ -578,7 +578,7 @@ class NetlistMixin(object):
             if isinstance(cpt, Node):
                 Np, Nm = cpt.name, 0
             else:
-                Np, Nm = cpt.nodes[0:2]
+                Np, Nm = cpt.nodenames[0:2]
         return Np, Nm
     
     def Voc(self, Np, Nm=None):
