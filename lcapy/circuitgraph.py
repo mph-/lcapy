@@ -24,14 +24,15 @@ class CircuitGraph(nx.MultiGraph):
 
         for name in cct.branch_list:
             elt = cct.elements[name]
-            if len(elt.nodes) < 2:
+            if len(elt.nodenames) < 2:
                 continue
-            self.add_edge(node_map[elt.nodes[0]],
-                          node_map[elt.nodes[1]], name=name)
+            self.add_edge(node_map[elt.nodenames[0]],
+                          node_map[elt.nodenames[1]], name=name)
 
         self.node_map = node_map
 
-    def connected_elts(self, node):
+    def connected(self, node):
+        """List of components connected to specified node."""
 
         for node1, edges in self.node_edges(node).items():
             for key, edge in edges.items():

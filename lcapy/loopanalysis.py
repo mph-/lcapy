@@ -16,6 +16,7 @@ class LoopAnalysis(object):
         self.cct = cct
         self.G = CircuitGraph(cct)
 
+        
     def loops(self):
 
         return self.G.loops()

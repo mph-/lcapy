@@ -24,7 +24,7 @@ class SimulatedComponent(object):
 
     def __init__(self, cpt, v1_index, v2_index, v3_index, i_index):
         
-        self.nodes = cpt.nodes
+        self.nodes = cpt.nodenames
         self.name = cpt.name
         self.Reqname = 'R%seq' % cpt.name
         self.Veqname = 'V%seq' % cpt.name
@@ -218,16 +218,16 @@ class SimulationResults(object):
 
         cpt = self.cct.elements[cptname]        
 
-        v1 = self.node_voltages_get(cpt.nodes[0])
-        v2 = self.node_voltages_get(cpt.nodes[1])        
+        v1 = self.node_voltages_get(cpt.nodenames[0])
+        v2 = self.node_voltages_get(cpt.nodenames[1])        
         return v1 - v2
 
     def cpt_voltage_get(self, cptname, n):
 
         cpt = self.cct.elements[cptname]
         
-        v1 = self.node_voltages_get(cpt.nodes[0])[n]
-        v2 = self.node_voltages_get(cpt.nodes[1])[n]     
+        v1 = self.node_voltages_get(cpt.nodenames[0])[n]
+        v2 = self.node_voltages_get(cpt.nodenames[1])[n]     
         return v1 - v2
 
     def cpt_currents_get(self, cptname):
@@ -377,11 +377,11 @@ class Simulator(object):
             if not elt.has_ic:
                 print('Warning, initial conditions for %s ignored' % elt.name)
             
-            v1_index = r_model._node_index(elt.nodes[0])
-            v2_index = r_model._node_index(elt.nodes[1])
+            v1_index = r_model._node_index(elt.nodenames[0])
+            v2_index = r_model._node_index(elt.nodenames[1])
             i_index = r_model._branch_index('V%seq' % elt.name)
             relt = self.r_model.elements['R%seq' % elt.name]
-            v3_index = r_model._node_index(relt.nodes[1])            
+            v3_index = r_model._node_index(relt.nodenames[1])            
             
             if elt.is_inductor:
                 cls = Lcls

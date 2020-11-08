@@ -100,14 +100,14 @@ class NodalAnalysis(object):
                 continue
 
             voltage_sources = []
-            for elt in self.G.connected_elts(node):
+            for elt in self.G.connected(node):
                 if elt.type == 'V':
                     voltage_sources.append(elt)
 
             if voltage_sources != []:
                 elt = voltage_sources[0]
-                n1 = self.G.node_map[elt.nodes[0]]
-                n2 = self.G.node_map[elt.nodes[1]]
+                n1 = self.G.node_map[elt.nodenames[0]]
+                n2 = self.G.node_map[elt.nodenames[1]]
 
                 V = Voltage(elt.voc).select(self.cct.kind)
                 
@@ -115,11 +115,11 @@ class NodalAnalysis(object):
 
             else:
                 expr = 0
-                for elt in self.G.connected_elts(node):
-                    if len(elt.nodes) < 2:
+                for elt in self.G.connected(node):
+                    if len(elt.nodenames) < 2:
                         raise ValueError('Elt %s has too few nodes' % elt)
-                    n1 = self.G.node_map[elt.nodes[0]]
-                    n2 = self.G.node_map[elt.nodes[1]]
+                    n1 = self.G.node_map[elt.nodenames[0]]
+                    n2 = self.G.node_map[elt.nodenames[1]]
                     if node == n1:
                         pass
                     elif node == n2:
