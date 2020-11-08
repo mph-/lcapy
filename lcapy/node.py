@@ -18,7 +18,7 @@ class Node(ImmitanceMixin):
         self.rootname = parts[0] if name[0] != '_' else name
         self.primary = len(parts) == 1
         # List of elements connected to this node.
-        self.list = []
+        self._connected = []
 
     @property
     def V(self):
@@ -49,7 +49,7 @@ class Node(ImmitanceMixin):
         if cpt.type in ('P', ):
             self.port = True
 
-        self.list.append(cpt)
+        self._connected.append(cpt)
 
     def oneport(self, node=0):
         """Create oneport object with respect to specified node
@@ -69,4 +69,21 @@ class Node(ImmitanceMixin):
         
         return self.cct.norton(self.name, node)    
 
+    @property
+    def connected(self):
+        """Return list of elements connected to the node."""
+        
+        return self._connected
 
+    def is_connected(self, cpt):
+        """Return True if cpt is connected to the node."""
+
+        if isinstance(cpt, str):
+            for cpt1 in self.connected:
+                if cpt1.name == cpt:
+                    return True
+            return False
+        
+        return cpt in self.connected
+
+                
