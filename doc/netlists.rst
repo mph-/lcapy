@@ -415,7 +415,7 @@ circuit:
 
 - `is_ac` AC network
 
-- `is_ivp` initial value problem
+- `is_ivp` initial value problem (at least one capacitor or inductor has an explicit initial condition)
 
 - `is_causal` causal response
 
@@ -572,7 +572,7 @@ The properties of each sub-circuit can be found with the `analysis` attribute:
    'dc': True,
    'dependent_sources': [],
    'has_s': False,
-   'hasic': False,
+   'has_ic': False,
    'independent_sources': ['V1'],
    'ivp': False,
    'time_domain': False,
@@ -660,3 +660,124 @@ For example,
              k⋅s
 
 With this analogue d'Alemberts law is equivalent to Kirchhoff's voltage law.  Thus every loop in the electrical circuit is analogous to a point in the mechanical system.   This also means that series combinations transform to parallel combinations and vice-versa.
+
+
+Interrogation
+=============
+
+Netlist attributes
+------------------
+
+`components` dictionary of components
+
+`nodes` dictionary of nodes
+
+`subcircuits` dictionary of sub-circuits (for ac, dc, transient, etc.)
+
+`is_ac` all independent sources are ac
+
+`is_causal`  all independent sources are causal
+
+`is_dc` all independent sources are dc
+
+`is_time_domain` netlist can be analysed in time domain
+
+`ivp` initial value problem
+
+`has_ic` initial conditions are specified
+
+`has_ac` an independent source has an ac component
+
+`has_dc` an independent source has a dc component
+
+`has_s_transient` an independent source has a transient component defined in s-domain
+
+`has_transient` an independent source has a transient component
+
+`control_sources` list of voltage sources used to specify control current for CCVS and CCCS components
+
+`dependent_sources` list of dependent sources
+
+`ics` list of components with explicit initial conditions
+
+`independent_sources` list of independent sources
+
+`reactances` list of capacitors and inductors
+
+`sources` list of sources
+
+
+
+Netlist methods
+---------------
+
+`describe()` print message describing how netlist is solved
+
+
+
+Component attributes
+--------------------
+
+`connected` list of components connected to the component
+
+`is_ac` source is only ac
+
+`is_causal`  source or component is causal
+
+`is_capacitor` component is a capacitor
+
+`is_current_source` component is a current source
+
+`is_dependent_source` source is dependent
+
+`is_dc` source is only dc
+
+`is_inductor` component is an inductor
+
+`is_independent_source` source is independent
+
+`is_noisy` source only has a noisy component
+
+`is_resistor` component is a resistor
+
+`is_source` component is a source
+
+`is_voltage_source` component is a voltage source
+
+`has_ic` initial conditions are specified
+
+`has_ac` source has an ac component
+
+`has_dc` source has a dc component
+
+`has_noisy` source has a noisy component
+
+`has_s_transient` source has a transient component defined in s-domain
+
+`has_t_transient` source has a transient component defined in time domain
+
+`has_transient` source has a transient component
+
+`nodes` list of nodes
+
+`nodenames` list of node names
+
+
+Component methods
+-----------------
+
+`is_connected(cpt)` True if connected to specified cpt
+
+
+Node attributes
+---------------
+
+`connected` list of components connected to node
+
+
+Node methods
+------------
+
+`is_connected(node)` True if connected to specified node
+
+
