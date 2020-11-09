@@ -62,10 +62,10 @@ class CircuitGraph(nx.MultiGraph):
         rejects = []
         for i in range(len(sets)):
             for j in range(i + 1, len(sets)):
-                if sets[i].union(sets[j]) == sets[i]:
-                    rejects.append(i)
-                elif sets[i].union(sets[j]) == sets[j]:
+                if sets[i].issubset(sets[j]):
                     rejects.append(j)
+                elif sets[i].issubset(sets[j]):
+                    rejects.append(i)
 
         cloops = []
         for i, loop in enumerate(loops):
@@ -104,5 +104,10 @@ class CircuitGraph(nx.MultiGraph):
     def node_edges(self, node):
 
         return self[node]
+
+    def component(self, node1, node2):
         
+        return self.cct.elements[self.get_edge_data(node1, node2)[0]['name']]
+
+    
 # neighbors(node) gives neighbouring nodes

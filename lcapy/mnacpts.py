@@ -386,6 +386,11 @@ class Cpt(ImmitanceMixin):
         return self.cpt.capacitor
 
     @property
+    def is_reactance(self):
+        """Return True if component is a capacitor or inductor."""
+        return self.is_capacitor or self.is_inductor
+
+    @property
     def is_resistor(self):
         """Return True if component is a resistor."""
         return self.cpt.resistor        

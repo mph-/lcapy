@@ -740,6 +740,8 @@ Component attributes
 
 `is_resistor` component is a resistor
 
+`is_reactance` component is a capacitor or inductor
+
 `is_source` component is a source
 
 `is_voltage_source` component is a voltage source
@@ -781,19 +783,69 @@ Node methods
 `is_connected(node)` True if connected to specified node
 
 
+.. image:: examples/netlists/graph1.png
+   :width: 8cm
+           
+
 CircuitGraph
 ============
 
-The `CircuitGraph` class represents a circuit as a graph.  This can be interrogated to find loops, etc.
+The `CircuitGraph` class represents a circuit as a graph.  This can be interrogated to find loops, etc.   For example, consider the netlist:
 
    >>> a = Circuit("""
-   ... V1 1 0 {1 + u(t)}
-   ... R1 1 2
-   ... L1 2 0
-   ... R2 1 3
-   ... L2 3 0""")
-   >>> G = CircuitGraph(a)
-   >>> G.draw()
+   ...V1 1 0; down
+   ...R1 1 2; right
+   ...L1 2 0_2; down
+   ...R2 1 3; right
+   ...L2 3 0_3; down
+   ...W 0 0_2; right
+   ...W 0_2 0_3; right""")
+   >>> a.draw()
+
 
 .. image:: examples/netlists/graph1.png
    :width: 8cm
+
+The graph is:
+
+   >>> G = CircuitGraph(a)
+   >>> G.loops()                                                              
+   [['0', '1', '3'], ['0', '1', '2']]
+   >>> G.draw()
+
+           
+.. image:: examples/netlists/circuitgraph1.png
+   :width: 8cm           
+
+
+Here's another example:           
+
+   >>> a = Circuit("""
+   ...V1 1 0; down
+   ...R1 1 2; right
+   ...L1 2 3; right
+   ...R2 3 4; right
+   ...L2 2 0_2; down
+   ...C2 3 0_3; down
+   ...R3 4 0_4; down
+   ...W 0 0_2; right
+   ...W 0_2 0_3; right
+   ...W 0_3 0_4; right""")
+   >>> a.draw()
+
+   
+.. image:: examples/netlists/graph2.png
+   :width: 8cm   
+
+The graph is:           
+
+   >>> G = CircuitGraph(a)
+   >>> G.loops()
+   [['0', '3', '4'], ['0', '2', '3'], ['0', '1', '2']]
+   >>> G.draw()
+
+   
+.. image:: examples/netlists/circuitgraph2.png
+   :width: 8cm
+
+          
