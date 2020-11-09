@@ -94,7 +94,12 @@ class CircuitGraph(nx.MultiGraph):
 
         if filename is not None:
             savefig(filename, bbox_inches='tight')
+
+    @property
+    def is_planar(self):
+        """Return True for a planar network."""
         
+        return nx.check_planarity(self)[0]
 
     def node_edges(self, node):
 
