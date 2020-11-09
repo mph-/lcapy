@@ -41,7 +41,7 @@ class CircuitGraph(nx.MultiGraph):
                 elt = self.cct.elements[name]
                 yield elt
             
-    def loops(self):
+    def all_loops(self):
         
         DG = nx.MultiDiGraph(self)
         cycles = list(nx.simple_cycles(DG))
@@ -54,6 +54,29 @@ class CircuitGraph(nx.MultiGraph):
                     loops.append(cycle)        
         return loops
 
+    def chordless_loops(self):
+
+        loops = self.all_loops()
+        sets = [set(loop) for loop in loops]
+
+        rejects = []
+        for i in range(len(sets)):
+            for j in range(i + 1, len(sets)):
+                if sets[i].union(sets[j]) == sets[i]:
+                    rejects.append(i)
+                elif sets[i].union(sets[j]) == sets[j]:
+                    rejects.append(j)
+
+        cloops = []
+        for i, loop in enumerate(loops):
+            if i not in rejects:
+                cloops.append(loop)
+
+        return cloops
+
+    def loops(self):
+        return self.chordless_loops()
+    
     def draw(self, filename=None):
         """Use matplotlib to draw circuit graph."""
 
