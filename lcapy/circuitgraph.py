@@ -12,6 +12,22 @@ import networkx as nx
 
 # MultiGraph handles parallel edges.
 
+# Need to handle cases where components are in parallel.  In this case,
+# there is a loop between nodes 2 - 3 - 2
+# C1 2 3
+# L1 2 3
+#
+# Unfortunately, nx.simple_cycles fails for
+#
+# V1 1 0 {u(t)}; down
+# R1 1 2; right=2
+# L1 2 3; down=2
+# W1 0 3; right
+# W 1 5; up
+# W 2 6; up
+# C1 5 6; right=2
+
+
 class CircuitGraph(nx.MultiGraph):
 
     def __init__(self, cct):
@@ -48,6 +64,8 @@ class CircuitGraph(nx.MultiGraph):
 
         loops = []
         for cycle in cycles:
+            # FIXME, need 2 node loops for components in parallel
+            # byt simple_cycles throws out bogus 2 node loops.
             if len(cycle) > 2:
                 cycle = sorted(cycle)
                 if cycle not in loops:
@@ -113,9 +131,10 @@ class CircuitGraph(nx.MultiGraph):
         return self.cct.elements[self.get_edge_data(node1, node2)[0]['name']]
 
     def loops_for_cpt(self, elt):
-        """Return list of tuples.  The first element of the tuple is the loop
-        the cpt belongs to or an empty list; the second element
-        indicates the cpt direction. """
+        """Return list of tuples; one for each loop.  The first element of the
+        tuple is the loop the cpt belongs to or an empty list; the
+        second element indicates the cpt direction compared to the
+        loop direction."""
         
         loops = self.loops()
         cloops = []

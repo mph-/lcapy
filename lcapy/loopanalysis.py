@@ -13,7 +13,31 @@ import sympy as sym
 
 
 class LoopAnalysis(object):
+    """
+    This is an experimental class for nodal analysis.  The API
+    is likely to change.
 
+    >>> from lcapy import Circuit, LoopAnalysis
+    >>> cct = Circuit('''
+    ... V1 1 0 {u(t)}; down
+    ... R1 1 2; right=2
+    ... L1 2 3; down=2
+    ... W1 0 3; right
+    ... W 1 5; up
+    ... W 2 6; up
+    ... C1 5 6; right=2
+    ...''')    
+
+    To perform nodal analysis in the time domain:
+
+    >>> la = LoopAnalysis(cct)
+    
+    To display the equations found by applying KVL around each mesh:
+    
+    >>> la.mesh_equations().pprint()
+
+    """
+    
     def __init__(self, cct):
 
         self.cct = cct
@@ -34,8 +58,8 @@ class LoopAnalysis(object):
         mesh_currents = ExprList([expr('i_%d(t)' % (m + 1)) for m in range(Nloops)])
         return mesh_currents
     
-    def equations(self):
-        """Return loop equations as a list."""
+    def mesh_equations(self):
+        """Return mesh equations as a list."""
 
         if not self.G.is_planar:
             raise ValueError('Circuit topology is not planar')
@@ -70,9 +94,9 @@ class LoopAnalysis(object):
                 is_reversed = nodenames[0] == loop1[j] and nodenames[1] == loop1[j + 1]
                 
                 if is_reversed:
-                    current = mesh_currents[m]
+                    current = -mesh_currents[m]
                 else:
-                    current = -mesh_currents[m]                    
+                    current = mesh_currents[m]                    
 
                 for n, loop2 in enumerate(loops):
 
@@ -89,11 +113,11 @@ class LoopAnalysis(object):
                     for l in range(len(loop2) - 1):
                         if (nodenames[0] == loop2[l] and
                             nodenames[1] == loop2[l + 1]):
-                            current += mesh_currents[n]
+                            current -= mesh_currents[n]
                             break
                         elif (nodenames[1] == loop2[l] and
                             nodenames[0] == loop2[l + 1]):
-                            current -= mesh_currents[n]
+                            current += mesh_currents[n]
                             break
                             
                 v = elt.cpt.v_equation(current)

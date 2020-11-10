@@ -31,7 +31,7 @@ class NodalAnalysis(object):
 
     To perform nodal analysis in the Laplace domain:
 
-    >>> na = NodalAnalysis(cct.laplace)
+    >>> na = NodalAnalysis(cct.laplace())
     
     To display the system of equations (in matrix form) that needs to
     be solved:
