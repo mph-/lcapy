@@ -64,13 +64,16 @@ class LoopAnalysis(object):
                 if elt.is_current_source:
                     raise ValueError('TODO: handle current source in loop')
                 
-                reversed = elt.nodenames[0] == loop1[j]
-
-                current = mesh_currents[m]
-
                 # Map node names to equipotential node names.
                 nodenames = [self.cct.node_map[nodename] for nodename in elt.nodenames]
+
+                is_reversed = nodenames[0] == loop1[j] and nodenames[1] == loop1[j + 1]
                 
+                if is_reversed:
+                    current = mesh_currents[m]
+                else:
+                    current = -mesh_currents[m]                    
+
                 for n, loop2 in enumerate(loops):
 
                     if loop2 == loop:
@@ -93,7 +96,9 @@ class LoopAnalysis(object):
                             current -= mesh_currents[n]
                             break
                             
-                v = elt.cpt.v_equation(current)                
+                v = elt.cpt.v_equation(current)
+                if elt.is_voltage_source and is_reversed:
+                    v = -v
                 result += v
 
             eq = equation(result, 0)        

@@ -112,10 +112,10 @@ class CircuitGraph(nx.MultiGraph):
         
         return self.cct.elements[self.get_edge_data(node1, node2)[0]['name']]
 
-    def loop_indices_for_cpt(self, elt):
-        """Return list of tuples.  The first element of the tuple
-        is the loop index the cpt belongs to; the second element indicates
-        the cpt direction."""
+    def loops_for_cpt(self, elt):
+        """Return list of tuples.  The first element of the tuple is the loop
+        the cpt belongs to or an empty list; the second element
+        indicates the cpt direction. """
         
         loops = self.loops()
         cloops = []
@@ -128,15 +128,18 @@ class CircuitGraph(nx.MultiGraph):
             loop1 = loop.copy()
             loop1.append(loop1[0])
 
-            for m in range(len(loop1) - 1):
-                if (nodenames[0] == loop1[m] and
-                    nodenames[1] == loop1[m + 1]):
-                    cloops.append((n, True))
-                    break
-                elif (nodenames[1] == loop1[m] and
-                      nodenames[0] == loop1[m + 1]):
-                    cloops.append((n, False))
-                    break            
+            def find(loop1, nodename1, nodename2):
+                for m in range(len(loop1) - 1):
+                    if (nodename1 == loop1[m] and
+                        nodename2 == loop1[m + 1]):
+                        return True
+
+            if find(loop1, nodenames[0], nodenames[1]):
+                cloops.append((loop, False))
+            elif find(loop1, nodenames[1], nodenames[0]):
+                cloops.append((loop, True))
+            else:
+                cloops.append(([], None))
 
         return cloops
     
