@@ -600,6 +600,23 @@ as an argument:
 - `V1(omega)` returns the Fourier domain expression with angular frequency
 - `V1(jomega)` returns the Fourier domain expression with angular frequency    
 
+Here are some examples,
+
+   >>> V1(t)
+   2⋅cos(6⋅π⋅t) + 3⋅u(t) + 1
+   >>> V1(s)
+     ⎛ 2       2⎞
+   6⋅⎝s  + 24⋅π ⎠
+   ──────────────
+     ⎛ 2       2⎞
+   s⋅⎝s  + 36⋅π ⎠
+   >>> V1(jomega)
+        ⎛   2       2⎞ 
+   -6⋅ⅉ⋅⎝- ω  + 24⋅π ⎠ 
+   ────────────────────
+       ⎛   2       2⎞  
+     ω⋅⎝- ω  + 36⋅π ⎠  
+
 
 
 Voltage and current attributes
