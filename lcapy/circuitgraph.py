@@ -64,7 +64,7 @@ class CircuitGraph(nx.MultiGraph):
             for j in range(i + 1, len(sets)):
                 if sets[i].issubset(sets[j]):
                     rejects.append(j)
-                elif sets[i].issubset(sets[j]):
+                elif sets[j].issubset(sets[i]):
                     rejects.append(i)
 
         cloops = []
@@ -75,7 +75,10 @@ class CircuitGraph(nx.MultiGraph):
         return cloops
 
     def loops(self):
-        return self.chordless_loops()
+        if hasattr(self, '_loops'):
+            return self._loops
+        self._loops = self.chordless_loops()
+        return self._loops
     
     def draw(self, filename=None):
         """Use matplotlib to draw circuit graph."""
@@ -109,5 +112,32 @@ class CircuitGraph(nx.MultiGraph):
         
         return self.cct.elements[self.get_edge_data(node1, node2)[0]['name']]
 
+    def loop_indices_for_cpt(self, elt):
+        """Return list of tuples.  The first element of the tuple
+        is the loop index the cpt belongs to; the second element indicates
+        the cpt direction."""
+        
+        loops = self.loops()
+        cloops = []
+
+        # Map node names to equipotential node names.
+        nodenames = [self.cct.node_map[nodename] for nodename in elt.nodenames]
+        
+        for n, loop in enumerate(loops):
+
+            loop1 = loop.copy()
+            loop1.append(loop1[0])
+
+            for m in range(len(loop1) - 1):
+                if (nodenames[0] == loop1[m] and
+                    nodenames[1] == loop1[m + 1]):
+                    cloops.append((n, True))
+                    break
+                elif (nodenames[1] == loop1[m] and
+                      nodenames[0] == loop1[m + 1]):
+                    cloops.append((n, False))
+                    break            
+
+        return cloops
     
 # neighbors(node) gives neighbouring nodes

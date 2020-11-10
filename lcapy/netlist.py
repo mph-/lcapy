@@ -1404,6 +1404,15 @@ class NetlistMixin(object):
         return self.analysis['ac']
 
     @property
+    def is_mixed(self):
+        """Return True if netlist needs to be solved using multiple approaches,
+        e.g., ac and dc"""
+        
+        return ((self.has_ac and self.has_dc) or
+                (self.has_ac and self.has_transient) or
+                (self.has_dc and self.has_transient))
+
+    @property
     def has_dc(self):
         """Return True if any independent source has a DC component."""
         return self.analysis['has_dc']

@@ -7,22 +7,10 @@ Copyright 2019-202 Michael Hayes, UCECE
 
 from .circuitgraph import CircuitGraph
 from .tmatrix import tMatrix
+from .utils import equation
 import sympy as sym
 
 __all__ = ('NodalAnalysis', )
-
-
-def equation(expr1, expr2):
-
-    class1 = expr1.__class__
-    
-    if isinstance(expr1, Expr):
-        expr1 = expr1.expr
-
-    if isinstance(expr2, Expr):
-        expr2 = expr2.expr
-
-    return class1(sym.equation(expr1, expr2, evaluate=False))
 
 
 class NodalAnalysis(object):
@@ -151,7 +139,7 @@ class NodalAnalysis(object):
         
         return expr(equation(sym.MatMul(self.A, self.y), self.b))
 
-from .expr import Expr, ExprDict, expr
+from .expr import ExprDict, expr
 from .texpr import Vt
 from .voltage import Voltage
 from .matrix import matrix

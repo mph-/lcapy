@@ -167,7 +167,7 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
     # in preference to list's one.  Alternatively, add explicit
     # _repr_pretty_ method here.
     
-    def __init__(self, iterable, evalf=False):
+    def __init__(self, iterable=[], evalf=False):
 
         eiterable = []
         for item in iterable:

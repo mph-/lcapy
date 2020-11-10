@@ -27,12 +27,13 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 from __future__ import division
 from .functions import Heaviside, cos, exp
-from .sym import omega0sym
+from .sym import omega0sym, oo
 from .symbols import j, t, s
 from .network import Network
 from .immitance import ImmitanceMixin
 from .impedance import Impedance
 from .admittance import Admittance
+from sympy import Derivative, Integral
 
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
@@ -314,6 +315,10 @@ class OnePort(Network, ImmitanceMixin):
             return self + Vn
         return self
 
+        def v_equation(self, i):
+            
+            raise NotImplementedError('v_equation not defined')
+        
     
 class ParSer(OnePort):
     """Parallel/serial class"""
@@ -752,6 +757,10 @@ class R(OnePort):
         self._R = cExpr(Rval)
         self._Z = Impedance(self._R)
 
+    def v_equation(self, i):
+        
+        return expr(self.R * i)
+    
 
 class G(OnePort):
     """Conductance"""
@@ -772,6 +781,10 @@ class G(OnePort):
             n2 = netlist._node
         return 'R? %s %s {%s}; %s' % (n1, n2, 1 / self._G, dir)
 
+    def v_equation(self, i):
+        
+        return expr(i / self._G)
+    
 
 class L(OnePort):
     """Inductor
@@ -799,7 +812,11 @@ class L(OnePort):
         self._Voc = Voltage(-Vs(i0 * Lval))
         self.zeroic = self.i0 == 0 
 
+    def v_equation(self, i):
+        
+        return expr(self.L * Derivative(i, t))
 
+    
 class C(OnePort):
     """Capacitor
 
@@ -826,6 +843,14 @@ class C(OnePort):
         self._Voc = Voltage(Vs(v0) / s)
         self.zeroic = self.v0 == 0
 
+    def v_equation(self, i):
+
+        from .sym import tausym
+        
+        u = tausym
+        i = expr(i).subs(t, u)
+        return expr(Integral(i, (u, -oo, t)) / self.C)
+        
 
 class CPE(OnePort):
     """Constant phase element
@@ -879,6 +904,10 @@ class VoltageSource(OnePort):
     netname = 'V'
     is_noisy = False
 
+    def v_equation(self, i):
+        
+        return self.voc
+    
 
 class sV(VoltageSource):
     """Arbitrary s-domain voltage source"""
@@ -1363,7 +1392,7 @@ def ladder(*args, **kwargs):
 
     
 # Imports at end to circumvent circular dependencies
-from .expr import Expr
+from .expr import Expr, expr
 from .cexpr import cExpr, Iconst, Vconst
 from .sexpr import sExpr, Is, Vs, Ys, Zs
 from .texpr import tExpr

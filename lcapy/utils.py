@@ -115,3 +115,17 @@ def merge_common(lists):
         if node not in visited: 
             yield sorted(comp(node))
   
+
+def equation(expr1, expr2):
+
+    from .expr import Expr
+    
+    class1 = expr1.__class__
+    
+    if isinstance(expr1, Expr):
+        expr1 = expr1.expr
+
+    if isinstance(expr2, Expr):
+        expr2 = expr2.expr
+
+    return class1(sym.Eq(expr1, expr2, evaluate=False))
