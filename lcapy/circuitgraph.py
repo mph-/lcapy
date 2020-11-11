@@ -10,15 +10,6 @@ from matplotlib.pyplot import subplots, savefig
 import networkx as nx
 
 
-# MultiGraph handles parallel edges.
-
-# Need to handle cases where components are in parallel.  In this case,
-# there is a loop between nodes 2 - 3 - 2
-# C1 2 3
-# L1 2 3
-#
-# Unfortunately, nx.simple_cycles fails for
-#
 # V1 1 0 {u(t)}; down
 # R1 1 2; right=2
 # L1 2 3; down=2
@@ -27,13 +18,13 @@ import networkx as nx
 # W 2 6; up
 # C1 5 6; right=2
 
-
-class CircuitGraph(nx.MultiGraph):
+class CircuitGraph(nx.Graph):
 
     def __init__(self, cct):
 
         super(CircuitGraph, self).__init__()
         self.cct = cct
+        self.dummy = 0
 
         self.add_nodes_from(cct.node_list)
 
@@ -43,8 +34,18 @@ class CircuitGraph(nx.MultiGraph):
             elt = cct.elements[name]
             if len(elt.nodenames) < 2:
                 continue
-            self.add_edge(node_map[elt.nodenames[0]],
-                          node_map[elt.nodenames[1]], name=name)
+
+            nodename1 = node_map[elt.nodenames[0]]
+            nodename2 = node_map[elt.nodenames[1]]
+            
+            if self.has_edge(nodename1, nodename2):
+                dummy = 'X%d' % self.dummy
+                self.add_edge(nodename1, dummy, name=name)
+                self.add_edge(dummy, nodename2, name=dummy)                
+                self.dummy += 1
+            else:
+                self.add_edge(node_map[nodename1],
+                              node_map[nodename2], name=name)
 
         self.node_map = node_map
 
@@ -58,18 +59,18 @@ class CircuitGraph(nx.MultiGraph):
                 yield elt
             
     def all_loops(self):
-        
-        DG = nx.MultiDiGraph(self)
+
+        # This adds forward and backward edges.
+        DG = nx.DiGraph(self)
         cycles = list(nx.simple_cycles(DG))
 
         loops = []
         for cycle in cycles:
-            # FIXME, need 2 node loops for components in parallel
-            # byt simple_cycles throws out bogus 2 node loops.
-            if len(cycle) > 2:
-                cycle = sorted(cycle)
-                if cycle not in loops:
-                    loops.append(cycle)        
+            if len(cycle) <= 2:
+                continue
+            cycle = sorted(cycle)
+            if cycle not in loops:
+                loops.append(cycle)        
         return loops
 
     def chordless_loops(self):
@@ -77,8 +78,16 @@ class CircuitGraph(nx.MultiGraph):
         loops = self.all_loops()
         sets = [set(loop) for loop in loops]
 
+        DG = nx.DiGraph(self)
+        
         rejects = []
         for i in range(len(sets)):
+
+            # Reject loops with chords.
+            loop = loops[i]
+            if len(loop) == 2:
+                continue
+            
             for j in range(i + 1, len(sets)):
                 if sets[i].issubset(sets[j]):
                     rejects.append(j)
@@ -127,8 +136,11 @@ class CircuitGraph(nx.MultiGraph):
         return self[node]
 
     def component(self, node1, node2):
-        
-        return self.cct.elements[self.get_edge_data(node1, node2)[0]['name']]
+
+        name = self.get_edge_data(node1, node2)['name']
+        if name.startswith('X'):
+            return None
+        return self.cct.elements[name]
 
     def loops_for_cpt(self, elt):
         """Return list of tuples; one for each loop.  The first element of the

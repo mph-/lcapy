@@ -84,6 +84,8 @@ class LoopAnalysis(object):
             for j in range(len(loop1) - 1):
 
                 elt = self.G.component(loop1[j], loop1[j + 1])
+                if elt is None:
+                    continue
 
                 if elt.is_current_source:
                     raise ValueError('TODO: handle current source in loop')
