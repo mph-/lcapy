@@ -848,4 +848,53 @@ The graph is:
 .. image:: examples/netlists/circuitgraph2.png
    :width: 8cm
 
-          
+
+           
+Mesh Analysis
+=============
+
+Lcapy can output the mesh equations by applying Kirchhoff's voltage law around each loop in a circuit.   For example,
+
+   >>> a = Circuit("""
+   ...V1 1 0; down
+   ...R1 1 2; right
+   ...L1 2 3; right
+   ...R2 3 4; right
+   ...L2 2 0_2; down
+   ...C2 3 0_3; down
+   ...R3 4 0_4; down
+   ...W 0 0_2; right
+   ...W 0_2 0_3; right
+   ...W 0_3 0_4; right""")
+   >>> a.draw()
+
+.. image:: examples/netlists/graph2.png
+   :width: 8cm   
+
+           
+The mesh equations are found using::           
+   
+   >>> l = LoopAnalysis(a)
+   >>> l.mesh_equations_dict()
+   ⎧                                              t                                                                                 
+   ⎪                                              ⌠                                                                                 
+   ⎪                                              ⎮  (-i₁(τ) + i₃(τ)) dτ                                                            
+   ⎨                                              ⌡                                                                                 
+   ⎪          d               d                   -∞                                   
+   ⎪i₁(t): L₁⋅──(-i₁(t)) + L₂⋅──(i₁(t) - i₂(t)) + ────────────────────── = 0,
+   ⎩          dt              dt                            C₂               
+              d
+    i₂(t): L₂⋅──(i₁(t) - i₂(t)) - R₁⋅i₂(t) + v₁(t) = 0,
+              dt
+                                   t                                                                                 
+                                  ⌠                         ⎪
+                                  ⎮  (-i₁(τ) + i₃(τ)) dτ    ⎪
+                                  ⌡                         ⎬
+                                  -∞                        ⎪
+    i₃(t): -R₂⋅i₃(t) - R₃⋅i₃(t) + ────────────────────── = 0⎪
+                                      C₂                    ⎭
+
+Note, the dictionary is keyed by the mesh current.
+
+
+

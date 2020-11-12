@@ -39,13 +39,14 @@ class CircuitGraph(nx.Graph):
             nodename2 = node_map[elt.nodenames[1]]
             
             if self.has_edge(nodename1, nodename2):
-                dummy = 'X%d' % self.dummy
-                self.add_edge(nodename1, dummy, name=name)
-                self.add_edge(dummy, nodename2, name=dummy)                
+                # Add dummy node in graph to avoid parallel edges.
+                dummynode = 'X%d' % self.dummy
+                dummycpt = 'W%d' % self.dummy                
+                self.add_edge(nodename1, dummynode, name=name)
+                self.add_edge(dummynode, nodename2, name=dummycpt)                
                 self.dummy += 1
             else:
-                self.add_edge(node_map[nodename1],
-                              node_map[nodename2], name=name)
+                self.add_edge(nodename1, nodename2, name=name)
 
         self.node_map = node_map
 
@@ -138,7 +139,7 @@ class CircuitGraph(nx.Graph):
     def component(self, node1, node2):
 
         name = self.get_edge_data(node1, node2)['name']
-        if name.startswith('X'):
+        if name.startswith('W'):
             return None
         return self.cct.elements[name]
 

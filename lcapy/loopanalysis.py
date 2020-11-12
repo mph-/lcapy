@@ -47,6 +47,11 @@ class LoopAnalysis(object):
 
         return self.G.loops()
 
+    @property
+    def num_loops(self):
+
+        return len(self.G.loops)
+
     def mesh_currents(self):
 
         if not self.G.is_planar:
@@ -131,6 +136,15 @@ class LoopAnalysis(object):
             equations.append(eq)
 
         return equations
-    
 
-from .expr import ExprList, expr    
+    def mesh_equations_dict(self):
+        """Return mesh equations as a dict keyed by the mesh current."""
+
+        result = ExprDict()
+
+        for current, equation in zip(self.mesh_currents(),
+                                     self.mesh_equations()):
+            result[current] = equation
+        return result
+
+from .expr import ExprList, ExprDict, expr    
