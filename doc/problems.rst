@@ -9,6 +9,18 @@ Common problems
 ===============
 
 
+Equality
+--------
+
+SymPy comparison uses structural equality, see https://docs.sympy.org/latest/gotchas.html
+
+One way to test for equality is to subtract the expressions, simplify, and test for 0.  For example,
+   >>> (x - y).simplify() == 0
+
+However, there is no gaurantee that SymPy simplification will return 0 for equal expressions.
+
+
+
 Symbol aliases
 --------------
 
