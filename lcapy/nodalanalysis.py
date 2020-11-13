@@ -1,7 +1,7 @@
 """This module performs nodal analysis.  It is primarily for showing
 the equations rather than for evaluating them.
 
-Copyright 2019-202 Michael Hayes, UCECE
+Copyright 2019-2020 Michael Hayes, UCECE
 
 """
 
@@ -44,7 +44,10 @@ class NodalAnalysis(object):
 
     """
 
-    def __init__(self, cct):
+    def __init__(self, cct, node_prefix=''):
+        """`cct` is a netlist
+        `node_prefix` can be used to avoid ambiguity between
+        component voltages and node voltages."""
 
         self.cct = cct
         self.G = CircuitGraph(cct)
@@ -52,6 +55,8 @@ class NodalAnalysis(object):
         self.kind = self.cct.kind
         if self.kind == 'super':
             self.kind = 'time'
+
+        self.node_prefix = node_prefix
         
         self.ydict = self._make_unknowns()
         
@@ -76,7 +81,7 @@ class NodalAnalysis(object):
             if node == '0':
                 ydict[node] = 0
             else:
-                ydict[node] = Voltage('vn%s(t)' % node).select(self.kind)
+                ydict[node] = Voltage('v%s%s(t)' % (self.node_prefix, node)).select(self.kind)
         return ydict
 
     def _make_equations(self):
@@ -129,7 +134,12 @@ class NodalAnalysis(object):
         eqns = matrix(list(self.equations_dict.values()))
 
         # FIXME, expand is broken in SymPy for relationals in Matrix.
-        return sym.linear_eq_to_matrix(eqns.expand(), *self.y)
+        try:
+            eqns = eqns.expand()
+        except:
+            pass
+        # TODO, subs symbols for applied undefs, such as Vn1(s).
+        return sym.linear_eq_to_matrix(eqns, *self.y)
 
     def nodal_equations(self):
         """Return the equations found by applying KCL at each node.  This is a

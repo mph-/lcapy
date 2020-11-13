@@ -110,6 +110,8 @@ an answer that appears valid for DC.
 
 26. Generate n-port Z and Y matrices
 
+27. Simplify i_equation/v_equation nonsense.
+
 
 Testing
 =======

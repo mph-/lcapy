@@ -6,6 +6,8 @@ Copyright 2019--2020 Michael Hayes, UCECE
 
 """
 
+# TODO, handle current sources and dependent sources.
+
 from .circuitgraph import CircuitGraph
 from .expr import expr
 from .utils import equation
@@ -14,7 +16,7 @@ import sympy as sym
 
 class LoopAnalysis(object):
     """
-    This is an experimental class for nodal analysis.  The API
+    This is an experimental class for loop analysis.  The API
     is likely to change.
 
     >>> from lcapy import Circuit, LoopAnalysis
@@ -67,7 +69,7 @@ class LoopAnalysis(object):
         mesh_currents = ExprList([Current('i_%d(t)' % (m + 1)).select(self.kind) for m in range(Nloops)])
         return mesh_currents
     
-    def mesh_equations(self):
+    def mesh_equations_list(self):
         """Return mesh equations as a list."""
 
         if not self.G.is_planar:
@@ -141,13 +143,13 @@ class LoopAnalysis(object):
 
         return equations
 
-    def mesh_equations_dict(self):
+    def mesh_equations(self):
         """Return mesh equations as a dict keyed by the mesh current."""
 
         result = ExprDict()
 
         for current, equation in zip(self.mesh_currents(),
-                                     self.mesh_equations()):
+                                     self.mesh_equations_list()):
             result[current] = equation
         return result
 
