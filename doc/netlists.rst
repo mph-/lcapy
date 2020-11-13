@@ -897,4 +897,62 @@ The mesh equations are found using::
 Note, the dictionary is keyed by the mesh current.
 
 
+Nodal Analysis
+==============
 
+Lcapy can output the nodal equations by applying Kirchhoff's current law at each node in a circuit.   For example,
+
+   >>> cct = Circuit("""
+   ...V1 1 0; down
+   ...R1 1 2; right
+   ...L1 2 3; right
+   ...R2 3 4; right
+   ...L2 2 0_2; down
+   ...C2 3 0_3; down
+   ...R3 4 0_4; down
+   ...W 0 0_2; right
+   ...W 0_2 0_3; right
+   ...W 0_3 0_4; right""")
+   >>> cct.draw()
+
+.. image:: examples/netlists/graph2.png
+   :width: 8cm   
+
+           
+The nodal equations are found using::           
+   
+   >>> n = NodalAnalysis(cct)
+   >>> n.nodal_equations_dict()
+   ⎧                    
+   ⎪                   
+   ⎪                   
+   ⎨                   
+   ⎪                   
+   ⎪ 1: vₙ₁(t) = v₁(t), 
+   ⎩                   
+                             t              t
+                            ⌠              ⌠
+                            ⎮  vₙ₂(τ) dτ   ⎮  (vₙ₂(τ) - vₙ₃(τ)) dτ
+                            ⌡              ⌡
+         -vₙ₁(t) + vₙ₂(t)   -∞             -∞
+     2: ──────────────── + ──────────── + ─────────────────────── = 0,
+                R₁               L₂                   L₁
+   
+                                           t     
+                                          ⌠
+                                          ⎮  (-vₙ₂(τ) + vₙ₃(τ)) dτ     
+                                          ⌡
+           d            vₙ₃(t) - vₙ₄(t)   -∞
+     3: C₂⋅──(vₙ₃(t)) + ─────────────── + ──────────────────────── = 0, 
+           dt                  R₂                  L₁                  
+                        
+                                      ⎫
+                                      ⎪
+                                      ⎪
+                                      ⎬
+         vₙ₄(t)   -vₙ₃(t) + vₙ₄(t)    ⎪
+     4: ────── + ──────────────── = 0 ⎪
+          R₃            R₂            ⎭
+        
+
+Note, these are keyed by the node names.
