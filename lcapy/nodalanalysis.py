@@ -128,6 +128,7 @@ class NodalAnalysis(object):
 
         eqns = matrix(list(self.equations_dict.values()))
 
+        # FIXME, expand is broken in SymPy for relationals in Matrix.
         return sym.linear_eq_to_matrix(eqns.expand(), *self.y)
 
     def nodal_equations(self):
