@@ -55,8 +55,9 @@ class CircuitGraph(nx.Graph):
 
         for node1, edges in self.node_edges(node).items():
             for key, edge in edges.items():
-                name = edge['name']
-                elt = self.cct.elements[name]
+                if edge.startswith('W'):
+                    continue
+                elt = self.cct.elements[edge]
                 yield elt
             
     def all_loops(self):

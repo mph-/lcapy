@@ -58,9 +58,8 @@ class Super(ExprDict):
     def __init__(self, *args, **kwargs):
         super (Super, self).__init__()
 
-        if any(args):
-            for arg in args:
-                self.add(arg)
+        for arg in args:
+            self.add(arg)
 
     def _representation(self):
         if not any(self):
@@ -502,8 +501,13 @@ class Super(ExprDict):
         """Add a value into the superposition."""
 
         # Avoid triggering __eq__ for Super otherwise have infinite recursion
-        if not isinstance(value, Super) and value == 0:
-            return
+        if not isinstance(value, Super):
+            try:
+                val = value.expr
+            except:
+                val = value
+            if val == 0:
+                return
 
         if '_decomposition' in self:
             delattr(self, '_decomposition')

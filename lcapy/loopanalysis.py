@@ -43,6 +43,10 @@ class LoopAnalysis(object):
         self.cct = cct
         self.G = CircuitGraph(cct)
 
+        self.kind = self.cct.kind
+        if self.kind == 'super':
+            self.kind = 'time'        
+
     def loops(self):
 
         return self.G.loops()
@@ -60,7 +64,7 @@ class LoopAnalysis(object):
         loops = self.loops()
         Nloops = len(loops)
         
-        mesh_currents = ExprList([expr('i_%d(t)' % (m + 1)) for m in range(Nloops)])
+        mesh_currents = ExprList([Current('i_%d(t)' % (m + 1)).select(self.kind) for m in range(Nloops)])
         return mesh_currents
     
     def mesh_equations(self):
@@ -82,7 +86,7 @@ class LoopAnalysis(object):
 
         for m, loop in enumerate(loops):
 
-            result = expr(0)
+            result = Voltage(0).select(self.kind)
 
             loop1 = loop.copy()
             loop1.append(loop1[0])
@@ -127,7 +131,7 @@ class LoopAnalysis(object):
                             current += mesh_currents[n]
                             break
                             
-                v = elt.cpt.v_equation(current)
+                v = elt.cpt.v_equation(current, self.kind)
                 if elt.is_voltage_source and is_reversed:
                     v = -v
                 result += v
@@ -148,3 +152,5 @@ class LoopAnalysis(object):
         return result
 
 from .expr import ExprList, ExprDict, expr    
+from .current import Current
+from .voltage import Voltage

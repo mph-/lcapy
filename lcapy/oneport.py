@@ -27,7 +27,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 from __future__ import division
 from .functions import Heaviside, cos, exp
-from .sym import omega0sym, oo
+from .sym import omega0sym, tsym, oo
 from .symbols import j, t, s
 from .network import Network
 from .immitance import ImmitanceMixin
@@ -315,9 +315,13 @@ class OnePort(Network, ImmitanceMixin):
             return self + Vn
         return self
 
-        def v_equation(self, i):
+        def i_equation(self, i, kind='t'):
             
-            raise NotImplementedError('v_equation not defined')
+            raise NotImplementedError('i_equation not defined')
+
+        def v_equation(self, i, kind='t'):
+            
+            raise NotImplementedError('v_equation not defined')        
         
     
 class ParSer(OnePort):
@@ -757,9 +761,19 @@ class R(OnePort):
         self._R = cExpr(Rval)
         self._Z = Impedance(self._R)
 
-    def v_equation(self, i):
+    def i_equation(self, v, kind='t'):
+
+        if kind in ('t', 'time', 'super'):
+            return Current(Voltage(v).select('time') / self._R).select(kind)
         
-        return expr(self.R * i)
+        return Voltage(v).select(kind) / self._Z
+
+    def v_equation(self, i, kind='t'):
+
+        if kind in ('t', 'time', 'super'):
+            return Voltage(Current(i).select('time') * self._R).select(kind)
+        
+        return Current(i).select(kind) * self._Z
     
 
 class G(OnePort):
@@ -781,9 +795,19 @@ class G(OnePort):
             n2 = netlist._node
         return 'R? %s %s {%s}; %s' % (n1, n2, 1 / self._G, dir)
 
-    def v_equation(self, i):
+    def i_equation(self, v, kind='t'):
+
+        if kind in ('t', 'time', 'super'):
+            return Current(Voltage(v).select('time') / self._G).select(kind)
         
-        return expr(i / self._G)
+        return Voltage(v).select(kind) / self._Z
+
+    def v_equation(self, i, kind='t'):
+
+        if kind in ('t', 'time', 'super'):
+            return Volatge(Current(i).select('time') * self._G).select(kind)
+
+        return Current(i).select(kind) * self._Z        
     
 
 class L(OnePort):
@@ -812,9 +836,21 @@ class L(OnePort):
         self._Voc = Voltage(-Vs(i0 * Lval))
         self.zeroic = self.i0 == 0 
 
-    def v_equation(self, i):
-        
-        return expr(self.L * Derivative(i, t))
+    def i_equation(self, v, kind='t'):
+
+        from .sym import tausym
+
+        if kind in ('t', 'time', 'super'):
+            u = tausym
+            v = expr(v).subs(t, u)
+            return Current(expr(Integral(v.expr, (u, -oo, tsym))) / self.L).select(kind)
+        return Impedance(1 / s * self.L, kind='t') * Voltage(v).select(kind)
+
+    def v_equation(self, i, kind='t'):
+
+        if kind in ('t', 'time', 'super'):
+            return Voltage(self.L * expr(Derivative(i.expr, t))).select(kind)
+        return Impedance(s * self.L, kind='t') * Current(i).select(kind)
 
     
 class C(OnePort):
@@ -843,14 +879,22 @@ class C(OnePort):
         self._Voc = Voltage(Vs(v0) / s)
         self.zeroic = self.v0 == 0
 
-    def v_equation(self, i):
+    def i_equation(self, i, kind='t'):
+        
+        if kind in ('t', 'time', 'super'):
+            return Current(self.C * expr(Derivative(v.expr, t))).select(kind)
+        return Impedance(s * self.C, kind='t') * Voltage(v).select(kind)
+
+    def v_equation(self, i, kind='t'):
 
         from .sym import tausym
-        
-        u = tausym
-        i = expr(i).subs(t, u)
-        return expr(Integral(i, (u, -oo, t)) / self.C)
-        
+
+        if kind in ('t', 'time', 'super'):
+            u = tausym
+            i = expr(i).subs(t, u)
+            return Voltage(expr(Integral(i.expr, (u, -oo, tsym))) / self.C).select(kind)
+        return Impedance(1 / s * self.C, kind='t') * Current(i).select(kind)
+
 
 class CPE(OnePort):
     """Constant phase element
@@ -904,9 +948,9 @@ class VoltageSource(OnePort):
     netname = 'V'
     is_noisy = False
 
-    def v_equation(self, i):
+    def v_equation(self, i, kind='t'):
         
-        return self.voc
+        return Voltage(self.voc).select(kind)
     
 
 class sV(VoltageSource):
@@ -1034,6 +1078,10 @@ class CurrentSource(OnePort):
         """Open-circuit current of a current source.  To achieve this the
         open-circuit voltage needs to be infinite."""
         return self.Isc
+
+    def i_equation(self, v, kind='t'):
+
+        return Current(self.isc).select(kind)        
     
     
 class sI(CurrentSource):

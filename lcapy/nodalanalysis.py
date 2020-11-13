@@ -46,14 +46,13 @@ class NodalAnalysis(object):
 
     def __init__(self, cct):
 
-        # In principle we could generate the system of
-        # integro-differential equations in the time domain.
-        if cct.kind == 'super':
-            raise ValueError('Can only handle sub-circuits at present')
-        
         self.cct = cct
         self.G = CircuitGraph(cct)
 
+        self.kind = self.cct.kind
+        if self.kind == 'super':
+            self.kind = 'time'
+        
         self.ydict = self._make_unknowns()
         
         self.y = matrix([val for key, val in self.ydict.items() if key != '0'])
@@ -77,7 +76,7 @@ class NodalAnalysis(object):
             if node == '0':
                 ydict[node] = 0
             else:
-                ydict[node] = self.Vname('Vn' + node)
+                ydict[node] = Vname('vn(t)' + node, self.kind)
         return ydict
 
     def _make_equations(self):
@@ -97,7 +96,7 @@ class NodalAnalysis(object):
                 n1 = self.G.node_map[elt.nodenames[0]]
                 n2 = self.G.node_map[elt.nodenames[1]]
 
-                V = Voltage(elt.voc).select(self.cct.kind)
+                V = elt.cpt.v_equation(0, self.kind)
                 
                 eq = equation(self.ydict[n1], self.ydict[n2] + V)
 
@@ -114,7 +113,7 @@ class NodalAnalysis(object):
                         n1, n2 = n2, n1
                     else:
                         raise ValueError('Component %s does not have node %d' % (elt, node))
-                    expr += (self.ydict[n1] - self.ydict[n2]) * elt.cpt.Y
+                    expr += elt.cpt.i_equation(self.ydict[n1] - self.ydict[n2], self.kind)
                     
                 eq = equation(expr, 0)
 
@@ -141,5 +140,5 @@ class NodalAnalysis(object):
 
 from .expr import ExprDict, expr
 from .texpr import Vt
-from .voltage import Voltage
+from .voltage import Voltage, Vname
 from .matrix import matrix
