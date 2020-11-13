@@ -25,6 +25,8 @@ class CircuitGraph(nx.Graph):
         super(CircuitGraph, self).__init__()
         self.cct = cct
         self.dummy = 0
+        # Dummy nodes are used to avoid parallel edges.
+        self.dummy_nodes = {}
 
         self.add_nodes_from(cct.node_list)
 
@@ -40,10 +42,11 @@ class CircuitGraph(nx.Graph):
             
             if self.has_edge(nodename1, nodename2):
                 # Add dummy node in graph to avoid parallel edges.
-                dummynode = 'X%d' % self.dummy
+                dummynode = '*%d' % self.dummy
                 dummycpt = 'W%d' % self.dummy                
                 self.add_edge(nodename1, dummynode, name=name)
-                self.add_edge(dummynode, nodename2, name=dummycpt)                
+                self.add_edge(dummynode, nodename2, name=dummycpt)
+                self.dummy_nodes[dummynode] = nodename2
                 self.dummy += 1
             else:
                 self.add_edge(nodename1, nodename2, name=name)
@@ -54,11 +57,15 @@ class CircuitGraph(nx.Graph):
         """List of components connected to specified node."""
 
         for node1, edges in self.node_edges(node).items():
+            if node1.startswith('*'):
+                for elt in self.connected(node1):
+                    yield elt
+                continue
+            
             for key, edge in edges.items():
-                if edge.startswith('W'):
-                    continue
-                elt = self.cct.elements[edge]
-                yield elt
+                if not edge.startswith('W'):
+                    elt = self.cct.elements[edge]
+                    yield elt
             
     def all_loops(self):
 

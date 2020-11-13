@@ -59,8 +59,6 @@ class NodalAnalysis(object):
         
         self.equations_dict = self._make_equations()
 
-        self.A, self.b = self._analyse()
-        
         
     def nodes(self):
 
@@ -73,10 +71,12 @@ class NodalAnalysis(object):
 
         # cct.node_list is sorted alphabetically
         for node in self.cct.node_list:
+            if node.startswith('*'):
+                continue            
             if node == '0':
                 ydict[node] = 0
             else:
-                ydict[node] = Vname('vn(t)' + node, self.kind)
+                ydict[node] = Voltage('vn%s(t)' % node).select(self.kind)
         return ydict
 
     def _make_equations(self):
@@ -84,6 +84,9 @@ class NodalAnalysis(object):
         equations_dict = ExprDict()
         for node in self.nodes():
             if node == '0':
+                continue
+            # Ignore dummy nodes
+            if node.startswith('*'):
                 continue
 
             voltage_sources = []
@@ -101,7 +104,7 @@ class NodalAnalysis(object):
                 eq = equation(self.ydict[n1], self.ydict[n2] + V)
 
             else:
-                expr = 0
+                result = Current(0).select(self.kind)
                 for elt in self.G.connected(node):
                     if len(elt.nodenames) < 2:
                         raise ValueError('Elt %s has too few nodes' % elt)
@@ -112,10 +115,10 @@ class NodalAnalysis(object):
                     elif node == n2:
                         n1, n2 = n2, n1
                     else:
-                        raise ValueError('Component %s does not have node %d' % (elt, node))
-                    expr += elt.cpt.i_equation(self.ydict[n1] - self.ydict[n2], self.kind)
+                        raise ValueError('Component %s does not have node %s' % (elt, node))
+                    result += elt.cpt.i_equation(self.ydict[n1] - self.ydict[n2], self.kind)
                     
-                eq = equation(expr, 0)
+                eq = equation(result, 0)
 
             equations_dict[node] = eq
 
@@ -135,10 +138,16 @@ class NodalAnalysis(object):
 
     def equations(self):
         """Return the equations in matrix form."""
+
+        if self.kind == 'time':
+            raise ValueError('Cannot put time domain equations into matrix form')
         
-        return expr(equation(sym.MatMul(self.A, self.y), self.b))
+        A, b = self._analyse()
+        
+        return expr(equation(sym.MatMul(A, self.y), b))
 
 from .expr import ExprDict, expr
 from .texpr import Vt
-from .voltage import Voltage, Vname
+from .voltage import Voltage
+from .current import Current
 from .matrix import matrix

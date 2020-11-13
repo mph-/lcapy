@@ -315,7 +315,7 @@ class OnePort(Network, ImmitanceMixin):
             return self + Vn
         return self
 
-        def i_equation(self, i, kind='t'):
+        def i_equation(self, v, kind='t'):
             
             raise NotImplementedError('i_equation not defined')
 
@@ -879,7 +879,7 @@ class C(OnePort):
         self._Voc = Voltage(Vs(v0) / s)
         self.zeroic = self.v0 == 0
 
-    def i_equation(self, i, kind='t'):
+    def i_equation(self, v, kind='t'):
         
         if kind in ('t', 'time', 'super'):
             return Current(self.C * expr(Derivative(v.expr, t))).select(kind)
