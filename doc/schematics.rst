@@ -635,6 +635,14 @@ Here's an example:
 .. image:: examples/schematics/transistors.png
    :width: 16cm
 
+The transistors can be flipped up-down with the `mirror` attribute and left-right with the `invert` attribute, for example:           
+
+.. literalinclude:: examples/schematics/transistors2.sch
+
+
+.. image:: examples/schematics/transistors2.png
+   :width: 6cm           
+
 
 Transmission lines
 ------------------
@@ -653,6 +661,8 @@ The ground wires can be removed using the `nowires` attribute:
 .. image:: examples/schematics/tline5.png
    :width: 8cm        
 
+For more generic transmission lines see :ref:`cables`.
+           
 
 Mechanical components
 ---------------------
@@ -790,6 +800,8 @@ For example:
    :width: 15cm  
 
 
+.. _cables:
+           
 Cables
 ======
 

@@ -1524,13 +1524,15 @@ class Transistor(FixedCpt):
     
     can_mirror = True
     can_scale = True
+    can_invert = True    
 
     @property
     def pins(self):
+        xpins = [[self.npins, self.inpins], [self.ppins, self.ippins]]
         if self.classname in ('Qpnp', 'Mpmos', 'Jpjf'):
-            return self.npins if self.mirror else self.ppins
+            return xpins[not self.mirror][self.invert]
         else:
-            return self.ppins if self.mirror else self.npins
+            return xpins[self.mirror][self.invert]
 
     def draw(self, **kwargs):
 
@@ -1540,8 +1542,15 @@ class Transistor(FixedCpt):
         n1, n2, n3 = self.nodes
         centre = (n1.pos + n3.pos) * 0.5
 
-        s = r'  \draw (%s) node[%s, %s, scale=%s, rotate=%d] (%s) {};''\n' % (
-            centre, self.tikz_cpt, self.args_str, 2 * self.scale,
+        xscale = self.scale * 2
+        yscale = self.scale * 2
+        if self.mirror:
+            yscale = -yscale
+        if self.invert:
+            xscale = -xscale            
+        
+        s = r'  \draw (%s) node[%s, %s, xscale=%s, yscale=%s, rotate=%d] (%s) {};''\n' % (
+            centre, self.tikz_cpt, self.args_str, xscale, yscale,
             self.angle, self.s)
         s += self.draw_label(centre, **kwargs)
 
@@ -1566,7 +1575,13 @@ class BJT(Transistor):
              'c' : ('lx', 1, 1.6)}
     npins = {'e' : ('lx', 1, 1.6),
              'b' : ('lx', 0, 0.8),
-             'c' : ('lx', 1, 0)}    
+             'c' : ('lx', 1, 0)}
+    ippins = {'e' : ('lx', 0, 0),
+             'b' : ('lx', 1, 0.8),
+             'c' : ('lx', 0, 1.6)}
+    inpins = {'e' : ('lx', 0, 1.6),
+             'b' : ('lx', 1, 0.8),
+             'c' : ('lx', 0, 0)}        
 
     
 class JFET(Transistor):
@@ -1578,7 +1593,13 @@ class JFET(Transistor):
              's' : ('lx', 1, 1.5)}
     npins = {'d' : ('lx', 1, 1.5),
              'g' : ('lx', 0, 0.46),
-             's' : ('lx', 1, 0)}        
+             's' : ('lx', 1, 0)}
+    ippins = {'d' : ('lx', 0, 0),
+             'g' : ('lx', 1, 1.04),
+             's' : ('lx', 0, 1.5)}
+    inpins = {'d' : ('lx', 0, 1.5),
+             'g' : ('lx', 1, 0.46),
+             's' : ('lx', 0, 0)}            
 
 
 class MOSFET(Transistor):
@@ -1590,7 +1611,13 @@ class MOSFET(Transistor):
              's' : ('lx', 0.85, 1.64)}
     npins = {'d' : ('lx', 0.85, 1.64),
              'g' : ('lx', -0.25, 0.82),
-             's' : ('lx', 0.85, 0)}        
+             's' : ('lx', 0.85, 0)}
+    ippins = {'d' : ('lx', -0.25, 0),
+             'g' : ('lx', 0.85, 0.82),
+             's' : ('lx', -0.25, 1.64)}
+    inpins = {'d' : ('lx', -0.25, 1.64),
+             'g' : ('lx', 0.85, 0.82),
+             's' : ('lx', -0.25, 0)}            
 
 
 class MT(Bipole):
