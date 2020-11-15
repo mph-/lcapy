@@ -551,7 +551,7 @@ class AMatrix(TwoPortMatrix):
     def Bparams(self):
 
         # Inverse
-        det = self.det()
+        det = self.det().expr
         if det == 0:
             warn('Producing dodgy B matrix')
         return BMatrix(((self._A22 / det, -self._A12 / det),
@@ -562,7 +562,8 @@ class AMatrix(TwoPortMatrix):
 
         if self._A22 == 0:
             warn('Producing dodgy H matrix')
-        return HMatrix(((self._A12 / self._A22, self.det() / self._A22),
+        det = self.det().expr            
+        return HMatrix(((self._A12 / self._A22, det / self._A22),
                         (-1 / self._A22, self._A21 / self._A22)))
 
 
@@ -582,7 +583,8 @@ class AMatrix(TwoPortMatrix):
         # shunt element).   Note, it doesn't use A21.
         if self._A12 == 0:
             warn('Producing dodgy Y matrix')
-        return YMatrix(((self._A22 / self._A12, -self.det() / self._A12),
+        det = self.det().expr            
+        return YMatrix(((self._A22 / self._A12, -det / self._A12),
                         (-1 / self._A12, self._A11 / self._A12)))
 
     @property
@@ -592,7 +594,8 @@ class AMatrix(TwoPortMatrix):
         # series element).   Note, it doesn't use A12.
         if self._A21 == 0:
             warn('Producing dodgy Z matrix')
-        return ZMatrix(((self._A11 / self._A21, self.det() / self._A21),
+        det = self.det().expr            
+        return ZMatrix(((self._A11 / self._A21, det / self._A21),
                         (1 / self._A21, self._A22 / self._A21)))
 
     @property
@@ -705,7 +708,7 @@ class BMatrix(TwoPortMatrix):
     @property
     def Aparams(self):
         # Inverse
-        det = self.det()
+        det = self.det().expr
         return AMatrix(((self._B22 / det, -self._B12 / det),
                         (-self._B21 / det, self._B11 / det)))
 
@@ -717,26 +720,30 @@ class BMatrix(TwoPortMatrix):
     @property
     def Gparams(self):
 
+        det = self.det().expr        
         return GMatrix(((-self._B21 / self._B22, -1 / self._B22),
-                        (self.det() / self._B22, -self._B12 / self._B22)))
+                        (det / self._B22, -self._B12 / self._B22)))
 
     @property
     def Hparams(self):
 
+        det = self.det().expr        
         return HMatrix(((-self._B12 / self._B11, 1 / self._B11),
-                        (-self.det() / self._B11, -self._B21 / self._B11)))
+                        (-det / self._B11, -self._B21 / self._B11)))
 
     @property
     def Yparams(self):
 
+        det = self.det().expr
         return YMatrix(((-self._B11 / self._B12, 1 / self._B12),
-                        (self.det() / self._B12, -self._B22 / self._B12)))
+                        (det / self._B12, -self._B22 / self._B12)))
 
     @property
     def Zparams(self):
 
+        det = self.det().expr        
         return ZMatrix(((-self._B22 / self._B21, -1 / self._B21),
-                        (-self.det() / self._B21, -self._B11 / self._B21)))
+                        (-det / self._B21, -self._B11 / self._B21)))
 
     @property
     def Z1oc(self):
@@ -957,13 +964,15 @@ class GMatrix(TwoPortMatrix):
     @property
     def Aparams(self):
         # return self.Hparams.Aparams
+        det = self.det().expr        
         return AMatrix(((1 / self._G21, self._G22 / self._G21),
-                        (self._G11 / self._G21, self.det() / self._G21)))
+                        (self._G11 / self._G21, det / self._G21)))
 
     @property
     def Bparams(self):
         # return self.Hparams.Bparams
-        return BMatrix(((-self.det() / self._G12),
+        det = self.det().expr        
+        return BMatrix(((-det / self._G12),
                         (self._G22 / self._G12, self._G11 / self._G12, -1 / self._G12)))
 
     @property
@@ -1011,13 +1020,15 @@ class HMatrix(TwoPortMatrix):
         
     @property
     def Aparams(self):
-        return AMatrix(((-self.det() / self._H21, -self._H11 / self._H21),
+        det = self.det().expr
+        return AMatrix(((-det / self._H21, -self._H11 / self._H21),
                         (-self._H22 / self._H21, -1 / self._H21)))
 
     @property
     def Bparams(self):
+        det = self.det().expr
         return BMatrix(((1 / self._H12, -self._H11 / self._H12),
-                        (-self._H22 / self._H12, self.det() / self._H12)))
+                        (-self._H22 / self._H12, det / self._H12)))
 
     @property
     def Hparams(self):
@@ -1026,12 +1037,14 @@ class HMatrix(TwoPortMatrix):
 
     @property
     def Yparams(self):
+        det = self.det().expr        
         return YMatrix(((1 / self._H11, -self._H12 / self._H11),
-                        (self._H21 / self._H11, self.det() / self._H11)))
+                        (self._H21 / self._H11, det / self._H11)))
 
     @property
     def Zparams(self):
-        return ZMatrix(((self.det() / self._H22, self._H12 / self._H22),
+        det = self.det().expr        
+        return ZMatrix(((det / self._H22, self._H12 / self._H22),
                         (-self._H21 / self._H22, 1 / self._H22)))
 
 
@@ -1055,7 +1068,7 @@ class SMatrix(TwoPortMatrix):
 
     @property
     def Aparams(self):
-        det = self.det()
+        det = self.det().expr
         Z0 = Zs('Z_0')
         A = AMatrix(((1 + self._S11 - self._S22 - det,
                          (1 + self._S11 + self._S22 + det) * Z0),
@@ -1073,7 +1086,8 @@ class SMatrix(TwoPortMatrix):
 
     @property
     def Tparams(self):
-        return TMatrix(((-self.det() / self._S21, self._S11 / self._S21),
+        det = self.det().expr        
+        return TMatrix(((-det / self._S21, self._S11 / self._S21),
                         (-self._S22 / self._S21, 1 / self._S21)))
 
     @property
@@ -1110,7 +1124,8 @@ class TMatrix(TwoPortMatrix):
 
     @property
     def Sparams(self):
-        return SMatrix(((self._T12 / self._T22, self.det() / self._T22),
+        det = self.det().expr        
+        return SMatrix(((self._T12 / self._T22, det / self._T22),
                         (1 / self._T22, -self._T21 / self._T22)))
     
     @property
@@ -1154,18 +1169,21 @@ class YMatrix(TwoPortMatrix):
 
     @property
     def Aparams(self):
+        det = self.det().expr        
         return AMatrix(((-self._Y22 / self._Y21, -1 / self._Y21),
-                        (-self.det() / self._Y21, -self._Y11 / self._Y21)))
+                        (-det / self._Y21, -self._Y11 / self._Y21)))
 
     @property
     def Bparams(self):
+        det = self.det().expr        
         return BMatrix(((-self._Y11 / self._Y12, 1 / self._Y12),
-                        (self.det() / self._Y12, -self._Y22 / self._Y12)))
+                        (det / self._Y12, -self._Y22 / self._Y12)))
 
     @property
     def Hparams(self):
+        det = self.det().expr
         return HMatrix(((1 / self._Y11, -self._Y12 / self._Y11),
-                        (self._Y21 / self._Y11, self.det() / self._Y11)))
+                        (self._Y21 / self._Y11, det / self._Y11)))
 
     @property
     def Yparams(self):
@@ -1175,7 +1193,7 @@ class YMatrix(TwoPortMatrix):
     @property
     def Zparams(self):
         # Inverse
-        det = self.det()
+        det = self.det().expr
         return ZMatrix(((self._Y22 / det, -self._Y12 / det),
                         (-self._Y21 / det, self._Y11 / det)))
 
@@ -1211,23 +1229,26 @@ class ZMatrix(TwoPortMatrix):
 
     @property
     def Aparams(self):
-        return AMatrix(((self._Z11 / self._Z21, self.det() / self._Z21),
+        det = self.det().expr
+        return AMatrix(((self._Z11 / self._Z21, det / self._Z21),
                         (1 / self._Z21, self._Z22 / self._Z21)))
 
     @property
     def Bparams(self):
-        return BMatrix(((self._Z22 / self._Z12, -self.det() / self._Z12),
+        det = self.det().expr
+        return BMatrix(((self._Z22 / self._Z12, -det / self._Z12),
                         (-1 / self._Z12, self._Z11 / self._Z12)))
 
     @property
     def Hparams(self):
-        return HMatrix(((self.det() / self._Z22, self._Z12 / self._Z22),
+        det = self.det().expr
+        return HMatrix(((det / self._Z22, self._Z12 / self._Z22),
                         (-self._Z21 / self._Z22, 1 / self._Z22)))
 
     @property
     def Yparams(self):
         # Inverse
-        det = self.det()
+        det = self.det().expr
         return YMatrix(((self._Z22 / det, -self._Z12 / det),
                         (-self._Z21 / det, self._Z11 / det)))
 
@@ -2121,13 +2142,13 @@ class TwoPortZModel(TwoPort):
     @property
     def I1y(self):
 
-        Zdet = self.Zparams.det()
+        Zdet = self.Zparams.det().expr
         return Is(-self.V1z * self._Z22 / Zdet - self.V2z * self._Z12 / Zdet)
 
     @property
     def I2y(self):
 
-        Zdet = self.Zparams.det()
+        Zdet = self.Zparams.det().expr
         return Is(self.V1z * self._Z21 / Zdet - self.V2z * self._Z11 / Zdet)
 
     @property
