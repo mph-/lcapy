@@ -68,6 +68,10 @@ class Network(object):
         argsrepr = ', '.join([latex(arg, **kwargs) for arg in self._tweak_args()])
         return '\\mathrm{%s}(%s)' % (self.__class__.__name__, argsrepr)
 
+    def pprint(self):
+
+        print(self.pretty())
+    
     @property
     def analysis(self):
         return self.cct.analysis
