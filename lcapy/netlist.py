@@ -1204,7 +1204,7 @@ class NetlistMixin(object):
             V2b = net.Voc(N2p, N2m)(s)
             I2b = net.Isc(N2p, N2m)(s)
             A = net.Aparams(N1p, N1m, N2p, N2m)
-            return TwoPortBModel(A.B, V2b, I2b)
+            return TwoPortBModel(A.Bparams, V2b, I2b)
         elif model == 'Z':
             V1 = net.Voc(N1p, N1m)(s)
             V2 = net.Voc(N2p, N2m)(s)
