@@ -116,6 +116,10 @@ def main (argv=None):
     parser.add_argument('--xgraph', action='store_true',
                         dest='xgraph', default=False,
                         help="generate graph of component x positions")
+
+    parser.add_argument('--circuitgraph', action='store_true',
+                        default=False,
+                        help="generate circuit graph")    
     
     parser.add_argument('--ygraph', action='store_true',
                         dest='ygraph', default=False,
@@ -165,7 +169,7 @@ def main (argv=None):
     if args.pdb:
         sys.excepthook = schtex_exception
         
-    from lcapy import Circuit
+    from lcapy import Circuit, CircuitGraph
 
     cct = Circuit(infilename, allow_anon=args.allow_anon)
     if args.k_model:
@@ -209,7 +213,7 @@ def main (argv=None):
         
     nosave = args.xgraph or args.ygraph
 
-    if not args.xgraph and not args.ygraph:
+    if not args.xgraph and not args.ygraph and not args.circuitgraph:
         kwargs = {}
         if args.options != None:
             kwargs['options'] = args.options
@@ -236,6 +240,10 @@ def main (argv=None):
     if args.ygraph:
         cct.sch.make_graphs(debug=args.debug)
         cct.sch.ygraph.dot(outfilename, stage=args.stage)
+
+    if args.circuitgraph:
+       cg = CircuitGraph(cct)
+       cg.draw(filename=outfilename)
 
     if args.show:
         show()
