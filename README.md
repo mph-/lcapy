@@ -206,6 +206,10 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
+- Version 0.70 adds improved nodal and mesh analysis.
+
+- Version 0.69 adds common-mode gain for opamps and polyphase-twoports.
+
 - Version 0.67 adds time-stepping simulation, supernode detection, and polyphase circuits.
 
 - Version 0.66 tidies up two-port parameters.  S and T parameters are
