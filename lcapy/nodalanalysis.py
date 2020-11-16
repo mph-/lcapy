@@ -81,7 +81,8 @@ class NodalAnalysis(object):
             if node == '0':
                 unknowns[node] = 0
             else:
-                unknowns[node] = Voltage('v%s%s(t)' % (self.node_prefix, node)).select(self.kind)
+                unknowns[node] = Vname('V%s%s' % (self.node_prefix, node),
+                                       self.kind)
         return unknowns
 
     def _make_equations(self):
@@ -190,15 +191,19 @@ class NodalAnalysis(object):
         """Return y vector where A y = b."""
         return self._y
     
-    def equations(self):
+    def matrix_equations(self):
         """Return the equations in matrix form where A y = b."""
 
-        A, b = self.A, self.b
+        if not hasattr(self, '_A'):
+            self._A, self._b = self._analyse()            
         
-        return expr(sym.Eq(sym.MatMul(A, self.y), b), evaluate=False)
+        A, b = self._A, self._b
+        y = sym.Matrix([y1.expr for y1 in self._y])
+        
+        return expr(sym.Eq(sym.MatMul(A, y), b), evaluate=False)
 
 from .expr import ExprDict, expr
 from .texpr import Vt
-from .voltage import Voltage
+from .voltage import Vname
 from .current import Current
 from .matrix import matrix

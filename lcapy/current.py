@@ -103,8 +103,8 @@ def Iname(name, kind, cache=False):
     
     if kind == 's':
         return Is(name + '(s)')
-    elif kind == 't':
-        return It(name + '(t)')
+    elif kind in ('t', 'time'):
+        return It(name.lower() + '(t)')
     elif kind in (omega0sym, omega0, 'ac'):    
         return Iphasor(name + '(omega_0)')
     return expr(name, cache=cache)            

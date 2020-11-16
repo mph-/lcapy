@@ -71,7 +71,7 @@ class LoopAnalysis(object):
         loops = self.loops()
         Nloops = len(loops)
         
-        mesh_currents = ExprList([Current('i_%d(t)' % (m + 1)).select(self.kind) for m in range(Nloops)])
+        mesh_currents = ExprList([Iname('I_%d' % (m + 1), self.kind) for m in range(Nloops)])
         return mesh_currents
 
     def _make_equations(self):    
@@ -87,7 +87,7 @@ class LoopAnalysis(object):
         loops = self.loops()
         Nloops = len(loops)
 
-        mesh_currents = [expr('i_%d(t)' % (m + 1)) for m in range(Nloops)]
+        mesh_currents = [Iname('I_%d' % (m + 1), self.kind) for m in range(Nloops)]
         equations = {}
 
         for m, loop in enumerate(loops):
@@ -136,7 +136,7 @@ class LoopAnalysis(object):
                             nodenames[0] == loop2[l + 1]):
                             current += mesh_currents[n]
                             break
-                            
+
                 v = elt.cpt.v_equation(current, self.kind)
                 if elt.is_voltage_source and is_reversed:
                     v = -v
@@ -209,14 +209,18 @@ class LoopAnalysis(object):
         """Return y vector where A y = b."""
         return self._y
     
-    def equations(self):
+    def matrix_equations(self):
         """Return the equations in matrix form where A y = b."""
 
-        A, b = self.A, self.b
+        if not hasattr(self, '_A'):
+            self._A, self._b = self._analyse()            
         
-        return expr(sym.Eq(sym.MatMul(A, self.y), b), evaluate=False)
+        A, b = self._A, self._b
+        y = sym.Matrix([y1.expr for y1 in self._y])
+        
+        return expr(sym.Eq(sym.MatMul(A, y), b), evaluate=False)
     
 from .expr import ExprList, ExprDict, expr    
-from .current import Current
+from .current import Iname
 from .voltage import Voltage
 from .matrix import matrix

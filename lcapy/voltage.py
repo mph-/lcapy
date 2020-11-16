@@ -103,8 +103,8 @@ def Vname(name, kind, cache=False):
     
     if kind == 's':
         return Vs(name + '(s)')
-    elif kind == 't':
-        return Vt(name + '(t)')
+    elif kind in ('t', 'time'):
+        return Vt(name.lower() + '(t)')
     elif kind in (omega0sym, omega0, 'ac'):
         return Vphasor(name + '(omega_0)')
     # Not caching is a hack to avoid conflicts of Vn1 with Vn1(s) etc.
