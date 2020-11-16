@@ -342,7 +342,7 @@ There are a number of forms that the system of equations can be shown: `y = Ainv
    
 The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.   
 
-.. _mesh-analysis:
+.. _nodal-analysis:
 
 Nodal analysis
 ==============
@@ -745,5 +745,4 @@ between accuracy and stability.
 Here's an example of using the backward-Euler integration method:
 
    >>> results = cct.sim(tv, integrator='backward-euler')
-
 

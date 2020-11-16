@@ -1276,7 +1276,7 @@ The output equations are shown using the `output_equations()` method:
    ⎢     ⎥   ⎢      ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
    ⎣v₃(t)⎦   ⎣0    1⎦            ⎣0⎦       
 
-For further details see :ref:`state-space-analysis'
+For further details see :ref:`state-space-analysis`.
 
 
 Mesh analysis
@@ -1569,3 +1569,4 @@ directory.  Before these notebooks can be viewed in a browser you need to start 
 
 Alternatively, they can be viewed online at
 https://github.com/mph-/lcapy/tree/master/doc/examples/notebooks.
+
