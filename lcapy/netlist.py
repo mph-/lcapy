@@ -1404,7 +1404,7 @@ class NetlistMixin(object):
         return self.analysis['ac']
 
     @property
-    def is_mixed(self):
+    def is_superposition(self):
         """Return True if netlist needs to be solved using multiple approaches,
         e.g., ac and dc"""
         

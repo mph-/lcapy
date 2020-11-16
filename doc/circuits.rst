@@ -316,3 +316,251 @@ between accuracy and stability.
 Here's an example of using the backward-Euler integration method:
 
    >>> results = cct.sim(tv, integrator='backward-euler')
+
+
+Mesh analysis
+=============
+
+Lcapy can output the mesh equations by applying Kirchhoff's voltage
+law around each loop in a circuit.  For example, consider the netlist:
+
+   >>> cct = Circuit("""
+   ...V1 1 0; down
+   ...R1 1 2; right
+   ...L1 2 3; right
+   ...R2 3 4; right
+   ...L2 2 0_2; down
+   ...C2 3 0_3; down
+   ...R3 4 0_4; down
+   ...W 0 0_2; right
+   ...W 0_2 0_3; right
+   ...W 0_3 0_4; right""")
+   >>> cct.draw()
+
+.. image:: examples/netlists/graph2.png
+   :width: 8cm   
+
+           
+The mesh equations are found using::           
+   
+   >>> l = LoopAnalysis(cct)
+   >>> l.mesh_equations()
+   ⎧                                              t                                                                                 
+   ⎪                                              ⌠                                                                                 
+   ⎪                                              ⎮  (-i₁(τ) + i₃(τ)) dτ                                                            
+   ⎨                                              ⌡                                                                                 
+   ⎪          d               d                   -∞                                   
+   ⎪i₁(t): L₁⋅──(-i₁(t)) + L₂⋅──(i₁(t) - i₂(t)) + ────────────────────── = 0,
+   ⎩          dt              dt                            C₂               
+              d
+    i₂(t): L₂⋅──(i₁(t) - i₂(t)) - R₁⋅i₂(t) + v₁(t) = 0,
+              dt
+                                   t                                                                                 
+                                  ⌠                         ⎪
+                                  ⎮  (-i₁(τ) + i₃(τ)) dτ    ⎪
+                                  ⌡                         ⎬
+                                  -∞                        ⎪
+    i₃(t): -R₂⋅i₃(t) - R₃⋅i₃(t) + ────────────────────── = 0⎪
+                                      C₂                    ⎭
+
+Note, the dictionary is keyed by the mesh current.
+
+The mesh equations can be formulated in the s-domain using:
+
+   >>> l = LoopAnalysis(cct.laplace())
+   >>> l.mesh_equations()
+   ⎧                              I₁(s) - I₂(s)                                                  I₁(s) - I₂(s)                                               1    ⎫
+   ⎨I₁(s): -R₂⋅I₁(s) - R₃⋅I₁(s) + ───────────── = 0, I₂(s): -L₁⋅s⋅I₂(s) + L₂⋅s⋅(I₂(s) - I₃(s)) + ───────────── = 0, I₃(s): L₂⋅s⋅(I₂(s) - I₃(s)) - R₁⋅I₃(s) + ─ = 0⎬
+   ⎩                                   C₂⋅s                                                           C₂⋅s                                                   s    ⎭
+
+
+The system of equations can be formulated in matrix form as :math:`\mathbf{A} \mathbf{y} = \mathbf{b}` using::
+
+   >>> l.matrix_equations()                                                                                                      
+   ⎡      R₁                                     ⎤             
+   ⎢-L₂ - ──          0                 L₂       ⎥             
+   ⎢      s                                      ⎥             
+   ⎢                                             ⎥        ⎡-1 ⎤
+   ⎢            R₂   R₃     1          -1        ⎥ ⎡I₁⎤   ⎢───⎥
+   ⎢   0      - ── - ── + ─────       ─────      ⎥ ⎢  ⎥   ⎢ s ⎥
+   ⎢            s    s        2           2      ⎥⋅⎢I₂⎥ = ⎢   ⎥
+   ⎢                      C₂⋅s        C₂⋅s       ⎥ ⎢  ⎥   ⎢ 0 ⎥
+   ⎢                                             ⎥ ⎣I₃⎦   ⎢   ⎥
+   ⎢                  1                       1  ⎥        ⎣ 0 ⎦
+   ⎢  -L₂           ─────        -L₁ + L₂ - ─────⎥             
+   ⎢                    2                       2⎥             
+   ⎣                C₂⋅s                    C₂⋅s ⎦   
+
+
+The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.   
+   
+
+Nodal analysis
+==============
+
+Lcapy can output the nodal equations by applying Kirchhoff's current
+law at each node in a circuit.  For example, consider the netlist:
+
+   >>> cct = Circuit("""
+   ...V1 1 0 {u(t)}; down
+   ...R1 1 2; right
+   ...L1 2 3; right
+   ...R2 3 4; right
+   ...L2 2 0_2; down
+   ...C2 3 0_3; down
+   ...R3 4 0_4; down
+   ...W 0 0_2; right
+   ...W 0_2 0_3; right
+   ...W 0_3 0_4; right""")
+   >>> cct.draw()
+
+.. image:: examples/netlists/graph2.png
+   :width: 8cm   
+
+           
+The nodal equations are found using::           
+   
+   >>> n = NodalAnalysis(cct)
+   >>> n.nodal_equations()
+   ⎧                    
+   ⎪                   
+   ⎪                   
+   ⎨                   
+   ⎪                   
+   ⎪ 1: v₁(t) = u(t), 
+   ⎩                   
+                             t              t
+                            ⌠              ⌠
+                            ⎮  v₂(τ) dτ    ⎮  (v₂(τ) - v₃(τ)) dτ
+                            ⌡              ⌡
+         -v₁(t) + v₂(t)   -∞             -∞
+     2: ──────────────── + ──────────── + ─────────────────────── = 0,
+                R₁               L₂                   L₁
+   
+                                           t     
+                                          ⌠
+                                          ⎮  (-v₂(τ) + v₃(τ)) dτ     
+                                          ⌡
+           d            v₃(t) - v₄(t)   -∞
+     3: C₂⋅──(v₃(t)) + ─────────────── + ──────────────────────── = 0, 
+           dt                  R₂                  L₁                  
+                        
+                                      ⎫
+                                      ⎪
+                                      ⎪
+                                      ⎬
+         v₄(t)   -v₃(t) + v₄(t)       ⎪
+     4: ────── + ──────────────── = 0 ⎪
+          R₃            R₂            ⎭
+        
+
+Note, these are keyed by the node names.  The `node_prefix` argument
+can be used with `NodalAnalysis` to resolve ambiguities with component
+voltages and node voltages.
+
+
+The nodal equations can be formulated in the s-domain using::
+
+   >>> na = NodalAnalysis(cct.laplace())
+   >>> na.nodal_equations()
+   ⎧           1  
+   ⎨1: V₁(s) = ─,
+   ⎩           s
+       -V₁(s) + V₂(s)   V₂(s)   V₂(s) - V₃(s)
+    2: ────────────── + ───── + ───────────── = 0,
+             R₁          L₂⋅s        L₁⋅s    
+                    V₃(s) - V₄(s)   -V₂(s) + V₃(s)
+    3: C₂⋅s⋅V₃(s) + ───────────── + ────────────── = 0,
+                          R₂             L₁⋅s          
+       V₄(s)   -V₃(s) + V₄(s)    ⎫
+    4: ───── + ────────────── = 0⎬
+         R₃          R₂          ⎭
+
+         
+The system of equations can be formulated in matrix form as :math:`\mathbf{A} \mathbf{y} = \mathbf{b}` using::
+
+   >>> l.matrix_equations()
+   ⎡ 1             0                    0               0     ⎤           
+   ⎢                                                          ⎥           
+   ⎢-1     1       1       1           -1                     ⎥           
+   ⎢────  ──── + ───── + ─────        ─────             0     ⎥        ⎡1⎤
+   ⎢R₁⋅s  R₁⋅s       2       2            2                   ⎥ ⎡V₁⎤   ⎢─⎥
+   ⎢             L₂⋅s    L₁⋅s         L₁⋅s                    ⎥ ⎢  ⎥   ⎢s⎥
+   ⎢                                                          ⎥ ⎢V₂⎥   ⎢ ⎥
+   ⎢              -1                  1       1       -1      ⎥⋅⎢  ⎥ = ⎢0⎥
+   ⎢ 0           ─────          C₂ + ──── + ─────     ────    ⎥ ⎢V₃⎥   ⎢ ⎥
+   ⎢                 2               R₂⋅s       2     R₂⋅s    ⎥ ⎢  ⎥   ⎢0⎥
+   ⎢             L₁⋅s                       L₁⋅s              ⎥ ⎣V₄⎦   ⎢ ⎥
+   ⎢                                                          ⎥        ⎣0⎦
+   ⎢                                  -1            1      1  ⎥           
+   ⎢ 0             0                  ────         ──── + ────⎥           
+   ⎣                                  R₂⋅s         R₃⋅s   R₂⋅s⎦           
+
+
+The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.      
+         
+
+CircuitGraph
+============
+
+Both `NodalAnalysis` and `LoopAnalysis` use `CircuitGraph` to represent a netlist as a graph.  This can be interrogated to find loops, etc.   For example, consider the netlist:
+
+   >>> cct = Circuit("""
+   ...V1 1 0; down
+   ...R1 1 2; right
+   ...L1 2 0_2; down
+   ...R2 1 3; right
+   ...L2 3 0_3; down
+   ...W 0 0_2; right
+   ...W 0_2 0_3; right""")
+   >>> cct.draw()
+
+
+.. image:: examples/netlists/graph1.png
+   :width: 7cm
+
+The graph is:
+
+   >>> G = CircuitGraph(cct)
+   >>> G.loops()                                                              
+   [['0', '1', '3'], ['0', '1', '2']]
+   >>> G.draw()
+
+           
+.. image:: examples/netlists/circuitgraph1.png
+   :width: 8cm           
+
+
+Here's another example:           
+
+   >>> cct = Circuit("""
+   ...V1 1 0; down
+   ...R1 1 2; right
+   ...L1 2 3; right
+   ...R2 3 4; right
+   ...L2 2 0_2; down
+   ...C2 3 0_3; down
+   ...R3 4 0_4; down
+   ...W 0 0_2; right
+   ...W 0_2 0_3; right
+   ...W 0_3 0_4; right""")
+   >>> cct.draw()
+
+   
+.. image:: examples/netlists/graph2.png
+   :width: 8cm   
+
+The graph is:           
+
+   >>> G = CircuitGraph(cct)
+   >>> G.loops()
+   [['0', '3', '4'], ['0', '2', '3'], ['0', '1', '2']]
+   >>> G.draw()
+
+   
+.. image:: examples/netlists/circuitgraph2.png
+   :width: 8cm
+
+
+`CircuitGraph` inserts dummy nodes and wires to avoid parallel edges.           
+   
