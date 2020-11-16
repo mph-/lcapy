@@ -58,9 +58,9 @@ class NodalAnalysis(object):
 
         self.node_prefix = node_prefix
         
-        self.ydict = self._make_unknowns()
+        self._unknowns = self._make_unknowns()
         
-        self.y = matrix([val for key, val in self.ydict.items() if key != '0'])
+        self._y = matrix([val for key, val in self._unknowns.items() if key != '0'])
         
         self._equations = self._make_equations()
 
@@ -72,17 +72,17 @@ class NodalAnalysis(object):
     def _make_unknowns(self):
 
         # Determine node voltage variables.
-        ydict = ExprDict()
+        unknowns = ExprDict()
 
         # cct.node_list is sorted alphabetically
         for node in self.cct.node_list:
             if node.startswith('*'):
                 continue            
             if node == '0':
-                ydict[node] = 0
+                unknowns[node] = 0
             else:
-                ydict[node] = Voltage('v%s%s(t)' % (self.node_prefix, node)).select(self.kind)
-        return ydict
+                unknowns[node] = Voltage('v%s%s(t)' % (self.node_prefix, node)).select(self.kind)
+        return unknowns
 
     def _make_equations(self):
 
@@ -106,7 +106,7 @@ class NodalAnalysis(object):
 
                 V = elt.cpt.v_equation(0, self.kind)
                 
-                lhs, rhs = self.ydict[n1], self.ydict[n2] + V
+                lhs, rhs = self._unknowns[n1], self._unknowns[n2] + V
 
             else:
                 result = Current(0).select(self.kind)
@@ -121,8 +121,8 @@ class NodalAnalysis(object):
                         n1, n2 = n2, n1
                     else:
                         raise ValueError('Component %s does not have node %s' % (elt, node))
-                    result += elt.cpt.i_equation(self.ydict[n1] - self.ydict[n2], self.kind)
-                lhs, rhs = result, 0
+                    result += elt.cpt.i_equation(self._unknowns[n1] - self._unknowns[n2], self.kind)
+                lhs, rhs = result, expr(0)
 
             equations[node] = (lhs, rhs)
 
@@ -137,33 +137,65 @@ class NodalAnalysis(object):
 
         return equations_dict
     
-    def _analyse(self):
-
-        eqns = matrix(list(self.equations_dict.values()))
-
-        # FIXME, expand is broken in SymPy for relationals in Matrix.
-        try:
-            eqns = eqns.expand()
-        except:
-            pass
-        # TODO, subs symbols for applied undefs, such as Vn1(s).
-        return sym.linear_eq_to_matrix(eqns, *self.y)
-
     def nodal_equations(self):
         """Return the equations found by applying KCL at each node.  This is a
         directory of equations keyed by the node name."""
 
         return self.equations_dict()
 
-    def equations(self):
-        """Return the equations in matrix form."""
+    def _analyse(self):
 
         if self.kind == 'time':
             raise ValueError('Cannot put time domain equations into matrix form')
+
+        subsdict = {}
+        for node, v in self._unknowns.items():
+            if v == 0:
+                continue
+            subsdict[v.expr] = 'X_X' + node
+
+        exprs = []
+        for node, (lhs, rhs) in self._equations.items():
+            lhs = lhs.subs(subsdict).expr.expand()
+            rhs = rhs.subs(subsdict).expr.expand()            
+            exprs.append(lhs - rhs)
+            
+        y = []
+        for y1 in self._y:
+            y.append(y1.subs(subsdict).expr);
         
-        A, b = self._analyse()
+        A, b = sym.linear_eq_to_matrix(exprs, *y)
+        return A, b
+
+    @property
+    def A(self):
+        """Return A matrix where A y = b."""
+
+        if hasattr(self, '_A'):
+            return self._A
+        self._A, self._b = self._analyse()
+        return self._A
+
+    @property
+    def b(self):
+        """Return b vector where A y = b."""        
+
+        if hasattr(self, '_b'):
+            return self._b
+        self._A, self._b = self._analyse()
+        return self._b    
+
+    @property
+    def y(self):
+        """Return y vector where A y = b."""
+        return self._y
+    
+    def equations(self):
+        """Return the equations in matrix form where A y = b."""
+
+        A, b = self.A, self.b
         
-        return expr(equation(sym.MatMul(A, self.y), b))
+        return expr(sym.Eq(sym.MatMul(A, self.y), b), evaluate=False)
 
 from .expr import ExprDict, expr
 from .texpr import Vt
