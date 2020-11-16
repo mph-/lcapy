@@ -338,7 +338,8 @@ The system of equations can be formulated in matrix form as :math:`\mathbf{A} \m
    ⎢                    2                       2⎥             
    ⎣                C₂⋅s                    C₂⋅s ⎦   
 
-
+There are a number of forms that the system of equations can be shown: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix.
+   
 The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.   
 
 .. _mesh-analysis:
@@ -406,7 +407,6 @@ Note, these are keyed by the node names.  The `node_prefix` argument
 can be used with `NodalAnalysis` to resolve ambiguities with component
 voltages and node voltages.
 
-
 The nodal equations can be formulated in the s-domain using::
 
    >>> na = NodalAnalysis(cct.laplace())
@@ -444,6 +444,7 @@ The system of equations can be formulated in matrix form as :math:`\mathbf{A} \m
    ⎢ 0             0                  ────         ──── + ────⎥           
    ⎣                                  R₂⋅s         R₃⋅s   R₂⋅s⎦           
 
+There are a number of forms that the system of equations can be shown: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix.
 
 The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.      
 
