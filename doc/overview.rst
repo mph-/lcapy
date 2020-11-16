@@ -1256,37 +1256,6 @@ performed using the `ss` method of a circuit, e.g.,
 This circuit has two reactive components and thus there are two state
 variables; the current through `L` and the voltage across `C`.
 
-The state variable vector is shown using the `x` attribute:
-
-   >>> ss.x
-   ⎡i_L(t)⎤
-   ⎢      ⎥
-   ⎣v_C(t)⎦
-
-The initial values of the state variable vector are shown using the `x0` attribute:
-
-   >>> ss.x0
-   ⎡0⎤
-   ⎢ ⎥
-   ⎣0⎦   
-   
-The independent source vector is shown using the `u` attribute.  In this example,
-there is a single independent source:
-
-   >>> ss.u
-   [v(t)]
-
-The output vector can either be the nodal voltages, the branch
-currents, or both.  By default the nodal voltages are chosen.  This
-vector is shown using the `y` attribute:
-
-   >>> ss.y
-   ⎡v₁(t)⎤
-   ⎢     ⎥
-   ⎢v₂(t)⎥
-   ⎢     ⎥
-   ⎣v₃(t)⎦
-
 The state equations are shown using the `state_equations()` method:
 
    >>> ss.state_equations()
@@ -1307,106 +1276,20 @@ The output equations are shown using the `output_equations()` method:
    ⎢     ⎥   ⎢      ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
    ⎣v₃(t)⎦   ⎣0    1⎦            ⎣0⎦       
 
-
-The `A`, `B`, `C`, and `D` matrices are obtained using the attributes
-of the same name.  For example,
-
-   >>> ss.A
-   ⎡-R₁   -1  ⎤
-   ⎢───   ─── ⎥
-   ⎢ L     L  ⎥
-   ⎢          ⎥
-   ⎢ 1    -1  ⎥
-   ⎢───   ────⎥
-   ⎣ C    C⋅R₂⎦
-
-   >>> ss.B
-   ⎡1⎤
-   ⎢─⎥
-   ⎢L⎥
-   ⎢ ⎥
-   ⎣0⎦
-
-   >>> ss.C
-   ⎡0    0⎤
-   ⎢      ⎥
-   ⎢-R₁  0⎥
-   ⎢      ⎥
-   ⎣0    1⎦
-
-   >>> ss.D
-   ⎡1⎤
-   ⎢ ⎥
-   ⎢1⎥
-   ⎢ ⎥
-   ⎣0⎦
+For further details see :ref:`state-space-analysis'
 
 
-The Laplace transforms of the state variable vector, the independent
-source vector, and the output vector are accessed using the `X`, `U`,
-and `Y` attributes: For example,
+Mesh analysis
+-------------
 
-   >>> ss.X
-   ⎡I_L(s)⎤
-   ⎢      ⎥
-   ⎣V_C(s)⎦
-
-The s-domain state-transition matrix is given by the `Phi` attribute
-and the time-domain state-transition matrix is given by the `phi`
-attribute.  For example,
-
-   >>> ss.Phi
-   ⎡                  1                                                   ⎤
-   ⎢             s + ────                                                 ⎥
-   ⎢                 C⋅R₂                              -1                 ⎥
-   ⎢  ──────────────────────────────    ──────────────────────────────────⎥
-   ⎢   2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂      ⎛ 2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂⎞⎥
-   ⎢  s  + ─────────────── + ───────    L⋅⎜s  + ─────────────── + ───────⎟⎥
-   ⎢            C⋅L⋅R₂        C⋅L⋅R₂      ⎝          C⋅L⋅R₂        C⋅L⋅R₂⎠⎥
-   ⎢                                                                      ⎥
-   ⎢                                                      R₁              ⎥
-   ⎢                                                  s + ──              ⎥
-   ⎢                1                                     L               ⎥
-   ⎢──────────────────────────────────    ──────────────────────────────  ⎥
-   ⎢  ⎛ 2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂⎞     2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂  ⎥
-   ⎢C⋅⎜s  + ─────────────── + ───────⎟    s  + ─────────────── + ───────  ⎥
-   ⎣  ⎝          C⋅L⋅R₂        C⋅L⋅R₂⎠              C⋅L⋅R₂        C⋅L⋅R₂  ⎦
+Lcapy can generate a system of equations using mesh analysis, see :ref:`mesh-analysis`.
 
 
-The system transfer functions are given by the `G` attribute and the
-impulse responses are given by the `g` attributes, for example:
+Nodal analysis
+--------------
 
-   >>> ss.G
-   ⎡                 1                  ⎤
-   ⎢                                    ⎥
-   ⎢           2    s      1            ⎥
-   ⎢          s  + ──── + ───           ⎥
-   ⎢               C⋅R₂   C⋅L           ⎥
-   ⎢   ──────────────────────────────   ⎥
-   ⎢    2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂   ⎥
-   ⎢   s  + ─────────────── + ───────   ⎥
-   ⎢             C⋅L⋅R₂        C⋅L⋅R₂   ⎥
-   ⎢                                    ⎥
-   ⎢                 1                  ⎥
-   ⎢────────────────────────────────────⎥
-   ⎢    ⎛ 2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂⎞⎥
-   ⎢C⋅L⋅⎜s  + ─────────────── + ───────⎟⎥
-   ⎣    ⎝          C⋅L⋅R₂        C⋅L⋅R₂⎠⎦
+Lcapy can generate a system of equations using nodal analysis, see :ref:`nodal-analysis`.
 
-
-The characteristic polynomial (system polynomial) is given by the `P`
-attribute, for example,
-
-   >>> ss.P
-    2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂
-   s  + ─────────────── + ────────
-             C⋅L⋅R₂        C⋅L⋅R₂ 
-
-The roots of this polynomial are the eigenvalues of the system.  These
-are given by the `eigenvalues` attribute.  The corresponding
-eigenvectors are the columns of the modal matrix given by the `M`
-attribute.  A diagonal matrix of the eigenvalues is returned by the
-`Lambda` attribute.
 
 
 Modified nodal analysis
@@ -1439,9 +1322,9 @@ The corresponding circuit for DC analysis can be found using the `dc()` method:
    C1 3_a 0_4 C1; i={i_C}, down, v={v_C}
    W 0_3 0_4; right
 
-The equations used to solve this can be found with the `equations()` method:
+The equations used to solve this can be found with the `matrix_equations()` method:
 
-   >>> ac.dc().equations()
+   >>> ac.dc().matrix_equations()
             ⎛⎡1    -1            ⎤⎞       
             ⎜⎢──   ───  0   1  0 ⎥⎟       
             ⎜⎢R₁    R₁           ⎥⎟       
@@ -1463,7 +1346,7 @@ Here `V1`, `V2`, and `V3` are the unknown node voltages for nodes 1, 2, and 3.  
 
 The equations are similar for the transient response:
 
-   >>> a.transient().equations()
+   >>> a.transient().matrix_equations()
                                                 -1       
                ⎛⎡1    -1                      ⎤⎞         
                ⎜⎢──   ───      0      1    0  ⎥⎟         

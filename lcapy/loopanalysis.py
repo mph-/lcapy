@@ -11,6 +11,7 @@ Copyright 2019--2020 Michael Hayes, UCECE
 from .circuitgraph import CircuitGraph
 from .expr import expr
 from .utils import equation
+from .systemequations import SystemEquations
 import sympy as sym
 
 
@@ -79,7 +80,7 @@ class LoopAnalysis(object):
         if not self.G.is_planar:
             raise ValueError('Circuit topology is not planar')
 
-        if self.cct.is_mixed:
+        if self.cct.is_superposition:
             raise ValueError('Circuit has a mixture of ac/dc/transient sources')
         
         # This is work in progress to do mesh analysis.
@@ -184,41 +185,46 @@ class LoopAnalysis(object):
             y.append(y1.subs(subsdict).expr);
         
         A, b = sym.linear_eq_to_matrix(exprs, *y)
-        return A, b
+
+        y = [y1.expr for y1 in self._y]
+        return SystemEquations(A, b, y)        
 
     @property
     def A(self):
         """Return A matrix where A y = b."""
 
-        if hasattr(self, '_A'):
-            return matrix(self._A)
-        self._A, self._b = self._analyse()
-        return self._A
+        if not hasattr(self, '_sys'):
+            self._sys = self._analyse()
+        return matrix(self._sys.A)
 
     @property
     def b(self):
         """Return b vector where A y = b."""        
 
-        if hasattr(self, '_b'):
-            return matrix(self._b)
-        self._A, self._b = self._analyse()
-        return self._b    
+        if not hasattr(self, '_sys'):
+            self._sys = self._analyse()
+        return matrix(self._sys.b)        
 
     @property
     def y(self):
         """Return y vector where A y = b."""
         return self._y
     
-    def matrix_equations(self):
-        """Return the equations in matrix form where A y = b."""
+    def matrix_equations(self, form='A y = b', invert=False):
+        """Return the equations in matrix form.
 
-        if not hasattr(self, '_A'):
-            self._A, self._b = self._analyse()            
-        
-        A, b = self._A, self._b
-        y = sym.Matrix([y1.expr for y1 in self._y])
-        
-        return expr(sym.Eq(sym.MatMul(A, y), b), evaluate=False)
+        Forms can be:
+         A y = b
+         b = A y
+         Ainv b = y
+         y = Ainv b
+
+        If `invert` is True, evaluate the matrix inverse."""
+
+
+        if not hasattr(self, '_sys'):
+            self._sys = self._analyse()
+        return self._sys.format(form, invert)
     
 from .expr import ExprList, ExprDict, expr    
 from .current import Iname

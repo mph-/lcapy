@@ -12,6 +12,7 @@ from .sym import symsimplify
 from .expr import ExprDict, expr
 from .voltage import Vtype
 from .current import Itype
+from .systemequations import SystemEquations
 import sympy as sym
 
 # Note, all the maths is performed using sympy expressions and the
@@ -252,16 +253,29 @@ class MNAMixin(object):
         self._solve()
         return self._Idict
 
+    def matrix_equations(self, form='A y = b', invert=False):
+        """System of equations used to find the unknowns.
+
+        Forms can be:
+         A y = b
+         b = A y
+         Ainv b = y
+         y = Ainv b
+
+        If `invert` is True, evaluate the matrix inverse."""
+
+        self._analyse()
+        
+        sys = SystemEquations(self._A, self._Z, self.X)        
+        return sys.format(form, invert)        
+
     def equations(self, inverse=False):
         """System of equations used to find the unknowns.
 
-        If inverse is True, evaluate the Matrix inverse."""
+        If inverse is True, evaluate the matrix inverse.
 
-        self._analyse()        
+        This is for compatibility and is deprecated.  Use 
+        matrix_equations instead."""
 
-        if inverse:
-            return expr(sym.Eq(self.X, sym.MatMul(self._A.inv(), self._Z),
-                               evaluate=False))
-        
-        return expr(sym.Eq(self.X, sym.MatMul(sym.Pow(self._A, -1), self._Z),
-                               evaluate=False))                           
+        return self.matrix_equations(invert=inverse)
+    
