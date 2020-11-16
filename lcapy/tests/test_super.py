@@ -110,13 +110,13 @@ class LcapyTester(unittest.TestCase):
         
     def test_Vname(self):
 
-        self.assertEqual(Vname('V', 't'), 'V(t)', 'V(t)')
+        self.assertEqual(Vname('V', 't'), 'v(t)', 'v(t)')
         self.assertEqual(Vname('V', 's'), 'V(s)', 'V(s)')
         self.assertEqual(Vname('V', 'dc'), 'V', 'V')        
 
     def test_Iname(self):
         
-        self.assertEqual(Iname('I', 't'), 'I(t)', 'I(t)')
+        self.assertEqual(Iname('I', 't'), 'i(t)', 'i(t)')
         self.assertEqual(Iname('I', 's'), 'I(s)', 'I(s)')
         self.assertEqual(Iname('I', 'dc'), 'I', 'I')
         
