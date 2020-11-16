@@ -253,7 +253,7 @@ class MNAMixin(object):
         self._solve()
         return self._Idict
 
-    def matrix_equations(self, form='A y = b', invert=False):
+    def matrix_equations(self, form='default', invert=False):
         """System of equations used to find the unknowns.
 
         Forms can be:

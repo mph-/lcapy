@@ -1325,6 +1325,7 @@ The corresponding circuit for DC analysis can be found using the `dc()` method:
 The equations used to solve this can be found with the `matrix_equations()` method:
 
    >>> ac.dc().matrix_equations()
+                                   -1     
             ⎛⎡1    -1            ⎤⎞       
             ⎜⎢──   ───  0   1  0 ⎥⎟       
             ⎜⎢R₁    R₁           ⎥⎟       

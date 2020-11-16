@@ -210,7 +210,7 @@ class LoopAnalysis(object):
         """Return y vector where A y = b."""
         return self._y
     
-    def matrix_equations(self, form='A y = b', invert=False):
+    def matrix_equations(self, form='default', invert=False):
         """Return the equations in matrix form.
 
         Forms can be:

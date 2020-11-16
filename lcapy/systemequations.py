@@ -33,7 +33,7 @@ class SystemEquations(object):
         elif form == 'b = A y':
             return expr(sym.Eq(self.b, sym.MatMul(self.A, self.y)), evaluate=False)
 
-        elif form == 'y = Ainv b':
+        elif form in ('y = Ainv b', 'default'):
             if invert:
                 return expr(sym.Eq(self.y, sym.MatMul(self.Ainv, self.b),
                                    evaluate=False))

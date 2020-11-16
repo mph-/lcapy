@@ -323,7 +323,7 @@ The mesh equations can be formulated in the s-domain using:
 
 The system of equations can be formulated in matrix form as :math:`\mathbf{A} \mathbf{y} = \mathbf{b}` using::
 
-   >>> l.matrix_equations()                                                                                                      
+   >>> l.matrix_equations(form='A y = b')
    ⎡      R₁                                     ⎤             
    ⎢-L₂ - ──          0                 L₂       ⎥             
    ⎢      s                                      ⎥             
@@ -427,7 +427,7 @@ The nodal equations can be formulated in the s-domain using::
          
 The system of equations can be formulated in matrix form as :math:`\mathbf{A} \mathbf{y} = \mathbf{b}` using::
 
-   >>> l.matrix_equations()
+   >>> l.matrix_equations(form='A y = b')
    ⎡ 1             0                    0               0     ⎤           
    ⎢                                                          ⎥           
    ⎢-1     1       1       1           -1                     ⎥           
