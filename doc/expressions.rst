@@ -54,7 +54,7 @@ variable, for example,
   
    >>> V = s / (s**2 + 2 * s + 3)
 
-The `discretetime` module adds additional domain variables `n`, `k`, and `z`.
+The `discretetime` module adds additional domain variables `n`, `k`, and `z`, see :ref:`discrete_time`.
    
    
 User defined symbols

@@ -1,3 +1,5 @@
+.. _discrete_time:
+
 =====================
 Discrete-time signals
 =====================
@@ -77,7 +79,7 @@ The `seq` method has an argument to specify the extent of the sequence.  This is
 
    >>> (2 * u(n) + delta(n - 1)).seq((-10, 10))
    {_2, 3, 2, 2, 2, 2, 2, 2, 2, 2}
-
+/
 In this example the zero samples have been removed but the sequence has been truncated.
 
 The z-transform of a discrete-time expression can be found with the `ZT()` method:
