@@ -47,7 +47,9 @@ class LoopAnalysis(object):
 
         self.kind = self.cct.kind
         if self.kind == 'super':
-            self.kind = 'time'        
+            self.kind = 'time'
+
+        self._equations = self._make_equations()            
 
     def loops(self):
 
@@ -68,9 +70,8 @@ class LoopAnalysis(object):
         
         mesh_currents = ExprList([Current('i_%d(t)' % (m + 1)).select(self.kind) for m in range(Nloops)])
         return mesh_currents
-    
-    def mesh_equations_list(self):
-        """Return mesh equations as a list."""
+
+    def _make_equations(self):    
 
         if not self.G.is_planar:
             raise ValueError('Circuit topology is not planar')
@@ -84,7 +85,7 @@ class LoopAnalysis(object):
         Nloops = len(loops)
 
         mesh_currents = [expr('i_%d(t)' % (m + 1)) for m in range(Nloops)]
-        equations = ExprList()        
+        equations = {}
 
         for m, loop in enumerate(loops):
 
@@ -138,19 +139,28 @@ class LoopAnalysis(object):
                     v = -v
                 result += v
 
-            eq = equation(result, 0)        
-            equations.append(eq)
+            equations[mesh_currents[m]] = (result, 0)
 
         return equations
 
+    
+    def mesh_equations_list(self):
+        """Return mesh equations as a list."""
+
+        result = ExprList()
+
+        for current, (lhs, rhs) in self._equations.items():
+            result.append(equation(lhs, rhs))
+        return result        
+
+    
     def mesh_equations(self):
         """Return mesh equations as a dict keyed by the mesh current."""
 
         result = ExprDict()
 
-        for current, equation in zip(self.mesh_currents(),
-                                     self.mesh_equations_list()):
-            result[current] = equation
+        for current, (lhs, rhs) in self._equations.items():       
+            result[current] = equation(lhs, rhs)
         return result
 
 from .expr import ExprList, ExprDict, expr    

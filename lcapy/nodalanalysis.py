@@ -62,7 +62,7 @@ class NodalAnalysis(object):
         
         self.y = matrix([val for key, val in self.ydict.items() if key != '0'])
         
-        self.equations_dict = self._make_equations()
+        self._equations = self._make_equations()
 
         
     def nodes(self):
@@ -86,7 +86,7 @@ class NodalAnalysis(object):
 
     def _make_equations(self):
 
-        equations_dict = ExprDict()
+        equations = {}
         for node in self.nodes():
             if node == '0':
                 continue
@@ -106,7 +106,7 @@ class NodalAnalysis(object):
 
                 V = elt.cpt.v_equation(0, self.kind)
                 
-                eq = equation(self.ydict[n1], self.ydict[n2] + V)
+                lhs, rhs = self.ydict[n1], self.ydict[n2] + V
 
             else:
                 result = Current(0).select(self.kind)
@@ -122,13 +122,21 @@ class NodalAnalysis(object):
                     else:
                         raise ValueError('Component %s does not have node %s' % (elt, node))
                     result += elt.cpt.i_equation(self.ydict[n1] - self.ydict[n2], self.kind)
-                    
-                eq = equation(result, 0)
+                lhs, rhs = result, 0
 
-            equations_dict[node] = eq
+            equations[node] = (lhs, rhs)
 
-        return equations_dict        
+        return equations        
 
+    def equations_dict(self):
+        """Return dictionary of equations keyed by node name."""
+
+        equations_dict = ExprDict()
+        for node, (lhs, rhs) in self._equations.items():
+            equations_dict[node] = equation(lhs, rhs)
+
+        return equations_dict
+    
     def _analyse(self):
 
         eqns = matrix(list(self.equations_dict.values()))
@@ -145,7 +153,7 @@ class NodalAnalysis(object):
         """Return the equations found by applying KCL at each node.  This is a
         directory of equations keyed by the node name."""
 
-        return self.equations_dict
+        return self.equations_dict()
 
     def equations(self):
         """Return the equations in matrix form."""
