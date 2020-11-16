@@ -172,7 +172,7 @@ class NodalAnalysis(object):
         """Return A matrix where A y = b."""
 
         if hasattr(self, '_A'):
-            return self._A
+            return matrix(self._A)
         self._A, self._b = self._analyse()
         return self._A
 
@@ -181,7 +181,7 @@ class NodalAnalysis(object):
         """Return b vector where A y = b."""        
 
         if hasattr(self, '_b'):
-            return self._b
+            return matrix(self._b)
         self._A, self._b = self._analyse()
         return self._b    
 

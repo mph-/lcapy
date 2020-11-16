@@ -49,7 +49,10 @@ class LoopAnalysis(object):
         if self.kind == 'super':
             self.kind = 'time'
 
-        self._equations = self._make_equations()            
+        self._equations = self._make_equations()
+
+        self._unknowns = self.mesh_currents()
+        self._y = matrix(self._unknowns)
 
     def loops(self):
 
@@ -139,11 +142,10 @@ class LoopAnalysis(object):
                     v = -v
                 result += v
 
-            equations[mesh_currents[m]] = (result, 0)
+            equations[mesh_currents[m]] = (result, expr(0))
 
         return equations
 
-    
     def mesh_equations_list(self):
         """Return mesh equations as a list."""
 
@@ -153,7 +155,6 @@ class LoopAnalysis(object):
             result.append(equation(lhs, rhs))
         return result        
 
-    
     def mesh_equations(self):
         """Return mesh equations as a dict keyed by the mesh current."""
 
@@ -163,6 +164,59 @@ class LoopAnalysis(object):
             result[current] = equation(lhs, rhs)
         return result
 
+    def _analyse(self):
+
+        if self.kind == 'time':
+            raise ValueError('Cannot put time domain equations into matrix form')
+
+        subsdict = {}
+        for m, i in enumerate(self._unknowns):
+            subsdict[i.expr] = 'X_X%d' % m
+
+        exprs = []
+        for node, (lhs, rhs) in self._equations.items():
+            lhs = lhs.subs(subsdict).expr.expand()
+            rhs = rhs.subs(subsdict).expr.expand()            
+            exprs.append(lhs - rhs)
+            
+        y = []
+        for y1 in self._y:
+            y.append(y1.subs(subsdict).expr);
+        
+        A, b = sym.linear_eq_to_matrix(exprs, *y)
+        return A, b
+
+    @property
+    def A(self):
+        """Return A matrix where A y = b."""
+
+        if hasattr(self, '_A'):
+            return matrix(self._A)
+        self._A, self._b = self._analyse()
+        return self._A
+
+    @property
+    def b(self):
+        """Return b vector where A y = b."""        
+
+        if hasattr(self, '_b'):
+            return matrix(self._b)
+        self._A, self._b = self._analyse()
+        return self._b    
+
+    @property
+    def y(self):
+        """Return y vector where A y = b."""
+        return self._y
+    
+    def equations(self):
+        """Return the equations in matrix form where A y = b."""
+
+        A, b = self.A, self.b
+        
+        return expr(sym.Eq(sym.MatMul(A, self.y), b), evaluate=False)
+    
 from .expr import ExprList, ExprDict, expr    
 from .current import Current
 from .voltage import Voltage
+from .matrix import matrix
