@@ -187,7 +187,7 @@ Network functions
 
 - `parallel()` connect one-port components in parallel.  This is similar to `Par()` but is robust to `None` components and single components in parallel.
 
-- `ladder()` connect cone-port components as a one-port ladder network.  This is an alternating sequence of series and parallel connections.   For example,
+- `ladder()` connect one-port components as a one-port ladder network.  This is an alternating sequence of series and parallel connections.   For example,
 
    >>> ladder(R(1), C(2), R(3))
    R(1) + (C(1) | R(3))
@@ -337,7 +337,7 @@ Network synthesis
 Networks can be created using network synthesis techniques given an impedance or admittance expression,
 for example,
 
-    >>> Z = (4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)
+    >>> Z = Impedance(4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)
     >>> Z.network()
     ((C(1) + R(2)) | C(3)) + R(4)
     >>> Z.network().Z(s).canonical()
