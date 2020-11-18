@@ -101,7 +101,7 @@ class Current(Super):
     
 def Iname(name, kind, cache=False):
     
-    if kind == 's':
+    if kind in ('s', 'laplace'):
         return Is(name + '(s)')
     elif kind in ('t', 'time'):
         return It(name.lower() + '(t)')

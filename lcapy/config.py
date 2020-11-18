@@ -1,6 +1,6 @@
 """This module contains configuration information.
 
-Copyright 2019 Michael Hayes, UCECE
+Copyright 2019--2020 Michael Hayes, UCECE
 
 """
 
@@ -40,3 +40,5 @@ words = ('alpha', 'beta', 'gamma', 'delta', 'eta', 'zeta', 'theta',
          'iota', 'kappa', 'mu', 'nu', 'omicron', 'pi', 'rho', 'sigma', 'tau',
          'upsilon', 'omega')
 
+# Can be GE, LU, ADJ
+matrix_inverse_method = 'GE'

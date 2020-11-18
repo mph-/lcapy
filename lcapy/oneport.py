@@ -144,6 +144,14 @@ class OnePort(Network, ImmitanceMixin):
 
         return Par(self, OP)
 
+    @property
+    def has_series_I(self):
+        return self.current_cource
+
+    @property    
+    def has_parallel_V(self):
+        return self.voltage_source
+    
     def series(self, OP):
         """Series combination"""
 
@@ -668,6 +676,14 @@ class Par(ParSer):
         s.append('W %s %s; %s=%s' % (n4, n2, dir, self.wsep))
         return '\n'.join(s)
 
+    @property    
+    def has_parallel_V(self):
+        
+        for cpt1 in self.args:
+            if cpt1.has_parallel_V:
+                return True
+        return False
+
     @property
     def admittance(self):
         Y = 0
@@ -738,6 +754,13 @@ class Ser(ParSer):
         s.append(self.args[-1]._net_make(netlist, n1, n2, dir))
         return '\n'.join(s)
 
+    @property    
+    def has_series_I(self):
+        for cpt1 in self.args:
+            if cpt1.has_series_I:            
+                return True
+        return False
+    
     @property
     def Admittance(self):
         return Admittance(1 / self.impedance)

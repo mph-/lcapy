@@ -100,8 +100,8 @@ class Voltage(Super):
 
     
 def Vname(name, kind, cache=False):
-    
-    if kind == 's':
+
+    if kind in ('s', 'laplace'):    
         return Vs(name + '(s)')
     elif kind in ('t', 'time'):
         return Vt(name.lower() + '(t)')
