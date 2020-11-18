@@ -446,7 +446,7 @@ superposition in the transform domains, for example,
    ⎨s: ─⎬
    ⎩   s⎭
 
-The `Ys` and `Zs` attributes provide the generalized s-domain admittance and impedance of the component, for example,
+The `Y` and `Z` attributes provide the generalized s-domain admittance and impedance of the component, for example,
 
    >>> cct.L1.Z(s)
    L₁⋅s
@@ -454,9 +454,9 @@ The `Ys` and `Zs` attributes provide the generalized s-domain admittance and imp
    >>> cct.R1.Z(s)
    R₁
 
-The generalized s-domain driving point admittance and impedance can be found using `dpYs` and `dpZs`, for example,
+The generalized s-domain driving point admittance and impedance can be found using `dpY` and `dpZ`, for example,
 
-   >>> cct.L1.dpZs
+   >>> cct.L1.dpZ(s)
     R₁⋅s 
    ──────
        R₁
@@ -715,6 +715,24 @@ Netlist methods
 
 `describe()` print message describing how netlist is solved
 
+`kill()` kills specified independent sources (voltage sources
+  become short-circuits and current sources become open-circuits)
+
+`kill_except()` kills all but the specified independent sources
+
+`s_model()` converts sources to the s-domain and represents
+  reactive components as impedances
+
+`state_space_model()` creates a state-space model by replacing inductors
+  with current sources and capacitors with voltage sources
+
+`r_mode()` creates a resistive equivalent model using companion
+  circuits (this is used for time-stepping simulation)
+
+`noise_model()` replaces resistors with a series combination of a
+  resistor and a noise voltage source
+  
+`subs()` substitutes symbolic component values
 
 
 Component attributes

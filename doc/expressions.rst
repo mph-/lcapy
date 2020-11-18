@@ -799,7 +799,7 @@ Here's a second order example:
    >>> defs
    {K: 3, omega_0: 2, zeta: 1/2}
 
-Second order systems can be parameterized in many ways.  Here's another:
+Second order systems can be parameterized in many ways.  Here's another example:
 
    >>> H2p, defs = H2.parameterize(zeta=False)
    >>> H2p
