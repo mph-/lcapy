@@ -7,13 +7,12 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from .phasor import Iphasor, Vphasor
 from .vector import Vector
-from .matrix import Matrix
+from .matrix import Matrix, matrix_inverse
 from .sym import symsimplify
 from .expr import ExprDict, expr
 from .voltage import Vtype
 from .current import Itype
 from .systemequations import SystemEquations
-from .config import matrix_inverse_method
 import sympy as sym
 
 # Note, all the maths is performed using sympy expressions and the
@@ -144,7 +143,7 @@ class MNAMixin(object):
             # but hangs on some matrices with sympy-1.6.1
             # Comparative times for the testsuites are:
             # GE 66, ADJ 73, LU 76. 
-            Ainv = self._A.inv(method=matrix_inverse_method)           
+            Ainv = matrix_inverse(self._A)
         except ValueError:
             comment = ''
             if self.kind == 'dc':

@@ -82,9 +82,10 @@ class Matrix(sym.Matrix):
     # TODO. There is probably a cunning way to automatically handle
     # the following.
 
-    def inv(self, method='ADJ'):
-
-        return self.__class__(sym.Matrix(self).inv(method=method))
+    def inv(self, method='default'):
+        Minv = matrix_inverse(sym.Matrix(self), method=method)
+        
+        return self.__class__(Minv)
 
     def det(self):
 
@@ -155,4 +156,23 @@ def matrix(mat):
     else:
         return mat
 
+
+def matrix_inverse(M, method='default'):
+
+    from .config import matrix_inverse_method
+    
+    if method == 'default':
+        method = matrix_inverse_method
+
+    if method == 'new':
+        try:
+            from sympy.polys.domainmatrix import DomainMatrix
+            dM = DomainMatrix.from_list_sympy(*M.shape, M.tolist())        
+            return M.inv().to_Matrix()            
+        except ImportError:
+            method = 'ADJ'
+
+    return M.inv(method=method)
+
+    
 from .expr import Expr, expr
