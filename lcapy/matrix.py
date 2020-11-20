@@ -168,7 +168,7 @@ def matrix_inverse(M, method='default'):
         try:
             from sympy.polys.domainmatrix import DomainMatrix
             dM = DomainMatrix.from_list_sympy(*M.shape, M.tolist())        
-            return M.inv().to_Matrix()            
+            return dM.inv().to_Matrix()            
         except ImportError:
             method = 'ADJ'
 
