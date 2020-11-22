@@ -31,7 +31,10 @@ def transform(expr, arg, **assumptions):
         return expr.laplace(**assumptions)
     elif arg is f:
         # Note, conversion of f->omega handled by fExpr        
-        return expr.fourier(**assumptions)    
+        return expr.fourier(**assumptions)
+    elif arg is omega:
+        # Note, conversion of f->omega handled by fExpr        
+        return expr.fourier(**assumptions)(omega)
 
     # Handle expr(texpr), expr(sexpr), expr(fexpr).  For example,
     # expr(2 * f).
