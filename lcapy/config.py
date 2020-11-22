@@ -41,4 +41,4 @@ words = ('alpha', 'beta', 'gamma', 'delta', 'eta', 'zeta', 'theta',
          'upsilon', 'omega')
 
 # Can be 'GE', 'LU', 'ADJ', 'new'
-matrix_inverse_method = 'new'
+matrix_inverse_method = 'DM'
