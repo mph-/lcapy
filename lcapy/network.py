@@ -42,7 +42,7 @@ class Network(object):
 
     def __repr__(self):
 
-        argsrepr = ', '.join([repr(arg) for arg in self._tweak_args()])
+        argsrepr = ', '.join([repr(arg) for arg in self.args])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
     def __str__(self):
