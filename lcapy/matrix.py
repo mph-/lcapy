@@ -166,9 +166,12 @@ def matrix_inverse(M, method='default'):
         method = matrix_inverse_method
 
     if method == 'GE':
-        # GE loses it without this assumption.
-        with dotprodsimp(False):
-            return M.inv(method='GE')        
+        try:
+            # GE loses it without this assumption.
+            with dotprodsimp(False):
+                return M.inv(method='GE')
+        except:
+            return M.inv(method='GE')            
 
     elif method == 'DM':
         try:
