@@ -5,7 +5,6 @@ Copyright 2019--2020 Michael Hayes, UCECE
 """
 
 import sympy as sym
-from sympy.matrices import dotprodsimp 
 from copy import copy
 from .sym import simplify
 from .printing import pprint, latex, pretty
@@ -167,6 +166,8 @@ def matrix_inverse(M, method='default'):
 
     if method == 'GE':
         try:
+            from sympy.matrices import dotprodsimp 
+            
             # GE loses it without this assumption.
             with dotprodsimp(False):
                 return M.inv(method='GE')
