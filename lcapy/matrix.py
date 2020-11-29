@@ -159,7 +159,7 @@ def matrix(mat):
 
 def matrix_inverse(M, method='default'):
 
-    from .config import matrix_inverse_method
+    from .config import matrix_inverse_method, matrix_inverse_fallback_method
     
     if method == 'default':
         method = matrix_inverse_method
@@ -174,7 +174,7 @@ def matrix_inverse(M, method='default'):
         except:
             return M.inv(method='GE')            
 
-    elif method == 'DM':
+    elif method.startswith('DM-'):
         try:
             # This is experimental and requires sympy to be built from git.
             # It only works for ratinal function fields but fails for polynomial rings.
@@ -182,9 +182,9 @@ def matrix_inverse(M, method='default'):
             # just fall back on a standard method.
             from sympy.polys.domainmatrix import DomainMatrix
             dM = DomainMatrix.from_list_sympy(*M.shape, rows=M.tolist())        
-            return dM.inv().to_Matrix()            
+            return dM.inv(method=method[3:]).to_Matrix()            
         except (ImportError, ValueError):
-            method = 'ADJ'
+            method = matrix_inverse_fallback_method
 
     return M.inv(method=method)
 
