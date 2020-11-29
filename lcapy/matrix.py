@@ -168,7 +168,9 @@ def matrix_inverse(M, method='default'):
         try:
             from sympy.matrices import dotprodsimp 
             
-            # GE loses it without this assumption.
+            # GE loses it without this assumption.  Well with
+            # sympy-1.6.2 and the master version, GE still loses it
+            # with a poor pivot.
             with dotprodsimp(False):
                 return M.inv(method='GE')
         except:
@@ -176,14 +178,15 @@ def matrix_inverse(M, method='default'):
 
     elif method.startswith('DM-'):
         try:
-            # This is experimental and requires sympy to be built from git.
-            # It only works for ratinal function fields but fails for polynomial rings.
-            # The latter can be handled by coverting it to a field, however, we
-            # just fall back on a standard method.
+            # This is experimental and requires sympy to be built from
+            # git.  It only works for rational function fields but
+            # fails for polynomial rings.  The latter can be handled
+            # by converting it to a field, however, we just fall back
+            # on a standard method.
             from sympy.polys.domainmatrix import DomainMatrix
             dM = DomainMatrix.from_list_sympy(*M.shape, rows=M.tolist())        
             return dM.inv(method=method[3:]).to_Matrix()            
-        except (ImportError, ValueError):
+        except (ImportError, ValueError, IndexError):
             method = matrix_inverse_fallback_method
 
     return M.inv(method=method)
