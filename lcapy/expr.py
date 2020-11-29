@@ -79,7 +79,7 @@ class ExprPrint(object):
         """Print latex string with LHS name."""
         return latex(sym.Eq(sympify(name), self._pexpr), **kwargs)
 
-    def srepr):
+    def srepr(self):
         return sym.repr(self)
 
 
