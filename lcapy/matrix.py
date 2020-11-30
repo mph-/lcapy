@@ -186,7 +186,7 @@ def matrix_inverse(M, method='default'):
             from sympy.polys.domainmatrix import DomainMatrix
             dM = DomainMatrix.from_list_sympy(*M.shape, rows=M.tolist())        
             return dM.inv(method=method[3:]).to_Matrix()            
-        except (ImportError, ValueError, IndexError):
+        except:
             method = matrix_inverse_fallback_method
 
     return M.inv(method=method)
