@@ -24,8 +24,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install
       run: |
-        pip install .
-        pip install nose
+        pip install .[test]
         python -c "from lcapy import show_version; show_version()"
     - name: Run tests
       run: nosetests
