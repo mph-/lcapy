@@ -36,7 +36,7 @@ Installation for Linux
 
 .. code-block:: console
 
-    $ sudo apt install texlive-latex-base texlive-pictures texlive-latex-extra imagemagick ghostscript libjs-mathjax fonts-mathjax
+    $ sudo apt install fonts-mathjax ghostscript imagemagick libjs-mathjax texlive-latex-base texlive-latex-extra texlive-pictures
 
 3. Download circuitikz (https://www.ctan.org/pkg/circuitikz)
 
@@ -68,10 +68,11 @@ Installation for development
    $ cd lcapy
    $ pip3 install --editable .[test,release]
 
-4. For building the docs you need `sphinx`.  For example, using apt:
+4. For building the docs you need `sphinx`, `ipython` and `pycairo`.  For example, using apt:
 
 .. code-block:: console
 
+   $ sudo apt-get install gir1.2-gtk-3.0 python3-gi python3-gi-cairo
    $ pip install --editable .[doc]
 
 5. For debugging schematic graphs `dot` is required:

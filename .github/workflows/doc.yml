@@ -1,0 +1,87 @@
+name: Check docs build and examples run
+
+on:
+  push:
+
+jobs:
+  docs:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Check out
+      uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+          gir1.2-gtk-3.0 \
+          ipython3 \
+          python3 \
+          python3-gi \
+          python3-gi-cairo \
+          python3-pip \
+          python3-setuptools \
+          python3-wheel \
+          texlive-latex-base \
+          texlive-latex-extra \
+          texlive-pictures \
+          xvfb
+        sudo ln -s /usr/bin/ipython3 /usr/bin/ipython
+    - name: Install
+      run: sudo pip3 install .[doc]
+    - name: Build docs
+      run: |
+        cd doc && xvfb-run make html
+
+  examples:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, macos-10.15]
+        python-version: [3.5, 3.6, 3.7, 3.8, 3.9]
+        exclude:
+        # matplotlib fails to install on Python 3.5 in the macOS 10.15 runner
+        - os: macos-10.15
+          python-version: 3.5
+        # tutorials/RCnoise/RCparallel1noise.py fails on every Python version
+        - os: ubuntu-16.04
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Check out
+      uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies (Ubuntu)
+      if: ${{ startsWith(matrix.os, 'ubuntu') }}
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+          texlive-latex-base \
+          texlive-latex-extra \
+          texlive-pictures
+    - name: Install dependencies (macOS)
+      if: ${{ startsWith(matrix.os, 'macos') }}
+      run: |
+        brew install mactex
+        eval "$(/usr/libexec/path_helper)"
+        # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#adding-a-system-path
+        echo "$(dirname "$(which pdflatex)")" >> $GITHUB_PATH
+    - name: Install
+      run: |
+        pip3 install . ipython
+    - name: Run example scripts
+      run: |
+        cd doc/examples
+        for f in $(find . -iname '*.py'); do
+          echo "Running $f"
+          (cd "$(dirname "$f")" && python3 -m IPython --matplotlib=Agg "$(basename "$f")")
+        done
+    - name: Draw example schematics
+      run: |
+        for f in $(find . -iname '*.sch'); do
+          echo "Drawing $f"
+          (cd "$(dirname "$f")" && schtex "$(basename "$f")")
+        done

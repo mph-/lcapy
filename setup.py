@@ -30,7 +30,7 @@ setup(name='lcapy',
       python_requires='>=3.5',
       extras_require={
           'test': tests_require,
-          'doc': ['sphinx'],
+          'doc': ['sphinx', 'ipython'],
           'release': ['wheel', 'twine'],
       },
       tests_require=tests_require,
