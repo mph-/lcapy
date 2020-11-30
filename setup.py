@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
+
 __version__ = '0.71'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 tests_require = ['nose']
+
 
 setup(name='lcapy',
       version=__version__,
@@ -26,7 +28,11 @@ setup(name='lcapy',
                         'wheel'
       ],
       python_requires='>=3.5',
-      extras_require={'test': tests_require},
+      extras_require={
+          'test': tests_require,
+          'doc': ['sphinx'],
+          'release': ['wheel', 'twine'],
+      },
       tests_require=tests_require,
       packages=find_packages(exclude=['demo']),
       entry_points={
