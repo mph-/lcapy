@@ -8,17 +8,17 @@ Installation
 Requirements
 ============
 
-Lcapy requires the following python packages: python, lcapy, sympy, numpy, matplotlib, networkx
+Lcapy requires the following Python packages: scipy, sympy, numpy, matplotlib, networkx
 
 For schematic drawing you require:
 
 1. pdflatex
 
-2. circuitikz (https://www.ctan.org/pkg/circuitikz).  Lcapy currently
-   expects circuitikz version 1.0.1.  Unfortunately, different
-   circuitikz releases tweak component sizes.
+2. CircuiTikZ (https://www.ctan.org/pkg/circuitikz).  Lcapy currently
+   expects CircuiTikZ version 1.0.1.  Unfortunately, different
+   CircuiTikZ releases tweak component sizes.
 
-3. ghostscript (http://www.ghostscript.com/), imagemagick convert (http://www.imagemagick.org/), or `pdftoppm`
+3. Ghostscript (http://www.ghostscript.com/), ImageMagick (http://www.imagemagick.org/), or `pdftoppm`
 
 For nice maths formatting in a Jupyter notebook you require mathjax (https://www.mathjax.org/).  This is not essential; if it is not loaded then an active internet connection is required.
 
@@ -36,9 +36,31 @@ Installation for Linux
 
 .. code-block:: console
 
-    $ sudo apt install fonts-mathjax ghostscript imagemagick libjs-mathjax texlive-latex-base texlive-latex-extra texlive-pictures
+    $ sudo apt install ghostscript texlive-latex-extra
 
-3. Download circuitikz (https://www.ctan.org/pkg/circuitikz)
+
+Installation for macOS
+======================
+
+1. Lcapy (and its Python dependencies) can be installed using:
+
+.. code-block:: console
+
+    $ pip3 install lcapy
+
+2. Using Homebrew (https://brew.sh), all the other packages required for Lcapy can be installed using:
+
+.. code-block:: console
+
+    $ brew install mactex
+
+or to minimise disk space, install a smaller set of LaTeX packages using:
+
+.. code-block:: console
+
+    $ brew install basictex
+    $ eval "$(/usr/libexec/path_helper)"
+    $ sudo tlmgr install collection-latexextra
 
 
 Installation for Windows
