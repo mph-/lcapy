@@ -372,11 +372,26 @@ class Expr(ExprPrint, ExprMisc):
             return False
         
         return self._ratfun.is_strictly_proper
+
+    @property
+    def fval(self):
+        """Evaluate expression and return as a python float value."""
+
+        return float(self.val.expr)
+
+    @property
+    def cval(self):
+        """Evaluate expression and return as a python complex value."""
+
+        return complex(self.val.expr)
     
     @property
     def val(self):
         """Return floating point value of expression if it can be evaluated,
-        otherwise the expression."""
+        otherwise the expression.
+
+        This returns an Lcapy Expr object.   If you want a numerical value
+        use expr.fval for a float value or expr.cval for a complex value."""
 
         return self.evalf()
 
@@ -384,6 +399,9 @@ class Expr(ExprPrint, ExprMisc):
         """Convert constants in an expression to floats, evaluated to `n`
         decimal places.  If the expression is a constant, return the
         floating point result.
+
+        This returns an Lcapy Expr object.   If you want a numerical value
+        use expr.fval for a float value or expr.cval for a complex value.
 
         See sympy.evalf for more details.
 

@@ -617,3 +617,18 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(expr('exp(-3 * t) * delta(t)').simplify(),
                          expr('delta(t)'),
                          "exp(-3 * t) * delta(t)")
+
+    def test_cval(self):
+
+        a = 3j
+        e = expr(a)
+
+        self.assertEqual(e.cval, a, 'cval')
+
+        
+    def test_fval(self):
+
+        a = 3
+        e = expr(a)
+
+        self.assertEqual(e.fval, a, 'fval')        

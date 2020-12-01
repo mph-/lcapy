@@ -30,8 +30,8 @@ def plot_pole_zero(obj, **kwargs):
     poles = obj.poles()
     zeros = obj.zeros()
     try:
-        p = np.array([complex(p.evalf()) for p in poles.keys()])
-        z = np.array([complex(z.evalf()) for z in zeros.keys()])
+        p = np.array([p.cval for p in poles.keys()])
+        z = np.array([z.cval for z in zeros.keys()])
     except TypeError:
         raise TypeError('Cannot plot poles and zeros of symbolic expression')
 
@@ -93,7 +93,7 @@ def plot_pole_zero(obj, **kwargs):
         
         for pole, num in poles.items():
             if num > 1:
-                p = complex(pole.evalf())
+                p = pole.cval
                 axes.text(p.real + offset, p.imag + offset, '%d' % num)
 
     # Marker size
