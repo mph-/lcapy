@@ -177,7 +177,8 @@ def plot_frequency(obj, f, **kwargs):
     V = obj.evaluate(f)
 
     kwargs.pop('log_frequency', None)
-    kwargs.pop('log_magnitude', None)    
+    kwargs.pop('log_magnitude', None)
+    kwargs.pop('plot_type', None)        
 
     plots = {(True, True) : ax.loglog,
              (True, False) : ax.semilogy,
