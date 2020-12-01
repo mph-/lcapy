@@ -805,7 +805,7 @@ class NetlistMixin(object):
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure V2 with port 2 open-circuit
             try:
-                A21 = Ys(-1 / net.Voc(N2p, N2m)(s))                
+                A21 = Ys(1 / net.Voc(N2p, N2m)(s))                
             except ValueError:
                 # It is likely there is an open-circuit.                
                 net2 = net.copy()

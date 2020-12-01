@@ -557,3 +557,26 @@ class LcapyTester(unittest.TestCase):
         R 2 0""")        
 
         self.assertEqual(a.impedance(1, 0), expr('R / k**2'), "incorrect impedance")
+
+    def test_params(self):
+
+        a = Circuit("""
+        R1 1 2;
+        R2 2 0;
+        R3 2 3""")
+
+        A = a.Aparams(3, 0, 1, 0)
+
+        # TODO, FIXME without passing matrix elements through expr
+        self.assertEqual(expr(A[0, 0]), expr('(R2 + R3) / R2'), "A11")
+        self.assertEqual(expr(A[0, 1]), expr('R1 + R1 * R3 / R2 + R3'), "A12")                
+        self.assertEqual(expr(A[1, 0]), expr('1 / R2'), "A21")
+        self.assertEqual(expr(A[1, 1]), expr('(R1 + R2) / R2'), "A22")
+
+        Z = a.Zparams(3, 0, 1, 0)
+
+        self.assertEqual(expr(Z[0, 0]), expr('R2 + R3'), "Z11")
+        self.assertEqual(expr(Z[0, 1]), expr('R2'), "Z12")                
+        self.assertEqual(expr(Z[1, 0]), expr('R2'), "Z21")
+        self.assertEqual(expr(Z[1, 1]), expr('R1 + R2'), "Z22")
+        
