@@ -7,7 +7,7 @@ __version__ = '0.72'
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-tests_require = ['nose']
+tests_require = ['nose', 'flake8', 'flake8-bugbear', 'flake8-comprehensions', 'flake8-requirements']
 
 
 setup(name='lcapy',

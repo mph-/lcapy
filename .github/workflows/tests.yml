@@ -1,4 +1,4 @@
-name: Run tests
+name: Run tests and checks
 
 on:
   push:
@@ -24,3 +24,18 @@ jobs:
         python -c "from lcapy import show_version; show_version()"
     - name: Run tests
       run: nosetests
+
+  checks:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Check out
+      uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: pip3 install .[test]
+    - name: Run Flake8
+      run: flake8
+
