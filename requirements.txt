@@ -1,4 +1,0 @@
-sympy
-numpy
-matplotlib
-git+https://github.com/mph-/lcapy.git

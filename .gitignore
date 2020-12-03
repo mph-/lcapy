@@ -14,4 +14,4 @@ unit_tests/coverage
 *.aux
 *.log
 *.png
-
+*.egg-info/
