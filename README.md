@@ -205,6 +205,9 @@ and then view cover/index.html in a web browser.
 
 Updates
 -------
+
+- Version 0.72 uses CI for docs plus many assorted bug fixes.
+
 - Version 0.71 uses much faster matrix inversion (if sympy-1.8 installed) otherwise falls back on ADJ method  instead of the GE method which has a serious time regression with sympy-1.6.2
 
 - Version 0.70 adds improved nodal and mesh analysis.
