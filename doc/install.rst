@@ -66,7 +66,11 @@ or to minimise disk space, install a smaller set of LaTeX packages using:
 Installation for Windows
 ========================
 
-1. Lcapy (and its Python dependencies) can be installed using `pip3 install lcapy`
+1. Lcapy (and its Python dependencies) can be installed using
+
+.. code-block:: console
+
+   $ pip3 install lcapy`
 
 2. To install ghostscript see https://www.ghostscript.com/download/gsdnld.html
 
