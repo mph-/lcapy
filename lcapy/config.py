@@ -43,6 +43,11 @@ words = ('alpha', 'beta', 'gamma', 'delta', 'eta', 'zeta', 'theta',
 # Can be 'GE', 'LU', 'ADJ', 'LDL', 'CH', 'DM-GE', 'DM-LU', 'DM-charpoly'
 # Note, the DM methods require the git version of sympy otherwise
 # the fallback method is used.
-matrix_inverse_method = 'DM-charpoly'
+try:
+    from sympy.polys.domainmatrix import DomainMatrix
+    matrix_inverse_method = 'DM-charpoly'
+except:
+    matrix_inverse_method = 'ADJ'
+    
 matrix_inverse_fallback_method = 'ADJ'
 
