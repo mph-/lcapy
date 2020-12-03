@@ -11,7 +11,6 @@ from .expr import Expr, ExprDict, expr
 from .sym import tsym, omega0sym, symbols_find, is_sympy, symsymbol
 from .acdc import is_ac
 from .printing import pprint, pretty, latex
-import six
 
 __all__ = ('Super', 'Voltage', 'Current')
 
@@ -517,7 +516,7 @@ class Super(ExprDict):
                 self.add(value)
             return
 
-        if isinstance(value, six.string_types):
+        if isinstance(value, str):
             return self._parse(value)
 
         if isinstance(value, noiseExpr):

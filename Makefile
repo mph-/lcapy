@@ -25,6 +25,9 @@ release: doc push
 release-test: doc push
 	cd /tmp; rm -rf lcapy; git clone git@github.com:mph-/lcapy.git; cd lcapy; make test
 
+style-check:
+	-flake8 lcapy
+
 push:
 	git push
 	git push --tags

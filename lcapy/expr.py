@@ -458,7 +458,7 @@ class Expr(ExprPrint, ExprMisc):
 
 
         # If it is not callable, directly wrap it.
-        if not hasattr(a, '__call__'):
+        if not callable(a):
             if not isinstance(a, sym.Expr):
                 return a
             ret = a

@@ -1893,7 +1893,7 @@ class SubNetlist(NetlistMixin, MNAMixin):
         obj._analysis = obj.analyse()
         return obj
 
-    def __init__(cls, netlist, kind):
+    def __init__(self, netlist, kind):
         """ kind can be 't', 'dc', 'ac', 's', 'time', 'ivp', 'n*', omega, 
         or an integer"""
         

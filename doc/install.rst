@@ -99,10 +99,17 @@ Installation for development
 .. code-block:: console
 
    $ sudo apt-get install gir1.2-gtk-3.0 python3-gi python3-gi-cairo
-   $ pip install --editable .[doc]
+   $ pip3 install --editable .[doc]
 
 5. For debugging schematic graphs `dot` is required:
 
 .. code-block:: console
 
    $ sudo apt install graphviz
+
+6. To run style guide checking locally
+
+.. code-block:: console
+
+   $ pip3 install flake8 flake-8-bugbear flake8-requirements flake8-comprehensions
+   
