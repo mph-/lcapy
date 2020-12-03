@@ -467,10 +467,13 @@ class NetlistMixin(object):
             new.add(net)
         return new                
     
-    def augment_node_map(self, node_map={}):
+    def augment_node_map(self, node_map=None):
 
         """Create a mapping dict for all nodes."""
 
+        if node_map is None:
+            node_map = {}
+        
         # It would be desirable to renumber the nodes say from left to
         # right and top to bottom.  The schematic drawing algorithms
         # could help with this since they figure out the node
@@ -521,10 +524,13 @@ class NetlistMixin(object):
 
         return node_map
     
-    def renumber(self, node_map={}):
+    def renumber(self, node_map=None):
         """Renumber nodes using specified node_map.  If node_map not specified
         then a mapping is created."""
 
+        if node_map is None:
+            node_map = {}
+        
         if len(node_map) != len(self.nodes):
             node_map = self.augment_node_map(node_map)
 

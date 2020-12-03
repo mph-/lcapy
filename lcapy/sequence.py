@@ -221,13 +221,18 @@ class Sequence(ExprList):
         from .printing import pretty
         p.text(self.pretty())
 
-    def lfilter(self, b=[], a=[1]):
+    def lfilter(self, b=None, a=None):
         """implement digital filter specified by a transfer function.  The
         transfer function is described by a vector `b` of coefficients
         for the numerator and a `a` vector of coefficients for the
         denominator.
 
         For a FIR filter a = [1]."""
+
+        if b is None:
+            b = []
+        if a is None:
+            a = [1]
         
         x = self.vals
         y = []

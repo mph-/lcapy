@@ -71,9 +71,15 @@ def symbols_find(arg):
     return [symbol_name(symbol) for symbol in arg.atoms(Symbol, AppliedUndef)]
 
 
-def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
+def parse(string, symbols=None, evaluate=True, local_dict=None, **assumptions):
     """Handle arbitrary strings that may refer to multiple symbols."""
 
+    if symbols is None:
+        symbols = {}
+    
+    if local_dict is None:
+        local_dict = {}
+    
     cache = assumptions.pop('cache', True)
 
     def auto_symbol(tokens, local_dict, global_dict):
@@ -145,13 +151,16 @@ def parse(string, symbols={}, evaluate=True, local_dict={}, **assumptions):
     return s
 
 
-def sympify1(arg, symbols={}, evaluate=True, **assumptions):
+def sympify1(arg, symbols=None, evaluate=True, **assumptions):
     """Create a SymPy expression.
 
     The purpose of this function is to head SymPy off at the pass and
     apply the defined assumptions.
 
     """
+
+    if symbols is None:
+        symbols = {}
 
     if isinstance(arg, (Symbol, Expr)):
         return arg
