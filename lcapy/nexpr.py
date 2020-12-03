@@ -6,6 +6,7 @@ Copyright 2020 Michael Hayes, UCECE
 
 from __future__ import division
 from .seqexpr import seqExpr
+from .sequence import Sequence
 from .functions import exp
 from .sym import j, oo, pi, fsym
 from .dsym import nsym, ksym, zsym, dt

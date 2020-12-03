@@ -83,7 +83,7 @@ class Cpt(ImmitanceMixin):
             self.cpt = lcapy.oneport.Dummy()
             return
 
-        if ((args is () and not self.type in ('W', 'O', 'P'))
+        if ((args == () and not self.type in ('W', 'O', 'P'))
             or (self.type in ('F', 'H', 'CCCS', 'CCVS') and len(args) == 1)
             or (self.type == 'K' and len(args) == 2)):
             # Default value is the component name

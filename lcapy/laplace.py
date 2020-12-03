@@ -319,8 +319,8 @@ def inverse_laplace_ratfun(expr, s, t, **assumptions):
     if assumptions.get('damped_sin', False):
         if sexpr.degree == 2:
             return inverse_laplace_damped_sin(sexpr, s, t, **assumptions)
-        if False and sexpr.degree == 3 and Ratfun(expr * s).degree == 2:
-            return inverse_laplace_damped_sin3(sexpr, s, t, **assumptions)
+        #if False and sexpr.degree == 3 and Ratfun(expr * s).degree == 2:
+        #    return inverse_laplace_damped_sin3(sexpr, s, t, **assumptions)
 
     Q, M, D, delay, undef = sexpr.as_QMD()
 
@@ -591,7 +591,7 @@ def inverse_laplace_make(t, const, cresult, uresult, **assumptions):
 
         if cresult != 0:
             raise ValueError('Inverse laplace transform weirdness for %s'
-                             ' with is_ac True' % expr)
+                             ' with is_ac True' % result)
         # TODO, perform more checking of the result.
         
     elif not assumptions.get('causal', False):

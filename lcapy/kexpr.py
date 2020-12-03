@@ -165,5 +165,5 @@ def kexpr(arg, **assumptions):
         return k
     return kExpr(arg, **assumptions)
         
-from .nexpr import Hn, In, Vn, Yn, Zn, nexpr
+from .nexpr import Hn, In, Vn, Yn, Zn, nexpr, nExpr
 k = kExpr('k')

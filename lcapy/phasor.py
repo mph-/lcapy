@@ -16,6 +16,7 @@ __all__ = ('Vphasor', 'Iphasor')
 
 from .expr import Expr
 from .cexpr import cExpr
+from .omegaexpr import omegaExpr
 
 
 class Phasor(Expr):

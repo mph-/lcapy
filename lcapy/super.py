@@ -107,8 +107,8 @@ class Super(ExprDict):
         """Return dictionary of symbols in the expression keyed by name."""
 
         syms = {}
-        for expr in self.values():
-            syms.update(expr.symbols)
+        for expr1 in self.values():
+            syms.update(expr1.symbols)
         return syms
 
     def ac_keys(self):
@@ -135,8 +135,8 @@ class Super(ExprDict):
          V.has(t)
 
         """        
-        for key,expr  in self.items():
-            if expr.has(subexpr):
+        for key, expr1 in self.items():
+            if expr1.has(subexpr):
                 return True
         return False
 

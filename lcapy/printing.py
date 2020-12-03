@@ -214,7 +214,6 @@ class LcapyPrettyPrinter(PrettyPrinter):
             return pform
         else:
             return self._print_Function(expr)
-        return tex
 
     def _print_UnitImpulse(self, expr):
 

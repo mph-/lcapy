@@ -418,7 +418,7 @@ class Ratfun(object):
             if d != 0:
                 return n / d
 
-            ddenom = sym.diff(demon, var)
+            ddenom = sym.diff(denom, var)
             return n / ddenom.subs(pole)
 
         m2 = method2(numer, denom, var, pole)        

@@ -603,7 +603,7 @@ def inverse_ztransform_make(n, const, cresult, uresult, **assumptions):
     elif assumptions.get('ac', False):
 
         if cresult != 0:
-            raise ValueError('Inverse z-transform weirdness for %s with is_ac True' % expr)
+            raise ValueError('Inverse z-transform weirdness for %s with is_ac True' % result)
         # TODO, perform more checking of the result.
         
     elif not assumptions.get('causal', False):
@@ -661,7 +661,7 @@ def inverse_ztransform(expr, z, n, **assumptions):
                       inverse_ztransform(expr.args[1], z, n, **assumptions))
 
     if expr.has(n):
-        raise ValueError('Cannot inverse z-transform  %s that depends on %s' % (expr, t))
+        raise ValueError('Cannot inverse z-transform  %s that depends on %s' % (expr, n))
 
     const, cresult, uresult = inverse_ztransform1(expr, z, n, **assumptions)
     return inverse_ztransform_make(n, const, cresult, uresult, **assumptions)

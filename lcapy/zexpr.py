@@ -166,7 +166,7 @@ class zExpr(dExpr):
 
     def _decompose(self):
 
-        N, D, delay = Ratfun(self, s).as_ratfun_delay()                
+        N, D, delay = Ratfun(self, z).as_ratfun_delay()                
 
         return N, D, delay
 

@@ -60,8 +60,8 @@ class EquipotentialNodes(dict):
 
         # Iterate over all pairs.
         for i in range(len(nodes)):
-            for j in range(i + 1, len(nodes)):
-                self.add_wire(nodes[i], nodes[j])
+            for m in range(i + 1, len(nodes)):
+                self.add_wire(nodes[i], nodes[m])
             
 
 class NetlistNamespace(object):

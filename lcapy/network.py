@@ -4,6 +4,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 from __future__ import division
 from .expr import expr
+from .sexpr import s
 from .printing import latex, pretty
 from .schematic import Schematic
 from .circuit import Circuit
