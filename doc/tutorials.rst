@@ -9,6 +9,9 @@ Consider the series R-L-C circuit described by the netlist:
 
 .. literalinclude:: examples/tutorials/ivp/circuit-RLC-ivp1.sch
 
+Note, to specify the initial conditions, the capacitance and
+inductance values must be explicitly defined.
+                    
 This can be loaded by Lcapy and drawn using:
 
     >>> from lcapy import Circuit, s, t
@@ -22,7 +25,7 @@ This circuit has a specified initial voltage for the capacitor and a
 specified initial current for the inductor.  Thus, it is solved as an
 initial value problem.  This will give the transient response for
 :math:`t \ge 0`.  Note, the initial values usually arise for switching
-problems where the circuit topology changes.
+problems where the circuit topology changes. 
 
 The s-domain voltage across the resistor can be found using::
 
@@ -44,7 +47,25 @@ This can be split into terms, one for each initial value, using::
    s  + ─── + ───   L⋅⎜s  + ─── + ───⎟
          L    C⋅L     ⎝      L    C⋅L⎠
 
-Lcapy can convert these expressions into the time-domain but the result is complicated.  To get a simpler result, let's parameterize the expression::
+Lcapy can convert this expression into the time-domain but the result
+is complicated.  This is because SymPy does not know how to simplify
+the expression since it cannot tell if the poles are complex
+conjugates, distinct real, or repeated real.  Let's have a look at the
+poles::
+
+  >>> a.R.V(s).poles()
+  ⎧           ____________                ____________   ⎫
+  ⎪          ╱    2                      ╱    2          ⎪
+  ⎨   R    ╲╱  C⋅R  - 4⋅L         R    ╲╱  C⋅R  - 4⋅L    ⎬
+  ⎪- ─── + ───────────────: 1, - ─── - ───────────────: 1⎪
+  ⎩  2⋅L        2⋅√C⋅L           2⋅L        2⋅√C⋅L       ⎭
+
+Thus it can be seen that if :math:`C R^2 \ge 4 L` then the poles are
+real otherwise they are complex.
+
+To get a simpler result that does not depend on the unknown component
+values, let's parameterize the expression for the voltage across the
+resistor::
 
    >>> VR, defs = a.R.V(s).parameterize()
    >>> VR
@@ -57,9 +78,9 @@ Lcapy can convert these expressions into the time-domain but the result is compl
    ⎨K: R⋅i₀, omega_0: ─────, zeta: ────⎬
    ⎩                  √C⋅√L        2⋅√L⎭
 
-Unfortunately, converting `VR` into the time-domain also results in a
-complicated expression since SymPy does not know that :math:`\zeta \le
-1`.  Instead, it is better to use an alternative parameterization::
+Unfortunately, converting VR into the time-domain also results in a
+complicated expression that SymPy cannot simplify.  Instead, it is
+better to use an alternative parameterization::
 
    >>> VR, defs = a.R.V(s).parameterize(zeta=False)
    >>> VR
@@ -92,7 +113,7 @@ substituting the parameter definitions::
 
    >>> VR(t).subs(defs)
    
-The result is too long to show.   
+However, the result is too long to show.   
    
 
 Opamps
