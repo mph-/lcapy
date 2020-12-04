@@ -23,12 +23,12 @@ As well as performing circuit analysis, Lcapy can output the systems of equation
 
 Lcapy cannot directly analyse non-linear devices such as diodes or
 transistors although it does support simple opamps without saturation.
-Nevertheless, it can draw them!  Lcapy can generate text-book quality schematics using vector graphics (unlike the bit-mapped graphics used in this document).
+Nevertheless, it can draw them!  Lcapy can generate text-book quality schematics using vector graphics (unlike the bit-mapped graphics used in this document). 
 
 Lcapy uses SymPy (symbolic Python) for its values and expressions
 and thus the circuit analysis can be performed symbolically.  See http://docs.sympy.org/latest/tutorial/index.html for the SymPy tutorial.
 
-Lcapy can perform many other circuit analysis operations, including:
+Lcapy can perform many other linear circuit analysis operations, including:
 
 1. Two-port parameters (A, B, G, H, S, T, Y, and Z)
 
@@ -45,6 +45,11 @@ Lcapy can perform many other circuit analysis operations, including:
 7. Discrete Fourier transforms
 
 8. z-transforms
+
+9. Time-stepping simulation
+
+
+If you need to model a non-linear circuit numerically using Python, see PySpice (https://pypi.org/project/PySpice/).
 
 
 
