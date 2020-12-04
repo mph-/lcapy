@@ -2,6 +2,99 @@
 Tutorials
 =========
 
+Initial value problem
+=====================
+
+Consider the series R-L-C circuit described by the netlist:
+
+.. literalinclude:: examples/tutorials/ivp/circuit-RLC-ivp1.sch
+
+This can be loaded by Lcapy and drawn using:
+
+    >>> from lcapy import Circuit, s, t
+    >>> a = Circuit("circuit-RLC-ivp1.sch")
+    >>> a.draw()
+                    
+.. image:: examples/tutorials/ivp/circuit-RLC-ivp1.png
+   :width: 6cm
+
+This circuit has a specified initial voltage for the capacitor and a
+specified initial current for the inductor.  Thus, it is solved as an
+initial value problem.  This will give the transient response for
+:math:`t \ge 0`.  Note, the initial values usually arise for switching
+problems where the circuit topology changes.
+
+The s-domain voltage across the resistor can be found using::
+
+   >>> c.R.V(s)
+   ⎛R⋅(L⋅i₀⋅s - v₀)⎞
+   ⎜───────────────⎟
+   ⎝       L       ⎠
+   ─────────────────
+      2   R⋅s    1  
+     s  + ─── + ─── 
+           L    C⋅L 
+
+This can be split into terms, one for each initial value, using::
+
+   >>> a.R.V(s).expandcanonical() 
+        R⋅i₀⋅s              R⋅v₀       
+   ────────────── - ──────────────────
+    2   R⋅s    1      ⎛ 2   R⋅s    1 ⎞
+   s  + ─── + ───   L⋅⎜s  + ─── + ───⎟
+         L    C⋅L     ⎝      L    C⋅L⎠
+
+Lcapy can convert these expressions into the time-domain but the result is complicated.  To get a simpler result, let's parameterize the expression::
+
+   >>> VR, defs = a.R.V(s).parameterize()
+   >>> VR
+         K⋅(L⋅i₀⋅s - v₀)      
+   ──────────────────────────
+        ⎛  2               2⎞
+   L⋅i₀⋅⎝ω₀  + 2⋅ω₀⋅s⋅ζ + s ⎠
+   >>> defs
+   ⎧                    1          √C⋅R⎫
+   ⎨K: R⋅i₀, omega_0: ─────, zeta: ────⎬
+   ⎩                  √C⋅√L        2⋅√L⎭
+
+Unfortunately, converting `VR` into the time-domain also results in a
+complicated expression since SymPy does not know that :math:`\zeta \le
+1`.  Instead, it is better to use an alternative parameterization::
+
+   >>> VR, defs = a.R.V(s).parameterize(zeta=False)
+   >>> VR
+          K⋅(L⋅i₀⋅s - v₀)        
+   ──────────────────────────────
+        ⎛  2    2              2⎞
+   L⋅i₀⋅⎝ω₁  + s  + 2⋅s⋅σ₁ + σ₁ ⎠
+
+   >>> defs
+   ⎧                     ______________              ⎫
+   ⎪                    ╱      2                     ⎪
+   ⎨                  ╲╱  - C⋅R  + 4⋅L             R ⎬
+   ⎪K: R⋅i₀, omega_1: ─────────────────, sigma_1: ───⎪
+   ⎩                        2⋅√C⋅L                2⋅L⎭
+
+
+The time-domain response can now be found::
+
+   >>> VR(t)
+   ⎧  ⎛     ⎛                       -σ₁⋅t          ⎞       -σ₁⋅t          ⎞           
+   ⎪  ⎜     ⎜ -σ₁⋅t             σ₁⋅ℯ     ⋅sin(ω₁⋅t)⎟   v₀⋅ℯ     ⋅sin(ω₁⋅t)⎟           
+   ⎪K⋅⎜L⋅i₀⋅⎜ℯ     ⋅cos(ω₁⋅t) - ───────────────────⎟ - ───────────────────⎟           
+   ⎨  ⎝     ⎝                            ω₁        ⎠            ω₁        ⎠           
+   ⎪───────────────────────────────────────────────────────────────────────  for t ≥ 0
+   ⎪                                  L⋅i₀                                            
+   ⎩                                                                                  
+
+Finally, the result in terms of R, L, and C can be found by
+substituting the parameter definitions::
+
+   >>> VR(t).subs(defs)
+   
+The result is too long to show.   
+   
+
 Opamps
 ======
 

@@ -157,6 +157,7 @@ figs:
 	cd examples/schematics; make
 	cd examples/networks; make
 	cd examples/discretetime; make
+	cd examples/tutorials/ivp; make
 	cd examples/tutorials/RCnoise; make
 	cd examples/tutorials/opampnoise; make
 	cd examples/tutorials/opamps; make
