@@ -1570,6 +1570,8 @@ class Expr(ExprPrint, ExprMisc):
         See also general, partfrac, standard, timeconst, and ZPK
 
         """
+        if self.is_constant:
+            return self
         if self._ratfun is None:
             return self.copy()
         return self.__class__(self._ratfun.canonical(factor_const),
