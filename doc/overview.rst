@@ -17,7 +17,7 @@ with time.  However, changes in circuit topology can be analysed as a
 sequence of initial value problems.
 
 Networks and circuits can be described using netlists or combinations
-of network elements.  These can be drawn semi-automatically.
+of network elements.  These can be drawn semi-automatically (see :ref:`schematics`).
 
 As well as performing circuit analysis, Lcapy can output the systems of equations for modified nodal analysis and state-space analysis.
 

@@ -86,7 +86,7 @@ Linear circuit analysis
 There is no universal analytical technique to determine the voltages
 and currents in an LTI circuit.  Instead there are a number of methods
 that all try to side step having to solve simultaneous
-integro-differential equations.  These methods include DC analysis, AC
+integro-differential equations.  These methods include DC analysis, AC (phasor)
 analysis, and Laplace analysis.  Lcapy uses all three and the
 principle of superposition.  Superposition allows a circuit to be
 analysed by considering the effect of each independent current and

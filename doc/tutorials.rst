@@ -2,6 +2,68 @@
 Tutorials
 =========
 
+Basic circuit theory
+====================
+
+When learning circuit theory, the key initial concepts are:
+
+1. Ohm's law
+2. Kirchhoff's current law (KCL)
+3. Kirchhoff's voltage law (KVL)
+4. Superposition
+5. Norton and Thevenin transformations
+
+
+DC voltage divider
+------------------
+   
+Consider the DC voltage divider circuit defined by the netlist:
+
+.. literalinclude:: examples/tutorials/basic/VRR1.sch
+   
+This can be loaded by Lcapy and drawn using:
+
+    >>> from lcapy import Circuit, s, t
+    >>> a = Circuit("VRR1.sch")
+    >>> a.draw()
+                    
+.. image:: examples/tutorials/basic/VRR1.png
+   :width: 6cm   
+
+The voltage at node 1 (with respect to the ground node 0) is defined by the voltage source::
+
+   >>> a[1].V
+   6
+
+This is equivalent to the voltage across the voltage source::
+           
+   >>> a.V.V
+   6
+
+The voltage at node 2 (with respect to the ground node 0) is::
+
+   >>> a[2].V
+   4
+
+This is equivalent to the voltage across R2::
+           
+   >>> a.R2.V
+   4   
+
+The current through R1 is::
+
+   >>> a.R1.I
+   1
+
+From Kirchhoff's current law, this is equivalent to the current though R2 and V::
+
+   >>> a.R2.I
+   1
+
+   >>> a.V.I
+   1     
+   
+  
 Initial value problem
 =====================
 

@@ -19,8 +19,8 @@ Contents:
 .. toctree::
    :maxdepth: 3
 
-   install.rst
    overview.rst
+   install.rst
    expressions.rst
    discretetime.rst                         
    circuits.rst
