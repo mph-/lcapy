@@ -697,10 +697,12 @@ The graph is:
 Numerical simulation
 ====================
 
-Lcapy can perform time-stepping numerical simulation of a circuit using
-numerical integration.  Currently, only linear circuit elements can be
-simulated although this could be extended to non-linear components
-such as diodes and transistors.
+Lcapy can perform time-stepping numerical simulation of a circuit
+using numerical integration.  Currently, only linear circuit elements
+can be simulated although this could be extended to non-linear
+components such as diodes and transistors.  If you need to model a
+non-linear circuit numerically using Python, see PySpice
+(https://pypi.org/project/PySpice/).
 
 Here's an example that compares the analytic and numerical results for
 an R-L circuit:

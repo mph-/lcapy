@@ -46,7 +46,7 @@ Lcapy can perform many other linear circuit analysis operations, including:
 
 8. z-transforms
 
-9. Time-stepping simulation
+9. Time-stepping simulation (see :ref:`simulation`)
 
 
 If you need to model a non-linear circuit numerically using Python, see PySpice (https://pypi.org/project/PySpice/).
