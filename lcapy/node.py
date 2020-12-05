@@ -4,7 +4,7 @@ Copyright 2020 Michael Hayes, UCECE
 
 """
 
-from .immitance import ImmitanceMixin
+from .immitancemixin import ImmitanceMixin
 
 class Node(ImmitanceMixin):
 

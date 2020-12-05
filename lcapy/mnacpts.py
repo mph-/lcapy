@@ -14,7 +14,7 @@ from .symbols import j, omega, jomega, s, t
 from .functions import sqrt
 from .sym import capitalize_name, omegasym
 from .grammar import delimiters
-from .immitance import ImmitanceMixin
+from .immitancemixin import ImmitanceMixin
 from .current import Current
 from .opts import Opts
 import lcapy

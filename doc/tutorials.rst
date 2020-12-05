@@ -17,14 +17,13 @@ When learning circuit theory, the key initial concepts are:
 DC voltage divider
 ------------------
    
-Consider the DC voltage divider circuit defined by the netlist:
-
-.. literalinclude:: examples/tutorials/basic/VRR1.sch
-   
-This can be loaded by Lcapy and drawn using:
-
-    >>> from lcapy import Circuit, s, t
-    >>> a = Circuit("VRR1.sch")
+Consider the DC voltage divider circuit defined by::
+    >>> from lcapy import Circuit
+    >>> a = Circuit("""
+    ... V 1 0 6; down=1.5
+    ... R1 1 2 2; right=1.5
+    ... R2 2 0_2 4; down
+    ... W 0 0_2; right""")
     >>> a.draw()
                     
 .. image:: examples/tutorials/basic/VRR1.png
@@ -32,14 +31,18 @@ This can be loaded by Lcapy and drawn using:
 
 The voltage at node 1 (with respect to the ground node 0) is defined by the voltage source::
 
-   >>> a[1].V
-   6
-
-This is equivalent to the voltage across the voltage source::
-           
    >>> a.V.V
    6
 
+The total resistance is::
+
+   >>> a.R1.R + a.R2.R
+   6
+
+and thus using Ohm's law the current through R1 and R2 is::
+
+   >>> A.V.V / (A.R1.R + a.R2.R)
+  
 The voltage at node 2 (with respect to the ground node 0) is::
 
    >>> a[2].V

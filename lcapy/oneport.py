@@ -30,7 +30,7 @@ from .functions import Heaviside, cos, exp
 from .sym import omega0sym, tsym, oo
 from .symbols import j, t, s
 from .network import Network
-from .immitance import ImmitanceMixin
+from .immitancemixin import ImmitanceMixin
 from .impedance import Impedance
 from .admittance import Admittance
 from sympy import Derivative, Integral

@@ -1,7 +1,7 @@
 """This module provides the Impedance class.  This is a generalized
 impedance (s-domain) and converts to other representations.
 
-Copyright 2019-2020 Michael Hayes, UCECE
+Copyright 2019--2020 Michael Hayes, UCECE
 
 """
 from __future__ import division
@@ -10,6 +10,14 @@ from .immitance import Immitance
 
 class Impedance(Immitance):
     """Generic impedance class.
+
+    This represents both the phasor impedance, Z(omega), and the
+    s-domain impedance (sometimes called generalized imepdance), Z(s).
+    Unfortunately, both are called impedance although Z(omega) is more
+    common.
+
+    By default the representation uses the form that the impedance was
+    defined.  Otherwise, use Z(s) or Z(omega) to get the desired form.
 
     Z(omega) = R(omega) + j * X(omega)
 
