@@ -19,7 +19,7 @@ Copyright 2016--2020 Michael Hayes, UCECE
 # This should give 2 * sin(2 * pi * t)
 
 import sympy as sym
-from .sym import sympify, AppliedUndef, j, pi
+from .sym import sympify, AppliedUndef, j, pi, symsimplify
 from .utils import factor_const, scale_shift
 
 __all__ = ('FT', 'IFT')
@@ -229,15 +229,20 @@ def fourier_transform(expr, t, f, inverse=False, evaluate=True):
 
     orig_expr = expr
 
-    if expr.has(sym.cos) or expr.has(sym.sin):
-        expr = expr.rewrite(sym.exp)
+    # sym.rewrite(sym.exp) can create exp(log...)
+    if expr.has(sym.sin):
+        expr = expr.replace(lambda expr: expr.is_Function and expr.func == sym.sin,
+                            lambda expr: expr.rewrite(sym.exp))
+    if expr.has(sym.cos):
+        expr = expr.replace(lambda expr: expr.is_Function and expr.func == sym.cos,
+                            lambda expr: expr.rewrite(sym.exp))        
 
     terms = expr.expand().as_ordered_terms()
     result = 0
 
     try:
         for term in terms:
-            result += fourier_term(term, t, f, inverse=inverse)
+            result += fourier_term(symsimplify(term), t, f, inverse=inverse)
     except ValueError:
         raise ValueError('Could not compute Fourier transform for ' + str(orig_expr))
 
@@ -258,7 +263,7 @@ def inverse_fourier_transform(expr, f, t, evaluate=True):
         raise ValueError('Cannot inverse Fourier transform for expression %s that depends on %s' % (expr, t))
     
     result = fourier_transform(expr, t, f, inverse=True, evaluate=evaluate)
-    return sym.simplify(result)
+    return symsimplify(result)
 
 
 def FT(expr, t, f, **assumptions):
