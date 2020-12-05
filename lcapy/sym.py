@@ -56,6 +56,12 @@ def symbols_find(arg):
             tokNum, tokVal = tok
             if tokNum == NAME:
                 name = tokVal
+
+                # Hack to fix common naming problem.  Perhaps use a dictionary
+                # of symbol aliases?
+                if name == 'omega0':
+                    name = 'omega_0'
+                
                 if name not in local_dict and name not in global_dict:
                     symbols.append(name)
         return ([(NUMBER, '0')])
@@ -101,6 +107,11 @@ def parse(string, symbols=None, evaluate=True, local_dict=None, **assumptions):
                                    (OP, '('), (NAME, repr(name)), (OP, ')')])
                     continue
 
+                # Hack to fix common naming problem.  Perhaps use a dictionary
+                # of symbol aliases?
+                if name == 'omega0':
+                    name = 'omega_0'
+                
                 if name in global_dict:
 
                     obj = global_dict[name]
