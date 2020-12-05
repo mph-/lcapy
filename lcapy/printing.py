@@ -30,6 +30,7 @@ cpt_names = ('C', 'E', 'F', 'G', 'H', 'I', 'L', 'R', 'V', 'Y', 'Z', 'i', 'v')
 cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
 sub_super_pattern = re.compile(r"([_\^]){([\w]+)}")
 func_pattern = re.compile(r"\\operatorname{(.*)}")
+word_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(words))
 
 
 def canonical_name(name):
@@ -39,6 +40,7 @@ def canonical_name(name):
     R1 -> R_1
     XT2 -> XT_2
     Vbat -> V_bat
+    alpha0 -> alpha_0
     """
 
     def foo(match):
@@ -74,6 +76,14 @@ def canonical_name(name):
     if len(name) < 2:
         return name
 
+    # Convert omega1 to omega_1, etc.
+    match = word_name_pattern.match(name)
+    if match:
+        if match.groups()[1] == '':
+            return name
+        name = match.groups()[0] + '_' + match.groups()[1]
+        return name
+    
     # Convert i1 to i_1, etc.
     if name[1].isdigit:
         return name[0] + '_' + name[1:]
