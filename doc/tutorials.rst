@@ -41,9 +41,17 @@ The total resistance is::
 
 and thus using Ohm's law the current through R1 and R2 is::
 
-   >>> A.V.V / (A.R1.R + a.R2.R)
+   >>> I = a.V.V / (a.R1.R + a.R2.R)
+   >>> I
+   1
+
+Thus again using Ohm's law, the voltage across R2 is::
   
-The voltage at node 2 (with respect to the ground node 0) is::
+   >>> I * a1.R2.R
+   4
+
+Of course, these values can be automatically calculated using Lcapy.  For example,
+the voltage at node 2 (with respect to the ground node 0) is::
 
    >>> a[2].V
    4
@@ -66,7 +74,23 @@ From Kirchhoff's current law, this is equivalent to the current though R2 and V:
    >>> a.V.I
    1     
    
-  
+The general result can be obtained by evaluating this circuit symbolically::
+
+    >>> from lcapy import Circuit
+    >>> a = Circuit("""
+    ... V 1 0 dc
+    ... R1 1 2
+    ... R2 2 0_2
+    ... W 0 0_2""")
+    >>> a.R2.V
+     R₂⋅V   
+    ───────
+    R₁ + R₂  
+
+Note, the keyword dc is required here for the voltage source otherwise an arbitrary voltage
+source is assumed.
+     
+   
 Initial value problem
 =====================
 
