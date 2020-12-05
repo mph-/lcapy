@@ -611,7 +611,8 @@ class Expr(ExprPrint, ExprMisc):
         if cls in (Expr, cExpr):
             return xcls, cls(self), x, assumptions
 
-        if cls in (Impedance, Admittance) and isinstance(x, omegaExpr):
+        if (cls in (Impedance, Admittance, Resistance, Reactance, Conductance, Susceptance) and
+            isinstance(x, omegaExpr)):
             return cls, self, cls(x), assumptions        
 
         raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' %
@@ -2129,6 +2130,10 @@ from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr, sexpr
 from .texpr import tExpr, texpr
 from .impedance import Impedance
 from .admittance import Admittance
+from .resistance import *
+from .reactance import *
+from .conductance import *
+from .susceptance import *
 from .voltage import Voltage
 from .current import Current
 from .omegaexpr import Homega, Iomega, Vomega, Yomega, Zomega, omegaExpr, omegaexpr

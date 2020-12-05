@@ -13,7 +13,7 @@ from .symbols import j, omega, jomega, s
 from .sym import omegasym
 
 class Immitance(sExpr):
-    
+
     def __init__(self, val, kind=None, causal=True, positive=False, **assumptions):
         """Create an immittance (impedance/admittance).
 
@@ -70,22 +70,30 @@ class Immitance(sExpr):
     @property
     def R(self):
         """Resistance."""
-        return self.__class__(self.Zw.real)
+        from .resistance import Resistance
+        
+        return Resistance(self.Zw.real)
 
     @property
     def X(self):
         """Reactance."""
-        return self.__class__(self.Zw.imag)
+        from .reactance import Reactance
+        
+        return Reactance(self.Zw.imag)
 
     @property
     def G(self):
         """Conductance."""
-        return self.__class__(self.Yw.real)
+        from .conductance import Conductance
+        
+        return Conductance(self.Yw.real)
 
     @property
     def B(self):
         """Susceptance."""
-        return self.__class__(-self.Yw.imag)   
+        from .susceptance import Susceptance
+        
+        return Susceptance(-self.Yw.imag)   
 
     def oneport(self):
         """Create oneport component."""

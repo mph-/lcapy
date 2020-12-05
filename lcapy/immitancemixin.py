@@ -14,7 +14,7 @@ class ImmitanceMixin(object):
     @property
     def R(self):
         """Resistance."""
-        return Impedance(self.Zw.real)
+        return Resistance(self.Zw.real)
 
     @property
     def resistance(self):
@@ -24,7 +24,7 @@ class ImmitanceMixin(object):
     @property
     def X(self):
         """Reactance."""
-        return Impedance(self.Zw.imag)
+        return Reactance(self.Zw.imag)
 
     @property
     def reactance(self):
@@ -43,7 +43,7 @@ class ImmitanceMixin(object):
         not infinity as might be expected.
 
         """
-        return Impedance(self.Yw.real)
+        return Conductance(self.Yw.real)
 
     @property
     def conductance(self):
@@ -53,7 +53,7 @@ class ImmitanceMixin(object):
     @property
     def B(self):
         """Susceptance."""
-        return Impedance(-self.Yw.imag)
+        return Susceptance(-self.Yw.imag)
 
     @property
     def susceptance(self):
@@ -90,4 +90,8 @@ class ImmitanceMixin(object):
         """Generalized impedance  Z(s)."""
         return Zs(self.impedance.selectexpr(s))
 
-from .impedance import Impedance
+from .resistance import Resistance
+from .reactance import Reactance
+from .conductance import Conductance
+from .susceptance import Susceptance
+
