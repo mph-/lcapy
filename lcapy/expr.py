@@ -1571,7 +1571,7 @@ class Expr(ExprPrint, ExprMisc):
         See also general, partfrac, standard, timeconst, and ZPK
 
         """
-        if self.is_constant:
+        if not self.expr.has(self.var):
             return self
         if self._ratfun is None:
             return self.copy()
