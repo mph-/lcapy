@@ -67,7 +67,13 @@ class Super(ExprDict):
         # If have a single element, show value.
         if len(self) == 1:
             key = list(self)[0]
-            return self[key]
+            if key in ('dc', 't'):
+                return self[key]
+            if key == 's':
+                if self[key].has(s):
+                    return self[key]
+                # Have something like s * 0 + 1 so don't display as 1
+                # since not a dc value.
         
         # Have a superposition.
         # It is probably less confusing to a user to display
