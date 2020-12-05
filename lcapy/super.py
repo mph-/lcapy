@@ -63,11 +63,14 @@ class Super(ExprDict):
     def _representation(self):
         if not any(self):
             return 0
-        if self.is_dc:
-            return self.dc
-        if False:
-            return self
-        # It is probably less confusing for a user to display
+
+        # If have a single element, show value.
+        if len(self) == 1:
+            key = list(self)[0]
+            return self[key]
+        
+        # Have a superposition.
+        # It is probably less confusing to a user to display
         # using a decomposition in the transform domains.
         # We could present the result in the time-domain but this
         # hides the underlying way the signal is analysed.
