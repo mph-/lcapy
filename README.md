@@ -1,7 +1,7 @@
 Lcapy is a Python package for linear circuit analysis.  It uses SymPy
 for symbolic mathematics.
 
-[![Travis-CI](https://api.travis-ci.org/mph-/lcapy.svg?branch=master)](https://travis-ci.org/mph-/lcapy)
+![Run tests and checks](https://github.com/mph-/lcapy/workflows/Run%20tests%20and%20checks/badge.svg)
 [![Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/mph-/lcapy/master)
 
 Lcapy can analyse circuits described with netlists or by series/parallel combinations of components.
@@ -205,6 +205,7 @@ and then view cover/index.html in a web browser.
 
 Updates
 -------
+- Version 0.73 improves printing of Voltage and Current, adds phasor attributes to Voltage and Current, fixes magnitude and phase for Phasor, fixes printing of greek symbols, tidies canonical representation, wraps R, X, B, G attributes for Immittance, doc reorganisation.
 
 - Version 0.72 uses CI for docs plus many assorted bug fixes.
 
