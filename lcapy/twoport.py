@@ -1835,7 +1835,12 @@ class TwoPortBModel(TwoPort):
     # problem, however, they cannot be extended to three or more ports.
     #
 
-    def __init__(self, B, V2b=Vs(0), I2b=Is(0)):
+    def __init__(self, B, V2b=None, I2b=None):
+
+        if V2b is None:
+            V2b = Vs(0)
+        if I2b is None:
+            I2b = Is(0)            
 
         if issubclass(B.__class__, TwoPortBModel):
             B, V2b, I2b = B._M, B._V2b, B._I2b
@@ -1897,8 +1902,13 @@ class TwoPortGModel(TwoPort):
     """
     """
 
-    def __init__(self, G, I1g=Is(0), V2g=Vs(0)):
+    def __init__(self, G, I1g=None, V2g=None):
 
+        if I1g is None:
+            I1g = Is(0)
+        if V2g is None:
+            V2g = Vs(0)            
+        
         if issubclass(G.__class__, TwoPortGModel):
             G, I1g, V2g = G._M, G._I1g, G._V2g
 
@@ -1970,8 +1980,13 @@ class TwoPortHModel(TwoPort):
     +-  -+     +-        -+   +-  -+     +-   -+
     """
 
-    def __init__(self, H, V1h=Vs(0), I2h=Is(0)):
+    def __init__(self, H, V1h=None, I2h=None):
 
+        if V1h is None:
+            V1h = Vs(0)
+        if I2h is None:
+            I2h = Is(0)            
+        
         if issubclass(H.__class__, TwoPortHModel):
             H, V1h, I2h = H._M, H._V1h, H._I2h
 
@@ -2042,8 +2057,13 @@ class TwoPortYModel(TwoPort):
     Ymn = Im / Vn for Vm = 0
     """
 
-    def __init__(self, Y, I1y=Is(0), I2y=Is(0)):
+    def __init__(self, Y, I1y=None, I2y=None):
 
+        if I1y is None:
+            I1y = Is(0)
+        if I2y is None:
+            I2y = Is(0)            
+        
         if issubclass(Y.__class__, TwoPortYModel):
             Y, I1y, I2y = Y._M, Y._I1y, Y._I2y
 
@@ -2108,8 +2128,13 @@ class TwoPortZModel(TwoPort):
 
     """
 
-    def __init__(self, Z, V1z=Vs(0), V2z=Vs(0)):
+    def __init__(self, Z, V1z=None, V2z=None):
 
+        if V1z is None:
+            V1z = Vs(0)
+        if V2z is None:
+            V2z = Vs(0)            
+        
         if issubclass(Z.__class__, TwoPortZModel):
             Z, V1z, V2z = Z._M, Z._V1z, Z._V2z
 
