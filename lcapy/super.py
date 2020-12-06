@@ -199,6 +199,12 @@ class Super(ExprDict):
         return self.has_ac and self.ac_keys() == list(self.keys())
 
     @property
+    def is_phasor(self):
+        """True if has single AC component."""
+
+        return self.ac and len(list(self.keys())) == 1
+    
+    @property
     def is_noisy(self):
         """True if only has noise components."""                                
         return self.has_noisy and self.noise_keys() == list(self.keys())
@@ -571,10 +577,44 @@ class Super(ExprDict):
             self[kind] += value
 
     @property
+    def abs(self):
+        """Return the absolute value if a phasor."""        
+        
+        phasor = self.phasor
+        return phasor.abs
+
+    @property
+    def phase(self):
+        """Return the phase if a phasor."""        
+        
+        phasor = self.phasor
+        return phasor.phase    
+            
+    @property
     def dc(self):
         """Return the DC component."""        
         return self.select('dc')
 
+    @property
+    def _single(self):
+        """Extract single expression; raise error if a superposition."""
+        
+        if len(self) > 1:
+            raise ValueError('This is superposition of multiple signals.')
+    
+        key = list(self)[0]
+        return self[key]
+    
+    @property
+    def phasor(self):
+        """Return phasor if have a single AC component otherwise raise error."""
+
+        expr1 = self._single
+        
+        if not self.ac:
+            raise ValueError('Not a phasor')
+        return expr1
+    
     @property
     def ac(self):
         """Return the AC components."""                
