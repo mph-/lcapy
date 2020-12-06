@@ -34,6 +34,17 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.sign, Expr(1), "sign incorrect.")
         self.assertEqual2(-a.sign, Expr(-1), "sign incorrect.")
 
+        a = Expr(-3)
+        self.assertEqual2(a.N, Expr(-3), "N incorrect.")
+        self.assertEqual2(a.D, Expr(1), "D incorrect.")
+        self.assertEqual2(a.real, Expr(-3), "real incorrect.")
+        self.assertEqual2(a.imag, Expr(0), "imag incorrect.")
+        self.assertEqual2(a.magnitude, Expr(3), "magnitude incorrect.")
+        self.assertEqual2(a.phase, Expr(pi), "phase incorrect.")
+        self.assertEqual2(a.phase_degrees, Expr(180), "phase incorrect.")
+        self.assertEqual2(a.sign, Expr(-1), "sign incorrect.")
+        self.assertEqual2(-a.sign, Expr(1), "sign incorrect.")        
+
         a = Expr(3j)
         self.assertEqual2(a.N, Expr(3j), "N incorrect.")
         self.assertEqual2(a.D, Expr(1), "D incorrect.")

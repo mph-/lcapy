@@ -977,13 +977,17 @@ class Expr(ExprPrint, ExprMisc):
 
         if self.is_real:
             dst = self.copy()
-            dst.part = 'real'            
+            dst.expr = abs(dst.expr)
+            dst.part = 'magnitude'            
             return dst
 
         R = self.rationalize_denominator()
         N = R.N
         Dnew = R.D
         Nnew = sqrt((N.real**2 + N.imag**2).simplify())
+        # Hack, fix properly for phasors
+        if hasattr(N, 'omega'):
+            Nnew.assumptions['omega'] = N.omega
         dst = Nnew / Dnew
 
         dst.part = 'magnitude'
@@ -1020,7 +1024,10 @@ class Expr(ExprPrint, ExprMisc):
         N = R.N
 
         if N.imag == 0:
-            dst = N.imag
+            if N.real >= 0:
+                dst = expr(0)
+            else:
+                dst = expr(sym.pi)
         else:
             if N.real != 0:
                 G = gcd(N.real, N.imag)
