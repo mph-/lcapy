@@ -62,7 +62,7 @@ Preliminaries
 
 - Before you can use Lcapy you need to install the Lcapy package (see :ref:`installation`) or set `PYTHONPATH` to find the Lcapy source files.
 
-- Then fire up your favourite python interpreter, for example, ipython:
+- Then fire up your favourite python interpreter, for example, ipython::
 
   >>> ipython --pylab
 
@@ -94,13 +94,13 @@ Lcapy defines a number of symbols corresponding to different domains (see :ref:`
 - omega -- angular frequency (real)
 
 Expressions (see :ref:`expressions`) can be formed using these symbols.  For example, a
-time-domain expression can be created using:
+time-domain expression can be created using::
 
    >>> from lcapy import t, delta, u
    >>> v = 2 * t * u(t) + 3 + delta(t)
    >>> i = 0 * t + 3
 
-and a s-domain expression can be created using:
+and a s-domain expression can be created using::
 
    >>> from lcapy import s, j, omega
    >>> H = (s + 3) / (s - 4)
@@ -154,7 +154,7 @@ and a number of generic methods (see :ref:`expressionsmethods`) including:
 
 - `evaluate()` -- evaluate at specified vector and return floating point vector
 
-Here's an example of using these attributes and methods:
+Here's an example of using these attributes and methods::
 
    >>> from lcapy import s, j, omega
    >>> H = (s + 3) / (s - 4)
@@ -225,12 +225,223 @@ Lcapy defines a number of functions (see :ref:`expressionsfunctions`) that can b
 
 - `log` -- natural logarithm
 
+  
+Partial fraction analysis
+-------------------------
+
+Lcapy can be used for converting rational functions into partial
+fraction form.  Here's an example::
+
+   >>> from lcapy import *
+   >>> G = 1 / (s**2 + 5 * s + 6)
+   >>> G.partfrac()
+      1       1  
+   - ───── + ─────
+     s + 3   s + 2
+
+Here's an example of a not strictly proper rational function::
+
+   >>> from lcapy import *
+   >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6)
+   >>> H.partfrac()
+         70      90 
+   5 + ───── - ─────
+       s + 3   s + 2
+
+The rational function can also be printed in ZPK (zero-pole-gain) form::
+
+   >>> H.ZPK()
+   5⋅(s - 4)⋅(s + 5)
+   ─────────────────
+    (s + 2)⋅(s + 3) 
+
+Here it is obvious that the poles are -2 and -3.  These can also be found using the poles function::
+
+   >>> H.poles()
+   {-3: 1, -2: 1}
+
+Here the number after the colon indicates how many times the pole is repeated.
+
+Similarly, the zeros can be found using the zeros function::
+
+   >>> H.zeros()
+   {-5: 1, 4: 1}
+
+Lcapy can also handle rational functions with a delay.
 
 
-Simple circuit components
-=========================
+Inverse Laplace transforms
+--------------------------
 
-The basic circuit components are two-terminal (one-port) devices:
+Lcapy can perform inverse Laplace transforms.  Here's an example for
+a strictly proper rational function::
+
+   >>> from lcapy import s
+   >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
+   >>> H.partfrac()
+     35      30 
+   ───── - ─────
+   s + 3   s + 2
+
+   >>> H.inverse_laplace()
+   ⎧      -2⋅t       -3⋅t           
+   ⎨- 30⋅e     + 35⋅e      for t ≥ 0
+   ⎩
+
+or alternatively
+   
+   >>> H(t)
+   ⎧      -2⋅t       -3⋅t           
+   ⎨- 30⋅e     + 35⋅e      for t ≥ 0
+   ⎩                                
+
+Note that the unilateral inverse Laplace transform can only determine
+the result for :math:`t \ge 0`.  If you know that the system is
+causal, then use::
+
+   >>> H(t, causal=True)
+   ⎛      -2⋅t       -3⋅t⎞
+   ⎝- 30⋅e     + 35⋅e    ⎠⋅Heaviside(t)
+
+The Heaviside function is also known as the unit step.  Alternatively,
+you can force the result to be causal::
+
+   >>> H(t).force_causal()
+   ⎛      -2⋅t       -3⋅t⎞
+   ⎝- 30⋅e     + 35⋅e    ⎠⋅Heaviside(t)
+
+or remove the condition that :math:`t \ge 0`,
+
+   >>> H(t).remove_condition()
+         -2⋅t       -3⋅t
+   - 30⋅e     + 35⋅e    
+   
+
+When the rational function is not strictly proper, the inverse Laplace
+transform has Dirac deltas (and derivatives of Dirac deltas):
+
+   >>> from lcapy import s
+   >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
+   >>> H.partfrac()
+        70      90 
+   5 + ───── - ─────
+       s + 3   s + 2
+   >>> H.inverse_laplace(causal=True)
+   ⎛      -2⋅t       -3⋅t⎞                               
+   ⎝- 90⋅e     + 70⋅e    ⎠⋅Heaviside(t) + 5⋅DiracDelta(t)
+
+
+Here's another example of a strictly proper rational function with a
+repeated pole:
+
+   >>> from lcapy import s
+   >>> H = 5 * (s + 5) / ((s + 3) * (s + 3))
+   >>> H.ZPK()
+   5⋅(s + 5)
+   ─────────
+           2
+    (s + 3) 
+   >>> H.partfrac()
+     5        10   
+   ───── + ────────
+   s + 3          2
+           (s + 3) 
+   >>> H.inverse_laplace(causal=True)
+   ⎛      -3⋅t      -3⋅t⎞             
+   ⎝10⋅t⋅e     + 5⋅e    ⎠⋅Heaviside(t)
+
+
+Rational functions with delays can also be handled:
+
+   >>> from lcapy import s
+   >>> import sympy as sym
+   >>> T = sym.symbols('T')
+   >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * sym.exp(-s * T)
+   >>> H.partfrac()
+   ⎛      70      90 ⎞  -T⋅s
+   ⎜5 + ───── - ─────⎟⋅e    
+   ⎝    s + 3   s + 2⎠      
+   >>> H.inverse_laplace(causal=True)
+   ⎛      2⋅T - 2⋅t       3⋅T - 3⋅t⎞                                         
+   ⎝- 90⋅e          + 70⋅e         ⎠⋅Heaviside(-T + t) + 5⋅DiracDelta(-T + t)
+
+Lcapy can convert s-domain products to time domain convolutions, for example::
+
+   >>> from lcapy import expr
+   >>> expr('V(s) * Y(s)')(t, causal=True)
+   t                 
+   ⌠                 
+   ⎮ v(t - τ)⋅y(τ) dτ
+   ⌡                 
+   0                 
+
+Here the function expr converts a string argument to an Lcapy expression.
+
+It can also recognise integrations and differentiations of arbitrary
+functions, for example::
+
+   >>> from lcapy import s, t
+   >>> (s * 'V(s)')(t, causal=True)
+   d       
+   ──(v(t))
+   dt      
+
+   >>> ('V(s)' / s)(t, causal=True)   
+   t        
+   ⌠        
+   ⎮ v(τ) dτ
+   ⌡        
+   0        
+
+These expressions also be written as:
+   
+   >>> from lcapy import expr, t
+   >>> expr('s * V(s)')(t, causal=True)
+   >>> expr('V(s) / s')(t, causal=True)
+
+or more explicitly:
+
+   >>> from lcapy import expr
+   >>> expr('s * V(s)').inverse_laplace(causal=True)
+   >>> expr('V(s) / s').inverse_laplace(causal=True)
+   
+
+Laplace transforms
+------------------
+
+Lcapy can also perform Laplace transforms.   Here's an example:
+
+   >>> from lcapy import s, t
+   >>> v = 10 * t ** 2 + 3 * t
+   >>> v.laplace()
+   3⋅s + 20
+   ────────
+       3   
+      s   
+
+There is a short-hand notation for the Laplace transform:
+      
+   >>> v(s)
+   3⋅s + 20
+   ────────
+       3   
+      s         
+
+Note, Lcapy uses the :math:`\mathcal{L}_{-}` unilateral Laplace transform
+whereas SymPy which uses the :math:`\mathcal{L}` unilateral Laplace
+transform, see :ref:`laplace_transforms`.
+      
+
+Networks
+========
+
+Networks can be constructed using series and parallel combination of one-port network elements and other networks, see :ref:`networks`.
+
+
+Network elements
+----------------
+
+The basic circuit components are two-terminal (one-port) devices are:
 
 - `I` -- current source
 
@@ -251,7 +462,7 @@ These are augmented by generic s-domain components:
 - `Z` -- generic impedance
 
 
-Here are some examples of their creation:
+Here are some examples of their creation::
 
    >>> from lcapy import *
    >>> R1 = R(10)
@@ -259,11 +470,10 @@ Here are some examples of their creation:
    >>> L1 = L('L_1')
 
 
+Network element combination
+---------------------------
 
-Simple circuit element combinations
------------------------------------
-
-Here's an example of resistors in series
+Here's an example of resistors in series::
 
    >>> from lcapy import *
    >>> R1 = R(10)
@@ -292,7 +502,7 @@ the parallel operator is `|` instead of the usual `||`.
    >>> Rtot.simplify()
    R(10/3)
 
-The result can be performed symbolically, for example,
+The result can be performed symbolically, for example::
 
    >>> from lcapy import *
    >>> Rtot = R('R_1') | R('R_2')
@@ -303,7 +513,7 @@ The result can be performed symbolically, for example,
    >>> Rtot.simplify()
    R(R₁) | R(R₂)
 
-Here's another example using inductors in series
+Here's another example using inductors in series::
 
    >>> from lcapy import *
    >>> L1 = L(10)
@@ -315,7 +525,7 @@ Here's another example using inductors in series
    L(15)
 
 
-Finally, here's an example of a parallel combination of capacitors
+Finally, here's an example of a parallel combination of capacitors::
 
    >>> from lcapy import *
    >>> Ctot = C(10) | C(5)
@@ -327,6 +537,8 @@ Finally, here's an example of a parallel combination of capacitors
 
 Impedances
 ----------
+
+Impedance is a frequency domain generalization of resistance, see :ref:`Immittances`.
 
 Let's consider a series R-L-C network::
 
@@ -351,9 +563,7 @@ Similarly, the generalized (s-domain) impedance can be determined using::
    ────────────────
           s        
 
-Impedance expressions are rational functions (of :math:`\omega` or
- :math:`s`) and can be formatted in a number of different ways, for
- example,
+Impedance expressions are rational functions (of :math:`\omega` or :math:`s`) and can be formatted in a number of different ways, for example::
 
    >>> n.Z(s).ZPK()
       ⎛      ____    ⎞ ⎛      ____    ⎞
@@ -407,7 +617,7 @@ Notice how `n.Y(s)` returns the s-domain admittance of the network, the reciproc
 
 
 The frequency response can be evaluated numerically by specifying a
-vector of frequency values.  For example:
+vector of frequency values.  For example::
 
    >>> from lcapy import *
    >>> from numpy import linspace
@@ -415,7 +625,7 @@ vector of frequency values.  For example:
    >>> vf = linspace(0, 4, 400)
    >>> Isc = n.Isc(f).evaluate(vf)
 
-Then the frequency response can be plotted.  For example,
+Then the frequency response can be plotted.  For example::
 
    >>> from matplotlib.pyplot import figure, show
    >>> fig = figure()
@@ -426,7 +636,7 @@ Then the frequency response can be plotted.  For example,
    >>> ax.grid(True)
    >>> show()
 
-A simpler approach is to use the `plot()` method:
+A simpler approach is to use the `plot()` method::
 
    >>> from lcapy import *
    >>> from numpy import linspace
@@ -448,7 +658,7 @@ series R-L-C network:
 
 
 Simple transient analysis
-=========================
+-------------------------
 
 Let's consider a series R-C network in series with a DC voltage source
 
@@ -505,7 +715,7 @@ Of course, the previous example can be performed symbolically,
          R₁      
 
 The transient response can be evaluated numerically by specifying a
-vector of time values to the `evaluate()` method:
+vector of time values to the `evaluate()` method::
 
    >>> from lcapy import *
    >>> from numpy import linspace
@@ -533,16 +743,15 @@ through an underdamped series RLC network:
    :width: 15cm
 
 
-
 Transformations
-===============
+---------------
 
 A one-port network can be represented as a Thevenin network (a series
 combination of a voltage source and an impedance) or as a Norton
 network (a parallel combination of a current source and an
 admittance).
 
-Here's an example of a Thevenin to Norton transformation:
+Here's an example of a Thevenin to Norton transformation::
 
    >>> from lcapy import *
    >>> T = Vdc(10) + R(5)
@@ -550,7 +759,7 @@ Here's an example of a Thevenin to Norton transformation:
    >>> n
    G(1/5) | Idc(2)
 
-Similarly, here's an example of a Norton to Thevenin transformation:
+Similarly, here's an example of a Norton to Thevenin transformation::
 
    >>> from lcapy import *
    >>> n = Idc(10) | R(5)
@@ -590,7 +799,8 @@ A more interesting two-port network is an L section (voltage divider)::
                          |   
          ----------------+----
 
-This is comprised from any two one-port networks.  For example,
+This is comprised from any two one-port networks.  For example::
+  
    >>> from lcapy import *
    >>> R1 = R('R_1')
    >>> R2 = R('R_2')
@@ -632,7 +842,7 @@ chain or cascade.  This connects the output of the first two-port to
 the input of the second two-port.
 
 For example, an L section can be created by chaining a shunt to a
-series one-port.
+series one-port::
 
    >>> from lcapy import *
    >>> n = Series(R('R_1')).chain(Shunt(R('R_2')))
@@ -700,10 +910,26 @@ example, a series impedance has a non specified Z matrix and a shunt
 impedance has a non specified Y matrix.
 
 
-Transfer functions
-==================
+Netlists
+========
 
-Transfer functions can be created for netlists using the `transfer()` method.  Here's an example for an RC low-pass filter
+Creating complicated networks by combining network elements soon
+becomes tedious.  A simpler way is to describe the network (or
+circuit) using a netlist, see :ref:`netlists`.  Here's an example of a
+resistor in series with a capacitor::
+
+   >>> cct = Circuit("""
+   ... R 1 2
+   ... C 2 0""")
+
+Here the numbers represent node names although these can be alphanumeric as well.
+   
+
+
+Transfer functions
+------------------
+
+Transfer functions can be created from netlists using the `transfer()` method.  Here's an example for an RC low-pass filter::
 
    >>> cct = Circuit("""
    ... R 1 2
@@ -718,7 +944,7 @@ Transfer functions can be created for netlists using the `transfer()` method.  H
 
 
 Transfer functions can also be created in a similar manner to Matlab,
-either using lists of numerator and denominator coefficients:
+either using lists of numerator and denominator coefficients::
 
    >>> from lcapy import *
    >>> H1 = tf(0.001, [1, 0.05, 0])
@@ -728,7 +954,7 @@ either using lists of numerator and denominator coefficients:
         2         
    1.0⋅s  + 0.05⋅s
 
-from lists of poles and zeros (and optional gain):
+from lists of poles and zeros (and optional gain)::
 
    >>> from lcapy import *
    >>> H2 = zp2tf([], [0, -0.05])
@@ -738,7 +964,7 @@ from lists of poles and zeros (and optional gain):
         2         
    1.0⋅s  + 0.05⋅s
 
-or symbolically:
+or symbolically::
 
    >>> from lcapy import *
    >>> H3 = 0.001 / (s**2 + 0.05 * s)
@@ -750,7 +976,7 @@ or symbolically:
 
 
 In each case, parameters can be expressed numerically or symbolically,
-for example,
+for example::
 
    >>> from lcapy import *
    >>> H4 = zp2tf(['z_1'], ['p_1', 'p_2'])
@@ -760,244 +986,18 @@ for example,
    (-p₁ + s)⋅(-p₂ + s)
 
 
-Parameterization
-================
-   
-Transfer functions (or any d-domain expression) can be parameterized with the `parameterize()` method (see :ref:`parameterization`).  This returns a tuple.  The first element is the parameterized expression and the second element is a dictionary of substitutions.
-
-Here's a second order example:
-
-   >>> H2 = 3 / (s**2 + 2*s + 4)
-   >>> H2
-        3      
-   ────────────
-    2          
-   s  + 2⋅s + 4
-   >>> H2p, defs = H2.parameterize()
-   >>> H2p
-              K         
-   ───────────────────
-     2               2
-   ω₀  + 2⋅ω₀⋅s⋅ζ + s 
- 
-   >>> defs
-   {K: 3, omega_0: 2, zeta: 1/2}
 
 
-Partial fraction analysis
-=========================
 
-Lcapy can be used for converting rational functions into partial
-fraction form.  Here's an example:
-
-   >>> from lcapy import *
-   >>> G = 1 / (s**2 + 5 * s + 6)
-   >>> G.partfrac()
-      1       1  
-   - ───── + ─────
-     s + 3   s + 2
-
-Here's an example of a not strictly proper rational function,
-
-   >>> from lcapy import *
-   >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6)
-   >>> H.partfrac()
-         70      90 
-   5 + ───── - ─────
-       s + 3   s + 2
-
-The rational function can also be printed in ZPK form:
-
-   >>> H.ZPK()
-   5⋅(s - 4)⋅(s + 5)
-   ─────────────────
-    (s + 2)⋅(s + 3) 
-
-Here it is obvious that the poles are -2 and -3.  These can also be found using the poles function:
-
-   >>> H.poles()
-   {-3: 1, -2: 1}
-
-Here the number after the colon indicates how many times the pole is repeated.
-
-Similarly, the zeros can be found using the zeros function:
-
-   >>> H.zeros()
-   {-5: 1, 4: 1}
-
-Lcapy can also handle rational functions with a delay.
-
-
-Inverse Laplace transforms
-==========================
-
-Lcapy can perform inverse Laplace transforms.  Here's an example for
-a strictly proper rational function:
-
-   >>> from lcapy import s
-   >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
-   >>> H.partfrac()
-     35      30 
-   ───── - ─────
-   s + 3   s + 2
-
-   >>> H.inverse_laplace()
-   ⎧      -2⋅t       -3⋅t           
-   ⎨- 30⋅e     + 35⋅e      for t ≥ 0
-   ⎩
-
-or alternatively
-   
-   >>> H(t)
-   ⎧      -2⋅t       -3⋅t           
-   ⎨- 30⋅e     + 35⋅e      for t ≥ 0
-   ⎩                                
-
-Note that the unilateral inverse Laplace transform can only determine
-the result for :math:`t \ge 0`.  If you know that the system is
-causal, then use:
-
-   >>> H(t, causal=True)
-   ⎛      -2⋅t       -3⋅t⎞
-   ⎝- 30⋅e     + 35⋅e    ⎠⋅Heaviside(t)
-
-The Heaviside function is also known as the unit step.  Alternatively,
-you can force the result to be causal
-
-   >>> H(t).force_causal()
-   ⎛      -2⋅t       -3⋅t⎞
-   ⎝- 30⋅e     + 35⋅e    ⎠⋅Heaviside(t)
-
-or remove the condition that :math:`t \ge 0`,
-
-   >>> H(t).remove_condition()
-         -2⋅t       -3⋅t
-   - 30⋅e     + 35⋅e    
-   
-
-When the rational function is not strictly proper, the inverse Laplace
-transform has Dirac deltas (and derivatives of Dirac deltas):
-
-   >>> from lcapy import s
-   >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
-   >>> H.partfrac()
-        70      90 
-   5 + ───── - ─────
-       s + 3   s + 2
-   >>> H.inverse_laplace(causal=True)
-   ⎛      -2⋅t       -3⋅t⎞                               
-   ⎝- 90⋅e     + 70⋅e    ⎠⋅Heaviside(t) + 5⋅DiracDelta(t)
-
-
-Here's another example of a strictly proper rational function with a
-repeated pole:
-
-   >>> from lcapy import s
-   >>> H = 5 * (s + 5) / ((s + 3) * (s + 3))
-   >>> H.ZPK()
-   5⋅(s + 5)
-   ─────────
-           2
-    (s + 3) 
-   >>> H.partfrac()
-     5        10   
-   ───── + ────────
-   s + 3          2
-           (s + 3) 
-   >>> H.inverse_laplace(causal=True)
-   ⎛      -3⋅t      -3⋅t⎞             
-   ⎝10⋅t⋅e     + 5⋅e    ⎠⋅Heaviside(t)
-
-
-Rational functions with delays can also be handled:
-
-   >>> from lcapy import s
-   >>> import sympy as sym
-   >>> T = sym.symbols('T')
-   >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * sym.exp(-s * T)
-   >>> H.partfrac()
-   ⎛      70      90 ⎞  -T⋅s
-   ⎜5 + ───── - ─────⎟⋅e    
-   ⎝    s + 3   s + 2⎠      
-   >>> H.inverse_laplace(causal=True)
-   ⎛      2⋅T - 2⋅t       3⋅T - 3⋅t⎞                                         
-   ⎝- 90⋅e          + 70⋅e         ⎠⋅Heaviside(-T + t) + 5⋅DiracDelta(-T + t)
-
-Lcapy can convert s-domain products to time domain convolutions, for example,
-
-   >>> from lcapy import expr
-   >>> expr('V(s) * Y(s)')(t, causal=True)
-   t                 
-   ⌠                 
-   ⎮ v(t - τ)⋅y(τ) dτ
-   ⌡                 
-   0                 
-
-Here the function expr converts a sring argument to an Lcapy expression.
-
-It can also recognise integrations and differentiations of arbitrary
-functions, for example,
-
-   >>> from lcapy import s, t
-   >>> (s * 'V(s)')(t, causal=True)
-   d       
-   ──(v(t))
-   dt      
-
-   >>> ('V(s)' / s)(t, causal=True)   
-   t        
-   ⌠        
-   ⎮ v(τ) dτ
-   ⌡        
-   0        
-
-These expressions also be written as:
-   
-   >>> from lcapy import expr, t
-   >>> expr('s * V(s)')(t, causal=True)
-   >>> expr('V(s) / s')(t, causal=True)
-
-or more explicitly:
-
-   >>> from lcapy import expr
-   >>> expr('s * V(s)').inverse_laplace(causal=True)
-   >>> expr('V(s) / s').inverse_laplace(causal=True)
-   
-
-Laplace transforms
-==================
-
-Lcapy can also perform Laplace transforms.   Here's an example:
-
-   >>> from lcapy import s, t
-   >>> v = 10 * t ** 2 + 3 * t
-   >>> v.laplace()
-   3⋅s + 20
-   ────────
-       3   
-      s   
-
-There is a short-hand notation for the Laplace transform:
-      
-   >>> v(s)
-   3⋅s + 20
-   ────────
-       3   
-      s         
-
-Note, Lcapy uses the :math:`\mathcal{L}_{-}` unilateral Laplace transform
-whereas SymPy which uses the :math:`\mathcal{L}` unilateral Laplace
-transform, see :ref:`laplace_transforms`.
-      
 
 Circuit analysis
-================
+----------------
 
 The nodal voltages for a linear circuit can be found using Modified
 Nodal Analysis (MNA).  This requires the circuit topology be entered
 as a netlist (see :ref:`netlists`).  This describes each component, its
 name, value, and the nodes it is connected to.  This netlist can be
-read from a file or created dynamically, for example,
+read from a file or created dynamically, for example::
 
    >>> from lcapy import Circuit
    >>> cct = Circuit()
@@ -1008,7 +1008,7 @@ read from a file or created dynamically, for example,
 This creates a circuit comprised of a 10 V step voltage source
 connected to two resistors in series.  The node named 0 denotes the
 ground which the other voltages are referenced to.  Here's a more
-compact way to specify the netlist:
+compact way to specify the netlist::
 
    >>> from lcapy import Circuit
    >>> cct = Circuit("""
@@ -1016,11 +1016,10 @@ compact way to specify the netlist:
    ... Ra 1 2 3e
    ... Rb 2 0 1e3""")
 
-
 The circuit has an attribute for each circuit element (and for each
 node starting with an alphabetical character).  These can be
 interrogated to find the voltage drop across an element or the current
-through an element, for example,
+through an element, for example::
 
    >>> cct.V1.V
    ⎧   10⎫
@@ -1035,19 +1034,19 @@ Notice, how the displayed voltages are a dictionary.  This represents
 the result as a superposition of a number of transform domains (DC,
 AC, Laplace, etc.).  In this case `s` denotes the Laplace domain
 result of the transient component.  The full Laplace response is
-returned using
+returned using::
 
    >>> cct.V1.V(s)
    10
    ──
    s
 
-The time domain response is found using:
+The time domain response is found using::
 
    >>> cct.V1.V(t)
    10
 
-Alternatively, this can be achieved using the lowercase `v` attribute:
+Alternatively, this can be achieved using the lowercase `v` attribute::
 
    >>> cct.V1.v
    10
@@ -1056,7 +1055,7 @@ The current through a component is obtained with the `I` attribute.  For a sourc
 
    
 The voltage between a node and ground can be determined with the node
-name as an index, for example,
+name as an index, for example::
 
    >>> cct[1].V(t)
    10
@@ -1068,7 +1067,7 @@ name as an index, for example,
 Since Lcapy uses SymPy, circuit analysis can be performed
 symbolically.  This can be achieved by using symbolic arguments or by
 not specifying a component value.  In the latter case, Lcapy will
-use the component name for its value.  For example,
+use the component name for its value.  For example::
 
    >>> cct = Circuit("""
    ... V1 1 0 step Vs
@@ -1098,7 +1097,7 @@ decomposed into a DC component, one or more AC components (one for
 each angular frequency), a transient component, and noise components
 (one for each noise source).
 
-For example, consider:
+For example, consider::
 
    >>> Voc = (Vdc(10) + Vac(20) + Vstep(30) + Vnoise(40)).Voc
    >>> Voc
@@ -1112,7 +1111,7 @@ component is keyed by 's' (since this is analysed in the Laplace or
 s-domain), the noise components are keyed by noise identifiers of the
 form 'nx' (where x is an integer), and the ac components are keyed by
 the angular frequency.  The different parts of a decomposition can
-also be accessed using attributes, for example,
+also be accessed using attributes, for example::
 
    >>> Voc.s
    30
@@ -1143,7 +1142,7 @@ Initial value problems
 
 The initial voltage difference across a capacitor or the initial
 current through an inductor can be specified as an additional argument.
-For example,
+For example::
 
    >>> cct = Circuit("""
    ... V1 1 0 step Vs
@@ -1211,7 +1210,7 @@ or more simply using:
           C₁⋅R₁           
           
 Transfer functions can also be created using the `transfer()` method of a
-circuit.  For example,
+circuit.  For example::
 
    >>> from lcapy import Circuit
    >>> cct = Circuit("""
@@ -1406,7 +1405,8 @@ semicolon delimiter.  The drawing direction is with respect to the
 first node.  The component W1 is a wire.  Nodes with an underscore in
 their name are not drawn with a closed blob.
 
-Here's another example, this time loading the netlist from a file:
+Here's another example, this time loading the netlist from a file::
+
    >>> from lcapy import Circuit
    >>> cct = Circuit('voltage-divider.sch')
    >>> cct.draw('voltage-divider.pdf')
@@ -1460,7 +1460,7 @@ Here's the result:
 .. image:: examples/networks/pickup.png
    :width: 6cm
 
-The s-domain model can be drawn using:
+The s-domain model can be drawn using::
 
    >>> from lcapy import R, C, L
    >>> ((R(1) + L(2)) | C(3)).s_model().draw()
@@ -1471,7 +1471,7 @@ This produces:
    :width: 7cm
 
 Internally, Lcapy converts the network to a netlist and then draws the
-netlist.  The netlist can be found using the `netlist()` method, for example,
+netlist.  The netlist can be found using the `netlist()` method, for example::
 
    >>> from lcapy import R, C, L
    >>> print(((R(1) + L(2)) | C(3)).netlist())
@@ -1492,6 +1492,40 @@ yields::
 Note, the components have anonymous identifiers.
 
 
+Bells and whistles
+==================
+
+Parameterization
+----------------
+   
+Transfer functions (or any s-domain expression) can be parameterized with the `parameterize()` method (see :ref:`parameterization`).  This returns a tuple.  The first element is the parameterized expression and the second element is a dictionary of substitutions.
+
+Here's a second order example::
+
+   >>> H2 = 3 / (s**2 + 2*s + 4)
+   >>> H2
+        3      
+   ────────────
+    2          
+   s  + 2⋅s + 4
+   >>> H2p, defs = H2.parameterize()
+   >>> H2p
+              K         
+   ───────────────────
+     2               2
+   ω₀  + 2⋅ω₀⋅s⋅ζ + s 
+ 
+   >>> defs
+   {K: 3, omega_0: 2, zeta: 1/2}
+
+
+Network synthesis
+-----------------
+
+Network synthesis creates a network from an impedance (or admittance),
+see :ref:`network-synthesis`.
+
+
 Jupyter (IPython) notebooks
 ===========================
 
@@ -1506,4 +1540,3 @@ directory.  Before these notebooks can be viewed in a browser you need to start 
 
 Alternatively, they can be viewed online at
 https://github.com/mph-/lcapy/tree/master/doc/examples/notebooks.
-
