@@ -114,7 +114,13 @@ class Super(ExprDict):
             key = key.expr
         if key in self:
             return super(Super, self).__getitem__(key)
-        return self.decompose().__getitem__(key)        
+        decomp = self.decompose()
+        if key == 0 and 'dc' in decomp:
+            key = 'dc'
+        if key not in decomp:
+            raise IndexError('Unknown signal component %s' % key)
+        
+        return decomp.__getitem__(key)        
 
     @property
     def symbols(self):
@@ -581,15 +587,20 @@ class Super(ExprDict):
             self[kind] += value
 
     @property
-    def abs(self):
-        """Return the absolute value if a phasor."""        
+    def magnitude(self):
+        """Return the magnitude of a phasor."""        
         
         phasor = self.phasor
-        return phasor.abs
+        return phasor.magnitude
+
+    @property
+    def abs(self):
+        """Return the magnitude of a phasor."""                
+        return self.magnitude
 
     @property
     def phase(self):
-        """Return the phase if a phasor."""        
+        """Return the phase of a phasor."""        
         
         phasor = self.phasor
         return phasor.phase    
