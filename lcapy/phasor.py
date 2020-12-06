@@ -10,7 +10,8 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 from __future__ import division
 from .sym import j, omega0sym
-from .functions import sin, cos, exp
+from .expr import expr
+from .functions import sin, cos, exp, sqrt
 
 __all__ = ('Vphasor', 'Iphasor')
 
@@ -113,6 +114,30 @@ class Phasor(Expr):
         """Convert to Laplace domain representation."""
 
         return self.time().laplace()
+
+    @property
+    def abs(self):
+        """Return magnitude"""
+
+        return expr(self.expr).abs
+
+    @property
+    def magnitude(self):
+        """Return magnitude"""
+
+        return expr(self.expr).magnitude    
+
+    @property
+    def phase(self):
+        """Return phase in radians."""
+
+        return expr(self.expr).phase
+
+    @property
+    def sign(self):
+        """Return sign."""
+
+        return expr(self.expr).sign
 
     def phasor(self):
         """Convert to phasor representation."""
