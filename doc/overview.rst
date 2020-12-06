@@ -19,7 +19,11 @@ sequence of initial value problems.
 Networks and circuits can be described using netlists or combinations
 of network elements.  These can be drawn semi-automatically (see :ref:`schematics`).
 
-As well as performing circuit analysis, Lcapy can output the systems of equations for modified nodal analysis and state-space analysis.
+As well as performing circuit analysis, Lcapy can output the systems
+of equations for mesh analysis, nodal analysis, modified nodal
+analysis, and state-space analysis (see :ref:`mesh-analysis`,
+:ref:`nodal-analysis`, :ref:`modified-nodal-analysis`, and
+:ref:`state-space-analysis`).
 
 Lcapy cannot directly analyse non-linear devices such as diodes or
 transistors although it does support simple opamps without saturation.
@@ -89,7 +93,7 @@ Lcapy defines a number of symbols corresponding to different domains (see :ref:`
 
 - omega -- angular frequency (real)
 
-Expressions can be formed using these symbols, for example, a
+Expressions (see :ref:`expressions`) can be formed using these symbols.  For example, a
 time-domain expression can be created using:
 
    >>> from lcapy import t, delta, u
@@ -232,19 +236,19 @@ The basic circuit components are two-terminal (one-port) devices:
 
 - `V` -- voltage source
 
-- `R` -- resistance
+- `R` -- resistor
 
-- `G` -- conductance
+- `G` -- conductor
 
-- `C` -- capacitance
+- `C` -- capacitor
 
-- `L` -- inductance
+- `L` -- inductor
 
 These are augmented by generic s-domain components:
 
-- `Y` -- admittance
+- `Y` -- generic admittance
 
-- `Z` -- impedance
+- `Z` -- generic impedance
 
 
 Here are some examples of their creation:
@@ -324,16 +328,22 @@ Finally, here's an example of a parallel combination of capacitors
 Impedances
 ----------
 
-Let's consider a series R-L-C network
+Let's consider a series R-L-C network::
 
    >>> from lcapy import *
    >>> n = R(4) + L(10) + C(20)
    >>> n
    R(4) + L(10) + C(20)
+
+The phasor impedance can be determined as a function of angular frequency using::
+   
    >>> n.Z(omega)
                  ⅉ  
    10⋅ⅉ⋅ω + 4 - ────
                 20⋅ω
+
+Similarly, the generalized (s-domain) impedance can be determined using::
+                
    >>> n.Z(s)
        2         1 
    10⋅s  + 4⋅s + ──
@@ -341,9 +351,9 @@ Let's consider a series R-L-C network
    ────────────────
           s        
 
-Notice the result is a rational function of `s`.  Remember impedance
-is a frequency domain concept.  A rational function can be formatted
-in a number of different ways, for example,
+Impedance expressions are rational functions (of :math:`\omega` or
+ :math:`s`) and can be formatted in a number of different ways, for
+ example,
 
    >>> n.Z(s).ZPK()
       ⎛      ____    ⎞ ⎛      ____    ⎞
@@ -359,9 +369,10 @@ in a number of different ways, for example,
               20⋅s
 
 Here `ZPK()` prints the impedance in ZPK (zero-pole-gain) form while
-`standard()` prints the rational function as the sum of a polynomial and a strictly proper rational function.
+`standard()` prints the rational function as the sum of a polynomial
+and a strictly proper rational function.
 
-The corresponding parallel R-L-C network yields
+The corresponding parallel R-L-C network yields::
 
    >>> from lcapy import *
    >>> n = R(5) | L(20) | C(10)
@@ -400,13 +411,9 @@ vector of frequency values.  For example:
 
    >>> from lcapy import *
    >>> from numpy import linspace
-   >>> n = Vstep(20) + R(5) + C(10, 0)
+   >>> n = Vstep(20) + R(5) + C(10)
    >>> vf = linspace(0, 4, 400)
    >>> Isc = n.Isc(f).evaluate(vf)
-
-Note, in this example, the initial capacitor voltage is specified to
-be zero.  If this initial condition is unspecified, the short circuit
-current cannot be determined.
 
 Then the frequency response can be plotted.  For example,
 
@@ -423,7 +430,7 @@ A simpler approach is to use the `plot()` method:
 
    >>> from lcapy import *
    >>> from numpy import linspace
-   >>> n = Vstep(20) + R(5) + C(10, 0)
+   >>> n = Vstep(20) + R(5) + C(10)
    >>> vf = linspace(0, 4, 400)
    >>> n.Isc(f).plot(vf, log_scale=True)
 
@@ -459,30 +466,24 @@ Let's consider a series R-C network in series with a DC voltage source
    ────────
    s + 1/50
    >>> isc = n.Isc(t)
-   >>> isc
-   ⎧   -t            
-   ⎪   ───           
-   ⎨    50           
-   ⎪4⋅e     for t ≥ 0
-   ⎩                 
+      -t      
+      ───     
+       50     
+   4⋅ℯ   ⋅u(t)
+
 
 Here `n` is network formed by the components in series, and `n.Voc(s)`
 is the open-circuit s-domain voltage across the network.  Note, this
 is the same as the s-domain value of the voltage source.  `n.Isc(s)`
 is the short-circuit s-domain voltage through the network and
-`n.Isc(t)` is the the time-domain response.  Note, since the capacitor
-has the initial value specified, this network is analysed as an
-initial value problem and thus the result is not known for
-:math:`t<0`.  If the initial capacitor voltage is not specified, the
-network cannot be analysed.
-
+`n.Isc(t)` is the the time-domain response.  
 
 Of course, the previous example can be performed symbolically,
 
    >>> from lcapy import *
-   >>> n = Vstep('V_1') + R('R_1') + C('C_1', 0)
+   >>> n = Vstep('V_1') + R('R_1') + C('C_1')
    >>> n
-   Vstep(V₁) + R(R₁) + C(C₁, 0)
+   Vstep(V₁) + R(R₁) + C(C)
    >>> Voc = n.Voc(s)
    >>> Voc
    V₁
@@ -496,13 +497,12 @@ Of course, the previous example can be performed symbolically,
       ⎝    C₁⋅R₁⎠
    >>> isc = n.Isc(t)
    >>> isc
-   ⎧     -t             
-   ⎪    ─────           
-   ⎪    C₁⋅R₁           
-   ⎨V₁⋅e                
-   ⎪─────────  for t ≥ 0
-   ⎪    R₁              
-   ⎩                    
+        -t       
+       ─────     
+       C₁⋅R₁     
+   V₁⋅ℯ     ⋅u(t)
+   ──────────────
+         R₁      
 
 The transient response can be evaluated numerically by specifying a
 vector of time values to the `evaluate()` method:
@@ -1236,6 +1236,25 @@ response is causal.
           C₁⋅R₁       
 
 
+Mesh analysis
+-------------
+
+Lcapy can generate a system of equations using mesh analysis, see :ref:`mesh-analysis`.
+
+
+Nodal analysis
+--------------
+
+Lcapy can generate a system of equations using nodal analysis, see :ref:`nodal-analysis`.
+
+
+
+Modified nodal analysis
+-----------------------
+
+Lcapy uses modified nodal analysis for its calculations.  For reactive circuits it does this independently for the DC, AC, and transient components and uses superposition to combine the results.  For resistive circuits, it can perform this in the time-domain.   For more details see :ref:`modified-nodal-analysis`.
+
+          
 State-space analysis
 --------------------
 
@@ -1284,93 +1303,6 @@ The output equations are shown using the `output_equations()` method:
 For further details see :ref:`state-space-analysis`.
 
 
-Mesh analysis
--------------
-
-Lcapy can generate a system of equations using mesh analysis, see :ref:`mesh-analysis`.
-
-
-Nodal analysis
---------------
-
-Lcapy can generate a system of equations using nodal analysis, see :ref:`nodal-analysis`.
-
-
-
-Modified nodal analysis
------------------------
-
-Lcapy uses modified nodal analysis for its calculations.  For reactive circuits it does this independently for the DC, AC, and transient components and uses superposition to combine the results.  For resistive circuits, it can perform this in the time-domain.
-
-Here's an example with an independent source (V1) that as a DC component and an unknown component that is considered as a transient component:
-
-   >>> from lcapy import Circuit
-   >>> a = Circuit("""
-   ... V1 1 0 {10 + v(t)}; down
-   ... R1 1 2; right
-   ... L1 2 3; right=1.5, i={i_L}
-   ... R2 3 0_3; down=1.5, i={i_{R2}}, v={v_{R2}}
-   ... W 0 0_3; right
-   ... W 3 3_a; right
-   ... C1 3_a 0_4; down, i={i_C}, v={v_C}
-   ... W 0_3 0_4; right""")
-
-The corresponding circuit for DC analysis can be found using the `dc()` method:
-
-   >>> a.dc()
-   V1 1 0 dc {10}; down
-   R1 1 2; right
-   L1 2 3 L1; right=1.5, i={i_L}
-   R2 3 0_3; i={i_{R2}}, down=1.5, v={v_{R2}}
-   W 0 0_3; right
-   W 3 3_a; right
-   C1 3_a 0_4 C1; i={i_C}, down, v={v_C}
-   W 0_3 0_4; right
-
-The equations used to solve this can be found with the `matrix_equations()` method:
-
-   >>> ac.dc().matrix_equations()
-                                   -1     
-            ⎛⎡1    -1            ⎤⎞       
-            ⎜⎢──   ───  0   1  0 ⎥⎟       
-            ⎜⎢R₁    R₁           ⎥⎟       
-   ⎡V₁  ⎤   ⎜⎢                   ⎥⎟   ⎡0 ⎤
-   ⎢    ⎥   ⎜⎢-1   1             ⎥⎟   ⎢  ⎥
-   ⎢V₂  ⎥   ⎜⎢───  ──   0   0  1 ⎥⎟   ⎢0 ⎥
-   ⎢    ⎥   ⎜⎢ R₁  R₁            ⎥⎟   ⎢  ⎥
-   ⎢V₃  ⎥ = ⎜⎢                   ⎥⎟  ⋅⎢0 ⎥
-   ⎢    ⎥   ⎜⎢          1        ⎥⎟   ⎢  ⎥
-   ⎢I_V1⎥   ⎜⎢ 0    0   ──  0  -1⎥⎟   ⎢10⎥
-   ⎢    ⎥   ⎜⎢          R₂       ⎥⎟   ⎢  ⎥
-   ⎣I_L1⎦   ⎜⎢                   ⎥⎟   ⎣0 ⎦
-            ⎜⎢ 1    0   0   0  0 ⎥⎟       
-            ⎜⎢                   ⎥⎟       
-            ⎝⎣ 0    1   -1  0  0 ⎦⎠       
-
-Here `V1`, `V2`, and `V3` are the unknown node voltages for nodes 1, 2, and 3.  `I_V1` is the current through V1 and `I_L1` is the current through L1.
-
-
-The equations are similar for the transient response:
-
-   >>> a.transient().matrix_equations()
-                                                -1       
-               ⎛⎡1    -1                      ⎤⎞         
-               ⎜⎢──   ───      0      1    0  ⎥⎟         
-               ⎜⎢R₁    R₁                     ⎥⎟         
-   ⎡V₁(s)  ⎤   ⎜⎢                             ⎥⎟   ⎡ 0  ⎤
-   ⎢       ⎥   ⎜⎢-1   1                       ⎥⎟   ⎢    ⎥
-   ⎢V₂(s)  ⎥   ⎜⎢───  ──       0      0    1  ⎥⎟   ⎢ 0  ⎥
-   ⎢       ⎥   ⎜⎢ R₁  R₁                      ⎥⎟   ⎢    ⎥
-   ⎢V₃(s)  ⎥ = ⎜⎢                             ⎥⎟  ⋅⎢ 0  ⎥
-   ⎢       ⎥   ⎜⎢                 1           ⎥⎟   ⎢    ⎥
-   ⎢I_V1(s)⎥   ⎜⎢ 0    0   C₁⋅s + ──  0   -1  ⎥⎟   ⎢V(s)⎥
-   ⎢       ⎥   ⎜⎢                 R₂          ⎥⎟   ⎢    ⎥
-   ⎣I_L1(s)⎦   ⎜⎢                             ⎥⎟   ⎣ 0  ⎦
-               ⎜⎢ 1    0       0      0    0  ⎥⎟         
-               ⎜⎢                             ⎥⎟         
-               ⎝⎣ 0    1      -1      0  -L₁⋅s⎦⎠         
-
-          
 Other circuit methods
 ---------------------
 

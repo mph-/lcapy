@@ -266,7 +266,7 @@ of an ideal resistor and a noise voltage source using the
 .. _mesh-analysis:
 
 Mesh analysis
-=============
+-------------
 
 Lcapy can output the mesh equations by applying Kirchhoff's voltage
 law around each loop in a circuit.  For example, consider the netlist:
@@ -345,7 +345,7 @@ The matrix is returned by the `A` attribute, the vector of unknowns by the `y` a
 .. _nodal-analysis:
 
 Nodal analysis
-==============
+--------------
 
 Lcapy can output the nodal equations by applying Kirchhoff's current
 law at each node in a circuit.  For example, consider the netlist:
@@ -447,6 +447,82 @@ The system of equations can be formulated in matrix form as :math:`\mathbf{A} \m
 There are a number of forms that the system of equations can be shown: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix.
 
 The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.      
+
+
+.. _modified-nodal-analysis:
+
+Modified nodal analysis
+-----------------------
+
+Here's an example with an independent source (V1) that has a DC
+component and an unknown component that is considered a transient:
+
+   >>> from lcapy import Circuit
+   >>> a = Circuit("""
+   ... V1 1 0 {10 + v(t)}; down
+   ... R1 1 2; right
+   ... L1 2 3; right=1.5, i={i_L}
+   ... R2 3 0_3; down=1.5, i={i_{R2}}, v={v_{R2}}
+   ... W 0 0_3; right
+   ... W 3 3_a; right
+   ... C1 3_a 0_4; down, i={i_C}, v={v_C}
+   ... W 0_3 0_4; right""")
+
+The corresponding circuit for DC analysis can be found using the `dc()` method:
+
+   >>> a.dc()
+   V1 1 0 dc {10}; down
+   R1 1 2; right
+   L1 2 3 L1; right=1.5, i={i_L}
+   R2 3 0_3; i={i_{R2}}, down=1.5, v={v_{R2}}
+   W 0 0_3; right
+   W 3 3_a; right
+   C1 3_a 0_4 C1; i={i_C}, down, v={v_C}
+   W 0_3 0_4; right
+
+The equations used to solve this can be found with the `matrix_equations()` method:
+
+   >>> ac.dc().matrix_equations()
+                                   -1     
+            ⎛⎡1    -1            ⎤⎞       
+            ⎜⎢──   ───  0   1  0 ⎥⎟       
+            ⎜⎢R₁    R₁           ⎥⎟       
+   ⎡V₁  ⎤   ⎜⎢                   ⎥⎟   ⎡0 ⎤
+   ⎢    ⎥   ⎜⎢-1   1             ⎥⎟   ⎢  ⎥
+   ⎢V₂  ⎥   ⎜⎢───  ──   0   0  1 ⎥⎟   ⎢0 ⎥
+   ⎢    ⎥   ⎜⎢ R₁  R₁            ⎥⎟   ⎢  ⎥
+   ⎢V₃  ⎥ = ⎜⎢                   ⎥⎟  ⋅⎢0 ⎥
+   ⎢    ⎥   ⎜⎢          1        ⎥⎟   ⎢  ⎥
+   ⎢I_V1⎥   ⎜⎢ 0    0   ──  0  -1⎥⎟   ⎢10⎥
+   ⎢    ⎥   ⎜⎢          R₂       ⎥⎟   ⎢  ⎥
+   ⎣I_L1⎦   ⎜⎢                   ⎥⎟   ⎣0 ⎦
+            ⎜⎢ 1    0   0   0  0 ⎥⎟       
+            ⎜⎢                   ⎥⎟       
+            ⎝⎣ 0    1   -1  0  0 ⎦⎠       
+
+Here `V1`, `V2`, and `V3` are the unknown node voltages for nodes 1, 2, and 3.  `I_V1` is the current through V1 and `I_L1` is the current through L1.
+
+
+The equations are similar for the transient response:
+
+   >>> a.transient().matrix_equations()
+                                                -1       
+               ⎛⎡1    -1                      ⎤⎞         
+               ⎜⎢──   ───      0      1    0  ⎥⎟         
+               ⎜⎢R₁    R₁                     ⎥⎟         
+   ⎡V₁(s)  ⎤   ⎜⎢                             ⎥⎟   ⎡ 0  ⎤
+   ⎢       ⎥   ⎜⎢-1   1                       ⎥⎟   ⎢    ⎥
+   ⎢V₂(s)  ⎥   ⎜⎢───  ──       0      0    1  ⎥⎟   ⎢ 0  ⎥
+   ⎢       ⎥   ⎜⎢ R₁  R₁                      ⎥⎟   ⎢    ⎥
+   ⎢V₃(s)  ⎥ = ⎜⎢                             ⎥⎟  ⋅⎢ 0  ⎥
+   ⎢       ⎥   ⎜⎢                 1           ⎥⎟   ⎢    ⎥
+   ⎢I_V1(s)⎥   ⎜⎢ 0    0   C₁⋅s + ──  0   -1  ⎥⎟   ⎢V(s)⎥
+   ⎢       ⎥   ⎜⎢                 R₂          ⎥⎟   ⎢    ⎥
+   ⎣I_L1(s)⎦   ⎜⎢                             ⎥⎟   ⎣ 0  ⎦
+               ⎜⎢ 1    0       0      0    0  ⎥⎟         
+               ⎜⎢                             ⎥⎟         
+               ⎝⎣ 0    1      -1      0  -L₁⋅s⎦⎠         
+
 
 .. _state-space-analysis:
 

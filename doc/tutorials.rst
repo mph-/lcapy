@@ -709,8 +709,8 @@ Electrostatic shields are important to avoid capacitive coupling of intefererenc
    ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
    >>> a.draw()
 
-.. image:: examples/tutorials/shield-guard/shield-guard.png
-   :width: 30cm
+.. image:: examples/tutorials/shield-guard/shield-ground.png
+   :width: 22cm
 
 
 To find the input impedance it is first necessary to disconnect the
