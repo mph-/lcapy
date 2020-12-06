@@ -6,9 +6,9 @@ Copyright 2019--2020 Michael Hayes, UCECE
 """
 from __future__ import division
 from .symbols import s
-from .immitance import Immitance
+from .immittance import Immittance
 
-class Impedance(Immitance):
+class Impedance(Immittance):
     """Generic impedance class.
 
     This represents both the phasor impedance, Z(omega), and the

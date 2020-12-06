@@ -4,9 +4,9 @@ Copyright 2020 Michael Hayes, UCECE
 
 """
 
-from .immitancemixin import ImmitanceMixin
+from .immittancemixin import ImmittanceMixin
 
-class Node(ImmitanceMixin):
+class Node(ImmittanceMixin):
 
     def __init__(self, cct, name):
 

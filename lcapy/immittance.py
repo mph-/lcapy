@@ -1,19 +1,20 @@
 """This module provides the Immittance class, the base class for
 Admittance and Impedance and the rest of the menagerie.
 
-Copyright 2019-2020 Michael Hayes, UCECE
+Copyright 2019--2020 Michael Hayes, UCECE
 
 """
 
 from .expr import expr
 from .cexpr import cExpr
-from .sexpr import sExpr, Zs, Ys
-from .omegaexpr import omegaExpr, Zomega, Yomega
-from .symbols import j, omega, jomega, s
-from .sym import omegasym
+from .sexpr import sExpr
+from .fexpr import fExpr
+from .omegaexpr import omegaExpr
+from .symbols import j, omega, jomega, s, f, pi
+from .sym import omegasym, fsym
 
 class Immittance(sExpr):
-    
+
     def __init__(self, val, kind=None, causal=True, positive=False, **assumptions):
         """Create an immittance (impedance/admittance).
 
@@ -31,6 +32,9 @@ class Immittance(sExpr):
         elif isinstance(val, omegaExpr) and kind is None:
             kind = omegasym
             val = val.subs(omega, s / j)
+        elif isinstance(val, fExpr) and kind is None:
+            kind = fsym
+            val = val.subs(f, s / (j * 2 * pi))            
         
         super(Immittance, self).__init__(val, causal=causal, **assumptions)
         self.kind = kind
@@ -61,6 +65,8 @@ class Immittance(sExpr):
         elif kind in (omegasym, omega, 'ac') or (isinstance (kind, str)
                                                  and kind.startswith('n')):
             return expr.subs(self.var, jomega.expr)
+        elif kind == fsym:
+            return expr.subs(self.var, (2 * pi * f * j).expr)
         return expr.subs(self.var, j * kind)
 
     def new(self, kind):
@@ -70,22 +76,30 @@ class Immittance(sExpr):
     @property
     def R(self):
         """Resistance."""
-        return self.Zw.real
+        from .resistance import Resistance
+        
+        return Resistance(self.Zw.real)
 
     @property
     def X(self):
         """Reactance."""
-        return self.Zw.imag
+        from .reactance import Reactance
+        
+        return Reactance(self.Zw.imag)
 
     @property
     def G(self):
         """Conductance."""
-        return self.Yw.real
+        from .conductance import Conductance
+        
+        return Conductance(self.Yw.real)
 
     @property
     def B(self):
         """Susceptance."""
-        return -self.Yw.imag    
+        from .susceptance import Susceptance
+        
+        return Susceptance(-self.Yw.imag)   
 
     def oneport(self):
         """Create oneport component."""
@@ -116,85 +130,3 @@ class Immittance(sExpr):
         """Phase of Z(omega) (degrees)."""
         return self.Zw.phase_degrees        
     
-    
-class ImmittanceMixin(object):
-
-    @property
-    def R(self):
-        """Resistance."""
-        return self.Zw.real
-
-    @property
-    def resistance(self):
-        """Resistance."""
-        return self.R
-
-    @property
-    def X(self):
-        """Reactance."""
-        return self.Zw.imag
-
-    @property
-    def reactance(self):
-        """Reactance."""
-        return self.X    
-
-    @property
-    def G(self):
-        """Conductance.
-        
-        Note Y = G + j * B = 1 / Z = 1 / (R + j * X)
-        and so G = R / (R**2 + X**2).
-
-        Thus for DC, when X = 0, then G = 1 / R and is infinite for R
-        = 0.  However, if Z is purely imaginary, i.e, R = 0 then G = 0,
-        not infinity as might be expected.
-
-        """
-        return self.Yw.real
-
-    @property
-    def conductance(self):
-        """Conductance."""
-        return self.G    
-    
-    @property
-    def B(self):
-        """Susceptance."""
-        return -self.Yw.imag
-
-    @property
-    def susceptance(self):
-        """Susceptance."""
-        return self.B
-
-    @property
-    def Y(self):
-        """Admittance."""
-        return self.admittance
-
-    @property
-    def Z(self):
-        """Impedance."""
-        return self.impedance
-
-    @property
-    def Yw(self):
-        """Admittance  Y(omega)."""
-        return Yomega(self.admittance.selectexpr(omega))
-
-    @property
-    def Zw(self):
-        """Impedance  Z(omega)."""
-        return Zomega(self.impedance.selectexpr(omega))
-
-    @property
-    def Ys(self):
-        """Generalized admittance  Y(s)."""
-        return Ys(self.admittance.selectexpr(s))
-
-    @property
-    def Zs(self):
-        """Generalized impedance  Z(s)."""
-        return Zs(self.impedance.selectexpr(s))
-

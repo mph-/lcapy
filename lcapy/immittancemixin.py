@@ -1,5 +1,5 @@
 """This module provides the ImmittanceMixin class.  It provides common
-methods for immitances.
+methods for immittances.
 
 Copyright 2020 Michael Hayes, UCECE
 
@@ -9,7 +9,7 @@ from .omegaexpr import omegaExpr, Zomega, Yomega
 from .sexpr import Zs, Ys
 from .symbols import j, omega, jomega, s
 
-class ImmitanceMixin(object):
+class ImmittanceMixin(object):
 
     @property
     def R(self):

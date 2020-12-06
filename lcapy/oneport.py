@@ -30,7 +30,7 @@ from .functions import Heaviside, cos, exp
 from .sym import omega0sym, tsym, oo
 from .symbols import j, t, s
 from .network import Network
-from .immitancemixin import ImmitanceMixin
+from .immittancemixin import ImmittanceMixin
 from .impedance import Impedance
 from .admittance import Admittance
 from sympy import Derivative, Integral
@@ -48,7 +48,7 @@ def _check_oneport_args(args):
             raise ValueError('%s not a OnePort' % arg1)
 
 
-class OnePort(Network, ImmitanceMixin):
+class OnePort(Network, ImmittanceMixin):
     """One-port network
 
     There are four major types of OnePort:
