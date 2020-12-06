@@ -161,6 +161,61 @@ Finally, the time-domain voltage across the capacitor is::
        64⋅ω₀  + 1      64⋅ω₀  + 1
  
 
+Superposition of AC and DC
+--------------------------
+
+Here's an example circuit comprised of two AC sources and a DC source:
+    >>> from lcapy import Circuit
+    >>> a = Circuit("""
+    ... V1 1 0 {2 * sin(3*t)}; down=1.5
+    ... V2 1 2 {3 * cos(4*t)}; right=1.5
+    ... V3 3 2 4; left=1.5
+    ... R 3 0_3; down
+    ... W 0 0_3; right""")
+    >>> a.draw()
+                    
+.. image:: examples/tutorials/basic/Vsup3.png
+   :width: 6cm   
+
+The voltage across the resistor is the sum of the three voltage
+sources.  This is shown as a superposition::
+
+  >>> a.R.V
+  {dc: 4, 3: -2⋅ⅉ, 4: -3}
+
+This shows that there is a dc component of 4 V added to two phasors;
+one with an angular frequency of 3 rad/s and the other with angular
+frequency of 4 rad/s.
+
+There are a number of ways in which the signal components can be extracted.
+For example, the phase of the 3 rad/s phasor can be found using::
+
+  >>> a.R.V[3].phase
+  -π 
+  ───
+   2
+
+Similarly, the magnitude of of the 4 rad/s phasor can be found using::
+
+  >>> a.R.V[4].magnitude
+  4
+
+The dc component can be extracted using::
+
+  >>> a.R.V.dc
+  
+Alternatively, since dc is a phasor of angular frequency 0 rad/s::
+
+  >>> a.R.V[0]
+  4  
+  
+The overall time varying voltage can be found using::
+
+  >>> a.R.V(t)
+   2⋅sin(3⋅t) - 3⋅cos(4⋅t) + 4
+
+    
+       
 Initial value problem
 =====================
 
