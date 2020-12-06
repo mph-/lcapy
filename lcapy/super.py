@@ -600,7 +600,9 @@ class Super(ExprDict):
         """Extract single expression; raise error if a superposition."""
         
         if len(self) > 1:
-            raise ValueError('This is superposition of multiple signals.')
+            raise ValueError("""
+This is superposition of multiple signals.  You will need to extract a single
+expression.""")
     
         key = list(self)[0]
         return self[key]
@@ -609,10 +611,18 @@ class Super(ExprDict):
     def phasor(self):
         """Return phasor if have a single AC component otherwise raise error."""
 
-        expr1 = self._single
-        
-        if not self.ac:
+        if not self.is_ac:
             raise ValueError('Not a phasor')
+
+        if len(self) > 1:
+            keys = list(self.keys())
+            foo = ', '.join(['expr[%s]' % key for key in keys])
+            
+            raise ValueError("""
+This is superposition of phasors.  You will need to extract a single
+            phasor, for example, using: %s""" % foo)
+        
+        expr1 = self._single
         return expr1
     
     @property
