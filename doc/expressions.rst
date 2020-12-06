@@ -584,12 +584,59 @@ Voltages and currents
 Voltages and currents are represented using the `Voltage` and
 `Current` classes.  These classes have similar behaviour; they
 represent an arbitrary voltage or current signal as a superposition of
-DC, AC, and transient signals.
+DC, AC, transient, and noise signals.
 
 For example, the following expression is a superposition of a DC
 component, an AC component, and a transient component:
 
    >>> V1 = Voltage('1 + 2 * cos(2 * pi * 3 * t) + 3 * u(t)')
+   >>> V1
+   ⎧          3        ⎫
+   ⎨dc: 1, s: ─, 6⋅π: 2⎬
+   ⎩          s        ⎭
+
+This shows that there is 1 V DC component, a transient component with
+a Laplace transform :math:`3 / s`, and an AC component (phasor) with
+amplitude 2 V and angular frequency :math:`6 \pi` rad/s.
+   
+Pure DC components are not shown as a superposition.  For example::
+
+   >>> V2 = Voltage(42)
+   >>> V2
+   42
+
+Similarly, pure transient components are not shown as a superposition
+if they depend on `s`.  For example::
+
+   >>> V3 = Voltage(3 * u(t))
+   >>> V3
+   3
+   ─
+   s
+
+However, consider the following::   
+
+   >>> V4 = Voltage(4 * DiracDelta(t))
+   >>> V4
+   {s: 4}
+
+This is not shown as 4 to avoid confusion with a 4 V DC component.  Maybe it should be written :math:`0 s + 4`?
+
+A pure AC component (phasor) has `magnitude`, `phase`, and `omega` attributes.  The latter is the angular frequency.  For example::
+
+   >>> V5 = Voltage(3 * sin(7 * t) + 4 * cos(7 * t))
+   >>> V5
+   {7: 4 - 3⋅ⅉ}
+   >>> V5.magnitude
+   5
+
+If the signal is a superposition of AC signals, each phasor can be extracted using its angular frequency as the index.  For example,
+
+   >>> V6 = Voltage(3 * sin(7 * t) + 2 * cos(14 * t))
+   >>> V6[7]
+   -3⋅ⅉ
+   >>> V6[14]
+   2
 
 The signal can be converted to another domain using a domain variable
 as an argument:

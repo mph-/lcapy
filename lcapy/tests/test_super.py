@@ -80,7 +80,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(V2.transform(s), 3 / (s + 2), 'transform(s)')        
         self.assertEqual(V2.transform(jomega), 3 / (j * omega + 2), 'transform(jomega)')
         self.assertEqual(simplify(V2.transform(f) - 3 / (j * 2 * pi * f + 2)), 0, 'transform(f)')                
-
         
     def test_Voltage_subs(self):
 
@@ -88,7 +87,6 @@ class LcapyTester(unittest.TestCase):
         b = a.subs('V1', 1)
         c = Voltage(1)
         self.assertEqual(b, c, "Voltage.subs")
-
         
     def test_voltage_decompose(self):
 
@@ -120,4 +118,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Iname('I', 's'), 'I(s)', 'I(s)')
         self.assertEqual(Iname('I', 'dc'), 'I', 'I')
         
+        
+    def test_Voltage_phasor(self):
+
+        V = Voltage(3 * sin(7 * t) + 2 * cos(14 * t)) 
+        self.assertEqual(V[7].magnitude, expr(3), 'magnitude')
+        self.assertEqual(V[14].omega, 14, 'omega')
         

@@ -18,6 +18,7 @@ DC voltage divider
 ------------------
    
 Consider the DC voltage divider circuit defined by::
+  
     >>> from lcapy import Circuit
     >>> a = Circuit("""
     ... V 1 0 6; down=1.5
@@ -185,7 +186,7 @@ sources.  This is shown as a superposition::
     >>> a.R.V
     {dc: 4, 3: -2⋅ⅉ, 4: -3}
 
-This shows that there is a dc component of 4 V added to two phasors;
+This shows that there is a DC component of 4 V added to two phasors;
 one with an angular frequency of 3 rad/s and the other with angular
 frequency of 4 rad/s.
 
@@ -202,12 +203,12 @@ Similarly, the magnitude of of the 4 rad/s phasor can be found using::
     >>> a.R.V[4].magnitude
     3
 
-The dc component can be extracted using::
+The DC component can be extracted using::
 
     >>> a.R.V.dc
     4    
   
-Alternatively, since dc is a phasor of angular frequency 0 rad/s::
+Alternatively, since DC is a phasor of angular frequency 0 rad/s::
 
    >>> a.R.V[0]
    4  

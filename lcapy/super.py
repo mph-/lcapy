@@ -588,19 +588,24 @@ class Super(ExprDict):
 
     @property
     def magnitude(self):
-        """Return the magnitude of a phasor."""        
+        """Return the magnitude if phasor."""        
         
         phasor = self.phasor
         return phasor.magnitude
 
     @property
     def abs(self):
-        """Return the magnitude of a phasor."""                
+        """Return the magnitude if phasor."""                
         return self.magnitude
 
     @property
+    def omega(self):
+        """Return angular frequency if phasor."""                
+        return self.omega
+    
+    @property
     def phase(self):
-        """Return the phase of a phasor."""        
+        """Return the phase if phasor."""        
         
         phasor = self.phasor
         return phasor.phase    
