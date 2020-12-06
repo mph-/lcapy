@@ -8,9 +8,10 @@ Copyright 2019--2020 Michael Hayes, UCECE
 from .expr import expr
 from .cexpr import cExpr
 from .sexpr import sExpr
+from .fexpr import fExpr
 from .omegaexpr import omegaExpr
-from .symbols import j, omega, jomega, s
-from .sym import omegasym
+from .symbols import j, omega, jomega, s, f, pi
+from .sym import omegasym, fsym
 
 class Immitance(sExpr):
 
@@ -31,6 +32,9 @@ class Immitance(sExpr):
         elif isinstance(val, omegaExpr) and kind is None:
             kind = omegasym
             val = val.subs(omega, s / j)
+        elif isinstance(val, fExpr) and kind is None:
+            kind = fsym
+            val = val.subs(f, s / (j * 2 * pi))            
         
         super(Immitance, self).__init__(val, causal=causal, **assumptions)
         self.kind = kind
@@ -61,6 +65,8 @@ class Immitance(sExpr):
         elif kind in (omegasym, omega, 'ac') or (isinstance (kind, str)
                                                  and kind.startswith('n')):
             return expr.subs(self.var, jomega.expr)
+        elif kind == fsym:
+            return expr.subs(self.var, (2 * pi * f * j).expr)
         return expr.subs(self.var, j * kind)
 
     def new(self, kind):
