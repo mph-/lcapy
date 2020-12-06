@@ -568,7 +568,7 @@ Note, Lcapy tries to approximate all numbers with integers.  A floating point re
                        ⎛                     2      ⎞    
    1.27175469332729e-8⋅⎝3.94784176043574e-5⋅f  + 1.0⎠    
 
-The amplitude spectral density of the noise can be plotted by definining a vector of frequency samples:
+The amplitude spectral density of the noise can be plotted by defining a vector of frequency samples:
 
    >>> from numpy import linspace
    >>> vf = linspace(0, 10e3, 200)
@@ -647,7 +647,7 @@ Assuming an infinite open-loop gain this simplifies to
    ────────────────────────────────────────────────────────
                               R₁                           
 
-This is simply the input noise scaled by the amplfier gain :math:`1 + R_2/R_1`.
+This is simply the input noise scaled by the amplifier gain :math:`1 + R_2/R_1`.
 
 So far the analysis has ignored the noise due to the feedback resistors.   The noise from these resistors can be modelled with the `noisy()` method of the circuit object.
 
@@ -686,7 +686,7 @@ The noise is minimised by keeping `R1` as small as possible.  However, for high 
 Shield guard
 ============
 
-Electrostatic shields are important to avoid capacitive coupling of intefererence into signals.  However, the capacitance between the signal and cable shields lowers the input impedance of an amplifier.
+Electrostatic shields are important to avoid capacitive coupling of interference into signals.  However, the capacitance between the signal and cable shields lowers the input impedance of an amplifier.
 
 
    >>> from lcapy import Circuit, t, oo
@@ -728,7 +728,7 @@ The impedance seen across `Rin` can be then found using:
     C_c⋅⎜s + ───────⎟
         ⎝    C_c⋅Rᵢₙ⎠
 
-This impedance is the parallel comination of the input resistance Rin and the impedance of the cable capacitance.   Thus at high frequencies the impedance drops.
+This impedance is the parallel combination of the input resistance Rin and the impedance of the cable capacitance.   Thus at high frequencies the impedance drops.
         
 
 Shield guard circuits are used to mitigate the capacitance between a cable signal and the cable shield.  For example:

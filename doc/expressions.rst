@@ -331,7 +331,7 @@ The expanded canonical form expresses the rational function into the sum of rati
    s  + 5⋅s + 4   s  + 5⋅s + 4
 
 
-The `partfrac()` and `recippartfrac()` methods have a `combine_conjugates` argument.  If this is True, quadractic factors will not be split into two terms.  For example,
+The `partfrac()` and `recippartfrac()` methods have a `combine_conjugates` argument.  If this is True, quadratic factors will not be split into two terms.  For example,
 
    >>> H = 5 / (s * (s**2 + 1))
    >>> H.partfrac()
@@ -482,29 +482,42 @@ The signal :math:`v(t) = A \sin(\omega t)` has a phase
 :math:`\phi=-\pi/2`.
       
 
-.. _immitances:
+.. _immittances:
       
-Immitances
-==========
+Immittances
+===========
 
-Immitances (impedances and admittances) are represented using the
-`Impedance` and `Admittance` classes.  They are primarily for internal
-use.
-
-Immitances can be initialised using either `omega` -domain or
-`s` -domain expressions, for example:
+Immittances (impedances and admittances) are a frequency domain
+generalization of resistance and conductance.  In Lcapy they are
+represented using the `Impedance` and `Admittance` classes.  These
+handle the `f` -domain form, the `omega` -domain form (phasor
+immittance), and the `s` -domain form (generalized immittance).  For
+example::
 
    >>> Z1 = Impedance(5 * s)
    >>> Z2 = Impedance(5 * j * omega)
+   >>> Z3 = Admittance(s * 'C')
 
+Internally, Lcapy converts impedances to a common form.  However, the
+printed representation uses the initial form.  For example::
+
+  >>> Z1
+  5⋅s
+  >>> Z2
+  5⋅ⅉ⋅ω
+   
 The impedance can be converted to a specific domain using a domain variable
 as an argument.  For example,
 
-   >>> Z1(s)
    >>> Z1(omega)
+   5⋅ⅉ⋅ω
+   >>> Z2(s)
+   5⋅s
+   >>> Z1(f)
+   10⋅ⅉ⋅π⋅f
 
-The time-domain representation of the immitance is the inverse Laplace
-transform of the s-domain immittance, for example:
+The time-domain representation of the immittance is the inverse Laplace
+transform of the s-domain immittance, for example::
 
    >>> Impedance(1 / s)(t)
    Heaviside(t)
@@ -512,10 +525,13 @@ transform of the s-domain immittance, for example:
    δ(t)
    >>> Impedance(s)(t)
     (1)    
-   δ    (t)
+   δ   (t)
 
-The common way for creating an `Immitance` uses the `Y` or `Z` attribute of a
-`Oneport` component, for example:
+Here :math:`\delta^{(1)}(t)` denotes the time-derivative of the Dirac
+delta, :math:`\delta(t)`.
+
+An `Admittance` or `Impedance` object can be created with the `Y` or
+`Z` attribute of a `Oneport` component, for example::
 
    >>> C(3).Z
    -ⅉ 
@@ -529,9 +545,19 @@ The common way for creating an `Immitance` uses the `Y` or `Z` attribute of a
    >>> C(3).Y(s)
    3⋅s
 
+Netlist components have similar attributes.  For example::
+
+   >>> from lcapy import Circuit
+   >>> a = Circuit(""" 
+   ... C 1 2""")
+   >>> a.C.Z
+    1 
+   ───
+   C⋅s
+
    
 
-Immitance attributes
+Immittance attributes
 --------------------
 
 - `B` susceptance
@@ -572,10 +598,10 @@ infinite for :math:`R= 0`.  However, if Z is purely imaginary, i.e,
 :math:`R = 0` then :math:`G = 0`, not infinity as might be expected.
   
 
-Immitance methods
+Immittance methods
 -----------------
   
-- `oneport()` returns a `Oneport` object corresponding to the immitance.  This may be a `R`, `C`, `L`, `G`, `Y`, or `Z` object.
+- `oneport()` returns a `Oneport` object corresponding to the immittance.  This may be a `R`, `C`, `L`, `G`, `Y`, or `Z` object.
 
 
 Voltages and currents
@@ -683,7 +709,7 @@ Voltage and current attributes
 Voltage and current methods
 ---------------------------
 
-- `oneport()` returns a `Oneport` object corresponding to the immitance.  This may be a `V` or `I` object.
+- `oneport()` returns a `Oneport` object corresponding to the immittance.  This may be a `V` or `I` object.
 
 
 Assumptions

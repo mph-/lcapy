@@ -114,7 +114,7 @@ and non-inverting inputs of an opamp use:
 
    >>> cct.add('E1 1 2 opamp 3 0; right, mirror')
 
-Note, the mirroring is performed before rotations are applied.  Opamps also have a `mirrorinputs` option that switches the inverting and non-inverting inputs pwithout mirroring the entire component.
+Note, the mirroring is performed before rotations are applied.  Opamps also have a `mirrorinputs` option that switches the inverting and non-inverting inputs without mirroring the entire component.
 
 Here's an example of using `invert` to mirror a D flip-flop in the y-axis, compared to rotating the flip-flop:
 
@@ -459,7 +459,7 @@ Here's an example using a voltmeter and an ammeter:
    :width: 5cm
 
 
-Miscellanous components
+Miscellaneous components
 -----------------------
 
 Miscellaneous Circuitikz bipole components can be drawn using a `MISC`
@@ -1069,7 +1069,7 @@ employed.  For example,
 >>> cct.add('R1 1 2; right, i=$I_1$, v=$V_{R_1}$')
 
 The component and voltage label positions can be controlled with the
-`^` and `_` attrbutes.  The `^` attribute positions the label above
+`^` and `_` attributes.  The `^` attribute positions the label above
 the component and the `_` attribute positions the label below the
 component.  For example,
 

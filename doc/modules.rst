@@ -256,7 +256,7 @@ Impedance
 Immittance
 ----------
 
-.. automodule:: lcapy.immitance
+.. automodule:: lcapy.immittance
    :members:
    :undoc-members:
    :show-inheritance:            

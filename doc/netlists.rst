@@ -177,7 +177,7 @@ The component type is specified by the first letter(s) of the
 
    `Ename Np Nm opamp Nip Nim Ad Ac`    
 
-- Current-controlled current source (CCVS) of current gain F.  The control current is defined as the current flowing through the voltage souce Vcontrol.
+- Current-controlled current source (CCVS) of current gain F.  The control current is defined as the current flowing through the voltage source Vcontrol.
 
    `Fname Np Nm Vcontrol F`
    
@@ -185,7 +185,7 @@ The component type is specified by the first letter(s) of the
 
    `Gname Np Nm Nip Nim G`
 
-- Current-controlled voltage source (VCCS) of transimpedance H.  The control current is defined as the current flowing through the voltage souce Vcontrol.
+- Current-controlled voltage source (VCCS) of transimpedance H.  The control current is defined as the current flowing through the voltage source Vcontrol.
 
    `Hname Np Nm Vcontrol H`   
 
@@ -642,7 +642,7 @@ Mechanical netlists
 ===================
 
 Linear mechanical networks comprising masses, springs, and dampers can
-be simulated.  The machanical analogue II (impedance analogue) is
+be simulated.  The mechanical analogue II (impedance analogue) is
 employed where voltage is equivalent to force and current is
 equivalent to speed.  Thus a mass is analogous to an inductor, a
 spring is analogous to a capacitor, and a damper is analogous to a

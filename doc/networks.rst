@@ -88,9 +88,9 @@ Network components
   
 - `W` wire
 
-- `Y` generalised admittance
+- `Y` generalized admittance
 
-- `Z` generalised impedance      
+- `Z` generalized impedance      
 
   
 .. _network_attributes:
