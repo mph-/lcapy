@@ -976,8 +976,7 @@ class Expr(ExprPrint, ExprMisc):
         """Return magnitude"""
 
         if self.is_real:
-            dst = self.copy()
-            dst.expr = abs(dst.expr)
+            dst = expr(abs(self.expr))
             dst.part = 'magnitude'            
             return dst
 
@@ -985,9 +984,6 @@ class Expr(ExprPrint, ExprMisc):
         N = R.N
         Dnew = R.D
         Nnew = sqrt((N.real**2 + N.imag**2).simplify())
-        # Hack, fix properly for phasors
-        if hasattr(N, 'omega'):
-            Nnew.assumptions['omega'] = N.omega
         dst = Nnew / Dnew
 
         dst.part = 'magnitude'
