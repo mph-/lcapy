@@ -23,7 +23,6 @@ labels.
 
 10. Perhaps use dvipng?
 
-11. Draw network as a ladder network.
 
 
 Circuit analysis
@@ -37,7 +36,8 @@ singular matrix.
 3. Show Super classes as how they were created and not decomposition?
 
 4. Add simplify method.  This could remove zero current and zero voltage sources and
-combine series/parallel components.
+combine series/parallel components.  This could have a number of passes argument so that
+the simplification can be performed a desired number of times.
 
 
 Infrastructure
@@ -55,62 +55,53 @@ driven approach.
 
 4. Speed up residue calculation (perhaps can try without taking limit...).
 
-5. Speed up comparisons using is instead of ==.
-
-6. Warn user when calculations may take a while, say when inverting a
+5. Warn user when calculations may take a while, say when inverting a
 large matrix.
 
-7. Add || operator to SymPy but this will require Python mods!
+6. Add || operator to SymPy but this will require Python mods!
 
-8. Use better assumptions propagation.  Should have mechanism to
+7. Use better assumptions propagation.  Should have mechanism to
    override assumptions based on user's coercion.  For example,
    causal=True, causal=False, causal=None, where the latter says I don't know.
 
-9. Implement a Matrix class that does not lose the class information
+8. Implement a Matrix class that does not lose the class information
 for each element.
 
-10. Improve context switching to avoid sharing of symbols between
+9. Improve context switching to avoid sharing of symbols between
 different netlists.  Could use Python context manager with __enter__
 and __exit__ methods so that can use with statement.
 
-11. Simplify phase.
+10. Simplify phase.
 
-12. Fix Impedance * Impedance, etc. (correctly set kind)
+11. Fix Impedance * Impedance, etc. (correctly set kind)
 
-13. Check transforms.  Perhaps handle expr('f') as expr(f) ?
+12. Check transforms.  Perhaps handle expr('f') as expr(f) ?
 
-14. Speed ups.  Note, default args such as Is(0) have to be constructed.
+13. Speed ups. 
 
-15. cct.subs() does not change cct.symbols...
+14. cct.subs() does not change cct.symbols...
 
-16. Phasor().phase -> cExpr
+15. expr('A*t/T*u(t)*u(T-t)+A*u(t-T)')(s)(t)
 
-17. expr('A*t/T*u(t)*u(T-t)+A*u(t-T)')(s)(t)
-
-18. Overhaul immitances.  Perhaps default to s-domain unless impedance
+16. Overhaul immitances.  Perhaps default to s-domain unless impedance
 calculated for other domains?  The problem at the moment is the kind
 attribute.  This gets lost, say when using .limit().  Note,
 Z(s).limit() works as expected.
 
-19. Teach sifting theorem for Dirac delta.
+17. Teach sifting theorem for Dirac delta.
 
-20. Add LT for Integral(x(t - tau) * Heaviside(tau), (tau, -oo, oo))
+18. Add LT for Integral(x(t - tau) * Heaviside(tau), (tau, -oo, oo))
 
-21. Add LT for Integral(x(t - tau), (tau, 0, oo))
+19. Add LT for Integral(x(t - tau), (tau, 0, oo))
 
-22. Warn about coupled inductors at DC?  LT methods will blindly give
+20. Warn about coupled inductors at DC?  LT methods will blindly give
 an answer that appears valid for DC.
 
-23. Simplify convolutions.
+21. Simplify convolutions.
 
-24. Support Impedance * Current -> Voltage
-, etc. 
+22. Simplify i_equation/v_equation nonsense.
 
-25. Polynodes?
-
-26. Generate n-port Z and Y matrices
-
-27. Simplify i_equation/v_equation nonsense.
+23. Compatibility with PySpice
 
 
 Testing
@@ -135,7 +126,6 @@ Documentation
 6. Update the examples.
 
 7. Have worked examples.
-
 
 
 Additional features
