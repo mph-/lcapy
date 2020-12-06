@@ -64,14 +64,16 @@ class Super(ExprDict):
         if not any(self):
             return 0
 
+        decomp = self.decompose()
+        
         # If have a single element, show value.
-        if len(self) == 1:
-            key = list(self)[0]
+        if len(decomp) == 1:
+            key = list(decomp)[0]
             if key in ('dc', 't'):
-                return self[key]
+                return decomp[key]
             if key == 's':
-                if self[key].has(s):
-                    return self[key]
+                if decomp[key].has(s):
+                    return decomp[key]
                 # Have something like s * 0 + 1 so don't display as 1
                 # since not a dc value.
         
@@ -80,7 +82,7 @@ class Super(ExprDict):
         # using a decomposition in the transform domains.
         # We could present the result in the time-domain but this
         # hides the underlying way the signal is analysed.
-        return self.decompose()
+        return decomp
 
     def latex(self, **kwargs):
         """Latex"""
@@ -110,7 +112,9 @@ class Super(ExprDict):
         # instead of 'omega'.
         if isinstance(key, Expr):
             key = key.expr
-        return super(Super, self).__getitem__(key)
+        if key in self:
+            return super(Super, self).__getitem__(key)
+        return self.decompose().__getitem__(key)        
 
     @property
     def symbols(self):
@@ -598,31 +602,34 @@ class Super(ExprDict):
     @property
     def _single(self):
         """Extract single expression; raise error if a superposition."""
+
+        decomp = self.decompose()
         
-        if len(self) > 1:
+        if len(decomp) > 1:
             raise ValueError("""
 This is superposition of multiple signals.  You will need to extract a single
 expression.""")
     
-        key = list(self)[0]
-        return self[key]
+        key = list(decomp)[0]
+        return decomp[key]
     
     @property
     def phasor(self):
         """Return phasor if have a single AC component otherwise raise error."""
 
-        if not self.is_ac:
+        decomp = self.decompose()
+        
+        if not decomp.has_ac:
             raise ValueError('Not a phasor')
 
-        if len(self) > 1:
-            keys = list(self.keys())
-            foo = ', '.join(['expr[%s]' % key for key in keys])
+        if len(decomp) > 1:
+            foo = ', '.join(['expr[%s]' % key for key in self.ac_keys()])
             
             raise ValueError("""
 This is superposition of phasors.  You will need to extract a single
-            phasor, for example, using: %s""" % foo)
+phasor, for example, using: %s""" % foo)
         
-        expr1 = self._single
+        expr1 = decomp._single
         return expr1
     
     @property
