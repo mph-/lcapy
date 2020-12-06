@@ -91,10 +91,11 @@ Note, the keyword dc is required here for the voltage source otherwise an arbitr
 source is assumed.
      
 
-AC voltage divider
+AC low-pass filter
 ------------------
    
-Consider the AC voltage divider circuit defined by::
+Consider the AC low-pass filter circuit defined by::
+  
     >>> from lcapy import Circuit
     >>> a = Circuit("""
     ... V 1 0 ac 6; down=1.5
@@ -138,14 +139,15 @@ This can be simplified::
    ⎩    8⋅ω₀ - ⅉ⎭
 
 
-The absolute value of the phasor voltage is::
+The magnitude of the phasor voltage is::
 
-    >>> a.C.V.abs
-     ╱          2        
-   ╲╱  589824⋅ω₀  + 9216 
-   ──────────────────────
-              2          
-       1024⋅ω₀  + 16     
+    >>> a.C.V.magnitude
+       ___________________
+      ╱          2        
+    ╲╱  589824⋅ω₀  + 9216 
+    ──────────────────────
+               2          
+        1024⋅ω₀  + 16     
 
 and the phase is::
 
@@ -175,13 +177,13 @@ Here's an example circuit comprised of two AC sources and a DC source:
     >>> a.draw()
                     
 .. image:: examples/tutorials/basic/Vsup3.png
-   :width: 6cm   
+   :width: 9cm   
 
 The voltage across the resistor is the sum of the three voltage
 sources.  This is shown as a superposition::
 
-  >>> a.R.V
-  {dc: 4, 3: -2⋅ⅉ, 4: -3}
+    >>> a.R.V
+    {dc: 4, 3: -2⋅ⅉ, 4: -3}
 
 This shows that there is a dc component of 4 V added to two phasors;
 one with an angular frequency of 3 rad/s and the other with angular
@@ -190,28 +192,29 @@ frequency of 4 rad/s.
 There are a number of ways in which the signal components can be extracted.
 For example, the phase of the 3 rad/s phasor can be found using::
 
-  >>> a.R.V[3].phase
-  -π 
-  ───
-   2
+    >>> a.R.V[3].phase
+    -π 
+    ───
+     2
 
 Similarly, the magnitude of of the 4 rad/s phasor can be found using::
 
-  >>> a.R.V[4].magnitude
-  4
+    >>> a.R.V[4].magnitude
+    3
 
 The dc component can be extracted using::
 
-  >>> a.R.V.dc
+    >>> a.R.V.dc
+    4    
   
 Alternatively, since dc is a phasor of angular frequency 0 rad/s::
 
-  >>> a.R.V[0]
-  4  
+   >>> a.R.V[0]
+   4  
   
 The overall time varying voltage can be found using::
 
-  >>> a.R.V(t)
+   >>> a.R.V(t)
    2⋅sin(3⋅t) - 3⋅cos(4⋅t) + 4
 
     
@@ -426,7 +429,7 @@ This is not the desired answer since node 3 is shorted to node 0 by the voltage 
    4. a dc current source is connected to a capacitor (use step current source).
    5. part of the circuit is not referenced to ground
 
-In this case it is reason 3.  This is because Lcapy connects a 1\,A current source across nodes 3 and 0 and tries to measure the voltage to determine the impedance.   However, node 3 is floating since an ideal opamp has infinite input impedance.  To keep Lcapy happy, we can explicitly add a resistor between nodes 3 and 0,
+In this case it is reason 3.  This is because Lcapy connects a 1 A current source across nodes 3 and 0 and tries to measure the voltage to determine the impedance.   However, node 3 is floating since an ideal opamp has infinite input impedance.  To keep Lcapy happy, we can explicitly add a resistor between nodes 3 and 0,
 
    >>> c.add('Rin 3 0')
    >>> c.impedance(3, 0).pprint()
@@ -706,7 +709,7 @@ Electrostatic shields are important to avoid capacitive coupling of intefererenc
    ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
    >>> a.draw()
 
-.. image:: examples/tutorials/shield-guard/shield-ground.png
+.. image:: examples/tutorials/shield-guard/shield-guard.png
    :width: 30cm
 
 

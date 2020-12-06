@@ -162,3 +162,4 @@ figs:
 	cd examples/tutorials/RCnoise; make
 	cd examples/tutorials/opampnoise; make
 	cd examples/tutorials/opamps; make
+	cd examples/tutorials/shield-guard; make
