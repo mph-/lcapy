@@ -90,7 +90,77 @@ The general result can be obtained by evaluating this circuit symbolically::
 Note, the keyword dc is required here for the voltage source otherwise an arbitrary voltage
 source is assumed.
      
+
+AC voltage divider
+------------------
    
+Consider the AC voltage divider circuit defined by::
+    >>> from lcapy import Circuit
+    >>> a = Circuit("""
+    ... V 1 0 ac 6; down=1.5
+    ... R 1 2 2; right=1.5
+    ... C 2 0_2 4; down
+    ... W 0 0_2; right""")
+    >>> a.draw()
+                    
+.. image:: examples/tutorials/basic/VRC1.png
+   :width: 6cm   
+
+Here the ac keyword specifies that the voltage source is a phasor of angular frequency :math:`\omega_0`.
+
+The voltage across the voltage source is::
+
+    >>> a.V.V
+    {ω₀: 6}
+
+This indicates a phasor of angular frequency :math:\omega_0` with an amplitude 6 V.  The time domain representation is::
+
+    >>> a.V.V(t)  
+    6⋅cos(ω₀⋅t)
+
+The voltage across the capacitor is::
+
+    >>> a.C.V
+   ⎧    ⎛-3⋅ⅉ ⎞⎫
+   ⎪    ⎜─────⎟⎪
+   ⎪    ⎝  4  ⎠⎪
+   ⎨ω₀: ───────⎬
+   ⎪          ⅉ⎪
+   ⎪     ω₀ - ─⎪
+   ⎩          8⎭
+ 
+
+This can be simplified::
+
+    >>> a.C.V.simplify()
+   ⎧     -6⋅ⅉ   ⎫
+   ⎨ω₀: ────────⎬
+   ⎩    8⋅ω₀ - ⅉ⎭
+
+
+The absolute value of the phasor voltage is::
+
+    >>> a.C.V.abs
+     ╱          2        
+   ╲╱  589824⋅ω₀  + 9216 
+   ──────────────────────
+              2          
+       1024⋅ω₀  + 16     
+
+and the phase is::
+
+    >>> a.C.V.phase
+    -atan(8⋅ω₀)
+  
+Finally, the time-domain voltage across the capacitor is::
+
+    >>> a.C.V(t)
+    48⋅ω₀⋅sin(ω₀⋅t)   6⋅cos(ω₀⋅t)
+    ─────────────── + ───────────
+           2               2    
+       64⋅ω₀  + 1      64⋅ω₀  + 1
+ 
+
 Initial value problem
 =====================
 
