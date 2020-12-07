@@ -221,6 +221,20 @@ class LcapyPrettyPrinter(PrettyPrinter):
         s = super(LcapyPrettyPrinter, self)._print_Symbol(expr)
         return s
 
+    def _print_Piecewise(self, expr):
+
+        from sympy.printing.pretty.stringpict import prettyForm
+        
+        if len(expr.args) > 1:
+            return super(LcapyPrettyPrinter, self)._print(expr)
+
+        ec = expr.args[0]
+
+        pform = self._print(ec.expr)
+        pform = prettyForm(*pform.right('  for '))
+        pform = prettyForm(*pform.right(self._print(ec.cond)))
+        return pform
+
     def _print_Heaviside(self, expr):
 
         from sympy.printing.pretty.stringpict import prettyForm
