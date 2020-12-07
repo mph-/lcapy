@@ -9,6 +9,9 @@ Copyright 2019--2020 Michael Hayes, UCECE
 from matplotlib.pyplot import subplots, savefig
 import networkx as nx
 
+# TODO: use multigraph and when looking for loops, convert to digraph
+# using dummy nodes if parallel edges detected.
+
 
 # V1 1 0 {u(t)}; down
 # R1 1 2; right=2
@@ -18,7 +21,7 @@ import networkx as nx
 # W 2 6; up
 # C1 5 6; right=2
 
-class CircuitGraph(nx.Graph):
+class CircuitGraph(nx.MultiGraph):
     """
 
     >>> c = Circuit('circuit.sch')
@@ -34,10 +37,8 @@ class CircuitGraph(nx.Graph):
 
         super(CircuitGraph, self).__init__()
         self.cct = cct
-        self.dummy = 0
-        # Dummy nodes are used to avoid parallel edges.
-        self.dummy_nodes = {}
-
+        self._DG = None
+        
         self.add_nodes_from(cct.node_list)
 
         node_map = cct.node_map
@@ -49,17 +50,7 @@ class CircuitGraph(nx.Graph):
 
             nodename1 = node_map[elt.nodenames[0]]
             nodename2 = node_map[elt.nodenames[1]]
-            
-            if self.has_edge(nodename1, nodename2):
-                # Add dummy node in graph to avoid parallel edges.
-                dummynode = '*%d' % self.dummy
-                dummycpt = 'W%d' % self.dummy                
-                self.add_edge(nodename1, dummynode, name=name)
-                self.add_edge(dummynode, nodename2, name=dummycpt)
-                self.dummy_nodes[dummynode] = nodename2
-                self.dummy += 1
-            else:
-                self.add_edge(nodename1, nodename2, name=name)
+            self.add_edge(nodename1, nodename2, name=name)            
 
         self.node_map = node_map
 
@@ -76,11 +67,55 @@ class CircuitGraph(nx.Graph):
                 if not edge.startswith('W'):
                     elt = self.cct.elements[edge]
                     yield elt
+
+    @property
+    def DG(self):
+
+        if self._DG is not None:
+            return self._DG
+
+        dummy = 0
+        # Dummy nodes are used to avoid parallel edges.
+        dummy_nodes = {}
+
+        cct = self.cct
+        
+        # This has forward and backward edges.
+        DG = nx.DiGraph()
+
+        DG.add_nodes_from(cct.node_list)
+
+        node_map = cct.node_map
+
+        for name in cct.branch_list:
+            elt = cct.elements[name]
+            if len(elt.nodenames) < 2:
+                continue
+
+            nodename1 = node_map[elt.nodenames[0]]
+            nodename2 = node_map[elt.nodenames[1]]
             
+            if DG.has_edge(nodename1, nodename2):
+                # Add dummy node in graph to avoid parallel edges.
+                dummynode = '*%d' % dummy
+                dummycpt = 'W%d' % dummy                
+                DG.add_edge(nodename1, dummynode, name=name)
+                DG.add_edge(dummynode, nodename1, name=name)                
+                DG.add_edge(dummynode, nodename2, name=dummycpt)
+                DG.add_edge(nodename2, dummynode, name=dummycpt)                
+                dummy_nodes[dummynode] = nodename2
+                dummy += 1
+            else:
+                DG.add_edge(nodename1, nodename2, name=name)
+                DG.add_edge(nodename2, nodename1, name=name)                
+
+        self._DG = DG
+        return DG
+        
     def all_loops(self):
 
-        # This adds forward and backward edges.
-        DG = nx.DiGraph(self)
+        DG = self.DG
+
         cycles = list(nx.simple_cycles(DG))
 
         loops = []
@@ -97,8 +132,6 @@ class CircuitGraph(nx.Graph):
         loops = self.all_loops()
         sets = [set(loop) for loop in loops]
 
-        DG = nx.DiGraph(self)
-        
         rejects = []
         for i in range(len(sets)):
 
@@ -201,8 +234,8 @@ class CircuitGraph(nx.Graph):
 
         return [d['name'] for n1, n2, d in self.edges(data=True)]
 
-    def series(self, cpt_name):
-        """Return list of component names in series with cpt inclufing itself."""        
+    def series(self, cpt_name, remove_wires=False):
+        """Return list of component names in series with cpt including itself."""        
 
         cct = self.cct
         elt = cct.elements[cpt_name]
@@ -223,5 +256,44 @@ class CircuitGraph(nx.Graph):
         follow(nodenames[0])
         follow(nodenames[1])        
 
+        if remove_wires:
+            series = [cpt for cpt in series if not cpt.startswith('W')]
+        
         return series
+
+    def series_wires(self, cpt_name):
+        """Return list of wire in series with cpt including itself."""        
+
+        cct = self.cct
+        elt = cct.elements[cpt_name]
+        nodenames = [cct.node_map[nodename] for nodename in elt.nodenames]
+
+        series = []
+        series.append(cpt_name)        
+
+        def follow(node):
+            neighbours = self[node]
+            if len(neighbours) > 2:
+                return
+            for n, e in neighbours.items():
+                if not e['name'] in series and e['name'].startswith('W'):
+                    series.append(e['name'])
+                    follow(n)
+
+        follow(nodenames[0])
+        follow(nodenames[1])        
+        
+        return series    
     
+    def parallel(self, cpt_name):
+        """Return list of component names in parallel with cpt including itself."""        
+
+        cct = self.cct
+        elt = cct.elements[cpt_name]
+        nodenames = [cct.node_map[nodename] for nodename in elt.nodenames]
+
+        n1, n2 = nodenames[0:2]
+        edges = self.get_edge_data(n1, n2)
+        parallel = [d['name'] for k, d in edges.items()]
+
+        return parallel
