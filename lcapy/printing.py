@@ -137,6 +137,14 @@ class LcapyLatexPrinter(LatexPrinter):
             return super(LcapyLatexPrinter, self)._print(expr)
         return super(LcapyLatexPrinter, self)._print(expr, exp=exp)        
 
+    def _print_Piecewise(self, expr):
+
+        if len(expr.args) > 1:
+            return super(LcapyLatexPrinter, self)._print(expr)                    
+
+        e, c = expr.args[0]
+        return  r"%s \;\; \text{for}\: %s" % (self._print(e), self._print(c))
+
     def _print_Heaviside(self, expr, exp=None):
 
         tex = r"%s\left(%s\right)" % (latex_expr_map[sym.Heaviside],
