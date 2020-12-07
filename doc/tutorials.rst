@@ -318,13 +318,13 @@ better to use an alternative parameterization::
 The time-domain response can now be found::
 
    >>> VR(t)
-   ⎧  ⎛     ⎛                       -σ₁⋅t          ⎞       -σ₁⋅t          ⎞           
-   ⎪  ⎜     ⎜ -σ₁⋅t             σ₁⋅ℯ     ⋅sin(ω₁⋅t)⎟   v₀⋅ℯ     ⋅sin(ω₁⋅t)⎟           
-   ⎪K⋅⎜L⋅i₀⋅⎜ℯ     ⋅cos(ω₁⋅t) - ───────────────────⎟ - ───────────────────⎟           
-   ⎨  ⎝     ⎝                            ω₁        ⎠            ω₁        ⎠           
-   ⎪───────────────────────────────────────────────────────────────────────  for t ≥ 0
-   ⎪                                  L⋅i₀                                            
-   ⎩                                                                                  
+     ⎛     ⎛                       -σ₁⋅t          ⎞       -σ₁⋅t          ⎞           
+     ⎜     ⎜ -σ₁⋅t             σ₁⋅ℯ     ⋅sin(ω₁⋅t)⎟   v₀⋅ℯ     ⋅sin(ω₁⋅t)⎟           
+   K⋅⎜L⋅i₀⋅⎜ℯ     ⋅cos(ω₁⋅t) - ───────────────────⎟ - ───────────────────⎟           
+     ⎝     ⎝                            ω₁        ⎠            ω₁        ⎠           
+   ───────────────────────────────────────────────────────────────────────  for t ≥ 0
+                                     L⋅i₀                                            
+                                                                                     
 
 Finally, the result in terms of R, L, and C can be found by
 substituting the parameter definitions::

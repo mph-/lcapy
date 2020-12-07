@@ -793,9 +793,9 @@ For example,
 
    >>> H = 1 / (s + 2)
    >>> H(t)
-   ⎧ -2⋅t           
-   ⎨e      for t ≥ 0
-   ⎩                
+    -2⋅t           
+   e      for t ≥ 0
+                   
    >>> H(t, causal=True)
     -2⋅t             
    e    ⋅Heaviside(t)

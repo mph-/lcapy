@@ -19,6 +19,16 @@ import networkx as nx
 # C1 5 6; right=2
 
 class CircuitGraph(nx.Graph):
+    """
+
+    >>> c = Circuit('circuit.sch')
+    >>> g = CircuitGraph(c)
+    >>> nodes = g.nodes
+    >>> edges = g.edges
+    >>> edges_with_data = g.edges(data=True)
+    >>> components = g.components
+
+    """
 
     def __init__(self, cct):
 
@@ -184,3 +194,34 @@ class CircuitGraph(nx.Graph):
         return cloops
     
 # neighbors(node) gives neighbouring nodes
+
+    @property
+    def components(self):
+        """Return list of component names."""
+
+        return [d['name'] for n1, n2, d in self.edges(data=True)]
+
+    def series(self, cpt_name):
+        """Return list of component names in series with cpt inclufing itself."""        
+
+        cct = self.cct
+        elt = cct.elements[cpt_name]
+        nodenames = [cct.node_map[nodename] for nodename in elt.nodenames]
+
+        series = []
+        series.append(cpt_name)        
+
+        def follow(node):
+            neighbours = self[node]
+            if len(neighbours) > 2:
+                return
+            for n, e in neighbours.items():
+                if not e['name'] in series:
+                    series.append(e['name'])
+                    follow(n)
+
+        follow(nodenames[0])
+        follow(nodenames[1])        
+
+        return series
+    

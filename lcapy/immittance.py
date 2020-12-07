@@ -49,9 +49,9 @@ class Immittance(sExpr):
             # Default to printing impedance as Z(omega)
             kind = omega
         
-        return self.selectexpr(kind)
+        return self._selectexpr(kind)
         
-    def selectexpr(self, kind=None):
+    def _selectexpr(self, kind=None):
 
         if kind is None:
             kind = self.kind
@@ -71,7 +71,7 @@ class Immittance(sExpr):
 
     def new(self, kind):
 
-        return self.__class__(self.selectexpr(kind), kind)
+        return self.__class__(self._selectexpr(kind), kind)
 
     @property
     def R(self):

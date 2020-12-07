@@ -284,16 +284,16 @@ a strictly proper rational function::
    s + 3   s + 2
 
    >>> H.inverse_laplace()
-   ⎧      -2⋅t       -3⋅t           
-   ⎨- 30⋅e     + 35⋅e      for t ≥ 0
-   ⎩
+         -2⋅t       -3⋅t           
+   - 30⋅e     + 35⋅e      for t ≥ 0
+   
 
 or alternatively
    
    >>> H(t)
-   ⎧      -2⋅t       -3⋅t           
-   ⎨- 30⋅e     + 35⋅e      for t ≥ 0
-   ⎩                                
+         -2⋅t       -3⋅t           
+   - 30⋅e     + 35⋅e      for t ≥ 0
+                                   
 
 Note that the unilateral inverse Laplace transform can only determine
 the result for :math:`t \ge 0`.  If you know that the system is
