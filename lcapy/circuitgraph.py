@@ -189,7 +189,7 @@ class CircuitGraph(nx.Graph):
 
         return [d['name'] for n1, n2, d in self.edges(data=True)]
 
-    def series(self, cpt_name, remove_wires=False):
+    def in_series(self, cpt_name, remove_wires=False):
         """Return list of component names in series with cpt including itself."""        
 
         cct = self.cct
@@ -216,7 +216,7 @@ class CircuitGraph(nx.Graph):
         
         return set(series)
 
-    def series_wires(self, cpt_name):
+    def in_series_wires(self, cpt_name):
         """Return list of wire in series with cpt including itself."""        
 
         cct = self.cct
@@ -239,7 +239,7 @@ class CircuitGraph(nx.Graph):
         
         return set(series)
     
-    def parallel(self, cpt_name):
+    def in_parallel(self, cpt_name):
         """Return list of component names in parallel with cpt including itself."""        
 
         cct = self.cct

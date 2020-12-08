@@ -261,9 +261,9 @@ The above methods can be called with a component name, for example,
 
 This calculates the driving-point admittance that would be measured across the nodes of `L1`.
 
-`parallel()` returns a list of sets of component names that are connected in parallel.
+`in_parallel()` returns a list of sets of component names that are connected in parallel.
 
-`series()` returns a list of sets of component names that are connected in series.
+`in_series()` returns a list of sets of component names that are connected in series.
 
 `subs(subs_dict)` substitutes arguments in the Circuit use a dictionary of symbols `subs_dict`.  For example,
 

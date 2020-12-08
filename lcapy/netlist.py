@@ -1211,13 +1211,13 @@ class NetlistMixin(object):
                 names.append(name)
         return names
 
-    def _parallel_all(self):
+    def _in_parallel_all(self):
 
         names = self._potential_combine_names()
         lists = []
         while names != []:
             name = names[0]
-            parallel = self._parallel_names(name)
+            parallel = self._in_parallel_names(name)
             if len(parallel) > 1:
                 lists.append(parallel)
             for name in parallel:
@@ -1227,13 +1227,13 @@ class NetlistMixin(object):
                     pass
         return lists
 
-    def _series_all(self):
+    def _in_series_all(self):
 
         names = self._potential_combine_names()
         lists = []
         while names != []:
             name = names[0]
-            series = self._series_names(name)
+            series = self._in_series_names(name)
             if len(series) > 1:            
                 lists.append(series)
             for name in series:
@@ -1243,69 +1243,70 @@ class NetlistMixin(object):
                     pass                
         return lists    
 
-    def _parallel_names(self, cpt=None):
+    def _in_parallel_names(self, cpt=None):
 
         if isinstance(cpt, Cpt):
             cpt = cpt.name
 
-        return self.G.parallel(cpt)
+        return self.G.in_parallel(cpt)
 
-    def _series_names(self, cpt=None):
+    def _in_series_names(self, cpt=None):
 
         if isinstance(cpt, Cpt):
             cpt = cpt.name
 
-        return self.G.series(cpt)
+        return self.G.in_series(cpt)
         
-    def parallel(self, cpt=None):
+    def in_parallel(self, cpt=None):
         """Return set of cpts in parallel with specified cpt.  If no cpt
         specified, return list of sets of parallel cpts."""
 
         if cpt is None:
-            return self._parallel_all()
+            return self._in_parallel_all()
         
-        names = self._parallel_names(cpt)
+        names = self._in_parallel_names(cpt)
         if len(names) < 2:
             return set()
         return names
     
-    def series(self, cpt=None):
+    def in_series(self, cpt=None):
         """Return set of cpts in series with specified cpt.   If no cpt
         specified, return list of sets of series cpts."""
 
         if cpt is None:
-            return self._series_all()
+            return self._in_series_all()
 
-        names = self._series_names(cpt)
+        names = self._in_series_names(cpt)
         if len(names) < 2:
             return set()
         return names        
     
-    def _simplify_serial(self, cptnames=None):
+    def _simplify_series(self, cptnames=None):
 
         net = self.copy()
 
-        serial = net.G.serial()
-        if len(serial) < 2:
+        series = net.G.in_series()
+        if len(series) < 2:
             return net, False
 
-        cpts = [self.elements[name] for name in serial]
-
+        cpts = [self.elements[name] for name in series]
+        # TODO
         return net, False        
 
     def _simplify_parallel(self, cptnames=None):
 
         net = self.copy()
 
-        parallel = net.G.parallel()
+        parallel = net.G.in_parallel()
         if len(parallel) < 2:
             return net, False
 
+        # TODO        
         return net, False        
 
-    def simplify_serial(self, cptnames=None):
+    def simplify_series(self, cptnames=None):
 
-        net, changed = self._simplify_serial(cptnames)
+        net, changed = self._simplify_series(cptnames)
         return net
 
     def simplify_parallel(self, cptnames=None):
@@ -1313,7 +1314,7 @@ class NetlistMixin(object):
         net, changed = self._simplify_parallel(cptnames)
         return net                
 
-    def simplify(self, cptnames=None, passes=0, serial=True, parallel=True):
+    def simplify(self, cptnames=None, passes=0, series=True, parallel=True):
 
         # Perhaps use num cpts?
         if passes == 0:
