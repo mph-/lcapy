@@ -307,7 +307,7 @@ class OnePort(Network, ImmittanceMixin):
             return Z(self._Z)
         elif self._Y is not None:
             return Y(self._Y)        
-        raise ValueError('Internal error')
+        raise RuntimeError('Internal error')
 
     def noise_model(self):
         """Convert to noise model."""
