@@ -1300,11 +1300,10 @@ class NetlistMixin(object):
             return set()
         return names
 
-    def _do_simplify(self, string, subset, net, explain=False, add=False, explain=False):
+    def _do_simplify(self, string, subset, net, explain=False, add=False):
 
         if explain:
             print(string % subset)
-            return False
 
         if add:
             total = expr(0)
@@ -1318,7 +1317,21 @@ class NetlistMixin(object):
 
         if explain:
             print('%s combined value = %s' % (subset, total))
-            
+
+        name = list(subset)[0]
+        if self.elements[name].cpt.has_ic:
+            ic = expr(0)
+            for name in subset:
+                ic += expr(self.elements[name].cpt.args[1])
+
+            if explain:
+                print('%s combined IC = %s' % (subset, ic))                
+
+        if explain:
+            return False
+
+        # TODO, replace net and remove redundant ones.
+                
         return False        
 
     def _check_ic(self, subset):
@@ -1327,15 +1340,20 @@ class NetlistMixin(object):
         name = subset.pop()
         has_ic = self.elements[name].has_ic
 
+        okay = True
         for name1 in subset:
             if self.elements[name1].has_ic != has_ic:
                 print('Incompatible initial conditions for %s and %s' % (name, name1))
+                okay = False
         if not has_ic:
-            return
+            return okay
         ic = self.elements[name].cpt.args[1]
         for name1 in subset:
             if self.elements[name1].cpt.args[1] != ic:
-                print('Incompatible initial conditions for %s and %s' % (name, name1))        
+                print('Incompatible initial conditions for %s and %s' % (name, name1))
+                okay = False
+
+        return okay
     
     def _simplify_series(self, cptnames=None, explain=False):
 
@@ -1348,8 +1366,8 @@ class NetlistMixin(object):
                 if k == 'I':
                     print('Netlist has current sources in series: %s' % subset)
                 elif k in ('R', 'L', 'V', 'Z'):
-                    if k == 'L':
-                        self._check_ic(subset)                    
+                    if k == 'L' and  not self._check_ic(subset):
+                        continue
                     changed |= self._do_simplify('Can add in series: %s',
                                                  subset, net, explain, True)
                 elif k in ('C', 'Y'):
@@ -1374,8 +1392,8 @@ class NetlistMixin(object):
                     changed |= self._do_simplify('Can combine in parallel: %s',
                                                  subset, net, explain, False)
                 elif k in ('C', 'Y', 'I'):
-                    if k == 'C':
-                        self._check_ic(subset)
+                    if k == 'C' and  not self._check_ic(subset):
+                        continue                    
                     changed |= self._do_simplify('Can add in parallel: %s',
                                                  subset, net, explain, True)
                 else:
