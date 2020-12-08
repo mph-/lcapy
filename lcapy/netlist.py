@@ -1300,63 +1300,71 @@ class NetlistMixin(object):
             return set()
         return names        
     
-    def _simplify_series(self, cptnames=None):
+    def _simplify_series(self, cptnames=None, explain=False):
 
+        def describe(string, subset):
+            if explain:
+                print(string % subset)
+        
         net = self.copy()
 
         for aset in net.in_series():
             subsets = net._find_combine_subsets(aset)
             for k, subset in subsets.items():
                 if k == 'I':
-                    print('Netlist has current sources in series: %s' % subset)
+                    describe('Netlist has current sources in series: %s', subset)
                 elif k in ('R', 'L', 'V', 'Z'):
-                    print('Can add: %s' % subset)
+                    describe('Can add in series: %s', subset)
                 elif k in ('C', 'Y'):
-                    print('Can combine: %s' % subset)
+                    describe('Can combine in series: %s', subset)
                 else:
                     raise RuntimeError('Internal error')
 
         return net, False        
 
-    def _simplify_parallel(self, cptnames=None):
+    def _simplify_parallel(self, cptnames=None, explain=False):
 
+        def describe(string, subset):
+            if explain:
+                print(string, subset)
+        
         net = self.copy()
 
         for aset in net.in_parallel():
             subsets = net._find_combine_subsets(aset)
             for k, subset in subsets.items():
                 if k == 'V':
-                    print('Netlist has voltage sources in parallel: %s' % subset)
+                    describe('Netlist has voltage sources in parallel: %s', subset)
                 elif k in ('R', 'L', 'Z'):
-                    print('Can combine: %s' % subset)
+                    describe('Can combine in parallel: %s', subset)
                 elif k in ('C', 'Y', 'I'):
-                    print('Can add: %s' % subset)
+                    describe('Can add in parallel: %s', subset)
                 else:
                     raise RuntimeError('Internal error')
 
         return net, False        
 
-    def simplify_series(self, cptnames=None):
+    def simplify_series(self, cptnames=None, explain=False):
 
-        net, changed = self._simplify_series(cptnames)
+        net, changed = self._simplify_series(cptnames, explain)
         return net
 
-    def simplify_parallel(self, cptnames=None):
+    def simplify_parallel(self, cptnames=None, explain=False):
 
-        net, changed = self._simplify_parallel(cptnames)
+        net, changed = self._simplify_parallel(cptnames, explain)
         return net                
 
-    def simplify(self, cptnames=None, passes=0, series=True, parallel=True):
+    def simplify(self, cptnames=None, passes=0, series=True, parallel=True, explain=False):
 
         # Perhaps use num cpts?
         if passes == 0:
-            passes = 10
+            passes = 10                
 
         net = self
         for m in range(passes):
 
-            net, series_changed = net._simplify_series(cptnames)
-            net, parallel_changed = net._simplify_parallel(cptnames)
+            net, series_changed = net._simplify_series(cptnames, explain)
+            net, parallel_changed = net._simplify_parallel(cptnames, explain)
             if not series_changed and not parallel_changed:
                 break
         return net
