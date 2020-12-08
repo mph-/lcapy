@@ -9,9 +9,6 @@ Copyright 2019--2020 Michael Hayes, UCECE
 from matplotlib.pyplot import subplots, savefig
 import networkx as nx
 
-# TODO: use multigraph and when looking for loops, convert to digraph
-# using dummy nodes if parallel edges detected.
-
 
 # V1 1 0 {u(t)}; down
 # R1 1 2; right=2
@@ -21,24 +18,16 @@ import networkx as nx
 # W 2 6; up
 # C1 5 6; right=2
 
-class CircuitGraph(nx.MultiGraph):
-    """
-
-    >>> c = Circuit('circuit.sch')
-    >>> g = CircuitGraph(c)
-    >>> nodes = g.nodes
-    >>> edges = g.edges
-    >>> edges_with_data = g.edges(data=True)
-    >>> components = g.components
-
-    """
+class CircuitGraph(nx.Graph):
 
     def __init__(self, cct):
 
         super(CircuitGraph, self).__init__()
         self.cct = cct
-        self._DG = None
-        
+        self.dummy = 0
+        # Dummy nodes are used to avoid parallel edges.
+        self.dummy_nodes = {}
+
         self.add_nodes_from(cct.node_list)
 
         node_map = cct.node_map
@@ -50,7 +39,17 @@ class CircuitGraph(nx.MultiGraph):
 
             nodename1 = node_map[elt.nodenames[0]]
             nodename2 = node_map[elt.nodenames[1]]
-            self.add_edge(nodename1, nodename2, name=name)            
+            
+            if self.has_edge(nodename1, nodename2):
+                # Add dummy node in graph to avoid parallel edges.
+                dummynode = '*%d' % self.dummy
+                dummycpt = 'W%d' % self.dummy                
+                self.add_edge(nodename1, dummynode, name=name)
+                self.add_edge(dummynode, nodename2, name=dummycpt)
+                self.dummy_nodes[dummynode] = nodename2
+                self.dummy += 1
+            else:
+                self.add_edge(nodename1, nodename2, name=name)
 
         self.node_map = node_map
 
@@ -67,55 +66,11 @@ class CircuitGraph(nx.MultiGraph):
                 if not edge.startswith('W'):
                     elt = self.cct.elements[edge]
                     yield elt
-
-    @property
-    def DG(self):
-
-        if self._DG is not None:
-            return self._DG
-
-        dummy = 0
-        # Dummy nodes are used to avoid parallel edges.
-        dummy_nodes = {}
-
-        cct = self.cct
-        
-        # This has forward and backward edges.
-        DG = nx.DiGraph()
-
-        DG.add_nodes_from(cct.node_list)
-
-        node_map = cct.node_map
-
-        for name in cct.branch_list:
-            elt = cct.elements[name]
-            if len(elt.nodenames) < 2:
-                continue
-
-            nodename1 = node_map[elt.nodenames[0]]
-            nodename2 = node_map[elt.nodenames[1]]
             
-            if DG.has_edge(nodename1, nodename2):
-                # Add dummy node in graph to avoid parallel edges.
-                dummynode = '*%d' % dummy
-                dummycpt = 'W%d' % dummy                
-                DG.add_edge(nodename1, dummynode, name=name)
-                DG.add_edge(dummynode, nodename1, name=name)                
-                DG.add_edge(dummynode, nodename2, name=dummycpt)
-                DG.add_edge(nodename2, dummynode, name=dummycpt)                
-                dummy_nodes[dummynode] = nodename2
-                dummy += 1
-            else:
-                DG.add_edge(nodename1, nodename2, name=name)
-                DG.add_edge(nodename2, nodename1, name=name)                
-
-        self._DG = DG
-        return DG
-        
     def all_loops(self):
 
-        DG = self.DG
-
+        # This adds forward and backward edges.
+        DG = nx.DiGraph(self)
         cycles = list(nx.simple_cycles(DG))
 
         loops = []
@@ -132,6 +87,8 @@ class CircuitGraph(nx.MultiGraph):
         loops = self.all_loops()
         sets = [set(loop) for loop in loops]
 
+        DG = nx.DiGraph(self)
+        
         rejects = []
         for i in range(len(sets)):
 
@@ -226,8 +183,6 @@ class CircuitGraph(nx.MultiGraph):
 
         return cloops
     
-# neighbors(node) gives neighbouring nodes
-
     @property
     def components(self):
         """Return list of component names."""
@@ -259,7 +214,7 @@ class CircuitGraph(nx.MultiGraph):
         if remove_wires:
             series = [cpt for cpt in series if not cpt.startswith('W')]
         
-        return series
+        return set(series)
 
     def series_wires(self, cpt_name):
         """Return list of wire in series with cpt including itself."""        
@@ -268,8 +223,7 @@ class CircuitGraph(nx.MultiGraph):
         elt = cct.elements[cpt_name]
         nodenames = [cct.node_map[nodename] for nodename in elt.nodenames]
 
-        series = []
-        series.append(cpt_name)        
+        series = [cpt_name]
 
         def follow(node):
             neighbours = self[node]
@@ -283,7 +237,7 @@ class CircuitGraph(nx.MultiGraph):
         follow(nodenames[0])
         follow(nodenames[1])        
         
-        return series    
+        return set(series)
     
     def parallel(self, cpt_name):
         """Return list of component names in parallel with cpt including itself."""        
@@ -293,7 +247,45 @@ class CircuitGraph(nx.MultiGraph):
         nodenames = [cct.node_map[nodename] for nodename in elt.nodenames]
 
         n1, n2 = nodenames[0:2]
-        edges = self.get_edge_data(n1, n2)
-        parallel = [d['name'] for k, d in edges.items()]
 
-        return parallel
+        # This is trivial for a multigraph but a mutigraph adds additional problems
+        # since component() will fail if have multiple edges between the same nodes.
+        # edges = self.get_edge_data(n1, n2)
+        # parallel = [d['name'] for k, d in edges.items()]
+
+        parallel = [cpt_name]
+
+        neighbours1 = self[n1]
+        neighbours2 = self[n2]
+
+        # The first created parallel component has no dummy nodes.
+        try:
+            name = self.get_edge_data(n1, n2)['name']
+            parallel.append(name)
+        except:
+            pass
+            
+        # If find a dummy node name then there is a parallel component.
+        
+        for n, e in neighbours1.items():
+            if n.startswith('*'):
+                for n3, e3 in self[n].items():
+                    if n3 == n2 and not e['name'].startswith('W'):
+                        parallel.append(e['name'])
+        for n, e in neighbours2.items():
+            if n.startswith('*'):
+                for n3, e3 in self[n].items():
+                    if n3 == n1 and not e['name'].startswith('W'):
+                        parallel.append(e['name'])
+
+        if n1.startswith('*'):
+            for n3, e3 in self[n1].items():
+                if n3 == n2 and not e['name'].startswith('W'):
+                    parallel.append(e['name'])
+        if n2.startswith('*'):
+            for n3, e3 in self[n2].items():
+                if n3 == n1 and not e['name'].startswith('W'):
+                    parallel.append(e['name'])                                            
+        
+        return set(parallel)
+

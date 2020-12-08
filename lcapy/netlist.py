@@ -26,6 +26,7 @@ from .impedance import Impedance
 from .admittance import Admittance
 from .matrix import Matrix
 from .node import Node
+from .mnacpts import Cpt
 from . import mnacpts
 from copy import copy
 from collections import OrderedDict
@@ -1190,6 +1191,143 @@ class NetlistMixin(object):
 
         return self._noisy(resistors)
 
+    @property
+    def G(self):
+        """Generate graph for this netlist."""        
+
+        from .circuitgraph import CircuitGraph
+        
+        if hasattr(self, '_G'):
+            return self._G
+
+        self._G = CircuitGraph(self)
+        return self._G
+    
+    def _potential_combine_names(self):
+
+        names = []
+        for name, elt in self.elements.items():
+            if elt.type in ('V', 'I', 'R', 'C', 'L'):
+                names.append(name)
+        return names
+
+    def _parallel_all(self):
+
+        names = self._potential_combine_names()
+        lists = []
+        while names != []:
+            name = names[0]
+            parallel = self._parallel_names(name)
+            if len(parallel) > 1:
+                lists.append(parallel)
+            for name in parallel:
+                try:
+                    names.remove(name)
+                except:
+                    pass
+        return lists
+
+    def _series_all(self):
+
+        names = self._potential_combine_names()
+        lists = []
+        while names != []:
+            name = names[0]
+            series = self._series_names(name)
+            if len(series) > 1:            
+                lists.append(series)
+            for name in series:
+                try:
+                    names.remove(name)
+                except:
+                    pass                
+        return lists    
+
+    def _parallel_names(self, cpt=None):
+
+        if isinstance(cpt, Cpt):
+            cpt = cpt.name
+
+        return self.G.parallel(cpt)
+
+    def _series_names(self, cpt=None):
+
+        if isinstance(cpt, Cpt):
+            cpt = cpt.name
+
+        return self.G.series(cpt)
+        
+    def parallel(self, cpt=None):
+        """Return set of cpts in parallel with specified cpt.  If no cpt
+        specified, return list of sets of parallel cpts."""
+
+        if cpt is None:
+            return self._parallel_all()
+        
+        names = self._parallel_names(cpt)
+        if len(names) < 2:
+            return set()
+        return names
+    
+    def series(self, cpt=None):
+        """Return set of cpts in series with specified cpt.   If no cpt
+        specified, return list of sets of series cpts."""
+
+        if cpt is None:
+            return self._series_all()
+
+        names = self._series_names(cpt)
+        if len(names) < 2:
+            return set()
+        return names        
+    
+    def _simplify_serial(self, cptnames=None):
+
+        net = self.copy()
+
+        serial = net.G.serial()
+        if len(serial) < 2:
+            return net, False
+
+        cpts = [self.elements[name] for name in serial]
+
+        return net, False        
+
+    def _simplify_parallel(self, cptnames=None):
+
+        net = self.copy()
+
+        parallel = net.G.parallel()
+        if len(parallel) < 2:
+            return net, False
+
+        return net, False        
+
+    def simplify_serial(self, cptnames=None):
+
+        net, changed = self._simplify_serial(cptnames)
+        return net
+
+    def simplify_parallel(self, cptnames=None):
+
+        net, changed = self._simplify_parallel(cptnames)
+        return net                
+
+    def simplify(self, cptnames=None, passes=0, serial=True, parallel=True):
+
+        # Perhaps use num cpts?
+        if passes == 0:
+            passes = 10
+
+        net = self
+        for m in range(passes):
+
+            net, series_changed = net._simplify_series(cptnames)
+            net, parallel_changed = net._simplify_parallel(cptnames)
+            if not series_changed and not parallel_changed:
+                break
+        return net
+
     def twoport(self, N1p, N1m, N2p, N2m, model='B'):
         """Create s-domain twoport model for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
@@ -1694,7 +1832,7 @@ class Netlist(NetlistMixin, NetfileMixin):
     def _invalidate(self):
 
         for attr in ('_sch', '_sub', '_Vdict', '_Idict', '_analysis',
-                     '_node_map', '_ss', '_node_list', '_branch_list'):
+                     '_node_map', '_ss', '_node_list', '_branch_list', '_G'):
             try:
                 delattr(self, attr)
             except:

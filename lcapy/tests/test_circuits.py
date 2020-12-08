@@ -579,4 +579,31 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(expr(Z[0, 1]), expr('R2'), "Z12")                
         self.assertEqual(expr(Z[1, 0]), expr('R2'), "Z21")
         self.assertEqual(expr(Z[1, 1]), expr('R1 + R2'), "Z22")
+
+    def test_series(self):
+
+        a = Circuit("""
+        V 1 0 dc
+        R1 1 2
+        R2 2 3
+        R3 3 0
+        R4 3 4
+        R5 4 0""")
+
+        self.assertEqual(a.series('R1'), set(('V', 'R1', 'R2')), "series(R1)")
+        self.assertEqual(a.series('R3'), set(), "series(R3)")
+        self.assertEqual(a.series('R4'), set(('R4', 'R5')), "series(R4)")                
+
+    def test_parallel(self):
         
+        a = Circuit("""
+        V 1 0 dc
+        R1 1 0
+        R2 1 0
+        R3 1 2
+        R4 2 0
+        R5 2 0""")
+
+        self.assertEqual(a.parallel('R1'), set(('V', 'R1', 'R2')), "parallel(R1)")
+        self.assertEqual(a.parallel('R3'), set(), "parallel(R3)")
+        self.assertEqual(a.parallel('R4'), set(('R4', 'R5')), "parallel(R4)")                        
