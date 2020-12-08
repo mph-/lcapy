@@ -19,7 +19,7 @@ from .mna import MNAMixin, Nodedict, Branchdict
 from .statespace import StateSpace
 from .simulator import Simulator
 from .netfile import NetfileMixin
-from .expr import Expr
+from .expr import Expr, expr
 from .state import state
 from .attrdict import AttrDict
 from .impedance import Impedance
@@ -1298,51 +1298,90 @@ class NetlistMixin(object):
         names = self._in_series_names(cpt)
         if len(names) < 2:
             return set()
-        return names        
+        return names
+
+    def _do_simplify(self, string, subset, net, explain=False, add=False, explain=False):
+
+        if explain:
+            print(string % subset)
+            return False
+
+        if add:
+            total = expr(0)
+            for name in subset:
+                total += expr(self.elements[name].cpt.args[0])
+        else:
+            total = expr(0)
+            for name in subset:
+                total += (1 / expr(self.elements[name].cpt.args[0]))
+            total = 1 / total
+
+        if explain:
+            print('%s combined value = %s' % (subset, total))
+            
+        return False        
+
+    def _check_ic(self, subset):
+
+        subset = subset.copy()
+        name = subset.pop()
+        has_ic = self.elements[name].has_ic
+
+        for name1 in subset:
+            if self.elements[name1].has_ic != has_ic:
+                print('Incompatible initial conditions for %s and %s' % (name, name1))
+        if not has_ic:
+            return
+        ic = self.elements[name].cpt.args[1]
+        for name1 in subset:
+            if self.elements[name1].cpt.args[1] != ic:
+                print('Incompatible initial conditions for %s and %s' % (name, name1))        
     
     def _simplify_series(self, cptnames=None, explain=False):
 
-        def describe(string, subset):
-            if explain:
-                print(string % subset)
-        
         net = self.copy()
+        changed = False
 
         for aset in net.in_series():
             subsets = net._find_combine_subsets(aset)
             for k, subset in subsets.items():
                 if k == 'I':
-                    describe('Netlist has current sources in series: %s', subset)
+                    print('Netlist has current sources in series: %s' % subset)
                 elif k in ('R', 'L', 'V', 'Z'):
-                    describe('Can add in series: %s', subset)
+                    if k == 'L':
+                        self._check_ic(subset)                    
+                    changed |= self._do_simplify('Can add in series: %s',
+                                                 subset, net, explain, True)
                 elif k in ('C', 'Y'):
-                    describe('Can combine in series: %s', subset)
+                    changed |= self._do_simplify('Can combine in series: %s',
+                                                 subset, net, explain, False)
                 else:
                     raise RuntimeError('Internal error')
 
-        return net, False        
+        return net, changed
 
     def _simplify_parallel(self, cptnames=None, explain=False):
 
-        def describe(string, subset):
-            if explain:
-                print(string, subset)
-        
         net = self.copy()
+        changed = False        
 
         for aset in net.in_parallel():
             subsets = net._find_combine_subsets(aset)
             for k, subset in subsets.items():
                 if k == 'V':
-                    describe('Netlist has voltage sources in parallel: %s', subset)
+                    print('Netlist has voltage sources in parallel: %s'%  subset)
                 elif k in ('R', 'L', 'Z'):
-                    describe('Can combine in parallel: %s', subset)
+                    changed |= self._do_simplify('Can combine in parallel: %s',
+                                                 subset, net, explain, False)
                 elif k in ('C', 'Y', 'I'):
-                    describe('Can add in parallel: %s', subset)
+                    if k == 'C':
+                        self._check_ic(subset)
+                    changed |= self._do_simplify('Can add in parallel: %s',
+                                                 subset, net, explain, True)
                 else:
                     raise RuntimeError('Internal error')
 
-        return net, False        
+        return net, changed
 
     def simplify_series(self, cptnames=None, explain=False):
 
