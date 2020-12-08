@@ -1207,9 +1207,27 @@ class NetlistMixin(object):
 
         names = []
         for name, elt in self.elements.items():
-            if elt.type in ('V', 'I', 'R', 'C', 'L'):
+            if elt.type in ('V', 'I', 'R', 'C', 'L', 'Y', 'Z'):
                 names.append(name)
         return names
+
+    def _find_combine_subsets(self, aset):
+        """Return dict of subsets of component names where each subset has the
+        same component type."""
+
+        subsets = {}
+        while aset != set():
+            name = aset.pop()
+            aset.add(name)
+            
+            subset = set()
+            for name1 in aset:
+                if name[0] == name1[0]:
+                    subset.add(name1)
+            aset -= subset
+            if len(subset) > 1:
+                subsets[name[0]] = subset
+        return subsets
 
     def _in_parallel_all(self):
 
@@ -1258,6 +1276,7 @@ class NetlistMixin(object):
         return self.G.in_series(cpt)
         
     def in_parallel(self, cpt=None):
+
         """Return set of cpts in parallel with specified cpt.  If no cpt
         specified, return list of sets of parallel cpts."""
 
@@ -1285,23 +1304,36 @@ class NetlistMixin(object):
 
         net = self.copy()
 
-        series = net.G.in_series()
-        if len(series) < 2:
-            return net, False
+        for aset in net.in_series():
+            subsets = net._find_combine_subsets(aset)
+            for k, subset in subsets.items():
+                if k == 'I':
+                    print('Netlist has current sources in series: %s' % subset)
+                elif k in ('R', 'L', 'V', 'Z'):
+                    print('Can add: %s' % subset)
+                elif k in ('C', 'Y'):
+                    print('Can combine: %s' % subset)
+                else:
+                    raise RuntimeError('Internal error')
 
-        cpts = [self.elements[name] for name in series]
-        # TODO
         return net, False        
 
     def _simplify_parallel(self, cptnames=None):
 
         net = self.copy()
 
-        parallel = net.G.in_parallel()
-        if len(parallel) < 2:
-            return net, False
+        for aset in net.in_parallel():
+            subsets = net._find_combine_subsets(aset)
+            for k, subset in subsets.items():
+                if k == 'V':
+                    print('Netlist has voltage sources in parallel: %s' % subset)
+                elif k in ('R', 'L', 'Z'):
+                    print('Can combine: %s' % subset)
+                elif k in ('C', 'Y', 'I'):
+                    print('Can add: %s' % subset)
+                else:
+                    raise RuntimeError('Internal error')
 
-        # TODO        
         return net, False        
 
     def simplify_series(self, cptnames=None):
