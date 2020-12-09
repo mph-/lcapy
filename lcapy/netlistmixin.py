@@ -18,7 +18,12 @@ from .symbols import j, s, omega
 from .attrdict import AttrDict
 from .netfile import NetfileMixin
 from .statespace import StateSpace
+from .voltage import Vname
+from .current import Iname
+from .simulator import Simulator
 from .netlistnamespace import NetlistNamespace
+from .matrix import Matrix
+
 from . import mnacpts
 from collections import OrderedDict
 
@@ -166,6 +171,7 @@ class NetlistMixin(object):
     def _new(self):
 
         from .circuit import Circuit
+        from .netlist import Netlist
         
         # TODO.  Copy or share?
         context = self.context

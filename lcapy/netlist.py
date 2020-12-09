@@ -12,14 +12,12 @@ Copyright 2014--2020 Michael Hayes, UCECE
 # TODO: This needs an overhaul to untangle the classes.
 
 from __future__ import division
-from .voltage import Voltage, Vname
+from .voltage import Voltage
 from .current import Current, Iname
 from .schematic import Schematic
-from .simulator import Simulator
 from .netlistmixin import NetlistMixin
 from .netfile import NetfileMixin
 from .expr import Expr, expr
-from .matrix import Matrix
 from .subnetlist import SubNetlist
 from .mna import MNAMixin, Nodedict, Branchdict
 from .symbols import omega
