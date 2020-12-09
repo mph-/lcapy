@@ -1334,7 +1334,8 @@ class NetlistMixin(object):
         if explain:
             return False
 
-        # TODO: choose new component name or reuse old name?
+        # TODO: choose new component name or reuse old name?   The latter
+        # option should be less confusing.
         
         net1 = elt._new_value(total, ic)
         elt = self._parse(net1)
@@ -1352,7 +1353,7 @@ class NetlistMixin(object):
             elt = self._parse(net1)
             net.elements[name1] = elt
                 
-        return False        
+        return True
 
     def _check_ic(self, subset):
 
@@ -1381,7 +1382,7 @@ class NetlistMixin(object):
         newelements = OrderedDict()
         for k, v in self.elements.items():
             newelements[v.name] = v
-        self.elements = newelements
+        self._elements = newelements
     
     def _simplify_series(self, cptnames=None, explain=False):
 
@@ -1431,6 +1432,7 @@ class NetlistMixin(object):
                     raise RuntimeError('Internal error')
                 
         if changed:
+            # TODO, remove dangling wires connected to the removed components.
             net._fixup()
                 
         return net, changed
