@@ -189,8 +189,8 @@ class CircuitGraph(nx.Graph):
 
         return [d['name'] for n1, n2, d in self.edges(data=True)]
 
-    def in_series(self, cpt_name, remove_wires=False):
-        """Return list of component names in series with cpt including itself."""        
+    def in_series(self, cpt_name):
+        """Return set of component names in series with cpt including itself."""        
 
         cct = self.cct
         elt = cct.elements[cpt_name]
@@ -211,36 +211,17 @@ class CircuitGraph(nx.Graph):
         follow(nodenames[0])
         follow(nodenames[1])        
 
-        if remove_wires:
-            series = [cpt for cpt in series if not cpt.startswith('W')]
-        
+        # If only have two components in parallel, they will be
+        # detected as a series connection.  However, if there is a
+        # dummy wire, the components are in parallel.
+        for name in series:
+            if name.startswith('W'):
+                return set((cpt_name, ))
+
         return set(series)
 
-    def in_series_wires(self, cpt_name):
-        """Return list of wire in series with cpt including itself."""        
-
-        cct = self.cct
-        elt = cct.elements[cpt_name]
-        nodenames = [cct.node_map[nodename] for nodename in elt.nodenames]
-
-        series = [cpt_name]
-
-        def follow(node):
-            neighbours = self[node]
-            if len(neighbours) > 2:
-                return
-            for n, e in neighbours.items():
-                if not e['name'] in series and e['name'].startswith('W'):
-                    series.append(e['name'])
-                    follow(n)
-
-        follow(nodenames[0])
-        follow(nodenames[1])        
-        
-        return set(series)
-    
     def in_parallel(self, cpt_name):
-        """Return list of component names in parallel with cpt including itself."""        
+        """Return set of component names in parallel with cpt including itself."""        
 
         cct = self.cct
         elt = cct.elements[cpt_name]
