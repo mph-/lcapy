@@ -582,6 +582,21 @@ The properties of each sub-circuit can be found with the `analysis` attribute:
    'time_domain': False,
    'zeroic': True}
 
+   
+Simplification
+==============
+
+Netlists have simplification methods : `simplify_series()`,
+`simplify_parallel()`, and `simplify()`, The latter is a generic
+method; it repeatedly calls `simplify_series()` and
+`simplify_parallel()` until no changes can be made.  The number of
+iterations is controlled by the `passes` argument.
+
+Each of the netlist simplification methods have an `explain` argument,
+If this is `True`, the simplification steps are printed.  There is
+also a `modiy` argument.  If this is `False`, the modifications are
+not performed.
+
 
 Netlist analysis examples
 =========================
