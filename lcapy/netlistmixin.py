@@ -1,4 +1,5 @@
-"""This module provides the NetlistMixin class.
+"""This module provides the NetlistMixin class.  This is used for
+Netlist and SubNetlist.
 
 Copyright 2020 Michael Hayes, UCECE
 
@@ -16,6 +17,7 @@ from .symbols import j, s, omega
 from .attrdict import AttrDict
 from .netfile import NetfileMixin
 from .statespace import StateSpace
+from .netlistnamespace import NetlistNamespace
 from . import mnacpts
 from collections import OrderedDict
 

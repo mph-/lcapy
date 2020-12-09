@@ -103,6 +103,10 @@ an answer that appears valid for DC.
 
 23. Compatibility with PySpice
 
+24. Untangle Netlist stuff
+
+25. Test NetlistNamespace
+
 
 Testing
 =======

@@ -1,9 +1,17 @@
+"""This module provides the NetfileMixin class.  This is used for
+Netlist and Schematic to parse a netlist file.
+
+Copyright 2020 Michael Hayes, UCECE
+
+"""
+
 from . import grammar
 from .parser import Parser
 from .state import state
 from os.path import dirname, join
 
 class NetfileMixin(object):
+    """This parses netlist files for Netlist and Schematic."""
 
     def _init_parser(self, cpts, allow_anon=False):
         self.parser = Parser(cpts, grammar, allow_anon)
@@ -55,6 +63,11 @@ class NetfileMixin(object):
 
         A positive current is defined to flow from the positive node
         to the negative node.
+
+        This strips leading ...
+
+        `.include filename` will load and parse the specified filename
+        `.pdb` enters the debugger
         """
 
         if string.startswith('...'):

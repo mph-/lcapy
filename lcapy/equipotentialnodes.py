@@ -1,3 +1,10 @@
+"""This module provides the EquipotentialNodes class.  This is used to
+find nodes connected by wires.
+
+Copyright 2020 Michael Hayes, UCECE
+
+"""
+
 class EquipotentialNodes(dict):
 
     def add(self, nodenames):
