@@ -260,6 +260,14 @@ class Cpt(ImmittanceMixin):
         """Select domain kind for component."""
         raise ValueError('Component not a source: %s' % self)    
 
+    def _new_value(self, value, ic=None):
+
+        args = (value, )
+        if ic is not None:
+            args = (value, ic)
+        
+        return self._netmake(args=args)
+    
     def _zero(self):
         """Zero value of the voltage source.  This kills it but keeps it as a
         voltage source in the netlist.  This is required for dummy

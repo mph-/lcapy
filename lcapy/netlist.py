@@ -344,7 +344,7 @@ class NetlistMixin(object):
         
         # TODO.  Copy or share?
         context = self.context
-        if self.__class__ == 'Circuit':
+        if self.__class__ == Circuit:
             return Circuit(context=context)
         # If have OnePort, Network, etc., treat as Netlist
         return Netlist(context=context)
@@ -1300,29 +1300,33 @@ class NetlistMixin(object):
             return set()
         return names
 
-    def _do_simplify(self, string, subset, net, explain=False, add=False):
+    def _do_simplify(self, string, subset, net, explain=False, add=False, series=False):
 
         if explain:
             print(string % subset)
 
+        subset_list = list(subset)
+            
         if add:
             total = expr(0)
-            for name in subset:
+            for name in subset_list:
                 total += expr(self.elements[name].cpt.args[0])
         else:
             total = expr(0)
-            for name in subset:
+            for name in subset_list:
                 total += (1 / expr(self.elements[name].cpt.args[0]))
             total = 1 / total
 
         if explain:
             print('%s combined value = %s' % (subset, total))
 
-        name = list(subset)[0]
-        if self.elements[name].cpt.has_ic:
+        ic = None
+        name = subset_list[0]
+        elt = self.elements[name]
+        if elt.cpt.has_ic:
             ic = expr(0)
-            for name in subset:
-                ic += expr(self.elements[name].cpt.args[1])
+            for name1 in subset_list:
+                ic += expr(self.elements[name1].cpt.args[1])
 
             if explain:
                 print('%s combined IC = %s' % (subset, ic))                
@@ -1330,7 +1334,23 @@ class NetlistMixin(object):
         if explain:
             return False
 
-        # TODO, replace net and remove redundant ones.
+        # TODO: choose new component name or reuse old name?
+        
+        net1 = elt._new_value(total, ic)
+        elt = self._parse(net1)
+        # Overwrite component with one having total value.  _fixup will
+        # fix element keys later on once all simplifications are performed.
+        net.elements[name] = elt
+
+        for name1 in subset_list[1:]:
+            # Replace with wire or open-circuit.
+            if series:
+                net1 = self.elements[name1]._netmake_anon('W')
+            else:
+                net1 = self.elements[name1]._netmake_anon('O')
+            # Remove component
+            elt = self._parse(net1)
+            net.elements[name1] = elt
                 
         return False        
 
@@ -1354,6 +1374,14 @@ class NetlistMixin(object):
                 okay = False
 
         return okay
+
+    def _fixup(self):
+        """Rename keys to fix things up for removed components."""
+        
+        newelements = OrderedDict()
+        for k, v in self.elements.items():
+            newelements[v.name] = v
+        self.elements = newelements
     
     def _simplify_series(self, cptnames=None, explain=False):
 
@@ -1369,13 +1397,16 @@ class NetlistMixin(object):
                     if k == 'L' and  not self._check_ic(subset):
                         continue
                     changed |= self._do_simplify('Can add in series: %s',
-                                                 subset, net, explain, True)
+                                                 subset, net, explain, True, True)
                 elif k in ('C', 'Y'):
                     changed |= self._do_simplify('Can combine in series: %s',
-                                                 subset, net, explain, False)
+                                                 subset, net, explain, False, True)
                 else:
                     raise RuntimeError('Internal error')
 
+        if changed:
+            net._fixup()
+                
         return net, changed
 
     def _simplify_parallel(self, cptnames=None, explain=False):
@@ -1390,15 +1421,18 @@ class NetlistMixin(object):
                     print('Netlist has voltage sources in parallel: %s'%  subset)
                 elif k in ('R', 'L', 'Z'):
                     changed |= self._do_simplify('Can combine in parallel: %s',
-                                                 subset, net, explain, False)
+                                                 subset, net, explain, False, False)
                 elif k in ('C', 'Y', 'I'):
                     if k == 'C' and  not self._check_ic(subset):
                         continue                    
                     changed |= self._do_simplify('Can add in parallel: %s',
-                                                 subset, net, explain, True)
+                                                 subset, net, explain, True, False)
                 else:
                     raise RuntimeError('Internal error')
-
+                
+        if changed:
+            net._fixup()
+                
         return net, changed
 
     def simplify_series(self, cptnames=None, explain=False):
