@@ -5,6 +5,7 @@ Copyright 2020 Michael Hayes, UCECE
 
 """
 
+from .expr import expr
 from .sexpr import Hs, Zs, Ys
 from .mnacpts import Cpt
 from .impedance import Impedance
@@ -1155,8 +1156,6 @@ class NetlistMixin(object):
             if explain:
                 print('%s combined IC = %s' % (subset, ic))                
 
-        if explain:
-            return False
 
         # TODO: choose new component name or reuse old name?   The latter
         # option should be less confusing.
@@ -1261,17 +1260,22 @@ class NetlistMixin(object):
                 
         return net, changed
 
-    def simplify_series(self, cptnames=None, explain=False):
+    def simplify_series(self, cptnames=None, explain=False, modify=True):
 
         net, changed = self._simplify_series(cptnames, explain)
+        if not modify:
+            return self
         return net
 
-    def simplify_parallel(self, cptnames=None, explain=False):
+    def simplify_parallel(self, cptnames=None, explain=False, modify=True):
 
         net, changed = self._simplify_parallel(cptnames, explain)
+        if not modify:
+            return self        
         return net                
 
-    def simplify(self, cptnames=None, passes=0, series=True, parallel=True, explain=False):
+    def simplify(self, cptnames=None, passes=0, series=True,
+                 parallel=True, explain=False, modify=False):
 
         # Perhaps use num cpts?
         if passes == 0:
@@ -1284,6 +1288,9 @@ class NetlistMixin(object):
             net, parallel_changed = net._simplify_parallel(cptnames, explain)
             if not series_changed and not parallel_changed:
                 break
+        if not modify:
+            return self
+            
         return net
 
     def twoport(self, N1p, N1m, N2p, N2m, model='B'):
