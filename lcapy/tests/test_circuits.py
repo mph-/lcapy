@@ -607,3 +607,22 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.in_parallel('R1'), set(('V', 'R1', 'R2')), "in_parallel(R1)")
         self.assertEqual(a.in_parallel('R3'), set(), "in_parallel(R3)")
         self.assertEqual(a.in_parallel('R4'), set(('R4', 'R5')), "in_parallel(R4)")                        
+
+    def test_simplify(self):
+
+        a = Circuit("""
+        R1 1 2
+        R2 2 3""")
+
+        b = a.simplify()
+
+        self.assertEqual(b.impedance(1, 3), a.impedance(1, 3), "simplify series")
+
+        a = Circuit("""
+        R1 1 2
+        R2 1 2""")
+
+        b = a.simplify()
+
+        self.assertEqual(b.impedance(1, 2), a.impedance(1, 2), "simplify parallel")        
+        
