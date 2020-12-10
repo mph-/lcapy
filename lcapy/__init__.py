@@ -38,14 +38,6 @@ from .oneport import *
 from .twoport import *
 from .schematic import *
 from .expr import *
-from .cexpr import *
-from .fexpr import *
-from .sexpr import *
-from .texpr import *
-from .noiseomegaexpr import *
-from .noisefexpr import *
-from .phasor import *
-from .omegaexpr import *
 from .voltage import *
 from .current import *
 from .admittance import *
@@ -67,7 +59,10 @@ from .laplace import *
 from .nettransform import *
 from .randomnetwork import *
 from .simulator import *
-
+from .fexpr import fexpr
+from .sexpr import sexpr, zp2tf, tf, pr2tf
+from .texpr import texpr
+from .omegaexpr import omegaexpr
 
 def show_version():
     """Show versions of Lcapy, SymPy, NumPy, MatplotLib, SciPy, and Python."""
