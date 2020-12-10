@@ -1162,12 +1162,13 @@ class NetlistMixin(object):
             if explain:
                 print('%s combined IC = %s' % (subset, ic))                
 
-
-        # TODO: choose new component name or reuse old name?   The latter
-        # option should be less confusing.
-        
+        newname = self.namer(name[0], 't')                
         net1 = elt._new_value(total, ic)
+        parts = net1.split(' ', 1)
+        net1 = newname + ' ' + parts[1]
+        
         elt = self._parse(net1)
+        
         # Overwrite component with one having total value.  _fixup will
         # fix element keys later on once all simplifications are performed.
         net.elements[name] = elt
@@ -1281,7 +1282,7 @@ class NetlistMixin(object):
         return net                
 
     def simplify(self, cptnames=None, passes=0, series=True,
-                 parallel=True, explain=False, modify=False):
+                 parallel=True, explain=False, modify=True):
 
         # Perhaps use num cpts?
         if passes == 0:

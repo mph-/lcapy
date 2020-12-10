@@ -8,6 +8,7 @@ Copyright 2020 Michael Hayes, UCECE
 from . import grammar
 from .parser import Parser
 from .state import state
+from .componentnamer import ComponentNamer
 from os.path import dirname, join
 
 class NetfileMixin(object):
@@ -18,21 +19,13 @@ class NetfileMixin(object):
         # Current namespace
         self.namespace = ''
         self.subnetlists = {}
-        self._anon = {}
+        self.namer = ComponentNamer()
         self.dirname = None
 
-    def _make_id(self, kind):
-        """Make identifier"""
-
-        if kind not in self._anon:
-            self._anon[kind] = 0
-        self._anon[kind] += 1
-        return self._anon[kind]
-        
     def _make_anon(self, kind):
         """Make identifier for anonymous component"""
 
-        return 'anon' + str(self._make_id(kind))
+        return self.namer(kind, 'anon')
 
     def _include(self, string):
 
