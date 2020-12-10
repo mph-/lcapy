@@ -787,11 +787,11 @@ class R(OnePort):
 
     def i_equation(self, v, kind='t'):
 
-        return Current(Voltage(v).select(kind) / self._Z.selectexpr(kind)).select(kind)
+        return Current(Voltage(v).select(kind) / self._Z._selectexpr(kind)).select(kind)
 
     def v_equation(self, i, kind='t'):
 
-        return Voltage(Current(i).select(kind) * self._Z.selectexpr(kind)).select(kind)
+        return Voltage(Current(i).select(kind) * self._Z._selectexpr(kind)).select(kind)
     
 
 class G(OnePort):
@@ -815,11 +815,11 @@ class G(OnePort):
 
     def i_equation(self, v, kind='t'):
 
-        return Current(Voltage(v).select(kind) / self._Z.selectexpr(kind)).select(kind)
+        return Current(Voltage(v).select(kind) / self._Z._selectexpr(kind)).select(kind)
 
     def v_equation(self, i, kind='t'):
 
-        return Voltage(Current(i).select(kind) * self._Z.selectexpr(kind)).select(kind)
+        return Voltage(Current(i).select(kind) * self._Z._selectexpr(kind)).select(kind)
     
 
 class L(OnePort):
@@ -856,13 +856,13 @@ class L(OnePort):
             u = tausym
             v = expr(v).subs(t, u)
             return Current(expr(Integral(v.expr, (u, -oo, tsym))) / self.L).select(kind)
-        return Current(Voltage(v).select(kind) / self.Z.selectexpr(kind)).select(kind)
+        return Current(Voltage(v).select(kind) / self.Z._selectexpr(kind)).select(kind)
 
     def v_equation(self, i, kind='t'):
 
         if kind in ('t', 'time', 'super'):
             return Voltage(self.L * expr(Derivative(i.expr, t))).select(kind)
-        return Voltage(Current(i).select(kind) * self._Z.selectexpr(kind)).select(kind)
+        return Voltage(Current(i).select(kind) * self._Z._selectexpr(kind)).select(kind)
 
     
 class C(OnePort):
@@ -895,7 +895,7 @@ class C(OnePort):
         
         if kind in ('t', 'time', 'super'):
             return Current(self.C * expr(Derivative(v.expr, t))).select(kind)
-        return Current(Voltage(v).select(kind) / self._Z.selectexpr(kind)).select(kind)
+        return Current(Voltage(v).select(kind) / self._Z._selectexpr(kind)).select(kind)
 
     def v_equation(self, i, kind='t'):
 
@@ -905,7 +905,7 @@ class C(OnePort):
             u = tausym
             i = expr(i).subs(t, u)
             return Voltage(expr(Integral(i.expr, (u, -oo, tsym))) / self.C).select(kind)
-        return Voltage(Current(i).select(kind) * self._Z.selectexpr(kind)).select(kind)
+        return Voltage(Current(i).select(kind) * self._Z._selectexpr(kind)).select(kind)
 
 
 class CPE(OnePort):
