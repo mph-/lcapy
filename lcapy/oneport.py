@@ -39,7 +39,8 @@ from sympy import Derivative, Integral
 __all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
            'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac', 'sV', 'sI',
            'Iac', 'Vnoise', 'Inoise', 
-           'Par', 'Ser', 'Xtal', 'FerriteBead', 'CPE', 'series', 'parallel', 'ladder')
+           'Par', 'Ser', 'Xtal', 'FerriteBead', 'CPE', 'series', 'parallel',
+           'ladder')
 
 def _check_oneport_args(args):
 
