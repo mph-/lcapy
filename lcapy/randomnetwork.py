@@ -9,31 +9,31 @@ import random
 
 class RandomNetworkMaker(object):
 
-    def __init__(self, NR=3, NL=0, NC=0, NV=1, NI=0,
+    def __init__(self, num_resistors=3, num_inductors=0, num_capacitors=0, num_voltage_sources=1, num_current_sources=0,
                  Nparallel=None, kind='transient'):
         
-        self.NR = NR
-        self.NL = NL
-        self.NC = NC
-        self.NV = NV
-        self.NI = NI
+        self.num_resistors = num_resistors
+        self.num_inductors = num_inductors
+        self.num_capacitors = num_capacitors
+        self.num_voltage_sources = num_voltage_sources
+        self.num_current_sources = num_current_sources
         self.Nparallel = Nparallel
         self.kind = kind
 
         cpts = []
-        cpts.extend(self._add_cpts(R, self.NR))
-        cpts.extend(self._add_cpts(L, self.NL))
-        cpts.extend(self._add_cpts(C, self.NC))
+        cpts.extend(self._add_cpts(R, self.num_resistors))
+        cpts.extend(self._add_cpts(L, self.num_inductors))
+        cpts.extend(self._add_cpts(C, self.num_capacitors))
 
         if self.kind == 'transient':
-            cpts.extend(self._add_cpts(Vstep, self.NV))
-            cpts.extend(self._add_cpts(Istep, self.NI))
+            cpts.extend(self._add_cpts(Vstep, self.num_voltage_sources))
+            cpts.extend(self._add_cpts(Istep, self.num_current_sources))
         elif self.kind == 'dc':
-            cpts.extend(self._add_cpts(Vdc, self.NV))
-            cpts.extend(self._add_cpts(Idc, self.NI))
+            cpts.extend(self._add_cpts(Vdc, self.num_voltage_sources))
+            cpts.extend(self._add_cpts(Idc, self.num_current_sources))
         elif self.kind == 'ac':
-            cpts.extend(self._add_cpts(Vac, self.NV))
-            cpts.extend(self._add_cpts(Iac, self.NI))            
+            cpts.extend(self._add_cpts(Vac, self.num_voltage_sources))
+            cpts.extend(self._add_cpts(Iac, self.num_current_sources))            
         else:
             raise ValueError('Unknown circuit kind %s' % self.kind)
 
@@ -91,8 +91,8 @@ class RandomNetworkMaker(object):
         return cpts
 
     
-def random_network(NR=3, NL=0, NC=0, NV=1, NI=0, Nparallel=None,
+def random_network(num_resistors=3, num_inductors=0, num_capacitors=0, num_voltage_sources=1, num_current_sources=0, Nparallel=None,
                    kind='transient'):
 
-    return RandomNetworkMaker(NR=NR, NL=NL, NC=NC, NV=NV, NI=NI,
+    return RandomNetworkMaker(num_resistors=num_resistors, num_inductors=num_inductors, num_capacitors=num_capacitors, num_voltage_sources=num_voltage_sources, num_current_sources=num_current_sources,
                               Nparallel=Nparallel, kind=kind).make()

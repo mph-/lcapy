@@ -353,7 +353,7 @@ Random networks
 Networks can be randomly generated with the `random_network` function.  This is useful for automated exam question generation.   Here's an example:
 
    >>> from lcapy import random_network
-   >>> net = random_network(NR=4, NC=0, NL=0, NV=2, kind='dc')
+   >>> net = random_network(num_resistors=4, num_capacitors=0, num_inductors=0, num_voltage_sources=2, kind='dc')
 
 This example generates a DC network with four resistors, two-voltage sources, and no capacitors or inductors.   The `kind` argument can be `ac`, `dc`, or `transient`.   The number of parallel connections can be specified with the `Nparallel` argument.
 
