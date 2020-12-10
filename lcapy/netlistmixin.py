@@ -1175,9 +1175,9 @@ class NetlistMixin(object):
         for name1 in subset_list[1:]:
             # Replace with wire or open-circuit.
             if series:
-                net1 = self.elements[name1]._netmake_anon('W')
+                net1 = self.elements[name1]._netmake_W()
             else:
-                net1 = self.elements[name1]._netmake_anon('O')
+                net1 = self.elements[name1]._netmake_O()
             # Remove component
             elt = self._parse(net1)
             net.elements[name1] = elt

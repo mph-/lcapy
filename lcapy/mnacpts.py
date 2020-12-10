@@ -244,10 +244,15 @@ class Cpt(ImmittanceMixin):
         """This keeps the same cpt name"""                
         return self._netmake1(self.namespace + self.relname, nodes, args, opts)
 
-    def _netmake_W_or_O(self, newtype, nodes=None, opts=None):
-        """This is used for changing cpt name from C1 to O"""        
-        return self._netmake1(self.namespace + newtype, nodes, args=(),
+    def _netmake_W(self, nodes=None, opts=None):
+        """This is used for changing cpt name from L1 to W"""        
+        return self._netmake1(self.namespace + 'W', nodes, args=(),
                               opts=opts)
+
+    def _netmake_O(self, nodes=None, opts=None):
+        """This is used for changing cpt name from C1 to O"""        
+        return self._netmake1(self.namespace + 'O', nodes, args=(),
+                              opts=opts)    
         
     def _netmake_variant(self, newtype, nodes=None, args=None, opts=None,
                          suffix=''):
@@ -903,7 +908,7 @@ class VCVS(DependentSource):
         newopts.strip_current_labels()
         newopts.strip_labels()
 
-        return self._netmake_W_or_O('W', opts=newopts)
+        return self._netmake_W(opts=newopts)
 
     
 class CCCS(DependentSource):
@@ -926,7 +931,7 @@ class CCCS(DependentSource):
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return self._netmake_W_or_O('O', opts=newopts)
+        return self._netmake_O(opts=newopts)
 
 
 class FB(Misc):
@@ -955,7 +960,7 @@ class VCCS(DependentSource):
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return self._netmake_W_or_O('O', opts=newopts)        
+        return self._netmake_O(opts=newopts)        
 
     
 class GY(Dummy):
@@ -1027,7 +1032,7 @@ class CCVS(DependentSource):
         newopts.strip_current_labels()
         newopts.strip_labels()
 
-        return self._netmake_W_or_O('O', opts=newopts)                
+        return self._netmake_O(opts=newopts)                
 
 
 class I(IndependentSource):
@@ -1041,7 +1046,7 @@ class I(IndependentSource):
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return self._netmake_W_or_O('O', opts=newopts)                        
+        return self._netmake_O(opts=newopts)                        
 
     def _stamp(self, cct):
 
@@ -1409,7 +1414,7 @@ class V(IndependentSource):
         newopts.strip_current_labels()
         newopts.strip_labels()
 
-        return self._netmake_W_or_O('W', opts=newopts)
+        return self._netmake_W(opts=newopts)
 
     def _stamp(self, cct):
 
