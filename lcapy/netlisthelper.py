@@ -14,6 +14,10 @@ class NetlistHelper(object):
     def _make_id(self, kind):
         """Make identifier"""
 
+        # TODO, use component namer.  Perhaps the names
+        # should try to follow the value names, say when generated
+        # by the random network generator.  This will avoid confusion.
+        
         if not hasattr(self, '_anon'):
             self._anon = {}            
 

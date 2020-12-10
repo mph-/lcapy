@@ -11,7 +11,7 @@ class RandomNetworkMaker(object):
 
     def __init__(self, num_resistors=3, num_inductors=0, num_capacitors=0,
                  num_voltage_sources=1, num_current_sources=0,
-                 num_parallel=None, kind='transient'):
+                 num_parallel=None, numeric_values=False, kind='transient'):
         
         self.num_resistors = num_resistors
         self.num_inductors = num_inductors
@@ -19,6 +19,7 @@ class RandomNetworkMaker(object):
         self.num_voltage_sources = num_voltage_sources
         self.num_current_sources = num_current_sources
         self.num_parallel = num_parallel
+        self.numeric_values = numeric_values
         self.kind = kind
 
         cpts = []
@@ -62,7 +63,7 @@ class RandomNetworkMaker(object):
     def _make1(self):
 
         cpts = random.sample(self.cpts, len(self.cpts))
-        connections = random.sample(self.connections, len(self.connections))        
+        connections = random.sample(self.connections, len(self.connections))
 
         net = cpts[0]
         for cpt, connection in zip(cpts[1:], connections):
@@ -88,17 +89,24 @@ class RandomNetworkMaker(object):
 
         cpts = []
         for m in range(num):
-            cpts.append(cpt('%s%d' % (cpt.__name__[0:1], m + 1)))        
+            if self.numeric_values:
+                value = str(random.randint(1, 10))
+            else:
+                value = '%s%d' % (cpt.__name__[0:1], m + 1)
+            
+            cpts.append(cpt(value))
         return cpts
 
     
 def random_network(num_resistors=3, num_inductors=0, num_capacitors=0,
                    num_voltage_sources=1, num_current_sources=0,
-                   num_parallel=None, kind='transient'):
+                   num_parallel=None, numeric_values=False, kind='transient'):
 
     return RandomNetworkMaker(num_resistors=num_resistors,
                               num_inductors=num_inductors,
                               num_capacitors=num_capacitors,
                               num_voltage_sources=num_voltage_sources,
                               num_current_sources=num_current_sources,
-                              num_parallel=num_parallel, kind=kind).make()
+                              num_parallel=num_parallel,
+                              numeric_values=numeric_values,
+                              kind=kind).make()
