@@ -1,3 +1,10 @@
+"""This module provides the LadderMaker class for generating
+a netlist with a ladder structure from a network.
+
+Copyright 2020 Michael Hayes, UCECE
+
+"""
+
 import numpy as np
 from .oneport import Ser, Par
 from .netlisthelper import NetlistHelper

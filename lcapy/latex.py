@@ -1,3 +1,11 @@
+"""This module provides the Latex class for formatting
+values and labels.
+
+Copyright 2020 Michael Hayes, UCECE
+
+"""
+
+
 import re
 from .config import subscripts
 

@@ -1,3 +1,10 @@
+"""This module provides the CausalChecker, ACChecker, and DCChecker
+classes as used by the is_causal, is_ac, and is_dc functions.
+
+Copyright 2020 Michael Hayes, UCECE
+
+"""
+
 from .sym import sympify1
 from .functions import UnitImpulse, UnitStep
 import sympy as sym

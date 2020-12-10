@@ -1,3 +1,10 @@
+"""This module provides the NetlistMaker class for generating
+horizontal or vertical netlists from a network.
+
+Copyright 2020 Michael Hayes, UCECE
+
+"""
+
 from .netlisthelper import NetlistHelper
 
 class NetlistMaker(NetlistHelper):

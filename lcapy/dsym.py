@@ -1,3 +1,9 @@
+"""This module defines discrete-time symbols.
+
+Copyright 2020 Michael Hayes, UCECE
+
+"""
+
 from .sym import symsymbol
 
 nsym = symsymbol('n', real=True)
