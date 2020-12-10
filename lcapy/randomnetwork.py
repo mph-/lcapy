@@ -11,14 +11,14 @@ class RandomNetworkMaker(object):
 
     def __init__(self, num_resistors=3, num_inductors=0, num_capacitors=0,
                  num_voltage_sources=1, num_current_sources=0,
-                 Nparallel=None, kind='transient'):
+                 num_parallel=None, kind='transient'):
         
         self.num_resistors = num_resistors
         self.num_inductors = num_inductors
         self.num_capacitors = num_capacitors
         self.num_voltage_sources = num_voltage_sources
         self.num_current_sources = num_current_sources
-        self.Nparallel = Nparallel
+        self.num_parallel = num_parallel
         self.kind = kind
 
         cpts = []
@@ -39,19 +39,19 @@ class RandomNetworkMaker(object):
             raise ValueError('Unknown circuit kind %s' % self.kind)
 
         self.cpts = cpts
-        self.Nparallel = Nparallel
+        self.num_parallel = num_parallel
 
         self.connections = self._choose_connections()
 
     def _choose_connections(self):
         Nconnections = len(self.cpts) - 1
         
-        if self.Nparallel is None:
+        if self.num_parallel is None:
             connections = random.choices((True, False), k=Nconnections)
         else:
-            Nparallel = min(self.Nparallel, Nconnections)
-            Nseries = Nconnections - Nparallel
-            connections = [True] * Nparallel + [False] * Nseries
+            num_parallel = min(self.num_parallel, Nconnections)
+            Nseries = Nconnections - num_parallel
+            connections = [True] * num_parallel + [False] * Nseries
 
         return connections
 
@@ -92,8 +92,13 @@ class RandomNetworkMaker(object):
         return cpts
 
     
-def random_network(num_resistors=3, num_inductors=0, num_capacitors=0, num_voltage_sources=1, num_current_sources=0, Nparallel=None,
-                   kind='transient'):
+def random_network(num_resistors=3, num_inductors=0, num_capacitors=0,
+                   num_voltage_sources=1, num_current_sources=0,
+                   num_parallel=None, kind='transient'):
 
-    return RandomNetworkMaker(num_resistors=num_resistors, num_inductors=num_inductors, num_capacitors=num_capacitors, num_voltage_sources=num_voltage_sources, num_current_sources=num_current_sources,
-                              Nparallel=Nparallel, kind=kind).make()
+    return RandomNetworkMaker(num_resistors=num_resistors,
+                              num_inductors=num_inductors,
+                              num_capacitors=num_capacitors,
+                              num_voltage_sources=num_voltage_sources,
+                              num_current_sources=num_current_sources,
+                              num_parallel=num_parallel, kind=kind).make()
