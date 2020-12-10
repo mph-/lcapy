@@ -9,7 +9,8 @@ import random
 
 class RandomNetworkMaker(object):
 
-    def __init__(self, num_resistors=3, num_inductors=0, num_capacitors=0, num_voltage_sources=1, num_current_sources=0,
+    def __init__(self, num_resistors=3, num_inductors=0, num_capacitors=0,
+                 num_voltage_sources=1, num_current_sources=0,
                  Nparallel=None, kind='transient'):
         
         self.num_resistors = num_resistors
