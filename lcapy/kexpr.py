@@ -1,5 +1,5 @@
-"""This module provides the kExpr class to represent k-domain (discrete Fourier
-domain) expressions.
+"""This module provides the DiscreteFourierDomainExpression class to represent k-domain
+ (discrete Fourier domain) expressions.
 
 Copyright 2020 Michael Hayes, UCECE
 
@@ -9,13 +9,13 @@ from __future__ import division
 from .fourier import inverse_fourier_transform
 from .functions import exp
 from .sym import j, oo, pi
-from .seqexpr import seqExpr
+from .seqexpr import SequenceExpression
 from .dsym import nsym, ksym, zsym
 from .dft import IDFT
 from sympy import Sum
 
 
-class kExpr(seqExpr):
+class DiscreteFourierDomainExpression(SequenceExpression):
 
     """Discrete Fourier domain expression or symbol."""
 
@@ -26,7 +26,7 @@ class kExpr(seqExpr):
     def __init__(self, val, **assumptions):
 
         check = assumptions.pop('check', True)
-        super(kExpr, self).__init__(val, **assumptions)
+        super(DiscreteFourierDomainExpression, self).__init__(val, **assumptions)
         # Define when class defined.
         self._discrete_fourier_conjugate_class = nexpr
 
@@ -85,7 +85,7 @@ class kExpr(seqExpr):
         if hasattr(self, '_discrete_fourier_conjugate_class'):
             result = self._discrete_fourier_conjugate_class(result)
         else:
-            result = nExpr(result, check=False)
+            result = DiscreteTimeDomainExpression(result, check=False)
             
         return result
     
@@ -93,7 +93,7 @@ class kExpr(seqExpr):
         return self.IDFT().ZT(**assumptions)
 
     
-class Yk(kExpr):
+class Yk(DiscreteFourierDomainExpression):
 
     """f-domain admittance"""
 
@@ -106,7 +106,7 @@ class Yk(kExpr):
         self._discrete_fourier_conjugate_class = Yn
 
 
-class Zk(kExpr):
+class Zk(DiscreteFourierDomainExpression):
 
     """f-domain impedance"""
 
@@ -119,7 +119,7 @@ class Zk(kExpr):
         self._discrete_fourier_conjugate_class = Zn
 
 
-class Hk(kExpr):
+class Hk(DiscreteFourierDomainExpression):
 
     """f-domain transfer function response."""
 
@@ -132,7 +132,7 @@ class Hk(kExpr):
         self._discrete_fourier_conjugate_class = Hn
 
 
-class Vk(kExpr):
+class Vk(DiscreteFourierDomainExpression):
 
     """f-domain voltage (units V/Hz)."""
 
@@ -145,7 +145,7 @@ class Vk(kExpr):
         self._discrete_fourier_conjugate_class = Vn
 
 
-class Ik(kExpr):
+class Ik(DiscreteFourierDomainExpression):
 
     """f-domain current (units A/Hz)."""
 
@@ -163,7 +163,7 @@ def kexpr(arg, **assumptions):
 
     if arg is ksym:
         return k
-    return kExpr(arg, **assumptions)
+    return DiscreteFourierDomainExpression(arg, **assumptions)
         
-from .nexpr import Hn, In, Vn, Yn, Zn, nexpr, nExpr
-k = kExpr('k')
+from .nexpr import Hn, In, Vn, Yn, Zn, nexpr, DiscreteTimeDomainExpression
+k = DiscreteFourierDomainExpression('k')

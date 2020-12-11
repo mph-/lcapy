@@ -1,22 +1,22 @@
-"""This modules provides the seqExpr class to provide common methods for
+"""This modules provides the SequenceExpression class to provide common methods for
 the discrete-time and discrete-frequency expressions.
 
 Copyright 2020 Michael Hayes, UCECE
 
 """
 
-from .dexpr import dExpr
+from .dexpr import DiscreteExpression
 from .sequence import Sequence
 from .functions import Heaviside, UnitStep, DiracDelta, UnitImpulse
 from numpy import arange
 
 
-class seqExpr(dExpr):
+class SequenceExpression(DiscreteExpression):
     """Superclass of discrete-time and discrete-frequency expressions."""
 
     def __init__(self, val, **assumptions):
 
-        super(seqExpr, self).__init__(val, **assumptions)
+        super(SequenceExpression, self).__init__(val, **assumptions)
 
         if self.has(Heaviside):
             self.expr = self.replace(Heaviside, UnitStep).expr

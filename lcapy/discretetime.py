@@ -11,9 +11,9 @@ Copyright 2020 Michael Hayes, UCECE
 
 import sympy as sym
 from .sym import sympify
-from .nexpr import nexpr, nExpr, n
-from .kexpr import kexpr, kExpr, k
-from .zexpr import zexpr, zExpr, z
+from .nexpr import nexpr, DiscreteTimeDomainExpression, n
+from .kexpr import kexpr, DiscreteFourierDomainExpression, k
+from .zexpr import zexpr, ZDomainExpression, z
 from .dsym import nsym, ksym, zsym, dt, df
 
 from .expr import expr as expr1

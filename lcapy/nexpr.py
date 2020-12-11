@@ -5,7 +5,7 @@ Copyright 2020 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from .seqexpr import seqExpr
+from .seqexpr import SequenceExpression
 from .sequence import Sequence
 from .functions import exp
 from .sym import j, oo, pi, fsym
@@ -19,9 +19,9 @@ from sympy import Sum, summation, limit
 __all__ = ('Hn', 'In', 'Vn', 'Yn', 'Zn')
 
 
-class nExpr(seqExpr):
+class DiscreteTimeDomainExpression(SequenceExpression):
 
-    """t-domain expression or symbol."""
+    """Discrete time expression or symbol."""
 
     var = nsym
     domain_name = 'Sample'
@@ -31,10 +31,10 @@ class nExpr(seqExpr):
 
         check = assumptions.pop('check', True)
         
-        super(nExpr, self).__init__(val, **assumptions)
+        super(DiscreteTimeDomainExpression, self).__init__(val, **assumptions)
 
-        self._discrete_fourier_conjugate_class = kExpr
-        self._ztransform_conjugate_class = zExpr
+        self._discrete_fourier_conjugate_class = DiscreteFourierDomainExpression
+        self._ztransform_conjugate_class = ZDomainExpression
 
         expr = self.expr
         if check and expr.find(zsym) != set() and not expr.has(Sum):
@@ -103,7 +103,7 @@ class nExpr(seqExpr):
         if hasattr(self, '_ztransform_conjugate_class'):
             result = self._ztransform_conjugate_class(result, **assumptions)
         else:
-            result = zExpr(result, **assumptions)
+            result = ZDomainExpression(result, **assumptions)
         return result
 
     def ZT(self, **assumptions):
@@ -155,7 +155,7 @@ class nExpr(seqExpr):
         if hasattr(self, '_discrete_fourier_conjugate_class'):
             result = self._discrete_fourier_conjugate_class(result)
         else:
-            result = kExpr(result, check=False)
+            result = DiscreteFourierDomainExpression(result, check=False)
             
         return result
     
@@ -205,7 +205,7 @@ class nExpr(seqExpr):
         return H.difference_equation(input, output, form)
 
     
-class Yn(nExpr):
+class Yn(DiscreteTimeDomainExpression):
 
     """t-domain 'admittance' value."""
 
@@ -214,11 +214,11 @@ class Yn(nExpr):
     def __init__(self, val, **assumptions):
 
         super(Yn, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = Yz
+        self._ztransform_conjugate_class = ZDomainAdmittance
         self._discrete_fourier_conjugate_class = Yk
 
 
-class Zn(nExpr):
+class Zn(DiscreteTimeDomainExpression):
 
     """t-domain 'impedance' value."""
 
@@ -227,11 +227,11 @@ class Zn(nExpr):
     def __init__(self, val, **assumptions):
 
         super(Zn, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = Zz
+        self._ztransform_conjugate_class = ZDomainImpedance
         self._discrete_fourier_conjugate_class = Zk
 
 
-class Vn(nExpr):
+class Vn(DiscreteTimeDomainExpression):
 
     """t-domain voltage (units V)."""
 
@@ -241,10 +241,10 @@ class Vn(nExpr):
     def __init__(self, val, **assumptions):
 
         super(Vn, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = Vz
+        self._ztransform_conjugate_class = ZDomainVoltage
         self._discrete_fourier_conjugate_class = Vk
 
-class In(nExpr):
+class In(DiscreteTimeDomainExpression):
 
     """t-domain current (units A)."""
 
@@ -254,11 +254,11 @@ class In(nExpr):
     def __init__(self, val, **assumptions):
 
         super(In, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = Iz
+        self._ztransform_conjugate_class = ZDomainVoltage
         self._discrete_fourier_conjugate_class = Ik
 
 
-class Hn(nExpr):
+class Hn(DiscreteTimeDomainExpression):
 
     """impulse response"""
 
@@ -268,7 +268,7 @@ class Hn(nExpr):
     def __init__(self, val, **assumptions):
 
         super(Hn, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = Hz
+        self._ztransform_conjugate_class = ZDomainTransferFunction
         self._discrete_fourier_conjugate_class = Hk
 
 def nexpr(arg, **assumptions):
@@ -287,8 +287,8 @@ def nexpr(arg, **assumptions):
     if isinstance(arg, (list, ndarray)):
         return Sequence(arg, var=n).as_impulses()
 
-    return nExpr(arg, **assumptions)
+    return DiscreteTimeDomainExpression(arg, **assumptions)
 
-from .zexpr import Hz, Iz, Vz, Yz, Zz, zExpr
-from .kexpr import Hk, Ik, Vk, Yk, Zk, kExpr
-n = nExpr('n')
+from .zexpr import ZDomainTransferFunction, ZDomainVoltage, ZDomainVoltage, ZDomainAdmittance, ZDomainImpedance, ZDomainExpression
+from .kexpr import Hk, Ik, Vk, Yk, Zk, DiscreteFourierDomainExpression
+n = DiscreteTimeDomainExpression('n')

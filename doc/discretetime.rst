@@ -62,7 +62,7 @@ Sequences can be converted to n-domain or k-domain expressions, for example,
 Discrete-time (n-domain) expressions
 ====================================
 
-Lcapy refers to Discrete-time expressions as n-domain expressions.  They are of class `nExpr` and can be created explicitly using the n-domain variable `n`.  For example,
+Lcapy refers to Discrete-time expressions as n-domain expressions.  They are of class `DiscreteTimeDomainExpression` and can be created explicitly using the n-domain variable `n`.  For example,
 
    >>> 2 * u(n) + delta(n - 1)
    2⋅u[n] + δ[n - 1]
@@ -148,7 +148,7 @@ Evaluation of the DFT can be prevented by setting `evaluate=False`,
 Discrete-frequency (k-domain) expressions
 =========================================
 
-Lcapy refers to discrete-frequency expressions as k-domain expressions.  They are of class `kExpr` and can be created explicitly using the k-domain variable `n`.  For example,
+Lcapy refers to discrete-frequency expressions as k-domain expressions.  They are of class `DiscreteFourierDomainExpression` and can be created explicitly using the k-domain variable `n`.  For example,
 
    >>> 2 * u(k) + delta(k - 1)
    2⋅u[k] + δ[k - 1]
@@ -173,7 +173,7 @@ Z-domain expressions can be constructed using the z-domain variable `z`, for exa
 
 Alternatively, they can be generated using a z-transform of a discrete-time signal. 
 
-Z-domain expressions are objects of the `zExpr` class.  They are functions of the complex variable `z` and are similar to `sExpr` objects.   The general form of a z-domain expression is a rational function so all the s-domain formatting methods are applicable (see :ref:`expressionsprinting`).
+Z-domain expressions are objects of the `ZDomainExpression` class.  They are functions of the complex variable `z` and are similar to `sExpr` objects.   The general form of a z-domain expression is a rational function so all the s-domain formatting methods are applicable (see :ref:`expressionsprinting`).
 
 The poles and zeros of a z-domain expression can be plotted using the `plot()` method.  For example,
 

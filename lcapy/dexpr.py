@@ -1,4 +1,4 @@
-"""This modules provides the dExpr class to provide common methods for
+"""This modules provides the DiscreteExpression class to provide common methods for
 the discrete-time representations.
 
 Copyright 2020 Michael Hayes, UCECE
@@ -8,7 +8,7 @@ Copyright 2020 Michael Hayes, UCECE
 import numpy as np
 from .expr import Expr
 
-class dExpr(Expr):
+class DiscreteExpression(Expr):
 
     """Superclass of discrete-time, discrete-frequency, and z-domain
     expressions."""
@@ -46,33 +46,33 @@ class dExpr(Expr):
             return self.transform(arg, **assumptions)    
 
         # Do we really want to this?   
-        return super(dExpr, self).__call__(arg, **assumptions)
+        return super(DiscreteExpression, self).__call__(arg, **assumptions)
 
     def transform(self, arg, **assumptions):
 
-        from .nexpr import nExpr, n
-        from .kexpr import kExpr, k
-        from .zexpr import zExpr, z
+        from .nexpr import DiscreteTimeDomainExpression, n
+        from .kexpr import DiscreteFourierDomainExpression, k
+        from .zexpr import ZDomainExpression, z
         from .fexpr import f        
 
         # Is this wise?   It makes sense for Voltage and Impedance objects
         # but may cause too much confusion for other expressions
-        if arg is n and isinstance(self, zExpr):
+        if arg is n and isinstance(self, ZDomainExpression):
             return self.IZT(**assumptions)
-        elif arg is n and isinstance(self, kExpr):
+        elif arg is n and isinstance(self, DiscreteFourierDomainExpression):
             return self.IDFT(**assumptions)        
-        elif arg is z and isinstance(self, nExpr):
+        elif arg is z and isinstance(self, DiscreteTimeDomainExpression):
             return self.ZT(**assumptions)
-        elif arg is z and isinstance(self, kExpr):
+        elif arg is z and isinstance(self, DiscreteFourierDomainExpression):
             return self.IDFT(**assumptions).ZT(**assumptions)
-        elif arg is k and isinstance(self, nExpr):
+        elif arg is k and isinstance(self, DiscreteTimeDomainExpression):
             return self.DFT(**assumptions)
-        elif arg is k and isinstance(self, zExpr):
+        elif arg is k and isinstance(self, ZDomainExpression):
             return self.IZT(**assumptions).DFT(**assumptions)
-        elif arg is f and isinstance(self, nExpr):
+        elif arg is f and isinstance(self, DiscreteTimeDomainExpression):
             return self.DTFT(**assumptions)
-        elif arg is f and isinstance(self, zExpr):
+        elif arg is f and isinstance(self, ZDomainExpression):
             return self.DTFT(**assumptions)                
         
         # Do we really want to this?   
-        super(dExpr, self).transform(arg, **assumptions)            
+        super(DiscreteExpression, self).transform(arg, **assumptions)            

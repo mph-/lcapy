@@ -1,4 +1,4 @@
-"""This module provides the zExpr class to represent z-domain expressions.
+"""This module provides the ZDomainExpression class to represent z-domain expressions.
 
 Copyright 2020 Michael Hayes, UCECE
 
@@ -10,7 +10,7 @@ from .sym import j, pi
 from .dsym import nsym, ksym, zsym, dt
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
-from .dexpr import dExpr
+from .dexpr import DiscreteExpression
 from .expr import symbol, expr, ExprDict
 from .functions import sqrt, exp
 import numpy as np
@@ -19,7 +19,7 @@ from sympy import Eq, div, limit, oo, Sum
 
 __all__ = ('Hz', 'Iz', 'Vz', 'Yz', 'Zz')
 
-class zExpr(dExpr):
+class ZDomainExpression(DiscreteExpression):
     """z-domain expression or symbol."""
 
     var = zsym
@@ -28,8 +28,8 @@ class zExpr(dExpr):
 
         check = assumptions.pop('check', True)
 
-        super(zExpr, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = nExpr
+        super(ZDomainExpression, self).__init__(val, **assumptions)
+        self._ztransform_conjugate_class = DiscreteTimeDomainExpression
 
         expr = self.expr
         if check and expr.find(nsym) != set() and not expr.has(Sum):
@@ -138,7 +138,7 @@ class zExpr(dExpr):
 
         # Evaluate transient response.
         th = np.arange(N) * dt - dt
-        h = zExpr(expr).transient_response(th)
+        h = ZDomainExpression(expr).transient_response(th)
 
         print('Convolving...')
         ty = t
@@ -172,7 +172,7 @@ class zExpr(dExpr):
 
     def evaluate(self, svector=None):
 
-        return super(zExpr, self).evaluate(svector)
+        return super(ZDomainExpression, self).evaluate(svector)
 
     def plot(self, t=None, **kwargs):
         """Plot pole-zero map."""
@@ -214,8 +214,8 @@ class zExpr(dExpr):
         invz = expr('invz')
         H = R.replace(z, 1 / invz).factor()
         r = Ratfun(H, invz.expr)
-        B = zExpr(r.N).replace(invz, 1 / z)
-        A = zExpr(r.D).replace(invz, 1 / z)
+        B = ZDomainExpression(r.N).replace(invz, 1 / z)
+        A = ZDomainExpression(r.D).replace(invz, 1 / z)
 
         C1, R1 = A.term_const()
         if C1.is_negative:
@@ -252,12 +252,12 @@ class zExpr(dExpr):
         else:
             raise ValueError('Unhandled form ' + form)    
 
-        return nExpr(Eq(lhs.expr, rhs.expr))        
+        return DiscreteTimeDomainExpression(Eq(lhs.expr, rhs.expr))        
         
     
 # Perhaps use a factory to create the following classes?
 
-class Zz(zExpr):
+class ZDomainImpedance(ZDomainExpression):
 
     """z-domain impedance value."""
 
@@ -266,11 +266,11 @@ class Zz(zExpr):
 
     def __init__(self, val, causal=True, **assumptions):
 
-        super(Zz, self).__init__(val, causal=causal, **assumptions)
+        super(ZDomainImpedance, self).__init__(val, causal=causal, **assumptions)
         self._ztransform_conjugate_class = Zn
 
 
-class Yz(zExpr):
+class ZDomainAdmittance(ZDomainExpression):
 
     """z-domain admittance value."""
 
@@ -279,11 +279,11 @@ class Yz(zExpr):
 
     def __init__(self, val, causal=True, **assumptions):
 
-        super(Yz, self).__init__(val, causal=causal, **assumptions)
+        super(ZDomainAdmittance, self).__init__(val, causal=causal, **assumptions)
         self._ztransform_conjugate_class = Yn
 
 
-class Vz(zExpr):
+class ZDomainVoltage(ZDomainExpression):
 
     """z-domain voltage (units V s / radian)."""
 
@@ -292,11 +292,11 @@ class Vz(zExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Vz, self).__init__(val, **assumptions)
+        super(ZDomainVoltage, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Vn
 
 
-class Iz(zExpr):
+class ZDomainVoltage(ZDomainExpression):
 
     """z-domain current (units A s / radian)."""
 
@@ -305,11 +305,11 @@ class Iz(zExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Iz, self).__init__(val, **assumptions)
+        super(ZDomainVoltage, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = In
 
 
-class Hz(zExpr):
+class ZDomainTransferFunction(ZDomainExpression):
 
     """z-domain ratio"""
 
@@ -318,37 +318,37 @@ class Hz(zExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Hz, self).__init__(val, **assumptions)
+        super(ZDomainTransferFunction, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Hn
 
         
 class VzVector(Vector):
 
-    _typewrap = Vz
+    _typewrap = ZDomainVoltage
 
 
 class IzVector(Vector):
 
-    _typewrap = Iz
+    _typewrap = ZDomainVoltage
 
 
 class YzVector(Vector):
 
-    _typewrap = Yz
+    _typewrap = ZDomainAdmittance
 
 
 class ZzVector(Vector):
 
-    _typewrap = Zz
+    _typewrap = ZDomainImpedance
 
 
 def zexpr(arg, **assumptions):
-    """Create zExpr object.  If `arg` is zsym return z"""
+    """Create ZDomainExpression object.  If `arg` is zsym return z"""
 
     if arg is zsym:
         return z
-    return zExpr(arg, **assumptions)
+    return ZDomainExpression(arg, **assumptions)
 
 
-from .nexpr import Hn, In, Vn, Yn, Zn, nExpr, nexpr
-z = zExpr('z')
+from .nexpr import Hn, In, Vn, Yn, Zn, DiscreteTimeDomainExpression, nexpr
+z = ZDomainExpression('z')
