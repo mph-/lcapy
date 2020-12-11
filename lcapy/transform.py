@@ -30,10 +30,10 @@ def transform(expr, arg, **assumptions):
     elif arg is s:
         return expr.laplace(**assumptions)
     elif arg is f:
-        # Note, conversion of f->omega handled by fExpr        
+        # Note, conversion of f->omega handled by FourierDomainExpression        
         return expr.fourier(**assumptions)
     elif arg is omega:
-        # Note, conversion of f->omega handled by fExpr        
+        # Note, conversion of f->omega handled by FourierDomainExpression        
         return expr.fourier(**assumptions)(omega)
 
     # Handle expr(texpr), expr(sexpr), expr(fexpr).  For example,
@@ -44,7 +44,7 @@ def transform(expr, arg, **assumptions):
     elif isinstance(arg, LaplaceDomainExpression):
         result = expr.laplace(**assumptions)
     elif isinstance(arg, FourierDomainExpression):
-        # Note, conversion of f->omega handled by fExpr
+        # Note, conversion of f->omega handled by FourierDomainExpression
         result = expr.fourier(**assumptions)
     elif arg.has(jomega):
         # Perhaps restrict this to jomega and not expressions like 5 * jomega ?

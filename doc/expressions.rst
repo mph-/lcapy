@@ -821,17 +821,17 @@ Lcapy has many expression classes, one for each combination of domain
 impedance, admittance, transfer function).  For example, to represent
 Laplace domain entities there are the following classes:
 
-- `sExpr` generic Laplace-domain expression
+`LaplaceDomainExpression` is a generic s-domain expression.
 
-- `Vs` Laplace-domain voltage
+`LaplaceDomainVoltage` is a s-domain voltage.
 
-- `Is` Laplace-domain current
+`LaplaceDomainCurrent` is a s-domain current.
 
-- `Hs` Laplace-domain transfer function
+`LaplaceDomainTransferFunction` is a s-domain transfer function.
 
-- `Ys` Laplace-domain admittance
+`LaplaceDomainAdmittance` is a s-domain admittance.
 
-- `Zs` Laplace-domain impedance
+`LaplaceDomainImpedance` is a s-domain impedance.
 
 
 .. _parameterization:

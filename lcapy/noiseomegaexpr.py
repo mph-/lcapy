@@ -1,4 +1,4 @@
-"""This module provides the noiseomegaExpr class to represent
+"""This module provides the noiseAngularFourierDomainExpression class to represent
 omega-domain (angular Fourier domain) noise expressions.
 
 Copyright 2014--2019 Michael Hayes, UCECE

@@ -1,4 +1,4 @@
-"""This module provides the fExpr class to represent f-domain (Fourier
+"""This module provides the FourierDomainExpression class to represent f-domain (Fourier
 domain) expressions.
 
 Copyright 2014--2020 Michael Hayes, UCECE
@@ -206,7 +206,7 @@ class FourierDomainCurrent(FourierDomainExpression):
 
         
 def fexpr(arg, **assumptions):
-    """Create fExpr object.  If `arg` is fsym return f"""
+    """Create FourierDomainExpression object.  If `arg` is fsym return f"""
 
     if arg is fsym:
         return f

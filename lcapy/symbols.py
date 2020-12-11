@@ -4,7 +4,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 """
 
-# The following are Lcapy expressions.  For example, f is an fExpr
+# The following are Lcapy expressions.  For example, f is an FourierDomainExpression
 # object wrapping the fsym symbol.
 from .fexpr import f
 from .texpr import t

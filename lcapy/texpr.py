@@ -1,4 +1,4 @@
-"""This module provides the tExpr class to represent time domain expressions.
+"""This module provides the TimeDomainExpression class to represent time domain expressions.
 
 Copyright 2014--2020 Michael Hayes, UCECE
 
@@ -181,7 +181,7 @@ class TimeDomainExpression(Expr):
         """Convolve self with impulse response."""
 
         if not isinstance(impulseresponse, TimeDomainExpression):
-            raise ValueError('Expecting tExpr for impulse response')
+            raise ValueError('Expecting TimeDomainExpression for impulse response')
 
         f1 = self.expr
         f2 = impulseresponse.expr
@@ -307,7 +307,7 @@ class TimeDomainImpulseResponse(TimeDomainExpression):
         self._fourier_conjugate_class = FourierDomainTransferFunction
 
 def texpr(arg, **assumptions):
-    """Create tExpr object.  If `arg` is tsym return t"""
+    """Create TimeDomainExpression object.  If `arg` is tsym return t"""
 
     if arg is tsym:
         return t

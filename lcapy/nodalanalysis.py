@@ -6,7 +6,7 @@ Copyright 2019-2020 Michael Hayes, UCECE
 """
 
 from .circuitgraph import CircuitGraph
-from .tmatrix import tMatrix
+from .tmatrix import TimeDomainMatrix
 from .utils import equation
 from .systemequations import SystemEquations
 import sympy as sym

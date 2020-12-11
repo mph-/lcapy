@@ -1,7 +1,7 @@
-"""This module implements the sMatrix class for a matrix of
+"""This module implements the LaplaceDomainMatrix class for a matrix of
 Laplace-domain expressions.
 
-Copyright 2019 Michael Hayes, UCECE
+Copyright 2019--2020 Michael Hayes, UCECE
 
 """
 
@@ -9,7 +9,7 @@ from .matrix import Matrix
 from .laplace import inverse_laplace_transform
 
 
-class sMatrix(Matrix):
+class LaplaceDomainMatrix(Matrix):
     from .sexpr import LaplaceDomainExpression    
     _typewrap = LaplaceDomainExpression
 
@@ -19,7 +19,7 @@ class sMatrix(Matrix):
             from .sym import ssym, tsym
             return inverse_laplace_transform(expr, ssym, tsym, **assumptions)
         
-        return tMatrix(self.applyfunc(ilt))
+        return TimeDomainMatrix(self.applyfunc(ilt))
 
     def canonical(self):
 
@@ -46,5 +46,5 @@ class sMatrix(Matrix):
         return self.applyfunc(self._typewrap.ZPK)    
     
 
-from .tmatrix import tMatrix
+from .tmatrix import TimeDomainMatrix
     

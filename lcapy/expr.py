@@ -237,7 +237,7 @@ class Expr(ExprPrint, ExprMisc):
            1. The sympy assumptions associated with symbols, for example,
               real=True.
            2. The expr assumptions such as dc, ac, causal.  These
-              are primarily to help the inverse Laplace transform for sExpr
+              are primarily to help the inverse Laplace transform for LaplaceDomainExpression
               classes.  The omega assumption is required for Phasors."""
 
         if isinstance(arg, Expr):
@@ -605,11 +605,11 @@ class Expr(ExprPrint, ExprMisc):
         if cls == xcls:
             return cls, self, x, assumptions
 
-        # Handle Vs + sExpr etc.
+        # Handle Vs + LaplaceDomainExpression etc.
         if isinstance(self, xcls):
             return cls, self, x, assumptions
 
-        # Handle sExpr + Vs etc.
+        # Handle LaplaceDomainExpression + Vs etc.
         if isinstance(x, cls):
             return xcls, self, cls(x), assumptions
 
@@ -2078,9 +2078,9 @@ def expr(arg, **assumptions):
 
     If arg is a string:
        If a t symbol is found in the string a tExpr object is created.
-       If a s symbol is found in the string a sExpr object is created.
-       If a f symbol is found in the string an fExpr object is created.
-       If an omega symbol is found in the string an omegaExpr object is created.
+       If a s symbol is found in the string a LaplaceDomainExpression object is created.
+       If a f symbol is found in the string an FourierDomainExpression object is created.
+       If an omega symbol is found in the string an AngularFourierDomainExpression object is created.
 
     For example, v = expr('3 * exp(-t / tau) * u(t)')
 

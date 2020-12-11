@@ -1,4 +1,4 @@
-"""This module provides the sExpr class to represent s-domain (Laplace
+"""This module provides the LaplaceDomainExpression class to represent s-domain (Laplace
 domain) expressions.
 
 Copyright 2014--2020 Michael Hayes, UCECE
@@ -668,7 +668,7 @@ def pr2tf(poles, residues, var=None):
 
 
 def sexpr(arg, **assumptions):
-    """Create sExpr object.  If `arg` is ssym return s"""
+    """Create LaplaceDomainExpression object.  If `arg` is ssym return s"""
 
     if arg is ssym:
         return s

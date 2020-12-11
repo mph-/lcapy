@@ -32,10 +32,8 @@ class Matrix(sym.Matrix):
 
     # What's worse, is that calling _sympify on each element creates
     # different variables than what we are expecting.  For example,
-    # the sExpr s looks the same but gets different attributes.  We
-    # prevent this by defining _sympify.
-    
-    # _typewrap = sExpr
+    # the LaplaceDomainExpression s looks the same but gets different
+    # attributes.  We prevent this by defining _sympify.
 
     _sympify = staticmethod(msympify)
     
@@ -140,8 +138,8 @@ def matrix(mat):
     """
 
     from .sym import tsym, ssym
-    from .smatrix import sMatrix
-    from .tmatrix import tMatrix
+    from .smatrix import LaplaceDomainMatrix
+    from .tmatrix import TimeDomainMatrix
     
     elt = mat[0]
     try:
@@ -150,9 +148,9 @@ def matrix(mat):
         pass    
     
     if elt.has(tsym):
-        return tMatrix(mat)
+        return TimeDomainMatrix(mat)
     elif elt.has(ssym):
-        return sMatrix(mat)        
+        return LaplaceDomainMatrix(mat)        
     else:
         return mat
 

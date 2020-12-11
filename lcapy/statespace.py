@@ -7,8 +7,8 @@ Copyright 2019-2020 Michael Hayes, UCECE
 
 from .mnacpts import I, V, C, L
 from .matrix import Matrix
-from .smatrix import sMatrix
-from .tmatrix import tMatrix
+from .smatrix import LaplaceDomainMatrix
+from .tmatrix import TimeDomainMatrix
 from .sym import sympify, ssym
 import sympy as sym
 
@@ -181,13 +181,13 @@ class StateSpace(object):
         _hack_vars(sources)
         
         # Note, Matrix strips the class from each element...
-        self.x = tMatrix(statevars)
+        self.x = TimeDomainMatrix(statevars)
 
         self.x0 = Matrix(initialvalues)
         
-        self.dotx = tMatrix([sym.Derivative(x1, t) for x1 in self.x])
+        self.dotx = TimeDomainMatrix([sym.Derivative(x1, t) for x1 in self.x])
 
-        self.u = tMatrix(sources)
+        self.u = TimeDomainMatrix(sources)
 
         self.A = Matrix(A)
         self.B = Matrix(B)        
@@ -228,49 +228,49 @@ class StateSpace(object):
     def Phi(self):
         """s-domain state transition matrix."""
 
-        M = sMatrix(sym.eye(len(self.x)) * ssym - self.A)
-        return sMatrix(M.inv().canonical())
+        M = LaplaceDomainMatrix(sym.eye(len(self.x)) * ssym - self.A)
+        return LaplaceDomainMatrix(M.inv().canonical())
 
     @property
     def phi(self):
         """State transition matrix."""        
-        return tMatrix(self.Phi.inverse_laplace(causal=True))
+        return TimeDomainMatrix(self.Phi.inverse_laplace(causal=True))
         
     @property
     def U(self):
         """Laplace transform of input vector."""
-        return sMatrix(self.u.laplace())
+        return LaplaceDomainMatrix(self.u.laplace())
 
     @property
     def X(self):
         """Laplace transform of state-variable vector."""        
-        return sMatrix(self.x.laplace())
+        return LaplaceDomainMatrix(self.x.laplace())
 
     @property
     def Y(self):
         """Laplace transform of output vector."""        
-        return sMatrix(self.y.laplace())
+        return LaplaceDomainMatrix(self.y.laplace())
 
     @property
     def H(self):
         """X(s) / U(s)"""
 
-        return sMatrix(self.Phi * self.B).canonical()
+        return LaplaceDomainMatrix(self.Phi * self.B).canonical()
 
     @property
     def h(self):
-        return tMatrix(self.H.inverse_laplace(causal=True))
+        return TimeDomainMatrix(self.H.inverse_laplace(causal=True))
 
     @property
     def G(self):
         """System transfer functions."""
 
-        return sMatrix(self.C * self.H + self.D).canonical()
+        return LaplaceDomainMatrix(self.C * self.H + self.D).canonical()
 
     @property
     def g(self):
         """System impulse responses."""        
-        return tMatrix(self.G.inverse_laplace(causal=True))
+        return TimeDomainMatrix(self.G.inverse_laplace(causal=True))
     
     def characteristic_polynomial(self):
         """Characteristic polynomial (aka system polynomial).
@@ -321,7 +321,7 @@ class StateSpace(object):
         # return L
         
         e = self.eigenvalues
-        return sMatrix(sym.diag(*e))
+        return LaplaceDomainMatrix(sym.diag(*e))
 
     @property        
     def eigenvectors(self):
@@ -336,7 +336,7 @@ class StateSpace(object):
 
         E, L = self.A.diagonalize()
         
-        return sMatrix(E)
+        return LaplaceDomainMatrix(E)
     
     
 from .symbols import t, s

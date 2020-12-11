@@ -62,18 +62,20 @@ as its `expr` attribute.
 `Expr` is the base class for Lcapy expressions.  There are a number of
 classes that inherit from this class:
 
-`ConstantExpression` represents a constant, such as the resistance of a resistor.
-The constant must be real and positive.
+`ConstantExpression` represents a constant, such as the resistance of
+a resistor.  The constant must be real and positive.
 
-`TimeDomainExpression` represents a time domain expression.   This should be real.
+`TimeDomainExpression` represents a time domain expression.  This
+should be real.
 
-`LaplaceDomainExpression` represents an s-domain expression.   This can be complex.
+`LaplaceDomainExpression` represents an s-domain expression.  This can
+be complex.
 
-`AngularFourierDomainExpression` represents an angular frequency domain expression.  This
-can be complex.
+`AngularFourierDomainExpression` represents an angular frequency
+domain expression.  This can be complex.
 
-`FourierDomainExpression` represents a frequency domain expression.  This can be
-complex.
+`FourierDomainExpression` represents a frequency domain expression.
+This can be complex.
 
 `NoiseExpresssion` represents a noise expression (amplitude spectral
 density).  This is real.
@@ -118,11 +120,11 @@ Container classes
 
 `Matrix` represents a generic matrix.
 
-`tMatrix` represents a matrix of time domain expressions (each element
-is `tExpr`).
+`TimeDomainMatrix` represents a matrix of time domain expressions (each element
+is `TimeDomainExpression`).
 
-`sMatrix` represents a matrix of s-domain expressions  (each element
-is `sExpr`).
+`LaplaceDomainMatrix` represents a matrix of s-domain expressions  (each element
+is `LaplaceDomainExpression`).
 
 `Vector` represents a generic column vector.
 

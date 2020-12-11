@@ -1,4 +1,4 @@
-"""This module provides the omegaExpr class to represent omega-domain
+"""This module provides the AngularFourierDomainExpression class to represent omega-domain
 (angular frequency Fourier domain) expressions.
 
 Copyright 2014--2020 Michael Hayes, UCECE
@@ -217,7 +217,7 @@ class AngularFourierDomainTransferFunction(AngularFourierDomainExpression):
 
         
 def omegaexpr(arg, **assumptions):
-    """Create omegaExpr object.  If `arg` is omegasym return omega"""
+    """Create AngularFourierDomainExpression object.  If `arg` is omegasym return omega"""
 
     if arg is omegasym:
         return omega
