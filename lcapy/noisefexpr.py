@@ -1,7 +1,7 @@
-"""This module provides the noisefExpr class to represent
+"""This module provides the FourierDomainNoiseExpression class to represent
 f-domain (Fourier domain) noise expressions.
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 
 """
 from __future__ import division

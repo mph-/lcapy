@@ -1,8 +1,7 @@
-"""This module provides the noiseAngularFourierDomainExpression class to represent
+"""This module provides the AngularFourierDomainNoiseExpression class to represent
 omega-domain (angular Fourier domain) noise expressions.
 
-Copyright 2014--2019 Michael Hayes, UCECE
-
+Copyright 2014--2020 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -43,7 +42,7 @@ class AngularFourierDomainNoiseExpression(NoiseExpression):
     a = Vnoisy(3); b = Vnoisy(4)
     a + b - b gives sqrt(41) and  a + b - a gives sqrt(34).
 
-    This case is correctly handled by the Super class since each noise
+    This case is correctly handled by the Voltage and Current classes since each noise
     component is stored and considered separately.
 
     (Voltage(a) + Voltage(b) - Voltage(b)).n gives 3 as expected.
@@ -91,7 +90,7 @@ class AngularFourierDomainNoiseVoltage(AngularFourierDomainNoiseExpression):
     This can be a function of angular frequency, omega.  For example,
     to model an opamp voltage noise:
 
-    v = Vnoisy(1e-8 / sqrt(omega) + 8e-9)
+    v = AngularFourierDomainNoiseVoltage(1e-8 / sqrt(omega) + 8e-9)
     
     """
 
@@ -112,7 +111,7 @@ class AngularFourierDomainNoiseCurrent(AngularFourierDomainNoiseExpression):
     This can be a function of angular frequency, omega.  For example,
     to model an opamp current noise:
 
-    i = Inoisy(3e-12 / sqrt(omega) + 200e-15)
+    i = AngularFourierDomainNoiseCurrent(3e-12 / sqrt(omega) + 200e-15)
     """
 
     quantity = 'Current noise spectral density'
