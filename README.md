@@ -205,6 +205,11 @@ and then view cover/index.html in a web browser.
 
 Updates
 -------
+
+- Version 0.74 supports simplification of netlists, adds more
+  rigorous type checking for expressions, improve printing of
+  conditional expressions.
+
 - Version 0.73 improves printing of Voltage and Current, adds phasor attributes to Voltage and Current, fixes magnitude and phase for Phasor, fixes printing of greek symbols, tidies canonical representation, wraps R, X, B, G attributes for Immittance, doc reorganisation.
 
 - Version 0.72 uses CI for docs plus many assorted bug fixes.
