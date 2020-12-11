@@ -1064,7 +1064,7 @@ class Vnoise(VoltageSourceBase):
 
     def __init__(self, V, nid=None):
 
-        V1 = Vnoisy(V, nid=nid)
+        V1 = AngularFourierDomainNoiseVoltage(V, nid=nid)
         self.args = (V, V1.nid)
         self._Voc = Voltage(V1)
 
@@ -1193,7 +1193,7 @@ class Inoise(CurrentSourceBase):
 
     def __init__(self, I, nid=None):
 
-        I1 = Inoisy(I, nid=nid)
+        I1 = AngularFourierDomainNoiseCurrent(I, nid=nid)
         self._Isc = Current(I1)
         self.args = (I, I1.nid)
 
@@ -1456,7 +1456,7 @@ from .expr import Expr, expr
 from .cexpr import ConstantExpression, ConstantCurrent, ConstantVoltage
 from .sexpr import LaplaceDomainExpression, LaplaceDomainCurrent, LaplaceDomainVoltage, LaplaceDomainAdmittance, LaplaceDomainImpedance
 from .texpr import TimeDomainExpression
-from .noiseomegaexpr import Inoisy, Vnoisy
+from .noiseomegaexpr import AngularFourierDomainNoiseCurrent, AngularFourierDomainNoiseVoltage
 from .voltage import Voltage
 from .current import Current
 from .phasor import PhasorCurrent, PhasorVoltage

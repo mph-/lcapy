@@ -55,9 +55,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(Voltage(12) / Impedance(2), Current(6), "Voltage(12) / Impedance(2)")
 
     def test_Voltage_noise(self):
-        self.assertEqual((Vnoisy(3) + Vnoisy(4)).expr, Vnoisy(5).expr, "Vnoisy(3) + Vnoisy(4)")
-        self.assertEqual((Voltage(Vnoisy(3)) + Voltage(Vnoisy(4))).n.expr,
-                          Voltage(Vnoisy(5)).n.expr,
+        self.assertEqual((AngularFourierDomainNoiseVoltage(3) + AngularFourierDomainNoiseVoltage(4)).expr, AngularFourierDomainNoiseVoltage(5).expr, "Vnoisy(3) + Vnoisy(4)")
+        self.assertEqual((Voltage(AngularFourierDomainNoiseVoltage(3)) + Voltage(AngularFourierDomainNoiseVoltage(4))).n.expr,
+                          Voltage(AngularFourierDomainNoiseVoltage(5)).n.expr,
                           "Voltage(Vnoisy(3)) + Voltage(Vnoisy(4))")
         
     def test_Voltage_has(self):

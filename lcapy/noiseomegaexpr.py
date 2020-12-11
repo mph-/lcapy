@@ -17,7 +17,7 @@ from .omegaexpr import AngularFourierDomainExpression
 import sympy as sym
 import numpy as np
 
-class noiseomegaExpr(NoiseExpression):
+class AngularFourierDomainNoiseExpression(NoiseExpression):
     """Angular frequency domain (one-sided) noise spectrum expression (amplitude
     spectral density).
 
@@ -83,10 +83,10 @@ class noiseomegaExpr(NoiseExpression):
         elif isinstance(arg, AngularFourierDomainExpression):
             return self.subs(arg, **assumptions)        
 
-        return super(noiseomegaExpr, self).transform(arg, **assumptions)
+        return super(AngularFourierDomainNoiseExpression, self).transform(arg, **assumptions)
     
 
-class Vnoisy(noiseomegaExpr):
+class AngularFourierDomainNoiseVoltage(AngularFourierDomainNoiseExpression):
     """Voltage noise amplitude spectral density (units V/rtrad/s).
     This can be a function of angular frequency, omega.  For example,
     to model an opamp voltage noise:
@@ -100,13 +100,13 @@ class Vnoisy(noiseomegaExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Vnoisy, self).__init__(val, **assumptions)
+        super(AngularFourierDomainNoiseVoltage, self).__init__(val, **assumptions)
         # FIXME
         self._fourier_conjugate_class = TimeDomainVoltage
-        self._subs_classes = {FourierDomainExpression: Vfnoisy, AngularFourierDomainExpression: Vnoisy}
+        self._subs_classes = {FourierDomainExpression: FourierDomainNoiseVoltage, AngularFourierDomainExpression: AngularFourierDomainNoiseVoltage}
 
 
-class Inoisy(noiseomegaExpr):
+class AngularFourierDomainNoiseCurrent(AngularFourierDomainNoiseExpression):
     """Current noise amplitude spectral density (units A/rtrad/s).
 
     This can be a function of angular frequency, omega.  For example,
@@ -120,12 +120,12 @@ class Inoisy(noiseomegaExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Inoisy, self).__init__(val, **assumptions)
+        super(AngularFourierDomainNoiseCurrent, self).__init__(val, **assumptions)
         # FIXME
         self._fourier_conjugate_class = TimeDomainCurrent
-        self._subs_classes = {FourierDomainExpression: Ifnoisy, AngularFourierDomainExpression: Inoisy}
+        self._subs_classes = {FourierDomainExpression: FourierDomainNoiseCurrent, AngularFourierDomainExpression: AngularFourierDomainNoiseCurrent}
     
 
 from .texpr import TimeDomainCurrent, TimeDomainVoltage
 from .omegaexpr import omega
-from .noisefexpr import Vfnoisy, Ifnoisy
+from .noisefexpr import FourierDomainNoiseVoltage, FourierDomainNoiseCurrent

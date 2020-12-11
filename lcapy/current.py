@@ -33,11 +33,11 @@ class Current(Superposition):
 
     def __init__(self, *args, **kwargs):    
 
-        self.type_map = {ConstantExpression: ConstantCurrent, LaplaceDomainExpression : LaplaceDomainCurrent, noiseomegaExpr: Inoisy,
-                         FourierDomainExpression: FourierDomainCurrent, noisefExpr: Ifnoisy, AngularFourierDomainExpression: AngularFourierDomainCurrent,
-                         Phasor: PhasorCurrent, TimeDomainExpression : TimeDomainCurrent}
+        self.type_map = {ConstantExpression: ConstantCurrent, LaplaceDomainExpression : LaplaceDomainCurrent, AngularFourierDomainNoiseExpression: AngularFourierDomainNoiseCurrent,
+                         FourierDomainExpression: FourierDomainCurrent, FourierDomainNoiseExpression: FourierDomainNoiseCurrent, AngularFourierDomainExpression: AngularFourierDomainCurrent,
+                         PhasorExpression: PhasorCurrent, TimeDomainExpression : TimeDomainCurrent}
         self.decompose_domains = {'s': LaplaceDomainCurrent, 'ac': PhasorCurrent, 'dc':
-                                  ConstantCurrent, 'n': Inoisy, 't': TimeDomainCurrent}
+                                  ConstantCurrent, 'n': AngularFourierDomainNoiseCurrent, 't': TimeDomainCurrent}
         self.time_class = TimeDomainCurrent
         self.laplace_class = LaplaceDomainCurrent
 
@@ -112,9 +112,9 @@ def Iname(name, kind, cache=False):
 
 def Itype(kind):
     if isinstance(kind, str) and kind[0] == 'n':
-        return Inoisy
+        return AngularFourierDomainNoiseCurrent
     try:
-        return {'ivp' : LaplaceDomainCurrent, 's' : LaplaceDomainCurrent, 'n' : Inoisy,
+        return {'ivp' : LaplaceDomainCurrent, 's' : LaplaceDomainCurrent, 'n' : AngularFourierDomainNoiseCurrent,
                 'ac' : PhasorCurrent, 'dc' : ConstantCurrent, 't' : TimeDomainCurrent, 'time' : TimeDomainCurrent}[kind]
     except KeyError:
         return PhasorCurrent
@@ -126,9 +126,9 @@ from .fexpr import FourierDomainExpression, FourierDomainCurrent
 from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainCurrent
 from .sexpr import LaplaceDomainExpression, LaplaceDomainCurrent
 from .texpr import TimeDomainExpression, TimeDomainCurrent
-from .noiseomegaexpr import noiseomegaExpr, Inoisy
-from .noisefexpr import noisefExpr, Ifnoisy
-from .phasor import PhasorCurrent, Phasor
+from .noiseomegaexpr import AngularFourierDomainNoiseExpression, AngularFourierDomainNoiseCurrent
+from .noisefexpr import FourierDomainNoiseExpression, FourierDomainNoiseCurrent
+from .phasor import PhasorCurrent, PhasorExpression
 from .impedance import Impedance
 from .admittance import Admittance
 from .omegaexpr import AngularFourierDomainExpression

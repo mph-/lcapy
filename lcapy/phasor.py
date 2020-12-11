@@ -20,7 +20,7 @@ from .cexpr import ConstantExpression
 from .omegaexpr import AngularFourierDomainExpression
 
 
-class Phasor(Expr):
+class PhasorExpression(Expr):
 
     def __init__(self, val, **assumptions):
 
@@ -29,7 +29,7 @@ class Phasor(Expr):
         if 'omega' not in assumptions:
             assumptions['omega'] = omega0sym        
         
-        super (Phasor, self).__init__(val, **assumptions)
+        super (PhasorExpression, self).__init__(val, **assumptions)
 
     @property
     def omega(self):
@@ -52,7 +52,7 @@ class Phasor(Expr):
         if isinstance(x, int) and x == 0:
             return cls, self, cls(x), self.assumptions
 
-        if not isinstance(x, Phasor):
+        if not isinstance(x, PhasorExpression):
             raise TypeError('Incompatible arguments %s and %s for %s' %
                             (repr(self), repr(x), op))
 
@@ -75,7 +75,7 @@ class Phasor(Expr):
         if isinstance(x, (AngularFourierDomainExpression, ConstantExpression)):
             return cls, self, x, self.assumptions
 
-        if not isinstance(x, Phasor):
+        if not isinstance(x, PhasorExpression):
             raise TypeError('Incompatible arguments %s and %s for %s' %
                             (repr(self), repr(x), op))
 
@@ -152,7 +152,7 @@ class Phasor(Expr):
         return plot_phasor(self, **kwargs)
 
 
-class PhasorVoltage(Phasor):
+class PhasorVoltage(PhasorExpression):
     """t-domain voltage (units V) parameterized as a phasor
     of a single angular frequency, omega0."""
         
@@ -170,7 +170,7 @@ class PhasorVoltage(Phasor):
         return Vac(self, 0, self.omega)            
 
     
-class PhasorCurrent(Phasor):
+class PhasorCurrent(PhasorExpression):
     """t-domain current (units V) parameterized as a phasor
     of a single angular frequency, omega0."""    
 
@@ -188,4 +188,4 @@ class PhasorCurrent(Phasor):
 
 from .texpr import TimeDomainCurrent, TimeDomainVoltage, TimeDomainExpression
 from .expr import Expr
-from .phasor import Phasor
+from .phasor import PhasorExpression

@@ -32,11 +32,11 @@ from .sym import omega0sym
 class Voltage(Superposition):
 
     def __init__(self, *args, **kwargs):
-        self.type_map = {ConstantExpression: ConstantVoltage, LaplaceDomainExpression : LaplaceDomainVoltage, noiseomegaExpr: Vnoisy,
-                         FourierDomainExpression: FourierDomainVoltage, noisefExpr: Vfnoisy, AngularFourierDomainExpression: AngularFourierDomainVoltage,
-                         Phasor: PhasorVoltage, TimeDomainExpression : TimeDomainVoltage}
+        self.type_map = {ConstantExpression: ConstantVoltage, LaplaceDomainExpression : LaplaceDomainVoltage, AngularFourierDomainNoiseExpression: AngularFourierDomainNoiseVoltage,
+                         FourierDomainExpression: FourierDomainVoltage, FourierDomainNoiseExpression: FourierDomainNoiseVoltage, AngularFourierDomainExpression: AngularFourierDomainVoltage,
+                         PhasorExpression: PhasorVoltage, TimeDomainExpression : TimeDomainVoltage}
         self.decompose_domains = {'s': LaplaceDomainVoltage, 'ac': PhasorVoltage, 'dc':
-                                  ConstantVoltage, 'n': Vnoisy, 't': TimeDomainVoltage}
+                                  ConstantVoltage, 'n': AngularFourierDomainNoiseVoltage, 't': TimeDomainVoltage}
         self.time_class = TimeDomainVoltage
         self.laplace_class = LaplaceDomainVoltage    
 
@@ -116,9 +116,9 @@ def Vname(name, kind, cache=False):
 def Vtype(kind):
     
     if isinstance(kind, str) and kind[0] == 'n':
-        return Vnoisy
+        return AngularFourierDomainNoiseVoltage
     try:
-        return {'ivp' : LaplaceDomainVoltage, 's' : LaplaceDomainVoltage, 'n' : Vnoisy,
+        return {'ivp' : LaplaceDomainVoltage, 's' : LaplaceDomainVoltage, 'n' : AngularFourierDomainNoiseVoltage,
                 'ac' : PhasorVoltage, 'dc' : ConstantVoltage, 't' : TimeDomainVoltage, 'time' : TimeDomainVoltage}[kind]
     except KeyError:
         return PhasorVoltage
@@ -130,9 +130,9 @@ from .fexpr import FourierDomainExpression, FourierDomainVoltage
 from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainVoltage
 from .sexpr import LaplaceDomainExpression, LaplaceDomainVoltage
 from .texpr import TimeDomainExpression, TimeDomainVoltage
-from .noiseomegaexpr import noiseomegaExpr, Vnoisy
-from .noisefexpr import noisefExpr, Vfnoisy
-from .phasor import PhasorVoltage, Phasor
+from .noiseomegaexpr import AngularFourierDomainNoiseExpression, AngularFourierDomainNoiseVoltage
+from .noisefexpr import FourierDomainNoiseExpression, FourierDomainNoiseVoltage
+from .phasor import PhasorVoltage, PhasorExpression
 from .impedance import Impedance
 from .admittance import Admittance
 from .omegaexpr import AngularFourierDomainExpression

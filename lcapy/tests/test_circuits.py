@@ -1,4 +1,4 @@
-from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, LaplaceDomainVoltage, Vnoisy, TimeDomainVoltage, TimeDomainCurrent, sqrt, u, sympify, expr
+from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, LaplaceDomainVoltage, AngularFourierDomainNoiseVoltage, TimeDomainVoltage, TimeDomainCurrent, sqrt, u, sympify, expr
 from lcapy import LaplaceDomainImpedance, s, t
 import unittest
 import sympy as sym

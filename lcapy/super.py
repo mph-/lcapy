@@ -477,7 +477,7 @@ class Superposition(ExprDict):
         return keyword, val
     
     def _kind(self, value):
-        if isinstance(value, Phasor):
+        if isinstance(value, PhasorExpression):
             # Use angular frequency for key.  This can be a nuisance
             # for numerical values since cannot use x.3 syntax
             # say for an angular frequency of 3.
@@ -762,6 +762,6 @@ from .fexpr import FourierDomainExpression
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
 from .noiseexpr import NoiseExpression
-from .phasor import Phasor
+from .phasor import PhasorExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .symbols import s, omega

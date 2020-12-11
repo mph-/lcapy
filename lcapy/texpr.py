@@ -102,7 +102,7 @@ class TimeDomainExpression(Expr):
         check = ACChecker(self, t)
         if not check.is_ac:
             raise ValueError('Do not know how to convert %s to phasor' % self)
-        phasor = Phasor(check.amp * exp(j * check.phase), omega=check.omega)
+        phasor = PhasorExpression(check.amp * exp(j * check.phase), omega=check.omega)
         return phasor
 
     def plot(self, t=None, **kwargs):
@@ -316,5 +316,5 @@ def texpr(arg, **assumptions):
 from .sexpr import LaplaceDomainTransferFunction, LaplaceDomainCurrent, LaplaceDomainVoltage, LaplaceDomainAdmittance, LaplaceDomainImpedance, LaplaceDomainExpression
 from .fexpr import FourierDomainTransferFunction, FourierDomainCurrent, FourierDomainVoltage, FourierDomainAdmittance, FourierDomainImpedance, FourierDomainExpression
 from .cexpr import ConstantExpression
-from .phasor import Phasor
+from .phasor import PhasorExpression
 t = TimeDomainExpression('t')

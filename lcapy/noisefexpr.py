@@ -16,11 +16,11 @@ from .fexpr import FourierDomainExpression
 import sympy as sym
 import numpy as np
 
-class noisefExpr(NoiseExpression):
+class FourierDomainNoiseExpression(NoiseExpression):
     """Frequency domain (one-sided) noise spectrum expression (amplitude
     spectral density).
 
-    This characterises a zero-mean Gaussian noise process.
+    This characterises a zero-mean Gaussian noise random process.
 
     When performing arithmetic on two noiseExpr expressions it is
     assumed that they are uncorrelated unless they have the same nid
@@ -42,7 +42,7 @@ class noisefExpr(NoiseExpression):
     a = Vnoisy(3); b = Vnoisy(4)
     a + b - b gives sqrt(41) and  a + b - a gives sqrt(34).
 
-    This case is correctly handled by the Super class since each noise
+    This case is correctly handled by the Voltage class since each noise
     component is stored and considered separately.
 
     (Voltage(a) + Voltage(b) - Voltage(b)).n gives 3 as expected.
@@ -81,15 +81,15 @@ class noisefExpr(NoiseExpression):
         elif isinstance(arg, FourierDomainExpression):
             return self.subs(arg, **assumptions)
 
-        return super(noisefExpr, self).transform(arg, **assumptions)
+        return super(FourierDomainNoiseExpression, self).transform(arg, **assumptions)
     
 
-class Vfnoisy(noisefExpr):
+class FourierDomainNoiseVoltage(FourierDomainNoiseExpression):
     """Voltage noise amplitude spectral density (units V/rtHz).
     This can be a function of linear frequency, f.  For example,
     to model an opamp voltage noise:
 
-    v = Vfnoisy(1e-8 / sqrt(f) + 8e-9)
+    v = FourierDomainNoiseVoltage(1e-8 / sqrt(f) + 8e-9)
     
     """
 
@@ -99,19 +99,20 @@ class Vfnoisy(noisefExpr):
     
     def __init__(self, val, **assumptions):
 
-        super(Vfnoisy, self).__init__(val, **assumptions)
+        super(FourierDomainNoiseVoltage, self).__init__(val, **assumptions)
         # FIXME
         self._fourier_conjugate_class = TimeDomainVoltage
-        self._subs_classes = {AngularFourierDomainExpression: Vnoisy, FourierDomainExpression: Vfnoisy}
+        self._subs_classes = {AngularFourierDomainExpression: AngularFourierDomainNoiseVoltage,
+                             FourierDomainExpression: FourierDomainNoiseVoltage}
 
 
-class Ifnoisy(noisefExpr):
+class FourierDomainNoiseCurrent(FourierDomainNoiseExpression):
     """Current noise amplitude spectral density (units A/rtHz).
 
     This can be a function of linear frequency, f.  For example,
     to model an opamp current noise:
 
-    i = Ifnoisy(3e-12 / sqrt(f) + 200e-15)
+    i = FourierDomainNoiseCurrent(3e-12 / sqrt(f) + 200e-15)
     """
 
     quantity = 'Current noise spectral density'
@@ -119,12 +120,13 @@ class Ifnoisy(noisefExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Ifnoisy, self).__init__(val, **assumptions)
+        super(FourierDomainNoiseCurrent, self).__init__(val, **assumptions)
         # FIXME
         self._fourier_conjugate_class = TimeDomainCurrent
-        self._subs_classes = {AngularFourierDomainExpression: Inoisy, FourierDomainExpression: Ifnoisy}
+        self._subs_classes = {AngularFourierDomainExpression: AngularFourierDomainNoiseCurrent,
+                             FourierDomainExpression: FourierDomainNoiseCurrent}
 
     
 from .texpr import TimeDomainCurrent, TimeDomainVoltage
 from .fexpr import f
-from .noiseomegaexpr import Vnoisy, Inoisy
+from .noiseomegaexpr import AngularFourierDomainNoiseVoltage, AngularFourierDomainNoiseCurrent
