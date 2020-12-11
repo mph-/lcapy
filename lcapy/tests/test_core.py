@@ -449,7 +449,7 @@ class LcapyTester(unittest.TestCase):
     def test_rms(self):
 
         self.assertEqual(ConstantVoltage(2).rms(), TimeDomainVoltage(2))
-        self.assertEqual(Vphasor(2).rms(), TimeDomainVoltage(1))
+        self.assertEqual(PhasorVoltage(2).rms(), TimeDomainVoltage(1))
 
     def test_assumptions(self):
         """Lcapy: check assumptions

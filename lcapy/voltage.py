@@ -34,8 +34,8 @@ class Voltage(Superposition):
     def __init__(self, *args, **kwargs):
         self.type_map = {ConstantExpression: ConstantVoltage, LaplaceDomainExpression : LaplaceDomainVoltage, noiseomegaExpr: Vnoisy,
                          FourierDomainExpression: FourierDomainVoltage, noisefExpr: Vfnoisy, AngularFourierDomainExpression: AngularFourierDomainVoltage,
-                         Phasor: Vphasor, TimeDomainExpression : TimeDomainVoltage}
-        self.decompose_domains = {'s': LaplaceDomainVoltage, 'ac': Vphasor, 'dc':
+                         Phasor: PhasorVoltage, TimeDomainExpression : TimeDomainVoltage}
+        self.decompose_domains = {'s': LaplaceDomainVoltage, 'ac': PhasorVoltage, 'dc':
                                   ConstantVoltage, 'n': Vnoisy, 't': TimeDomainVoltage}
         self.time_class = TimeDomainVoltage
         self.laplace_class = LaplaceDomainVoltage    
@@ -106,7 +106,7 @@ def Vname(name, kind, cache=False):
     elif kind in ('t', 'time'):
         return TimeDomainVoltage(name.lower() + '(t)')
     elif kind in (omega0sym, omega0, 'ac'):
-        return Vphasor(name + '(omega_0)')
+        return PhasorVoltage(name + '(omega_0)')
     # Not caching is a hack to avoid conflicts of Vn1 with Vn1(s) etc.
     # when using subnetlists.  The alternative is a proper context
     # switch.  This would require every method to set the context.
@@ -119,9 +119,9 @@ def Vtype(kind):
         return Vnoisy
     try:
         return {'ivp' : LaplaceDomainVoltage, 's' : LaplaceDomainVoltage, 'n' : Vnoisy,
-                'ac' : Vphasor, 'dc' : ConstantVoltage, 't' : TimeDomainVoltage, 'time' : TimeDomainVoltage}[kind]
+                'ac' : PhasorVoltage, 'dc' : ConstantVoltage, 't' : TimeDomainVoltage, 'time' : TimeDomainVoltage}[kind]
     except KeyError:
-        return Vphasor
+        return PhasorVoltage
 
 
 from .expr import expr    
@@ -132,7 +132,7 @@ from .sexpr import LaplaceDomainExpression, LaplaceDomainVoltage
 from .texpr import TimeDomainExpression, TimeDomainVoltage
 from .noiseomegaexpr import noiseomegaExpr, Vnoisy
 from .noisefexpr import noisefExpr, Vfnoisy
-from .phasor import Vphasor, Phasor
+from .phasor import PhasorVoltage, Phasor
 from .impedance import Impedance
 from .admittance import Admittance
 from .omegaexpr import AngularFourierDomainExpression

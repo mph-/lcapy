@@ -19,10 +19,10 @@ class LcapyTester(unittest.TestCase):
 
     def test_Voltage_properties(self):
         self.assertEqual(Voltage(3).is_dc, True, "Voltage(3).is_dc")
-        self.assertEqual(Voltage(Vphasor(3)).is_ac, True, "Voltage(Vphasor(3)).is_ac")
-        self.assertEqual(Voltage(ConstantVoltage(2), Vphasor(3)).is_ac, False,
+        self.assertEqual(Voltage(PhasorVoltage(3)).is_ac, True, "Voltage(Vphasor(3)).is_ac")
+        self.assertEqual(Voltage(ConstantVoltage(2), PhasorVoltage(3)).is_ac, False,
                           "Voltage(Vconst(2), Vphasor(3)).is_ac")
-        self.assertEqual(Voltage(ConstantVoltage(2), Vphasor(3)).is_ac, False,
+        self.assertEqual(Voltage(ConstantVoltage(2), PhasorVoltage(3)).is_ac, False,
                           "Voltage(Vconst(2), Vphasor(3)).is_dc")
 
     def test_Voltage_add_sub_dc(self):

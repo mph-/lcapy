@@ -89,11 +89,11 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.Voc.is_ac, False, "Voc.is_ac error")                                
         self.assertEqual2(a.Voc.s, 10 / s, "Voc.s error")
         self.assertEqual(a.Voc.n.expr, Vnoisy(20).expr, "Voc.n error")
-        self.assertEqual2(a.Voc.w, Vphasor(40), "Voc.w error")
+        self.assertEqual2(a.Voc.w, PhasorVoltage(40), "Voc.w error")
         self.assertEqual2(a.Isc.s, 2 / s, "Isc.s error")
         # FIXME, this intermittently fails.
         self.assertEqual(a.Isc.n.expr, Inoisy(4).expr, "Isc.n error")
-        self.assertEqual2(a.Isc.w, Iphasor(8), "Isc.w error")        
+        self.assertEqual2(a.Isc.w, PhasorCurrent(8), "Isc.w error")        
         
     def test_ivp(self):
         """Lcapy: check network with initial values"""

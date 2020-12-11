@@ -1048,7 +1048,7 @@ class Vac(VoltageSourceBase):
         self.omega = omega
         self.v0 = V
         self.phi = phi
-        self._Voc = Voltage(Vphasor(self.v0 * exp(j * self.phi),
+        self._Voc = Voltage(PhasorVoltage(self.v0 * exp(j * self.phi),
                                    ac=True, omega=self.omega))
 
     @property
@@ -1079,7 +1079,7 @@ class v(VoltageSourceBase):
         self._Voc = Voltage(Vval)
 
 
-class CurrentSource(OnePort):
+class CurrentSourceBase(OnePort):
 
     current_source = True
     netname = 'I'
@@ -1096,7 +1096,7 @@ class CurrentSource(OnePort):
         return Current(self.isc).select(kind)        
     
     
-class sI(CurrentSource):
+class sI(CurrentSourceBase):
     """Arbitrary s-domain current source"""
 
     netkeyword = 's'
@@ -1108,7 +1108,7 @@ class sI(CurrentSource):
         self._Isc = Current(LaplaceDomainCurrent(Ival))
 
 
-class I(CurrentSource):
+class I(CurrentSourceBase):
     """Arbitrary current source"""
 
     def __init__(self, Ival):
@@ -1117,7 +1117,7 @@ class I(CurrentSource):
         self._Isc = Current(Ival)
 
             
-class Istep(CurrentSource):
+class Istep(CurrentSourceBase):
     """Step current source (s domain current of i / s)."""
 
     netkeyword = 'step'
@@ -1130,7 +1130,7 @@ class Istep(CurrentSource):
         self.i0 = i
 
 
-class Idc(CurrentSource):
+class Idc(CurrentSourceBase):
     """DC current source (note a DC current source of current i has
     an s domain current of i / s)."""
 
@@ -1148,7 +1148,7 @@ class Idc(CurrentSource):
         return self.i0
 
 
-class Iac(CurrentSource):
+class Iac(CurrentSourceBase):
     """AC current source."""
 
     netkeyword = 'ac'
@@ -1177,7 +1177,7 @@ class Iac(CurrentSource):
         self.omega = omega
         self.i0 = I
         self.phi = phi
-        self._Isc = Current(Iphasor(self.i0 * exp(j * self.phi),
+        self._Isc = Current(PhasorCurrent(self.i0 * exp(j * self.phi),
                                    ac=True, omega=self.omega))
 
     @property
@@ -1185,7 +1185,7 @@ class Iac(CurrentSource):
         return self.i0 * cos(self.omega * t + self.phi)
 
 
-class Inoise(CurrentSource):
+class Inoise(CurrentSourceBase):
     """Noise current source."""
 
     netkeyword = 'noise'
@@ -1198,7 +1198,7 @@ class Inoise(CurrentSource):
         self.args = (I, I1.nid)
 
         
-class i(CurrentSource):
+class i(CurrentSourceBase):
     """Arbitrary t-domain current source"""
 
     def __init__(self, ival):
@@ -1459,6 +1459,6 @@ from .texpr import TimeDomainExpression
 from .noiseomegaexpr import Inoisy, Vnoisy
 from .voltage import Voltage
 from .current import Current
-from .phasor import Iphasor, Vphasor
+from .phasor import PhasorCurrent, PhasorVoltage
 from .twoport import Ladder, LSection, TSection
 

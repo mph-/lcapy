@@ -35,8 +35,8 @@ class Current(Superposition):
 
         self.type_map = {ConstantExpression: ConstantCurrent, LaplaceDomainExpression : LaplaceDomainCurrent, noiseomegaExpr: Inoisy,
                          FourierDomainExpression: FourierDomainCurrent, noisefExpr: Ifnoisy, AngularFourierDomainExpression: AngularFourierDomainCurrent,
-                         Phasor: Iphasor, TimeDomainExpression : TimeDomainCurrent}
-        self.decompose_domains = {'s': LaplaceDomainCurrent, 'ac': Iphasor, 'dc':
+                         Phasor: PhasorCurrent, TimeDomainExpression : TimeDomainCurrent}
+        self.decompose_domains = {'s': LaplaceDomainCurrent, 'ac': PhasorCurrent, 'dc':
                                   ConstantCurrent, 'n': Inoisy, 't': TimeDomainCurrent}
         self.time_class = TimeDomainCurrent
         self.laplace_class = LaplaceDomainCurrent
@@ -106,7 +106,7 @@ def Iname(name, kind, cache=False):
     elif kind in ('t', 'time'):
         return TimeDomainCurrent(name.lower() + '(t)')
     elif kind in (omega0sym, omega0, 'ac'):    
-        return Iphasor(name + '(omega_0)')
+        return PhasorCurrent(name + '(omega_0)')
     return expr(name, cache=cache)            
 
 
@@ -115,9 +115,9 @@ def Itype(kind):
         return Inoisy
     try:
         return {'ivp' : LaplaceDomainCurrent, 's' : LaplaceDomainCurrent, 'n' : Inoisy,
-                'ac' : Iphasor, 'dc' : ConstantCurrent, 't' : TimeDomainCurrent, 'time' : TimeDomainCurrent}[kind]
+                'ac' : PhasorCurrent, 'dc' : ConstantCurrent, 't' : TimeDomainCurrent, 'time' : TimeDomainCurrent}[kind]
     except KeyError:
-        return Iphasor
+        return PhasorCurrent
     
 
 from .expr import expr
@@ -128,7 +128,7 @@ from .sexpr import LaplaceDomainExpression, LaplaceDomainCurrent
 from .texpr import TimeDomainExpression, TimeDomainCurrent
 from .noiseomegaexpr import noiseomegaExpr, Inoisy
 from .noisefexpr import noisefExpr, Ifnoisy
-from .phasor import Iphasor, Phasor
+from .phasor import PhasorCurrent, Phasor
 from .impedance import Impedance
 from .admittance import Admittance
 from .omegaexpr import AngularFourierDomainExpression

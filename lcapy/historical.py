@@ -33,3 +33,7 @@ from .omegaexpr import AngularFourierDomainAdmittance as Yomega
 from .omegaexpr import AngularFourierDomainImpedance as Zomega
 
 from .noiseexpr import NoiseExpression as noiseExpr
+
+from .phasor import PhasorExpression as Phasor
+from .phasor import PhasorVoltage as Vphasor
+from .phasor import PhasorCurrent as Iphasor

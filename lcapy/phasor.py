@@ -144,7 +144,7 @@ class Phasor(Expr):
         return self.__class__(self, **self.assumptions)
 
     def rms(self):
-        return {Vphasor: TimeDomainVoltage, Iphasor : TimeDomainCurrent}[self.__class__](0.5 * self)
+        return {PhasorVoltage: TimeDomainVoltage, PhasorCurrent : TimeDomainCurrent}[self.__class__](0.5 * self)
 
     def plot(self, **kwargs):
 
@@ -152,7 +152,7 @@ class Phasor(Expr):
         return plot_phasor(self, **kwargs)
 
 
-class Vphasor(Phasor):
+class PhasorVoltage(Phasor):
     """t-domain voltage (units V) parameterized as a phasor
     of a single angular frequency, omega0."""
         
@@ -162,7 +162,7 @@ class Vphasor(Phasor):
     
     def __init__(self, val, **assumptions):
 
-        super(Vphasor, self).__init__(val, **assumptions)
+        super(PhasorVoltage, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = TimeDomainVoltage
 
     def cpt(self):
@@ -170,7 +170,7 @@ class Vphasor(Phasor):
         return Vac(self, 0, self.omega)            
 
     
-class Iphasor(Phasor):
+class PhasorCurrent(Phasor):
     """t-domain current (units V) parameterized as a phasor
     of a single angular frequency, omega0."""    
 
@@ -179,7 +179,7 @@ class Iphasor(Phasor):
     superkind = 'Current'
 
     def __init__(self, val, **assumptions):
-        super(Iphasor, self).__init__(val, **assumptions)
+        super(PhasorCurrent, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = TimeDomainCurrent
 
     def cpt(self):
