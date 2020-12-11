@@ -515,6 +515,12 @@ class Expr(ExprPrint, ExprMisc):
 
         return self.__class__(-self.expr, **self.assumptions)
 
+    def _incompatible(self, x, op):
+                
+        raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' %
+                         (self.__class__.__name__, self,
+                          x.__class__.__name__, x, op))
+    
     def __compat_mul__(self, x, op):
         """Check if args are compatible and if so return compatible class."""
 
@@ -565,14 +571,16 @@ class Expr(ExprPrint, ExprMisc):
         if isinstance(self, tExpr) and isinstance(x, tExpr):
             return cls, self, cls(x), assumptions
 
+        if isinstance(self, fExpr) and isinstance(x, fExpr):
+            return cls, self, cls(x), assumptions        
+
         if isinstance(self, sExpr) and isinstance(x, sExpr):
             return cls, self, cls(x), assumptions
 
         if isinstance(self, omegaExpr) and isinstance(x, omegaExpr):
             return cls, self, cls(x), assumptions
 
-        raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' %
-                         (cls.__name__, self, xcls.__name__, x, op))
+        self._incompatible(self, x, op)
 
     def __compat_add__(self, x, op):
 
@@ -611,12 +619,12 @@ class Expr(ExprPrint, ExprMisc):
         if cls in (Expr, cExpr):
             return xcls, cls(self), x, assumptions
 
-        if (cls in (Impedance, Admittance, Resistance, Reactance, Conductance, Susceptance) and
+        if (cls in (Impedance, Admittance, Resistance, Reactance,
+                    Conductance, Susceptance) and
             isinstance(x, omegaExpr)):
             return cls, self, cls(x), assumptions        
 
-        raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' %
-                         (cls.__name__, self, xcls.__name__, x, op))
+        self._incompatible(x, op)        
 
     def __rdiv__(self, x):
         """Reverse divide"""

@@ -9,7 +9,7 @@ from __future__ import division
 from .fourier import inverse_fourier_transform
 from .expr import Expr, expr
 from .sym import fsym, ssym, tsym, pi
-from sympy import Integral
+from sympy import Integral, Expr as symExpr
 
 class fExpr(Expr):
 
@@ -154,7 +154,25 @@ class Vf(fExpr):
         super(Vf, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Vt
 
+    def __mul__(self, x):
+        """Multiply"""
 
+        if isinstance(x, Yf):
+            return If(super(Vf, self).__mul__(x))
+        if isinstance(x, (cExpr, fExpr, symExpr, int, float, complex)):
+            return super(Vf, self).__mul__(x)
+        self._incompatible(x, '*')
+
+    def __truediv__(self, x):
+        """Divide"""
+
+        if isinstance(x, Zf):
+            return If(super(Vf, self).__truediv__(x))
+        if isinstance(x, (cExpr, fExpr, symExpr, int, float, complex)):
+            return super(Vf, self).__truediv__(x)
+        self._incompatible(x, '/')                
+
+        
 class If(fExpr):
 
     """f-domain current (units A/Hz)."""
@@ -168,7 +186,25 @@ class If(fExpr):
         super(If, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = It
 
+    def __mul__(self, x):
+        """Multiply"""
 
+        if isinstance(x, Zf):
+            return Vf(super(If, self).__mul__(x))            
+        if isinstance(x, (cExpr, fExpr, symExpr, int, float, complex)):
+            return super(If, self).__mul__(x)
+        self._incompatible(x, '*')        
+
+    def __truediv__(self, x):
+        """Divide"""
+
+        if isinstance(x, Yf):
+            return Vf(super(If, self).__truediv__(x))
+        if isinstance(x, (cExpr, fExpr, symExpr, int, float, complex)):
+            return super(If, self).__truediv__(x)
+        self._incompatible(x, '/')                        
+
+        
 def fexpr(arg, **assumptions):
     """Create fExpr object.  If `arg` is fsym return f"""
 
@@ -177,4 +213,5 @@ def fexpr(arg, **assumptions):
     return fExpr(arg, **assumptions)
         
 from .texpr import Ht, It, Vt, Yt, Zt, tExpr
+from .cexpr import cExpr
 f = fExpr('f')

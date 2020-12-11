@@ -9,6 +9,7 @@ from __future__ import division
 from .fourier import inverse_fourier_transform
 from .expr import Expr, expr
 from .sym import fsym, ssym, tsym, omegasym, omega0sym, j, pi
+from sympy import Expr as symExpr
 
 
 class omegaExpr(Expr):
@@ -151,6 +152,24 @@ class Vomega(omegaExpr):
         super(Vomega, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = Vt
 
+    def __mul__(self, x):
+        """Multiply"""
+
+        if isinstance(x, Yomega):
+            return Iomega(super(Vomega, self).__mul__(x))
+        if isinstance(x, (cExpr, omegaExpr, symExpr, int, float, complex)):
+            return super(Vomega, self).__mul__(x)
+        self._incompatible(x, '*')
+
+    def __truediv__(self, x):
+        """Divide"""
+
+        if isinstance(x, Zomega):
+            return Iomega(super(Vomega, self).__truediv__(x))
+        if isinstance(x, (cExpr, omegaExpr, symExpr, int, float, complex)):
+            return super(Vomega, self).__truediv__(x)
+        self._incompatible(x, '/')
+        
 
 class Iomega(omegaExpr):
 
@@ -165,7 +184,25 @@ class Iomega(omegaExpr):
         super(Iomega, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = It
 
+    def __mul__(self, x):
+        """Multiply"""
 
+        if isinstance(x, Zomega):
+            return Vomega(super(Iomega, self).__mul__(x))            
+        if isinstance(x, (cExpr, omegaExpr, symExpr, int, float, complex)):
+            return super(Iomega, self).__mul__(x)
+        self._incompatible(x, '*')        
+
+    def __truediv__(self, x):
+        """Divide"""
+
+        if isinstance(x, Yomega):
+            return Vomega(super(Iomega, self).__truediv__(x))
+        if isinstance(x, (cExpr, omegaExpr, symExpr, int, float, complex)):
+            return super(Iomega, self).__truediv__(x)
+        self._incompatible(x, '/')                        
+
+        
 class Homega(omegaExpr):
 
     """omega-domain transfer function response."""
@@ -190,5 +227,6 @@ def omegaexpr(arg, **assumptions):
 
         
 from .texpr import Ht, It, Vt, Yt, Zt, tExpr
+from .cexpr import cExpr
 omega = omegaExpr('omega')
 omega0 = omegaExpr('omega_0')

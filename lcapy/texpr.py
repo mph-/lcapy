@@ -11,7 +11,7 @@ from .sym import fsym, ssym, tsym, j, oo, tausym
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .laplace import laplace_transform
 from .fourier import fourier_transform
-from sympy import Heaviside, limit, Integral
+from sympy import Heaviside, limit, Integral, Expr as symExpr
 
 __all__ = ('Ht', 'It', 'Vt', 'Yt', 'Zt')
 
@@ -239,7 +239,25 @@ class Vt(tExpr):
         from .oneport import V
         return V(self)
 
-    
+    def __mul__(self, x):
+        """Multiply"""
+
+        if isinstance(x, Yt):
+            raise ValueError('Need to convolve expressions.')
+        if isinstance(x, (cExpr, tExpr, symExpr, int, float, complex)):
+            return super(Vt, self).__mul__(x)
+        self._incompatible(x, '*')        
+
+    def __truediv__(self, x):
+        """Divide"""
+
+        if isinstance(x, Zt):
+            raise ValueError('Need to deconvolve expressions.')
+        if isinstance(x, (cExpr, tExpr, symExpr, int, float, complex)):
+            return super(Vt, self).__truediv__(x)
+        self._incompatible(x, '/')        
+
+        
 class It(tExpr):
 
     """t-domain current (units A)."""
@@ -257,6 +275,24 @@ class It(tExpr):
     def cpt(self):
         from .oneport import I
         return I(self)
+
+    def __mul__(self, x):
+        """Multiply"""
+
+        if isinstance(x, Zt):
+            raise ValueError('Need to convolve expressions.')
+        if isinstance(x, (cExpr, tExpr, symExpr, int, float, complex)):
+            return super(It, self).__mul__(x)
+        self._incompatible(x, '*')        
+
+    def __truediv__(self, x):
+        """Divide"""
+
+        if isinstance(x, Yt):
+            raise ValueError('Need to deconvolve expressions.')        
+        if isinstance(x, (cExpr, tExpr, symExpr, int, float, complex)):
+            return super(It, self).__truediv__(x)
+        self._incompatible(x, '/')        
         
 
 class Ht(tExpr):
@@ -281,5 +317,6 @@ def texpr(arg, **assumptions):
 
 from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr
 from .fexpr import Hf, If, Vf, Yf, Zf, fExpr
+from .cexpr import cExpr
 from .phasor import Phasor
 t = tExpr('t')

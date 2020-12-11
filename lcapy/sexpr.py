@@ -13,7 +13,7 @@ from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, exprcontainer
 from .functions import sqrt
 import numpy as np
-from sympy import limit, exp, Poly, Integral, div, oo, Eq
+from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
 
 
 __all__ = ('Hs', 'Is', 'Vs', 'Ys', 'Zs', 'zp2tf', 'tf', 'pr2tf')
@@ -547,7 +547,25 @@ class Vs(sExpr):
         from .oneport import V
         return V(self)
 
+    def __mul__(self, x):
+        """Multiply"""
 
+        if isinstance(x, Ys):
+            return Is(super(Vs, self).__mul__(x))
+        if isinstance(x, (cExpr, sExpr, symExpr, int, float, complex)):
+            return super(Vs, self).__mul__(x)
+        self._incompatible(x, '*')
+
+    def __truediv__(self, x):
+        """Divide"""
+
+        if isinstance(x, Zs):
+            return Is(super(Vs, self).__truediv__(x))
+        if isinstance(x, (cExpr, sExpr, symExpr, int, float, complex)):
+            return super(Vs, self).__truediv__(x)
+        self._incompatible(x, '/')        
+
+        
 class Is(sExpr):
 
     """s-domain current (units A s / radian)."""
@@ -566,6 +584,24 @@ class Is(sExpr):
         
         return I(self)
 
+    def __mul__(self, x):
+        """Multiply"""
+
+        if isinstance(x, Zs):
+            return Vs(super(Is, self).__mul__(x))            
+        if isinstance(x, (cExpr, sExpr, symExpr, int, float, complex)):
+            return super(Is, self).__mul__(x)
+        self._incompatible(x, '*')        
+
+    def __truediv__(self, x):
+        """Divide"""
+
+        if isinstance(x, Ys):
+            return Vs(super(Is, self).__truediv__(x))
+        if isinstance(x, (cExpr, sExpr, symExpr, int, float, complex)):
+            return super(Is, self).__truediv__(x)
+        self._incompatible(x, '/')                
+    
 
 class Hs(sExpr):
 
@@ -640,5 +676,6 @@ def sexpr(arg, **assumptions):
 
 
 from .texpr import Ht, It, Vt, Yt, Zt, tExpr, texpr
+from .cexpr import cExpr
 s = sExpr('s')
 

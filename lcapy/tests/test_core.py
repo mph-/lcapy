@@ -350,6 +350,83 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(type(omega * t), tExpr, "Not tExpr")
         self.assertEqual(type(t * omega), tExpr, "Not tExpr")                
 
+    def test_Vs(self):
+        """Lcapy: check Vs
+
+        """
+
+        self.assertEqual(type(Vs(5) * 5), Vs, "Not Vs")
+        self.assertEqual(type(Vs(5) * Vs(4)), Vs, "Not Vs")
+        self.assertEqual(type(Vs(5) * Ys(4)), Is, "Not Is")
+        self.assertEqual(type(Vs(5) / Zs(4)), Is, "Not Is")
+
+    def test_Vt(self):
+        """Lcapy: check Vt
+
+        """
+
+        self.assertEqual(type(Vt(5) * 5), Vt, "Not Vt")
+        self.assertEqual(type(Vt(5) * Vt(4)), Vt, "Not Vt")
+
+    def test_Vf(self):
+        """Lcapy: check Vf
+
+        """
+
+        self.assertEqual(type(Vf(5) * 5), Vf, "Not Vf")
+        self.assertEqual(type(Vf(5) * Vf(4)), Vf, "Not Vf")
+        self.assertEqual(type(Vf(5) * Yf(4)), If, "Not If")
+        self.assertEqual(type(Vf(5) / Zf(4)), If, "Not If")
+
+    def test_Vomega(self):
+        """Lcapy: check Vomega
+
+        """
+
+        self.assertEqual(type(Vomega(5) * 5), Vomega, "Not Vomega")
+        self.assertEqual(type(Vomega(5) * Vomega(4)), Vomega, "Not Vomega")
+        self.assertEqual(type(Vomega(5) * Yomega(4)), Iomega, "Not Iomega")
+        self.assertEqual(type(Vomega(5) / Zomega(4)), Iomega, "Not Iomega")
+
+    def test_Is(self):
+        """Lcapy: check Is
+
+        """
+
+        self.assertEqual(type(Is(5) * 5), Is, "Not Is")
+        self.assertEqual(type(Is(5) * Is(4)), Is, "Not Is")
+        self.assertEqual(type(Is(5) * Zs(4)), Vs, "Not Vs")
+        self.assertEqual(type(Is(5) / Ys(4)), Vs, "Not Vs")
+
+    def test_It(self):
+        """Lcapy: check It
+
+        """
+
+        self.assertEqual(type(It(5) * 5), It, "Not It")
+        self.assertEqual(type(It(5) * It(4)), It, "Not It")
+
+    def test_If(self):
+        """Lcapy: check If
+
+        """
+
+        self.assertEqual(type(If(5) * 5), If, "Not If")
+        self.assertEqual(type(If(5) * If(4)), If, "Not If")
+        self.assertEqual(type(If(5) / Yf(4)), Vf, "Not Vf")
+        self.assertEqual(type(If(5) * Zf(4)), Vf, "Not Vf")
+
+    def test_Iomega(self):
+        """Lcapy: check Iomega
+
+        """
+
+        self.assertEqual(type(Iomega(5) * 5), Iomega, "Not Iomega")
+        self.assertEqual(type(Iomega(5) * Iomega(4)), Iomega, "Not Iomega")
+        self.assertEqual(type(Iomega(5) / Yomega(4)), Vomega, "Not Vomega")
+        self.assertEqual(type(Iomega(5) * Zomega(4)), Vomega, "Not Vomega")
+
+        
     def test_evaluate(self):
         """Lcapy: check evaluate
 

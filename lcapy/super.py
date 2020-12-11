@@ -754,6 +754,8 @@ phasor, for example, using: %s""" % foo)
     def oneport(self):
         """Create oneport component."""
         return self.cpt()
+
+    
     
 from .cexpr import cExpr        
 from .fexpr import fExpr    
