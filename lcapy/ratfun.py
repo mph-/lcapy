@@ -230,7 +230,7 @@ def _pr2tf(poles, residues, var=None):
 
 def as_ratfun_delay(expr, var):
     delay = sym.S.Zero
-    
+
     if expr.is_rational_function(var):
         N, D = expr.as_numer_denom()
         return N, D, delay
@@ -297,7 +297,7 @@ def as_ratfun_delay_undef(expr, var):
 class Ratfun(object):
 
     def __init__(self, expr, var):
-        self.expr = expr
+        self.expr = expr.cancel()
         self.var = var
 
     def as_ratfun_delay(self):
@@ -487,13 +487,20 @@ class Ratfun(object):
             N = Npoly.monic().as_expr()
             D = Dpoly.monic().as_expr()
 
-            expr = sym.Mul(K, sym.Mul(N, 1 / D, evaluate=False), undef,
-                           evaluate=False)
+            if D == 1:
+                expr = N
+            else:
+                expr = sym.Mul(N, 1 / D, evaluate=False)                
+
+            expr = sym.Mul(K, expr, undef, evaluate=False)
         else:
             C = Dpoly.LC()
             D = Dpoly.monic().as_expr()
             N = (Npoly.as_expr() / C).simplify()
-            expr = sym.Mul(N, 1 / D, evaluate=False)
+            if D == 1:
+                expr = N
+            else:
+                expr = sym.Mul(N, 1 / D, evaluate=False)
             if delay != 0:
                 expr *= sym.exp(self.var * delay)
             expr *= undef
