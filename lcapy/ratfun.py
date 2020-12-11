@@ -297,7 +297,8 @@ def as_ratfun_delay_undef(expr, var):
 class Ratfun(object):
 
     def __init__(self, expr, var):
-        self.expr = expr.cancel()
+        # Don't use cancel, it can cause a mess when have exp(s * T).
+        self.expr = expr
         self.var = var
 
     def as_ratfun_delay(self):
