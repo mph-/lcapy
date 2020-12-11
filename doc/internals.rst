@@ -55,27 +55,27 @@ Values and expressions
 
 Lcapy uses a number of classes to represent a value or expression.
 These classes all inherit from the `Expr` base class; this is a
-wrapper for a SymPy expression.  Unfortunately, SymPy does not provide
+facade for a SymPy expression.  Unfortunately, SymPy does not provide
 a generic SymPy expression class so `Expr` stores the SymPy expression
 as its `expr` attribute.
 
 `Expr` is the base class for Lcapy expressions.  There are a number of
 classes that inherit from this class:
 
-`cExpr` represents a constant, such as the resistance of a resistor.
+`ConstantExpression` represents a constant, such as the resistance of a resistor.
 The constant must be real and positive.
 
-`tExpr` represents a time domain expression.   This should be real.
+`TimeDomainExpression` represents a time domain expression.   This should be real.
 
-`sExpr` represents an s-domain expression.   This can be complex.
+`LaplaceDomainExpression` represents an s-domain expression.   This can be complex.
 
-`omegaExpr` represents an angular frequency domain expression.  This
+`AngularFourierDomainExpression` represents an angular frequency domain expression.  This
 can be complex.
 
-`fExpr` represents a frequency domain expression.  This can be
+`FourierDomainExpression` represents a frequency domain expression.  This can be
 complex.
 
-`noiseExpr` represents a noise expression (amplitude spectral
+`NoiseExpresssion` represents a noise expression (amplitude spectral
 density).  This is real.
 
 `Impedance` represents a generalized impedance.
@@ -88,25 +88,25 @@ Expressions with units
 
 There are many classes that inherit from the `Expr` classes that
 include implicit units, such as voltage or current.  For example, the
-following classes all inherit from `sExpr`:
+following classes all inherit from `LaplaceDomainExpression`:
 
-`Vs` is a s-domain voltage.
+`LaplaceDomainVoltage` is a s-domain voltage.
 
-`Is` is a s-domain current.
+`LaplaceDomainCurrent` is a s-domain current.
 
-`Hs` is a s-domain transfer function.
+`LaplaceDomainTransferFunction` is a s-domain transfer function.
 
-`Ys` is a s-domain admittance.
+`LaplaceDomainAdmittance` is a s-domain admittance.
 
-`Zs` is a s-domain impedance.
+`LaplaceDomainImpedance` is a s-domain impedance.
 
 
-Super classes
--------------
+Superposition classes
+---------------------
 
-`Super` represents a superposition of different domains.  This is the
+`Superposition` represents a superposition of different domains.  This is the
 default representation for calculated results from circuit analysis.
-There are two classes that inherit from `Super`:
+There are two classes that inherit from `Superposition`:
 
 `Voltage` represents a superposition of voltages.
 

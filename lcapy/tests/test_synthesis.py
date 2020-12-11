@@ -92,7 +92,7 @@ class LcapyTester(unittest.TestCase):
 
     def test_Z1(self):
 
-        Z1 = Zs(9 * s**5 + 30 * s**3 + 24 * s) / (18 * s**4 + 36 * s**2 + 8)   
+        Z1 = LaplaceDomainImpedance(9 * s**5 + 30 * s**3 + 24 * s) / (18 * s**4 + 36 * s**2 + 8)   
 
         self.assertEqual(Z1, Z1.network('fosterI').Z(s), 'fosterI')
         self.assertEqual(Z1, Z1.network('fosterII').Z(s), 'fosterII')

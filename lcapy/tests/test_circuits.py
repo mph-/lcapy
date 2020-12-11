@@ -1,5 +1,5 @@
-from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, Vs, Vnoisy, Vt, It, sqrt, u, sympify, expr
-from lcapy import Zs, s, t
+from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, LaplaceDomainVoltage, Vnoisy, TimeDomainVoltage, TimeDomainCurrent, sqrt, u, sympify, expr
+from lcapy import LaplaceDomainImpedance, s, t
 import unittest
 import sympy as sym
 
@@ -232,7 +232,7 @@ class LcapyTester(unittest.TestCase):
         # This tests if symbols are converted to the defined ones.
         self.assertEqual2(a.L1.v, V(0).Voc.s.inverse_laplace(), 
                           "Incorrect time domain voltage")        
-        v = Vs('(V1+1)/s', dc=False).inverse_laplace()
+        v = LaplaceDomainVoltage('(V1+1)/s', dc=False).inverse_laplace()
         self.assertEqual2(a.R1.v, v, 
                           "Incorrect time domain voltage")        
         self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
@@ -326,10 +326,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_ac, True, "AC incorrect")
         self.assertEqual(a.is_causal, False, "Causal incorrect")
         self.assertEqual(a.is_time_domain, True, "Time domain incorrect")
-        self.assertEqual(a.V1.v, Vt('5*cos(t)'), "V1 voltage incorrect")
-        self.assertEqual(a.R1.v, Vt('5*cos(t)'), "R1 voltage incorrect")
-        self.assertEqual(a.V1.i, It('5*cos(t)'), "V1 current incorrect")
-        self.assertEqual(a.R1.i, It('5*cos(t)'), "R1 current incorrect")
+        self.assertEqual(a.V1.v, TimeDomainVoltage('5*cos(t)'), "V1 voltage incorrect")
+        self.assertEqual(a.R1.v, TimeDomainVoltage('5*cos(t)'), "R1 voltage incorrect")
+        self.assertEqual(a.V1.i, TimeDomainCurrent('5*cos(t)'), "V1 current incorrect")
+        self.assertEqual(a.R1.i, TimeDomainCurrent('5*cos(t)'), "R1 current incorrect")
 
         
     def test_VRL1_ac2(self):
@@ -346,8 +346,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_ac, True, "AC incorrect")
         self.assertEqual(a.is_causal, False, "Causal incorrect")
         self.assertEqual(a.is_time_domain, False, "Time domain incorrect")
-        self.assertEqual(a.V1.v, Vt('5*cos(t)'), "V1 voltage incorrect")
-        self.assertEqual(a.R1.i, It('(4*sin(t)+3*cos(t))/5'), "R1 current incorrect")
+        self.assertEqual(a.V1.v, TimeDomainVoltage('5*cos(t)'), "V1 voltage incorrect")
+        self.assertEqual(a.R1.i, TimeDomainCurrent('(4*sin(t)+3*cos(t))/5'), "R1 current incorrect")
         
 
     def test_VRC_ivp(self):

@@ -535,7 +535,7 @@ class Expr(ExprPrint, ExprMisc):
 
         xcls = x.__class__
 
-        if isinstance(self, sExpr) and isinstance(x, sExpr):
+        if isinstance(self, LaplaceDomainExpression) and isinstance(x, LaplaceDomainExpression):
             if self.is_causal or x.is_causal:
                 assumptions = {'causal' : True}
             elif self.is_dc and x.is_dc:
@@ -551,15 +551,15 @@ class Expr(ExprPrint, ExprMisc):
             return cls, self, cls(x), assumptions
 
         # Allow omega * t but treat as t expression.
-        if isinstance(self, omegaExpr) and isinstance(x, tExpr):
+        if isinstance(self, AngularFourierDomainExpression) and isinstance(x, TimeDomainExpression):
             return xcls, self, x, assumptions
-        if isinstance(self, tExpr) and isinstance(x, omegaExpr):
+        if isinstance(self, TimeDomainExpression) and isinstance(x, AngularFourierDomainExpression):
             return cls, self, x, assumptions                    
         
-        if xcls in (Expr, cExpr):
+        if xcls in (Expr, ConstantExpression):
             return cls, self, cls(x), assumptions
 
-        if cls in (Expr, cExpr):
+        if cls in (Expr, ConstantExpression):
             return xcls, self, x, assumptions
 
         if isinstance(x, cls):
@@ -568,16 +568,16 @@ class Expr(ExprPrint, ExprMisc):
         if isinstance(self, xcls):
             return cls, self, cls(x), assumptions
 
-        if isinstance(self, tExpr) and isinstance(x, tExpr):
+        if isinstance(self, TimeDomainExpression) and isinstance(x, TimeDomainExpression):
             return cls, self, cls(x), assumptions
 
-        if isinstance(self, fExpr) and isinstance(x, fExpr):
+        if isinstance(self, FourierDomainExpression) and isinstance(x, FourierDomainExpression):
             return cls, self, cls(x), assumptions        
 
-        if isinstance(self, sExpr) and isinstance(x, sExpr):
+        if isinstance(self, LaplaceDomainExpression) and isinstance(x, LaplaceDomainExpression):
             return cls, self, cls(x), assumptions
 
-        if isinstance(self, omegaExpr) and isinstance(x, omegaExpr):
+        if isinstance(self, AngularFourierDomainExpression) and isinstance(x, AngularFourierDomainExpression):
             return cls, self, cls(x), assumptions
 
         self._incompatible(self, x, op)
@@ -594,7 +594,7 @@ class Expr(ExprPrint, ExprMisc):
 
         xcls = x.__class__
 
-        if isinstance(self, sExpr) and isinstance(x, sExpr):
+        if isinstance(self, LaplaceDomainExpression) and isinstance(x, LaplaceDomainExpression):
             if self.is_causal and x.is_causal:
                 assumptions = {'causal' : True}
             elif self.is_dc and x.is_dc:
@@ -613,15 +613,15 @@ class Expr(ExprPrint, ExprMisc):
         if isinstance(x, cls):
             return xcls, self, cls(x), assumptions
 
-        if xcls in (Expr, cExpr):
+        if xcls in (Expr, ConstantExpression):
             return cls, self, x, assumptions
 
-        if cls in (Expr, cExpr):
+        if cls in (Expr, ConstantExpression):
             return xcls, cls(self), x, assumptions
 
         if (cls in (Impedance, Admittance, Resistance, Reactance,
                     Conductance, Susceptance) and
-            isinstance(x, omegaExpr)):
+            isinstance(x, AngularFourierDomainExpression)):
             return cls, self, cls(x), assumptions        
 
         self._incompatible(x, op)        
@@ -645,11 +645,11 @@ class Expr(ExprPrint, ExprMisc):
 
     def __mul__(self, x):
         """Multiply"""
-        from .super import Super
+        from .super import Superposition
         from .matrix import Matrix
 
         # Could return NotImplemented to trigger __rmul__ of x.
-        if isinstance(x, Super):
+        if isinstance(x, Superposition):
             return x.__mul__(self)
         elif isinstance(x, Matrix):
             return x * self.expr
@@ -951,14 +951,14 @@ class Expr(ExprPrint, ExprMisc):
         from .utils import factor_const
 
         c, r = factor_const(self, self.var)
-        return cExpr(c), self.__class__(r, **self.assumptions)
+        return ConstantExpression(c), self.__class__(r, **self.assumptions)
 
     def term_const(self):
 
         from .utils import term_const
 
         c, r = term_const(self, self.var)
-        return cExpr(c), self.__class__(r, **self.assumptions)    
+        return ConstantExpression(c), self.__class__(r, **self.assumptions)    
 
     def multiply_top_and_bottom(self, factor):
         """Multiply numerator and denominator by common factor."""
@@ -1276,32 +1276,32 @@ class Expr(ExprPrint, ExprMisc):
         try:    
             cls = self._subs_classes[new.__class__]
         except:
-            class_map = {(Hs, omegaExpr) : Homega,
-                         (Is, omegaExpr) : Iomega,
-                         (Vs, omegaExpr) : Vomega,
-                         (Ys, omegaExpr) : Yomega,
-                         (Zs, omegaExpr) : Zomega,
-                         (Admittance, omegaExpr) : Yomega,
-                         (Impedance, omegaExpr) : Zomega,                     
-                         (Hs, fExpr) : Hf,
-                         (Is, fExpr) : If,
-                         (Vs, fExpr) : Vf,
-                         (Ys, fExpr) : Yf,
-                         (Zs, fExpr) : Zf,
-                         (Admittance, fExpr) : Yf,
-                         (Impedance, fExpr) : Zf,                     
-                         (Hf, omegaExpr) : Homega,
-                         (If, omegaExpr) : Iomega,
-                         (Vf, omegaExpr) : Vomega,
-                         (Yf, omegaExpr) : Yomega,
-                         (Zf, omegaExpr) : Zomega,
-                         (Homega, fExpr) : Hf,
-                         (Iomega, fExpr) : If,
-                         (Vomega, fExpr) : Vf,
-                         (Yomega, fExpr) : Yf,
-                         (Zomega, fExpr) : Zf,
-                         (Admittance, sExpr) : Ys,
-                         (Impedance, sExpr) : Zs}                     
+            class_map = {(LaplaceDomainTransferFunction, AngularFourierDomainExpression) : AngularFourierDomainTransferFunction,
+                         (LaplaceDomainCurrent, AngularFourierDomainExpression) : AngularFourierDomainCurrent,
+                         (LaplaceDomainVoltage, AngularFourierDomainExpression) : AngularFourierDomainVoltage,
+                         (LaplaceDomainAdmittance, AngularFourierDomainExpression) : AngularFourierDomainAdmittance,
+                         (LaplaceDomainImpedance, AngularFourierDomainExpression) : AngularFourierDomainImpedance,
+                         (Admittance, AngularFourierDomainExpression) : AngularFourierDomainAdmittance,
+                         (Impedance, AngularFourierDomainExpression) : AngularFourierDomainImpedance,                     
+                         (LaplaceDomainTransferFunction, FourierDomainExpression) : FourierDomainTransferFunction,
+                         (LaplaceDomainCurrent, FourierDomainExpression) : FourierDomainCurrent,
+                         (LaplaceDomainVoltage, FourierDomainExpression) : FourierDomainVoltage,
+                         (LaplaceDomainAdmittance, FourierDomainExpression) : FourierDomainAdmittance,
+                         (LaplaceDomainImpedance, FourierDomainExpression) : FourierDomainImpedance,
+                         (Admittance, FourierDomainExpression) : FourierDomainAdmittance,
+                         (Impedance, FourierDomainExpression) : FourierDomainImpedance,                     
+                         (FourierDomainTransferFunction, AngularFourierDomainExpression) : AngularFourierDomainTransferFunction,
+                         (FourierDomainCurrent, AngularFourierDomainExpression) : AngularFourierDomainCurrent,
+                         (FourierDomainVoltage, AngularFourierDomainExpression) : AngularFourierDomainVoltage,
+                         (FourierDomainAdmittance, AngularFourierDomainExpression) : AngularFourierDomainAdmittance,
+                         (FourierDomainImpedance, AngularFourierDomainExpression) : AngularFourierDomainImpedance,
+                         (AngularFourierDomainTransferFunction, FourierDomainExpression) : FourierDomainTransferFunction,
+                         (AngularFourierDomainCurrent, FourierDomainExpression) : FourierDomainCurrent,
+                         (AngularFourierDomainVoltage, FourierDomainExpression) : FourierDomainVoltage,
+                         (AngularFourierDomainAdmittance, FourierDomainExpression) : FourierDomainAdmittance,
+                         (AngularFourierDomainImpedance, FourierDomainExpression) : FourierDomainImpedance,
+                         (Admittance, LaplaceDomainExpression) : LaplaceDomainAdmittance,
+                         (Impedance, LaplaceDomainExpression) : LaplaceDomainImpedance}                     
 
             if (self.__class__, new.__class__) in class_map:
                 cls = class_map[(self.__class__, new.__class__)]
@@ -2111,7 +2111,7 @@ def expr(arg, **assumptions):
     elif omegasym in symbols:
         return omegaexpr(expr, **assumptions)
     else:
-        return cExpr(expr, **assumptions)
+        return ConstantExpression(expr, **assumptions)
 
 
 def symbol(name, **assumptions):
@@ -2135,10 +2135,10 @@ def symbols(names, **assumptions):
     return symbols
 
 
-from .cexpr import cExpr        
-from .fexpr import Hf, If, Vf, Yf, Zf, fExpr, fexpr
-from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr, sexpr
-from .texpr import tExpr, texpr
+from .cexpr import ConstantExpression        
+from .fexpr import FourierDomainTransferFunction, FourierDomainCurrent, FourierDomainVoltage, FourierDomainAdmittance, FourierDomainImpedance, FourierDomainExpression, fexpr
+from .sexpr import LaplaceDomainTransferFunction, LaplaceDomainCurrent, LaplaceDomainVoltage, LaplaceDomainAdmittance, LaplaceDomainImpedance, LaplaceDomainExpression, sexpr
+from .texpr import TimeDomainExpression, texpr
 from .impedance import Impedance
 from .admittance import Admittance
 from .resistance import *
@@ -2147,7 +2147,7 @@ from .conductance import *
 from .susceptance import *
 from .voltage import Voltage
 from .current import Current
-from .omegaexpr import Homega, Iomega, Vomega, Yomega, Zomega, omegaExpr, omegaexpr
+from .omegaexpr import AngularFourierDomainTransferFunction, AngularFourierDomainCurrent, AngularFourierDomainVoltage, AngularFourierDomainAdmittance, AngularFourierDomainImpedance, AngularFourierDomainExpression, omegaexpr
 
 # Horrible hack to work with IPython around Sympy's back for LaTeX
 # formatting.  The problem is that Sympy does not check for the

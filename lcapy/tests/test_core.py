@@ -1,5 +1,5 @@
 from lcapy import *
-from lcapy.cexpr import cExpr
+from lcapy.cexpr import ConstantExpression
 import unittest
 
 
@@ -17,7 +17,7 @@ class LcapyTester(unittest.TestCase):
 
     def test_rmul(self):
 
-        self.assertEqual2((j * omega).__class__,  omegaExpr, "j * omega fail.")
+        self.assertEqual2((j * omega).__class__,  AngularFourierDomainExpression, "j * omega fail.")
 
     def test_Expr1(self):
         """Lcapy: check Expr
@@ -62,7 +62,7 @@ class LcapyTester(unittest.TestCase):
         """Lcapy: check cExpr1
 
         """
-        a = cExpr('1')
+        a = ConstantExpression('1')
         self.assertEqual2(a.evaluate(), 1, "evaluate incorrect.")
         
         
@@ -70,9 +70,9 @@ class LcapyTester(unittest.TestCase):
         """Lcapy: check sExpr1
 
         """
-        a = sExpr('(s+2)/(s-2)')
-        self.assertEqual2(a.N, sExpr('s+2'), "N incorrect.")
-        self.assertEqual2(a.D, sExpr('s-2'), "D incorrect.")
+        a = LaplaceDomainExpression('(s+2)/(s-2)')
+        self.assertEqual2(a.N, LaplaceDomainExpression('s+2'), "N incorrect.")
+        self.assertEqual2(a.D, LaplaceDomainExpression('s-2'), "D incorrect.")
         self.assertEqual2(a.Ndegree, 1, "N degree incorrect.")
         self.assertEqual2(a.Ddegree, 1, "D degree incorrect.")
         self.assertEqual2(a.degree, 1, "Degree incorrect.")
@@ -220,7 +220,7 @@ class LcapyTester(unittest.TestCase):
         """Lcapy: check sExpr7 (delay)
 
         """
-        a = sExpr('(s+1)*exp(-3*s)/((s+3)*(s+4))')
+        a = LaplaceDomainExpression('(s+1)*exp(-3*s)/((s+3)*(s+4))')
         self.assertEqual(a.inverse_laplace(causal=True), (3 * exp(-4 * t  + 12) - 2 * exp(-3 * t + 9)) * H(t- 3), "inverse Laplace incorrect.")
 
 
@@ -290,7 +290,7 @@ class LcapyTester(unittest.TestCase):
 
         """
 
-        a = sExpr('s+2')
+        a = LaplaceDomainExpression('s+2')
         b = a(j * omega, causal=True)
 
         self.assertEqual2(b, j * omega + 2, "Substitution failed.")
@@ -325,106 +325,106 @@ class LcapyTester(unittest.TestCase):
 
         """
 
-        c = cExpr(10)
-        self.assertEqual(type(10 + c), cExpr, "Not cExpr")
-        self.assertEqual(type(c + 10), cExpr, "Not cExpr")
-        self.assertEqual(type(cExpr(10) + c), cExpr, "Not cExpr")
-        self.assertEqual(type(c + cExpr(10)), cExpr, "Not cExpr")
+        c = ConstantExpression(10)
+        self.assertEqual(type(10 + c), ConstantExpression, "Not cExpr")
+        self.assertEqual(type(c + 10), ConstantExpression, "Not cExpr")
+        self.assertEqual(type(ConstantExpression(10) + c), ConstantExpression, "Not cExpr")
+        self.assertEqual(type(c + ConstantExpression(10)), ConstantExpression, "Not cExpr")
 
-        self.assertEqual(type(10 + s), sExpr, "Not sExpr")
-        self.assertEqual(type(s + 10), sExpr, "Not sExpr")
-        self.assertEqual(type(cExpr(10) + s), sExpr, "Not sExpr")
-        self.assertEqual(type(s + cExpr(10)), sExpr, "Not sExpr")
+        self.assertEqual(type(10 + s), LaplaceDomainExpression, "Not sExpr")
+        self.assertEqual(type(s + 10), LaplaceDomainExpression, "Not sExpr")
+        self.assertEqual(type(ConstantExpression(10) + s), LaplaceDomainExpression, "Not sExpr")
+        self.assertEqual(type(s + ConstantExpression(10)), LaplaceDomainExpression, "Not sExpr")
 
-        self.assertEqual(type(10 + t), tExpr, "Not tExpr")
-        self.assertEqual(type(t + 10), tExpr, "Not tExpr")
-        self.assertEqual(type(cExpr(10) + t), tExpr, "Not tExpr")
-        self.assertEqual(type(t + cExpr(10)), tExpr, "Not tExpr")
+        self.assertEqual(type(10 + t), TimeDomainExpression, "Not tExpr")
+        self.assertEqual(type(t + 10), TimeDomainExpression, "Not tExpr")
+        self.assertEqual(type(ConstantExpression(10) + t), TimeDomainExpression, "Not tExpr")
+        self.assertEqual(type(t + ConstantExpression(10)), TimeDomainExpression, "Not tExpr")
 
-        v = Vs(10)
-        self.assertEqual(type(10 + v), Vs, "Not Vs")
-        self.assertEqual(type(v + 10), Vs, "Not Vs")
-        self.assertEqual(type(sExpr(10) + v), Vs, "Not Vs")
-        self.assertEqual(type(v + sExpr(10)), Vs, "Not Vs")
+        v = LaplaceDomainVoltage(10)
+        self.assertEqual(type(10 + v), LaplaceDomainVoltage, "Not Vs")
+        self.assertEqual(type(v + 10), LaplaceDomainVoltage, "Not Vs")
+        self.assertEqual(type(LaplaceDomainExpression(10) + v), LaplaceDomainVoltage, "Not Vs")
+        self.assertEqual(type(v + LaplaceDomainExpression(10)), LaplaceDomainVoltage, "Not Vs")
 
-        self.assertEqual(type(omega * t), tExpr, "Not tExpr")
-        self.assertEqual(type(t * omega), tExpr, "Not tExpr")                
+        self.assertEqual(type(omega * t), TimeDomainExpression, "Not tExpr")
+        self.assertEqual(type(t * omega), TimeDomainExpression, "Not tExpr")                
 
     def test_Vs(self):
         """Lcapy: check Vs
 
         """
 
-        self.assertEqual(type(Vs(5) * 5), Vs, "Not Vs")
-        self.assertEqual(type(Vs(5) * Vs(4)), Vs, "Not Vs")
-        self.assertEqual(type(Vs(5) * Ys(4)), Is, "Not Is")
-        self.assertEqual(type(Vs(5) / Zs(4)), Is, "Not Is")
+        self.assertEqual(type(LaplaceDomainVoltage(5) * 5), LaplaceDomainVoltage, "Not Vs")
+        self.assertEqual(type(LaplaceDomainVoltage(5) * LaplaceDomainVoltage(4)), LaplaceDomainVoltage, "Not Vs")
+        self.assertEqual(type(LaplaceDomainVoltage(5) * LaplaceDomainAdmittance(4)), LaplaceDomainCurrent, "Not Is")
+        self.assertEqual(type(LaplaceDomainVoltage(5) / LaplaceDomainImpedance(4)), LaplaceDomainCurrent, "Not Is")
 
     def test_Vt(self):
         """Lcapy: check Vt
 
         """
 
-        self.assertEqual(type(Vt(5) * 5), Vt, "Not Vt")
-        self.assertEqual(type(Vt(5) * Vt(4)), Vt, "Not Vt")
+        self.assertEqual(type(TimeDomainVoltage(5) * 5), TimeDomainVoltage, "Not Vt")
+        self.assertEqual(type(TimeDomainVoltage(5) * TimeDomainVoltage(4)), TimeDomainVoltage, "Not Vt")
 
     def test_Vf(self):
         """Lcapy: check Vf
 
         """
 
-        self.assertEqual(type(Vf(5) * 5), Vf, "Not Vf")
-        self.assertEqual(type(Vf(5) * Vf(4)), Vf, "Not Vf")
-        self.assertEqual(type(Vf(5) * Yf(4)), If, "Not If")
-        self.assertEqual(type(Vf(5) / Zf(4)), If, "Not If")
+        self.assertEqual(type(FourierDomainVoltage(5) * 5), FourierDomainVoltage, "Not Vf")
+        self.assertEqual(type(FourierDomainVoltage(5) * FourierDomainVoltage(4)), FourierDomainVoltage, "Not Vf")
+        self.assertEqual(type(FourierDomainVoltage(5) * FourierDomainAdmittance(4)), FourierDomainCurrent, "Not If")
+        self.assertEqual(type(FourierDomainVoltage(5) / FourierDomainImpedance(4)), FourierDomainCurrent, "Not If")
 
     def test_Vomega(self):
         """Lcapy: check Vomega
 
         """
 
-        self.assertEqual(type(Vomega(5) * 5), Vomega, "Not Vomega")
-        self.assertEqual(type(Vomega(5) * Vomega(4)), Vomega, "Not Vomega")
-        self.assertEqual(type(Vomega(5) * Yomega(4)), Iomega, "Not Iomega")
-        self.assertEqual(type(Vomega(5) / Zomega(4)), Iomega, "Not Iomega")
+        self.assertEqual(type(AngularFourierDomainVoltage(5) * 5), AngularFourierDomainVoltage, "Not Vomega")
+        self.assertEqual(type(AngularFourierDomainVoltage(5) * AngularFourierDomainVoltage(4)), AngularFourierDomainVoltage, "Not Vomega")
+        self.assertEqual(type(AngularFourierDomainVoltage(5) * AngularFourierDomainAdmittance(4)), AngularFourierDomainCurrent, "Not Iomega")
+        self.assertEqual(type(AngularFourierDomainVoltage(5) / AngularFourierDomainImpedance(4)), AngularFourierDomainCurrent, "Not Iomega")
 
     def test_Is(self):
         """Lcapy: check Is
 
         """
 
-        self.assertEqual(type(Is(5) * 5), Is, "Not Is")
-        self.assertEqual(type(Is(5) * Is(4)), Is, "Not Is")
-        self.assertEqual(type(Is(5) * Zs(4)), Vs, "Not Vs")
-        self.assertEqual(type(Is(5) / Ys(4)), Vs, "Not Vs")
+        self.assertEqual(type(LaplaceDomainCurrent(5) * 5), LaplaceDomainCurrent, "Not Is")
+        self.assertEqual(type(LaplaceDomainCurrent(5) * LaplaceDomainCurrent(4)), LaplaceDomainCurrent, "Not Is")
+        self.assertEqual(type(LaplaceDomainCurrent(5) * LaplaceDomainImpedance(4)), LaplaceDomainVoltage, "Not Vs")
+        self.assertEqual(type(LaplaceDomainCurrent(5) / LaplaceDomainAdmittance(4)), LaplaceDomainVoltage, "Not Vs")
 
     def test_It(self):
         """Lcapy: check It
 
         """
 
-        self.assertEqual(type(It(5) * 5), It, "Not It")
-        self.assertEqual(type(It(5) * It(4)), It, "Not It")
+        self.assertEqual(type(TimeDomainCurrent(5) * 5), TimeDomainCurrent, "Not It")
+        self.assertEqual(type(TimeDomainCurrent(5) * TimeDomainCurrent(4)), TimeDomainCurrent, "Not It")
 
     def test_If(self):
         """Lcapy: check If
 
         """
 
-        self.assertEqual(type(If(5) * 5), If, "Not If")
-        self.assertEqual(type(If(5) * If(4)), If, "Not If")
-        self.assertEqual(type(If(5) / Yf(4)), Vf, "Not Vf")
-        self.assertEqual(type(If(5) * Zf(4)), Vf, "Not Vf")
+        self.assertEqual(type(FourierDomainCurrent(5) * 5), FourierDomainCurrent, "Not If")
+        self.assertEqual(type(FourierDomainCurrent(5) * FourierDomainCurrent(4)), FourierDomainCurrent, "Not If")
+        self.assertEqual(type(FourierDomainCurrent(5) / FourierDomainAdmittance(4)), FourierDomainVoltage, "Not Vf")
+        self.assertEqual(type(FourierDomainCurrent(5) * FourierDomainImpedance(4)), FourierDomainVoltage, "Not Vf")
 
     def test_Iomega(self):
         """Lcapy: check Iomega
 
         """
 
-        self.assertEqual(type(Iomega(5) * 5), Iomega, "Not Iomega")
-        self.assertEqual(type(Iomega(5) * Iomega(4)), Iomega, "Not Iomega")
-        self.assertEqual(type(Iomega(5) / Yomega(4)), Vomega, "Not Vomega")
-        self.assertEqual(type(Iomega(5) * Zomega(4)), Vomega, "Not Vomega")
+        self.assertEqual(type(AngularFourierDomainCurrent(5) * 5), AngularFourierDomainCurrent, "Not Iomega")
+        self.assertEqual(type(AngularFourierDomainCurrent(5) * AngularFourierDomainCurrent(4)), AngularFourierDomainCurrent, "Not Iomega")
+        self.assertEqual(type(AngularFourierDomainCurrent(5) / AngularFourierDomainAdmittance(4)), AngularFourierDomainVoltage, "Not Vomega")
+        self.assertEqual(type(AngularFourierDomainCurrent(5) * AngularFourierDomainImpedance(4)), AngularFourierDomainVoltage, "Not Vomega")
 
         
     def test_evaluate(self):
@@ -448,8 +448,8 @@ class LcapyTester(unittest.TestCase):
 
     def test_rms(self):
 
-        self.assertEqual(Vconst(2).rms(), Vt(2))
-        self.assertEqual(Vphasor(2).rms(), Vt(1))
+        self.assertEqual(ConstantVoltage(2).rms(), TimeDomainVoltage(2))
+        self.assertEqual(Vphasor(2).rms(), TimeDomainVoltage(1))
 
     def test_assumptions(self):
         """Lcapy: check assumptions
@@ -493,7 +493,7 @@ class LcapyTester(unittest.TestCase):
     def test_expr(self):
 
         a = expr('3 * exp(-t) * t * a')
-        self.assertEqual(isinstance(a, tExpr), True, "tExpr")        
+        self.assertEqual(isinstance(a, TimeDomainExpression), True, "tExpr")        
         self.assertEqual(a.has(3), True, "has(3)")
         self.assertEqual(a.has(4), False, "has(4)")
         self.assertEqual(a.has(t), True, "has(t)")
@@ -506,10 +506,10 @@ class LcapyTester(unittest.TestCase):
         a = expr('3')
         self.assertEqual(a.is_constant, True, "3 is_constant")        
 
-        self.assertEqual(isinstance(expr(t), tExpr), True, "tExpr")
-        self.assertEqual(isinstance(expr(s), sExpr), True, "sExpr")
-        self.assertEqual(isinstance(expr(f), fExpr), True, "fExpr")
-        self.assertEqual(isinstance(expr(omega), omegaExpr), True, "omegaExpr")
+        self.assertEqual(isinstance(expr(t), TimeDomainExpression), True, "tExpr")
+        self.assertEqual(isinstance(expr(s), LaplaceDomainExpression), True, "sExpr")
+        self.assertEqual(isinstance(expr(f), FourierDomainExpression), True, "fExpr")
+        self.assertEqual(isinstance(expr(omega), AngularFourierDomainExpression), True, "omegaExpr")
         
         self.assertEqual(isinstance(symbol('c'), Expr), True, "symbol")
 

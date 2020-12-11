@@ -9,8 +9,8 @@ Copyright 2014--2019 Michael Hayes, UCECE
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from .sexpr import Vs, Hs, Is, VsVector, IsVector, YsVector, ZsVector
-from .cexpr import cExpr
+from .sexpr import LaplaceDomainVoltage, LaplaceDomainTransferFunction, LaplaceDomainCurrent, VsVector, IsVector, YsVector, ZsVector
+from .cexpr import ConstantExpression
 from .oneport import OnePort
 from .twoport import YMatrix, ZMatrix, TwoPortZModel, Series, TwoPort
 
@@ -166,7 +166,7 @@ class ThreePort(object):
         p1 = inport - 1
         p2 = outport - 1
 
-        return Hs(self.Z[p2, p1] / self.Z[p1, p1])
+        return LaplaceDomainTransferFunction(self.Z[p2, p1] / self.Z[p1, p1])
 
     def Igain(self, inport=1, outport=2):
         """Return voltage gain for specified ports with internal
@@ -178,7 +178,7 @@ class ThreePort(object):
         p1 = inport - 1
         p2 = outport - 1
 
-        return Hs(self.Y[p2, p1] / self.Y[p1, p1])
+        return LaplaceDomainTransferFunction(self.Y[p2, p1] / self.Y[p1, p1])
 
     def Vresponse(self, V, inport=1, outport=2):
         """Return voltage response for specified applied voltage and
@@ -191,7 +191,7 @@ class ThreePort(object):
         p2 = outport - 1
 
         H = self.Z[p2, p1] / self.Z[p1, p1]
-        return Vs(self.Voc[p2] + (V - self.Voc[p1]) * H)
+        return LaplaceDomainVoltage(self.Voc[p2] + (V - self.Voc[p1]) * H)
 
     def Iresponse(self, I, inport=1, outport=2):
         """Return current response for specified current voltage and
@@ -206,7 +206,7 @@ class ThreePort(object):
         Y = self.Y
         Isc = self.Isc
 
-        return Is(Isc[p2] + (I - Isc[p1]) * Y[p2, p1] / Y[p1, p1])
+        return LaplaceDomainCurrent(Isc[p2] + (I - Isc[p1]) * Y[p2, p1] / Y[p1, p1])
 
     def attach_parallel(self, OP, port=2):
         """Attach one-port in parallel to specified port"""
@@ -223,7 +223,7 @@ class ThreePort(object):
         Isc = self.Isc
         Isc[p] += OP.Isc
         Z = Y.Z
-        Voc = VsVector([Vs(Isc[m] * Z[m, m]) for m in range(len(Isc))])
+        Voc = VsVector([LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Z, Voc)
 
     def bridge(self, OP, inport=1, outport=2):
@@ -252,7 +252,7 @@ class ThreePort(object):
         Isc[p1] -= OP.Isc
         Isc[p2] += OP.Isc
         Z = Y.Z
-        Voc = VsVector([Vs(Isc[m] * Z[m, m]) for m in range(len(Isc))])
+        Voc = VsVector([LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Y.Z, Voc)
 
     def parallel(self, MP, port=None):
@@ -271,7 +271,7 @@ class ThreePort(object):
         Y = self.Y + MP.Y
         Isc = self.Isc + MP.Isc
         Z = Y.Z
-        Voc = VsVector([Vs(Isc[m] * Z[m, m]) for m in range(len(Isc))])
+        Voc = VsVector([LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Z, Voc)
 
     def series(self, MP, port=None):
@@ -313,7 +313,7 @@ class ThreePort(object):
         Voc = self.Voc.copy()
         Voc.row_del(port - 1)
 
-        return TwoPortZModel(Y.Z, Vs(Voc[0]), Vs(Voc[1]))
+        return TwoPortZModel(Y.Z, LaplaceDomainVoltage(Voc[0]), LaplaceDomainVoltage(Voc[1]))
 
     def open_circuit(self, port=2):
         """Apply a open-circuit to specified port and return a
@@ -328,7 +328,7 @@ class ThreePort(object):
         Voc = self.Voc.copy()
         Voc.row_del(port - 1)
 
-        return TwoPortZModel(Z, Vs(Voc[0]), Vs(Voc[1]))
+        return TwoPortZModel(Z, LaplaceDomainVoltage(Voc[0]), LaplaceDomainVoltage(Voc[1]))
 
 
 class Opamp(ThreePort):
@@ -360,7 +360,7 @@ class Opamp(ThreePort):
 
         # If Ro=0, then Z matrix singular.
 
-        Rd, Ro, A, Rp, Rm = [cExpr(arg) for arg in (Rd, Ro, A, Rp, Rm)]
+        Rd, Ro, A, Rp, Rm = [ConstantExpression(arg) for arg in (Rd, Ro, A, Rp, Rm)]
 
         Ra = Rp * (Rd + Rm) / (Rp + Rd + Rm)
         Rb = Rm * (Rd + Rp) / (Rp + Rd + Rm)

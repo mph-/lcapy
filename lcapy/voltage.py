@@ -26,19 +26,19 @@ Copyright 2019--2020 Michael Hayes, UCECE
 
 """
 
-from .super import Super
+from .super import Superposition
 from .sym import omega0sym
 
-class Voltage(Super):
+class Voltage(Superposition):
 
     def __init__(self, *args, **kwargs):
-        self.type_map = {cExpr: Vconst, sExpr : Vs, noiseomegaExpr: Vnoisy,
-                         fExpr: Vf, noisefExpr: Vfnoisy, omegaExpr: Vomega,
-                         Phasor: Vphasor, tExpr : Vt}
-        self.decompose_domains = {'s': Vs, 'ac': Vphasor, 'dc':
-                                  Vconst, 'n': Vnoisy, 't': Vt}
-        self.time_class = Vt
-        self.laplace_class = Vs    
+        self.type_map = {ConstantExpression: ConstantVoltage, LaplaceDomainExpression : LaplaceDomainVoltage, noiseomegaExpr: Vnoisy,
+                         FourierDomainExpression: FourierDomainVoltage, noisefExpr: Vfnoisy, AngularFourierDomainExpression: AngularFourierDomainVoltage,
+                         Phasor: Vphasor, TimeDomainExpression : TimeDomainVoltage}
+        self.decompose_domains = {'s': LaplaceDomainVoltage, 'ac': Vphasor, 'dc':
+                                  ConstantVoltage, 'n': Vnoisy, 't': TimeDomainVoltage}
+        self.time_class = TimeDomainVoltage
+        self.laplace_class = LaplaceDomainVoltage    
 
         super (Voltage, self).__init__(*args, **kwargs)
         
@@ -49,7 +49,7 @@ class Voltage(Super):
         if isinstance(x, (int, float)):
             return self.__scale__(x)
 
-        if isinstance(x, Super):
+        if isinstance(x, Superposition):
             raise TypeError('Cannot multiply %s by %s. '
             'You need to extract a specific component, e.g., a.s * b.s' %
             (type(self).__name__, type(x).__name__))
@@ -64,7 +64,7 @@ class Voltage(Super):
         new = Current()
         if 'dc' in obj:
             # TODO, fix types
-            new += Iconst(obj['dc'] * cExpr(x.jomega(0)))
+            new += ConstantCurrent(obj['dc'] * ConstantExpression(x.jomega(0)))
         for key in obj.ac_keys():
             new += obj[key] * x.jomega(obj[key].omega)
         for key in obj.noise_keys():            
@@ -72,7 +72,7 @@ class Voltage(Super):
         if 's' in obj:
             new += obj['s'] * x
         if 't' in obj:
-            new += self['t'] * tExpr(x)
+            new += self['t'] * TimeDomainExpression(x)
             
         return new
 
@@ -80,7 +80,7 @@ class Voltage(Super):
         if isinstance(x, (int, float)):
             return self.__scale__(1 / x)
 
-        if isinstance(x, Super):
+        if isinstance(x, Superposition):
             raise TypeError("""
             Cannot divide %s by %s.  You need to extract a specific component, e.g., a.s / b.s.  If you want a transfer function use a(s) / b(s)""" % (type(self).__name__, type(x).__name__))
 
@@ -102,9 +102,9 @@ class Voltage(Super):
 def Vname(name, kind, cache=False):
 
     if kind in ('s', 'laplace'):    
-        return Vs(name + '(s)')
+        return LaplaceDomainVoltage(name + '(s)')
     elif kind in ('t', 'time'):
-        return Vt(name.lower() + '(t)')
+        return TimeDomainVoltage(name.lower() + '(t)')
     elif kind in (omega0sym, omega0, 'ac'):
         return Vphasor(name + '(omega_0)')
     # Not caching is a hack to avoid conflicts of Vn1 with Vn1(s) etc.
@@ -118,23 +118,23 @@ def Vtype(kind):
     if isinstance(kind, str) and kind[0] == 'n':
         return Vnoisy
     try:
-        return {'ivp' : Vs, 's' : Vs, 'n' : Vnoisy,
-                'ac' : Vphasor, 'dc' : Vconst, 't' : Vt, 'time' : Vt}[kind]
+        return {'ivp' : LaplaceDomainVoltage, 's' : LaplaceDomainVoltage, 'n' : Vnoisy,
+                'ac' : Vphasor, 'dc' : ConstantVoltage, 't' : TimeDomainVoltage, 'time' : TimeDomainVoltage}[kind]
     except KeyError:
         return Vphasor
 
 
 from .expr import expr    
-from .cexpr import Vconst, Iconst, cExpr
-from .fexpr import fExpr, Vf
-from .omegaexpr import omegaExpr, Vomega
-from .sexpr import sExpr, Vs
-from .texpr import tExpr, Vt
+from .cexpr import ConstantVoltage, ConstantCurrent, ConstantExpression
+from .fexpr import FourierDomainExpression, FourierDomainVoltage
+from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainVoltage
+from .sexpr import LaplaceDomainExpression, LaplaceDomainVoltage
+from .texpr import TimeDomainExpression, TimeDomainVoltage
 from .noiseomegaexpr import noiseomegaExpr, Vnoisy
 from .noisefexpr import noisefExpr, Vfnoisy
 from .phasor import Vphasor, Phasor
 from .impedance import Impedance
 from .admittance import Admittance
-from .omegaexpr import omegaExpr
+from .omegaexpr import AngularFourierDomainExpression
 from .symbols import s, omega0
 from .current import Current

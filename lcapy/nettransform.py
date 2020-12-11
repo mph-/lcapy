@@ -6,7 +6,7 @@ Copyright 2020 Michael Hayes, UCECE
 
 from .impedance import Impedance
 from .admittance import Admittance
-from .sexpr import Zs, Ys
+from .sexpr import LaplaceDomainImpedance, LaplaceDomainAdmittance
 from .oneport import R, Y, Z
 
 
@@ -68,7 +68,7 @@ def Y_wye_to_delta(Y1, Y2, Y3):
 
 def wye_to_delta(cpt1, cpt2, cpt3):
 
-    if isinstance(cpt1, (Impedance, Zs)):
+    if isinstance(cpt1, (Impedance, LaplaceDomainImpedance)):
         return Z_wye_to_delta(cpt1, cpt2, cpt3)
 
     if isinstance(cpt1, Admittance):
@@ -88,7 +88,7 @@ def wye_to_delta(cpt1, cpt2, cpt3):
     
 def delta_to_wye(cpt1, cpt2, cpt3):
 
-    if isinstance(cpt1, (Impedance, Zs)):
+    if isinstance(cpt1, (Impedance, LaplaceDomainImpedance)):
         return Z_delta_to_wye(cpt1, cpt2, cpt3)
 
     if isinstance(cpt1, Admittance):

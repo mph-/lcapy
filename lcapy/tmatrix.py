@@ -9,8 +9,8 @@ from .matrix import Matrix
 from .laplace import laplace_transform
 
 class tMatrix(Matrix):
-    from .texpr import tExpr    
-    _typewrap = tExpr    
+    from .texpr import TimeDomainExpression    
+    _typewrap = TimeDomainExpression    
 
     def laplace(self):
 

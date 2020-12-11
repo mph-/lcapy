@@ -6,14 +6,14 @@ Copyright 2019--2020 Michael Hayes, UCECE
 """
 
 from .expr import expr
-from .cexpr import cExpr
-from .sexpr import sExpr
-from .fexpr import fExpr
-from .omegaexpr import omegaExpr
+from .cexpr import ConstantExpression
+from .sexpr import LaplaceDomainExpression
+from .fexpr import FourierDomainExpression
+from .omegaexpr import AngularFourierDomainExpression
 from .symbols import j, omega, jomega, s, f, pi
 from .sym import omegasym, fsym
 
-class Immittance(sExpr):
+class Immittance(LaplaceDomainExpression):
 
     def __init__(self, val, kind=None, causal=True, positive=False, **assumptions):
         """Create an immittance (impedance/admittance).
@@ -27,12 +27,12 @@ class Immittance(sExpr):
         
         val = expr(val, positive=positive)
 
-        if isinstance(val, sExpr) and kind is None:
+        if isinstance(val, LaplaceDomainExpression) and kind is None:
             kind = 's'
-        elif isinstance(val, omegaExpr) and kind is None:
+        elif isinstance(val, AngularFourierDomainExpression) and kind is None:
             kind = omegasym
             val = val.subs(omega, s / j)
-        elif isinstance(val, fExpr) and kind is None:
+        elif isinstance(val, FourierDomainExpression) and kind is None:
             kind = fsym
             val = val.subs(f, s / (j * 2 * pi))            
         

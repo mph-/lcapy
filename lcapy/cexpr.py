@@ -1,15 +1,13 @@
 from .expr import Expr
 from .sym import symbols_find
 
-__all__ = ('Vconst', 'Iconst')
 
-
-class cExpr(Expr):
+class ConstantExpression(Expr):
 
     """Constant real expression or symbol.
 
     If symbols in the expression are known to be negative, use
-    cExpr(expr, positive=False)
+    ConstantExpression(expr, positive=False)
 
     """
 
@@ -22,10 +20,10 @@ class cExpr(Expr):
                     'constant expression %s cannot depend on %s' % (val, symbol))
 
         assumptions['dc'] = True        
-        super(cExpr, self).__init__(val, **assumptions)
+        super(ConstantExpression, self).__init__(val, **assumptions)
 
     def rms(self):
-        return {Vconst: Vt, Iconst : It}[self.__class__](self)
+        return {ConstantVoltage: TimeDomainVoltage, ConstantCurrent : TimeDomainCurrent}[self.__class__](self)
 
     def laplace(self):
         """Convert to Laplace domain representation."""
@@ -39,41 +37,41 @@ class cExpr(Expr):
     def time(self, **assumptions):
         """Convert to time domain."""
         
-        return tExpr(self)
+        return TimeDomainExpression(self)
 
-class Vconst(cExpr):
+class ConstantVoltage(ConstantExpression):
 
     superkind = 'Voltage'
     
     def __init__(self, val, **assumptions):
 
-        super(Vconst, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Vt
+        super(ConstantVoltage, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = TimeDomainVoltage
 
     def cpt(self):
         from .oneport import Vdc
         return Vdc(self)
 
     def time(self, **assumptions):
-        return Vt(self)
+        return TimeDomainVoltage(self)
 
     
-class Iconst(cExpr):
+class ConstantCurrent(ConstantExpression):
 
     superkind = 'Current'
     
     def __init__(self, val, **assumptions):
 
-        super(Iconst, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = It
+        super(ConstantCurrent, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = TimeDomainCurrent
 
     def cpt(self):
         from .oneport import Idc
         return Idc(self)
 
     def time(self, **assumptions):
-        return It(self)
+        return TimeDomainCurrent(self)
 
 
-from .texpr import t, It, Vt, tExpr
+from .texpr import t, TimeDomainCurrent, TimeDomainVoltage, TimeDomainExpression
 from .sexpr import s

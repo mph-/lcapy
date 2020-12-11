@@ -8,8 +8,8 @@ Copyright 2015--2020 Michael Hayes, UCECE
 
 from __future__ import print_function
 from .expr import expr
-from .cexpr import cExpr
-from .omegaexpr import omegaExpr
+from .cexpr import ConstantExpression
+from .omegaexpr import AngularFourierDomainExpression
 from .symbols import j, omega, jomega, s, t
 from .functions import sqrt
 from .sym import capitalize_name, omegasym
@@ -889,9 +889,9 @@ class VCVS(DependentSource):
             cct._B[n2, m] -= 1
             cct._C[m, n2] -= 1
 
-        Ad = cExpr(self.args[0]).expr
+        Ad = ConstantExpression(self.args[0]).expr
         if len(self.args) > 1:
-            Ac = cExpr(self.args[1]).expr
+            Ac = ConstantExpression(self.args[1]).expr
         else:
             Ac = 0
 
@@ -919,7 +919,7 @@ class CCCS(DependentSource):
     def _stamp(self, cct):
         n1, n2 = self.node_indexes
         m = cct._branch_index(self.args[0])
-        F = cExpr(self.args[1]).expr
+        F = ConstantExpression(self.args[1]).expr
             
         if n1 >= 0:
             cct._B[n1, m] -= F
@@ -944,7 +944,7 @@ class VCCS(DependentSource):
 
     def _stamp(self, cct):
         n1, n2, n3, n4 = self.node_indexes
-        G = cExpr(self.args[0]).expr
+        G = ConstantExpression(self.args[0]).expr
 
         if n1 >= 0 and n3 >= 0:
             cct._G[n1, n3] -= G
@@ -986,7 +986,7 @@ class GY(Dummy):
         # V2 = -I1 Z2     V1 = I2 Z1
         # where V2 = V[n1] - V[n2] and V1 = V[n3] - V[n4]
         
-        Z1 = cExpr(self.args[0]).expr                    
+        Z1 = ConstantExpression(self.args[0]).expr                    
         Z2 = Z1
         
         if n1 >= 0:
@@ -1024,7 +1024,7 @@ class CCVS(DependentSource):
             cct._C[m, n2] -= 1
         
         mc = cct._branch_index(self.args[0])
-        G = cExpr(self.args[1]).expr
+        G = ConstantExpression(self.args[1]).expr
         cct._D[m, mc] -= G
 
     def _kill(self):
@@ -1394,7 +1394,7 @@ class TR(Dummy):
             cct._B[n2, m] += 1
             cct._C[m, n2] += 1
         
-        A = cExpr(self.args[0]).expr
+        A = ConstantExpression(self.args[0]).expr
         
         if n1 >= 0:
             cct._C[m, n1] -= A

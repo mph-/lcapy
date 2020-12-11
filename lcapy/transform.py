@@ -21,7 +21,7 @@ def transform(expr, arg, **assumptions):
     arg = expr1(arg)
 
     # handle things like (3 * s)(5 * s)
-    if isinstance(expr, arg.__class__) and not isinstance(expr, Super):
+    if isinstance(expr, arg.__class__) and not isinstance(expr, Superposition):
         return expr.subs(arg)
 
     # Handle expr(t), expr(s), expr(f)
@@ -39,22 +39,22 @@ def transform(expr, arg, **assumptions):
     # Handle expr(texpr), expr(sexpr), expr(fexpr).  For example,
     # expr(2 * f).
     result = None 
-    if isinstance(arg, tExpr):
+    if isinstance(arg, TimeDomainExpression):
         result = expr.time(**assumptions)
-    elif isinstance(arg, sExpr):
+    elif isinstance(arg, LaplaceDomainExpression):
         result = expr.laplace(**assumptions)
-    elif isinstance(arg, fExpr):
+    elif isinstance(arg, FourierDomainExpression):
         # Note, conversion of f->omega handled by fExpr
         result = expr.fourier(**assumptions)
     elif arg.has(jomega):
         # Perhaps restrict this to jomega and not expressions like 5 * jomega ?
-        if isinstance(expr, sExpr):
+        if isinstance(expr, LaplaceDomainExpression):
             result = expr.subs(arg)
             return result
         else:
             result = expr.laplace(**assumptions)
     elif arg.is_constant:
-        if not isinstance(expr, Super):
+        if not isinstance(expr, Superposition):
             result = expr.time(**assumptions)
         else:
             result = expr
@@ -75,10 +75,10 @@ def call(expr, arg, **assumptions):
     return expr.subs(arg)
 
 
-from .cexpr import cExpr    
-from .fexpr import fExpr    
-from .sexpr import sExpr
-from .texpr import tExpr
-from .omegaexpr import omegaExpr
-from .super import Super
+from .cexpr import ConstantExpression    
+from .fexpr import FourierDomainExpression    
+from .sexpr import LaplaceDomainExpression
+from .texpr import TimeDomainExpression
+from .omegaexpr import AngularFourierDomainExpression
+from .super import Superposition
 

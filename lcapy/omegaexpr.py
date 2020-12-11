@@ -12,7 +12,7 @@ from .sym import fsym, ssym, tsym, omegasym, omega0sym, j, pi
 from sympy import Expr as symExpr
 
 
-class omegaExpr(Expr):
+class AngularFourierDomainExpression(Expr):
 
     """Fourier domain expression or symbol (angular frequency)."""
 
@@ -22,8 +22,8 @@ class omegaExpr(Expr):
 
     def __init__(self, val, **assumptions):
 
-        super(omegaExpr, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = tExpr
+        super(AngularFourierDomainExpression, self).__init__(val, **assumptions)
+        self._fourier_conjugate_class = TimeDomainExpression
 
         if self.expr.find(ssym) != set():
             raise ValueError(
@@ -40,7 +40,7 @@ class omegaExpr(Expr):
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         else:
-            result = tExpr(result)
+            result = TimeDomainExpression(result)
         return result
 
     def time(self):
@@ -68,16 +68,16 @@ class omegaExpr(Expr):
     def transform(self, arg, **assumptions):
         """Transform into a different domain."""
 
-        from .fexpr import fExpr, f
+        from .fexpr import FourierDomainExpression, f
 
         arg = expr(arg)        
-        if isinstance(arg, fExpr):
+        if isinstance(arg, FourierDomainExpression):
             result = self.subs(2 * pi * f)
             return result.subs(arg, **assumptions)
-        return super(omegaExpr, self).transform(arg, **assumptions)
+        return super(AngularFourierDomainExpression, self).transform(arg, **assumptions)
         
 
-class Yomega(omegaExpr):
+class AngularFourierDomainAdmittance(AngularFourierDomainExpression):
 
     """omega-domain admittance."""
 
@@ -86,8 +86,8 @@ class Yomega(omegaExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Yomega, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Yt
+        super(AngularFourierDomainAdmittance, self).__init__(val, **assumptions)
+        self._fourier_conjugate_class = TimeDomainAdmittance
 
     def cpt(self):
         from .oneport import G, C, L, Y
@@ -108,7 +108,7 @@ class Yomega(omegaExpr):
         return Y(self)
 
 
-class Zomega(omegaExpr):
+class AngularFourierDomainImpedance(AngularFourierDomainExpression):
 
     """omega-domain impedance."""
 
@@ -117,8 +117,8 @@ class Zomega(omegaExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Zomega, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Zt
+        super(AngularFourierDomainImpedance, self).__init__(val, **assumptions)
+        self._fourier_conjugate_class = TimeDomainImpedance
 
     def cpt(self):
         from .oneport import R, C, L, Z
@@ -139,7 +139,7 @@ class Zomega(omegaExpr):
         return Z(self)
 
 
-class Vomega(omegaExpr):
+class AngularFourierDomainVoltage(AngularFourierDomainExpression):
 
     """omega-domain voltage (units V/rad/s)."""
 
@@ -149,29 +149,29 @@ class Vomega(omegaExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Vomega, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Vt
+        super(AngularFourierDomainVoltage, self).__init__(val, **assumptions)
+        self._fourier_conjugate_class = TimeDomainVoltage
 
     def __mul__(self, x):
         """Multiply"""
 
-        if isinstance(x, Yomega):
-            return Iomega(super(Vomega, self).__mul__(x))
-        if isinstance(x, (cExpr, omegaExpr, symExpr, int, float, complex)):
-            return super(Vomega, self).__mul__(x)
+        if isinstance(x, AngularFourierDomainAdmittance):
+            return AngularFourierDomainCurrent(super(AngularFourierDomainVoltage, self).__mul__(x))
+        if isinstance(x, (ConstantExpression, AngularFourierDomainExpression, symExpr, int, float, complex)):
+            return super(AngularFourierDomainVoltage, self).__mul__(x)
         self._incompatible(x, '*')
 
     def __truediv__(self, x):
         """Divide"""
 
-        if isinstance(x, Zomega):
-            return Iomega(super(Vomega, self).__truediv__(x))
-        if isinstance(x, (cExpr, omegaExpr, symExpr, int, float, complex)):
-            return super(Vomega, self).__truediv__(x)
+        if isinstance(x, AngularFourierDomainImpedance):
+            return AngularFourierDomainCurrent(super(AngularFourierDomainVoltage, self).__truediv__(x))
+        if isinstance(x, (ConstantExpression, AngularFourierDomainExpression, symExpr, int, float, complex)):
+            return super(AngularFourierDomainVoltage, self).__truediv__(x)
         self._incompatible(x, '/')
         
 
-class Iomega(omegaExpr):
+class AngularFourierDomainCurrent(AngularFourierDomainExpression):
 
     """omega-domain current (units A/rad/s)."""
 
@@ -181,29 +181,29 @@ class Iomega(omegaExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Iomega, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = It
+        super(AngularFourierDomainCurrent, self).__init__(val, **assumptions)
+        self._fourier_conjugate_class = TimeDomainCurrent
 
     def __mul__(self, x):
         """Multiply"""
 
-        if isinstance(x, Zomega):
-            return Vomega(super(Iomega, self).__mul__(x))            
-        if isinstance(x, (cExpr, omegaExpr, symExpr, int, float, complex)):
-            return super(Iomega, self).__mul__(x)
+        if isinstance(x, AngularFourierDomainImpedance):
+            return AngularFourierDomainVoltage(super(AngularFourierDomainCurrent, self).__mul__(x))            
+        if isinstance(x, (ConstantExpression, AngularFourierDomainExpression, symExpr, int, float, complex)):
+            return super(AngularFourierDomainCurrent, self).__mul__(x)
         self._incompatible(x, '*')        
 
     def __truediv__(self, x):
         """Divide"""
 
-        if isinstance(x, Yomega):
-            return Vomega(super(Iomega, self).__truediv__(x))
-        if isinstance(x, (cExpr, omegaExpr, symExpr, int, float, complex)):
-            return super(Iomega, self).__truediv__(x)
+        if isinstance(x, AngularFourierDomainAdmittance):
+            return AngularFourierDomainVoltage(super(AngularFourierDomainCurrent, self).__truediv__(x))
+        if isinstance(x, (ConstantExpression, AngularFourierDomainExpression, symExpr, int, float, complex)):
+            return super(AngularFourierDomainCurrent, self).__truediv__(x)
         self._incompatible(x, '/')                        
 
         
-class Homega(omegaExpr):
+class AngularFourierDomainTransferFunction(AngularFourierDomainExpression):
 
     """omega-domain transfer function response."""
 
@@ -212,8 +212,8 @@ class Homega(omegaExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Homega, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Ht
+        super(AngularFourierDomainTransferFunction, self).__init__(val, **assumptions)
+        self._fourier_conjugate_class = TimeDomainImpulseResponse
 
         
 def omegaexpr(arg, **assumptions):
@@ -223,10 +223,10 @@ def omegaexpr(arg, **assumptions):
         return omega
     if arg is omega0sym:
         return omega0    
-    return omegaExpr(arg, **assumptions)
+    return AngularFourierDomainExpression(arg, **assumptions)
 
         
-from .texpr import Ht, It, Vt, Yt, Zt, tExpr
-from .cexpr import cExpr
-omega = omegaExpr('omega')
-omega0 = omegaExpr('omega_0')
+from .texpr import TimeDomainImpulseResponse, TimeDomainCurrent, TimeDomainVoltage, TimeDomainAdmittance, TimeDomainImpedance, TimeDomainExpression
+from .cexpr import ConstantExpression
+omega = AngularFourierDomainExpression('omega')
+omega0 = AngularFourierDomainExpression('omega_0')

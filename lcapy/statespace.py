@@ -160,7 +160,7 @@ class StateSpace(object):
                     continue
                 yexprs.append(self.sscct[node].v.subs(subsdict).expand().expr)
                 # Note, this can introduce a name conflict
-                y.append(Vt('v_%s(t)' % node))
+                y.append(TimeDomainVoltage('v_%s(t)' % node))
 
         if branch_currents:
             for name in cct.branch_list:
@@ -168,7 +168,7 @@ class StateSpace(object):
                 # state variable?
                 name2 = cpt_map[name]                    
                 yexprs.append(self.sscct[name2].i.subs(subsdict).expand().expr)
-                y.append(It('i_%s(t)' % name))                    
+                y.append(TimeDomainCurrent('i_%s(t)' % name))                    
 
         Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
         if sourcesyms != []:        
@@ -206,7 +206,7 @@ class StateSpace(object):
         where x is the state vector and u is the input vector.
         """
         
-        return tExpr(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x),
+        return TimeDomainExpression(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x),
                                                   sym.MatMul(self.B, self.u)),
                             evaluate=False))
 
@@ -220,7 +220,7 @@ class StateSpace(object):
 
         """
         
-        return tExpr(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x),
+        return TimeDomainExpression(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x),
                                                sym.MatMul(self.D, self.u)),
                             evaluate=False))
 
@@ -278,7 +278,7 @@ class StateSpace(object):
         `lambda(s) = |s * I - A|`"""
 
         M = Matrix(sym.eye(len(self.x)) * ssym - self.A)        
-        return sExpr(M.det()).simplify()
+        return LaplaceDomainExpression(M.det()).simplify()
 
     @property
     def P(self):
@@ -341,5 +341,5 @@ class StateSpace(object):
     
 from .symbols import t, s
 from .expr import ExprList
-from .texpr import Vt, It, tExpr
-from .sexpr import sExpr
+from .texpr import TimeDomainVoltage, TimeDomainCurrent, TimeDomainExpression
+from .sexpr import LaplaceDomainExpression

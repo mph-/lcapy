@@ -1,5 +1,5 @@
 from lcapy import *
-from lcapy.cexpr import cExpr
+from lcapy.cexpr import ConstantExpression
 import unittest
 
 
@@ -61,7 +61,7 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 noise {sqrt(4 * k * T * R)}') 
         a.add('R1 1 2 R')
         a.add('C1 2 0 C')         
-        self.assertEqual2(a.C1.V.n.rms(), Vt('sqrt(k * T / C)'),
+        self.assertEqual2(a.C1.V.n.rms(), TimeDomainVoltage('sqrt(k * T / C)'),
                           "Incorrect capacitor voltage")
 
     def test_filtered_noise3(self):

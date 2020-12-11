@@ -16,10 +16,10 @@ import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
 
 
-__all__ = ('Hs', 'Is', 'Vs', 'Ys', 'Zs', 'zp2tf', 'tf', 'pr2tf')
+__all__ = ('zp2tf', 'tf', 'pr2tf')
 
 
-class sExpr(Expr):
+class LaplaceDomainExpression(Expr):
     """s-domain expression or symbol."""
 
     var = ssym
@@ -27,8 +27,8 @@ class sExpr(Expr):
     def __init__(self, val, **assumptions):
 
         check = assumptions.pop('check', True)                
-        super(sExpr, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = tExpr
+        super(LaplaceDomainExpression, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = TimeDomainExpression
 
         expr = self.expr        
         if check and expr.find(tsym) != set() and not expr.has(Integral):
@@ -114,7 +114,7 @@ class sExpr(Expr):
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result)
         else:
-            result = tExpr(result)
+            result = TimeDomainExpression(result)
         return result
 
     def ILT(self, **assumptions):
@@ -215,7 +215,7 @@ class sExpr(Expr):
 
         # Evaluate transient response.
         th = np.arange(N) * dt - dt
-        h = sExpr(expr).transient_response(th)
+        h = LaplaceDomainExpression(expr).transient_response(th)
 
         print('Convolving...')
         ty = t
@@ -272,11 +272,11 @@ class sExpr(Expr):
         lhs = (N * Y).ILT(causal=True)
         rhs = (D * X).ILT(causal=True)
 
-        return tExpr(Eq(lhs.expr, rhs.expr))
+        return TimeDomainExpression(Eq(lhs.expr, rhs.expr))
 
     def evaluate(self, svector=None):
 
-        return super(sExpr, self).evaluate(svector)
+        return super(LaplaceDomainExpression, self).evaluate(svector)
 
     def plot(self, t=None, **kwargs):
         """Plot pole-zero map."""
@@ -316,10 +316,10 @@ class sExpr(Expr):
         """
 
         def def1(defs, symbolname, value):
-            from .cexpr import cExpr
+            from .cexpr import ConstantExpression
             
             sym1 = symbol(symbolname)
-            defs[symbolname] = cExpr(value)
+            defs[symbolname] = ConstantExpression(value)
             return sym1
 
         factors = self.as_ordered_factors()
@@ -412,8 +412,8 @@ class sExpr(Expr):
     def transform(self, arg, **assumptions):
         """Transform into a different domain."""
 
-        from .fexpr import fExpr, f
-        from .omegaexpr import omegaExpr, omega
+        from .fexpr import FourierDomainExpression, f
+        from .omegaexpr import AngularFourierDomainExpression, omega
         from .symbols import jomega        
 
         arg = expr(arg)
@@ -427,26 +427,26 @@ class sExpr(Expr):
             # Handle args like 5 * jomega,  This might be too cute.
             return result.subs(arg / j, **assumptions)
 
-        elif isinstance(arg, omegaExpr):
+        elif isinstance(arg, AngularFourierDomainExpression):
             if not is_causal:
                 raise ValueError('Cannot convert non-causal s-expression to omega domain')
             result = self.subs(jomega)
             # Handle args like 5 * omega,  This might be too cute.
             return result.subs(arg, **assumptions)
 
-        elif isinstance(arg, fExpr):
+        elif isinstance(arg, FourierDomainExpression):
             if not is_causal:
                 raise ValueError('Cannot convert non-causal s-expression to f domain')
             result = self.subs(j * 2 * pi * f)
             # Handle args like 5 * f,  This might be too cute.
             return result.subs(arg, **assumptions)        
         
-        return super(sExpr, self).transform(arg, **assumptions)    
+        return super(LaplaceDomainExpression, self).transform(arg, **assumptions)    
 
     
 # Perhaps use a factory to create the following classes?
 
-class Zs(sExpr):
+class LaplaceDomainImpedance(LaplaceDomainExpression):
 
     """s-domain impedance value."""
 
@@ -455,8 +455,8 @@ class Zs(sExpr):
 
     def __init__(self, val, causal=True, **assumptions):
 
-        super(Zs, self).__init__(val, causal=causal, **assumptions)
-        self._laplace_conjugate_class = Zt
+        super(LaplaceDomainImpedance, self).__init__(val, causal=causal, **assumptions)
+        self._laplace_conjugate_class = TimeDomainImpedance
 
     def cpt(self):
         from .oneport import R, C, L, Z
@@ -488,7 +488,7 @@ class Zs(sExpr):
         return network(self, form)
 
 
-class Ys(sExpr):
+class LaplaceDomainAdmittance(LaplaceDomainExpression):
 
     """s-domain admittance value."""
 
@@ -497,8 +497,8 @@ class Ys(sExpr):
 
     def __init__(self, val, causal=True, **assumptions):
 
-        super(Ys, self).__init__(val, causal=causal, **assumptions)
-        self._laplace_conjugate_class = Yt
+        super(LaplaceDomainAdmittance, self).__init__(val, causal=causal, **assumptions)
+        self._laplace_conjugate_class = TimeDomainAdmittance
 
     def cpt(self):
         from .oneport import G, C, L, Y
@@ -530,7 +530,7 @@ class Ys(sExpr):
         return network(1 / self, form)
 
     
-class Vs(sExpr):
+class LaplaceDomainVoltage(LaplaceDomainExpression):
 
     """s-domain voltage (units V s / radian)."""
 
@@ -540,8 +540,8 @@ class Vs(sExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Vs, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Vt
+        super(LaplaceDomainVoltage, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = TimeDomainVoltage
 
     def cpt(self):
         from .oneport import V
@@ -550,23 +550,23 @@ class Vs(sExpr):
     def __mul__(self, x):
         """Multiply"""
 
-        if isinstance(x, Ys):
-            return Is(super(Vs, self).__mul__(x))
-        if isinstance(x, (cExpr, sExpr, symExpr, int, float, complex)):
-            return super(Vs, self).__mul__(x)
+        if isinstance(x, LaplaceDomainAdmittance):
+            return LaplaceDomainCurrent(super(LaplaceDomainVoltage, self).__mul__(x))
+        if isinstance(x, (ConstantExpression, LaplaceDomainExpression, symExpr, int, float, complex)):
+            return super(LaplaceDomainVoltage, self).__mul__(x)
         self._incompatible(x, '*')
 
     def __truediv__(self, x):
         """Divide"""
 
-        if isinstance(x, Zs):
-            return Is(super(Vs, self).__truediv__(x))
-        if isinstance(x, (cExpr, sExpr, symExpr, int, float, complex)):
-            return super(Vs, self).__truediv__(x)
+        if isinstance(x, LaplaceDomainImpedance):
+            return LaplaceDomainCurrent(super(LaplaceDomainVoltage, self).__truediv__(x))
+        if isinstance(x, (ConstantExpression, LaplaceDomainExpression, symExpr, int, float, complex)):
+            return super(LaplaceDomainVoltage, self).__truediv__(x)
         self._incompatible(x, '/')        
 
         
-class Is(sExpr):
+class LaplaceDomainCurrent(LaplaceDomainExpression):
 
     """s-domain current (units A s / radian)."""
 
@@ -576,8 +576,8 @@ class Is(sExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Is, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = It
+        super(LaplaceDomainCurrent, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = TimeDomainCurrent
 
     def cpt(self):
         from .oneport import I
@@ -587,23 +587,23 @@ class Is(sExpr):
     def __mul__(self, x):
         """Multiply"""
 
-        if isinstance(x, Zs):
-            return Vs(super(Is, self).__mul__(x))            
-        if isinstance(x, (cExpr, sExpr, symExpr, int, float, complex)):
-            return super(Is, self).__mul__(x)
+        if isinstance(x, LaplaceDomainImpedance):
+            return LaplaceDomainVoltage(super(LaplaceDomainCurrent, self).__mul__(x))            
+        if isinstance(x, (ConstantExpression, LaplaceDomainExpression, symExpr, int, float, complex)):
+            return super(LaplaceDomainCurrent, self).__mul__(x)
         self._incompatible(x, '*')        
 
     def __truediv__(self, x):
         """Divide"""
 
-        if isinstance(x, Ys):
-            return Vs(super(Is, self).__truediv__(x))
-        if isinstance(x, (cExpr, sExpr, symExpr, int, float, complex)):
-            return super(Is, self).__truediv__(x)
+        if isinstance(x, LaplaceDomainAdmittance):
+            return LaplaceDomainVoltage(super(LaplaceDomainCurrent, self).__truediv__(x))
+        if isinstance(x, (ConstantExpression, LaplaceDomainExpression, symExpr, int, float, complex)):
+            return super(LaplaceDomainCurrent, self).__truediv__(x)
         self._incompatible(x, '/')                
     
 
-class Hs(sExpr):
+class LaplaceDomainTransferFunction(LaplaceDomainExpression):
 
     """s-domain ratio"""
 
@@ -612,28 +612,28 @@ class Hs(sExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Hs, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Ht
+        super(LaplaceDomainTransferFunction, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = TimeDomainImpulseResponse
 
         
 class VsVector(Vector):
 
-    _typewrap = Vs
+    _typewrap = LaplaceDomainVoltage
 
 
 class IsVector(Vector):
 
-    _typewrap = Is
+    _typewrap = LaplaceDomainCurrent
 
 
 class YsVector(Vector):
 
-    _typewrap = Ys
+    _typewrap = LaplaceDomainAdmittance
 
 
 class ZsVector(Vector):
 
-    _typewrap = Zs
+    _typewrap = LaplaceDomainImpedance
 
 
 def tf(numer, denom=1, var=None):
@@ -646,7 +646,7 @@ def tf(numer, denom=1, var=None):
     N = Poly(sympify(numer), var)
     D = Poly(sympify(denom), var)
 
-    return Hs(N / D, causal=True)
+    return LaplaceDomainTransferFunction(N / D, causal=True)
 
 
 def zp2tf(zeros, poles, K=1, var=None):
@@ -655,7 +655,7 @@ def zp2tf(zeros, poles, K=1, var=None):
 
     if var is None:
         var = ssym
-    return Hs(_zp2tf(sympify(zeros), sympify(poles),
+    return LaplaceDomainTransferFunction(_zp2tf(sympify(zeros), sympify(poles),
                      sympify(K), var), causal=True)
 
 
@@ -664,7 +664,7 @@ def pr2tf(poles, residues, var=None):
 
     if var is None:
         var = ssym
-    return Hs(_pr2tf(sympify(poles), sympify(residues), var), causal=True)
+    return LaplaceDomainTransferFunction(_pr2tf(sympify(poles), sympify(residues), var), causal=True)
 
 
 def sexpr(arg, **assumptions):
@@ -672,10 +672,10 @@ def sexpr(arg, **assumptions):
 
     if arg is ssym:
         return s
-    return sExpr(arg, **assumptions)
+    return LaplaceDomainExpression(arg, **assumptions)
 
 
-from .texpr import Ht, It, Vt, Yt, Zt, tExpr, texpr
-from .cexpr import cExpr
-s = sExpr('s')
+from .texpr import TimeDomainImpulseResponse, TimeDomainCurrent, TimeDomainVoltage, TimeDomainAdmittance, TimeDomainImpedance, TimeDomainExpression, texpr
+from .cexpr import ConstantExpression
+s = LaplaceDomainExpression('s')
 

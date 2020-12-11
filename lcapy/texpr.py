@@ -13,10 +13,8 @@ from .laplace import laplace_transform
 from .fourier import fourier_transform
 from sympy import Heaviside, limit, Integral, Expr as symExpr
 
-__all__ = ('Ht', 'It', 'Vt', 'Yt', 'Zt')
 
-
-class tExpr(Expr):
+class TimeDomainExpression(Expr):
 
     """t-domain expression or symbol."""
 
@@ -28,10 +26,10 @@ class tExpr(Expr):
 
         check = assumptions.pop('check', True)        
         assumptions['real'] = True
-        super(tExpr, self).__init__(val, **assumptions)
+        super(TimeDomainExpression, self).__init__(val, **assumptions)
 
-        self._fourier_conjugate_class = fExpr
-        self._laplace_conjugate_class = sExpr
+        self._fourier_conjugate_class = FourierDomainExpression
+        self._laplace_conjugate_class = LaplaceDomainExpression
 
         expr = self.expr        
         if check and expr.find(ssym) != set() and not expr.has(Integral):
@@ -73,7 +71,7 @@ class tExpr(Expr):
         if hasattr(self, '_laplace_conjugate_class'):
             result = self._laplace_conjugate_class(result, **assumptions)
         else:
-            result = sExpr(result, **assumptions)
+            result = LaplaceDomainExpression(result, **assumptions)
         return result
 
     def LT(self, **assumptions):
@@ -91,7 +89,7 @@ class tExpr(Expr):
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result, **assumptions)
         else:
-            result = fExpr(result **self.assumptions)
+            result = FourierDomainExpression(result **self.assumptions)
         return result
 
     def FT(self, **assumptions):
@@ -182,7 +180,7 @@ class tExpr(Expr):
     def convolve(self, impulseresponse, commutate=False, **assumptions):
         """Convolve self with impulse response."""
 
-        if not isinstance(impulseresponse, tExpr):
+        if not isinstance(impulseresponse, TimeDomainExpression):
             raise ValueError('Expecting tExpr for impulse response')
 
         f1 = self.expr
@@ -195,7 +193,7 @@ class tExpr(Expr):
         return self.__class__(result, **assumptions)
 
     
-class Yt(tExpr):
+class TimeDomainAdmittance(TimeDomainExpression):
 
     """t-domain 'admittance' value."""
 
@@ -203,12 +201,12 @@ class Yt(tExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Yt, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Ys
-        self._fourier_conjugate_class = Yf
+        super(TimeDomainAdmittance, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = LaplaceDomainAdmittance
+        self._fourier_conjugate_class = FourierDomainAdmittance
 
 
-class Zt(tExpr):
+class TimeDomainImpedance(TimeDomainExpression):
 
     """t-domain 'impedance' value."""
 
@@ -216,12 +214,12 @@ class Zt(tExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Zt, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Zs
-        self._fourier_conjugate_class = Zf
+        super(TimeDomainImpedance, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = LaplaceDomainImpedance
+        self._fourier_conjugate_class = FourierDomainImpedance
 
 
-class Vt(tExpr):
+class TimeDomainVoltage(TimeDomainExpression):
 
     """t-domain voltage (units V)."""
 
@@ -231,9 +229,9 @@ class Vt(tExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Vt, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Vs
-        self._fourier_conjugate_class = Vf
+        super(TimeDomainVoltage, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = LaplaceDomainVoltage
+        self._fourier_conjugate_class = FourierDomainVoltage
 
     def cpt(self):
         from .oneport import V
@@ -242,23 +240,23 @@ class Vt(tExpr):
     def __mul__(self, x):
         """Multiply"""
 
-        if isinstance(x, Yt):
+        if isinstance(x, TimeDomainAdmittance):
             raise ValueError('Need to convolve expressions.')
-        if isinstance(x, (cExpr, tExpr, symExpr, int, float, complex)):
-            return super(Vt, self).__mul__(x)
+        if isinstance(x, (ConstantExpression, TimeDomainExpression, symExpr, int, float, complex)):
+            return super(TimeDomainVoltage, self).__mul__(x)
         self._incompatible(x, '*')        
 
     def __truediv__(self, x):
         """Divide"""
 
-        if isinstance(x, Zt):
+        if isinstance(x, TimeDomainImpedance):
             raise ValueError('Need to deconvolve expressions.')
-        if isinstance(x, (cExpr, tExpr, symExpr, int, float, complex)):
-            return super(Vt, self).__truediv__(x)
+        if isinstance(x, (ConstantExpression, TimeDomainExpression, symExpr, int, float, complex)):
+            return super(TimeDomainVoltage, self).__truediv__(x)
         self._incompatible(x, '/')        
 
         
-class It(tExpr):
+class TimeDomainCurrent(TimeDomainExpression):
 
     """t-domain current (units A)."""
 
@@ -268,9 +266,9 @@ class It(tExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(It, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Is
-        self._fourier_conjugate_class = If
+        super(TimeDomainCurrent, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = LaplaceDomainCurrent
+        self._fourier_conjugate_class = FourierDomainCurrent
 
     def cpt(self):
         from .oneport import I
@@ -279,23 +277,23 @@ class It(tExpr):
     def __mul__(self, x):
         """Multiply"""
 
-        if isinstance(x, Zt):
+        if isinstance(x, TimeDomainImpedance):
             raise ValueError('Need to convolve expressions.')
-        if isinstance(x, (cExpr, tExpr, symExpr, int, float, complex)):
-            return super(It, self).__mul__(x)
+        if isinstance(x, (ConstantExpression, TimeDomainExpression, symExpr, int, float, complex)):
+            return super(TimeDomainCurrent, self).__mul__(x)
         self._incompatible(x, '*')        
 
     def __truediv__(self, x):
         """Divide"""
 
-        if isinstance(x, Yt):
+        if isinstance(x, TimeDomainAdmittance):
             raise ValueError('Need to deconvolve expressions.')        
-        if isinstance(x, (cExpr, tExpr, symExpr, int, float, complex)):
-            return super(It, self).__truediv__(x)
+        if isinstance(x, (ConstantExpression, TimeDomainExpression, symExpr, int, float, complex)):
+            return super(TimeDomainCurrent, self).__truediv__(x)
         self._incompatible(x, '/')        
         
 
-class Ht(tExpr):
+class TimeDomainImpulseResponse(TimeDomainExpression):
 
     """impulse response"""
 
@@ -304,19 +302,19 @@ class Ht(tExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Ht, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Hs
-        self._fourier_conjugate_class = Hf
+        super(TimeDomainImpulseResponse, self).__init__(val, **assumptions)
+        self._laplace_conjugate_class = LaplaceDomainTransferFunction
+        self._fourier_conjugate_class = FourierDomainTransferFunction
 
 def texpr(arg, **assumptions):
     """Create tExpr object.  If `arg` is tsym return t"""
 
     if arg is tsym:
         return t
-    return tExpr(arg, **assumptions)
+    return TimeDomainExpression(arg, **assumptions)
 
-from .sexpr import Hs, Is, Vs, Ys, Zs, sExpr
-from .fexpr import Hf, If, Vf, Yf, Zf, fExpr
-from .cexpr import cExpr
+from .sexpr import LaplaceDomainTransferFunction, LaplaceDomainCurrent, LaplaceDomainVoltage, LaplaceDomainAdmittance, LaplaceDomainImpedance, LaplaceDomainExpression
+from .fexpr import FourierDomainTransferFunction, FourierDomainCurrent, FourierDomainVoltage, FourierDomainAdmittance, FourierDomainImpedance, FourierDomainExpression
+from .cexpr import ConstantExpression
 from .phasor import Phasor
-t = tExpr('t')
+t = TimeDomainExpression('t')

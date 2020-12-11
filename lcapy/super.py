@@ -14,7 +14,7 @@ from .printing import pprint, pretty, latex
 
 __all__ = ('Super', 'Voltage', 'Current')
 
-class Super(ExprDict):
+class Superposition(ExprDict):
     """This class represents a superposition of different signal types,
     DC, AC, transient, and noise.
     
@@ -55,7 +55,7 @@ class Super(ExprDict):
     # The 's' key is the transient component viewed in the Laplace domain.    
     
     def __init__(self, *args, **kwargs):
-        super (Super, self).__init__()
+        super (Superposition, self).__init__()
 
         for arg in args:
             self.add(arg)
@@ -113,7 +113,7 @@ class Super(ExprDict):
         if isinstance(key, Expr):
             key = key.expr
         if key in self:
-            return super(Super, self).__getitem__(key)
+            return super(Superposition, self).__getitem__(key)
         decomp = self.decompose()
         if key == 0 and 'dc' in decomp:
             key = 'dc'
@@ -301,14 +301,14 @@ class Super(ExprDict):
     def __add__(self, x):
 
         def _is_s_arg(x):
-            return isinstance(x, sExpr) or (isinstance(x, Super) and 's' in x)
+            return isinstance(x, LaplaceDomainExpression) or (isinstance(x, Superposition) and 's' in x)
 
         if _is_s_arg(x):
             new = self.decompose()
         else:
             new = self.__class__(self)            
 
-        if isinstance(x, Super):
+        if isinstance(x, Superposition):
             for value in x.values():
                 new.add(value)
         else:
@@ -369,7 +369,7 @@ class Super(ExprDict):
         # Extract DC components
         dc = expr.expr.coeff(tsym, 0)
         if dc != 0:
-            self['dc'] = cExpr(dc)
+            self['dc'] = ConstantExpression(dc)
             expr -= dc
 
         if expr == 0:
@@ -380,7 +380,7 @@ class Super(ExprDict):
         terms = expr.expr.as_ordered_terms()
         for term in terms:
             if is_ac(term, tsym):
-                self.add(tExpr(term).phasor())
+                self.add(TimeDomainExpression(term).phasor())
                 ac += term
 
         expr -= ac
@@ -500,19 +500,19 @@ class Super(ExprDict):
 
         symbols = symbols_find(string)
         if 's' in symbols:
-            return self.add(sExpr(string))
+            return self.add(LaplaceDomainExpression(string))
 
         if 'omega' in symbols:
             if 't' in symbols:
                 # Handle cos(omega * t)
-                return self.add(tExpr(string))
-            return self.add(omegaExpr(string))
+                return self.add(TimeDomainExpression(string))
+            return self.add(AngularFourierDomainExpression(string))
 
         if 'f' in symbols:
             # TODO, handle AC of different frequency
-            return self.add(fExpr(string))
+            return self.add(FourierDomainExpression(string))
 
-        return self.add(tExpr(string))
+        return self.add(TimeDomainExpression(string))
 
     def _add_noise(self, value):
 
@@ -527,7 +527,7 @@ class Super(ExprDict):
         """Add a value into the superposition."""
 
         # Avoid triggering __eq__ for Super otherwise have infinite recursion
-        if not isinstance(value, Super):
+        if not isinstance(value, Superposition):
             try:
                 val = value.expr
             except:
@@ -538,7 +538,7 @@ class Super(ExprDict):
         if '_decomposition' in self:
             delattr(self, '_decomposition')
 
-        if isinstance(value, Super):
+        if isinstance(value, Superposition):
             for kind, value in value.items():
                 self.add(value)
             return
@@ -546,7 +546,7 @@ class Super(ExprDict):
         if isinstance(value, str):
             return self._parse(value)
 
-        if isinstance(value, noiseExpr):
+        if isinstance(value, NoiseExpression):
             self._add_noise(value)
             return
         
@@ -563,7 +563,7 @@ class Super(ExprDict):
 
         # TODO, perhaps handle Fourier domain expressions in the
         # decomposition?  For now, convert to time domain.
-        if isinstance(value, (fExpr, omegaExpr)):
+        if isinstance(value, (FourierDomainExpression, AngularFourierDomainExpression)):
             value = value.time()
 
         kind = self._kind(value)
@@ -757,11 +757,11 @@ phasor, for example, using: %s""" % foo)
 
     
     
-from .cexpr import cExpr        
-from .fexpr import fExpr    
-from .sexpr import sExpr
-from .texpr import tExpr
-from .noiseexpr import noiseExpr
+from .cexpr import ConstantExpression        
+from .fexpr import FourierDomainExpression    
+from .sexpr import LaplaceDomainExpression
+from .texpr import TimeDomainExpression
+from .noiseexpr import NoiseExpression
 from .phasor import Phasor
-from .omegaexpr import omegaExpr
+from .omegaexpr import AngularFourierDomainExpression
 from .symbols import s, omega

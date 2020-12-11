@@ -63,6 +63,7 @@ from .fexpr import fexpr
 from .sexpr import sexpr, zp2tf, tf, pr2tf
 from .texpr import texpr
 from .omegaexpr import omegaexpr
+from .historical import *
 
 def show_version():
     """Show versions of Lcapy, SymPy, NumPy, MatplotLib, SciPy, and Python."""

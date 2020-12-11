@@ -5,7 +5,7 @@ Copyright 2020 Michael Hayes, UCECE
 """
 
 from .oneport import L, C, R, G, parallel, series
-from .sexpr import s, Zs, sExpr
+from .sexpr import s, LaplaceDomainImpedance, LaplaceDomainExpression
 
 # Should check that args to L, C, R, G contains s and raise
 # exception since the circuit is not realisable.
@@ -300,7 +300,7 @@ class Synthesis(object):
 
         net = None
         for term in expr.as_ordered_terms():
-            net = series(net, self.parallelRLC(sExpr(term)))
+            net = series(net, self.parallelRLC(LaplaceDomainExpression(term)))
         return net
 
     def fosterII(self, lexpr):
@@ -309,7 +309,7 @@ class Synthesis(object):
 
         net = None
         for term in expr.as_ordered_terms():
-            net = parallel(net, self.seriesRLC(sExpr(1 / term)))
+            net = parallel(net, self.seriesRLC(LaplaceDomainExpression(1 / term)))
         return net    
         
     def cauerI(self, lexpr):
@@ -320,9 +320,9 @@ class Synthesis(object):
         for m, coeff in enumerate(reversed(coeffs)):
             n = len(coeffs) - m - 1            
             if n & 1 == 0:
-                net = series(net, self.seriesRL(sExpr(coeff)))
+                net = series(net, self.seriesRL(LaplaceDomainExpression(coeff)))
             else:
-                net = parallel(net, self.parallelGC(sExpr(1 / coeff)))
+                net = parallel(net, self.parallelGC(LaplaceDomainExpression(1 / coeff)))
         return net
 
     def cauerII(self, lexpr):
@@ -334,9 +334,9 @@ class Synthesis(object):
             n = len(coeffs) - m - 1            
             if n & 1 == 0:
                 if not (n == 0 and coeff == 0):
-                    net = parallel(net, self.seriesRL(sExpr(1 / coeff)))
+                    net = parallel(net, self.seriesRL(LaplaceDomainExpression(1 / coeff)))
             else:
-                net = series(net, self.parallelGC(sExpr(coeff)))
+                net = series(net, self.parallelGC(LaplaceDomainExpression(coeff)))
         return net                                     
     
     def network(self, lexpr, form='default'):
@@ -344,7 +344,7 @@ class Synthesis(object):
         if form == 'default':
             form = 'cauerI'
 
-        if not isinstance(lexpr, Zs):
+        if not isinstance(lexpr, LaplaceDomainImpedance):
             raise ValueError('Expression needs to be Zs object')
 
         # Should test if a positive real function.

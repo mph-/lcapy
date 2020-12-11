@@ -8,8 +8,8 @@ from __future__ import division
 from warnings import warn
 import sympy as sym
 from .symbols import s
-from .sexpr import Vs, Is, Zs, Ys, Hs, sExpr, VsVector, IsVector, YsVector, ZsVector
-from .cexpr import cExpr
+from .sexpr import LaplaceDomainVoltage, LaplaceDomainCurrent, LaplaceDomainImpedance, LaplaceDomainAdmittance, LaplaceDomainTransferFunction, LaplaceDomainExpression, VsVector, IsVector, YsVector, ZsVector
+from .cexpr import ConstantExpression
 from .expr import expr
 from .vector import Vector
 from .matrix import Matrix
@@ -569,7 +569,7 @@ class AMatrix(TwoPortMatrix):
 
     @property
     def Sparams(self):
-        Z0 = Zs('Z_0')
+        Z0 = LaplaceDomainImpedance('Z_0')
         d = self._A12 + Z0 * (self._A11 + self._A22) + Z0**2 * self._A21
         return SMatrix((((self._A12 + Z0 * (self._A11 - self._A22) - Z0**2 * self._A21) / d,
                          (2 * Z0 * (self._A11 * self._A22 - self._A12 * self._A21)) / d),
@@ -602,12 +602,12 @@ class AMatrix(TwoPortMatrix):
     def Z1oc(self):
         """open-circuit input impedance"""
         # Z11
-        return Zs(self._A11 / self._A21)
+        return LaplaceDomainImpedance(self._A11 / self._A21)
 
     @classmethod
     def Zseries(cls, Zval):
 
-        if not isinstance(Zval, Zs):
+        if not isinstance(Zval, LaplaceDomainImpedance):
             raise ValueError('Zval not Zs')
 
         return cls(((1, Zval),
@@ -616,7 +616,7 @@ class AMatrix(TwoPortMatrix):
     @classmethod
     def Yseries(cls, Yval):
 
-        if not isinstance(Yval, Ys):
+        if not isinstance(Yval, LaplaceDomainAdmittance):
             raise ValueError('Yval not Ys')
 
         return cls(((1, 1 / Yval),
@@ -625,7 +625,7 @@ class AMatrix(TwoPortMatrix):
     @classmethod
     def Yshunt(cls, Yval):
 
-        if not isinstance(Yval, Ys):
+        if not isinstance(Yval, LaplaceDomainAdmittance):
             raise ValueError('Yval not Ys')
 
         return cls(((1, 0),
@@ -634,7 +634,7 @@ class AMatrix(TwoPortMatrix):
     @classmethod
     def Zshunt(cls, Zval):
 
-        if not isinstance(Zval, Zs):
+        if not isinstance(Zval, LaplaceDomainImpedance):
             raise ValueError('Zval not Zs')
 
         return cls(((1, 0),
@@ -643,7 +643,7 @@ class AMatrix(TwoPortMatrix):
     @classmethod
     def transformer(cls, alpha):
 
-        alpha = cExpr(alpha)
+        alpha = ConstantExpression(alpha)
 
         return cls(((1 / alpha, 0),
                     (0, alpha)))
@@ -651,7 +651,7 @@ class AMatrix(TwoPortMatrix):
     @classmethod
     def gyrator(cls, R):
 
-        R = cExpr(R)
+        R = ConstantExpression(R)
 
         return cls(((0, R),
                     (1 / R, 0)))
@@ -749,12 +749,12 @@ class BMatrix(TwoPortMatrix):
     def Z1oc(self):
         """open-circuit input impedance"""
         # Z11
-        return Zs(-self._B22 / self._B21)
+        return LaplaceDomainImpedance(-self._B22 / self._B21)
 
     @classmethod
     def Zseries(cls, Zval):
 
-        if not isinstance(Zval, Zs):
+        if not isinstance(Zval, LaplaceDomainImpedance):
             raise ValueError('Zval not Zs')
 
         return cls(((1, -Zval),
@@ -763,7 +763,7 @@ class BMatrix(TwoPortMatrix):
     @classmethod
     def Yseries(cls, Yval):
 
-        if not isinstance(Yval, Ys):
+        if not isinstance(Yval, LaplaceDomainAdmittance):
             raise ValueError('Yval not Ys')
 
         return cls(((1, -1 / Yval),
@@ -772,7 +772,7 @@ class BMatrix(TwoPortMatrix):
     @classmethod
     def Yshunt(cls, Yval):
 
-        if not isinstance(Yval, Ys):
+        if not isinstance(Yval, LaplaceDomainAdmittance):
             raise ValueError('Yval not Ys')
 
         return cls(((1, 0),
@@ -781,7 +781,7 @@ class BMatrix(TwoPortMatrix):
     @classmethod
     def Zshunt(cls, Zval):
 
-        if not isinstance(Zval, Zs):
+        if not isinstance(Zval, LaplaceDomainImpedance):
             raise ValueError('Zval not Zs')
 
         return cls(((1, 0),
@@ -802,10 +802,10 @@ class BMatrix(TwoPortMatrix):
             Yin = 1e-9
             Zout = 1e-9
 
-        Af = sExpr(Af)
-        Ar = sExpr(Ar)
-        Yin = sExpr(Yin)
-        Zout = sExpr(Zout)
+        Af = LaplaceDomainExpression(Af)
+        Ar = LaplaceDomainExpression(Ar)
+        Yin = LaplaceDomainExpression(Yin)
+        Zout = LaplaceDomainExpression(Zout)
 
         # This should be defined with a G matrix
         #
@@ -844,10 +844,10 @@ class BMatrix(TwoPortMatrix):
             Zin = 1e-9
             Yout = 1e-9
 
-        Af = sExpr(Af)
-        Ar = sExpr(Ar)
-        Zin = sExpr(Zin)
-        Yout = sExpr(Yout)
+        Af = LaplaceDomainExpression(Af)
+        Ar = LaplaceDomainExpression(Ar)
+        Zin = LaplaceDomainExpression(Zin)
+        Yout = LaplaceDomainExpression(Yout)
 
         # This should be defined with a H matrix
         #
@@ -871,27 +871,27 @@ class BMatrix(TwoPortMatrix):
     @classmethod
     def voltage_differentiator(cls, Av=1):
 
-        return cls.voltage_amplifier(sExpr(Av).differentiate())
+        return cls.voltage_amplifier(LaplaceDomainExpression(Av).differentiate())
 
     @classmethod
     def voltage_integrator(cls, Av):
 
-        return cls.voltage_amplifier(sExpr(Av).integrate())
+        return cls.voltage_amplifier(LaplaceDomainExpression(Av).integrate())
 
     @classmethod
     def current_differentiator(cls, Av):
 
-        return cls.current_amplifier(sExpr(Av).differentiate())
+        return cls.current_amplifier(LaplaceDomainExpression(Av).differentiate())
 
     @classmethod
     def current_integrator(cls, Av):
 
-        return cls.current_amplifier(sExpr(Av).integrate())
+        return cls.current_amplifier(LaplaceDomainExpression(Av).integrate())
 
     @classmethod
     def transformer(cls, alpha):
 
-        alpha = cExpr(alpha)
+        alpha = ConstantExpression(alpha)
 
         return cls(((alpha, 0),
                     (0, 1 / alpha)))
@@ -899,7 +899,7 @@ class BMatrix(TwoPortMatrix):
     @classmethod
     def gyrator(cls, R):
 
-        R = cExpr(R)
+        R = ConstantExpression(R)
 
         return cls(((0, R),
                     (1 / R, 0)))
@@ -1069,7 +1069,7 @@ class SMatrix(TwoPortMatrix):
     @property
     def Aparams(self):
         det = self.det().expr
-        Z0 = Zs('Z_0')
+        Z0 = LaplaceDomainImpedance('Z_0')
         A = AMatrix(((1 + self._S11 - self._S22 - det,
                          (1 + self._S11 + self._S22 + det) * Z0),
                         ((1 - self._S11 - self._S22 + det) / Z0,
@@ -1342,59 +1342,59 @@ class TwoPort(Network, TwoPortMixin):
 
     @property
     def I1a(self):
-        return Is(-self.V2b / self._B12)
+        return LaplaceDomainCurrent(-self.V2b / self._B12)
 
     @property
     def V1a(self):
         # CHECKME
-        return Vs(-self.I2b / self._B21)
+        return LaplaceDomainVoltage(-self.I2b / self._B21)
 
     @property
     def I1g(self):
-        return Is(-self.I2b / self._B22)
+        return LaplaceDomainCurrent(-self.I2b / self._B22)
 
     @property
     def V2g(self):
-        return Vs(self.V2b - self._B12 / self._B22 * self.I2b)
+        return LaplaceDomainVoltage(self.V2b - self._B12 / self._B22 * self.I2b)
 
     @property
     def V1h(self):
-        return Vs(-self.V2b / self._B11)
+        return LaplaceDomainVoltage(-self.V2b / self._B11)
 
     @property
     def I2h(self):
-        return Is(-self.V2b * self._B21 / self._B11) - self.I2b
+        return LaplaceDomainCurrent(-self.V2b * self._B21 / self._B11) - self.I2b
 
     @property
     def I1y(self):
-        return Is(-self.V2b / self._B12)
+        return LaplaceDomainCurrent(-self.V2b / self._B12)
 
     @property
     def I2y(self):
-        return Is(self.V2b * self._B22 / self._B12) - self.I2b
+        return LaplaceDomainCurrent(self.V2b * self._B22 / self._B12) - self.I2b
 
     @property
     def V1z(self):
-        return Vs(-self.I2b / self._B21)
+        return LaplaceDomainVoltage(-self.I2b / self._B21)
 
     @property
     def V2z(self):
-        return self.V2b - Vs(self.I2b * self._B11 / self._B21)
+        return self.V2b - LaplaceDomainVoltage(self.I2b * self._B11 / self._B21)
 
     @property
     def Yoc(self):
         """Return admittance vector with ports open circuit"""
-        return YsVector(Ys(1 / self.Z1oc), Ys(1 / self.Z2oc))
+        return YsVector(LaplaceDomainAdmittance(1 / self.Z1oc), LaplaceDomainAdmittance(1 / self.Z2oc))
 
     @property
     def Y1oc(self):
         """Return input impedance with the output port open circuit"""
-        return Zs(1 / self.Z1oc)
+        return LaplaceDomainImpedance(1 / self.Z1oc)
 
     @property
     def Y2oc(self):
         """Return output impedance with the input port open circuit"""
-        return Ys(1 / self.Z2oc)
+        return LaplaceDomainAdmittance(1 / self.Z2oc)
 
     @property
     def Ysc(self):
@@ -1404,12 +1404,12 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Y1sc(self):
         """Return input admittance with output port short circuit"""
-        return Ys(self.Ysc[0])
+        return LaplaceDomainAdmittance(self.Ysc[0])
 
     @property
     def Y2sc(self):
         """Return output admittance with output port short circuit"""
-        return Ys(self.Ysc[1])
+        return LaplaceDomainAdmittance(self.Ysc[1])
 
     @property
     def Zoc(self):
@@ -1419,27 +1419,27 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Z1oc(self):
         """Return input impedance with the output port open circuit"""
-        return Zs(self.Zoc[0])
+        return LaplaceDomainImpedance(self.Zoc[0])
 
     @property
     def Z2oc(self):
         """Return output impedance with the input port open circuit"""
-        return Zs(self.Zoc[1])
+        return LaplaceDomainImpedance(self.Zoc[1])
 
     @property
     def Zsc(self):
         """Return impedance vector with ports short circuit"""
-        return ZsVector(Zs(1 / self.Y1sc), Zs(1 / self.Y2sc))
+        return ZsVector(LaplaceDomainImpedance(1 / self.Y1sc), LaplaceDomainImpedance(1 / self.Y2sc))
 
     @property
     def Z1sc(self):
         """Return input impedance with the output port short circuit"""
-        return Zs(1 / self.Y1sc)
+        return LaplaceDomainImpedance(1 / self.Y1sc)
 
     @property
     def Z2sc(self):
         """Return output impedance with the input port short circuit"""
-        return Zs(1 / self.Y2sc)
+        return LaplaceDomainImpedance(1 / self.Y2sc)
 
     def Vgain(self, inport=1, outport=2):
         """Return voltage gain for specified ports with internal
@@ -1449,11 +1449,11 @@ class TwoPort(Network, TwoPortMixin):
         # Av' = H12 = 1 / B11 =  |A| / A22 = Z12 / Z22 = -Y12 / Y11
 
         if inport == outport:
-            return Hs(1)
+            return LaplaceDomainTransferFunction(1)
         if inport == 1 and outport == 2:
-            return Hs(1 / self._A11)
+            return LaplaceDomainTransferFunction(1 / self._A11)
         if inport == 2 and outport == 1:
-            return Hs(1 / self._B11)
+            return LaplaceDomainTransferFunction(1 / self._B11)
         raise ValueError('bad port values')
 
     def Igain(self, inport=1, outport=2):
@@ -1464,11 +1464,11 @@ class TwoPort(Network, TwoPortMixin):
         # Ai' = G12 =  1 / B22 =  |A| / A11 = -Z12 / Z11 = Y12 / Y22
 
         if inport == outport:
-            return Hs(1)
+            return LaplaceDomainTransferFunction(1)
         if inport == 1 and outport == 2:
-            return Hs(-1 / self._A22)
+            return LaplaceDomainTransferFunction(-1 / self._A22)
         if inport == 2 and outport == 1:
-            return Hs(-1 / self._B22)
+            return LaplaceDomainTransferFunction(-1 / self._B22)
         raise ValueError('bad port values')
 
     @property
@@ -1516,7 +1516,7 @@ class TwoPort(Network, TwoPortMixin):
         p2 = outport - 1
 
         H = self.Zparams[p2, p1] / self.Zparams[p1, p1]
-        return Vs(self.Voc[p2] + (V - self.Voc[p1]) * H)
+        return LaplaceDomainVoltage(self.Voc[p2] + (V - self.Voc[p1]) * H)
 
     def Iresponse(self, I, inport=1, outport=2):
         """Return current response for specified applied current and
@@ -1531,13 +1531,13 @@ class TwoPort(Network, TwoPortMixin):
         Y = self.Yparams
         Isc = self.Isc
 
-        return Is(Isc[p2] + Y[p2, p1] / Y[p1, p1] * (I - Isc[p1]))
+        return LaplaceDomainCurrent(Isc[p2] + Y[p2, p1] / Y[p1, p1] * (I - Isc[p1]))
 
     def Ytrans(self, inport=1, outport=2):
         """Return transadmittance for specified ports with internal
         sources zero"""
 
-        return Ys(self.Yparams[outport - 1, inport - 1])
+        return LaplaceDomainAdmittance(self.Yparams[outport - 1, inport - 1])
 
     @property
     def Ytrans12(self):
@@ -1547,7 +1547,7 @@ class TwoPort(Network, TwoPortMixin):
          Y21 = -1 / A12 = det(B) / B12
          """
 
-        return Ys(self._Y21)
+        return LaplaceDomainAdmittance(self._Y21)
 
     @property
     def Ytransfer(self):
@@ -1563,7 +1563,7 @@ class TwoPort(Network, TwoPortMixin):
         """Return transimpedance for specified ports with internal
         sources zero"""
 
-        return Zs(self.Zparams[outport - 1, inport - 1])
+        return LaplaceDomainImpedance(self.Zparams[outport - 1, inport - 1])
 
     def Ztrans12(self):
         """Return V2 / I1 for I2 = 0 (forward transimpedance) with
@@ -1572,7 +1572,7 @@ class TwoPort(Network, TwoPortMixin):
         Z21 = 1 / A21 = -det(B) / B21
         """
 
-        return Zs(self._Z21)
+        return LaplaceDomainImpedance(self._Z21)
 
     @property
     def Ztransfer(self):
@@ -1587,22 +1587,22 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def V1oc(self):
         """Return V1 with all ports open-circuited (i.e., I1 = I2 = 0)"""
-        return Vs(self.Voc[0])
+        return LaplaceDomainVoltage(self.Voc[0])
 
     @property
     def V2oc(self):
         """Return V2 with all ports open-circuited (i.e., I1 = I2 = 0)"""
-        return Vs(self.Voc[1])
+        return LaplaceDomainVoltage(self.Voc[1])
 
     @property
     def I1sc(self):
         """Return I1 with all ports short-circuited, i.e, V1 = V2 = 0"""
-        return Is(self.Isc[0])
+        return LaplaceDomainCurrent(self.Isc[0])
 
     @property
     def I2sc(self):
         """Return I2 with all ports short-circuited, i.e, V1 = V2 = 0"""
-        return Is(self.Isc[1])
+        return LaplaceDomainCurrent(self.Isc[1])
 
     @property
     def Voc(self):
@@ -1838,9 +1838,9 @@ class TwoPortBModel(TwoPort):
     def __init__(self, B, V2b=None, I2b=None):
 
         if V2b is None:
-            V2b = Vs(0)
+            V2b = LaplaceDomainVoltage(0)
         if I2b is None:
-            I2b = Is(0)            
+            I2b = LaplaceDomainCurrent(0)            
 
         if issubclass(B.__class__, TwoPortBModel):
             B, V2b, I2b = B._M, B._V2b, B._I2b
@@ -1848,10 +1848,10 @@ class TwoPortBModel(TwoPort):
         if not isinstance(B, BMatrix):
             raise ValueError('B not BMatrix')
 
-        if not isinstance(V2b, Vs):
+        if not isinstance(V2b, LaplaceDomainVoltage):
             raise ValueError('V2b not Vs')
 
-        if not isinstance(I2b, Is):
+        if not isinstance(I2b, LaplaceDomainCurrent):
             raise ValueError('I2b not Is')
 
         super(TwoPortBModel, self).__init__()
@@ -1874,27 +1874,27 @@ class TwoPortBModel(TwoPort):
 
     @property
     def V1h(self):
-        return Vs(-self.V2b / self._B11)
+        return LaplaceDomainVoltage(-self.V2b / self._B11)
 
     @property
     def I2h(self):
-        return Is(-self.V2b * self._B21 / self._B11) - self.I2b
+        return LaplaceDomainCurrent(-self.V2b * self._B21 / self._B11) - self.I2b
 
     @property
     def I1y(self):
-        return Is(-self.V2b / self._B12)
+        return LaplaceDomainCurrent(-self.V2b / self._B12)
 
     @property
     def I2y(self):
-        return Is(self.V2b * self._B22 / self._B12) - self.I2b
+        return LaplaceDomainCurrent(self.V2b * self._B22 / self._B12) - self.I2b
 
     @property
     def V1z(self):
-        return Vs(-self.I2b / self._B21)
+        return LaplaceDomainVoltage(-self.I2b / self._B21)
 
     @property
     def V2z(self):
-        return self.V2b - Vs(self.I2b * self._B11 / self._B21)
+        return self.V2b - LaplaceDomainVoltage(self.I2b * self._B11 / self._B21)
 
 
 class TwoPortGModel(TwoPort):
@@ -1905,9 +1905,9 @@ class TwoPortGModel(TwoPort):
     def __init__(self, G, I1g=None, V2g=None):
 
         if I1g is None:
-            I1g = Is(0)
+            I1g = LaplaceDomainCurrent(0)
         if V2g is None:
-            V2g = Vs(0)            
+            V2g = LaplaceDomainVoltage(0)            
         
         if issubclass(G.__class__, TwoPortGModel):
             G, I1g, V2g = G._M, G._I1g, G._V2g
@@ -1915,10 +1915,10 @@ class TwoPortGModel(TwoPort):
         if not isinstance(G, GMatrix):
             raise ValueError('G not GMatrix')
 
-        if not isinstance(I1g, Is):
+        if not isinstance(I1g, LaplaceDomainCurrent):
             raise ValueError('I1g not Is')
 
-        if not isinstance(V2g, Vs):
+        if not isinstance(V2g, LaplaceDomainVoltage):
             raise ValueError('V2g not Vs')
 
         super(TwoPortGModel, self).__init__()
@@ -1936,14 +1936,14 @@ class TwoPortGModel(TwoPort):
         """Return V2b"""
 
         # FIXME
-        return Vs(self.I1g / self.Gparams._G12)
+        return LaplaceDomainVoltage(self.I1g / self.Gparams._G12)
 
     @property
     def I2b(self):
         """Return I2b"""
 
         # FIXME
-        return Is(self.G._G22 / self.G._G12 * self.I1g) - self.V2g
+        return LaplaceDomainCurrent(self.G._G22 / self.G._G12 * self.I1g) - self.V2g
 
     @property
     def I1g(self):
@@ -1983,9 +1983,9 @@ class TwoPortHModel(TwoPort):
     def __init__(self, H, V1h=None, I2h=None):
 
         if V1h is None:
-            V1h = Vs(0)
+            V1h = LaplaceDomainVoltage(0)
         if I2h is None:
-            I2h = Is(0)            
+            I2h = LaplaceDomainCurrent(0)            
         
         if issubclass(H.__class__, TwoPortHModel):
             H, V1h, I2h = H._M, H._V1h, H._I2h
@@ -1993,10 +1993,10 @@ class TwoPortHModel(TwoPort):
         if not isinstance(H, HMatrix):
             raise ValueError('H not HMatrix')
 
-        if not isinstance(V1h, Vs):
+        if not isinstance(V1h, LaplaceDomainVoltage):
             raise ValueError('V1h not Vs')
 
-        if not isinstance(I2h, Is):
+        if not isinstance(I2h, LaplaceDomainCurrent):
             raise ValueError('I2h not Is')
 
         super(TwoPortHModel, self).__init__()
@@ -2013,13 +2013,13 @@ class TwoPortHModel(TwoPort):
     def V2b(self):
         """Return V2b"""
 
-        return Vs(self.V1h / self.Hparams._H12)
+        return LaplaceDomainVoltage(self.V1h / self.Hparams._H12)
 
     @property
     def I2b(self):
         """Return I2b"""
 
-        return Is(self.H._H22 / self.H._H12 * self.V1h) - self.I2h
+        return LaplaceDomainCurrent(self.H._H22 / self.H._H12 * self.V1h) - self.I2h
 
     @property
     def V1h(self):
@@ -2060,9 +2060,9 @@ class TwoPortYModel(TwoPort):
     def __init__(self, Y, I1y=None, I2y=None):
 
         if I1y is None:
-            I1y = Is(0)
+            I1y = LaplaceDomainCurrent(0)
         if I2y is None:
-            I2y = Is(0)            
+            I2y = LaplaceDomainCurrent(0)            
         
         if issubclass(Y.__class__, TwoPortYModel):
             Y, I1y, I2y = Y._M, Y._I1y, Y._I2y
@@ -2070,9 +2070,9 @@ class TwoPortYModel(TwoPort):
         if not isinstance(Y, YMatrix):
             raise ValueError('Y not YMatrix')
 
-        if not isinstance(I1y, Is):
+        if not isinstance(I1y, LaplaceDomainCurrent):
             raise ValueError('I1y not Is')
-        if not isinstance(I2y, Is):
+        if not isinstance(I2y, LaplaceDomainCurrent):
             raise ValueError('I2y not Is')
 
         super(TwoPortYModel, self).__init__()
@@ -2087,11 +2087,11 @@ class TwoPortYModel(TwoPort):
 
     @property
     def I2b(self):
-        return Is(-self.I1y * self._Y11 * self._Y22 / self._Y12) - self.I2y
+        return LaplaceDomainCurrent(-self.I1y * self._Y11 * self._Y22 / self._Y12) - self.I2y
 
     @property
     def V2b(self):
-        return Vs(self.I1y * self._Y11 / self._Y22)
+        return LaplaceDomainVoltage(self.I1y * self._Y11 / self._Y22)
 
     @property
     def I1y(self):
@@ -2131,9 +2131,9 @@ class TwoPortZModel(TwoPort):
     def __init__(self, Z, V1z=None, V2z=None):
 
         if V1z is None:
-            V1z = Vs(0)
+            V1z = LaplaceDomainVoltage(0)
         if V2z is None:
-            V2z = Vs(0)            
+            V2z = LaplaceDomainVoltage(0)            
         
         if issubclass(Z.__class__, TwoPortZModel):
             Z, V1z, V2z = Z._M, Z._V1z, Z._V2z
@@ -2141,9 +2141,9 @@ class TwoPortZModel(TwoPort):
         if not isinstance(Z, ZMatrix):
             raise ValueError('Z not ZMatrix')
 
-        if not isinstance(V1z, Vs):
+        if not isinstance(V1z, LaplaceDomainVoltage):
             raise ValueError('V1z not Vs')
-        if not isinstance(V2z, Vs):
+        if not isinstance(V2z, LaplaceDomainVoltage):
             raise ValueError('V2z not Vs')
 
         super(TwoPortZModel, self).__init__()
@@ -2158,23 +2158,23 @@ class TwoPortZModel(TwoPort):
 
     @property
     def I2b(self):
-        return Is(self.V1z / self._Z12)
+        return LaplaceDomainCurrent(self.V1z / self._Z12)
 
     @property
     def V2b(self):
-        return self.V2z - Vs(self.V1z * self._Z22 / self._Z12)
+        return self.V2z - LaplaceDomainVoltage(self.V1z * self._Z22 / self._Z12)
 
     @property
     def I1y(self):
 
         Zdet = self.Zparams.det().expr
-        return Is(-self.V1z * self._Z22 / Zdet - self.V2z * self._Z12 / Zdet)
+        return LaplaceDomainCurrent(-self.V1z * self._Z22 / Zdet - self.V2z * self._Z12 / Zdet)
 
     @property
     def I2y(self):
 
         Zdet = self.Zparams.det().expr
-        return Is(self.V1z * self._Z21 / Zdet - self.V2z * self._Z11 / Zdet)
+        return LaplaceDomainCurrent(self.V1z * self._Z21 / Zdet - self.V2z * self._Z11 / Zdet)
 
     @property
     def V1z(self):
@@ -2204,7 +2204,7 @@ class Chain(TwoPortBModel):
             foo += B * Vector(arg.V2b, arg.I2b)
             B = B * arg.Bparams
 
-        super(Chain, self).__init__(B, Vs(foo[0, 0]), Is(foo[1, 0]))
+        super(Chain, self).__init__(B, LaplaceDomainVoltage(foo[0, 0]), LaplaceDomainCurrent(foo[1, 0]))
 
     def simplify(self):
 
@@ -2362,7 +2362,7 @@ class Series(TwoPortBModel):
         self.OP = OP
         self.args = (OP, )
         _check_oneport_args(self.args)
-        super(Series, self).__init__(BMatrix.Zseries(OP.Zs), Vs(OP.Voc.laplace()), Is(0))
+        super(Series, self).__init__(BMatrix.Zseries(OP.Zs), LaplaceDomainVoltage(OP.Voc.laplace()), LaplaceDomainCurrent(0))
 
 
 class Shunt(TwoPortBModel):
@@ -2389,8 +2389,8 @@ class Shunt(TwoPortBModel):
         self.OP = OP
         self.args = (OP, )
         _check_oneport_args(self.args)
-        super(Shunt, self).__init__(BMatrix.Yshunt(OP.Ys), Vs(0),
-                                    Is(OP.Isc.laplace()))
+        super(Shunt, self).__init__(BMatrix.Yshunt(OP.Ys), LaplaceDomainVoltage(0),
+                                    LaplaceDomainCurrent(OP.Isc.laplace()))
 
 
 class IdealTransformer(TwoPortBModel):
@@ -2399,7 +2399,7 @@ class IdealTransformer(TwoPortBModel):
 
     def __init__(self, alpha=1):
 
-        self.alpha = cExpr(alpha)
+        self.alpha = ConstantExpression(alpha)
         self.args = (alpha, )
         super(IdealTransformer, self).__init__(BMatrix.transformer(alpha))
 
@@ -2417,7 +2417,7 @@ class IdealGyrator(TwoPortBModel):
 
     def __init__(self, R=1):
 
-        self.R = cExpr(R)
+        self.R = ConstantExpression(R)
         self.args = (R, )
         super(IdealGyrator, self).__init__(BMatrix.gyrator(R))
 
@@ -2438,10 +2438,10 @@ class VoltageAmplifier(TwoPortBModel):
 
     def __init__(self, Av=1, Af=0, Yin=0, Zout=0):
 
-        Av = sExpr(Av)
-        Af = sExpr(Af)
-        Yin = sExpr(Yin)
-        Zout = sExpr(Zout)
+        Av = LaplaceDomainExpression(Av)
+        Af = LaplaceDomainExpression(Af)
+        Yin = LaplaceDomainExpression(Yin)
+        Zout = LaplaceDomainExpression(Zout)
 
         self.args = (Av, Af, Yin, Zout)
         super(VoltageAmplifier, self).__init__(
@@ -2454,7 +2454,7 @@ class IdealVoltageAmplifier(VoltageAmplifier):
 
     def __init__(self, Av=1):
 
-        Av = sExpr(Av)
+        Av = LaplaceDomainExpression(Av)
         super(IdealVoltageAmplifier, self).__init__(
             BMatrix.voltage_differentiator(Av))
         self.args = (Av, )
@@ -2466,7 +2466,7 @@ class IdealDelay(TwoPortBModel):
 
     def __init__(self, delay=0):
 
-        delay = cExpr(delay)
+        delay = ConstantExpression(delay)
         super(IdealDelay, self).__init__(
             BMatrix.voltage_amplifier(sym.exp(-s * delay)))
         self.args = (delay, )
@@ -2478,7 +2478,7 @@ class IdealVoltageDifferentiator(TwoPortBModel):
 
     def __init__(self, Av=1):
 
-        Av = sExpr(Av)
+        Av = LaplaceDomainExpression(Av)
         super(IdealVoltageDifferentiator, self).__init__(
             BMatrix.voltage_differentiator(Av))
         self.args = (Av, )
@@ -2490,7 +2490,7 @@ class IdealVoltageIntegrator(TwoPortBModel):
 
     def __init__(self, Av=1):
 
-        Av = sExpr(Av)
+        Av = LaplaceDomainExpression(Av)
         super(IdealVoltageIntegrator, self).__init__(
             BMatrix.voltage_integrator(Av))
         self.args = (Av, )
@@ -2512,7 +2512,7 @@ class IdealCurrentAmplifier(TwoPortBModel):
 
     def __init__(self, Ai=1):
 
-        Ai = sExpr(Ai)
+        Ai = LaplaceDomainExpression(Ai)
         super(IdealCurrentAmplifier, self).__init__(
             BMatrix.current_amplifier(Ai))
         self.args = (Ai, )
@@ -2524,7 +2524,7 @@ class IdealCurrentDifferentiator(TwoPortBModel):
 
     def __init__(self, Ai=1):
 
-        Ai = sExpr(Ai)
+        Ai = LaplaceDomainExpression(Ai)
         super(IdealCurrentDifferentiator, self).__init__(
             BMatrix.current_differentiator(Ai))
         self.args = (Ai, )
@@ -2536,7 +2536,7 @@ class IdealCurrentIntegrator(TwoPortBModel):
 
     def __init__(self, Ai=1):
 
-        Ai = sExpr(Ai)
+        Ai = LaplaceDomainExpression(Ai)
         super(IdealCurrentIntegrator, self).__init__(
             BMatrix.current_integrator(Ai))
         self.args = (Ai, )
@@ -2548,8 +2548,8 @@ class OpampInverter(TwoPortBModel):
 
     def __init__(self, R1, R2):
 
-        R1 = cExpr(R1)
-        R2 = cExpr(R2)
+        R1 = ConstantExpression(R1)
+        R2 = ConstantExpression(R2)
         # FIXME for initial voltages.
         super(OpampInverter, self).__init__(
             AMatrix(((-R1.Z / R2.Z, 0),
@@ -2563,8 +2563,8 @@ class OpampIntegrator(TwoPortBModel):
 
     def __init__(self, R1, C1):
 
-        R1 = cExpr(R1)
-        C1 = cExpr(C1)
+        R1 = ConstantExpression(R1)
+        C1 = ConstantExpression(C1)
         # FIXME for initial voltages.
         super(OpampIntegrator, self).__init__(
             AMatrix(((-R1.Z / C1.Z, 0), (-1 / C1.Z, 0))).Bparams)
@@ -2577,8 +2577,8 @@ class OpampDifferentiator(TwoPortBModel):
 
     def __init__(self, R1, C1):
 
-        R1 = cExpr(R1)
-        C1 = cExpr(C1)
+        R1 = ConstantExpression(R1)
+        C1 = ConstantExpression(C1)
         # FIXME for initial voltages.
         super(OpampDifferentiator, self).__init__(
             AMatrix(((-R1.Z * C1.Z, 0), (-R1.Z, 0))).Bparams)
@@ -2807,9 +2807,9 @@ class GeneralTxLine(TwoPortBModel):
 
     def __init__(self, Z0, gamma, l):
 
-        Z0 = sExpr(Z0)
-        gamma = sExpr(gamma)
-        l = cExpr(l)
+        Z0 = LaplaceDomainExpression(Z0)
+        gamma = LaplaceDomainExpression(gamma)
+        l = ConstantExpression(l)
 
         H = sym.exp(gamma * l)
 

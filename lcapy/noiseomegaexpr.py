@@ -11,13 +11,13 @@ from .functions import sqrt
 from .sym import pi, omegasym, fsym
 from .state import state
 from .expr import expr
-from .noiseexpr import noiseExpr
-from .fexpr import f, fExpr
-from .omegaexpr import omegaExpr
+from .noiseexpr import NoiseExpression
+from .fexpr import f, FourierDomainExpression
+from .omegaexpr import AngularFourierDomainExpression
 import sympy as sym
 import numpy as np
 
-class noiseomegaExpr(noiseExpr):
+class noiseomegaExpr(NoiseExpression):
     """Angular frequency domain (one-sided) noise spectrum expression (amplitude
     spectral density).
 
@@ -77,10 +77,10 @@ class noiseomegaExpr(noiseExpr):
         """Transform into a different domain."""
 
         arg = expr(arg)        
-        if isinstance(arg, fExpr):
+        if isinstance(arg, FourierDomainExpression):
             result = self.subs(f * 2 * pi)
             return result.subs(arg, **assumptions)
-        elif isinstance(arg, omegaExpr):
+        elif isinstance(arg, AngularFourierDomainExpression):
             return self.subs(arg, **assumptions)        
 
         return super(noiseomegaExpr, self).transform(arg, **assumptions)
@@ -102,8 +102,8 @@ class Vnoisy(noiseomegaExpr):
 
         super(Vnoisy, self).__init__(val, **assumptions)
         # FIXME
-        self._fourier_conjugate_class = Vt
-        self._subs_classes = {fExpr: Vfnoisy, omegaExpr: Vnoisy}
+        self._fourier_conjugate_class = TimeDomainVoltage
+        self._subs_classes = {FourierDomainExpression: Vfnoisy, AngularFourierDomainExpression: Vnoisy}
 
 
 class Inoisy(noiseomegaExpr):
@@ -122,10 +122,10 @@ class Inoisy(noiseomegaExpr):
 
         super(Inoisy, self).__init__(val, **assumptions)
         # FIXME
-        self._fourier_conjugate_class = It
-        self._subs_classes = {fExpr: Ifnoisy, omegaExpr: Inoisy}
+        self._fourier_conjugate_class = TimeDomainCurrent
+        self._subs_classes = {FourierDomainExpression: Ifnoisy, AngularFourierDomainExpression: Inoisy}
     
 
-from .texpr import It, Vt
+from .texpr import TimeDomainCurrent, TimeDomainVoltage
 from .omegaexpr import omega
 from .noisefexpr import Vfnoisy, Ifnoisy

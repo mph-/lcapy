@@ -1,7 +1,7 @@
-from lcapy import s, j, Hs
+from lcapy import s, j, LaplaceDomainTransferFunction
 from matplotlib.pyplot import savefig
 
-H = Hs((s - 2) * (s + 3) / (s * (s - 2 * j) * (s + 2 * j)))
+H = LaplaceDomainTransferFunction((s - 2) * (s + 3) / (s * (s - 2 * j) * (s + 2 * j)))
 H.plot()
 
 

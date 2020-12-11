@@ -16,8 +16,8 @@ from .functions import sin, cos, exp, sqrt
 __all__ = ('Vphasor', 'Iphasor')
 
 from .expr import Expr
-from .cexpr import cExpr
-from .omegaexpr import omegaExpr
+from .cexpr import ConstantExpression
+from .omegaexpr import AngularFourierDomainExpression
 
 
 class Phasor(Expr):
@@ -72,7 +72,7 @@ class Phasor(Expr):
         if not isinstance(x, Expr):
             return cls, self, cls(x), self.assumptions
 
-        if isinstance(x, (omegaExpr, cExpr)):
+        if isinstance(x, (AngularFourierDomainExpression, ConstantExpression)):
             return cls, self, x, self.assumptions
 
         if not isinstance(x, Phasor):
@@ -102,7 +102,7 @@ class Phasor(Expr):
 
         if hasattr(self, '_laplace_conjugate_class'):
             return self._laplace_conjugate_class(result)
-        return tExpr(result)
+        return TimeDomainExpression(result)
 
     def fourier(self, **assumptions):
         """Attempt Fourier transform."""
@@ -144,7 +144,7 @@ class Phasor(Expr):
         return self.__class__(self, **self.assumptions)
 
     def rms(self):
-        return {Vphasor: Vt, Iphasor : It}[self.__class__](0.5 * self)
+        return {Vphasor: TimeDomainVoltage, Iphasor : TimeDomainCurrent}[self.__class__](0.5 * self)
 
     def plot(self, **kwargs):
 
@@ -163,7 +163,7 @@ class Vphasor(Phasor):
     def __init__(self, val, **assumptions):
 
         super(Vphasor, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = Vt
+        self._laplace_conjugate_class = TimeDomainVoltage
 
     def cpt(self):
         from .oneport import Vac
@@ -180,12 +180,12 @@ class Iphasor(Phasor):
 
     def __init__(self, val, **assumptions):
         super(Iphasor, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = It
+        self._laplace_conjugate_class = TimeDomainCurrent
 
     def cpt(self):
         from .oneport import Iac
         return Iac(self, 0, self.omega)
 
-from .texpr import It, Vt, tExpr
+from .texpr import TimeDomainCurrent, TimeDomainVoltage, TimeDomainExpression
 from .expr import Expr
 from .phasor import Phasor

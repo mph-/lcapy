@@ -10,8 +10,8 @@ from .laplace import inverse_laplace_transform
 
 
 class sMatrix(Matrix):
-    from .sexpr import sExpr    
-    _typewrap = sExpr
+    from .sexpr import LaplaceDomainExpression    
+    _typewrap = LaplaceDomainExpression
 
     def inverse_laplace(self, **assumptions):
 

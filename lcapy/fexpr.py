@@ -11,7 +11,7 @@ from .expr import Expr, expr
 from .sym import fsym, ssym, tsym, pi
 from sympy import Integral, Expr as symExpr
 
-class fExpr(Expr):
+class FourierDomainExpression(Expr):
 
     """Fourier domain expression or symbol."""
 
@@ -23,9 +23,9 @@ class fExpr(Expr):
 
         check = assumptions.pop('check', True)        
         assumptions['real'] = True
-        super(fExpr, self).__init__(val, **assumptions)
+        super(FourierDomainExpression, self).__init__(val, **assumptions)
         # Define when class defined.
-        self._fourier_conjugate_class = tExpr
+        self._fourier_conjugate_class = TimeDomainExpression
 
         expr = self.expr        
         if check and expr.find(ssym) != set() and not expr.has(Integral):
@@ -41,7 +41,7 @@ class fExpr(Expr):
         if hasattr(self, '_fourier_conjugate_class'):
             result = self._fourier_conjugate_class(result)
         else:
-            result = tExpr(result)
+            result = TimeDomainExpression(result)
         return result
 
     def IFT(self, **assumptions):
@@ -93,16 +93,16 @@ class fExpr(Expr):
     def transform(self, arg, **assumptions):
         """Transform into a different domain."""
 
-        from .omegaexpr import omegaExpr, omega
+        from .omegaexpr import AngularFourierDomainExpression, omega
 
         arg = expr(arg)        
-        if isinstance(arg, omegaExpr):
+        if isinstance(arg, AngularFourierDomainExpression):
             result = self.subs(omega / (2 * pi))
             return result.subs(arg, **assumptions)
-        return super(fExpr, self).transform(arg, **assumptions)
+        return super(FourierDomainExpression, self).transform(arg, **assumptions)
         
 
-class Yf(fExpr):
+class FourierDomainAdmittance(FourierDomainExpression):
 
     """f-domain admittance"""
 
@@ -111,11 +111,11 @@ class Yf(fExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Yf, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Yt
+        super(FourierDomainAdmittance, self).__init__(val, **assumptions)
+        self._fourier_conjugate_class = TimeDomainAdmittance
 
 
-class Zf(fExpr):
+class FourierDomainImpedance(FourierDomainExpression):
 
     """f-domain impedance"""
 
@@ -124,11 +124,11 @@ class Zf(fExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Zf, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Zt
+        super(FourierDomainImpedance, self).__init__(val, **assumptions)
+        self._fourier_conjugate_class = TimeDomainImpedance
 
 
-class Hf(fExpr):
+class FourierDomainTransferFunction(FourierDomainExpression):
 
     """f-domain transfer function response."""
 
@@ -137,11 +137,11 @@ class Hf(fExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Hf, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Ht
+        super(FourierDomainTransferFunction, self).__init__(val, **assumptions)
+        self._fourier_conjugate_class = TimeDomainImpulseResponse
 
 
-class Vf(fExpr):
+class FourierDomainVoltage(FourierDomainExpression):
 
     """f-domain voltage (units V/Hz)."""
 
@@ -151,29 +151,29 @@ class Vf(fExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(Vf, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = Vt
+        super(FourierDomainVoltage, self).__init__(val, **assumptions)
+        self._fourier_conjugate_class = TimeDomainVoltage
 
     def __mul__(self, x):
         """Multiply"""
 
-        if isinstance(x, Yf):
-            return If(super(Vf, self).__mul__(x))
-        if isinstance(x, (cExpr, fExpr, symExpr, int, float, complex)):
-            return super(Vf, self).__mul__(x)
+        if isinstance(x, FourierDomainAdmittance):
+            return FourierDomainCurrent(super(FourierDomainVoltage, self).__mul__(x))
+        if isinstance(x, (ConstantExpression, FourierDomainExpression, symExpr, int, float, complex)):
+            return super(FourierDomainVoltage, self).__mul__(x)
         self._incompatible(x, '*')
 
     def __truediv__(self, x):
         """Divide"""
 
-        if isinstance(x, Zf):
-            return If(super(Vf, self).__truediv__(x))
-        if isinstance(x, (cExpr, fExpr, symExpr, int, float, complex)):
-            return super(Vf, self).__truediv__(x)
+        if isinstance(x, FourierDomainImpedance):
+            return FourierDomainCurrent(super(FourierDomainVoltage, self).__truediv__(x))
+        if isinstance(x, (ConstantExpression, FourierDomainExpression, symExpr, int, float, complex)):
+            return super(FourierDomainVoltage, self).__truediv__(x)
         self._incompatible(x, '/')                
 
         
-class If(fExpr):
+class FourierDomainCurrent(FourierDomainExpression):
 
     """f-domain current (units A/Hz)."""
 
@@ -183,25 +183,25 @@ class If(fExpr):
 
     def __init__(self, val, **assumptions):
 
-        super(If, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = It
+        super(FourierDomainCurrent, self).__init__(val, **assumptions)
+        self._fourier_conjugate_class = TimeDomainCurrent
 
     def __mul__(self, x):
         """Multiply"""
 
-        if isinstance(x, Zf):
-            return Vf(super(If, self).__mul__(x))            
-        if isinstance(x, (cExpr, fExpr, symExpr, int, float, complex)):
-            return super(If, self).__mul__(x)
+        if isinstance(x, FourierDomainImpedance):
+            return FourierDomainVoltage(super(FourierDomainCurrent, self).__mul__(x))            
+        if isinstance(x, (ConstantExpression, FourierDomainExpression, symExpr, int, float, complex)):
+            return super(FourierDomainCurrent, self).__mul__(x)
         self._incompatible(x, '*')        
 
     def __truediv__(self, x):
         """Divide"""
 
-        if isinstance(x, Yf):
-            return Vf(super(If, self).__truediv__(x))
-        if isinstance(x, (cExpr, fExpr, symExpr, int, float, complex)):
-            return super(If, self).__truediv__(x)
+        if isinstance(x, FourierDomainAdmittance):
+            return FourierDomainVoltage(super(FourierDomainCurrent, self).__truediv__(x))
+        if isinstance(x, (ConstantExpression, FourierDomainExpression, symExpr, int, float, complex)):
+            return super(FourierDomainCurrent, self).__truediv__(x)
         self._incompatible(x, '/')                        
 
         
@@ -210,8 +210,8 @@ def fexpr(arg, **assumptions):
 
     if arg is fsym:
         return f
-    return fExpr(arg, **assumptions)
+    return FourierDomainExpression(arg, **assumptions)
         
-from .texpr import Ht, It, Vt, Yt, Zt, tExpr
-from .cexpr import cExpr
-f = fExpr('f')
+from .texpr import TimeDomainImpulseResponse, TimeDomainCurrent, TimeDomainVoltage, TimeDomainAdmittance, TimeDomainImpedance, TimeDomainExpression
+from .cexpr import ConstantExpression
+f = FourierDomainExpression('f')

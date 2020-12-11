@@ -782,7 +782,7 @@ class R(OnePort):
     def __init__(self, Rval):
 
         self.args = (Rval, )
-        self._R = cExpr(Rval)
+        self._R = ConstantExpression(Rval)
         self._Z = Impedance(self._R)
 
     def i_equation(self, v, kind='t'):
@@ -802,7 +802,7 @@ class G(OnePort):
     def __init__(self, Gval):
 
         self.args = (Gval, )
-        self._G = cExpr(Gval)
+        self._G = ConstantExpression(Gval)
         self._Z = Impedance(1 / self._G)
 
     def _net_make(self, netlist, n1=None, n2=None, dir='right'):
@@ -840,12 +840,12 @@ class L(OnePort):
         else:
             self.args = (Lval, )
 
-        Lval = cExpr(Lval)
-        i0 = cExpr(i0)
+        Lval = ConstantExpression(Lval)
+        i0 = ConstantExpression(i0)
         self.L = Lval
         self.i0 = i0
         self._Z = Impedance(s * Lval)
-        self._Voc = Voltage(-Vs(i0 * Lval))
+        self._Voc = Voltage(-LaplaceDomainVoltage(i0 * Lval))
         self.zeroic = self.i0 == 0 
 
     def i_equation(self, v, kind='t'):
@@ -883,12 +883,12 @@ class C(OnePort):
         else:
             self.args = (Cval, )
 
-        Cval = cExpr(Cval)
-        v0 = cExpr(v0)
+        Cval = ConstantExpression(Cval)
+        v0 = ConstantExpression(v0)
         self.C = Cval
         self.v0 = v0
         self._Z = Impedance(1 / (s * Cval))
-        self._Voc = Voltage(Vs(v0) / s)
+        self._Voc = Voltage(LaplaceDomainVoltage(v0) / s)
         self.zeroic = self.v0 == 0
 
     def i_equation(self, v, kind='t'):
@@ -927,8 +927,8 @@ class CPE(OnePort):
 
         self.args = (K, alpha)
 
-        K = cExpr(K)
-        alpha = cExpr(alpha)
+        K = ConstantExpression(K)
+        alpha = ConstantExpression(alpha)
         self.K = K
         self.alpha = alpha
         self._Z = Impedance(1 / (s ** alpha * K))
@@ -973,8 +973,8 @@ class sV(VoltageSource):
     def __init__(self, Vval):
 
         self.args = (Vval, )
-        Vval = sExpr(Vval)
-        self._Voc = Voltage(Vs(Vval))
+        Vval = LaplaceDomainExpression(Vval)
+        self._Voc = Voltage(LaplaceDomainVoltage(Vval))
 
 
 class V(VoltageSource):
@@ -994,8 +994,8 @@ class Vstep(VoltageSource):
     def __init__(self, v):
 
         self.args = (v, )
-        v = cExpr(v)
-        self._Voc = Voltage(tExpr(v) * Heaviside(t))
+        v = ConstantExpression(v)
+        self._Voc = Voltage(TimeDomainExpression(v) * Heaviside(t))
         self.v0 = v
 
 
@@ -1008,8 +1008,8 @@ class Vdc(VoltageSource):
     def __init__(self, v):
 
         self.args = (v, )
-        v = cExpr(v)
-        self._Voc = Voltage(Vconst(v, dc=True))
+        v = ConstantExpression(v)
+        self._Voc = Voltage(ConstantVoltage(v, dc=True))
         self.v0 = v
 
     @property
@@ -1075,7 +1075,7 @@ class v(VoltageSource):
     def __init__(self, vval):
 
         self.args = (vval, )
-        Vval = tExpr(vval)
+        Vval = TimeDomainExpression(vval)
         self._Voc = Voltage(Vval)
 
 
@@ -1104,8 +1104,8 @@ class sI(CurrentSource):
     def __init__(self, Ival):
 
         self.args = (Ival, )
-        Ival = sExpr(Ival)
-        self._Isc = Current(Is(Ival))
+        Ival = LaplaceDomainExpression(Ival)
+        self._Isc = Current(LaplaceDomainCurrent(Ival))
 
 
 class I(CurrentSource):
@@ -1125,8 +1125,8 @@ class Istep(CurrentSource):
     def __init__(self, i):
 
         self.args = (i, )
-        i = cExpr(i)
-        self._Isc = Current(tExpr(i) * Heaviside(t))
+        i = ConstantExpression(i)
+        self._Isc = Current(TimeDomainExpression(i) * Heaviside(t))
         self.i0 = i
 
 
@@ -1139,8 +1139,8 @@ class Idc(CurrentSource):
     def __init__(self, i):
 
         self.args = (i, )
-        i = cExpr(i)
-        self._Isc = Current(Iconst(i, dc=True))
+        i = ConstantExpression(i)
+        self._Isc = Current(ConstantCurrent(i, dc=True))
         self.i0 = i
 
     @property
@@ -1204,7 +1204,7 @@ class i(CurrentSource):
     def __init__(self, ival):
 
         self.args = (ival, )
-        Ival = tExpr(ival)
+        Ival = TimeDomainExpression(ival)
         self._Isc = Current(Ival)
 
 
@@ -1218,10 +1218,10 @@ class Xtal(OnePort):
 
     def __init__(self, C0, R1, L1, C1):
 
-        self.C0 = cExpr(C0)
-        self.R1 = cExpr(R1)
-        self.L1 = cExpr(L1)
-        self.C1 = cExpr(C1)
+        self.C0 = ConstantExpression(C0)
+        self.R1 = ConstantExpression(R1)
+        self.L1 = ConstantExpression(L1)
+        self.C1 = ConstantExpression(C1)
 
         self._Z = self.expand().impedance
         self.args = (C0, R1, L1, C1)
@@ -1246,10 +1246,10 @@ class FerriteBead(OnePort):
 
     def __init__(self, Rs, Rp, Cp, Lp):
 
-        self.Rs = cExpr(Rs)
-        self.Rp = cExpr(Rp)
-        self.Cp = cExpr(Cp)
-        self.Lp = cExpr(Lp)
+        self.Rs = ConstantExpression(Rs)
+        self.Rp = ConstantExpression(Rp)
+        self.Cp = ConstantExpression(Cp)
+        self.Lp = ConstantExpression(Lp)
 
         self._Z = self.expand().impedance
         self.args = (Rs, Rp, Cp, Lp)
@@ -1357,7 +1357,7 @@ class K(Dummy):
     def __init__(self, L1, L2, K):
 
         self.args = (L1, L2, K)
-        self.K = cExpr(K)
+        self.K = ConstantExpression(K)
 
 
 class W(Dummy):
@@ -1453,9 +1453,9 @@ def ladder(*args, **kwargs):
     
 # Imports at end to circumvent circular dependencies
 from .expr import Expr, expr
-from .cexpr import cExpr, Iconst, Vconst
-from .sexpr import sExpr, Is, Vs, Ys, Zs
-from .texpr import tExpr
+from .cexpr import ConstantExpression, ConstantCurrent, ConstantVoltage
+from .sexpr import LaplaceDomainExpression, LaplaceDomainCurrent, LaplaceDomainVoltage, LaplaceDomainAdmittance, LaplaceDomainImpedance
+from .texpr import TimeDomainExpression
 from .noiseomegaexpr import Inoisy, Vnoisy
 from .voltage import Voltage
 from .current import Current

@@ -7,7 +7,7 @@ from .expr import Expr
 import sympy as sym
 import numpy as np
 
-class noiseExpr(Expr):
+class NoiseExpression(Expr):
     """Frequency domain (one-sided) noise spectrum expression (amplitude
     spectral density).
 
@@ -54,18 +54,18 @@ class noiseExpr(Expr):
             else:
                 assumptions['nid'] = self._new_nid()
 
-        super(noiseExpr, self).__init__(val, **assumptions)
+        super(NoiseExpression, self).__init__(val, **assumptions)
 
     @property
     def nid(self):
         return self.assumptions['nid']
 
     def subs(self, *args, **kwargs):
-        return super(noiseExpr, self).subs(*args, nid=self.nid, **kwargs)
+        return super(NoiseExpression, self).subs(*args, nid=self.nid, **kwargs)
 
     def __compat__(self, x):
 
-        if not isinstance(x, noiseExpr):
+        if not isinstance(x, NoiseExpression):
             return x
         if self.var == x.var:
             return x
@@ -74,7 +74,7 @@ class noiseExpr(Expr):
     def __add__(self, x):
         """Add noise spectra (on power basis if uncorrelated)."""
 
-        if not isinstance(x, noiseExpr):
+        if not isinstance(x, NoiseExpression):
             raise ValueError('Cannot add %s and %s' % (self, x))
         
         if x == 0:
@@ -96,7 +96,7 @@ class noiseExpr(Expr):
         raise ValueError('Cannot add %s and %s' % (self, x))        
 
     def __sub__(self, x):
-        if not isinstance(x, noiseExpr):
+        if not isinstance(x, NoiseExpression):
             raise ValueError('Cannot subtract %s and %s' % (self, x))
 
         if x == 0:
@@ -112,7 +112,7 @@ class noiseExpr(Expr):
         raise ValueError('Cannot subtract %s and %s' % (self, x))          
 
     def __mul__(self, x):
-        if isinstance(x, noiseExpr) and self.nid != x.nid:
+        if isinstance(x, NoiseExpression) and self.nid != x.nid:
             raise ValueError('Cannot multiply %s and %s' % (self, x))
 
         x = self.__compat__(x)
@@ -122,7 +122,7 @@ class noiseExpr(Expr):
         return self.__class__(self.expr * x, nid=self.nid)    
 
     def __div__(self, x):
-        if isinstance(x, noiseExpr) and self.nid != x.nid:
+        if isinstance(x, NoiseExpression) and self.nid != x.nid:
             raise ValueError('Cannot divide %s and %s' % (self, x))
         return self.__class__(self.expr / x, nid=self.nid)
 
@@ -216,7 +216,7 @@ class noiseExpr(Expr):
             return plot_frequency(self, fvector, **kwargs)
         elif self.var == omegasym:
             return plot_angular_frequency(self, fvector, **kwargs)
-        raise ValueError('Invalid var for noiseExpr')
+        raise ValueError('Invalid var for NoiseExpression')
 
     
 from .fexpr import f

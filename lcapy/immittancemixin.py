@@ -5,8 +5,8 @@ Copyright 2020 Michael Hayes, UCECE
 
 """
 
-from .omegaexpr import omegaExpr, Zomega, Yomega
-from .sexpr import Zs, Ys
+from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainImpedance, AngularFourierDomainAdmittance
+from .sexpr import LaplaceDomainImpedance, LaplaceDomainAdmittance
 from .symbols import j, omega, jomega, s
 
 class ImmittanceMixin(object):
@@ -73,22 +73,22 @@ class ImmittanceMixin(object):
     @property
     def Yw(self):
         """Admittance  Y(omega)."""
-        return Yomega(self.admittance._selectexpr(omega))
+        return AngularFourierDomainAdmittance(self.admittance._selectexpr(omega))
 
     @property
     def Zw(self):
         """Impedance  Z(omega)."""
-        return Zomega(self.impedance._selectexpr(omega))
+        return AngularFourierDomainImpedance(self.impedance._selectexpr(omega))
 
     @property
     def Ys(self):
         """Generalized admittance  Y(s)."""
-        return Ys(self.admittance._selectexpr(s))
+        return LaplaceDomainAdmittance(self.admittance._selectexpr(s))
 
     @property
     def Zs(self):
         """Generalized impedance  Z(s)."""
-        return Zs(self.impedance._selectexpr(s))
+        return LaplaceDomainImpedance(self.impedance._selectexpr(s))
 
 from .resistance import Resistance
 from .reactance import Reactance
