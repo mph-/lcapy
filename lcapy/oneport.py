@@ -954,7 +954,7 @@ class Z(OnePort):
         self._Z = Zval
 
 
-class VoltageSource(OnePort):
+class VoltageSourceBase(OnePort):
 
     voltage_source = True
     netname = 'V'
@@ -965,7 +965,7 @@ class VoltageSource(OnePort):
         return Voltage(self.voc).select(kind)
     
 
-class sV(VoltageSource):
+class sV(VoltageSourceBase):
     """Arbitrary s-domain voltage source"""
 
     netkeyword = 's'
@@ -977,7 +977,7 @@ class sV(VoltageSource):
         self._Voc = Voltage(LaplaceDomainVoltage(Vval))
 
 
-class V(VoltageSource):
+class V(VoltageSourceBase):
     """Arbitrary voltage source"""
 
     def __init__(self, Vval):
@@ -986,7 +986,7 @@ class V(VoltageSource):
         self._Voc = Voltage(Vval)
 
         
-class Vstep(VoltageSource):
+class Vstep(VoltageSourceBase):
     """Step voltage source (s domain voltage of v / s)."""
 
     netkeyword = 'step'
@@ -999,7 +999,7 @@ class Vstep(VoltageSource):
         self.v0 = v
 
 
-class Vdc(VoltageSource):
+class Vdc(VoltageSourceBase):
     """DC voltage source (note a DC voltage source of voltage V has
     an s domain voltage of V / s)."""
 
@@ -1017,7 +1017,7 @@ class Vdc(VoltageSource):
         return self.v0
 
 
-class Vac(VoltageSource):
+class Vac(VoltageSourceBase):
     """AC voltage source."""
 
     netkeyword = 'ac'
@@ -1056,7 +1056,7 @@ class Vac(VoltageSource):
         return self.v0 * cos(self.omega * t + self.phi)
 
 
-class Vnoise(VoltageSource):
+class Vnoise(VoltageSourceBase):
     """Noise voltage source."""
 
     netkeyword = 'noise'
@@ -1069,7 +1069,7 @@ class Vnoise(VoltageSource):
         self._Voc = Voltage(V1)
 
         
-class v(VoltageSource):
+class v(VoltageSourceBase):
     """Arbitrary t-domain voltage source"""
 
     def __init__(self, vval):
