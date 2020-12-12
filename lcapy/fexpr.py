@@ -168,6 +168,8 @@ class FourierDomainVoltage(FourierDomainExpression):
 
         if isinstance(x, FourierDomainImpedance):
             return FourierDomainCurrent(super(FourierDomainVoltage, self).__truediv__(x))
+        if isinstance(x, FourierDomainVoltage):
+            return FourierDomainTransferFunction(super(FourierDomainVoltage, self).__truediv__(x))                
         if isinstance(x, (ConstantExpression, FourierDomainExpression, symExpr, int, float, complex)):
             return super(FourierDomainVoltage, self).__truediv__(x)
         self._incompatible(x, '/')                
@@ -200,6 +202,8 @@ class FourierDomainCurrent(FourierDomainExpression):
 
         if isinstance(x, FourierDomainAdmittance):
             return FourierDomainVoltage(super(FourierDomainCurrent, self).__truediv__(x))
+        if isinstance(x, FourierDomainCurrent):
+            return FourierDomainTransferFunction(super(FourierDomainCurrent, self).__truediv__(x))                
         if isinstance(x, (ConstantExpression, FourierDomainExpression, symExpr, int, float, complex)):
             return super(FourierDomainCurrent, self).__truediv__(x)
         self._incompatible(x, '/')                        

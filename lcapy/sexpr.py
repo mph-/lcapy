@@ -8,7 +8,6 @@ Copyright 2014--2020 Michael Hayes, UCECE
 from __future__ import division
 from .laplace import inverse_laplace_transform
 from .sym import ssym, tsym, j, pi, sympify
-from .vector import Vector
 from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, exprcontainer
 from .functions import sqrt
@@ -561,7 +560,10 @@ class LaplaceDomainVoltage(LaplaceDomainExpression):
 
         if isinstance(x, LaplaceDomainImpedance):
             return LaplaceDomainCurrent(super(LaplaceDomainVoltage, self).__truediv__(x))
-        if isinstance(x, (ConstantExpression, LaplaceDomainExpression, symExpr, int, float, complex)):
+        if isinstance(x, LaplaceDomainVoltage):
+            return LaplaceDomainTransferFunction(super(LaplaceDomainVoltage, self).__truediv__(x))        
+        if isinstance(x, (ConstantExpression, LaplaceDomainExpression,
+                          symExpr, int, float, complex)):
             return super(LaplaceDomainVoltage, self).__truediv__(x)
         self._incompatible(x, '/')        
 
@@ -598,6 +600,8 @@ class LaplaceDomainCurrent(LaplaceDomainExpression):
 
         if isinstance(x, LaplaceDomainAdmittance):
             return LaplaceDomainVoltage(super(LaplaceDomainCurrent, self).__truediv__(x))
+        if isinstance(x, LaplaceDomainCurrent):
+            return LaplaceDomainTransferFunction(super(LaplaceDomainCurrent, self).__truediv__(x))                
         if isinstance(x, (ConstantExpression, LaplaceDomainExpression, symExpr, int, float, complex)):
             return super(LaplaceDomainCurrent, self).__truediv__(x)
         self._incompatible(x, '/')                
@@ -614,26 +618,6 @@ class LaplaceDomainTransferFunction(LaplaceDomainExpression):
 
         super(LaplaceDomainTransferFunction, self).__init__(val, **assumptions)
         self._laplace_conjugate_class = TimeDomainImpulseResponse
-
-        
-class VsVector(Vector):
-
-    _typewrap = LaplaceDomainVoltage
-
-
-class IsVector(Vector):
-
-    _typewrap = LaplaceDomainCurrent
-
-
-class YsVector(Vector):
-
-    _typewrap = LaplaceDomainAdmittance
-
-
-class ZsVector(Vector):
-
-    _typewrap = LaplaceDomainImpedance
 
 
 def tf(numer, denom=1, var=None):
@@ -675,7 +659,9 @@ def sexpr(arg, **assumptions):
     return LaplaceDomainExpression(arg, **assumptions)
 
 
-from .texpr import TimeDomainImpulseResponse, TimeDomainCurrent, TimeDomainVoltage, TimeDomainAdmittance, TimeDomainImpedance, TimeDomainExpression, texpr
+from .texpr import TimeDomainImpulseResponse, TimeDomainCurrent
+from .texpr import TimeDomainVoltage, TimeDomainAdmittance, TimeDomainImpedance
+from .texpr import TimeDomainExpression, texpr
 from .cexpr import ConstantExpression
 s = LaplaceDomainExpression('s')
 

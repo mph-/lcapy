@@ -166,6 +166,8 @@ class AngularFourierDomainVoltage(AngularFourierDomainExpression):
 
         if isinstance(x, AngularFourierDomainImpedance):
             return AngularFourierDomainCurrent(super(AngularFourierDomainVoltage, self).__truediv__(x))
+        if isinstance(x, AngularFourierDomainVoltage):
+            return AngularFourierDomainTransferFunction(super(AngularFourierDomainVoltage, self).__truediv__(x))                
         if isinstance(x, (ConstantExpression, AngularFourierDomainExpression, symExpr, int, float, complex)):
             return super(AngularFourierDomainVoltage, self).__truediv__(x)
         self._incompatible(x, '/')
@@ -198,6 +200,8 @@ class AngularFourierDomainCurrent(AngularFourierDomainExpression):
 
         if isinstance(x, AngularFourierDomainAdmittance):
             return AngularFourierDomainVoltage(super(AngularFourierDomainCurrent, self).__truediv__(x))
+        if isinstance(x, AngularFourierDomainCurrent):
+            return AngularFourierDomainTransferFunction(super(AngularFourierDomainCurrent, self).__truediv__(x))                        
         if isinstance(x, (ConstantExpression, AngularFourierDomainExpression, symExpr, int, float, complex)):
             return super(AngularFourierDomainCurrent, self).__truediv__(x)
         self._incompatible(x, '/')                        
@@ -226,7 +230,9 @@ def omegaexpr(arg, **assumptions):
     return AngularFourierDomainExpression(arg, **assumptions)
 
         
-from .texpr import TimeDomainImpulseResponse, TimeDomainCurrent, TimeDomainVoltage, TimeDomainAdmittance, TimeDomainImpedance, TimeDomainExpression
+from .texpr import TimeDomainImpulseResponse, TimeDomainCurrent
+from .texpr import TimeDomainVoltage, TimeDomainAdmittance
+from .texpr import TimeDomainImpedance, TimeDomainExpression
 from .cexpr import ConstantExpression
 omega = AngularFourierDomainExpression('omega')
 omega0 = AngularFourierDomainExpression('omega_0')

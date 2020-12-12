@@ -93,7 +93,8 @@ class Matrix(sym.Matrix):
 
         return expr(super(Matrix, self).norm())
 
-    # TODO, either need to explicitly wrap methods or use some cunning implicit method.
+    # TODO, either need to explicitly wrap methods or use some cunning
+    # implicit method.
 
     def replace(self, query, value, map=False, simultaneous=True, exact=None):
 

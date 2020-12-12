@@ -2,14 +2,17 @@
 This module supports simple linear three-port networks.  It is
 experimental and needs a rethink.
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2020 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from .sexpr import LaplaceDomainVoltage, LaplaceDomainTransferFunction, LaplaceDomainCurrent, VsVector, IsVector, YsVector, ZsVector
+from .sexpr import LaplaceDomainVoltage, LaplaceDomainTransferFunction
+form .sexpr import LaplaceDomainCurrent
+from .smatrix import LaplaceDomainVoltageMatrix, LaplaceDomainCurrentMatrix
+from .smatrix import LaplaceDomainCurrentMatrix, LaplaceDomainImpedanceMatrix
 from .cexpr import ConstantExpression
 from .oneport import OnePort
 from .twoport import YMatrix, ZMatrix, TwoPortZModel, Series, TwoPort
@@ -90,13 +93,16 @@ class ThreePort(object):
 
     """
 
-    def __init__(self, Z, Vz=VsVector((0, 0, 0))):
+    def __init__(self, Z, Vz=None):
+
+        if Vz is None:
+            Vz = LaplaceDomainVoltageMatrix((0, 0, 0))
 
         if not isinstance(Z, ZMatrix3):
             raise ValueError('Z not ZMatrix3')
 
-        if not isinstance(Vz, VsVector):
-            raise ValueError('Vz not VsVector')
+        if not isinstance(Vz, LaplaceDomainVoltageMatrix):
+            raise ValueError('Vz not LaplaceDomainVoltageMatrix')
 
         self._M = Z
         self._Vz = Vz
@@ -114,7 +120,7 @@ class ThreePort(object):
         Y = self.Y
         Voc = self.Voc
 
-        Isc = IsVector([Voc[m] * Y[m, m] for m in range(len(Voc))])
+        Isc = LaplaceDomainCurrentMatrix([Voc[m] * Y[m, m] for m in range(len(Voc))])
         return Isc
 
     @property
@@ -131,25 +137,25 @@ class ThreePort(object):
     def Yoc(self):
         """Return admittance vector with ports open circuit"""
         Z = self.Z
-        return YsVector([1 / Z[m, m] for m in range(Z.shape[0])])
+        return LaplaceDomainAdmittanceMatrix([1 / Z[m, m] for m in range(Z.shape[0])])
 
     @property
     def Ysc(self):
         """Return admittance vector with ports short circuit"""
         Y = self.Y
-        return YsVector([Y[m, m] for m in range(Y.shape[0])])
+        return LaplaceDomainAdmittanceMatrix([Y[m, m] for m in range(Y.shape[0])])
 
     @property
     def Zoc(self):
         """Return impedance vector with ports open circuit"""
         Z = self.Z
-        return ZsVector([Z[m, m] for m in range(Z.shape[0])])
+        return LaplaceDomainImpedanceMatrix([Z[m, m] for m in range(Z.shape[0])])
 
     @property
     def Zsc(self):
         """Return impedance vector with ports short circuit"""
         Y = self.Y
-        return ZsVector([1 / Y[m, m] for m in range(Y.shape[0])])
+        return LaplaceDomainImpedanceMatrix([1 / Y[m, m] for m in range(Y.shape[0])])
 
     def _portcheck(self, port):
 
@@ -223,7 +229,7 @@ class ThreePort(object):
         Isc = self.Isc
         Isc[p] += OP.Isc
         Z = Y.Z
-        Voc = VsVector([LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
+        Voc = LaplaceDomainVoltageMatrix([LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Z, Voc)
 
     def bridge(self, OP, inport=1, outport=2):
@@ -252,7 +258,7 @@ class ThreePort(object):
         Isc[p1] -= OP.Isc
         Isc[p2] += OP.Isc
         Z = Y.Z
-        Voc = VsVector([LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
+        Voc = LaplaceDomainVoltageMatrix([LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Y.Z, Voc)
 
     def parallel(self, MP, port=None):
@@ -271,7 +277,7 @@ class ThreePort(object):
         Y = self.Y + MP.Y
         Isc = self.Isc + MP.Isc
         Z = Y.Z
-        Voc = VsVector([LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
+        Voc = LaplaceDomainVoltageMatrix([LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Z, Voc)
 
     def series(self, MP, port=None):

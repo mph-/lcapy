@@ -46,5 +46,26 @@ class LaplaceDomainMatrix(Matrix):
         return self.applyfunc(self._typewrap.ZPK)    
     
 
+class LaplaceDomainVoltageMatrix(LaplaceDomainMatrix):
+    from .sexpr import LaplaceDomainVoltage    
+    _typewrap = LaplaceDomainVoltage
+
+    
+class LaplaceDomainCurrentMatrix(LaplaceDomainMatrix):
+    from .sexpr import LaplaceDomainCurrent    
+    _typewrap = LaplaceDomainCurrent
+
+    
+class LaplaceDomainAdmittanceMatrix(LaplaceDomainMatrix):
+    from .sexpr import LaplaceDomainAdmittance    
+    _typewrap = LaplaceDomainAdmittance
+
+    
+class LaplaceDomainImpedanceMatrix(LaplaceDomainMatrix):
+    from .sexpr import LaplaceDomainImpedance    
+    _typewrap = LaplaceDomainImpedance    
+    
+    
 from .tmatrix import TimeDomainMatrix
     
+

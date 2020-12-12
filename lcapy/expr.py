@@ -217,13 +217,9 @@ class Expr(ExprPrint, ExprMisc):
 
     # This needs to be larger than what sympy defines so
     # that the __rmul__, __radd__ methods get called.
-    # Otherwise pi * t becomes a Mul rather than a tExpr object.
+    # Otherwise pi * t becomes a Mul rather than a TimeDomainExpression object.
     _op_priority = 1000
     
-    # Perhaps have lookup table for operands to determine
-    # the resultant type?  For example, Vs / Vs -> Hs
-    # Vs / Is -> Zs,  Is * Zs -> Vs
-    # But what about Vs**2 ?
 
     @property
     def _pexpr(self):
@@ -237,8 +233,7 @@ class Expr(ExprPrint, ExprMisc):
            1. The sympy assumptions associated with symbols, for example,
               real=True.
            2. The expr assumptions such as dc, ac, causal.  These
-              are primarily to help the inverse Laplace transform for LaplaceDomainExpression
-              classes.  The omega assumption is required for Phasors."""
+              are primarily to help the inverse Laplace transform for LaplaceDomainExpression classes.  The omega assumption is required for Phasors."""
 
         if isinstance(arg, Expr):
             if assumptions == {}:

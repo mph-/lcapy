@@ -321,26 +321,6 @@ class ZDomainTransferFunction(ZDomainExpression):
         super(ZDomainTransferFunction, self).__init__(val, **assumptions)
         self._ztransform_conjugate_class = Hn
 
-        
-class VzVector(Vector):
-
-    _typewrap = ZDomainVoltage
-
-
-class IzVector(Vector):
-
-    _typewrap = ZDomainVoltage
-
-
-class YzVector(Vector):
-
-    _typewrap = ZDomainAdmittance
-
-
-class ZzVector(Vector):
-
-    _typewrap = ZDomainImpedance
-
 
 def zexpr(arg, **assumptions):
     """Create ZDomainExpression object.  If `arg` is zsym return z"""
