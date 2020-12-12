@@ -32,11 +32,19 @@ from .sym import omega0sym
 class Voltage(Superposition):
 
     def __init__(self, *args, **kwargs):
-        self.type_map = {ConstantExpression: ConstantVoltage, LaplaceDomainExpression : LaplaceDomainVoltage, AngularFourierDomainNoiseExpression: AngularFourierDomainNoiseVoltage,
-                         FourierDomainExpression: FourierDomainVoltage, FourierDomainNoiseExpression: FourierDomainNoiseVoltage, AngularFourierDomainExpression: AngularFourierDomainVoltage,
-                         PhasorExpression: PhasorVoltage, TimeDomainExpression : TimeDomainVoltage}
-        self.decompose_domains = {'s': LaplaceDomainVoltage, 'ac': PhasorVoltage, 'dc':
-                                  ConstantVoltage, 'n': AngularFourierDomainNoiseVoltage, 't': TimeDomainVoltage}
+        self.type_map = {ConstantExpression: ConstantVoltage,
+                         LaplaceDomainExpression : LaplaceDomainVoltage,
+                         AngularFourierDomainNoiseExpression: AngularFourierDomainNoiseVoltage,
+                         FourierDomainExpression: FourierDomainVoltage,
+                         FourierDomainNoiseExpression: FourierDomainNoiseVoltage,
+                         AngularFourierDomainExpression: AngularFourierDomainVoltage,
+                         PhasorExpression: PhasorVoltage,
+                         TimeDomainExpression : TimeDomainVoltage}
+        self.decompose_domains = {'s': LaplaceDomainVoltage,
+                                  'ac': PhasorVoltage,
+                                  'dc': ConstantVoltage,
+                                  'n': AngularFourierDomainNoiseVoltage,
+                                  't': TimeDomainVoltage}
         self.time_class = TimeDomainVoltage
         self.laplace_class = LaplaceDomainVoltage    
 

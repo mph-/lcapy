@@ -33,11 +33,18 @@ class Current(Superposition):
 
     def __init__(self, *args, **kwargs):    
 
-        self.type_map = {ConstantExpression: ConstantCurrent, LaplaceDomainExpression : LaplaceDomainCurrent, AngularFourierDomainNoiseExpression: AngularFourierDomainNoiseCurrent,
-                         FourierDomainExpression: FourierDomainCurrent, FourierDomainNoiseExpression: FourierDomainNoiseCurrent, AngularFourierDomainExpression: AngularFourierDomainCurrent,
+        self.type_map = {ConstantExpression: ConstantCurrent,
+                         LaplaceDomainExpression : LaplaceDomainCurrent,
+                         AngularFourierDomainNoiseExpression: AngularFourierDomainNoiseCurrent,
+                         FourierDomainExpression: FourierDomainCurrent,
+                         FourierDomainNoiseExpression: FourierDomainNoiseCurrent,
+                         AngularFourierDomainExpression: AngularFourierDomainCurrent,
                          PhasorExpression: PhasorCurrent, TimeDomainExpression : TimeDomainCurrent}
-        self.decompose_domains = {'s': LaplaceDomainCurrent, 'ac': PhasorCurrent, 'dc':
-                                  ConstantCurrent, 'n': AngularFourierDomainNoiseCurrent, 't': TimeDomainCurrent}
+        self.decompose_domains = {'s': LaplaceDomainCurrent,
+                                  'ac': PhasorCurrent,
+                                  'dc': ConstantCurrent,
+                                  'n': AngularFourierDomainNoiseCurrent,
+                                  't': TimeDomainCurrent}
         self.time_class = TimeDomainCurrent
         self.laplace_class = LaplaceDomainCurrent
 
