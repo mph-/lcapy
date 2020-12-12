@@ -845,7 +845,7 @@ class L(OnePort):
         self.L = Lval
         self.i0 = i0
         self._Z = Impedance(s * Lval)
-        self._Voc = Voltage(-LaplaceDomainVoltage(i0 * Lval))
+        self._Voc = Voltage(LaplaceDomainExpression(-i0 * Lval))
         self.zeroic = self.i0 == 0 
 
     def i_equation(self, v, kind='t'):
@@ -888,7 +888,7 @@ class C(OnePort):
         self.C = Cval
         self.v0 = v0
         self._Z = Impedance(1 / (s * Cval))
-        self._Voc = Voltage(LaplaceDomainVoltage(v0) / s)
+        self._Voc = Voltage(LaplaceDomainExpression(v0 / s))
         self.zeroic = self.v0 == 0
 
     def i_equation(self, v, kind='t'):
@@ -974,7 +974,7 @@ class sV(VoltageSourceBase):
 
         self.args = (Vval, )
         Vval = LaplaceDomainExpression(Vval)
-        self._Voc = Voltage(LaplaceDomainVoltage(Vval))
+        self._Voc = Voltage(LaplaceDomainExpression(Vval))
 
 
 class V(VoltageSourceBase):
@@ -1009,7 +1009,7 @@ class Vdc(VoltageSourceBase):
 
         self.args = (v, )
         v = ConstantExpression(v)
-        self._Voc = Voltage(ConstantVoltage(v, dc=True))
+        self._Voc = Voltage(ConstantExpression(v, dc=True))
         self.v0 = v
 
     @property
@@ -1105,7 +1105,7 @@ class sI(CurrentSourceBase):
 
         self.args = (Ival, )
         Ival = LaplaceDomainExpression(Ival)
-        self._Isc = Current(LaplaceDomainCurrent(Ival))
+        self._Isc = Current(LaplaceDomainExpression(Ival))
 
 
 class I(CurrentSourceBase):
@@ -1140,7 +1140,7 @@ class Idc(CurrentSourceBase):
 
         self.args = (i, )
         i = ConstantExpression(i)
-        self._Isc = Current(ConstantCurrent(i, dc=True))
+        self._Isc = Current(ConstantExpression(i, dc=True))
         self.i0 = i
 
     @property
@@ -1453,8 +1453,8 @@ def ladder(*args, **kwargs):
     
 # Imports at end to circumvent circular dependencies
 from .expr import Expr, expr
-from .cexpr import ConstantExpression, ConstantCurrent, ConstantVoltage
-from .sexpr import LaplaceDomainExpression, LaplaceDomainCurrent, LaplaceDomainVoltage, LaplaceDomainAdmittance, LaplaceDomainImpedance
+from .cexpr import ConstantExpression
+from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
 from .noiseomegaexpr import AngularFourierDomainNoiseCurrent, AngularFourierDomainNoiseVoltage
 from .voltage import Voltage
