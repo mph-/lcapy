@@ -17,8 +17,6 @@ import numpy as np
 from sympy import Eq, div, limit, oo, Sum
 
 
-__all__ = ('Hz', 'Iz', 'Vz', 'Yz', 'Zz')
-
 class ZDomainExpression(DiscreteExpression):
     """z-domain expression or symbol."""
 
@@ -267,7 +265,7 @@ class ZDomainImpedance(ZDomainExpression):
     def __init__(self, val, causal=True, **assumptions):
 
         super(ZDomainImpedance, self).__init__(val, causal=causal, **assumptions)
-        self._ztransform_conjugate_class = Zn
+        self._ztransform_conjugate_class = DiscreteTimeDomainImpedance
 
 
 class ZDomainAdmittance(ZDomainExpression):
@@ -280,7 +278,7 @@ class ZDomainAdmittance(ZDomainExpression):
     def __init__(self, val, causal=True, **assumptions):
 
         super(ZDomainAdmittance, self).__init__(val, causal=causal, **assumptions)
-        self._ztransform_conjugate_class = Yn
+        self._ztransform_conjugate_class = DiscreteTimeDomainAdmittance
 
 
 class ZDomainVoltage(ZDomainExpression):
@@ -293,7 +291,7 @@ class ZDomainVoltage(ZDomainExpression):
     def __init__(self, val, **assumptions):
 
         super(ZDomainVoltage, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = Vn
+        self._ztransform_conjugate_class = DiscreteTimeDomainVoltage
 
 
 class ZDomainVoltage(ZDomainExpression):
@@ -306,7 +304,7 @@ class ZDomainVoltage(ZDomainExpression):
     def __init__(self, val, **assumptions):
 
         super(ZDomainVoltage, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = In
+        self._ztransform_conjugate_class = DisreteTimeDomainVoltage
 
 
 class ZDomainTransferFunction(ZDomainExpression):
@@ -319,7 +317,7 @@ class ZDomainTransferFunction(ZDomainExpression):
     def __init__(self, val, **assumptions):
 
         super(ZDomainTransferFunction, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = Hn
+        self._ztransform_conjugate_class = DiscreteTimeDomainTransferFunction
 
 
 def zexpr(arg, **assumptions):
@@ -330,5 +328,5 @@ def zexpr(arg, **assumptions):
     return ZDomainExpression(arg, **assumptions)
 
 
-from .nexpr import Hn, In, Vn, Yn, Zn, DiscreteTimeDomainExpression, nexpr
+from .nexpr import DiscreteTimeDomainTransferFunction, DisreteTimeDomainVoltage, DiscreteTimeDomainVoltage, DiscreteTimeDomainAdmittance, DiscreteTimeDomainImpedance, DiscreteTimeDomainExpression, nexpr
 z = ZDomainExpression('z')

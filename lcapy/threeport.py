@@ -10,7 +10,7 @@ from __future__ import division
 from warnings import warn
 import sympy as sym
 from .sexpr import LaplaceDomainVoltage, LaplaceDomainTransferFunction
-form .sexpr import LaplaceDomainCurrent
+from .sexpr import LaplaceDomainCurrent
 from .smatrix import LaplaceDomainVoltageMatrix, LaplaceDomainCurrentMatrix
 from .smatrix import LaplaceDomainCurrentMatrix, LaplaceDomainImpedanceMatrix
 from .cexpr import ConstantExpression

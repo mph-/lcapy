@@ -93,7 +93,7 @@ class DiscreteFourierDomainExpression(SequenceExpression):
         return self.IDFT().ZT(**assumptions)
 
     
-class Yk(DiscreteFourierDomainExpression):
+class DiscreteFourierDomainAdmittance(DiscreteFourierDomainExpression):
 
     """f-domain admittance"""
 
@@ -102,11 +102,11 @@ class Yk(DiscreteFourierDomainExpression):
 
     def __init__(self, val, **assumptions):
 
-        super(Yk, self).__init__(val, **assumptions)
-        self._discrete_fourier_conjugate_class = Yn
+        super(DiscreteFourierDomainAdmittance, self).__init__(val, **assumptions)
+        self._discrete_fourier_conjugate_class = DiscreteTimeDomainAdmittance
 
 
-class Zk(DiscreteFourierDomainExpression):
+class DiscreteFourierDomainImpedance(DiscreteFourierDomainExpression):
 
     """f-domain impedance"""
 
@@ -115,11 +115,11 @@ class Zk(DiscreteFourierDomainExpression):
 
     def __init__(self, val, **assumptions):
 
-        super(Zk, self).__init__(val, **assumptions)
-        self._discrete_fourier_conjugate_class = Zn
+        super(DiscreteFourierDomainImpedance, self).__init__(val, **assumptions)
+        self._discrete_fourier_conjugate_class = DiscreteTimeDomainImpedance
 
 
-class Hk(DiscreteFourierDomainExpression):
+class DiscreteFourierDomainTransferFunction(DiscreteFourierDomainExpression):
 
     """f-domain transfer function response."""
 
@@ -128,11 +128,11 @@ class Hk(DiscreteFourierDomainExpression):
 
     def __init__(self, val, **assumptions):
 
-        super(Hk, self).__init__(val, **assumptions)
-        self._discrete_fourier_conjugate_class = Hn
+        super(DiscreteFourierDomainTransferFunction, self).__init__(val, **assumptions)
+        self._discrete_fourier_conjugate_class = DiscreteTimeDomainTransferFunction
 
 
-class Vk(DiscreteFourierDomainExpression):
+class DiscreteFourierDomainVoltage(DiscreteFourierDomainExpression):
 
     """f-domain voltage (units V/Hz)."""
 
@@ -141,11 +141,11 @@ class Vk(DiscreteFourierDomainExpression):
 
     def __init__(self, val, **assumptions):
 
-        super(Vk, self).__init__(val, **assumptions)
-        self._discrete_fourier_conjugate_class = Vn
+        super(DiscreteFourierDomainVoltage, self).__init__(val, **assumptions)
+        self._discrete_fourier_conjugate_class = DiscreteTimeDomainVoltage
 
 
-class Ik(DiscreteFourierDomainExpression):
+class DiscreteFourierDomainCurrent(DiscreteFourierDomainExpression):
 
     """f-domain current (units A/Hz)."""
 
@@ -154,8 +154,8 @@ class Ik(DiscreteFourierDomainExpression):
 
     def __init__(self, val, **assumptions):
 
-        super(Ik, self).__init__(val, **assumptions)
-        self._discrete_fourier_conjugate_class = In
+        super(DiscreteFourierDomainCurrent, self).__init__(val, **assumptions)
+        self._discrete_fourier_conjugate_class = DisreteTimeDomainVoltage
 
 
 def kexpr(arg, **assumptions):
@@ -165,5 +165,5 @@ def kexpr(arg, **assumptions):
         return k
     return DiscreteFourierDomainExpression(arg, **assumptions)
         
-from .nexpr import Hn, In, Vn, Yn, Zn, nexpr, DiscreteTimeDomainExpression
+from .nexpr import DiscreteTimeDomainTransferFunction, DisreteTimeDomainVoltage, DiscreteTimeDomainVoltage, DiscreteTimeDomainAdmittance, DiscreteTimeDomainImpedance, nexpr, DiscreteTimeDomainExpression
 k = DiscreteFourierDomainExpression('k')
