@@ -26,6 +26,7 @@ class Immittance(LaplaceDomainExpression):
         otherwise.  This may stymy some simplification."""
         
         val = expr(val, positive=positive)
+        self.orig = val
 
         if isinstance(val, LaplaceDomainExpression) and kind is None:
             kind = 's'

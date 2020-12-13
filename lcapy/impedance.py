@@ -52,6 +52,14 @@ class Impedance(Immittance):
     def Zw(self):
         return self.jomega
 
+    @property
+    def Ys(self):
+        return 1 / self.Zs
+
+    @property
+    def Zs(self):
+        return self(s)
+    
     def cpt(self):
         """Create oneport component.  See also network."""
         
@@ -60,17 +68,17 @@ class Impedance(Immittance):
         if self.is_number or self.is_dc:
             return R(self.expr)
 
-        z = self * s
+        z = self.Zs * s
 
         if z.is_number:
             return C((1 / z).expr)
 
-        z = self / s
+        z = self.Zs / s
 
         if z.is_number:
             return L(z.expr)
 
-        return Z(self)
+        return Z(self.orig)
 
     def network(self, form='default'):
         """Synthesise a network with an equivalent impedance.

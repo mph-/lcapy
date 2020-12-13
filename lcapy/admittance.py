@@ -11,6 +11,14 @@ from .immittance import Immittance
 class Admittance(Immittance):    
     """Generic admittance class.
 
+    This represents both the phasor admittance, Y(omega), and the
+    s-domain admittance (sometimes called generalized imepdance), Y(s).
+    Unfortunately, both are called admittance although Y(omega) is more
+    common.
+
+    By default the representation uses the form that the admittance was
+    defined.  Otherwise, use Y(s) or Y(omega) to get the desired form.
+
     Y(omega) = G(omega) + j * B(omega)
 
     where G is the conductance and B is the susceptance.
@@ -44,6 +52,14 @@ class Admittance(Immittance):
     def Zw(self):
         return 1 / self.Yw
 
+    @property
+    def Ys(self):
+        return self(s)
+
+    @property
+    def Zs(self):
+        return 1 / self.Ys
+
     def cpt(self):
         """Create oneport component.  See also network."""        
 
@@ -52,17 +68,17 @@ class Admittance(Immittance):
         if self.is_number or self.is_dc:
             return G(self.expr)
 
-        y = self * s
+        y = self.Ys * s
 
         if y.is_number:
             return L((1 / y).expr)
 
-        y = self / s
+        y = self.Ys / s
 
         if y.is_number:
             return C(y.expr)
 
-        return Y(self)    
+        return Y(self.orig)    
 
     def network(self, form='default'):
         """Synthesise a network with an equivalent admittance.
