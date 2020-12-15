@@ -107,6 +107,12 @@ an answer that appears valid for DC.
 
 25. Test NetlistNamespace
 
+26. Tidy Voltage/Current/Immitance classes
+
+27. Perhaps remove intermediate classes?
+
+28. Incorporate SymPy units
+
 
 Testing
 =======
