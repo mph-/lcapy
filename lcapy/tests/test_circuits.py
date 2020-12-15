@@ -626,3 +626,15 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(b.impedance(1, 2), a.impedance(1, 2), "simplify parallel")        
         
+
+
+    def test_VRL1_super(self):
+        """Lcapy: check VRL circuit
+
+        """
+        a = Circuit()
+        a.add('V1 1 0 {2 * u(t)}; down')
+        a.add('V2 1 4 4; right')
+        a.add('R1 4 2 2; right=2')
+        a.add('L1 2 3 2; down')
+        a.add('W 0 3; right')

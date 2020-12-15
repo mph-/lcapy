@@ -675,14 +675,7 @@ class Expr(ExprPrint, ExprMisc):
 
         from .matrix import Matrix
 
-        # Convert Vs + Vt -> Voltage, etc.
-        if (hasattr(self, 'superkind') and hasattr(x, 'superkind') and
-            self.__class__ != x.__class__ and self.superkind ==
-            x.superkind):
-            cls = {'Voltage' : Voltage, 'Current' : Current}[self.superkind]
-            return cls(self) + cls(x)
-
-        elif isinstance(x, Matrix):
+        if isinstance(x, Matrix):
             return x + self.expr
         
         cls, self, x, assumptions = self.__compat_add__(x, '+')
@@ -702,13 +695,6 @@ class Expr(ExprPrint, ExprMisc):
 
     def __sub__(self, x):
         """Subtract"""
-
-        # Convert Vs - Vt -> Voltage, etc.
-        if (hasattr(self, 'superkind') and hasattr(x, 'superkind') and
-            self.__class__ != x.__class__ and self.superkind ==
-            x.superkind):            
-            cls = {'Voltage' : Voltage, 'Current' : Current}[self.superkind]
-            return cls(self) - cls(x)        
 
         cls, self, x, assumptions = self.__compat_add__(x, '-')
         return cls(self.expr - x.expr, **assumptions)

@@ -145,7 +145,6 @@ class AngularFourierDomainVoltage(AngularFourierDomainExpression):
 
     quantity = 'Voltage spectrum'
     units = 'V/rad/s'
-    superkind = 'Voltage'    
 
     def __init__(self, val, **assumptions):
 
@@ -179,7 +178,6 @@ class AngularFourierDomainCurrent(AngularFourierDomainExpression):
 
     quantity = 'Current spectrum'
     units = 'A/rad/s'
-    superkind = 'Current'        
 
     def __init__(self, val, **assumptions):
 

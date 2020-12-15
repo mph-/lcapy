@@ -225,7 +225,6 @@ class TimeDomainVoltage(TimeDomainExpression):
 
     quantity = 'Voltage'
     units = 'V'
-    superkind = 'Voltage'        
 
     def __init__(self, val, **assumptions):
 
@@ -262,7 +261,6 @@ class TimeDomainCurrent(TimeDomainExpression):
 
     quantity = 'Current'
     units = 'A'
-    superkind = 'Current'    
 
     def __init__(self, val, **assumptions):
 

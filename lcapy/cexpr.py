@@ -39,10 +39,9 @@ class ConstantExpression(Expr):
         
         return TimeDomainExpression(self)
 
+    
 class ConstantVoltage(ConstantExpression):
 
-    superkind = 'Voltage'
-    
     def __init__(self, val, **assumptions):
 
         super(ConstantVoltage, self).__init__(val, **assumptions)
@@ -58,8 +57,6 @@ class ConstantVoltage(ConstantExpression):
     
 class ConstantCurrent(ConstantExpression):
 
-    superkind = 'Current'
-    
     def __init__(self, val, **assumptions):
 
         super(ConstantCurrent, self).__init__(val, **assumptions)

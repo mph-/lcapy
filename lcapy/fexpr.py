@@ -147,7 +147,6 @@ class FourierDomainVoltage(FourierDomainExpression):
 
     quantity = 'Voltage spectrum'
     units = 'V/Hz'
-    superkind = 'Voltage'        
 
     def __init__(self, val, **assumptions):
 
@@ -181,7 +180,6 @@ class FourierDomainCurrent(FourierDomainExpression):
 
     quantity = 'Current spectrum'
     units = 'A/Hz'
-    superkind = 'Current'    
 
     def __init__(self, val, **assumptions):
 

@@ -158,7 +158,6 @@ class PhasorVoltage(PhasorExpression):
         
     quantity = 'Voltage'
     units = 'V'
-    superkind = 'Voltage'    
     
     def __init__(self, val, **assumptions):
 
@@ -176,7 +175,6 @@ class PhasorCurrent(PhasorExpression):
 
     quantity = 'Current'
     units = 'A'
-    superkind = 'Current'
 
     def __init__(self, val, **assumptions):
         super(PhasorCurrent, self).__init__(val, **assumptions)
