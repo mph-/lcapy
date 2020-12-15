@@ -533,7 +533,7 @@ class Superposition(ExprDict):
             if val == 0:
                 return
 
-        if '_decomposition' in self:
+        if hasattr(self, '_decomposition'):            
             delattr(self, '_decomposition')
 
         if isinstance(value, Superposition):
