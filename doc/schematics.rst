@@ -334,6 +334,8 @@ Gyrators
    :width: 2cm
 
 
+.. _chips:           
+
 Integrated circuits
 -------------------
 
@@ -437,7 +439,7 @@ The supported chips are:
 
 .. image:: examples/schematics/Ubuffer.png
     :width: 5cm
-        
+       
            
 Chips are subclassed from the shape class and thus the pins can be
 labelled, renamed, etc.  For example:
@@ -909,7 +911,7 @@ Shapes include `box`, `circle`, `ellipse`, `triangle`.
 `box`, `circle`, `ellipse`, and `triangle` shapes have default anchor
 nodes based on the centre (`c`) and sixteen directions of the compass:
 `n`, `nne`, `ne`, `ene`, `e`, `ese`, `se`, `sse`, `s`, `ssw`, `sw`,
-`wsw`, `w`, `wnw`, `nw`, `nww`.
+`wsw`, `w`, `wnw`, `nw`, `nww`.   For other rectangular shapes see :ref:`chips`.
 
 .. image:: examples/schematics/Sbox2.png
    :width: 5cm
