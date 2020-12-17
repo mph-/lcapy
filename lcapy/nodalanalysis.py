@@ -111,7 +111,7 @@ class NodalAnalysis(object):
                 lhs, rhs = self._unknowns[n1], self._unknowns[n2] + V
 
             else:
-                result = Current(0).select(self.kind)
+                result = Itype(self.kind)
                 for elt in self.G.connected(node):
                     if len(elt.nodenames) < 2:
                         raise ValueError('Elt %s has too few nodes' % elt)
@@ -209,5 +209,5 @@ class NodalAnalysis(object):
 from .expr import ExprDict, expr
 from .texpr import TimeDomainVoltage
 from .voltage import Vname
-from .current import Current
+from .current import Itype
 from .matrix import matrix

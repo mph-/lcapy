@@ -214,7 +214,13 @@ class Expr(ExprPrint, ExprMisc):
 
     one_sided = False
     var = None
-
+    is_time_domain = False
+    is_laplace_domain = False    
+    is_fourier_domain = False
+    is_angular_fourier_domain = False
+    is_constant = False
+    is_phasor = False
+    
     # This needs to be larger than what sympy defines so
     # that the __rmul__, __radd__ methods get called.
     # Otherwise pi * t becomes a Mul rather than a TimeDomainExpression object.
@@ -2130,8 +2136,8 @@ from .resistance import *
 from .reactance import *
 from .conductance import *
 from .susceptance import *
-from .voltage import Voltage
-from .current import Current
+from .superposition_voltage import SuperpositionVoltage
+from .superposition_current import SuperpositionCurrent
 from .omegaexpr import AngularFourierDomainTransferFunction, AngularFourierDomainCurrent, AngularFourierDomainVoltage, AngularFourierDomainAdmittance, AngularFourierDomainImpedance, AngularFourierDomainExpression, omegaexpr
 
 # Horrible hack to work with IPython around Sympy's back for LaTeX

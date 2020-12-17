@@ -18,6 +18,7 @@ class FourierDomainExpression(Expr):
     var = fsym
     domain_name = 'Frequency'
     domain_units = 'Hz'
+    is_fourier_domain = True    
 
     def __init__(self, val, **assumptions):
 

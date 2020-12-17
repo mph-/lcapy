@@ -93,7 +93,7 @@ class LoopAnalysis(object):
 
         for m, loop in enumerate(loops):
 
-            result = Voltage(0).select(self.kind)
+            result = Vtype(self.kind)
 
             loop1 = loop.copy()
             loop1.append(loop1[0])
@@ -228,5 +228,5 @@ class LoopAnalysis(object):
     
 from .expr import ExprList, ExprDict, expr    
 from .current import Iname
-from .voltage import Voltage
+from .voltage import Vtype
 from .matrix import matrix

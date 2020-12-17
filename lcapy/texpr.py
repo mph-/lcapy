@@ -20,6 +20,7 @@ class TimeDomainExpression(Expr):
     var = tsym
     domain_name = 'Time'
     domain_units = 's'
+    is_time_domain = True    
 
     def __init__(self, val, **assumptions):
 

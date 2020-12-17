@@ -107,9 +107,9 @@ class OnePort(Network, ImmittanceMixin):
         if self._Isc is not None:
             return self._Isc * self.impedance
         if self._Z is not None:        
-            return Voltage(0)
+            return SuperpositionVoltage(0)
         if self._Y is not None:        
-            return Current(0)
+            return SuperpositionCurrent(0)
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
     
     @property
@@ -127,7 +127,7 @@ class OnePort(Network, ImmittanceMixin):
     @property
     def I(self):
         """Open-circuit current.  Except for a current source this is zero."""
-        return Current(0)
+        return SuperpositionCurrent(0)
 
     @property
     def i(self):
@@ -787,11 +787,11 @@ class R(OnePort):
 
     def i_equation(self, v, kind='t'):
 
-        return Current(Voltage(v).select(kind) / self._Z._selectexpr(kind)).select(kind)
+        return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z._selectexpr(kind)).select(kind)
 
     def v_equation(self, i, kind='t'):
 
-        return Voltage(Current(i).select(kind) * self._Z._selectexpr(kind)).select(kind)
+        return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z._selectexpr(kind)).select(kind)
     
 
 class G(OnePort):
@@ -815,11 +815,11 @@ class G(OnePort):
 
     def i_equation(self, v, kind='t'):
 
-        return Current(Voltage(v).select(kind) / self._Z._selectexpr(kind)).select(kind)
+        return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z._selectexpr(kind)).select(kind)
 
     def v_equation(self, i, kind='t'):
 
-        return Voltage(Current(i).select(kind) * self._Z._selectexpr(kind)).select(kind)
+        return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z._selectexpr(kind)).select(kind)
     
 
 class L(OnePort):
@@ -845,7 +845,7 @@ class L(OnePort):
         self.L = Lval
         self.i0 = i0
         self._Z = Impedance(s * Lval)
-        self._Voc = Voltage(LaplaceDomainExpression(-i0 * Lval))
+        self._Voc = SuperpositionVoltage(LaplaceDomainExpression(-i0 * Lval))
         self.zeroic = self.i0 == 0 
 
     def i_equation(self, v, kind='t'):
@@ -855,14 +855,14 @@ class L(OnePort):
         if kind in ('t', 'time', 'super'):
             u = tausym
             v = expr(v).subs(t, u)
-            return Current(expr(Integral(v.expr, (u, -oo, tsym))) / self.L).select(kind)
-        return Current(Voltage(v).select(kind) / self.Z._selectexpr(kind)).select(kind)
+            return SuperpositionCurrent(expr(Integral(v.expr, (u, -oo, tsym))) / self.L).select(kind)
+        return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self.Z._selectexpr(kind)).select(kind)
 
     def v_equation(self, i, kind='t'):
 
         if kind in ('t', 'time', 'super'):
-            return Voltage(self.L * expr(Derivative(i.expr, t))).select(kind)
-        return Voltage(Current(i).select(kind) * self._Z._selectexpr(kind)).select(kind)
+            return SuperpositionVoltage(self.L * expr(Derivative(i.expr, t))).select(kind)
+        return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z._selectexpr(kind)).select(kind)
 
     
 class C(OnePort):
@@ -888,14 +888,14 @@ class C(OnePort):
         self.C = Cval
         self.v0 = v0
         self._Z = Impedance(1 / (s * Cval))
-        self._Voc = Voltage(LaplaceDomainExpression(v0 / s))
+        self._Voc = SuperpositionVoltage(LaplaceDomainExpression(v0 / s))
         self.zeroic = self.v0 == 0
 
     def i_equation(self, v, kind='t'):
         
         if kind in ('t', 'time', 'super'):
-            return Current(self.C * expr(Derivative(v.expr, t))).select(kind)
-        return Current(Voltage(v).select(kind) / self._Z._selectexpr(kind)).select(kind)
+            return SuperpositionCurrent(self.C * expr(Derivative(v.expr, t))).select(kind)
+        return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z._selectexpr(kind)).select(kind)
 
     def v_equation(self, i, kind='t'):
 
@@ -904,8 +904,8 @@ class C(OnePort):
         if kind in ('t', 'time', 'super'):
             u = tausym
             i = expr(i).subs(t, u)
-            return Voltage(expr(Integral(i.expr, (u, -oo, tsym))) / self.C).select(kind)
-        return Voltage(Current(i).select(kind) * self._Z._selectexpr(kind)).select(kind)
+            return SuperpositionVoltage(expr(Integral(i.expr, (u, -oo, tsym))) / self.C).select(kind)
+        return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z._selectexpr(kind)).select(kind)
 
 
 class CPE(OnePort):
@@ -962,7 +962,7 @@ class VoltageSourceBase(OnePort):
 
     def v_equation(self, i, kind='t'):
         
-        return Voltage(self.voc).select(kind)
+        return SuperpositionVoltage(self.voc).select(kind)
     
 
 class sV(VoltageSourceBase):
@@ -974,7 +974,7 @@ class sV(VoltageSourceBase):
 
         self.args = (Vval, )
         Vval = LaplaceDomainExpression(Vval)
-        self._Voc = Voltage(LaplaceDomainExpression(Vval))
+        self._Voc = SuperpositionVoltage(LaplaceDomainExpression(Vval))
 
 
 class V(VoltageSourceBase):
@@ -983,7 +983,7 @@ class V(VoltageSourceBase):
     def __init__(self, Vval):
 
         self.args = (Vval, )
-        self._Voc = Voltage(Vval)
+        self._Voc = SuperpositionVoltage(Vval)
 
         
 class Vstep(VoltageSourceBase):
@@ -995,7 +995,7 @@ class Vstep(VoltageSourceBase):
 
         self.args = (v, )
         v = ConstantExpression(v)
-        self._Voc = Voltage(TimeDomainExpression(v) * Heaviside(t))
+        self._Voc = SuperpositionVoltage(TimeDomainExpression(v) * Heaviside(t))
         self.v0 = v
 
 
@@ -1009,7 +1009,7 @@ class Vdc(VoltageSourceBase):
 
         self.args = (v, )
         v = ConstantExpression(v)
-        self._Voc = Voltage(ConstantExpression(v, dc=True))
+        self._Voc = SuperpositionVoltage(ConstantExpression(v, dc=True))
         self.v0 = v
 
     @property
@@ -1048,7 +1048,7 @@ class Vac(VoltageSourceBase):
         self.omega = omega
         self.v0 = V
         self.phi = phi
-        self._Voc = Voltage(PhasorVoltage(self.v0 * exp(j * self.phi),
+        self._Voc = SuperpositionVoltage(PhasorVoltage(self.v0 * exp(j * self.phi),
                                    ac=True, omega=self.omega))
 
     @property
@@ -1066,7 +1066,7 @@ class Vnoise(VoltageSourceBase):
 
         V1 = AngularFourierDomainNoiseVoltage(V, nid=nid)
         self.args = (V, V1.nid)
-        self._Voc = Voltage(V1)
+        self._Voc = SuperpositionVoltage(V1)
 
         
 class v(VoltageSourceBase):
@@ -1076,7 +1076,7 @@ class v(VoltageSourceBase):
 
         self.args = (vval, )
         Vval = TimeDomainExpression(vval)
-        self._Voc = Voltage(Vval)
+        self._Voc = SuperpositionVoltage(Vval)
 
 
 class CurrentSourceBase(OnePort):
@@ -1093,7 +1093,7 @@ class CurrentSourceBase(OnePort):
 
     def i_equation(self, v, kind='t'):
 
-        return Current(self.isc).select(kind)        
+        return SuperpositionCurrent(self.isc).select(kind)        
     
     
 class sI(CurrentSourceBase):
@@ -1105,7 +1105,7 @@ class sI(CurrentSourceBase):
 
         self.args = (Ival, )
         Ival = LaplaceDomainExpression(Ival)
-        self._Isc = Current(LaplaceDomainExpression(Ival))
+        self._Isc = SuperpositionCurrent(LaplaceDomainExpression(Ival))
 
 
 class I(CurrentSourceBase):
@@ -1114,7 +1114,7 @@ class I(CurrentSourceBase):
     def __init__(self, Ival):
 
         self.args = (Ival, )
-        self._Isc = Current(Ival)
+        self._Isc = SuperpositionCurrent(Ival)
 
             
 class Istep(CurrentSourceBase):
@@ -1126,7 +1126,7 @@ class Istep(CurrentSourceBase):
 
         self.args = (i, )
         i = ConstantExpression(i)
-        self._Isc = Current(TimeDomainExpression(i) * Heaviside(t))
+        self._Isc = SuperpositionCurrent(TimeDomainExpression(i) * Heaviside(t))
         self.i0 = i
 
 
@@ -1140,7 +1140,7 @@ class Idc(CurrentSourceBase):
 
         self.args = (i, )
         i = ConstantExpression(i)
-        self._Isc = Current(ConstantExpression(i, dc=True))
+        self._Isc = SuperpositionCurrent(ConstantExpression(i, dc=True))
         self.i0 = i
 
     @property
@@ -1177,7 +1177,7 @@ class Iac(CurrentSourceBase):
         self.omega = omega
         self.i0 = I
         self.phi = phi
-        self._Isc = Current(PhasorCurrent(self.i0 * exp(j * self.phi),
+        self._Isc = SuperpositionCurrent(PhasorCurrent(self.i0 * exp(j * self.phi),
                                    ac=True, omega=self.omega))
 
     @property
@@ -1194,7 +1194,7 @@ class Inoise(CurrentSourceBase):
     def __init__(self, I, nid=None):
 
         I1 = AngularFourierDomainNoiseCurrent(I, nid=nid)
-        self._Isc = Current(I1)
+        self._Isc = SuperpositionCurrent(I1)
         self.args = (I, I1.nid)
 
         
@@ -1205,7 +1205,7 @@ class i(CurrentSourceBase):
 
         self.args = (ival, )
         Ival = TimeDomainExpression(ival)
-        self._Isc = Current(Ival)
+        self._Isc = SuperpositionCurrent(Ival)
 
 
 class Xtal(OnePort):
@@ -1313,7 +1313,7 @@ class CCVS(ControlledSource):
     def __init__(self, control, value):
 
         self.args = (control, value)        
-        self._Voc = Voltage(0)
+        self._Voc = SuperpositionVoltage(0)
         self._Z = Impedance(0)
 
         
@@ -1322,7 +1322,7 @@ class CCCS(ControlledSource):
     def __init__(self, control, value):
 
         self.args = (control, value)        
-        self._Isc = Current(0)
+        self._Isc = SuperpositionCurrent(0)
         self._Y = Admittance(0)     
 
         
@@ -1331,7 +1331,7 @@ class VCVS(ControlledSource):
     def __init__(self, value):
 
         self.args = (value, )        
-        self._Voc = Voltage(0)
+        self._Voc = SuperpositionVoltage(0)
         self._Z = Impedance(0)
 
         
@@ -1340,7 +1340,7 @@ class VCCS(ControlledSource):
     def __init__(self, value):
 
         self.args = (value, )
-        self._Isc = Current(0)
+        self._Isc = SuperpositionCurrent(0)
         self._Y = Admittance(0)     
         
 
@@ -1457,8 +1457,8 @@ from .cexpr import ConstantExpression
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
 from .noiseomegaexpr import AngularFourierDomainNoiseCurrent, AngularFourierDomainNoiseVoltage
-from .voltage import Voltage
-from .current import Current
+from .superposition_voltage import SuperpositionVoltage
+from .superposition_current import SuperpositionCurrent
 from .phasor import PhasorCurrent, PhasorVoltage
 from .twoport import Ladder, LSection, TSection
 

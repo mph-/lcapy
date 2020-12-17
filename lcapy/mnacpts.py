@@ -15,7 +15,7 @@ from .functions import sqrt
 from .sym import capitalize_name, omegasym
 from .grammar import delimiters
 from .immittancemixin import ImmittanceMixin
-from .current import Current
+from .superposition_current import SuperpositionCurrent
 from .opts import Opts
 import lcapy
 import inspect
@@ -1205,11 +1205,11 @@ class O(Dummy):
 
     @property
     def I(self):
-        return Current(0)
+        return SuperpositionCurrent(0)
 
     @property
     def i(self):
-        return Current(0)(t)
+        return SuperpositionCurrent(0)(t)
     
 
 class P(O):

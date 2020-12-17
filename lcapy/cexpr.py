@@ -10,6 +10,8 @@ class ConstantExpression(Expr):
 
     """
 
+    is_constant = True
+
     def __init__(self, val, **assumptions):
 
         symbols = symbols_find(val)

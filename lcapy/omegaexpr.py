@@ -18,6 +18,7 @@ class AngularFourierDomainExpression(Expr):
     var = omegasym
     domain_name = 'Angular frequency'
     domain_units = 'rad/s'
+    is_angular_fourier_domain = True        
 
     def __init__(self, val, **assumptions):
 

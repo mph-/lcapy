@@ -12,8 +12,9 @@ Copyright 2014--2020 Michael Hayes, UCECE
 # TODO: This needs an overhaul to untangle the classes.
 
 from __future__ import division
-from .voltage import Voltage
-from .current import Current, Iname
+from .superposition_voltage import SuperpositionVoltage
+from .superposition_current import SuperpositionCurrent
+from .current import Iname
 from .schematic import Schematic
 from .netlistmixin import NetlistMixin
 from .netfile import NetfileMixin
@@ -146,7 +147,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         for sub in self.sub.values():
             for node, value in sub.Vdict.items():
                 if node not in result:
-                    result[node] = Voltage()
+                    result[node] = SuperpositionVoltage()
                 result[node].add(value)
 
         self._Vdict = result
@@ -165,7 +166,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         for sub in self.sub.values():
             for node, value in sub.Idict.items():
                 if node not in result:
-                    result[node] = Current()
+                    result[node] = SuperpositionCurrent()
                 result[node].add(value)
         self._Idict = result                    
         return result    
@@ -173,7 +174,7 @@ class Netlist(NetlistMixin, NetfileMixin):
     def get_I(self, name):
         """Current through component"""
 
-        result = Current()
+        result = SuperpositionCurrent()
         for sub in self.sub.values():
             I = sub.get_I(name)
             result.add(I)
@@ -188,7 +189,7 @@ class Netlist(NetlistMixin, NetfileMixin):
     def _get_Vd(self, Np, Nm=None):
         """This does not check nodes."""
         
-        result = Voltage()
+        result = SuperpositionVoltage()
         for sub in self.sub.values():
             Vd = sub.get_Vd(Np, Nm)
             result.add(Vd)

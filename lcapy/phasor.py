@@ -22,6 +22,8 @@ from .omegaexpr import AngularFourierDomainExpression
 
 class PhasorExpression(Expr):
 
+    is_phasor = True
+    
     def __init__(self, val, **assumptions):
 
         assumptions['ac'] = True

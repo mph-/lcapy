@@ -22,6 +22,7 @@ class LaplaceDomainExpression(Expr):
     """s-domain expression or symbol."""
 
     var = ssym
+    is_laplace_domain = True
 
     def __init__(self, val, **assumptions):
 
