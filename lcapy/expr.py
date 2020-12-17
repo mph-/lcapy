@@ -522,6 +522,10 @@ class Expr(ExprPrint, ExprMisc):
         # Could also convert Vs / Zs -> Is, etc.
         # But, what about (Vs * Vs) / (Vs * Is) ???
 
+        # Doing all this in Expr this is much simpler than having
+        # __mul__ and __div__ methods for all the subclasses,
+        # especially for __div
+        
         assumptions = {}
         
         cls = self.__class__

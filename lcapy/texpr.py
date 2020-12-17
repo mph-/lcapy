@@ -15,7 +15,6 @@ from sympy import Heaviside, limit, Integral, Expr as symExpr
 
 
 class TimeDomainExpression(Expr):
-
     """t-domain expression or symbol."""
 
     var = tsym
@@ -194,7 +193,6 @@ class TimeDomainExpression(Expr):
 
     
 class TimeDomainAdmittance(TimeDomainExpression):
-
     """t-domain 'admittance' value."""
 
     units = 'siemens/s'
@@ -207,7 +205,6 @@ class TimeDomainAdmittance(TimeDomainExpression):
 
 
 class TimeDomainImpedance(TimeDomainExpression):
-
     """t-domain 'impedance' value."""
 
     units = 'ohms/s'
@@ -220,7 +217,6 @@ class TimeDomainImpedance(TimeDomainExpression):
 
 
 class TimeDomainVoltage(TimeDomainExpression):
-
     """t-domain voltage (units V)."""
 
     quantity = 'Voltage'
@@ -236,27 +232,8 @@ class TimeDomainVoltage(TimeDomainExpression):
         from .oneport import V
         return V(self)
 
-    def __mul__(self, x):
-        """Multiply"""
-
-        if isinstance(x, TimeDomainAdmittance):
-            raise ValueError('Need to convolve expressions.')
-        if isinstance(x, (ConstantExpression, TimeDomainExpression, symExpr, int, float, complex)):
-            return super(TimeDomainVoltage, self).__mul__(x)
-        self._incompatible(x, '*')        
-
-    def __truediv__(self, x):
-        """Divide"""
-
-        if isinstance(x, TimeDomainImpedance):
-            raise ValueError('Need to deconvolve expressions.')
-        if isinstance(x, (ConstantExpression, TimeDomainExpression, symExpr, int, float, complex)):
-            return super(TimeDomainVoltage, self).__truediv__(x)
-        self._incompatible(x, '/')        
-
         
 class TimeDomainCurrent(TimeDomainExpression):
-
     """t-domain current (units A)."""
 
     quantity = 'Current'
@@ -272,27 +249,8 @@ class TimeDomainCurrent(TimeDomainExpression):
         from .oneport import I
         return I(self)
 
-    def __mul__(self, x):
-        """Multiply"""
-
-        if isinstance(x, TimeDomainImpedance):
-            raise ValueError('Need to convolve expressions.')
-        if isinstance(x, (ConstantExpression, TimeDomainExpression, symExpr, int, float, complex)):
-            return super(TimeDomainCurrent, self).__mul__(x)
-        self._incompatible(x, '*')        
-
-    def __truediv__(self, x):
-        """Divide"""
-
-        if isinstance(x, TimeDomainAdmittance):
-            raise ValueError('Need to deconvolve expressions.')        
-        if isinstance(x, (ConstantExpression, TimeDomainExpression, symExpr, int, float, complex)):
-            return super(TimeDomainCurrent, self).__truediv__(x)
-        self._incompatible(x, '/')        
-        
 
 class TimeDomainImpulseResponse(TimeDomainExpression):
-
     """impulse response"""
 
     quantity = 'Impulse response'

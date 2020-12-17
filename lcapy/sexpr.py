@@ -446,7 +446,6 @@ class LaplaceDomainExpression(Expr):
 # Perhaps use a factory to create the following classes?
 
 class LaplaceDomainImpedance(LaplaceDomainExpression):
-
     """s-domain impedance value."""
 
     quantity = 'Impedance'
@@ -488,7 +487,6 @@ class LaplaceDomainImpedance(LaplaceDomainExpression):
 
 
 class LaplaceDomainAdmittance(LaplaceDomainExpression):
-
     """s-domain admittance value."""
 
     quantity = 'Admittance'
@@ -530,7 +528,6 @@ class LaplaceDomainAdmittance(LaplaceDomainExpression):
 
     
 class LaplaceDomainVoltage(LaplaceDomainExpression):
-
     """s-domain voltage (units V s / radian)."""
 
     quantity = 's-Voltage'
@@ -546,30 +543,8 @@ class LaplaceDomainVoltage(LaplaceDomainExpression):
         from .oneport import V
         return V(self)
 
-    def __mul__(self, x):
-        """Multiply"""
-
-        if isinstance(x, LaplaceDomainAdmittance):
-            return LaplaceDomainCurrent(super(LaplaceDomainVoltage, self).__mul__(x))
-        if isinstance(x, (ConstantExpression, LaplaceDomainExpression, symExpr, int, float, complex)):
-            return super(LaplaceDomainVoltage, self).__mul__(x)
-        self._incompatible(x, '*')
-
-    def __truediv__(self, x):
-        """Divide"""
-
-        if isinstance(x, LaplaceDomainImpedance):
-            return LaplaceDomainCurrent(super(LaplaceDomainVoltage, self).__truediv__(x))
-        if isinstance(x, LaplaceDomainVoltage):
-            return LaplaceDomainTransferFunction(super(LaplaceDomainVoltage, self).__truediv__(x))        
-        if isinstance(x, (ConstantExpression, LaplaceDomainExpression,
-                          symExpr, int, float, complex)):
-            return super(LaplaceDomainVoltage, self).__truediv__(x)
-        self._incompatible(x, '/')        
-
         
 class LaplaceDomainCurrent(LaplaceDomainExpression):
-
     """s-domain current (units A s / radian)."""
 
     quantity = 's-Current'
@@ -586,29 +561,8 @@ class LaplaceDomainCurrent(LaplaceDomainExpression):
         
         return I(self)
 
-    def __mul__(self, x):
-        """Multiply"""
-
-        if isinstance(x, LaplaceDomainImpedance):
-            return LaplaceDomainVoltage(super(LaplaceDomainCurrent, self).__mul__(x))            
-        if isinstance(x, (ConstantExpression, LaplaceDomainExpression, symExpr, int, float, complex)):
-            return super(LaplaceDomainCurrent, self).__mul__(x)
-        self._incompatible(x, '*')        
-
-    def __truediv__(self, x):
-        """Divide"""
-
-        if isinstance(x, LaplaceDomainAdmittance):
-            return LaplaceDomainVoltage(super(LaplaceDomainCurrent, self).__truediv__(x))
-        if isinstance(x, LaplaceDomainCurrent):
-            return LaplaceDomainTransferFunction(super(LaplaceDomainCurrent, self).__truediv__(x))                
-        if isinstance(x, (ConstantExpression, LaplaceDomainExpression, symExpr, int, float, complex)):
-            return super(LaplaceDomainCurrent, self).__truediv__(x)
-        self._incompatible(x, '/')                
-    
 
 class LaplaceDomainTransferFunction(LaplaceDomainExpression):
-
     """s-domain ratio"""
 
     quantity = 's-ratio'

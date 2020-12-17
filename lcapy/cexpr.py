@@ -3,7 +3,6 @@ from .sym import symbols_find
 
 
 class ConstantExpression(Expr):
-
     """Constant real expression or symbol.
 
     If symbols in the expression are known to be negative, use

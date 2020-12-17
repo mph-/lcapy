@@ -103,7 +103,6 @@ class FourierDomainExpression(Expr):
         
 
 class FourierDomainAdmittance(FourierDomainExpression):
-
     """f-domain admittance"""
 
     quantity = 'Admittance'
@@ -116,7 +115,6 @@ class FourierDomainAdmittance(FourierDomainExpression):
 
 
 class FourierDomainImpedance(FourierDomainExpression):
-
     """f-domain impedance"""
 
     quantity = 'Impedance'
@@ -129,7 +127,6 @@ class FourierDomainImpedance(FourierDomainExpression):
 
 
 class FourierDomainTransferFunction(FourierDomainExpression):
-
     """f-domain transfer function response."""
 
     quantity = 'Transfer function'
@@ -142,7 +139,6 @@ class FourierDomainTransferFunction(FourierDomainExpression):
 
 
 class FourierDomainVoltage(FourierDomainExpression):
-
     """f-domain voltage (units V/Hz)."""
 
     quantity = 'Voltage spectrum'
@@ -153,29 +149,8 @@ class FourierDomainVoltage(FourierDomainExpression):
         super(FourierDomainVoltage, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = TimeDomainVoltage
 
-    def __mul__(self, x):
-        """Multiply"""
-
-        if isinstance(x, FourierDomainAdmittance):
-            return FourierDomainCurrent(super(FourierDomainVoltage, self).__mul__(x))
-        if isinstance(x, (ConstantExpression, FourierDomainExpression, symExpr, int, float, complex)):
-            return super(FourierDomainVoltage, self).__mul__(x)
-        self._incompatible(x, '*')
-
-    def __truediv__(self, x):
-        """Divide"""
-
-        if isinstance(x, FourierDomainImpedance):
-            return FourierDomainCurrent(super(FourierDomainVoltage, self).__truediv__(x))
-        if isinstance(x, FourierDomainVoltage):
-            return FourierDomainTransferFunction(super(FourierDomainVoltage, self).__truediv__(x))                
-        if isinstance(x, (ConstantExpression, FourierDomainExpression, symExpr, int, float, complex)):
-            return super(FourierDomainVoltage, self).__truediv__(x)
-        self._incompatible(x, '/')                
-
         
 class FourierDomainCurrent(FourierDomainExpression):
-
     """f-domain current (units A/Hz)."""
 
     quantity = 'Current spectrum'
@@ -185,26 +160,6 @@ class FourierDomainCurrent(FourierDomainExpression):
 
         super(FourierDomainCurrent, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = TimeDomainCurrent
-
-    def __mul__(self, x):
-        """Multiply"""
-
-        if isinstance(x, FourierDomainImpedance):
-            return FourierDomainVoltage(super(FourierDomainCurrent, self).__mul__(x))            
-        if isinstance(x, (ConstantExpression, FourierDomainExpression, symExpr, int, float, complex)):
-            return super(FourierDomainCurrent, self).__mul__(x)
-        self._incompatible(x, '*')        
-
-    def __truediv__(self, x):
-        """Divide"""
-
-        if isinstance(x, FourierDomainAdmittance):
-            return FourierDomainVoltage(super(FourierDomainCurrent, self).__truediv__(x))
-        if isinstance(x, FourierDomainCurrent):
-            return FourierDomainTransferFunction(super(FourierDomainCurrent, self).__truediv__(x))                
-        if isinstance(x, (ConstantExpression, FourierDomainExpression, symExpr, int, float, complex)):
-            return super(FourierDomainCurrent, self).__truediv__(x)
-        self._incompatible(x, '/')                        
 
         
 def fexpr(arg, **assumptions):

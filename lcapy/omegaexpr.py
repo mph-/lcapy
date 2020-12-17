@@ -13,7 +13,6 @@ from sympy import Expr as symExpr
 
 
 class AngularFourierDomainExpression(Expr):
-
     """Fourier domain expression or symbol (angular frequency)."""
 
     var = omegasym
@@ -78,7 +77,6 @@ class AngularFourierDomainExpression(Expr):
         
 
 class AngularFourierDomainAdmittance(AngularFourierDomainExpression):
-
     """omega-domain admittance."""
 
     quantity = 'Admittance'
@@ -109,7 +107,6 @@ class AngularFourierDomainAdmittance(AngularFourierDomainExpression):
 
 
 class AngularFourierDomainImpedance(AngularFourierDomainExpression):
-
     """omega-domain impedance."""
 
     quantity = 'Impedance'
@@ -140,7 +137,6 @@ class AngularFourierDomainImpedance(AngularFourierDomainExpression):
 
 
 class AngularFourierDomainVoltage(AngularFourierDomainExpression):
-
     """omega-domain voltage (units V/rad/s)."""
 
     quantity = 'Voltage spectrum'
@@ -151,29 +147,8 @@ class AngularFourierDomainVoltage(AngularFourierDomainExpression):
         super(AngularFourierDomainVoltage, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = TimeDomainVoltage
 
-    def __mul__(self, x):
-        """Multiply"""
-
-        if isinstance(x, AngularFourierDomainAdmittance):
-            return AngularFourierDomainCurrent(super(AngularFourierDomainVoltage, self).__mul__(x))
-        if isinstance(x, (ConstantExpression, AngularFourierDomainExpression, symExpr, int, float, complex)):
-            return super(AngularFourierDomainVoltage, self).__mul__(x)
-        self._incompatible(x, '*')
-
-    def __truediv__(self, x):
-        """Divide"""
-
-        if isinstance(x, AngularFourierDomainImpedance):
-            return AngularFourierDomainCurrent(super(AngularFourierDomainVoltage, self).__truediv__(x))
-        if isinstance(x, AngularFourierDomainVoltage):
-            return AngularFourierDomainTransferFunction(super(AngularFourierDomainVoltage, self).__truediv__(x))                
-        if isinstance(x, (ConstantExpression, AngularFourierDomainExpression, symExpr, int, float, complex)):
-            return super(AngularFourierDomainVoltage, self).__truediv__(x)
-        self._incompatible(x, '/')
-        
 
 class AngularFourierDomainCurrent(AngularFourierDomainExpression):
-
     """omega-domain current (units A/rad/s)."""
 
     quantity = 'Current spectrum'
@@ -184,29 +159,8 @@ class AngularFourierDomainCurrent(AngularFourierDomainExpression):
         super(AngularFourierDomainCurrent, self).__init__(val, **assumptions)
         self._fourier_conjugate_class = TimeDomainCurrent
 
-    def __mul__(self, x):
-        """Multiply"""
-
-        if isinstance(x, AngularFourierDomainImpedance):
-            return AngularFourierDomainVoltage(super(AngularFourierDomainCurrent, self).__mul__(x))            
-        if isinstance(x, (ConstantExpression, AngularFourierDomainExpression, symExpr, int, float, complex)):
-            return super(AngularFourierDomainCurrent, self).__mul__(x)
-        self._incompatible(x, '*')        
-
-    def __truediv__(self, x):
-        """Divide"""
-
-        if isinstance(x, AngularFourierDomainAdmittance):
-            return AngularFourierDomainVoltage(super(AngularFourierDomainCurrent, self).__truediv__(x))
-        if isinstance(x, AngularFourierDomainCurrent):
-            return AngularFourierDomainTransferFunction(super(AngularFourierDomainCurrent, self).__truediv__(x))                        
-        if isinstance(x, (ConstantExpression, AngularFourierDomainExpression, symExpr, int, float, complex)):
-            return super(AngularFourierDomainCurrent, self).__truediv__(x)
-        self._incompatible(x, '/')                        
-
         
 class AngularFourierDomainTransferFunction(AngularFourierDomainExpression):
-
     """omega-domain transfer function response."""
 
     quantity = 'Transfer function'
