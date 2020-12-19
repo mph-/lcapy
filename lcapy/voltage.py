@@ -57,6 +57,6 @@ def voltage(arg):
     
     expr1 = expr(arg)
     if expr1.__class__ in mapping:
-        expr1 = mapping(expr1)
+        expr1 = mapping[expr1.__class__](expr1)
     
     return expr1.apply_unit(uu.volts)

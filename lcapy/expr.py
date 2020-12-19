@@ -19,7 +19,7 @@ from .sym import capitalize_name, tsym, symsymbol, symbol_map
 from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function
-from .units import units
+from .units import units, u as uu
 from .utils import as_N_D, as_sum
 from .config import use_units
 import numpy as np
@@ -1886,14 +1886,15 @@ class Expr(ExprPrint, ExprMisc):
         return self.__class__(expr, **self.assumptions)
 
     def apply_unit(self, unit):
+        """Apply unit to expression if `use_units` True."""
 
         if not use_units:
             return self
 
         value, unit1 = units.as_value_unit(self)
 
-        ret = self * units
-        # TODO: associate units with s, f...
+        ret = self * unit
+        # TODO: associate units with s, f, etc.  And C, L, R...?
         if isinstance(value, (LaplaceDomainExpression, FourierDomainExpression,
                               AngularFourierDomainExpression)):    
             ret /= uu.hertz        

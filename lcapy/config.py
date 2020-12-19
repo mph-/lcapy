@@ -51,6 +51,6 @@ except:
     
 matrix_inverse_fallback_method = 'ADJ'
 
-use_units = False
+use_units = True
 
 abbreviate_units = True
