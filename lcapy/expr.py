@@ -19,6 +19,7 @@ from .sym import capitalize_name, tsym, symsymbol, symbol_map
 from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function
+from .units import units
 from .utils import as_N_D, as_sum
 from .config import use_units
 import numpy as np
@@ -1376,8 +1377,6 @@ class Expr(ExprPrint, ExprMisc):
     def simplify(self):
         """Simplify expression."""
 
-        from .units import units
-        
         ret = symsimplify(self.expr)
         ret = units.simplify(ret)
         return self.__class__(ret, **self.assumptions)
@@ -1890,8 +1889,10 @@ class Expr(ExprPrint, ExprMisc):
 
         if not use_units:
             return self
-        
-        ret = self * uu.volts
+
+        value, unit1 = units.as_value_unit(self)
+
+        ret = self * units
         # TODO: associate units with s, f...
         if isinstance(value, (LaplaceDomainExpression, FourierDomainExpression,
                               AngularFourierDomainExpression)):    

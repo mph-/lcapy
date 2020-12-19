@@ -99,6 +99,5 @@ class Impedance(Immittance):
 def impedance(arg):
 
     expr1 = expr(arg)
-    value, unit = units.as_value_unit(expr1)
-    return value.apply_unit(uu.ohms)    
+    return expr1.apply_unit(uu.ohms)    
     
