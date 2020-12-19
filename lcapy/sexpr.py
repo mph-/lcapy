@@ -13,6 +13,8 @@ from .expr import Expr, symbol, expr, ExprDict, exprcontainer
 from .functions import sqrt
 from .voltagemixin import VoltageMixin
 from .currentmixin import CurrentMixin
+from .admittancemixin import AdmittanceMixin
+from .impedancemixin import ImpedanceMixin
 import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
 
@@ -463,29 +465,12 @@ class LaplaceDomainExpression(Expr):
     
 # Perhaps use a factory to create the following classes?
 
-class LaplaceDomainImpedance(LaplaceDomainExpression):
+class LaplaceDomainImpedance(LaplaceDomainExpression, ImpedanceMixin):
     """s-domain impedance value."""
 
     quantity = 'Impedance'
     units = 'ohms'
-
-    def __call__(self, arg):
-
-        from .symbols import omega, f, t
-        
-        arg = expr(arg)
-        if arg.is_constant:
-            return self.subs(arg)
-        elif arg is s:
-            return self
-        elif arg is omega:
-            return AngularFourierDomainImpedance(self.subs(s, j * omega))
-        elif arg is f:
-            return FourierDomainImpedance(self.subs(s, j * 2 * pi * f))
-        elif arg is t:
-            return TimeDomainImpedance(self.time())
-        # Perhaps allow Y(3 * f) etc?
-        raise ValueError('Unhandled transformation for %s' % arg)
+    is_causal = True
 
     def cpt(self):
         from .oneport import R, C, L, Z
@@ -517,30 +502,13 @@ class LaplaceDomainImpedance(LaplaceDomainExpression):
         return network(self, form)
 
 
-class LaplaceDomainAdmittance(LaplaceDomainExpression):
+class LaplaceDomainAdmittance(LaplaceDomainExpression, AdmittanceMixin):
     """s-domain admittance value."""
 
     quantity = 'Admittance'
     units = 'siemens'
+    is_causal = True
 
-    def __call__(self, arg):
-
-        from .symbols import omega, f, t
-        
-        arg = expr(arg)
-        if arg.is_constant:
-            return self.subs(arg)
-        elif arg is s:
-            return self
-        elif arg is omega:
-            return AngularFourierDomainAdmittance(self.subs(s, j * omega))
-        elif arg is f:
-            return FourierDomainAdmittance(self.subs(s, j * 2 * pi * f))
-        elif arg is t:
-            return TimeDomainAdmittance(self.time())
-        # Perhaps allow Y(3 * f) etc?
-        raise ValueError('Unhandled transformation for %s' % arg)
-        
     def cpt(self):
         from .oneport import G, C, L, Y
 
