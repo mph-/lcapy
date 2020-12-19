@@ -6,7 +6,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 import re
 from .config import latex_expr_map, pretty_expr_map, str_expr_map
-from .config import functions, words, subscripts
+from .config import functions, words, subscripts, abbreviate_units
 from .latex import latex_str, latex_double_sub
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
@@ -346,4 +346,4 @@ from sympy import init_printing
 init_printing(latex_printer=latex, pretty_printer=pretty, str_printer=print_str)
 
 # Print abbreviated units, V not volt
-sym.printing.str.StrPrinter._default_settings['abbrev'] = True
+sym.printing.str.StrPrinter._default_settings['abbrev'] = abbreviate_units

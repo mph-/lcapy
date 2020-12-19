@@ -14,7 +14,7 @@ from .texpr import TimeDomainCurrent
 from .noiseomegaexpr import AngularFourierDomainNoiseCurrent
 from .noisefexpr import FourierDomainNoiseCurrent
 from .phasor import PhasorCurrent
-from .units import units, u as uu
+from .units import u as uu
 
 
 def Iname(name, kind, cache=False):
@@ -51,4 +51,4 @@ def current(arg):
 
     expr1 = expr(arg)
     value, unit = units.as_value_unit(expr1)
-    return value * uu.amperes
+    return value.apply_unit(uu.amperes)

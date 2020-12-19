@@ -14,7 +14,7 @@ from .texpr import TimeDomainVoltage
 from .noiseomegaexpr import AngularFourierDomainNoiseVoltage
 from .noisefexpr import FourierDomainNoiseVoltage
 from .phasor import PhasorVoltage
-from .units import units, u as uu
+from .units import u as uu
 
 
 def Vname(name, kind, cache=False):
@@ -51,4 +51,4 @@ def voltage(arg):
 
     expr1 = expr(arg)
     value, unit = units.as_value_unit(expr1)
-    return value * uu.volts
+    return value.apply_unit(uu.volts)

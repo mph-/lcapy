@@ -20,6 +20,7 @@ from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function
 from .utils import as_N_D, as_sum
+from .config import use_units
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
@@ -1885,6 +1886,18 @@ class Expr(ExprPrint, ExprMisc):
 
         return self.__class__(expr, **self.assumptions)
 
+    def apply_unit(self, unit):
+
+        if not use_units:
+            return self
+        
+        ret = self * uu.volts
+        # TODO: associate units with s, f...
+        if isinstance(value, (LaplaceDomainExpression, FourierDomainExpression,
+                              AngularFourierDomainExpression)):    
+            ret /= uu.hertz        
+        return ret
+    
     def as_value_unit(self):
         """Return tuple of value and unit.  For example,
 
