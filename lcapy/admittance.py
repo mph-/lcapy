@@ -6,9 +6,9 @@ Copyright 2019-2020 Michael Hayes, UCECE
 """
 from __future__ import division
 from .expr import expr
-from .fexpr import FourierDomainAdmittance
-from .omegaexpr import AngularFourierDomainAdmittance
-from .sexpr import LaplaceDomainAdmittance
+from .fexpr import FourierDomainExpression, FourierDomainAdmittance
+from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainAdmittance
+from .sexpr import LaplaceDomainExpression, LaplaceDomainAdmittance
 from .symbols import s
 from .immittance import Immittance
 from .units import u as uu
@@ -98,6 +98,15 @@ class Admittance(Immittance):
     
 def admittance(arg):
 
+    mapping = {ConstantExpression: AngularFourierDomainAdmittance,
+               TimeDomainExpression: TimeDomainAdmittance,
+               LaplaceDomainExpression: LaplaceDomainAdmittance,
+               FourierDomainExpression: FourierDomainAdmittance,
+               AngularFourierDomainExpression: AngularFourierDomainAdmittance}
+    
     expr1 = expr(arg)
+    if expr1.__class__ in mapping:
+        expr1 = mapping(expr1)
+
     return expr1.apply_unit(uu.siemens)
 

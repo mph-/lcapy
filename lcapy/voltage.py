@@ -6,11 +6,11 @@ Copyright 2020 Michael Hayes, UCECE
 from .expr import expr
 from .sym import omega0sym
 from .symbols import s, omega0
-from .cexpr import ConstantVoltage
-from .fexpr import FourierDomainVoltage
-from .omegaexpr import AngularFourierDomainVoltage
-from .sexpr import LaplaceDomainVoltage
-from .texpr import TimeDomainVoltage
+from .cexpr import ConstantExpression, ConstantVoltage
+from .fexpr import FourierDomainExpression, FourierDomainVoltage
+from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainVoltage
+from .sexpr import LaplaceDomainExpression, LaplaceDomainVoltage
+from .texpr import TimeDomainExpression, TimeDomainVoltage
 from .noiseomegaexpr import AngularFourierDomainNoiseVoltage
 from .noisefexpr import FourierDomainNoiseVoltage
 from .phasor import PhasorVoltage
@@ -49,5 +49,14 @@ def Vtype(kind):
 
 def voltage(arg):
 
+    mapping = {ConstantExpression: ConstantVoltage,
+               TimeDomainExpression: TimeDomainVoltage,
+               LaplaceDomainExpression: LaplaceDomainVoltage,
+               FourierDomainExpression: FourierDomainVoltage,
+               AngularFourierDomainExpression: AngularFourierDomainVoltage}
+    
     expr1 = expr(arg)
+    if expr1.__class__ in mapping:
+        expr1 = mapping(expr1)
+    
     return expr1.apply_unit(uu.volts)

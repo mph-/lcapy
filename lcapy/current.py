@@ -6,11 +6,11 @@ Copyright 2020 Michael Hayes, UCECE
 from .expr import expr
 from .sym import omega0sym
 from .symbols import s, omega0
-from .cexpr import ConstantCurrent
-from .fexpr import FourierDomainCurrent
-from .omegaexpr import AngularFourierDomainCurrent
-from .sexpr import LaplaceDomainCurrent
-from .texpr import TimeDomainCurrent
+from .cexpr import ConstantExpression, ConstantCurrent
+from .fexpr import FourierDomainExpression, FourierDomainCurrent
+from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainCurrent
+from .sexpr import LaplaceDomainExpression, LaplaceDomainCurrent
+from .texpr import TimeDomainExpression, TimeDomainCurrent
 from .noiseomegaexpr import AngularFourierDomainNoiseCurrent
 from .noisefexpr import FourierDomainNoiseCurrent
 from .phasor import PhasorCurrent
@@ -49,5 +49,14 @@ def Itype(kind):
 
 def current(arg):
 
+    mapping = {ConstantExpression: ConstantCurrent,
+               TimeDomainExpression: TimeDomainCurrent,
+               LaplaceDomainExpression: LaplaceDomainCurrent,
+               FourierDomainExpression: FourierDomainCurrent,
+               AngularFourierDomainExpression: AngularFourierDomainCurrent}
+    
     expr1 = expr(arg)
+    if expr1.__class__ in mapping:
+        expr1 = mapping(expr1)
+
     return expr1.apply_unit(uu.amperes)

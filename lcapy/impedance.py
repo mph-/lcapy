@@ -6,9 +6,9 @@ Copyright 2019--2020 Michael Hayes, UCECE
 """
 from __future__ import division
 from .expr import expr
-from .fexpr import FourierDomainImpedance
-from .omegaexpr import AngularFourierDomainImpedance
-from .sexpr import LaplaceDomainImpedance
+from .fexpr import FourierDomainExpression, FourierDomainImpedance
+from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainImpedance
+from .sexpr import LaplaceDomainExpression, LaplaceDomainImpedance
 from .symbols import s
 from .immittance import Immittance
 from .units import u as uu
@@ -98,6 +98,15 @@ class Impedance(Immittance):
 
 def impedance(arg):
 
+    mapping = {ConstantExpression: AngularFourierDomainImpedance,
+               TimeDomainExpression: TimeDomainImpedance,
+               LaplaceDomainExpression: LaplaceDomainImpedance,
+               FourierDomainExpression: FourierDomainImpedance,
+               AngularFourierDomainExpression: AngularFourierDomainImpedance}
+    
     expr1 = expr(arg)
+    if expr1.__class__ in mapping:
+        expr1 = mapping(expr1)
+    
     return expr1.apply_unit(uu.ohms)    
     
