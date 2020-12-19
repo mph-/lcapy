@@ -1374,8 +1374,11 @@ class Expr(ExprPrint, ExprMisc):
 
     def simplify(self):
         """Simplify expression."""
+
+        from .units import units
         
         ret = symsimplify(self.expr)
+        ret = units.simplify(ret)
         return self.__class__(ret, **self.assumptions)
 
     def simplify_terms(self):
@@ -1882,6 +1885,19 @@ class Expr(ExprPrint, ExprMisc):
 
         return self.__class__(expr, **self.assumptions)
 
+    def as_value_unit(self):
+        """Return tuple of value and unit.  For example,
+
+        >>> v = voltage(5)
+        >>> v.as_value_unit
+        (5, volts)
+        """
+        
+        from .units import units
+
+        return units.as_value_unit(self)
+            
+    
     def as_N_D(self, monic_denominator=False):
         """Responses due to a sum of delayed transient responses
         cannot be factored into ZPK form with a constant delay.

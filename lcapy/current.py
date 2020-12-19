@@ -14,6 +14,7 @@ from .texpr import TimeDomainCurrent
 from .noiseomegaexpr import AngularFourierDomainNoiseCurrent
 from .noisefexpr import FourierDomainNoiseCurrent
 from .phasor import PhasorCurrent
+from .units import units, u as uu
 
 
 def Iname(name, kind, cache=False):
@@ -49,8 +50,5 @@ def Itype(kind):
 def current(arg):
 
     expr1 = expr(arg)
-    # TODO, multiply expr by SymPy volts unit (this will correct the units for s-domain)
-
-    # TODO convert to type
-    
-    return expr1
+    value, unit = units.as_value_unit(expr1)
+    return value * uu.amperes

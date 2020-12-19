@@ -5,8 +5,11 @@ Copyright 2019--2020 Michael Hayes, UCECE
 
 """
 from __future__ import division
+from .expr import expr
 from .symbols import s
 from .immittance import Immittance
+from .units import units, u as uu
+
 
 class Impedance(Immittance):
     """Generic impedance class.
@@ -88,3 +91,11 @@ class Impedance(Immittance):
         components."""
         
         return self(s).network(form)
+
+
+def impedance(arg):
+
+    expr1 = expr(arg)
+    value, unit = units.as_value_unit(expr1)
+    return value * uu.ohms
+    

@@ -14,6 +14,7 @@ from .texpr import TimeDomainVoltage
 from .noiseomegaexpr import AngularFourierDomainNoiseVoltage
 from .noisefexpr import FourierDomainNoiseVoltage
 from .phasor import PhasorVoltage
+from .units import units, u as uu
 
 
 def Vname(name, kind, cache=False):
@@ -49,8 +50,5 @@ def Vtype(kind):
 def voltage(arg):
 
     expr1 = expr(arg)
-    # TODO, multiply expr by SymPy volts unit (this will correct the units for s-domain)
-
-    # TODO convert to type    
-
-    return expr1
+    value, unit = units.as_value_unit(expr1)
+    return value * uu.volts
