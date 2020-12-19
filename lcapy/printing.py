@@ -344,3 +344,6 @@ def latex(expr, fold_frac_powers=False, fold_func_brackets=False,
 
 from sympy import init_printing
 init_printing(latex_printer=latex, pretty_printer=pretty, str_printer=print_str)
+
+# Print abbreviated units, V not volt
+sym.printing.str.StrPrinter._default_settings['abbrev'] = True
