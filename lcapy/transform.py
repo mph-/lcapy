@@ -8,19 +8,10 @@ from .sym import sympify, pi
 from .symbols import f, s, t, omega, jomega
 from .expr import expr as expr1
 
-def transform(expr, arg, **assumptions):
-    """If arg is f, s, t, omega, jomega perform domain transformation,
-    otherwise perform substitution.
 
-    Note (5 * s)(omega) will fail since 5 * s is assumed not to be
-    causal and so Fourier transform is unknown.  However, Zs(5 *
-    s)(omega) will work since Zs is assumed to be causal.
+def transform1(expr, arg, **assumptions):
 
-    """
-
-    arg = expr1(arg)
-
-    # handle things like (3 * s)(5 * s)
+        # handle things like (3 * s)(5 * s)
     if isinstance(expr, arg.__class__) and not isinstance(expr, Superposition):
         return expr.subs(arg)
 
@@ -61,7 +52,30 @@ def transform(expr, arg, **assumptions):
     else:
         raise ValueError('Can only return t, f, s, or omega domains')
 
-    return result.subs(arg, **assumptions)    
+    return result.subs(arg, **assumptions)
+
+
+def transform(expr, arg, **assumptions):
+    """If arg is f, s, t, omega, jomega perform domain transformation,
+    otherwise perform substitution.
+
+    Note (5 * s)(omega) will fail since 5 * s is assumed not to be
+    causal and so Fourier transform is unknown.  However, Zs(5 *
+    s)(omega) will work since Zs is assumed to be causal.
+
+    """
+
+    arg = expr1(arg)
+
+    new = transform1(expr, arg, **assumptions)
+    if not hasattr(arg, 'quantity'):
+        return new
+
+    wrappers = {'Voltage': voltage, 'Current': current,
+                'Impedance': impedance, 'Admittance': admittance}
+    if arg.quantity not in wrappers:
+        return new
+    return wrappers[arg.quantity](new)
 
 
 def call(expr, arg, **assumptions):
@@ -81,4 +95,7 @@ from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .super import Superposition
-
+from .current import current
+from .voltage import voltage
+from .admittance import admittance
+from .impedance import impedance
