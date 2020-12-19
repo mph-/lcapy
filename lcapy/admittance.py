@@ -110,5 +110,7 @@ def admittance(arg):
     if expr1.__class__ in mapping:
         expr1 = mapping[expr1.__class__](expr1)
 
-    return expr1.apply_unit(uu.siemens)
+    # Could use siemens but this causes comparison problems if
+    # unit simplification not performed.
+    return expr1.apply_unit(1 / uu.ohms)
 

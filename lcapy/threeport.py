@@ -12,7 +12,7 @@ import sympy as sym
 from .sexpr import LaplaceDomainVoltage, LaplaceDomainTransferFunction
 from .sexpr import LaplaceDomainCurrent
 from .smatrix import LaplaceDomainVoltageMatrix, LaplaceDomainCurrentMatrix
-from .smatrix import LaplaceDomainCurrentMatrix, LaplaceDomainImpedanceMatrix
+from .smatrix import LaplaceDomainImpedanceMatrix, LaplaceDomainAdmittanceMatrix
 from .cexpr import ConstantExpression
 from .oneport import OnePort
 from .twoport import YMatrix, ZMatrix, TwoPortZModel, Series, TwoPort

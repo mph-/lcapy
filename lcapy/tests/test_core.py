@@ -657,3 +657,22 @@ class LcapyTester(unittest.TestCase):
 
         a = PhasorExpression(-3 + 4j, omega=7)
         self.assertEqual(a.magnitude, 5, 'magnitude')                        
+
+    def test_impedance_transform(self):
+
+        Zs = impedance(3 * s)
+        Zw = impedance(3 * j * omega)
+        Zf = impedance(3 * j * 2 * pi * f)
+        
+        self.assertEqual(Zs(omega), Zw, 'Zs(omega)')
+        self.assertEqual(Zs(f), Zf, 'Zs(f)')
+
+    def test_admittance_transform(self):
+
+        Ys = admittance(3 * s)
+        Yw = admittance(3 * j * omega)
+        Yf = admittance(3 * j * 2 * pi * f)
+        
+        self.assertEqual(Ys(omega), Yw, 'Ys(omega)')
+        self.assertEqual(Ys(f), Yf, 'Ys(f)')
+        

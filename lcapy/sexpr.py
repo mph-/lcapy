@@ -457,6 +457,24 @@ class LaplaceDomainImpedance(LaplaceDomainExpression):
         super(LaplaceDomainImpedance, self).__init__(val, causal=causal, **assumptions)
         self._laplace_conjugate_class = TimeDomainImpedance
 
+    def __call__(self, arg):
+
+        from .symbols import omega, f, t
+        
+        arg = expr(arg)
+        if arg.is_constant:
+            return self.subs(arg)
+        elif arg is s:
+            return self
+        elif arg is omega:
+            return AngularFourierDomainImpedance(self.subs(s, j * omega))
+        elif arg is f:
+            return FourierDomainImpedance(self.subs(s, j * 2 * pi * f))
+        elif arg is t:
+            return TimeDomainImpedance(self.time())
+        # Perhaps allow Y(3 * f) etc?
+        raise ValueError('Unhandled transformation for %s' % arg)
+
     def cpt(self):
         from .oneport import R, C, L, Z
 
@@ -498,6 +516,24 @@ class LaplaceDomainAdmittance(LaplaceDomainExpression):
         super(LaplaceDomainAdmittance, self).__init__(val, causal=causal, **assumptions)
         self._laplace_conjugate_class = TimeDomainAdmittance
 
+    def __call__(self, arg):
+
+        from .symbols import omega, f, t
+        
+        arg = expr(arg)
+        if arg.is_constant:
+            return self.subs(arg)
+        elif arg is s:
+            return self
+        elif arg is omega:
+            return AngularFourierDomainAdmittance(self.subs(s, j * omega))
+        elif arg is f:
+            return FourierDomainAdmittance(self.subs(s, j * 2 * pi * f))
+        elif arg is t:
+            return TimeDomainAdmittance(self.time())
+        # Perhaps allow Y(3 * f) etc?
+        raise ValueError('Unhandled transformation for %s' % arg)
+        
     def cpt(self):
         from .oneport import G, C, L, Y
 
@@ -614,9 +650,10 @@ def sexpr(arg, **assumptions):
     return LaplaceDomainExpression(arg, **assumptions)
 
 
-from .texpr import TimeDomainImpulseResponse, TimeDomainCurrent
-from .texpr import TimeDomainVoltage, TimeDomainAdmittance, TimeDomainImpedance
-from .texpr import TimeDomainExpression, texpr
+from .fexpr import FourierDomainTransferFunction, FourierDomainAdmittance, FourierDomainImpedance
+from .omegaexpr import AngularFourierDomainTransferFunction, AngularFourierDomainAdmittance, AngularFourierDomainImpedance
+from .texpr import TimeDomainImpulseResponse, TimeDomainAdmittance, TimeDomainImpedance
+from .texpr import TimeDomainExpression, TimeDomainVoltage, TimeDomainCurrent, texpr
 from .cexpr import ConstantExpression
 s = LaplaceDomainExpression('s')
 
