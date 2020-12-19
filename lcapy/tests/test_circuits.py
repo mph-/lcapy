@@ -1,5 +1,4 @@
-from lcapy import Circuit, R, C, L, V, I, v, exp, Heaviside, LaplaceDomainVoltage, AngularFourierDomainNoiseVoltage, TimeDomainVoltage, TimeDomainCurrent, sqrt, u, sympify, expr
-from lcapy import LaplaceDomainImpedance, s, t
+from lcapy import *
 import unittest
 import sympy as sym
 
@@ -413,7 +412,7 @@ class LcapyTester(unittest.TestCase):
         # positive node to the negative node.
         self.assertEqual(a.R.I, -a.L.I, "R + L current different")
         self.assertEqual(a.R.V, a.L.V, "R + L voltage different")
-        self.assertEqual(a.L.I(s), sympify('i0 / (s + R / L)'), "L current wrong")
+        self.assertEqual(a.L.I(s), current('i0 / (s + R / L)'), "L current wrong")
 
     def test_RC_ivp(self):
         """Lcapy: check RC IVP"""
@@ -425,8 +424,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, -a.C.I, "R + C current different")
         self.assertEqual(a.R.V, a.C.V, "R + C voltage different")
-        self.assertEqual(a.C.I(s), sympify('-v0 / (s * R + 1 / C)'), "C current wrong")
-        
+        self.assertEqual(a.C.I(s), current('-v0 / (s * R + 1 / C)'), "C current wrong")
 
     def test_sub(self):
 

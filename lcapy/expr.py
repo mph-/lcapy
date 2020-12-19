@@ -2075,6 +2075,11 @@ class Expr(ExprPrint, ExprMisc):
         result = foo(coeffs)
         return self.__class__(result, **self.assumptions)
 
+    def wrap(self, expr):
+        from .transform import wrap
+
+        return wrap(self, expr)
+    
 
 def exprcontainer(arg, **assumptions):
 

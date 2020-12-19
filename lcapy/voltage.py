@@ -47,7 +47,7 @@ def Vtype(kind):
         return PhasorVoltage
 
 
-def voltage(arg):
+def voltage(arg, **assumptions):
 
     mapping = {ConstantExpression: ConstantVoltage,
                TimeDomainExpression: TimeDomainVoltage,
@@ -55,8 +55,10 @@ def voltage(arg):
                FourierDomainExpression: FourierDomainVoltage,
                AngularFourierDomainExpression: AngularFourierDomainVoltage}
     
-    expr1 = expr(arg)
+    expr1 = expr(arg, **assumptions)
     if expr1.__class__ in mapping:
         expr1 = mapping[expr1.__class__](expr1)
     
     return expr1.apply_unit(uu.volts)
+
+

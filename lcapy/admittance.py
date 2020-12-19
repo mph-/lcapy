@@ -98,7 +98,7 @@ class Admittance(Immittance):
         return self(s).network(form)
     
     
-def admittance(arg):
+def admittance(arg, **assumptions):
 
     mapping = {ConstantExpression: AngularFourierDomainAdmittance,
                TimeDomainExpression: TimeDomainAdmittance,
@@ -106,7 +106,7 @@ def admittance(arg):
                FourierDomainExpression: FourierDomainAdmittance,
                AngularFourierDomainExpression: AngularFourierDomainAdmittance}
     
-    expr1 = expr(arg)
+    expr1 = expr(arg, **assumptions)
     if expr1.__class__ in mapping:
         expr1 = mapping[expr1.__class__](expr1)
 

@@ -11,6 +11,8 @@ from .sym import ssym, tsym, j, pi, sympify
 from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, exprcontainer
 from .functions import sqrt
+from .voltagemixin import VoltageMixin
+from .currentmixin import CurrentMixin
 import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
 
@@ -28,7 +30,6 @@ class LaplaceDomainExpression(Expr):
 
         check = assumptions.pop('check', True)                
         super(LaplaceDomainExpression, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = TimeDomainExpression
 
         expr = self.expr        
         if check and expr.find(tsym) != set() and not expr.has(Integral):
@@ -111,11 +112,7 @@ class LaplaceDomainExpression(Expr):
         result = inverse_laplace_transform(self.expr, self.var, tsym,
                                            **assumptions)
 
-        if hasattr(self, '_laplace_conjugate_class'):
-            result = self._laplace_conjugate_class(result)
-        else:
-            result = TimeDomainExpression(result)
-        return result
+        return self.wrap(TimeDomainExpression(result))
 
     def ILT(self, **assumptions):
         """Convert to t-domain.   This is an alias for inverse_laplace."""
@@ -123,7 +120,14 @@ class LaplaceDomainExpression(Expr):
         return self.inverse_laplace(**assumptions)
     
     def time(self, **assumptions):
-        """Convert to time domain."""
+        """Convert to time domain.
+
+        If causal=True the response is zero for t < 0 and
+        the result is multiplied by Heaviside(t)
+        If ac=True or dc=True the result is extrapolated for t < 0.
+        Otherwise the result is only known for t >= 0.
+
+        """
 
         try:
             return self.inverse_laplace(**assumptions)
@@ -141,9 +145,22 @@ class LaplaceDomainExpression(Expr):
         from .symbols import f
         
         if assumptions.get('causal', self.is_causal):
-            return self.subs(j * 2 * pi * f)
+            result = self.subs(j * 2 * pi * f)
+        else:
+            result = self.time(**assumptions).fourier(**assumptions)
 
-        return self.time(**assumptions).fourier(**assumptions)
+        return self.wrap(result)
+
+    def angular_fourier(self, **assumptions):
+        """Convert to angular Fourier domain."""
+        from .symbols import omega
+        
+        if assumptions.get('causal', self.is_causal):
+            result = self.subs(j * omega)
+        else:
+            result = self.time(**assumptions).angular_fourier(**assumptions)
+
+        return self.wrap(result)            
 
     def phasor(self, **assumptions):
 
@@ -452,11 +469,6 @@ class LaplaceDomainImpedance(LaplaceDomainExpression):
     quantity = 'Impedance'
     units = 'ohms'
 
-    def __init__(self, val, causal=True, **assumptions):
-
-        super(LaplaceDomainImpedance, self).__init__(val, causal=causal, **assumptions)
-        self._laplace_conjugate_class = TimeDomainImpedance
-
     def __call__(self, arg):
 
         from .symbols import omega, f, t
@@ -511,11 +523,6 @@ class LaplaceDomainAdmittance(LaplaceDomainExpression):
     quantity = 'Admittance'
     units = 'siemens'
 
-    def __init__(self, val, causal=True, **assumptions):
-
-        super(LaplaceDomainAdmittance, self).__init__(val, causal=causal, **assumptions)
-        self._laplace_conjugate_class = TimeDomainAdmittance
-
     def __call__(self, arg):
 
         from .symbols import omega, f, t
@@ -564,32 +571,22 @@ class LaplaceDomainAdmittance(LaplaceDomainExpression):
         return network(1 / self, form)
 
     
-class LaplaceDomainVoltage(LaplaceDomainExpression):
+class LaplaceDomainVoltage(LaplaceDomainExpression, VoltageMixin):
     """s-domain voltage (units V s / radian)."""
 
     quantity = 's-Voltage'
     units = 'V/Hz'
-
-    def __init__(self, val, **assumptions):
-
-        super(LaplaceDomainVoltage, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = TimeDomainVoltage
 
     def cpt(self):
         from .oneport import V
         return V(self)
 
         
-class LaplaceDomainCurrent(LaplaceDomainExpression):
+class LaplaceDomainCurrent(LaplaceDomainExpression, CurrentMixin):
     """s-domain current (units A s / radian)."""
 
     quantity = 's-Current'
     units = 'A/Hz'
-
-    def __init__(self, val, **assumptions):
-
-        super(LaplaceDomainCurrent, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = TimeDomainCurrent
 
     def cpt(self):
         from .oneport import I
@@ -602,11 +599,6 @@ class LaplaceDomainTransferFunction(LaplaceDomainExpression):
 
     quantity = 's-ratio'
     units = ''
-
-    def __init__(self, val, **assumptions):
-
-        super(LaplaceDomainTransferFunction, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = TimeDomainImpulseResponse
 
 
 def tf(numer, denom=1, var=None):
@@ -653,5 +645,6 @@ from .omegaexpr import AngularFourierDomainTransferFunction, AngularFourierDomai
 from .texpr import TimeDomainImpulseResponse, TimeDomainAdmittance, TimeDomainImpedance
 from .texpr import TimeDomainExpression, TimeDomainVoltage, TimeDomainCurrent, texpr
 from .cexpr import ConstantExpression
+
 s = LaplaceDomainExpression('s')
 

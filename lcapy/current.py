@@ -47,7 +47,7 @@ def Itype(kind):
         return PhasorCurrent
 
 
-def current(arg):
+def current(arg, **assumptions):
 
     mapping = {ConstantExpression: ConstantCurrent,
                TimeDomainExpression: TimeDomainCurrent,
@@ -55,7 +55,7 @@ def current(arg):
                FourierDomainExpression: FourierDomainCurrent,
                AngularFourierDomainExpression: AngularFourierDomainCurrent}
     
-    expr1 = expr(arg)
+    expr1 = expr(arg, **assumptions)
     if expr1.__class__ in mapping:
         expr1 = mapping[expr1.__class__](expr1)
 

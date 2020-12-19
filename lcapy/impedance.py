@@ -98,7 +98,7 @@ class Impedance(Immittance):
         return self(s).network(form)
 
 
-def impedance(arg):
+def impedance(arg, **assumptions):
 
     mapping = {ConstantExpression: AngularFourierDomainImpedance,
                TimeDomainExpression: TimeDomainImpedance,
@@ -106,7 +106,7 @@ def impedance(arg):
                FourierDomainExpression: FourierDomainImpedance,
                AngularFourierDomainExpression: AngularFourierDomainImpedance}
     
-    expr1 = expr(arg)
+    expr1 = expr(arg, **assumptions)
     if expr1.__class__ in mapping:
         expr1 = mapping[expr1.__class__](expr1)
     
