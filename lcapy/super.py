@@ -735,6 +735,12 @@ phasor, for example, using: %s""" % foo)
         # TODO, could optimise.
         return self.time(**assumptions).fourier(**assumptions)
 
+    def angular_fourier(self, **assumptions):
+        """Convert to angular Fourier domain."""        
+
+        # TODO, could optimise.
+        return self.time(**assumptions).angular_fourier(**assumptions)    
+
     def canonical(self):
         new = self.__class__()
         for kind, value in self.items():

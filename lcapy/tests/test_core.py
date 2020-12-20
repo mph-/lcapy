@@ -667,12 +667,24 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Zs(omega), Zw, 'Zs(omega)')
         self.assertEqual(Zs(f), Zf, 'Zs(f)')
 
+        self.assertEqual(Zw(f), Zf, 'Zw(f)')
+        self.assertEqual(Zw(s), Zs, 'Zw(s)')                
+
+        self.assertEqual(Zf(omega), Zw, 'Zf(omega)')
+        self.assertEqual(Zf(s), Zs, 'Zf(s)')        
+
     def test_admittance_transform(self):
 
         Ys = admittance(3 * s)
         Yw = admittance(3 * j * omega)
         Yf = admittance(3 * j * 2 * pi * f)
-        
+
         self.assertEqual(Ys(omega), Yw, 'Ys(omega)')
         self.assertEqual(Ys(f), Yf, 'Ys(f)')
+
+        self.assertEqual(Yw(f), Yf, 'Yw(f)')
+        self.assertEqual(Yw(s), Ys, 'Yw(s)')                
+
+        self.assertEqual(Yf(omega), Yw, 'Yf(omega)')
+        self.assertEqual(Yf(s), Ys, 'Yf(s)')                
         

@@ -49,6 +49,14 @@ class AngularFourierDomainExpression(Expr):
 
         return self.inverse_fourier(**assumptions)
 
+    def fourier(self, **assumptions):
+        """Convert to angular Fourier domain."""
+        
+        from .symbols import f
+        
+        result = self.subs(2 * pi * f)
+        return self.wrap(result)                
+
     def laplace(self, **assumptions):
         """Convert to Laplace domain."""
 
@@ -57,9 +65,9 @@ class AngularFourierDomainExpression(Expr):
         if self.is_causal:
             result = self.subs(s / j)
         else:
-            result = self.time.laplace()
+            result = self.time().laplace()
 
-        return self.wrap(LaplaceDomainExpression(result, **assumptions))                            
+        return self.wrap(LaplaceDomainExpression(result, **assumptions))
 
     def plot(self, wvector=None, **kwargs):
         """Plot angular frequency response at values specified by wvector.
@@ -78,17 +86,6 @@ class AngularFourierDomainExpression(Expr):
         from .plot import plot_angular_frequency
         return plot_angular_frequency(self, wvector, **kwargs)
 
-    def transform(self, arg, **assumptions):
-        """Transform into a different domain."""
-
-        from .fexpr import FourierDomainExpression, f
-
-        arg = expr(arg)        
-        if isinstance(arg, FourierDomainExpression):
-            result = self.subs(2 * pi * f)
-            return result.subs(arg, **assumptions)
-        return super(AngularFourierDomainExpression, self).transform(arg, **assumptions)
-        
 
 class AngularFourierDomainAdmittance(AngularFourierDomainExpression, AdmittanceMixin):
     """omega-domain admittance."""

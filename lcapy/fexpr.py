@@ -64,11 +64,25 @@ class FourierDomainExpression(Expr):
     
     def time(self, **assumptions):
         return self.inverse_fourier(**assumptions)
+
+    def angular_fourier(self, **assumptions):
+        """Convert to angular Fourier domain."""
+        from .symbols import omega
+        
+        result = self.subs(omega / (2 * pi))
+        return self.wrap(result)            
     
     def laplace(self, **assumptions):
         """Determine one-side Laplace transform with 0- as the lower limit."""
 
-        return self.time(**assumptions).laplace()
+        from .symbols import s, j
+
+        if self.is_causal:
+            result = self.subs(s / (j * 2 * pi))
+        else:
+            result = self.time.laplace()
+
+        return self.wrap(LaplaceDomainExpression(result, **assumptions))
     
     def plot(self, fvector=None, **kwargs):
         """Plot frequency response at values specified by fvector.  If fvector
@@ -103,17 +117,6 @@ class FourierDomainExpression(Expr):
         from .plot import plot_frequency
         return plot_frequency(self, fvector, **kwargs)
 
-    def transform(self, arg, **assumptions):
-        """Transform into a different domain."""
-
-        from .omegaexpr import AngularFourierDomainExpression, omega
-
-        arg = expr(arg)        
-        if isinstance(arg, AngularFourierDomainExpression):
-            result = self.subs(omega / (2 * pi))
-            return result.subs(arg, **assumptions)
-        return super(FourierDomainExpression, self).transform(arg, **assumptions)
-        
 
 class FourierDomainAdmittance(FourierDomainExpression, AdmittanceMixin):
     """f-domain admittance"""
@@ -157,6 +160,8 @@ def fexpr(arg, **assumptions):
         return f
     return FourierDomainExpression(arg, **assumptions)
         
-from .texpr import TimeDomainImpulseResponse, TimeDomainCurrent, TimeDomainVoltage, TimeDomainAdmittance, TimeDomainImpedance, TimeDomainExpression
+from .texpr import TimeDomainExpression
+from .sexpr import LaplaceDomainExpression
+from .omegaexpr import AngularFourierDomainExpression
 from .cexpr import ConstantExpression
 f = FourierDomainExpression('f')

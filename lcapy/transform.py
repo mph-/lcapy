@@ -5,17 +5,21 @@ Copyright 2018--2020 Michael Hayes, UCECE
 """
 
 from .sym import sympify, pi
-from .symbols import f, s, t, omega, jomega
+from .symbols import f, s, t, omega, jomega, j
 from .expr import expr as expr1
 
 
 def transform1(expr, arg, **assumptions):
 
-        # handle things like (3 * s)(5 * s)
+    # Handle things like (3 * s)(5 * s)
     if isinstance(expr, arg.__class__) and not isinstance(expr, Superposition):
         return expr.subs(arg)
 
-    # Handle expr(t), expr(s), expr(f)
+    # Special case: handle expr(j * omega)
+    if isinstance(expr, (LaplaceDomainExpression, Superposition)) and arg == j * omega:
+        return expr.laplace(**assumptions).subs(arg)
+
+    # Handle expr(t), expr(s), expr(f), expr(omega)
     if arg is t:
         return expr.time(**assumptions)
     elif arg is s:
@@ -24,10 +28,9 @@ def transform1(expr, arg, **assumptions):
         # Note, conversion of f->omega handled by FourierDomainExpression        
         return expr.fourier(**assumptions)
     elif arg is omega:
-        # Note, conversion of f->omega handled by FourierDomainExpression        
-        return expr.fourier(**assumptions)(omega)
+        return expr.angular_fourier(**assumptions)
 
-    # Handle expr(texpr), expr(sexpr), expr(fexpr).  For example,
+    # Handle expr(texpr), expr(sexpr), expr(fexpr), expr(omegaexpr).  For example,
     # expr(2 * f).
     result = None 
     if isinstance(arg, TimeDomainExpression):
@@ -35,8 +38,9 @@ def transform1(expr, arg, **assumptions):
     elif isinstance(arg, LaplaceDomainExpression):
         result = expr.laplace(**assumptions)
     elif isinstance(arg, FourierDomainExpression):
-        # Note, conversion of f->omega handled by FourierDomainExpression
         result = expr.fourier(**assumptions)
+    elif isinstance(arg, AngularFourierDomainExpression):
+        result = expr.angular_fourier(**assumptions)        
     elif arg.has(jomega):
         # Perhaps restrict this to jomega and not expressions like 5 * jomega ?
         if isinstance(expr, LaplaceDomainExpression):
