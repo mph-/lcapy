@@ -25,7 +25,6 @@ def transform1(expr, arg, **assumptions):
     elif arg is s:
         return expr.laplace(**assumptions)
     elif arg is f:
-        # Note, conversion of f->omega handled by FourierDomainExpression        
         return expr.fourier(**assumptions)
     elif arg is omega:
         return expr.angular_fourier(**assumptions)
@@ -97,6 +96,21 @@ def call(expr, arg, **assumptions):
         return expr.transform(arg, **assumptions)    
     
     return expr.subs(arg)
+
+
+def select(expr, kind):
+
+    if kind in ('t', 'time'):
+        return expr.time()
+    elif kind == 'dc':
+        return expr.subs(0)
+    elif kind in ('s', 'ivp'):
+        return expr.laplace()
+    elif kind == 'f':
+        return expr.fourier()
+    elif kind == 'omega':
+        return expr.angular_fourier()
+    return expr.subs(j * kind)
 
 
 from .cexpr import ConstantExpression    

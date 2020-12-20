@@ -1358,6 +1358,11 @@ class Expr(ExprPrint, ExprMisc):
         from .transform import call
         return call(self, arg, **assumptions)
 
+    def _select(self, kind):
+
+        from .transform import select
+        return select(self, kind)        
+
     def limit(self, var, value, dir='+'):
         """Determine limit of expression(var) at var = value.
         If `dir == '+'` search from right else if `dir == '-'`
