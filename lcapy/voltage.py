@@ -13,6 +13,9 @@ from .sexpr import LaplaceDomainExpression, LaplaceDomainVoltage
 from .texpr import TimeDomainExpression, TimeDomainVoltage
 from .noiseomegaexpr import AngularFourierDomainNoiseVoltage
 from .noisefexpr import FourierDomainNoiseVoltage
+from .nexpr import DiscreteTimeDomainExpression, DiscreteTimeDomainVoltage
+from .kexpr import DiscreteFourierDomainExpression, DiscreteFourierDomainVoltage
+from .zexpr import ZDomainExpression, ZDomainVoltage
 from .phasor import PhasorVoltage
 from .units import u as uu
 
@@ -53,7 +56,10 @@ def voltage(arg, **assumptions):
                TimeDomainExpression: TimeDomainVoltage,
                LaplaceDomainExpression: LaplaceDomainVoltage,
                FourierDomainExpression: FourierDomainVoltage,
-               AngularFourierDomainExpression: AngularFourierDomainVoltage}
+               AngularFourierDomainExpression: AngularFourierDomainVoltage,
+               DiscreteTimeDomainExpression: DiscreteTimeDomainVoltage,
+               DiscreteFourierDomainExpression: DiscreteFourierDomainVoltage,
+               ZDomainExpression: ZDomainVoltage}
     
     expr1 = expr(arg, **assumptions)
     if expr1.__class__ in mapping:

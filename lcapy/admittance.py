@@ -11,6 +11,9 @@ from .fexpr import FourierDomainExpression, FourierDomainAdmittance
 from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainAdmittance
 from .sexpr import LaplaceDomainExpression, LaplaceDomainAdmittance
 from .texpr import TimeDomainExpression, TimeDomainAdmittance
+from .nexpr import DiscreteTimeDomainExpression, DiscreteTimeDomainAdmittance
+from .kexpr import DiscreteFourierDomainExpression, DiscreteFourierDomainAdmittance
+from .zexpr import ZDomainExpression, ZDomainAdmittance
 from .symbols import s
 from .immittance import Immittance
 from .units import u as uu
@@ -104,7 +107,10 @@ def admittance(arg, **assumptions):
                TimeDomainExpression: TimeDomainAdmittance,
                LaplaceDomainExpression: LaplaceDomainAdmittance,
                FourierDomainExpression: FourierDomainAdmittance,
-               AngularFourierDomainExpression: AngularFourierDomainAdmittance}
+               AngularFourierDomainExpression: AngularFourierDomainAdmittance,
+               DiscreteTimeDomainExpression: DiscreteTimeDomainAdmittance,
+               DiscreteFourierDomainExpression: DiscreteFourierDomainAdmittance,
+               ZDomainExpression: ZDomainAdmittance}               
     
     expr1 = expr(arg, **assumptions)
     if expr1.__class__ in mapping:

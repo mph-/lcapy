@@ -241,7 +241,8 @@ class DiscreteTimeDomainVoltage(DiscreteTimeDomainExpression):
         self._ztransform_conjugate_class = ZDomainVoltage
         self._discrete_fourier_conjugate_class = DiscreteFourierDomainVoltage
 
-class DisreteTimeDomainVoltage(DiscreteTimeDomainExpression):
+        
+class DiscreteTimeDomainCurrent(DiscreteTimeDomainExpression):
 
     """t-domain current (units A)."""
 

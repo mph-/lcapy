@@ -155,7 +155,7 @@ class DiscreteFourierDomainCurrent(DiscreteFourierDomainExpression):
     def __init__(self, val, **assumptions):
 
         super(DiscreteFourierDomainCurrent, self).__init__(val, **assumptions)
-        self._discrete_fourier_conjugate_class = DisreteTimeDomainVoltage
+        self._discrete_fourier_conjugate_class = DiscreteTimeDomainVoltage
 
 
 def kexpr(arg, **assumptions):
@@ -165,5 +165,5 @@ def kexpr(arg, **assumptions):
         return k
     return DiscreteFourierDomainExpression(arg, **assumptions)
         
-from .nexpr import DiscreteTimeDomainTransferFunction, DisreteTimeDomainVoltage, DiscreteTimeDomainVoltage, DiscreteTimeDomainAdmittance, DiscreteTimeDomainImpedance, nexpr, DiscreteTimeDomainExpression
+from .nexpr import DiscreteTimeDomainTransferFunction, DiscreteTimeDomainVoltage, DiscreteTimeDomainVoltage, DiscreteTimeDomainAdmittance, DiscreteTimeDomainImpedance, nexpr, DiscreteTimeDomainExpression
 k = DiscreteFourierDomainExpression('k')

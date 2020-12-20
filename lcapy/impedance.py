@@ -11,6 +11,9 @@ from .fexpr import FourierDomainExpression, FourierDomainImpedance
 from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainImpedance
 from .sexpr import LaplaceDomainExpression, LaplaceDomainImpedance
 from .texpr import TimeDomainExpression, TimeDomainImpedance
+from .nexpr import DiscreteTimeDomainExpression, DiscreteTimeDomainImpedance
+from .kexpr import DiscreteFourierDomainExpression, DiscreteFourierDomainImpedance
+from .zexpr import ZDomainExpression, ZDomainImpedance
 from .symbols import s
 from .immittance import Immittance
 from .units import u as uu
@@ -104,7 +107,10 @@ def impedance(arg, **assumptions):
                TimeDomainExpression: TimeDomainImpedance,
                LaplaceDomainExpression: LaplaceDomainImpedance,
                FourierDomainExpression: FourierDomainImpedance,
-               AngularFourierDomainExpression: AngularFourierDomainImpedance}
+               AngularFourierDomainExpression: AngularFourierDomainImpedance,
+               DiscreteTimeDomainExpression: DiscreteTimeDomainImpedance,
+               DiscreteFourierDomainExpression: DiscreteFourierDomainImpedance,
+               ZDomainExpression: ZDomainImpedance}
     
     expr1 = expr(arg, **assumptions)
     if expr1.__class__ in mapping:

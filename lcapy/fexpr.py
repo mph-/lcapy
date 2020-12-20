@@ -9,6 +9,11 @@ from __future__ import division
 from .fourier import inverse_fourier_transform
 from .expr import Expr, expr
 from .sym import fsym, ssym, tsym, pi
+from .voltagemixin import VoltageMixin
+from .currentmixin import CurrentMixin
+from .admittancemixin import AdmittanceMixin
+from .impedancemixin import ImpedanceMixin
+from .transfermixin import TransferMixin
 from sympy import Integral, Expr as symExpr
 
 class FourierDomainExpression(Expr):
@@ -25,8 +30,6 @@ class FourierDomainExpression(Expr):
         check = assumptions.pop('check', True)        
         assumptions['real'] = True
         super(FourierDomainExpression, self).__init__(val, **assumptions)
-        # Define when class defined.
-        self._fourier_conjugate_class = TimeDomainExpression
 
         expr = self.expr        
         if check and expr.find(ssym) != set() and not expr.has(Integral):
@@ -34,16 +37,25 @@ class FourierDomainExpression(Expr):
                 'f-domain expression %s cannot depend on s' % expr)
         if check and expr.find(tsym) != set() and not expr.has(Integral):
             raise ValueError(
-                'f-domain expression %s cannot depend on t' % expr)                            
+                'f-domain expression %s cannot depend on t' % expr)
+
+    def angular_fourier(self, **assumptions):
+        """Convert to angular Fourier domain."""
+        from .symbols import omega
+        
+        if assumptions.get('causal', self.is_causal):
+            result = self.subs(omega / (2 * pi))
+        else:
+            result = self.time(**assumptions).angular_fourier(**assumptions)
+
+        return self.wrap(result)            
+
     def inverse_fourier(self, evaluate=True, **assumptions):
         """Attempt inverse Fourier transform."""
 
         result = inverse_fourier_transform(self.expr, self.var, tsym, evaluate=evaluate)
-        if hasattr(self, '_fourier_conjugate_class'):
-            result = self._fourier_conjugate_class(result)
-        else:
-            result = TimeDomainExpression(result)
-        return result
+
+        return self.wrap(TimeDomainExpression(result, **assumptions))        
 
     def IFT(self, **assumptions):
         """Convert to t-domain.   This is an alias for inverse_fourier."""
@@ -51,7 +63,7 @@ class FourierDomainExpression(Expr):
         return self.inverse_fourier(**assumptions)    
     
     def time(self, **assumptions):
-        return self.inverse_fourier()
+        return self.inverse_fourier(**assumptions)
     
     def laplace(self, **assumptions):
         """Determine one-side Laplace transform with 0- as the lower limit."""
@@ -103,64 +115,39 @@ class FourierDomainExpression(Expr):
         return super(FourierDomainExpression, self).transform(arg, **assumptions)
         
 
-class FourierDomainAdmittance(FourierDomainExpression):
+class FourierDomainAdmittance(FourierDomainExpression, AdmittanceMixin):
     """f-domain admittance"""
 
     quantity = 'Admittance'
     units = 'siemens'
 
-    def __init__(self, val, **assumptions):
 
-        super(FourierDomainAdmittance, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = TimeDomainAdmittance
-
-
-class FourierDomainImpedance(FourierDomainExpression):
+class FourierDomainImpedance(FourierDomainExpression, ImpedanceMixin):
     """f-domain impedance"""
 
     quantity = 'Impedance'
     units = 'ohms'
 
-    def __init__(self, val, **assumptions):
 
-        super(FourierDomainImpedance, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = TimeDomainImpedance
-
-
-class FourierDomainTransferFunction(FourierDomainExpression):
+class FourierDomainTransferFunction(FourierDomainExpression, TransferMixin):
     """f-domain transfer function response."""
 
     quantity = 'Transfer function'
     units = ''
 
-    def __init__(self, val, **assumptions):
 
-        super(FourierDomainTransferFunction, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = TimeDomainImpulseResponse
-
-
-class FourierDomainVoltage(FourierDomainExpression):
+class FourierDomainVoltage(FourierDomainExpression, VoltageMixin):
     """f-domain voltage (units V/Hz)."""
 
     quantity = 'Voltage spectrum'
     units = 'V/Hz'
 
-    def __init__(self, val, **assumptions):
-
-        super(FourierDomainVoltage, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = TimeDomainVoltage
-
         
-class FourierDomainCurrent(FourierDomainExpression):
+class FourierDomainCurrent(FourierDomainExpression, CurrentMixin):
     """f-domain current (units A/Hz)."""
 
     quantity = 'Current spectrum'
     units = 'A/Hz'
-
-    def __init__(self, val, **assumptions):
-
-        super(FourierDomainCurrent, self).__init__(val, **assumptions)
-        self._fourier_conjugate_class = TimeDomainCurrent
 
         
 def fexpr(arg, **assumptions):

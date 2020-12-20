@@ -256,7 +256,6 @@ class ZDomainExpression(DiscreteExpression):
 # Perhaps use a factory to create the following classes?
 
 class ZDomainImpedance(ZDomainExpression):
-
     """z-domain impedance value."""
 
     quantity = 'Impedance'
@@ -269,7 +268,6 @@ class ZDomainImpedance(ZDomainExpression):
 
 
 class ZDomainAdmittance(ZDomainExpression):
-
     """z-domain admittance value."""
 
     quantity = 'Admittance'
@@ -282,7 +280,6 @@ class ZDomainAdmittance(ZDomainExpression):
 
 
 class ZDomainVoltage(ZDomainExpression):
-
     """z-domain voltage (units V s / radian)."""
 
     quantity = 'z-Voltage'
@@ -294,8 +291,7 @@ class ZDomainVoltage(ZDomainExpression):
         self._ztransform_conjugate_class = DiscreteTimeDomainVoltage
 
 
-class ZDomainVoltage(ZDomainExpression):
-
+class ZDomainCurrent(ZDomainExpression):
     """z-domain current (units A s / radian)."""
 
     quantity = 'z-Current'
@@ -304,7 +300,7 @@ class ZDomainVoltage(ZDomainExpression):
     def __init__(self, val, **assumptions):
 
         super(ZDomainVoltage, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = DisreteTimeDomainVoltage
+        self._ztransform_conjugate_class = DiscreteTimeDomainVoltage
 
 
 class ZDomainTransferFunction(ZDomainExpression):
@@ -328,5 +324,5 @@ def zexpr(arg, **assumptions):
     return ZDomainExpression(arg, **assumptions)
 
 
-from .nexpr import DiscreteTimeDomainTransferFunction, DisreteTimeDomainVoltage, DiscreteTimeDomainVoltage, DiscreteTimeDomainAdmittance, DiscreteTimeDomainImpedance, DiscreteTimeDomainExpression, nexpr
+from .nexpr import DiscreteTimeDomainTransferFunction, DiscreteTimeDomainVoltage, DiscreteTimeDomainVoltage, DiscreteTimeDomainAdmittance, DiscreteTimeDomainImpedance, DiscreteTimeDomainExpression, nexpr
 z = ZDomainExpression('z')

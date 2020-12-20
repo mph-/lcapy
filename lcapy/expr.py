@@ -324,27 +324,28 @@ class Expr(ExprPrint, ExprMisc):
             self.assumptions['ac'] = False
         
     def infer_assumptions(self):
-        self.assumptions['dc'] = None
-        self.assumptions['ac'] = None
-        self.assumptions['causal'] = None
+        pass
 
     @property
     def is_dc(self):
         if 'dc' not in self.assumptions:
             self.infer_assumptions()
-        return self.assumptions['dc'] == True
+        return 'dc' in self.assumptions and self.assumptions['dc'] == True
 
     @property
     def is_ac(self):
         if 'ac' not in self.assumptions:
             self.infer_assumptions()
-        return self.assumptions['ac'] == True
+        return 'ac' in self.assumptions and self.assumptions['ac'] == True            
 
     @property
     def is_causal(self):
+        if hasattr(self, 'is_always_causal') and self.is_always_causal:
+            return True
+        
         if 'causal' not in self.assumptions:
             self.infer_assumptions()
-        return self.assumptions['causal'] == True
+        return 'causal' in self.assumptions and self.assumptions['causal'] == True
 
     @property
     def is_complex(self):

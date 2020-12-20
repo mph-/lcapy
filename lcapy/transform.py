@@ -77,7 +77,8 @@ def wrap(old, new):
         return new
     
     wrappers = {'voltage': voltage, 'current': current,
-                'impedance': impedance, 'admittance': admittance}
+                'impedance': impedance, 'admittance': admittance,
+                'transfer': transfer}
     if old.wrapper not in wrappers:
         return new
     return wrappers[old.wrapper](new)    
@@ -104,3 +105,4 @@ from .current import current
 from .voltage import voltage
 from .admittance import admittance
 from .impedance import impedance
+from .transfer import transfer

@@ -100,8 +100,6 @@ class FourierDomainNoiseVoltage(FourierDomainNoiseExpression):
     def __init__(self, val, **assumptions):
 
         super(FourierDomainNoiseVoltage, self).__init__(val, **assumptions)
-        # FIXME
-        self._fourier_conjugate_class = TimeDomainVoltage
         self._subs_classes = {AngularFourierDomainExpression: AngularFourierDomainNoiseVoltage,
                              FourierDomainExpression: FourierDomainNoiseVoltage}
 
@@ -121,8 +119,6 @@ class FourierDomainNoiseCurrent(FourierDomainNoiseExpression):
     def __init__(self, val, **assumptions):
 
         super(FourierDomainNoiseCurrent, self).__init__(val, **assumptions)
-        # FIXME
-        self._fourier_conjugate_class = TimeDomainCurrent
         self._subs_classes = {AngularFourierDomainExpression: AngularFourierDomainNoiseCurrent,
                              FourierDomainExpression: FourierDomainNoiseCurrent}
 

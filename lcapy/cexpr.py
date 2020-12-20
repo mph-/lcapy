@@ -31,6 +31,11 @@ class ConstantExpression(Expr):
 
         return self.time().laplace()
 
+    def fourier(self):
+        """Convert to Fourier domain representation."""
+
+        return self.time().fourier()    
+
     def canonical(self, factor_const=True):
         # Minor optimisation
         return self
@@ -38,15 +43,10 @@ class ConstantExpression(Expr):
     def time(self, **assumptions):
         """Convert to time domain."""
         
-        return TimeDomainExpression(self)
+        return TimeDomainExpression(self).wrap()
 
     
 class ConstantVoltage(ConstantExpression):
-
-    def __init__(self, val, **assumptions):
-
-        super(ConstantVoltage, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = TimeDomainVoltage
 
     def cpt(self):
         from .oneport import Vdc
@@ -57,11 +57,6 @@ class ConstantVoltage(ConstantExpression):
 
     
 class ConstantCurrent(ConstantExpression):
-
-    def __init__(self, val, **assumptions):
-
-        super(ConstantCurrent, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = TimeDomainCurrent
 
     def cpt(self):
         from .oneport import Idc

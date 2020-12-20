@@ -13,6 +13,9 @@ from .sexpr import LaplaceDomainExpression, LaplaceDomainCurrent
 from .texpr import TimeDomainExpression, TimeDomainCurrent
 from .noiseomegaexpr import AngularFourierDomainNoiseCurrent
 from .noisefexpr import FourierDomainNoiseCurrent
+from .nexpr import DiscreteTimeDomainExpression, DiscreteTimeDomainCurrent
+from .kexpr import DiscreteFourierDomainExpression, DiscreteFourierDomainCurrent
+from .zexpr import ZDomainExpression, ZDomainCurrent
 from .phasor import PhasorCurrent
 from .units import u as uu
 
@@ -53,7 +56,10 @@ def current(arg, **assumptions):
                TimeDomainExpression: TimeDomainCurrent,
                LaplaceDomainExpression: LaplaceDomainCurrent,
                FourierDomainExpression: FourierDomainCurrent,
-               AngularFourierDomainExpression: AngularFourierDomainCurrent}
+               AngularFourierDomainExpression: AngularFourierDomainCurrent,
+               DiscreteTimeDomainExpression: DiscreteTimeDomainCurrent,
+               DiscreteFourierDomainExpression: DiscreteFourierDomainCurrent,
+               ZDomainExpression: ZDomainCurrent}
     
     expr1 = expr(arg, **assumptions)
     if expr1.__class__ in mapping:

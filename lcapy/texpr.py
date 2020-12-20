@@ -11,6 +11,8 @@ from .sym import fsym, ssym, tsym, j, oo, tausym
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .laplace import laplace_transform
 from .fourier import fourier_transform
+from .voltagemixin import VoltageMixin
+from .currentmixin import CurrentMixin
 from sympy import Heaviside, limit, Integral, Expr as symExpr
 
 
@@ -27,9 +29,6 @@ class TimeDomainExpression(Expr):
         check = assumptions.pop('check', True)        
         assumptions['real'] = True
         super(TimeDomainExpression, self).__init__(val, **assumptions)
-
-        self._fourier_conjugate_class = FourierDomainExpression
-        self._laplace_conjugate_class = LaplaceDomainExpression
 
         expr = self.expr        
         if check and expr.find(ssym) != set() and not expr.has(Integral):
@@ -67,12 +66,7 @@ class TimeDomainExpression(Expr):
         assumptions = self.merge_assumptions(**assumptions)
         
         result = laplace_transform(self.expr, self.var, ssym, evaluate=evaluate)
-
-        if hasattr(self, '_laplace_conjugate_class'):
-            result = self._laplace_conjugate_class(result, **assumptions)
-        else:
-            result = LaplaceDomainExpression(result, **assumptions)
-        return result
+        return self.wrap(LaplaceDomainExpression(result, **assumptions))
 
     def LT(self, **assumptions):
         """Convert to s-domain.   This is an alias for laplace."""
@@ -85,12 +79,16 @@ class TimeDomainExpression(Expr):
         assumptions = self.merge_assumptions(**assumptions)
         
         result = fourier_transform(self.expr, self.var, fsym, evaluate=evaluate)
+        return self.wrap(FourierDomainExpression(result, **assumptions))
 
-        if hasattr(self, '_fourier_conjugate_class'):
-            result = self._fourier_conjugate_class(result, **assumptions)
-        else:
-            result = FourierDomainExpression(result **self.assumptions)
-        return result
+    def angular_fourier(self, evaluate=True, **assumptions):
+        """Attempt angular Fourier transform."""
+
+        from .symbols import omega, pi, f
+
+        result = self.fourier(evaluate, **assumptions).subs(f, omega / (2 * pi))
+        # Could optimise...
+        return self.wrap(AngularFourierDomainExpression(result, **assumptions))        
 
     def FT(self, **assumptions):
         """Convert to f-domain.   This is an alias for fourier."""
@@ -198,53 +196,29 @@ class TimeDomainAdmittance(TimeDomainExpression):
 
     units = 'siemens/s'
 
-    def __init__(self, val, **assumptions):
-
-        super(TimeDomainAdmittance, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = LaplaceDomainAdmittance
-        self._fourier_conjugate_class = FourierDomainAdmittance
-
 
 class TimeDomainImpedance(TimeDomainExpression):
     """t-domain 'impedance' value."""
 
     units = 'ohms/s'
 
-    def __init__(self, val, **assumptions):
 
-        super(TimeDomainImpedance, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = LaplaceDomainImpedance
-        self._fourier_conjugate_class = FourierDomainImpedance
-
-
-class TimeDomainVoltage(TimeDomainExpression):
+class TimeDomainVoltage(TimeDomainExpression, VoltageMixin):
     """t-domain voltage (units V)."""
 
     quantity = 'Voltage'
     units = 'V'
-
-    def __init__(self, val, **assumptions):
-
-        super(TimeDomainVoltage, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = LaplaceDomainVoltage
-        self._fourier_conjugate_class = FourierDomainVoltage
 
     def cpt(self):
         from .oneport import V
         return V(self)
 
         
-class TimeDomainCurrent(TimeDomainExpression):
+class TimeDomainCurrent(TimeDomainExpression, CurrentMixin):
     """t-domain current (units A)."""
 
     quantity = 'Current'
     units = 'A'
-
-    def __init__(self, val, **assumptions):
-
-        super(TimeDomainCurrent, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = LaplaceDomainCurrent
-        self._fourier_conjugate_class = FourierDomainCurrent
 
     def cpt(self):
         from .oneport import I
@@ -257,11 +231,6 @@ class TimeDomainImpulseResponse(TimeDomainExpression):
     quantity = 'Impulse response'
     units = '1/s'
 
-    def __init__(self, val, **assumptions):
-
-        super(TimeDomainImpulseResponse, self).__init__(val, **assumptions)
-        self._laplace_conjugate_class = LaplaceDomainTransferFunction
-        self._fourier_conjugate_class = FourierDomainTransferFunction
 
 def texpr(arg, **assumptions):
     """Create TimeDomainExpression object.  If `arg` is tsym return t"""
@@ -270,8 +239,9 @@ def texpr(arg, **assumptions):
         return t
     return TimeDomainExpression(arg, **assumptions)
 
-from .sexpr import LaplaceDomainTransferFunction, LaplaceDomainCurrent, LaplaceDomainVoltage, LaplaceDomainAdmittance, LaplaceDomainImpedance, LaplaceDomainExpression
-from .fexpr import FourierDomainTransferFunction, FourierDomainCurrent, FourierDomainVoltage, FourierDomainAdmittance, FourierDomainImpedance, FourierDomainExpression
+from .sexpr import LaplaceDomainExpression
+from .fexpr import FourierDomainExpression
+from .omegaexpr import AngularFourierDomainExpression
 from .cexpr import ConstantExpression
 from .phasor import PhasorExpression
 t = TimeDomainExpression('t')

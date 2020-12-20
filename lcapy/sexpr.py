@@ -15,6 +15,7 @@ from .voltagemixin import VoltageMixin
 from .currentmixin import CurrentMixin
 from .admittancemixin import AdmittanceMixin
 from .impedancemixin import ImpedanceMixin
+from .transfermixin import TransferMixin
 import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
 
@@ -114,7 +115,7 @@ class LaplaceDomainExpression(Expr):
         result = inverse_laplace_transform(self.expr, self.var, tsym,
                                            **assumptions)
 
-        return self.wrap(TimeDomainExpression(result))
+        return self.wrap(TimeDomainExpression(result, **assumptions))
 
     def ILT(self, **assumptions):
         """Convert to t-domain.   This is an alias for inverse_laplace."""
@@ -470,7 +471,6 @@ class LaplaceDomainImpedance(LaplaceDomainExpression, ImpedanceMixin):
 
     quantity = 'Impedance'
     units = 'ohms'
-    is_causal = True
 
     def cpt(self):
         from .oneport import R, C, L, Z
@@ -507,7 +507,6 @@ class LaplaceDomainAdmittance(LaplaceDomainExpression, AdmittanceMixin):
 
     quantity = 'Admittance'
     units = 'siemens'
-    is_causal = True
 
     def cpt(self):
         from .oneport import G, C, L, Y
@@ -562,7 +561,7 @@ class LaplaceDomainCurrent(LaplaceDomainExpression, CurrentMixin):
         return I(self)
 
 
-class LaplaceDomainTransferFunction(LaplaceDomainExpression):
+class LaplaceDomainTransferFunction(LaplaceDomainExpression, TransferMixin):
     """s-domain ratio"""
 
     quantity = 's-ratio'
