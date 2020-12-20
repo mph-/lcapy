@@ -65,7 +65,6 @@ class AdmittanceMixin(object):
         from .impedance import impedance
         
         return impedance(1 / self)
-
     
     def network(self, form='default'):
         """Synthesise a network with an equivalent impedance.
@@ -77,6 +76,25 @@ class AdmittanceMixin(object):
         from .synthesis import network
         
         return network(self.Z, form)
+
+    def cpt(self):
+        from .oneport import G, C, L, Y
+        from .symbols import s
+
+        if self.is_number or self.is_dc:
+            return G(self.expr)
+
+        y = self.laplace() * s
+
+        if y.is_number:
+            return L((1 / y).expr)
+
+        y = self.laplace() / s
+
+        if y.is_number:
+            return C(y.expr)
+
+        return Y(self)
 
 
 

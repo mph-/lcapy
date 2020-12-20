@@ -77,3 +77,22 @@ class ImpedanceMixin(object):
         
         return network(self, form)
 
+    def cpt(self):
+        from .oneport import R, C, L, Z
+        from .symbols import s        
+
+        if self.is_number or self.is_dc:
+            return R(self.expr)
+
+        z = self.laplace() * s
+
+        if z.is_number:
+            return C((1 / z).expr)
+
+        z = self.laplace() / s
+
+        if z.is_number:
+            return L(z.expr)
+
+        return Z(self)
+

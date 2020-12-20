@@ -209,20 +209,12 @@ class TimeDomainVoltage(VoltageMixin, TimeDomainExpression):
     quantity = 'Voltage'
     units = 'V'
 
-    def cpt(self):
-        from .oneport import V
-        return V(self)
-
         
 class TimeDomainCurrent(CurrentMixin, TimeDomainExpression):
     """t-domain current (units A)."""
 
     quantity = 'Current'
     units = 'A'
-
-    def cpt(self):
-        from .oneport import I
-        return I(self)
 
 
 class TimeDomainImpulseResponse(TimeDomainExpression):

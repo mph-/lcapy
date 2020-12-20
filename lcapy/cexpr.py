@@ -1,5 +1,13 @@
+"""This module provides the ConstantExpression class to represent constant expressions.
+
+Copyright 2014--2020 Michael Hayes, UCECE
+
+"""
+
 from .expr import Expr
 from .sym import symbols_find
+from .voltagemixin import VoltageMixin
+from .currentmixin import CurrentMixin
 
 
 class ConstantExpression(Expr):
@@ -46,7 +54,7 @@ class ConstantExpression(Expr):
         return TimeDomainExpression(self).wrap()
 
     
-class ConstantVoltage(ConstantExpression):
+class ConstantVoltage(VoltageMixin, ConstantExpression):
 
     def cpt(self):
         from .oneport import Vdc
@@ -56,7 +64,7 @@ class ConstantVoltage(ConstantExpression):
         return TimeDomainVoltage(self)
 
     
-class ConstantCurrent(ConstantExpression):
+class ConstantCurrent(CurrentMixin, ConstantExpression):
 
     def cpt(self):
         from .oneport import Idc

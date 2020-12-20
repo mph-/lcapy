@@ -93,48 +93,12 @@ class AngularFourierDomainAdmittance(AdmittanceMixin, AngularFourierDomainExpres
     quantity = 'Admittance'
     units = 'siemens'
 
-    def cpt(self):
-        from .oneport import G, C, L, Y
-
-        if self.is_number:
-            return G(self.expr)
-
-        y = self * j * omega
-
-        if y.is_number:
-            return L((1 / y).expr)
-
-        y = self / (j * omega)
-
-        if y.is_number:
-            return C(y.expr)
-
-        return Y(self)
-
 
 class AngularFourierDomainImpedance(ImpedanceMixin, AngularFourierDomainExpression):
     """omega-domain impedance."""
 
     quantity = 'Impedance'
     units = 'ohms'
-
-    def cpt(self):
-        from .oneport import R, C, L, Z
-
-        if self.is_number:
-            return R(self.expr)
-
-        z = self * j * omega
-
-        if z.is_number:
-            return C((1 / z).expr)
-
-        z = self / (j * omega)
-
-        if z.is_number:
-            return L(z.expr)
-
-        return Z(self)
 
 
 class AngularFourierDomainVoltage(VoltageMixin, AngularFourierDomainExpression):

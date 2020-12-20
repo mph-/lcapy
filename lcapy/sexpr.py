@@ -436,48 +436,12 @@ class LaplaceDomainImpedance(ImpedanceMixin, LaplaceDomainExpression):
     quantity = 'Impedance'
     units = 'ohms'
 
-    def cpt(self):
-        from .oneport import R, C, L, Z
-
-        if self.is_number or self.is_dc:
-            return R(self.expr)
-
-        z = self * s
-
-        if z.is_number:
-            return C((1 / z).expr)
-
-        z = self / s
-
-        if z.is_number:
-            return L(z.expr)
-
-        return Z(self)
-
 
 class LaplaceDomainAdmittance(AdmittanceMixin, LaplaceDomainExpression):
     """s-domain admittance value."""
 
     quantity = 'Admittance'
     units = 'siemens'
-
-    def cpt(self):
-        from .oneport import G, C, L, Y
-
-        if self.is_number or self.is_dc:
-            return G(self.expr)
-
-        y = self * s
-
-        if y.is_number:
-            return L((1 / y).expr)
-
-        y = self / s
-
-        if y.is_number:
-            return C(y.expr)
-
-        return Y(self)
 
     
 class LaplaceDomainVoltage(VoltageMixin, LaplaceDomainExpression):
@@ -486,21 +450,12 @@ class LaplaceDomainVoltage(VoltageMixin, LaplaceDomainExpression):
     quantity = 's-Voltage'
     units = 'V/Hz'
 
-    def cpt(self):
-        from .oneport import V
-        return V(self)
-
         
 class LaplaceDomainCurrent(CurrentMixin, LaplaceDomainExpression):
     """s-domain current (units A s / radian)."""
 
     quantity = 's-Current'
     units = 'A/Hz'
-
-    def cpt(self):
-        from .oneport import I
-        
-        return I(self)
 
 
 class LaplaceDomainTransferFunction(TransferMixin, LaplaceDomainExpression):
