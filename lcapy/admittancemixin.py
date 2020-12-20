@@ -2,7 +2,8 @@ class AdmittanceMixin(object):
 
     wrapper = 'admittance'
     is_always_causal = True
-    is_admittance = True    
+    is_admittance = True
+    is_immitance = True    
 
     @property
     def R(self):

@@ -3,6 +3,7 @@ class ImpedanceMixin(object):
     wrapper = 'impedance'
     is_always_causal = True
     is_impedance = True
+    is_immitance = True
 
     @property
     def R(self):

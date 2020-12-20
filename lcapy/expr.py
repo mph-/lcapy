@@ -228,6 +228,7 @@ class Expr(ExprPrint, ExprMisc):
     is_impedance = False
     is_admittance = False
     is_transfer = False
+    is_immitance = False    
     
     # This needs to be larger than what sympy defines so
     # that the __rmul__, __radd__ methods get called.
