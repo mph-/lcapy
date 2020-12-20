@@ -13,6 +13,11 @@ from .ratfun import _zp2tf, Ratfun
 from .dexpr import DiscreteExpression
 from .expr import symbol, expr, ExprDict
 from .functions import sqrt, exp
+from .voltagemixin import VoltageMixin
+from .currentmixin import CurrentMixin
+from .admittancemixin import AdmittanceMixin
+from .impedancemixin import ImpedanceMixin
+from .transfermixin import TransferMixin
 import numpy as np
 from sympy import Eq, div, limit, oo, Sum
 
@@ -27,7 +32,6 @@ class ZDomainExpression(DiscreteExpression):
         check = assumptions.pop('check', True)
 
         super(ZDomainExpression, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = DiscreteTimeDomainExpression
 
         expr = self.expr
         if check and expr.find(nsym) != set() and not expr.has(Sum):
@@ -73,12 +77,7 @@ class ZDomainExpression(DiscreteExpression):
             assumptions = self.assumptions.copy()
 
         result = inverse_ztransform(self.expr, self.var, nsym, **assumptions)
-
-        if hasattr(self, '_ztransform_conjugate_class'):
-            result = self._ztransform_conjugate_class(result)
-        else:
-            result = nexpr(result)
-        return result
+        return self.wrap(DiscreteTimeDomainExpression(result))
 
     def IZT(self, **assumptions):
         return self.inverse_ztransform(**assumptions)
@@ -255,65 +254,39 @@ class ZDomainExpression(DiscreteExpression):
     
 # Perhaps use a factory to create the following classes?
 
-class ZDomainImpedance(ZDomainExpression):
+class ZDomainImpedance(ZDomainExpression, ImpedanceMixin):
     """z-domain impedance value."""
 
     quantity = 'Impedance'
     units = 'ohms'
 
-    def __init__(self, val, causal=True, **assumptions):
 
-        super(ZDomainImpedance, self).__init__(val, causal=causal, **assumptions)
-        self._ztransform_conjugate_class = DiscreteTimeDomainImpedance
-
-
-class ZDomainAdmittance(ZDomainExpression):
+class ZDomainAdmittance(ZDomainExpression, AdmittanceMixin):
     """z-domain admittance value."""
 
     quantity = 'Admittance'
     units = 'siemens'
 
-    def __init__(self, val, causal=True, **assumptions):
 
-        super(ZDomainAdmittance, self).__init__(val, causal=causal, **assumptions)
-        self._ztransform_conjugate_class = DiscreteTimeDomainAdmittance
-
-
-class ZDomainVoltage(ZDomainExpression):
+class ZDomainVoltage(ZDomainExpression, VoltageMixin):
     """z-domain voltage (units V s / radian)."""
 
     quantity = 'z-Voltage'
     units = 'V/Hz'
 
-    def __init__(self, val, **assumptions):
 
-        super(ZDomainVoltage, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = DiscreteTimeDomainVoltage
-
-
-class ZDomainCurrent(ZDomainExpression):
+class ZDomainCurrent(ZDomainExpression, CurrentMixin):
     """z-domain current (units A s / radian)."""
 
     quantity = 'z-Current'
     units = 'A/Hz'
 
-    def __init__(self, val, **assumptions):
 
-        super(ZDomainVoltage, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = DiscreteTimeDomainVoltage
-
-
-class ZDomainTransferFunction(ZDomainExpression):
-
+class ZDomainTransferFunction(ZDomainExpression, TransferMixin):
     """z-domain ratio"""
 
     quantity = 'z-ratio'
     units = ''
-
-    def __init__(self, val, **assumptions):
-
-        super(ZDomainTransferFunction, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = DiscreteTimeDomainTransferFunction
 
 
 def zexpr(arg, **assumptions):
@@ -324,5 +297,5 @@ def zexpr(arg, **assumptions):
     return ZDomainExpression(arg, **assumptions)
 
 
-from .nexpr import DiscreteTimeDomainTransferFunction, DiscreteTimeDomainVoltage, DiscreteTimeDomainVoltage, DiscreteTimeDomainAdmittance, DiscreteTimeDomainImpedance, DiscreteTimeDomainExpression, nexpr
+from .nexpr import DiscreteTimeDomainExpression, nexpr
 z = ZDomainExpression('z')

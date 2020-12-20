@@ -771,8 +771,10 @@ class RC(RLC):
 
         rnet = self._netmake(nodes=(self.relnodes[0], dummy_node),
                              opts=opts)                                  
-        
-        Vn = 'sqrt(4 * k * T * %s)' % self.args[0]
+
+        # Use k_b for Boltzmann's constant to avoid clash with k symbol
+        # for discrete frequency
+        Vn = 'sqrt(4 * k_b * T * %s)' % self.args[0]
         vnet = self._netmake_variant('Vn', nodes=(dummy_node, self.relnodes[1]),
                                      args=('noise', Vn), opts=opts)
         return rnet + '\n' + vnet

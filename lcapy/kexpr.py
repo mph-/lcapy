@@ -12,11 +12,15 @@ from .sym import j, oo, pi
 from .seqexpr import SequenceExpression
 from .dsym import nsym, ksym, zsym
 from .dft import IDFT
+from .voltagemixin import VoltageMixin
+from .currentmixin import CurrentMixin
+from .admittancemixin import AdmittanceMixin
+from .impedancemixin import ImpedanceMixin
+from .transfermixin import TransferMixin
 from sympy import Sum
 
 
 class DiscreteFourierDomainExpression(SequenceExpression):
-
     """Discrete Fourier domain expression or symbol."""
 
     var = ksym
@@ -27,8 +31,6 @@ class DiscreteFourierDomainExpression(SequenceExpression):
 
         check = assumptions.pop('check', True)
         super(DiscreteFourierDomainExpression, self).__init__(val, **assumptions)
-        # Define when class defined.
-        self._discrete_fourier_conjugate_class = nexpr
 
         expr = self.expr
         if check and expr.find(zsym) != set():
@@ -81,81 +83,45 @@ class DiscreteFourierDomainExpression(SequenceExpression):
             N = sympify('N')
 
         result = IDFT(self.expr, ksym, nsym, N, evaluate=evaluate)
-
-        if hasattr(self, '_discrete_fourier_conjugate_class'):
-            result = self._discrete_fourier_conjugate_class(result)
-        else:
-            result = DiscreteTimeDomainExpression(result, check=False)
-            
-        return result
+        return self.wrap(DiscreteTimeDomainExpression(result))
     
     def ZT(self, **assumptions):
         return self.IDFT().ZT(**assumptions)
 
     
-class DiscreteFourierDomainAdmittance(DiscreteFourierDomainExpression):
-
+class DiscreteFourierDomainAdmittance(DiscreteFourierDomainExpression, AdmittanceMixin):
     """f-domain admittance"""
 
     quantity = 'Admittance'
     units = 'siemens'
 
-    def __init__(self, val, **assumptions):
 
-        super(DiscreteFourierDomainAdmittance, self).__init__(val, **assumptions)
-        self._discrete_fourier_conjugate_class = DiscreteTimeDomainAdmittance
-
-
-class DiscreteFourierDomainImpedance(DiscreteFourierDomainExpression):
-
+class DiscreteFourierDomainImpedance(DiscreteFourierDomainExpression, ImpedanceMixin):
     """f-domain impedance"""
 
     quantity = 'Impedance'
     units = 'ohms'
 
-    def __init__(self, val, **assumptions):
 
-        super(DiscreteFourierDomainImpedance, self).__init__(val, **assumptions)
-        self._discrete_fourier_conjugate_class = DiscreteTimeDomainImpedance
-
-
-class DiscreteFourierDomainTransferFunction(DiscreteFourierDomainExpression):
-
+class DiscreteFourierDomainTransferFunction(DiscreteFourierDomainExpression, TransferMixin):
     """f-domain transfer function response."""
 
     quantity = 'Transfer function'
     units = ''
 
-    def __init__(self, val, **assumptions):
 
-        super(DiscreteFourierDomainTransferFunction, self).__init__(val, **assumptions)
-        self._discrete_fourier_conjugate_class = DiscreteTimeDomainTransferFunction
-
-
-class DiscreteFourierDomainVoltage(DiscreteFourierDomainExpression):
-
+class DiscreteFourierDomainVoltage(DiscreteFourierDomainExpression, VoltageMixin):
     """f-domain voltage (units V/Hz)."""
 
     quantity = 'Voltage spectrum'
     units = 'V/Hz'
 
-    def __init__(self, val, **assumptions):
 
-        super(DiscreteFourierDomainVoltage, self).__init__(val, **assumptions)
-        self._discrete_fourier_conjugate_class = DiscreteTimeDomainVoltage
-
-
-class DiscreteFourierDomainCurrent(DiscreteFourierDomainExpression):
-
+class DiscreteFourierDomainCurrent(DiscreteFourierDomainExpression, CurrentMixin):
     """f-domain current (units A/Hz)."""
 
     quantity = 'Current spectrum'
     units = 'A/Hz'
-
-    def __init__(self, val, **assumptions):
-
-        super(DiscreteFourierDomainCurrent, self).__init__(val, **assumptions)
-        self._discrete_fourier_conjugate_class = DiscreteTimeDomainVoltage
 
 
 def kexpr(arg, **assumptions):
@@ -165,5 +131,5 @@ def kexpr(arg, **assumptions):
         return k
     return DiscreteFourierDomainExpression(arg, **assumptions)
         
-from .nexpr import DiscreteTimeDomainTransferFunction, DiscreteTimeDomainVoltage, DiscreteTimeDomainVoltage, DiscreteTimeDomainAdmittance, DiscreteTimeDomainImpedance, nexpr, DiscreteTimeDomainExpression
+from .nexpr import DiscreteTimeDomainExpression
 k = DiscreteFourierDomainExpression('k')

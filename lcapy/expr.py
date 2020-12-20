@@ -241,8 +241,15 @@ class Expr(ExprPrint, ExprMisc):
            1. The sympy assumptions associated with symbols, for example,
               real=True.
            2. The expr assumptions such as dc, ac, causal.  These
-              are primarily to help the inverse Laplace transform for LaplaceDomainExpression classes.  The omega assumption is required for Phasors."""
+              are primarily to help the inverse Laplace transform for LaplaceDomainExpression classes.
+              The omega assumption is required for Phasors."""
 
+        try:
+            if self.is_always_causal:
+                assumptions['causal'] = True
+        except:
+            pass
+        
         if isinstance(arg, Expr):
             if assumptions == {}:
                 assumptions = arg.assumptions.copy()
@@ -340,9 +347,6 @@ class Expr(ExprPrint, ExprMisc):
 
     @property
     def is_causal(self):
-        if hasattr(self, 'is_always_causal') and self.is_always_causal:
-            return True
-        
         if 'causal' not in self.assumptions:
             self.infer_assumptions()
         return 'causal' in self.assumptions and self.assumptions['causal'] == True

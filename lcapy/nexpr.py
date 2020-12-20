@@ -13,11 +13,15 @@ from .dsym import nsym, ksym, zsym, dt
 from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .ztransform import ztransform
 from .dft import DFT
+from .voltagemixin import VoltageMixin
+from .currentmixin import CurrentMixin
+from .admittancemixin import AdmittanceMixin
+from .impedancemixin import ImpedanceMixin
+from .transfermixin import TransferMixin
 from sympy import Sum, summation, limit
 
 
 class DiscreteTimeDomainExpression(SequenceExpression):
-
     """Discrete time expression or symbol."""
 
     var = nsym
@@ -29,9 +33,6 @@ class DiscreteTimeDomainExpression(SequenceExpression):
         check = assumptions.pop('check', True)
         
         super(DiscreteTimeDomainExpression, self).__init__(val, **assumptions)
-
-        self._discrete_fourier_conjugate_class = DiscreteFourierDomainExpression
-        self._ztransform_conjugate_class = ZDomainExpression
 
         expr = self.expr
         if check and expr.find(zsym) != set() and not expr.has(Sum):
@@ -68,7 +69,8 @@ class DiscreteTimeDomainExpression(SequenceExpression):
     def differentiate(self):
         """First order difference."""
 
-        return self.__class__((self.expr - self.subs(n - 1).expr) / dt, **self.assumptions)
+        result = (self.expr - self.subs(n - 1).expr) / dt
+        return self.__class__(result, **self.assumptions)
 
     def integrate(self):
         """First order integration."""
@@ -96,12 +98,7 @@ class DiscreteTimeDomainExpression(SequenceExpression):
         assumptions = self.merge_assumptions(**assumptions)
 
         result = ztransform(self.expr, self.var, zsym, evaluate)
-
-        if hasattr(self, '_ztransform_conjugate_class'):
-            result = self._ztransform_conjugate_class(result, **assumptions)
-        else:
-            result = ZDomainExpression(result, **assumptions)
-        return result
+        return self.wrap(ZDomainExpression(result, **assumptions))
 
     def ZT(self, **assumptions):
         return self.ztransform(**assumptions)
@@ -148,13 +145,7 @@ class DiscreteTimeDomainExpression(SequenceExpression):
             N = sympify('N')
 
         result = DFT(self.expr, nsym, ksym, N, evaluate=evaluate)
-
-        if hasattr(self, '_discrete_fourier_conjugate_class'):
-            result = self._discrete_fourier_conjugate_class(result)
-        else:
-            result = DiscreteFourierDomainExpression(result, check=False)
-            
-        return result
+        return self.wrap(DiscreteFourierDomainExpression(result))        
     
     def delay(self,m):
         """Delay signal by m samples."""
@@ -202,72 +193,38 @@ class DiscreteTimeDomainExpression(SequenceExpression):
         return H.difference_equation(input, output, form)
 
     
-class DiscreteTimeDomainAdmittance(DiscreteTimeDomainExpression):
-
+class DiscreteTimeDomainAdmittance(DiscreteTimeDomainExpression, AdmittanceMixin):
     """t-domain 'admittance' value."""
 
     units = 'siemens/s'
 
-    def __init__(self, val, **assumptions):
 
-        super(DiscreteTimeDomainAdmittance, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = ZDomainAdmittance
-        self._discrete_fourier_conjugate_class = DiscreteFourierDomainAdmittance
-
-
-class DiscreteTimeDomainImpedance(DiscreteTimeDomainExpression):
-
+class DiscreteTimeDomainImpedance(DiscreteTimeDomainExpression, ImpedanceMixin):
     """t-domain 'impedance' value."""
 
     units = 'ohms/s'
 
-    def __init__(self, val, **assumptions):
 
-        super(DiscreteTimeDomainImpedance, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = ZDomainImpedance
-        self._discrete_fourier_conjugate_class = DiscreteFourierDomainImpedance
-
-
-class DiscreteTimeDomainVoltage(DiscreteTimeDomainExpression):
-
+class DiscreteTimeDomainVoltage(DiscreteTimeDomainExpression, VoltageMixin):
     """t-domain voltage (units V)."""
 
     quantity = 'Voltage'
     units = 'V'
 
-    def __init__(self, val, **assumptions):
-
-        super(DiscreteTimeDomainVoltage, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = ZDomainVoltage
-        self._discrete_fourier_conjugate_class = DiscreteFourierDomainVoltage
-
-        
-class DiscreteTimeDomainCurrent(DiscreteTimeDomainExpression):
-
+    
+class DiscreteTimeDomainCurrent(DiscreteTimeDomainExpression, CurrentMixin):
     """t-domain current (units A)."""
 
     quantity = 'Current'
     units = 'A'
 
-    def __init__(self, val, **assumptions):
 
-        super(DisreteTimeDomainVoltage, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = ZDomainVoltage
-        self._discrete_fourier_conjugate_class = DiscreteFourierDomainCurrent
-
-
-class DiscreteTimeDomainTransferFunction(DiscreteTimeDomainExpression):
-
+class DiscreteTimeDomainTransferFunction(DiscreteTimeDomainExpression, TransferMixin):
     """impulse response"""
 
     quantity = 'Impulse response'
     units = ''
 
-    def __init__(self, val, **assumptions):
-
-        super(DiscreteTimeDomainTransferFunction, self).__init__(val, **assumptions)
-        self._ztransform_conjugate_class = ZDomainTransferFunction
-        self._discrete_fourier_conjugate_class = DiscreteFourierDomainTransferFunction
 
 def nexpr(arg, **assumptions):
     """Create nExpr object.  If `arg` is nsym return n"""
@@ -287,6 +244,6 @@ def nexpr(arg, **assumptions):
 
     return DiscreteTimeDomainExpression(arg, **assumptions)
 
-from .zexpr import ZDomainTransferFunction, ZDomainVoltage, ZDomainVoltage, ZDomainAdmittance, ZDomainImpedance, ZDomainExpression
-from .kexpr import DiscreteFourierDomainTransferFunction, DiscreteFourierDomainCurrent, DiscreteFourierDomainVoltage, DiscreteFourierDomainAdmittance, DiscreteFourierDomainImpedance, DiscreteFourierDomainExpression
+from .zexpr import ZDomainExpression
+from .kexpr import DiscreteFourierDomainExpression
 n = DiscreteTimeDomainExpression('n')
