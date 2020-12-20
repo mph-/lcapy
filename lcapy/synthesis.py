@@ -6,6 +6,7 @@ Copyright 2020 Michael Hayes, UCECE
 
 from .oneport import L, C, R, G, parallel, series
 from .sexpr import s, LaplaceDomainImpedance, LaplaceDomainExpression
+from .expr import expr
 
 # Should check that args to L, C, R, G contains s and raise
 # exception since the circuit is not realisable.
@@ -344,8 +345,10 @@ class Synthesis(object):
         if form == 'default':
             form = 'cauerI'
 
-        if not isinstance(lexpr, LaplaceDomainImpedance):
-            raise ValueError('Expression needs to be Zs object')
+        lexpr = expr(lexpr)
+        if not lexpr.is_impedance:
+            raise ValueError('Expression needs to be an impedance')
+        lexpr = lexpr.laplace()
 
         # Should test if a positive real function.
 

@@ -203,7 +203,7 @@ class TimeDomainImpedance(TimeDomainExpression):
     units = 'ohms/s'
 
 
-class TimeDomainVoltage(TimeDomainExpression, VoltageMixin):
+class TimeDomainVoltage(VoltageMixin, TimeDomainExpression):
     """t-domain voltage (units V)."""
 
     quantity = 'Voltage'
@@ -214,7 +214,7 @@ class TimeDomainVoltage(TimeDomainExpression, VoltageMixin):
         return V(self)
 
         
-class TimeDomainCurrent(TimeDomainExpression, CurrentMixin):
+class TimeDomainCurrent(CurrentMixin, TimeDomainExpression):
     """t-domain current (units A)."""
 
     quantity = 'Current'

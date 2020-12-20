@@ -430,7 +430,7 @@ class LaplaceDomainExpression(Expr):
         return self.subs((1 / dt) * (1 - z**-1))        
     
 
-class LaplaceDomainImpedance(LaplaceDomainExpression, ImpedanceMixin):
+class LaplaceDomainImpedance(ImpedanceMixin, LaplaceDomainExpression):
     """s-domain impedance value."""
 
     quantity = 'Impedance'
@@ -454,19 +454,8 @@ class LaplaceDomainImpedance(LaplaceDomainExpression, ImpedanceMixin):
 
         return Z(self)
 
-    def network(self, form='default'):
-        """Synthesise a network with an equivalent impedance.
-        `form` includes: cauerI, cauerII, fosterI, fosterII.
 
-        Note some methods generate networks with negative value
-        components."""
-
-        from .synthesis import network
-        
-        return network(self, form)
-
-
-class LaplaceDomainAdmittance(LaplaceDomainExpression, AdmittanceMixin):
+class LaplaceDomainAdmittance(AdmittanceMixin, LaplaceDomainExpression):
     """s-domain admittance value."""
 
     quantity = 'Admittance'
@@ -490,19 +479,8 @@ class LaplaceDomainAdmittance(LaplaceDomainExpression, AdmittanceMixin):
 
         return Y(self)
 
-    def network(self, form='default'):
-        """Synthesise a network with an equivalent impedance.
-        `form` includes: cauerI, cauerII, fosterI, fosterII.
-
-        Note some methods generate networks with negative value
-        components."""        
-
-        from .synthesis import network
-        
-        return network(1 / self, form)
-
     
-class LaplaceDomainVoltage(LaplaceDomainExpression, VoltageMixin):
+class LaplaceDomainVoltage(VoltageMixin, LaplaceDomainExpression):
     """s-domain voltage (units V s / radian)."""
 
     quantity = 's-Voltage'
@@ -513,7 +491,7 @@ class LaplaceDomainVoltage(LaplaceDomainExpression, VoltageMixin):
         return V(self)
 
         
-class LaplaceDomainCurrent(LaplaceDomainExpression, CurrentMixin):
+class LaplaceDomainCurrent(CurrentMixin, LaplaceDomainExpression):
     """s-domain current (units A s / radian)."""
 
     quantity = 's-Current'
@@ -525,7 +503,7 @@ class LaplaceDomainCurrent(LaplaceDomainExpression, CurrentMixin):
         return I(self)
 
 
-class LaplaceDomainTransferFunction(LaplaceDomainExpression, TransferMixin):
+class LaplaceDomainTransferFunction(TransferMixin, LaplaceDomainExpression):
     """s-domain ratio"""
 
     quantity = 's-ratio'

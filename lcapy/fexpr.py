@@ -118,35 +118,35 @@ class FourierDomainExpression(Expr):
         return plot_frequency(self, fvector, **kwargs)
 
 
-class FourierDomainAdmittance(FourierDomainExpression, AdmittanceMixin):
+class FourierDomainAdmittance(AdmittanceMixin, FourierDomainExpression):
     """f-domain admittance"""
 
     quantity = 'Admittance'
     units = 'siemens'
 
 
-class FourierDomainImpedance(FourierDomainExpression, ImpedanceMixin):
+class FourierDomainImpedance(ImpedanceMixin, FourierDomainExpression):
     """f-domain impedance"""
 
     quantity = 'Impedance'
     units = 'ohms'
 
 
-class FourierDomainTransferFunction(FourierDomainExpression, TransferMixin):
+class FourierDomainTransferFunction(TransferMixin, FourierDomainExpression):
     """f-domain transfer function response."""
 
     quantity = 'Transfer function'
     units = ''
 
 
-class FourierDomainVoltage(FourierDomainExpression, VoltageMixin):
+class FourierDomainVoltage(VoltageMixin, FourierDomainExpression):
     """f-domain voltage (units V/Hz)."""
 
     quantity = 'Voltage spectrum'
     units = 'V/Hz'
 
         
-class FourierDomainCurrent(FourierDomainExpression, CurrentMixin):
+class FourierDomainCurrent(CurrentMixin, FourierDomainExpression):
     """f-domain current (units A/Hz)."""
 
     quantity = 'Current spectrum'

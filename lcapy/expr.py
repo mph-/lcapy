@@ -222,6 +222,12 @@ class Expr(ExprPrint, ExprMisc):
     is_angular_fourier_domain = False
     is_constant = False
     is_phasor = False
+    is_always_causal = False
+    is_voltage = False
+    is_current = False
+    is_impedance = False
+    is_admittance = False
+    is_transfer = False
     
     # This needs to be larger than what sympy defines so
     # that the __rmul__, __radd__ methods get called.
@@ -244,11 +250,8 @@ class Expr(ExprPrint, ExprMisc):
               are primarily to help the inverse Laplace transform for LaplaceDomainExpression classes.
               The omega assumption is required for Phasors."""
 
-        try:
-            if self.is_always_causal:
-                assumptions['causal'] = True
-        except:
-            pass
+        if self.is_always_causal:
+            assumptions['causal'] = True
         
         if isinstance(arg, Expr):
             if assumptions == {}:

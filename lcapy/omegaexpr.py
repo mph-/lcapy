@@ -87,7 +87,7 @@ class AngularFourierDomainExpression(Expr):
         return plot_angular_frequency(self, wvector, **kwargs)
 
 
-class AngularFourierDomainAdmittance(AngularFourierDomainExpression, AdmittanceMixin):
+class AngularFourierDomainAdmittance(AdmittanceMixin, AngularFourierDomainExpression):
     """omega-domain admittance."""
 
     quantity = 'Admittance'
@@ -112,7 +112,7 @@ class AngularFourierDomainAdmittance(AngularFourierDomainExpression, AdmittanceM
         return Y(self)
 
 
-class AngularFourierDomainImpedance(AngularFourierDomainExpression, ImpedanceMixin):
+class AngularFourierDomainImpedance(ImpedanceMixin, AngularFourierDomainExpression):
     """omega-domain impedance."""
 
     quantity = 'Impedance'
@@ -137,21 +137,21 @@ class AngularFourierDomainImpedance(AngularFourierDomainExpression, ImpedanceMix
         return Z(self)
 
 
-class AngularFourierDomainVoltage(AngularFourierDomainExpression, VoltageMixin):
+class AngularFourierDomainVoltage(VoltageMixin, AngularFourierDomainExpression):
     """omega-domain voltage (units V/rad/s)."""
 
     quantity = 'Voltage spectrum'
     units = 'V/rad/s'
 
 
-class AngularFourierDomainCurrent(AngularFourierDomainExpression, CurrentMixin):
+class AngularFourierDomainCurrent(CurrentMixin, AngularFourierDomainExpression):
     """omega-domain current (units A/rad/s)."""
 
     quantity = 'Current spectrum'
     units = 'A/rad/s'
 
         
-class AngularFourierDomainTransferFunction(AngularFourierDomainExpression, TransferMixin):
+class AngularFourierDomainTransferFunction(TransferMixin, AngularFourierDomainExpression):
     """omega-domain transfer function response."""
 
     quantity = 'Transfer function'

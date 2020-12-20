@@ -2,6 +2,7 @@ class AdmittanceMixin(object):
 
     wrapper = 'admittance'
     is_always_causal = True
+    is_admittance = True    
 
     @property
     def R(self):
@@ -64,7 +65,19 @@ class AdmittanceMixin(object):
         from .impedance import impedance
         
         return impedance(1 / self)
+
     
+    def network(self, form='default'):
+        """Synthesise a network with an equivalent impedance.
+        `form` includes: cauerI, cauerII, fosterI, fosterII.
+
+        Note some methods generate networks with negative value
+        components."""
+
+        from .synthesis import network
+        
+        return network(self.Z, form)
+
 
 
     
