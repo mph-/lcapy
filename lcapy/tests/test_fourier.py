@@ -32,7 +32,7 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual((t * 0 + 1).fourier(), DiracDelta(f))
         self.assertEqual((t * 0 + 1).fourier().inverse_fourier(), 1)
-        self.assertEqual(t.fourier(), 2 * j * pi * f * DiracDelta(f, 1))
+        self.assertEqual(t.fourier(), DiracDelta(f, 1) / (j * 2 * pi))
         self.assertEqual(2 * cos(2 * pi * t).fourier(),
                          DiracDelta(f - 1) + DiracDelta(f + 1))
         self.assertEqual(2 * sin(2 * pi * t).fourier(),
