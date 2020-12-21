@@ -154,9 +154,9 @@ def fourier_term(expr, t, f, inverse=False):
     
     if other != 1 and exps == 1:
         if other == t:
-            return const1 * sym.I * 2 * sym.pi * f * sym.DiracDelta(f, 1)
+            return const1 / (sym.I * 2 * sym.pi) * sym.DiracDelta(f, 1)
         if other == t**2:
-            return const1 * (sym.I * 2 * sym.pi)**2 * sym.DiracDelta(f, 2)
+            return const1 / (sym.I * 2 * sym.pi)**2 * sym.DiracDelta(f, 2)
 
         # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) *
         # Heaviside(t)
