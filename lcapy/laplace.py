@@ -596,8 +596,11 @@ def inverse_laplace_make(t, const, cresult, uresult, **assumptions):
         
     elif not assumptions.get('causal', False):
 
-        # Cannot determine result for t < 0        
-        result = sym.Piecewise((result, t >= 0))
+        # Cannot determine result for t < 0
+        if uresult != 0:
+            uresult = sym.Piecewise((uresult, t >= 0))
+            
+        result = const * (cresult + uresult)
         
     return result
 
