@@ -164,6 +164,10 @@ def fourier_term(expr, t, f, inverse=False):
             return const1 / (sym.I * 2 * sym.pi * f) + const1 * sym.DiracDelta(f) / 2
         elif other == 1 / t:
             return const1 * sym.I * sym.pi * sym.sign(f)
+        elif other.is_Function and other.func == sym.Heaviside and other.args[0].has(t):
+            # TODO, generalise use of similarity and shift theorems for other functions and expressions
+            scale, shift = scale_shift(other.args[0], t)
+            return (const1 / (sym.I * 2 * sym.pi * f / scale) / abs(scale) + const1 * sym.DiracDelta(f) / 2) * sym.exp(sym.I * 2 * sym.pi * f /scale * shift)
 
         # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) *
         # Heaviside(t)
