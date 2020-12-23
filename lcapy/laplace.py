@@ -164,6 +164,10 @@ def laplace_sin_cos(expr, t, s):
 
 def laplace_term(expr, t, s):
 
+    # Unilateral LT ignores expr for t < 0 so remove Piecewise.
+    if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
+        expr = expr.args[0].args[0]
+    
     const, expr = factor_const(expr, t)
 
     tsym = sympify(str(t))
@@ -241,9 +245,9 @@ def laplace_transform(expr, t, s, evaluate=True):
     else:
         expr = sympify(expr)
 
-    # SymPy laplace barfs on Piecewise but unilateral LT ignores expr
-    # for t < 0 so remove Piecewise.
     expr = expr.replace(var, t)        
+        
+    # Unilateral LT ignores expr for t < 0 so remove Piecewise.
     if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
         expr = expr.args[0].args[0]
 
@@ -596,11 +600,11 @@ def inverse_laplace_make(t, const, cresult, uresult, **assumptions):
         
     elif not assumptions.get('causal', False):
 
-        # Cannot determine result for t < 0
         if uresult != 0:
-            uresult = sym.Piecewise((uresult, t >= 0))
-            
-        result = const * (cresult + uresult)
+            # Cannot determine result for t < 0
+            result = sym.Piecewise((const * (uresult + cresult), t >= 0))
+        else:
+            result = const * cresult
         
     return result
 
