@@ -154,22 +154,26 @@ def fourier_term(expr, t, f, inverse=False):
     
     if other != 1 and exps == 1:
         if other == t:
-            return const1 / (sym.I * 2 * sym.pi) * sym.DiracDelta(f, 1)
+            return const1 * sym.I / (2 * sym.pi) * sym.DiracDelta(sf, 1)
         elif other == t**2:
-            return const1 / (sym.I * 2 * sym.pi)**2 * sym.DiracDelta(f, 2)
+            return -const1 / (2 * sym.pi)**2 * sym.DiracDelta(sf, 2)
         # TODO check for other powers of t...
         elif other == sym.sign(t):
-            return const1 / (sym.I * sym.pi * f)
+            return const1 / (sym.I * sym.pi * sf)
+        elif other == sym.sign(t) * t:
+            return -const1 * 2 / (2 * sym.pi * f)**2
         elif other == sym.Heaviside(t):
-            return const1 / (sym.I * 2 * sym.pi * f) + const1 * sym.DiracDelta(f) / 2
+            return const1 / (sym.I * 2 * sym.pi * f) + const1 * sym.DiracDelta(sf) / 2
         elif other == 1 / t:
-            return const1 * sym.I * sym.pi * sym.sign(f)
+            return -const1 * sym.I * sym.pi * sym.sign(sf)
+        elif other == 1 / t**2:
+            return -const1 * 2 * sym.pi**2 * sf * sym.sign(sf)        
         elif other.is_Function and other.func == sym.Heaviside and other.args[0].has(t):
             # TODO, generalise use of similarity and shift theorems for other functions and expressions
             scale, shift = scale_shift(other.args[0], t)
-            return (const1 / (sym.I * 2 * sym.pi * f / scale) / abs(scale) + const1 * sym.DiracDelta(f) / 2) * sym.exp(sym.I * 2 * sym.pi * f /scale * shift)
+            return (const1 / (sym.I * 2 * sym.pi * sf / scale) / abs(scale) + const1 * sym.DiracDelta(sf) / 2) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift)
         elif other == sym.Heaviside(t) * t:
-            return const1 / (2 * sym.pi * f)**2 + const1 * sym.I * sym.pi * sym.DiracDelta(f, 1)
+            return -const1 / (2 * sym.pi * f)**2 + const1 * sym.I * sym.DiracDelta(sf, 1) / (4 * pi)
 
         # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) *
         # Heaviside(t)
