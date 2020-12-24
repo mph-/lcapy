@@ -42,10 +42,6 @@ from .voltage import *
 from .current import *
 from .admittance import *
 from .impedance import *
-from .resistance import *
-from .reactance import *
-from .conductance import *
-from .susceptance import *
 from .printing import *
 from .sym import *
 from .matrix import *

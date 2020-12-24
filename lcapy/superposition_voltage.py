@@ -38,10 +38,10 @@ class SuperpositionVoltage(Superposition):
                          FourierDomainExpression: FourierDomainVoltage,
                          FourierDomainNoiseExpression: FourierDomainNoiseVoltage,
                          AngularFourierDomainExpression: AngularFourierDomainVoltage,
-                         PhasorExpression: PhasorVoltage,
+                         PhasorDomainExpression: PhasorDomainVoltage,
                          TimeDomainExpression : TimeDomainVoltage}
         self.decompose_domains = {'s': LaplaceDomainVoltage,
-                                  'ac': PhasorVoltage,
+                                  'ac': PhasorDomainVoltage,
                                   'dc': ConstantVoltage,
                                   'n': AngularFourierDomainNoiseVoltage,
                                   't': TimeDomainVoltage}
@@ -62,7 +62,7 @@ class SuperpositionVoltage(Superposition):
             'You need to extract a specific component, e.g., a.s * b.s' %
             (type(self).__name__, type(x).__name__))
 
-        if not isinstance(x, Admittance):
+        if not x.is_admittance:
             raise TypeError("Unsupported types for *: 'Voltage' and '%s'" %
                             type(x).__name__)
         obj = self
@@ -92,11 +92,11 @@ class SuperpositionVoltage(Superposition):
             raise TypeError("""
             Cannot divide %s by %s.  You need to extract a specific component, e.g., a.s / b.s.  If you want a transfer function use a(s) / b(s)""" % (type(self).__name__, type(x).__name__))
 
-        if not isinstance(x, Impedance):
-            raise TypeError("Cannot divide '%s' by '%s'; require Impedance" %
+        if not x.is_impedance:
+            raise TypeError("Cannot divide '%s' by '%s'; require impedance" %
                             (type(self).__name__, type(x).__name__))        
 
-        return self * Admittance(1 / x)
+        return self * admittance(1 / x)
 
     def __truediv__(self, x):
         return self.__div__(x)
@@ -114,7 +114,7 @@ def Vname(name, kind, cache=False):
     elif kind in ('t', 'time'):
         return TimeDomainVoltage(name.lower() + '(t)')
     elif kind in (omega0sym, omega0, 'ac'):
-        return PhasorVoltage(name + '(omega_0)')
+        return PhasorDomainVoltage(name + '(omega_0)')
     # Not caching is a hack to avoid conflicts of Vn1 with Vn1(s) etc.
     # when using subnetlists.  The alternative is a proper context
     # switch.  This would require every method to set the context.
@@ -127,9 +127,9 @@ def Vtype(kind):
         return AngularFourierDomainNoiseVoltage
     try:
         return {'ivp' : LaplaceDomainVoltage, 's' : LaplaceDomainVoltage, 'n' : AngularFourierDomainNoiseVoltage,
-                'ac' : PhasorVoltage, 'dc' : ConstantVoltage, 't' : TimeDomainVoltage, 'time' : TimeDomainVoltage}[kind]
+                'ac' : PhasorDomainVoltage, 'dc' : ConstantVoltage, 't' : TimeDomainVoltage, 'time' : TimeDomainVoltage}[kind]
     except KeyError:
-        return PhasorVoltage
+        return PhasorDomainVoltage
 
 
 from .expr import expr    
@@ -140,9 +140,9 @@ from .sexpr import LaplaceDomainExpression, LaplaceDomainVoltage
 from .texpr import TimeDomainExpression, TimeDomainVoltage
 from .noiseomegaexpr import AngularFourierDomainNoiseExpression, AngularFourierDomainNoiseVoltage
 from .noisefexpr import FourierDomainNoiseExpression, FourierDomainNoiseVoltage
-from .phasor import PhasorVoltage, PhasorExpression
-from .impedance import Impedance
-from .admittance import Admittance
+from .phasor import PhasorDomainVoltage, PhasorDomainExpression
+from .impedance import impedance
+from .admittance import admittance
 from .omegaexpr import AngularFourierDomainExpression
 from .symbols import s, omega0
 from .superposition_current import SuperpositionCurrent

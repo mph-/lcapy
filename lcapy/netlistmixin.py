@@ -8,8 +8,8 @@ Copyright 2020 Michael Hayes, UCECE
 from .expr import expr
 from .sexpr import LaplaceDomainTransferFunction, LaplaceDomainImpedance, LaplaceDomainAdmittance
 from .mnacpts import Cpt
-from .impedance import Impedance
-from .admittance import Admittance
+from .impedance import impedance
+from .admittance import admittance
 from .equipotentialnodes import EquipotentialNodes
 from .node import Node
 from .state import state
@@ -538,7 +538,7 @@ class NetlistMixin(object):
         If = new.Vin_.I
         new.remove('Vin_')
 
-        return Admittance(If.laplace(), kind=self.kind)
+        return admittance(If.laplace().expr)
 
     def impedance(self, Np, Nm=None):
         """Return driving-point impedance between nodes
@@ -560,7 +560,7 @@ class NetlistMixin(object):
         Vf = new.Voc(Np, Nm)
         new.remove('Iin_')
 
-        return Impedance(Vf.laplace(), kind=self.kind)
+        return impedance(Vf.laplace().expr)
 
     def resistance(self, Np, Nm=None):
         """Return resistance between nodes Np and Nm with independent

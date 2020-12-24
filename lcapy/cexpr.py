@@ -31,6 +31,26 @@ class ConstantExpression(Expr):
         assumptions['dc'] = True        
         super(ConstantExpression, self).__init__(val, **assumptions)
 
+    @classmethod
+    def as_voltage(cls, expr):
+        return ConstantVoltage(expr)
+
+    @classmethod
+    def as_current(cls, expr):
+        return ConstantCurrent(expr)    
+
+    # @classmethod
+    # def as_impedance(cls, expr):
+    #     return ConstantImpedance(expr)
+
+    # @classmethod
+    # def as_admittance(cls, expr):
+    #     return ConstantAdmittance(expr)
+
+    # @classmethod
+    # def as_transfer(cls, expr):
+    #     return ConstantTransferFunction(expr)
+
     def rms(self):
         return {ConstantVoltage: TimeDomainVoltage, ConstantCurrent : TimeDomainCurrent}[self.__class__](self)
 

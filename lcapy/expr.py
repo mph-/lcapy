@@ -220,6 +220,7 @@ class Expr(ExprPrint, ExprMisc):
     is_laplace_domain = False    
     is_fourier_domain = False
     is_angular_fourier_domain = False
+    is_phasor_domain = False
     is_constant = False
     is_phasor = False
     is_always_causal = False
@@ -270,7 +271,7 @@ class Expr(ExprPrint, ExprMisc):
         assumptions.pop('nid', None)
         assumptions.pop('ac', None)
         assumptions.pop('dc', None)
-        assumptions.pop('causal', None)                        
+        assumptions.pop('causal', None)
         
         self.expr = sympify(arg, **assumptions)
 
@@ -333,7 +334,7 @@ class Expr(ExprPrint, ExprMisc):
         if value:
             self.assumptions['dc'] = False
             self.assumptions['ac'] = False
-        
+
     def infer_assumptions(self):
         pass
 
@@ -621,6 +622,21 @@ class Expr(ExprPrint, ExprMisc):
         if cls == xcls:
             return cls, self, x, assumptions
 
+        # Zw + Zs -> Zs
+        if self.is_impedance and x.is_impedance:
+            return LaplaceDomainImpedance, self.laplace(), x.laplace(), assumptions
+        # Yw + Ys -> Ys        
+        if self.is_admittance and x.is_admittance:
+            return LaplaceDomainAdmittance, self.laplace(), x.laplace(), assumptions        
+
+        # Be loose with admittance and impedance comparisons...
+        if (isinstance(self, LaplaceDomainAdmittance) and
+            isinstance(self, (FourierDomainExpression, AngularFourierDomainExpression, LaplaceDomainExpression))):
+            return LaplaceDomainAdmittance, self.laplace(), x.laplace(), assumptions
+        if (isinstance(self, LaplaceDomainImpedance) and
+            isinstance(self, (FourierDomainExpression, AngularFourierDomainExpression, LaplaceDomainExpression))):
+            return LaplaceDomainImpedance, self.laplace(), x.laplace(), assumptions                            
+        
         # Handle Vs + LaplaceDomainExpression etc.
         if isinstance(self, xcls):
             return cls, self, x, assumptions
@@ -634,11 +650,6 @@ class Expr(ExprPrint, ExprMisc):
 
         if cls in (Expr, ConstantExpression):
             return xcls, cls(self), x, assumptions
-
-        if (cls in (Impedance, Admittance, Resistance, Reactance,
-                    Conductance, Susceptance) and
-            isinstance(x, AngularFourierDomainExpression)):
-            return cls, self, cls(x), assumptions        
 
         self._incompatible(x, op)        
 
@@ -1283,15 +1294,11 @@ class Expr(ExprPrint, ExprMisc):
                          (LaplaceDomainVoltage, AngularFourierDomainExpression) : AngularFourierDomainVoltage,
                          (LaplaceDomainAdmittance, AngularFourierDomainExpression) : AngularFourierDomainAdmittance,
                          (LaplaceDomainImpedance, AngularFourierDomainExpression) : AngularFourierDomainImpedance,
-                         (Admittance, AngularFourierDomainExpression) : AngularFourierDomainAdmittance,
-                         (Impedance, AngularFourierDomainExpression) : AngularFourierDomainImpedance,                     
                          (LaplaceDomainTransferFunction, FourierDomainExpression) : FourierDomainTransferFunction,
                          (LaplaceDomainCurrent, FourierDomainExpression) : FourierDomainCurrent,
                          (LaplaceDomainVoltage, FourierDomainExpression) : FourierDomainVoltage,
                          (LaplaceDomainAdmittance, FourierDomainExpression) : FourierDomainAdmittance,
                          (LaplaceDomainImpedance, FourierDomainExpression) : FourierDomainImpedance,
-                         (Admittance, FourierDomainExpression) : FourierDomainAdmittance,
-                         (Impedance, FourierDomainExpression) : FourierDomainImpedance,                     
                          (FourierDomainTransferFunction, AngularFourierDomainExpression) : AngularFourierDomainTransferFunction,
                          (FourierDomainCurrent, AngularFourierDomainExpression) : AngularFourierDomainCurrent,
                          (FourierDomainVoltage, AngularFourierDomainExpression) : AngularFourierDomainVoltage,
@@ -1301,9 +1308,7 @@ class Expr(ExprPrint, ExprMisc):
                          (AngularFourierDomainCurrent, FourierDomainExpression) : FourierDomainCurrent,
                          (AngularFourierDomainVoltage, FourierDomainExpression) : FourierDomainVoltage,
                          (AngularFourierDomainAdmittance, FourierDomainExpression) : FourierDomainAdmittance,
-                         (AngularFourierDomainImpedance, FourierDomainExpression) : FourierDomainImpedance,
-                         (Admittance, LaplaceDomainExpression) : LaplaceDomainAdmittance,
-                         (Impedance, LaplaceDomainExpression) : LaplaceDomainImpedance}                     
+                         (AngularFourierDomainImpedance, FourierDomainExpression) : FourierDomainImpedance}
 
             if (self.__class__, new.__class__) in class_map:
                 cls = class_map[(self.__class__, new.__class__)]
@@ -2180,12 +2185,6 @@ from .cexpr import ConstantExpression
 from .fexpr import FourierDomainTransferFunction, FourierDomainCurrent, FourierDomainVoltage, FourierDomainAdmittance, FourierDomainImpedance, FourierDomainExpression, fexpr
 from .sexpr import LaplaceDomainTransferFunction, LaplaceDomainCurrent, LaplaceDomainVoltage, LaplaceDomainAdmittance, LaplaceDomainImpedance, LaplaceDomainExpression, sexpr
 from .texpr import TimeDomainExpression, texpr
-from .impedance import Impedance
-from .admittance import Admittance
-from .resistance import *
-from .reactance import *
-from .conductance import *
-from .susceptance import *
 from .superposition_voltage import SuperpositionVoltage
 from .superposition_current import SuperpositionCurrent
 from .omegaexpr import AngularFourierDomainTransferFunction, AngularFourierDomainCurrent, AngularFourierDomainVoltage, AngularFourierDomainAdmittance, AngularFourierDomainImpedance, AngularFourierDomainExpression, omegaexpr

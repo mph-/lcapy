@@ -36,6 +36,26 @@ class AngularFourierDomainExpression(Expr):
             raise ValueError(
                 'omega-domain expression %s cannot depend on t' % self.expr)
 
+    @classmethod
+    def as_voltage(cls, expr):
+        return AngularFourierDomainVoltage(expr)
+
+    @classmethod
+    def as_current(cls, expr):
+        return AngularFourierDomainCurrent(expr)    
+
+    @classmethod
+    def as_impedance(cls, expr):
+        return AngularFourierDomainImpedance(expr)
+
+    @classmethod
+    def as_admittance(cls, expr):
+        return AngularFourierDomainAdmittance(expr)
+
+    @classmethod
+    def as_transfer(cls, expr):
+        return AngularFourierDomainTransferFunction(expr)    
+    
     def inverse_fourier(self, **assumptions):
         """Attempt inverse Fourier transform."""
 
@@ -49,6 +69,11 @@ class AngularFourierDomainExpression(Expr):
 
         return self.inverse_fourier(**assumptions)
 
+    def angular_fourier(self, **assumptions):
+        """Convert to angular Fourier domain."""
+
+        return self
+    
     def fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
         
@@ -60,14 +85,13 @@ class AngularFourierDomainExpression(Expr):
     def laplace(self, **assumptions):
         """Convert to Laplace domain."""
 
-        from .symbols import s, j
-
-        if self.is_causal:
-            result = self.subs(s / j)
-        else:
-            result = self.time().laplace()
-
+        result = self.time().laplace()
         return self.wrap(LaplaceDomainExpression(result, **assumptions))
+
+    def phasor(self, **assumptions):
+        """Convert to phasor domain."""
+
+        return PhasorDomainExpression.make(self, **assumptions)        
 
     def plot(self, wvector=None, **kwargs):
         """Plot angular frequency response at values specified by wvector.
@@ -135,5 +159,6 @@ def omegaexpr(arg, **assumptions):
 from .texpr import TimeDomainExpression
 from .sexpr import LaplaceDomainExpression
 from .cexpr import ConstantExpression
+from .phasor import PhasorDomainExpression
 omega = AngularFourierDomainExpression('omega')
 omega0 = AngularFourierDomainExpression('omega_0')

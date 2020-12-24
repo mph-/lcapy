@@ -39,9 +39,9 @@ class SuperpositionCurrent(Superposition):
                          FourierDomainExpression: FourierDomainCurrent,
                          FourierDomainNoiseExpression: FourierDomainNoiseCurrent,
                          AngularFourierDomainExpression: AngularFourierDomainCurrent,
-                         PhasorExpression: PhasorCurrent, TimeDomainExpression : TimeDomainCurrent}
+                         PhasorDomainExpression: PhasorDomainCurrent, TimeDomainExpression : TimeDomainCurrent}
         self.decompose_domains = {'s': LaplaceDomainCurrent,
-                                  'ac': PhasorCurrent,
+                                  'ac': PhasorDomainCurrent,
                                   'dc': ConstantCurrent,
                                   'n': AngularFourierDomainNoiseCurrent,
                                   't': TimeDomainCurrent}
@@ -62,7 +62,7 @@ class SuperpositionCurrent(Superposition):
             'You need to extract a specific component, e.g., a.s * b.s' %
             (type(self).__name__, type(x).__name__))
         
-        if not isinstance(x, Impedance):
+        if not x.is_impedance:
             raise TypeError("Unsupported types for *: 'Current' and '%s'" %
                             type(x).__name__)
         obj = self
@@ -91,11 +91,11 @@ class SuperpositionCurrent(Superposition):
             raise TypeError("""
             Cannot divide %s by %s.  You need to extract a specific component, e.g., a.s / b.s.  If you want a transfer function use a(s) / b(s)""" % (type(self).__name__, type(x).__name__))
 
-        if not isinstance(x, Admittance):
-            raise TypeError("Cannot divide '%s' by '%s'; require Admittance" %
+        if not x.is_admittance:
+            raise TypeError("Cannot divide '%s' by '%s'; require admittance" %
                             (type(self).__name__, type(x).__name__))
 
-        return self * Impedance(1 / x)
+        return self * impedance(1 / x)
 
     def __truediv__(self, x):
         return self.__div__(x)
@@ -113,7 +113,7 @@ def Iname(name, kind, cache=False):
     elif kind in ('t', 'time'):
         return TimeDomainCurrent(name.lower() + '(t)')
     elif kind in (omega0sym, omega0, 'ac'):    
-        return PhasorCurrent(name + '(omega_0)')
+        return PhasorDomainCurrent(name + '(omega_0)')
     return expr(name, cache=cache)            
 
 
@@ -122,9 +122,9 @@ def Itype(kind):
         return AngularFourierDomainNoiseCurrent
     try:
         return {'ivp' : LaplaceDomainCurrent, 's' : LaplaceDomainCurrent, 'n' : AngularFourierDomainNoiseCurrent,
-                'ac' : PhasorCurrent, 'dc' : ConstantCurrent, 't' : TimeDomainCurrent, 'time' : TimeDomainCurrent}[kind]
+                'ac' : PhasorDomainCurrent, 'dc' : ConstantCurrent, 't' : TimeDomainCurrent, 'time' : TimeDomainCurrent}[kind]
     except KeyError:
-        return PhasorCurrent
+        return PhasorDomainCurrent
     
 
 from .expr import expr
@@ -135,9 +135,9 @@ from .sexpr import LaplaceDomainExpression, LaplaceDomainCurrent
 from .texpr import TimeDomainExpression, TimeDomainCurrent
 from .noiseomegaexpr import AngularFourierDomainNoiseExpression, AngularFourierDomainNoiseCurrent
 from .noisefexpr import FourierDomainNoiseExpression, FourierDomainNoiseCurrent
-from .phasor import PhasorCurrent, PhasorExpression
-from .impedance import Impedance
-from .admittance import Admittance
+from .phasor import PhasorDomainCurrent, PhasorDomainExpression
+from .impedance import impedance
+from .admittance import admittance
 from .omegaexpr import AngularFourierDomainExpression
 from .symbols import s, omega0
 from .superposition_voltage import SuperpositionVoltage

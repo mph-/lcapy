@@ -31,8 +31,8 @@ from .sym import omega0sym, tsym, oo
 from .symbols import j, t, s
 from .network import Network
 from .immittancemixin import ImmittanceMixin
-from .impedance import Impedance
-from .admittance import Admittance
+from .impedance import impedance
+from .admittance import admittance
 from sympy import Derivative, Integral
 
 
@@ -86,18 +86,18 @@ class OnePort(Network, ImmittanceMixin):
         if self._Z is not None:
             return self._Z
         if self._Y is not None:
-            return Impedance(1 / self._Y)
+            return impedance(1 / self._Y)
         if self._Voc is not None:        
-            return Impedance(0)
+            return impedance(0)
         if self._Isc is not None:        
-            return Impedance(1 / Admittance(0))
+            return impedance(1 / admittance(0))
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
 
     @property
     def admittance(self):
         if self._Y is not None:
             return self._Y
-        return Admittance(1 / self.impedance)
+        return admittance(1 / self.impedance)
 
     @property
     def Voc(self):
@@ -690,11 +690,11 @@ class Par(ParSer):
         Y = 0
         for arg in self.args:
             Y += arg.admittance
-        return Admittance(Y)
+        return admittance(Y)
 
     @property
     def impedance(self):
-        return Impedance(1 / self.admittance)
+        return impedance(1 / self.admittance)
 
 class Ser(ParSer):
     """Series class"""
@@ -763,15 +763,15 @@ class Ser(ParSer):
         return False
     
     @property
-    def Admittance(self):
-        return Admittance(1 / self.impedance)
+    def admittance(self):
+        return admittance(1 / self.impedance)
     
     @property
     def impedance(self):
         Z = 0
         for arg in self.args:
             Z += arg.impedance
-        return Impedance(Z)
+        return impedance(Z)
 
     
 class R(OnePort):
@@ -783,7 +783,7 @@ class R(OnePort):
 
         self.args = (Rval, )
         self._R = ConstantExpression(Rval)
-        self._Z = Impedance(self._R)
+        self._Z = impedance(self._R, causal=True)
 
     def i_equation(self, v, kind='t'):
 
@@ -803,7 +803,7 @@ class G(OnePort):
 
         self.args = (Gval, )
         self._G = ConstantExpression(Gval)
-        self._Z = Impedance(1 / self._G)
+        self._Z = impedance(1 / self._G, causal=True)
 
     def _net_make(self, netlist, n1=None, n2=None, dir='right'):
 
@@ -844,7 +844,7 @@ class L(OnePort):
         i0 = ConstantExpression(i0)
         self.L = Lval
         self.i0 = i0
-        self._Z = Impedance(s * Lval)
+        self._Z = impedance(s * Lval, causal=True)
         self._Voc = SuperpositionVoltage(LaplaceDomainExpression(-i0 * Lval))
         self.zeroic = self.i0 == 0 
 
@@ -887,7 +887,7 @@ class C(OnePort):
         v0 = ConstantExpression(v0)
         self.C = Cval
         self.v0 = v0
-        self._Z = Impedance(1 / (s * Cval))
+        self._Z = impedance(1 / (s * Cval), causal=True)
         self._Voc = SuperpositionVoltage(LaplaceDomainExpression(v0 / s))
         self.zeroic = self.v0 == 0
 
@@ -931,7 +931,7 @@ class CPE(OnePort):
         alpha = ConstantExpression(alpha)
         self.K = K
         self.alpha = alpha
-        self._Z = Impedance(1 / (s ** alpha * K))
+        self._Z = impedance(1 / (s ** alpha * K), causal=True)
 
 
 class Y(OnePort):
@@ -940,7 +940,7 @@ class Y(OnePort):
     def __init__(self, Yval):
 
         self.args = (Yval, )
-        Yval = Admittance(Yval)
+        Yval = admittance(Yval)
         self._Y = Yval
 
 
@@ -950,7 +950,7 @@ class Z(OnePort):
     def __init__(self, Zval):
 
         self.args = (Zval, )
-        Zval = Impedance(Zval)
+        Zval = impedance(Zval)
         self._Z = Zval
 
 
@@ -1048,7 +1048,7 @@ class Vac(VoltageSourceBase):
         self.omega = omega
         self.v0 = V
         self.phi = phi
-        self._Voc = SuperpositionVoltage(PhasorVoltage(self.v0 * exp(j * self.phi),
+        self._Voc = SuperpositionVoltage(PhasorDomainVoltage(self.v0 * exp(j * self.phi),
                                                        ac=True, omega=self.omega))
 
     @property
@@ -1177,7 +1177,7 @@ class Iac(CurrentSourceBase):
         self.omega = omega
         self.i0 = I
         self.phi = phi
-        self._Isc = SuperpositionCurrent(PhasorCurrent(self.i0 * exp(j * self.phi),
+        self._Isc = SuperpositionCurrent(PhasorDomainCurrent(self.i0 * exp(j * self.phi),
                                                        ac=True, omega=self.omega))
 
     @property
@@ -1314,7 +1314,7 @@ class CCVS(ControlledSource):
 
         self.args = (control, value)        
         self._Voc = SuperpositionVoltage(0)
-        self._Z = Impedance(0)
+        self._Z = impedance(0)
 
         
 class CCCS(ControlledSource):
@@ -1323,7 +1323,7 @@ class CCCS(ControlledSource):
 
         self.args = (control, value)        
         self._Isc = SuperpositionCurrent(0)
-        self._Y = Admittance(0)     
+        self._Y = admittance(0)     
 
         
 class VCVS(ControlledSource):
@@ -1332,7 +1332,7 @@ class VCVS(ControlledSource):
 
         self.args = (value, )        
         self._Voc = SuperpositionVoltage(0)
-        self._Z = Impedance(0)
+        self._Z = impedance(0)
 
         
 class VCCS(ControlledSource):
@@ -1341,7 +1341,7 @@ class VCCS(ControlledSource):
 
         self.args = (value, )
         self._Isc = SuperpositionCurrent(0)
-        self._Y = Admittance(0)     
+        self._Y = admittance(0)     
         
 
 class Dummy(OnePort):
@@ -1366,7 +1366,7 @@ class W(Dummy):
     def __init__(self):
 
         self.args = ()
-        self._Z = Impedance(0)
+        self._Z = impedance(0)
 
         
 class O(Dummy):
@@ -1375,7 +1375,7 @@ class O(Dummy):
     def __init__(self):
 
         self.args = ()
-        self._Y = Admittance(0)
+        self._Y = admittance(0)
 
         
 class P(O):
@@ -1459,6 +1459,6 @@ from .texpr import TimeDomainExpression
 from .noiseomegaexpr import AngularFourierDomainNoiseCurrent, AngularFourierDomainNoiseVoltage
 from .superposition_voltage import SuperpositionVoltage
 from .superposition_current import SuperpositionCurrent
-from .phasor import PhasorCurrent, PhasorVoltage
+from .phasor import PhasorDomainCurrent, PhasorDomainVoltage
 from .twoport import Ladder, LSection, TSection
 

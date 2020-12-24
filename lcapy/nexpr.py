@@ -42,6 +42,26 @@ class DiscreteTimeDomainExpression(SequenceExpression):
             raise ValueError(
                 'n-domain expression %s cannot depend on k' % expr)            
 
+    @classmethod
+    def as_voltage(cls, expr):
+        return DiscreteTimeDomainVoltage(expr)
+
+    @classmethod
+    def as_current(cls, expr):
+        return DiscreteTimeDomainCurrent(expr)    
+
+    @classmethod
+    def as_impedance(cls, expr):
+        return DiscreteTimeDomainImpedance(expr)
+
+    @classmethod
+    def as_admittance(cls, expr):
+        return DiscreteTimeDomainAdmittance(expr)
+
+    @classmethod
+    def as_transfer(cls, expr):
+        return DiscreteTimeDomainTransferFunction(expr)
+
     def infer_assumptions(self):
 
         self.assumptions['dc'] = False

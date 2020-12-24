@@ -5,7 +5,7 @@ Copyright 2018--2020 Michael Hayes, UCECE
 """
 
 from .sym import sympify, pi
-from .symbols import f, s, t, omega, jomega, j
+from .symbols import f, s, t, omega, jomega, j, jw
 from .expr import expr as expr1
 
 
@@ -14,10 +14,6 @@ def transform1(expr, arg, **assumptions):
     # Handle things like (3 * s)(5 * s)
     if isinstance(expr, arg.__class__) and not isinstance(expr, Superposition):
         return expr.subs(arg)
-
-    # Special case: handle expr(j * omega)
-    if isinstance(expr, (LaplaceDomainExpression, Superposition)) and arg == j * omega:
-        return expr.laplace(**assumptions).subs(arg)
 
     # Handle expr(t), expr(s), expr(f), expr(omega)
     if arg is t:
@@ -28,6 +24,8 @@ def transform1(expr, arg, **assumptions):
         return expr.fourier(**assumptions)
     elif arg is omega:
         return expr.angular_fourier(**assumptions)
+    elif arg == jw:
+        return expr.phasor(**assumptions)    
 
     # Handle expr(texpr), expr(sexpr), expr(fexpr), expr(omegaexpr).  For example,
     # expr(2 * f).
@@ -41,12 +39,7 @@ def transform1(expr, arg, **assumptions):
     elif isinstance(arg, AngularFourierDomainExpression):
         result = expr.angular_fourier(**assumptions)        
     elif arg.has(jomega):
-        # Perhaps restrict this to jomega and not expressions like 5 * jomega ?
-        if isinstance(expr, LaplaceDomainExpression):
-            result = expr.subs(arg)
-            return result
-        else:
-            result = expr.laplace(**assumptions)
+        result = expr.phasor(**assumptions)
     elif arg.is_constant:
         if not isinstance(expr, Superposition):
             result = expr.time(**assumptions)
@@ -100,11 +93,11 @@ def call(expr, arg, **assumptions):
 
 def select(expr, kind):
 
-    if kind in ('t', 'time'):
+    if kind == 't':
         return expr.time()
-    elif kind == 'dc':
+    elif kind in ('dc', 'time'):
         return expr.subs(0)
-    elif kind in ('s', 'ivp'):
+    elif kind in ('s', 'ivp', 'super', 'laplace'):
         return expr.laplace()
     elif kind == 'f':
         return expr.fourier()

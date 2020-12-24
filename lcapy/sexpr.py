@@ -43,6 +43,26 @@ class LaplaceDomainExpression(Expr):
                 's-domain expression %s cannot depend on t' % self.expr)
 
     @classmethod
+    def as_voltage(cls, expr):
+        return LaplaceDomainVoltage(expr)
+
+    @classmethod
+    def as_current(cls, expr):
+        return LaplaceDomainCurrent(expr)    
+
+    @classmethod
+    def as_impedance(cls, expr):
+        return LaplaceDomainImpedance(expr)
+
+    @classmethod
+    def as_admittance(cls, expr):
+        return LaplaceDomainAdmittance(expr)
+
+    @classmethod
+    def as_transfer(cls, expr):
+        return LaplaceDomainTransferFunction(expr)
+
+    @classmethod
     def from_poles_residues(cls, poles, residues):
         """Create a transfer function from lists of poles and residues.
 
@@ -147,27 +167,19 @@ class LaplaceDomainExpression(Expr):
         """Convert to Fourier domain."""
         from .symbols import f
         
-        if assumptions.get('causal', self.is_causal):
-            result = self.subs(j * 2 * pi * f)
-        else:
-            result = self.time(**assumptions).fourier(**assumptions)
-
+        result = self.time(**assumptions).fourier(**assumptions)
         return self.wrap(result)
 
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
-        from .symbols import omega
         
-        if assumptions.get('causal', self.is_causal):
-            result = self.subs(j * omega)
-        else:
-            result = self.time(**assumptions).angular_fourier(**assumptions)
-
+        result = self.time(**assumptions).angular_fourier(**assumptions)
         return self.wrap(result)            
 
     def phasor(self, **assumptions):
+        """Convert to phasor domain."""
 
-        return self.time(**assumptions).phasor(**assumptions)
+        return PhasorDomainExpression.make(self, **assumptions)
 
     def transient_response(self, tvector=None):
         """Evaluate transient (impulse) response."""
@@ -509,6 +521,7 @@ from .omegaexpr import AngularFourierDomainTransferFunction, AngularFourierDomai
 from .texpr import TimeDomainImpulseResponse, TimeDomainAdmittance, TimeDomainImpedance
 from .texpr import TimeDomainExpression, TimeDomainVoltage, TimeDomainCurrent, texpr
 from .cexpr import ConstantExpression
+from .phasor import PhasorDomainExpression
 
 s = LaplaceDomainExpression('s')
 

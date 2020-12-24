@@ -8,7 +8,7 @@ from __future__ import division
 from .expr import Expr
 from .functions import exp
 from .sym import fsym, ssym, tsym, j, oo, tausym
-from .acdc import ACChecker, is_dc, is_ac, is_causal
+from .acdc import is_dc, is_ac, is_causal
 from .laplace import laplace_transform
 from .fourier import fourier_transform
 from .voltagemixin import VoltageMixin
@@ -38,6 +38,26 @@ class TimeDomainExpression(Expr):
             raise ValueError(
                 't-domain expression %s cannot depend on f' % expr)                            
 
+    @classmethod
+    def as_voltage(cls, expr):
+        return TimeDomainVoltage(expr)
+
+    @classmethod
+    def as_current(cls, expr):
+        return TimeDomainCurrent(expr)    
+
+    @classmethod
+    def as_impedance(cls, expr):
+        return TimeDomainImpedance(expr)
+
+    @classmethod
+    def as_admittance(cls, expr):
+        return TimeDomainAdmittance(expr)
+
+    @classmethod
+    def as_transfer(cls, expr):
+        return TimeDomainImpulseResponse(expr)    
+    
     def infer_assumptions(self):
 
         self.assumptions['dc'] = False
@@ -68,6 +88,11 @@ class TimeDomainExpression(Expr):
         result = laplace_transform(self.expr, self.var, ssym, evaluate=evaluate)
         return self.wrap(LaplaceDomainExpression(result, **assumptions))
 
+    def phasor(self, **assumptions):
+        """Convert to phasor domain."""
+
+        return PhasorDomainExpression.make(self, **assumptions)
+
     def LT(self, **assumptions):
         """Convert to s-domain.   This is an alias for laplace."""
 
@@ -97,11 +122,10 @@ class TimeDomainExpression(Expr):
 
     def phasor(self, **assumptions):
 
-        check = ACChecker(self, t)
-        if not check.is_ac:
-            raise ValueError('Do not know how to convert %s to phasor' % self)
-        phasor = PhasorExpression(check.amp * exp(j * check.phase), omega=check.omega)
-        return phasor
+        return PhasorDomainExpression.make(self, **assumptions)
+
+    def time(self, **assumptions):
+        return self
 
     def plot(self, t=None, **kwargs):
         """Plot the time waveform.  If t is not specified, it defaults to the
@@ -235,5 +259,6 @@ from .sexpr import LaplaceDomainExpression
 from .fexpr import FourierDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .cexpr import ConstantExpression
-from .phasor import PhasorExpression
+from .phasor import PhasorDomainExpression
+
 t = TimeDomainExpression('t')

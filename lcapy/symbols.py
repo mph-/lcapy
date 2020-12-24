@@ -15,3 +15,4 @@ from .omegaexpr import omega, omega0
 from .sym import pi, j, oo, inf, one
 
 jomega = j * omega
+jw = jomega

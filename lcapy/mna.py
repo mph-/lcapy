@@ -5,7 +5,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from .phasor import PhasorCurrent, PhasorVoltage
+from .phasor import PhasorDomainCurrent, PhasorDomainVoltage
 from .vector import Vector
 from .matrix import Matrix, matrix_inverse
 from .sym import symsimplify
@@ -171,7 +171,7 @@ class MNAMixin(object):
         vtype = Vtype(self.kind)
         itype = Itype(self.kind)
         assumptions = {}
-        if vtype == PhasorVoltage:
+        if vtype == PhasorDomainVoltage:
             assumptions['omega'] = self.kind
         elif self.kind in ('s', 'ivp'):
             assumptions = {'ac' : self.is_ac,

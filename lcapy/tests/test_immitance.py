@@ -17,54 +17,54 @@ class LcapyTester(unittest.TestCase):
             ans2.pprint()
             raise AssertionError(e)
 
-    def test_Impedance(self):
+    def test_impedance(self):
 
         ZC = C(3).Z
 
-        self.assertEqual(ZC.Y, 3 * j * omega, '.Y')
-        self.assertEqual(ZC.Z, -j / (3 * omega), '.Z')        
-        self.assertEqual(ZC.R, 0, '.R')
-        self.assertEqual(ZC.G, 0, '.G')
-        self.assertEqual(ZC.X, -1 / (3 * omega), '.X')
-        self.assertEqual(ZC.B, -3 * omega, '.B')
+        self.assertEqual(ZC.Y(jw), 3 * jw, '.Y(jw)')
+        self.assertEqual(ZC.Z(jw), -j / (3 * omega), '.Z(jw)')        
+        self.assertEqual(ZC.R(jw), 0, '.R(jw)')
+        self.assertEqual(ZC.G(jw), 0, '.G(jw)')
+        self.assertEqual(ZC.X(jw), -1 / (3 * omega), '.X(jw)')
+        self.assertEqual(ZC.B(jw), -3 * omega, '.B(jw)')
 
         ZR = R(3).Z
 
-        self.assertEqual(ZR.Y, expr('1 / 3'), '.Y')
-        self.assertEqual(ZR.Z, 3, '.Z')        
-        self.assertEqual(ZR.R, 3, '.R')
-        self.assertEqual(ZR.G, expr('1 / 3'), '.G')
-        self.assertEqual(ZR.X, 0, '.X')
-        self.assertEqual(ZR.B, 0, '.B')
+        self.assertEqual(ZR.Y(jw), expr('1 / 3'), '.Y(jw)')
+        self.assertEqual(ZR.Z(jw), 3, '.Z(jw)')        
+        self.assertEqual(ZR.R(jw), 3, '.R(jw)')
+        self.assertEqual(ZR.G(jw), expr('1 / 3'), '.G(jw)')
+        self.assertEqual(ZR.X(jw), 0, '.X(jw)')
+        self.assertEqual(ZR.B(jw), 0, '.B(jw)')
 
         ZL = L(3).Z
 
-        self.assertEqual(ZL.Y, -j / (3 * omega), '.Y')
-        self.assertEqual(ZL.Z, 3 * j * omega, '.Z')        
-        self.assertEqual(ZL.R, 0, '.R')
-        self.assertEqual(ZL.G, 0, '.G')
-        self.assertEqual(ZL.X, 3 * omega, '.X')
-        self.assertEqual(ZL.B, 1 / (3 * omega), '.B')                
+        self.assertEqual(ZL.Y(jw), -j / (3 * omega), '.Y(jw)')
+        self.assertEqual(ZL.Z(jw), 3 * jw, '.Z(jw)')        
+        self.assertEqual(ZL.R(jw), 0, '.R(jw)')
+        self.assertEqual(ZL.G(jw), 0, '.G(jw)')
+        self.assertEqual(ZL.X(jw), 3 * omega, '.X(jw)')
+        self.assertEqual(ZL.B(jw), 1 / (3 * omega), '.B(jw)')                
 
         Z1 = (R(2) + L(3)).Z
 
-        self.assertEqual(Z1.Y, 1 / (3 * j * omega + 2), '.Y')
-        self.assertEqual(Z1.Z, 3 * j * omega + 2, '.Z')        
-        self.assertEqual(Z1.R, 2, '.R')
-        self.assertEqual(Z1.G, 2 / (9 * omega**2 + 4), '.G')
-        self.assertEqual(Z1.X, 3 * omega, '.X')
-        self.assertEqual(Z1.B, 3 * omega / (9 * omega**2 + 4), '.B')
+        self.assertEqual(Z1.Y(jw), 1 / (3 * jw + 2), '.Y(jw)')
+        self.assertEqual(Z1.Z(jw), 3 * jw + 2, '.Z(jw)')        
+        self.assertEqual(Z1.R(jw), 2, '.R(jw)')
+        self.assertEqual(Z1.G(jw), 2 / (9 * omega**2 + 4), '.G(jw)')
+        self.assertEqual(Z1.X(jw), 3 * omega, '.X(jw)')
+        self.assertEqual(Z1.B(jw), 3 * omega / (9 * omega**2 + 4), '.B(jw)')
 
-        Z1 = Impedance(3 * s)
-        Z2 = Impedance(3 * j * omega)
-        Z3 = Impedance(6 * j * pi * f)
+        Z1 = impedance(3 * s)
+        Z2 = impedance(3 * jw)
+        Z3 = impedance(6 * j * pi * f)
         self.assertEqual(Z1, Z2, 's-form and omega-form')
         self.assertEqual(Z1, Z3, 's-form and f-form')                
         
     def test_reciprocal(self):
 
-        Z1 = Impedance(2)
-        Y1 = Admittance(1 / 2)
+        Z1 = impedance(2)
+        Y1 = admittance(1 / 2)
 
         self.assertEqual(1 / Z1, Y1, '1 / Z')
         self.assertEqual(1 / Y1, Z1, '1 / Y')                

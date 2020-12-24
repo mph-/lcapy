@@ -39,15 +39,31 @@ class FourierDomainExpression(Expr):
             raise ValueError(
                 'f-domain expression %s cannot depend on t' % expr)
 
+    @classmethod
+    def as_voltage(cls, expr):
+        return FourierDomainVoltage(expr)
+
+    @classmethod
+    def as_current(cls, expr):
+        return FourierDomainCurrent(expr)    
+
+    @classmethod
+    def as_impedance(cls, expr):
+        return FourierDomainImpedance(expr)
+
+    @classmethod
+    def as_admittance(cls, expr):
+        return FourierDomainAdmittance(expr)
+
+    @classmethod
+    def as_transfer(cls, expr):
+        return FourierDomainTransferFunction(expr)    
+    
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
         from .symbols import omega
         
-        if assumptions.get('causal', self.is_causal):
-            result = self.subs(omega / (2 * pi))
-        else:
-            result = self.time(**assumptions).angular_fourier(**assumptions)
-
+        result = self.subs(omega / (2 * pi))
         return self.wrap(result)            
 
     def inverse_fourier(self, evaluate=True, **assumptions):
@@ -75,15 +91,14 @@ class FourierDomainExpression(Expr):
     def laplace(self, **assumptions):
         """Determine one-side Laplace transform with 0- as the lower limit."""
 
-        from .symbols import s, j
-
-        if self.is_causal:
-            result = self.subs(s / (j * 2 * pi))
-        else:
-            result = self.time.laplace()
-
+        result = self.time().laplace()
         return self.wrap(LaplaceDomainExpression(result, **assumptions))
     
+    def phasor(self, **assumptions):
+        """Convert to phasor domain."""
+
+        return PhasorDomainExpression.make(self, **assumptions)        
+
     def plot(self, fvector=None, **kwargs):
         """Plot frequency response at values specified by fvector.  If fvector
         is a tuple, this sets the frequency limits.
@@ -164,4 +179,5 @@ from .texpr import TimeDomainExpression
 from .sexpr import LaplaceDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .cexpr import ConstantExpression
+from .phasor import PhasorDomainExpression
 f = FourierDomainExpression('f')

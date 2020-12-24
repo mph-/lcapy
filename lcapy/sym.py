@@ -247,7 +247,13 @@ def symsimplify(expr):
     if expr.has(sym.DiracDelta):
         expr = simplify_dirac_delta(expr)
     if expr.has(sym.Heaviside):
-        expr = simplify_heaviside(expr)        
+        expr = simplify_heaviside(expr)
+
+    # This gets expanded into piecewise...
+    if expr.has(sym.sign):
+        # Could replace sign with dummy function, simplify, and then restore...
+        # Should replace 1 + sign(t) with 2 * Heaviside(t)
+        return expr
     
     try:
         if expr.is_Function and expr.func in (sym.Heaviside, sym.DiracDelta):

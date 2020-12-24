@@ -6,17 +6,17 @@ Copyright 2020 Michael Hayes, UCECE
 from .expr import expr
 from .sym import omega0sym
 from .symbols import s, omega0
-from .cexpr import ConstantExpression, ConstantVoltage
-from .fexpr import FourierDomainExpression, FourierDomainVoltage
-from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainVoltage
-from .sexpr import LaplaceDomainExpression, LaplaceDomainVoltage
-from .texpr import TimeDomainExpression, TimeDomainVoltage
+from .cexpr import ConstantVoltage
+from .fexpr import FourierDomainVoltage
+from .omegaexpr import AngularFourierDomainVoltage
+from .sexpr import LaplaceDomainVoltage
+from .texpr import TimeDomainVoltage
 from .noiseomegaexpr import AngularFourierDomainNoiseVoltage
 from .noisefexpr import FourierDomainNoiseVoltage
-from .nexpr import DiscreteTimeDomainExpression, DiscreteTimeDomainVoltage
-from .kexpr import DiscreteFourierDomainExpression, DiscreteFourierDomainVoltage
-from .zexpr import ZDomainExpression, ZDomainVoltage
-from .phasor import PhasorVoltage
+from .nexpr import DiscreteTimeDomainVoltage
+from .kexpr import DiscreteFourierDomainVoltage
+from .zexpr import ZDomainVoltage
+from .phasor import PhasorDomainVoltage
 from .units import u as uu
 
 
@@ -27,7 +27,7 @@ def Vname(name, kind, cache=False):
     elif kind in ('t', 'time'):
         return TimeDomainVoltage(name.lower() + '(t)')
     elif kind in (omega0sym, omega0, 'ac'):
-        return PhasorVoltage(name + '(omega_0)')
+        return PhasorDomainVoltage(name + '(omega_0)')
     # Not caching is a hack to avoid conflicts of Vn1 with Vn1(s) etc.
     # when using subnetlists.  The alternative is a proper context
     # switch.  This would require every method to set the context.
@@ -42,28 +42,22 @@ def Vtype(kind):
         return {'ivp' : LaplaceDomainVoltage,
                 's' : LaplaceDomainVoltage,
                 'n' : AngularFourierDomainNoiseVoltage,
-                'ac' : PhasorVoltage,
+                'ac' : PhasorDomainVoltage,
                 'dc' : ConstantVoltage,
                 't' : TimeDomainVoltage,
                 'time' : TimeDomainVoltage}[kind]
     except KeyError:
-        return PhasorVoltage
+        return PhasorDomainVoltage
 
 
 def voltage(arg, **assumptions):
 
-    mapping = {ConstantExpression: ConstantVoltage,
-               TimeDomainExpression: TimeDomainVoltage,
-               LaplaceDomainExpression: LaplaceDomainVoltage,
-               FourierDomainExpression: FourierDomainVoltage,
-               AngularFourierDomainExpression: AngularFourierDomainVoltage,
-               DiscreteTimeDomainExpression: DiscreteTimeDomainVoltage,
-               DiscreteFourierDomainExpression: DiscreteFourierDomainVoltage,
-               ZDomainExpression: ZDomainVoltage}
-    
     expr1 = expr(arg, **assumptions)
-    if expr1.__class__ in mapping:
-        expr1 = mapping[expr1.__class__](expr1)
+
+    try:
+        expr1 = expr1.as_voltage(expr1)
+    except:        
+        raise ValueError('Cannot represent %s(%s) as voltage' % (expr1.__class__.__name__, expr1))
     
     return expr1.apply_unit(uu.volts)
 

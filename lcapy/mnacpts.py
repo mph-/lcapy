@@ -14,7 +14,7 @@ from .symbols import j, omega, jomega, s, t
 from .functions import sqrt
 from .sym import capitalize_name, omegasym
 from .grammar import delimiters
-from .immittancemixin import ImmittanceMixin
+from .immittancemixinhack import ImmittanceMixinHack
 from .superposition_current import SuperpositionCurrent
 from .opts import Opts
 import lcapy
@@ -30,7 +30,7 @@ cptaliases = {'E': 'VCVS', 'F': 'CCCS',
               'k': 'Spring'}
 
 
-class Cpt(ImmittanceMixin):
+class Cpt(ImmittanceMixinHack):
 
     dependent_source = False
     independent_source = False    
@@ -327,7 +327,9 @@ class Cpt(ImmittanceMixin):
         """Return True if causal component or if source produces
         a causal signal."""
 
-        return self._source_IV.is_causal
+        if self.is_source:
+            return self._source_IV.is_causal
+        return self.cpt.is_causal
 
     @property
     def is_dc(self):
@@ -500,17 +502,27 @@ class Cpt(ImmittanceMixin):
     
     @property
     def admittance(self):
-        """Self admittance of component.  For the driving-point
-        admittance measured across the component use .dpY or .oneport().Y"""
+        """Self admittance of component. 
 
-        return self.cpt.admittance.new(self.cct.kind)        
+        The admittance is expressed in jomega form for AC circuits
+        and in s-domain for for transient circuits.
+
+        For the driving-point admittance measured across the component
+        use .dpY or .oneport().Y"""
+
+        return self.cpt.admittance._select(self.cct.kind)        
 
     @property
     def impedance(self):
-        """Self impedance of component.  For the driving-point impedance
-        measured across the component use .dpZ or .oneport().Z"""        
+        """Self impedance of component.  
 
-        return self.cpt.impedance.new(self.cct.kind)
+        The impedance is expressed in jomega form for AC circuits
+        and in s-domain for for transient circuits.
+
+        For the driving-point impedance measured across the component
+        use .dpZ or .oneport().Z"""        
+
+        return self.cpt.impedance._select(self.cct.kind)
 
     @property
     def dpIsc(self):

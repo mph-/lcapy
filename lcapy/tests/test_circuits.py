@@ -39,12 +39,14 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(
             a.admittance(1, 0), (R('R1') + C('C1')).Y, "Y incorrect for R1 + C1.")
         self.assertEqual2(a.Isc(1, 0), I(0).Isc, "Isc incorrect")
-        self.assertEqual(a.R1.Z, expr('R1'), "Z incorrect")
-        self.assertEqual(a.R1.R, expr('R1'), "R incorrect")
+
+        self.assertEqual(a.R1.Z, impedance('R1'), "Z incorrect")
+        self.assertEqual(a.R1.R, impedance('R1'), "R incorrect")
         self.assertEqual(a.R1.X, 0, "X incorrect")
-        self.assertEqual(a.C1.Y, expr('j * omega * C1'), "Y incorrect")
+        self.assertEqual(a.C1.Y, admittance('j * omega * C1'), "Y incorrect")
         self.assertEqual(a.C1.G, 0, "G incorrect")
-        self.assertEqual(a.C1.B, expr('-omega * C1'), "B incorrect")        
+        # Use ac to force jomega form.
+        self.assertEqual(a.ac().C1.B, admittance('-omega * C1'), "B incorrect")        
         
 
     def test_VRC1(self):
@@ -444,8 +446,8 @@ class LcapyTester(unittest.TestCase):
         I 1 0 dc
         R 2 0""")
 
-        self.assertEqual(a.R.v, expr('I * R'), "R voltage incorrect")
-        self.assertEqual(a.R.i, expr('I'), "R current incorrect")
+        self.assertEqual(a.R.v, voltage('I * R'), "R voltage incorrect")
+        self.assertEqual(a.R.i, current('I'), "R current incorrect")
 
     def test_IV_parallel(self):
 
@@ -454,8 +456,8 @@ class LcapyTester(unittest.TestCase):
         I 1 0 dc
         R 1 0""")
 
-        self.assertEqual(a.R.v, expr('V'), "R voltage incorrect")
-        self.assertEqual(a.R.i, expr('V / R'), "R current incorrect")        
+        self.assertEqual(a.R.v, voltage('V'), "R voltage incorrect")
+        self.assertEqual(a.R.i, current('V / R'), "R current incorrect")        
         
     def test_oneport(self):
 
@@ -522,7 +524,7 @@ class LcapyTester(unittest.TestCase):
         W 0_2 0_3; right
         K L1 L2 1; invisible""")
 
-        self.assertEqual(a.R1.v, expr('V1 * cos(omega_0 * t) * abs(omega_0) / omega_0'),
+        self.assertEqual(a.R1.v, voltage('V1 * cos(omega_0 * t) * abs(omega_0) / omega_0'),
                          "coupling incorrect")
         
 
@@ -554,7 +556,7 @@ class LcapyTester(unittest.TestCase):
         TF 2 0 1 0 k
         R 2 0""")        
 
-        self.assertEqual(a.impedance(1, 0), expr('R / k**2'), "incorrect impedance")
+        self.assertEqual(a.impedance(1, 0), impedance('R / k**2'), "incorrect impedance")
 
     def test_params(self):
 

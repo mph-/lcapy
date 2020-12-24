@@ -5,16 +5,32 @@ Copyright 2020 Michael Hayes, UCECE
 
 """
 
-from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainImpedance, AngularFourierDomainAdmittance
-from .sexpr import LaplaceDomainImpedance, LaplaceDomainAdmittance
-from .symbols import j, omega, jomega, s
-
 class ImmittanceMixin(object):
 
+    is_immitance = True
+
+    # Immittances derived from a realiable circuit will be causal but
+    # non-causal immittances can also be constructed.  So this might
+    # disappear.  If the immittance is causal then s can be substituted
+    # for j omega.   Thus re(s) = 0.
+
+    # An example non-causal impulse response is z(t) = R delta(t + T)
+    # with an impedance Z(s) = R exp(s * T).  This has
+    # a real part R * exp(re(s) * T) * cos(T * im(s))
+    # and imaginary part R * exp(re(s) * T) * sin(T * im(s))
+    
+    is_always_causal = True
+
+    
     @property
     def R(self):
         """Resistance."""
-        return Resistance(self.Zw.real)
+        from .symbols import s
+        
+        ret = self.Z.real
+        if self.is_causal:
+            ret = ret.replace(s.real, 0)
+        return ret
 
     @property
     def resistance(self):
@@ -24,7 +40,7 @@ class ImmittanceMixin(object):
     @property
     def X(self):
         """Reactance."""
-        return Reactance(self.Zw.imag)
+        return self.Z.imag
 
     @property
     def reactance(self):
@@ -43,7 +59,12 @@ class ImmittanceMixin(object):
         not infinity as might be expected.
 
         """
-        return Conductance(self.Yw.real)
+        from .symbols import s
+        
+        ret = self.Y.real
+        if self.is_causal:
+            ret = ret.replace(s.real, 0)
+        return ret        
 
     @property
     def conductance(self):
@@ -53,45 +74,37 @@ class ImmittanceMixin(object):
     @property
     def B(self):
         """Susceptance."""
-        return Susceptance(-self.Yw.imag)
-
-    @property
-    def susceptance(self):
-        """Susceptance."""
-        return self.B
+        return -self.Y.imag
 
     @property
     def Y(self):
-        """Admittance."""
+        """Admittance.
+
+        The admittance is expressed in jomega form for AC circuits
+        and in s-domain for for transient circuits.
+        
+        Use Y(omega) or Y(s) to achieve the desired form."""
+        
         return self.admittance
 
     @property
     def Z(self):
-        """Impedance."""
-        return self.impedance
+        """Impedance.
 
-    @property
-    def Yw(self):
-        """Admittance  Y(omega)."""
-        return AngularFourierDomainAdmittance(self.admittance._selectexpr(omega))
+        The impedance is expressed in jomega form for AC circuits
+        and in s-domain for for transient circuits.  
 
-    @property
-    def Zw(self):
-        """Impedance  Z(omega)."""
-        return AngularFourierDomainImpedance(self.impedance._selectexpr(omega))
+        Use Z(omega) or Z(s) to achieve the desired form."""
 
-    @property
-    def Ys(self):
-        """Generalized admittance  Y(s)."""
-        return LaplaceDomainAdmittance(self.admittance._selectexpr(s))
+        return self.impedance    
 
-    @property
-    def Zs(self):
-        """Generalized impedance  Z(s)."""
-        return LaplaceDomainImpedance(self.impedance._selectexpr(s))
+    def network(self, form='default'):
+        """Synthesise a network with an equivalent impedance.
+        `form` includes: cauerI, cauerII, fosterI, fosterII.
 
-from .resistance import Resistance
-from .reactance import Reactance
-from .conductance import Conductance
-from .susceptance import Susceptance
+        Note some methods generate networks with negative value
+        components."""
 
+        from .synthesis import network
+        
+        return network(self.Z, form)
