@@ -1,5 +1,7 @@
 class TransferMixin(object):
 
-    wrapper = 'transfer'
+    quantity = 'transfer'
+    quantity_label = 'Transfer function'
+    units = ''
     is_always_causal = True
     is_transfer = True

@@ -20,7 +20,8 @@ class TimeDomainExpression(Expr):
     """t-domain expression or symbol."""
 
     var = tsym
-    domain_name = 'Time'
+    domain = 'Time'
+    domain_label = 'Time'
     domain_units = 's'
     is_time_domain = True    
 
@@ -230,21 +231,21 @@ class TimeDomainImpedance(TimeDomainExpression):
 class TimeDomainVoltage(VoltageMixin, TimeDomainExpression):
     """t-domain voltage (units V)."""
 
-    quantity = 'Voltage'
+    quantity_label = 'Voltage'
     units = 'V'
 
         
 class TimeDomainCurrent(CurrentMixin, TimeDomainExpression):
     """t-domain current (units A)."""
 
-    quantity = 'Current'
+    quantity_label = 'Current'
     units = 'A'
 
 
 class TimeDomainImpulseResponse(TimeDomainExpression):
     """impulse response"""
 
-    quantity = 'Impulse response'
+    quantity_label = 'Impulse response'
     units = '1/s'
 
 

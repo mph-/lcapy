@@ -1,4 +1,5 @@
-"""This module provides the nExpr class to represent discrete-time expressions.
+"""This module provides the DiscreteTimeDomainExpression class to
+represent discrete-time expressions.
 
 Copyright 2020 Michael Hayes, UCECE
 
@@ -25,7 +26,8 @@ class DiscreteTimeDomainExpression(SequenceExpression):
     """Discrete time expression or symbol."""
 
     var = nsym
-    domain_name = 'Sample'
+    domain = 'Discrete time'    
+    domain_label = 'Discrete time'
     domain_units = ''
 
     def __init__(self, val, **assumptions):
@@ -227,23 +229,17 @@ class DiscreteTimeDomainImpedance(DiscreteTimeDomainExpression, ImpedanceMixin):
 
 class DiscreteTimeDomainVoltage(DiscreteTimeDomainExpression, VoltageMixin):
     """t-domain voltage (units V)."""
-
-    quantity = 'Voltage'
-    units = 'V'
+    pass
 
     
 class DiscreteTimeDomainCurrent(DiscreteTimeDomainExpression, CurrentMixin):
     """t-domain current (units A)."""
-
-    quantity = 'Current'
-    units = 'A'
+    pass
 
 
 class DiscreteTimeDomainTransferFunction(DiscreteTimeDomainExpression, TransferMixin):
     """impulse response"""
-
-    quantity = 'Impulse response'
-    units = ''
+    pass
 
 
 def nexpr(arg, **assumptions):

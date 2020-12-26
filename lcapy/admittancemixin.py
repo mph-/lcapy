@@ -3,7 +3,9 @@ from .immittancemixin import ImmittanceMixin
 
 class AdmittanceMixin(ImmittanceMixin):
 
-    wrapper = 'admittance'
+    quantity = 'admittance'
+    quantity_label = 'Admittance'
+    units = 'S'
     is_admittance = True
 
     @property

@@ -1,6 +1,8 @@
 class CurrentMixin(object):
 
-    wrapper = 'current'
+    quantity = 'current'
+    quantity_label = 'Current'
+    units = 'A'
     is_current = True
 
     def cpt(self):

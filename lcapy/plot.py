@@ -190,9 +190,9 @@ def plot_frequency(obj, f, **kwargs):
     else:
         plot = plots[(False, log_frequency)]                    
 
-    xlabel = kwargs.pop('xlabel', obj.domain_label)
-    ylabel = kwargs.pop('ylabel', obj.label)                
-    ylabel2 = kwargs.pop('ylabel2', obj.label)
+    xlabel = kwargs.pop('xlabel', obj.domain_label_with_units)
+    ylabel = kwargs.pop('ylabel', obj.label_with_units)                
+    ylabel2 = kwargs.pop('ylabel2', obj.label_with_units)
     second = kwargs.pop('second', False)
     xscale = kwargs.pop('xscale', 1)
     yscale = kwargs.pop('yscale', 1)            
@@ -239,8 +239,8 @@ def plot_time(obj, t, **kwargs):
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))    
 
-    xlabel = kwargs.pop('xlabel', obj.domain_label)
-    ylabel = kwargs.pop('ylabel', obj.label)
+    xlabel = kwargs.pop('xlabel', obj.domain_label_with_units)
+    ylabel = kwargs.pop('ylabel', obj.label_with_units)
     xscale = kwargs.pop('xscale', 1)
     yscale = kwargs.pop('yscale', 1)        
     ax.plot(t * xscale, v * yscale, **kwargs)
@@ -267,8 +267,8 @@ def plot_sequence(obj, n, **kwargs):
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
 
-    xlabel = kwargs.pop('xlabel', obj.domain_label)
-    ylabel = kwargs.pop('ylabel', obj.label)
+    xlabel = kwargs.pop('xlabel', obj.domain_label_with_units)
+    ylabel = kwargs.pop('ylabel', obj.label_with_units)
     xscale = kwargs.pop('xscale', 1)
     yscale = kwargs.pop('yscale', 1)
     # TODO, make nice lollipops

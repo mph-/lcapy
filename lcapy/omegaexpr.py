@@ -21,7 +21,8 @@ class AngularFourierDomainExpression(Expr):
     """Fourier domain expression or symbol (angular frequency)."""
 
     var = omegasym
-    domain_name = 'Angular frequency'
+    domain = 'Angular Fourier'
+    domain_label = 'Angular frequency'
     domain_units = 'rad/s'
     is_angular_fourier_domain = True        
 
@@ -113,37 +114,31 @@ class AngularFourierDomainExpression(Expr):
 
 class AngularFourierDomainAdmittance(AdmittanceMixin, AngularFourierDomainExpression):
     """omega-domain admittance."""
-
-    quantity = 'Admittance'
-    units = 'siemens'
+    pass
 
 
 class AngularFourierDomainImpedance(ImpedanceMixin, AngularFourierDomainExpression):
     """omega-domain impedance."""
-
-    quantity = 'Impedance'
-    units = 'ohms'
+    pass
 
 
 class AngularFourierDomainVoltage(VoltageMixin, AngularFourierDomainExpression):
     """omega-domain voltage (units V/rad/s)."""
 
-    quantity = 'Voltage spectrum'
+    quantity_label = 'Voltage spectrum'
     units = 'V/rad/s'
 
 
 class AngularFourierDomainCurrent(CurrentMixin, AngularFourierDomainExpression):
     """omega-domain current (units A/rad/s)."""
 
-    quantity = 'Current spectrum'
+    quantity_label = 'Current spectrum'
     units = 'A/rad/s'
 
         
 class AngularFourierDomainTransferFunction(TransferMixin, AngularFourierDomainExpression):
     """omega-domain transfer function response."""
-
-    quantity = 'Transfer function'
-    units = ''
+    pass
 
         
 def omegaexpr(arg, **assumptions):

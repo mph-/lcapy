@@ -1,5 +1,5 @@
 """This module provides support for Fourier transforms.  It acts as a
-wrapper for SymPy's Fourier transform.  It calculates the bilateral
+quantity for SymPy's Fourier transform.  It calculates the bilateral
 Fourier transform using:
 
    S(f) = \int_{-\infty}^{\infty} s(t) e^{-j * 2 * \pi * t} dt

@@ -1,5 +1,5 @@
-"""This module provides the DiscreteFourierDomainExpression class to represent k-domain
- (discrete Fourier domain) expressions.
+"""This module provides the DiscreteFourierDomainExpression class to
+ represent k-domain (discrete Fourier domain) expressions.
 
 Copyright 2020 Michael Hayes, UCECE
 
@@ -24,7 +24,8 @@ class DiscreteFourierDomainExpression(SequenceExpression):
     """Discrete Fourier domain expression or symbol."""
 
     var = ksym
-    domain_name = 'Frequency'
+    domain = 'Discrete Fourier'
+    domain_label = 'Discrete frequency'    
     domain_units = 'Hz'
 
     def __init__(self, val, **assumptions):
@@ -112,35 +113,35 @@ class DiscreteFourierDomainExpression(SequenceExpression):
 class DiscreteFourierDomainAdmittance(DiscreteFourierDomainExpression, AdmittanceMixin):
     """f-domain admittance"""
 
-    quantity = 'Admittance'
+    quantity_label = 'Admittance'
     units = 'siemens'
 
 
 class DiscreteFourierDomainImpedance(DiscreteFourierDomainExpression, ImpedanceMixin):
     """f-domain impedance"""
 
-    quantity = 'Impedance'
+    quantity_label = 'Impedance'
     units = 'ohms'
 
 
 class DiscreteFourierDomainTransferFunction(DiscreteFourierDomainExpression, TransferMixin):
     """f-domain transfer function response."""
 
-    quantity = 'Transfer function'
+    quantity_label = 'Transfer function'
     units = ''
 
 
 class DiscreteFourierDomainVoltage(DiscreteFourierDomainExpression, VoltageMixin):
     """f-domain voltage (units V/Hz)."""
 
-    quantity = 'Voltage spectrum'
+    quantity_label = 'Voltage spectrum'
     units = 'V/Hz'
 
 
 class DiscreteFourierDomainCurrent(DiscreteFourierDomainExpression, CurrentMixin):
     """f-domain current (units A/Hz)."""
 
-    quantity = 'Current spectrum'
+    quantity_label = 'Current spectrum'
     units = 'A/Hz'
 
 

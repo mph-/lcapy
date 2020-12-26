@@ -18,6 +18,7 @@ class ConstantExpression(Expr):
 
     """
 
+    domain = 'Constant'
     is_constant = True
 
     def __init__(self, val, **assumptions):

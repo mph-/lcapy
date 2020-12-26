@@ -3,7 +3,9 @@ from .immittancemixin import ImmittanceMixin
 
 class ImpedanceMixin(ImmittanceMixin):
 
-    wrapper = 'impedance'
+    quantity = 'impedance'
+    quantity_label = 'Impedance'
+    units = 'ohms'
     is_impedance = True
 
     @property    

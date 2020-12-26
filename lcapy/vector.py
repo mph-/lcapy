@@ -1,5 +1,5 @@
 """
-This module implements a wrapper for the SymPy Matrix class for vectors.
+This module implements a quantity for the SymPy Matrix class for vectors.
 
 Copyright 2020 Michael Hayes, UCECE
 """

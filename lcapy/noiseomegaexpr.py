@@ -42,16 +42,17 @@ class AngularFourierDomainNoiseExpression(NoiseExpression):
     a = Vnoisy(3); b = Vnoisy(4)
     a + b - b gives sqrt(41) and  a + b - a gives sqrt(34).
 
-    This case is correctly handled by the Voltage and Current classes since each noise
-    component is stored and considered separately.
+    This case is correctly handled by the SuperpositionVoltage and
+    SuperpositionCurrent classes since each noise component is stored
+    and considered separately.
 
-    (Voltage(a) + Voltage(b) - Voltage(b)).n gives 3 as expected.
+    (SuperpositionVoltage(a) + SuperpositionVoltage(b) - SuperpositionVoltage(b)).n gives 3 as expected.
 
     """
     one_sided = True
     var = omegasym
 
-    domain_name = 'Angular frequency'
+    domain_label = 'Angular frequency'
     domain_units = 'rad/s'        
 
 
@@ -94,7 +95,7 @@ class AngularFourierDomainNoiseVoltage(AngularFourierDomainNoiseExpression):
     
     """
 
-    quantity = 'Voltage noise spectral density'
+    quantity_label = 'Voltage noise spectral density'
     units = 'V/rtrad/s'
 
     def __init__(self, val, **assumptions):
@@ -112,7 +113,7 @@ class AngularFourierDomainNoiseCurrent(AngularFourierDomainNoiseExpression):
     i = AngularFourierDomainNoiseCurrent(3e-12 / sqrt(omega) + 200e-15)
     """
 
-    quantity = 'Current noise spectral density'
+    quantity_label = 'Current noise spectral density'
     units = 'A/rtrad/s'
 
     def __init__(self, val, **assumptions):

@@ -1,6 +1,8 @@
 class VoltageMixin(object):
 
-    wrapper = 'voltage'
+    quantity = 'voltage'
+    quantity_label = 'Voltage'
+    units = 'V'
     is_voltage = True
 
     def cpt(self):

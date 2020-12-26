@@ -216,6 +216,7 @@ class Expr(ExprPrint, ExprMisc):
 
     one_sided = False
     var = None
+    domain = ''
     is_time_domain = False
     is_laplace_domain = False    
     is_fourier_domain = False
@@ -274,6 +275,21 @@ class Expr(ExprPrint, ExprMisc):
         assumptions.pop('causal', None)
         
         self.expr = sympify(arg, **assumptions)
+ 
+    @classmethod
+    def as_quantity(cls, expr, quantity):
+
+        if quantity == 'voltage':
+            return cls.as_voltage(expr)
+        elif quantity == 'current':
+            return cls.as_current(expr)
+        elif quantity == 'impedance':
+            return cls.as_impedance(expr)
+        elif quantity == 'admittance':
+            return cls.as_admittance(expr)
+        elif quantity == 'transfer':
+            return cls.as_transfer(expr)
+        raise ValueError('Unknown quantity %s for %s' % (quantity, expr))
 
     def __str__(self, printer=None):
         """String representation of expression."""
@@ -482,7 +498,7 @@ class Expr(ExprPrint, ExprMisc):
         # If it is callable, create a function to pass arguments
         # through and wrap its return value.
         def wrap(*args, **kwargs):
-            """This is wrapper for a SymPy function.
+            """This is quantity for a SymPy function.
             For help, see the SymPy documentation."""
 
             ret = a(*args, **kwargs)
@@ -1455,23 +1471,29 @@ class Expr(ExprPrint, ExprMisc):
     def label(self):
 
         label = ''
-        if hasattr(self, 'quantity'):
-            label += self.quantity
+        if hasattr(self, 'quantity_label'):
+            label += self.quantity_label
             if hasattr(self, 'part'):
                 label += ' ' + self.part
         else:
             if hasattr(self, 'part'):
                 label += capitalize_name(self.part)
-        if hasattr(self, 'units') and self.units != '':
-            label += ' (%s)' % self.units
         return label
 
     @property
-    def domain_label(self):
+    def label_with_units(self):
+
+        label = self.label
+        if hasattr(self, 'units') and self.units != '':
+            label += ' (%s)' % self.units
+        return label    
+
+    @property
+    def domain_label_with_units(self):
 
         label = ''
-        if hasattr(self, 'domain_name'):
-            label += '%s' % self.domain_name
+        if hasattr(self, 'domain_label'):
+            label += '%s' % self.domain_label
         if hasattr(self, 'domain_units'):
             if self.domain_units != '':
                 label += ' (%s)' % self.domain_units

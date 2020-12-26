@@ -42,16 +42,17 @@ class FourierDomainNoiseExpression(NoiseExpression):
     a = Vnoisy(3); b = Vnoisy(4)
     a + b - b gives sqrt(41) and  a + b - a gives sqrt(34).
 
-    This case is correctly handled by the Voltage class since each noise
-    component is stored and considered separately.
+    This case is correctly handled by the SuperpositionVoltage and
+    SuperpositionCurrent classes since each noise component is stored
+    and considered separately.
 
-    (Voltage(a) + Voltage(b) - Voltage(b)).n gives 3 as expected.
+    (SuperpositionVoltage(a) + SuperpositionVoltage(b) - SuperpositionVoltage(b)).n gives 3 as expected.
 
     """
     one_sided = True
     var = fsym
 
-    domain_name = 'Frequency'
+    domain_label = 'Frequency'
     domain_units = 'Hz'    
 
     def plot(self, fvector=None, **kwargs):
@@ -93,7 +94,7 @@ class FourierDomainNoiseVoltage(FourierDomainNoiseExpression):
     
     """
 
-    quantity = 'Voltage noise spectral density'
+    quantity_label = 'Voltage noise spectral density'
     units = 'V/rtHz'
 
     
@@ -113,7 +114,7 @@ class FourierDomainNoiseCurrent(FourierDomainNoiseExpression):
     i = FourierDomainNoiseCurrent(3e-12 / sqrt(f) + 200e-15)
     """
 
-    quantity = 'Current noise spectral density'
+    quantity_label = 'Current noise spectral density'
     units = 'A/rtHz'
 
     def __init__(self, val, **assumptions):

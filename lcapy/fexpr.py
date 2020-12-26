@@ -21,7 +21,8 @@ class FourierDomainExpression(Expr):
     """Fourier domain expression or symbol."""
 
     var = fsym
-    domain_name = 'Frequency'
+    domain = 'Fourier'    
+    domain_label = 'Frequency'
     domain_units = 'Hz'
     is_fourier_domain = True    
 
@@ -135,36 +136,30 @@ class FourierDomainExpression(Expr):
 
 class FourierDomainAdmittance(AdmittanceMixin, FourierDomainExpression):
     """f-domain admittance"""
-
-    quantity = 'Admittance'
-    units = 'siemens'
+    pass
 
 
 class FourierDomainImpedance(ImpedanceMixin, FourierDomainExpression):
     """f-domain impedance"""
-
-    quantity = 'Impedance'
-    units = 'ohms'
+    pass
 
 
 class FourierDomainTransferFunction(TransferMixin, FourierDomainExpression):
     """f-domain transfer function response."""
-
-    quantity = 'Transfer function'
-    units = ''
+    pass
 
 
 class FourierDomainVoltage(VoltageMixin, FourierDomainExpression):
     """f-domain voltage (units V/Hz)."""
 
-    quantity = 'Voltage spectrum'
+    quantity_label = 'Voltage spectrum'
     units = 'V/Hz'
 
         
 class FourierDomainCurrent(CurrentMixin, FourierDomainExpression):
     """f-domain current (units A/Hz)."""
 
-    quantity = 'Current spectrum'
+    quantity_label = 'Current spectrum'
     units = 'A/Hz'
 
         

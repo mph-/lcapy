@@ -26,6 +26,9 @@ class ZDomainExpression(DiscreteExpression):
     """z-domain expression or symbol."""
 
     var = zsym
+    domain = 'Z'
+    domain_label = 'Z'    
+    domain_units = ''    
 
     def __init__(self, val, **assumptions):
 
@@ -276,37 +279,29 @@ class ZDomainExpression(DiscreteExpression):
 
 class ZDomainImpedance(ZDomainExpression, ImpedanceMixin):
     """z-domain impedance value."""
-
-    quantity = 'Impedance'
-    units = 'ohms'
+    pass
 
 
 class ZDomainAdmittance(ZDomainExpression, AdmittanceMixin):
     """z-domain admittance value."""
-
-    quantity = 'Admittance'
-    units = 'siemens'
+    pass
 
 
 class ZDomainVoltage(ZDomainExpression, VoltageMixin):
     """z-domain voltage (units V s / radian)."""
 
-    quantity = 'z-Voltage'
-    units = 'V/Hz'
+    quantity_label = 'z-Voltage'
 
 
 class ZDomainCurrent(ZDomainExpression, CurrentMixin):
     """z-domain current (units A s / radian)."""
 
-    quantity = 'z-Current'
-    units = 'A/Hz'
+    quantity_label = 'z-Current'
 
 
 class ZDomainTransferFunction(ZDomainExpression, TransferMixin):
     """z-domain ratio"""
-
-    quantity = 'z-ratio'
-    units = ''
+    pass
 
 
 def zexpr(arg, **assumptions):

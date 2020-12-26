@@ -1,5 +1,5 @@
 """This module provides support for Laplace transforms.  It acts as a
-wrapper for SymPy's Laplace transform.  It calculates the unilateral
+quantity for SymPy's Laplace transform.  It calculates the unilateral
 Laplace transform using:
 
 F(s) = lim_{t_0\rightarrow 0} \int_{-t_0}^{\infty} f(t) e^{-s t} dt

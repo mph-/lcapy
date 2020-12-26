@@ -27,6 +27,9 @@ class LaplaceDomainExpression(Expr):
     """s-domain expression or symbol."""
 
     var = ssym
+    domain = 'Laplace'    
+    domain_label = 'Laplace frequency'
+    domain_units = 'rad/s'    
     is_laplace_domain = True
 
     def __init__(self, val, **assumptions):
@@ -445,35 +448,35 @@ class LaplaceDomainExpression(Expr):
 class LaplaceDomainImpedance(ImpedanceMixin, LaplaceDomainExpression):
     """s-domain impedance value."""
 
-    quantity = 'Impedance'
+    quantity_label = 'Impedance'
     units = 'ohms'
 
 
 class LaplaceDomainAdmittance(AdmittanceMixin, LaplaceDomainExpression):
     """s-domain admittance value."""
 
-    quantity = 'Admittance'
+    quantity_label = 'Admittance'
     units = 'siemens'
 
     
 class LaplaceDomainVoltage(VoltageMixin, LaplaceDomainExpression):
     """s-domain voltage (units V s / radian)."""
 
-    quantity = 's-Voltage'
+    quantity_label = 's-Voltage'
     units = 'V/Hz'
 
         
 class LaplaceDomainCurrent(CurrentMixin, LaplaceDomainExpression):
     """s-domain current (units A s / radian)."""
 
-    quantity = 's-Current'
+    quantity_label = 's-Current'
     units = 'A/Hz'
 
 
 class LaplaceDomainTransferFunction(TransferMixin, LaplaceDomainExpression):
     """s-domain ratio"""
 
-    quantity = 's-ratio'
+    quantity_label = 's-ratio'
     units = ''
 
 

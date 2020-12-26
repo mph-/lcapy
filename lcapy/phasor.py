@@ -41,6 +41,7 @@ from .transfermixin import TransferMixin
 class PhasorDomainExpression(Expr):
 
     is_phasor = True
+    domain_name = 'Phasor'
     
     @classmethod
     def make(cls, expr, **assumptions):
@@ -231,32 +232,23 @@ class PhasorDomainRatio(PhasorDomainExpression):
 
 class PhasorDomainAdmittance(AdmittanceMixin, PhasorDomainRatio):
     """PhasorDomain admittance"""
-
-    quantity = 'Admittance'
-    units = 'siemens'
+    pass
 
 
 class PhasorDomainImpedance(ImpedanceMixin, PhasorDomainRatio):
     """PhasorDomain impedance"""
-
-    quantity = 'Impedance'
-    units = 'ohms'
+    pass
 
 
 class PhasorDomainTransferFunction(TransferMixin, PhasorDomainRatio):
     """PhasorDomain transfer function response."""
-
-    quantity = 'Transfer function'
-    units = ''
+    pass
 
     
 class PhasorDomainVoltage(VoltageMixin, PhasorDomainVorrent):
     """t-domain voltage (units V) parameterized as a phasor
     of a single angular frequency, omega0."""
         
-    quantity = 'Voltage'
-    units = 'V'
-    
     def cpt(self):
         from .oneport import Vac
         return Vac(self, 0, self.omega)            
@@ -266,12 +258,25 @@ class PhasorDomainCurrent(CurrentMixin, PhasorDomainVorrent):
     """t-domain current (units V) parameterized as a phasor
     of a single angular frequency, omega0."""    
 
-    quantity = 'Current'
-    units = 'A'
-
     def cpt(self):
         from .oneport import Iac
         return Iac(self, 0, self.omega)
+
+
+# TODO, allow PhasorDomainVoltage * PhasorDomainVoltage etc
+mul_table = {(PhasorDomainVoltage, PhasorDomainAdmittance): (None, PhasorDomainCurrent),
+             (PhasorDomainCurrent, PhasorDomainImpedance): (None, PhasorDomainVoltage),
+             (PhasorDomainCurrent, PhasorDomainTransferFunction): (None, PhasorDomainCurrent),
+             (PhasorDomainVoltage, PhasorDomainTransferFunction): (None, PhasorDomainVoltage)}
+
+# If have a constant, etc, pass through expr first.  
+
+div_table = {(PhasorDomainVoltage, PhasorDomainImpedance): (None, PhasorDomainCurrent),
+             (PhasorDomainCurrent, PhasorDomainAdmittance): (None, PhasorDomainVoltage),
+             (PhasorDomainCurrent, PhasorDomainCurrent): (None, PhasorDomainTransferFunction),
+             (PhasorDomainVoltage, PhasorDomainVoltage): (None, PhasorDomainTransferFunction),
+             (PhasorDomainExpression, PhasorDomainAdmittance): (None, PhasorDomainImpedance),
+             (PhasorDomainExpression, PhasorDomainImpedance): (None, PhasorDomainAdmittance)}
 
     
 def phasor(arg, **assumptions):
