@@ -72,7 +72,7 @@ class ConstantExpression(Expr):
     def time(self, **assumptions):
         """Convert to time domain."""
         
-        return TimeDomainExpression(self).wrap()
+        return self.wrap(TimeDomainExpression(result, **assumptions))
 
     
 class ConstantVoltage(VoltageMixin, ConstantExpression):
