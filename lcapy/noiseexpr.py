@@ -39,7 +39,7 @@ class NoiseExpression(Expr):
     (Voltage(a) + Voltage(b) - Voltage(b)).n gives 3 as expected.
 
     """
-    one_sided = True
+    is_one_sided = True
     is_real = True
     is_positive = True
 

@@ -40,24 +40,24 @@ class TimeDomainExpression(Expr):
                 't-domain expression %s cannot depend on f' % expr)                            
 
     @classmethod
-    def as_voltage(cls, expr):
-        return TimeDomainVoltage(expr)
+    def as_voltage(cls, expr, **assumptions):
+        return TimeDomainVoltage(expr, **assumptions)
 
     @classmethod
-    def as_current(cls, expr):
-        return TimeDomainCurrent(expr)    
+    def as_current(cls, expr, **assumptions):
+        return TimeDomainCurrent(expr, **assumptions)    
 
     @classmethod
-    def as_impedance(cls, expr):
-        return TimeDomainImpedance(expr)
+    def as_impedance(cls, expr, **assumptions):
+        return TimeDomainImpedance(expr, **assumptions)
 
     @classmethod
-    def as_admittance(cls, expr):
-        return TimeDomainAdmittance(expr)
+    def as_admittance(cls, expr, **assumptions):
+        return TimeDomainAdmittance(expr, **assumptions)
 
     @classmethod
-    def as_transfer(cls, expr):
-        return TimeDomainImpulseResponse(expr)    
+    def as_transfer(cls, expr, **assumptions):
+        return TimeDomainImpulseResponse(expr, **assumptions)    
     
     def infer_assumptions(self):
 
@@ -247,8 +247,11 @@ class TimeDomainCurrent(CurrentMixin, TimeDomainExpression):
 class TimeDomainImpulseResponse(TimeDomainExpression):
     """impulse response"""
 
+    # TODO, check attributes.
+    quantity = 'transfer'
     quantity_label = 'Impulse response'
     units = '1/s'
+    is_transfer = True
 
 
 def texpr(arg, **assumptions):

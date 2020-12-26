@@ -214,9 +214,11 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
 class Expr(ExprPrint, ExprMisc):
     """Decorator class for sympy classes derived from sympy.Expr"""
 
-    one_sided = False
     var = None
     domain = ''
+    domain_label = ''
+    quantity = None
+    quantity_label = ''
     is_time_domain = False
     is_laplace_domain = False    
     is_fourier_domain = False
@@ -230,7 +232,8 @@ class Expr(ExprPrint, ExprMisc):
     is_impedance = False
     is_admittance = False
     is_transfer = False
-    is_immitance = False    
+    is_immitance = False
+    is_one_sided = False
     
     # This needs to be larger than what sympy defines so
     # that the __rmul__, __radd__ methods get called.
@@ -549,7 +552,45 @@ class Expr(ExprPrint, ExprMisc):
         raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' %
                          (self.__class__.__name__, self,
                           x.__class__.__name__, x, op))
+
+    def _incompatible_domains(self, x, op):
+                
+        raise ValueError('%s(%s) and %s(%s) have incompatible domains for %s' %
+                         (self.__class__.__name__, self,
+                          x.__class__.__name__, x, op))
+
+    def _incompatible_quantities(self, x, op):
+
+        raise ValueError('%s(%s) and %s(%s) have incompatible quantities for %s' %        
+                         (self.__class__.__name__, self,
+                          x.__class__.__name__, x, op))        
     
+    def _assumptions_for_mul(self, x):
+
+        assumptions = {}
+        if self.is_causal or x.is_causal:
+            assumptions = {'causal' : True}
+        elif self.is_dc and x.is_dc:
+            assumptions = self.assumptions
+        elif self.is_ac and x.is_ac:
+            assumptions = self.assumptions
+        elif self.is_ac and x.is_dc:
+            assumptions = {'ac' : True}
+        elif self.is_dc and x.is_ac:
+            assumptions = {'ac' : True}
+        return assumptions
+
+    def _assumptions_for_add(self, x):
+
+        assumptions = {}        
+        if self.is_causal and x.is_causal:
+            assumptions = {'causal' : True}
+        elif self.is_dc and x.is_dc:
+            assumptions = self.assumptions
+        elif self.is_ac and x.is_ac:
+            assumptions = self.assumptions        
+        return assumptions    
+
     def __compat_mul__(self, x, op):
         """Check if args are compatible and if so return compatible class."""
 
@@ -569,16 +610,7 @@ class Expr(ExprPrint, ExprMisc):
         xcls = x.__class__
 
         if isinstance(self, LaplaceDomainExpression) and isinstance(x, LaplaceDomainExpression):
-            if self.is_causal or x.is_causal:
-                assumptions = {'causal' : True}
-            elif self.is_dc and x.is_dc:
-                assumptions = self.assumptions
-            elif self.is_ac and x.is_ac:
-                assumptions = self.assumptions
-            elif self.is_ac and x.is_dc:
-                assumptions = {'ac' : True}
-            elif self.is_dc and x.is_ac:
-                assumptions = {'ac' : True}                
+            assumptions = self._assumptions_for_mul(x)            
 
         if cls == xcls:
             return cls, self, cls(x), assumptions
@@ -615,6 +647,7 @@ class Expr(ExprPrint, ExprMisc):
 
         self._incompatible(self, x, op)
 
+
     def __compat_add__(self, x, op):
 
         # Disallow Vs + Is, etc.
@@ -628,12 +661,7 @@ class Expr(ExprPrint, ExprMisc):
         xcls = x.__class__
 
         if isinstance(self, LaplaceDomainExpression) and isinstance(x, LaplaceDomainExpression):
-            if self.is_causal and x.is_causal:
-                assumptions = {'causal' : True}
-            elif self.is_dc and x.is_dc:
-                assumptions = self.assumptions
-            elif self.is_ac and x.is_ac:
-                assumptions = self.assumptions
+            assumptions = self._assumptions_for_add(x)
         
         if cls == xcls:
             return cls, self, x, assumptions
@@ -686,7 +714,7 @@ class Expr(ExprPrint, ExprMisc):
         cls, self, x, assumptions = self.__compat_mul__(x, '/')
         return cls(x.expr / self.expr, **assumptions)
 
-    def __mul__(self, x):
+    def __oldmul__(self, x):
         """Multiply"""
         from .super import Superposition
         from .matrix import Matrix
@@ -699,6 +727,43 @@ class Expr(ExprPrint, ExprMisc):
 
         cls, self, x, assumptions = self.__compat_mul__(x, '*')
         return cls(self.expr * x.expr, **assumptions)
+
+    def __mul__(self, x):
+        """Multiply"""
+
+        if not isinstance(x, Expr):
+            x = expr(x)
+
+        if isinstance(x, ConstantExpression) or isinstance(self, ConstantExpression):
+            return self.__class__(self.expr * x.expr)
+
+        # TODO: check for domain specific conversions, say for phasors
+
+        if self.domain != x.domain:
+            self._incompatible_domains(x, '*')
+
+        # TODO: check for domain specific requirements.
+        # For example, perhaps allow LaplaceDomainImpedance * PhasorDomainCurrent?
+        
+        key = (self.quantity, x.quantity)
+
+        assumptions = self._assumptions_for_mul(x)
+        
+        mapping = {('voltage', 'admittance'): self.as_current,
+                   ('current', 'impedance'): self.as_voltage,
+                   ('voltage', 'transfer'): self.as_voltage,
+                   ('current', 'transfer'): self.as_current,
+                   ('admittance', 'voltage'): self.as_current,
+                   ('impedance', 'current'): self.as_voltage,
+                   ('transfer', 'voltage'): self.as_voltage,
+                   ('transfer', 'current'): self.as_current}
+
+        try:
+            return mapping[key](self.expr * x.expr, **assumptions)
+        except:
+            # What about voltage**2. etc.
+            self._incompatible_quantities(x, '*')        
+    
 
     def __rmul__(self, x):
         """Reverse multiply"""

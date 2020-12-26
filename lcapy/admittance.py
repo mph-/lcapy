@@ -1,5 +1,4 @@
-"""This module provides the Admittance class.  This is a generalized
-impedance (s-domain) and converts to other representations.
+"""This module provides admittance support.
 
 Copyright 2019-2020 Michael Hayes, UCECE
 
@@ -24,12 +23,7 @@ def admittance(arg, **assumptions):
     """    
 
     expr1 = expr(arg, **assumptions)
-    if expr1.is_admittance:
-        return expr1.apply_unit(1 / uu.ohms)
 
-    if expr1.is_constant:
-        expr1 = LaplaceDomainExpression(expr1)
-    
     try:
         expr1 = expr1.as_admittance(expr1)
     except:

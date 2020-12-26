@@ -1,5 +1,4 @@
-"""This module provides the Impedance class.  This is a generalized
-impedance (s-domain) and converts to other representations.
+"""This module provides impedance support.
 
 Copyright 2019--2020 Michael Hayes, UCECE
 
@@ -21,15 +20,10 @@ def impedance(arg, **assumptions):
 
     Z(omega) = 1 / Y(omega)
 
-    """        
+    """
 
-    expr1 = expr(arg, **assumptions)
-    if expr1.is_impedance:
-        return expr1.apply_unit(uu.ohms)            
+    expr1 = expr(arg, **assumptions)    
 
-    if expr1.is_constant:
-        expr1 = LaplaceDomainExpression(expr1)
-    
     try:
         expr1 = expr1.as_impedance(expr1)
     except:    

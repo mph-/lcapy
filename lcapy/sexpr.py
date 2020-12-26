@@ -46,24 +46,24 @@ class LaplaceDomainExpression(Expr):
                 's-domain expression %s cannot depend on t' % self.expr)
 
     @classmethod
-    def as_voltage(cls, expr):
-        return LaplaceDomainVoltage(expr)
+    def as_voltage(cls, expr, **assumptions):
+        return LaplaceDomainVoltage(expr, **assumptions)
 
     @classmethod
-    def as_current(cls, expr):
-        return LaplaceDomainCurrent(expr)    
+    def as_current(cls, expr, **assumptions):
+        return LaplaceDomainCurrent(expr, **assumptions)    
 
     @classmethod
-    def as_impedance(cls, expr):
-        return LaplaceDomainImpedance(expr)
+    def as_impedance(cls, expr, **assumptions):
+        return LaplaceDomainImpedance(expr, **assumptions)
 
     @classmethod
-    def as_admittance(cls, expr):
-        return LaplaceDomainAdmittance(expr)
+    def as_admittance(cls, expr, **assumptions):
+        return LaplaceDomainAdmittance(expr, **assumptions)
 
     @classmethod
-    def as_transfer(cls, expr):
-        return LaplaceDomainTransferFunction(expr)
+    def as_transfer(cls, expr, **assumptions):
+        return LaplaceDomainTransferFunction(expr, **assumptions)
 
     @classmethod
     def from_poles_residues(cls, poles, residues):
@@ -443,8 +443,8 @@ class LaplaceDomainExpression(Expr):
         from .discretetime import z, dt
         
         return self.subs((1 / dt) * (1 - z**-1))        
-    
 
+            
 class LaplaceDomainImpedance(ImpedanceMixin, LaplaceDomainExpression):
     """s-domain impedance value."""
 

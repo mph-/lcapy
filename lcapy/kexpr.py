@@ -42,24 +42,24 @@ class DiscreteFourierDomainExpression(SequenceExpression):
                 'k-domain expression %s cannot depend on n' % expr)
 
     @classmethod
-    def as_voltage(cls, expr):
-        return DiscreteFourierDomainVoltage(expr)
+    def as_voltage(cls, expr, **assumptions):
+        return DiscreteFourierDomainVoltage(expr, **assumptions)
 
     @classmethod
-    def as_current(cls, expr):
-        return DiscreteFourierDomainCurrent(expr)    
+    def as_current(cls, expr, **assumptions):
+        return DiscreteFourierDomainCurrent(expr, **assumptions)    
 
     @classmethod
-    def as_impedance(cls, expr):
-        return DiscreteFourierDomainImpedance(expr)
+    def as_impedance(cls, expr, **assumptions):
+        return DiscreteFourierDomainImpedance(expr, **assumptions)
 
     @classmethod
-    def as_admittance(cls, expr):
-        return DiscreteFourierDomainAdmittance(expr)
+    def as_admittance(cls, expr, **assumptions):
+        return DiscreteFourierDomainAdmittance(expr, **assumptions)
 
     @classmethod
-    def as_transfer(cls, expr):
-        return DiscreteFourierDomainTransferFunction(expr)
+    def as_transfer(cls, expr, **assumptions):
+        return DiscreteFourierDomainTransferFunction(expr, **assumptions)
 
     def plot(self, kvector=None, **kwargs):
         """Plot frequency response at values specified by kvector.  If kvector

@@ -49,11 +49,11 @@ class AngularFourierDomainNoiseExpression(NoiseExpression):
     (SuperpositionVoltage(a) + SuperpositionVoltage(b) - SuperpositionVoltage(b)).n gives 3 as expected.
 
     """
-    one_sided = True
     var = omegasym
 
     domain_label = 'Angular frequency'
     domain_units = 'rad/s'        
+    is_one_sided = True
 
 
     def plot(self, omegavector=None, **kwargs):

@@ -62,24 +62,24 @@ class PhasorDomainExpression(Expr):
         return result
 
     @classmethod
-    def as_voltage(cls, expr):
-        return PhasorDomainVoltage(expr)
+    def as_voltage(cls, expr, **assumptions):
+        return PhasorDomainVoltage(expr, **assumptions)
 
     @classmethod
-    def as_current(cls, expr):
-        return PhasorDomainCurrent(expr)    
+    def as_current(cls, expr, **assumptions):
+        return PhasorDomainCurrent(expr, **assumptions)    
 
     @classmethod
-    def as_impedance(cls, expr):
-        return PhasorDomainImpedance(expr)
+    def as_impedance(cls, expr, **assumptions):
+        return PhasorDomainImpedance(expr, **assumptions)
 
     @classmethod
-    def as_admittance(cls, expr):
-        return PhasorDomainAdmittance(expr)
+    def as_admittance(cls, expr, **assumptions):
+        return PhasorDomainAdmittance(expr, **assumptions)
 
     @classmethod
-    def as_transfer(cls, expr):
-        return PhasorDomainTransferFunction(expr)    
+    def as_transfer(cls, expr, **assumptions):
+        return PhasorDomainTransferFunction(expr, **assumptions)    
     
     @property
     def omega(self):

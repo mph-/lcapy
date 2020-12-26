@@ -45,24 +45,24 @@ class ZDomainExpression(DiscreteExpression):
                 'z-domain expression %s cannot depend on k' % expr)
 
     @classmethod
-    def as_voltage(cls, expr):
-        return ZDomainVoltage(expr)
+    def as_voltage(cls, expr, **assumptions):
+        return ZDomainVoltage(expr, **assumptions)
 
     @classmethod
-    def as_current(cls, expr):
-        return ZDomainCurrent(expr)    
+    def as_current(cls, expr, **assumptions):
+        return ZDomainCurrent(expr, **assumptions)    
 
     @classmethod
-    def as_impedance(cls, expr):
-        return ZDomainImpedance(expr)
+    def as_impedance(cls, expr, **assumptions):
+        return ZDomainImpedance(expr, **assumptions)
 
     @classmethod
-    def as_admittance(cls, expr):
-        return ZDomainAdmittance(expr)
+    def as_admittance(cls, expr, **assumptions):
+        return ZDomainAdmittance(expr, **assumptions)
 
     @classmethod
-    def as_transfer(cls, expr):
-        return ZDomainTransferFunction(expr)
+    def as_transfer(cls, expr, **assumptions):
+        return ZDomainTransferFunction(expr, **assumptions)
 
     def ndifferentiate(self):
         """First order difference in n-domain."""

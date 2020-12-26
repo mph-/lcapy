@@ -49,11 +49,12 @@ class FourierDomainNoiseExpression(NoiseExpression):
     (SuperpositionVoltage(a) + SuperpositionVoltage(b) - SuperpositionVoltage(b)).n gives 3 as expected.
 
     """
-    one_sided = True
     var = fsym
 
     domain_label = 'Frequency'
-    domain_units = 'Hz'    
+    domain_units = 'Hz'
+    is_one_sided = True
+    
 
     def plot(self, fvector=None, **kwargs):
         """Plot frequency response at values specified by fvector.

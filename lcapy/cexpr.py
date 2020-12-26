@@ -33,15 +33,15 @@ class ConstantExpression(Expr):
         super(ConstantExpression, self).__init__(val, **assumptions)
 
     @classmethod
-    def as_voltage(cls, expr):
-        return ConstantVoltage(expr)
+    def as_voltage(cls, expr, **assumptions):
+        return ConstantVoltage(expr, **assumptions)
 
     @classmethod
-    def as_current(cls, expr):
-        return ConstantCurrent(expr)    
+    def as_current(cls, expr, **assumptions):
+        return ConstantCurrent(expr, **assumptions)    
 
     # @classmethod
-    # def as_impedance(cls, expr):
+    # def as_impedance(cls, expr, **assumptions):
     #     return ConstantImpedance(expr)
 
     # @classmethod

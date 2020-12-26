@@ -38,24 +38,24 @@ class AngularFourierDomainExpression(Expr):
                 'omega-domain expression %s cannot depend on t' % self.expr)
 
     @classmethod
-    def as_voltage(cls, expr):
-        return AngularFourierDomainVoltage(expr)
+    def as_voltage(cls, expr, **assumptions):
+        return AngularFourierDomainVoltage(expr, **assumptions)
 
     @classmethod
-    def as_current(cls, expr):
-        return AngularFourierDomainCurrent(expr)    
+    def as_current(cls, expr, **assumptions):
+        return AngularFourierDomainCurrent(expr, **assumptions)    
 
     @classmethod
-    def as_impedance(cls, expr):
-        return AngularFourierDomainImpedance(expr)
+    def as_impedance(cls, expr, **assumptions):
+        return AngularFourierDomainImpedance(expr, **assumptions)
 
     @classmethod
-    def as_admittance(cls, expr):
-        return AngularFourierDomainAdmittance(expr)
+    def as_admittance(cls, expr, **assumptions):
+        return AngularFourierDomainAdmittance(expr, **assumptions)
 
     @classmethod
-    def as_transfer(cls, expr):
-        return AngularFourierDomainTransferFunction(expr)    
+    def as_transfer(cls, expr, **assumptions):
+        return AngularFourierDomainTransferFunction(expr, **assumptions)    
     
     def inverse_fourier(self, **assumptions):
         """Attempt inverse Fourier transform."""
