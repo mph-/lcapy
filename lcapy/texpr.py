@@ -219,27 +219,29 @@ class TimeDomainExpression(Expr):
 class TimeDomainAdmittance(TimeDomainExpression):
     """t-domain 'admittance' value."""
 
+    quantity = 'admittance'
+    quantity_label = 'Admittance'
     units = 'siemens/s'
+    is_impedance = True    
 
 
 class TimeDomainImpedance(TimeDomainExpression):
     """t-domain 'impedance' value."""
 
+    quantity = 'impedance'
+    quantity_label = 'Impedance'
     units = 'ohms/s'
+    is_impedance = True
 
 
 class TimeDomainVoltage(VoltageMixin, TimeDomainExpression):
     """t-domain voltage (units V)."""
-
-    quantity_label = 'Voltage'
-    units = 'V'
+    pass
 
         
 class TimeDomainCurrent(CurrentMixin, TimeDomainExpression):
     """t-domain current (units A)."""
-
-    quantity_label = 'Current'
-    units = 'A'
+    pass
 
 
 class TimeDomainImpulseResponse(TimeDomainExpression):
