@@ -729,10 +729,9 @@ class Expr(ExprPrint, ExprMisc):
         if not isinstance(x, Expr):
             x = expr(x)
 
-        if x.__class__ is ConstantExpression or self.__class__ is ConstantExpression:
+        if (x.__class__ is ConstantExpression or
+            self.__class__ is ConstantExpression):
             return self.__class__(self.expr * x.expr)
-
-        # TODO: check for domain specific conversions, say for phasors
 
         if self.domain != x.domain:
             if (isinstance(self, ConstantExpression) and not
@@ -755,7 +754,7 @@ class Expr(ExprPrint, ExprMisc):
             cls = self._class_by_quantity(self._mul_mapping[key])
             return cls(self.expr * x.expr, **assumptions)
         except:
-            # What about voltage**2. etc.
+            # TODO: What about voltage**2. etc.
             self._incompatible_quantities(x, '*')        
     
     def __rmul__(self, x):
@@ -769,21 +768,24 @@ class Expr(ExprPrint, ExprMisc):
         if not isinstance(x, Expr):
             x = expr(x)
 
-        if x.__class__ is ConstantExpression or self.__class__ is ConstantExpression:
+        if (x.__class__ is ConstantExpression and
+            self.__class__ is ConstantExpression):
             return self.__class__(self.expr / x.expr)
 
-        # TODO: check for domain specific conversions, say for phasors
-
         if self.domain != x.domain:
-            if (isinstance(x, ConstantExpression) and not
-                isinstance(self, ConstantExpression)):
-                return x.__mul__(self)
+            if (isinstance(self, ConstantExpression) and x.quantity is None):
+                # 1 / f, etc.
+                return x.__class__(self.expr / x.expr)
 
+            if (isinstance(x, ConstantExpression)):
+                # XXX / const
+                return self.__class__(self.expr / x.expr)                
+        
             # Allow XXXVoltage / ConstantImpedance etc.
             if not isinstance(x, ConstantExpression):
                 self._incompatible_domains(x, '/')
 
-        if not self._mul_compatible(x):
+        if not self._div_compatible(x):
             self._incompatible_quantities(x, '/')                        
 
         if self.domain != x.domain:
@@ -808,8 +810,10 @@ class Expr(ExprPrint, ExprMisc):
         if isinstance(x, Matrix):
             return x / self.expr
 
-        cls, self, x, assumptions = self.__compat_mul__(x, '/')
-        return cls(x.expr / self.expr, **assumptions)
+        if not isinstance(x, Expr):
+            x = expr(x)
+
+        return x.__truediv__(self)
             
     def __add__(self, x):
         """Add"""
