@@ -782,7 +782,7 @@ class R(OnePort):
     def __init__(self, Rval):
 
         self.args = (Rval, )
-        self._R = ConstantExpression(Rval)
+        self._R = cexpr(Rval)
         self._Z = impedance(self._R, causal=True)
 
     def i_equation(self, v, kind='t'):
@@ -802,7 +802,7 @@ class G(OnePort):
     def __init__(self, Gval):
 
         self.args = (Gval, )
-        self._G = ConstantExpression(Gval)
+        self._G = cexpr(Gval)
         self._Z = impedance(1 / self._G, causal=True)
 
     def _net_make(self, netlist, n1=None, n2=None, dir='right'):
@@ -840,8 +840,8 @@ class L(OnePort):
         else:
             self.args = (Lval, )
 
-        Lval = ConstantExpression(Lval)
-        i0 = ConstantExpression(i0)
+        Lval = cexpr(Lval)
+        i0 = cexpr(i0)
         self.L = Lval
         self.i0 = i0
         self._Z = impedance(s * Lval, causal=True)
@@ -883,8 +883,8 @@ class C(OnePort):
         else:
             self.args = (Cval, )
 
-        Cval = ConstantExpression(Cval)
-        v0 = ConstantExpression(v0)
+        Cval = cexpr(Cval)
+        v0 = cexpr(v0)
         self.C = Cval
         self.v0 = v0
         self._Z = impedance(1 / (s * Cval), causal=True)
@@ -927,8 +927,8 @@ class CPE(OnePort):
 
         self.args = (K, alpha)
 
-        K = ConstantExpression(K)
-        alpha = ConstantExpression(alpha)
+        K = cexpr(K)
+        alpha = cexpr(alpha)
         self.K = K
         self.alpha = alpha
         self._Z = impedance(1 / (s ** alpha * K), causal=True)
@@ -994,7 +994,7 @@ class Vstep(VoltageSourceBase):
     def __init__(self, v):
 
         self.args = (v, )
-        v = ConstantExpression(v)
+        v = cexpr(v)
         self._Voc = SuperpositionVoltage(TimeDomainExpression(v) * Heaviside(t))
         self.v0 = v
 
@@ -1008,8 +1008,8 @@ class Vdc(VoltageSourceBase):
     def __init__(self, v):
 
         self.args = (v, )
-        v = ConstantExpression(v)
-        self._Voc = SuperpositionVoltage(ConstantExpression(v, dc=True))
+        v = cexpr(v)
+        self._Voc = SuperpositionVoltage(cexpr(v, dc=True))
         self.v0 = v
 
     @property
@@ -1038,10 +1038,10 @@ class Vac(VoltageSourceBase):
             
         if omega is None:
             omega = omega0sym
-        omega = Expr(omega)
+        omega = cexpr(omega)
 
-        V = Expr(V)
-        phi = Expr(phi)
+        V = cexpr(V)
+        phi = cexpr(phi)
 
         # Note, cos(-pi / 2) is not quite zero.
 
@@ -1125,7 +1125,7 @@ class Istep(CurrentSourceBase):
     def __init__(self, i):
 
         self.args = (i, )
-        i = ConstantExpression(i)
+        i = cexpr(i)
         self._Isc = SuperpositionCurrent(TimeDomainExpression(i) * Heaviside(t))
         self.i0 = i
 
@@ -1139,8 +1139,8 @@ class Idc(CurrentSourceBase):
     def __init__(self, i):
 
         self.args = (i, )
-        i = ConstantExpression(i)
-        self._Isc = SuperpositionCurrent(ConstantExpression(i, dc=True))
+        i = cexpr(i)
+        self._Isc = SuperpositionCurrent(cexpr(i, dc=True))
         self.i0 = i
 
     @property
@@ -1169,10 +1169,10 @@ class Iac(CurrentSourceBase):
             
         if omega is None:
             omega = omega0sym
-        omega = Expr(omega)
+        omega = cexpr(omega)
 
-        I = Expr(I)
-        phi = Expr(phi)
+        I = cexpr(I)
+        phi = cexpr(phi)
 
         self.omega = omega
         self.i0 = I
@@ -1218,10 +1218,10 @@ class Xtal(OnePort):
 
     def __init__(self, C0, R1, L1, C1):
 
-        self.C0 = ConstantExpression(C0)
-        self.R1 = ConstantExpression(R1)
-        self.L1 = ConstantExpression(L1)
-        self.C1 = ConstantExpression(C1)
+        self.C0 = cexpr(C0)
+        self.R1 = cexpr(R1)
+        self.L1 = cexpr(L1)
+        self.C1 = cexpr(C1)
 
         self._Z = self.expand().impedance
         self.args = (C0, R1, L1, C1)
@@ -1246,10 +1246,10 @@ class FerriteBead(OnePort):
 
     def __init__(self, Rs, Rp, Cp, Lp):
 
-        self.Rs = ConstantExpression(Rs)
-        self.Rp = ConstantExpression(Rp)
-        self.Cp = ConstantExpression(Cp)
-        self.Lp = ConstantExpression(Lp)
+        self.Rs = cexpr(Rs)
+        self.Rp = cexpr(Rp)
+        self.Cp = cexpr(Cp)
+        self.Lp = cexpr(Lp)
 
         self._Z = self.expand().impedance
         self.args = (Rs, Rp, Cp, Lp)
@@ -1357,7 +1357,7 @@ class K(Dummy):
     def __init__(self, L1, L2, K):
 
         self.args = (L1, L2, K)
-        self.K = ConstantExpression(K)
+        self.K = cexpr(K)
 
 
 class W(Dummy):
@@ -1453,7 +1453,7 @@ def ladder(*args, **kwargs):
     
 # Imports at end to circumvent circular dependencies
 from .expr import Expr, expr
-from .cexpr import ConstantExpression
+from .cexpr import cexpr
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
 from .noiseomegaexpr import AngularFourierDomainNoiseCurrent, AngularFourierDomainNoiseVoltage

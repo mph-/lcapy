@@ -121,5 +121,11 @@ class ConstantTransferFunction(TransferMixin, ConstantExpression):
     pass
 
 
+def cexpr(arg, **assumptions):
+    """Create Lcapy constant expression from arg."""
+
+    return ConstantExpression(arg)
+
+
 from .texpr import t, TimeDomainCurrent, TimeDomainVoltage, TimeDomainExpression
 from .sexpr import s
