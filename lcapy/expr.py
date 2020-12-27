@@ -665,14 +665,14 @@ class Expr(ExprPrint, ExprMisc):
         if not isinstance(x, Expr):
             return cls, self, cls(x), assumptions
 
-        if x.is_constant_domain or x.domain is 'undefined':
+        if x.is_constant_domain and x.quantity is 'undefined':
             return cls, self, x, assumptions
         
-        if self.is_constant_domain or self.domain is 'undefined':
+        if self.is_constant_domain and self.quantity is 'undefined':
             return xcls, self, x, assumptions            
 
         if self.domain != x.domain:
-            return False
+            self._incompatible_domains(x, op)                    
         
         if (isinstance(self, LaplaceDomainExpression) and
             isinstance(x, LaplaceDomainExpression)):
@@ -877,7 +877,11 @@ class Expr(ExprPrint, ExprMisc):
         if x is None:
             return True
 
-        cls, self, x, assumptions = self.__compat_add__(x, '!=')
+        try:        
+            cls, self, x, assumptions = self.__compat_add__(x, '!=')
+        except ValueError:
+            return True            
+            
         x = cls(x)
 
         return sym.simplify(self.expr - x.expr) != 0        

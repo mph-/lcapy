@@ -21,7 +21,6 @@ class ConstantExpression(Expr):
     """
 
     domain = 'Constant'
-    quantity = 'constant'
     is_constant_domain = True
 
     def __init__(self, val, **assumptions):
