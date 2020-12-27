@@ -671,22 +671,21 @@ class Expr(ExprPrint, ExprMisc):
         if self.is_constant_domain and self.quantity is 'undefined':
             return xcls, self, x, assumptions            
 
-        if self.domain != x.domain:
-            self._incompatible_domains(x, op)                    
-        
-        if (isinstance(self, LaplaceDomainExpression) and
+        if (isinstance(self, LaplaceDomainExpression) or
             isinstance(x, LaplaceDomainExpression)):
             assumptions = self._add_assumptions(x)
         
         if self.quantity == x.quantity:
             if self.is_constant_domain:
                 return xcls, self, x, assumptions
-            else:
+            if x.is_constant_domain:            
                 return cls, self, x, assumptions                
+            if self.domain == x.domain:
+                return cls, self, x, assumptions            
 
         if (self.quantity is 'undefined' or x.quantity is 'undefined'):
-            return cls, self, x, assumptions                        
-
+            return cls, self, x, assumptions
+        
         self._incompatible(x, op)        
 
     def __mul__(self, x):

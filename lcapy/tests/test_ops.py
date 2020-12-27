@@ -102,13 +102,19 @@ class LcapyTester(unittest.TestCase):
         V1 = voltage(s)
         V2 = voltage(s + 4)
         C = cexpr(3)
+        Z = impedance(3 * s)
+        CZ = impedance(3)        
         
         self.assertEqual(V1 + V2, voltage(2 * s + 4), "V1(s) + V2(s)")
         self.assertEqual(C + V1, voltage(3 + s), "C + V1(s)")
         self.assertEqual(V1 + C, voltage(3 + s), "V1(s) + C")
         self.assertEqual(V1 + 3, voltage(3 + s), "V1(s) + 3")
         self.assertEqual(3 + V1, voltage(3 + s), "3 + V1(s)")
-
+        self.assertEqual(C + Z, impedance(3 * s + 3), "C + Z(s)")
+        self.assertEqual(Z + C, impedance(3 * s + 3), "Z(s) + C")
+        self.assertEqual(CZ + Z, impedance(3 * s + 3), "CZ + Z(s)")
+        self.assertEqual(Z + CZ, impedance(3 * s + 3), "Z(s) + CZ")        
+        
     def test_fdomain_add(self):
         
         V1 = voltage(f)
@@ -142,8 +148,8 @@ class LcapyTester(unittest.TestCase):
 
         a = voltage(3 * s)
         b = voltage(3)
-        self.assertEqual(a != b, True, "a != b")                        
-        
+        self.assertEqual(a != b, True, "a != b")
+
     def test_rdiv(self):
 
         self.assertEqual(3 / expr('3'), 1, "3 / expr('3')")
