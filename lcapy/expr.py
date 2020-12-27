@@ -617,63 +617,6 @@ class Expr(ExprPrint, ExprMisc):
     def _div_compatible(self, x):
         return True
     
-    def __compat_mul__(self, x, op):
-        """Check if args are compatible and if so return compatible class."""
-
-        # Could also convert Vs / Zs -> Is, etc.
-        # But, what about (Vs * Vs) / (Vs * Is) ???
-
-        # Doing all this in Expr this is much simpler than having
-        # __mul__ and __div__ methods for all the subclasses,
-        # especially for __div
-        
-        assumptions = {}
-        
-        cls = self.__class__
-        if not isinstance(x, Expr):
-            return cls, self, cls(x), assumptions
-
-        xcls = x.__class__
-
-        if isinstance(self, LaplaceDomainExpression) and isinstance(x, LaplaceDomainExpression):
-            assumptions = self._mul_assumptions(x)            
-
-        if cls == xcls:
-            return cls, self, cls(x), assumptions
-
-        # Allow omega * t but treat as t expression.
-        if isinstance(self, AngularFourierDomainExpression) and isinstance(x, TimeDomainExpression):
-            return xcls, self, x, assumptions
-        if isinstance(self, TimeDomainExpression) and isinstance(x, AngularFourierDomainExpression):
-            return cls, self, x, assumptions                    
-        
-        if xcls in (Expr, ConstantExpression):
-            return cls, self, cls(x), assumptions
-
-        if cls in (Expr, ConstantExpression):
-            return xcls, self, x, assumptions
-
-        if isinstance(x, cls):
-            return xcls, self, cls(x), assumptions
-
-        if isinstance(self, xcls):
-            return cls, self, cls(x), assumptions
-
-        if isinstance(self, TimeDomainExpression) and isinstance(x, TimeDomainExpression):
-            return cls, self, cls(x), assumptions
-
-        if isinstance(self, FourierDomainExpression) and isinstance(x, FourierDomainExpression):
-            return cls, self, cls(x), assumptions        
-
-        if isinstance(self, LaplaceDomainExpression) and isinstance(x, LaplaceDomainExpression):
-            return cls, self, cls(x), assumptions
-
-        if isinstance(self, AngularFourierDomainExpression) and isinstance(x, AngularFourierDomainExpression):
-            return cls, self, cls(x), assumptions
-
-        self._incompatible(self, x, op)
-
-
     def __compat_add__(self, x, op):
 
         # Disallow Vs + Is, etc.
