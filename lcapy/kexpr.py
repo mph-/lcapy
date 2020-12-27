@@ -52,7 +52,9 @@ class DiscreteFourierDomainExpression(SequenceExpression):
         elif quantity == 'admittance':
             return DiscreteFourierDomainAdmittance
         elif quantity == 'transfer':
-            return DiscreteFourierDomainTransferFunction                
+            return DiscreteFourierDomainTransferFunction
+        elif quantity == 'undefined':
+            return DiscreteFourierDomainExpression
         raise ValueError('Unknown quantity %s' % quantity)
 
     def as_expr(self):

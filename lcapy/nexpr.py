@@ -59,7 +59,9 @@ class DiscreteTimeDomainExpression(SequenceExpression):
         elif quantity == 'admittance':
             return DiscreteTimeDomainAdmittance
         elif quantity == 'transfer':
-            return DiscreteTimeDomainImpulseResponse                
+            return DiscreteTimeDomainImpulseResponse
+        elif quantity == 'undefined':
+            return DiscreteTimeDomainExpression                                
         raise ValueError('Unknown quantity %s' % quantity)
 
     def as_expr(self):

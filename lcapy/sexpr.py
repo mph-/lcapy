@@ -56,7 +56,9 @@ class LaplaceDomainExpression(Expr):
         elif quantity == 'admittance':
             return LaplaceDomainAdmittance
         elif quantity == 'transfer':
-            return LaplaceDomainTransferFunction                
+            return LaplaceDomainTransferFunction
+        elif quantity == 'undefined':
+            return LaplaceDomainExpression
         raise ValueError('Unknown quantity %s' % quantity)
     
     def as_expr(self):

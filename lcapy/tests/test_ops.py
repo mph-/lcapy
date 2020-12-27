@@ -28,6 +28,7 @@ class LcapyTester(unittest.TestCase):
         Y = admittance(s)
         Z = impedance(1 / s)        
         H = transfer(sexpr(10))
+        U = sexpr(2)
         
         self.assertEqual(V * 3, 15 / s, "V(s) * const")
         self.assertEqual(3 * V, 15 / s, "const * V(s)")
@@ -39,6 +40,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(H * V, voltage(50 / s), "H(s) * V(s)")
         self.assertEqual(I * H, current(sexpr(50)), "I(s) * H(s)")
         self.assertEqual(H * I, current(sexpr(50)), "H(s) * I(s)")
+        self.assertEqual(U * U, sexpr(4), "U(s) * U(s)")        
 
     def test_fdomain_mul(self):
         
@@ -47,6 +49,7 @@ class LcapyTester(unittest.TestCase):
         Y = admittance(f)
         Z = impedance(1 / f)                
         H = transfer(fexpr(10))
+        U = fexpr(2)        
         
         self.assertEqual(V * 3, 15 / f, "V(f) * const")
         self.assertEqual(3 * V, 15 / f, "const * V(f)")
@@ -57,7 +60,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(V * H, voltage(50 / f), "V(f) * H(f)")
         self.assertEqual(H * V, voltage(50 / f), "H(f) * V(f)")
         self.assertEqual(I * H, current(fexpr(50)), "I(f) * H(f)")
-        self.assertEqual(H * I, current(fexpr(50)), "H(f) * I(f)")        
+        self.assertEqual(H * I, current(fexpr(50)), "H(f) * I(f)")
+        self.assertEqual(U * U, fexpr(4), "U(f) * U(f)")                
 
     def test_sdomain_div(self):
         
@@ -66,12 +70,14 @@ class LcapyTester(unittest.TestCase):
         Y = admittance(s)
         Z = impedance(1 / s)        
         H = transfer(sexpr(10))
+        U = sexpr(2)        
         
         self.assertEqual(V / 5, 1 / s, "V(s) / 5")
         self.assertEqual(V / Z, I, "V(s) / Z(s)")
         self.assertEqual(I / Y, V, "I(s) / Y(s)")
         self.assertEqual(I / H, current(sexpr(1 / 2)), "I(s) / H(s)")
         self.assertEqual(V / H, voltage(sexpr(1 / 2 / s)), "V(s) / H(s)")
+        self.assertEqual(U / U, sexpr(1), "U(s) / U(s)")        
 
     def test_sdomain_rdiv(self):
         

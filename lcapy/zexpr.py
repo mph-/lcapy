@@ -28,7 +28,7 @@ class ZDomainExpression(DiscreteExpression):
     var = zsym
     domain = 'Z'
     domain_label = 'Z'    
-    domain_units = ''    
+    domain_units = ''
 
     def __init__(self, val, **assumptions):
 
@@ -55,7 +55,9 @@ class ZDomainExpression(DiscreteExpression):
         elif quantity == 'admittance':
             return ZDomainAdmittance
         elif quantity == 'transfer':
-            return ZDomainTransferFunction                
+            return ZDomainTransferFunction
+        elif quantity == 'undefined':
+            return ZDomainExpression
         raise ValueError('Unknown quantity %s' % quantity)
 
     def as_expr(self):

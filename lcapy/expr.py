@@ -217,7 +217,7 @@ class Expr(ExprPrint, ExprMisc):
     var = None
     domain = ''
     domain_label = ''
-    quantity = None
+    quantity = 'undefined'
     quantity_label = ''
     is_time_domain = False
     is_laplace_domain = False    
@@ -309,6 +309,8 @@ class Expr(ExprPrint, ExprMisc):
             return self.as_admittance(expr)
         elif quantity == 'transfer':
             return self.as_transfer(expr)
+        elif quantity == 'undefined':
+            return self.as_expr(expr)        
         raise ValueError('Unknown quantity %s for %s' % (quantity, self))
 
     def as_expr(self):
@@ -691,6 +693,10 @@ class Expr(ExprPrint, ExprMisc):
 
         assumptions = self._mul_assumptions(x)
 
+        # Make _mul_table smaller
+        if self.quantity is 'undefined':
+            return self.__class__(self.expr * x.expr, **assumptions)
+        
         key = (self.quantity, x.quantity)
 
         try:
@@ -716,7 +722,7 @@ class Expr(ExprPrint, ExprMisc):
             return self.__class__(self.expr / x.expr)
 
         if self.domain != x.domain:
-            if (isinstance(self, ConstantExpression) and x.quantity is None):
+            if (isinstance(self, ConstantExpression) and x.quantity is 'undefined'):
                 # 1 / f, etc.
                 return x.__class__(self.expr / x.expr)
 
@@ -734,10 +740,14 @@ class Expr(ExprPrint, ExprMisc):
         if self.domain != x.domain:
             self._incompatible_domains(x, '/')
 
-        key = (self.quantity, x.quantity)
-
         assumptions = self._mul_assumptions(x)
         
+        # Make _div_table smaller
+        if self.quantity is 'undefined':
+            return self.__class__(self.expr / x.expr, **assumptions)
+            
+        key = (self.quantity, x.quantity)
+
         try:
             cls = self._class_by_quantity(self._div_mapping[key])
             return cls(self.expr / x.expr, **assumptions)
@@ -794,7 +804,7 @@ class Expr(ExprPrint, ExprMisc):
             return self.__mul__(self)
         elif x == -1:
             return self.__rtruediv__(1)
-        elif self.quantity is not None:
+        elif self.quantity is not 'undefined':
             raise ValueError('Cannot compute %s(%s) ** %s' % (self.__class__.__name__, self, x))
         return self.__class__(self.expr.__pow__(x))
     

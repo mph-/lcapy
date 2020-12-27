@@ -61,7 +61,9 @@ class TimeDomainExpression(Expr):
         elif quantity == 'admittance':
             return TimeDomainAdmittance
         elif quantity == 'transfer':
-            return TimeDomainImpulseResponse                
+            return TimeDomainImpulseResponse
+        elif quantity == 'undefined':
+            return TimeDomainExpression                                
         raise ValueError('Unknown quantity %s' % quantity)
     
     def as_expr(self):

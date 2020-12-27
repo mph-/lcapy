@@ -48,7 +48,9 @@ class AngularFourierDomainExpression(Expr):
         elif quantity == 'admittance':
             return AngularFourierDomainAdmittance
         elif quantity == 'transfer':
-            return AngularFourierDomainTransferFunction                
+            return AngularFourierDomainTransferFunction
+        elif quantity == 'undefined':
+            return AngularFourierDomainExpression                                
         raise ValueError('Unknown quantity %s' % quantity)
 
     def as_expr(self):

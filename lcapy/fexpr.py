@@ -51,7 +51,9 @@ class FourierDomainExpression(Expr):
         elif quantity == 'admittance':
             return FourierDomainAdmittance
         elif quantity == 'transfer':
-            return FourierDomainTransferFunction                
+            return FourierDomainTransferFunction
+        elif quantity == 'undefined':
+            return FourierDomainExpression                                
         raise ValueError('Unknown quantity %s' % quantity)
         
     def as_expr(self):
