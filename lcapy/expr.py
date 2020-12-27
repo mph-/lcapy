@@ -215,16 +215,16 @@ class Expr(ExprPrint, ExprMisc):
     """Decorator class for sympy classes derived from sympy.Expr"""
 
     var = None
-    domain = ''
+    domain = 'undefined'
     domain_label = ''
     quantity = 'undefined'
     quantity_label = ''
+    is_constant_domain = False    
     is_time_domain = False
     is_laplace_domain = False    
     is_fourier_domain = False
     is_angular_fourier_domain = False
     is_phasor_domain = False
-    is_constant = False
     is_phasor = False
     is_always_causal = False
     is_voltage = False
@@ -236,22 +236,35 @@ class Expr(ExprPrint, ExprMisc):
     is_one_sided = False
 
     _mul_mapping = {('voltage', 'admittance'): 'current',
-                   ('current', 'impedance'): 'voltage',
-                   ('voltage', 'transfer'): 'voltage',
-                   ('current', 'transfer'): 'current',
-                   ('admittance', 'voltage'): 'current',
-                   ('impedance', 'current'): 'voltage',
-                   ('transfer', 'voltage'): 'voltage',
-                   ('transfer', 'current'): 'current',
-                   ('transfer', 'transfer'): 'transfer'}
+                    ('current', 'impedance'): 'voltage',
+                    ('voltage', 'transfer'): 'voltage',
+                    ('current', 'transfer'): 'current',
+                    ('transfer', 'transfer'): 'transfer',
+                    ('voltage', 'constant'): 'voltage',
+                    ('current', 'constant'): 'current',
+                    ('admittance', 'constant'): 'admittance',
+                    ('impedance', 'constant'): 'impedance',
+                    ('transfer', 'constant'): 'transfer',
+                    ('constant', 'constant'): 'constant'}
     
     _div_mapping = {('voltage', 'impedance'): 'current',
                     ('current', 'admittance'): 'voltage',
                     ('voltage', 'transfer'): 'voltage',
                     ('current', 'transfer'): 'current',
                     ('transfer', 'transfer'): 'transfer',
+                    ('voltage', 'current'): 'impedance',
+                    ('current', 'voltage'): 'admittance',                    
                     ('current', 'current'): 'transfer',
-                    ('voltage', 'voltage'): 'transfer'}
+                    ('voltage', 'voltage'): 'transfer',
+                    ('voltage', 'constant'): 'voltage',
+                    ('current', 'constant'): 'current',
+                    ('impedance', 'constant'): 'impedance',
+                    ('admittance', 'constant'): 'admittance',
+                    ('transfer', 'constant'): 'transfer',
+                    ('constant', 'impedance'): 'admittance',
+                    ('constant', 'admittance'): 'impedance',
+                    ('constant', 'transfer'): 'transfer',
+                    ('constant', 'constant'): 'constant'}
     
     # This needs to be larger than what sympy defines so
     # that the __rmul__, __radd__ methods get called.
@@ -313,9 +326,33 @@ class Expr(ExprPrint, ExprMisc):
             return self.as_expr(expr)        
         raise ValueError('Unknown quantity %s for %s' % (quantity, self))
 
+    def as_domain(self, domain):
+
+        if domain == 'time':
+            return self.as_time(expr)
+        elif domain == 'laplace':
+            return self.as_laplace(expr)
+        elif domain == 'fourier':
+            return self.as_fourier(expr)
+        elif domain == 'angular fourier':
+            return self.as_angular_fourier(expr)
+        raise ValueError('Unknown domain %s for %s' % (domain, self))
+    
     def as_expr(self):
         return self
 
+    def as_time(self):
+        return self.time()
+
+    def as_laplace(self):
+        return self.laplace()    
+
+    def as_fourier(self):
+        return self.fourier()
+
+    def as_angular_fourier(self):
+        return self.angular_fourier()
+    
     def __str__(self, printer=None):
         """String representation of expression."""
         return print_str(self._pexpr)
@@ -620,51 +657,35 @@ class Expr(ExprPrint, ExprMisc):
         return True
     
     def __compat_add__(self, x, op):
-
-        # Disallow Vs + Is, etc.
-
         assumptions = {}
 
         cls = self.__class__
+        xcls = x.__class__
+        
         if not isinstance(x, Expr):
             return cls, self, cls(x), assumptions
 
-        xcls = x.__class__
+        if x.is_constant_domain or x.domain is 'undefined':
+            return cls, self, x, assumptions
+        
+        if self.is_constant_domain or self.domain is 'undefined':
+            return xcls, self, x, assumptions            
 
-        if isinstance(self, LaplaceDomainExpression) and isinstance(x, LaplaceDomainExpression):
+        if self.domain != x.domain:
+            return False
+        
+        if (isinstance(self, LaplaceDomainExpression) and
+            isinstance(x, LaplaceDomainExpression)):
             assumptions = self._add_assumptions(x)
         
-        if cls == xcls:
-            return cls, self, x, assumptions
+        if self.quantity == x.quantity:
+            if self.is_constant_domain:
+                return xcls, self, x, assumptions
+            else:
+                return cls, self, x, assumptions                
 
-        # Zw + Zs -> Zs
-        if self.is_impedance and x.is_impedance:
-            return LaplaceDomainImpedance, self.laplace(), x.laplace(), assumptions
-        # Yw + Ys -> Ys        
-        if self.is_admittance and x.is_admittance:
-            return LaplaceDomainAdmittance, self.laplace(), x.laplace(), assumptions        
-
-        # Be loose with admittance and impedance comparisons...
-        if (isinstance(self, LaplaceDomainAdmittance) and
-            isinstance(self, (FourierDomainExpression, AngularFourierDomainExpression, LaplaceDomainExpression))):
-            return LaplaceDomainAdmittance, self.laplace(), x.laplace(), assumptions
-        if (isinstance(self, LaplaceDomainImpedance) and
-            isinstance(self, (FourierDomainExpression, AngularFourierDomainExpression, LaplaceDomainExpression))):
-            return LaplaceDomainImpedance, self.laplace(), x.laplace(), assumptions                            
-        
-        # Handle Vs + LaplaceDomainExpression etc.
-        if isinstance(self, xcls):
-            return cls, self, x, assumptions
-
-        # Handle LaplaceDomainExpression + Vs etc.
-        if isinstance(x, cls):
-            return xcls, self, cls(x), assumptions
-
-        if xcls in (Expr, ConstantExpression):
-            return cls, self, x, assumptions
-
-        if cls in (Expr, ConstantExpression):
-            return xcls, cls(self), x, assumptions
+        if (self.quantity is 'undefined' or x.quantity is 'undefined'):
+            return cls, self, x, assumptions                        
 
         self._incompatible(x, op)        
 
@@ -674,18 +695,10 @@ class Expr(ExprPrint, ExprMisc):
         if not isinstance(x, Expr):
             x = expr(x)
 
-        if (x.__class__ is ConstantExpression or
-            self.__class__ is ConstantExpression):
-            return self.__class__(self.expr * x.expr)
-
         if self.domain != x.domain:
-            if (isinstance(self, ConstantExpression) and not
-                isinstance(x, ConstantExpression)):
-                return x.__mul__(self)
 
-            # Allow XXXCurrent * ConstantImpedance etc.
-            if (not isinstance(x, ConstantExpression) and not
-                isinstance(self, ConstantExpression)):
+            if (self.__class__ != ConstantExpression and
+                x.__class__ != ConstantExpression):
                 self._incompatible_domains(x, '*')
 
         if not self._mul_compatible(x):
@@ -693,18 +706,30 @@ class Expr(ExprPrint, ExprMisc):
 
         assumptions = self._mul_assumptions(x)
 
-        # Make _mul_table smaller
-        if self.quantity is 'undefined':
-            return self.__class__(self.expr * x.expr, **assumptions)
+        xquantity, yquantity = x.quantity, self.quantity
+        # Maybe use undefined for voltage**2 etc.
+        if xquantity == 'undefined':
+            xquantity = 'constant'
+        if yquantity == 'undefined':
+            yquantity = 'constant'            
         
-        key = (self.quantity, x.quantity)
+        key = (yquantity, xquantity)
+        if key not in self._mul_mapping:
+            key = (xquantity, yquantity)
+            if key not in self._mul_mapping:
+                # TODO: What about voltage**2. etc.
+                self._incompatible_quantities(x, '*')        
 
-        try:
-            cls = self._class_by_quantity(self._mul_mapping[key])
-            return cls(self.expr * x.expr, **assumptions)
-        except:
-            # TODO: What about voltage**2. etc.
-            self._incompatible_quantities(x, '*')        
+        quantity = self._mul_mapping[key]
+        if quantity == 'constant':
+            quantity = 'undefined'
+
+        if self.__class__ == ConstantExpression:
+            cls = x._class_by_quantity(quantity)
+        else:
+            cls = self._class_by_quantity(quantity)
+            
+        return cls(self.expr * x.expr, **assumptions)
     
     def __rmul__(self, x):
         """Reverse multiply"""
@@ -717,44 +742,40 @@ class Expr(ExprPrint, ExprMisc):
         if not isinstance(x, Expr):
             x = expr(x)
 
-        if (x.__class__ is ConstantExpression and
-            self.__class__ is ConstantExpression):
-            return self.__class__(self.expr / x.expr)
-
         if self.domain != x.domain:
-            if (isinstance(self, ConstantExpression) and x.quantity is 'undefined'):
-                # 1 / f, etc.
-                return x.__class__(self.expr / x.expr)
 
-            if (isinstance(x, ConstantExpression)):
-                # XXX / const
-                return self.__class__(self.expr / x.expr)                
-        
-            # Allow XXXVoltage / ConstantImpedance etc.
-            if not isinstance(x, ConstantExpression):
+            if (self.__class__ != ConstantExpression and
+                x.__class__ != ConstantExpression):
                 self._incompatible_domains(x, '/')
 
         if not self._div_compatible(x):
             self._incompatible_quantities(x, '/')                        
 
-        if self.domain != x.domain:
-            self._incompatible_domains(x, '/')
-
         assumptions = self._mul_assumptions(x)
-        
-        # Make _div_table smaller
-        if self.quantity is 'undefined':
-            return self.__class__(self.expr / x.expr, **assumptions)
-            
-        key = (self.quantity, x.quantity)
 
-        try:
-            cls = self._class_by_quantity(self._div_mapping[key])
-            return cls(self.expr / x.expr, **assumptions)
-        except:
-            # What about voltage**2. etc.
+        xquantity, yquantity = x.quantity, self.quantity
+        # Maybe use undefined for voltage**2 etc.
+        if xquantity == 'undefined':
+            xquantity = 'constant'
+        if yquantity == 'undefined':
+            yquantity = 'constant'            
+        
+        key = (yquantity, xquantity)
+        if key not in self._div_mapping:
+            # TODO: What about voltage**2. etc.
             self._incompatible_quantities(x, '*')        
 
+        quantity = self._div_mapping[key]
+        if quantity == 'constant':
+            quantity = 'undefined'
+
+        if self.__class__ == ConstantExpression:            
+            cls = x._class_by_quantity(quantity)
+        else:
+            cls = self._class_by_quantity(quantity)
+            
+        return cls(self.expr / x.expr, **assumptions)            
+            
     def __rtruediv__(self, x):
         """Reverse true divide"""
 
@@ -782,20 +803,22 @@ class Expr(ExprPrint, ExprMisc):
     def __radd__(self, x):
         """Reverse add"""
 
-        cls, self, x, assumptions = self.__compat_add__(x, '+')
-        return cls(self.expr + x.expr, **assumptions)
-
-    def __rsub__(self, x):
-        """Reverse subtract"""
-
-        cls, self, x, assumptions = self.__compat_add__(x, '-')
-        return cls(x.expr - self.expr, **assumptions)
+        if not isinstance(x, Expr):
+            x = expr(x)
+        return x.__add__(self)
 
     def __sub__(self, x):
         """Subtract"""
 
         cls, self, x, assumptions = self.__compat_add__(x, '-')
         return cls(self.expr - x.expr, **assumptions)
+
+    def __rsub__(self, x):
+        """Reverse subtract"""
+
+        if not isinstance(x, Expr):
+            x = expr(x)
+        return x.__sub__(self)        
 
     def __pow__(self, x):
         """Power"""
@@ -1158,6 +1181,9 @@ class Expr(ExprPrint, ExprMisc):
 
     @property
     def is_constant(self):
+
+        if self.is_constant_domain:
+            return True
 
         expr = self.expr
 
@@ -2234,7 +2260,7 @@ def expr(arg, **assumptions):
     elif omegasym in symbols:
         return omegaexpr(expr, **assumptions)
     else:
-        return ConstantExpression(expr, **assumptions)
+        return cexpr(expr, **assumptions)
 
 
 def symbol(name, **assumptions):
@@ -2242,7 +2268,7 @@ def symbol(name, **assumptions):
 
     By default, symbols are assumed to be positive unless real is
     defined or positive is defined as False."""
-    return Expr(symsymbol(name, **assumptions))
+    return expr(symsymbol(name, **assumptions))
 
 
 def symbols(names, **assumptions):
@@ -2258,7 +2284,7 @@ def symbols(names, **assumptions):
     return symbols
 
 
-from .cexpr import ConstantExpression        
+from .cexpr import cexpr, ConstantExpression
 from .fexpr import FourierDomainTransferFunction, FourierDomainCurrent, FourierDomainVoltage, FourierDomainAdmittance, FourierDomainImpedance, FourierDomainExpression, fexpr
 from .sexpr import LaplaceDomainTransferFunction, LaplaceDomainCurrent, LaplaceDomainVoltage, LaplaceDomainAdmittance, LaplaceDomainImpedance, LaplaceDomainExpression, sexpr
 from .texpr import TimeDomainExpression, texpr

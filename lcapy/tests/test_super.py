@@ -45,15 +45,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(SuperpositionCurrent(2) - SuperpositionCurrent(3), SuperpositionCurrent(-1),
                           "Current(2) - Current(3)")
         
-    def test_Current_mul_div(self):
-        self.assertEqual2(SuperpositionCurrent(3) * Impedance(2), SuperpositionVoltage(6), "Current(3) * Impedance(2)")
-        self.assertEqual2(SuperpositionCurrent(12) / Admittance(2), SuperpositionVoltage(6), "Current(12) / Admittance(2)")
-
-        
-    def test_Voltage_mul_div(self):
-        self.assertEqual2(SuperpositionVoltage(3) * Admittance(2), SuperpositionCurrent(6), "Voltage(3) * Admittance(2)")
-        self.assertEqual2(SuperpositionVoltage(12) / Impedance(2), SuperpositionCurrent(6), "Voltage(12) / Impedance(2)")
-
     def test_Voltage_noise(self):
         self.assertEqual((AngularFourierDomainNoiseVoltage(3) + AngularFourierDomainNoiseVoltage(4)).expr, AngularFourierDomainNoiseVoltage(5).expr, "Vnoisy(3) + Vnoisy(4)")
         self.assertEqual((SuperpositionVoltage(AngularFourierDomainNoiseVoltage(3)) + SuperpositionVoltage(AngularFourierDomainNoiseVoltage(4))).n.expr,

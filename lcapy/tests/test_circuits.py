@@ -43,7 +43,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.R1.Z, impedance('R1'), "Z incorrect")
         self.assertEqual(a.R1.R, impedance('R1'), "R incorrect")
         self.assertEqual(a.R1.X, 0, "X incorrect")
-        self.assertEqual(a.C1.Y, admittance('j * omega * C1'), "Y incorrect")
+        self.assertEqual(a.C1.Y, admittance('s * C1'), "Y incorrect")
         self.assertEqual(a.C1.G, 0, "G incorrect")
         # Use ac to force jomega form.
         self.assertEqual(a.ac().C1.B, admittance('-omega * C1'), "B incorrect")        

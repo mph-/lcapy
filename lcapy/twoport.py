@@ -2368,7 +2368,7 @@ class Series(TwoPortBModel):
         self.OP = OP
         self.args = (OP, )
         _check_oneport_args(self.args)
-        super(Series, self).__init__(BMatrix.Zseries(OP.Zs), LaplaceDomainVoltage(OP.Voc.laplace()), LaplaceDomainCurrent(0))
+        super(Series, self).__init__(BMatrix.Zseries(OP.Z.laplace()), LaplaceDomainVoltage(OP.Voc.laplace()), LaplaceDomainCurrent(0))
 
 
 class Shunt(TwoPortBModel):
@@ -2395,7 +2395,7 @@ class Shunt(TwoPortBModel):
         self.OP = OP
         self.args = (OP, )
         _check_oneport_args(self.args)
-        super(Shunt, self).__init__(BMatrix.Yshunt(OP.Ys), LaplaceDomainVoltage(0),
+        super(Shunt, self).__init__(BMatrix.Yshunt(OP.Y.laplace()), LaplaceDomainVoltage(0),
                                     LaplaceDomainCurrent(OP.Isc.laplace()))
 
 

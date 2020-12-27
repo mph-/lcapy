@@ -35,10 +35,10 @@ class LcapyTester(unittest.TestCase):
 
         """
         a = L(10, 5)
-        self.assertEqual2(a.Zs, 10 * s, "Zs incorrect.")
-        self.assertEqual2(a.Ys, 1 / (10 * s), "Ys incorrect.")
-        self.assertEqual2(a.Zw, 10 * j * omega, "Z incorrect.")
-        self.assertEqual2(a.Yw, 1 / (10 * j * omega), "Y incorrect.")                
+        self.assertEqual2(a.Z(s), 10 * s, "Zs incorrect.")
+        self.assertEqual2(a.Y(s), 1 / (10 * s), "Ys incorrect.")
+        self.assertEqual2(a.Z(jw), 10 * j * omega, "Z incorrect.")
+        self.assertEqual2(a.Y(jw), 1 / (10 * j * omega), "Y incorrect.")                
         self.assertEqual2(a.Voc.s, -10 * 5, "Voc incorrect.")
         self.assertEqual2(a.Isc.s, -5 / s, "Isc incorrect.")        
 
@@ -48,10 +48,10 @@ class LcapyTester(unittest.TestCase):
         """
         a = C(10, 5)
 
-        self.assertEqual2(a.Zs, 1 / (10 * s), "Zs incorrect.")
-        self.assertEqual2(a.Ys, 10 * s, "Ys incorrect.")
-        self.assertEqual2(a.Zw, 1 / (10 * j * omega), "Z incorrect.")
-        self.assertEqual2(a.Yw, 10 * j * omega, "Y incorrect.")                
+        self.assertEqual2(a.Z(s), 1 / (10 * s), "Zs incorrect.")
+        self.assertEqual2(a.Y(s), 10 * s, "Ys incorrect.")
+        self.assertEqual2(a.Z(jw), 1 / (10 * j * omega), "Z incorrect.")
+        self.assertEqual2(a.Y(jw), 10 * j * omega, "Y incorrect.")                
         self.assertEqual2(a.Voc.s, 5 / s, "Voc incorrect.")
         self.assertEqual(a.Isc.s, 50, "Isc incorrect.")        
 
@@ -74,8 +74,8 @@ class LcapyTester(unittest.TestCase):
         a = L(10) + L(5)
         b = a.simplify()
         self.assertEqual2(b.L, 15, "L incorrect.")
-        self.assertEqual2(b.Zs, 15 * s, "Zs incorrect.")
-        self.assertEqual2(b.Zw, 15 * j * omega, "Z incorrect.")        
+        self.assertEqual2(b.Z(s), 15 * s, "Zs incorrect.")
+        self.assertEqual2(b.Z(jw), 15 * j * omega, "Z incorrect.")        
         self.assertEqual2(type(b), L, "type incorrect.")
 
     def test_C_series_C(self):
@@ -85,8 +85,8 @@ class LcapyTester(unittest.TestCase):
         a = C(10) + C(15)
         b = a.simplify()
         self.assertEqual2(b.C, 6, "C incorrect.")
-        self.assertEqual2(b.Zs, 1 / (6 * s), "Zs incorrect.")
-        self.assertEqual2(b.Zw, 1 / (6 * j * omega), "Z incorrect.")        
+        self.assertEqual2(b.Z(s), 1 / (6 * s), "Zs incorrect.")
+        self.assertEqual2(b.Z(jw), 1 / (6 * j * omega), "Z incorrect.")        
         self.assertEqual2(type(b), C, "type incorrect.")
 
     def test_Vdc_series_Vdc(self):
@@ -145,7 +145,7 @@ class LcapyTester(unittest.TestCase):
 
         """
         a = R(10) + L(5)
-        self.assertEqual2(a.Zs, 5 * s + 10, "Zs incorrect.")
+        self.assertEqual2(a.Z(s), 5 * s + 10, "Zs incorrect.")
 
     def test_R_parallel_R(self):
         """Lcapy: check R | R
@@ -164,7 +164,7 @@ class LcapyTester(unittest.TestCase):
         a = L(10) | L(15)
         b = a.simplify()
         self.assertEqual2(b.L, 6, "L incorrect.")
-        self.assertEqual2(b.Zs, 6 * s, "Zs incorrect.")
+        self.assertEqual2(b.Z(s), 6 * s, "Zs incorrect.")
         self.assertEqual2(type(b), L, "type incorrect.")
 
     def test_C_parallel_C(self):
@@ -174,7 +174,7 @@ class LcapyTester(unittest.TestCase):
         a = C(10) | C(15)
         b = a.simplify()
         self.assertEqual2(b.C, 25, "C incorrect.")
-        self.assertEqual2(b.Zs, 1 / (25 * s), "Zs incorrect.")
+        self.assertEqual2(b.Z(s), 1 / (25 * s), "Zs incorrect.")
         self.assertEqual2(type(b), C, "type incorrect.")
 
     def test_I_parallel_I(self):
@@ -257,21 +257,21 @@ class LcapyTester(unittest.TestCase):
         """
         a = CPE(10, 1)
 
-        self.assertEqual2(a.Zs, 1 / (10 * s), "Zs incorrect.")
-        self.assertEqual2(a.Ys, 10 * s, "Ys incorrect.")
-        self.assertEqual2(a.Zw, 1 / (10 * j * omega), "Zw incorrect.")
-        self.assertEqual2(a.Yw, 10 * j * omega, "Yw incorrect.")                
+        self.assertEqual2(a.Z(s), 1 / (10 * s), "Zs incorrect.")
+        self.assertEqual2(a.Y(s), 10 * s, "Ys incorrect.")
+        self.assertEqual2(a.Z(jw), 1 / (10 * j * omega), "Zw incorrect.")
+        self.assertEqual2(a.Y(jw), 10 * j * omega, "Yw incorrect.")
 
         a = CPE(10, 0)
 
-        self.assertEqual2(a.Zs, 1.0 / 10, "Zs incorrect.")
-        self.assertEqual2(a.Ys, 10, "Ys incorrect.")
-        self.assertEqual2(a.Zw, 1.0 / 10, "Zw incorrect.")
-        self.assertEqual2(a.Yw, 10, "Yw incorrect.")
+        self.assertEqual2(a.Z(s), 1.0 / 10, "Zs incorrect.")
+        self.assertEqual2(a.Y(s), 10, "Ys incorrect.")
+        self.assertEqual2(a.Z(jw), 1.0 / 10, "Zw incorrect.")
+        self.assertEqual2(a.Y(jw), 10, "Yw incorrect.")
 
         a = CPE(10, 0.5)
 
-        self.assertEqual2(a.Ys, 10 * sqrt(s), "Ys incorrect.")
+        self.assertEqual2(a.Y(s), 10 * sqrt(s), "Ys incorrect.")
 
     def simplify1(self):
 

@@ -41,14 +41,17 @@ class TimeDomainExpression(Expr):
 
     def _mul_compatible(self, x):
 
-        if x.is_constant:
+        if x.is_constant_domain:
             return True
+        if self.quantity is 'undefined' or x.quantity is 'undefined':
+            return True
+        
         # TODO: allow TimeDomainVoltage**2 one day.
         return False
 
     def _div_compatible(self, x):
 
-        return x.is_constant
+        return x.is_constant_domain
 
     def _class_by_quantity(self, quantity):
 

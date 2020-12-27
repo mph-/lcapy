@@ -21,7 +21,8 @@ class ConstantExpression(Expr):
     """
 
     domain = 'Constant'
-    is_constant = True
+    quantity = 'constant'
+    is_constant_domain = True
 
     def __init__(self, val, **assumptions):
 
@@ -45,7 +46,9 @@ class ConstantExpression(Expr):
         elif quantity == 'admittance':
             return ConstantAdmittance
         elif quantity == 'transfer':
-            return ConstantTransferFunction                
+            return ConstantTransferFunction
+        elif quantity == 'undefined':
+            return ConstantExpression                        
         raise ValueError('Unknown quantity %s' % quantity)
         
     def as_expr(self):
@@ -69,56 +72,87 @@ class ConstantExpression(Expr):
     def rms(self):
         return {ConstantVoltage: TimeDomainVoltage, ConstantCurrent : TimeDomainCurrent}[self.__class__](self)
 
-    def laplace(self):
-        """Convert to Laplace domain representation."""
-
-        return self.time().laplace()
-
     def fourier(self):
         """Convert to Fourier domain representation."""
 
-        return self.time().fourier()    
+        return self.time().fourier()
+
+    def angular_fourier(self):
+        """Convert to angular Fourier domain representation."""
+
+        return self.time().angular_fourier()        
 
     def canonical(self, factor_const=True):
         # Minor optimisation
         return self
 
-    def time(self, **assumptions):
-        """Convert to time domain."""
-        
-        return self.wrap(TimeDomainExpression(self, **assumptions))
-
     
 class ConstantVoltage(VoltageMixin, ConstantExpression):
+    """This is considered a constant time-domain expression."""
 
     def cpt(self):
         from .oneport import Vdc
         return Vdc(self)
 
     def time(self, **assumptions):
-        return TimeDomainVoltage(self)
+        return TimeDomainVoltage(self, **assumptions)
+
+    def laplace(self):
+        """Convert to Laplace domain representation."""
+
+        return self.time().laplace()
 
     
 class ConstantCurrent(CurrentMixin, ConstantExpression):
+    """This is considered a constant time-domain expression."""    
 
     def cpt(self):
         from .oneport import Idc
         return Idc(self)
 
     def time(self, **assumptions):
-        return TimeDomainCurrent(self)
+        return TimeDomainCurrent(self, **assumptions)
 
+    def laplace(self):
+        """Convert to Laplace domain representation."""
 
+        return self.time().laplace()    
+
+    
 class ConstantImpedance(ImpedanceMixin, ConstantExpression):
-    pass
+    """This is considered a constant Laplace-domain expression."""
 
+    def laplace(self, **assumptions):
+        return LaplaceDomainImpedance(self, **assumptions)    
 
+    def time(self, **assumptions):
+        """Convert to time domain."""
+        
+        return self.laplace(**assumptions).time(**assumptions)
+
+    
 class ConstantAdmittance(AdmittanceMixin, ConstantExpression):
-    pass
+    """This is considered a constant Laplace-domain expression."""    
+
+    def laplace(self, **assumptions):
+        return LaplaceDomainAdmittance(self, **assumptions)
+
+    def time(self, **assumptions):
+        """Convert to time domain."""
+        
+        return self.laplace(**assumptions).time(**assumptions)    
 
 
 class ConstantTransferFunction(TransferMixin, ConstantExpression):
-    pass
+    """This is considered a constant Laplace-domain expression."""    
+
+    def laplace(self, **assumptions):
+        return LaplaceDomainTransferFunction(self, **assumptions)
+
+    def time(self, **assumptions):
+        """Convert to time domain."""
+        
+        return self.laplace(**assumptions).time(**assumptions)    
 
 
 def cexpr(arg, **assumptions):
@@ -128,4 +162,5 @@ def cexpr(arg, **assumptions):
 
 
 from .texpr import t, TimeDomainCurrent, TimeDomainVoltage, TimeDomainExpression
-from .sexpr import s
+from .sexpr import s, LaplaceDomainImpedance, LaplaceDomainAdmittance
+from .sexpr import LaplaceDomainTransferFunction

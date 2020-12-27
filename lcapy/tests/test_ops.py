@@ -29,9 +29,12 @@ class LcapyTester(unittest.TestCase):
         Z = impedance(1 / s)        
         H = transfer(sexpr(10))
         U = sexpr(2)
+        C = cexpr(3)
         
         self.assertEqual(V * 3, 15 / s, "V(s) * const")
+        self.assertEqual(V * C, 15 / s, "V(s) * const")        
         self.assertEqual(3 * V, 15 / s, "const * V(s)")
+        self.assertEqual(C * V, 15 / s, "const * V(s)")        
         self.assertEqual(Y * V, I, "Y(s) * V(s)")
         self.assertEqual(V * Y, I, "V(s) * Y(s)")
         self.assertEqual(I * Z, V, "I(s) * Z(s)")
@@ -49,10 +52,13 @@ class LcapyTester(unittest.TestCase):
         Y = admittance(f)
         Z = impedance(1 / f)                
         H = transfer(fexpr(10))
-        U = fexpr(2)        
+        U = fexpr(2)
+        C = cexpr(3)
         
         self.assertEqual(V * 3, 15 / f, "V(f) * const")
+        self.assertEqual(V * C, 15 / f, "V(f) * const")
         self.assertEqual(3 * V, 15 / f, "const * V(f)")
+        self.assertEqual(C * V, 15 / f, "const * V(f)")        
         self.assertEqual(Y * V, I, "Y(f) * V(f)")
         self.assertEqual(V * Y, I, "V(f) * Y(f)")
         self.assertEqual(I * Z, V, "I(f) * Z(f)")
@@ -84,9 +90,36 @@ class LcapyTester(unittest.TestCase):
         Y = admittance(s)
         Z = impedance(1 / s)        
         H = transfer(sexpr(10))
+        C = cexpr(1)        
         
         self.assertEqual(1 / Z, Y, "1 / Z(s)")
-        self.assertEqual(1 / Y, Z, "1 / Y(s)") 
+        self.assertEqual(1 / Y, Z, "1 / Y(s)")
+        self.assertEqual(C / Z, Y, "C / Z(s)")
+        self.assertEqual(C / Y, Z, "C / Y(s)")         
+
+    def test_sdomain_add(self):
+        
+        V1 = voltage(s)
+        V2 = voltage(s + 4)
+        C = cexpr(3)
+        
+        self.assertEqual(V1 + V2, voltage(2 * s + 4), "V1(s) + V2(s)")
+        self.assertEqual(C + V1, voltage(3 + s), "C + V1(s)")
+        self.assertEqual(V1 + C, voltage(3 + s), "V1(s) + C")
+        self.assertEqual(V1 + 3, voltage(3 + s), "V1(s) + 3")
+        self.assertEqual(3 + V1, voltage(3 + s), "3 + V1(s)")
+
+    def test_fdomain_add(self):
+        
+        V1 = voltage(f)
+        V2 = voltage(f + 4)
+        C = cexpr(3)
+        
+        self.assertEqual(V1 + V2, voltage(2 * f + 4), "V1(f) + V2(f)")
+        self.assertEqual(C + V1, voltage(3 + f), "C + V1(f)")
+        self.assertEqual(V1 + C, voltage(3 + f), "V1(f) + C")
+        self.assertEqual(V1 + 3, voltage(3 + f), "V1(f) + 3")
+        self.assertEqual(3 + V1, voltage(3 + f), "3 + V1(f)")                                        
         
     def test_rmul(self):
 
