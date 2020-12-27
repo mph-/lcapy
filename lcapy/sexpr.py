@@ -45,25 +45,37 @@ class LaplaceDomainExpression(Expr):
             raise ValueError(
                 's-domain expression %s cannot depend on t' % self.expr)
 
-    @classmethod
-    def as_voltage(cls, expr, **assumptions):
-        return LaplaceDomainVoltage(expr, **assumptions)
+    def _class_by_quantity(self, quantity):
 
-    @classmethod
-    def as_current(cls, expr, **assumptions):
-        return LaplaceDomainCurrent(expr, **assumptions)    
+        if quantity == 'voltage':
+            return LaplaceDomainVoltage
+        elif quantity == 'current':
+            return LaplaceDomainCurrent
+        elif quantity == 'impedance':
+            return LaplaceDomainImpedance
+        elif quantity == 'admittance':
+            return LaplaceDomainAdmittance
+        elif quantity == 'transfer':
+            return LaplaceDomainTransferFunction                
+        raise ValueError('Unknown quantity %s' % quantity)
+    
+    def as_expr(self):
+        return LaplaceDomainExpression(self)
 
-    @classmethod
-    def as_impedance(cls, expr, **assumptions):
-        return LaplaceDomainImpedance(expr, **assumptions)
+    def as_voltage(self):
+        return LaplaceDomainVoltage(self)
 
-    @classmethod
-    def as_admittance(cls, expr, **assumptions):
-        return LaplaceDomainAdmittance(expr, **assumptions)
+    def as_current(self):
+        return LaplaceDomainCurrent(self)    
 
-    @classmethod
-    def as_transfer(cls, expr, **assumptions):
-        return LaplaceDomainTransferFunction(expr, **assumptions)
+    def as_impedance(self):
+        return LaplaceDomainImpedance(self)
+
+    def as_admittance(self):
+        return LaplaceDomainAdmittance(self)
+
+    def as_transfer(self):
+        return LaplaceDomainTransferFunction(self)
 
     @classmethod
     def from_poles_residues(cls, poles, residues):

@@ -61,25 +61,37 @@ class PhasorDomainExpression(Expr):
             result = expr.wrap(PhasorDomainRatio(expr.laplace().replace(s, jw)))
         return result
 
-    @classmethod
-    def as_voltage(cls, expr, **assumptions):
-        return PhasorDomainVoltage(expr, **assumptions)
+    def _class_by_quantity(self, quantity):
 
-    @classmethod
-    def as_current(cls, expr, **assumptions):
-        return PhasorDomainCurrent(expr, **assumptions)    
+        if quantity == 'voltage':
+            return PhasorDomainVoltage
+        elif quantity == 'current':
+            return PhasorDomainCurrent
+        elif quantity == 'impedance':
+            return PhasorDomainImpedance
+        elif quantity == 'admittance':
+            return PhasorDomainAdmittance
+        elif quantity == 'transfer':
+            return PhasorDomainTransferFunction                
+        raise ValueError('Unknown quantity %s' % quantity)
+    
+    def as_expr(self):
+        return PhasorDomainExpression(self)
 
-    @classmethod
-    def as_impedance(cls, expr, **assumptions):
-        return PhasorDomainImpedance(expr, **assumptions)
+    def as_voltage(self):
+        return PhasorDomainVoltage(self)
 
-    @classmethod
-    def as_admittance(cls, expr, **assumptions):
-        return PhasorDomainAdmittance(expr, **assumptions)
+    def as_current(self):
+        return PhasorDomainCurrent(self)    
 
-    @classmethod
-    def as_transfer(cls, expr, **assumptions):
-        return PhasorDomainTransferFunction(expr, **assumptions)    
+    def as_impedance(self):
+        return PhasorDomainImpedance(self)
+
+    def as_admittance(self):
+        return PhasorDomainAdmittance(self)
+
+    def as_transfer(self):
+        return PhasorDomainTransferFunction(self)    
     
     @property
     def omega(self):

@@ -8,7 +8,9 @@ from .expr import Expr
 from .sym import symbols_find
 from .voltagemixin import VoltageMixin
 from .currentmixin import CurrentMixin
-
+from .admittancemixin import AdmittanceMixin
+from .impedancemixin import ImpedanceMixin
+from .transfermixin import TransferMixin
 
 class ConstantExpression(Expr):
     """Constant real expression or symbol.
@@ -32,26 +34,38 @@ class ConstantExpression(Expr):
         assumptions['dc'] = True        
         super(ConstantExpression, self).__init__(val, **assumptions)
 
-    @classmethod
-    def as_voltage(cls, expr, **assumptions):
-        return ConstantVoltage(expr, **assumptions)
+    def _class_by_quantity(self, quantity):
 
-    @classmethod
-    def as_current(cls, expr, **assumptions):
-        return ConstantCurrent(expr, **assumptions)    
+        if quantity == 'voltage':
+            return ConstantVoltage
+        elif quantity == 'current':
+            return ConstantCurrent
+        elif quantity == 'impedance':
+            return ConstantImpedance
+        elif quantity == 'admittance':
+            return ConstantAdmittance
+        elif quantity == 'transfer':
+            return ConstantTransferFunction                
+        raise ValueError('Unknown quantity %s' % quantity)
+        
+    def as_expr(self):
+        return ConstantExpression(self)
+        
+    def as_voltage(self):
+        return ConstantVoltage(self)
 
-    # @classmethod
-    # def as_impedance(cls, expr, **assumptions):
-    #     return ConstantImpedance(expr)
+    def as_current(self):
+        return ConstantCurrent(self)    
 
-    # @classmethod
-    # def as_admittance(cls, expr):
-    #     return ConstantAdmittance(expr)
+    def as_impedance(self):
+        return ConstantImpedance(self)
 
-    # @classmethod
-    # def as_transfer(cls, expr):
-    #     return ConstantTransferFunction(expr)
+    def as_admittance(self):
+        return ConstantAdmittance(self)
 
+    def as_transfer(self):
+        return ConstantTransferFunction(self)
+    
     def rms(self):
         return {ConstantVoltage: TimeDomainVoltage, ConstantCurrent : TimeDomainCurrent}[self.__class__](self)
 
@@ -72,7 +86,7 @@ class ConstantExpression(Expr):
     def time(self, **assumptions):
         """Convert to time domain."""
         
-        return self.wrap(TimeDomainExpression(result, **assumptions))
+        return self.wrap(TimeDomainExpression(self, **assumptions))
 
     
 class ConstantVoltage(VoltageMixin, ConstantExpression):
@@ -93,6 +107,18 @@ class ConstantCurrent(CurrentMixin, ConstantExpression):
 
     def time(self, **assumptions):
         return TimeDomainCurrent(self)
+
+
+class ConstantImpedance(ImpedanceMixin, ConstantExpression):
+    pass
+
+
+class ConstantAdmittance(AdmittanceMixin, ConstantExpression):
+    pass
+
+
+class ConstantTransferFunction(TransferMixin, ConstantExpression):
+    pass
 
 
 from .texpr import t, TimeDomainCurrent, TimeDomainVoltage, TimeDomainExpression

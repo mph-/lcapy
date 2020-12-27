@@ -15,10 +15,6 @@ class LcapyTester(unittest.TestCase):
             pprint(ans2)
             raise AssertionError(e)
 
-    def test_rmul(self):
-
-        self.assertEqual2((j * omega).__class__,  AngularFourierDomainExpression, "j * omega fail.")
-
     def test_Expr1(self):
         """Lcapy: check Expr
 
@@ -445,33 +441,6 @@ class LcapyTester(unittest.TestCase):
         if expr('omega') is not omega:
             raise AssertionError('Not omega')
 
-    def test_comparison(self):
-
-        a = expr('3')
-        b = expr('4')
-        self.assertEqual(a < b, True, "a < b")
-        self.assertEqual(a > b, False, "a > b")
-        self.assertEqual(a <= b, True, "a <= b")
-        self.assertEqual(a >= b, False, "a >= b")        
-        self.assertEqual(a == b, False, "a == b")
-        self.assertEqual(a != b, True, "a != b")        
-
-    def test_rdiv(self):
-
-        self.assertEqual(3 / expr('3'), 1, "3 / expr('3')")
-
-    def test_div(self):
-
-        self.assertEqual(expr('3') / 3, 1, "expr('3') / 3")        
-        
-    def test_rsub(self):
-
-        self.assertEqual(3 - expr('3'), 0, "3 - expr('3')")
-
-    def test_sub(self):
-
-        self.assertEqual(expr('3') - 3, 0, "expr('3') - 3")
-
     def test_parallel(self):
 
         self.assertEqual(expr('4').parallel(expr('4')), 2, "parallel")
@@ -503,7 +472,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(t.integrate((t, 0, t)), t**2 / 2, "integrate t")
         
-
     def test_partfrac(self):
 
         H = expr('F(s)') / (s**2 + 3 * s + 6)
@@ -551,7 +519,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(F.partfrac(), F,  "undef delay sum partfrac")
         self.assertEqual(F.partfrac(True), F,  "undef delay sum partfrac")
         
-
     def test_mixedfrac(self):
 
         H = expr('F(s)') / (s**2 + 3 * s + 6)
@@ -611,7 +578,6 @@ class LcapyTester(unittest.TestCase):
         x = X(t, condition=True)
         self.assertEqual(x.strip_condition(), exp(-t), "remove condition if causal")
         
-        
     def test_val(self):
 
         a = expr('3 / 4')
@@ -636,7 +602,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(e.cval, a, 'cval')
 
-        
     def test_fval(self):
 
         a = 3
@@ -657,34 +622,3 @@ class LcapyTester(unittest.TestCase):
 
         a = PhasorExpression(-3 + 4j, omega=7)
         self.assertEqual(a.magnitude, 5, 'magnitude')                        
-
-    def test_impedance_transform(self):
-
-        Zs = impedance(3 * s)
-        Zw = impedance(3 * j * omega)
-        Zf = impedance(3 * j * 2 * pi * f)
-        
-        self.assertEqual(Zs(omega), Zw, 'Zs(omega)')
-        self.assertEqual(Zs(f), Zf, 'Zs(f)')
-
-        self.assertEqual(Zw(f), Zf, 'Zw(f)')
-        self.assertEqual(Zw(s), Zs, 'Zw(s)')                
-
-        self.assertEqual(Zf(omega), Zw, 'Zf(omega)')
-        self.assertEqual(Zf(s), Zs, 'Zf(s)')        
-
-    def test_admittance_transform(self):
-
-        Ys = admittance(3 * s)
-        Yw = admittance(3 * j * omega)
-        Yf = admittance(3 * j * 2 * pi * f)
-
-        self.assertEqual(Ys(omega), Yw, 'Ys(omega)')
-        self.assertEqual(Ys(f), Yf, 'Ys(f)')
-
-        self.assertEqual(Yw(f), Yf, 'Yw(f)')
-        self.assertEqual(Yw(s), Ys, 'Yw(s)')                
-
-        self.assertEqual(Yf(omega), Yw, 'Yf(omega)')
-        self.assertEqual(Yf(s), Ys, 'Yf(s)')                
-        

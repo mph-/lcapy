@@ -55,7 +55,7 @@ def current(arg, **assumptions):
     expr1 = expr(arg, **assumptions)
 
     try:
-        expr1 = expr1.as_current(expr1)
+        expr1 = expr1.as_current()
     except:        
         raise ValueError('Cannot represent %s(%s) as current' % (expr1.__class__.__name__, expr1))
 

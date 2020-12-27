@@ -23,7 +23,7 @@ class TimeDomainExpression(Expr):
     domain = 'Time'
     domain_label = 'Time'
     domain_units = 's'
-    is_time_domain = True    
+    is_time_domain = True
 
     def __init__(self, val, **assumptions):
 
@@ -37,27 +37,50 @@ class TimeDomainExpression(Expr):
                 't-domain expression %s cannot depend on s' % expr)
         if check and expr.find(fsym) != set() and not expr.has(Integral):
             raise ValueError(
-                't-domain expression %s cannot depend on f' % expr)                            
+                't-domain expression %s cannot depend on f' % expr)
 
-    @classmethod
-    def as_voltage(cls, expr, **assumptions):
-        return TimeDomainVoltage(expr, **assumptions)
+    def _mul_compatible(self, x):
 
-    @classmethod
-    def as_current(cls, expr, **assumptions):
-        return TimeDomainCurrent(expr, **assumptions)    
+        if x.is_constant:
+            return True
+        # TODO: allow TimeDomainVoltage**2 one day.
+        return False
 
-    @classmethod
-    def as_impedance(cls, expr, **assumptions):
-        return TimeDomainImpedance(expr, **assumptions)
+    def _div_compatible(self, x):
 
-    @classmethod
-    def as_admittance(cls, expr, **assumptions):
-        return TimeDomainAdmittance(expr, **assumptions)
+        return x.is_constant
 
-    @classmethod
-    def as_transfer(cls, expr, **assumptions):
-        return TimeDomainImpulseResponse(expr, **assumptions)    
+    def _class_by_quantity(self, quantity):
+
+        if quantity == 'voltage':
+            return TimeDomainVoltage
+        elif quantity == 'current':
+            return TimeDomainCurrent
+        elif quantity == 'impedance':
+            return TimeDomainImpedance
+        elif quantity == 'admittance':
+            return TimeDomainAdmittance
+        elif quantity == 'transfer':
+            return TimeDomainImpulseResponse                
+        raise ValueError('Unknown quantity %s' % quantity)
+    
+    def as_expr(self):
+        return TimeDomainExpression(self)
+
+    def as_voltage(self):
+        return TimeDomainVoltage(self)
+
+    def as_current(self):
+        return TimeDomainCurrent(self)    
+
+    def as_impedance(self):
+        return TimeDomainImpedance(self)
+
+    def as_admittance(self):
+        return TimeDomainAdmittance(self)
+
+    def as_transfer(self):
+        return TimeDomainImpulseResponse(self)    
     
     def infer_assumptions(self):
 

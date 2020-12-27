@@ -37,25 +37,37 @@ class AngularFourierDomainExpression(Expr):
             raise ValueError(
                 'omega-domain expression %s cannot depend on t' % self.expr)
 
-    @classmethod
-    def as_voltage(cls, expr, **assumptions):
-        return AngularFourierDomainVoltage(expr, **assumptions)
+    def _class_by_quantity(self, quantity):
 
-    @classmethod
-    def as_current(cls, expr, **assumptions):
-        return AngularFourierDomainCurrent(expr, **assumptions)    
+        if quantity == 'voltage':
+            return AngularFourierDomainVoltage
+        elif quantity == 'current':
+            return AngularFourierDomainCurrent
+        elif quantity == 'impedance':
+            return AngularFourierDomainImpedance
+        elif quantity == 'admittance':
+            return AngularFourierDomainAdmittance
+        elif quantity == 'transfer':
+            return AngularFourierDomainTransferFunction                
+        raise ValueError('Unknown quantity %s' % quantity)
 
-    @classmethod
-    def as_impedance(cls, expr, **assumptions):
-        return AngularFourierDomainImpedance(expr, **assumptions)
+    def as_expr(self):
+        return AngularFourierDomainExpression(self)
 
-    @classmethod
-    def as_admittance(cls, expr, **assumptions):
-        return AngularFourierDomainAdmittance(expr, **assumptions)
+    def as_voltage(self):
+        return AngularFourierDomainVoltage(self)
 
-    @classmethod
-    def as_transfer(cls, expr, **assumptions):
-        return AngularFourierDomainTransferFunction(expr, **assumptions)    
+    def as_current(self):
+        return AngularFourierDomainCurrent(self)    
+
+    def as_impedance(self):
+        return AngularFourierDomainImpedance(self)
+
+    def as_admittance(self):
+        return AngularFourierDomainAdmittance(self)
+
+    def as_transfer(self):
+        return AngularFourierDomainTransferFunction(self)    
     
     def inverse_fourier(self, **assumptions):
         """Attempt inverse Fourier transform."""

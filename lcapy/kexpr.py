@@ -41,25 +41,37 @@ class DiscreteFourierDomainExpression(SequenceExpression):
             raise ValueError(
                 'k-domain expression %s cannot depend on n' % expr)
 
-    @classmethod
-    def as_voltage(cls, expr, **assumptions):
-        return DiscreteFourierDomainVoltage(expr, **assumptions)
+    def _class_by_quantity(self, quantity):
 
-    @classmethod
-    def as_current(cls, expr, **assumptions):
-        return DiscreteFourierDomainCurrent(expr, **assumptions)    
+        if quantity == 'voltage':
+            return DiscreteFourierDomainVoltage
+        elif quantity == 'current':
+            return DiscreteFourierDomainCurrent
+        elif quantity == 'impedance':
+            return DiscreteFourierDomainImpedance
+        elif quantity == 'admittance':
+            return DiscreteFourierDomainAdmittance
+        elif quantity == 'transfer':
+            return DiscreteFourierDomainTransferFunction                
+        raise ValueError('Unknown quantity %s' % quantity)
 
-    @classmethod
-    def as_impedance(cls, expr, **assumptions):
-        return DiscreteFourierDomainImpedance(expr, **assumptions)
+    def as_expr(self):
+        return DiscreteFourierDomainExpression(self)
 
-    @classmethod
-    def as_admittance(cls, expr, **assumptions):
-        return DiscreteFourierDomainAdmittance(expr, **assumptions)
+    def as_voltage(self):
+        return DiscreteFourierDomainVoltage(self)
 
-    @classmethod
-    def as_transfer(cls, expr, **assumptions):
-        return DiscreteFourierDomainTransferFunction(expr, **assumptions)
+    def as_current(self):
+        return DiscreteFourierDomainCurrent(self)    
+
+    def as_impedance(self):
+        return DiscreteFourierDomainImpedance(self)
+
+    def as_admittance(self):
+        return DiscreteFourierDomainAdmittance(self)
+
+    def as_transfer(self):
+        return DiscreteFourierDomainTransferFunction(self)
 
     def plot(self, kvector=None, **kwargs):
         """Plot frequency response at values specified by kvector.  If kvector

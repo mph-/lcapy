@@ -234,6 +234,24 @@ class Expr(ExprPrint, ExprMisc):
     is_transfer = False
     is_immitance = False
     is_one_sided = False
+
+    _mul_mapping = {('voltage', 'admittance'): 'current',
+                   ('current', 'impedance'): 'voltage',
+                   ('voltage', 'transfer'): 'voltage',
+                   ('current', 'transfer'): 'current',
+                   ('admittance', 'voltage'): 'current',
+                   ('impedance', 'current'): 'voltage',
+                   ('transfer', 'voltage'): 'voltage',
+                   ('transfer', 'current'): 'current',
+                   ('transfer', 'transfer'): 'transfer'}
+    
+    _div_mapping = {('voltage', 'impedance'): 'current',
+                    ('current', 'admittance'): 'voltage',
+                    ('voltage', 'transfer'): 'voltage',
+                    ('current', 'transfer'): 'current',
+                    ('transfer', 'transfer'): 'transfer',
+                    ('current', 'current'): 'transfer',
+                    ('voltage', 'voltage'): 'transfer'}
     
     # This needs to be larger than what sympy defines so
     # that the __rmul__, __radd__ methods get called.
@@ -279,20 +297,22 @@ class Expr(ExprPrint, ExprMisc):
         
         self.expr = sympify(arg, **assumptions)
  
-    @classmethod
-    def as_quantity(cls, expr, quantity):
+    def as_quantity(self, quantity):
 
         if quantity == 'voltage':
-            return cls.as_voltage(expr)
+            return self.as_voltage(expr)
         elif quantity == 'current':
-            return cls.as_current(expr)
+            return self.as_current(expr)
         elif quantity == 'impedance':
-            return cls.as_impedance(expr)
+            return self.as_impedance(expr)
         elif quantity == 'admittance':
-            return cls.as_admittance(expr)
+            return self.as_admittance(expr)
         elif quantity == 'transfer':
-            return cls.as_transfer(expr)
-        raise ValueError('Unknown quantity %s for %s' % (quantity, expr))
+            return self.as_transfer(expr)
+        raise ValueError('Unknown quantity %s for %s' % (quantity, self))
+
+    def as_expr(self):
+        return self
 
     def __str__(self, printer=None):
         """String representation of expression."""
@@ -565,7 +585,7 @@ class Expr(ExprPrint, ExprMisc):
                          (self.__class__.__name__, self,
                           x.__class__.__name__, x, op))        
     
-    def _assumptions_for_mul(self, x):
+    def _mul_assumptions(self, x):
 
         assumptions = {}
         if self.is_causal or x.is_causal:
@@ -580,7 +600,7 @@ class Expr(ExprPrint, ExprMisc):
             assumptions = {'ac' : True}
         return assumptions
 
-    def _assumptions_for_add(self, x):
+    def _add_assumptions(self, x):
 
         assumptions = {}        
         if self.is_causal and x.is_causal:
@@ -591,6 +611,12 @@ class Expr(ExprPrint, ExprMisc):
             assumptions = self.assumptions        
         return assumptions    
 
+    def _mul_compatible(self, x):
+        return True
+    
+    def _div_compatible(self, x):
+        return True
+    
     def __compat_mul__(self, x, op):
         """Check if args are compatible and if so return compatible class."""
 
@@ -610,7 +636,7 @@ class Expr(ExprPrint, ExprMisc):
         xcls = x.__class__
 
         if isinstance(self, LaplaceDomainExpression) and isinstance(x, LaplaceDomainExpression):
-            assumptions = self._assumptions_for_mul(x)            
+            assumptions = self._mul_assumptions(x)            
 
         if cls == xcls:
             return cls, self, cls(x), assumptions
@@ -661,7 +687,7 @@ class Expr(ExprPrint, ExprMisc):
         xcls = x.__class__
 
         if isinstance(self, LaplaceDomainExpression) and isinstance(x, LaplaceDomainExpression):
-            assumptions = self._assumptions_for_add(x)
+            assumptions = self._add_assumptions(x)
         
         if cls == xcls:
             return cls, self, x, assumptions
@@ -697,11 +723,82 @@ class Expr(ExprPrint, ExprMisc):
 
         self._incompatible(x, op)        
 
-    def __rdiv__(self, x):
-        """Reverse divide"""
+    def __mul__(self, x):
+        """Multiply"""
 
-        cls, self, x, assumptions = self.__compat_mul__(x, '/')
-        return cls(x.expr / self.expr, **assumptions)
+        if not isinstance(x, Expr):
+            x = expr(x)
+
+        if x.__class__ is ConstantExpression or self.__class__ is ConstantExpression:
+            return self.__class__(self.expr * x.expr)
+
+        # TODO: check for domain specific conversions, say for phasors
+
+        if self.domain != x.domain:
+            if (isinstance(self, ConstantExpression) and not
+                isinstance(x, ConstantExpression)):
+                return x.__mul__(self)
+
+            # Allow XXXCurrent * ConstantImpedance etc.
+            if (not isinstance(x, ConstantExpression) and not
+                isinstance(self, ConstantExpression)):
+                self._incompatible_domains(x, '*')
+
+        if not self._mul_compatible(x):
+            self._incompatible_quantities(x, '*')                
+
+        assumptions = self._mul_assumptions(x)
+
+        key = (self.quantity, x.quantity)
+
+        try:
+            cls = self._class_by_quantity(self._mul_mapping[key])
+            return cls(self.expr * x.expr, **assumptions)
+        except:
+            # What about voltage**2. etc.
+            self._incompatible_quantities(x, '*')        
+    
+    def __rmul__(self, x):
+        """Reverse multiply"""
+
+        return self.__mul__(x)
+
+    def __truediv__(self, x):
+        """Divide"""
+
+        if not isinstance(x, Expr):
+            x = expr(x)
+
+        if x.__class__ is ConstantExpression or self.__class__ is ConstantExpression:
+            return self.__class__(self.expr / x.expr)
+
+        # TODO: check for domain specific conversions, say for phasors
+
+        if self.domain != x.domain:
+            if (isinstance(x, ConstantExpression) and not
+                isinstance(self, ConstantExpression)):
+                return x.__mul__(self)
+
+            # Allow XXXVoltage / ConstantImpedance etc.
+            if not isinstance(x, ConstantExpression):
+                self._incompatible_domains(x, '/')
+
+        if not self._mul_compatible(x):
+            self._incompatible_quantities(x, '/')                        
+
+        if self.domain != x.domain:
+            self._incompatible_domains(x, '/')
+
+        key = (self.quantity, x.quantity)
+
+        assumptions = self._mul_assumptions(x)
+        
+        try:
+            cls = self._class_by_quantity(self._div_mapping[key])
+            return cls(self.expr / x.expr, **assumptions)
+        except:
+            # What about voltage**2. etc.
+            self._incompatible_quantities(x, '*')        
 
     def __rtruediv__(self, x):
         """Reverse true divide"""
@@ -713,76 +810,7 @@ class Expr(ExprPrint, ExprMisc):
 
         cls, self, x, assumptions = self.__compat_mul__(x, '/')
         return cls(x.expr / self.expr, **assumptions)
-
-    def __oldmul__(self, x):
-        """Multiply"""
-        from .super import Superposition
-        from .matrix import Matrix
-
-        # Could return NotImplemented to trigger __rmul__ of x.
-        if isinstance(x, Superposition):
-            return x.__mul__(self)
-        elif isinstance(x, Matrix):
-            return x * self.expr
-
-        cls, self, x, assumptions = self.__compat_mul__(x, '*')
-        return cls(self.expr * x.expr, **assumptions)
-
-    def __mul__(self, x):
-        """Multiply"""
-
-        if not isinstance(x, Expr):
-            x = expr(x)
-
-        if isinstance(x, ConstantExpression) or isinstance(self, ConstantExpression):
-            return self.__class__(self.expr * x.expr)
-
-        # TODO: check for domain specific conversions, say for phasors
-
-        if self.domain != x.domain:
-            self._incompatible_domains(x, '*')
-
-        # TODO: check for domain specific requirements.
-        # For example, perhaps allow LaplaceDomainImpedance * PhasorDomainCurrent?
-        
-        key = (self.quantity, x.quantity)
-
-        assumptions = self._assumptions_for_mul(x)
-        
-        mapping = {('voltage', 'admittance'): self.as_current,
-                   ('current', 'impedance'): self.as_voltage,
-                   ('voltage', 'transfer'): self.as_voltage,
-                   ('current', 'transfer'): self.as_current,
-                   ('admittance', 'voltage'): self.as_current,
-                   ('impedance', 'current'): self.as_voltage,
-                   ('transfer', 'voltage'): self.as_voltage,
-                   ('transfer', 'current'): self.as_current}
-
-        try:
-            return mapping[key](self.expr * x.expr, **assumptions)
-        except:
-            # What about voltage**2. etc.
-            self._incompatible_quantities(x, '*')        
-    
-
-    def __rmul__(self, x):
-        """Reverse multiply"""
-
-        cls, self, x, assumptions = self.__compat_mul__(x, '*')
-        return cls(self.expr * x.expr, **assumptions)
-
-    def __div__(self, x):
-        """Divide"""
-
-        cls, self, x, assumptions = self.__compat_mul__(x, '/')
-        return cls(self.expr / x.expr, **assumptions)
-
-    def __truediv__(self, x):
-        """True divide"""
-
-        cls, self, x, assumptions = self.__compat_mul__(x, '/')
-        return cls(self.expr / x.expr, **assumptions)
-
+            
     def __add__(self, x):
         """Add"""
 
@@ -813,17 +841,20 @@ class Expr(ExprPrint, ExprMisc):
         return cls(self.expr - x.expr, **assumptions)
 
     def __pow__(self, x):
-        """Pow"""
+        """Power"""
 
-        cls, self, x, assumptions = self.__compat_mul__(x, '**')
-        return cls(self.expr ** x.expr, **assumptions)
-
+        if x == 2:
+            return self.__mul__(self)
+        elif x == -1:
+            return self.__rtruediv__(1)
+        elif self.quantity is not None:
+            raise ValueError('Cannot compute %s(%s) ** %s' % (self.__class__.__name__, self, x))
+        return self.__class__(self.expr.__pow__(x))
+    
     def __rpow__(self, x):
-        """Pow"""
+        """Reverse pow"""
 
-        # TODO: FIXME
-        cls, self, x, assumptions = self.__compat_mul__(x, '**')
-        return cls(x.expr ** self.expr, **assumptions)    
+        return x.__class__(x.__pow__(self.expr))
 
     def __or__(self, x):
         """Parallel combination"""
@@ -2209,8 +2240,10 @@ def exprcontainer(arg, **assumptions):
 def expr(arg, **assumptions):
     """Create Lcapy expression from arg.
 
-    If arg is a string:
-       If a t symbol is found in the string a tExpr object is created.
+    If `arg` is an `Expr` it is returned, unless `assumptions` is specified.
+
+    If `arg` is a string:
+       If a t symbol is found in the string a TimeDomainExpression object is created.
        If a s symbol is found in the string a LaplaceDomainExpression object is created.
        If a f symbol is found in the string an FourierDomainExpression object is created.
        If an omega symbol is found in the string an AngularFourierDomainExpression object is created.

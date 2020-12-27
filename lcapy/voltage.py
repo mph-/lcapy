@@ -55,10 +55,8 @@ def voltage(arg, **assumptions):
     expr1 = expr(arg, **assumptions)
 
     try:
-        expr1 = expr1.as_voltage(expr1)
+        expr1 = expr1.as_voltage()
     except:        
         raise ValueError('Cannot represent %s(%s) as voltage' % (expr1.__class__.__name__, expr1))
     
     return expr1.apply_unit(uu.volts)
-
-

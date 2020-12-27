@@ -30,6 +30,10 @@ class DiscreteTimeDomainExpression(SequenceExpression):
     domain_label = 'Discrete time'
     domain_units = ''
 
+    # Restrict options for time-domain; need to perform convolutions.
+    _mul_mapping = {}
+    _div_mapping = {}
+    
     def __init__(self, val, **assumptions):
 
         check = assumptions.pop('check', True)
@@ -44,25 +48,37 @@ class DiscreteTimeDomainExpression(SequenceExpression):
             raise ValueError(
                 'n-domain expression %s cannot depend on k' % expr)            
 
-    @classmethod
-    def as_voltage(cls, expr, **assumptions):
-        return DiscreteTimeDomainVoltage(expr, **assumptions)
+    def _class_by_quantity(self, quantity):
 
-    @classmethod
-    def as_current(cls, expr, **assumptions):
-        return DiscreteTimeDomainCurrent(expr, **assumptions)    
+        if quantity == 'voltage':
+            return DiscreteTimeDomainVoltage
+        elif quantity == 'current':
+            return DiscreteTimeDomainCurrent
+        elif quantity == 'impedance':
+            return DiscreteTimeDomainImpedance
+        elif quantity == 'admittance':
+            return DiscreteTimeDomainAdmittance
+        elif quantity == 'transfer':
+            return DiscreteTimeDomainImpulseResponse                
+        raise ValueError('Unknown quantity %s' % quantity)
 
-    @classmethod
-    def as_impedance(cls, expr, **assumptions):
-        return DiscreteTimeDomainImpedance(expr, **assumptions)
+    def as_expr(self):
+        return DiscreteTimeDomainExpression(self)
 
-    @classmethod
-    def as_admittance(cls, expr, **assumptions):
-        return DiscreteTimeDomainAdmittance(expr, **assumptions)
+    def as_voltage(self):
+        return DiscreteTimeDomainVoltage(self)
 
-    @classmethod
-    def as_transfer(cls, expr, **assumptions):
-        return DiscreteTimeDomainTransferFunction(expr, **assumptions)
+    def as_current(self):
+        return DiscreteTimeDomainCurrent(self)    
+
+    def as_impedance(self):
+        return DiscreteTimeDomainImpedance(self)
+
+    def as_admittance(self):
+        return DiscreteTimeDomainAdmittance(self)
+
+    def as_transfer(self):
+        return DiscreteTimeDomainImpulseResponse(self)
 
     def infer_assumptions(self):
 
@@ -237,7 +253,7 @@ class DiscreteTimeDomainCurrent(DiscreteTimeDomainExpression, CurrentMixin):
     pass
 
 
-class DiscreteTimeDomainTransferFunction(DiscreteTimeDomainExpression, TransferMixin):
+class DiscreteTimeDomainImpulseResponse(DiscreteTimeDomainExpression, TransferMixin):
     """impulse response"""
     pass
 

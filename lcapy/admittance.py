@@ -25,7 +25,7 @@ def admittance(arg, **assumptions):
     expr1 = expr(arg, **assumptions)
 
     try:
-        expr1 = expr1.as_admittance(expr1)
+        expr1 = expr1.as_admittance()
     except:
         raise ValueError('Cannot represent %s(%s) as admittance' % (expr1.__class__.__name__, expr1))        
 
