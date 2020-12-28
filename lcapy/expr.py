@@ -683,7 +683,10 @@ class Expr(ExprPrint, ExprMisc):
             if x.is_constant_domain:            
                 return cls, self, x, assumptions                
             if self.domain == x.domain:
-                return cls, self, x, assumptions            
+                return cls, self, x, assumptions
+
+        if self.domain != x.domain:
+            self._incompatible_domains(x, op)        
 
         if (self.quantity == 'undefined' or x.quantity == 'undefined'):
             return cls, self, x, assumptions

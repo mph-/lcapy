@@ -157,6 +157,8 @@ class LcapyTester(unittest.TestCase):
         b = voltage(3)
         self.assertEqual(a != b, True, "a != b")
 
+        self.assertEqual(jw != s, True, "jw != s")                
+
     def test_rdiv(self):
 
         self.assertEqual(3 / expr('3'), 1, "3 / expr('3')")
