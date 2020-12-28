@@ -404,6 +404,15 @@ class Expr(ExprPrint, ExprMisc):
 
         return printer._print(expr)
 
+    def infer_assumptions(self):
+        pass
+
+    @property
+    def is_causal(self):
+        if 'causal' not in self.assumptions:
+            self.infer_assumptions()
+        return 'causal' in self.assumptions and self.assumptions['causal'] == True
+
     @property
     def causal(self):
         return self.is_causal
@@ -415,9 +424,6 @@ class Expr(ExprPrint, ExprMisc):
             self.assumptions['dc'] = False
             self.assumptions['ac'] = False
 
-    def infer_assumptions(self):
-        pass
-
     @property
     def is_dc(self):
         if 'dc' not in self.assumptions:
@@ -425,16 +431,32 @@ class Expr(ExprPrint, ExprMisc):
         return 'dc' in self.assumptions and self.assumptions['dc'] == True
 
     @property
+    def dc(self):
+        return self.is_dc
+
+    @dc.setter
+    def dc(self, value):
+        self.assumptions['dc'] = value
+        if value:
+            self.assumptions['causal'] = False
+            self.assumptions['ac'] = False    
+
+    @property
     def is_ac(self):
         if 'ac' not in self.assumptions:
             self.infer_assumptions()
-        return 'ac' in self.assumptions and self.assumptions['ac'] == True            
+        return 'ac' in self.assumptions and self.assumptions['ac'] == True
 
     @property
-    def is_causal(self):
-        if 'causal' not in self.assumptions:
-            self.infer_assumptions()
-        return 'causal' in self.assumptions and self.assumptions['causal'] == True
+    def ac(self):
+        return self.is_ac    
+
+    @ac.setter
+    def ac(self, value):
+        self.assumptions['ac'] = value
+        if value:
+            self.assumptions['causal'] = False
+            self.assumptions['dc'] = False        
 
     @property
     def is_complex(self):
@@ -628,17 +650,23 @@ class Expr(ExprPrint, ExprMisc):
     
     def _mul_assumptions(self, x):
 
+        # The assumptions refer to the time-domain signal or
+        # impulse-response.  Thus we want to propagate the assumptions
+        # for the voltage or current signal.  The ac, dc, and causal
+        # assumptions are only required for s-domain expressions.  For
+        # other signals they can be determined from the time-domain
+        # response.
+
+        # A multiplication in the s-domain is equivalent to
+        # a convolution in the time-domain.
+        
         assumptions = {}
-        if self.is_causal or x.is_causal:
+        if self.is_ac or x.is_dc:
+            assumptions = {'ac' : True}
+        elif self.is_dc or x.is_ac:
+            assumptions = {'ac' : True}
+        elif self.is_causal or x.is_causal:
             assumptions = {'causal' : True}
-        elif self.is_dc and x.is_dc:
-            assumptions = self.assumptions
-        elif self.is_ac and x.is_ac:
-            assumptions = self.assumptions
-        elif self.is_ac and x.is_dc:
-            assumptions = {'ac' : True}
-        elif self.is_dc and x.is_ac:
-            assumptions = {'ac' : True}
         return assumptions
 
     def _add_assumptions(self, x):
