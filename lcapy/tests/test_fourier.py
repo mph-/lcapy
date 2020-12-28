@@ -42,20 +42,20 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual((t**2).fourier(), -DiracDelta(f, 2) / (2 * pi)**2)
         self.assertEqual((t**2).fourier().inverse_fourier(), t**2)
         
-        # 2 * cos(2 * pi * f * t)
+        # 2 * cos(2 * pi * t)
         self.assertEqual(2 * cos(2 * pi * t).fourier(),
                          DiracDelta(f - 1) + DiracDelta(f + 1))
 
-        # 2 * sin(2 * pi * f * t)        
+        # 2 * sin(2 * pi * t)        
         self.assertEqual(2 * sin(2 * pi * t).fourier(),
                          -j * DiracDelta(f - 1) + j * DiracDelta(f + 1))
 
-        # exp(j * 2 * pi * f * t)
+        # exp(j * 2 * pi * t)
         self.assertEqual(exp(j * 2 * pi * t).fourier(), DiracDelta(f - 1))
         self.assertEqual(exp(j * 2 * pi * t).fourier().inverse_fourier(),
                          exp(j * 2 * pi * t))
 
-        # exp(-j * 2 * pi * f * t)        
+        # exp(-j * 2 * pi * t)        
         self.assertEqual(exp(-j * 2 * pi * t).fourier(), DiracDelta(f + 1))
         self.assertEqual(exp(-j * 2 * pi * t).fourier().inverse_fourier(),
                          exp(-j * 2 * pi * t))
@@ -76,11 +76,10 @@ class LcapyTester(unittest.TestCase):
 
         # t * sign(t)
         self.assertEqual((t * sign(t)).fourier(), -1 / (2 * pi**2 * f**2))
-        self.assertEqual((t * sign(t)).fourier().inverse_fourier(), t * sign(t))        
+        self.assertEqual((t * sign(t)).fourier().inverse_fourier(), t * sign(t))
 
-
-    def test_inverse_fourier2(self):
-
-        self.assertEqual((1 / (s + 1))(j * omega, causal=True).inverse_fourier(), exp(-t) * Heaviside(t))
-        self.assertEqual((1 / (s + 1))(j * omega, causal=True)(2 * pi * f).inverse_fourier(), exp(-t) * Heaviside(t))
-
+        # 2 * cos(2 * pi * t + 3)
+        self.assertEqual(2 * cos(2 * pi * t + 3).fourier(),
+                         DiracDelta(f - 1) * exp(3 * j) +
+                         DiracDelta(f + 1) * exp(-3 * j))
+        

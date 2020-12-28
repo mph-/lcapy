@@ -140,7 +140,7 @@ def fourier_term(expr, t, f, inverse=False):
     const1 = const
     other = one
     exps = one
-    factors = expr.as_ordered_factors()    
+    factors = expr.expand().as_ordered_factors()    
     for factor in factors:
         if not factor.has(t):
             const1 *= factor
