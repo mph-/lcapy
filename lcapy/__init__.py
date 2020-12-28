@@ -59,6 +59,7 @@ from .simulator import *
 from .fexpr import fexpr
 from .sexpr import sexpr, zp2tf, tf, pr2tf
 from .texpr import texpr
+from .cexpr import cexpr
 from .omegaexpr import omegaexpr
 from .historical import *
 

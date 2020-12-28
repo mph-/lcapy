@@ -1,5 +1,7 @@
 from lcapy import *
 from lcapy.cexpr import ConstantExpression
+from lcapy.omegaexpr import AngularFourierDomainExpression
+from lcapy.texpr import TimeDomainExpression
 import unittest
 
 
@@ -67,7 +69,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(H * V, voltage(50 / f), "H(f) * V(f)")
         self.assertEqual(I * H, current(fexpr(50)), "I(f) * H(f)")
         self.assertEqual(H * I, current(fexpr(50)), "H(f) * I(f)")
-        self.assertEqual(U * U, fexpr(4), "U(f) * U(f)")                
+        self.assertEqual(U * U, fexpr(4), "U(f) * U(f)")
+
+    def test_mixed_mul(self):
+        
+        self.assertEqual(type(omega * t), TimeDomainExpression, "omega * t")
+        self.assertEqual(type(t * omega), TimeDomainExpression, "omega * t")
 
     def test_sdomain_div(self):
         

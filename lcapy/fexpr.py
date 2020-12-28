@@ -1,5 +1,5 @@
-"""This module provides the FourierDomainExpression class to represent f-domain (Fourier
-domain) expressions.
+"""This module provides the FourierDomainExpression class to represent
+f-domain (Fourier domain) expressions.
 
 Copyright 2014--2020 Michael Hayes, UCECE
 

@@ -28,6 +28,8 @@ from sympy.utilities.lambdify import lambdify
 from .sym import simplify
 from collections import OrderedDict
 
+__all__ = ('expr', 'symbol', 'symbols')
+
 class ExprPrint(object):
 
     @property
@@ -665,10 +667,10 @@ class Expr(ExprPrint, ExprMisc):
         if not isinstance(x, Expr):
             return cls, self, cls(x), assumptions
 
-        if x.is_constant_domain and x.quantity is 'undefined':
+        if x.is_constant_domain and x.quantity == 'undefined':
             return cls, self, x, assumptions
         
-        if self.is_constant_domain and self.quantity is 'undefined':
+        if self.is_constant_domain and self.quantity == 'undefined':
             return xcls, self, x, assumptions            
 
         if (isinstance(self, LaplaceDomainExpression) or
@@ -683,7 +685,7 @@ class Expr(ExprPrint, ExprMisc):
             if self.domain == x.domain:
                 return cls, self, x, assumptions            
 
-        if (self.quantity is 'undefined' or x.quantity is 'undefined'):
+        if (self.quantity == 'undefined' or x.quantity == 'undefined'):
             return cls, self, x, assumptions
         
         self._incompatible(x, op)        
@@ -694,6 +696,14 @@ class Expr(ExprPrint, ExprMisc):
         if not isinstance(x, Expr):
             x = expr(x)
 
+        # Handle omega * t
+        if (self.__class__ == AngularFourierDomainExpression and
+            x.__class__ == TimeDomainExpression):
+            return TimeDomainExpression(self.expr * x.expr)
+        if (x.__class__ == AngularFourierDomainExpression and
+            self.__class__ == TimeDomainExpression):
+            return TimeDomainExpression(self.expr * x.expr)
+        
         if self.domain != x.domain:
 
             if (self.__class__ != ConstantExpression and
@@ -826,7 +836,7 @@ class Expr(ExprPrint, ExprMisc):
             return self.__mul__(self)
         elif x == -1:
             return self.__rtruediv__(1)
-        elif self.quantity is not 'undefined':
+        elif self.quantity != 'undefined':
             raise ValueError('Cannot compute %s(%s) ** %s' % (self.__class__.__name__, self, x))
         return self.__class__(self.expr.__pow__(x))
     
@@ -2291,8 +2301,6 @@ from .cexpr import cexpr, ConstantExpression
 from .fexpr import FourierDomainTransferFunction, FourierDomainCurrent, FourierDomainVoltage, FourierDomainAdmittance, FourierDomainImpedance, FourierDomainExpression, fexpr
 from .sexpr import LaplaceDomainTransferFunction, LaplaceDomainCurrent, LaplaceDomainVoltage, LaplaceDomainAdmittance, LaplaceDomainImpedance, LaplaceDomainExpression, sexpr
 from .texpr import TimeDomainExpression, texpr
-from .superposition_voltage import SuperpositionVoltage
-from .superposition_current import SuperpositionCurrent
 from .omegaexpr import AngularFourierDomainTransferFunction, AngularFourierDomainCurrent, AngularFourierDomainVoltage, AngularFourierDomainAdmittance, AngularFourierDomainImpedance, AngularFourierDomainExpression, omegaexpr
 
 # Horrible hack to work with IPython around Sympy's back for LaTeX

@@ -1,5 +1,5 @@
-"""This module provides the AngularFourierDomainExpression class to represent omega-domain
-(angular frequency Fourier domain) expressions.
+"""This module provides the AngularFourierDomainExpression class to
+represent omega-domain (angular frequency Fourier domain) expressions.
 
 Copyright 2014--2020 Michael Hayes, UCECE
 
@@ -16,6 +16,7 @@ from .impedancemixin import ImpedanceMixin
 from .transfermixin import TransferMixin
 from sympy import Expr as symExpr
 
+__all__ = ('omegaexpr', )
 
 class AngularFourierDomainExpression(Expr):
     """Fourier domain expression or symbol (angular frequency)."""

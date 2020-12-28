@@ -43,7 +43,7 @@ class TimeDomainExpression(Expr):
 
         if x.is_constant_domain:
             return True
-        if self.quantity is 'undefined' or x.quantity is 'undefined':
+        if self.quantity == 'undefined' or x.quantity == 'undefined':
             return True
         
         # TODO: allow TimeDomainVoltage**2 one day.

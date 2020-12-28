@@ -1,5 +1,5 @@
-"""This module provides the LaplaceDomainExpression class to represent s-domain (Laplace
-domain) expressions.
+"""This module provides the LaplaceDomainExpression class to represent
+s-domain (Laplace domain) expressions.
 
 Copyright 2014--2020 Michael Hayes, UCECE
 
