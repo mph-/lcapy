@@ -24,7 +24,8 @@ class FourierDomainExpression(Expr):
     domain = 'Fourier'    
     domain_label = 'Frequency'
     domain_units = 'Hz'
-    is_fourier_domain = True    
+    is_fourier_domain = True
+    is_transform_domain = True    
 
     def __init__(self, val, **assumptions):
 

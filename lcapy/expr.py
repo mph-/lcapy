@@ -221,6 +221,7 @@ class Expr(ExprPrint, ExprMisc):
     domain_label = ''
     quantity = 'undefined'
     quantity_label = ''
+    is_transform_domain = False        
     is_constant_domain = False    
     is_time_domain = False
     is_laplace_domain = False    
@@ -228,6 +229,9 @@ class Expr(ExprPrint, ExprMisc):
     is_angular_fourier_domain = False
     is_phasor_domain = False
     is_phasor = False
+    is_discrete_time_domain = False
+    is_discrete_fourier_domain = False
+    is_Z_domain = False        
     is_always_causal = False
     is_voltage = False
     is_current = False
@@ -309,6 +313,7 @@ class Expr(ExprPrint, ExprMisc):
         assumptions.pop('ac', None)
         assumptions.pop('dc', None)
         assumptions.pop('causal', None)
+        assumptions.pop('unknown', None)        
         
         self.expr = sympify(arg, **assumptions)
  
@@ -405,61 +410,107 @@ class Expr(ExprPrint, ExprMisc):
         return printer._print(expr)
 
     def infer_assumptions(self):
-        pass
 
+        self.assumptions['unknown'] = True                    
+
+    def remove_assumptions(self):
+
+        self.assumptions.pop('ac', None)
+        self.assumptions.pop('dc', None)
+        self.assumptions.pop('causal', None)
+        self.assumptions.pop('unknown', None)
+
+    def has_unspecified_assumptions(self):
+
+        if 'ac' in self.assumptions:
+            return False
+        if 'dc' in self.assumptions:
+            return False
+        if 'causal' in self.assumptions:
+            return False
+        if 'unknown' in self.assumptions:
+            return False        
+        return True
+
+    def set_assumption(self, assumption, value):
+        
+        if value:
+            self.remove_assumptions()
+            self.assumptions[assumption] = value
+        else:
+            self.assumptions.pop(assumption, None)
+
+    def get_assumption(self, assumption):
+
+        if self.has_unspecified_assumptions():
+            self.infer_assumptions()
+        return assumption in self.assumptions and self.assumptions[assumption] == True
+    
     @property
     def is_causal(self):
-        if 'causal' not in self.assumptions:
-            self.infer_assumptions()
-        return 'causal' in self.assumptions and self.assumptions['causal'] == True
+        """Return True if zero for t < 0."""
+        
+        return self.get_assumption('causal')
 
     @property
     def causal(self):
+        
         return self.is_causal
         
     @causal.setter
     def causal(self, value):
-        self.assumptions['causal'] = value
-        if value:
-            self.assumptions['dc'] = False
-            self.assumptions['ac'] = False
+
+        self.set_assumption('causal', value)
 
     @property
     def is_dc(self):
-        if 'dc' not in self.assumptions:
-            self.infer_assumptions()
-        return 'dc' in self.assumptions and self.assumptions['dc'] == True
+
+        return self.get_assumption('dc')        
 
     @property
     def dc(self):
+        
         return self.is_dc
 
     @dc.setter
     def dc(self, value):
-        self.assumptions['dc'] = value
-        if value:
-            self.assumptions['causal'] = False
-            self.assumptions['ac'] = False    
+
+        self.set_assumption('dc', value)        
 
     @property
     def is_ac(self):
-        if 'ac' not in self.assumptions:
-            self.infer_assumptions()
-        return 'ac' in self.assumptions and self.assumptions['ac'] == True
+
+        return self.get_assumption('ac')                
 
     @property
     def ac(self):
+        
         return self.is_ac    
 
     @ac.setter
     def ac(self, value):
-        self.assumptions['ac'] = value
-        if value:
-            self.assumptions['causal'] = False
-            self.assumptions['dc'] = False        
+
+        self.set_assumption('ac', value)
+
+    @property
+    def is_unknown(self):
+        """Return True if behaviour is unknown for t < 0."""
+
+        return self.get_assumption('unknown')        
+
+    @property
+    def unknown(self):
+        
+        return self.is_unknown    
+
+    @unknown.setter
+    def unknown(self, value):
+
+        self.set_assumption('unknown', value)        
 
     @property
     def is_complex(self):
+        
         if 'complex' not in self.assumptions:
             return False
         return self.assumptions['complex'] == True
@@ -661,10 +712,12 @@ class Expr(ExprPrint, ExprMisc):
         # a convolution in the time-domain.
         
         assumptions = {}
-        if self.is_ac or x.is_dc:
+        if self.is_unknown or x.is_unknown:
+            assumptions = {'unknown' : True}        
+        elif self.is_ac or x.is_ac:
             assumptions = {'ac' : True}
-        elif self.is_dc or x.is_ac:
-            assumptions = {'ac' : True}
+        elif self.is_dc or x.is_dc:
+            assumptions = {'dc' : True}
         elif self.is_causal or x.is_causal:
             assumptions = {'causal' : True}
         return assumptions
@@ -744,7 +797,10 @@ class Expr(ExprPrint, ExprMisc):
         if not self._mul_compatible(x):
             self._incompatible_quantities(x, '*')                
 
-        assumptions = self._mul_assumptions(x)
+        if self.is_transform_domain:
+            assumptions = self._mul_assumptions(x)
+        else:
+            assumptions = {}
 
         xquantity, yquantity = x.quantity, self.quantity
         # Maybe use undefined for voltage**2 etc.

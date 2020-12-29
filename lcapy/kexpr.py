@@ -19,6 +19,7 @@ from .impedancemixin import ImpedanceMixin
 from .transfermixin import TransferMixin
 from sympy import Sum
 
+__all__ = ('kexpr', )
 
 class DiscreteFourierDomainExpression(SequenceExpression):
     """Discrete Fourier domain expression or symbol."""
@@ -27,6 +28,8 @@ class DiscreteFourierDomainExpression(SequenceExpression):
     domain = 'Discrete Fourier'
     domain_label = 'Discrete frequency'    
     domain_units = 'Hz'
+    is_discrete_fourier_domain = True
+    is_transform_domain = True    
 
     def __init__(self, val, **assumptions):
 

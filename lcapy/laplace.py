@@ -594,8 +594,15 @@ def inverse_laplace_make(t, const, cresult, uresult, **assumptions):
     elif assumptions.get('ac', False):
 
         if cresult != 0:
-            raise ValueError('Inverse laplace transform weirdness for %s'
-                             ' with is_ac True' % result)
+            # Quietly drop DiracDelta term.  This will appear when
+            # trying to determine the current through a capacitor
+            # when a cosinusoidal voltage source is applied.
+            if cresult.has(sym.DiracDelta):
+                result = uresult
+            else:
+                raise ValueError('Inverse laplace transform weirdness for %s'
+                                 ' with is_ac True' % result)
+            
         # TODO, perform more checking of the result.
         
     elif not assumptions.get('causal', False):

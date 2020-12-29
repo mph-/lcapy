@@ -25,7 +25,8 @@ class AngularFourierDomainExpression(Expr):
     domain = 'Angular Fourier'
     domain_label = 'Angular frequency'
     domain_units = 'rad/s'
-    is_angular_fourier_domain = True        
+    is_angular_fourier_domain = True
+    is_transform_domain = True    
 
     def __init__(self, val, **assumptions):
 

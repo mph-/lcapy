@@ -22,6 +22,8 @@ import numpy as np
 from sympy import Eq, div, limit, oo, Sum
 
 
+__all__ = ('zexpr', )
+
 class ZDomainExpression(DiscreteExpression):
     """z-domain expression or symbol."""
 
@@ -29,6 +31,8 @@ class ZDomainExpression(DiscreteExpression):
     domain = 'Z'
     domain_label = 'Z'    
     domain_units = ''
+    is_Z_domain = True
+    is_transform_domain = True    
 
     def __init__(self, val, **assumptions):
 

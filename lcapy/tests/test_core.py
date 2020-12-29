@@ -1,7 +1,9 @@
 from lcapy import *
 from lcapy.cexpr import ConstantExpression
+from lcapy.fexpr import FourierDomainExpression
 from lcapy.omegaexpr import AngularFourierDomainExpression
 from lcapy.texpr import TimeDomainExpression
+from lcapy.phasor import PhasorDomainVoltage, PhasorDomainExpression
 import unittest
 
 
@@ -370,7 +372,7 @@ class LcapyTester(unittest.TestCase):
     def test_rms(self):
 
         self.assertEqual(ConstantVoltage(2).rms(), TimeDomainVoltage(2))
-        self.assertEqual(PhasorVoltage(2).rms(), TimeDomainVoltage(1))
+        self.assertEqual(PhasorDomainVoltage(2).rms(), TimeDomainVoltage(1))
 
     def test_assumptions(self):
         """Lcapy: check assumptions
@@ -394,7 +396,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual((Heaviside(t).laplace() *
                           DiracDelta(t).laplace()).is_causal, True)
         self.assertEqual((Heaviside(t).laplace() *
-                          cos(t).laplace()).is_causal, True)
+                          cos(t).laplace()).is_causal, False)
+        self.assertEqual((Heaviside(t).laplace() *
+                          cos(t).laplace()).is_ac, True)        
         self.assertEqual(Heaviside(2 * t).is_causal, True, "Heaviside(2 * t).is_causal")
         self.assertEqual(Heaviside(t - 1).is_causal, True, "Heaviside(t - 1).is_causal")
         self.assertEqual(Heaviside(t + 1).is_causal, False, "Heaviside(t + 1).is_causal")
@@ -613,14 +617,14 @@ class LcapyTester(unittest.TestCase):
 
     def test_phasor(self):
 
-        a = PhasorExpression(3, omega=7)
+        a = PhasorDomainExpression(3, omega=7)
         self.assertEqual(a.omega, 7, 'omega')
         self.assertEqual(a.phase, 0, 'phase')
         self.assertEqual(a.magnitude, 3, 'magnitude')        
         
-        a = PhasorExpression(-3, omega=7)
+        a = PhasorDomainExpression(-3, omega=7)
         self.assertEqual(a.phase, pi, 'phase')                
         self.assertEqual(a.magnitude, 3, 'magnitude')
 
-        a = PhasorExpression(-3 + 4j, omega=7)
+        a = PhasorDomainExpression(-3 + 4j, omega=7)
         self.assertEqual(a.magnitude, 5, 'magnitude')                        

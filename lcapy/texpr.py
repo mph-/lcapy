@@ -26,6 +26,7 @@ class TimeDomainExpression(Expr):
     domain_label = 'Time'
     domain_units = 's'
     is_time_domain = True
+    is_transform_domain = False    
 
     def __init__(self, val, **assumptions):
 
@@ -91,9 +92,7 @@ class TimeDomainExpression(Expr):
     
     def infer_assumptions(self):
 
-        self.assumptions['dc'] = False
-        self.assumptions['ac'] = False
-        self.assumptions['causal'] = False
+        self.remove_assumptions()
 
         var = self.var
         if is_dc(self, var):
@@ -106,6 +105,9 @@ class TimeDomainExpression(Expr):
 
         if is_causal(self, var):
             self.assumptions['causal'] = True
+            return
+
+        self.assumptions['unknown'] = True            
 
     def LT(self, evaluate=True, **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit.
@@ -122,9 +124,8 @@ class TimeDomainExpression(Expr):
         # ac, dc, or causal, infer them.  Perhaps should check
         # what the user says and issue warning?
 
-        if ('ac' not in self.assumptions and 'dc' not in self.assumptions
-            and 'causal' not in self.assumptions):
-            self.infer_assumptions()
+        if self.has_unspecified_assumptions():
+            self.infer_assumptions()            
 
         assumptions = self.merge_assumptions(**assumptions)
         

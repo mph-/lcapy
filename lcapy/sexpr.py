@@ -31,6 +31,7 @@ class LaplaceDomainExpression(Expr):
     domain_label = 'Laplace frequency'
     domain_units = 'rad/s'    
     is_laplace_domain = True
+    is_transform_domain = True
 
     def __init__(self, val, **assumptions):
 

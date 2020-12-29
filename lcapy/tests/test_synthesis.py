@@ -1,4 +1,5 @@
 from lcapy import *
+from lcapy.sexpr import LaplaceDomainImpedance
 import unittest
 import sympy as sym
 

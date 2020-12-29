@@ -22,6 +22,8 @@ from .transfermixin import TransferMixin
 from sympy import Sum, summation, limit
 
 
+__all__ = ('nexpr', )
+
 class DiscreteTimeDomainExpression(SequenceExpression):
     """Discrete time expression or symbol."""
 
@@ -29,6 +31,8 @@ class DiscreteTimeDomainExpression(SequenceExpression):
     domain = 'Discrete time'    
     domain_label = 'Discrete time'
     domain_units = ''
+    is_discrete_time_domain = True
+    is_transform_domain = False
 
     # Restrict options for time-domain; need to perform convolutions.
     _mul_mapping = {}
