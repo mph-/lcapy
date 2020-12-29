@@ -13,6 +13,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 # performed.
 
 from __future__ import division
+from .assumptions import Assumptions
 from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, symdebug, AppliedUndef
 from .sym import capitalize_name, tsym, symsymbol, symbol_map
@@ -289,8 +290,8 @@ class Expr(ExprPrint, ExprMisc):
          There are two types of assumptions:
            1. The sympy assumptions associated with symbols, for example,
               real=True.
-           2. The expr assumptions such as dc, ac, causal.  These
-              are primarily to help the inverse Laplace transform for LaplaceDomainExpression classes.
+           2. The expr assumptions such as dc, ac, causal.  These are primarily
+              to help the inverse Laplace transform for LaplaceDomainExpression classes.
               The omega assumption is required for Phasors."""
 
         if self.is_always_causal:
@@ -298,8 +299,8 @@ class Expr(ExprPrint, ExprMisc):
         
         if isinstance(arg, Expr):
             if assumptions == {}:
-                assumptions = arg.assumptions.copy()
-            self.assumptions = assumptions.copy()
+                assumptions = arg.assumptions
+            self.assumptions = Assumptions(assumptions)
             self.expr = arg.expr
             return
 
@@ -307,15 +308,9 @@ class Expr(ExprPrint, ExprMisc):
         if arg == 0:
             assumptions['causal'] = True
 
-        self.assumptions = assumptions.copy()
+        self.assumptions = Assumptions(assumptions)
         # Remove Lcapy assumptions from SymPy expr.
-        assumptions.pop('nid', None)
-        assumptions.pop('ac', None)
-        assumptions.pop('dc', None)
-        assumptions.pop('causal', None)
-        assumptions.pop('unknown', None)        
-        
-        self.expr = sympify(arg, **assumptions)
+        self.expr = sympify(arg, **self.assumptions.sympy_assumptions())
  
     def as_quantity(self, quantity):
 
@@ -442,6 +437,8 @@ class Expr(ExprPrint, ExprMisc):
 
     def get_assumption(self, assumption):
 
+        # Defer infering assumptions until user wants them.
+        # They will be determined before doing a Laplace transform.
         if self.has_unspecified_assumptions():
             self.infer_assumptions()
         return assumption in self.assumptions and self.assumptions[assumption] == True

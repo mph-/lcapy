@@ -751,6 +751,8 @@ There are several attributes for determining assumptions:
 
 - `is_causal` -- zero for :math:`t < 0`
 
+- `is_unknown` -- unknown for :math:`t < 0`  
+
 - `is_real` -- real
 
 - `is_complex` -- complex
@@ -765,7 +767,11 @@ For example:
    False
    >>> s.is_complex
    True
-  
+
+The `ac`, `dc`, `causal`, and `unknown` assumptions are lazily
+determined.  If unspecified, they are inferred prior to a Laplace
+transform.
+   
 
 Assumptions for symbols
 -----------------------
@@ -804,6 +810,8 @@ Lcapy uses the :math:`\mathcal{L}_{-}` unilateral Laplace transform
 :math:`t <0` and thus the unilateral inverse Laplace transform thus
 cannot determine the result for :math:`t <0` unless it has additional
 information.  This is provided using assumptions:
+
+-  `unknown` says the signal is unknown for :math:`t < 0`.  This is the default.
 
 -  `causal` says the signal is zero for :math:`t < 0`.
 
