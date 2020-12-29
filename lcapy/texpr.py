@@ -16,6 +16,8 @@ from .currentmixin import CurrentMixin
 from sympy import Heaviside, limit, Integral, Expr as symExpr
 
 
+__all__ = ('texpr', )
+
 class TimeDomainExpression(Expr):
     """t-domain expression or symbol."""
 
@@ -105,12 +107,24 @@ class TimeDomainExpression(Expr):
         if is_causal(self, var):
             self.assumptions['causal'] = True
 
+    def LT(self, evaluate=True, **assumptions):
+        """Determine one-sided Laplace transform with 0- as the lower limit.
+
+        This is an alias for laplace."""
+
+        return self.laplace(evaluate, **assumptions)
+            
     def laplace(self, evaluate=True, **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit."""
 
         # The assumptions are required to help with the inverse Laplace
-        # transform if required.
-        self.infer_assumptions()
+        # transform if required.   If the user has not specified
+        # ac, dc, or causal, infer them.  Perhaps should check
+        # what the user says and issue warning?
+
+        if ('ac' not in self.assumptions and 'dc' not in self.assumptions
+            and 'causal' not in self.assumptions):
+            self.infer_assumptions()
 
         assumptions = self.merge_assumptions(**assumptions)
         
@@ -122,11 +136,13 @@ class TimeDomainExpression(Expr):
 
         return PhasorDomainExpression.make(self, **assumptions)
 
-    def LT(self, **assumptions):
-        """Convert to s-domain.   This is an alias for laplace."""
+    def FT(self, evaluate=True, **assumptions):
+        """Attempt Fourier transform.  This is an alias for fourier.
 
-        return self.laplace(**assumptions)
-    
+        X(f) = \int_{-\infty}^{\infty} x(t) exp(-j 2\pi f t) dt."""
+
+        return self.fourier(evaluate, **assumptions)        
+
     def fourier(self, evaluate=True, **assumptions):
         """Attempt Fourier transform."""
 
@@ -143,11 +159,6 @@ class TimeDomainExpression(Expr):
         result = self.fourier(evaluate, **assumptions).subs(f, omega / (2 * pi))
         # Could optimise...
         return self.wrap(AngularFourierDomainExpression(result, **assumptions))        
-
-    def FT(self, **assumptions):
-        """Convert to f-domain.   This is an alias for fourier."""
-
-        return self.fourier(**assumptions)    
 
     def phasor(self, **assumptions):
 
