@@ -20,7 +20,7 @@ import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
 
 
-__all__ = ('zp2tf', 'tf', 'pr2tf')
+__all__ = ('sexpr', 'zp2tf', 'tf', 'pr2tf')
 
 
 class LaplaceDomainExpression(Expr):
@@ -155,10 +155,17 @@ class LaplaceDomainExpression(Expr):
         return self.wrap(TimeDomainExpression(result, **assumptions))
 
     def ILT(self, **assumptions):
-        """Convert to t-domain.   This is an alias for inverse_laplace."""
+        """Attempt inverse Laplace transform.
+
+        If causal=True the response is zero for t < 0 and
+        the result is multiplied by Heaviside(t)
+        If ac=True or dc=True the result is extrapolated for t < 0.
+        Otherwise the result is only known for t >= 0.
+
+        """
 
         return self.inverse_laplace(**assumptions)
-    
+        
     def time(self, **assumptions):
         """Convert to time domain.
 
