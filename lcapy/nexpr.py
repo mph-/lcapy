@@ -104,12 +104,6 @@ class DiscreteTimeDomainExpression(SequenceExpression):
         if is_causal(self, var):
             self.assumptions['causal'] = True
 
-    def merge_assumptions(self, **assumptions):
-        
-        new_assumptions = self.assumptions.copy()
-        new_assumptions.update(assumptions)
-        return new_assumptions
-
     def differentiate(self):
         """First order difference."""
 
@@ -137,9 +131,10 @@ class DiscreteTimeDomainExpression(SequenceExpression):
     def ztransform(self, evaluate=True, **assumptions):
         """Determine one-sided z-transform."""
 
-        self.infer_assumptions()
+        if self.has_unspecified_assumptions():
+            self.infer_assumptions()            
 
-        assumptions = self.merge_assumptions(**assumptions)
+        assumptions = self.assumptions.merge(**assumptions)
 
         result = ztransform(self.expr, self.var, zsym, evaluate)
         return self.wrap(ZDomainExpression(result, **assumptions))
@@ -212,7 +207,8 @@ class DiscreteTimeDomainExpression(SequenceExpression):
 
         self.infer_assumptions()
 
-        assumptions = self.merge_assumptions(**assumptions)
+        if self.has_unspecified_assumptions():        
+            assumptions = self.assumptions.merge(**assumptions)
         
         if assumptions.get('causal', False):        
             return self.ZT(**assumptions).DTFT()

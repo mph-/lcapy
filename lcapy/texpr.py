@@ -8,7 +8,6 @@ from __future__ import division
 from .expr import Expr
 from .functions import exp
 from .sym import fsym, ssym, tsym, j, oo, tausym
-from .acdc import is_dc, is_ac, is_causal
 from .laplace import laplace_transform
 from .fourier import fourier_transform
 from .voltagemixin import VoltageMixin
@@ -93,21 +92,7 @@ class TimeDomainExpression(Expr):
     def infer_assumptions(self):
 
         self.remove_assumptions()
-
-        var = self.var
-        if is_dc(self, var):
-            self.assumptions['dc'] = True
-            return
-
-        if is_ac(self, var):
-            self.assumptions['ac'] = True
-            return
-
-        if is_causal(self, var):
-            self.assumptions['causal'] = True
-            return
-
-        self.assumptions['unknown'] = True            
+        self.assumptions.infer_from_expr(self)
 
     def LT(self, evaluate=True, **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit.
@@ -127,7 +112,7 @@ class TimeDomainExpression(Expr):
         if self.has_unspecified_assumptions():
             self.infer_assumptions()            
 
-        assumptions = self.merge_assumptions(**assumptions)
+        assumptions = self.assumptions.merge(**assumptions)
         
         result = laplace_transform(self.expr, self.var, ssym, evaluate=evaluate)
         return self.wrap(LaplaceDomainExpression(result, **assumptions))
@@ -147,7 +132,10 @@ class TimeDomainExpression(Expr):
     def fourier(self, evaluate=True, **assumptions):
         """Attempt Fourier transform."""
 
-        assumptions = self.merge_assumptions(**assumptions)
+        if self.has_unspecified_assumptions():
+            self.infer_assumptions()
+            
+        assumptions = self.assumptions.merge(**assumptions)
         
         result = fourier_transform(self.expr, self.var, fsym, evaluate=evaluate)
         return self.wrap(FourierDomainExpression(result, **assumptions))
@@ -157,6 +145,11 @@ class TimeDomainExpression(Expr):
 
         from .symbols import omega, pi, f
 
+        if self.has_unspecified_assumptions():
+            self.infer_assumptions()                    
+
+        assumptions = self.assumptions.merge(**assumptions)
+        
         result = self.fourier(evaluate, **assumptions).subs(f, omega / (2 * pi))
         # Could optimise...
         return self.wrap(AngularFourierDomainExpression(result, **assumptions))        

@@ -149,7 +149,7 @@ class LaplaceDomainExpression(Expr):
 
         """
 
-        assumptions = self.merge_assumptions(**assumptions)
+        assumptions = self.assumptions.merge(**assumptions)
         result = inverse_laplace_transform(self.expr, self.var, tsym,
                                            **assumptions)
 
@@ -185,7 +185,7 @@ class LaplaceDomainExpression(Expr):
     def laplace(self, **assumptions):
         """Convert to s-domain."""
 
-        assumptions = self.merge_assumptions(**assumptions)
+        assumptions = self.assumptions.merge(**assumptions)
         return self.__class__(self, **assumptions)
     
     def fourier(self, **assumptions):

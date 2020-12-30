@@ -1175,12 +1175,6 @@ class Expr(ExprPrint, ExprMisc):
         
         return self.__class__(expr)
     
-    def merge_assumptions(self, **assumptions):
-        
-        new_assumptions = self.assumptions.copy()
-        new_assumptions.update(assumptions)
-        return new_assumptions
-
     @property
     def magnitude(self):
         """Return magnitude"""
