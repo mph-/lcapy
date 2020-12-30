@@ -12,8 +12,9 @@ from .acdc import is_dc, is_ac, is_causal
 
 class Assumptions(dict):
     """Manage expression assumptions.  These include 'ac', 'dc', 'causal'
-    and 'unknown' to specify expression behavior for t < 0, and 'positive',
-    'complex', etc., to help with expression simplification.
+    and 'unknown' to specify expression behavior for t < 0, 'positive',
+    'complex', etc., to help with expression simplification, 'nid' as a noise
+    identifier, and `omega` for the phasor angular frequency.
 
     'ac', 'dc', 'causal' and 'unknown' refer to the time domain
     expression.  They can be inferred for a time domain expression but
@@ -48,9 +49,9 @@ class Assumptions(dict):
         else:
             self[assumption] = value
 
-    def get(self, assumption):
-
-        return self[assumption]
+    def get(self, assumption, default=False):
+        
+        return super(Assumptions, self).get(assumption, default)
 
     def merge(self, **assumptions):
 
@@ -75,6 +76,7 @@ class Assumptions(dict):
     def infer_from_expr(self, expr):
 
         if expr.is_transform_domain:
+            self.set('unknown', True)
             return
         
         var = expr.var
@@ -91,3 +93,45 @@ class Assumptions(dict):
             return
 
         self.set('unknown', True)                    
+
+    @property
+    def has_unspecified(self):
+
+        if 'ac' in self:
+            return False
+        if 'dc' in self:
+            return False
+        if 'causal' in self:
+            return False
+        if 'unknown' in self:
+            return False        
+        return True
+
+    def infer_from_expr_and_merge(self, expr, **assumptions):
+        """If the user has not specified ac, dc, or causal, infer them.
+         Perhaps should check what the user says and issue warning?
+        Then override with `assumptions`."""
+
+        if self.has_unspecified:
+            self.infer_from_expr(expr)
+        return self.merge(**assumptions)
+
+    @property
+    def is_ac(self):
+
+        return self.get('ac')
+
+    @property
+    def is_dc(self):
+
+        return self.get('dc')
+
+    @property
+    def is_causal(self):
+
+        return self.get('causal')
+
+    @property
+    def is_unknown(self):
+
+        return self.get('unknown')    

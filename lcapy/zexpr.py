@@ -114,9 +114,7 @@ class ZDomainExpression(DiscreteExpression):
 
         """
 
-        if assumptions == {}:
-            assumptions = self.assumptions.copy()
-
+        assumptions = self.assumptions.merge()
         result = inverse_ztransform(self.expr, self.var, nsym, **assumptions)
         return self.wrap(DiscreteTimeDomainExpression(result))
 

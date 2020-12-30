@@ -86,23 +86,6 @@ class DiscreteTimeDomainExpression(SequenceExpression):
     def as_transfer(self):
         return DiscreteTimeDomainImpulseResponse(self)
 
-    def infer_assumptions(self):
-
-        self.assumptions['dc'] = False
-        self.assumptions['ac'] = False
-        self.assumptions['causal'] = False
-
-        var = self.var
-        if is_dc(self, var):
-            self.assumptions['dc'] = True
-            return
-
-        if is_ac(self, var):
-            self.assumptions['ac'] = True
-            return
-
-        if is_causal(self, var):
-            self.assumptions['causal'] = True
 
     def differentiate(self):
         """First order difference."""
@@ -131,11 +114,7 @@ class DiscreteTimeDomainExpression(SequenceExpression):
     def ztransform(self, evaluate=True, **assumptions):
         """Determine one-sided z-transform."""
 
-        if self.has_unspecified_assumptions():
-            self.infer_assumptions()            
-
-        assumptions = self.assumptions.merge(**assumptions)
-
+        assumptions = self.assumptions.infer_from_expr_and_merge(self, **assumptions)
         result = ztransform(self.expr, self.var, zsym, evaluate)
         return self.wrap(ZDomainExpression(result, **assumptions))
 
@@ -205,12 +184,8 @@ class DiscreteTimeDomainExpression(SequenceExpression):
     def discrete_time_fourier_transform(self, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
 
-        self.infer_assumptions()
-
-        if self.has_unspecified_assumptions():        
-            assumptions = self.assumptions.merge(**assumptions)
-        
-        if assumptions.get('causal', False):        
+        assumptions = self.assumptions.infer_from_expr_and_merge(self, **assumptions)
+        if assumptions.is_causal:
             return self.ZT(**assumptions).DTFT()
 
         from .fexpr import fexpr

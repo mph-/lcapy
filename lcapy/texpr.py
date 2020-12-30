@@ -91,7 +91,6 @@ class TimeDomainExpression(Expr):
     
     def infer_assumptions(self):
 
-        self.remove_assumptions()
         self.assumptions.infer_from_expr(self)
 
     def LT(self, evaluate=True, **assumptions):
@@ -104,16 +103,7 @@ class TimeDomainExpression(Expr):
     def laplace(self, evaluate=True, **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit."""
 
-        # The assumptions are required to help with the inverse Laplace
-        # transform if required.   If the user has not specified
-        # ac, dc, or causal, infer them.  Perhaps should check
-        # what the user says and issue warning?
-
-        if self.has_unspecified_assumptions():
-            self.infer_assumptions()            
-
-        assumptions = self.assumptions.merge(**assumptions)
-        
+        assumptions = self.assumptions.infer_from_expr_and_merge(self, **assumptions)
         result = laplace_transform(self.expr, self.var, ssym, evaluate=evaluate)
         return self.wrap(LaplaceDomainExpression(result, **assumptions))
 
@@ -132,11 +122,7 @@ class TimeDomainExpression(Expr):
     def fourier(self, evaluate=True, **assumptions):
         """Attempt Fourier transform."""
 
-        if self.has_unspecified_assumptions():
-            self.infer_assumptions()
-            
-        assumptions = self.assumptions.merge(**assumptions)
-        
+        assumptions = self.assumptions.infer_from_expr_and_merge(self, **assumptions)
         result = fourier_transform(self.expr, self.var, fsym, evaluate=evaluate)
         return self.wrap(FourierDomainExpression(result, **assumptions))
 
@@ -145,17 +131,14 @@ class TimeDomainExpression(Expr):
 
         from .symbols import omega, pi, f
 
-        if self.has_unspecified_assumptions():
-            self.infer_assumptions()                    
-
-        assumptions = self.assumptions.merge(**assumptions)
-        
+        assumptions = self.assumptions.infer_from_expr_and_merge(self, **assumptions)
         result = self.fourier(evaluate, **assumptions).subs(f, omega / (2 * pi))
         # Could optimise...
         return self.wrap(AngularFourierDomainExpression(result, **assumptions))        
 
     def phasor(self, **assumptions):
 
+        assumptions = self.assumptions.infer_from_expr_and_merge(self, **assumptions)
         return PhasorDomainExpression.make(self, **assumptions)
 
     def time(self, **assumptions):

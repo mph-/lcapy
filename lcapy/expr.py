@@ -295,7 +295,7 @@ class Expr(ExprPrint, ExprMisc):
               The omega assumption is required for Phasors."""
 
         if self.is_always_causal:
-            assumptions['causal'] = True
+            assumptions.set('causal', True)
         
         if isinstance(arg, Expr):
             if assumptions == {}:
@@ -306,7 +306,7 @@ class Expr(ExprPrint, ExprMisc):
 
         # Perhaps could set dc?
         if arg == 0:
-            assumptions['causal'] = True
+            assumptions.set('causal', True)            
 
         self.assumptions = Assumptions(assumptions)
         # Remove Lcapy assumptions from SymPy expr.
@@ -404,50 +404,13 @@ class Expr(ExprPrint, ExprMisc):
 
         return printer._print(expr)
 
-    def infer_assumptions(self):
-
-        self.assumptions['unknown'] = True                    
-
-    def remove_assumptions(self):
-
-        self.assumptions.pop('ac', None)
-        self.assumptions.pop('dc', None)
-        self.assumptions.pop('causal', None)
-        self.assumptions.pop('unknown', None)
-
-    def has_unspecified_assumptions(self):
-
-        if 'ac' in self.assumptions:
-            return False
-        if 'dc' in self.assumptions:
-            return False
-        if 'causal' in self.assumptions:
-            return False
-        if 'unknown' in self.assumptions:
-            return False        
-        return True
-
-    def set_assumption(self, assumption, value):
-        
-        if value:
-            self.remove_assumptions()
-            self.assumptions[assumption] = value
-        else:
-            self.assumptions.pop(assumption, None)
-
-    def get_assumption(self, assumption):
-
-        # Defer infering assumptions until user wants them.
-        # They will be determined before doing a Laplace transform.
-        if self.has_unspecified_assumptions():
-            self.infer_assumptions()
-        return assumption in self.assumptions and self.assumptions[assumption] == True
-    
     @property
     def is_causal(self):
         """Return True if zero for t < 0."""
-        
-        return self.get_assumption('causal')
+
+        if self.assumptions.has_unspecified:
+            self.assumptions.infer_from_expr(self)        
+        return self.assumptions.is_causal
 
     @property
     def causal(self):
@@ -457,12 +420,14 @@ class Expr(ExprPrint, ExprMisc):
     @causal.setter
     def causal(self, value):
 
-        self.set_assumption('causal', value)
+        self.assumptions.set('causal', value)
 
     @property
     def is_dc(self):
 
-        return self.get_assumption('dc')        
+        if self.assumptions.has_unspecified:
+            self.assumptions.infer_from_expr(self)                
+        return self.assumptions.is_dc
 
     @property
     def dc(self):
@@ -472,12 +437,14 @@ class Expr(ExprPrint, ExprMisc):
     @dc.setter
     def dc(self, value):
 
-        self.set_assumption('dc', value)        
+        self.assumptions.set('dc', value)        
 
     @property
     def is_ac(self):
 
-        return self.get_assumption('ac')                
+        if self.assumptions.has_unspecified:
+            self.assumptions.infer_from_expr(self)                
+        return self.assumptions.is_ac
 
     @property
     def ac(self):
@@ -487,13 +454,15 @@ class Expr(ExprPrint, ExprMisc):
     @ac.setter
     def ac(self, value):
 
-        self.set_assumption('ac', value)
+        self.assumptions.set('ac', value)
 
     @property
     def is_unknown(self):
         """Return True if behaviour is unknown for t < 0."""
 
-        return self.get_assumption('unknown')        
+        if self.assumptions.has_unspecified:
+            self.assumptions.infer_from_expr(self)                
+        return self.assumptions.is_unknown
 
     @property
     def unknown(self):
@@ -503,7 +472,7 @@ class Expr(ExprPrint, ExprMisc):
     @unknown.setter
     def unknown(self, value):
 
-        self.set_assumption('unknown', value)        
+        self.assumptions.set('unknown', value)        
 
     @property
     def is_complex(self):
