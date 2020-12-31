@@ -54,14 +54,14 @@ class PhasorDomainExpression(Expr):
         if expr.is_voltage or expr.is_current:
 
             if expr.is_transform_domain:
-                print('Warning, converting to time-domain first')
+                print('Warning, converting %s-domain to time-domain first.' %
+                      expr.domain)
                 expr = expr.time()
         
             check = ACChecker(expr.time(), t)
             if not check.is_ac:
                 raise ValueError(
-                    'Do not know how to convert %s to phasor.  Expecting an AC signal.'
-                    % expr)
+'Do not know how to convert %s to phasor.  Expecting an AC signal.' % expr)
             phasor = PhasorDomainVorrent(check.amp * exp(j * check.phase),
                                          omega=check.omega)
             return expr.wrap(phasor)
