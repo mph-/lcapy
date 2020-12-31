@@ -679,12 +679,6 @@ phasor, for example, using: %s""" % foo)
         """Return the total noise."""
         return self.n
 
-    @property
-    def w(self):
-        """Return the AC component with angular frequency omega0.
-        This should be deprecated."""
-        return self.select(omega0sym)    
-
     def time(self, **assumptions):
         """Convert to time domain."""
 
