@@ -87,9 +87,10 @@ def call(expr, arg, **assumptions):
     if arg in (f, s, t, omega, jomega):
         return expr.transform(arg, **assumptions)
 
+    arg = expr(arg)
     if arg.has(j):
-        return expr.transform(arg, **assumptions)        
-    
+        return expr.transform(arg, **assumptions)
+        
     return expr.subs(arg)
 
 

@@ -1,4 +1,5 @@
-"""This module provides the TimeDomainExpression class to represent time domain expressions.
+"""This module provides the TimeDomainExpression class to represent
+time domain expressions.
 
 Copyright 2014--2020 Michael Hayes, UCECE
 
@@ -110,7 +111,7 @@ class TimeDomainExpression(Expr):
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        return PhasorDomainExpression.make(self, **assumptions)
+        return PhasorDomainTimeExpression.from_time(self, **assumptions)
 
     def FT(self, evaluate=True, **assumptions):
         """Attempt Fourier transform.  This is an alias for fourier.
@@ -135,11 +136,6 @@ class TimeDomainExpression(Expr):
         result = self.fourier(evaluate, **assumptions).subs(f, omega / (2 * pi))
         # Could optimise...
         return self.wrap(AngularFourierDomainExpression(result, **assumptions))        
-
-    def phasor(self, **assumptions):
-
-        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
-        return PhasorDomainExpression.make(self, **assumptions)
 
     def time(self, **assumptions):
         return self
@@ -281,6 +277,6 @@ from .sexpr import LaplaceDomainExpression
 from .fexpr import FourierDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .cexpr import ConstantExpression
-from .phasor import PhasorDomainExpression
+from .phasor import PhasorDomainTimeExpression
 
 t = TimeDomainExpression('t')

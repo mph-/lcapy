@@ -229,7 +229,8 @@ class Expr(ExprPrint, ExprMisc):
     is_fourier_domain = False
     is_angular_fourier_domain = False
     is_phasor_domain = False
-    is_phasor = False
+    is_phasor_time_domain = False
+    is_phasor_frequency_domain = False    
     is_discrete_time_domain = False
     is_discrete_fourier_domain = False
     is_Z_domain = False        
@@ -704,6 +705,12 @@ class Expr(ExprPrint, ExprMisc):
             if self.domain == x.domain:
                 return cls, self, x, assumptions
 
+        # For phasor comparisons...
+        if self.is_phasor_frequency_domain and x.is_angular_fourier_domain:
+            return cls, self, cls(x), assumptions
+        if self.is_angular_fourier_domain and x.is_phasor_frequency_domain:
+            return xcls, cls(self), x, assumptions        
+
         if self.domain != x.domain:
             self._incompatible_domains(x, op)        
 
@@ -876,6 +883,9 @@ class Expr(ExprPrint, ExprMisc):
     def __rpow__(self, x):
         """Reverse pow"""
 
+        if not isinstance(x, Expr):
+            x = expr(x)
+        
         return x.__class__(x.__pow__(self.expr))
 
     def __or__(self, x):

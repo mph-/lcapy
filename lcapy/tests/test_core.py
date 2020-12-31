@@ -628,3 +628,15 @@ class LcapyTester(unittest.TestCase):
 
         a = PhasorDomainExpression(-3 + 4j, omega=7)
         self.assertEqual(a.magnitude, 5, 'magnitude')                        
+
+        v = voltage('cos(5 * t)')
+        i = current('cos(5 * t)')
+        V = v.phasor()
+        I = i.phasor()
+
+        Z = V / I
+        self.assertEqual(Z.is_impedance, True, 'impedance')
+        self.assertEqual(Z.omega, 5, 'omega')
+        
+        
+        

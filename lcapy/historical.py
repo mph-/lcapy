@@ -42,6 +42,5 @@ from .noiseomegaexpr import AngularFourierDomainNoiseExpression as noiseomegaExp
 from .noiseomegaexpr import AngularFourierDomainNoiseCurrent as Inoisy
 from .noiseomegaexpr import AngularFourierDomainNoiseVoltage as Vnoisy
 
-from .phasor import PhasorDomainExpression as PhasorDomainExpression
 from .phasor import PhasorDomainVoltage as Vphasor
 from .phasor import PhasorDomainCurrent as Iphasor

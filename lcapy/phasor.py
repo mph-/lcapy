@@ -1,9 +1,26 @@
-"""This module provides the PhasorDomainExpression class to represent phasors
+"""This module provides the PhasorDomain classes to represent phasors
  for AC analysis.
 
 A phasor represents the amplitude and phase for a single sinusoid.  By
 default the angular frequency is omega_0 but it can be any number or
 symbol.
+
+Phasors straddle the time and frequency domains and this is my excuse
+for the confusing phasor classes.
+
+A phasor is described by an amplitude and phase.  There is also an
+implicit frequency.  The amplitude and phase are usually functions of
+frequency.  A phasor is useful to describe an AC voltage or current
+signal.
+
+A ratio of two phasors (of the same frequency) is no longer a
+time-domain signal but a frequency domain quantity.  The frequency
+dependence is explicit.  A phasor ratio is useful to describe an
+impedance, immitance, or transfer function.  These are frequency
+domain concepts.  A phasor ratio can be inferred from the Laplace
+domain by substituting jomega for s, where omega is the angular
+frequency of the phasor.
+
 
 Copyright 2014--2020 Michael Hayes, UCECE
 
@@ -41,41 +58,19 @@ __all__ = ('phasor', )
 
 class PhasorDomainExpression(Expr):
 
-    is_phasor = True
+    is_phasor_domain = True
     domain_name = 'Phasor'
+
+    def __init__(self, val, **assumptions):
+
+        if isinstance(val, PhasorDomainExpression):
+            assumptions['omega'] = val.omega
+        elif 'omega' not in assumptions:
+            assumptions['omega'] = omega0sym                    
+
+        assumptions['ac'] = True
+        super (PhasorDomainExpression, self).__init__(val, **assumptions)
     
-    @classmethod
-    def make(cls, expr, omega=None, **assumptions):
-        from .symbols import s, jw, t
-
-        if expr.is_phasor:
-            return expr.wrap(expr)
-        
-        if expr.is_voltage or expr.is_current:
-
-            if expr.is_transform_domain:
-                print('Warning, converting %s-domain to time-domain first.' %
-                      expr.domain)
-                expr = expr.time()
-        
-            check = ACChecker(expr.time(), t)
-            if not check.is_ac:
-                raise ValueError(
-'Do not know how to convert %s to phasor.  Expecting an AC signal.' % expr)
-
-            if omega is not None and check.omega != omega.expr:
-                raise ValueError('Expecting omega=%s, found omega=%s.' % (omega, check.omega))
-            
-            phasor = PhasorDomainVorrent(check.amp * exp(j * check.phase),
-                                         omega=check.omega)
-            return expr.wrap(phasor)
-        else:
-            if omega is None:
-                raise ValueError('Omega unspecified for conversion of %s-domain to phasor-domain' % expr.domain)
-            
-            result = expr.wrap(PhasorDomainRatio(expr.laplace().replace(s, j * omega)))
-        return result
-
     def _class_by_quantity(self, quantity):
 
         if quantity == 'voltage':
@@ -90,9 +85,6 @@ class PhasorDomainExpression(Expr):
             return PhasorDomainTransferFunction                
         raise ValueError('Unknown quantity %s' % quantity)
     
-    def as_expr(self):
-        return PhasorDomainExpression(self)
-
     def as_voltage(self):
         return PhasorDomainVoltage(self)
 
@@ -120,26 +112,6 @@ class PhasorDomainExpression(Expr):
 
         return self.omega
 
-    def __compat_add__(self, x, op):
-
-        cls = self.__class__
-        xcls = x.__class__
-
-        # Special case for zero.
-        if isinstance(x, int) and x == 0:
-            return cls, self, cls(x), self.assumptions
-
-        if not isinstance(x, PhasorDomainExpression):
-            raise TypeError('Incompatible arguments %s and %s for %s' %
-                            (repr(self), repr(x), op))
-
-        if self.omega != x.omega:
-            raise ValueError('Cannot combine %s(%s, omega=%s)'
-                             ' with %s(%s, omega=%s)' %
-                             (cls.__name__, self, self.omega,
-                              xcls.__name__, x, x.omega))
-        return cls, self, x, self.assumptions
-
     def __compat_mul__(self, x, op):
 
         cls = self.__class__
@@ -152,7 +124,7 @@ class PhasorDomainExpression(Expr):
         if isinstance(x, (AngularFourierDomainExpression, ConstantExpression)):
             return cls, self, x, self.assumptions
 
-        if not isinstance(x, PhasorDomainExpression):
+        if not isinstance(x, PhasorDomainTimeExpression):
             raise TypeError('Incompatible arguments %s and %s for %s' %
                             (repr(self), repr(x), op))
 
@@ -216,20 +188,38 @@ class PhasorDomainExpression(Expr):
         return plot_phasor(self, **kwargs)
 
 
-class PhasorDomainVorrent(PhasorDomainExpression):
+class PhasorDomainTimeExpression(PhasorDomainExpression):
     """This is a phasor domain base class for voltages and currents."""
-    
-    def __init__(self, val, **assumptions):
+
+    is_phasor_domain = True
+    is_phasor_time_domain = True
+
+    def as_expr(self):
+        return PhasorDomainTimeExpression(self)
+
+    @classmethod
+    def from_time(cls, expr, omega=None, **assumptions):
+
+        from .symbols import t
 
         assumptions['ac'] = True
 
-        if 'omega' not in assumptions:
-            if hasattr(val, 'omega'):
-                assumptions['omega'] = val.omega
-            else:
-                assumptions['omega'] = omega0sym        
+        if expr.is_transform_domain:
+            print('Warning, converting %s-domain to time-domain first.' %
+                  expr.domain)
+            expr = expr.time()
+            
+        check = ACChecker(expr, t)
+        if not check.is_ac:
+            raise ValueError(
+                'Do not know how to convert %s to phasor.  Expecting an AC signal.' % expr)
         
-        super (PhasorDomainExpression, self).__init__(val, **assumptions)
+        if omega is not None and check.omega != omega.expr:
+            raise ValueError('Expecting omega=%s, found omega=%s.' % (omega, check.omega))
+        result = check.amp * exp(j * check.phase)
+        assumptions['omega'] = check.omega
+
+        return cls.wrap(expr, PhasorDomainTimeExpression(result, **assumptions))
 
     def time(self, **assumptions):
         """Convert to time domain representation."""
@@ -245,34 +235,54 @@ class PhasorDomainVorrent(PhasorDomainExpression):
         else:
             result = self.real.expr * cos(omega * t) - self.imag.expr * sin(omega * t)
 
-        return self.wrap(TimeDomainExpression(result))
+        return TimeDomainExpression(result)
+    
 
+class PhasorDomainFrequencyExpression(PhasorDomainExpression):
+    """This represents the ratio of two-phasors; for example
+    an impedance, an admittance, or a transfer function."""
 
-class PhasorDomainRatio(PhasorDomainExpression):
+    is_phasor_frequency_domain = True    
+    is_transform_domain = True
+
+    @classmethod
+    def from_laplace(cls, expr, omega=None, **assumptions):
+
+        from .symbols import s        
+
+        if omega is None:
+            raise ValueError('omega unspecified for conversion of %s-domain to phasor-domain' % expr.domain)
+
+        result = expr.laplace(**assumptions).replace(s, j * omega)
+        return cls.wrap(expr, PhasorDomainFrequencyExpression(result, omega=omega,
+                                                              **assumptions))
     
     def time(self, **assumptions):
         """Convert to time domain representation."""
         from .symbols import jw, s
 
-        return self.wrap(LaplaceDomainExpression(self.replace(jw, s)).time(causal=True))
-        
+        return self.wrap(cls, TimeDomainExpression(self.replace(jw, s)).time(causal=True))
 
-class PhasorDomainAdmittance(AdmittanceMixin, PhasorDomainRatio):
+    def as_expr(self):
+        return PhasorDomainFrequencyExpression(self)
+    
+
+class PhasorDomainAdmittance(AdmittanceMixin, PhasorDomainFrequencyExpression):
     """PhasorDomain admittance"""
     pass
 
 
-class PhasorDomainImpedance(ImpedanceMixin, PhasorDomainRatio):
+class PhasorDomainImpedance(ImpedanceMixin, PhasorDomainFrequencyExpression):
     """PhasorDomain impedance"""
     pass
 
 
-class PhasorDomainTransferFunction(TransferMixin, PhasorDomainRatio):
+class PhasorDomainTransferFunction(TransferMixin, PhasorDomainFrequencyExpression):
     """PhasorDomain transfer function response."""
     pass
 
     
-class PhasorDomainVoltage(VoltageMixin, PhasorDomainVorrent):
+class PhasorDomainVoltage(VoltageMixin, PhasorDomainTimeExpression):
     """t-domain voltage (units V) parameterized as a phasor
     of a single angular frequency, omega0."""
         
@@ -281,7 +291,7 @@ class PhasorDomainVoltage(VoltageMixin, PhasorDomainVorrent):
         return Vac(self, 0, self.omega)            
 
     
-class PhasorDomainCurrent(CurrentMixin, PhasorDomainVorrent):
+class PhasorDomainCurrent(CurrentMixin, PhasorDomainTimeExpression):
     """t-domain current (units V) parameterized as a phasor
     of a single angular frequency, omega0."""    
 
@@ -302,17 +312,19 @@ div_table = {(PhasorDomainVoltage, PhasorDomainImpedance): (None, PhasorDomainCu
              (PhasorDomainCurrent, PhasorDomainAdmittance): (None, PhasorDomainVoltage),
              (PhasorDomainCurrent, PhasorDomainCurrent): (None, PhasorDomainTransferFunction),
              (PhasorDomainVoltage, PhasorDomainVoltage): (None, PhasorDomainTransferFunction),
-             (PhasorDomainExpression, PhasorDomainAdmittance): (None, PhasorDomainImpedance),
-             (PhasorDomainExpression, PhasorDomainImpedance): (None, PhasorDomainAdmittance)}
+             (PhasorDomainTimeExpression, PhasorDomainAdmittance): (None, PhasorDomainImpedance),
+             (PhasorDomainTimeExpression, PhasorDomainImpedance): (None, PhasorDomainAdmittance)}
 
     
 def phasor(arg, **assumptions):
     """Create phasor."""
 
-    return PhasorDomainVorrent(arg, **assumptions)
+    arg = expr(arg)
+
+    return PhasorDomainTimeExpression(arg, **assumptions)
     
     
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression, TimeDomainVoltage, TimeDomainCurrent
 from .expr import Expr
-from .phasor import PhasorDomainExpression
+

@@ -108,7 +108,7 @@ class AngularFourierDomainExpression(Expr):
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        return PhasorDomainExpression.make(self, **assumptions)        
+        return self.time(**assumptions).phasor(**assumptions)
 
     def plot(self, wvector=None, **kwargs):
         """Plot angular frequency response at values specified by wvector.
@@ -170,6 +170,5 @@ def omegaexpr(arg, **assumptions):
 from .texpr import TimeDomainExpression
 from .sexpr import LaplaceDomainExpression
 from .cexpr import ConstantExpression
-from .phasor import PhasorDomainExpression
 omega = AngularFourierDomainExpression('omega')
 omega0 = AngularFourierDomainExpression('omega_0')

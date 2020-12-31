@@ -1,6 +1,7 @@
 from lcapy import *
 from lcapy.phasor import PhasorDomainVoltage
 from lcapy.superposition_voltage import SuperpositionVoltage
+from lcapy.superposition_current import SuperpositionCurrent
 import unittest
 import sympy as sym
 

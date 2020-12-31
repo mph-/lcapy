@@ -113,7 +113,7 @@ class FourierDomainExpression(Expr):
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        return PhasorDomainExpression.make(self, **assumptions)        
+        return self.time(**assumptions).phasor(**assumptions)        
 
     def plot(self, fvector=None, **kwargs):
         """Plot frequency response at values specified by fvector.  If fvector
@@ -189,5 +189,4 @@ from .texpr import TimeDomainExpression
 from .sexpr import LaplaceDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .cexpr import ConstantExpression
-from .phasor import PhasorDomainExpression
 f = FourierDomainExpression('f')

@@ -204,7 +204,7 @@ class LaplaceDomainExpression(Expr):
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        return PhasorDomainExpression.make(self, **assumptions)
+        return PhasorDomainFrequencyExpression.from_laplace(self, **assumptions)
 
     def transient_response(self, tvector=None):
         """Evaluate transient (impulse) response."""
@@ -546,7 +546,7 @@ from .omegaexpr import AngularFourierDomainTransferFunction, AngularFourierDomai
 from .texpr import TimeDomainImpulseResponse, TimeDomainAdmittance, TimeDomainImpedance
 from .texpr import TimeDomainExpression, TimeDomainVoltage, TimeDomainCurrent, texpr
 from .cexpr import ConstantExpression
-from .phasor import PhasorDomainExpression
+from .phasor import PhasorDomainFrequencyExpression
 
 s = LaplaceDomainExpression('s')
 
