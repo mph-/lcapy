@@ -679,7 +679,8 @@ class Expr(ExprPrint, ExprMisc):
         return True
     
     def __compat_add__(self, x, op):
-        assumptions = Assumptions()
+
+        assumptions = self.assumptions.copy()
 
         cls = self.__class__
         xcls = x.__class__

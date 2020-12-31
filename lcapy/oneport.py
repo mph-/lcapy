@@ -1038,7 +1038,7 @@ class Vac(VoltageSourceBase):
             
         if omega is None:
             omega = omega0sym
-        omega = cexpr(omega)
+        omega = expr(omega)
 
         V = cexpr(V)
         phi = cexpr(phi)

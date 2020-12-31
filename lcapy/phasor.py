@@ -66,7 +66,7 @@ class PhasorDomainExpression(Expr):
         if isinstance(val, PhasorDomainExpression):
             assumptions['omega'] = val.omega
         elif 'omega' not in assumptions:
-            assumptions['omega'] = omegasym                    
+            assumptions['omega'] = omegasym
 
         assumptions['ac'] = True
         super (PhasorDomainExpression, self).__init__(val, **assumptions)
@@ -216,15 +216,15 @@ class PhasorDomainTimeExpression(PhasorDomainExpression):
         """Convert to time domain representation."""
         from .symbols import t
         
-        omega = self.omega
-        if isinstance(omega, Expr):
+        omega1 = self.omega
+        if isinstance(omega1, Expr):
             # TODO: Fix inconsistency.  Sometimes omega is a symbol.
-            omega = omega.expr
-            
+            omega1 = omega1.expr
+
         if self.is_complex:
-            result = self.expr * exp(j * omega * t)
+            result = self.expr * exp(j * omega1 * t)
         else:
-            result = self.real.expr * cos(omega * t) - self.imag.expr * sin(omega * t)
+            result = self.real.expr * cos(omega1 * t) - self.imag.expr * sin(omega1 * t)
 
         return TimeDomainExpression(result)
     
