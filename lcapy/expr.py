@@ -287,19 +287,22 @@ class Expr(ExprPrint, ExprMisc):
     def __init__(self, arg, **assumptions):
         """
 
-         There are two types of assumptions:
+         There are three types of assumptions:
            1. The sympy assumptions associated with symbols, for example,
               real=True.
            2. The expr assumptions such as dc, ac, causal.  These are primarily
               to help the inverse Laplace transform for LaplaceDomainExpression classes.
-              The omega assumption is required for Phasors."""
+           3. Additional parameters such as nid for NoiseDomain and omega
+              for PhasorDomain.
+
+        """
 
         if isinstance(arg, Expr):
-            assumptions = arg.assumptions.copy()
+            ass = arg.assumptions.copy()
             if self.is_always_causal:
-                assumptions.set('causal', True)
+                ass.set('causal', True)
             
-            self.assumptions = assumptions.merge()
+            self.assumptions = ass.merge(**assumptions)
             self.expr = arg.expr
             return
 
