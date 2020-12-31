@@ -31,7 +31,7 @@ def Vname(name, kind, cache=False):
     # Not caching is a hack to avoid conflicts of Vn1 with Vn1(s) etc.
     # when using subnetlists.  The alternative is a proper context
     # switch.  This would require every method to set the context.
-    return expr(name, cache=cache)            
+    return voltage(name, cache=cache)            
 
 
 def Vtype(kind):

@@ -31,7 +31,7 @@ def Iname(name, kind, cache=False):
     # Not caching is a hack to avoid conflicts of In1 with In1(s) etc.
     # when using subnetlists.  The alternative is a proper context
     # switch.  This would require every method to set the context.
-    return expr(name, cache=cache)            
+    return current(name, cache=cache)            
 
 
 def Itype(kind):
