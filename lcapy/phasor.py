@@ -52,11 +52,18 @@ class PhasorDomainExpression(Expr):
             return expr.wrap(expr)
         
         if expr.is_voltage or expr.is_current:
+
+            if expr.is_transform_domain:
+                print('Warning, converting to time-domain first')
+                expr = expr.time()
         
             check = ACChecker(expr.time(), t)
             if not check.is_ac:
-                raise ValueError('Do not know how to convert %s to phasor' % expr)
-            phasor = PhasorDomainVorrent(check.amp * exp(j * check.phase), omega=check.omega)
+                raise ValueError(
+                    'Do not know how to convert %s to phasor.  Expecting an AC signal.'
+                    % expr)
+            phasor = PhasorDomainVorrent(check.amp * exp(j * check.phase),
+                                         omega=check.omega)
             return expr.wrap(phasor)
         else:
             result = expr.wrap(PhasorDomainRatio(expr.laplace().replace(s, jw)))

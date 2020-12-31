@@ -46,7 +46,7 @@ def transform1(expr, arg, **assumptions):
         else:
             result = expr
     else:
-        raise ValueError('Can only return t, f, s, or omega domains')
+        raise ValueError('Can only return t, f, s, omega, or jomega domains')
 
     return result.subs(arg, **assumptions)
 
@@ -56,9 +56,8 @@ def transform(expr, arg, **assumptions):
     otherwise perform substitution.
 
     Note (5 * s)(omega) will fail since 5 * s is assumed not to be
-    causal and so Fourier transform is unknown.  However, Zs(5 *
+    causal and so the Fourier transform is unknown.  However, Zs(5 *
     s)(omega) will work since Zs is assumed to be causal.
-
     """
 
     arg = expr1(arg)
@@ -72,12 +71,12 @@ def wrap(old, new):
     if not hasattr(old, 'quantity'):
         return new
     
-    quantitys = {'voltage': voltage, 'current': current,
-                'impedance': impedance, 'admittance': admittance,
-                'transfer': transfer}
-    if old.quantity not in quantitys:
+    quantities = {'voltage': voltage, 'current': current,
+                  'impedance': impedance, 'admittance': admittance,
+                  'transfer': transfer}
+    if old.quantity not in quantities:
         return new
-    return quantitys[old.quantity](new)    
+    return quantities[old.quantity](new)    
     
 
 def call(expr, arg, **assumptions):
@@ -102,6 +101,8 @@ def select(expr, kind):
     elif kind == 'f':
         return expr.fourier()
     elif kind == 'omega':
+        return expr.angular_fourier()
+    elif isinstance(kind, str) and kind.startswith('n'):
         return expr.angular_fourier()
     return expr.subs(j * kind)
 

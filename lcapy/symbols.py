@@ -16,3 +16,6 @@ from .sym import pi, j, oo, inf, one
 
 jomega = j * omega
 jw = jomega
+
+jomega0 = j * omega0
+jw0 = jomega0
