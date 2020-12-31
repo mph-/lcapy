@@ -52,13 +52,13 @@ def transform1(expr, arg, **assumptions):
 
 
 def transform(expr, arg, **assumptions):
-    """If arg is f, s, t, omega, jomega perform domain transformation,
+    """If arg is f, s, t, omega, or jomega perform domain transformation,
     otherwise perform substitution.
 
-    Note (5 * s)(omega) will fail since 5 * s is assumed not to be
-    causal and so the Fourier transform is unknown.  However, Zs(5 *
-    s)(omega) will work since Zs is assumed to be causal.
-    """
+    Note (1 / s)(omega) will fail since 1 / s is assumed not to be
+    causal and so the Fourier transform is unknown.  However,
+    impedance(1 / s)(omega) will work since an impedance is assumed to
+    be causal.  Alternatively, use (1 / s)(omega, causal=True). """
 
     arg = expr1(arg)
 
