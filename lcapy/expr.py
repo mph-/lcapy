@@ -294,11 +294,11 @@ class Expr(ExprPrint, ExprMisc):
               to help the inverse Laplace transform for LaplaceDomainExpression classes.
               The omega assumption is required for Phasors."""
 
-        if self.is_always_causal:
-            assumptions.set('causal', True)
-        
         if isinstance(arg, Expr):
             assumptions = arg.assumptions.copy()
+            if self.is_always_causal:
+                assumptions.set('causal', True)
+            
             self.assumptions = assumptions.merge()
             self.expr = arg.expr
             return
@@ -307,7 +307,9 @@ class Expr(ExprPrint, ExprMisc):
         
         # Perhaps could set dc?
         #if arg == 0:
-        #    assumptions.set('causal', True)            
+        #    assumptions.set('causal', True)
+        if self.is_always_causal:
+            assumptions.set('causal', True)        
 
         self.assumptions = assumptions
         # Remove Lcapy assumptions from SymPy expr.

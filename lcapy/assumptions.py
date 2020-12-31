@@ -56,6 +56,8 @@ class Assumptions(dict):
     def merge(self, **assumptions):
 
         new = self.copy()
+        # TODO: warn if have mutually exclusive assumptions.
+        # Note, the last one overrides.
         for assumption, value in assumptions.items():
             new.set(assumption, value)
         return new
