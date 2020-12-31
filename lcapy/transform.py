@@ -5,7 +5,7 @@ Copyright 2018--2020 Michael Hayes, UCECE
 """
 
 from .sym import sympify, pi
-from .symbols import f, s, t, omega, jomega, j, jw
+from .symbols import f, s, t, omega, j, jw, jw0
 from .expr import expr as expr1
 
 
@@ -46,13 +46,13 @@ def transform1(expr, arg, **assumptions):
         else:
             result = expr
     else:
-        raise ValueError('Can only return t, f, s, omega, or jomega domains')
+        raise ValueError('Can only return t, f, s, omega, or jw domains')
 
     return result.subs(arg, **assumptions)
 
 
 def transform(expr, arg, **assumptions):
-    """If arg is f, s, t, omega, or jomega perform domain transformation,
+    """If arg is f, s, t, omega, or jw perform domain transformation,
     otherwise perform substitution.
 
     Note (1 / s)(omega) will fail since 1 / s is assumed not to be
@@ -81,15 +81,18 @@ def wrap(old, new):
 
 def call(expr, arg, **assumptions):
 
-    if id(arg) in (id(f), id(s), id(t), id(omega), id(jomega)):
+    if id(arg) in (id(f), id(s), id(t), id(omega), id(jw), id(jw0)):
         return expr.transform(arg, **assumptions)
 
-    if arg in (f, s, t, omega, jomega):
+    if arg in (f, s, t, omega, jw, jw0):
         return expr.transform(arg, **assumptions)
 
-    arg = expr(arg)
-    if arg.has(j):
-        return expr.transform(arg, **assumptions)
+    try:
+        # arg might be an int, float, complex, etc.
+        if arg.has(j):
+            return expr.transform(arg, **assumptions)
+    except:
+        pass
         
     return expr.subs(arg)
 
