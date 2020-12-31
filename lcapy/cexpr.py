@@ -85,6 +85,10 @@ class ConstantExpression(Expr):
         # Minor optimisation
         return self
 
+    def phasor(self, **assumptions):
+
+        return self.laplace(**assumptions).phasor(**assumptions)
+    
     
 class ConstantVoltage(VoltageMixin, ConstantExpression):
     """This is considered a constant time-domain expression."""
