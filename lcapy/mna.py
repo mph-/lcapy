@@ -5,6 +5,7 @@ Copyright 2014--2019 Michael Hayes, UCECE
 """
 
 from __future__ import division
+from .assumptions import Assumptions
 from .phasor import PhasorDomainCurrent, PhasorDomainVoltage
 from .vector import Vector
 from .matrix import Matrix, matrix_inverse
@@ -170,15 +171,15 @@ class MNAMixin(object):
 
         vtype = Vtype(self.kind)
         itype = Itype(self.kind)
-        assumptions = {}
+        assumptions = Assumptions()
         if vtype == PhasorDomainVoltage:
-            assumptions['omega'] = self.kind
+            assumptions.set('omega', self.kind)
         elif self.kind in ('s', 'ivp'):
-            assumptions = {'ac' : self.is_ac,
-                           'dc' : self.is_dc,
-                           'causal' : self.is_causal}
+            assumptions.set('ac', self.is_ac)
+            assumptions.set('dc', self.is_dc)
+            assumptions.set('causal', self.is_causal)            
         elif isinstance(self.kind, str) and self.kind[0] == 'n':
-            assumptions = {'nid' : self.kind}
+            assumptions.set('nid', self.kind)
        
         # Create dictionary of node voltages
         self._Vdict = Nodedict()

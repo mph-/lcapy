@@ -103,7 +103,7 @@ class TimeDomainExpression(Expr):
     def laplace(self, evaluate=True, **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit."""
 
-        assumptions = self.assumptions.infer_from_expr_and_merge(self, **assumptions)
+        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = laplace_transform(self.expr, self.var, ssym, evaluate=evaluate)
         return self.wrap(LaplaceDomainExpression(result, **assumptions))
 
@@ -122,7 +122,7 @@ class TimeDomainExpression(Expr):
     def fourier(self, evaluate=True, **assumptions):
         """Attempt Fourier transform."""
 
-        assumptions = self.assumptions.infer_from_expr_and_merge(self, **assumptions)
+        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = fourier_transform(self.expr, self.var, fsym, evaluate=evaluate)
         return self.wrap(FourierDomainExpression(result, **assumptions))
 
@@ -131,14 +131,14 @@ class TimeDomainExpression(Expr):
 
         from .symbols import omega, pi, f
 
-        assumptions = self.assumptions.infer_from_expr_and_merge(self, **assumptions)
+        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = self.fourier(evaluate, **assumptions).subs(f, omega / (2 * pi))
         # Could optimise...
         return self.wrap(AngularFourierDomainExpression(result, **assumptions))        
 
     def phasor(self, **assumptions):
 
-        assumptions = self.assumptions.infer_from_expr_and_merge(self, **assumptions)
+        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         return PhasorDomainExpression.make(self, **assumptions)
 
     def time(self, **assumptions):

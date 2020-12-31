@@ -107,14 +107,14 @@ class Assumptions(dict):
             return False        
         return True
 
-    def infer_from_expr_and_merge(self, expr, **assumptions):
-        """If the user has not specified ac, dc, or causal, infer them.
-         Perhaps should check what the user says and issue warning?
-        Then override with `assumptions`."""
+    def merge_and_infer(self, expr, **assumptions):
+        """Override assumptions with specified assumptions.
+        If none specified, infer them."""
 
-        if self.has_unspecified:
-            self.infer_from_expr(expr)
-        return self.merge(**assumptions)
+        assumptions = self.merge(**assumptions)        
+        if assumptions.has_unspecified:
+            assumptions.infer_from_expr(expr)
+        return assumptions
 
     @property
     def is_ac(self):
@@ -135,3 +135,39 @@ class Assumptions(dict):
     def is_unknown(self):
 
         return self.get('unknown')    
+
+    def convolve(self, x):
+
+        # The assumptions refer to the time-domain signal or
+        # impulse-response.  Thus we want to propagate the assumptions
+        # for the voltage or current signal.  The ac, dc, and causal
+        # assumptions are only required for s-domain expressions.  For
+        # other signals they can be determined from the time-domain
+        # response.
+        
+        assumptions = self.copy()
+        assumptions.set('unknown', True)
+        
+        if self.is_unknown or x.is_unknown:
+            assumptions.set('unknown', True)
+        elif self.is_ac or x.is_ac:
+            assumptions.set('ac', True)            
+        elif self.is_dc or x.is_dc:
+            assumptions.set('dc', True)                        
+        elif self.is_causal or x.is_causal:
+            assumptions.set('causal', True)                        
+        return assumptions
+
+    def add(self, x):
+
+        assumptions = self.copy()
+        assumptions.set('unknown', True)
+        
+        if self.is_causal and x.is_causal:
+            assumptions.set('causal', True)                                    
+        elif self.is_dc and x.is_dc:
+            assumptions.set('dc', True)
+        elif self.is_ac and x.is_ac:
+            assumptions.set('ac', True)            
+        return assumptions    
+    

@@ -114,7 +114,7 @@ class DiscreteTimeDomainExpression(SequenceExpression):
     def ztransform(self, evaluate=True, **assumptions):
         """Determine one-sided z-transform."""
 
-        assumptions = self.assumptions.infer_from_expr_and_merge(self, **assumptions)
+        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = ztransform(self.expr, self.var, zsym, evaluate)
         return self.wrap(ZDomainExpression(result, **assumptions))
 
@@ -184,7 +184,7 @@ class DiscreteTimeDomainExpression(SequenceExpression):
     def discrete_time_fourier_transform(self, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
 
-        assumptions = self.assumptions.infer_from_expr_and_merge(self, **assumptions)
+        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         if assumptions.is_causal:
             return self.ZT(**assumptions).DTFT()
 

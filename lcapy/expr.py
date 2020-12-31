@@ -298,17 +298,18 @@ class Expr(ExprPrint, ExprMisc):
             assumptions.set('causal', True)
         
         if isinstance(arg, Expr):
-            if assumptions == {}:
-                assumptions = arg.assumptions
-            self.assumptions = Assumptions(assumptions)
+            assumptions = arg.assumptions.copy()
+            self.assumptions = assumptions.merge()
             self.expr = arg.expr
             return
 
+        assumptions = Assumptions(assumptions)
+        
         # Perhaps could set dc?
-        if arg == 0:
-            assumptions.set('causal', True)            
+        #if arg == 0:
+        #    assumptions.set('causal', True)            
 
-        self.assumptions = Assumptions(assumptions)
+        self.assumptions = assumptions
         # Remove Lcapy assumptions from SymPy expr.
         self.expr = sympify(arg, **self.assumptions.sympy_assumptions())
  
@@ -665,40 +666,6 @@ class Expr(ExprPrint, ExprMisc):
                          (self.__class__.__name__, self,
                           x.__class__.__name__, x, op))        
     
-    def _mul_assumptions(self, x):
-
-        # The assumptions refer to the time-domain signal or
-        # impulse-response.  Thus we want to propagate the assumptions
-        # for the voltage or current signal.  The ac, dc, and causal
-        # assumptions are only required for s-domain expressions.  For
-        # other signals they can be determined from the time-domain
-        # response.
-
-        # A multiplication in the s-domain is equivalent to
-        # a convolution in the time-domain.
-        
-        assumptions = {}
-        if self.is_unknown or x.is_unknown:
-            assumptions = {'unknown' : True}        
-        elif self.is_ac or x.is_ac:
-            assumptions = {'ac' : True}
-        elif self.is_dc or x.is_dc:
-            assumptions = {'dc' : True}
-        elif self.is_causal or x.is_causal:
-            assumptions = {'causal' : True}
-        return assumptions
-
-    def _add_assumptions(self, x):
-
-        assumptions = {}        
-        if self.is_causal and x.is_causal:
-            assumptions = {'causal' : True}
-        elif self.is_dc and x.is_dc:
-            assumptions = self.assumptions
-        elif self.is_ac and x.is_ac:
-            assumptions = self.assumptions        
-        return assumptions    
-
     def _mul_compatible(self, x):
         return True
     
@@ -706,7 +673,7 @@ class Expr(ExprPrint, ExprMisc):
         return True
     
     def __compat_add__(self, x, op):
-        assumptions = {}
+        assumptions = Assumptions()
 
         cls = self.__class__
         xcls = x.__class__
@@ -722,7 +689,7 @@ class Expr(ExprPrint, ExprMisc):
 
         if (isinstance(self, LaplaceDomainExpression) or
             isinstance(x, LaplaceDomainExpression)):
-            assumptions = self._add_assumptions(x)
+            assumptions = self.assumptions.add(x)
         
         if self.quantity == x.quantity:
             if self.is_constant_domain:
@@ -764,9 +731,9 @@ class Expr(ExprPrint, ExprMisc):
             self._incompatible_quantities(x, '*')                
 
         if self.is_transform_domain:
-            assumptions = self._mul_assumptions(x)
+            assumptions = self.assumptions.convolve(x)
         else:
-            assumptions = {}
+            assumptions = Assumptions()
 
         xquantity, yquantity = x.quantity, self.quantity
         # Maybe use undefined for voltage**2 etc.
@@ -813,7 +780,7 @@ class Expr(ExprPrint, ExprMisc):
         if not self._div_compatible(x):
             self._incompatible_quantities(x, '/')                        
 
-        assumptions = self._mul_assumptions(x)
+        assumptions = self.assumptions.convolve(x)
 
         xquantity, yquantity = x.quantity, self.quantity
         # Maybe use undefined for voltage**2 etc.
