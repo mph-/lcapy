@@ -55,12 +55,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Z1.X(jw), 3 * omega, '.X(jw)')
         self.assertEqual(Z1.B(jw), 3 * omega / (9 * omega**2 + 4), '.B(jw)')
 
-        Z1 = impedance(3 * s)
-        Z2 = impedance(3 * jw)
-        Z3 = impedance(6 * j * pi * f)
-        self.assertEqual(Z1, Z2, 's-form and omega-form')
-        self.assertEqual(Z1, Z3, 's-form and f-form')                
-        
     def test_reciprocal(self):
 
         Z1 = impedance(2)
