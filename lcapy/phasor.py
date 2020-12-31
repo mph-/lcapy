@@ -45,7 +45,7 @@ class PhasorDomainExpression(Expr):
     domain_name = 'Phasor'
     
     @classmethod
-    def make(cls, expr, **assumptions):
+    def make(cls, expr, omega=None, **assumptions):
         from .symbols import s, jw, t
 
         if expr.is_phasor:
@@ -62,11 +62,18 @@ class PhasorDomainExpression(Expr):
             if not check.is_ac:
                 raise ValueError(
 'Do not know how to convert %s to phasor.  Expecting an AC signal.' % expr)
+
+            if omega is not None and check.omega != omega.expr:
+                raise ValueError('Expecting omega=%s, found omega=%s.' % (omega, check.omega))
+            
             phasor = PhasorDomainVorrent(check.amp * exp(j * check.phase),
                                          omega=check.omega)
             return expr.wrap(phasor)
         else:
-            result = expr.wrap(PhasorDomainRatio(expr.laplace().replace(s, jw)))
+            if omega is None:
+                raise ValueError('Omega unspecified for conversion of %s-domain to phasor-domain' % expr.domain)
+            
+            result = expr.wrap(PhasorDomainRatio(expr.laplace().replace(s, j * omega)))
         return result
 
     def _class_by_quantity(self, quantity):

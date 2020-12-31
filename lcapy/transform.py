@@ -24,8 +24,8 @@ def transform1(expr, arg, **assumptions):
         return expr.fourier(**assumptions)
     elif arg is omega:
         return expr.angular_fourier(**assumptions)
-    elif arg == jw:
-        return expr.phasor(**assumptions)    
+    elif arg.has(j):
+        return expr.phasor(omega=arg / j, **assumptions)    
 
     # Handle expr(texpr), expr(sexpr), expr(fexpr), expr(omegaexpr).  For example,
     # expr(2 * f).
@@ -38,8 +38,8 @@ def transform1(expr, arg, **assumptions):
         result = expr.fourier(**assumptions)
     elif isinstance(arg, AngularFourierDomainExpression):
         result = expr.angular_fourier(**assumptions)        
-    elif arg.has(jomega):
-        result = expr.phasor(**assumptions)
+    elif arg.has(j):
+        result = expr.phasor(omega=arg / j, **assumptions)
     elif arg.is_constant:
         if not isinstance(expr, Superposition):
             result = expr.time(**assumptions)
@@ -85,7 +85,10 @@ def call(expr, arg, **assumptions):
         return expr.transform(arg, **assumptions)
 
     if arg in (f, s, t, omega, jomega):
-        return expr.transform(arg, **assumptions)    
+        return expr.transform(arg, **assumptions)
+
+    if arg.has(j):
+        return expr.transform(arg, **assumptions)        
     
     return expr.subs(arg)
 
