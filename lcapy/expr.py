@@ -864,7 +864,11 @@ class Expr(ExprPrint, ExprMisc):
             return self.__rtruediv__(1)
         elif self.quantity != 'undefined':
             raise ValueError('Cannot compute %s(%s) ** %s' % (self.__class__.__name__, self, x))
-        return self.__class__(self.expr.__pow__(x))
+
+        if not isinstance(x, Expr):
+            x = expr(x)
+        
+        return self.__class__(self.expr.__pow__(x.expr))
     
     def __rpow__(self, x):
         """Reverse pow"""
