@@ -1,4 +1,6 @@
 from lcapy import *
+from lcapy.phasor import PhasorDomainVoltage
+from lcapy.superposition_voltage import SuperpositionVoltage
 import unittest
 import sympy as sym
 
@@ -19,10 +21,10 @@ class LcapyTester(unittest.TestCase):
 
     def test_Voltage_properties(self):
         self.assertEqual(SuperpositionVoltage(3).is_dc, True, "Voltage(3).is_dc")
-        self.assertEqual(SuperpositionVoltage(PhasorVoltage(3)).is_ac, True, "Voltage(Vphasor(3)).is_ac")
-        self.assertEqual(SuperpositionVoltage(ConstantVoltage(2), PhasorVoltage(3)).is_ac, False,
+        self.assertEqual(SuperpositionVoltage(PhasorDomainVoltage(3)).is_ac, True, "Voltage(Vphasor(3)).is_ac")
+        self.assertEqual(SuperpositionVoltage(ConstantVoltage(2), PhasorDomainVoltage(3)).is_ac, False,
                           "Voltage(Vconst(2), Vphasor(3)).is_ac")
-        self.assertEqual(SuperpositionVoltage(ConstantVoltage(2), PhasorVoltage(3)).is_ac, False,
+        self.assertEqual(SuperpositionVoltage(ConstantVoltage(2), PhasorDomainVoltage(3)).is_ac, False,
                           "Voltage(Vconst(2), Vphasor(3)).is_dc")
 
     def test_Voltage_add_sub_dc(self):
@@ -101,13 +103,14 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(Vname('V', 't'), 'v(t)', 'v(t)')
         self.assertEqual(Vname('V', 's'), 'V(s)', 'V(s)')
-        self.assertEqual(Vname('V', 'dc'), 'V', 'V')        
+        # TODO: remove cache requirement
+        self.assertEqual(Vname('V', 'dc', cache=True), 'V', 'V')        
 
     def test_Iname(self):
         
         self.assertEqual(Iname('I', 't'), 'i(t)', 'i(t)')
         self.assertEqual(Iname('I', 's'), 'I(s)', 'I(s)')
-        self.assertEqual(Iname('I', 'dc'), 'I', 'I')
+        self.assertEqual(Iname('I', 'dc', cache=True), 'I', 'I')
         
         
     def test_Voltage_phasor(self):
