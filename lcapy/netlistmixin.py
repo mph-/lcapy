@@ -6,7 +6,6 @@ Copyright 2020 Michael Hayes, UCECE
 """
 
 from .expr import expr
-from .sexpr import LaplaceDomainTransferFunction, LaplaceDomainImpedance, LaplaceDomainAdmittance
 from .mnacpts import Cpt
 from .impedance import impedance
 from .admittance import admittance
@@ -19,7 +18,7 @@ from .attrdict import AttrDict
 from .netfile import NetfileMixin
 from .statespace import StateSpace
 from .voltage import Vname
-from .current import Iname
+from .current import Iname, current
 from .simulator import Simulator
 from .netlistnamespace import NetlistNamespace
 from .matrix import Matrix
@@ -606,7 +605,9 @@ class NetlistMixin(object):
         V2 = new.Voc(N2p, N2m)
         V1 = new.V1_.V
 
-        return LaplaceDomainTransferFunction(V2.laplace() / V1.laplace(), causal=True)
+        H = V2.laplace() / V1.laplace()
+        H.causal = True
+        return H
 
     def Aparams(self, N1p, N1m, N2p, N2m):
         """Create A-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
@@ -630,11 +631,11 @@ class NetlistMixin(object):
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
-            A11 = LaplaceDomainTransferFunction(net.V1_.V(s) / net.Voc(N2p, N2m)(s))
+            A11 = net.V1_.V(s) / net.Voc(N2p, N2m)(s)
 
             # A12 = V1 / I2 with V2 = 0
             # Apply V1 and measure I2 with port 2 short-circuit
-            A12 = LaplaceDomainImpedance(net.V1_.V(s) / net.Isc(N2p, N2m)(s))
+            A12 = net.V1_.V(s) / net.Isc(N2p, N2m)(s)
 
             net.remove('V1_')
 
@@ -643,17 +644,17 @@ class NetlistMixin(object):
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure V2 with port 2 open-circuit
             try:
-                A21 = LaplaceDomainAdmittance(1 / net.Voc(N2p, N2m)(s))                
+                A21 = current(0 * s + 1) / net.Voc(N2p, N2m)(s)
             except ValueError:
                 # It is likely there is an open-circuit.                
                 net2 = net.copy()
                 net2.add('W %s %s' % (N2p, N2m))
-                A21 = LaplaceDomainAdmittance(-net2.I1_.I(s) / net2.Voc(N2p, N2m)(s))
+                A21 = -net2.I1_.I(s) / net2.Voc(N2p, N2m)(s)
                 A21 = 0                
 
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure I2 with port 2 short-circuit
-            A22 = LaplaceDomainTransferFunction(1 / net.Isc(N2p, N2m)(s))
+            A22 = current(0 * s + 1) / net.Isc(N2p, N2m)(s)
 
             net.remove('I1_')
             A = AMatrix(((A11, A12), (A21, A22)))
@@ -751,11 +752,11 @@ class NetlistMixin(object):
 
             # Z11 = V1 / I1 with I2 = 0
             # Apply I1 and measure V1 with port 2 open-circuit
-            Z11 = LaplaceDomainImpedance(net.Voc(N1p, N1m)(s))
+            Z11 = impedance(net.Voc(N1p, N1m)(s))
 
             # Z21 = V2 / I1 with I2 = 0
             # Apply I1 and measure V2 with port 2 open-circuit
-            Z21 = LaplaceDomainImpedance(net.Voc(N2p, N2m)(s))          
+            Z21 = impedance(net.Voc(N2p, N2m)(s))          
 
             net.remove('I1_')
 
@@ -763,11 +764,11 @@ class NetlistMixin(object):
 
             # Z12 = V1 / I2 with I1 = 0
             # Apply I2 and measure V1 with port 1 open-circuit
-            Z12 = LaplaceDomainImpedance(net.Voc(N1p, N1m)(s))
+            Z12 = impedance(net.Voc(N1p, N1m)(s))
 
             # Z22 = V2 / I2 with I1 = 0
             # Apply I2 and measure V2 with port 1 open-circuit
-            Z22 = LaplaceDomainImpedance(net.Voc(N2p, N2m)(s))          
+            Z22 = impedance(net.Voc(N2p, N2m)(s))          
 
             net.remove('I2_')            
 
@@ -808,7 +809,7 @@ class NetlistMixin(object):
                         net.add('V%d_ %s %s 0' % (row, ports[row][0], ports[row][1]))                        
 
                 for row in range(len(ports)):
-                    Y[row, col] = LaplaceDomainAdmittance(net.elements['V%d_' % row].I(s))
+                    Y[row, col] = admittance(net.elements['V%d_' % row].I(s))
 
                 for row in range(len(ports)):                        
                     net.remove('V%d_' % row)
@@ -860,7 +861,7 @@ class NetlistMixin(object):
                 net.add('I_ %s %s {DiracDelta(t)}' % (ports[col][0], ports[col][1]))
 
                 for row in range(len(ports)):                
-                    Z[row, col] = LaplaceDomainImpedance(net.Voc(ports[row][0], ports[row][1])(s))
+                    Z[row, col] = impedance(net.Voc(ports[row][0], ports[row][1])(s))
 
                 net.remove('I_')
             return Z
