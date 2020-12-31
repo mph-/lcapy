@@ -98,7 +98,7 @@ class PhasorDomainExpression(Expr):
     def omega(self):
         """Return angular frequency."""
 
-        return self.assumptions['omega']
+        return self.assumptions.get('omega', None)
 
     @property
     def var(self):

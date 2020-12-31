@@ -704,8 +704,12 @@ class Expr(ExprPrint, ExprMisc):
         if self.domain != x.domain:
             self._incompatible_domains(x, op)        
 
-        if (self.quantity == 'undefined' or x.quantity == 'undefined'):
-            return cls, self, x, assumptions
+        # expr + voltage
+        if self.quantity == 'undefined':
+            return xcls, self, x, assumptions
+        # voltage + expr
+        if x.quantity == 'undefined':
+            return cls, self, x, assumptions        
         
         self._incompatible(x, op)        
 
