@@ -28,7 +28,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 from __future__ import division
 from .acdc import ACChecker
-from .sym import j, omega0sym
+from .sym import j, omegasym
 from .expr import expr
 from .functions import sin, cos, exp, sqrt
 from .expr import Expr
@@ -66,7 +66,7 @@ class PhasorDomainExpression(Expr):
         if isinstance(val, PhasorDomainExpression):
             assumptions['omega'] = val.omega
         elif 'omega' not in assumptions:
-            assumptions['omega'] = omega0sym                    
+            assumptions['omega'] = omegasym                    
 
         assumptions['ac'] = True
         super (PhasorDomainExpression, self).__init__(val, **assumptions)
@@ -111,29 +111,6 @@ class PhasorDomainExpression(Expr):
         """Return angular frequency."""
 
         return self.omega
-
-    def __compat_mul__(self, x, op):
-
-        cls = self.__class__
-        xcls = x.__class__
-
-        # Perhaps check explicitly for int, float?
-        if not isinstance(x, Expr):
-            return cls, self, cls(x), self.assumptions
-
-        if isinstance(x, (AngularFourierDomainExpression, ConstantExpression)):
-            return cls, self, x, self.assumptions
-
-        if not isinstance(x, PhasorDomainTimeExpression):
-            raise TypeError('Incompatible arguments %s and %s for %s' %
-                            (repr(self), repr(x), op))
-
-        if self.omega != x.omega:
-            raise ValueError('Cannot combine %s(%s, omega=%s)'
-                             ' with %s(%s, omega=%s)' %
-                             (cls.__name__, self, self.omega,
-                              xcls.__name__, x, x.omega))
-        return cls, self, x, self.assumptions
 
     def fourier(self, **assumptions):
         """Fourier transform."""
@@ -187,6 +164,17 @@ class PhasorDomainExpression(Expr):
         from .plot import plot_phasor
         return plot_phasor(self, **kwargs)
 
+    def _mul_compatible(self, x):
+
+        if not hasattr(x, 'omega'):
+            return True
+
+        if self.omega == x.omega:
+            return True
+        
+        raise ValueError('Incompatible phasor angular frequencies %s and %s' %
+                         (self.omega, x.omega))
+        
 
 class PhasorDomainTimeExpression(PhasorDomainExpression):
     """This is a phasor domain base class for voltages and currents."""
@@ -201,6 +189,9 @@ class PhasorDomainTimeExpression(PhasorDomainExpression):
     def from_time(cls, expr, omega=None, **assumptions):
 
         from .symbols import t
+
+        if expr.is_admittance or expr.is_impedance or expr.is_transfer:
+            print('Should convert %s expression to Laplace-domain first' % expr.quantity)
 
         assumptions['ac'] = True
 
@@ -251,7 +242,10 @@ class PhasorDomainFrequencyExpression(PhasorDomainExpression):
         from .symbols import s        
 
         if omega is None:
-            raise ValueError('omega unspecified for conversion of %s-domain to phasor-domain' % expr.domain)
+            omega = omegasym
+
+        if expr.is_voltage or expr.is_current:
+            print('Should convert %s expression to time-domain first' % expr.quantity)
 
         result = expr.laplace(**assumptions).replace(s, j * omega)
         return cls.wrap(expr, PhasorDomainFrequencyExpression(result, omega=omega,
@@ -259,9 +253,11 @@ class PhasorDomainFrequencyExpression(PhasorDomainExpression):
     
     def time(self, **assumptions):
         """Convert to time domain representation."""
-        from .symbols import jw, s
+        from .symbols import s
 
-        return self.wrap(cls, TimeDomainExpression(self.replace(jw, s)).time(causal=True))
+        omega = self.omega
+        result = LaplaceDomainExpression(self.replace(j * omega, s))
+        return self.wrap(result.time())
 
     def as_expr(self):
         return PhasorDomainFrequencyExpression(self)
@@ -284,7 +280,7 @@ class PhasorDomainTransferFunction(TransferMixin, PhasorDomainFrequencyExpressio
     
 class PhasorDomainVoltage(VoltageMixin, PhasorDomainTimeExpression):
     """t-domain voltage (units V) parameterized as a phasor
-    of a single angular frequency, omega0."""
+    of a single angular frequency."""
         
     def cpt(self):
         from .oneport import Vac
@@ -293,29 +289,13 @@ class PhasorDomainVoltage(VoltageMixin, PhasorDomainTimeExpression):
     
 class PhasorDomainCurrent(CurrentMixin, PhasorDomainTimeExpression):
     """t-domain current (units V) parameterized as a phasor
-    of a single angular frequency, omega0."""    
+    of a single angular frequency."""    
 
     def cpt(self):
         from .oneport import Iac
         return Iac(self, 0, self.omega)
 
 
-# TODO, allow PhasorDomainVoltage * PhasorDomainVoltage etc
-mul_table = {(PhasorDomainVoltage, PhasorDomainAdmittance): (None, PhasorDomainCurrent),
-             (PhasorDomainCurrent, PhasorDomainImpedance): (None, PhasorDomainVoltage),
-             (PhasorDomainCurrent, PhasorDomainTransferFunction): (None, PhasorDomainCurrent),
-             (PhasorDomainVoltage, PhasorDomainTransferFunction): (None, PhasorDomainVoltage)}
-
-# If have a constant, etc, pass through expr first.  
-
-div_table = {(PhasorDomainVoltage, PhasorDomainImpedance): (None, PhasorDomainCurrent),
-             (PhasorDomainCurrent, PhasorDomainAdmittance): (None, PhasorDomainVoltage),
-             (PhasorDomainCurrent, PhasorDomainCurrent): (None, PhasorDomainTransferFunction),
-             (PhasorDomainVoltage, PhasorDomainVoltage): (None, PhasorDomainTransferFunction),
-             (PhasorDomainTimeExpression, PhasorDomainAdmittance): (None, PhasorDomainImpedance),
-             (PhasorDomainTimeExpression, PhasorDomainImpedance): (None, PhasorDomainAdmittance)}
-
-    
 def phasor(arg, **assumptions):
     """Create phasor."""
 
