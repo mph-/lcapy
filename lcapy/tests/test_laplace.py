@@ -1,5 +1,7 @@
 from lcapy import *
 from lcapy.laplace import inverse_laplace_ratfun
+from lcapy.sexpr import LaplaceDomainVoltage
+from lcapy.texpr import TimeDomainExpression, TimeDomainVoltage
 import unittest
 import sympy as sym
 

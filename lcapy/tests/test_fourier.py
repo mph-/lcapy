@@ -1,4 +1,6 @@
 from lcapy import *
+from lcapy.fexpr import FourierDomainExpression
+from lcapy.expr import TimeDomainExpression
 import unittest
 
 
@@ -11,8 +13,8 @@ class LcapyTester(unittest.TestCase):
     def test_fourier(self):
 
         self.assertEqual(DiracDelta(t).fourier(), 1, "DiracDelta(t)")
-        self.assertEqual(TimeDomainVoltage('x(t)').fourier(), FourierDomainVoltage('X(f)'), "x(t)")
-        self.assertEqual(TimeDomainVoltage('5 * x(t)').fourier(), FourierDomainVoltage('5 * X(f)'), "5 * x(t)")
+        self.assertEqual(TimeDomainExpression('x(t)').fourier(), FourierDomainExpression('X(f)'), "x(t)")
+        self.assertEqual(TimeDomainExpression('5 * x(t)').fourier(), FourierDomainExpression('5 * X(f)'), "5 * x(t)")
 
     def test_inverse_fourier(self):
 
@@ -20,13 +22,13 @@ class LcapyTester(unittest.TestCase):
                          "1")
         self.assertEqual((f * 0 + 10).inverse_fourier(), 10
                          * DiracDelta(t), "0")
-        self.assertEqual(FourierDomainVoltage('V(f)').inverse_fourier(), TimeDomainVoltage('v(t)'), "V(f)")
-        self.assertEqual(FourierDomainVoltage('10 * V(f)').inverse_fourier(),
-                         TimeDomainVoltage('10 * v(t)'), "V(f)")
-        self.assertEqual(TimeDomainVoltage('v(t)').fourier().inverse_fourier(),
-                         TimeDomainVoltage('v(t)'), "v(t)")
-        self.assertEqual(TimeDomainVoltage('v(t/2)').fourier().inverse_fourier(),
-                         TimeDomainVoltage('v(t/2)'), "v(t/2)")        
+        self.assertEqual(FourierDomainExpression('V(f)').inverse_fourier(), TimeDomainExpression('v(t)'), "V(f)")
+        self.assertEqual(FourierDomainExpression('10 * V(f)').inverse_fourier(),
+                         TimeDomainExpression('10 * v(t)'), "V(f)")
+        self.assertEqual(TimeDomainExpression('v(t)').fourier().inverse_fourier(),
+                         TimeDomainExpression('v(t)'), "v(t)")
+        self.assertEqual(TimeDomainExpression('v(t/2)').fourier().inverse_fourier(),
+                         TimeDomainExpression('v(t/2)'), "v(t/2)")        
                          
     def test_fourier2(self):
 

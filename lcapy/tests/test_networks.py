@@ -1,4 +1,5 @@
 from lcapy import *
+from lcapy.texpr import TimeDomainVoltage, TimeDomainCurrent
 import unittest
 import sympy as sym
 

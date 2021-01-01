@@ -1,8 +1,9 @@
 from lcapy import *
-from lcapy.cexpr import ConstantExpression
+from lcapy.cexpr import ConstantExpression, ConstantVoltage
 from lcapy.fexpr import FourierDomainExpression
 from lcapy.omegaexpr import AngularFourierDomainExpression
-from lcapy.texpr import TimeDomainExpression
+from lcapy.texpr import TimeDomainExpression, TimeDomainVoltage
+from lcapy.sexpr import LaplaceDomainVoltage
 from lcapy.phasor import PhasorDomainVoltage, PhasorDomainExpression
 import unittest
 
