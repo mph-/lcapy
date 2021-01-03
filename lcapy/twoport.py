@@ -573,7 +573,7 @@ class AMatrix(TwoPortMatrix):
 
     @property
     def Sparams(self):
-        Z0 = LaplaceDomainImpedance('Z_0')
+        Z0 = LaplaceDomainImpedance('Z_0').as_expr()
         d = self._A12 + Z0 * (self._A11 + self._A22) + Z0**2 * self._A21
         return SMatrix((((self._A12 + Z0 * (self._A11 - self._A22) - Z0**2 * self._A21) / d,
                          (2 * Z0 * (self._A11 * self._A22 - self._A12 * self._A21)) / d),
@@ -1060,6 +1060,8 @@ class SMatrix(TwoPortMatrix):
        | b1 |  =  | S11  S12|   | a1 |
        | b2 |     | S21  S22|   | a2 |
        +-  -+     +-       -+   +-  -+    
+
+    Each element in the s-matrix has units of impedance.
     """    
 
     @classmethod
@@ -1073,11 +1075,11 @@ class SMatrix(TwoPortMatrix):
     @property
     def Aparams(self):
         det = self.det().expr
-        Z0 = LaplaceDomainImpedance('Z_0')
+        Z0 = LaplaceDomainImpedance('Z_0').as_expr()
         A = AMatrix(((1 + self._S11 - self._S22 - det,
-                         (1 + self._S11 + self._S22 + det) * Z0),
-                        ((1 - self._S11 - self._S22 + det) / Z0,
-                         1 - self._S11 + self._S22 - det))) / (2 * self._S21)
+                      (1 + self._S11 + self._S22 + det) * Z0),
+                     ((1 - self._S11 - self._S22 + det) / Z0,
+                      1 - self._S11 + self._S22 - det))) / (2 * self._S21)
         return A.simplify()
 
     @property
@@ -1092,7 +1094,7 @@ class SMatrix(TwoPortMatrix):
     def Tparams(self):
         det = self.det().expr        
         return TMatrix(((-det / self._S21, self._S11 / self._S21),
-                        (-self._S22 / self._S21, 1 / self._S21)))
+                        (-self._S22 / self._S21, 1 / self._S21))).simplify()
 
     @property
     def Zparams(self):

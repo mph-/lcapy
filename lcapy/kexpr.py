@@ -12,11 +12,6 @@ from .sym import j, oo, pi
 from .seqexpr import SequenceExpression
 from .dsym import nsym, ksym, zsym
 from .dft import IDFT
-from .voltagemixin import VoltageMixin
-from .currentmixin import CurrentMixin
-from .admittancemixin import AdmittanceMixin
-from .impedancemixin import ImpedanceMixin
-from .transfermixin import TransferMixin
 from sympy import Sum
 
 __all__ = ('kexpr', )
@@ -44,39 +39,8 @@ class DiscreteFourierDomainExpression(SequenceExpression):
             raise ValueError(
                 'k-domain expression %s cannot depend on n' % expr)
 
-    def _class_by_quantity(self, quantity):
-
-        if quantity == 'voltage':
-            return DiscreteFourierDomainVoltage
-        elif quantity == 'current':
-            return DiscreteFourierDomainCurrent
-        elif quantity == 'impedance':
-            return DiscreteFourierDomainImpedance
-        elif quantity == 'admittance':
-            return DiscreteFourierDomainAdmittance
-        elif quantity == 'transfer':
-            return DiscreteFourierDomainTransferFunction
-        elif quantity == 'undefined':
-            return DiscreteFourierDomainExpression
-        raise ValueError('Unknown quantity %s' % quantity)
-
     def as_expr(self):
         return DiscreteFourierDomainExpression(self)
-
-    def as_voltage(self):
-        return DiscreteFourierDomainVoltage(self)
-
-    def as_current(self):
-        return DiscreteFourierDomainCurrent(self)    
-
-    def as_impedance(self):
-        return DiscreteFourierDomainImpedance(self)
-
-    def as_admittance(self):
-        return DiscreteFourierDomainAdmittance(self)
-
-    def as_transfer(self):
-        return DiscreteFourierDomainTransferFunction(self)
 
     def plot(self, kvector=None, **kwargs):
         """Plot frequency response at values specified by kvector.  If kvector
@@ -127,47 +91,18 @@ class DiscreteFourierDomainExpression(SequenceExpression):
         return self.IDFT().ZT(**assumptions)
 
     
-class DiscreteFourierDomainAdmittance(DiscreteFourierDomainExpression, AdmittanceMixin):
-    """f-domain admittance"""
-
-    quantity_label = 'Admittance'
-    units = 'siemens'
-
-
-class DiscreteFourierDomainImpedance(DiscreteFourierDomainExpression, ImpedanceMixin):
-    """f-domain impedance"""
-
-    quantity_label = 'Impedance'
-    units = 'ohms'
-
-
-class DiscreteFourierDomainTransferFunction(DiscreteFourierDomainExpression, TransferMixin):
-    """f-domain transfer function response."""
-
-    quantity_label = 'Transfer function'
-    units = ''
-
-
-class DiscreteFourierDomainVoltage(DiscreteFourierDomainExpression, VoltageMixin):
-    """f-domain voltage (units V/Hz)."""
-
-    quantity_label = 'Voltage spectrum'
-    units = 'V/Hz'
-
-
-class DiscreteFourierDomainCurrent(DiscreteFourierDomainExpression, CurrentMixin):
-    """f-domain current (units A/Hz)."""
-
-    quantity_label = 'Current spectrum'
-    units = 'A/Hz'
-
-
 def kexpr(arg, **assumptions):
     """Create kExpr object.  If `arg` is ksym return k"""
 
     if arg is ksym:
         return k
     return DiscreteFourierDomainExpression(arg, **assumptions)
-        
+
+
+from .expressionclasses import expressionclasses
+
+classes = expressionclasses.make(DiscreteFourierDomainExpression)
+expressionclasses.add('discrete fourier', classes)
+
 from .nexpr import DiscreteTimeDomainExpression
 k = DiscreteFourierDomainExpression('k')

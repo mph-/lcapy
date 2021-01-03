@@ -534,16 +534,16 @@ The noise voltage across the capacitor can be found using:
 
    >>> Vn = b.C.V.n
    >>> Vn
-       2⋅√R⋅√T⋅√k   
+    2⋅√R⋅√T⋅╲╱ k_b  
    ─────────────────
       ______________
      ╱  2  2  2     
    ╲╱  C ⋅R ⋅ω  + 1 
 
-Note, this is the (one-sided) amplitude spectral density with units of volts per root hertz.  Here `T` is the absolute temperature in degrees kelvin, `k` is Boltzmann's constant, and :math:`\omega` is the angular frequency.  The expression can be made a function of linear frequency using:
+Note, this is the (one-sided) amplitude spectral density with units of volts per root hertz.  Here `T` is the absolute temperature in degrees kelvin, `k_b` is Boltzmann's constant, and :math:`\omega` is the angular frequency.  The expression can be made a function of linear frequency using:
 
    >>> Vn(f)
-         2⋅√R⋅√T⋅√k      
+   2⋅√R⋅√T⋅╲╱ k_b     
    ──────────────────────
       ___________________
      ╱    2  2  2  2     
@@ -551,7 +551,7 @@ Note, this is the (one-sided) amplitude spectral density with units of volts per
 
 This expression can be plotted if we substitute the symbols with numbers.  Let's choose :math:`T = 293` K, :math:`R = 10` kohm, and :math:`C = 100` nF.
 
-   >>> Vns = Vn.subs({'R':10e3, 'C':100e-9, 'T':293, 'k':1.38e-23})
+   >>> Vns = Vn.subs({'R':10e3, 'C':100e-9, 'T':293, 'k_b':1.38e-23})
    >>> Vns(f)
               √101085           
    ─────────────────────────────
@@ -581,7 +581,7 @@ The amplitude spectral density of the noise can be plotted by defining a vector 
 Finally, the rms noise voltage can be found using the `rms()` method.  This integrates the square of the ASD (the power spectral density) over all frequencies and takes the square root.  For this example, the rms value does not depend on R.
 
    >>> Vn.rms()
-   √T⋅√k
+   √T⋅√k_b
    ─────
      √C 
 
@@ -624,8 +624,8 @@ The noise ASD at the input of the opamp is
            
    >>> a[3].V.n
       ____________________________
-     ╱    ⎛   2           ⎞     2 
-   ╲╱  Rₛ⋅⎝Iₙ₁ ⋅Rₛ + 4⋅T⋅k⎠ + Vₙ  
+     ╱    ⎛   2             ⎞    2 
+   ╲╱  Rₛ⋅⎝Iₙ₁ ⋅Rₛ + 4⋅T⋅k_b⎠ + Vₙ  
 
 This is independent of frequency and thus is white.  In practice, the voltage and current noise of an opamp has a 1/f component at low frequencies.
 
@@ -667,17 +667,17 @@ Unfortunately, this becomes unmanageable since SymPy has to assume that :math:`G
 
    >>> c = b.subs({'R2':'(10 - 1) * R1'})
    >>> c[8].V.n.limit('A', oo)
-      ________________________________________________________________
+      __________________________________________________________________
      ╱        2   2         2   2                                   2 
-   ╲╱  100⋅Iₙ₁ ⋅Rₛ  + 81⋅Iₙ₂ ⋅R₁  + 360⋅R₁⋅T⋅k + 400⋅Rₛ⋅T⋅k + 100⋅Vₙ  
+   ╲╱  100⋅Iₙ₁ ⋅Rₛ  + 81⋅Iₙ₂ ⋅R₁  + 360⋅R₁⋅T⋅k_b + 400⋅Rₛ⋅T⋅k_b + 100⋅Vₙ  
 
 In practice, both noise current sources have the same ASD.  Thus
 
    >>> c = b.subs({'R2':'(10 - 1) * R1', 'In2':'In1'})
    >>> c[8].V.n.limit('A', oo)
       _________________________________________________________________
-     ╱        2   2        ⎛     2            ⎞                      2 
-   ╲╱  100⋅Iₙ₁ ⋅Rₛ  + 9⋅R₁⋅⎝9⋅Iₙ₁ ⋅R₁ + 40⋅T⋅k⎠ + 400⋅Rₛ⋅T⋅k + 100⋅Vₙ  
+     ╱        2   2        ⎛     2              ⎞                     2 
+   ╲╱  100⋅Iₙ₁ ⋅Rₛ  + 9⋅R₁⋅⎝9⋅Iₙ₁ ⋅R₁ + 40⋅T⋅k_b⎠ + 400⋅Rₛ⋅T⋅k + 100⋅Vₙ  
 
 The noise is minimised by keeping `R1` as small as possible.  However, for high gains, the noise is dominated by the opamp noise.  Ideally, `Rs` needs to be minimised.  However, if it is large, it is imperative to choose a CMOS opamp with a low noise current.   Unfortunately, these amplifiers have a higher noise voltage than bipolar opamps.
    

@@ -23,7 +23,6 @@ class SequenceExpression(DiscreteExpression):
         if self.has(DiracDelta):
             self.expr = self.replace(DiracDelta, UnitImpulse).expr
 
-    
     def first_index(self, nvals=None):
 
         if nvals is None:

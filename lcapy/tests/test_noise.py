@@ -108,3 +108,14 @@ class LcapyTester(unittest.TestCase):
         a = AngularFourierDomainNoiseVoltage(2 * omega)
         b = AngularFourierDomainNoiseVoltage(3 + omega)
         
+
+    def test_noisef_to_noiseomega(self):
+
+        a = AngularFourierDomainNoiseVoltage(omega)
+        b = a(omega)
+        c = a(f)
+        d = c(omega)
+
+        self.assertEqual(a, b, 'noisyomega -> noisyomega')
+        self.assertEqual(a, d, 'noisyomega -> noisyf -> noisyomega')
+        

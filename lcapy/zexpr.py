@@ -13,11 +13,6 @@ from .ratfun import _zp2tf, Ratfun
 from .dexpr import DiscreteExpression
 from .expr import symbol, expr, ExprDict
 from .functions import sqrt, exp
-from .voltagemixin import VoltageMixin
-from .currentmixin import CurrentMixin
-from .admittancemixin import AdmittanceMixin
-from .impedancemixin import ImpedanceMixin
-from .transfermixin import TransferMixin
 import numpy as np
 from sympy import Eq, div, limit, oo, Sum
 
@@ -48,39 +43,8 @@ class ZDomainExpression(DiscreteExpression):
             raise ValueError(
                 'z-domain expression %s cannot depend on k' % expr)
 
-    def _class_by_quantity(self, quantity):
-
-        if quantity == 'voltage':
-            return ZDomainVoltage
-        elif quantity == 'current':
-            return ZDomainCurrent
-        elif quantity == 'impedance':
-            return ZDomainImpedance
-        elif quantity == 'admittance':
-            return ZDomainAdmittance
-        elif quantity == 'transfer':
-            return ZDomainTransferFunction
-        elif quantity == 'undefined':
-            return ZDomainExpression
-        raise ValueError('Unknown quantity %s' % quantity)
-
     def as_expr(self):
         return ZDomainExpression(self)
-
-    def as_voltage(self):
-        return ZDomainVoltage(self)
-
-    def as_current(self):
-        return ZDomainCurrent(self)    
-
-    def as_impedance(self):
-        return ZDomainImpedance(self)
-
-    def as_admittance(self):
-        return ZDomainAdmittance(self)
-
-    def as_transfer(self):
-        return ZDomainTransferFunction(self)
 
     def ndifferentiate(self):
         """First order difference in n-domain."""
@@ -114,7 +78,7 @@ class ZDomainExpression(DiscreteExpression):
 
         """
 
-        assumptions = self.assumptions.merge()
+        assumptions = self.assumptions.merge(**assumptions)
         result = inverse_ztransform(self.expr, self.var, nsym, **assumptions)
         return self.wrap(DiscreteTimeDomainExpression(result))
 
@@ -291,35 +255,6 @@ class ZDomainExpression(DiscreteExpression):
         return DiscreteTimeDomainExpression(Eq(lhs.expr, rhs.expr))        
         
     
-# Perhaps use a factory to create the following classes?
-
-class ZDomainImpedance(ZDomainExpression, ImpedanceMixin):
-    """z-domain impedance value."""
-    pass
-
-
-class ZDomainAdmittance(ZDomainExpression, AdmittanceMixin):
-    """z-domain admittance value."""
-    pass
-
-
-class ZDomainVoltage(ZDomainExpression, VoltageMixin):
-    """z-domain voltage (units V s / radian)."""
-
-    quantity_label = 'z-Voltage'
-
-
-class ZDomainCurrent(ZDomainExpression, CurrentMixin):
-    """z-domain current (units A s / radian)."""
-
-    quantity_label = 'z-Current'
-
-
-class ZDomainTransferFunction(ZDomainExpression, TransferMixin):
-    """z-domain ratio"""
-    pass
-
-
 def zexpr(arg, **assumptions):
     """Create ZDomainExpression object.  If `arg` is zsym return z"""
 
@@ -327,6 +262,11 @@ def zexpr(arg, **assumptions):
         return z
     return ZDomainExpression(arg, **assumptions)
 
+
+from .expressionclasses import expressionclasses
+
+classes = expressionclasses.make(ZDomainExpression)
+expressionclasses.add('Z', classes)
 
 from .nexpr import DiscreteTimeDomainExpression, nexpr
 z = ZDomainExpression('z')

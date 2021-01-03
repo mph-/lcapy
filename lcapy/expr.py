@@ -253,7 +253,23 @@ class Expr(ExprPrint, ExprMisc):
                     ('admittance', 'constant'): 'admittance',
                     ('impedance', 'constant'): 'impedance',
                     ('transfer', 'constant'): 'transfer',
-                    ('constant', 'constant'): 'constant'}
+                    ('constant', 'constant'): 'constant',
+                    ('voltage', 'voltage'): 'voltagesquared',
+                    ('current', 'current'): 'currentsquared',
+                    ('admittance', 'admittance'): 'admittancesquared',
+                    ('impedance', 'impedance'): 'impedancesquared',
+                    ('voltage', 'current'): 'power',
+                    ('voltagesquared', 'admittance'): 'power',
+                    ('currentsquared', 'impedance'): 'power',                    
+                    ('impedancesquared', 'admittance'): 'impedance',
+                    ('admittancesquared', 'impedance'): 'admittance',
+                    ('power', 'impedance'): 'voltagesquared',
+                    ('power', 'admittance'): 'currentsquared',
+                    ('admittancesquared', 'constant'): 'admittancesquared',
+                    ('impedancesquared', 'constant'): 'impedancesquared',
+                    ('voltagesquared', 'constant'): 'voltagesquared',
+                    ('currentsquared', 'constant'): 'currentsquared',
+                    ('power', 'constant'): 'power'}
     
     _div_mapping = {('voltage', 'impedance'): 'current',
                     ('current', 'admittance'): 'voltage',
@@ -272,7 +288,33 @@ class Expr(ExprPrint, ExprMisc):
                     ('constant', 'impedance'): 'admittance',
                     ('constant', 'admittance'): 'impedance',
                     ('constant', 'transfer'): 'transfer',
-                    ('constant', 'constant'): 'constant'}
+                    ('constant', 'constant'): 'constant',
+                    ('voltagesquared', 'voltage'): 'voltage',
+                    ('currentsquared', 'current'): 'current',
+                    ('admittancesquared', 'admittance'): 'admittance',
+                    ('impedancesquared', 'impedance'): 'impedance',
+                    ('power', 'current'): 'voltage',
+                    ('power', 'voltage'): 'current',                    
+                    ('power', 'admittance'): 'voltagesquared',
+                    ('power', 'voltagesquared'): 'admittance',                    
+                    ('power', 'impedance'): 'currentsquared',
+                    ('power', 'currentsquared'): 'impedance',            
+                    ('impedance', 'admittance'): 'impedancesquared',
+                    ('admittance', 'impedance'): 'admittancesquared',
+                    ('voltagesquared', 'impedance'): 'power',
+                    ('currentsquared', 'admittance'): 'power',
+                    ('voltagesquared', 'power'): 'impedance',
+                    ('currentsquared', 'power'): 'admittance',
+                    ('admittancesquared', 'constant'): 'admittancesquared',
+                    ('impedancesquared', 'constant'): 'impedancesquared',
+                    ('voltagesquared', 'constant'): 'voltagesquared',
+                    ('currentsquared', 'constant'): 'currentsquared',
+                    ('admittancesquared', 'admittancesquared'): 'transfer',
+                    ('impedancesquared', 'impedancesquared'): 'transfer',
+                    ('voltagesquared', 'voltagesquared'): 'transfer',
+                    ('currentsquared', 'currentsquared'): 'transfer',
+                    ('power', 'power'): 'transfer',
+                    ('power', 'constant'): 'power'}
     
     # This needs to be larger than what sympy defines so
     # that the __rmul__, __radd__ methods get called.
@@ -318,7 +360,13 @@ class Expr(ExprPrint, ExprMisc):
         self.assumptions = assumptions
         # Remove Lcapy assumptions from SymPy expr.
         self.expr = sympify(arg, **self.assumptions.sympy_assumptions())
- 
+
+    def _class_by_quantity(self, quantity, domain=None):
+
+        if domain is None:
+            domain = self.domain
+        return expressionclasses.get_quantity(domain, quantity)
+        
     def as_quantity(self, quantity):
 
         if quantity == 'voltage':
@@ -343,9 +391,26 @@ class Expr(ExprPrint, ExprMisc):
             return self.as_laplace(expr)
         elif domain == 'fourier':
             return self.as_fourier(expr)
+        elif domain == 'phasor':
+            return self.as_phasor(expr)        
         elif domain == 'angular fourier':
             return self.as_angular_fourier(expr)
         raise ValueError('Unknown domain %s for %s' % (domain, self))
+
+    def as_voltage(self):
+        return self._class_by_quantity('voltage')(self)
+
+    def as_current(self):
+        return self._class_by_quantity('current')(self)
+
+    def as_admittance(self):
+        return self._class_by_quantity('admittance')(self)
+
+    def as_impedance(self):
+        return self._class_by_quantity('impedance')(self)
+
+    def as_transfer(self):
+        return self._class_by_quantity('transfer')(self)    
     
     def as_expr(self):
         return self
@@ -354,7 +419,10 @@ class Expr(ExprPrint, ExprMisc):
         return self.time()
 
     def as_laplace(self):
-        return self.laplace()    
+        return self.laplace()
+
+    def as_phasor(self):
+        return self.phasor()        
 
     def as_fourier(self):
         return self.fourier()
@@ -662,14 +730,17 @@ class Expr(ExprPrint, ExprMisc):
 
     def _incompatible_domains(self, x, op):
                 
-        raise ValueError('%s(%s) and %s(%s) have incompatible domains for %s' %
-                         (self.__class__.__name__, self,
-                          x.__class__.__name__, x, op))
+        raise ValueError("""
+Cannot determine %s(%s) %s %s(%s) since the domains are incompatible""" %
+                         (self.__class__.__name__, self, op,
+                          x.__class__.__name__, x))
 
     def _incompatible_quantities(self, x, op):
 
-        raise ValueError('%s(%s) and %s(%s) have incompatible quantities for %s' %        
-                         (self.__class__.__name__, self,
+        raise ValueError("""
+Cannot determine %s(%s) %s %s(%s) since the units of the result are unsupported.
+As a workaround use x.as_expr() %s y.as_expr()""" %
+                         (self.__class__.__name__, self, op,
                           x.__class__.__name__, x, op))        
     
     def _mul_compatible(self, x):
@@ -722,7 +793,7 @@ class Expr(ExprPrint, ExprMisc):
         if x.quantity == 'undefined':
             return cls, self, x, assumptions        
         
-        self._incompatible(x, op)        
+        self._incompatible_quantities(x, op)        
 
     def __mul__(self, x):
         """Multiply"""
@@ -809,7 +880,7 @@ class Expr(ExprPrint, ExprMisc):
         key = (yquantity, xquantity)
         if key not in self._div_mapping:
             # TODO: What about voltage**2. etc.
-            self._incompatible_quantities(x, '*')        
+            self._incompatible_quantities(x, '/')        
 
         quantity = self._div_mapping[key]
         if quantity == 'constant':
@@ -878,16 +949,19 @@ class Expr(ExprPrint, ExprMisc):
 
         if not isinstance(x, Expr):
             x = expr(x)
-        
-        return self.__class__(self.expr.__pow__(x.expr))
+
+        result = self.expr.__pow__(x.expr)
+        if (self.__class__ != ConstantExpression):
+            return self.__class__(result)
+        return x.__class__(result)        
     
     def __rpow__(self, x):
-        """Reverse pow"""
+        """Reverse pow, x**self"""
 
         if not isinstance(x, Expr):
             x = expr(x)
         
-        return x.__class__(x.__pow__(self.expr))
+        return x.__pow__(self)
 
     def __or__(self, x):
         """Parallel combination"""
@@ -1431,33 +1505,6 @@ class Expr(ExprPrint, ExprMisc):
         else:
             cls = self.__class__
             expr = sympify(expr)
-
-        try:    
-            cls = self._subs_classes[new.__class__]
-        except:
-            class_map = {(LaplaceDomainTransferFunction, AngularFourierDomainExpression) : AngularFourierDomainTransferFunction,
-                         (LaplaceDomainCurrent, AngularFourierDomainExpression) : AngularFourierDomainCurrent,
-                         (LaplaceDomainVoltage, AngularFourierDomainExpression) : AngularFourierDomainVoltage,
-                         (LaplaceDomainAdmittance, AngularFourierDomainExpression) : AngularFourierDomainAdmittance,
-                         (LaplaceDomainImpedance, AngularFourierDomainExpression) : AngularFourierDomainImpedance,
-                         (LaplaceDomainTransferFunction, FourierDomainExpression) : FourierDomainTransferFunction,
-                         (LaplaceDomainCurrent, FourierDomainExpression) : FourierDomainCurrent,
-                         (LaplaceDomainVoltage, FourierDomainExpression) : FourierDomainVoltage,
-                         (LaplaceDomainAdmittance, FourierDomainExpression) : FourierDomainAdmittance,
-                         (LaplaceDomainImpedance, FourierDomainExpression) : FourierDomainImpedance,
-                         (FourierDomainTransferFunction, AngularFourierDomainExpression) : AngularFourierDomainTransferFunction,
-                         (FourierDomainCurrent, AngularFourierDomainExpression) : AngularFourierDomainCurrent,
-                         (FourierDomainVoltage, AngularFourierDomainExpression) : AngularFourierDomainVoltage,
-                         (FourierDomainAdmittance, AngularFourierDomainExpression) : AngularFourierDomainAdmittance,
-                         (FourierDomainImpedance, AngularFourierDomainExpression) : AngularFourierDomainImpedance,
-                         (AngularFourierDomainTransferFunction, FourierDomainExpression) : FourierDomainTransferFunction,
-                         (AngularFourierDomainCurrent, FourierDomainExpression) : FourierDomainCurrent,
-                         (AngularFourierDomainVoltage, FourierDomainExpression) : FourierDomainVoltage,
-                         (AngularFourierDomainAdmittance, FourierDomainExpression) : FourierDomainAdmittance,
-                         (AngularFourierDomainImpedance, FourierDomainExpression) : FourierDomainImpedance}
-
-            if (self.__class__, new.__class__) in class_map:
-                cls = class_map[(self.__class__, new.__class__)]
 
         old = symbol_map(old)
 
@@ -2336,10 +2383,11 @@ def symbols(names, **assumptions):
 
 
 from .cexpr import cexpr, ConstantExpression
-from .fexpr import FourierDomainTransferFunction, FourierDomainCurrent, FourierDomainVoltage, FourierDomainAdmittance, FourierDomainImpedance, FourierDomainExpression, fexpr
-from .sexpr import LaplaceDomainTransferFunction, LaplaceDomainCurrent, LaplaceDomainVoltage, LaplaceDomainAdmittance, LaplaceDomainImpedance, LaplaceDomainExpression, sexpr
-from .texpr import TimeDomainExpression, texpr
-from .omegaexpr import AngularFourierDomainTransferFunction, AngularFourierDomainCurrent, AngularFourierDomainVoltage, AngularFourierDomainAdmittance, AngularFourierDomainImpedance, AngularFourierDomainExpression, omegaexpr
+from .fexpr import f, fexpr, FourierDomainExpression
+from .texpr import t, texpr, TimeDomainExpression
+from .sexpr import s, sexpr, LaplaceDomainExpression
+from .omegaexpr import omega, omegaexpr, AngularFourierDomainExpression
+from .expressionclasses import expressionclasses
 
 # Horrible hack to work with IPython around Sympy's back for LaTeX
 # formatting.  The problem is that Sympy does not check for the

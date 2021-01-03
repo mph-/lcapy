@@ -6,7 +6,7 @@ Expressions
 
 Lcapy expressions are similar to SymPy expressions except they have a
 specific domain depending on the predefined domain variables `t`, `s`, `f`,
-`omega`, and `jomega`.
+`omega`, and `jomega` (`jw`).
 
 
 Symbols
@@ -43,7 +43,7 @@ Lcapy has five predefined domain variables:
   
 - `omega` Fourier domain angular frequency
 
-- `jomega` Fourier domain angular frequency times `j`
+- `jomega` (or `jw`) Phasor domain angular frequency
 
 A time-domain expression is produced using the `t` variable, for example,
   
@@ -383,7 +383,8 @@ Note, SymPy does not allow symbol names that are Python keywords.  For example,
 - `simplify_factor()` factor expression and simplify each factor.
 
 - `limit()` compute a limit.  
-  
+
+
 Transformation and substitution
 ===============================      
 
@@ -419,9 +420,7 @@ Transformation
 
 - `V(omega)` returns the angular Fourier domain transformation
 
-- `V(jomega)` returns the angular Fourier domain transformation
-  obtained from the Laplace domain transformation with :math:`s = j
-  \omega`.
+- `V(jomega)` returns the phasor domain transformation
 
 For example:
 
@@ -489,14 +488,13 @@ Immittances
 
 Immittances (impedances and admittances) are a frequency domain
 generalization of resistance and conductance.  In Lcapy they are
-represented using the `Impedance` and `Admittance` classes.  These
-handle the `f` -domain form, the `omega` -domain form (phasor
-immittance), and the `s` -domain form (generalized immittance).  For
-example::
+represented using the `Impedance` and `Admittance` classes for each of
+the domains.  The appropriate class is created using the `impedance`
+and `admittance` factory functions.  For example::
 
-   >>> Z1 = Impedance(5 * s)
-   >>> Z2 = Impedance(5 * j * omega)
-   >>> Z3 = Admittance(s * 'C')
+   >>> Z1 = impedance(5 * s)
+   >>> Z2 = impedance(5 * j * omega)
+   >>> Z3 = admittance(s * 'C')
 
 Internally, Lcapy converts impedances to a common form.  However, the
 printed representation uses the initial form.  For example::
@@ -519,11 +517,11 @@ as an argument.  For example,
 The time-domain representation of the immittance is the inverse Laplace
 transform of the s-domain immittance, for example::
 
-   >>> Impedance(1 / s)(t)
+   >>> impedance(1 / s)(t)
    Heaviside(t)
-   >>> Impedance(1)(t)
+   >>> impedance(1)(t)
    δ(t)
-   >>> Impedance(s)(t)
+   >>> impedance(s)(t)
     (1)    
    δ   (t)
 
@@ -865,6 +863,9 @@ Laplace domain entities there are the following classes:
 
 `LaplaceDomainImpedance` is a s-domain impedance.
 
+These classes should not be explicitly used.  Instead use the factory functions
+`expr`, `voltage`, `current`, `transfer`, `admittance`, and `impedance`.
+
 
 .. _parameterization:
 
@@ -928,7 +929,7 @@ expression.  There are many methods, some specifically for simple
 network such as R-L networks, and more general methods including
 Foster and Cauer synthesis.
 
-    >>> Z = Impedance(4*s**2 + 3 * s + one / 6) / (s**2 + 2 * s / 3)
+    >>> Z = impedance(4*s**2 + 3 * s + one / 6) / (s**2 + 2 * s / 3)
     >>> n = Z.network('cauerI')
     >>> n
     ((C(1) + R(2)) | C(3)) + R(4)

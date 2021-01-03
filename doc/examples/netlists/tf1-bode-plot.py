@@ -1,10 +1,10 @@
-from lcapy import s, j, pi, f, LaplaceDomainTransferFunction
+from lcapy import s, j, pi, f, transfer
 from matplotlib.pyplot import savefig
 from numpy import logspace
 
-H = LaplaceDomainTransferFunction((s - 2) * (s + 3) / (s * (s - 2 * j) * (s + 2 * j)))
+H = transfer((s - 2) * (s + 3) / (s * (s - 2 * j) * (s + 2 * j)))
 
-A = H(j * 2 * pi * f)
+A = H.subs(j * 2 * pi * f)
 
 fv = logspace(-1, 4, 400)
 A.plot(fv, log_scale=True)

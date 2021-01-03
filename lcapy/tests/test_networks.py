@@ -1,5 +1,6 @@
 from lcapy import *
 from lcapy.texpr import TimeDomainVoltage, TimeDomainCurrent
+from lcapy.noiseomegaexpr import AngularFourierDomainNoiseVoltage, AngularFourierDomainNoiseCurrent
 import unittest
 import sympy as sym
 

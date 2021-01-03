@@ -11,6 +11,9 @@ from .expr import Expr, ExprDict, expr
 from .sym import tsym, omega0sym, symbols_find, is_sympy, symsymbol
 from .acdc import is_ac
 from .printing import pprint, pretty, latex
+from .classmap import domain_kind_quantity_to_class, expr_to_domain_kind
+from .classmap import domain_quantity_to_class
+
 
 class Superposition(ExprDict):
     """This class represents a superposition of different signal types,
@@ -51,7 +54,11 @@ class Superposition(ExprDict):
     # It can decompose a signal into AC, DC, and transient components.
     # The 't' key is the transient component viewed in the time domain.
     # The 's' key is the transient component viewed in the Laplace domain.    
-    
+
+    is_voltage = False
+    is_current = False
+
+
     def __init__(self, *args, **kwargs):
         super (Superposition, self).__init__()
 
@@ -120,6 +127,11 @@ class Superposition(ExprDict):
         
         return decomp.__getitem__(key)        
 
+    def decompose_to_domain(self, expr, kind):
+
+        cls = domain_kind_quantity_to_class(kind, self.quantity)
+        return cls(expr)
+    
     @property
     def symbols(self):
         """Return dictionary of symbols in the expression keyed by name."""
@@ -430,7 +442,7 @@ class Superposition(ExprDict):
 
         if isinstance(kind, str) and kind[0] == 'n':
             if kind not in self:
-                return self.decompose_domains['n'](0)
+                return self.decompose_to_domain(0, 'n')
             return self[kind]
         
         obj = self
@@ -438,11 +450,11 @@ class Superposition(ExprDict):
             # The rationale here is that there may be
             # DC and AC components included in the 't' part.
             obj = self.decompose()
-            
+
         if kind not in obj:
-            if kind not in obj.decompose_domains:
+            if kind not in ('s', 'dc', 'ac', 'n', 't'):
                 kind = 'ac'
-            return obj.decompose_domains[kind](0)
+            return obj.decompose_to_domain(0, kind)
         return obj[kind]
 
     def netval(self, kind):
@@ -484,10 +496,8 @@ class Superposition(ExprDict):
                 key = key.expr
             return key
 
-        for kind, mtype in self.decompose_domains.items():
-            if isinstance(value, mtype):
-                return kind
-        return None
+        kind = expr_to_domain_kind(value)
+        return kind
 
     def _parse(self, string):
         """Parse t or s-domain expression or symbol, interpreted in time
@@ -550,29 +560,26 @@ class Superposition(ExprDict):
         
         # DC should be real but allow const complex value.
         if isinstance(value, (int, float, complex)):
-            value = self.decompose_domains['dc'](value)
+            value = self.decompose_to_domain(value, 'dc')
         elif is_sympy(value):
             try:
                 # Look for I, 5 * I, etc.
                 if value.is_constant:
-                    value = self.decompose_domains['dc'](value)
+                    value = self.decompose_to_domain(value, 'dc')
             except:
                 pass
 
         # TODO, perhaps handle Fourier domain expressions in the
         # decomposition?  For now, convert to time domain.
-        if isinstance(value, (FourierDomainExpression, AngularFourierDomainExpression)):
+        if value.is_fourier_domain or value.is_angular_fourier_domain:
             value = value.time()
 
         kind = self._kind(value)
         if kind is None:
-            if value.__class__ in self.type_map:
-                value = self.type_map[value.__class__](value)
+            if self.is_voltage:
+                value = value.as_voltage()
             else:
-                for cls1, cls2 in self.type_map.items():
-                    if isinstance(value, cls1):
-                        value = cls2(value)
-                        break
+                value = value.as_current()                    
             kind = self._kind(value)
 
         if kind is None:
@@ -669,7 +676,7 @@ phasor, for example, using: %s""" % foo)
 
     @property
     def n(self):
-        result = self.decompose_domains['n'](0)
+        result = self.decompose_to_domain(0, 'n')
         for key in self.noise_keys():
             result += self[key]
         return result
@@ -682,7 +689,7 @@ phasor, for example, using: %s""" % foo)
     def time(self, **assumptions):
         """Convert to time domain."""
 
-        result = self.time_class(0)
+        result = domain_quantity_to_class('time', quantity=self.quantity)(0)
 
         # TODO, integrate noise
         for val in self.values():
@@ -718,7 +725,7 @@ phasor, for example, using: %s""" % foo)
     def laplace(self, **assumptions):
         """Convert to s-domain."""                
 
-        result = self.laplace_class(0)
+        result = domain_quantity_to_class('laplace', quantity=self.quantity)(0)
         for val in self.values():
             result += val.laplace(**assumptions)
         return result

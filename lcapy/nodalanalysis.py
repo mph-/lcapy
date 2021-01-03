@@ -111,7 +111,7 @@ class NodalAnalysis(object):
                 lhs, rhs = self._unknowns[n1], self._unknowns[n2] + V
 
             else:
-                result = Itype(self.kind)
+                result = Itype(self.kind)(0)
                 for elt in self.G.connected(node):
                     if len(elt.nodenames) < 2:
                         raise ValueError('Elt %s has too few nodes' % elt)

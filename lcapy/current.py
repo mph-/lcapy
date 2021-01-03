@@ -4,50 +4,26 @@ Copyright 2020 Michael Hayes, UCECE
 
 """
 from .expr import expr
-from .sym import omega0sym
-from .symbols import s, omega0
-from .cexpr import ConstantCurrent
-from .fexpr import FourierDomainCurrent
-from .omegaexpr import AngularFourierDomainCurrent
-from .sexpr import LaplaceDomainCurrent
-from .texpr import TimeDomainCurrent
-from .noiseomegaexpr import AngularFourierDomainNoiseCurrent
-from .noisefexpr import FourierDomainNoiseCurrent
-from .nexpr import DiscreteTimeDomainCurrent
-from .kexpr import DiscreteFourierDomainCurrent
-from .zexpr import ZDomainCurrent
-from .phasor import PhasorDomainCurrent
 from .units import u as uu
-
+from .classmap import domain_kind_to_symbol, domain_kind_quantity_to_class
 
 def Iname(name, kind, cache=False):
 
-    if kind in ('s', 'laplace'):    
-        return LaplaceDomainCurrent(name + '(s)')
-    elif kind in ('t', 'time'):
-        return TimeDomainCurrent(name.lower() + '(t)')
-    elif kind in (omega0sym, omega0, 'ac'):
-        return PhasorDomainCurrent(name + '(omega_0)')
-    # Not caching is a hack to avoid conflicts of In1 with In1(s) etc.
+    # Not caching is a hack to avoid conflicts of Vn1 with Vn1(s) etc.
     # when using subnetlists.  The alternative is a proper context
     # switch.  This would require every method to set the context.
-    return current(name, cache=cache)            
+
+    if kind == 't':
+        name = name.lower()
+    
+    undef = domain_kind_to_symbol(kind, name)
+    cls = domain_kind_quantity_to_class(kind, 'current')
+    return cls(undef, cache=cache)
 
 
 def Itype(kind):
-    
-    if isinstance(kind, str) and kind[0] == 'n':
-        return AngularFourierDomainNoiseCurrent
-    try:
-        return {'ivp' : LaplaceDomainCurrent,
-                's' : LaplaceDomainCurrent,
-                'n' : AngularFourierDomainNoiseCurrent,
-                'ac' : PhasorDomainCurrent,
-                'dc' : ConstantCurrent,
-                't' : TimeDomainCurrent,
-                'time' : TimeDomainCurrent}[kind]
-    except KeyError:
-        return PhasorDomainCurrent
+
+    return domain_kind_quantity_to_class(kind, 'current')        
 
 
 def current(arg, **assumptions):

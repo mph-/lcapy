@@ -93,7 +93,7 @@ class LoopAnalysis(object):
 
         for m, loop in enumerate(loops):
 
-            result = Vtype(self.kind)
+            result = Vtype(self.kind)(0)
 
             loop1 = loop.copy()
             loop1.append(loop1[0])

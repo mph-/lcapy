@@ -1,0 +1,13 @@
+class PowerMixin(object):
+
+    quantity = 'power'
+    quantity_label = 'Power'
+    units = 'W'
+    is_power = True
+
+    # TODO: the units are not power in some of the transform domains.
+    # For example, in the Fourier domain V * I has units of V/Hz * A/Hz
+    # which is equivalent to W / Hz^2 = J / Hz.   This is an energy spectral
+    # density.
+    
+    

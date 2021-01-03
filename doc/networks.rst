@@ -337,7 +337,7 @@ Network synthesis
 Networks can be created using network synthesis techniques given an impedance or admittance expression,
 for example,
 
-    >>> Z = Impedance(4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)
+    >>> Z = impedance(4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)
     >>> Z.network()
     ((C(1) + R(2)) | C(3)) + R(4)
     >>> Z.network().Z(s).canonical()

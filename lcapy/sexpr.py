@@ -11,11 +11,6 @@ from .sym import ssym, tsym, j, pi, sympify
 from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, exprcontainer
 from .functions import sqrt
-from .voltagemixin import VoltageMixin
-from .currentmixin import CurrentMixin
-from .admittancemixin import AdmittanceMixin
-from .impedancemixin import ImpedanceMixin
-from .transfermixin import TransferMixin
 import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
 
@@ -27,7 +22,7 @@ class LaplaceDomainExpression(Expr):
     """s-domain expression or symbol."""
 
     var = ssym
-    domain = 'Laplace'    
+    domain = 'laplace'    
     domain_label = 'Laplace frequency'
     domain_units = 'rad/s'    
     is_laplace_domain = True
@@ -46,39 +41,8 @@ class LaplaceDomainExpression(Expr):
             raise ValueError(
                 's-domain expression %s cannot depend on t' % self.expr)
 
-    def _class_by_quantity(self, quantity):
-
-        if quantity == 'voltage':
-            return LaplaceDomainVoltage
-        elif quantity == 'current':
-            return LaplaceDomainCurrent
-        elif quantity == 'impedance':
-            return LaplaceDomainImpedance
-        elif quantity == 'admittance':
-            return LaplaceDomainAdmittance
-        elif quantity == 'transfer':
-            return LaplaceDomainTransferFunction
-        elif quantity == 'undefined':
-            return LaplaceDomainExpression
-        raise ValueError('Unknown quantity %s' % quantity)
-    
     def as_expr(self):
         return LaplaceDomainExpression(self)
-
-    def as_voltage(self):
-        return LaplaceDomainVoltage(self)
-
-    def as_current(self):
-        return LaplaceDomainCurrent(self)    
-
-    def as_impedance(self):
-        return LaplaceDomainImpedance(self)
-
-    def as_admittance(self):
-        return LaplaceDomainAdmittance(self)
-
-    def as_transfer(self):
-        return LaplaceDomainTransferFunction(self)
 
     @classmethod
     def from_poles_residues(cls, poles, residues):
@@ -466,41 +430,6 @@ class LaplaceDomainExpression(Expr):
         
         return self.subs((1 / dt) * (1 - z**-1))        
 
-            
-class LaplaceDomainImpedance(ImpedanceMixin, LaplaceDomainExpression):
-    """s-domain impedance value."""
-
-    quantity_label = 'Impedance'
-    units = 'ohms'
-
-
-class LaplaceDomainAdmittance(AdmittanceMixin, LaplaceDomainExpression):
-    """s-domain admittance value."""
-
-    quantity_label = 'Admittance'
-    units = 'siemens'
-
-    
-class LaplaceDomainVoltage(VoltageMixin, LaplaceDomainExpression):
-    """s-domain voltage (units V s / radian)."""
-
-    quantity_label = 's-Voltage'
-    units = 'V/Hz'
-
-        
-class LaplaceDomainCurrent(CurrentMixin, LaplaceDomainExpression):
-    """s-domain current (units A s / radian)."""
-
-    quantity_label = 's-Current'
-    units = 'A/Hz'
-
-
-class LaplaceDomainTransferFunction(TransferMixin, LaplaceDomainExpression):
-    """s-domain ratio"""
-
-    quantity_label = 's-ratio'
-    units = ''
-
 
 def tf(numer, denom=1, var=None):
     """Create a transfer function from lists of the coefficient
@@ -541,8 +470,17 @@ def sexpr(arg, **assumptions):
     return LaplaceDomainExpression(arg, **assumptions)
 
 
-from .fexpr import FourierDomainTransferFunction, FourierDomainAdmittance, FourierDomainImpedance
-from .omegaexpr import AngularFourierDomainTransferFunction, AngularFourierDomainAdmittance, AngularFourierDomainImpedance
+from .expressionclasses import expressionclasses
+classes = expressionclasses.make(LaplaceDomainExpression)
+
+LaplaceDomainVoltage = classes['voltage']
+LaplaceDomainCurrent = classes['current']
+LaplaceDomainAdmittance = classes['admittance']
+LaplaceDomainImpedance = classes['impedance']
+LaplaceDomainTransferFunction = classes['transfer']
+expressionclasses.add('laplace', classes)
+
+
 from .texpr import TimeDomainImpulseResponse, TimeDomainAdmittance, TimeDomainImpedance
 from .texpr import TimeDomainExpression, TimeDomainVoltage, TimeDomainCurrent, texpr
 from .cexpr import ConstantExpression

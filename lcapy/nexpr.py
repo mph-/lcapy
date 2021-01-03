@@ -11,14 +11,8 @@ from .sequence import Sequence
 from .functions import exp
 from .sym import j, oo, pi, fsym
 from .dsym import nsym, ksym, zsym, dt
-from .acdc import ACChecker, is_dc, is_ac, is_causal
 from .ztransform import ztransform
 from .dft import DFT
-from .voltagemixin import VoltageMixin
-from .currentmixin import CurrentMixin
-from .admittancemixin import AdmittanceMixin
-from .impedancemixin import ImpedanceMixin
-from .transfermixin import TransferMixin
 from sympy import Sum, summation, limit
 
 
@@ -28,19 +22,16 @@ class DiscreteTimeDomainExpression(SequenceExpression):
     """Discrete time expression or symbol."""
 
     var = nsym
-    domain = 'Discrete time'    
+    domain = 'discrete time'    
     domain_label = 'Discrete time'
     domain_units = ''
     is_discrete_time_domain = True
     is_transform_domain = False
 
-    # Restrict options for time-domain; need to perform convolutions.
-    _mul_mapping = {}
-    _div_mapping = {}
-    
     def __init__(self, val, **assumptions):
 
         check = assumptions.pop('check', True)
+        assumptions['real'] = True        
         
         super(DiscreteTimeDomainExpression, self).__init__(val, **assumptions)
 
@@ -52,40 +43,18 @@ class DiscreteTimeDomainExpression(SequenceExpression):
             raise ValueError(
                 'n-domain expression %s cannot depend on k' % expr)            
 
-    def _class_by_quantity(self, quantity):
+    def _mul_compatible(self, x):
 
-        if quantity == 'voltage':
-            return DiscreteTimeDomainVoltage
-        elif quantity == 'current':
-            return DiscreteTimeDomainCurrent
-        elif quantity == 'impedance':
-            return DiscreteTimeDomainImpedance
-        elif quantity == 'admittance':
-            return DiscreteTimeDomainAdmittance
-        elif quantity == 'transfer':
-            return DiscreteTimeDomainImpulseResponse
-        elif quantity == 'undefined':
-            return DiscreteTimeDomainExpression                                
-        raise ValueError('Unknown quantity %s' % quantity)
+        if x.is_constant_domain:
+            return True
+        if self.quantity == 'undefined' or x.quantity == 'undefined':
+            return True
+        
+        # TODO: allow TimeDomainVoltage**2 one day.
+        return False
 
     def as_expr(self):
         return DiscreteTimeDomainExpression(self)
-
-    def as_voltage(self):
-        return DiscreteTimeDomainVoltage(self)
-
-    def as_current(self):
-        return DiscreteTimeDomainCurrent(self)    
-
-    def as_impedance(self):
-        return DiscreteTimeDomainImpedance(self)
-
-    def as_admittance(self):
-        return DiscreteTimeDomainAdmittance(self)
-
-    def as_transfer(self):
-        return DiscreteTimeDomainImpulseResponse(self)
-
 
     def differentiate(self):
         """First order difference."""
@@ -207,33 +176,6 @@ class DiscreteTimeDomainExpression(SequenceExpression):
         H = self.ZT()
         return H.difference_equation(input, output, form)
 
-    
-class DiscreteTimeDomainAdmittance(DiscreteTimeDomainExpression, AdmittanceMixin):
-    """t-domain 'admittance' value."""
-
-    units = 'siemens/s'
-
-
-class DiscreteTimeDomainImpedance(DiscreteTimeDomainExpression, ImpedanceMixin):
-    """t-domain 'impedance' value."""
-
-    units = 'ohms/s'
-
-
-class DiscreteTimeDomainVoltage(DiscreteTimeDomainExpression, VoltageMixin):
-    """t-domain voltage (units V)."""
-    pass
-
-    
-class DiscreteTimeDomainCurrent(DiscreteTimeDomainExpression, CurrentMixin):
-    """t-domain current (units A)."""
-    pass
-
-
-class DiscreteTimeDomainImpulseResponse(DiscreteTimeDomainExpression, TransferMixin):
-    """impulse response"""
-    pass
-
 
 def nexpr(arg, **assumptions):
     """Create nExpr object.  If `arg` is nsym return n"""
@@ -253,6 +195,13 @@ def nexpr(arg, **assumptions):
 
     return DiscreteTimeDomainExpression(arg, **assumptions)
 
+
+from .expressionclasses import expressionclasses
+
+classes = expressionclasses.make(DiscreteTimeDomainExpression)
+expressionclasses.add('discrete time', classes)
+
 from .zexpr import ZDomainExpression
 from .kexpr import DiscreteFourierDomainExpression
+
 n = DiscreteTimeDomainExpression('n')

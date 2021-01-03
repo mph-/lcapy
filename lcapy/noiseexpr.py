@@ -19,19 +19,23 @@ class NoiseExpression(Expr):
     created.
 
     Uncorrelated noise expressions are added in quadrature (on a power
-    basis).  Thus (Vnoisy(3) + Vnoisy(4)).expr = 5 since 5 = sqrt(3**2 + 4**2)
+    basis).  Thus (NoiseExpression(3) + NoiseExpression(4)).expr = 5
+    since 5 = sqrt(3**2 + 4**2)
 
-    Vnoisy(3) != Vnoisy(3) since they are different noise realisations albeit
-    with the same properties.  However, Vnoisy(3).expr == Vnoisy(3).expr.
-    Similarly, Vnoisy(3, nid='n1') == Vnoisy(3, nid='n1') since they have the
-    same noise identifier and thus have the same realisation.
+    NoiseExpression(3) != NoiseExpression(3) since they are different
+    noise realisations albeit with the same properties.  However,
+    NoiseExpression(3).expr == NoiseExpression(3).expr.  Similarly,
+    NoiseExpression(3, nid='n1') == NoiseExpression(3, nid='n1') since
+    they have the same noise identifier and thus have the same
+    realisation.
 
     Caution: The sum of two noise expressions generates a noise
     expression with a new nid.  This can lead to unexpected results
     since noise expressions with different nids are assumed to be
-    uncorrelated.  For example, consider:
-    a = Vnoisy(3); b = Vnoisy(4)
-    a + b - b gives sqrt(41) and  a + b - a gives sqrt(34).
+    uncorrelated.  For example, consider: 
+    a = NoiseExpression(3); 
+    b = NoiseExpression(4)
+    a + b - b gives sqrt(41) and a + b - a gives sqrt(34).
 
     This case is correctly handled by the Super class since each noise
     component is stored and considered separately.
@@ -61,7 +65,10 @@ class NoiseExpression(Expr):
         return self.assumptions['nid']
 
     def subs(self, *args, **kwargs):
-        return super(NoiseExpression, self).subs(*args, nid=self.nid, **kwargs)
+        nid = self.nid
+        result = super(NoiseExpression, self).subs(*args, **kwargs)
+        result.assumptions['nid'] = nid
+        return result
 
     def __compat__(self, x):
 
@@ -157,7 +164,8 @@ class NoiseExpression(Expr):
             P /= 2 * sym.pi
         rms = sym.sqrt(P)
         # TODO: Use rms class?
-        return self.wrap(TimeDomainExpression(rms))
+        cls = self._class_by_quantity(self.quantity, 'time')
+        return cls(rms)
 
     def sample(self, t):
         """Return a sample function (realisation) of the noise process

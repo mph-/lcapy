@@ -10,7 +10,7 @@ b = a.noisy()
 
 Vn = b.C.V.n
 
-Vns = Vn.subs({'R':10e3, 'C':1e-9, 'T':293, 'k':1.38e-23})   
+Vns = Vn.subs({'R':10e3, 'C':1e-9, 'T':293, 'k_b':1.38e-23})   
 
 from numpy import linspace
 vf = linspace(0, 100e3, 200)

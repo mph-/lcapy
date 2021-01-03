@@ -27,29 +27,19 @@ Copyright 2019--2020 Michael Hayes, UCECE
 """
 
 from .super import Superposition
-from .sym import omega0sym
+from .admittance import admittance
+
 
 class SuperpositionVoltage(Superposition):
 
-    def __init__(self, *args, **kwargs):
-        self.type_map = {ConstantExpression: ConstantVoltage,
-                         LaplaceDomainExpression : LaplaceDomainVoltage,
-                         AngularFourierDomainNoiseExpression: AngularFourierDomainNoiseVoltage,
-                         FourierDomainExpression: FourierDomainVoltage,
-                         FourierDomainNoiseExpression: FourierDomainNoiseVoltage,
-                         AngularFourierDomainExpression: AngularFourierDomainVoltage,
-                         PhasorDomainExpression: PhasorDomainVoltage,
-                         TimeDomainExpression : TimeDomainVoltage}
-        self.decompose_domains = {'s': LaplaceDomainVoltage,
-                                  'ac': PhasorDomainVoltage,
-                                  'dc': ConstantVoltage,
-                                  'n': AngularFourierDomainNoiseVoltage,
-                                  't': TimeDomainVoltage}
-        self.time_class = TimeDomainVoltage
-        self.laplace_class = LaplaceDomainVoltage    
+    is_voltage = True
+    quantity = 'voltage'
+    
+    def cpt(self):
+        from .oneport import V
+        # Perhaps should generate more specific components such as Vdc?
+        return V(self.time())
 
-        super (SuperpositionVoltage, self).__init__(*args, **kwargs)
-        
     def __rmul__(self, x):
         return self.__mul__(x)
 
@@ -72,13 +62,13 @@ class SuperpositionVoltage(Superposition):
         new = SuperpositionCurrent()
         if 'dc' in obj:
             # TODO, fix types
-            new += ConstantCurrent(obj['dc'] * ConstantExpression(x.jomega(0)))
+            new += ConstantExpression(obj['dc'] * ConstantExpression(x.jomega(0)))
         for key in obj.ac_keys():
             new += obj[key] * x.jomega(obj[key].omega)
         for key in obj.noise_keys():            
             new += obj[key] * x.jomega
         if 's' in obj:
-            new += obj['s'] * x
+            new += obj['s'] * LaplaceDomainExpression(x)
         if 't' in obj:
             new += self['t'] * TimeDomainExpression(x)
             
@@ -99,50 +89,10 @@ class SuperpositionVoltage(Superposition):
         return self * admittance(1 / x)
 
     def __truediv__(self, x):
-        return self.__div__(x)
-
-    def cpt(self):
-        from .oneport import V
-        # Perhaps should generate more specific components such as Vdc?
-        return V(self.time())
-
-    
-def Vname(name, kind, cache=False):
-
-    if kind in ('s', 'laplace'):    
-        return LaplaceDomainVoltage(name + '(s)')
-    elif kind in ('t', 'time'):
-        return TimeDomainVoltage(name.lower() + '(t)')
-    elif kind in (omega0sym, omega0, 'ac'):
-        return PhasorDomainVoltage(name + '(omega_0)')
-    # Not caching is a hack to avoid conflicts of Vn1 with Vn1(s) etc.
-    # when using subnetlists.  The alternative is a proper context
-    # switch.  This would require every method to set the context.
-    return expr(name, cache=cache)            
+        return self.__div__(x)    
 
 
-def Vtype(kind):
-    
-    if isinstance(kind, str) and kind[0] == 'n':
-        return AngularFourierDomainNoiseVoltage
-    try:
-        return {'ivp' : LaplaceDomainVoltage, 's' : LaplaceDomainVoltage, 'n' : AngularFourierDomainNoiseVoltage,
-                'ac' : PhasorDomainVoltage, 'dc' : ConstantVoltage, 't' : TimeDomainVoltage, 'time' : TimeDomainVoltage}[kind]
-    except KeyError:
-        return PhasorDomainVoltage
-
-
-from .expr import expr    
-from .cexpr import ConstantVoltage, ConstantCurrent, ConstantExpression
-from .fexpr import FourierDomainExpression, FourierDomainVoltage
-from .omegaexpr import AngularFourierDomainExpression, AngularFourierDomainVoltage
-from .sexpr import LaplaceDomainExpression, LaplaceDomainVoltage
-from .texpr import TimeDomainExpression, TimeDomainVoltage
-from .noiseomegaexpr import AngularFourierDomainNoiseExpression, AngularFourierDomainNoiseVoltage
-from .noisefexpr import FourierDomainNoiseExpression, FourierDomainNoiseVoltage
-from .phasor import PhasorDomainVoltage, PhasorDomainExpression
-from .impedance import impedance
-from .admittance import admittance
-from .omegaexpr import AngularFourierDomainExpression
-from .symbols import s, omega0
+from .cexpr import ConstantExpression
+from .texpr import TimeDomainExpression
+from .sexpr import s, LaplaceDomainExpression
 from .superposition_current import SuperpositionCurrent

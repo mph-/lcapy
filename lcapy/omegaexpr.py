@@ -22,7 +22,7 @@ class AngularFourierDomainExpression(Expr):
     """Fourier domain expression or symbol (angular frequency)."""
 
     var = omegasym
-    domain = 'Angular Fourier'
+    domain = 'angular fourier'
     domain_label = 'Angular frequency'
     domain_units = 'rad/s'
     is_angular_fourier_domain = True
@@ -39,39 +39,8 @@ class AngularFourierDomainExpression(Expr):
             raise ValueError(
                 'omega-domain expression %s cannot depend on t' % self.expr)
 
-    def _class_by_quantity(self, quantity):
-
-        if quantity == 'voltage':
-            return AngularFourierDomainVoltage
-        elif quantity == 'current':
-            return AngularFourierDomainCurrent
-        elif quantity == 'impedance':
-            return AngularFourierDomainImpedance
-        elif quantity == 'admittance':
-            return AngularFourierDomainAdmittance
-        elif quantity == 'transfer':
-            return AngularFourierDomainTransferFunction
-        elif quantity == 'undefined':
-            return AngularFourierDomainExpression                                
-        raise ValueError('Unknown quantity %s' % quantity)
-
     def as_expr(self):
         return AngularFourierDomainExpression(self)
-
-    def as_voltage(self):
-        return AngularFourierDomainVoltage(self)
-
-    def as_current(self):
-        return AngularFourierDomainCurrent(self)    
-
-    def as_impedance(self):
-        return AngularFourierDomainImpedance(self)
-
-    def as_admittance(self):
-        return AngularFourierDomainAdmittance(self)
-
-    def as_transfer(self):
-        return AngularFourierDomainTransferFunction(self)    
     
     def inverse_fourier(self, **assumptions):
         """Attempt inverse Fourier transform."""
@@ -127,35 +96,6 @@ class AngularFourierDomainExpression(Expr):
         from .plot import plot_angular_frequency
         return plot_angular_frequency(self, wvector, **kwargs)
 
-
-class AngularFourierDomainAdmittance(AdmittanceMixin, AngularFourierDomainExpression):
-    """omega-domain admittance."""
-    pass
-
-
-class AngularFourierDomainImpedance(ImpedanceMixin, AngularFourierDomainExpression):
-    """omega-domain impedance."""
-    pass
-
-
-class AngularFourierDomainVoltage(VoltageMixin, AngularFourierDomainExpression):
-    """omega-domain voltage (units V/rad/s)."""
-
-    quantity_label = 'Voltage spectrum'
-    units = 'V/rad/s'
-
-
-class AngularFourierDomainCurrent(CurrentMixin, AngularFourierDomainExpression):
-    """omega-domain current (units A/rad/s)."""
-
-    quantity_label = 'Current spectrum'
-    units = 'A/rad/s'
-
-        
-class AngularFourierDomainTransferFunction(TransferMixin, AngularFourierDomainExpression):
-    """omega-domain transfer function response."""
-    pass
-
         
 def omegaexpr(arg, **assumptions):
     """Create AngularFourierDomainExpression object.  If `arg` is omegasym return omega"""
@@ -166,6 +106,13 @@ def omegaexpr(arg, **assumptions):
         return omega0    
     return AngularFourierDomainExpression(arg, **assumptions)
 
+
+from .expressionclasses import expressionclasses
+classes = expressionclasses.make(AngularFourierDomainExpression)
+expressionclasses.add('angular fourier', classes)
+
+AngularFourierDomainAdmittance = classes['admittance']
+AngularFourierDomainImpedance = classes['impedance']
         
 from .texpr import TimeDomainExpression
 from .sexpr import LaplaceDomainExpression

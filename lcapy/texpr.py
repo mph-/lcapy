@@ -11,8 +11,6 @@ from .functions import exp
 from .sym import fsym, ssym, tsym, j, oo, tausym
 from .laplace import laplace_transform
 from .fourier import fourier_transform
-from .voltagemixin import VoltageMixin
-from .currentmixin import CurrentMixin
 from sympy import Heaviside, limit, Integral, Expr as symExpr
 
 
@@ -22,7 +20,7 @@ class TimeDomainExpression(Expr):
     """t-domain expression or symbol."""
 
     var = tsym
-    domain = 'Time'
+    domain = 'time'
     domain_label = 'Time'
     domain_units = 's'
     is_time_domain = True
@@ -56,40 +54,9 @@ class TimeDomainExpression(Expr):
 
         return x.is_constant_domain
 
-    def _class_by_quantity(self, quantity):
-
-        if quantity == 'voltage':
-            return TimeDomainVoltage
-        elif quantity == 'current':
-            return TimeDomainCurrent
-        elif quantity == 'impedance':
-            return TimeDomainImpedance
-        elif quantity == 'admittance':
-            return TimeDomainAdmittance
-        elif quantity == 'transfer':
-            return TimeDomainImpulseResponse
-        elif quantity == 'undefined':
-            return TimeDomainExpression                                
-        raise ValueError('Unknown quantity %s' % quantity)
-    
     def as_expr(self):
         return TimeDomainExpression(self)
 
-    def as_voltage(self):
-        return TimeDomainVoltage(self)
-
-    def as_current(self):
-        return TimeDomainCurrent(self)    
-
-    def as_impedance(self):
-        return TimeDomainImpedance(self)
-
-    def as_admittance(self):
-        return TimeDomainAdmittance(self)
-
-    def as_transfer(self):
-        return TimeDomainImpulseResponse(self)    
-    
     def infer_assumptions(self):
 
         self.assumptions.infer_from_expr(self)
@@ -229,7 +196,7 @@ class TimeDomainExpression(Expr):
 
     
 class TimeDomainAdmittance(TimeDomainExpression):
-    """t-domain 'admittance' value."""
+    """Time-domain 'admittance' value."""
 
     quantity = 'admittance'
     quantity_label = 'Admittance'
@@ -238,7 +205,7 @@ class TimeDomainAdmittance(TimeDomainExpression):
 
 
 class TimeDomainImpedance(TimeDomainExpression):
-    """t-domain 'impedance' value."""
+    """Time-domain 'impedance' value."""
 
     quantity = 'impedance'
     quantity_label = 'Impedance'
@@ -246,18 +213,8 @@ class TimeDomainImpedance(TimeDomainExpression):
     is_impedance = True
 
 
-class TimeDomainVoltage(VoltageMixin, TimeDomainExpression):
-    """t-domain voltage (units V)."""
-    pass
-
-        
-class TimeDomainCurrent(CurrentMixin, TimeDomainExpression):
-    """t-domain current (units A)."""
-    pass
-
-
 class TimeDomainImpulseResponse(TimeDomainExpression):
-    """impulse response"""
+    """Time-domain impulse response."""
 
     # TODO, check attributes.
     quantity = 'transfer'
@@ -272,6 +229,18 @@ def texpr(arg, **assumptions):
     if arg is tsym:
         return t
     return TimeDomainExpression(arg, **assumptions)
+
+
+from .expressionclasses import expressionclasses
+
+classes = expressionclasses.make(TimeDomainExpression)
+classes['admittance'] = TimeDomainAdmittance
+classes['impedance'] = TimeDomainImpedance
+classes['transfer'] = TimeDomainImpulseResponse
+
+TimeDomainVoltage = classes['voltage']
+TimeDomainCurrent = classes['current']
+expressionclasses.add('time', classes)
 
 from .sexpr import LaplaceDomainExpression
 from .fexpr import FourierDomainExpression

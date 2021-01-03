@@ -59,7 +59,7 @@ __all__ = ('phasor', )
 class PhasorDomainExpression(Expr):
 
     is_phasor_domain = True
-    domain_name = 'Phasor'
+    domain_name = 'phasor'
 
     def __init__(self, val, **assumptions):
 
@@ -279,7 +279,7 @@ class PhasorDomainTransferFunction(TransferMixin, PhasorDomainFrequencyExpressio
 
     
 class PhasorDomainVoltage(VoltageMixin, PhasorDomainTimeExpression):
-    """t-domain voltage (units V) parameterized as a phasor
+    """Phasor-domain voltage (units V) parameterized as a phasor
     of a single angular frequency."""
         
     def cpt(self):
@@ -288,7 +288,7 @@ class PhasorDomainVoltage(VoltageMixin, PhasorDomainTimeExpression):
 
     
 class PhasorDomainCurrent(CurrentMixin, PhasorDomainTimeExpression):
-    """t-domain current (units V) parameterized as a phasor
+    """Phasor-domain current (units V) parameterized as a phasor
     of a single angular frequency."""    
 
     def cpt(self):

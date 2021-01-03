@@ -49,15 +49,6 @@ class LcapyTester(unittest.TestCase):
         
         self.assertEqual(a, b, 'explicit transform omega -> omega')        
 
-    def test_noisef_to_noiseomega(self):
-
-        a = AngularFourierDomainNoiseVoltage(omega)
-        b = a(omega)
-        c = a(f)
-        d = c(omega)
-
-        self.assertEqual(a, b, 'noisyomega -> noisyomega')
-        self.assertEqual(a, d, 'noisyomega -> noisyf -> noisyomega')
         
     def test_s_to_jomega(self):
 

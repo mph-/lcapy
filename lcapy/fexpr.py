@@ -9,11 +9,6 @@ from __future__ import division
 from .fourier import inverse_fourier_transform
 from .expr import Expr, expr
 from .sym import fsym, ssym, tsym, pi
-from .voltagemixin import VoltageMixin
-from .currentmixin import CurrentMixin
-from .admittancemixin import AdmittanceMixin
-from .impedancemixin import ImpedanceMixin
-from .transfermixin import TransferMixin
 from sympy import Integral, Expr as symExpr
 
 class FourierDomainExpression(Expr):
@@ -21,7 +16,7 @@ class FourierDomainExpression(Expr):
     """Fourier domain expression or symbol."""
 
     var = fsym
-    domain = 'Fourier'    
+    domain = 'fourier'    
     domain_label = 'Frequency'
     domain_units = 'Hz'
     is_fourier_domain = True
@@ -41,40 +36,9 @@ class FourierDomainExpression(Expr):
             raise ValueError(
                 'f-domain expression %s cannot depend on t' % expr)
 
-    def _class_by_quantity(self, quantity):
-
-        if quantity == 'voltage':
-            return FourierDomainVoltage
-        elif quantity == 'current':
-            return FourierDomainCurrent
-        elif quantity == 'impedance':
-            return FourierDomainImpedance
-        elif quantity == 'admittance':
-            return FourierDomainAdmittance
-        elif quantity == 'transfer':
-            return FourierDomainTransferFunction
-        elif quantity == 'undefined':
-            return FourierDomainExpression                                
-        raise ValueError('Unknown quantity %s' % quantity)
-        
     def as_expr(self):
         return FourierDomainExpression(self)
 
-    def as_voltage(self):
-        return FourierDomainVoltage(self)
-
-    def as_current(self):
-        return FourierDomainCurrent(self)    
-
-    def as_impedance(self):
-        return FourierDomainImpedance(self)
-
-    def as_admittance(self):
-        return FourierDomainAdmittance(self)
-
-    def as_transfer(self):
-        return FourierDomainTransferFunction(self)    
-    
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
         from .symbols import omega
@@ -149,42 +113,21 @@ class FourierDomainExpression(Expr):
         return plot_frequency(self, fvector, **kwargs)
 
 
-class FourierDomainAdmittance(AdmittanceMixin, FourierDomainExpression):
-    """f-domain admittance"""
-    pass
-
-
-class FourierDomainImpedance(ImpedanceMixin, FourierDomainExpression):
-    """f-domain impedance"""
-    pass
-
-
-class FourierDomainTransferFunction(TransferMixin, FourierDomainExpression):
-    """f-domain transfer function response."""
-    pass
-
-
-class FourierDomainVoltage(VoltageMixin, FourierDomainExpression):
-    """f-domain voltage (units V/Hz)."""
-
-    quantity_label = 'Voltage spectrum'
-    units = 'V/Hz'
-
-        
-class FourierDomainCurrent(CurrentMixin, FourierDomainExpression):
-    """f-domain current (units A/Hz)."""
-
-    quantity_label = 'Current spectrum'
-    units = 'A/Hz'
-
-        
 def fexpr(arg, **assumptions):
     """Create FourierDomainExpression object.  If `arg` is fsym return f"""
 
     if arg is fsym:
         return f
     return FourierDomainExpression(arg, **assumptions)
-        
+
+
+from .expressionclasses import expressionclasses
+classes = expressionclasses.make(FourierDomainExpression)
+
+FourierDomainVoltage = classes['voltage']
+FourierDomainCurrent = classes['current']
+expressionclasses.add('fourier', classes)
+
 from .texpr import TimeDomainExpression
 from .sexpr import LaplaceDomainExpression
 from .omegaexpr import AngularFourierDomainExpression

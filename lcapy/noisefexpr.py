@@ -13,6 +13,8 @@ from .expr import expr
 from .noiseexpr import NoiseExpression
 from .omegaexpr import omega, AngularFourierDomainExpression
 from .fexpr import FourierDomainExpression
+from .voltagemixin import VoltageMixin
+from .currentmixin import CurrentMixin
 import sympy as sym
 import numpy as np
 
@@ -20,37 +22,46 @@ class FourierDomainNoiseExpression(NoiseExpression):
     """Frequency domain (one-sided) noise spectrum expression (amplitude
     spectral density).
 
-    This characterises a zero-mean Gaussian noise random process.
+    This characterises a wide-sense stationary, zero-mean Gaussian
+    noise random process.
 
-    When performing arithmetic on two noiseExpr expressions it is
-    assumed that they are uncorrelated unless they have the same nid
-    (noise indentifier).  If the nid is not specified, a new one is
-    created.
+    When performing arithmetic on two FourierDomainNoiseExpression
+    expressions it is assumed that they are uncorrelated unless they
+    have the same nid (noise indentifier).  If the nid is not
+    specified, a new one is created.
 
     Uncorrelated noise expressions are added in quadrature (on a power
-    basis).  Thus (Vnoisy(3) + Vnoisy(4)).expr = 5 since 5 = sqrt(3**2 + 4**2)
+    basis).  Thus (FourierDomainNoiseExpression(3) +
+    FourierDomainNoiseExpression(4)).expr = 5 since 5 = sqrt(3**2 +
+    4**2)
 
-    Vnoisy(3) != Vnoisy(3) since they are different noise realisations albeit
-    with the same properties.  However, Vnoisy(3).expr == Vnoisy(3).expr.
-    Similarly, Vnoisy(3, nid='n1') == Vnoisy(3, nid='n1') since they have the
-    same noise identifier and thus have the same realisation.
+    FourierDomainNoiseExpression(3) != FourierDomainNoiseExpression(3)
+    since they are different noise realisations albeit with the same
+    properties.  However, FourierDomainNoiseExpression(3).expr ==
+    FourierDomainNoiseExpression(3).expr.  Similarly,
+    FourierDomainNoiseExpression(3, nid='n1') ==
+    FourierDomainNoiseExpression(3, nid='n1') since they have the same
+    noise identifier and thus have the same realisation.
 
     Caution: The sum of two noise expressions generates a noise
     expression with a new nid.  This can lead to unexpected results
     since noise expressions with different nids are assumed to be
     uncorrelated.  For example, consider:
-    a = Vnoisy(3); b = Vnoisy(4)
-    a + b - b gives sqrt(41) and  a + b - a gives sqrt(34).
+    a = FourierDomainNoiseExpression(3);
+    b = FourierDomainNoiseExpression(4)
+    a + b - b gives sqrt(41) but a + b - a gives sqrt(34).
 
     This case is correctly handled by the SuperpositionVoltage and
     SuperpositionCurrent classes since each noise component is stored
     and considered separately.
 
-    (SuperpositionVoltage(a) + SuperpositionVoltage(b) - SuperpositionVoltage(b)).n gives 3 as expected.
+    (SuperpositionVoltage(a) + SuperpositionVoltage(b) -
+    SuperpositionVoltage(b)).n gives 3 as expected.
 
     """
     var = fsym
 
+    domain = 'fourier noise'
     domain_label = 'Frequency'
     domain_units = 'Hz'
     is_one_sided = True
@@ -79,14 +90,17 @@ class FourierDomainNoiseExpression(NoiseExpression):
         arg = expr(arg)        
         if isinstance(arg, AngularFourierDomainExpression):
             result = self.subs(omega / (2 * pi))
-            return result.subs(arg, **assumptions)            
+            cls = self._class_by_quantity(self.quantity, 'angular fourier noise')
+            return cls(result, nid=self.nid, **assumptions)
         elif isinstance(arg, FourierDomainExpression):
-            return self.subs(arg, **assumptions)
+            result = self.subs(arg, **assumptions)
+            cls = self._class_by_quantity(self.quantity, 'fourier noise')
+            return cls(result, nid=self.nid, **assumptions)            
 
         return super(FourierDomainNoiseExpression, self).transform(arg, **assumptions)
     
 
-class FourierDomainNoiseVoltage(FourierDomainNoiseExpression):
+class FourierDomainNoiseVoltage(VoltageMixin, FourierDomainNoiseExpression):
     """Voltage noise amplitude spectral density (units V/rtHz).
     This can be a function of linear frequency, f.  For example,
     to model an opamp voltage noise:
@@ -98,15 +112,8 @@ class FourierDomainNoiseVoltage(FourierDomainNoiseExpression):
     quantity_label = 'Voltage noise spectral density'
     units = 'V/rtHz'
 
-    
-    def __init__(self, val, **assumptions):
 
-        super(FourierDomainNoiseVoltage, self).__init__(val, **assumptions)
-        self._subs_classes = {AngularFourierDomainExpression: AngularFourierDomainNoiseVoltage,
-                             FourierDomainExpression: FourierDomainNoiseVoltage}
-
-
-class FourierDomainNoiseCurrent(FourierDomainNoiseExpression):
+class FourierDomainNoiseCurrent(CurrentMixin, FourierDomainNoiseExpression):
     """Current noise amplitude spectral density (units A/rtHz).
 
     This can be a function of linear frequency, f.  For example,
@@ -118,13 +125,12 @@ class FourierDomainNoiseCurrent(FourierDomainNoiseExpression):
     quantity_label = 'Current noise spectral density'
     units = 'A/rtHz'
 
-    def __init__(self, val, **assumptions):
 
-        super(FourierDomainNoiseCurrent, self).__init__(val, **assumptions)
-        self._subs_classes = {AngularFourierDomainExpression: AngularFourierDomainNoiseCurrent,
-                             FourierDomainExpression: FourierDomainNoiseCurrent}
-
+from .expressionclasses import expressionclasses
+classes = expressionclasses.make(FourierDomainNoiseExpression,
+                                 quantities=('voltage', 'current'))
+expressionclasses.add('fourier noise', classes)        
     
 from .texpr import TimeDomainCurrent, TimeDomainVoltage
 from .fexpr import f
-from .noiseomegaexpr import AngularFourierDomainNoiseVoltage, AngularFourierDomainNoiseCurrent
+from .noiseomegaexpr import AngularFourierDomainNoiseExpression

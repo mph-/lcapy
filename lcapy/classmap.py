@@ -1,0 +1,81 @@
+from .cexpr import ConstantExpression
+from .fexpr import FourierDomainExpression
+from .sexpr import LaplaceDomainExpression
+from .texpr import TimeDomainExpression
+from .omegaexpr import AngularFourierDomainExpression
+from .phasor import PhasorDomainExpression
+from .noiseomegaexpr import AngularFourierDomainNoiseExpression
+
+
+classmap = {'s': LaplaceDomainExpression,
+            'ivp': LaplaceDomainExpression,
+            'laplace': LaplaceDomainExpression,
+            't': TimeDomainExpression,
+            'time': TimeDomainExpression,            
+            'f': FourierDomainExpression,
+            'dc': ConstantExpression,
+            'ac': PhasorDomainExpression,
+            'n': AngularFourierDomainNoiseExpression}
+
+symbolmap = {'s': '(s)',
+             'laplace': '(s)',
+             't': '(t)',
+             'time': '(t)',
+             'f': '(f)',
+             'dc': '',
+             'ac': 'omega'}
+
+domainmap = {'constant': 'dc',
+             'phasor': 'ac',
+             'time': 't',
+             'laplace': 's',
+             'fourier': 'f',
+             'angular fourier': 'omega'}
+
+def domain_kind_to_class(kind):
+
+    if isinstance(kind, str) and kind[0] == 'n':
+        return classmap['n']
+    
+    try:
+        return classmap[kind]
+    except:
+        return PhasorDomainExpression
+
+
+def domain_kind_quantity_to_class(kind, quantity='undefined'):
+
+    cls = domain_kind_to_class(kind)
+    # TODO: There must be a better way than creating a dummy object.
+    return cls(0)._class_by_quantity(quantity)
+
+
+def domain_quantity_to_class(domain, quantity='undefined'):
+
+    kind = domainmap[domain]
+    return domain_kind_quantity_to_class(kind, quantity)
+
+
+def domain_kind_to_symbol(kind, name):
+
+    try:
+        return name + symbolmap[kind]
+    except:
+        return name + '(%s)' % kind
+    
+
+def domain_to_domain_kind(domain):
+    
+    try:
+        return domainmap[domain]
+    except:
+        return None
+
+
+def expr_to_domain_kind(expr):
+    
+    try:
+        return domainmap[expr.domain]
+    except:
+        return None
+    

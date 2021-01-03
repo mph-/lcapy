@@ -77,16 +77,15 @@ domain expression.  This can be complex.
 `FourierDomainExpression` represents a frequency domain expression.
 This can be complex.
 
-`NoiseExpresssion` represents a noise expression (amplitude spectral
+`FourierDomainNoiseExpresssion` represents a noise expression (amplitude spectral
 density).  This is real.
 
-`Impedance` represents a generalized impedance.
+`AngularFourierDomainNoiseExpresssion` represents a noise expression (amplitude spectral
+density).  This is real.
 
-`Admittance` represents a generalized admittance.
 
-
-Expressions with units
-----------------------
+Quantity expression classes
+---------------------------
 
 There are many classes that inherit from the `Expr` classes that
 include implicit units, such as voltage or current.  For example, the
