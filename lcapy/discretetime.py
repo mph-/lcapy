@@ -5,15 +5,15 @@ It introduces three special variables:
    k for discrete-frequency sequences
    z for z-transforms.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
 import sympy as sym
 from .sym import sympify
-from .nexpr import nexpr, DiscreteTimeDomainExpression, n
-from .kexpr import kexpr, DiscreteFourierDomainExpression, k
-from .zexpr import zexpr, ZDomainExpression, z
+from .nexpr import nexpr, n
+from .kexpr import kexpr, k
+from .zexpr import zexpr, z
 from .dsym import nsym, ksym, zsym, dt, df
 
 from .expr import expr as expr1

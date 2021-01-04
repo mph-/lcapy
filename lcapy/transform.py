@@ -7,6 +7,7 @@ Copyright 2018--2020 Michael Hayes, UCECE
 from .sym import sympify, pi
 from .symbols import f, s, t, omega, j, jw, jw0
 from .expr import expr as expr1
+from .expr import Expr
 
 
 def transform1(expr, arg, **assumptions):
@@ -86,6 +87,11 @@ def call(expr, arg, **assumptions):
 
 def select(expr, kind):
 
+    if not isinstance(kind, str):
+        return expr.subs(j * kind)                
+
+    # If kind is an expr, then will add 'dc', 'time', etc. as symbols.
+    
     if kind == 't':
         return expr.time()
     elif kind in ('dc', 'time'):
@@ -98,7 +104,8 @@ def select(expr, kind):
         return expr.angular_fourier()
     elif isinstance(kind, str) and kind.startswith('n'):
         return expr.angular_fourier()
-    return expr.subs(j * kind)
+    else:
+        raise RuntimeError('unknown kind')
 
 
 from .cexpr import ConstantExpression    

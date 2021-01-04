@@ -153,10 +153,12 @@ def parse(string, symbols=None, evaluate=True, local_dict=None, **assumptions):
     for symbol in s.atoms(Symbol):
         name = symbol_name(symbol)
         if name not in symbols:
-            if name == 'ivp':
-                raise ValueError('Huh')
             if False:
-                print('Adding symbol %s' % name)
+                print("Adding symbol '%s'" % name)
+                if name in ('ivp', 'super'):
+                    print("Unexpected symbol '%s'" % name)                
+                    import pdb; pdb.set_trace()
+                
             symbols[name] = symbol
 
     return s

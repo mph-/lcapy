@@ -29,8 +29,6 @@ class SubNetlist(NetlistMixin, MNAMixin):
         """ kind can be 't', 'dc', 'ac', 's', 'time', 'ivp', 'n*', omega, 
         or an integer"""
         
-        if kind == omega:
-            return
         if not isinstance(kind, str):
             return
         if kind[0] == 'n':

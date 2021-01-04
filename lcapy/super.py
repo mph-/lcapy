@@ -433,17 +433,19 @@ class Superposition(ExprDict):
               include the DC and AC components).
 
         """
-        if kind == 'super':
-            return self
-        elif kind == 'time':
-            return self.time()
-        elif kind in ('ivp', 'laplace'):
-            return self.laplace()
 
-        if isinstance(kind, str) and kind[0] == 'n':
-            if kind not in self:
-                return self.decompose_to_domain(0, 'n')
-            return self[kind]
+        if isinstance(kind, str):
+            if kind == 'super':
+                return self
+            elif kind == 'time':
+                return self.time()
+            elif kind in ('ivp', 'laplace'):
+                return self.laplace()
+
+            if isinstance(kind, str) and kind[0] == 'n':
+                if kind not in self:
+                    return self.decompose_to_domain(0, 'n')
+                return self[kind]
         
         obj = self
         if 't' in self and (kind == omega or 't' != kind):
@@ -452,7 +454,7 @@ class Superposition(ExprDict):
             obj = self.decompose()
 
         if kind not in obj:
-            if kind not in ('s', 'dc', 'ac', 'n', 't'):
+            if isinstance(kind, Expr):            
                 kind = 'ac'
             return obj.decompose_to_domain(0, kind)
         return obj[kind]
@@ -460,18 +462,20 @@ class Superposition(ExprDict):
     def netval(self, kind):
 
         def kind_keyword(kind):
-            if isinstance(kind, str) and kind[0] == 'n':
+            if not isinstance(kind, str):
+                return 'ac'
+            
+            if kind[0] == 'n':
                 return 'noise'
             elif kind in ('ivp', 'laplace'):
                 return 's'
             elif kind in ('t', 'time'):
                 return ''                
-            elif not isinstance(kind, str):
-                return 'ac'
             return kind
 
         val = self.select(kind)
-        if kind in ('s', 'ivp') and (val.is_causal or val.is_dc or val.is_ac):
+        if (isinstance(kind, str) and kind in ('s', 'ivp') and
+            (val.is_causal or val.is_dc or val.is_ac)):
             # Convert to time representation so that can re-infer
             # causality, etc.
             return val.time()
