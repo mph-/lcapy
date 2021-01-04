@@ -62,7 +62,7 @@ class ConstantExpression(Expr):
         return self.laplace(**assumptions).phasor(**assumptions)
 
     def time(self, **assumptions):
-        return self.wrap(TimeDomainExpression(self, **assumptions))
+        return self.change(self, domain='time', **assumptions)
 
     def laplace(self):
         """Convert to Laplace domain representation."""
@@ -77,7 +77,7 @@ class ConstantTimeExpression(ConstantExpression):
 class ConstantFrequencyExpression(ConstantExpression):
 
     def laplace(self, **assumptions):
-        return self.wrap(LaplaceDomainExpression(self, **assumptions))
+        return self.change(self, domain='laplace', **assumptions)
 
     def time(self, **assumptions):
         """Convert to time domain."""

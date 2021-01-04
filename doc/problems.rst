@@ -12,7 +12,23 @@ Common problems
 Equality
 --------
 
-SymPy comparison uses structural equality, see https://docs.sympy.org/latest/gotchas.html
+For equality Lcapy requires expressions to have the same domain and quantity.  There are some exceptions to the domain requirement when comparing constants.  However, a voltage expression is not equal to a current expression.   For example::
+
+    >>> V = voltage(7)
+    >>> I = current(7)
+    >>> V == I
+    False
+    >>> V.quantity
+    'voltage'
+    >>> I.quantity
+    'current'    
+
+The quantity can be removed using the `as_expr()` method.  For example::
+ 
+   >>> V.as_expr() == I.as_expr()
+   True
+
+Even when expressions have the same domain and quantity a test for equality can fail.  This is because SymPy comparison uses structural equality, see https://docs.sympy.org/latest/gotchas.html
 
 One way to test for equality is to subtract the expressions, simplify, and test for 0.  For example,
    >>> (x - y).simplify() == 0

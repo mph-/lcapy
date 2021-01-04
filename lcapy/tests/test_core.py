@@ -90,7 +90,7 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.inverse_laplace(causal=True), 4 * exp(2 * t) * H(t) + DiracDelta(t), "inverse Laplace incorrect.")
 
-        aw = a(j * omega, causal=True)
+        aw = a.subs(j * omega, causal=True)
         self.assertEqual2(aw.real, (omega**2 - 4) / (omega**2 + 4), "real part incorrect.")
         self.assertEqual2(aw.imag, -4 * omega / (omega**2 + 4), "imag part incorrect.")
 
@@ -285,17 +285,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.evaluate(2), 0, "scalar evaluate incorrect.")
         self.assertEqual(a.laplace(), 1, "Laplace transform incorrect.")
-
-    def test_jomega(self):
-        """Lcapy: check jomega
-
-        """
-
-        a = LaplaceDomainExpression('s+2')
-        b = a(j * omega, causal=True)
-
-        self.assertEqual2(b, j * omega + 2, "Substitution failed.")
-        self.assertEqual2(a.jomega, j * omega + 2, "jomega failed.")
 
     def test_subs1(self):
         """Lcapy: check subs

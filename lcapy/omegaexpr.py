@@ -48,7 +48,7 @@ class AngularFourierDomainExpression(Expr):
         expr = self.subs(2 * pi * fsym)
         result = inverse_fourier_transform(expr, fsym, tsym)
 
-        return self.wrap(TimeDomainExpression(result, **assumptions))                
+        return self.change(result, 'time')
 
     def time(self, **assumptions):
         """Alias for inverse_fourier."""
@@ -61,18 +61,18 @@ class AngularFourierDomainExpression(Expr):
         return self
     
     def fourier(self, **assumptions):
-        """Convert to angular Fourier domain."""
+        """Convert to Fourier domain."""
         
         from .symbols import f
         
         result = self.subs(2 * pi * f)
-        return self.wrap(result)                
+        return result
 
     def laplace(self, **assumptions):
         """Convert to Laplace domain."""
 
-        result = self.time().laplace()
-        return self.wrap(LaplaceDomainExpression(result, **assumptions))
+        result = self.time(**assumptions).laplace()
+        return result
 
     def phasor(self, **assumptions):
         """Convert to phasor domain."""

@@ -55,7 +55,20 @@ variable, for example,
    >>> V = s / (s**2 + 2 * s + 3)
 
 The `discretetime` module adds additional domain variables `n`, `k`, and `z`, see :ref:`discrete_time`.
-   
+
+
+Domains and quantity
+--------------------
+
+All Lcapy expressions have a domain (laplace, Fourier, etc.) and a
+quantity (voltage, current, undefined) etc.   For example::
+
+   >>> V = voltage(5 * t)
+   >>> V.domain
+   'time'
+   >>> V.quantity
+   'voltage'
+
    
 User defined symbols
 --------------------
@@ -147,6 +160,8 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 - `denominator` returns denominator
 
 - `degree` returns degree (order) of rational function (maximum of numerator and denominator degrees)
+
+- `domain` returns a string identifying the domain (laplace, fourier, etc.)
   
 - `domain_label` returns string describing domain of expression
   
@@ -185,6 +200,8 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 - `phase_degrees` returns phase (degrees)    
 
 - `polar` returns expression in form `mag * exp(j * phase)`
+
+- `quantity` returns a string identifying the quantity (voltage, current, undefined, etc.)  
 
 - `real` returns real part  
 
@@ -422,7 +439,7 @@ Transformation
 
 - `V(jomega)` returns the phasor domain transformation
 
-For example:
+For example::
 
    >>> from lcapy import *
    >>> V1 = voltage('3 * exp(-2 * t)')
@@ -434,19 +451,63 @@ For example:
    ─────
    s + 2
 
-  
+
+Here's another example that shows a subtle difference between the angular Fourier and phasor domains::
+
+   >>> Z = impedance(1 / s)
+   >>> Z(omega)
+      ⎛ ω ⎞    
+    δ⎜───⎟    
+     ⎝2⋅π⎠   ⅉ
+    ────── - ─
+      2      ω
+   >>> Z(jomega)
+    -ⅉ 
+    ───
+     ω 
+
+In many circumstances the results are identical.  This can cause confusion when comparing expressions that look the same but that have different domains.   For example,
+
+    >>> Y = admittance(s)
+    >>> Y(omega)
+    ⅉ⋅ω
+    >>> Y(jomega)
+    ⅉ⋅ω
+    >>> 
+    >>> Y(omega).domain
+    'angular fourier'
+    >>> Y(jomega).domain
+    'phasor'
+    >>> Y(omega) == Y(jomega)
+    False
+
+If you have a cunning idea of how to resolve this, or make it less confusing, please report an issue.   Note, you can use the `subs` method to replace `s` with `j * omega`.  The result is in the angular Fourier domain::
+
+    >>> Y.subs(jomega)
+    ⅉ⋅ω
+    >>> Y.subs(jomega).domain
+    'angular fourier'
+    
+   
 Substitution
 ------------
 
 Substitution replaces sub-expressions with new sub-expressions in an
 expression.  It is most commonly used to replace the underlying
-variable with a constant, for example,
+variable with a constant, for example::
 
    >>> a = 3 * s
+   >>> b = a.subs(2)
+   >>> b
+   6   
+
+Since the replacement expression is a constant, the substitution can also be performed using the call notation::
+   
    >>> b = a(2)
    >>> b
    6
 
+   
 
 Evaluation
 ----------

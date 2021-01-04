@@ -80,7 +80,7 @@ class ZDomainExpression(DiscreteExpression):
 
         assumptions = self.assumptions.merge(**assumptions)
         result = inverse_ztransform(self.expr, self.var, nsym, **assumptions)
-        return self.wrap(DiscreteTimeDomainExpression(result))
+        return self.change(result, domain='discrete time', **assumptions)
 
     def IZT(self, **assumptions):
         return self.inverse_ztransform(**assumptions)

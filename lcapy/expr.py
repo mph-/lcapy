@@ -1498,12 +1498,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         expr = new
         if isinstance(new, Expr):
             if old == self.var:
-                cls = new.__class__
+                domain = new.domain
             else:
-                cls = self.__class__                
+                domain = self.domain
             expr = new.expr
         else:
-            cls = self.__class__
+            domain = self.domain
             expr = sympify(expr)
 
         old = symbol_map(old)
@@ -1523,7 +1523,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         if False and result.is_Piecewise and result == sym.Piecewise():
             result = sym.nan
 
-        return cls(result, **self.assumptions)
+        return self.change(result, domain=domain, **self.assumptions)
 
     def transform(self, arg, **assumptions):
         """Transform into a different domain.
@@ -2293,10 +2293,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         result = foo(coeffs)
         return self.__class__(result, **self.assumptions)
 
-    def wrap(self, expr):
-        from .transform import wrap
+    def change(self, expr, domain=None, **assumptions):
+        """Change expression class."""
 
-        return wrap(self, expr)
+        if domain is None:
+            domain = self.domain
+
+        quantity = self.quantity
+
+        cls = self._class_by_quantity(quantity, domain)        
+        return cls(expr, **assumptions)
     
 
 def exprcontainer(arg, **assumptions):

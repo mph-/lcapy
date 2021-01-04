@@ -117,7 +117,7 @@ class LaplaceDomainExpression(Expr):
         result = inverse_laplace_transform(self.expr, self.var, tsym,
                                            **assumptions)
 
-        return self.wrap(TimeDomainExpression(result, **assumptions))
+        return self.change(result, domain='time', **assumptions)
 
     def ILT(self, **assumptions):
         """Attempt inverse Laplace transform.
@@ -157,18 +157,19 @@ class LaplaceDomainExpression(Expr):
         from .symbols import f
         
         result = self.time(**assumptions).fourier(**assumptions)
-        return self.wrap(result)
+        return result
 
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
         
         result = self.time(**assumptions).angular_fourier(**assumptions)
-        return self.wrap(result)            
+        return result
 
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        return PhasorDomainFrequencyExpression.from_laplace(self, **assumptions)
+        result = PhasorDomainFrequencyExpression.from_laplace(self, **assumptions)
+        return self.change(result, domain='phasor', **assumptions)
 
     def transient_response(self, tvector=None):
         """Evaluate transient (impulse) response."""

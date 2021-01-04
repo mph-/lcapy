@@ -1,4 +1,5 @@
 from lcapy import *
+from lcapy.phasor import PhasorDomainImpedance
 import unittest
 import sympy as sym
 
@@ -53,13 +54,19 @@ class LcapyTester(unittest.TestCase):
     def test_s_to_jomega(self):
 
         a = expr(2 * s, causal=True)
-        b = a.transform(jomega)
+        b = a.subs(jomega)
 
-        self.assertEqual(b, 2 * jomega, 'explicit transform s -> jomega')
+        self.assertEqual(b, 2 * jomega, 'subs s -> jomega')
 
         a = 2 * s
-        b = a.transform(jomega, causal=True)        
-        self.assertEqual(b, 2 * jomega, 'explicit transform s -> jomega')
+        b = a.subs(jomega, causal=True)        
+        self.assertEqual(b, 2 * jomega, 'sub s -> jomega')
+
+    def test_s_to_phasor(self):
+
+        a = impedance(2 * s, causal=True)
+        b = a.transform(jomega)
+        self.assertEqual(b, PhasorDomainImpedance(2 * jomega), 'explicit transform s -> jomega')
 
     def test_s_to_omega(self):
 

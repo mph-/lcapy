@@ -59,7 +59,8 @@ __all__ = ('phasor', )
 class PhasorDomainExpression(Expr):
 
     is_phasor_domain = True
-    domain_name = 'phasor'
+    domain = 'phasor'
+    domain_units = ''
 
     def __init__(self, val, **assumptions):
 
@@ -120,6 +121,9 @@ class PhasorDomainExpression(Expr):
     def angular_fourier(self, **assumptions):
         """Angular Fourier transform."""
 
+        if self.has(omega):
+            print('Warning: expression contains omega, should substitute with a different symbol')
+        
         return self.time().angular_fourier()            
     
     def laplace(self, **assumptions):
@@ -210,7 +214,7 @@ class PhasorDomainTimeExpression(PhasorDomainExpression):
         result = check.amp * exp(j * check.phase)
         assumptions['omega'] = check.omega
 
-        return cls.wrap(expr, PhasorDomainTimeExpression(result, **assumptions))
+        return cls.change(expr, result, domain='phasor', **assumptions)
 
     def time(self, **assumptions):
         """Convert to time domain representation."""
@@ -248,8 +252,8 @@ class PhasorDomainFrequencyExpression(PhasorDomainExpression):
             print('Should convert %s expression to time-domain first' % expr.quantity)
 
         result = expr.laplace(**assumptions).replace(s, j * omega)
-        return cls.wrap(expr, PhasorDomainFrequencyExpression(result, omega=omega,
-                                                              **assumptions))
+        return cls.change(expr, PhasorDomainFrequencyExpression(result, omega=omega,
+                                                                **assumptions))
     
     def time(self, **assumptions):
         """Convert to time domain representation."""
@@ -257,7 +261,7 @@ class PhasorDomainFrequencyExpression(PhasorDomainExpression):
 
         omega = self.omega
         result = LaplaceDomainExpression(self.replace(j * omega, s))
-        return self.wrap(result.time())
+        return self.change(result.time())
 
     def as_expr(self):
         return PhasorDomainFrequencyExpression(self)
@@ -303,7 +307,18 @@ def phasor(arg, **assumptions):
 
     return PhasorDomainTimeExpression(arg, **assumptions)
     
-    
+
+from .expressionclasses import expressionclasses
+
+classes = expressionclasses.make(PhasorDomainExpression)
+
+classes['voltage'] = PhasorDomainVoltage
+classes['current'] = PhasorDomainCurrent
+classes['admittance'] = PhasorDomainAdmittance
+classes['impedance'] = PhasorDomainImpedance
+classes['transfer'] = PhasorDomainTransferFunction
+expressionclasses.add('phasor', classes)
+
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression, TimeDomainVoltage, TimeDomainCurrent
 from .expr import Expr

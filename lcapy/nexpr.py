@@ -85,7 +85,7 @@ class DiscreteTimeDomainExpression(SequenceExpression):
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = ztransform(self.expr, self.var, zsym, evaluate)
-        return self.wrap(ZDomainExpression(result, **assumptions))
+        return self.change(result, domain='Z', **assumptions)
 
     def ZT(self, **assumptions):
         return self.ztransform(**assumptions)
@@ -132,7 +132,7 @@ class DiscreteTimeDomainExpression(SequenceExpression):
             N = sympify('N')
 
         result = DFT(self.expr, nsym, ksym, N, evaluate=evaluate)
-        return self.wrap(DiscreteFourierDomainExpression(result))        
+        return self.change(result, domain='discrete fourier')
     
     def delay(self,m):
         """Delay signal by m samples."""

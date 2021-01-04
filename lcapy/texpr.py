@@ -73,7 +73,7 @@ class TimeDomainExpression(Expr):
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = laplace_transform(self.expr, self.var, ssym, evaluate=evaluate)
-        return self.wrap(LaplaceDomainExpression(result, **assumptions))
+        return self.change(result, domain='laplace', **assumptions)
 
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
@@ -92,7 +92,7 @@ class TimeDomainExpression(Expr):
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = fourier_transform(self.expr, self.var, fsym, evaluate=evaluate)
-        return self.wrap(FourierDomainExpression(result, **assumptions))
+        return self.change(result, domain='fourier', **assumptions)
 
     def angular_fourier(self, evaluate=True, **assumptions):
         """Attempt angular Fourier transform."""
@@ -102,7 +102,7 @@ class TimeDomainExpression(Expr):
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = self.fourier(evaluate, **assumptions).subs(f, omega / (2 * pi))
         # Could optimise...
-        return self.wrap(AngularFourierDomainExpression(result, **assumptions))        
+        return self.change(result, domain='angular fourier', **assumptions)
 
     def time(self, **assumptions):
         return self

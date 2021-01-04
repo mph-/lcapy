@@ -44,14 +44,14 @@ class FourierDomainExpression(Expr):
         from .symbols import omega
         
         result = self.subs(omega / (2 * pi))
-        return self.wrap(result)            
+        return result
 
     def inverse_fourier(self, evaluate=True, **assumptions):
         """Attempt inverse Fourier transform."""
 
         result = inverse_fourier_transform(self.expr, self.var, tsym, evaluate=evaluate)
 
-        return self.wrap(TimeDomainExpression(result, **assumptions))        
+        return self.change(result, 'time')
 
     def IFT(self, **assumptions):
         """Convert to t-domain.   This is an alias for inverse_fourier."""
@@ -66,13 +66,13 @@ class FourierDomainExpression(Expr):
         from .symbols import omega
         
         result = self.subs(omega / (2 * pi))
-        return self.wrap(result)            
+        return result
     
     def laplace(self, **assumptions):
         """Determine one-side Laplace transform with 0- as the lower limit."""
 
-        result = self.time().laplace()
-        return self.wrap(LaplaceDomainExpression(result, **assumptions))
+        result = self.time(**assumptions).laplace()
+        return result
     
     def phasor(self, **assumptions):
         """Convert to phasor domain."""

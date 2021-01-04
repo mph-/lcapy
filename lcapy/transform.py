@@ -63,21 +63,8 @@ def transform(expr, arg, **assumptions):
     arg = expr1(arg)
 
     new = transform1(expr, arg, **assumptions)
-    return wrap(expr, new)
+    return new
 
-
-def wrap(old, new):
-
-    if not hasattr(old, 'quantity'):
-        return new
-    
-    quantities = {'voltage': voltage, 'current': current,
-                  'impedance': impedance, 'admittance': admittance,
-                  'transfer': transfer}
-    if old.quantity not in quantities:
-        return new
-    return quantities[old.quantity](new)    
-    
 
 def call(expr, arg, **assumptions):
 
