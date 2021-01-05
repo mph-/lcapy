@@ -1,0 +1,97 @@
+"""This module defines the domain classes.
+
+Copyright 2021 Michael Hayes, UCECE
+
+"""
+
+
+class Domain(object):
+    is_undefined_domain = False
+    is_constant_domain = False
+    is_time_domain = False
+    is_laplace_domain = False
+    is_fourier_domain = False
+    is_angular_fourier_domain = False
+    is_phasor_domain = False
+    is_phasor_time_domain = False
+    is_phasor_frequency_domain = False    
+    is_discrete_time_domain = False
+    is_discrete_fourier_domain = False
+    is_Z_domain = False
+    is_transform_domain = False        
+
+
+class UndefinedDomain(Domain):
+    domain = 'undefined'
+    domain_label = ''
+    domain_units = ''
+    is_undefined_domain = True
+
+
+class ConstantDomain(Domain):    
+    domain = 'constant'
+    domain_label = ''    
+    domain_units = ''
+    is_constant_domain = True
+    
+
+class TimeDomain(Domain):
+    domain = 'time'
+    domain_label = 'Time'
+    domain_units = 's'
+    is_time_domain = True
+
+    
+class LaplaceDomain(Domain):
+    domain = 'laplace'        
+    domain_label = 'Laplace frequency'
+    domain_units = 'rad/s'
+    is_laplace_domain = True
+    is_transform_domain = True
+
+    
+class FourierDomain(Domain):
+    domain = 'fourier'    
+    domain_label = 'Frequency'
+    domain_units = 'Hz'
+    is_fourier_domain = True
+    is_transform_domain = True    
+
+    
+class AngularFourierDomain(Domain):
+    domain = 'angular fourier'
+    domain_label = 'Angular frequency'
+    domain_units = 'rad/s'
+    is_angular_fourier_domain = True
+    is_transform_domain = True    
+    
+
+class PhasorDomain(Domain):
+    domain = 'phasor'
+    domain_label = 'Phasor'
+    domain_units = ''
+    is_phasor_domain = True
+
+
+class DiscreteTimeDomain(Domain):
+    domain = 'discrete time'    
+    domain_label = 'Discrete time'
+    domain_units = ''
+    is_discrete_time_domain = True
+    is_transform_domain = False    
+    
+
+class DiscreteFourierDomain(Domain):
+    domain = 'discrete fourier'
+    domain_label = 'Discrete Fourier'    
+    domain_units = ''
+    is_discrete_fourier_domain = True
+    is_transform_domain = True    
+    
+    
+class ZDomain(Domain):
+    domain = 'Z'
+    domain_label = 'Z'    
+    domain_units = ''
+    is_Z_domain = True
+    is_transform_domain = True    
