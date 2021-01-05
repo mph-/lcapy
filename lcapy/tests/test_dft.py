@@ -31,3 +31,9 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(nexpr('2 * exp(-j * 2 * pi * n / N)').DFT(), 
                          kexpr('2 * N * delta(k - 1)'), "2 * exp(-j * 2 * pi * n / N)")
+
+
+    def test_IDFT(self):
+
+        self.assertEqual(kexpr(1).IDFT(), delta(n), "1")
+        self.assertEqual(delta(k).IDFT(), nexpr('1 / N'), "delta(k)")                

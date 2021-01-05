@@ -1113,7 +1113,6 @@ class K(Dummy):
 
         if cct.kind in ('s', 'ivp', 'laplace'):
             # FIXME, generalise for other domains...
-            # The Impedance class really needs fixing.
             ZM = K.expr * sym.sqrt(ZL1 * ZL2 / s**2) * s
         else:
             ZM = K.expr * sym.sqrt(ZL1 * ZL2)

@@ -33,7 +33,7 @@ from .expr import expr
 from .functions import sin, cos, exp, sqrt
 from .expr import Expr
 from .cexpr import ConstantExpression
-from .omegaexpr import AngularFourierDomainExpression
+from .omegaexpr import AngularFourierDomainExpression, omega
 from .voltagemixin import VoltageMixin
 from .currentmixin import CurrentMixin
 from .admittancemixin import AdmittanceMixin

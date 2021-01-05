@@ -85,7 +85,7 @@ class DiscreteFourierDomainExpression(SequenceExpression):
             N = sympify('N')
 
         result = IDFT(self.expr, ksym, nsym, N, evaluate=evaluate)
-        return self.change(result, domain='discrete time', **assumptions)
+        return self.change(result, domain='discrete time')
     
     def ZT(self, **assumptions):
         return self.IDFT().ZT(**assumptions)
