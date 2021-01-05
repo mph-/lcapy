@@ -1,11 +1,12 @@
 """This module provides the DiscreteFourierDomainExpression class to
  represent k-domain (discrete Fourier domain) expressions.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
+from .domains import DiscreteFourierDomain
 from .fourier import inverse_fourier_transform
 from .functions import exp
 from .sym import j, oo, pi
@@ -16,15 +17,10 @@ from sympy import Sum
 
 __all__ = ('kexpr', )
 
-class DiscreteFourierDomainExpression(SequenceExpression):
+class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression):
     """Discrete Fourier domain expression or symbol."""
 
     var = ksym
-    domain = 'Discrete Fourier'
-    domain_label = 'Discrete frequency'    
-    domain_units = 'Hz'
-    is_discrete_fourier_domain = True
-    is_transform_domain = True    
 
     def __init__(self, val, **assumptions):
 

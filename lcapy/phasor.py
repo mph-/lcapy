@@ -22,12 +22,13 @@ domain by substituting jomega for s, where omega is the angular
 frequency of the phasor.
 
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
 from .acdc import ACChecker
+from .domains import PhasorDomain
 from .sym import j, omegasym
 from .expr import expr
 from .functions import sin, cos, exp, sqrt
@@ -56,11 +57,7 @@ __all__ = ('phasor', )
 
 
 
-class PhasorDomainExpression(Expr):
-
-    is_phasor_domain = True
-    domain = 'phasor'
-    domain_units = ''
+class PhasorDomainExpression(PhasorDomain, Expr):
 
     def __init__(self, val, **assumptions):
 
@@ -71,35 +68,6 @@ class PhasorDomainExpression(Expr):
 
         assumptions['ac'] = True
         super (PhasorDomainExpression, self).__init__(val, **assumptions)
-    
-    def _class_by_quantity(self, quantity):
-
-        if quantity == 'voltage':
-            return PhasorDomainVoltage
-        elif quantity == 'current':
-            return PhasorDomainCurrent
-        elif quantity == 'impedance':
-            return PhasorDomainImpedance
-        elif quantity == 'admittance':
-            return PhasorDomainAdmittance
-        elif quantity == 'transfer':
-            return PhasorDomainTransferFunction                
-        raise ValueError('Unknown quantity %s' % quantity)
-    
-    def as_voltage(self):
-        return PhasorDomainVoltage(self)
-
-    def as_current(self):
-        return PhasorDomainCurrent(self)    
-
-    def as_impedance(self):
-        return PhasorDomainImpedance(self)
-
-    def as_admittance(self):
-        return PhasorDomainAdmittance(self)
-
-    def as_transfer(self):
-        return PhasorDomainTransferFunction(self)    
     
     @property
     def omega(self):

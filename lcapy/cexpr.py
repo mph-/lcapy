@@ -5,6 +5,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 """
 
 from .expr import Expr
+from .domains import ConstantDomain
 from .sym import symbols_find
 from .voltagemixin import VoltageMixin
 from .currentmixin import CurrentMixin
@@ -12,19 +13,13 @@ from .admittancemixin import AdmittanceMixin
 from .impedancemixin import ImpedanceMixin
 from .transfermixin import TransferMixin
 
-class ConstantExpression(Expr):
+class ConstantExpression(ConstantDomain, Expr):
     """Constant real expression or symbol.
 
     If symbols in the expression are known to be negative, use
     ConstantExpression(expr, positive=False)
 
     """
-
-    domain = 'constant'
-    domain_units = ''
-    domain_label = ''    
-    is_constant_domain = True
-    
 
     def __init__(self, val, **assumptions):
 

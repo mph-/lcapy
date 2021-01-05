@@ -1,26 +1,22 @@
 """This module provides the FourierDomainExpression class to represent
 f-domain (Fourier domain) expressions.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
+from .domains import FourierDomain
 from .fourier import inverse_fourier_transform
 from .expr import Expr, expr
 from .sym import fsym, ssym, tsym, pi
 from sympy import Integral, Expr as symExpr
 
-class FourierDomainExpression(Expr):
+class FourierDomainExpression(FourierDomain, Expr):
 
     """Fourier domain expression or symbol."""
 
     var = fsym
-    domain = 'fourier'    
-    domain_label = 'Frequency'
-    domain_units = 'Hz'
-    is_fourier_domain = True
-    is_transform_domain = True    
 
     def __init__(self, val, **assumptions):
 

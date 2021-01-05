@@ -14,6 +14,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 from __future__ import division
 from .assumptions import Assumptions
+from .domains import UndefinedDomain
 from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, symdebug, AppliedUndef
 from .sym import capitalize_name, tsym, symsymbol, symbol_map
@@ -214,26 +215,11 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
         return expr((e.subs(*args, **kwargs) for e in self))
 
     
-class Expr(ExprPrint, ExprMisc):
+class Expr(UndefinedDomain, ExprPrint, ExprMisc):
     """Decorator class for sympy classes derived from sympy.Expr"""
 
     var = None
-    domain = 'undefined'
-    domain_label = ''
-    quantity = 'undefined'
-    quantity_label = ''
-    is_transform_domain = False        
-    is_constant_domain = False    
-    is_time_domain = False
-    is_laplace_domain = False    
-    is_fourier_domain = False
-    is_angular_fourier_domain = False
-    is_phasor_domain = False
-    is_phasor_time_domain = False
-    is_phasor_frequency_domain = False    
-    is_discrete_time_domain = False
-    is_discrete_fourier_domain = False
-    is_Z_domain = False        
+    quantity = 'undefined'    
     is_always_causal = False
     is_voltage = False
     is_current = False

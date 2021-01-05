@@ -1,11 +1,12 @@
 """This module provides the AngularFourierDomainExpression class to
 represent omega-domain (angular frequency Fourier domain) expressions.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
+from .domains import AngularFourierDomain
 from .fourier import inverse_fourier_transform
 from .expr import Expr, expr
 from .sym import fsym, ssym, tsym, omegasym, omega0sym, j, pi
@@ -18,15 +19,10 @@ from sympy import Expr as symExpr
 
 __all__ = ('omegaexpr', )
 
-class AngularFourierDomainExpression(Expr):
+class AngularFourierDomainExpression(AngularFourierDomain, Expr):
     """Fourier domain expression or symbol (angular frequency)."""
 
     var = omegasym
-    domain = 'angular fourier'
-    domain_label = 'Angular frequency'
-    domain_units = 'rad/s'
-    is_angular_fourier_domain = True
-    is_transform_domain = True    
 
     def __init__(self, val, **assumptions):
 

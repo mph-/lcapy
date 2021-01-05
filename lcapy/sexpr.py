@@ -1,11 +1,12 @@
 """This module provides the LaplaceDomainExpression class to represent
 s-domain (Laplace domain) expressions.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
+from .domains import LaplaceDomain
 from .laplace import inverse_laplace_transform
 from .sym import ssym, tsym, j, pi, sympify
 from .ratfun import _zp2tf, _pr2tf, Ratfun
@@ -18,15 +19,10 @@ from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
 __all__ = ('sexpr', 'zp2tf', 'tf', 'pr2tf')
 
 
-class LaplaceDomainExpression(Expr):
+class LaplaceDomainExpression(LaplaceDomain, Expr):
     """s-domain expression or symbol."""
 
     var = ssym
-    domain = 'laplace'    
-    domain_label = 'Laplace frequency'
-    domain_units = 'rad/s'    
-    is_laplace_domain = True
-    is_transform_domain = True
 
     def __init__(self, val, **assumptions):
 

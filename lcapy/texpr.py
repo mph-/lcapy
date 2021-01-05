@@ -1,11 +1,12 @@
 """This module provides the TimeDomainExpression class to represent
 time domain expressions.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
+from .domains import TimeDomain
 from .expr import Expr
 from .functions import exp
 from .sym import fsym, ssym, tsym, j, oo, tausym
@@ -16,15 +17,10 @@ from sympy import Heaviside, limit, Integral, Expr as symExpr
 
 __all__ = ('texpr', )
 
-class TimeDomainExpression(Expr):
+class TimeDomainExpression(TimeDomain, Expr):
     """t-domain expression or symbol."""
 
     var = tsym
-    domain = 'time'
-    domain_label = 'Time'
-    domain_units = 's'
-    is_time_domain = True
-    is_transform_domain = False    
 
     def __init__(self, val, **assumptions):
 

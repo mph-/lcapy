@@ -219,7 +219,7 @@ class Superposition(ExprDict):
         return self.has_ac and self.ac_keys() == list(self.keys())
 
     @property
-    def is_phasor(self):
+    def is_phasor_domain(self):
         """True if has single AC component."""
 
         return self.ac and len(list(self.keys())) == 1

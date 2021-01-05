@@ -1,10 +1,11 @@
 """This module provides the ZDomainExpression class to represent z-domain expressions.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
+from .domains import ZDomain
 from .ztransform import inverse_ztransform
 from .sym import j, pi
 from .dsym import nsym, ksym, zsym, dt
@@ -19,15 +20,11 @@ from sympy import Eq, div, limit, oo, Sum
 
 __all__ = ('zexpr', )
 
-class ZDomainExpression(DiscreteExpression):
+class ZDomainExpression(ZDomain, DiscreteExpression):
     """z-domain expression or symbol."""
 
     var = zsym
-    domain = 'Z'
-    domain_label = 'Z'    
-    domain_units = ''
-    is_Z_domain = True
-    is_transform_domain = True    
+
 
     def __init__(self, val, **assumptions):
 

@@ -1,11 +1,12 @@
 """This module provides the DiscreteTimeDomainExpression class to
 represent discrete-time expressions.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
+from .domains import DiscreteTimeDomain
 from .seqexpr import SequenceExpression
 from .sequence import Sequence
 from .functions import exp
@@ -18,15 +19,11 @@ from sympy import Sum, summation, limit
 
 __all__ = ('nexpr', )
 
-class DiscreteTimeDomainExpression(SequenceExpression):
+class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
     """Discrete time expression or symbol."""
 
     var = nsym
-    domain = 'discrete time'    
-    domain_label = 'Discrete time'
-    domain_units = ''
-    is_discrete_time_domain = True
-    is_transform_domain = False
+
 
     def __init__(self, val, **assumptions):
 
