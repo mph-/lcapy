@@ -67,6 +67,10 @@ class Netlist(NetlistMixin, NetfileMixin):
                 pass
 
     def _groups(self):
+        """Return dictionary of source groups keyed by domain.  A source can appear
+        in multiple groups, for example, a source with voltage 3 + u(t) will
+        appear in both the dc and t groups.
+        """
 
         groups = self.independent_source_groups()        
             

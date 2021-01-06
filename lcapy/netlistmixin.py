@@ -1611,18 +1611,23 @@ class NetlistMixin(object):
         """Return dictionary of source groups.  Each group is a list of
         sourcenames that can be analysed at the same time.  Noise
         sources have separate groups since they are assumed to be
-        uncorrelated.
+        uncorrelated.  The source groups are keyed by the names of
+        superposition decomposition keys: 'dc', 's', 't', 'n*', and omega,
+        where omega is an expression for the angular frequency of a phasor,
+        and `n*` is a noise identifier.
+        
+        If transform is False, the returned keys are 'dc', 't', 's', and 'n*'.
 
         If transform is True, the source values are decomposed into
         the different transform domains to determine which domains are
         required.  In this case, a source can appear in multiple
         groups.  For example, if a voltage source V1 has a value 10 +
-        5 * cos(omega * t), V1 will be added to the dc and ac groups.
+        5 * cos(omega * t), V1 will be added to the dc and omega groups.
 
         """
 
         groups = {}
-        for key, elt in self.elements.items():
+        for eltname, elt in self.elements.items():
             if not elt.independent_source:
                 continue
             cpt = elt.cpt
@@ -1635,11 +1640,12 @@ class NetlistMixin(object):
                 Isc = cpt.Isc
                 if transform:
                     Isc = Isc.decompose()                
-                cpt_kinds = Isc.keys()                
+                cpt_kinds = Isc.keys()
+                
             for cpt_kind in cpt_kinds:
                 if cpt_kind not in groups:
                     groups[cpt_kind] = []
-                groups[cpt_kind].append(key)
+                groups[cpt_kind].append(eltname)
 
         return groups    
 
@@ -1673,17 +1679,17 @@ class NetlistMixin(object):
         reactances = []
         ics = []
         
-        for key, elt in self.elements.items():
+        for eltname, elt in self.elements.items():
             if elt.need_control_current:
                 control_sources.append(elt.args[0])
             if elt.has_ic is not None:
                 if elt.has_ic:
                     has_ic = True
-                    ics.append(key)
+                    ics.append(eltname)
                 if not elt.zeroic:
                     zeroic = False
             if elt.independent_source:
-                independent_sources.append(key)
+                independent_sources.append(eltname)
                 if elt.has_s_transient:
                     has_s = True
                 if elt.has_transient:
@@ -1695,10 +1701,10 @@ class NetlistMixin(object):
                 if not elt.is_causal:
                     causal = False
             if elt.dependent_source:
-                dependent_sources.append(key)
+                dependent_sources.append(eltname)
             if elt.reactive:
                 reactive = True
-                reactances.append(key)                
+                reactances.append(eltname)                
 
         num_sources = len(independent_sources)
                     
