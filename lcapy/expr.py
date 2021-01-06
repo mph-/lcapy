@@ -220,7 +220,6 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     """Decorator class for sympy classes derived from sympy.Expr"""
 
     var = None
-    is_always_causal = False
     is_one_sided = False
 
     _mul_mapping = {('voltage', 'admittance'): 'current',

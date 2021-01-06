@@ -7,21 +7,6 @@ Copyright 2020 Michael Hayes, UCECE
 
 class ImmittanceMixin(object):
 
-    is_immitance = True
-
-    # Immittances derived from a realiable circuit will be causal but
-    # non-causal immittances can also be constructed.  So this might
-    # disappear.  If the immittance is causal then s can be substituted
-    # for j omega.   Thus re(s) = 0.
-
-    # An example non-causal impulse response is z(t) = R delta(t + T)
-    # with an impedance Z(s) = R exp(s * T).  This has
-    # a real part R * exp(re(s) * T) * cos(T * im(s))
-    # and imaginary part R * exp(re(s) * T) * sin(T * im(s))
-    
-    is_always_causal = True
-
-    
     @property
     def R(self):
         """Resistance."""

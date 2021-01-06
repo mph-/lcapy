@@ -7,6 +7,7 @@ class Quantity(object):
     is_admittance = False
     is_transfer = False
     is_immitance = False
+    is_always_causal = False
 
 
 class UndefinedQuantity(Quantity):
