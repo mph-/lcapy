@@ -1,4 +1,6 @@
-class CurrentMixin(object):
+from .quantity import Quantity
+
+class CurrentMixin(Quantity):
 
     quantity = 'current'
     quantity_label = 'Current'

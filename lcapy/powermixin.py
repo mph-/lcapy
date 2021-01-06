@@ -1,4 +1,6 @@
-class PowerMixin(object):
+from .quantity import Quantity
+
+class PowerMixin(Quantity):
 
     quantity = 'power'
     quantity_label = 'Power'

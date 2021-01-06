@@ -15,6 +15,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 from __future__ import division
 from .assumptions import Assumptions
 from .domains import UndefinedDomain
+from .quantity import UndefinedQuantity
 from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, symdebug, AppliedUndef
 from .sym import capitalize_name, tsym, symsymbol, symbol_map
@@ -215,18 +216,11 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
         return expr((e.subs(*args, **kwargs) for e in self))
 
     
-class Expr(UndefinedDomain, ExprPrint, ExprMisc):
+class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     """Decorator class for sympy classes derived from sympy.Expr"""
 
     var = None
-    quantity = 'undefined'    
     is_always_causal = False
-    is_voltage = False
-    is_current = False
-    is_impedance = False
-    is_admittance = False
-    is_transfer = False
-    is_immitance = False
     is_one_sided = False
 
     _mul_mapping = {('voltage', 'admittance'): 'current',

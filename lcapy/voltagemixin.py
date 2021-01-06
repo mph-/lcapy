@@ -1,4 +1,6 @@
-class VoltageMixin(object):
+from .quantity import Quantity
+
+class VoltageMixin(Quantity):
 
     quantity = 'voltage'
     quantity_label = 'Voltage'

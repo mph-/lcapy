@@ -1,4 +1,6 @@
-class TransferMixin(object):
+from .quantity import Quantity
+
+class TransferMixin(Quantity):
 
     quantity = 'transfer'
     quantity_label = 'Transfer function'

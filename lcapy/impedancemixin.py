@@ -1,7 +1,8 @@
 from .expr import expr
 from .immittancemixin import ImmittanceMixin
+from .quantity import Quantity
 
-class ImpedanceMixin(ImmittanceMixin):
+class ImpedanceMixin(Quantity, ImmittanceMixin):
 
     quantity = 'impedance'
     quantity_label = 'Impedance'
