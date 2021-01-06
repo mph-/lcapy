@@ -372,36 +372,40 @@ class Superposition(ExprDict):
                 return True
         return False    
 
-    def _decompose(self, expr):
-        """Decompose a t-domain expr into AC, DC, and s-domain
+    def _decompose_timedomain_expr(self, expr):
+        """Decompose a time domain expr into AC, DC, and s-domain
         transient components."""
 
+        result = {}
+        
         # Extract DC components
         dc = expr.expr.coeff(tsym, 0)
         if dc != 0:
-            self['dc'] = ConstantExpression(dc)
+            result['dc'] = ConstantExpression(dc)
             expr -= dc
 
         if expr == 0:
-            return
+            return result
 
         # Extract AC components        
         ac = 0
         terms = expr.expr.as_ordered_terms()
         for term in terms:
             if is_ac(term, tsym):
-                self.add(TimeDomainExpression(term).phasor())
-                ac += term
+                 p = TimeDomainExpression(term).phasor()
+                 result[p.omega] = p
+                 ac += term
 
         expr -= ac
         if expr == 0:
-            return
+            return result
 
         # The remaining components are considered transient
         # so convert to Laplace representation.
         sval = expr.laplace()
 
-        self['s'] = sval
+        result['s'] = sval
+        return result
 
     def decompose(self):
         """Decompose into a new representation in the transform domains."""
@@ -410,11 +414,15 @@ class Superposition(ExprDict):
             return self._decomposition
 
         new = self.__class__()
-        if 't' in self:
-            new._decompose(self['t'])
+
         for kind, value in self.items():
-            if kind != 't':
+            if kind == 't':
+                decomp = new._decompose_timedomain_expr(value)
+                for value in decomp.values():
+                    new.add(value)
+            else:
                 new.add(value)
+                
         self._decomposition = new                
         return new
     
