@@ -26,14 +26,14 @@ class SubNetlist(NetlistMixin, MNAMixin):
         return obj
 
     def __init__(self, netlist, kind):
-        """ kind can be 't', 'dc', 'ac', 's', 'time', 'ivp', 'n*', omega, 
-        or an integer"""
+        """ kind can be 't', 'dc', 's', 'time', 'ivp', 'n*' or omega, 
+        where 'n*' is a noise identifer and omega is an angular frequency."""
         
         if not isinstance(kind, str):
             return
         if kind[0] == 'n':
             return
-        kinds = ('t', 'dc', 'ac', 's', 'time', 'ivp', 'laplace')
+        kinds = ('t', 'dc', 's', 'time', 'ivp', 'laplace')
         if kind not in kinds:
             raise ValueError('Expected one of %s for kind, got %s' %
                              (', '.join(kinds), kind))

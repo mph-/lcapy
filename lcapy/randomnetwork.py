@@ -12,6 +12,7 @@ class RandomNetworkMaker(object):
     def __init__(self, num_resistors=3, num_inductors=0, num_capacitors=0,
                  num_voltage_sources=1, num_current_sources=0,
                  num_parallel=None, numeric_values=False, kind='transient'):
+        """`kind` can be 'transient', 'ac', or 'dc'."""
         
         self.num_resistors = num_resistors
         self.num_inductors = num_inductors

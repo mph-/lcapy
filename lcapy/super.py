@@ -425,7 +425,6 @@ class Superposition(ExprDict):
         'laplace' :  the laplace domain representation (equivalent to self.laplace())
         'ivp' :  the s-domain representation (equivalent to self.laplace())
         'dc' : the DC component
-        'ac' : the AC component with angular frequency omega0
         omega : the AC component with angular frequency omega
         's' : the transient component in the s-domain
         'n' : the noise component
@@ -454,8 +453,6 @@ class Superposition(ExprDict):
             obj = self.decompose()
 
         if kind not in obj:
-            if isinstance(kind, Expr):            
-                kind = 'ac'
             return obj.decompose_to_domain(0, kind)
         return obj[kind]
 

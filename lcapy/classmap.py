@@ -14,7 +14,6 @@ classmap = {'s': LaplaceDomainExpression,
             'time': TimeDomainExpression,            
             'f': FourierDomainExpression,
             'dc': ConstantExpression,
-            'ac': PhasorDomainExpression,
             'n': AngularFourierDomainNoiseExpression}
 
 symbolmap = {'s': '(s)',
@@ -22,11 +21,9 @@ symbolmap = {'s': '(s)',
              't': '(t)',
              'time': '(t)',
              'f': '(f)',
-             'dc': '',
-             'ac': 'omega'}
+             'dc': ''}
 
 domainmap = {'constant': 'dc',
-             'phasor': 'ac',
              'time': 't',
              'laplace': 's',
              'fourier': 'f',
