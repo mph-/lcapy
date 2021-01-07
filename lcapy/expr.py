@@ -950,10 +950,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
     def __eq__(self, x):
         """Test for mathematical equality as far as possible.
         This cannot be guaranteed since it depends on simplification.
-        Note, SymPy comparison is for structural equality.
-
-        Note t == 't' since the second operand gets converted to the
-        type of the first operand."""
+        Note, SymPy comparison is for structural equality."""
 
         # Note, this is used by the in operator.
 
@@ -962,6 +959,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
 
         # Handle self == []
         if isinstance(x, list):
+            return False
+
+        # Disallow t == 't', etc.
+        if isinstance(x, str):
             return False
         
         try:

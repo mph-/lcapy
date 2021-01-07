@@ -102,16 +102,16 @@ class LcapyTester(unittest.TestCase):
         
     def test_Vname(self):
 
-        self.assertEqual(Vname('V', 't'), 'v(t)', 'v(t)')
-        self.assertEqual(Vname('V', 's'), 'V(s)', 'V(s)')
+        self.assertEqual(Vname('V', 't'), voltage('v(t)'), 'v(t)')
+        self.assertEqual(Vname('V', 's'), voltage('V(s)'), 'V(s)')
         # TODO: remove cache requirement
-        self.assertEqual(Vname('V', 'dc', cache=True), 'V', 'V')        
+        self.assertEqual(Vname('V', 'dc', cache=True), voltage('V'), 'V')        
 
     def test_Iname(self):
         
-        self.assertEqual(Iname('I', 't'), 'i(t)', 'i(t)')
-        self.assertEqual(Iname('I', 's'), 'I(s)', 'I(s)')
-        self.assertEqual(Iname('I', 'dc', cache=True), 'I', 'I')
+        self.assertEqual(Iname('I', 't'), current('i(t)'), 'i(t)')
+        self.assertEqual(Iname('I', 's'), current('I(s)'), 'I(s)')
+        self.assertEqual(Iname('I', 'dc', cache=True), current('I'), 'I')
         
         
     def test_Voltage_phasor(self):
