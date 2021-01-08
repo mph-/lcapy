@@ -43,10 +43,6 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         return x.is_constant_domain
 
-    def _mul_compatible_quantities(self, x):
-        
-        return self.quantity == 'undefined' or x.quantity == 'undefined'
-
     def _div_compatible_domains(self, x):
 
         if self.domain == x.domain:

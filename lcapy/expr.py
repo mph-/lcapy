@@ -807,7 +807,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
             return TimeDomainExpression(self.expr * x.expr)
 
         if not self._mul_compatible_domains(x):
-            self._incompatible_domains(op, '*')                    
+            self._incompatible_domains(x, '*')                    
 
         if self.is_transform_domain:
             assumptions = self.assumptions.convolve(x)
