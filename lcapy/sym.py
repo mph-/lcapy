@@ -155,9 +155,6 @@ def parse(string, symbols=None, evaluate=True, local_dict=None, **assumptions):
         if name not in symbols:
             if False:
                 print("Adding symbol '%s'" % name)
-                if name in ('ivp', 'super'):
-                    print("Unexpected symbol '%s'" % name)                
-                    import pdb; pdb.set_trace()
                 
             symbols[name] = symbol
 
