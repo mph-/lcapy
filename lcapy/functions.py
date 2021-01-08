@@ -34,6 +34,10 @@ class Function(object):
 
         return expr(result)
 
+    def pdb(self):
+        import pdb; pdb.set_trace()
+        return self
+    
     
 class Log10(Function):
 
@@ -92,6 +96,17 @@ sign = Function(sym.sign)
 u = H = heaviside = Heaviside = Function(sym.Heaviside)
 
 delta = DiracDelta = Function(sym.DiracDelta)
+
+
+# def delta(expr1):
+#    
+#     if not hasattr(expr1, 'expr'):
+#         expr1 = expr(expr1)
+#     if expr1.is_discrete_time_domain or expr1.is_discrete_fourier_domain:
+#         return UnitImpulse(expr1)        
+#    
+#     return DiracDelta(expr1)
+
 
 def _ex(expr):
     if hasattr(expr, 'expr'):
