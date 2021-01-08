@@ -36,18 +36,22 @@ class TimeDomainExpression(TimeDomain, Expr):
             raise ValueError(
                 't-domain expression %s cannot depend on f' % expr)
 
-    def _mul_compatible(self, x):
+    def _mul_compatible_domains(self, x):
 
-        if x.is_constant_domain:
-            return True
-        if self.quantity == 'undefined' or x.quantity == 'undefined':
+        if self.domain == x.domain:
+            return True        
+
+        return x.is_constant_domain
+
+    def _mul_compatible_quantities(self, x):
+        
+        return self.quantity == 'undefined' or x.quantity == 'undefined'
+
+    def _div_compatible_domains(self, x):
+
+        if self.domain == x.domain:
             return True
         
-        # TODO: allow TimeDomainVoltage**2 one day.
-        return False
-
-    def _div_compatible(self, x):
-
         return x.is_constant_domain
 
     def as_expr(self):

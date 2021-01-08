@@ -4,7 +4,7 @@
 Discrete-time signals
 =====================
 
-Discrete-time signal support is experimental and requires the `discretetime` module to be explicitly imported.  It introduces three new domain variables:
+There are three domain variables for discrete-time signals:
 
   - `n` for discrete-time signals, for example, `3 * u(n - 2)`
   - `k` for discrete-frequency spectra

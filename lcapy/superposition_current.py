@@ -63,7 +63,7 @@ class SuperpositionCurrent(Superposition):
         new = SuperpositionVoltage()
         if 'dc' in obj:
             # TODO, fix types
-            new += ConstantExpression(obj['dc'] * ConstantExpression(x.jomega(0)))
+            new += ConstantExpression(obj['dc'] * ConstantExpression(x(0)))
         for key in obj.ac_keys():
             new += obj[key] * x.jomega(obj[key].omega)
         for key in obj.noise_keys():            

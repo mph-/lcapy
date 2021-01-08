@@ -175,6 +175,11 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(expr('3') - 3, 0, "expr('3') - 3")
 
-        
+    def test_time_op_const(self):
+
+        self.assertEqual(voltage(texpr(10)) / impedance(2), current(5), 'V / R')
+        self.assertEqual(current(texpr(5)) / admittance(1 / 2), voltage(10), 'V / G')
+        self.assertEqual(voltage(texpr(10)) * admittance(1 / 2), current(5), 'V * Y')
+        self.assertEqual(current(texpr(5)) * impedance(2), voltage(10), 'I * Z')                                                  
 
         

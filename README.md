@@ -206,9 +206,9 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
-- Version 0.74 supports simplification of netlists, adds more
-  rigorous type checking for expressions, improve printing of
-  conditional expressions.
+- Version 0.75 introduces a major change to expression classes with tighter restrictions on operations between expressions.  For example, a current expression cannot be added to a voltage expression.  There is also experimental support for showing units.  Added phasor domain.  Discrete-time support is now enabled.  This introduces three new domain variables, n, k, and z.  More Fourier transforms are added.   
+
+- Version 0.74 supports simplification of netlists, adds more rigorous type checking for expressions, improve printing of conditional expressions.
 
 - Version 0.73 improves printing of Voltage and Current, adds phasor attributes to Voltage and Current, fixes magnitude and phase for Phasor, fixes printing of greek symbols, tidies canonical representation, wraps R, X, B, G attributes for Immittance, doc reorganisation.
 
@@ -297,4 +297,4 @@ cct.R1.V no longer prints the s-domain expression but the
 decomposition of a signal into each of the transform domains.
 
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE

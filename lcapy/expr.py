@@ -721,13 +721,31 @@ Cannot determine %s(%s) %s %s(%s) since the units of the result are unsupported.
 As a workaround use x.as_expr() %s y.as_expr()""" %
                          (self.__class__.__name__, self, op,
                           x.__class__.__name__, x, op))        
+
+    def _add_compatible_domains(self, x):
+
+        return self.domain == x.domain
     
-    def _mul_compatible(self, x):
-        return True
-    
-    def _div_compatible(self, x):
-        return True
-    
+    def _mul_compatible_domains(self, x):
+
+        if self.domain == x.domain:
+            return True
+        
+        if (self.is_constant_domain or x.is_constant_domain):
+            return True
+
+        return False
+
+    def _div_compatible_domains(self, x):
+
+        if self.domain == x.domain:
+            return True
+        
+        if (self.is_constant_domain or x.is_constant_domain):
+            return True
+
+        return False
+
     def __compat_add__(self, x, op):
 
         assumptions = self.assumptions.copy()
@@ -762,8 +780,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         if self.is_angular_fourier_domain and x.is_phasor_frequency_domain:
             return xcls, cls(self), x, assumptions        
 
-        if self.domain != x.domain:
-            self._incompatible_domains(x, op)        
+        if not self._add_compatible_domains(x):
+            self._incompatible_domains(x, op)
 
         # expr + voltage
         if self.quantity == 'undefined':
@@ -787,15 +805,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         if (x.__class__ == AngularFourierDomainExpression and
             self.__class__ == TimeDomainExpression):
             return TimeDomainExpression(self.expr * x.expr)
-        
-        if self.domain != x.domain:
 
-            if (self.__class__ != ConstantExpression and
-                x.__class__ != ConstantExpression):
-                self._incompatible_domains(x, '*')
-
-        if not self._mul_compatible(x):
-            self._incompatible_quantities(x, '*')                
+        if not self._mul_compatible_domains(x):
+            self._incompatible_domains(op, '*')                    
 
         if self.is_transform_domain:
             assumptions = self.assumptions.convolve(x)
@@ -838,14 +850,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         if not isinstance(x, Expr):
             x = expr(x)
 
-        if self.domain != x.domain:
-
-            if (self.__class__ != ConstantExpression and
-                x.__class__ != ConstantExpression):
-                self._incompatible_domains(x, '/')
-
-        if not self._div_compatible(x):
-            self._incompatible_quantities(x, '/')                        
+        if not self._div_compatible_domains(x):
+            self._incompatible_domains(x, '/')                        
 
         assumptions = self.assumptions.convolve(x)
 

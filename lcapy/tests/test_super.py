@@ -21,7 +21,7 @@ class LcapyTester(unittest.TestCase):
             ans2.pprint()
             raise AssertionError(e)
 
-    def test_Voltage_properties(self):
+    def test_voltage_properties(self):
         self.assertEqual(SuperpositionVoltage(3).is_dc, True, "Voltage(3).is_dc")
         self.assertEqual(SuperpositionVoltage(PhasorDomainVoltage(3)).is_ac, True, "Voltage(Vphasor(3)).is_ac")
         self.assertEqual(SuperpositionVoltage(ConstantVoltage(2), PhasorDomainVoltage(3)).is_ac, False,
@@ -29,7 +29,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(SuperpositionVoltage(ConstantVoltage(2), PhasorDomainVoltage(3)).is_ac, False,
                           "Voltage(Vconst(2), Vphasor(3)).is_dc")
 
-    def test_Voltage_add_sub_dc(self):
+    def test_voltage_add_sub_dc(self):
         self.assertEqual2(SuperpositionVoltage(3).dc, 3, "Voltage(3).dc")
         self.assertEqual2(SuperpositionVoltage(2, 3).dc, 5, "Voltage(2, 3).dc")
         self.assertEqual2(SuperpositionVoltage(2, 3).ac, {}, "Voltage(2, 3).ac")
@@ -39,7 +39,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(SuperpositionVoltage(2) - SuperpositionVoltage(3), SuperpositionVoltage(-1),
                           "Voltage(2) - Voltage(3)")
 
-    def test_Current_add_sub_dc(self):
+    def test_current_add_sub_dc(self):
         self.assertEqual2(SuperpositionCurrent(3).dc, 3, "Current(3).dc")
         self.assertEqual2(SuperpositionCurrent(2, 3).dc, 5, "Current(2, 3).dc")
         self.assertEqual2(SuperpositionCurrent(2, 3).ac, {}, "Current(2, 3).ac")
@@ -56,7 +56,7 @@ class LcapyTester(unittest.TestCase):
         #                   "Voltage(Vnoisy(3)) + Voltage(Vnoisy(4))")
 
         
-    def test_Voltage_has(self):
+    def test_voltage_has(self):
 
         a = SuperpositionVoltage('3 * exp(-t) * t * a')
         self.assertEqual(a.has(3), True, "has(3)")
@@ -66,7 +66,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.has_symbol('a'), True, "has_symbol(a)")
         self.assertEqual(a.has_symbol('b'), False, "has_symbol(b)")
 
-    def test_Voltage_transform(self):
+    def test_voltage_transform(self):
 
         V1 = SuperpositionVoltage('3 * exp(-2 * t)')
         self.assertEqual(V1.transform(s), 3 / (s + 2), 'transform(s)')        
@@ -75,7 +75,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(V2.transform(s), 3 / (s + 2), 'transform(s)')        
         self.assertEqual(simplify(V2.transform(f) - 3 / (j * 2 * pi * f + 2)), 0, 'transform(f)')                
         
-    def test_Voltage_subs(self):
+    def test_voltage_subs(self):
 
         a = SuperpositionVoltage('V1')
         b = a.subs('V1', 1)
@@ -88,13 +88,13 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(V1.dc, 1, '.dc')
         self.assertEqual(V1.transient, expr('3 * u(t)'), '.transient')
 
-    def test_Voltage_oneport(self):
+    def test_voltage_oneport(self):
 
         V1 = V(3)
 
         self.assertEqual(V1.V.oneport().V, V1.V, 'oneport')
 
-    def test_Current_oneport(self):
+    def test_current_oneport(self):
 
         I1 = I(3)
 
@@ -113,10 +113,26 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Iname('I', 's'), current('I(s)'), 'I(s)')
         self.assertEqual(Iname('I', 'dc', cache=True), current('I'), 'I')
         
-        
-    def test_Voltage_phasor(self):
+    def test_voltage_phasor(self):
 
         V = SuperpositionVoltage(3 * sin(7 * t) + 2 * cos(14 * t)) 
         self.assertEqual(V[7].magnitude, expr(3), 'magnitude')
         self.assertEqual(V[14].omega, 14, 'omega')
         
+    def test_super_printing(self):
+
+        self.assertEqual(SuperpositionVoltage(3).latex(), '3', 'SuperpositionVoltage(3)')
+        self.assertEqual(SuperpositionVoltage(3 * s).latex(), '3 s', 'SuperpositionVoltage(3 * s)')
+        self.assertEqual(SuperpositionVoltage(2 * sin(omega * t)).latex(),
+                         '\\left\\{ \\omega : - 2 \\mathrm{j}\\right\\}',
+                         'SuperpositionVoltage(2 * sin(omega * t))')
+        self.assertEqual(SuperpositionVoltage(3 + 2 * sin(omega * t)).latex(),
+                         '\\left\\{ \\mathtt{\\text{dc}} : 3, \\  \\omega : - 2 \\mathrm{j}\\right\\}',
+                         'SuperpositionVoltage(3 + 2 * sin(omega * t))')        
+
+    def test_super_op_const(self):
+
+        self.assertEqual(SuperpositionVoltage(10) / impedance(2), SuperpositionCurrent(5), 'V / R')
+        self.assertEqual(SuperpositionCurrent(5) / admittance(1 / 2), SuperpositionVoltage(10), 'I / G')
+        self.assertEqual(SuperpositionVoltage(10) * admittance(1 / 2), SuperpositionCurrent(5), 'V / G')
+        self.assertEqual(SuperpositionCurrent(5) * impedance(2), SuperpositionVoltage(10), 'I * R')                
