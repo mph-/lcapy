@@ -26,6 +26,10 @@ from .seq import seq
 
 def expr(arg, **assumptions):
 
+    # Handle container args.
+    if not isinstance(arg, str) and hasattr(arg, '__iter__'):
+        return expr1(arg, **assumptions)
+    
     expr = sympify(arg, **assumptions)
 
     symbols = expr.free_symbols    
