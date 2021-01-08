@@ -7,7 +7,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 import re
 from .config import latex_expr_map, pretty_expr_map, str_expr_map
 from .config import functions, words, subscripts, abbreviate_units
-from .latex import latex_str, latex_double_sub
+from .latex import latex_str
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
 from sympy.printing.pretty.pretty import PrettyPrinter
@@ -166,31 +166,40 @@ class LcapyLatexPrinter(LatexPrinter):
         if exp:
             tex = r"u\left[%s\right]^{%s}" % (tex, exp)
         return tex        
+
+    def _print_symbol_name(self, name):
+
+        name = canonical_name(name)
+        
+        parts = name.split('_')
+
+        expr = sym.Symbol(parts[0])
+        s = super(LcapyLatexPrinter, self)._print_Symbol(expr)
+
+        if len(parts) == 1:
+            return latex_str(s)
+
+        if len(parts) == 2:
+            return latex_str(s + '_{%s}' % parts[1])
+
+        # Sympy cannot print a symbol name with a double subscript
+        # using LaTeX.  This should be fixed in Sympy.
+        # Need to convert v_C_1 to v_{C_{1}}        
+
+        if len(parts) == 3:
+            return latex_str(s + '_{%s_{%s}}' % (parts[1], parts[2]))
+
+        raise ValueError('Cannot handle more than two subscripts for %s' % name)
     
     def _print_Symbol(self, expr):
 
-        # Note, SymPy prints atan2 as atan_{2}.
-
-        expr = sym.Symbol(canonical_name(expr.name))                
-        parts = expr.name.split('_')        
-        s = super(LcapyLatexPrinter, self)._print_Symbol(expr)
-        if len(parts) >= 2:
-            # Sympy cannot print a symbol name with a double subscript
-            # using LaTeX.  This should be fixed in Sympy.
-            # Need to convert v_{C 1} to v_{C_{1}}
-            parts2 = s.split(' ')
-            if len(parts2) >= 2:
-                s = parts2[0] + '_{' + ''.join(parts2[1:])[:-1] + '}}'
-
-        #s = latex_double_sub(s)
-        s = latex_str(s)
-        return s
+        return self._print_symbol_name(expr.name)
 
     def _print_AppliedUndef(self, expr):
 
-        name = canonical_name(expr.func.__name__)
+        s = self._print_symbol_name(expr.func.__name__)
         args = [str(self._print(arg)) for arg in expr.args]        
-        return '%s(%s)' % (name, ','.join(args))
+        return '%s(%s)' % (s, ','.join(args))
 
     
 class LcapyPrettyPrinter(PrettyPrinter):

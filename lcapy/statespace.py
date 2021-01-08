@@ -207,8 +207,8 @@ class StateSpace(object):
         """
         
         return TimeDomainExpression(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x),
-                                                  sym.MatMul(self.B, self.u)),
-                            evaluate=False))
+                                                                 sym.MatMul(self.B, self.u)),
+                                           evaluate=False))
 
     def output_equations(self):
         """System of output equations:
@@ -221,8 +221,8 @@ class StateSpace(object):
         """
         
         return TimeDomainExpression(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x),
-                                               sym.MatMul(self.D, self.u)),
-                            evaluate=False))
+                                                              sym.MatMul(self.D, self.u)),
+                                           evaluate=False))
 
     @property
     def Phi(self):

@@ -11,9 +11,6 @@ from .config import subscripts
 
 sub_super_pattern = re.compile(r"([_\^]){([a-zA-Z]+)([0-9]*)}")
 
-# Perhaps could generalise?  For now, just look for symbols
-# generated for state-space state variables.
-double_sub_pattern = re.compile(r"([viVI])[_]([CL])[_]([a-zA-Z0-9]+)")
 
 def latex_mathrm(s):
         
@@ -31,16 +28,6 @@ def latex_mathrm(s):
         return match.group(1) + suffix
 
     return sub_super_pattern.sub(foo, s)
-
-
-def latex_double_sub(s):
-
-    def foo(match):
-
-        s = '%s_{%s_{%s}}' % (match.group(1), match.group(2), match.group(3))
-        return s
-
-    return double_sub_pattern.sub(foo, s)
 
 
 class Latex(object):
