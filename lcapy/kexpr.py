@@ -25,6 +25,8 @@ class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression)
     def __init__(self, val, **assumptions):
 
         check = assumptions.pop('check', True)
+        assumptions['real'] = True
+        
         super(DiscreteFourierDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr
