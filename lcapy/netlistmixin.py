@@ -1618,11 +1618,11 @@ class NetlistMixin(object):
         
         If transform is False, the returned keys are 'dc', 't', 's', and 'n*'.
 
-        If transform is True, the source values are decomposed into
-        the different transform domains to determine which domains are
-        required.  In this case, a source can appear in multiple
-        groups.  For example, if a voltage source V1 has a value 10 +
-        5 * cos(omega * t), V1 will be added to the dc and omega groups.
+        If transform is True, the returned keys are 'dc', 's', omega,
+        and 'n*'.  Note, there is no time-domain component.  Note,
+        after transformation, a source can appear in multiple groups.
+        For example, if a voltage source V1 has a value 10 + 5 *
+        cos(omega * t), V1 will be added to the dc and omega groups.
 
         """
 

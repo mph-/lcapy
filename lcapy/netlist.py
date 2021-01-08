@@ -67,14 +67,25 @@ class Netlist(NetlistMixin, NetfileMixin):
                 pass
 
     def _groups(self):
-        """Return dictionary of source groups keyed by domain.  A source can appear
-        in multiple groups, for example, a source with voltage 3 + u(t) will
-        appear in both the dc and t groups.
-        """
+        """Return dictionary of source groups keyed by domain.
 
-        groups = self.independent_source_groups()        
+        If the netlist is for an initial value problem, all the
+        sources are in a single group called 'ivp'.  Any noise sources
+        are ignored.
+
+        If the netlist can be solved in the time-domain (i.e., there
+        are no reactive components), all the sources are in single
+        group called 'time'.
+
+        Otherwise, the sources are decomposed and then grouped into
+        the 'dc', 's', 'n*', and omega categories.  Note, a source can
+        appear in multiple groups, for example, a source with voltage
+        3 + u(t) will appear in both the 'dc' and 's' groups.
+
+        """
             
         if self.is_ivp:
+            
             def namelist(elements):
                 return ', '.join([elt for elt in elements])
 
@@ -82,6 +93,7 @@ class Netlist(NetlistMixin, NetfileMixin):
                 print('Warning: missing initial conditions for %s' %
                       namelist(self.missing_ic))
 
+            groups = self.independent_source_groups()                       
             newgroups = {'ivp' : []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
@@ -89,9 +101,10 @@ class Netlist(NetlistMixin, NetfileMixin):
                           ' for initial value problem' % sources)
                 else:
                     newgroups['ivp'] += sources
-            groups = newgroups
+            return newgroups
 
         elif self.is_time_domain:
+            
             groups = self.independent_source_groups()            
             newgroups = {'time' : []}
             for key, sources in groups.items():
@@ -99,12 +112,11 @@ class Netlist(NetlistMixin, NetfileMixin):
                     newgroups[key] = sources
                 else:
                     newgroups['time'] += sources
-            groups = newgroups
+            return newgroups
 
         else:
-            groups = self.independent_source_groups(transform=True)        
-        
-        return groups
+            return self.independent_source_groups(transform=True)        
+
         
     def _sub_make(self):
 
@@ -131,11 +143,25 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     @property
     def subcircuits(self):
+        """Return dictionary of subnetlists keyed by transform domain kind.
+        Note, the subnetlists are not created until a specific one is
+        selected.  The subcircuit keys are :
+        'ivp' for an initial value problem solved using Laplace methods,
+        's' for transient analysis using Laplace methods,
+        'dc' for DC analysis,
+        'time' for time-domain analysis when there are no reactive
+        components, 
+        'n*' for noise-analysis (there is a subcircuit for
+        each independent noise source), and 
+        omega (where omega is a number of expression specifying the angular
+        frequency) for phasor analysis.
+
+        """        
         return self.sub
 
     @property
     def kinds(self):
-        """Return list of transform domain kinds."""
+        """Return list of transform domain kinds required to analyse the netlist."""
         return list(self.sub.keys())
     
     @property
