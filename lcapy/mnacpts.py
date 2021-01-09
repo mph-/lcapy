@@ -769,7 +769,7 @@ class RLC(Cpt):
         for opt, val in voltage_opts.items():
             opts[opt] = capitalize_name(val)
 
-        onet = self._netmake_variant('O', opts=opts)
+        onet = self._netmake_O(opts=opts)
         return znet + '\n' + vnet + '\n' + onet
 
 
