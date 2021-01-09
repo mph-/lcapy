@@ -124,10 +124,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(SuperpositionVoltage(3).latex(), '3', 'SuperpositionVoltage(3)')
         self.assertEqual(SuperpositionVoltage(3 * s).latex(), '3 s', 'SuperpositionVoltage(3 * s)')
         self.assertEqual(SuperpositionVoltage(2 * sin(omega * t)).latex(),
-                         '\\left\\{ \\omega : - 2 \\mathrm{j}\\right\\}',
+                         '2 \\sin{\\left(\\omega t \\right)}',
                          'SuperpositionVoltage(2 * sin(omega * t))')
         self.assertEqual(SuperpositionVoltage(3 + 2 * sin(omega * t)).latex(),
-                         '\\left\\{ \\mathtt{\\text{dc}} : 3, \\  \\omega : - 2 \\mathrm{j}\\right\\}',
+                         '2 \\sin{\\left(\\omega t \\right)} + 3',
                          'SuperpositionVoltage(3 + 2 * sin(omega * t))')        
 
     def test_super_op_const(self):
