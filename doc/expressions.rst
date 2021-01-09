@@ -33,35 +33,44 @@ Lcapy represents floating point numbers as rationals.  This ensures expected sim
 Domain variables
 ----------------
 
-Lcapy has five predefined domain variables:
+Lcapy has five predefined domain variables for continuous time signals:
 
-- `s` Laplace domain complex frequency
+- `t` -- time domain
 
-- `f` Fourier domain frequency    
+- `f` -- Fourier (frequency) domain
 
-- `t` time
+- `s` -- Laplace (complex frequency) domain
+
+- `omega` -- angular Fourier domain
+
+- `jomega` (or `jw`) -- phasor domain
   
-- `omega` Fourier domain angular frequency
-
-- `jomega` (or `jw`) Phasor domain angular frequency
 
 A time-domain expression is produced using the `t` variable, for example,
   
-   >>> v = exp(-3 * t) * u(t)
+   >>> e = exp(-3 * t) * u(t)
 
 Similarly, a Laplace-domain expression is produced using the `s`
 variable, for example,
   
    >>> V = s / (s**2 + 2 * s + 3)
 
-The `discretetime` module adds additional domain variables `n`, `k`, and `z`, see :ref:`discrete_time`.
+
+There are an additional three domain variables for discrete-time signals (see :ref:`discrete_time`):
+   
+- `n` -- discrete-time domain
+
+- `k` -- discrete-frequency domain
+
+- `z` -- z-domain  
 
 
-Domains and quantity
---------------------
+For example,
 
-All Lcapy expressions have a domain (laplace, Fourier, etc.) and a
-quantity (voltage, current, undefined) etc.   For example::
+    >>> V = delta(n) + 2 * delta(n - 1) + 3 * delta(n - 3)
+  
+
+All Lcapy expressions have a domain (Laplace, Fourier, etc.) and a quantity (voltage, current, undefined) etc.   For example::
 
    >>> V = voltage(5 * t)
    >>> V.domain
@@ -69,7 +78,6 @@ quantity (voltage, current, undefined) etc.   For example::
    >>> V.quantity
    'voltage'
 
-   
 User defined symbols
 --------------------
 
@@ -77,16 +85,20 @@ Symbols can also be created with Lcapy's `symbol` function:
 
    >>> tau = symbol('tau', real=True)
 
-They are also implicitly created using Lcapy's `expr` function:
+They are also implicitly created from strings.  For example,
    
    >>> v = expr('exp(-t / tau) * u(t)')
 
+or
+
+   >>> v = voltage('exp(-t / tau) * u(t)')
+   
+
 Notes:
 
-1. Symbols created with `symbol` and `expr` are assumed to be
-   positive, unless explicitly specified not be.
+1. By default, symbols are assumed to be positive, unless explicitly specified not to be.
 
-2. Redefining a symbol does change the assumptions.  Instead, the symbol needs to be deleted with `symbol_delete` before being redefined.
+2. Redefining a symbol does not change the assumptions.  Instead, the symbol needs to be deleted with `symbol_delete` before being redefined.
 
 3. There are restrictions on symbol names that can be used.  Currently, this excludes names that are Python keywords.  For example, `Is` is not allowed but `I_s` is valid.
 
@@ -96,15 +108,152 @@ Notes:
 Mathematical functions
 ----------------------
 
-Lcapy has the following built-in functions: `sin`, `cos`, `tan`,
-`atan`, `atan2`, `gcd`, `exp`, `sqrt`, `log`, `log10`, `Heaviside`,
-`H`, `u`, `DiracDelta`, `delta`, and `conjugate`.
+Lcapy has the following built-in functions: `sin`, `cos`, `tan`, `cot`,
+`asin`, `acos`, `atan`, `atan2`, `acot`, `sinh`, `cosh`, `tanh`, `asinh`,
+`acosh`, `atanh`, `gcd`, `exp`, `sqrt`, `log`, `log10`, `sign`,
+`conjugate`. `Heaviside`, `H`, `u`, `DiracDelta`, `delta`,
+`unitimpulse`, and `unitstep`.
 
 Other SymPy functions can be converted to Lcapy functions using the
 `Function` class, for example:
 
+   >>> import sympy as sym
    >>> gamma = Function(sym.gamma)   
+   >>> gamma(4)
+   6
 
+.. _domains:   
+
+Domains
+=======
+
+Lcapy uses a variety of domains to represent signals.  This helps with
+circuit analysis since time-domain convolutions simplify to
+multiplications in the Fourier, Laplace, and phasor domains.  Lcapy
+uses the following transform domains for circuit analysis:
+
+- Constant domain for DC signals
+
+- Phasor domain for AC signals
+
+- Laplace domain (s-domain) for transient signals
+
+- Fourier domain (and angular Fourier domain) for noise signals
+  
+
+The domain of an expression is usually determined from the pre-defined
+domain variables (see :ref:`domainvariables`).  For example::
+
+   >>> Z = impedance(3 * s)
+   >>> Z.domain
+   'laplace'  
+
+However, this is not possible for constants.  One approach is to use::
+
+   >>> Z = impedance(0 * s + 5)
+   >>> Z.domain
+   'laplace'
+
+Alternatively, there are a number of functions for setting the domain:
+
+- `cexpr()` set constant domain
+
+- `fexpr()` set Fourier domain
+
+- `omegaexpr()` set angular Fourier domain  
+  
+- `sexpr()` set Laplace domain
+
+- `tsexpr()` set time domain
+
+- `phasor()` set phasor domain  
+
+For example::
+
+   >>> Z = impedance(sexpr(5))
+   >>> Z.domain
+   'laplace'
+  
+There are restrictions on how expressions can be combined.  In
+general, both expressions must be of the same domain and have
+compatible quantities.  For example, you cannot do::
+
+   >>> 5 * t + 4 * s
+   ValueError: Cannot determine TimeDomainExpression(5*t) + LaplaceDomainExpression(4*s) since the domains are incompatible
+
+
+Expressions can be transformed to different domains, see :ref:`transformation`.
+
+.. _domainattributes:      
+
+Domain attributes
+-----------------
+
+- `is_undefined_domain`
+- `is_constant_domain`
+- `is_time_domain`
+- `is_laplace_domain`
+- `is_fourier_domain`
+- `is_angular_fourier_domain`
+- `is_phasor_domain`
+- `is_phasor_time_domain`
+- `is_phasor_frequency_domain`    
+- `is_discrete_time_domain`
+- `is_discrete_fourier_domain`
+- `is_Z_domain`
+- `is_transform_domain`          
+
+
+.. _quantities:      
+Quantities
+==========
+
+Each expression has a quantity (voltage, current, undefined, etc.).  When combing expressions, the quantity of the result is determined for the most common combination of electrical quantities.  For example,
+
+   >>> V = current(1 / s) * impedance(2)
+   >>> V.quantity
+   'voltage'
+
+However, there are restrictions on how expressions can be combined.  For example, you cannot do::
+
+   >>> voltage(3) + current(4)
+   ValueError: Cannot determine ConstantVoltage(3) + ConstantCurrent(4) since the units of the result are unsupported.
+   As a workaround use x.as_expr() + y.as_expr()
+
+
+There are a number of methods for changing the quantity of an expression:
+
+- `as_expr()` removes the quantity
+- `as_voltage()` converts to voltage
+- `as_current()` converts to current
+- `as_impedance()` converts to impedance
+- `as_admittance()` converts to admittance
+- `as_transfer()` converts to transfer function
+
+There are similar functions for setting the quantity of an expression:
+  
+- `expr()` removes the quantity
+- `voltage()` converts to voltage
+- `current()` converts to current
+- `impedance()` converts to impedance
+- `admittance()` converts to admittance
+- `transfer()` converts to transfer function  
+
+
+.. _quantityattributes:        
+
+Quantity attributes
+-------------------
+
+Expressions have the following attributes to identify the quantity.
+
+- `is_voltage`
+- `is_current`
+- `is_impedance`
+- `is_admittance`
+- `is_transfer`
+- `is_immitance`
+  
 
 .. _expressionsrationalfunctions:
    
@@ -117,15 +266,26 @@ Linear time-invariant systems have transfer functions that are rational function
    H(s) = \frac{N(s)}{D(s)},
 
 The numerator can be found using the `N` attribute and denominator can
-be found using the `D` attribute.
-   
+be found using the `D` attribute.   For example::
+
+  >>> Z = impedance((5 * s) / (s**2 + 5 * s + 6))
+         5⋅s     
+   ────────────
+    2          
+   s  + 5⋅s + 6
+   >>> Z.N
+   5⋅s
+   >>> Z.D
+    2          
+   s  + 5⋅s + 6
+
 
 .. _expressionsresponses:
    
 Responses
 =========
 
-Often, s-domain responses are rational functions but not always.  In general, Lcapy tries to interpret responses as
+Usually, s-domain responses are rational functions but if there is a time delay there is an additional exponential factor.  So, in general, Lcapy tries to interpret responses as
 
 .. math::
    Y(s) = \sum_{i} \frac{N_i(s)}{D(s)} \exp(-s \tau_i),
@@ -211,11 +371,14 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `symbols` returns dictionary of symbols used in the expression keyed by their names
 
-- `val` returns floating point number if expression can be evaluated
+- `val` returns floating point number (as Python float or complex type) if expression can be evaluated
 
 - `var` returns the underlying SymPy symbol representing the domain
     
 
+In addition, each expression has domain and quantity attributes, see
+:ref:`domainattributes` and :ref:`quantityattributes`.
+  
 .. _expressionsmethods:  
 
 Methods
@@ -242,7 +405,9 @@ Miscellaneous
 
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
-- `evalf()` returns floating point number if expression can be evaluated.
+- `evalf()` returns floating point number (as Python float or complex type) if expression can be evaluated
+
+- `evaluate` returns floating point number (as SymPy float or complex type) if expression can be evaluated.  If passed an NumPy array, an array of NumPy float or complex types is returned.
     
 - `initial_value()` returns result at :math:`t = 0`.
 
@@ -422,12 +587,17 @@ This behaviour can be explicitly controlled using the `subs` and
    3⋅e    
    >>> V1.subs(2)
       -4
-   3⋅e  
+   3⋅e
+   >>> V1.subs(2).evaluate()   
+   0.054946916666202536
 
 
+.. _transformation:
+   
 Transformation
 --------------
 
+Expressions can be transformed to a different domain (see :ref:`domains`), for example:
 
 - `V(t)` returns the time domain transformation
 
@@ -452,11 +622,11 @@ For example::
    s + 2
 
 
-Here's another example that shows a subtle difference between the angular Fourier and phasor domains::
+Here's another example that shows a subtle difference between the angular Fourier and phasor domains for the impedance of a 1 F capacitor::
 
    >>> Z = impedance(1 / s)
    >>> Z(omega)
-      ⎛ ω ⎞    
+     ⎛ ω ⎞    
     δ⎜───⎟    
      ⎝2⋅π⎠   ⅉ
     ────── - ─
@@ -488,7 +658,9 @@ If you have a cunning idea of how to resolve this, or make it less confusing, pl
     >>> Y.subs(jomega).domain
     'angular fourier'
     
-   
+
+.. _substitution:
+    
 Substitution
 ------------
 
@@ -514,8 +686,7 @@ Evaluation
     
 Evaluation is similar to substitution but requires all symbols in an
 expression to be substituted with values.  The result is a numerical
-answer.  The evaluation method is useful for plotting results.  For
-example,
+answer, for example::
 
    >>> a = expr('t**2 + 2 * t + 1')
    >>> a.evaluate(0)
@@ -529,7 +700,10 @@ NumPy array.  For example,
    >>> a.evaluate(tv)
    array([1.    , 1.5625, 2.25  , 3.0625, 4.    ])
 
+If the argument is a scalar the returned result is a SymPy type; otherwise it is a NumPy type.
+The evaluation method is useful for plotting results.
 
+   
 Phasors
 =======
 
@@ -557,14 +731,6 @@ and `admittance` factory functions.  For example::
    >>> Z2 = impedance(5 * j * omega)
    >>> Z3 = admittance(s * 'C')
 
-Internally, Lcapy converts impedances to a common form.  However, the
-printed representation uses the initial form.  For example::
-
-  >>> Z1
-  5⋅s
-  >>> Z2
-  5⋅ⅉ⋅ω
-   
 The impedance can be converted to a specific domain using a domain variable
 as an argument.  For example,
 
@@ -617,7 +783,7 @@ Netlist components have similar attributes.  For example::
    
 
 Immittance attributes
---------------------
+---------------------
 
 - `B` susceptance
 
@@ -667,24 +833,14 @@ Voltages and currents
 =====================
 
 Voltages and currents are created with the `voltage()` and `current()`
-factory functions.  These generate the appropriate classes, including:
+factory functions.   For example::
 
-`TimeDomainVoltage`
+  >>> v = voltage(5 * u(t))
+  >>> I = current(5 * s)
 
-`LaplaceDomainVoltage`
+The domain is inferred from the domain variable in the expression (see :ref:`domains`).  
 
-`FourierDomainVoltage`
-
-`AngularFourierDomainVoltage`
-
-`PhasorVoltage`
-
-`NoiseVoltage`
-
-`SuperpositionVoltage`
-
-There are equivalant classes for currents.
-
+The results from circuit analysis are represented by a superposition of different domains.
 
 
 Voltage and current superpositions
@@ -787,6 +943,13 @@ Voltage and current attributes
 - `has_dc` returns True if has a DC signal
 - `has_ac` returns True if has an AC signal
 - `has_transient` returns True if has a transient signal
+- `domain` returns the domain as a string
+- `quantity` returns the quantity (voltage or current) as a string
+- `is_voltage` returns True if a voltage expression
+- `is_current` returns True if a current expression
+
+In addition, there are domain attributes, such as `is_time_domain`,
+`is_laplace_domain`, etc. (see :ref:`domainattributes`).
 
 
 Voltage and current methods

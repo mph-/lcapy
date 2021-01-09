@@ -69,7 +69,10 @@ class Superposition(ExprDict):
         if not any(self):
             return 0
 
-        decomp = self.decompose()
+        if len(self) == 1:
+            decomp = self
+        else:
+            decomp = self.decompose()
         
         # If have a single element, show value.
         if len(decomp) == 1:

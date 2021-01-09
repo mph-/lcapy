@@ -85,13 +85,21 @@ Expressions
 
 Lcapy defines a number of symbols corresponding to different domains (see :ref:`domainvariables`):
 
-- t -- time (real)
+- `t` -- time domain
 
-- f -- frequency (real)
+- `f` -- Fourier (frequency) domain
 
-- s -- complex (s-domain) frequency
+- `s` -- Laplace (complex frequency) domain
 
-- omega -- angular frequency (real)
+- `omega` -- angular Fourier domain
+
+- `jomega` (or `jw`) -- phasor domain  
+
+- `n` -- discrete-time domain
+
+- `k` -- discrete-frequency domain
+
+- `z` -- z-domain  
 
 Expressions (see :ref:`expressions`) can be formed using these symbols.  For example, a
 time-domain expression can be created using::
@@ -109,8 +117,8 @@ and a s-domain expression can be created using::
    ─────
    s - 4
 
-For steady-state causal signals, the s-domain can be converted to the angular
-frequency domain by substituting :math:`\mathrm{j} \omega` for :math:`s`
+For steady-state causal signals, the s-domain can be converted to the phasor
+domain by substituting :math:`\mathrm{j} \omega` for :math:`s`
 
    >>> from lcapy import s, j, omega
    >>> H = (s + 3) / (s - 4)
@@ -120,9 +128,19 @@ frequency domain by substituting :math:`\mathrm{j} \omega` for :math:`s`
    ───────
    j⋅ω - 4
 
-Also note, real numbers are approximated by rationals.
 
-Lcapy expressions have a number of attributes  (see :ref:`expressionsattributes`) including:
+Lcapy expressions have an associated domain (such a time domain or
+Laplace domain) and an associated quantity (such as voltage or
+impedance).  For more details see :ref:`domains` and
+:ref:`quantities`.  Here is an example::
+
+   >>> V = voltage(3 * s)
+   >>> V.domain
+   'laplace'
+   >>> V.quantity
+   'voltage'
+
+Lcapy expressions have a number of other attributes  (see :ref:`expressionsattributes`) including:
 
 - `numerator`, `N` --  numerator of rational function
 
@@ -549,7 +567,7 @@ Let's consider a series R-L-C network::
 
 The phasor impedance can be determined as a function of angular frequency using::
    
-   >>> n.Z(omega)
+   >>> n.Z(jomega)
                  ⅉ  
    10⋅ⅉ⋅ω + 4 - ────
                 20⋅ω
@@ -1013,7 +1031,7 @@ compact way to specify the netlist::
    >>> from lcapy import Circuit
    >>> cct = Circuit("""
    ... V1 1 0 step 10
-   ... Ra 1 2 3e
+   ... Ra 1 2 3e3
    ... Rb 2 0 1e3""")
 
 The circuit has an attribute for each circuit element (and for each
@@ -1022,33 +1040,27 @@ interrogated to find the voltage drop across an element or the current
 through an element, for example::
 
    >>> cct.V1.V
-   ⎧   10⎫
-   ⎨s: ──⎬
-   ⎩   s ⎭
+   10⋅u(t)
    >>> cct.Rb.V
-   ⎧    5 ⎫
-   ⎨s: ───⎬
-   ⎩   2⋅s⎭
+   5⋅u(t)
+   ──────
+     2
 
-Notice, how the displayed voltages are a dictionary.  This represents
-the result as a superposition of a number of transform domains (DC,
-AC, Laplace, etc.).  In this case `s` denotes the Laplace domain
-result of the transient component.  The full Laplace response is
-returned using::
+The returned result is a superposition of expressions in the different
+transform domains.  In this example, there is only a single
+time-domain component.  If there are multiple components, they are
+displayed as a dictionary, keyed by the transform domains.
 
-   >>> cct.V1.V(s)
+The superposition can be converted into a Laplace domain expression using::
+
+  >>> cct.V1.V(s)
    10
    ──
    s
 
-The time domain response is found using::
+or into a time domain expression using::   
 
    >>> cct.V1.V(t)
-   10
-
-Alternatively, this can be achieved using the lowercase `v` attribute::
-
-   >>> cct.V1.v
    10
 
 The current through a component is obtained with the `I` attribute.  For a source the current is assumed to flow out of the positive node, however, for a passive device (R, L, C) it is assumed to flow into the positive node.
@@ -1302,54 +1314,51 @@ The output equations are shown using the `output_equations()` method:
 For further details see :ref:`state-space-analysis`.
 
 
+
 Other circuit methods
----------------------
+---------------------     
 
-   cct.Vdict            Dictionary of node voltages
+- `Isc(Np, Nm)`      Short-circuit current between nodes Np and Nm.
 
-   cct.Idict            Dictionary of branch currents
+- `Voc(Np, Nm)`      Open-circuit voltage between nodes Np and Nm.
 
-   cct.Isc(Np, Nm)      Short-circuit current between nodes Np and Nm.
+- `isc(Np, Nm)`      Short-circuit t-domain current between nodes Np and Nm.
 
-   cct.Voc(Np, Nm)      Open-circuit voltage between nodes Np and Nm.
-
-   cct.isc(Np, Nm)      Short-circuit t-domain current between nodes Np and Nm.
-
-   cct.voc(Np, Nm)      Open-circuit t-domain voltage between nodes Np and Nm.
+- `voc(Np, Nm)`      Open-circuit t-domain voltage between nodes Np and Nm.
    
-   cct.admittance(Np, Nm)        s-domain admittance between nodes Np and Nm.
+- `admittance(Np, Nm)`        s-domain admittance between nodes Np and Nm.
   
-   cct.impedance(Np, Nm)         s-domain impedance between nodes Np and Nm.
+- `impedance(Np, Nm)`         s-domain impedance between nodes Np and Nm.
 
-   cct.kill()           Remove independent sources.
+- `kill()`           Remove independent sources.
 
-   cct.kill_except(sources)      Remove independent sources except ones specified.
+- `kill_except(sources)`      Remove independent sources except ones specified.
 
-   cct.transfer(N1p, N1m, N2p, N2m) Voltage transfer function V2/V1, where V1 = V[N1p] - V[N1m], V2 = V[N2p] - V[N2m].
+- `transfer(N1p, N1m, N2p, N2m)` Voltage transfer function V2/V1, where V1 = V[N1p] - V[N1m], V2 = V[N2p] - V[N2m].
 
-   cct.thevenin(Np, Nm)  Thevenin model between nodes Np and Nm.
+- `thevenin(Np, Nm)`  Thevenin model between nodes Np and Nm.
 
-   cct.norton(Np, Nm)    Norton model between nodes Np and Nm.
+- `norton(Np, Nm)`    Norton model between nodes Np and Nm.
 
-   cct.twoport(self, N1p, N1m, N2p, N2m) Create two-port component where I1 is the current flowing into N1p and out of N1m, I2 is the current flowing into N2p and out of N2m, V1 = V[N1p] - V[N1m], V2 = V[N2p] - V[N2m].
+- `twoport(self, N1p, N1m, N2p, N2m)` Create two-port component where I1 is the current flowing into N1p and out of N1m, I2 is the current flowing into N2p and out of N2m, V1 = V[N1p] - V[N1m], V2 = V[N2p] - V[N2m].
 
-   cct.add(component) Add component from net list.
+- `add(component)` Add component from net list.
         
-   cct.remove(component) Remove component from net list.
+- `remove(component)` Remove component from net list.
 
-   cct.netfile_add(filename) Add netlist from file.
+- `netfile_add(filename)` Add netlist from file.
 
-   cct.s_model()         Convert circuit to s-domain model.
+- `s_model()`         Convert circuit to s-domain model.
 
-   cct.pre_initial_model()   Convert circuit to pre-initial model.
+- `pre_initial_model()`   Convert circuit to pre-initial model.
 
-   cct.ac()           Create subnetlist for AC components of independent sources.
+- `ac()`           Create subnetlist for AC components of independent sources.
 
-   cct.dc()           Create subnetlist for DC components of independent sources.
+- `dc()`           Create subnetlist for DC components of independent sources.
 
-   cct.transient()    Create subnetlist for transient components of independent sources.
+- `transient()`    Create subnetlist for transient components of independent sources.
 
-   cct.laplace()      Create subnetlist with Laplace representations of independent source values.
+- `laplace()`      Create subnetlist with Laplace representations of independent source values.
 
 
 Plotting

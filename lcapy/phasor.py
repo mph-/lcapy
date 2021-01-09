@@ -273,7 +273,10 @@ def phasor(arg, **assumptions):
 
     arg = expr(arg)
 
-    return PhasorDomainTimeExpression(arg, **assumptions)
+    if arg.is_time_domain:
+        return PhasorDomainTimeExpression(arg, **assumptions)
+    else:
+        return PhasorDomainFrequencyExpression(arg, **assumptions)
     
 
 from .expressionclasses import expressionclasses
