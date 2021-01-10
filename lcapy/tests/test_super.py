@@ -184,3 +184,11 @@ class LcapyTester(unittest.TestCase):
     def test_super_mul(self):
 
         self.assertEqual(SuperpositionCurrent(5) * impedance(2), SuperpositionVoltage(10), 'I * R')       
+
+
+    def test_super_sympy_float(self):
+
+        V = SuperpositionVoltage()
+        V.add(sym.Float(8))
+       
+        self.assertEqual(isinstance(V.dc.expr, sym.Rational), True, 'Float -> Rational')

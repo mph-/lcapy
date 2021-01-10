@@ -7,6 +7,7 @@ Copyright 2019--2020 Michael Hayes, UCECE
 """
 
 from __future__ import division
+import sympy as sym
 from .expr import Expr, ExprDict, expr
 from .sym import tsym, omega0sym, symbols_find, is_sympy, symsymbol
 from .acdc import is_ac
@@ -554,12 +555,13 @@ class Superposition(ExprDict):
     def add(self, value):
         """Add a value into the superposition."""
 
+        try:
+            val = value.expr
+        except:
+            val = value
+        
         # Avoid triggering __eq__ for Super otherwise have infinite recursion
         if not isinstance(value, Superposition):
-            try:
-                val = value.expr
-            except:
-                val = value
             if val == 0:
                 return
 
@@ -577,17 +579,10 @@ class Superposition(ExprDict):
         if isinstance(value, NoiseExpression):
             self._add_noise(value)
             return
-        
-        # DC should be real but allow const complex value.
-        if isinstance(value, (int, float, complex)):
-            value = self.decompose_to_domain(value, 'dc')
-        elif is_sympy(value):
-            try:
-                # Look for I, 5 * I, etc.
-                if value.is_constant:
-                    value = self.decompose_to_domain(value, 'dc')
-            except:
-                pass
+
+        value = expr(value)
+        if value.has(sym.Float):
+            value.expr = sym.nsimplify(value.expr)
 
         # TODO, perhaps handle Fourier domain expressions in the
         # decomposition?  For now, convert to time domain.
