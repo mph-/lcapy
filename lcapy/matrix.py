@@ -62,7 +62,6 @@ class Matrix(sym.Matrix):
         LaTeX markup.  However, this requires mathjax.  If this method
         is not defined, jupyter falls back on _repr__pretty_ which
         outputs unicode."""
-        import pdb; pdb.set_trace()
         return '$$' + latex(self) + '$$'
 
     def pprint(self):
