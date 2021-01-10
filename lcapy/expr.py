@@ -394,6 +394,11 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     def as_expr(self):
         return self
 
+    def as_constant(self):
+        if not self.is_constant:
+            raise ValueError('Expression %s is not constant' % self)
+        return self._class_by_quantity(self.quantity)(self)(cexpr(self))
+    
     def as_time(self):
         return self.time()
 
