@@ -11,12 +11,13 @@ import sympy as sym
 from .expr import Expr, ExprDict, expr
 from .sym import tsym, omega0sym, symbols_find, is_sympy, symsymbol
 from .acdc import is_ac
+from .domains import SuperpositionDomain
 from .printing import pprint, pretty, latex
 from .classmap import domain_kind_quantity_to_class, expr_to_domain_kind
 from .classmap import domain_quantity_to_class
 
 
-class Superposition(ExprDict):
+class Superposition(SuperpositionDomain, ExprDict):
     """This class represents a superposition of different signal types,
     DC, AC, transient, and noise.
     

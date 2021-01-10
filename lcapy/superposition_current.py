@@ -32,7 +32,7 @@ from .impedance import impedance
 from .currentmixin import CurrentMixin
 
 
-class SuperpositionCurrent(CurrentMixin, Superposition):
+class SuperpositionCurrent(Superposition, CurrentMixin):
 
     def cpt(self):
         from .oneport import I

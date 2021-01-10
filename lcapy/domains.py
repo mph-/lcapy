@@ -18,7 +18,8 @@ class Domain(object):
     is_discrete_time_domain = False
     is_discrete_fourier_domain = False
     is_Z_domain = False
-    is_transform_domain = False        
+    is_transform_domain = False
+    is_superposition_domain = False            
 
 
 class UndefinedDomain(Domain):
@@ -95,3 +96,13 @@ class ZDomain(Domain):
     domain_units = ''
     is_Z_domain = True
     is_transform_domain = True    
+
+
+class SuperpositionDomain(Domain):
+    domain = 'superposition'
+    domain_label = 'Superposition'    
+    domain_units = ''
+    is_superposition_domain = True
+    is_transform_domain = True    
+    
+    

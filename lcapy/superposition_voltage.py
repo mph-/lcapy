@@ -32,7 +32,7 @@ from .admittance import admittance
 from .voltagemixin import VoltageMixin
 
 
-class SuperpositionVoltage(VoltageMixin, Superposition):
+class SuperpositionVoltage(Superposition, VoltageMixin):
 
     def cpt(self):
         from .oneport import V
