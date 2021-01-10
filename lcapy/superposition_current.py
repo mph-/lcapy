@@ -28,23 +28,17 @@ Copyright 2019--2020 Michael Hayes, UCECE
 
 from .super import Superposition
 from .impedance import impedance
+from .currentmixin import CurrentMixin
 
 
-class SuperpositionCurrent(Superposition):
+class SuperpositionCurrent(CurrentMixin, Superposition):
 
-    is_current = True
-    quantity = 'current'
-    
-    
     def cpt(self):
         from .oneport import I
         # Perhaps should generate more specific components such as Idc?        
         return I(self.time())
 
-    def __rmul__(self, x):
-        return self.__mul__(x)
-    
-    def __mul__(self, x):
+    def _mul(self, x):
         if isinstance(x, (int, float)):
             return self.__scale__(x)
 
@@ -56,25 +50,31 @@ class SuperpositionCurrent(Superposition):
         if not x.is_impedance:
             raise TypeError("Unsupported types for *: 'Current' and '%s'" %
                             type(x).__name__)
+        if x.is_time_domain:
+            raise TypeError("Cannot multiply by time-domain impedance.")
+        
         obj = self
-        if x.has(s):
+        if 't' in self and not x.is_constant_domain:
             obj = self.decompose()
-
+        xs = x.laplace()
+            
         new = SuperpositionVoltage()
         if 'dc' in obj:
-            # TODO, fix types
-            new += ConstantExpression(obj['dc'] * ConstantExpression(x(0)))
+            new += obj['dc'] * xs(0)
         for key in obj.ac_keys():
-            new += obj[key] * x.jomega(obj[key].omega)
+            new += obj[key] * xs(j * obj[key].omega)
         for key in obj.noise_keys():            
-            new += obj[key] * x.jomega            
+            new += obj[key] * xs(j * obj[key].omega)
         if 's' in obj:
-            new += obj['s'] * LaplaceDomainExpression(x)
+            new += obj['s'] * xs
         if 't' in obj:
-            new += obj['t'] * TimeDomainExpression(x)                        
+            new += obj['t'] * x
         return new
 
     def __div__(self, x):
+        if False:
+            raise ValueError('Cannot divide superposition, need to convert to specific domain')        
+        
         if isinstance(x, (int, float)):
             return self.__scale__(1 / x)
 
@@ -86,8 +86,17 @@ class SuperpositionCurrent(Superposition):
             raise TypeError("Cannot divide '%s' by '%s'; require admittance" %
                             (type(self).__name__, type(x).__name__))
 
-        return self * impedance(1 / x)
+        Z = 1 / x
+        return self * Z
 
+    def __mul__(self, x):
+        if False:
+            raise ValueError('Cannot multiply superposition, need to convert to specific domain')
+        return self._mul(x)
+    
+    def __rmul__(self, x):
+        return self.__mul__(x)
+    
     def __truediv__(self, x):
         return self.__div__(x)
 

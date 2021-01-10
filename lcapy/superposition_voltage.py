@@ -28,22 +28,18 @@ Copyright 2019--2020 Michael Hayes, UCECE
 
 from .super import Superposition
 from .admittance import admittance
+from .voltagemixin import VoltageMixin
 
 
-class SuperpositionVoltage(Superposition):
+class SuperpositionVoltage(VoltageMixin, Superposition):
 
-    is_voltage = True
-    quantity = 'voltage'
     
     def cpt(self):
         from .oneport import V
         # Perhaps should generate more specific components such as Vdc?
         return V(self.time())
 
-    def __rmul__(self, x):
-        return self.__mul__(x)
-
-    def __mul__(self, x):
+    def _mul(self, x):
         if isinstance(x, (int, float)):
             return self.__scale__(x)
 
@@ -55,26 +51,31 @@ class SuperpositionVoltage(Superposition):
         if not x.is_admittance:
             raise TypeError("Unsupported types for *: 'Voltage' and '%s'" %
                             type(x).__name__)
-        obj = self
-        if x.has(s):
-            obj = self.decompose()
+        if x.is_time_domain:
+            raise TypeError("Cannot multiply by time-domain impedance.")
         
+        obj = self
+        if 't' in self and not x.is_constant_domain:
+            obj = self.decompose()
+        xs = x.laplace()
+            
         new = SuperpositionCurrent()
         if 'dc' in obj:
-            # TODO, fix types
-            new += ConstantExpression(obj['dc'] * ConstantExpression(x(0)))
+            new += obj['dc'] * xs(0)
         for key in obj.ac_keys():
-            new += obj[key] * x.jomega(obj[key].omega)
+            new += obj[key] * xs(j * obj[key].omega)
         for key in obj.noise_keys():            
-            new += obj[key] * x.jomega
+            new += obj[key] * xs(j * obj[key].omega)
         if 's' in obj:
-            new += obj['s'] * LaplaceDomainExpression(x)
+            new += obj['s'] * xs
         if 't' in obj:
-            new += self['t'] * TimeDomainExpression(x)
-            
+            new += obj['t'] * x
         return new
 
     def __div__(self, x):
+        if False:
+            raise ValueError('Cannot divide superposition, need to convert to specific domain')        
+        
         if isinstance(x, (int, float)):
             return self.__scale__(1 / x)
 
@@ -86,7 +87,16 @@ class SuperpositionVoltage(Superposition):
             raise TypeError("Cannot divide '%s' by '%s'; require impedance" %
                             (type(self).__name__, type(x).__name__))        
 
-        return self * admittance(1 / x)
+        Y = 1 / x
+        return self * Y
+
+    def __mul__(self, x):
+        if False:
+            raise ValueError('Cannot multiply superposition, need to convert to specific domain')        
+        return self._mul(x)
+    
+    def __rmul__(self, x):
+        return self._mul(x)
 
     def __truediv__(self, x):
         return self.__div__(x)    

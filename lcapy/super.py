@@ -316,6 +316,14 @@ class Superposition(ExprDict):
         def _is_s_arg(x):
             return isinstance(x, LaplaceDomainExpression) or (isinstance(x, Superposition) and 's' in x)
 
+        x = expr(x)
+        # Perhaps check if a constant?
+        if x.is_undefined:
+            x = x.as_quantity(self.quantity)
+        
+        if x.quantity != self.quantity:
+            raise ValueError('Incompatible quantities %s and %s' % (self.quantity, x.quantity))
+
         if _is_s_arg(x):
             new = self.decompose()
         else:
@@ -705,10 +713,7 @@ phasor, for example, using: %s""" % foo)
 
         # TODO, integrate noise
         for val in self.values():
-            if hasattr(val, 'time'):
-                result += val.time(**assumptions)
-            else:
-                result += val
+            result += val.time(**assumptions)
         return result
 
     def transient_response(self, tvector=None):

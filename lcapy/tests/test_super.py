@@ -6,6 +6,12 @@ from lcapy.superposition_current import SuperpositionCurrent
 import unittest
 import sympy as sym
 
+def div(a, b):
+   return a / b
+
+def mul(a, b):
+   return a * b
+
 class LcapyTester(unittest.TestCase):
 
     """Unit tests for lcapy
@@ -135,4 +141,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(SuperpositionVoltage(10) / impedance(2), SuperpositionCurrent(5), 'V / R')
         self.assertEqual(SuperpositionCurrent(5) / admittance(1 / 2), SuperpositionVoltage(10), 'I / G')
         self.assertEqual(SuperpositionVoltage(10) * admittance(1 / 2), SuperpositionCurrent(5), 'V / G')
-        self.assertEqual(SuperpositionCurrent(5) * impedance(2), SuperpositionVoltage(10), 'I * R')                
+        self.assertEqual(SuperpositionCurrent(5) * impedance(2), SuperpositionVoltage(10), 'I * R')
+
+    def test_super_time_div_laplace(self):
+
+        self.assertRaises(ValueError, div, voltage('v(t)'), impedance(3 * s))
+
+    def test_super_time_mul_laplace(self):
+
+        self.assertRaises(ValueError, div, current('i(t)'), admittance(3 * s))                

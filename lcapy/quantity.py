@@ -1,6 +1,6 @@
 class Quantity(object):
 
-    quantity = 'undefined'    
+    quantity = ''    
     is_voltage = False
     is_current = False
     is_impedance = False
@@ -8,7 +8,11 @@ class Quantity(object):
     is_transfer = False
     is_immitance = False
     is_always_causal = False
+    is_undefined = False
 
 
 class UndefinedQuantity(Quantity):
-    pass
+
+    quantity = 'undefined'        
+    is_undefined = True    
+
