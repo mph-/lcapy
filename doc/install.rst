@@ -111,5 +111,5 @@ Installation for development
 
 .. code-block:: console
 
-   $ pip3 install flake8 flake-8-bugbear flake8-requirements flake8-comprehensions
+   $ pip3 install flake8 flake8-bugbear flake8-requirements flake8-comprehensions
    
