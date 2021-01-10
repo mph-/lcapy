@@ -349,15 +349,15 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     def as_quantity(self, quantity):
 
         if quantity == 'voltage':
-            return self.as_voltage(expr)
+            return self.as_voltage()
         elif quantity == 'current':
-            return self.as_current(expr)
+            return self.as_current()
         elif quantity == 'impedance':
-            return self.as_impedance(expr)
+            return self.as_impedance()
         elif quantity == 'admittance':
-            return self.as_admittance(expr)
+            return self.as_admittance()
         elif quantity == 'transfer':
-            return self.as_transfer(expr)
+            return self.as_transfer()
         elif quantity == 'undefined':
             return self.as_expr(expr)        
         raise ValueError('Unknown quantity %s for %s' % (quantity, self))
@@ -365,15 +365,15 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     def as_domain(self, domain):
 
         if domain == 'time':
-            return self.as_time(expr)
+            return self.as_time()
         elif domain == 'laplace':
-            return self.as_laplace(expr)
+            return self.as_laplace()
         elif domain == 'fourier':
-            return self.as_fourier(expr)
+            return self.as_fourier()
         elif domain == 'phasor':
-            return self.as_phasor(expr)        
+            return self.as_phasor()        
         elif domain == 'angular fourier':
-            return self.as_angular_fourier(expr)
+            return self.as_angular_fourier()
         raise ValueError('Unknown domain %s for %s' % (domain, self))
 
     def as_voltage(self):

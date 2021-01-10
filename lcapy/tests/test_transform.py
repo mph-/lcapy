@@ -50,7 +50,6 @@ class LcapyTester(unittest.TestCase):
         
         self.assertEqual(a, b, 'explicit transform omega -> omega')        
 
-        
     def test_s_to_jomega(self):
 
         a = expr(2 * s, causal=True)
@@ -119,4 +118,21 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(Yf(omega), Yw, 'Yf(omega)')
         self.assertEqual(Yf(s), Ys, 'Yf(s)')                
+        
+    def test_as(self):
+
+        a = expr(3)
+
+        self.assertEqual(a.as_expr().is_undefined, True, 'is_undefined')        
+        self.assertEqual(a.as_voltage().is_voltage, True, 'is_voltage')
+        self.assertEqual(a.as_current().is_current, True, 'is_current')
+        self.assertEqual(a.as_admittance().is_admittance, True, 'is_admittance')
+        self.assertEqual(a.as_impedance().is_impedance, True, 'is_impedance')
+        self.assertEqual(a.as_transfer().is_transfer, True, 'is_transfer')        
+        
+        self.assertEqual(a.as_time().is_time_domain, True, 'is_time_domain')
+        self.assertEqual(a.as_laplace().is_laplace_domain, True, 'is_laplace_domain')
+        self.assertEqual(a.as_fourier().is_fourier_domain, True, 'is_fourier_domain')
+        self.assertEqual(a.as_angular_fourier().is_angular_fourier_domain, True, 'is_angular_fourier_domain')
+        self.assertEqual(a.as_phasor().is_phasor_domain, True, 'is_phasor_domain')
         
