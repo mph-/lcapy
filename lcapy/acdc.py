@@ -6,7 +6,7 @@ Copyright 2020 Michael Hayes, UCECE
 """
 
 from .sym import sympify1
-from .functions import UnitImpulse, UnitStep
+from .functions import UnitImpulse, UnitStep, Eq
 import sympy as sym
 from sympy import cos, pi, sin, atan2, sqrt
 
@@ -166,13 +166,34 @@ class ACChecker(object):
 
 
 def is_dc(expr, var):
+
+    try:
+        if expr.is_Equality:
+            return is_dc(expr.expr.args[0], var) or is_dc(expr.expr.args[1], var)
+    except:
+        pass
+    
     return DCChecker(expr, var).is_dc
 
 
 def is_ac(expr, var):
+
+    try:
+        if expr.is_Equality:
+            return is_ac(expr.expr.args[0], var) or is_ac(expr.expr.args[1], var)
+    except:
+        pass
+        
     return ACChecker(expr, var).is_ac
 
 
 def is_causal(expr, var):
+
+    try:
+        if expr.is_Equality:
+            return is_causal(expr.expr.args[0], var) or is_causal(expr.expr.args[1], var)
+    except:
+        pass
+    
     return CausalChecker(expr, var).is_causal
 

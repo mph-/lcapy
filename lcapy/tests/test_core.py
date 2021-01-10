@@ -633,5 +633,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Z.is_impedance, True, 'impedance')
         self.assertEqual(Z.omega, 5, 'omega')
         
+    def test_equality(self):
+
+        e = Eq(expr('x(t)'), cos(3 * t))
+        self.assertEqual(e.is_ac, True, 'is_ac')
+        self.assertEqual(e.is_dc, False, 'is_dc')
+        self.assertEqual(e.is_causal, False, 'is_causal')
         
+               
         
