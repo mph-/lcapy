@@ -180,6 +180,11 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(voltage(texpr(10)) / impedance(2), current(5), 'V / R')
         self.assertEqual(current(texpr(5)) / admittance(1 / 2), voltage(10), 'V / G')
         self.assertEqual(voltage(texpr(10)) * admittance(1 / 2), current(5), 'V * Y')
-        self.assertEqual(current(texpr(5)) * impedance(2), voltage(10), 'I * Z')                                                  
+        self.assertEqual(current(texpr(5)) * impedance(2), voltage(10), 'I * Z')
+
+        # Invoke conversion of LaplaceDomain to ConstantDomain
+        self.assertEqual(current(texpr(5)) * impedance(0 * s + 2), voltage(10), 'I * Z')
+        self.assertEqual(voltage(texpr(10)) / impedance(0 * s + 2), current(5), 'V / Z')                
+        
 
         

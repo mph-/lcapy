@@ -811,6 +811,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
             self.__class__ == TimeDomainExpression):
             return TimeDomainExpression(self.expr * x.expr)
 
+        # Try to convert immitance to a constant so that can handle I(t) * Z
+        if x.is_immitance:
+            try:
+                x = x.as_constant()
+            except:
+                pass
+
         if not self._mul_compatible_domains(x):
             self._incompatible_domains(x, '*')                    
 
@@ -855,6 +862,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         if not isinstance(x, Expr):
             x = expr(x)
 
+        # Try to convert immitance to a constant so that can handle V(t) / Z
+        if x.is_immitance:
+            try:
+                x = x.as_constant()
+            except:
+                pass
+            
         if not self._div_compatible_domains(x):
             self._incompatible_domains(x, '/')                        
 
