@@ -184,6 +184,7 @@ class LcapyTester(unittest.TestCase):
     def test_super_mul(self):
 
         self.assertEqual(SuperpositionCurrent(5) * impedance(2), SuperpositionVoltage(10), 'I * R')
+        self.assertEqual(SuperpositionCurrent(5) * impedance(0 * s + 2), SuperpositionVoltage(10), 'I * R')
 
     def test_super_reverse_mul(self):
 

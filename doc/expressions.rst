@@ -335,7 +335,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `is_conditional` returns True if expression is conditional, e.g., :math:`\exp(-t)\;\; \ge 0`
 
-- `is_constant` returns True if expression constant
+- `is_constant` returns True if expression constant (it must have no free symbols, compare with `is_unchanging`)
 
 - `is_dc` returns True if DC signal    
 
@@ -344,6 +344,8 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 - `is_rational_function` returns True if expression is a rational function
 
 - `is_strictly_proper` returns True if degree of denominator greater than degree of numerator
+
+- `is_unchanging` returns True if expression does not have a domain variable (compare with `is_constant`)
   
 - `label` returns string describing expression to use as a plot label
 

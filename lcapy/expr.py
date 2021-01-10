@@ -395,7 +395,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         return self
 
     def as_constant(self):
-        if not self.is_constant:
+        if not self.is_unchanging:
             raise ValueError('Expression %s is not constant' % self)
         return self._class_by_quantity(self.quantity)(self)(cexpr(self))
     
@@ -1311,26 +1311,22 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
     
     @property
     def is_number(self):
+        """Returns True if expression is a number"""                
 
         return self.expr.is_number
 
     @property
     def is_constant(self):
+        """Returns True if expression does not have any free symbols  (compare with `is_unchanging`)"""        
 
-        if self.is_constant_domain:
-            return True
+        return self.expr.free_symbols == set()
 
-        expr = self.expr
+    @property
+    def is_unchanging(self):
+        """Returns True if expression does not have a domain variable (compare with `is_constant`)"""
 
-        # Workaround for sympy bug
-        # a = sym.sympify('DiracDelta(t)')
-        # a.is_constant()
-        
-        if expr.has(sym.DiracDelta):
-            return False
-        
-        return expr.is_constant()
-
+        return self.var not in self.expr.free_symbols
+    
     def evaluate(self, arg=None):
         """Evaluate expression at arg.  arg may be a scalar, or a vector.
         The result is of type float or complex.

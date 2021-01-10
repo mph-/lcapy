@@ -419,7 +419,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_constant, False, "is_constant")                
 
         a = expr('3')
-        self.assertEqual(a.is_constant, True, "3 is_constant")        
+        self.assertEqual(a.is_constant, True, "3 is_constant")
+        self.assertEqual(a.is_unchanging, True, "3 is_unchanging")
+
+        a = expr('3 * x')
+        self.assertEqual(a.is_constant, False, "3 * x is_constant")
+        self.assertEqual(a.is_unchanging, True, "3 * x is_unchanging")        
 
         self.assertEqual(isinstance(expr(t), TimeDomainExpression), True, "tExpr")
         self.assertEqual(isinstance(expr(s), LaplaceDomainExpression), True, "sExpr")
