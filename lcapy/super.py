@@ -2,7 +2,7 @@
 Current and Voltage.  It represents voltages and currents as a
 superposition in different transform domains.
 
-Copyright 2019--2020 Michael Hayes, UCECE
+Copyright 2019--2021 Michael Hayes, UCECE
 
 """
 
@@ -105,7 +105,7 @@ class Superposition(ExprDict):
 
     def _repr_latex_(self):
         """This is used by jupyter notebooks to display an expression using
-        LaTeX markup.  However, this requires matjax.  If this method
+        LaTeX markup.  However, this requires mathjax.  If this method
         is not defined, jupyter falls back on _repr__pretty_ which
         outputs unicode."""
 
@@ -782,3 +782,15 @@ from .noiseexpr import NoiseExpression
 from .phasor import PhasorDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .symbols import s, omega
+
+
+# See expr.py
+
+import sys
+try:
+    from .printing import latex
+    formatter = sys.displayhook.shell.display_formatter.formatters['text/latex']
+    
+    formatter.type_printers[Superposition] = Superposition._repr_latex_
+except:
+    pass
