@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 __version__ = '0.75-dev'
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 tests_require = ['nose', 'flake8', 'flake8-bugbear', 'flake8-comprehensions', 'flake8-requirements']
