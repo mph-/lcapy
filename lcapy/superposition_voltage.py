@@ -4,7 +4,7 @@ as a superposition in different transform domains.
 For example, the following expression is a superposition of a DC
 component, an AC component, and a transient component:
 
-V1 = Voltage('1 + 2 * cos(2 * pi * 3 * t) + 3 * u(t)')
+V1 = SuperpositionVoltage('1 + 2 * cos(2 * pi * 3 * t) + 3 * u(t)')
 
 V1(t) returns the time domain expression
 V1(s) returns the Laplace domain expression
@@ -27,13 +27,13 @@ Copyright 2019--2020 Michael Hayes, UCECE
 """
 
 from .super import Superposition
+from .symbols import j, omega
 from .admittance import admittance
 from .voltagemixin import VoltageMixin
 
 
 class SuperpositionVoltage(VoltageMixin, Superposition):
 
-    
     def cpt(self):
         from .oneport import V
         # Perhaps should generate more specific components such as Vdc?
@@ -65,17 +65,14 @@ class SuperpositionVoltage(VoltageMixin, Superposition):
         for key in obj.ac_keys():
             new += obj[key] * xs(j * obj[key].omega)
         for key in obj.noise_keys():            
-            new += obj[key] * xs(j * obj[key].omega)
+            new += obj[key] * xs(omega)
         if 's' in obj:
             new += obj['s'] * xs
         if 't' in obj:
             new += obj['t'] * x
         return new
 
-    def __div__(self, x):
-        if False:
-            raise ValueError('Cannot divide superposition, need to convert to specific domain')        
-        
+    def _div(self, x):
         if isinstance(x, (int, float)):
             return self.__scale__(1 / x)
 
@@ -99,7 +96,10 @@ class SuperpositionVoltage(VoltageMixin, Superposition):
         return self._mul(x)
 
     def __truediv__(self, x):
-        return self.__div__(x)    
+        if False:
+            raise ValueError('Cannot divide superposition, need to convert to specific domain')        
+        
+        return self._div(x)    
 
 
 from .cexpr import ConstantExpression

@@ -90,7 +90,7 @@ class Superposition(ExprDict):
         # using a decomposition in the transform domains.
         # We could present the result in the time-domain but this
         # hides the underlying way the signal is analysed.
-        return decomp
+        return dict(decomp)
 
     def latex(self, **kwargs):
         """Latex"""

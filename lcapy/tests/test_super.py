@@ -138,10 +138,40 @@ class LcapyTester(unittest.TestCase):
 
     def test_super_op_const(self):
 
-        self.assertEqual(SuperpositionVoltage(10) / impedance(2), SuperpositionCurrent(5), 'V / R')
-        self.assertEqual(SuperpositionCurrent(5) / admittance(1 / 2), SuperpositionVoltage(10), 'I / G')
-        self.assertEqual(SuperpositionVoltage(10) * admittance(1 / 2), SuperpositionCurrent(5), 'V / G')
-        self.assertEqual(SuperpositionCurrent(5) * impedance(2), SuperpositionVoltage(10), 'I * R')
+        V = SuperpositionVoltage(10)
+        Z = impedance(2)
+        Y = admittance(1 / 2)
+        I = SuperpositionCurrent(5)
+       
+        self.assertEqual(V._div(Z), I, 'V / R')
+        self.assertEqual(I._div(Y), V, 'I / G')
+        self.assertEqual(V._mul(Y), I, 'V / G')
+        self.assertEqual(I._mul(Z), V, 'I * R')
+
+    def test_super_op_laplace(self):
+
+        V = SuperpositionVoltage(10 / s)
+        Z = impedance(2 * s)
+        Y = admittance(1 / (2 * s))
+        I = SuperpositionCurrent(5 / s**2)
+       
+        self.assertEqual(V._div(Z), I, 'V / R')
+        self.assertEqual(I._div(Y), V, 'I / G')
+        self.assertEqual(V._mul(Y), I, 'V / G')
+        self.assertEqual(I._mul(Z), V, 'I * R')
+
+    def test_super_op_phasor(self):
+
+        V = SuperpositionVoltage((10 * sin(omega * t)).as_phasor())
+        # TODO, try with jw
+        Z = impedance(2 * s)
+        Y = admittance(1 / (2 * s))
+        I = SuperpositionCurrent((-5 / omega * cos(omega * t)).as_phasor())
+       
+        self.assertEqual(V._div(Z), I, 'V / R')
+        self.assertEqual(I._div(Y), V, 'I / G')
+        self.assertEqual(V._mul(Y), I, 'V / G')
+        self.assertEqual(I._mul(Z), V, 'I * R')                
 
     def test_super_time_div_laplace(self):
 
@@ -150,3 +180,7 @@ class LcapyTester(unittest.TestCase):
     def test_super_time_mul_laplace(self):
 
         self.assertRaises(ValueError, div, current('i(t)'), admittance(3 * s))                
+
+    def test_super_mul(self):
+
+        self.assertEqual(SuperpositionCurrent(5) * impedance(2), SuperpositionVoltage(10), 'I * R')       

@@ -42,6 +42,9 @@ style-check:
 flake8:
 	-flake8 lcapy
 
+.PHONY: check
+check: style-check test
+
 .PHONY: push
 push:
 	git push
