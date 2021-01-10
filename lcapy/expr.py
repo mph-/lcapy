@@ -800,6 +800,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
     def __mul__(self, x):
         """Multiply"""
 
+        from .super import Superposition
+
+        if isinstance(x, Superposition):
+            return x.__mul__(self)
+        
         if not isinstance(x, Expr):
             x = expr(x)
 
