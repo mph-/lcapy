@@ -15,15 +15,8 @@ currents, respectively, to model transient responses.
 One-ports can either be connected in series (+) or parallel (|) to
 create a new one-port.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 """
-
-# TODO.   Rethink best way to handle impedances.   These can either be
-# s-domain or omega domain (or DC as a special case where omega = 0).
-# Perhaps alays use Current and Voltage and have these classes
-# handle multiplication/division with admittances/impedances?
-
-
 
 from __future__ import division
 from .functions import Heaviside, cos, exp
@@ -86,18 +79,18 @@ class OnePort(Network, ImmittanceMixin):
         if self._Z is not None:
             return self._Z
         if self._Y is not None:
-            return impedance(1 / self._Y)
+            return 1 / self._Y
         if self._Voc is not None:        
             return impedance(0)
         if self._Isc is not None:        
-            return impedance(1 / admittance(0))
+            return 1 / admittance(0)
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
 
     @property
     def admittance(self):
         if self._Y is not None:
             return self._Y
-        return admittance(1 / self.impedance)
+        return 1 / self.impedance
 
     @property
     def Voc(self):
@@ -105,7 +98,7 @@ class OnePort(Network, ImmittanceMixin):
         if self._Voc is not None:
             return self._Voc
         if self._Isc is not None:
-            return self._Isc * self.impedance
+            return self._Isc._mul(self.impedance)
         if self._Z is not None:        
             return SuperpositionVoltage(0)
         if self._Y is not None:        
@@ -117,7 +110,7 @@ class OnePort(Network, ImmittanceMixin):
         """Short-circuit current."""        
         if self._Isc is not None:
             return self._Isc
-        return self.Voc / self.impedance
+        return self.Voc._mul(self.admittance)
 
     @property
     def V(self):
@@ -690,11 +683,11 @@ class Par(ParSer):
         Y = 0
         for arg in self.args:
             Y += arg.admittance
-        return admittance(Y)
+        return Y
 
     @property
     def impedance(self):
-        return impedance(1 / self.admittance)
+        return 1 / self.admittance
 
 class Ser(ParSer):
     """Series class"""
@@ -764,14 +757,14 @@ class Ser(ParSer):
     
     @property
     def admittance(self):
-        return admittance(1 / self.impedance)
+        return 1 / self.impedance
     
     @property
     def impedance(self):
         Z = 0
         for arg in self.args:
             Z += arg.impedance
-        return impedance(Z)
+        return Z
 
     
 class R(OnePort):
