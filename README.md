@@ -17,7 +17,7 @@ arbitrary node names (except for the ground node which is labelled 0).
 The netlists can be loaded from a file or created at run-time.  For
 example:
 
-    >>> from lcapy import Circuit, s
+    >>> from lcapy import Circuit, s, t
     >>> cct = Circuit("""
     ... Vs 2 0 {5 * u(t)}
     ... Ra 2 1
@@ -25,12 +25,20 @@ example:
     ... """)
 
 The circuit can then be interrogated to determine branch currents,
-branch voltages, and node voltages (with respect to the ground node 0).
+branch voltages, and node voltages (with respect to the ground node 0).  For example:
 
-    >>> cct[1].v
-    >>> cct[2].v
-    >>> cct.Ra.i
+    >>> cct[1].V(t)
+    5⋅R_b⋅u(t)
+    ──────────
+     Rₐ + R_b 
+    >>> cct.Ra.I(t)
+     5⋅u(t) 
+    ────────
+    Rₐ + R_b
     >>> cct.Ra.V(s)
+       5⋅Rₐ    
+    ────────────
+    s⋅(Rₐ + R_b)
 
 
 One-port networks
@@ -180,7 +188,7 @@ Documentation
 For comprehensive documentation, see http://lcapy.elec.canterbury.ac.nz
 
 Alternatively, the documentation can be viewed in a web browser after
-running 'make html' in the doc directory.
+running 'make doc' in the top-level directory.
 
 For another view on Lcapy see https://blog.ouseful.info/2018/08/07/an-easier-approach-to-electrical-circuit-diagram-generation-lcapy/
 
