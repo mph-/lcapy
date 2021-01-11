@@ -156,8 +156,6 @@ class NoiseExpression(Expr):
     def rms(self):
         """Calculate rms value."""
 
-        from .texpr import TimeDomainExpression
-
         P = sym.integrate(self.expr**2, (self.var, 0, sym.oo))
         if self.var == omegasym:
             P /= 2 * sym.pi
@@ -230,4 +228,3 @@ class NoiseExpression(Expr):
     
 from .fexpr import f
 from .omegaexpr import omega
-from .texpr import TimeDomainExpression

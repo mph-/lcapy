@@ -30,9 +30,27 @@ def current(arg, **assumptions):
 
     expr1 = expr(arg, **assumptions)
 
+    if 'nid' in assumptions:
+        from .noisefexpr import FourierNoiseDomainCurrent
+        from .noiseomegaexpr import AngularFourierNoiseDomainCurrent        
+        
+        if expr1.is_fourier_domain or expr1.is_constant_domain:
+            expr1 = FourierNoiseDomainCurrent(expr1)
+        elif expr1.is_angular_fourier_domain:
+            expr1 = AngularFourierNoiseDomainCurrent(expr1)
+        else:
+            raise ValueError('Cannot represent noise current in %s domain' % expr1.domain)
+    
     try:
         expr1 = expr1.as_current()
     except:        
         raise ValueError('Cannot represent %s(%s) as current' % (expr1.__class__.__name__, expr1))
 
     return expr1.apply_unit(uu.amperes)
+
+
+def noisecurrent(arg, **assumptions):
+
+    nid = assumptions.get('nid', None)
+
+    return current(arg, nid=None, **assumptions)

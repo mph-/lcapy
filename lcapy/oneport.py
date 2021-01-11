@@ -1042,7 +1042,7 @@ class Vac(VoltageSourceBase):
         self.v0 = V
         self.phi = phi
         self._Voc = SuperpositionVoltage(PhasorDomainVoltage(self.v0 * exp(j * self.phi),
-                                                       ac=True, omega=self.omega))
+                                                             ac=True, omega=self.omega))
 
     @property
     def voc(self):

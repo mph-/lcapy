@@ -31,9 +31,27 @@ def voltage(arg, **assumptions):
 
     expr1 = expr(arg, **assumptions)
 
+    if 'nid' in assumptions:
+        from .noisefexpr import FourierNoiseDomainVoltage
+        from .noiseomegaexpr import AngularFourierNoiseDomainVoltage        
+        
+        if expr1.is_fourier_domain or expr1.is_constant_domain:
+            expr1 = FourierNoiseDomainVoltage(expr1)
+        elif expr1.is_angular_fourier_domain:
+            expr1 = AngularFourierNoiseDomainVoltage(expr1)
+        else:
+            raise ValueError('Cannot represent noise voltage in %s domain' % expr1.domain)
+                
     try:
         expr1 = expr1.as_voltage()
     except:        
         raise ValueError('Cannot represent %s(%s) as voltage' % (expr1.__class__.__name__, expr1))
     
     return expr1.apply_unit(uu.volts)
+
+
+def noisevoltage(arg, **assumptions):
+
+    nid = assumptions.get('nid', None)
+
+    return voltage(arg, nid=None, **assumptions)
