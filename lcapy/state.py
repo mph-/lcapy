@@ -1,12 +1,14 @@
-"""This module provides the State class that maintains the global state.
+"""This module provides the State class that maintains the global state,
+such as the symbol context.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
 from sympy.assumptions.assume import global_assumptions
 
 from .context import Context
+from .config import use_units
 from copy import copy
 
 class State(object):
@@ -15,6 +17,7 @@ class State(object):
         self.global_context = Context()
         self.context = self.global_context
         self.previous_context = []
+        self.use_units = use_units
 
     def new_context(self):
 

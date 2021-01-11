@@ -24,7 +24,7 @@ from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function
 from .units import units, u as uu
 from .utils import as_N_D, as_sum
-from .config import use_units
+from .state import state
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
@@ -1606,6 +1606,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         ret = units.simplify(ret)
         return self.__class__(ret, **self.assumptions)
 
+    def simplify_units(self):
+        """Simplify units."""
+
+        ret = units.simplify(self.expr)
+        return self.__class__(ret, **self.assumptions)    
+
     def simplify_terms(self):
         """Simplify terms in expression individually."""
 
@@ -2117,9 +2123,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return self.__class__(expr, **self.assumptions)
 
     def apply_unit(self, unit):
-        """Apply unit to expression if `use_units` True."""
+        """Apply unit to expression if `state.use_units` True."""
 
-        if not use_units:
+        if not state.use_units:
             return self
 
         value, unit1 = units.as_value_unit(self)

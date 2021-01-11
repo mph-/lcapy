@@ -1,3 +1,11 @@
+"""This module provides the Units class for simplification of units.
+It should be rolled into SymPy.  It can perform simplification of
+units, e.g., volts / amperes -> ohms.
+
+Copyright 2020--2021 Michael Hayes, UCECE
+
+"""
+
 import sympy.physics.units as u
 from sympy.physics.units.systems.si import dimsys_SI
 from sympy.physics.units.systems import SI 
