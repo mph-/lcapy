@@ -772,6 +772,15 @@ phasor, for example, using: %s""" % foo)
         """Create oneport component."""
         return self.cpt()
 
+    def rms(self):
+        return self.n.rms()
+
+    def asd(self):
+        return self.n.asd()
+
+    def psd(self):
+        return self.n.psd()        
+
     
 from .cexpr import ConstantExpression        
 from .fexpr import FourierDomainExpression    

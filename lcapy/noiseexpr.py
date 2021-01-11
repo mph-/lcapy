@@ -190,14 +190,25 @@ class NoiseExpression(Expr):
         return y
 
     def time(self):
-        print('Warning: no time representation for noise expression'
-              ', assumed zero: use rms()')
+        print('Warning: no time representation for noise expression, '
+              'assumed zero: use rms()')
         return 0
 
-    def laplace(self):
-        print('Warning: no Laplace representation for noise expression'
-              ', assumed zero')
+    def fourier(self):
+        print('Warning: no Fourier representation for noise expression, '
+              'assumed zero: use asd() or psd()')
         return 0    
+
+    def laplace(self):
+        print('Warning: no Laplace representation for noise expression, '
+              'assumed zero')
+        return 0
+
+    def asd(self):
+        return self
+
+    def psd(self):
+        return self ** 2
 
     def autocorrelation(self):
         # Convert to two-sided spectrum

@@ -94,7 +94,7 @@ class FourierNoiseDomainExpression(FourierNoiseDomain, NoiseExpression):
 
         return super(FourierNoiseDomainExpression, self).transform(arg, **assumptions)
     
-
+    
 class FourierNoiseDomainVoltage(VoltageMixin, FourierNoiseDomainExpression):
     """Voltage noise amplitude spectral density (units V/rtHz).
     This can be a function of linear frequency, f.  For example,
