@@ -51,6 +51,7 @@ def voltage(arg, **assumptions):
 
 
 def noisevoltage(arg, **assumptions):
+    """Create a new noise voltage with specified amplitude spectral density."""
 
     nid = assumptions.get('nid', None)
 

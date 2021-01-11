@@ -50,6 +50,7 @@ def current(arg, **assumptions):
 
 
 def noisecurrent(arg, **assumptions):
+    """Create a new noise current with specified amplitude spectral density."""    
 
     nid = assumptions.get('nid', None)
 
