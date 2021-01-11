@@ -1093,6 +1093,103 @@ These classes should not be explicitly used.  Instead use the factory functions
 `expr`, `voltage`, `current`, `transfer`, `admittance`, and `impedance`.
 
 
+.. _noisesignals:
+
+Noise signals
+=============
+
+Lcapy can represent wide-sense stationary, zero-mean, Gaussian random
+processes.  They are represented in terms of their one-sided,
+amplitude spectral density (ASD); this is the square root of the power
+spectral density (PSD), assuming a one ohm load.
+
+With the wide-sense stationary assumption, random processs can be
+described by their power spectral (or amplitude spectral) density or
+by their time-invariant autocorrelation function.
+
+Lcapy assumes each noise source is independent and assigns a unique
+noise identifier (nid) to each noise expression produced from a noise
+source.  A scaled noise expression shares the noise identifier since
+the noise is perfectly correlated.
+
+Consider the sum of two noise processes:
+
+.. math::
+
+   Z(t) = X(t) + Y(t).
+
+With the wide-sense stationarity and independence assumptions, the
+resulting power spectral density is given by
+
+.. math::
+
+  S_Z(f) = S_X(f) + S_Y(f),
+
+and the amplitude spectral density is
+  
+.. math::
+   
+  \mathcal{A}_Z(f) = \sqrt{\mathcal{A}_X^2(f) + \mathcal{A}_Y^2(f)}.
+
+Furthermore, the resultant autocorrelation is
+  
+.. math::
+   
+  R_Z(\tau) =  R_X(\tau) + R_Y(\tau).
+
+
+Noise signals can be created using the `noisevoltage()` and
+`noisecurrent()` methods.  For example, a white-noise signal can be
+created using:
+
+   >>> X = noisevoltage(3)
+   >>> X.units
+   'V/sqrt(Hz)'
+   >>> X.domain
+   'fourier noise'
+   >>> X.nid
+   1
+   
+
+When another white-noise signal is created, it is is assigned a
+different noise identifier since the noise signals are assumed to be
+independent::
+  
+   >>> Y = noisevoltage(4)     
+   >>> Y.nid
+   2
+   
+Since the noise signals are independent and wide-sense stationary, the
+ASD of the result is found from the square root of the sum of the
+squared ASDs::
+
+   >>> Z = X + Y
+   >>> Z
+   5
+
+Care must be taken when manipulating noise signals.  For example, consider::
+
+   >>> X + Y - X
+   √34
+   >>> X + Y - Y
+   √41
+
+The error arises since it is assumed that `X + Y` is independent of
+`X` which is not the case.  A work-around is to create a
+`VoltageSuperposition` object until someone comes up with a better idea.
+This stores each independent noise component separately (as used by
+Lcapy when performing circuit analysis).  For example::
+
+   >>> from lcapy.superpositionvoltage import SuperpositionVoltage
+   >>> X = noisevoltage(3)
+   >>> Y = noisevoltage(4)     
+   >>> Z = SuperpositionVoltage(X) + SuperpositionVoltage(Y)
+   {n1: 3, n2: 4}
+   >>> Z = SuperpositionVoltage(X) + SuperpositionVoltage(Y) - SuperpositionVoltage(X)
+   {n2: 4}   
+   
+   
+
 .. _parameterization:
 
 Parameterization

@@ -234,7 +234,7 @@ assumed that `t1` is a valid time for the results of circuit `a1`.
 Noise analysis
 --------------
 
-Each noise source is assigned a noise identifier (nid).  Noise
+Each noise source is assigned a noise identifier (nid), see :ref:`noisesignals`.  Noise
 expressions with different nids are assumed to be independent and thus
 represent different noise realisations.
 
