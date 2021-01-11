@@ -14,12 +14,15 @@ class Domain(object):
     is_angular_fourier_domain = False
     is_phasor_domain = False
     is_phasor_time_domain = False
-    is_phasor_frequency_domain = False    
+    is_phasor_frequency_domain = False
+    is_fourier_noise_domain = False
+    is_angular_fourier_noise_domain = False    
     is_discrete_time_domain = False
     is_discrete_fourier_domain = False
     is_Z_domain = False
     is_transform_domain = False
-    is_superposition_domain = False            
+    is_superposition_domain = False
+    is_one_sided = False
 
 
 class UndefinedDomain(Domain):
@@ -73,6 +76,24 @@ class PhasorDomain(Domain):
     domain_units = ''
     is_phasor_domain = True
 
+
+class FourierNoiseDomain(Domain):
+    domain = 'fourier noise'    
+    domain_label = 'Frequency'
+    domain_units = 'Hz'
+    is_fourier_noise_domain = True
+    is_transform_domain = True
+    is_one_sided = True
+
+
+class AngularFourierNoiseDomain(Domain):
+    domain = 'angular fourier noise'    
+    domain_label = 'Angular frequency'
+    domain_units = 'rad/s'
+    is_angular_fourier_noise_domain = True
+    is_transform_domain = True
+    is_one_sided = True    
+    
 
 class DiscreteTimeDomain(Domain):
     domain = 'discrete time'    

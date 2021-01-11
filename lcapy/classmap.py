@@ -4,7 +4,7 @@ from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .phasor import PhasorDomainExpression
-from .noiseomegaexpr import AngularFourierDomainNoiseExpression
+from .noiseomegaexpr import AngularFourierNoiseDomainExpression
 
 
 classmap = {'s': LaplaceDomainExpression,
@@ -14,7 +14,7 @@ classmap = {'s': LaplaceDomainExpression,
             'time': TimeDomainExpression,            
             'f': FourierDomainExpression,
             'dc': ConstantExpression,
-            'n': AngularFourierDomainNoiseExpression}
+            'n': AngularFourierNoiseDomainExpression}
 
 symbolmap = {'s': '(s)',
              'laplace': '(s)',

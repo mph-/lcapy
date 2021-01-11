@@ -1,7 +1,7 @@
 from lcapy import *
 from lcapy.cexpr import ConstantExpression
 from lcapy.texpr import TimeDomainExpression
-from lcapy.noiseomegaexpr import AngularFourierDomainNoiseVoltage
+from lcapy.noiseomegaexpr import AngularFourierNoiseDomainVoltage
 import unittest
 
 
@@ -21,7 +21,7 @@ class LcapyTester(unittest.TestCase):
             raise AssertionError(e)
 
     def test_noise(self):
-        a = AngularFourierDomainNoiseVoltage(2)
+        a = AngularFourierNoiseDomainVoltage(2)
         self.assertEqual(a.nid, a.conjugate.nid, "Different nids for conjugate")
         self.assertEqual(a.nid, a.real.nid, "Different nids for real")
         self.assertEqual(a.nid, a.imag.nid, "Different nids for imag")
@@ -34,7 +34,7 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2 2')
         a.add('R2 2 0 4')
         V1 = a.R1.V.n
-        self.assertEqual2(V1, AngularFourierDomainNoiseVoltage(1, nid=V1.nid), "Incorrect ratio")
+        self.assertEqual2(V1, AngularFourierNoiseDomainVoltage(1, nid=V1.nid), "Incorrect ratio")
 
     def test_noise2(self):
         """Lcapy: check circuit noise for pair of sources"""
@@ -44,7 +44,7 @@ class LcapyTester(unittest.TestCase):
         a.add('V2 2 1 noise 4')
         a.add('R1 2 0 5')
         V1 = a.R1.V.n
-        self.assertEqual2(V1, AngularFourierDomainNoiseVoltage(5, nid=V1.nid), "Incorrect noise sum")        
+        self.assertEqual2(V1, AngularFourierNoiseDomainVoltage(5, nid=V1.nid), "Incorrect noise sum")        
         
     def test_filtered_noise1(self):
         """Lcapy: check circuit filtered noise"""
@@ -105,13 +105,13 @@ class LcapyTester(unittest.TestCase):
 
     def test_noisy_transform_add1(self):
 
-        a = AngularFourierDomainNoiseVoltage(2 * omega)
-        b = AngularFourierDomainNoiseVoltage(3 + omega)
+        a = AngularFourierNoiseDomainVoltage(2 * omega)
+        b = AngularFourierNoiseDomainVoltage(3 + omega)
         
 
     def test_noisef_to_noiseomega(self):
 
-        a = AngularFourierDomainNoiseVoltage(omega)
+        a = AngularFourierNoiseDomainVoltage(omega)
         b = a(omega)
         c = a(f)
         d = c(omega)

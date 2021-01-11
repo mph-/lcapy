@@ -56,9 +56,9 @@ class LcapyTester(unittest.TestCase):
                           "Current(2) - Current(3)")
         
     #def test_Voltage_noise(self):
-        # self.assertEqual((AngularFourierDomainNoiseVoltage(3) + AngularFourierDomainNoiseVoltage(4)).expr, AngularFourierDomainNoiseVoltage(5).expr, "Vnoisy(3) + Vnoisy(4)")
-        # self.assertEqual((SuperpositionVoltage(AngularFourierDomainNoiseVoltage(3)) + SuperpositionVoltage(AngularFourierDomainNoiseVoltage(4))).n.expr,
-        #                   SuperpositionVoltage(AngularFourierDomainNoiseVoltage(5)).n.expr,
+        # self.assertEqual((AngularFourierNoiseDomainVoltage(3) + AngularFourierNoiseDomainVoltage(4)).expr, AngularFourierNoiseDomainVoltage(5).expr, "Vnoisy(3) + Vnoisy(4)")
+        # self.assertEqual((SuperpositionVoltage(AngularFourierNoiseDomainVoltage(3)) + SuperpositionVoltage(AngularFourierNoiseDomainVoltage(4))).n.expr,
+        #                   SuperpositionVoltage(AngularFourierNoiseDomainVoltage(5)).n.expr,
         #                   "Voltage(Vnoisy(3)) + Voltage(Vnoisy(4))")
 
         

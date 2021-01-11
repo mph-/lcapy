@@ -1057,7 +1057,7 @@ class Vnoise(VoltageSourceBase):
 
     def __init__(self, V, nid=None):
 
-        V1 = AngularFourierDomainNoiseVoltage(V, nid=nid)
+        V1 = AngularFourierNoiseDomainVoltage(V, nid=nid)
         self.args = (V, V1.nid)
         self._Voc = SuperpositionVoltage(V1)
 
@@ -1186,7 +1186,7 @@ class Inoise(CurrentSourceBase):
 
     def __init__(self, I, nid=None):
 
-        I1 = AngularFourierDomainNoiseCurrent(I, nid=nid)
+        I1 = AngularFourierNoiseDomainCurrent(I, nid=nid)
         self._Isc = SuperpositionCurrent(I1)
         self.args = (I, I1.nid)
 
@@ -1449,7 +1449,7 @@ from .expr import Expr, expr
 from .cexpr import cexpr
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
-from .noiseomegaexpr import AngularFourierDomainNoiseCurrent, AngularFourierDomainNoiseVoltage
+from .noiseomegaexpr import AngularFourierNoiseDomainCurrent, AngularFourierNoiseDomainVoltage
 from .superposition_voltage import SuperpositionVoltage
 from .superposition_current import SuperpositionCurrent
 from .phasor import PhasorDomainCurrent, PhasorDomainVoltage

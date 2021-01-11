@@ -1,6 +1,6 @@
 from lcapy import *
 from lcapy.texpr import TimeDomainVoltage, TimeDomainCurrent
-from lcapy.noiseomegaexpr import AngularFourierDomainNoiseVoltage, AngularFourierDomainNoiseCurrent
+from lcapy.noiseomegaexpr import AngularFourierNoiseDomainVoltage, AngularFourierNoiseDomainCurrent
 import unittest
 import sympy as sym
 
@@ -90,10 +90,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.Voc.has_ac, True, "Voc.has_ac error")
         self.assertEqual(a.Voc.is_ac, False, "Voc.is_ac error")                                
         self.assertEqual2(a.Voc.s, 10 / s, "Voc.s error")
-        self.assertEqual(a.Voc.n.expr, AngularFourierDomainNoiseVoltage(20).expr, "Voc.n error")
+        self.assertEqual(a.Voc.n.expr, AngularFourierNoiseDomainVoltage(20).expr, "Voc.n error")
         self.assertEqual2(a.Isc.s, 2 / s, "Isc.s error")
         # FIXME, this intermittently fails.
-        self.assertEqual(a.Isc.n.expr, AngularFourierDomainNoiseCurrent(4).expr, "Isc.n error")
+        self.assertEqual(a.Isc.n.expr, AngularFourierNoiseDomainCurrent(4).expr, "Isc.n error")
         
     def test_ivp(self):
         """Lcapy: check network with initial values"""
