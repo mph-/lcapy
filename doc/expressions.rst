@@ -253,8 +253,62 @@ Expressions have the following attributes to identify the quantity.
 - `is_admittance`
 - `is_transfer`
 - `is_immitance`
-  
 
+
+.. _units:      
+Units
+=====
+
+Expressions have an attribute `units` that reflect the quantity and domain.  For example::
+
+  >>> voltage(7).units
+  'V'
+  >>> voltage(7 * f).units
+  'V/Hz'
+  >>> voltage(7 / s).units
+  'V/rad/s'
+  >>> voltage(7 * s).units
+  'V/rad/s'    
+
+Note, the units are not a function of the order domain variable but of
+the domain (note, constant scale factors can have units).
+
+Unit determination goes awry when mathematical functions are used.  For example::
+
+   >>> log(voltage(7)).units
+  'V'
+
+This is due to a failure in quantity tracking::
+
+  >>> voltage(7).quantity
+  'voltage'
+  >>> log(voltage(7)).quantity
+  'voltage'  
+  
+Lcapy has an experimental feature for better unit tracking based on SymPy units.
+
+   >>> from lcapy.state import state
+   >>> state.use_units = True
+   >>> voltage(6)
+   6⋅V
+   >>> voltage(6) / current(3)
+   6⋅V
+   ───
+   3⋅A
+   >>> (voltage(6) / current(3)).simplify()
+   2⋅ohm
+
+The units can be separated from the value using the `as_value_unit()` method.   For example::
+
+  >>> voltage(6).as_value_unit()
+  (6, V)
+
+   
+
+However, this can also go awry unless units are applied to every scale
+factor.  SymPy also needs work for better printing of the units.
+
+  
 .. _expressionsrationalfunctions:
    
 Rational functions
