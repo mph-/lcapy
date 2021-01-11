@@ -105,4 +105,4 @@ class SuperpositionVoltage(Superposition, VoltageMixin):
 from .cexpr import ConstantExpression
 from .texpr import TimeDomainExpression
 from .sexpr import s, LaplaceDomainExpression
-from .superposition_current import SuperpositionCurrent
+from .superpositioncurrent import SuperpositionCurrent

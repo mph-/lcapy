@@ -12,8 +12,8 @@ Copyright 2014--2020 Michael Hayes, UCECE
 # TODO: This needs an overhaul to untangle the classes.
 
 from __future__ import division
-from .superposition_voltage import SuperpositionVoltage
-from .superposition_current import SuperpositionCurrent
+from .superpositionvoltage import SuperpositionVoltage
+from .superpositioncurrent import SuperpositionCurrent
 from .current import Iname
 from .schematic import Schematic
 from .netlistmixin import NetlistMixin

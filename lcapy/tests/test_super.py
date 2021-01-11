@@ -1,8 +1,8 @@
 from lcapy import *
 from lcapy.cexpr import ConstantVoltage
 from lcapy.phasor import PhasorDomainVoltage
-from lcapy.superposition_voltage import SuperpositionVoltage
-from lcapy.superposition_current import SuperpositionCurrent
+from lcapy.superpositionvoltage import SuperpositionVoltage
+from lcapy.superpositioncurrent import SuperpositionCurrent
 import unittest
 import sympy as sym
 

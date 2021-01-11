@@ -1450,8 +1450,8 @@ from .cexpr import cexpr
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
 from .noiseomegaexpr import AngularFourierNoiseDomainCurrent, AngularFourierNoiseDomainVoltage
-from .superposition_voltage import SuperpositionVoltage
-from .superposition_current import SuperpositionCurrent
+from .superpositionvoltage import SuperpositionVoltage
+from .superpositioncurrent import SuperpositionCurrent
 from .phasor import PhasorDomainCurrent, PhasorDomainVoltage
 from .twoport import Ladder, LSection, TSection
 

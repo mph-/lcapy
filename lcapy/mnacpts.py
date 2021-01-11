@@ -15,7 +15,7 @@ from .functions import sqrt
 from .sym import capitalize_name, omegasym
 from .grammar import delimiters
 from .immittancemixinhack import ImmittanceMixinHack
-from .superposition_current import SuperpositionCurrent
+from .superpositioncurrent import SuperpositionCurrent
 from .opts import Opts
 import lcapy
 import inspect

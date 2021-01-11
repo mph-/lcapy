@@ -208,6 +208,7 @@ class NoiseExpression(Expr):
         return self
 
     def psd(self):
+        # FIXME, the units are wrong
         return self ** 2
 
     def autocorrelation(self):
