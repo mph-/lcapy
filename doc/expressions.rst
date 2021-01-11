@@ -204,7 +204,8 @@ Domain attributes
 - `is_transform_domain`          
 
 
-.. _quantities:      
+.. _quantities:
+
 Quantities
 ==========
 
