@@ -9,7 +9,7 @@ by using Dirac deltas.  For example, a, cos(a * t), sin(a * t), exp(j
 * a * t).
 
 
-Copyright 2016--2020 Michael Hayes, UCECE
+Copyright 2016--2021 Michael Hayes, UCECE
 
 """
 
@@ -21,6 +21,7 @@ Copyright 2016--2020 Michael Hayes, UCECE
 import sympy as sym
 from .sym import sympify, AppliedUndef, j, pi, symsimplify
 from .utils import factor_const, scale_shift
+from .extrafunctions import rect, sinc
 
 __all__ = ('FT', 'IFT')
 
@@ -174,6 +175,11 @@ def fourier_term(expr, t, f, inverse=False):
             return (const1 / (sym.I * 2 * sym.pi * sf / scale) / abs(scale) + const1 * sym.DiracDelta(sf) / 2) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift)
         elif other == sym.Heaviside(t) * t:
             return -const1 / (2 * sym.pi * f)**2 + const1 * sym.I * sym.DiracDelta(sf, 1) / (4 * pi)
+        elif other.is_Function and other.func == sinc and other.args[0].has(t):
+            scale, shift = scale_shift(other.args[0], t)            
+            return const1 * rect(sf / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
+        elif other.is_Function and other.func == rect and other.args[0].has(t):        
+            return const1 * sinc(sf / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
 
         # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) *
         # Heaviside(t)

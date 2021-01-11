@@ -139,46 +139,18 @@ class MatMul(sym.MatMul):
         return expr(super(MatMul, cls).__new__(cls, _ex(op1), _ex(op2), **options))
 
 
-
-from sympy.core import S, Integer
-from sympy.core.logic import fuzzy_not
-
-
-class UnitImpulse(sym.Function):
-
-    is_integer = True
-    
-    @classmethod
-    def eval(cls, nval):
-        """
-        Evaluates the discrete unit impulse function.
-        """
-        
-        if nval.is_zero:
-            return S.One
-        elif fuzzy_not(nval.is_zero):
-            return S.Zero
+from .extrafunctions import UnitImpulse, UnitStep
+from .extrafunctions import sinc as sinc1
+from .extrafunctions import rect as rect1
 
 
 ui = unitimpulse = Function(UnitImpulse)
 
-
-class UnitStep(sym.Function):
-
-    is_integer = True
-    
-    @classmethod
-    def eval(cls, nval):
-        """
-        Evaluates the discrete unit step function.
-        """
-        
-        if nval.is_nonnegative:
-            return S.One
-        elif nval.is_negative:
-            return S.Zero
-
 us = unitstep = Function(UnitStep)
 
+rect = Function(rect1)
+
+sinc = Function(sinc1)
+ 
 
 from .expr import Expr, expr

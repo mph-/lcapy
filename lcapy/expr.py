@@ -1354,6 +1354,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
 
                 return np.exp(arg)
 
+            def rect(arg):
+                return 1.0 if abs(arg) <= 0.5 else 0.0
+
+            def sinc(arg):
+                return 1.0 if arg == 0 else np.sin(np.pi * arg) / (np.pi * arg)
+            
             def dirac(arg):
                 return np.inf if arg == 0.0 else 0.0
 
@@ -1386,6 +1392,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
                             ({'DiracDelta' : dirac,
                               'Heaviside' : heaviside,
                               'UnitImpulse' : unitimpulse,
+                              'sinc' : sinc,
+                              'rect' : rect,
                               'sqrt' : sqrt, 'exp' : exp},
                              "scipy", "numpy", "math", "sympy"))
 
