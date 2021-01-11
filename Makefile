@@ -46,7 +46,7 @@ flake8:
 check: style-check test
 
 .PHONY: push
-push:
+push: check
 	git push
 	git push --tags
 
