@@ -81,8 +81,9 @@ class Superposition(SuperpositionDomain, ExprDict):
             key = list(decomp)[0]
             if key in ('dc', 't'):
                 return decomp[key]
-            if key == 's':
-                if decomp[key].has(s):
+            if key in ('s', 'f', 'omega'):
+                expr = decomp[key]
+                if expr.has(expr.var):
                     return decomp[key]
                 # Have something like s * 0 + 1 so don't display as 1
                 # since not a dc value.
@@ -583,12 +584,8 @@ class Superposition(SuperpositionDomain, ExprDict):
 
         value = expr(value)
         if value.has(sym.Float):
+            # Avoid 8.00000000000, etc.
             value.expr = sym.nsimplify(value.expr)
-
-        # TODO, perhaps handle Fourier domain expressions in the
-        # decomposition?  For now, convert to time domain.
-        if value.is_fourier_domain or value.is_angular_fourier_domain:
-            value = value.time()
 
         kind = self._kind(value)
         if kind is None:
@@ -746,8 +743,10 @@ phasor, for example, using: %s""" % foo)
     def fourier(self, **assumptions):
         """Convert to Fourier domain."""        
 
-        # TODO, could optimise.
-        return self.time(**assumptions).fourier(**assumptions)
+        result = domain_quantity_to_class('fourier', quantity=self.quantity)(0)
+        for val in self.values():
+            result += val.fourier(**assumptions)
+        return result
 
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""        
@@ -773,7 +772,6 @@ phasor, for example, using: %s""" % foo)
         """Create oneport component."""
         return self.cpt()
 
-    
     
 from .cexpr import ConstantExpression        
 from .fexpr import FourierDomainExpression    
