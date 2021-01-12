@@ -9,6 +9,37 @@ Common problems
 ===============
 
 
+.. _floating-point:
+
+Floating point values
+---------------------
+
+Floating point numbers are an extremely poor approximation of real
+numbers; rational numbers are slightly better and this is what Lcapy uses to help with expression simplification.
+However, there is a loss of precision when converting a floating point number to a rational number,
+For example, consider::
+
+   >>> 2 / 3
+   3333333333333333
+   ────────────────
+   5000000000000000
+
+In this case, Python evaluates 2 / 3 as a floating point number which is then converted to a rational number.  Unfortunately, this is not quite the same as 2 / 3.   The approximation can be avoided by bypassing the conversion of 2 / 3 to 0.666666666666, say by using:
+
+   >>> expr('2 / 3')
+   2/3
+
+Another approach is to use:
+ 
+   >>> one * 2 / 3
+   2/3
+
+Here `one` is a SymPy object representing the number 1.
+
+    
+.. _equality:
+    
+
 Equality
 --------
 
@@ -135,31 +166,6 @@ substitute symbolic values with numerical values.
 The results from slow computations are cached to improve the speed.
 
 Some SymPy operations can take an unexpectedly long time, for example, `limit()`.   With some versions of SymPy, matrix inversions are really slow.
-
-
-
-Floating point values
----------------------
-
-Lcapy approximates floating point values as rational numbers.   This helps when simplifying expressions.  However, the conversion is an approximation.  For example, consider
-
-   >>> s + 2 / 3
-
-This becomes:
-   
-       3333333333333333
-   s + ────────────────
-       5000000000000000
-
-In this case, Python evaluates 2 / 3 as a floating point number which is then converted to a rational number.  Unfortunately, this is not quite the same as 2 / 3.   The approximation can be avoided by bypassing the conversion of 2 / 3 to 0.666666666666, say by using:
-
-   >>> expr('s + 2 / 3')
-   s + 2/3
-
-Another approach is to use:
- 
-   >>> s + one * 2 / 3
-   s + 2/3
 
 
 Working with SymPy

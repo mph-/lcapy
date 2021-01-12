@@ -26,8 +26,39 @@ Constants
 
 - `zoo` complex infinity
 
-Lcapy represents floating point numbers as rationals.  This ensures expected simplifications of expressions.    
+- `one` 1  
 
+  
+Numbers
+-------
+  
+Lcapy approximates real numbers as rationals.  This ensures expected simplifications of expressions.   However, some floating point numbers produce unwieldy rationals (see :ref:`floating-point`) and so it is best to avoid floating point numbers.  For example, use::
+
+   >>> expr('2 / 3')
+
+or
+
+   >>> expr(one * 2 / 3)
+
+rather than
+
+   >>> expr(2 / 3)
+
+The floating point approximation can be found using `fval` attribute for a Python float or
+or `cval` for a Python complex number::
+
+  >>> expr(2 / 3).fval
+  0.166666666666667
+
+  >>> expr(2 / 3).cval
+  (0.16666666666666666+0j)
+
+Rational numbers in Lcapy expressions can be converted to SymPy floating point numbers using the `evalf()` method, with a specified number of decimal places.   For example::
+
+  >>>expr('1 / 3 + a').evalf(5)
+  a + 0.33333
+
+   
 .. _domainvariables:
 
 Domain variables
@@ -78,6 +109,7 @@ All Lcapy expressions have a domain (Laplace, Fourier, etc.) and a quantity (vol
    >>> V.quantity
    'voltage'
 
+   
 User defined symbols
 --------------------
 
@@ -367,6 +399,8 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `conjugate` returns complex conjugate
 
+- `cval` returns complex floating point number (as Python complex) if expression can be evaluated (see also `val` and `fval`)  
+
 - `dB` returns magnitude in decibels: `20 * log10(magnitude)`
 
 - `D` returns denominator
@@ -380,8 +414,10 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 - `domain` returns a string identifying the domain (laplace, fourier, etc.)
   
 - `domain_label` returns string describing domain of expression
-  
+
 - `expr` returns the underlying SymPy expression
+
+- `fval` returns floating point number (as Python float) if expression can be evaluated (see also `val` and `cval`)
   
 - `imag` returns imaginary part
 
@@ -429,7 +465,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `symbols` returns dictionary of symbols used in the expression keyed by their names
 
-- `val` returns floating point number (as Python float or complex type) if expression can be evaluated
+- `val` returns floating point number (as Lcapy expression) if expression can be evaluated (see also `fval` and `cval`)
 
 - `var` returns the underlying SymPy symbol representing the domain
     
@@ -463,7 +499,7 @@ Miscellaneous
 
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
-- `evalf()` returns floating point number (as Python float or complex type) if expression can be evaluated
+- `evalf(n)` returns floating point number to `n` decimal places (as Lcapy expression) if expression can be evaluated (see also `val`, `fval`, and `cval` attributes)
 
 - `evaluate` returns floating point number (as SymPy float or complex type) if expression can be evaluated.  If passed an NumPy array, an array of NumPy float or complex types is returned.
     
@@ -828,7 +864,8 @@ The root-mean-square value of the phasor is found with the `rms()` method.  For 
    >>> v.rms()
    √2
 
-Phasors can be plotted on a polar diagram using the `plot()`method, for example::
+   
+Phasors can be plotted on a polar diagram using the `plot()` method, for example::
 
   >>> i = current(phasor(1 + j))
   >>> i.plot()
@@ -1365,7 +1402,7 @@ expression.  There are many methods, some specifically for simple
 network such as R-L networks, and more general methods including
 Foster and Cauer synthesis.
 
-    >>> Z = impedance(4*s**2 + 3 * s + one / 6) / (s**2 + 2 * s / 3)
+    >>> Z = impedance((4*s**2 + 3 * s + one / 6) / (s**2 + 2 * s / 3))
     >>> n = Z.network('cauerI')
     >>> n
     ((C(1) + R(2)) | C(3)) + R(4)
@@ -1376,6 +1413,9 @@ Foster and Cauer synthesis.
     >>> n.draw(form='ladder')
           
 Note, in this example `one` is used to avoid generating a floating point number `1 / 6`.
+An alternative approach to use quotes around the expression (see :ref:`floating-point`)::
+
+    >>> Z = impedance('(4*s**2 + 3 * s + one / 6) / (s**2 + 2 * s / 3)')
 
     
   
