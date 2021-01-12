@@ -617,5 +617,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(e.is_dc, False, 'is_dc')
         self.assertEqual(e.is_causal, False, 'is_causal')
         
-               
+    def test_phase(self):
+
+        c = expr(2).as_phase()
+        
+        self.assertEqual(c.is_phase, True, "is_phase")
         

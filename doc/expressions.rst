@@ -262,6 +262,8 @@ There are a number of methods for changing the quantity of an expression:
 - `as_impedance()` converts to impedance
 - `as_admittance()` converts to admittance
 - `as_transfer()` converts to transfer function
+- `as_power()` converts to power
+- `as_phase()` converts to phase (radians)
 
 There are similar functions for setting the quantity of an expression:
   
@@ -278,7 +280,7 @@ There are similar functions for setting the quantity of an expression:
 Quantity attributes
 -------------------
 
-Expressions have the following attributes to identify the quantity.
+Expressions have the following attributes to identify the quantity:
 
 - `is_voltage`
 - `is_current`
@@ -286,8 +288,13 @@ Expressions have the following attributes to identify the quantity.
 - `is_admittance`
 - `is_transfer`
 - `is_immitance`
+- `is_voltagesquared`
+- `is_currentsquared`
+- `is_impedancesquared`
+- `is_admittancesquared`
+- `is_power`  
 
-
+  
 .. _units:
 
 Units

@@ -247,6 +247,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
                     ('impedancesquared', 'constant'): 'impedancesquared',
                     ('voltagesquared', 'constant'): 'voltagesquared',
                     ('currentsquared', 'constant'): 'currentsquared',
+                    ('phase', 'constant'): 'phase',
                     ('power', 'constant'): 'power'}
     
     _div_mapping = {('voltage', 'impedance'): 'current',
@@ -263,6 +264,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
                     ('impedance', 'constant'): 'impedance',
                     ('admittance', 'constant'): 'admittance',
                     ('transfer', 'constant'): 'transfer',
+                    ('phase', 'constant'): 'phase',                    
                     ('constant', 'impedance'): 'admittance',
                     ('constant', 'admittance'): 'impedance',
                     ('constant', 'transfer'): 'transfer',
@@ -357,6 +359,10 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
             return self.as_admittance()
         elif quantity == 'transfer':
             return self.as_transfer()
+        elif quantity == 'power':
+            return self.as_power()
+        elif quantity == 'phase':
+            return self.as_phase()        
         elif quantity == 'undefined':
             return self.as_expr(expr)        
         raise ValueError('Unknown quantity %s for %s' % (quantity, self))
@@ -388,7 +394,13 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         return self._class_by_quantity('impedance')(self)
 
     def as_transfer(self):
-        return self._class_by_quantity('transfer')(self)    
+        return self._class_by_quantity('transfer')(self)
+
+    def as_power(self):
+        return self._class_by_quantity('power')(self)
+
+    def as_phase(self):
+        return self._class_by_quantity('phase')(self)        
     
     def as_expr(self):
         return self

@@ -16,6 +16,7 @@ from .currentsquaredmixin import CurrentSquaredMixin
 from .admittancesquaredmixin import AdmittanceSquaredMixin
 from .impedancesquaredmixin import ImpedanceSquaredMixin
 from .powermixin import PowerMixin
+from .phasemixin import PhaseMixin
 
 
 quantityclasses = {'voltage': VoltageMixin,
@@ -27,7 +28,8 @@ quantityclasses = {'voltage': VoltageMixin,
                    'currentsquared': CurrentSquaredMixin,
                    'admittancesquared': AdmittanceSquaredMixin,
                    'impedancesquared': ImpedanceSquaredMixin,
-                   'power': PowerMixin}
+                   'power': PowerMixin,
+                   'phase': PhaseMixin}
 
 
 class ExpressionClasses(dict):
