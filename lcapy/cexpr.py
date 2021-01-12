@@ -34,9 +34,10 @@ class ConstantExpression(ConstantDomain, Expr):
 
     def as_expr(self):
         return ConstantExpression(self)
-        
+
     def rms(self):
-        return {ConstantVoltage: TimeDomainVoltage, ConstantCurrent : TimeDomainCurrent}[self.__class__](self)
+        """Return root mean square."""
+        return self
 
     def fourier(self):
         """Convert to Fourier domain representation."""

@@ -253,14 +253,6 @@ Impedance
    :undoc-members:
    :show-inheritance:
 
-Immittance
-----------
-
-.. automodule:: lcapy.immittance
-   :members:
-   :undoc-members:
-   :show-inheritance:            
-
 Functions
 ---------
 

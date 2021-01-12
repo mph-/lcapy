@@ -217,7 +217,7 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
 
     
 class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
-    """Decorator class for sympy classes derived from sympy.Expr"""
+    """Decorator class for sympy classes derived from sympy.Expr."""
 
     var = None
 
@@ -797,7 +797,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         self._incompatible_quantities(x, op)        
 
     def __mul__(self, x):
-        """Multiply"""
+        """Multiply."""
 
         from .super import Superposition
 
@@ -856,12 +856,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return cls(self.expr * x.expr, **assumptions)
     
     def __rmul__(self, x):
-        """Reverse multiply"""
+        """Reverse multiply."""
 
         return self.__mul__(x)
 
     def __truediv__(self, x):
-        """Divide"""
+        """True divide."""
 
         if not isinstance(x, Expr):
             x = expr(x)
@@ -902,7 +902,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return cls(self.expr / x.expr, **assumptions)            
             
     def __rtruediv__(self, x):
-        """Reverse true divide"""
+        """Reverse true divide."""
 
         from .matrix import Matrix
         
@@ -915,7 +915,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return x.__truediv__(self)
             
     def __add__(self, x):
-        """Add"""
+        """Add."""
 
         from .matrix import Matrix
 
@@ -926,27 +926,27 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return cls(self.expr + x.expr, **assumptions)
 
     def __radd__(self, x):
-        """Reverse add"""
+        """Reverse add."""
 
         if not isinstance(x, Expr):
             x = expr(x)
         return x.__add__(self)
 
     def __sub__(self, x):
-        """Subtract"""
+        """Subtract."""
 
         cls, self, x, assumptions = self.__compat_add__(x, '-')
         return cls(self.expr - x.expr, **assumptions)
 
     def __rsub__(self, x):
-        """Reverse subtract"""
+        """Reverse subtract."""
 
         if not isinstance(x, Expr):
             x = expr(x)
         return x.__sub__(self)        
 
     def __pow__(self, x):
-        """Power"""
+        """Power."""
 
         if x == 2:
             return self.__mul__(self)
@@ -964,7 +964,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return x.__class__(result)        
     
     def __rpow__(self, x):
-        """Reverse pow, x**self"""
+        """Reverse pow, x**self."""
 
         if not isinstance(x, Expr):
             x = expr(x)
@@ -972,7 +972,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return x.__pow__(self)
 
     def __or__(self, x):
-        """Parallel combination"""
+        """Parallel combination."""
 
         return self.parallel(x)
 
@@ -1023,7 +1023,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return sym.simplify(self.expr - x.expr) != 0        
 
     def __gt__(self, x):
-        """Greater than"""
+        """Greater than."""
 
         if x is None:
             return True
@@ -1034,7 +1034,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return self.expr > x.expr
 
     def __ge__(self, x):
-        """Greater than or equal"""
+        """Greater than or equal."""
 
         if x is None:
             return True
@@ -1045,7 +1045,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return self.expr >= x.expr
 
     def __lt__(self, x):
-        """Less than"""
+        """Less than."""
 
         if x is None:
             return True
@@ -1056,7 +1056,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return self.expr < x.expr
 
     def __le__(self, x):
-        """Less than or equal"""
+        """Less than or equal."""
 
         if x is None:
             return True
@@ -1067,7 +1067,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return self.expr <= x.expr
 
     def parallel(self, x):
-        """Parallel combination"""
+        """Parallel combination."""
 
         cls, self, x, assumptions = self.__compat_add__(x, '|')
         x = cls(x)
@@ -1112,7 +1112,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
 
     @property
     def real_imag(self):
-        """Rewrite as x + j * y"""
+        """Rewrite as x + j * y."""
 
         return self.real + j * self.imag
 
@@ -1220,7 +1220,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
     
     @property
     def magnitude(self):
-        """Return magnitude"""
+        """Return magnitude."""
 
         if self.is_real:
             dst = expr(abs(self.expr))
@@ -1238,13 +1238,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
 
     @property
     def abs(self):
-        """Return magnitude"""
+        """Return magnitude."""
 
         return self.magnitude
 
     @property
     def sign(self):
-        """Return sign"""
+        """Return sign."""
 
         return self.__class__(sym.sign(self.expr), **self.assumptions)
 
@@ -1263,6 +1263,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
     def phase(self):
         """Return phase in radians."""
 
+        if self.is_time_domain or self.is_discrete_time_domain:
+            raise ValueError('Cannot determine phase of time-domain expression %s' % self)
+        
         R = self.rationalize_denominator()
         N = R.N
 
@@ -1276,7 +1279,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
                 G = gcd(N.real, N.imag)
                 N = N / G
             dst = atan2(N.imag, N.real)
-            
+
+        # TODO, add phase quantity...
+        dst = cexpr(dst)            
         dst.part = 'phase'
         dst.units = 'rad'
         return dst
@@ -1292,37 +1297,37 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
 
     @property
     def angle(self):
-        """Return phase angle"""
+        """Return phase angle (in radians)."""
 
         return self.phase
 
     @property
     def polar(self):
-        """Return in polar format"""
+        """Return in polar format."""
 
         return self.abs * exp(j * self.phase)
 
     @property
     def cartesian(self):
-        """Return in Cartesian format"""
+        """Return in Cartesian format."""
 
         return self.real + j * self.imag
     
     @property
     def is_number(self):
-        """Returns True if expression is a number"""                
+        """Returns True if expression is a number."""                
 
         return self.expr.is_number
 
     @property
     def is_constant(self):
-        """Returns True if expression does not have any free symbols  (compare with `is_unchanging`)"""        
+        """Returns True if expression does not have any free symbols  (compare with `is_unchanging`)."""        
 
         return self.expr.free_symbols == set()
 
     @property
     def is_unchanging(self):
-        """Returns True if expression does not have a domain variable (compare with `is_constant`)"""
+        """Returns True if expression does not have a domain variable (compare with `is_constant`)."""
 
         return self.var not in self.expr.free_symbols
     

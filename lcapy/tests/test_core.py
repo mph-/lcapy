@@ -4,7 +4,6 @@ from lcapy.fexpr import FourierDomainExpression
 from lcapy.omegaexpr import AngularFourierDomainExpression
 from lcapy.texpr import TimeDomainExpression, TimeDomainVoltage
 from lcapy.sexpr import LaplaceDomainVoltage
-from lcapy.phasor import PhasorDomainVoltage, PhasorDomainExpression
 import unittest
 
 
@@ -359,10 +358,11 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(zp2tf([], [0, -1]), 1 / (s * (s + 1)), "zp2tf")
 
-    def test_rms(self):
+    def test_const_rms(self):
 
-        self.assertEqual(ConstantVoltage(2).rms(), TimeDomainVoltage(2))
-        self.assertEqual(PhasorDomainVoltage(2).rms(), TimeDomainVoltage(1))
+        c = expr(2)
+        
+        self.assertEqual(c.rms(), 2, "const rms")
 
     def test_assumptions(self):
         """Lcapy: check assumptions
@@ -610,29 +610,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(e.fval, a, 'fval')        
 
-    def test_phasor(self):
-
-        a = PhasorDomainExpression(3, omega=7)
-        self.assertEqual(a.omega, 7, 'omega')
-        self.assertEqual(a.phase, 0, 'phase')
-        self.assertEqual(a.magnitude, 3, 'magnitude')        
-        
-        a = PhasorDomainExpression(-3, omega=7)
-        self.assertEqual(a.phase, pi, 'phase')                
-        self.assertEqual(a.magnitude, 3, 'magnitude')
-
-        a = PhasorDomainExpression(-3 + 4j, omega=7)
-        self.assertEqual(a.magnitude, 5, 'magnitude')                        
-
-        v = voltage('cos(5 * t)')
-        i = current('cos(5 * t)')
-        V = v.phasor()
-        I = i.phasor()
-
-        Z = V / I
-        self.assertEqual(Z.is_impedance, True, 'impedance')
-        self.assertEqual(Z.omega, 5, 'omega')
-        
     def test_equality(self):
 
         e = Eq(expr('x(t)'), cos(3 * t))

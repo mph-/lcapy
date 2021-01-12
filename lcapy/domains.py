@@ -75,6 +75,7 @@ class PhasorDomain(Domain):
     domain_label = 'Phasor'
     domain_units = ''
     is_phasor_domain = True
+    is_transform_domain = True        
 
 
 class FourierNoiseDomain(Domain):

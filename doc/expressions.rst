@@ -256,7 +256,8 @@ Expressions have the following attributes to identify the quantity.
 - `is_immitance`
 
 
-.. _units:      
+.. _units:
+
 Units
 =====
 
@@ -765,13 +766,73 @@ Phasors
 =======
 
 Phasors represent signals of the form :math:`v(t) = A \cos(\omega t +
-\phi)` as a complex amplitude :math:`X = A \exp(\mathrm{j} \phi)` where
-:math:`A` is the amplitude, :math:`\phi` is the phase, and the angular
-frequency, :math:`\omega`, is implied.
+\phi)` as a complex amplitude :math:`X = A \exp(\mathrm{j} \phi)`
+where :math:`A` is the amplitude, :math:`\phi` is the phase, and the
+angular frequency, :math:`\omega`, is implied.  The signal
+corresponding to the phasor :math:`A \exp(\mathrm{j} \phi)` is found
+from:
 
-The signal :math:`v(t) = A \sin(\omega t)` has a phase
-:math:`\phi=-\pi/2`.
-      
+.. math::
+    x(t) = \mathrm{Re}\left\{ A \exp(\mathrm{j} \phi) \exp(\mathrm{j} \omega t)\right\}
+
+
+Thus, the signal :math:`v(t) = A \sin(\omega t)` has a phase :math:`\phi=-\pi/2`.
+
+Phasors can be created in Lcapy with the `phasor()` factory function::
+
+   >>> c = phasor(2)
+   >>> c.time()
+   2⋅cos(ω⋅t)
+
+   >>> s = phasor(-2 * j)
+   >>> s.time()
+   2⋅sin(ω⋅t)   
+
+   >>> p = phasor(-j, omega=1)
+   sin(t)
+
+They can also be inferred from an AC signal::
+   
+   >>> q = phasor(2 * sin(3 * t))
+   >>> q
+   -2⋅ⅉ
+   >>> q.omega
+   3
+
+Phasor voltages and currents can be created using the `voltage()` and `current()` functions.  For example::
+
+   >>> v = voltage(phasor(1))
+   >>> v.quantity
+   'voltage'
+
+They can also be created from an AC time-domain signal using the `as_phasor()` method.  For example::
+
+   >>> v = voltage(2 * sin(7 * t))
+   >>> v.as_phasor()
+   -2⋅ⅉ
+
+Like all Lcapy expressions, the magnitude and phase of the phasor can
+be found from the `magnitude` and `phase` attributes.  For example::
+
+    >>> v = voltage(phasor(2 * sin(7 * t)))
+    >>> v.magnitude
+    2
+    >>> v.phase
+    -π 
+    ───
+     2 
+  
+The root-mean-square value of the phasor is found with the `rms()` method.  For example::
+
+   >>> v = voltage(phasor(2))
+   >>> v.rms()
+   √2
+
+Phasors can be plotted on a polar diagram using the `plot()`method, for example::
+
+  >>> i = current(phasor(1 + j))
+  >>> i.plot()
+
 
 .. _immittances:
       
@@ -881,7 +942,7 @@ infinite for :math:`R= 0`.  However, if Z is purely imaginary, i.e,
   
 
 Immittance methods
------------------
+------------------
   
 - `oneport()` returns a `Oneport` object corresponding to the immittance.  This may be a `R`, `C`, `L`, `G`, `Y`, or `Z` object.
 
@@ -1170,28 +1231,25 @@ the noise is perfectly correlated.
 Consider the sum of two noise processes:
 
 .. math::
-
    Z(t) = X(t) + Y(t).
 
 With the wide-sense stationarity and independence assumptions, the
 resulting power spectral density is given by
 
 .. math::
-
   S_Z(f) = S_X(f) + S_Y(f),
 
 and the amplitude spectral density is
   
 .. math::
-   
   \mathcal{A}_Z(f) = \sqrt{\mathcal{A}_X^2(f) + \mathcal{A}_Y^2(f)}.
 
 Furthermore, the resultant autocorrelation is
   
 .. math::
-   
   R_Z(\tau) =  R_X(\tau) + R_Y(\tau).
 
+  
 
 Noise signals can be created using the `noisevoltage()` and
 `noisecurrent()` methods.  For example, a white-noise signal can be

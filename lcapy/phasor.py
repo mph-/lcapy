@@ -63,9 +63,9 @@ class PhasorDomainExpression(PhasorDomain, Expr):
 
         if isinstance(val, PhasorDomainExpression):
             assumptions['omega'] = val.omega
-        elif 'omega' not in assumptions:
+        elif 'omega' not in assumptions or assumptions['omega'] is None:
             assumptions['omega'] = omegasym
-
+        
         assumptions['ac'] = True
         super (PhasorDomainExpression, self).__init__(val, **assumptions)
     
@@ -99,39 +99,18 @@ class PhasorDomainExpression(PhasorDomain, Expr):
 
         return self.time().laplace()
 
-    @property
-    def abs(self):
-        """Return magnitude"""
-
-        return expr(self.expr).abs
-
-    @property
-    def magnitude(self):
-        """Return magnitude"""
-
-        return expr(self.expr).magnitude    
-
-    @property
-    def phase(self):
-        """Return phase in radians."""
-
-        return expr(self.expr).phase
-
-    @property
-    def sign(self):
-        """Return sign."""
-
-        return expr(self.expr).sign
-
     def phasor(self):
         """Convert to phasor representation."""
+        
         return self.__class__(self, **self.assumptions)
 
     def rms(self):
-        return {PhasorDomainVoltage: TimeDomainVoltage,
-                PhasorDomainCurrent : TimeDomainCurrent}[self.__class__](0.5 * self)
+        """Return root mean square."""
+        
+        return abs(self) * sqrt(2) / 2
 
     def plot(self, **kwargs):
+        """Plot phasor on polar diagram."""
 
         from .plot import plot_phasor
         return plot_phasor(self, **kwargs)
@@ -179,6 +158,10 @@ class PhasorDomainTimeExpression(PhasorDomainExpression):
         
         if omega is not None and check.omega != omega.expr:
             raise ValueError('Expecting omega=%s, found omega=%s.' % (omega, check.omega))
+
+        if check.omega == 0:
+            print('Warning, DC phasor.')
+        
         result = check.amp * exp(j * check.phase)
         assumptions['omega'] = check.omega
 
@@ -269,15 +252,28 @@ class PhasorDomainCurrent(CurrentMixin, PhasorDomainTimeExpression):
         return Iac(self, 0, self.omega)
 
 
-def phasor(arg, **assumptions):
-    """Create phasor."""
+def phasor(arg, omega=None, **assumptions):
+    """Create phasor.   
+
+    If arg has the form A * cos(w * t + phi) the phasor 
+    A * exp(j * phi) of angular frequency w is returned.
+
+    If arg is a constant C, the phasor C is created with omega as the
+    angular frequency (this defaults to 'omega' if not specified).
+
+    """
 
     arg = expr(arg)
 
     if arg.is_time_domain:
-        return PhasorDomainTimeExpression(arg, **assumptions)
+        # Expecting AC signal.
+        return PhasorDomainTimeExpression.from_time(arg, omega=omega, **assumptions)
+    elif arg.is_unchanging:
+        # Expecting phasor (complex amplitude)        
+        return PhasorDomainTimeExpression(arg, omega=omega, **assumptions)
     else:
-        return PhasorDomainFrequencyExpression(arg, **assumptions)
+        # Is this sensible?
+        return PhasorDomainFrequencyExpression(arg, omega=omega, **assumptions)        
     
 
 from .expressionclasses import expressionclasses
