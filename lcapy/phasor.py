@@ -226,6 +226,7 @@ class PhasorDomainFrequencyExpression(PhasorDomainExpression):
     def time(self, **assumptions):
         """Convert to time domain representation."""
         from .symbols import s
+        from .sexpr import LaplaceDomainExpression
 
         omega = self.omega
         result = LaplaceDomainExpression(self.replace(j * omega, s))
@@ -290,7 +291,6 @@ classes['impedance'] = PhasorDomainImpedance
 classes['transfer'] = PhasorDomainTransferFunction
 expressionclasses.add('phasor', classes)
 
-from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression, TimeDomainVoltage, TimeDomainCurrent
 from .expr import Expr
 

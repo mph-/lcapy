@@ -478,9 +478,7 @@ LaplaceDomainTransferFunction = classes['transfer']
 expressionclasses.add('laplace', classes)
 
 
-from .texpr import TimeDomainImpulseResponse, TimeDomainAdmittance, TimeDomainImpedance
-from .texpr import TimeDomainExpression, TimeDomainVoltage, TimeDomainCurrent, texpr
-from .cexpr import ConstantExpression
+from .texpr import TimeDomainExpression, texpr
 from .phasor import PhasorDomainFrequencyExpression
 
 s = LaplaceDomainExpression('s')

@@ -124,8 +124,4 @@ FourierDomainVoltage = classes['voltage']
 FourierDomainCurrent = classes['current']
 expressionclasses.add('fourier', classes)
 
-from .texpr import TimeDomainExpression
-from .sexpr import LaplaceDomainExpression
-from .omegaexpr import AngularFourierDomainExpression
-from .cexpr import ConstantExpression
 f = FourierDomainExpression('f')

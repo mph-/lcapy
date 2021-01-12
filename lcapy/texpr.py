@@ -74,6 +74,8 @@ class TimeDomainExpression(TimeDomain, Expr):
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
+        from .phasor import PhasorDomainTimeExpression
+        
         return PhasorDomainTimeExpression.from_time(self, **assumptions)
 
     def FT(self, evaluate=True, **assumptions):
@@ -237,11 +239,5 @@ classes['transfer'] = TimeDomainImpulseResponse
 TimeDomainVoltage = classes['voltage']
 TimeDomainCurrent = classes['current']
 expressionclasses.add('time', classes)
-
-from .sexpr import LaplaceDomainExpression
-from .fexpr import FourierDomainExpression
-from .omegaexpr import AngularFourierDomainExpression
-from .cexpr import ConstantExpression
-from .phasor import PhasorDomainTimeExpression
 
 t = TimeDomainExpression('t')

@@ -198,7 +198,4 @@ from .expressionclasses import expressionclasses
 classes = expressionclasses.make(DiscreteTimeDomainExpression)
 expressionclasses.add('discrete time', classes)
 
-from .zexpr import ZDomainExpression
-from .kexpr import DiscreteFourierDomainExpression
-
 n = DiscreteTimeDomainExpression('n')
