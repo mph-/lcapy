@@ -287,8 +287,8 @@ def plot_phasor(obj, **kwargs):
                    axes=kwargs.pop('axes', None),
                    subplot_kw=dict(polar=True))
 
-    phi = obj.phase.val
-    mag = obj.magnitude.val
+    phi = obj.phase.fval
+    mag = obj.magnitude.fval
     
     ax.plot((phi, phi), (0, mag), **kwargs)
     return ax
