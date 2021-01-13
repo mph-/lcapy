@@ -216,39 +216,42 @@ Here's an example of using these attributes and methods::
 
 Each domain has specific methods, including:
 
-- `fourier`   -- Convert to Fourier domain
+- `as_fourier()`   -- Convert to Fourier domain
 
-- `laplace`   -- Convert to Laplace (s) domain
+- `as_laplace()`   -- Convert to Laplace (s) domain
 
-- `time`      -- Convert to time domain
+- `as_time()`      -- Convert to time domain
+
+- `as_phasor()`    -- Convert to phasor domain  
 
 
 Lcapy defines a number of functions (see :ref:`expressionsfunctions`) that can be used in expressions, including:
 
-- `u` --  Heaviside's unit step
+- `u()` --  Heaviside's unit step
 
-- `H` -- Heaviside's unit step
+- `H()` -- Heaviside's unit step
 
-- `delta` -- Dirac delta
+- `delta()` -- Dirac delta
 
-- `cos` -- cosine
+- `cos()` -- cosine
 
-- `sin` -- sine
+- `sin()` -- sine
 
-- `sqrt` -- square root
+- `sqrt()` -- square root
 
-- `exp` -- exponential
+- `exp()` -- exponential
 
-- `log10` -- logarithm base 10
+- `log10()` -- logarithm base 10
 
-- `log` -- natural logarithm
+- `log()` -- natural logarithm
 
   
-Partial fraction analysis
--------------------------
+Expression formatting
+---------------------
 
-Lcapy can be used for converting rational functions into partial
-fraction form.  Here's an example::
+Lcapy can format expressions in many ways (see
+:ref:`expressionsprinting`).  For example, it can represent
+expressions in partial fraction form::
 
    >>> from lcapy import *
    >>> G = 1 / (s**2 + 5 * s + 6)
@@ -257,7 +260,7 @@ fraction form.  Here's an example::
    - ───── + ─────
      s + 3   s + 2
 
-Here's an example of a not strictly proper rational function::
+Here's an example of partial fraction expansion for a not strictly proper rational function::
 
    >>> from lcapy import *
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6)
@@ -336,7 +339,7 @@ or remove the condition that :math:`t \ge 0`,
    
 
 When the rational function is not strictly proper, the inverse Laplace
-transform has Dirac deltas (and derivatives of Dirac deltas):
+transform has Dirac deltas (and derivatives of Dirac deltas)::
 
    >>> from lcapy import s
    >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
@@ -350,7 +353,7 @@ transform has Dirac deltas (and derivatives of Dirac deltas):
 
 
 Here's another example of a strictly proper rational function with a
-repeated pole:
+repeated pole::
 
    >>> from lcapy import s
    >>> H = 5 * (s + 5) / ((s + 3) * (s + 3))
@@ -369,7 +372,7 @@ repeated pole:
    ⎝10⋅t⋅e     + 5⋅e    ⎠⋅Heaviside(t)
 
 
-Rational functions with delays can also be handled:
+Rational functions with delays can also be handled::
 
    >>> from lcapy import s
    >>> import sympy as sym
@@ -411,13 +414,13 @@ functions, for example::
    ⌡        
    0        
 
-These expressions also be written as:
+These expressions also be written as::
    
    >>> from lcapy import expr, t
    >>> expr('s * V(s)')(t, causal=True)
    >>> expr('V(s) / s')(t, causal=True)
 
-or more explicitly:
+or more explicitly::
 
    >>> from lcapy import expr
    >>> expr('s * V(s)').inverse_laplace(causal=True)
@@ -427,7 +430,7 @@ or more explicitly:
 Laplace transforms
 ------------------
 
-Lcapy can also perform Laplace transforms.   Here's an example:
+Lcapy can also perform Laplace transforms.   Here's an example::
 
    >>> from lcapy import s, t
    >>> v = 10 * t ** 2 + 3 * t
@@ -437,7 +440,7 @@ Lcapy can also perform Laplace transforms.   Here's an example:
        3   
       s   
 
-There is a short-hand notation for the Laplace transform:
+There is a short-hand notation for the Laplace transform::
       
    >>> v(s)
    3⋅s + 20
@@ -447,8 +450,13 @@ There is a short-hand notation for the Laplace transform:
 
 Note, Lcapy uses the :math:`\mathcal{L}_{-}` unilateral Laplace transform
 whereas SymPy which uses the :math:`\mathcal{L}` unilateral Laplace
-transform, see :ref:`laplace_transforms`.
-      
+transform, see :ref:`laplace_transforms`.  The key difference is for Dirac deltas (and their derivatives).  Lcapy gives::
+
+  >>> delta(t)(s)
+  1
+
+However, SymPy gives 0.5.
+  
 
 Networks
 ========
@@ -829,21 +837,25 @@ This is comprised from any two one-port networks.  For example::
 Here `n.Vtransfer` determines the forward voltage transfer function
 `V_2(s) / V_1(s)`.
 
-The open-circuit input impedance can be found using:
+The open-circuit input impedance can be found using::
+  
    >>> n.Z1oc
    R₁ + R₂
 
-The open-circuit output impedance can be found using:
+The open-circuit output impedance can be found using::
+  
    >>> n.Z2oc
    R₂
 
-The short-circuit input admittance can be found using:
+The short-circuit input admittance can be found using::
+  
    >>> n.Y1sc
    1 
    ──
    R₁
 
-The short-circuit output admittance can be found using:
+The short-circuit output admittance can be found using::
+  
    >>> n.Y2sc
    R₁ + R₂
    ───────
@@ -876,11 +888,13 @@ Two-port networks can be parameterised by eight different two by two
 matrices, A, B, G, H, S, T, Y, Z.  Each has their own merits (see
 http://en.wikipedia.org/wiki/Two-port_network).
 
-Consider an L section comprised of two resistors:
+Consider an L section comprised of two resistors::
+  
    >>> from lcapy import *
    >>> n = LSection(R('R_1'), R('R_2'))
 
-The different matrix representations can be shown using:
+The different matrix representations can be shown using::
+  
    >>> n.Aparams
    ⎡R₁ + R₂    ⎤
    ⎢───────  R₁⎥
@@ -1132,7 +1146,7 @@ also be accessed using attributes, for example::
 
 Note, this only returns the Laplace transform of the transient
 component of the decomposition.  The full Laplace transform of the
-open-circuit voltage (ignoring the noise component) can be obtained using:
+open-circuit voltage (ignoring the noise component) can be obtained using::
 
    >>> from lcapy import s
    >>> Voc(s)
@@ -1142,7 +1156,7 @@ open-circuit voltage (ignoring the noise component) can be obtained using:
         ⎛  2    2⎞  
       s⋅⎝ω₀  + s ⎠
 
-Similarly, the time-domain representation (ignoring the noise component) can be determined using:
+Similarly, the time-domain representation (ignoring the noise component) can be determined using::
 
    >>> from lcapy import t
    >>> Voc(t)
@@ -1183,7 +1197,7 @@ Transfer functions
 
 Transfer functions can be found from the ratio of two s-domain
 quantities such as voltage or current with zero initial conditions.
-Here's an example using an arbitrary input voltage `V(s)`
+Here's an example using an arbitrary input voltage `V(s)`::
 
    >>> from lcapy import Circuit
    >>> cct = Circuit("""
@@ -1201,7 +1215,7 @@ Here's an example using an arbitrary input voltage `V(s)`
    ───────────
    C₁⋅R₁⋅s + 1
 
-The corresponding impulse response can found from an inverse Laplace transform:
+The corresponding impulse response can found from an inverse Laplace transform::
 
    >>> H.inverse_laplace(causal=True)
      -t               
@@ -1211,7 +1225,7 @@ The corresponding impulse response can found from an inverse Laplace transform:
    ───────────────────
           C₁⋅R₁ 
 
-or more simply using:
+or more simply using::
 
    >>> H(t, causal=True)
      -t               
@@ -1234,7 +1248,7 @@ circuit.  For example::
    ───────────
    C₁⋅R₁⋅s + 1
 
-In this example, the `transfer` method computes `(V[1] - V[0]) / (V[2] -
+In this example, the `transfer()` method computes `(V[1] - V[0]) / (V[2] -
 V[0])`.  In general, all independent sources are killed and so the
 response is causal.
 
@@ -1291,7 +1305,7 @@ performed using the `ss` method of a circuit, e.g.,
 This circuit has two reactive components and thus there are two state
 variables; the current through `L` and the voltage across `C`.
 
-The state equations are shown using the `state_equations()` method:
+The state equations are shown using the `state_equations()` method::
 
    >>> ss.state_equations()
    ⎡d         ⎤   ⎡-R₁  -1  ⎤                      
@@ -1302,7 +1316,7 @@ The state equations are shown using the `state_equations()` method:
    ⎢──(v_C(t))⎥   ⎢───  ────⎥            ⎣0⎦       
    ⎣dt        ⎦   ⎣ C   C⋅R₂⎦                      
 
-The output equations are shown using the `output_equations()` method:
+The output equations are shown using the `output_equations()` method::
 
    >>> ss.output_equations()
    ⎡v₁(t)⎤   ⎡0    0⎤            ⎡1⎤       
@@ -1400,7 +1414,8 @@ Hints are required to designate component orientation and explicit
 wires are required to link nodes of the same potential but with
 different coordinates.  For more details see :ref:`schematics`.
 
-Here's an example:
+Here's an example::
+  
    >>> from lcapy import Circuit
    >>> cct = Circuit("""
    ... V1 1 0 {V(s)}; down

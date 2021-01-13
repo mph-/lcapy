@@ -241,7 +241,7 @@ Domain attributes
 Quantities
 ==========
 
-Each expression has a quantity (voltage, current, undefined, etc.).  When combing expressions, the quantity of the result is determined for the most common combination of electrical quantities.  For example,
+Each expression has a quantity (voltage, current, undefined, etc.).  When combining expressions, the quantity of the result is determined for the most common combination of electrical quantities.  For example,
 
    >>> V = current(1 / s) * impedance(2)
    >>> V.quantity
@@ -256,7 +256,7 @@ However, there are restrictions on how expressions can be combined.  For example
 
 There are a number of methods for changing the quantity of an expression:
 
-- `as_expr()` removes the quantity
+- `as_expr()` removes the quantity  (it is set to 'undefined')
 - `as_voltage()` converts to voltage
 - `as_current()` converts to current
 - `as_impedance()` converts to impedance
@@ -292,7 +292,8 @@ Expressions have the following attributes to identify the quantity:
 - `is_currentsquared`
 - `is_impedancesquared`
 - `is_admittancesquared`
-- `is_power`  
+- `is_power`
+- `is_phase`    
 
   
 .. _units:
