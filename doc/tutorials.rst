@@ -115,7 +115,7 @@ The voltage across the voltage source is::
     >>> a.V.V
     {ω₀: 6}
 
-This indicates a phasor of angular frequency :math:\omega_0` with an amplitude 6 V.  The time domain representation is::
+This indicates a phasor of angular frequency :math:`\omega_0` with an amplitude 6 V.  The time domain representation is::
 
     >>> a.V.V(t)  
     6⋅cos(ω₀⋅t)
