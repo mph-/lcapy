@@ -113,3 +113,9 @@ Installation for development
 
    $ pip3 install flake8 flake8-bugbear flake8-requirements flake8-comprehensions
    
+7. For coverage analysis
+
+.. code-block:: console
+
+   $ pip3 install coverage
+   
