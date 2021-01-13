@@ -1450,6 +1450,3 @@ Another example is accessing the SymPy symbol assumptions:
     'imaginary': False,
     'real': True}
    
-Lcapy represents floating point numbers as rationals.  This ensures expected simplifications of expressions.
-
-

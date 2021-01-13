@@ -620,6 +620,7 @@ class LcapyTester(unittest.TestCase):
     def test_phase(self):
 
         c = expr(2).as_phase()
+        e = exp(c)        
         
         self.assertEqual(c.is_phase, True, "is_phase")
-        
+        self.assertEqual(e.is_phase, False, "exp is_phase")        
