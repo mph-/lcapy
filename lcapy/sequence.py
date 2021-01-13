@@ -222,7 +222,7 @@ class Sequence(ExprList):
         p.text(self.pretty())
 
     def lfilter(self, b=None, a=None):
-        """implement digital filter specified by a transfer function.  The
+        """Implement digital filter specified by a transfer function.  The
         transfer function is described by a vector `b` of coefficients
         for the numerator and a `a` vector of coefficients for the
         denominator.

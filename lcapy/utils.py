@@ -1,6 +1,8 @@
 import sympy as sym
 
 def factor_const(expr, var):
+    """Extract constant factor from expression and return tuple
+    of constant and the rest of the expression."""    
 
     # Perhaps use expr.as_coeff_Mul() ?
 
@@ -17,6 +19,8 @@ def factor_const(expr, var):
 
 
 def term_const(expr, var):
+    """Extract constant term from expression and return tuple
+    of constant and the rest of the expression."""
 
     rest = sym.S.One
     const = sym.S.Zero

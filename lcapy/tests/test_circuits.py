@@ -628,8 +628,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(b.impedance(1, 2), a.impedance(1, 2), "simplify parallel")        
         
-
-
     def test_VRL1_super(self):
         """Lcapy: check VRL circuit
 
@@ -640,3 +638,14 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 4 2 2; right=2')
         a.add('L1 2 3 2; down')
         a.add('W 0 3; right')
+
+    def test_super_nodes(self):
+
+        a = Circuit("""
+        V1 1 2;
+        R1 2 3:
+        R2 1 3""")
+
+        self.assertEqual(a.super_nodes, [['1', '2']], "super_nodes")
+        
+ 
