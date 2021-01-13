@@ -83,24 +83,29 @@ that component names can be used, for example,
 Linear circuit analysis
 =======================
 
-There is no universal analytical technique to determine the voltages
-and currents in an LTI circuit.  Instead there are a number of methods
-that all try to side step having to solve simultaneous
-integro-differential equations.  These methods include DC analysis, AC (phasor)
-analysis, and Laplace analysis.  Lcapy uses all three and the
-principle of superposition.  Superposition allows a circuit to be
-analysed by considering the effect of each independent current and
-voltage source in isolation and summing the results.
+The voltages and currents in a circuit can be found by applying
+Kirchhoff's current and voltage laws in conjunction with the
+relationships between voltage and current for resistors, capacitors,
+and inductors.  However, this leads to a system of simultaneous
+integro-differential equations to solve.  This is not fun!
+
+If the system is linear, superposition can be applied to consider the
+effect of each independent current and voltage source in isolation and
+summing the results.  Furthermore, differential equations are not
+required for DC signals and can be avoided by using transform
+techniques (phasor analysis for AC signals and Laplace analysis for
+transient signals).  Thus for each domain, the voltages and currents
+can be found by solving a system of linear equations.
 
 Lcapy's algorithm for solving a circuit is:
 
 1. If a capacitor or inductor is found to have initial conditions, then the circuit is analysed as an initial value problem using Laplace methods.  In this case, the sources are ignored for :math:`t<0` and the result is only known for :math:`t\ge 0`.
    
-2. If there are no capacitors and inductors and if none of the independent sources are specified in the s-domain, then time-domain analysis is performed.
+2. If there are no capacitors and inductors and if none of the independent sources are specified in the Laplace domain, then time-domain analysis is performed (since no derivatives or integrals are required).
    
-3. Finally, Lcapy tries to decompose the sources into DC, AC, transient, and noise components.  The circuit is analysed for each source category using the appropriate transform domain (phasors for AC, s-domain for transients) and the results are added.  If there are multiple noise sources, these are considered independently since they are assumed to be uncorrelated.  
+3. Finally, Lcapy tries to decompose the sources into DC, AC, transient, and noise components.  The circuit is analysed for each source category using the appropriate transform domain (phasors for AC, Laplace domain for transients) and the results are added.  If there are multiple noise sources, these are considered independently since they are assumed to be uncorrelated.  
 
-The method that Lcapy uses can be found using the `describe` method.   For example,
+The method that Lcapy uses can be found using the `describe()` method.   For example,
 
    >>> cct = Circuit("""
    ... V1 1 0 {1 + u(t)}
@@ -136,16 +141,16 @@ must have a DC path to ground otherwise the circuit cannot be solved
 (for example, when capacitors are in series).
 
 
-AC analysis
------------
+AC (phasor) analysis
+--------------------
 
 AC, like DC, is an idealised concept.  It allows circuits to be
 analysed using phasors and impedances.  The use of impedances avoids
 solving integro-differential equations in the time domain.
 
 
-Transient analysis
-------------------
+Transient (Laplace) analysis
+----------------------------
 
 The response due to a transient excitation from an independent source
 can be analysed using Laplace analysis.  Since the unilateral
@@ -639,7 +644,7 @@ of the same name.  For example,
 
 The Laplace transforms of the state variable vector, the independent
 source vector, and the output vector are accessed using the `X`, `U`,
-and `Y` attributes: For example,
+and `Y` attributes.  For example,
 
    >>> ss.X
    ⎡I_L(s)⎤
