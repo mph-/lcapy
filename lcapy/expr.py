@@ -791,9 +791,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
                 return cls, self, x, assumptions
 
         # For phasor comparisons...
-        if self.is_phasor_frequency_domain and x.is_angular_fourier_domain:
+        if self.is_phasor_domain and x.is_angular_fourier_domain:
             return cls, self, cls(x), assumptions
-        if self.is_angular_fourier_domain and x.is_phasor_frequency_domain:
+        if self.is_angular_fourier_domain and x.is_phasor_domain:
             return xcls, cls(self), x, assumptions        
 
         if not self._add_compatible_domains(x):
@@ -1292,8 +1292,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
                 N = N / G
             dst = atan2(N.imag, N.real)
 
-        # TODO, add phase quantity...
-        dst = cexpr(dst)            
+        dst = dst.as_phase()            
         dst.part = 'phase'
         dst.units = 'rad'
         return dst
