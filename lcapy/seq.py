@@ -4,6 +4,10 @@ from .sequence import Sequence
 from .nexpr import n
 
 def seq(arg):
+    """Create a Sequence from a tuple, list, ndarray, or str.
+
+    seq((1, 2, 3))
+    """
 
     if isinstance(arg, (tuple, list, ndarray)):
         nv = list(range(len(arg)))
@@ -13,6 +17,7 @@ def seq(arg):
     if s.startswith('{'):
         if not s.endswith('}'):
             raise ValueError('Mismatched braces for %s' % s)
+        s = s[1:-1]
     
     parts = s.split(',')
     N = len(parts)
@@ -20,6 +25,7 @@ def seq(arg):
     vals = []
     m0 = None
     for m, item in enumerate(parts):
+        item = item.strip()
         if item.startswith('_'):
             if m0 is not None:
                 raise ValueError('Cannot have multiple zero index indicators')
