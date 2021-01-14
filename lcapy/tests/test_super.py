@@ -1,6 +1,4 @@
 from lcapy import *
-from lcapy.cexpr import ConstantVoltage
-from lcapy.phasor import PhasorDomainVoltage
 from lcapy.superpositionvoltage import SuperpositionVoltage
 from lcapy.superpositioncurrent import SuperpositionCurrent
 import unittest
@@ -29,10 +27,10 @@ class LcapyTester(unittest.TestCase):
 
     def test_voltage_properties(self):
         self.assertEqual(SuperpositionVoltage(3).is_dc, True, "Voltage(3).is_dc")
-        self.assertEqual(SuperpositionVoltage(PhasorDomainVoltage(3)).is_ac, True, "Voltage(Vphasor(3)).is_ac")
-        self.assertEqual(SuperpositionVoltage(ConstantVoltage(2), PhasorDomainVoltage(3)).is_ac, False,
+        self.assertEqual(SuperpositionVoltage(phasorvoltage(3)).is_ac, True, "Voltage(Vphasor(3)).is_ac")
+        self.assertEqual(SuperpositionVoltage(voltage(2), phasorvoltage(3)).is_ac, False,
                           "Voltage(Vconst(2), Vphasor(3)).is_ac")
-        self.assertEqual(SuperpositionVoltage(ConstantVoltage(2), PhasorDomainVoltage(3)).is_ac, False,
+        self.assertEqual(SuperpositionVoltage(voltage(2), phasorvoltage(3)).is_ac, False,
                           "Voltage(Vconst(2), Vphasor(3)).is_dc")
 
     def test_voltage_add_sub_dc(self):

@@ -8,8 +8,9 @@ from .matrix import Matrix
 from .sym import j, pi
 from .functions import exp
 from .expr import expr
-from .phasor import PhasorDomainVoltage, PhasorDomainCurrent
 from .vector import Vector
+from .voltage import phasorvoltage
+from .current import phasorcurrent
 
 
 class PolyphaseVector(Vector):
@@ -67,17 +68,17 @@ class SequenceVoltageVector(PolyphaseVoltageVector):
     @property    
     def V0(self):
         """Zero sequence voltage component"""
-        return PhasorDomainVoltage(self[0])
+        return phasorvoltage(self[0])
 
     @property    
     def V1(self):
         """Positive sequence voltage component"""
-        return PhasorDomainVoltage(self[1])
+        return phasorvoltage(self[1])
 
     @property    
     def V2(self):
         """Negative sequence voltage component"""
-        return PhasorDomainVoltage(self[2])
+        return phasorvoltage(self[2])
 
     
 class SequenceCurrentVector(PolyphaseCurrentVector):
@@ -93,17 +94,17 @@ class SequenceCurrentVector(PolyphaseCurrentVector):
     @property    
     def I0(self):
         """Zero sequence current component"""
-        return PhasorDomainCurrent(self[0])
+        return phasorcurrent(self[0])
 
     @property    
     def I1(self):
         """Positive sequence current component"""
-        return PhasorDomainCurrent(self[1])
+        return phasorcurrent(self[1])
 
     @property    
     def I2(self):
         """Negative sequence current component"""
-        return PhasorDomainCurrent(self[2])
+        return phasorcurrent(self[2])
 
     
 class LineVoltageVector(PolyphaseVoltageVector):
@@ -111,15 +112,15 @@ class LineVoltageVector(PolyphaseVoltageVector):
 
     @property    
     def Vab(self):
-        return PhasorDomainVoltage(self[0])
+        return phasorvoltage(self[0])
 
     @property    
     def Vbc(self):
-        return PhasorDomainVoltage(self[1])
+        return phasorvoltage(self[1])
 
     @property    
     def Vca(self):
-        return PhasorDomainVoltage(self[2])
+        return phasorvoltage(self[2])
 
 
 class LineCurrentVector(PolyphaseCurrentVector):
@@ -219,15 +220,15 @@ class LineVoltageCurrentVector(PolyphaseVoltageCurrentVector):
 
     @property    
     def Vab(self):
-        return PhasorDomainVoltage(self.V[0])
+        return phasorvoltage(self.V[0])
 
     @property    
     def Vbc(self):
-        return PhasorDomainVoltage(self.V[1])
+        return phasorvoltage(self.V[1])
 
     @property    
     def Vca(self):
-        return PhasorDomainVoltage(self.V[2])
+        return phasorvoltage(self.V[2])
     
 
 class PhaseVoltageCurrentVector(PolyphaseVoltageCurrentVector):
@@ -257,27 +258,27 @@ class PhaseVoltageCurrentVector(PolyphaseVoltageCurrentVector):
 
     @property    
     def Va(self):
-        return PhasorDomainVoltage(self.V[0])
+        return phasorvoltage(self.V[0])
 
     @property    
     def Vb(self):
-        return PhasorDomainVoltage(self.V[1])
+        return phasorvoltage(self.V[1])
 
     @property    
     def Vc(self):
-        return PhasorDomainVoltage(self.V[2])
+        return phasorvoltage(self.V[2])
 
     @property    
     def Ia(self):
-        return PhasorDomainCurrent(self.I[0])
+        return phasorcurrent(self.I[0])
 
     @property    
     def Ib(self):
-        return PhasorDomainCurrent(self.I[1])
+        return phasorcurrent(self.I[1])
 
     @property    
     def Ic(self):
-        return PhasorDomainCurrent(self.I[2])
+        return phasorcurrent(self.I[2])
 
 
 class SequenceVoltageCurrentVector(PolyphaseVoltageCurrentVector):
@@ -308,32 +309,32 @@ class SequenceVoltageCurrentVector(PolyphaseVoltageCurrentVector):
     @property    
     def V0(self):
         """Zero sequence voltage component"""
-        return PhasorDomainVoltage(self.V[0])
+        return phasorvoltage(self.V[0])
 
     @property    
     def V1(self):
         """Positive sequence voltage component"""
-        return PhasorDomainVoltage(self.V[1])
+        return phasorvoltage(self.V[1])
 
     @property    
     def V2(self):
         """Negative sequence voltage component"""
-        return PhasorDomainVoltage(self.V[2])
+        return phasorvoltage(self.V[2])
 
     @property    
     def I0(self):
         """Zero sequence current component"""
-        return PhasorDomainCurrent(self.I[0])
+        return phasorcurrent(self.I[0])
 
     @property    
     def I1(self):
         """Positive sequence current component"""
-        return PhasorDomainCurrent(self.I[1])
+        return phasorcurrent(self.I[1])
 
     @property    
     def I2(self):
         """Negative sequence current component"""
-        return PhasorDomainCurrent(self.I[2])
+        return phasorcurrent(self.I[2])
 
                                      
 def alpha_simplify3(self, alpha=None):    

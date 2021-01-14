@@ -57,3 +57,9 @@ def noisevoltage(arg, **assumptions):
     positive = assumptions.get('positive', True)    
 
     return voltage(arg, nid=None, positive=positive, **assumptions)
+
+
+def phasorvoltage(arg, omega=None, **assumptions):
+    from .phasor import phasor
+    
+    return phasor(arg, omega, **assumptions).as_voltage()

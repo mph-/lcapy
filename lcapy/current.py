@@ -56,3 +56,10 @@ def noisecurrent(arg, **assumptions):
     positive = assumptions.get('positive', True)        
 
     return current(arg, nid=None, positive=positive, **assumptions)
+
+
+def phasorcurrent(arg, omega=None, **assumptions):
+    from .phasor import phasor
+    
+    return phasor(arg, omega, **assumptions).as_current()
+

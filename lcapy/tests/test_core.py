@@ -1,5 +1,5 @@
 from lcapy import *
-from lcapy.cexpr import ConstantExpression, ConstantVoltage
+from lcapy.cexpr import ConstantExpression
 from lcapy.fexpr import FourierDomainExpression
 from lcapy.omegaexpr import AngularFourierDomainExpression
 from lcapy.texpr import TimeDomainExpression, TimeDomainVoltage
@@ -62,7 +62,7 @@ class LcapyTester(unittest.TestCase):
         """Lcapy: check cExpr1
 
         """
-        a = ConstantExpression('1')
+        a = cexpr('1')
         self.assertEqual2(a.evaluate(), 1, "evaluate incorrect.")
         
         
@@ -314,7 +314,7 @@ class LcapyTester(unittest.TestCase):
 
         """
 
-        c = ConstantExpression(10)
+        c = cexpr(10)
         self.assertEqual(type(10 + c), ConstantExpression, "Not cExpr")
         self.assertEqual(type(c + 10), ConstantExpression, "Not cExpr")
         self.assertEqual(type(ConstantExpression(10) + c), ConstantExpression, "Not cExpr")
