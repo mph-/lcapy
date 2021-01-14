@@ -50,4 +50,26 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual((voltage(phasor(1))**2).units, 'V^2', 'phasor voltage squared')
         self.assertEqual((current(phasor(1))**2).units, 'A^2', 'phasor current squared')
         self.assertEqual((admittance(phasor(1))**2).units, 'S^2', 'phasor admittance squared')                
-        self.assertEqual((impedance(phasor(1))**2).units, 'ohm^2', 'phasor impedance squared')        
+        self.assertEqual((impedance(phasor(1))**2).units, 'ohm^2', 'phasor impedance squared')
+
+    def test_discrete_time_units(self):
+
+        self.assertEqual(voltage(nexpr(1)).units, 'V', 'nexpr voltage')
+        self.assertEqual(current(nexpr(1)).units, 'A', 'nexpr current')
+        self.assertEqual(admittance(nexpr(1)).units, 'S', 'nexpr admittance')        
+        self.assertEqual(impedance(nexpr(1)).units, 'ohm', 'nexpr impedance')
+        self.assertEqual((voltage(nexpr(1))**2).units, 'V^2', 'nexpr voltage squared')
+        self.assertEqual((current(nexpr(1))**2).units, 'A^2', 'nexpr current squared')
+        self.assertEqual((admittance(nexpr(1))**2).units, 'S^2', 'nexpr admittance squared')                
+        self.assertEqual((impedance(nexpr(1))**2).units, 'ohm^2', 'nexpr impedance squared')
+
+    def test_discrete_fourier_units(self):
+
+        self.assertEqual(voltage(kexpr(1)).units, 'V', 'kexpr voltage')
+        self.assertEqual(current(kexpr(1)).units, 'A', 'kexpr current')
+        self.assertEqual(admittance(kexpr(1)).units, 'S', 'kexpr admittance')        
+        self.assertEqual(impedance(kexpr(1)).units, 'ohm', 'kexpr impedance')
+        self.assertEqual((voltage(kexpr(1))**2).units, 'V^2', 'kexpr voltage squared')
+        self.assertEqual((current(kexpr(1))**2).units, 'A^2', 'kexpr current squared')
+        self.assertEqual((admittance(kexpr(1))**2).units, 'S^2', 'kexpr admittance squared')                
+        self.assertEqual((impedance(kexpr(1))**2).units, 'ohm^2', 'kexpr impedance squared')                        

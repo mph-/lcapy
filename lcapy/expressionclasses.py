@@ -53,22 +53,20 @@ class ExpressionClasses(dict):
 
             units = quantityunits            
             if quantity in ('voltage', 'current'):
-                if not (domainclass.is_time_domain or
-                        domainclass.is_discrete_time_domain or
-                        domainclass.is_constant_domain or
-                        domainclass.is_phasor_domain):                
+                if (domainclass.is_laplace_domain or
+                    domainclass.is_fourier_domain or
+                    domainclass.is_angular_fourier_domain):
                     units = '%s/%s' % (quantityunits, domainunits)
             elif quantity in ('voltagesquared', 'currentsquared'):
-                if not (domainclass.is_time_domain or
-                        domainclass.is_discrete_time_domain or
-                        domainclass.is_constant_domain or
-                        domainclass.is_phasor_domain):                
+                if (domainclass.is_laplace_domain or
+                    domainclass.is_fourier_domain or
+                    domainclass.is_angular_fourier_domain):                
                     units = '%s/%s^2' % (quantityunits, domainunits)
             elif quantity in ('impedance', 'admittance'):
-                if domainclass.is_time_domain or domainclass.is_discrete_time_domain:
+                if domainclass.is_time_domain:
                     units = '%s/%s' % (quantityunits, domainunits)
             elif quantity in ('admittancesquared', 'impedancesquared'):
-                if domainclass.is_time_domain or domainclass.is_discrete_time_domain:
+                if domainclass.is_time_domain:
                     units = '%s/%s^2' % (quantityunits, domainunits)
 
             # FIXME:  The units of squared quantities are incorrect under transformation
