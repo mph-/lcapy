@@ -1,5 +1,4 @@
 from lcapy import *
-from lcapy.discretetime import *
 import unittest
 
 

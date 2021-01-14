@@ -50,12 +50,21 @@ class ExpressionClasses(dict):
             quantityunits = quantityclass.units
             
             domainunits = domainclass.domain_units
-            
-            if domainunits == '':
-                units = quantityunits
-            else:
-                units = '%s/%s' % (quantityunits, domainunits)            
-            
+
+            units = quantityunits            
+            if quantity in ('voltage', 'current'):
+                if not (domainclass.is_time_domain or domainclass.is_discrete_time_domain):                
+                    units = '%s/%s' % (quantityunits, domainunits)
+            elif quantity in ('voltagesquared', 'currentsquared'):
+                if not (domainclass.is_time_domain or domainclass.is_discrete_time_domain):                
+                    units = '%s/%s^2' % (quantityunits, domainunits)
+            elif quantity in ('impedance', 'admittance'):
+                if domainclass.is_time_domain or domainclass.is_discrete_time_domain:
+                    units = '%s/%s' % (quantityunits, domainunits)
+            elif quantity in ('admittancesquared', 'impedancesquared'):
+                if domainclass.is_time_domain or domainclass.is_discrete_time_domain:
+                    units = '%s/%s^2' % (quantityunits, domainunits)                
+                        
             docstring = '%s-domain %s (units %s).' % (domainclass.domain_label,
                                                       quantity, units)
         

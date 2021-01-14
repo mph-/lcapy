@@ -6,7 +6,7 @@ class ImpedanceMixin(Quantity, ImmittanceMixin):
 
     quantity = 'impedance'
     quantity_label = 'Impedance'
-    units = 'ohms'
+    units = 'ohm'
     is_impedance = True
     is_immitance = True
 

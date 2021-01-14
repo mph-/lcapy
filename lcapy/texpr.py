@@ -193,24 +193,6 @@ class TimeDomainExpression(TimeDomain, Expr):
         return self.__class__(result, **assumptions)
 
     
-class TimeDomainAdmittance(TimeDomainExpression):
-    """Time-domain 'admittance' value."""
-
-    quantity = 'admittance'
-    quantity_label = 'Admittance'
-    units = 'siemens/s'
-    is_impedance = True    
-
-
-class TimeDomainImpedance(TimeDomainExpression):
-    """Time-domain 'impedance' value."""
-
-    quantity = 'impedance'
-    quantity_label = 'Impedance'
-    units = 'ohms/s'
-    is_impedance = True
-
-
 class TimeDomainImpulseResponse(TimeDomainExpression):
     """Time-domain impulse response."""
 
@@ -232,8 +214,6 @@ def texpr(arg, **assumptions):
 from .expressionclasses import expressionclasses
 
 classes = expressionclasses.make(TimeDomainExpression)
-classes['admittance'] = TimeDomainAdmittance
-classes['impedance'] = TimeDomainImpedance
 classes['transfer'] = TimeDomainImpulseResponse
 
 TimeDomainVoltage = classes['voltage']
