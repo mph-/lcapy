@@ -58,4 +58,4 @@ class AdmittanceMixin(Quantity, ImmittanceMixin):
         if y.is_number:
             return C(y.expr)
 
-        return Y(self.expr)
+        return Y(self)
