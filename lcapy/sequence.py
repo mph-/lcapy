@@ -89,6 +89,13 @@ class Sequence(ExprList):
     def latex(self):
 
         items = []
+        for n1 in range(0, self.n[0]):
+            if n1 == 0:
+                s = r'\underline{0}'
+            else:
+                s = '0'
+            items.append(s)                
+            
         for v1, n1 in zip(self, self.n):
             try:
                 s = v1.latex()
@@ -109,6 +116,13 @@ class Sequence(ExprList):
         # the underline?
         
         items = []
+        for n1 in range(0, self.n[0]):
+            if n1 == 0:
+                s = r'_0'
+            else:
+                s = '0'
+            items.append(s)                            
+        
         for v1, n1 in zip(self, self.n):
             try:
                 s = v1.pretty()

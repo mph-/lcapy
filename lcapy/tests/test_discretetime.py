@@ -42,5 +42,26 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(h.latex(), r'\left\{\underline{1}, 2\right\}', "latex")                
         self.assertEqual(seq('1, 2, 3'), x, "seq")
         self.assertEqual(seq('{1, _2, 3}').latex(), r'\left\{1, \underline{2}, 3\right\}', "latex")
+        self.assertEqual(e.seq(), x, "seq")        
         
-        
+    def test_zexpr(self):
+
+         H = z / (z - 1)
+
+         DE = H.difference_equation()
+         rhs = expr('x(n)')
+         lhs = expr('y(n) - y(n-1)')
+
+         self.assertEqual(DE.lhs, lhs, "DE lhs")
+         self.assertEqual(DE.rhs, rhs, "DE rhs")                  
+
+    def test_nexpr(self):
+
+        x = seq('{1, _2, 3, 4}').as_impulses()
+
+        y1 = seq('{0, 1, 2, 3, 4}').as_impulses()        
+        y2 = x.delay(2)
+
+        self.assertEqual(y1, y2, "delay(2)")        
+        self.assertEqual(x.first_index(), -1, "first_index")
+        self.assertEqual(x.last_index(), 2, "last_index")        
