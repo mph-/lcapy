@@ -59,5 +59,5 @@ class ImpedanceMixin(Quantity, ImmittanceMixin):
         if z.is_number:
             return L(z.expr)
 
-        return Z(self)
+        return Z(self.expr)
 
