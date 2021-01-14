@@ -6,7 +6,6 @@ Copyright 2014--2019 Michael Hayes, UCECE
 
 from __future__ import division
 from .assumptions import Assumptions
-from .phasor import PhasorDomainCurrent, PhasorDomainVoltage
 from .vector import Vector
 from .matrix import Matrix, matrix_inverse
 from .sym import symsimplify
@@ -172,7 +171,7 @@ class MNAMixin(object):
         vtype = Vtype(self.kind)
         itype = Itype(self.kind)
         assumptions = Assumptions()
-        if vtype == PhasorDomainVoltage:
+        if vtype.is_phasor_domain:
             assumptions.set('omega', self.kind)
         elif self.kind in ('s', 'ivp'):
             assumptions.set('ac', self.is_ac)
