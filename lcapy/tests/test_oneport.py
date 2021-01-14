@@ -282,3 +282,21 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(b._Z, None, "Z incorrect.")
         self.assertEqual2(b._Y, 1, "Y incorrect.")                
+
+    def test_cpt(self):
+
+        self.assertEqual2(type(voltage(2).cpt()), Vdc , "-> Vdc")
+        self.assertEqual2(type(voltage(cos(t)).cpt()), Vac, "-> Vac")
+
+        self.assertEqual2(type(current(2).cpt()), Idc, "-> Idc")
+        self.assertEqual2(type(current(cos(t)).cpt()), Iac, "-> Iac")
+        
+        self.assertEqual2(type(impedance(2).cpt()), R , "-> R")
+        self.assertEqual2(type(impedance(2 * s).cpt()), L, "-> L")
+        self.assertEqual2(type(impedance(2 / s).cpt()), C, "-> C")
+
+        self.assertEqual2(type(admittance(2).cpt()), G, "-> G")
+        self.assertEqual2(type(admittance(2 * s).cpt()), C, "-> C")
+        self.assertEqual2(type(admittance(2 / s).cpt()), L, "-> L")        
+        
+        
