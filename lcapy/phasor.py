@@ -238,18 +238,10 @@ class PhasorDomainVoltage(VoltageMixin, PhasorDomainTimeExpression):
     """Phasor-domain voltage (units V) parameterized as a phasor
     of a single angular frequency."""
         
-    def cpt(self):
-        from .oneport import Vac
-        return Vac(self, 0, self.omega)            
-
     
 class PhasorDomainCurrent(CurrentMixin, PhasorDomainTimeExpression):
     """Phasor-domain current (units V) parameterized as a phasor
     of a single angular frequency."""    
-
-    def cpt(self):
-        from .oneport import Iac
-        return Iac(self, 0, self.omega)
 
 
 def phasor(arg, omega=None, **assumptions):

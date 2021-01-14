@@ -12,9 +12,8 @@ class VoltageMixin(Quantity):
 
         if self.is_dc:
             return Vdc(self.expr)
-        elif self.is_ac:
-            p = self.as_phasor()
-            return Vac(p.expr, omega=p.omega)
+        elif self.is_phasor_domain:
+            return Vac(self, omega=self.omega)
         
         return V(self.expr)
 
