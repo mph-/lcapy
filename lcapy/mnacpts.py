@@ -14,7 +14,7 @@ from .symbols import j, omega, jomega, s, t
 from .functions import sqrt
 from .sym import capitalize_name, omegasym
 from .grammar import delimiters
-from .immittancemixinhack import ImmittanceMixinHack
+from .immittancemixin import ImmittanceMixin
 from .superpositioncurrent import SuperpositionCurrent
 from .opts import Opts
 import lcapy
@@ -30,7 +30,7 @@ cptaliases = {'E': 'VCVS', 'F': 'CCCS',
               'k': 'Spring'}
 
 
-class Cpt(ImmittanceMixinHack):
+class Cpt(ImmittanceMixin):
 
     dependent_source = False
     independent_source = False    
