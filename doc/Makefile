@@ -156,7 +156,7 @@ figs:
 	cd examples/netlists; make
 	cd examples/schematics; make
 	cd examples/networks; make
-	cd examples/simulations; make
+	cd examples/simulation; make
 	cd examples/discretetime; make
 	cd examples/tutorials/ivp; make
 	cd examples/tutorials/basic; make
