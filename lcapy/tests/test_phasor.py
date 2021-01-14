@@ -1,5 +1,4 @@
 from lcapy import *
-from lcapy.phasor import PhasorDomainVoltage, PhasorDomainExpression
 import unittest
 
 
@@ -17,16 +16,16 @@ class LcapyTester(unittest.TestCase):
 
     def test_phasor(self):
 
-        a = PhasorDomainExpression(3, omega=7)
+        a = phasor(3, omega=7)
         self.assertEqual(a.omega, 7, 'omega')
         self.assertEqual(a.phase, 0, 'phase')
         self.assertEqual(a.magnitude, 3, 'magnitude')        
         
-        a = PhasorDomainExpression(-3, omega=7)
+        a = phasor(-3, omega=7)
         self.assertEqual(a.phase, pi, 'phase')                
         self.assertEqual(a.magnitude, 3, 'magnitude')
 
-        a = PhasorDomainExpression(-3 + 4j, omega=7)
+        a = phasor(-3 + 4j, omega=7)
         self.assertEqual(a.magnitude, 5, 'magnitude')                        
 
         v = voltage('cos(5 * t)')
