@@ -77,7 +77,7 @@ class LcapyTester(unittest.TestCase):
         
         self.assertEqual(a.norton().isc, TimeDomainCurrent(-2 * omega0 * sin(omega0 * t)),
                          "Isc incorrect")
-        self.assertEqual(a.thevenin().isc,  TimeDomainCurrent(-2 * omega0 * sin(omega0 * t)),
+        self.assertEqual(a.thevenin().isc, TimeDomainCurrent(-2 * omega0 * sin(omega0 * t)),
                          "Isc incorrect")
         
     def test_superposition(self):

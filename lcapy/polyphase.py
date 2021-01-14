@@ -10,7 +10,6 @@ from .functions import exp
 from .expr import expr
 from .phasor import PhasorDomainVoltage, PhasorDomainCurrent
 from .vector import Vector
-from .phasor import PhasorDomainVoltage, PhasorDomainCurrent
 
 
 class PolyphaseVector(Vector):
