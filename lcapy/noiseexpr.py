@@ -164,15 +164,22 @@ class NoiseExpression(Expr):
         cls = self._class_by_quantity(self.quantity, 'time')
         return cls(rms)
 
-    def sample(self, t):
+    def sample(self, t, seed=None):
         """Return a sample function (realisation) of the noise process
-        evaluated at time values specified by vector t."""
+        evaluated at time values specified by vector t.   If t is an integer,
+        this returns `t` samples."""
 
+        if isinstance(t, int):
+            t = np.arange(t)
+        
         N = len(t)
         if N < 3:
             raise ValueError('Require at least 3 samples')
         if N & 1:
-            raise ValueError('Require even number of samples')                    
+            raise ValueError('Require even number of samples')
+
+        if seed is not None:
+            np.random.seed(seed)
         
         td = np.diff(t)
         if not np.allclose(np.diff(td), 0):

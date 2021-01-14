@@ -130,6 +130,9 @@ class LcapyTester(unittest.TestCase):
         V3 = noisevoltage(1 / omega)
         self.assertEqual(V3.is_angular_fourier_noise_domain, True, 'check domain')        
 
+        x = V1.sample(4)
+        self.assertEqual(len(x), 4, 'sample size')                
+        
     def test_noisecurrent(self):
 
         V1 = noisecurrent(1)
