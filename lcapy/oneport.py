@@ -1041,8 +1041,8 @@ class Vac(VoltageSourceBase):
         self.omega = omega
         self.v0 = V
         self.phi = phi
-        self._Voc = SuperpositionVoltage(PhasorDomainVoltage(self.v0 * exp(j * self.phi),
-                                                             ac=True, omega=self.omega))
+        self._Voc = SuperpositionVoltage(phasor(self.v0 * exp(j * self.phi),
+                                                omega=self.omega))
 
     @property
     def voc(self):
@@ -1170,8 +1170,8 @@ class Iac(CurrentSourceBase):
         self.omega = omega
         self.i0 = I
         self.phi = phi
-        self._Isc = SuperpositionCurrent(PhasorDomainCurrent(self.i0 * exp(j * self.phi),
-                                                       ac=True, omega=self.omega))
+        self._Isc = SuperpositionCurrent(phasor(self.i0 * exp(j * self.phi),
+                                                omega=self.omega))
 
     @property
     def isc(self):
@@ -1449,9 +1449,9 @@ from .expr import Expr, expr
 from .cexpr import cexpr
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
+from .phasor import phasor
 from .noiseomegaexpr import AngularFourierNoiseDomainCurrent, AngularFourierNoiseDomainVoltage
 from .superpositionvoltage import SuperpositionVoltage
 from .superpositioncurrent import SuperpositionCurrent
-from .phasor import PhasorDomainCurrent, PhasorDomainVoltage
 from .twoport import Ladder, LSection, TSection
 
