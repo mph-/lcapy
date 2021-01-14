@@ -101,9 +101,6 @@ def omegaexpr(arg, **assumptions):
 from .expressionclasses import expressionclasses
 classes = expressionclasses.make(AngularFourierDomainExpression)
 expressionclasses.add('angular fourier', classes)
-
-AngularFourierDomainAdmittance = classes['admittance']
-AngularFourierDomainImpedance = classes['impedance']
         
 omega = AngularFourierDomainExpression('omega')
 omega0 = AngularFourierDomainExpression('omega_0')

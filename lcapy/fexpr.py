@@ -119,9 +119,6 @@ def fexpr(arg, **assumptions):
 
 from .expressionclasses import expressionclasses
 classes = expressionclasses.make(FourierDomainExpression)
-
-FourierDomainVoltage = classes['voltage']
-FourierDomainCurrent = classes['current']
 expressionclasses.add('fourier', classes)
 
 f = FourierDomainExpression('f')
