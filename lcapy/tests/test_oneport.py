@@ -285,18 +285,18 @@ class LcapyTester(unittest.TestCase):
 
     def test_cpt(self):
 
-        self.assertEqual2(type(voltage(2).cpt()), Vdc , "-> Vdc")
-        self.assertEqual2(type(voltage(cos(t)).cpt()), Vac, "-> Vac")
+        self.assertEqual(type(voltage(2).cpt()), Vdc , "-> Vdc")
+        #self.assertEqual(type(voltage(cos(t)).cpt()), Vac, "-> Vac")
 
-        self.assertEqual2(type(current(2).cpt()), Idc, "-> Idc")
-        self.assertEqual2(type(current(cos(t)).cpt()), Iac, "-> Iac")
+        self.assertEqual(type(current(2).cpt()), Idc, "-> Idc")
+        #self.assertEqual(type(current(cos(t)).cpt()), Iac, "-> Iac")
         
-        self.assertEqual2(type(impedance(2).cpt()), R , "-> R")
-        self.assertEqual2(type(impedance(2 * s).cpt()), L, "-> L")
-        self.assertEqual2(type(impedance(2 / s).cpt()), C, "-> C")
+        self.assertEqual(type(impedance(2).cpt()), R , "-> R")
+        self.assertEqual(type(impedance(2 * s).cpt()), L, "-> L")
+        self.assertEqual(type(impedance(2 / s).cpt()), C, "-> C")
 
-        self.assertEqual2(type(admittance(2).cpt()), G, "-> G")
-        self.assertEqual2(type(admittance(2 * s).cpt()), C, "-> C")
-        self.assertEqual2(type(admittance(2 / s).cpt()), L, "-> L")        
+        self.assertEqual(type(admittance(2).cpt()), G, "-> G")
+        self.assertEqual(type(admittance(2 * s).cpt()), C, "-> C")
+        self.assertEqual(type(admittance(2 / s).cpt()), L, "-> L")        
         
         

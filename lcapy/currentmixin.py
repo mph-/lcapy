@@ -12,9 +12,8 @@ class CurrentMixin(Quantity):
         
         if self.is_dc:
             return Idc(self.expr)
-        elif self.is_ac:
-            p = self.as_phasor()
-            return Iac(p.expr, omega=p.omega)            
+        elif self.is_phasor_domain:        
+            return Iac(self, omega=self.omega)            
         
         return I(self.expr)
 
