@@ -27,14 +27,14 @@ class Domain(object):
 
 class UndefinedDomain(Domain):
     domain = 'undefined'
-    domain_label = ''
+    domain_label = 'Undefined'
     domain_units = ''
     is_undefined_domain = True
 
 
 class ConstantDomain(Domain):    
     domain = 'constant'
-    domain_label = ''    
+    domain_label = 'Constant'    
     domain_units = ''
     is_constant_domain = True
     

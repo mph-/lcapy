@@ -245,7 +245,7 @@ def phasor(arg, omega=None, **assumptions):
 
 from .expressionclasses import expressionclasses
 
-quantities = ('voltage', 'current')
+quantities = ('voltage', 'current', 'voltagesquared', 'currentsquared')
 
 tclasses = expressionclasses.make(PhasorDomainTimeExpression, quantities)
 classes = expressionclasses.make(PhasorDomainFrequencyExpression)

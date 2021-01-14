@@ -81,46 +81,28 @@ class ConstantFrequencyExpression(ConstantExpression):
         return self.laplace(**assumptions).time(**assumptions)        
 
     
-class ConstantVoltage(VoltageMixin, ConstantTimeExpression):
-    """This is considered a constant time-domain expression."""
-    pass
-
-    
-class ConstantCurrent(CurrentMixin, ConstantTimeExpression):
-    """This is considered a constant time-domain expression."""    
-    pass
-
-    
-class ConstantImpedance(ImpedanceMixin, ConstantFrequencyExpression):
-    """This is considered a constant Laplace-domain expression."""
-    pass
-
-    
-class ConstantAdmittance(AdmittanceMixin, ConstantFrequencyExpression):
-    """This is considered a constant Laplace-domain expression."""    
-    pass
-
-
-class ConstantTransferFunction(TransferMixin, ConstantFrequencyExpression):
-    """This is considered a constant Laplace-domain expression."""    
-    pass
-
-
 def cexpr(arg, **assumptions):
-    """Create Lcapy constant expression from arg."""
+    """Create Lcapy constant expression from `arg`.
+
+    By default, `arg` is assumed to be positive.  If symbols in the
+    `arg` are known to be negative, use `cexpr(arg, positive=False)`.
+
+    """
 
     return ConstantExpression(arg)
 
 
+
 from .expressionclasses import expressionclasses
 
-classes = expressionclasses.make(ConstantExpression)
+quantities = ('voltage', 'current', 'voltagesquared', 'currentsquared')
 
-classes['voltage'] = ConstantVoltage
-classes['current'] = ConstantCurrent
-classes['admittance'] = ConstantAdmittance
-classes['impedance'] = ConstantImpedance
-classes['transfer'] = ConstantTransferFunction
+tclasses = expressionclasses.make(ConstantTimeExpression, quantities)
+classes = expressionclasses.make(ConstantFrequencyExpression)
+
+for quantity in quantities:
+    classes[quantity] = tclasses[quantity]
+
 expressionclasses.add('constant', classes)
 
 from .texpr import t, TimeDomainCurrent, TimeDomainVoltage, TimeDomainExpression

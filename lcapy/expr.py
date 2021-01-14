@@ -860,7 +860,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         if quantity == 'constant':
             quantity = 'undefined'
 
-        if self.__class__ == ConstantExpression:
+        if self.is_constant_domain:
             cls = x._class_by_quantity(quantity)
         else:
             cls = self._class_by_quantity(quantity)
@@ -906,7 +906,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         if quantity == 'constant':
             quantity = 'undefined'
 
-        if self.__class__ == ConstantExpression:            
+        if self.is_constant_domain:
             cls = x._class_by_quantity(quantity)
         else:
             cls = self._class_by_quantity(quantity)
