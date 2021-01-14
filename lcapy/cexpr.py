@@ -83,18 +83,12 @@ class ConstantFrequencyExpression(ConstantExpression):
     
 class ConstantVoltage(VoltageMixin, ConstantTimeExpression):
     """This is considered a constant time-domain expression."""
-
-    def cpt(self):
-        from .oneport import Vdc
-        return Vdc(self)
+    pass
 
     
 class ConstantCurrent(CurrentMixin, ConstantTimeExpression):
     """This is considered a constant time-domain expression."""    
-
-    def cpt(self):
-        from .oneport import Idc
-        return Idc(self)
+    pass
 
     
 class ConstantImpedance(ImpedanceMixin, ConstantFrequencyExpression):
