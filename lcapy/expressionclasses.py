@@ -53,17 +53,28 @@ class ExpressionClasses(dict):
 
             units = quantityunits            
             if quantity in ('voltage', 'current'):
-                if not (domainclass.is_time_domain or domainclass.is_discrete_time_domain):                
+                if not (domainclass.is_time_domain or
+                        domainclass.is_discrete_time_domain or
+                        domainclass.is_constant_domain or
+                        domainclass.is_phasor_domain):                
                     units = '%s/%s' % (quantityunits, domainunits)
             elif quantity in ('voltagesquared', 'currentsquared'):
-                if not (domainclass.is_time_domain or domainclass.is_discrete_time_domain):                
+                if not (domainclass.is_time_domain or
+                        domainclass.is_discrete_time_domain or
+                        domainclass.is_constant_domain or
+                        domainclass.is_phasor_domain):                
                     units = '%s/%s^2' % (quantityunits, domainunits)
             elif quantity in ('impedance', 'admittance'):
                 if domainclass.is_time_domain or domainclass.is_discrete_time_domain:
                     units = '%s/%s' % (quantityunits, domainunits)
             elif quantity in ('admittancesquared', 'impedancesquared'):
                 if domainclass.is_time_domain or domainclass.is_discrete_time_domain:
-                    units = '%s/%s^2' % (quantityunits, domainunits)                
+                    units = '%s/%s^2' % (quantityunits, domainunits)
+
+            # FIXME:  The units of squared quantities are incorrect under transformation
+            # to another domain.  For example, v1(t) * v2(t) has units V^2,
+            # V1(f) * V2(f) has units (V/Hz)^2, but (v1(t) * v2(t))(f) has units V^2/Hz,
+            # and (V1(f) * V2(f))(t) has units V^2/Hz.
                         
             docstring = '%s-domain %s (units %s).' % (domainclass.domain_label,
                                                       quantity, units)

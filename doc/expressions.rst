@@ -326,6 +326,10 @@ This is due to a failure in quantity tracking::
   'voltage'
   >>> log(voltage(7)).quantity
   'voltage'  
+
+The units are also incorrect under transformation of products of
+voltage, current, impedance, and admittance.
+
   
 Lcapy has an experimental feature for better unit tracking based on SymPy units.
 
