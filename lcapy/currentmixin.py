@@ -8,9 +8,18 @@ class CurrentMixin(Quantity):
     is_current = True
 
     def cpt(self):
-        from .oneport import I
+        from .oneport import I, Idc, Iac
         
-        return I(self)
+        if self.is_dc:
+            return Idc(self.expr)
+        elif self.is_ac:
+            p = self.as_phasor()
+            return Iac(p.expr, omega=p.omega)            
+        
+        return I(self.expr)
+
+    
+    
 
     
     
