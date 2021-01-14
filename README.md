@@ -214,6 +214,8 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
+- Version 0.76 fixes the units and adds many more tests.  Adds phase quantity.  Fixes phasors.
+
 - Version 0.75 introduces a major change to expression classes with tighter restrictions on operations between expressions.  For example, a current expression cannot be added to a voltage expression.  There is also experimental support for showing units.  Added phasor domain.  Discrete-time support is now enabled.  This introduces three new domain variables, n, k, and z.  More Fourier transforms added.  Sinc and rect functions added.
 
 - Version 0.74 supports simplification of netlists, adds more rigorous type checking for expressions, improve printing of conditional expressions.
