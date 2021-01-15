@@ -772,7 +772,7 @@ class R(OnePort):
 
     resistor = True    
     
-    def __init__(self, Rval):
+    def __init__(self, Rval='R'):
 
         self.args = (Rval, )
         self._R = cexpr(Rval)
@@ -792,7 +792,7 @@ class G(OnePort):
 
     resistor = True    
 
-    def __init__(self, Gval):
+    def __init__(self, Gval='G'):
 
         self.args = (Gval, )
         self._G = cexpr(Gval)
@@ -822,7 +822,7 @@ class L(OnePort):
 
     inductor = True
 
-    def __init__(self, Lval, i0=None):
+    def __init__(self, Lval='L', i0=None):
 
         self.has_ic = i0 is not None
         if i0 is None:
@@ -865,7 +865,7 @@ class C(OnePort):
 
     capacitor = True    
 
-    def __init__(self, Cval, v0=None):
+    def __init__(self, Cval='C', v0=None):
 
         self.has_ic = v0 is not None
         if v0 is None:
@@ -973,7 +973,7 @@ class sV(VoltageSourceBase):
 class V(VoltageSourceBase):
     """Arbitrary voltage source"""
 
-    def __init__(self, Vval):
+    def __init__(self, Vval='V'):
 
         self.args = (Vval, )
         self._Voc = SuperpositionVoltage(Vval)
@@ -1104,7 +1104,7 @@ class sI(CurrentSourceBase):
 class I(CurrentSourceBase):
     """Arbitrary current source"""
 
-    def __init__(self, Ival):
+    def __init__(self, Ival='I'):
 
         self.args = (Ival, )
         self._Isc = SuperpositionCurrent(Ival)
