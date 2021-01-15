@@ -99,7 +99,6 @@ def kexpr(arg, **assumptions):
 
 from .expressionclasses import expressionclasses
 
-classes = expressionclasses.make(DiscreteFourierDomainExpression)
-expressionclasses.add('discrete fourier', classes)
+classs = expressionclasses.register('discrete fourier', DiscreteFourierDomainExpression)
 
 k = DiscreteFourierDomainExpression('k')

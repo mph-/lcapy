@@ -99,8 +99,8 @@ def omegaexpr(arg, **assumptions):
 
 
 from .expressionclasses import expressionclasses
-classes = expressionclasses.make(AngularFourierDomainExpression)
-expressionclasses.add('angular fourier', classes)
+
+classes = expressionclasses.register('angular fourier', AngularFourierDomainExpression)
         
 omega = AngularFourierDomainExpression('omega')
 omega0 = AngularFourierDomainExpression('omega_0')

@@ -122,9 +122,10 @@ class FourierNoiseDomainCurrent(CurrentMixin, FourierNoiseDomainExpression):
 
 
 from .expressionclasses import expressionclasses
-classes = expressionclasses.make(FourierNoiseDomainExpression,
-                                 quantities=('voltage', 'current'))
-expressionclasses.add('fourier noise', classes)        
-    
+
+expressionclasses.register('fourier noise', FourierNoiseDomainExpression, None,
+                           ('voltage', 'current'))
+
+
 from .fexpr import f
 from .noiseomegaexpr import AngularFourierNoiseDomainExpression

@@ -262,8 +262,7 @@ def zexpr(arg, **assumptions):
 
 from .expressionclasses import expressionclasses
 
-classes = expressionclasses.make(ZDomainExpression)
-expressionclasses.add('Z', classes)
+expressionclasses.register('Z', ZDomainExpression)
 
 from .nexpr import DiscreteTimeDomainExpression, nexpr
 z = ZDomainExpression('z')

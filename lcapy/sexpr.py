@@ -468,15 +468,13 @@ def sexpr(arg, **assumptions):
 
 
 from .expressionclasses import expressionclasses
-classes = expressionclasses.make(LaplaceDomainExpression)
 
+classes = expressionclasses.register('laplace', LaplaceDomainExpression)
 LaplaceDomainVoltage = classes['voltage']
 LaplaceDomainCurrent = classes['current']
 LaplaceDomainAdmittance = classes['admittance']
 LaplaceDomainImpedance = classes['impedance']
 LaplaceDomainTransferFunction = classes['transfer']
-expressionclasses.add('laplace', classes)
-
 
 from .texpr import TimeDomainExpression, texpr
 from .phasor import PhasorDomainFrequencyExpression

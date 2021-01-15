@@ -118,7 +118,7 @@ def fexpr(arg, **assumptions):
 
 
 from .expressionclasses import expressionclasses
-classes = expressionclasses.make(FourierDomainExpression)
-expressionclasses.add('fourier', classes)
+
+classes = expressionclasses.register('fourier', FourierDomainExpression)
 
 f = FourierDomainExpression('f')

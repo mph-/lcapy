@@ -32,74 +32,91 @@ quantityclasses = {'voltage': VoltageMixin,
                    'phase': PhaseMixin}
 
 
-class ExpressionClasses(dict):
+class ExpressionClassBuilder(dict):
 
-    # These could be lazily created as required.  Each domain would
-    # need to register itself first.
-    
-    def make(self, domainclass, quantities=None, suffix='Expression'):
+    def __init__(self, domain, domainclass1, domainclass2=None, quantities=None):
 
-        if quantities is None:
-            quantities = list(quantityclasses.keys())
-    
-        classdict = {}
-        classdict['undefined'] = domainclass
+        self.domain = domain
+        self.domainclass1 = domainclass1
+        self.domainclass2 = domainclass2
+        self.quantities = quantities
 
-        for quantity in quantities:
-            quantityclass = quantityclasses[quantity]
-            quantityunits = quantityclass.units
+    def make1(self, quantity, domainclass):
+
+        if quantity == 'undefined':
+            self[quantity] = domainclass
+            return domainclass
+
+        quantityclass = quantityclasses[quantity]
+        quantityunits = quantityclass.units
             
-            domainunits = domainclass.domain_units
+        domainunits = domainclass.domain_units
 
-            units = quantityunits            
-            if quantity in ('voltage', 'current'):
-                if (domainclass.is_laplace_domain or
-                    domainclass.is_fourier_domain or
-                    domainclass.is_angular_fourier_domain):
-                    units = '%s/%s' % (quantityunits, domainunits)
-            elif quantity in ('voltagesquared', 'currentsquared'):
-                if (domainclass.is_laplace_domain or
-                    domainclass.is_fourier_domain or
-                    domainclass.is_angular_fourier_domain):                
-                    units = '%s/%s^2' % (quantityunits, domainunits)
-            elif quantity in ('impedance', 'admittance'):
-                if domainclass.is_time_domain:
-                    units = '%s/%s' % (quantityunits, domainunits)
-            elif quantity in ('admittancesquared', 'impedancesquared'):
-                if domainclass.is_time_domain:
-                    units = '%s/%s^2' % (quantityunits, domainunits)
+        units = quantityunits            
+        if quantity in ('voltage', 'current'):
+            if (domainclass.is_laplace_domain or
+                domainclass.is_fourier_domain or
+                domainclass.is_angular_fourier_domain):
+                units = '%s/%s' % (quantityunits, domainunits)
+        elif quantity in ('voltagesquared', 'currentsquared'):
+            if (domainclass.is_laplace_domain or
+                domainclass.is_fourier_domain or
+                domainclass.is_angular_fourier_domain):                
+                units = '%s/%s^2' % (quantityunits, domainunits)
+        elif quantity in ('impedance', 'admittance'):
+            if domainclass.is_time_domain:
+                units = '%s/%s' % (quantityunits, domainunits)
+        elif quantity in ('admittancesquared', 'impedancesquared'):
+            if domainclass.is_time_domain:
+                units = '%s/%s^2' % (quantityunits, domainunits)
 
-            # FIXME:  The units of squared quantities are incorrect under transformation
-            # to another domain.  For example, v1(t) * v2(t) has units V^2,
-            # V1(f) * V2(f) has units (V/Hz)^2, but (v1(t) * v2(t))(f) has units V^2/Hz,
-            # and (V1(f) * V2(f))(t) has units V^2/Hz.
+        # FIXME:  The units of squared quantities are incorrect under transformation
+        # to another domain.  For example, v1(t) * v2(t) has units V^2,
+        # V1(f) * V2(f) has units (V/Hz)^2, but (v1(t) * v2(t))(f) has units V^2/Hz,
+        # and (V1(f) * V2(f))(t) has units V^2/Hz.
                         
-            docstring = '%s-domain %s (units %s).' % (domainclass.domain_label,
-                                                      quantity, units)
-        
-            name = domainclass.__name__.replace(suffix, quantityclass.quantity.capitalize())
+        docstring = '%s-domain %s (units %s).' % (domainclass.domain_label,
+                                                  quantity, units)
+
+        suffix = 'Expression'
+        name = domainclass.__name__.replace(suffix, quantityclass.quantity.capitalize())
             
-            newclass = type(name, (quantityclass, domainclass),
+        newclass = type(name, (quantityclass, domainclass),
                             {'__doc__': docstring,
                              'units': units})
-            classdict[quantity] = newclass
+        self[quantity] = newclass
 
-        return classdict
-
-    def add(self, domain, classes):
-        self[domain] = classes
-
-    def get_quantity(self, domain, quantity):
-        """Return appropriate expression class for the specified domain and quantity."""
-
-        if domain not in self:
-            raise ValueError('Unknown domain %s' % domain)
-
-        classes = self[domain]
+        #print('Created %s %s' % (self.domain, quantity))
+        return newclass
         
-        if quantity not in classes:
-            raise ValueError('Unknown quantity %s for domain %s' % (quantity, domain))
-        return classes[quantity]
+    def make(self, quantity):
+        
+        if self.quantities is None:
+            return self.make1(quantity, self.domainclass1)
+
+        if quantity in self.quantities:
+            return self.make1(quantity, self.domainclass1)
+
+        return self.make1(quantity, self.domainclass2)        
+
+    def __getitem__(self, quantity):
+
+        if quantity in self:
+            return super(ExpressionClassBuilder, self).__getitem__(quantity)
+
+        return self.make(quantity)
+    
+
+class ExpressionClasses(dict):                 
+    
+    def register(self, domain, domainclass1, domainclass2=None, quantities=None):
+
+        self[domain] = ExpressionClassBuilder(domain, domainclass1, domainclass2, quantities)
+        return self[domain]
+                 
+    def get_quantity(self, domain, quantity):
+
+        return self[domain][quantity]
 
 
-expressionclasses = ExpressionClasses()
+expressionclasses = ExpressionClasses()    

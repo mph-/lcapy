@@ -119,14 +119,11 @@ class AngularFourierNoiseDomainCurrent(AngularFourierNoiseDomainExpression):
 
 
 from .expressionclasses import expressionclasses
-classes = expressionclasses.make(AngularFourierNoiseDomainExpression,
-                                 quantities=('voltage', 'current'))
 
+classes = expressionclasses.register('angular fourier noise', AngularFourierNoiseDomainExpression, None,
+                           ('voltage', 'current'))
 AngularFourierNoiseDomainVoltage = classes['voltage']
 AngularFourierNoiseDomainCurrent = classes['current']
-
-expressionclasses.add('angular fourier noise', classes)    
-    
 
 from .omegaexpr import omega
 from .noisefexpr import FourierNoiseDomainExpression

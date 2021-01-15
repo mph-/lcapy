@@ -213,11 +213,8 @@ def texpr(arg, **assumptions):
 
 from .expressionclasses import expressionclasses
 
-classes = expressionclasses.make(TimeDomainExpression)
-classes['transfer'] = TimeDomainImpulseResponse
-
+classes = expressionclasses.register('time', TimeDomainExpression)
 TimeDomainVoltage = classes['voltage']
 TimeDomainCurrent = classes['current']
-expressionclasses.add('time', classes)
 
 t = TimeDomainExpression('t')

@@ -92,16 +92,7 @@ def cexpr(arg, **assumptions):
     return ConstantExpression(arg)
 
 
-
 from .expressionclasses import expressionclasses
 
-quantities = ('voltage', 'current', 'voltagesquared', 'currentsquared')
-
-tclasses = expressionclasses.make(ConstantTimeExpression, quantities)
-classes = expressionclasses.make(ConstantFrequencyExpression)
-
-for quantity in quantities:
-    classes[quantity] = tclasses[quantity]
-
-expressionclasses.add('constant', classes)
-
+expressionclasses.register('constant', ConstantTimeExpression, ConstantFrequencyExpression,
+                           ('voltage', 'current', 'voltagesquared', 'currentsquared'))
