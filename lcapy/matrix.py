@@ -6,6 +6,7 @@ Copyright 2019--2020 Michael Hayes, UCECE
 
 import sympy as sym
 from copy import copy
+from .expr import expr
 from .sym import simplify
 from .printing import pprint, latex, pretty
 
@@ -36,7 +37,7 @@ class Matrix(sym.Matrix):
     # attributes.  We prevent this by defining _sympify.
 
     _sympify = staticmethod(msympify)
-    
+
     def __getitem__(self, key):
 
         item = super(Matrix, self).__getitem__(key)
@@ -49,7 +50,7 @@ class Matrix(sym.Matrix):
         if hasattr(self, '_typewrap'):
             return self._typewrap(item)
 
-        return item
+        return expr(item)
 
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
@@ -119,6 +120,12 @@ class Matrix(sym.Matrix):
 
         f = lambda x: expr(x).subs(*args, **kwargs).expr
         return self.applyfunc(f)
+
+    @property    
+    def conjugate(self):
+        """For compatilibility with Expr conjugate is an attribute, unlike
+        with SymPy."""
+        return self._new(self.rows, self.cols, [x.conjugate for x in self])
     
     @property
     def symbols(self):

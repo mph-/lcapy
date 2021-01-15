@@ -42,7 +42,7 @@ class LcapyTester(unittest.TestCase):
 
         X1 = DFTmatrix(4)
         X2 = Matrix(((1, 1, 1, 1), (1, -j, -1, j), (1, -1, 1, -1), (1, j, -1, -j)))
-        X3 = IDFTmatrix(4).conjugate() * 4
+        X3 = IDFTmatrix(4).conjugate * 4
         
         self.assertEqual(X1, X2, "DFTmatrix(4)")
         self.assertEqual(X3, X2, "IDFTmatrix(4)")        
