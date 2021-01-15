@@ -19,3 +19,6 @@ jw = jomega
 
 jomega0 = j * omega0
 jw0 = jomega0
+
+w = omega
+w0 = omega0
