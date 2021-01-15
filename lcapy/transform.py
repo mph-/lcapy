@@ -108,7 +108,6 @@ def select(expr, kind):
         raise RuntimeError('unknown kind')
 
 
-from .cexpr import ConstantExpression    
 from .fexpr import FourierDomainExpression    
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression

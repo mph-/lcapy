@@ -971,7 +971,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
             x = expr(x)
 
         result = self.expr.__pow__(x.expr)
-        if (self.__class__ != ConstantExpression):
+        if not self.is_constant_domain:
             return self.__class__(result)
         return x.__class__(result)        
     
@@ -1208,14 +1208,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         from .utils import factor_const
 
         c, r = factor_const(self, self.var)
-        return ConstantExpression(c), self.__class__(r, **self.assumptions)
+        return ConstantDomainExpression(c), self.__class__(r, **self.assumptions)
 
     def term_const(self):
 
         from .utils import term_const
 
         c, r = term_const(self, self.var)
-        return ConstantExpression(c), self.__class__(r, **self.assumptions)    
+        return ConstantDomainExpression(c), self.__class__(r, **self.assumptions)    
 
     def multiply_top_and_bottom(self, factor):
         """Multiply numerator and denominator by common factor."""
@@ -2423,7 +2423,7 @@ def symbols(names, **assumptions):
     return symbols
 
 
-from .cexpr import cexpr, ConstantExpression
+from .cexpr import cexpr, ConstantDomainExpression
 from .fexpr import f, fexpr, FourierDomainExpression
 from .texpr import t, texpr, TimeDomainExpression
 from .sexpr import s, sexpr, LaplaceDomainExpression

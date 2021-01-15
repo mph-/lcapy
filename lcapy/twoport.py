@@ -1,7 +1,7 @@
 """
 This module supports simple linear two-port networks.
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -13,7 +13,7 @@ from .sexpr import LaplaceDomainAdmittance, LaplaceDomainTransferFunction
 from .sexpr import LaplaceDomainExpression
 from .smatrix import LaplaceDomainVoltageMatrix, LaplaceDomainCurrentMatrix
 from .smatrix import LaplaceDomainImpedanceMatrix, LaplaceDomainAdmittanceMatrix
-from .cexpr import ConstantExpression
+from .cexpr import ConstantDomainExpression
 from .expr import expr
 from .vector import Vector
 from .matrix import Matrix
@@ -647,7 +647,7 @@ class AMatrix(TwoPortMatrix):
     @classmethod
     def transformer(cls, alpha):
 
-        alpha = ConstantExpression(alpha)
+        alpha = ConstantDomainExpression(alpha)
 
         return cls(((1 / alpha, 0),
                     (0, alpha)))
@@ -655,7 +655,7 @@ class AMatrix(TwoPortMatrix):
     @classmethod
     def gyrator(cls, R):
 
-        R = ConstantExpression(R)
+        R = ConstantDomainExpression(R)
 
         return cls(((0, R),
                     (1 / R, 0)))
@@ -895,7 +895,7 @@ class BMatrix(TwoPortMatrix):
     @classmethod
     def transformer(cls, alpha):
 
-        alpha = ConstantExpression(alpha)
+        alpha = ConstantDomainExpression(alpha)
 
         return cls(((alpha, 0),
                     (0, 1 / alpha)))
@@ -903,7 +903,7 @@ class BMatrix(TwoPortMatrix):
     @classmethod
     def gyrator(cls, R):
 
-        R = ConstantExpression(R)
+        R = ConstantDomainExpression(R)
 
         return cls(((0, R),
                     (1 / R, 0)))
@@ -2407,7 +2407,7 @@ class IdealTransformer(TwoPortBModel):
 
     def __init__(self, alpha=1):
 
-        self.alpha = ConstantExpression(alpha)
+        self.alpha = ConstantDomainExpression(alpha)
         self.args = (alpha, )
         super(IdealTransformer, self).__init__(BMatrix.transformer(alpha))
 
@@ -2425,7 +2425,7 @@ class IdealGyrator(TwoPortBModel):
 
     def __init__(self, R=1):
 
-        self.R = ConstantExpression(R)
+        self.R = ConstantDomainExpression(R)
         self.args = (R, )
         super(IdealGyrator, self).__init__(BMatrix.gyrator(R))
 
@@ -2474,7 +2474,7 @@ class IdealDelay(TwoPortBModel):
 
     def __init__(self, delay=0):
 
-        delay = ConstantExpression(delay)
+        delay = ConstantDomainExpression(delay)
         super(IdealDelay, self).__init__(
             BMatrix.voltage_amplifier(sym.exp(-s * delay)))
         self.args = (delay, )
@@ -2556,8 +2556,8 @@ class OpampInverter(TwoPortBModel):
 
     def __init__(self, R1, R2):
 
-        R1 = ConstantExpression(R1)
-        R2 = ConstantExpression(R2)
+        R1 = ConstantDomainExpression(R1)
+        R2 = ConstantDomainExpression(R2)
         # FIXME for initial voltages.
         super(OpampInverter, self).__init__(
             AMatrix(((-R1.Z / R2.Z, 0),
@@ -2571,8 +2571,8 @@ class OpampIntegrator(TwoPortBModel):
 
     def __init__(self, R1, C1):
 
-        R1 = ConstantExpression(R1)
-        C1 = ConstantExpression(C1)
+        R1 = ConstantDomainExpression(R1)
+        C1 = ConstantDomainExpression(C1)
         # FIXME for initial voltages.
         super(OpampIntegrator, self).__init__(
             AMatrix(((-R1.Z / C1.Z, 0), (-1 / C1.Z, 0))).Bparams)
@@ -2585,8 +2585,8 @@ class OpampDifferentiator(TwoPortBModel):
 
     def __init__(self, R1, C1):
 
-        R1 = ConstantExpression(R1)
-        C1 = ConstantExpression(C1)
+        R1 = ConstantDomainExpression(R1)
+        C1 = ConstantDomainExpression(C1)
         # FIXME for initial voltages.
         super(OpampDifferentiator, self).__init__(
             AMatrix(((-R1.Z * C1.Z, 0), (-R1.Z, 0))).Bparams)
@@ -2817,7 +2817,7 @@ class GeneralTxLine(TwoPortBModel):
 
         Z0 = LaplaceDomainExpression(Z0)
         gamma = LaplaceDomainExpression(gamma)
-        l = ConstantExpression(l)
+        l = ConstantDomainExpression(l)
 
         H = sym.exp(gamma * l)
 

@@ -102,7 +102,4 @@ class SuperpositionCurrent(Superposition, CurrentMixin):
         return self._div(x)
 
     
-from .cexpr import ConstantExpression
-from .texpr import TimeDomainExpression
-from .sexpr import s, LaplaceDomainExpression
 from .superpositionvoltage import SuperpositionVoltage

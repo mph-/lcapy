@@ -2,7 +2,7 @@
 This module supports simple linear three-port networks.  It is
 experimental and needs a rethink.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
@@ -13,7 +13,7 @@ from .sexpr import LaplaceDomainVoltage, LaplaceDomainTransferFunction
 from .sexpr import LaplaceDomainCurrent
 from .smatrix import LaplaceDomainVoltageMatrix, LaplaceDomainCurrentMatrix
 from .smatrix import LaplaceDomainImpedanceMatrix, LaplaceDomainAdmittanceMatrix
-from .cexpr import ConstantExpression
+from .cexpr import cexpr
 from .oneport import OnePort
 from .twoport import YMatrix, ZMatrix, TwoPortZModel, Series, TwoPort
 
@@ -366,7 +366,7 @@ class Opamp(ThreePort):
 
         # If Ro=0, then Z matrix singular.
 
-        Rd, Ro, A, Rp, Rm = [ConstantExpression(arg) for arg in (Rd, Ro, A, Rp, Rm)]
+        Rd, Ro, A, Rp, Rm = [cexpr(arg) for arg in (Rd, Ro, A, Rp, Rm)]
 
         Ra = Rp * (Rd + Rm) / (Rp + Rd + Rm)
         Rb = Rm * (Rd + Rp) / (Rp + Rd + Rm)

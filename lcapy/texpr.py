@@ -74,9 +74,9 @@ class TimeDomainExpression(TimeDomain, Expr):
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        from .phasor import PhasorDomainTimeExpression
+        from .phasor import PhasorTimeDomainExpression
         
-        return PhasorDomainTimeExpression.from_time(self, **assumptions)
+        return PhasorTimeDomainExpression.from_time(self, **assumptions)
 
     def FT(self, evaluate=True, **assumptions):
         """Attempt Fourier transform.  This is an alias for fourier.

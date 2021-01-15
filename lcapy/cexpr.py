@@ -1,4 +1,4 @@
-"""This module provides the ConstantExpression class to represent constant expressions.
+"""This module provides the ConstantDomainExpression class to represent constant expressions.
 
 Copyright 2014--2020 Michael Hayes, UCECE
 
@@ -13,11 +13,11 @@ from .admittancemixin import AdmittanceMixin
 from .impedancemixin import ImpedanceMixin
 from .transfermixin import TransferMixin
 
-class ConstantExpression(ConstantDomain, Expr):
+class ConstantDomainExpression(ConstantDomain, Expr):
     """Constant real expression or symbol.
 
     If symbols in the expression are known to be negative, use
-    ConstantExpression(expr, positive=False)
+    ConstantDomainExpression(expr, positive=False)
 
     """
 
@@ -30,10 +30,10 @@ class ConstantExpression(ConstantDomain, Expr):
                     'constant expression %s cannot depend on %s' % (val, symbol))
 
         assumptions['dc'] = True        
-        super(ConstantExpression, self).__init__(val, **assumptions)
+        super(ConstantDomainExpression, self).__init__(val, **assumptions)
 
     def as_expr(self):
-        return ConstantExpression(self)
+        return ConstantDomainExpression(self)
 
     def rms(self):
         """Return root mean square."""
@@ -66,11 +66,11 @@ class ConstantExpression(ConstantDomain, Expr):
         return self.time().laplace()    
     
 
-class ConstantTimeExpression(ConstantExpression):
+class ConstantTimeDomainExpression(ConstantDomainExpression):
     pass
     
 
-class ConstantFrequencyExpression(ConstantExpression):
+class ConstantFrequencyDomainExpression(ConstantDomainExpression):
 
     def laplace(self, **assumptions):
         return self.change(self, domain='laplace', **assumptions)
@@ -89,10 +89,10 @@ def cexpr(arg, **assumptions):
 
     """
 
-    return ConstantExpression(arg)
+    return ConstantDomainExpression(arg)
 
 
 from .expressionclasses import expressionclasses
 
-expressionclasses.register('constant', ConstantTimeExpression, ConstantFrequencyExpression,
+expressionclasses.register('constant', ConstantTimeDomainExpression, ConstantFrequencyDomainExpression,
                            ('voltage', 'current', 'voltagesquared', 'currentsquared'))

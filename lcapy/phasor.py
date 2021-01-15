@@ -33,8 +33,7 @@ from .sym import j, omegasym
 from .expr import expr
 from .functions import sin, cos, exp, sqrt
 from .expr import Expr
-from .cexpr import ConstantExpression
-from .omegaexpr import AngularFourierDomainExpression, omega
+from .omegaexpr import omega
 from .voltagemixin import VoltageMixin
 from .currentmixin import CurrentMixin
 from .admittancemixin import AdmittanceMixin
@@ -127,14 +126,14 @@ class PhasorDomainExpression(PhasorDomain, Expr):
                          (self.omega, x.omega))
         
 
-class PhasorDomainTimeExpression(PhasorDomainExpression):
+class PhasorTimeDomainExpression(PhasorDomainExpression):
     """This is a phasor domain base class for voltages and currents."""
 
     is_phasor_domain = True
     is_phasor_time_domain = True
 
     def as_expr(self):
-        return PhasorDomainTimeExpression(self)
+        return PhasorTimeDomainExpression(self)
 
     @classmethod
     def from_time(cls, expr, omega=None, **assumptions):
@@ -184,7 +183,7 @@ class PhasorDomainTimeExpression(PhasorDomainExpression):
         return TimeDomainExpression(result)
     
 
-class PhasorDomainFrequencyExpression(PhasorDomainExpression):
+class PhasorFrequencyDomainExpression(PhasorDomainExpression):
     """This represents the ratio of two-phasors; for example
     an impedance, an admittance, or a transfer function."""
 
@@ -203,7 +202,7 @@ class PhasorDomainFrequencyExpression(PhasorDomainExpression):
             print('Should convert %s expression to time-domain first' % expr.quantity)
 
         result = expr.laplace(**assumptions).replace(s, j * omega)
-        return cls.change(expr, PhasorDomainFrequencyExpression(result, omega=omega,
+        return cls.change(expr, PhasorFrequencyDomainExpression(result, omega=omega,
                                                                 **assumptions))
     
     def time(self, **assumptions):
@@ -216,7 +215,7 @@ class PhasorDomainFrequencyExpression(PhasorDomainExpression):
         return self.change(result.time())
 
     def as_expr(self):
-        return PhasorDomainFrequencyExpression(self)
+        return PhasorFrequencyDomainExpression(self)
     
 
 def phasor(arg, omega=None, **assumptions):
@@ -234,19 +233,19 @@ def phasor(arg, omega=None, **assumptions):
 
     if arg.is_time_domain:
         # Expecting AC signal.
-        return PhasorDomainTimeExpression.from_time(arg, omega=omega, **assumptions)
+        return PhasorTimeDomainExpression.from_time(arg, omega=omega, **assumptions)
     elif arg.is_unchanging:
         # Expecting phasor (complex amplitude)        
-        return PhasorDomainTimeExpression(arg, omega=omega, **assumptions)
+        return PhasorTimeDomainExpression(arg, omega=omega, **assumptions)
     else:
         # Is this sensible?
-        return PhasorDomainFrequencyExpression(arg, omega=omega, **assumptions)        
+        return PhasorFrequencyDomainExpression(arg, omega=omega, **assumptions)        
     
 
 from .expressionclasses import expressionclasses
 
-expressionclasses.register('phasor', PhasorDomainTimeExpression,
-                           PhasorDomainFrequencyExpression,
+expressionclasses.register('phasor', PhasorTimeDomainExpression,
+                           PhasorFrequencyDomainExpression,
                            ('voltage', 'current', 'voltagesquared', 'currentsquared'))
 from .texpr import TimeDomainExpression
 from .expr import Expr

@@ -1,4 +1,4 @@
-from .cexpr import ConstantExpression
+from .cexpr import ConstantDomainExpression
 from .fexpr import FourierDomainExpression
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
@@ -13,7 +13,7 @@ classmap = {'s': LaplaceDomainExpression,
             't': TimeDomainExpression,
             'time': TimeDomainExpression,            
             'f': FourierDomainExpression,
-            'dc': ConstantExpression,
+            'dc': ConstantDomainExpression,
             'n': AngularFourierNoiseDomainExpression}
 
 symbolmap = {'s': '(s)',

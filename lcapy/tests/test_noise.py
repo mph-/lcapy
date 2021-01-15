@@ -1,5 +1,4 @@
 from lcapy import *
-from lcapy.cexpr import ConstantExpression
 from lcapy.texpr import TimeDomainExpression
 from lcapy.noiseomegaexpr import AngularFourierNoiseDomainVoltage
 import unittest

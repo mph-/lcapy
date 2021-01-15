@@ -164,7 +164,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        result = PhasorDomainFrequencyExpression.from_laplace(self, **assumptions)
+        result = PhasorFrequencyDomainExpression.from_laplace(self, **assumptions)
         return self.change(result, domain='phasor', **assumptions)
 
     def transient_response(self, tvector=None):
@@ -334,10 +334,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """
 
         def def1(defs, symbolname, value):
-            from .cexpr import ConstantExpression
+            from .cexpr import cexpr
             
             sym1 = symbol(symbolname)
-            defs[symbolname] = ConstantExpression(value)
+            defs[symbolname] = cexpr(value)
             return sym1
 
         factors = self.as_ordered_factors()
@@ -477,7 +477,7 @@ LaplaceDomainImpedance = classes['impedance']
 LaplaceDomainTransferFunction = classes['transfer']
 
 from .texpr import TimeDomainExpression, texpr
-from .phasor import PhasorDomainFrequencyExpression
+from .phasor import PhasorFrequencyDomainExpression
 
 s = LaplaceDomainExpression('s')
 

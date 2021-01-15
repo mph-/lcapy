@@ -1,5 +1,5 @@
 from lcapy import *
-from lcapy.cexpr import ConstantExpression
+from lcapy.cexpr import ConstantDomainExpression
 from lcapy.fexpr import FourierDomainExpression
 from lcapy.omegaexpr import AngularFourierDomainExpression
 from lcapy.texpr import TimeDomainExpression, TimeDomainVoltage
@@ -315,20 +315,20 @@ class LcapyTester(unittest.TestCase):
         """
 
         c = cexpr(10)
-        self.assertEqual(type(10 + c), ConstantExpression, "Not cExpr")
-        self.assertEqual(type(c + 10), ConstantExpression, "Not cExpr")
-        self.assertEqual(type(ConstantExpression(10) + c), ConstantExpression, "Not cExpr")
-        self.assertEqual(type(c + ConstantExpression(10)), ConstantExpression, "Not cExpr")
+        self.assertEqual(type(10 + c), ConstantDomainExpression, "Not cExpr")
+        self.assertEqual(type(c + 10), ConstantDomainExpression, "Not cExpr")
+        self.assertEqual(type(ConstantDomainExpression(10) + c), ConstantDomainExpression, "Not cExpr")
+        self.assertEqual(type(c + ConstantDomainExpression(10)), ConstantDomainExpression, "Not cExpr")
 
         self.assertEqual(type(10 + s), LaplaceDomainExpression, "Not sExpr")
         self.assertEqual(type(s + 10), LaplaceDomainExpression, "Not sExpr")
-        self.assertEqual(type(ConstantExpression(10) + s), LaplaceDomainExpression, "Not sExpr")
-        self.assertEqual(type(s + ConstantExpression(10)), LaplaceDomainExpression, "Not sExpr")
+        self.assertEqual(type(ConstantDomainExpression(10) + s), LaplaceDomainExpression, "Not sExpr")
+        self.assertEqual(type(s + ConstantDomainExpression(10)), LaplaceDomainExpression, "Not sExpr")
 
         self.assertEqual(type(10 + t), TimeDomainExpression, "Not tExpr")
         self.assertEqual(type(t + 10), TimeDomainExpression, "Not tExpr")
-        self.assertEqual(type(ConstantExpression(10) + t), TimeDomainExpression, "Not tExpr")
-        self.assertEqual(type(t + ConstantExpression(10)), TimeDomainExpression, "Not tExpr")
+        self.assertEqual(type(ConstantDomainExpression(10) + t), TimeDomainExpression, "Not tExpr")
+        self.assertEqual(type(t + ConstantDomainExpression(10)), TimeDomainExpression, "Not tExpr")
 
         v = LaplaceDomainVoltage(10)
         self.assertEqual(type(10 + v), LaplaceDomainVoltage, "Not Vs")

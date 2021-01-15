@@ -395,7 +395,7 @@ class Superposition(SuperpositionDomain, ExprDict):
         # Extract DC components
         dc = expr.expr.coeff(tsym, 0)
         if dc != 0:
-            result['dc'] = ConstantExpression(dc)
+            result['dc'] = ConstantDomainExpression(dc)
             expr -= dc
 
         if expr == 0:
@@ -782,7 +782,7 @@ phasor, for example, using: %s""" % foo)
         return self.n.psd()        
 
     
-from .cexpr import ConstantExpression        
+from .cexpr import ConstantDomainExpression        
 from .fexpr import FourierDomainExpression    
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
