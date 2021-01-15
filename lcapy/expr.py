@@ -649,7 +649,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
             a = getattr(expr1, attr)
         except:
             raise
-            
+
         # This gets called if there is no explicit attribute attr for
         # this instance.  We call the method of the wrapped sympy
         # class and rewrap the returned value if it is a sympy Expr
@@ -1092,9 +1092,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
 
     @property
     def conjugate(self):
-        """Return complex conjugate."""
+         """Return complex conjugate."""
 
-        return self.__class__(sym.conjugate(self.expr), **self.assumptions)
+         return self.__class__(sym.conjugate(self.expr), **self.assumptions)
 
     @property
     def real(self):

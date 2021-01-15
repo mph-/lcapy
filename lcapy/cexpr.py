@@ -105,5 +105,3 @@ for quantity in quantities:
 
 expressionclasses.add('constant', classes)
 
-from .texpr import t, TimeDomainCurrent, TimeDomainVoltage, TimeDomainExpression
-from .sexpr import s, LaplaceDomainExpression

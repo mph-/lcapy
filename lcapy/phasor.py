@@ -253,11 +253,8 @@ classes = expressionclasses.make(PhasorDomainFrequencyExpression)
 for quantity in quantities:
     classes[quantity] = tclasses[quantity]
 
-PhasorDomainVoltage = classes['voltage']
-PhasorDomainCurrent = classes['current']
-    
 expressionclasses.add('phasor', classes)
 
-from .texpr import TimeDomainExpression, TimeDomainVoltage, TimeDomainCurrent
+from .texpr import TimeDomainExpression
 from .expr import Expr
 

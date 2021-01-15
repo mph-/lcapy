@@ -207,7 +207,6 @@ class NodalAnalysis(object):
         return self._sys.format(form, invert)
 
 from .expr import ExprDict, expr
-from .texpr import TimeDomainVoltage
 from .voltage import Vname
 from .current import Itype
 from .matrix import matrix

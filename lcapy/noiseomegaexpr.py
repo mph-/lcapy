@@ -128,6 +128,5 @@ AngularFourierNoiseDomainCurrent = classes['current']
 expressionclasses.add('angular fourier noise', classes)    
     
 
-from .texpr import TimeDomainCurrent, TimeDomainVoltage
 from .omegaexpr import omega
 from .noisefexpr import FourierNoiseDomainExpression

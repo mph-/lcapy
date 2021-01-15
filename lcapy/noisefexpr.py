@@ -126,6 +126,5 @@ classes = expressionclasses.make(FourierNoiseDomainExpression,
                                  quantities=('voltage', 'current'))
 expressionclasses.add('fourier noise', classes)        
     
-from .texpr import TimeDomainCurrent, TimeDomainVoltage
 from .fexpr import f
 from .noiseomegaexpr import AngularFourierNoiseDomainExpression

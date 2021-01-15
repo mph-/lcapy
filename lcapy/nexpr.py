@@ -40,15 +40,19 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
             raise ValueError(
                 'n-domain expression %s cannot depend on k' % expr)            
 
-    def _mul_compatible(self, x):
+    def _mul_compatible_domains(self, x):
 
-        if x.is_constant_domain:
-            return True
-        if self.quantity == 'undefined' or x.quantity == 'undefined':
+        if self.domain == x.domain:
+            return True        
+
+        return x.is_constant_domain
+
+    def _div_compatible_domains(self, x):
+
+        if self.domain == x.domain:
             return True
         
-        # TODO: allow TimeDomainVoltage**2 one day.
-        return False
+        return x.is_constant_domain
 
     def as_expr(self):
         return DiscreteTimeDomainExpression(self)
