@@ -6,9 +6,12 @@ Copyright 2019-2020 Michael Hayes, UCECE
 """
 
 from .mnacpts import I, V, C, L
+from .expr import expr
 from .matrix import Matrix
 from .smatrix import LaplaceDomainMatrix
 from .tmatrix import TimeDomainMatrix
+from .voltage import voltage
+from .current import current
 from .sym import sympify, ssym
 import sympy as sym
 
@@ -33,13 +36,13 @@ def _hack_vars(exprs):
     """Substitute i_Canon1(t) with i_C(t) etc. provided
     there is no i_Canon2(t)."""
 
-    for m, expr in enumerate(exprs):
+    for m, expr1 in enumerate(exprs):
         for c in ('i_V', 'i_C', 'i_L', 'v_C'):
             sym1 = sympify(c + 'anon1(t)')
             sym2 = sympify(c + 'anon2(t)')            
-            if expr.has(sym1) and not expr.has(sym2):
-                expr = expr.subs(sym1, sympify(c + '(t)'))
-                exprs[m] = expr
+            if expr1.has(sym1) and not expr1.has(sym2):
+                expr1 = expr1.subs(sym1, sympify(c + '(t)'))
+                exprs[m] = expr1
 
 class StateSpace(object):
     """This converts a circuit to state-space representation.
@@ -160,7 +163,7 @@ class StateSpace(object):
                     continue
                 yexprs.append(self.sscct[node].v.subs(subsdict).expand().expr)
                 # Note, this can introduce a name conflict
-                y.append(TimeDomainVoltage('v_%s(t)' % node))
+                y.append(voltage('v_%s(t)' % node))
 
         if branch_currents:
             for name in cct.branch_list:
@@ -168,7 +171,7 @@ class StateSpace(object):
                 # state variable?
                 name2 = cpt_map[name]                    
                 yexprs.append(self.sscct[name2].i.subs(subsdict).expand().expr)
-                y.append(TimeDomainCurrent('i_%s(t)' % name))                    
+                y.append(current('i_%s(t)' % name))                    
 
         Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
         if sourcesyms != []:        
@@ -193,7 +196,7 @@ class StateSpace(object):
         self.B = Matrix(B)        
             
         # Perhaps could use v_R1(t) etc. as the output voltages?
-        self.y = Matrix(y)
+        self.y = TimeDomainMatrix(y)
 
         self.C = Matrix(Cmat)
         self.D = Matrix(D)
@@ -206,9 +209,9 @@ class StateSpace(object):
         where x is the state vector and u is the input vector.
         """
         
-        return TimeDomainExpression(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x),
-                                                                 sym.MatMul(self.B, self.u)),
-                                           evaluate=False))
+        return expr(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x),
+                                                 sym.MatMul(self.B, self.u)),
+                           evaluate=False))
 
     def output_equations(self):
         """System of output equations:
@@ -220,9 +223,9 @@ class StateSpace(object):
 
         """
         
-        return TimeDomainExpression(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x),
-                                                              sym.MatMul(self.D, self.u)),
-                                           evaluate=False))
+        return expr(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x),
+                                              sym.MatMul(self.D, self.u)),
+                           evaluate=False))
 
     @property
     def Phi(self):
@@ -341,5 +344,4 @@ class StateSpace(object):
     
 from .symbols import t, s
 from .expr import ExprList
-from .texpr import TimeDomainVoltage, TimeDomainCurrent, TimeDomainExpression
 from .sexpr import LaplaceDomainExpression
