@@ -89,7 +89,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(I / Y, V, "I(s) / Y(s)")
         self.assertEqual(I / H, current(sexpr(1 / 2)), "I(s) / H(s)")
         self.assertEqual(V / H, voltage(sexpr(1 / 2 / s)), "V(s) / H(s)")
-        self.assertEqual(U / U, sexpr(1), "U(s) / U(s)")        
+        self.assertEqual(U / U, sexpr(1), "U(s) / U(s)")
+        self.assertEqual(Z / Z, sexpr(1), "Z(s) / Z(s)")
+        self.assertEqual(Y / Y, sexpr(1), "Y(s) / Y(s)")                        
 
     def test_sdomain_rdiv(self):
         
