@@ -70,12 +70,20 @@ class AngularFourierDomain(Domain):
     is_transform_domain = True    
     
 
-class PhasorDomain(Domain):
+class PhasorTimeDomain(Domain):
     domain = 'phasor'
-    domain_label = 'Phasor'
+    domain_label = ''
     domain_units = ''
     is_phasor_domain = True
-    is_transform_domain = True        
+    is_transform_domain = True
+
+    
+class PhasorFrequencyDomain(Domain):
+    domain = 'phasor'
+    domain_label = 'Angular Frequency'
+    domain_units = 'rad/s'
+    is_phasor_domain = True
+    is_transform_domain = True            
 
 
 class FourierNoiseDomain(Domain):

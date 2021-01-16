@@ -3,7 +3,7 @@ from .fexpr import FourierDomainExpression
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
-from .phasor import PhasorDomainExpression
+from .phasor import PhasorTimeDomainExpression
 from .noiseomegaexpr import AngularFourierNoiseDomainExpression
 
 
@@ -37,7 +37,7 @@ def domain_kind_to_class(kind):
     try:
         return classmap[kind]
     except:
-        return PhasorDomainExpression
+        return PhasorTimeDomainExpression
 
 
 def domain_kind_quantity_to_class(kind, quantity='undefined'):

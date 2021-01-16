@@ -57,10 +57,6 @@ class Superposition(SuperpositionDomain, ExprDict):
     # The 't' key is the transient component viewed in the time domain.
     # The 's' key is the transient component viewed in the Laplace domain.    
 
-    is_voltage = False
-    is_current = False
-
-
     def __init__(self, *args, **kwargs):
         super (Superposition, self).__init__()
 
@@ -510,7 +506,7 @@ class Superposition(SuperpositionDomain, ExprDict):
         return keyword, val
     
     def _kind(self, value):
-        if isinstance(value, PhasorDomainExpression):
+        if isinstance(value, PhasorTimeDomainExpression):
             # Use angular frequency for key.  This can be a nuisance
             # for numerical values since cannot use x.3 syntax
             # say for an angular frequency of 3.
@@ -787,7 +783,7 @@ from .fexpr import FourierDomainExpression
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
 from .noiseexpr import NoiseExpression
-from .phasor import PhasorDomainExpression
+from .phasor import PhasorTimeDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .symbols import s, omega
 

@@ -28,7 +28,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 
 from __future__ import division
 from .acdc import ACChecker
-from .domains import PhasorDomain
+from .domains import PhasorTimeDomain, PhasorFrequencyDomain
 from .sym import j, omegasym
 from .expr import expr
 from .functions import sin, cos, exp, sqrt
@@ -56,17 +56,17 @@ __all__ = ('phasor', )
 
 
 
-class PhasorDomainExpression(PhasorDomain, Expr):
+class PhasorExpression(Expr):
 
     def __init__(self, val, **assumptions):
 
-        if isinstance(val, PhasorDomainExpression):
+        if isinstance(val, PhasorExpression):
             assumptions['omega'] = val.omega
         elif 'omega' not in assumptions or assumptions['omega'] is None:
             assumptions['omega'] = omegasym
         
         assumptions['ac'] = True
-        super (PhasorDomainExpression, self).__init__(val, **assumptions)
+        super (PhasorExpression, self).__init__(val, **assumptions)
     
     @property
     def omega(self):
@@ -131,7 +131,7 @@ class PhasorDomainExpression(PhasorDomain, Expr):
                          (self.omega, x.omega))
         
 
-class PhasorTimeDomainExpression(PhasorDomainExpression):
+class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
     """This is a phasor domain base class for voltages and currents."""
 
     is_phasor_domain = True
@@ -188,7 +188,7 @@ class PhasorTimeDomainExpression(PhasorDomainExpression):
         return TimeDomainExpression(result)
     
 
-class PhasorFrequencyDomainExpression(PhasorDomainExpression):
+class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
     """This represents the ratio of two-phasors; for example
     an impedance, an admittance, or a transfer function."""
 

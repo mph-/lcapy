@@ -1,5 +1,5 @@
 from lcapy import *
-from lcapy.phasor import PhasorDomainExpression
+from lcapy.phasor import PhasorTimeDomainExpression
 from lcapy.sexpr import LaplaceDomainVoltage
 import unittest
 import sympy as sym
@@ -128,16 +128,16 @@ class LcapyTester(unittest.TestCase):
         """
         a = Vac(10) + R(5)
         self.assertEqual2(a.voc, Vac(10).voc, "voc incorrect.")
-        self.assertEqual(a.Voc.ac[omega0sym], PhasorDomainExpression(10), "Voc incorrect.")
-        self.assertEqual(a.V.ac[omega0sym], PhasorDomainExpression(10), "Voc incorrect.")
+        self.assertEqual(a.Voc.ac[omega0sym], PhasorTimeDomainExpression(10), "Voc incorrect.")
+        self.assertEqual(a.V.ac[omega0sym], PhasorTimeDomainExpression(10), "Voc incorrect.")
         self.assertEqual(a.I, 0, "I incorrect.")
         self.assertEqual(a.v(0), 10, "Voc incorrect.")                
         self.assertEqual(a.i(0), 0, "I incorrect.")                
 
         b = a.norton()
         self.assertEqual2(b.voc, Vac(10).voc, "voc incorrect.")
-        self.assertEqual(b.Voc.ac[omega0sym], PhasorDomainExpression(10), "Voc incorrect.")
-        self.assertEqual(b.V.ac[omega0sym], PhasorDomainExpression(10), "Voc incorrect.")
+        self.assertEqual(b.Voc.ac[omega0sym], PhasorTimeDomainExpression(10), "Voc incorrect.")
+        self.assertEqual(b.V.ac[omega0sym], PhasorTimeDomainExpression(10), "Voc incorrect.")
         self.assertEqual(b.I, 0, "I incorrect.")
         self.assertEqual(b.v(0), 10, "Voc incorrect.")                
         self.assertEqual(b.i(0), 0, "I incorrect.")        
