@@ -1707,10 +1707,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         label = ''
         if hasattr(self, 'quantity_label'):
             label += self.quantity_label
-            if hasattr(self, 'part'):
+            if self.part != '':
                 label += ' ' + self.part
         else:
-            if hasattr(self, 'part'):
+            if self.part != '':
                 label += capitalize_name(self.part)
         return label
 
