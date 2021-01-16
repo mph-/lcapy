@@ -1,7 +1,7 @@
 """This module contains the RandomNetwork class for creating random
 networks.
 
-Copyright 2020 Michael Hayes, UCECE"""
+Copyright 2020--2021 Michael Hayes, UCECE"""
 
 from .oneport import Vdc, Idc, Vstep, Istep, Vac, Iac, R, L, C
 import random
@@ -69,11 +69,11 @@ class RandomNetworkMaker(object):
         net = cpts[0]
         for cpt, connection in zip(cpts[1:], connections):
             if connection:
-                if cpt.voltage_source and net.has_parallel_V:
+                if cpt.is_voltage_source and net.has_parallel_V:
                     return None
                 net = net.parallel(cpt)
             else:
-                if cpt.current_source and net.has_series_I:
+                if cpt.is_current_source and net.has_series_I:
                     return None
                 net = net.series(cpt)            
         return net

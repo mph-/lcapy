@@ -1631,7 +1631,7 @@ class NetlistMixin(object):
             if not elt.independent_source:
                 continue
             cpt = elt.cpt
-            if cpt.voltage_source:
+            if cpt.is_voltage_source:
                 Voc = cpt.Voc
                 if transform:
                     Voc = Voc.decompose()

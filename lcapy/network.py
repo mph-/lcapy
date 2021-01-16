@@ -13,11 +13,12 @@ from .state import state
 class Network(object):
     """This is the base class for network objects."""
 
-    voltage_source = False
-    current_source = False
-    inductor = False
-    capacitor = False
-    resistor = False
+    is_voltage_source = False
+    is_current_source = False
+    is_inductor = False
+    is_capacitor = False
+    is_resistor = False
+    is_conductor = False    
 
     # True if initial conditions are zero (or unspecified).
     zeroic = True

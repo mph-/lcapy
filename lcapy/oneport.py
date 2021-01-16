@@ -140,11 +140,11 @@ class OnePort(Network, ImmittanceMixin):
 
     @property
     def has_series_I(self):
-        return self.current_cource
+        return self.is_current_source
 
     @property    
     def has_parallel_V(self):
-        return self.voltage_source
+        return self.is_voltage_source
     
     def series(self, OP):
         """Series combination"""
@@ -770,7 +770,7 @@ class Ser(ParSer):
 class R(OnePort):
     """Resistor"""
 
-    resistor = True    
+    is_resistor = True    
     
     def __init__(self, Rval='R'):
 
@@ -788,9 +788,9 @@ class R(OnePort):
     
 
 class G(OnePort):
-    """Conductance"""
+    """Conductor"""
 
-    resistor = True    
+    is_resistor = True    
 
     def __init__(self, Gval='G'):
 
@@ -820,7 +820,7 @@ class L(OnePort):
 
     Inductance Lval, initial current i0"""
 
-    inductor = True
+    is_inductor = True
 
     def __init__(self, Lval='L', i0=None):
 
@@ -863,7 +863,7 @@ class C(OnePort):
 
     Capacitance Cval, initial voltage v0"""
 
-    capacitor = True    
+    is_capacitor = True    
 
     def __init__(self, Cval='C', v0=None):
 
@@ -949,7 +949,7 @@ class Z(OnePort):
 
 class VoltageSourceBase(OnePort):
 
-    voltage_source = True
+    is_voltage_source = True
     netname = 'V'
     is_noisy = False
 
@@ -1074,7 +1074,7 @@ class v(VoltageSourceBase):
 
 class CurrentSourceBase(OnePort):
 
-    current_source = True
+    is_current_source = True
     netname = 'I'
     is_noisy = False    
 

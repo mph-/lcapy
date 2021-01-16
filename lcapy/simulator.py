@@ -243,7 +243,7 @@ class SimulationResults(object):
                 return self.cpt_currents_get('V%seq' % cptname)
 
             Vd = self.cpt_voltages_get(cptname)            
-            if cpt.is_resistor:
+            if cpt.is_resistor or cpt.is_conductor:
                 return Vd / cpt.R.expr
                 
             # Need to determine resistance of the cpt

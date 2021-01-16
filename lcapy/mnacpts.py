@@ -315,9 +315,9 @@ class Cpt(ImmittanceMixin):
     @property
     def _source_IV(self):
 
-        if self.cpt.voltage_source:
+        if self.cpt.is_voltage_source:
             return self.cpt.Voc
-        elif self.cpt.current_source:
+        elif self.cpt.is_current_source:
             return self.cpt.Isc
         else:
             raise ValueError('%s is not a source' % self)        
@@ -383,9 +383,9 @@ class Cpt(ImmittanceMixin):
     def is_noisy(self):
         """Return True if source is noisy."""
 
-        if self.cpt.voltage_source:
+        if self.cpt.is_voltage_source:
             return self.cpt.is_noisy
-        elif self.cpt.current_source:
+        elif self.cpt.is_current_source:
             return self.cpt.is_noisy
         else:
             raise ValueError('%s is not a source' % self)        
@@ -393,12 +393,12 @@ class Cpt(ImmittanceMixin):
     @property
     def is_inductor(self):
         """Return True if component is an inductor."""
-        return self.cpt.inductor
+        return self.cpt.is_inductor
 
     @property
     def is_capacitor(self):
         """Return True if component is a capacitor."""
-        return self.cpt.capacitor
+        return self.cpt.is_capacitor
 
     @property
     def is_reactance(self):
@@ -408,19 +408,24 @@ class Cpt(ImmittanceMixin):
     @property
     def is_resistor(self):
         """Return True if component is a resistor."""
-        return self.cpt.resistor        
+        return self.cpt.is_resistor
+
+    @property
+    def is_conductor(self):
+        """Return True if component is a conductor."""
+        return self.cpt.is_conductor            
 
     @property
     def is_voltage_source(self):
         """Return True if component is a voltage source (dependent or
         independent)"""
-        return self.cpt.voltage_source    
+        return self.cpt.is_voltage_source    
 
     @property
     def is_current_source(self):
         """Return True if component is a current source (dependent or
         independent)"""
-        return self.cpt.current_source    
+        return self.cpt.is_current_source    
         
     @property
     def zeroic(self):
