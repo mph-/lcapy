@@ -790,7 +790,7 @@ class R(OnePort):
 class G(OnePort):
     """Conductor"""
 
-    is_resistor = True    
+    is_conductor = True    
 
     def __init__(self, Gval='G'):
 

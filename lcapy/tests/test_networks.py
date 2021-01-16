@@ -33,7 +33,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, True, "AC incorrect")
 
-
     def test_VR_dc1(self):
         """Lcapy: check VR dc network
 
@@ -45,7 +44,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_ac, False, "AC incorrect")
         self.assertEqual(a.is_dc, True, "DC incorrect")
 
-
     def test_VC_dc1(self):
         """Lcapy: check VC dc network
 
@@ -56,7 +54,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_ivp, False, "is_ivp incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
         self.assertEqual(a.is_dc, True, "DC incorrect")
-
 
     def test_VC_dc2(self):
         """Lcapy: check VC dc network
@@ -119,4 +116,11 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.Z, expr('3 / 4'), "par Z")
         self.assertEqual(b.Y, expr('4 / 3'), "par Y")                        
 
-        
+    def test_attrs(self):
+
+        self.assertEqual(R(1).is_resistor, True, "is_resistor")
+        self.assertEqual(G(1).is_conductor, True, "is_conductor")
+        self.assertEqual(C(1).is_capacitor, True, "is_capacitor")
+        self.assertEqual(L(1).is_inductor, True, "is_inductor")
+        self.assertEqual(I(1).is_current_source, True, "is_current_source")
+        self.assertEqual(V(1).is_voltage_source, True, "is_voltage_source")                                        
