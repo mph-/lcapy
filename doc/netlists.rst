@@ -807,7 +807,18 @@ Component attributes
 Component methods
 -----------------
 
-`is_connected(cpt)` True if connected to specified cpt
+`norton()` Create Norton oneport object viewed from nodes of the component
+
+`thevenin()` Create Thevenin oneport object viewed from nodes of the component
+
+`oneport()` Create Thevenin or Noton oneport object as appropriate when viewed from nodes of the component
+
+`transfer(cpt)` Create transfer function for the voltage across `cpt`
+divided by the voltage across the component
+
+`connected()` Return list of components connected to this component
+
+`is_connected(cpt)` True if connected to specified `cpt`
 
 
 Node attributes
