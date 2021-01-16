@@ -133,7 +133,7 @@ def plot_frequency(obj, f, **kwargs):
     # as real, imag, phase, magnitude.  If this is defined,
     # `plot_type` is ignored.
             
-    if not obj.is_real and not hasattr(obj, 'part'):
+    if not obj.is_real and obj.part == '':
 
         plot_type = kwargs.pop('plot_type', 'dB-phase')
 
@@ -185,7 +185,7 @@ def plot_frequency(obj, f, **kwargs):
              (False, True) : ax.semilogx,
              (False, False) : ax.plot}
 
-    if (hasattr(obj, 'part') and obj.part == 'magnitude') or obj.is_positive:
+    if obj.is_magnitude or obj.is_positive:
         plot = plots[(log_magnitude, log_frequency)]
     else:
         plot = plots[(False, log_frequency)]                    

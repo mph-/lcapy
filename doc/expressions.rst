@@ -263,7 +263,6 @@ There are a number of methods for changing the quantity of an expression:
 - `as_admittance()` converts to admittance
 - `as_transfer()` converts to transfer function
 - `as_power()` converts to power
-- `as_phase()` converts to phase (radians)
 
 There are similar functions for setting the quantity of an expression:
   
@@ -293,7 +292,6 @@ Expressions have the following attributes to identify the quantity:
 - `is_impedancesquared`
 - `is_admittancesquared`
 - `is_power`
-- `is_phase`    
 
   
 .. _units:

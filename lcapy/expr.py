@@ -574,6 +574,34 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         return self._ratfun.is_strictly_proper
 
     @property
+    def is_phase(self):
+        return self.part == 'phase'
+
+    @property
+    def is_phase_radians(self):
+        return self.part == 'phase' and self.units == 'rad'
+
+    @property
+    def is_phase_degrees(self):
+        return self.part == 'phase' and self.units == 'degrees'
+
+    @property
+    def is_real_part(self):
+        return self.part == 'real'
+
+    @property
+    def is_imag_part(self):
+        return self.part == 'imag'
+
+    @property
+    def is_magnitude(self):
+        return self.part == 'magnitude'
+
+    @property
+    def is_dB(self):
+        return self.part == 'magnitude' and self.units == 'dB'
+    
+    @property
     def fval(self):
         """Evaluate expression and return as a python float value."""
 
