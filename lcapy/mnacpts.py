@@ -611,6 +611,16 @@ class Cpt(ImmittanceMixin):
         
         return self.cct.norton(self.nodenames[1], self.nodenames[0])
 
+    def transfer(self, cpt):
+        """Create transfer function for the s-domain voltage across the
+        specified cpt divided by the s-domain voltage across self."""
+
+        if isinstance(cpt, str):
+            cpt = self.cct._elements[cpt]        
+        
+        return self.cct.transfer(self.nodenames[1], self.nodenames[0],
+                                 cpt.nodenames[1], cpt.nodenames[0])
+
     @property
     def nodes(self):
         """Return list of nodes for this component.   See also

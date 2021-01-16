@@ -509,7 +509,6 @@ class LcapyTester(unittest.TestCase):
         R 2 0 1""")
 
         self.assertEqual(a.R.i, 10, "i incorrect")        
-        
 
     def test_K(self):
 
@@ -648,4 +647,18 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.super_nodes, [['1', '2']], "super_nodes")
         
- 
+    def test_transfer(self):
+
+        a = Circuit("""
+        V 2 0
+        L 2 1
+        R 1 0""")
+
+        H1 = a.L.transfer('R')
+        H2 = a.transfer(2, 1, 1, 0)
+
+        self.assertEqual(H1, H2, "transfer cpt/nodes")
+        self.assertEqual(H1, -1, "transfer")        
+        
+        
+        

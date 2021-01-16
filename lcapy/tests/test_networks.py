@@ -109,7 +109,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_causal, True, "causal fail")
         self.assertEqual(a.Isc.is_causal, True, "causal fail")        
         
-        
     def test_YZ(self):
 
         a = R(1) + V(2) + R(3)
@@ -119,3 +118,5 @@ class LcapyTester(unittest.TestCase):
         b = (R(1) + V(2)) | R(3)
         self.assertEqual(b.Z, expr('3 / 4'), "par Z")
         self.assertEqual(b.Y, expr('4 / 3'), "par Y")                        
+
+        
