@@ -247,7 +247,6 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
                     ('impedancesquared', 'constant'): 'impedancesquared',
                     ('voltagesquared', 'constant'): 'voltagesquared',
                     ('currentsquared', 'constant'): 'currentsquared',
-                    ('phase', 'constant'): 'phase',
                     ('power', 'constant'): 'power'}
     
     _div_mapping = {('voltage', 'impedance'): 'current',
@@ -264,7 +263,6 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
                     ('impedance', 'constant'): 'impedance',
                     ('admittance', 'constant'): 'admittance',
                     ('transfer', 'constant'): 'transfer',
-                    ('phase', 'constant'): 'phase',                    
                     ('constant', 'impedance'): 'admittance',
                     ('constant', 'admittance'): 'impedance',
                     ('constant', 'transfer'): 'transfer',
@@ -363,8 +361,6 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
             return self.as_transfer()
         elif quantity == 'power':
             return self.as_power()
-        elif quantity == 'phase':
-            return self.as_phase()        
         elif quantity == 'undefined':
             return self.as_expr(expr)        
         raise ValueError('Unknown quantity %s for %s' % (quantity, self))
@@ -401,9 +397,6 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     def as_power(self):
         return self._class_by_quantity('power')(self)
 
-    def as_phase(self):
-        return self._class_by_quantity('phase')(self)        
-    
     def as_expr(self):
         return self
 
@@ -1294,7 +1287,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
                 N = N / G
             dst = atan2(N.imag, N.real)
 
-        dst = dst.as_phase()            
         dst.part = 'phase'
         dst.units = 'rad'
         return dst

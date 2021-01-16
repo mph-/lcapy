@@ -16,11 +16,11 @@ class Quantity(object):
     is_immitance = False
     is_always_causal = False
     is_undefined = False
-    is_phase = False    
     is_voltagesquared = False
     is_currentsquared = False
     is_impedancesquared = False
     is_admittancesquared = False
+    part = ''
 
 
 class UndefinedQuantity(Quantity):

@@ -26,9 +26,9 @@ class Function(object):
         if isinstance(args[0], Expr):
 
             result = cls(result)
-            if args[0].is_phase and self.expr in (sym.sin, sym.cos, sym.tan, sym.exp,
-                                                  sym.sinh, sym.cosh, sym.tanh):
-                result = result.as_expr()
+            if args[0].part.startswith('phase') and self.expr in (sym.sin, sym.cos, sym.tan, sym.exp,
+                                                                  sym.sinh, sym.cosh, sym.tanh):
+                result.part = ''
 
         if False:
             for m, arg in enumerate(args[1:]):
