@@ -92,10 +92,10 @@ Note, the keyword dc is required here for the voltage source otherwise an arbitr
 source is assumed.
      
 
-AC low-pass filter
-------------------
+AC (phasor) analysis of RC circuit
+----------------------------------
    
-Consider the AC low-pass filter circuit defined by::
+Consider the circuit defined by::
   
     >>> from lcapy import Circuit
     >>> a = Circuit("""
@@ -110,7 +110,7 @@ Consider the AC low-pass filter circuit defined by::
 
 Here the ac keyword specifies that the voltage source is a phasor of angular frequency :math:`\omega_0`.
 
-The voltage across the voltage source is::
+The voltage across the voltage source is given using::
 
     >>> a.V.V
     {ω₀: 6}
@@ -162,7 +162,107 @@ Finally, the time-domain voltage across the capacitor is::
     ─────────────── + ───────────
            2               2    
        64⋅ω₀  + 1      64⋅ω₀  + 1
- 
+
+
+Laplace analysis of RC low-pass filter
+--------------------------------------
+
+The following netlist describes a first-order RC low-pass filter (the
+`P` components define the input and output ports)::
+
+    >>> from lcapy import Circuit
+    >>> a = Circuit("""
+    ... P1 1 0; down=1.5, v=v_i(t)
+    ... R 1 2 2; right=1.5
+    ... C 2 0_2 4; down
+    ... W 0 0_2; right
+    ... W 2 3; right
+    ... W 0_2 0_3; right
+    ... P2 3 0_3; down, v^=v_o(t)"""
+    >>> a.draw()
+                    
+.. image:: examples/tutorials/basic/VRC2.png
+   :width: 6cm
+
+Here :math:`v_i(t)` is the input voltage and :math:`v_o(t)` is the output voltage.  The transfer function of the filter can be found by specifying nodes:
+
+   >>> H = a.transfer(1, 0, 3, 0)
+
+or components:
+
+   >>> H = a.P1.transfer('P2')
+
+In both cases, the transfer function is::
+
+   >>> H
+        1     
+   ───────────
+   8⋅(s + 1/8)
+
+
+For the input signal, let's consider a sinewave of angular frequency 3 rad/s that switches 'on' at :math:`t=0`::
+
+  >>> v_i = voltage(sin(3 * t) * u(t))
+
+The output voltage can be found by connecting a voltage source with
+this signal to the circuit and using Lcapy to find the result.
+However, let's use Laplace transforms to find the result.  For this signal, its Laplace transform is::
+
+  >>> V_i = v_i(s)
+  >>> V_i
+     3   
+   ──────
+    2    
+   s  + 9
+
+The Laplace transform of the output voltage is found by multiplying this with the transfer function::
+
+  >>> V_o = V_i * H
+  >>> V_o
+            3          
+   ────────────────────
+               ⎛ 2    ⎞
+   8⋅(s + 1/8)⋅⎝s  + 9⎠
+
+In standard form this can be seen to be a rational function::
+
+  >>> V_o.standard()
+              3          
+   ────────────────────
+     3    2           
+   8⋅s  + s  + 72⋅s + 9
+
+Using an inverse Laplace transform, the output voltage signal in the time-domain is::
+
+  >>> v_o = V_o(t)
+  >>> v_o
+  
+     ⎛                                                           -t ⎞     
+     ⎜                                                           ───⎟     
+     ⎜                                                            8 ⎟     
+     ⎜8⋅sin(3⋅t)   64⋅cos(3⋅t)   4096⋅(-1/8 - 3⋅ⅉ)⋅(-1/8 + 3⋅ⅉ)⋅ℯ    ⎟     
+   3⋅⎜────────── - ─────────── + ───────────────────────────────────⎟⋅u(t)
+     ⎝   1731          577                      332929              ⎠     
+   ───────────────────────────────────────────────────────────────────────
+                                   8                                   
+
+This can be simplified, however, SymPy has trouble with this as a whole.  Instead it is better
+to simplify the expression term by term::
+
+  >>> v_o.simplify_terms()
+                                          -t      
+                                          ───     
+                                           8      
+   sin(3⋅t)⋅u(t)   24⋅cos(3⋅t)⋅u(t)   24⋅ℯ   ⋅u(t)
+   ───────────── - ──────────────── + ────────────
+        577              577              577     
+
+The first two terms represent the steady-state reponse and the third
+term represents the transient response due to the sinewave switching
+'on' at :math:`t=0`.  The steady-state response is the sum of a
+sinewave and cosinewave of the same frequency; this is equivalent to a phase-shifted sinewave.
+        
+   
 
 Superposition of AC and DC
 --------------------------
