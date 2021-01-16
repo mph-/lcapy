@@ -111,7 +111,12 @@ class PhasorDomainExpression(PhasorDomain, Expr):
     def plot(self, **kwargs):
         """Plot phasor on polar diagram."""
 
-        from .plot import plot_phasor
+        from .plot import plot_phasor, plot_angular_frequency
+
+        if self.is_phasor_frequency_domain:
+            omega = kwargs.pop('omega', None)
+            return plot_angular_frequency(self, omega, **kwargs)            
+        
         return plot_phasor(self, **kwargs)
 
     def _mul_compatible(self, x):
