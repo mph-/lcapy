@@ -103,4 +103,6 @@ from .expressionclasses import expressionclasses
 classes = expressionclasses.register('angular fourier', AngularFourierDomainExpression)
         
 omega = AngularFourierDomainExpression('omega')
-omega0 = AngularFourierDomainExpression('omega_0')
+# This represents a specific angular frequency and is assumed to be positive
+omega0 = AngularFourierDomainExpression('omega_0', positive=True)
+

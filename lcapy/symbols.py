@@ -1,6 +1,6 @@
 """This module defines special symbols f, s, t, and omega.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
@@ -20,5 +20,7 @@ jw = jomega
 jomega0 = j * omega0
 jw0 = jomega0
 
+# This represents an arbitrary angular frequency
 w = omega
+# This represents a specific angular frequency and is assumed to be positive
 w0 = omega0
