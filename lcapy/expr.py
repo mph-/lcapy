@@ -591,7 +591,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
 
     @property
     def is_imag_part(self):
-        return self.part == 'imag'
+        return self.part == 'imaginary'
 
     @property
     def is_magnitude(self):

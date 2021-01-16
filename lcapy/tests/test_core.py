@@ -624,3 +624,12 @@ class LcapyTester(unittest.TestCase):
         
         self.assertEqual(c.part, 'phase', "is_phase")
         self.assertEqual(e.part, '', "exp is_phase")        
+
+    def test_parts(self):
+
+        self.assertEqual(expr(1).real.is_real_part, True, "is_real_part")
+        self.assertEqual(expr(1).imag.is_imag_part, True, "is_imag_part")
+        self.assertEqual(expr(1).magnitude.is_magnitude, True, "is_magnitude")
+        self.assertEqual(expr(1).phase.is_phase, True, "is_phase")
+        self.assertEqual(expr(1).phase_degrees.is_phase_degrees, True, "is_phase_degrees")
+        self.assertEqual(expr(1).dB.is_dB, True, "is_dB")                
