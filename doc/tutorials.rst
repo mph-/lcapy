@@ -174,7 +174,7 @@ The following netlist describes a first-order RC low-pass filter (the
     >>> a = Circuit("""
     ... P1 1 0; down=1.5, v=v_i(t)
     ... R 1 2 2; right=1.5
-    ... C 2 0_2 4; down
+    ... C 2 0_2 {1/4}; down
     ... W 0 0_2; right
     ... W 2 3; right
     ... W 0_2 0_3; right
@@ -195,73 +195,67 @@ or components:
 In both cases, the transfer function is::
 
    >>> H
-        1     
-   ───────────
-   8⋅(s + 1/8)
-
+      s     
+   ───────
+   (s + 2)
 
 For the input signal, let's consider a sinewave of angular frequency 3 rad/s that switches 'on' at :math:`t=0`::
 
-  >>> v_i = voltage(sin(3 * t) * u(t))
+   >>> v_i = voltage(sin(3 * t) * u(t))
 
 The output voltage can be found by connecting a voltage source with
 this signal to the circuit and using Lcapy to find the result.
 However, let's use Laplace transforms to find the result.  For this signal, its Laplace transform is::
 
-  >>> V_i = v_i(s)
-  >>> V_i
-     3   
-   ──────
-    2    
-   s  + 9
+   >>> V_i = v_i(s)
+   >>> V_i
+      3   
+    ──────
+     2    
+    s  + 9
 
 The Laplace transform of the output voltage is found by multiplying this with the transfer function::
 
-  >>> V_o = V_i * H
-  >>> V_o
-            3          
+   >>> V_o = V_i * H
+   >>> V_o
+             6          
    ────────────────────
-               ⎛ 2    ⎞
-   8⋅(s + 1/8)⋅⎝s  + 9⎠
-
-In standard form this can be seen to be a rational function::
-
-  >>> V_o.standard()
-              3          
-   ────────────────────
-     3    2           
-   8⋅s  + s  + 72⋅s + 9
+    3      2           
+   s  + 2⋅s  + 9⋅s + 18
 
 Using an inverse Laplace transform, the output voltage signal in the time-domain is::
 
-  >>> v_o = V_o(t)
-  >>> v_o
-  
-     ⎛                                                           -t ⎞     
-     ⎜                                                           ───⎟     
-     ⎜                                                            8 ⎟     
-     ⎜8⋅sin(3⋅t)   64⋅cos(3⋅t)   4096⋅(-1/8 - 3⋅ⅉ)⋅(-1/8 + 3⋅ⅉ)⋅ℯ    ⎟     
-   3⋅⎜────────── - ─────────── + ───────────────────────────────────⎟⋅u(t)
-     ⎝   1731          577                      332929              ⎠     
-   ───────────────────────────────────────────────────────────────────────
-                                   8                                   
+   >>> v_o = V_o(t)
+   >>> v_o
+     ⎛                                               -2⋅t⎞     
+     ⎜2⋅sin(3⋅t)   cos(3⋅t)   (-2 - 3⋅ⅉ)⋅(-2 + 3⋅ⅉ)⋅ℯ    ⎟     
+   6⋅⎜────────── - ──────── + ─────────────────────────── ⎟⋅u(t)
+     ⎝    39          13                  169            ⎠     
 
 This can be simplified, however, SymPy has trouble with this as a whole.  Instead it is better
 to simplify the expression term by term::
 
   >>> v_o.simplify_terms()
-                                          -t      
-                                          ───     
-                                           8      
-   sin(3⋅t)⋅u(t)   24⋅cos(3⋅t)⋅u(t)   24⋅ℯ   ⋅u(t)
-   ───────────── - ──────────────── + ────────────
-        577              577              577     
+                                          -2⋅t     
+   4⋅sin(3⋅t)⋅u(t)   6⋅cos(3⋅t)⋅u(t)   6⋅ℯ    ⋅u(t)
+   ─────────────── - ─────────────── + ────────────
+          13                13              13     
 
 The first two terms represent the steady-state reponse and the third
 term represents the transient response due to the sinewave switching
 'on' at :math:`t=0`.  The steady-state response is the sum of a
 sinewave and cosinewave of the same frequency; this is equivalent to a phase-shifted sinewave.
-        
+
+The input and output signals can be plotted using::
+
+   >>> ax = v_i.plot((-1, 10), label='input')
+   >>> ax = v_o.plot((-1, 10), axes=as, label='output')
+   >>> ax.legend()
+
+.. image:: examples/tutorials/basic/VRC2plot.png
+   :width: 12cm
+
+Notice the effect of the transient at the start before the response tends to the steady state response.
    
 
 Superposition of AC and DC
@@ -335,9 +329,8 @@ This can be loaded by Lcapy and drawn using:
     >>> from lcapy import Circuit, s, t
     >>> a = Circuit("circuit-RLC-ivp1.sch")
     >>> a.draw()
-                    
-.. image:: examples/tutorials/ivp/circuit-RLC-ivp1.png
-   :width: 6cm
+                   
+ 
 
 This circuit has a specified initial voltage for the capacitor and a
 specified initial current for the inductor.  Thus, it is solved as an

@@ -1,5 +1,4 @@
-#PYFILES = $(wildcard *.py)
-PYFILES =
+PYFILES = $(wildcard *.py)
 SCHFILES = $(wildcard *.sch)
 PNGFILES = $(PYFILES:.py=.png) $(SCHFILES:.sch=.png)
 
