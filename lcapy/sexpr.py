@@ -296,7 +296,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return super(LaplaceDomainExpression, self).evaluate(svector)
 
-    def plot(self, t=None, **kwargs):
+    def plot(self, **kwargs):
         """Plot pole-zero map."""
 
         from .plot import plot_pole_zero

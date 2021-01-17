@@ -108,14 +108,16 @@ class PhasorExpression(Expr):
         
         return abs(self) * sqrt(2) / 2
 
-    def plot(self, **kwargs):
-        """Plot phasor on polar diagram."""
-
+    def plot(self, wvector=None, **kwargs):
+        """Plot polar diagram for a time-domain phasor or frequency response
+        for frequency-domain phasor.  For the latter, wvector
+        specifies the angular frequencies.  If it is a tuple, it sets
+        the angular frequency limits."""
+        
         from .plot import plot_phasor, plot_angular_frequency
 
         if self.is_phasor_frequency_domain:
-            omega = kwargs.pop('omega', None)
-            return plot_angular_frequency(self, omega, **kwargs)            
+            return plot_angular_frequency(self, wvector, **kwargs)            
         
         return plot_phasor(self, **kwargs)
 
