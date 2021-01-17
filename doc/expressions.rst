@@ -725,8 +725,23 @@ For example::
    ─────
    s + 2
 
+In many cases `V(omega)` produces the same result as `V(jomega)` but not always.  Here's an example where
+the two domains produce the same result::
 
-Here's another example that shows a subtle difference between the angular Fourier and phasor domains for the impedance of a 1 F capacitor::
+    >>> Y = admittance(s)
+    >>> Y(omega)
+    ⅉ⋅ω
+    >>> Y(jomega)
+    ⅉ⋅ω
+
+While they look the same, they have different domains:
+  
+    >>> Y(omega).domain
+    'angular fourier'
+    >>> Y(jomega).domain
+    'phasor'
+
+Here's an example, showing a subtle difference between the angular Fourier and phasor domains for the impedance of a 1 F capacitor::
 
    >>> Z = impedance(1 / s)
    >>> Z(omega)
@@ -740,22 +755,16 @@ Here's another example that shows a subtle difference between the angular Fourie
     ───
      ω 
 
-In many circumstances the results are identical.  This can cause confusion when comparing expressions that look the same but that have different domains.   For example,
+In this case, substitution of `s` with `j omega` is not valid.
+However, when dealing with phasors, there is no DC component and thus
+the same result is obtained using the phasor or angular Fourier
+domains.
 
-    >>> Y = admittance(s)
-    >>> Y(omega)
-    ⅉ⋅ω
-    >>> Y(jomega)
-    ⅉ⋅ω
-    >>> 
-    >>> Y(omega).domain
-    'angular fourier'
-    >>> Y(jomega).domain
-    'phasor'
-    >>> Y(omega) == Y(jomega)
-    False
-
-If you have a cunning idea of how to resolve this, or make it less confusing, please report an issue.   Note, you can use the `subs` method to replace `s` with `j * omega`.  The result is in the angular Fourier domain::
+If you have a cunning idea of how to resolve this notational
+gnarliness, or make it less confusing, please report an issue.  Note,
+you can use the `subs` method to replace `s` with `j * omega` if you
+know what you are doing.  The result is in the angular Fourier
+domain::
 
     >>> Y.subs(jomega)
     ⅉ⋅ω
