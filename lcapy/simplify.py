@@ -106,7 +106,7 @@ def simplify_heaviside(expr):
     return expr
 
 
-def simplify_sin_cos(expr, as_sin=False, as_cos=False):
+def simplify_sin_cos(expr, as_cos=False, as_sin=False):
 
     if not (expr.has(sin) and expr.has(cos)):
         return expr
@@ -167,10 +167,10 @@ def simplify_sin_cos(expr, as_sin=False, as_cos=False):
     phi = atan2(s, c)
 
     if as_sin:
-        return rest + A * sin(cosfactor.args[0] + phi, evaluate=False)
+        return rest + A * sin(cosfactor.args[0] - phi + pi / 2, evaluate=False)
 
     if as_cos:
-        return rest + A * cos(cosfactor.args[0] + phi - pi / 2, evaluate=False)
+        return rest + A * cos(cosfactor.args[0] - phi, evaluate=False)
 
     # SymPy will choose sin or cos as convenient.
-    return rest + A * sin(cosfactor.args[0] + phi)
+    return rest + A * cos(cosfactor.args[0] - phi)

@@ -29,6 +29,7 @@ import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
+from .simplify import simplify_sin_cos
 from collections import OrderedDict
 
 __all__ = ('expr', 'symbol', 'symbols')
@@ -1664,6 +1665,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         result = 0
         for factor in self.expr.factor().as_ordered_factors():
             result *= symsimplify(factor)
+        return self.__class__(result, **self.assumptions)
+
+    def simplify_sin_cos(self, as_cos=False, as_sin=False):
+        """Simplify c * cos(theta) - s * sin(theta) as A * cos(theta - phi)."""
+
+        result = simplify_sin_cos(self.expr, as_cos, as_sin)
         return self.__class__(result, **self.assumptions)        
 
     def replace(self, query, value, map=False, simultaneous=True, exact=None):
