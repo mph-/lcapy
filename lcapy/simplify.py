@@ -1,10 +1,10 @@
 """This module contains functions for simplifying expressions.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
-from sympy import Add, Mul, DiracDelta, Heaviside, Integral, oo
+from sympy import Add, Mul, DiracDelta, Heaviside, Integral, oo, sin, cos, sqrt, atan2, pi
 
 
 def simplify_dirac_delta_term(expr):
@@ -104,3 +104,73 @@ def simplify_heaviside(expr):
     expr = expr.replace(query, value)
     
     return expr
+
+
+def simplify_sin_cos(expr, as_sin=False, as_cos=False):
+
+    if not (expr.has(sin) and expr.has(cos)):
+        return expr
+    
+    terms = expr.expand().as_ordered_terms()
+
+    rest = 0
+    cos_part = None
+    sin_part = None    
+    
+    for term in terms:
+        if term.has(sin) and sin_part is None:
+            sin_part = term
+        elif term.has(cos) and cos_part is None:
+            cos_part = term
+        else:
+            rest += term
+
+    if cos_part is None or sin_part is None:
+        return expr
+
+    cfactors = cos_part.expand().as_ordered_factors()
+    sfactors = sin_part.expand().as_ordered_factors()
+
+    commonfactors = []
+    for factor in cfactors:
+        if factor in sfactors:
+            commonfactors.append(factor)
+
+    for factor in commonfactors:
+        sfactors.remove(factor)
+        cfactors.remove(factor)
+
+    cosfactor = None
+    sinfactor = None    
+    for cfactor in cfactors:
+        if cfactor.has(cos):
+            cosfactor = cfactor
+            break
+        
+    for sfactor in sfactors:
+        if sfactor.has(sin):
+            sinfactor = sfactor
+            break
+        
+    if cosfactor is None or sinfactor is None:
+        return expr
+
+    if cosfactor.args[0] != sinfactor.args[0]:
+        return expr
+        
+    cfactors.remove(cosfactor)
+    sfactors.remove(sinfactor)    
+
+    c = Mul(*cfactors)
+    s = Mul(*sfactors)
+    A = sqrt(c * c + s * s) * Mul(*commonfactors)
+    phi = atan2(s, c)
+
+    if as_sin:
+        return rest + A * sin(cosfactor.args[0] + phi, evaluate=False)
+
+    if as_cos:
+        return rest + A * cos(cosfactor.args[0] + phi - pi / 2, evaluate=False)
+
+    # SymPy will choose sin or cos as convenient.
+    return rest + A * sin(cosfactor.args[0] + phi)
