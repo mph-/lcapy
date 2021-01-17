@@ -244,7 +244,20 @@ to simplify the expression term by term::
 The first two terms represent the steady-state reponse and the third
 term represents the transient response due to the sinewave switching
 'on' at :math:`t=0`.  The steady-state response is the sum of a
-sinewave and cosinewave of the same frequency; this is equivalent to a phase-shifted sinewave.
+sinewave and cosinewave of the same frequency; this is equivalent to a phase-shifted sinewave.  This can be seen using the `simplify_sin_cos` method::
+
+   >>> v_o.simplify_sin_cos(as_sin=True)
+
+            ⎛      π            ⎞                    
+   2⋅√13⋅sin⎜3⋅t - ─ + atan(2/3)⎟⋅u(t)      -2⋅t     
+            ⎝      2            ⎠        6⋅ℯ    ⋅u(t)
+   ─────────────────────────────────── + ────────────
+                    13                        13     
+
+Here the phase delay is `-pi/2 + atan(2/3)` or about -56 degrees::
+
+  >>> ((-pi/2 + atan(2/3)) / pi * 180).fval
+  -56.3
 
 The input and output signals can be plotted using::
 
@@ -256,7 +269,33 @@ The input and output signals can be plotted using::
    :width: 12cm
 
 Notice the effect of the transient at the start before the response tends to the steady state response.
-   
+
+The phase response of the filter can be plotted as follows::
+
+  >>> H(jw).phase_degrees.plot((0, 10))
+
+.. image:: examples/tutorials/basic/VRC2Hphaseplot.png
+   :width: 12cm
+
+Notice that the phase shift is -56 degrees at an angular frequency of 3 rad/s.   
+
+The amplitude response of the filter can be plotted as follows::
+
+  >>> H(jw).magnitude.plot((0, 10))
+
+.. image:: examples/tutorials/basic/VRC2Hmagplot.png
+   :width: 12cm
+
+For a Bode plot, the angular frequency is plotted on a logarithmic
+scale and the amplitude response is plotted in dB::
+
+  >>> H(jw).dB.plot((0, 10), log_frequency=True)
+
+.. image:: examples/tutorials/basic/VRC2HdBplot.png
+   :width: 12cm                        
+
+
+           
 
 Superposition of AC and DC
 --------------------------
