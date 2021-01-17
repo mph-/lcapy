@@ -223,6 +223,14 @@ The Laplace transform of the output voltage is found by multiplying this with th
     3      2           
    s  + 2⋅s  + 9⋅s + 18
 
+This has three poles: two from the input signal and one from the transfer function of the filter.  This can be seen from the zero-pole-gain form of the response:
+
+   >>> V_o.ZPK()
+                   6             
+   ───────────────────────────
+   (s + 2)⋅(s - 3⋅ⅉ)⋅(s + 3⋅ⅉ)
+
+
 Using an inverse Laplace transform, the output voltage signal in the time-domain is::
 
    >>> v_o = V_o(t)
@@ -244,7 +252,9 @@ to simplify the expression term by term::
 The first two terms represent the steady-state reponse and the third
 term represents the transient response due to the sinewave switching
 'on' at :math:`t=0`.  The steady-state response is the sum of a
-sinewave and cosinewave of the same frequency; this is equivalent to a phase-shifted sinewave.  This can be seen using the `simplify_sin_cos` method::
+sinewave and cosinewave of the same frequency; this is equivalent to a
+phase-shifted sinewave.  This can be seen using the `simplify_sin_cos`
+method::
 
    >>> v_o.simplify_sin_cos(as_sin=True)
 
