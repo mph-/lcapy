@@ -462,7 +462,7 @@ Here's an example using a voltmeter and an ammeter:
 
 
 Miscellaneous components
------------------------
+------------------------
 
 Miscellaneous Circuitikz bipole components can be drawn using a `MISC`
 component.  For example,
