@@ -633,3 +633,14 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(expr(1).phase.is_phase, True, "is_phase")
         self.assertEqual(expr(1).phase_degrees.is_phase_degrees, True, "is_phase_degrees")
         self.assertEqual(expr(1).dB.is_dB, True, "is_dB")                
+
+    def test_simplify_sin_cos(self):
+
+        a = expr('3 * cos(theta) + 4 * sin(theta)')
+        b = expr('5 * cos(theta - atan(4 / 3))')
+
+        # Note, simplify converts the results to the same form.
+        self.assertEqual(a.simplify_sin_cos(as_cos=True).simplify(), b, "cos form")
+        self.assertEqual(a.simplify_sin_cos(as_sin=True).simplify(), b, "sin form")
+        self.assertEqual(a.simplify_sin_cos().simplify(), b, "default form")        
+        
