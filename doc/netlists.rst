@@ -69,8 +69,20 @@ example:
    `V1 1 0 {cos(5 * t)}`
 
 The component type is specified by the first letter(s) of the
-`component-name`.  For example,
+`component-name`.  For example, the following line defines a voltage
+source called V1 connected btween nodes 1 and 0::
 
+   V1 1 0
+
+Here's another example defining a resistor R between nodes 1 and 2::
+
+   R 1 2
+  
+
+Here's a list of the known components that can be used for circuit
+simulation (additional components can be drawn, see
+:ref:`schematic-components`):
+   
 - Arbitrary voltage source:
 
    `Vname Np Nm Vexpr`
@@ -93,11 +105,11 @@ The component type is specified by the first letter(s) of the
 
    `Vname Np Nm dc V`
 
-- AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency :math:`\omega_0`
+- AC voltage source of complex voltage amplitude V and phase p (radians) with default angular frequency :math:`\omega_0`
 
    `Vname Np Nm ac V p`
 
-- AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency :math:`\omega_0`
+- AC voltage source of complex voltage amplitude V and phase p (radians) with angular frequency :math:`w`
 
    `Vname Np Nm ac V p w`  
 
@@ -115,7 +127,7 @@ The component type is specified by the first letter(s) of the
 
    `I1 1 0`  This is equivalent to `I1 1 0 {i1(t)}`
 
-   `I1 1 0 10`  This is a DC source of 10 I
+   `I1 1 0 10`  This is a DC source of 10 A
   
    `I1 1 0 {2 * cos(5 * t)}` This is an AC source
   
@@ -129,11 +141,11 @@ The component type is specified by the first letter(s) of the
 
    `Iname Np Nm dc I`
 
-- AC current source of complex current amplitude I and phase p (radians) with angular frequency :math:`\omega_0`
+- AC current source of complex current amplitude I and phase p (radians) with default angular frequency :math:`\omega_0`
 
    `Iname Np Nm ac I p`
 
-- AC current source of complex current amplitude I and phase p (radians) with angular frequency :math:`\omega_0`
+- AC current source of complex current amplitude I and phase p (radians) with angular frequency :math:`w`
 
    `Iname Np Nm ac I p w`
 
@@ -145,15 +157,15 @@ The component type is specified by the first letter(s) of the
 
    `Iname Np Nm s I`
 
-- Resistor:
+- Resistor of resistance R:
 
    `Rname Np Nm R`
 
-- Conductor:
+- Conductor of conductance G:
 
    `Gname Np Nm G`
 
-- Inductor:
+- Inductor of inductance L:
 
    `Lname Np Nm L`
 
@@ -161,13 +173,31 @@ The component type is specified by the first letter(s) of the
 
    Here `i0` is the initial current through the inductor.  If this is specified then the circuit is solved as an initial value problem.
 
-- Capacitor:
+- Capacitor of capacitance C:
 
    `Cname Np Nm C`
 
    `Cname Np Nm C v0`
 
    Here `v0` is the initial voltage across the capacitor.  If this is specified then the circuit is solved as an initial value problem.
+
+- Wire:
+
+   `Wname Np Nm`
+
+   Note, if name is not specified, a unique name is chosen.
+
+- Open circuit:
+
+   `Oname Np Nm`
+
+   Note, if name is not specified, a unique name is chosen.
+
+- Port:
+
+   `Pname Np Nm`
+
+   This acts like an open-circuit; it is useful for schematics.
 
 - Voltage-controlled voltage source (VCVS) of voltage gain E with controlling nodes Nip and Nim:
 
@@ -365,13 +395,13 @@ Component attributes
 
 Each Component object has a number of attributes, including:
 
-- `V` transform-domain voltage across component
+- `V` transform-domain voltage across component (use `V(t)` to get the time-domain voltage or `V(s)` to get the Laplace domain voltage)
   
-- `I` transform-domain current through component
+- `I` transform-domain current through component (use `I(t)` to get the time-domain current or `I(s)` to get the Laplace domain current)
 
-- `v` t-domain voltage across component
+- `v` time-domain voltage across component
   
-- `i` t-domain current through component
+- `i` time-domain current through component
 
 Lcapy uses the passive sign convention.  Thus for a passive device (R,
 L, C), current flows into the positive node, and for a source (V, I),

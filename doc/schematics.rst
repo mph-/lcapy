@@ -57,6 +57,13 @@ wires do not need unique names.
    :width: 5cm
 
 
+Netlists
+--------
+
+Schematics are described using the same netlist syntax as used for circuit analysis.  See
+:ref:`component-specification` for a list of known components.
+
+           
 Component orientation
 ---------------------
 
@@ -260,10 +267,12 @@ Node names can also refer to pins of shape and chip components.  For example::
   W  U1.gnd 0; down
   
 
+.. _schematic-components:
+  
 Components
 ==========
 
-Only linear, time-invariant, components can be analyzed by Lcapy.   However, many others can be drawn.
+Only linear, time-invariant, components can be analyzed by Lcapy.  For a list of these, see :ref:`component-specification`.  However, many others can be drawn.
 
 
 Batteries
@@ -1010,8 +1019,11 @@ Styles
 ======
 
 Three component styles are supported: `american` (default), `british`, and
-`european`.  The style is set by a style argument to the `draw` method
-or by a schematic option.  For example,
+`european`.  The style is set by a style argument to the `draw` method.  For example::
+
+  >>> cct.draw(style='european')
+  
+Alternatively the style can specified by a schematic option.  For example:
 
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded3.sch
 
@@ -1266,7 +1278,7 @@ Inverting opamp amplifier
    :width: 5cm
 
            
-Non-Inverting opamp amplifier
+Non-inverting opamp amplifier
 -----------------------------
 
 .. literalinclude:: examples/schematics/opamp-noninverting-amplifier.sch
