@@ -19,7 +19,7 @@ labels.
 
 8. If component has invisible attribute, do not count the connections.
 
-9. Fix scaling of bipoles;  the current method also scales the nodes.
+9. Fix scaling of bipoles; the current method also scales the nodes.
 
 10. Perhaps use dvipng?
 
@@ -33,9 +33,7 @@ Circuit analysis
 2. Generalise two-port representation to avoid transformations from a
 singular matrix.
 
-3. Show Super classes as how they were created and not decomposition?
-
-4. Add simplify method.  This could remove zero current and zero voltage sources and
+3. Add simplify method.  This could remove zero current and zero voltage sources and
 combine series/parallel components.  This could have a number of passes argument so that
 the simplification can be performed a desired number of times.
 
@@ -47,73 +45,47 @@ Infrastructure
 The problem arises when SymPy creates a symbol since it uses different
 assumptions to Lcapy.  Ideally have a hook in sym.sympify.
 
-2. Remove { when printing Piecewise with single condition?  Line 911
-sympy/printing/pretty/pretty.py
-
-3. Support more Fourier/Laplace transformations, say using a table
+2. Support more Fourier/Laplace transformations, say using a table
 driven approach.
 
-4. Speed up residue calculation (perhaps can try without taking limit...).
+3. Speed up residue calculation (perhaps can try without taking limit...).
 
-5. Warn user when calculations may take a while, say when inverting a
+4. Warn user when calculations may take a while, say when inverting a
 large matrix.
 
-6. Add || operator to SymPy but this will require Python mods!
+5. Add || operator to SymPy but this will require Python mods!
 
-7. Use better assumptions propagation.  Should have mechanism to
-   override assumptions based on user's coercion.  For example,
-   causal=True, causal=False, causal=None, where the latter says I don't know.
+6. Use better assumptions propagation.
 
-8. Implement a Matrix class that does not lose the class information
+7. Implement a Matrix class that does not lose the class information
 for each element.
 
-9. Improve context switching to avoid sharing of symbols between
+8. Improve context switching to avoid sharing of symbols between
 different netlists.  Could use Python context manager with __enter__
 and __exit__ methods so that can use with statement.
 
-10. Simplify phase.
+9. expr('A*t/T*u(t)*u(T-t)+A*u(t-T)')(s)(t)
 
-11. Fix Impedance * Impedance, etc. (correctly set kind)
+10. Teach sifting theorem for Dirac delta.
 
-12. Check transforms.  Perhaps handle expr('f') as expr(f) ?
+11. Add LT for Integral(x(t - tau) * Heaviside(tau), (tau, -oo, oo))
 
-13. Speed ups. 
+12. Add LT for Integral(x(t - tau), (tau, 0, oo))
 
-14. cct.subs() does not change cct.symbols...
-
-15. expr('A*t/T*u(t)*u(T-t)+A*u(t-T)')(s)(t)
-
-16. Overhaul immitances.  Perhaps default to s-domain unless impedance
-calculated for other domains?  The problem at the moment is the kind
-attribute.  This gets lost, say when using .limit().  Note,
-Z(s).limit() works as expected.
-
-17. Teach sifting theorem for Dirac delta.
-
-18. Add LT for Integral(x(t - tau) * Heaviside(tau), (tau, -oo, oo))
-
-19. Add LT for Integral(x(t - tau), (tau, 0, oo))
-
-20. Warn about coupled inductors at DC?  LT methods will blindly give
+13. Warn about coupled inductors at DC?  LT methods will blindly give
 an answer that appears valid for DC.
 
-21. Simplify convolutions.
+14. Simplify convolutions.
 
-22. Simplify i_equation/v_equation nonsense.
+15. Simplify i_equation/v_equation nonsense.
 
-23. Compatibility with PySpice
+16. Compatibility with PySpice
 
-24. Untangle Netlist stuff
+17. Untangle Netlist stuff
 
-25. Test NetlistNamespace
+18. Test NetlistNamespace
 
-26. Tidy Voltage/Current/Immitance classes
-
-27. Perhaps remove intermediate classes?
-
-28. Incorporate SymPy units
-
-29. FT(u(t))
+19. Incorporate SymPy units
 
 
 Testing
@@ -208,18 +180,16 @@ Discrete-time
 
 7. Perhaps have min bound for N to help simplify DFT?
 
-8. Perhaps have Voltage() for Vn, Vk, VZ etc.
+8. Coerce sympy to print ordered sum of delayed impulses.
 
-9. Coerce sympy to print ordered sum of delayed impulses.
+9. Teach IDFT of DFT.
 
-10. Teach IDFT of DFT.
+10. Inverse z-transform cos(2*pi*dt*n)(z)(n).
 
-11. Inverse z-transform cos(2*pi*dt*n)(z)(n).
+11. Fourier series?
 
-12. Fourier series?
+12. Add domain variable F for normalized frequency.
 
-13. Add domain variable F for normalized frequency.
-
-14. Perhaps add f-like domain variable for DTFT?
+13. Perhaps add f-like domain variable for DTFT?
 
 
