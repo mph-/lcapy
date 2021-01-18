@@ -64,6 +64,7 @@ from .omegaexpr import omegaexpr
 from .phasor import phasor
 from .discretetime import *
 from .dft import *
+from .state import state
 
 def show_version():
     """Show versions of Lcapy, SymPy, NumPy, MatplotLib, SciPy, and Python."""
