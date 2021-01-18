@@ -89,7 +89,7 @@ def cexpr(arg, **assumptions):
 
     """
 
-    return ConstantDomainExpression(arg)
+    return ConstantDomainExpression(arg, **assumptions)
 
 
 from .expressionclasses import expressionclasses
