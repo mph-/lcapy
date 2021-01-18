@@ -69,11 +69,17 @@ def as_value_unit(expr):
 
     if not expr.has(u.Quantity):
         return expr, 1
-    
+
     defs = {x: 1 for x in expr.args if not x.has(u.Quantity)}
     unit = expr.subs(defs)
 
-    return expr / unit, unit
+    value = expr / unit
+    if value.has(u.Quantity):
+        # FIXME: This function only works for something like 42 * volt or 42 * amp * ohm.
+        # It fails for 4 * amp * 2 * ohm + 42 * volt.
+        raise ValueError('Expression not of form value * units: %s' % expr)
+    
+    return value, unit
 
 
 units = Units()

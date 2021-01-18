@@ -72,4 +72,14 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual((voltage(kexpr(1))**2).units, 'V^2', 'kexpr voltage squared')
         self.assertEqual((current(kexpr(1))**2).units, 'A^2', 'kexpr current squared')
         self.assertEqual((admittance(kexpr(1))**2).units, 'S^2', 'kexpr admittance squared')                
-        self.assertEqual((impedance(kexpr(1))**2).units, 'ohm^2', 'kexpr impedance squared')                        
+        self.assertEqual((impedance(kexpr(1))**2).units, 'ohm^2', 'kexpr impedance squared')
+        
+    def test_new_units(self):
+
+        from lcapy.state import state
+        #state.use_units = True
+
+        #v = voltage(42)
+        #value, unit = v.as_value_unit()
+
+        

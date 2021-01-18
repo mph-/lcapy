@@ -792,10 +792,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
 
         cls = self.__class__
         xcls = x.__class__
-        
-        if not isinstance(x, Expr):
-            return cls, self, cls(x), assumptions
 
+        if not isinstance(x, Expr):
+            x = expr(x)
+
+        if state.use_units:
+            value, unit = self.as_value_unit()
+            valuex, unitx = x.as_value_unit()
+            if unit != unitx:
+                raise ValueError('Incompatible units %s and %s for %s' % (unit, unitx, op))
+        
         if x.is_constant_domain and x.quantity == 'undefined':
             return cls, self, x, assumptions
         
@@ -888,8 +894,22 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
             cls = x._class_by_quantity(quantity)
         else:
             cls = self._class_by_quantity(quantity)
+
+        if state.use_units:
+            from .units import units
             
-        return cls(self.expr * x.expr, **assumptions)
+            value, unit = self.as_value_unit()
+            valuex, unitx = x.as_value_unit()
+            value *= valuex
+
+            result = cls(value, **assumptions)        
+            result = result.apply_unit(units.simplify_units(unit * unitx))
+
+        else:
+            value = self.expr * x.expr
+            result = cls(value, **assumptions)
+
+        return result
     
     def __rmul__(self, x):
         """Reverse multiply."""
@@ -934,8 +954,22 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
             cls = x._class_by_quantity(quantity)
         else:
             cls = self._class_by_quantity(quantity)
+
+        if state.use_units:
+            from .units import units
             
-        return cls(self.expr / x.expr, **assumptions)            
+            value, unit = self.as_value_unit()
+            valuex, unitx = x.as_value_unit()
+            value /= valuex
+
+            result = cls(value, **assumptions)        
+            result = result.apply_unit(units.simplify_units(unit / unitx))
+
+        else:
+            value = self.expr / x.expr
+            result = cls(value, **assumptions)
+
+        return result
             
     def __rtruediv__(self, x):
         """Reverse true divide."""
@@ -2173,14 +2207,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         if not state.use_units:
             return self
 
-        value, unit1 = units.as_value_unit(self)
+        # Strip existing units
+        value, unit1 = units.as_value_unit(self.expr)
 
-        ret = self * unit
-        # TODO: associate units with s, f, etc.  And C, L, R...?
-        if isinstance(value, (LaplaceDomainExpression, FourierDomainExpression,
-                              AngularFourierDomainExpression)):    
-            ret /= uu.hertz        
-        return ret
+        ret = value * unit
+        return self.__class__(ret, **self.assumptions)
     
     def as_value_unit(self):
         """Return tuple of value and unit.  For example,
@@ -2192,7 +2223,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         
         from .units import units
 
-        return units.as_value_unit(self)
+        return units.as_value_unit(self.expr)
             
     
     def as_N_D(self, monic_denominator=False):
