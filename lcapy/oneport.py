@@ -313,7 +313,7 @@ class OnePort(Network, ImmittanceMixin):
         
         R1 = self.R
         if R1 != 0:
-            Vn = Vnoise('sqrt(4 * k_b * T * %s)' % R1(j * omega))
+            Vn = Vnoise('sqrt(4 * k_B * T * %s)' % R1(j * omega))
             return self + Vn
         return self
 
