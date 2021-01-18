@@ -826,7 +826,7 @@ Finally, the rms noise voltage can be found using the `rms()` method.  This inte
 
    >>> Vn.rms()
    √T⋅√k_B
-   ─────
+   ───────
      √C 
 
 
