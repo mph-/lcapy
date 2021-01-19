@@ -741,26 +741,21 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
 
         return self.__class__(-self.expr, **self.assumptions)
 
-    def _incompatible(self, x, op):
-                
-        raise ValueError('Cannot combine %s(%s) with %s(%s) for %s' %
-                         (self.__class__.__name__, self,
-                          x.__class__.__name__, x, op))
+    def _incompatible(self, x, op, reason=''):
 
-    def _incompatible_domains(self, x, op):
-                
         raise ValueError("""
-Cannot determine %s(%s) %s %s(%s) since the domains are incompatible""" %
+Cannot determine %s(%s) %s %s(%s)%s""" %
                          (self.__class__.__name__, self, op,
-                          x.__class__.__name__, x))
+                          x.__class__.__name__, x, reason))        
+                
+    def _incompatible_domains(self, x, op):
+
+        self._incompatible(x, op, ' since the domains are incompatible')
 
     def _incompatible_quantities(self, x, op):
 
-        raise ValueError("""
-Cannot determine %s(%s) %s %s(%s) since the units of the result are unsupported.
-As a workaround use x.as_expr() %s y.as_expr()""" %
-                         (self.__class__.__name__, self, op,
-                          x.__class__.__name__, x, op))        
+        self._incompatible(x, op, """ since the units of the result are unsupported.
+As a workaround use x.as_expr() %s y.as_expr()""")
 
     def _add_compatible_domains(self, x):
 
@@ -793,11 +788,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         if not isinstance(x, Expr):
             x = expr(x)
 
-        if state.use_units:
+        if state.track_units:
             value, unit = self.as_value_unit()
             valuex, unitx = x.as_value_unit()
             if unit != unitx:
-                raise ValueError('Incompatible units %s and %s for %s' % (unit, unitx, op))
+                self._incompatible(x, op, ' since the units %s are incompatible with %s' % (unit, unitx))
 
         cls = self.__class__
         xcls = x.__class__
@@ -900,7 +895,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         else:
             cls = self._class_by_quantity(quantity)
 
-        if state.use_units:
+        if state.track_units:
             from .units import units
             
             value, unit = self.as_value_unit()
@@ -960,7 +955,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         else:
             cls = self._class_by_quantity(quantity)
 
-        if state.use_units:
+        if state.track_units:
             from .units import units
             
             value, unit = self.as_value_unit()
@@ -2214,9 +2209,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         return self.__class__(expr, **self.assumptions)
 
     def apply_unit(self, unit):
-        """Apply unit to expression if `state.use_units` True."""
+        """Apply unit to expression if `state.track_units` True."""
 
-        if not state.use_units:
+        if not state.track_units:
             return self
 
         # Strip existing units

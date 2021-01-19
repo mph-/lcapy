@@ -332,7 +332,7 @@ voltage, current, impedance, and admittance.   How to fix this is currently bein
 Lcapy has an experimental feature for better unit tracking based on SymPy units.
 
    >>> from lcapy.state import state
-   >>> state.use_units = True
+   >>> state.track_units = True
    >>> voltage(6)
    6⋅V
    >>> voltage(6) / current(3)
@@ -351,7 +351,12 @@ For this to be useful, SymPy also needs work for better printing of
 the units.  Currently they can appear anywhere in an expression and
 not just at the end.
 
-  
+By default, units are be printed in abbreviated form.  To print in long form use:
+
+   >>> from lcapy.state import state
+   >>> state.abbreviated_units = False
+
+
 .. _expressionsrationalfunctions:
    
 Rational functions

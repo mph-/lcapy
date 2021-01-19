@@ -6,7 +6,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 import re
 from .config import latex_expr_map, pretty_expr_map, str_expr_map
-from .config import functions, words, subscripts, abbreviate_units
+from .config import functions, words, subscripts
 from .latex import latex_str
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
@@ -347,12 +347,33 @@ def latex(expr, fold_frac_powers=False, fold_func_brackets=False,
     return string
 
 
+class PrintingConfig(object):
+
+    def __init__(self):
+
+        from sympy import init_printing
+        init_printing(latex_printer=latex, pretty_printer=pretty, str_printer=print_str)
+
+        self._abbreviate_units = False
+
+    @property
+    def abbreviate_units(self):
+
+        return self._abbreviate_units
+
+    @abbreviate_units.setter
+    def abbreviate_units(self, val):    
+
+        self._abbreviate_units = val
+    
+        # Print abbreviated units, V not volt
+        sym.printing.str.StrPrinter._default_settings['abbrev'] = val
+        
+
 # See sympy/interactive/printing.py and IPython/core/formatters.py
 # Also see hack at end of expr.py to support latex for Lcapy container
 # types.
 
-from sympy import init_printing
-init_printing(latex_printer=latex, pretty_printer=pretty, str_printer=print_str)
 
-# Print abbreviated units, V not volt
-sym.printing.str.StrPrinter._default_settings['abbrev'] = abbreviate_units
+
+

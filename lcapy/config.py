@@ -52,6 +52,8 @@ except:
     
 matrix_inverse_fallback_method = 'ADJ'
 
-use_units = False
-
+# Default values
+loose_units = False
+track_units = False
+show_units = False
 abbreviate_units = True
