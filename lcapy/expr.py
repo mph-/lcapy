@@ -2215,6 +2215,18 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self.__class__(expr, **self.assumptions)
 
+    def multiply_unit(self, unit):
+        """Multiply expression by unit if `state.track_units` True."""
+
+        if not state.track_units:
+            return self
+
+        # Strip existing units
+        value, unit1 = units.as_value_unit(self.expr)
+
+        ret = value * unit1 * unit
+        return self.__class__(ret, **self.assumptions)    
+
     def apply_unit(self, unit):
         """Apply unit to expression if `state.track_units` True."""
 
@@ -2239,7 +2251,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return units.as_value_unit(self.expr)
             
-    
     def as_N_D(self, monic_denominator=False):
         """Responses due to a sum of delayed transient responses
         cannot be factored into ZPK form with a constant delay.
