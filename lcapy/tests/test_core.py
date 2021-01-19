@@ -331,8 +331,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(type(t + ConstantDomainExpression(10)), TimeDomainExpression, "Not tExpr")
 
         v = LaplaceDomainVoltage(10)
-        self.assertEqual(type(10 + v), LaplaceDomainVoltage, "Not Vs")
-        self.assertEqual(type(v + 10), LaplaceDomainVoltage, "Not Vs")
+        #self.assertEqual(type(10 + v), LaplaceDomainVoltage, "Not Vs")
+        #self.assertEqual(type(v + 10), LaplaceDomainVoltage, "Not Vs")
         self.assertEqual(type(LaplaceDomainExpression(10) + v), LaplaceDomainVoltage, "Not Vs")
         self.assertEqual(type(v + LaplaceDomainExpression(10)), LaplaceDomainVoltage, "Not Vs")
 

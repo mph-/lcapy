@@ -114,14 +114,15 @@ class LcapyTester(unittest.TestCase):
         CZ = impedance(3)        
         
         self.assertEqual(V1 + V2, voltage(2 * s + 4), "V1(s) + V2(s)")
-        self.assertEqual(C + V1, voltage(3 + s), "C + V1(s)")
-        self.assertEqual(V1 + C, voltage(3 + s), "V1(s) + C")
-        self.assertEqual(V1 + 3, voltage(3 + s), "V1(s) + 3")
-        self.assertEqual(3 + V1, voltage(3 + s), "3 + V1(s)")
-        self.assertEqual(C + Z, impedance(3 * s + 3), "C + Z(s)")
-        self.assertEqual(Z + C, impedance(3 * s + 3), "Z(s) + C")
         self.assertEqual(CZ + Z, impedance(3 * s + 3), "CZ + Z(s)")
         self.assertEqual(Z + CZ, impedance(3 * s + 3), "Z(s) + CZ")        
+
+        state.loose_units = True
+        self.assertEqual(C + Z, impedance(3 * s + 3), "C + Z(s)")
+        self.assertEqual(Z + C, impedance(3 * s + 3), "Z(s) + C")
+        self.assertEqual(C + V1, voltage(3 + s), "C + V1(s)")
+        self.assertEqual(V1 + C, voltage(3 + s), "V1(s) + C")
+        state.loose_units = False
         
     def test_fdomain_add(self):
         
@@ -130,10 +131,13 @@ class LcapyTester(unittest.TestCase):
         C = cexpr(3)
         
         self.assertEqual(V1 + V2, voltage(2 * f + 4), "V1(f) + V2(f)")
+
+        state.loose_units = True        
         self.assertEqual(C + V1, voltage(3 + f), "C + V1(f)")
         self.assertEqual(V1 + C, voltage(3 + f), "V1(f) + C")
         self.assertEqual(V1 + 3, voltage(3 + f), "V1(f) + 3")
-        self.assertEqual(3 + V1, voltage(3 + f), "3 + V1(f)")                                        
+        self.assertEqual(3 + V1, voltage(3 + f), "3 + V1(f)")
+        state.loose_units = False
         
     def test_rmul(self):
 

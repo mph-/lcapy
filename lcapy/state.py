@@ -18,6 +18,7 @@ class State(object):
         self.context = self.global_context
         self.previous_context = []
         self.use_units = use_units
+        self.loose_units = False
 
     def new_context(self):
 

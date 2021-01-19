@@ -343,7 +343,7 @@ class Superposition(SuperpositionDomain, ExprDict):
         return self.__add__(x)
 
     def __sub__(self, x):
-        return -x + self
+        return self + (-x)
 
     def __rsub__(self, x):
         return -self + x

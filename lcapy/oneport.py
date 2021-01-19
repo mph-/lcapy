@@ -26,6 +26,8 @@ from .network import Network
 from .immittancemixin import ImmittanceMixin
 from .impedance import impedance
 from .admittance import admittance
+from .voltage import voltage
+from .current import current
 from sympy import Derivative, Integral
 
 
@@ -1007,7 +1009,7 @@ class Vdc(VoltageSourceBase):
 
     @property
     def voc(self):
-        return self.v0
+        return voltage(self.v0)
 
 
 class Vac(VoltageSourceBase):
@@ -1046,7 +1048,7 @@ class Vac(VoltageSourceBase):
 
     @property
     def voc(self):
-        return self.v0 * cos(self.omega * t + self.phi)
+        return voltage(self.v0 * cos(self.omega * t + self.phi))
 
 
 class Vnoise(VoltageSourceBase):
@@ -1138,7 +1140,7 @@ class Idc(CurrentSourceBase):
 
     @property
     def isc(self):
-        return self.i0
+        return current(self.i0)
 
 
 class Iac(CurrentSourceBase):
@@ -1175,7 +1177,7 @@ class Iac(CurrentSourceBase):
 
     @property
     def isc(self):
-        return self.i0 * cos(self.omega * t + self.phi)
+        return current(self.i0 * cos(self.omega * t + self.phi))
 
 
 class Inoise(CurrentSourceBase):

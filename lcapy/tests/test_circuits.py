@@ -203,7 +203,7 @@ class LcapyTester(unittest.TestCase):
         a = Circuit()
         a.add('V1 1 0 10') 
 
-        self.assertEqual(a.V1.V.dc, 10, "Incorrect voltage")
+        self.assertEqual(a.V1.V.dc, voltage(10), "Incorrect voltage")
 
 
     def test_VRL1_dc(self):
@@ -508,7 +508,7 @@ class LcapyTester(unittest.TestCase):
 
         R 2 0 1""")
 
-        self.assertEqual(a.R.i, 10, "i incorrect")        
+        self.assertEqual(a.R.i, current(10), "i incorrect")        
 
     def test_K(self):
 
@@ -536,19 +536,19 @@ class LcapyTester(unittest.TestCase):
         V2 2 0 4
         R 1 0 2""")
 
-        self.assertEqual(a.R.V, 10, "incorrect series voltage")
+        self.assertEqual(a.R.V, voltage(10), "incorrect series voltage")
 
         b = a.kill('V1')
 
-        self.assertEqual(b.R.V, 4, "incorrect voltage with V1 killed")
+        self.assertEqual(b.R.V, voltage(4), "incorrect voltage with V1 killed")
 
         c = a.kill('V2')
 
-        self.assertEqual(c.R.V, 6, "incorrect voltage with V2 killed")
+        self.assertEqual(c.R.V, voltage(6), "incorrect voltage with V2 killed")
 
         d = a.kill_except('V1')
 
-        self.assertEqual(d.R.V, 6, "incorrect voltage with all killed except V1")
+        self.assertEqual(d.R.V, voltage(6), "incorrect voltage with all killed except V1")
         
         
     def test_TF(self):
@@ -659,6 +659,3 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(H1, H2, "transfer cpt/nodes")
         self.assertEqual(H1, -1, "transfer")        
-        
-        
-        

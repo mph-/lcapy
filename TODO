@@ -87,6 +87,8 @@ an answer that appears valid for DC.
 
 19. Incorporate SymPy units
 
+20. Fix units when performing transformations of V*V, I*I, P quantities, etc.
+
 
 Testing
 =======

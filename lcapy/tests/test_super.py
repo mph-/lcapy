@@ -34,20 +34,20 @@ class LcapyTester(unittest.TestCase):
                           "Voltage(Vconst(2), Vphasor(3)).is_dc")
 
     def test_voltage_add_sub_dc(self):
-        self.assertEqual2(SuperpositionVoltage(3).dc, 3, "Voltage(3).dc")
-        self.assertEqual2(SuperpositionVoltage(2, 3).dc, 5, "Voltage(2, 3).dc")
+        self.assertEqual2(SuperpositionVoltage(3).dc, voltage(3), "Voltage(3).dc")
+        self.assertEqual2(SuperpositionVoltage(2, 3).dc, voltage(5), "Voltage(2, 3).dc")
         self.assertEqual2(SuperpositionVoltage(2, 3).ac, {}, "Voltage(2, 3).ac")
-        self.assertEqual2(-SuperpositionVoltage(2).dc, -2, "-Voltage(2).dc")
+        self.assertEqual2(-SuperpositionVoltage(2).dc, voltage(-2), "-Voltage(2).dc")
         self.assertEqual2(SuperpositionVoltage(2) + SuperpositionVoltage(3), SuperpositionVoltage(5),
                           "Voltage(2) + Voltage(3)")
         self.assertEqual2(SuperpositionVoltage(2) - SuperpositionVoltage(3), SuperpositionVoltage(-1),
                           "Voltage(2) - Voltage(3)")
 
     def test_current_add_sub_dc(self):
-        self.assertEqual2(SuperpositionCurrent(3).dc, 3, "Current(3).dc")
-        self.assertEqual2(SuperpositionCurrent(2, 3).dc, 5, "Current(2, 3).dc")
+        self.assertEqual2(SuperpositionCurrent(3).dc, current(3), "Current(3).dc")
+        self.assertEqual2(SuperpositionCurrent(2, 3).dc, current(5), "Current(2, 3).dc")
         self.assertEqual2(SuperpositionCurrent(2, 3).ac, {}, "Current(2, 3).ac")
-        self.assertEqual2(-SuperpositionCurrent(2).dc, -2, "-Current(2).dc")
+        self.assertEqual2(-SuperpositionCurrent(2).dc, current(-2), "-Current(2).dc")
         self.assertEqual2(SuperpositionCurrent(2) + SuperpositionCurrent(3), SuperpositionCurrent(5),
                           "Current(2) + Current(3)")
         self.assertEqual2(SuperpositionCurrent(2) - SuperpositionCurrent(3), SuperpositionCurrent(-1),
@@ -120,7 +120,7 @@ class LcapyTester(unittest.TestCase):
     def test_voltage_phasor(self):
 
         V = SuperpositionVoltage(3 * sin(7 * t) + 2 * cos(14 * t)) 
-        self.assertEqual(V[7].magnitude, expr(3), 'magnitude')
+        self.assertEqual(V[7].magnitude, voltage(3), 'magnitude')
         self.assertEqual(V[14].omega, 14, 'omega')
         
     def test_super_printing(self):
@@ -190,7 +190,6 @@ class LcapyTester(unittest.TestCase):
 
     def test_super_sympy_float(self):
 
-        V = SuperpositionVoltage()
-        V.add(sym.Float(8))
+        V = SuperpositionVoltage(sym.Float(8))
        
         self.assertEqual(isinstance(V.dc.expr, sym.Rational), True, 'Float -> Rational')

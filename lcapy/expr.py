@@ -363,7 +363,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         elif quantity == 'power':
             return self.as_power()
         elif quantity == 'undefined':
-            return self.as_expr(expr)        
+            return self.as_expr()        
         raise ValueError('Unknown quantity %s for %s' % (quantity, self))
 
     def as_domain(self, domain):
@@ -790,9 +790,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
 
         assumptions = self.assumptions.copy()
 
-        cls = self.__class__
-        xcls = x.__class__
-
         if not isinstance(x, Expr):
             x = expr(x)
 
@@ -801,9 +798,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
             valuex, unitx = x.as_value_unit()
             if unit != unitx:
                 raise ValueError('Incompatible units %s and %s for %s' % (unit, unitx, op))
-        
+
+        cls = self.__class__
+        xcls = x.__class__
+            
         if x.is_constant_domain and x.quantity == 'undefined':
-            return cls, self, x, assumptions
+            if state.loose_units or x.expr == 0:
+                # Allow voltage(1) + 2 etc.
+                return cls, self, x, assumptions
+            if self.is_transfer:
+                # Allow transfer(1) == 1
+                return cls, self, x, assumptions                
         
         if self.is_constant_domain and self.quantity == 'undefined':
             return xcls, self, x, assumptions            
@@ -991,7 +996,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
 
         if isinstance(x, Matrix):
             return x + self.expr
-        
+
         cls, self, x, assumptions = self.__compat_add__(x, '+')
         return cls(self.expr + x.expr, **assumptions)
 
@@ -1005,6 +1010,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
     def __sub__(self, x):
         """Subtract."""
 
+        from .super import Superposition
+
+        if isinstance(x, Superposition):
+            return -x + self
+        
         cls, self, x, assumptions = self.__compat_add__(x, '-')
         return cls(self.expr - x.expr, **assumptions)
 
@@ -1228,7 +1238,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         The denominator is chosen so that it is a polynomial."""
 
         N, D = self.as_N_D()
-        return N
+        return N.as_expr()
 
     @property
     def denominator(self):
@@ -1236,7 +1246,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         The denominator is chosen so that it is a polynomial."""
 
         N, D = self.as_N_D()
-        return D
+        return D.as_expr()
 
     def rationalize_denominator(self):
         """Rationalize denominator by multiplying numerator and denominator by
@@ -1302,6 +1312,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" %
         Dnew = R.D
         Nnew = sqrt((N.real**2 + N.imag**2).simplify())
         dst = Nnew / Dnew
+
+        dst = dst.as_quantity(self.quantity)
 
         dst.part = 'magnitude'
         return dst

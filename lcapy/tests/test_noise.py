@@ -62,10 +62,7 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 noise {sqrt(4 * k_B * T * R)}') 
         a.add('R1 1 2 R')
         a.add('C1 2 0 C')
-        # FIXME
-        #self.assertEqual2(a.C1.V.n.rms(), TimeDomainVoltage('sqrt(k_B * T / C)'),
-        #                  "Incorrect capacitor voltage")
-        self.assertEqual2(a.C1.V.n.rms(), TimeDomainExpression('sqrt(k_B * T / C)'),
+        self.assertEqual2(a.C1.V.n.rms(), voltage('sqrt(k_B * T / C)'),
                           "Incorrect capacitor voltage")        
 
     def test_filtered_noise3(self):
@@ -75,7 +72,7 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 noise 20') 
         a.add('R1 1 2 1')
         a.add('C1 2 0 2')         
-        self.assertEqual(a.C1.V.n.rms(), 5 * sqrt(2),
+        self.assertEqual(a.C1.V.n.rms(), voltage(5 * sqrt(2)),
                          "Incorrect capacitor voltage")
 
     def test_noisy1(self):

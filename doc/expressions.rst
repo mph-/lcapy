@@ -326,7 +326,7 @@ This is due to a failure in quantity tracking::
   'voltage'  
 
 The units are also incorrect under transformation of products of
-voltage, current, impedance, and admittance.
+voltage, current, impedance, and admittance.   How to fix this is currently being pondered.
 
   
 Lcapy has an experimental feature for better unit tracking based on SymPy units.
@@ -347,10 +347,9 @@ The units can be separated from the value using the `as_value_unit()` method.   
   >>> voltage(6).as_value_unit()
   (6, V)
 
-   
-
-However, this can also go awry unless units are applied to every scale
-factor.  SymPy also needs work for better printing of the units.
+For this to be useful, SymPy also needs work for better printing of
+the units.  Currently they can appear anywhere in an expression and
+not just at the end.
 
   
 .. _expressionsrationalfunctions:
