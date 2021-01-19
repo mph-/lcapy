@@ -386,38 +386,39 @@ class Superposition(SuperpositionDomain, ExprDict):
                 return True
         return False    
 
-    def _decompose_timedomain_expr(self, expr):
+    def _decompose_timedomain_expr(self, expr1):
         """Decompose a time domain expr into AC, DC, and s-domain
         transient components."""
 
         result = {}
         
         # Extract DC components
-        dc = expr.expr.coeff(tsym, 0)
+        dc = expr1.expr.coeff(tsym, 0)
         dc = ConstantDomainExpression(dc).as_quantity(self.quantity)
         if dc != 0:
             result['dc'] = dc
-            expr -= dc
+            expr1 -= dc
 
-        if expr == 0:
+        if expr1 == 0:
             return result
 
         # Extract AC components        
         ac = 0
-        terms = expr.expr.as_ordered_terms()
+        terms = expr1.expr.as_ordered_terms()
         for term in terms:
             if is_ac(term, tsym):
-                 p = TimeDomainExpression(term).phasor()
-                 result[p.omega] = p
-                 ac += term
+                eterm = expr(term).as_quantity(self.quantity)
+                p = eterm.phasor()
+                result[p.omega] = p
+                ac += eterm
 
-        expr -= ac
-        if expr == 0:
+        expr1 -= ac
+        if expr1 == 0:
             return result
 
         # The remaining components are considered transient
         # so convert to Laplace representation.
-        sval = expr.laplace()
+        sval = expr1.laplace()
 
         result['s'] = sval
         return result

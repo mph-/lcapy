@@ -187,7 +187,7 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
         else:
             result = self.real.expr * cos(omega1 * t) - self.imag.expr * sin(omega1 * t)
 
-        return TimeDomainExpression(result)
+        return TimeDomainExpression(result).as_quantity(self.quantity)
     
 
 class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):

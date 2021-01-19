@@ -347,6 +347,10 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         if domain is None:
             domain = self.domain
         return expressionclasses.get_quantity(domain, quantity)
+
+    def _class_by_domain(self, domain):
+
+        return expressionclasses.get_quantity(domain, self.quantity)    
         
     def as_quantity(self, quantity):
 
@@ -755,7 +759,7 @@ Cannot determine %s(%s) %s %s(%s)%s""" %
     def _incompatible_quantities(self, x, op):
 
         self._incompatible(x, op, """ since the units of the result are unsupported.
-As a workaround use x.as_expr() %s y.as_expr()""")
+As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def _add_compatible_domains(self, x):
 
@@ -831,10 +835,13 @@ As a workaround use x.as_expr() %s y.as_expr()""")
 
         # expr + voltage
         if self.quantity == 'undefined':
-            return xcls, self, x, assumptions
+            if state.loose_units or x.is_transfer:
+                return xcls, self, x, assumptions
+            
         # voltage + expr
         if x.quantity == 'undefined':
-            return cls, self, x, assumptions        
+            if state.loose_units or self.is_transfer:            
+                return cls, self, x, assumptions        
         
         self._incompatible_quantities(x, op)        
 

@@ -19,8 +19,8 @@ class LcapyTester(unittest.TestCase):
     def test_tdomain_mul(self):
 
         v = voltage(5 * t)
-        self.assertEqual(v * 3, 15 * t, "v(t) * const")
-        self.assertEqual(3 * v, 15 * t, "const * v(t)")
+        self.assertEqual(v * 3, voltage(15 * t), "v(t) * const")
+        self.assertEqual(3 * v, voltage(15 * t), "const * v(t)")
 
     def test_sdomain_mul(self):
         
@@ -32,10 +32,10 @@ class LcapyTester(unittest.TestCase):
         U = sexpr(2)
         C = cexpr(3)
         
-        self.assertEqual(V * 3, 15 / s, "V(s) * const")
-        self.assertEqual(V * C, 15 / s, "V(s) * const")        
-        self.assertEqual(3 * V, 15 / s, "const * V(s)")
-        self.assertEqual(C * V, 15 / s, "const * V(s)")        
+        self.assertEqual(V * 3, voltage(15 / s), "V(s) * const")
+        self.assertEqual(V * C, voltage(15 / s), "V(s) * const")        
+        self.assertEqual(3 * V, voltage(15 / s), "const * V(s)")
+        self.assertEqual(C * V, voltage(15 / s), "const * V(s)")        
         self.assertEqual(Y * V, I, "Y(s) * V(s)")
         self.assertEqual(V * Y, I, "V(s) * Y(s)")
         self.assertEqual(I * Z, V, "I(s) * Z(s)")
@@ -56,10 +56,10 @@ class LcapyTester(unittest.TestCase):
         U = fexpr(2)
         C = cexpr(3)
         
-        self.assertEqual(V * 3, 15 / f, "V(f) * const")
-        self.assertEqual(V * C, 15 / f, "V(f) * const")
-        self.assertEqual(3 * V, 15 / f, "const * V(f)")
-        self.assertEqual(C * V, 15 / f, "const * V(f)")        
+        self.assertEqual(V * 3, voltage(15 / f), "V(f) * const")
+        self.assertEqual(V * C, voltage(15 / f), "V(f) * const")
+        self.assertEqual(3 * V, voltage(15 / f), "const * V(f)")
+        self.assertEqual(C * V, voltage(15 / f), "const * V(f)")        
         self.assertEqual(Y * V, I, "Y(f) * V(f)")
         self.assertEqual(V * Y, I, "V(f) * Y(f)")
         self.assertEqual(I * Z, V, "I(f) * Z(f)")
@@ -84,7 +84,7 @@ class LcapyTester(unittest.TestCase):
         H = transfer(sexpr(10))
         U = sexpr(2)        
         
-        self.assertEqual(V / 5, 1 / s, "V(s) / 5")
+        self.assertEqual(V / 5, voltage(1 / s), "V(s) / 5")
         self.assertEqual(V / Z, I, "V(s) / Z(s)")
         self.assertEqual(I / Y, V, "I(s) / Y(s)")
         self.assertEqual(I / H, current(sexpr(1 / 2)), "I(s) / H(s)")

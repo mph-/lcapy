@@ -206,13 +206,13 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.Igain(1, 2), -1, "Igain 1->2 incorrect.")
         self.assertEqual(a.Igain(2, 1), -0.75, "Igain 2->1 incorrect.")
         self.assertEqual(
-            a.Vresponse(Vdc(1), 1, 2), 0.75 / s, "Vresponse 1->2 incorrect.")
+            a.Vresponse(Vdc(1), 1, 2), voltage(0.75 / s), "Vresponse 1->2 incorrect.")
         self.assertEqual(
-            a.Vresponse(Vdc(1), 2, 1), 1 / s, "Vresponse 2->1 incorrect.")
+            a.Vresponse(Vdc(1), 2, 1), voltage(1 / s), "Vresponse 2->1 incorrect.")
         self.assertEqual(
-            a.Iresponse(Idc(1), 1, 2), -1 / s, "Iresponse 1->2 incorrect.")
+            a.Iresponse(Idc(1), 1, 2), current(-1 / s), "Iresponse 1->2 incorrect.")
         self.assertEqual(
-            a.Iresponse(Idc(1), 2, 1), -0.75 / s, "Iresponse 2->1 incorrect.")
+            a.Iresponse(Idc(1), 2, 1), current(-0.75 / s), "Iresponse 2->1 incorrect.")
 
         b = a.load(R(30))
         self.assertEqual(b.Z, impedance(25), "R loaded Z incorrect.")

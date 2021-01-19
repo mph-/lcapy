@@ -73,11 +73,11 @@ class LcapyTester(unittest.TestCase):
     def test_voltage_transform(self):
 
         V1 = SuperpositionVoltage('3 * exp(-2 * t)')
-        self.assertEqual(V1.transform(s), 3 / (s + 2), 'transform(s)')        
+        self.assertEqual(V1.transform(s), voltage(3 / (s + 2)), 'transform(s)')        
 
         V2 = SuperpositionVoltage('3 * exp(-2 * t) * u(t)')
-        self.assertEqual(V2.transform(s), 3 / (s + 2), 'transform(s)')        
-        self.assertEqual(simplify(V2.transform(f) - 3 / (j * 2 * pi * f + 2)), 0, 'transform(f)')                
+        self.assertEqual(V2.transform(s), voltage(3 / (s + 2)), 'transform(s)')        
+        self.assertEqual(simplify(V2.transform(f) - voltage(3 / (j * 2 * pi * f + 2))), 0, 'transform(f)')                
         
     def test_voltage_subs(self):
 
@@ -89,8 +89,8 @@ class LcapyTester(unittest.TestCase):
     def test_voltage_decompose(self):
 
         V1 = SuperpositionVoltage('1 + 3 * u(t) + cos(2 * pi * 3 * t)')
-        self.assertEqual(V1.dc, 1, '.dc')
-        self.assertEqual(V1.transient, expr('3 * u(t)'), '.transient')
+        self.assertEqual(V1.dc, voltage(1), '.dc')
+        self.assertEqual(V1.transient, voltage('3 * u(t)'), '.transient')
 
     def test_voltage_oneport(self):
 

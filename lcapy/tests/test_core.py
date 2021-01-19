@@ -333,11 +333,14 @@ class LcapyTester(unittest.TestCase):
         v = LaplaceDomainVoltage(10)
         #self.assertEqual(type(10 + v), LaplaceDomainVoltage, "Not Vs")
         #self.assertEqual(type(v + 10), LaplaceDomainVoltage, "Not Vs")
-        self.assertEqual(type(LaplaceDomainExpression(10) + v), LaplaceDomainVoltage, "Not Vs")
-        self.assertEqual(type(v + LaplaceDomainExpression(10)), LaplaceDomainVoltage, "Not Vs")
 
         self.assertEqual(type(omega * t), TimeDomainExpression, "Not tExpr")
-        self.assertEqual(type(t * omega), TimeDomainExpression, "Not tExpr")                
+        self.assertEqual(type(t * omega), TimeDomainExpression, "Not tExpr")
+
+        state.loose_units = True
+        self.assertEqual(type(LaplaceDomainExpression(10) + v), LaplaceDomainVoltage, "Not Vs")
+        self.assertEqual(type(v + LaplaceDomainExpression(10)), LaplaceDomainVoltage, "Not Vs")
+        state.loose_units = False
 
     def test_evaluate(self):
         """Lcapy: check evaluate

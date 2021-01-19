@@ -25,8 +25,8 @@ class LcapyTester(unittest.TestCase):
 
         """
         a = R(10)
-        self.assertEqual(a.Z, 10, "Z incorrect.")
-        self.assertEqual(a.Y * 10, 1, "Y incorrect.")        
+        self.assertEqual(a.Z, impedance(10), "Z incorrect.")
+        self.assertEqual(a.Y * 10, admittance(1), "Y incorrect.")        
         self.assertEqual2(a.Voc, 0, "Voc incorrect.")
         self.assertEqual2(a.Isc, 0, "Isc incorrect.")
         self.assertEqual2(a.voc, 0, "voc incorrect.")
@@ -63,8 +63,8 @@ class LcapyTester(unittest.TestCase):
         """
         a = R(10) + R(5)
         b = a.simplify()
-        self.assertEqual2(b.R, 15, "R incorrect.")
-        self.assertEqual2(b.Z, 15, "Z incorrect.")
+        self.assertEqual2(b.R, impedance(15), "R incorrect.")
+        self.assertEqual2(b.Z, impedance(15), "Z incorrect.")
         self.assertEqual(b.Voc, 0, "Voc incorrect.")
         self.assertEqual(b.Isc, 0, "Isc incorrect.")                
         self.assertEqual2(type(b), R, "type incorrect.")
@@ -98,9 +98,9 @@ class LcapyTester(unittest.TestCase):
         a = Vdc(10) + Vdc(5)
         b = a.simplify()
         self.assertEqual2(b.voc, Vdc(15).voc, "voc incorrect.")
-        self.assertEqual(b.Voc.dc, 15, "Voc incorrect.")
+        self.assertEqual(b.Voc.dc, voltage(15), "Voc incorrect.")
         self.assertEqual2(type(b), Vdc, "type incorrect.")
-        self.assertEqual2(b.voc, 15, "voc incorrect.")
+        self.assertEqual2(b.voc, voltage(15), "voc incorrect.")
 
     def test_Vdc_series_R(self):
         """Lcapy: check Vdc + R
@@ -128,16 +128,16 @@ class LcapyTester(unittest.TestCase):
         """
         a = Vac(10) + R(5)
         self.assertEqual2(a.voc, Vac(10).voc, "voc incorrect.")
-        self.assertEqual(a.Voc.ac[omega0sym], PhasorTimeDomainExpression(10), "Voc incorrect.")
-        self.assertEqual(a.V.ac[omega0sym], PhasorTimeDomainExpression(10), "Voc incorrect.")
+        self.assertEqual(a.Voc.ac[omega0sym], phasorvoltage(10), "Voc incorrect.")
+        self.assertEqual(a.V.ac[omega0sym], phasorvoltage(10), "Voc incorrect.")
         self.assertEqual(a.I, 0, "I incorrect.")
         self.assertEqual(a.v(0), voltage(10), "Voc incorrect.")                
         self.assertEqual(a.i(0), 0, "I incorrect.")                
 
         b = a.norton()
         self.assertEqual2(b.voc, Vac(10).voc, "voc incorrect.")
-        self.assertEqual(b.Voc.ac[omega0sym], PhasorTimeDomainExpression(10), "Voc incorrect.")
-        self.assertEqual(b.V.ac[omega0sym], PhasorTimeDomainExpression(10), "Voc incorrect.")
+        self.assertEqual(b.Voc.ac[omega0sym], phasorvoltage(10), "Voc incorrect.")
+        self.assertEqual(b.V.ac[omega0sym], phasorvoltage(10), "Voc incorrect.")
         self.assertEqual(b.I, 0, "I incorrect.")
         self.assertEqual(b.v(0), voltage(10), "Voc incorrect.")                
         self.assertEqual(b.i(0), 0, "I incorrect.")        
@@ -155,8 +155,8 @@ class LcapyTester(unittest.TestCase):
         """
         a = R(10) | R(15)
         b = a.simplify()
-        self.assertEqual2(b.R, 6, "R incorrect.")
-        self.assertEqual2(b.Z, 6, "Z incorrect.")
+        self.assertEqual2(b.R, impedance(6), "R incorrect.")
+        self.assertEqual2(b.Z, impedance(6), "Z incorrect.")
         self.assertEqual2(type(b), R, "type incorrect.")
 
     def test_L_parallel_L(self):
@@ -166,7 +166,7 @@ class LcapyTester(unittest.TestCase):
         a = L(10) | L(15)
         b = a.simplify()
         self.assertEqual2(b.L, 6, "L incorrect.")
-        self.assertEqual2(b.Z(s), 6 * s, "Zs incorrect.")
+        self.assertEqual2(b.Z(s), impedance(6 * s), "Zs incorrect.")
         self.assertEqual2(type(b), L, "type incorrect.")
 
     def test_C_parallel_C(self):
@@ -176,7 +176,7 @@ class LcapyTester(unittest.TestCase):
         a = C(10) | C(15)
         b = a.simplify()
         self.assertEqual2(b.C, 25, "C incorrect.")
-        self.assertEqual2(b.Z(s), 1 / (25 * s), "Zs incorrect.")
+        self.assertEqual2(b.Z(s), impedance(1 / (25 * s)), "Zs incorrect.")
         self.assertEqual2(type(b), C, "type incorrect.")
 
     def test_I_parallel_I(self):
@@ -186,9 +186,9 @@ class LcapyTester(unittest.TestCase):
         a = Idc(10) | Idc(5)
         b = a.simplify()
         self.assertEqual2(b.isc, Idc(15).isc, "isc incorrect.")
-        self.assertEqual2(b.Isc.dc, 15, "Isc incorrect.")
+        self.assertEqual2(b.Isc.dc, current(15), "Isc incorrect.")
         self.assertEqual2(type(b), Idc, "type incorrect.")
-        self.assertEqual2(b.isc, 15, "isc incorrect.")
+        self.assertEqual2(b.isc, current(15), "isc incorrect.")
 
     def test_load(self):
         """Lcapy: check load

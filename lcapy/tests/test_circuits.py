@@ -192,7 +192,7 @@ class LcapyTester(unittest.TestCase):
         a.add('H1 1 0 H1 -4')
         t = a.thevenin(1, 0)
         self.assertEqual(t.V, 0, "Incorrect Thevenin voltage")
-        self.assertEqual(t.Z, -4, "Incorrect Thevenin impedance")
+        self.assertEqual(t.Z, impedance(-4), "Incorrect Thevenin impedance")
         self.assertEqual(a.H1.Voc, 0, "Incorrect cpt voltage")
         self.assertEqual(a.H1.Z, 0, "Incorrect cpt impedance")         
 
@@ -313,7 +313,7 @@ class LcapyTester(unittest.TestCase):
         a.add('W 0 3; right')
 
         self.assertEqual(a.sub['s'].is_causal, True, "Causal incorrect")
-        self.assertEqual2(a.L1.v, 2 * exp(-t) * u(t), "L current incorrect")
+        self.assertEqual2(a.L1.v, voltage(2 * exp(-t) * u(t)), "L current incorrect")
 
     def test_VR1_ac2(self):
         """Lcapy: check VR circuit at ac for angular frequency 1
