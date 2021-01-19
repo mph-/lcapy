@@ -6,4 +6,7 @@ class TransferMixin(Quantity):
     quantity_label = 'Transfer function'
     units = ''
     is_always_causal = True
+    # FIXME, non causal transfer functions can be constructed
+    # but they won't result from circuit analysis.
     is_transfer = True
+    is_ratio = True    

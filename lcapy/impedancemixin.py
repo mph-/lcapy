@@ -9,6 +9,7 @@ class ImpedanceMixin(Quantity, ImmittanceMixin):
     units = 'ohm'
     is_impedance = True
     is_immitance = True
+    is_ratio = True
 
     # Immittances derived from a realisable circuit will be causal but
     # non-causal immittances can also be constructed.  So this might

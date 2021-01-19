@@ -20,6 +20,7 @@ class Quantity(object):
     is_currentsquared = False
     is_impedancesquared = False
     is_admittancesquared = False
+    is_ratio = False
     part = ''
 
 
