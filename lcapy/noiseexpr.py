@@ -52,7 +52,9 @@ class NoiseExpression(Expr):
 
     def __init__(self, val, **assumptions):
         if 'nid' not in assumptions or assumptions['nid'] is None:
-            if val == 0:
+            if isinstance(val, NoiseExpression):
+                nid = val.nid
+            elif val == 0:
                 assumptions['nid'] = 'n0'
             else:
                 assumptions['nid'] = self._new_nid()

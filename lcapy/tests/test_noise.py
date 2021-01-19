@@ -59,13 +59,13 @@ class LcapyTester(unittest.TestCase):
         """Lcapy: check circuit filtered noise"""
 
         a = Circuit()
-        a.add('V1 1 0 noise {sqrt(4 * k_b * T * R)}') 
+        a.add('V1 1 0 noise {sqrt(4 * k_B * T * R)}') 
         a.add('R1 1 2 R')
         a.add('C1 2 0 C')
         # FIXME
-        #self.assertEqual2(a.C1.V.n.rms(), TimeDomainVoltage('sqrt(k_b * T / C)'),
+        #self.assertEqual2(a.C1.V.n.rms(), TimeDomainVoltage('sqrt(k_B * T / C)'),
         #                  "Incorrect capacitor voltage")
-        self.assertEqual2(a.C1.V.n.rms(), TimeDomainExpression('sqrt(k_b * T / C)'),
+        self.assertEqual2(a.C1.V.n.rms(), TimeDomainExpression('sqrt(k_B * T / C)'),
                           "Incorrect capacitor voltage")        
 
     def test_filtered_noise3(self):
@@ -134,14 +134,20 @@ class LcapyTester(unittest.TestCase):
         
     def test_noisecurrent(self):
 
-        V1 = noisecurrent(1)
-        self.assertEqual(V1.is_fourier_noise_domain, True, 'check domain')
-        self.assertEqual(V1.is_current, True, 'check quantity')
+        I1 = noisecurrent(1)
+        self.assertEqual(I1.is_fourier_noise_domain, True, 'check domain')
+        self.assertEqual(I1.is_current, True, 'check quantity')
 
-        V2 = noisecurrent(1 / f)
-        self.assertEqual(V2.is_fourier_noise_domain, True, 'check domain')
+        I2 = noisecurrent(1 / f)
+        self.assertEqual(I2.is_fourier_noise_domain, True, 'check domain')
 
-        V3 = noisecurrent(1 / omega)
-        self.assertEqual(V3.is_angular_fourier_noise_domain, True, 'check domain')        
+        I3 = noisecurrent(1 / omega)
+        self.assertEqual(I3.is_angular_fourier_noise_domain, True, 'check domain')        
 
-                
+    def test_noisevoltage_init(self):
+
+        V1 = noisevoltage(1)
+        # Check that nid copied
+        V2 = V1.as_voltage()
+
+        self.assertEqual(V1, V2, 'as_voltage')        
