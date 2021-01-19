@@ -357,6 +357,24 @@ By default, units are be printed in abbreviated form.  To print in long form use
    >>> state.abbreviated_units = False
 
 
+The units as a function of quantity and domain are::   
+
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
+    | Quantity/Domain   | dc  | t     | s       | f    | omega   | jomega | n   | k   | z   |
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
+    | Voltage           | V   | V     | V/rad/s | V/Hz | V/rad/s | V      | V   | V   | V   |
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
+    | Current           | A   | A     | A/rad/s | A/Hz | A/rad/s | A      | A   | A   | A   |
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
+    | Impedance         | ohm | ohm/s | ohm     | ohm  | ohm     | ohm    | ohm | ohm | ohm |
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
+    | Admittance        | S   | S/s   | S       | S    | S       | S      | S   | S   | S   |
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
+    | Transfer function | 1   | 1     | 1       | 1    | 1       | 1      | 1   | 1   | 1   |
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
+
+   
+
 .. _expressionsrationalfunctions:
    
 Rational functions
