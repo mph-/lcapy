@@ -1240,7 +1240,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         The denominator is chosen so that it is a polynomial."""
 
         N, D = self.as_N_D()
-        return N.as_expr()
+        return N
 
     @property
     def denominator(self):
@@ -1248,7 +1248,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         The denominator is chosen so that it is a polynomial."""
 
         N, D = self.as_N_D()
-        return D.as_expr()
+        return D
 
     def rationalize_denominator(self):
         """Rationalize denominator by multiplying numerator and denominator by
@@ -2271,7 +2271,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         D =  s⋅(L⋅s + R)"""
 
         N, D = as_N_D(self.expr, self.var, monic_denominator)
-        return self.__class__(N, **self.assumptions), self.__class__(D, **self.assumptions)
+
+        # Strip quantity and assumptions
+        cls = self._class_by_quantity('undefined')
+        return cls(N), cls(D)
 
     def as_sum(self):
         """Responses due to a sum of delayed transient responses
