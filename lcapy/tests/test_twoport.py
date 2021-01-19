@@ -137,7 +137,7 @@ class LcapyTester(unittest.TestCase):
         b = a.open_circuit()
 
         self.assertEqual(b.Z, impedance(10), "incorrect Z.")
-        self.assertEqual(b.Voc.s, voltage(5 / s), "incorrect V.")
+        self.assertEqual(b.Voc(s), voltage(5 / s), "incorrect V.")
 
     def test_short_circuit(self):
         """Lcapy: check short_circuit
@@ -148,7 +148,7 @@ class LcapyTester(unittest.TestCase):
         b = a.short_circuit()
 
         self.assertEqual(b.Z, impedance(10), "incorrect Z.")
-        self.assertEqual(b.Voc.s, voltage(5 / s), "incorrect V.")
+        self.assertEqual(b.Voc(s), voltage(5 / s), "incorrect V.")
 
     def test_Shunt(self):
         """Lcapys: check Shunt
@@ -220,7 +220,7 @@ class LcapyTester(unittest.TestCase):
 
         c = a.load(R(30) + Vdc(5))
         self.assertEqual(c.Z, impedance(25), "T loaded Z incorrect.")
-        self.assertEqual(c.Voc.s, voltage(2.5 / s), "T loaded V incorrect.")
+        self.assertEqual(c.Voc(s), voltage(2.5 / s), "T loaded V incorrect.")
 
         d = LSection(R(10), R(30) + Vdc(6))
         self.assertEqual(d.Vgain12, 0.75, "Vgain12 incorrect.")
@@ -282,7 +282,7 @@ class LcapyTester(unittest.TestCase):
         b = a.open_circuit()
 
         self.assertEqual(b.Z, impedance(10), "incorrect Z.")
-        self.assertEqual(b.Voc.s, voltage(5 / s), "incorrect V.")
+        self.assertEqual(b.Voc(s), voltage(5 / s), "incorrect V.")
 
     def test_short_circuit(self):
         """Lcapys: check short_circuit
@@ -293,7 +293,7 @@ class LcapyTester(unittest.TestCase):
         b = a.short_circuit()
 
         self.assertEqual(b.Z, impedance(10), "incorrect Z.")
-        self.assertEqual(b.Voc.s, voltage(5 / s), "incorrect V.")
+        self.assertEqual(b.Voc(s), voltage(5 / s), "incorrect V.")
 
     def test_LSection_models(self):
         """Lcapys: check LSection models
