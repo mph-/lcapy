@@ -61,6 +61,10 @@ class Superposition(SuperpositionDomain, ExprDict):
         super (Superposition, self).__init__()
 
         for arg in args:
+
+            if not isinstance(arg, (Superposition)):
+                arg = expr(arg).as_quantity(self.quantity)
+            
             self.add(arg)
 
     def _representation(self):
@@ -390,8 +394,9 @@ class Superposition(SuperpositionDomain, ExprDict):
         
         # Extract DC components
         dc = expr.expr.coeff(tsym, 0)
+        dc = ConstantDomainExpression(dc).as_quantity(self.quantity)
         if dc != 0:
-            result['dc'] = ConstantDomainExpression(dc)
+            result['dc'] = dc
             expr -= dc
 
         if expr == 0:
