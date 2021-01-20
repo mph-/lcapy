@@ -813,11 +813,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if not isinstance(x, Expr):
             x = expr(x)
 
-        if state.track_units:
-            value, unit = self.as_value_unit()
-            valuex, unitx = x.as_value_unit()
-            if unit != unitx:
-                self._incompatible(x, op, ' since the units %s are incompatible with %s' % (unit, unitx))
+        if False and state.check_units:
+            # Need to allow rad and 1.  Also need to support loose_units.
+            if self.units != x.units and self.expr !=0 and x.expr != 0:
+                self._incompatible(x, op, ' since the units %s are incompatible with %s' % (self.units, x.units))
 
         cls = self.__class__
         xcls = x.__class__
@@ -923,20 +922,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         else:
             cls = self._class_by_quantity(quantity)
 
-        if state.track_units:
-            from .units import units
-            
-            value, unit = self.as_value_unit()
-            valuex, unitx = x.as_value_unit()
-            value *= valuex
-
-            result = cls(value, **assumptions)        
-            result = result.apply_unit(units.simplify_units(unit * unitx))
-
-        else:
-            value = self.expr * x.expr
-            result = cls(value, **assumptions)
-
+        value = self.expr * x.expr
+        result = cls(value, **assumptions)        
+        result.units = units.simplify_units(self.units * x.units)
         return result
     
     def __rmul__(self, x):
@@ -983,19 +971,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         else:
             cls = self._class_by_quantity(quantity)
 
-        if state.track_units:
-            from .units import units
-            
-            value, unit = self.as_value_unit()
-            valuex, unitx = x.as_value_unit()
-            value /= valuex
-
-            result = cls(value, **assumptions)        
-            result = result.apply_unit(units.simplify_units(unit / unitx))
-
-        else:
-            value = self.expr / x.expr
-            result = cls(value, **assumptions)
+        value = self.expr / x.expr
+        result = cls(value, **assumptions)        
+        result.units = units.simplify_units(self.units / x.units)            
 
         return result
             
@@ -1711,14 +1689,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Simplify expression."""
 
         ret = symsimplify(self.expr)
-        ret = units.simplify(ret)
         return self.__class__(ret, **self.assumptions)
 
     def simplify_units(self):
         """Simplify units."""
 
-        ret = units.simplify(self.expr)
-        return self.__class__(ret, **self.assumptions)    
+        ret = self.__class__(self, **self.assumptions)
+        ret.units = units.simplify(self.units)
+        return ret
 
     def simplify_terms(self):
         """Simplify terms in expression individually."""
@@ -2236,30 +2214,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self.__class__(expr, **self.assumptions)
 
-    def multiply_unit(self, unit):
-        """Multiply expression by unit if `state.track_units` True."""
-
-        if not state.track_units:
-            return self
-
-        # Strip existing units
-        value, unit1 = units.as_value_unit(self.expr)
-
-        ret = value * unit1 * unit
-        return self.__class__(ret, **self.assumptions)    
-
-    def apply_unit(self, unit):
-        """Apply unit to expression if `state.track_units` True."""
-
-        if not state.track_units:
-            return self
-
-        # Strip existing units
-        value, unit1 = units.as_value_unit(self.expr)
-
-        ret = value * unit
-        return self.__class__(ret, **self.assumptions)
-    
     def as_value_unit(self):
         """Return tuple of value and unit.  For example,
 

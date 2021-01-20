@@ -22,7 +22,7 @@ class LcapyTester(unittest.TestCase):
         ZC = C(3).Z
 
         self.assertEqual(ZC.Y(jw), admittance(3 * jw), '.Y(jw)')
-        self.assertEqual(ZC.Z(jw), admittance(-j / (3 * omega)), '.Z(jw)')        
+        self.assertEqual(ZC.Z(jw), impedance(-j / (3 * omega)), '.Z(jw)')        
         self.assertEqual(ZC.R(jw), 0, '.R(jw)')
         self.assertEqual(ZC.G(jw), 0, '.G(jw)')
         self.assertEqual(ZC.X(jw), impedance(-1 / (3 * omega)), '.X(jw)')

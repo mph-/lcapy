@@ -13,6 +13,7 @@ from sympy.physics.units import UnitSystem, Quantity
 from sympy import sqrt
 from sympy import S
 
+
 dB = Quantity('dB', 'dB')
 
 units_mapping = {
@@ -69,7 +70,15 @@ class Units(object):
         key = self._makekey(unit)
         if not key in self._mapping:
             return unit
-        return self._mapping[key]
+        result = self._mapping[key]
+
+        # V s or Wb?  In the context of Laplace transforms, V s makes more
+        # sense since the Laplace domain voltage has units (V / rad / s).
+        # However, for magnetic field strength, Wb makes more sense.  Since
+        # this is for circuit analysis we plump for V s.
+        if result.has(u.webers):
+            result = result.replace(u.webers, u.volt * u.s)
+        return result
 
     def simplify(self, expr):
 

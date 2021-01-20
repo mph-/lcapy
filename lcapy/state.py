@@ -8,7 +8,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 from sympy.assumptions.assume import global_assumptions
 
 from .context import Context
-from .config import track_units, abbreviate_units, loose_units, show_units
+from .config import check_units, abbreviate_units, loose_units, show_units
 from .printing import PrintingConfig
 from copy import copy
 
@@ -23,7 +23,7 @@ class State(object):
         # With loose_units can add constants to quantities, e.g., voltage(1) + 2
         # or impedance(2) == 2.
         self.loose_units = loose_units
-        self.track_units = track_units
+        self.check_units = check_units
         self.show_units = show_units
         self.printing.abbreviate_units = abbreviate_units
 
