@@ -22,7 +22,7 @@ from .sym import capitalize_name, tsym, symsymbol, symbol_map
 from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function
-from .units import units, u as uu
+from .units import units, u as uu, dB
 from .utils import as_N_D, as_sum
 from .state import state
 import numpy as np
@@ -39,10 +39,14 @@ class ExprPrint(object):
     @property
     def _pexpr(self):
         """Return expression for printing."""
-        
-        if hasattr(self, 'expr'):
-            return self.expr
-        return self
+
+        if not hasattr(self, 'expr'):
+            return self            
+
+        if state.show_units:
+            return self.expr * self.units
+        else:
+            return self.expr                
     
     def __repr__(self):
         """This is called by repr(expr).  It is used, e.g., when printing
@@ -77,7 +81,7 @@ class ExprPrint(object):
 
     def latex(self, **kwargs):
         """Make latex string."""
-        return latex(self, **kwargs)
+        return latex(self._pexpr, **kwargs)
 
     def latex_math(self, **kwargs):
         """Make latex math-mode string."""
@@ -306,7 +310,14 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     @property
     def _pexpr(self):
         """Return expression for printing."""
-        return self.expr
+
+        if not hasattr(self, 'expr'):
+            return self
+        
+        if state.show_units:
+            return self.expr * self.units
+        else:
+            return self.expr                
 
     def __init__(self, arg, **assumptions):
         """
@@ -328,6 +339,10 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
             
             self.assumptions = ass.merge(**assumptions)
             self.expr = arg.expr
+            try:
+                self.units = self._units
+            except:
+                self.units = sym.S.One
             return
 
         assumptions = Assumptions(assumptions)
@@ -341,6 +356,11 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         self.assumptions = assumptions
         # Remove Lcapy assumptions from SymPy expr.
         self.expr = sympify(arg, **self.assumptions.sympy_assumptions())
+        try:
+            self.units = self._units
+        except:
+            self.units = sym.S.One        
+
 
     def _class_by_quantity(self, quantity, domain=None):
 
@@ -584,11 +604,11 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
 
     @property
     def is_phase_radians(self):
-        return self.part == 'phase' and self.units == 'rad'
+        return self.part == 'phase' and self.units == uu.rad
 
     @property
     def is_phase_degrees(self):
-        return self.part == 'phase' and self.units == 'degrees'
+        return self.part == 'phase' and self.units == uu.deg
 
     @property
     def is_real_part(self):
@@ -604,7 +624,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
 
     @property
     def is_dB(self):
-        return self.part == 'magnitude' and self.units == 'dB'
+        return self.part == 'magnitude' and self.units == dB
     
     @property
     def fval(self):
@@ -1340,7 +1360,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         # Assume reference is 1.
         dst = 20 * log10(self.magnitude)
         dst.part = 'magnitude'
-        dst.units = 'dB'
+        dst.units = dB
         return dst
 
     @property
@@ -1365,7 +1385,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             dst = atan2(N.imag, N.real)
 
         dst.part = 'phase'
-        dst.units = 'rad'
+        dst.units = uu.rad
         return dst
 
     @property
@@ -1374,7 +1394,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         dst = self.phase * 180.0 / sym.pi
         dst.part = 'phase'
-        dst.units = 'degrees'
+        dst.units = uu.deg
         return dst
 
     @property

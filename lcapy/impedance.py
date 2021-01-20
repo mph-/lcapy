@@ -6,7 +6,6 @@ Copyright 2019--2020 Michael Hayes, UCECE
 from __future__ import division
 from .expr import expr
 from .sexpr import LaplaceDomainExpression
-from .units import u as uu
 
 
 def impedance(arg, **assumptions):
@@ -29,5 +28,5 @@ def impedance(arg, **assumptions):
     except:    
         raise ValueError('Cannot represent %s(%s) as impedance' % (expr1.__class__.__name__, expr1))
         
-    return expr1.apply_unit(uu.ohms)    
+    return expr1
     

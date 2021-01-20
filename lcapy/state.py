@@ -8,7 +8,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 from sympy.assumptions.assume import global_assumptions
 
 from .context import Context
-from .config import track_units, abbreviate_units, loose_units
+from .config import track_units, abbreviate_units, loose_units, show_units
 from .printing import PrintingConfig
 from copy import copy
 
@@ -24,6 +24,7 @@ class State(object):
         # or impedance(2) == 2.
         self.loose_units = loose_units
         self.track_units = track_units
+        self.show_units = show_units
         self.printing.abbreviate_units = abbreviate_units
 
     def new_context(self):

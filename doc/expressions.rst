@@ -302,21 +302,27 @@ Units
 Expressions have an attribute `units` that reflect the quantity and domain.  For example::
 
   >>> voltage(7).units
-  'V'
+  V
   >>> voltage(7 * f).units
-  'V/Hz'
+  V 
+  ──
+  Hz
   >>> voltage(7 / s).units
-  'V/rad/s'
+  V⋅s
+  ───
+  rad
   >>> voltage(7 * s).units
-  'V/rad/s'    
+  V⋅s
+  ───
+  rad
 
 Note, the units are not a function of the order domain variable but of
-the domain (note, constant scale factors can have units).
+the domain (note, constant scale factors can have units).  The units are a SymPy Expression and thus can be formatted as a string, LaTeX, etc.
 
 Unit determination goes awry when mathematical functions are used.  For example::
 
    >>> log(voltage(7)).units
-  'V'
+   V
 
 This is due to a failure in quantity tracking::
 
@@ -359,20 +365,21 @@ By default, units are be printed in abbreviated form.  To print in long form use
 
 The units as a function of quantity and domain are::   
 
-    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
-    | Quantity/Domain   | dc  | t     | s       | f    | omega   | jomega | n   | k   | z   |
-    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
-    | Voltage           | V   | V     | V/rad/s | V/Hz | V/rad/s | V      | V   | V   | V   |
-    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
-    | Current           | A   | A     | A/rad/s | A/Hz | A/rad/s | A      | A   | A   | A   |
-    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
-    | Impedance         | ohm | ohm/s | ohm     | ohm  | ohm     | ohm    | ohm | ohm | ohm |
-    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
-    | Admittance        | S   | S/s   | S       | S    | S       | S      | S   | S   | S   |
-    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
-    | Transfer function | 1   | 1     | 1       | 1    | 1       | 1      | 1   | 1   | 1   |
-    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+-----------+
+    | Quantity/Domain   | dc  | t     | s       | f    | omega   | jomega | n   | k   | z   | noise f   |
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+-----------+
+    | Voltage           | V   | V     | V/rad/s | V/Hz | V/rad/s | V      | V   | V   | V   | V/sqrt(Hz)|
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+-----------+
+    | Current           | A   | A     | A/rad/s | A/Hz | A/rad/s | A      | A   | A   | A   | A/sqrt(Hz)|
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+-----------+
+    | Impedance         | ohm | ohm/s | ohm     | ohm  | ohm     | ohm    | ohm | ohm | ohm |           |
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+-----------+
+    | Admittance        | S   | S/s   | S       | S    | S       | S      | S   | S   | S   |           |
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+-----------+
+    | Transfer function | 1   | 1     | 1       | 1    | 1       | 1      | 1   | 1   | 1   |           |
+    +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+-----------+
 
+Note, the transfer functions are assumed to be voltage or current ratios in the Laplace and Fourier domains.  Volatge and current ratios are represented by impedances and admittance.    
    
 
 .. _expressionsrationalfunctions:

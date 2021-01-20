@@ -9,7 +9,25 @@ Copyright 2020--2021 Michael Hayes, UCECE
 import sympy.physics.units as u
 from sympy.physics.units.systems.si import dimsys_SI
 from sympy.physics.units.systems import SI 
-from sympy.physics.units import UnitSystem
+from sympy.physics.units import UnitSystem, Quantity
+from sympy import sqrt
+from sympy import S
+
+dB = Quantity('dB', 'dB')
+
+units_mapping = {
+    '': S.One,
+    'V': u.volt, 'A': u.ampere, 
+    'V/Hz': u.volt / u.Hz, 'A/Hz': u.ampere / u.Hz,
+    'V/rad/s': u.volt / (u.rad / u.s) , 'A/rad/s': u.ampere / (u.rad / u.s),    
+    'V/sqrt(Hz)': u.volt / sqrt(u.Hz), 'A/sqrt(Hz)': u.ampere / sqrt(u.Hz),
+    'ohm': u.ohm, 'S': u.siemens,
+    'ohm/s': u.ohm / u.s, 'S/s': u.siemens / u.s,
+    'ohm^2/s^2': (u.ohm / u.s)**2, 'S^2/s^2': (u.siemens / u.s)**2,    
+    'V^2': u.volt**2, 'A^2': u.ampere**2, 
+    'V^2/Hz^2': (u.volt / u.Hz)**2, 'A^2/Hz^2': (u.ampere / u.Hz)**2,
+    'V^2/(rad/s)^2': (u.volt / (u.rad / u.s)) ** 2, 'A^2/(rad/s^2)': (u.ampere / (u.rad / u.s))**2,        
+    'ohm^2': u.ohm**2, 'S^2': u.siemens**2}
 
 
 class Units(object):
@@ -60,6 +78,9 @@ class Units(object):
 
     def as_value_unit(self, expr):
         return as_value_unit(expr)
+
+    def by_name(self, name):
+        return units_mapping[name]
 
     
 def as_value_unit(expr):

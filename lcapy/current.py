@@ -4,7 +4,6 @@ Copyright 2020 Michael Hayes, UCECE
 
 """
 from .expr import expr
-from .units import u as uu
 from .classmap import domain_kind_to_symbol, domain_kind_quantity_to_class
 
 def Iname(name, kind, cache=False):
@@ -46,7 +45,7 @@ def current(arg, **assumptions):
     except:        
         raise ValueError('Cannot represent %s(%s) as current' % (expr1.__class__.__name__, expr1))
 
-    return expr1.apply_unit(uu.amperes)
+    return expr1
 
 
 def noisecurrent(arg, **assumptions):

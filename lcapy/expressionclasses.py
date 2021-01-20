@@ -16,6 +16,7 @@ from .currentsquaredmixin import CurrentSquaredMixin
 from .admittancesquaredmixin import AdmittanceSquaredMixin
 from .impedancesquaredmixin import ImpedanceSquaredMixin
 from .powermixin import PowerMixin
+from .units import units
 
 
 quantityclasses = {'voltage': VoltageMixin,
@@ -50,23 +51,23 @@ class ExpressionClassBuilder(dict):
             
         domainunits = domainclass.domain_units
 
-        units = quantityunits            
+        unitsstring = quantityunits            
         if quantity in ('voltage', 'current'):
             if (domainclass.is_laplace_domain or
                 domainclass.is_fourier_domain or
                 domainclass.is_angular_fourier_domain):
-                units = '%s/%s' % (quantityunits, domainunits)
+                unitsstring = '%s/%s' % (quantityunits, domainunits)
         elif quantity in ('voltagesquared', 'currentsquared'):
             if (domainclass.is_laplace_domain or
                 domainclass.is_fourier_domain or
                 domainclass.is_angular_fourier_domain):                
-                units = '%s/%s^2' % (quantityunits, domainunits)
+                unitsstring = '%s/%s^2' % (quantityunits, domainunits)
         elif quantity in ('impedance', 'admittance'):
             if domainclass.is_time_domain:
-                units = '%s/%s' % (quantityunits, domainunits)
+                unitsstring = '%s/%s' % (quantityunits, domainunits)
         elif quantity in ('admittancesquared', 'impedancesquared'):
             if domainclass.is_time_domain:
-                units = '%s/%s^2' % (quantityunits, domainunits)
+                unitsstring = '%s/%s^2' % (quantityunits, domainunits)
 
         # FIXME:  The units of squared quantities are incorrect under transformation
         # to another domain.  For example, v1(t) * v2(t) has units V^2,
@@ -74,14 +75,14 @@ class ExpressionClassBuilder(dict):
         # and (V1(f) * V2(f))(t) has units V^2/Hz.
                         
         docstring = '%s-domain %s (units %s).' % (domainclass.domain_label,
-                                                  quantity, units)
+                                                  quantity, unitsstring)
 
         suffix = 'Expression'
         name = domainclass.__name__.replace(suffix, quantityclass.quantity.capitalize())
             
         newclass = type(name, (quantityclass, domainclass),
                             {'__doc__': docstring,
-                             'units': units})
+                             '_units': units.by_name(unitsstring)})
         self[quantity] = newclass
 
         #print('Created %s %s' % (self.domain, quantity))

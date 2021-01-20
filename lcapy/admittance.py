@@ -6,7 +6,6 @@ Copyright 2019-2020 Michael Hayes, UCECE
 from __future__ import division
 from .expr import expr
 from .sexpr import LaplaceDomainExpression
-from .units import u as uu
 
     
 def admittance(arg, **assumptions):
@@ -29,7 +28,5 @@ def admittance(arg, **assumptions):
     except:
         raise ValueError('Cannot represent %s(%s) as admittance' % (expr1.__class__.__name__, expr1))        
 
-    # Could use siemens but this causes comparison problems if
-    # unit simplification not performed.
-    return expr1.apply_unit(1 / uu.ohms)
+    return expr1
 
