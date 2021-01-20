@@ -239,6 +239,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
                     ('constant', 'constant'): 'constant',
                     ('voltage', 'voltage'): 'voltagesquared',
                     ('current', 'current'): 'currentsquared',
+                    ('admittance', 'impedance'): 'transfer',                    
                     ('admittance', 'admittance'): 'admittancesquared',
                     ('impedance', 'impedance'): 'impedancesquared',
                     ('voltage', 'current'): 'power',
