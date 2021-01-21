@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-#extensions = ['sphinx.ext.autodoc', 'sphinx.ext.pngmath']
+#extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath']
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.mathjax']
 
 # Add any paths that contain templates here, relative to this directory.
@@ -42,7 +42,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Lcapy'
-copyright = u'2014--2020, Michael Hayes'
+copyright = u'2014--2021, Michael Hayes'
 
 from lcapy import __version__
 print('Version ' + __version__)

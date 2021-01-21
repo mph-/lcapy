@@ -454,7 +454,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `is_causal` returns True if signal is causal, i.e, is 0 for :math:`t < 0`
 
-- `is_conditional` returns True if expression is conditional, e.g., :math:`\exp(-t)\;\; \ge 0`
+- `is_conditional` returns True if expression is conditional, e.g., :math:`\exp(-t)\;\; t \ge 0`
 
 - `is_constant` returns True if expression constant (it must have no free symbols, compare with `is_unchanging`)
 
@@ -538,7 +538,7 @@ Miscellaneous
 
 - `factor_term()` split into constant part and the rest.    
   
-- `final_value()` returns result at :math:`t = oo`.
+- `final_value()` returns result at :math:`t = \infty`.
 
 - `multiply_top_and_bottom(expr)` multiplies numerator and denominator by `expr`.
 
