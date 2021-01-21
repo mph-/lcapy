@@ -76,10 +76,12 @@ class LcapyTester(unittest.TestCase):
         
     def test_new_units(self):
 
-        from lcapy.state import state
-        #state.use_units = True
+        v = voltage(3)
+        i = current(4)
 
-        #v = voltage(42)
-        #value, unit = v.as_value_unit()
+        p = v * i
+
+        self.assertEqual(str(p.units), 'W', 'power')        
+
 
         

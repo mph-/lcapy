@@ -28,7 +28,8 @@ units_mapping = {
     'V^2': u.volt**2, 'A^2': u.ampere**2, 
     'V^2/Hz^2': (u.volt / u.Hz)**2, 'A^2/Hz^2': (u.ampere / u.Hz)**2,
     'V^2/(rad/s)^2': (u.volt / (u.rad / u.s)) ** 2, 'A^2/(rad/s^2)': (u.ampere / (u.rad / u.s))**2,        
-    'ohm^2': u.ohm**2, 'S^2': u.siemens**2}
+    'ohm^2': u.ohm**2, 'S^2': u.siemens**2,
+    'W': u.watt}
 
 
 class Units(object):
