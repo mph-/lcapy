@@ -10,6 +10,7 @@ from .domains import FourierDomain
 from .fourier import inverse_fourier_transform
 from .expr import Expr, expr
 from .sym import fsym, ssym, tsym, pi
+from .units import u as uu
 from sympy import Integral, Expr as symExpr
 
 class FourierDomainExpression(FourierDomain, Expr):
@@ -47,7 +48,7 @@ class FourierDomainExpression(FourierDomain, Expr):
 
         result = inverse_fourier_transform(self.expr, self.var, tsym, evaluate=evaluate)
 
-        return self.change(result, 'time')
+        return self.change(result, 'time', units_scale=uu.Hz, **assumptions)
 
     def IFT(self, **assumptions):
         """Convert to t-domain.   This is an alias for inverse_fourier."""

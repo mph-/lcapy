@@ -54,6 +54,6 @@ matrix_inverse_fallback_method = 'ADJ'
 
 # Default values
 loose_units = False
-check_units = True
+check_units = False
 show_units = False
 abbreviate_units = True

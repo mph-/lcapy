@@ -896,7 +896,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         # Try to convert immitance to a constant so that can handle I(t) * Z
         if x.is_immitance:
             try:
+                xunits = x.units
                 x = x.as_constant()
+                x.units = xunits
             except:
                 pass
 
@@ -2400,7 +2402,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result = foo(coeffs)
         return self.__class__(result, **self.assumptions)
 
-    def change(self, expr, domain=None, **assumptions):
+    def change(self, expr, domain=None, units_scale=None, **assumptions):
         """Change expression class."""
 
         if domain is None:
@@ -2409,7 +2411,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         quantity = self.quantity
 
         cls = self._class_by_quantity(quantity, domain)        
-        return cls(expr, **assumptions)
+        ret = cls(expr, **assumptions)
+
+        if units_scale is not None:
+            ret.units = self.units * units_scale
+            ret.simplify_units()
+        return ret
     
 
 def exprcontainer(arg, **assumptions):

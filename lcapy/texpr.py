@@ -12,6 +12,7 @@ from .functions import exp
 from .sym import fsym, ssym, tsym, j, oo, tausym
 from .laplace import laplace_transform
 from .fourier import fourier_transform
+from .units import u as uu
 from sympy import Heaviside, limit, Integral, Expr as symExpr
 
 
@@ -69,7 +70,7 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = laplace_transform(self.expr, self.var, ssym, evaluate=evaluate)
-        return self.change(result, domain='laplace', **assumptions)
+        return self.change(result, domain='laplace', units_scale=uu.s / uu.rad, **assumptions)
 
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
@@ -90,7 +91,7 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = fourier_transform(self.expr, self.var, fsym, evaluate=evaluate)
-        return self.change(result, domain='fourier', **assumptions)
+        return self.change(result, domain='fourier', units_scale=uu.s, **assumptions)
 
     def angular_fourier(self, evaluate=True, **assumptions):
         """Attempt angular Fourier transform."""
@@ -100,7 +101,7 @@ class TimeDomainExpression(TimeDomain, Expr):
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = self.fourier(evaluate, **assumptions).subs(f, omega / (2 * pi))
         # Could optimise...
-        return self.change(result, domain='angular fourier', **assumptions)
+        return self.change(result, domain='angular fourier', units_scale=uu.s / uu.rad, **assumptions)
 
     def time(self, **assumptions):
         return self

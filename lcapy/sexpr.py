@@ -11,6 +11,7 @@ from .laplace import inverse_laplace_transform
 from .sym import ssym, tsym, j, pi, sympify
 from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, exprcontainer
+from .units import u as uu
 from .functions import sqrt
 import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
@@ -113,7 +114,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         result = inverse_laplace_transform(self.expr, self.var, tsym,
                                            **assumptions)
 
-        return self.change(result, domain='time', **assumptions)
+        return self.change(result, domain='time', units_scale=uu.rad / uu.s, **assumptions)
 
     def ILT(self, **assumptions):
         """Attempt inverse Laplace transform.

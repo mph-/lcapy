@@ -10,6 +10,7 @@ from .domains import AngularFourierDomain
 from .fourier import inverse_fourier_transform
 from .expr import Expr, expr
 from .sym import fsym, ssym, tsym, omegasym, omega0sym, j, pi
+from .units import u as uu
 from sympy import Expr as symExpr
 
 __all__ = ('omegaexpr', )
@@ -39,7 +40,7 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         expr = self.subs(2 * pi * fsym)
         result = inverse_fourier_transform(expr, fsym, tsym)
 
-        return self.change(result, 'time')
+        return self.change(result, 'time', units_scale=uu.Hz, **assumptions)
 
     def time(self, **assumptions):
         """Alias for inverse_fourier."""
