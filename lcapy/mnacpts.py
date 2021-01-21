@@ -16,6 +16,8 @@ from .sym import capitalize_name, omegasym
 from .grammar import delimiters
 from .immittancemixin import ImmittanceMixin
 from .superpositioncurrent import SuperpositionCurrent
+from .voltage import voltage
+from .current import current
 from .opts import Opts
 import lcapy
 import inspect
@@ -497,13 +499,13 @@ class Cpt(ImmittanceMixin):
     def V0(self):
         """Initial voltage (for capacitors only)."""
 
-        return 0
+        return voltage(0)
 
     @property
     def I0(self):
         """Initial current (for inductors only)."""
 
-        return 0    
+        return current(0)
     
     @property
     def admittance(self):
@@ -890,8 +892,8 @@ class C(RC):
         """Initial voltage (for capacitors only)."""
 
         if self.cct.kind == 'ivp' and self.cpt.has_ic:
-            return self.cpt.v0 / s
-        return 0
+            return voltage(self.cpt.v0 / s)
+        return voltage(0)
 
 
 class CPE(RC):
@@ -1175,8 +1177,8 @@ class L(RLC):
         """Initial current (for capacitors only)."""
 
         if self.cct.kind == 'ivp' and self.cpt.has_ic:
-            return self.cpt.i0 / s
-        return 0
+            return current(self.cpt.i0 / s)
+        return current(0)
     
     @property
     def L(self):

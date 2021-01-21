@@ -207,7 +207,7 @@ class MNAMixin(object):
                 n1 = self.node_map[elt.nodenames[0]]
                 n2 = self.node_map[elt.nodenames[1]]                
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
-                I = (V1.expr - V2.expr - elt.V0) / elt.Z.expr
+                I = (V1.expr - V2.expr - elt.V0.expr) / elt.Z.expr
                 self._Idict[elt.name] = itype(I, **assumptions).simplify()
             elif elt.type in ('I', ):
                 self._Idict[elt.name] = elt.Isc
