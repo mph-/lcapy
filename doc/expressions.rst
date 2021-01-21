@@ -333,11 +333,6 @@ Abbreviated units are employed by default, however, this can be disabled.  For e
    >>> voltage(7)
    7⋅volt
 
-Unit determination goes awry when mathematical functions are used.  For example::
-
-   >>> log(voltage(7)).units
-   V
-
 The units are chosen as a function of quantity and domain when an
 Lcapy expression is created and are modified by transformations, such
 as a Fourier transform.  Here are the default values::
@@ -353,11 +348,17 @@ as a Fourier transform.  Here are the default values::
     +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
     | Admittance        | S   | S/s   | S      | S    | S      | S      | S   | S   | S   |           |
     +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
-    | Transfer function | 1   | 1     | 1      | 1    | 1      | 1      | 1   | 1   | 1   |           |
+    | Transfer function | 1   | 1/s   | 1      | 1    | 1      | 1      | 1   | 1   | 1   |           |
     +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
 
 Note, the transfer functions are assumed to be voltage or current ratios in the Laplace and Fourier domains.  Volatge and current ratios are represented by impedances and admittance.    
-   
+
+Unit determination goes awry when mathematical functions are used.  For example::
+
+   >>> log(voltage(7)).units
+   V
+
+Similarly, `delta(t)` should have units of 1 / s.
 
 .. _expressionsrationalfunctions:
    

@@ -60,7 +60,7 @@ class ExpressionClassBuilder(dict):
                 domainclass.is_fourier_domain or
                 domainclass.is_angular_fourier_domain):                
                 unitsstring = '%s/Hz^2' % quantityunits
-        elif quantity in ('impedance', 'admittance'):
+        elif quantity in ('impedance', 'admittance', 'transfer'):
             if domainclass.is_time_domain:
                 unitsstring = '%s/s' % quantityunits
         elif quantity in ('admittancesquared', 'impedancesquared'):
