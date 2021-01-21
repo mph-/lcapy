@@ -20,14 +20,12 @@ units_mapping = {
     '': S.One,
     'V': u.volt, 'A': u.ampere, 
     'V/Hz': u.volt / u.Hz, 'A/Hz': u.ampere / u.Hz,
-    'V/rad/s': u.volt / (u.rad / u.s) , 'A/rad/s': u.ampere / (u.rad / u.s),    
     'V/sqrt(Hz)': u.volt / sqrt(u.Hz), 'A/sqrt(Hz)': u.ampere / sqrt(u.Hz),
     'ohm': u.ohm, 'S': u.siemens,
     'ohm/s': u.ohm / u.s, 'S/s': u.siemens / u.s,
     'ohm^2/s^2': (u.ohm / u.s)**2, 'S^2/s^2': (u.siemens / u.s)**2,    
     'V^2': u.volt**2, 'A^2': u.ampere**2, 
     'V^2/Hz^2': (u.volt / u.Hz)**2, 'A^2/Hz^2': (u.ampere / u.Hz)**2,
-    'V^2/(rad/s)^2': (u.volt / (u.rad / u.s)) ** 2, 'A^2/(rad/s^2)': (u.ampere / (u.rad / u.s))**2,        
     'ohm^2': u.ohm**2, 'S^2': u.siemens**2,
     'W': u.watt}
 
@@ -83,7 +81,16 @@ class Units(object):
         # this is for circuit analysis we plump for V s.
         if result.has(u.webers):
             result = result.replace(u.webers, u.volt * u.s)
-        return result
+
+        if not unit.has(u.rad):
+            return result
+
+        # If original expression has rad (or 1 / rad) then this will get lost in the mapping,
+        # so need to reapply it.
+        factors = unit.as_ordered_factors()
+        if u.rad in factors:
+            return result * u.rad
+        return result / u.rad
 
     def simplify(self, expr):
 
