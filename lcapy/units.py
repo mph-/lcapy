@@ -54,6 +54,10 @@ class Units(object):
         # Remove entry for no units.
         self._mapping.pop(self._makekey(1))
 
+        # Add entry for S * ohm, etc.
+        key = (None, ) * len(key)
+        self._mapping[key] = S.One             
+
     def _get_dependencies(self, unit):
             
         dim = self.unit_system.get_dimensional_expr(unit)
@@ -100,6 +104,10 @@ def as_value_unit(expr):
     if not expr.has(u.Quantity):
         return expr, 1
 
+    if expr.is_Pow and expr.args[1] == -1:
+        value, unit = as_value_unit(expr.args[0])
+        return S.one / value, S.one / unit
+    
     defs = {x: 1 for x in expr.args if not x.has(u.Quantity)}
     unit = expr.subs(defs)
 
