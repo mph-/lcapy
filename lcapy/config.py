@@ -53,7 +53,9 @@ except:
 matrix_inverse_fallback_method = 'ADJ'
 
 # Default values
-loose_units = False
-check_units = False
+loose_units = True
 show_units = False
 abbreviate_units = True
+
+# This cannot be enabled without loose units (e.g., s + 1, or s * 'R' * 'C' + 1 would fail)
+check_units = True
