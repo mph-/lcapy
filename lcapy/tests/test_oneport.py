@@ -210,7 +210,7 @@ class LcapyTester(unittest.TestCase):
         b = a.open_circuit()
 
         self.assertEqual2(b.Z, impedance(10), "incorrect Z.")
-        self.assertEqual2(b.Voc.laplace(), LaplaceDomainVoltage(5) / s, "incorrect V.")
+        self.assertEqual2(b.Voc.laplace(), LaplaceDomainVoltage(5 / s), "incorrect V.")
 
     def test_short_circuit(self):
         """Lcapy: check short_circuit
@@ -221,7 +221,7 @@ class LcapyTester(unittest.TestCase):
         b = a.short_circuit()
 
         self.assertEqual2(b.Z, impedance(10), "incorrect Z.")
-        self.assertEqual2(b.Voc.laplace(), LaplaceDomainVoltage(5) / s, "incorrect V.")
+        self.assertEqual2(b.Voc.laplace(), LaplaceDomainVoltage(5 / s), "incorrect V.")
 
     def test_v(self):
         """Lcapy: check inverse Laplace for voltage sources"""

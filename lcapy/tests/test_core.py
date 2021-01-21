@@ -29,8 +29,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.real, expr(3), "real incorrect.")
         self.assertEqual2(a.imag, expr(0), "imag incorrect.")
         self.assertEqual2(a.magnitude, expr(3), "magnitude incorrect.")
-        self.assertEqual2(a.phase, expr(0), "phase incorrect.")
-        self.assertEqual2(a.phase_degrees, expr(0), "phase incorrect.")
+        self.assertEqual2(a.phase, rad(0), "phase incorrect.")
+        self.assertEqual2(a.phase_degrees, deg(0), "phase incorrect.")
         self.assertEqual2(a.sign, expr(1), "sign incorrect.")
         self.assertEqual2(-a.sign, expr(-1), "sign incorrect.")
 
@@ -40,8 +40,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.real, expr(-3), "real incorrect.")
         self.assertEqual2(a.imag, expr(0), "imag incorrect.")
         self.assertEqual2(a.magnitude, expr(3), "magnitude incorrect.")
-        self.assertEqual2(a.phase, expr(pi), "phase incorrect.")
-        self.assertEqual2(a.phase_degrees, expr(180), "phase incorrect.")
+        self.assertEqual2(a.phase, rad(pi), "phase incorrect.")
+        self.assertEqual2(a.phase_degrees, deg(180), "phase incorrect.")
         self.assertEqual2(a.sign, expr(-1), "sign incorrect.")
         self.assertEqual2(-a.sign, expr(1), "sign incorrect.")        
 
@@ -52,8 +52,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.imag, expr(3), "imag incorrect.")        
         self.assertEqual2(a.magnitude, expr(3), "magnitude incorrect.")
         self.assertEqual2(abs(a), expr(3), "abs incorrect.")        
-        self.assertEqual2(a.phase, expr(pi / 2), "phase incorrect.")
-        self.assertEqual2(a.phase_degrees, expr(90), "phase incorrect.")
+        self.assertEqual2(a.phase, rad(pi / 2), "phase incorrect.")
+        self.assertEqual2(a.phase_degrees, deg(90), "phase incorrect.")
         self.assertEqual2(a.sign, expr(j), "sign incorrect.")
         self.assertEqual2(-a.sign, expr(-j), "sign incorrect.")        
 
@@ -232,7 +232,7 @@ class LcapyTester(unittest.TestCase):
         H = a * s / (a * s + 1)
         Hw = H(j * omega, causal=True)
 
-        self.assertEqual(Hw.phase, atan2(1, a * omega), 'phase')
+        self.assertEqual(Hw.phase, rad(atan2(1, a * omega)), 'phase')
 
     def test_sExpr9(self):
         """Lcapy: check sExpr9 (non-monic factor)
