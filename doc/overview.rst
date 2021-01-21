@@ -130,15 +130,17 @@ domain by substituting :math:`\mathrm{j} \omega` for :math:`s`
 
 
 Lcapy expressions have an associated domain (such a time domain or
-Laplace domain) and an associated quantity (such as voltage or
-impedance).  For more details see :ref:`domains` and
-:ref:`quantities`.  Here is an example::
+Laplace domain), an associated quantity (such as voltage or
+impedance), and units.  For more details see :ref:`domains`,
+:ref:`quantities`, and :ref:`units`.  Here is an example::
 
    >>> V = voltage(3 * s)
    >>> V.domain
    'laplace'
    >>> V.quantity
    'voltage'
+   >>> V.units
+   V 
 
 Lcapy expressions have a number of other attributes  (see :ref:`expressionsattributes`) including:
 

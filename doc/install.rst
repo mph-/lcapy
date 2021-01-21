@@ -91,6 +91,7 @@ Installation for development
 3.  Install Lcapy using:
 
 .. code-block:: console
+                
    $ cd lcapy
    $ pip3 install --editable .[test,release]
 

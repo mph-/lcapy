@@ -360,6 +360,18 @@ Unit determination goes awry when mathematical functions are used.  For example:
 
 Similarly, `delta(t)` should have units of 1 / s.
 
+.. _unitattributes:      
+
+Unit attributes
+---------------
+
+Expressions have the following attributes for units:
+
+- `units` returns the units as a SymPy expression
+
+- `expr_with_units` returns a SymPy expression multiplied by the units
+  
+
 .. _expressionsrationalfunctions:
    
 Rational functions
@@ -487,8 +499,8 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 - `var` returns the underlying SymPy symbol representing the domain
     
 
-In addition, each expression has domain and quantity attributes, see
-:ref:`domainattributes` and :ref:`quantityattributes`.
+In addition, each expression has domain, quantity, and unit attributes, see
+:ref:`domainattributes`, :ref:`quantityattributes`, and :ref:`unitattributes`.
   
 .. _expressionsmethods:  
 

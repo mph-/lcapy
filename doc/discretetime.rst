@@ -13,7 +13,7 @@ There are three domain variables for discrete-time signals:
 The `n`, `k`, and `z` variables share many of the attributes and methods of their continuous-time equivalents, `t`, `f`, and `s`, :ref:`expressions`.
     
 The discrete-time signal can be plotted using the `plot()` method.
-For example,
+For example:
 
 .. literalinclude:: examples/discretetime/dt1-plot1.py
 
@@ -45,12 +45,12 @@ The extent of the sequence is given by the `extent()` method.
    >>> seq.extent()
    >>> 3
 
-Sequences can be convolved together, for example,
+Sequences can be convolved together, for example::
 
    >>> seq((1, 2, 3)).convolve(seq((1, 1))
    {_1, 3, 5, 3}
 
-Sequences can be converted to n-domain or k-domain expressions, for example,
+Sequences can be converted to n-domain or k-domain expressions, for example::
    
    >>> seq((1, 2))(n)
    δ[n] + 2⋅δ[n - 2]
@@ -62,7 +62,7 @@ Sequences can be converted to n-domain or k-domain expressions, for example,
 Discrete-time (n-domain) expressions
 ====================================
 
-Lcapy refers to Discrete-time expressions as n-domain expressions.  They are of class `DiscreteTimeDomainExpression` and can be created explicitly using the n-domain variable `n`.  For example,
+Lcapy refers to Discrete-time expressions as n-domain expressions.  They are of class `DiscreteTimeDomainExpression` and can be created explicitly using the n-domain variable `n`.  For example::
 
    >>> 2 * u(n) + delta(n - 1)
    2⋅u[n] + δ[n - 1]
@@ -70,16 +70,16 @@ Lcapy refers to Discrete-time expressions as n-domain expressions.  They are of 
 In this expression `u(n)` denotes the unit step and `delta(n)` denotes
 the unit impulse.  Square brackets are used in printing to reduce confusion with the Heaviside function and Dirac delta.
 
-Discrete-time expressions can be converted to sequences using the `seq()` method.  For example,
+Discrete-time expressions can be converted to sequences using the `seq()` method.  For example::
 
    >>> (delta(n) + 2 * delta(n - 1) + 3 * delta(n - 3)).seq()
    {_1, 2, 0, 3}
 
-The `seq` method has an argument to specify the extent of the sequence.  This is required if the sequences have infinite extent.  For example,
+The `seq` method has an argument to specify the extent of the sequence.  This is required if the sequences have infinite extent.  For example::
 
    >>> (2 * u(n) + delta(n - 1)).seq((-10, 10))
    {_2, 3, 2, 2, 2, 2, 2, 2, 2, 2}
-/
+
 In this example the zero samples have been removed but the sequence has been truncated.
 
 The z-transform of a discrete-time expression can be found with the `ZT()` method:
@@ -110,7 +110,7 @@ A more compact notation is to pass `f` as an argument:
           -4⋅ⅉ⋅π⋅Δₜ⋅f
    1 + 2⋅ℯ           
 
-The discrete Fourier transform (DFT) converts a discrete-time expression to a discrete-frequency expression.  This is performed using the `DFT()` method or using a `k` argument.  For example,
+The discrete Fourier transform (DFT) converts a discrete-time expression to a discrete-frequency expression.  This is performed using the `DFT()` method or using a `k` argument.  For example::
 
    >>> (delta(n) + 2 * delta(n - 2))(k)
    N - 1                                 
@@ -124,7 +124,7 @@ The discrete Fourier transform (DFT) converts a discrete-time expression to a di
     ‾‾‾‾                                 
    n = 0   
 
-Note, SymPy does not simplifies this since it does not know that `N>1`.  However, if `N` is known, it can be specified as an argument.  For example,
+Note, SymPy does not simplifies this since it does not know that `N>1`.  However, if `N` is known, it can be specified as an argument.  For example::
 
    >>> (delta(n) + 2 * delta(n - 2))(k, N=4)
           -ⅉ⋅π⋅k
@@ -148,13 +148,13 @@ Evaluation of the DFT can be prevented by setting `evaluate=False`,
 Discrete-frequency (k-domain) expressions
 =========================================
 
-Lcapy refers to discrete-frequency expressions as k-domain expressions.  They are of class `DiscreteFourierDomainExpression` and can be created explicitly using the k-domain variable `n`.  For example,
+Lcapy refers to discrete-frequency expressions as k-domain expressions.  They are of class `DiscreteFourierDomainExpression` and can be created explicitly using the k-domain variable `n`.  For example::
 
    >>> 2 * u(k) + delta(k - 1)
    2⋅u[k] + δ[k - 1]
 
 
-Discrete-frequency expressions can be converted to sequences using the `seq()` method.  For example,
+Discrete-frequency expressions can be converted to sequences using the `seq()` method.  For example::
 
    >>> (delta(k) + 2 * delta(k - 1) + 3 * delta(k - 3)).seq()
    {_1, 2, 0, 3}   
@@ -164,7 +164,7 @@ Discrete-frequency expressions can be converted to sequences using the `seq()` m
 Z-domain expressions
 ====================
 
-Z-domain expressions can be constructed using the z-domain variable `z`, for example,
+Z-domain expressions can be constructed using the z-domain variable `z`, for example::
 
    >>> 1 + 1 / z
        1
@@ -175,7 +175,7 @@ Alternatively, they can be generated using a z-transform of a discrete-time sign
 
 Z-domain expressions are objects of the `ZDomainExpression` class.  They are functions of the complex variable `z` and are similar to `sExpr` objects.   The general form of a z-domain expression is a rational function so all the s-domain formatting methods are applicable (see :ref:`expressionsprinting`).
 
-The poles and zeros of a z-domain expression can be plotted using the `plot()` method.  For example,
+The poles and zeros of a z-domain expression can be plotted using the `plot()` method.  For example:
 
 .. literalinclude:: examples/discretetime/dt1-pole-zero-plot1.py
 
@@ -219,7 +219,7 @@ It is also performed implicitly with `z` as an argument:
 Inverse z-transform
 -------------------
           
-The inverse unilateral z-transform is not unique and is only defined for :math:`n \ge 0`.  For example,
+The inverse unilateral z-transform is not unique and is only defined for :math:`n \ge 0`.  For example::
 
    >>> H = z / (z - 'a')
    >>> H(n)
@@ -278,7 +278,7 @@ The IDFT converts a k-domain expression to an n-domain expression.  The definiti
 Bilinear transform
 ------------------
 
-The bilinear transform can be used to approximate an s-domain expression with a z-domain expression using :math:`s \approx \frac{2}{\Delta t} \frac{1 - z^{-1}}{1 + z^{-1}}`.   This is performed by the `bilinear_transform()` method of s-domain objects, for example,
+The bilinear transform can be used to approximate an s-domain expression with a z-domain expression using :math:`s \approx \frac{2}{\Delta t} \frac{1 - z^{-1}}{1 + z^{-1}}`.   This is performed by the `bilinear_transform()` method of s-domain objects, for example::
 
    >>> H = s / (s - 'a')
    >>> Hz = H.bilinear_transform().simplify()
