@@ -5,6 +5,9 @@ Copyright 2020--2021 Michael Hayes, UCECE
 """
 
 class Quantity(object):
+    """This is the base class for VoltageMixin, etc.  An Lcapy quantity is
+    not a true quantity but a collection of related quantities, for
+    example, voltage (with units V) and voltage spectral density (with units V/Hz)."""
 
     quantity = ''    
     is_power = False
@@ -27,5 +30,4 @@ class Quantity(object):
 class UndefinedQuantity(Quantity):
 
     quantity = 'undefined'        
-    is_undefined = True    
-
+    is_undefined = True
