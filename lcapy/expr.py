@@ -32,7 +32,7 @@ from .sym import simplify
 from .simplify import simplify_sin_cos
 from collections import OrderedDict
 
-__all__ = ('expr', 'symbol', 'symbols')
+__all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad', 'degrees', 'radians')
 
 class ExprPrint(object):
 
@@ -44,7 +44,7 @@ class ExprPrint(object):
             return self            
 
         if state.show_units:
-            return self.expr * self.units
+            return self.expr_with_units
         else:
             return self.expr                
     
@@ -316,7 +316,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
             return self
         
         if state.show_units:
-            return self.expr * self.units
+            return self.expr_with_units
         else:
             return self.expr                
 
@@ -748,6 +748,12 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         print(symdebug(self.expr, s, len(name) + 1))
 
     @property
+    def expr_with_units(self):
+        """Return SymPy expression with units."""
+
+        return self.expr * self.units
+        
+    @property
     def func(self):
         """Return the top-level function in the Sympy Expression.
 
@@ -813,9 +819,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if not isinstance(x, Expr):
             x = expr(x)
 
-        if False and state.check_units:
-            # Need to allow rad and 1.  Also need to support loose_units.
-            if self.units != x.units and self.expr !=0 and x.expr != 0:
+        if state.check_units:
+            sunits = units.simplify_units(self.units)
+            xunits = units.simplify_units(x.units)            
+            
+            if (sunits != xunits and self.expr != 0 and x.expr != 0 and not
+                (state.loose_units and x.is_undefined)):
                 self._incompatible(x, op, ' since the units %s are incompatible with %s' % (self.units, x.units))
 
         cls = self.__class__
@@ -1695,7 +1704,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Simplify units."""
 
         ret = self.__class__(self, **self.assumptions)
-        ret.units = units.simplify(self.units)
+        ret.units = units.simplify_units(self.units)
         return ret
 
     def simplify_terms(self):
@@ -2484,6 +2493,40 @@ def symbols(names, **assumptions):
     for name in namelist:
         symbols.append(symbol(name, **assumptions))
     return symbols
+
+
+def radians(arg, **assumptions):
+    """Convert degrees to radians and set units to radians.  See also rad()
+    that sets units as radians."""
+
+    expr1 = expr(arg / 180 * sym.pi, **assumptions)
+    expr1.units = uu.rad
+    return expr1
+
+
+def degrees(arg, **assumptions):
+    """Convert radians to degrees and set units to degrees.  See also deg()
+    that sets units as degrees."""
+
+    expr1 = expr(arg * 180 / sym.pi, **assumptions)
+    expr1.units = uu.deg
+    return expr1
+
+
+def rad(arg, **assumptions):
+    """Set units to radians.  See also radians() that converts degrees to radians."""
+
+    expr1 = expr(arg, **assumptions)
+    expr1.units = uu.rad
+    return expr1
+
+
+def deg(arg, **assumptions):
+    """Set units to degrees.  See also degrees() that converts radians to degrees."""
+
+    expr1 = expr(arg, **assumptions)
+    expr1.units = uu.deg
+    return expr1
 
 
 from .cexpr import cexpr, ConstantDomainExpression
