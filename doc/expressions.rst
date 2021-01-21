@@ -273,6 +273,9 @@ There are similar functions for setting the quantity of an expression:
 - `admittance()` converts to admittance
 - `transfer()` converts to transfer function  
 
+An Lcapy quantity is not a strict quantity but a collection of related
+quantities, For example, both voltage (with units V) and voltage spectral
+density (with units V/Hz) are considered voltage quantities.  However, they have different units.
 
 .. _quantityattributes:        
 
@@ -301,69 +304,43 @@ Units
 
 Expressions have an attribute `units` that reflect the quantity and domain.  For example::
 
-  >>> voltage(7).units
-  V
-  >>> voltage(7 * f).units
-  V 
-  ──
-  Hz
-  >>> voltage(7 / s).units
-  V⋅s
-  ───
-  rad
-  >>> voltage(7 * s).units
-  V⋅s
-  ───
-  rad
+   >>> voltage(7).units
+   V
+   >>> voltage(7 * f).units
+   V 
+   ──
+   Hz
+   >>> voltage(7 / s).units
+   V⋅s
+   ───
+   rad
+   >>> voltage(7 * s).units
+   V⋅s
+   ───
+   rad
 
-Note, the units are not a function of the order domain variable but of
-the domain (note, constant scale factors can have units).  The units are a SymPy Expression and thus can be formatted as a string, LaTeX, etc.
+The units are a SymPy Expression and thus can be formatted as a
+string, LaTeX, etc.  They can be automatically printed, for example::
+
+   >>> state.show_units = True
+   >>> voltage(7)
+   7⋅V
+
+Abbreviated units are employed by default, however, this can be disabled.  For example::
+
+   >>> state.show_units = True
+   >>> state.abbreviate_units = False
+   >>> voltage(7)
+   7⋅volt
 
 Unit determination goes awry when mathematical functions are used.  For example::
 
    >>> log(voltage(7)).units
    V
 
-This is due to a failure in quantity tracking::
-
-  >>> voltage(7).quantity
-  'voltage'
-  >>> log(voltage(7)).quantity
-  'voltage'  
-
-The units are also incorrect under transformation of products of
-voltage, current, impedance, and admittance.   How to fix this is currently being pondered.
-
-  
-Lcapy has an experimental feature for better unit tracking based on SymPy units.
-
-   >>> from lcapy.state import state
-   >>> state.track_units = True
-   >>> voltage(6)
-   6⋅V
-   >>> voltage(6) / current(3)
-   6⋅V
-   ───
-   3⋅A
-   >>> (voltage(6) / current(3)).simplify()
-   2⋅ohm
-
-The units can be separated from the value using the `as_value_unit()` method.   For example::
-
-  >>> voltage(6).as_value_unit()
-  (6, V)
-
-For this to be useful, SymPy also needs work for better printing of
-the units.  Currently they can appear anywhere in an expression and
-not just at the end.
-
-By default, units are be printed in abbreviated form.  To print in long form use:
-
-   >>> from lcapy.state import state
-   >>> state.abbreviated_units = False
-
-
-The units as a function of quantity and domain are::   
+The units are chosen as a function of quantity and domain when an
+Lcapy expression is created and are modified by transformations, such
+as a Fourier transform.  Here are the default values::
 
     +-------------------+-----+-------+---------+------+---------+--------+-----+-----+-----+-----------+
     | Quantity/Domain   | dc  | t     | s       | f    | omega   | jomega | n   | k   | z   | noise f   |
