@@ -123,3 +123,4 @@ from .expressionclasses import expressionclasses
 classes = expressionclasses.register('fourier', FourierDomainExpression)
 
 f = FourierDomainExpression('f')
+f.units = uu.Hz

@@ -89,6 +89,13 @@ an answer that appears valid for DC.
 
 20. Fix units when performing transformations of V*V, I*I, P quantities, etc.
 
+21. Handle units for constant expressions, for example, delta(t) has
+units of 1 / s.  Similarly, sexpr(s) should have units of rad/s but
+sexpr(1 / s) should have units of s/rad.
+
+22. Fix domain variable units
+
+
 
 Testing
 =======

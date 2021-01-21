@@ -49,25 +49,23 @@ class ExpressionClassBuilder(dict):
         quantityclass = quantityclasses[quantity]
         quantityunits = quantityclass.units
             
-        domainunits = domainclass.domain_units
-
         unitsstring = quantityunits            
         if quantity in ('voltage', 'current'):
             if (domainclass.is_laplace_domain or
                 domainclass.is_fourier_domain or
                 domainclass.is_angular_fourier_domain):
-                unitsstring = '%s/%s' % (quantityunits, domainunits)
+                unitsstring = '%s/Hz' % quantityunits
         elif quantity in ('voltagesquared', 'currentsquared'):
             if (domainclass.is_laplace_domain or
                 domainclass.is_fourier_domain or
                 domainclass.is_angular_fourier_domain):                
-                unitsstring = '%s/%s^2' % (quantityunits, domainunits)
+                unitsstring = '%s/Hz^2' % quantityunits
         elif quantity in ('impedance', 'admittance'):
             if domainclass.is_time_domain:
-                unitsstring = '%s/%s' % (quantityunits, domainunits)
+                unitsstring = '%s/s' % quantityunits
         elif quantity in ('admittancesquared', 'impedancesquared'):
             if domainclass.is_time_domain:
-                unitsstring = '%s/%s^2' % (quantityunits, domainunits)
+                unitsstring = '%s/s^2' % quantityunits
 
         # FIXME:  The units of squared quantities are incorrect under transformation
         # to another domain.  For example, v1(t) * v2(t) has units V^2,

@@ -114,7 +114,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         result = inverse_laplace_transform(self.expr, self.var, tsym,
                                            **assumptions)
 
-        return self.change(result, domain='time', units_scale=uu.rad / uu.s, **assumptions)
+        return self.change(result, domain='time', units_scale=uu.Hz, **assumptions)
 
     def ILT(self, **assumptions):
         """Attempt inverse Laplace transform.
@@ -481,4 +481,4 @@ from .texpr import TimeDomainExpression, texpr
 from .phasor import PhasorFrequencyDomainExpression
 
 s = LaplaceDomainExpression('s')
-
+s.units = uu.rad / uu.s

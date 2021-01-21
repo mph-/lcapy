@@ -104,6 +104,8 @@ from .expressionclasses import expressionclasses
 classes = expressionclasses.register('angular fourier', AngularFourierDomainExpression)
         
 omega = AngularFourierDomainExpression('omega')
+omega.units = uu.rad / uu.s
+
 # This represents a specific angular frequency and is assumed to be positive
 omega0 = AngularFourierDomainExpression('omega_0', positive=True)
-
+omega0.units = uu.rad / uu.s

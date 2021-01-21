@@ -70,7 +70,7 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = laplace_transform(self.expr, self.var, ssym, evaluate=evaluate)
-        return self.change(result, domain='laplace', units_scale=uu.s / uu.rad, **assumptions)
+        return self.change(result, domain='laplace', units_scale=uu.s, **assumptions)
 
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
@@ -101,7 +101,7 @@ class TimeDomainExpression(TimeDomain, Expr):
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = self.fourier(evaluate, **assumptions).subs(f, omega / (2 * pi))
         # Could optimise...
-        return self.change(result, domain='angular fourier', units_scale=uu.s / uu.rad, **assumptions)
+        return self.change(result, domain='angular fourier', units_scale=uu.s, **assumptions)
 
     def time(self, **assumptions):
         return self
@@ -219,3 +219,4 @@ TimeDomainVoltage = classes['voltage']
 TimeDomainCurrent = classes['current']
 
 t = TimeDomainExpression('t')
+t.units = uu.s
