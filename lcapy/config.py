@@ -1,6 +1,6 @@
 """This module contains configuration information.
 
-Copyright 2019--2020 Michael Hayes, UCECE
+Copyright 2019--2021 Michael Hayes, UCECE
 
 """
 

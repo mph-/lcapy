@@ -443,10 +443,18 @@ System
    :undoc-members:
    :show-inheritance:
 
+Units
+-----
+
+.. automodule:: lcapy.units
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Utils
 -----
 
 .. automodule:: lcapy.utils
    :members:
    :undoc-members:
-   :show-inheritance:            
+   :show-inheritance:                  

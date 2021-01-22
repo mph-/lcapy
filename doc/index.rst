@@ -31,7 +31,8 @@ Contents:
    latex.rst
    config.rst                                                      
    problems.rst                          
-   internals.rst            
+   internals.rst
+   releases.rst   
    modules.rst
 
 Indices and tables
