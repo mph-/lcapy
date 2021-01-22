@@ -57,3 +57,4 @@ doc:
 .PHONY: clean
 clean:
 	-rm -rf build lcapy.egg-info dist
+	cd doc; make clean

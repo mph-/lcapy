@@ -16,7 +16,9 @@ from .currentsquaredmixin import CurrentSquaredMixin
 from .admittancesquaredmixin import AdmittanceSquaredMixin
 from .impedancesquaredmixin import ImpedanceSquaredMixin
 from .powermixin import PowerMixin
-from .units import units
+from .units import units, u as uu
+from sympy import sqrt
+from sympy import S
 
 
 quantityclasses = {'voltage': VoltageMixin,
@@ -29,6 +31,19 @@ quantityclasses = {'voltage': VoltageMixin,
                    'admittancesquared': AdmittanceSquaredMixin,
                    'impedancesquared': ImpedanceSquaredMixin,
                    'power': PowerMixin}
+
+units_mapping = {
+    '': S.One,
+    'V': uu.volt, 'A': uu.ampere, 
+    'V/Hz': uu.volt / uu.Hz, 'A/Hz': uu.ampere / uu.Hz,
+    'V/sqrt(Hz)': uu.volt / sqrt(uu.Hz), 'A/sqrt(Hz)': uu.ampere / sqrt(uu.Hz),
+    'ohm': uu.ohm, 'S': uu.siemens,
+    'ohm/s': uu.ohm / uu.s, 'S/s': uu.siemens / uu.s,
+    'ohm^2/s^2': (uu.ohm / uu.s)**2, 'S^2/s^2': (uu.siemens / uu.s)**2,    
+    'V^2': uu.volt**2, 'A^2': uu.ampere**2, 
+    'V^2/Hz^2': (uu.volt / uu.Hz)**2, 'A^2/Hz^2': (uu.ampere / uu.Hz)**2,
+    'ohm^2': uu.ohm**2, 'S^2': uu.siemens**2,
+    'W': uu.watt}
 
 
 class ExpressionClassBuilder(dict):
@@ -80,7 +95,7 @@ class ExpressionClassBuilder(dict):
             
         newclass = type(name, (quantityclass, domainclass),
                             {'__doc__': docstring,
-                             '_units': units.by_name(unitsstring)})
+                             '_units': units_mapping[unitsstring]})
         self[quantity] = newclass
 
         #print('Created %s %s' % (self.domain, quantity))

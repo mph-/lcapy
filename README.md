@@ -214,6 +214,8 @@ and then view cover/index.html in a web browser.
 Updates
 -------
 
+- Version 0.78 can show units and has tighter units checking.
+
 - Version 0.77 reverts phase as a quantity and fixes plots.  Component attributes are renamed for consistency (is_resistor etc.).  omega0 is now positive.  Allow Z / Z and Y / Y.  Fix matrices.  Lazily create expression classes.  More unit tests! 
 
 - Version 0.76 fixes the units and adds many more tests.  Adds phase quantity.  Fixes phasors.
