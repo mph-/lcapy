@@ -71,7 +71,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(str(impedance(kexpr(1)).units), 'ohm', 'kexpr impedance')
         self.assertEqual(str((voltage(kexpr(1))**2).units), 'V**2', 'kexpr voltage squared')
         self.assertEqual(str((current(kexpr(1))**2).units), 'A**2', 'kexpr current squared')
-        self.assertEqual(str((admittance(kexpr(1))**2).units), 'S**2', 'kexpr admittance squared')                
+        self.assertEqual(str((admittance(kexpr(1))**2).units), 'S**2', 'kexpr admittance squared')
         self.assertEqual(str((impedance(kexpr(1))**2).units), 'ohm**2', 'kexpr impedance squared')
         
     def test_new_units(self):
@@ -84,4 +84,11 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(str(p.units), 'W', 'power')        
 
 
+    def test_functions(self):
+
+        self.assertEqual(str(delta(t).units), '1/s', 'delta(t)')
+        self.assertEqual(str(diff(t, t).units), '1', 'diff(t, t)')
+        self.assertEqual(str(integrate(t, t).units), 's**2', 'integrate(t, t)')
+        self.assertEqual(str(integrate(t, (t, 0, 1)).units), 's**2', 'integrate(t, (t, 0, 1))')
+        
         

@@ -24,19 +24,22 @@ class Function(object):
         result = self.expr(*tweak_args)
 
         if isinstance(args[0], Expr):
-
-            result = cls(result)
+            result = cls(result)        
+            
             if args[0].is_phase and self.expr in (sym.sin, sym.cos, sym.tan, sym.exp,
                                                   sym.sinh, sym.cosh, sym.tanh):
                 result.part = ''
+            elif self.expr == sym.diff and isinstance(args[1], Expr):
+                result.units = args[0].units / args[1].units
+            elif self.expr == sym.integrate:
+                if isinstance(args[1], Expr):
+                    result.units = args[0].units * args[1].units
+                elif isinstance(args[1], tuple) and isinstance(args[1][0], Expr):
+                    result.units = args[0].units * args[1][0].units
+            elif self.expr is sym.DiracDelta and isinstance(args[0], Expr):
+                result.units = 1 / args[0].units                
 
-        if False:
-            for m, arg in enumerate(args[1:]):
-                if isinstance(arg, (Expr, Function)):
-                    # Need to avoid substituting constants
-                    result = result.subs(tweak_args[m], arg)
-
-        return expr(result)
+        return result
 
     def pdb(self):
         import pdb; pdb.set_trace()
@@ -96,6 +99,10 @@ atanh = Function(sym.atanh)
 gcd = Function(sym.gcd)
 
 sign = Function(sym.sign)
+
+diff = Function(sym.diff)
+
+integrate = Function(sym.integrate)
 
 u = H = heaviside = Heaviside = Function(sym.Heaviside)
 
