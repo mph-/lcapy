@@ -2,6 +2,14 @@
 Release Notes
 =============
 
+V 0.79
+======
+
+- Fix units for `delta(x)`, `diff(f, x)`, `integrate(f, x)`.
+
+- `state.canonical_form` controls whether units are stored in canonical form, e.g., watt rather than volt * ampere.
+
+
 
 V 0.78
 ======

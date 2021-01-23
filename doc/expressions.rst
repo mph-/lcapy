@@ -334,8 +334,7 @@ Abbreviated units are employed by default, however, this can be disabled.  For e
    7⋅volt
 
 The units are chosen as a function of quantity and domain when an
-Lcapy expression is created and are modified by transformations, such
-as a Fourier transform.  Here are the default values::
+Lcapy expression is created and are modified by multiplications, divisions, and transformations, such as a Fourier transform.  Here are the default values::
 
     +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
     | Quantity/Domain   | dc  | t     | s      | f    | omega  | jomega | n   | k   | z   | noise f   |
@@ -351,14 +350,13 @@ as a Fourier transform.  Here are the default values::
     | Transfer function | 1   | 1/s   | 1      | 1    | 1      | 1      | 1   | 1   | 1   |           |
     +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
 
-Note, the transfer functions are assumed to be voltage or current ratios in the Laplace and Fourier domains.  Volatge and current ratios are represented by impedances and admittance.    
+Note, the transfer functions are assumed to be voltage or current ratios in the Laplace and Fourier domains.  Voltage and current ratios are represented by impedances and admittances.    
 
-Unit determination goes awry when mathematical functions are used.  For example::
+Unit determination goes awry when some mathematical functions are used.  For example::
 
    >>> log(voltage(7)).units
    V
 
-Similarly, `delta(t)` should have units of 1 / s.
 
 .. _unitattributes:      
 
@@ -368,6 +366,8 @@ Unit attributes
 Expressions have the following attributes for units:
 
 - `units` returns the units as a SymPy expression
+
+- `canonical_units` returns the units as a SymPy expression in canonical form (`volt * ampere` is converted to watts, `1 / s` is converted to `Hz`, etc.)
 
 - `expr_with_units` returns a SymPy expression multiplied by the units
   
@@ -1294,7 +1294,7 @@ processes.  They are represented in terms of their one-sided,
 amplitude spectral density (ASD); this is the square root of the power
 spectral density (PSD), assuming a one ohm load.
 
-With the wide-sense stationary assumption, random processs can be
+With the wide-sense stationary assumption, random process can be
 described by their power spectral (or amplitude spectral) density or
 by their time-invariant autocorrelation function.
 
