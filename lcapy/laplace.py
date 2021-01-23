@@ -97,20 +97,28 @@ def laplace_integral(expr, t, s):
     if not isinstance(expr, sym.Integral):
         raise ValueError('Cannot compute Laplace transform of %s' % expr)
 
+    if len(expr.args[1]) != 3:
+        raise ValueError('Require definite integral')
+    
+    var = expr.args[1][0]
+    limits = expr.args[1][1:]
+    const2, expr2 = factor_const(integrand, var)
+
+    if (expr2.is_Function and
+        expr2.args[0] == t - var and limits[0] == 0 and limits[1] == sym.oo):
+        return const2 * laplace_term(expr2.subs(t - var, t), t, s) / s
+
     # Look for convolution integral
     # TODO, handle convolution with causal functions.
-    var = expr.args[1][0]
-    if (expr.args[1][1] != -sym.oo) or (expr.args[1][2] != sym.oo):
+    if (limits[0] != -sym.oo) or (limits[1] != sym.oo):
         raise ValueError('Need indefinite limits for %s' % expr)
-    
-    const2, expr = factor_const(integrand, var)
-    if ((len(expr.args) != 2) or not expr.args[0].is_Function
-        or not expr.args[1].is_Function):
-        raise ValueError('Need integral of two functions: %s' % expr)        
+   
+    if ((len(expr.args) != 2) or not expr2.is_Mul or
+        not expr2.args[0].is_Function or not expr2.args[1].is_Function):
+        raise ValueError('Need integral of product of two functions: %s' % expr)
 
-    f1 = expr.args[0]
-    f2 = expr.args[1]    
-
+    f1 = expr2.args[0]
+    f2 = expr2.args[1]    
     # TODO: apply similarity theorem if have f(a * tau) etc.
 
     if (f1.args[0] == var and f2.args[0] == t - var):
@@ -122,7 +130,7 @@ def laplace_integral(expr, t, s):
     else:            
         raise ValueError('Cannot recognise convolution: %s' % expr)
     
-    return F1 * F2
+    return const2 * F1 * F2
 
 def laplace_derivative_undef(expr, t, s):
     

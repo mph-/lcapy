@@ -87,12 +87,16 @@ class LcapyTester(unittest.TestCase):
 
     def test_convolution(self):
 
-        a = expr('Integral(x(t - tau) * y(tau), (tau, -oo, oo))')
-        self.assertEqual(a(s), expr('X(s) * Y(s)'), "X * Y")
-        a = expr('Integral(x(tau) * y(t - tau), (tau, -oo, oo))')
-        self.assertEqual(a(s), expr('X(s) * Y(s)'), "X * Y")
-        a = expr('Integral(x(t - tau) * Heaviside(tau), (tau, -oo, oo))')
-        self.assertEqual(a(s), expr('X(s) / s'), "X / s")
-        a = expr('Integral(x(tau) * Heaviside(t - tau), (tau, -oo, oo))')
-        self.assertEqual(a(s), expr('X(s) / s'), "X / s")                
+        a = expr('Integral(3 * x(t - tau) * y(tau), (tau, -oo, oo))')
+        self.assertEqual(a(s), expr('3 * X(s) * Y(s)'), "3 * X * Y")
+        a = expr('Integral(3 * x(tau) * y(t - tau), (tau, -oo, oo))')
+        self.assertEqual(a(s), expr('3 * X(s) * Y(s)'), "3 * X * Y")
+        a = expr('Integral(3 * x(t - tau) * Heaviside(tau), (tau, -oo, oo))')
+        self.assertEqual(a(s), expr('3 * X(s) / s'), "3 * X / s")
+        a = expr('Integral(3 * x(tau) * Heaviside(t - tau), (tau, -oo, oo))')
+        self.assertEqual(a(s), expr('3 * X(s) / s'), "3 * X / s")
+
+        a = expr('Integral(3 * x(t - tau), (tau, 0, oo))')
+        self.assertEqual(a(s), expr('3 * X(s) / s'), "3 * X / s")
+        
  
