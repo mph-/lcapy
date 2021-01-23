@@ -64,37 +64,23 @@ for each element.
 different netlists.  Could use Python context manager with __enter__
 and __exit__ methods so that can use with statement.
 
-9. expr('A*t/T*u(t)*u(T-t)+A*u(t-T)')(s)(t)
+9. expr('A*t/T*u(t)*u(T-t)+A*u(t-T)')(s)(t)   The problem is that
+u(t) * u(T - t) == u(t) - u(t - T) but SymPy does not know this.
 
 10. Teach sifting theorem for Dirac delta.
 
-11. Add LT for Integral(x(t - tau) * Heaviside(tau), (tau, -oo, oo))
-
-12. Add LT for Integral(x(t - tau), (tau, 0, oo))
-
-13. Warn about coupled inductors at DC?  LT methods will blindly give
+11. Warn about coupled inductors at DC?  LT methods will blindly give
 an answer that appears valid for DC.
 
-14. Simplify convolutions.
+12. Simplify convolutions.
 
-15. Simplify i_equation/v_equation nonsense.
+13. Simplify i_equation/v_equation nonsense.
 
-16. Compatibility with PySpice
+14. Compatibility with PySpice
 
-17. Untangle Netlist stuff
+15. Untangle Netlist stuff
 
-18. Test NetlistNamespace
-
-19. Incorporate SymPy units
-
-20. Fix units when performing transformations of V*V, I*I, P quantities, etc.
-
-21. Handle units for constant expressions, for example, delta(t) has
-units of 1 / s.  Similarly, sexpr(s) should have units of rad/s but
-sexpr(1 / s) should have units of s/rad.
-
-22. Fix domain variable units
-
+16. Test NetlistNamespace
 
 
 Testing
