@@ -1814,7 +1814,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def label_with_units(self):
 
         label = self.label
-        if hasattr(self, 'units') and self.units != '':
+        if hasattr(self, 'units') and self.units != '' and self.units != 1:
             label += ' (%s)' % self.units
         return label    
 

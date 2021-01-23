@@ -83,4 +83,16 @@ class LcapyTester(unittest.TestCase):
         H2 = h(s)
 
         self.assertEqual(H, H2, "second derivative of undef")                
-        
+
+
+    def test_convolution(self):
+
+        a = expr('Integral(x(t - tau) * y(tau), (tau, -oo, oo))')
+        self.assertEqual(a(s), expr('X(s) * Y(s)'), "X * Y")
+        a = expr('Integral(x(tau) * y(t - tau), (tau, -oo, oo))')
+        self.assertEqual(a(s), expr('X(s) * Y(s)'), "X * Y")
+        a = expr('Integral(x(t - tau) * Heaviside(tau), (tau, -oo, oo))')
+        self.assertEqual(a(s), expr('X(s) / s'), "X / s")
+        a = expr('Integral(x(tau) * Heaviside(t - tau), (tau, -oo, oo))')
+        self.assertEqual(a(s), expr('X(s) / s'), "X / s")                
+ 

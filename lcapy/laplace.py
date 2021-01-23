@@ -17,7 +17,7 @@ undefined functions such as v(t) to V(s).
 
 These functions are for internal use by Lcapy.  
 
-Copyright 2016--2020 Michael Hayes, UCECE
+Copyright 2016--2021 Michael Hayes, UCECE
 
 """
 
@@ -104,30 +104,23 @@ def laplace_integral(expr, t, s):
         raise ValueError('Need indefinite limits for %s' % expr)
     
     const2, expr = factor_const(integrand, var)
-    if ((len(expr.args) != 2)
-        or (not isinstance(expr.args[0], AppliedUndef))
-        or (not isinstance(expr.args[1], AppliedUndef))):
+    if ((len(expr.args) != 2) or not expr.args[0].is_Function
+        or not expr.args[1].is_Function):
         raise ValueError('Need integral of two functions: %s' % expr)        
 
     f1 = expr.args[0]
     f2 = expr.args[1]    
 
-    # TODO: apply similarity theorem if have f(a tau) etc.
-    
-    if ((f1.args[0] != var or f2.args[0] != t - var)
-        and (f2.args[0] != var or f1.args[0] != t - var)):
+    # TODO: apply similarity theorem if have f(a * tau) etc.
+
+    if (f1.args[0] == var and f2.args[0] == t - var):
+        F1 = laplace_term(f1, var, s)
+        F2 = laplace_term(f2.subs(t - var, t), t, s)
+    elif (f2.args[0] == var and f1.args[0] == t - var):
+        F1 = laplace_term(f1.subs(t - var, t), t, s)
+        F2 = laplace_term(f2, var, s)
+    else:            
         raise ValueError('Cannot recognise convolution: %s' % expr)
-
-    ssym = sympify(str(s))
-    
-    name = f1.func.__name__
-    func1 = name[0].upper() + name[1:] + '(%s)' % str(ssym)
-
-    name = f2.func.__name__
-    func2 = name[0].upper() + name[1:] + '(%s)' % str(ssym)    
-
-    F1 = sympify(func1).subs(ssym, s)
-    F2 = sympify(func2).subs(ssym, s)
     
     return F1 * F2
 
