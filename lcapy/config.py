@@ -56,6 +56,7 @@ matrix_inverse_fallback_method = 'ADJ'
 loose_units = True
 show_units = False
 abbreviate_units = True
+canonical_units = False
 
 # This cannot be enabled without loose units (e.g., s + 1, or s * 'R' * 'C' + 1 would fail)
 check_units = True

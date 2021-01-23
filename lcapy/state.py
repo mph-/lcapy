@@ -8,7 +8,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 from sympy.assumptions.assume import global_assumptions
 
 from .context import Context
-from .config import check_units, abbreviate_units, loose_units, show_units
+from .config import check_units, abbreviate_units, loose_units, show_units, canonical_units
 from .printing import PrintingConfig
 from copy import copy
 
@@ -25,6 +25,7 @@ class State(object):
         self.loose_units = loose_units
         self.check_units = check_units
         self.show_units = show_units
+        self.canonical_units = canonical_units
         self.printing.abbreviate_units = abbreviate_units
 
     def new_context(self):

@@ -4,7 +4,7 @@ class VoltageMixin(Quantity):
 
     quantity = 'voltage'
     quantity_label = 'Voltage'
-    units = 'V'
+    quantity_units = 'V'
     is_voltage = True
 
     def cpt(self):

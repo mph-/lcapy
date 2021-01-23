@@ -3,7 +3,7 @@
 """This module provides the Expr class.  This attempts to create a
 consistent interface to SymPy's expressions.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
@@ -341,9 +341,9 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
             self.assumptions = ass.merge(**assumptions)
             self.expr = arg.expr
             try:
-                self.units = self._units
+                self._units = self._default_units
             except:
-                self.units = sym.S.One
+                self._units = sym.S.One
             return
 
         assumptions = Assumptions(assumptions)
@@ -358,9 +358,9 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         # Remove Lcapy assumptions from SymPy expr.
         self.expr = sympify(arg, **self.assumptions.sympy_assumptions())
         try:
-            self.units = self._units
+            self._units = self._default_units
         except:
-            self.units = sym.S.One        
+            self._units = sym.S.One        
 
 
     def _class_by_quantity(self, quantity, domain=None):
@@ -495,6 +495,21 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
 
         return printer._print(expr)
 
+    @property
+    def units(self):
+        """Return the units of the expression."""
+
+        return self._units
+
+    @units.setter
+    def units(self, unit):
+        """Set the units of the expression; these are simplified into canonical form."""        
+
+        if state.canonical_units:
+            unit = units.simplify_units(unit)
+        
+        self._units = unit
+    
     @property
     def is_causal(self):
         """Return True if zero for t < 0."""
@@ -821,7 +836,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if state.check_units:
             sunits = units.simplify_units(self.units)
-            xunits = units.simplify_units(x.units)            
+            xunits = units.simplify_units(x.units)
             
             if (sunits != xunits and self.expr != 0 and x.expr != 0 and not
                 (state.loose_units and x.is_undefined)):
@@ -935,7 +950,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         value = self.expr * x.expr
         result = cls(value, **assumptions)        
-        result.units = units.simplify_units(self.units * x.units)
+        result.units = self.units * x.units
         return result
     
     def __rmul__(self, x):
@@ -984,7 +999,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         value = self.expr / x.expr
         result = cls(value, **assumptions)        
-        result.units = units.simplify_units(self.units / x.units)            
+        result.units = self.units / x.units
 
         return result
             
@@ -1703,7 +1718,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.__class__(ret, **self.assumptions)
 
     def simplify_units(self):
-        """Simplify units."""
+        """Simplify units into canonical form."""
 
         ret = self.__class__(self, **self.assumptions)
         ret.units = units.simplify_units(self.units)
@@ -2415,7 +2430,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if units_scale is not None:
             ret.units = self.units * units_scale
-            ret.simplify_units()
         return ret
     
 

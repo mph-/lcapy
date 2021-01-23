@@ -80,6 +80,8 @@ class LcapyTester(unittest.TestCase):
         i = current(4)
 
         p = v * i
+        # Convert V * W to W if canonical_units not enabled.
+        p = p.simplify_units()
 
         self.assertEqual(str(p.units), 'W', 'power')        
 

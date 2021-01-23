@@ -200,7 +200,7 @@ class TimeDomainImpulseResponse(TimeDomainExpression):
     # TODO, check attributes.
     quantity = 'transfer'
     quantity_label = 'Impulse response'
-    units = '1/s'
+    domain_units = '1/s'
     is_transfer = True
 
 

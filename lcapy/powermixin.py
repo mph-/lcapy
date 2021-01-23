@@ -4,7 +4,7 @@ class PowerMixin(Quantity):
 
     quantity = 'power'
     quantity_label = 'Power'
-    units = 'W'
+    quantity_units = 'W'
     is_power = True
 
     # TODO: the units are not power in some of the transform domains.

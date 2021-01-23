@@ -6,7 +6,7 @@ class AdmittanceMixin(Quantity, ImmittanceMixin):
 
     quantity = 'admittance'
     quantity_label = 'Admittance'
-    units = 'S'
+    quantity_units = 'S'
     is_admittance = True
     is_immitance = True
     is_ratio = True    

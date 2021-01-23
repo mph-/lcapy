@@ -62,7 +62,7 @@ class ExpressionClassBuilder(dict):
             return domainclass
 
         quantityclass = quantityclasses[quantity]
-        quantityunits = quantityclass.units
+        quantityunits = quantityclass.quantity_units
             
         unitsstring = quantityunits            
         if quantity in ('voltage', 'current'):
@@ -95,7 +95,7 @@ class ExpressionClassBuilder(dict):
             
         newclass = type(name, (quantityclass, domainclass),
                             {'__doc__': docstring,
-                             '_units': units_mapping[unitsstring]})
+                             '_default_units': units_mapping[unitsstring]})
         self[quantity] = newclass
 
         #print('Created %s %s' % (self.domain, quantity))

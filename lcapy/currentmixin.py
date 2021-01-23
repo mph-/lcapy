@@ -4,7 +4,7 @@ class CurrentMixin(Quantity):
 
     quantity = 'current'
     quantity_label = 'Current'
-    units = 'A'
+    quantity_units = 'A'
     is_current = True
 
     def cpt(self):
