@@ -59,7 +59,7 @@ loose_units = True
 show_units = False
 # Print units in abbreviataed form.
 abbreviate_units = True
-# Store units in canonical form.
+# Print units in canonical form.
 canonical_units = False
 # This cannot be enabled without loose units (e.g., s + 1, or s * 'R' * 'C' + 1 would fail).
 check_units = True

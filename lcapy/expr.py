@@ -44,7 +44,10 @@ class ExprPrint(object):
             return self            
 
         if state.show_units:
-            return self.expr_with_units
+            if state.canonical_units:
+                return self.expr_with_canonical_units
+            else:
+                return self.expr_with_units        
         else:
             return self.expr                
     
@@ -316,7 +319,10 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
             return self
         
         if state.show_units:
-            return self.expr_with_units
+            if state.canonical_units:
+                return self.expr_with_canonical_units
+            else:
+                return self.expr_with_units                    
         else:
             return self.expr                
 
@@ -500,8 +506,6 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         """Return the canonical units of the expression.  This is a simplified form,
         so volt * ampere becomes watt."""
 
-        if state.canonical_units:
-            return self._units
         return units.simplify_units(self._units)        
     
     @property
@@ -514,9 +518,6 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     def units(self, unit):
         """Set the units of the expression; these are simplified into canonical form."""        
 
-        if state.canonical_units:
-            unit = units.simplify_units(unit)
-        
         self._units = unit
     
     @property
@@ -776,6 +777,12 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         """Return SymPy expression with units."""
 
         return self.expr * self.units
+
+    @property
+    def expr_with_canonical_units(self):
+        """Return SymPy expression with canonical units."""
+
+        return self.expr * self.canonical_units    
         
     @property
     def func(self):

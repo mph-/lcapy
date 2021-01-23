@@ -311,13 +311,17 @@ Expressions have an attribute `units` that reflect the quantity and domain.  For
    ──
    Hz
    >>> voltage(7 / s).units
-   V⋅s
-   ───
-   rad
+   V
+   ──
+   Hz
    >>> voltage(7 * s).units
-   V⋅s
-   ───
+   V
+   ──
+   Hz
+   >>> s.units
    rad
+   ───
+    s 
 
 The units are a SymPy Expression and thus can be formatted as a
 string, LaTeX, etc.  They can be automatically printed, for example::
@@ -333,6 +337,25 @@ Abbreviated units are employed by default, however, this can be disabled.  For e
    >>> voltage(7)
    7⋅volt
 
+By default, units are printed in the form they are created.  However,
+they can be printed in a simplified canonical form::
+
+   >>> state.show_units = True
+   >>> current(7) * impedance(2)
+   14⋅A⋅ohm
+   >>> state.canonical_units = True
+   >>> current(7) * impedance(2)
+   14⋅V
+
+Alternatively, the units can be simplified using the `simplify_units()` method::
+
+   >>> state.show_units = True
+   >>> V = current(7) * impedance(2)
+   >>> V
+   14⋅A⋅ohm   
+   >>> V.simplify_units()
+   14⋅V
+   
 The units are chosen as a function of quantity and domain when an
 Lcapy expression is created and are modified by multiplications, divisions, and transformations, such as a Fourier transform.  Here are the default values::
 

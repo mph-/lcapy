@@ -82,11 +82,8 @@ class ExpressionClassBuilder(dict):
             if domainclass.is_time_domain:
                 unitsstring = '%s/s^2' % quantityunits
 
-        # FIXME:  The units of squared quantities are incorrect under transformation
-        # to another domain.  For example, v1(t) * v2(t) has units V^2,
-        # V1(f) * V2(f) has units (V/Hz)^2, but (v1(t) * v2(t))(f) has units V^2/Hz,
-        # and (V1(f) * V2(f))(t) has units V^2/Hz.
-                        
+        # TODO: perhaps rename transfer function in time domain to
+        # impulse response?
         docstring = '%s-domain %s (units %s).' % (domainclass.domain_label,
                                                   quantity, unitsstring)
 

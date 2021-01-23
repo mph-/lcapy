@@ -68,11 +68,15 @@ class Units(object):
         if result.has(u.webers):
             result = result.replace(u.webers, u.volt * u.s)
 
+        # There are probably many more special cases like this.
+        if result == u.hbar:
+            result = u.joule / u.Hz
+
         if not unit.has(u.rad):
             return result
 
-        # If original expression has rad (or 1 / rad) then this will get lost in the mapping,
-        # so need to reapply it.
+        # If original expression has rad (or 1 / rad) then this will
+        # get lost in the mapping, so need to reapply it.
         factors = unit.as_ordered_factors()
         if u.rad in factors:
             return result * u.rad
