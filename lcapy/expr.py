@@ -496,6 +496,15 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         return printer._print(expr)
 
     @property
+    def canonical_units(self):
+        """Return the canonical units of the expression.  This is a simplified form,
+        so volt * ampere becomes watt."""
+
+        if state.canonical_units:
+            return self._units
+        return units.simplify_units(self._units)        
+    
+    @property
     def units(self):
         """Return the units of the expression."""
 
@@ -835,8 +844,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             x = expr(x)
 
         if state.check_units:
-            sunits = units.simplify_units(self.units)
-            xunits = units.simplify_units(x.units)
+            sunits = self.canonical_units
+            xunits = x.canonical_units
             
             if (sunits != xunits and self.expr != 0 and x.expr != 0 and not
                 (state.loose_units and x.is_undefined)):
