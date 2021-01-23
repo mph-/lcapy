@@ -147,6 +147,15 @@ class Superposition(SuperpositionDomain, ExprDict):
             syms.update(expr1.symbols)
         return syms
 
+    @property
+    def units(self):
+        """Return the units of the expression.  However, since this is a
+        superposition, units are not defined.  Instead, it is
+        necessary to transform to a specific domain.  For example,
+        using `V(s)`."""
+
+        raise AttributeError("""Units are not defined for a superposition; convert to a specific domain, say using `V(t)` or `V(s)`.""")
+    
     def ac_keys(self):
         """Return list of keys for all ac components."""
 

@@ -13,8 +13,6 @@ class Function(object):
     
     def __call__(self, *args):
 
-        cls = args[0].__class__
-
         # Unwrap expressions
         tweak_args = list(args)
         for m, arg in enumerate(args):
@@ -24,6 +22,8 @@ class Function(object):
         result = self.expr(*tweak_args)
 
         if isinstance(args[0], Expr):
+
+            cls = args[0].__class__
             result = cls(result)        
             
             if args[0].is_phase and self.expr in (sym.sin, sym.cos, sym.tan, sym.exp,
