@@ -2,7 +2,7 @@
 Overview
 ========
 
-This document provides an overview of Lcapy's capabilities.
+This document provides an overview of Lcapy's capabilities.   It assumes you know something about circuit theory.   If you know nothing about circuit theory, see :ref:`novices`.
 
 
 Introduction
@@ -142,6 +142,9 @@ impedance), and units.  For more details see :ref:`domains`,
    >>> V.units
    V 
 
+By default, the units are not printed (for more details see :ref:`units`).
+
+   
 Lcapy expressions have a number of other attributes  (see :ref:`expressionsattributes`) including:
 
 - `numerator`, `N` --  numerator of rational function
