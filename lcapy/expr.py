@@ -646,6 +646,24 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     @property
     def is_dB(self):
         return self.part == 'magnitude' and self.units == dB
+
+    @property
+    def ac(self):
+        """Return the AC components."""
+
+        return self.as_superposition().ac
+
+    @property
+    def dc(self):
+        """Return the DC component."""
+
+        return self.as_superposition().dc        
+
+    @property
+    def transient(self):
+        """Return the transient component."""
+        
+        return self.as_superposition().transient
     
     @property
     def fval(self):
