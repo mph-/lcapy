@@ -1,9 +1,9 @@
-"""This module provides functions.
+"""This module wraps SymPy functions and provides a few others.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 """
 
-
+from .units import u as uu
 import sympy as sym
 
 class Function(object):
@@ -29,6 +29,8 @@ class Function(object):
             if args[0].is_phase and self.expr in (sym.sin, sym.cos, sym.tan, sym.exp,
                                                   sym.sinh, sym.cosh, sym.tanh):
                 result.part = ''
+            elif self.expr in (sym.atan, sym.atan2):
+                result.units = uu.rad
             elif self.expr == sym.diff and isinstance(args[1], Expr):
                 result.units = args[0].units / args[1].units
             elif self.expr == sym.integrate:

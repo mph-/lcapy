@@ -92,5 +92,5 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(str(diff(t, t).units), '1', 'diff(t, t)')
         self.assertEqual(str(integrate(t, t).units), 's**2', 'integrate(t, t)')
         self.assertEqual(str(integrate(t, (t, 0, 1)).units), 's**2', 'integrate(t, (t, 0, 1))')
-        
+        self.assertEqual(str(atan(f).units), 'rad', 'atan(f)')        
         
