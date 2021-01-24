@@ -193,6 +193,24 @@ class TimeDomainExpression(TimeDomain, Expr):
                           (tausym, -oo, oo))
         return self.__class__(result, **assumptions)
 
+    @property
+    def ac(self):
+        """Return the AC components."""
+
+        return self.as_superposition().ac
+
+    @property
+    def dc(self):
+        """Return the DC component."""
+
+        return self.as_superposition().dc        
+
+    @property
+    def transient(self):
+        """Return the transient component."""
+        
+        return self.as_superposition().transient
+    
     
 class TimeDomainImpulseResponse(TimeDomainExpression):
     """Time-domain impulse response."""

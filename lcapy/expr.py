@@ -436,6 +436,16 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         if not self.is_unchanging:
             raise ValueError('Expression %s is not constant' % self)
         return self._class_by_quantity(self.quantity)(self)(cexpr(self))
+
+    def as_superposition(self):
+        from .superpositionvoltage import SuperpositionVoltage
+        from .superpositioncurrent import SuperpositionCurrent
+        
+        if self.is_voltage:
+            return SuperpositionVoltage(self)
+        elif self.is_current:
+            return SuperpositionCurrent(self)
+        raise ValueError('Can only convert voltage or current to superposition')
     
     def as_time(self):
         return self.time()
