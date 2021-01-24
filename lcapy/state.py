@@ -27,8 +27,6 @@ class State(object):
         self.show_units = show_units
         self.canonical_units = canonical_units
         self.printing.abbreviate_units = abbreviate_units
-        # The following is experimental and is likely to go nowhere.
-        self.force_time = False
 
     def new_context(self):
 

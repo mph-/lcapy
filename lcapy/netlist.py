@@ -1,7 +1,7 @@
 """This module provides support for the common aspects of Circuit and
 Network classes.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
@@ -23,7 +23,6 @@ from .subnetlist import SubNetlist
 from .mna import MNAMixin, Nodedict, Branchdict
 from .symbols import omega
 from copy import copy
-
 
 
 class Transformdomains(dict):
@@ -208,7 +207,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         for sub in self.sub.values():
             I = sub.get_I(name)
             result.add(I)
-        result = result.force_time()            
+        result = result            
         return result
 
     def get_i(self, name):
@@ -230,7 +229,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         """Voltage drop between nodes (time-domain)"""
 
         Np, Nm = self._check_nodes(Np, Nm)
-        return self._get_Vd(Np, Nm).force_time()
+        return self._get_Vd(Np, Nm)
 
     def get_vd(self, Np, Nm=None):
         """Time-domain voltage drop between nodes"""
