@@ -776,7 +776,8 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     def expr_with_units(self):
         """Return SymPy expression with units."""
 
-        return self.expr * self.units
+        # Don't evaluate otherwise 1 A gets printed as A.
+        return sym.Mul(self.expr, self.units, evaluate=False)
 
     @property
     def expr_with_canonical_units(self):
