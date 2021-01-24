@@ -27,7 +27,8 @@ Contents:
    networks.rst
    netlists.rst
    schematics.rst
-   tutorials.rst           
+   tutorials.rst
+   novices.rst              
    latex.rst
    config.rst                                                      
    problems.rst                          
