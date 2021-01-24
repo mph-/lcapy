@@ -112,8 +112,8 @@ The voltage across R can be plotted, however, it needs a specific value for :mat
    :width: 12cm
   
 
-AC voltage divider transient response
-=====================================
+AC voltage divider step response
+================================
 
 A change in amplitude (frequency or phase) of a signal produces a transient response.   Here is a netlist with a voltage source that has a step change.
 
