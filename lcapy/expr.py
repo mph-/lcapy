@@ -538,13 +538,8 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
             self.assumptions.infer_from_expr(self)        
         return self.assumptions.is_causal
 
-    @property
-    def causal(self):
-        
-        return self.is_causal
-        
-    @causal.setter
-    def causal(self, value):
+    @is_causal.setter
+    def is_causal(self, value):
 
         self.assumptions.set('causal', value)
 
@@ -556,7 +551,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         return self.assumptions.is_dc
 
     @is_dc.setter
-    def dc(self, value):
+    def is_dc(self, value):
 
         self.assumptions.set('dc', value)        
 
@@ -568,7 +563,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         return self.assumptions.is_ac
 
     @is_ac.setter
-    def ac(self, value):
+    def is_ac(self, value):
 
         self.assumptions.set('ac', value)
 
@@ -581,7 +576,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         return self.assumptions.is_unknown
 
     @is_unknown.setter
-    def unknown(self, value):
+    def is_unknown(self, value):
 
         self.assumptions.set('unknown', value)        
 
