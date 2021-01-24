@@ -23,6 +23,13 @@ labels.
 
 10. Perhaps use dvipng?
 
+11. Get SymPy to use \ud for derivatives.  Perhaps define macro, say as:
+
+    \makeatletter
+    \@ifundefined{ud}{\newcommand{\ud}{\mathrm{d}}}{}
+    \makeatother
+
+12. Enable/disable units
 
 
 Circuit analysis
@@ -81,6 +88,8 @@ an answer that appears valid for DC.
 15. Untangle Netlist stuff
 
 16. Test NetlistNamespace
+
+17. Ponder what ac attribute should return; a dictionary as present or a time expr?
 
 
 Testing

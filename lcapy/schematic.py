@@ -436,7 +436,7 @@ class Schematic(NetfileMixin):
 
         if cpt.type in ('S', 'SW', 'U'):
             value_label = ''
-            
+
         if cpt.args != ():
 
             # TODO, extend for mechanical and acoustical components.
