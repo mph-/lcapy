@@ -11,6 +11,7 @@ import sympy as sym
 from .expr import Expr, ExprDict, expr
 from .sym import tsym, omega0sym, symbols_find, is_sympy, symsymbol
 from .acdc import is_ac
+from .state import state
 from .domains import SuperpositionDomain
 from .printing import pprint, pretty, latex
 from .classmap import domain_kind_quantity_to_class, expr_to_domain_kind
@@ -792,6 +793,11 @@ phasor, for example, using: %s""" % foo)
     def psd(self):
         return self.n.psd()        
 
+    def force_time(self):
+
+        if state.force_time:
+            return self.time()
+        return self    
     
 from .cexpr import ConstantDomainExpression        
 from .fexpr import FourierDomainExpression    

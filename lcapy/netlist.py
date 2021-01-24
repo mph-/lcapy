@@ -202,13 +202,13 @@ class Netlist(NetlistMixin, NetfileMixin):
         return result    
 
     def get_I(self, name):
-        """Current through component"""
+        """Current through component (time-domain)"""
 
         result = SuperpositionCurrent()
         for sub in self.sub.values():
             I = sub.get_I(name)
             result.add(I)
-        result = result.canonical()            
+        result = result.force_time()            
         return result
 
     def get_i(self, name):
@@ -227,10 +227,10 @@ class Netlist(NetlistMixin, NetfileMixin):
         return result
 
     def get_Vd(self, Np, Nm=None):
-        """Voltage drop between nodes"""
+        """Voltage drop between nodes (time-domain)"""
 
         Np, Nm = self._check_nodes(Np, Nm)
-        return self._get_Vd(Np, Nm)
+        return self._get_Vd(Np, Nm).force_time()
 
     def get_vd(self, Np, Nm=None):
         """Time-domain voltage drop between nodes"""

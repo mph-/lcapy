@@ -98,21 +98,21 @@ class OnePort(Network, ImmittanceMixin):
     def Voc(self):
         """Open-circuit voltage."""        
         if self._Voc is not None:
-            return self._Voc
+            return self._Voc.force_time()
         if self._Isc is not None:
-            return self._Isc._mul(self.impedance)
+            return self._Isc._mul(self.impedance).force_time()
         if self._Z is not None:        
-            return SuperpositionVoltage(0)
+            return SuperpositionVoltage(0).force_time()
         if self._Y is not None:        
-            return SuperpositionCurrent(0)
+            return SuperpositionCurrent(0).force_time()
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
     
     @property
     def Isc(self):
         """Short-circuit current."""        
         if self._Isc is not None:
-            return self._Isc
-        return self.Voc._mul(self.admittance)
+            return self._Isc.force_time()
+        return self.Voc._mul(self.admittance).force_time()
 
     @property
     def V(self):
@@ -122,7 +122,7 @@ class OnePort(Network, ImmittanceMixin):
     @property
     def I(self):
         """Open-circuit current.  Except for a current source this is zero."""
-        return SuperpositionCurrent(0)
+        return SuperpositionCurrent(0).force_time()
 
     @property
     def i(self):

@@ -555,12 +555,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
             self.assumptions.infer_from_expr(self)                
         return self.assumptions.is_dc
 
-    @property
-    def dc(self):
-        
-        return self.is_dc
-
-    @dc.setter
+    @is_dc.setter
     def dc(self, value):
 
         self.assumptions.set('dc', value)        
@@ -572,12 +567,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
             self.assumptions.infer_from_expr(self)                
         return self.assumptions.is_ac
 
-    @property
-    def ac(self):
-        
-        return self.is_ac    
-
-    @ac.setter
+    @is_ac.setter
     def ac(self, value):
 
         self.assumptions.set('ac', value)
@@ -590,12 +580,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
             self.assumptions.infer_from_expr(self)                
         return self.assumptions.is_unknown
 
-    @property
-    def unknown(self):
-        
-        return self.is_unknown    
-
-    @unknown.setter
+    @is_unknown.setter
     def unknown(self, value):
 
         self.assumptions.set('unknown', value)        
@@ -2461,7 +2446,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if units_scale is not None:
             ret.units = self.units * units_scale
         return ret
-    
+
+    def force_time(self):
+
+        if state.force_time:
+            return self.time()
+        return self
 
 def exprcontainer(arg, **assumptions):
 
