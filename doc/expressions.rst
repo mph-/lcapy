@@ -553,7 +553,7 @@ Miscellaneous
 
 - `evalf(n)` returns floating point number to `n` decimal places (as Lcapy expression) if expression can be evaluated (see also `val`, `fval`, and `cval` attributes)
 
-- `evaluate` returns floating point number (as SymPy float or complex type) if expression can be evaluated.  If passed an NumPy array, an array of NumPy float or complex types is returned.
+- `evaluate(arg)` returns floating point number (Python float or complex type) if expression can be evaluated.  If passed an NumPy array, an array of NumPy float or complex types is returned.
     
 - `initial_value()` returns result at :math:`t = 0`.
 
@@ -565,7 +565,7 @@ Miscellaneous
 
 - `multiply_top_and_bottom(expr)` multiplies numerator and denominator by `expr`.
 
-- `rationalize_denominator` multiplies numerator and denominator by complex conjugate of denominator.
+- `rationalize_denominator()` multiplies numerator and denominator by complex conjugate of denominator.
 
 - `replace(query, value)` replace `query` with `value`.
 
@@ -855,8 +855,7 @@ NumPy array.  For example,
    >>> a.evaluate(tv)
    array([1.    , 1.5625, 2.25  , 3.0625, 4.    ])
 
-If the argument is a scalar the returned result is a SymPy type; otherwise it is a NumPy type.
-The evaluation method is useful for plotting results.
+If the argument is a scalar the returned result is a Python float or complex type; otherwise it is a NumPy array.  The evaluation method is useful for plotting results.
 
    
 Phasors
