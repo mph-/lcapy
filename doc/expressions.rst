@@ -549,7 +549,20 @@ Miscellaneous
 
 - `as_sum()` rewrite expression as a sum of terms where the denominator of each term has a common polynomial expression (see :ref:`expressionsresponses`).
 
-- `convolve(x)` convolves expressions.
+- `convolve(x)` convolves expressions.  For example::
+
+    >>> current('i(t)').convolve(impedance('z(t)'))
+    ∞                  
+    ⌠                  
+    ⎮  i(t - τ)⋅z(τ) dτ
+    ⌡                  
+    -∞
+    >>> current('i(t)').convolve(impedance('z(t)'), commutate=True)
+    ∞                  
+    ⌠                  
+    ⎮  i(τ)⋅z(t - τ) dτ
+    ⌡                  
+    -∞    
 
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
@@ -575,12 +588,15 @@ Miscellaneous
 .. _expressionsprinting:  
   
 Formatting methods
-------------------
+==================
 
 Lcapy expressions can be displayed in many forms.  For example, consider the s-domain rational-function::
 
    >>> H = 5 * (s**2 + 1) / (s**2 + 5*s + 4)     
 
+Canonical form
+--------------
+   
 The canonical form has a unity coefficient for the highest power in the denominator.  It is sometimes called polynomial form.
    
    >>> H.canonical()
@@ -599,6 +615,23 @@ There is a variation of the canonical form which has a unity coefficient for the
     2          
    s  + 5⋅s + 4
 
+   
+Expanded canonical form
+-----------------------
+       
+The expanded canonical form expresses the rational function into the sum of rational functions where the numerator of each term contains a unique monomial.
+       
+   >>> H.expandcanonical()  
+          2                   
+       5⋅s             5      
+   ──────────── + ────────────
+    2              2          
+   s  + 5⋅s + 4   s  + 5⋅s + 4
+
+
+General form
+------------
+   
 The general form of a rational function is shown as the ratio of two polynomials.   Unlike the canonical form, the coefficient for the highest power in the denominator may not be unity.
    
    >>> H.general()
@@ -608,6 +641,10 @@ The general form of a rational function is shown as the ratio of two polynomials
     2          
    s  + 5⋅s + 4
 
+
+Factored (ZPK) form
+-------------------
+   
 The factored form show both the numerator and denominator polynomials  factored.  It is an alias for `ZPK` (zero-pole-gain) form.
    
    
@@ -616,6 +653,10 @@ The factored form show both the numerator and denominator polynomials  factored.
    ─────────────────
     (s + 1)⋅(s + 4) 
 
+    
+Partial fraction form
+---------------------
+    
 The partial fraction form has terms that are strictly proper.
     
    >>> H.partfrac()
@@ -632,33 +673,6 @@ The `recippartfrac()` method generates a partial fraction expansion using the re
        3⋅⎜1 + ─⎟   48⋅⎜─ + ─⎟
          ⎝    s⎠      ⎝4   s⎠
 
-       
-The standard form expresses the rational function as the sum of a polynomial and a strictly proper rational function.
-       
-   >>> H.standard()
-      25⋅s + 15      
-   - ──────────── + 5
-      2              
-     s  + 5⋅s + 4    
-
-The time constant form factors the rational function into gain-time-constant form.
-   
-   >>> H.timeconst()
-   5⋅(-ⅉ⋅s + 1)⋅(ⅉ⋅s + 1)
-   ──────────────────────
-       ⎛s    ⎞           
-     4⋅⎜─ + 1⎟⋅(s + 1)   
-       ⎝4    ⎠           
-
-The expanded canonical form expresses the rational function into the sum of rational functions where the numerator of each term contains a unique monomial.
-       
-   >>> H.expandcanonical()  
-          2                   
-       5⋅s             5      
-   ──────────── + ────────────
-    2              2          
-   s  + 5⋅s + 4   s  + 5⋅s + 4
-
 
 The `partfrac()` and `recippartfrac()` methods have a `combine_conjugates` argument.  If this is True, quadratic factors will not be split into two terms.  For example::
 
@@ -672,6 +686,31 @@ The `partfrac()` and `recippartfrac()` methods have a `combine_conjugates` argum
       - ────── + ─
          2       s
         s  + 1    
+
+         
+Standard form
+-------------
+         
+The standard form expresses the rational function as the sum of a polynomial and a strictly proper rational function.
+       
+   >>> H.standard()
+      25⋅s + 15      
+   - ──────────── + 5
+      2              
+     s  + 5⋅s + 4    
+
+     
+Time constant form
+------------------
+     
+The time constant form factors the rational function into gain-time-constant form.
+   
+   >>> H.timeconst()
+   5⋅(-ⅉ⋅s + 1)⋅(ⅉ⋅s + 1)
+   ──────────────────────
+       ⎛s    ⎞           
+     4⋅⎜─ + 1⎟⋅(s + 1)   
+       ⎝4    ⎠           
   
 
 Printing methods

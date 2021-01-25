@@ -91,6 +91,12 @@ an answer that appears valid for DC.
 
 17. Ponder what ac attribute should return; a dictionary as present or a time expr?
 
+18. Allow resistance, etc., for other domains.
+
+18. Return x.resistance() as resistance class?
+
+19. Warn if try to multiply impedance impulse response with current in time-domain, etc.
+
 
 Testing
 =======
