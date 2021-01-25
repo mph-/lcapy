@@ -50,28 +50,28 @@ class DiscreteExpression(Expr):
 
     def transform(self, arg, **assumptions):
 
-        from .nexpr import DiscreteTimeDomainExpression, n
-        from .kexpr import DiscreteFourierDomainExpression, k
-        from .zexpr import ZDomainExpression, z
+        from .nexpr import n
+        from .kexpr import k
+        from .zexpr import z
         from .fexpr import f        
 
         # Is this wise?   It makes sense for Voltage and Impedance objects
         # but may cause too much confusion for other expressions
-        if arg is n and isinstance(self, ZDomainExpression):
+        if arg is n and self.is_Z_domain:
             return self.IZT(**assumptions)
-        elif arg is n and isinstance(self, DiscreteFourierDomainExpression):
+        elif arg is n and self.is_discrete_fourier_domain:
             return self.IDFT(**assumptions)        
-        elif arg is z and isinstance(self, DiscreteTimeDomainExpression):
+        elif arg is z and self.is_discrete_time_domain:
             return self.ZT(**assumptions)
-        elif arg is z and isinstance(self, DiscreteFourierDomainExpression):
+        elif arg is z and self.is_discrete_fourier_domain:
             return self.IDFT(**assumptions).ZT(**assumptions)
-        elif arg is k and isinstance(self, DiscreteTimeDomainExpression):
+        elif arg is k and self.is_discrete_time_domain:
             return self.DFT(**assumptions)
-        elif arg is k and isinstance(self, ZDomainExpression):
+        elif arg is k and self.is_Z_domain:
             return self.IZT(**assumptions).DFT(**assumptions)
-        elif arg is f and isinstance(self, DiscreteTimeDomainExpression):
+        elif arg is f and self.is_discrete_time_domain:
             return self.DTFT(**assumptions)
-        elif arg is f and isinstance(self, ZDomainExpression):
+        elif arg is f and self.is_Z_domain:
             return self.DTFT(**assumptions)                
         
         # Do we really want to this?   

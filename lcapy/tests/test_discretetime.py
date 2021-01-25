@@ -10,11 +10,15 @@ class LcapyTester(unittest.TestCase):
 
     """
 
-    def test_transform(self):
+    def test_transforms(self):
 
         a = ui(n)
-
         self.assertEqual(a(z), 1, "ui(n)")
+        self.assertEqual(a(k), 1, "ui(k)")
+        self.assertEqual(a(k)(z), 1, "ui(k)(z)")        
+        self.assertEqual(a(k)(n), a, "ui(k)(n)")
+        self.assertEqual(a(z)(n), a, "ui(z)(n)")
+        self.assertEqual(a(z)(k), 1, "ui(z)(k)")                        
 
     def test_decompose_AB(self):
 
