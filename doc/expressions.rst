@@ -77,12 +77,12 @@ Lcapy has five predefined domain variables for continuous time signals:
 - `jomega` (or `jw`) -- phasor domain
   
 
-A time-domain expression is produced using the `t` variable, for example,
+A time-domain expression is produced using the `t` variable, for example::
   
    >>> e = exp(-3 * t) * u(t)
 
 Similarly, a Laplace-domain expression is produced using the `s`
-variable, for example,
+variable, for example::
   
    >>> V = s / (s**2 + 2 * s + 3)
 
@@ -96,7 +96,7 @@ There are an additional three domain variables for discrete-time signals (see :r
 - `z` -- z-domain  
 
 
-For example,
+For example::
 
     >>> V = delta(n) + 2 * delta(n - 1) + 3 * delta(n - 3)
   
@@ -117,7 +117,7 @@ Symbols can also be created with Lcapy's `symbol` function:
 
    >>> tau = symbol('tau', real=True)
 
-They are also implicitly created from strings.  For example,
+They are also implicitly created from strings.  For example::
    
    >>> v = expr('exp(-t / tau) * u(t)')
 
@@ -241,7 +241,7 @@ Domain attributes
 Quantities
 ==========
 
-Each expression has a quantity (voltage, current, undefined, etc.).  When combining expressions, the quantity of the result is determined for the most common combination of electrical quantities.  For example,
+Each expression has a quantity (voltage, current, undefined, etc.).  When combining expressions, the quantity of the result is determined for the most common combination of electrical quantities.  For example::
 
    >>> V = current(1 / s) * impedance(2)
    >>> V.quantity
@@ -549,6 +549,8 @@ Miscellaneous
 
 - `as_sum()` rewrite expression as a sum of terms where the denominator of each term has a common polynomial expression (see :ref:`expressionsresponses`).
 
+- `convolve(x)` convolves expressions.
+
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
 - `evalf(n)` returns floating point number to `n` decimal places (as Lcapy expression) if expression can be evaluated (see also `val`, `fval`, and `cval` attributes)
@@ -575,8 +577,7 @@ Miscellaneous
 Formatting methods
 ------------------
 
-Lcapy expressions can be displayed in many forms.  For example,
-consider the s-domain rational-function:
+Lcapy expressions can be displayed in many forms.  For example, consider the s-domain rational-function::
 
    >>> H = 5 * (s**2 + 1) / (s**2 + 5*s + 4)     
 
@@ -659,7 +660,7 @@ The expanded canonical form expresses the rational function into the sum of rati
    s  + 5⋅s + 4   s  + 5⋅s + 4
 
 
-The `partfrac()` and `recippartfrac()` methods have a `combine_conjugates` argument.  If this is True, quadratic factors will not be split into two terms.  For example,
+The `partfrac()` and `recippartfrac()` methods have a `combine_conjugates` argument.  If this is True, quadratic factors will not be split into two terms.  For example::
 
    >>> H = 5 / (s * (s**2 + 1))
    >>> H.partfrac()
@@ -689,7 +690,7 @@ SymPy methods
 -------------
 
 If Lcapy does not have a method defined but the underlying SymPy
-expression does, the SymPy method is used.  For example,
+expression does, the SymPy method is used.  For example:
 
 - `diff()`
 
@@ -703,8 +704,7 @@ Utility functions
 
 - `expr()` create an expression.  This can also create lists, tuples, and dictionaries of expressions.
 
-Note, SymPy does not allow symbol names that are Python keywords.  For example,
-`expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.
+Note, SymPy does not allow symbol names that are Python keywords.  For example, `expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.
 
 - `simplify_terms()` expand expression into terms and simplify each term.
 
@@ -720,7 +720,7 @@ Substitution and transformation use a similar syntax `V(arg)`.  If
 `arg` is a domain variable `t`, `f`, `s`, `omega`, or `jomega`,
 transformation is performed, otherwise substitution is performed.
 This behaviour can be explicitly controlled using the `subs` and
-`transform` methods, for example,
+`transform` methods, for example::
 
    >>> from lcapy import *
    >>> V1 = voltage('3 * exp(-2 * t)')
@@ -848,7 +848,7 @@ answer, for example::
    1.0
 
 The argument to `evaluate` can be a scalar, a tuple, a list, or a
-NumPy array.  For example,
+NumPy array.  For example::
 
    >>> a = expr('t**2 + 2 * t + 1')
    >>> tv = np.linspace(0, 1, 5)
@@ -947,7 +947,7 @@ and `admittance` factory functions.  For example::
    >>> Z3 = admittance(s * 'C')
 
 The impedance can be converted to a specific domain using a domain variable
-as an argument.  For example,
+as an argument.  For example::
 
    >>> Z1(omega)
    5⋅ⅉ⋅ω
@@ -994,7 +994,6 @@ Netlist components have similar attributes.  For example::
     1 
    ───
    C⋅s
-
    
 
 Immittance attributes
@@ -1061,13 +1060,12 @@ The results from circuit analysis are represented by a superposition of differen
 Voltage and current superpositions
 ----------------------------------
 
-Superpositions of voltages and/or current are represented using the `SuperpositionVoltage` and
-`SuperpositionCurrent` classes.  These classes have similar behaviour; they
+Superpositions of voltages and/or current are represented using the `SuperpositionVoltage` and `SuperpositionCurrent` classes.  These classes have similar behaviour; they
 represent an arbitrary voltage or current signal as a superposition of
 DC, AC, transient, and noise signals.
 
 For example, the following expression is a superposition of a DC
-component, an AC component, and a transient component:
+component, an AC component, and a transient component::
 
    >>> V1 = SuperpositionVoltage('1 + 2 * cos(2 * pi * 3 * t) + 3 * u(t)')
    >>> V1
@@ -1110,7 +1108,7 @@ A pure AC component (phasor) has `magnitude`, `phase`, and `omega` attributes.  
    >>> V5.magnitude
    5
 
-If the signal is a superposition of AC signals, each phasor can be extracted using its angular frequency as the index.  For example,
+If the signal is a superposition of AC signals, each phasor can be extracted using its angular frequency as the index.  For example::
 
    >>> V6 = SuperpositionVoltage(3 * sin(7 * t) + 2 * cos(14 * t))
    >>> V6[7]
@@ -1127,7 +1125,7 @@ as an argument:
 - `V1(omega)` returns the Fourier domain expression with angular frequency
 - `V1(jomega)` returns the Fourier domain expression with angular frequency    
 
-Here are some examples,
+Here are some examples::
 
    >>> V1(t)
    2⋅cos(6⋅π⋅t) + 3⋅u(t) + 1
@@ -1214,11 +1212,11 @@ Assumptions for symbols
 -----------------------
 
 The more specific assumptions are, the easier it is for SymPy to solve
-an expression.  For example,
+an expression.  For example::
 
    >>> C_1 = symbol('C_1', positive=True)
 
-is more appropriate for a capacitor value than
+is more appropriate for a capacitor value than::
 
    >>> C_1 = symbol('C_1', complex=True)
 
@@ -1230,7 +1228,7 @@ Notes:
 
 
 The list of explicit assumptions for an expression can be found from
-the `assumptions` attribute.  For example,
+the `assumptions` attribute.  For example::
 
    >>> a = 2 * t + 3
    >>> a.assumptions
@@ -1258,7 +1256,7 @@ information.  This is provided using assumptions:
 
 -  `damped_sin` says to write response of a second-order system as a damped sinusoid.
    
-For example,
+For example::
 
    >>> H = 1 / (s + 2)
    >>> H(t)
@@ -1350,7 +1348,7 @@ Furthermore, the resultant autocorrelation is
 
 Noise signals can be created using the `noisevoltage()` and
 `noisecurrent()` methods.  For example, a white-noise signal can be
-created using:
+created using::
 
    >>> X = noisevoltage(3)
    >>> X.units
@@ -1399,13 +1397,12 @@ Lcapy when performing circuit analysis).  For example::
    {n2: 4}   
    
    
-
 .. _parameterization:
 
 Parameterization
 ================
 
-Lcapy can parameterize a number of first order, second order, and third order s-domain expressions.  For example, 
+Lcapy can parameterize a number of first order, second order, and third order s-domain expressions.  For example::
 
    >>> H1 = 3 / (s + 2)
    >>> H1p, defs = H1.parameterize()
@@ -1483,18 +1480,18 @@ SymPy
 =====
 
 The underlying SymPy expression can be obtained using the `expr`
-attribute of an Lcapy expression.  For example,
+attribute of an Lcapy expression.  For example::
 
    >>> a = 2 * t + 3
    >>> a.expr
    2⋅t + 3
 
-The methods of the SymPy expression can be accessed from the Lcapy expression, for example,
+The methods of the SymPy expression can be accessed from the Lcapy expression, for example::
 
    >>> a.as_ordered_terms()
    [2⋅t, 3]
 
-Another example is accessing the SymPy symbol assumptions:
+Another example is accessing the SymPy symbol assumptions::
 
    >>> t.assumptions0
    {'commutative': True,
