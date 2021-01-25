@@ -6,6 +6,7 @@ class CurrentMixin(Quantity):
     quantity_label = 'Current'
     quantity_units = 'A'
     is_current = True
+    is_signal = True    
 
     def cpt(self):
         from .oneport import I, Idc, Iac

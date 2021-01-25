@@ -6,6 +6,7 @@ class VoltageMixin(Quantity):
     quantity_label = 'Voltage'
     quantity_units = 'V'
     is_voltage = True
+    is_signal = True
 
     def cpt(self):
         from .oneport import V, Vac, Vdc

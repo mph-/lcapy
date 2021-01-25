@@ -8,6 +8,7 @@ from .units import u as uu
 
 def conductance(arg, **assumptions):
 
+    # Perhaps, relax to expr?
     expr1 = cexpr(arg, **assumptions)
     expr1.units = uu.siemens
 

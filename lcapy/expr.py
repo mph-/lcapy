@@ -817,8 +817,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
 
     def _incompatible(self, x, op, reason=''):
 
-        raise ValueError("""
-Cannot determine %s(%s) %s %s(%s)%s""" %
+        raise ValueError("Cannot determine %s(%s) %s %s(%s)%s" %
                          (self.__class__.__name__, self, op,
                           x.__class__.__name__, x, reason))        
                 

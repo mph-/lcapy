@@ -8,6 +8,7 @@ from .units import u as uu
 
 def reactance(arg, **assumptions):
 
+    # Perhaps, relax to expr?    
     expr1 = cexpr(arg, **assumptions)
     expr1.units = uu.ohm
 
