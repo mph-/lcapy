@@ -84,8 +84,7 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(H, H2, "second derivative of undef")                
 
-
-    def test_convolution(self):
+    def test_laplace_convolution(self):
 
         a = expr('Integral(3 * x(t - tau) * y(tau), (tau, -oo, oo))')
         self.assertEqual(a(s), expr('3 * X(s) * Y(s)'), "3 * X * Y")

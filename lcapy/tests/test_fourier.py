@@ -85,3 +85,18 @@ class LcapyTester(unittest.TestCase):
                          DiracDelta(f - 1) * exp(3 * j) +
                          DiracDelta(f + 1) * exp(-3 * j))
         
+    def test_fourier_convolution(self):
+
+        a = expr('Integral(3 * x(t - tau) * y(tau), (tau, -oo, oo))')
+        A = a(f)
+        self.assertEqual(A, expr('3 * X(f) * Y(f)'), "3 * X * Y") 
+        #self.assertEqual(A(t), a, "a(f)(t)")       
+
+        a = expr('Integral(3 * x(tau) * y(t - tau), (tau, -oo, oo))')
+        A = a(f)        
+        self.assertEqual(A, expr('3 * X(f) * Y(f)'), "3 * X * Y")
+        #self.assertEqual(A(t), a, "a(f)(t)")               
+
+
+        
+ 

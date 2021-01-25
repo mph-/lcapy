@@ -132,6 +132,7 @@ def laplace_integral(expr, t, s):
     
     return const2 * F1 * F2
 
+
 def laplace_derivative_undef(expr, t, s):
     
     if not isinstance(expr, sym.Derivative):

@@ -67,6 +67,54 @@ def fourier_func(expr, t, f, inverse=False):
     return result
 
 
+def fourier_integral(expr, t, f, inverse):
+
+    const, expr = factor_const(expr, t)
+
+    if len(expr.args) != 2:
+        raise ValueError('Cannot compute Fourier transform of %s' % expr)
+
+    integrand = expr.args[0]
+    
+    if not isinstance(expr, sym.Integral):
+        raise ValueError('Cannot compute Fourier transform of %s' % expr)
+
+    if len(expr.args[1]) != 3:
+        raise ValueError('Require definite integral')
+    
+    var = expr.args[1][0]
+    limits = expr.args[1][1:]
+    const2, expr2 = factor_const(integrand, var)
+
+    if (expr2.is_Function and
+        expr2.args[0] == t - var and limits[0] == 0 and limits[1] == sym.oo):
+        return const2 * fourier_term(expr2.subs(t - var, t), t, f, inverse) / f
+
+    # Look for convolution integral
+    # TODO, handle convolution with causal functions.
+    if (limits[0] != -sym.oo) or (limits[1] != sym.oo):
+        raise ValueError('Need indefinite limits for %s' % expr)
+   
+    if ((len(expr.args) != 2) or not expr2.is_Mul or
+        not expr2.args[0].is_Function or not expr2.args[1].is_Function):
+        raise ValueError('Need integral of product of two functions: %s' % expr)
+
+    f1 = expr2.args[0]
+    f2 = expr2.args[1]    
+    # TODO: apply similarity theorem if have f(a * tau) etc.
+
+    if (f1.args[0] == var and f2.args[0] == t - var):
+        F1 = fourier_term(f1, var, f, inverse)
+        F2 = fourier_term(f2.subs(t - var, t), t, f, inverse)
+    elif (f2.args[0] == var and f1.args[0] == t - var):
+        F1 = fourier_term(f1.subs(t - var, t), t, f, inverse)
+        F2 = fourier_term(f2, var, f)
+    else:            
+        raise ValueError('Cannot recognise convolution: %s' % expr)
+    
+    return const2 * F1 * F2
+
+
 def fourier_function(expr, t, f, inverse=False):
 
     # Handle expressions with a function of FOO, e.g.,
@@ -120,9 +168,13 @@ def fourier_function(expr, t, f, inverse=False):
     
     return result * const
 
+
 def fourier_term(expr, t, f, inverse=False):
 
     const, expr = factor_const(expr, t)
+
+    if expr.has(sym.Integral):
+        return fourier_integral(expr, t, f, inverse) * const
     
     if isinstance(expr, AppliedUndef):
         return fourier_func(expr, t, f, inverse) * const
