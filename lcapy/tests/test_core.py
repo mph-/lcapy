@@ -3,7 +3,7 @@ from lcapy.cexpr import ConstantDomainExpression
 from lcapy.fexpr import FourierDomainExpression
 from lcapy.omegaexpr import AngularFourierDomainExpression
 from lcapy.texpr import TimeDomainExpression, TimeDomainVoltage
-from lcapy.sexpr import LaplaceDomainVoltage
+from lcapy.sexpr import LaplaceDomainExpression, LaplaceDomainVoltage
 import unittest
 
 

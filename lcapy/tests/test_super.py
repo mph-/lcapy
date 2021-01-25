@@ -1,4 +1,6 @@
 from lcapy import *
+from lcapy.voltage import Vname
+from lcapy.current import Iname
 from lcapy.superpositionvoltage import SuperpositionVoltage
 from lcapy.superpositioncurrent import SuperpositionCurrent
 import unittest

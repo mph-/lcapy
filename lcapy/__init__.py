@@ -38,11 +38,17 @@ from .oneport import *
 from .twoport import *
 from .schematic import *
 from .expr import *
-from .voltage import *
-from .current import *
-from .admittance import *
-from .impedance import *
-from .transfer import *
+from .voltage import voltage, noisevoltage, phasorvoltage
+from .current import current, noisecurrent, phasorcurrent
+from .admittance import admittance
+from .impedance import impedance
+from .transfer import transfer
+from .resistance import resistance
+from .conductance import conductance
+from .capacitance import capacitance
+from .inductance import inductance
+from .reactance import reactance
+from .susceptance import susceptance
 from .printing import *
 from .sym import *
 from .matrix import *

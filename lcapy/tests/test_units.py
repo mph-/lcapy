@@ -39,7 +39,14 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(str((voltage(cexpr(1))**2).units), 'V**2', 'constant voltage squared')
         self.assertEqual(str((current(cexpr(1))**2).units), 'A**2', 'constant current squared')
         self.assertEqual(str((admittance(cexpr(1))**2).units), 'S**2', 'constant admittance squared')                
-        self.assertEqual(str((impedance(cexpr(1))**2).units), 'ohm**2', 'constant impedance squared')                
+        self.assertEqual(str((impedance(cexpr(1))**2).units), 'ohm**2', 'constant impedance squared')
+
+        self.assertEqual(str(resistance(1).units), 'ohm', 'resistance')
+        self.assertEqual(str(conductance(1).units), 'S', 'conductance')
+        self.assertEqual(str(capacitance(1).units), 'F', 'capacitance')
+        self.assertEqual(str(inductance(1).units), 'H', 'inductance')
+        self.assertEqual(str(reactance(1).units), 'ohm', 'reactance')
+        self.assertEqual(str(susceptance(1).units), 'S', 'susceptance')                
         
     def test_phasor_units(self):
 
