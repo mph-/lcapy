@@ -191,8 +191,10 @@ class TimeDomainExpression(TimeDomain, Expr):
         result = Integral(f1.subs(self.var, self.var - tausym) *
                           f2.subs(self.var, tausym),
                           (tausym, -oo, oo))
-        return self.__class__(result, **assumptions)
-
+        result = self.__class__(result, **assumptions)
+        result.units = self.units * impulseresponse.units * t.units
+        return result
+    
     
 class TimeDomainImpulseResponse(TimeDomainExpression):
     """Time-domain impulse response."""

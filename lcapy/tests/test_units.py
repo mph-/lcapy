@@ -92,7 +92,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(str(p.units), 'W', 'power')        
 
-
     def test_functions(self):
 
         self.assertEqual(str(delta(t).units), '1/s', 'delta(t)')
@@ -101,3 +100,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(str(integrate(t, (t, 0, 1)).units), 's**2', 'integrate(t, (t, 0, 1))')
         self.assertEqual(str(atan(f).units), 'rad', 'atan(f)')        
         
+    def test_convolution(self):
+
+        i = current('i(t)')
+        z = impedance('z(t)')
+        v = i.convolve(z).simplify_units()
+        self.assertEqual(str(v.units), 'V', 'i convolve z')                
