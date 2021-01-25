@@ -96,6 +96,13 @@ The time domain short circuit current is given by:
     >>> a.Isc(t)
     10/R_1
 
+If you want units displayed:
+
+    >>> state.show_units=True
+    >>> a.Isc(t)
+    10/R_1.A
+    
+
 
 Two-port networks
 -----------------
@@ -185,10 +192,9 @@ Lcapy can be used with [Jupyter Notebooks](https://jupyter.org/).  For a number 
 Documentation
 -------------
 
-For comprehensive documentation, see http://lcapy.elec.canterbury.ac.nz
+For comprehensive documentation, see http://lcapy.elec.canterbury.ac.nz (alternatively, the documentation can be viewed in a web browser after running 'make doc' in the top-level directory).
 
-Alternatively, the documentation can be viewed in a web browser after
-running 'make doc' in the top-level directory.
+For release notes see http://lcapy.elec.canterbury.ac.nz/releases.html
 
 For another view on Lcapy see https://blog.ouseful.info/2018/08/07/an-easier-approach-to-electrical-circuit-diagram-generation-lcapy/
 
@@ -209,106 +215,6 @@ To check for coverage use:
     $ nosetests3 -with-coverage --cover-package=lcapy --cover-html
 
 and then view cover/index.html in a web browser.
-
-
-Updates
--------
-
-- Version 0.78 can show units and has tighter units checking.
-
-- Version 0.77 reverts phase as a quantity and fixes plots.  Component attributes are renamed for consistency (is_resistor etc.).  omega0 is now positive.  Allow Z / Z and Y / Y.  Fix matrices.  Lazily create expression classes.  More unit tests! 
-
-- Version 0.76 fixes the units and adds many more tests.  Adds phase quantity.  Fixes phasors.
-
-- Version 0.75 introduces a major change to expression classes with tighter restrictions on operations between expressions.  For example, a current expression cannot be added to a voltage expression.  There is also experimental support for showing units.  Added phasor domain.  Discrete-time support is now enabled.  This introduces three new domain variables, n, k, and z.  More Fourier transforms added.  Sinc and rect functions added.
-
-- Version 0.74 supports simplification of netlists, adds more rigorous type checking for expressions, improve printing of conditional expressions.
-
-- Version 0.73 improves printing of Voltage and Current, adds phasor attributes to Voltage and Current, fixes magnitude and phase for Phasor, fixes printing of greek symbols, tidies canonical representation, wraps R, X, B, G attributes for Immittance, doc reorganisation.
-
-- Version 0.72 uses CI for docs plus many assorted bug fixes.
-
-- Version 0.71 uses much faster matrix inversion (if sympy-1.8 installed) otherwise falls back on ADJ method  instead of the GE method which has a serious time regression with sympy-1.6.2
-
-- Version 0.70 adds improved nodal and mesh analysis.
-
-- Version 0.69 adds common-mode gain for opamps and polyphase-twoports.
-
-- Version 0.67 adds time-stepping simulation, supernode detection, and polyphase circuits.
-
-- Version 0.66 tidies up two-port parameters.  S and T parameters are
-  added.  The A, B, G, H, Y, Z parameters are renamed to Aparams, etc. to avoid conflict with
-  matrix transpose and Hermitian transpose operators.  issymmetrical, isshunt renamed to is_symmetrical,
-  is+shunt, etc.   Eq, MatMul, MatAdd, Mul, Add functions added.  Expr.__getattr_ converts lists to ExprList.
-  Adds symbols attribute to Matrix.  Ensures symbols in immitance default to complex.
-
-- Version 0.65 introduces random networks.  Adds simplification for DiracDelta and Heaviside.  Adds node checking for Netlist methods.
-
-- Version 0.64 adds wye-delta, delta-wye transformations.  Adds resistive companion models.  Fix state-space if have no sources.  Fixes assumption merging.  Adds verbatim argument for laplace_transform.   Simplifies mutual inductance.
-
-- Version 0.63 fixes mirroring of opamps in schematics and introduces mirrorinputs option
-
-- Version 0.62 adds search, save, annotate_voltage, annotate_current, kill_zero methods.  Fixes solve.
-
-- Version 0.61 improves Laplace and z-transforms.
-
-- Version 0.60 replaces DiracDelta with UnitImpulse and Heaviside with UnitStep for discrete-time expressions.
-
-- Version 0.52 improves the component positioning algorithm for schematics.
-
-- Version 0.51 improves the domain transformation infrastructure,
-
-- Version 0.50 changes phasors to have a default angular frequeny of omega_0 instead of omega to avoid confusion with angular frequency in Fourier transforms, adds preliminary phasor plots, improves noise signal classes, improves the infrastructure, and fixes many bugs.
-
-- Version 0.49 adds mechanical components, better parameterization, faster partical fraction expansion, improved Z transforms, IIR difference equations, and differential equations.
-
-- Version 0.48 fixes z-transforms, adds better caching for Laplace and z-transforms, convert rational numbers to floats on schematics, fixes expr rpow.
-
-- Version 0.47 introduces subs method for netlists, initialize method of netlists, better clarification for external programs, removes Y and Z methods for Circuits, removes anon ids from circuit components, adds remove_condition, force_causal, is_conditional, is_rational_function, is_strictly_proper, adds isoamp, inamp, and bug fixes
-
-- Version 0.42 bug fixes for discrete-time signals
-
-- Version 0.41 introduces experimental discrete-time signals
-
-- Version 0.40 fixes schematics
-
-- Version 0.39 miscellaneous bug fixes
-
-- Version 0.38 reverts the experimental behaviour of 0.37.  Instead it introduces new classes for general immitances that tries to display them in the most suitable format.
-
-- Version 0.37 changes the API for admittances and impedances.  The
-  attributes Y and Z return the impedance in terms of omega rather
-  than s as in the previous versions.  The old behaviour is provided
-  with the Ys and Zs attributes (generalized admittance and
-  impedance).  It also has better distinction between the impedance of
-  a component and the driving point impedance.
-
-- Version 0.36 has improved handling of complex conjugate poles.        
-
-- Version 0.34 switched to using setuptools and pushed to https::pypi.org
-
-- Version 0.33 reworked expression printing infrastructure
-
-- Version 0.32.3 introduces state-space analysis.  The API is experimental and may change.
-
-- Version 0.32.0 changes the naming of symbolic values.  Previously R1 was converted to R_1 before being converted into a SymPy symbol.  This behaviour was not obvious for symbol substitution.  Now the symbol names are converted on printing.
-
-- Version 0.31.0 reworks schematic drawing.  The syntax for chips has changed since there are no explicit nodes in the netlist.
-
-- Version 0.30.0 tweaks the syntax to perform transformations based on the argument, e.g., V(s) or V(t)
-
-- Version 0.28.0 works with Sympy 1.2.
-
-- Version 0.26.0 adds noise analysis.
-
-- Version 0.25.1 adds time-domain analysis for circuits without reactive
-components.
-
-- From version 0.25.0, Lcapy performs more comprehensive circuit
-analysis using combinations of DC, AC, and Laplace analysis.  This
-added functionality has resulted in a slight change of syntax.
-cct.R1.V no longer prints the s-domain expression but the
-decomposition of a signal into each of the transform domains.
 
 
 Copyright 2014--2021 Michael Hayes, UCECE
