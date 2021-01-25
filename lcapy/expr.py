@@ -18,7 +18,7 @@ from .domains import UndefinedDomain
 from .quantity import UndefinedQuantity
 from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, symdebug, AppliedUndef
-from .sym import capitalize_name, tsym, symsymbol, symbol_map, tausym, oo
+from .sym import capitalize_name, tsym, symsymbol, symbol_map, tausym, nusym, oo
 from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function
@@ -1224,9 +1224,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         f2 = x.expr
         if commutate:
             f1, f2 = f2, f1
-        result = sym.Integral(f1.subs(self.var, self.var - tausym) *
-                              f2.subs(self.var, tausym),
-                              (tausym, -oo, oo))
+
+        dummyvar = tausym if self.is_time_domain else nusym
+            
+        result = sym.Integral(f1.subs(self.var, self.var - dummyvar) *
+                              f2.subs(self.var, dummyvar),
+                              (dummyvar, -oo, oo))
         ret = self.__class__(result, **assumptions)
         ret.units = self.units * x.units * self.domain_units
         return ret
