@@ -8,7 +8,7 @@ class ImpedanceMixin(Quantity, ImmittanceMixin):
     quantity_label = 'Impedance'
     quantity_units = 'ohm'
     is_impedance = True
-    is_immitance = True
+    is_immittance = True
     is_ratio = True
 
     # Immittances derived from a realisable circuit will be causal but

@@ -16,7 +16,7 @@ class Quantity(object):
     is_impedance = False
     is_admittance = False
     is_transfer = False
-    is_immitance = False
+    is_immittance = False
     is_always_causal = False
     is_undefined = False
     is_voltagesquared = False
@@ -24,6 +24,7 @@ class Quantity(object):
     is_impedancesquared = False
     is_admittancesquared = False
     is_ratio = False
+    is_signal = False
     part = ''
 
 

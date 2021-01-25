@@ -8,7 +8,7 @@ class AdmittanceMixin(Quantity, ImmittanceMixin):
     quantity_label = 'Admittance'
     quantity_units = 'S'
     is_admittance = True
-    is_immitance = True
+    is_immittance = True
     is_ratio = True    
 
     # Immittances derived from a realisable circuit will be causal but

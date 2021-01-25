@@ -831,6 +831,10 @@ Cannot determine %s(%s) %s %s(%s)%s""" %
         self._incompatible(x, op, """ since the units of the result are unsupported.
 As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
+    def _dubious_quantities(self, x, op):
+
+        self._incompatible(x, op, '; you probably should be using convolution')        
+        
     def _add_compatible_domains(self, x):
 
         return self.domain == x.domain
@@ -936,14 +940,18 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             self.__class__ == TimeDomainExpression):
             return TimeDomainExpression(self.expr * x.expr)
 
-        # Try to convert immitance to a constant so that can handle I(t) * Z
-        if x.is_immitance:
+        # Try to convert immittance to a constant so that can handle I(t) * Z
+        if x.is_immittance:
             try:
                 xunits = x.units
                 x = x.as_constant()
                 x.units = xunits
             except:
                 pass
+
+        if x.is_time_domain and self.is_time_domain:
+            if (self.is_signal and x.is_immittance or x.is_signal and self.is_immittance):
+                self._dubious_quantities(x, '/')                            
 
         if not self._mul_compatible_domains(x):
             self._incompatible_domains(x, '*')                    
@@ -992,12 +1000,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if not isinstance(x, Expr):
             x = expr(x)
 
-        # Try to convert immitance to a constant so that can handle V(t) / Z
-        if x.is_immitance:
+        # Try to convert immittance to a constant so that can handle V(t) / Z
+        if x.is_immittance:
             try:
                 x = x.as_constant()
             except:
                 pass
+
+        if x.is_time_domain and self.is_time_domain:
+            if (self.is_signal and x.is_immittance or x.is_signal and self.is_immittance):
+                self._dubious_quantities(x, '/')                
             
         if not self._div_compatible_domains(x):
             self._incompatible_domains(x, '/')                        

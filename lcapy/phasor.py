@@ -16,7 +16,7 @@ signal.
 A ratio of two phasors (of the same frequency) is no longer a
 time-domain signal but a frequency domain quantity.  The frequency
 dependence is explicit.  A phasor ratio is useful to describe an
-impedance, immitance, or transfer function.  These are frequency
+impedance, immittance, or transfer function.  These are frequency
 domain concepts.  A phasor ratio can be inferred from the Laplace
 domain by substituting jomega for s, where omega is the angular
 frequency of the phasor.
