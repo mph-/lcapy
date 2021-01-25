@@ -18,7 +18,7 @@ from .domains import UndefinedDomain
 from .quantity import UndefinedQuantity
 from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, symdebug, AppliedUndef
-from .sym import capitalize_name, tsym, symsymbol, symbol_map
+from .sym import capitalize_name, tsym, symsymbol, symbol_map, tausym, oo
 from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function
@@ -529,7 +529,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         """Set the units of the expression; these are simplified into canonical form."""        
 
         self._units = unit
-    
+
     @property
     def is_causal(self):
         """Return True if zero for t < 0."""
@@ -1212,6 +1212,25 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self.expr <= x.expr
 
+    def convolve(self, x, commutate=False, **assumptions):
+        """Convolve self with x.
+
+        If `commutate` is True, swap order of functions in integral."""
+
+        if self.domain != x.domain:        
+            self._incompatible_domains(x, 'convolve')
+
+        f1 = self.expr
+        f2 = x.expr
+        if commutate:
+            f1, f2 = f2, f1
+        result = sym.Integral(f1.subs(self.var, self.var - tausym) *
+                              f2.subs(self.var, tausym),
+                              (tausym, -oo, oo))
+        ret = self.__class__(result, **assumptions)
+        ret.units = self.units * x.units * self.domain_units
+        return ret
+    
     def parallel(self, x):
         """Parallel combination."""
 
@@ -1848,7 +1867,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if hasattr(self, 'domain_label'):
             label += '%s' % self.domain_label
         if hasattr(self, 'domain_units'):
-            if self.domain_units != '':
+            if self.domain_units != 1:
                 label += ' (%s)' % self.domain_units
         return label
 

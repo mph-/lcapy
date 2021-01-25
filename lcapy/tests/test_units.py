@@ -105,4 +105,5 @@ class LcapyTester(unittest.TestCase):
         i = current('i(t)')
         z = impedance('z(t)')
         v = i.convolve(z).simplify_units()
+        
         self.assertEqual(str(v.units), 'V', 'i convolve z')                

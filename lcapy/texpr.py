@@ -9,11 +9,11 @@ from __future__ import division
 from .domains import TimeDomain
 from .expr import Expr
 from .functions import exp
-from .sym import fsym, ssym, tsym, j, oo, tausym
+from .sym import fsym, ssym, tsym, j, oo
 from .laplace import laplace_transform
 from .fourier import fourier_transform
 from .units import u as uu
-from sympy import Heaviside, limit, Integral, Expr as symExpr
+from sympy import Heaviside, Integral, limit, Expr as symExpr
 
 
 __all__ = ('texpr', )
@@ -178,23 +178,6 @@ class TimeDomainExpression(TimeDomain, Expr):
         expr = expr * Heaviside(t)
         return self.__class__(expr)        
 
-    def convolve(self, impulseresponse, commutate=False, **assumptions):
-        """Convolve self with impulse response."""
-
-        if not isinstance(impulseresponse, TimeDomainExpression):
-            raise ValueError('Expecting TimeDomainExpression for impulse response')
-
-        f1 = self.expr
-        f2 = impulseresponse.expr
-        if commutate:
-            f1, f2 = f2, f1
-        result = Integral(f1.subs(self.var, self.var - tausym) *
-                          f2.subs(self.var, tausym),
-                          (tausym, -oo, oo))
-        result = self.__class__(result, **assumptions)
-        result.units = self.units * impulseresponse.units * t.units
-        return result
-    
     
 class TimeDomainImpulseResponse(TimeDomainExpression):
     """Time-domain impulse response."""
@@ -202,7 +185,7 @@ class TimeDomainImpulseResponse(TimeDomainExpression):
     # TODO, check attributes.
     quantity = 'transfer'
     quantity_label = 'Impulse response'
-    domain_units = '1/s'
+    domain_units = uu.Hz
     is_transfer = True
 
 
