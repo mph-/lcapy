@@ -37,6 +37,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Z.is_impedance, True, 'impedance')
         self.assertEqual(Z.omega, 5, 'omega')
 
+        V2 = phasorvoltage('cos(5 * t)')
+        I2 = phasorcurrent('cos(5 * t)')
+        self.assertEqual(V, V2, 'phasorvoltage')
+        self.assertEqual(I, I2, 'phasorcurrent')                
+        
+
     def test_phasor_rms(self):        
 
         p = phasor(2)
