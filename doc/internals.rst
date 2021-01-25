@@ -101,6 +101,8 @@ following classes all inherit from `LaplaceDomainExpression`:
 
 `LaplaceDomainImpedance` is a s-domain impedance.
 
+These classes are dynamically generated as required (see expressionclasses.py).
+
 
 Superposition classes
 ---------------------
@@ -109,9 +111,9 @@ Superposition classes
 default representation for calculated results from circuit analysis.
 There are two classes that inherit from `Superposition`:
 
-`Voltage` represents a superposition of voltages.
+`SuperpositionVoltage` represents a superposition of voltages.
 
-`Current` represents a superposition of currents.
+`SuperpositionCurrent` represents a superposition of currents.
 
 
 Container classes

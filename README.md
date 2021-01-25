@@ -199,22 +199,4 @@ For release notes see http://lcapy.elec.canterbury.ac.nz/releases.html
 For another view on Lcapy see https://blog.ouseful.info/2018/08/07/an-easier-approach-to-electrical-circuit-diagram-generation-lcapy/
 
 
-Testing
--------
-
-The testsuite can be run using
-
-    $ nosetests3 --pdb
-
-Better still, use the --pdb option to enter the Python debugger on a failure:
-
-    $ nosetests3 --pdb
-
-To check for coverage use:
-
-    $ nosetests3 -with-coverage --cover-package=lcapy --cover-html
-
-and then view cover/index.html in a web browser.
-
-
 Copyright 2014--2021 Michael Hayes, UCECE

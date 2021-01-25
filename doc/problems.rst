@@ -238,18 +238,31 @@ Expressions have a `debug()` method that prints the representation of the expres
 Testing
 =======
 
-If you fix a problem, please add a test in `lcapy/lcapy/tests`.  These use the nose format, see https://pythontesting.net/framework/nose/nose-introduction/  The tests can be run using
+If you fix a problem, please add a test in `lcapy/lcapy/tests`.  These use the nose format, see https://pythontesting.net/framework/nose/nose-introduction/  The tests can be run using:
 
 .. code-block:: console
                 
-    $ make test
+    $ make check
 
-or   
+
+Specific tests can be run using:
+
 
 .. code-block:: console
-                
-    $ nosetests3
 
+    $ nosetests3 --pdb lcapy/tests/test_laplace.py 
+
+With the --pdb option, the Python debugger is entered on failure:
+    
+
+To check for coverage use:
+
+.. code-block:: console
+
+    $ make cover
+
+and then view cover/index.html in a web browser.
+    
 
 .. _issues:
 
