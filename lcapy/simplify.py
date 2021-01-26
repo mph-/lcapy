@@ -53,12 +53,47 @@ def simplify_dirac_delta(expr, expand=False):
     return Add(*[simplify_dirac_delta_term(term) for term in terms])
 
 
-def simplify_heaviside(expr):
+# def simplify_heaviside_product(expr):
+#
+#     heaviside_products = []
+#
+#     def pre(expr):
+#         if (expr.is_Mul and expr.args[0].func == Heaviside and
+#               expr.args[1].func == Heaviside):
+#             heaviside_products.append(expr)            
+#        
+#         for arg in expr.args:
+#             pre(arg)    
+#
+#     pre(expr)
+#            
+#     for product in heaviside_products:
+#         # TODO
+#         pass
+#
+#     return expr
 
-    if not expr.has(Heaviside):
-        return expr
 
-    # H(t) x H(t) = H(t)
+def simplify_heaviside_power(expr):
+
+    heaviside_powers = []    
+    
+    def pre(expr):
+        if (expr.is_Pow and expr.args[0].func == Heaviside and
+              expr.args[1].is_constant):
+            heaviside_powers.append(expr)            
+        
+        for arg in expr.args:
+            pre(arg)
+
+    pre(expr)
+
+    for power in heaviside_powers:
+        expr = expr.replace(power, power.args[0])            
+    return expr
+
+
+def simplify_heaviside_integral(expr):
 
     if not expr.has(Integral):
         return expr
@@ -105,6 +140,16 @@ def simplify_heaviside(expr):
     
     return expr
 
+
+def simplify_heaviside(expr):
+
+    if not expr.has(Heaviside):
+        return expr
+    
+    expr = simplify_heaviside_integral(expr)
+    expr = simplify_heaviside_power(expr)    
+    return expr
+    
 
 def simplify_sin_cos(expr, as_cos=False, as_sin=False):
 

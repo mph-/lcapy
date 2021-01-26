@@ -1,4 +1,5 @@
 from lcapy import *
+from lcapy.units import as_value_unit, u as uu
 import unittest
 
 
@@ -107,3 +108,10 @@ class LcapyTester(unittest.TestCase):
         v = i.convolve(z).simplify_units()
         
         self.assertEqual(str(v.units), 'V', 'i convolve z')                
+
+    def test_as_value_unit(self):
+
+        i = current(7)
+        val, unit = as_value_unit(i.expr_with_units)
+        self.assertEqual(str(unit), 'A', 'test unit')
+        self.assertEqual(val, 7, 'test val')

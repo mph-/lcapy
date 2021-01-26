@@ -1,4 +1,5 @@
 from lcapy import *
+from lcapy.sym import tausym
 import unittest
 
 
@@ -21,6 +22,13 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(us(-1), 0, "us(-1)")
 
         self.assertEqual(rect(n).rewrite(), us(n + 1 / 2) - us(n - 1 / 2), "rect(n)")
-        
 
+        integral = Function(sym.Integral)
+        r = integral(u(t - tausym), (tausym, 0, oo))
+        e = u(t).convolve(u(t)).simplify()
         
+        self.assertEqual(e, r, "simplify integral with u(t)")        
+        
+    def test_heaviside(self):
+
+        self.assertEqual((u(t) * 3 * u(t)).simplify(), 3 * u(t), "u(t) * 3 * u(t)")                
