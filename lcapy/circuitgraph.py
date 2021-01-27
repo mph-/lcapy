@@ -53,8 +53,8 @@ class CircuitGraph(nx.Graph):
 
         self.node_map = node_map
 
-    def connected(self, node):
-        """List of components connected to specified node."""
+    def connected_cpts(self, node):
+        """Components connected to specified node."""
 
         for node1, edges in self.node_edges(node).items():
             if node1.startswith('*'):
@@ -66,6 +66,11 @@ class CircuitGraph(nx.Graph):
                 if not edge.startswith('W'):
                     elt = self.cct.elements[edge]
                     yield elt
+
+    def connected(self, node):
+        """Set of component names connected to specified node."""
+
+        return set([cpt.name for cpt in self.connected_cpts(node)])
             
     def all_loops(self):
 
