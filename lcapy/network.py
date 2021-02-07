@@ -38,6 +38,8 @@ class Network(object):
 
         modargs = []
         for arg in self.args:
+            if isinstance(arg, Network):
+                arg = str(arg)
             arg = expr(arg)
             modargs.append(arg)
         return modargs
