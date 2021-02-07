@@ -35,6 +35,7 @@ class LcapyTester(unittest.TestCase):
 
     def test_IDFT(self):
 
+        self.assertEqual(kexpr('X(k)').IDFT(), nexpr('x(n)'), "X(k)")
         self.assertEqual(kexpr(1).IDFT(), delta(n), "1")
         self.assertEqual(delta(k).IDFT(), nexpr('1 / N'), "delta(k)")                
 

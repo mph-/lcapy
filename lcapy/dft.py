@@ -50,7 +50,10 @@ def discrete_fourier_func(expr, n, k, N, inverse=False):
         if inverse:
             shift = -shift
         result = result * sym.exp(2 * sym.I * sym.pi * k * shift / scale)
-    
+
+    if inverse:
+        result *= N
+        
     return result
 
 
