@@ -1244,6 +1244,14 @@ Each of the smaller schematics can be included into their own namespace to avoid
    W s1.3 s2.0; right=0.1
 
 
+Macros
+======
+
+LaTeX macro definitions can be embedded in the netlist using the `;;` prefix.   For example::
+
+  ;; \newcommand{\ud}{\mathrm{d}}
+  S1 box; right=1, l=$\int f(\tau) h(t-\tau) \ud \tau$
+   
 
 Namespaces
 ==========

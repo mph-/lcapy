@@ -151,7 +151,7 @@ class Network(object):
         import pdb; pdb.set_trace()
         return self
     
-    def sch(self, form, evalf=False):
+    def sch(self, form='horizontal', evalf=False):
         """Convert a Network object into a Schematic object."""
 
         netlist = self.netlist(form=form, evalf=evalf)

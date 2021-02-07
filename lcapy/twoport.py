@@ -1293,7 +1293,7 @@ class TwoPort(Network, TwoPortMixin):
     def _add_elements(self):
         raise ValueError('Cannot generate netlist for two-port objects')
 
-    def netlist(self):
+    def netlist(self, form='horizontal', evalf=None):
         raise ValueError('Cannot generate netlist for two-port objects')
 
     def _check_twoport_args(self):
