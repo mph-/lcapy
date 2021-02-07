@@ -26,6 +26,7 @@ jobs:
           texlive-latex-base \
           texlive-latex-extra \
           texlive-pictures \
+          ghostscript \
           xvfb
         sudo ln -s /usr/bin/ipython3 /usr/bin/ipython
     - name: Install
@@ -58,7 +59,8 @@ jobs:
         sudo apt-get install \
           texlive-latex-base \
           texlive-latex-extra \
-          texlive-pictures
+          texlive-pictures \
+          ghostscript
     - name: Install dependencies (macOS)
       if: ${{ startsWith(matrix.os, 'macos') }}
       run: |
