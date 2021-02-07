@@ -31,19 +31,6 @@ class Network(object):
     netname = ''
     netkeyword = ''
 
-    def _tweak_args(self):
-
-        if not hasattr(self, 'args'):
-            return ()
-
-        modargs = []
-        for arg in self.args:
-            if isinstance(arg, Network):
-                arg = str(arg)
-            arg = expr(arg)
-            modargs.append(arg)
-        return modargs
-
     def __repr__(self):
 
         argsrepr = ', '.join([repr(arg) for arg in self.args])
@@ -64,12 +51,24 @@ class Network(object):
 
     def pretty(self, **kwargs):
 
-        argsrepr = ', '.join([pretty(arg, **kwargs) for arg in self._tweak_args()])
+        def pretty1(arg, **kwargs):
+            try:
+                return arg.pretty(**kwargs)
+            except:
+                return pretty(arg, **kwargs)
+        
+        argsrepr = ', '.join([pretty1(arg, **kwargs) for arg in self.args])
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
     def latex(self, **kwargs):
 
-        argsrepr = ', '.join([latex(arg, **kwargs) for arg in self._tweak_args()])
+        def latex1(arg, **kwargs):
+            try:
+                return arg.latex(**kwargs)
+            except:
+                return latex(arg, **kwargs)        
+
+        argsrepr = ', '.join([latex1(arg, **kwargs) for arg in self.args])
         return '\\mathrm{%s}(%s)' % (self.__class__.__name__, argsrepr)
 
     def pprint(self):
