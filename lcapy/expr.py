@@ -133,6 +133,16 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
 
     """Decorator class for dictionary created by sympy."""
 
+    def __getitem__(self, key):
+
+        # This is used for nodalanalysis to store results
+        # indexed by node name.
+        key2 = str(key)
+        try:
+            return super(ExprDict, self).__getitem__(key2)
+        except:
+            return super(ExprDict, self).__getitem__(key)            
+    
     def evaluate(self):
         """Evaluate each element to convert to floating point.
         The keys are also converted if possible to handle
