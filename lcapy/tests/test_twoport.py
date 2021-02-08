@@ -350,3 +350,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Z.Zparams.Zparams.simplify(), Z, "Z.Zparams.Zparams")        
         
         
+    def test_twoport_print(self):
+        
+        a = Series(C(1)).chain(Shunt(L(2))).chain(Series(R(3)))
+        self.assertEqual(a.pretty(), 'Chain(Chain(Series(C(1)), Shunt(L(2))), Series(R(3)))', 'pretty')
+        self.assertEqual(str(a), 'Chain(Chain(Series(C(1)), Shunt(L(2))), Series(R(3)))', 'str')
+        self.assertEqual(repr(a), 'Chain(Chain(Series(C(1)), Shunt(L(2))), Series(R(3)))', 'repr')
+        self.assertEqual(a.latex(), '\\mathrm{Chain}(\\mathrm{Chain}(\\mathrm{Series}(\\mathrm{C}(1)), \\mathrm{Shunt}(\\mathrm{L}(2))), \\mathrm{Series}(\\mathrm{R}(3)))', 'latex')
