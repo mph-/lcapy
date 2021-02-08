@@ -120,6 +120,22 @@ class CircuitGraph(nx.Graph):
             return self._loops
         self._loops = self.chordless_loops()
         return self._loops
+
+    def loops_by_cpt_name(self):
+        """Return list of loops specified by cpt name."""
+
+        ret = []
+        for loop in self.loops():
+            foo = []
+            for m in range(len(loop) - 1):
+                cpt = self.component(loop[m + 1], loop[m])
+                if cpt is None:
+                    continue
+                
+                foo.append(cpt.name)
+            foo.append(self.component(loop[-1], loop[0]).name)
+            ret.append(foo)
+        return ret
     
     def draw(self, filename=None):
         """Use matplotlib to draw circuit graph."""
@@ -226,7 +242,7 @@ class CircuitGraph(nx.Graph):
         return set(series)
 
     def in_parallel(self, cpt_name):
-        """Return set of component names in parallel with cpt including itself."""        
+        """Return set of component names in parallel with cpt including itself."""
 
         cct = self.cct
         elt = cct.elements[cpt_name]

@@ -18,7 +18,7 @@ import sympy as sym
 class LoopAnalysis(object):
     """
     This is an experimental class for loop analysis.  The API
-    is likely to change.
+    is likely to change since different invocations find different loops.
 
     >>> from lcapy import Circuit, LoopAnalysis
     >>> cct = Circuit('''
@@ -56,9 +56,16 @@ class LoopAnalysis(object):
         self._y = matrix(self._unknowns)
 
     def loops(self):
+        """Return list of loops.  Note, the loops can vary for different
+        invocations of the LoopAnalysis class."""
 
         return self.G.loops()
 
+    def loops_by_cpt_name(self):
+        """Return list of loops specified by cpt name."""
+
+        return self.G.loops_by_cpt_name()        
+    
     @property
     def num_loops(self):
 

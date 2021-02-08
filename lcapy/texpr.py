@@ -51,6 +51,12 @@ class TimeDomainExpression(TimeDomain, Expr):
         
         return x.is_constant_domain
 
+    @property
+    def abs(self):
+        """Return absolute value."""
+
+        return self.__class__(abs(self.expr), **self.assumptions)
+        
     def as_expr(self):
         return TimeDomainExpression(self)
 
