@@ -58,7 +58,7 @@ class CircuitGraph(nx.Graph):
 
         for node1, edges in self.node_edges(node).items():
             if node1.startswith('*'):
-                for elt in self.connected(node1):
+                for elt in self.connected_cpts(node1):
                     yield elt
                 continue
             
