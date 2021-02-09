@@ -2,6 +2,40 @@
 Release notes
 =============
 
+V0.81
+=====
+
+- This is mostly bug fixes
+
+- Add tests for loop and nodal analysis
+
+- Add tests for schematics  
+
+- Improve twoport printing
+
+
+V0.80
+=====
+
+- This is mostly bug fixes
+
+- Require sympy > 1.7.1
+
+- Install ghostscript for tests  
+
+- Fix IDFT X(k)
+
+- Add tests for CircuitGraph
+
+- Simplify products of u(t)  
+
+- Add tests for sinc, rect 
+
+- Fix convolution units
+
+- Fix FT of convolution
+
+
 V0.79
 =====
 
