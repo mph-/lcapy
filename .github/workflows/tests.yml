@@ -14,13 +14,21 @@ jobs:
     steps:
     - name: Check out
       uses: actions/checkout@v2
-    - name: Install dependencies
+    - name: Install dependencies (Ubuntu)
+      if: ${{ startsWith(matrix.os, 'ubuntu') }}
       run: |
         sudo apt-get update
         sudo apt-get install \
           texlive-latex-base \
           texlive-latex-extra \
           texlive-pictures
+    - name: Install dependencies (macOS)
+      if: ${{ startsWith(matrix.os, 'macos') }}
+      run: |
+        brew install mactex
+        eval "$(/usr/libexec/path_helper)"
+        # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#adding-a-system-path
+        echo "$(dirname "$(which pdflatex)")" >> $GITHUB_PATH
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
