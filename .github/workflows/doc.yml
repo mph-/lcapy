@@ -39,15 +39,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, macos-10.15, windows-2019]
+        os: [ubuntu-18.04, ubuntu-20.04, macos-10.15, windows-2019]
         python-version: [3.6, 3.7, 3.8, 3.9]
         exclude:
-        # tutorials/RCnoise/RCparallel1noise.py fails on every Python version
-        - os: ubuntu-16.04
-        exclude:
-          # pdflatex not installed for some reason.  FIXME
-          - os: windows-2019
-            python-version: [3.6, 3.7]        
+        - os: windows-2019
+            python-version: 3.6
+        - os: windows-2019
+           python-version: 3.7            
     runs-on: ${{ matrix.os }}
     steps:
     - name: Check out
