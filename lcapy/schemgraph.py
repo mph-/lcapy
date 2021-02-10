@@ -478,8 +478,8 @@ class Graph(dict):
         """
         Analyse graph assigning gnode positions.
 
-        stage 0 --- add start/end gnodes
-        stage 1 --- prune redundant edges
+        stage 0 --- do nothing
+        stage 1 --- add start/end nodes and prune redundant edges
         stage 2 --- assign gnode positions on longest path
         stage 3 --- assign gnode positions with fixed positions to known gnodes
         stage 4 --- assign all gnode positions
@@ -494,19 +494,19 @@ class Graph(dict):
                 pos[n] = 0
             return pos, 0
         
-        self.add_start_nodes()
-        unknown.append('start')
-        unknown.append('end')        
-
         if stage == 0:
             return
 
+        self.add_start_nodes()
+        unknown.append('start')
+        unknown.append('end')        
+        
         # Prune redundant edges from graph.        
         self.prune()
 
         if stage == 1:
             return
-            
+
         # Find longest path through the graph.  This provides the
         # dimension for the graph.
         path = self.longest_path(self['start'], self['end'])
