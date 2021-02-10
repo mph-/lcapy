@@ -75,3 +75,58 @@ C 1 3 3; right""")
         if content != match:
             raise Error('Schematic mismatch')
         
+    def test_network_node_positions1(self):
+
+        a = R(1) + C(2)
+        sch = a.sch()
+        sch._positions_calculate()
+        nodes = sch.nodes
+
+        self.assertEqual(nodes['1'].pos.x, 0, '1 x')
+        self.assertEqual(nodes['2'].pos.x, 2, '2 x')
+        self.assertEqual(nodes['3'].pos.x, 3, '3 x')
+        self.assertEqual(nodes['0'].pos.x, 5, '0 x')        
+
+    def test_network_node_positions2(self):
+
+        a = (R(1) + C(2)) | L(3)
+        sch = a.sch()
+        sch._positions_calculate()
+        nodes = sch.nodes
+
+        self.assertEqual(nodes['1'].pos.x, 0, '1 x')
+        self.assertEqual(nodes['2'].pos.x, 1, '2 x')
+        self.assertEqual(nodes['3'].pos.x, 6, '3 x')
+        self.assertEqual(nodes['4'].pos.x, 1, '4 x')
+        self.assertEqual(nodes['5'].pos.x, 6, '5 x')
+        self.assertEqual(nodes['6'].pos.x, 3, '6 x')
+        self.assertEqual(nodes['7'].pos.x, 4, '7 x')
+        self.assertEqual(nodes['8'].pos.x, 1, '8 x')
+        self.assertEqual(nodes['9'].pos.x, 6, '9 x')        
+        self.assertEqual(nodes['0'].pos.x, 7, '0 x')        
+
+    def test_network_danglin3(self):
+
+        a = Circuit("""
+R1 1 2; right
+R2 2 3; right
+R3 2 5; down
+R4 4 5; right=2
+R5 5 6; right
+R6 5 7; down
+R7 7 8; right=2, fixed""")
+
+        sch = a.sch
+        sch._positions_calculate()
+        nodes = sch.nodes
+        
+        self.assertEqual(nodes['1'].pos.x, 2, '1 x')
+        self.assertEqual(nodes['2'].pos.x, 4, '2 x')
+        self.assertEqual(nodes['3'].pos.x, 6, '3 x')
+        self.assertEqual(nodes['4'].pos.x, 0, '4 x')
+        self.assertEqual(nodes['5'].pos.x, 4, '5 x')
+        self.assertEqual(nodes['6'].pos.x, 6, '6 x')
+        self.assertEqual(nodes['7'].pos.x, 4, '7 x')
+        self.assertEqual(nodes['8'].pos.x, 8, '8 x')
+
+        
