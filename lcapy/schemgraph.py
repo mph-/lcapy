@@ -548,7 +548,7 @@ class Graph(dict):
 
         return pos, distance_max
 
-    def longest_path(self, from_gnode, to_gnode, forward=True):
+    def longest_path(self, from_gnode, to_gnode):
         """Find longest path through DAG from from_gnode to to_gnode
         or to a gnode with a known position."""
 
@@ -574,9 +574,10 @@ class Graph(dict):
             if gnode.pos is not None and gnode != from_gnode:
                 return -1
 
+            # Mark node as visited but distance as unknown
             gnode.dist = -1
 
-            edges = gnode.fedges if forward else gnode.redges
+            edges = gnode.fedges
             for edge in edges:
                 dist = traverse(edge.to_gnode)
                 if dist >= 0 and gnode.dist < dist + edge.size:
