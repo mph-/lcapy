@@ -116,6 +116,13 @@ class Gnode(object):
             return '(' + ', '.join(self.name) + ')'
         return self.name
 
+    @property
+    def dot_fmt_name(self):
+
+        if isinstance(self.name, tuple):
+            return ', '.join(self.name)
+        return self.name    
+
     def __repr__(self):
         
         return self.fmt_name
@@ -710,13 +717,13 @@ class Graph(dict):
             if pos is None or pos < 1e-6:
                 pos = 0
 
-            dotfile.write('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (gnode.fmt_name, colour, fmt_dec(pos)))
+            dotfile.write('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (gnode.dot_fmt_name, colour, fmt_dec(pos)))
 
         for gnode in self.values():
             for edge in gnode.fedges:
                 colour = 'black' if edge.stretch else 'red'
                 dotfile.write('\t"%s" ->\t"%s" [ color=%s, label="%s%s" ];\n' % (
-                    gnode.fmt_name, edge.to_gnode.fmt_name, colour, 
+                    gnode.dot_fmt_name, edge.to_gnode.dot_fmt_name, colour, 
                     fmt_dec(edge.size), '*' if edge.stretch else ''))
 
         dotfile.write('}\n')
