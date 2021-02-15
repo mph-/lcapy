@@ -116,13 +116,6 @@ class Gnode(object):
             return '(' + ', '.join(self.name) + ')'
         return self.name
 
-    @property
-    def dot_fmt_name(self):
-
-        if isinstance(self.name, tuple):
-            return ', '.join(self.name)
-        return self.name    
-
     def __repr__(self):
         
         return self.fmt_name
@@ -677,7 +670,7 @@ class Graph(dict):
                                   edge.name, gnode.fmt_name,
                                   edge.to_gnode.fmt_name))
 
-    def dot(self, filename=None, stage=None):
+    def dot(self, filename=None, stage=None, tweak_node_label=True):
         """Generate directed graph using graphviz notation"""
 
         from .system import tmpfilename, run_dot
@@ -686,6 +679,19 @@ class Graph(dict):
         
         def fmt_dec(value):
             return ('%.2f' % value).rstrip('0').rstrip('.')
+
+        def fmt_node_label(node):
+
+            if isinstance(node.name, tuple):
+                label = ', '.join(node.name)
+            else:
+                label = node.name
+
+            # Hack since xlabel not supported bu dot2tex.
+            if tweak_node_label and node.pos is not None:
+                label += ' @' + fmt_dec(node.pos)
+
+            return label
 
         if filename is None:
             filename = tmpfilename('.png')
@@ -717,13 +723,13 @@ class Graph(dict):
             if pos is None or pos < 1e-6:
                 pos = 0
 
-            dotfile.write('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (gnode.dot_fmt_name, colour, fmt_dec(pos)))
+            dotfile.write('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (fmt_node_label(gnode), colour, fmt_dec(pos)))
 
         for gnode in self.values():
             for edge in gnode.fedges:
                 colour = 'black' if edge.stretch else 'red'
                 dotfile.write('\t"%s" ->\t"%s" [ color=%s, label="%s%s" ];\n' % (
-                    gnode.dot_fmt_name, edge.to_gnode.dot_fmt_name, colour, 
+                    fmt_node_label(gnode), fmt_node_label(edge.to_gnode), colour, 
                     fmt_dec(edge.size), '*' if edge.stretch else ''))
 
         dotfile.write('}\n')
