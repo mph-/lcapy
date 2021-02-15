@@ -1,6 +1,6 @@
 """This module provides classes for schematic layout.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
@@ -715,7 +715,7 @@ class Graph(dict):
             if hasattr(gnode, 'fixed'):
                 colour = 'yellow'
             else:
-                colour = 'red' if gnode.pos is not None else 'blue'
+                colour = 'Orchid1' if gnode.pos is not None else 'SkyBlue1'
             if gnode.name in ('start', 'end'):
                 colour = 'green'
 
