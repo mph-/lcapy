@@ -472,6 +472,53 @@ class Graph(dict):
             gnode.fedges = check(gnode.fedges, grizzle=True)
             gnode.redges = check(gnode.redges)
 
+    def suggest_edges(self):
+
+        for node in self.values():
+            fedges = node.fedges
+            redges = node.redges
+            if len(redges) != 0:
+                continue
+            if len(fedges) != 2:
+                continue
+            fedge1 = fedges[0]
+            fedge2 = fedges[1]            
+            
+            node1 = fedge1.to_gnode
+            node2 = fedge2.to_gnode
+            if len(node1.fedges) != 2:
+                continue
+            if len(node2.fedges) != 2:
+                continue
+            if node1.fedges[0].to_gnode == node2.fedges[0].to_gnode:
+                node3 = node1.fedges[0].to_gnode
+                fedge3 = node1.fedges[0]
+                fedge4 = node2.fedges[0]                
+            elif node1.fedges[0].to_gnode == node2.fedges[1].to_gnode:
+                node3 = node1.fedges[0].to_gnode
+                fedge3 = node1.fedges[0]
+                fedge4 = node2.fedges[1]                                
+            elif node1.fedges[1].to_gnode == node2.fedges[0].to_gnode:
+                node3 = node1.fedges[1].to_gnode
+                fedge3 = node1.fedges[1]
+                fedge4 = node2.fedges[0]                                
+            elif node1.fedges[1].to_gnode == node2.fedges[1].to_gnode:
+                node3 = node1.fedges[1].to_gnode
+                fedge3 = node1.fedges[1]
+                fedge4 = node2.fedges[1]                                
+            else:
+                continue
+            if len(node3.fedges) != 0:
+                continue
+            if fedge1.size == fedge3.size and fedge2.size == fedge4.size:
+                pass
+            elif fedge1.size == fedge2.size and fedge3.size == fedge4.size:
+                pass
+            else:
+                continue
+            
+            print('Suggest a constraint between nodes %s and %s for %s graph' % (node1, node2, self.name))
+
     def analyse(self, stage=None):
         """
         Analyse graph assigning gnode positions.
@@ -483,6 +530,8 @@ class Graph(dict):
         stage 4 --- assign all gnode positions
         """
 
+        self.suggest_edges()
+        
         unknown = list(self.keys())
 
         if unknown == []:
