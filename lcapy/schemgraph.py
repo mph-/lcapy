@@ -3,9 +3,7 @@
 Copyright 2014--2021 Michael Hayes, UCECE
 
 """
-
-
-from __future__ import print_function
+from .config import colours
 
 def unique(alist):
 
@@ -472,7 +470,7 @@ class Graph(dict):
                     
 
             gnode.fedges = check(gnode.fedges, grizzle=True)
-            gnode.redges = check(gnode.redges)            
+            gnode.redges = check(gnode.redges)
 
     def analyse(self, stage=None):
         """
@@ -484,7 +482,7 @@ class Graph(dict):
         stage 3 --- assign gnode positions with fixed positions to known gnodes
         stage 4 --- assign all gnode positions
         """
-        
+
         unknown = list(self.keys())
 
         if unknown == []:
@@ -713,11 +711,13 @@ class Graph(dict):
 
         for gnode in self.values():
             if hasattr(gnode, 'fixed'):
-                colour = 'yellow'
+                colour = colours['fixednode']
             else:
-                colour = 'Orchid1' if gnode.pos is not None else 'SkyBlue1'
-            if gnode.name in ('start', 'end'):
-                colour = 'green'
+                colour = colours['assignednode'] if gnode.pos is not None else colours['unassignednode']
+            if gnode.name  == 'start':
+                colour = colours['startnode']
+            elif gnode.name  == 'end':
+                colour = colours['endnode']                
 
             pos = gnode.pos
             if pos is None or pos < 1e-6:
@@ -727,7 +727,7 @@ class Graph(dict):
 
         for gnode in self.values():
             for edge in gnode.fedges:
-                colour = 'black' if edge.stretch else 'red'
+                colour = colours['stretchedge'] if edge.stretch else colours['fixededge']
                 dotfile.write('\t"%s" ->\t"%s" [ color=%s, label="%s%s" ];\n' % (
                     fmt_node_label(gnode), fmt_node_label(edge.to_gnode), colour, 
                     fmt_dec(edge.size), '*' if edge.stretch else ''))

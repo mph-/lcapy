@@ -57,9 +57,14 @@ matrix_inverse_fallback_method = 'ADJ'
 loose_units = True
 # Print units with expression.
 show_units = False
-# Print units in abbreviataed form.
+# Print units in abbreviated form.
 abbreviate_units = True
 # Print units in canonical form.
 canonical_units = False
 # This cannot be enabled without loose units (e.g., s + 1, or s * 'R' * 'C' + 1 would fail).
 check_units = True
+
+# Use X11 colours so that they will work with graphziv and dot2tex.
+colours = {'startnode': 'green', 'endnode': 'green',
+           'assignednode': 'Orchid1', 'unassignednode': 'SkyBlue1',
+           'fixednode': 'Yellow', 'fixededge': 'Red', 'stretchedge': 'black'}
