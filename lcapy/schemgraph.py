@@ -397,8 +397,7 @@ class Graph(dict):
         extent = path.dist        
 
         if extent - separation > 1e-6:
-            raise ValueError('Inconsistent %s schematic graph, component(s) will not fit:  separation %s between %s and %s, need %s.\n%s' % (self.name, separation, from_gnode, to_gnode, extent, self))
-
+            print('Inconsistent %s schematic graph, component(s) will not fit:  separation %s between %s and %s, need %s.\n%s' % (self.name, separation, from_gnode, to_gnode, extent, self))
         
         # This how much each component needs to stretch.
         stretch = (separation - extent) / stretches
