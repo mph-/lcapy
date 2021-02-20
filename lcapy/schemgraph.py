@@ -530,8 +530,6 @@ class Graph(dict):
         stage 4 --- assign all gnode positions
         """
 
-        self.suggest_edges()
-        
         unknown = list(self.keys())
 
         if unknown == []:
@@ -554,6 +552,8 @@ class Graph(dict):
         if stage == 1:
             return
 
+        self.suggest_edges()
+        
         # Find longest path through the graph.  This provides the
         # dimension for the graph.
         path = self.longest_path(self['start'], self['end'])
