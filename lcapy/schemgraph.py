@@ -5,6 +5,35 @@ Copyright 2014--2021 Michael Hayes, UCECE
 """
 from .config import colours
 
+# The component placement algorithm is similar to a critical path
+# method (CPM).  For most netlists it does a good job.  However, there
+# are some loop constructs where it fails.
+
+# An alternative approach is to form a system of linear equations
+# where the unknowns are the component positions and the component
+# stretch.  Most of the component stretches will be free variables and
+# are set to zero stretch.  However, this algorithm will also fail for
+# the same loop constructs as the graph algorithm,
+
+# Here's a problem example:
+#
+# R1 1 2; right=2
+# R2 2 3; right=1
+# W 2 5; down=1
+# W 4 5; right=0.5
+# W 5 6; right=0.5
+# C 4 7; down
+# R 6 9; down
+# W 7 8; right=0.5
+# W 8 9; right=0.5
+# W 8 11; down=1
+# W 10 11; right
+# W 11 12; right=2
+
+# For the hotizontal graph, the critical path is through nodes 1 and
+# 12 but this not found due to the loop for nodes 2, 4, 6, and 8.
+
+
 def unique(alist):
 
     # Order preserving...  list(set(alist)) gives different results
@@ -524,8 +553,8 @@ class Graph(dict):
         Analyse graph assigning gnode positions.
 
         stage 0 --- do nothing
-        stage 1 --- add start/end nodes and prune redundant edges
-        stage 2 --- assign gnode positions on longest path
+        stage 1 --- prune redundant edges
+        stage 2 --- add start/end nodes and assign gnode positions on longest path
         stage 3 --- assign gnode positions with fixed positions to known gnodes
         stage 4 --- assign all gnode positions
         """
@@ -542,17 +571,17 @@ class Graph(dict):
         if stage == 0:
             return
 
-        self.add_start_nodes()
-        unknown.append('start')
-        unknown.append('end')        
-        
         # Prune redundant edges from graph.        
         self.prune()
 
+        self.suggest_edges()
+        
         if stage == 1:
             return
 
-        self.suggest_edges()
+        self.add_start_nodes()
+        unknown.append('start')
+        unknown.append('end')        
         
         # Find longest path through the graph.  This provides the
         # dimension for the graph.
