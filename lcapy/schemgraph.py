@@ -801,7 +801,7 @@ class Graph(dict):
             if pos is None or pos < 1e-6:
                 pos = 0
 
-            dotfile.write('\t"%s"\t [style=filled, color=%s, xlabel="@%s"];\n' % (fmt_node_label(gnode), colour, fmt_dec(pos)))
+            dotfile.write('\t"%s"\t [style=filled, color=%s];\n' % (fmt_node_label(gnode), colour))
 
         for gnode in self.values():
             for edge in gnode.fedges:
