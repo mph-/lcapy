@@ -469,6 +469,11 @@ class Graph(dict):
                 for key, edges in fromto.items():
 
                     best_edge = edges[0]
+
+                    if len(edges) == 1:
+                        newedges.append(best_edge)                        
+                        continue
+                    
                     fixed = False
                     size = 0
                     for edge in edges:
