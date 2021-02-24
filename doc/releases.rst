@@ -2,6 +2,18 @@
 Release notes
 =============
 
+V0.82
+=====
+
+This release primarily improves the component placement algorithm for schematics that also prevents crashes
+
+- Improve component placement algorithm; add message suggesting constraint component to ensure symmetry
+
+- Improve component placement graphs for debugging
+
+- Require pdflatex for schematic tests
+  
+
 V0.81
 =====
 
