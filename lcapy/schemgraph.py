@@ -223,7 +223,7 @@ class GraphPath(list):
 
         return self[0].from_gnode
 
-                
+
 class Graph(dict):
     """Drawing graph"""
 
@@ -372,13 +372,13 @@ class Graph(dict):
             # unlucky gnode. 
             return False
 
-        if from_gnode.name == 'start' and len(to_path) == 1:
+        if from_gnode.name == 'start':
             # Have dangling node, so no stretch needed.
             gnode.pos = to_gnode.pos - to_path.dist
             unknown.remove(gnode.name)
             return True
 
-        if to_gnode.name == 'end' and len(from_path) == 1:
+        if to_gnode.name == 'end':
             # Have dangling node, so no stretch needed.
             gnode.pos = from_gnode.pos + from_path.dist
             unknown.remove(gnode.name)
@@ -386,11 +386,11 @@ class Graph(dict):
 
         path = self.longest_path(from_gnode, to_gnode)
 
-        if len(path) == 1:
-            return False
+        #if len(path) == 1:
+        #    return False
         
         # The gnode may not be on this path but this does not matter.
-        # It will be processed asain later.
+        # It will be processed again later.
 
         stretches = path.stretches
         separation = to_gnode.pos - from_gnode.pos
@@ -401,16 +401,27 @@ class Graph(dict):
         
         # This how much each component needs to stretch.
         stretch = (separation - extent) / stretches
+        if stretch < 0:
+            stretch = 0
 
         pos = from_gnode.pos
-        for edge in path:
+        for edge in reversed(from_path):
             pos += edge.size
             if edge.stretch:
                 pos += stretch
 
-            if edge != path[-1]:
+            if edge.from_gnode.pos == None:
+                edge.from_gnode.pos = pos
+                unknown.remove(edge.from_gnode.name)
+
+        for edge in to_path:
+            pos += edge.size
+            if edge.stretch:
+                pos += stretch
+
+            if edge.to_gnode.pos == None:
                 edge.to_gnode.pos = pos
-                unknown.remove(edge.to_gnode.name)
+                unknown.remove(edge.to_gnode.name)                
 
         return True
 
