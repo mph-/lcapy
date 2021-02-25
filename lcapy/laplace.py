@@ -172,6 +172,13 @@ def laplace_term(expr, t, s):
     
     const, expr = factor_const(expr, t)
 
+    terms = expr.as_ordered_terms()
+    if len(terms) > 1:
+        result = 0
+        for term in terms:
+            result += laplace_term(term,t, s)
+        return const * result
+
     tsym = sympify(str(t))
     expr = expr.replace(tsym, t)
 
@@ -226,6 +233,10 @@ def laplace_transform(expr, t, s, evaluate=True):
         result = sym.Limit(sym.Integral(expr * sym.exp(-s * t), (t, t0, sym.oo)),
                            t0, 0, dir='-')
         return result
+
+    # Unilateral LT ignores expr for t < 0 so remove Piecewise.
+    if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
+        expr = expr.args[0].args[0]
     
     const, expr = factor_const(expr, t)    
     
@@ -253,7 +264,8 @@ def laplace_transform(expr, t, s, evaluate=True):
     if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
         expr = expr.args[0].args[0]
 
-    expr = sym.expand(expr)        
+    # expand can make a mess of expressions with exponentials
+    #expr = sym.expand(expr)        
     terms = expr.as_ordered_terms()
     result = 0
 
