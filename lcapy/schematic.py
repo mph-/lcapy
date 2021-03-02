@@ -12,27 +12,8 @@ This module performs schematic drawing using circuitikz from a netlist.
 >>> sch.add('W 0.2 0.2; right')
 >>> sch.draw()
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 """
-
-# Components are positioned using two graphs; one graph for
-# the x direction and the other for the y direction. 
-#
-# There is naming confusion.  We have network nodes (electrical
-# nodes) and nodes in the graph used for component placement.
-# Let's call the latter gnodes.  The names of these gnodes are a
-# tuple of the common network nodes.
-#
-# x and y component positioning are performed independently.  Let's
-# consider the x or horizontal positioning.  There are three stages:
-#   1. Component nodes that share a y position are linked; this can
-#      occur, for example, for a vertically oriented component.
-#      This helps to reduce the size of the graph.
-#   2. The x positions of the components are used to determine the
-#      graph edges.
-#   3. The longest path through the graph is found and the x positions
-#      of the nodes are assigned based on the distance along the
-#      longest path.
 
 # Strings starting with ;; are schematic options.  They are parsed in
 # netfile.py and added to the opts attribute of the netlist.  They get
@@ -44,8 +25,8 @@ from .latex import latex_format_label, latex_format_node_label
 from .expr import Expr
 from . import schemcpts
 import sympy as sym
-from .schemgraph import Graph
 from .schemmisc import Pos
+from .schemgraphplacer import SchemGraphPlacer
 from .opts import Opts
 from .netfile import NetfileMixin
 from .system import run_latex, convert_pdf_png, convert_pdf_svg
@@ -351,12 +332,6 @@ class Schematic(NetfileMixin):
 
         return '\n'.join([elt.__str__() for elt in self.elements.values()])
 
-    def _invalidate(self):
-
-        for attr in ('xgraph', 'ygraph'):
-            if hasattr(self, attr):
-                delattr(self, attr)
-
     def _node_add(self, nodename, elt, auxiliary=False):
 
         if nodename not in self.nodes:
@@ -486,8 +461,6 @@ class Schematic(NetfileMixin):
         if cpt.opts_string != '':
             self.hints = True
 
-        self._invalidate()
-
         if cpt.name in self.elements:
             print('Overriding component %s' % cpt.name)
             # Need to search lists and update component.
@@ -500,60 +473,6 @@ class Schematic(NetfileMixin):
         # Note, an auxiliary node can be trumped...
         for node in cpt.required_node_names:
             self._node_add(node, cpt, auxiliary=False)
-
-    def make_graphs(self, debug=None):
-
-        if debug is None:
-            debug = self.debug
-        
-        # The x and y positions of a component node are determined
-        # independently.  The principle is that each component has a
-        # minimum size (usually 1 but changeable with the size option)
-        # but its wires can be stretched.
-
-        # When solving the x position, first nodes that must be
-        # vertically aligned (with the up or down option) are combined
-        # into a set.  Then the left and right options are used to
-        # form a graph.  This graph is traversed to find the longest
-        # path and in the process each node gets assigned the longest
-        # distance from the root of the graph.  To centre components,
-        # a reverse graph is created and the distances are averaged.
-
-        self.xgraph = Graph('horizontal', self.nodes, debug)
-        self.ygraph = Graph('vertical', self.nodes, debug)
-
-        # Use components in orthogonal directions as constraints.  The
-        # nodes of orthogonal components get combined into a
-        # common node.
-        for m, elt in enumerate(self.elements.values()):
-
-            if elt.offset != 0:
-                raise ValueError('offset field should be removed')
-            if elt.directive or elt.ignore:
-                continue
-            
-            elt.xlink(self.xgraph)
-            elt.ylink(self.ygraph)
-
-        # Now form forward and reverse directed graph using components
-        # in the desired directions.
-        # Note, this must be done after the linking step.
-        for m, elt in enumerate(self.elements.values()):
-            if elt.directive or elt.ignore:
-                continue            
-            elt.xplace(self.xgraph)
-            elt.yplace(self.ygraph)
-            
-    def _positions_calculate(self):
-
-        self.make_graphs()
-
-        xpos, self.width = self.xgraph.analyse()
-        ypos, self.height = self.ygraph.analyse()
-
-        scale = self.node_spacing
-        for n, node in self.nodes.items():
-            node.pos = Pos(xpos[n] * scale, ypos[n] * scale)
 
     def _setup(self):
         # This is called before node positions are assigned.
@@ -572,8 +491,9 @@ class Schematic(NetfileMixin):
         self.debug = kwargs.pop('debug', False)
         
         self._setup()
-        
-        self._positions_calculate()
+
+        placer = SchemGraphPlacer(self.elements, self.nodes)
+        self.width, self.height = placer.positions_calculate(self.node_spacing)
 
         # Note, scale does not scale the font size.
         opts = ['scale=%.2f' % self.scale,
@@ -680,8 +600,6 @@ class Schematic(NetfileMixin):
             print('Nodes:')
             for node in self.nodes.values():
                 node.debug()
-            # print(self.xgraph.cnodes)
-            # print(self.ygraph.cnodes)
 
         if ext in ('.pytex', '.schtex', '.pgf'):
             open(filename, 'w').write(content)
