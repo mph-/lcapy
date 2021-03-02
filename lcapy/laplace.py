@@ -176,7 +176,7 @@ def laplace_term(expr, t, s):
     if len(terms) > 1:
         result = 0
         for term in terms:
-            result += laplace_term(term,t, s)
+            result += laplace_term(term, t, s)
         return const * result
 
     tsym = sympify(str(t))
