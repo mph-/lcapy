@@ -94,7 +94,8 @@ class Cpt(object):
     # Auxiliary nodes are used for finding the centre of the shape or
     # to define a bounding box.
     auxiliary = {}
-    directive = False        
+    directive = False
+    place = True
 
     @property
     def s(self):
@@ -522,30 +523,6 @@ class Cpt(object):
     def yvals(self):
         return self.tcoords[:, 1]
 
-    def xlink(self, graphs):
-
-        if self.free:
-            return
-        
-        xvals = self.xvals
-        nodes = self.nodes
-        for m1, n1 in enumerate(nodes):
-            for m2, n2 in enumerate(nodes[m1 + 1:], m1 + 1):
-                if xvals[m2] == xvals[m1]:
-                    graphs.link(n1.name, n2.name)
-
-    def ylink(self, graphs):
-
-        if self.free:
-            return        
-
-        yvals = self.yvals
-        nodes = self.nodes        
-        for m1, n1 in enumerate(nodes):
-            for m2, n2 in enumerate(nodes[m1 + 1:], m1 + 1):
-                if yvals[m2] == yvals[m1]:
-                    graphs.link(n1.name, n2.name)
-
     def place(self, graphs, vals):
 
         if self.free:
@@ -958,11 +935,7 @@ class Cpt(object):
 class A(Cpt):
     """Annotation."""
 
-    def xlink(self, graphs):
-        pass
-
-    def ylink(self, graphs):
-        pass
+    place = False
 
     def xplace(self, graphs):
         pass

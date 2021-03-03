@@ -32,7 +32,32 @@ class SchemGraphPlacer(object):
 
         self.elements = elements
         self.nodes = nodes
-    
+
+
+    def _xlink(self, elt, graph):
+
+        if not elt.place or elt.free:
+            return
+        
+        xvals = elt.xvals
+        nodes = elt.nodes
+        for m1, n1 in enumerate(nodes):
+            for m2, n2 in enumerate(nodes[m1 + 1:], m1 + 1):
+                if xvals[m2] == xvals[m1]:
+                    graph.link(n1.name, n2.name)
+
+    def _ylink(self, elt, graph):
+
+        if not elt.place or elt.free:
+            return        
+
+        yvals = elt.yvals
+        nodes = elt.nodes        
+        for m1, n1 in enumerate(nodes):
+            for m2, n2 in enumerate(nodes[m1 + 1:], m1 + 1):
+                if yvals[m2] == yvals[m1]:
+                    graph.link(n1.name, n2.name)
+        
     def _make_graphs(self, debug=None):
 
         # The x and y positions of a component node are determined
@@ -61,8 +86,8 @@ class SchemGraphPlacer(object):
             if elt.directive or elt.ignore:
                 continue
             
-            elt.xlink(self.xgraph)
-            elt.ylink(self.ygraph)
+            self._xlink(elt, self.xgraph)
+            self._ylink(elt, self.ygraph)
 
         # Now form forward and reverse directed graph using components
         # in the desired directions.
