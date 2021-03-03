@@ -6,6 +6,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 from .schemgraph import Graph
 from .schemmisc import Pos
+from numpy import argsort
 
 # Components are positioned using two graphs; one graph for
 # the x direction and the other for the y direction. 
@@ -57,7 +58,36 @@ class SchemGraphPlacer(object):
             for m2, n2 in enumerate(nodes[m1 + 1:], m1 + 1):
                 if yvals[m2] == yvals[m1]:
                     graph.link(n1.name, n2.name)
+
+    def _place(self, elt, graphs, vals):
+
+        if elt.free:
+            return        
+
+        if elt.offset != 0:
+            print('TODO: offset %s by %f' % (elt, elt.offset))
         
+        size = elt.size
+        nodes = elt.nodes                
+        idx = argsort(vals)[::-1]
+        for i in range(len(idx) - 1):
+            m1 = idx[i]
+            m2 = idx[i + 1]
+            n1 = nodes[m1]
+            n2 = nodes[m2]
+            value = (vals[m2] - vals[m1]) * size
+            graphs.add(elt, n1.name, n2.name, value, elt.stretch)
+
+    def _xplace(self, elt, graphs):
+
+        if elt.place:
+            self._place(elt, graphs, elt.xvals)
+
+    def _yplace(self, elt, graphs):
+        
+        if elt.place:        
+            self._place(elt, graphs, elt.yvals)
+
     def _make_graphs(self, debug=None):
 
         # The x and y positions of a component node are determined
@@ -95,8 +125,8 @@ class SchemGraphPlacer(object):
         for m, elt in enumerate(self.elements.values()):
             if elt.directive or elt.ignore:
                 continue            
-            elt.xplace(self.xgraph)
-            elt.yplace(self.ygraph)
+            self._xplace(elt, self.xgraph)
+            self._yplace(elt, self.ygraph)
             
     def positions_calculate(self, node_spacing):
 

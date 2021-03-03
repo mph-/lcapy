@@ -523,31 +523,6 @@ class Cpt(object):
     def yvals(self):
         return self.tcoords[:, 1]
 
-    def place(self, graphs, vals):
-
-        if self.free:
-            return        
-
-        if self.offset != 0:
-            print('TODO: offset %s by %f' % (self, self.offset))
-        
-        size = self.size
-        nodes = self.nodes                
-        idx = np.argsort(vals)[::-1]
-        for i in range(len(idx) - 1):
-            m1 = idx[i]
-            m2 = idx[i + 1]
-            n1 = nodes[m1]
-            n2 = nodes[m2]
-            value = (vals[m2] - vals[m1]) * size
-            graphs.add(self, n1.name, n2.name, value, self.stretch)
-
-    def xplace(self, graphs):
-        self.place(graphs, self.xvals)
-
-    def yplace(self, graphs):
-        self.place(graphs, self.yvals)
-
     def midpoint(self, node1, node2):
         return (node1.pos + node2.pos) * 0.5
 
@@ -937,12 +912,6 @@ class A(Cpt):
 
     place = False
 
-    def xplace(self, graphs):
-        pass
-
-    def yplace(self, graphs):
-        pass        
-    
     def draw(self, **kwargs):
 
         n = self.nodes[0]
