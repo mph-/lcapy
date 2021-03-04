@@ -400,9 +400,12 @@ class Graph(dict):
             print('Inconsistent %s schematic graph, component(s) will not fit:  separation %s between %s and %s, need %s.\n%s' % (self.name, separation, from_gnode, to_gnode, extent, self))
         
         # This how much each component needs to stretch.
-        stretch = (separation - extent) / stretches
-        if stretch < 0:
+        if stretches == 0:
             stretch = 0
+        else:            
+            stretch = (separation - extent) / stretches
+            if stretch < 0:
+                stretch = 0
 
         pos = from_gnode.pos
         for edge in reversed(from_path):
