@@ -27,6 +27,7 @@ from . import schemcpts
 import sympy as sym
 from .schemmisc import Pos
 from .schemgraphplacer import SchemGraphPlacer
+from .schemlineqplacer import SchemLineqPlacer
 from .opts import Opts
 from .netfile import NetfileMixin
 from .system import run_latex, convert_pdf_png, convert_pdf_svg
@@ -486,14 +487,27 @@ class Schematic(NetfileMixin):
             if node.cptname is not None and not node.implicit:
                 raise ValueError('Unreferenced pin connection %s for %s' % (node.name, node.elt_list))
 
+    def make_graphs(self, debug=None):
+
+        placer = SchemGraphPlacer(self.elements, self.nodes, debug)
+        placer._make_graphs()
+        return placer.xgraph, placer.ygraph
+
     def _tikz_draw(self, style_args='', **kwargs):
 
         self.debug = kwargs.pop('debug', False)
+        method = kwargs.pop('method', 'graph')
         
         self._setup()
 
-        placer = SchemGraphPlacer(self.elements, self.nodes)
-        self.width, self.height = placer.positions_calculate(self.node_spacing)
+        if method == 'graph':
+            placer = SchemGraphPlacer(self.elements, self.nodes)
+        elif method == 'lineq':
+            placer = SchemLineqPlacer(self.elements, self.nodes)            
+        else:
+            raise ValueError('Unknown placer method %s' % method)
+            
+        self.width, self.height = placer.solve(self.node_spacing)
 
         # Note, scale does not scale the font size.
         opts = ['scale=%.2f' % self.scale,

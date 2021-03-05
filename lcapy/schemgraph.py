@@ -566,9 +566,9 @@ class Graph(dict):
             
             print('Suggest a constraint between nodes %s and %s for %s graph' % (node1, node2, self.name))
 
-    def analyse(self, stage=None):
+    def solve(self, stage=None):
         """
-        Analyse graph assigning gnode positions.
+        Solve graph assigning gnode positions.
 
         stage 0 --- do nothing
         stage 1 --- prune redundant edges
@@ -800,7 +800,7 @@ class Graph(dict):
             run_dot(dotfilename, filename)
             return
 
-        self.analyse(stage=stage)
+        self.solve(stage=stage)
 
         dotfile = open(filename, 'w')
         dotfile.write('digraph {\n\tgraph [rankdir=LR];\n')

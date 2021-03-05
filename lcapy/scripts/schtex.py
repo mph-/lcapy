@@ -153,6 +153,9 @@ def main (argv=None):
     parser.add_argument('--postamble', type=str, default=None,
                         help='specify circuitikz commands at end')
 
+    parser.add_argument('--method', type=str, default='graph',
+                        help='specify component placement algorithm')    
+
     parser.add_argument('filename', type=str, help='schematic filename')
     parser.add_argument('outfilename', type=str, nargs='?',
                         help='output filename', default=None)    
@@ -231,15 +234,16 @@ def main (argv=None):
                  filename=outfilename, scale=args.scale,
                  node_spacing=args.node_spacing, cpt_size=args.cpt_size,
                  help_lines=args.help_lines, debug=args.debug,
+                 method=args.method,
                  dpi=args.dpi, nosave=nosave, **kwargs)
 
     if args.xgraph:
-        cct.sch.make_graphs(debug=args.debug)
-        cct.sch.xgraph.dot(outfilename, stage=args.stage)
+        xgraph, ygraph = cct.sch.make_graphs(debug=args.debug)
+        xgraph.dot(outfilename, stage=args.stage)
 
     if args.ygraph:
-        cct.sch.make_graphs(debug=args.debug)
-        cct.sch.ygraph.dot(outfilename, stage=args.stage)
+        xgraph, ygraph = cct.sch.make_graphs(debug=args.debug)
+        ygraph.dot(outfilename, stage=args.stage)
 
     if args.circuitgraph:
        cg = CircuitGraph(cct)

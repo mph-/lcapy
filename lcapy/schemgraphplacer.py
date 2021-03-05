@@ -6,6 +6,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 from .schemgraph import Graph
 from .schemmisc import Pos
+from .schemplacerbase import SchemPlacerBase
 from numpy import argsort
 
 # Components are positioned using two graphs; one graph for
@@ -27,19 +28,19 @@ from numpy import argsort
 #      of the nodes are assigned based on the distance along the
 #      longest path.
 
-class SchemGraphPlacer(object):
+class SchemGraphPlacer(SchemPlacerBase):
 
-    def __init__(self, elements, nodes):
+    def __init__(self, elements, nodes, debug=None):
 
         self.elements = elements
         self.nodes = nodes
+        self.debug = debug
 
+        self.xgraph = Graph('horizontal', nodes, debug)
+        self.ygraph = Graph('vertical', nodes, debug)
 
     def _xlink(self, elt, graph):
 
-        if not elt.place or elt.free:
-            return
-        
         xvals = elt.xvals
         nodes = elt.nodes
         for m1, n1 in enumerate(nodes):
@@ -49,9 +50,6 @@ class SchemGraphPlacer(object):
 
     def _ylink(self, elt, graph):
 
-        if not elt.place or elt.free:
-            return        
-
         yvals = elt.yvals
         nodes = elt.nodes        
         for m1, n1 in enumerate(nodes):
@@ -59,7 +57,7 @@ class SchemGraphPlacer(object):
                 if yvals[m2] == yvals[m1]:
                     graph.link(n1.name, n2.name)
 
-    def _place(self, elt, graphs, vals):
+    def _place(self, elt, graph, vals):
 
         if elt.free:
             return        
@@ -76,19 +74,19 @@ class SchemGraphPlacer(object):
             n1 = nodes[m1]
             n2 = nodes[m2]
             value = (vals[m2] - vals[m1]) * size
-            graphs.add(elt, n1.name, n2.name, value, elt.stretch)
+            graph.add(elt, n1.name, n2.name, value, elt.stretch)
 
-    def _xplace(self, elt, graphs):
+    def _xplace(self, elt, graph):
 
         if elt.place:
-            self._place(elt, graphs, elt.xvals)
+            self._place(elt, graph, elt.xvals)
 
-    def _yplace(self, elt, graphs):
+    def _yplace(self, elt, graph):
         
         if elt.place:        
-            self._place(elt, graphs, elt.yvals)
+            self._place(elt, graph, elt.yvals)
 
-    def _make_graphs(self, debug=None):
+    def _make_graphs(self):
 
         # The x and y positions of a component node are determined
         # independently.  The principle is that each component has a
@@ -103,8 +101,6 @@ class SchemGraphPlacer(object):
         # distance from the root of the graph.  To centre components,
         # a reverse graph is created and the distances are averaged.
 
-        self.xgraph = Graph('horizontal', self.nodes, debug)
-        self.ygraph = Graph('vertical', self.nodes, debug)
 
         # Use components in orthogonal directions as constraints.  The
         # nodes of orthogonal components get combined into a
@@ -113,7 +109,7 @@ class SchemGraphPlacer(object):
 
             if elt.offset != 0:
                 raise ValueError('offset field should be removed')
-            if elt.directive or elt.ignore:
+            if elt.directive or elt.ignore or not elt.place or elt.free:
                 continue
             
             self._xlink(elt, self.xgraph)
@@ -127,16 +123,3 @@ class SchemGraphPlacer(object):
                 continue            
             self._xplace(elt, self.xgraph)
             self._yplace(elt, self.ygraph)
-            
-    def positions_calculate(self, node_spacing):
-
-        self._make_graphs()
-
-        xpos, width = self.xgraph.analyse()
-        ypos, height = self.ygraph.analyse()
-
-        scale = node_spacing
-        for n, node in self.nodes.items():
-            node.pos = Pos(xpos[n] * scale, ypos[n] * scale)
-
-        return width, height
