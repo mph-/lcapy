@@ -29,7 +29,7 @@ from .schemplacerbase import SchemPlacerBase
 
 class SchemGraphPlacer(SchemPlacerBase):
 
-    def __init__(self, elements, nodes, debug=None):
+    def __init__(self, elements, nodes, debug=0):
 
         self.elements = elements
         self.nodes = nodes

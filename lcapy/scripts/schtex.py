@@ -34,7 +34,7 @@ def main (argv=None):
     parser = ArgumentParser(description='Convert Lcapy schematic to image file.')
     parser.add_argument('--version', action='version', version=__doc__.split('\n')[0])
     
-    parser.add_argument('--debug', action='store_true',
+    parser.add_argument('--debug', type=int,
                         dest='debug', default=None,
                         help="enable debugging")
     

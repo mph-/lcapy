@@ -97,4 +97,4 @@ class SchemPlacerBase(object):
             node.pos = Pos(xpos[n] * scale, ypos[n] * scale)
 
         return width, height
-        
+    

@@ -487,7 +487,7 @@ class Schematic(NetfileMixin):
             if node.cptname is not None and not node.implicit:
                 raise ValueError('Unreferenced pin connection %s for %s' % (node.name, node.elt_list))
 
-    def make_graphs(self, debug=None):
+    def make_graphs(self, debug=0):
 
         placer = SchemGraphPlacer(self.elements, self.nodes, debug)
         placer._make_graphs()
@@ -501,9 +501,9 @@ class Schematic(NetfileMixin):
         self._setup()
 
         if method == 'graph':
-            placer = SchemGraphPlacer(self.elements, self.nodes)
+            placer = SchemGraphPlacer(self.elements, self.nodes, self.debug)
         elif method == 'lineq':
-            placer = SchemLineqPlacer(self.elements, self.nodes)            
+            placer = SchemLineqPlacer(self.elements, self.nodes, self.debug)            
         else:
             raise ValueError('Unknown placer method %s' % method)
             
@@ -605,7 +605,7 @@ class Schematic(NetfileMixin):
         if nosave:
             return
 
-        if self.debug:
+        if self.debug & 1:
             print('circuitikz version %s (%s)' % (self.circuitikz_version,
                                                   self.circuitikz_date))
             print('width=%d, height=%d, dpi=%d, cpt_size=%.2f, node_spacing=%.2f, scale=%.2f'
