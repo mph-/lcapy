@@ -147,6 +147,9 @@ class Lineq(object):
         for r in range(U.shape[0]):
             if U[r, r] != 0:
                 bound[r] = 1
+                # For prettiness
+                if U[r, r] < 0:
+                    U[r, :] = -U[r, :]
 
         Nbasic = bound.sum()
         Ur = U[0:Nbasic, bound != 0]
