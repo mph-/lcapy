@@ -1,7 +1,8 @@
-from numpy import zeros, hstack, dot, argsort, min, max
-from scipy.linalg import lu, inv
+from numpy import zeros, hstack, dot, argsort, min, max, vstack
+from scipy.linalg import inv, lu
 from .cnodes import Cnodes
 from .schemplacerbase import SchemPlacerBase
+
 
 class Constraint(object):
 
@@ -10,17 +11,27 @@ class Constraint(object):
         self.stretch = stretch
         
     def __repr__(self):
-        return '%s%s' % (self.size, '*' if self.stretch else '')
+        return '%.2f%s' % (self.size, '*' if self.stretch else '')
 
+
+class Constraints(dict):
+
+    def __repr__(self):
+
+        s = ''
+        for key, constraint in self.items():
+            s += '%s -> %s: %s\n' % (key[0], key[1], repr(constraint))
+        return s
+    
         
-class SysEq(object):
+class Lineq(object):
 
     def __init__(self, direction, nodes, debug=0):
 
         self.direction = direction
         self.cnodes = Cnodes(nodes)
         self.debug = debug
-        self.constraints = {}
+        self.constraints = Constraints()
         
     def link(self, n1, n2):
         """Make nodes n1 and n2 share common node"""
@@ -59,29 +70,39 @@ class SysEq(object):
             self.constraints[key] = constraint
             return
 
-        if constraint.size > constraint2.size:
+        if abs(constraint.size) > abs(constraint2.size):
             self.constraints[key] = constraint            
 
     def solve(self, stage=None):
+
+        cnode_map = {}
+        cnode_imap = []
+        num = 0
+        for node, cnode in self.cnodes.items():
+            if cnode not in cnode_map:
+                cnode_map[cnode] = num
+                cnode_imap.append(cnode)
+                num += 1
 
         Nstretches = 0
         for key, constraint in self.constraints.items():
             if constraint.stretch:
                 Nstretches += 1
 
-        Nnodes = len(self.cnodes)
+        Nnodes = len(cnode_map)
+
+        if Nnodes == 1:
+            pos = {}
+            for node, cnode in self.cnodes.items():
+                m = cnode_map[self.cnodes[node]]
+                pos[node] = 0
+            return pos, 0
+        
         Nunknowns = Nnodes - 1 + Nstretches
         Nconstraints = len(self.constraints)
 
-        A = zeros((Nconstraints, Nconstraints + Nnodes - 1))
+        A = zeros((Nconstraints, Nunknowns))
         b = zeros((Nconstraints, 1))
-
-        cnode_map = {}
-        num = 0
-        for node, cnode in self.cnodes.items():
-            if cnode not in cnode_map:
-                cnode_map[cnode] = num
-                num += 1
 
         m = 0
         s = 0
@@ -96,7 +117,7 @@ class SysEq(object):
             if m2 != 0:        
                 A[m, m2 - 1] = 1
             if constraint.stretch:
-                A[m, s + Nconstraints - 1] = -1
+                A[m, s + Nnodes - 1] = -1
                 s += 1
 
             b[m] = size
@@ -105,26 +126,49 @@ class SysEq(object):
         # Augmented matrix.
         W = hstack((A, b))
 
-        # Extract row-echelon form U.
+        # Extract upper triangular form (this is similar to
+        # reduce row-echelon form (RREF) but not always).
         PL, U = lu(W, permute_l=True)
 
-        Ur = zeros((U.shape[0], U.shape[0]))
+        # Non-zero for bound (basic) variables.
+        bound = zeros(W.shape[-1], dtype=int)
 
-        bound = zeros(A.shape[-1])
+        for r in range(Nnodes - 1):
+            if U[r, r] == 0:
+                raise ValueError('No basic variable for node %s' % node_imap[r])
+            bound[r] = 1
+
+        # for r in range(r + 1, U.shape[0]):
+        #     for c in range(r, U.shape[1] - 1):
+        #         if bound[c] == 0 and U[r, c] != 0 and (U[r, c] * U[r, -1]) >= 0:
+        #             bound[c] = 1
+        #             break
+
+        for r in range(U.shape[0]):
+            if U[r, r] != 0:
+                bound[r] = 1
+
+        Nbasic = bound.sum()
+        Ur = U[0:Nbasic, bound != 0]
+                
+        # c = 0
+        # for r in range(U.shape[0]):
+        #     for c1 in range(c, U.shape[1]):
+        #         if U[r, c1] != 0:
+        #             Ur[:, r] = U[:, c1]
+        #             bound[c1] = 1
+        #             c = c1 + 1
+        #             break
+
+        br = U[0:Nbasic, -1]
+        # A slow one-liner!  Just need to back-substitute.
+        xx = dot(inv(Ur), br)
+        x = xx[0: Nnodes - 1]
+
+        for m in range(Nnodes - 1, xx.shape[0]):
+            if xx[m] < 0:
+                print('Warning negative stretch %s' % xx[m])
         
-        c = 0
-        for r in range(Ur.shape[0]):
-            for c1 in range(c, U.shape[1]):
-                if U[r, c1] != 0:
-                    Ur[:, r] = U[:, c1]
-                    bound[c1] = 1
-                    c = c1 + 1
-                    break
-
-        br = U[:,-1]
-        # A slow one-liner!
-        x = dot(inv(Ur), br)[0: Nnodes - 1]
-
         minx = min(x)
         width = max(x) - minx
 
@@ -132,25 +176,37 @@ class SysEq(object):
         for node, cnode in self.cnodes.items():
             m = cnode_map[self.cnodes[node]]
             if m == 0:
-                pos[node] = 0
+                pos[node] = 0 - minx
             else:
-                pos[node] = x[m - 1]                
+                pos[node] = x[m - 1] - minx
 
         self.W = W
         self.b = b
+        self.U = U
 
-        if ((self.direction == 'horizontal' and not (self.debug & 4))
-            or (self.direction == 'vertical' and self.debug & 4)):
+        if ((self.direction == 'horizontal' and self.debug & 4)
+            or (self.direction == 'vertical' and self.debug & 8)):
         
-            if self.debug & 8:
+            if self.debug & 16:
                 from .matrix import Matrix
                 W = Matrix(W)
                 print(W.latex())
                 
-            if self.debug & 16:
+            if self.debug & 32:
                 from .matrix import Matrix
-                b = Matrix(b)
-                print(b.latex())            
+                U = Matrix(U)
+                print(U.latex())
+
+            if self.debug & 64:
+                for key, cnode in self.cnodes.items():
+                    print(key, cnode)
+
+            if self.debug & 128:
+                for key, constraint in self.constraints.items():                
+                    print(key, constraint)                    
+
+            if self.debug & 256:
+                import pdb; pdb.set_trace()
 
         return pos, width
         
@@ -163,6 +219,5 @@ class SchemLineqPlacer(SchemPlacerBase):
         self.nodes = nodes
         self.debug = debug
         
-        self.xgraph = SysEq('horizontal', nodes, debug)
-        self.ygraph = SysEq('vertical', nodes, debug)
-
+        self.xgraph = Lineq('horizontal', nodes, debug)
+        self.ygraph = Lineq('vertical', nodes, debug)
