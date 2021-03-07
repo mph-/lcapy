@@ -80,7 +80,7 @@ class SchemPlacerBase(object):
         # in the desired directions.
         # Note, this must be done after the linking step.
         for m, elt in enumerate(self.elements.values()):
-            if elt.directive or elt.ignore or elt.free:
+            if elt.directive or elt.ignore or elt.free or not elt.place:
                 continue            
             self._xplace(elt)
             self._yplace(elt)
