@@ -638,6 +638,59 @@ In the limit with infinite open-loop differential gain::
    >>> a.impedance(4,0).limit('Ad', oo)                                            R₁
 
 
+Transimpedance amplifier
+------------------------
+
+   >>> from lcapy import Circuit, t, oo
+   >>> a = Circuit("""   
+   ...E 1 0 opamp 3 2 Ad; right, flipud
+   ...W 4 2; right
+   ...R 2_2 1_1; right
+   ...W 2 2_2; up
+   ...W 1 1_1; up
+   ...W 4 4_2; down=0.5
+   ...Is 4_2 0_3; down
+   ...W 0_3 0_1; down=0.5
+   ...W 3 0_2; down
+   ...W 1 1_2; right
+   ...P 1_2 0; down
+   ...W 0_1 0_2; right
+   ...W 0_2 0; right
+   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary""")
+   >>> a.draw()
+
+.. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier1.png
+   :width: 12cm
+
+The output voltage (at node 1) is found using::
+
+  >>> Vo = a[1].V(t)
+  >>> Vo.pprint()
+  -A_d⋅R⋅iₛ(t) 
+  ─────────────
+     A_d + 1   
+
+In the limit when the open-loop differential gain is infinite gain of
+the amplifier just depends on the resistor value::
+           
+   >>> Vo.limit('Ad', oo).pprint()
+   -R⋅iₛ(t) 
+
+Note, the output voltage is inverted compared to the source current.
+
+The input impedance can be found by removing `Is`::
+
+   >>> a.remove('Is')
+   >>> a.impedance(4, 0)
+      R   
+   ───────
+   A_d + 1
+
+In the limit with infinite open-loop differential gain::
+
+   >>> a.impedance(4,0).limit('Ad', oo)                                            0
+   
+
 Shield guard
 ------------
 
