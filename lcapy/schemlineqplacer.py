@@ -149,7 +149,7 @@ class Lineq(object):
                 bound[r] = 1
                 # For prettiness
                 if U[r, r] < 0:
-                    U[r, :] = -U[r, :]
+                    U[r, r:] = -U[r, r:]
 
         Nbasic = bound.sum()
         Ur = U[0:Nbasic, bound != 0]
