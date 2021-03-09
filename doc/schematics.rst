@@ -986,7 +986,8 @@ Nodes can be annotated using the `A` net.   For example,
 
 .. image:: examples/schematics/annotate1.png
    :width: 7cm
-                    
+
+The annotation is positioned with respect to the node using the anchor attribute.  This can be north, north east, east, south east, south, south west, west, and north west.
 
 Schematics can be annotated using additional tikz commands in the
 netlist.  These are delimited by a line starting with two semicolons,
@@ -1014,7 +1015,7 @@ When referring to an anchor of a component it is necessary to use `@` instead of
 .. image:: examples/schematics/fit3.png
    :width: 10cm
     
-
+           
 Styles
 ======
 

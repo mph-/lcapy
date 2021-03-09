@@ -615,7 +615,7 @@ The output voltage (at node 1) is found using::
    ────────────────
    A_d⋅R₁ + R₁ + R₂
 
-In the limit when the open-loop differential gain is infinite gain of
+In the limit when the open-loop differential gain is infinite, the gain of
 the amplifier just depends on the resistor values::
            
    >>> Vo.limit('Ad', oo).pprint()
@@ -625,7 +625,7 @@ the amplifier just depends on the resistor values::
 
 Note, the output voltage is inverted compared to the source voltage.
 
-The input impedance can be found by removing `Vs`::
+The input impedance can be found by removing `Vs` (since it has zero resistance)::
 
    >>> a.remove('Vs')
    >>> a.impedance(4, 0)
@@ -637,6 +637,12 @@ In the limit with infinite open-loop differential gain::
 
    >>> a.impedance(4,0).limit('Ad', oo)                                            R₁
 
+
+However, in practice, the open-loop gain decreases with frequency and so at high frequencies,
+
+   >>> a.impedance(4,0).limit('Ad', 0)
+   R₁ + R₂
+   
 
 Transimpedance amplifier
 ------------------------
@@ -670,7 +676,7 @@ The output voltage (at node 1) is found using::
   ─────────────
      A_d + 1   
 
-In the limit when the open-loop differential gain is infinite gain of
+In the limit when the open-loop differential gain is infinite gain, the gain of
 the amplifier just depends on the resistor value::
            
    >>> Vo.limit('Ad', oo).pprint()
@@ -678,9 +684,8 @@ the amplifier just depends on the resistor value::
 
 Note, the output voltage is inverted compared to the source current.
 
-The input impedance can be found by removing `Is`::
+The input impedance can be found using (the ideal current source has infinite resistance and does not need removing)::
 
-   >>> a.remove('Is')
    >>> a.impedance(4, 0)
       R   
    ───────
@@ -689,7 +694,12 @@ The input impedance can be found by removing `Is`::
 In the limit with infinite open-loop differential gain::
 
    >>> a.impedance(4,0).limit('Ad', oo)                                            0
-   
+
+However, in practice, the open-loop gain decreases with frequency and so at high frequencies,
+
+   >>> a.impedance(4,0).limit('Ad', 0)
+   R
+
 
 Shield guard
 ------------
@@ -858,7 +868,7 @@ This expression can be plotted if we substitute the symbols with numbers.  Let's
    25000000000⋅  ╱   ────── + 1 
                ╲╱    250000     
 
-Note, Lcapy tries to approximate all numbers with integers.  A floating point representation can be found with the `evalf()` method:
+Note, Lcapy tries to approximate real numbers with rationals.  A floating point representation can be found with the `evalf()` method:
 
    >>> Vns(f).evalf()               
                                                      -0.5

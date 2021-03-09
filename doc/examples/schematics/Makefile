@@ -21,7 +21,7 @@ tex: $(TEX)
 	cd $(dir $@); schtex $(notdir $<) $(notdir $@) 
 
 %.png: %.sch
-	cd $(dir $@); schtex $(notdir $<) $(notdir $@) 
+	cd $(dir $@); schtex $(notdir $<) $(notdir $@)
 
 clean:
 	-rm *.pdf
