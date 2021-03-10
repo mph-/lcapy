@@ -29,4 +29,6 @@ class Cnodes(dict):
         for n in self[n2]:
             self[n] = newset
 
+    def all_nodes(self):
 
+        return unique(self.values())        

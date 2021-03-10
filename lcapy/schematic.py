@@ -26,8 +26,7 @@ from .expr import Expr
 from . import schemcpts
 import sympy as sym
 from .schemmisc import Pos
-from .schemgraphplacer import SchemGraphPlacer
-from .schemlineqplacer import SchemLineqPlacer
+from .schemplacer import schemplacer
 from .opts import Opts
 from .netfile import NetfileMixin
 from .system import run_latex, convert_pdf_png, convert_pdf_svg
@@ -489,10 +488,15 @@ class Schematic(NetfileMixin):
 
     def make_graphs(self, debug=0):
 
-        placer = SchemGraphPlacer(self.elements, self.nodes, debug)
+        placer = schemplacer(self.elements, self.nodes, 'graph', debug)
         placer._make_graphs()
         return placer.xgraph, placer.ygraph
 
+    def _positions_calculate(self, method='graph', debug=False):
+
+        placer = schemplacer(self.elements, self.nodes, method, debug)
+        self.width, self.height = placer.solve(self.node_spacing)        
+    
     def _tikz_draw(self, style_args='', **kwargs):
 
         self.debug = kwargs.pop('debug', False)
@@ -500,14 +504,7 @@ class Schematic(NetfileMixin):
         
         self._setup()
 
-        if method == 'graph':
-            placer = SchemGraphPlacer(self.elements, self.nodes, self.debug)
-        elif method == 'lineq':
-            placer = SchemLineqPlacer(self.elements, self.nodes, self.debug)            
-        else:
-            raise ValueError('Unknown placer method %s' % method)
-            
-        self.width, self.height = placer.solve(self.node_spacing)
+        self._positions_calculate(method, self.debug)
 
         # Note, scale does not scale the font size.
         opts = ['scale=%.2f' % self.scale,

@@ -267,7 +267,7 @@ class Graph(dict):
 
     @property
     def all_nodes(self):
-        return unique(self.cnodes.values())
+        return self.cnodes.all_nodes()
 
     def add_start_nodes(self):
         """Nodes without forward edges are connected to the end node.

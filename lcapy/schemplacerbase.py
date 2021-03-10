@@ -1,3 +1,8 @@
+"""This module provides a base class for schematic placement algorithms.
+
+Copyright 2021 Michael Hayes, UCECE
+"""
+
 from .schemmisc import Pos
 from numpy import argsort
 
