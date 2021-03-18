@@ -950,6 +950,8 @@ The label of a shape can be replaced by an image, using the `image` keyword.  Fo
 
 .. literalinclude:: examples/schematics/image1.sch
 
+The image file can be of any format supported by the LaTeX `\\includegraphics` macro (such as .pdf, .png, .jpg, etc) or a file that can be processed by LaTeX with the `\\input` macro (such as .pgf, .tex, .schtex).                    
+
 
 Each shape has a number of predefined connection pins.  Associated
 with each pin is an optional label.

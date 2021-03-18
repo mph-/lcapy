@@ -754,14 +754,16 @@ The DC gain of the filter is::
     R₂ 
 
 The second-order response of the transfer function of the filter can
-be parameterized:::
+be parameterized::
 
   >>> Hp, defs = H.parameterize()
   >>> Hp
               K         
    ───────────────────
      2               2
-   ω₀  + 2⋅ω₀⋅s⋅ζ + s 
+   ω₀  + 2⋅ω₀⋅s⋅ζ + s
+
+where::
 
    >>> defs['K']
        -1     

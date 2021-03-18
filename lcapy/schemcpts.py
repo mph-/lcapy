@@ -1358,9 +1358,13 @@ class Shape(FixedCpt):
         label = self.label(**kwargs)
         if 'image' in self.opts:
             # Override label with image
-            label = r'\includegraphics[width=%.2fcm]{%s}' % (self.width - 0.5,
-                                                             self.opts['image'])
-
+            image_filename = self.opts['image']
+            ext = image_filename.split('.')[-1]
+            if ext in ('tex', 'schtex', 'pgf'):
+                label = r'\input{%s}' % image_filename
+            else:
+                label = r'\includegraphics[width=%.2fcm]{%s}' % (self.width - 0.5,
+                                                                 image_filename)
         text_width = self.width * 0.8
 
         args_str = self.args_str
