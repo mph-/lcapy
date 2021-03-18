@@ -1091,7 +1091,7 @@ class I(IndependentSource):
             cct._Is[n2] -= I
 
     def _ss_model(self):
-        return self._netmake(args='%s(t)' % self.relname.lower)
+        return self._netmake(args='%s(t)' % self.relname.lower())
 
     def _s_model(self, var):
         return self._netmake(args=self.Isc.laplace()(var))
