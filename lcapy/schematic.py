@@ -778,7 +778,7 @@ class Schematic(NetfileMixin):
             # Thicken up lines to reduce aliasing causing them to
             # disappear, especially when using pdftoppm.
             self.tikz_draw(filename=filename, 
-                           options='bipoles/thickness=2',
+                           options='/tikz/circuitikz/bipoles/thickness=2',
                            **kwargs)
             display_matplotlib(filename, self.dpi)
             return

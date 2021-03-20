@@ -1364,10 +1364,10 @@ class Shape(FixedCpt):
             ext = image_filename.split('.')[-1]
             if ext in ('tex', 'schtex', 'pgf'):
 
-                label = r'\resizebox{%.2fcm}{!}{\input{%s}}' % (self.width - 0.5,
+                label = r'\resizebox{%.2fcm}{!}{\input{%s}}' % (self.width,
                                                                 image_filename)
             else:
-                label = r'\includegraphics[width=%.2fcm]{%s}' % (self.width - 0.5,
+                label = r'\includegraphics[width=%.2fcm]{%s}' % (self.width,
                                                                  image_filename)
             # This affects the image positioning.
             text_width = self.width
