@@ -620,7 +620,7 @@ class Schematic(NetfileMixin):
         template = ('\\documentclass[a4paper]{standalone}\n'
                     '\\usepackage{amsmath}\n'
                     '\\usepackage{circuitikz}\n'
-                    '\\usetikzlibrary{fit, shapes, arrows}\n'
+                    '\\usetikzlibrary{fit, shapes, arrows, patterns, decorations.text, decorations.markings}\n'
                     '\\begin{document}\n%s\\end{document}')
         content = template % content
 
