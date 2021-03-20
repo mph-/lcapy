@@ -1361,7 +1361,9 @@ class Shape(FixedCpt):
             image_filename = self.opts['image']
             ext = image_filename.split('.')[-1]
             if ext in ('tex', 'schtex', 'pgf'):
-                label = r'\input{%s}' % image_filename
+
+                label = r'\resizebox{%.2fcm}{!}{\input{%s}}' % (self.width - 0.5,
+                                                                image_filename)
             else:
                 label = r'\includegraphics[width=%.2fcm]{%s}' % (self.width - 0.5,
                                                                  image_filename)
