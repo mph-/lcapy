@@ -295,7 +295,7 @@ class Schematic(NetfileMixin):
         self.scale = 1.0
         self.dummy_node = 0
         self.context = None
-        self.debug = False
+        self.debug = 0
 
         if filename is not None:
             self.netfile_add(filename)
@@ -499,7 +499,7 @@ class Schematic(NetfileMixin):
     
     def _tikz_draw(self, style_args='', **kwargs):
 
-        self.debug = kwargs.pop('debug', False)
+        self.debug = kwargs.pop('debug', 0)
         method = kwargs.pop('method', 'graph')
         
         self._setup()
@@ -632,7 +632,7 @@ class Schematic(NetfileMixin):
 
         pdf_filename = tex_filename.replace('.tex', '.pdf')
         run_latex(tex_filename)
-        if not self.debug:
+        if not (self.debug & 1):
             latex_cleanup(tex_filename, pdf_filename)
 
         if not path.exists(pdf_filename):
@@ -644,13 +644,13 @@ class Schematic(NetfileMixin):
 
         if ext == '.svg':
             convert_pdf_svg(pdf_filename, root + '.svg')
-            if not self.debug:
+            if not (self.debug & 1):
                 remove(pdf_filename)
             return
 
         if ext == '.png':
             convert_pdf_png(pdf_filename, root + '.png', self.dpi)
-            if not self.debug:
+            if not (self.debug & 1):
                 remove(pdf_filename)
             return
 
@@ -758,8 +758,8 @@ class Schematic(NetfileMixin):
 
             from IPython.display import Image, display_png
 
-            pngfilename = tmpfilename('.png')
-            self.tikz_draw(pngfilename, **kwargs)
+            png_filename = tmpfilename('.png')
+            self.tikz_draw(png_filename, **kwargs)
             
             # Create and display PNG image object.
             # There are two problems:
@@ -767,10 +767,12 @@ class Schematic(NetfileMixin):
             #    when the ipynb file is loaded.
             # 2. The image metadata (width, height) is not stored
             #    when the ipynb file is written non-interactively.
-            width, height = png_image_size(pngfilename)
+            width, height = png_image_size(png_filename)
             # width, height specify the image dimension in pixels
-            display_png(Image(filename=pngfilename,
+            display_png(Image(filename=png_filename,
                               width=width, height=height))
+            if not (self.debug & 1):
+                remove(png_filename)            
             return
 
         if filename is None:
@@ -781,6 +783,8 @@ class Schematic(NetfileMixin):
                            options='/tikz/circuitikz/bipoles/thickness=2',
                            **kwargs)
             display_matplotlib(filename, self.dpi)
+            if not (self.debug & 1):
+                remove(filename)            
             return
 
         self.tikz_draw(filename=filename, **kwargs)

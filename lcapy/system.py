@@ -79,7 +79,9 @@ def tmpfilename(suffix=''):
     from tempfile import gettempdir, NamedTemporaryFile
     
     # Searches using TMPDIR, TEMP, TMP environment variables
-    tempdir = gettempdir()
+    # tempdir = gettempdir()
+    # If including relative images, need current working directory
+    tempdir = '.'
     
     filename = NamedTemporaryFile(suffix=suffix, dir=tempdir, 
                                   delete=False).name
