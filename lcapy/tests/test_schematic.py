@@ -16,7 +16,7 @@ class LcapyTester(unittest.TestCase):
         match = r"""\documentclass[a4paper]{standalone}
 \usepackage{amsmath}
 \usepackage{circuitikz}
-\usetikzlibrary{fit, shapes, arrows}
+\usetikzlibrary{fit, shapes, arrows, patterns, decorations.text, decorations.markings}
 \begin{document}
 \begin{tikzpicture}[scale=1.00, transform shape, /tikz/circuitikz/bipoles/length=1.50cm, american currents, american voltages]
   \coordinate (1) at (0,0);
@@ -47,7 +47,7 @@ C 1 3 3; right""")
         match = r"""\documentclass[a4paper]{standalone}
 \usepackage{amsmath}
 \usepackage{circuitikz}
-\usetikzlibrary{fit, shapes, arrows}
+\usetikzlibrary{fit, shapes, arrows, patterns, decorations.text, decorations.markings}
 \begin{document}
 \begin{tikzpicture}[scale=1.00, transform shape, /tikz/circuitikz/bipoles/length=1.50cm, american currents, american voltages]
   \coordinate (1) at (0,0);
