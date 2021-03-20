@@ -157,6 +157,7 @@ def main (argv=None):
                         help='specify component placement algorithm')    
 
     parser.add_argument('filename', type=str, help='schematic filename')
+
     parser.add_argument('outfilename', type=str, nargs='?',
                         help='output filename', default=None)    
 
@@ -205,7 +206,7 @@ def main (argv=None):
         raise ValueError('Illegal option %s for label_nodes' % args.label_nodes)
 
     if args.draw_nodes not in ('none', 'all', 'primary', 'connections',
-                                  False, None):
+                               False, None):
         raise ValueError('Illegal option %s for draw_nodes' % args.draw_nodes)
 
     if outfilename is not None:
