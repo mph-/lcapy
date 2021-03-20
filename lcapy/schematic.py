@@ -623,7 +623,6 @@ class Schematic(NetfileMixin):
                     '\\usetikzlibrary{fit, shapes, arrows, patterns, decorations.text, decorations.markings}\n'
                     '\\begin{document}\n%s\\end{document}')
         content = template % content
-
         tex_filename = filename.replace(ext, '.tex')
         open(tex_filename, 'w').write(content)
 

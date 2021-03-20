@@ -222,6 +222,10 @@ def circuitikz_version():
                 match = re.search(r'circuitikz ([0-9/]+)', line)
                 date = match.group(1)
                 version = lines[m + 1].strip()
+
+                latex_cleanup(tex_filename)
                 return date, version
+            
+    latex_cleanup(tex_filename)            
     return None, None
 
