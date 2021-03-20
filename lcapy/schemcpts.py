@@ -1356,6 +1356,8 @@ class Shape(FixedCpt):
             return ''
 
         label = self.label(**kwargs)
+        text_width = self.width * 0.8
+
         if 'image' in self.opts:
             # Override label with image
             image_filename = self.opts['image']
@@ -1367,7 +1369,8 @@ class Shape(FixedCpt):
             else:
                 label = r'\includegraphics[width=%.2fcm]{%s}' % (self.width - 0.5,
                                                                  image_filename)
-        text_width = self.width * 0.8
+            # This affects the image positioning.
+            text_width = self.width
 
         args_str = self.args_str
         if not self.nodraw:
