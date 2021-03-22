@@ -2,6 +2,22 @@
 Release notes
 =============
 
+V0.83
+=====
+
+- Adds new opamp tutorials on transimpedance amplifiers and multi-feedback filters
+
+- Adds an experimental component placement algorithm for schematics
+
+- Schematics are converted to pdf in the local directory to access relative files
+
+- Adds support for PGF files to be included into schematics with the image keyword
+
+- Improves some Laplace transforms  
+
+- Fixes state-space model for current sources
+
+
 V0.82
 =====
 
@@ -17,7 +33,7 @@ This release primarily improves the component placement algorithm for schematics
 V0.81
 =====
 
-- This is mostly bug fixes
+This is mostly bug fixes
 
 - Add tests for loop and nodal analysis
 
@@ -29,7 +45,7 @@ V0.81
 V0.80
 =====
 
-- This is mostly bug fixes
+This is mostly bug fixes
 
 - Require sympy > 1.7.1
 
