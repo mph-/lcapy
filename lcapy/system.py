@@ -217,15 +217,16 @@ def circuitikz_version():
 
     with open(log_filename, 'rt') as logfile:
         lines = logfile.readlines()
-        for m, line in enumerate(lines):
-            if line.startswith('Package: circuitikz'):
-                match = re.search(r'circuitikz ([0-9/]+)', line)
-                date = match.group(1)
-                version = lines[m + 1].strip()
 
-                latex_cleanup(tex_filename)
-                return date, version
+    date = None
+    version = None
+    for m, line in enumerate(lines):
+        if line.startswith('Package: circuitikz'):
+            match = re.search(r'circuitikz ([0-9/]+)', line)
+            date = match.group(1)
+            version = lines[m + 1].strip()
+            break
             
-    latex_cleanup(tex_filename)            
-    return None, None
+    latex_cleanup(tex_filename)
+    return date, version
 
