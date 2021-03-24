@@ -43,7 +43,7 @@ units_mapping = {
     'V^2': uu.volt**2, 'A^2': uu.ampere**2, 
     'V^2/Hz^2': (uu.volt / uu.Hz)**2, 'A^2/Hz^2': (uu.ampere / uu.Hz)**2,
     'ohm^2': uu.ohm**2, 'S^2': uu.siemens**2,
-    'W': uu.watt}
+    'W': uu.watt, '/s': 1 / uu.s}
 
 
 class ExpressionClassBuilder(dict):
