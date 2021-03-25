@@ -498,7 +498,6 @@ class Schematic(NetfileMixin):
     
     def _tikz_draw(self, style_args='', **kwargs):
 
-        self.debug = kwargs.pop('debug', 0)
         method = kwargs.pop('method', 'graph')
         
         self._setup()
@@ -573,6 +572,7 @@ class Schematic(NetfileMixin):
 
         root, ext = path.splitext(filename)
 
+        self.debug = kwargs.pop('debug', 0)
         style = kwargs.pop('style', 'american')
         self.dpi = float(kwargs.pop('dpi', 150))        
         self.cpt_size = float(kwargs.pop('cpt_size', 1.2))

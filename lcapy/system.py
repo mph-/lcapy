@@ -68,9 +68,11 @@ def checkexe(command):
         raise RuntimeError('%s is not installed' % program)
 
 
-def run(command, stderr=DEVNULL, stdout=DEVNULL, shell=False):
+def run(command, stderr=DEVNULL, stdout=DEVNULL, shell=False, debug=False):
 
     checkexe(command)
+    if debug:
+        print('Running: %s' % ' '.join(command))
     call(command, stderr=stderr, stdout=stdout, shell=shell)
     
     
@@ -96,7 +98,7 @@ class PDFConverter(object):
 
     def to_svg(self, pdf_filename, svg_filename):
 
-        run(['pdf2svg', pdf_filename, svg_filename])
+        run(['pdf2svg', pdf_filename, svg_filename], debug=self.debug)
         if not path.exists(svg_filename):
             raise RuntimeError('Could not generate %s with pdf2svg.  Is it installed?' % 
                                svg_filename)
@@ -108,7 +110,7 @@ class PDFConverter(object):
         if platform.system() == 'Windows':
             program = 'magick convert'
 
-        run([program, '-density %d' % int(dpi), pdf_filename, png_filename])
+        run([program, '-density %d' % int(dpi), pdf_filename, png_filename], debug=self.debug)
         
         if not path.exists(png_filename):
             raise RuntimeError('Could not generate %s with convert' % 
@@ -129,7 +131,7 @@ class PDFConverter(object):
              '-dNOPROMPT',  '-dMaxBitmap=500000000',  '-dAlignToPixels=0',
              '-dGridFitTT=2',  '-sDEVICE=pngalpha',  '-dTextAlphaBits=4',
              '-dGraphicsAlphaBits=4',  '-r%dx%d' % (int(dpi), int(dpi)),
-             '-sOutputFile=' + png_filename, pdf_filename])
+             '-sOutputFile=' + png_filename, pdf_filename], debug=self.debug)
     
     def to_png_pdftoppm(self, pdf_filename, png_filename, dpi=300):
 
@@ -137,7 +139,7 @@ class PDFConverter(object):
         args = ['pdftoppm', '-r %d' % int(dpi), '-png', '-thinlinemode shape', '-singlefile', pdf_filename, root]
         if False:
             # TODO, determine why this fails...
-            run(args)
+            run(args, debug=self.debug)
         else:
             from os import system
             checkexe(args)
@@ -188,7 +190,7 @@ class LatexRunner(object):
         if dirname != '':
             chdir(path.abspath(dirname))
         
-        run(['pdflatex', '-interaction', 'batchmode', baseroot + '.tex'])
+        run(['pdflatex', '-interaction', 'batchmode', baseroot + '.tex'], debug=self.debug)
     
         if dirname != '':
             chdir(cwd)            
@@ -206,6 +208,8 @@ class LatexRunner(object):
 
         for filename in filenames:
             if path.exists(filename):
+                if self.debug:
+                    print('Removing: %s' % filename)
                 remove(filename)
 
     def circuitikz_version(self):
