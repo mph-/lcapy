@@ -29,8 +29,7 @@ from .schemmisc import Pos
 from .schemplacer import schemplacer
 from .opts import Opts
 from .netfile import NetfileMixin
-from .system import run_latex, convert_pdf_png, convert_pdf_svg
-from .system import tmpfilename, circuitikz_version, latex_cleanup
+from .system import LatexRunner, PDFConverter, tmpfilename
 from os import path, remove
 from collections import OrderedDict
 import math
@@ -593,7 +592,9 @@ class Schematic(NetfileMixin):
         # For debugging when do not want to write to file
         nosave = kwargs.pop('nosave', False)
 
-        self.circuitikz_date, self.circuitikz_version = circuitikz_version()
+        latexrunner = LatexRunner(self.debug & 2)
+        
+        self.circuitikz_date, self.circuitikz_version = latexrunner.circuitikz_version()
         if self.circuitikz_date is None:
             raise RuntimeError('circuitikz is not installed')
 
@@ -630,9 +631,9 @@ class Schematic(NetfileMixin):
             return
 
         pdf_filename = tex_filename.replace('.tex', '.pdf')
-        run_latex(tex_filename)
+        latexrunner.run(tex_filename)
         if not (self.debug & 1):
-            latex_cleanup(tex_filename, pdf_filename)
+            latexrunner.cleanup(tex_filename, pdf_filename)
 
         if not path.exists(pdf_filename):
             raise RuntimeError('Could not generate %s with pdflatex' % 
@@ -642,13 +643,15 @@ class Schematic(NetfileMixin):
             return
 
         if ext == '.svg':
-            convert_pdf_svg(pdf_filename, root + '.svg')
+            pdfconverter = PDFConverter(self.debug & 2)
+            pdfconverter.to_svg(pdf_filename, root + '.svg')
             if not (self.debug & 1):
                 remove(pdf_filename)
             return
 
         if ext == '.png':
-            convert_pdf_png(pdf_filename, root + '.png', self.dpi)
+            pdfconverter = PDFConverter(self.debug & 2)
+            pdfconverter.to_png(pdf_filename, root + '.png', self.dpi)
             if not (self.debug & 1):
                 remove(pdf_filename)
             return
@@ -683,7 +686,7 @@ class Schematic(NetfileMixin):
            cpt_size: size of a component, default 1.5
            dpi: dots per inch for png files
            help_lines: distance between lines in grid, default 0.0 (disabled)
-           debug: True to display debug information
+           debug: Non-zero to display debug information
         """
 
         # None means don't care, so remove.

@@ -1,6 +1,6 @@
 """This module wraps system dependent programs for pdf generation, etc.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
@@ -88,108 +88,78 @@ def tmpfilename(suffix=''):
     return filename
 
 
-def convert_pdf_svg(pdf_filename, svg_filename):
+class PDFConverter(object):
 
-    run(['pdf2svg', pdf_filename, svg_filename])
-    if not path.exists(svg_filename):
-        raise RuntimeError('Could not generate %s with pdf2svg.  Is it installed?' % 
-                           svg_filename)
+    def __init__(self, debug=False):
+
+        self.debug = debug
+
+    def to_svg(self, pdf_filename, svg_filename):
+
+        run(['pdf2svg', pdf_filename, svg_filename])
+        if not path.exists(svg_filename):
+            raise RuntimeError('Could not generate %s with pdf2svg.  Is it installed?' % 
+                               svg_filename)
 
 
-def convert_pdf_png_convert(pdf_filename, png_filename, dpi=300):
+    def to_png_convert(self, pdf_filename, png_filename, dpi=300):
 
-    program = 'convert'    
-    if platform.system() == 'Windows':
-        program = 'magick convert'
+        program = 'convert'    
+        if platform.system() == 'Windows':
+            program = 'magick convert'
 
-    run([program, '-density %d' % int(dpi), pdf_filename, png_filename])
+        run([program, '-density %d' % int(dpi), pdf_filename, png_filename])
         
-    if not path.exists(png_filename):
-        raise RuntimeError('Could not generate %s with convert' % 
-                           png_filename)
-    if stat(png_filename).st_size == 0:
-        raise RuntimeError('Could not generate %s with convert, empty file' % 
-                           png_filename)
+        if not path.exists(png_filename):
+            raise RuntimeError('Could not generate %s with convert' % 
+                               png_filename)
+        if stat(png_filename).st_size == 0:
+            raise RuntimeError('Could not generate %s with convert, empty file' % 
+                               png_filename)
     
+    def to_png_ghostscript(self, pdf_filename, png_filename, dpi=300):
 
-def convert_pdf_png_ghostscript(pdf_filename, png_filename, dpi=300):
+        program = 'gs'    
+        if platform.system() == 'Windows':
+            program = 'gswin32'
+            if platform.machine().endswith('64'):
+                program = 'gswin64'            
 
-    program = 'gs'    
-    if platform.system() == 'Windows':
-        program = 'gswin32'
-        if platform.machine().endswith('64'):
-            program = 'gswin64'            
-
-    run([program, '-q', '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE',
-         '-dNOPROMPT',  '-dMaxBitmap=500000000',  '-dAlignToPixels=0',
-         '-dGridFitTT=2',  '-sDEVICE=pngalpha',  '-dTextAlphaBits=4',
-         '-dGraphicsAlphaBits=4',  '-r%dx%d' % (int(dpi), int(dpi)),
-         '-sOutputFile=' + png_filename, pdf_filename])
-
+        run([program, '-q', '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE',
+             '-dNOPROMPT',  '-dMaxBitmap=500000000',  '-dAlignToPixels=0',
+             '-dGridFitTT=2',  '-sDEVICE=pngalpha',  '-dTextAlphaBits=4',
+             '-dGraphicsAlphaBits=4',  '-r%dx%d' % (int(dpi), int(dpi)),
+             '-sOutputFile=' + png_filename, pdf_filename])
     
-def convert_pdf_png_pdftoppm(pdf_filename, png_filename, dpi=300):
+    def to_png_pdftoppm(self, pdf_filename, png_filename, dpi=300):
 
-    root, ext = path.splitext(png_filename)
-    args = ['pdftoppm', '-r %d' % int(dpi), '-png', '-thinlinemode shape', '-singlefile', pdf_filename, root]
-    if False:
-        # TODO, determine why this fails...
-        run(args)
-    else:
-        from os import system
-        checkexe(args)
-        system(' '.join(args))
+        root, ext = path.splitext(png_filename)
+        args = ['pdftoppm', '-r %d' % int(dpi), '-png', '-thinlinemode shape', '-singlefile', pdf_filename, root]
+        if False:
+            # TODO, determine why this fails...
+            run(args)
+        else:
+            from os import system
+            checkexe(args)
+            system(' '.join(args))
         
-    if not path.exists(png_filename):
-        raise RuntimeError('Could not generate %s with pdftoppm' % 
-                           png_filename)    
-
+        if not path.exists(png_filename):
+            raise RuntimeError('Could not generate %s with pdftoppm' % 
+                               png_filename)    
     
-def convert_pdf_png(pdf_filename, png_filename, dpi=300):
+    def to_png(self, pdf_filename, png_filename, dpi=300):
 
-    conversions = (('ghostscript', convert_pdf_png_ghostscript),
-                   ('convert', convert_pdf_png_convert),
-                   ('pdftoppm', convert_pdf_png_pdftoppm))
+        conversions = (('ghostscript', self.to_png_ghostscript),
+                       ('convert', self.to_png_convert),
+                       ('pdftoppm', self.to_png_pdftoppm))
 
-    for conversion, func in conversions:
-        try:
-            return func(pdf_filename, png_filename, dpi)
-        except:
-            pass
+        for conversion, func in conversions:
+            try:
+                return func(pdf_filename, png_filename, dpi)
+            except:
+                pass
 
-    raise RuntimeError("""Could not convert pdf to png, tried: %s.  Check that one of these programs is installed.""" % ', '.join([conversion for conversion, func in conversions]))
-
-
-def latex_cleanup(tex_filename, wanted_filename=''):
-
-    root, ext = path.splitext(tex_filename)
-    exts = ['.tex', '.aux', '.log', '.pdf']
-    filenames = [root + ext for ext in exts]
-    
-    if wanted_filename in filenames:
-        filenames.remove(wanted_filename)
-
-    for filename in filenames:
-        if path.exists(filename):
-            remove(filename)
-
-
-def run_latex(tex_filename):
-
-    checkexe('pdflatex')
-    
-    root, ext = path.splitext(tex_filename)
-    dirname = path.dirname(tex_filename)
-    baseroot = path.basename(root)
-    cwd = getcwd()
-    if dirname != '':
-        chdir(path.abspath(dirname))
-        
-    run(['pdflatex', '-interaction', 'batchmode', baseroot + '.tex'])
-    
-    if dirname != '':
-        chdir(cwd)            
-
-    return root + '.pdf'
+        raise RuntimeError("""Could not convert pdf to png, tried: %s.  Check that one of these programs is installed.""" % ', '.join([conversion for conversion, func in conversions]))
 
 
 def run_dot(dotfilename, filename):
@@ -201,32 +171,70 @@ def run_dot(dotfilename, filename):
     return
 
 
-def circuitikz_version():
+class LatexRunner(object):
 
-    content = r"""
-    \documentclass[a4paper]{standalone}
-    \usepackage{circuitikz}
-    \begin{document}
-    \end{document}"""
+    def __init__(self, debug=False):
 
-    tex_filename = tmpfilename('.tex')
-    open(tex_filename, 'w').write(content)
+        self.debug = debug
 
-    log_filename = tex_filename.replace('.tex', '.log')
-    run_latex(tex_filename)
+    def run(self, tex_filename):
 
-    with open(log_filename, 'rt') as logfile:
-        lines = logfile.readlines()
+        checkexe('pdflatex')
+    
+        root, ext = path.splitext(tex_filename)
+        dirname = path.dirname(tex_filename)
+        baseroot = path.basename(root)
+        cwd = getcwd()
+        if dirname != '':
+            chdir(path.abspath(dirname))
+        
+        run(['pdflatex', '-interaction', 'batchmode', baseroot + '.tex'])
+    
+        if dirname != '':
+            chdir(cwd)            
 
-    date = None
-    version = None
-    for m, line in enumerate(lines):
-        if line.startswith('Package: circuitikz'):
-            match = re.search(r'circuitikz ([0-9/]+)', line)
-            date = match.group(1)
-            version = lines[m + 1].strip()
-            break
+        return root + '.pdf'
+
+    def cleanup(self, tex_filename, wanted_filename=''):
+
+        root, ext = path.splitext(tex_filename)
+        exts = ['.tex', '.aux', '.log', '.pdf']
+        filenames = [root + ext for ext in exts]
+        
+        if wanted_filename in filenames:
+            filenames.remove(wanted_filename)
+
+        for filename in filenames:
+            if path.exists(filename):
+                remove(filename)
+
+    def circuitikz_version(self):
+
+        content = r"""
+        \documentclass[a4paper]{standalone}
+        \usepackage{circuitikz}
+        \begin{document}
+        \end{document}"""
+        
+        tex_filename = tmpfilename('.tex')
+        open(tex_filename, 'w').write(content)
+        
+        log_filename = tex_filename.replace('.tex', '.log')
+        self.run(tex_filename)
+        
+        with open(log_filename, 'rt') as logfile:
+            lines = logfile.readlines()
+
+        date = None
+        version = None
+        for m, line in enumerate(lines):
+            if line.startswith('Package: circuitikz'):
+                match = re.search(r'circuitikz ([0-9/]+)', line)
+                date = match.group(1)
+                version = lines[m + 1].strip()
+                break
             
-    latex_cleanup(tex_filename)
-    return date, version
+        self.cleanup(tex_filename)
+        return date, version
+
 
