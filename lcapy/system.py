@@ -76,16 +76,15 @@ def run(command, stderr=DEVNULL, stdout=DEVNULL, shell=False, debug=False):
     call(command, stderr=stderr, stdout=stdout, shell=shell)
     
     
-def tmpfilename(suffix=''):
+def tmpfilename(suffix='', dirname=None):
 
     from tempfile import gettempdir, NamedTemporaryFile
+
+    if dirname is None:
+        # Searches using TMPDIR, TEMP, TMP environment variables
+        dirname = gettempdir()
     
-    # Searches using TMPDIR, TEMP, TMP environment variables
-    # tempdir = gettempdir()
-    # If including relative images, need current working directory
-    tempdir = '.'
-    
-    filename = NamedTemporaryFile(suffix=suffix, dir=tempdir, 
+    filename = NamedTemporaryFile(suffix=suffix, dir=dirname, 
                                   delete=False).name
     return filename
 
@@ -188,11 +187,15 @@ class LatexRunner(object):
         baseroot = path.basename(root)
         cwd = getcwd()
         if dirname != '':
+            if self.debug:
+                print('Chdir: %s' % dirname)            
             chdir(path.abspath(dirname))
         
         run(['pdflatex', '-interaction', 'batchmode', baseroot + '.tex'], debug=self.debug)
     
         if dirname != '':
+            if self.debug:
+                print('Chdir: %s' % cwd)            
             chdir(cwd)            
 
         return root + '.pdf'
