@@ -2,6 +2,18 @@
 Release notes
 =============
 
+V0.84
+=====
+
+- Adds debugging support when generating schematics
+  
+- Reverts to using temporary dictionary for temporary files during schematic generation
+
+- Ensures log file closed before deleting
+
+- Fixes units for 1/s  
+
+
 V0.83
 =====
 
