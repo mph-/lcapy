@@ -700,6 +700,93 @@ However, in practice, the open-loop gain decreases with frequency and so at high
    >>> a.impedance(4,0).limit('Ad', 0)
    R
 
+Piezo transducer amplifier
+--------------------------
+
+Consider the opamp noise model for a piezo transducer amplifier (note,
+the thermal noise of the resistors is ignored):
+
+   >>> from lcapy import Circuit, t, oo
+   >>> a = Circuit("""   
+   ... Cs 1 0; down=4
+   ... W 1 1_1; right
+   ... Rs 1_1 0_1; down=4
+   ... W 0 0_1; right
+   ... W 1_1 1_2; right=2
+   ... Vn 1_2 2 noise; right
+   ... E 5_1 0 opamp 2 3_2 A; right
+   ... W 3 3_1; right
+   ... W 3_1 3_2; right
+   ... W 3 3_3; down
+   ... R1 3_3 4; down
+   ... C 4 0_2; down
+   ... W 0_1 0_2; right
+   ... W 3_1 3_4; down=1.5
+   ... Inn 3_4 0_3 noise; down
+   ... W 0_2 0_3; right
+   ... W 2 2_1; down=2
+   ... Inp 2_1 0_4 noise; down
+   ... W 0_3 0_4; right
+   ... W 3_3 3_5; right=3
+   ... R2 3_5 5_2; right
+   ... W 5_1 5_2; down=2
+   ... W 5_1 5; right
+   ... Po 5 0_5; down, v=v_o
+   ... W 0_4 0_5; right
+   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary""")
+   >>> a.draw()
+
+.. image:: examples/tutorials/opamps/opamp-piezo-amplifier1.png
+   :width: 12cm
+
+The output noise voltage amplitude spectral density (ASD) can be found using::
+
+  >>> Von = a.Po.V.n(f)
+
+This can be simplfied by assuming an opamp with infinite open-loop gain::
+
+  >>> Von = Von.limit('A', oo)
+
+This expression is still too complicated to print.  This amplifier circuit has zero gain at DC where the noise ASD is::
+
+   >>> Von.limit(f, 0)
+      ___________________________
+     ╱    2   2      2   2     2 
+   ╲╱  Iₙₙ ⋅R₂  + Iₙₚ ⋅Rₛ  + Vₙ
+
+In comparison, the noise ASD at high frequencies is::
+
+   >>> Von.limit(f, oo)
+      ________________________________________________
+     ╱    2   2   2     2   2             2     2   2 
+   ╲╱  Iₙₙ ⋅R₁ ⋅R₂  + R₁ ⋅Vₙ  + 2⋅R₁⋅R₂⋅Vₙ  + R₂ ⋅Vₙ  
+   ───────────────────────────────────────────────────
+                            R₁                        
+
+Note that this expression does not depend on Rs due to the capacitance, Cs, of the piezo transducer.
+
+Let's choose some values, R1=100 ohm, R2=900 ohm, Cs=1 nF, Rs=100 Mohm, C=100 nF, Vn=2 nV :math:`/\sqrt{\mathrm{Hz}}`, In=0.5 fA :math:`/\sqrt{\mathrm{Hz}}`::
+
+  b = a.subs({'R1':100, 'R2':900, 'Cs':1e-9, 'Rs':100e6, 'C':100e-9, 'Vn':2e-9, 'Inp':0.5e-15, 'Inn':0.5e-15})
+
+The high frequency noise ASD is::
+
+  >>> b.Po.V.n(f).limit('A', oo).limit(f, oo).evalf(3)
+  2.00e-8
+
+This is the opamp noise voltage scaled by the gain of the amplifier (10).  The noise at DC is larger::
+
+  >>> b.Po.V.n(f).limit('A', oo).limit(f, 0).evalf(3)
+  5.00e-8  
+  
+This is due to the current noise of the opamp flowing through Rs.   The noise ASD would be larger if not for C limiting the low-frequency gain of the amplifier.  For example::
+
+   >>> c = b.replace('C', 'W 4 0_2')
+   >>> c.Po.V.n(f).limit('A', oo).limit(f, 0).evalf(3)
+   5.00e-7
+
+In this case, the DC gain is 10, whereas with C it is 1.
+   
 
 Multiple feedback low-pass filter
 ---------------------------------
