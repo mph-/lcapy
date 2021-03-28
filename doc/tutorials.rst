@@ -739,6 +739,22 @@ the thermal noise of the resistors is ignored):
 .. image:: examples/tutorials/opamps/opamp-piezo-amplifier1.png
    :width: 12cm
 
+This circuit is a non-inverting amplifier where Cs represents the piezo transducer.  The AC voltage gain is set by 1 + R2/R1, for frequencies above the pole created by R1 and C::
+
+   >>> H = a.transfer('Cs', 'Po').limit('A', oo)
+   >>> H
+   C⋅s⋅(R₁ + R₂) + 1
+   ─────────────────
+       C⋅R₁⋅s + 1   
+   >>> H.ZPK()
+             ⎛         1     ⎞
+   (R₁ + R₂)⋅⎜s + ───────────⎟
+             ⎝    C⋅(R₁ + R₂)⎠
+   ───────────────────────────
+             ⎛     1  ⎞       
+          R₁⋅⎜s + ────⎟       
+             ⎝    C⋅R₁⎠       
+           
 The output noise voltage amplitude spectral density (ASD) can be found using::
 
   >>> Von = a.Po.V.n(f)
