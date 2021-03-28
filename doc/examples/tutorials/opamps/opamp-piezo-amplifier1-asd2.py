@@ -11,6 +11,7 @@ vf = logspace(0, 5, 201)
 
 Vo.plot(vf, log_frequency=True, yscale=1e9, ylabel='Voltage noise ASD (nV/rtHz)')
 
+from matplotlib.pyplot import savefig
 savefig(__file__.replace('.py', '.png'), bbox_inches='tight')
 
 
