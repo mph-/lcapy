@@ -659,3 +659,20 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(H1, H2, "transfer cpt/nodes")
         self.assertEqual(H1, -1, "transfer")        
+
+    def test_replace(self):
+
+        a = Circuit("""
+        V 2 0
+        L 2 1
+        R 1 0""")
+
+        b = a.replace('V', 'W')
+        c = a.replace('V', 'W 2 0')        
+        
+        self.assertEqual(a.has('V'), True, "has V")
+        self.assertEqual(b.has('V'), False, "has V")
+        self.assertEqual(c.has('V'), False, "has V")
+
+        
+        
