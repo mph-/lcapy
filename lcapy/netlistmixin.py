@@ -1397,8 +1397,36 @@ class NetlistMixin(object):
         self._ss = StateSpace(self)
         return self._ss
 
+    def replace(self, oldname, newname):
+        """Replace component.
+        
+        For example,
+        b = a.replace('C', 'W')
+        c = a.replace('C1', 'C1 1 2')
+        """        
+
+        new = self._new()
+
+        newparts = newname.split(' ')
+
+        for cpt in self._elements.values():
+            net = cpt._copy()            
+            if cpt.name == oldname:
+                if len(newparts) == 1:
+                    # Just replace name of component
+                    parts = net.split(' ')
+                    parts[0] = newname
+                    net = ' '.join(parts)
+                else:
+                    # Replace with new net
+                    net = newname
+            new._add(net)
+        return new
+
     def subs(self, subs_dict):
-        """Substitute values using dictionary of subsitutions."""        
+        """Substitute values using dictionary of substitutions.
+        
+        For example, b = a.subs({'R1': 1e3, 'R2': 9e3})"""        
 
         new = self._new()
 
