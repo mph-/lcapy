@@ -115,6 +115,11 @@ class NetlistMixin(object):
 
         return '\n'.join([str(cpt) for cpt in self._elements.values()])
 
+    def has(self, cpt):
+        """Return True if cpt in elements."""
+
+        return cpt in self.elements
+    
     def _node_add(self, node, cpt):
 
         if node not in self.nodes:
