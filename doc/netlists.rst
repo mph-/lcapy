@@ -758,16 +758,25 @@ Netlist attributes
 `sources` list of sources
 
 
-
 Netlist methods
 ---------------
 
 `describe()` print message describing how netlist is solved
 
+`has()` returns True if component in netlist
+
 `kill()` kills specified independent sources (voltage sources
   become short-circuits and current sources become open-circuits)
 
 `kill_except()` kills all but the specified independent sources
+
+`noise_model()` replaces resistors with a series combination of a
+  resistor and a noise voltage source
+  
+`r_model()` creates a resistive equivalent model using companion
+  circuits (this is used for time-stepping simulation)
+
+`replace()` replace component with new component in netlist
 
 `s_model()` converts sources to the s-domain and represents
   reactive components as impedances
@@ -775,12 +784,6 @@ Netlist methods
 `state_space_model()` creates a state-space model by replacing inductors
   with current sources and capacitors with voltage sources
 
-`r_mode()` creates a resistive equivalent model using companion
-  circuits (this is used for time-stepping simulation)
-
-`noise_model()` replaces resistors with a series combination of a
-  resistor and a noise voltage source
-  
 `subs()` substitutes symbolic component values
 
 
