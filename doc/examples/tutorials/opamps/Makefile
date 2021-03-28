@@ -1,5 +1,4 @@
-#PYFILES = $(wildcard *.py)
-PYFILES =
+PYFILES = opamp-piezo-amplifier2-asd2.py opamp-piezo-amplifier2-frequency-response1.py
 SCHFILES = $(wildcard *.sch)
 PNGFILES = $(PYFILES:.py=.png) $(SCHFILES:.sch=.png)
 
