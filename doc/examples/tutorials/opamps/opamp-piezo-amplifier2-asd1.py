@@ -3,7 +3,7 @@ from numpy import logspace
 
 a = Circuit('opamp-piezo-amplifier2.sch')
 
-b = a.subs({'R1':100, 'R2':900, 'Cs':1e-9, 'Rs':100e6, 'C':10e-9, 'Vn':2e-9, 'Inp':0.5e-15, 'Inn':0.5e-15})
+b = a.subs({'R1':100, 'R2':900, 'Cs':1e-9, 'Rs':100e6, 'C':10e-9, 'Vn':2e-9, 'Inp':5e-15, 'Inn':5e-15})
 
 Vo = b.Po.V.n(f).limit('A', oo).simplify()
 
