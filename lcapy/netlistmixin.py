@@ -585,14 +585,35 @@ class NetlistMixin(object):
         domain.   See also conductance, reactance, resistance."""
         return self.impedance(Np, Nm).B
         
-    def transfer(self, N1p, N1m, N2p, N2m):
+    def transfer(self, N1p, N1m, N2p=None, N2m=None):
         """Create s-domain voltage transfer function V2(s) / V1(s) where:
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
         Note, independent sources are killed and initial conditions
         are ignored.  Since the result is causal, the frequency response
-        can be found by substituting j * omega for s."""
+        can be found by substituting j * omega for s.
+
+        An alternative syntax is transfer(cpt1, cpt2)."""
+
+        if N2p is None and N2m is None:
+            try:
+                N1p = self.elements[N1p]
+            except:
+                pass
+            try:
+                N1m = self.elements[N1m]
+            except:
+                pass            
+            
+            if ((N1p not in self.elements.values()) or
+                (N1m not in self.elements.values())):
+                raise ValueError('Expecting transfer(cpt1, cpt2)')
+            N2p, N2m = [n.name for n in N1m.nodes[0:2]]
+            N1p, N1m = [n.name for n in N1p.nodes[0:2]]
+            
+        elif N2p is None or N2m is None:
+            raise ValueError('Expecting transfer(cpt1, cpt2) or transfer(N1p, N1m, N2p, N2m)')
 
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
         
