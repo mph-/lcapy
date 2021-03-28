@@ -611,9 +611,10 @@ class NetlistMixin(object):
             except:
                 pass            
             
-            if ((N1p not in self.elements.values()) or
-                (N1m not in self.elements.values())):
-                raise ValueError('Expecting transfer(cpt1, cpt2)')
+            if N1p not in self.elements.values():
+                raise ValueError('Unknown component %s' % N1p)
+            if N1m not in self.elements.values():
+                raise ValueError('Unknown component %s' % N1m)            
             N2p, N2m = [n.name for n in N1m.nodes[0:2]]
             N1p, N1m = [n.name for n in N1p.nodes[0:2]]
             
