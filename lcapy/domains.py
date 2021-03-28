@@ -91,7 +91,7 @@ class PhasorFrequencyDomain(Domain):
 class FourierNoiseDomain(Domain):
     domain = 'fourier noise'    
     domain_label = 'Frequency'
-    domain_units = sqrt(uu.Hz)
+    domain_units = uu.Hz
     is_fourier_noise_domain = True
     is_transform_domain = True
     is_one_sided = True
@@ -100,7 +100,7 @@ class FourierNoiseDomain(Domain):
 class AngularFourierNoiseDomain(Domain):
     domain = 'angular fourier noise'    
     domain_label = 'Angular frequency'
-    domain_units = sqrt(uu.rad / uu.s)
+    domain_units = uu.rad / uu.s
     is_angular_fourier_noise_domain = True
     is_transform_domain = True
     is_one_sided = True    
