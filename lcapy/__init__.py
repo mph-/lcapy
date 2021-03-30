@@ -10,7 +10,7 @@ combining one, two, and three port networks.  See lcapy.oneport
 
 For more detailed documentation see http://lcapy.elec.canterbury.ac.nz
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 """
 from __future__ import absolute_import, print_function
 del absolute_import, print_function
@@ -92,5 +92,4 @@ from sympy.core.sympify import converter
 from sympy import Symbol
 converter['j'] = j
 converter[Symbol('j')] = j
-
 

@@ -99,6 +99,7 @@ an answer that appears valid for DC.
 
 19. Warn if try to multiply impedance impulse response with current in time-domain, etc.
 
+20. Determine cut-sets
 
 Testing
 =======

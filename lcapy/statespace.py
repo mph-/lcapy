@@ -48,7 +48,16 @@ class StateSpace(object):
     """This converts a circuit to state-space representation.
 
     It can take a long time for a symbolic circuit with many reactive
-    components."""
+    components.
+
+    This does not (yet) look for loops consisting just of voltage
+    sources and capacitors, nor does it look for cut sets consisting
+    just of current sources and inductors.
+
+    It is best to call simplify() first to remove series inductors
+    and parallel capacitors.
+
+    """
 
     def __init__(self, cct, node_voltages=True, branch_currents=False):
 
