@@ -2,7 +2,7 @@
 This module defines and draws the schematic components using
 circuitikz.   The components are defined at the bottom of this file.
 
-Copyright 2015--2020 Michael Hayes, UCECE
+Copyright 2015--2021 Michael Hayes, UCECE
 """
 
 
@@ -1780,6 +1780,7 @@ class TL(StretchyCpt):
 class TF1(FixedCpt):
     """Transformer"""
 
+    can_scale = True    
     w = 0.8
     default_aspect = w
     node_pinnames = ('s+', 's-', 'p+', 'p-')
@@ -1838,10 +1839,10 @@ class Transformer(TF1):
 
         n1, n2, n3, n4 = self.nodes[0:4]
 
-        s = r' \draw[%s] (%s) to [inductor] (%s);''\n' % (
-            self.args_str, n3.s, n4.s)
-        s += r' \draw[%s] (%s) to [inductor] (%s);''\n' % (
-            self.args_str, n2.s, n1.s)
+        s = r' \draw[%s] (%s) to [inductor, scale=%s] (%s);''\n' % (
+            self.args_str, n3.s, self.scale, n4.s)
+        s += r' \draw[%s] (%s) to [inductor, scale=%s] (%s);''\n' % (
+            self.args_str, n2.s, self.scale, n1.s)
 
         s += super(Transformer, self).draw(link=False, **kwargs)
         return s
