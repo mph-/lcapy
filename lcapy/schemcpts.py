@@ -2573,6 +2573,37 @@ class Uinverter(Chip):
             q, 1.8 * self.size * self.scale, self.args_str)
         return s
 
+
+class Udiffdriver(Chip):
+    """Differential driver with power supplies"""
+
+    default_width = 1.0
+
+    pins = {'in' : ('l', -0.5, 0),
+            'vss' : ('b', 0, -0.18),
+            'out+' : ('r', -0.02, 0.25),
+            'out-' : ('r', 0.1, -0.25),            
+            'vdd': ('t', 0, 0.22),
+            'en': ('b', -0.25, -0.37)}
+    
+    pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD', 'en' : 'E'}
+
+    @property
+    def path(self):
+        w = 0.05
+        return ((-0.5, 0.5), (0.5 - 2 * w, 0), (-0.5, -0.5))
+
+    def draw(self, **kwargs):
+
+        s = super(Udiffdriver, self).draw(**kwargs)
+
+        # Append inverting circle.
+        centre = self.node('mid')                
+        q = self.tf(centre.pos, ((0.05, -0.25)))
+        s += r'  \draw[thick] (%s) node[ocirc, scale=%s, %s] {};''\n' % (
+            q, 1.8 * self.size * self.scale, self.args_str)
+        return s    
+
     
 class Flipflop(Chip):
 
@@ -2859,7 +2890,7 @@ class Uopamp(Chip):
     
 class Ufdopamp(Chip):
     """This is for a fully differential opamp created with the U netlist
-    type.  It has no wires.  See also FDOpamp for a fully differential
+    type.  It has no wires.  See also Efdopamp for a fully differential
     opamp created with the E netlist type.
 
     """

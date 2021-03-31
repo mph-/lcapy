@@ -95,6 +95,7 @@ TR: TRname Pi Po [Value]; Transfer function
 Ubuffer: Uname buffer; Buffer
 Uinverter: Uname inverter; Inverter
 Udiffamp: Uname diffamp; Differential amplifier
+Udiffdriver: Uname diffdriver; Differential driver
 Uopamp: Uname opamp; Opamp
 Uinamp: Uname inamp; Instrumentation amplifier
 Uisoamp: Uname isoamp; Isolated amplifier
@@ -170,6 +171,7 @@ buffer: keyword;
 pbuffer: keyword;
 pinverter: keyword;
 inverter: keyword;
+diffdriver: keyword;
 adc: keyword;
 dac: keyword;
 diffamp: keyword;
