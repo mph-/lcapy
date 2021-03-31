@@ -2505,9 +2505,8 @@ class Udac(Chip):
 
 
 class Udiffamp(Chip):
-    """Amplifier.  This may be deprecated.  It is not automatically
-    annotated with + and - symbols for inputs.   This can be achieved using
-    opamp with nolabels."""
+    """Differential amplifier.  It is not automatically annotated with + and - symbols for inputs.
+    This can be achieved using pinlabels={in+, in-}."""
 
     default_width = 1.0
 
