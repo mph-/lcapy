@@ -2580,11 +2580,11 @@ class Udiffdriver(Chip):
     default_width = 1.0
 
     pins = {'in' : ('l', -0.5, 0),
-            'vss' : ('b', 0, -0.18),
+            'vss' : ('b', -0.15, -0.3),
             'out+' : ('r', -0.02, 0.25),
             'out-' : ('r', 0.1, -0.25),            
             'vdd': ('t', 0, 0.22),
-            'en': ('b', -0.25, -0.37)}
+            'en': ('b', -0.3, -0.4)}
     
     pinlabels = {'vss' : 'VSS', 'vdd' : 'VDD', 'en' : 'E'}
 
