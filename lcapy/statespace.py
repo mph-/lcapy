@@ -50,12 +50,11 @@ class StateSpace(object):
     It can take a long time for a symbolic circuit with many reactive
     components.
 
-    This does not (yet) look for loops consisting just of voltage
-    sources and capacitors, nor does it look for cut sets consisting
-    just of current sources and inductors.
-
-    It is best to call simplify() first to remove series inductors
-    and parallel capacitors.
+    This does not (yet) look for degenerate circuits.  These are
+    circuits with a loop consisting only of voltage sources and/or
+    capacitors, or cut sets consisting only of current sources and/or
+    inductors.  One hack is to call simplify() first to remove series
+    inductors and parallel capacitors.
 
     """
 
