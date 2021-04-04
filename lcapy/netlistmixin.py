@@ -1074,6 +1074,8 @@ class NetlistMixin(object):
         """Return dict of subsets of component names where each subset has the
         same component type."""
 
+        aset = aset.copy()
+
         subsets = {}
         while aset != set():
             name = aset.pop()
@@ -1135,7 +1137,6 @@ class NetlistMixin(object):
         return self.G.in_series(cpt)
         
     def in_parallel(self, cpt=None):
-
         """Return set of cpts in parallel with specified cpt.  If no cpt
         specified, return list of sets of parallel cpts."""
 
@@ -1148,7 +1149,7 @@ class NetlistMixin(object):
         return names
     
     def in_series(self, cpt=None):
-        """Return set of cpts in series with specified cpt.   If no cpt
+        """Return set of cpts in series with specified cpt.  If no cpt
         specified, return list of sets of series cpts."""
 
         if cpt is None:
@@ -1263,6 +1264,16 @@ class NetlistMixin(object):
                 else:
                     raise RuntimeError('Internal error')
 
+            Iname = None
+            for name in aset:
+                if name[0] == 'I':
+                    Iname = name
+                    break
+            if Iname is not None:
+                for name in aset:
+                    if name[0] != 'I':
+                        print('Warning, have %s in series with %s' % (name, Iname))
+                
         if changed:
             net._fixup()
                 
@@ -1289,6 +1300,16 @@ class NetlistMixin(object):
                 else:
                     raise RuntimeError('Internal error')
                 
+            Vname = None
+            for name in aset:
+                if name[0] == 'V':
+                    Vname = name
+                    break
+            if Vname is not None:
+                for name in aset:
+                    if name[0] != 'V':
+                        print('Warning, have %s in parallel with %s' % (name, Vname))
+
         if changed:
             # TODO, remove dangling wires connected to the removed components.
             net._fixup()
@@ -1328,6 +1349,11 @@ class NetlistMixin(object):
             
         return net
 
+    def check(self):
+        """Check if network contains a loop of voltage sources or a cut set of current sources."""
+
+        return self.simplify(explain=True, modify=False)
+    
     def twoport(self, N1p, N1m, N2p, N2m, model='B'):
         """Create s-domain twoport model for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
