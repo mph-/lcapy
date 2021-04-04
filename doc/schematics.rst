@@ -383,7 +383,9 @@ The supported chips are:
  - `opamp`  
  - `mux21`
  - `mux41`  
- - `mux42`   
+ - `mux42`
+ - `diffdriver`
+ - `diffamp`   
 
 
 .. image:: examples/schematics/Uchip1313.png
