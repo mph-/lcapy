@@ -43,6 +43,8 @@ class Cpt(ImmittanceMixin):
     directive = False
     flip_branch_current = False
     ignore = False
+    add_series = False
+    add_parallel = False    
     equipotential_nodes = ()
     
 
@@ -839,6 +841,7 @@ class RC(RLC):
 class C(RC):
 
     reactive = True
+    add_parallel = True
 
     @property
     def C(self):
@@ -1068,6 +1071,8 @@ class CCVS(DependentSource):
 
 class I(IndependentSource):
 
+    add_parallel = True    
+
     def _select(self, kind=None):
         """Select domain kind for component."""
         return self._netmake(args=self.cpt.Isc.netval(kind))
@@ -1145,6 +1150,7 @@ class L(RLC):
     
     need_branch_current = True
     reactive = True
+    add_series = True    
 
     def _r_model(self):
 
@@ -1249,6 +1255,8 @@ class P(O):
 
 class R(RC):
 
+    add_series = True    
+    
     def _r_model(self):    
         return self._copy()
 
@@ -1433,7 +1441,8 @@ class TR(Dummy):
 class V(IndependentSource):
 
     need_branch_current = True
-    flip_branch_current = True        
+    flip_branch_current = True
+    add_series = True
 
     def _select(self, kind=None):
         """Select domain kind for component."""
@@ -1497,12 +1506,14 @@ class Y(RC):
     """Admittance"""
 
     reactive = True
+    add_parallel = True
 
 
 class Z(RC):
     """Impedance"""
 
-    reactive = True    
+    reactive = True
+    add_series = True    
 
 
 classes = {}
