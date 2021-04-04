@@ -1079,15 +1079,17 @@ class NetlistMixin(object):
         subsets = {}
         while aset != set():
             name = aset.pop()
+            cpt = self._elements[name]
             aset.add(name)
             
             subset = set()
             for name1 in aset:
-                if name[0] == name1[0]:
+                cpt1 = self._elements[name1]                
+                if cpt.type == cpt1.type:
                     subset.add(name1)
             aset -= subset
             if len(subset) > 1:
-                subsets[name[0]] = subset
+                subsets[cpt.type] = subset
         return subsets
 
     def _in_parallel_all(self):
@@ -1160,7 +1162,8 @@ class NetlistMixin(object):
             return set()
         return names
 
-    def _do_simplify(self, string, subset, net, explain=False, add=False, series=False):
+    def _do_simplify(self, string, subset, net, explain=False, add=False,
+                     series=False):
 
         if explain:
             print(string % subset)
@@ -1254,7 +1257,7 @@ class NetlistMixin(object):
                 if k == 'I':
                     print('Netlist has current sources in series: %s' % subset)
                 elif k in ('R', 'L', 'V', 'Z'):
-                    if k == 'L' and  not self._check_ic(subset):
+                    if k == 'L' and not self._check_ic(subset):
                         continue
                     changed |= self._do_simplify('Can add in series: %s',
                                                  subset, net, explain, True, True)
