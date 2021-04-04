@@ -1162,7 +1162,7 @@ class NetlistMixin(object):
             return set()
         return names
 
-    def _do_simplify(self, string, subset, net, explain=False, add=False,
+    def _do_simplify_combine(self, string, subset, net, explain=False, add=False,
                      series=False):
 
         if explain:
@@ -1246,7 +1246,7 @@ class NetlistMixin(object):
             newelements[v.name] = v
         self._elements = newelements
     
-    def _simplify_series(self, cptnames=None, explain=False):
+    def _simplify_combine_series(self, cptnames=None, explain=False):
 
         net = self.copy()
         changed = False
@@ -1259,30 +1259,20 @@ class NetlistMixin(object):
                 elif k in ('R', 'L', 'V', 'Z'):
                     if k == 'L' and not self._check_ic(subset):
                         continue
-                    changed |= self._do_simplify('Can add in series: %s',
-                                                 subset, net, explain, True, True)
+                    changed |= self._do_simplify_combine('Can add in series: %s',
+                                                         subset, net, explain, True, True)
                 elif k in ('C', 'Y'):
-                    changed |= self._do_simplify('Can combine in series: %s',
-                                                 subset, net, explain, False, True)
+                    changed |= self._do_simplify_combine('Can combine in series: %s',
+                                                         subset, net, explain, False, True)
                 else:
                     raise RuntimeError('Internal error')
 
-            Iname = None
-            for name in aset:
-                if name[0] == 'I':
-                    Iname = name
-                    break
-            if Iname is not None:
-                for name in aset:
-                    if name[0] != 'I':
-                        print('Warning, have %s in series with %s' % (name, Iname))
-                
         if changed:
             net._fixup()
                 
         return net, changed
 
-    def _simplify_parallel(self, cptnames=None, explain=False):
+    def _simplify_combine_parallel(self, cptnames=None, explain=False):
 
         net = self.copy()
         changed = False        
@@ -1291,33 +1281,75 @@ class NetlistMixin(object):
             subsets = net._find_combine_subsets(aset)
             for k, subset in subsets.items():
                 if k == 'V':
-                    print('Netlist has voltage sources in parallel: %s'%  subset)
+                    print('Netlist has voltage sources in parallel: %s'% subset)
                 elif k in ('R', 'L', 'Z'):
-                    changed |= self._do_simplify('Can combine in parallel: %s',
-                                                 subset, net, explain, False, False)
+                    changed |= self._do_simplify_combine('Can combine in parallel: %s',
+                                                         subset, net, explain, False, False)
                 elif k in ('C', 'Y', 'I'):
                     if k == 'C' and  not self._check_ic(subset):
                         continue                    
-                    changed |= self._do_simplify('Can add in parallel: %s',
-                                                 subset, net, explain, True, False)
+                    changed |= self._do_simplify_combine('Can add in parallel: %s',
+                                                         subset, net, explain, True, False)
                 else:
                     raise RuntimeError('Internal error')
                 
-            Vname = None
-            for name in aset:
-                if name[0] == 'V':
-                    Vname = name
-                    break
-            if Vname is not None:
-                for name in aset:
-                    if name[0] != 'V':
-                        print('Warning, have %s in parallel with %s' % (name, Vname))
-
         if changed:
             # TODO, remove dangling wires connected to the removed components.
             net._fixup()
                 
         return net, changed
+
+    def _simplify_redundant_series(self, cptnames=None, explain=False):
+
+        net = self.copy()
+        changed = False
+
+        for aset in net.in_series():        
+            Iname = None
+            for name in aset:
+                cpt = self._elements[name]                
+                if cpt.type == 'I':
+                    Iname = name
+                    break
+            if Iname is not None:
+                for name in aset:
+                    cpt = self._elements[name]                    
+                    if cpt.type != 'I':
+                        print('Warning, have redundant %s in series with %s' % (name, Iname))
+                
+        return net, False        
+
+    def _simplify_redundant_parallel(self, cptnames=None, explain=False):
+
+        net = self.copy()
+        changed = False
+
+        for aset in net.in_parallel():
+            Vname = None
+            for name in aset:
+                cpt = self._elements[name]
+                if cpt.type == 'V':
+                    Vname = name
+                    break
+            if Vname is not None:
+                for name in aset:
+                    cpt = self._elements[name]
+                    if cpt.type != 'V':
+                        print('Warning, have redundant %s in parallel with %s' % (name, Vname))
+
+        return net, False
+
+    def _simplify_series(self, cptnames=None, explain=False):
+
+        net, changed = self._simplify_redundant_series(cptnames, explain)        
+        net, changed2 = net._simplify_combine_series(cptnames, explain)
+        return net, changed or changed2
+
+    def _simplify_parallel(self, cptnames=None, explain=False):
+
+        net, changed = self._simplify_redundant_parallel(cptnames, explain)
+        net, changed2 = net._simplify_combine_parallel(cptnames, explain)
+        return net, changed or changed2    
 
     def simplify_series(self, cptnames=None, explain=False, modify=True):
 
