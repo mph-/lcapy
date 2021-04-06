@@ -2,7 +2,7 @@
 This module provides a class to represent circuits as graphs.
 This is primarily for loop analysis but is also used for nodal analysis.
 
-Copyright 2019--2020 Michael Hayes, UCECE
+Copyright 2019--2021 Michael Hayes, UCECE
 
 """
 
@@ -22,13 +22,14 @@ class CircuitGraph(nx.Graph):
 
     def __init__(self, cct):
 
-        super(CircuitGraph, self).__init__()
+        self.G = nx.Graph()
         self.cct = cct
-        self.dummy = 0
-        # Dummy nodes are used to avoid parallel edges.
-        self.dummy_nodes = {}
 
-        self.add_nodes_from(cct.node_list)
+        dummy = 0
+        # Dummy nodes are used to avoid parallel edges.
+        dummy_nodes = {}
+
+        self.G.add_nodes_from(cct.node_list)
 
         node_map = cct.node_map
 
@@ -40,16 +41,16 @@ class CircuitGraph(nx.Graph):
             nodename1 = node_map[elt.nodenames[0]]
             nodename2 = node_map[elt.nodenames[1]]
             
-            if self.has_edge(nodename1, nodename2):
+            if self.G.has_edge(nodename1, nodename2):
                 # Add dummy node in graph to avoid parallel edges.
-                dummynode = '*%d' % self.dummy
-                dummycpt = 'W%d' % self.dummy                
-                self.add_edge(nodename1, dummynode, name=name)
-                self.add_edge(dummynode, nodename2, name=dummycpt)
-                self.dummy_nodes[dummynode] = nodename2
-                self.dummy += 1
+                dummynode = '*%d' % dummy
+                dummycpt = 'W%d' % dummy                
+                self.G.add_edge(nodename1, dummynode, name=name)
+                self.G.add_edge(dummynode, nodename2, name=dummycpt)
+                dummy_nodes[dummynode] = nodename2
+                dummy += 1
             else:
-                self.add_edge(nodename1, nodename2, name=name)
+                self.G.add_edge(nodename1, nodename2, name=name)
 
         self.node_map = node_map
 
@@ -75,7 +76,7 @@ class CircuitGraph(nx.Graph):
     def all_loops(self):
 
         # This adds forward and backward edges.
-        DG = nx.DiGraph(self)
+        DG = nx.DiGraph(self.G)
         cycles = list(nx.simple_cycles(DG))
 
         loops = []
@@ -92,7 +93,7 @@ class CircuitGraph(nx.Graph):
         loops = self.all_loops()
         sets = [set(loop) for loop in loops]
 
-        DG = nx.DiGraph(self)
+        DG = nx.DiGraph(self.G)
         
         rejects = []
         for i in range(len(sets)):
@@ -159,15 +160,19 @@ class CircuitGraph(nx.Graph):
     def is_planar(self):
         """Return True for a planar network."""
         
-        return nx.check_planarity(self)[0]
+        return nx.check_planarity(self.G)[0]
 
+    def nodes(self):
+
+        return self.G.nodes()
+    
     def node_edges(self, node):
 
-        return self[node]
+        return self.G[node]
 
     def component(self, node1, node2):
 
-        name = self.get_edge_data(node1, node2)['name']
+        name = self.G.get_edge_data(node1, node2)['name']
         if name.startswith('W'):
             return None
         return self.cct.elements[name]
@@ -208,10 +213,10 @@ class CircuitGraph(nx.Graph):
     def components(self):
         """Return list of component names."""
 
-        return [d['name'] for n1, n2, d in self.edges(data=True)]
+        return [d['name'] for n1, n2, d in self.G.edges(data=True)]
 
     def in_series(self, cpt_name):
-        """Return set of component names in series with cpt including itself."""        
+        """Return set of component names in series with cpt including itself."""
 
         cct = self.cct
         elt = cct.elements[cpt_name]
@@ -221,7 +226,7 @@ class CircuitGraph(nx.Graph):
         series.append(cpt_name)        
 
         def follow(node):
-            neighbours = self[node]
+            neighbours = self.G[node]
             if len(neighbours) > 2:
                 return
             for n, e in neighbours.items():
@@ -257,12 +262,12 @@ class CircuitGraph(nx.Graph):
 
         parallel = [cpt_name]
 
-        neighbours1 = self[n1]
-        neighbours2 = self[n2]
+        neighbours1 = self.G[n1]
+        neighbours2 = self.G[n2]
 
         # The first created parallel component has no dummy nodes.
         try:
-            name = self.get_edge_data(n1, n2)['name']
+            name = self.G.get_edge_data(n1, n2)['name']
             parallel.append(name)
         except:
             pass
@@ -271,21 +276,21 @@ class CircuitGraph(nx.Graph):
         
         for n, e in neighbours1.items():
             if n.startswith('*'):
-                for n3, e3 in self[n].items():
+                for n3, e3 in self.G[n].items():
                     if n3 == n2 and not e['name'].startswith('W'):
                         parallel.append(e['name'])
         for n, e in neighbours2.items():
             if n.startswith('*'):
-                for n3, e3 in self[n].items():
+                for n3, e3 in self.G[n].items():
                     if n3 == n1 and not e['name'].startswith('W'):
                         parallel.append(e['name'])
 
         if n1.startswith('*'):
-            for n3, e3 in self[n1].items():
+            for n3, e3 in self.G[n1].items():
                 if n3 == n2 and not e['name'].startswith('W'):
                     parallel.append(e['name'])
         if n2.startswith('*'):
-            for n3, e3 in self[n2].items():
+            for n3, e3 in self.G[n2].items():
                 if n3 == n1 and not e['name'].startswith('W'):
                     parallel.append(e['name'])                                            
         
