@@ -2,7 +2,7 @@
 This module performs loop analysis.  It is primarily for showing
 the equations rather than evaluating them.
 
-Copyright 2019--2020 Michael Hayes, UCECE
+Copyright 2019--2021 Michael Hayes, UCECE
 
 """
 
@@ -44,7 +44,7 @@ class LoopAnalysis(object):
     def __init__(self, cct):
 
         self.cct = cct
-        self.G = CircuitGraph(cct)
+        self.cg = CircuitGraph(cct)
 
         self.kind = self.cct.kind
         if self.kind == 'super':
@@ -59,21 +59,21 @@ class LoopAnalysis(object):
         """Return list of loops.  Note, the loops can vary for different
         invocations of the LoopAnalysis class."""
 
-        return self.G.loops()
+        return self.cg.loops()
 
     def loops_by_cpt_name(self):
         """Return list of loops specified by cpt name."""
 
-        return self.G.loops_by_cpt_name()        
+        return self.cg.loops_by_cpt_name()        
     
     @property
     def num_loops(self):
 
-        return len(self.G.loops)
+        return len(self.cg.loops)
 
     def mesh_currents(self):
 
-        if not self.G.is_planar:
+        if not self.cg.is_planar:
             raise ValueError('Circuit topology is not planar')
 
         loops = self.loops()
@@ -84,7 +84,7 @@ class LoopAnalysis(object):
 
     def _make_equations(self):    
 
-        if not self.G.is_planar:
+        if not self.cg.is_planar:
             raise ValueError('Circuit topology is not planar')
 
         if self.cct.is_superposition:
@@ -106,7 +106,7 @@ class LoopAnalysis(object):
             loop1.append(loop1[0])
             for j in range(len(loop1) - 1):
 
-                elt = self.G.component(loop1[j], loop1[j + 1])
+                elt = self.cg.component(loop1[j], loop1[j + 1])
                 if elt is None:
                     continue
 
@@ -221,10 +221,11 @@ class LoopAnalysis(object):
         """Return the equations in matrix form.
 
         Forms can be:
-         A y = b
-         b = A y
-         Ainv b = y
-         y = Ainv b
+         'default'
+         'A y = b'
+         'b = A y'
+         'Ainv b = y'
+         'y = Ainv b'
 
         If `invert` is True, evaluate the matrix inverse."""
 

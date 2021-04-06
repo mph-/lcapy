@@ -1,7 +1,7 @@
 """This module performs nodal analysis.  It is primarily for showing
 the equations rather than for evaluating them.
 
-Copyright 2019-2020 Michael Hayes, UCECE
+Copyright 2019-2021 Michael Hayes, UCECE
 
 """
 
@@ -51,7 +51,7 @@ class NodalAnalysis(object):
         component voltages and node voltages."""
 
         self.cct = cct
-        self.G = CircuitGraph(cct)
+        self.cg = CircuitGraph(cct)
 
         self.kind = self.cct.kind
         if self.kind == 'super':
@@ -68,7 +68,7 @@ class NodalAnalysis(object):
         
     def nodes(self):
 
-        return self.G.nodes()
+        return self.cg.nodes()
 
     def _make_unknowns(self):
 
@@ -97,14 +97,14 @@ class NodalAnalysis(object):
                 continue
 
             voltage_sources = []
-            for elt in self.G.connected_cpts(node):
+            for elt in self.cg.connected_cpts(node):
                 if elt.type == 'V':
                     voltage_sources.append(elt)
 
             if voltage_sources != []:
                 elt = voltage_sources[0]
-                n1 = self.G.node_map[elt.nodenames[0]]
-                n2 = self.G.node_map[elt.nodenames[1]]
+                n1 = self.cg.node_map[elt.nodenames[0]]
+                n2 = self.cg.node_map[elt.nodenames[1]]
 
                 V = elt.cpt.v_equation(0, self.kind)
                 
@@ -112,11 +112,11 @@ class NodalAnalysis(object):
 
             else:
                 result = Itype(self.kind)(0)
-                for elt in self.G.connected_cpts(node):
+                for elt in self.cg.connected_cpts(node):
                     if len(elt.nodenames) < 2:
                         raise ValueError('Elt %s has too few nodes' % elt)
-                    n1 = self.G.node_map[elt.nodenames[0]]
-                    n2 = self.G.node_map[elt.nodenames[1]]
+                    n1 = self.cg.node_map[elt.nodenames[0]]
+                    n2 = self.cg.node_map[elt.nodenames[1]]
                     if node == n1:
                         pass
                     elif node == n2:
@@ -195,10 +195,11 @@ class NodalAnalysis(object):
         """Return the equations in matrix form.
 
         Forms can be:
-         A y = b
-         b = A y
-         Ainv b = y
-         y = Ainv b
+         'default'
+         'A y = b'
+         'b = A y'
+         'Ainv b = y'
+         'y = Ainv b'
 
         If `invert` is True, evaluate the matrix inverse."""
 
