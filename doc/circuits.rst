@@ -730,10 +730,10 @@ Both `NodalAnalysis` and `LoopAnalysis` use `CircuitGraph` to represent a netlis
 
 The graph is:
 
-   >>> G = CircuitGraph(cct)
-   >>> G.loops()                                                              
+   >>> cg = CircuitGraph(cct)
+   >>> cg.loops()                                                              
    [['0', '1', '3'], ['0', '1', '2']]
-   >>> G.draw()
+   >>> cg.draw()
 
            
 .. image:: examples/netlists/circuitgraph1.png
@@ -761,10 +761,10 @@ Here's another example:
 
 The graph is:           
 
-   >>> G = CircuitGraph(cct)
-   >>> G.loops()
+   >>> cg = CircuitGraph(cct)
+   >>> cg.loops()
    [['0', '3', '4'], ['0', '2', '3'], ['0', '1', '2']]
-   >>> G.draw()
+   >>> cg.draw()
 
    
 .. image:: examples/netlists/circuitgraph2.png
@@ -775,6 +775,49 @@ The graph is:
    
 .. _simulation:
 
+
+CircuitGraph attributes
+-----------------------
+
+- `G` the underlying networkx graph
+
+- `is_connected` all the components are connected as a single graph
+
+- `is_planar` the component graph is planar
+
+- `components` list of component names
+
+- `nodes` the nodes comprising the graph  
+
+
+CircuitGraph methods
+--------------------
+
+- `connected(node)` set of components connected to `node`
+
+- `cut_sets()` list of cut sets, where each cut set is specified by a set of nodes
+
+- `cut_vertices()` list of cut vertices, where each cut vertex is a node
+
+- `cut_edges()` list of cut edges, where each cut edge is a tuple of nodes
+
+- `loops()` list of nodes where each loop is a list of nodes
+
+- `loops_by_cpt_name()` list of loops where each loop is a list of component names
+
+- `draw(filename)` draw the graph and save as `filename`.  If `filename` is not specified, the graph is displayed.
+
+- `node_edges(node)`  edges connected to specified node.
+
+- `component(node1, node2)` component connected between specified nodes.
+
+- `in_series(cpt_name)` set of component names in series with specified `cpt_name`.
+
+- `in_parallel(cpt_name)` set of component names in parallel with specified `cpt_name`.
+
+- `node_connectivity()` the minimum connectivity of the graph.  If 0, one or more components are connected, if 1, one or more components are connected at a single node, etc.
+
+  
 Numerical simulation
 ====================
 

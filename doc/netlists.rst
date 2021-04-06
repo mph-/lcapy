@@ -757,6 +757,8 @@ Netlist attributes
 
 `sources` list of sources
 
+`is_connected`  all components are connected
+
 
 Netlist methods
 ---------------
