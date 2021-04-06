@@ -116,13 +116,28 @@ class CircuitGraph(object):
 
         return cloops
 
-    def cutsets(self):
-        """Return list of cut sets:  Each cut set is a set of nodes."""
+    def cut_sets(self):
+        """Return list of cut sets.  Each cut set is a set of nodes describing
+        a sub-graph G'.  Removing all the edges of G' from the graph
+        disconnects it.  This will fail if there are unconnected
+        components."""
         
         if hasattr(self, '_cutsets'):
             return self._cutsets
         self._cutsets = list(nx.all_node_cuts(self.G))
-        return self._cutsets    
+        return self._cutsets
+
+    def cut_vertices(self):
+        """Return list of cut vertices.  Each cut vertex is a node
+        that if removed, with its edges, disconnects the graph."""
+
+        return list(nx.articulation_points(self.G))
+
+    def cut_edges(self):
+        """Return list of cut edges.  Each cut edge is an edge that 
+        disconnects the graph if removed."""
+
+        return list(nx.minimum_edge_cut(self.G))    
 
     def loops(self):
         """Return list of loops:  Each loop is a list of nodes."""
@@ -306,3 +321,15 @@ class CircuitGraph(object):
         
         return set(parallel)
 
+    def node_connectivity(self):
+        """Return node connectivity for graph.  If the connectivity is 0,
+        then there are disconnected components.  If there is a component
+        with a single connected node, the connectivity is 1."""
+
+        return nx.node_connectivity(self.G)
+
+    @property
+    def is_connected(self):
+        """Return True if all components are connected."""
+
+        return self.node_connectivity() != 0

@@ -1,7 +1,7 @@
 """This module provides the NetlistMixin class.  This is used for
 Netlist and SubNetlist.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020-2021 Michael Hayes, UCECE
 
 """
 
@@ -120,6 +120,12 @@ class NetlistMixin(object):
 
         return cpt in self.elements
     
+    @property
+    def is_connected(self):
+        """Return True if all components are connected."""
+
+        return self.cg.is_connected
+
     def _node_add(self, node, cpt):
 
         if node not in self.nodes:
@@ -1892,4 +1898,3 @@ class NetlistMixin(object):
     def Iname(self, name):
         return Iname(name, self.kind)    
 
-                
