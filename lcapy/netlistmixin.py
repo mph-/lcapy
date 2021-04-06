@@ -1051,16 +1051,16 @@ class NetlistMixin(object):
         return self._noisy(resistors)
 
     @property
-    def G(self):
-        """Generate graph for this netlist."""        
+    def cg(self):
+        """Generate graph for this netlist.   This is cached."""        
 
         from .circuitgraph import CircuitGraph
         
-        if hasattr(self, '_G'):
-            return self._G
+        if hasattr(self, '_cg'):
+            return self._cg
 
-        self._G = CircuitGraph(self)
-        return self._G
+        self._cg = CircuitGraph(self)
+        return self._cg
     
     def _potential_combine_names(self):
 
@@ -1129,14 +1129,14 @@ class NetlistMixin(object):
         if isinstance(cpt, Cpt):
             cpt = cpt.name
 
-        return self.G.in_parallel(cpt)
+        return self.cg.in_parallel(cpt)
 
     def _in_series_names(self, cpt=None):
 
         if isinstance(cpt, Cpt):
             cpt = cpt.name
 
-        return self.G.in_series(cpt)
+        return self.cg.in_series(cpt)
         
     def in_parallel(self, cpt=None):
         """Return set of cpts in parallel with specified cpt.  If no cpt

@@ -59,7 +59,7 @@ class Netlist(NetlistMixin, NetfileMixin):
     def _invalidate(self):
 
         for attr in ('_sch', '_sub', '_Vdict', '_Idict', '_analysis',
-                     '_node_map', '_ss', '_node_list', '_branch_list', '_G'):
+                     '_node_map', '_ss', '_node_list', '_branch_list', '_cg'):
             try:
                 delattr(self, attr)
             except:
