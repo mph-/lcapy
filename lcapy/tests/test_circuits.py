@@ -674,5 +674,16 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.has('V'), False, "has V")
         self.assertEqual(c.has('V'), False, "has V")
 
+    def test_connected(self):
+
+        a = Circuit("""
+        V 2 0
+        L 2 1
+        R 1 0""")        
         
+        self.assertEqual(a.is_connected, True, "is_connected")
+
+        a.add("R2 3 4")
+
+        self.assertEqual(a.is_connected, False, "not is_connected")        
         
