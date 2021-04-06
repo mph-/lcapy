@@ -191,14 +191,17 @@ class CircuitGraph(object):
 
     @property    
     def nodes(self):
-
+        """Return nodes comprising network."""
+        
         return self.G.nodes()
     
     def node_edges(self, node):
+        """Return edges connected to specified node."""        
 
         return self.G[node]
 
     def component(self, node1, node2):
+        """Return component connected between specified nodes."""                
 
         name = self.G.get_edge_data(node1, node2)['name']
         if name.startswith('W'):
@@ -336,3 +339,10 @@ class CircuitGraph(object):
         """Return True if all components are connected."""
 
         return self.node_connectivity() != 0
+
+    def tree(self):
+        """Return minimum spanning tree.  A tree has no loops so no current flows."""
+
+        # The removed edges from the graph are called links.
+
+        return nx.minimum_spanning_tree(self.G)
