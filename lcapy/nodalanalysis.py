@@ -65,10 +65,10 @@ class NodalAnalysis(object):
         
         self._equations = self._make_equations()
 
-        
+    @property
     def nodes(self):
 
-        return self.cg.nodes()
+        return self.cg.nodes
 
     def _make_unknowns(self):
 
@@ -89,7 +89,7 @@ class NodalAnalysis(object):
     def _make_equations(self):
 
         equations = {}
-        for node in self.nodes():
+        for node in self.nodes:
             if node == '0':
                 continue
             # Ignore dummy nodes

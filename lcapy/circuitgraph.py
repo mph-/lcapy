@@ -121,6 +121,8 @@ class CircuitGraph(object):
         a sub-graph G'.  Removing all the edges of G' from the graph
         disconnects it.  This will fail if there are unconnected
         components."""
+
+        # It may be better to return a list of sets of edges.
         
         if hasattr(self, '_cutsets'):
             return self._cutsets
@@ -187,6 +189,7 @@ class CircuitGraph(object):
         
         return nx.check_planarity(self.G)[0]
 
+    @property    
     def nodes(self):
 
         return self.G.nodes()
