@@ -18,7 +18,7 @@ import networkx as nx
 # W 2 6; up
 # C1 5 6; right=2
 
-class CircuitGraph(nx.Graph):
+class CircuitGraph(object):
 
     def __init__(self, cct):
 
