@@ -153,7 +153,7 @@ class CircuitGraph(object):
 
         fig, ax = subplots(1)
 
-        G = self
+        G = self.G
         pos = nx.spring_layout(G)
         
         labels = dict(zip(G.nodes(), G.nodes()))
