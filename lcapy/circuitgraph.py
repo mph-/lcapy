@@ -116,7 +116,17 @@ class CircuitGraph(nx.Graph):
 
         return cloops
 
+    def cutsets(self):
+        """Return list of cut sets:  Each cut set is a set of nodes."""
+        
+        if hasattr(self, '_cutsets'):
+            return self._cutsets
+        self._cutsets = list(nx.all_node_cuts(self.G))
+        return self._cutsets    
+
     def loops(self):
+        """Return list of loops:  Each loop is a list of nodes."""
+        
         if hasattr(self, '_loops'):
             return self._loops
         self._loops = self.chordless_loops()
