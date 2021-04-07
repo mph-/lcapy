@@ -20,11 +20,17 @@ import networkx as nx
 
 class CircuitGraph(object):
 
-    def __init__(self, cct):
+    def __init__(self, cct, G=None):
 
-        self.G = nx.Graph()
         self.cct = cct
+        self.node_map = cct.node_map
 
+        if G is not None:
+            self.G = G
+            return
+        
+        self.G = nx.Graph()
+        
         dummy = 0
         # Dummy nodes are used to avoid parallel edges.
         dummy_nodes = {}
@@ -52,7 +58,6 @@ class CircuitGraph(object):
             else:
                 self.G.add_edge(nodename1, nodename2, name=name)
 
-        self.node_map = node_map
 
     def connected_cpts(self, node):
         """Components connected to specified node."""
@@ -345,4 +350,37 @@ class CircuitGraph(object):
 
         # The removed edges from the graph are called links.
 
-        return nx.minimum_spanning_tree(self.G)
+        T = nx.minimum_spanning_tree(self.G)
+        return CircuitGraph(self.cct, T)
+
+    @property
+    def num_parts(self):
+
+        if self.is_connected:
+            return 1
+        raise ValueError('TODO, calculate number of separate graphs')
+
+    @property
+    def num_nodes(self):
+        """The number of nodes in the graph."""        
+
+        return len(self.G.nodes)
+
+    @property
+    def num_branches(self):
+        """The number of branches (edges) in the graph."""
+
+        return len(self.G.edges)    
+
+    @property
+    def rank(self):
+        """The required number of node voltages for nodal analysis."""
+
+        return self.num_nodes - self.num_parts
+
+    @property
+    def nullity(self):
+        """For a planar circuit, this is equal to the number of meshes in the graph."""
+
+        return self.num_branches - self.num_nodes + self.num_parts    
+    

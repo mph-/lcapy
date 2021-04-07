@@ -730,15 +730,15 @@ Both `NodalAnalysis` and `LoopAnalysis` use `CircuitGraph` to represent a netlis
 
 The graph is:
 
+.. image:: examples/netlists/circuitgraph1.png
+   :width: 8cm           
+
+The loops in the graph can be found using::
+  
    >>> cg = CircuitGraph(cct)
    >>> cg.loops()                                                              
    [['0', '1', '3'], ['0', '1', '2']]
    >>> cg.draw()
-
-           
-.. image:: examples/netlists/circuitgraph1.png
-   :width: 8cm           
-
 
 Here's another example:           
 
@@ -761,17 +761,40 @@ Here's another example:
 
 The graph is:           
 
-   >>> cg = CircuitGraph(cct)
+.. image:: examples/netlists/circuitgraph2.png
+   :width: 8cm
+
+The loops in the graph can be found using::
+
+  >>> cg = CircuitGraph(cct)
    >>> cg.loops()
    [['0', '3', '4'], ['0', '2', '3'], ['0', '1', '2']]
    >>> cg.draw()
 
+Note, `CircuitGraph` inserts dummy nodes and wires to avoid parallel edges.  For example::
+
+     >>> cct = Circuit("""
+     V 1 0 {v(t)}; down
+     R1 1 2; right
+     L 2 3; right=1.5, i={i_L}
+     R2 3 0_3; down=1.5, i={i_{R2}}, v={v_{R2}}
+     W 0 0_3; right
+     W 3 3_a; right
+     C 3_a 0_4; down, i={i_C}, v={v_C}
+     W 0_3 0_4; right""")
+   >>> cct.draw()
+
    
-.. image:: examples/netlists/circuitgraph2.png
+.. image:: examples/netlists/graph4.png
+   :width: 8cm   
+
+In this circuit, R2 is in parallel with C so Lcapy adds a dummy node 0* and a dummy component W01.  The resulting graph is:           
+
+.. image:: examples/netlists/circuitgraph4.png
    :width: 8cm
 
 
-`CircuitGraph` inserts dummy nodes and wires to avoid parallel edges.           
+
    
 .. _simulation:
 
