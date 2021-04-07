@@ -781,7 +781,7 @@ In comparison, the noise ASD at high frequencies is::
 
 Note that this expression does not depend on Rs due to the capacitance, Cs, of the piezo transducer.
 
-Let's choose some values, R1=100 ohm, R2=900 ohm, Cs=1 nF, Rs=100 Mohm, C=100 nF, Vn=2 nV :math:`/\sqrt{\mathrm{Hz}}`, In=5 fA :math:`/\sqrt{\mathrm{Hz}}`::
+Let's choose some values, R1=100 ohm, R2=900 ohm, Cs=1 nF, Rs=100 Mohm, C=100 nF, Vn=2 nV :math:`/\sqrt{\mathrm{Hz}}`, In=5 fA :math:`/\sqrt{\mathrm{Hz}}` (in practice, the current and voltage noise ASD will vary with frequency due to 1/f noise)::
 
   b = a.subs({'R1':100, 'R2':900, 'Cs':1e-9, 'Rs':100e6, 'C':100e-9, 'Vn':2e-9, 'Inp':5e-15, 'Inn':0.5e-15})
 
@@ -1213,3 +1213,26 @@ In practice, both noise current sources have the same ASD.  Thus
 
 The noise is minimised by keeping `R1` as small as possible.  However, for high gains, the noise is dominated by the opamp noise.  Ideally, `Rs` needs to be minimised.  However, if it is large, it is imperative to choose a CMOS opamp with a low noise current.   Unfortunately, these amplifiers have a higher noise voltage than bipolar opamps.
    
+
+Opamp flicker noise
+-------------------
+
+At low frequencies the opamp noise is dominated by 1/f noise, also known as flicker noise.   A model for the noise voltage amplitude spectral density (ASD) is:
+
+.. math::
+   \mathcal{V}(f) =  \mathcal{V}_w \sqrt{\frac{f_c}{f} + 1},
+
+where :math:`\mathcal{V}_w` is the noise ASD in the `white` region and
+:math:`f_c` is the corner frequency.  For example, a low noise opamp
+with a white noise ASD of 1 nV :math:`/\sqrt{\mathrm{Hz}}` and a corner
+frequency of 3.5 Hz can be modelled with::
+
+   >>> from lcapy import f, sqrt
+   >>> V = 1e-9 * sqrt(3.5 / f + 1)
+   >>> ax = (V * 1e9).plot((-1, 4), loglog=True)
+   >>> ax.grid(True, 'both')
+   >>> ax.set_ylabel('Noise voltage density nV$/sqrt{\mathrm{Hz}}$')
+   >>> ax.set_ylim(0.1, 10)
+
+.. image:: examples/tutorials/opamps/vnoise1.png
+   :width: 10cm
