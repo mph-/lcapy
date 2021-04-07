@@ -810,8 +810,20 @@ CircuitGraph attributes
 
 - `components` list of component names
 
-- `nodes` the nodes comprising the graph  
+- `nodes` the nodes comprising the graph
 
+- `num_nodes` the number of nodes comprising the graph
+
+- `num_branches` the number of branches (edges) comprising the graph
+
+- `num_parts` the number of separate graphs
+
+- `nullity` the number of meshes for a planar graph
+
+- `rank` the required number of node voltages for nodal analysis  
+
+- `node_connectivity` the minimum connectivity of the graph.  If 0, one or more components are connected, if 1, one or more components are connected at a single node, etc.
+  
 
 CircuitGraph methods
 --------------------
@@ -838,8 +850,8 @@ CircuitGraph methods
 
 - `in_parallel(cpt_name)` set of component names in parallel with specified `cpt_name`.
 
-- `node_connectivity()` the minimum connectivity of the graph.  If 0, one or more components are connected, if 1, one or more components are connected at a single node, etc.
-
+- `tree()` the minimum spanning tree.
+  
   
 Numerical simulation
 ====================
