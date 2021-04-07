@@ -29,6 +29,28 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(loop2, ['*0', '0', '3'], "loop2")        
 
         self.assertEqual(cg.component('1', '2').name, 'R', "connected")
+
+        self.assertEqual(cg.is_connected, True, "is_connected")
+        self.assertEqual(cg.is_planar, True, "is_planar")        
+        
+        self.assertEqual(cg.num_parts, 1, "num_parts")
+        self.assertEqual(cg.num_nodes, 5, "num_nodes")
+        self.assertEqual(cg.num_branches, 6, "num_branches")
+        self.assertEqual(cg.rank, 4, "rank")
+        self.assertEqual(cg.nullity, 2, "nullity")
+        self.assertEqual(cg.node_connectivity, 2, "node_connectivity")
+
+        ct = cg.tree()
+
+        self.assertEqual(ct.num_parts, 1, "num_parts")
+        self.assertEqual(ct.num_nodes, 5, "num_nodes")
+        self.assertEqual(ct.num_branches, 4, "num_branches")
+        self.assertEqual(ct.rank, 4, "rank")
+        self.assertEqual(ct.nullity, 0, "nullity")
+        self.assertEqual(ct.node_connectivity, 1, "node_connectivity")        
+        
+
+        
         
         
 

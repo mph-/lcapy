@@ -332,6 +332,7 @@ class CircuitGraph(object):
         
         return set(parallel)
 
+    @property    
     def node_connectivity(self):
         """Return node connectivity for graph.  If the connectivity is 0,
         then there are disconnected components.  If there is a component
@@ -343,7 +344,7 @@ class CircuitGraph(object):
     def is_connected(self):
         """Return True if all components are connected."""
 
-        return self.node_connectivity() != 0
+        return self.node_connectivity != 0
 
     def tree(self):
         """Return minimum spanning tree.  A tree has no loops so no current flows."""
