@@ -1236,3 +1236,15 @@ frequency of 3.5 Hz can be modelled with::
 
 .. image:: examples/tutorials/opamps/vnoise1.png
    :width: 10cm
+
+The noise current ASD also has flicker noise.  For example::
+
+   >>> from lcapy import f, sqrt
+   >>> I = 1e-12 * sqrt(250 / f + 1)
+   >>> ax = (I * 1e12).plot((-1, 4), loglog=True)
+   >>> ax.grid(True, 'both')
+   >>> ax.set_ylabel('Noise voltage density pA$/sqrt{\mathrm{Hz}}$')
+   >>> ax.set_ylim(0.1, 10)
+
+.. image:: examples/tutorials/opamps/inoise1.png
+   :width: 10cm  

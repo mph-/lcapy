@@ -1,5 +1,3 @@
-from matplotlib.pyplot import savefig
-
 from lcapy import f, sqrt
 V = 1e-9 * sqrt(3.5 / f + 1)
 ax = (V * 1e9).plot((-1, 4), loglog=True)
