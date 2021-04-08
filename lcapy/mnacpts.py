@@ -94,6 +94,8 @@ class Cpt(ImmittanceMixin):
             value = self.type + self.id
 
             if self.type in ('V', 'I') and keyword[1] == '':
+                # This is too subtle and creates havoc with
+                # the expected behaviour of subs.
                 value = value[0].lower() + value[1:] + '(t)'
 
             args += (value, )
@@ -888,7 +890,7 @@ class C(RC):
     def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another voltage source?
-        return self._netmake_variant('V_', args=())
+        return self._netmake_variant('V_', args='v_%s(t)' % self.relname)        
         
     @property
     def V0(self):
