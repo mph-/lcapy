@@ -1117,7 +1117,43 @@ Finally, the rms noise voltage can be found using the `rms()` method.  This inte
    ───────
      √C 
 
+Opamp noise
+-----------
 
+The noise introduced by an opamp is characterised by its noise voltage amplitude spectral density (ASD) and it noise current ASD.  At low frequencies the opamp noise is dominated by 1/f noise, also known as flicker noise.   A model for the noise voltage (ASD) is:
+
+.. math::
+   \mathcal{V}(f) =  \mathcal{V}_w \sqrt{\frac{f_c}{f} + 1},
+
+where :math:`\mathcal{V}_w` is the noise ASD in the `white` region and
+:math:`f_c` is the corner frequency.  For example, a low noise opamp
+with a white noise ASD of 1 nV :math:`/\sqrt{\mathrm{Hz}}` and a corner
+frequency of 3.5 Hz can be modelled with::
+
+   >>> from lcapy import f, sqrt
+   >>> Vn = 1e-9 * sqrt(3.5 / f + 1)
+   >>> ax = (Vn * 1e9).plot((-1, 4), loglog=True)
+   >>> ax.grid(True, 'both')
+   >>> ax.set_ylabel('Noise voltage density nV$/sqrt{\mathrm{Hz}}$')
+   >>> ax.set_ylim(0.1, 10)
+
+.. image:: examples/tutorials/opamps/vnoise1.png
+   :width: 10cm
+
+The opamp noise current ASD also has flicker noise.  For example::
+
+   >>> from lcapy import f, sqrt
+   >>> In = 1e-12 * sqrt(250 / f + 1)
+   >>> ax = (In * 1e12).plot((-1, 4), loglog=True)
+   >>> ax.grid(True, 'both')
+   >>> ax.set_ylabel('Noise voltage density pA$/sqrt{\mathrm{Hz}}$')
+   >>> ax.set_ylim(0.1, 10)
+
+.. image:: examples/tutorials/opamps/inoise1.png
+   :width: 10cm  
+
+
+     
 Opamp non-inverting amplifier
 -----------------------------
 
@@ -1159,7 +1195,7 @@ The noise ASD at the input of the opamp is
      ╱    ⎛   2             ⎞    2 
    ╲╱  Rₛ⋅⎝Iₙ₁ ⋅Rₛ + 4⋅T⋅k_B⎠ + Vₙ  
 
-This is independent of frequency and thus is white.  In practice, the voltage and current noise of an opamp has a 1/f component at low frequencies.
+This is independent of frequency and thus is white.  In practice, the voltage and current noise of an opamp has a 1/f component that dominates at low frequencies.
 
 The noise at the output of the amplifier is
 
@@ -1190,7 +1226,7 @@ So far the analysis has ignored the noise due to the feedback resistors.   The n
    :width: 10cm
 
 
-Let's choose :math:`R2 = (G - 1) R_1` where :math:`G` is the closed-loop gain:
+Let's choose :math:`R2 = (G - 1) R_1` where :math:`G` is the closed-loop gain of the amplifier:
 
    >>> c = b.subs({'R2':'(G - 1) * R1'})
    >>> c[8].V.n.limit('A', oo)
@@ -1213,38 +1249,48 @@ In practice, both noise current sources have the same ASD.  Thus
 
 The noise is minimised by keeping `R1` as small as possible.  However, for high gains, the noise is dominated by the opamp noise.  Ideally, `Rs` needs to be minimised.  However, if it is large, it is imperative to choose a CMOS opamp with a low noise current.   Unfortunately, these amplifiers have a higher noise voltage than bipolar opamps.
    
+Here's an script that shows the noise contributions due to the opamp
+voltage and current noise as well as the thermal noise from the source
+and amplifier resistances at 20 degrees C.
 
-Opamp flicker noise
--------------------
+    >>> from lcapy import Circuit, sqrt, f, oo
+    >>> Rs = 30
+    >>> G = 1000
+    >>> R1 = 100
+    >>> R2 = (G - 1) * R1
+    >>> Vn = 1e-9 * sqrt(3.5 / f + 1)
+    >>> In = 1e-12 * sqrt(250 / f + 1)
+    >>> T = 273 + 20
+    >>> k_B = 1.38e-23
+    >>> a = Circuit('opamp-noninverting-amplifier.sch')
+    >>> an = a.noisy()
+    >>> Vno = an[8].V.n(f)
+    >>> Vno = Vno.limit('A', oo)
+    >>> Vnov = Vno.subs({'R1':R1, 'R2':R2, 'In1':0, 'In2':0, 'Vn':Vn, 'Rs':Rs,
+    ... 'k_B':k_B, 'T':0})
+    >>> Vnoi = Vno.subs({'R1':R1, 'R2':R2, 'In1':In, 'In2':In, 'Vn':0, 'Rs':Rs,
+    ... 'k_B':k_B, 'T':0})
+    >>> Vnor = Vno.subs({'R1':R1, 'R2':R2, 'In1':0, 'In2':0, 'Vn':0, 'Rs':Rs,
+    ... 'k_B':k_B, 'T':T})
+    >>> Vnot = Vno.subs({'R1':R1, 'R2':R2, 'In1':In, 'In2':In, 'Vn':Vn, 'Rs':Rs,
+    ... 'k_B':k_B, 'T':T})
+    >>> flim = (-1, 4)
+    >>> ax = (Vnot * 1e9).plot(flim, loglog=True, label='total')
+    >>> ax = (Vnov * 1e9).plot(flim, loglog=True, label='Vn', axes=ax)
+    >>> ax = (Vnoi * 1e9).plot(flim, loglog=True, label='In', axes=ax)
+    >>> ax = (Vnor * 1e9).plot(flim, loglog=True, label='R', axes=ax)
+    >>> ax.set_ylabel('Noise voltage density nV/$\sqrt{\mathrm{Hz}}$')
+    >>> ax.grid(True, 'both')
+    >>> ax.legend()
 
-At low frequencies the opamp noise is dominated by 1/f noise, also known as flicker noise.   A model for the noise voltage amplitude spectral density (ASD) is:
-
-.. math::
-   \mathcal{V}(f) =  \mathcal{V}_w \sqrt{\frac{f_c}{f} + 1},
-
-where :math:`\mathcal{V}_w` is the noise ASD in the `white` region and
-:math:`f_c` is the corner frequency.  For example, a low noise opamp
-with a white noise ASD of 1 nV :math:`/\sqrt{\mathrm{Hz}}` and a corner
-frequency of 3.5 Hz can be modelled with::
-
-   >>> from lcapy import f, sqrt
-   >>> V = 1e-9 * sqrt(3.5 / f + 1)
-   >>> ax = (V * 1e9).plot((-1, 4), loglog=True)
-   >>> ax.grid(True, 'both')
-   >>> ax.set_ylabel('Noise voltage density nV$/sqrt{\mathrm{Hz}}$')
-   >>> ax.set_ylim(0.1, 10)
-
-.. image:: examples/tutorials/opamps/vnoise1.png
+.. image:: examples/tutorials/opampnoise/opamp-noninverting-amplifier-noise1.png
    :width: 10cm
 
-The noise current ASD also has flicker noise.  For example::
-
-   >>> from lcapy import f, sqrt
-   >>> I = 1e-12 * sqrt(250 / f + 1)
-   >>> ax = (I * 1e12).plot((-1, 4), loglog=True)
-   >>> ax.grid(True, 'both')
-   >>> ax.set_ylabel('Noise voltage density pA$/sqrt{\mathrm{Hz}}$')
-   >>> ax.set_ylim(0.1, 10)
-
-.. image:: examples/tutorials/opamps/inoise1.png
-   :width: 10cm  
+In this plot, the blue line denotes the total noise voltage ASD at the
+output of the amplifier, orange shows the noise voltage ASD due to the
+opamp voltage noise, green shows the noise voltage ASD due to the
+opamp noise current flow the source and amplifier resistances, and the
+red curve shows the noise voltage ASD due to thermal noise in the
+source and amplifier resistances.  In this example, the total noise is
+dominated by the thermal noise and thus lower value amplifier
+resistances should be selected.
