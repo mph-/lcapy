@@ -76,9 +76,14 @@ class PhasorExpression(Expr):
 
     @property
     def var(self):
-        """Return angular frequency."""
+        """Return underlying variable as sympy expression."""
 
-        return self.omega
+        # TODO, think this through...
+        var = self.omega
+        if hasattr(var, 'expr'):
+            var = var.expr
+        
+        return var
 
     def fourier(self, **assumptions):
         """Fourier transform."""
