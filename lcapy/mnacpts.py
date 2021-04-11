@@ -2,7 +2,7 @@
 This module defines the components for modified nodal analysis.  The components
 are defined at the bottom of this file.
 
-Copyright 2015--2020 Michael Hayes, UCECE
+Copyright 2015--2021 Michael Hayes, UCECE
 
 """
 
@@ -93,7 +93,7 @@ class Cpt(ImmittanceMixin):
             # Default value is the component name
             value = self.type + self.id
 
-            if self.type in ('V', 'I') and keyword[1] == '':
+            if False and self.type in ('V', 'I') and keyword[1] == '':
                 # This is too subtle and creates havoc with
                 # the expected behaviour of subs.
                 value = value[0].lower() + value[1:] + '(t)'

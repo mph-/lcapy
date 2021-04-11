@@ -89,7 +89,7 @@ simulation (additional components can be drawn, see
 
    For example,
 
-   `V1 1 0`  This is equivalent to `V1 1 0 {v1(t)}`
+   `V1 1 0`  This is a DC source of V1 V.  For versions before 0.85, this is equivalent to `V1 1 0 {v1(t)}`
 
    `V1 1 0 10`  This is a DC source of 10 V
   
@@ -125,7 +125,7 @@ simulation (additional components can be drawn, see
 
    `Iname Np Nm Iexpr`
 
-   `I1 1 0`  This is equivalent to `I1 1 0 {i1(t)}`
+   `I1 1 0`  This is a DC source of I1 A.  For versions before 0.85, this is equivalent to `I1 1 0 {i1(t)}`
 
    `I1 1 0 10`  This is a DC source of 10 A
   
