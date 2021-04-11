@@ -308,6 +308,15 @@ class LcapyTester(unittest.TestCase):
         a3 = s.subs({s: omega})
         self.assertEqual(a1, a3, "Substitution fail with dict.")
 
+    def test_subs_const(self):
+        """Lcapy: check subs of a constant
+
+        """
+        a = expr('V1')
+        b = expr(5 * t)
+        c = a.subs({'V1':b})
+
+        self.assertEqual(c, b, "Substitution for constant fail.")
 
     def test_types(self):
         """Lcapy: check types
