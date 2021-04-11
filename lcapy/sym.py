@@ -32,7 +32,10 @@ for _alias, _name in aliases.items():
 global_dict['abs'] = sym.Abs
 
 for _symbol in excludes:
-    global_dict.pop(_symbol)
+    try:
+        global_dict.pop(_symbol)
+    except:
+        pass
 
     
 def capitalize_name(name):
