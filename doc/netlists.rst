@@ -295,18 +295,30 @@ This calculates the driving-point admittance that would be measured across the n
 
 `in_series()` returns a list of sets of component names that are connected in series.
 
-`subs(subs_dict)` substitutes arguments in the Circuit use a dictionary of symbols `subs_dict`.  For example,
+`subs(subs_dict)` substitutes symbolic values in the netlist using a dictionary of symbols `subs_dict`.  For example,
 
    >>> cct = Circuit("""
    ... V1 1 0 Vs}
    ... R1 1 2
    ... L1 2 0""")
-   >>> cct2 = cct.subs({'R1': 2, 'L1': 3})
+   >>> cct2 = cct.subs({'Vs': 10, 'L1': 3})
    >>> cct2
-   V1 1 0 Vs
-   R1 1 2 2
+   V1 1 0 10
+   R1 1 2
    L1 2 0 3
 
+`replace(name, net)` replaces the named component.  For example,
+
+   >>> cct = Circuit("""
+   ... V1 1 0 Vs}
+   ... R1 1 2
+   ... L1 2 0""")
+   >>> cct2 = cct.replace('L1', 'C1 2 0')
+   >>> cct2
+   ... V1 1 0 Vs}
+   ... R1 1 2
+   ... C1 2 0""")   
+   
 `transfer(N1p, N1m, N2p, N2m)` returns the s-domain transfer function
 `V2(s) / V1(s)`, between the ports defined by nodes `N1p`, `N1m`,
 `N2p`, and `N2m` where `V1 = V[N1p] - V[N1m]` and `V2 = V[N2p] -

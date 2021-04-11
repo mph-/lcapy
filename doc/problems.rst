@@ -201,7 +201,7 @@ the `matrix_inverse_method` variable, for example,
     >>> config.matrix_inverse_method = 'GE'
 
 The ADJ, LU, LDL, and CH methods all take a similar time.  There is a
-promising domain matix approach in the development version of Sympy
+promising domain matrix approach in the development version of Sympy
 that shows an order of magnitude improvement for MNA matrices
 comprised of fewer than 11 components.
     

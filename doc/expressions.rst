@@ -479,7 +479,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `is_conditional` returns True if expression is conditional, e.g., :math:`\exp(-t)\;\; t \ge 0`
 
-- `is_constant` returns True if expression constant (it must have no free symbols, compare with `is_unchanging`)
+- `is_constant` returns True if expression is constant (it must have no free symbols, compare with `is_unchanging`), e.g., 3 is constant but 3 * x is not
 
 - `is_dc` returns True if DC signal    
 
@@ -489,7 +489,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `is_strictly_proper` returns True if degree of denominator greater than degree of numerator
 
-- `is_unchanging` returns True if expression does not have a domain variable (compare with `is_constant`)
+- `is_unchanging` returns True if expression does not have a domain variable (compare with `is_constant`), e.g., 3 * x is unchanging but 3 * t is not
   
 - `label` returns string describing expression to use as a plot label
 

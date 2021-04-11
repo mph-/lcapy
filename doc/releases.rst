@@ -2,6 +2,36 @@
 Release notes
 =============
 
+V0.85
+=====
+
+- Supports SymPy 1.8
+
+- Changes behaviour of V1 1 2 to be equivalent to V1 1 2 V1.  The same
+  applies for I1 1 2.  This is consistent with other component
+  definitions and allows netlist substitutions.
+
+- Allows substitutions for constant expressions  
+
+- Fixes is_unchanging for phasors
+
+- Adds additional opamp noise tutorials
+
+- Fixes frequency plots
+
+- Reworks `CircuitGraph` to suport trees
+
+- Changes `CircuitGraph` `nodes()` method to be an attribute 
+
+- Fixes state-space analysis with current source
+
+- Adds differential drivers to schematics
+
+- Adds `has()` and `replace()` methods to netlists
+
+- Allows component names to specified as well as nodes for the `transfer()` method
+
+
 V0.84
 =====
 
