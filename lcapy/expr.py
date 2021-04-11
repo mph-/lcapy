@@ -1507,6 +1507,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def is_unchanging(self):
         """Returns True if expression does not have a domain variable (compare with `is_constant`)."""
 
+        if self.var is None:
+            return True
+        
         return self.var not in self.expr.free_symbols
     
     def evaluate(self, arg=None):

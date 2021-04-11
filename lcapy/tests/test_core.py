@@ -421,7 +421,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.has_symbol('b'), False, "has_symbol(b)")
         #self.assertEqual(a.symbols[1].is_positive, True, "a is positive")
         self.assertEqual(a.is_constant, False, "is_constant")                
-
+        self.assertEqual(a.is_unchanging, False, "is_unchanging")
+        
         a = expr('3')
         self.assertEqual(a.is_constant, True, "3 is_constant")
         self.assertEqual(a.is_unchanging, True, "3 is_unchanging")
