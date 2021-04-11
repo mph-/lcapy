@@ -16,7 +16,7 @@ upload: package
 
 .PHONY: test
 test: lcapy/*.py
-	nosetests3 --pdb
+	nosetests3 -s --pdb
 
 .PHONY: cover
 cover: lcapy/*.py
