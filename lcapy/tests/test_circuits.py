@@ -687,3 +687,11 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.is_connected, False, "not is_connected")        
         
+    def test_netlist_subs(self):
+
+        a = Circuit()
+        a.add('V1 1 0; down')
+
+        b = a.subs({'V1': f})
+
+        self.assertEqual(b.V1.Voc, expr(f), "netlist subs")                

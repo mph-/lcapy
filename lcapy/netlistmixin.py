@@ -1499,7 +1499,7 @@ class NetlistMixin(object):
     def subs(self, subs_dict):
         """Substitute values using dictionary of substitutions.
         
-        For example, b = a.subs({'R1': 1e3, 'R2': 9e3})"""        
+        For example, b = a.subs({'R1': 1e3, 'R2': 9e3})"""
 
         new = self._new()
 
