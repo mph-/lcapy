@@ -31,6 +31,16 @@ __all__ = ('StateSpace', )
 # the A, B, C, D matrices.  We can then substitute the known value at
 # the end.
 
+# There is a generalised (but less common) state-space representation:
+#
+# dx/dt = A x + B u + C du/dt
+# y = D x + E u + F du/dt
+#
+# This is required when have a current source in series with an inductor;
+# here the inductor current is not a state variable since it is equivalent
+# to an input.  However, the output equation for the inductor voltage
+# requires the derivative of the input current.
+
 
 def _hack_vars(exprs):
     """Substitute i_Canon1(t) with i_C(t) etc. provided
@@ -50,9 +60,12 @@ class StateSpace(object):
     It can take a long time for a symbolic circuit with many reactive
     components.
 
+    The currents through inductors and the voltage across capacitors
+    are chosen as the state variables.
+
     This does not (yet) look for degenerate circuits.  These are
     circuits with a loop consisting only of voltage sources and/or
-    capacitors, or cut sets consisting only of current sources and/or
+    capacitors, or a cut set consisting only of current sources and/or
     inductors.  One hack is to call simplify() first to remove series
     inductors and parallel capacitors.
 
@@ -192,22 +205,22 @@ class StateSpace(object):
         _hack_vars(sources)
         
         # Note, Matrix strips the class from each element...
-        self.x = TimeDomainMatrix(statevars)
+        self._x = TimeDomainMatrix(statevars)
 
-        self.x0 = Matrix(initialvalues)
+        self._x0 = Matrix(initialvalues)
         
-        self.dotx = TimeDomainMatrix([sym.Derivative(x1, t) for x1 in self.x])
+        self.dotx = TimeDomainMatrix([sym.Derivative(x1, t) for x1 in self._x])
 
-        self.u = TimeDomainMatrix(sources)
+        self._u = TimeDomainMatrix(sources)
 
-        self.A = Matrix(A)
-        self.B = Matrix(B)        
+        self._A = Matrix(A)
+        self._B = Matrix(B)        
             
         # Perhaps could use v_R1(t) etc. as the output voltages?
-        self.y = TimeDomainMatrix(y)
+        self._y = TimeDomainMatrix(y)
 
-        self.C = Matrix(Cmat)
-        self.D = Matrix(D)
+        self._C = Matrix(Cmat)
+        self._D = Matrix(D)
 
     def state_equations(self):
         """System of first-order differential state equations:
@@ -217,8 +230,8 @@ class StateSpace(object):
         where x is the state vector and u is the input vector.
         """
         
-        return expr(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self.A, self.x),
-                                                 sym.MatMul(self.B, self.u)),
+        return expr(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self._A, self._x),
+                                                 sym.MatMul(self._B, self._u)),
                            evaluate=False))
 
     def output_equations(self):
@@ -231,15 +244,55 @@ class StateSpace(object):
 
         """
         
-        return expr(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self.C, self.x),
-                                              sym.MatMul(self.D, self.u)),
+        return expr(sym.Eq(self._y, sym.MatAdd(sym.MatMul(self._C, self._x),
+                                              sym.MatMul(self._D, self._u)),
                            evaluate=False))
+
+    @property
+    def x(self):
+        """State variable vector."""
+        return self._x
+
+    @property
+    def x0(self):
+        """State variable initial value vector."""
+        return self._x0
+
+    @property
+    def u(self):
+        """Input vector."""
+        return self._u
+    
+    @property
+    def y(self):
+        """Output vector."""
+        return self._y    
+
+    @property
+    def A(self):
+        """State matrix."""
+        return self._A
+
+    @property
+    def B(self):
+        """Input matrix."""
+        return self._B
+
+    @property
+    def C(self):
+        """Output matrix."""
+        return self._C
+
+    @property
+    def D(self):
+        """Feed-through matrix."""
+        return self._D        
 
     @property
     def Phi(self):
         """s-domain state transition matrix."""
 
-        M = LaplaceDomainMatrix(sym.eye(len(self.x)) * ssym - self.A)
+        M = LaplaceDomainMatrix(sym.eye(len(self._x)) * ssym - self._A)
         return LaplaceDomainMatrix(M.inv().canonical())
 
     @property
@@ -250,23 +303,23 @@ class StateSpace(object):
     @property
     def U(self):
         """Laplace transform of input vector."""
-        return LaplaceDomainMatrix(self.u.laplace())
+        return LaplaceDomainMatrix(self._u.laplace())
 
     @property
     def X(self):
         """Laplace transform of state-variable vector."""        
-        return LaplaceDomainMatrix(self.x.laplace())
+        return LaplaceDomainMatrix(self._x.laplace())
 
     @property
     def Y(self):
         """Laplace transform of output vector."""        
-        return LaplaceDomainMatrix(self.y.laplace())
+        return LaplaceDomainMatrix(self._y.laplace())
 
     @property
     def H(self):
         """X(s) / U(s)"""
 
-        return LaplaceDomainMatrix(self.Phi * self.B).canonical()
+        return LaplaceDomainMatrix(self.Phi * self._B).canonical()
 
     @property
     def h(self):
@@ -276,7 +329,7 @@ class StateSpace(object):
     def G(self):
         """System transfer functions."""
 
-        return LaplaceDomainMatrix(self.C * self.H + self.D).canonical()
+        return LaplaceDomainMatrix(self._C * self.H + self._D).canonical()
 
     @property
     def g(self):
@@ -288,7 +341,7 @@ class StateSpace(object):
 
         `lambda(s) = |s * I - A|`"""
 
-        M = Matrix(sym.eye(len(self.x)) * ssym - self.A)        
+        M = Matrix(sym.eye(len(self._x)) * ssym - self._A)        
         return LaplaceDomainExpression(M.det()).simplify()
 
     @property
@@ -339,13 +392,13 @@ class StateSpace(object):
         """List of tuples (eigenvalue, multiplicity of eigenvalue,
         basis of the eigenspace) of A."""
         
-        return self.A.eigenvects()
+        return self._A.eigenvects()
     
     @property    
     def M(self):
         """Modal matrix (eigenvectors of A)."""
 
-        E, L = self.A.diagonalize()
+        E, L = self._A.diagonalize()
         
         return LaplaceDomainMatrix(E)
     

@@ -2,7 +2,7 @@
 Overview
 ========
 
-This document provides an overview of Lcapy's capabilities.   It assumes you know something about circuit theory.   If you know nothing about circuit theory, see :ref:`novices`.
+This document provides an overview of Lcapy's capabilities.   It assumes you know something about circuit theory.   If you know nothing about circuit theory, see :ref:`novices`.   If you want some complete examples, see :ref:`tutorials`.
 
 
 Introduction

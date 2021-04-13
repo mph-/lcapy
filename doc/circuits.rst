@@ -534,19 +534,29 @@ The equations are similar for the transient response:
 State-space analysis
 --------------------
 
-Lcapy can identify state variables and generate the state and output
-equations for state-space analysis.  The state-space analysis is
-performed using the `ss` method of a circuit, e.g.,
+Lcapy can generate a state-space representation of a circuit.  It
+chooses the currents through inductors and the voltage across
+capacitors as the state variables.  It can then generate the state and
+output equations as well as the characteristic polynomial, etc.
+
+However, Lcapy does not support degenerate circuits.  These are
+circuits with a loop consisting only of voltage sources and/or
+capacitors, or a cut set consisting only of current sources and/or
+inductors.  Using `simplify()` on the netlist can resolve some of
+these problems.
+
+State-space analysis is performed by accessing the `ss` attribute of a
+circuit (this generates a `StateSpace` object and caches the result), e.g.,
 
    >>> from lcapy import Circuit
    >>> a = Circuit("""
    ... V 1 0 {v(t)}; down
    ... R1 1 2; right
-   ... L 2 3; right=1.5, i={i_L}
-   ... R2 3 0_3; down=1.5, i={i_{R2}}, v={v_{R2}}
+   ... L 2 3; right=1.5, i=i_L
+   ... R2 3 0_3; down=1.5, i=i_{R2}, v=v_{R2}
    ... W 0 0_3; right
    ... W 3 3_a; right
-   ... C 3_a 0_4; down, i={i_C}, v={v_C}
+   ... C 3_a 0_4; down, i=i_C, v=v_C
    ... W 0_3 0_4; right""")
    >>> ss = a.ss
 
@@ -570,8 +580,7 @@ The initial values of the state variable vector are shown using the `x0` attribu
    ⎢ ⎥
    ⎣0⎦   
    
-The independent source vector is shown using the `u` attribute.  In this example,
-there is a single independent source:
+The independent source vector is shown using the `u` attribute.  In this example, there is a single independent source:
 
    >>> ss.u
    [v(t)]
