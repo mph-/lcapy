@@ -850,6 +850,11 @@ Component methods
 
 - `is_connected(cpt)` True if connected to specified `cpt`
 
+- `noisy(T='T')` create noisy model where resistors are replaced with a noiseless resistor and a noise voltage source.
+
+- `noisy_except(resistors, T='T')` create noisy model where all but the specified resistors are replaced with a noiseless resistance and a noise voltage source.  
+
+  
 
 Node attributes
 ---------------

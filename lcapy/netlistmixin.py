@@ -1016,19 +1016,19 @@ class NetlistMixin(object):
             new._add(net)
         return new            
 
-    def _noisy(self, resistornames):
+    def _noisy(self, resistornames, T='T'):
 
         new = self._new()
 
         for cpt in self._elements.values():
             if cpt.name in resistornames:
-                net = cpt._noisy()
+                net = cpt._noisy(T=T)
             else:
                 net = cpt._copy()
             new._add(net)
         return new        
 
-    def noisy_except(self, *args):
+    def noisy_except(self, *args, T='T'):
         """Return a new circuit with all but the specified resistors in series
         with noise voltage sources"""
 
@@ -1039,14 +1039,14 @@ class NetlistMixin(object):
         for cpt in self.elements.values():
             if cpt.type == 'R' and cpt.name not in args:
                 resistors.append(cpt.name)
-        return self._noisy(resistors)
+        return self._noisy(resistors, T)
 
-    def noisy(self, *args):
+    def noisy(self, *args, T='T'):
         """Return a new circuit with the specified resistors in series
         with noise voltage sources"""
 
         if len(args) == 0:
-            return self.noisy_except()
+            return self.noisy_except(T=T)
 
         resistors = []
         for arg in args:
@@ -1054,7 +1054,7 @@ class NetlistMixin(object):
                 raise ValueError('Element %s is not a known resistor' % arg)
             resistors.append(arg)
 
-        return self._noisy(resistors)
+        return self._noisy(resistors, T=T)
 
     @property
     def cg(self):
@@ -1581,12 +1581,12 @@ class NetlistMixin(object):
         
         return self.s_model(j * var)
 
-    def noise_model(self):
+    def noise_model(self, T='T'):
         """"Create noise model where resistors are converted into a series
         combination of an ideal resistor and a noise voltage
         source."""
         
-        return self.noisy()
+        return self.noisy(T=T)
     
     def draw(self, filename=None, **kwargs):
         """Draw schematic of netlist.

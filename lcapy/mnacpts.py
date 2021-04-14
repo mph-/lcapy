@@ -796,7 +796,7 @@ class RLC(Cpt):
 
 class RC(RLC):
 
-    def _noisy(self):
+    def _noisy(self, T='T'):
 
         dummy_node = self.dummy_node()
 
@@ -807,7 +807,7 @@ class RC(RLC):
 
         # Use k_B for Boltzmann's constant to avoid clash with k symbol
         # for discrete frequency
-        Vn = 'sqrt(4 * k_B * T * %s)' % self.args[0]
+        Vn = 'sqrt(4 * k_B * %s * %s)' % (T, self.args[0])
         vnet = self._netmake_variant('Vn', nodes=(dummy_node, self.relnodes[1]),
                                      args=('noise', Vn), opts=opts)
         return rnet + '\n' + vnet

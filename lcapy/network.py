@@ -301,19 +301,19 @@ class Network(object):
         
         return self.__class__(*[arg.subs(subs_dict) for arg in self.args])
     
-    def noisy(self):
+    def noisy(self, T='T'):
         """Create noisy network model by replacing resistances with a series
         combination of a resistance and a noise voltage source."""
 
         if self.is_resistor:
             from .oneport import Vnoise
             
-            Vn = 'sqrt(4 * k_B * T * %s)' % self.args[0]
+            Vn = 'sqrt(4 * k_B * %s * %s)' % (T, self.args[0])
             return self + Vnoise(Vn)
 
         if not self.is_parallel and not self.is_series:
             return self.__class__(*self.args)
 
-        return self.__class__(*[arg.noisy() for arg in self.args])
+        return self.__class__(*[arg.noisy(T=T) for arg in self.args])
     
     
