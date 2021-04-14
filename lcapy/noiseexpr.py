@@ -82,6 +82,8 @@ class NoiseExpression(Expr):
     def __add__(self, x):
         """Add noise spectra (on power basis if uncorrelated)."""
 
+        # Perhaps allow constant?
+        
         if not isinstance(x, NoiseExpression):
             raise ValueError('Cannot add %s and %s' % (self, x))
         
@@ -104,6 +106,9 @@ class NoiseExpression(Expr):
         raise ValueError('Cannot add %s and %s' % (self, x))        
 
     def __sub__(self, x):
+
+        # Perhaps allow constant?
+        
         if not isinstance(x, NoiseExpression):
             raise ValueError('Cannot subtract %s and %s' % (self, x))
 
