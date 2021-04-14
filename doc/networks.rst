@@ -140,6 +140,10 @@ Each network oneport has a number of attributes, including:
 
 - `is_causal` causal response
 
+- `is_series` series network
+
+- `is_parallel` parallel network    
+
 
 Here's an example:
 
@@ -178,6 +182,8 @@ Network methods
 - `draw()` draw the schematic.
 
 - `netlist()` create an equivalent netlist.
+
+- `subs(subs_dict)` substitutes symbolic values in the network using a dictionary of symbols `subs_dict`. 
 
 
 Network functions

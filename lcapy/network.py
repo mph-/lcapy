@@ -18,7 +18,9 @@ class Network(object):
     is_inductor = False
     is_capacitor = False
     is_resistor = False
-    is_conductor = False    
+    is_conductor = False
+    is_parallel = False
+    is_series = False
 
     # True if initial conditions are zero (or unspecified).
     zeroic = True
@@ -288,3 +290,14 @@ class Network(object):
         components."""
 
         return self.Z(s).network(form)
+
+    def subs(self, subs_dict):
+        """Substitute values using dictionary of substitutions.
+        
+        For example, b = a.subs({'R1': 1e3, 'R2': 9e3})"""    
+
+        if not self.is_parallel and not self.is_series:
+            return self.__class__(*[str(expr(arg).subs(subs_dict)) for arg in self.args])
+        
+        return self.__class__(*[arg.subs(subs_dict) for arg in self.args])
+    

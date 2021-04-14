@@ -281,9 +281,9 @@ circuit elements (Components).  For example,
 Circuit methods
 ---------------
 
-`admittance(Np, Nm)` returns the driving-point admittance between nodes `Np` and `Nm`.
+- `admittance(Np, Nm)` returns the driving-point admittance between nodes `Np` and `Nm`.
 
-`impedance(Np, Nm)` returns the driving-point impedance between nodes `Np` and `Nm`.
+- `impedance(Np, Nm)` returns the driving-point impedance between nodes `Np` and `Nm`.
 
 The above methods can be called with a component name, for example,
 
@@ -291,11 +291,11 @@ The above methods can be called with a component name, for example,
 
 This calculates the driving-point admittance that would be measured across the nodes of `L1`.
 
-`in_parallel()` returns a list of sets of component names that are connected in parallel.
+- `in_parallel()` returns a list of sets of component names that are connected in parallel.
 
-`in_series()` returns a list of sets of component names that are connected in series.
+- `in_series()` returns a list of sets of component names that are connected in series.
 
-`subs(subs_dict)` substitutes symbolic values in the netlist using a dictionary of symbols `subs_dict`.  For example,
+- `subs(subs_dict)` substitutes symbolic values in the netlist using a dictionary of symbols `subs_dict`.  For example,
 
    >>> cct = Circuit("""
    ... V1 1 0 Vs}
@@ -307,7 +307,7 @@ This calculates the driving-point admittance that would be measured across the n
    R1 1 2
    L1 2 0 3
 
-`replace(name, net)` replaces the named component.  For example,
+- `replace(name, net)` replaces the named component.  For example,
 
    >>> cct = Circuit("""
    ... V1 1 0 Vs}
@@ -319,43 +319,27 @@ This calculates the driving-point admittance that would be measured across the n
    ... R1 1 2
    ... C1 2 0""")   
    
-`transfer(N1p, N1m, N2p, N2m)` returns the s-domain transfer function
-`V2(s) / V1(s)`, between the ports defined by nodes `N1p`, `N1m`,
-`N2p`, and `N2m` where `V1 = V[N1p] - V[N1m]` and `V2 = V[N2p] -
-V[N2m]`.
+- `transfer(N1p, N1m, N2p, N2m)` returns the s-domain transfer function `V2(s) / V1(s)`, between the ports defined by nodes `N1p`, `N1m`, `N2p`, and `N2m` where `V1 = V[N1p] - V[N1m]` and `V2 = V[N2p] - V[N2m]`.
 
-`Aparams(N1p, N1m, N2p, N2m)` returns the two-port A-parameters matrix for the
-two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1`
-is the current flowing into `N1p` and out of `N1m`, `I2` is the
-current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`,
-and `V2 = V[N2p] - V[N2m]`.   See :ref:`A-parameters`.
+- `Aparams(N1p, N1m, N2p, N2m)` returns the two-port A-parameters matrix for the two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1` is the current flowing into `N1p` and out of `N1m`, `I2` is the current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`, and `V2 = V[N2p] - V[N2m]`.  See :ref:`A-parameters`.
 
-`Bparams(N1p, N1m, N2p, N2m)` returns the two-port B-parameters matrix.  See
-:ref:`B-parameters`.
+- `Bparams(N1p, N1m, N2p, N2m)` returns the two-port B-parameters matrix.  See :ref:`B-parameters`.
 
-`Gparams(N1p, N1m, N2p, N2m)` returns the two-port G-parameters matrix.  See
-:ref:`G-parameters`.
+- `Gparams(N1p, N1m, N2p, N2m)` returns the two-port G-parameters matrix.  See :ref:`G-parameters`.
 
-`Hparams(N1p, N1m, N2p, N2m)` returns the two-port H-parameters matrix.  See
-:ref:`H-parameters`.
+- `Hparams(N1p, N1m, N2p, N2m)` returns the two-port H-parameters matrix.  See :ref:`H-parameters`.
 
-`Sparams(N1p, N1m, N2p, N2m)` returns the two-port S-parameters matrix.  See
-:ref:`S-parameters`.
+- `Sparams(N1p, N1m, N2p, N2m)` returns the two-port S-parameters matrix.  See :ref:`S-parameters`.
 
-`Tparams(N1p, N1m, N2p, N2m)` returns the two-port T-parameters matrix.  See
-:ref:`T-parameters`.
+- `Tparams(N1p, N1m, N2p, N2m)` returns the two-port T-parameters matrix.  See :ref:`T-parameters`.
 
-`Yparams(N1p, N1m, N2p, N2m)` returns the two-port Y-parameters matrix.  See
-:ref:`Y-parameters`.
+- `Yparams(N1p, N1m, N2p, N2m)` returns the two-port Y-parameters matrix.  See :ref:`Y-parameters`.
 
-`Zparams(N1p, N1m, N2p, N2m)` returns the two-port Z-parameters matrix.  See
-:ref:`Z-parameters`.
+- `Zparams(N1p, N1m, N2p, N2m)` returns the two-port Z-parameters matrix.  See :ref:`Z-parameters`.
 
-`Yparamsn(N1p, N1m, N2p, N2m, ...)` returns the n-port Y-parameters matrix.  See
-:ref:`Y-parameters`.
+- `Yparamsn(N1p, N1m, N2p, N2m, ...)` returns the n-port Y-parameters matrix.  See :ref:`Y-parameters`.
 
-`Zparamsn(N1p, N1m, N2p, N2m, ...)` returns the n-port Z-parameters matrix.  See
-:ref:`Z-parameters`.     
+- `Zparamsn(N1p, N1m, N2p, N2m, ...)` returns the n-port Z-parameters matrix.  See :ref:`Z-parameters`.
    
 
 Nodes
@@ -729,155 +713,154 @@ Interrogation
 Netlist attributes
 ------------------
 
-`components` dictionary of components
+- `components` dictionary of components
 
-`nodes` dictionary of nodes
+- `nodes` dictionary of nodes
 
-`subcircuits` dictionary of sub-circuits (for ac, dc, transient, etc.)
+- `subcircuits` dictionary of sub-circuits (for ac, dc, transient, etc.)
 
-`is_ac` all independent sources are ac
+- `is_ac` all independent sources are ac
 
-`is_causal`  all independent sources are causal
+- `is_causal`  all independent sources are causal
 
-`is_dc` all independent sources are dc
+- `is_dc` all independent sources are dc
 
-`is_time_domain` netlist can be analysed in time domain
+- `is_time_domain` netlist can be analysed in time domain
 
-`is_superposition` netlist must be analysed as a superposition
+- `is_superposition` netlist must be analysed as a superposition
 
-`ivp` initial value problem
+- `ivp` initial value problem
 
-`has_ic` initial conditions are specified
+- `has_ic` initial conditions are specified
 
-`has_ac` an independent source has an ac component
+- `has_ac` an independent source has an ac component
 
-`has_dc` an independent source has a dc component
+- `has_dc` an independent source has a dc component
 
-`has_s_transient` an independent source has a transient component defined in s-domain
+- `has_s_transient` an independent source has a transient component defined in s-domain
 
-`has_transient` an independent source has a transient component
+- `has_transient` an independent source has a transient component
 
-`control_sources` list of voltage sources used to specify control current for CCVS and CCCS components
+- `control_sources` list of voltage sources used to specify control current for CCVS and CCCS components
 
-`dependent_sources` list of dependent sources
+- `dependent_sources` list of dependent sources
 
-`ics` list of components with explicit initial conditions
+- `ics` list of components with explicit initial conditions
 
-`independent_sources` list of independent sources
+- `independent_sources` list of independent sources
 
-`reactances` list of capacitors and inductors
+- `reactances` list of capacitors and inductors
 
-`sources` list of sources
+- `sources` list of sources
 
-`is_connected`  all components are connected
+- `is_connected`  all components are connected
 
 
 Netlist methods
 ---------------
 
-`describe()` print message describing how netlist is solved
+- `describe()` print message describing how netlist is solved
 
-`has()` returns True if component in netlist
+- `has()` returns True if component in netlist
 
-`kill()` kills specified independent sources (voltage sources
+- `kill()` kills specified independent sources (voltage sources
   become short-circuits and current sources become open-circuits)
 
-`kill_except()` kills all but the specified independent sources
+- `kill_except()` kills all but the specified independent sources
 
-`noise_model()` replaces resistors with a series combination of a
+- `noise_model()` replaces resistors with a series combination of a
   resistor and a noise voltage source
   
-`r_model()` creates a resistive equivalent model using companion
+- `r_model()` creates a resistive equivalent model using companion
   circuits (this is used for time-stepping simulation)
 
-`replace()` replace component with new component in netlist
+- `replace()` replace component with new component in netlist
 
-`s_model()` converts sources to the s-domain and represents
+- `s_model()` converts sources to the s-domain and represents
   reactive components as impedances
 
-`state_space_model()` creates a state-space model by replacing inductors
+- `state_space_model()` creates a state-space model by replacing inductors
   with current sources and capacitors with voltage sources
 
-`subs()` substitutes symbolic component values
+- `subs()` substitutes symbolic component values
 
 
 Component attributes
 --------------------
 
-`connected` list of components connected to the component
+- `connected` list of components connected to the component
 
-`is_ac` source is only ac
+- `is_ac` source is only ac
 
-`is_causal`  source or component is causal
+- `is_causal`  source or component is causal
 
-`is_capacitor` component is a capacitor
+- `is_capacitor` component is a capacitor
 
-`is_current_source` component is a current source
+- `is_current_source` component is a current source
 
-`is_dependent_source` source is dependent
+- `is_dependent_source` source is dependent
 
-`is_dc` source is only dc
+- `is_dc` source is only dc
 
-`is_inductor` component is an inductor
+- `is_inductor` component is an inductor
 
-`is_independent_source` source is independent
+- `is_independent_source` source is independent
 
-`is_noisy` source only has a noisy component
+- `is_noisy` source only has a noisy component
 
-`is_resistor` component is a resistor
+- `is_resistor` component is a resistor
 
-`is_reactance` component is a capacitor or inductor
+- `is_reactance` component is a capacitor or inductor
 
-`is_source` component is a source
+- `is_source` component is a source
 
-`is_voltage_source` component is a voltage source
+- `is_voltage_source` component is a voltage source
 
-`has_ic` initial conditions are specified
+- `has_ic` initial conditions are specified
 
-`has_ac` source has an ac component
+- `has_ac` source has an ac component
 
-`has_dc` source has a dc component
+- `has_dc` source has a dc component
 
-`has_noisy` source has a noisy component
+- `has_noisy` source has a noisy component
 
-`has_s_transient` source has a transient component defined in s-domain
+- `has_s_transient` source has a transient component defined in s-domain
 
-`has_t_transient` source has a transient component defined in time domain
+- `has_t_transient` source has a transient component defined in time domain
 
-`has_transient` source has a transient component
+- `has_transient` source has a transient component
 
-`nodes` list of nodes
+- `nodes` list of nodes
 
-`nodenames` list of node names
+- `nodenames` list of node names
 
 
 Component methods
 -----------------
 
-`norton()` Create Norton oneport object viewed from nodes of the component
+- `norton()` Create Norton oneport object viewed from nodes of the component
 
-`thevenin()` Create Thevenin oneport object viewed from nodes of the component
+- `thevenin()` Create Thevenin oneport object viewed from nodes of the component
 
-`oneport()` Create Thevenin or Noton oneport object as appropriate when viewed from nodes of the component
+- `oneport()` Create Thevenin or Noton oneport object as appropriate when viewed from nodes of the component
 
-`transfer(cpt)` Create transfer function for the voltage across `cpt`
-divided by the voltage across the component
+- `transfer(cpt)` Create transfer function for the voltage across `cpt` divided by the voltage across the component
 
-`connected()` Return list of components connected to this component
+- `connected()` Return list of components connected to this component
 
-`is_connected(cpt)` True if connected to specified `cpt`
+- `is_connected(cpt)` True if connected to specified `cpt`
 
 
 Node attributes
 ---------------
 
-`connected` list of components connected to node
+- `connected` list of components connected to node
 
 
 Node methods
 ------------
 
-`is_connected(node)` True if connected to specified node
+- `is_connected(node)` True if connected to specified node
 
 
 .. image:: examples/netlists/graph1.png

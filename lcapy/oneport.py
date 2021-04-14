@@ -571,6 +571,7 @@ class Par(ParSer):
     """Parallel class"""
 
     _operator = '|'
+    is_parallel = True
 
     def __init__(self, *args):
 
@@ -695,6 +696,7 @@ class Ser(ParSer):
     """Series class"""
 
     _operator = '+'
+    is_series = True    
 
     def __init__(self, *args):
 

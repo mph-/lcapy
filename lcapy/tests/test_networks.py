@@ -124,3 +124,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(L(1).is_inductor, True, "is_inductor")
         self.assertEqual(I(1).is_current_source, True, "is_current_source")
         self.assertEqual(V(1).is_voltage_source, True, "is_voltage_source")                                        
+
+    def test_subs(self):
+
+        n = (R('R1') + C('C1') + L('L1')) | C('C0')
+        m = n.subs({'R1':2, 'C1':3, 'L1':4, 'C0':5})
+        p = (R(2) + C(3) + L(4)) | C(5)
+
+        self.assertEqual(m.Z(s), p.Z(s), "Z")
+        
