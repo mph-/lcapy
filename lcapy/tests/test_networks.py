@@ -114,7 +114,7 @@ class LcapyTester(unittest.TestCase):
 
         b = (R(1) + V(2)) | R(3)
         self.assertEqual(b.Z, impedance('3 / 4'), "par Z")
-        self.assertEqual(b.Y, admittance('4 / 3'), "par Y")                        
+        self.assertEqual(b.Y, admittance('4 / 3'), "par Y")
 
     def test_attrs(self):
 
@@ -123,7 +123,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(C(1).is_capacitor, True, "is_capacitor")
         self.assertEqual(L(1).is_inductor, True, "is_inductor")
         self.assertEqual(I(1).is_current_source, True, "is_current_source")
-        self.assertEqual(V(1).is_voltage_source, True, "is_voltage_source")                                        
+        self.assertEqual(V(1).is_voltage_source, True, "is_voltage_source")
 
     def test_subs(self):
 
@@ -133,3 +133,12 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(m.Z(s), p.Z(s), "Z")
         
+    def test_noisy(self):
+
+        n = R('R1') + R('R2')        
+        m = n.noisy()
+
+        Vn = m.Voc.n
+        Vn2 = expr('sqrt(4 * k_B * T * (R1 + R2))')
+
+        self.assertEqual(Vn, Vn2, "R noise sum")

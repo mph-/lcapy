@@ -183,7 +183,9 @@ Network methods
 
 - `netlist()` create an equivalent netlist.
 
-- `subs(subs_dict)` substitutes symbolic values in the network using a dictionary of symbols `subs_dict`. 
+- `subs(subs_dict)` substitutes symbolic values in the network using a dictionary of symbols `subs_dict`.
+
+- `noisy()` create noisy model where resistances are replaced with a resistance and a noise voltage source.
 
 
 Network functions
