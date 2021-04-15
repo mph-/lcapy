@@ -1072,7 +1072,7 @@ class NetlistMixin(object):
 
         names = []
         for name, elt in self.elements.items():
-            if elt.type in ('V', 'I', 'R', 'C', 'L', 'Y', 'Z'):
+            if elt.type in ('V', 'I', 'R', 'NR', 'C', 'L', 'Y', 'Z'):
                 names.append(name)
         return names
 
@@ -1262,7 +1262,7 @@ class NetlistMixin(object):
             for k, subset in subsets.items():
                 if k == 'I':
                     print('Netlist has current sources in series: %s' % subset)
-                elif k in ('R', 'L', 'V', 'Z'):
+                elif k in ('R', 'NR', 'L', 'V', 'Z'):
                     if k == 'L' and not self._check_ic(subset):
                         continue
                     changed |= self._do_simplify_combine('Can add in series: %s',
@@ -1288,7 +1288,7 @@ class NetlistMixin(object):
             for k, subset in subsets.items():
                 if k == 'V':
                     print('Netlist has voltage sources in parallel: %s'% subset)
-                elif k in ('R', 'L', 'Z'):
+                elif k in ('R', 'NR', 'L', 'Z'):
                     changed |= self._do_simplify_combine('Can combine in parallel: %s',
                                                          subset, net, explain, False, False)
                 elif k in ('C', 'Y', 'I'):

@@ -79,6 +79,21 @@ class LcapyTester(unittest.TestCase):
 
         a = Circuit()
         a.add('R1 1 0')
+        a.add('W 1 0')
+
+        b = a.noisy()
+        
+        Vn = b.NR1.V.n
+        In = b.NR1.I.n        
+        Vn2 = expr('sqrt(4 * k_B * T * R1)')
+        In2 = expr('sqrt(4 * k_B * T / R1)')        
+        self.assertEqual(Vn, Vn2, "R noise voltage")
+        self.assertEqual(In, In2, "R noise current")                
+        
+    def test_noisy2(self):
+
+        a = Circuit()
+        a.add('R1 1 0')
         a.add('R2 1 0')
         an = a.noisy()
         b = Circuit()

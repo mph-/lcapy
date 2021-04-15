@@ -203,7 +203,7 @@ class MNAMixin(object):
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
         for elt in self.elements.values():
-            if elt.type in ('R', 'C'):
+            if elt.type in ('R', 'NR', 'C'):
                 n1 = self.node_map[elt.nodenames[0]]
                 n2 = self.node_map[elt.nodenames[1]]                
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
