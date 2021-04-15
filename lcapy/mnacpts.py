@@ -1,3 +1,4 @@
+
 """
 This module defines the components for modified nodal analysis.  The components
 are defined at the bottom of this file.
@@ -84,7 +85,7 @@ class Cpt(ImmittanceMixin):
 
         # No defined cpt
         if self.type in ('XX', 'Cable'):
-            self.cpt = lcapy.oneport.Dummy()
+            self._cpt = lcapy.oneport.Dummy()
             return
 
         if ((args == () and not self.type in ('W', 'O', 'P'))
@@ -114,10 +115,10 @@ class Cpt(ImmittanceMixin):
             try:
                 newclass = getattr(lcapy.twoport, classname)
             except:
-                self.cpt = lcapy.oneport.Dummy()
+                self._cpt = lcapy.oneport.Dummy()
                 return
                 
-        self.cpt = newclass(*args)
+        self._cpt = newclass(*args)
 
     def __repr__(self):
         return self.__str__()
@@ -126,6 +127,10 @@ class Cpt(ImmittanceMixin):
         # TODO, use self._netmake() but fix for XX
         return self._string        
 
+    @property
+    def cpt(self):
+        return self._cpt
+    
     def _stamp(self, cct):
         raise NotImplementedError('stamp method not implemented for %s' % self)
 
