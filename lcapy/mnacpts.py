@@ -114,6 +114,7 @@ class Cpt(ImmittanceMixin):
             try:
                 newclass = getattr(lcapy.twoport, classname)
             except:
+                self.cpt = lcapy.oneport.Dummy()
                 return
                 
         self.cpt = newclass(*args)

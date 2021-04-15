@@ -257,7 +257,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
 
-
     def test_VRL1_ac(self):
         """Lcapy: check VRL circuit at ac
 
@@ -695,3 +694,26 @@ class LcapyTester(unittest.TestCase):
         b = a.subs({'V1': f})
 
         self.assertEqual(b.V1.Voc, expr(f), "netlist subs")                
+
+    def test_cpt(self):
+
+        a = Circuit()
+        a.add('V1 1 0')
+        a.add('E1 2 0 opamp 1 0')
+        a.add('R1 2 3')
+
+        self.assertEqual(a.V1.is_source, True, "V is_source")
+        self.assertEqual(a.V1.is_dependent_source, False, "V is_dependent_source")
+        self.assertEqual(a.V1.is_independent_source, True, "V is_independent_source")         
+        self.assertEqual(a.V1.is_resistor, False, "V is_resistor")
+
+        self.assertEqual(a.E1.is_source, True, "E is_source")
+        self.assertEqual(a.E1.is_dependent_source, True, "E is_dependent_source")
+        self.assertEqual(a.E1.is_independent_source, False, "E is_independent_source")                 
+        self.assertEqual(a.E1.is_resistor, False, "E is_resistor")
+
+        self.assertEqual(a.R1.is_source, False, "E is_source")
+        self.assertEqual(a.R1.is_dependent_source, False, "R is_dependent_source")
+        self.assertEqual(a.R1.is_independent_source, False, "R is_independent_source")                         
+        self.assertEqual(a.R1.is_resistor, True, "E is_resistor")                
+        
