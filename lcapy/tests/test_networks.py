@@ -141,4 +141,9 @@ class LcapyTester(unittest.TestCase):
         Vn = m.Voc.n
         Vn2 = expr('sqrt(4 * k_B * T * (R1 + R2))')
 
-        self.assertEqual(Vn, Vn2, "R noise sum")
+        n = G('1/R1') + G('1/R2')        
+        m = n.noisy()
+        Vn = m.Voc.n        
+        
+        self.assertEqual(Vn, Vn2, "G noise sum")
+        

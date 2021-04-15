@@ -312,6 +312,12 @@ class Network(object):
             Vn = 'sqrt(4 * k_B * %s * %s)' % (T, self.args[0])
             return NR(*self.args) + Vnoise(Vn)
 
+        if self.is_conductor and not self.is_noiseless:
+            from .oneport import Vnoise, NG
+            
+            Vn = 'sqrt(4 * k_B * %s / (%s))' % (T, self.args[0])
+            return NG(*self.args) + Vnoise(Vn)        
+
         if not self.is_parallel and not self.is_series:
             return self.__class__(*self.args)
 

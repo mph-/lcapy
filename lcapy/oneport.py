@@ -802,6 +802,7 @@ class G(OnePort):
     """Conductor"""
 
     is_conductor = True
+    is_noiseless = False    
 
     def __init__(self, Gval='G'):
 
@@ -826,6 +827,12 @@ class G(OnePort):
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
     
 
+class NG(G):
+    """Noiseless conductor"""
+
+    is_noiseless = True
+    
+    
 class L(OnePort):
     """Inductor
 
