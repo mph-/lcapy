@@ -21,6 +21,7 @@ class Network(object):
     is_conductor = False
     is_parallel = False
     is_series = False
+    is_noiseless = True
 
     # True if initial conditions are zero (or unspecified).
     zeroic = True
@@ -305,11 +306,11 @@ class Network(object):
         """Create noisy network model by replacing resistances with a series
         combination of a resistance and a noise voltage source."""
 
-        if self.is_resistor:
-            from .oneport import Vnoise
+        if self.is_resistor and not self.is_noiseless:
+            from .oneport import Vnoise, NR
             
             Vn = 'sqrt(4 * k_B * %s * %s)' % (T, self.args[0])
-            return self + Vnoise(Vn)
+            return NR(*self.args) + Vnoise(Vn)
 
         if not self.is_parallel and not self.is_series:
             return self.__class__(*self.args)

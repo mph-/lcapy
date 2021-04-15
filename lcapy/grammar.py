@@ -1,7 +1,7 @@
 """
 This module defines a grammar for SPICE-like netlists.
 
-Copyright 2015--2020 Michael Hayes, UCECE
+Copyright 2015--2021 Michael Hayes, UCECE
 """
 
 # SPICE also considers = a delimiter.
@@ -64,6 +64,7 @@ Mpmos: Mname Nd Ng Ns pmos [Value]; P channel MOSFET
 MISC: MISCname Np Nm; Miscellaneous circuitikz bipole
 MT: MTname Np Nm; Motor
 MX: MXname P P P; Mixer
+NR: NRname Np Nm [Value]; Noiseless resistor
 O: Oname Np Np; Open circuit
 P: Pname Np Np; Port
 Q: Qname Nc Nb Ne [Value]; NPN transistor

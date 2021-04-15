@@ -3322,6 +3322,8 @@ defcpt('Mnmos', 'M', 'N channel MOSJFET transistor', 'nmos')
 defcpt('Mpmos', 'M', 'P channel MOSJFET transistor', 'pmos')
 defcpt('MISC', Bipole, 'Generic circuitikz component', '')
 
+defcpt('NR', Bipole, 'Noiseless resistor', 'R')
+
 defcpt('O', Bipole, 'Open circuit', 'open')
 defcpt('P', Bipole, 'Port', 'open')
 

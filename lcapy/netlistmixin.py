@@ -1033,11 +1033,11 @@ class NetlistMixin(object):
         with noise voltage sources"""
 
         for arg in args:
-            if arg not in self.elements and self.elements[arg].type != 'R':
+            if arg not in self.elements and not self.elements[arg].is_resistor:
                 raise ValueError('Element %s is not a known resistor' % arg)
         resistors = []
         for cpt in self.elements.values():
-            if cpt.type == 'R' and cpt.name not in args:
+            if cpt.is_resistor and not cpt.is_noiseless and cpt.name not in args:
                 resistors.append(cpt.name)
         return self._noisy(resistors, T)
 
@@ -1050,7 +1050,7 @@ class NetlistMixin(object):
 
         resistors = []
         for arg in args:
-            if arg not in self.elements and self.elements[arg].type != 'R':
+            if arg not in self.elements and not self.elements[arg].is_resistor:
                 raise ValueError('Element %s is not a known resistor' % arg)
             resistors.append(arg)
 

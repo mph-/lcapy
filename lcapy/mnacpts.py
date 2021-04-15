@@ -397,6 +397,12 @@ class Cpt(ImmittanceMixin):
             raise ValueError('%s is not a source' % self)        
 
     @property
+    def is_noiseless(self):
+        """Return True if component is noiseless."""
+
+        return self.cpt.is_noiseless
+        
+    @property
     def is_inductor(self):
         """Return True if component is an inductor."""
         return self.cpt.is_inductor
@@ -802,8 +808,10 @@ class RC(RLC):
 
         opts = self.opts.copy()
 
-        rnet = self._netmake(nodes=(self.relnodes[0], dummy_node),
-                             opts=opts)                                  
+        # Should check for namespace conflict if user has defined
+        # a noiseless resistor.
+        rnet = self._netmake_variant('N', nodes=(self.relnodes[0], dummy_node),
+                                     args=str(self.R), opts=opts)
 
         # Use k_B for Boltzmann's constant to avoid clash with k symbol
         # for discrete frequency
@@ -1261,6 +1269,13 @@ class R(RC):
     
     def _r_model(self):    
         return self._copy()
+
+class NR(R):
+
+    add_series = True    
+    
+    def _r_model(self):    
+        return self._copy()    
 
 
 class RV(RC):

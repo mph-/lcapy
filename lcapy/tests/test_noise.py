@@ -92,7 +92,7 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 0')
         a.add('R2 1 0')
         an = a.noisy()
-        Vn1 = an.R1.V.n
+        Vn1 = an[1].V.n
 
         Vn2 = Vn1(f)(omega)
         

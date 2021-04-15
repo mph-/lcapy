@@ -31,7 +31,7 @@ from .current import current
 from sympy import Derivative, Integral
 
 
-__all__ = ('V', 'I', 'v', 'i', 'R', 'L', 'C', 'G', 'Y', 'Z',
+__all__ = ('V', 'I', 'v', 'i', 'R', 'NR', 'L', 'C', 'G', 'Y', 'Z',
            'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac', 'sV', 'sI',
            'Iac', 'Vnoise', 'Inoise', 
            'Par', 'Ser', 'Xtal', 'FerriteBead', 'CPE', 'series', 'parallel',
@@ -774,7 +774,8 @@ class Ser(ParSer):
 class R(OnePort):
     """Resistor"""
 
-    is_resistor = True    
+    is_resistor = True
+    is_noiseless = False
     
     def __init__(self, Rval='R'):
 
@@ -789,12 +790,18 @@ class R(OnePort):
     def v_equation(self, i, kind='t'):
 
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
-    
+
+
+class NR(R):
+    """Noiseless resistor"""
+
+    is_noiseless = True
+
 
 class G(OnePort):
     """Conductor"""
 
-    is_conductor = True    
+    is_conductor = True
 
     def __init__(self, Gval='G'):
 
