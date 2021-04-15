@@ -1050,6 +1050,8 @@ Immittance attributes
 
 - `Z` impedance
 
+- `is_lossy` has a non zero resistance component
+
 Impedance is related to resistance and reactance by
   
 :math:`Z = R + \mathrm{j} X`

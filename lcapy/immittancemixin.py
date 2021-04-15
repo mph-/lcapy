@@ -23,6 +23,11 @@ class ImmittanceMixin(object):
         return self.R
 
     @property
+    def is_lossy(self):
+        """Has some none zero resistance component."""
+        return self.R != 0
+
+    @property
     def X(self):
         """Reactance."""
         return self.Z.imag
