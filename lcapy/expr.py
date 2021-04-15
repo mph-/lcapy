@@ -2556,8 +2556,10 @@ def expr(arg, **assumptions):
     if arg is None:
         return arg
     
-    if isinstance(arg, Expr) and assumptions == {}:
-        return arg
+    if isinstance(arg, Expr):
+        if assumptions == {}:
+            return arg
+        return arg.__class__(arg, **assumptions)
     
     if not isinstance(arg, str) and hasattr(arg, '__iter__'):
         return exprcontainer(arg)
