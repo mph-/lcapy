@@ -5,8 +5,8 @@ A phasor represents the amplitude and phase for a single sinusoid.  By
 default the angular frequency is omega_0 but it can be any number or
 symbol.
 
-Phasors straddle the time and frequency domains and this is my excuse
-for the confusing phasor classes.
+Phasors straddle the time and frequency domains and hence the
+confusing phasor classes.
 
 A phasor is described by an amplitude and phase.  There is also an
 implicit frequency.  The amplitude and phase are usually functions of
@@ -16,11 +16,14 @@ signal.
 A ratio of two phasors (of the same frequency) is no longer a
 time-domain signal but a frequency domain quantity.  The frequency
 dependence is explicit.  A phasor ratio is useful to describe an
-impedance, immittance, or transfer function.  These are frequency
-domain concepts.  A phasor ratio can be inferred from the Laplace
-domain by substituting jomega for s, where omega is the angular
-frequency of the phasor.
+immittance or transfer function.  These are frequency domain concepts.
+A phasor ratio can be inferred from the Laplace domain by substituting
+jomega (or jw) for s, where omega is the angular frequency of the phasor.
 
+Lcapy considers V(jw) or I(jw) a generic phasor but V(3j) or I(3j) a
+specific phasor.  Similarly, X(jw) is a generic phasor ratio and X(3j)
+is a specific phasor ratio, where X denotes an immittance or transfer
+function.
 
 Copyright 2014--2021 Michael Hayes, UCECE
 
@@ -43,7 +46,7 @@ from .transfermixin import TransferMixin
 __all__ = ('phasor', )
 
 # The phasor domain is different from the Fourier and Laplace domain
-# since there is an implicit anglular frequency.  This is only needed
+# since there is an implicit angular frequency.  This is only needed
 # for voltage and current (vorrent) expressions.
 
 # The phasor domain immittance can be found from the Laplace domain
@@ -58,16 +61,6 @@ __all__ = ('phasor', )
 
 class PhasorExpression(Expr):
 
-    def __init__(self, val, **assumptions):
-
-        if isinstance(val, PhasorExpression):
-            assumptions['omega'] = val.omega
-        elif 'omega' not in assumptions or assumptions['omega'] is None:
-            assumptions['omega'] = omegasym
-        
-        assumptions['ac'] = True
-        super (PhasorExpression, self).__init__(val, **assumptions)
-    
     @property
     def omega(self):
         """Return angular frequency."""
@@ -103,10 +96,13 @@ class PhasorExpression(Expr):
 
         return self.time().laplace()
 
-    def phasor(self):
+    def phasor(self, **assumptions):
         """Convert to phasor representation."""
+
+        ass = self.assumptions.copy()
+        assumptions = ass.merge(**assumptions)
         
-        return self.__class__(self, **self.assumptions)
+        return self.__class__(self, **assumptions)
 
     def rms(self):
         """Return root mean square."""
@@ -144,6 +140,16 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
     is_phasor_domain = True
     is_phasor_time_domain = True
 
+    def __init__(self, val, **assumptions):
+
+        if isinstance(val, PhasorExpression):
+            assumptions['omega'] = val.omega
+        elif 'omega' not in assumptions or assumptions['omega'] is None:
+            assumptions['omega'] = omegasym
+        
+        assumptions['ac'] = True
+        super (PhasorExpression, self).__init__(val, **assumptions)
+    
     def as_expr(self):
         return PhasorTimeDomainExpression(self)
 
@@ -202,10 +208,29 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
     is_phasor_frequency_domain = True    
     is_transform_domain = True
 
-    @classmethod
-    def from_laplace(cls, expr, omega=None, **assumptions):
+    def __init__(self, val, **assumptions):
 
-        from .symbols import s        
+        if isinstance(val, PhasorExpression):
+            assumptions['omega'] = val.omega
+        elif 'omega' not in assumptions or assumptions['omega'] is None:
+            assumptions['omega'] = omegasym
+
+        if isinstance(val, Expr):            
+            ass = val.assumptions.copy()
+            ass = ass.merge(**assumptions)
+        else:
+            ass = assumptions
+            
+        super (PhasorExpression, self).__init__(val, **ass)
+    
+    @classmethod
+    def from_laplace(cls, expr, **assumptions):
+
+        from .sym import ssym
+
+        ass = expr.assumptions.copy()
+        ass = ass.merge(**assumptions)
+        omega = ass.pop('omega', None)
 
         if omega is None:
             omega = omegasym
@@ -213,18 +238,23 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
         if expr.is_voltage or expr.is_current:
             print('Should convert %s expression to time-domain first' % expr.quantity)
 
-        result = expr.laplace(**assumptions).replace(s, j * omega)
-        return cls.change(expr, PhasorFrequencyDomainExpression(result, omega=omega,
-                                                                **assumptions))
+        # Substitute jw for s
+        result = expr.laplace(**ass)
+        result2 = result.expr.replace(ssym, j * omegasym)
+        ret = cls.change(expr,
+                         PhasorFrequencyDomainExpression(result2, omega=omega,
+                                                          **ass))
+        return ret
     
     def time(self, **assumptions):
         """Convert to time domain representation."""
-        from .symbols import s
+        from .sym import ssym        
         from .sexpr import LaplaceDomainExpression
 
         omega = self.omega
-        result = LaplaceDomainExpression(self.replace(j * omega, s))
-        return self.change(result.time())
+        result = self.expr.replace(omega.expr, ssym / j)
+        result2 = LaplaceDomainExpression(result)
+        return self.change(result2.time())
 
     def as_expr(self):
         return PhasorFrequencyDomainExpression(self)

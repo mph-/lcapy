@@ -1,7 +1,7 @@
 """This module provides the ImmittanceMixin class.  It provides common
 methods for immittances.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2021 Michael Hayes, UCECE
 
 """
 

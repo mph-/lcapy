@@ -1,6 +1,6 @@
 """This module performs transformations between domains.
 
-Copyright 2018--2020 Michael Hayes, UCECE
+Copyright 2018--2021 Michael Hayes, UCECE
 
 """
 
@@ -10,7 +10,16 @@ from .expr import expr as expr1
 from .expr import Expr
 
 
-def transform1(expr, arg, **assumptions):
+def transform(expr, arg, **assumptions):
+    """If arg is f, s, t, omega, or jw perform domain transformation,
+    otherwise perform substitution.
+
+    Note (1 / s)(omega) will fail since 1 / s is assumed not to be
+    causal and so the Fourier transform is unknown.  However,
+    impedance(1 / s)(omega) will work since an impedance is assumed to
+    be causal.  Alternatively, use (1 / s)(omega, causal=True). """
+
+    arg = expr1(arg)
 
     # Handle things like (3 * s)(5 * s)
     if isinstance(expr, arg.__class__) and not isinstance(expr, Superposition):
@@ -28,8 +37,8 @@ def transform1(expr, arg, **assumptions):
     elif arg.has(j):
         return expr.phasor(omega=arg / j, **assumptions)    
 
-    # Handle expr(texpr), expr(sexpr), expr(fexpr), expr(omegaexpr).  For example,
-    # expr(2 * f).
+    # Handle expr(texpr), expr(sexpr), expr(fexpr), expr(omegaexpr).
+    # For example, expr(2 * f).
     result = None 
     if isinstance(arg, TimeDomainExpression):
         result = expr.time(**assumptions)
@@ -50,21 +59,6 @@ def transform1(expr, arg, **assumptions):
         raise ValueError('Can only return t, f, s, omega, or jw domains')
 
     return result.subs(arg, **assumptions)
-
-
-def transform(expr, arg, **assumptions):
-    """If arg is f, s, t, omega, or jw perform domain transformation,
-    otherwise perform substitution.
-
-    Note (1 / s)(omega) will fail since 1 / s is assumed not to be
-    causal and so the Fourier transform is unknown.  However,
-    impedance(1 / s)(omega) will work since an impedance is assumed to
-    be causal.  Alternatively, use (1 / s)(omega, causal=True). """
-
-    arg = expr1(arg)
-
-    new = transform1(expr, arg, **assumptions)
-    return new
 
 
 def call(expr, arg, **assumptions):
