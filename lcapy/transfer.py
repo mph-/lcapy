@@ -6,9 +6,9 @@ Copyright 2020 Michael Hayes, UCECE
 from .expr import expr
 from .units import u as uu
 
-def transfer(arg, **assumptions):
+def transfer(arg, causal=True, **assumptions):
 
-    expr1 = expr(arg, **assumptions)
+    expr1 = expr(arg, causal=True, **assumptions)
     if expr1.is_admittance:
         return expr1.apply_unit(1 / uu.ohms)
 

@@ -8,7 +8,7 @@ from .expr import expr
 from .sexpr import LaplaceDomainExpression
 
     
-def admittance(arg, **assumptions):
+def admittance(arg, causal=True, **assumptions):
     """Generic admittance factory function.
 
     Y(omega) = G(omega) + j * B(omega)
@@ -21,7 +21,7 @@ def admittance(arg, **assumptions):
 
     """    
 
-    expr1 = expr(arg, **assumptions)
+    expr1 = expr(arg, causal=causal, **assumptions)
 
     try:
         expr1 = expr1.as_admittance()
