@@ -17,7 +17,19 @@ def transform(expr, arg, **assumptions):
     Note (1 / s)(omega) will fail since 1 / s is assumed not to be
     causal and so the Fourier transform is unknown.  However,
     impedance(1 / s)(omega) will work since an impedance is assumed to
-    be causal.  Alternatively, use (1 / s)(omega, causal=True). """
+    be causal.  Alternatively, use (1 / s)(omega, causal=True). 
+
+    Transforming from s->jomega is fast since it just requires 
+    a substitution of s with jomega.
+
+    Transforming from s->omega or s->f can be slow since this requires
+    a inverse Laplace transform followed by a Fourier transform.
+    However, if the expression is causal and the expression is lossy
+    when s is replaced by jw, the result can be found by substituting
+    jw or 2 * 2 * pi * f for s.   This does not apply for an expression such
+    as Z = 1 / (s * C).
+
+    """
 
     arg = expr1(arg)
 
@@ -25,7 +37,7 @@ def transform(expr, arg, **assumptions):
     if isinstance(expr, arg.__class__) and not isinstance(expr, Superposition):
         return expr.subs(arg)
 
-    # Handle expr(t), expr(s), expr(f), expr(omega)
+    # Handle expr(t), expr(s), expr(f), expr(omega), expr(jomega), expr(3j)
     if arg is t:
         return expr.time(**assumptions)
     elif arg is s:

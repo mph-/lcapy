@@ -151,13 +151,28 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     
     def fourier(self, **assumptions):
         """Convert to Fourier domain."""
-        from .symbols import f
+        from .symbols import f, jw, pi
+
+        if self.is_causal:
+            # Note, this does not apply for 1 / s.            
+            tmp = self(jw)
+            if tmp.real != 0:
+                return self.change(tmp(2 * pi * f), domain='fourier',
+                                   **assumptions)                        
         
         result = self.time(**assumptions).fourier(**assumptions)
         return result
 
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
+        from .symbols import jw
+        
+        if self.is_causal:
+            # Note, this does not apply for 1 / s.
+            tmp = self(jw)
+            if tmp.real != 0:
+                return self.change(tmp, domain='angular fourier',
+                                   **assumptions)                
         
         result = self.time(**assumptions).angular_fourier(**assumptions)
         return result
