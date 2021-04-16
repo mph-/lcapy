@@ -253,7 +253,7 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
 
         omega = self.omega
         result = self.expr.replace(omega.expr, ssym / j)
-        result2 = LaplaceDomainExpression(result)
+        result2 = LaplaceDomainExpression(result, **self.assumptions)
         return self.change(result2.time())
 
     def as_expr(self):
