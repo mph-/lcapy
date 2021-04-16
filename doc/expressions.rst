@@ -752,8 +752,8 @@ Note, SymPy does not allow symbol names that are Python keywords.  For example, 
 - `limit()` compute a limit.  
 
 
-Transformation and substitution
-===============================      
+Domain transformation and substitution
+======================================
 
 Substitution and transformation use a similar syntax `V(arg)`.  If
 `arg` is a domain variable `t`, `f`, `s`, `omega`, or `jomega`,
@@ -779,8 +779,8 @@ This behaviour can be explicitly controlled using the `subs` and
 
 .. _transformation:
    
-Transformation
---------------
+Domain transformation
+---------------------
 
 Expressions can be transformed to a different domain (see :ref:`domains`), for example:
 
@@ -851,6 +851,11 @@ domain::
     ⅉ⋅ω
     >>> Y.subs(jomega).domain
     'angular fourier'
+
+
+    
+.. image:: examples/schematics/domains.png
+   :width: 20cm
     
 
 .. _substitution:
