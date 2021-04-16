@@ -35,6 +35,7 @@ Contents:
    internals.rst
    releases.rst   
    modules.rst
+   about.rst   
 
 Indices and tables
 ==================

@@ -2,6 +2,20 @@
 Release notes
 =============
 
+V0.86
+=====
+
+- Enables short-cut for transforming s to jw or w domains
+
+- Adds noiseless resistors
+
+- Adds subs() method for networks
+
+- Adds noisy() method for networks  
+
+- Adds T arg to noisy() methods
+  
+
 V0.85
 =====
 
