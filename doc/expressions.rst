@@ -853,7 +853,9 @@ domain::
     'angular fourier'
 
 
-    
+The following diagram demonstrates transformations between the domains.
+Note, the unilateral Laplace transform denoted by :math:`\mathcal{L}\{.\}` is not reversible without some prior information (such as known to represent an AC signal or a causal signal).   In general, the result is only known for :math:`t\ge 0` since the result for :math:`t < 0` is not unique.   The angular Fourier transform denoted by :math:`\mathcal{F}_{\omega}\{.\}` is reversible.  If :math:`h(t)` is an AC signal, it is possible to go between the time and phasor domains.  If :math:`H(s)` represents the transfer function of a causal and lossy system, then it is possible to go between the Laplace and angular Fourier domains directly.
+
 .. image:: examples/schematics/domains.png
    :width: 20cm
     
