@@ -18,7 +18,7 @@ def make_axes(figsize=None, axes=None, **kwargs):
             # FIXME
             axes = axes[0]
         fig = axes.figure
-    elif figsize is not None :
+    elif figsize is not None:
         fig, axes = subplots(1, figsize=figsize, **kwargs)
     else:
         fig, axes = subplots(1, **kwargs)
