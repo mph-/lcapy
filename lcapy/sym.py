@@ -75,6 +75,10 @@ def symbols_find(arg):
         
         return symbols
 
+    from .expr import Expr as LExpr
+    if isinstance(arg, LExpr):
+        arg = arg.expr
+    
     if not isinstance(arg, (Symbol, Expr, AppliedUndef)):
         return []
     return [symbol_name(symbol) for symbol in arg.atoms(Symbol, AppliedUndef)]
