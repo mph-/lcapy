@@ -127,15 +127,20 @@ class PhasorExpression(Expr):
 
     def bode_plot(self, fvector=None, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
-        plot.  For the latter, fvector specifies the frequencies.  If
-        it is a tuple, it sets the angular frequency limits."""
+        plot (but without the straight line approximations).  fvector
+        specifies the frequencies.  If it is a tuple (m1, m2), it sets the
+        frequency limits as (10**m1, 10**m2)."""
         
         from .plot import plot_bode
         from .sym import pi, fsym
 
         if not self.is_phasor_frequency_domain:
             raise ValueError('Not frequency domain phasor: use plot()')
-        return plot_bode(self.subs(self.omega, 2 * pi * fsym), fvector, **kwargs)
+
+        result = self.subs(self.omega, 2 * pi * fsym)
+        result = self.change(result, domain='fourier')
+        
+        return plot_bode(result, fvector, **kwargs)
 
     def _mul_compatible(self, x):
 
