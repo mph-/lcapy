@@ -591,11 +591,19 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         self.assumptions.set('unknown', value)        
 
     @property
-    def is_complex(self):
+    def is_complex_signal(self):
+        """Return True if time-domain signal is complex."""
         
-        if 'complex' not in self.assumptions:
+        if 'complex_signal' not in self.assumptions:
             return False
-        return self.assumptions['complex'] == True
+        return self.assumptions['complex_signal'] == True
+
+    @property
+    def is_complex(self):
+        from .sym import ssym
+        from .dsym import zsym        
+        
+        return self.has(j) or self.has(ssym) or self.has(zsym)
 
     @property
     def is_conditional(self):

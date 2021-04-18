@@ -161,7 +161,7 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
             assumptions['omega'] = val.omega
         elif 'omega' not in assumptions or assumptions['omega'] is None:
             assumptions['omega'] = omegasym
-        
+
         assumptions['ac'] = True
         super (PhasorExpression, self).__init__(val, **assumptions)
     
@@ -197,6 +197,8 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
         result = check.amp * exp(j * check.phase)
         assumptions['omega'] = check.omega
 
+        assumptions['complex_signal'] = expr.has(j)
+        
         return cls.change(expr, result, domain='phasor', **assumptions)
 
     def time(self, **assumptions):
@@ -208,7 +210,7 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
             # TODO: Fix inconsistency.  Sometimes omega is a symbol.
             omega1 = omega1.expr
 
-        if self.is_complex:
+        if self.is_complex_signal:
             result = self.expr * exp(j * omega1 * t)
         else:
             result = self.real.expr * cos(omega1 * t) - self.imag.expr * sin(omega1 * t)
