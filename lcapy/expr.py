@@ -593,9 +593,9 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     @property
     def is_complex(self):
         
-        if 'complex' in self.assumptions:
-            return self.assumptions['complex'] == True            
-        return self.has(j) or self.has(s)
+        if 'complex' not in self.assumptions:
+            return False
+        return self.assumptions['complex'] == True
 
     @property
     def is_conditional(self):
