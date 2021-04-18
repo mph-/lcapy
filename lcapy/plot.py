@@ -14,6 +14,9 @@ def make_axes(figsize=None, axes=None, **kwargs):
     from matplotlib.pyplot import subplots
     
     if axes is not None:
+        if isinstance(axes, tuple):
+            # FIXME
+            axes = axes[0]
         fig = axes.figure
     elif figsize is not None :
         fig, axes = subplots(1, figsize=figsize, **kwargs)

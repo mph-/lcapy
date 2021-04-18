@@ -15,9 +15,9 @@ H3 = H.subs(defs3)
 
 vf = logspace(0, 5, 201)
 
-ax = H1.plot(vf, log_frequency=True, label='C=100 uF' )
-ax = H2.plot(vf, log_frequency=True, label='C=10 uF', axes=ax)
-H3.plot(vf, log_frequency=True, label='C=1 uF', ylabel='Gain (dB)', axes=ax)
+ax = abs(H1).plot(vf, log_frequency=True, label='C=100 uF' )
+ax = abs(H2).plot(vf, log_frequency=True, label='C=10 uF', axes=ax)
+abs(H3).plot(vf, log_frequency=True, label='C=1 uF', ylabel='Gain (dB)', axes=ax)
 ax.legend()
 
 from matplotlib.pyplot import savefig
