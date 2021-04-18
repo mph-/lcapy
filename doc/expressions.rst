@@ -6,7 +6,7 @@ Expressions
 
 Lcapy expressions are similar to SymPy expressions except they have a
 specific domain depending on the predefined domain variables `t`, `s`, `f`,
-`omega` (`w`), and `jomega` (`jw`).
+`omega` (`w`), and `jomega` (`jw`).   They can also have associated quantities and units.
 
 
 Symbols
@@ -196,7 +196,7 @@ Alternatively, there are a number of functions for setting the domain:
   
 - `sexpr()` set Laplace domain
 
-- `tsexpr()` set time domain
+- `texpr()` set time domain
 
 - `phasor()` set phasor domain  
 
@@ -393,12 +393,32 @@ Expressions have the following attributes for units:
 - `canonical_units` returns the units as a SymPy expression in canonical form (`volt * ampere` is converted to watts, `1 / s` is converted to `Hz`, etc.)
 
 - `expr_with_units` returns a SymPy expression multiplied by the units
-  
+
+
+Signals and transfer functions
+==============================
+
+Lcapy expressions represent signals or the behaviour of a system.
+
+Signals are voltage or current quantities (or their products such as
+instantaneous power).  The signals are either driving functions
+(excitation functions) or responses (such as the voltage across a
+component or the current through a component).  Signals can be
+constant (DC), AC, transient, or a combination of AC, DC, and
+transient.  A causal signal is zero for :math:`t < 0`.
+
+The behaviour of a system is described in a transfom domain (Laplace,
+Fourier, or phasor) by a transfer function.  This is the ratio of two
+transformed signals, for example, :math:`H(s) = V_2(s) / V_1(s)`.
+Impedances, :math:`Z(s) = V(s) / I(s)`, and admittances, :math:`Y(s) =
+I(s) / V(s)`, are a special kind of transfer function.
+
+The time domain representation of a transfer function, :math:`H(s)`, is called the impulse response, :math:`h(t)`.  For a causal system, :math:`h(t) = 0` for :math:`t < 0`.
 
 .. _expressionsrationalfunctions:
    
 Rational functions
-==================
+------------------
 
 Linear time-invariant systems have transfer functions that are rational functions; the ratio of two polynomials:
 
@@ -423,14 +443,14 @@ be found using the `D` attribute.   For example::
 .. _expressionsresponses:
    
 Responses
-=========
+---------
 
 Usually, s-domain responses are rational functions but if there is a time delay there is an additional exponential factor.  So, in general, Lcapy tries to interpret responses as
 
 .. math::
-   Y(s) = \sum_{i} \frac{N_i(s)}{D(s)} \exp(-s \tau_i),
+   V(s) = \sum_{i} \frac{N_i(s)}{D(s)} \exp(-s \tau_i),
 
-where :math:`\tau_i` are time delays.   This representation is returned by the `as_sum()` method.  Note, these expressions cannot be represent in ZPK form.  The `D` attribute returns :math:`D(s)` and the `N` attribute returns
+where :math:`\tau_i` are time delays.   This representation is returned by the `as_sum()` method.  Note, these expressions cannot be represented in :ref:`ZPK`.  The `D` attribute returns :math:`D(s)` and the `N` attribute returns
 
 .. math::
    N(s) = \sum_{i} N_i(s) \exp(-s \tau_i).
@@ -451,7 +471,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `conjugate` returns complex conjugate
 
-- `cval` returns complex floating point number (as Python complex) if expression can be evaluated (see also `val` and `fval`)  
+- `cval` returns complex floating point number (as Python complex) if expression can be evaluated (see also `val`, `fval`, and `evalf()`)  
 
 - `dB` returns magnitude in decibels: `20 * log10(magnitude)`
 
@@ -469,7 +489,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `expr` returns the underlying SymPy expression
 
-- `fval` returns floating point number (as Python float) if expression can be evaluated (see also `val` and `cval`)
+- `fval` returns floating point number (as Python float) if expression can be evaluated (see also `val`, `cval`, and `evalf()`)
   
 - `imag` returns imaginary part
 
@@ -517,7 +537,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `symbols` returns dictionary of symbols used in the expression keyed by their names
 
-- `val` returns floating point number (as Lcapy expression) if expression can be evaluated (see also `fval` and `cval`)
+- `val` returns floating point number (as Lcapy expression) if expression can be evaluated (see also `fval`, `cval`, and `evalf()`)
 
 - `var` returns the underlying SymPy symbol representing the domain
     
@@ -641,11 +661,12 @@ The general form of a rational function is shown as the ratio of two polynomials
     2          
    s  + 5⋅s + 4
 
+.. _ZPK:     
 
 Factored (ZPK) form
 -------------------
    
-The factored form show both the numerator and denominator polynomials  factored.  It is an alias for `ZPK` (zero-pole-gain) form.
+The factored form shows both the numerator and denominator polynomials  factored.  It is an alias for `ZPK` (zero-pole-gain) form.
    
    
    >>> H.factored()
@@ -852,9 +873,8 @@ domain::
     >>> Y.subs(jomega).domain
     'angular fourier'
 
-
 The following diagram demonstrates transformations between the domains.
-Note, the unilateral Laplace transform denoted by :math:`\mathcal{L}\{.\}` is not reversible without some prior information (such as known to represent an AC signal or a causal signal).   In general, the result is only known for :math:`t\ge 0` since the result for :math:`t < 0` is not unique.   The Fourier transform, denoted by :ref:`\mathcal{F}\{.\},` and the angular Fourier transform, denoted by :math:`\mathcal{F}_{\omega}\{.\}`, are reversible.  If :math:`h(t)` is an AC signal, it is possible to go between the time and phasor domains.  If :math:`H(s)` represents the transfer function of a causal and lossy system, then it is possible to go between the Laplace and angular Fourier domains via the phasor domain.   Note, the capitalized expressions denote a transform domain and are not equivalent.
+Note, the unilateral Laplace transform denoted by :math:`\mathcal{L}\{.\}` is not reversible without some prior information (such as known to represent an AC signal or a causal signal).   In general, the result is only known for :math:`t\ge 0` since the result for :math:`t < 0` is not unique.   The Fourier transform, denoted by :math:`\mathcal{F}\{.\},` and the angular Fourier transform, denoted by :math:`\mathcal{F}_{\omega}\{.\}`, are reversible.  If :math:`h(t)` is an AC signal, it is possible to go between the time and phasor domains.  If :math:`H(s)` represents the transfer function of a causal and lossy system, then it is possible to go between the Laplace and angular Fourier domains via the phasor domain.   Note, the capitalized expressions denote a transform domain and are not equivalent.
 
 .. image:: examples/schematics/domains.png
    :width: 25cm
