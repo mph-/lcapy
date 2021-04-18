@@ -288,6 +288,9 @@ def phasor(arg, omega=None, **assumptions):
     If arg has the form A * cos(w * t + phi) the phasor 
     A * exp(j * phi) of angular frequency w is returned.
 
+    If arg has the form A * sin(w * t + phi) the phasor 
+    A * exp(j * (phi - pi / 2)) of angular frequency w is returned.
+
     If arg is a constant C, the phasor C is created with omega as the
     angular frequency (this defaults to 'omega' if not specified).
 
@@ -302,7 +305,8 @@ def phasor(arg, omega=None, **assumptions):
         # Expecting phasor (complex amplitude)        
         return PhasorTimeDomainExpression(arg, omega=omega, **assumptions)
     else:
-        # Is this sensible?
+        # Is this sensible?  It is probably better to have
+        # a phasorratio function.  TODO add deprecation warning.
         return PhasorFrequencyDomainExpression(arg, omega=omega, **assumptions)        
     
 
@@ -310,7 +314,7 @@ from .expressionclasses import expressionclasses
 
 expressionclasses.register('phasor', PhasorTimeDomainExpression,
                            PhasorFrequencyDomainExpression,
-                           ('voltage', 'current', 'voltagesquared', 'currentsquared'))
+                           ('voltage', 'current', 'voltagesquared', 'currentsquared', 'undefined'))
 from .texpr import TimeDomainExpression
 from .expr import Expr
 
