@@ -8,7 +8,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 from __future__ import division
 from .domains import FourierDomain
 from .fourier import inverse_fourier_transform
-from .expr import Expr, expr
+from .expr import Expr, expr, expr_make
 from .sym import fsym, ssym, tsym, pi
 from .units import u as uu
 from sympy import Integral, Expr as symExpr
@@ -115,8 +115,7 @@ def fexpr(arg, **assumptions):
 
     if arg is fsym:
         return f
-    return FourierDomainExpression(arg, **assumptions)
-
+    return expr_make('fourier', arg, **assumptions)
 
 from .expressionclasses import expressionclasses
 

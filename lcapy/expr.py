@@ -2587,6 +2587,17 @@ def expr(arg, **assumptions):
     else:
         return cexpr(expr, **assumptions)
 
+    
+def expr_make(domain, arg, **assumptions):
+
+    try:
+        quantity = arg.quantity
+    except:
+        quantity = 'undefined'
+
+    cls = expressionclasses.get_quantity(domain, quantity)
+    return cls(arg, **assumptions)
+    
 
 def symbol(name, **assumptions):
     """Create an Lcapy symbol.

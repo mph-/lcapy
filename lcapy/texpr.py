@@ -7,7 +7,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 
 from __future__ import division
 from .domains import TimeDomain
-from .expr import Expr
+from .expr import Expr, expr_make
 from .functions import exp
 from .sym import fsym, ssym, tsym, j, oo
 from .laplace import laplace_transform
@@ -200,7 +200,7 @@ def texpr(arg, **assumptions):
 
     if arg is tsym:
         return t
-    return TimeDomainExpression(arg, **assumptions)
+    return expr_make('time', arg, **assumptions)
 
 
 from .expressionclasses import expressionclasses

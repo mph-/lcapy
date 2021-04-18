@@ -10,7 +10,7 @@ from .domains import LaplaceDomain
 from .laplace import inverse_laplace_transform
 from .sym import ssym, tsym, j, pi, sympify
 from .ratfun import _zp2tf, _pr2tf, Ratfun
-from .expr import Expr, symbol, expr, ExprDict, exprcontainer
+from .expr import Expr, symbol, expr, ExprDict, exprcontainer, expr_make
 from .units import u as uu
 from .functions import sqrt
 import numpy as np
@@ -493,7 +493,7 @@ def sexpr(arg, **assumptions):
 
     if arg is ssym:
         return s
-    return LaplaceDomainExpression(arg, **assumptions)
+    return expr_make('laplace', arg, **assumptions)
 
 
 from .expressionclasses import expressionclasses

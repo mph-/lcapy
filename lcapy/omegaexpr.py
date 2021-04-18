@@ -8,7 +8,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 from __future__ import division
 from .domains import AngularFourierDomain
 from .fourier import inverse_fourier_transform
-from .expr import Expr, expr
+from .expr import Expr, expr, expr_make
 from .sym import fsym, ssym, tsym, omegasym, omega0sym, j, pi
 from .units import u as uu
 from sympy import Expr as symExpr
@@ -95,8 +95,8 @@ def omegaexpr(arg, **assumptions):
     if arg is omegasym:
         return omega
     if arg is omega0sym:
-        return omega0    
-    return AngularFourierDomainExpression(arg, **assumptions)
+        return omega0
+    return expr_make('angular fourier', arg, **assumptions)
 
 
 from .expressionclasses import expressionclasses

@@ -4,7 +4,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 
 """
 
-from .expr import Expr
+from .expr import Expr, expr_make
 from .domains import ConstantDomain
 from .sym import symbols_find
 from .voltagemixin import VoltageMixin
@@ -88,11 +88,19 @@ def cexpr(arg, **assumptions):
     `arg` are known to be negative, use `cexpr(arg, positive=False)`.
 
     """
+    try:
+        quantity = arg.quantity
+    except:
+        quantity = 'undefined'
 
-    return ConstantDomainExpression(arg, **assumptions)
+    if quantity == 'undefined':
+        # Sit on the fence rather than choosing ConstantTimeDomainExpression
+        return ConstantDomainExpression(arg, **assumptions)
+    
+    return expr_make('constant', arg, **assumptions)    
 
 
 from .expressionclasses import expressionclasses
 
 expressionclasses.register('constant', ConstantTimeDomainExpression, ConstantFrequencyDomainExpression,
-                           ('voltage', 'current', 'voltagesquared', 'currentsquared'))
+                           ('voltage', 'current', 'voltagesquared', 'currentsquared', 'undefined'))
