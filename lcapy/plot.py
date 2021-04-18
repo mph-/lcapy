@@ -1,7 +1,7 @@
 """
 This module performs plotting using matplotlib.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 """
 
 import numpy as np
@@ -205,6 +205,14 @@ def plot_frequency(obj, f, **kwargs):
         ax.set_ylabel(ylabel)
     ax.grid(True)
     return ax
+
+
+def plot_bode(obj, f, **kwargs):
+
+    if 'log_frequency' not in kwargs:
+        kwargs['log_frequency'] = True
+    
+    return plot_frequency(obj, f, **kwargs)
 
 
 def plot_angular_frequency(obj, omega, **kwargs):

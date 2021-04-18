@@ -318,6 +318,18 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         from .plot import plot_pole_zero
         return plot_pole_zero(self, **kwargs)
 
+    def pole_zero_plot(self, **kwargs):
+        """Plot pole-zero map."""
+
+        return self.plot(**kwargs)
+
+    def bode_plot(self, fvector=None, **kwargs):
+        """Plot frequency response as a Bode plot.  For the latter, fvector
+        specifies the frequencies.  If it is a tuple, it sets
+        the angular frequency limits."""
+
+        return self.phasor().bode_plot(fvector, **kwargs)
+    
     def parameterize(self, zeta=True):
         """Parameterize first and second-order expressions.
 

@@ -111,16 +111,31 @@ class PhasorExpression(Expr):
 
     def plot(self, wvector=None, **kwargs):
         """Plot polar diagram for a time-domain phasor or frequency response
-        for frequency-domain phasor.  For the latter, wvector
+        for a frequency-domain phasor.  For the latter, wvector
         specifies the angular frequencies.  If it is a tuple, it sets
         the angular frequency limits."""
         
         from .plot import plot_phasor, plot_angular_frequency
 
-        if self.is_phasor_frequency_domain:
-            return plot_angular_frequency(self, wvector, **kwargs)            
+        if self.is_phasor_time_domain:
+            return plot_phasor(self, **kwargs)
+
+        if self.omega != omegasym:
+            raise ValueError('Cannot plot at single frequency')
         
-        return plot_phasor(self, **kwargs)
+        return plot_angular_frequency(self, wvector, **kwargs)            
+
+    def bode_plot(self, fvector=None, **kwargs):
+        """Plot frequency response for a frequency-domain phasor as a Bode
+        plot.  For the latter, fvector specifies the frequencies.  If
+        it is a tuple, it sets the angular frequency limits."""
+        
+        from .plot import plot_bode
+        from .sym import pi, fsym
+
+        if not self.is_phasor_frequency_domain:
+            raise ValueError('Not frequency domain phasor: use plot()')
+        return plot_bode(self.subs(self.omega, 2 * pi * fsym), fvector, **kwargs)
 
     def _mul_compatible(self, x):
 

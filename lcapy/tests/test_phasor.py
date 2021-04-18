@@ -49,4 +49,9 @@ class LcapyTester(unittest.TestCase):
         
         self.assertEqual(p.rms(), sqrt(2), 'rms')
         
+    def test_phasor_transform(self):
+
+        H = impedance(1 / s)
+        P = H(jw)
+        
         
