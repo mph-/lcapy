@@ -1,5 +1,5 @@
 from lcapy import *
-from lcapy.cexpr import ConstantDomainExpression
+from lcapy.cexpr import ConstantDomainExpression, ConstantFrequencyDomainExpression, ConstantTimeDomainExpression
 from lcapy.fexpr import FourierDomainExpression
 from lcapy.omegaexpr import AngularFourierDomainExpression
 from lcapy.texpr import TimeDomainExpression, TimeDomainVoltage
@@ -57,14 +57,21 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.sign, expr(j), "sign incorrect.")
         self.assertEqual2(-a.sign, expr(-j), "sign incorrect.")        
 
-
     def test_cExpr1(self):
         """Lcapy: check cExpr1
 
         """
         a = cexpr('1')
         self.assertEqual2(a.evaluate(), 1, "evaluate incorrect.")
-        
+        self.assertEqual2(type(a), ConstantDomainExpression, "type incorrect.")
+
+        Z = impedance(a)
+        NZ = Z.N
+        self.assertEqual2(type(NZ), ConstantFrequencyDomainExpression, "N type incorrect for Z.")
+
+        V = voltage(a)
+        NV = V.N
+        self.assertEqual2(type(NV), ConstantTimeDomainExpression, "N type incorrect for V.")        
         
     def test_sExpr1(self):
         """Lcapy: check sExpr1
@@ -193,7 +200,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.inverse_laplace(causal=True), sin(t) * H(t), "inverse Laplace incorrect.")
 
-
     def test_sExpr6(self):
         """Lcapy: check sExpr6 (repeated poles)
 
@@ -215,14 +221,12 @@ class LcapyTester(unittest.TestCase):
             a.ZPK(), 1 / ((s + 4)**2), "ZPK incorrect.")
         self.assertEqual(a.inverse_laplace(causal=True), t * exp(-4 * t) * Heaviside(t), "inverse Laplace incorrect.")        
 
-
     def test_sExpr7(self):
         """Lcapy: check sExpr7 (delay)
 
         """
         a = LaplaceDomainExpression('(s+1)*exp(-3*s)/((s+3)*(s+4))')
         self.assertEqual(a.inverse_laplace(causal=True), (3 * exp(-4 * t  + 12) - 2 * exp(-3 * t + 9)) * H(t- 3), "inverse Laplace incorrect.")
-
 
     def test_sExpr8(self):
         """Lcapy: check sExpr8 (jomega)
@@ -581,7 +585,6 @@ class LcapyTester(unittest.TestCase):
 
         x = X(t, causal=True)
         self.assertEqual(x.force_causal(), exp(-t) * Heaviside(t), "force causal if already causal")
-        
 
     def strip_condition(self):
 

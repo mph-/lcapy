@@ -1,6 +1,6 @@
 """This module provides the ConstantDomainExpression class to represent constant expressions.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
@@ -67,11 +67,24 @@ class ConstantDomainExpression(ConstantDomain, Expr):
     
 
 class ConstantTimeDomainExpression(ConstantDomainExpression):
-    pass
+
+    def _class_by_quantity(self, quantity, domain=None):
+
+        if quantity == 'undefined':
+            return ConstantTimeDomainExpression
+
+        return super(ConstantTimeDomainExpression, self)._class_by_quantity(quantity, domain)
     
 
 class ConstantFrequencyDomainExpression(ConstantDomainExpression):
 
+    def _class_by_quantity(self, quantity, domain=None):
+
+        if quantity == 'undefined':
+            return ConstantFrequencyDomainExpression
+
+        return super(ConstantFrequencyDomainExpression, self)._class_by_quantity(quantity, domain)
+    
     def laplace(self, **assumptions):
         return self.change(self, domain='laplace', **assumptions)
 
