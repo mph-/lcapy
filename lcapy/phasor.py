@@ -170,6 +170,13 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
         assumptions['ac'] = True
         super (PhasorExpression, self).__init__(val, **assumptions)
     
+    def _class_by_quantity(self, quantity, domain=None):
+
+        if quantity == 'undefined':
+            return PhasorTimeDomainExpression
+
+        return super(PhasorTimeDomainExpression, self)._class_by_quantity(quantity, domain)
+
     def as_expr(self):
         return PhasorTimeDomainExpression(self)
 
@@ -245,6 +252,13 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
             
         super (PhasorExpression, self).__init__(val, **ass)
     
+    def _class_by_quantity(self, quantity, domain=None):
+
+        if quantity == 'undefined':
+            return PhasorFrequencyDomainExpression
+
+        return super(PhasorFrequencyDomainExpression, self)._class_by_quantity(quantity, domain)
+
     @classmethod
     def from_laplace(cls, expr, **assumptions):
 
@@ -307,14 +321,16 @@ def phasor(arg, omega=None, **assumptions):
     else:
         # Is this sensible?  It is probably better to have
         # a phasorratio function.  TODO add deprecation warning.
-        return PhasorFrequencyDomainExpression(arg, omega=omega, **assumptions)        
-    
+        return PhasorFrequencyDomainExpression(arg, omega=omega, **assumptions)
+
 
 from .expressionclasses import expressionclasses
 
 expressionclasses.register('phasor', PhasorTimeDomainExpression,
                            PhasorFrequencyDomainExpression,
-                           ('voltage', 'current', 'voltagesquared', 'currentsquared', 'undefined'))
+                           ('voltage', 'current',
+                            'voltagesquared', 'currentsquared', 'undefined'))
+
 from .texpr import TimeDomainExpression
 from .expr import Expr
 

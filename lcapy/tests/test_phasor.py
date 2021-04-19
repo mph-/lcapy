@@ -19,7 +19,9 @@ class LcapyTester(unittest.TestCase):
         a = phasor(3, omega=7)
         self.assertEqual(a.omega, 7, 'omega')
         self.assertEqual(a.phase, 0, 'phase')
-        self.assertEqual(a.magnitude, 3, 'magnitude')        
+        self.assertEqual(a.magnitude, 3, 'magnitude')
+        self.assertEqual(a.N, 3, 'N')
+        self.assertEqual(a.D, 1, 'D')                        
         
         a = phasor(-3, omega=7)
         self.assertEqual(a.phase, pi, 'phase')                
@@ -42,7 +44,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(V, V2, 'phasorvoltage')
         self.assertEqual(I, I2, 'phasorcurrent')                
         
-
     def test_phasor_rms(self):        
 
         p = phasor(2)

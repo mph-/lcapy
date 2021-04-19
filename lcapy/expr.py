@@ -378,7 +378,6 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         except:
             self._units = sym.S.One        
 
-
     def _class_by_quantity(self, quantity, domain=None):
 
         if domain is None:
