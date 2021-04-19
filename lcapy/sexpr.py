@@ -181,7 +181,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Convert to phasor domain."""
 
         result = PhasorFrequencyDomainExpression.from_laplace(self, **assumptions)
-        return self.change(result, domain='phasor', **assumptions)
+        return result
 
     def transient_response(self, tvector=None):
         """Evaluate transient (impulse) response."""

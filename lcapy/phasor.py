@@ -277,9 +277,14 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
         # Substitute jw for s
         result = expr.laplace(**ass)
         result2 = result.expr.replace(ssym, j * omegasym)
-        ret = cls.change(expr,
-                         PhasorFrequencyDomainExpression(result2, omega=omega,
-                                                          **ass))
+
+        quantity = expr.quantity
+        if quantity == 'undefined':
+            cls = PhasorFrequencyDomainExpression
+        else:
+            cls = expr._class_by_domain('phasor')
+            
+        ret = cls(result2, omega=omega, **ass)
         return ret
     
     def time(self, **assumptions):
@@ -294,7 +299,7 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
 
     def as_expr(self):
         return PhasorFrequencyDomainExpression(self)
-    
+
 
 def phasor(arg, omega=None, **assumptions):
     """Create phasor.   
