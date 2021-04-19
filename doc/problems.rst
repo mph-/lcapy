@@ -8,16 +8,18 @@ Most Lcapy problems are due to symbol assumptions and approximation of floating 
 Common problems
 ===============
 
+Variable names
+--------------
+
+SymPy does not allow symbol names that are Python keywords.  For example, `expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.
+
 
 .. _floating-point:
 
 Floating point values
 ---------------------
 
-Floating point numbers are an extremely poor approximation of real
-numbers; rational numbers are slightly better and this is what Lcapy uses to help with expression simplification.
-However, there is a loss of precision when converting a floating point number to a rational number,
-For example, consider::
+Floating point numbers are an extremely poor approximation of real numbers; rational numbers are slightly better and this is what Lcapy uses to help with expression simplification.  However, there is a loss of precision when converting a floating point number to a rational number.  For example, consider::
 
    >>> 2 / 3
    3333333333333333
@@ -67,7 +69,6 @@ One way to test for equality is to subtract the expressions, simplify, and test 
 However, there is no gaurantee that SymPy simplification will return 0 for equal expressions.
 
 
-
 Symbol aliases
 --------------
 
@@ -96,16 +97,14 @@ This shows the pre-defined symbols and the newly defined symbol.   Each director
 Symbol assumptions
 ------------------
 
-There can be difficulties with symbol assumptions when working with
-SymPy.  By default SymPy creates symbols with few assumptions, for example,
+There can be difficulties with symbol assumptions when working with SymPy.  By default SymPy creates symbols with few assumptions, for example,
 
    >>> from sympy import Symbol
    >>> R1 = Symbol('R')
    >>> R1.assumptions0
    {'commutative': True}
 
-On the other hand, by default, Lcapy assumes that symbols are
-positive (unless explicitly defined otherwise).  For example,
+On the other hand, by default, Lcapy assumes that symbols are positive (unless explicitly defined otherwise).  For example,
 
    >>> from lcapy import symbol
    >>> R2 = symbol('R')
@@ -125,9 +124,7 @@ positive (unless explicitly defined otherwise).  For example,
 
 Since `R1` and `R2` have different assumptions, SymPy considers them different symbols even though they are both defined with the same name `R`.
 
-Note, every real symbol is also considered complex although with no
-imaginary part.  The proper way to test assumptions is to use the
-attributes `is_complex`, `is_real`, etc.  For example,
+Note, every real symbol is also considered complex although with no imaginary part.  The proper way to test assumptions is to use the attributes `is_complex`, `is_real`, etc.  For example,
 
    >>> t.is_real
    True
@@ -159,9 +156,7 @@ Another approach is expand the expression to avoid the division:
 Computation speed
 -----------------
 
-Lcapy can be slow for large problems due to the computational
-complexity of the algorithms.  If speed is important, it is better to
-substitute symbolic values with numerical values.
+Lcapy can be slow for large problems due to the computational complexity of the algorithms (see :ref:`performance`).  If speed is important, it is better to substitute symbolic values with numerical values.
 
 The results from slow computations are cached to improve the speed.
 
@@ -176,7 +171,6 @@ Lcapy wraps many of SymPy's methods but if you know how to use SymPy, you can ex
 
 .. _performance:   
 
-
 Performance
 ===========
 
@@ -186,7 +180,7 @@ determine the open circuit voltage for twenty randomly generated
 networks with a specified number of components.  Each network has a
 single voltage source and a number of resistors.  The colour of the
 plot denotes the matrix size; this depends how the components are
-connected.
+connected.  In general, symbolic matrix inversion is of order :ref:`N^3` for a matrix of size :ref:`N \times N`.
 
 .. image:: adj_times.png
    :width: 15cm
@@ -204,7 +198,7 @@ The ADJ, LU, LDL, and CH methods all take a similar time.  There is a
 promising domain matrix approach in the development version of Sympy
 that shows an order of magnitude improvement for MNA matrices
 comprised of fewer than 11 components.
-    
+
 
 .. _debugging:   
 
@@ -215,7 +209,7 @@ Debugging
 schtex
 ------
 
-If `schtex` crashes, rerun it with the `-pdb` option.  This will enter the Python debugger when an unhandled exception is raised.
+If `schtex` crashes, rerun it with the `--pdb` option.  This will enter the Python debugger when an unhandled exception is raised.
 
 
 pdb method
@@ -269,9 +263,9 @@ and then view cover/index.html in a web browser.
 Issue reporting
 ===============
 
-If Lcapy crashes or returns an incorrect value please create a issue at https://github.com/mph-/lcapy/issues.
+If Lcapy crashes or returns an incorrect value please create an issue at https://github.com/mph-/lcapy/issues.
 
-Please attach the output from running
+Please attach the output from running::
 
     >>> from lcapy import show_versions
     >>> show_versions()

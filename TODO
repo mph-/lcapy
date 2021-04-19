@@ -42,10 +42,6 @@ Circuit analysis
 2. Generalise two-port representation to avoid transformations from a
 singular matrix.
 
-3. Add simplify method.  This could remove zero current and zero voltage sources and
-combine series/parallel components.  This could have a number of passes argument so that
-the simplification can be performed a desired number of times.
-
 
 Infrastructure
 ==============
@@ -99,7 +95,6 @@ an answer that appears valid for DC.
 
 19. Warn if try to multiply impedance impulse response with current in time-domain, etc.
 
-20. Determine cut-sets
 
 Testing
 =======
@@ -158,9 +153,6 @@ V#1 dummy 1 2
 
 Here the @symbol says not to draw or analyse cpt.  But the name C1
 will be added to the directories for the current and voltage.
-
-3. Add passive network synthesis to generate R, L, C network given an
-impedance...
 
 
 SymPy
