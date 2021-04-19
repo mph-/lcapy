@@ -2587,7 +2587,7 @@ def expr(arg, **assumptions):
         return cexpr(expr, **assumptions)
 
     
-def expr_make(domain, arg, **assumptions):
+def expr_class(domain, arg, **assumptions):
 
     try:
         quantity = arg.quantity
@@ -2595,6 +2595,12 @@ def expr_make(domain, arg, **assumptions):
         quantity = 'undefined'
 
     cls = expressionclasses.get_quantity(domain, quantity)
+    return cls
+
+
+def expr_make(domain, arg, **assumptions):
+
+    cls = expr_class(domain, arg)
     return cls(arg, **assumptions)
     
 
