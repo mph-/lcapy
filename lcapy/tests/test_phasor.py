@@ -1,6 +1,6 @@
 from lcapy import *
+from lcapy.phasor import PhasorFrequencyDomainExpression
 import unittest
-
 
 class LcapyTester(unittest.TestCase):
     """Unit tests for lcapy"""
@@ -49,10 +49,20 @@ class LcapyTester(unittest.TestCase):
         p = phasor(2)
         
         self.assertEqual(p.rms(), sqrt(2), 'rms')
+
+    def test_phasor_mul_omega(self):
+
+        p = phasor(2)
+        q = p * omega
+        r = phasor(2 * omega)
+
+        self.assertEqual(q, r, 'phasor(2) * omega')        
         
     def test_phasor_transform(self):
 
-        H = impedance(1 / s)
+        H = 1 / s
         P = H(jw)
-        
+
+        self.assertEqual(type(P), PhasorFrequencyDomainExpression, 'H(jw)')
+
         
