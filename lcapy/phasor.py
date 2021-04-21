@@ -208,8 +208,7 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
         
         result = check.amp * exp(j * check.phase)
         assumptions['omega'] = check.omega
-
-        assumptions['complex_signal'] = expr.has(j)
+        assumptions['complex_signal'] = check.is_complex
         
         return cls.change(expr, result, domain='phasor', **assumptions)
 

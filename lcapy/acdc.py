@@ -8,7 +8,7 @@ Copyright 2020 Michael Hayes, UCECE
 from .sym import sympify1
 from .functions import UnitImpulse, UnitStep, Eq
 import sympy as sym
-from sympy import cos, pi, sin, atan2, sqrt
+from sympy import cos, pi, sin, atan2, sqrt, exp
 
 class CausalChecker(object):
 
@@ -79,7 +79,10 @@ class DCChecker(object):
 
 
 class ACChecker(object):
-
+    """This looks for real ac signals; it does not work for complex ac
+    
+signals."""
+    
     def _find_freq_phase(self, expr):
 
         self.freq = 0
@@ -89,10 +92,19 @@ class ACChecker(object):
             self.phase = 0
         elif expr.func == sin:
             self.phase = -pi / 2
+        elif expr.func == exp:
+            if not expr.args[0].has(sym.I):
+                return False
+            self.phase = 0
+            self.is_complex = True
         else:
             raise ValueError('%s not sin/cos' % expr)
+
+        arg = expr.args[0]
+        if self.is_complex:
+            arg /= sym.I
             
-        p = sym.Poly(expr.args[0], self.var)
+        p = sym.Poly(arg, self.var)
         coeffs = p.all_coeffs()
         if len(coeffs) != 2:
             return False
@@ -112,6 +124,8 @@ class ACChecker(object):
             check2 = ACChecker(term, self.var)
             if not check2.is_ac or check.omega != check2.omega:
                 return False
+            if check.is_complex != check2.is_complex:
+                return False
             A1, p1 = check.amp, check.phase
             A2, p2 = check2.amp, check2.phase
             x = A1 * cos(p1) + A2 * cos(p2)
@@ -127,8 +141,8 @@ class ACChecker(object):
 
     def _is_ac(self, expr):
 
-        # Convert sum of exps into sin/cos
-        expr = expr.rewrite(cos).combsimp().expand()
+        # Convert exp(-j*x*t) + exp(j*x*t) into 2 * cos(x) etc.
+        expr = sym.exptrigsimp(expr.rewrite(cos))
         
         terms = expr.as_ordered_terms()
         if len(terms) > 1:
@@ -139,7 +153,7 @@ class ACChecker(object):
         self.amp = 1
         for factor in factors:
             if factor.is_Function:
-                if factor.func not in (cos, sin):
+                if factor.func not in (cos, sin, exp):
                     return False
                 if not self._find_freq_phase(factor):
                     return False
@@ -156,6 +170,7 @@ class ACChecker(object):
         self.omega = 0
         self.freq = 0
         self.phase = 0
+        self.is_complex = False
 
         try:
             expr = expr.expr
