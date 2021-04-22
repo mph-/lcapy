@@ -49,7 +49,14 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(ct.nullity, 0, "nullity")
         self.assertEqual(ct.node_connectivity, 1, "node_connectivity")        
         
-
+        cl = cg.links()
+        
+        self.assertEqual(cl.num_parts, 1, "num_parts")
+        self.assertEqual(cl.num_nodes, 3, "num_nodes")
+        self.assertEqual(cl.num_branches, 2, "num_branches")
+        self.assertEqual(cl.rank, 2, "rank")
+        self.assertEqual(cl.nullity, 0, "nullity")
+        self.assertEqual(cl.node_connectivity, 1, "node_connectivity")            
         
         
         

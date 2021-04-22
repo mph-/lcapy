@@ -860,6 +860,8 @@ CircuitGraph methods
 - `in_parallel(cpt_name)` set of component names in parallel with specified `cpt_name`.
 
 - `tree()` the minimum spanning tree.
+
+- `links()` the edges removed from the graph to form the minimum spanning tree.
   
   
 Numerical simulation

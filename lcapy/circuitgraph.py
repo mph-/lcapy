@@ -169,7 +169,7 @@ class CircuitGraph(object):
             foo.append(self.component(loop[-1], loop[0]).name)
             ret.append(foo)
         return ret
-    
+
     def draw(self, filename=None):
         """Use matplotlib to draw circuit graph."""
 
@@ -349,11 +349,26 @@ class CircuitGraph(object):
     def tree(self):
         """Return minimum spanning tree.  A tree has no loops so no current flows."""
 
-        # The removed edges from the graph are called links.
-
         T = nx.minimum_spanning_tree(self.G)
         return CircuitGraph(self.cct, T)
 
+    def links(self):    
+        """Return links; the graph of the edges that are not in the minimum
+        spanning tree."""
+        G = self.G
+        T = self.tree().G
+        
+        G_edges = set(G.edges())
+        T_edges = set(T.edges())
+
+        L_edges = G_edges - T_edges
+
+        L = nx.Graph()
+        for edge in L_edges:
+            data = G.get_edge_data(*edge)
+            L.add_edge(*edge, name=data['name'])
+        return CircuitGraph(self.cct, L)        
+    
     @property
     def num_parts(self):
 
