@@ -2,6 +2,26 @@
 Release notes
 =============
 
+V0.87
+=====
+
+- Fixes general problems with phasor transforms
+
+- Adds `bode_plot()` method to phasors and s-domain expressions
+
+- Adds `pole_zero_plot()` method to s-domain expressions  
+
+- Allows complex signals to be considered as ac signals  
+
+- Adds `is_complex_signal` attribute
+
+- Documents transformations
+
+- Allows `sexpr(voltage(4))` as well as `voltage(sexpr(4))`, etc.
+
+- Add `links()` method to `CircuitGraph`
+
+
 V0.86
 =====
 
