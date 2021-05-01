@@ -5,11 +5,13 @@ Release notes
 V0.88
 =====
 
-- Functions return `Expr` objects
+- Fixes `(rect(t) * cos(2 * pi * t))(f)`
 
 - Fixes `rect(t)(f)`
 
+- Functions return `Expr` objects
 
+  
 V0.87
 =====
 

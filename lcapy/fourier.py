@@ -257,7 +257,10 @@ def fourier_term(expr, t, f, inverse=False):
         return const * fourier_sympy(expr, t, sf)
 
     if exps != 1 and foo.has(sym.I):
-        return const1 * sym.DiracDelta(sf - foo / (sym.I * 2 * sym.pi))
+        if other == 1:
+            return const1 * sym.DiracDelta(sf - foo / (sym.I * 2 * sym.pi))
+        Q = fourier_term(other, t, f, inverse)
+        return const1 * Q.subs(sf, (sf - foo / (sym.I * 2 * sym.pi)))
         
     return const * fourier_sympy(expr, t, sf)
 
