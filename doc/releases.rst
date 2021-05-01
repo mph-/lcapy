@@ -2,6 +2,14 @@
 Release notes
 =============
 
+V0.88
+=====
+
+- Functions return `Expr` objects
+
+- Fixes `rect(t)(f)`
+
+
 V0.87
 =====
 

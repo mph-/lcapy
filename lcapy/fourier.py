@@ -230,7 +230,8 @@ def fourier_term(expr, t, f, inverse=False):
         elif other.is_Function and other.func == sinc and other.args[0].has(t):
             scale, shift = scale_shift(other.args[0], t)            
             return const1 * rect(sf / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
-        elif other.is_Function and other.func == rect and other.args[0].has(t):        
+        elif other.is_Function and other.func == rect and other.args[0].has(t):
+            scale, shift = scale_shift(other.args[0], t)            
             return const1 * sinc(sf / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
 
         # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) *
