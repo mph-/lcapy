@@ -660,4 +660,3 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.simplify_sin_cos(as_cos=True).simplify(), b, "cos form")
         self.assertEqual(a.simplify_sin_cos(as_sin=True).simplify(), b, "sin form")
         self.assertEqual(a.simplify_sin_cos().simplify(), b, "default form")        
-        

@@ -189,7 +189,17 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
 
     @property
     def expr(self):
-        return {k.expr:v.expr for k, v in self.items()}
+
+        # The behaviour of this may change.  Perhaps the keys
+        # should stay the same?
+        new = {}
+        for k, v in self.items():
+            if isinstance(k, Expr):
+                k = k.expr
+            if isinstance(v, Expr):
+                v = v.expr                
+            new[k] = v
+        return new
     
     
 class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
