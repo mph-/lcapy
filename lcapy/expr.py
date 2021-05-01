@@ -187,6 +187,10 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
             new[k] = v
         return new
 
+    @property
+    def expr(self):
+        return {k.expr:v.expr for k, v in self.items()}
+    
     
 class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
     """Decorator class for list created by sympy."""
@@ -218,7 +222,11 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
         
         return expr([e.subs(*args, **kwargs) for e in self])
         
+    @property
+    def expr(self):
+        return [e.expr for e in self]
 
+    
 class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
     """Decorator class for tuple created by sympy."""
 
@@ -233,6 +241,9 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
         
         return expr((e.subs(*args, **kwargs) for e in self))
 
+    @property
+    def expr(self):
+        return tuple([e.expr for e in self])
     
 class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     """Decorator class for sympy classes derived from sympy.Expr."""

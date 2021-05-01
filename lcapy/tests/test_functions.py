@@ -1,5 +1,7 @@
 from lcapy import *
 from lcapy.sym import tausym
+from lcapy.texpr import TimeDomainExpression
+from lcapy.omegaexpr import AngularFourierDomainExpression
 import unittest
 
 
@@ -28,6 +30,13 @@ class LcapyTester(unittest.TestCase):
         e = u(t).convolve(u(t)).simplify()
         
         self.assertEqual(e, r, "simplify integral with u(t)")        
+
+        f0 = symbol('f_0')
+        c = cos(2 * pi * f0 * t)
+        self.assertEqual(type(c), TimeDomainExpression, "cos")
+
+        a = atan2(1, omega)
+        self.assertEqual(type(a), AngularFourierDomainExpression, "atan2")
         
     def test_heaviside(self):
 

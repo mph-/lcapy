@@ -13,33 +13,33 @@ class Function(object):
     
     def __call__(self, *args):
 
-        # Unwrap expressions
-        tweak_args = list(args)
-        for m, arg in enumerate(args):
-            if isinstance(arg, (Expr, Function)):
-                tweak_args[m] = arg.expr
+        e_args = [expr(arg) for arg in args]
+        
+        cls = e_args[0].__class__
 
-        result = self.expr(*tweak_args)
+        # Handle cases like atan2(1, omega)
+        if len(e_args) > 1:
+            if e_args[0].is_constant:
+                cls = e_args[1].__class__                
+        
+        result = self.expr(*[arg.expr for arg in e_args])
 
-        if isinstance(args[0], Expr):
-
-            cls = args[0].__class__
-            result = cls(result)        
+        result = cls(result)        
             
-            if args[0].is_phase and self.expr in (sym.sin, sym.cos, sym.tan, sym.exp,
-                                                  sym.sinh, sym.cosh, sym.tanh):
-                result.part = ''
-            elif self.expr in (sym.atan, sym.atan2):
-                result.units = uu.rad
-            elif self.expr == sym.diff and isinstance(args[1], Expr):
-                result.units = args[0].units / args[1].units
-            elif self.expr == sym.integrate:
-                if isinstance(args[1], Expr):
-                    result.units = args[0].units * args[1].units
-                elif isinstance(args[1], tuple) and isinstance(args[1][0], Expr):
-                    result.units = args[0].units * args[1][0].units
-            elif self.expr is sym.DiracDelta and isinstance(args[0], Expr):
-                result.units = 1 / args[0].units                
+        if e_args[0].is_phase and self.expr in (sym.sin, sym.cos, sym.tan, sym.exp,
+                                                sym.sinh, sym.cosh, sym.tanh):
+            result.part = ''
+        elif self.expr in (sym.atan, sym.atan2):
+            result.units = uu.rad
+        elif self.expr == sym.diff and isinstance(e_args[1], Expr):
+            result.units = e_args[0].units / e_args[1].units
+        elif self.expr == sym.integrate:
+            if isinstance(e_args[1], Expr):
+                result.units = e_args[0].units * e_args[1].units
+            elif isinstance(e_args[1], tuple) and isinstance(e_args[1][0], Expr):
+                result.units = e_args[0].units * e_args[1][0].units
+        elif self.expr is sym.DiracDelta and isinstance(e_args[0], Expr):
+                result.units = 1 / e_args[0].units                
 
         return result
 
