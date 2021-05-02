@@ -923,6 +923,122 @@ NumPy array.  For example::
 
 If the argument is a scalar the returned result is a Python float or complex type; otherwise it is a NumPy array.  The evaluation method is useful for plotting results.
 
+
+Transforms
+==========
+
+.. _fourier_transforms:
+
+Fourier transforms
+------------------
+
+Lcapy uses the following definition of the forward Fourier transform:
+
+.. math::
+
+    \mathcal{F}\{v(t)\} = \int_{-\infty}^{\infty} v(t) \exp(-\mathrm{j} 2\pi f t) \mathrm{d}t
+
+and the following definition of the inverse Fourier transform:
+
+.. math::
+
+    \mathcal{F}^{-1}\{V(f)\} = \int_{-\infty}^{\infty} V(f) \exp(\mathrm{j} 2\pi f t) \mathrm{d}f    
+
+Here's an example of use::
+
+  >>> f0 = symbol('f0')
+  >>> cos(2 * pi * f0 * t)(f)
+    δ(f - f₀)   δ(f + f₀)
+   ───────── + ─────────
+       2           2
+
+  >>> (rect(t) * cos(2 * pi * f0 * t))(f)
+   sinc(f - 1)   sinc(f + 1)
+   ─────────── + ───────────
+        2             2
+
+
+.. _fourier_transforms:
+
+Angular Fourier transforms
+--------------------------
+
+Lcapy uses the following definition of the forward angular Fourier transform:
+
+.. math::
+
+    \mathcal{F}_{\omega}\{v(t)\} = \int_{-\infty}^{\infty} v(t) \exp(-\mathrm{j} \omega t) \mathrm{d}t
+
+and the following definition of the inverse angular Fourier transform:
+
+.. math::
+
+    \mathcal{F}_{\omega}^{-1}\{V(\omega)\} = \frac{1}{2\pi}\int_{-\infty}^{\infty} V(\omega) \exp(\mathrm{j} \omega t) \mathrm{d}\omega    
+
+Here's an example of use::
+
+  >>> rect(t)(w)
+       ⎛ ω ⎞
+   sinc⎜───⎟
+       ⎝2⋅π⎠
+        
+.. _laplace_transforms:
+
+Laplace transforms
+------------------
+
+There are three variants of the unilateral Laplace transform used in
+circuit theory texts.  Lcapy uses the :math:`\mathcal{L}_{-}` form where:
+
+.. math::
+
+    \mathcal{L}_{-}\{v(t)\} = \int_{0^{-}}^{\infty} v(t) \exp(-s t) \mathrm{d}t
+
+SymPy uses the :math:`\mathcal{L}` form where:
+
+.. math::
+
+    \mathcal{L}\{v(t)\} = \int_{0}^{\infty} v(t) \exp(-s t) \mathrm{d}t
+
+
+The third form is :math:`\mathcal{L}_{+}` where:
+
+.. math::
+
+    \mathcal{L}_{+}\{v(t)\} = \int_{0^{+}}^{\infty} v(t) \exp(-s t) \mathrm{d}t
+
+
+The choice of lower limit is most important for the Dirac delta
+distribution (and its derivatives):
+:math:`\mathcal{L}_{-}\{\delta(t)\} = 1` but
+:math:`\mathcal{L}\{\delta(t)\} = 0.5` and
+:math:`\mathcal{L}_{+}\{\delta(t)\} = 0`.
+
+      
+The :math:`\mathcal{L}_{-}` form is advocated for circuit analysis in
+the paper *Initial conditions, generalized functions, and the Laplace
+transform: Troubles at the origin*
+by K. Lundberg, H. Miller, R. Haynes, and D. Trumper in IEEE Control
+Systems Magazine, Vol 27, No 1, pp. 22--35, 2007,  http://dedekind.mit.edu/~hrm/papers/lmt.pdf
+
+The time-derivative rule for the :math:`\mathcal{L}_{-}` Laplace transform is:
+
+.. math::
+
+   \mathcal{L}_{-}\{v'(t)\} = s V(s) - v(0^{-}),
+
+where :math:`v(0^{-})` is the pre-initial value of :math:`v`.
+
+
+Here's an example of use::
+
+  >>> f0 = symbol('f0')
+  >>> cos(2 * pi * f0 * t)(s)
+         s      
+   ─────────────
+      2   2    2
+   4⋅π ⋅f₀  + s 
+
    
 Phasors
 =======
