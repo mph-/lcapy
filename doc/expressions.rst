@@ -777,7 +777,7 @@ Domain transformation and substitution
 ======================================
 
 Substitution and transformation use a similar syntax `V(arg)`.  If
-`arg` is a domain variable `t`, `f`, `s`, `omega`, or `jomega`,
+`arg` is a domain variable `t`, `f`, `s`, `omega`, `w`, `jomega` or `jw`,
 transformation is performed, otherwise substitution is performed.
 This behaviour can be explicitly controlled using the `subs` and
 `transform` methods, for example::
@@ -803,7 +803,7 @@ This behaviour can be explicitly controlled using the `subs` and
 Domain transformation
 ---------------------
 
-Expressions can be transformed to a different domain (see :ref:`domains`), for example:
+Expressions can be transformed to a different domain (see :ref:`domains` and :ref:`transformation`), for example:
 
 - `V(t)` returns the time domain transformation
 
@@ -878,54 +878,7 @@ Note, the unilateral Laplace transform denoted by :math:`\mathcal{L}\{.\}` is no
 
 .. image:: examples/schematics/domains.png
    :width: 25cm
-    
 
-.. _substitution:
-    
-Substitution
-------------
-
-Substitution replaces sub-expressions with new sub-expressions in an
-expression.  It is most commonly used to replace the underlying
-variable with a constant, for example::
-
-   >>> a = 3 * s
-   >>> b = a.subs(2)
-   >>> b
-   6   
-
-Since the replacement expression is a constant, the substitution can also be performed using the call notation::
-   
-   >>> b = a(2)
-   >>> b
-   6
-
-   
-
-Evaluation
-----------
-    
-Evaluation is similar to substitution but requires all symbols in an
-expression to be substituted with values.  The result is a numerical
-answer, for example::
-
-   >>> a = expr('t**2 + 2 * t + 1')
-   >>> a.evaluate(0)
-   1.0
-
-The argument to `evaluate` can be a scalar, a tuple, a list, or a
-NumPy array.  For example::
-
-   >>> a = expr('t**2 + 2 * t + 1')
-   >>> tv = np.linspace(0, 1, 5)
-   >>> a.evaluate(tv)
-   array([1.    , 1.5625, 2.25  , 3.0625, 4.    ])
-
-If the argument is a scalar the returned result is a Python float or complex type; otherwise it is a NumPy array.  The evaluation method is useful for plotting results.
-
-
-Transforms
-==========
 
 .. _fourier_transforms:
 
@@ -936,13 +889,13 @@ Lcapy uses the following definition of the forward Fourier transform:
 
 .. math::
 
-    \mathcal{F}\{v(t)\} = \int_{-\infty}^{\infty} v(t) \exp(-\mathrm{j} 2\pi f t) \mathrm{d}t
+    V(f) = \mathcal{F}\{v(t)\} = \int_{-\infty}^{\infty} v(t) \exp(-\mathrm{j} 2\pi f t) \mathrm{d}t
 
 and the following definition of the inverse Fourier transform:
 
 .. math::
 
-    \mathcal{F}^{-1}\{V(f)\} = \int_{-\infty}^{\infty} V(f) \exp(\mathrm{j} 2\pi f t) \mathrm{d}f    
+    v(t) = \mathcal{F}^{-1}\{V(f)\} = \int_{-\infty}^{\infty} V(f) \exp(\mathrm{j} 2\pi f t) \mathrm{d}f
 
 Here's an example of use::
 
@@ -967,13 +920,13 @@ Lcapy uses the following definition of the forward angular Fourier transform:
 
 .. math::
 
-    \mathcal{F}_{\omega}\{v(t)\} = \int_{-\infty}^{\infty} v(t) \exp(-\mathrm{j} \omega t) \mathrm{d}t
+    V(\omega) = \mathcal{F}_{\omega}\{v(t)\} = \int_{-\infty}^{\infty} v(t) \exp(-\mathrm{j} \omega t) \mathrm{d}t
 
 and the following definition of the inverse angular Fourier transform:
 
 .. math::
 
-    \mathcal{F}_{\omega}^{-1}\{V(\omega)\} = \frac{1}{2\pi}\int_{-\infty}^{\infty} V(\omega) \exp(\mathrm{j} \omega t) \mathrm{d}\omega    
+    v(t) = \mathcal{F}_{\omega}^{-1}\{V(\omega)\} = \frac{1}{2\pi}\int_{-\infty}^{\infty} V(\omega) \exp(\mathrm{j} \omega t) \mathrm{d}\omega    
 
 Here's an example of use::
 
@@ -1038,6 +991,57 @@ Here's an example of use::
    ─────────────
       2   2    2
    4⋅π ⋅f₀  + s 
+
+
+.. _substitution:
+    
+Substitution
+------------
+
+Substitution replaces sub-expressions with new sub-expressions in an
+expression.  It is most commonly used to replace the underlying
+variable with a constant, for example::
+
+   >>> a = 3 * s
+   >>> b = a.subs(2)
+   >>> b
+   6   
+
+Since the replacement expression is a constant, the substitution can also be performed using the call notation::
+   
+   >>> b = a(2)
+   >>> b
+   6
+
+The substitution method can also have a dictionary argument, keyed by symbol name, to replace symbols in an expression with constants.  For example::   
+
+   >>> a = expr('a * t + b')
+   >>> defs = {'a': 4, 'b': 2}
+   >>> a2 = a.subs(defs)
+   >>> a2
+   4⋅t + 2
+
+
+Evaluation
+----------
+    
+Evaluation is similar to substitution but requires all symbols in an
+expression to be substituted with values.  The result is a numerical
+answer, for example::
+
+   >>> a = expr('t**2 + 2 * t + 1')
+   >>> a.evaluate(0)
+   1.0
+
+The argument to `evaluate` can be a scalar, a tuple, a list, or a
+NumPy array.  For example::
+
+   >>> a = expr('t**2 + 2 * t + 1')
+   >>> tv = np.linspace(0, 1, 5)
+   >>> a.evaluate(tv)
+   array([1.    , 1.5625, 2.25  , 3.0625, 4.    ])
+
+If the argument is a scalar the returned result is a Python float or complex type; otherwise it is a NumPy array.  The evaluation method is useful for plotting results.
 
    
 Phasors
@@ -1306,8 +1310,8 @@ as an argument:
 - `V1(t)` returns the time domain expression
 - `V1(f)` returns the Fourier domain expression with linear frequency
 - `V1(s)` returns the Laplace domain expression
-- `V1(omega)` returns the Fourier domain expression with angular frequency
-- `V1(jomega)` returns the Fourier domain expression with angular frequency    
+- `V1(omega)`or `V1(w)` returns the Fourier domain expression with angular frequency
+- `V1(jomega)` or `V1(jw)` returns the Fourier domain expression with angular frequency    
 
 Here are some examples::
 
