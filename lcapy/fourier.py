@@ -204,7 +204,7 @@ def fourier_term(expr, t, f, inverse=False):
                 other *= factor
 
     sf = -f if inverse else f
-    
+
     if other != 1 and exps == 1:
         if other == t:
             return const1 * sym.I / (2 * sym.pi) * sym.DiracDelta(sf, 1)
@@ -224,9 +224,15 @@ def fourier_term(expr, t, f, inverse=False):
         elif other.is_Function and other.func == sym.Heaviside and other.args[0].has(t):
             # TODO, generalise use of similarity and shift theorems for other functions and expressions
             scale, shift = scale_shift(other.args[0], t)
-            return (const1 / (sym.I * 2 * sym.pi * sf / scale) / abs(scale) + const1 * sym.DiracDelta(sf) / 2) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift)
+            return (const1 / (sym.I * 2 * sym.pi * sf / scale) / abs(scale) + const1 * sym.DiracDelta(sf) / 2) * sym.exp(sym.I * 2 * sym.pi * sf / scale * shift)
         elif other == sym.Heaviside(t) * t:
             return -const1 / (2 * sym.pi * f)**2 + const1 * sym.I * sym.DiracDelta(sf, 1) / (4 * pi)
+        # t * u(t - tau)
+        elif (other.is_Mul and len(other.args) == 2 and other.args[0] == t and other.args[1].is_Function and
+              other.args[1].func == sym.Heaviside and other.args[1].args[0].has(t)):
+            scale, shift = scale_shift(other.args[1].args[0], t)
+            e = sym.exp(sym.I * 2 * sym.pi * sf / scale * shift) / abs(scale)
+            return sym.I * sym.DiracDelta(sf, 1) / (4 * sym.pi) * e - 1 / (4 * sym.pi**2 * f**2) * e + shift * sym.DiracDelta(sf) / 2 - sym.I * shift / (2 * sym.pi * sf)
         elif other.is_Function and other.func == sinc and other.args[0].has(t):
             scale, shift = scale_shift(other.args[0], t)
             return const1 * rect(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
