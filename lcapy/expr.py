@@ -1578,6 +1578,23 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
             def sinc(arg):
                 return 1.0 if arg == 0 else np.sin(np.pi * arg) / (np.pi * arg)
+
+            def trap(arg, alpha):
+
+                absarg = abs(arg)
+                foo = absarg - 0.5
+
+                if alpha == 0:
+                    if arg < -0.5 or arg > 0.5:
+                        return 0.0
+                    return 1.0
+            
+                if foo >= 0.5 * alpha:
+                    return 0.0
+                elif foo <= -0.5 * alpha:
+                    return 1.0
+                else:
+                    return 0.5 - foo / alpha
             
             def dirac(arg):
                 return np.inf if arg == 0.0 else 0.0
@@ -1611,8 +1628,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                             ({'DiracDelta' : dirac,
                               'Heaviside' : heaviside,
                               'UnitImpulse' : unitimpulse,
-                              'sinc' : sinc,
-                              'rect' : rect,
+                              'sinc' : sinc, 'rect' : rect, 'trap' : trap,
                               'sqrt' : sqrt, 'exp' : exp},
                              "scipy", "numpy", "math", "sympy"))
 

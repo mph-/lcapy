@@ -143,7 +143,7 @@ Mathematical functions
 Lcapy has the following built-in functions: `sin`, `cos`, `tan`, `cot`,
 `asin`, `acos`, `atan`, `atan2`, `acot`, `sinh`, `cosh`, `tanh`, `asinh`,
 `acosh`, `atanh`, `gcd`, `exp`, `sqrt`, `log`, `log10`, `sign`,
-`conjugate`. `Heaviside`, `H`, `u`, `DiracDelta`, `delta`,
+`conjugate`, `rect`, `sinc`, `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`,
 `unitimpulse`, and `unitstep`.
 
 Other SymPy functions can be converted to Lcapy functions using the
@@ -154,6 +154,11 @@ Other SymPy functions can be converted to Lcapy functions using the
    >>> gamma(4)
    6
 
+The trapezoid function `trap(t, alpha)` is the convolution of `rect(t
+/ alpha)` and `rect(t)`. The parameter `alpha` is the normalised
+rise/fall time.  When `alpha = 0` it is equivalent to `rect(t)` and
+when `alpha = 1` it is equivalent to `tri(t)`.
+   
 .. _domains:   
 
 Domains

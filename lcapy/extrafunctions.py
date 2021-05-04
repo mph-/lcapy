@@ -72,3 +72,29 @@ class sinc(sym.Function):
         x = sym.pi * self.args[0]
         return sym.sin(x) / x
     
+
+class trap(sym.Function):
+
+    @classmethod
+    def eval(cls, val, alpha):
+        """
+        Evaluates the trapezoid function.   This is rect(t / alpha).convolve(rect(t)).
+        trap(t, 0) = rect(t) and trap(t, 1) = tri(t).
+        """
+
+        if val.is_Number and alpha.is_number:
+            absval = abs(val)
+            foo = absval - 0.5
+
+            if alpha == S.Zero:
+                if val < -0.5 or val > 0.5:
+                    return S.Zero
+                return S.One
+            
+            if foo >= 0.5 * alpha:
+                return S.Zero
+            elif foo <= -0.5 * alpha:
+                return S.One
+            else:
+                return 0.5 - foo / alpha
+
