@@ -236,6 +236,11 @@ def fourier_term(expr, t, f, inverse=False):
         elif other.is_Function and other.func == sinc and other.args[0].has(t):
             scale, shift = scale_shift(other.args[0], t)
             return const1 * rect(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
+        elif (other.is_Pow and other.args[1] == 2 and other.args[0].is_Function and
+              other.args[0].func == sinc and other.args[0].args[0].has(t)):
+            other = other.args[0]
+            scale, shift = scale_shift(other.args[0], t)
+            return const1 * tri(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
         elif other.is_Function and other.func == rect and other.args[0].has(t):
             scale, shift = scale_shift(other.args[0], t)            
             return const1 * sinc(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
