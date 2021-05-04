@@ -34,6 +34,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(((0.1**n) * u(n)).ZT(), 10 * z / (10 * z - 1), "0.1**n")        
 
         self.assertEqual(exp(3 * n).ZT(), z / (z - exp(3)), "exp(3 * n)")
+        self.assertEqual((exp(3 * n) * exp(2 * j * n)).ZT(), z / (z - exp(3 + 2 * j)), "exp(3 * n) * exp(2 * j * n)")        
         self.assertEqual(cos(3 * n).ZT(), (z**2 - z * cos(3)) / (z**2 - 2 * z * cos(3) + 1), "cos(3 * n)")
         self.assertEqual(sin(3 * n).ZT(), (z * sin(3)) / (z**2 - 2 * z * cos(3) + 1), "sin(3 * n)")        
                          

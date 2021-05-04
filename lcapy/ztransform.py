@@ -181,33 +181,61 @@ def ztransform_term(expr, n, z):
             if not delay.has(n):
                 result = invz ** delay * 1 / (1 - invz)
 
+    # cos(a * n)                
     elif expr.is_Function and expr.func == sym.cos:
         aconst, aexpr = factor_const(args[0], n)
         if aexpr == n:
             result = (1 - sym.cos(aconst) * invz) / (1 - 2 * sym.cos(aconst) * invz + invz ** 2)
 
+    # sin(a * n)
     elif expr.is_Function and expr.func == sym.sin:
         aconst, aexpr = factor_const(args[0], n)
         if aexpr == n:
             result = (sym.sin(aconst) * invz) / (1 - 2 * sym.cos(aconst) * invz + invz ** 2)
 
-    # Handle e(a * n)
+    # exp(a * n)
     elif expr.is_Function and expr.func == sym.exp:
         aconst, aexpr = factor_const(args[0], n)
         if aexpr == n:
             result = z / (z - sym.exp(aconst))
 
-    # Handle a**n
+    # a**n
     elif expr.is_Pow and expr.args[1] == n:
         # TODO, handle n + m, etc.
         result = 1 / (1 - expr.args[0] * invz)
 
-    # Handle a**(-n)
+    # a**(-n)
     elif (expr.is_Pow and expr.args[1].is_Mul and
           expr.args[1].args[0] == -1 and expr.args[1].args[1] == n):
-        result = 1 / (1 - (1 / expr.args[0]) * invz)          
+        result = 1 / (1 - (1 / expr.args[0]) * invz)
 
-    # TODO: add decaying sin/cos
+    # cos(a * n) * exp(b * n) and exp(b * n) * cos(a * n)
+    elif (expr.is_Mul and expr.args[0].is_Function and expr.args[1].is_Function and
+          expr.args[0].func == sym.cos and expr.args[1].func == sym.exp):    
+        aconst, aexpr = factor_const(args[0].args[0], n)
+        bconst, bexpr = factor_const(args[1].args[0], n)
+        if aexpr == n and bexpr == n:
+            num = z * (z - sym.exp(aconst) * sym.cos(bconst))
+            den = (z**2 - 2 * z * sym.exp(aconst) * sym.cos(bconst) + sym.exp(2 * aconst))
+            result = num / den
+
+    # sin(a * n) * exp(b * n) and exp(b * n) * sin(a * n)
+    elif (expr.is_Mul and expr.args[0].is_Function and expr.args[1].is_Function and
+          expr.args[0].func == sym.exp and expr.args[1].func == sym.sin):
+        aconst, aexpr = factor_const(args[1].args[0], n)
+        bconst, bexpr = factor_const(args[0].args[0], n)
+        if aexpr == n and bexpr == n:
+            num = z * sym.exp(aconst) * sym.sin(bconst)
+            den = (z**2 - 2 * z * sym.exp(aconst) * sym.cos(bconst) + sym.exp(2 * aconst))
+            result = num / den
+
+    # exp(a * n) * exp(b * n)
+    elif (expr.is_Mul and expr.args[0].is_Function and expr.args[1].is_Function and
+          expr.args[0].func == sym.exp and expr.args[1].func == sym.exp):
+        aconst, aexpr = factor_const(args[1].args[0], n)
+        bconst, bexpr = factor_const(args[0].args[0], n)
+        if aexpr == n and bexpr == n:
+            result = z / (z - sym.exp(aconst + bconst))            
         
     if result is None:
         # Use m instead of n to avoid n and z in same expr.
