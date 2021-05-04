@@ -321,7 +321,8 @@ def fourier_transform(expr, t, f, inverse=False, evaluate=True):
 
     try:
         for term in terms:
-            result += fourier_term(symsimplify(term), t, f, inverse=inverse)
+            sterm = symsimplify(term)
+            result += fourier_term(sterm, t, f, inverse=inverse)
     except ValueError:
         raise ValueError('Could not compute Fourier transform for ' + str(orig_expr))
 
