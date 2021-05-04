@@ -41,3 +41,20 @@ class LcapyTester(unittest.TestCase):
     def test_heaviside(self):
 
         self.assertEqual((u(t) * 3 * u(t)).simplify(), 3 * u(t), "u(t) * 3 * u(t)")                
+
+    def test_dirac_delta_simplify(self):
+
+        self.assertEqual(expr('delta(t) * exp(-3 * t)').simplify(),
+                         expr('delta(t)'),
+                         "delta(t) * exp(-3 * t)")
+
+        self.assertEqual(expr('exp(-3 * t) * delta(t)').simplify(),
+                         expr('delta(t)'),
+                         "exp(-3 * t) * delta(t)")
+
+        self.assertEqual((rect(t / 4) * delta(t - 1)).simplify(),
+                         delta(t - 1),
+                         "rect(t / 4) * delta(t - 1)")
+        
+
+        
