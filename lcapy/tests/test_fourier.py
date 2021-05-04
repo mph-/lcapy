@@ -92,7 +92,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(sinc(2 * t).FT(), rect(f / 2) / 2)
 
         self.assertEqual((rect(t) * cos(2 * pi * t)).FT(), sinc(f - 1) / 2 + sinc(f + 1) / 2)
-        
+
+        self.assertEqual(tri(t).FT(), sinc(f)**2)
+
+        self.assertEqual(trap(t, 1).FT(), sinc(f)**2)
+        self.assertEqual(trap(t, 0).FT(), sinc(f))
+        self.assertEqual(trap(t, 0.5).FT(), 0.5 * sinc(0.5 * f) * sinc(f))
         
     def test_fourier_convolution(self):
 
@@ -105,7 +110,3 @@ class LcapyTester(unittest.TestCase):
         A = a(f)        
         self.assertEqual(A, expr('3 * X(f) * Y(f)'), "3 * X * Y")
         #self.assertEqual(A(t), a, "a(f)(t)")               
-
-
-        
- 
