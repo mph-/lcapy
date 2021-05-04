@@ -95,6 +95,9 @@ an answer that appears valid for DC.
 
 19. Warn if try to multiply impedance impulse response with current in time-domain, etc.
 
+20. Plot Dirac deltas
+
+21. H(f) prints as u(f) for a user defined function.  Perhaps need a mechanism to override interpretion of H as Heaviside function?
 
 Testing
 =======
