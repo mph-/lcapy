@@ -19,6 +19,7 @@ from .quantity import UndefinedQuantity
 from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, symdebug, AppliedUndef
 from .sym import capitalize_name, tsym, symsymbol, symbol_map, tausym, nusym, oo
+from .dsym import nsym, ksym, zsym
 from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function
@@ -2635,6 +2636,12 @@ def expr(arg, **assumptions):
         return fexpr(expr, **assumptions)
     elif omegasym in symbols:
         return omegaexpr(expr, **assumptions)
+    elif nsym in symbols:
+        return nexpr(expr, **assumptions)
+    elif ksym in symbols:
+        return kexpr(expr, **assumptions)    
+    elif zsym in symbols:
+        return zexpr(expr, **assumptions)        
     else:
         return cexpr(expr, **assumptions)
 
@@ -2716,6 +2723,9 @@ from .fexpr import f, fexpr, FourierDomainExpression
 from .texpr import t, texpr, TimeDomainExpression
 from .sexpr import s, sexpr, LaplaceDomainExpression
 from .omegaexpr import omega, omegaexpr, AngularFourierDomainExpression
+from .nexpr import nexpr
+from .kexpr import kexpr
+from .zexpr import zexpr
 from .expressionclasses import expressionclasses
 
 # Horrible hack to work with IPython around Sympy's back for LaTeX

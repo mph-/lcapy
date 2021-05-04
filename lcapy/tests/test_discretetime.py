@@ -69,3 +69,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(y1, y2, "delay(2)")        
         self.assertEqual(x.first_index(), -1, "first_index")
         self.assertEqual(x.last_index(), 2, "last_index")        
+
+        x1 = exp('n')
+        x2 = exp(n)        
+        self.assertEqual(x1, x2, "expr")
+        
