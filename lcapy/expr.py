@@ -1595,6 +1595,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                     return 1.0
                 else:
                     return 0.5 - foo / alpha
+
+            def tri(arg):
+
+                if arg >= 1:
+                    return 0.0
+                elif arg <= -1:
+                    return 0.0
+                else:
+                    return 1.0 - abs(arg)
             
             def dirac(arg):
                 return np.inf if arg == 0.0 else 0.0
@@ -1628,7 +1637,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                             ({'DiracDelta' : dirac,
                               'Heaviside' : heaviside,
                               'UnitImpulse' : unitimpulse,
-                              'sinc' : sinc, 'rect' : rect, 'trap' : trap,
+                              'sinc' : sinc, 'rect' : rect,
+                              'tri' : tri, 'trap' : trap,
                               'sqrt' : sqrt, 'exp' : exp},
                              "scipy", "numpy", "math", "sympy"))
 

@@ -21,7 +21,7 @@ Copyright 2016--2021 Michael Hayes, UCECE
 import sympy as sym
 from .sym import sympify, AppliedUndef, j, pi, symsimplify
 from .utils import factor_const, scale_shift
-from .extrafunctions import rect, sinc, trap
+from .extrafunctions import rect, sinc, trap, tri
 
 __all__ = ('FT', 'IFT')
 
@@ -239,6 +239,9 @@ def fourier_term(expr, t, f, inverse=False):
         elif other.is_Function and other.func == rect and other.args[0].has(t):
             scale, shift = scale_shift(other.args[0], t)            
             return const1 * sinc(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
+        elif other.is_Function and other.func == tri and other.args[0].has(t):
+            scale, shift = scale_shift(other.args[0], t)            
+            return const1 * sinc(f / scale)**2 * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
         elif other.is_Function and other.func == trap and other.args[0].has(t):
             scale, shift = scale_shift(other.args[0], t)
             alpha = other.args[1]

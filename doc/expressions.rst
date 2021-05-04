@@ -143,7 +143,7 @@ Mathematical functions
 Lcapy has the following built-in functions: `sin`, `cos`, `tan`, `cot`,
 `asin`, `acos`, `atan`, `atan2`, `acot`, `sinh`, `cosh`, `tanh`, `asinh`,
 `acosh`, `atanh`, `gcd`, `exp`, `sqrt`, `log`, `log10`, `sign`,
-`conjugate`, `rect`, `sinc`, `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`,
+`conjugate`, `rect`, `sinc`, `tri`, `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`,
 `unitimpulse`, and `unitstep`.
 
 Other SymPy functions can be converted to Lcapy functions using the

@@ -155,6 +155,7 @@ class MatMul(sym.MatMul):
 from .extrafunctions import UnitImpulse, UnitStep
 from .extrafunctions import sinc as sinc1
 from .extrafunctions import rect as rect1
+from .extrafunctions import tri as tri1
 from .extrafunctions import trap as trap1
 
 
@@ -165,6 +166,8 @@ us = unitstep = Function(UnitStep)
 rect = Function(rect1)
 
 sinc = Function(sinc1)
+
+tri = Function(tri1)
 
 trap = Function(trap1)
  

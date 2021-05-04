@@ -71,7 +71,25 @@ class sinc(sym.Function):
 
         x = sym.pi * self.args[0]
         return sym.sin(x) / x
+
     
+class tri(sym.Function):
+
+    @classmethod
+    def eval(cls, val):
+        """
+        Evaluates the triangle function.
+        """
+
+        if val.is_Number:
+            
+            if val >= 1:
+                return S.Zero
+            elif val <= -1:
+                return S.Zero
+            else:
+                return 1 - abs(val)
+
 
 class trap(sym.Function):
 
