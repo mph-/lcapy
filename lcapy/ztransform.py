@@ -189,7 +189,13 @@ def ztransform_term(expr, n, z):
     elif expr.is_Function and expr.func == sym.sin:
         aconst, aexpr = factor_const(args[0], n)
         if aexpr == n:
-            result = (sym.sin(aconst) * invz) / (1 - 2 * sym.cos(aconst) * invz + invz ** 2)            
+            result = (sym.sin(aconst) * invz) / (1 - 2 * sym.cos(aconst) * invz + invz ** 2)
+
+    # Handle e(a * n)
+    elif expr.is_Function and expr.func == sym.exp:
+        aconst, aexpr = factor_const(args[0], n)
+        if aexpr == n:
+            result = z / (z - sym.exp(aconst))
 
     # Handle a**n
     elif expr.is_Pow and expr.args[1] == n:
@@ -200,7 +206,9 @@ def ztransform_term(expr, n, z):
     elif (expr.is_Pow and expr.args[1].is_Mul and
           expr.args[1].args[0] == -1 and expr.args[1].args[1] == n):
         result = 1 / (1 - (1 / expr.args[0]) * invz)          
-            
+
+    # TODO: add decaying sin/cos
+        
     if result is None:
         # Use m instead of n to avoid n and z in same expr.
         # TODO, check if m already used...
