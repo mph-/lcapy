@@ -4,7 +4,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
-from sympy import Add, Mul, DiracDelta, Heaviside, Integral, oo, sin, cos, sqrt, atan2, pi
+from sympy import Add, Mul, DiracDelta, Heaviside, Integral, oo, sin, cos, sqrt, atan2, pi, Symbol, solve
 
 
 def simplify_dirac_delta_term(expr):
@@ -31,9 +31,11 @@ def simplify_dirac_delta_term(expr):
                 parts.append(factor)        
 
         # TODO: handle DiracDelta(symbol + constant).
-        if arg is None or not arg.is_Symbol:
+        if arg is None or not arg.has(Symbol):
             return expr
-        const = Mul(*parts).subs(arg, 0)
+        results = solve(arg, dict=True)
+        # Note, the eval method is called for functions.
+        const = Mul(*parts).subs(results[0])
         return const * dirac
 
     return expr.replace(query, value)
