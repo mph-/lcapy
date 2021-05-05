@@ -643,6 +643,7 @@ def inverse_ztransform_by_terms(expr, z, n, **assumptions):
 def inverse_ztransform_make(n, const, cresult, uresult, **assumptions):
 
     result = const * (cresult + uresult)
+    result = result.simplify()
     
     if assumptions.get('dc', False):
         free_symbols = set([symbol.name for symbol in result.free_symbols])
