@@ -5,6 +5,18 @@ Release notes
 V0.88
 =====
 
+- Evaluates unit step
+
+- Adds new z-transforms
+
+- Fixes inverse z-transform of repeated pole
+
+- Ensures discrete-time string conversions converted
+
+- Adds `tri(t)` and `trap(t, alpha)` functions
+
+- Adds new Fourier transforms  
+
 - Fixes `(rect(t) * cos(2 * pi * t))(f)`
 
 - Fixes `rect(t)(f)`
