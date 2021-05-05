@@ -177,7 +177,16 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         H = self.ZT()
         return H.difference_equation(input, output, form)
 
+    def remove_condition(self):
+        """Remove the piecewise condition from the expression."""
 
+        if not self.is_conditional:
+            return self
+        expr = self.expr
+        expr = expr.args[0].args[0]
+        return self.__class__(expr)
+    
+    
 def nexpr(arg, **assumptions):
     """Create nExpr object.  If `arg` is nsym return n"""
 

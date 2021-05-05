@@ -199,10 +199,23 @@ def ztransform_term(expr, n, z):
         if aexpr == n:
             result = z / (z - sym.exp(aconst))
 
+    # n * exp(a * n)
+    elif (expr.is_Mul and len(expr.args) == 2 and expr.args[0] == n and
+          expr.args[1].is_Function and expr.args[1].func == sym.exp):
+        aconst, aexpr = factor_const(args[1].args[0], n)
+        if aexpr == n:
+            result = z * sym.exp(aconst) / (z - sym.exp(aconst))**2            
+
     # a**n
     elif expr.is_Pow and expr.args[1] == n:
         # TODO, handle n + m, etc.
         result = 1 / (1 - expr.args[0] * invz)
+
+    # n * a**n
+    elif (expr.is_Mul and len(expr.args) == 2 and expr.args[0] == n and
+          expr.args[1].is_Pow and expr.args[1].args[1] == n):
+        aconst = expr.args[1].args[0]
+        result = aconst * invz / (1 - aconst * invz)**2
 
     # a**(-n)
     elif (expr.is_Pow and expr.args[1].is_Mul and
@@ -403,7 +416,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             if p == 0:
                 cresult += r * unitimpulse(n - i + 1)
             else:            
-                uresult += r * (p ** n) * n**(i - 1)
+                uresult += r * (p ** (n - 1)) * n**(i - 1)
 
     # cresult is a sum of Dirac deltas and its derivatives so is known
     # to be causal.
