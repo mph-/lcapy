@@ -1610,7 +1610,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 return np.inf if arg == 0.0 else 0.0
 
             def unitimpulse(arg):
-                return 1.0 if arg == 0 else 0.0            
+                return 1.0 if arg == 0 else 0.0
+
+            def unitstep(arg):
+                return 1.0 if arg >= 0 else 0.0
 
             def heaviside(arg):
                 return 1.0 if arg >= 0.0 else 0.0
@@ -1638,6 +1641,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                             ({'DiracDelta' : dirac,
                               'Heaviside' : heaviside,
                               'UnitImpulse' : unitimpulse,
+                              'UnitStep' : unitstep,
                               'sinc' : sinc, 'rect' : rect,
                               'tri' : tri, 'trap' : trap,
                               'sqrt' : sqrt, 'exp' : exp},
