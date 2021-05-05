@@ -41,17 +41,17 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/*
 
-html: figs
+html: extra figs 
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
-dirhtml: figs
+dirhtml: extra figs
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/dirhtml."
 
-singlehtml: figs
+singlehtml: extra figs
 	$(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) $(BUILDDIR)/singlehtml
 	@echo
 	@echo "Build finished. The HTML page is in $(BUILDDIR)/singlehtml."
@@ -164,3 +164,8 @@ figs:
 	cd examples/tutorials/opampnoise; make
 	cd examples/tutorials/opamps; make
 	cd examples/tutorials/shield-guard; make
+
+extra: fourier_transforms.rst laplace_transforms.rst ztransforms.rst
+
+%.rst: %.py
+	python3 $< > $@
