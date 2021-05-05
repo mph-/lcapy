@@ -245,7 +245,7 @@ class StateSpace(object):
         """
         
         return expr(sym.Eq(self._y, sym.MatAdd(sym.MatMul(self._C, self._x),
-                                              sym.MatMul(self._D, self._u)),
+                                               sym.MatMul(self._D, self._u)),
                            evaluate=False))
 
     @property
