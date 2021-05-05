@@ -7,7 +7,7 @@ Copyright 2020 Michael Hayes, UCECE
 from .ratfun import Ratfun
 from .sym import sympify, simplify, symsymbol, AppliedUndef
 from .utils import factor_const, scale_shift
-from .functions import UnitImpulse, unitimpulse, UnitStep
+from .functions import UnitImpulse, UnitStep
 import sympy as sym
 
 __all__ = ('ZT', 'IZT')
@@ -367,7 +367,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
         Qpoly = sym.Poly(Q, z)        
         C = Qpoly.all_coeffs()
         for m, c in enumerate(C):
-            cresult += c * unitimpulse(n - len(C) + m + 1)
+            cresult += c * UnitImpulse(n - len(C) + m + 1)
 
     # There is problem with determining residues if
     # have 1/(z*(-a/z + 1)) instead of 1/(-a + z).  Hopefully,
@@ -400,7 +400,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             # See laplace.py
 
             if p == 0:
-                cresult += r * unitimpulse(n)
+                cresult += r * UnitImpulse(n)
             else:
                 uresult += r * p ** n
             continue
@@ -415,7 +415,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
                 sym.diff(expr2, z, m), z, p) / sym.factorial(m)
 
             if p == 0:
-                cresult += r * unitimpulse(n - i + 1)
+                cresult += r * UnitImpulse(n - i + 1)
             else:            
                 uresult += r * (p ** (n - 1)) * n**(i - 1)
 
@@ -525,8 +525,9 @@ def inverse_ztransform_product(expr, z, n, **assumptions):
         intnum += 1
         cresult, uresult = inverse_ztransform_term1(factors[m + 1], z, n)
         expr2 = cresult + uresult
-        result = sym.Sum(result.subs(n, n - dummy) * expr2.subs(n, dummy),
-                         (dummy, n1, n2))
+        kernel = result.subs(n, n - dummy) * expr2.subs(n, dummy)
+        sresult = sym.Sum(kernel, (dummy, n1, n2))
+        result = sresult
     
     return const * result
 
@@ -542,7 +543,7 @@ def inverse_ztransform_power(expr, z, n, **assumptions):
         elif not exponent.is_negative:
             print('Warning, dodgy z-transform.  May have advance of unit impulse.')
         
-        return unitimpulse(n + exponent), sym.S.Zero
+        return UnitImpulse(n + exponent), sym.S.Zero
 
     # Handle expressions with a power of (1 / z).
     if (expr.is_Pow and expr.args[0].is_Pow and
@@ -555,7 +556,7 @@ def inverse_ztransform_power(expr, z, n, **assumptions):
         elif not exponent.is_positive:
             print('Warning, dodgy z-transform.  May have advance of unit impulse.')
         
-        return unitimpulse(n - exponent), sym.S.Zero        
+        return UnitImpulse(n - exponent), sym.S.Zero        
 
     raise ValueError('Expression %s is not a power of z' % expr)
 
@@ -577,7 +578,7 @@ def inverse_ztransform_term1(expr, z, n, **assumptions):
     const, expr = factor_const(expr, z)
 
     if expr == 1:
-        return const * unitimpulse(n), sym.S.Zero
+        return const * UnitImpulse(n), sym.S.Zero
     
     if isinstance(expr, AppliedUndef):
         # Handle V(z), 3 * V(z) etc.  If causal is True it is assumed
@@ -592,7 +593,7 @@ def inverse_ztransform_term1(expr, z, n, **assumptions):
 
     if expr == z:
         print('Warning, dodgy z-transform.  Have advance of unit impulse.') 
-        return const * unitimpulse(n + 1), sym.S.Zero        
+        return const * UnitImpulse(n + 1), sym.S.Zero        
 
     if (expr.is_Pow and
         (expr.args[0] == z or
