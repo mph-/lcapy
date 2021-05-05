@@ -37,10 +37,12 @@ release-test: doc push
 .PHONY: style-check
 style-check:
 	flake8 lcapy
+	flake8 doc
 
 .PHONY: flake8
 flake8:
 	flake8 lcapy
+	flake8 doc
 
 .PHONY: check
 check: style-check test
