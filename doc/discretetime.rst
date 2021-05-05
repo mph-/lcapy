@@ -24,7 +24,7 @@ For example:
 Functions
 =========
 
-There are two special discrete functions:
+There are two special discrete time functions:
 
  - `delta(n)` the discrete unit impulse.  This is one when `n=0` and zero otherwise.
  - `u(n)` the discrete unit step.   This is one when `n>=0` and zero otherwise.
@@ -33,14 +33,28 @@ There are two special discrete functions:
 Sequences
 =========
 
+Sequences can be created using the `seq` function.  For example::
+
+   >>> s = seq((1, 2, 3))
+   {_1, 2, 3}
+
+Note, the underscore marks the item in the sequence where `n = 0`.
+
+Here's an example where the sequence is specified as a string::
+
+   >>> s = seq('1, _2, 3')
+   {1, _2, 3}
+
+Sequences can also be generated from a discre-time expression, for example::
+
    >>> x = delta(n) + 2 * delta(n - 2)
    >>> seq = x.seq((-5, 5))
    >>> seq
-       {0, 0, 0, 0, 0, _1, 0, 2, 0, 0, 0}
+   {0, 0, 0, 0, 0, _1, 0, 2, 0, 0, 0}
 
 Note, the underscore marks the item in the sequence where `n = 0`.
        
-The extent of the sequence is given by the `extent()` method.   
+The extent of a sequence is given by the `extent()` method.   
 
    >>> seq.extent()
    >>> 3
@@ -337,3 +351,14 @@ with a discrete-time impulse response
    ─────────────────────────────────────────────────
                (2⋅C⋅R - Δₜ)⋅(2⋅C⋅R + Δₜ)     
                
+
+Difference equation generation
+==============================
+
+Difference equations can be generated from transfer functions and
+impulse responses.  Both FIR and IIR (direct form I) can be generated.
+For example::
+
+  >>> H = z + 2 / z**2
+  >>> H.difference_equation('x', 'y', 'fir')
+  y(n) = 2⋅x(n - 2) + x(n - 1)
