@@ -38,8 +38,15 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(cos(3 * n).ZT(), (z**2 - z * cos(3)) / (z**2 - 2 * z * cos(3) + 1), "cos(3 * n)")
         self.assertEqual(sin(3 * n).ZT(), (z * sin(3)) / (z**2 - 2 * z * cos(3) + 1), "sin(3 * n)")        
 
+        e = 5**n
+        self.assertEqual(e(z)(n).remove_condition(), e, "5**n")
+        e = 5**-n
+        self.assertEqual(e(z)(n).remove_condition(), e, "5**-n")
+        
         e = n * 5**n
         self.assertEqual(e(z)(n).remove_condition(), e, "n * 5**n")
+        e = n * 5**-n
+        self.assertEqual(e(z)(n).remove_condition(), e, "n * 5**-n")        
 
         e = n * exp(3 * n)
         self.assertEqual(e(z)(n).remove_condition(), e, "n * exp(3 * n)")        

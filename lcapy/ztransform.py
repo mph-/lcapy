@@ -199,32 +199,33 @@ def ztransform_term(expr, n, z):
         if aexpr == n:
             result = z / (z - sym.exp(aconst))
 
+    # a**n and a**(-n)
+    elif expr.is_Pow and args[1].has(n):
+        bconst, bexpr = factor_const(args[1], n)
+        aconst = args[0] ** bconst
+        if bexpr == n:        
+            result = 1 / (1 - aconst * invz)
+
+    # n * a**n and n * a**-n        
+    elif (expr.is_Mul and len(args) == 2 and args[0] == n and
+          args[1].is_Pow and args[1].args[1].has(n)):
+
+        aconst = args[1].args[0]        
+        bconst, bexpr = factor_const(args[1].args[1], n)
+        aconst = aconst ** bconst
+        if bexpr == n:
+            result = aconst * invz / (1 - aconst * invz)**2
+
     # n * exp(a * n)
-    elif (expr.is_Mul and len(expr.args) == 2 and expr.args[0] == n and
-          expr.args[1].is_Function and expr.args[1].func == sym.exp):
+    elif (expr.is_Mul and len(args) == 2 and args[0] == n and
+          args[1].is_Function and args[1].func == sym.exp):
         aconst, aexpr = factor_const(args[1].args[0], n)
         if aexpr == n:
             result = z * sym.exp(aconst) / (z - sym.exp(aconst))**2            
 
-    # a**n
-    elif expr.is_Pow and expr.args[1] == n:
-        # TODO, handle n + m, etc.
-        result = 1 / (1 - expr.args[0] * invz)
-
-    # n * a**n
-    elif (expr.is_Mul and len(expr.args) == 2 and expr.args[0] == n and
-          expr.args[1].is_Pow and expr.args[1].args[1] == n):
-        aconst = expr.args[1].args[0]
-        result = aconst * invz / (1 - aconst * invz)**2
-
-    # a**(-n)
-    elif (expr.is_Pow and expr.args[1].is_Mul and
-          expr.args[1].args[0] == -1 and expr.args[1].args[1] == n):
-        result = 1 / (1 - (1 / expr.args[0]) * invz)
-
     # cos(a * n) * exp(b * n) and exp(b * n) * cos(a * n)
-    elif (expr.is_Mul and expr.args[0].is_Function and expr.args[1].is_Function and
-          expr.args[0].func == sym.cos and expr.args[1].func == sym.exp):    
+    elif (expr.is_Mul and args[0].is_Function and args[1].is_Function and
+          args[0].func == sym.cos and args[1].func == sym.exp):    
         aconst, aexpr = factor_const(args[0].args[0], n)
         bconst, bexpr = factor_const(args[1].args[0], n)
         if aexpr == n and bexpr == n:
@@ -233,8 +234,8 @@ def ztransform_term(expr, n, z):
             result = num / den
 
     # sin(a * n) * exp(b * n) and exp(b * n) * sin(a * n)
-    elif (expr.is_Mul and expr.args[0].is_Function and expr.args[1].is_Function and
-          expr.args[0].func == sym.exp and expr.args[1].func == sym.sin):
+    elif (expr.is_Mul and args[0].is_Function and args[1].is_Function and
+          args[0].func == sym.exp and args[1].func == sym.sin):
         aconst, aexpr = factor_const(args[1].args[0], n)
         bconst, bexpr = factor_const(args[0].args[0], n)
         if aexpr == n and bexpr == n:
@@ -243,8 +244,8 @@ def ztransform_term(expr, n, z):
             result = num / den
 
     # exp(a * n) * exp(b * n)
-    elif (expr.is_Mul and expr.args[0].is_Function and expr.args[1].is_Function and
-          expr.args[0].func == sym.exp and expr.args[1].func == sym.exp):
+    elif (expr.is_Mul and args[0].is_Function and args[1].is_Function and
+          args[0].func == sym.exp and args[1].func == sym.exp):
         aconst, aexpr = factor_const(args[1].args[0], n)
         bconst, bexpr = factor_const(args[0].args[0], n)
         if aexpr == n and bexpr == n:
