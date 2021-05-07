@@ -42,6 +42,7 @@ from .currentmixin import CurrentMixin
 from .admittancemixin import AdmittanceMixin
 from .impedancemixin import ImpedanceMixin
 from .transfermixin import TransferMixin
+from sympy import Expr as symExpr
 
 __all__ = ('phasor', )
 
@@ -75,6 +76,10 @@ class PhasorExpression(Expr):
         var = self.omega
         if hasattr(var, 'expr'):
             var = var.expr
+
+        # Handle things like 2 * pi * f
+        if isinstance(var, symExpr) and var.is_Mul:
+            return None
         
         return var
 

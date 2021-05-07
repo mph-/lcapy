@@ -65,4 +65,10 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(type(P), PhasorFrequencyDomainExpression, 'H(jw)')
 
+        P = H(j * 2 * pi * f)
+        self.assertEqual(type(P), PhasorFrequencyDomainExpression, 'H(j * 2 * pi * f)')
+
+        self.assertEqual(P.var, None, 'P.var')        
+        
+        
         
