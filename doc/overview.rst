@@ -1384,7 +1384,7 @@ Plotting
 ========
 
 Lcapy expressions have a `plot()` method; this differs depending on the
-domain.  For example, the `plot()` method for s-domain expressions
+domain (see :ref:`plotting`).  For example, the `plot()` method for Laplace-domain expressions
 produces a pole-zero plot.  Here's an example:
 
 .. literalinclude:: examples/netlists/tf1-pole-zero-plot.py
@@ -1393,9 +1393,8 @@ produces a pole-zero plot.  Here's an example:
    :width: 15cm
 
 
-The `plot()` method for f-domain and :math:`\omega` -domain expressions
+The `plot()` method for f-domain and :math:`\omega`-domain expressions
 produce spectral plots, for example, 
-
 
 .. literalinclude:: examples/netlists/tf1-bode-plot.py
 

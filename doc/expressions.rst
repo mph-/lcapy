@@ -748,7 +748,7 @@ Printing methods
 
 - `pretty()` convert an expression to a string with a prettified form
 
-- `plot()` plot the expression, provided there are no free symbols
+- `plot()` plot the expression, provided there are no free symbols (see :ref:`plotting`)
   
 
 SymPy methods
@@ -1046,7 +1046,7 @@ NumPy array.  For example::
    >>> a.evaluate(tv)
    array([1.    , 1.5625, 2.25  , 3.0625, 4.    ])
 
-If the argument is a scalar the returned result is a Python float or complex type; otherwise it is a NumPy array.  The evaluation method is useful for plotting results.
+If the argument is a scalar the returned result is a Python float or complex type; otherwise it is a NumPy array.  The evaluation method is useful for plotting results, (see :ref:`plotting`).
 
    
 Phasors
@@ -1538,7 +1538,6 @@ Furthermore, the resultant autocorrelation is
   R_Z(\tau) =  R_X(\tau) + R_Y(\tau).
 
   
-
 Noise signals can be created using the `noisevoltage()` and
 `noisecurrent()` methods.  For example, a white-noise signal can be
 created using::
@@ -1588,7 +1587,113 @@ Lcapy when performing circuit analysis).  For example::
    {n1: 3, n2: 4}
    >>> Z = SuperpositionVoltage(X) + SuperpositionVoltage(Y) - SuperpositionVoltage(X)
    {n2: 4}   
+
+
+.. _plotting:   
+Plotting
+========
+
+Expressions have a `plot()` method.  Each domain has different behaviour.   Here's an example:
+
+   >>> cos(2 * t).plot()
+
+.. image:: examples/plotting/cos1.png
+   :width: 12cm
+
+You can control the range for the time values using a tuple::
+
+   >>> cos(2 * t).plot((-5, 5))
+
+.. image:: examples/plotting/cos2.png
+   :width: 12cm
+
+Alternatively, a NumPy array can be used::
+
+   >>> from numpy import linspace 
+   >>> vt = linspace(-5, 5, 200)
+   >>> cos(2 * t).plot(vt)
+
+.. image:: examples/plotting/cos3.png
+   :width: 12cm  
+
+The returned value from the `plot()` method is a Matplotlib axes
+object.  This is useful to overlay plots, for example::
+
+   >>> from numpy import linspace 
+   >>> vt = linspace(-5, 5, 200)
+   >>> axes = cos(2 * t).plot(vt, label='cos')
+   >>> sin(2 * t).plot(vt, label='sin', axes=axes)
+   >>> axes.legend()
+           
+.. image:: examples/plotting/sincos1.png
+   :width: 12cm             
+
+You can create your own Matplotlib axes and use this for plotting::
+
+   >>> from matplotlib.pyplot import subplots
+   >>> from numpy import linspace 
+   >>> vt = linspace(-5, 5, 200)   
+   >>> figs, axes = subplots(1)
+   >>> cos(2 * t).plot(vt, axes=axes, label='cos')
+   >>> sin(2 * t).plot(vt, axes=axes, label='sin')
+   >>> axes.legend()
+
    
+Pole-zero plots
+---------------
+
+The `plot()` method for Laplace-domain expressions generates a pole-zero plot, for example:
+
+.. literalinclude:: examples/netlists/tf1-pole-zero-plot.py
+
+.. image:: examples/netlists/tf1-pole-zero-plot.png
+   :width: 12cm
+
+
+Frequency-domain plots
+----------------------
+
+Here's an example of the `plot()` method for Fourier-domain expressions:
+
+.. literalinclude:: examples/netlists/tf1-bode-plot.py
+
+.. image:: examples/netlists/tf1-bode-plot.png
+   :width: 12cm
+
+The type of plot for complex frequency-domain expressions is
+controlled by the `plot_type` argument.  By default this is
+`dB-phase` which plots both the magnitude as dB and the phase.
+Other choices are `real`, `imag`, `magnitude`, `phase`, `real-imag`,
+`magnitude-phase`, `dB`.
+           
+Frequencies are shown on a linear scale by default.  A logarithmic
+scale is used if `log_frequency=True` is specified.
+
+Magnitudes are shown on a linear scale by default.  A logarithmic
+scale is used if `log_magnitude=True` is specified.
+
+
+Phasor plots
+------------
+
+Phasors are plotted on a polar graph, for example::
+
+   >>> phasor(1 + j).plot()
+
+.. image:: examples/plotting/phasor1.png
+   :width: 12cm
+
+
+Discrete-time plots
+-------------------
+
+Discrete-time signals are plotted as stem (lollipop plots), for example::
+
+   >>> cos(2 * n * 0.2).plot()
+  
+.. image:: examples/plotting/lollipop1.png
+   :width: 12cm
+
    
 .. _parameterization:
 
