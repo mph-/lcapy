@@ -54,11 +54,11 @@ class rect(sym.Function):
 
         
 class sinc(sym.Function):
-
+    
     @classmethod
     def eval(cls, val):
         """
-        Evaluates the sinc (cardinal sine) function.
+        Evaluates the normalised sinc (cardinal sine) function.
         """
 
         if val.is_Number:

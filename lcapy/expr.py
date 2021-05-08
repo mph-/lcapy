@@ -1577,7 +1577,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             def rect(arg):
                 return 1.0 if abs(arg) <= 0.5 else 0.0
 
-            def sinc(arg):
+            def sincn(arg):
+                """Normalised sinc."""
+
+                # Lambdify does some jiggery pokery and divides the arg by pi.
+                arg = arg * np.pi
+                
                 return 1.0 if arg == 0 else np.sin(np.pi * arg) / (np.pi * arg)
 
             def trap(arg, alpha):
@@ -1638,14 +1643,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             # np.lib.scimath.sqrt converts to complex but cannot be used
             # for lamdification!
             func1 = lambdify(var, expr,
-                            ({'DiracDelta' : dirac,
+                            [{'DiracDelta' : dirac,
                               'Heaviside' : heaviside,
                               'UnitImpulse' : unitimpulse,
                               'UnitStep' : unitstep,
-                              'sinc' : sinc, 'rect' : rect,
+                              'sinc' : sincn, 'rect' : rect,
                               'tri' : tri, 'trap' : trap,
                               'sqrt' : sqrt, 'exp' : exp},
-                             "scipy", "numpy", "math", "sympy"))
+                             "scipy", "numpy", "math", "sympy"])
 
             def func(arg):
                 # Lambdify barfs on (-1)**n if for negative values of n.
