@@ -21,7 +21,7 @@ Copyright 2016--2021 Michael Hayes, UCECE
 import sympy as sym
 from .sym import sympify, AppliedUndef, j, pi, symsimplify
 from .utils import factor_const, scale_shift
-from .extrafunctions import rect, sinc, trap, tri
+from .extrafunctions import rect, sincn, sincu, trap, tri
 
 __all__ = ('FT', 'IFT')
 
@@ -233,28 +233,31 @@ def fourier_term(expr, t, f, inverse=False):
             scale, shift = scale_shift(other.args[1].args[0], t)
             e = sym.exp(sym.I * 2 * sym.pi * sf / scale * shift) / abs(scale)
             return sym.I * sym.DiracDelta(sf, 1) / (4 * sym.pi) * e - 1 / (4 * sym.pi**2 * f**2) * e + shift * sym.DiracDelta(sf) / 2 - sym.I * shift / (2 * sym.pi * sf)
-        elif other.is_Function and other.func == sinc and other.args[0].has(t):
+        elif other.is_Function and other.func == sincn and other.args[0].has(t):
             scale, shift = scale_shift(other.args[0], t)
             return const1 * rect(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
+        elif other.is_Function and other.func == sincu and other.args[0].has(t):
+            scale, shift = scale_shift(other.args[0], t)
+            return const1 * sym.pi * rect(f / scale * sym.pi) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)        
         elif (other.is_Pow and other.args[1] == 2 and other.args[0].is_Function and
-              other.args[0].func == sinc and other.args[0].args[0].has(t)):
+              other.args[0].func == sincn and other.args[0].args[0].has(t)):
             other = other.args[0]
             scale, shift = scale_shift(other.args[0], t)
             return const1 * tri(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
         elif other.is_Function and other.func == rect and other.args[0].has(t):
             scale, shift = scale_shift(other.args[0], t)            
-            return const1 * sinc(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
+            return const1 * sincn(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
         elif other.is_Function and other.func == tri and other.args[0].has(t):
             scale, shift = scale_shift(other.args[0], t)            
-            return const1 * sinc(f / scale)**2 * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
+            return const1 * sincn(f / scale)**2 * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
         elif other.is_Function and other.func == trap and other.args[0].has(t):
             scale, shift = scale_shift(other.args[0], t)
             alpha = other.args[1]
             # Chck for rect
             if alpha == 0:
-                return const1 * sinc(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
+                return const1 * sincn(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
                 
-            return alpha * const1 * sinc(f / scale) * sinc(alpha * f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)        
+            return alpha * const1 * sincn(f / scale) * sincn(alpha * f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)        
 
         # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) *
         # Heaviside(t)

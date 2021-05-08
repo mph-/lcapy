@@ -53,12 +53,13 @@ class rect(sym.Function):
         return sym.Heaviside(x + S.Half) - sym.Heaviside(x - S.Half)
 
         
-class sinc(sym.Function):
+class sincn(sym.Function):
     
     @classmethod
     def eval(cls, val):
         """
         Evaluates the normalised sinc (cardinal sine) function.
+        This is what NumPy uses but not SymPy.
         """
 
         if val.is_Number:
@@ -71,6 +72,26 @@ class sinc(sym.Function):
 
         x = sym.pi * self.args[0]
         return sym.sin(x) / x
+
+    
+class sincu(sym.Function):
+    
+    @classmethod
+    def eval(cls, val):
+        """
+        Evaluates the unnormalised sinc (cardinal sine) function.
+        This is what SymPy uses but not NumPy.
+        """
+
+        if val.is_Number:
+            if val == 0:
+                return S.One
+            return sym.sin(val) / val
+        
+    def rewrite(self, *args, **hints):
+
+        x = self.args[0]
+        return sym.sin(x) / x    
 
     
 class tri(sym.Function):

@@ -57,7 +57,15 @@ class Log10(Function):
     def __call__(self, arg):
         return super(Log10, self).__call__(arg, 10)
 
-   
+
+class SincnFunction(Function):
+    """Normalised sinc function :math:`\sin(\pi x)/(\pi x)`."""
+
+    
+class SincuFunction(Function):
+    """Unnormalised sinc function :math:`\sin(x)/(x)`."""    
+
+    
 conjugate = Function(sym.conjugate)
 
 sqrt = Function(sym.sqrt)
@@ -153,7 +161,8 @@ class MatMul(sym.MatMul):
 
 
 from .extrafunctions import UnitImpulse, UnitStep
-from .extrafunctions import sinc as sinc1
+from .extrafunctions import sincn as sincn1
+from .extrafunctions import sincu as sincu1
 from .extrafunctions import rect as rect1
 from .extrafunctions import tri as tri1
 from .extrafunctions import trap as trap1
@@ -165,7 +174,11 @@ us = unitstep = Function(UnitStep)
 
 rect = Function(rect1)
 
-sinc = Function(sinc1)
+sinc = SincnFunction(sincn1)
+
+sincn = SincnFunction(sincn1)
+
+sincu = SincuFunction(sincu1)
 
 tri = Function(tri1)
 

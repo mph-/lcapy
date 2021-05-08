@@ -1577,13 +1577,29 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             def rect(arg):
                 return 1.0 if abs(arg) <= 0.5 else 0.0
 
+            def sinc(arg):
+                """SymPy sinc."""
+
+                # This is used for sinc created by sympify, e.g., a =
+                # expr('sinc(n)').  SymPy uses the unnormalised form
+                # but NumPy (and Lcapy) use the normalised form.
+                # Lambdify does some jiggery pokery and divides the
+                # arg by pi since it is expecting that the NumPy sinc
+                # function is going to be used.  SymPy's choice is
+                # unfortunate from a numerical accuracy point of view
+                # since sincn(n) should be zero for integer n, n != 0.
+                
+                return 1.0 if arg == 0 else np.sin(np.pi * arg) / (np.pi * arg)
+
             def sincn(arg):
                 """Normalised sinc."""
 
-                # Lambdify does some jiggery pokery and divides the arg by pi.
-                arg = arg * np.pi
-                
                 return 1.0 if arg == 0 else np.sin(np.pi * arg) / (np.pi * arg)
+
+            def sincu(arg):
+                """Unnormalised sinc."""
+
+                return 1.0 if arg == 0 else np.sin(arg) / arg
 
             def trap(arg, alpha):
 
@@ -1647,7 +1663,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                               'Heaviside' : heaviside,
                               'UnitImpulse' : unitimpulse,
                               'UnitStep' : unitstep,
-                              'sinc' : sincn, 'rect' : rect,
+                              'sinc' : sincn, 'sincn' : sincn,
+                              'sincu' : sincu, 'rect' : rect,
                               'tri' : tri, 'trap' : trap,
                               'sqrt' : sqrt, 'exp' : exp},
                              "scipy", "numpy", "math", "sympy"])
