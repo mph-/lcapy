@@ -1597,6 +1597,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             def sincn(arg):
                 """Normalised sinc."""
 
+                # Note, if sincn is made to print sinc, then lambdify will
+                # call sinc.   Grrrr.
+                
                 return 1.0 if arg == 0 else np.sin(np.pi * arg) / (np.pi * arg)
 
             def sincu(arg):
