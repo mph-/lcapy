@@ -143,7 +143,7 @@ Mathematical functions
 Lcapy has the following built-in functions: `sin`, `cos`, `tan`, `cot`,
 `asin`, `acos`, `atan`, `atan2`, `acot`, `sinh`, `cosh`, `tanh`, `asinh`,
 `acosh`, `atanh`, `gcd`, `exp`, `sqrt`, `log`, `log10`, `sign`,
-`conjugate`, `rect`, `sinc`, `tri`, `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`,
+`conjugate`, `rect`, `sinc`, `sincn`, `sincu`, `tri`, `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`,
 `unitimpulse`, and `unitstep`.
 
 Other SymPy functions can be converted to Lcapy functions using the
@@ -158,7 +158,14 @@ The trapezoid function `trap(t, alpha)` is the convolution of `rect(t
 / alpha)` and `rect(t)`. The parameter `alpha` is the normalised
 rise/fall time.  When `alpha = 0` it is equivalent to `rect(t)` and
 when `alpha = 1` it is equivalent to `tri(t)`.
-   
+
+
+Lcapy uses the normalised form of the `sinc` function (cardinal sine),
+:math:`sin(\pi x) / (\pi x)`.  This is the same as NumPy but SymPy
+uses the unnormalised form :math:`sin(x) / x`.  Lcapy uses `sincu` for
+the latter and the alias `sincn` for `sinc`.
+
+
 .. _domains:   
 
 Domains
