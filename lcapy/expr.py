@@ -1588,6 +1588,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 # function is going to be used.  SymPy's choice is
                 # unfortunate from a numerical accuracy point of view
                 # since sincn(n) should be zero for integer n, n != 0.
+
+                # Undo SymPy jiggery pokery.
+                arg = arg * np.pi
                 
                 return 1.0 if arg == 0 else np.sin(np.pi * arg) / (np.pi * arg)
 
@@ -1663,7 +1666,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                               'Heaviside' : heaviside,
                               'UnitImpulse' : unitimpulse,
                               'UnitStep' : unitstep,
-                              'sinc' : sincn, 'sincn' : sincn,
+                              'sinc' : sinc, 'sincn' : sincn,
                               'sincu' : sincu, 'rect' : rect,
                               'tri' : tri, 'trap' : trap,
                               'sqrt' : sqrt, 'exp' : exp},

@@ -651,8 +651,3 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.simplify_sin_cos(as_sin=True).simplify(), b, "sin form")
         self.assertEqual(a.simplify_sin_cos().simplify(), b, "default form")        
 
-    def test_sinc(self):
-
-        a = sinc(n).evaluate(2)
-        self.assertEqual(abs(a) < 1e-16, True, "sinc evaluate incorrect.")
-        

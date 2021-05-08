@@ -58,3 +58,16 @@ class LcapyTester(unittest.TestCase):
         
 
         
+    def test_sinc(self):
+
+        a = sinc(n).evaluate(2)
+        self.assertEqual(abs(a) < 1e-16, True, "sinc evaluate incorrect.")
+
+        a = sincn(n).evaluate(2)
+        self.assertEqual(abs(a) < 1e-16, True, "sincn evaluate incorrect.")
+
+        a = expr('sinc(n)').evaluate(2)
+        self.assertEqual(abs(a) < 1e-16, True, "'sinc' evaluate incorrect.")
+
+        a = expr('sincn(n)').evaluate(2)
+        self.assertEqual(abs(a) < 1e-16, True, "'sincn' evaluate incorrect.")
