@@ -53,7 +53,7 @@ class rect(sym.Function):
         return sym.Heaviside(x + S.Half) - sym.Heaviside(x - S.Half)
 
         
-class sincn(sym.Function):
+class sinc(sym.Function):
     
     @classmethod
     def eval(cls, val):
@@ -72,6 +72,9 @@ class sincn(sym.Function):
 
         x = sym.pi * self.args[0]
         return sym.sin(x) / x
+
+# So that sincn prints as sinc    
+sincn = sinc
 
     
 class sincu(sym.Function):
