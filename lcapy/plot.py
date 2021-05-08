@@ -161,6 +161,8 @@ def plot_frequency(obj, f, **kwargs):
             obj1 = obj.real 
         elif plot_type == 'imag':
             obj1 = obj.imag
+        elif plot_type == 'dB':
+            obj1 = obj.magnitude.dB            
         else:
             raise ValueError('Unknown plot type: %s' % plot_type)
 
