@@ -93,6 +93,26 @@ class sincu(sym.Function):
         x = self.args[0]
         return sym.sin(x) / x    
 
+class psinc(sym.Function):
+    
+    @classmethod
+    def eval(cls, M, val):
+        """
+        Evaluates the periodic sinc function.
+        """
+
+        if val.is_Number:
+            if val == 0:
+                return S.One
+            x = sym.pi * val
+            return sym.sin(M * x) / (M * sym.sin(x))
+        
+    def rewrite(self, *args, **hints):
+
+        M = self.args[0]        
+        x = sym.pi * self.args[1]
+        return sym.sin(M * x) / (M * sym.sin(x))
+
     
 class tri(sym.Function):
 

@@ -1607,6 +1607,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
                 return 1.0 if arg == 0 else np.sin(arg) / arg
 
+            def psinc(M, arg):
+                """Periodic sinc."""
+
+                D = np.sin(np.pi * arg)
+                return 1.0 if D == 0 else np.sin(M * np.pi * arg) / (M * D)
+
             def trap(arg, alpha):
 
                 absarg = abs(arg)
@@ -1670,8 +1676,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                               'UnitImpulse' : unitimpulse,
                               'UnitStep' : unitstep,
                               'sinc' : sinc, 'sincn' : sincn,
-                              'sincu' : sincu, 'rect' : rect,
-                              'tri' : tri, 'trap' : trap,
+                              'sincu' : sincu, 'psinc' : psinc,
+                              'rect' : rect, 'tri' : tri, 'trap' : trap,
                               'sqrt' : sqrt, 'exp' : exp},
                              "scipy", "numpy", "math", "sympy"])
 

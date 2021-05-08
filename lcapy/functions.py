@@ -63,7 +63,11 @@ class SincnFunction(Function):
 
     
 class SincuFunction(Function):
-    """Unnormalised sinc function :math:`\sin(x)/(x)`."""    
+    """Unnormalised sinc function :math:`\sin(x)/(x)`."""
+
+    
+class PsincFunction(Function):
+    """Periodic sinc function :math:`\sin(M * x)/(M * sin(x))`."""        
 
     
 conjugate = Function(sym.conjugate)
@@ -163,6 +167,7 @@ class MatMul(sym.MatMul):
 from .extrafunctions import UnitImpulse, UnitStep
 from .extrafunctions import sincn as sincn1
 from .extrafunctions import sincu as sincu1
+from .extrafunctions import psinc as psinc1
 from .extrafunctions import rect as rect1
 from .extrafunctions import tri as tri1
 from .extrafunctions import trap as trap1
@@ -179,6 +184,8 @@ sinc = SincnFunction(sincn1)
 sincn = SincnFunction(sincn1)
 
 sincu = SincuFunction(sincu1)
+
+psinc = PsincFunction(psinc1)
 
 tri = Function(tri1)
 

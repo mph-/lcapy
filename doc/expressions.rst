@@ -159,11 +159,14 @@ The trapezoid function `trap(t, alpha)` is the convolution of `rect(t
 rise/fall time.  When `alpha = 0` it is equivalent to `rect(t)` and
 when `alpha = 1` it is equivalent to `tri(t)`.
 
-
 Lcapy uses the normalised form of the `sinc` function (cardinal sine),
 :math:`sin(\pi x) / (\pi x)`.  This is the same as NumPy but SymPy
 uses the unnormalised form :math:`sin(x) / x`.  Lcapy uses `sincu` for
-the latter and the alias `sincn` for `sinc`.
+the latter and the alias `sincn` for `sinc`.  Note, Lcapy prints
+`sinc` as `sincn` due to a bug in SymPy.  This is likely to change in
+the future.
+
+The periodic sinc `psinc` function is defined as :math:`sin(M \pi x) / (M sin(\pi x))`.
 
 
 .. _domains:   
