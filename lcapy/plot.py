@@ -293,7 +293,7 @@ def plot_sequence(obj, n, **kwargs):
     xscale = kwargs.pop('xscale', 1)
     yscale = kwargs.pop('yscale', 1)
     # TODO, make nice lollipops
-    ax.stem(n * xscale, v * yscale, **kwargs)
+    ax.stem(n * xscale, v * yscale, use_line_collection=True, **kwargs)
     if xlabel is not None:
         ax.set_xlabel(xlabel)
     if ylabel is not None:        
