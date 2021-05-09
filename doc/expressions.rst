@@ -1374,6 +1374,22 @@ Voltage and current methods
 - `oneport()` returns a `Oneport` object corresponding to the immittance.  This may be a `V` or `I` object.
 
 
+Simplification
+==============
+
+Lcapy has the following simplification methods:
+
+- `simplify()`  This augments the SymPy simplification function by also simplifying expressions containting Dirac deltas and Heaviside steps.
+
+- `simplify_sin_cos()`  This rewrites sums of sines and cosines in terms of a single phase-shifted-sine or cosine.
+  
+- `simplify_terms()`  Each term is simplified individually.
+  
+- `simplify_factors()`  Each factor is simplified individually.
+  
+- `simplify_units()` The units are simplified.
+  
+  
 Assumptions
 ===========
 

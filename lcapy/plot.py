@@ -102,10 +102,18 @@ def plot_pole_zero(obj, **kwargs):
     # Marker size
     ms = kwargs.pop('ms', 10)
     fillstyle = kwargs.pop('fillstyle', 'none')
+    xlabel = kwargs.pop('xlabel', obj.domain_label_with_units)
+    ylabel = kwargs.pop('ylabel', obj.label_with_units)
+    
     ax.plot(z.real, z.imag, 'bo', fillstyle=fillstyle, ms=ms, **kwargs)
     annotate(ax, zeros)
     ax.plot(p.real, p.imag, 'bx', fillstyle=fillstyle, ms=ms, **kwargs)
     annotate(ax, poles)
+
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    if ylabel is not None:        
+        ax.set_ylabel(ylabel)
 
     ax.grid(True)
     
