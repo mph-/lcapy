@@ -1720,6 +1720,48 @@ Discrete-time signals are plotted as stem (lollipop plots), for example::
 .. image:: examples/plotting/lollipop1.png
    :width: 12cm
 
+
+Plot customisation
+------------------
+
+The `plot()` method has a number of generic keyword arguments to customise the plots.   These include:
+
+- `xlabel` sets the xlabel string
+  
+- `ylabel` sets the ylabel string
+
+- `title` sets the title string    
+
+For example::
+
+   >>> H = s / (s + 2)
+   >>> H.plot(xlabel=r'$\sigma$', ylabel=r'$\omega$', title='Pole zero plot')
+
+Alternatively, this can be achieved using::
+
+   >>> H = s / (s + 2)
+   >>> ax = H.plot()
+   >>> ax.set_xlabel(r'$\sigma`)
+   >>> ax.set_ylabel(r'$\omega`)
+   >>> ax.set_title('Pole zero plot')
+
+Other keyword arguments are passed to the matplotlib plot routines.  For example::
+
+   >>> H = s / (s + 2)
+   >>> H.plot(markersize=20)
+
+The best way to customise plots is to create a matplotlib style file.  For example,
+
+   >>> from matplotlib.pyplot import style
+   >>> style.use('polezero.mplstyle')
+   >>> H = s / (s + 2)
+   >>> H.plot()     
+
+where polezero.mplstyle might contain
+
+   ``lines.markersize = 20``
+   
+   ``font.size = 14``
    
 .. _parameterization:
 

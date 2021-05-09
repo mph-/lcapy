@@ -28,7 +28,7 @@ def make_axes(figsize=None, axes=None, **kwargs):
 
 def plot_pole_zero(obj, **kwargs):
 
-    from matplotlib.pyplot import Circle
+    from matplotlib.pyplot import Circle, rcParams
     
     poles = obj.poles()
     zeros = obj.zeros()
@@ -99,21 +99,27 @@ def plot_pole_zero(obj, **kwargs):
                 p = pole.cval
                 axes.text(p.real + offset, p.imag + offset, '%d' % num)
 
-    # Marker size
-    ms = kwargs.pop('ms', 10)
+    # Marker size.  Unfortunately, the default is too small
+    # but if the user wants a size of 6 set in rcParams, they are out of luck...
+    if 'ms' not in kwargs and 'markersize' not in kwargs and rcParams['lines.markersize'] == 6:
+        kwargs['ms'] = 19
+
     fillstyle = kwargs.pop('fillstyle', 'none')
     xlabel = kwargs.pop('xlabel', obj.domain_label_with_units)
     ylabel = kwargs.pop('ylabel', obj.label_with_units)
+    title = kwargs.pop('title', None)
     
-    ax.plot(z.real, z.imag, 'bo', fillstyle=fillstyle, ms=ms, **kwargs)
+    ax.plot(z.real, z.imag, 'bo', fillstyle=fillstyle, **kwargs)
     annotate(ax, zeros)
-    ax.plot(p.real, p.imag, 'bx', fillstyle=fillstyle, ms=ms, **kwargs)
+    ax.plot(p.real, p.imag, 'bx', fillstyle=fillstyle, **kwargs)
     annotate(ax, poles)
 
     if xlabel is not None:
         ax.set_xlabel(xlabel)
     if ylabel is not None:        
         ax.set_ylabel(ylabel)
+    if title is not None:
+        ax.set_title(title)        
 
     ax.grid(True)
     
@@ -208,7 +214,8 @@ def plot_frequency(obj, f, **kwargs):
     ylabel2 = kwargs.pop('ylabel2', obj.label_with_units)
     second = kwargs.pop('second', False)
     xscale = kwargs.pop('xscale', 1)
-    yscale = kwargs.pop('yscale', 1)            
+    yscale = kwargs.pop('yscale', 1)
+    title = kwargs.pop('title', None)    
 
     plot(f * xscale, V * yscale, **kwargs)
     if xlabel is not None:
@@ -216,6 +223,9 @@ def plot_frequency(obj, f, **kwargs):
     ylabel = ylabel2 if second else ylabel
     if ylabel is not None:        
         ax.set_ylabel(ylabel)
+    if title is not None:
+        ax.set_title(title)
+        
     ax.grid(True)
     return ax
 
@@ -263,12 +273,17 @@ def plot_time(obj, t, **kwargs):
     xlabel = kwargs.pop('xlabel', obj.domain_label_with_units)
     ylabel = kwargs.pop('ylabel', obj.label_with_units)
     xscale = kwargs.pop('xscale', 1)
-    yscale = kwargs.pop('yscale', 1)        
+    yscale = kwargs.pop('yscale', 1)
+    title = kwargs.pop('title', None)
+    
     ax.plot(t * xscale, v * yscale, **kwargs)
     if xlabel is not None:
         ax.set_xlabel(xlabel)
     if ylabel is not None:        
         ax.set_ylabel(ylabel)
+    if title is not None:
+        ax.set_title(title)
+        
     ax.grid(True)
     return ax
 
@@ -292,12 +307,16 @@ def plot_sequence(obj, n, **kwargs):
     ylabel = kwargs.pop('ylabel', obj.label_with_units)
     xscale = kwargs.pop('xscale', 1)
     yscale = kwargs.pop('yscale', 1)
-    # TODO, make nice lollipops
+    title = kwargs.pop('title', None)
+
     ax.stem(n * xscale, v * yscale, use_line_collection=True, **kwargs)
     if xlabel is not None:
         ax.set_xlabel(xlabel)
     if ylabel is not None:        
         ax.set_ylabel(ylabel)
+    if title is not None:
+        ax.set_title(title)
+        
     ax.grid(True)
     return ax
 
