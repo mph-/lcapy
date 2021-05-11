@@ -536,6 +536,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
         
         expr2 = expr * (z - p) ** o
         expr2 = expr2.simplify()
+        bino = 1
         for i in range(1, o + 1):
             m = o - i
             r = sym.limit(
@@ -544,7 +545,8 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             if p == 0:
                 cresult += r * UnitImpulse(n - i + 1)
             else:            
-                uresult += r * (p ** (n - 1)) * n**(i - 1)
+                uresult += r * bino * p **(n - i + 1) / sym.factorial(i - 1)
+                bino *= n - i + 1
 
     # cresult is a sum of Dirac deltas and its derivatives so is known
     # to be causal.
