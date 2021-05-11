@@ -91,7 +91,8 @@ class FourierDomainExpression(FourierDomain, Expr):
         'real', or 'imag'
         in addition to those supported by the matplotlib plot command.
         
-        The plot axes are returned.
+        The plot axes are returned.  This is a tuple for magnitude/phase or
+        real/imaginary plots.
 
         There are many plotting options, see lcapy.plot and
         matplotlib.pyplot.plot.

@@ -1643,7 +1643,8 @@ Alternatively, a NumPy array can be used::
    :width: 12cm  
 
 The returned value from the `plot()` method is a Matplotlib axes
-object.  This is useful to overlay plots, for example::
+object (or a tuple if more than one set of axes are used, say for a
+magnitude/phase plot).  This is useful to overlay plots, for example::
 
    >>> from numpy import linspace 
    >>> vt = linspace(-5, 5, 200)
@@ -1664,6 +1665,16 @@ You can create your own Matplotlib axes and use this for plotting::
    >>> sin(2 * t).plot(vt, axes=axes, label='sin')
    >>> axes.legend()
 
+Finally, you can manage all the plotting yourself, for example::
+
+   >>> from matplotlib.pyplot import subplots
+   >>> from numpy import linspace 
+   >>> vt = linspace(-5, 5, 200)   
+   >>> figs, axes = subplots(1)
+   >>> axes.plot(vt, cos(2 * t).evaluate(vt), label='cos')
+   >>> axes.plot(vt, sin(2 * t).evaluate(vt), label='sin')
+   >>> axes.legend()  
+   
    
 Pole-zero plots
 ---------------
@@ -1698,6 +1709,16 @@ scale is used if `log_frequency=True` is specified.
 Magnitudes are shown on a linear scale by default.  A logarithmic
 scale is used if `log_magnitude=True` is specified.
 
+The frequency domain plot method returns the axes used in the plot.
+If there are two sets of axes, such as for a magnitude/phase or
+real/imaginary plot, these are returned as a tuple.  For example::
+
+  >>> A = 1 / (j * 2 * pi * f)
+  >>> axm, axp = A.plot()
+
+  >>> A = 1 / (j * 2 * pi * f)
+  >>> ax = abs(A).plot()
+
 
 Phasor plots
 ------------
@@ -1707,7 +1728,7 @@ Phasors are plotted on a polar graph, for example::
    >>> phasor(1 + j).plot()
 
 .. image:: examples/plotting/phasor1.png
-   :width: 12cm
+   :width: 8cm
 
 
 Discrete-time plots

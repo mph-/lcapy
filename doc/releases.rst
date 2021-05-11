@@ -2,6 +2,22 @@
 Release notes
 =============
 
+V0.89
+=====
+
+- Adds title arg for plots
+
+- Fix label args for pole zero plots
+
+- Adds periodic sinc function
+  
+- Adds normalised and unnormalised versions of sinc
+
+- Fixes evaluation of sinc
+
+- Fixes phasors with no var  
+  
+
 V0.88
 =====
 
