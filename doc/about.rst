@@ -16,3 +16,11 @@ improvement into the twenty-first century.
 
 If you wish to help with the development or documentation you are most
 welcome.
+
+
+Contributors
+============
+
+Michael Hayes
+Matthew Edwards
+Juergen Weizenecker
