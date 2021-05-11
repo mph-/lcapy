@@ -182,7 +182,7 @@ def ztransform_term(expr, n, z):
                 result = invz ** delay * 1 / (1 - invz)
 
     # n**i   i >= 1    
-    elif (expr == n or (expr.args[0] == n and expr.args[1].is_constant(n))):
+    elif (expr == n or (expr.is_Pow and expr.args[0] == n and expr.args[1].is_constant(n))):
         ii = 1
         # check higher order
         try:
@@ -194,7 +194,6 @@ def ztransform_term(expr, n, z):
         for l in range(ii):
             result = -z * sym.diff(result, z)
             result = sym.simplify(result)    
-    
     
     # sin(b*n+c)    
     elif (expr.is_Function and expr.func == sym.sin and ((expr.args[0]).as_poly(n)).is_linear):
@@ -221,7 +220,7 @@ def ztransform_term(expr, n, z):
         result =  expr.args[0]**cc / (1 - expr.args[0]**bb * invz)    
 
     # n * a**(b*n+c) 
-    elif (expr.args[0] == n and (expr.args[1]).is_Pow and (expr.args[1].args[1].as_poly(n)).is_linear and len(expr.args) == 2):        
+    elif (expr.is_Mul and len(expr.args) == 2 and expr.args[0] == n and (expr.args[1]).is_Pow and (expr.args[1].args[1].as_poly(n)).is_linear and len(expr.args) == 2):        
         # exponential part
         bb = expr.args[1].args[1].coeff(n, 1)
         cc = expr.args[1].args[1].coeff(n, 0)
@@ -231,10 +230,10 @@ def ztransform_term(expr, n, z):
     
        
     # n**i * a**(b*n+c)  for i>=2 
-    elif ((expr.args[0]).is_Pow and (expr.args[0].args[1].as_poly(n)).is_linear and 
+    elif (expr.is_Mul and len(expr.args) == 2 and expr.args[0].is_Pow and (expr.args[0].args[1].as_poly(n)).is_linear and 
            (expr.args[1]).is_polynomial(n) and (not expr.args[1].is_Add) and len(expr.args) == 2):
 
-        ii=expr.args[1].args[1]        
+        ii = expr.args[1].args[1]        
         # a**() part
         bb = expr.args[0].args[1].coeff(n, 1)
         cc = expr.args[0].args[1].coeff(n, 0)
@@ -249,7 +248,7 @@ def ztransform_term(expr, n, z):
         result *= base_a**cc    
     
     # a**(b*n+c) * sin(d*n+e)  OR  a**(b*n+c) * cos(d*n+e)
-    elif ((expr.args[0]).is_Pow and ((expr.args[0].args[1]).as_poly(n)).is_linear and expr.args[0].args[0] != n and
+    elif (expr.is_Mul and len(expr.args) == 2 and (expr.args[0]).is_Pow and ((expr.args[0].args[1]).as_poly(n)).is_linear and expr.args[0].args[0] != n and
            expr.args[1].is_Function and ((expr.args[1]).func == sym.sin or (expr.args[1]).func == sym.cos) and 
            ((expr.args[1].args[0]).as_poly(n)).is_linear and len(expr.args) == 2):
         # values for a**() part
