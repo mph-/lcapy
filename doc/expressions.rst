@@ -143,8 +143,7 @@ Mathematical functions
 Lcapy has the following built-in functions: `sin`, `cos`, `tan`, `cot`,
 `asin`, `acos`, `atan`, `atan2`, `acot`, `sinh`, `cosh`, `tanh`, `asinh`,
 `acosh`, `atanh`, `gcd`, `exp`, `sqrt`, `log`, `log10`, `sign`,
-`conjugate`, `rect`, `sinc`, `sincn`, `sincu`, `tri`, `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`,
-`unitimpulse`, and `unitstep`.
+`conjugate`, `rect`, `sinc`, `sincn`, `sincu`, `tri`, `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`, `unitimpulse`, and `unitstep`.
 
 Other SymPy functions can be converted to Lcapy functions using the
 `Function` class, for example:
@@ -1783,6 +1782,9 @@ where polezero.mplstyle might contain
    ``lines.markersize = 20``
    
    ``font.size = 14``
+
+Matplotlib has many pre-defined styles, see https://matplotlib.org/stable/gallery/style_sheets/style_sheets_reference.html .
+
    
 .. _parameterization:
 

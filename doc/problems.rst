@@ -169,6 +169,17 @@ Working with SymPy
 Lcapy wraps many of SymPy's methods but if you know how to use SymPy, you can extract the underlying SymPy expression using the `expr` attribute of an Lcapy expression.
 
 
+SymPy differences
+-----------------
+
+- SymPy defines :math:`sinc(x)` as :math:`sin(x)/x` but Lcapy (and
+NumPy) defines :math:`sinc(x)` as :math:`sin(\pi x)/(\pi x)`, see
+:ref:`expressionsfunctions`.
+
+- SymPy uses 0 for the lower limit of Laplace transforms, Lcapy uses
+  :math:`0^{-}`, see :ref:`laplace_transforms`.
+
+
 .. _performance:   
 
 Performance

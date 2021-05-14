@@ -74,3 +74,14 @@ class LcapyTester(unittest.TestCase):
         x2 = exp(n)        
         self.assertEqual(x1, x2, "expr")
         
+    def test_undef_solve(self):
+        e = expr('Eq(y(n), a * y(n - 1) + (1 - a) * x(n))')
+        E = e(z)
+        Y = E.solve('Y')[0]
+
+        Yans = expr('z * (a - 1) * X(z) / (a - z)')
+
+        self.assertEqual(Y, Yans, "solve with undefs")
+        
+
+        

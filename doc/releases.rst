@@ -2,12 +2,19 @@
 Release notes
 =============
 
+V0.90
+=====
+
+- Fixes inverse z-transforms for z**n
+
+- Adds many new z-transforms
+
 V0.89
 =====
 
 - Adds title arg for plots
 
-- Fix label args for pole zero plots
+- Fixes label args for pole zero plots
 
 - Adds periodic sinc function
   

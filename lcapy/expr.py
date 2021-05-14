@@ -2624,7 +2624,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return self.time()
         return self
 
-    def remove_undefs(self, simple=True, return_mappings=False):
+    def remove_undefs(self, return_mappings=False):
         """Replace undefined functions with symbols, for example,
         replace x(t) with x, etc.
 
@@ -2645,10 +2645,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             if isinstance(item, AppliedUndef):
                 name = str(item)
                 parts = name.split('(')
-                if simple:
-                    name = parts[0]
-                else:
-                    name = '__' + parts[0] + '_' + parts[1][0]
+                name = parts[0]
                 mappings[name] = item
                 # Need to propagate complex assumption, etc.
                 e = e.subs(item, expr(name).expr)
