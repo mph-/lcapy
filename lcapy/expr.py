@@ -1886,6 +1886,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def simplify(self):
         """Simplify expression."""
 
+        # Perhaps roll this into symsimplify?
+        if self.has(AppliedUndef):
+            new, defs = self.remove_undefs(return_mappings=True)
+            return new.simplify().subs(defs)
+
         ret = symsimplify(self.expr)
         return self.__class__(ret, **self.assumptions)
 
@@ -2020,7 +2025,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                               **self.assumptions)
 
     def solve(self, *symbols, **flags):
+        """Solve expression."""
 
+        if self.has(AppliedUndef):
+            new, defs = self.remove_undefs(return_mappings=True)
+            return new.solve(*symbols, **flags).subs(defs)
+        
         symbols = [symbol_map(symbol) for symbol in symbols]
         return expr(sym.solve(self.expr, *symbols, **flags))
 
@@ -2614,6 +2624,42 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return self.time()
         return self
 
+    def remove_undefs(self, simple=True, return_mappings=False):
+        """Replace undefined functions with symbols, for example,
+        replace x(t) with x, etc.
+
+        This is useful for simplifying and solving equations.
+
+        If return_mappings is True, then a dictionary of substitutions
+        is returned as well as the modified expression.  For example,
+
+        new, defs = expr.remove_undefs(return_mappings=True)
+
+        The original expression can be obtained using:
+
+        new.subs(defs)"""
+        
+        mappings = {}
+        e = self.expr
+        for item in sym.preorder_traversal(e):
+            if isinstance(item, AppliedUndef):
+                name = str(item)
+                parts = name.split('(')
+                if simple:
+                    name = parts[0]
+                else:
+                    name = '__' + parts[0] + '_' + parts[1][0]
+                mappings[name] = item
+                # Need to propagate complex assumption, etc.
+                e = e.subs(item, expr(name).expr)
+
+        ret = self.__class__(e, **self.assumptions)                
+        if return_mappings:
+            return ret, mappings
+        else:
+            return ret
+
+        
 def exprcontainer(arg, **assumptions):
 
     if isinstance(arg, (ExprList, ExprTuple, ExprDict)):
@@ -2634,6 +2680,7 @@ def exprcontainer(arg, **assumptions):
 
     
 def expr(arg, **assumptions):
+
     """Create Lcapy expression from arg.
 
     If `arg` is an `Expr` it is returned, unless `assumptions` is specified.
