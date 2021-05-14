@@ -83,6 +83,9 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
 
         By default complex data is plotted as separate plots of magnitude (dB)
         and phase.
+
+        The plot axes are returned.  This is a tuple for magnitude/phase or
+        real/imaginary plots.
         """
 
         from .plot import plot_angular_frequency
