@@ -33,7 +33,8 @@ from .sym import simplify
 from .simplify import simplify_sin_cos
 from collections import OrderedDict
 
-__all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad', 'degrees', 'radians')
+__all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad', 'degrees',
+           'radians', 'equation')
 
 class ExprPrint(object):
 
