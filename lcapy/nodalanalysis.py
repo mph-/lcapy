@@ -7,7 +7,7 @@ Copyright 2019-2021 Michael Hayes, UCECE
 
 from .circuitgraph import CircuitGraph
 from .tmatrix import TimeDomainMatrix
-from .utils import equation
+from .expr import equation
 from .systemequations import SystemEquations
 import sympy as sym
 

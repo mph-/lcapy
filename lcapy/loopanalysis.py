@@ -9,8 +9,7 @@ Copyright 2019--2021 Michael Hayes, UCECE
 # TODO, handle current sources and dependent sources.
 
 from .circuitgraph import CircuitGraph
-from .expr import expr
-from .utils import equation
+from .expr import expr, equation
 from .systemequations import SystemEquations
 import sympy as sym
 

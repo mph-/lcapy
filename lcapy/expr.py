@@ -22,7 +22,7 @@ from .sym import capitalize_name, tsym, symsymbol, symbol_map, tausym, nusym, oo
 from .dsym import nsym, ksym, zsym
 from .state import state
 from .printing import pprint, pretty, print_str, latex
-from .functions import sqrt, log10, atan2, gcd, exp, Function
+from .functions import sqrt, log10, atan2, gcd, exp, Function, Eq
 from .units import units, u as uu, dB
 from .utils import as_N_D, as_sum
 from .state import state
@@ -2753,7 +2753,27 @@ def expr_make(domain, arg, **assumptions):
 
     cls = expr_class(domain, arg)
     return cls(arg, **assumptions)
+
+
+def equation(lhs, rhs, **assumptions):
+    """Create an Lcapy equation.
+
+    This is an Lcapy expression of the form Eq(lhs, rhs).
+    For example,
+    e = equation('Y(s)', 'X(s) * 2 * s')
     
+    The left hand side (lhs) and right hand side subexpressions
+    can be obtained with the `lhs` and `rhs` attributes."""
+
+    lhs = expr(lhs)
+    rhs = expr(rhs)
+    # Check if lhs and rhs compatible.
+    diff = lhs - rhs
+
+    cls = lhs.__class__
+    
+    return cls(sym.Eq(lhs.expr, rhs.expr, evaluate=False), **assumptions)
+
 
 def symbol(name, **assumptions):
     """Create an Lcapy symbol.
