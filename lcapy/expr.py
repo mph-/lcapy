@@ -2630,6 +2630,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         This is useful for simplifying and solving equations.
 
+        This method gives up if it finds an expression such as
+        x(n - 1) + 2 * x(n) since the arguments are different.
+
         If return_mappings is True, then a dictionary of substitutions
         is returned as well as the modified expression.  For example,
 
@@ -2646,6 +2649,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 name = str(item)
                 parts = name.split('(')
                 name = parts[0]
+                if name in mappings and mappings[name] != item:
+                    # Have found something like x(n) + x(n - 1),
+                    # so give up...   We could create different
+                    # named symbols but these cannot conflict
+                    # with other symbols in the expression.
+                    break
+                
                 mappings[name] = item
                 # Need to propagate complex assumption, etc.
                 e = e.subs(item, expr(name).expr)
