@@ -362,3 +362,37 @@ For example::
   >>> H = z + 2 / z**2
   >>> H.difference_equation('x', 'y', 'fir')
   y(n) = 2⋅x(n - 2) + x(n - 1)
+
+
+Transfer function from difference equations
+===========================================
+
+Here's an example of determining the Z-domain transfer function from a difference equation::
+
+   >>> e = equation('y(n)', 'a * y(n - 1) + (1 - a) * x(n)')
+   >>> e
+   y(n) = a⋅y(n - 1) + (1 - a)⋅x(n)
+   >>> E = e(z)
+   >>> E
+             a⋅Y(z) + z⋅(1 - a)⋅X(z)
+   Y(z) = ───────────────────────
+                     z           
+   >>> H = E.solve('Y'))[0] / expr('X(z)')
+   >>> H
+   z⋅(a - 1)
+   ─────────
+     a - z  
+
+The discrete-time impulse response can be found from an inverse z-transform::
+
+   >>> h = H(n)
+   >>> h
+    n                   
+   a ⋅(1 - a)  for n ≥ 0
+
+If the impulse response is known to be causal, use the `causal` argument::
+
+   >>> h = H(n, causal=True)
+   >>> h
+    n                   
+   a ⋅(1 - a)⋅u[n]
