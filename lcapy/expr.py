@@ -25,7 +25,6 @@ from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function, Eq
 from .units import units, u as uu, dB
 from .utils import as_N_D, as_sum
-from .state import state
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
@@ -2026,7 +2025,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                               **self.assumptions)
 
     def solve(self, *symbols, **flags):
-        """Solve expression."""
+        """Solve expression.  This returns a list of solutions."""
 
         if self.has(AppliedUndef):
             new, defs = self.remove_undefs(return_mappings=True)
@@ -2544,7 +2543,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return expr(coeffs)
     
     def as_continued_fraction(self):
-        """Convert expression into acontinued fraction."""
+        """Convert expression into a continued fraction."""
 
         def foo(coeffs):
 
@@ -2557,6 +2556,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.__class__(result, **self.assumptions)
 
     def continued_fraction_inverse_coeffs(self):
+        """Convert expression into a continued fraction with inverse
+        coefficients."""
 
         coeffs = []
         var = self.var
@@ -2781,11 +2782,13 @@ def symbol(name, **assumptions):
 
     By default, symbols are assumed to be positive unless real is
     defined or positive is defined as False."""
-    return expr(symsymbol(name, **assumptions))
+    usym = expr(symsymbol(name, **assumptions))
+    state.context.user_symbols[name] = usym
+    return usym
 
 
 def symbols(names, **assumptions):
-    """Create Lcapy symbols from whitespace or comma delimiter string of
+    """Create Lcapy symbols from whitespace or comma delimited string of
     symbol names.  See also symbol."""
 
     from .parser import split

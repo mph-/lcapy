@@ -9,7 +9,7 @@ from sympy.assumptions.assume import global_assumptions
 
 from .context import Context
 from .config import check_units, abbreviate_units, loose_units, show_units, canonical_units
-from .printing import PrintingConfig
+from .printing_config import PrintingConfig
 from copy import copy
 
 class State(object):
@@ -61,6 +61,6 @@ class State(object):
         """Enable/disable printing of units in abbreviated form."""
 
         self.printing.abbreviate_units = val
-        
+
 
 state = State()

@@ -1,6 +1,6 @@
 """This module provides printing support.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 
 """
 
@@ -8,6 +8,7 @@ import re
 from .config import latex_expr_map, pretty_expr_map, str_expr_map
 from .config import functions, words, subscripts
 from .latex import latex_str
+from .state import state
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
 from sympy.printing.pretty.pretty import PrettyPrinter
@@ -49,6 +50,11 @@ def canonical_name(name):
     if not isinstance(name, str):
         return name
 
+    # If the symbol name created with symbol() or symbols()
+    # then keep it as is.
+    if name in state.context.user_symbols:
+        return name
+    
     # Convert R_{out} to R_out for SymPy to recognise.
     name = sub_super_pattern.sub(foo, name)
 
@@ -64,7 +70,7 @@ def canonical_name(name):
     # Don't touch things like heaviside
     if name.lower() in words + functions:
         return name
-    
+
     # Convert R1 to R_1, etc.
     match = cpt_name_pattern.match(name)
     if match:
@@ -346,34 +352,12 @@ def latex(expr, fold_frac_powers=False, fold_func_brackets=False,
 
     return string
 
-
-class PrintingConfig(object):
-
-    def __init__(self):
-
-        from sympy import init_printing
-        init_printing(latex_printer=latex, pretty_printer=pretty, str_printer=print_str)
-
-        self._abbreviate_units = False
-
-    @property
-    def abbreviate_units(self):
-
-        return self._abbreviate_units
-
-    @abbreviate_units.setter
-    def abbreviate_units(self, val):    
-
-        self._abbreviate_units = val
-    
-        # Print abbreviated units, V not volt
-        sym.printing.str.StrPrinter._default_settings['abbrev'] = val
-        
+from sympy import init_printing
+init_printing(latex_printer=latex, pretty_printer=pretty, str_printer=print_str)
 
 # See sympy/interactive/printing.py and IPython/core/formatters.py
 # Also see hack at end of expr.py to support latex for Lcapy container
 # types.
-
 
 
 
