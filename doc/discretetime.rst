@@ -72,6 +72,38 @@ Sequences can be converted to n-domain or k-domain expressions, for example::
    >>> seq((1, 2))(k)
    δ[k] + 2⋅δ[k - 2]   
 
+Sequences can be evaluated and converted to a new sequence of floating
+point values using the `evalf()` method.  This has an argument to
+specify the number of decimal places.  For example::
+
+   >>> seq((pi, pi * 2))
+   {_π, 2⋅π}
+   >>> seq((pi, pi * 2)).evalf(3)
+   {_3.14, 6.28}
+
+Each element in a sequence has a sequence index.  The sequence indices are returrn as a list by the `n` attribute.  For example::
+
+   >>> x = seq('1, _2, 3, 4')
+   >>> x.n
+   [-1, 0, 1, 2]
+   
+Specific elements in the sequence can be accessed using array
+notation.  Note, the argument specifies the element sequence index,
+for example::
+
+   >>> x = seq('1, _2, 3, 4')
+   >>> x[0]
+   2
+   >>> x[1]
+   3   
+
+If you want the first element convert the sequence to a list or
+ndarray, for example::
+
+   >>> x = seq('1, _2, 3, 4')
+   >>> array(x)[0]
+   1
+
    
 Discrete-time (n-domain) expressions
 ====================================
