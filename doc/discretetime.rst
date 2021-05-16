@@ -428,3 +428,30 @@ If the impulse response is known to be causal, use the `causal` argument::
    >>> h
     n                   
    a ⋅(1 - a)⋅u[n]
+
+
+Discrete time filters
+=====================
+
+A discrete-time filter can be specified by its numerator and
+denominator coefficients.  For example, a first-order discrete-time
+recursive low-pass filter can be created with:
+
+   >>> a = symbol('a')
+   >>> lpf = DTFilter((1 - a, ), (1, -a))
+
+The difference equation can be printed using::   
+   >>> lpf.difference_equation()
+   y(n) = a⋅y(n - 1) + (1 - a)⋅x(n)
+
+The transfer function can be printed using::   
+   >>> e = lpf.transfer_function()
+   z⋅(a - 1)
+   ─────────
+     a - z  
+
+The impulse response can be printed using::   
+   >>> lpf.impulse_response()
+    n             
+   a ⋅(1 - a)⋅u[n]
+   
