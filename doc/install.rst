@@ -70,12 +70,22 @@ Installation for Windows
 
 .. code-block:: console
 
-   $ pip3 install lcapy`
+   $ pip3 install lcapy
 
 2. To install ghostscript see https://www.ghostscript.com/download/gsdnld.html
 
 3. Download circuitikz (https://www.ctan.org/pkg/circuitikz)
 
+
+Installation of latest version
+============================== 
+   
+If you wish to install the latest version from the git repository use:
+
+   $ pip install git+https://github.com/mph-/lcapy.git#egg=lcapy
+
+However, it is better to clone the git repository if you wish to make fixes.
+   
 
 Installation for development
 ============================
