@@ -13,6 +13,22 @@ from .expr import ExprList, expr
 class Sequence(ExprList):
 
     def __init__(self, seq, n=None, evaluate=False, var=None):
+        """Sequences can be created from an tuple, list, ndarray, or string.
+
+        Sequence((1, 2, 3))
+
+        With a string argument, an underscore indicates the zero sequence
+        index:
+
+        Sequence('{1, _2, 3, 4}')
+
+        The sequence indices can be found using the `n` attribute.
+        This returns a list.
+
+        Sequence('{1, _2, 3, 4}').n
+        [-1, 0, 1, 2]
+
+        """
 
         super (Sequence, self).__init__(seq, evaluate)
 
