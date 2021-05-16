@@ -102,9 +102,15 @@ class ExprPrint(object):
 class ExprContainer(object):    
 
     def evaluate(self):
+        """Evaluate each element to convert to floating point."""
         
-        """Evaluate each element to convert to floating point."""        
         return self.__class__([v.evalf() for v in self])
+
+    def evalf(self, n=15):
+        """Evaluate each element to convert to floating point values.
+        `n` is the number of decimal places."""
+
+        return self.__class__([v.evalf(n) for v in self])        
     
     def simplify(self):
         """Simplify each element."""
