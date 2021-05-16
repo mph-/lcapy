@@ -2688,8 +2688,7 @@ def exprcontainer(arg, **assumptions):
     raise ValueError('Unsupported exprcontainer %s' % arg.__class__.name)
 
     
-def expr(arg, **assumptions):
-
+def expr(arg, override=False, **assumptions):
     """Create Lcapy expression from arg.
 
     If `arg` is an `Expr` it is returned, unless `assumptions` is specified.
@@ -2703,6 +2702,9 @@ def expr(arg, **assumptions):
     For example, v = expr('3 * exp(-t / tau) * u(t)')
 
     V = expr('5 * s', causal=True)
+
+    If `override` is True, then create new symbol(s) even if
+    previously defined by SymPy.
     """
 
     from .sym import tsym, fsym, ssym, omegasym
@@ -2718,7 +2720,7 @@ def expr(arg, **assumptions):
     if not isinstance(arg, str) and hasattr(arg, '__iter__'):
         return exprcontainer(arg)
     
-    expr = sympify(arg, **assumptions)
+    expr = sympify(arg, override=override, **assumptions)
 
     symbols = expr.free_symbols
     

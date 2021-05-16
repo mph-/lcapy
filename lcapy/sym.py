@@ -177,12 +177,16 @@ def parse(string, symbols=None, evaluate=True, local_dict=None,
     return s
 
 
-def sympify1(arg, symbols=None, evaluate=True, symbol=False, **assumptions):
+def sympify1(arg, symbols=None, evaluate=True, override=False, **assumptions):
     """Create a SymPy expression.
 
     The purpose of this function is to head SymPy off at the pass and
     apply the defined assumptions.
 
+    If `evaluate` is True, the expression is evaluated.
+
+    If `override` is True, then create new symbol(s) even if
+    previously defined by SymPy.
     """
 
     if symbols is None:
@@ -212,7 +216,7 @@ def sympify1(arg, symbols=None, evaluate=True, symbol=False, **assumptions):
             return symbols[arg]
         
         # Handle arbitrary strings that may refer to multiple symbols.
-        if symbol:
+        if override:
             # Use restricted global symbol dictionary so that can
             # override pre-defined SymPy symbols.
             gdict = symbol_dict
@@ -225,7 +229,7 @@ def sympify1(arg, symbols=None, evaluate=True, symbol=False, **assumptions):
                        evaluate=evaluate)
 
 
-def sympify(expr, evaluate=True, symbol=False, **assumptions):
+def sympify(expr, evaluate=True, override=False, **assumptions):
     """Create a SymPy expression.
 
     By default, symbols are assumed to be positive if no assumptions
@@ -234,7 +238,12 @@ def sympify(expr, evaluate=True, symbol=False, **assumptions):
     Note, this will not modify previously defined symbols with the
     same name.  Thus you cannot change the assumptions.
 
+    If `evaluate` is True, the expression is evaluated.
+
+    If `override` is True, then create new symbol(s) even if
+    previously defined by SymPy.
     """
+    
     if assumptions == {}:
         assumptions['positive'] = True
         # Note this implies that imag is False.   Also note that all
@@ -244,7 +253,7 @@ def sympify(expr, evaluate=True, symbol=False, **assumptions):
         if not assumptions['positive']:
             assumptions.pop('positive')
         
-    return sympify1(expr, state.context.symbols, evaluate, symbol,
+    return sympify1(expr, state.context.symbols, evaluate, override,
                     **assumptions)
 
 
@@ -255,7 +264,7 @@ def symsymbol(name, **assumptions):
     defined.
 
     """
-    return sympify(name, symbol=True, **assumptions)
+    return sympify(name, override=True, **assumptions)
 
 
 def symsimplify(expr):

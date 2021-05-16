@@ -44,8 +44,7 @@ rather than
 
    >>> expr(2 / 3)
 
-The floating point approximation can be found using `fval` attribute for a Python float or
-or `cval` for a Python complex number::
+The floating point approximation can be found using `fval` attribute for a Python float or `cval` for a Python complex number::
 
   >>> expr(2 / 3).fval
   0.166666666666667
@@ -136,10 +135,21 @@ Notes:
 
 4. Symbols created with the `symbol` or `symbols` function are printed
 verbatim.  Otherwise, they are printed in a canonical form.  For
-example, R1 is printed as R_1.
+example, R1 is printed as R_1, even though it is stored as R1.  Lcapy
+maintains a table of symbols that are not to be printed in canonical form.
 
-5. Some symbols are previously defined by SymPy.  These are overwritten
-   using `symbol` or `symbols` but not with `expr`.
+5. Some symbols are previously defined by SymPy.  These are
+   overwritten using `symbol` or `symbols` but not with `expr` unless
+   the `override` argument is True.  For example::
+
+   >>> mypi = symbol('pi')
+
+   or
+
+   >>> e = expr('pi / 4', override=True)
+
+   In both cases, the special number symbol `pi` becomes an arbitrary
+   symbol.
 
 
 .. _expressionsfunctions:
