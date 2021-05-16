@@ -101,12 +101,10 @@ class ExprPrint(object):
 
 class ExprContainer(object):    
 
-    def evaluate(self, n=15):
-        """Evaluate each element to convert to floating point.
+    def evaluate(self):
         
-        `n` is the number of decimal places."""
-        
-        return self.__class__([v.evalf(n) for v in self])
+        """Evaluate each element to convert to floating point."""        
+        return self.__class__([v.evalf() for v in self])
     
     def simplify(self):
         """Simplify each element."""
@@ -146,21 +144,19 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
         except:
             return super(ExprDict, self).__getitem__(key)            
     
-    def evaluate(self, n=15):
+    def evaluate(self):
         """Evaluate each element to convert to floating point.
         The keys are also converted if possible to handle
-        dictionaries of poles/zeros.
-
-        `n` is the number of decimal places."""
+        dictionaries of poles/zeros."""
 
         new = self.__class__()
         for k, v in self.items():
             try:
-                k = k.evalf(n)
+                k = k.evalf()
             except:
                 pass
             try:
-                v = v.evalf(n)
+                v = v.evalf()
             except:
                 pass            
                 
@@ -1550,14 +1546,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         
         return self.var not in self.expr.free_symbols
     
-    def evaluate(self, arg=None, n=15):
+    def evaluate(self, arg=None):
         """Evaluate expression at arg.  arg may be a scalar, or a vector.
         The result is of type float or complex.
-        
-        `n` is the number of decimal places.
 
         There can be only one or fewer undefined variables in the expression.
-        This is replaced by arg and then evaluated to obtain a result."""
+        This is replaced by arg and then evaluated to obtain a result.
+        """
 
         is_causal = self.is_causal
         
@@ -1736,11 +1731,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             symbols = list(expr.free_symbols)
             if arg is None:
                 if len(symbols) == 0:
-                    return expr.evalf(n)()
+                    return expr.evalf()
                 raise ValueError('Undefined symbols %s in expression %s' % (tuple(symbols), self))                                    
             if len(symbols) == 0:
                 print('Ignoring arg %s' % arg)
-                return expr.evalf(n)()
+                return expr.evalf()
             elif len(symbols) == 1:            
                 return evaluate_expr(expr, symbols[0], arg)
             else:
@@ -1764,7 +1759,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             arg = 0
 
         try:
-            arg = arg.evalf(n)
+            arg = arg.evalf()
         except:
             pass
 
