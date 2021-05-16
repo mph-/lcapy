@@ -29,6 +29,7 @@ class DTFilter(object):
         self.b = b
 
     def transfer_function(self):
+        """Return discrete-time transfer function."""                
 
         Nl = len(self.a)
         Nr = len(self.b)
@@ -53,11 +54,13 @@ class DTFilter(object):
         return Hz
 
     def impulse_response(self):
+        """Return discrete-time impulse response."""        
 
         H = self.transfer_function()
         return H(n)
 
     def difference_equation(self, input='x', output='y'):
+        """Return difference equation."""
 
         rhs = 0 * n
 
@@ -71,4 +74,36 @@ class DTFilter(object):
         e = equation(lhs, rhs)
 
         return e
+
+    def zdomain_initial_response(self, ic):
+        """Return zdomain response due to initial conditions."""        
+
+        Nl = len(self.a)
+        
+        # Denominator for Yi(z)
+        denom = self.a[0] * z**0  
+        num = 0 * z
+        for k in range(1, Nl):
+            az = self.a[k] * z**(-k)
+            denom += az
+            # Numerator for Yi(z)
+            y0 = 0 * z
+            for i in range(0, k):
+                y0 += ic[i] * z**(i + 1)
+                num += az * y0
+  
+        # Collect with respect to positive powers of the variable z
+        num = sym.collect(sym.expand(num * z**Nl), z)
+        denom = sym.collect(sym.expand(denom * z**Nl), z)
+  
+        Yzi = expr(-sym.simplify(num / denom))
+        Yzi.is_causal = True
+        
+        return Yzi
+
+    def initial_response(self, ic):
+        """Return response due to initial conditions."""
+
+        Yzi = self.zdomain_initial_response(ic)
+        return Yzi(n)
     
