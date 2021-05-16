@@ -38,6 +38,11 @@ for _symbol in excludes:
         pass
 
     
+symbol_dict = {}
+for name in ['Symbol', 'Function', 'Integer']:
+    symbol_dict[name] = global_dict[name]
+    
+    
 def capitalize_name(name):
 
     return name[0].upper() + name[1:]
@@ -84,7 +89,8 @@ def symbols_find(arg):
     return [symbol_name(symbol) for symbol in arg.atoms(Symbol, AppliedUndef)]
 
 
-def parse(string, symbols=None, evaluate=True, local_dict=None, **assumptions):
+def parse(string, symbols=None, evaluate=True, local_dict=None,
+          global_dict=None, **assumptions):
     """Handle arbitrary strings that may refer to multiple symbols."""
 
     if symbols is None:
@@ -92,11 +98,14 @@ def parse(string, symbols=None, evaluate=True, local_dict=None, **assumptions):
     
     if local_dict is None:
         local_dict = {}
+    if global_dict is None:
+        global_dict = {}
     
     cache = assumptions.pop('cache', True)
 
     def auto_symbol(tokens, local_dict, global_dict):
-        """Inserts calls to ``Symbol`` or ``Function`` for undefined variables/functions."""
+        """Inserts calls to ``Symbol`` or ``Function`` for undefined
+        variables/functions."""
         result = []
 
         tokens.append((None, None))  # so zip traverses all tokens
@@ -168,7 +177,7 @@ def parse(string, symbols=None, evaluate=True, local_dict=None, **assumptions):
     return s
 
 
-def sympify1(arg, symbols=None, evaluate=True, **assumptions):
+def sympify1(arg, symbols=None, evaluate=True, symbol=False, **assumptions):
     """Create a SymPy expression.
 
     The purpose of this function is to head SymPy off at the pass and
@@ -203,14 +212,20 @@ def sympify1(arg, symbols=None, evaluate=True, **assumptions):
             return symbols[arg]
         
         # Handle arbitrary strings that may refer to multiple symbols.
+        if symbol:
+            # Use restricted global symbol dictionary so that can
+            # override pre-defined SymPy symbols.
+            gdict = symbol_dict
+        else:
+            gdict = global_dict
         return parse(arg, symbols, evaluate=evaluate,
-                     local_dict=symbols, **assumptions)
+                     local_dict=symbols, global_dict=gdict, **assumptions)
 
     return sym.sympify(arg, rational=True, locals=symbols, 
                        evaluate=evaluate)
 
 
-def sympify(expr, evaluate=True, **assumptions):
+def sympify(expr, evaluate=True, symbol=False, **assumptions):
     """Create a SymPy expression.
 
     By default, symbols are assumed to be positive if no assumptions
@@ -229,7 +244,8 @@ def sympify(expr, evaluate=True, **assumptions):
         if not assumptions['positive']:
             assumptions.pop('positive')
         
-    return sympify1(expr, state.context.symbols, evaluate, **assumptions)
+    return sympify1(expr, state.context.symbols, evaluate, symbol,
+                    **assumptions)
 
 
 def symsymbol(name, **assumptions):
@@ -239,7 +255,7 @@ def symsymbol(name, **assumptions):
     defined.
 
     """
-    return sympify(name, **assumptions)
+    return sympify(name, symbol=True, **assumptions)
 
 
 def symsimplify(expr):

@@ -364,8 +364,8 @@ For example::
   y(n) = 2⋅x(n - 2) + x(n - 1)
 
 
-Transfer function from difference equations
-===========================================
+Transfer function from difference equation
+==========================================
 
 Here's an example of determining the Z-domain transfer function from a difference equation::
 

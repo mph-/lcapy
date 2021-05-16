@@ -134,6 +134,13 @@ Notes:
 
 3. There are restrictions on symbol names that can be used.  Currently, this excludes names that are Python keywords.  For example, `Is` is not allowed but `I_s` is valid.
 
+4. Symbols created with the `symbol` or `symbols` function are printed
+verbatim.  Otherwise, they are printed in a canonical form.  For
+example, R1 is printed as R_1.
+
+5. Some symbols are previously defined by SymPy.  These are overwritten
+   using `symbol` or `symbols` but not with `expr`.
+
 
 .. _expressionsfunctions:
    
