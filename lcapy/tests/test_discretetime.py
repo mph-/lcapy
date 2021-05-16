@@ -31,7 +31,7 @@ class LcapyTester(unittest.TestCase):
     def test_sequence(self):
 
         x = seq((1, 2, 3))
-        e = delta(n) + 2 * delta(n - 1) + + 3 * delta(n - 2)
+        e = delta(n) + 2 * delta(n - 1) + 3 * delta(n - 2)
 
         y = seq((1, 2, 3, 0, 0))
 
@@ -46,7 +46,14 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(h.latex(), r'\left\{\underline{1}, 2\right\}', "latex")                
         self.assertEqual(seq('1, 2, 3'), x, "seq")
         self.assertEqual(seq('{1, _2, 3}').latex(), r'\left\{1, \underline{2}, 3\right\}', "latex")
-        self.assertEqual(e.seq(), x, "seq")        
+        self.assertEqual(e.seq(), x, "seq")
+
+        self.assertEqual(h.n, [0, 1], "seq.n")
+
+        x = seq('{1, _2, 3, 4}')
+        self.assertEqual(x.n, [-1, 0, 1, 2], "seq.n")
+        self.assertEqual(x[0], 2, "seq[0]")        
+        
         
     def test_zexpr(self):
 
