@@ -44,7 +44,7 @@ class Sequence(ExprList):
 
         # TODO, support slices, etc.
         try:
-            nindex = self.n.index(n)
+            nindex = list(self.n).index(n)
         except ValueError:
             return expr(0)            
 
