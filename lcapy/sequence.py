@@ -5,6 +5,8 @@ Copyright 2020-2021 Michael Hayes, UCECE
 """
 
 from .expr import ExprList, expr
+from .utils import isiterable
+from numpy import array, allclose
 
 # Perhaps subclass numpy ndarray?  But then could not have symbolic
 # elements in the sequence.  Perhaps have flavours for n-domain and
@@ -155,7 +157,20 @@ class Sequence(ExprList):
             items.append(s)
 
         return r'{%s}' % ', '.join(items)
-    
+
+    def as_array(self):
+        """Numerically evaluate and store as NumPy array."""
+
+        # If, for some reason, a sequence can have elements that
+        # depend on n...
+        #vals = array([v1.evaluate(n1) for v1, n1 in zip(self, self.n)])
+        vals = array([v1.cval for v1 in self])
+
+        if allclose(vals.imag, 0.0):
+            vals = vals.real
+        
+        return vals
+        
     def as_impulses(self, var=None):
         """Convert to discrete-time signal in the form of
         a weighted sum of delayed impulses.  For example,
@@ -184,6 +199,33 @@ class Sequence(ExprList):
         
         return result
 
+    def evaluate(self, ni=None):
+        """Evaluate expression at sequence indices specified by `arg`.  `arg`
+        may be a scalar or a vector.  The result is of type float or
+        complex.  Zeroes are returned for indices outside the sequence
+        extent.
+
+        If arg is iterable, a NumPy array is returned.
+
+        """
+        
+        if ni is None:
+            return self.as_array()
+        if isiterable(ni):
+            vals = array([self(n1).cval for n1 in ni])
+
+            if allclose(vals.imag, 0.0):
+                vals = vals.real
+        
+            return vals
+        else:
+            val = self(ni).cval
+
+            if allclose(val.imag, 0.0):
+                val = val.real
+        
+            return val            
+        
     def extent(self):
         """Determine extent of the sequence.
 
@@ -214,7 +256,7 @@ class Sequence(ExprList):
 
     def plot(self, ni=None, **kwargs):
         """Plot the sequence.  If `ni` is not specified, it defaults to the
-        range (-20, 20).  `ni` can be a vector of specified sequence
+        sequence indices.  `ni` can be a vector of specified sequence
         indices, a tuple specifing the range, or a constant specifying
         the maximum value with the minimum value set to 0.
 
@@ -230,6 +272,11 @@ class Sequence(ExprList):
 
         """
 
+        if ni is None:
+            ni = self.n
+
+        # This is not the most efficient way but plot routines expect
+        # an Expr object.
         return self.as_impulses().plot(ni, **kwargs)
 
     def __call__(self, arg, **assumptions):
