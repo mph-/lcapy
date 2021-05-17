@@ -115,10 +115,16 @@ class DTFilter(object):
         `x` can be an expression, a sequence, or a list/array of values.
         """
 
-        if isinstance(x, (list, ndarray)):
+        if not isiterable(x):
+            x = (x, )
+
+        if not isiterable(ic):
+            ic = (ic, )            
+        
+        if isinstance(x, (tuple, list, ndarray)):
             x = seq(x)
         elif not isinstance(x, (Sequence, DiscreteTimeDomainExpression)):
-            raise ValueError('The input x must be sequence, nexpr, list, or array')
+            raise ValueError('The input x must be a scalar, tuple, sequence, nexpr, list, or array')
 
         NO = len(ic)
         
