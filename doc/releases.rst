@@ -5,6 +5,22 @@ Release notes
 V0.90
 =====
 
+- Adds DTFilter
+
+- Adds evalf method for container classes
+ 
+- Fixes access of element in a sequence
+
+- Adds override argument to expr
+
+- User defined symbols override SymPy symbols
+  
+- Does not print user defined symbols in canonical form
+
+- Reworks equation function
+
+- Removes undefs when simplifying or solving
+
 - Fixes inverse z-transforms for z**n
 
 - Adds many new z-transforms

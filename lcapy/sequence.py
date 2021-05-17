@@ -243,7 +243,10 @@ class Sequence(ExprList):
         if id(arg) in (id(n), id(k)):
             return self.as_impulses(arg)
         if arg in (n, k):
-            return self.as_impulses(arg)        
+            return self.as_impulses(arg)
+
+        # This is experimental and may be deprecated.
+        return self[arg]
 
     def ZT(self, **assumptions):
         return self.as_impulses().ZT(**assumptions)    
