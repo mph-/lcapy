@@ -1342,7 +1342,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         except:
             pass
 
-        if self.var is None:
+        if (self.var is None or self.has(sym.Derivative) or
+            self.has(sym.Integral)):
             self.__ratfun = None
         else:
             # Note, this handles expressions that are products of
@@ -2119,6 +2120,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also general, partfrac, standard, timeconst, and ZPK
 
         """
+        if self.is_Equality:
+            return equation(self.lhs.canonical(), self.rhs.canonical())
+        
         if not self.expr.has(self.var):
             return self
         if self._ratfun is None:
@@ -2133,6 +2137,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         See also canonical, partfrac, standard, timeconst, and ZPK."""
 
+        if self.is_Equality:
+            return equation(self.lhs.general(), self.rhs.general())
+        
         if self._ratfun is None:
             return self.copy()
         return self.__class__(self._ratfun.general(), **self.assumptions)
@@ -2147,6 +2154,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         See also canonical, standard, general, timeconst, and ZPK."""
 
+        if self.is_Equality:
+            return equation(self.lhs.partfrac(), self.rhs.partfrac())
+        
         try:
             if self._ratfun is None:
                 return self.copy()        
@@ -2169,6 +2179,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         See also canonical, standard, general, partfrac, timeconst, and ZPK."""
 
+        if self.is_Equality:
+            return equation(self.lhs.recippartfrac(), self.rhs.recippartfrac())
+        
         if self._ratfun is None:
             return self.copy()
         
@@ -2193,13 +2206,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also canonical, general, partfrac, timeconst, and ZPK.
 
         """
+
+        if self.is_Equality:
+            return equation(self.lhs.standard(), self.rhs.standard())
+        
         if self._ratfun is None:
             return self.copy()        
         return self.__class__(self._ratfun.standard(), **self.assumptions)
 
     def mixedfrac(self):
         """This is an alias for standard and may be deprecated."""
-        
+
         return self.standard()
 
     def timeconst(self):
@@ -2210,6 +2227,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also timeconst_terms, canonical, general, standard,
         partfrac and ZPK."""
 
+        if self.is_Equality:
+            return equation(self.lhs.timeconst(), self.rhs.timeconst())
+        
         if self._ratfun is None:
             return self.copy()        
         return self.__class__(self._ratfun.timeconst(), **self.assumptions)
@@ -2217,6 +2237,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def timeconst_terms(self):
         """Convert each term of expression into time constant form."""
 
+        if self.is_Equality:
+            return equation(self.lhs.timeconst_terms(), self.rhs.timeconst_terms())
+        
         result = 0
         for term in self.expr.as_ordered_terms():
             result += self.__class__(term).timeconst()
@@ -2233,7 +2256,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also canonical, general, standard, partfrac, and timeconst.
 
         """
-
+        if self.is_Equality:
+            return equation(self.lhs.ZPK(), self.rhs.ZPK())
+        
         if self._ratfun is None:
             return self.copy()        
         return self.__class__(self._ratfun.ZPK(), **self.assumptions)
@@ -2247,6 +2272,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         standard, partfrac, and timeconst.
 
         """
+
+        if self.is_Equality:
+            return equation(self.lhs.factored(), self.rhs.factored())        
         
         if self._ratfun is None:
             return self.copy()
@@ -2259,6 +2287,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         s / (s**2 + 4) + 5 / (s**2 + 4)
 
         See also canonical, general, partfrac, timeconst, and ZPK."""
+
+        if self.is_Equality:
+            return equation(self.lhs.expandcanonoical(), self.rhs.expandcanonical())
 
         if self._ratfun is None:
             return self.copy()        
