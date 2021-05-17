@@ -109,13 +109,13 @@ class DTFilter(object):
     
     def response(self, x, ic=0, ni=None):
         """Calculate response of filter to input `x` given initial conditions
-        `ic` for time indexes specified by `ni`.   If `ni` is a tuple,
+        `ic` for time indexes specified by `ni`.  If `ni` is a tuple,
         this specifies the first and last (inclusive) time index.
 
         `x` can be an expression, a sequence, or a list/array of values.
         """
 
-        if not isiterable(x):
+        if not isiterable(x) and not isinstance(x, DiscreteTimeDomainExpression):
             x = (x, )
 
         if not isiterable(ic):
