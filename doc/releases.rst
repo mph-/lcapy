@@ -5,6 +5,12 @@ Release notes
 V0.90
 =====
 
+- Adds call notation to access element of `Sequence`
+
+- Adds `as_array()` method for `Sequence`
+
+- Modifies `evaluate()` method for `Sequence`  
+
 - Adds DTFilter
 
 - Adds evalf method for container classes
