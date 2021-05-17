@@ -826,6 +826,12 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         print(symdebug(self.expr, s, len(name) + 1))
 
     @property
+    def sympy(self):
+        """Return SymPy expression."""
+
+        return self.expr
+        
+    @property
     def expr_with_units(self):
         """Return SymPy expression with units."""
 
