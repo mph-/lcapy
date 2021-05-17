@@ -72,24 +72,21 @@ Sequences can be converted to n-domain or k-domain expressions, for example::
    >>> seq((1, 2))(k)
    δ[k] + 2⋅δ[k - 2]   
 
-Sequences can be evaluated and converted to a new sequence of floating
-point values using the `evalf()` method.  This has an argument to
-specify the number of decimal places.  For example::
-
-   >>> seq((pi, pi * 2))
-   {_π, 2⋅π}
-   >>> seq((pi, pi * 2)).evalf(3)
-   {_3.14, 6.28}
-
 Each element in a sequence has a sequence index.  The sequence indices are returrn as a list by the `n` attribute.  For example::
 
    >>> x = seq('1, _2, 3, 4')
    >>> x.n
    [-1, 0, 1, 2]
    
-Specific elements in the sequence can be accessed using array
-notation.  Note, the argument specifies the element sequence index,
-for example::
+Specific elements in the sequence can be accessed using call notation:
+
+   >>> x = seq('1, _2, 3, 4')
+   >>> x(0)
+   2
+   >>> x(1)
+   3   
+
+Specific elements can also be accessed using array notation.  Note, the argument specifies the element sequence index, for example::
 
    >>> x = seq('1, _2, 3, 4')
    >>> x[0]
@@ -103,6 +100,31 @@ ndarray, for example::
    >>> x = seq('1, _2, 3, 4')
    >>> array(x)[0]
    1
+
+Sequences can be evaluated and converted to a new sequence of floating
+point values using the `evalf()` method.  This has an argument to
+specify the number of decimal places.  For example::
+
+   >>> seq((pi, pi * 2))
+   {_π, 2⋅π}
+   >>> seq((pi, pi * 2)).evalf(3)
+   {_3.14, 6.28}
+
+Sequences can be evaluated and converted to a NumPy array with the `as_array()` method::
+
+   >>> x = seq('1, _2, 3, 4')
+   >>> a = x.as_array()
+   >>> a
+   array([1., 2., 3., 4.])
+
+Alternatively, the `evaluate()` method can be used to access and convert a single element or multiple elements.  If the argument is a scalar, a real or complex Python scalar is returned.  If the argument is iterable (tuple, list, ndarray), a NumPy real or complex ndarray is returned.   Note, argument values outside the sequence return zero.   Here is an example::
+
+   >>> x = seq('1, _2, 3, 4')
+   >>> x.evaluate(5)
+   0
+   >>> a = x.evaluate((1, 2))
+   >>> a
+   array([3., 4.])
 
    
 Discrete-time (n-domain) expressions
