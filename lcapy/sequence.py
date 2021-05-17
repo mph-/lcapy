@@ -12,30 +12,38 @@ from .expr import ExprList, expr
 
 class Sequence(ExprList):
 
-    def __init__(self, seq, n=None, evaluate=False, var=None):
+    def __init__(self, seq, ni=None, evaluate=False, var=None):
         """Sequences can be created from an tuple, list, ndarray, or string.
 
-        Sequence((1, 2, 3))
+        >>> a = Sequence((1, 2, 3))
+        
+        The sequence indices are specified with the optional `ni` argument.
+        For example:
+
+        >>> a = Sequence((1, 2, 3, 4), (-1, 0, 1, 2))
+
+        If the `ni` argument is not specified, the sequence indices
+        are enumerated from 0.
 
         With a string argument, an underscore indicates the zero sequence
         index:
 
-        Sequence('{1, _2, 3, 4}')
+        >>> a = Sequence('{1, _2, 3, 4}')
 
         The sequence indices can be found using the `n` attribute.
         This returns a list.
 
-        Sequence('{1, _2, 3, 4}').n
+        >>> a = Sequence('{1, _2, 3, 4}').n
         [-1, 0, 1, 2]
 
         """
 
         super (Sequence, self).__init__(seq, evaluate)
 
-        if n is None:
-            n = list(range(len(seq)))
+        if ni is None:
+            ni = list(range(len(seq)))
         
-        self.n = n
+        self.n = ni
         self.var = var
 
     @property
