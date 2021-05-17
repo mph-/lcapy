@@ -102,7 +102,8 @@ class ExprPrint(object):
 class ExprContainer(object):    
 
     def evaluate(self):
-        """Evaluate each element to convert to floating point."""
+        """Evaluate each element to convert to floating point.
+        This may change..."""
         
         return self.__class__([v.evalf() for v in self])
 
@@ -1560,11 +1561,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.var not in self.expr.free_symbols
     
     def evaluate(self, arg=None):
-        """Evaluate expression at arg.  arg may be a scalar, or a vector.
+        """Evaluate expression at arg.  `arg` may be a scalar or a vector.
         The result is of type float or complex.
 
+        If arg is iterable, a NumPy array is returned.
+
         There can be only one or fewer undefined variables in the expression.
-        This is replaced by arg and then evaluated to obtain a result.
+        This is replaced by `arg` and then evaluated to obtain a result.
         """
 
         is_causal = self.is_causal
