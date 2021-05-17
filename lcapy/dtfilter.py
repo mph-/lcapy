@@ -8,12 +8,9 @@ from .expr import expr, equation
 from .nexpr import DiscreteTimeDomainExpression
 from .discretetime import n, z, seq
 from .sequence import Sequence
+from .utils import isiterable
 from numpy import arange, ndarray
 import sympy as sym
-
-def isiterable(arg):
-
-    return hasattr(arg, '__iter__')
 
 
 class DTFilter(object):
