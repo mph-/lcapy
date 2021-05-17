@@ -107,9 +107,9 @@ class DTFilter(object):
         Yzi = self.zdomain_initial_response(ic)
         return Yzi(n)
     
-    def response(self, x, ic=0, ns=None):
+    def response(self, x, ic=0, ni=None):
         """Calculate response of filter to input `x` given initial conditions
-        `ic` for time indexes specified by `ns`.   If `ns` is a tuple,
+        `ic` for time indexes specified by `ni`.   If `ni` is a tuple,
         this specifies the first and last (inclusive) time index.
 
         `x` can be an expression, a sequence, or a list/array of values.
@@ -131,13 +131,13 @@ class DTFilter(object):
         if NO != len(self.a) - 1:
             raise ValueError("Expected %d initial conditions, got %d" % (len(self.a) - 1, NO))
 
-        if ns is None:
-            ns = (0, 10)
+        if ni is None:
+            ni = (0, 10)
         
-        if isinstance(ns, tuple):
-            ns = arange(ns[0], ns[1] + 1)
+        if isinstance(ni, tuple):
+            ni = arange(ni[0], ni[1] + 1)
         
-        Nn = len(ns)
+        Nn = len(ni)
   
         # Order right hand side
         Nr = len(self.b)
@@ -145,7 +145,7 @@ class DTFilter(object):
         y_tot = list(ic[-1::-1]) + Nn * [0]
   
         a_r = self.a[-1:-1-NO:-1]
-        for i, nval in enumerate(ns):
+        for i, nval in enumerate(ni):
             # Get previous y vals (sliding window)
             pre_y = y_tot[i:i + NO]
     
@@ -159,6 +159,6 @@ class DTFilter(object):
             y_tot[i + NO] = -1 / self.a[0] * sum(csi * ysi for csi, ysi in zip(a_r, pre_y)) + rhs
     
         # Solution, without initial values
-        ret_seq = seq(y_tot[NO:], ns)  
+        ret_seq = seq(y_tot[NO:], ni)  
   
         return ret_seq
