@@ -1,6 +1,6 @@
 """This module handles sequences.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020-2021 Michael Hayes, UCECE
 
 """
 
@@ -13,7 +13,9 @@ from .expr import ExprList, expr
 class Sequence(ExprList):
 
     def __init__(self, seq, ni=None, evaluate=False, var=None):
-        """Sequences can be created from an tuple, list, ndarray, or string.
+        """Sequences can be created from an tuple, list, or ndarray.
+
+        See `seq()` to create a Sequence from a string.
 
         >>> a = Sequence((1, 2, 3))
         
@@ -24,11 +26,6 @@ class Sequence(ExprList):
 
         If the `ni` argument is not specified, the sequence indices
         are enumerated from 0.
-
-        With a string argument, an underscore indicates the zero sequence
-        index:
-
-        >>> a = Sequence('{1, _2, 3, 4}')
 
         The sequence indices can be found using the `n` attribute.
         This returns a list.

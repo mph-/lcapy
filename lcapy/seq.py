@@ -1,3 +1,9 @@
+"""This module creates sequences.
+
+Copyright 2020-2021 Michael Hayes, UCECE
+
+"""
+
 from numpy import ndarray
 from .expr import expr
 from .sequence import Sequence
