@@ -440,18 +440,32 @@ recursive low-pass filter can be created with:
    >>> a = symbol('a')
    >>> lpf = DTFilter((1 - a, ), (1, -a))
 
-The difference equation can be printed using::   
+The difference equation can be printed using::
+  
    >>> lpf.difference_equation()
    y(n) = a⋅y(n - 1) + (1 - a)⋅x(n)
 
 The transfer function can be printed using::   
-   >>> e = lpf.transfer_function()
+
+   >>> lpf.transfer_function()
    z⋅(a - 1)
    ─────────
      a - z  
 
 The impulse response can be printed using::   
+
    >>> lpf.impulse_response()
     n             
    a ⋅(1 - a)⋅u[n]
    
+The general response to an input `x(n)` can be printed using::
+
+  >>> lpf.response(x, ni=(0, 5))
+
+For a recursive filter, the initial conditions can also be specified::
+
+  >>> lpf.response(x, ic=[1], ni=(0, 5))
+
+The input to the filter can be a `DiscreteTimeDomainExpression` or a sequence.
+The output is a sequence.
+
