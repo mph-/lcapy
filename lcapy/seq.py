@@ -2,6 +2,7 @@ from numpy import ndarray
 from .expr import expr
 from .sequence import Sequence
 from .nexpr import n
+from .utils import isiterable
 
 def seq(arg, ni=None):
     """Create a Sequence from a tuple, list, ndarray, or str.
@@ -28,9 +29,15 @@ def seq(arg, ni=None):
     [-1, 0, 1, 2]
     """
 
+    if not isiterable(arg):
+        arg = (arg, )
+    
     if isinstance(arg, (tuple, list, ndarray)):
         return Sequence(arg, ni, var=n)        
 
+    if not isinstance(arg, str):
+        raise ValueError('Argument not scalar, string, tuple, list, or ndarray.')
+    
     s = arg
     if s.startswith('{'):
         if not s.endswith('}'):
