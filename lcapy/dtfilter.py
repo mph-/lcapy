@@ -107,7 +107,7 @@ class DTFilter(object):
         Yzi = self.zdomain_initial_response(ic)
         return Yzi(n)
     
-    def response(self, x, ic, ns):
+    def response(self, x, ic, ns=None):
         """Calculate response of filter to input `x` given initial conditions
         `ic` for time indexes specified by `ns`.   If `ns` is a tuple,
         this specifies the first and last (inclusive) time index.
@@ -131,6 +131,9 @@ class DTFilter(object):
         if NO != len(self.a) - 1:
             raise ValueError("Expected %d initial conditions, got %d" % (len(self.a) - 1, NO))
 
+        if ns is None:
+            ns = (0, 10)
+        
         if isinstance(ns, tuple):
             ns = arange(ns[0], ns[1] + 1)
         
