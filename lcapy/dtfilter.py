@@ -20,7 +20,7 @@ class DTFilter(object):
 
     def __init__(self, b, a):
         """Create discrete-time filter where `b` is a list or array of
-        numerator coefficients and `a` is a list of array of
+        numerator coefficients and `a` is a list or array of
         denominator coefficients."""
 
         if not isiterable(b):
@@ -118,13 +118,14 @@ class DTFilter(object):
         `x` can be an expression, a sequence, or a list/array of values.
         """
 
-        if not isinstance(x, (Sequence, DiscreteTimeDomainExpression,
-                              list, ndarray)):
+        if isinstance(x, (list, ndarray)):
+            x = seq(x)
+        elif not isinstance(x, (Sequence, DiscreteTimeDomainExpression)):
             raise ValueError('The input x must be sequence, nexpr, list, or array')
-        
+
         NO = len(ic)
         
-        if NO !=  (len(self.a)-1):
+        if NO != len(self.a) - 1:
             raise ValueError("Expected %d initial conditions, got %d" % (len(self.a) - 1, NO))
 
         if isinstance(ns, tuple):
@@ -137,19 +138,19 @@ class DTFilter(object):
   
         y_tot = list(ic[-1::-1]) + Nn * [0]
   
-        self.a_r = self.a[-1:-1-NO:-1]
+        a_r = self.a[-1:-1-NO:-1]
         for i, nval in enumerate(ns):
             # Get previous y vals (sliding window)
             pre_y = y_tot[i:i + NO]
     
-        # Calculate rhs of new value
-        if isinstance(x, (list, ndarray, Sequence)):
-            rhs = sum(self.b[l] * x[nval - l] for l in range(Nr))            
-        else:
-            rhs = sum(self.b[l] * x(nval - l) for l in range(Nr))
+            # Calculate rhs of new value
+            if isinstance(x, Sequence):
+                rhs = sum(self.b[l] * x[nval - l] for l in range(Nr))
+            else:
+                rhs = sum(self.b[l] * x(nval - l) for l in range(Nr))
     
-        # Add lhs
-        y_tot[i + NO] = -1 / self.a[0] * sum(csi * ysi for csi, ysi in zip(self.a_r, pre_y)) + rhs
+            # Add lhs
+            y_tot[i + NO] = -1 / self.a[0] * sum(csi * ysi for csi, ysi in zip(a_r, pre_y)) + rhs
     
         # Solution, without initial values
         ret_seq = seq(y_tot[NO:], ns)  
