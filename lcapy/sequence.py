@@ -212,11 +212,11 @@ class Sequence(ExprList):
     
         return self.discrete_time_fourier_transform(**assumptions)
 
-    def plot(self, nv=None, **kwargs):
-        """Plot the sequence.  If `nv` is not specified, it defaults to the
-        range (-20, 20).  `nv` can be a vector of specified instants, a
-        tuple specifing the range, or a constant specifying the
-        maximum value with the minimum value set to 0.
+    def plot(self, ni=None, **kwargs):
+        """Plot the sequence.  If `ni` is not specified, it defaults to the
+        range (-20, 20).  `ni` can be a vector of specified sequence
+        indices, a tuple specifing the range, or a constant specifying
+        the maximum value with the minimum value set to 0.
 
         kwargs include:
         axes - the plot axes to use otherwise a new figure is created
@@ -226,9 +226,11 @@ class Sequence(ExprList):
         yscale - the y-axis scaling, say for plotting mV
         in addition to those supported by the matplotlib plot command.
         
-        The plot axes are returned."""
+        The plot axes are returned.
 
-        return self.as_impulses().plot(nv, **kwargs)
+        """
+
+        return self.as_impulses().plot(ni, **kwargs)
 
     def __call__(self, arg, **assumptions):
         """Convert sequence to n-domain or k-domain expression.

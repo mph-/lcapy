@@ -91,11 +91,11 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
     def ZT(self, **assumptions):
         return self.ztransform(**assumptions)
 
-    def plot(self, n=None, **kwargs):
-        """Plot the sequence.  If n is not specified, it defaults to the
-        range (-20, 20).  n can be a vector of specified instants, a
-        tuple specifing the range, or a constant specifying the
-        maximum value with the minimum value set to 0.
+    def plot(self, ni=None, **kwargs):
+        """Plot the sequence.  If `ni` is not specified, it defaults to the
+        range (-20, 20).  `ni` can be a vector of specified sequence
+        indices, a tuple specifing the range, or a constant specifying
+        the maximum value with the minimum value set to 0.
 
         kwargs include:
         axes - the plot axes to use otherwise a new figure is created
@@ -105,13 +105,15 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         yscale - the y-axis scaling, say for plotting mV
         in addition to those supported by the matplotlib plot command.
         
-        The plot axes are returned."""
+        The plot axes are returned.
 
-        if n is None:
-            n = (-20, 20)
+        """
+
+        if ni is None:
+            ni = (-20, 20)
         
         from .plot import plot_sequence
-        return plot_sequence(self, n, **kwargs)
+        return plot_sequence(self, ni, **kwargs)
 
     def initial_value(self):
         """Determine value at n = 0."""

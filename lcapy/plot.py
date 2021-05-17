@@ -288,17 +288,17 @@ def plot_time(obj, t, **kwargs):
     return ax
 
 
-def plot_sequence(obj, n, **kwargs):
+def plot_sequence(obj, ni, **kwargs):
 
     npoints = kwargs.pop('npoints', 400)        
     
     # FIXME, determine useful range...
-    if n is None:
-        n = (-20, 20)
-    if isinstance(n, tuple):
-        n = np.arange(n[0], n[1] + 1)
+    if ni is None:
+        ni = (-20, 20)
+    if isinstance(ni, tuple):
+        ni = np.arange(ni[0], ni[1] + 1)
 
-    v = obj.evaluate(n)
+    v = obj.evaluate(ni)
 
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
@@ -309,7 +309,7 @@ def plot_sequence(obj, n, **kwargs):
     yscale = kwargs.pop('yscale', 1)
     title = kwargs.pop('title', None)
 
-    ax.stem(n * xscale, v * yscale, use_line_collection=True, **kwargs)
+    ax.stem(ni * xscale, v * yscale, use_line_collection=True, **kwargs)
     if xlabel is not None:
         ax.set_xlabel(xlabel)
     if ylabel is not None:        
