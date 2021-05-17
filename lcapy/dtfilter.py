@@ -5,7 +5,7 @@ Copyright 2021 Michael Hayes, UCECE
 """
 
 from .expr import expr, equation
-from .discretetime import n, z
+from .discretetime import n, z, seq
 import sympy as sym
 
 def isiterable(arg):
@@ -107,3 +107,42 @@ class DTFilter(object):
         Yzi = self.zdomain_initial_response(ic)
         return Yzi(n)
     
+    def response(self, x, ic, ns):
+
+        NO = len(ic)
+        
+        if NO !=  (len(self.a)-1):
+            raise ValueError("Expected %d initial conditions, got %d" % (len(self.a) - 1, NO))
+    
+        # Number of n vals, including last one
+        alln = list(range(ns[0], ns[1] + 1))
+        Nn = len(alln)
+  
+        # Order right hand side
+        Nr = len(self.b)
+  
+        y_tot = list(ic[-1::-1]) + Nn * [0]
+  
+        self.a_r = self.a[-1:-1-NO:-1]
+        for i, nval in enumerate(alln):
+            # Get previous y vals (sliding window)
+            pre_y = y_tot[i:i + NO]
+    
+        # Calculate rhs of new value
+        rhs = sum(self.b[l] * inp_func(nval - l) for l in range(Nr))
+    
+        # Add lhs
+        y_tot[i + NO] = -1 / self.a[0] * sum(csi * ysi for csi, ysi in zip(self.a_r, pre_y)) + rhs
+    
+        # insert underscore at n = 0
+        # the following does not work, if the result will be plotted with xn.plot()
+        #try:
+        #i = alln.index(0)
+        #y_tot[i + NO] = '_(%s)'%(y_tot[i + NO])
+        #except:
+        #pass
+  
+        # solution, without initial values
+        ret_seq = seq(y_tot[NO:])  
+  
+        return ret_seq
