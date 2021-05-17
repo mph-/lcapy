@@ -54,7 +54,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(x.n, [-1, 0, 1, 2], "seq.n")
         self.assertEqual(x[0], 2, "seq[0]")        
         
-        
     def test_zexpr(self):
 
          H = z / (z - 1)
@@ -90,5 +89,24 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(Y, Yans, "solve with undefs")
         
+    def test_dtfilter(self):
 
+        a = symbol('a')
+        lpf = DTFilter((1 - a, ), (1, -a))
+
+        y = lpf.response(1, [0], (0,2))
+        
+        self.assertEqual(y[0], 1 - a, "IIR impulse response @0")
+        self.assertEqual(y[1], a * (1 - a), "IIR impulse response @1")
+        self.assertEqual(y[2], a**2 * (1 - a), "IIR impulse response @2")
+        
+        y = lpf.response(0, [1], (0,2))
+        
+        self.assertEqual(y[0], a, "transient response @0")
+        self.assertEqual(y[1], a**2, "transient response @1")
+        
+        
+        
+
+        
         
