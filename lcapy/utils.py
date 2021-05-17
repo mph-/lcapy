@@ -118,4 +118,9 @@ def merge_common(lists):
     for node in neighbours: 
         if node not in visited: 
             yield sorted(comp(node))
-  
+
+            
+def isiterable(arg):
+
+    return hasattr(arg, '__iter__')
+
