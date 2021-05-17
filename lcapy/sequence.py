@@ -107,8 +107,8 @@ class Sequence(ExprList):
         for m in range(M):
             vals.append(zero)
 
-        n = self.n + list(range(self.n[-1] + 1, len(vals)))
-        return self.__class__(vals, n=n, var=self.var)        
+        ni = self.n + list(range(self.n[-1] + 1, len(vals)))
+        return self.__class__(vals, ni, var=self.var)        
     
     def latex(self):
 
@@ -215,9 +215,9 @@ class Sequence(ExprList):
     
         return self.discrete_time_fourier_transform(**assumptions)
 
-    def plot(self, n=None, **kwargs):
-        """Plot the sequence.  If n is not specified, it defaults to the
-        range (-20, 20).  n can be a vector of specified instants, a
+    def plot(self, nv=None, **kwargs):
+        """Plot the sequence.  If `nv` is not specified, it defaults to the
+        range (-20, 20).  `nv` can be a vector of specified instants, a
         tuple specifing the range, or a constant specifying the
         maximum value with the minimum value set to 0.
 
@@ -231,7 +231,7 @@ class Sequence(ExprList):
         
         The plot axes are returned."""
 
-        return self.as_impulses().plot(n, **kwargs)
+        return self.as_impulses().plot(nv, **kwargs)
 
     def __call__(self, arg, **assumptions):
         """Convert sequence to n-domain or k-domain expression.
@@ -263,7 +263,10 @@ class Sequence(ExprList):
         """Implement digital filter specified by a transfer function.  The
         transfer function is described by a vector `b` of coefficients
         for the numerator and a `a` vector of coefficients for the
-        denominator.
+        denominator. 
+        
+        If you would like the response with initial conditions see
+        `DTfilter.response()`.
 
         For a FIR filter a = [1]."""
 
@@ -294,9 +297,7 @@ class Sequence(ExprList):
                     pass
             y[-1] = yn
                 
-        #n = self.n + list(range(self.n[-1] + 1, len(y)))
-        n = self.n
-        return self.__class__(y, n=n, var=self.var)
+        return self.__class__(y, self.n, var=self.var)
     
     def convolve(self, h, mode='full'):
         """Convolve with h."""
