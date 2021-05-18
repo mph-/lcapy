@@ -74,6 +74,14 @@ class Sequence(ExprList):
 
         return super(Sequence, self).__getitem__(nindex)
 
+    def get_origin(self):
+        """Return the element index for n == 0. This may raise a ValueError
+        if the origin is not in the sequence."""
+
+        # Perhaps if origin is not the sequence, return an index
+        # that is outside, say -3?
+        return self.n.index(0)
+
     def prune(self):
         """Remove zeros from ends of sequence.
 
