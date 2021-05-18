@@ -104,6 +104,10 @@ class LcapyTester(unittest.TestCase):
         
         self.assertEqual(y[0], a, "transient response @0")
         self.assertEqual(y[1], a**2, "transient response @1")
+
+    def test_dt_assumptions(self):
+
+        self.assertEqual((1 + 1 / z).is_dc, False, "is_dc")
         
         
         

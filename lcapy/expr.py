@@ -941,13 +941,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 # Allow transfer(1) == 1
                 return cls, self, x, assumptions                
         
+        if (isinstance(self, (LaplaceDomainExpression, ZDomainExpression)) or
+            isinstance(x, (LaplaceDomainExpression, ZDomainExpression))):
+            assumptions = self.assumptions.add(x)
+        
         if self.is_constant_domain and self.quantity == 'undefined':
             return xcls, self, x, assumptions            
 
-        if (isinstance(self, LaplaceDomainExpression) or
-            isinstance(x, LaplaceDomainExpression)):
-            assumptions = self.assumptions.add(x)
-        
         if self.quantity == x.quantity:
             if self.is_constant_domain:
                 return xcls, self, x, assumptions
@@ -2889,7 +2889,7 @@ from .sexpr import s, sexpr, LaplaceDomainExpression
 from .omegaexpr import omega, omegaexpr, AngularFourierDomainExpression
 from .nexpr import nexpr
 from .kexpr import kexpr
-from .zexpr import zexpr
+from .zexpr import zexpr, ZDomainExpression
 from .expressionclasses import expressionclasses
 
 # Horrible hack to work with IPython around Sympy's back for LaTeX
