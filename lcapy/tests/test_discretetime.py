@@ -36,23 +36,28 @@ class LcapyTester(unittest.TestCase):
         y = seq((1, 2, 3, 0, 0))
 
         h = seq((1, 2))                
-        
+
         self.assertEqual(x.as_impulses(), e, "as_impulses")
         self.assertEqual(x.zeropad(2), y, "zeropad")
         self.assertEqual(x.prune(), x, "prune")
-        self.assertEqual(y.extent(), 3, "extent")
+        self.assertEqual(y.extent, 3, "extent")
+        self.assertEqual(y.origin, 0, "origin")        
         self.assertEqual(x.convolve(h), seq((1, 4, 7, 6)), "convolve")
         self.assertEqual(h.ZT(), (z + 2) / z, "ZT")
         self.assertEqual(h.latex(), r'\left\{\underline{1}, 2\right\}', "latex")                
         self.assertEqual(seq('1, 2, 3'), x, "seq")
-        self.assertEqual(seq('{1, _2, 3}').latex(), r'\left\{1, \underline{2}, 3\right\}', "latex")
         self.assertEqual(e.seq(), x, "seq")
 
         self.assertEqual(h.n, [0, 1], "seq.n")
 
-        x = seq('{1, _2, 3, 4}')
-        self.assertEqual(x.n, [-1, 0, 1, 2], "seq.n")
-        self.assertEqual(x[0], 2, "seq[0]")        
+        q = seq('{1, _2, 3, 4}')
+        self.assertEqual(q.extent, 4, "extent")
+        self.assertEqual(q.origin, 1, "origin")                
+        self.assertEqual(q.n, [-1, 0, 1, 2], "seq.n")
+        self.assertEqual(q[0], 2, "seq[0]")
+        self.assertEqual(q.latex(), r'\left\{1, \underline{2}, 3, 4\right\}', "latex")
+        q.origin = 2
+        self.assertEqual(q.n, [-2, -1, 0, 1], "seq.n with origin 2")        
         
     def test_zexpr(self):
 

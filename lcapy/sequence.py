@@ -74,7 +74,8 @@ class Sequence(ExprList):
 
         return super(Sequence, self).__getitem__(nindex)
 
-    def get_origin(self):
+    @property
+    def origin(self):
         """Return the element index for n == 0. This may raise a ValueError
         if the origin is not in the sequence."""
 
@@ -82,12 +83,13 @@ class Sequence(ExprList):
         # that is outside, say -3?
         return self.n.index(0)
 
-    def set_origin(self, origin):
+    @origin.setter    
+    def origin(self, origin):
 
         if origin < 0 or origin >= len(self):
             # Perhaps could zero pad?
             raise ValueError('Origin %d outside sequence extent %d' % (origin, len(self)))
-        self.n = list(arange(-origin, len(self) - origin + 1))
+        self.n = list(arange(-origin, len(self) - origin))
 
     def prune(self):
         """Remove zeros from ends of sequence.
@@ -241,13 +243,14 @@ class Sequence(ExprList):
                 val = val.real
         
             return val            
-        
+
+    @property
     def extent(self):
         """Determine extent of the sequence.
 
-        For example, Sequence([1, 1]).extent() = 2
-                     Sequence([1, 0, 1]).extent() = 3
-                     Sequence([0, 1, 0, 1]).extent() = 3
+        For example, Sequence([1, 1]).extent = 2
+                     Sequence([1, 0, 1]).extent = 3
+                     Sequence([0, 1, 0, 1]).extent = 3
         """
         
         from numpy import argwhere
@@ -370,8 +373,8 @@ class Sequence(ExprList):
         x = self
         h = Sequence(h)
         
-        Lx = x.extent()
-        Lh = h.extent()
+        Lx = x.extent
+        Lh = h.extent
         Ly = Lx + Lh - 1
         
         if mode == 'full':

@@ -38,45 +38,48 @@ Sequences can be created using the `seq` function.  For example::
    >>> s = seq((1, 2, 3))
    {_1, 2, 3}
 
-Note, the underscore marks the item in the sequence where `n = 0`.
+Note, the underscore marks the element in the sequence where `n = 0`.
 
 Here's an example where the sequence is specified as a string::
 
    >>> s = seq('1, _2, 3')
    {1, _2, 3}
 
-Sequences can also be generated from a discre-time expression, for example::
+Sequences can also be generated from a discrete-time expression, for example::
 
    >>> x = delta(n) + 2 * delta(n - 2)
    >>> seq = x.seq((-5, 5))
    >>> seq
    {0, 0, 0, 0, 0, _1, 0, 2, 0, 0, 0}
 
-Note, the underscore marks the item in the sequence where `n = 0`.
+Note, the underscore marks the origin; the element in the sequence where `n = 0`.
        
-The extent of a sequence is given by the `extent()` method.   
+The extent of a sequence is given by the `extent` attribute.   
 
-   >>> seq.extent()
+   >>> seq.extent
    >>> 3
 
-Sequences can be convolved together, for example::
-
-   >>> seq((1, 2, 3)).convolve(seq((1, 1))
-   {_1, 3, 5, 3}
-
-Sequences can be converted to n-domain or k-domain expressions, for example::
-   
-   >>> seq((1, 2))(n)
-   δ[n] + 2⋅δ[n - 2]
-
-   >>> seq((1, 2))(k)
-   δ[k] + 2⋅δ[k - 2]   
-
-Each element in a sequence has a sequence index.  The sequence indices are returrn as a list by the `n` attribute.  For example::
+Each element in a sequence has a sequence index.  The sequence indices are return as a list by the `n` attribute.  For example::
 
    >>> x = seq('1, _2, 3, 4')
    >>> x.n
    [-1, 0, 1, 2]
+
+The origin of a sequence is given by the `origin` attribute.  This indicates the element index where `n = 0`.  For example::
+
+   >>> x = seq('1, _2, 3, 4')
+   >>> x.origin
+   1
+   >>> x = seq('1, 2, _3, 4')
+   >>> x.origin
+   2   
+
+The origin can be changed::
+
+   >>> x = seq('1, 2, _3, 4')
+   >>> x.origin = 1
+   >>> x
+   {1, _2, 3, 4}  
    
 Specific elements in the sequence can be accessed using call notation:
 
@@ -100,6 +103,11 @@ ndarray, for example::
    >>> x = seq('1, _2, 3, 4')
    >>> array(x)[0]
    1
+
+Sequences can be convolved, for example::
+
+   >>> seq((1, 2, 3)).convolve(seq((1, 1))
+   {_1, 3, 5, 3}
 
 Sequences can be evaluated and converted to a new sequence of floating
 point values using the `evalf()` method.  This has an argument to
@@ -126,7 +134,40 @@ Alternatively, the `evaluate()` method can be used to access and convert a singl
    >>> a
    array([3., 4.])
 
+Sequences can be converted to discrete-time domain or discrete-frequency domain expressions, for example::
    
+   >>> seq((1, 2))(n)
+   δ[n] + 2⋅δ[n - 2]
+
+   >>> seq((1, 2))(k)
+   δ[k] + 2⋅δ[k - 2]   
+
+
+Sequence attributes
+-------------------
+
+- `extent` the extent of the sequence
+- `n` the sequence indices
+- `origin` the element index for `n = 0`
+   
+
+Sequence methods
+----------------
+
+- `as_array()` convert to NumPy ndarray
+- `as_impulses()` convert to a weighted sum of unit impulses expression
+- `convolve()` convolve with another sequence
+- `DTFT()` compute discrete-time Fourier transform
+- `evalf()` convert each element in sequence to a SymPy floating point value with a specified number of digits
+- `evaluate()` evaluate sequence at specified indices and return as NumPy ndarray
+- `lfilter()` filter sequence
+- `simplify()` simplify each expression in sequence  
+- `prune()` remove zeroes from the ends of the sequence
+- `plot()` plot sequence as a lollipop (stem) plot
+- `zeropad()` add zeroes to the end of the sequence
+- `ZT()` compute z-transform  
+
+  
 Discrete-time (n-domain) expressions
 ====================================
 
