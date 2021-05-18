@@ -6,7 +6,7 @@ Copyright 2020-2021 Michael Hayes, UCECE
 
 from .expr import ExprList, expr
 from .utils import isiterable
-from numpy import array, allclose
+from numpy import array, allclose, arange
 
 # Perhaps subclass numpy ndarray?  But then could not have symbolic
 # elements in the sequence.  Perhaps have flavours for n-domain and
@@ -81,6 +81,13 @@ class Sequence(ExprList):
         # Perhaps if origin is not the sequence, return an index
         # that is outside, say -3?
         return self.n.index(0)
+
+    def set_origin(self, origin):
+
+        if origin < 0 or origin >= len(self):
+            # Perhaps could zero pad?
+            raise ValueError('Origin %d outside sequence extent %d' % (origin, len(self)))
+        self.n = list(arange(-origin, len(self) - origin + 1))
 
     def prune(self):
         """Remove zeros from ends of sequence.
