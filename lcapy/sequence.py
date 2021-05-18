@@ -47,6 +47,7 @@ class Sequence(ExprList):
 
     @property
     def vals(self):
+        """Return the SymPy values as a list."""
         return list(self)
 
     def __str__(self):
@@ -85,7 +86,7 @@ class Sequence(ExprList):
             m1 += 1
 
         m2 = len(vals) - 1
-        while vals[m2] != 0:
+        if vals[m2] != 0:
             return Sequence(vals[m1:], self.n[m1:])
         
         while vals[m2] == 0:
