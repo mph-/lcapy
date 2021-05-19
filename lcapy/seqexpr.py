@@ -60,8 +60,8 @@ class SequenceExpression(DiscreteExpression):
         # likely to have infinite extent sequence.  Maybe this could
         # be shown using ellipsis when the sequence is printed?
         
-        nvals = arange(n1, n2 + 1)
-        v = self(nvals)
+        ni = arange(n1, n2 + 1)
+        v = self(ni)
         
-        return Sequence(v, nvals, evaluate, self.var)
+        return Sequence(v, ni, evaluate=evaluate, var=self.var)
        

@@ -154,13 +154,16 @@ Sequence attributes
 Sequence methods
 ----------------
 
+These methods do not modify the sequence but return a new sequence, NumPy ndarray, or, Lcapy expression.
+
 - `as_array()` convert to NumPy ndarray
 - `as_impulses()` convert to a weighted sum of unit impulses expression
 - `convolve()` convolve with another sequence
+- `delay()` delay by an integer number of samples (the sequence is advanced if the argument is negative)
 - `DTFT()` compute discrete-time Fourier transform
 - `evalf()` convert each element in sequence to a SymPy floating point value with a specified number of digits
 - `evaluate()` evaluate sequence at specified indices and return as NumPy ndarray
-- `lfilter()` filter sequence
+- `lfilter()`  filter by LTI filter
 - `simplify()` simplify each expression in sequence  
 - `prune()` remove zeroes from the ends of the sequence
 - `plot()` plot sequence as a lollipop (stem) plot

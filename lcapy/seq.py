@@ -10,7 +10,7 @@ from .sequence import Sequence
 from .nexpr import n
 from .utils import isiterable
 
-def seq(arg, ni=None):
+def seq(arg, ni=None, origin=None):
     """Create a Sequence from a tuple, list, ndarray, or str.
 
     >>> a = seq((1, 2, 3))
@@ -39,7 +39,7 @@ def seq(arg, ni=None):
         arg = (arg, )
     
     if isinstance(arg, (tuple, list, ndarray)):
-        return Sequence(arg, ni, var=n)        
+        return Sequence(arg, ni, origin=origin, var=n)        
 
     if not isinstance(arg, str):
         raise ValueError('Argument not scalar, string, tuple, list, or ndarray.')
@@ -69,5 +69,5 @@ def seq(arg, ni=None):
     if m0 is None:
         m0 = 0
         
-    nv = list(range(-m0, N - m0))
-    return Sequence(vals, nv, var=n)
+    ni = range(-m0, N - m0)
+    return Sequence(vals, ni, var=n)

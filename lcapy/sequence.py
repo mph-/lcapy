@@ -14,7 +14,7 @@ from numpy import array, allclose, arange
 
 class Sequence(ExprList):
 
-    def __init__(self, seq, ni=None, evaluate=False, var=None):
+    def __init__(self, seq, ni=None, origin=None, evaluate=False, var=None):
         """Sequences can be created from an tuple, list, or ndarray.
 
         See `seq()` to create a Sequence from a string.
@@ -36,13 +36,20 @@ class Sequence(ExprList):
         [-1, 0, 1, 2]
 
         """
-
         super (Sequence, self).__init__(seq, evaluate)
 
-        if ni is None:
-            ni = list(range(len(seq)))
+        if ni is not None and origin is not None:
+            raise ValueError('Cannot specify both ni and origin')
+
+        if origin is not None:
+            ni = range(-origin, len(self) - origin)
         
-        self.n = ni
+        if ni is None:
+            ni = range(len(seq))
+
+        # Perhaps enforce contiguous sequences and just store the origin.
+        # This will simplify sequence comparison.
+        self.n = list(ni)
         self.var = var
 
     @property
@@ -50,6 +57,10 @@ class Sequence(ExprList):
         """Return the SymPy values as a list."""
         return list(self)
 
+    def __eq__(self, x):
+
+        return self.vals == x.vals and self.n == x.n
+    
     def __str__(self):
 
         items = []
@@ -79,16 +90,13 @@ class Sequence(ExprList):
         """Return the element index for n == 0. This may raise a ValueError
         if the origin is not in the sequence."""
 
-        # Perhaps if origin is not the sequence, return an index
+        # Perhaps if origin is not in the sequence, return an index
         # that is outside, say -3?
         return self.n.index(0)
 
     @origin.setter    
     def origin(self, origin):
 
-        if origin < 0 or origin >= len(self):
-            # Perhaps could zero pad?
-            raise ValueError('Origin %d outside sequence extent %d' % (origin, len(self)))
         self.n = list(arange(-origin, len(self) - origin))
 
     def prune(self):
@@ -386,3 +394,15 @@ class Sequence(ExprList):
         
         return x.lfilter(h, a=[1])
     
+    def delay(self, m=0):
+        """Return a new sequence delayed by an integer number of samples `m`.
+        If `m` is negative, the sequence is advanced."""
+
+        origin = self.origin - m
+        ni = list(arange(-origin, len(self) - origin))
+        
+        return self.__class__(self.vals, ni, var=self.var)                
+
+        
+        
+        
