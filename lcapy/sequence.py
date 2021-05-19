@@ -90,9 +90,7 @@ class Sequence(ExprList):
         """Return the element index for n == 0. This may raise a ValueError
         if the origin is not in the sequence."""
 
-        # Perhaps if origin is not in the sequence, return an index
-        # that is outside, say -3?
-        return self.n.index(0)
+        return -min(self.n)
 
     @origin.setter    
     def origin(self, origin):
