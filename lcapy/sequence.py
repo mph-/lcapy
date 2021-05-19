@@ -169,6 +169,36 @@ class Sequence(ExprList):
             items.append(s)                            
 
         return r'\left\{%s\right\}' % ', '.join(items)
+
+
+    def __str__(self):
+
+        items = []
+        for n1 in range(0, self.n[0]):
+            if n1 == 0:
+                s = r'_0'
+            else:
+                s = '0'
+            items.append(s)                
+            
+        for v1, n1 in zip(self, self.n):
+            try:
+                s = v1.latex()
+            except:
+                s = str(v1)
+            
+            if n1 == 0:
+                s = r'_%s' % v1
+            items.append(s)
+
+        for n1 in range(self.n[-1] + 1, 1):
+            if n1 == 0:
+                s = r'_0'
+            else:
+                s = '0'
+            items.append(s)                            
+
+        return r'{%s}' % ', '.join(items)    
     
     def pretty(self, **kwargs):
 
