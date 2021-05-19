@@ -290,6 +290,8 @@ def plot_time(obj, t, **kwargs):
 
 def plot_sequence(obj, ni, **kwargs):
 
+    from matplotlib.ticker import MaxNLocator
+    
     npoints = kwargs.pop('npoints', 400)        
     
     # FIXME, determine useful range...
@@ -310,6 +312,9 @@ def plot_sequence(obj, ni, **kwargs):
     title = kwargs.pop('title', None)
 
     ax.stem(ni * xscale, v * yscale, use_line_collection=True, **kwargs)
+    # Ensure integer ticks.
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    
     if xlabel is not None:
         ax.set_xlabel(xlabel)
     if ylabel is not None:        
