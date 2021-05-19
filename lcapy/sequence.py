@@ -404,6 +404,9 @@ class Sequence(ExprList):
         """Return a new sequence delayed by an integer number of samples `m`.
         If `m` is negative, the sequence is advanced."""
 
+        if m != int(m):
+            raise ValueError('Non-integer delay %s' % m)
+        
         origin = self.origin - m
         ni = list(arange(-origin, len(self) - origin))
         
