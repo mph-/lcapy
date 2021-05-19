@@ -143,6 +143,19 @@ Sequences can be converted to discrete-time domain or discrete-frequency domain 
    δ[k] + 2⋅δ[k - 2]   
 
 
+Sequence operators
+------------------
+
+Lcapy overloads the leftshift operator (`>>') and the rightshift
+operator (`<<') to shift sequences.   For example::
+
+  >>> a = seq((1, 2, 3))
+  >>> a >> 2
+  {_0, 1, 2, 3}
+
+
+
+   
 Sequence attributes
 -------------------
 

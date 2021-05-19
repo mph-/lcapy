@@ -161,6 +161,13 @@ class Sequence(ExprList):
                 s = r'\underline{%s}' % v1
             items.append(s)
 
+        for n1 in range(self.n[-1] + 1, 1):
+            if n1 == 0:
+                s = r'\underline{0}'
+            else:
+                s = '0'
+            items.append(s)                            
+
         return r'\left\{%s\right\}' % ', '.join(items)
     
     def pretty(self, **kwargs):
