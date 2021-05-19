@@ -180,6 +180,7 @@ These methods do not modify the sequence but return a new sequence, NumPy ndarra
 - `simplify()` simplify each expression in sequence  
 - `prune()` remove zeroes from the ends of the sequence
 - `plot()` plot sequence as a lollipop (stem) plot
+- `zeroextend()` add zeroes at either start or end so origin is included
 - `zeropad()` add zeroes to the end of the sequence
 - `ZT()` compute z-transform  
 

@@ -456,6 +456,19 @@ class Sequence(ExprList):
         
         return self.__class__(self.vals, ni, var=self.var)                
 
-        
-        
-        
+    def zeroextend(self):
+        """Extend sequence by adding zeros so that the origin
+        is included."""
+
+        ni = self.n
+        vals = self.vals
+        if ni[0] > 0:
+            vals = [0] * ni[0] + vals
+            ni = range(0, ni[-1] + 1)
+        elif ni[-1] < 0:
+            vals = vals + [0] * -ni[-1]
+            ni = range(ni[0], 1)            
+
+        return self.__class__(vals, ni, var=self.var)        
+
+            

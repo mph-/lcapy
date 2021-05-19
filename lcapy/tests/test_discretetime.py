@@ -62,6 +62,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(q.latex(), r'\left\{1, \underline{2}, 3, 4\right\}', "latex")
         q.origin = 2
         self.assertEqual(q.n, [-2, -1, 0, 1], "seq.n with origin 2")        
+
+        a = seq((1, 2, 3), origin=3)
+        self.assertEqual(a.zeroextend().vals, [1, 2, 3, 0], "zeroextend")
         
     def test_zexpr(self):
 
