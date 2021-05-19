@@ -60,6 +60,14 @@ class Sequence(ExprList):
     def __eq__(self, x):
 
         return self.vals == x.vals and self.n == x.n
+
+    def __lshift__(self, m):
+
+        return self.delay(-m)
+
+    def __rshift__(self, m):
+
+        return self.delay(m)    
     
     def __str__(self):
 

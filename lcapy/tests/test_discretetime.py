@@ -51,6 +51,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(h.n, [0, 1], "seq.n")
 
         self.assertEqual(h.delay(1), seq((1, 2), origin=-1), "delay")
+        self.assertEqual(h.delay(1), h >> 1, ">>")
+        self.assertEqual(h.delay(-1), h << 1, "<<")                
 
         q = seq('{1, _2, 3, 4}')
         self.assertEqual(q.extent, 4, "extent")
