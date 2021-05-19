@@ -195,6 +195,13 @@ class Sequence(ExprList):
                 s = '_' + s
             items.append(s)
 
+        for n1 in range(self.n[-1] + 1, 1):
+            if n1 == 0:
+                s = r'_0'
+            else:
+                s = '0'
+            items.append(s)                            
+            
         return r'{%s}' % ', '.join(items)
 
     def as_array(self):
