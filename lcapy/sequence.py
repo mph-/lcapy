@@ -178,25 +178,10 @@ class Sequence(ExprList):
     
     def pretty(self, **kwargs):
 
-        # FIXME, this does not work well if values require multiple
-        # lines, such as a^2
-        # See _print_seq in pretty.py of SymPy but how to denote
-        # the underline?
-
-        a = self.zeroextend()
+        from .printing import pretty
         
-        items = []
-        for v1, n1 in zip(a, a.n):
-            try:
-                s = v1.pretty()
-            except:
-                s = str(v1)
-            
-            if n1 == 0:
-                s = '_' + s
-            items.append(s)
-            
-        return r'{%s}' % ', '.join(items)
+        a = self.zeroextend()
+        return pretty(a)
 
     def as_array(self):
         """Numerically evaluate and store as NumPy array."""

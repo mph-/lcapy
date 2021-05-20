@@ -171,7 +171,7 @@ class LcapyLatexPrinter(LatexPrinter):
         tex = r"u\left[%s\right]" % self._print(expr.args[0])
         if exp:
             tex = r"u\left[%s\right]^{%s}" % (tex, exp)
-        return tex        
+        return tex
 
     def _print_symbol_name(self, name):
 
@@ -213,15 +213,40 @@ class LcapyPrettyPrinter(PrettyPrinter):
     def _print(self, expr, exp=None):
 
         from .expr import Expr
+        from .sequence import Sequence
+        
         if isinstance(expr, Expr):        
             expr = expr.expr
 
+        if isinstance(expr, Sequence):
+            return self._print_Sequence(expr)
+            
         try:            
             if expr in pretty_expr_map:
                 return self._print_basestring(pretty_expr_map[expr])
         except:
             pass
         return super(LcapyPrettyPrinter, self)._print(expr)
+
+    def _print_Sequence(self, seq):
+        from sympy.printing.pretty.stringpict import prettyForm, stringPict
+        
+        pforms = []
+        for item, n1 in zip(seq.vals, seq.n):
+            if pforms:
+                pforms.append(', ')
+            if n1 == 0:
+                pforms.append('_')                
+            pform = self._print(item)
+            pforms.append(pform)
+
+        if not pforms:
+            s = stringPict('')
+        else:
+            s = prettyForm(*stringPict.next(*pforms))
+
+        s = prettyForm(*s.parens('{', '}', ifascii_nougly=True))
+        return s
 
     def _print_Symbol(self, expr):
 
@@ -297,7 +322,8 @@ def print_str(expr):
 def pretty(expr, **settings):
     """Pretty print an expression."""
 
-    return LcapyPrettyPrinter(settings).doprint(expr)
+    printer = LcapyPrettyPrinter(settings)
+    return printer.doprint(expr)
 
 
 def pprint(expr, **kwargs):
