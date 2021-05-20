@@ -19,7 +19,7 @@ python:
    version: 3.7
    install:
    - method: pip
-      path: .
+     path: .
    - method: setuptools
 
 
