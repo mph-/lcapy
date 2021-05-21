@@ -1,5 +1,4 @@
-# opamp-piezo-amplifier2-asd2.py takes a long time
-PYFILES = opamp-piezo-amplifier2-frequency-response1.py vnoise1.py inoise1.py
+PYFILES = opamp-piezo-amplifier2-asd2.py opamp-piezo-amplifier2-frequency-response1.py vnoise1.py inoise1.py
 SCHFILES = $(wildcard *.sch)
 PNGFILES = $(PYFILES:.py=.png) $(SCHFILES:.sch=.png)
 
