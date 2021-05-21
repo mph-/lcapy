@@ -1,7 +1,7 @@
 version: 2
 python:
   install:
-    - method: setuptools
+    - method: pip
       path: .
 sphinx:
   configuration: doc/conf.py

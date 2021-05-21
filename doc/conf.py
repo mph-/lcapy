@@ -46,7 +46,7 @@ copyright = u'2014--2021, Michael Hayes'
 
 #from lcapy import __version__
 #print('Version ' + __version__)
-__version__ = 0.90
+__version__ = '0.90'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
