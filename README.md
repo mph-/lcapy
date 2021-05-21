@@ -6,7 +6,7 @@ for symbolic mathematics.
 
 Lcapy can analyse circuits described with netlists or by series/parallel combinations of components.
 
-Comprehensive documentation can be found at http://lcapy.elec.canterbury.ac.nz
+Comprehensive documentation can be found at https://lcapy.readthedocs.io/en/latest/
 
 
 Circuit analysis
@@ -192,9 +192,9 @@ Lcapy can be used with [Jupyter Notebooks](https://jupyter.org/).  For a number 
 Documentation
 -------------
 
-For comprehensive documentation, see http://lcapy.elec.canterbury.ac.nz (alternatively, the documentation can be viewed in a web browser after running 'make doc' in the top-level directory).
+For comprehensive documentation, see http://lcapy.readthedocs.io/en/latest (alternatively, the documentation can be viewed in a web browser after running 'make doc' in the top-level directory).
 
-For release notes see http://lcapy.elec.canterbury.ac.nz/releases.html
+For release notes see http://lcapy.readthedocs.io/en/latest/releases.html
 
 For another view on Lcapy see https://blog.ouseful.info/2018/08/07/an-easier-approach-to-electrical-circuit-diagram-generation-lcapy/
 
