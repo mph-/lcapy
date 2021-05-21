@@ -1,1 +1,3 @@
 sympy>=1.7.1
+# To keep networkx happy
+decorator<5,>=4.3
