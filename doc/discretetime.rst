@@ -136,12 +136,21 @@ Alternatively, the `evaluate()` method can be used to access and convert a singl
 
 Sequences can be converted to discrete-time domain or discrete-frequency domain expressions, for example::
    
-   >>> seq((1, 2))(n)
+   >>> seq((1, 2)).expr
    δ[n] + 2⋅δ[n - 2]
 
-   >>> seq((1, 2))(k)
-   δ[k] + 2⋅δ[k - 2]   
+The discrete Fourier transform (DFT), inverse discrete Fourier transform (IDFT) z-transform (ZT), and inverse z-transform (IZT) can be performed using the `DFT()`, `IDFT()`, `ZT()`, and `IZT()` methods.  In each case, a new sequence is returned.   For example::
 
+  >>> seq((1, 2, 3, 4)).ZT()
+  ⎧    2  3   4 ⎫
+  ⎪_1, ─, ──, ──⎪
+  ⎨    z   2   3⎬
+  ⎪       z   z ⎪
+  ⎩             ⎭
+
+  >>> seq((1, 2, 3, 4)).DFT()
+  {_10, -2 + 2⋅ⅉ, -2, -2 - 2⋅ⅉ}
+   
 
 Sequence operators
 ------------------
@@ -153,12 +162,11 @@ operator (`<<') to shift sequences.   For example::
   >>> a >> 2
   {_0, 1, 2, 3}
 
-
-
    
 Sequence attributes
 -------------------
 
+- `epxr` convert to a discrete-time or discrete-frequency expression
 - `extent` the extent of the sequence
 - `n` the sequence indices
 - `origin` the element index for `n = 0`
@@ -173,16 +181,19 @@ These methods do not modify the sequence but return a new sequence, NumPy ndarra
 - `as_impulses()` convert to a weighted sum of unit impulses expression
 - `convolve()` convolve with another sequence
 - `delay()` delay by an integer number of samples (the sequence is advanced if the argument is negative)
+- `DFT()` compute discrete Fourier transform as a sequence
 - `DTFT()` compute discrete-time Fourier transform
 - `evalf()` convert each element in sequence to a SymPy floating point value with a specified number of digits
 - `evaluate()` evaluate sequence at specified indices and return as NumPy ndarray
+- `IDFT()` compute inverse discrete Fourier transform as a sequence
+- `IZT()` compute inverse z-transform as a sequence  
 - `lfilter()`  filter by LTI filter
 - `simplify()` simplify each expression in sequence  
 - `prune()` remove zeroes from the ends of the sequence
 - `plot()` plot sequence as a lollipop (stem) plot
 - `zeroextend()` add zeroes at either start or end so origin is included
 - `zeropad()` add zeroes to the end of the sequence
-- `ZT()` compute z-transform  
+- `ZT()` compute z-transform as a sequence
 
   
 Discrete-time (n-domain) expressions

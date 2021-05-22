@@ -43,13 +43,13 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(y.extent, 3, "extent")
         self.assertEqual(y.origin, 0, "origin")        
         self.assertEqual(x.convolve(h), seq((1, 4, 7, 6)), "convolve")
-        self.assertEqual(h.ZT(), (z + 2) / z, "ZT")
+        self.assertEqual(h.expr.ZT(), (z + 2) / z, "ZT")
         self.assertEqual(h.latex(), r'\left\{\underline{1}, 2\right\}', "latex")                
         self.assertEqual(seq('1, 2, 3'), x, "seq")
         self.assertEqual(e.seq(), x, "seq")
 
         self.assertEqual(h.n, [0, 1], "seq.n")
-        self.assertEqual(h(z), (z + 2) / z, "h(z)")
+        self.assertEqual(h.expr(z), (z + 2) / z, "h(z)")
 
         self.assertEqual(h.delay(1), seq((1, 2), origin=-1), "delay")
         self.assertEqual(h.delay(1), h >> 1, ">>")
@@ -70,8 +70,10 @@ class LcapyTester(unittest.TestCase):
         x = seq((1, 2, 3, 4))
         X = x.DFT()
         x2 = X.IDFT()
-        self.assertEqual(x, x2, "DFT/IDFT")        
-        
+        self.assertEqual(x, x2, "DFT/IDFT")
+
+        self.assertEqual(h.ZT(), seq((1, 2 / z)), "ZT")
+        self.assertEqual(h.ZT().IZT(), h, "ZT/IZT")
         
     def test_zexpr(self):
 

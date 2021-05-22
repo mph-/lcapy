@@ -325,18 +325,27 @@ class Sequence(ExprList):
         from .kexpr import k
         from .zexpr import z
 
-        if id(arg) in (id(n), id(k)):
-            return self.as_impulses(arg)
-        if arg in (n, k):
-            return self.as_impulses(arg)
+        if id(arg) == id(n) or arg == n:
+            if self.var == n:
+                return self.copy()
+            elif self.var == k:
+                return self.IDFT()
+            return self.IZT()            
+        if id(arg) == id(k) or arg == k:
+            if self.var == k:
+                return self.copy()            
+            elif self.var == z:
+                return self.IZT().DFT()
+            return self.DFT()
         if id(arg) == id(z) or arg == z:
-            return self.as_impulses(n)(arg)
+            if self.var == z:
+                return self.copy()            
+            elif self.var == k:
+                return self.IDFT().ZT()
+            return self.ZT()
 
         # This is experimental and may be deprecated.
         return self[arg]
-
-    def ZT(self, **assumptions):
-        return self.as_impulses().ZT(**assumptions)    
 
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
@@ -349,6 +358,10 @@ class Sequence(ExprList):
         from .printing import pretty
         p.text(self.pretty())
 
+    def copy(self):
+        return self.__class__(super(Sequence, self).copy(),
+                               self.n, var=self.var)
+        
     def lfilter(self, b=None, a=None):
         """Implement digital filter specified by a transfer function.  The
         transfer function is described by a vector `b` of coefficients
@@ -443,7 +456,7 @@ class Sequence(ExprList):
         from .nexpr import n
         from .kexpr import k
 
-        if self.var == k:
+        if self.var != n:
             print('Warning, you should use IDFT since in discrete-frequency domain')
         
         results = []
@@ -465,7 +478,7 @@ class Sequence(ExprList):
         from .nexpr import n
         from .kexpr import k
 
-        if self.var == n:
+        if self.var != k:
             print('Warning, you should use IDFT since in discrete-time domain')
         
         results = []
@@ -479,3 +492,43 @@ class Sequence(ExprList):
             results.append(result / N)
 
         return self.__class__(results, var=n)    
+
+    def ZT(self):
+        """Calculate z-transform and return as sequence."""
+
+        from .kexpr import k
+        from .zexpr import z
+
+        if self.var == z:
+            print('Warning, you should use IZT since in z-domain')
+        elif self.var == k:
+            return self.IDFT().ZT()
+        
+        results = []
+        vals = self.vals
+        N = len(vals)
+        for ni in range(N):
+            results.append(vals[ni] * z**(-ni))
+
+        return self.__class__(results, var=z)        
+
+    def IZT(self):
+        """Calculate inverse z-transform and return as sequence."""
+
+        from .kexpr import k
+        from .nexpr import n        
+        from .zexpr import z
+
+        if self.var == n:
+            print('Warning, you should use ZT since in discrete-time domain')
+        elif self.var == k:
+            return self.IDFT().IZT()
+        
+        results = []
+        vals = self.vals
+        N = len(vals)
+        for ni in range(N):
+            results.append(vals[ni] * z**ni)
+
+        return self.__class__(results, var=n)        
+    
