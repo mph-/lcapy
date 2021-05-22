@@ -66,6 +66,12 @@ class LcapyTester(unittest.TestCase):
 
         a = seq((1, 2, 3), origin=3)
         self.assertEqual(a.zeroextend().vals, [1, 2, 3, 0], "zeroextend")
+
+        x = seq((1, 2, 3, 4))
+        X = x.DFT()
+        x2 = X.IDFT()
+        self.assertEqual(x, x2, "DFT/IDFT")        
+        
         
     def test_zexpr(self):
 
