@@ -35,6 +35,11 @@ class Sequence(ExprList):
         >>> a = Sequence('{1, _2, 3, 4}').n
         [-1, 0, 1, 2]
 
+        Sequences can be converted into discrete-time, discrete-frequency,
+        z-domain expressions using call notation, for example::
+        
+        >>> a(z)
+
         """
         super (Sequence, self).__init__(seq, evaluate)
 
@@ -102,6 +107,7 @@ class Sequence(ExprList):
 
     @origin.setter    
     def origin(self, origin):
+        """Set the origin to `origin`."""
 
         self.n = list(arange(-origin, len(self) - origin))
 
@@ -423,4 +429,51 @@ class Sequence(ExprList):
 
         return self.__class__(vals, ni, var=self.var)        
 
-            
+    def DFT(self):
+        """Calculate DFT and return as sequence."""
+
+        from sympy import exp
+        from .sym import j, pi
+        from .nexpr import n
+        from .kexpr import k
+
+        # FIXME, the origin needs to be considered
+
+        if self.var == k:
+            print('Warning, you should use IDFT since in discrete-frequency domain')
+        
+        results = []
+        vals = self.vals
+        N = len(vals)
+        for ki in range(N):
+            result = 0
+            for ni in range(N):            
+               result += vals[ni] * exp(-2 * j * pi * ni * ki / N)
+            results.append(result)
+
+        return self.__class__(results, var=k)
+
+    def IDFT(self):
+        """Calculate IDFT and return as sequence."""
+
+        from sympy import exp
+        from .sym import j, pi
+        from .nexpr import n
+        from .kexpr import k
+
+        # FIXME, the origin needs to be considered
+
+        if self.var == n:
+            print('Warning, you should use IDFT since in discrete-time domain')
+        
+        results = []
+        vals = self.vals
+        N = len(vals)
+        for ni in range(N):            
+            result = 0
+            for ki in range(N):
+               result += vals[ki] * exp(2 * j * pi * ni * ki / N)
+               
+            results.append(result / N)
+
+        return self.__class__(results, var=n)    
