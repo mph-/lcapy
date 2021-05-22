@@ -3,8 +3,9 @@ for symbolic mathematics.
 
 ![Run tests and checks](https://github.com/mph-/lcapy/workflows/Run%20tests%20and%20checks/badge.svg)
 [![Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/mph-/lcapy/master)
+![Documentation](https://readthedocs.org/projects/docs/badge/?version=latest)
 
-Lcapy can analyse circuits described with netlists or by series/parallel combinations of components.
+Lcapy can symbolically analyse circuits described with netlists or by series/parallel combinations of components.  It can also manipulate continuous-time and discret-time expressions.
 
 Comprehensive documentation can be found at https://lcapy.readthedocs.io/en/latest/
 
