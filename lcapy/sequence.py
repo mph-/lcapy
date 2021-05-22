@@ -201,6 +201,12 @@ class Sequence(ExprList):
             vals = vals.real
         
         return vals
+
+    @property
+    def expr(self):
+        """Convert sequence to an Lcapy expression."""
+
+        return self.as_impulses(self.var)
         
     def as_impulses(self, var=None):
         """Convert to discrete-time signal in the form of
