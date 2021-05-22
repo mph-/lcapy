@@ -311,11 +311,14 @@ class Sequence(ExprList):
 
         from .nexpr import n
         from .kexpr import k
+        from .zexpr import z
 
         if id(arg) in (id(n), id(k)):
             return self.as_impulses(arg)
         if arg in (n, k):
             return self.as_impulses(arg)
+        if id(arg) == id(z) or arg == z:
+            return self.as_impulses(n)(arg)
 
         # This is experimental and may be deprecated.
         return self[arg]
