@@ -246,6 +246,25 @@ def ztransform_term(expr, n, z):
         
         result *= base_a**cc    
     
+    # n**i * ( w )**(b*n+c)  for i>=2    w complex
+    elif (expr.is_Mul and len(expr.args) == 2 and args[1].is_Pow and (args[1].args[1].as_poly(n)).is_linear and ( not args[1].args[0].is_real ) and
+          args[0].is_Pow and args[0].args[0] == n and args[0].args[1].is_Integer and args[0].args[1]>=1 ):
+        ii = args[0].args[1]        
+        # a**() part
+        bb = args[1].args[1].coeff(n, 1)
+        cc = args[1].args[1].coeff(n, 0)
+        base_a = args[1].args[0]    
+
+        # use rule n*x[n]  o--o  -z*d/dz X(z) multiple times    
+        result = 1 / (1 - base_a**bb * invz)
+        for l in range(ii):
+            result = -z * sym.diff(result, z)
+            result = sym.simplify(result)
+
+        result *= base_a**cc    
+    
+    
+    
     # a**(b*n+c) * sin(d*n+e)  OR  a**(b*n+c) * cos(d*n+e)
     elif (expr.is_Mul and len(expr.args) == 2 and args[0].is_Pow and ((args[0].args[1]).as_poly(n)).is_linear and args[0].args[0] != n and
            args[1].is_Function and (args[1].func == sym.sin or args[1].func == sym.cos) and 
@@ -479,6 +498,78 @@ def ztransform_term(expr, n, z):
         if aexpr == n and bexpr == n:
             result = z / (z - sym.exp(aconst + bconst))    
     
+    
+    # n * exp(a * n) * exp(b * n)   , for complex arguments useful
+    elif (expr.is_Mul and len(expr.args) == 3 and args[1].is_Function and args[2].is_Function and
+          args[1].func == sym.exp and args[2].func == sym.exp and args[0] == n):
+        aconst, aexpr = factor_const(args[1].args[0], n)
+        bconst, bexpr = factor_const(args[2].args[0], n)
+        if aexpr == n and bexpr == n:
+            result = z / (z - sym.exp(aconst + bconst))
+            result = -z*sym.diff( result ,z )
+            result = sym.simplify(result)
+    
+     
+    # n**i * exp(a * n) * exp(b * n)   ii>=2 , for complex arguments useful
+    elif (expr.is_Mul and len(expr.args) == 3 and args[1].is_Function and args[2].is_Function and
+          args[1].func == sym.exp and args[2].func == sym.exp and args[0].is_Pow and args[0].args[0] == n 
+          and args[0].args[1].is_Integer and args[0].args[1]>=1):
+        aconst, aexpr = factor_const(args[1].args[0], n)
+        bconst, bexpr = factor_const(args[2].args[0], n)
+        ii = args[0].args[1]
+        if aexpr == n and bexpr == n:
+            result = z / (z - sym.exp(aconst + bconst))
+            for l in range(ii):
+                result = -z * sym.diff(result, z)
+                result = sym.simplify(result)             
+   
+        
+    #  a**(b*n+c) * exp(d * n)   , for complex arguments useful
+    elif (expr.is_Mul and len(expr.args) == 2 and  args[1].is_Function and args[1].func == sym.exp  and 
+              args[0].is_Pow and ((args[0].args[1]).as_poly(n)).is_linear and args[0].args[0] != n ):
+        #
+        aa = args[0].args[0]
+        bb = (args[0].args[1]).coeff(n, 1)
+        cc= (args[0].args[1]).coeff(n, 0)
+        dconst, dexpr = factor_const(args[1].args[0], n)
+        if dexpr == n:
+            result = aa**cc*z / ( z - aa**bb*sym.exp(dconst) )
+                  
+    
+    
+    # n * a**(b*n+c) * exp(d * n)   , for complex arguments useful
+    elif (expr.is_Mul and len(expr.args) == 3 and  args[2].is_Function and args[2].func == sym.exp  and 
+          args[1].is_Pow and ((args[1].args[1]).as_poly(n)).is_linear and args[1].args[0] != n and args[0] == n):
+        #
+        aa = args[1].args[0]
+        bb = (args[1].args[1]).coeff(n, 1)
+        cc= (args[1].args[1]).coeff(n, 0)
+        dconst, dexpr = factor_const(args[2].args[0], n)
+        if dexpr == n:
+            result = z / ( z - aa**bb*sym.exp(dconst) )
+            result = -z*sym.diff( result ,z )
+            result = aa**cc*sym.simplify(result)
+
+
+    # n**i * a**(b*n+c) * exp(d * n)   , for complex arguments useful
+    elif (expr.is_Mul and len(expr.args) == 3 and  args[2].is_Function and args[2].func == sym.exp  and 
+              args[0].is_Pow and ((args[0].args[1]).as_poly(n)).is_linear and args[0].args[0] != n and 
+              args[1].args[0] == n and args[1].args[1].is_Integer and args[1].args[1]>=1 ):
+        #
+        aa = args[0].args[0]
+        bb = (args[0].args[1]).coeff(n, 1)
+        cc= (args[0].args[1]).coeff(n, 0)
+        dconst, dexpr = factor_const(args[2].args[0], n)
+        ii = args[1].args[1]
+        if dexpr == n:
+            result = z / ( z - aa**bb*sym.exp(dconst) )
+            for l in range(ii):
+                result = -z * sym.diff(result, z)
+                result = sym.simplify(result)                
+            result = aa**cc*sym.simplify(result)               
+           
+   
+                       
         
     if result is None:
         # Use m instead of n to avoid n and z in same expr.
@@ -540,7 +631,8 @@ def ztransform(expr, n, z, evaluate=True):
             result += ztransform_term(term, n, z)
     except ValueError:
         raise
-
+    
+    # these two simplify may slow down computation enormously
     result = result.simplify()
     ztransform_cache[key] = result
     return (const * result).simplify()
@@ -566,18 +658,18 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
         elif expr.args[0].is_Pow and expr.args[0].args[0] == z:
             a = expr.args[0].args[1]
             if a.is_positive:
-                print('Warning, dodgy z-transform.  Have advance of unit step.')
+                print('Warning, dodgy z-transform 1.  Have advance of unit step.')
             elif not a.is_negative:
-                print('Warning, dodgy z-transform.  May have advance of unit step.')                
+                print('Warning, dodgy z-transform 2.  May have advance of unit step.')                
             delay = -a
         elif (expr.args[0].is_Pow and expr.args[0].args[0].is_Pow and
               expr.args[0].args[0].args[0] == z and
               expr.args[0].args[0].args[1] == -1):              
             a = expr.args[0].args[1]
             if a.is_negative:
-                print('Warning, dodgy z-transform.  Have advance of unit step.')
+                print('Warning, dodgy z-transform 3.  Have advance of unit step.')
             elif not a.is_positive:
-                print('Warning, dodgy z-transform.  May have advance of unit step.')                
+                print('Warning, dodgy z-transform 4.  May have advance of unit step.')                
             delay = a            
 
         if delay is not None:
@@ -610,23 +702,66 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
     poles = zexpr.poles(damping=damping)
     polesdict = {}
     for pole in poles:
+        pole.expr = sym.simplify(pole.expr)
         polesdict[pole.expr] = pole.n
+        
+    ############ Juergen Weizenecker HsKa
     
-    for pole in poles:
+    # Make two dictionaries in order to handle them differently and make 
+    # pretty expressions
+    pole_single_dict = polesdict.copy()
+    pole_pair_dict={}
+    
+    if 'pairs' in assumptions:
+        if assumptions['pairs']:
+            for pole_1 in polesdict:
+                if ( not pole_1.is_real ) and sym.conjugate(pole_1) in polesdict:
+                    pole_single_dict.pop(pole_1,None)
+                    pole_2 = sym.conjugate(pole_1)
+                    order_1 = polesdict[pole_1]
+                    order_2 = polesdict[pole_2]
+                    if order_1 != order_2:
+                        print("!!!! Pole pairs are of different order")
+                        pole_pair_dict={}
+                        pole_single_dict=polesdict.copy()
+                        break;
+                    elif sym.im(pole_1) > 0:
+                        pole_pair_dict[(pole_1,pole_2)]=[order_1,order_2]
+                    else:
+                        pole_pair_dict[(pole_2,pole_1)]=[order_2,order_1]
+            if pole_pair_dict == {}:
+                print("No pole pairs found, proceed without pole pairs")    
+    
+    # make n (=number of poles) different denominators to speed up calculation and avoid sym.limit
+    # the different denominators are due to shortening of poles after multiplying with (z-z1)**o
+    if not (M.is_polynomial(z) and D.is_polynomial(z)):
+        print("numerator or denominator may contain 1/z terms : ", M, D)
+    
+    n_poles = len(poles)
+    # leading coefficient of denominator polynom
+    a_0 = sym.LC(D) 
+    # the canceled denominator ( for each (z-p)**o ) 
+    shorten_denom = {}
+    for i in range( n_poles ):
+        shorten_term = sym.prod([(z-poles[j].expr)**(poles[j].n) for j in range(n_poles) if j!=i ], a_0 )    
+        shorten_denom[poles[i].expr]=shorten_term
+      
+    # Run through single poles real or complex, order 1 or higher
+    for pole in pole_single_dict:
 
-        p = pole.expr
+        p = pole
 
         # Number of occurrences of the pole.
-        o = polesdict[p]        
+        o = pole_single_dict[pole]  
+                
+        # X(z)/z*(z-p)**o after shortening
+        expr2 = M / shorten_denom[p]
 
         if o == 0:
             continue
 
         if o == 1:
-            r = zexpr.residue(p, poles)
-
-            # TODO combine conjugates to get a real result
-            # See laplace.py
+            r = sym.simplify(sym.expand(expr2.subs(z, p))) 
 
             if p == 0:
                 cresult += r * UnitImpulse(n)
@@ -635,28 +770,94 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             continue
 
         # Handle repeated poles.
+        all_derivatives = [expr2]
+        for i in range(1, o ):
+            all_derivatives += [sym.diff( all_derivatives[i-1], z )]         
         
-        expr2 = expr * (z - p) ** o
-        expr2 = expr2.simplify()
         bino = 1
+        sum_p = 0
         for i in range(1, o + 1):
             m = o - i
-            r = sym.limit(
-                sym.diff(expr2, z, m), z, p) / sym.factorial(m)
+            derivative = all_derivatives[m]
+            # derivative at z=p 
+            derivative = sym.expand(derivative.subs(z, p))
+            r = sym.simplify(derivative) / sym.factorial(m)
 
             if p == 0:
                 cresult += r * UnitImpulse(n - i + 1)
-            else:            
-                uresult += r * bino * p **(n - i + 1) / sym.factorial(i - 1)
+            else:
+                sum_p += r * bino * p **(1- i) / sym.factorial(i - 1)
                 bino *= n - i + 1
-
+                
+        uresult += sum_p * p**n
+    
+    # Run through complex pole pairs
+    for pole in pole_pair_dict:
+        
+        p1 = pole[0]
+        p2 = pole[1]
+    
+        # Number of occurrences of the pole
+        o1 = pole_pair_dict[pole][0]
+    
+        # X(z)/z*(z-p)**o after shortening
+        expr_1 = M / shorten_denom[p1]
+        expr_2 = M / shorten_denom[p2]
+    
+        # Oscillation parameter
+        lam = sym.sqrt(sym.simplify(p1 * p2))        
+        omega_0 = sym.simplify(sym.arg(p1 / lam))
+        
+        if o1 == 1:
+            r1 = expr_1.subs(z, p1) 
+            r2 = expr_2.subs(z, p2) 
+            
+            r1_re = sym.re(r1).simplify()
+            r1_im = sym.im(r1).simplify()            
+            
+            # If pole pairs is selected, r1=r2*
+            
+            # handle real part
+            uresult += 2 * r1_re * lam**n * sym.cos(omega_0 * n) 
+            uresult += -2 * r1_im * lam**n * sym.sin(omega_0 * n)
+        else:
+            
+            bino = 1
+            sum_b = 0
+            # compute first all derivatives needed
+            all_derivatives_1 = [expr_1]
+            for i in range(1, o1):
+                all_derivatives_1 += [sym.diff(all_derivatives_1[i - 1], z)] 
+            
+            # Loop through the binomial series
+            for i in range(1, o1 + 1):
+                m = o1 - i
+                
+                # mth derivative at z=p1
+                derivative = all_derivatives_1[m]
+                r1 = derivative.subs(z, p1) / sym.factorial(m)             
+                # Prefactors
+                prefac = bino * lam **(1 - i) / sym.factorial(i - 1)
+                # Simplify r1
+                r1 = r1.rewrite(sym.exp).simplify()
+                # sum
+                sum_b += prefac * r1 *sym.exp( sym.I*omega_0 *(1-i) )
+                # Binomial coefficient                
+                bino *= n - i + 1            
+                
+            # Take result = lam**n * ( sum_b*sum_b*exp(j*omega_0*n) + cc )   
+            aa = sym.simplify(sym.re(sum_b))
+            bb =  sym.simplify(sym.im(sum_b))
+            uresult += 2 * (aa * sym.cos(omega_0 * n) - bb * sym.sin(omega_0 * n)) * lam**n
+            
     # cresult is a sum of Dirac deltas and its derivatives so is known
-    # to be causal.
+    # to be causal.    
 
     return cresult, uresult
 
 
 def dummyvar(intnum=0):
+    
     if intnum == 0:
         return sympify('m', real=True)
     else:
@@ -876,7 +1077,7 @@ def inverse_ztransform_by_terms(expr, z, n, **assumptions):
 def inverse_ztransform_make(n, const, cresult, uresult, **assumptions):
 
     result = const * (cresult + uresult)
-    result = result.simplify()
+    #result = result.simplify()
     
     if assumptions.get('dc', False):
         free_symbols = set([symbol.name for symbol in result.free_symbols])
