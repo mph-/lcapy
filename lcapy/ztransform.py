@@ -1,6 +1,6 @@
 """This module provides support for z transforms.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020-21 Michael Hayes, UCECE
 
 """
 
@@ -227,7 +227,6 @@ def ztransform_term(expr, n, z):
         base_a = (args[1].args[0])    
         # result  
         result = base_a**(cc + bb) * invz / (1 - base_a**bb * invz)**2
-    
        
     # n**i * a**(b*n+c)  for i>=2 
     elif (expr.is_Mul and len(expr.args) == 2 and args[0].is_Pow and (args[0].args[1].as_poly(n)).is_linear and 
@@ -263,12 +262,10 @@ def ztransform_term(expr, n, z):
 
         result *= base_a**cc    
     
-    
-    
     # a**(b*n+c) * sin(d*n+e)  OR  a**(b*n+c) * cos(d*n+e)
     elif (expr.is_Mul and len(expr.args) == 2 and args[0].is_Pow and
           ((args[0].args[1]).as_poly(n)).is_linear and args[0].args[0] != n and
-           args[1].is_Function and (args[1].func == sym.sin or args[1].func == sym.cos) and 
+           args[1].is_Function and args[1].func in (sym.sin, sym.cos) and 
            ((args[1].args[0]).as_poly(n)).is_linear):
         # values for a**() part
         base_a=args[0].args[0]
@@ -284,11 +281,10 @@ def ztransform_term(expr, n, z):
         
         result = base_a**cc * (expr.args[1].func(ee) + pre_sign * base_a**bb * expr.args[1].func(dd - ee) * invz) / (1 - 2 * sym.cos(dd) * base_a**bb * invz + (base_a**bb * invz) ** 2)
     
-    
     # n * sin(b*n+c)  OR  n * cos(b*n+c) for i>=1
     elif (expr.is_Mul and len(expr.args) == 2 and args[0] == n and 
-          args[1].is_Function and (args[1].func == sym.sin or args[1].func == sym.cos) 
-          and ((expr.args[1].args[0]).as_poly(n)).is_linear) :
+          args[1].is_Function and args[1].func in (sym.sin, sym.cos) 
+          and ((expr.args[1].args[0]).as_poly(n)).is_linear):
         # find parameter of sin() part
         bb = (args[1].args[0]).coeff(n, 1)
         cc = (args[1].args[0]).coeff(n, 0)        
@@ -299,14 +295,11 @@ def ztransform_term(expr, n, z):
 
         result = (args[1].func(cc) + pre_sign * args[1].func(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz ** 2)    
         result = -z * sym.diff(result, z)
-            
-    
-    
         
     # n**i * sin(b*n+c)  OR  n**i * cos(b*n+c) for i>=1
-    elif (expr.is_Mul and len(expr.args) == 2 and args[0].is_Pow and args[0].args[0] == n and args[0].args[1].is_Integer and args[0].args[1]>=1 and 
-          args[1].is_Function and (args[1].func == sym.sin or args[1].func == sym.cos) 
-             and ((expr.args[1].args[0]).as_poly(n)).is_linear) :
+    elif (expr.is_Mul and len(expr.args) == 2 and args[0].is_Pow and args[0].args[0] == n and args[0].args[1].is_Integer and args[0].args[1] >= 1 and 
+          args[1].is_Function and args[1].func in (sym.sin, sym.cos) 
+             and ((expr.args[1].args[0]).as_poly(n)).is_linear):
         ii = args[0].args[1]
         # find parameter of sin() part
         bb = (args[1].args[0]).coeff(n, 1)
@@ -322,9 +315,10 @@ def ztransform_term(expr, n, z):
             result = sym.simplify(result)  
     
     # n * a**(b*n+c) * sin(d*n+e)  OR n * a**(b*n+c) * cos(d*n+e) 
-    elif (expr.is_Mul and len(expr.args) == 3 and args[0] == n and args[2].is_Function and (args[2].func == sym.sin or args[2].func == sym.cos) 
+    elif (expr.is_Mul and len(expr.args) == 3 and
+          args[0] == n and args[2].is_Function and args[2].func in (sym.sin, sym.cos) 
            and ((args[2].args[0]).as_poly(n)).is_linear and
-           args[1].is_Pow and ((args[1].args[1]).as_poly(n)).is_linear and args[1].args[0] != n) :
+           args[1].is_Pow and ((args[1].args[1]).as_poly(n)).is_linear and args[1].args[0] != n):
         # find parameter of sin(), cos() part
         dd = (args[2].args[0]).coeff(n, 1)
         ee = (args[2].args[0]).coeff(n, 0) 
@@ -338,13 +332,12 @@ def ztransform_term(expr, n, z):
             pre_sign = -1        
         # result
         result = (args[2].func(ee) + pre_sign * args[2].func(dd - ee) * base_a**bb * invz) / (1 - 2 * sym.cos(dd) * base_a**bb * invz + (base_a**bb*invz) ** 2)         
-        result = -z*sym.diff(result, z)
+        result = -z * sym.diff(result, z)
         result = sym.simplify(result)
     
-    
     # n**i * a**(b*n+c) * sin(d*n+e)  OR  n**i * a**(b*n+c) * cos(d*n+e)  i>=2
-    elif (expr.is_Mul and len(expr.args) == 3 and args[1].is_Pow and args[1].args[0] == n and args[1].args[1].is_Integer and args[1].args[1]>=2 and 
-          args[2].is_Function and (args[2].func == sym.sin or args[2].func == sym.cos) and ((args[2].args[0]).as_poly(n)).is_linear and
+    elif (expr.is_Mul and len(expr.args) == 3 and args[1].is_Pow and args[1].args[0] == n and args[1].args[1].is_Integer and args[1].args[1] >= 2 and 
+          args[2].is_Function and args[2].func in (sym.sin, sym.cos) and ((args[2].args[0]).as_poly(n)).is_linear and
            args[0].is_Pow and ((args[0].args[1]).as_poly(n)).is_linear and args[0].args[0] != n):  
         ii = args[1].args[1]
         # find parameter of sin(), cos() part
@@ -366,14 +359,12 @@ def ztransform_term(expr, n, z):
             result = sym.simplify(result)        
         result *= base_a**cc
 
-
     # n * exp(a * n)
     elif (expr.is_Mul and len(args) == 2 and args[0] == n and
           args[1].is_Function and args[1].func == sym.exp):
         aconst, aexpr = factor_const(args[1].args[0], n)
         if aexpr == n:
             result = z * sym.exp(aconst) / (z - sym.exp(aconst))**2            
-
     
     # n**i * exp(a * n)   ;   i>=2
     elif (expr.is_Mul and len(expr.args) == 2 and args[1].is_Function and args[1].func == sym.exp and 
@@ -388,7 +379,6 @@ def ztransform_term(expr, n, z):
             result = -z * sym.diff(result, z)
             result = sym.simplify(result)   
 
-
     # sin(a * n + b) * exp(c * n + d) and exp(c * n + d) * sin(a * n + b)
     elif (expr.is_Mul and args[0].is_Function and args[1].is_Function and
           args[0].func == sym.exp and args[1].func == sym.sin and ((args[1].args[0]).as_poly(n)).is_linear and ((args[0].args[0]).as_poly(n)).is_linear):
@@ -399,10 +389,9 @@ def ztransform_term(expr, n, z):
         cc = (args[0].args[0]).coeff(n, 1)
         dd = (args[0].args[0]).coeff(n, 0)        
         # result
-        num = sym.sin(bb) + sym.exp(cc) * sym.sin(aa-bb) * invz
-        den = (1 - 2 * invz * sym.exp(cc) * sym.cos(aa) + sym.exp(2 * cc)*invz**2)
+        num = sym.sin(bb) + sym.exp(cc) * sym.sin(aa - bb) * invz
+        den = (1 - 2 * invz * sym.exp(cc) * sym.cos(aa) + sym.exp(2 * cc) * invz**2)
         result = sym.exp(dd) * num / den
-
 
     # cos(a * n + b) * exp(c * n + d) and exp(c * n + d) * cos(a * n + b)
     elif (expr.is_Mul and args[0].is_Function and args[1].is_Function and
@@ -414,15 +403,13 @@ def ztransform_term(expr, n, z):
         cc = (args[1].args[0]).coeff(n, 1)
         dd = (args[1].args[0]).coeff(n, 0)        
         # result
-        num = sym.cos(bb) - sym.exp(cc) * sym.cos(aa-bb) * invz
-        den = (1 - 2 * invz * sym.exp(cc) * sym.cos(aa) + sym.exp(2 * cc)*invz**2)
+        num = sym.cos(bb) - sym.exp(cc) * sym.cos(aa - bb) * invz
+        den = (1 - 2 * invz * sym.exp(cc) * sym.cos(aa) + sym.exp(2 * cc) * invz**2)
         result = sym.exp(dd) * num / den            
-    
-
     
     # n * cos(a*n+b) * exp(c*n+d) 
     elif (expr.is_Mul and len(expr.args) == 3 and args[0] == n and args[1].is_Function and args[1].func == sym.cos and ((args[1].args[0]).as_poly(n)).is_linear and
-           args[2].is_Function and args[2].func == sym.exp and ((args[2].args[0]).as_poly(n)).is_linear) :
+           args[2].is_Function and args[2].func == sym.exp and ((args[2].args[0]).as_poly(n)).is_linear):
         # find parameter of cos() part
         aa = (args[1].args[0]).coeff(n, 1)
         bb = (args[1].args[0]).coeff(n, 0) 
@@ -430,16 +417,15 @@ def ztransform_term(expr, n, z):
         cc = args[2].args[0].coeff(n, 1)
         dd = args[2].args[0].coeff(n, 0)        
         # result
-        result = (sym.cos(bb) - sym.cos(aa-bb) * sym.exp(cc) * invz) / (1 - 2 * sym.cos(aa) * sym.exp(cc) * invz + (sym.exp(cc)*invz) ** 2)         
-        result = -z*sym.diff(result, z)
+        result = (sym.cos(bb) - sym.cos(aa - bb) * sym.exp(cc) * invz) / (1 - 2 * sym.cos(aa) * sym.exp(cc) * invz + (sym.exp(cc)*invz) ** 2)         
+        result = -z * sym.diff(result, z)
         result = sym.simplify(result)    
-        result*=sym.exp(dd)
-        
+        result *= sym.exp(dd)
     
     # n**ii *  cos(a*n+b) * exp(c*n+d) 
-    elif (expr.is_Mul and len(expr.args) == 3 and args[0].is_Pow and args[0].args[0] == n and args[0].args[1].is_Integer and args[0].args[1]>=1 and 
+    elif (expr.is_Mul and len(expr.args) == 3 and args[0].is_Pow and args[0].args[0] == n and args[0].args[1].is_Integer and args[0].args[1] >= 1 and 
           args[1].is_Function and args[1].func == sym.cos and ((args[1].args[0]).as_poly(n)).is_linear and
-          args[2].is_Function and args[2].func == sym.exp and ((args[2].args[0]).as_poly(n)).is_linear) :
+          args[2].is_Function and args[2].func == sym.exp and ((args[2].args[0]).as_poly(n)).is_linear):
         # find parameter of cos() part
         aa = (args[1].args[0]).coeff(n, 1)
         bb = (args[1].args[0]).coeff(n, 0) 
@@ -449,15 +435,15 @@ def ztransform_term(expr, n, z):
         # ii
         ii = args[0].args[1]
         # result
-        result = (sym.cos(bb) - sym.cos(aa-bb) * sym.exp(cc) * invz) / (1 - 2 * sym.cos(aa) * sym.exp(cc) * invz + (sym.exp(cc)*invz) ** 2)         
+        result = (sym.cos(bb) - sym.cos(aa - bb) * sym.exp(cc) * invz) / (1 - 2 * sym.cos(aa) * sym.exp(cc) * invz + (sym.exp(cc)*invz) ** 2)         
         for l in range(ii):
             result = -z * sym.diff(result, z)
             result = sym.simplify(result)   
-        result*=sym.exp(dd)    
+        result *= sym.exp(dd)    
     
     # n  * exp(c*n+d) *  sin(a*n+b)
     elif (expr.is_Mul and len(expr.args) == 3 and args[0] == n and args[2].is_Function and args[2].func == sym.sin and ((args[2].args[0]).as_poly(n)).is_linear and
-          args[1].is_Function and args[1].func == sym.exp and ((args[1].args[0]).as_poly(n)).is_linear) :
+          args[1].is_Function and args[1].func == sym.exp and ((args[1].args[0]).as_poly(n)).is_linear):
         # find parameter of sin() part
         aa = (args[2].args[0]).coeff(n, 1)
         bb = (args[2].args[0]).coeff(n, 0) 
@@ -465,16 +451,15 @@ def ztransform_term(expr, n, z):
         cc = args[1].args[0].coeff(n, 1)
         dd = args[1].args[0].coeff(n, 0)        
         # result
-        result = (sym.sin(bb) + sym.sin(aa-bb) * sym.exp(cc) * invz) / (1 - 2 * sym.cos(aa) * sym.exp(cc) * invz + sym.exp(2*cc)* invz ** 2)         
-        result = -z*sym.diff(result, z)
+        result = (sym.sin(bb) + sym.sin(aa - bb) * sym.exp(cc) * invz) / (1 - 2 * sym.cos(aa) * sym.exp(cc) * invz + sym.exp(2 * cc) * invz**2)         
+        result = -z * sym.diff(result, z)
         result = sym.simplify(result) 
-        result*=sym.exp(dd)
-    
+        result *= sym.exp(dd)
     
     # n**ii *  sin(a*n+b) * exp(c*n+d) 
-    elif (expr.is_Mul and len(expr.args) == 3 and args[0].is_Pow and args[0].args[0] == n and args[0].args[1].is_Integer and args[0].args[1]>=1 and 
+    elif (expr.is_Mul and len(expr.args) == 3 and args[0].is_Pow and args[0].args[0] == n and args[0].args[1].is_Integer and args[0].args[1] >= 1 and 
           args[2].is_Function and args[2].func == sym.sin and ((args[2].args[0]).as_poly(n)).is_linear and
-          args[1].is_Function and args[1].func == sym.exp and ((args[1].args[0]).as_poly(n)).is_linear) :
+          args[1].is_Function and args[1].func == sym.exp and ((args[1].args[0]).as_poly(n)).is_linear):
         # find parameter of sin() part
         aa = (args[2].args[0]).coeff(n, 1)
         bb = (args[2].args[0]).coeff(n, 0) 
@@ -484,12 +469,11 @@ def ztransform_term(expr, n, z):
         # ii
         ii = args[0].args[1]
         # result
-        result = (sym.sin(bb) + sym.sin(aa-bb) * sym.exp(cc) * invz) / (1 - 2 * sym.cos(aa) * sym.exp(cc) * invz + (sym.exp(cc)*invz) ** 2)         
+        result = (sym.sin(bb) + sym.sin(aa - bb) * sym.exp(cc) * invz) / (1 - 2 * sym.cos(aa) * sym.exp(cc) * invz + (sym.exp(cc) * invz)**2)         
         for l in range(ii):
             result = -z * sym.diff(result, z)
             result = sym.simplify(result)    
-        result*=sym.exp(dd)
-    
+        result *= sym.exp(dd)
     
     # exp(a * n) * exp(b * n)
     elif (expr.is_Mul and args[0].is_Function and args[1].is_Function and
@@ -498,7 +482,6 @@ def ztransform_term(expr, n, z):
         bconst, bexpr = factor_const(args[0].args[0], n)
         if aexpr == n and bexpr == n:
             result = z / (z - sym.exp(aconst + bconst))    
-    
     
     # n * exp(a * n) * exp(b * n)   , for complex arguments useful
     elif (expr.is_Mul and len(expr.args) == 3 and args[1].is_Function and args[2].is_Function and
@@ -513,7 +496,7 @@ def ztransform_term(expr, n, z):
     # n**i * exp(a * n) * exp(b * n)   ii>=2, for complex arguments useful
     elif (expr.is_Mul and len(expr.args) == 3 and args[1].is_Function and args[2].is_Function and
           args[1].func == sym.exp and args[2].func == sym.exp and args[0].is_Pow and args[0].args[0] == n 
-          and args[0].args[1].is_Integer and args[0].args[1]>=1):
+          and args[0].args[1].is_Integer and args[0].args[1] >= 1):
         aconst, aexpr = factor_const(args[1].args[0], n)
         bconst, bexpr = factor_const(args[2].args[0], n)
         ii = args[0].args[1]
@@ -522,11 +505,9 @@ def ztransform_term(expr, n, z):
             for l in range(ii):
                 result = -z * sym.diff(result, z)
                 result = sym.simplify(result)             
-   
         
     #  a**(b*n+c) * exp(d * n)   , for complex arguments useful
-    elif (expr.is_Mul and len(expr.args) == 2 and  args[1].is_Function and args[1].func == sym.exp  and 
-              args[0].is_Pow and ((args[0].args[1]).as_poly(n)).is_linear and args[0].args[0] != n):
+    elif (expr.is_Mul and len(expr.args) == 2 and  args[1].is_Function and args[1].func == sym.exp and args[0].is_Pow and ((args[0].args[1]).as_poly(n)).is_linear and args[0].args[0] != n):
         #
         aa = args[0].args[0]
         bb = (args[0].args[1]).coeff(n, 1)
@@ -563,10 +544,7 @@ def ztransform_term(expr, n, z):
             for l in range(ii):
                 result = -z * sym.diff(result, z)
                 result = sym.simplify(result)                
-            result = aa**cc*sym.simplify(result)               
-           
-   
-                       
+            result = aa**cc * sym.simplify(result)               
         
     if result is None:
         # Use m instead of n to avoid n and z in same expr.
@@ -718,20 +696,20 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
                 order_2 = polesdict[pole_2]
                 if order_1 != order_2:
                     print("!!!! Pole pairs are of different order")
-                    pole_pair_dict={}
-                    pole_single_dict=polesdict.copy()
+                    pole_pair_dict = {}
+                    pole_single_dict = polesdict.copy()
                     break;
                 elif sym.im(pole_1) > 0:
-                    pole_pair_dict[(pole_1,pole_2)]=[order_1,order_2]
+                    pole_pair_dict[(pole_1, pole_2)] = [order_1, order_2]
                 else:
-                    pole_pair_dict[(pole_2,pole_1)]=[order_2,order_1]
+                    pole_pair_dict[(pole_2, pole_1)] = [order_2, order_1]
         if pole_pair_dict == {}:
             print("No pole pairs found, proceeding without pole pairs")
     
     # Make n (=number of poles) different denominators to speed up calculation and avoid sym.limit
     # The different denominators are due to shortening of poles after multiplying with (z-z1)**o
     if not (M.is_polynomial(z) and D.is_polynomial(z)):
-        print("numerator or denominator may contain 1/z terms : ", M, D)
+        print("numerator or denominator may contain 1/z terms: ", M, D)
     
     n_poles = len(poles)
     # leading coefficient of denominator polynom
@@ -739,8 +717,8 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
     # the canceled denominator (for each (z-p)**o) 
     shorten_denom = {}
     for i in range(n_poles):
-        shorten_term = sym.prod([(z-poles[j].expr)**(poles[j].n) for j in range(n_poles) if j != i], a_0)    
-        shorten_denom[poles[i].expr]=shorten_term
+        shorten_term = sym.prod([(z - poles[j].expr)**(poles[j].n) for j in range(n_poles) if j != i], a_0)    
+        shorten_denom[poles[i].expr] = shorten_term
       
     # Run through single poles real or complex, order 1 or higher
     for pole in pole_single_dict:
@@ -837,7 +815,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
                 # Simplify r1
                 r1 = r1.rewrite(sym.exp).simplify()
                 # sum
-                sum_b += prefac * r1 *sym.exp(sym.I*omega_0 *(1 - i))
+                sum_b += prefac * r1 * sym.exp(sym.I*omega_0 *(1 - i))
                 # Binomial coefficient                
                 bino *= n - i + 1            
                 
@@ -1148,7 +1126,7 @@ def inverse_ztransform(expr, z, n, **assumptions):
 
 
 def ZT(expr, n, z, **assumptions):
-    """Compute unilateral Z-Transform transform of expr with lower limit 0.
+    """Compute unilateral z-Transform transform of expr with lower limit 0.
 
     Undefined functions such as v[n] are converted to V(z)."""
     
@@ -1158,7 +1136,7 @@ def ZT(expr, n, z, **assumptions):
 def IZT(expr, z, n, **assumptions):
     """Calculate inverse z-Transform of X(s) and return x[n].
 
-    The unilateral Z-Transform transform cannot determine x[n] for n < 0
+    The unilateral z-Transform transform cannot determine x[n] for n < 0
     unless given additional information in the way of assumptions.
 
     The assumptions are:
