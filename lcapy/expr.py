@@ -761,7 +761,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     
 # This will allow sym.sympify to magically extract the sympy expression
 # but it will also bypass our __rmul__, __radd__, etc. methods that get called
-# when sympy punts.  Thus pi * t becomes a Mul rather than tExpr.
+# when sympy punts.  Thus pi * t becomes a Mul rather than TimeDomainExpression.
 #
 #    def _sympy_(self):
 #        # This is called from sym.sympify
@@ -776,6 +776,9 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
         try:
             a = getattr(expr1, attr)
         except:
+            # Hack for ubuntu-20.04, python 3.7 and 3.8
+            if attr == 'abbrev':
+                return ''
             raise
 
         # This gets called if there is no explicit attribute attr for
