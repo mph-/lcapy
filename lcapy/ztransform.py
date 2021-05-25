@@ -186,41 +186,39 @@ def ztransform_term(expr, n, z):
     elif (expr.is_Function and expr.func == sym.sin and (args[0].as_poly(n)).is_linear):
         bb = args[0].coeff(n, 1)
         cc = args[0].coeff(n, 0)        
-        result =  (sym.sin(cc) + sym.sin(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz ** 2) 
+        result =  (sym.sin(cc) + sym.sin(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz**2) 
 
     # cos(b*n+c)    
     elif (expr.is_Function and expr.func == sym.cos and (args[0].as_poly(n)).is_linear):
         bb = args[0].coeff(n, 1)
         cc = args[0].coeff(n, 0)        
-        result =   (sym.cos(cc) - sym.cos(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz ** 2)  
+        result = (sym.cos(cc) - sym.cos(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz**2)  
 
-    
-    # multiplication with n       use n*x(n)  o--o  -z d/dz X(z)
-    elif  IsMultipliedWith(expr,n,'n', xn_fac):
-        expr=expr/xn_fac[0]
-        X=ztransform_term(expr, n, z)
-        result = sym.simplify( -z*sym.diff(X,z) )
+    # Multiplication with n       use n*x(n)  o--o  -z d/dz X(z)
+    elif is_multipled_with(expr, n, 'n', xn_fac):
+        expr = expr / xn_fac[0]
+        X = ztransform_term(expr, n, z)
+        result = sym.simplify(-z * sym.diff(X, z))
      
-    # multiplication with a**(b*n+c)        use    lam**n *x(n)  o--o  X(z/lam)
-    elif IsMultipliedWith(expr,n,'a**n',xn_fac):
-        expr/=xn_fac[0]
+    # Multiplication with a**(b*n+c)        use    lam**n *x(n)  o--o  X(z/lam)
+    elif is_multipled_with(expr, n, 'a**n', xn_fac):
+        expr /= xn_fac[0]
         ref = xn_fac[0].args
         lam = ref[0]
         bb = ref[1].coeff(n, 1)
         cc = ref[1].coeff(n, 0)              
-        X=ztransform_term(expr, n, z)
-        result =  lam**cc * sym.simplify( X.subs( z,z/lam**bb )  ) 
+        X = ztransform_term(expr, n, z)
+        result = lam**cc * sym.simplify(X.subs(z, z / lam**bb)) 
     
-    # multiplication with exp(b*n+c)       use    exp**n *x(n)  o--o  X(z/exp(1))
-    elif IsMultipliedWith(expr,n,'exp(n)',xn_fac):
-        expr/=xn_fac[0]
+    # Multiplication with exp(b*n+c)       use    exp**n *x(n)  o--o  X(z/exp(1))
+    elif is_multipled_with(expr, n, 'exp(n)', xn_fac):
+        expr /= xn_fac[0]
         ref = xn_fac[0].args
         bb = ref[0].coeff(n, 1)
         cc = ref[0].coeff(n, 0)              
-        X=ztransform_term(expr, n, z)
-        result = sym.exp(cc) * sym.simplify( X.subs( z,z/sym.exp(bb) ) )     
+        X = ztransform_term(expr, n, z)
+        result = sym.exp(cc) * sym.simplify(X.subs(z, z / sym.exp(bb)))     
                        
-        
     if result is None:
         # Use m instead of n to avoid n and z in same expr.
         # TODO, check if m already used...
@@ -233,19 +231,21 @@ def ztransform_term(expr, n, z):
 
 
 # function checking the structure of the given sequence
-def IsMultipliedWith(expr,n,cmp,ret):
+def is_multipled_with(expr, n, cmp, ret):
     
     ret_flag = False   
-    # check for multiplication  with n
-    if cmp == 'n' and expr== n :  #only n
+    # Check for multiplication  with n
+    if cmp == 'n' and expr == n:  #only n
         ret += [n]
         ret_flag = True  
-    elif cmp=='n' and  expr.is_Pow and expr.args[0]==n and  expr.args[1].is_integer and expr.args[1]>=1:     # only n**i
+    elif (cmp == 'n' and expr.is_Pow and expr.args[0] == n and
+          expr.args[1].is_integer and expr.args[1] >= 1):     # only n**i
         ret += [n]
         ret_flag = True        
     elif cmp == 'n' and expr.is_Mul:   # multiplication with n
-        for i in range( len(expr.args) ):
-            if expr.args[i].is_Pow and expr.args[i].args[0]==n and  expr.args[i].args[1].is_integer and expr.args[i].args[1]>=1:
+        for i in range(len(expr.args)):
+            if (expr.args[i].is_Pow and expr.args[i].args[0] == n and
+                expr.args[i].args[1].is_integer and expr.args[i].args[1] >= 1):
                 ret += [n]
                 ret_flag = True
                 break
@@ -254,31 +254,34 @@ def IsMultipliedWith(expr,n,cmp,ret):
                 ret_flag = True
                 break
             
-    # check for multiplication with a**(b*n+c)            
-    elif cmp ==  'a**n' and expr.is_Pow and ((expr.args[1]).as_poly(n)).is_linear and (not expr.args[0].has(n)):
+    # Check for multiplication with a**(b*n+c)            
+    elif (cmp == 'a**n' and expr.is_Pow and
+          ((expr.args[1]).as_poly(n)).is_linear and (not expr.args[0].has(n))):
         ret += [expr]
         ret_flag = True
-    elif cmp ==  'a**n' and expr.is_Mul:   
-        for i in range( len(expr.args) ):
-            if expr.args[i].is_Pow and ((expr.args[i].args[1]).as_poly(n)).is_linear and (not expr.args[i].args[0].has(n)) :
-                ret += [ expr.args[i] ]   
+    elif cmp == 'a**n' and expr.is_Mul:   
+        for i in range(len(expr.args)):
+            if ((expr.args[i].is_Pow and
+                 ((expr.args[i].args[1]).as_poly(n)).is_linear and
+                 (not expr.args[i].args[0].has(n)))):
+                ret += [expr.args[i]]   
                 ret_flag = True
                 break
      
-    # check for multiplication with exp(b*n+c)        
-    elif cmp ==  'exp(n)' and len(expr.args)==1 and expr.is_Function and expr.func == sym.exp:
+    # Check for multiplication with exp(b*n+c)        
+    elif (cmp == 'exp(n)' and len(expr.args) == 1 and expr.is_Function and
+          expr.func == sym.exp):
         ret += [expr]
         ret_flag = True
-    elif cmp ==  'exp(n)' and expr.is_Mul:   
-        for i in range( len(expr.args) ):
-            if expr.args[i].is_Function and expr.args[i].func == sym.exp and ((expr.args[i].args[0]).as_poly(n)).is_linear :
-                ret += [ expr.args[i] ]   
+    elif cmp == 'exp(n)' and expr.is_Mul:   
+        for i in range(len(expr.args)):
+            if (expr.args[i].is_Function and expr.args[i].func == sym.exp and
+                ((expr.args[i].args[0]).as_poly(n)).is_linear):
+                ret += [expr.args[i]]   
                 ret_flag = True
                 break                     
         
     return ret_flag
-
-
 
 
 def ztransform(expr, n, z, evaluate=True):
@@ -289,7 +292,7 @@ def ztransform(expr, n, z, evaluate=True):
     """
 
     if expr.is_Equality:
-        return sym.Eq(ztransform(expr.args[0], n, z),
+        return sym.Eq(ztransform(expr.args[0], n, z), 
                       ztransform(expr.args[1], n, z))
 
     if not evaluate:
@@ -304,7 +307,7 @@ def ztransform(expr, n, z, evaluate=True):
     if expr.has(z):
         raise ValueError('Cannot Z transform expression %s that depends on %s' % (expr, z))
     
-    # The variable may have been created with different attributes,
+    # The variable may have been created with different attributes, 
     # say when using sympify('Heaviside(n)') since this will
     # default to assuming that n is complex.  So if the symbol has the
     # same representation, convert to the desired one.
@@ -390,7 +393,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             cresult += c * UnitImpulse(n - len(C) + m + 1)
 
     # There is problem with determining residues if
-    # have 1/(z*(-a/z + 1)) instead of 1/(-a + z).  Hopefully,
+    # have 1/(z*(-a/z + 1)) instead of 1/(-a + z).  Hopefully, 
     # simplify will fix things...
     expr = (M / D).simplify()
     for factor in expr.as_ordered_factors():
@@ -406,49 +409,47 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
         
     ############ Juergen Weizenecker HsKa
     
-    # make two dic in order to handle them differently and make 
+    # Make two dictionaries in order to handle them differently and make 
     # pretty expressions
-    pole_single_dict=polesdict.copy()
-    pole_pair_dict={}
+    pole_single_dict = polesdict.copy()
+    pole_pair_dict = {}
     
     if 'pairs' in assumptions:
         if assumptions['pairs']:
             for pole_1 in polesdict:
-                if ( not pole_1.is_real ) and sym.conjugate(pole_1) in polesdict:
-                    pole_single_dict.pop(pole_1,None)
+                if (not pole_1.is_real) and sym.conjugate(pole_1) in polesdict:
+                    pole_single_dict.pop(pole_1, None)
                     pole_2 = sym.conjugate(pole_1)
                     order_1 = polesdict[pole_1]
                     order_2 = polesdict[pole_2]
                     if order_1 != order_2:
                         print("!!!! Pole pairs are of different order")
-                        pole_pair_dict={}
-                        pole_single_dict=polesdict.copy()
+                        pole_pair_dict = {}
+                        pole_single_dict = polesdict.copy()
                         break;
                     elif sym.im(pole_1) > 0:
-                        pole_pair_dict[(pole_1,pole_2)]=[order_1,order_2]
+                        pole_pair_dict[(pole_1, pole_2)] = [order_1, order_2]
                     else:
-                        pole_pair_dict[(pole_2,pole_1)]=[order_2,order_1]
+                        pole_pair_dict[(pole_2, pole_1)] = [order_2, order_1]
             if pole_pair_dict == {}:
                 print("No pole pairs found, proceed without pole pairs")    
-                
-        
     
-    # make n (=number of poles) different denominators to speed up calculation and avoid sym.limit
-    # the different denominators are due to shortening of poles after multiplying with (z-z1)**o
+    # Make n (=number of poles) different denominators to speed up
+    # calculation and avoid sym.limit.  The different denominators are
+    # due to shortening of poles after multiplying with (z-z1)**o
     if not (M.is_polynomial(z) and D.is_polynomial(z)):
-        print("numerator or denominator may contain 1/z terms : ",M,D)
+        print("Numerator or denominator may contain 1/z terms: ", M, D)
     
-    n_poles=len(poles)
-    # leading coefficient of denominator polynom
+    n_poles = len(poles)
+    # Leading coefficient of denominator polynom
     a_0 = sym.LC(D) 
-    # the canceled denominator ( for each (z-p)**o ) 
+    # The canceled denominator (for each (z-p)**o) 
     shorten_denom = {}
-    for i in range( n_poles ):
-        shorten_term = sym.prod( [(z-poles[j].expr)**(poles[j].n) for j in range(n_poles) if j!=i ], a_0 )    
-        shorten_denom[poles[i].expr]=shorten_term
-      
+    for i in range(n_poles):
+        shorten_term = sym.prod([(z - poles[j].expr)**(poles[j].n) for j in range(n_poles) if j != i], a_0)    
+        shorten_denom[poles[i].expr] = shorten_term
                
-    # run through single poles real or complex, order 1 or higher
+    # Run through single poles real or complex, order 1 or higher
     for pole in pole_single_dict:
 
         p = pole
@@ -464,7 +465,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
 
         if o == 1:
             #r = zexpr.residue(p, poles)
-            r = sym.simplify( sym.expand( expr2.subs(z,p) ) ) 
+            r = sym.simplify(sym.expand(expr2.subs(z, p))) 
 
             if p == 0:
                 cresult += r * UnitImpulse(n)
@@ -473,9 +474,9 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             continue
 
         # Handle repeated poles.
-        all_derivatives = [ expr2 ]
-        for i in range(1, o ):
-            all_derivatives += [ sym.diff( all_derivatives[i-1], z )  ]         
+        all_derivatives = [expr2]
+        for i in range(1, o):
+            all_derivatives += [sym.diff(all_derivatives[i - 1], z)]         
         
         bino = 1
         sum_p = 0
@@ -483,8 +484,8 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             m = o - i
             derivative = all_derivatives[m]
             # derivative at z=p 
-            derivative = sym.expand( derivative.subs(z,p) )
-            r = sym.simplify( derivative ) / sym.factorial(m)
+            derivative = sym.expand(derivative.subs(z, p))
+            r = sym.simplify(derivative) / sym.factorial(m)
 
             if p == 0:
                 cresult += r * UnitImpulse(n - i + 1)
@@ -494,8 +495,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
                 
         uresult += sum_p * p**n
     
-    
-    # run through complex pole pairs
+    # Run through complex pole pairs
     for pole in pole_pair_dict:
         
         p1 = pole[0]
@@ -508,14 +508,13 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
         expr_1 = M / shorten_denom[p1]
         expr_2 = M / shorten_denom[p2]
     
-        # oscillation parameter
-        lam = sym.sqrt(sym.simplify(p1*p2))        
-        omega_0 = sym.simplify( sym.arg( p1 / lam ) )
+        # Oscillation parameter
+        lam = sym.sqrt(sym.simplify(p1 * p2))        
+        omega_0 = sym.simplify(sym.arg(p1 / lam))
         
         if o1 == 1:
-            
-            r1 = expr_1.subs(z,p1) 
-            r2 = expr_2.subs(z,p2) 
+            r1 = expr_1.subs(z, p1) 
+            r2 = expr_2.subs(z, p2) 
             
             r1_re = sym.re(r1).simplify()
             r1_im = sym.im(r1).simplify()            
@@ -523,48 +522,42 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             # if pole pairs is selected, r1=r2*
             
             # handle real part
-            uresult += 2*r1_re * lam ** n * sym.cos( omega_0*n ) 
-            uresult += -2*r1_im * lam ** n * sym.sin( omega_0*n )
-            
-            
+            uresult += 2*r1_re * lam ** n * sym.cos(omega_0*n) 
+            uresult += -2*r1_im * lam ** n * sym.sin(omega_0*n)
+
         else:
-            
             bino = 1
             sum_b = 0
-            # compute first all derivatives needed
-            all_derivatives_1 = [ expr_1 ]
-            for i in range(1, o1 ):
-                all_derivatives_1 += [ sym.diff( all_derivatives_1[i-1], z )  ] 
+            # Compute first all derivatives needed
+            all_derivatives_1 = [expr_1]
+            for i in range(1, o1):
+                all_derivatives_1 += [sym.diff(all_derivatives_1[i-1], z)] 
             
-            # loop through the binomial serie                     
+            # Loop through the binomial series
             for i in range(1, o1 + 1):
                 m = o1 - i
                 
                 # m th derivative at z=p1
                 derivative = all_derivatives_1[m]
-                r1 = derivative.subs(z,p1) / sym.factorial(m)             
+                r1 = derivative.subs(z, p1) / sym.factorial(m)             
                 # prefactors
                 prefac = bino * lam **(1 - i) / sym.factorial(i - 1)
                 # simplify r1
                 r1 = r1.rewrite(sym.exp).simplify()
                 # sum
-                sum_b += prefac * r1 *sym.exp( sym.I*omega_0 *(1-i) )
+                sum_b += prefac * r1 *sym.exp(sym.I*omega_0 *(1-i))
                 # binomial coefficient                
                 bino *= n - i + 1            
                 
-            # take result = lam**n * ( sum_b*sum_b*exp(j*omega_0*n) + cc )   
-            aa = sym.simplify( sym.re(sum_b) )
-            bb =  sym.simplify( sym.im(sum_b) )
-            uresult += 2* ( aa* sym.cos(omega_0*n) - bb * sym.sin(omega_0*n) )*lam**n
-            
-            
+            # take result = lam**n * (sum_b*sum_b*exp(j*omega_0*n) + cc)   
+            aa = sym.simplify(sym.re(sum_b))
+            bb =  sym.simplify(sym.im(sum_b))
+            uresult += 2* (aa* sym.cos(omega_0*n) - bb * sym.sin(omega_0*n))*lam**n
     
     # cresult is a sum of Dirac deltas and its derivatives so is known
     # to be causal.    
 
     return cresult, uresult
-
-
       
 
 def dummyvar(intnum=0):
@@ -730,7 +723,7 @@ def inverse_ztransform_term1(expr, z, n, **assumptions):
         return const * result, sym.S.Zero
     
     if expr.has(AppliedUndef):
-        return const * inverse_ztransform_product(expr, z, n,
+        return const * inverse_ztransform_product(expr, z, n, 
                                                   **assumptions), sym.S.Zero
 
     if expr == z:
@@ -813,7 +806,7 @@ def inverse_ztransform1(expr, z, n, **assumptions):
     const, expr = factor_const(expr, z)
     
     key = (expr, z, n, 
-           assumptions.get('causal', False),
+           assumptions.get('causal', False), 
            assumptions.get('damping', None))
     
     if key in inverse_ztransform_cache:
@@ -828,7 +821,7 @@ def inverse_ztransform1(expr, z, n, **assumptions):
                 cresult, uresult = inverse_ztransform_term(expr, z, n, **assumptions)
             except:
                 expr = sym.expand(expr)
-                cresult, uresult = inverse_ztransform_by_terms(expr, z, n,
+                cresult, uresult = inverse_ztransform_by_terms(expr, z, n, 
                                                                **assumptions)
     except:
         raise ValueError('Cannot determine z-transform of %s' % expr)
@@ -851,7 +844,7 @@ def inverse_ztransform(expr, z, n, **assumptions):
     """
 
     if expr.is_Equality:
-        return sym.Eq(inverse_ztransform(expr.args[0], z, n, **assumptions),
+        return sym.Eq(inverse_ztransform(expr.args[0], z, n, **assumptions), 
                       inverse_ztransform(expr.args[1], z, n, **assumptions))
 
     if expr.has(n):
@@ -872,7 +865,7 @@ def ZT(expr, n, z, **assumptions):
 def IZT(expr, z, n, **assumptions):
     """Calculate inverse z-Transform of X(s) and return x[n].
 
-    The unilateral Z-Transform transform cannot determine x[n] for n < 0
+    The unilateral z-Transform transform cannot determine x[n] for n < 0
     unless given additional information in the way of assumptions.
 
     The assumptions are:
@@ -884,4 +877,3 @@ def IZT(expr, z, n, **assumptions):
     return inverse_ztransform(expr, z, n, **assumptions)
 
 from .expr import Expr
-
