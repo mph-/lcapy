@@ -414,25 +414,24 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
     pole_single_dict = polesdict.copy()
     pole_pair_dict = {}
     
-    if 'pairs' in assumptions:
-        if assumptions['pairs']:
-            for pole_1 in polesdict:
-                if (not pole_1.is_real) and sym.conjugate(pole_1) in polesdict:
-                    pole_single_dict.pop(pole_1, None)
-                    pole_2 = sym.conjugate(pole_1)
-                    order_1 = polesdict[pole_1]
-                    order_2 = polesdict[pole_2]
-                    if order_1 != order_2:
-                        print("!!!! Pole pairs are of different order")
-                        pole_pair_dict = {}
-                        pole_single_dict = polesdict.copy()
-                        break;
-                    elif sym.im(pole_1) > 0:
-                        pole_pair_dict[(pole_1, pole_2)] = [order_1, order_2]
-                    else:
-                        pole_pair_dict[(pole_2, pole_1)] = [order_2, order_1]
-            if pole_pair_dict == {}:
-                print("No pole pairs found, proceed without pole pairs")    
+    if assumptions.get('pairs', True):
+        for pole_1 in polesdict:
+            if (not pole_1.is_real) and sym.conjugate(pole_1) in polesdict:
+                pole_single_dict.pop(pole_1, None)
+                pole_2 = sym.conjugate(pole_1)
+                order_1 = polesdict[pole_1]
+                order_2 = polesdict[pole_2]
+                if order_1 != order_2:
+                    print("!!!! Pole pairs are of different order")
+                    pole_pair_dict = {}
+                    pole_single_dict = polesdict.copy()
+                    break;
+                elif sym.im(pole_1) > 0:
+                    pole_pair_dict[(pole_1, pole_2)] = [order_1, order_2]
+                else:
+                    pole_pair_dict[(pole_2, pole_1)] = [order_2, order_1]
+        if pole_pair_dict == {}:
+            print("No pole pairs found, proceed without pole pairs")    
     
     # Make n (=number of poles) different denominators to speed up
     # calculation and avoid sym.limit.  The different denominators are
@@ -806,7 +805,8 @@ def inverse_ztransform1(expr, z, n, **assumptions):
     const, expr = factor_const(expr, z)
     
     key = (expr, z, n, 
-           assumptions.get('causal', False), 
+           assumptions.get('causal', False),
+           assumptions.get('pairs', True),            
            assumptions.get('damping', None))
     
     if key in inverse_ztransform_cache:
