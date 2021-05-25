@@ -334,10 +334,8 @@ def ztransform(expr, n, z, evaluate=True):
     except ValueError:
         raise
     
-    # these two simplify may slow down computation enormously
-    result = result.simplify()
     ztransform_cache[key] = result
-    return (const * result).simplify()
+    return const * result
 
 
 def inverse_ztransform_ratfun(expr, z, n, **assumptions):
@@ -779,7 +777,6 @@ def inverse_ztransform_by_terms(expr, z, n, **assumptions):
 def inverse_ztransform_make(n, const, cresult, uresult, **assumptions):
 
     result = const * (cresult + uresult)
-    #result = result.simplify()
     
     if assumptions.get('dc', False):
         free_symbols = set([symbol.name for symbol in result.free_symbols])
