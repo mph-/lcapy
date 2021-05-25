@@ -425,12 +425,10 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
                     pole_single_dict = polesdict.copy()
                     break;
                 elif sym.im(pole_1) > 0:
-                    pole_pair_dict[(pole_1, pole_2)] = [order_1, order_2]
+                    pole_pair_dict[pole_1, pole_2] = order_1, order_2
                 else:
-                    pole_pair_dict[(pole_2, pole_1)] = [order_2, order_1]
-        if pole_pair_dict == {}:
-            print("No pole pairs found, proceed without pole pairs")    
-    
+                    pole_pair_dict[pole_2, pole_1] = order_2, order_1
+
     # Make n (=number of poles) different denominators to speed up
     # calculation and avoid sym.limit.  The different denominators are
     # due to shortening of poles after multiplying with (z-z1)**o
