@@ -2307,19 +2307,27 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return self.copy()        
         return self.__class__(self._ratfun.expandcanonical(), **self.assumptions)
 
-    def coeffs(self, norm=False):
-        """Return list of coeffs assuming the expr is a polynomial in s.  The
-        highest powers come first.  This will fail for a rational function.
-        Instead use expr.N.coeffs or expr.D.coeffs for numerator
-        or denominator respectively.
+    def coeffs(self, var=None, norm=False):
+        """Return list of coeffs assuming the expr is a polynomial in terms of
+        `var`.  If `var` is None, the default variable is used.
+        The highest powers come first.  
+
+        This will fail for a rational function.  Instead use
+        expr.N.coeffs or expr.D.coeffs for numerator or denominator
+        respectively.
         
-        If norm is True, normalise coefficients to highest power is 1."""
+        If `norm` is True, normalise coefficients so highest power is 1.
+
+        """
 
         if self._ratfun is None:
             return expr([self])
+
+        if var is None:
+            var = self.var
         
         try:
-            z = sym.Poly(self.expr, self.var)
+            z = sym.Poly(self.expr, var)
         except:
             raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')
 
@@ -2329,14 +2337,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             
         return expr(c)
 
-    def normcoeffs(self):
+    def normcoeffs(self, var=None):
         """Return list of coeffs (normalised so the highest power is 1)
         assuming the expr is a polynomial in s.  The highest powers
         come first.  This will fail for a rational function.  Instead
         use expr.N.normcoeffs or expr.D.normcoeffs for numerator or
         denominator respectively."""
 
-        return self.coeffs(norm=True)
+        return self.coeffs(var, norm=True)
 
     @property
     def degree(self):
