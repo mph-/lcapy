@@ -208,7 +208,7 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
 
         C, R = self.factor_const()
         
-        invz = expr('invz')
+        invz = symbol('invz')
         H = R.replace(z, 1 / invz).factor()
         r = Ratfun(H, invz.expr)
         B = ZDomainExpression(r.N).replace(invz, 1 / z)
