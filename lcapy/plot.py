@@ -298,7 +298,9 @@ def plot_sequence(obj, ni, **kwargs):
     if ni is None:
         ni = (-20, 20)
     if isinstance(ni, tuple):
-        ni = np.arange(ni[0], ni[1] + 1)
+        # Use float data type since NumPy barfs for n**(-a) where a is
+        # an integer.
+        ni = np.arange(ni[0], ni[1] + 1, dtype=float)
 
     v = obj.evaluate(ni)
 
