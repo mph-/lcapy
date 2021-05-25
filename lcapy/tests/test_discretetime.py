@@ -44,7 +44,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(y.origin, 0, "origin")        
         self.assertEqual(x.convolve(h), seq((1, 4, 7, 6)), "convolve")
         self.assertEqual(h.expr.ZT(), (z + 2) / z, "ZT")
-        self.assertEqual(h.latex(), r'\left\{\underline{1}, 2\right\}', "latex")                
+        self.assertEqual(h.latex(), r'\left\{\underline{1}, 2\right\}', "latex")
         self.assertEqual(seq('1, 2, 3'), x, "seq")
         self.assertEqual(e.seq(), x, "seq")
 
