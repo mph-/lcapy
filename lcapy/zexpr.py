@@ -204,15 +204,28 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
     
         return self.discrete_time_fourier_transform(**assumptions) 
 
-    def decompose_AB(self):
+    def as_ab(self):
+        """Return lists of denominator and numerator coefficients
+        when the denominator and numerator are expressed as polynomials
+        in z**-1.  The lowest order coefficients are returned first."""
 
         C, R = self.factor_const()
         
-        invz = symbol('invz')
-        H = R.replace(z, 1 / invz).factor()
-        r = Ratfun(H, invz.expr)
-        B = ZDomainExpression(r.N).replace(invz, 1 / z)
-        A = ZDomainExpression(r.D).replace(invz, 1 / z)
+        zi = symbol('zi')
+        H = R.replace(z, 1 / zi).cancel()
+        a = H.D.coeffs(zi)
+        b = H.N.coeffs(zi)
+        return a[::-1], list(np.array(b) * C)[::-1]
+
+    def as_AB(self):
+
+        C, R = self.factor_const()
+        
+        zi = symbol('zi')
+        H = R.replace(z, 1 / zi).factor()
+        r = Ratfun(H, zi.expr)
+        B = ZDomainExpression(r.N).replace(zi, 1 / z)
+        A = ZDomainExpression(r.D).replace(zi, 1 / z)
 
         C1, R1 = A.term_const()
         if C1.is_negative:
@@ -236,7 +249,7 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
 
         if form in ('iir', 'direct form I'):
             # Direct form I
-            A, B = self.decompose_AB()
+            A, B = self.as_AB()
             
             lhs = (A * Y).IZT(causal=True)
             rhs = (B * X).IZT(causal=True)
