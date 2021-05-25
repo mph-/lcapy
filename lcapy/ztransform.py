@@ -1078,6 +1078,7 @@ def inverse_ztransform1(expr, z, n, **assumptions):
     
     key = (expr, z, n, 
            assumptions.get('causal', False),
+           assumptions.get('pairs', False),           
            assumptions.get('damping', None))
     
     if key in inverse_ztransform_cache:
