@@ -171,7 +171,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(c.Z1oc, impedance(10), "Z1oc incorrect.")
         self.assertEqual(c.Z2oc, impedance(40), "Z2oc incorrect.")
         self.assertEqual(c.V1oc, voltage(5 / s), "V1oc incorrect.")
-        print(c.V2oc)
+
         self.assertEqual(c.V2oc, voltage(5 / s), "V2oc incorrect.")
         self.assertEqual(c.I1sc, current(-0.5 / s), "I1sc incorrect.")
         self.assertEqual(c.I2sc, current(0 / s), "I2sc incorrect.")
