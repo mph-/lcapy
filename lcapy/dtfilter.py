@@ -70,7 +70,7 @@ class DTFilter(object):
         for m, an in enumerate(self.a[1:]):
             rhs -= an * expr('%s(n - %d)' % (output, m + 1))
 
-        lhs = expr('y(n)')
+        lhs = self.a[0] * expr('y(n)')
         e = equation(lhs, rhs)
 
         return e
@@ -90,7 +90,7 @@ class DTFilter(object):
             y0 = 0 * z
             for i in range(0, k):
                 y0 += ic[i] * z**(i + 1)
-                num += az * y0
+            num += az * y0
   
         # Collect with respect to positive powers of the variable z
         num = sym.collect(sym.expand(num * z**Nl), z)

@@ -1,6 +1,6 @@
 """This module provides support for z transforms.
 
-Copyright 2020-21 Michael Hayes, UCECE
+Copyright 2020 Michael Hayes, UCECE
 
 """
 
@@ -161,6 +161,7 @@ def ztransform_term(expr, n, z):
 
     result = None
     args = expr.args
+    xn_fac = []
     
     if expr.is_Function and expr.func == UnitImpulse:
         if args[0] is n:
@@ -180,371 +181,45 @@ def ztransform_term(expr, n, z):
             delay = n - args[0]
             if not delay.has(n):
                 result = invz ** delay * 1 / (1 - invz)
-
-    # n**i   i >= 1    
-    elif (expr == n or (expr.is_Pow and args[0] == n and args[1].is_Integer and args[1] >= 1)):
-        ii = 1
-        # check higher order
-        try:
-            ii = args[1]
-        except:
-            pass        
-        # use rule n*x[n]  o--o  -z*d/dz X(z) multiple times    
-        result = 1 / (1 - invz)
-        for l in range(ii):
-            result = -z * sym.diff(result, z)
-            result = sym.simplify(result)    
     
     # sin(b*n+c)    
     elif (expr.is_Function and expr.func == sym.sin and (args[0].as_poly(n)).is_linear):
         bb = args[0].coeff(n, 1)
         cc = args[0].coeff(n, 0)        
-        result = (sym.sin(cc) + sym.sin(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz ** 2)
+        result =  (sym.sin(cc) + sym.sin(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz ** 2) 
 
     # cos(b*n+c)    
     elif (expr.is_Function and expr.func == sym.cos and (args[0].as_poly(n)).is_linear):
         bb = args[0].coeff(n, 1)
         cc = args[0].coeff(n, 0)        
-        result = (sym.cos(cc) - sym.cos(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz ** 2)
+        result =   (sym.cos(cc) - sym.cos(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz ** 2)  
 
-    # exp(b*n+c)    
-    elif (expr.is_Function and expr.func == sym.exp and (args[0].as_poly(n)).is_linear):
-        bb = args[0].coeff(n, 1)
-        cc = args[0].coeff(n, 0)
-        result = sym.exp(cc) * z / (z - sym.exp(bb))        
     
-    # a**(b*n+c)
-    elif (expr.is_Pow and (args[1].as_poly(n)).is_linear and expr.args[0] != n):
-        bb = args[1].coeff(n, 1)
-        cc = args[1].coeff(n, 0)        
-        result =  args[0]**cc / (1 - args[0]**bb * invz)    
-
-    # n * a**(b*n+c) 
-    elif (expr.is_Mul and len(expr.args) == 2 and args[0] == n and args[1].is_Pow and (args[1].args[1].as_poly(n)).is_linear): 
-        # exponential part
-        bb = args[1].args[1].coeff(n, 1)
-        cc = args[1].args[1].coeff(n, 0)
-        base_a = (args[1].args[0])    
-        # result  
-        result = base_a**(cc + bb) * invz / (1 - base_a**bb * invz)**2
-       
-    # n**i * a**(b*n+c)  for i>=2 
-    elif (expr.is_Mul and len(expr.args) == 2 and args[0].is_Pow and (args[0].args[1].as_poly(n)).is_linear and 
-           args[1].is_Pow and args[1].args[0] == n and args[1].args[1].is_Integer and args[1].args[1] >= 1):
-        ii = args[1].args[1]        
-        # a**() part
-        bb = args[0].args[1].coeff(n, 1)
-        cc = args[0].args[1].coeff(n, 0)
-        base_a = args[0].args[0]    
-            
-        # use rule n*x[n]  o--o  -z*d/dz X(z) multiple times    
-        result = 1 / (1 - base_a**bb * invz)
-        for l in range(ii):
-            result = -z * sym.diff(result, z)
-            result = sym.simplify(result)
-        
-        result *= base_a**cc    
-    
-    # n**i * (w)**(b * n + c) for i >= 2, w complex
-    elif (expr.is_Mul and len(expr.args) == 2 and args[1].is_Pow and (args[1].args[1].as_poly(n)).is_linear and (not args[1].args[0].is_real) and
-          args[0].is_Pow and args[0].args[0] == n and args[0].args[1].is_Integer and args[0].args[1] >= 1):
-        ii = args[0].args[1]        
-        # a**() part
-        bb = args[1].args[1].coeff(n, 1)
-        cc = args[1].args[1].coeff(n, 0)
-        base_a = args[1].args[0]    
-
-        # use rule n*x[n]  o--o  -z*d/dz X(z) multiple times    
-        result = 1 / (1 - base_a**bb * invz)
-        for l in range(ii):
-            result = -z * sym.diff(result, z)
-            result = sym.simplify(result)
-
-        result *= base_a**cc    
-    
-    # a**(b*n+c) * sin(d*n+e)  OR  a**(b*n+c) * cos(d*n+e)
-    elif (expr.is_Mul and len(expr.args) == 2 and args[0].is_Pow and
-          ((args[0].args[1]).as_poly(n)).is_linear and args[0].args[0] != n and
-           args[1].is_Function and args[1].func in (sym.sin, sym.cos) and 
-           ((args[1].args[0]).as_poly(n)).is_linear):
-        # values for a**() part
-        base_a=args[0].args[0]
-        bb = args[0].args[1].coeff(n, 1)
-        cc = args[0].args[1].coeff(n, 0)
-        # values for sin() part
-        dd = args[1].args[0].coeff(n, 1)
-        ee = args[1].args[0].coeff(n, 0)
-        
-        pre_sign = 1
-        if (expr.args[1]).func == sym.cos:
-            pre_sign = -1  
-        
-        result = base_a**cc * (expr.args[1].func(ee) + pre_sign * base_a**bb * expr.args[1].func(dd - ee) * invz) / (1 - 2 * sym.cos(dd) * base_a**bb * invz + (base_a**bb * invz) ** 2)
-    
-    # n * sin(b*n+c)  OR  n * cos(b*n+c) for i>=1
-    elif (expr.is_Mul and len(expr.args) == 2 and args[0] == n and 
-          args[1].is_Function and args[1].func in (sym.sin, sym.cos) 
-          and ((expr.args[1].args[0]).as_poly(n)).is_linear):
-        # find parameter of sin() part
-        bb = (args[1].args[0]).coeff(n, 1)
-        cc = (args[1].args[0]).coeff(n, 0)        
-
-        pre_sign = 1
-        if args[1].func == sym.cos:
-            pre_sign = -1        
-
-        result = (args[1].func(cc) + pre_sign * args[1].func(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz ** 2)    
-        result = -z * sym.diff(result, z)
-        
-    # n**i * sin(b*n+c)  OR  n**i * cos(b*n+c) for i>=1
-    elif (expr.is_Mul and len(expr.args) == 2 and args[0].is_Pow and args[0].args[0] == n and args[0].args[1].is_Integer and args[0].args[1] >= 1 and 
-          args[1].is_Function and args[1].func in (sym.sin, sym.cos) 
-             and ((expr.args[1].args[0]).as_poly(n)).is_linear):
-        ii = args[0].args[1]
-        # find parameter of sin() part
-        bb = (args[1].args[0]).coeff(n, 1)
-        cc = (args[1].args[0]).coeff(n, 0)        
-        
-        pre_sign = 1
-        if args[1].func == sym.cos:
-            pre_sign = -1        
-        
-        result = (args[1].func(cc) + pre_sign * args[1].func(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz ** 2)    
-        for l in range(ii):
-            result = -z * sym.diff(result, z)
-            result = sym.simplify(result)  
-    
-    # n * a**(b*n+c) * sin(d*n+e)  OR n * a**(b*n+c) * cos(d*n+e) 
-    elif (expr.is_Mul and len(expr.args) == 3 and
-          args[0] == n and args[2].is_Function and args[2].func in (sym.sin, sym.cos) 
-           and ((args[2].args[0]).as_poly(n)).is_linear and
-           args[1].is_Pow and ((args[1].args[1]).as_poly(n)).is_linear and args[1].args[0] != n):
-        # find parameter of sin(), cos() part
-        dd = (args[2].args[0]).coeff(n, 1)
-        ee = (args[2].args[0]).coeff(n, 0) 
-        # values for a**() part
-        base_a = args[1].args[0]
-        bb = args[1].args[1].coeff(n, 1)
-        cc = args[1].args[1].coeff(n, 0)        
-        # check for sign in numerator
-        pre_sign = 1
-        if args[2].func == sym.cos:
-            pre_sign = -1        
-        # result
-        result = (args[2].func(ee) + pre_sign * args[2].func(dd - ee) * base_a**bb * invz) / (1 - 2 * sym.cos(dd) * base_a**bb * invz + (base_a**bb*invz) ** 2)         
-        result = -z * sym.diff(result, z)
-        result = sym.simplify(result)
-    
-    # n**i * a**(b*n+c) * sin(d*n+e)  OR  n**i * a**(b*n+c) * cos(d*n+e)  i>=2
-    elif (expr.is_Mul and len(expr.args) == 3 and args[1].is_Pow and args[1].args[0] == n and args[1].args[1].is_Integer and args[1].args[1] >= 2 and 
-          args[2].is_Function and args[2].func in (sym.sin, sym.cos) and ((args[2].args[0]).as_poly(n)).is_linear and
-           args[0].is_Pow and ((args[0].args[1]).as_poly(n)).is_linear and args[0].args[0] != n):  
-        ii = args[1].args[1]
-        # find parameter of sin(), cos() part
-        dd = (args[2].args[0]).coeff(n, 1)
-        ee = (args[2].args[0]).coeff(n, 0) 
-        # values for a**() part
-        base_a = expr.args[0].args[0]
-        bb = args[0].args[1].coeff(n, 1)
-        cc = args[0].args[1].coeff(n, 0)  
-        # check for sign in numerator
-        pre_sign = 1
-        if args[2].func == sym.cos:
-            pre_sign = -1
-            
-        # use rule n*x[n]  o--o  -z*d/dz X(z) multiple times    
-        result = (args[2].func(ee) + pre_sign * args[2].func(dd - ee) * base_a**bb * invz) / (1 - 2 * sym.cos(dd) * base_a**bb * invz + (base_a**bb * invz) ** 2)    
-        for l in range(ii):
-            result = -z * sym.diff(result, z)
-            result = sym.simplify(result)        
-        result *= base_a**cc
-
-    # n * exp(a * n)
-    elif (expr.is_Mul and len(args) == 2 and args[0] == n and
-          args[1].is_Function and args[1].func == sym.exp):
-        aconst, aexpr = factor_const(args[1].args[0], n)
-        if aexpr == n:
-            result = z * sym.exp(aconst) / (z - sym.exp(aconst))**2            
-    
-    # n**i * exp(a * n)   ;   i>=2
-    elif (expr.is_Mul and len(expr.args) == 2 and args[1].is_Function and args[1].func == sym.exp and 
-          args[0].is_Pow and args[0].args[0] == n and args[0].args[1].is_Integer and args[0].args[1] >= 1):
-        ii = args[0].args[1]        
-        # exp**() part
-        aconst, aexpr = factor_const(args[1].args[0], n)    
-
-        # use rule n*x[n]  o--o  -z*d/dz X(z) multiple times    
-        result = 1 / (1 - sym.exp(aconst) * invz)
-        for l in range(ii):
-            result = -z * sym.diff(result, z)
-            result = sym.simplify(result)   
-
-    # sin(a * n + b) * exp(c * n + d) and exp(c * n + d) * sin(a * n + b)
-    elif (expr.is_Mul and args[0].is_Function and args[1].is_Function and
-          args[0].func == sym.exp and args[1].func == sym.sin and ((args[1].args[0]).as_poly(n)).is_linear and ((args[0].args[0]).as_poly(n)).is_linear):
-        # find parameter of sin() part
-        aa = (args[1].args[0]).coeff(n, 1)
-        bb = (args[1].args[0]).coeff(n, 0)
-        # exp part
-        cc = (args[0].args[0]).coeff(n, 1)
-        dd = (args[0].args[0]).coeff(n, 0)        
-        # result
-        num = sym.sin(bb) + sym.exp(cc) * sym.sin(aa - bb) * invz
-        den = (1 - 2 * invz * sym.exp(cc) * sym.cos(aa) + sym.exp(2 * cc) * invz**2)
-        result = sym.exp(dd) * num / den
-
-    # cos(a * n + b) * exp(c * n + d) and exp(c * n + d) * cos(a * n + b)
-    elif (expr.is_Mul and args[0].is_Function and args[1].is_Function and
-          args[1].func == sym.exp and args[0].func == sym.cos and ((args[1].args[0]).as_poly(n)).is_linear and ((args[0].args[0]).as_poly(n)).is_linear):
-        # find parameter of cos() part
-        aa = (args[0].args[0]).coeff(n, 1)
-        bb = (args[0].args[0]).coeff(n, 0)
-        # exp part
-        cc = (args[1].args[0]).coeff(n, 1)
-        dd = (args[1].args[0]).coeff(n, 0)        
-        # result
-        num = sym.cos(bb) - sym.exp(cc) * sym.cos(aa - bb) * invz
-        den = (1 - 2 * invz * sym.exp(cc) * sym.cos(aa) + sym.exp(2 * cc) * invz**2)
-        result = sym.exp(dd) * num / den            
-    
-    # n * cos(a*n+b) * exp(c*n+d) 
-    elif (expr.is_Mul and len(expr.args) == 3 and args[0] == n and args[1].is_Function and args[1].func == sym.cos and ((args[1].args[0]).as_poly(n)).is_linear and
-           args[2].is_Function and args[2].func == sym.exp and ((args[2].args[0]).as_poly(n)).is_linear):
-        # find parameter of cos() part
-        aa = (args[1].args[0]).coeff(n, 1)
-        bb = (args[1].args[0]).coeff(n, 0) 
-        # values for exp() part
-        cc = args[2].args[0].coeff(n, 1)
-        dd = args[2].args[0].coeff(n, 0)        
-        # result
-        result = (sym.cos(bb) - sym.cos(aa - bb) * sym.exp(cc) * invz) / (1 - 2 * sym.cos(aa) * sym.exp(cc) * invz + (sym.exp(cc)*invz) ** 2)         
-        result = -z * sym.diff(result, z)
-        result = sym.simplify(result)    
-        result *= sym.exp(dd)
-    
-    # n**ii *  cos(a*n+b) * exp(c*n+d) 
-    elif (expr.is_Mul and len(expr.args) == 3 and args[0].is_Pow and args[0].args[0] == n and args[0].args[1].is_Integer and args[0].args[1] >= 1 and 
-          args[1].is_Function and args[1].func == sym.cos and ((args[1].args[0]).as_poly(n)).is_linear and
-          args[2].is_Function and args[2].func == sym.exp and ((args[2].args[0]).as_poly(n)).is_linear):
-        # find parameter of cos() part
-        aa = (args[1].args[0]).coeff(n, 1)
-        bb = (args[1].args[0]).coeff(n, 0) 
-        # values for exp() part
-        cc = args[2].args[0].coeff(n, 1)
-        dd = args[2].args[0].coeff(n, 0)  
-        # ii
-        ii = args[0].args[1]
-        # result
-        result = (sym.cos(bb) - sym.cos(aa - bb) * sym.exp(cc) * invz) / (1 - 2 * sym.cos(aa) * sym.exp(cc) * invz + (sym.exp(cc)*invz) ** 2)         
-        for l in range(ii):
-            result = -z * sym.diff(result, z)
-            result = sym.simplify(result)   
-        result *= sym.exp(dd)    
-    
-    # n  * exp(c*n+d) *  sin(a*n+b)
-    elif (expr.is_Mul and len(expr.args) == 3 and args[0] == n and args[2].is_Function and args[2].func == sym.sin and ((args[2].args[0]).as_poly(n)).is_linear and
-          args[1].is_Function and args[1].func == sym.exp and ((args[1].args[0]).as_poly(n)).is_linear):
-        # find parameter of sin() part
-        aa = (args[2].args[0]).coeff(n, 1)
-        bb = (args[2].args[0]).coeff(n, 0) 
-        # values for exp() part
-        cc = args[1].args[0].coeff(n, 1)
-        dd = args[1].args[0].coeff(n, 0)        
-        # result
-        result = (sym.sin(bb) + sym.sin(aa - bb) * sym.exp(cc) * invz) / (1 - 2 * sym.cos(aa) * sym.exp(cc) * invz + sym.exp(2 * cc) * invz**2)         
-        result = -z * sym.diff(result, z)
-        result = sym.simplify(result) 
-        result *= sym.exp(dd)
-    
-    # n**ii *  sin(a*n+b) * exp(c*n+d) 
-    elif (expr.is_Mul and len(expr.args) == 3 and args[0].is_Pow and args[0].args[0] == n and args[0].args[1].is_Integer and args[0].args[1] >= 1 and 
-          args[2].is_Function and args[2].func == sym.sin and ((args[2].args[0]).as_poly(n)).is_linear and
-          args[1].is_Function and args[1].func == sym.exp and ((args[1].args[0]).as_poly(n)).is_linear):
-        # find parameter of sin() part
-        aa = (args[2].args[0]).coeff(n, 1)
-        bb = (args[2].args[0]).coeff(n, 0) 
-        # values for exp() part
-        cc = args[1].args[0].coeff(n, 1)
-        dd = args[1].args[0].coeff(n, 0)  
-        # ii
-        ii = args[0].args[1]
-        # result
-        result = (sym.sin(bb) + sym.sin(aa - bb) * sym.exp(cc) * invz) / (1 - 2 * sym.cos(aa) * sym.exp(cc) * invz + (sym.exp(cc) * invz)**2)         
-        for l in range(ii):
-            result = -z * sym.diff(result, z)
-            result = sym.simplify(result)    
-        result *= sym.exp(dd)
-    
-    # exp(a * n) * exp(b * n)
-    elif (expr.is_Mul and args[0].is_Function and args[1].is_Function and
-          args[0].func == sym.exp and args[1].func == sym.exp):
-        aconst, aexpr = factor_const(args[1].args[0], n)
-        bconst, bexpr = factor_const(args[0].args[0], n)
-        if aexpr == n and bexpr == n:
-            result = z / (z - sym.exp(aconst + bconst))    
-    
-    # n * exp(a * n) * exp(b * n)   , for complex arguments useful
-    elif (expr.is_Mul and len(expr.args) == 3 and args[1].is_Function and args[2].is_Function and
-          args[1].func == sym.exp and args[2].func == sym.exp and args[0] == n):
-        aconst, aexpr = factor_const(args[1].args[0], n)
-        bconst, bexpr = factor_const(args[2].args[0], n)
-        if aexpr == n and bexpr == n:
-            result = z / (z - sym.exp(aconst + bconst))
-            result = -z * sym.diff(result, z)
-            result = sym.simplify(result)
+    # multiplication with n       use n*x(n)  o--o  -z d/dz X(z)
+    elif  IsMultipliedWith(expr,n,'n', xn_fac):
+        expr=expr/xn_fac[0]
+        X=ztransform_term(expr, n, z)
+        result = sym.simplify( -z*sym.diff(X,z) )
      
-    # n**i * exp(a * n) * exp(b * n)   ii>=2, for complex arguments useful
-    elif (expr.is_Mul and len(expr.args) == 3 and args[1].is_Function and args[2].is_Function and
-          args[1].func == sym.exp and args[2].func == sym.exp and args[0].is_Pow and args[0].args[0] == n 
-          and args[0].args[1].is_Integer and args[0].args[1] >= 1):
-        aconst, aexpr = factor_const(args[1].args[0], n)
-        bconst, bexpr = factor_const(args[2].args[0], n)
-        ii = args[0].args[1]
-        if aexpr == n and bexpr == n:
-            result = z / (z - sym.exp(aconst + bconst))
-            for l in range(ii):
-                result = -z * sym.diff(result, z)
-                result = sym.simplify(result)             
-        
-    #  a**(b*n+c) * exp(d * n)   , for complex arguments useful
-    elif (expr.is_Mul and len(expr.args) == 2 and  args[1].is_Function and args[1].func == sym.exp and args[0].is_Pow and ((args[0].args[1]).as_poly(n)).is_linear and args[0].args[0] != n):
-        #
-        aa = args[0].args[0]
-        bb = (args[0].args[1]).coeff(n, 1)
-        cc= (args[0].args[1]).coeff(n, 0)
-        dconst, dexpr = factor_const(args[1].args[0], n)
-        if dexpr == n:
-            result = aa**cc * z / (z - aa**bb * sym.exp(dconst))
+    # multiplication with a**(b*n+c)        use    lam**n *x(n)  o--o  X(z/lam)
+    elif IsMultipliedWith(expr,n,'a**n',xn_fac):
+        expr/=xn_fac[0]
+        ref = xn_fac[0].args
+        lam = ref[0]
+        bb = ref[1].coeff(n, 1)
+        cc = ref[1].coeff(n, 0)              
+        X=ztransform_term(expr, n, z)
+        result =  lam**cc * sym.simplify( X.subs( z,z/lam**bb )  ) 
     
-    # n * a**(b*n+c) * exp(d * n)   , for complex arguments useful
-    elif (expr.is_Mul and len(expr.args) == 3 and  args[2].is_Function and args[2].func == sym.exp  and 
-          args[1].is_Pow and ((args[1].args[1]).as_poly(n)).is_linear and args[1].args[0] != n and args[0] == n):
-        #
-        aa = args[1].args[0]
-        bb = (args[1].args[1]).coeff(n, 1)
-        cc= (args[1].args[1]).coeff(n, 0)
-        dconst, dexpr = factor_const(args[2].args[0], n)
-        if dexpr == n:
-            result = z / (z - aa**bb * sym.exp(dconst))
-            result = -z * sym.diff(result, z)
-            result = aa**cc * sym.simplify(result)
-
-    # n**i * a**(b*n+c) * exp(d * n)   , for complex arguments useful
-    elif (expr.is_Mul and len(expr.args) == 3 and  args[2].is_Function and args[2].func == sym.exp  and 
-              args[0].is_Pow and ((args[0].args[1]).as_poly(n)).is_linear and args[0].args[0] != n and 
-              args[1].args[0] == n and args[1].args[1].is_Integer and args[1].args[1] >= 1):
-        #
-        aa = args[0].args[0]
-        bb = (args[0].args[1]).coeff(n, 1)
-        cc= (args[0].args[1]).coeff(n, 0)
-        dconst, dexpr = factor_const(args[2].args[0], n)
-        ii = args[1].args[1]
-        if dexpr == n:
-            result = z / (z - aa**bb * sym.exp(dconst))
-            for l in range(ii):
-                result = -z * sym.diff(result, z)
-                result = sym.simplify(result)                
-            result = aa**cc * sym.simplify(result)               
+    # multiplication with exp(b*n+c)       use    exp**n *x(n)  o--o  X(z/exp(1))
+    elif IsMultipliedWith(expr,n,'exp(n)',xn_fac):
+        expr/=xn_fac[0]
+        ref = xn_fac[0].args
+        bb = ref[0].coeff(n, 1)
+        cc = ref[0].coeff(n, 0)              
+        X=ztransform_term(expr, n, z)
+        result = sym.exp(cc) * sym.simplify( X.subs( z,z/sym.exp(bb) ) )     
+                       
         
     if result is None:
         # Use m instead of n to avoid n and z in same expr.
@@ -555,6 +230,55 @@ def ztransform_term(expr, n, z):
         result = sym.Sum(expr.subs(nsym, msym) * zsym**msym, (msym, 0, sym.oo))
         
     return const * result
+
+
+# function checking the structure of the given sequence
+def IsMultipliedWith(expr,n,cmp,ret):
+    
+    ret_flag = False   
+    # check for multiplication  with n
+    if cmp == 'n' and expr== n :  #only n
+        ret += [n]
+        ret_flag = True  
+    elif cmp=='n' and  expr.is_Pow and expr.args[0]==n and  expr.args[1].is_integer and expr.args[1]>=1:     # only n**i
+        ret += [n]
+        ret_flag = True        
+    elif cmp == 'n' and expr.is_Mul:   # multiplication with n
+        for i in range( len(expr.args) ):
+            if expr.args[i].is_Pow and expr.args[i].args[0]==n and  expr.args[i].args[1].is_integer and expr.args[i].args[1]>=1:
+                ret += [n]
+                ret_flag = True
+                break
+            elif expr.args[i] == n:
+                ret += [n]
+                ret_flag = True
+                break
+            
+    # check for multiplication with a**(b*n+c)            
+    elif cmp ==  'a**n' and expr.is_Pow and ((expr.args[1]).as_poly(n)).is_linear and (not expr.args[0].has(n)):
+        ret += [expr]
+        ret_flag = True
+    elif cmp ==  'a**n' and expr.is_Mul:   
+        for i in range( len(expr.args) ):
+            if expr.args[i].is_Pow and ((expr.args[i].args[1]).as_poly(n)).is_linear and (not expr.args[i].args[0].has(n)) :
+                ret += [ expr.args[i] ]   
+                ret_flag = True
+                break
+     
+    # check for multiplication with exp(b*n+c)        
+    elif cmp ==  'exp(n)' and len(expr.args)==1 and expr.is_Function and expr.func == sym.exp:
+        ret += [expr]
+        ret_flag = True
+    elif cmp ==  'exp(n)' and expr.is_Mul:   
+        for i in range( len(expr.args) ):
+            if expr.args[i].is_Function and expr.args[i].func == sym.exp and ((expr.args[i].args[0]).as_poly(n)).is_linear :
+                ret += [ expr.args[i] ]   
+                ret_flag = True
+                break                     
+        
+    return ret_flag
+
+
 
 
 def ztransform(expr, n, z, evaluate=True):
@@ -682,45 +406,49 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
         
     ############ Juergen Weizenecker HsKa
     
-    # Make two dictionaries in order to handle them differently and make 
+    # make two dic in order to handle them differently and make 
     # pretty expressions
-    pole_single_dict = polesdict.copy()
-    pole_pair_dict = {}
+    pole_single_dict=polesdict.copy()
+    pole_pair_dict={}
     
-    if assumptions.get('pairs', False):
-        for pole_1 in polesdict:
-            if (not pole_1.is_real) and sym.conjugate(pole_1) in polesdict:
-                pole_single_dict.pop(pole_1,None)
-                pole_2 = sym.conjugate(pole_1)
-                order_1 = polesdict[pole_1]
-                order_2 = polesdict[pole_2]
-                if order_1 != order_2:
-                    print("!!!! Pole pairs are of different order")
-                    pole_pair_dict = {}
-                    pole_single_dict = polesdict.copy()
-                    break;
-                elif sym.im(pole_1) > 0:
-                    pole_pair_dict[(pole_1, pole_2)] = [order_1, order_2]
-                else:
-                    pole_pair_dict[(pole_2, pole_1)] = [order_2, order_1]
-        if pole_pair_dict == {}:
-            print("No pole pairs found, proceeding without pole pairs")
+    if 'pairs' in assumptions:
+        if assumptions['pairs']:
+            for pole_1 in polesdict:
+                if ( not pole_1.is_real ) and sym.conjugate(pole_1) in polesdict:
+                    pole_single_dict.pop(pole_1,None)
+                    pole_2 = sym.conjugate(pole_1)
+                    order_1 = polesdict[pole_1]
+                    order_2 = polesdict[pole_2]
+                    if order_1 != order_2:
+                        print("!!!! Pole pairs are of different order")
+                        pole_pair_dict={}
+                        pole_single_dict=polesdict.copy()
+                        break;
+                    elif sym.im(pole_1) > 0:
+                        pole_pair_dict[(pole_1,pole_2)]=[order_1,order_2]
+                    else:
+                        pole_pair_dict[(pole_2,pole_1)]=[order_2,order_1]
+            if pole_pair_dict == {}:
+                print("No pole pairs found, proceed without pole pairs")    
+                
+        
     
-    # Make n (=number of poles) different denominators to speed up calculation and avoid sym.limit
-    # The different denominators are due to shortening of poles after multiplying with (z-z1)**o
+    # make n (=number of poles) different denominators to speed up calculation and avoid sym.limit
+    # the different denominators are due to shortening of poles after multiplying with (z-z1)**o
     if not (M.is_polynomial(z) and D.is_polynomial(z)):
-        print("numerator or denominator may contain 1/z terms: ", M, D)
+        print("numerator or denominator may contain 1/z terms : ",M,D)
     
-    n_poles = len(poles)
+    n_poles=len(poles)
     # leading coefficient of denominator polynom
     a_0 = sym.LC(D) 
-    # the canceled denominator (for each (z-p)**o) 
+    # the canceled denominator ( for each (z-p)**o ) 
     shorten_denom = {}
-    for i in range(n_poles):
-        shorten_term = sym.prod([(z - poles[j].expr)**(poles[j].n) for j in range(n_poles) if j != i], a_0)    
-        shorten_denom[poles[i].expr] = shorten_term
+    for i in range( n_poles ):
+        shorten_term = sym.prod( [(z-poles[j].expr)**(poles[j].n) for j in range(n_poles) if j!=i ], a_0 )    
+        shorten_denom[poles[i].expr]=shorten_term
       
-    # Run through single poles real or complex, order 1 or higher
+               
+    # run through single poles real or complex, order 1 or higher
     for pole in pole_single_dict:
 
         p = pole
@@ -735,7 +463,8 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             continue
 
         if o == 1:
-            r = sym.simplify(sym.expand(expr2.subs(z, p))) 
+            #r = zexpr.residue(p, poles)
+            r = sym.simplify( sym.expand( expr2.subs(z,p) ) ) 
 
             if p == 0:
                 cresult += r * UnitImpulse(n)
@@ -744,9 +473,9 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             continue
 
         # Handle repeated poles.
-        all_derivatives = [expr2]
-        for i in range(1, o):
-            all_derivatives += [sym.diff(all_derivatives[i - 1], z)]         
+        all_derivatives = [ expr2 ]
+        for i in range(1, o ):
+            all_derivatives += [ sym.diff( all_derivatives[i-1], z )  ]         
         
         bino = 1
         sum_p = 0
@@ -754,8 +483,8 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             m = o - i
             derivative = all_derivatives[m]
             # derivative at z=p 
-            derivative = sym.expand(derivative.subs(z, p))
-            r = sym.simplify(derivative) / sym.factorial(m)
+            derivative = sym.expand( derivative.subs(z,p) )
+            r = sym.simplify( derivative ) / sym.factorial(m)
 
             if p == 0:
                 cresult += r * UnitImpulse(n - i + 1)
@@ -765,73 +494,80 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
                 
         uresult += sum_p * p**n
     
-    # Run through complex pole pairs
+    
+    # run through complex pole pairs
     for pole in pole_pair_dict:
         
         p1 = pole[0]
         p2 = pole[1]
     
-        # Number of occurrences of the pole
+        # Number of occurrences of the pole.
         o1 = pole_pair_dict[pole][0]
     
         # X(z)/z*(z-p)**o after shortening
         expr_1 = M / shorten_denom[p1]
         expr_2 = M / shorten_denom[p2]
     
-        # Oscillation parameter
-        lam = sym.sqrt(sym.simplify(p1 * p2))        
-        omega_0 = sym.simplify(sym.arg(p1 / lam))
+        # oscillation parameter
+        lam = sym.sqrt(sym.simplify(p1*p2))        
+        omega_0 = sym.simplify( sym.arg( p1 / lam ) )
         
         if o1 == 1:
-            r1 = expr_1.subs(z, p1) 
-            r2 = expr_2.subs(z, p2) 
+            
+            r1 = expr_1.subs(z,p1) 
+            r2 = expr_2.subs(z,p2) 
             
             r1_re = sym.re(r1).simplify()
             r1_im = sym.im(r1).simplify()            
             
-            # If pole pairs is selected, r1=r2*
+            # if pole pairs is selected, r1=r2*
             
             # handle real part
-            uresult += 2 * r1_re * lam**n * sym.cos(omega_0 * n) 
-            uresult += -2 * r1_im * lam**n * sym.sin(omega_0 * n)
+            uresult += 2*r1_re * lam ** n * sym.cos( omega_0*n ) 
+            uresult += -2*r1_im * lam ** n * sym.sin( omega_0*n )
+            
+            
         else:
             
             bino = 1
             sum_b = 0
             # compute first all derivatives needed
-            all_derivatives_1 = [expr_1]
-            for i in range(1, o1):
-                all_derivatives_1 += [sym.diff(all_derivatives_1[i - 1], z)] 
+            all_derivatives_1 = [ expr_1 ]
+            for i in range(1, o1 ):
+                all_derivatives_1 += [ sym.diff( all_derivatives_1[i-1], z )  ] 
             
-            # Loop through the binomial series
+            # loop through the binomial serie                     
             for i in range(1, o1 + 1):
                 m = o1 - i
                 
-                # mth derivative at z=p1
+                # m th derivative at z=p1
                 derivative = all_derivatives_1[m]
-                r1 = derivative.subs(z, p1) / sym.factorial(m)             
-                # Prefactors
+                r1 = derivative.subs(z,p1) / sym.factorial(m)             
+                # prefactors
                 prefac = bino * lam **(1 - i) / sym.factorial(i - 1)
-                # Simplify r1
+                # simplify r1
                 r1 = r1.rewrite(sym.exp).simplify()
                 # sum
-                sum_b += prefac * r1 * sym.exp(sym.I*omega_0 *(1 - i))
-                # Binomial coefficient                
+                sum_b += prefac * r1 *sym.exp( sym.I*omega_0 *(1-i) )
+                # binomial coefficient                
                 bino *= n - i + 1            
                 
-            # Take result = lam**n * (sum_b*sum_b*exp(j*omega_0*n) + cc)   
-            aa = sym.simplify(sym.re(sum_b))
-            bb =  sym.simplify(sym.im(sum_b))
-            uresult += 2 * (aa * sym.cos(omega_0 * n) - bb * sym.sin(omega_0 * n)) * lam**n
+            # take result = lam**n * ( sum_b*sum_b*exp(j*omega_0*n) + cc )   
+            aa = sym.simplify( sym.re(sum_b) )
+            bb =  sym.simplify( sym.im(sum_b) )
+            uresult += 2* ( aa* sym.cos(omega_0*n) - bb * sym.sin(omega_0*n) )*lam**n
             
+            
+    
     # cresult is a sum of Dirac deltas and its derivatives so is known
     # to be causal.    
 
     return cresult, uresult
 
 
+      
+
 def dummyvar(intnum=0):
-    
     if intnum == 0:
         return sympify('m', real=True)
     else:
@@ -1078,7 +814,6 @@ def inverse_ztransform1(expr, z, n, **assumptions):
     
     key = (expr, z, n, 
            assumptions.get('causal', False),
-           assumptions.get('pairs', False),           
            assumptions.get('damping', None))
     
     if key in inverse_ztransform_cache:
@@ -1127,7 +862,7 @@ def inverse_ztransform(expr, z, n, **assumptions):
 
 
 def ZT(expr, n, z, **assumptions):
-    """Compute unilateral z-Transform transform of expr with lower limit 0.
+    """Compute unilateral Z-Transform transform of expr with lower limit 0.
 
     Undefined functions such as v[n] are converted to V(z)."""
     
@@ -1137,7 +872,7 @@ def ZT(expr, n, z, **assumptions):
 def IZT(expr, z, n, **assumptions):
     """Calculate inverse z-Transform of X(s) and return x[n].
 
-    The unilateral z-Transform transform cannot determine x[n] for n < 0
+    The unilateral Z-Transform transform cannot determine x[n] for n < 0
     unless given additional information in the way of assumptions.
 
     The assumptions are:

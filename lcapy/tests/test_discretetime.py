@@ -20,10 +20,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a(z)(n), a, "ui(z)(n)")
         self.assertEqual(a(z)(k), 1, "ui(z)(k)")                        
 
-    def test_decompose_AB(self):
+    def test_as_AB(self):
 
         H = (z -2) / (z - 3)
-        A, B = H.decompose_AB()
+        A, B = H.as_AB()
 
         self.assertEqual(A, 1 - 3 / z, "A")
         self.assertEqual(B, 1 - 2 / z, "A")                
