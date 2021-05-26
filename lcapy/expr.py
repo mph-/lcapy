@@ -101,6 +101,12 @@ class ExprPrint(object):
 
 class ExprContainer(object):    
 
+    @property
+    def sympy(self):
+        """Return SymPy expression."""
+        
+        return self.expr
+
     def evaluate(self):
         """Evaluate each element to convert to floating point.
         This may change..."""
