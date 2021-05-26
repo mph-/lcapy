@@ -29,8 +29,8 @@ class DifferenceEquation(DiscreteTimeDomainExpression):
         X = x.ZT()
         Y = y.ZT()
 
-        # FIXME
-        return self.rhs.ZT() * Y / (self.lhs.ZT() * X)
+        # FIXME, it may be better to solve rather than rely on simplify
+        return (self.rhs.ZT() * Y / (self.lhs.ZT() * X)).simplify()
     
     @property
     def lhs(self):
