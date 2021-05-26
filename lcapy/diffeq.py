@@ -5,6 +5,9 @@ class DifferenceEquation(DiscreteTimeDomainExpression):
 
     def __init__(self, lhs, rhs, inputsym='x', outputsym='y', **assumptions):
 
+        lhs = nexpr(lhs, **assumptions)
+        rhs = nexpr(rhs, **assumptions)        
+        
         lhssymbols = lhs.symbols
         rhssymbols = rhs.symbols
 
@@ -12,25 +15,20 @@ class DifferenceEquation(DiscreteTimeDomainExpression):
             raise ValueError('Input symbol %s not in rhs %s' % (inputsym, rhs))
         if outputsym not in lhssymbols:
             raise ValueError('Output symbol %s not in lhs %s' % (outputsym, lhs))
-        if inputsym in lhssymbols:
-            raise ValueError('Input symbol %s in lhs %s' % (inputsym, lhs))
-        if outputsym in rhssymbols:
-            raise ValueError('Output symbol %s in rhs %s' % (outputsym, rhs))
 
         super (DifferenceEquation, self).__init__(equation(lhs, rhs, **assumptions))
         self.inputsym = inputsym
         self.outputsym = outputsym        
 
     def transfer_function(self):
+        """Create discrete-time transfer function."""
+        from .zexpr import zexpr
+        
+        X = self.inputsym.upper()        
+        Y = self.outputsym.upper()
 
-        x = nexpr('%s(n)' % self.inputsym)
-        y = nexpr('%s(n)' % self.outputsym)
-
-        X = x.ZT()
-        Y = y.ZT()
-
-        # FIXME, it may be better to solve rather than rely on simplify
-        return (self.rhs.ZT() * Y / (self.lhs.ZT() * X)).simplify()
+        result = self.ZT().solve(Y)[0] / zexpr(X + '(z)')
+        return result
     
     @property
     def lhs(self):
@@ -40,6 +38,9 @@ class DifferenceEquation(DiscreteTimeDomainExpression):
     def rhs(self):
         return DiscreteTimeDomainExpression(self.expr.rhs, **self.assumptions)
     
+    def dti_filter(self):
+        """Create linear discrete-time invariant filter."""
+
+        return self.transfer_function().dti_filter()
     
-    
-    
+

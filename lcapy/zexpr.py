@@ -264,9 +264,29 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
             raise ValueError('Unhandled form ' + form)    
 
         return DifferenceEquation(lhs, rhs, inputsym, outputsym)
-    
+
+    def dti_filter(self):
+        """Create linear discrete-time invariant filter from discrete-time
+        transfer function."""
+
+        from .dtifilter import DTIFilter
         
+        if not self.is_rational_function:
+            raise ValueError("Not a rational function")            
+            
+        N = self.N
+        D = self.D
+        n_n = N.coeffs()
+        d_n = D.coeffs()
     
+        if len(n_n) > len(d_n):
+            raise ValueError("System not causal")
+
+        bn = (len(d_n) - len(n_n)) * [0] + n_n
+        an = d_n
+        lpf = DTIFilter(bn, an) 
+        return lpf
+        
 def zexpr(arg, **assumptions):
     """Create ZDomainExpression object.  If `arg` is zsym return z"""
 
