@@ -490,6 +490,13 @@ Difference equations can be created explicitly, for example::
 
   >>> de = difference_equation('y(n)','2 * x(n - 2) + x(n - 1)')
 
+The `separate()` method separates the input expressions from the
+output expressions.   For example::
+
+  >>> de = difference_equation('y(n)','2 * y(n - 1) + x(n)')
+  >>> de.separate()
+  y(n) - 2⋅y(n - 1) = x(n)
+
 
 Discrete-time transfer functions
 ================================

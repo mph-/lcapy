@@ -79,12 +79,12 @@ class LcapyTester(unittest.TestCase):
 
          H = z / (z - 1)
 
-         DE = H.difference_equation()
+         de = H.difference_equation().separate()
          rhs = expr('x(n)')
          lhs = expr('y(n) - y(n-1)')
 
-         self.assertEqual(DE.lhs, lhs, "DE lhs")
-         self.assertEqual(DE.rhs, rhs, "DE rhs")                  
+         self.assertEqual(de.lhs, lhs, "DE lhs")
+         self.assertEqual(de.rhs, rhs, "DE rhs")                  
 
     def test_nexpr(self):
 
