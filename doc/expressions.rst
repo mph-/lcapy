@@ -635,6 +635,10 @@ Miscellaneous
 
 - `replace(query, value)` replace `query` with `value`.
 
+- `rewrite(args, hints)` rewrite expression in terms of the `args`.
+  
+- `solve(symbols, flags)` returns list of solutions.
+  
   
 .. _expressionsprinting:  
   

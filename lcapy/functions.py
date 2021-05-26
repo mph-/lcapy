@@ -11,6 +11,12 @@ class Function(object):
     def __init__(self, arg):
         self.expr = arg
     
+    @property
+    def sympy(self):
+        """Return SymPy expression."""
+        
+        return self.expr
+
     def __call__(self, *args):
 
         e_args = [expr(arg) for arg in args]

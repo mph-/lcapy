@@ -2029,7 +2029,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def _tweak_arg(self, arg):
 
-        if isinstance(arg, Expr):
+        if isinstance(arg, (Expr, Function)):
             return arg.expr
 
         if isinstance(arg, tuple):
@@ -2049,6 +2049,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.__class__(sym.integrate(self.expr, arg, **kwargs),
                               **self.assumptions)
 
+    def rewrite(self, *args, **hints):
+        """Rewrite expression."""
+
+        args = self._tweak_arg(args)        
+        return self.__class__(self.sympy.rewrite(*args, **hints),
+                              **self.assumptions)
+
     def solve(self, *symbols, **flags):
         """Solve expression.  This returns a list of solutions."""
 
@@ -2057,7 +2064,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return new.solve(*symbols, **flags).subs(defs)
         
         symbols = [symbol_map(symbol) for symbol in symbols]
-        return expr(sym.solve(self.expr, *symbols, **flags))
+        return expr(sym.solve(self.expr, *symbols, **flags))  
 
     @property
     def symbols(self):
