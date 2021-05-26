@@ -38,9 +38,9 @@ class DifferenceEquation(DiscreteTimeDomainExpression):
     def rhs(self):
         return DiscreteTimeDomainExpression(self.expr.rhs, **self.assumptions)
     
-    def dti_filter(self):
-        """Create linear discrete-time invariant filter."""
+    def dlti_filter(self):
+        """Create discrete-time linear time-invariant filter."""
 
-        return self.transfer_function().dti_filter()
+        return self.transfer_function().dlti_filter()
     
 

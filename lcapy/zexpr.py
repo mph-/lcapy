@@ -265,11 +265,13 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
 
         return DifferenceEquation(lhs, rhs, inputsym, outputsym)
 
-    def dti_filter(self):
-        """Create linear discrete-time invariant filter from discrete-time
+    def dlti_filter(self):
+        """Create discrete-time linear time-invariant filter from discrete-time
         transfer function."""
 
-        from .dtifilter import DTIFilter
+        # TODO, perhaps add only to DiscreteTimeDomainTransfer?
+        
+        from .dltifilter import DLTIFilter
         
         if not self.is_rational_function:
             raise ValueError("Not a rational function")            
@@ -284,7 +286,7 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
 
         bn = (len(d_n) - len(n_n)) * [0] + n_n
         an = d_n
-        lpf = DTIFilter(bn, an) 
+        lpf = DLTIFilter(bn, an) 
         return lpf
         
 def zexpr(arg, **assumptions):

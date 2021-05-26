@@ -113,7 +113,7 @@ class LcapyTester(unittest.TestCase):
     def test_dtfilter(self):
 
         a = symbol('a')
-        lpf = DTIFilter((1 - a, ), (1, -a))
+        lpf = DLTIFilter((1 - a, ), (1, -a))
 
         y = lpf.response(1, [0], (0,2))
         

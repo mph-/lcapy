@@ -529,7 +529,7 @@ denominator coefficients.  For example, a first-order, discrete-time,
 recursive low-pass filter can be created with:
 
    >>> a = symbol('a')
-   >>> lpf = DTIFilter((1 - a, ), (1, -a))
+   >>> lpf = DLTIFilter((1 - a, ), (1, -a))
 
 The difference equation can be printed using::
   
