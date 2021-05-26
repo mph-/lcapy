@@ -521,15 +521,15 @@ If the impulse response is known to be causal, use the `causal` argument::
    a ⋅(1 - a)⋅u[n]
 
 
-Discrete time filters
-=====================
+Discrete time invariant filters
+===============================
 
-A discrete-time filter can be specified by its numerator and
-denominator coefficients.  For example, a first-order discrete-time
+A discrete-time invariant filter can be specified by its numerator and
+denominator coefficients.  For example, a first-order, discrete-time,
 recursive low-pass filter can be created with:
 
    >>> a = symbol('a')
-   >>> lpf = DTFilter((1 - a, ), (1, -a))
+   >>> lpf = DTIFilter((1 - a, ), (1, -a))
 
 The difference equation can be printed using::
   

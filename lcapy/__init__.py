@@ -68,7 +68,8 @@ from .cexpr import cexpr
 from .omegaexpr import omegaexpr
 from .phasor import phasor
 from .discretetime import *
-from .dtfilter import *
+from .dtifilter import *
+from .diffeq import *
 from .dft import *
 from .state import state
 

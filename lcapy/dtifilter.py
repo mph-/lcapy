@@ -13,7 +13,7 @@ from numpy import arange, ndarray
 import sympy as sym
 
 
-class DTFilter(object):
+class DTIFilter(object):
 
     def __init__(self, b, a):
         """Create discrete-time filter where `b` is a list or array of
