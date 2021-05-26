@@ -170,14 +170,14 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
     
         return self.discrete_time_fourier_transform(**assumptions)
 
-    def difference_equation(self, input='x', output='y', form='iir'):
+    def difference_equation(self, inputsym='x', outputsym='y', form='iir'):
         """Create difference equation from impulse response.
 
-        form can be 'fir' or 'iir' ('direct form I').
+        `form` can be 'fir' or 'iir' ('direct form I').
         """
 
         H = self.ZT()
-        return H.difference_equation(input, output, form)
+        return H.difference_equation(inputsym, outputsym, form)
 
     def remove_condition(self):
         """Remove the piecewise condition from the expression."""

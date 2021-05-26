@@ -13,6 +13,7 @@ from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
 from .dexpr import DiscreteExpression
 from .expr import symbol, expr, ExprDict
+from .diffeq import DifferenceEquation
 from .functions import sqrt, exp
 import numpy as np
 from sympy import Eq, div, limit, oo, Sum
@@ -234,15 +235,15 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
         
         return A, B * C
     
-    def difference_equation(self, input='x', output='y', form='iir'):
+    def difference_equation(self, inputsym='x', outputsym='y', form='iir'):
         """Create difference equation from transfer function.
 
-        form can be 'fir' or 'iir' ('direct form I').
+        `form` can be 'fir' or 'iir' ('direct form I').
         """
 
         H = self
-        x = nexpr('%s(n)' % input)
-        y = nexpr('%s(n)' % output)
+        x = nexpr('%s(n)' % inputsym)
+        y = nexpr('%s(n)' % outputsym)
 
         X = x.ZT()
         Y = y.ZT()
@@ -262,7 +263,8 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
         else:
             raise ValueError('Unhandled form ' + form)    
 
-        return DiscreteTimeDomainExpression(Eq(lhs.expr, rhs.expr))        
+        return DifferenceEquation(lhs, rhs, inputsym, outputsym)
+    
         
     
 def zexpr(arg, **assumptions):
