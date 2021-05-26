@@ -43,4 +43,27 @@ class DifferenceEquation(DiscreteTimeDomainExpression):
 
         return self.transfer_function().dlti_filter()
     
+    def separate(self):
+        """Rewrite difference equation so that input symbols are on the right
+        and output symbols are on the left."""
 
+        newlhs = 0
+        newrhs = 0
+
+        for term in self.lhs.as_ordered_terms():
+            symbols = nexpr(term).symbols
+            if self.outputsym in symbols:
+                newlhs += term
+            if self.inputsym in symbols:
+                newrhs -= term
+
+        for term in self.rhs.as_ordered_terms():
+            symbols = nexpr(term).symbols            
+            if self.outputsym in symbols:
+                newlhs -= term
+            if self.inputsym in symbols:
+                newrhs += term
+
+        return self.__class__(newlhs, newrhs, **self.assumptions)
+    
+                
