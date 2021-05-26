@@ -1,3 +1,9 @@
+"""This module provides difference equation support.
+
+Copyright 2021 Michael Hayes, UCECE
+
+"""
+
 from .expr import equation
 from .nexpr import DiscreteTimeDomainExpression, nexpr
 

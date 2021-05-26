@@ -250,10 +250,7 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
 
         if form in ('iir', 'direct form I'):
             # Direct form I
-            A, B = self.as_AB()
-            
-            lhs = (A * Y).IZT(causal=True)
-            rhs = (B * X).IZT(causal=True)
+            return self.dlti_filter().difference_equation()
             
         elif form == 'fir':
             H = H.partfrac()

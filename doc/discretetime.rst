@@ -475,56 +475,40 @@ with a discrete-time impulse response
                (2⋅C⋅R - Δₜ)⋅(2⋅C⋅R + Δₜ)     
                
 
-Difference equation generation
-==============================
+Difference equations
+====================
 
 Difference equations can be generated from transfer functions and
 impulse responses.  Both FIR and IIR (direct form I) can be generated.
 For example::
 
-  >>> H = z + 2 / z**2
+  >>> H = (z + 2) / z**2
   >>> H.difference_equation('x', 'y', 'fir')
   y(n) = 2⋅x(n - 2) + x(n - 1)
 
+Difference equations can be created explicitly, for example::
 
-Transfer function from difference equation
-==========================================
+  >>> de = difference_equation('y(n)','2 * x(n - 2) + x(n - 1)')
 
-Here's an example of determining the Z-domain transfer function from a difference equation::
 
-   >>> e = equation('y(n)', 'a * y(n - 1) + (1 - a) * x(n)')
-   >>> e
-   y(n) = a⋅y(n - 1) + (1 - a)⋅x(n)
-   >>> E = e(z)
-   >>> E
-             a⋅Y(z) + z⋅(1 - a)⋅X(z)
-   Y(z) = ───────────────────────
-                     z           
-   >>> H = E.solve('Y'))[0] / expr('X(z)')
+Discrete-time transfer functions
+================================
+
+A discrete-time transfer functions can be determined from a difference
+equation or a DLTI filter.  For example::
+
+   >>> de = difference_equation('y(n)','2 * x(n - 2) + x(n - 1)')
+   >>> H = de.transfer_function()
    >>> H
-   z⋅(a - 1)
-   ─────────
-     a - z  
+   z + 2
+   ─────
+     2 
+    z  
 
-The discrete-time impulse response can be found from an inverse z-transform::
+Discrete-time linear time invariant filters
+===========================================
 
-   >>> h = H(n)
-   >>> h
-    n                   
-   a ⋅(1 - a)  for n ≥ 0
-
-If the impulse response is known to be causal, use the `causal` argument::
-
-   >>> h = H(n, causal=True)
-   >>> h
-    n                   
-   a ⋅(1 - a)⋅u[n]
-
-
-Discrete time invariant filters
-===============================
-
-A discrete-time invariant filter can be specified by its numerator and
+A discrete-time linear time invariant filter can be specified by its numerator and
 denominator coefficients.  For example, a first-order, discrete-time,
 recursive low-pass filter can be created with:
 
@@ -559,4 +543,18 @@ For a recursive filter, the initial conditions can also be specified::
 
 The input to the filter can be a `DiscreteTimeDomainExpression` or a sequence.
 The output is a sequence.
+
+A discrete-time LTI filter can be created from difference equations
+and transfer functions.   For example::
+
+  >>> de = DifferenceEquation('2 * y(n)', '4 * y(n + 1) - 3 * y(n-3) -2 * x(n) - 5 * x(n-3)')
+  >>> fil = de.dlti_filter()
+  >>> fil.a
+  [4, -2, 0, 0, -3]
+  >>> fil.b
+  [0, 2, 0, 0, 5]
+  >>> fil.difference_equation()
+  
+
+  
 

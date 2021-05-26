@@ -6,6 +6,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 from .expr import expr, equation
 from .nexpr import DiscreteTimeDomainExpression
+from .diffeq import DifferenceEquation
 from .discretetime import n, z, seq
 from .sequence import Sequence
 from .utils import isiterable
@@ -59,21 +60,19 @@ class DLTIFilter(object):
         H = self.transfer_function()
         return H(n)
 
-    def difference_equation(self, input='x', output='y'):
+    def difference_equation(self, inputsym='x', outputsym='y'):
         """Return difference equation."""
 
         rhs = 0 * n
 
         for m, bn in enumerate(self.b):
-            rhs += bn * expr('%s(n - %d)' % (input, m))
+            rhs += bn * expr('%s(n - %d)' % (inputsym, m))
 
         for m, an in enumerate(self.a[1:]):
-            rhs -= an * expr('%s(n - %d)' % (output, m + 1))
+            rhs -= an * expr('%s(n - %d)' % (outputsym, m + 1))
 
         lhs = self.a[0] * expr('y(n)')
-        e = equation(lhs, rhs)
-
-        return e
+        return DifferenceEquation(lhs, rhs, inputsym, outputsym)
 
     def zdomain_initial_response(self, ic):
         """Return zdomain response due to initial conditions."""        

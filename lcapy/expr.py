@@ -33,7 +33,7 @@ from .simplify import simplify_sin_cos
 from collections import OrderedDict
 
 __all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad', 'degrees',
-           'radians', 'equation')
+           'radians', 'equation', 'difference_equation')
 
 class ExprPrint(object):
 
@@ -2834,6 +2834,26 @@ def equation(lhs, rhs, **assumptions):
     cls = lhs.__class__
     
     return cls(sym.Eq(lhs.expr, rhs.expr, evaluate=False), **assumptions)
+
+
+def difference_equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
+    """Create an Lcapy difference equation.
+
+    This is an Lcapy expression of the form Eq(lhs, rhs).
+    For example,
+    e = difference_equation('y(n)', 'x(n) + 2 * y(n - 1)')
+    
+    The left hand side (lhs) and right hand side subexpressions
+    can be obtained with the `lhs` and `rhs` attributes."""
+
+    from .diffeq import DifferenceEquation
+
+    lhs = expr(lhs)
+    rhs = expr(rhs)
+    # Check if lhs and rhs compatible.
+    diff = lhs - rhs
+
+    return DifferenceEquation(lhs, rhs, inputsym, outputsym, **assumptions)
 
 
 def symbol(name, **assumptions):
