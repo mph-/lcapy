@@ -166,10 +166,11 @@ operator (`<<') to shift sequences.   For example::
 Sequence attributes
 -------------------
 
-- `epxr` convert to a discrete-time or discrete-frequency expression
+- `expr` convert to a discrete-time or discrete-frequency expression
 - `extent` the extent of the sequence
 - `n` the sequence indices
 - `origin` the element index for `n = 0`
+- `vals` the sequence values as a list
    
 
 Sequence methods
@@ -212,7 +213,7 @@ Discrete-time expressions can be converted to sequences using the `seq()` method
    >>> (delta(n) + 2 * delta(n - 1) + 3 * delta(n - 3)).seq()
    {_1, 2, 0, 3}
 
-The `seq` method has an argument to specify the extent of the sequence.  This is required if the sequences have infinite extent.  For example::
+The `seq()` method has an argument to specify the extent of the sequence.  This is required if the sequences have infinite extent.  For example::
 
    >>> (2 * u(n) + delta(n - 1)).seq((-10, 10))
    {_2, 3, 2, 2, 2, 2, 2, 2, 2, 2}
@@ -310,7 +311,7 @@ Z-domain expressions can be constructed using the z-domain variable `z`, for exa
 
 Alternatively, they can be generated using a z-transform of a discrete-time signal. 
 
-Z-domain expressions are objects of the `ZDomainExpression` class.  They are functions of the complex variable `z` and are similar to `sExpr` objects.   The general form of a z-domain expression is a rational function so all the s-domain formatting methods are applicable (see :ref:`expressionsprinting`).
+Z-domain expressions are objects of the `ZDomainExpression` class.  They are functions of the complex variable `z` and are similar to `LaplaceDomainExpression` objects.   The general form of a z-domain expression is a rational function so all the s-domain formatting methods are applicable (see :ref:`expressionsprinting`).
 
 The poles and zeros of a z-domain expression can be plotted using the `plot()` method.  For example:
 
@@ -335,7 +336,7 @@ Lcapy uses the unilateral z-transform, defined as:
 
    X(z) = \sum_{n=0}^{\infty} x(n) z^{-n}
 
-The z-transform is performed explicitly with the `ZT` method:
+The z-transform is performed explicitly with the `ZT()` method:
 
    >>> x = delta(n) + 2 * delta(n - 2)
    >>> x.ZT()
@@ -408,7 +409,7 @@ The IDFT converts a k-domain expression to an n-domain expression.  The definiti
 
 .. math::
 
-   x[n] = \frac{1}{N} \sum_{k=0}^{N - 1} X(k) e^{\frac{\mathrm{j} 2 \pi k n}{N}}
+   x(n) = \frac{1}{N} \sum_{k=0}^{N - 1} X(k) e^{\frac{\mathrm{j} 2 \pi k n}{N}}
 
            
 
@@ -498,6 +499,23 @@ output expressions.   For example::
   y(n) - 2⋅y(n - 1) = x(n)
 
 
+Difference equation attributes
+------------------------------
+
+- `lhs` left-hand-side of the equation
+- `rhs` right-hand-side of the equation
+- `inputsym` input symbol, usually 'x'
+- `outputsym` input symbol, usually 'y'  
+
+ 
+Difference equation methods
+---------------------------
+
+- `dlti_filter` create discrete-time linear time invariant filter (`DLTIFilter`) object
+- `separate` separate the input expressions from the output expressions.
+- `transfer_function` create z-domain transfer function  
+  
+
 Discrete-time transfer functions
 ================================
 
@@ -512,6 +530,14 @@ equation or a DLTI filter.  For example::
      2 
     z  
 
+
+Discrete-time transfer function methods
+---------------------------------------
+
+- `dlti_filter` create discrete-time linear time invariant filter (`DLTIFilter`) object
+- `difference_equation` create discrete-time difference equation
+
+    
 Discrete-time linear time invariant filters
 ===========================================
 
@@ -561,7 +587,21 @@ and transfer functions.   For example::
   >>> fil.b
   [0, 2, 0, 0, 5]
   >>> fil.difference_equation()
-  
 
-  
 
+Discrete-time linear time invariant filter attributes
+-----------------------------------------------------
+
+- `a` denominator coefficients as a list
+- `b` numerator coefficients as a list  
+
+
+Discrete-time linear time invariant filter methods
+--------------------------------------------------
+
+- `difference_equation()` create discrete-time difference equation
+- `impulse_response()` create discrete-time domain impulse response
+- `initial_response()` discrete time-domain response due to initial conditions  
+- `response()` discrete time-domain response due to input signal and initial conditions
+- `transfer_function()` create z-domain transfer function
+- `zdomain_initial_response()` z-domain response due to initial conditions
