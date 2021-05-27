@@ -156,7 +156,7 @@ Sequence operators
 ------------------
 
 Lcapy overloads the leftshift operator (`>>') and the rightshift
-operator (`<<') to shift sequences.   For example::
+operator (`<<') to shift sequences.  For example::
 
   >>> a = seq((1, 2, 3))
   >>> a >> 2
