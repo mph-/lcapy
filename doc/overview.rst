@@ -8,13 +8,14 @@ This document provides an overview of Lcapy's capabilities.   It assumes you kno
 Introduction
 ============
 
-Lcapy is a Python package for linear circuit analysis.  Its primary
-purpose is for symbolic circuit analysis but it can also simulate
-circuits using numerical integration.  Lcapy can only symbolically
-analyse linear, time invariant networks.  In other words, networks
-comprised of basic circuit components (R, L, C, etc.) that do not vary
-with time.  However, changes in circuit topology can be analysed as a
-sequence of initial value problems.
+Lcapy is a Python package for symbolic linear circuit analysis and
+signal processing.  Its primary purpose is for symbolic circuit
+analysis but it can also simulate circuits using numerical
+integration.  Lcapy can only symbolically analyse linear, time
+invariant networks.  In other words, networks comprised of basic
+circuit components (R, L, C, etc.) that do not vary with time.
+However, changes in circuit topology can be analysed as a sequence of
+initial value problems.
 
 Networks and circuits can be described using netlists or combinations
 of network elements.  These can be drawn semi-automatically (see :ref:`schematics`).
@@ -960,7 +961,6 @@ resistor in series with a capacitor::
    ... C 2 0""")
 
 Here the numbers represent node names although these can be alphanumeric as well.
-   
 
 
 Transfer functions
@@ -1021,10 +1021,6 @@ for example::
           s - z₁      
    ───────────────────
    (-p₁ + s)⋅(-p₂ + s)
-
-
-
-
 
 
 Circuit analysis
@@ -1553,6 +1549,26 @@ Network synthesis
 Network synthesis creates a network from an impedance (or admittance),
 see :ref:`network-synthesis`.
 
+
+Discrete-time signals
+=====================
+
+Lcapy supports discrete-time signals and provides z-transforms, discrete Fourier transforms (DFT), and discrete-time Fourier transforms (DTFT), see :ref:`discrete_time`.  The signals can be represented as expressions or sequences of symbolic elements.   For example::
+
+   >>> x = seq((1, 2, 3))
+   {_1, 2, 3}
+   >>> x.expr
+   δ[n] + 3⋅δ[n - 2] + 2⋅δ[n - 1]
+   >>> x.expr(z)
+       2   3 
+   1 + ─ + ──
+       z    2
+           z 
+
+  >>> H = (z + 2) / z**2
+  >>> H.difference_equation('x', 'y')
+  y(n) = 2⋅x(n - 2) + x(n - 1)
+           
 
 Jupyter (IPython) notebooks
 ===========================
