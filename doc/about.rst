@@ -22,5 +22,9 @@ Contributors
 ============
 
 Michael Hayes
+
 Matthew Edwards
+
+Blair Bonnett
+
 Juergen Weizenecker
