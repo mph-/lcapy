@@ -2,6 +2,42 @@
 Release notes
 =============
 
+V0.91
+=====
+
+- Simplifies residues for better partial fractions
+
+- Renames `DTFilter` to `DLTIFilter`
+
+- Adds `DifferenceEquation` class
+
+- Speeds up z-transforms
+
+- Fixes stem plots for negative powers of n
+
+- Ensures integer xticks for stem plots
+
+- Adds `var` argument to `coeffs()` method for expressions
+
+- Merges state space tests
+
+- Changes behaviour of z-transform and DFT for sequences; they now return sequences
+
+- Adds `expr` attribute for sequences
+
+- Moves documentation to https:\\lcapy.readthedocs.org
+
+- Improves pretty printing of sequences
+
+- Adds `zeroextend()` method for sequences  
+
+- Adds `>>` and `<<` operators for sequences
+
+- Uses attributes `extent` and `origin` for sequences
+
+- Remove tests for deprecated ubuntu-16.04
+
+
 V0.90
 =====
 
@@ -11,9 +47,9 @@ V0.90
 
 - Modifies `evaluate()` method for `Sequence`  
 
-- Adds DTFilter
+- Adds `DTFilter`
 
-- Adds evalf method for container classes
+- Adds `evalf` method for container classes
  
 - Fixes access of element in a sequence
 
