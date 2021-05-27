@@ -423,7 +423,7 @@ class Ratfun(object):
             return n / ddenom.subs(pole)
 
         m2 = method2(numer, denom, var, pole)        
-        return m2
+        return m2.cancel()
 
 
     @property
