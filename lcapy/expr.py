@@ -2016,7 +2016,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return label
 
     def differentiate(self, arg=None):
-
+        """Differentiate expression."""
+        
         if arg is None:
             arg = self.var
         arg = self._tweak_arg(arg)
@@ -2041,6 +2042,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return arg
 
     def integrate(self, arg=None, **kwargs):
+        """Integrate expression.        
+
+        For example `exp(-3 * t).integrate((t, 0, oo))` gives `1 / 3`.
+
+        """
 
         if arg is None:
             arg = self.var
@@ -2050,7 +2056,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                               **self.assumptions)
 
     def rewrite(self, *args, **hints):
-        """Rewrite expression."""
+        """Rewrite expression.
+
+        For example, `exp(j*a*t).rewrite(cos)` gives `ⅉ⋅sin(4⋅t) +
+        cos(4⋅t)`.  Similarly, `cos(2 * t).rewrite(exp)` will expand
+        the cosine as two complex exponentials."""
 
         args = self._tweak_arg(args)        
         return self.__class__(self.sympy.rewrite(*args, **hints),

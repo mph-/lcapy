@@ -613,16 +613,20 @@ Miscellaneous
     ⌠                  
     ⎮  i(τ)⋅z(t - τ) dτ
     ⌡                  
-    -∞    
+    -∞
+
+- `differentiate()` differentiates expression.
 
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
 - `evalf(n)` returns floating point number to `n` decimal places (as Lcapy expression) if expression can be evaluated (see also `val`, `fval`, and `cval` attributes)
 
 - `evaluate(arg)` returns floating point number (Python float or complex type) if expression can be evaluated.  If passed an NumPy array, an array of NumPy float or complex types is returned.
-    
+
 - `initial_value()` returns result at :math:`t = 0`.
 
+- `integrate(arg, **kwargs)` integrates expression.  For example `exp(-3 * t).integrate((t, 0, oo))` gives `1 / 3`.
+  
 - `factor_const()` factor into constant part and the rest.
 
 - `factor_term()` split into constant part and the rest.    
@@ -635,7 +639,7 @@ Miscellaneous
 
 - `replace(query, value)` replace `query` with `value`.
 
-- `rewrite(args, hints)` rewrite expression in terms of the `args`.
+- `rewrite(args, hints)` rewrite expression in terms of the `args`.  For example, `exp(j*a*t).rewrite(cos)` gives  `ⅉ⋅sin(4⋅t) + cos(4⋅t)`.  Similarly, `cos(2 * t).rewrite(exp)` will expand the cosine as two complex exponentials.
   
 - `solve(symbols, flags)` returns list of solutions.
   
