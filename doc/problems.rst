@@ -166,7 +166,7 @@ Some SymPy operations can take an unexpectedly long time, for example, `limit()`
 Working with SymPy
 ------------------
 
-Lcapy wraps many of SymPy's methods but if you know how to use SymPy, you can extract the underlying SymPy expression using the `expr` attribute of an Lcapy expression.
+Lcapy wraps many of SymPy's methods but if you know how to use SymPy, you can extract the underlying SymPy expression using the `sympy` attribute of an Lcapy expression.
 
 
 SymPy differences
