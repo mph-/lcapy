@@ -950,7 +950,7 @@ Here's an example of use::
         2             2
 
 
-.. _fourier_transforms:
+.. _angular_fourier_transforms:
 
 Angular Fourier transforms
 --------------------------
@@ -1639,7 +1639,8 @@ Lcapy when performing circuit analysis).  For example::
    {n2: 4}   
 
 
-.. _plotting:   
+.. _plotting:
+
 Plotting
 ========
 
@@ -1765,6 +1766,14 @@ Discrete-time signals are plotted as stem (lollipop plots), for example::
 .. image:: examples/plotting/lollipop1.png
    :width: 12cm
 
+Complex discrete-time signals can also be plotted in polar format, for example::
+
+   >>> x = 0.9**n * exp(j * n * 0.5)
+   >>> x.plot((1, 10), polar=True)
+  
+.. image:: examples/discretetime/cdt1-plot1.png
+   :width: 10cm  
+           
 
 Plot customisation
 ------------------

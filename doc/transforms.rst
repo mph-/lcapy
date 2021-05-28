@@ -2,7 +2,7 @@
 Tables of transforms
 ====================
 
-.. _fourier_transforms:
+.. _table_fourier_transforms:
 
 Fourier Transforms
 ==================
@@ -12,7 +12,7 @@ Lcapy can compute many Fourier transforms including:
 .. include:: fourier_transforms.rst
 
 
-.. _laplace_transforms:
+.. _table_laplace_transforms:
 
 Laplace Transforms
 ==================
@@ -21,7 +21,7 @@ Lcapy can compute many Laplace transforms including:
 
 .. include:: laplace_transforms.rst
 
-.. _z_transforms:
+.. _table_z_transforms:
 
 Z Transforms
 ============

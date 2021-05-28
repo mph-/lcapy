@@ -18,7 +18,16 @@ For example:
 .. literalinclude:: examples/discretetime/dt1-plot1.py
 
 .. image:: examples/discretetime/dt1-plot1.png
-   :width: 15cm   
+   :width: 15cm
+
+           
+A complex discrete-time signal can be plotted in polar coordinates using the `plot()` method with the `polar` argument, for example:
+
+           
+.. literalinclude:: examples/discretetime/cdt1-plot1.py
+
+.. image:: examples/discretetime/cdt1-plot1.png
+   :width: 10cm
 
 
 Functions
@@ -155,12 +164,13 @@ The discrete Fourier transform (DFT), inverse discrete Fourier transform (IDFT) 
 Sequence operators
 ------------------
 
-Lcapy overloads the leftshift operator (`>>') and the rightshift
-operator (`<<') to shift sequences.  For example::
+Lcapy overloads the leftshift operator and the rightshift operator to shift sequences.  For example::
 
   >>> a = seq((1, 2, 3))
   >>> a >> 2
-  {_0, 1, 2, 3}
+  {_0, 0, 1, 2, 3}
+  >>> a << 2
+  {1, 2, _3}  
 
    
 Sequence attributes

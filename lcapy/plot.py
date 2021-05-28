@@ -288,9 +288,46 @@ def plot_time(obj, t, **kwargs):
     return ax
 
 
-def plot_sequence(obj, ni, **kwargs):
+# make a stem plot for complex values sequences in the complex domain
+def plot_sequence_polar(obj, ni=(-10, 10), **kwargs):
+
+    npoints = kwargs.pop('npoints', 400)        
+    
+    # FIXME, determine useful range...
+    if ni is None:
+        ni = (-20, 20)
+    if isinstance(ni, tuple):
+        # Use float data type since NumPy barfs for n**(-a) where a is
+        # an integer.
+        ni = np.arange(ni[0], ni[1] + 1, dtype=float)
+
+    v = obj.evaluate(ni)
+    
+    ax = make_axes(figsize=kwargs.pop('figsize', None),
+                   axes=kwargs.pop('axes', None),
+                   subplot_kw=dict(polar=True))
+
+    phi = np.angle(v)
+    mag = abs(v)
+    
+    # Plot symbols
+    p = ax.plot(phi, mag, 'o', **kwargs)
+
+    color = kwargs.pop('color', p[0].get_color())
+    
+    # Plot lines from origin
+    Nv = len(v)
+    ax.plot((phi, phi), (np.zeros(Nv), mag), color=color, **kwargs)    
+    ax.grid(True)
+    return ax    
+
+
+def plot_sequence(obj, ni, polar=False, **kwargs):
 
     from matplotlib.ticker import MaxNLocator
+
+    if polar:
+        return plot_sequence_polar(obj, ni, **kwargs)
     
     npoints = kwargs.pop('npoints', 400)        
     

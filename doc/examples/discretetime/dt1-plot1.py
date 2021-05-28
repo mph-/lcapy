@@ -1,5 +1,4 @@
-from lcapy import delta
-from lcapy.discretetime import n
+from lcapy import n, delta
 from matplotlib.pyplot import savefig
 
 x = delta(n) + delta(n - 2)
