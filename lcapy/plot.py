@@ -105,8 +105,8 @@ def plot_pole_zero(obj, **kwargs):
         kwargs['ms'] = 19
 
     fillstyle = kwargs.pop('fillstyle', 'none')
-    xlabel = kwargs.pop('xlabel', obj.domain_label_with_units)
-    ylabel = kwargs.pop('ylabel', obj.label_with_units)
+    xlabel = kwargs.pop('xlabel', 'Re(%s)' % obj.var)
+    ylabel = kwargs.pop('ylabel', 'Im(%s)' % obj.var)
     title = kwargs.pop('title', None)
     
     ax.plot(z.real, z.imag, 'bo', fillstyle=fillstyle, **kwargs)
