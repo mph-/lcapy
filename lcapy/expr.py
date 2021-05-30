@@ -2839,7 +2839,7 @@ def expr_make(domain, arg, **assumptions):
     return cls(arg, **assumptions)
 
 
-def equation(lhs, rhs, **assumptions):
+def equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
     """Create an Lcapy equation.
 
     This is an Lcapy expression of the form Eq(lhs, rhs).
@@ -2849,11 +2849,16 @@ def equation(lhs, rhs, **assumptions):
     The left hand side (lhs) and right hand side subexpressions
     can be obtained with the `lhs` and `rhs` attributes."""
 
+    from .diffeq import DifferenceEquation
+    
     lhs = expr(lhs)
     rhs = expr(rhs)
     # Check if lhs and rhs compatible.
     diff = lhs - rhs
 
+    if diff.is_discrete_time_domain:
+        return DifferenceEquation(lhs, rhs, inputsym, outputsym, **assumptions)
+    
     cls = lhs.__class__
     
     return cls(sym.Eq(lhs.expr, rhs.expr, evaluate=False), **assumptions)
