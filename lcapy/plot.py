@@ -109,9 +109,10 @@ def plot_pole_zero(obj, **kwargs):
     ylabel = kwargs.pop('ylabel', 'Im(%s)' % obj.var)
     title = kwargs.pop('title', None)
     
-    ax.plot(z.real, z.imag, 'bo', fillstyle=fillstyle, **kwargs)
+    lines = ax.plot(z.real, z.imag, 'o', fillstyle=fillstyle, **kwargs)
     annotate(ax, zeros)
-    ax.plot(p.real, p.imag, 'bx', fillstyle=fillstyle, **kwargs)
+    color = kwargs.pop('color', lines[0].get_color())    
+    ax.plot(p.real, p.imag, 'x', fillstyle=fillstyle, color=color, **kwargs)
     annotate(ax, poles)
 
     if xlabel is not None:
@@ -311,9 +312,9 @@ def plot_sequence_polar(obj, ni=(-10, 10), **kwargs):
     mag = abs(v)
     
     # Plot symbols
-    p = ax.plot(phi, mag, 'o', **kwargs)
+    lines = ax.plot(phi, mag, 'o', **kwargs)
 
-    color = kwargs.pop('color', p[0].get_color())
+    color = kwargs.pop('color', lines[0].get_color())
     
     # Plot lines from origin
     Nv = len(v)
