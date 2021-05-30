@@ -313,7 +313,17 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         return super(LaplaceDomainExpression, self).evaluate(svector)
 
     def plot(self, **kwargs):
-        """Plot pole-zero map."""
+        """Plot pole-zero map.
+
+        kwargs include:
+        axes - the plot axes to use otherwise a new figure is created
+        xlabel - the x-axis label (default Re(s))
+        ylabel - the y-axis label (default Im(s))
+        xscale - the x-axis scaling
+        yscale - the y-axis scaling
+        in addition to those supported by the matplotlib plot command.
+        
+        The plot axes are returned."""
 
         from .plot import plot_pole_zero
         return plot_pole_zero(self, **kwargs)

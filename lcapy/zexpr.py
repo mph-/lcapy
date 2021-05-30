@@ -173,7 +173,18 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
         return super(ZDomainExpression, self).evaluate(svector)
 
     def plot(self, t=None, **kwargs):
-        """Plot pole-zero map."""
+        """Plot pole-zero map.
+
+        kwargs include:
+        unitcircle - if True, draw unit circle
+        axes - the plot axes to use otherwise a new figure is created
+        xlabel - the x-axis label (default Re(z))
+        ylabel - the y-axis label (default Im(z))
+        xscale - the x-axis scaling
+        yscale - the y-axis scaling
+        in addition to those supported by the matplotlib plot command.
+        
+        The plot axes are returned."""
 
         if 'unitcircle' not in kwargs:
             kwargs['unitcircle'] = True
