@@ -192,10 +192,16 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 def nexpr(arg, **assumptions):
     """Create nExpr object.  If `arg` is nsym return n"""
 
+    from .expr import Expr
+    from .seq import seq
+    
     if arg is nsym:
         return n
 
-    from .seq import seq
+    if isinstance(arg, Expr):
+        if assumptions == {}:
+            return arg
+        return arg.__class__(arg, **assumptions)
     
     if isinstance(arg, str) and arg.startswith('{'):
         return seq(arg)

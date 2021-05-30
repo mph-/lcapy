@@ -300,8 +300,16 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
 def zexpr(arg, **assumptions):
     """Create ZDomainExpression object.  If `arg` is zsym return z"""
 
+    from .expr import Expr
+    
     if arg is zsym:
         return z
+
+    if isinstance(arg, Expr):
+        if assumptions == {}:
+            return arg
+        return arg.__class__(arg, **assumptions)
+    
     return ZDomainExpression(arg, **assumptions)
 
 

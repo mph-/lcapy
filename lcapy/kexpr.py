@@ -92,8 +92,16 @@ class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression)
 def kexpr(arg, **assumptions):
     """Create kExpr object.  If `arg` is ksym return k"""
 
+    from .expr import Expr
+    
     if arg is ksym:
         return k
+
+    if isinstance(arg, Expr):
+        if assumptions == {}:
+            return arg
+        return arg.__class__(arg, **assumptions)
+    
     return DiscreteFourierDomainExpression(arg, **assumptions)
 
 
