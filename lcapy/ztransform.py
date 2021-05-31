@@ -517,8 +517,8 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             # if pole pairs is selected, r1=r2*
             
             # handle real part
-            uresult += 2*r1_re * lam ** n * sym.cos(omega_0*n) 
-            uresult += -2*r1_im * lam ** n * sym.sin(omega_0*n)
+            uresult += 2 * r1_re * lam ** n * sym.cos(omega_0 * n) 
+            uresult += -2 * r1_im * lam ** n * sym.sin(omega_0 * n)
 
         else:
             bino = 1
@@ -526,7 +526,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             # Compute first all derivatives needed
             all_derivatives_1 = [expr_1]
             for i in range(1, o1):
-                all_derivatives_1 += [sym.diff(all_derivatives_1[i-1], z)] 
+                all_derivatives_1 += [sym.diff(all_derivatives_1[i - 1], z)] 
             
             # Loop through the binomial series
             for i in range(1, o1 + 1):
@@ -540,14 +540,14 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
                 # simplify r1
                 r1 = r1.rewrite(sym.exp).simplify()
                 # sum
-                sum_b += prefac * r1 *sym.exp(sym.I*omega_0 *(1-i))
+                sum_b += prefac * r1 * sym.exp(sym.I * omega_0 * (1 - i))
                 # binomial coefficient                
                 bino *= n - i + 1            
                 
             # take result = lam**n * (sum_b*sum_b*exp(j*omega_0*n) + cc)   
             aa = sym.simplify(sym.re(sum_b))
             bb =  sym.simplify(sym.im(sum_b))
-            uresult += 2* (aa* sym.cos(omega_0*n) - bb * sym.sin(omega_0*n))*lam**n
+            uresult += 2 * (aa * sym.cos(omega_0 * n) - bb * sym.sin(omega_0 * n)) * lam**n
     
     # cresult is a sum of Dirac deltas and its derivatives so is known
     # to be causal.    
