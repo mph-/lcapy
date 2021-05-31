@@ -14,7 +14,7 @@ from .expr import Expr, symbol, expr, ExprDict, exprcontainer, expr_make
 from .units import u as uu
 from .functions import sqrt
 import numpy as np
-from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
+from sympy import Mul, Pow, limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
 
 
 __all__ = ('sexpr', 'zp2tf', 'tf', 'pr2tf')
@@ -277,7 +277,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
     def _decompose(self):
 
-        N, D, delay = Ratfun(self, s).as_ratfun_delay()                
+        N, D, delay = self._ratfun.as_ratfun_delay()                
 
         return N, D, delay
 
@@ -340,14 +340,43 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         frequency limits as (10**m1, 10**m2)."""        
 
         return self.phasor().bode_plot(fvector, **kwargs)
+
     
-    def parameterize(self, zeta=True):
+    def parameterize_ZPK(self, zeta=None, ZPK=None):
+
+        def def1(defs, symbolname, value):
+            from .cexpr import cexpr
+            
+            sym1 = symbol(symbolname)
+            defs[symbolname] = cexpr(value)
+            return sym1
+        
+        zeros, poles, K, undef = self._ratfun.as_ZPK()                        
+
+        defs = ExprDict()
+        K = def1(defs, 'K', K * undef)
+
+        N = 1
+        D = 1
+        for m, zero in enumerate(zeros):
+            z = def1(defs, 'z_%d' % (m + 1), zero)
+            N *= (self.var - z.sympy)
+            
+        for m, pole in enumerate(poles):
+            p = def1(defs, 'p_%d' % (m + 1), pole)
+            D *= (self.var - p.sympy)            
+            
+        result = Mul(K.sympy, Mul(N, Pow(D, -1)), evaluate=False)
+        return self.__class__(result, **self.assumptions), defs
+    
+    
+    def parameterize(self, zeta=None, ZPK=None):
         """Parameterize first and second-order expressions.
 
         For example, pexpr, defs = expr.parameterize()
 
         If parameterization is successful, defs is a dictionary
-        of the paramters.  The original expression can be obtained
+        of the parameters.  The original expression can be obtained
         with pexpr.subs(defs)
 
         For first order systems, parameterize as:
@@ -379,6 +408,13 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
             defs[symbolname] = cexpr(value)
             return sym1
 
+        if zeta is None and ZPK is None:
+            zeta = True
+            ZPK = False
+
+        if ZPK:
+            return self.parameterize_ZPK()
+        
         factors = self.as_ordered_factors()
 
         spowers = [s**-4, s**-3, s**-2, s**-1, s, s**2, s**3, s**4]
@@ -487,7 +523,7 @@ def zp2tf(zeros, poles, K=1, var=None):
     if var is None:
         var = ssym
     return LaplaceDomainTransferFunction(_zp2tf(sympify(zeros), sympify(poles),
-                     sympify(K), var), causal=True)
+                                                sympify(K), var), causal=True)
 
 
 def pr2tf(poles, residues, var=None):
@@ -495,7 +531,8 @@ def pr2tf(poles, residues, var=None):
 
     if var is None:
         var = ssym
-    return LaplaceDomainTransferFunction(_pr2tf(sympify(poles), sympify(residues), var), causal=True)
+    return LaplaceDomainTransferFunction(_pr2tf(sympify(poles), sympify(residues), var),
+                                         causal=True)
 
 
 def sexpr(arg, **assumptions):

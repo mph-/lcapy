@@ -635,6 +635,10 @@ Miscellaneous
 
 - `multiply_top_and_bottom(expr)` multiplies numerator and denominator by `expr`.
 
+- `parameterize` parameterizes first, second, and third order rational functions into common forms.
+
+- `parameterize_ZPK` parameterizes rational functions into zero-pole-gain (ZPK) form.
+  
 - `rationalize_denominator()` multiplies numerator and denominator by complex conjugate of denominator.
 
 - `replace(query, value)` replace `query` with `value`.
@@ -1825,7 +1829,20 @@ Matplotlib has many pre-defined styles, see https://matplotlib.org/stable/galler
 Parameterization
 ================
 
-Lcapy can parameterize a number of first order, second order, and third order s-domain expressions.  For example::
+Lcapy can parameterize an expression into zero-pole-gain (ZPK) form with the `parameterize_ZPK()` method.  For example::
+
+   >>> H = (5*s**2 + 5) / (s**2 + 5*s + 4)
+   >>> H1, defs = H.parameterize_ZPK()
+   >>> H1
+      (s - z₁)⋅(s - z₂) 
+   K⋅───────────────────
+     (-p₁ + s)⋅(-p₂ + s)
+   >>> defs
+   {K: 5, p_1: -1, p_2: -4, z_1: -ⅉ, z_2: ⅉ}
+
+Unfortunately, SymPy likes to print `p` before `s` and hence `-p1 + s` rather than `s - p1`.
+   
+Lcapy can parameterize a number of first order, second order, and third order s-domain expressions into common forms.  For example::
 
    >>> H1 = 3 / (s + 2)
    >>> H1p, defs = H1.parameterize()

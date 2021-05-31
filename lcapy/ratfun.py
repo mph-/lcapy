@@ -549,6 +549,7 @@ class Ratfun(object):
         See also canonical, standard, general, timeconst, and ZPK
 
         """
+        
         try:
             Q, R, D, delay, undef = self.as_QRD(combine_conjugates, damping)
         except ValueError:
@@ -622,18 +623,7 @@ class Ratfun(object):
 
         See also canonical, general, standard, timeconst, and partfrac"""
 
-        N, D, delay, undef = self.as_ratfun_delay_undef()
-
-        var = self.var        
-        Npoly = sym.Poly(N, var)
-        Dpoly = sym.Poly(D, var)
-        
-        K = sym.cancel(Npoly.LC() / Dpoly.LC())
-        if delay != 0:
-            K *= sym.exp(self.var * delay)
-
-        zeros = sym.roots(Npoly)
-        poles = sym.roots(Dpoly)
+        zeros, poles, K, undef = self.as_ZPK()
 
         return _zp2tf(zeros, poles, K, self.var) * undef
 
@@ -689,6 +679,27 @@ class Ratfun(object):
 
         return self.Ddegree > self.Ndegree
 
+    def as_ZPK(self):
+        """Decompose expression into zeros, poles, gain, undef where
+
+        expression = K * (prod_n (var - z_n) / (prod_n (var - p_n)) * undef
+        """
+                
+        N, D, delay, undef = self.as_ratfun_delay_undef()
+
+        var = self.var        
+        Npoly = sym.Poly(N, var)
+        Dpoly = sym.Poly(D, var)
+        
+        K = sym.cancel(Npoly.LC() / Dpoly.LC())
+        if delay != 0:
+            K *= sym.exp(self.var * delay)
+
+        zeros = sym.roots(Npoly)
+        poles = sym.roots(Dpoly)
+
+        return zeros, poles, K, undef
+    
     def as_QMD(self):
         """Decompose expression into Q, M, D, delay, undef where
 
