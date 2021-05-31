@@ -2,6 +2,81 @@
 Tutorials
 =========
 
+Expression manipulation
+=======================
+
+
+Second order system
+-------------------
+
+Consider a time signal of the form :math:`A \exp\left(-\alpha t\right) \cos\left(\omega_0 t + \theta\right)`.  This can be represented in Lcapy as::
+
+  >>> from lcapy import *
+  >>> x = expr('A * exp(-alpha * t) * cos(omega_0 * t + theta)')
+
+This creates three four symbols in addition to the pre-defined time-domain variable `t`:
+  
+  >>> list(x.symbols)
+  ['theta', 't', 'omega_0', 'alpha', 'A']
+
+The expression assigned to `x` can be printed as::
+
+   >>> x
+      -α⋅t              
+   A⋅ℯ    ⋅cos(ω₀⋅t + θ)
+
+For inclusion in a LaTeX document, the expression can be printed with the `latex()` method::
+
+   >>> print(x.latex())
+   A e^{- \alpha t} \cos{\left(\omega_{0} t + \theta \right)}
+
+The Laplace transform of the expression is obtained using the notation::
+
+   >>> X = x(s)
+   >>> X
+   A⋅(-ω₀⋅sin(θ) + (α + s)⋅cos(θ))
+   ───────────────────────────────
+              2          2        
+            ω₀  + (α + s)         
+
+This can be converted into many different forms.  For example, the partial fraction expansion is found with the `partfrac()` method::
+
+   >>> X.partfrac()
+      ⅉ⋅A⋅sin(θ)   A⋅cos(θ)   ⅉ⋅A⋅sin(θ)   A⋅cos(θ)
+   - ────────── + ────────   ────────── + ────────
+          2           2           2           2    
+   ─────────────────────── + ─────────────────────
+          α + ⅉ⋅ω₀ + s             α - ⅉ⋅ω₀ + s    
+ 
+  
+In principle, this can be simplified by the `simplify()` method.  However, this is too agressive and collapses the partial fraction expansion!  For example::
+
+   >>> X.partfrac().simplify()
+     A⋅(α⋅cos(θ) - ω₀⋅sin(θ) + s⋅cos(θ))
+     ───────────────────────────────────
+           2             2    2       
+          α  + 2⋅α⋅s + ω₀  + s        
+
+Instead, the `simplify_terms()` method simplifies each term separately::
+
+   >>> X.partfrac().simplify_terms()
+          -ⅉ⋅θ                ⅉ⋅θ     
+       A⋅ℯ                 A⋅ℯ        
+   ──────────────── + ────────────────
+   2⋅(α + ⅉ⋅ω₀ + s)   2⋅(α - ⅉ⋅ω₀ + s)
+
+
+Another representation is zero-pole-gain (ZPK) form::
+
+   >>> X.ZPK()
+    A⋅(α - ω₀⋅tan(θ) + s)⋅cos(θ)
+   ─────────────────────────────
+   (α - ⅉ⋅ω₀ + s)⋅(α + ⅉ⋅ω₀ + s)
+
+Unfortunately, SymPy splits the gain `K` into two parts.
+
+   
+
 Basic circuit theory
 ====================
 
@@ -305,8 +380,6 @@ scale and the amplitude response is plotted in dB::
    :width: 12cm                        
 
 
-           
-
 Superposition of AC and DC
 --------------------------
 
@@ -360,7 +433,6 @@ The overall time varying voltage can be found using::
 
    >>> a.R.V(t)
    2⋅sin(3⋅t) - 3⋅cos(4⋅t) + 4
-
     
        
 Initial value problem
@@ -378,7 +450,6 @@ This can be loaded by Lcapy and drawn using:
     >>> from lcapy import Circuit, s, t
     >>> a = Circuit("circuit-RLC-ivp1.sch")
     >>> a.draw()
-                   
  
 
 This circuit has a specified initial voltage for the capacitor and a
