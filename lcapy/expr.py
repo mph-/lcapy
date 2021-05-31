@@ -2139,6 +2139,133 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self._fmt_roots(polesdict, aslist)
 
+    def parameterize_ZPK(self, zeta=None, ZPK=None):
+
+        def def1(defs, symbolname, value):
+            from .cexpr import cexpr
+            
+            sym1 = symbol(symbolname)
+            defs[symbolname] = cexpr(value)
+            return sym1
+        
+        zeros, poles, K, undef = self._ratfun.as_ZPK()                        
+
+        defs = ExprDict()
+        K = def1(defs, 'K', K * undef)
+
+        N = 1
+        D = 1
+        for m, zero in enumerate(zeros):
+            z = def1(defs, 'z_%d' % (m + 1), zero)
+            N *= (self.var - z.sympy)
+            
+        for m, pole in enumerate(poles):
+            p = def1(defs, 'p_%d' % (m + 1), pole)
+            D *= (self.var - p.sympy)            
+            
+        result = sym.Mul(K.sympy, sym.Mul(N, sym.Pow(D, -1)), evaluate=False)
+        return self.__class__(result, **self.assumptions), defs
+    
+    def parameterize(self, zeta=None, ZPK=None):
+        """Parameterize first and second-order expressions.
+
+        For example, pexpr, defs = expr.parameterize()
+
+        If parameterization is successful, defs is a dictionary
+        of the parameters.  The original expression can be obtained
+        with pexpr.subs(defs)
+
+        For first order systems, parameterize as:
+
+        K * (s + beta) / (s + alpha)
+
+        K / (s + alpha)
+
+        K (s + beta)
+
+        where appropriate.
+
+        If `zeta` is True, parameterize second-order expression in
+        standard form using damping factor and natural frequency
+        representation, i.e.
+
+        N(s) / (s**2 + 2 * zeta * omega_0 * s + omega_0**2)
+        
+        otherwise parameterize as
+        
+        N(s) / (s**2 + 2 * sigma_1 * s + omega_1**2 + sigma_1**2)
+
+        """
+
+        def def1(defs, symbolname, value):
+            from .cexpr import cexpr
+            
+            sym1 = symbol(symbolname)
+            defs[symbolname] = cexpr(value)
+            return sym1
+
+        if zeta is None and ZPK is None:
+            zeta = True
+            ZPK = False
+
+        if ZPK:
+            return self.parameterize_ZPK()
+        
+        factors = self.as_ordered_factors()
+
+        spowers = [s**-4, s**-3, s**-2, s**-1, s, s**2, s**3, s**4]
+        for spower in spowers:
+            if spower in factors:
+                result, defs = (self / spower).parameterize(zeta)
+                return result * spower, defs
+        
+        N = self.N
+        D = self.D
+        
+        ndegree = N.degree        
+        ddegree = D.degree
+        ncoeffs = N.coeffs(norm=True)
+        dcoeffs = D.coeffs(norm=True)
+
+        result = None
+        defs = ExprDict()
+
+        K = self.K
+        if ndegree < 1 and ddegree < 1:
+            result = self
+        elif ndegree == 1 and ddegree == 1:
+            K = def1(defs, 'K', K)
+            alpha = def1(defs, 'alpha', dcoeffs[1])
+            beta = def1(defs, 'beta', ncoeffs[1])
+            result = K * (s + beta) / (s + alpha)
+        elif ndegree == 1 and ddegree == 0:
+            K = def1(defs, 'K', K)
+            beta = def1(defs, 'beta', ncoeffs[1])
+            result = K * (s + beta)
+        elif ndegree == 0 and ddegree == 1:
+            K = def1(defs, 'K', K)
+            alpha = def1(defs, 'alpha', dcoeffs[1])
+            result = K / (s + alpha)
+        elif ddegree == 2:
+            K = def1(defs, 'K', K)
+            coeffs = self.N.coeffs()
+
+            if not zeta:
+                sigma1 = def1(defs, 'sigma_1', dcoeffs[1] / 2)
+                omega1 = def1(defs, 'omega_1',
+                              sqrt(dcoeffs[2] - (dcoeffs[1] / 2)**2).simplify())
+                result = K * (self.N / coeffs[0]) / (s**2 + 2 * sigma1 * s + sigma1**2 + omega1**2)
+            else:
+                omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]))
+                zeta = def1(defs, 'zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
+                result = K * (self.N / coeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2)
+
+        if result is None:
+            # Copy?
+            result = self
+
+        return self.__class__(result, **self.assumptions), defs
+
     def canonical(self, factor_const=False):
         """Convert rational function to canonical form (aka polynomial form);
         this is like general form but with a unity highest power of
