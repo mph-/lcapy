@@ -438,7 +438,7 @@ component or the current through a component).  Signals can be
 constant (DC), AC, transient, or a combination of AC, DC, and
 transient.  A causal signal is zero for :math:`t < 0`.
 
-The behaviour of a system is described in a transfom domain (Laplace,
+The behaviour of a system is described in a transform domain (Laplace,
 Fourier, or phasor) by a transfer function.  This is the ratio of two
 transformed signals, for example, :math:`H(s) = V_2(s) / V_1(s)`.
 Impedances, :math:`Z(s) = V(s) / I(s)`, and admittances, :math:`Y(s) =
@@ -1407,7 +1407,7 @@ Simplification
 
 Lcapy has the following simplification methods:
 
-- `simplify()`  This augments the SymPy simplification function by also simplifying expressions containting Dirac deltas and Heaviside steps.
+- `simplify()`  This augments the SymPy simplification function by also simplifying expressions containing Dirac deltas and Heaviside steps.
 
 - `simplify_sin_cos()`  This rewrites sums of sines and cosines in terms of a single phase-shifted-sine or cosine.
   
@@ -1840,7 +1840,15 @@ Lcapy can parameterize an expression into zero-pole-gain (ZPK) form with the `pa
    >>> defs
    {K: 5, p_1: -1, p_2: -4, z_1: -ⅉ, z_2: ⅉ}
 
-Unfortunately, SymPy likes to print `p` before `s` and hence `-p1 + s` rather than `s - p1`.
+Note, SymPy likes to print `p` before `s` and hence `-p1 + s` rather than `s - p1`.
+
+`defs` is a dictionary of definitions; it can be substituted into the parameterized expression to obtain the original expression::
+
+   >>> H1.subs(defs)
+        3      
+   ────────────
+    2          
+   z  + 5⋅z + 4
    
 Lcapy can parameterize a number of first order, second order, and third order s-domain expressions into common forms.  For example::
 
