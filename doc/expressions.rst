@@ -1838,7 +1838,7 @@ Lcapy can parameterize an expression into zero-pole-gain (ZPK) form with the `pa
    K⋅───────────────────
      (-p₁ + s)⋅(-p₂ + s)
    >>> defs
-   {K: 5, p_1: -1, p_2: -4, z_1: -ⅉ, z_2: ⅉ}
+   {K: 5, p1: -1, p2: -4, z1: -ⅉ, z2: ⅉ}
 
 Note, SymPy likes to print `p` before `s` and hence `-p1 + s` rather than `s - p1`.
 

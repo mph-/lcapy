@@ -73,8 +73,15 @@ Another representation is zero-pole-gain (ZPK) form::
    ─────────────────────────────
    (α - ⅉ⋅ω₀ + s)⋅(α + ⅉ⋅ω₀ + s)
 
-Unfortunately, SymPy splits the gain `K` into two parts.
+Unfortunately, SymPy splits the gain `K` into two parts.  Alternatively, the expression can be parameterized into ZPK form::
 
+   >>> X1, defs = X.parameterize_ZPK()
+   >>> X1
+            s - z₁      
+   K⋅───────────────────
+     (-p₁ + s)⋅(-p₂ + s)
+   >>> defs
+   {K: A⋅cos(θ), p1: -α - ⅉ⋅ω₀, p2: -α + ⅉ⋅ω₀, z1: -α + ω₀⋅tan(θ)}
    
 
 Basic circuit theory

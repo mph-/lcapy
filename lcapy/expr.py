@@ -2156,11 +2156,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         N = 1
         D = 1
         for m, zero in enumerate(zeros):
-            z = def1(defs, 'z_%d' % (m + 1), zero)
+            z = def1(defs, 'z%d' % (m + 1), zero)
             N *= (self.var - z.sympy)
             
         for m, pole in enumerate(poles):
-            p = def1(defs, 'p_%d' % (m + 1), pole)
+            p = def1(defs, 'p%d' % (m + 1), pole)
             D *= (self.var - p.sympy)            
             
         result = sym.Mul(K.sympy, sym.Mul(N, sym.Pow(D, -1)), evaluate=False)
