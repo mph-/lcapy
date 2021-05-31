@@ -172,26 +172,17 @@ Lcapy wraps many of SymPy's methods but if you know how to use SymPy, you can ex
 SymPy differences
 -----------------
 
-- SymPy defines :math:`sinc(x)` as :math:`sin(x)/x` but Lcapy (and
-NumPy) defines :math:`sinc(x)` as :math:`sin(\pi x)/(\pi x)`, see
-:ref:`expressionsfunctions`.
+- SymPy defines :math:`sinc(x)` as :math:`sin(x)/x` but Lcapy (and NumPy) defines :math:`sinc(x)` as :math:`sin(\pi x)/(\pi x)`, see :ref:`expressionsfunctions`.
 
-- SymPy uses 0 for the lower limit of Laplace transforms, Lcapy uses
-  :math:`0^{-}`, see :ref:`laplace_transforms`.
+- SymPy uses 0 for the lower limit of Laplace transforms, Lcapy uses :math:`0^{-}`, see :ref:`laplace_transforms`.
 
 
-.. _performance:   
+  .. _performance:   
 
 Performance
 ===========
 
-The performance of Lcapy depends on Sympy's matrix inversion and root
-finding routines.  The following figure shows the time taken to
-determine the open circuit voltage for twenty randomly generated
-networks with a specified number of components.  Each network has a
-single voltage source and a number of resistors.  The colour of the
-plot denotes the matrix size; this depends how the components are
-connected.  In general, symbolic matrix inversion is of order :ref:`N^3` for a matrix of size :ref:`N \times N`.
+The performance of Lcapy depends on Sympy's matrix inversion and root finding routines.  The following figure shows the time taken to determine the open circuit voltage for twenty randomly generated networks with a specified number of components.  Each network has a single voltage source and a number of resistors.  The colour of the plot denotes the matrix size; this depends how the components are connected.  In general, symbolic matrix inversion is of order :math:`N^3` for a matrix of size :math:`N \times N`.
 
 .. image:: adj_times.png
    :width: 15cm
