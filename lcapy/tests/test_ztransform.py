@@ -4,9 +4,9 @@ import unittest
 import sympy as sym
 
 
-class LcapyTester(unittest.TestCase):
+class LcapyZTransforms(unittest.TestCase):
 
-    """Unit tests for lcapy
+    """Unit tests for lcapy ztransforms
 
     """
 
