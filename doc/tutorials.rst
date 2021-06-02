@@ -69,11 +69,11 @@ Instead, the `simplify_terms()` method simplifies each term separately::
 Another representation is zero-pole-gain (ZPK) form::
 
    >>> X.ZPK()
-    A⋅(α - ω₀⋅tan(θ) + s)⋅cos(θ)
+    A⋅cos(θ)⋅(α - ω₀⋅tan(θ) + s)
    ─────────────────────────────
    (α - ⅉ⋅ω₀ + s)⋅(α + ⅉ⋅ω₀ + s)
 
-Unfortunately, SymPy splits the gain `K` into two parts.  Alternatively, the expression can be parameterized into ZPK form::
+Alternatively, the expression can be parameterized into ZPK form::
 
    >>> X1, defs = X.parameterize_ZPK()
    >>> X1

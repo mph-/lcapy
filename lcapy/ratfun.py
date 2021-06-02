@@ -6,8 +6,6 @@ Copyright 2016--2020 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
-from sympy.core.mul import _unevaluated_Mul as uMul
-from sympy.core.add import _unevaluated_Add as uAdd
 from .sym import sympify, AppliedUndef
 
 class Pole(object):
@@ -168,7 +166,7 @@ def _zp2tf(zeros, poles, K=1, var=None):
     else:
         pp = [1 / (var - p) ** poles[p] for p in poles]
         
-    return uMul(K, *(zz + pp))
+    return sym.Mul(K, *(zz + pp), evaluate=False)
 
 
 def _tc2tf(zeros, poles, K=1, var=None):
@@ -215,7 +213,7 @@ def _tc2tf(zeros, poles, K=1, var=None):
                 K /= p ** o        
 
     K = K.simplify()
-    return uMul(K, *(zz + pp))
+    return sym.Mul(K, *(zz + pp), evaluate=False)
 
 
 def _pr2tf(poles, residues, var=None):
@@ -225,7 +223,7 @@ def _pr2tf(poles, residues, var=None):
     poles = sympify(poles)
     residues = sympify(residues)
 
-    return uAdd(*[r / (var - p) for r, p in zip(residues, poles)])
+    return sym.Add(*[r / (var - p) for r, p in zip(residues, poles)], evaluate=False)
 
 
 def as_ratfun_delay(expr, var):
