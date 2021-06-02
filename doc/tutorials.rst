@@ -46,7 +46,7 @@ This can be converted into many different forms.  For example, the partial fract
    - ────────── + ────────   ────────── + ────────
           2           2           2           2    
    ─────────────────────── + ─────────────────────
-          α + ⅉ⋅ω₀ + s             α - ⅉ⋅ω₀ + s    
+          s + α + ⅉ⋅ω₀             s + α - ⅉ⋅ω₀
  
   
 In principle, this can be simplified by the `simplify()` method.  However, this is too agressive and collapses the partial fraction expansion!  For example::
@@ -54,8 +54,8 @@ In principle, this can be simplified by the `simplify()` method.  However, this 
    >>> X.partfrac().simplify()
      A⋅(α⋅cos(θ) - ω₀⋅sin(θ) + s⋅cos(θ))
      ───────────────────────────────────
-           2             2    2       
-          α  + 2⋅α⋅s + ω₀  + s        
+             2     2    2               
+       s  + ω₀  + α  + 2⋅s⋅α  
 
 Instead, the `simplify_terms()` method simplifies each term separately::
 
@@ -63,7 +63,7 @@ Instead, the `simplify_terms()` method simplifies each term separately::
           -ⅉ⋅θ                ⅉ⋅θ     
        A⋅ℯ                 A⋅ℯ        
    ──────────────── + ────────────────
-   2⋅(α + ⅉ⋅ω₀ + s)   2⋅(α - ⅉ⋅ω₀ + s)
+   2⋅(s + α + ⅉ⋅ω₀)   2⋅(s + α - ⅉ⋅ω₀)
 
 
 Another representation is zero-pole-gain (ZPK) form::
@@ -71,15 +71,15 @@ Another representation is zero-pole-gain (ZPK) form::
    >>> X.ZPK()
     A⋅cos(θ)⋅(α - ω₀⋅tan(θ) + s)
    ─────────────────────────────
-   (α - ⅉ⋅ω₀ + s)⋅(α + ⅉ⋅ω₀ + s)
+   (s + α - ⅉ⋅ω₀)⋅(s + α + ⅉ⋅ω₀)
 
 Alternatively, the expression can be parameterized into ZPK form::
 
    >>> X1, defs = X.parameterize_ZPK()
    >>> X1
             s - z₁      
-   K⋅───────────────────
-     (-p₁ + s)⋅(-p₂ + s)
+   K⋅─────────────────
+     (s - p₁)⋅(s - p₂)
    >>> defs
    {K: A⋅cos(θ), p1: -α - ⅉ⋅ω₀, p2: -α + ⅉ⋅ω₀, z1: -α + ω₀⋅tan(θ)}
    

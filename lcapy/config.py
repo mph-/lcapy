@@ -63,8 +63,8 @@ abbreviate_units = True
 canonical_units = False
 # This cannot be enabled without loose units (e.g., s + 1, or s * 'R' * 'C' + 1 would fail).
 check_units = True
-# Set to 'none' to print s - p rather than -p + s.
-printing_order = None
+# Set to 'none' to print s - p; None to print SymPy default form -p + s.
+printing_order = 'none'
 
 # Use X11 colours so that they will work with graphziv and dot2tex.
 colours = {'startnode': 'green', 'endnode': 'green',
