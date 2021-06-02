@@ -8,11 +8,23 @@ Copyright 2014--2021 Michael Hayes, UCECE
 from sympy.assumptions.assume import global_assumptions
 
 from .context import Context
-from .config import check_units, abbreviate_units, loose_units, show_units, canonical_units
+from .config import check_units, abbreviate_units, loose_units, show_units
+from .config import canonical_units, printing_order
 from .printing_config import PrintingConfig
 from copy import copy
 
 class State(object):
+    """This maintains Lcapy's state, such as the defined symbols, and
+    behaviour.
+
+    `loose_units` (default True) allows constants to be added to quantities
+    `show_units` (default False) prints the units after an expression
+    `canonical_units` (default True) converts units to canonical form, e.g., V / A is
+    shown as ohms.
+    'printing.abbreviate_units` (default True) prints V rather than volts
+    'printing.order` (default `none`) controls the order that symbols in an expression are printed.
+
+    """
 
     def __init__(self):
         self.global_context = Context()
@@ -27,6 +39,7 @@ class State(object):
         self.show_units = show_units
         self.canonical_units = canonical_units
         self.printing.abbreviate_units = abbreviate_units
+        self.printing.order = printing_order
 
     def new_context(self):
 

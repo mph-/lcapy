@@ -787,6 +787,16 @@ Printing methods
 - `pretty()` convert an expression to a string with a prettified form
 
 - `plot()` plot the expression, provided there are no free symbols (see :ref:`plotting`)
+
+There are a number of global printing options, controlled by attributes of the `state` object.
+
+- `state.show_units` (default False) prints the units after an expression
+  
+- `state.canonical_units` (default True) converts units to canonical form, e.g., V / A is shown as ohms.
+
+- `state.printing.abbreviate_units` (default True) prints V rather than volts
+
+- `state.printing.order` (default None) controls the order that symbols in an expression are printed.  When None, SymPy orders the expression order and produces output like `-p + s`.  Setting the attribute to 'none' produces output like `s - p`.  
   
 
 SymPy methods

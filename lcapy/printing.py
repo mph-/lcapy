@@ -384,6 +384,3 @@ init_printing(latex_printer=latex, pretty_printer=pretty, str_printer=print_str)
 # See sympy/interactive/printing.py and IPython/core/formatters.py
 # Also see hack at end of expr.py to support latex for Lcapy container
 # types.
-
-
-
