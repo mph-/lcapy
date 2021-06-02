@@ -769,7 +769,12 @@ class Ratfun(object):
                         R.append(r)
                         D.append(D2 ** n)
             else:
-                D2 = var - p
+                # SymPy reorders the following, for example, s - -1 => 1 + s
+                # D2 = var - p
+                if p == 0:
+                    D2 = var
+                else:
+                    D2 = sym.Add(var, -p, evaluate=False)
 
                 if o == 1:
                     r = sexpr.residue(p, poles)
