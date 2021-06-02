@@ -2157,11 +2157,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         D = 1
         for m, zero in enumerate(zeros):
             z = def1(defs, 'z%d' % (m + 1), zero)
-            N *= (self.var - z.sympy)
+            N *= sym.Add(self.var, -z.sympy, evaluate=False)
             
         for m, pole in enumerate(poles):
             p = def1(defs, 'p%d' % (m + 1), pole)
-            D *= (self.var - p.sympy)            
+            D *= sym.Add(self.var, -p.sympy, evaluate=False)
             
         result = sym.Mul(K.sympy, sym.Mul(N, sym.Pow(D, -1)), evaluate=False)
         return self.__class__(result, **self.assumptions), defs
