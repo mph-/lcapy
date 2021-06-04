@@ -4,6 +4,9 @@ Troubleshooting
 
 Most Lcapy problems are due to symbol assumptions and approximation of floating point values as rational numbers.  If you want to report a bug, see :ref:`issues`.  If you would like to debug the problem, see :ref:`debugging`.
 
+.. image:: circuit.png
+   :width: 6cm
+
 
 Common problems
 ===============

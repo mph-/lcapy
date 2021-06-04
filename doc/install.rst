@@ -8,7 +8,7 @@ Installation
 Requirements
 ============
 
-Lcapy requires the following Python packages: scipy, sympy, numpy, matplotlib, networkx
+Lcapy requires the following Python packages: scipy, sympy, numpy, matplotlib, networkx.  These are automatically loaded when using pip.
 
 For schematic drawing you require:
 
