@@ -10,7 +10,7 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos', 'tan',
            'cot', 'asin', 'acos', 'atan', 'atan2', 'acot', 'sinh', 'cosh', 'tanh',
            'asinh', 'acosh', 'atanh', 'gcd', 'sign', 'diff', 'integrate',
            'u', 'H', 'heaviside', 'Heaviside', 'delta', 'DiracDelta',
-           'ui', 'us', 'unitimpulse', 'unitstep',
+           'ui', 'us', 'unitimpulse', 'unitstep', 'UnitImpulse', 'UnitStep',
            'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap')
 
 
@@ -188,9 +188,9 @@ from .extrafunctions import tri as tri1
 from .extrafunctions import trap as trap1
 
 
-ui = unitimpulse = Function(UnitImpulse1)
+ui = unitimpulse = UnitImpulse = Function(UnitImpulse1)
 
-us = unitstep = Function(UnitStep1)
+us = unitstep = UnitStep = Function(UnitStep1)
 
 rect = Function(rect1)
 
