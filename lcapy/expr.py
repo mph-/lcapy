@@ -1213,6 +1213,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             
         x = cls(x)
 
+        # This does not speed up the comparison.
+        #if self.expr == x.expr:
+        #    return True
+        
         # This fails if one of the operands has the is_real attribute
         # and the other doesn't...
         return sym.simplify(self.expr - x.expr) == 0
