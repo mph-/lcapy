@@ -35,8 +35,8 @@ Functions
 
 There are two special discrete time functions:
 
- - `delta(n)` the discrete unit impulse.  This is one when `n=0` and zero otherwise.
- - `u(n)` the discrete unit step.   This is one when `n>=0` and zero otherwise.
+ - `delta(n)` or `ui(n)` or `UnitImpulse(n)`: the discrete unit impulse.  This is one when `n=0` and zero otherwise.
+ - `u(n)` or `us(n)` or `UnitStep(n)`: the discrete unit step.   This is one when `n>=0` and zero otherwise.
    
 
 Sequences
@@ -215,8 +215,7 @@ Lcapy refers to Discrete-time expressions as n-domain expressions.  They are of 
    >>> 2 * u(n) + delta(n - 1)
    2⋅u[n] + δ[n - 1]
 
-In this expression `u(n)` denotes the unit step and `delta(n)` denotes
-the unit impulse.  Square brackets are used in printing to reduce confusion with the Heaviside function and Dirac delta.
+In this expression `u(n)` denotes the unit step and `delta(n)` denotes the unit impulse.  Square brackets are used in printing to reduce confusion with the Heaviside function and Dirac delta.
 
 Discrete-time expressions can be converted to sequences using the `seq()` method.  For example::
 
