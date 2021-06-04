@@ -1,4 +1,5 @@
 from lcapy import *
+from lcapy.functions import Eq
 from lcapy.cexpr import ConstantDomainExpression, ConstantFrequencyDomainExpression, ConstantTimeDomainExpression
 from lcapy.fexpr import FourierDomainExpression
 from lcapy.omegaexpr import AngularFourierDomainExpression

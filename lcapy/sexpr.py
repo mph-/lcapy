@@ -109,7 +109,6 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         Otherwise the result is only known for t >= 0.
 
         """
-
         assumptions = self.assumptions.merge(**assumptions)
         result = inverse_laplace_transform(self.expr, self.var, tsym,
                                            **assumptions)

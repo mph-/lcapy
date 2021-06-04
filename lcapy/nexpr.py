@@ -68,7 +68,8 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
         from .sym import sympify
         from .utils import factor_const
-        from .functions import UnitImpulse, u
+        from .extrafunctions import UnitImpulse
+        from .functions import u        
 
         # TODO, get SymPy to optimize this case.
         expr = self.expr

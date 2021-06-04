@@ -7,7 +7,8 @@ Copyright 2020 Michael Hayes, UCECE
 
 from .dexpr import DiscreteExpression
 from .sequence import Sequence
-from .functions import Heaviside, UnitStep, DiracDelta, UnitImpulse
+from .functions import Heaviside, DiracDelta
+from .extrafunctions import UnitStep, UnitImpulse
 from numpy import arange
 
 

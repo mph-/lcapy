@@ -98,21 +98,21 @@ class LcapyZTransforms(unittest.TestCase):
         
         #### Added by Juergen Weizenecker 
         self.assertEqual((z*(z**2 + 2*z + 1/4)/(2*(z - 1/2)**4)).IZT(causal=True, pairs=False), 2**(-n)*n**3*u(n), "2**(-n)*n**3*u(n)")
-        self.assertEqual((-z*(-2*z + 2 + exp(2))/((z - 2)*(z - exp(2)))).IZT(causal=True, pairs=False), -(-2**n - exp(2*n))*UnitStep(n), "-z*(-2*z + 2 + exp(2))/((z - 2)*(z - exp(2)))")
-        self.assertEqual((z*(1 + 2*j)*(3*z*(z + 1 + 2*j) + (-z + 1 + 2*j)*(2*z + 1 + 2*j))/(-z + 1 + 2*j)**4).IZT(causal=True, pairs=False), (1 + 2*j)*(1 + 2*j)**n*(n*(-18 + 24*j)*(n - 2)*(n - 1)/(6*(1 + 2*j)**3) + n*(6 + 12*j)*(n - 1)/(2*(1 + 2*j)**2) + n*(1 - 2*j)/5)*UnitStep(n), "z*(1 + 2*j)*(3*z*(z + 1 + 2*j) + (-z + 1 + 2*j)*(2*z + 1 + 2*j))/(-z + 1 + 2*j)**4")
-        self.assertEqual((z*(6*z + 5 - exp(3 + 4*j))/((z + 1)*(z - exp(3 + 4*j)))).IZT(causal=True, pairs=False), ((-1)**n + 5*exp(3 + 4*j)**n)*UnitStep(n), "z*(6*z + 5 - exp(3 + 4*j))/((z + 1)*(z - exp(3 + 4*j)))")
-        self.assertEqual((z*((z - 6)**4*(z + 1) + (z - 1)**3*(18*z*(z + 6) - 12*(z - 6)*(z + 3)))/((z - 6)**4*(z - 1)**3)).IZT(causal=True, pairs=False), (6**n*(n*(n - 2)*(n - 1) + 3*n*(n - 1) + n) + n*(n - 1) + n)*UnitStep(n), "z*((z - 6)**4*(z + 1) + (z - 1)**3*(18*z*(z + 6) - 12*(z - 6)*(z + 3)))/((z - 6)**4*(z - 1)**3)")
-        self.assertEqual((4*z*(18*z - 5)/((2*z - 1)*(4*z - 1))).IZT(causal=True, pairs=False), 4*(4**(-n)/4 + 2*2**(-n))*UnitStep(n), "4*z*(18*z - 5)/((2*z - 1)*(4*z - 1))")
-        self.assertEqual((z*(z - 3*cos(2))/(z**2 - 6*z*cos(2) + 9)).IZT(causal=True, pairs=True), 3**n*cos(2*n)*UnitStep(n), "z*(z - 3*cos(2))/(z**2 - 6*z*cos(2) + 9)")
-        self.assertEqual((-3*z*sin(2)/(z**2 + 6*z*cos(2) + 9)).IZT(causal=True, pairs=True), -3**n*sin(n*(-2 + pi))*UnitStep(n), "-3*z*sin(2)/(z**2 + 6*z*cos(2) + 9)")
+        self.assertEqual((-z*(-2*z + 2 + exp(2))/((z - 2)*(z - exp(2)))).IZT(causal=True, pairs=False), -(-2**n - exp(2*n))*unitstep(n), "-z*(-2*z + 2 + exp(2))/((z - 2)*(z - exp(2)))")
+        self.assertEqual((z*(1 + 2*j)*(3*z*(z + 1 + 2*j) + (-z + 1 + 2*j)*(2*z + 1 + 2*j))/(-z + 1 + 2*j)**4).IZT(causal=True, pairs=False), (1 + 2*j)*(1 + 2*j)**n*(n*(-18 + 24*j)*(n - 2)*(n - 1)/(6*(1 + 2*j)**3) + n*(6 + 12*j)*(n - 1)/(2*(1 + 2*j)**2) + n*(1 - 2*j)/5)*unitstep(n), "z*(1 + 2*j)*(3*z*(z + 1 + 2*j) + (-z + 1 + 2*j)*(2*z + 1 + 2*j))/(-z + 1 + 2*j)**4")
+        self.assertEqual((z*(6*z + 5 - exp(3 + 4*j))/((z + 1)*(z - exp(3 + 4*j)))).IZT(causal=True, pairs=False), ((-1)**n + 5*exp(3 + 4*j)**n)*unitstep(n), "z*(6*z + 5 - exp(3 + 4*j))/((z + 1)*(z - exp(3 + 4*j)))")
+        self.assertEqual((z*((z - 6)**4*(z + 1) + (z - 1)**3*(18*z*(z + 6) - 12*(z - 6)*(z + 3)))/((z - 6)**4*(z - 1)**3)).IZT(causal=True, pairs=False), (6**n*(n*(n - 2)*(n - 1) + 3*n*(n - 1) + n) + n*(n - 1) + n)*unitstep(n), "z*((z - 6)**4*(z + 1) + (z - 1)**3*(18*z*(z + 6) - 12*(z - 6)*(z + 3)))/((z - 6)**4*(z - 1)**3)")
+        self.assertEqual((4*z*(18*z - 5)/((2*z - 1)*(4*z - 1))).IZT(causal=True, pairs=False), 4*(4**(-n)/4 + 2*2**(-n))*unitstep(n), "4*z*(18*z - 5)/((2*z - 1)*(4*z - 1))")
+        self.assertEqual((z*(z - 3*cos(2))/(z**2 - 6*z*cos(2) + 9)).IZT(causal=True, pairs=True), 3**n*cos(2*n)*unitstep(n), "z*(z - 3*cos(2))/(z**2 - 6*z*cos(2) + 9)")
+        self.assertEqual((-3*z*sin(2)/(z**2 + 6*z*cos(2) + 9)).IZT(causal=True, pairs=True), -3**n*sin(n*(-2 + pi))*unitstep(n), "-3*z*sin(2)/(z**2 + 6*z*cos(2) + 9)")
         # This fails with ubuntu-18.04 python < 3.9
-        # self.assertEqual((3*z*(z**4*cos(2) - 6*z**3 - 6*z**3*sin(2)**2 + 54*z*sin(2)**2 + 54*z - 81*cos(2))/(z**2 - 6*z*cos(2) + 9)**3).IZT(causal=True, pairs=True), 3**n*n**2*cos(2*n)*UnitStep(n), "3*z*(z**4*cos(2) - 6*z**3 - 6*z**3*sin(2)**2 + 54*z*sin(2)**2 + 54*z - 81*cos(2))/(z**2 - 6*z*cos(2) + 9)**3")
+        # self.assertEqual((3*z*(z**4*cos(2) - 6*z**3 - 6*z**3*sin(2)**2 + 54*z*sin(2)**2 + 54*z - 81*cos(2))/(z**2 - 6*z*cos(2) + 9)**3).IZT(causal=True, pairs=True), 3**n*n**2*cos(2*n)*unitstep(n), "3*z*(z**4*cos(2) - 6*z**3 - 6*z**3*sin(2)**2 + 54*z*sin(2)**2 + 54*z - 81*cos(2))/(z**2 - 6*z*cos(2) + 9)**3")
         
         self.assertEqual((z*(z**2 - exp(4))*exp(5)*sin(2)/(z**2 - 2*z*exp(2)*cos(2) + exp(4))**2).IZT(causal=True, pairs=True),
-                         n*exp(3)*exp(2*n)*sin(2*n)*UnitStep(n),
+                         n*exp(3)*exp(2*n)*sin(2*n)*unitstep(n),
                          "z*(z**2 - exp(4))*exp(5)*sin(2)/(z**2 - 2*z*exp(2)*cos(2) + exp(4))**2")
-        self.assertEqual((3*z*(z**2*sin(6) - 6*z*sin(4) + 9*sin(2))/(z**2 - 6*z*cos(2) + 9)**2).IZT(causal=True, pairs=True), 3*3**n*(n*sin(2*n)*cos(4)/3 + n*sin(4)*cos(2*n)/3)*UnitStep(n), "3*z*(z**2*sin(6) - 6*z*sin(4) + 9*sin(2))/(z**2 - 6*z*cos(2) + 9)**2")
-        self.assertEqual((2*z*exp(3*j)/(z - 2*exp(3*j))**2).IZT(causal=True, pairs=False), n*(2*exp(3*j))**n*UnitStep(n), "2*z*exp(3*j)/(z - 2*exp(3*j))**2")
+        self.assertEqual((3*z*(z**2*sin(6) - 6*z*sin(4) + 9*sin(2))/(z**2 - 6*z*cos(2) + 9)**2).IZT(causal=True, pairs=True), 3*3**n*(n*sin(2*n)*cos(4)/3 + n*sin(4)*cos(2*n)/3)*unitstep(n), "3*z*(z**2*sin(6) - 6*z*sin(4) + 9*sin(2))/(z**2 - 6*z*cos(2) + 9)**2")
+        self.assertEqual((2*z*exp(3*j)/(z - 2*exp(3*j))**2).IZT(causal=True, pairs=False), n*(2*exp(3*j))**n*unitstep(n), "2*z*exp(3*j)/(z - 2*exp(3*j))**2")
 
     def test_misc(self):
 

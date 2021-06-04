@@ -10,7 +10,8 @@ Copyright 2020 Michael Hayes, UCECE
 
 import sympy as sym
 from .sym import sympify, AppliedUndef, j, pi
-from .functions import UnitImpulse, UnitStep, exp
+from .extrafunctions import UnitImpulse, UnitStep
+from .functions import exp
 from .utils import factor_const, scale_shift
 from .matrix import Matrix
 

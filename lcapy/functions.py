@@ -6,6 +6,14 @@ Copyright 2014--2021 Michael Hayes, UCECE
 from .units import u as uu
 import sympy as sym
 
+__all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos', 'tan',
+           'cot', 'asin', 'acos', 'atan', 'atan2', 'acot', 'sinh', 'cosh', 'tanh',
+           'asinh', 'acosh', 'atanh', 'gcd', 'sign', 'diff', 'integrate',
+           'u', 'H', 'heaviside', 'Heaviside', 'delta', 'DiracDelta',
+           'ui', 'us', 'unitimpulse', 'unitstep',
+           'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap')
+
+
 class Function(object):
 
     def __init__(self, arg):
@@ -170,7 +178,8 @@ class MatMul(sym.MatMul):
         return expr(super(MatMul, cls).__new__(cls, _ex(op1), _ex(op2), **options))
 
 
-from .extrafunctions import UnitImpulse, UnitStep
+from .extrafunctions import UnitImpulse as UnitImpulse1
+from .extrafunctions import UnitStep as UnitStep1
 from .extrafunctions import sincn as sincn1
 from .extrafunctions import sincu as sincu1
 from .extrafunctions import psinc as psinc1
@@ -179,9 +188,9 @@ from .extrafunctions import tri as tri1
 from .extrafunctions import trap as trap1
 
 
-ui = unitimpulse = Function(UnitImpulse)
+ui = unitimpulse = Function(UnitImpulse1)
 
-us = unitstep = Function(UnitStep)
+us = unitstep = Function(UnitStep1)
 
 rect = Function(rect1)
 
