@@ -28,7 +28,8 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
     def __init__(self, val, **assumptions):
 
         check = assumptions.pop('check', True)
-        assumptions['real'] = True        
+        if 'integer' not in assumptions:
+            assumptions['real'] = True   
         
         super(DiscreteTimeDomainExpression, self).__init__(val, **assumptions)
 
@@ -219,4 +220,4 @@ from .expressionclasses import expressionclasses
 
 classs = expressionclasses.register('discrete time', DiscreteTimeDomainExpression)
 
-n = DiscreteTimeDomainExpression('n')
+n = DiscreteTimeDomainExpression('n', integer=True)
