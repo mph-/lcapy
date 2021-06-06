@@ -1,3 +1,11 @@
+"""This module defines additional functions to those defined by SymPy.
+They are for internal use by Lcapy.  The user versions are defined in
+function.py.
+
+Copyright 2020--2021 Michael Hayes, UCECE
+
+"""
+
 import sympy as sym
 from sympy.core import S, Integer
 from sympy.core.logic import fuzzy_not
