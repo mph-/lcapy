@@ -1,4 +1,5 @@
 """This module wraps SymPy functions and provides a few others.
+The underlying SymPy function is obtained with the sympy attribute.
 
 Copyright 2014--2021 Michael Hayes, UCECE
 """
@@ -6,9 +7,12 @@ Copyright 2014--2021 Michael Hayes, UCECE
 from .units import u as uu
 import sympy as sym
 
-__all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos', 'tan',
-           'cot', 'asin', 'acos', 'atan', 'atan2', 'acot', 'sinh', 'cosh', 'tanh',
-           'asinh', 'acosh', 'atanh', 'gcd', 'sign', 'diff', 'integrate',
+__all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10',
+           'sin', 'cos', 'tan', 'cot',
+           'asin', 'acos', 'atan', 'atan2', 'acot',
+           'sinh', 'cosh', 'tanh', 'coth',
+           'asinh', 'acosh', 'atanh', 'acoth',
+           'gcd', 'sign', 'diff', 'integrate',
            'u', 'H', 'heaviside', 'Heaviside', 'delta', 'DiracDelta',
            'ui', 'us', 'unitimpulse', 'unitstep', 'UnitImpulse', 'UnitStep',
            'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap')
@@ -40,8 +44,9 @@ class Function(object):
 
         result = cls(result)        
             
-        if e_args[0].is_phase and self.expr in (sym.sin, sym.cos, sym.tan, sym.exp,
-                                                sym.sinh, sym.cosh, sym.tanh):
+        if (e_args[0].is_phase and
+            self.expr in (sym.sin, sym.cos, sym.tan, sym.cot, sym.exp,
+                          sym.sinh, sym.cosh, sym.tanh, sym.coth)):
             result.part = ''
         elif self.expr in (sym.atan, sym.atan2):
             result.units = uu.rad
@@ -118,11 +123,15 @@ cosh = Function(sym.cosh)
 
 tanh = Function(sym.tanh)
 
+coth = Function(sym.coth)
+
 asinh = Function(sym.asinh)
 
 acosh = Function(sym.acosh)
 
 atanh = Function(sym.atanh)
+
+acoth = Function(sym.acoth)
 
 gcd = Function(sym.gcd)
 
@@ -135,16 +144,6 @@ integrate = Function(sym.integrate)
 u = H = heaviside = Heaviside = Function(sym.Heaviside)
 
 delta = DiracDelta = Function(sym.DiracDelta)
-
-
-# def delta(expr1):
-#    
-#     if not hasattr(expr1, 'expr'):
-#         expr1 = expr(expr1)
-#     if expr1.is_discrete_time_domain or expr1.is_discrete_fourier_domain:
-#         return UnitImpulse(expr1)        
-#    
-#     return DiracDelta(expr1)
 
 
 def _ex(expr):
