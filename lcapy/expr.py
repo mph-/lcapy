@@ -1334,6 +1334,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return dst
 
     @property
+    def re(self):
+        """Return real part."""
+        return self.real    
+
+    @property
     def imag(self):
         """Return imaginary part."""
 
@@ -1347,6 +1352,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         dst = self.__class__(symsimplify(sym.im(self.expr)), **assumptions)
         dst.part = 'imaginary'
         return dst
+
+    @property
+    def im(self):
+        """Return imaginary part."""
+        return self.imag
 
     @property
     def real_imag(self):
