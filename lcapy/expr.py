@@ -1728,8 +1728,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 
                 if is_causal and arg < 0:
                     return 0
-                return func1(arg)
-
+                result = func1(arg)
+                # If get NaN evaluate limit.  This helps for sin(t) / t.
+                if np.isnan(result):
+                    result = expr.limit(var, arg)
+                return result
+            
             try:
                 result = func(arg0)
                 response = complex(result)
