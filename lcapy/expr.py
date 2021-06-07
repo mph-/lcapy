@@ -1731,12 +1731,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 result = func1(arg)
                 # If get NaN evaluate limit.  This helps for sin(t) / t.
                 if np.isnan(result):
-                    result = expr.limit(var, arg)
+                    result = complex(expr.limit(var, arg))
+                if np.isinf(result):
+                    result = complex(sym.simplify(expr).limit(var, arg))
                 return result
             
             try:
-                result = func(arg0)
-                response = complex(result)
+                response = func(arg0)
             except NameError as e:
                 raise RuntimeError('Cannot evaluate expression %s: %s' % (self, e))
             except AttributeError as e:
