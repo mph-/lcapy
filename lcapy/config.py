@@ -65,7 +65,7 @@ canonical_units = False
 check_units = True
 # Set to 'none' to print s - p; None to print SymPy default form -p + s.
 # Note, SymPy will convert s - -1 to 1 + s unless Add is used with evaluate=False
-printing_order = 'none'
+printing_order = None
 
 # Use X11 colours so that they will work with graphziv and dot2tex.
 colours = {'startnode': 'green', 'endnode': 'green',
