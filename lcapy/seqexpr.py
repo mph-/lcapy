@@ -1,7 +1,8 @@
-"""This modules provides the SequenceExpression class to provide common methods for
-the discrete-time and discrete-frequency expressions.
+"""This modules provides the SequenceExpression class to provide
+common methods for the discrete-time and discrete-frequency
+expressions.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
@@ -24,44 +25,61 @@ class SequenceExpression(DiscreteExpression):
         if self.has(DiracDelta):
             self.expr = self.replace(DiracDelta, UnitImpulse).expr
 
-    def first_index(self, nvals=None):
+    def first_index(self, ni=None):
 
-        if nvals is None:
-            nvals = (-10, 10)                
-        if isinstance(nvals, tuple):
-            nvals = range(*nvals)
+        if ni is None:
+            ni = (-10, 10)                
+        if isinstance(ni, tuple):
+            ni = range(*ni)
 
         # Desire SymPy equivalent to argmax
-        n2 = nvals[-1]
-        for n in reversed(nvals):
+        n2 = ni[-1]
+        for n in reversed(ni):
             if self(n) != 0:
                 n2 = n
         return n2
         
-    def last_index(self, nvals=None):
+    def last_index(self, ni=None):
 
-        if nvals is None:
-            nvals = (-10, 10)        
-        if isinstance(nvals, tuple):
-            nvals = range(*nvals)
+        if ni is None:
+            ni = (-10, 10)        
+        if isinstance(ni, tuple):
+            ni = range(*ni)
 
         # Desire SymPy equivalent to argmin
-        n1 = nvals[0]
-        for n in nvals:
+        n1 = ni[0]
+        for n in ni:
             if self(n) != 0:
                 n1 = n
         return n1
 
-    def seq(self, nvals=None, evaluate=False):
+    def seq(self, ni=None, evaluate=False):
+        """Create a Sequence.
 
-        n1 = self.first_index(nvals)
-        n2 = self.last_index(nvals)        
+        >>> a = x.seq()
 
-        # Perhaps if find self(n2 + 1) != 0 or self(n1 - 1) != 0 then
-        # likely to have infinite extent sequence.  Maybe this could
-        # be shown using ellipsis when the sequence is printed?
+        The sequence indices are specified with the optional `ni` argument.
+        For example:
         
-        ni = arange(n1, n2 + 1)
+        >>> a = x.seq(ni=(-1, 0, 1, 2))
+        
+        If the `ni` argument is not specified, the sequence indices
+        are enumerated from 0.
+
+        The sequence indices can be found using the `n` attribute.
+        This returns a list.
+
+        >>> a = x.seq().n
+        [-1, 0, 1, 2]
+        """
+
+        if ni is None:
+            n1 = self.first_index(ni)
+            n2 = self.last_index(ni)        
+            ni = arange(n1, n2 + 1)
+        elif isinstance(ni, tuple):
+            ni = arange(ni[0], ni[-1] + 1)            
+            
         v = self(ni)
         
         return Sequence(v, ni, evaluate=evaluate, var=self.var)
