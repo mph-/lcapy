@@ -1593,7 +1593,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         This is replaced by `arg` and then evaluated to obtain a result.
         """
 
-        is_causal = self.is_causal
+        is_time = self.is_time_domain or self.is_discrete_time_domain
+        is_causal = is_time and self.is_causal
         
         def evaluate_expr(expr, var, arg):
 
@@ -1732,6 +1733,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 # If get NaN evaluate limit.  This helps for sin(t) / t.
                 if np.isnan(result):
                     result = complex(expr.limit(var, arg))
+                # u(t) - 
                 if np.isinf(result):
                     result = complex(sym.simplify(expr).limit(var, arg))
                 return result
