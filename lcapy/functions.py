@@ -15,7 +15,7 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10',
            'gcd', 'sign', 'diff', 'integrate',
            'u', 'H', 'heaviside', 'Heaviside', 'delta', 'DiracDelta',
            'ui', 'us', 'unitimpulse', 'unitstep', 'UnitImpulse', 'UnitStep',
-           'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap')
+           'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap', 'Sum')
 
 
 class Function(object):
@@ -176,6 +176,11 @@ class MatMul(sym.MatMul):
     def __new__(cls, op1, op2, **options):
         return expr(super(MatMul, cls).__new__(cls, _ex(op1), _ex(op2), **options))
 
+
+class Sum(sym.Sum):
+    def __new__(cls, op1, op2, **options):
+        return expr(super(Sum, cls).__new__(cls, op1, op2, **options))
+    
 
 from .extrafunctions import UnitImpulse as UnitImpulse1
 from .extrafunctions import UnitStep as UnitStep1
