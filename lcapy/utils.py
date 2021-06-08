@@ -124,3 +124,22 @@ def isiterable(arg):
 
     return hasattr(arg, '__iter__')
 
+
+def separate_dirac_delta(expr):
+
+    terms = expr.as_ordered_terms()
+    deltas = 0
+    rest = 0
+
+    for term in terms:
+        if term.has(sym.DiracDelta):
+            deltas += term
+        else:
+            rest += term
+
+    cls = expr.__class__
+            
+    return cls(deltas, **expr.assumptions), cls(rest, **expr.assumptions)
+
+
+            

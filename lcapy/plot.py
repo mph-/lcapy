@@ -5,6 +5,9 @@ Copyright 2014--2021 Michael Hayes, UCECE
 """
 
 import numpy as np
+from .utils import separate_dirac_delta
+from sympy import DiracDelta
+
 
 # Perhaps add Formatter classes that will produce the plot data?
 
@@ -280,6 +283,13 @@ def plot_time(obj, t, **kwargs):
     if isinstance(t, tuple):
         t = np.linspace(t[0], t[1], npoints)
 
+    diracs = None
+    if obj.has(DiracDelta):
+        diracs, obj = separate_dirac_delta(obj)
+
+    if diracs is not None:
+        print('Warning, Dirac deltas ignored; %s' % diracs)
+        
     v = obj.evaluate(t)
 
     ax = make_axes(figsize=kwargs.pop('figsize', None),
