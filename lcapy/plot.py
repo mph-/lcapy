@@ -262,6 +262,9 @@ def plot_angular_frequency(obj, omega, norm=False, **kwargs):
     if isinstance(omega, tuple):
         omega = np.linspace(omega[0], omega[1], npoints)
 
+    if norm and 'xlabel' not in kwargs:
+        kwargs['xlabel'] = 'Normalised angular frequency'
+        
     return plot_frequency(obj, omega, **kwargs)
 
 
