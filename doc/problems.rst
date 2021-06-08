@@ -155,6 +155,14 @@ Another approach is expand the expression to avoid the division:
     >>> (x * (s + 1 / x)).expand().subs(x, 0)
     1
 
+    
+Symbol confusion
+----------------
+
+`j` is an Lcapy symbol denoting the imaginary unit but `1j` is a Python floating point imaginary number.
+
+`pi` is an Lcapy symbol denoting the transcendental number :math:`\pi` but `np.pi` and `math.pi` is a floating point number approximating :math:`\pi`.
+    
 
 Computation speed
 -----------------
