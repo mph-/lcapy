@@ -7,8 +7,9 @@ Copyright 2020 Michael Hayes, UCECE
 from .ratfun import Ratfun
 from .sym import sympify, simplify, symsymbol, AppliedUndef
 from .utils import factor_const, scale_shift
-from .extrafunctions import UnitImpulse, UnitStep
+from .functions import UnitImpulse, UnitStep
 import sympy as sym
+from sympy.simplify.fu import TR6,TR9
 
 __all__ = ('ZT', 'IZT')
 
@@ -187,12 +188,14 @@ def ztransform_term(expr, n, z):
         bb = args[0].coeff(n, 1)
         cc = args[0].coeff(n, 0)        
         result =  (sym.sin(cc) + sym.sin(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz**2) 
+        result = sym.simplify( result )
 
     # cos(b*n+c)    
     elif (expr.is_Function and expr.func == sym.cos and (args[0].as_poly(n)).is_linear):
         bb = args[0].coeff(n, 1)
         cc = args[0].coeff(n, 0)        
         result = (sym.cos(cc) - sym.cos(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz**2)  
+        result = sym.simplify( result )
 
     # Multiplication with n       use n*x(n)  o--o  -z d/dz X(z)
     elif is_multipled_with(expr, n, 'n', xn_fac):
@@ -218,6 +221,16 @@ def ztransform_term(expr, n, z):
         cc = ref[0].coeff(n, 0)              
         X = ztransform_term(expr, n, z)
         result = sym.exp(cc) * sym.simplify(X.subs(z, z / sym.exp(bb)))     
+    
+    # Multiplication with u( n-n0 ) * x(n)    o--o     X(z)- ( x[0] - x[1]/z - .. - x[n0-1]/z**(n0-1)   
+    elif is_multipled_with(expr, n, 'UnitStep', xn_fac):
+        expr /= xn_fac[0]
+        delay = n - xn_fac[0].args[0]
+        X = ztransform_term(expr, n, z)
+        sum_X = 0
+        for ii in range( delay ):
+            sum_X -= expr.subs(n,ii)*invz**ii
+        result = X + sum_X               
                        
     if result is None:
         # Use m instead of n to avoid n and z in same expr.
@@ -280,7 +293,15 @@ def is_multipled_with(expr, n, cmp, ret):
                 ret += [expr.args[i]]   
                 ret_flag = True
                 break                     
-        
+            
+    # check for Multiplication with u( n-n0 )
+    elif cmp == 'UnitStep' and expr.is_Mul:
+        for i in range(len(expr.args)):
+            if expr.args[i].is_Function and expr.args[i].func in (sym.Heaviside, UnitStep):
+                ret += [expr.args[i]]   
+                ret_flag = True
+                break 
+            
     return ret_flag
 
 
@@ -402,7 +423,11 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
     poles = zexpr.poles(damping=damping)
     polesdict = {}
     for pole in poles:
+        #replace cos()**2-1 by sin()**2
+        pole.expr = TR6( sym.expand(pole.expr)  )      
         pole.expr = sym.simplify(pole.expr)
+        # remove abs value from sin()
+        pole.expr = pole.expr.subs(sym.Abs,sym.Id)
         polesdict[pole.expr] = pole.n
         
     ############ Juergen Weizenecker HsKa
@@ -413,25 +438,21 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
     pole_pair_dict = {}
     
     if assumptions.get('pairs', True):
-        for pole_1 in polesdict:
-            if (not pole_1.is_real) and sym.conjugate(pole_1) in polesdict:
-                pole_single_dict.pop(pole_1, None)
-                pole_2 = sym.conjugate(pole_1)
-                order_1 = polesdict[pole_1]
-                order_2 = polesdict[pole_2]
-                if order_1 != order_2:
-                    print("!!!! Pole pairs are of different order")
-                    pole_pair_dict = {}
-                    pole_single_dict = polesdict.copy()
-                    break
-                try:
-                    # This throws TypeError for Abs('a')
-                    if sym.im(pole_1) > 0:
-                        pole_pair_dict[pole_1, pole_2] = order_1, order_2
-                        break
-                except TypeError:
-                    pass
-                pole_pair_dict[pole_2, pole_1] = order_2, order_1
+        pole_list = list(polesdict)
+        
+        for i , pi in enumerate(pole_list):
+            pi_c = sym.conjugate(pi)
+            # check for conjugate
+            if pi_c in pole_list[i+1:]:
+                pole_single_dict.pop( pi, None )
+                pole_single_dict.pop( pi_c , None )
+                # order of poles
+                o1 = polesdict[ pi ]
+                o2 = polesdict[ pi_c ]
+                # write to dictionary
+                pole_pair_dict[ pi , pi_c ] =  o1 , o2
+                
+        
 
     # Make n (=number of poles) different denominators to speed up
     # calculation and avoid sym.limit.  The different denominators are
@@ -492,7 +513,7 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
                 sum_p += r * bino * p **(1- i) / sym.factorial(i - 1)
                 bino *= n - i + 1
                 
-        uresult += sum_p * p**n
+        uresult += sym.simplify( sum_p * p**n )
     
     # Run through complex pole pairs
     for pole in pole_pair_dict:
@@ -509,7 +530,19 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
     
         # Oscillation parameter
         lam = sym.sqrt(sym.simplify(p1 * p2))        
-        omega_0 = sym.simplify(sym.arg(p1 / lam))
+        p1_n = sym.simplify( p1 / lam ) 
+        # term is of form exp(j*arg() )
+        if len(p1_n.args)==1 and p1_n.is_Function and p1_n.func==sym.exp:
+            omega_0 = sym.im( p1_n.args[0] )
+        # term is of form cos() + j sin()
+        elif p1_n.is_Add and sym.re(p1_n).is_Function and  sym.re(p1_n).func == sym.cos:
+            p1_n = p1_n.rewrite(sym.exp)
+            omega_0 = sym.im( p1_n.args[0] )      
+        # general form
+        else:    
+            omega_0 = sym.simplify( sym.arg(p1_n) )         
+       
+       
         
         if o1 == 1:
             r1 = expr_1.subs(z, p1) 
@@ -521,8 +554,8 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
             # if pole pairs is selected, r1=r2*
             
             # handle real part
-            uresult += 2 * r1_re * lam ** n * sym.cos(omega_0 * n) 
-            uresult += -2 * r1_im * lam ** n * sym.sin(omega_0 * n)
+            uresult += 2 * TR9(r1_re) * lam ** n * sym.cos(omega_0 * n) 
+            uresult += -2 * TR9(r1_im) * lam ** n * sym.sin(omega_0 * n)
 
         else:
             bino = 1
