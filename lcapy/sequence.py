@@ -14,7 +14,8 @@ from numpy import array, allclose, arange
 
 class Sequence(ExprList):
 
-    def __init__(self, seq, ni=None, origin=None, evaluate=False, var=None):
+    def __init__(self, seq, ni=None, origin=None, evaluate=False, var=None,
+                 start_trunc=False, end_trunc=False):
         """Sequences can be created from an tuple, list, or ndarray.
 
         See `seq()` to create a Sequence from a string.
@@ -40,6 +41,13 @@ class Sequence(ExprList):
         
         >>> a(z)
 
+        `start_trunc` indicates that the start of the sequence was truncated
+        `end_trunc` indicates that the end of the sequence was truncated
+
+        `start_trunc` and `end_trunc` are not propagated if a sequence is
+        modified.  They indicate that ellipsis should be printed to show
+        the sequence has been truncated.
+
         """
         super (Sequence, self).__init__(seq, evaluate)
 
@@ -56,6 +64,11 @@ class Sequence(ExprList):
         # This will simplify sequence comparison.
         self.n = list(ni)
         self.var = var
+
+        # Determine if sequence truncated at start, end, or both.
+        # Perhaps have separate classes for truncated sequences?
+        self.start_trunc = start_trunc
+        self.end_trunc = end_trunc
 
     @property
     def vals(self):
@@ -77,12 +90,18 @@ class Sequence(ExprList):
     def __str__(self):
 
         items = []
+        if self.start_trunc:
+            items.append('...')
+        
         for v1, n1 in zip(self, self.n):
             s = str(v1)
             
             if n1 == 0:
                 s = '_' + s
             items.append(s)
+
+        if self.end_trunc:
+            items.append('...')            
 
         return r'{%s}' % ', '.join(items)
     
@@ -151,7 +170,10 @@ class Sequence(ExprList):
 
         a = self.zeroextend()
 
-        items = []        
+        items = []
+        if self.start_trunc:
+            items.append('\\ldots')
+            
         for v1, n1 in zip(a, a.n):
             try:
                 s = v1.latex()
@@ -162,6 +184,9 @@ class Sequence(ExprList):
                 s = r'\underline{%s}' % v1
             items.append(s)
 
+        if self.end_trunc:
+            items.append('\\ldots')
+            
         return r'\left\{%s\right\}' % ', '.join(items)
 
 
@@ -170,6 +195,9 @@ class Sequence(ExprList):
         a = self.zeroextend()
 
         items = []
+        if self.start_trunc:
+            items.append('...')
+            
         for v1, n1 in zip(a, a.n):
             try:
                 s = v1.latex()
@@ -180,6 +208,8 @@ class Sequence(ExprList):
                 s = r'_%s' % v1
             items.append(s)
 
+        if self.end_trunc:
+            items.append('...')            
         return r'{%s}' % ', '.join(items)    
     
     def pretty(self, **kwargs):
@@ -435,7 +465,7 @@ class Sequence(ExprList):
 
     def zeroextend(self):
         """Extend sequence by adding zeros so that the origin
-        is included."""
+        is included.  This is used for printing."""
 
         ni = self.n
         vals = self.vals
@@ -446,7 +476,9 @@ class Sequence(ExprList):
             vals = vals + [0] * -ni[-1]
             ni = range(ni[0], 1)            
 
-        return self.__class__(vals, ni, var=self.var)        
+        return self.__class__(vals, ni, var=self.var,
+                              start_trunc=self.start_trunc,
+                              end_trunc=self.end_trunc)
 
     def DFT(self):
         """Calculate DFT and return as sequence."""

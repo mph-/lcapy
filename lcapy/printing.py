@@ -232,6 +232,9 @@ class LcapyPrettyPrinter(PrettyPrinter):
         from sympy.printing.pretty.stringpict import prettyForm, stringPict
         
         pforms = []
+        if seq.start_trunc:
+            pforms.append('...')
+        
         for item, n1 in zip(seq.vals, seq.n):
             if pforms:
                 pforms.append(', ')
@@ -239,6 +242,11 @@ class LcapyPrettyPrinter(PrettyPrinter):
                 pforms.append('_')                
             pform = self._print(item)
             pforms.append(pform)
+
+        if seq.end_trunc:
+            if pforms:
+                pforms.append(', ')
+            pforms.append('...')            
 
         if not pforms:
             s = stringPict('')

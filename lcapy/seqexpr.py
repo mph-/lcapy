@@ -73,21 +73,27 @@ class SequenceExpression(DiscreteExpression):
         [-1, 0, 1, 2]
         """
 
+        start_trunc = False
+        end_trunc = False
+        
         if ni is None:
             n1 = self.first_index(ni)
             n2 = self.last_index(ni)        
             ni = arange(n1, n2 + 1)
             # Should search to handle cases such as 1, 1, 0, 1 but
             # when to stop?
+            if self(n1 - 1) != 0:
+                print('Warning: sequence truncated at n1=%d' % n1)
+                start_trunc = True
             if self(n2 + 1) != 0:
                 print('Warning: sequence truncated at n2=%d' % n2)
-            if self(n1 - 1) != 0:
-                print('Warning: sequence truncated at n1=%d' % n1)              
+                end_trunc = True
             
         elif isinstance(ni, tuple):
             ni = arange(ni[0], ni[-1] + 1)            
             
         v = self(ni)
         
-        return Sequence(v, ni, evaluate=evaluate, var=self.var)
+        return Sequence(v, ni, evaluate=evaluate, var=self.var,
+                        start_trunc=start_trunc, end_trunc=end_trunc)
        
