@@ -7,7 +7,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 from .ratfun import Ratfun
 from .sym import sympify, simplify, symsymbol, AppliedUndef
 from .utils import factor_const, scale_shift
-from .functions import UnitImpulse, UnitStep
+from .extrafunctions import UnitImpulse, UnitStep
 import sympy as sym
 from sympy.simplify.fu import TR6, TR9
 
