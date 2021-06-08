@@ -81,14 +81,15 @@ class FourierDomainExpression(FourierDomain, Expr):
         is a tuple, this sets the frequency limits.
 
         kwargs include:
-        axes - the plot axes to use otherwise a new figure is created
-        xlabel - the x-axis label
-        ylabel - the y-axis label
-        ylabel2 - the second y-axis label if needed, say for mag and phase
-        xscale - the x-axis scaling, say for plotting as ms
-        yscale - the y-axis scaling, say for plotting mV
-        plot_type -  'dB_phase', 'mag-phase', 'real-imag', 'mag', 'phase',
+        `axes` - the plot axes to use otherwise a new figure is created
+        `xlabel` - the x-axis label
+        `ylabel` - the y-axis label
+        `ylabel2` - the second y-axis label if needed, say for mag and phase
+        `xscale` - the x-axis scaling, say for plotting as ms
+        `yscale` - the y-axis scaling, say for plotting mV
+        `plot_type` -  'dB_phase', 'mag-phase', 'real-imag', 'mag', 'phase',
         'real', or 'imag'
+        `norm` - use normalised frequency
         in addition to those supported by the matplotlib plot command.
         
         The plot axes are returned.  This is a tuple for magnitude/phase or

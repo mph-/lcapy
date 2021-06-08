@@ -127,7 +127,7 @@ def plot_pole_zero(obj, **kwargs):
     return ax
 
 
-def plot_frequency(obj, f, **kwargs):
+def plot_frequency(obj, f, norm=False, **kwargs):
 
     npoints = kwargs.pop('npoints', 400)    
     log_magnitude = kwargs.get('log_magnitude', False)
@@ -138,7 +138,10 @@ def plot_frequency(obj, f, **kwargs):
 
     # FIXME, determine useful frequency range...
     if f is None:
-        f = (0, 2)
+        if norm:
+            f = (-0.5, 0.5)
+        else:
+            f = (0, 2)
     if isinstance(f, (int, float)):
         f = (0, f)
     if isinstance(f, tuple):
@@ -210,7 +213,12 @@ def plot_frequency(obj, f, **kwargs):
     else:
         plot = plots[(False, log_frequency)]                    
 
-    xlabel = kwargs.pop('xlabel', obj.domain_label_with_units)
+    if norm:
+        default_xlabel = 'Normalised frequency'
+    else:
+        default_xlabel = obj.domain_label_with_units
+        
+    xlabel = kwargs.pop('xlabel', default_xlabel)
     ylabel = kwargs.pop('ylabel', obj.label_with_units)                
     ylabel2 = kwargs.pop('ylabel2', obj.label_with_units)
     second = kwargs.pop('second', False)
@@ -239,13 +247,16 @@ def plot_bode(obj, f, **kwargs):
     return plot_frequency(obj, f, **kwargs)
 
 
-def plot_angular_frequency(obj, omega, **kwargs):
+def plot_angular_frequency(obj, omega, norm=False, **kwargs):
 
     npoints = kwargs.pop('npoints', 400)        
 
     # FIXME, determine useful frequency range...
     if omega is None:
-        omega = (0, np.pi)
+        if norm:
+            omega = (-np.pi, np.pi)
+        else:
+            omega = (0, np.pi)
     if isinstance(omega, (int, float)):
         omega = (0, omega)
     if isinstance(omega, tuple):
