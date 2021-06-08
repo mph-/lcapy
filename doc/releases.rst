@@ -2,6 +2,28 @@
 Release notes
 =============
 
+V0.92
+=====
+
+- Fixes plotting frequency response
+
+- Adds `norm` argument for frequency response plots
+
+- Determines limit if NaN returned for `evaluate()`
+
+- Adds `coth()` and `acoth()` functions
+
+- Ensures `n` and `k` are integers
+
+- Fixes `UnitStep` and `UnitImpulse`
+
+- Adds `parameterize_ZPK()`
+
+- Adds tutorial on expression manipulation
+
+- Improves pole-zero plots  
+
+
 V0.91
 =====
 
