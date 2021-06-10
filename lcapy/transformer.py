@@ -1,4 +1,5 @@
 from sympy import Eq, Symbol
+from .utils import factor_const
 
 class Transformer(object):
 
@@ -48,10 +49,12 @@ class Transformer(object):
 
         if not evaluate:
             return self.noevaluate(expr, var, conjvar)
+
+        const, expr = factor_const(expr, var)            
         
         key = self.key(expr, var, conjvar, **assumptions)
         if key in self.cache:
-            return self.cache[key]
+            return const * self.cache[key]
 
         # The variable may have been created with different attributes,
         # say when using sym.sympify('DiracDelta(t)') since this will
@@ -74,6 +77,6 @@ class Transformer(object):
             self.error()
 
         self.cache[key] = result
-        return result
+        return const * result
 
     
