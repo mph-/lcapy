@@ -4,6 +4,7 @@ from .utils import factor_const
 class Transformer(object):
 
     name = 'undefined'
+    bilateral = True
     
     def __init__(self):
 

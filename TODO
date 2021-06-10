@@ -99,6 +99,12 @@ an answer that appears valid for DC.
 
 21. H(f) prints as u(f) for a user defined function.  Perhaps need a mechanism to override interpretion of H as Heaviside function?
 
+22. Convert laplace.py to new Transformer class
+
+23. Convert ztransform.py to new Transformer class
+
+24. Add DTFT
+
 
 Testing
 =======
