@@ -642,7 +642,13 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(expr(1).magnitude.is_magnitude, True, "is_magnitude")
         self.assertEqual(expr(1).phase.is_phase, True, "is_phase")
         self.assertEqual(expr(1).phase_degrees.is_phase_degrees, True, "is_phase_degrees")
-        self.assertEqual(expr(1).dB.is_dB, True, "is_dB")                
+        self.assertEqual(expr(1).dB.is_dB, True, "is_dB")
+
+    def test_dB(self):
+
+        v = voltage(10)
+        self.assertEqual(v.dB, 20, "voltage(10).dB")
+        self.assertEqual((v**2).dB, 20, "(voltage(10)**2).dB")
 
     def test_simplify_sin_cos(self):
 

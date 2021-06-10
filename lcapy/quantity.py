@@ -25,6 +25,7 @@ class Quantity(object):
     is_admittancesquared = False
     is_ratio = False
     is_signal = False
+    is_squared = False
     part = ''
 
 

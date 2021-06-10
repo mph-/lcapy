@@ -1501,11 +1501,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     @property
     def dB(self):
-        """Return magnitude in dB."""
+        """Return magnitude in dB.  If squared voltage, squared current,
+        or power, this uses 10 * log10 otherwise 20 * log10."""
 
         # Need to clip for a desired dynamic range?
         # Assume reference is 1.
-        dst = 20 * log10(self.magnitude)
+        if self.is_power or self.is_squared:
+            dst = 10 * log10(self.magnitude)
+        else:
+            dst = 20 * log10(self.magnitude)            
         dst.part = 'magnitude'
         dst.units = dB
         return dst
