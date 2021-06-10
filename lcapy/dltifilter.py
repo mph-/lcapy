@@ -155,7 +155,7 @@ class DLTIFilter(object):
                 rhs = sum(self.b[l] * x(nval - l) for l in range(Nr))
     
             # Add lhs
-            y_tot[i + NO] = -1 / self.a[0] * sum(csi * ysi for csi, ysi in zip(a_r, pre_y)) + rhs
+            y_tot[i + NO] = -1 / self.a[0] * sum(csi * ysi for csi, ysi in zip(a_r, pre_y)) + rhs / self.a[0]
     
         # Solution, without initial values
         ret_seq = seq(y_tot[NO:], ni)  
