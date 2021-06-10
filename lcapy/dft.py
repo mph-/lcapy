@@ -4,7 +4,7 @@
 
    X(k) = \sum_{n=0}^{N-1} x(n) e^{-j * 2 * \pi * n * k / N}
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
@@ -179,7 +179,8 @@ def discrete_fourier_transform(expr, n, k, N=None, evaluate=True,
     Undefined functions such as x(n) are converted to X(k)
     """
 
-    return dft_transformer.transform(expr, n, k, evaluate=evaluate, N=N)
+    return dft_transformer.transform(expr, n, k, evaluate=evaluate, N=N,
+                                     **assumptions)
 
 
 def DFT(expr, n, k, N=None, evaluate=True, **assumptions):
