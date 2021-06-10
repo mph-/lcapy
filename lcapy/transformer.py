@@ -50,7 +50,7 @@ class Transformer(object):
 
         # Unilateral transforms ignore expr for t < 0 so remove Piecewise.
         if not self.is_bilateral:
-            if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
+            if expr.is_Piecewise and expr.args[0].args[1].has(var >= 0):
                 expr = expr.args[0].args[0]
         
         if not evaluate:
