@@ -44,7 +44,7 @@ class CausalChecker(object):
 
     def _is_causal(self, expr):
 
-        terms = expr.as_ordered_terms()
+        terms = expr.expand().as_ordered_terms()
         for term in terms:
             if not self._has_causal_factor(term):
                 return False

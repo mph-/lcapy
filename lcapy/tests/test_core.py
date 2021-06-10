@@ -412,6 +412,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Heaviside(t + 1).is_causal, False, "Heaviside(t + 1).is_causal")
         self.assertEqual(Heaviside(2 * t - 1).is_causal, True, "Heaviside(2 * t - 1).is_causal")
         self.assertEqual(Heaviside(-2 * t - 1).is_causal, False, "Heaviside(-2 * t - 1).is_causal")
+
+        self.assertEqual(((Heaviside(t) - Heaviside(t - 7)) * cos(t)).is_causal, True, "expr.is_causal")
         
     def test_has(self):
 
