@@ -33,6 +33,9 @@ class FourierTransformer(Transformer):
     name = 'Fourier transform'
     inverse = False
 
+    def key(self, expr, t, f, **assumptions):
+        return expr, t, f
+
     def simplify_term(self, expr):
 
         return symsimplify(expr)

@@ -44,7 +44,7 @@ class Transformer(object):
         if not evaluate:
             return self.noevaluate(expr, var, conjvar)
         
-        key = (expr, var, conjvar)
+        key = self.key(expr, var, conjvar, **assumptions)
         if key in self.cache:
             return self.cache[key]
 
