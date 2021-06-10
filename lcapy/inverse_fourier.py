@@ -7,10 +7,11 @@ It also allows functions that strictly do not have an inverse Fourier
 transform by using Dirac deltas. 
 
 Copyright 2016--2021 Michael Hayes, UCECE
-
 """
 
 from .fourier import FourierTransformer
+from .sym import j, pi    
+import sympy as sym
 
 class InverseFourierTransformer(FourierTransformer):
 

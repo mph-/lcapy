@@ -21,6 +21,9 @@ class Transformer(object):
     def simplify_term(self, expr):
         return expr
 
+    def rewrite(self, expr):
+        return expr    
+
     def transform(self, expr, var, conjvar, evaluate=True, **assumptions):
 
         # Squirrel away original expression for error messages
@@ -40,15 +43,15 @@ class Transformer(object):
             conjvar = conjvar.expr
         except:
             pass        
-        
+
+        self.check(expr, var, conjvar, **assumptions)
+
         if not evaluate:
             return self.noevaluate(expr, var, conjvar)
         
         key = self.key(expr, var, conjvar, **assumptions)
         if key in self.cache:
             return self.cache[key]
-
-        self.check(expr, var, conjvar)
 
         # The variable may have been created with different attributes,
         # say when using sym.sympify('DiracDelta(t)') since this will

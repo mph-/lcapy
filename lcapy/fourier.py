@@ -21,7 +21,7 @@ from sympy.core.function import AppliedUndef
 from sympy import sympify, pi, exp, I, oo, S, sign, sin, cos
 from sympy import DiracDelta, Heaviside, FourierTransform, Integral
 from sympy import fourier_transform as sympy_fourier_transform
-from .sym import symsimplify
+from .sym import symsimplify, j
 from .transformer import Transformer
 from .utils import factor_const, scale_shift
 from .extrafunctions import rect, sincn, sincu, trap, tri

@@ -12,7 +12,7 @@ from .functions import exp
 from .sym import j, oo, pi
 from .seqexpr import SequenceExpression
 from .dsym import nsym, ksym, zsym
-from .dft import IDFT
+from .inverse_dft import IDFT
 from sympy import Sum
 
 __all__ = ('kexpr', )

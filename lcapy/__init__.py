@@ -71,6 +71,7 @@ from .discretetime import *
 from .dltifilter import *
 from .diffeq import *
 from .dft import *
+from .inverse_dft import *
 from .state import state
 
 def show_version():
