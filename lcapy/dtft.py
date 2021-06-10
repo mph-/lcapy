@@ -146,7 +146,7 @@ class DTFTTransformer(Transformer):
         return result
     
     
-dft_transformer = DTFTTransformer()
+dtft_transformer = DTFTTransformer()
 
 
 def discrete_time_fourier_transform(expr, n, f, images=0, evaluate=True,
@@ -156,8 +156,8 @@ def discrete_time_fourier_transform(expr, n, f, images=0, evaluate=True,
     Undefined functions such as x(n) are converted to X(f)
     """
 
-    return dft_transformer.transform(expr, n, f, evaluate=evaluate,
-                                     images=images, **assumptions)
+    return dtft_transformer.transform(expr, n, f, evaluate=evaluate,
+                                      images=images, **assumptions)
 
 
 def DTFT(expr, n, f, images=0, evaluate=True, **assumptions):
@@ -166,5 +166,5 @@ def DTFT(expr, n, f, images=0, evaluate=True, **assumptions):
     Undefined functions such as x(n) are converted to X(f)
     """
 
-    return dft_transformer.transform(expr, n, f, evaluate=evaluate,
-                                     images=images, **assumptions)    
+    return dtft_transformer.transform(expr, n, f, evaluate=evaluate,
+                                      images=images, **assumptions)    
