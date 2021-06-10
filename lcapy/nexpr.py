@@ -163,9 +163,9 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
             return self.ZT(**assumptions).DTFT()
 
         from .fexpr import fexpr
+        from .dtft import DTFT
 
-        # TODO, handle evaluation keyword
-        return fexpr(summation(self.subs(nsym).expr * exp(-2 * j * pi * fsym * nsym * dt), (nsym, -oo, oo)))
+        return fexpr(DTFT(self.expr, self.var, fsym))
 
     def DTFT(self, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""

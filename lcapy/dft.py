@@ -26,13 +26,13 @@ class DFTTransformer(Transformer):
     def key(self, expr, n, k, **assumptions):
         return expr, n, k
 
-    def noevaluate(self, expr, k, n):
+    def noevaluate(self, expr, n, k):
 
         foo = expr * sym.exp(-2 * j * pi * n * k / self.N)
         result = sym.Sum(foo, (n, 0, self.N - 1))
         return result
 
-    def check(self, expr, n, k, N, **assumptions):
+    def check(self, expr, n, k, N=None, **assumptions):
 
         # Hack
         self.N = N

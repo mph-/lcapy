@@ -4,7 +4,7 @@ from .utils import factor_const
 class Transformer(object):
 
     name = 'undefined'
-    bilateral = True
+    is_bilateral = True
     
     def __init__(self):
 
@@ -48,10 +48,17 @@ class Transformer(object):
 
         self.check(expr, var, conjvar, **assumptions)
 
+        # Unilateral transforms ignore expr for t < 0 so remove Piecewise.
+        if not self.is_bilateral:
+            if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
+                expr = expr.args[0].args[0]
+        
         if not evaluate:
             return self.noevaluate(expr, var, conjvar)
 
-        const, expr = factor_const(expr, var)            
+        const, expr = factor_const(expr, var)
+
+        # TODO, apply similarity theorem.
         
         key = self.key(expr, var, conjvar, **assumptions)
         if key in self.cache:
