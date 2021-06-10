@@ -7,7 +7,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 from __future__ import division
 from .domains import ZDomain
 from .ztransform import inverse_ztransform
-from .sym import j, pi
+from .sym import j, pi, fsym, omegasym
 from .dsym import nsym, ksym, zsym, dt
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
@@ -201,20 +201,28 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
         
         return self.subs((1 + s * dt / 2) / (1 - s * dt / 2))
 
-    def discrete_time_fourier_transform(self, **assumptions):
+    def discrete_time_fourier_transform(self, norm=False, angular=False,
+                                        **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
 
         from .symbols import f
 
         if assumptions.get('causal', self.is_causal):
-            return self.subs(exp(j * 2 * pi * f * dt))
+            result = self.subs(exp(j * 2 * pi * f * dt))
+        else:
+            return self.IZT(**assumptions).DTFT(norm=norm, angular=angular)
 
-        return self.IZT(**assumptions).DTFT()
+        if norm:
+            result = result.subs(dt, 1)
+        if angular:
+            result = result.angular_fourier()            
+        return result            
 
-    def DTFT(self, **assumptions):
+    def DTFT(self, norm=False, angular=False, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
     
-        return self.discrete_time_fourier_transform(**assumptions) 
+        return self.discrete_time_fourier_transform(**assumptions,
+                                                    norm=norm, angular=angular)
 
     def as_ab(self):
         """Return lists of denominator and numerator coefficients

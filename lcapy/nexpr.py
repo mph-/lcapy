@@ -155,22 +155,31 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
         return self.seq((n1, n2)).extent()
 
-    def discrete_time_fourier_transform(self, **assumptions):
+    def discrete_time_fourier_transform(self, norm=False, angular=False,
+                                        **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
-
-        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
-        if assumptions.is_causal:
-            return self.ZT(**assumptions).DTFT()
 
         from .fexpr import fexpr
         from .dtft import DTFT
 
-        return fexpr(DTFT(self.expr, self.var, fsym))
+        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
+        
+        if assumptions.is_causal:
+            result = self.ZT(**assumptions).DTFT()
+        else:
+            result =  fexpr(DTFT(self.expr, self.var, fsym))
 
-    def DTFT(self, **assumptions):
+        if norm:
+            result = result.subs(dt, 1)
+        if angular:
+            result = result.angular_fourier()
+        return result
+
+    def DTFT(self, norm=False, angular=False, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
     
-        return self.discrete_time_fourier_transform(**assumptions)
+        return self.discrete_time_fourier_transform(norm=norm, angular=angular,
+                                                    **assumptions)
 
     def difference_equation(self, inputsym='x', outputsym='y', form='iir'):
         """Create difference equation from impulse response.
