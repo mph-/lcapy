@@ -415,6 +415,9 @@ def inverse_ztransform_ratfun(expr, z, n, **assumptions):
     # have 1/(z*(-a/z + 1)) instead of 1/(-a + z).  Hopefully, 
     # simplify will fix things...
     expr = (M / D).simplify()
+    # M and D may contain common factors before simplification, so redefine M and D
+    M = sym.numer(expr)
+    D = sym.denom(expr) 
     for factor in expr.as_ordered_factors():
         if factor == sym.oo:
             return factor, factor
