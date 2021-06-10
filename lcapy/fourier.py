@@ -1,6 +1,5 @@
-"""This module provides support for Fourier transforms.  It acts as a
-quantity for SymPy's Fourier transform.  It calculates the bilateral
-Fourier transform using:
+"""This module provides support for Fourier transforms.  It calculates
+the bilateral Fourier transform using:
 
    S(f) = \int_{-\infty}^{\infty} s(t) e^{-j * 2 * \pi * t} dt
 
@@ -15,360 +14,313 @@ Copyright 2016--2021 Michael Hayes, UCECE
 
 # TODO:
 # Add DiracDelta(t, n)
-# Simplify  (-j * DiracDelta(f - 1) +j * DiracDelta(f + 1)).inverse_fourier()
+# Simplify  (-j * DiracDelta(f - 1) + j * DiracDelta(f + 1)).inverse_fourier()
 # This should give 2 * sin(2 * pi * t)
 
-import sympy as sym
-from .sym import sympify, AppliedUndef, j, pi, symsimplify
+from sympy.core.function import AppliedUndef
+from sympy import sympify, pi, exp, I, oo, S, sign, sin, cos
+from sympy import DiracDelta, Heaviside, FourierTransform, Integral
+from sympy import fourier_transform as sympy_fourier_transform
+from .sym import symsimplify
+from .transformer import Transformer
 from .utils import factor_const, scale_shift
 from .extrafunctions import rect, sincn, sincu, trap, tri
 
 __all__ = ('FT', 'IFT')
 
+class FourierTransformer(Transformer):
 
-fourier_cache = {}
+    name = 'Fourier transform'
+    inverse = False
 
-def fourier_sympy(expr, t, f):
+    def simplify_term(self, expr):
 
-    result = sym.fourier_transform(expr, t, f)
-    if expr != 0 and result == 0:
-        # There is a bug in SymPy where it returns 0.
-        raise ValueError('Could not compute Fourier transform for ' + str(expr))
-
-    if isinstance(result, sym.FourierTransform):
-        raise ValueError('Could not compute Fourier transform for ' + str(expr))
+        return symsimplify(expr)
     
-    return result
+    def sympy(self, expr, t, f):
 
+        result = sympy_fourier_transform(expr, t, f)
+        if expr != 0 and result == 0:
+            # There is a bug in SymPy where it returns 0.
+            self.error()
 
-def fourier_func(expr, t, f, inverse=False):
-
-    if not isinstance(expr, AppliedUndef):
-        raise ValueError('Expecting function for %s' % expr)
-
-    scale, shift = scale_shift(expr.args[0], t)
-
-    fsym = sympify(str(f))
+        if isinstance(result, FourierTransform):
+            self.error()
     
-    # Convert v(t) to V(f), etc.
-    name = expr.func.__name__
-    if inverse:
-        func = name[0].lower() + name[1:] + '(%s)' % f
-    else:
-        func = name[0].upper() + name[1:] + '(%s)' % f
-
-    result = sympify(func).subs(fsym, f / scale) / abs(scale)
-
-    if shift != 0:
-        if inverse:
-            shift = -shift
-        result = result * sym.exp(2 * sym.I * sym.pi * f * shift / scale)
-    
-    return result
-
-
-def fourier_integral(expr, t, f, inverse):
-
-    const, expr = factor_const(expr, t)
-
-    if len(expr.args) != 2:
-        raise ValueError('Cannot compute Fourier transform of %s' % expr)
-
-    integrand = expr.args[0]
-    
-    if not isinstance(expr, sym.Integral):
-        raise ValueError('Cannot compute Fourier transform of %s' % expr)
-
-    if len(expr.args[1]) != 3:
-        raise ValueError('Require definite integral')
-    
-    var = expr.args[1][0]
-    limits = expr.args[1][1:]
-    const2, expr2 = factor_const(integrand, var)
-
-    if (expr2.is_Function and
-        expr2.args[0] == t - var and limits[0] == 0 and limits[1] == sym.oo):
-        return const2 * fourier_term(expr2.subs(t - var, t), t, f, inverse) / f
-
-    # Look for convolution integral
-    # TODO, handle convolution with causal functions.
-    if (limits[0] != -sym.oo) or (limits[1] != sym.oo):
-        raise ValueError('Need indefinite limits for %s' % expr)
-   
-    if ((len(expr.args) != 2) or not expr2.is_Mul or
-        not expr2.args[0].is_Function or not expr2.args[1].is_Function):
-        raise ValueError('Need integral of product of two functions: %s' % expr)
-
-    f1 = expr2.args[0]
-    f2 = expr2.args[1]    
-    # TODO: apply similarity theorem if have f(a * tau) etc.
-
-    if (f1.args[0] == var and f2.args[0] == t - var):
-        F1 = fourier_term(f1, var, f, inverse)
-        F2 = fourier_term(f2.subs(t - var, t), t, f, inverse)
-    elif (f2.args[0] == var and f1.args[0] == t - var):
-        F1 = fourier_term(f1.subs(t - var, t), t, f, inverse)
-        F2 = fourier_term(f2, var, f)
-    else:            
-        raise ValueError('Cannot recognise convolution: %s' % expr)
-    
-    return const2 * F1 * F2
-
-
-def fourier_function(expr, t, f, inverse=False):
-
-    # Handle expressions with a function of FOO, e.g.,
-    # v(t), v(t) * y(t),  3 * v(t) / t, v(4 * a * t), etc.,
-    
-    if not expr.has(AppliedUndef):
-        raise ValueError('Could not compute Fourier transform for ' + str(expr))
-
-    const, expr = factor_const(expr, t)
-    
-    if isinstance(expr, AppliedUndef):
-        return fourier_func(expr, t, f, inverse) * const
-    
-    tsym = sympify(str(t))
-    expr = expr.subs(tsym, t)
-
-    rest = sym.S.One
-    undefs = []
-    for factor in expr.as_ordered_factors():
-        if isinstance(factor, AppliedUndef):
-            if factor.args[0] != t:
-                raise ValueError('Weird function %s not of %s' % (factor, t))
-            undefs.append(factor)
-        else:
-            rest *= factor
-
-    if rest.has(AppliedUndef):
-        # Have something like 1/v(t)
-        raise ValueError('Cannot compute Fourier transform of %s' % rest)
-            
-    exprs = undefs
-    if rest.has(t):
-        exprs = exprs + [rest]
-        rest = sym.S.One
-
-    result = fourier_term(exprs[0], t, f, inverse) * rest
-        
-    if len(exprs) == 1:
-        return result * const
-
-    dummy = 'tau' if inverse else 'nu'
-
-    for m in range(len(exprs) - 1):
-        if m == 0:
-            nu = sympify(dummy)
-        else:
-            nu = sympify(dummy + '_%d' % m)
-        expr2 = fourier_term(exprs[m + 1], t, f, inverse)
-        result = sym.Integral(result.subs(f, f - nu) * expr2.subs(f, nu),
-                              (nu, -sym.oo, sym.oo))
-    
-    return result * const
-
-
-def fourier_term(expr, t, f, inverse=False):
-
-    const, expr = factor_const(expr, t)
-
-    if expr.has(sym.Integral):
-        return fourier_integral(expr, t, f, inverse) * const
-    
-    if isinstance(expr, AppliedUndef):
-        return fourier_func(expr, t, f, inverse) * const
-    
-    # TODO add u(t) <-->  delta(f) / 2 - j / (2 * pi * f)
-    
-    if expr.has(AppliedUndef):
-        # Handle v(t), v(t) * y(t),  3 * v(t) / t etc.
-        return fourier_function(expr, t, f, inverse) * const
-
-    # Check for constant.
-    if not expr.has(t):
-        return expr * sym.DiracDelta(f) * const
-
-    one = sym.S.One
-    const1 = const
-    other = one
-    exps = one
-    factors = expr.expand().as_ordered_factors()    
-    for factor in factors:
-        if not factor.has(t):
-            const1 *= factor
-        else:
-            if factor.is_Function and factor.func == sym.exp:
-                exps *= factor
-            else:
-                other *= factor
-
-    sf = -f if inverse else f
-
-    if other != 1 and exps == 1:
-        if other == t:
-            return const1 * sym.I / (2 * sym.pi) * sym.DiracDelta(sf, 1)
-        elif other == t**2:
-            return -const1 / (2 * sym.pi)**2 * sym.DiracDelta(sf, 2)
-        # TODO check for other powers of t...
-        elif other == sym.sign(t):
-            return const1 / (sym.I * sym.pi * sf)
-        elif other == sym.sign(t) * t:
-            return -const1 * 2 / (2 * sym.pi * f)**2
-        elif other == sym.Heaviside(t):
-            return const1 / (sym.I * 2 * sym.pi * f) + const1 * sym.DiracDelta(sf) / 2
-        elif other == 1 / t:
-            return -const1 * sym.I * sym.pi * sym.sign(sf)
-        elif other == 1 / t**2:
-            return -const1 * 2 * sym.pi**2 * sf * sym.sign(sf)        
-        elif other.is_Function and other.func == sym.Heaviside and other.args[0].has(t):
-            # TODO, generalise use of similarity and shift theorems for other functions and expressions
-            scale, shift = scale_shift(other.args[0], t)
-            return (const1 / (sym.I * 2 * sym.pi * sf / scale) / abs(scale) + const1 * sym.DiracDelta(sf) / 2) * sym.exp(sym.I * 2 * sym.pi * sf / scale * shift)
-        elif other == sym.Heaviside(t) * t:
-            return -const1 / (2 * sym.pi * f)**2 + const1 * sym.I * sym.DiracDelta(sf, 1) / (4 * pi)
-        # t * u(t - tau)
-        elif (other.is_Mul and len(other.args) == 2 and other.args[0] == t and other.args[1].is_Function and
-              other.args[1].func == sym.Heaviside and other.args[1].args[0].has(t)):
-            scale, shift = scale_shift(other.args[1].args[0], t)
-            e = sym.exp(sym.I * 2 * sym.pi * sf / scale * shift) / abs(scale)
-            return sym.I * sym.DiracDelta(sf, 1) / (4 * sym.pi) * e - 1 / (4 * sym.pi**2 * f**2) * e + shift * sym.DiracDelta(sf) / 2 - sym.I * shift / (2 * sym.pi * sf)
-        elif other.is_Function and other.func == sincn and other.args[0].has(t):
-            scale, shift = scale_shift(other.args[0], t)
-            return const1 * rect(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
-        elif other.is_Function and other.func == sincu and other.args[0].has(t):
-            scale, shift = scale_shift(other.args[0], t)
-            return const1 * sym.pi * rect(f / scale * sym.pi) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)        
-        elif (other.is_Pow and other.args[1] == 2 and other.args[0].is_Function and
-              other.args[0].func == sincn and other.args[0].args[0].has(t)):
-            other = other.args[0]
-            scale, shift = scale_shift(other.args[0], t)
-            return const1 * tri(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
-        elif other.is_Function and other.func == rect and other.args[0].has(t):
-            scale, shift = scale_shift(other.args[0], t)            
-            return const1 * sincn(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
-        elif other.is_Function and other.func == tri and other.args[0].has(t):
-            scale, shift = scale_shift(other.args[0], t)            
-            return const1 * sincn(f / scale)**2 * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
-        elif other.is_Function and other.func == trap and other.args[0].has(t):
-            scale, shift = scale_shift(other.args[0], t)
-            alpha = other.args[1]
-            # Chck for rect
-            if alpha == 0:
-                return const1 * sincn(f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)
-                
-            return alpha * const1 * sincn(f / scale) * sincn(alpha * f / scale) * sym.exp(sym.I * 2 * sym.pi * sf /scale * shift) / abs(scale)        
-
-        # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) *
-        # Heaviside(t)
-        if other.is_Pow and other.args[1] == -1:
-            foo = other.args[0]
-            if foo.is_Add and foo.args[1].has(t):
-                bar = foo.args[1] / t
-                if not bar.has(t) and bar.has(sym.I):
-                    a = -(foo.args[0] * 2 * sym.pi * sym.I) / bar
-                    return const1 * sym.exp(-a * sf) * sym.Heaviside(sf * sym.sign(a))
-
-        if expr == t * sym.DiracDelta(t, 1):
-            return const * sf / (-sym.I * 2 * sym.pi)
-                
-        # Punt and use SymPy.  Should check for t**n, t**n * exp(-a * t), etc.
-        return const * fourier_sympy(expr, t, sf)
-
-    args = exps.args[0]
-    foo = args / t
-    if foo.has(t):
-        # Have exp(a * t**n), SymPy might be able to handle this
-        return const * fourier_sympy(expr, t, sf)
-
-    if exps != 1 and foo.has(sym.I):
-        if other == 1:
-            return const1 * sym.DiracDelta(sf - foo / (sym.I * 2 * sym.pi))
-        Q = fourier_term(other, t, f, inverse)
-        return const1 * Q.subs(sf, (sf - foo / (sym.I * 2 * sym.pi)))
-        
-    return const * fourier_sympy(expr, t, sf)
-
-
-def fourier_transform(expr, t, f, inverse=False, evaluate=True):
-    """Compute bilateral Fourier transform of expr.
-
-    Undefined functions such as v(t) are converted to V(f)
-
-    This also handles some expressions that do not really have a
-    Fourier transform, such as a, cos(a * t), sin(a * t), exp(I * a *
-    t).  These expressions all require the use of the Dirac delta."""
-
-    if expr.is_Equality:
-        return sym.Eq(fourier_transform(expr.args[0], t, f, inverse),
-                      fourier_transform(expr.args[1], t, f, inverse))
-
-    if not evaluate:
-        if inverse:
-            result = sym.Integral(expr * sym.exp(j * 2 * pi * f * t), (f, -sym.oo, sym.oo))
-        else:
-            result = sym.Integral(expr * sym.exp(-j * 2 * pi * f * t), (t, -sym.oo, sym.oo))
         return result
 
-    key = (expr, t, f, inverse)
-    if key in fourier_cache:
-        return fourier_cache[key]
+    def func(self, expr, t, f):
 
-    if not inverse and expr.has(f):
-        raise ValueError('Cannot Fourier transform for expression %s that depends on %s' % (expr, f))
+        if not isinstance(expr, AppliedUndef):
+            self.error('Expecting function')
+
+        scale, shift = scale_shift(expr.args[0], t)
+
+        fsym = sympify(str(f))
+
+        # Convert v(t) to V(f), etc.
+        name = expr.func.__name__
+        if self.inverse:
+            func = name[0].lower() + name[1:] + '(%s)' % f
+        else:
+            func = name[0].upper() + name[1:] + '(%s)' % f
+
+        result = sympify(func).subs(fsym, f / scale) / abs(scale)
+
+        if shift != 0:
+            if self.inverse:
+                shift = -shift
+                result = result * exp(2 * I * pi * f * shift / scale)
+
+        return result
 
 
-    if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
-        raise ValueError('Cannot Fourier transform for expression %s that is unknown for t < 0' % expr)
+    def integral(self, expr, t, f):
+
+        const, expr = factor_const(expr, t)
+
+        if len(expr.args) != 2:
+            self.error()
+
+        integrand = expr.args[0]
+
+        if not isinstance(expr, Integral):
+            self.error()            
+
+        if len(expr.args[1]) != 3:
+            self.error('Require definite integral')
+
+        var = expr.args[1][0]
+        limits = expr.args[1][1:]
+        const2, expr2 = factor_const(integrand, var)
+
+        if (expr2.is_Function and
+            expr2.args[0] == t - var and limits[0] == 0 and limits[1] == oo):
+            return const2 * self.term(expr2.subs(t - var, t), t, f) / f
+
+        # Look for convolution integral
+        # TODO, handle convolution with causal functions.
+        if (limits[0] != -oo) or (limits[1] != oo):
+            self.error('Need indefinite limits')            
+
+        if ((len(expr.args) != 2) or not expr2.is_Mul or
+            not expr2.args[0].is_Function or not expr2.args[1].is_Function):
+            self.error('Need integral of product of two functions')
+
+        f1 = expr2.args[0]
+        f2 = expr2.args[1]    
+        # TODO: apply similarity theorem if have f(a * tau) etc.
+
+        if (f1.args[0] == var and f2.args[0] == t - var):
+            F1 = self.term(f1, var, f)
+            F2 = self.term(f2.subs(t - var, t), t, f)
+        elif (f2.args[0] == var and f1.args[0] == t - var):
+            F1 = self.term(f1.subs(t - var, t), t, f)
+            F2 = self.term(f2, var, f)
+        else:
+            self.error('Cannot recognise convolution')
+
+        return const2 * F1 * F2
+
+    def function(self, expr, t, f):
+
+        # Handle expressions with a function of FOO, e.g.,
+        # v(t), v(t) * y(t),  3 * v(t) / t, v(4 * a * t), etc.,
+
+        if not expr.has(AppliedUndef):
+            self.error()
+
+        const, expr = factor_const(expr, t)
+
+        if isinstance(expr, AppliedUndef):
+            return self.func(expr, t, f) * const
+
+        tsym = sympify(str(t))
+        expr = expr.subs(tsym, t)
+
+        rest = S.One
+        undefs = []
+        for factor in expr.as_ordered_factors():
+            if isinstance(factor, AppliedUndef):
+                if factor.args[0] != t:
+                    self.error('Weird function %s not of %s' % (factor, t))
+                undefs.append(factor)
+            else:
+                rest *= factor
+
+        if rest.has(AppliedUndef):
+            # Have something like 1/v(t)
+            self.error()
+
+        exprs = undefs
+        if rest.has(t):
+            exprs = exprs + [rest]
+            rest = S.One
+
+        result = self.term(exprs[0], t, f) * rest
+
+        if len(exprs) == 1:
+            return result * const
+
+        dummy = 'tau' if self.inverse else 'nu'
+
+        for m in range(len(exprs) - 1):
+            if m == 0:
+                nu = sympify(dummy)
+            else:
+                nu = sympify(dummy + '_%d' % m)
+                expr2 = self.term(exprs[m + 1], t, f)
+                result = Integral(result.subs(f, f - nu) * expr2.subs(f, nu),
+                                      (nu, -oo, oo))
+
+        return result * const
+
+    def term(self, expr, t, f):
+
+        const, expr = factor_const(expr, t)
+
+        if expr.has(Integral):
+            return self.integral(expr, t, f) * const
+
+        if isinstance(expr, AppliedUndef):
+            return self.func(expr, t, f) * const
+
+        # TODO add u(t) <-->  delta(f) / 2 - j / (2 * pi * f)
+
+        if expr.has(AppliedUndef):
+            # Handle v(t), v(t) * y(t),  3 * v(t) / t etc.
+            return self.function(expr, t, f) * const
+
+        # Check for constant.
+        if not expr.has(t):
+            return expr * DiracDelta(f) * const
+
+        one = S.One
+        const1 = const
+        other = one
+        exps = one
+        factors = expr.expand().as_ordered_factors()    
+        for factor in factors:
+            if not factor.has(t):
+                const1 *= factor
+            else:
+                if factor.is_Function and factor.func == exp:
+                    exps *= factor
+                else:
+                    other *= factor
+
+        sf = -f if self.inverse else f
+
+        if other != 1 and exps == 1:
+            if other == t:
+                return const1 * I / (2 * pi) * DiracDelta(sf, 1)
+            elif other == t**2:
+                return -const1 / (2 * pi)**2 * DiracDelta(sf, 2)
+            # TODO check for other powers of t...
+            elif other == sign(t):
+                return const1 / (I * pi * sf)
+            elif other == sign(t) * t:
+                return -const1 * 2 / (2 * pi * f)**2
+            elif other == Heaviside(t):
+                return const1 / (I * 2 * pi * f) + const1 * DiracDelta(sf) / 2
+            elif other == 1 / t:
+                return -const1 * I * pi * sign(sf)
+            elif other == 1 / t**2:
+                return -const1 * 2 * pi**2 * sf * sign(sf)        
+            elif other.is_Function and other.func == Heaviside and other.args[0].has(t):
+                # TODO, generalise use of similarity and shift theorems for other functions and expressions
+                scale, shift = scale_shift(other.args[0], t)
+                return (const1 / (I * 2 * pi * sf / scale) / abs(scale) + const1 * DiracDelta(sf) / 2) * exp(I * 2 * pi * sf / scale * shift)
+            elif other == Heaviside(t) * t:
+                return -const1 / (2 * pi * f)**2 + const1 * I * DiracDelta(sf, 1) / (4 * pi)
+            # t * u(t - tau)
+            elif (other.is_Mul and len(other.args) == 2 and other.args[0] == t and other.args[1].is_Function and
+                  other.args[1].func == Heaviside and other.args[1].args[0].has(t)):
+                scale, shift = scale_shift(other.args[1].args[0], t)
+                e = exp(I * 2 * pi * sf / scale * shift) / abs(scale)
+                return I * DiracDelta(sf, 1) / (4 * pi) * e - 1 / (4 * pi**2 * f**2) * e + shift * DiracDelta(sf) / 2 - I * shift / (2 * pi * sf)
+            elif other.is_Function and other.func == sincn and other.args[0].has(t):
+                scale, shift = scale_shift(other.args[0], t)
+                return const1 * rect(f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
+            elif other.is_Function and other.func == sincu and other.args[0].has(t):
+                scale, shift = scale_shift(other.args[0], t)
+                return const1 * pi * rect(f / scale * pi) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)        
+            elif (other.is_Pow and other.args[1] == 2 and other.args[0].is_Function and
+                  other.args[0].func == sincn and other.args[0].args[0].has(t)):
+                other = other.args[0]
+                scale, shift = scale_shift(other.args[0], t)
+                return const1 * tri(f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
+            elif other.is_Function and other.func == rect and other.args[0].has(t):
+                scale, shift = scale_shift(other.args[0], t)            
+                return const1 * sincn(f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
+            elif other.is_Function and other.func == tri and other.args[0].has(t):
+                scale, shift = scale_shift(other.args[0], t)            
+                return const1 * sincn(f / scale)**2 * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
+            elif other.is_Function and other.func == trap and other.args[0].has(t):
+                scale, shift = scale_shift(other.args[0], t)
+                alpha = other.args[1]
+                # Chck for rect
+                if alpha == 0:
+                    return const1 * sincn(f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
+
+                return alpha * const1 * sincn(f / scale) * sincn(alpha * f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)        
+
+            # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) *
+            # Heaviside(t)
+            if other.is_Pow and other.args[1] == -1:
+                foo = other.args[0]
+                if foo.is_Add and foo.args[1].has(t):
+                    bar = foo.args[1] / t
+                    if not bar.has(t) and bar.has(I):
+                        a = -(foo.args[0] * 2 * pi * I) / bar
+                        return const1 * exp(-a * sf) * Heaviside(sf * sign(a))
+
+            if expr == t * DiracDelta(t, 1):
+                return const * sf / (-I * 2 * pi)
+
+            # Punt and use SymPy.  Should check for t**n, t**n * exp(-a * t), etc.
+            return const * self.sympy(expr, t, sf)
+
+        args = exps.args[0]
+        foo = args / t
+        if foo.has(t):
+            # Have exp(a * t**n), SymPy might be able to handle this
+            return const * self.sympy(expr, t, sf)
+
+        if exps != 1 and foo.has(I):
+            if other == 1:
+                return const1 * DiracDelta(sf - foo / (I * 2 * pi))
+            Q = self.term(other, t, f)
+            return const1 * Q.subs(sf, (sf - foo / (I * 2 * pi)))
+
+        return const * self.sympy(expr, t, sf)
+
+    def noevaluate(self, expr, t, f):
+
+        return Integral(expr * exp(-j * 2 * pi * f * t), (t, -oo, oo))
+        
+    def check(self, expr, t, f):
+
+        if expr.has(f):
+            self.error('Expression depends on f')
+        
+        if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
+            self.error('Expression is unknown for t < 0' % expr)
     
-    if inverse:
-        t, f = f, t
+    def rewrite(self, expr):
 
-    # The variable may have been created with different attributes,
-    # say when using sym.sympify('DiracDelta(t)') since this will
-    # default to assuming that t is complex.  So if the symbol has the
-    # same representation, convert to the desired one.
-    var = sym.Symbol(str(t))
-    expr = expr.replace(var, t)
+        # sym.rewrite(exp) can create exp(log...)
+        if expr.has(sin):
+            expr = expr.replace(lambda expr: expr.is_Function and expr.func == sin,
+                                lambda expr: expr.rewrite(exp))
+        if expr.has(cos):
+            expr = expr.replace(lambda expr: expr.is_Function and expr.func == cos,
+                                lambda expr: expr.rewrite(exp))
 
-    orig_expr = expr
+        return expr
 
-    # sym.rewrite(sym.exp) can create exp(log...)
-    if expr.has(sym.sin):
-        expr = expr.replace(lambda expr: expr.is_Function and expr.func == sym.sin,
-                            lambda expr: expr.rewrite(sym.exp))
-    if expr.has(sym.cos):
-        expr = expr.replace(lambda expr: expr.is_Function and expr.func == sym.cos,
-                            lambda expr: expr.rewrite(sym.exp))        
-
-    terms = expr.expand().as_ordered_terms()
-    result = 0
-
-    try:
-        for term in terms:
-            sterm = symsimplify(term)
-            result += fourier_term(sterm, t, f, inverse=inverse)
-    except ValueError:
-        raise ValueError('Could not compute Fourier transform for ' + str(orig_expr))
-
-    fourier_cache[key] = result
-    return result
-
-
-def inverse_fourier_transform(expr, f, t, evaluate=True):
-    """Compute bilateral inverse Fourier transform of expr.
-
-    Undefined functions such as V(f) are converted to v(t)
-
-    This also handles some expressions that do not really have an
-    inverse Fourier transform, such as a, cos(a * f), sin(a * f), exp(I *
-    a * f)."""
     
-    if expr.has(t):
-        raise ValueError('Cannot inverse Fourier transform for expression %s that depends on %s' % (expr, t))
-    
-    result = fourier_transform(expr, t, f, inverse=True, evaluate=evaluate)
-    return symsimplify(result)
+fourier_transformer = FourierTransformer()
 
 
 def FT(expr, t, f, **assumptions):
@@ -379,16 +331,15 @@ def FT(expr, t, f, **assumptions):
     This also handles some expressions that do not really have a Fourier
     transform, such as a, cos(a * t), sin(a * t), exp(I * a * t)."""    
     
-    return fourier_transform(expr, t, f, **assumptions)
+    return fourier_transformer.transform(expr, t, f, **assumptions)
 
 
-def IFT(expr, f, t, **assumptions):
-    """Compute bilateral inverse Fourier transform of expr.
+def fourier_transform(expr, t, f, **assumptions):
+    """Compute bilateral Fourier transform of expr.
 
-    Undefined functions such as V(f) are converted to v(t)
+    Undefined functions such as v(t) are converted to V(f)
 
-    This also handles some expressions that do not really have an
-    inverse Fourier transform, such as a, cos(a * f), sin(a * f), exp(I *
-    a * f)."""    
+    This also handles some expressions that do not really have a Fourier
+    transform, such as a, cos(a * t), sin(a * t), exp(I * a * t)."""    
     
-    return inverse_fourier_transform(expr, f, t, **assumptions)
+    return fourier_transformer.transform(expr, t, f, **assumptions)

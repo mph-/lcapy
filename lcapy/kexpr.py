@@ -7,7 +7,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 from __future__ import division
 from .domains import DiscreteFourierDomain
-from .fourier import inverse_fourier_transform
+from .inverse_fourier import inverse_fourier_transform
 from .functions import exp
 from .sym import j, oo, pi
 from .seqexpr import SequenceExpression

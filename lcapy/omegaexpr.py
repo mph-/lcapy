@@ -7,7 +7,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 
 from __future__ import division
 from .domains import AngularFourierDomain
-from .fourier import inverse_fourier_transform
+from .inverse_fourier import inverse_fourier_transform
 from .expr import Expr, expr, expr_make
 from .sym import fsym, ssym, tsym, omegasym, omega0sym, j, pi
 from .units import u as uu
