@@ -400,6 +400,12 @@ Here's an example of the DTFT:
 .. image:: examples/discretetime/dt1-DTFT-plot1.png
    :width: 15cm
 
+A normalised discrete-time angular Fourier transform of `x(n)` can be plotted as follows:
+
+>>> x.DTFT()(w).plot(norm=True)
+
+This plots the normalised angular frequency between :math:`-\pi` and :math:`\pi`.
+
 
 Discrete Fourier transform (DFT)
 --------------------------------
