@@ -12,7 +12,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 import sympy as sym
 from sympy import oo, DiracDelta
-from .transformer import Transformer
+from .transformer import BilateralForwardTransformer
 from .sym import sympify, AppliedUndef, j, pi
 from .dsym import dt
 from .extrafunctions import UnitImpulse, UnitStep
@@ -22,7 +22,7 @@ from .matrix import Matrix
 __all__ = ('DTFT', )
 
 
-class DTFTTransformer(Transformer):
+class DTFTTransformer(BilateralForwardTransformer):
 
     name = 'DTFT'
     inverse = False

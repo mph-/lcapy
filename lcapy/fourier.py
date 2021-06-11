@@ -22,16 +22,15 @@ from sympy import sympify, pi, exp, I, oo, S, sign, sin, cos
 from sympy import DiracDelta, Heaviside, FourierTransform, Integral
 from sympy import fourier_transform as sympy_fourier_transform
 from .sym import symsimplify, j
-from .transformer import Transformer
+from .transformer import BilateralForwardTransformer
 from .utils import factor_const, scale_shift
 from .extrafunctions import rect, sincn, sincu, trap, tri
 
 __all__ = ('FT', 'IFT')
 
-class FourierTransformer(Transformer):
+class FourierTransformer(BilateralForwardTransformer):
 
     name = 'Fourier transform'
-    inverse = False
 
     def key(self, expr, t, f, **assumptions):
         return expr, t, f
@@ -63,7 +62,7 @@ class FourierTransformer(Transformer):
 
         # Convert v(t) to V(f), etc.
         name = expr.func.__name__
-        if self.inverse:
+        if self.is_inverse:
             func = name[0].lower() + name[1:] + '(%s)' % f
         else:
             func = name[0].upper() + name[1:] + '(%s)' % f
@@ -71,7 +70,7 @@ class FourierTransformer(Transformer):
         result = sympify(func).subs(fsym, f / scale) / abs(scale)
 
         if shift != 0:
-            if self.inverse:
+            if self.is_inverse:
                 shift = -shift
                 result = result * exp(2 * I * pi * f * shift / scale)
 
@@ -165,7 +164,7 @@ class FourierTransformer(Transformer):
         if len(exprs) == 1:
             return result * const
 
-        dummy = 'tau' if self.inverse else 'nu'
+        dummy = 'tau' if self.is_inverse else 'nu'
 
         for m in range(len(exprs) - 1):
             if m == 0:
@@ -212,7 +211,7 @@ class FourierTransformer(Transformer):
                 else:
                     other *= factor
 
-        sf = -f if self.inverse else f
+        sf = -f if self.is_inverse else f
 
         if other != 1 and exps == 1:
             if other == t:

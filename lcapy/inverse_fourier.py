@@ -16,7 +16,7 @@ import sympy as sym
 class InverseFourierTransformer(FourierTransformer):
 
     name = 'inverse Fourier transform'
-    inverse = True
+    is_inverse = True
     
     def noevaluate(self, expr, f, t):
 

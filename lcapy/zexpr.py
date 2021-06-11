@@ -6,7 +6,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 from __future__ import division
 from .domains import ZDomain
-from .ztransform import inverse_ztransform
+from .inverse_ztransform import inverse_ztransform
 from .sym import j, pi, fsym, omegasym
 from .dsym import nsym, ksym, zsym, dt
 from .vector import Vector

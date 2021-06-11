@@ -9,7 +9,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 """
 
 import sympy as sym
-from .transformer import Transformer
+from .transformer import BilateralForwardTransformer
 from .sym import sympify, AppliedUndef, j, pi
 from .extrafunctions import UnitImpulse, UnitStep
 from .utils import factor_const, scale_shift
@@ -18,10 +18,10 @@ from .matrix import Matrix
 __all__ = ('DFT', 'DFTmatrix')
 
 
-class DFTTransformer(Transformer):
+class DFTTransformer(BilateralForwardTransformer):
 
     name = 'DFT'
-    inverse = False
+    is_inverse = False
     
     def key(self, expr, n, k, **assumptions):
         return expr, n, k
@@ -61,7 +61,7 @@ class DFTTransformer(Transformer):
 
         # Convert v(n) to V(k), etc.
         name = expr.func.__name__
-        if self.inverse:
+        if self.is_inverse:
             func = name[0].lower() + name[1:] + '(%s)' % k
         else:
             func = name[0].upper() + name[1:] + '(%s)' % k
@@ -69,11 +69,11 @@ class DFTTransformer(Transformer):
         result = sympify(func).subs(fsym, k / scale) / abs(scale)
 
         if shift != 0:
-            if self.inverse:
+            if self.is_inverse:
                 shift = -shift
             result = result * sym.exp(2 * sym.I * sym.pi * k * shift / scale)
 
-        if self.inverse:
+        if self.is_inverse:
             result *= self.N
 
         return result
@@ -119,7 +119,7 @@ class DFTTransformer(Transformer):
         if len(exprs) == 1:
             return result * const
 
-        dummy = 'm' if self.inverse else 'l'
+        dummy = 'm' if self.is_inverse else 'l'
 
         for m in range(len(exprs) - 1):
             if m == 0:
@@ -164,7 +164,7 @@ class DFTTransformer(Transformer):
     def term(self, expr, n, k):
 
         result = self.term1(expr, n, k)
-        if self.inverse:
+        if self.is_inverse:
             result /= self.N
         return result
     
