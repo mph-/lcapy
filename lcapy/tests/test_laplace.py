@@ -1,5 +1,4 @@
 from lcapy import *
-from lcapy.laplace import inverse_laplace_ratfun
 from lcapy.sexpr import LaplaceDomainVoltage
 from lcapy.texpr import TimeDomainExpression, TimeDomainVoltage
 import unittest
@@ -13,16 +12,6 @@ class LcapyTester(unittest.TestCase):
     """
 
     def test_laplace(self):
-
-        a = 0 * t + 1
-        r1, r2 = inverse_laplace_ratfun(a.expr, s.var, t.var)
-        self.assertEqual(r1, delta(t).expr, "inverse_laplace_ratfun")
-        self.assertEqual(r2, 0, "inverse_laplace_ratfun")        
-
-        a = 1 / (s + 2)
-        r1, r2 = inverse_laplace_ratfun(a.expr, s.var, t.var)
-        self.assertEqual(r1, 0, "inverse_laplace_ratfun")        
-        self.assertEqual(r2, exp(-2 * t).expr, "inverse_laplace_ratfun")
 
         self.assertEqual(Heaviside(t).laplace(), 1 / s, "Heaviside(t)")
         self.assertEqual(DiracDelta(t).laplace(), 1, "DiracDelta(t)")

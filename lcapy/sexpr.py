@@ -7,7 +7,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 
 from __future__ import division
 from .domains import LaplaceDomain
-from .laplace import inverse_laplace_transform
+from .inverse_laplace import inverse_laplace_transform
 from .sym import ssym, tsym, j, pi, sympify
 from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, exprcontainer, expr_make

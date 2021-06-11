@@ -6,7 +6,7 @@ Copyright 2019--2020 Michael Hayes, UCECE
 """
 
 from .matrix import Matrix
-from .laplace import inverse_laplace_transform
+from .inverse_laplace import inverse_laplace_transform
 
 
 class LaplaceDomainMatrix(Matrix):

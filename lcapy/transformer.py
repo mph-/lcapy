@@ -87,12 +87,9 @@ class BilateralForwardTransformer(Transformer):
         terms = expr.expand().as_ordered_terms()
         result = 0
 
-        try:
-            for term in terms:
-                sterm = self.simplify_term(term, var)
-                result += self.term(sterm, var, conjvar)
-        except ValueError:
-            self.error()
+        for term in terms:
+            sterm = self.simplify_term(term, var)
+            result += self.term(sterm, var, conjvar)
 
         self.cache[key] = result
         return const * result
@@ -146,12 +143,9 @@ class UnilateralForwardTransformer(Transformer):
         terms = expr.as_ordered_terms()
         result = 0
 
-        try:
-            for term in terms:
-                sterm = self.simplify_term(term, var)
-                result += self.term(sterm, var, conjvar)
-        except ValueError:
-            self.error()
+        for term in terms:
+            sterm = self.simplify_term(term, var)
+            result += self.term(sterm, var, conjvar)
 
         self.cache[key] = result
         return const * result
@@ -204,14 +198,11 @@ class UnilateralInverseTransformer(Transformer):
         uresult = 0
         cresult = 0
 
-        try:
-            for term in terms:
-                sterm = self.simplify_term(term, var)
-                cterm, uterm = self.term(sterm, var, conjvar)
-                cresult += cterm
-                uresult += uterm                        
-        except ValueError:
-            self.error()
+        for term in terms:
+            sterm = self.simplify_term(term, var)
+            cterm, uterm = self.term(sterm, var, conjvar)
+            cresult += cterm
+            uresult += uterm                        
 
         self.cache[key] = cresult, uresult
         return self.make(conjvar, const, *self.cache[key], **assumptions)
