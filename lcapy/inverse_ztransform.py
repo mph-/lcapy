@@ -20,7 +20,6 @@ __all__ = ('IZT', 'inverse_ztransform')
 class InverseZTransformer(UnilateralInverseTransformer):
 
     name = 'inverse z-transform'
-    inverse = True
     
     def noevaluate(self, expr, z, n):
 
@@ -30,7 +29,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
     def check(self, expr, z, n, **assumptions):
 
         self.damping = assumptions.get('damping', None)
-        self.causal =  assumptions.get('causal', False)
+        self.causal = assumptions.get('causal', False)
         self.pairs = assumptions.get('pairs', True)
         
         if expr.has(n):
@@ -45,7 +44,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
     def func(self, expr, n, z, inverse=False):
 
         if not isinstance(expr, AppliedUndef):
-            self.error('Expecting function for %s' % expr)
+            self.error('Expecting function')
 
         scale, shift = scale_shift(expr.args[0], n)    
 
@@ -339,7 +338,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
         factors = expr.as_ordered_factors()
         if len(factors) < 2:
-            self.error('Expression does not have multiple factors: %s' % expr)
+            self.error('Expression does not have multiple factors')
 
         if (len(factors) == 3 and factors[0] == z and
             isinstance(factors[2], AppliedUndef) and
@@ -446,8 +445,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
             return UnitImpulse(n - exponent), sym.S.Zero        
 
-        self.error('Expression %s is not a power of z' % expr)
-
+        self.error('Expression is not a power of z')
 
     def sympy(self, expr, z, n):
 

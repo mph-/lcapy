@@ -19,7 +19,7 @@ __all__ = ('IDFT', 'IDFTmatrix')
 class InverseDFTTransformer(DFTTransformer):
 
     name = 'inverse DFT'
-    inverse = True
+    is_inverse = True
     
     def noevaluate(self, expr, k, n):
 

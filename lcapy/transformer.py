@@ -70,7 +70,7 @@ class BilateralForwardTransformer(Transformer):
     is_bilateral = True
     is_inverse = False
 
-    def doit(self, expr, var, conjvar, **assumptions):
+    def doit(self, expr, var, conjvar, evaluate=True, **assumptions):
 
         const, expr = factor_const(expr, var)
 
