@@ -130,11 +130,87 @@ def plot_pole_zero(obj, **kwargs):
     return ax
 
 
+def plotit(ax, obj, f, V, plot_type, log_magnitude=False,
+           log_frequency=False, norm=False, **kwargs):
+
+    plots = {(True, True) : ax.loglog,
+             (True, False) : ax.semilogy,
+             (False, True) : ax.semilogx,
+             (False, False) : ax.plot}
+
+    label = obj.quantity_label
+    part = obj.part    
+    units = str(obj.units)
+        
+    if plot_type == 'real':
+        V = V.real
+        part = 'real part'
+    elif plot_type == 'imag':
+        V = V.imag
+        part = 'imag part'        
+    elif plot_type == 'magnitude':
+        V = abs(V)
+        part = 'magnitude'        
+    elif plot_type == 'dB':
+        V = 10 * np.log10(abs(V))
+        part = 'magnitude'        
+        units = 'dB'
+    elif plot_type == 'radians':
+        V = np.angle(V)
+        part = 'phase'                
+        units = 'radians'        
+    elif plot_type == 'degrees':
+        V = np.degrees(np.angle(V))
+        part = 'phase'        
+        units = 'degrees'        
+        
+    if obj.is_magnitude or np.all(V > 0):
+        plot = plots[(log_magnitude, log_frequency)]
+    else:
+        plot = plots[(False, log_frequency)]
+
+    if norm:
+        default_xlabel = 'Normalised frequency'
+    else:
+        default_xlabel = obj.domain_label_with_units
+
+    if label == '':
+        default_ylabel = part.capitalize()
+    else:
+        default_ylabel = label + ' ' + part
+    if units != '':
+        default_ylabel += ' (' + units + ')'
+        
+    xlabel = kwargs.pop('xlabel', default_xlabel)
+    ylabel = kwargs.pop('ylabel', default_ylabel)
+    ylabel2 = kwargs.pop('ylabel2', default_ylabel)
+    second = kwargs.pop('second', False)
+    xscale = kwargs.pop('xscale', 1)
+    yscale = kwargs.pop('yscale', 1)
+    title = kwargs.pop('title', None)
+
+    plot(f * xscale, V * yscale, **kwargs)
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    ylabel = ylabel2 if second else ylabel
+    if ylabel is not None:
+        ax.set_ylabel(ylabel)
+    if title is not None:
+        ax.set_title(title)
+        
+    ax.grid(True)
+    return ax
+
+
 def plot_frequency(obj, f, norm=False, **kwargs):
 
+    # Much of the hoop jumping is to speed up plotting since
+    # obj.real can be slow.  Instead we evaluate complex
+    # objects and then convert to phase, magnitude, etc.
+    
     npoints = kwargs.pop('npoints', 400)    
-    log_magnitude = kwargs.get('log_magnitude', False)
-    log_frequency = kwargs.get('log_frequency', False) or kwargs.pop('log_scale', False)
+    log_magnitude = kwargs.pop('log_magnitude', False)
+    log_frequency = kwargs.pop('log_frequency', False) or kwargs.pop('log_scale', False)
     if kwargs.pop('loglog', False):
         log_magnitude = True 
         log_frequency = True    
@@ -153,93 +229,63 @@ def plot_frequency(obj, f, norm=False, **kwargs):
         else:
             f = np.linspace(f[0], f[1], npoints)            
 
+    kwargs.pop('plot_type', None)        
+            
     # Objects can have a `part` attribute that is set by methods such
     # as real, imag, phase, magnitude.  If this is defined,
     # `plot_type` is ignored.
-            
+
+    plot1_type = 'default'
+    plot2_type = None
+
     if obj.is_complex and obj.part == '':
 
         plot_type = kwargs.pop('plot_type', 'dB-phase')
 
-        obj2 = None        
         if plot_type in ('dB_phase', 'dB-phase'):
-            obj1 = obj.magnitude.dB
+            plot1_type = 'dB'
             if obj.is_complex:
-                obj2 = obj.phase
+                plot2_type = 'radians'
         elif plot_type in ('mag_phase', 'magnitude_phase', 'mag-phase',
                            'magnitude-phase'):
             obj1 = obj.magnitude
             if not obj.is_positive:
-                obj2 = obj.phase
+                plot2_type = 'radians'
         elif plot_type in ('real_imag', 'real-imag'):
-            obj1 = obj.real
-            obj2 = obj.imag
+            plot1_type = 'real'
+            plot2_type = 'imag'
         elif plot_type in ('mag', 'magnitude'):
-            obj1 = obj.magnitude
+            plot1_type = 'magnitude'
         elif plot_type == 'phase':
-            obj1 = obj.phase
+            plot1_type = 'radians'
         elif plot_type == 'real':
-            obj1 = obj.real 
+            plot1_type = 'real'
         elif plot_type == 'imag':
-            obj1 = obj.imag
+            plot1_type = 'imag'
         elif plot_type == 'dB':
-            obj1 = obj.magnitude.dB            
+            plot1_type = 'dB'
         else:
             raise ValueError('Unknown plot type: %s' % plot_type)
-
-        if obj2 is None:
-            return plot_frequency(obj1, f, **kwargs)
-        
-        ax = plot_frequency(obj1, f, **kwargs)
-        ax2 = ax.twinx()
-        kwargs['axes'] = ax2
-        kwargs['linestyle'] = '--'
-        ax2 = plot_frequency(obj2, f, second=True, **kwargs)
-        return ax, ax2
 
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
 
     V = obj.evaluate(f)
 
-    kwargs.pop('log_frequency', None)
-    kwargs.pop('log_magnitude', None)
-    kwargs.pop('plot_type', None)        
+    plotit(ax, obj, f, V, plot1_type, log_frequency=log_frequency,
+           log_magnitude=log_magnitude, norm=norm, **kwargs)
+    
+    if plot2_type is None:
+        return ax
 
-    plots = {(True, True) : ax.loglog,
-             (True, False) : ax.semilogy,
-             (False, True) : ax.semilogx,
-             (False, False) : ax.plot}
+    ax2 = ax.twinx()
+    kwargs['axes'] = ax2
+    kwargs['linestyle'] = '--'        
 
-    if obj.is_magnitude or np.all(V > 0):
-        plot = plots[(log_magnitude, log_frequency)]
-    else:
-        plot = plots[(False, log_frequency)]                    
-
-    if norm:
-        default_xlabel = 'Normalised frequency'
-    else:
-        default_xlabel = obj.domain_label_with_units
-        
-    xlabel = kwargs.pop('xlabel', default_xlabel)
-    ylabel = kwargs.pop('ylabel', obj.label_with_units)                
-    ylabel2 = kwargs.pop('ylabel2', obj.label_with_units)
-    second = kwargs.pop('second', False)
-    xscale = kwargs.pop('xscale', 1)
-    yscale = kwargs.pop('yscale', 1)
-    title = kwargs.pop('title', None)    
-
-    plot(f * xscale, V * yscale, **kwargs)
-    if xlabel is not None:
-        ax.set_xlabel(xlabel)
-    ylabel = ylabel2 if second else ylabel
-    if ylabel is not None:        
-        ax.set_ylabel(ylabel)
-    if title is not None:
-        ax.set_title(title)
-        
-    ax.grid(True)
-    return ax
+    plotit(ax2, obj, f, V, plot2_type, log_frequency=log_frequency,
+           log_magnitude=log_magnitude, norm=norm, second=True, **kwargs)
+    
+    return ax, ax2
 
 
 def plot_bode(obj, f, **kwargs):
