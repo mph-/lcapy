@@ -76,19 +76,24 @@ class FourierDomainExpression(FourierDomain, Expr):
 
         return self.time(**assumptions).phasor(**assumptions)        
 
-    def plot(self, fvector=None, **kwargs):
-        """Plot frequency response at values specified by fvector.  If fvector
-        is a tuple, this sets the frequency limits.
+    def plot(self, fvector=None, plot_type=None, **kwargs):
+        """Plot frequency response at values specified by `fvector`.
 
-        kwargs include:
+        If `fvector` is a tuple, this sets the frequency limits.
+
+        `plot_type` - 'dB-phase', 'dB-phase-degrees', 'mag-phase',
+        'mag-phase-degrees', 'real-imag', 'mag', 'phase',
+        'phase-degrees', 'real', or 'imag'.
+
+        The default `plot_type` for complex data is `dB-phase`.
+
+        `kwargs` include:
         `axes` - the plot axes to use otherwise a new figure is created
         `xlabel` - the x-axis label
         `ylabel` - the y-axis label
         `ylabel2` - the second y-axis label if needed, say for mag and phase
         `xscale` - the x-axis scaling, say for plotting as ms
         `yscale` - the y-axis scaling, say for plotting mV
-        `plot_type` -  'dB_phase', 'mag-phase', 'real-imag', 'mag', 'phase',
-        'real', or 'imag'
         `norm` - use normalised frequency
         in addition to those supported by the matplotlib plot command.
         
@@ -109,7 +114,7 @@ class FourierDomainExpression(FourierDomain, Expr):
         """
 
         from .plot import plot_frequency
-        return plot_frequency(self, fvector, **kwargs)
+        return plot_frequency(self, fvector, plot_type=plot_type, **kwargs)
 
 
 def fexpr(arg, **assumptions):

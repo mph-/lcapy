@@ -130,7 +130,7 @@ def plot_pole_zero(obj, **kwargs):
     return ax
 
 
-def plotit(ax, obj, f, V, plot_type, log_magnitude=False,
+def plotit(ax, obj, f, V, plot_type=None, log_magnitude=False,
            log_frequency=False, norm=False, **kwargs):
 
     plots = {(True, True) : ax.loglog,
@@ -204,12 +204,13 @@ def plotit(ax, obj, f, V, plot_type, log_magnitude=False,
     return ax
 
 
-def plot_frequency(obj, f, norm=False, **kwargs):
+def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     # Much of the hoop jumping is to speed up plotting since
     # obj.real can be slow.  Instead we evaluate complex
     # objects and then convert to phase, magnitude, etc.
-    
+
+    norm = kwargs.pop('norm', False)
     npoints = kwargs.pop('npoints', 400)    
     log_magnitude = kwargs.pop('log_magnitude', False)
     log_frequency = kwargs.pop('log_frequency', False) or kwargs.pop('log_scale', False)
@@ -231,8 +232,6 @@ def plot_frequency(obj, f, norm=False, **kwargs):
         else:
             f = np.linspace(f[0], f[1], npoints)            
 
-    kwargs.pop('plot_type', None)        
-            
     # Objects can have a `part` attribute that is set by methods such
     # as real, imag, phase, magnitude.  If this is defined,
     # `plot_type` is ignored.
@@ -240,26 +239,45 @@ def plot_frequency(obj, f, norm=False, **kwargs):
     plot1_type = 'default'
     plot2_type = None
 
-    if obj.is_complex and obj.part == '':
+    if not obj.is_complex:
+        if (plot_type in ('dB-phase', 'dB-phase-degrees',
+                          'mag-phase','mag-phase-degrees',
+                          'real-imag', 'phase',
+                          'phase-degrees', 'real', 'imag')):
+            raise ValueError('Data not complex for %s plot type' % plot_type)
+        if plot_type in ('mag', 'magnitude'):
+            plot1_type = 'magnitude'
+        elif plot_type in ('dB', ):
+            plot1_type = 'dB'                                
+
+    elif obj.part == '':
 
         plot_type = kwargs.pop('plot_type', 'dB-phase')
 
-        if plot_type in ('dB_phase', 'dB-phase'):
+        if plot_type in ('dB_phase', 'dB-phase', 'dB-radians'):
             plot1_type = 'dB'
-            if obj.is_complex:
-                plot2_type = 'radians'
-        elif plot_type in ('mag_phase', 'magnitude_phase', 'mag-phase',
-                           'magnitude-phase'):
-            obj1 = obj.magnitude
-            if not obj.is_positive:
-                plot2_type = 'radians'
+            plot2_type = 'radians'
+        elif plot_type in ('dB_phase_degrees', 'dB-phase-degrees',
+                           'dB-degrees'):
+            plot1_type = 'dB'
+            plot2_type = 'degrees'            
+        elif plot_type in ('mag_phase', 'magnitude_phase',
+                           'mag-phase','magnitude-phase'):
+            plot1_type = 'magnitude'            
+            plot2_type = 'radians'
+        elif plot_type in ('mag_phase_degrees', 'magnitude_phase_degrees',
+                           'mag-phase-degrees','magnitude-phase-degrees'):
+            plot1_type = 'magnitude'            
+            plot2_type = 'degrees'            
         elif plot_type in ('real_imag', 'real-imag'):
             plot1_type = 'real'
             plot2_type = 'imag'
         elif plot_type in ('mag', 'magnitude'):
             plot1_type = 'magnitude'
-        elif plot_type == 'phase':
+        elif plot_type in ('phase', 'radians'):
             plot1_type = 'radians'
+        elif plot_type in ('phase-degrees', 'degrees'):
+            plot1_type = 'degrees'            
         elif plot_type == 'real':
             plot1_type = 'real'
         elif plot_type == 'imag':
@@ -269,11 +287,11 @@ def plot_frequency(obj, f, norm=False, **kwargs):
         else:
             raise ValueError('Unknown plot type: %s' % plot_type)
 
-    ax = make_axes(figsize=kwargs.pop('figsize', None),
-                   axes=kwargs.pop('axes', None))
-
     V = obj.evaluate(f)
 
+    ax = make_axes(figsize=kwargs.pop('figsize', None),
+                   axes=kwargs.pop('axes', None))
+    
     plotit(ax, obj, f, V, plot1_type, log_frequency=log_frequency,
            log_magnitude=log_magnitude, norm=norm, **kwargs)
     
@@ -298,9 +316,10 @@ def plot_bode(obj, f, **kwargs):
     return plot_frequency(obj, f, **kwargs)
 
 
-def plot_angular_frequency(obj, omega, norm=False, **kwargs):
+def plot_angular_frequency(obj, omega, plot_type=None, **kwargs):
 
-    npoints = kwargs.pop('npoints', 400)        
+    npoints = kwargs.pop('npoints', 400)
+    norm = kwargs.pop('norm', False)            
 
     # FIXME, determine useful frequency range...
     if omega is None:
@@ -316,7 +335,8 @@ def plot_angular_frequency(obj, omega, norm=False, **kwargs):
     if norm and 'xlabel' not in kwargs:
         kwargs['xlabel'] = 'Normalised angular frequency'
         
-    return plot_frequency(obj, omega, **kwargs)
+    return plot_frequency(obj, omega, plot_type=plot_type,
+                          norm=norm, **kwargs)
 
 
 def plot_time(obj, t, **kwargs):
