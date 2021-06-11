@@ -124,7 +124,7 @@ class UnilateralForwardTransformer(Transformer):
 
         expr = self.rewrite(expr)        
 
-        terms = expr.expand().as_ordered_terms()
+        terms = expr.as_ordered_terms()
         result = 0
 
         try:
@@ -180,7 +180,7 @@ class UnilateralInverseTransformer(Transformer):
 
         expr = self.rewrite(expr)        
 
-        terms = expr.expand().as_ordered_terms()
+        terms = expr.as_ordered_terms()
 
         uresult = 0
         cresult = 0
