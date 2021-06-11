@@ -30,7 +30,8 @@ class DLTIFilter(object):
         self.b = b
 
     def transfer_function(self):
-        """Return discrete-time transfer function."""                
+        """Return discrete-time impulse response (transfer function) in
+        z-domain."""                
 
         Nl = len(self.a)
         Nr = len(self.b)
@@ -55,7 +56,7 @@ class DLTIFilter(object):
         return Hz
 
     def impulse_response(self):
-        """Return discrete-time impulse response."""        
+        """Return discrete-time impulse response (transfer function) in time domain."""        
 
         H = self.transfer_function()
         return H(n)
@@ -75,7 +76,9 @@ class DLTIFilter(object):
         return DifferenceEquation(lhs, rhs, inputsym, outputsym)
 
     def zdomain_initial_response(self, ic):
-        """Return zdomain response due to initial conditions."""        
+        """Return Z-domain response due to initial conditions.
+           ic : list with initial values y[-1], y[-2], ... 
+        """        
 
         Nl = len(self.a)
         
@@ -101,16 +104,19 @@ class DLTIFilter(object):
         return Yzi
 
     def initial_response(self, ic):
-        """Return response due to initial conditions."""
+        """Return response due to initial conditions in the time domain.
+           ic : list with initial values y[-1], y[-2], ...
+        """
 
         Yzi = self.zdomain_initial_response(ic)
         return Yzi(n)
     
     def response(self, x, ic=0, ni=None):
-        """Calculate response of filter to input `x` given initial conditions
+        """Calculate response of filter to input `x` given a list of initial conditions
         `ic` for time indexes specified by `ni`.  If `ni` is a tuple,
-        this specifies the first and last (inclusive) time index.
-
+        this specifies the first and last (inclusive) time index. 
+        
+        The initial conditions are valid prior to the time indices given by the ni
         `x` can be an expression, a sequence, or a list/array of values.
         """
 
