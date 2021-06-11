@@ -138,7 +138,9 @@ def plotit(ax, obj, f, V, plot_type, log_magnitude=False,
              (False, True) : ax.semilogx,
              (False, False) : ax.plot}
 
-    label = obj.quantity_label
+    label = ''
+    if hasattr(obj, 'quantity_label'):    
+        label = obj.quantity_label
     part = obj.part    
     units = str(obj.units)
         
