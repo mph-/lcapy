@@ -126,7 +126,9 @@ class DTFTTransformer(BilateralForwardTransformer):
     def term1(self, expr, n, f):
 
         const, expr = factor_const(expr, n)
-
+        args = expr.args
+        Omega = 2 * sym.pi * f * dt
+        
         # Check for constant.
         if not expr.has(n):
             # TODO, add images.
@@ -135,6 +137,35 @@ class DTFTTransformer(BilateralForwardTransformer):
         if expr.has(AppliedUndef):
             # Handle v(n), v(n) * y(n), 3 * v(n) / n etc.
             return self.function(expr, n, f) * const
+
+        # handle cos(a*n+b) 
+        if (len(args) == 1 and expr.is_Function and
+            expr.func == sym.cos and (args[0].as_poly(n)).is_linear):
+            aa = args[0].coeff(n, 1)
+            bb = args[0].coeff(n, 0)
+            om_0 = expr.args
+            co = sym.cos(bb) * (DiracDelta(Omega + aa) + DiracDelta(Omega - aa))
+            si = -sym.sin(bb) * (DiracDelta(Omega + aa) - DiracDelta(Omega - aa))
+            return sym.pi * (co + sym.I * si) * const
+        
+        # handle sin(a*n+b) 
+        if (len(args) == 1 and expr.is_Function
+            and expr.func == sym.sin and (args[0].as_poly(n)).is_linear):
+            aa = args[0].coeff(n, 1)
+            bb = args[0].coeff(n, 0)
+            om_0 = expr.args
+            co = sym.sin(bb) * (DiracDelta(Omega + aa) + DiracDelta(Omega - aa))
+            si = sym.cos(bb) * (DiracDelta(Omega + aa) - DiracDelta(Omega - aa))
+            return sym.pi * (co + sym.I * si) * const        
+        
+        # handle signum
+        if (len(args) == 1 and expr.is_Function and
+            expr.func == sym.sign and (args[0].as_poly(n)).is_linear):
+            aa = args[0].coeff(n, 1)
+            bb = args[0].coeff(n, 0)  
+            delay = bb / aa
+            if delay.is_integer:
+                return 2 * sym.exp(sym.I * Omega * delay) / (1 - sym.exp(-sym.I * Omega))
 
         return const * self.sympy(expr, n, f)
 
