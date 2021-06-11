@@ -35,7 +35,7 @@ class FourierTransformer(BilateralForwardTransformer):
     def key(self, expr, t, f, **assumptions):
         return expr, t, f
 
-    def simplify_term(self, expr):
+    def simplify_term(self, expr, var):
 
         return symsimplify(expr)
     

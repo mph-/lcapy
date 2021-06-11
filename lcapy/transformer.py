@@ -4,8 +4,10 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
-from sympy import Eq, Symbol, Piecewise
+from sympy import Eq, Symbol, Piecewise, S, Heaviside
 from .utils import factor_const
+from .extrafunctions import UnitStep
+
 
 class Transformer(object):
 
@@ -23,11 +25,11 @@ class Transformer(object):
         self.cache = {}        
 
     def error(self, message=''):
-        if message != '':
+        if message == '':
             raise ValueError('Could not compute %s for %s' % (self.name, self.expr))
         raise ValueError('Could not compute %s for %s: %s' % (self.name, self.expr, message))        
     
-    def simplify_term(self, expr):
+    def simplify_term(self, expr, var):
         return expr
 
     def rewrite(self, expr):
@@ -87,7 +89,7 @@ class BilateralForwardTransformer(Transformer):
 
         try:
             for term in terms:
-                sterm = self.simplify_term(term)
+                sterm = self.simplify_term(term, var)
                 result += self.term(sterm, var, conjvar)
         except ValueError:
             self.error()
@@ -105,6 +107,23 @@ class UnilateralForwardTransformer(Transformer):
 
     is_bilateral = False
 
+    def remove_heaviside(self, expr, var):
+
+        rest = S.One
+        for factor in expr.as_ordered_factors():
+            if (factor.is_Function and
+                factor.func in (Heaviside, UnitStep) and
+                factor.args[0] == var):
+                pass
+            else:
+                rest *= factor
+        return rest        
+
+    def simplify_term(self, expr, var):
+
+        return self.remove_heaviside(expr, var)
+    
+    
     def doit(self, expr, var, conjvar, evaluate=True, **assumptions):
         
         # Unilateral transforms ignore expr for t < 0 so remove Piecewise.
@@ -129,7 +148,7 @@ class UnilateralForwardTransformer(Transformer):
 
         try:
             for term in terms:
-                sterm = self.simplify_term(term)
+                sterm = self.simplify_term(term, var)
                 result += self.term(sterm, var, conjvar)
         except ValueError:
             self.error()
@@ -187,7 +206,7 @@ class UnilateralInverseTransformer(Transformer):
 
         try:
             for term in terms:
-                sterm = self.simplify_term(term)
+                sterm = self.simplify_term(term, var)
                 cterm, uterm = self.term(sterm, var, conjvar)
                 cresult += cterm
                 uresult += uterm                        
@@ -196,6 +215,3 @@ class UnilateralInverseTransformer(Transformer):
 
         self.cache[key] = cresult, uresult
         return self.make(conjvar, const, *self.cache[key], **assumptions)
-
-
-    

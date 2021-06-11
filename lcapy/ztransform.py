@@ -4,6 +4,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
+from .transformer import UnilateralForwardTransformer
 from .ratfun import Ratfun
 from .sym import sympify, simplify, symsymbol, AppliedUndef
 from .utils import factor_const, scale_shift
@@ -13,238 +14,10 @@ from sympy.simplify.fu import TR6, TR9
 
 __all__ = ('ZT', )
 
-ztransform_cache = {}
-
-
-def ztransform_func(expr, n, z, inverse=False):
-
-    if not isinstance(expr, AppliedUndef):
-        raise ValueError('Expecting function for %s' % expr)
-
-    scale, shift = scale_shift(expr.args[0], n)    
-
-    zsym = sympify(str(z))
-    
-    # Convert v[n] to V(z), etc.
-    name = expr.func.__name__
-    if inverse:
-        func = name[0].lower() + name[1:] + '(%s)' % z
-    else:
-        func = name[0].upper() + name[1:] + '(%s)' % z
-
-    if not scale.is_constant():
-        raise ValueError('Cannot determine if time-expansion or decimation')
-
-    if scale == 1:
-        result = sympify(func).subs(zsym, z)
-
-        if shift != 0:
-            result = result * z ** shift
-        return result        
-    
-    if scale.is_integer:
-        raise ValueError('Cannot do decimation yet')
-
-    if not scale.is_rational:
-        raise ValueError('Cannot handle arbitrary scaling')
-
-    if scale.p != 1:
-        raise ValueError('Cannot handle non-integer time-expansion')        
-    
-    result = sympify(func).subs(zsym, z ** scale.q)
-
-    if shift != 0:
-        result = result * z ** shift
-    return result
-
-
-def ztransform_sum(expr, n, z):
-
-    const, expr = factor_const(expr, n)
-
-    if len(expr.args) != 2:
-        raise ValueError('Cannot compute z-transform of %s' % expr)
-
-    if not isinstance(expr, sym.Sum):
-        raise ValueError('Cannot compute z-transform of %s' % expr)
-
-    # Look for integration of function
-    if (isinstance(expr.args[0], AppliedUndef)
-        and expr.args[1][0] == expr.args[0].args[0]
-        and expr.args[1][1] == -sym.oo
-        and expr.args[1][2] == n):
-        return ztransform_func(expr.args[0].subs(expr.args[0].args[0], n), n, z) / (1 - 1 / z)
-    
-    # Look for convolution sum
-    
-    var = expr.args[1][0]
-    if (expr.args[1][1] != -sym.oo) or (expr.args[1][2] != sym.oo):
-        raise ValueError('Need indefinite limits for %s' % expr)
-    
-    const2, expr = factor_const(expr.args[0], n)
-    if ((len(expr.args) != 2)
-        or (not isinstance(expr.args[0], AppliedUndef))
-        or (not isinstance(expr.args[1], AppliedUndef))):
-        raise ValueError('Need sum of two functions: %s' % expr)        
-
-    f1 = expr.args[0]
-    f2 = expr.args[1]    
-
-    # TODO: apply similarity theorem if have f(a tau) etc.
-    
-    if ((f1.args[0] != var or f2.args[0] != n - var)
-        and (f2.args[0] != var or f1.args[0] != n - var)):
-        raise ValueError('Cannot recognise convolution: %s' % expr)
-
-    zsym = sympify(str(z))
-    
-    name = f1.func.__name__
-    func1 = name[0].upper() + name[1:] + '(%s)' % str(zsym)
-
-    name = f2.func.__name__
-    func2 = name[0].upper() + name[1:] + '(%s)' % str(zsym)    
-
-    F1 = sympify(func1).subs(zsym, z)
-    F2 = sympify(func2).subs(zsym, z)
-    
-    return F1 * F2
-
-
-def remove_heaviside(expr, n):
-
-    rest = sym.S.One
-    for factor in expr.as_ordered_factors():
-        if (factor.is_Function and factor.func in (sym.Heaviside, UnitStep) and
-            factor.args[0] == n):
-            # Could remove Heaviside[n+m] where m > 0
-            pass
-        else:
-            rest *= factor
-    return rest
-
-
-def ztransform_term(expr, n, z):
-
-    const, expr = factor_const(expr, n)
-
-    expr = remove_heaviside(expr, n)
-    
-    if expr.has(sym.Sum):
-        try:
-            return ztransform_sum(expr, n, z) * const
-        except:
-            pass
-
-    nsym = sympify(str(n))
-    expr = expr.replace(nsym, n)
-
-    # foo = 1 / (1 - 1 / z)
-    # factors = expr.as_ordered_factors()
-    # if foo in factors:
-    #     could remove factor, find ZT of rest, and then integrate....
-    
-    if expr.has(AppliedUndef):
-
-        rest = sym.S.One
-        expr = expr.cancel()
-        for factor in expr.as_ordered_factors():
-            if isinstance(factor, AppliedUndef):
-                result = ztransform_func(factor, n, z)
-            else:
-                if factor.has(n):
-                    raise ValueError('TODO: need derivative of undefined'
-                                     ' function for %s' % factor)
-                rest *= factor
-        return result * rest * const
-
-    invz = z ** -1
-
-    result = None
-    args = expr.args
-    xn_fac = []
-    
-    if expr.is_Function and expr.func == UnitImpulse:
-        if args[0] is n:
-            result = 1
-        delay = n - args[0]
-        if not delay.has(n):
-            result = invz ** delay
-
-    elif expr == 1:
-        # Unilateral ZT
-        result = 1 / (1 - invz)
-        
-    elif expr.is_Function and expr.func in (sym.Heaviside, UnitStep):
-        if args[0] is n:
-            result = 1 / (1 - invz)
-        else:
-            delay = n - args[0]
-            if not delay.has(n):
-                result = invz ** delay * 1 / (1 - invz)
-    
-    # sin(b*n+c)    
-    elif (expr.is_Function and expr.func == sym.sin and (args[0].as_poly(n)).is_linear):
-        bb = args[0].coeff(n, 1)
-        cc = args[0].coeff(n, 0)        
-        result =  (sym.sin(cc) + sym.sin(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz**2) 
-        result = sym.simplify(result)
-
-    # cos(b*n+c)    
-    elif (expr.is_Function and expr.func == sym.cos and (args[0].as_poly(n)).is_linear):
-        bb = args[0].coeff(n, 1)
-        cc = args[0].coeff(n, 0)        
-        result = (sym.cos(cc) - sym.cos(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz**2)  
-        result = sym.simplify(result)
-
-    # Multiplication with n       use n*x(n)  o--o  -z d/dz X(z)
-    elif is_multiplied_with(expr, n, 'n', xn_fac):
-        expr = expr / xn_fac[0]
-        X = ztransform_term(expr, n, z)
-        result = sym.simplify(-z * sym.diff(X, z))
-     
-    # Multiplication with a**(b*n+c)        use    lam**n *x(n)  o--o  X(z/lam)
-    elif is_multiplied_with(expr, n, 'a**n', xn_fac):
-        expr /= xn_fac[0]
-        ref = xn_fac[0].args
-        lam = ref[0]
-        bb = ref[1].coeff(n, 1)
-        cc = ref[1].coeff(n, 0)              
-        X = ztransform_term(expr, n, z)
-        result = lam**cc * sym.simplify(X.subs(z, z / lam**bb)) 
-    
-    # Multiplication with exp(b*n+c)       use    exp**n *x(n)  o--o  X(z/exp(1))
-    elif is_multiplied_with(expr, n, 'exp(n)', xn_fac):
-        expr /= xn_fac[0]
-        ref = xn_fac[0].args
-        bb = ref[0].coeff(n, 1)
-        cc = ref[0].coeff(n, 0)              
-        X = ztransform_term(expr, n, z)
-        result = sym.exp(cc) * sym.simplify(X.subs(z, z / sym.exp(bb)))     
-    
-    # Multiplication with u(n-n0) * x(n)    o--o     X(z)- (x[0] - x[1]/z - .. - x[n0-1]/z**(n0-1)   
-    elif is_multiplied_with(expr, n, 'UnitStep', xn_fac):
-        expr /= xn_fac[0]
-        delay = n - xn_fac[0].args[0]
-        X = ztransform_term(expr, n, z)
-        sum_X = 0
-        for ii in range(delay):
-            sum_X -= expr.subs(n, ii) * invz**ii
-        result = X + sum_X               
-                       
-    if result is None:
-        # Use m instead of n to avoid n and z in same expr.
-        # TODO, check if m already used...
-        msym = sympify('m', real=True)        
-        nsym = sympify(str(n))        
-        zsym = sympify(str(z))
-        result = sym.Sum(expr.subs(nsym, msym) * zsym**msym, (msym, 0, sym.oo))
-        
-    return const * result
-
 
 # Check the structure of the given expression
 def is_multiplied_with(expr, n, cmp, ret):
-    
+
     ret_flag = False   
     # Check for multiplication  with n
     if cmp == 'n' and expr == n:  #only n
@@ -265,7 +38,7 @@ def is_multiplied_with(expr, n, cmp, ret):
                 ret += [n]
                 ret_flag = True
                 break
-            
+
     # Check for multiplication with a**(b*n+c)            
     elif (cmp == 'a**n' and expr.is_Pow and
           ((expr.args[1]).as_poly(n)).is_linear and (not expr.args[0].has(n))):
@@ -279,7 +52,7 @@ def is_multiplied_with(expr, n, cmp, ret):
                 ret += [expr.args[i]]   
                 ret_flag = True
                 break
-     
+
     # Check for multiplication with exp(b*n+c)        
     elif (cmp == 'exp(n)' and len(expr.args) == 1 and expr.is_Function and
           expr.func == sym.exp):
@@ -292,7 +65,7 @@ def is_multiplied_with(expr, n, cmp, ret):
                 ret += [expr.args[i]]   
                 ret_flag = True
                 break                     
-            
+
     # Check for Multiplication with u(n-n0)
     elif cmp == 'UnitStep' and expr.is_Mul:
         for i in range(len(expr.args)):
@@ -300,70 +73,256 @@ def is_multiplied_with(expr, n, cmp, ret):
                 ret += [expr.args[i]]   
                 ret_flag = True
                 break 
-            
+
     return ret_flag
 
 
-def ztransform(expr, n, z, evaluate=True):
-    """Compute unilateral z-transform of expr with lower index 0.
+class ZTransformer(UnilateralForwardTransformer):
 
-    Undefined functions such as v[n] are converted to V(z)
+    name = 'z-transform'
+    
+    def noevaluate(self, expr, n, z):
 
-    """
-
-    if expr.is_Equality:
-        return sym.Eq(ztransform(expr.args[0], n, z), 
-                      ztransform(expr.args[1], n, z))
-
-    if not evaluate:
-        result = sym.Sum(expr * z**(-n), (n, 0, sym.oo))
+        foo = expr * z**(-n)
+        result = sym.Sum(foo, (n, 0, sym.oo))
         return result
+
+    def rewrite(self, expr):
+        # This is needed to handle expressions like (2*n + 3)**2
+        return sym.expand(expr)
     
-    const, expr = factor_const(expr, n)    
-    key = (expr, n, z)
-    if key in ztransform_cache:
-        return const * ztransform_cache[key]
+    def check(self, expr, n, z, **assumptions):
 
-    if expr.has(z):
-        raise ValueError('Cannot Z transform expression %s that depends on %s' % (expr, z))
-    
-    # The variable may have been created with different attributes, 
-    # say when using sympify('Heaviside(n)') since this will
-    # default to assuming that n is complex.  So if the symbol has the
-    # same representation, convert to the desired one.
+        if expr.has(z):
+            self.error('Expression depends on z')
 
-    var = sym.Symbol(str(n))
-    if isinstance(expr, Expr):
-        expr = expr.expr
-    else:
-        expr = sympify(expr)
+    def key(self, expr, n, z, **assumptions):
+        return expr, n, z,
 
-    # SymPy ztransform barfs on Piecewise but unilateral ZT ignores expr
-    # for n < 0 so remove Piecewise.
-    expr = expr.replace(var, n)        
-    if expr.is_Piecewise and expr.args[0].args[1].has(n >= 0):
-        expr = expr.args[0].args[0]
+    def func(self, expr, n, z):
 
-    expr = sym.expand(expr)        
-    terms = expr.as_ordered_terms()
-    result = 0
+        if not isinstance(expr, AppliedUndef):
+            raise ValueError('Expecting function for %s' % expr)
 
-    try:
-        for term in terms:
-            result += ztransform_term(term, n, z)
-    except ValueError:
-        raise
-    
-    ztransform_cache[key] = result
-    return const * result
+        scale, shift = scale_shift(expr.args[0], n)    
+
+        zsym = sympify(str(z))
+
+        # Convert v(n) to V(z), etc.
+        name = expr.func.__name__
+        func = name[0].upper() + name[1:] + '(%s)' % z
+
+        if not scale.is_constant():
+            raise ValueError('Cannot determine if time-expansion or decimation')
+
+        if scale == 1:
+            result = sympify(func).subs(zsym, z)
+
+            if shift != 0:
+                result = result * z ** shift
+            return result        
+
+        if scale.is_integer:
+            raise ValueError('Cannot do decimation yet')
+
+        if not scale.is_rational:
+            raise ValueError('Cannot handle arbitrary scaling')
+
+        if scale.p != 1:
+            raise ValueError('Cannot handle non-integer time-expansion')
+
+        result = sympify(func).subs(zsym, z ** scale.q)
+
+        if shift != 0:
+            result = result * z ** shift
+        return result
 
 
-def ZT(expr, n, z, **assumptions):
+    def sum(self, expr, n, z):
+
+        const, expr = factor_const(expr, n)
+
+        if len(expr.args) != 2:
+            raise ValueError('Cannot compute z-transform of %s' % expr)
+
+        if not isinstance(expr, sym.Sum):
+            raise ValueError('Cannot compute z-transform of %s' % expr)
+
+        # Look for integration of function
+        if (isinstance(expr.args[0], AppliedUndef)
+            and expr.args[1][0] == expr.args[0].args[0]
+            and expr.args[1][1] == -sym.oo
+            and expr.args[1][2] == n):
+            return self.func(expr.args[0].subs(expr.args[0].args[0], n), n, z) / (1 - 1 / z)
+
+        # Look for convolution sum
+        var = expr.args[1][0]
+        if (expr.args[1][1] != -sym.oo) or (expr.args[1][2] != sym.oo):
+            raise ValueError('Need indefinite limits for %s' % expr)
+
+        const2, expr = factor_const(expr.args[0], n)
+        if ((len(expr.args) != 2)
+            or (not isinstance(expr.args[0], AppliedUndef))
+            or (not isinstance(expr.args[1], AppliedUndef))):
+            raise ValueError('Need sum of two functions: %s' % expr)        
+
+        f1 = expr.args[0]
+        f2 = expr.args[1]    
+
+        # TODO: apply similarity theorem if have f(a tau) etc.
+
+        if ((f1.args[0] != var or f2.args[0] != n - var)
+            and (f2.args[0] != var or f1.args[0] != n - var)):
+            raise ValueError('Cannot recognise convolution: %s' % expr)
+
+        zsym = sympify(str(z))
+
+        name = f1.func.__name__
+        func1 = name[0].upper() + name[1:] + '(%s)' % str(zsym)
+
+        name = f2.func.__name__
+        func2 = name[0].upper() + name[1:] + '(%s)' % str(zsym)    
+
+        F1 = sympify(func1).subs(zsym, z)
+        F2 = sympify(func2).subs(zsym, z)
+
+        return F1 * F2
+
+    def term(self, expr, n, z):
+
+        const, expr = factor_const(expr, n)
+
+        if expr.has(sym.Sum):
+            try:
+                return self.sum(expr, n, z) * const
+            except:
+                pass
+
+        nsym = sympify(str(n))
+        expr = expr.replace(nsym, n)
+
+        # foo = 1 / (1 - 1 / z)
+        # factors = expr.as_ordered_factors()
+        # if foo in factors:
+        #     could remove factor, find ZT of rest, and then integrate....
+
+        if expr.has(AppliedUndef):
+
+            rest = sym.S.One
+            expr = expr.cancel()
+            for factor in expr.as_ordered_factors():
+                if isinstance(factor, AppliedUndef):
+                    result = self.func(factor, n, z)
+                else:
+                    if factor.has(n):
+                        raise ValueError('TODO: need derivative of undefined'
+                                         ' function for %s' % factor)
+                    rest *= factor
+            return result * rest * const
+
+        invz = z ** -1
+
+        result = None
+        args = expr.args
+        xn_fac = []
+
+        if expr.is_Function and expr.func == UnitImpulse:
+            if args[0] is n:
+                result = 1
+            delay = n - args[0]
+            if not delay.has(n):
+                result = invz ** delay
+
+        elif expr == 1:
+            # Unilateral ZT
+            result = 1 / (1 - invz)
+
+        elif expr.is_Function and expr.func in (sym.Heaviside, UnitStep):
+            if args[0] is n:
+                result = 1 / (1 - invz)
+            else:
+                delay = n - args[0]
+                if not delay.has(n):
+                    result = invz ** delay * 1 / (1 - invz)
+
+        # sin(b*n+c)    
+        elif (expr.is_Function and expr.func == sym.sin and (args[0].as_poly(n)).is_linear):
+            bb = args[0].coeff(n, 1)
+            cc = args[0].coeff(n, 0)        
+            result =  (sym.sin(cc) + sym.sin(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz**2) 
+            result = sym.simplify(result)
+
+        # cos(b*n+c)    
+        elif (expr.is_Function and expr.func == sym.cos and (args[0].as_poly(n)).is_linear):
+            bb = args[0].coeff(n, 1)
+            cc = args[0].coeff(n, 0)        
+            result = (sym.cos(cc) - sym.cos(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz**2)  
+            result = sym.simplify(result)
+
+        # Multiplication with n       use n*x(n)  o--o  -z d/dz X(z)
+        elif is_multiplied_with(expr, n, 'n', xn_fac):
+            expr = expr / xn_fac[0]
+            X = self.term(expr, n, z)
+            result = sym.simplify(-z * sym.diff(X, z))
+
+        # Multiplication with a**(b*n+c)        use    lam**n *x(n)  o--o  X(z/lam)
+        elif is_multiplied_with(expr, n, 'a**n', xn_fac):
+            expr /= xn_fac[0]
+            ref = xn_fac[0].args
+            lam = ref[0]
+            bb = ref[1].coeff(n, 1)
+            cc = ref[1].coeff(n, 0)              
+            X = self.term(expr, n, z)
+            result = lam**cc * sym.simplify(X.subs(z, z / lam**bb)) 
+
+        # Multiplication with exp(b*n+c)       use    exp**n *x(n)  o--o  X(z/exp(1))
+        elif is_multiplied_with(expr, n, 'exp(n)', xn_fac):
+            expr /= xn_fac[0]
+            ref = xn_fac[0].args
+            bb = ref[0].coeff(n, 1)
+            cc = ref[0].coeff(n, 0)              
+            X = self.term(expr, n, z)
+            result = sym.exp(cc) * sym.simplify(X.subs(z, z / sym.exp(bb))) 
+
+        # Multiplication with u(n-n0) * x(n)    o--o     X(z)- (x[0] - x[1]/z - .. - x[n0-1]/z**(n0-1)   
+        elif is_multiplied_with(expr, n, 'UnitStep', xn_fac):
+            expr /= xn_fac[0]
+            delay = n - xn_fac[0].args[0]
+            X = self.term(expr, n, z)
+            sum_X = 0
+            for ii in range(delay):
+                sum_X -= expr.subs(n, ii) * invz**ii
+            result = X + sum_X               
+
+        if result is None:
+            # Use m instead of n to avoid n and z in same expr.
+            # TODO, check if m already used...
+            msym = sympify('m', real=True)        
+            nsym = sympify(str(n))        
+            zsym = sympify(str(z))
+            result = sym.Sum(expr.subs(nsym, msym) * zsym**msym, (msym, 0, sym.oo))
+
+        return const * result
+
+
+ztransformer = ZTransformer()
+
+
+def ZT(expr, n, z, evaluate=True, **assumptions):
     """Compute unilateral Z-Transform transform of expr with lower limit 0.
 
     Undefined functions such as v[n] are converted to V(z)."""
     
-    return ztransform(expr, n, z, **assumptions)
+    return ztransformer.transform(expr, n, z,
+                                  evaluate=evaluate, **assumptions)
+
+def ztransform(expr, n, z, evaluate=True, **assumptions):
+    """Compute unilateral Z-Transform transform of expr with lower limit 0.
+
+    Undefined functions such as v[n] are converted to V(z)."""
+
+    return ztransformer.transform(expr, n, z,
+                                  evaluate=evaluate, **assumptions)    
 
 
 from .expr import Expr
