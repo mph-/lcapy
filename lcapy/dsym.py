@@ -10,5 +10,5 @@ nsym = symsymbol('n', integer=True)
 ksym = symsymbol('k', integer=True)
 zsym = symsymbol('z', real=False)
 
-dt = symsymbol('Delta_t', real=True)
-df = symsymbol('Delta_f', real=True)
+dt = symsymbol('Delta_t', real=True, positive=True)
+df = symsymbol('Delta_f', real=True, positive=True)
