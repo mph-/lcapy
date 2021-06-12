@@ -237,7 +237,8 @@ class ZTransformer(UnilateralForwardTransformer):
             # Unilateral ZT
             result = 1 / (1 - invz)
 
-        elif expr.is_Function and expr.func in (sym.Heaviside, UnitStep):
+        elif (expr.is_Function and
+              expr.func in (sym.Heaviside, UnitStep, sym.sign)):
             if args[0] is n:
                 result = 1 / (1 - invz)
             else:
