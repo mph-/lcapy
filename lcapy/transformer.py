@@ -32,7 +32,7 @@ class Transformer(object):
     def simplify_term(self, expr, var):
         return expr
 
-    def rewrite(self, expr):
+    def rewrite(self, expr, var):
         return expr    
 
     def transform(self, expr, var, conjvar, evaluate=True, **assumptions):
@@ -76,13 +76,11 @@ class BilateralForwardTransformer(Transformer):
 
         const, expr = factor_const(expr, var)
 
-        # TODO, apply similarity theorem.
-        
         key = self.key(expr, var, conjvar, **assumptions)
         if key in self.cache:
             return const * self.cache[key]
 
-        expr = self.rewrite(expr)        
+        expr = self.rewrite(expr, var)        
 
         terms = expr.expand().as_ordered_terms()
         result = 0
@@ -120,7 +118,6 @@ class UnilateralForwardTransformer(Transformer):
 
         return self.remove_heaviside(expr, var)
     
-    
     def doit(self, expr, var, conjvar, evaluate=True, **assumptions):
         
         # Unilateral transforms ignore expr for t < 0 so remove Piecewise.
@@ -132,13 +129,11 @@ class UnilateralForwardTransformer(Transformer):
 
         const, expr = factor_const(expr, var)
 
-        # TODO, apply similarity theorem.
-        
         key = self.key(expr, var, conjvar, **assumptions)
         if key in self.cache:
             return const * self.cache[key]
 
-        expr = self.rewrite(expr)        
+        expr = self.rewrite(expr, var)
 
         terms = expr.as_ordered_terms()
         result = 0
@@ -163,12 +158,12 @@ class UnilateralInverseTransformer(Transformer):
         if assumptions.get('dc', False):
             free_symbols = set([symbol.name for symbol in result.free_symbols])
             if str(var) in free_symbols:
-                self.error('Something wonky going on, expecting dc.')
+                self.error('Weirdness, expecting dc.')
     
         elif assumptions.get('ac', False):
 
             if cresult != 0:
-                self.error('Weirdness for %s with is_ac True' % result)
+                self.error('Weirdness, expecting ac.')
             # TODO, perform more checking of the result.
         
         elif not assumptions.get('causal', False):
@@ -185,13 +180,11 @@ class UnilateralInverseTransformer(Transformer):
 
         const, expr = factor_const(expr, var)
 
-        # TODO, apply similarity theorem.
-        
         key = self.key(expr, var, conjvar, **assumptions)
         if key in self.cache:
             return self.make(conjvar, const, *self.cache[key], **assumptions)
 
-        expr = self.rewrite(expr)        
+        expr = self.rewrite(expr, var)
 
         terms = expr.as_ordered_terms()
 

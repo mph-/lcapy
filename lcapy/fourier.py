@@ -309,7 +309,7 @@ class FourierTransformer(BilateralForwardTransformer):
         if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
             self.error('Expression is unknown for t < 0' % expr)
     
-    def rewrite(self, expr):
+    def rewrite(self, expr, var):
 
         # sym.rewrite(exp) can create exp(log...)
         if expr.has(sin):

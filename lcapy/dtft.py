@@ -79,7 +79,7 @@ class DTFTTransformer(BilateralForwardTransformer):
 
         if shift != 0:
             result = result * sym.exp(2 * sym.I * sym.pi * f * shift / scale)
-
+        # Perhaps return X_(1/dt)(f) but how to denote?
         return self.add_images(result, f)
 
     def function(self, expr, n, f):

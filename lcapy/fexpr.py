@@ -11,9 +11,10 @@ from .inverse_fourier import inverse_fourier_transform
 from .inverse_dtft import IDTFT
 from .expr import Expr, expr, expr_make
 from .sym import fsym, ssym, tsym, pi
-from .dsym import nsym
+from .dsym import nsym, dt
 from .units import u as uu
-from sympy import Integral, Expr as symExpr
+from .utils import factor_const
+from sympy import Sum, Integral, Expr as symExpr
 
 class FourierDomainExpression(FourierDomain, Expr):
 
@@ -127,7 +128,21 @@ class FourierDomainExpression(FourierDomain, Expr):
         from .plot import plot_frequency
         return plot_frequency(self, fvector, plot_type=plot_type, **kwargs)
 
+    def remove_images(self):
 
+        var = self.var
+        const, expr = factor_const(self.expr, var)        
+
+        if not isinstance(expr, Sum):
+            return self
+        sumsym = expr.args[1].args[0]
+        foo = var - sumsym / dt
+        if not expr.args[0].has(foo):
+            return self
+        return self.__class__(expr.args[0].replace(foo, var),
+                              **self.assumptions)
+
+    
 def fexpr(arg, **assumptions):
     """Create FourierDomainExpression object.  If `arg` is fsym return f"""
 

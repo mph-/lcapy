@@ -13,7 +13,7 @@ Copyright 2021 Michael Hayes, UCECE
 """
 
 import sympy as sym
-from sympy import oo, DiracDelta
+from sympy import oo, DiracDelta, Sum
 from .transformer import BilateralInverseTransformer
 from .sym import sympify, AppliedUndef, j, pi
 from .dsym import dt
@@ -41,6 +41,18 @@ class IDTFTTransformer(BilateralInverseTransformer):
 
         if expr.has(n):
             self.error('Expression depends on n')
+
+    def rewrite(self, expr, var):
+        """Remove images."""
+
+        # const has been removed
+        if not isinstance(expr, Sum):        
+            return expr
+        sumsym = expr.args[1].args[0]
+        foo = var - sumsym / dt
+        if not expr.args[0].has(foo):
+            return expr
+        return expr[0].replace(foo, var)
     
     def sympy(self, expr, f, n):
 
