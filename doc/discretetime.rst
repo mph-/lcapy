@@ -389,7 +389,7 @@ The DTFT converts an n-domain or z-domain expression into the f-domain (continuo
 
 .. math::
 
-   X_{\frac{1}{\Delta t}}(f) = \sum_{n=0}^{\infty} x(n) e^{-2 \mathrm{j} \pi n \Delta t f}
+   X_{\frac{1}{\Delta t}}(f) = \sum_{n=-\infty}^{\infty} x(n) e^{-2 \mathrm{j} \pi n \Delta t f}
 
 If the signal :math:`x(n)` is causal, the DTFT can be found by substituting :math:`z = \exp(-2 \mathrm{j} \pi \Delta t f)` into the z-transform of :math:`x(n)`.
 
@@ -400,11 +400,51 @@ Here's an example of the DTFT:
 .. image:: examples/discretetime/dt1-DTFT-plot1.png
    :width: 15cm
 
+The DTFT is periodic in frequency with a period :math:`1 / \Delta t` and provided the signal is not aliased, all the information about the signal can be obtained from any frequency range of interval :math:`1 / \Delta t`.
+
+There are a number of definitions of the DTFT.  Due to the periodicity it is common to define a normalised frequency :math:`F = f \Delta t` and so
+
+.. math::
+
+   X_1(F) = \sum_{n=-\infty}^{\infty} x(n) e^{-2 \mathrm{j} \pi n F}
+
+Another option is to use normalised angular frequency :math:`\Omega = 2\pi f \Delta t`
+
+.. math::
+   
+   X_{2\pi}(\Omega) = \sum_{n=-\infty}^{\infty} x(n) e^{-\mathrm{j} n \Omega}
+
+
 A normalised discrete-time angular Fourier transform of `x(n)` can be plotted as follows:
 
 >>> x.DTFT()(w).plot(norm=True)
 
 This plots the normalised angular frequency between :math:`-\pi` and :math:`\pi`.
+
+
+Inverse discrete-time Fourier transform (IDTFT)
+-----------------------------------------------
+
+In terms of linear frequency,
+
+.. math::
+
+   x(n) = \int_{-\frac{1}{2\Delta t}}^{\frac{1}{2\Delta t}} X_{\frac{1}{\Delta t}}(f) e^{2 \mathrm{j} \pi n \Delta t f} \mathrm{d}f
+
+
+In terms of normalised linear frequency,
+
+.. math::
+
+   x(n) = \int_{-\frac{1}{2}}^{\frac{1}{2}} X_{1}(f) e^{2 \mathrm{j} \pi n F} \mathrm{d}F
+
+
+In terms of normalised angular frequency,
+
+.. math::
+
+   x(n) = \int_{-\pi}^{\pi} X_{2\pi}(f) e^{\mathrm{j} n \Omega} \mathrm{d}\Omega
+   
 
 
 Discrete Fourier transform (DFT)

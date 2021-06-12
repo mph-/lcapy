@@ -2,9 +2,7 @@
 
  It calculates the discrete-time Fourier transform using:
 
-   X(f) = \sum_{n=-M}^{M} x(n) e^{-j * 2 * \pi * n * dt * f}
-
-where 2 * M is the number of images.  By default M is assumed to be 0.
+   X(f) = \sum_{n=\infty}^{\infty} x(n) e^{-j * 2 * \pi * n * dt * f}
 
 Copyright 2021 Michael Hayes, UCECE
 

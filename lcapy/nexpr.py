@@ -169,6 +169,8 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         else:
             result =  fexpr(DTFT(self.expr, self.var, fsym))
 
+        # TODO: Add normalised domain variables F = f * dt and
+        # Omega = omega * dt.
         if norm:
             result = result.subs(dt, 1)
         if angular:
