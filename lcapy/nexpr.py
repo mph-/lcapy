@@ -156,7 +156,7 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         return self.seq((n1, n2)).extent()
 
     def discrete_time_fourier_transform(self, norm=False, angular=False,
-                                        **assumptions):
+                                        images=0, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
 
         from .fexpr import fexpr
@@ -167,7 +167,7 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         if assumptions.is_causal:
             result = self.ZT(**assumptions).DTFT()
         else:
-            result =  fexpr(DTFT(self.expr, self.var, fsym))
+            result = fexpr(DTFT(self.expr, self.var, fsym, images=images))
 
         # TODO: Add normalised domain variables F = f * dt and
         # Omega = omega * dt.
@@ -177,10 +177,12 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
             result = result.angular_fourier()
         return result
 
-    def DTFT(self, norm=False, angular=False, **assumptions):
+    def DTFT(self, norm=False, angular=False, images=0, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
     
-        return self.discrete_time_fourier_transform(norm=norm, angular=angular,
+        return self.discrete_time_fourier_transform(norm=norm,
+                                                    angular=angular,
+                                                    images=images,
                                                     **assumptions)
 
     def difference_equation(self, inputsym='x', outputsym='y', form='iir'):

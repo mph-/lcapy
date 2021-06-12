@@ -75,4 +75,4 @@ class DiscreteExpression(Expr):
             return self.DTFT(**assumptions)                
         
         # Do we really want to this?   
-        super(DiscreteExpression, self).transform(arg, **assumptions)            
+        super(DiscreteExpression, self).transform(arg, **assumptions)

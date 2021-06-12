@@ -34,7 +34,6 @@ class DFTTransformer(BilateralForwardTransformer):
 
     def check(self, expr, n, k, N=None, **assumptions):
 
-        # Hack
         self.N = N
         
         if expr.has(k):

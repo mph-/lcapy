@@ -14,7 +14,8 @@ from .transformer import BilateralForwardTransformer
 from .sym import sympify, AppliedUndef, j, pi
 from .dsym import dt
 from .utils import factor_const, scale_shift
-from .matrix import Matrix
+from .sym import symsymbol
+
 
 __all__ = ('DTFT', )
 
@@ -24,7 +25,7 @@ class DTFTTransformer(BilateralForwardTransformer):
     name = 'DTFT'
     
     def key(self, expr, n, f, **assumptions):
-        return expr, n, f
+        return expr, n, f, assumptions.get('images', 0)
 
     def noevaluate(self, expr, n, f):
 
@@ -32,19 +33,28 @@ class DTFTTransformer(BilateralForwardTransformer):
         result = sym.Sum(foo, (n, -oo, oo))
         return result
 
-    def check(self, expr, n, f, images, **assumptions):
+    def check(self, expr, n, f, images=0, **assumptions):
 
-        # Hack
         self.images = images
-        self.m1 = -(images // 2)
-        self.m2 = self.m1 + self.images
+        if images == oo:
+            self.m1 = -oo
+            self.m2 = oo
+        else:
+            self.m1 = -(images // 2)
+            self.m2 = self.m1 + self.images
         
         if expr.has(f):
             self.error('Expression depends on f')
         
         if expr.is_Piecewise and expr.args[0].args[1].has(n >= 0):
             self.error('Expression is unknown for n < 0' % expr)
-    
+
+    def add_images(self, expr, f):
+        msym = symsymbol('m', integer=True)        
+        foo = expr.replace(f, f - msym / dt)
+        result = sym.summation(foo, (msym, self.m1, self.m2))
+        return result
+            
     def sympy(self, expr, n, f):
 
         foo = expr * sym.exp(-2 * j * pi * n * dt * f)
@@ -70,7 +80,7 @@ class DTFTTransformer(BilateralForwardTransformer):
         if shift != 0:
             result = result * sym.exp(2 * sym.I * sym.pi * f * shift / scale)
 
-        return result
+        return self.add_images(result, f)
 
     def function(self, expr, n, f):
 
@@ -122,8 +132,7 @@ class DTFTTransformer(BilateralForwardTransformer):
         
         # Check for constant.
         if not expr.has(n):
-            # TODO, add images.
-            return expr * DiracDelta(f) * const
+            return self.add_images(expr * DiracDelta(f) * const, f)
 
         if expr.has(AppliedUndef):
             # Handle v(n), v(n) * y(n), 3 * v(n) / n etc.
@@ -137,7 +146,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             om_0 = expr.args
             co = sym.cos(bb) * (DiracDelta(Omega + aa) + DiracDelta(Omega - aa))
             si = -sym.sin(bb) * (DiracDelta(Omega + aa) - DiracDelta(Omega - aa))
-            return sym.pi * (co + sym.I * si) * const
+            return self.add_images(sym.pi * (co + sym.I * si) * const, f)
         
         # handle sin(a*n+b) 
         if (len(args) == 1 and expr.is_Function
@@ -147,7 +156,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             om_0 = expr.args
             co = sym.sin(bb) * (DiracDelta(Omega + aa) + DiracDelta(Omega - aa))
             si = sym.cos(bb) * (DiracDelta(Omega + aa) - DiracDelta(Omega - aa))
-            return sym.pi * (co + sym.I * si) * const        
+            return self.add_images(sym.pi * (co + sym.I * si) * const, f)
         
         # handle signum
         if (len(args) == 1 and expr.is_Function and
