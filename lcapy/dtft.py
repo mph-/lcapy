@@ -1,10 +1,10 @@
 """This module provides support for discrete-time Fourier transforms. 
 
- It calculates the discrete-times Fourier transform using:
+ It calculates the discrete-time Fourier transform using:
 
    X(f) = \sum_{n=-M}^{M} x(n) e^{-j * 2 * \pi * n * dt * f}
 
-where 2 * M is the number of images.
+where 2 * M is the number of images.  By default M is assumed to be 0.
 
 Copyright 2021 Michael Hayes, UCECE
 
@@ -15,7 +15,6 @@ from sympy import oo, DiracDelta
 from .transformer import BilateralForwardTransformer
 from .sym import sympify, AppliedUndef, j, pi
 from .dsym import dt
-from .extrafunctions import UnitImpulse, UnitStep
 from .utils import factor_const, scale_shift
 from .matrix import Matrix
 
@@ -25,7 +24,6 @@ __all__ = ('DTFT', )
 class DTFTTransformer(BilateralForwardTransformer):
 
     name = 'DTFT'
-    inverse = False
     
     def key(self, expr, n, f, **assumptions):
         return expr, n, f
@@ -67,16 +65,11 @@ class DTFTTransformer(BilateralForwardTransformer):
 
         # Convert v(n) to V(f), etc.
         name = expr.func.__name__
-        if self.inverse:
-            func = name[0].lower() + name[1:] + '(%s)' % f
-        else:
-            func = name[0].upper() + name[1:] + '(%s)' % f
+        func = name[0].upper() + name[1:] + '(%s)' % f
 
         result = sympify(func).subs(fsym, f / scale) / abs(scale)
 
         if shift != 0:
-            if self.inverse:
-                shift = -shift
             result = result * sym.exp(2 * sym.I * sym.pi * f * shift / scale)
 
         return result
@@ -123,7 +116,7 @@ class DTFTTransformer(BilateralForwardTransformer):
 
         self.error('TODO')
 
-    def term1(self, expr, n, f):
+    def term(self, expr, n, f):
 
         const, expr = factor_const(expr, n)
         args = expr.args
@@ -169,13 +162,6 @@ class DTFTTransformer(BilateralForwardTransformer):
 
         return const * self.sympy(expr, n, f)
 
-    def term(self, expr, n, f):
-
-        result = self.term1(expr, n, f)
-        if self.inverse:
-            result /= self.N
-        return result
-    
     
 dtft_transformer = DTFTTransformer()
 

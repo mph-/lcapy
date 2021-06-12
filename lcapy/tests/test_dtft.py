@@ -10,11 +10,28 @@ class LcapyTester(unittest.TestCase):
 
     def test_DTFT(self):
 
-        self.assertEqual(nexpr('delta(n)').DTFT(), 1, "delta(n)")
-        self.assertEqual(nexpr('2 * delta(n)').DTFT(), 2, "2 * delta(n)")
+        x = delta(n)
+        self.assertEqual(x.DTFT(), 1, "delta(n)")
+        self.assertEqual(x.DTFT().IDTFT(), x, "delta(n)")        
 
-        self.assertEqual(nexpr('2').DTFT(), fexpr('2 * delta(f)'), "2")
+        x = 2 * delta(n)
+        self.assertEqual(x.DTFT(), 2, "2 * delta(n)")
+        self.assertEqual(x.DTFT().IDTFT(), x, "2 * delta(n)")        
 
-        self.assertEqual(nexpr('x(n)').DTFT(), fexpr('X(f)'), "x(n)")
-        self.assertEqual(nexpr('2 * x(n)').DTFT(), fexpr('2 * X(f)'), "2 * x(n)")
-        self.assertEqual(nexpr('x(2 * n)').DTFT(), fexpr('X(f / 2) / 2'), "x(2 * n)")        
+        x = 0 * n + 2
+        self.assertEqual(x.DTFT(), 2 * delta(f), "2")
+        self.assertEqual(x.DTFT().IDTFT(), x, "2")        
+
+        x = nexpr('x(n)')
+        self.assertEqual(x.DTFT(), fexpr('X(f)'), "x(n)")
+        self.assertEqual(x.DTFT().IDTFT(), x, "x(n)")
+
+        x = nexpr('2 * x(n)')        
+        self.assertEqual(x.DTFT(), fexpr('2 * X(f)'), "2 * x(n)")
+        self.assertEqual(x.DTFT().IDTFT(), x, "2 * x(n)")        
+
+        x = nexpr('x(2 * n)')                
+        self.assertEqual(x.DTFT(), fexpr('X(f / 2) / 2'), "x(2 * n)")
+        self.assertEqual(x.DTFT().IDTFT(), x, "x(2 * n)")        
+
+        

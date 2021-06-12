@@ -8,8 +8,10 @@ Copyright 2014--2021 Michael Hayes, UCECE
 from __future__ import division
 from .domains import FourierDomain
 from .inverse_fourier import inverse_fourier_transform
+from .inverse_dtft import IDTFT
 from .expr import Expr, expr, expr_make
 from .sym import fsym, ssym, tsym, pi
+from .dsym import nsym
 from .units import u as uu
 from sympy import Integral, Expr as symExpr
 
@@ -50,11 +52,20 @@ class FourierDomainExpression(FourierDomain, Expr):
 
         return self.change(result, 'time', units_scale=uu.Hz, **assumptions)
 
-    def IFT(self, **assumptions):
-        """Convert to t-domain.   This is an alias for inverse_fourier."""
+    def IFT(self, evaluate=True, **assumptions):
+        """Convert to time domain.  This is an alias for inverse_fourier."""
 
-        return self.inverse_fourier(**assumptions)    
-    
+        return self.inverse_fourier(evaluate=evaluate, **assumptions)
+
+    def IDTFT(self, evaluate=True, **assumptions):
+        """Convert to discrete-time domain using inverse discrete-time
+        Fourier transform."""
+
+        result = IDTFT(self.expr, self.var, nsym, evaluate=evaluate)
+
+        return self.change(result, 'discrete time', units_scale=uu.Hz,
+                           **assumptions)
+
     def time(self, **assumptions):
         return self.inverse_fourier(**assumptions)
 

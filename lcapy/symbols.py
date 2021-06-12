@@ -24,3 +24,5 @@ jw0 = jomega0
 w = omega
 # This represents a specific angular frequency and is assumed to be positive
 w0 = omega0
+
+# Omega = omega * dt
