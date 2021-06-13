@@ -28,7 +28,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Zoo.IDTFT(), x + y, "sum IDTFT")        
         
         x = 0 * n + 2
-        self.assertEqual(x.DTFT(images=0), 2 * delta(f), "2")
+        self.assertEqual(x.DTFT(images=0), 2 * delta(f) / dt, "2")
         self.assertEqual(x.DTFT(images=0).IDTFT(), x, "2")        
 
         x = nexpr('x(n)')

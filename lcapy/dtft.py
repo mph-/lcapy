@@ -136,7 +136,7 @@ class DTFTTransformer(BilateralForwardTransformer):
         
         # Check for constant.
         if not expr.has(n):
-            return self.add_images(expr * DiracDelta(f) * const, f)
+            return self.add_images(expr * DiracDelta(f) * const, f) / dt
 
         if expr.has(AppliedUndef):
             # Handle v(n), v(n) * y(n), 3 * v(n) / n etc.
@@ -149,7 +149,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             bb = args[0].coeff(n, 0) / twopidt
             co = sym.cos(bb) * (DiracDelta(f + aa) + DiracDelta(f - aa))
             si = -sym.sin(bb) * (DiracDelta(f + aa) - DiracDelta(f - aa))
-            return self.add_images((co + sym.I * si) * const, f)
+            return self.add_images((co + sym.I * si) * const, f) / dt
         
         # Handle sin(a*n+b) 
         if (len(args) == 1 and expr.is_Function
@@ -158,7 +158,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             bb = args[0].coeff(n, 0) / twopidt
             co = sym.sin(bb) * (DiracDelta(f + aa) + DiracDelta(f - aa))
             si = sym.cos(bb) * (DiracDelta(f + aa) - DiracDelta(f - aa))
-            return self.add_images((co + sym.I * si) * const, f)
+            return self.add_images((co + sym.I * si) * const, f) / dt
 
         # Handle exp(j*(a*n+b)) 
         if (len(args) == 1 and expr.is_Function and expr.func == sym.exp):
@@ -169,7 +169,7 @@ class DTFTTransformer(BilateralForwardTransformer):
                 co = sym.sin(bb) * DiracDelta(f - aa)
                 si = sym.cos(bb) * DiracDelta(f - aa)
                 return self.add_images((co + sym.I * si) *
-                                       const / sym.I, f)        
+                                       const / sym.I, f) / dt
         
         # Handle signum
         if (len(args) == 1 and expr.is_Function and

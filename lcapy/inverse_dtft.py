@@ -3,7 +3,7 @@ transforms.
 
  It calculates the inverse discrete-time Fourier transform using:
 
-   x(n) = \int_{-1 / (2 * dt)}^{1 / (2 * dt))} X(f) e^{j * 2 * \pi * n * dt * f} df
+   x(n) = dt * \int_{-1 / (2 * dt)}^{1 / (2 * dt))} X(f) e^{j * 2 * \pi * n * dt * f} df
 
 where dt is the sampling period.  The integral just needs to be
 performed over any interval of length 1 / dt.
@@ -34,7 +34,7 @@ class IDTFTTransformer(BilateralInverseTransformer):
     def noevaluate(self, expr, f, n):
 
         foo = expr * sym.exp(2 * j * pi * n * dt * f)
-        result = sym.Integral(foo, (f, -1 / (2 * dt), 1 / (2 * dt)))
+        result = dt * sym.Integral(foo, (f, -1 / (2 * dt), 1 / (2 * dt)))
         return result
 
     def check(self, expr, f, n, **assumptions):
@@ -50,7 +50,7 @@ class IDTFTTransformer(BilateralInverseTransformer):
     def sympy(self, expr, f, n):
 
         foo = expr * sym.exp(2 * j * pi * n * dt * f)
-        result = sym.integrate(foo, (f, -1 / (2 * dt), 1 / (2 * dt)))
+        result = dt * sym.integrate(foo, (f, -1 / (2 * dt), 1 / (2 * dt)))
         return result        
 
     def func(self, expr, f, n):

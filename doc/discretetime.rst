@@ -331,8 +331,8 @@ Transforms
 Lcapy implements a number of transforms for converting between different domains.
    
 
-Z-transform
------------
+Z-transform (ZT)
+----------------
 
 Lcapy uses the unilateral z-transform, defined as:
 
@@ -358,8 +358,8 @@ It is also performed implicitly with `z` as an argument:
           z
 
 
-Inverse z-transform
--------------------
+Inverse z-transform (IZT)
+-------------------------
           
 The inverse unilateral z-transform is not unique and is only defined for :math:`n \ge 0`.  For example::
 
@@ -457,7 +457,7 @@ Like the DTFT, the IDFT has many commonly used definitions.  In terms of linear 
 
 .. math::
 
-   x(n) = \int_{-\frac{1}{2\Delta t}}^{\frac{1}{2\Delta t}} X_{\frac{1}{\Delta t}}(f) e^{2 \mathrm{j} \pi n \Delta t f} \mathrm{d}f
+   x(n) = \Delta t \int_{-\frac{1}{2\Delta t}}^{\frac{1}{2\Delta t}} X_{\frac{1}{\Delta t}}(f) e^{2 \mathrm{j} \pi n \Delta t f} \mathrm{d}f
 
 where :math:`x(n)` denotes :math:`x(n \Delta t)`.
 
@@ -472,7 +472,7 @@ In terms of normalised angular frequency,
 
 .. math::
 
-   x(n) = \int_{-\pi}^{\pi} X_{2\pi}(f) e^{\mathrm{j} n \Omega} \mathrm{d}\Omega
+   x(n) = \frac{1}{2\pi} \int_{-\pi}^{\pi} X_{2\pi}(f) e^{\mathrm{j} n \Omega} \mathrm{d}\Omega
 
 
 Discrete Fourier transform (DFT)

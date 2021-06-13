@@ -1,10 +1,10 @@
-:math:`\cos{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \sum_{m=-\infty}^{\infty} \left(\delta\left(f - f_{0} - \frac{m}{\Delta_{t}}\right) + \delta\left(f + f_{0} - \frac{m}{\Delta_{t}}\right)\right)`
+:math:`\cos{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \left(\delta\left(f - f_{0} - \frac{m}{\Delta_{t}}\right) + \delta\left(f + f_{0} - \frac{m}{\Delta_{t}}\right)\right)}{\Delta_{t}}`
 
-:math:`\sin{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \sum_{m=-\infty}^{\infty} \mathrm{j} \left(- \delta\left(f - f_{0} - \frac{m}{\Delta_{t}}\right) + \delta\left(f + f_{0} - \frac{m}{\Delta_{t}}\right)\right)`
+:math:`\sin{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \mathrm{j} \left(- \delta\left(f - f_{0} - \frac{m}{\Delta_{t}}\right) + \delta\left(f + f_{0} - \frac{m}{\Delta_{t}}\right)\right)}{\Delta_{t}}`
 
-:math:`e^{2 \mathrm{j} \pi \Delta_{t} f_{0} n} \longleftrightarrow \sum_{m=-\infty}^{\infty} \delta\left(f - f_{0} - \frac{m}{\Delta_{t}}\right)`
+:math:`e^{2 \mathrm{j} \pi \Delta_{t} f_{0} n} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \delta\left(f - f_{0} - \frac{m}{\Delta_{t}}\right)}{\Delta_{t}}`
 
-:math:`1 \longleftrightarrow \sum_{m=-\infty}^{\infty} \delta\left(f - \frac{m}{\Delta_{t}}\right)`
+:math:`1 \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \delta\left(f - \frac{m}{\Delta_{t}}\right)}{\Delta_{t}}`
 
 :math:`\delta\left[n\right] \longleftrightarrow 1`
 
