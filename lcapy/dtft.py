@@ -131,7 +131,8 @@ class DTFTTransformer(BilateralForwardTransformer):
 
         const, expr = factor_const(expr, n)
         args = expr.args
-        Omega = 2 * sym.pi * f * dt
+        twopidt = 2 * sym.pi * dt
+        Omega = twopidt * f
         
         # Check for constant.
         if not expr.has(n):
@@ -141,27 +142,36 @@ class DTFTTransformer(BilateralForwardTransformer):
             # Handle v(n), v(n) * y(n), 3 * v(n) / n etc.
             return self.function(expr, n, f) * const
 
-        # handle cos(a*n+b) 
+        # Handle cos(a*n+b) 
         if (len(args) == 1 and expr.is_Function and
             expr.func == sym.cos and (args[0].as_poly(n)).is_linear):
-            aa = args[0].coeff(n, 1)
-            bb = args[0].coeff(n, 0)
-            om_0 = expr.args
-            co = sym.cos(bb) * (DiracDelta(Omega + aa) + DiracDelta(Omega - aa))
-            si = -sym.sin(bb) * (DiracDelta(Omega + aa) - DiracDelta(Omega - aa))
-            return self.add_images(sym.pi * (co + sym.I * si) * const, f)
+            aa = args[0].coeff(n, 1) / twopidt
+            bb = args[0].coeff(n, 0) / twopidt
+            co = sym.cos(bb) * (DiracDelta(f + aa) + DiracDelta(f - aa))
+            si = -sym.sin(bb) * (DiracDelta(f + aa) - DiracDelta(f - aa))
+            return self.add_images((co + sym.I * si) * const, f)
         
-        # handle sin(a*n+b) 
+        # Handle sin(a*n+b) 
         if (len(args) == 1 and expr.is_Function
             and expr.func == sym.sin and (args[0].as_poly(n)).is_linear):
-            aa = args[0].coeff(n, 1)
-            bb = args[0].coeff(n, 0)
-            om_0 = expr.args
-            co = sym.sin(bb) * (DiracDelta(Omega + aa) + DiracDelta(Omega - aa))
-            si = sym.cos(bb) * (DiracDelta(Omega + aa) - DiracDelta(Omega - aa))
-            return self.add_images(sym.pi * (co + sym.I * si) * const, f)
+            aa = args[0].coeff(n, 1) / twopidt
+            bb = args[0].coeff(n, 0) / twopidt
+            co = sym.sin(bb) * (DiracDelta(f + aa) + DiracDelta(f - aa))
+            si = sym.cos(bb) * (DiracDelta(f + aa) - DiracDelta(f - aa))
+            return self.add_images((co + sym.I * si) * const, f)
+
+        # Handle exp(j*(a*n+b)) 
+        if (len(args) == 1 and expr.is_Function and expr.func == sym.exp):
+            p = args[0].as_poly(n)
+            if p.is_linear and args[0].is_complex:
+                aa = args[0].coeff(n, 1) / twopidt / sym.I
+                bb = args[0].coeff(n, 0) / twopidt / sym.I
+                co = sym.sin(bb) * DiracDelta(f - aa)
+                si = sym.cos(bb) * DiracDelta(f - aa)
+                return self.add_images((co + sym.I * si) *
+                                       const / sym.I, f)        
         
-        # handle signum
+        # Handle signum
         if (len(args) == 1 and expr.is_Function and
             expr.func == sym.sign and (args[0].as_poly(n)).is_linear):
             aa = args[0].coeff(n, 1)
