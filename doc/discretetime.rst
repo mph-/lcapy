@@ -400,9 +400,8 @@ Here's an example of the DTFT:
 .. image:: examples/discretetime/dt1-DTFT-plot1.png
    :width: 15cm
 
-The DTFT is periodic in frequency with a period :math:`1 / \Delta t` and provided the signal is not aliased, all the information about the signal can be obtained from any frequency range of interval :math:`1 / \Delta t`.
 
-There are a number of definitions of the DTFT.  Due to the periodicity it is common to define a normalised frequency :math:`F = f \Delta t` and so
+The DTFT can be confusing due to the number of definitions commonly used.  Due to the periodicity it is common to define a normalised frequency :math:`F = f \Delta t` and so
 
 .. math::
 
@@ -414,23 +413,58 @@ Another option is to use normalised angular frequency :math:`\Omega = 2\pi f \De
    
    X_{2\pi}(\Omega) = \sum_{n=-\infty}^{\infty} x(n) e^{-\mathrm{j} n \Omega}
 
-
 A normalised discrete-time angular Fourier transform of `x(n)` can be plotted as follows:
 
 >>> x.DTFT()(w).plot(norm=True)
 
 This plots the normalised angular frequency between :math:`-\pi` and :math:`\pi`.
 
+The DTFT, :math:`X_{\frac{1}{\Delta t}}(f)`, is related to the Fourier transform, :math:`X(f)`, by
+
+.. math::
+
+   X_{\frac{1}{\Delta t}}(f) = \frac{1}{\Delta t} \sum_{m=-\infty}^{\infty} X\left(f-\frac{m}{\Delta t}\right)
+
+   
+Note, some definitions do not include the scale factor :math:`1 / \Delta t` since it assumed that :math:`x(n) = \Delta t   x(n \Delta t)`.  However, this introduces units confusion.
+
+The DTFT is periodic in frequency with a period :math:`1 / \Delta t` and provided the signal is not aliased, all the information about the signal can be obtained from any frequency range of interval :math:`1 / \Delta t`.
+
+By default Lcapy returns an expression showing the infinite number of spectral images.  For example,
+
+   >>> nexpr(1).DTFT()
+      ∞             
+    ____           
+    ╲              
+     ╲             
+      ╲    ⎛    m ⎞
+      ╱   δ⎜f - ──⎟
+     ╱     ⎝    Δₜ⎠
+    ╱              
+    ‾‾‾‾           
+   m = -∞          
+
+All the images can be removed with the `remove_images()` method.  For example::
+
+   >>> nexpr(1).DTFT().remove_images()
+   δ(f)
+
+Alternatively, the `images` argument can be used with the `DTFT()` method::
+
+   >>> nexpr(1).DTFT(images=0)
+   δ(f)  
+   
 
 Inverse discrete-time Fourier transform (IDTFT)
 -----------------------------------------------
 
-In terms of linear frequency,
+Like the DTFT, the IDFT has many commonly used definitions.  In terms of linear frequency,
 
 .. math::
 
    x(n) = \int_{-\frac{1}{2\Delta t}}^{\frac{1}{2\Delta t}} X_{\frac{1}{\Delta t}}(f) e^{2 \mathrm{j} \pi n \Delta t f} \mathrm{d}f
 
+where :math:`x(n)` denotes :math:`x(n \Delta t)`.
 
 In terms of normalised linear frequency,
 
@@ -444,7 +478,6 @@ In terms of normalised angular frequency,
 .. math::
 
    x(n) = \int_{-\pi}^{\pi} X_{2\pi}(f) e^{\mathrm{j} n \Omega} \mathrm{d}\Omega
-   
 
 
 Discrete Fourier transform (DFT)
