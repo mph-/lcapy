@@ -12,6 +12,17 @@ Lcapy can compute many Fourier transforms including:
 .. include:: fourier_transforms.rst
 
 
+.. _table_discrete-time_transforms:
+
+Discrete-Time Fourier Transforms
+================================
+
+Lcapy can compute many Discrete-Time transforms including:
+
+.. include:: DTFTs.rst             
+
+             
+
 .. _table_laplace_transforms:
 
 Laplace Transforms
