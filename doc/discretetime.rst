@@ -260,18 +260,13 @@ A more compact notation is to pass `f` as an argument:
 The discrete Fourier transform (DFT) converts a discrete-time expression to a discrete-frequency expression.  This is performed using the `DFT()` method or using a `k` argument.  For example::
 
    >>> (delta(n) + 2 * delta(n - 2))(k)
-   N - 1                                 
-    ____                                 
-    ╲                                    
-     ╲                        -2⋅ⅉ⋅π⋅k⋅n 
-      ╲                       ───────────
-      ╱                            N     
-     ╱   (δ[n] + 2⋅δ[n - 2])⋅ℯ           
-    ╱                                    
-    ‾‾‾‾                                 
-   n = 0   
+          -4⋅ⅉ⋅π⋅k 
+          ─────────
+              N    
+   1 + 2⋅ℯ         
 
-Note, SymPy does not simplifies this since it does not know that `N>1`.  However, if `N` is known, it can be specified as an argument.  For example::
+
+If `N` is known, it can be specified as an argument.  For example::
 
    >>> (delta(n) + 2 * delta(n - 2))(k, N=4)
           -ⅉ⋅π⋅k

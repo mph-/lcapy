@@ -79,9 +79,9 @@ class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression)
         from .nexpr import n
 
         if N is None:
-            from .sym import sympify
-            
-            N = sympify('N')
+            from .sym import symsymbol
+
+            N = symsymbol('N', integer=True, positive=True)            
 
         result = IDFT(self.expr, ksym, nsym, N, evaluate=evaluate)
         return self.change(result, domain='discrete time')

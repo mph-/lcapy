@@ -34,23 +34,18 @@ def term_const(expr, var):
     return const, rest
 
 
-def scale_shift(expr, t):
+def scale_shift(expr, var):
+        
+    if expr == var:
+        return sym.S.One, sym.S.Zero
+    
+    if not expr.as_poly(var).is_linear:
+        raise ValueError('Expression not a linear function of %s: %s' % (var, expr))
 
-    if not expr.has(t):
-        raise ValueError('Expression does not contain %s: %s' % (t, expr))
+    scale = expr.coeff(var, 1)
+    shift = expr.coeff(var, 0)        
 
-    terms = expr.as_ordered_terms()
-    if len(terms) > 2:
-        raise ValueError('Expression has too many terms: %s' % expr)
-
-    if len(terms) == 1:
-        return terms[0] / t, sym.S.Zero
-
-    scale = terms[0] / t
-    if scale.has(t):
-        raise ValueError('Expression not a scale and shift: %s' % expr)
-
-    return scale, terms[1]
+    return scale, shift
 
 
 def as_N_D(expr, var, monic_denominator=False):

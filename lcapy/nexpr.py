@@ -67,7 +67,7 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
     def integrate(self):
         """First order integration."""
 
-        from .sym import sympify
+        from .sym import symsymbol
         from .utils import factor_const
         from .extrafunctions import UnitImpulse
         from .functions import u        
@@ -78,7 +78,7 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         if expr.is_Function and expr.func == UnitImpulse:
             return dt * u(expr.args[0]) * const
         
-        msym = sympify('m', real=True)
+        msym = symsymbol('m', integer=True)
         result = dt * summation(self.subs(msym).expr, (msym, -oo, nsym))
         
         return self.__class__(result, **self.assumptions)
@@ -132,9 +132,9 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         from .kexpr import k
 
         if N is None:
-            from .sym import sympify
+            from .sym import symsymbol
             
-            N = sympify('N')
+            N = symsymbol('N', integer=True, positive=True)
 
         result = DFT(self.expr, nsym, ksym, N, evaluate=evaluate)
         return self.change(result, domain='discrete fourier')
