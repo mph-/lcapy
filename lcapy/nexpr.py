@@ -10,7 +10,7 @@ from .domains import DiscreteTimeDomain
 from .seqexpr import SequenceExpression
 from .sequence import Sequence
 from .functions import exp
-from .sym import j, oo, pi, fsym
+from .sym import j, oo, pi, fsym, oo
 from .dsym import nsym, ksym, zsym, dt
 from .ztransform import ztransform
 from .dft import DFT
@@ -156,8 +156,11 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         return self.seq((n1, n2)).extent()
 
     def discrete_time_fourier_transform(self, norm=False, angular=False,
-                                        images=0, **assumptions):
-        """Convert to Fourier domain using discrete time Fourier transform."""
+                                        images=oo, **assumptions):
+        """Convert to Fourier domain using discrete time Fourier transform.
+
+        Use `images = 0` to avoid the infinite number of spectral images.
+        """
 
         from .fexpr import fexpr
         from .dtft import DTFT
@@ -177,8 +180,11 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
             result = result.angular_fourier()
         return result
 
-    def DTFT(self, norm=False, angular=False, images=0, **assumptions):
-        """Convert to Fourier domain using discrete time Fourier transform."""
+    def DTFT(self, norm=False, angular=False, images=oo, **assumptions):
+        """Convert to Fourier domain using discrete time Fourier transform.
+
+        Use `images = 0` to avoid the infinite number of spectral images.
+        """
     
         return self.discrete_time_fourier_transform(norm=norm,
                                                     angular=angular,

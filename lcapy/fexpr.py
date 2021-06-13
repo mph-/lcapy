@@ -13,8 +13,8 @@ from .expr import Expr, expr, expr_make
 from .sym import fsym, ssym, tsym, pi
 from .dsym import nsym, dt
 from .units import u as uu
-from .utils import factor_const
-from sympy import Sum, Integral, Expr as symExpr
+from .utils import factor_const, remove_images
+from sympy import Integral, Expr as symExpr
 
 class FourierDomainExpression(FourierDomain, Expr):
 
@@ -129,18 +129,17 @@ class FourierDomainExpression(FourierDomain, Expr):
         return plot_frequency(self, fvector, plot_type=plot_type, **kwargs)
 
     def remove_images(self):
+        """Remove all the spectral images resulting from a DTFT.
+        
+        For example,
 
-        var = self.var
-        const, expr = factor_const(self.expr, var)        
+        >>> x = Sum(DiracDelta(f - m/Delta_t), (m, -oo, oo))
+        >>> x.remove_images()
+        DiracDelta(f)
+        """
 
-        if not isinstance(expr, Sum):
-            return self
-        sumsym = expr.args[1].args[0]
-        foo = var - sumsym / dt
-        if not expr.args[0].has(foo):
-            return self
-        return self.__class__(expr.args[0].replace(foo, var),
-                              **self.assumptions)
+        result = remove_images(self.expr, self.var, dt)
+        return self.__class__(result, **self.assumptions)
 
     
 def fexpr(arg, **assumptions):

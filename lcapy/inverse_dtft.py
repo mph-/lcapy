@@ -13,12 +13,12 @@ Copyright 2021 Michael Hayes, UCECE
 """
 
 import sympy as sym
-from sympy import oo, DiracDelta, Sum
+from sympy import oo, DiracDelta
 from .transformer import BilateralInverseTransformer
 from .sym import sympify, AppliedUndef, j, pi
 from .dsym import dt
 from .extrafunctions import UnitImpulse, UnitStep
-from .utils import factor_const, scale_shift
+from .utils import factor_const, scale_shift, remove_images
 from .matrix import Matrix
 
 __all__ = ('IDTFT', 'inverse_discrete_time_fourier_transform')
@@ -45,14 +45,7 @@ class IDTFTTransformer(BilateralInverseTransformer):
     def rewrite(self, expr, var):
         """Remove images."""
 
-        # const has been removed
-        if not isinstance(expr, Sum):        
-            return expr
-        sumsym = expr.args[1].args[0]
-        foo = var - sumsym / dt
-        if not expr.args[0].has(foo):
-            return expr
-        return expr[0].replace(foo, var)
+        return remove_images(expr, var, dt)
     
     def sympy(self, expr, f, n):
 

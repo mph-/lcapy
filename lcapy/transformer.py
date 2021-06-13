@@ -5,7 +5,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 """
 
 from sympy import Eq, Symbol, Piecewise, S, Heaviside
-from .utils import factor_const
+from .utils import factor_const, remove_images
 from .extrafunctions import UnitStep
 
 

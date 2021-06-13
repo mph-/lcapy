@@ -87,7 +87,7 @@ class ZTransformer(UnilateralForwardTransformer):
         result = sym.Sum(foo, (n, 0, sym.oo))
         return result
 
-    def rewrite(self, expr):
+    def rewrite(self, expr, var):
         # This is needed to handle expressions like (2*n + 3)**2
         return sym.expand(expr)
     

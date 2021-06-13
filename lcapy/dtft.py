@@ -50,9 +50,12 @@ class DTFTTransformer(BilateralForwardTransformer):
             self.error('Expression is unknown for n < 0' % expr)
 
     def add_images(self, expr, f):
-        msym = symsymbol('m', integer=True)        
+        if self.m1 == self.m2:
+            return expr
+        
+        msym = symsymbol('m', integer=True)
         foo = expr.replace(f, f - msym / dt)
-        result = sym.summation(foo, (msym, self.m1, self.m2))
+        result = sym.Sum(foo, (msym, self.m1, self.m2))
         return result
             
     def sympy(self, expr, n, f):
