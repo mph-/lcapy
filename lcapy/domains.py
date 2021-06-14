@@ -64,6 +64,14 @@ class FourierDomain(Domain):
     is_transform_domain = True    
 
     
+class NormFourierDomain(Domain):
+    domain = 'norm fourier'
+    domain_label = 'Normalised frequency'
+    domain_units = 1
+    is_norm_fourier_domain = True
+    is_transform_domain = True        
+
+    
 class AngularFourierDomain(Domain):
     domain = 'angular fourier'
     domain_label = 'Angular frequency'

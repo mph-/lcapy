@@ -43,4 +43,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(x.DTFT(images=0), fexpr('X(f / 2) / 2'), "x(2 * n)")
         self.assertEqual(x.DTFT(images=0).IDTFT(), x, "x(2 * n)")        
 
+        x = u(n)
+        X = x.DTFT(Omega)
+        self.assertEqual(X, 1 / (1 - exp(-j * Omega)), "u(n).DTFT(Omega)")
         

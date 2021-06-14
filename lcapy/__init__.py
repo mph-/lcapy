@@ -67,6 +67,7 @@ from .texpr import texpr
 from .cexpr import cexpr
 from .omegaexpr import omegaexpr
 from .normomegaexpr import Omegaexpr
+from .normfexpr import Fexpr
 from .phasor import phasor
 from .discretetime import *
 from .dltifilter import *

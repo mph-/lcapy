@@ -557,8 +557,10 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
 
     @property
     def canonical_units(self):
-        """Return the canonical units of the expression.  This is a simplified form,
-        so volt * ampere becomes watt."""
+        """Return the canonical units of the expression.  This is a simplified
+        form, so volt * ampere becomes watt.
+
+        """
 
         return units.simplify_units(self._units)        
     

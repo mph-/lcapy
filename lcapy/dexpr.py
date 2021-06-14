@@ -27,12 +27,7 @@ class DiscreteExpression(Expr):
 
         """
 
-        from .fexpr import f
-        from .nexpr import n
-        from .kexpr import k
-        from .zexpr import z
-        from .omegaexpr import omega
-        from .normomegaexpr import Omega        
+        from .symbols import f, n, k, z, F, omega, Omega
 
         if isinstance(arg, (tuple, list)):
             return [self._subs1(self.var, arg1) for arg1 in arg]
@@ -40,10 +35,10 @@ class DiscreteExpression(Expr):
         if isinstance(arg, np.ndarray):
             return np.array([self._subs1(self.var, arg1) for arg1 in arg])
 
-        if id(arg) in (id(n), id(z), id(k), id(f), id(omega), id(Omega)):
+        if id(arg) in (id(n), id(z), id(k), id(f), id(F), id(omega), id(Omega)):
             return self.transform(arg, **assumptions)
 
-        if arg in (n, k, z, f, omega, Omega):
+        if arg in (n, k, z, f, F, omega, Omega):
             return self.transform(arg, **assumptions)    
 
         # Do we really want to this?   
@@ -51,12 +46,7 @@ class DiscreteExpression(Expr):
 
     def transform(self, arg, **assumptions):
 
-        from .nexpr import n
-        from .kexpr import k
-        from .zexpr import z
-        from .fexpr import f
-        from .omegaexpr import omega
-        from .normomegaexpr import Omega        
+        from .symbols import f, n, k, z, F, omega, Omega        
 
         # Is this wise?   It makes sense for Voltage and Impedance objects
         # but may cause too much confusion for other expressions
@@ -76,10 +66,12 @@ class DiscreteExpression(Expr):
             return self.DTFT(**assumptions)
         elif arg is f and self.is_Z_domain:
             return self.DTFT(**assumptions)
+        elif arg is F and self.is_discrete_time_domain:
+            return self.DTFT(F, **assumptions)                
         elif arg is omega and self.is_discrete_time_domain:
-            return self.DTFT(**assumptions)(omega)
+            return self.DTFT(omega, **assumptions)
         elif arg is Omega and self.is_discrete_time_domain:
-            return self.DTFT(**assumptions)(Omega)        
+            return self.DTFT(Omega, **assumptions)
 
         raise ValueError('Unhandled transform')
         

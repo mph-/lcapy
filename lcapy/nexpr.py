@@ -155,15 +155,31 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
         return self.seq((n1, n2)).extent()
 
-    def discrete_time_fourier_transform(self, norm=False, angular=False,
+    def discrete_time_fourier_transform(self, var=None,
                                         images=oo, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform.
 
         Use `images = 0` to avoid the infinite number of spectral images.
         """
 
-        from .fexpr import fexpr
-        from .dtft import DTFT
+        return self.DTFT(var, images, **assumptions)
+
+    def DTFT(self, var=None, images=oo, **assumptions):
+        """Convert to Fourier domain using discrete time Fourier transform.
+
+        Use `images = 0` to avoid the infinite number of spectral images.
+        """
+
+        from .fexpr import f, fexpr
+        from .omegaexpr import omega
+        from .normomegaexpr import Omega
+        from .normfexpr import F
+        from .dtft import DTFT        
+        
+        if var is None:
+            var = f
+        if id(var) not in (id(f), id(F), id(omega), id(Omega)):
+            raise ValueError('DTFT requires var to be f, F, omega, or Omega`, not %s' % var)
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         
@@ -172,24 +188,7 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         else:
             result = fexpr(DTFT(self.expr, self.var, fsym, images=images))
 
-        # TODO: Add normalised domain variables F = f * dt and
-        # Omega = omega * dt.
-        if norm:
-            result = result.subs(dt, 1)
-        if angular:
-            result = result.angular_fourier()
-        return result
-
-    def DTFT(self, norm=False, angular=False, images=oo, **assumptions):
-        """Convert to Fourier domain using discrete time Fourier transform.
-
-        Use `images = 0` to avoid the infinite number of spectral images.
-        """
-    
-        return self.discrete_time_fourier_transform(norm=norm,
-                                                    angular=angular,
-                                                    images=images,
-                                                    **assumptions)
+        return result(var)
 
     def norm_angular_fourier(self, **assumptions):
 

@@ -60,6 +60,22 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         result = self.subs(2 * pi * f)
         return result
 
+    def norm_fourier(self, **assumptions):
+        """Convert to normalised Fourier domain."""
+        from .symbols import F
+        from .dsym import dt
+        
+        result = self.subs(2 * pi * F / dt)
+        return result
+
+    def norm_angular_fourier(self, **assumptions):
+        """Convert to normalised angular Fourier domain."""
+        from .symbols import Omega
+        from .dsym import dt
+        
+        result = self.subs(Omega / dt)
+        return result        
+
     def laplace(self, **assumptions):
         """Convert to Laplace domain."""
 

@@ -42,13 +42,6 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
     def as_expr(self):
         return NormAngularFourierDomainExpression(self)
 
-    def angular_fourier(self, **assumptions):
-        """Convert to angular Fourier domain."""
-        from .symbols import omega
-        
-        result = self.subs(omega * dt)
-        return result
-
     def inverse_fourier(self, evaluate=True, **assumptions):
         """Attempt inverse Fourier transform."""
 
@@ -62,11 +55,11 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
         return self.inverse_fourier(evaluate=evaluate, **assumptions)
 
-    def IDTFT(self, evaluate=True, **assumptions):
+    def IDTFT(self, var=None, evaluate=True, **assumptions):
         """Convert to discrete-time domain using inverse discrete-time
         Fourier transform."""
 
-        foo = self.subs(2 * pi * f * dt)        
+        foo = self.subs(2 * pi * f * dt)
         result = IDTFT(foo.expr, self.var, nsym, evaluate=evaluate)
 
         return self.change(result, 'discrete time', units_scale=uu.Hz,
@@ -82,6 +75,19 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
         result = self.subs(omega / dt)
         return result
     
+    def norm_fourier(self, **assumptions):
+        """Convert to normalised Fourier domain."""
+        from .symbols import F
+        from .dsym import dt
+        
+        result = self.subs(2 * pi * F / dt)
+        return result
+
+    def norm_angular_fourier(self, **assumptions):
+        """Convert to normalised angular Fourier domain."""
+
+        return self
+
     def laplace(self, **assumptions):
         """Determine one-side Laplace transform with 0- as the lower limit."""
 
@@ -130,8 +136,9 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
         """
 
-        from .plot import plot_frequency
-        return plot_frequency(self, Wvector, plot_type=plot_type, **kwargs)
+        from .plot import plot_angular_frequency
+        return plot_angular_frequency(self, Wvector, plot_type=plot_type,
+                                      norm=True, **kwargs)
 
     def remove_images(self):
         """Remove all the spectral images resulting from a DTFT.

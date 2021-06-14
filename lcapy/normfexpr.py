@@ -1,48 +1,52 @@
-"""This module provides the FourierDomainExpression class to represent
-f-domain (Fourier domain) expressions.
+"""This module provides the NormFourierDomainExpression class
+to represent F-domain (normalised  Fourier domain)
+expressions.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2021 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
-from .domains import FourierDomain
+from .domains import NormFourierDomain
 from .inverse_fourier import inverse_fourier_transform
 from .inverse_dtft import IDTFT
 from .expr import Expr, expr, expr_make
-from .sym import fsym, ssym, tsym, pi
-from .dsym import nsym, dt
+from .fexpr import f
+from .sym import ssym, tsym, fsym, pi
+from .dsym import Fsym, nsym, dt
 from .units import u as uu
 from .utils import factor_const, remove_images
 from sympy import Integral, Expr as symExpr
 
-class FourierDomainExpression(FourierDomain, Expr):
+class NormFourierDomainExpression(NormFourierDomain, Expr):
 
-    """Fourier domain expression or symbol."""
+    """Normalised  Fourier domain expression or symbol."""
 
-    var = fsym
+    var = Fsym
 
     def __init__(self, val, **assumptions):
 
         check = assumptions.pop('check', True)        
         assumptions['real'] = True
-        super(FourierDomainExpression, self).__init__(val, **assumptions)
+        super(NormFourierDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr        
         if check and expr.find(ssym) != set() and not expr.has(Integral):
+
             raise ValueError(
-                'f-domain expression %s cannot depend on s' % expr)
+                'F-domain expression %s cannot depend on s' % expr)
         if check and expr.find(tsym) != set() and not expr.has(Integral):
             raise ValueError(
-                'f-domain expression %s cannot depend on t' % expr)
+                'F-domain expression %s cannot depend on t' % expr)
 
     def as_expr(self):
-        return FourierDomainExpression(self)
+        return NormFourierDomainExpression(self)
 
     def inverse_fourier(self, evaluate=True, **assumptions):
         """Attempt inverse Fourier transform."""
 
-        result = inverse_fourier_transform(self.expr, self.var, tsym, evaluate=evaluate)
+        expr = self.subs(2 * pi * fsym * dt)        
+        result = inverse_fourier_transform(expr, fsym, tsym, evaluate=evaluate)
 
         return self.change(result, 'time', units_scale=uu.Hz, **assumptions)
 
@@ -51,11 +55,12 @@ class FourierDomainExpression(FourierDomain, Expr):
 
         return self.inverse_fourier(evaluate=evaluate, **assumptions)
 
-    def IDTFT(self, evaluate=True, **assumptions):
+    def IDTFT(self, var=None, evaluate=True, **assumptions):
         """Convert to discrete-time domain using inverse discrete-time
         Fourier transform."""
 
-        result = IDTFT(self.expr, self.var, nsym, evaluate=evaluate)
+        foo = self.subs(2 * pi * f * dt)
+        result = IDTFT(foo.expr, self.var, nsym, evaluate=evaluate)
 
         return self.change(result, 'discrete time', units_scale=uu.Hz,
                            **assumptions)
@@ -63,28 +68,31 @@ class FourierDomainExpression(FourierDomain, Expr):
     def time(self, **assumptions):
         return self.inverse_fourier(**assumptions)
 
-    def norm_fourier(self, **assumptions):
-        """Convert to normalised Fourier domain."""
-        from .symbols import F
-        from .dsym import dt
+    def fourier(self, **assumptions):
+        """Convert to Fourier domain."""
+        from .symbols import f
         
-        result = self.subs(F / dt)
+        result = self.subs(f * dt)
         return result
 
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
         from .symbols import omega
         
-        result = self.subs(omega / (2 * pi))
+        result = self.subs(omega / dt)
+        return result
+
+    def norm_fourier(self, **assumptions):
+        """Convert to normalised Fourier domain."""
+        from .symbols import F
+        
+        result = self.subs(F / dt)
         return result
 
     def norm_angular_fourier(self, **assumptions):
         """Convert to normalised angular Fourier domain."""
-        from .symbols import Omega
-        from .dsym import dt
-        
-        result = self.subs(Omega / (2 * pi * dt))
-        return result    
+
+        return self
     
     def laplace(self, **assumptions):
         """Determine one-side Laplace transform with 0- as the lower limit."""
@@ -97,10 +105,10 @@ class FourierDomainExpression(FourierDomain, Expr):
 
         return self.time(**assumptions).phasor(**assumptions)        
 
-    def plot(self, fvector=None, plot_type=None, **kwargs):
-        """Plot frequency response at values specified by `fvector`.
+    def plot(self, Fvector=None, plot_type=None, **kwargs):
+        """Plot frequency response at values specified by `Fvector`.
 
-        If `fvector` is a tuple, this sets the frequency limits.
+        If `Fvector` is a tuple, this sets the frequency limits.
 
         `plot_type` - 'dB-phase', 'dB-phase-degrees', 'mag-phase',
         'mag-phase-degrees', 'real-imag', 'mag', 'phase',
@@ -125,9 +133,9 @@ class FourierDomainExpression(FourierDomain, Expr):
         matplotlib.pyplot.plot.
 
         For example:
-            V.plot(fvector, log_frequency=True)
-            V.real.plot(fvector, color='black')
-            V.phase.plot(fvector, color='black', linestyle='--')
+            V.plot(Fvector, log_frequency=True)
+            V.real.plot(Fvector, color='black')
+            V.phase.plot(Fvector, color='black', linestyle='--')
 
         By default complex data is plotted as separate plots of
         magnitude (dB) and phase.
@@ -135,32 +143,36 @@ class FourierDomainExpression(FourierDomain, Expr):
         """
 
         from .plot import plot_frequency
-        return plot_frequency(self, fvector, plot_type=plot_type, **kwargs)
+        return plot_frequency(self, Fvector, plot_type=plot_type,
+                              norm=True, **kwargs)
 
     def remove_images(self):
         """Remove all the spectral images resulting from a DTFT.
         
         For example,
 
-        >>> x = Sum(DiracDelta(f - m/Delta_t), (m, -oo, oo))
+        >>> x = Sum(DiracDelta(F - m * 2 * pi), (m, -oo, oo))
         >>> x.remove_images()
-        DiracDelta(f)
+        DiracDelta(F)
         """
 
         result = remove_images(self.expr, self.var, dt)
         return self.__class__(result, **self.assumptions)
 
     
-def fexpr(arg, **assumptions):
-    """Create FourierDomainExpression object.  If `arg` is fsym return f"""
+def Fexpr(arg, **assumptions):
+    """Create NormFourierDomainExpression object. 
+    If `arg` is Fsym return F"""
 
-    if arg is fsym:
-        return f
+    if arg is Fsym:
+        return F
     return expr_make('fourier', arg, **assumptions)
 
 from .expressionclasses import expressionclasses
 
-classes = expressionclasses.register('fourier', FourierDomainExpression)
+classes = expressionclasses.register('norm fourier',
+                                     NormFourierDomainExpression)
 
-f = FourierDomainExpression('f')
-f.units = uu.Hz
+F = NormFourierDomainExpression('F')
+F.units = uu.rad / uu.rad
+
