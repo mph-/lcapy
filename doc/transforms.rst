@@ -21,7 +21,11 @@ Lcapy can compute many discrete-time Fourier transforms including:
 
 .. include:: DTFTs.rst             
 
-   
+The :math:`\Omega` form is:
+
+.. include:: ODTFTs.rst             
+
+             
 .. _table_discrete_fourier_transforms:
 
 Discrete Fourier Transforms (DFT)

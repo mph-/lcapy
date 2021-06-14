@@ -166,7 +166,7 @@ figs:
 	cd examples/tutorials/opamps; make
 	cd examples/tutorials/shield-guard; make
 
-extra: fourier_transforms.rst laplace_transforms.rst ztransforms.rst DTFTs.rst DFTs.rst
+extra: fourier_transforms.rst laplace_transforms.rst ztransforms.rst DTFTs.rst DFTs.rst ODTFTs.rst
 
 %.rst: %.py
 	python3 $< > $@
