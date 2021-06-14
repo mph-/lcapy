@@ -438,16 +438,22 @@ By default Lcapy returns an expression showing the infinite number of spectral i
     ╱              
     ‾‾‾‾           
    m = -∞          
+   ────────────────
+          Δₜ       
 
 All the images can be removed with the `remove_images()` method.  For example::
 
    >>> nexpr(1).DTFT().remove_images()
    δ(f)
+   ────
+    Δₜ 
 
 Alternatively, the `images` argument can be used with the `DTFT()` method::
 
    >>> nexpr(1).DTFT(images=0)
-   δ(f)  
+   δ(f)
+   ────
+    Δₜ    
    
 
 Inverse discrete-time Fourier transform (IDTFT)
