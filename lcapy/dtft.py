@@ -218,14 +218,14 @@ class DTFTTransformer(BilateralForwardTransformer):
             bb = args[0].coeff(n, 0) 
             # Check if for complex exp function with abs value to
             # allow for parameter arguments
-            if abs(expr/sym.exp(bb)) == 1:
+            if abs(expr / sym.exp(bb)) == 1:
                 return const * sym.exp(bb) * self.add_images(DiracDelta(f - aa), f) / dt         
             
         # Multiplication with n       use n*x(n)  o--o  j / twopidt * d/df X(f)
         if is_multiplied_with(expr, n, 'n', xn_fac):
             expr = expr / xn_fac[0]
-            X = self.DTFT(expr)
-            result = 1 / twopidt * sym.I * sym.simplify(sym.diff(X, f)) * const
+            X = self.transform(expr, n, f)
+            return const / twopidt * sym.I * sym.simplify(sym.diff(X, f))
 
         return const * self.sympy(expr, n, f)
 
