@@ -15,6 +15,8 @@ from .sym import sympify, AppliedUndef, j, pi
 from .dsym import dt
 from .utils import factor_const, scale_shift
 from .sym import symsymbol
+from .ztransform import is_multiplied_with
+from .extrafunctions import UnitImpulse, UnitStep, sincu, sincn, rect
 
 
 __all__ = ('DTFT', )
@@ -132,7 +134,7 @@ class DTFTTransformer(BilateralForwardTransformer):
         const, expr = factor_const(expr, n)
         args = expr.args
         twopidt = 2 * sym.pi * dt
-        Omega = twopidt * f
+        xn_fac = []
         
         # Check for constant.
         if not expr.has(n):
@@ -141,44 +143,89 @@ class DTFTTransformer(BilateralForwardTransformer):
         if expr.has(AppliedUndef):
             # Handle v(n), v(n) * y(n), 3 * v(n) / n etc.
             return self.function(expr, n, f) * const
+        
+        # Handle step u(n-n0)   
+        if expr.is_Function and expr.func in (sym.Heaviside, UnitStep):
+            if args[0] is n:
+                return const / (1 - sym.exp(-sym.I * twopidt * f)) + const * self.add_images(DiracDelta(f), f) / dt / 2   
+            else:
+                delay = n - args[0]
+                if not delay.has(n):
+                    return  const * sym.exp(-sym.I * delay * twopidt * f) / (1 - sym.exp(-sym.I * twopidt * f)) + const * self.add_images(DiracDelta(f), f) / dt / 2
+        
+        # Handle impulse delta (n-n0)   
+        if expr.is_Function and expr.func == UnitImpulse:
+            if args[0] is n:
+                return const   
+            else:
+                delay = n - args[0]
+                if not delay.has(n):
+                    return  const * sym.exp(-sym.I * delay * twopidt * f)
 
+        # Handle signum
+        if (len(args) == 1 and expr.is_Function and
+                expr.func == sym.sign and (args[0].as_poly(n)).is_linear):
+            aa = args[0].coeff(n, 1)
+            bb = args[0].coeff(n, 0)  
+            delay = bb / aa
+            if delay.is_integer:
+                return const * 2 * sym.exp(sym.I * twopidt * f * delay) / (1 - sym.exp(-sym.I * twopidt * f))
+    
+    
+        # Handle sincu        
+        if (len(args) == 1 and expr.is_Function and (expr.func == sincu or expr.func == sincn) 
+                and (args[0].as_poly(n)).is_linear):
+            aa = args[0].coeff(n, 1) 
+            bb = args[0].coeff(n, 0) 
+            delay = bb/aa
+            fac1 = sym.pi / aa  
+            fac2 = 1 /  twopidt
+            if expr.func == sincn:
+                fac1 = 1 / aa
+                fac2 = sym.pi / twopidt
+            if delay.is_integer:
+                return const * fac1 * (UnitStep(f + fac2 * aa)  - UnitStep(f - fac2 * aa) ) *sym.exp(sym.I * delay * twopidt * f)
+        
+        # Handle rect
+        if (len(args) == 1 and expr.is_Function and expr.func == rect and
+            (args[0].as_poly(n)).is_linear):
+            qq = 1/ args[0].coeff(n, 1)
+            delay = qq * args[0].coeff(n, 0)
+            qq = qq // 2
+            if delay.is_integer:
+                return const * sym.exp(sym.I * delay * twopidt * f) * sym.sin(twopidt * f / 2 * (2 * qq + 1) ) / sym.sin(twopidt * f / 2)
+        
         # Handle cos(a*n+b) 
         if (len(args) == 1 and expr.is_Function and
             expr.func == sym.cos and (args[0].as_poly(n)).is_linear):
             aa = args[0].coeff(n, 1) / twopidt
-            bb = args[0].coeff(n, 0) / twopidt
-            co = sym.cos(bb) * (DiracDelta(f + aa) + DiracDelta(f - aa))
-            si = -sym.sin(bb) * (DiracDelta(f + aa) - DiracDelta(f - aa))
-            return self.add_images((co + sym.I * si) * const, f) / dt
+            bb = args[0].coeff(n, 0)
+            ret = sym.exp(-sym.I * bb) * DiracDelta(f + aa) + sym.exp(sym.I * bb) * DiracDelta(f - aa)
+            return const * self.add_images(ret, f) / dt / 2
         
         # Handle sin(a*n+b) 
         if (len(args) == 1 and expr.is_Function
             and expr.func == sym.sin and (args[0].as_poly(n)).is_linear):
             aa = args[0].coeff(n, 1) / twopidt
-            bb = args[0].coeff(n, 0) / twopidt
-            co = sym.sin(bb) * (DiracDelta(f + aa) + DiracDelta(f - aa))
-            si = sym.cos(bb) * (DiracDelta(f + aa) - DiracDelta(f - aa))
-            return self.add_images((co + sym.I * si) * const, f) / dt
+            bb = args[0].coeff(n, 0) 
+            ret = sym.exp(-sym.I * bb) * DiracDelta(f + aa) - sym.exp(sym.I * bb) * DiracDelta(f - aa)
+            return const * sym.I * self.add_images(ret, f) / dt / 2
 
-        # Handle exp(j*(a*n+b)) 
-        if (len(args) == 1 and expr.is_Function and expr.func == sym.exp):
-            p = args[0].as_poly(n)
-            if p.is_linear and args[0].is_complex:
-                aa = args[0].coeff(n, 1) / twopidt / sym.I
-                bb = args[0].coeff(n, 0) / twopidt / sym.I
-                co = sym.sin(bb) * DiracDelta(f - aa)
-                si = sym.cos(bb) * DiracDelta(f - aa)
-                return self.add_images((co + sym.I * si) *
-                                       const / sym.I, f) / dt
-        
-        # Handle signum
-        if (len(args) == 1 and expr.is_Function and
-            expr.func == sym.sign and (args[0].as_poly(n)).is_linear):
-            aa = args[0].coeff(n, 1)
-            bb = args[0].coeff(n, 0)  
-            delay = bb / aa
-            if delay.is_integer:
-                return 2 * sym.exp(sym.I * Omega * delay) / (1 - sym.exp(-sym.I * Omega))
+        # Handle exp(j*a*n+b)
+        if (len(args) == 1 and expr.is_Function and 
+                expr.func == sym.exp and (args[0].as_poly(n)).is_linear):
+            aa = args[0].coeff(n, 1) / twopidt / sym.I
+            bb = args[0].coeff(n, 0) 
+            # Check if for complex exp function with abs value to
+            # allow for parameter arguments
+            if abs(expr/sym.exp(bb)) == 1:
+                return const * sym.exp(bb) * self.add_images(DiracDelta(f - aa), f) / dt         
+            
+        # Multiplication with n       use n*x(n)  o--o  j / twopidt * d/df X(f)
+        if is_multiplied_with(expr, n, 'n', xn_fac):
+            expr = expr / xn_fac[0]
+            X = self.DTFT(expr)
+            result = 1 / twopidt * sym.I * sym.simplify(sym.diff(X, f)) * const
 
         return const * self.sympy(expr, n, f)
 
