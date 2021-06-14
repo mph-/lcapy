@@ -813,6 +813,14 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
             """This is quantity for a SymPy function.
             For help, see the SymPy documentation."""
 
+            # Extract SymPy expressions from Lcapy expressions            
+            newargs = []
+            for arg in args:
+                try:
+                    newargs.append(arg.expr)
+                except AttributeError:
+                    newargs.append(arg)
+            
             # Extract SymPy expressions from Lcapy expressions
             newkwargs = {}
             for key, arg in kwargs.items():
@@ -821,7 +829,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
                 except AttributeError:
                     newkwargs[key] = kwargs
             
-            ret = a(*args, **newkwargs)
+            ret = a(*newargs, **newkwargs)
             
             if not isinstance(ret, sym.Expr):
                 # May have tuple, etc.   These could be wrapped but
