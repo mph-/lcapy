@@ -10,6 +10,7 @@ from .fexpr import f
 from .texpr import t
 from .sexpr import s
 from .omegaexpr import omega, omega0
+from .normomegaexpr import Omega
 
 # Import common SymPy symbols.
 from .sym import pi, j, oo, inf, one

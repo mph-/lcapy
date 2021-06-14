@@ -4,11 +4,14 @@
 Discrete-time signals
 =====================
 
-There are three domain variables for discrete-time signals:
+There are a number of domain variables for discrete-time signals:
 
   - `n` for discrete-time signals, for example, `3 * u(n - 2)`
+  - `f` for linear frequency from a DTFT
   - `k` for discrete-frequency spectra
+  - `omega` for angular frequency from a DTFT, `omega = 2 * pi * f`
   - `z` for z-transforms, for example, `Y(z)`
+  - `Omega` for normalised angular frequency from a DTFT, `Omega = omega * dt`
 
 The `n`, `k`, and `z` variables share many of the attributes and methods of their continuous-time equivalents, `t`, `f`, and `s`, :ref:`expressions`.
     

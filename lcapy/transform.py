@@ -5,14 +5,16 @@ Copyright 2018--2021 Michael Hayes, UCECE
 """
 
 from .sym import sympify, pi
-from .symbols import f, s, t, omega, j, jw, jw0
+from .dsym import dt
+from .symbols import f, s, t, omega, j, jw, jw0, Omega
+from .nexpr import n
 from .expr import expr as expr1
 from .expr import Expr
 
 
 def transform(expr, arg, **assumptions):
-    """If arg is f, s, t, omega, or jw perform domain transformation,
-    otherwise perform substitution.
+    """If arg is n, f, s, t, omega, Omega, or jw perform domain
+    transformation, otherwise perform substitution.
 
     Note (1 / s)(omega) will fail since 1 / s is assumed not to be
     causal and so the Fourier transform is unknown.  However,
@@ -22,12 +24,12 @@ def transform(expr, arg, **assumptions):
     Transforming from s->jomega is fast since it just requires 
     a substitution of s with jomega.
 
-    Transforming from s->omega or s->f can be slow since this requires
-    a inverse Laplace transform followed by a Fourier transform.
-    However, if the expression is causal and the expression is lossy
-    when s is replaced by jw, the result can be found by substituting
-    jw or 2 * 2 * pi * f for s.   This does not apply for an expression such
-    as Z = 1 / (s * C).
+    Transforming from s->omega, s->Omega, or s->f can be slow since
+    this requires a inverse Laplace transform followed by a Fourier
+    transform.  However, if the expression is causal and the
+    expression is lossy when s is replaced by jw, the result can be
+    found by substituting jw or 2 * 2 * pi * f for s.  This does not
+    apply for an expression such as Z = 1 / (s * C).
 
     """
 
@@ -46,9 +48,17 @@ def transform(expr, arg, **assumptions):
         return expr.fourier(**assumptions)
     elif arg is omega:
         return expr.angular_fourier(**assumptions)
+    elif arg is Omega:
+        return expr.norm_angular_fourier(**assumptions)    
     elif arg.has(j):
         return expr.phasor(omega=arg / j, **assumptions)    
-
+    elif arg is n and expr.is_fourier_domain:
+        return expr.IDTFT(**assumptions)
+    elif arg is n and expr.is_angular_fourier_domain:
+        return expr.subs(2 * pi * f).IDTFT(**assumptions)
+    elif arg is n and expr.is_norm_angular_fourier_domain:
+        return expr.subs(2 * pi * f * dt).IDTFT(**assumptions)        
+    
     # Handle expr(texpr), expr(sexpr), expr(fexpr), expr(omegaexpr).
     # For example, expr(2 * f).
     result = None 
@@ -59,7 +69,9 @@ def transform(expr, arg, **assumptions):
     elif isinstance(arg, FourierDomainExpression):
         result = expr.fourier(**assumptions)
     elif isinstance(arg, AngularFourierDomainExpression):
-        result = expr.angular_fourier(**assumptions)        
+        result = expr.angular_fourier(**assumptions)
+    elif isinstance(arg, NormAngularFourierDomainExpression):
+        result = expr.norm_angular_fourier(**assumptions)                
     elif arg.has(j):
         result = expr.phasor(omega=arg / j, **assumptions)
     elif arg.is_constant:
@@ -68,17 +80,17 @@ def transform(expr, arg, **assumptions):
         else:
             result = expr
     else:
-        raise ValueError('Can only return t, f, s, omega, or jw domains')
+        raise ValueError('Can only return t, f, s, omega, Omega, or jw domains')
 
     return result.subs(arg, **assumptions)
 
 
 def call(expr, arg, **assumptions):
 
-    if id(arg) in (id(f), id(s), id(t), id(omega), id(jw), id(jw0)):
+    if id(arg) in (id(n), id(f), id(s), id(t), id(omega), id(jw), id(jw0)):
         return expr.transform(arg, **assumptions)
 
-    if arg in (f, s, t, omega, jw, jw0):
+    if arg in (n, f, s, t, omega, Omega, jw, jw0):
         return expr.transform(arg, **assumptions)
 
     try:
@@ -108,6 +120,8 @@ def select(expr, kind):
         return expr.fourier()
     elif kind == 'omega':
         return expr.angular_fourier()
+    elif kind == 'Omega':
+        return expr.norm_angular_fourier()    
     elif isinstance(kind, str) and kind.startswith('n'):
         return expr.angular_fourier()
     else:
@@ -118,6 +132,7 @@ from .fexpr import FourierDomainExpression
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
+from .normomegaexpr import NormAngularFourierDomainExpression
 from .super import Superposition
 from .current import current
 from .voltage import voltage

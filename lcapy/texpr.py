@@ -109,6 +109,18 @@ class TimeDomainExpression(TimeDomain, Expr):
         # Could optimise...
         return self.change(result, domain='angular fourier', units_scale=uu.s, **assumptions)
 
+    def norm_angular_fourier(self, evaluate=True, **assumptions):
+        """Attempt normalised angular Fourier transform."""
+
+        from .symbols import Omega, pi, f
+        from .dsym import dt
+
+        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
+        result = self.fourier(evaluate, **assumptions).subs(f, Omega / (2 * pi * dt))
+        # Could optimise...
+        return self.change(result, domain='norm angular fourier',
+                           units_scale=uu.s, **assumptions)
+    
     def time(self, **assumptions):
         return self
 

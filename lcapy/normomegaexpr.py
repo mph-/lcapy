@@ -1,55 +1,59 @@
-"""This module provides the FourierDomainExpression class to represent
-f-domain (Fourier domain) expressions.
+"""This module provides the NormAngularFourierDomainExpression class
+to represent Omega-domain (normalised angular Fourier domain)
+expressions.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2021 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
-from .domains import FourierDomain
+from .domains import NormAngularFourierDomain
 from .inverse_fourier import inverse_fourier_transform
 from .inverse_dtft import IDTFT
 from .expr import Expr, expr, expr_make
-from .sym import fsym, ssym, tsym, pi
-from .dsym import nsym, dt
+from .fexpr import f
+from .sym import ssym, tsym, fsym, pi
+from .dsym import Omegasym, nsym, dt
 from .units import u as uu
 from .utils import factor_const, remove_images
 from sympy import Integral, Expr as symExpr
 
-class FourierDomainExpression(FourierDomain, Expr):
+class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
-    """Fourier domain expression or symbol."""
+    """Normalised angular Fourier domain expression or symbol."""
 
-    var = fsym
+    var = Omegasym
 
     def __init__(self, val, **assumptions):
 
         check = assumptions.pop('check', True)        
         assumptions['real'] = True
-        super(FourierDomainExpression, self).__init__(val, **assumptions)
+        super(NormAngularFourierDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr        
         if check and expr.find(ssym) != set() and not expr.has(Integral):
+
             raise ValueError(
-                'f-domain expression %s cannot depend on s' % expr)
+                'Omega-domain expression %s cannot depend on s' % expr)
         if check and expr.find(tsym) != set() and not expr.has(Integral):
             raise ValueError(
-                'f-domain expression %s cannot depend on t' % expr)
+                'Omega-domain expression %s cannot depend on t' % expr)
 
     def as_expr(self):
-        return FourierDomainExpression(self)
+        return NormAngularFourierDomainExpression(self)
 
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
         from .symbols import omega
         
-        result = self.subs(omega / (2 * pi))
+        result = self.subs(omega * dt)
         return result
 
     def inverse_fourier(self, evaluate=True, **assumptions):
         """Attempt inverse Fourier transform."""
 
-        result = inverse_fourier_transform(self.expr, self.var, tsym, evaluate=evaluate)
+        expr = self.subs(2 * pi * fsym * dt)        
+        result = inverse_fourier_transform(expr, fsym, tsym, evaluate=evaluate)
 
         return self.change(result, 'time', units_scale=uu.Hz, **assumptions)
 
@@ -62,7 +66,8 @@ class FourierDomainExpression(FourierDomain, Expr):
         """Convert to discrete-time domain using inverse discrete-time
         Fourier transform."""
 
-        result = IDTFT(self.expr, self.var, nsym, evaluate=evaluate)
+        foo = self.subs(2 * pi * f * dt)        
+        result = IDTFT(foo.expr, self.var, nsym, evaluate=evaluate)
 
         return self.change(result, 'discrete time', units_scale=uu.Hz,
                            **assumptions)
@@ -74,16 +79,8 @@ class FourierDomainExpression(FourierDomain, Expr):
         """Convert to angular Fourier domain."""
         from .symbols import omega
         
-        result = self.subs(omega / (2 * pi))
+        result = self.subs(omega / dt)
         return result
-
-    def norm_angular_fourier(self, **assumptions):
-        """Convert to normalised angular Fourier domain."""
-        from .symbols import Omega
-        from .dsym import dt
-        
-        result = self.subs(Omega / (2 * pi * dt))
-        return result    
     
     def laplace(self, **assumptions):
         """Determine one-side Laplace transform with 0- as the lower limit."""
@@ -96,10 +93,10 @@ class FourierDomainExpression(FourierDomain, Expr):
 
         return self.time(**assumptions).phasor(**assumptions)        
 
-    def plot(self, fvector=None, plot_type=None, **kwargs):
-        """Plot frequency response at values specified by `fvector`.
+    def plot(self, Wvector=None, plot_type=None, **kwargs):
+        """Plot frequency response at values specified by `Wvector`.
 
-        If `fvector` is a tuple, this sets the frequency limits.
+        If `Wvector` is a tuple, this sets the frequency limits.
 
         `plot_type` - 'dB-phase', 'dB-phase-degrees', 'mag-phase',
         'mag-phase-degrees', 'real-imag', 'mag', 'phase',
@@ -124,9 +121,9 @@ class FourierDomainExpression(FourierDomain, Expr):
         matplotlib.pyplot.plot.
 
         For example:
-            V.plot(fvector, log_frequency=True)
-            V.real.plot(fvector, color='black')
-            V.phase.plot(fvector, color='black', linestyle='--')
+            V.plot(Wvector, log_frequency=True)
+            V.real.plot(Wvector, color='black')
+            V.phase.plot(Wvector, color='black', linestyle='--')
 
         By default complex data is plotted as separate plots of
         magnitude (dB) and phase.
@@ -134,32 +131,34 @@ class FourierDomainExpression(FourierDomain, Expr):
         """
 
         from .plot import plot_frequency
-        return plot_frequency(self, fvector, plot_type=plot_type, **kwargs)
+        return plot_frequency(self, Wvector, plot_type=plot_type, **kwargs)
 
     def remove_images(self):
         """Remove all the spectral images resulting from a DTFT.
         
         For example,
 
-        >>> x = Sum(DiracDelta(f - m/Delta_t), (m, -oo, oo))
+        >>> x = Sum(DiracDelta(Omega - m * 2 * pi), (m, -oo, oo))
         >>> x.remove_images()
-        DiracDelta(f)
+        DiracDelta(Omega)
         """
 
         result = remove_images(self.expr, self.var, dt)
         return self.__class__(result, **self.assumptions)
 
     
-def fexpr(arg, **assumptions):
-    """Create FourierDomainExpression object.  If `arg` is fsym return f"""
+def Omegaexpr(arg, **assumptions):
+    """Create NormAngularFourierDomainExpression object. 
+    If `arg` is Omegasym return Omega"""
 
-    if arg is fsym:
-        return f
+    if arg is Omegasym:
+        return Omega
     return expr_make('fourier', arg, **assumptions)
 
 from .expressionclasses import expressionclasses
 
-classes = expressionclasses.register('fourier', FourierDomainExpression)
+classes = expressionclasses.register('norm angular fourier',
+                                     NormAngularFourierDomainExpression)
 
-f = FourierDomainExpression('f')
-f.units = uu.Hz
+Omega = NormAngularFourierDomainExpression('Omega')
+Omega.units = uu.rad

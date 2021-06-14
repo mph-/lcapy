@@ -66,6 +66,7 @@ from .sexpr import sexpr, zp2tf, tf, pr2tf
 from .texpr import texpr
 from .cexpr import cexpr
 from .omegaexpr import omegaexpr
+from .normomegaexpr import Omegaexpr
 from .phasor import phasor
 from .discretetime import *
 from .dltifilter import *

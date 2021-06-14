@@ -191,6 +191,11 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
                                                     images=images,
                                                     **assumptions)
 
+    def norm_angular_fourier(self, **assumptions):
+
+        from .normomegaexpr import Omega
+        return self.DTFT()(Omega)
+    
     def difference_equation(self, inputsym='x', outputsym='y', form='iir'):
         """Create difference equation from impulse response.
 
