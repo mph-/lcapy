@@ -77,9 +77,9 @@ class DiscreteExpression(Expr):
         elif arg is f and self.is_Z_domain:
             return self.DTFT(**assumptions)
         elif arg is omega and self.is_discrete_time_domain:
-            return self.DTFT(**assumptions)(omega)
+            return self.DTFT(omega, **assumptions)
         elif arg is Omega and self.is_discrete_time_domain:
-            return self.DTFT(**assumptions)(Omega)        
+            return self.DTFT(Omega, **assumptions)        
 
         raise ValueError('Unhandled transform')
         

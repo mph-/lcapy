@@ -201,28 +201,21 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
         
         return self.subs((1 + s * dt / 2) / (1 - s * dt / 2))
 
-    def discrete_time_fourier_transform(self, norm=False, angular=False,
+    def discrete_time_fourier_transform(self, var=None, images=oo,
                                         **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
+        return self.DTFT(var, images, **assumptions)        
+        
 
+    def DTFT(self, var=None, images=oo, **assumptions):
+        """Convert to Fourier domain using discrete time Fourier transform."""
         from .symbols import f
 
         if assumptions.get('causal', self.is_causal):
             result = self.subs(exp(j * 2 * pi * f * dt))
         else:
-            return self.IZT(**assumptions).DTFT(norm=norm, angular=angular)
-
-        if norm:
-            result = result.subs(dt, 1)
-        if angular:
-            result = result.angular_fourier()            
-        return result            
-
-    def DTFT(self, norm=False, angular=False, **assumptions):
-        """Convert to Fourier domain using discrete time Fourier transform."""
-    
-        return self.discrete_time_fourier_transform(**assumptions,
-                                                    norm=norm, angular=angular)
+            result = self.IZT(**assumptions).DTFT(images=images)
+        return result(var)
 
     def as_ab(self):
         """Return lists of denominator and numerator coefficients

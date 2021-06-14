@@ -180,6 +180,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Convert to normalised angular Fourier domain."""
         from .symbols import jw
         from .dsym import dt
+        from .normomegaexpr import Omega
         
         if self.is_causal:
             # Note, this does not apply for 1 / s.

@@ -62,11 +62,11 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
         return self.inverse_fourier(evaluate=evaluate, **assumptions)
 
-    def IDTFT(self, evaluate=True, **assumptions):
+    def IDTFT(self, var=None, evaluate=True, **assumptions):
         """Convert to discrete-time domain using inverse discrete-time
         Fourier transform."""
 
-        foo = self.subs(2 * pi * f * dt)        
+        foo = self.subs(2 * pi * f * dt)
         result = IDTFT(foo.expr, self.var, nsym, evaluate=evaluate)
 
         return self.change(result, 'discrete time', units_scale=uu.Hz,
@@ -130,8 +130,9 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
         """
 
-        from .plot import plot_frequency
-        return plot_frequency(self, Wvector, plot_type=plot_type, **kwargs)
+        from .plot import plot_angular_frequency
+        return plot_angular_frequency(self, Wvector, plot_type=plot_type,
+                                      norm=True, **kwargs)
 
     def remove_images(self):
         """Remove all the spectral images resulting from a DTFT.

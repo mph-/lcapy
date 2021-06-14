@@ -391,7 +391,22 @@ The DTFT converts an n-domain or z-domain expression into the f-domain (continuo
 
 If the signal :math:`x(n)` is causal, the DTFT can be found by substituting :math:`z = \exp(-2 \mathrm{j} \pi \Delta t f)` into the z-transform of :math:`x(n)`.
 
-Here's an example of the DTFT:
+Here is an example::
+
+   >>> u(n).DTFT()
+      1        
+   ────────────────
+        -2⋅ⅉ⋅π⋅Δₜ⋅f
+   1 - ℯ           
+
+Alternatively, the transform can be invoked using `f` as an argument::
+
+   >>> u(n)(f)
+          -4⋅ⅉ⋅π⋅Δₜ⋅f
+   1 + 2⋅ℯ           
+
+
+Here's an example of plotting the DTFT:
 
 .. literalinclude:: examples/discretetime/dt1-DTFT-plot1.py
 
@@ -411,9 +426,25 @@ Another option is to use normalised angular frequency :math:`\Omega = 2\pi f \De
    
    X_{2\pi}(\Omega) = \sum_{n=-\infty}^{\infty} x(n) e^{-\mathrm{j} n \Omega}
 
+Here is an example::
+
+   >>> u(n).DTFT(Omega)
+      1        
+   ────────────────
+        -2⋅ⅉ⋅π⋅Δₜ⋅f
+   1 - ℯ           
+
+Alternatively, the transform can be invoked using `Omega` as an argument::
+
+   >>> u(n)(Omega)
+      1        
+   ────────────────
+        -2⋅ⅉ⋅π⋅Δₜ⋅f
+   1 - ℯ           
+   
 A normalised discrete-time angular Fourier transform of `x(n)` can be plotted as follows:
 
->>> x.DTFT()(w).plot(norm=True)
+>>> x.DTFT(Omega).plot()
 
 This plots the normalised angular frequency between :math:`-\pi` and :math:`\pi`.
 

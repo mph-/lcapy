@@ -312,15 +312,14 @@ class Sequence(ExprList):
 
         return (max(w) - min(w))[0] + 1
 
-    def discrete_time_fourier_transform(self, **assumptions):
+    def discrete_time_fourier_transform(self, var=None, **assumptions):
+        """Convert to Fourier domain using discrete time Fourier transform."""
+        return self.DTFT(var, **assumptions)        
+
+    def DTFT(self, var=None, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
 
-        return self.as_impulses().discrete_time_fourier_transform(**assumptions)
-
-    def DTFT(self, **assumptions):
-        """Convert to Fourier domain using discrete time Fourier transform."""
-    
-        return self.discrete_time_fourier_transform(**assumptions)
+        return self.as_impulses().DTFT(var, **assumptions)
 
     def plot(self, ni=None, **kwargs):
         """Plot the sequence.  If `ni` is not specified, it defaults to the
