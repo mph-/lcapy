@@ -1,5 +1,5 @@
-"""This modules provides the DiscreteExpression class to provide common methods for
-the discrete-time representations.
+"""This modules provides the DiscreteExpression class to provide
+common methods for the discrete-time representations.
 
 Copyright 2020 Michael Hayes, UCECE
 
@@ -60,7 +60,9 @@ class DiscreteExpression(Expr):
         if arg is n and self.is_Z_domain:
             return self.IZT(**assumptions)
         elif arg is n and self.is_discrete_fourier_domain:
-            return self.IDFT(**assumptions)        
+            return self.IDFT(**assumptions)
+        elif arg is n and self.is_fourier_domain:
+            return self.IDTFT(**assumptions)        
         elif arg is z and self.is_discrete_time_domain:
             return self.ZT(**assumptions)
         elif arg is z and self.is_discrete_fourier_domain:
