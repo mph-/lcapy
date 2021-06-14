@@ -170,10 +170,9 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         Use `images = 0` to avoid the infinite number of spectral images.
         """
 
-        from .fexpr import f, fexpr
-        from .omegaexpr import omega
-        from .normomegaexpr import Omega
-        from .normfexpr import F
+        from .extrafunctions import UnitStep        
+        from .symbols import f, omega, Omega, F
+        from .fexpr import fexpr
         from .dtft import DTFT        
         
         if var is None:
@@ -183,8 +182,8 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         
-        if assumptions.is_causal:
-            result = self.ZT(**assumptions).DTFT()
+        if assumptions.is_causal and not self.has(UnitStep):
+            result = self.ZT(**assumptions).DTFT(var)
         else:
             result = fexpr(DTFT(self.expr, self.var, fsym, images=images))
 

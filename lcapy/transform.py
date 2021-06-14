@@ -138,6 +138,7 @@ from .fexpr import FourierDomainExpression
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
+from .normfexpr import NormFourierDomainExpression
 from .normomegaexpr import NormAngularFourierDomainExpression
 from .super import Superposition
 from .current import current
