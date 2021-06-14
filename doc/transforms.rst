@@ -21,7 +21,12 @@ Lcapy can compute many discrete-time Fourier transforms including:
 
 .. include:: DTFTs.rst             
 
-The :math:`\Omega` form is:
+
+Discrete-Time Fourier Transforms (DTFT) (normalised angular frequency)
+======================================================================
+
+Lcapy can compute many discrete-time Fourier transforms in the
+:math:`\Omega` form, including:
 
 .. include:: ODTFTs.rst             
 

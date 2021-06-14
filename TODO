@@ -95,15 +95,11 @@ an answer that appears valid for DC.
 
 19. Warn if try to multiply impedance impulse response with current in time-domain, etc.
 
-20. Plot Dirac deltas
+20. Plot Dirac deltas, need to expand first
 
 21. H(f) prints as u(f) for a user defined function.  Perhaps need a mechanism to override interpretion of H as Heaviside function?
 
-22. Convert laplace.py to new Transformer class
-
-23. Convert ztransform.py to new Transformer class
-
-24. Add DTFT
+22. Fix expand and other funcs by converting Lcapy expressions in kwargs.
 
 
 Testing
@@ -200,14 +196,7 @@ Discrete-time
 
 8. Coerce sympy to print ordered sum of delayed impulses.
 
-9. Teach IDFT of DFT.
+9. Fourier series?
 
-10. Inverse z-transform cos(2*pi*dt*n)(z)(n).
-
-11. Fourier series?
-
-12. Add domain variable F for normalized frequency.
-
-13. Perhaps add f-like domain variable for DTFT?
-
+10. Set number of images.
 

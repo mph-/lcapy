@@ -14,7 +14,7 @@ from .sym import j, oo, pi, fsym, oo
 from .dsym import nsym, ksym, zsym, dt
 from .ztransform import ztransform
 from .dft import DFT
-from sympy import Sum, summation, limit
+from sympy import Sum, summation, limit, DiracDelta
 
 
 __all__ = ('nexpr', )
@@ -180,14 +180,12 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         if id(var) not in (id(f), id(F), id(omega), id(Omega)):
             raise ValueError('DTFT requires var to be f, F, omega, or Omega`, not %s' % var)
 
-        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
-        
-        if assumptions.is_causal and not self.has(UnitStep):
-            result = self.ZT(**assumptions).DTFT(var)
-        else:
-            result = fexpr(DTFT(self.expr, self.var, fsym, images=images))
+        dtft = DTFT(self.expr, self.var, fsym, images=images)
 
-        return result(var)
+        result = fexpr(dtft)(var)
+        result = result.expand(diracdelta=True, wrt=var)
+        result = result.simplify()
+        return result
 
     def norm_angular_fourier(self, **assumptions):
 
