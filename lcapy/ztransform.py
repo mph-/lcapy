@@ -266,7 +266,7 @@ class ZTransformer(UnilateralForwardTransformer):
             X = self.term(expr, n, z)
             result = sym.simplify(-z * sym.diff(X, z))
 
-        # Multiplication with a**(b*n+c)        use    lam**n *x(n)  o--o  X(z/lam)
+        # Multiplication with a**(b*n+c)   use    lam**n *x(n)  o--o  X(z/lam)
         elif is_multiplied_with(expr, n, 'a**n', xn_fac):
             expr /= xn_fac[0]
             ref = xn_fac[0].args
@@ -276,7 +276,7 @@ class ZTransformer(UnilateralForwardTransformer):
             X = self.term(expr, n, z)
             result = lam**cc * sym.simplify(X.subs(z, z / lam**bb)) 
 
-        # Multiplication with exp(b*n+c)       use    exp**n *x(n)  o--o  X(z/exp(1))
+        # Multiplication with exp(b*n+c)   use    exp**n *x(n)  o--o  X(z/exp(1))
         elif is_multiplied_with(expr, n, 'exp(n)', xn_fac):
             expr /= xn_fac[0]
             ref = xn_fac[0].args

@@ -140,12 +140,12 @@ class DTFTTransformer(BilateralForwardTransformer):
         if not expr.has(n):
             return self.add_images(expr * DiracDelta(f) * const, f) / dt
 
-        if expr.has(AppliedUndef):
+        elif expr.has(AppliedUndef):
             # Handle v(n), v(n) * y(n), 3 * v(n) / n etc.
             return self.function(expr, n, f) * const
         
         # Handle step u(n-n0)   
-        if expr.is_Function and expr.func in (sym.Heaviside, UnitStep):
+        elif expr.is_Function and expr.func in (sym.Heaviside, UnitStep):
             if args[0] is n:
                 return const / (1 - sym.exp(-sym.I * twopidt * f)) + const * self.add_images(DiracDelta(f), f) / dt / 2   
             else:
@@ -154,7 +154,7 @@ class DTFTTransformer(BilateralForwardTransformer):
                     return  const * sym.exp(-sym.I * delay * twopidt * f) / (1 - sym.exp(-sym.I * twopidt * f)) + const * self.add_images(DiracDelta(f), f) / dt / 2
         
         # Handle impulse delta (n-n0)   
-        if expr.is_Function and expr.func == UnitImpulse:
+        elif expr.is_Function and expr.func == UnitImpulse:
             if args[0] is n:
                 return const   
             else:
@@ -163,8 +163,8 @@ class DTFTTransformer(BilateralForwardTransformer):
                     return  const * sym.exp(-sym.I * delay * twopidt * f)
 
         # Handle signum
-        if (len(args) == 1 and expr.is_Function and
-                expr.func == sym.sign and (args[0].as_poly(n)).is_linear):
+        elif (len(args) == 1 and expr.is_Function and
+              expr.func == sym.sign and (args[0].as_poly(n)).is_linear):
             aa = args[0].coeff(n, 1)
             bb = args[0].coeff(n, 0)  
             delay = bb / aa
@@ -173,8 +173,9 @@ class DTFTTransformer(BilateralForwardTransformer):
     
     
         # Handle sincu        
-        if (len(args) == 1 and expr.is_Function and (expr.func == sincu or expr.func == sincn) 
-                and (args[0].as_poly(n)).is_linear):
+        elif (len(args) == 1 and expr.is_Function and
+              (expr.func == sincu or expr.func == sincn) and
+              (args[0].as_poly(n)).is_linear):
             aa = args[0].coeff(n, 1) 
             bb = args[0].coeff(n, 0) 
             delay = bb/aa
@@ -187,7 +188,7 @@ class DTFTTransformer(BilateralForwardTransformer):
                 return const * fac1 * (UnitStep(f + fac2 * aa)  - UnitStep(f - fac2 * aa) ) *sym.exp(sym.I * delay * twopidt * f)
         
         # Handle rect
-        if (len(args) == 1 and expr.is_Function and expr.func == rect and
+        elif (len(args) == 1 and expr.is_Function and expr.func == rect and
             (args[0].as_poly(n)).is_linear):
             qq = 1/ args[0].coeff(n, 1)
             delay = qq * args[0].coeff(n, 0)
@@ -196,7 +197,7 @@ class DTFTTransformer(BilateralForwardTransformer):
                 return const * sym.exp(sym.I * delay * twopidt * f) * sym.sin(twopidt * f / 2 * (2 * qq + 1) ) / sym.sin(twopidt * f / 2)
         
         # Handle cos(a*n+b) 
-        if (len(args) == 1 and expr.is_Function and
+        elif (len(args) == 1 and expr.is_Function and
             expr.func == sym.cos and (args[0].as_poly(n)).is_linear):
             aa = args[0].coeff(n, 1) / twopidt
             bb = args[0].coeff(n, 0)
@@ -204,7 +205,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             return const * self.add_images(ret, f) / dt / 2
         
         # Handle sin(a*n+b) 
-        if (len(args) == 1 and expr.is_Function
+        elif (len(args) == 1 and expr.is_Function
             and expr.func == sym.sin and (args[0].as_poly(n)).is_linear):
             aa = args[0].coeff(n, 1) / twopidt
             bb = args[0].coeff(n, 0) 
@@ -212,7 +213,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             return const * sym.I * self.add_images(ret, f) / dt / 2
 
         # Handle exp(j*a*n+b)
-        if (len(args) == 1 and expr.is_Function and 
+        elif (len(args) == 1 and expr.is_Function and 
                 expr.func == sym.exp and (args[0].as_poly(n)).is_linear):
             aa = args[0].coeff(n, 1) / twopidt / sym.I
             bb = args[0].coeff(n, 0) 
@@ -221,12 +222,31 @@ class DTFTTransformer(BilateralForwardTransformer):
             if abs(expr / sym.exp(bb)) == 1:
                 return const * sym.exp(bb) * self.add_images(DiracDelta(f - aa), f) / dt         
             
-        # Multiplication with n       use n*x(n)  o--o  j / twopidt * d/df X(f)
-        if is_multiplied_with(expr, n, 'n', xn_fac):
+        # Multiplication with n       use n* x(n)  o--o  j / twopidt * d/df X(f)
+        elif is_multiplied_with(expr, n, 'n', xn_fac):
             expr = expr / xn_fac[0]
             X = self.transform(expr, n, f)
             return const / twopidt * sym.I * sym.simplify(sym.diff(X, f))
 
+        # Multiplication with a**(b*n+c)   use    lam**n * x(n)  o--o  X(f/lam)
+        elif is_multiplied_with(expr, n, 'a**n', xn_fac):
+            expr /= xn_fac[0]
+            ref = xn_fac[0].args
+            lam = ref[0]
+            bb = ref[1].coeff(n, 1)
+            cc = ref[1].coeff(n, 0)              
+            X = self.term(expr, n, f)
+            return lam**cc * sym.simplify(X.subs(f, f / lam**bb))
+
+        # Multiplication with exp(b*n+c)   use    exp**n * x(n)  o--o  X(f/exp(1))
+        elif is_multiplied_with(expr, n, 'exp(n)', xn_fac):
+            expr /= xn_fac[0]
+            ref = xn_fac[0].args
+            bb = ref[0].coeff(n, 1)
+            cc = ref[0].coeff(n, 0)              
+            X = self.term(expr, n, f)
+            return sym.exp(cc) * sym.simplify(X.subs(f, f / sym.exp(bb))) 
+        
         return const * self.sympy(expr, n, f)
 
     

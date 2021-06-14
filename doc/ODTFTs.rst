@@ -22,7 +22,7 @@
 
 :math:`\frac{1}{n} \longleftrightarrow \sum_{n=-\infty}^{\infty} \frac{e^{- \mathrm{j} \Omega n}}{n}`
 
-:math:`\alpha^{- n} u\left[n\right] \longleftrightarrow \sum_{n=-\infty}^{\infty} \alpha^{- n} e^{- \mathrm{j} \Omega n} u\left[n\right]`
+:math:`\alpha^{- n} u\left[n\right] \longleftrightarrow \frac{e^{\mathrm{j} \Omega \alpha}}{e^{\mathrm{j} \Omega \alpha} - 1} + \frac{\pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega - \frac{2 \pi m}{\alpha}\right)}{\alpha}`
 
 :math:`\mathrm{rect}{\left(n \right)} \longleftrightarrow 1`
 

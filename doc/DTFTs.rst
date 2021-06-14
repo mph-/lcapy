@@ -22,7 +22,7 @@
 
 :math:`\frac{1}{n} \longleftrightarrow \sum_{n=-\infty}^{\infty} \frac{e^{- 2 \mathrm{j} \pi \Delta_{t} f n}}{n}`
 
-:math:`\alpha^{- n} u\left[n\right] \longleftrightarrow \sum_{n=-\infty}^{\infty} \alpha^{- n} e^{- 2 \mathrm{j} \pi \Delta_{t} f n} u\left[n\right]`
+:math:`\alpha^{- n} u\left[n\right] \longleftrightarrow \frac{e^{2 \mathrm{j} \pi \Delta_{t} \alpha f}}{e^{2 \mathrm{j} \pi \Delta_{t} \alpha f} - 1} + \frac{\sum_{m=-\infty}^{\infty} \delta\left(f - \frac{m}{\Delta_{t} \alpha}\right)}{2 \Delta_{t} \alpha}`
 
 :math:`\mathrm{rect}{\left(n \right)} \longleftrightarrow 1`
 
