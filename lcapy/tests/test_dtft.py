@@ -47,4 +47,3 @@ class LcapyTester(unittest.TestCase):
         #X = x.DTFT(Omega)
         # Need delta part
         #self.assertEqual(X, 1 / (1 - exp(-j * Omega)), "u(n).DTFT(Omega)")
-        

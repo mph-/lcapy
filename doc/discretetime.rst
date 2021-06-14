@@ -407,7 +407,6 @@ Alternatively, the transform can be invoked using `f` as an argument::
         -2⋅ⅉ⋅π⋅Δₜ⋅f
    1 - ℯ           
 
-
 Here's an example of plotting the DTFT:
 
 .. literalinclude:: examples/discretetime/dt1-DTFT-plot1.py
