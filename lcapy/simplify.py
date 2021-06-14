@@ -7,7 +7,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 from sympy import Add, Mul, DiracDelta, Heaviside, Integral, oo, sin, cos, sqrt, atan2, pi, Symbol, solve
 
 
-def simplify_dirac_delta_term(expr):
+def simplify_dirac_delta_product_term(expr):
     """ Simplify f(t) * DiracDelta(t) to f(0) * DiracDelta(t)."""
 
     if not expr.has(DiracDelta):
@@ -47,12 +47,14 @@ def simplify_dirac_delta(expr, expand=False):
     if not expr.has(DiracDelta):
         return expr
 
+    # Could also convert delta(a * t) to delta(t) / a
+    
     if not expand:
-        return simplify_dirac_delta_term(expr)
+        return simplify_dirac_delta_product_term(expr)
     
     terms = expr.expand().as_ordered_terms()
 
-    return Add(*[simplify_dirac_delta_term(term) for term in terms])
+    return Add(*[simplify_dirac_delta_product_term(term) for term in terms])
 
 
 # def simplify_heaviside_product(expr):
