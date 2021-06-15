@@ -1,8 +1,8 @@
-:math:`\cos{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \left(\frac{\Omega \left(\delta\left(2 \pi \Delta_{t} f_{0} - \Omega + 2 \pi m\right) - \delta\left(2 \pi \Delta_{t} f_{0} + \Omega - 2 \pi m\right)\right)}{2} - \pi m \delta\left(2 \pi \Delta_{t} f_{0} - \Omega + 2 \pi m\right) + \pi m \delta\left(2 \pi \Delta_{t} f_{0} + \Omega - 2 \pi m\right)\right)}{\Delta_{t} f_{0}}`
+:math:`\cos{\left(\Omega_{0} n \right)} \longleftrightarrow \pi \sum_{m=-\infty}^{\infty} \left(\delta\left(- \Omega + \Omega_{0} + 2 \pi m\right) + \delta\left(\Omega + \Omega_{0} - 2 \pi m\right)\right)`
 
-:math:`\sin{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{\mathrm{j} \sum_{m=-\infty}^{\infty} \left(- \frac{\Omega \left(\delta\left(2 \pi \Delta_{t} f_{0} - \Omega + 2 \pi m\right) + \delta\left(2 \pi \Delta_{t} f_{0} + \Omega - 2 \pi m\right)\right)}{2} + \pi m \delta\left(2 \pi \Delta_{t} f_{0} - \Omega + 2 \pi m\right) + \pi m \delta\left(2 \pi \Delta_{t} f_{0} + \Omega - 2 \pi m\right)\right)}{\Delta_{t} f_{0}}`
+:math:`\sin{\left(\Omega_{0} n \right)} \longleftrightarrow \mathrm{j} \pi \sum_{m=-\infty}^{\infty} \left(- \delta\left(- \Omega + \Omega_{0} + 2 \pi m\right) + \delta\left(\Omega + \Omega_{0} - 2 \pi m\right)\right)`
 
-:math:`e^{2 \mathrm{j} \pi \Delta_{t} f_{0} n} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \left(\Omega - 2 \pi m\right) \delta\left(2 \pi \Delta_{t} f_{0} - \Omega + 2 \pi m\right)}{\Delta_{t} f_{0}}`
+:math:`e^{\mathrm{j} \Omega_{0} n} \longleftrightarrow 2 \pi \sum_{m=-\infty}^{\infty} \delta\left(- \Omega + \Omega_{0} + 2 \pi m\right)`
 
 :math:`1 \longleftrightarrow 2 \pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega - 2 \pi m\right)`
 
