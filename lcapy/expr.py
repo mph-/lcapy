@@ -2937,7 +2937,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
         from .dsym import dt
-        from .sym import fsym, Fsym, omegasym, Omegasym
+        from .sym import fsym, Fsym, omegasym, Omegasym, pi
 
         var = self.var
         
