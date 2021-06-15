@@ -331,8 +331,20 @@ The poles and zeros of a z-domain expression can be plotted using the `plot()` m
 Transforms
 ==========
 
-Lcapy implements a number of transforms for converting between different domains.
-   
+Lcapy implements a number of transforms for converting between different domains.  The explicit methods are:
+
+- `DFT()` Discrete Fourier transform
+
+- `DTFT()` Discrete-time Fourier transform  
+
+- `ZT()` Z-transform
+
+- `IDFT()` Inverse discrete Fourier transform
+
+- `IDTFT()` Inverse discrete-time Fourier transform  
+
+- `IZT()` Inverse z-transform  
+
 
 Z-transform (ZT)
 ----------------

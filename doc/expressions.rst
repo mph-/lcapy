@@ -5,8 +5,8 @@ Expressions
 ===========
 
 Lcapy expressions are similar to SymPy expressions except they have a
-specific domain depending on the predefined domain variables `t`, `s`, `f`,
-`omega` (`w`), and `jomega` (`jw`).   They can also have associated quantities and units.
+specific domain depending on the predefined domain variables `t`, `s`, `f`, `F`
+`omega` (`w`), `Omega` (`W`), and `jomega` (`jw`).   They can also have associated quantities and units.
 
 
 Symbols
@@ -63,15 +63,19 @@ Rational numbers in Lcapy expressions can be converted to SymPy floating point n
 Domain variables
 ----------------
 
-Lcapy has five predefined domain variables for continuous time signals:
+Lcapy has seven predefined domain variables for continuous time signals:
 
 - `t` -- time domain
 
 - `f` -- Fourier (frequency) domain
 
+- `F` -- normalized Fourier (frequency) domain (:math:`F = f \Delta t`)
+
 - `s` -- Laplace (complex frequency) domain
 
-- `omega` (or `w`) -- angular Fourier domain
+- `omega` (or `w`) -- angular Fourier domain (:math:`\omega = 2 \pi f`)
+
+- `Omega` (or `W`) -- normalized angular Fourier domain (:math:`\Omega = \omega \Delta t`)
 
 - `jomega` (or `jw`) -- phasor domain
   
@@ -176,13 +180,13 @@ rise/fall time.  When `alpha = 0` it is equivalent to `rect(t)` and
 when `alpha = 1` it is equivalent to `tri(t)`.
 
 Lcapy uses the normalized form of the `sinc` function (cardinal sine),
-:math:`sin(\pi x) / (\pi x)`.  This is the same as NumPy but SymPy
-uses the unnormalized form :math:`sin(x) / x`.  Lcapy uses `sincu` for
+:math:`\sin(\pi x) / (\pi x)`.  This is the same as NumPy but SymPy
+uses the unnormalized form :math:`\sin(x) / x`.  Lcapy uses `sincu` for
 the latter and the alias `sincn` for `sinc`.  Note, Lcapy prints
 `sinc` as `sincn` due to a bug in SymPy.  This is likely to change in
 the future.
 
-The periodic sinc `psinc` function is defined as :math:`sin(M \pi x) / (M sin(\pi x))`.
+The periodic sinc `psinc` function is defined as :math:`\sin(M \pi x) / (M \sin(\pi x))`.
 
 
 .. _domains:   
@@ -599,6 +603,17 @@ Poles and zeros
 - `roots(s)` returns roots of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the roots.
 
 - `zeros()` returns zeros of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the zeros.   
+
+Transforms
+----------
+
+- `FT()` Fourier transform
+
+- `IFT()` Inverse Fourier transform
+
+- `LT()` Laplace transform
+
+- `ILT()` Inverse Laplace transform    
   
 
 Miscellaneous
@@ -813,8 +828,10 @@ expression does, the SymPy method is used.  For example:
 
 - `diff()`
 
-- `simplify()`
+- `expand()`  
   
+- `simplify()`
+
    
 Utility functions
 =================
@@ -970,7 +987,15 @@ and the following definition of the inverse Fourier transform:
 
     v(t) = \mathcal{F}^{-1}\{V(f)\} = \int_{-\infty}^{\infty} V(f) \exp(\mathrm{j} 2\pi f t) \mathrm{d}f
 
-Here's an example of use::
+The Fourier transform can be performed with the explicit `FT()` method::
+
+  >>> f0 = symbol('f0')
+  >>> cos(2 * pi * f0 * t).FT()
+    δ(f - f₀)   δ(f + f₀)
+   ───────── + ─────────
+       2           2
+    
+Alternatively:: 
 
   >>> f0 = symbol('f0')
   >>> cos(2 * pi * f0 * t)(f)
@@ -1001,7 +1026,15 @@ and the following definition of the inverse angular Fourier transform:
 
     v(t) = \mathcal{F}_{\omega}^{-1}\{V(\omega)\} = \frac{1}{2\pi}\int_{-\infty}^{\infty} V(\omega) \exp(\mathrm{j} \omega t) \mathrm{d}\omega    
 
-Here's an example of use::
+
+The angular Fourier transform can be performed with the explicit
+`FT()` method with `omega` or `w` as an argument::
+  
+  >>> f0 = symbol('f0')
+  >>> cos(2 * pi * f0 * t).FT(omega)
+   π⋅(δ(2⋅π⋅f₀ - ω) + δ(2⋅π⋅f₀ + ω))
+
+Alternatively::
 
   >>> rect(t)(w)
        ⎛ ω ⎞
@@ -1059,11 +1092,20 @@ where :math:`v(0^{-})` is the pre-initial value of :math:`v`.
 Here's an example of use::
 
   >>> f0 = symbol('f0')
+  >>> cos(2 * pi * f0 * t).LT()
+         s      
+   ─────────────
+      2   2    2
+   4⋅π ⋅f₀  + s
+
+Alternatively::
+
+  >>> f0 = symbol('f0')
   >>> cos(2 * pi * f0 * t)(s)
          s      
    ─────────────
       2   2    2
-   4⋅π ⋅f₀  + s 
+   4⋅π ⋅f₀  + s    
 
 
 .. _substitution:

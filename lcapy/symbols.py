@@ -31,3 +31,6 @@ w = omega
 w0 = omega0
 
 # Omega = omega * dt
+
+W = Omega
+
