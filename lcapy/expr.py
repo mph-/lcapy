@@ -1793,7 +1793,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 response = response.real
             return response
 
-        expr = self.expr
+        # Use doit to expand Sum, etc.
+        expr = self.doit().expr
 
         if not hasattr(self, 'var') or self.var is None:
             symbols = list(expr.free_symbols)

@@ -65,6 +65,8 @@ def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
 def plot_pole_zero(obj, **kwargs):
 
     from matplotlib.pyplot import Circle, rcParams
+
+    obj = obj.doit()
     
     poles = obj.poles()
     zeros = obj.zeros()
@@ -244,6 +246,8 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
 
 def plot_frequency(obj, f, plot_type=None, **kwargs):
 
+    obj = obj.doit()
+    
     # Much of the hoop jumping is to speed up plotting since
     # obj.real can be slow.  Instead we evaluate complex
     # objects and then convert to phase, magnitude, etc.
@@ -388,6 +392,7 @@ def plot_angular_frequency(obj, omega, plot_type=None, **kwargs):
 
 def plot_time(obj, t, plot_type=None, **kwargs):
 
+    obj = obj.doit()    
     npoints = kwargs.pop('npoints', 400)        
     
     # FIXME, determine useful time range...
@@ -447,6 +452,7 @@ def plot_time(obj, t, plot_type=None, **kwargs):
 # make a stem plot for complex values sequences in the complex domain
 def plot_sequence_polar(obj, ni=(-10, 10), **kwargs):
 
+    obj = obj.doit()
     npoints = kwargs.pop('npoints', 400)        
     
     # FIXME, determine useful range...
@@ -482,6 +488,8 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
 
     from matplotlib.ticker import MaxNLocator
 
+    obj = obj.doit()
+    
     if polar:
         return plot_sequence_polar(obj, ni, **kwargs)
     
@@ -546,6 +554,8 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
 
 def plot_phasor(obj, **kwargs):
 
+    obj = obj.doit()
+    
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None),
                    subplot_kw=dict(polar=True))
