@@ -213,7 +213,7 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=[], log_magnitude=False,
         default_ylabel = part.capitalize()
     else:
         default_ylabel = label + ' ' + part
-    if units != '':
+    if units != '' and units != '1':
         default_ylabel += ' (' + units + ')'
         
     xlabel = kwargs.pop('xlabel', default_xlabel)
