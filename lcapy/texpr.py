@@ -85,41 +85,44 @@ class TimeDomainExpression(TimeDomain, Expr):
         
         return PhasorTimeDomainExpression.from_time(self, **assumptions)
 
-    def FT(self, evaluate=True, **assumptions):
-        """Attempt Fourier transform.  This is an alias for fourier.
+    def FT(self, var=None, evaluate=True, **assumptions):
+        """Attempt Fourier transform.
 
         X(f) = \int_{-\infty}^{\infty} x(t) exp(-j 2\pi f t) dt."""
 
-        return self.fourier(evaluate, **assumptions)        
-
-    def fourier(self, evaluate=True, **assumptions):
-        """Attempt Fourier transform."""
+        from .symbols import f, omega, Omega, F
+        
+        if var is None:
+            var = f
+        if id(var) not in (id(f), id(F), id(omega), id(Omega)):
+            raise ValueError('FT requires var to be f, F, omega, or Omega`, not %s' % var)
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = fourier_transform(self.expr, self.var, fsym, evaluate=evaluate)
-        return self.change(result, domain='fourier', units_scale=uu.s, **assumptions)
+        result = self.change(result, domain='fourier', units_scale=uu.s, **assumptions)
+        result = result(var)
+        result = result.expand(diracdelta=True, wrt=var)
+        result = result.simplify()
+        return result
+        
+    def fourier(self, var=None, evaluate=True, **assumptions):
+        """Attempt Fourier transform. This is an alias for FT."""
+
+        return self.FT(var, evaluate, **assumptions)        
 
     def angular_fourier(self, evaluate=True, **assumptions):
         """Attempt angular Fourier transform."""
 
-        from .symbols import omega, pi, f
-
-        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
-        result = self.fourier(evaluate, **assumptions).subs(f, omega / (2 * pi))
-        # Could optimise...
-        return self.change(result, domain='angular fourier', units_scale=uu.s, **assumptions)
+        from .symbols import omega
+        
+        return self.FT(omega, evaluate, **assumptions)
 
     def norm_angular_fourier(self, evaluate=True, **assumptions):
         """Attempt normalised angular Fourier transform."""
 
-        from .symbols import Omega, pi, f
-        from .dsym import dt
+        from .symbols import Omega
 
-        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
-        result = self.fourier(evaluate, **assumptions).subs(f, Omega / (2 * pi * dt))
-        # Could optimise...
-        return self.change(result, domain='norm angular fourier',
-                           units_scale=uu.s, **assumptions)
+        return self.FT(Omega, evaluate, **assumptions)        
     
     def time(self, **assumptions):
         return self

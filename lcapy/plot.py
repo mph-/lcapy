@@ -29,7 +29,7 @@ def make_axes(figsize=None, axes=None, **kwargs):
     return axes
 
 
-def plot_deltas(ax, t, deltas, var, plot_type='real'):
+def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
 
     for delta in deltas:
         delta = delta.expand(diracdelta=True, wrt=var)
@@ -57,7 +57,7 @@ def plot_deltas(ax, t, deltas, var, plot_type='real'):
             raise ValueError('Unhandled plot type %s' % plot_type)
 
         if t0 >= min(t) and t0 <= max(t):
-            ax.arrow(t0, 0, 0, const, lw=1.5,  fc='k', ec='k',
+            ax.arrow(t0, 0, 0, const, lw=1.5,  fc=color, ec=color,
                      head_width=0.1, head_length=0.2, overhang=0.1,
                      length_includes_head=True, clip_on=False)            
 
@@ -224,10 +224,11 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
     yscale = kwargs.pop('yscale', 1)
     title = kwargs.pop('title', None)
 
-    plot(f * xscale, V * yscale, **kwargs)
+    lines = plot(f * xscale, V * yscale, **kwargs)
+    color = kwargs.pop('color', lines[0].get_color())
 
     if deltas is not None:
-        plot_deltas(ax, f * xscale, deltas, obj.var, plot_type)
+        plot_deltas(ax, f * xscale, deltas, obj.var, plot_type, color)
     
     if xlabel is not None:
         ax.set_xlabel(xlabel)
@@ -425,7 +426,9 @@ def plot_time(obj, t, plot_type=None, **kwargs):
     yscale = kwargs.pop('yscale', 1)
     title = kwargs.pop('title', None)
     
-    ax.plot(t * xscale, v * yscale, **kwargs)
+    lines = ax.plot(t * xscale, v * yscale, **kwargs)
+    color = kwargs.pop('color', lines[0].get_color())
+    
     if xlabel is not None:
         ax.set_xlabel(xlabel)
     if ylabel is not None:        
@@ -435,7 +438,7 @@ def plot_time(obj, t, plot_type=None, **kwargs):
 
     if deltas is not None:
         # TODO, fix yscale
-        plot_deltas(ax, t * xscale, deltas, obj.var, plot_type)
+        plot_deltas(ax, t * xscale, deltas, obj.var, plot_type, color=color)
         
     ax.grid(True)
     return ax
@@ -520,13 +523,15 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
     yscale = kwargs.pop('yscale', 1)
     title = kwargs.pop('title', None)
 
-    ax.stem(ni * xscale, v * yscale, use_line_collection=True, **kwargs)
+    stems = ax.stem(ni * xscale, v * yscale, use_line_collection=True, **kwargs)
+    color = kwargs.pop('color', stems[0].get_color())    
+    
     # Ensure integer ticks.
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
     if deltas is not None:
         # TODO, fix yscale
-        plot_deltas(ax, ni * xscale, deltas, obj.var, plot_type)
+        plot_deltas(ax, ni * xscale, deltas, obj.var, plot_type, color=color)
     
     if xlabel is not None:
         ax.set_xlabel(xlabel)
