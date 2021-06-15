@@ -24,7 +24,7 @@ from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function, Eq
 from .units import units, u as uu, dB
-from .utils import as_N_D, as_sum
+from .utils import as_N_D, as_sum, remove_images
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
@@ -2918,6 +2918,28 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         else:
             return ret
 
+    def remove_images(self, m1=0, m2=0):
+        """Remove all spectral images resulting from a DTFT.
+        
+        For example,
+
+        >>> x = Sum(DiracDelta(f - m/Delta_t), (m, -oo, oo))
+        >>> x.remove_images()
+        DiracDelta(f)
+
+        Alternatively, the number of images can be changed,
+        for example,
+
+        >>> x = Sum(DiracDelta(f - m/Delta_t), (m, -1, 1))
+        >>> x.remove_images()
+        Sum(DiracDelta(f - m/Delta_t), (f, -1, 1))
+
+        """
+        from .dsym import dt
+
+        result = remove_images(self.expr, self.var, dt, m1, m2)
+        return self.__class__(result, **self.assumptions)
+        
         
 def exprcontainer(arg, **assumptions):
 

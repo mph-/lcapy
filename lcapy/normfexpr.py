@@ -146,19 +146,6 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         return plot_frequency(self, Fvector, plot_type=plot_type,
                               norm=True, **kwargs)
 
-    def remove_images(self):
-        """Remove all the spectral images resulting from a DTFT.
-        
-        For example,
-
-        >>> x = Sum(DiracDelta(F - m * 2 * pi), (m, -oo, oo))
-        >>> x.remove_images()
-        DiracDelta(F)
-        """
-
-        result = remove_images(self.expr, self.var, dt)
-        return self.__class__(result, **self.assumptions)
-
     
 def Fexpr(arg, **assumptions):
     """Create NormFourierDomainExpression object. 

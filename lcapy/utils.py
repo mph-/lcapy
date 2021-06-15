@@ -135,7 +135,7 @@ def separate_dirac_delta(expr):
     return rest, deltas
 
 
-def remove_images(expr, var, dt):
+def remove_images(expr, var, dt, m1=0, m2=0):
 
     const, expr1 = factor_const(expr, var)
 
@@ -144,7 +144,7 @@ def remove_images(expr, var, dt):
 
     if len(terms) > 1:
         for term in expr1.as_ordered_terms():
-            result += remove_images(term, var, dt)
+            result += remove_images(term, var, dt, m1, m2)
         return const * result
         
     if not isinstance(expr1, sym.Sum):
@@ -154,4 +154,9 @@ def remove_images(expr, var, dt):
     if not expr1.args[0].has(foo):
         return expr    
 
-    return const * expr1.args[0].replace(foo, var)
+    if m1 == 0 and m2 == 0:
+        return const * expr1.args[0].replace(foo, var)
+
+    return const * sym.Sum(expr1.args[0], (var, m1, m2))
+
+

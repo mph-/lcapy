@@ -147,19 +147,6 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
         return plot_angular_frequency(self, Wvector, plot_type=plot_type,
                                       norm=True, **kwargs)
 
-    def remove_images(self):
-        """Remove all the spectral images resulting from a DTFT.
-        
-        For example,
-
-        >>> x = Sum(DiracDelta(Omega - m * 2 * pi), (m, -oo, oo))
-        >>> x.remove_images()
-        DiracDelta(Omega)
-        """
-
-        result = remove_images(self.expr, self.var, dt)
-        return self.__class__(result, **self.assumptions)
-
     
 def Omegaexpr(arg, **assumptions):
     """Create NormAngularFourierDomainExpression object. 
