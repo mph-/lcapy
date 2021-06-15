@@ -827,7 +827,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
                 try:
                     newkwargs[key] = kwargs[key].expr
                 except AttributeError:
-                    newkwargs[key] = kwargs
+                    newkwargs[key] = kwargs[key]
             
             ret = a(*newargs, **newkwargs)
             
