@@ -1,5 +1,5 @@
 """This module provides the NormAngularFourierDomainExpression class
-to represent Omega-domain (normalised angular Fourier domain)
+to represent Omega-domain (normalized angular Fourier domain)
 expressions.
 
 Copyright 2021 Michael Hayes, UCECE
@@ -20,7 +20,7 @@ from sympy import Integral, Expr as symExpr
 
 class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
-    """Normalised angular Fourier domain expression or symbol."""
+    """Normalized angular Fourier domain expression or symbol."""
 
     var = Omegasym
 
@@ -68,6 +68,13 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
     def time(self, **assumptions):
         return self.inverse_fourier(**assumptions)
 
+    def fourier(self, **assumptions):
+        """Convert to Fourier domain."""
+        from .symbols import f
+        
+        result = self.subs(f / dt)
+        return result
+    
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
         from .symbols import omega
@@ -76,7 +83,7 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
         return result
     
     def norm_fourier(self, **assumptions):
-        """Convert to normalised Fourier domain."""
+        """Convert to normalized Fourier domain."""
         from .symbols import F
         from .dsym import dt
         
@@ -84,7 +91,7 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
         return result
 
     def norm_angular_fourier(self, **assumptions):
-        """Convert to normalised angular Fourier domain."""
+        """Convert to normalized angular Fourier domain."""
 
         return self
 
@@ -117,7 +124,7 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
         `ylabel2` - the second y-axis label if needed, say for mag and phase
         `xscale` - the x-axis scaling, say for plotting as ms
         `yscale` - the y-axis scaling, say for plotting mV
-        `norm` - use normalised frequency
+        `norm` - use normalized frequency
         in addition to those supported by the matplotlib plot command.
         
         The plot axes are returned.  This is a tuple for magnitude/phase or

@@ -1,5 +1,5 @@
 """This module provides the NormFourierDomainExpression class
-to represent F-domain (normalised  Fourier domain)
+to represent F-domain (normalized  Fourier domain)
 expressions.
 
 Copyright 2021 Michael Hayes, UCECE
@@ -20,7 +20,7 @@ from sympy import Integral, Expr as symExpr
 
 class NormFourierDomainExpression(NormFourierDomain, Expr):
 
-    """Normalised  Fourier domain expression or symbol."""
+    """Normalized  Fourier domain expression or symbol."""
 
     var = Fsym
 
@@ -83,14 +83,14 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         return result
 
     def norm_fourier(self, **assumptions):
-        """Convert to normalised Fourier domain."""
+        """Convert to normalized Fourier domain."""
         from .symbols import F
         
         result = self.subs(F / dt)
         return result
 
     def norm_angular_fourier(self, **assumptions):
-        """Convert to normalised angular Fourier domain."""
+        """Convert to normalized angular Fourier domain."""
 
         return self
     
@@ -123,7 +123,7 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         `ylabel2` - the second y-axis label if needed, say for mag and phase
         `xscale` - the x-axis scaling, say for plotting as ms
         `yscale` - the y-axis scaling, say for plotting mV
-        `norm` - use normalised frequency
+        `norm` - use normalized frequency
         in addition to those supported by the matplotlib plot command.
         
         The plot axes are returned.  This is a tuple for magnitude/phase or

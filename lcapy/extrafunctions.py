@@ -66,7 +66,7 @@ class sincn(sym.Function):
     @classmethod
     def eval(cls, val):
         """
-        Evaluates the normalised sinc (cardinal sine) function.
+        Evaluates the normalized sinc (cardinal sine) function.
         This is what NumPy uses but not SymPy.
         """
 
@@ -87,7 +87,7 @@ class sincu(sym.Function):
     @classmethod
     def eval(cls, val):
         """
-        Evaluates the unnormalised sinc (cardinal sine) function.
+        Evaluates the unnormalized sinc (cardinal sine) function.
         This is what SymPy uses but not NumPy.
         """
 

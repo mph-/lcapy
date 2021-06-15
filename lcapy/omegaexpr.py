@@ -61,7 +61,7 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         return result
 
     def norm_fourier(self, **assumptions):
-        """Convert to normalised Fourier domain."""
+        """Convert to normalized Fourier domain."""
         from .symbols import F
         from .dsym import dt
         
@@ -69,7 +69,7 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         return result
 
     def norm_angular_fourier(self, **assumptions):
-        """Convert to normalised angular Fourier domain."""
+        """Convert to normalized angular Fourier domain."""
         from .symbols import Omega
         from .dsym import dt
         

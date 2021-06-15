@@ -327,12 +327,12 @@ class Cpt(object):
 
     @property
     def w(self):
-        """Normalised width"""
+        """Normalized width"""
         return 1.0
 
     @property
     def h(self):
-        """Normalised height"""
+        """Normalized height"""
         return self.w / self.aspect
 
     @property

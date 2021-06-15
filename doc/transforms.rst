@@ -22,7 +22,7 @@ Lcapy can compute many discrete-time Fourier transforms including:
 .. include:: DTFTs.rst             
 
 
-Discrete-Time Fourier Transforms (DTFT) (normalised angular frequency)
+Discrete-Time Fourier Transforms (DTFT) (normalized angular frequency)
 ======================================================================
 
 Lcapy can compute many discrete-time Fourier transforms in the

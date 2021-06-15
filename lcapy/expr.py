@@ -1643,8 +1643,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 """SymPy sinc."""
 
                 # This is used for sinc created by sympify, e.g., a =
-                # expr('sinc(n)').  SymPy uses the unnormalised form
-                # but NumPy (and Lcapy) use the normalised form.
+                # expr('sinc(n)').  SymPy uses the unnormalized form
+                # but NumPy (and Lcapy) use the normalized form.
                 # Lambdify does some jiggery pokery and divides the
                 # arg by pi since it is expecting that the NumPy sinc
                 # function is going to be used.  SymPy's choice is
@@ -1657,7 +1657,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 return 1.0 if arg == 0 else np.sin(np.pi * arg) / (np.pi * arg)
 
             def sincn(arg):
-                """Normalised sinc."""
+                """Normalized sinc."""
 
                 # Note, if sincn is made to print sinc, then lambdify will
                 # call sinc.   Grrrr.
@@ -1665,7 +1665,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 return 1.0 if arg == 0 else np.sin(np.pi * arg) / (np.pi * arg)
 
             def sincu(arg):
-                """Unnormalised sinc."""
+                """Unnormalized sinc."""
 
                 return 1.0 if arg == 0 else np.sin(arg) / arg
 
@@ -2509,7 +2509,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         expr.N.coeffs or expr.D.coeffs for numerator or denominator
         respectively.
         
-        If `norm` is True, normalise coefficients so highest power is 1.
+        If `norm` is True, normalize coefficients so highest power is 1.
 
         """
 
@@ -2531,7 +2531,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return expr(c)
 
     def normcoeffs(self, var=None):
-        """Return list of coeffs (normalised so the highest power is 1)
+        """Return list of coeffs (normalized so the highest power is 1)
         assuming the expr is a polynomial in s.  The highest powers
         come first.  This will fail for a rational function.  Instead
         use expr.N.normcoeffs or expr.D.normcoeffs for numerator or

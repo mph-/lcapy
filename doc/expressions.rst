@@ -171,13 +171,13 @@ Other SymPy functions can be converted to Lcapy functions using the
    6
 
 The trapezoid function `trap(t, alpha)` is the convolution of `rect(t
-/ alpha)` and `rect(t)`. The parameter `alpha` is the normalised
+/ alpha)` and `rect(t)`. The parameter `alpha` is the normalized
 rise/fall time.  When `alpha = 0` it is equivalent to `rect(t)` and
 when `alpha = 1` it is equivalent to `tri(t)`.
 
-Lcapy uses the normalised form of the `sinc` function (cardinal sine),
+Lcapy uses the normalized form of the `sinc` function (cardinal sine),
 :math:`sin(\pi x) / (\pi x)`.  This is the same as NumPy but SymPy
-uses the unnormalised form :math:`sin(x) / x`.  Lcapy uses `sincu` for
+uses the unnormalized form :math:`sin(x) / x`.  Lcapy uses `sincu` for
 the latter and the alias `sincn` for `sinc`.  Note, Lcapy prints
 `sinc` as `sincn` due to a bug in SymPy.  This is likely to change in
 the future.
@@ -223,7 +223,11 @@ Alternatively, there are a number of functions for setting the domain:
 
 - `fexpr()` set Fourier domain
 
+- `Fexpr()` set normalized Fourier domain  
+
 - `omegaexpr()` set angular Fourier domain  
+
+- `Omegaexpr()` set normalized angular Fourier domain  
   
 - `sexpr()` set Laplace domain
 
@@ -258,6 +262,8 @@ Domain attributes
 - `is_laplace_domain`
 - `is_fourier_domain`
 - `is_angular_fourier_domain`
+- `is_norm_fourier_domain`
+- `is_norm_angular_fourier_domain`  
 - `is_phasor_domain`
 - `is_phasor_time_domain`
 - `is_phasor_frequency_domain`    
@@ -586,7 +592,7 @@ Poles and zeros
 
 - `coeffs()` returns list of coefficients if expression is a polynomial; the highest powers come first.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
 
-- `normcoeffs()` returns list of coefficients if expression is a polynomial; the highest powers come first.  The coefficients are normalised so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
+- `normcoeffs()` returns list of coefficients if expression is a polynomial; the highest powers come first.  The coefficients are normalized so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
 
 - `poles()` returns poles of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the poles.   
 
@@ -856,15 +862,29 @@ This behaviour can be explicitly controlled using the `subs` and
 Domain transformation
 ---------------------
 
-Expressions can be transformed to a different domain (see :ref:`domains` and :ref:`transformation`), for example:
+Expressions can be transformed to a different domain (see :ref:`domains` and :ref:`transformation`), for example.  This can be done with an explicit method, for example::
+
+   >>> cos(4 * pi * t).FT(f)
+    δ(f - 2)   δ(f + 2)
+   ──────── + ────────
+      2          2    
+
+   >>>  x.FT(omega)
+   π⋅(δ(ω - 4⋅π) + δ(ω + 4⋅π))
+
+Alternatively, the call notation can be used to choose the new domain::
 
 - `V(t)` returns the time domain transformation
 
-- `V(f)` returns the Fourier domain transformation      
+- `V(f)` returns the Fourier domain transformation
+
+- `V(F)` returns the normalized Fourier domain transformation    
 
 - `V(s)` returns the Laplace domain (s-domain) transformation
 
 - `V(omega)` returns the angular Fourier domain transformation
+
+- `V(Omega)` returns the normalized angular Fourier domain transformation  
 
 - `V(jomega)` returns the phasor domain transformation
 

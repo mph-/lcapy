@@ -98,7 +98,7 @@ V0.89
 
 - Adds periodic sinc function
   
-- Adds normalised and unnormalised versions of sinc
+- Adds normalized and unnormalized versions of sinc
 
 - Fixes evaluation of sinc
 

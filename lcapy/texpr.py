@@ -118,7 +118,7 @@ class TimeDomainExpression(TimeDomain, Expr):
         return self.FT(omega, evaluate, **assumptions)
 
     def norm_angular_fourier(self, evaluate=True, **assumptions):
-        """Attempt normalised angular Fourier transform."""
+        """Attempt normalized angular Fourier transform."""
 
         from .symbols import Omega
 

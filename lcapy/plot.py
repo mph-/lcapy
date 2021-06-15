@@ -205,7 +205,7 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
         plot = plots[(False, log_frequency)]
 
     if norm:
-        default_xlabel = 'Normalised frequency'
+        default_xlabel = 'Normalized frequency'
     else:
         default_xlabel = obj.domain_label_with_units
 
@@ -380,7 +380,7 @@ def plot_angular_frequency(obj, omega, plot_type=None, **kwargs):
         omega = np.linspace(omega[0], omega[1], npoints)
 
     if norm and 'xlabel' not in kwargs:
-        kwargs['xlabel'] = 'Normalised angular frequency'
+        kwargs['xlabel'] = 'Normalized angular frequency'
         
     return plot_frequency(obj, omega, plot_type=plot_type,
                           norm=norm, **kwargs)

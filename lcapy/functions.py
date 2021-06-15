@@ -78,11 +78,11 @@ class Log10(Function):
 
 
 class SincnFunction(Function):
-    """Normalised sinc function :math:`\sin(\pi x)/(\pi x)`."""
+    """Normalized sinc function :math:`\sin(\pi x)/(\pi x)`."""
 
     
 class SincuFunction(Function):
-    """Unnormalised sinc function :math:`\sin(x)/(x)`."""
+    """Unnormalized sinc function :math:`\sin(x)/(x)`."""
 
     
 class PsincFunction(Function):

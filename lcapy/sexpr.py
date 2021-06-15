@@ -177,10 +177,9 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         return result
 
     def norm_angular_fourier(self, **assumptions):
-        """Convert to normalised angular Fourier domain."""
-        from .symbols import jw
+        """Convert to normalized angular Fourier domain."""
+        from .symbols import jw, Omega
         from .dsym import dt
-        from .normomegaexpr import Omega
         
         if self.is_causal:
             # Note, this does not apply for 1 / s.
@@ -190,7 +189,22 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
                                    **assumptions)                
         
         result = self.time(**assumptions).norm_angular_fourier(**assumptions)
-        return result    
+        return result
+
+    def norm_fourier(self, **assumptions):
+        """Convert to normalized Fourier domain."""
+        from .symbols import jw, F
+        from .dsym import dt
+        
+        if self.is_causal:
+            # Note, this does not apply for 1 / s.
+            tmp = self(j * F / dt)
+            if tmp.real != 0:
+                return self.change(tmp, domain='norm fourier',
+                                   **assumptions)                
+        
+        result = self.time(**assumptions).norm_fourier(**assumptions)
+        return result        
 
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
