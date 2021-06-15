@@ -137,9 +137,13 @@ def separate_dirac_delta(expr):
 
 def remove_images(expr, var, dt, m1=0, m2=0):
 
+    if m2 == 0 and isinstance(m1, tuple) and len(m1) == 2:
+        # Perhaps should warn that this might be deprecated?
+        m1, m2 = m1
+    
     const, expr1 = factor_const(expr, var)
 
-    result = sym.S.One
+    result = sym.S.Zero
     terms = expr1.as_ordered_terms()
 
     if len(terms) > 1:
