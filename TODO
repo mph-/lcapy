@@ -101,6 +101,8 @@ an answer that appears valid for DC.
 
 22. Fix expand and other funcs by converting Lcapy expressions in kwargs.
 
+23. Plot complex time and discrete-time signals
+
 
 Testing
 =======

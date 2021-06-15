@@ -5,8 +5,8 @@ Copyright 2014--2021 Michael Hayes, UCECE
 """
 
 import numpy as np
-from .utils import separate_dirac_delta
-from sympy import DiracDelta
+from .utils import separate_dirac_delta, factor_const
+from sympy import DiracDelta, solve
 
 
 # Perhaps add Formatter classes that will produce the plot data?
@@ -29,6 +29,29 @@ def make_axes(figsize=None, axes=None, **kwargs):
     return axes
 
 
+def plot_deltas(ax, t, deltas, var, plot_type='real'):
+
+    for delta in deltas:
+        delta = delta.expand(diracdelta=True, wrt=var)
+        const, expr = factor_const(delta, var)        
+        if not (expr.is_Function and expr.func is DiracDelta):
+            raise ValueError('Cannot handle %s' % expr)
+        t0 = solve(expr.args[0], var)[0]
+
+        const = complex(const)
+        if plot_type == 'real':
+            const = const.real
+        elif plot_type == 'imag':
+            const = const.imag
+        elif plot_type == 'abs':
+            const = abs(const)
+
+        if t0 >= min(t) and t0 <= max(t):
+            ax.arrow(t0, 0, 0, const, lw=1.5,  fc='k', ec='k',
+                     head_width=0.1, head_length=0.2, overhang=0.1,
+                     length_includes_head=True, clip_on=False)            
+
+        
 def plot_pole_zero(obj, **kwargs):
 
     from matplotlib.pyplot import Circle, rcParams
@@ -339,7 +362,7 @@ def plot_angular_frequency(obj, omega, plot_type=None, **kwargs):
                           norm=norm, **kwargs)
 
 
-def plot_time(obj, t, **kwargs):
+def plot_time(obj, t, plot_type=None, **kwargs):
 
     npoints = kwargs.pop('npoints', 400)        
     
@@ -351,15 +374,25 @@ def plot_time(obj, t, **kwargs):
     if isinstance(t, tuple):
         t = np.linspace(t[0], t[1], npoints)
 
-    diracs = None
+    deltas = None
     if obj.has(DiracDelta):
-        diracs, obj = separate_dirac_delta(obj)
+        cls = obj.__class__
+        rest, deltas = separate_dirac_delta(obj.expr)
+        obj = cls(rest, **obj.assumptions)
 
-    if diracs is not None:
-        print('Warning, Dirac deltas ignored; %s' % diracs)
-        
     v = obj.evaluate(t)
-
+        
+    if plot_type == None:
+        plot_type = 'real'
+    if plot_type=='real':
+        v = v.real
+    elif plot_type=='imag':
+        v = v.imag
+    elif plot_type=='abs':
+        v = abs(v)
+    else:
+        raise ValueError('Invalid plot_type: must be real, imag, real-imag, abs')
+        
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))    
 
@@ -376,6 +409,10 @@ def plot_time(obj, t, **kwargs):
         ax.set_ylabel(ylabel)
     if title is not None:
         ax.set_title(title)
+
+    if deltas is not None:
+        # TODO, fix yscale
+        plot_deltas(ax, t * xscale, deltas, obj.var, plot_type)
         
     ax.grid(True)
     return ax
@@ -415,7 +452,7 @@ def plot_sequence_polar(obj, ni=(-10, 10), **kwargs):
     return ax    
 
 
-def plot_sequence(obj, ni, polar=False, **kwargs):
+def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
 
     from matplotlib.ticker import MaxNLocator
 

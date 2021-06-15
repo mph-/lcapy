@@ -123,18 +123,16 @@ def isiterable(arg):
 def separate_dirac_delta(expr):
 
     terms = expr.as_ordered_terms()
-    deltas = 0
+    deltas = []
     rest = 0
 
     for term in terms:
         if term.has(sym.DiracDelta):
-            deltas += term
+            deltas.append(term)
         else:
             rest += term
-
-    cls = expr.__class__
             
-    return cls(deltas, **expr.assumptions), cls(rest, **expr.assumptions)
+    return rest, deltas
 
 
 def remove_images(expr, var, dt):
