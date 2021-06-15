@@ -163,7 +163,7 @@ def plot_pole_zero(obj, **kwargs):
     return ax
 
 
-def plotit(ax, obj, f, V, plot_type=None, deltas=[], log_magnitude=False,
+def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
            log_frequency=False, norm=False, **kwargs):
 
     plots = {(True, True) : ax.loglog,
@@ -226,7 +226,8 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=[], log_magnitude=False,
 
     plot(f * xscale, V * yscale, **kwargs)
 
-    plot_deltas(ax, f * xscale, deltas, obj.var, plot_type)
+    if deltas is not None:
+        plot_deltas(ax, f * xscale, deltas, obj.var, plot_type)
     
     if xlabel is not None:
         ax.set_xlabel(xlabel)
