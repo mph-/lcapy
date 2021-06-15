@@ -2936,8 +2936,22 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
         from .dsym import dt
+        from .sym import fsym, Fsym, omegasym, Omegasym
 
-        result = remove_images(self.expr, self.var, dt, m1, m2)
+        var = self.var
+        
+        if var is fsym:
+            scale = dt
+        elif var is Fsym:
+            scale = 1
+        elif var is omegasym:
+            scale = dt / (2 * pi)
+        elif var is Omegasym:
+            scale = 1 / (2 * pi)
+        else:
+            raise RuntimeError('Mystery var %s' % var)
+
+        result = remove_images(self.expr, var, scale, m1, m2)
         return self.__class__(result, **self.assumptions)
         
         

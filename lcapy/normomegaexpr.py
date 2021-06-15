@@ -12,8 +12,8 @@ from .inverse_fourier import inverse_fourier_transform
 from .inverse_dtft import IDTFT
 from .expr import Expr, expr, expr_make
 from .fexpr import f
-from .sym import ssym, tsym, fsym, pi
-from .dsym import Omegasym, nsym, dt
+from .sym import ssym, tsym, fsym, pi, Omegasym
+from .dsym import nsym, dt
 from .units import u as uu
 from .utils import factor_const, remove_images
 from sympy import Integral, Expr as symExpr
