@@ -54,7 +54,7 @@ class DTFTTransformer(BilateralForwardTransformer):
     def add_images(self, expr, f):
         if self.m1 == self.m2:
             return expr
-        
+
         msym = symsymbol('m', integer=True)
         foo = expr.replace(f, f - msym / dt)
         result = sym.Sum(foo, (msym, self.m1, self.m2))

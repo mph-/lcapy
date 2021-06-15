@@ -1300,6 +1300,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self.expr <= x.expr
 
+    def cancel_terms(self):
+        """Simplify terms in expression individually by converting
+        each to rational functions."""
+
+        result = 0
+        for term in self.expr.as_ordered_terms():
+            result += sym.cancel(term)
+        return self.__class__(result, **self.assumptions)
+    
     def convolve(self, x, commutate=False, **assumptions):
         """Convolve self with x.
 

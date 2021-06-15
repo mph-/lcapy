@@ -184,7 +184,9 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
         result = fexpr(dtft)(var)
         result = result.expand(diracdelta=True, wrt=var)
-        result = result.simplify()
+        # There is a bug in SymPy when simplifying Sum('X(n - m)', (m, -oo, oo))
+        # result = result.simplify()
+        result = result.cancel_terms()
         return result
 
     def norm_angular_fourier(self, **assumptions):
