@@ -505,7 +505,12 @@ Alternatively, the `images` argument can be used with the `DTFT()` method::
    δ(f)
    ────
     Δₜ    
-   
+
+The number of images can be specified with the `m1` and `m2` arguments to the `remove_images()` method.   This is useful for plotting.   For example,
+
+   >>> nexpr(1).DTFT(F).remove_images(-2, 2).doit()
+   δ(F) + δ(F - 2) + δ(F - 1) + δ(F + 1) + δ(F + 2)
+
 
 Inverse discrete-time Fourier transform (IDTFT)
 -----------------------------------------------
