@@ -157,6 +157,6 @@ def remove_images(expr, var, dt, m1=0, m2=0):
     if m1 == 0 and m2 == 0:
         return const * expr1.args[0].replace(foo, var)
 
-    return const * sym.Sum(expr1.args[0], (expr1.args[1][0], m1, m2))
+    return const * sym.Sum(expr1.args[0], (sumsym, m1, m2))
 
 
