@@ -39,12 +39,22 @@ def plot_deltas(ax, t, deltas, var, plot_type='real'):
         t0 = solve(expr.args[0], var)[0]
 
         const = complex(const)
-        if plot_type == 'real':
+        if plot_type in ('real', 'default'):
             const = const.real
         elif plot_type == 'imag':
             const = const.imag
         elif plot_type == 'abs':
             const = abs(const)
+        elif plot_type == 'dB':
+            const = 20 * np.log10(abs(const))
+        elif plot_type == 'phase':
+            const = np.angle(const)
+        elif plot_type == 'radians':
+            const = np.angle(const)
+        elif plot_type == 'degrees':
+            const = np.degrees(np.angle(const))
+        else:
+            raise ValueError('Unhandled plot type %s' % plot_type)
 
         if t0 >= min(t) and t0 <= max(t):
             ax.arrow(t0, 0, 0, const, lw=1.5,  fc='k', ec='k',
@@ -153,7 +163,7 @@ def plot_pole_zero(obj, **kwargs):
     return ax
 
 
-def plotit(ax, obj, f, V, plot_type=None, log_magnitude=False,
+def plotit(ax, obj, f, V, plot_type=None, deltas=[], log_magnitude=False,
            log_frequency=False, norm=False, **kwargs):
 
     plots = {(True, True) : ax.loglog,
@@ -215,6 +225,9 @@ def plotit(ax, obj, f, V, plot_type=None, log_magnitude=False,
     title = kwargs.pop('title', None)
 
     plot(f * xscale, V * yscale, **kwargs)
+
+    plot_deltas(ax, f * xscale, deltas, obj.var, plot_type)
+    
     if xlabel is not None:
         ax.set_xlabel(xlabel)
     ylabel = ylabel2 if second else ylabel
@@ -271,11 +284,14 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         if plot_type in ('mag', 'magnitude'):
             plot1_type = 'magnitude'
         elif plot_type in ('dB', ):
-            plot1_type = 'dB'                                
+            plot1_type = 'dB'
+        elif plot_type in ('real', ):
+            plot1_type = 'real'            
 
     elif obj.part == '':
 
-        plot_type = kwargs.pop('plot_type', 'dB-phase')
+        if plot_type is None:
+            plot_type = 'dB-phase'
 
         if plot_type in ('dB_phase', 'dB-phase', 'dB-radians'):
             plot1_type = 'dB'
@@ -310,12 +326,18 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         else:
             raise ValueError('Unknown plot type: %s' % plot_type)
 
+    deltas = None
+    if obj.has(DiracDelta):
+        cls = obj.__class__
+        rest, deltas = separate_dirac_delta(obj.expr)
+        obj = cls(rest, **obj.assumptions)
+        
     V = obj.evaluate(f)
 
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
     
-    plotit(ax, obj, f, V, plot1_type, log_frequency=log_frequency,
+    plotit(ax, obj, f, V, plot1_type, deltas, log_frequency=log_frequency,
            log_magnitude=log_magnitude, norm=norm, **kwargs)
     
     if plot2_type is None:
@@ -325,7 +347,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     kwargs['axes'] = ax2
     kwargs['linestyle'] = '--'        
 
-    plotit(ax2, obj, f, V, plot2_type, log_frequency=log_frequency,
+    plotit(ax2, obj, f, V, plot2_type, deltas, log_frequency=log_frequency,
            log_magnitude=log_magnitude, norm=norm, second=True, **kwargs)
     
     return ax, ax2
@@ -471,6 +493,23 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
 
     v = obj.evaluate(ni)
 
+    if plot_type == None:
+        plot_type = 'real'
+    if plot_type=='real':
+        v = v.real
+    elif plot_type=='imag':
+        v = v.imag
+    elif plot_type=='abs':
+        v = abs(v)
+    else:
+        raise ValueError('Invalid plot_type: must be real, imag, real-imag, abs')
+    
+    deltas = None
+    if obj.has(DiracDelta):
+        cls = obj.__class__
+        rest, deltas = separate_dirac_delta(obj.expr)
+        obj = cls(rest, **obj.assumptions)    
+
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
 
@@ -483,6 +522,10 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
     ax.stem(ni * xscale, v * yscale, use_line_collection=True, **kwargs)
     # Ensure integer ticks.
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+
+    if deltas is not None:
+        # TODO, fix yscale
+        plot_deltas(ax, ni * xscale, deltas, obj.var, plot_type)
     
     if xlabel is not None:
         ax.set_xlabel(xlabel)
