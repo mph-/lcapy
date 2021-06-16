@@ -660,3 +660,35 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.simplify_sin_cos(as_sin=True).simplify(), b, "sin form")
         self.assertEqual(a.simplify_sin_cos().simplify(), b, "default form")        
 
+    def test_poles(self):
+
+        # TODO, maybe tweak ExprDict to make keys Lcapy expressions?
+
+        def D(X):
+            Y = {}
+            for key, arg in X.items():
+                Y[expr(key)] = arg
+            return expr(Y)
+
+        # TODO, need to handle different orderings of complex conjugate pairs
+        
+        # H = 1 / ((s + 5j)**3 * (s-5j)**2 * (s+2))
+        # pairs, singles = H.poles(pairs=True)
+        # epairs = D({(5 * j, -5 * j): 2})
+        # esingles = D({-2: 1, -5 * j: 1})
+        # self.assertEqual(set(pairs.keys()), set(epairs.keys()), "pole pairs")
+        # self.assertEqual(set(singles.keys()), set(esingles.keys()), "pole singles")        
+
+        # H = 1 / ((s + 5j)**2 * (s-5j)**3 * (s+2))
+        # pairs, singles = H.poles(pairs=True)        
+        # epairs = D({(5 * j, -5 * j): 2})
+        # esingles = D({-2: 1, 5 * j: 1})
+        # self.assertEqual(set(pairs.keys()), set(epairs.keys()), "pole pairs")
+        # self.assertEqual(set(singles.keys()), set(esingles.keys()), "pole singles")        
+
+        # H = 1 / ((s + 5j)**2 * (s-5j)**2 * (s+2))
+        # pairs, singles = H.poles(pairs=True)        
+        # epairs = D({(5 * j, -5 * j): 2})
+        # esingles = D({-2: 1})
+        # self.assertEqual(set(pairs.keys()), set(epairs.keys()), "pole pairs")
+        # self.assertEqual(set(singles.keys()), set(esingles.keys()), "pole singles")        

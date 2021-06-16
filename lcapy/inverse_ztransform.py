@@ -7,7 +7,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 from .transformer import UnilateralInverseTransformer
 from .ratfun import Ratfun
-from .utils import factor_const, scale_shift, combine_conjugates
+from .utils import factor_const, scale_shift, pair_conjugates
 from .sym import sympify, simplify, symsymbol, AppliedUndef
 from .utils import factor_const, scale_shift
 from .extrafunctions import UnitImpulse, UnitStep
@@ -147,11 +147,11 @@ class InverseZTransformer(UnilateralInverseTransformer):
         poles = zexpr.poles(damping=self.damping)
         poles_dict = {}
         for pole in poles:
-            #replace cos()**2-1 by sin()**2
+            # Replace cos()**2-1 by sin()**2
             pole.expr = TR6(sym.expand(pole.expr))
             pole.expr = sym.simplify(pole.expr)
-            # remove abs value from sin()
-            pole.expr = pole.expr.subs(sym.Abs,sym.Id)
+            # Remove abs value from sin()
+            pole.expr = pole.expr.subs(sym.Abs, sym.Id)
             poles_dict[pole.expr] = pole.n
 
         ############ Juergen Weizenecker HsKa
@@ -159,7 +159,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
         # Make two dictionaries in order to handle them differently and make 
         # pretty expressions
         if self.pairs:
-            pole_pair_dict, pole_single_dict = pair_conjugate_poles(poles_dict)
+            pole_pair_dict, pole_single_dict = pair_conjugates(poles_dict)
         else:
             pole_pair_dict, pole_single_dict = {}, poles_dict
 
@@ -230,9 +230,8 @@ class InverseZTransformer(UnilateralInverseTransformer):
             p1 = pole[0]
             p2 = pole[1]
 
-            # Number of occurrences of the pole.
-            o1 = pole_pair_dict[pole][0]
-
+            # Number of occurrences of the pole pair
+            o1 = pole_pair_dict[pole]
             # X(z)/z*(z-p)**o after shortening
             expr_1 = M / shorten_denom[p1]
             expr_2 = M / shorten_denom[p2]

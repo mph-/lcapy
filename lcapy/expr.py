@@ -24,7 +24,7 @@ from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function, Eq
 from .units import units, u as uu, dB
-from .utils import as_N_D, as_sum, remove_images
+from .utils import as_N_D, as_sum, remove_images, pair_conjugates
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
@@ -2140,45 +2140,79 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         symdict.update(funcdict)
         return symdict
 
-    def _fmt_roots(self, roots, aslist=False):
+    def _fmt_roots(self, roots, aslist=False, pairs=False):
 
-        if not aslist:
+        def _wrap_dict(roots):
+            
             rootsdict = {}
             for root, n in roots.items():
                 rootsdict[expr(root)] = n
             return expr(rootsdict)
+
+        def _wrap_list(roots):
             
-        rootslist = []
-        for root, n in roots.items():
-            rootslist += [expr(root)] * n        
-        return expr(rootslist)        
-    
-    def roots(self, aslist=False):
+            rootslist = []
+            for root, n in roots.items():
+                rootslist += [expr(root)] * n        
+            return expr(rootslist)
+
+        if pairs:
+            pairs, singles = pair_conjugates(roots)
+            if aslist:
+                return _wrap_list(pairs), _wrap_list(singles)
+            else:
+                return _wrap_dict(pairs), _wrap_dict(singles)
+
+        if aslist:
+            return _wrap_list(roots)
+        else:
+            return _wrap_dict(roots)
+
+        
+    def roots(self, aslist=False, pairs=False):
         """Return roots of expression as a dictionary
-        Note this may not find them all."""
+        Note this may not find them all
+
+        If `pairs` is True, return two dictionaries.  The first
+        contains the conjugate pairs and the second contains the
+        others
+        
+        If `aslist` is True, return roots as list."""
 
         if self._ratfun is None:
             roots = {}
         else:
             roots = self._ratfun.roots()
-        return self._fmt_roots(roots, aslist)        
+        return self._fmt_roots(roots, aslist, pairs)     
             
-    def zeros(self, aslist=False):
-        """Return zeroes of expression as a dictionary
-        Note this may not find them all."""
+    def zeros(self, aslist=False, pairs=False):
+        """Return zeros of expression as a dictionary
+        Note this may not find them all.
+
+        If `pairs` is True, return two dictionaries.  The first
+        contains the conjugate pairs and the second contains the
+        others
+        
+        If `aslist` is True, return zeros as list."""
 
         if self._ratfun is None:
             zeros = {}
         else:
             zeros = self._ratfun.zeros()
-        return self._fmt_roots(zeros, aslist)        
+        return self._fmt_roots(zeros, aslist, pairs)        
 
-    def poles(self, aslist=False, damping=None):
+    def poles(self, aslist=False, damping=None, pairs=False):
         """Return poles of expression as a dictionary
-        Note this may not find them all."""
+        Note this may not find them all.
+
+        If `pairs` is True, return two dictionaries.  The first
+        contains the conjugate pairs and the second contains the
+        others
+        
+        If `aslist` is True, return poles as list."""
 
         if self._ratfun is None:
-            return self._fmt_roots({}, aslist)            
+            return self._fmt_roots({}, aslist, pairs)            
         
         poles = self._ratfun.poles(damping=damping)
 
@@ -2190,7 +2224,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             else:
                 polesdict[key] = pole.n        
 
-        return self._fmt_roots(polesdict, aslist)
+        return self._fmt_roots(polesdict, aslist, pairs)
 
     def parameterize_ZPK(self, zeta=None, ZPK=None):
 
@@ -2365,7 +2399,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         5 + (5 - 15 * j / 4) / (s + 2 * j) + (5 + 15 * j / 4) / (s - 2 * j)
 
         If combine_conjugates is True then the pair of partial
-        fractions for complex conjugate poles are combined.
+        fractions for complex conjugate poles are combined.   This creates
+        a sum of biquad sections.
 
         See also canonical, standard, general, timeconst, and ZPK."""
 
