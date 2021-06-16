@@ -147,8 +147,19 @@ delta = DiracDelta = Function(sym.DiracDelta)
 
 
 def _ex(expr):
+    """De-lcapify expression."""
+    
     if hasattr(expr, 'expr'):
         return expr.expr
+    elif isinstance(expr, tuple):
+        return tuple([_ex(arg) for arg in expr])
+    elif isinstance(expr, list):
+        return [_ex(arg) for arg in expr]
+    elif isinstance(expr, dict):
+        ret = {}
+        for key, val in expr.items():
+            ret[_ex(key)] = _ex(val)
+        return ret
     return expr
 
 
@@ -179,7 +190,7 @@ class MatMul(sym.MatMul):
 
 class Sum(sym.Sum):
     def __new__(cls, op1, op2, **options):
-        return expr(super(Sum, cls).__new__(cls, op1, op2, **options))
+        return expr(super(Sum, cls).__new__(cls, _ex(op1), _ex(op2), **options))
     
 
 from .extrafunctions import UnitImpulse as UnitImpulse1
