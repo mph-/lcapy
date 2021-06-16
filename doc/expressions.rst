@@ -738,7 +738,8 @@ The factored form shows both the numerator and denominator polynomials  factored
    ─────────────────
     (s + 1)⋅(s + 4) 
 
-Complex conjugate pairs are combined when the `pairs` argument is True::
+Complex conjugate pairs are combined when the `pairs` argument is True to create a product
+of biquad sections.
 
    >>> H.factored(pairs=True)
           2       
@@ -767,14 +768,14 @@ The `recippartfrac()` method generates a partial fraction expansion using the re
          ⎝    s⎠      ⎝4   s⎠
 
 
-The `partfrac()` and `recippartfrac()` methods have a `combine_conjugates` argument.  If this is True, quadratic factors will not be split into two terms.  For example::
+The `partfrac()` and `recippartfrac()` methods have a `pairs` argument.  If this is True, a sum of biquad sections is created.  For example::
 
    >>> H = 5 / (s * (s**2 + 1))
    >>> H.partfrac()
          5           5       5
    - ───────── - ───────── + ─
      2⋅(s + ⅉ)   2⋅(s - ⅉ)   s
-   >>> H.partfrac(combine_conjugates=True)
+   >>> H.partfrac(pairs=True)
          5⋅s     5
       - ────── + ─
          2       s
