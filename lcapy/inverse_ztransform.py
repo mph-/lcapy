@@ -7,7 +7,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 from .transformer import UnilateralInverseTransformer
 from .ratfun import Ratfun
-from .utils import factor_const, scale_shift
+from .utils import factor_const, scale_shift, combine_conjugates
 from .sym import sympify, simplify, symsymbol, AppliedUndef
 from .utils import factor_const, scale_shift
 from .extrafunctions import UnitImpulse, UnitStep
@@ -145,36 +145,23 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
         zexpr = Ratfun(expr, z)
         poles = zexpr.poles(damping=self.damping)
-        polesdict = {}
+        poles_dict = {}
         for pole in poles:
             #replace cos()**2-1 by sin()**2
             pole.expr = TR6(sym.expand(pole.expr))
             pole.expr = sym.simplify(pole.expr)
             # remove abs value from sin()
             pole.expr = pole.expr.subs(sym.Abs,sym.Id)
-            polesdict[pole.expr] = pole.n
+            poles_dict[pole.expr] = pole.n
 
         ############ Juergen Weizenecker HsKa
 
         # Make two dictionaries in order to handle them differently and make 
         # pretty expressions
-        pole_single_dict = polesdict.copy()
-        pole_pair_dict = {}
-
         if self.pairs:
-            pole_list = list(polesdict)
-
-            for i, pi in enumerate(pole_list):
-                pi_c = sym.conjugate(pi)
-                # check for conjugate
-                if pi_c in pole_list[i+1:]:
-                    pole_single_dict.pop(pi, None)
-                    pole_single_dict.pop(pi_c, None)
-                    # order of poles
-                    o1 = polesdict[pi]
-                    o2 = polesdict[pi_c]
-                    # write to dictionary
-                    pole_pair_dict[pi, pi_c] = o1, o2
+            pole_pair_dict, pole_single_dict = pair_conjugate_poles(poles_dict)
+        else:
+            pole_pair_dict, pole_single_dict = {}, poles_dict
 
         # Make n (=number of poles) different denominators to speed up
         # calculation and avoid sym.limit.  The different denominators are

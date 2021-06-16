@@ -164,3 +164,21 @@ def remove_images(expr, var, dt, m1=0, m2=0):
     return const * sym.Sum(expr1.args[0], (sumsym, m1, m2))
 
 
+def pair_conjugate_poles(poles_dict):
+    """Return dictionary of conjugate pole pairs and a dictionary of the
+    remaining single poles."""
+
+    pole_single_dict = poles_dict.copy()
+    pole_pair_dict = {}
+
+    pole_list = list(poles_dict)
+
+    for i, pole in enumerate(pole_list):
+        pole_c = sym.conjugate(pole)
+        # Check for conjugate pole
+        if pole_c in pole_list[i + 1:]:
+            pole_single_dict.pop(pole, None)
+            pole_single_dict.pop(pole_c, None)
+            pole_pair_dict[pole, pole_c] = poles_dict[pole], poles_dict[pole_c]
+
+    return pole_pair_dict, pole_single_dict
