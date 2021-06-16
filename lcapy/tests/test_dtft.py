@@ -1,4 +1,5 @@
 from lcapy import *
+import sympy as sym
 import unittest
 
 
@@ -46,3 +47,13 @@ class LcapyTester(unittest.TestCase):
         x = sign(n)
         X = x.DTFT(Omega)
         self.assertEqual(X, 2 / (1 - exp(-j * Omega)), "sign(n).DTFT(Omega)")
+
+        m = symbol('m', integer=True)
+        x = nexpr('x(n)')
+        X = x.DTFT(F)
+        Y = Sum('X(n - m)', (m, -oo, oo))
+
+        m = symbol('m', integer=True)
+        #self.assertEqual(X, Y, "x(n).DTFT(F)")
+        
+        

@@ -30,10 +30,10 @@ class TimeDomainExpression(TimeDomain, Expr):
         super(TimeDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr        
-        if check and expr.find(ssym) != set() and not expr.has(Integral):
+        if check and expr.has(ssym) and not expr.has(Integral):
             raise ValueError(
                 't-domain expression %s cannot depend on s' % expr)
-        if check and expr.find(fsym) != set() and not expr.has(Integral):
+        if check and expr.has(fsym) and not expr.has(Integral):
             raise ValueError(
                 't-domain expression %s cannot depend on f' % expr)
 

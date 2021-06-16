@@ -31,10 +31,10 @@ class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression)
         super(DiscreteFourierDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr
-        if check and expr.find(zsym) != set():
+        if check and expr.has(zsym):
             raise ValueError(
                 'k-domain expression %s cannot depend on z' % expr)
-        if check and expr.find(nsym) != set() and not expr.has(Sum):
+        if check and expr.has(nsym) and not expr.has(Sum):
             raise ValueError(
                 'k-domain expression %s cannot depend on n' % expr)
 

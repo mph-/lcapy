@@ -24,10 +24,10 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
 
         super(AngularFourierDomainExpression, self).__init__(val, **assumptions)
 
-        if self.expr.find(ssym) != set():
+        if self.expr.has(ssym):
             raise ValueError(
                 'omega-domain expression %s cannot depend on s' % self.expr)
-        if self.expr.find(tsym) != set():
+        if self.expr.has(tsym):
             raise ValueError(
                 'omega-domain expression %s cannot depend on t' % self.expr)
 

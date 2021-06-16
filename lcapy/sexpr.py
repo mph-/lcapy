@@ -31,12 +31,9 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         super(LaplaceDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr        
-        if check and expr.find(tsym) != set() and not expr.has(Integral):
+        if check and expr.has(tsym) and not expr.has(Integral):
             raise ValueError(
                 's-domain expression %s cannot depend on t' % expr)
-        if check and expr.find(tsym) != set() and not expr.has(Integral):
-            raise ValueError(
-                's-domain expression %s cannot depend on t' % self.expr)
 
     def as_expr(self):
         return LaplaceDomainExpression(self)

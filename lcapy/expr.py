@@ -1831,7 +1831,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 raise ValueError('Undefined symbols %s in expression %s' % (tuple(free_symbols), self))
 
         if arg is None:
-            if expr.find(var) != set():
+            if expr.has(var):
                 raise ValueError('Need value to evaluate expression at')
             # The arg is irrelevant since the expression is a constant.
             arg = 0

@@ -31,11 +31,11 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         super(NormFourierDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr        
-        if check and expr.find(ssym) != set() and not expr.has(Integral):
+        if check and expr.has(ssym) and not expr.has(Integral):
 
             raise ValueError(
                 'F-domain expression %s cannot depend on s' % expr)
-        if check and expr.find(tsym) != set() and not expr.has(Integral):
+        if check and expr.has(tsym) and not expr.has(Integral):
             raise ValueError(
                 'F-domain expression %s cannot depend on t' % expr)
 

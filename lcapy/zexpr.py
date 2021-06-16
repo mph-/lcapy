@@ -34,10 +34,10 @@ class ZDomainExpression(ZDomain, DiscreteExpression):
         super(ZDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr
-        if check and expr.find(nsym) != set() and not expr.has(Sum):
+        if check and expr.has(nsym) and not expr.has(Sum):
             raise ValueError(
                 'z-domain expression %s cannot depend on n' % expr)
-        if check and expr.find(ksym) != set() and not expr.has(Sum):
+        if check and expr.has(ksym) and not expr.has(Sum):
             raise ValueError(
                 'z-domain expression %s cannot depend on k' % expr)
 

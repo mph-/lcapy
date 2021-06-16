@@ -34,10 +34,10 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         super(DiscreteTimeDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr
-        if check and expr.find(zsym) != set() and not expr.has(Sum):
+        if check and expr.has(zsym) and not expr.has(Sum):
             raise ValueError(
                 'n-domain expression %s cannot depend on z' % expr)
-        if check and expr.find(ksym) != set() and not expr.has(Sum):
+        if check and expr.has(ksym) and not expr.has(Sum):
             raise ValueError(
                 'n-domain expression %s cannot depend on k' % expr)            
 
