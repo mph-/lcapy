@@ -637,9 +637,17 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc):
     @property
     def is_complex(self):
         from .sym import ssym
-        from .dsym import zsym        
+        from .dsym import zsym
+
+        if self.has(ssym) or self.has(zsym):
+            return True
+
+        # Sometimes there is a lingering Re or Im operator
+        # even though we know the result is real.
+        if self.part != '':
+            return False
         
-        return self.has(j) or self.has(ssym) or self.has(zsym)
+        return self.has(j)
 
     @property
     def is_conditional(self):
@@ -1356,7 +1364,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         assumptions = self.assumptions.copy()
         assumptions['real'] = True        
 
-        dst = self.__class__(symsimplify(sym.re(self.expr)), **assumptions)
+        expr = self.expr
+        # This can make operations such as abs really slow.
+        # Without it, we will sometimes get Re functions.        
+        # expr = expr.expand(complex=True)
+        
+        dst = self.__class__(symsimplify(sym.re(expr)), **assumptions)
         dst.part = 'real'
         return dst
 
@@ -1376,7 +1389,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return dst
         
         assumptions['real'] = True
-        dst = self.__class__(symsimplify(sym.im(self.expr)), **assumptions)
+
+        expr = self.expr
+        # This can make operations such as abs really slow.
+        # Without it, we will sometimes get Im functions.
+        # expr = expr.expand(complex=True)        
+        
+        dst = self.__class__(symsimplify(sym.im(expr)), **assumptions)
         dst.part = 'imaginary'
         return dst
 
