@@ -2393,12 +2393,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return self.copy()
         return self.__class__(self._ratfun.general(), **self.assumptions)
 
-    def partfrac(self, combine_conjugates=False, damping=None):
+    def partfrac(self, combine_conjugates=False, pairs=False, damping=None):
         """Convert rational function into partial fraction form.   For example,
 
         5 + (5 - 15 * j / 4) / (s + 2 * j) + (5 + 15 * j / 4) / (s - 2 * j)
 
-        If combine_conjugates is True then the pair of partial
+        If `combine_conjugates` or `pairs` is True then the pair of partial
         fractions for complex conjugate poles are combined.   This creates
         a sum of biquad sections.
 
@@ -2410,7 +2410,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         try:
             if self._ratfun is None:
                 return self.copy()        
-            return self.__class__(self._ratfun.partfrac(combine_conjugates,
+            return self.__class__(self._ratfun.partfrac(combine_conjugates or pairs,
                                                         damping),
                                   **self.assumptions)
         except ValueError:
@@ -2495,12 +2495,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             result += self.__class__(term).timeconst()
         return self.__class__(result, **self.assumptions)            
 
-    def ZPK(self, pairs=False):
+    def ZPK(self, pairs=False, combine_conjugates=False):
         """Convert to zero-pole-gain (ZPK) form (factored form).  For example,
 
         5 * (s + 1)**2 / ((s - 2 * j) * (s + 2 * j))
 
-        If `pairs` is True, then conjugate pairs are combined.  For example,
+        If `combine_conjugates` or `pairs` is True, then conjugate pairs are combined
+        to create a product of biquad sections.  For example,
 
         5 * (s + 1)**2/(s**2 + 4) 
 
@@ -2515,7 +2516,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         
         if self._ratfun is None:
             return self.copy()        
-        return self.__class__(self._ratfun.ZPK(pairs), **self.assumptions)
+        return self.__class__(self._ratfun.ZPK(combine_conjugates or pairs),
+                              **self.assumptions)
 
     def factored(self, pairs=False):
         """Convert to factored form.  For example,

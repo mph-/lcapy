@@ -617,7 +617,7 @@ class Ratfun(object):
         N = N / K
         return sym.Mul(N, sym.Pow(D, -1), evaluate=False) * sym.exp(self.var * delay) * undef
 
-    def ZPK(self, pairs=False):
+    def ZPK(self, combine_conjugates=False):
         """Convert to zero-pole-gain (ZPK) form.
 
         See also canonical, general, standard, timeconst, and partfrac"""
@@ -626,7 +626,7 @@ class Ratfun(object):
 
         var = self.var
         
-        if not pairs:
+        if not combine_conjugates:
             return _zp2tf(zeros, poles, K, var) * undef
 
         pole_pairs, pole_singles = pair_conjugates(poles)
