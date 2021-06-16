@@ -2495,10 +2495,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             result += self.__class__(term).timeconst()
         return self.__class__(result, **self.assumptions)            
 
-    def ZPK(self):
+    def ZPK(self, pairs=False):
         """Convert to zero-pole-gain (ZPK) form (factored form).  For example,
 
         5 * (s + 1)**2 / ((s - 2 * j) * (s + 2 * j))
+
+        If `pairs` is True, then conjugate pairs are combined.  For example,
+
+        5 * (s + 1)**2/(s**2 + 4) 
 
         Note, both the numerator and denominator are expressed as
         products of monic factors, i.e., (s + 1 / 3) rather than (3 * s + 1).
@@ -2511,12 +2515,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         
         if self._ratfun is None:
             return self.copy()        
-        return self.__class__(self._ratfun.ZPK(), **self.assumptions)
+        return self.__class__(self._ratfun.ZPK(pairs), **self.assumptions)
 
-    def factored(self):
+    def factored(self, pairs=False):
         """Convert to factored form.  For example,
 
         5 * (s + 1)**2 / ((s - 2 * j) * (s + 2 * j))
+
+        If `pairs` is True, then conjugate pairs are combined.  For example,
+
+        5 * (s + 1)**2/(s**2 + 4) 
 
         This is an alias for ZPK.  See also canonical, general,
         standard, partfrac, and timeconst.
@@ -2528,7 +2536,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         
         if self._ratfun is None:
             return self.copy()
-        return self.__class__(self._ratfun.ZPK(), **self.assumptions)
+        return self.__class__(self._ratfun.ZPK(pairs), **self.assumptions)
     
     def expandcanonical(self):
         """Expand in terms for different powers with each term

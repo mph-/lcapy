@@ -738,6 +738,14 @@ The factored form shows both the numerator and denominator polynomials  factored
    ─────────────────
     (s + 1)⋅(s + 4) 
 
+Complex conjugate pairs are combined when the `pairs` argument is True::
+
+   >>> H.factored(pairs=True)
+          2       
+       5⋅s  + 5   
+   ───────────────
+   (s + 1)⋅(s + 4)
+    
     
 Partial fraction form
 ---------------------

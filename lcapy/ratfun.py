@@ -7,6 +7,7 @@ Copyright 2016--2020 Michael Hayes, UCECE
 from __future__ import division
 import sympy as sym
 from .sym import sympify, AppliedUndef
+from .utils import pair_conjugates
 
 class Pole(object):
 
@@ -616,14 +617,39 @@ class Ratfun(object):
         N = N / K
         return sym.Mul(N, sym.Pow(D, -1), evaluate=False) * sym.exp(self.var * delay) * undef
 
-    def ZPK(self):
+    def ZPK(self, pairs=False):
         """Convert to zero-pole-gain (ZPK) form.
 
         See also canonical, general, standard, timeconst, and partfrac"""
 
         zeros, poles, K, undef = self.as_ZPK()
 
-        return _zp2tf(zeros, poles, K, self.var) * undef
+        var = self.var
+        
+        if not pairs:
+            return _zp2tf(zeros, poles, K, var) * undef
+
+        pole_pairs, pole_singles = pair_conjugates(poles)
+        zero_pairs, zero_singles = pair_conjugates(zeros)
+
+        result1 = 1
+        num = 1
+        for zeros, order in zero_pairs.items():
+            for m in range(order):
+                num *= (var**2 - zeros[0] * var - zeros[1] * var + zeros[0] * zeros[1]).simplify()
+
+        den = 1
+        for poles, order in pole_pairs.items():
+            for m in range(order):
+                den *= (var**2 - poles[0] * var - poles[1] * var + poles[0] * poles[1]).simplify()
+
+        result1 *= (num / den)
+
+        result2 = _zp2tf(zero_singles, pole_singles, 1, var) * undef
+        result = K * result1 * result2
+        
+        return result
+        
 
     def residues(self, combine_conjugates=False, damping=None):
         """Return residues of partial fraction expansion.
