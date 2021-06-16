@@ -50,10 +50,11 @@ class LcapyTester(unittest.TestCase):
 
         m = symbol('m', integer=True)
         x = nexpr('x(n)')
-        X = x.DTFT(F)
-        Y = Sum('X(n - m)', (m, -oo, oo))
+        X = x.DTFT(f)
+        Y = Sum(fexpr('X(f)'), (m, -oo, oo)).replace(f, f - m / dt)
 
         m = symbol('m', integer=True)
+        # Produces infinite recursion on comparison
         #self.assertEqual(X, Y, "x(n).DTFT(F)")
         
         
