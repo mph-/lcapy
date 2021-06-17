@@ -84,10 +84,11 @@ def plot_pole_zero(obj, **kwargs):
     ax.axvline(0, color='0.7')
     ax.axhline(0, color='0.7')
 
+    a = np.hstack((p, z))
+    
     if unitcircle:
         ax.add_artist(Circle((0, 0), 1, color='blue', linestyle='--', fill=False))
     
-    a = np.hstack((p, z))
     x_min = a.real.min()
     x_max = a.real.max()
     y_min = a.imag.min()
@@ -589,7 +590,7 @@ def plot_nyquist(obj, f, **kwargs):
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
 
-    unitcircle = kwargs.pop('unitcircle', False)    
+    unitcircle = kwargs.pop('unitcircle', True)    
     
     if unitcircle:
         ax.add_artist(Circle((0, 0), 1, color='blue', linestyle='--', fill=False))
@@ -598,6 +599,34 @@ def plot_nyquist(obj, f, **kwargs):
         
     ax.plot(V.real, V.imag)
 
+    x_min = V.real.min()
+    x_max = V.real.max()
+    y_min = V.imag.min()
+    y_max = V.imag.max()
+
+    if unitcircle:
+        if x_min > -1:
+            x_min = -1
+        if x_max < 1:
+            x_max = 1
+        if y_min > -1:
+            y_min = -1
+        if y_max < 1:
+            y_max = 1                        
+    
+    x_extra, y_extra = 1.0, 1.0
+    x_min -= 0.5 * x_extra
+    x_max += 0.5 * x_extra
+    if unitcircle:
+        bbox = ax.get_window_extent()
+        aspect = bbox.width / bbox.height
+        
+        x_min *= aspect
+        x_max *= aspect       
+        
+    ax.axis('equal')
+    ax.set_xlim(x_min, x_max)    
+    
     xlabel = kwargs.pop('xlabel', 'Re')
     ylabel = kwargs.pop('ylabel', 'Im')
     title = kwargs.pop('title', None)
