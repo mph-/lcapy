@@ -137,6 +137,14 @@ class FourierDomainExpression(FourierDomain, Expr):
         from .plot import plot_frequency
         return plot_frequency(self, fvector, plot_type=plot_type, **kwargs)
 
+    def nyquist_plot(self, fvector=None, **kwargs):
+        """Plot frequency response as a Nyquist plot (real part versus
+        imaginary part).  fvector specifies the frequencies.  If it is
+        a tuple (f1, f2), it sets the frequency limits as (f1, f2)."""        
+
+        from .plot import plot_nyquist
+        return plot_nyquist(self, fvector, **kwargs)        
+    
     
 def fexpr(arg, **assumptions):
     """Create FourierDomainExpression object.  If `arg` is fsym return f"""

@@ -565,3 +565,51 @@ def plot_phasor(obj, **kwargs):
     
     ax.plot((phi, phi), (0, mag), **kwargs)
     return ax
+
+
+def plot_nyquist(obj, f, **kwargs):
+
+    from matplotlib.pyplot import Circle, rcParams
+
+    npoints = kwargs.pop('npoints', 400)    
+
+    # FIXME, determine useful frequency range...
+    if f is None:
+        f = (0, 2)
+    if isinstance(f, (int, float)):
+        f = (0, f)
+    if isinstance(f, tuple):
+        f = np.linspace(f[0], f[1], npoints)            
+    
+    if not obj.is_complex:
+        raise ValueError('Data not complex')
+    
+    obj = obj.doit()
+
+    ax = make_axes(figsize=kwargs.pop('figsize', None),
+                   axes=kwargs.pop('axes', None))
+
+    unitcircle = kwargs.pop('unitcircle', False)    
+    
+    if unitcircle:
+        ax.add_artist(Circle((0, 0), 1, color='blue', linestyle='--', fill=False))
+
+    V = obj.evaluate(f)
+        
+    ax.plot(V.real, V.imag)
+
+    xlabel = kwargs.pop('xlabel', 'Re')
+    ylabel = kwargs.pop('ylabel', 'Im')
+    title = kwargs.pop('title', None)
+
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    if ylabel is not None:        
+        ax.set_ylabel(ylabel)
+    if title is not None:
+        ax.set_title(title)        
+
+    ax.grid(True)
+    
+    return ax
+    
