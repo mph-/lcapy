@@ -2100,6 +2100,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self.differentiate(arg)
 
+    def doit(self, **hints):
+        """Evaluate unevaluated functions such as integrals and sums."""
+
+        result = self.__class__(self.expr.doit(**hints), **self.assumptions)
+        result.part = self.part
+        return result
+
     def _tweak_arg(self, arg):
 
         if isinstance(arg, (Expr, Function)):
