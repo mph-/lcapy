@@ -625,7 +625,7 @@ def plot_nyquist(obj, f, **kwargs):
         x_max *= aspect       
         
     ax.axis('equal')
-    ax.set_xlim(x_min, x_max)    
+    #ax.set_xlim(x_min, x_max)    
     
     xlabel = kwargs.pop('xlabel', 'Re')
     ylabel = kwargs.pop('ylabel', 'Im')
