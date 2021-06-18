@@ -190,7 +190,7 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
         V = abs(V)
         part = 'magnitude'        
     elif plot_type == 'dB':
-        V = 10 * np.log10(abs(V))
+        V = 20 * np.log10(abs(V))
         part = 'magnitude'        
         units = 'dB'
     elif plot_type == 'radians':
@@ -259,7 +259,9 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     log_frequency = kwargs.pop('log_frequency', False) or kwargs.pop('log_scale', False)
     if kwargs.pop('loglog', False):
         log_magnitude = True 
-        log_frequency = True    
+        log_frequency = True
+
+    nyticks = kwargs.pop('nyticks', 7)        
 
     # FIXME, determine useful frequency range...
     if f is None:
@@ -357,6 +359,25 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     plotit(ax2, obj, f, V, plot2_type, deltas, log_frequency=log_frequency,
            log_magnitude=log_magnitude, norm=norm, second=True, **kwargs)
+
+    if plot2_type in ('phase', 'radians'):
+        ax2.set_ylim(-np.pi, np.pi)
+    elif plot2_type in ('phase-degrees', 'degrees'):
+        ax2.set_ylim(-180, 180)
+
+    if plot1_type == 'dB':
+        dB = 20 * np.log10(abs(V))
+        dBmin = min(dB)
+        dBmax = max(dB)
+
+        ymin = np.floor(dBmin / 10) * 10
+        ymax = np.ceil(dBmax / 10) * 10
+        ax.set_ylim(ymin, ymax)
+
+    from matplotlib import ticker
+        
+    ax.yaxis.set_major_locator(ticker.LinearLocator(nyticks))
+    ax2.yaxis.set_major_locator(ticker.LinearLocator(nyticks))
     
     return ax, ax2
 
