@@ -142,6 +142,7 @@ class PhasorExpression(Expr):
         if not self.is_phasor_frequency_domain:
             raise ValueError('Not frequency domain phasor: use plot()')
 
+        # FIXME, this does not change to FourierDomainExpression.
         result = self.subs(self.omega, 2 * pi * fsym)
         result = self.change(result, domain='fourier')
         
