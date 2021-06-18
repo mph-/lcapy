@@ -580,7 +580,8 @@ def plot_nyquist(obj, f, **kwargs):
     if isinstance(f, (int, float)):
         f = (0, f)
     if isinstance(f, tuple):
-        f = np.linspace(f[0], f[1], npoints)            
+        fmin = f[0] if f[0] > 0 else 1e-4
+        f = np.geomspace(fmin, f[1], npoints)            
     
     if not obj.is_complex:
         raise ValueError('Data not complex')
@@ -590,14 +591,19 @@ def plot_nyquist(obj, f, **kwargs):
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
 
-    unitcircle = kwargs.pop('unitcircle', True)    
+    unitcircle = kwargs.pop('unitcircle', True)
+    mirror = kwargs.pop('mirror', True)        
     
     if unitcircle:
         ax.add_artist(Circle((0, 0), 1, color='blue', linestyle='--', fill=False))
 
     V = obj.evaluate(f)
-        
-    ax.plot(V.real, V.imag)
+    lines = ax.plot(V.real, V.imag)
+
+    if mirror:
+        V = obj.evaluate(-f)
+        color = lines[0].get_color()
+        ax.plot(V.real, V.imag, color=color)    
 
     x_min = V.real.min()
     x_max = V.real.max()
