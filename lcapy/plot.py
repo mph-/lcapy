@@ -271,7 +271,8 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         f = (0, f)
     if isinstance(f, tuple):
         if log_frequency:
-            f = np.logspace(f[0], f[1], npoints)
+            fmin = f[0] if f[0] > 0 else 1e-1            
+            f = np.geomspace(fmin, f[1], npoints)
         else:
             f = np.linspace(f[0], f[1], npoints)            
 
@@ -364,7 +365,7 @@ def plot_bode(obj, f, **kwargs):
 
     if 'log_frequency' not in kwargs:
         kwargs['log_frequency'] = True
-    
+
     return plot_frequency(obj, f, **kwargs)
 
 

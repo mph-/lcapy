@@ -362,10 +362,12 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def bode_plot(self, fvector=None, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).  fvector
-        specifies the frequencies.  If it is a tuple (m1, m2), it sets the
-        frequency limits as (10**m1, 10**m2).
+        specifies the frequencies.  If it is a tuple (f1, f2), it sets
+        the frequency limits.   Since a logarithmic frequency scale is used,
+        f1 must be greater than 0.
 
         This method makes the assumption that the expression is causal.
+
         """        
 
         return self.fourier(causal=True).bode_plot(fvector, **kwargs)

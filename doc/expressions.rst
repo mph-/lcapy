@@ -1837,6 +1837,11 @@ Bode plots
 
 Bode plots are similar to frequency domain plots but plot both the magnitude (in dB) and the phase (in radians) as a function of logarithmic frequency.
 
+.. literalinclude:: examples/plotting/bode1.py
+
+.. image:: examples/plotting/bode1.png
+   :width: 12cm
+
 
 Nyquist plots
 -------------
