@@ -261,7 +261,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         log_magnitude = True 
         log_frequency = True
 
-    nyticks = kwargs.pop('nyticks', 7)        
+    nyticks = kwargs.pop('nyticks', None)        
 
     # FIXME, determine useful frequency range...
     if f is None:
@@ -374,8 +374,18 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         ymax = np.ceil(dBmax / 10) * 10
         ax.set_ylim(ymin, ymax)
 
+        yrange = ymax - ymin
+        if nyticks is None:
+            # Add odd number is better to show zero phase.
+            for nyticks in (7, 6, 5, 8, 9):
+                if yrange / (nyticks - 1) in (20, 10, 5, 2):
+                    break
+
     from matplotlib import ticker
-        
+
+    if nyticks is None:
+        nyticks = 5
+    
     ax.yaxis.set_major_locator(ticker.LinearLocator(nyticks))
     ax2.yaxis.set_major_locator(ticker.LinearLocator(nyticks))
     
