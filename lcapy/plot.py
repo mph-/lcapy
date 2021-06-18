@@ -334,7 +334,12 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         elif plot_type == 'dB':
             plot1_type = 'dB'
         else:
-            raise ValueError('Unknown plot type: %s' % plot_type)
+            types = ['dB-phase', 'dB-radians', 'dB-phase-degrees', 'dB-degrees',
+                     'mag-phase', 'magnitude-phase', 'mag-phase-degrees','magnitude-phase-degrees',
+                     'real-imag', 'mag', 'magnitude', 'phase', 'radians', 'phase-degrees',
+                     'degrees', 'real', 'imag', 'dB']
+            
+            raise ValueError('Unknown plot type: %s. Use: %s ' % (plot_type, ', '.join(types)))
 
     deltas = None
     if obj.has(DiracDelta):
