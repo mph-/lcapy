@@ -149,7 +149,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Convert to Fourier domain."""
         from .symbols import f, jw, pi
 
-        if self.is_causal:
+        if self.is_causal or assumptions.get('causal', False):
             # Note, this does not apply for 1 / s.            
             tmp = self(jw)
             if tmp.real != 0:
