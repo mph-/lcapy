@@ -75,6 +75,7 @@ class PhasorExpression(Expr):
         # TODO, think this through...
         var = self.omega
         if hasattr(var, 'expr'):
+            print('FIXME, omega is Lcapy symbol')
             var = var.expr
 
         # Handle things like 2 * pi * f
@@ -206,7 +207,7 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
             raise ValueError(
                 'Do not know how to convert %s to phasor.  Expecting an AC signal.' % expr)
         
-        if omega is not None and check.omega != omega.expr:
+        if omega is not None and check.omega != omega:
             raise ValueError('Expecting omega=%s, found omega=%s.' % (omega, check.omega))
 
         if check.omega == 0:
@@ -275,6 +276,8 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
 
         if omega is None:
             omega = omegasym
+        elif hasattr(omega, 'expr'):
+            omega = omega.expr
 
         if expr.is_voltage or expr.is_current:
             print('Should convert %s expression to time-domain first' % expr.quantity)
@@ -298,7 +301,7 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
         from .sexpr import LaplaceDomainExpression
 
         omega = self.omega
-        result = self.expr.replace(omega.expr, ssym / j)
+        result = self.expr.replace(omega, ssym / j)
         result2 = LaplaceDomainExpression(result, **self.assumptions)
         return self.change(result2.time(), domain='time')
 
