@@ -576,7 +576,7 @@ def plot_nyquist(obj, f, **kwargs):
 
     # FIXME, determine useful frequency range...
     if f is None:
-        f = (0, 2)
+        f = (0, 100)
     if isinstance(f, (int, float)):
         f = (0, f)
     if isinstance(f, tuple):

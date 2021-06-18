@@ -363,9 +363,29 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).  fvector
         specifies the frequencies.  If it is a tuple (m1, m2), it sets the
-        frequency limits as (10**m1, 10**m2)."""        
+        frequency limits as (10**m1, 10**m2).
 
-        return self.phasor().bode_plot(fvector, **kwargs)
+        This method makes the assumption that the expression is causal.
+        """        
+
+        return self.fourier(causal=True).bode_plot(fvector, **kwargs)
+
+    def nyquist_plot(self, fvector=None, **kwargs):
+        """Plot frequency response for a frequency-domain phasor as a Nyquist
+        plot.  fvector specifies the frequencies.  If it is a tuple
+        (f1, f2), it sets the frequency limits.
+
+        The points on the plot are geometrically spaced so f1 must be greater
+        than zero.  By default, the mirrored plot for negative frquencies is 
+        shown.  This can be disabled with `mirror = False`.
+
+        The unit circle is shown by default.  This can be disabled with `unitcircle = False`.
+
+        This method makes the assumption that the expression is causal.
+        """        
+
+        # Perhaps should assume that causal
+        return self.fourier(causal=True).nyquist_plot(fvector, **kwargs)    
 
     def bilinear_transform(self):
         """Approximate s = ln(z)
