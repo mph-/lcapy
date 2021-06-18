@@ -75,8 +75,7 @@ class PhasorExpression(Expr):
         # TODO, think this through...
         var = self.omega
         if hasattr(var, 'expr'):
-            print('FIXME, omega is Lcapy symbol')
-            var = var.expr
+            raise ValueError('FIXME, omega is Lcapy symbol')
 
         # Handle things like 2 * pi * f
         if isinstance(var, symExpr) and var.is_Mul:
@@ -166,6 +165,9 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
         elif 'omega' not in assumptions or assumptions['omega'] is None:
             assumptions['omega'] = omegasym
 
+        if hasattr(assumptions['omega'], 'expr'):
+            assumptions['omega'] = assumptions['omega'].expr
+            
         assumptions['ac'] = True
         super (PhasorExpression, self).__init__(val, **assumptions)
     
