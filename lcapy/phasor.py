@@ -97,11 +97,6 @@ class PhasorExpression(Expr):
         
         return self.time().angular_fourier()            
     
-    def laplace(self, **assumptions):
-        """Convert to Laplace domain representation."""
-
-        return self.time().laplace()
-
     def phasor(self, **assumptions):
         """Convert to phasor representation."""
 
@@ -143,10 +138,7 @@ class PhasorExpression(Expr):
         if not self.is_phasor_frequency_domain:
             raise ValueError('Not frequency domain phasor: use plot()')
 
-        # FIXME, this does not change to FourierDomainExpression.
-        result = self.subs(self.omega, 2 * pi * fsym)
-        result = self.change(result, domain='fourier')
-        
+        result = self.fourier()
         return plot_bode(result, fvector, **kwargs)
 
     def _mul_compatible(self, x):
@@ -234,6 +226,11 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
             result = self.real.expr * cos(omega1 * t) - self.imag.expr * sin(omega1 * t)
 
         return TimeDomainExpression(result).as_quantity(self.quantity)
+
+    def laplace(self, **assumptions):
+        """Convert to Laplace domain representation."""
+
+        return self.time().laplace()
     
 
 class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
@@ -297,14 +294,22 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
     
     def time(self, **assumptions):
         """Convert to time domain representation."""
+
+        return self.laplace().time()
+
+    def laplace(self, **assumptions):
+        """Convert to Laplace domain representation."""
+
         from .sym import ssym        
         from .sexpr import LaplaceDomainExpression
 
+        ass = self.assumptions.copy()
+        assumptions = ass.merge(**assumptions)        
+        
         omega = self.omega
         result = self.expr.replace(omega, ssym / j)
-        result2 = LaplaceDomainExpression(result, **self.assumptions)
-        return self.change(result2.time(), domain='time')
-
+        return LaplaceDomainExpression(result, **assumptions).as_quantity(self.quantity)
+    
     def as_expr(self):
         return PhasorFrequencyDomainExpression(self)
 
