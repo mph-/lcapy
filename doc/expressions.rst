@@ -1729,6 +1729,8 @@ Lcapy when performing circuit analysis).  For example::
 Plotting
 ========
 
+Lcapy can generate many types of plot, including Bode plots, Nyquist plots, pole-zero plots, and lollipop stem) plots.  Labels are automatically generated but can be changed.
+
 Expressions have a `plot()` method.  Each domain has different behaviour.   Here's an example:
 
    >>> cos(2 * t).plot()
@@ -1809,9 +1811,9 @@ Here's an example of the `plot()` method for Fourier-domain expressions:
 
 The type of plot for complex frequency-domain expressions is
 controlled by the `plot_type` argument.  By default this is
-`dB-phase` which plots both the magnitude as dB and the phase.
-Other choices are `real`, `imag`, `magnitude`, `phase`, `real-imag`,
-`magnitude-phase`, `dB`.
+`dB-phase` for complex expressions which plots both the magnitude as dB and the phase.
+Other choices are `real`, `imag`, `magnitude`, `phase`, `real-imag`, `magnitude-phase`, `dB`,
+`degrees`, and `radians`.
            
 Frequencies are shown on a linear scale by default.  A logarithmic
 scale is used if `log_frequency=True` is specified.
@@ -1829,6 +1831,22 @@ real/imaginary plot, these are returned as a tuple.  For example::
   >>> A = 1 / (j * 2 * pi * f)
   >>> ax = abs(A).plot()
 
+
+Bode plots
+----------
+
+Bode plots are similar to frequency domain plots but plot both the magnitude (in dB) and the phase (in radians) as a function of logarithmic frequency.
+
+
+Nyquist plots
+-------------
+
+Nyquist plots plot the imaginary part of a frequency domain expression against the real part.  By default, the unit circle is also plotted.
+
+.. literalinclude:: examples/plotting/nyquist1.py
+
+.. image:: examples/plotting/nyquist1.png
+   :width: 12cm  
 
 Phasor plots
 ------------
