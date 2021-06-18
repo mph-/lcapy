@@ -307,7 +307,7 @@ class FourierTransformer(BilateralForwardTransformer):
             self.error('Expression depends on f')
         
         if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
-            self.error('Expression is unknown for t < 0')
+            self.error('Expression is unknown for t < 0 (use causal=True)')
     
     def rewrite(self, expr, var):
 

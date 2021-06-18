@@ -49,7 +49,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             self.error('Expression depends on f')
         
         if expr.is_Piecewise and expr.args[0].args[1].has(n >= 0):
-            self.error('Expression is unknown for n < 0' % expr)
+            self.error('Expression is unknown for n < 0 (use causal=True)')
 
     def add_images(self, expr, f):
         if self.m1 == self.m2:
