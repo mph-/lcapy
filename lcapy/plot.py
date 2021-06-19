@@ -242,7 +242,7 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
         ax.set_title(title)
         
     ax.grid(True)
-    return ax
+    return lines
 
 
 def plot_frequency(obj, f, plot_type=None, **kwargs):
@@ -261,7 +261,9 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         log_magnitude = True 
         log_frequency = True
 
-    nyticks = kwargs.pop('nyticks', None)        
+    nyticks = kwargs.pop('nyticks', None)
+    color2 = kwargs.pop('color2', None)
+    linestyle2 = kwargs.pop('linestyle2', '--')        
 
     # FIXME, determine useful frequency range...
     if f is None:
@@ -352,18 +354,25 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
     
-    plotit(ax, obj, f, V, plot1_type, deltas, log_frequency=log_frequency,
-           log_magnitude=log_magnitude, norm=norm, **kwargs)
+    lines = plotit(ax, obj, f, V, plot1_type, deltas, log_frequency=log_frequency,
+                   log_magnitude=log_magnitude, norm=norm, label=plot1_type, **kwargs)
     
     if plot2_type is None:
         return ax
 
+    if color2 is None:
+        color2 = lines[0].get_color()
+
+    kwargs.pop('color', None)
+    kwargs.pop('linestyle', None)    
+    ax.plot([], [], label=plot2_type, color=color2, linestyle=linestyle2, **kwargs)
+    
     ax2 = ax.twinx()
     kwargs['axes'] = ax2
-    kwargs['linestyle'] = '--'        
 
     plotit(ax2, obj, f, V, plot2_type, deltas, log_frequency=log_frequency,
-           log_magnitude=log_magnitude, norm=norm, second=True, **kwargs)
+           log_magnitude=log_magnitude, norm=norm, second=True, color=color2,
+           linestyle=linestyle2, **kwargs)
 
     if plot2_type in ('phase', 'radians'):
         ax2.set_ylim(-np.pi, np.pi)
@@ -393,7 +402,8 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     
     ax.yaxis.set_major_locator(ticker.LinearLocator(nyticks))
     ax2.yaxis.set_major_locator(ticker.LinearLocator(nyticks))
-    
+
+    ax.legend()
     return ax, ax2
 
 
