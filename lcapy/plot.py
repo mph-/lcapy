@@ -261,6 +261,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         log_magnitude = True 
         log_frequency = True
 
+    label = kwargs.pop('label', None)        
     nyticks = kwargs.pop('nyticks', None)
     color2 = kwargs.pop('color2', None)
     linestyle2 = kwargs.pop('linestyle2', '--')        
@@ -353,9 +354,12 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
+
+    if label is None:
+        label = plot1_type
     
     lines = plotit(ax, obj, f, V, plot1_type, deltas, log_frequency=log_frequency,
-                   log_magnitude=log_magnitude, norm=norm, label=plot1_type, **kwargs)
+                   log_magnitude=log_magnitude, norm=norm, label=label, **kwargs)
     
     if plot2_type is None:
         return ax
@@ -364,7 +368,8 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         color2 = lines[0].get_color()
 
     kwargs.pop('color', None)
-    kwargs.pop('linestyle', None)    
+    kwargs.pop('linestyle', None)
+    # Dummy plot to add label to legend.
     ax.plot([], [], label=plot2_type, color=color2, linestyle=linestyle2, **kwargs)
     
     ax2 = ax.twinx()
