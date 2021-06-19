@@ -2,6 +2,44 @@
 Release notes
 =============
 
+V0.93
+=====
+
+- Improves plotting dB-phase
+
+- Plots Dirac deltas
+  
+- Speeds up plotting of frequency domain responses  
+
+- Adds Nyquist plots
+
+- Fixes phasor transforms
+
+- Evaluates Integrals, Sums, etc. before plotting
+
+- Makes `is_complex` more robust
+
+- Adds `pairs` argument to `ZPK()` to combine complex conjugates
+
+- Adds `pairs` argument to `poles`, `zeros` and `roots` to combine complex conjugates
+
+- Adds many more DTFTs
+
+- Adds normalised frequency (F) and normalised angular frequency (Omega) domains
+
+- Adds IDTFTs
+
+- Ensures `dt` and `df` are positive
+
+- Ensures `N` positive in DFT
+
+- Adds generalized transformer infrastructure  
+
+- Fixes `dB`
+
+- Warns about truncated sequences
+  
+
 V0.92
 =====
 
