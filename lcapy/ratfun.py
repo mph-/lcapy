@@ -788,8 +788,10 @@ class Ratfun(object):
                     expr2 = expr * (var - p) ** o                
                     for n in range(1, o + 1):
                         m = o - n
-                        r = sym.limit(
-                            sym.diff(expr2, var, m), var, p) / sym.factorial(m)
+
+                        dexpr = sym.diff(expr2, var, m)
+                        r = sym.limit(dexpr, var, p) / sym.factorial(m)
+                        
                         rc = r.conjugate()
                         r = sym.simplify(r * (var - pc) ** n + rc * (var - p) ** n)
                         R.append(r)
@@ -811,8 +813,9 @@ class Ratfun(object):
                     expr2 = expr * (var - p) ** o
                     for n in range(1, o + 1):
                         m = o - n
-                        r = sym.limit(
-                            sym.diff(expr2, var, m), var, p) / sym.factorial(m)
+
+                        dexpr = sym.diff(expr2, var, m).simplify()
+                        r = sym.limit(dexpr, var, p) / sym.factorial(m)
 
                         R.append(r)
                         D.append(D2 ** n)                        
