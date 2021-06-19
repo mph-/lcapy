@@ -1889,6 +1889,17 @@ Complex discrete-time signals can also be plotted in polar format, for example::
   
 .. image:: examples/discretetime/cdt1-plot1.png
    :width: 10cm  
+
+
+Dirac deltas
+------------
+
+Dirac deltas in a time domain or discrete-time domain expression are plotted as arrows.  For example:
+
+.. literalinclude:: examples/plotting/deltas.py
+
+.. image:: examples/plotting/deltas.png
+   :width: 12cm
            
 
 Plot customisation
