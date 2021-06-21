@@ -377,12 +377,13 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         plot.  fvector specifies the frequencies.  If it is a tuple
         (f1, f2), it sets the frequency limits.
 
+        `npoints` set the number of plotted points.
+
         The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
 
         This method makes the assumption that the expression is causal.
         """        
 
-        # Perhaps should assume that causal
         return self.fourier(causal=True).nyquist_plot(fvector, **kwargs)    
 
     def bilinear_transform(self):

@@ -117,20 +117,18 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         from .plot import plot_angular_bode
         return plot_angular_bode(self, wvector, **kwargs)
 
-    def nyquist_plot(self, wvector=None, **kwargs):
+    def nyquist_plot(self, wvector=None, log_frequency=True, **kwargs):
         """Plot frequency response as a Nyquist plot (real part versus
         imaginary part).  wvector specifies the angular frequencies.  If it is
         a tuple (f1, f2), it sets the frequency limits as (f1, f2).
 
-        The points on the plot are geometrically spaced so f1 must be greater
-        than zero.  By default, the mirrored plot for negative frequencies is 
-        shown.  This can be disabled with `mirror = False`.
+        `npoints` set the number of plotted points.
 
         The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
         """        
 
         from .plot import plot_nyquist
-        return plot_nyquist(self, wvector, **kwargs)        
+        return plot_nyquist(self, wvector, log_frequency=log_frequency, **kwargs)                
     
         
 def omegaexpr(arg, **assumptions):
