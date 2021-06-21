@@ -377,10 +377,6 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         plot.  fvector specifies the frequencies.  If it is a tuple
         (f1, f2), it sets the frequency limits.
 
-        The points on the plot are geometrically spaced so f1 must be greater
-        than zero.  By default, the mirrored plot for negative frequencies is 
-        shown.  This can be disabled with `mirror = False`.
-
         The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
 
         This method makes the assumption that the expression is causal.

@@ -1854,11 +1854,9 @@ Nyquist plots plot the imaginary part of a frequency domain expression against t
    :width: 12cm
 
 
-The points on the plot are geometrically spaced so the specified
-frequencies must be greater than zero.  By default, the mirrored plot
-for negative frquencies is shown.  This can be disabled with
-`mirror=False`. The unit circle is shown by default.  This can be
-disabled with `unitcircle=False`.
+By default, the points on the plot are geometrically spaced; this can be disabled with `log_frequency=False`.
+
+The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
 
 
 Phasor plots

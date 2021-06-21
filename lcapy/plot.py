@@ -654,16 +654,35 @@ def plot_nyquist(obj, f, norm=False, **kwargs):
 
     from matplotlib.pyplot import Circle, rcParams
 
-    npoints = kwargs.pop('npoints', 400)    
+    npoints = kwargs.pop('npoints', 400)
+    # Default to True to get better plots.
+    log_frequency = kwargs.pop('log_frequency', True)
+    unitcircle = kwargs.pop('unitcircle', True)
+
+    fn = None
 
     # FIXME, determine useful frequency range...
     if f is None:
-        f = (0, 100)
+        f = (-100, 100)
     if isinstance(f, (int, float)):
         f = (0, f)
     if isinstance(f, tuple):
-        fmin, fmax = parse_range(f, 1e-4, positive=True)
-        f = np.geomspace(fmin, fmax, npoints)            
+        fmin, fmax = parse_range(f, 1e-1, positive=False)        
+        if log_frequency:
+            if fmin < 0:
+                frange = fmax - fmin
+                f = np.geomspace(frange / 1e4, fmax, npoints // 2)
+                f = np.hstack((0, f))
+                fn = -np.geomspace(frange / 1e4, abs(fmin), npoints // 2)
+                fn = np.hstack((0, fn))
+            elif fmin == 0:
+                f = np.geomspace(fmax / 1e4, fmax, npoints // 2)
+                f = np.hstack((0, f))                
+            else:
+                f = np.geomspace(fmin, fmax, npoints)
+        else:
+            fmin, fmax = parse_range(f, 1e-1, positive=False)            
+            f = np.linspace(fmin, fmax, npoints)                    
     
     if not obj.is_complex:
         raise ValueError('Data not complex')
@@ -673,17 +692,14 @@ def plot_nyquist(obj, f, norm=False, **kwargs):
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
 
-    unitcircle = kwargs.pop('unitcircle', True)
-    mirror = kwargs.pop('mirror', True)        
-    
     if unitcircle:
         ax.add_artist(Circle((0, 0), 1, color='blue', linestyle='--', fill=False))
 
     V = obj.evaluate(f)
     lines = ax.plot(V.real, V.imag)
 
-    if mirror:
-        V = obj.evaluate(-f)
+    if fn is not None:
+        V = obj.evaluate(fn)
         color = lines[0].get_color()
         ax.plot(V.real, V.imag, color=color)    
 
