@@ -95,13 +95,11 @@ an answer that appears valid for DC.
 
 19. Warn if try to multiply impedance impulse response with current in time-domain, etc.
 
-20. Plot Dirac deltas, need to expand first
+20. H(f) prints as u(f) for a user defined function.  Perhaps need a mechanism to override interpretion of H as Heaviside function?
 
-21. H(f) prints as u(f) for a user defined function.  Perhaps need a mechanism to override interpretion of H as Heaviside function?
+21. Fix expand and other funcs by converting Lcapy expressions in kwargs.
 
-22. Fix expand and other funcs by converting Lcapy expressions in kwargs.
-
-23. Plot complex time and discrete-time signals
+22. Plot complex time and discrete-time signals
 
 
 Testing
@@ -194,11 +192,22 @@ Discrete-time
 
 6. Difference operator D() for first-order differences?
 
-7. Perhaps have min bound for N to help simplify DFT?
+7. Coerce sympy to print ordered sum of delayed impulses.
 
-8. Coerce sympy to print ordered sum of delayed impulses.
+8. Fourier series?
 
-9. Fourier series?
 
-10. Set number of images.
+Transforms
+==========
+
+1. (1 / (f - 5j)**2) cannot do IFT
+
+2. SymPy takes forever to find limit of (-2*f + 10*I)*(f - 5*I)**2/(f**2 - 10*I*f - 25)**2 + (2*f - 10*I)/(f**2 - 10*I*f - 25) at f=5*I  Note, this expression simplifies to 0.
+
+
+
+
+
+
+
 

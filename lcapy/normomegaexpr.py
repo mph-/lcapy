@@ -146,6 +146,31 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
         return plot_angular_frequency(self, Wvector, plot_type=plot_type,
                                       norm=True, **kwargs)
 
+    def bode_plot(self, Wvector=None, **kwargs):
+        """Plot frequency response for a frequency-domain phasor as a Bode
+        plot (but without the straight line approximations).  Wvector
+        specifies the normalised angular frequencies.  If it is a tuple (f1, f2), it sets
+        the frequency limits.   Since a logarithmic frequency scale is used,
+        f1 must be greater than 0."""
+        
+        from .plot import plot_angular_bode
+        return plot_angular_bode(self, Wvector, norm=True, **kwargs)
+
+    def nyquist_plot(self, Wvector=None, **kwargs):
+        """Plot frequency response as a Nyquist plot (real part versus
+        imaginary part).  Wvector specifies the normalised angular frequencies.  If it is
+        a tuple (f1, f2), it sets the frequency limits as (f1, f2).
+
+        The points on the plot are geometrically spaced so f1 must be greater
+        than zero.  By default, the mirrored plot for negative frequencies is 
+        shown.  This can be disabled with `mirror = False`.
+
+        The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
+        """        
+
+        from .plot import plot_nyquist
+        return plot_nyquist(self, Wvector, **kwargs)
+    
     
 def Omegaexpr(arg, **assumptions):
     """Create NormAngularFourierDomainExpression object. 

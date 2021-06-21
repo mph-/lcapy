@@ -146,6 +146,31 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         return plot_frequency(self, Fvector, plot_type=plot_type,
                               norm=True, **kwargs)
 
+    def bode_plot(self, fvector=None, **kwargs):
+        """Plot frequency response for a frequency-domain phasor as a Bode
+        plot (but without the straight line approximations).  fvector
+        specifies the normalised frequencies.  If it is a tuple (f1, f2), it sets
+        the frequency limits.   Since a logarithmic frequency scale is used,
+        f1 must be greater than 0."""
+        
+        from .plot import plot_bode
+        return plot_bode(self, fvector, norm=True, **kwargs)
+
+    def nyquist_plot(self, fvector=None, **kwargs):
+        """Plot frequency response as a Nyquist plot (real part versus
+        imaginary part).  fvector specifies the normalised frequencies.  If it is
+        a tuple (f1, f2), it sets the frequency limits as (f1, f2).
+
+        The points on the plot are geometrically spaced so f1 must be greater
+        than zero.  By default, the mirrored plot for negative frequencies is 
+        shown.  This can be disabled with `mirror = False`.
+
+        The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
+        """        
+
+        from .plot import plot_nyquist
+        return plot_nyquist(self, fvector, **kwargs)
+    
     
 def Fexpr(arg, **assumptions):
     """Create NormFourierDomainExpression object. 

@@ -145,8 +145,6 @@ class FourierDomainExpression(FourierDomain, Expr):
         f1 must be greater than 0."""
         
         from .plot import plot_bode
-        from .sym import pi, fsym
-
         return plot_bode(self, fvector, **kwargs)
 
     def nyquist_plot(self, fvector=None, **kwargs):
@@ -155,10 +153,10 @@ class FourierDomainExpression(FourierDomain, Expr):
         a tuple (f1, f2), it sets the frequency limits as (f1, f2).
 
         The points on the plot are geometrically spaced so f1 must be greater
-        than zero.  By default, the mirrored plot for negative frquencies is 
+        than zero.  By default, the mirrored plot for negative frequencies is 
         shown.  This can be disabled with `mirror = False`.
 
-        The unit circle is shown by default.  This can be disabled with `unitcircle = False`.
+        The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
         """        
 
         from .plot import plot_nyquist

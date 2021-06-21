@@ -5,6 +5,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 """
 
 import numpy as np
+from .symbols import pi
 from .utils import separate_dirac_delta, factor_const
 from sympy import DiracDelta, solve
 
@@ -27,6 +28,24 @@ def make_axes(figsize=None, axes=None, **kwargs):
         fig, axes = subplots(1, **kwargs)
 
     return axes
+
+
+def parse_range(frange, zero=0.1, positive=False):
+
+    # Ensure that have floats.  This deals with SymPy symbols.
+    fmin = float(frange[0])
+    fmax = float(frange[1])
+
+    if fmax < fmin:
+        raise ValueError('Max value smaller than min value')
+    
+    if positive and fmin < 0:
+        raise ValueError('Min value not positive.')
+
+    if positive and fmin == 0:
+        fmin = zero
+
+    return fmin, fmax
 
 
 def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
@@ -276,10 +295,11 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         f = (0, f)
     if isinstance(f, tuple):
         if log_frequency:
-            fmin = f[0] if f[0] > 0 else 1e-1            
-            f = np.geomspace(fmin, f[1], npoints)
+            fmin, fmax = parse_range(f, 1e-1, positive=True)
+            f = np.geomspace(fmin, fmax, npoints)
         else:
-            f = np.linspace(f[0], f[1], npoints)            
+            fmin, fmax = parse_range(f, 1e-1, positive=False)            
+            f = np.linspace(fmin, fmax, npoints)            
 
     # Objects can have a `part` attribute that is set by methods such
     # as real, imag, phase, magnitude.  If this is defined,
@@ -420,6 +440,14 @@ def plot_bode(obj, f, **kwargs):
     return plot_frequency(obj, f, **kwargs)
 
 
+def plot_angular_bode(obj, f, **kwargs):
+
+    if 'log_frequency' not in kwargs:
+        kwargs['log_frequency'] = True
+
+    return plot_angular_frequency(obj, f, **kwargs)
+
+
 def plot_angular_frequency(obj, omega, plot_type=None, **kwargs):
 
     npoints = kwargs.pop('npoints', 400)
@@ -434,7 +462,8 @@ def plot_angular_frequency(obj, omega, plot_type=None, **kwargs):
     if isinstance(omega, (int, float)):
         omega = (0, omega)
     if isinstance(omega, tuple):
-        omega = np.linspace(omega[0], omega[1], npoints)
+        wmin, wmax = parse_range(omega, 1e-1, positive=False)        
+        omega = np.linspace(wmin, wmax, npoints)
 
     if norm and 'xlabel' not in kwargs:
         kwargs['xlabel'] = 'Normalized angular frequency'
@@ -454,7 +483,8 @@ def plot_time(obj, t, plot_type=None, **kwargs):
     if isinstance(t, (int, float)):
         t = (0, t)
     if isinstance(t, tuple):
-        t = np.linspace(t[0], t[1], npoints)
+        tmin, tmax = parse_range(t, 1e-1, positive=False)                
+        t = np.linspace(tmin, tmax, npoints)
 
     deltas = None
     if obj.has(DiracDelta):
@@ -620,7 +650,7 @@ def plot_phasor(obj, **kwargs):
     return ax
 
 
-def plot_nyquist(obj, f, **kwargs):
+def plot_nyquist(obj, f, norm=False, **kwargs):
 
     from matplotlib.pyplot import Circle, rcParams
 
@@ -632,8 +662,8 @@ def plot_nyquist(obj, f, **kwargs):
     if isinstance(f, (int, float)):
         f = (0, f)
     if isinstance(f, tuple):
-        fmin = f[0] if f[0] > 0 else 1e-4
-        f = np.geomspace(fmin, f[1], npoints)            
+        fmin, fmax = parse_range(f, 1e-4, positive=True)
+        f = np.geomspace(fmin, fmax, npoints)            
     
     if not obj.is_complex:
         raise ValueError('Data not complex')

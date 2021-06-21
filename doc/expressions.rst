@@ -2043,7 +2043,7 @@ Foster and Cauer synthesis.
 Note, in this example `one` is used to avoid generating a floating point number `1 / 6`.
 An alternative approach to use quotes around the expression (see :ref:`floating-point`)::
 
-    >>> Z = impedance('(4*s**2 + 3 * s + one / 6) / (s**2 + 2 * s / 3)')
+    >>> Z = impedance('(4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)')
 
     
   
