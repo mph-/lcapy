@@ -32,7 +32,7 @@ Vnor = Vno.subs({'R1':R1, 'R2':R2, 'In1':0, 'In2':0, 'Vn':0, 'Rs':Rs,
 Vnot = Vno.subs({'R1':R1, 'R2':R2, 'In1':In, 'In2':In, 'Vn':Vn, 'Rs':Rs,
                  'k_B':k_B, 'T':T})
 
-flim = (-1, 4)
+flim = (0.1, 10e3)
 ax = (Vnot * 1e9).plot(flim, loglog=True, label='total')
 ax = (Vnov * 1e9).plot(flim, loglog=True, label='Vn', axes=ax)
 ax = (Vnoi * 1e9).plot(flim, loglog=True, label='In', axes=ax)
