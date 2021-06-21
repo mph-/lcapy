@@ -73,6 +73,33 @@ def is_multiplied_with(expr, n, cmp, ret):
                 ret += [expr.args[i]]   
                 ret_flag = True
                 break 
+   
+   # check for Multiplication with sin
+    elif (cmp == 'sin(n)' and len(expr.args) == 1 and expr.is_Function and  # sin only
+          expr.func == sym.sin):
+        ret += [expr]
+        ret_flag = True
+    elif cmp == 'sin(n)' and expr.is_Mul:   
+        for i in range(len(expr.args)):
+            if (expr.args[i].is_Function and expr.args[i].func == sym.sin and
+                ((expr.args[i].args[0]).as_poly(n)).is_linear):
+                ret += [expr.args[i]]   
+                ret_flag = True
+                break 
+            
+    # check for Multiplication with cos
+    elif (cmp == 'cos(n)' and len(expr.args) == 1 and expr.is_Function and  # sin only
+          expr.func == sym.cos):
+        ret += [expr]
+        ret_flag = True
+    elif cmp == 'cos(n)' and expr.is_Mul:   
+        for i in range(len(expr.args)):
+            if (expr.args[i].is_Function and expr.args[i].func == sym.cos and
+                ((expr.args[i].args[0]).as_poly(n)).is_linear):
+                ret += [expr.args[i]]   
+                ret_flag = True
+                break             
+
 
     return ret_flag
 
