@@ -50,6 +50,7 @@ class DTFTTransformer(BilateralForwardTransformer):
         
         if expr.is_Piecewise and expr.args[0].args[1].has(n >= 0):
             self.error('Expression is unknown for n < 0 (use causal=True)')
+            
 
     def add_images(self, expr, f):
         if self.m1 == self.m2:
@@ -144,32 +145,129 @@ class DTFTTransformer(BilateralForwardTransformer):
             # Handle v(n), v(n) * y(n), 3 * v(n) / n etc.
             return self.function(expr, n, f) * const
         
-        # Handle step u(n-n0)   
+        # Handle step u(n-n0)  or u(-n-n0)  only 
         elif expr.is_Function and expr.func in (sym.Heaviside, UnitStep):
-            if args[0] is n:
-                return const / (1 - sym.exp(-sym.I * twopidt * f)) + const * self.add_images(DiracDelta(f), f) / dt / 2   
-            else:
-                delay = n - args[0]
-                if not delay.has(n):
-                    return  const * sym.exp(-sym.I * delay * twopidt * f) / (1 - sym.exp(-sym.I * twopidt * f)) + const * self.add_images(DiracDelta(f), f) / dt / 2
+            aa = args[0].coeff(n, 1)
+            bb = args[0].coeff(n, 0)  
+            delay = -bb / aa
+            if delay.is_integer or delay.is_integer is None:
+                res = 1 / (1 - sym.exp(-sym.I * twopidt * f)) 
+                if aa.is_negative:                    
+                    res = res.subs(f, -f)
+                return const * sym.exp(-sym.I * twopidt * f  * delay) * res  + const * self.add_images(DiracDelta(f), f) / dt / 2
+            
+        
+                
+        # Handle exp(j*a*n+b) * x(n)    o--o   X(W-a) *exp(b)
+        elif is_multiplied_with(expr, n, 'exp(n)', xn_fac) and abs(xn_fac[-1] / sym.exp(args[0].coeff(n, 0))) == 1:
+            expr /= xn_fac[-1]
+            ref = xn_fac[-1].args
+            aa = ref[0].coeff(n, 1) / sym.I
+            bb = ref[0].coeff(n, 0) 
+            X =  self.term(expr, n, f)
+            res = X.subs(f,  f - aa / twopidt)
+            return const * res
+        
+        
+        # handle sin(b*n+c) * x(n)    o--o   j/2 (exp(-jc)*X(W+b) - X(W-b)*exp(jc))
+        elif is_multiplied_with(expr, n, 'sin(n)', xn_fac):
+            expr /= xn_fac[-1]
+            ref = xn_fac[-1].args
+            bb = ref[0].coeff(n, 1)
+            cc = ref[0].coeff(n, 0)              
+            X = self.term(expr, n, f)
+            Xp = X.subs(f, f + bb / twopidt)
+            Xm = X.subs(f, f - bb / twopidt)
+            res = sym.I / 2 * (Xp * sym.exp(-sym.I * cc) - Xm * sym.exp(sym.I * cc))
+            return const * res   
+            
+        # handle cos(b*n+c)*x(n)    o--o   1/2 (exp(-jc)*X(W+b) + X(W-b)*exp(jc))
+        elif is_multiplied_with(expr, n, 'cos(n)', xn_fac):
+            expr /= xn_fac[-1]
+            ref = xn_fac[-1].args
+            bb = ref[0].coeff(n, 1)
+            cc = ref[0].coeff(n, 0)              
+            X = self.term(expr, n, f)
+            Xp = X.subs(f, f + bb / twopidt)
+            Xm = X.subs(f, f - bb / twopidt)
+            res = 1 / 2 * (Xp * sym.exp(-sym.I * cc) + Xm * sym.exp(sym.I * cc))
+            return const * res            
+        
+        # Multiplication with n       use n* x(n)  o--o  j / twopidt * d/df X(f)
+        elif is_multiplied_with(expr, n, 'n', xn_fac):
+            expr = expr / xn_fac[-1]
+            X = self.transform(expr, n, f)
+            return const / twopidt * sym.I * sym.simplify(sym.diff(X, f))         
+        
+                
+        # handle u(n+n0) * a **n * exp(b*n+c) 
+        elif is_multiplied_with(expr, n, 'UnitStep', xn_fac):
+            #
+            expr /= xn_fac[-1]            
+            # handle aa*n + bb  as argument of step
+            ref = xn_fac[-1].args
+            aa = ref[0].coeff(n, 1)
+            bb = ref[0].coeff(n, 0)
+            # check argument of step function
+            if abs(aa) != 1 or not (bb.is_integer or bb.is_integer is None) :
+                print("Warning: Check argument of Step function")            
+            delay = -bb / aa
+            #             
+            prefac = sym.exp(-sym.I * twopidt * f * delay)   
+            # rename  summation index  aa*n+bbk = k --> n
+            expr = expr.subs(n, aa*n + delay)         
+            
+            # handle u(n) * a **n * exp(b*n+c)                
+            e_fac = 1
+            # collect all exp. factors 
+            while is_multiplied_with(expr, n, 'exp(n)', xn_fac):
+                expr /= xn_fac[-1]
+                expr = sym.simplify(expr)
+                ref = xn_fac[-1].args
+                bb = ref[0].coeff(n, 1)
+                cc = ref[0].coeff(n, 0)                 
+                e_fac *= sym.exp(bb) 
+                prefac *=  sym.exp(cc)  
+                
+            # collect all a factors
+            while is_multiplied_with(expr, n, 'a**n', xn_fac):
+                expr /= xn_fac[-1]
+                expr = sym.simplify(expr)
+                ref = xn_fac[-1].args
+                lam = ref[0]
+                bb = ref[1].coeff(n, 1)
+                cc = ref[1].coeff(n, 0)                 
+                e_fac *= lam ** bb 
+                prefac *=  lam ** cc             
+            
+            if not expr.has(n):
+                if abs(e_fac) > 1:
+                    print("Warning:  Check for convergence")
+                res =  expr / (1 - e_fac*sym.exp(-sym.I * twopidt * f)) 
+                if aa.is_negative:
+                    res = res.subs(f, -f)
+                return const * prefac * res
+            
         
         # Handle impulse delta (n-n0)   
         elif expr.is_Function and expr.func == UnitImpulse:
-            if args[0] is n:
-                return const   
-            else:
-                delay = n - args[0]
-                if not delay.has(n):
-                    return  const * sym.exp(-sym.I * delay * twopidt * f)
+            aa = args[0].coeff(n, 1)
+            bb = args[0].coeff(n, 0) 
+            delay = -bb / aa
+            if delay.is_integer or delay.is_integer is None:
+                return  const * sym.exp(-sym.I * delay * twopidt * f)
 
         # Handle signum
         elif (len(args) == 1 and expr.is_Function and
               expr.func == sym.sign and (args[0].as_poly(n)).is_linear):
             aa = args[0].coeff(n, 1)
             bb = args[0].coeff(n, 0)  
-            delay = bb / aa
+            delay = -bb / aa
             if delay.is_integer:
-                return const * 2 * sym.exp(sym.I * twopidt * f * delay) / (1 - sym.exp(-sym.I * twopidt * f))
+                res = 1 / (1 - sym.exp(-sym.I * twopidt * f))
+                if aa.is_negative:                    
+                    res = res.subs(f, -f)                
+                return const * 2 * sym.exp(-sym.I * twopidt * f * delay) * res
     
     
         # Handle sincu        
@@ -185,67 +283,20 @@ class DTFTTransformer(BilateralForwardTransformer):
                 fac1 = 1 / aa
                 fac2 = sym.pi / twopidt
             if delay.is_integer:
-                return const * fac1 * (UnitStep(f + fac2 * aa)  - UnitStep(f - fac2 * aa) ) *sym.exp(sym.I * delay * twopidt * f)
+                return const * fac1 * (UnitStep(f + fac2 * aa)  - UnitStep(f - fac2 * aa)) *sym.exp(sym.I * delay * twopidt * f)
         
         # Handle rect
         elif (len(args) == 1 and expr.is_Function and expr.func == rect and
             (args[0].as_poly(n)).is_linear):
             qq = 1/ args[0].coeff(n, 1)
-            delay = qq * args[0].coeff(n, 0)
-            qq = qq // 2
-            if delay.is_integer:
-                return const * sym.exp(sym.I * delay * twopidt * f) * sym.sin(twopidt * f / 2 * (2 * qq + 1) ) / sym.sin(twopidt * f / 2)
-        
-        # Handle cos(a*n+b) 
-        elif (len(args) == 1 and expr.is_Function and
-            expr.func == sym.cos and (args[0].as_poly(n)).is_linear):
-            aa = args[0].coeff(n, 1) / twopidt
-            bb = args[0].coeff(n, 0)
-            ret = sym.exp(-sym.I * bb) * DiracDelta(f + aa) + sym.exp(sym.I * bb) * DiracDelta(f - aa)
-            return const * self.add_images(ret, f) / dt / 2
-        
-        # Handle sin(a*n+b) 
-        elif (len(args) == 1 and expr.is_Function
-            and expr.func == sym.sin and (args[0].as_poly(n)).is_linear):
-            aa = args[0].coeff(n, 1) / twopidt
-            bb = args[0].coeff(n, 0) 
-            ret = sym.exp(-sym.I * bb) * DiracDelta(f + aa) - sym.exp(sym.I * bb) * DiracDelta(f - aa)
-            return const * sym.I * self.add_images(ret, f) / dt / 2
-
-        # Handle exp(j*a*n+b)
-        elif (len(args) == 1 and expr.is_Function and 
-                expr.func == sym.exp and (args[0].as_poly(n)).is_linear):
-            aa = args[0].coeff(n, 1) / twopidt / sym.I
-            bb = args[0].coeff(n, 0) 
-            # Check if for complex exp function with abs value to
-            # allow for parameter arguments
-            if abs(expr / sym.exp(bb)) == 1:
-                return const * sym.exp(bb) * self.add_images(DiracDelta(f - aa), f) / dt         
-            
-        # Multiplication with n       use n* x(n)  o--o  j / twopidt * d/df X(f)
-        elif is_multiplied_with(expr, n, 'n', xn_fac):
-            expr = expr / xn_fac[0]
-            X = self.transform(expr, n, f)
-            return const / twopidt * sym.I * sym.simplify(sym.diff(X, f))
-
-        # Multiplication with a**(b*n+c)   use    lam**n * x(n)  o--o  X(f/lam)
-        elif is_multiplied_with(expr, n, 'a**n', xn_fac):
-            expr /= xn_fac[0]
-            ref = xn_fac[0].args
-            lam = ref[0]
-            bb = ref[1].coeff(n, 1)
-            cc = ref[1].coeff(n, 0)              
-            X = self.term(expr, n, f)
-            return lam**cc * sym.simplify(X.subs(f, f / lam**bb))
-
-        # Multiplication with exp(b*n+c)   use    exp**n * x(n)  o--o  X(f/exp(1))
-        elif is_multiplied_with(expr, n, 'exp(n)', xn_fac):
-            expr /= xn_fac[0]
-            ref = xn_fac[0].args
-            bb = ref[0].coeff(n, 1)
-            cc = ref[0].coeff(n, 0)              
-            X = self.term(expr, n, f)
-            return sym.exp(cc) * sym.simplify(X.subs(f, f / sym.exp(bb))) 
+            if qq.is_negative:
+                print("Warning, negative coefficient for n:  Use rect((n-n0)/b)")
+            else:    
+                delay = qq * args[0].coeff(n, 0)
+                qq = qq // 2
+                if delay.is_integer:
+                    return const * sym.exp(sym.I * delay * twopidt * f) * sym.sin(twopidt * f / 2 * (2 * qq + 1)) / sym.sin(twopidt * f / 2)
+                   
         
         return const * self.sympy(expr, n, f)
 

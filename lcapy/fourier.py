@@ -265,7 +265,17 @@ class FourierTransformer(BilateralForwardTransformer):
                 if alpha == 0:
                     return const1 * sincn(f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
 
-                return alpha * const1 * sincn(f / scale) * sincn(alpha * f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)        
+                return alpha * const1 * sincn(f / scale) * sincn(alpha * f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
+
+            # 
+            # factor = other.factor()
+            # const2, factor2 = factor_const(factor, t)
+            # if factor2.is_Pow and factor2.args[1] == -2:
+            #     foo = factor2.args[0]
+            #     a = foo.coeff(t, 1)                                
+            #     b = foo.coeff(t, 0)
+            #     if a != 0:
+            #         return const1 * const2 * f * exp(-b * 2 *pi * f / a) * sign(f) / (2 * pi)
 
             # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) *
             # Heaviside(t)
