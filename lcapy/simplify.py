@@ -63,7 +63,7 @@ def simplify_dirac_delta(expr, var=None):
     if not expr.has(DiracDelta):
         return expr
     
-    expr = simplify_heaviside_power(expr)
+    expr = simplify_dirac_delta_product(expr)
     if var is not None:
 
         # Convert delta(a * t) to delta(t) / a
