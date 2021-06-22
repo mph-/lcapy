@@ -154,8 +154,6 @@ class DTFTTransformer(BilateralForwardTransformer):
                 if aa.is_negative:                    
                     res = res.subs(f, -f)
                 return const * sym.exp(-sym.I * twopidt * f  * delay) * res  + const * self.add_images(DiracDelta(f), f) / dt / 2
-            
-        
                 
         # Handle exp(j*a*n+b) * x(n)    o--o   X(W-a) *exp(b)
         elif is_multiplied_with(expr, n, 'exp(n)', xn_fac) and abs(xn_fac[-1] / sym.exp(args[0].coeff(n, 0))) == 1:
@@ -167,8 +165,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             res = X.subs(f,  f - aa / twopidt)
             return const * res
         
-        
-        # handle sin(b*n+c) * x(n)    o--o   j/2 (exp(-jc)*X(W+b) - X(W-b)*exp(jc) )
+        # Handle sin(b*n+c) * x(n)    o--o   j/2 (exp(-jc)*X(W+b) - X(W-b)*exp(jc) )
         elif is_multiplied_with(expr, n, 'sin(n)', xn_fac):
             expr /= xn_fac[-1]
             ref = xn_fac[-1].args
@@ -180,7 +177,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             res = sym.I / 2 * (Xp * sym.exp(-sym.I * cc) - Xm * sym.exp(sym.I * cc))
             return const * res   
             
-        # handle cos(b*n+c)*x(n)    o--o   1/2 (exp(-jc)*X(W+b) + X(W-b)*exp(jc) )
+        # Handle cos(b*n+c)*x(n)    o--o   1/2 (exp(-jc)*X(W+b) + X(W-b)*exp(jc) )
         elif is_multiplied_with(expr, n, 'cos(n)', xn_fac):
             expr /= xn_fac[-1]
             ref = xn_fac[-1].args
@@ -192,14 +189,13 @@ class DTFTTransformer(BilateralForwardTransformer):
             res = 1 / 2 * (Xp * sym.exp(-sym.I * cc) + Xm * sym.exp(sym.I * cc))
             return const * res            
         
-        # Multiplication with n       use n* x(n)  o--o  j / twopidt * d/df X(f)
+        # Multiplication with n       use n * x(n)  o--o  j / twopidt * d/df X(f)
         elif is_multiplied_with(expr, n, 'n', xn_fac):
             expr = expr / xn_fac[-1]
             X = self.transform(expr, n, f)
             return const / twopidt * sym.I * sym.simplify(sym.diff(X, f))         
-        
                 
-        # handle u(n+n0) * a **n * exp(b*n+c) 
+        # Handle u(n+n0) * a **n * exp(b*n+c) 
         elif is_multiplied_with(expr, n, 'UnitStep', xn_fac):
             #
             expr /= xn_fac[-1]            
@@ -216,9 +212,9 @@ class DTFTTransformer(BilateralForwardTransformer):
             # rename  summation index  aa*n+bbk = k --> n
             expr = expr.subs(n, aa*n + delay)         
             
-            # handle u(n) * a **n * exp(b*n+c)                
+            # Handle u(n) * a **n * exp(b*n+c)                
             e_fac = 1
-            # collect all exp. factors 
+            # Collect all exp. factors 
             while is_multiplied_with(expr, n, 'exp(n)', xn_fac):
                 expr /= xn_fac[-1]
                 expr = sym.simplify(expr)
@@ -228,7 +224,7 @@ class DTFTTransformer(BilateralForwardTransformer):
                 e_fac *= sym.exp(bb) 
                 prefac *=  sym.exp(cc)  
                 
-            # collect all a factors
+            # Collect all a factors
             while is_multiplied_with(expr, n, 'a**n', xn_fac):
                 expr /= xn_fac[-1]
                 expr = sym.simplify(expr)
@@ -247,7 +243,6 @@ class DTFTTransformer(BilateralForwardTransformer):
                     res = res.subs(f, -f)
                 return const * prefac * res
             
-        
         # Handle impulse delta (n-n0)   
         elif expr.is_Function and expr.func == UnitImpulse:
             aa = args[0].coeff(n, 1)
@@ -270,7 +265,6 @@ class DTFTTransformer(BilateralForwardTransformer):
                 if aa.is_negative:                    
                     res = res.subs(f, -f)                
                 return const * sym.exp(-sym.I * twopidt * f * delay) * res
-    
     
         # Handle sincu        
         elif (len(args) == 1 and expr.is_Function and
