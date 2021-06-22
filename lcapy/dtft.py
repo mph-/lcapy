@@ -168,7 +168,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             return const * res
         
         
-        # handle sin(b*n+c) * x(n)    o--o   j/2 (exp(-jc)*X(W+b) - X(W-b)*exp(jc))
+        # handle sin(b*n+c) * x(n)    o--o   j/2 (exp(-jc)*X(W+b) - X(W-b)*exp(jc) )
         elif is_multiplied_with(expr, n, 'sin(n)', xn_fac):
             expr /= xn_fac[-1]
             ref = xn_fac[-1].args
@@ -180,7 +180,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             res = sym.I / 2 * (Xp * sym.exp(-sym.I * cc) - Xm * sym.exp(sym.I * cc))
             return const * res   
             
-        # handle cos(b*n+c)*x(n)    o--o   1/2 (exp(-jc)*X(W+b) + X(W-b)*exp(jc))
+        # handle cos(b*n+c)*x(n)    o--o   1/2 (exp(-jc)*X(W+b) + X(W-b)*exp(jc) )
         elif is_multiplied_with(expr, n, 'cos(n)', xn_fac):
             expr /= xn_fac[-1]
             ref = xn_fac[-1].args
@@ -240,9 +240,9 @@ class DTFTTransformer(BilateralForwardTransformer):
                 prefac *=  lam ** cc             
             
             if not expr.has(n):
-                if abs(e_fac) > 1:
+                if e_fac.is_integer and abs(e_fac) > 1:
                     print("Warning:  Check for convergence")
-                res =  expr / (1 - e_fac*sym.exp(-sym.I * twopidt * f)) 
+                res =  expr / (1 - e_fac * sym.exp(-sym.I * twopidt * f) ) 
                 if aa.is_negative:
                     res = res.subs(f, -f)
                 return const * prefac * res
@@ -263,26 +263,33 @@ class DTFTTransformer(BilateralForwardTransformer):
             bb = args[0].coeff(n, 0)  
             delay = -bb / aa
             if delay.is_integer:
-                res = 1 / (1 - sym.exp(-sym.I * twopidt * f))
+                # definition 1 for sign
+                # res = 1 / (1 - sym.exp(-sym.I * twopidt * f))
+                # definition 2 for signum
+                res = (1 + sym.exp(-sym.I * twopidt * f))  / (1 - sym.exp(-sym.I * twopidt * f)) 
                 if aa.is_negative:                    
                     res = res.subs(f, -f)                
-                return const * 2 * sym.exp(-sym.I * twopidt * f * delay) * res
+                return const * sym.exp(-sym.I * twopidt * f * delay) * res
     
     
         # Handle sincu        
         elif (len(args) == 1 and expr.is_Function and
               (expr.func == sincu or expr.func == sincn) and
               (args[0].as_poly(n)).is_linear):
-            aa = args[0].coeff(n, 1) 
+            aa = args[0].coeff(n, 1)
+            if abs(aa) > pi:
+                print("Warning, Argument out of range (-pi, pi)")
             bb = args[0].coeff(n, 0) 
             delay = bb/aa
-            fac1 = sym.pi / aa  
-            fac2 = 1 /  twopidt
+            # sincn contains an additional pi in argument
+            nnp = 1
             if expr.func == sincn:
-                fac1 = 1 / aa
-                fac2 = sym.pi / twopidt
+                nnp = sym.pi                
+            # global factor   
+            prefac = sym.pi / aa / nnp
+            # cutoff frequency
             if delay.is_integer:
-                result = const * fac1 * (UnitStep(f + fac2 * aa)  - UnitStep(f - fac2 * aa)) *sym.exp(sym.I * delay * twopidt * f)
+                result = const * prefac * (UnitStep(f + aa) - UnitStep(f - aa)) * sym.exp(sym.I * delay * twopidt * f)
                 return self.add_images(result, f)
         
         # Handle rect

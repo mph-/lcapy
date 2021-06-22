@@ -2,7 +2,7 @@
 
 :math:`\sin{\left(2 \pi f_{0} t \right)} \longleftrightarrow \frac{2 \pi f_{0}}{4 \pi^{2} f_{0}^{2} + s^{2}}`
 
-:math:`e^{2 \mathrm{j} \pi f_{0} t} \longleftrightarrow - \frac{1}{2 \mathrm{j} \pi f_{0} - s}`
+:math:`e^{2 \mathrm{j} \pi f_{0} t} \longleftrightarrow \frac{1}{s \left(- \frac{2 \mathrm{j} \pi f_{0}}{s} + 1\right)}`
 
 :math:`1 \longleftrightarrow \frac{1}{s}`
 

@@ -1,6 +1,6 @@
-:math:`\cos{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{1 - \frac{\cos{\left(2 \pi \Delta_{t} f_{0} \right)}}{z}}{1 - \frac{2 \cos{\left(2 \pi \Delta_{t} f_{0} \right)}}{z} + \frac{1}{z^{2}}}`
+:math:`\cos{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{z \left(z - \cos{\left(2 \pi \Delta_{t} f_{0} \right)}\right)}{z^{2} - 2 z \cos{\left(2 \pi \Delta_{t} f_{0} \right)} + 1}`
 
-:math:`\sin{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{\sin{\left(2 \pi \Delta_{t} f_{0} \right)}}{z \left(1 - \frac{2 \cos{\left(2 \pi \Delta_{t} f_{0} \right)}}{z} + \frac{1}{z^{2}}\right)}`
+:math:`\sin{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{z \sin{\left(2 \pi \Delta_{t} f_{0} \right)}}{z^{2} - 2 z \cos{\left(2 \pi \Delta_{t} f_{0} \right)} + 1}`
 
 :math:`e^{2 \mathrm{j} \pi \Delta_{t} f_{0} n} \longleftrightarrow \frac{z}{z - e^{2 \mathrm{j} \pi \Delta_{t} f_{0}}}`
 

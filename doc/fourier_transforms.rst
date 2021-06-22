@@ -1,6 +1,6 @@
 :math:`\cos{\left(2 \pi f_{0} t \right)} \longleftrightarrow \frac{\delta\left(f - f_{0}\right)}{2} + \frac{\delta\left(f + f_{0}\right)}{2}`
 
-:math:`\sin{\left(2 \pi f_{0} t \right)} \longleftrightarrow - \frac{\mathrm{j} \delta\left(f - f_{0}\right)}{2} + \frac{\mathrm{j} \delta\left(f + f_{0}\right)}{2}`
+:math:`\sin{\left(2 \pi f_{0} t \right)} \longleftrightarrow \frac{\mathrm{j} \left(- \delta\left(f - f_{0}\right) + \delta\left(f + f_{0}\right)\right)}{2}`
 
 :math:`e^{2 \mathrm{j} \pi f_{0} t} \longleftrightarrow \delta\left(f - f_{0}\right)`
 
@@ -22,13 +22,13 @@
 
 :math:`\mathrm{sign}{\left(t \right)} \longleftrightarrow - \frac{\mathrm{j}}{\pi f}`
 
-:math:`\mathrm{rect}{\left(t \right)} \longleftrightarrow \mathrm{sinc}{\left(f \right)}`
+:math:`\mathrm{rect}{\left(t \right)} \longleftrightarrow \mathrm{sincn}{\left(f \right)}`
 
-:math:`\mathrm{sinc}{\left(t \right)} \longleftrightarrow \mathrm{rect}{\left(f \right)}`
+:math:`\mathrm{sincn}{\left(t \right)} \longleftrightarrow \mathrm{rect}{\left(f \right)}`
 
-:math:`\mathrm{tri}{\left(t \right)} \longleftrightarrow \mathrm{sinc}^{2}{\left(f \right)}`
+:math:`\mathrm{tri}{\left(t \right)} \longleftrightarrow \mathrm{sincn}^{2}{\left(f \right)}`
 
-:math:`\mathrm{trap}{\left(t,\alpha \right)} \longleftrightarrow \alpha \operatorname{sinc}{\left(f \right)} \operatorname{sinc}{\left(\alpha f \right)}`
+:math:`\mathrm{trap}{\left(t,\alpha \right)} \longleftrightarrow \alpha \operatorname{sincn}{\left(f \right)} \operatorname{sincn}{\left(\alpha f \right)}`
 
 :math:`e^{- \left|{t}\right|} \longleftrightarrow \frac{2}{4 \pi^{2} f^{2} + 1}`
 

@@ -46,7 +46,9 @@ class LcapyTester(unittest.TestCase):
 
         x = sign(n)
         X = x.DTFT(Omega)
-        self.assertEqual(X, 2 / (1 - exp(-j * Omega)), "sign(n).DTFT(Omega)")
+        X1 = exp(j * Omega) / (exp(j * Omega) - 1) + 1 / (exp( j * Omega) - 1)
+        
+        self.assertEqual(X, X1, "sign(n).DTFT(Omega)")
 
         m = symbol('m', integer=True)
         x = nexpr('x(n)')
