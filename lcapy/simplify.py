@@ -97,8 +97,8 @@ def simplify_heaviside_power(expr):
     heaviside_powers = []    
     
     def pre(expr):
-        if (expr.is_Pow and expr.args[0].func == Heaviside and
-              expr.args[1].is_constant):
+        if (expr.is_Pow and expr.args[0].func in (Heaviside, UnitStep) and
+            expr.args[1].is_constant):
             heaviside_powers.append(expr)            
         
         for arg in expr.args:
@@ -120,7 +120,7 @@ def simplify_heaviside_integral(expr):
 
         if not isinstance(expr, Integral):
             return False
-        return expr.has(Heaviside)
+        return expr.has(Heaviside) or expr.has(UnitStep)
 
     def value(expr):
 
@@ -135,7 +135,7 @@ def simplify_heaviside_integral(expr):
         
         result = 1
         for factor in integrand.as_ordered_factors():
-            if isinstance(factor, Heaviside):
+            if isinstance(factor, (Heaviside, UnitStep)):
                 arg = factor.args[0]
                 if arg == var and lower_limit == -oo:
                     lower_limit = 0
@@ -192,7 +192,7 @@ def simplify_heaviside_scale(expr, var):
 
 def simplify_heaviside(expr, var=None):
 
-    if not expr.has(Heaviside):
+    if not expr.has(Heaviside) and not expr.has(UnitStep):
         return expr
     
     expr = simplify_heaviside_integral(expr)
