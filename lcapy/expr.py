@@ -1085,7 +1085,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self.__mul__(x)
 
-    def __truediv__(self, x):
+    def __truediv__(self, x, integer=False):
         """True divide."""
 
         if not isinstance(x, Expr):
@@ -1128,7 +1128,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         else:
             cls = self._class_by_quantity(quantity)
 
-        value = self.expr / x.expr
+        if integer:
+            value = self.expr // x.expr
+        else:
+            value = self.expr / x.expr        
         result = cls(value, **assumptions)        
         result.units = self.units / x.units
 
@@ -1146,6 +1149,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             x = expr(x)
 
         return x.__truediv__(self)
+
+    def __floordiv__(self, x):
+        """Integer divide."""
+
+        return self.__truediv__(x, integer=True)
             
     def __add__(self, x):
         """Add."""
