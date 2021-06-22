@@ -29,7 +29,7 @@ import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
-from .simplify import simplify_sin_cos, simplify_heaviside
+from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta
 from collections import OrderedDict
 
 __all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad', 'degrees',
@@ -1981,7 +1981,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.__class__(ret, **self.assumptions)
 
     def simplify(self):
-        """Simplify expression."""
+        """Simplify expression.
+
+        This throws the kitchen sink at the problem but can be slow.
+
+        See also simplify_terms and simplify_factors."""
 
         # Perhaps roll this into symsimplify?
         if self.has(AppliedUndef):
@@ -2020,8 +2024,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result = simplify_sin_cos(self.expr, as_cos, as_sin)
         return self.__class__(result, **self.assumptions)        
 
+    def simplify_dirac_delta(self):
+        """Simplify DiracDelta(4 * t + 2) to DiracDelta(t + 0.5) / 4
+        and DiracDelta(t) * x(t) to DiracDelta * x(0)."""
+
+        result = simplify_dirac_delta(self.expr, self.var)
+        return self.__class__(result, **self.assumptions)
+
     def simplify_heaviside(self):
-        """Simplify Heaviside( 4 * t + 2) to Heaviside(t + 0.5)."""
+        """Simplify Heaviside(4 * t + 2) to Heaviside(t + 0.5)
+        and Heaviside(t)**2 to Heaviside(t), etc."""
 
         result = simplify_heaviside(self.expr, self.var)
         return self.__class__(result, **self.assumptions)        

@@ -267,7 +267,7 @@ def symsymbol(name, **assumptions):
     return sympify(name, override=True, **assumptions)
 
 
-def symsimplify(expr):
+def symsimplify(expr, var=None):
     """Simplify a SymPy expression.  This is a hack to work around
     problems with SymPy's simplify API."""
 
@@ -278,12 +278,14 @@ def symsimplify(expr):
     if expr.has(sym.DiracDelta):
         expr = simplify_dirac_delta(expr)
     if expr.has(sym.Heaviside):
-        expr = simplify_heaviside(expr)
+        expr = simplify_heaviside(expr, var)
 
     # This gets expanded into piecewise...
     if expr.has(sym.sign):
         # Could replace sign with dummy function, simplify, and then restore...
-        # Should replace 1 + sign(t) with 2 * Heaviside(t)
+        # Could replace 1 + sign(t) with 2 * Heaviside(t) but this depends
+        # on the definition of sign(t).  SymPy and NumPy define sign(0) = 0.
+        # This implies Heaviside(0) = 0.5.
         return expr
     
     try:

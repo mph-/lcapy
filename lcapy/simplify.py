@@ -42,7 +42,7 @@ def simplify_dirac_delta_product_term(expr):
     return expr.replace(query, value)
 
 
-def simplify_dirac_delta(expr, expand=False):
+def simplify_dirac_delta_product(expr, expand=False):
     """Simplify f(t) * DiracDelta(t) to f(0) * DiracDelta(t)."""
 
     if not expr.has(DiracDelta):
@@ -56,6 +56,19 @@ def simplify_dirac_delta(expr, expand=False):
     terms = expr.expand().as_ordered_terms()
 
     return Add(*[simplify_dirac_delta_product_term(term) for term in terms])
+
+
+def simplify_dirac_delta(expr, var=None):
+
+    if not expr.has(DiracDelta):
+        return expr
+    
+    expr = simplify_heaviside_power(expr)
+    if var is not None:
+
+        # Convert delta(a * t) to delta(t) / a
+        expr = expr.expand(diracdelta=True, wrt=var)        
+    return expr
 
 
 # def simplify_heaviside_product(expr):
