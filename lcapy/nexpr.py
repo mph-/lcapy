@@ -173,7 +173,7 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         from .extrafunctions import UnitStep        
         from .symbols import f, omega, Omega, F
         from .fexpr import fexpr
-        from .dtft import DTFT        
+        from .dtft import DTFT
         
         if var is None:
             var = f
@@ -187,6 +187,8 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         # There is a bug in SymPy when simplifying Sum('X(n - m)', (m, -oo, oo))
         # result = result.simplify()
         result = result.cancel_terms()
+        result = result.simplify_heaviside()
+
         return result
 
     def norm_angular_fourier(self, **assumptions):

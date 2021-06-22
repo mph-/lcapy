@@ -660,6 +660,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.simplify_sin_cos(as_sin=True).simplify(), b, "sin form")
         self.assertEqual(a.simplify_sin_cos().simplify(), b, "default form")        
 
+    def test_simplify_unitstep(self):
+
+        a = Heaviside(4 * t - 2)
+        b = a.simplify_heaviside()
+        self.assertEqual(b, Heaviside(t - 0.5), "simplify_heaviside_scale")                
+        
     def test_poles(self):
 
         # TODO, maybe tweak ExprDict to make keys Lcapy expressions?

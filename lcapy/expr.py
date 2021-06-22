@@ -29,7 +29,7 @@ import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
-from .simplify import simplify_sin_cos
+from .simplify import simplify_sin_cos, simplify_heaviside
 from collections import OrderedDict
 
 __all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad', 'degrees',
@@ -2020,6 +2020,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result = simplify_sin_cos(self.expr, as_cos, as_sin)
         return self.__class__(result, **self.assumptions)        
 
+    def simplify_heaviside(self):
+        """Simplify Heaviside( 4 * t + 2) to Heaviside(t + 0.5)."""
+
+        result = simplify_heaviside(self.expr, self.var)
+        return self.__class__(result, **self.assumptions)        
+    
     def replace(self, query, value, map=False, simultaneous=True, exact=None):
 
         try:

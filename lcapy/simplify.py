@@ -5,6 +5,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 """
 
 from sympy import Add, Mul, DiracDelta, Heaviside, Integral, oo, sin, cos, sqrt, atan2, pi, Symbol, solve
+from .extrafunctions import UnitStep
 
 
 def simplify_dirac_delta_product_term(expr):
@@ -145,13 +146,46 @@ def simplify_heaviside_integral(expr):
     return expr
 
 
-def simplify_heaviside(expr):
+def simplify_heaviside_scale(expr, var):
+
+    if not expr.has(Heaviside) and not expr.has(UnitStep):
+        return expr
+
+    terms = expr.as_ordered_terms()
+    if len(terms) > 1:
+        result = 0
+        for term in terms:
+            result += simplify_heaviside_scale(term, var)
+        return result
+
+    def query(expr):
+
+        return expr.is_Function and expr.func in (Heaviside, UnitStep)
+
+    def value(expr):
+
+        arg = expr.args[0]
+
+        if not arg.as_poly(var).is_linear:
+            return expr
+
+        a = arg.coeff(var, 1)
+        b = arg.coeff(var, 0)          
+
+        return expr.func(var + b / a)
+    
+    return expr.replace(query, value)    
+
+
+def simplify_heaviside(expr, var=None):
 
     if not expr.has(Heaviside):
         return expr
     
     expr = simplify_heaviside_integral(expr)
-    expr = simplify_heaviside_power(expr)    
+    expr = simplify_heaviside_power(expr)
+    if var is not None:
+        expr = simplify_heaviside_scale(expr, var)    
     return expr
     
 
