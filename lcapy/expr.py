@@ -1085,7 +1085,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self.__mul__(x)
 
-    def __truediv__(self, x, integer=False):
+    def __truediv__(self, x, floor=False):
         """True divide."""
 
         if not isinstance(x, Expr):
@@ -1128,7 +1128,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         else:
             cls = self._class_by_quantity(quantity)
 
-        if integer:
+        if floor:
             value = self.expr // x.expr
         else:
             value = self.expr / x.expr        
@@ -1137,24 +1137,32 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return result
             
-    def __rtruediv__(self, x):
+    def __rtruediv__(self, x, floor=False):
         """Reverse true divide."""
 
         from .matrix import Matrix
         
         if isinstance(x, Matrix):
-            return x / self.expr
+            if floor:
+                return x // self.expr
+            else:
+                return x / self.expr                
 
         if not isinstance(x, Expr):
             x = expr(x)
 
-        return x.__truediv__(self)
+        return x.__truediv__(self, floor)
 
     def __floordiv__(self, x):
-        """Integer divide."""
+        """Floor divide."""
 
-        return self.__truediv__(x, integer=True)
-            
+        return self.__truediv__(x, floor=True)
+
+    def __rfloordiv__(self, x):
+        """Floor divide."""
+
+        return self.__rtruediv__(x, floor=True)
+    
     def __add__(self, x):
         """Add."""
 
