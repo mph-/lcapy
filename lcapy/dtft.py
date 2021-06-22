@@ -253,7 +253,7 @@ class DTFTTransformer(BilateralForwardTransformer):
 
         # Handle signum
         elif (len(args) == 1 and expr.is_Function and
-              expr.func == sym.sign and (args[0].as_poly(n)).is_linear):
+              expr.func == sym.sign and args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):
             aa = args[0].coeff(n, 1)
             bb = args[0].coeff(n, 0)  
             delay = -bb / aa
@@ -269,7 +269,7 @@ class DTFTTransformer(BilateralForwardTransformer):
         # Handle sincu        
         elif (len(args) == 1 and expr.is_Function and
               (expr.func == sincu or expr.func == sincn) and
-              (args[0].as_poly(n)).is_linear):
+              args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):
             aa = args[0].coeff(n, 1)
             if abs(aa) > pi:
                 print("Warning, Argument out of range (-pi, pi)")
@@ -288,7 +288,7 @@ class DTFTTransformer(BilateralForwardTransformer):
         
         # Handle rect
         elif (len(args) == 1 and expr.is_Function and expr.func == rect and
-            (args[0].as_poly(n)).is_linear):
+              args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):              
             qq = 1/ args[0].coeff(n, 1)
             if qq.is_negative:
                 print("Warning, negative coefficient for n:  Use rect((n-n0)/b)")
