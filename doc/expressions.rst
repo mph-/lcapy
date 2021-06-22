@@ -839,22 +839,31 @@ expression does, the SymPy method is used.  For example:
 
 - `expand()`  
   
-- `simplify()`
 
    
 Utility functions
 =================
 
-- `symbol()`  create a symbol
+- `symbol()` create a symbol
 
 - `expr()` create an expression.  This can also create lists, tuples, and dictionaries of expressions.
 
 Note, SymPy does not allow symbol names that are Python keywords.  For example, `expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.
 
-- `simplify_terms()` expand expression into terms and simplify each term.
+- `simplify()` throw kitchen sink to try and simplify expression.  Often it is better to use specific simplifications such as `expand`, `cancel`, `trigsimp`, etc.
 
-- `simplify_factor()` factor expression and simplify each factor.
+- `simplify_dirac_delta()` apply simplifications to expressions with Dirac deltas.
 
+- `simplify_factor()` factor expression and simplify each factor separately.
+
+- `simplify_heaviside()` apply simplifications to expressions with Heaviside steps.  
+
+- `simplify_sin_cos()` convert `c * cos(theta) - s * sin(theta)`  to `A * cos(theta - phi)`.
+
+- `simplify_terms()` expand expression into terms and simplify each term separately.
+
+- `simplify_units()` simplify the units, e.g., `volts / ohms` gives `amps`.
+  
 - `limit()` compute a limit.  
 
 

@@ -51,7 +51,6 @@ class DTFTTransformer(BilateralForwardTransformer):
         if expr.is_Piecewise and expr.args[0].args[1].has(n >= 0):
             self.error('Expression is unknown for n < 0 (use causal=True)')
             
-
     def add_images(self, expr, f):
         if self.m1 == self.m2:
             return expr
@@ -283,7 +282,8 @@ class DTFTTransformer(BilateralForwardTransformer):
                 fac1 = 1 / aa
                 fac2 = sym.pi / twopidt
             if delay.is_integer:
-                return const * fac1 * (UnitStep(f + fac2 * aa)  - UnitStep(f - fac2 * aa)) *sym.exp(sym.I * delay * twopidt * f)
+                result = const * fac1 * (UnitStep(f + fac2 * aa)  - UnitStep(f - fac2 * aa)) *sym.exp(sym.I * delay * twopidt * f)
+                return self.add_images(result, f)
         
         # Handle rect
         elif (len(args) == 1 and expr.is_Function and expr.func == rect and
@@ -296,7 +296,6 @@ class DTFTTransformer(BilateralForwardTransformer):
                 qq = qq // 2
                 if delay.is_integer:
                     return const * sym.exp(sym.I * delay * twopidt * f) * sym.sin(twopidt * f / 2 * (2 * qq + 1)) / sym.sin(twopidt * f / 2)
-                   
         
         return const * self.sympy(expr, n, f)
 
