@@ -1682,8 +1682,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 return np.exp(arg)
 
             def rect(arg):
-                return 1.0 if abs(arg) <= 0.5 else 0.0
+                # Define in terms of Heaviside for consistency                
+                return heaviside(arg + 0.5) - heaviside(arg - 0.5)
 
+            def sign(arg):
+                # Define in terms of Heaviside for consistency
+                return 2 * heaviside(arg) - 1
+            
             def sinc(arg):
                 """SymPy sinc."""
 
@@ -1753,16 +1758,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 return 1.0 if arg == 0 else 0.0
 
             def unitstep(arg, zero=None):
-                if zero is None:
-                    zero = unitstep_zero
                 if arg == 0:
+                    if zero is None:
+                        zero = unitstep_zero
                     return zero                
                 return 1.0 if arg >= 0 else 0.0
 
             def heaviside(arg, zero=None):
-                if zero is None:
-                    zero = heaviside_zero                
                 if arg == 0:
+                    if zero is None:
+                        zero = heaviside_zero                
                     return zero
                 return 1.0 if arg > 0.0 else 0.0
 
@@ -1793,7 +1798,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                               'sinc' : sinc, 'sincn' : sincn,
                               'sincu' : sincu, 'psinc' : psinc,
                               'rect' : rect, 'tri' : tri, 'trap' : trap,
-                              'sqrt' : sqrt, 'exp' : exp},
+                              'sqrt' : sqrt, 'exp' : exp, 'sign' : sign},
                              "scipy", "numpy", "math", "sympy"])
 
             def func(arg):
