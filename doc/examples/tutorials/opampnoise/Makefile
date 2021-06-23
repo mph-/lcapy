@@ -12,4 +12,4 @@ all: $(PNGFILES)
 	cd $(dir $@); schtex $(notdir $<) $(notdir $@) 
 
 %-noisy.sch: %.sch
-	schtex --noise-model $< $@
+	schtex --noisy-model $< $@
