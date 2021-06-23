@@ -14,11 +14,13 @@
 
 :math:`n u\left[n\right] \longleftrightarrow - \frac{1}{4 \sin^{2}{\left(\pi \Delta_{t} f \right)}} + \frac{\mathrm{j} \delta^{\left( 1 \right)}\left( f \right)}{4 \pi \Delta_{t}^{2}}`
 
-:math:`\mathrm{sign}{\left(n \right)} \longleftrightarrow \frac{2 e^{2 \mathrm{j} \pi \Delta_{t} f}}{e^{2 \mathrm{j} \pi \Delta_{t} f} - 1}`
-
-:math:`n \longleftrightarrow \frac{\mathrm{j} \delta^{\left( 1 \right)}\left( f \right)}{2 \pi \Delta_{t}^{2}}`
-
-:math:`n^{2} \longleftrightarrow - \frac{\delta^{\left( 2 \right)}\left( f \right)}{4 \pi^{2} \Delta_{t}^{3}}`
+:math:`\mathrm{sign}{\left(n \right)} \longleftrightarrow \frac{e^{2 \mathrm{j} \pi \Delta_{t} f}}{e^{2 \mathrm{j} \pi \Delta_{t} f} - 1} + \frac{1}{e^{2 \mathrm{j} \pi \Delta_{t} f} - 1}`
 
 :math:`\frac{1}{n} \longleftrightarrow \sum_{n=-\infty}^{\infty} \frac{e^{- 2 \mathrm{j} \pi \Delta_{t} f n}}{n}`
+
+:math:`\alpha^{- n} u\left[n\right] \longleftrightarrow \frac{\alpha e^{2 \mathrm{j} \pi \Delta_{t} f}}{\alpha e^{2 \mathrm{j} \pi \Delta_{t} f} - 1}`
+
+:math:`\mathrm{rect}{\left(n \right)} \longleftrightarrow 1`
+
+:math:`\mathrm{sincn}{\left(n \right)} \longleftrightarrow - \sum_{m=-\infty}^{\infty} u\left[f - 1 - \frac{m}{\Delta_{t}}\right] + \sum_{m=-\infty}^{\infty} u\left[f + 1 - \frac{m}{\Delta_{t}}\right]`
 

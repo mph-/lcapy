@@ -7,7 +7,7 @@ w0 = 2 * pi * f0
 
 sigs = [cos(w0 * n * dt), sin(w0 * n * dt), exp(j * w0 * n * dt),
         nexpr(1), delta(n), delta(n - m),
-        H(n), n * H(n), sign(n), n, n**2, 1 / n,
+        H(n), n * H(n), sign(n), 1 / n,
         alpha**-n * H(n), rect(n), sinc(n)]
 
 for sig in sigs:
