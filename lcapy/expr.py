@@ -30,6 +30,7 @@ import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
 from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta
+from .config import heaviside_zero, unitstep_zero
 from collections import OrderedDict
 
 __all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad', 'degrees',
@@ -1751,11 +1752,19 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             def unitimpulse(arg):
                 return 1.0 if arg == 0 else 0.0
 
-            def unitstep(arg):
+            def unitstep(arg, zero=None):
+                if zero is None:
+                    zero = unitstep_zero
+                if arg == 0:
+                    return zero                
                 return 1.0 if arg >= 0 else 0.0
 
-            def heaviside(arg):
-                return 1.0 if arg >= 0.0 else 0.0
+            def heaviside(arg, zero=None):
+                if zero is None:
+                    zero = heaviside_zero                
+                if arg == 0:
+                    return zero
+                return 1.0 if arg > 0.0 else 0.0
 
             def sqrt(arg):
                 # Large numbers get converted to ints and int has no sqrt

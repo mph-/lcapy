@@ -71,3 +71,8 @@ printing_order = None
 colours = {'startnode': 'green', 'endnode': 'green',
            'assignednode': 'Orchid1', 'unassignednode': 'SkyBlue1',
            'fixednode': 'Yellow', 'fixededge': 'Red', 'stretchedge': 'black'}
+
+# Definition of H(0).  With H(0) = 0.5 then sgn(0) = 0 as expected by SymPy and NumPy
+heaviside_zero = 0.5
+# This is the common convention.
+unitstep_zero = 1

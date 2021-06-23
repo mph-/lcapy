@@ -9,6 +9,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 import sympy as sym
 from sympy.core import S, Integer
 from sympy.core.logic import fuzzy_not
+from .config import unitstep_zero
 
 class UnitImpulse(sym.Function):
 
@@ -31,10 +32,16 @@ class UnitStep(sym.Function):
     is_integer = True
     
     @classmethod
-    def eval(cls, nval):
+    def eval(cls, nval, zero=None):
         """
-        Evaluates the discrete unit step function.
+        Evaluates the discrete unit step function.   This is defined
+        as 1 for n >= 0 and 0 otherwise.  
         """
+
+        if nval.is_zero:
+            if zero is None:
+                zero = unitstep_zero
+            return zero
         
         if nval.is_nonnegative:
             return S.One

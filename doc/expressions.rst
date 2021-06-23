@@ -174,21 +174,8 @@ Other SymPy functions can be converted to Lcapy functions using the
    >>> gamma(4)
    6
 
-The trapezoid function `trap(t, alpha)` is the convolution of `rect(t
-/ alpha)` and `rect(t)`. The parameter `alpha` is the normalized
-rise/fall time.  When `alpha = 0` it is equivalent to `rect(t)` and
-when `alpha = 1` it is equivalent to `tri(t)`.
-
-Lcapy uses the normalized form of the `sinc` function (cardinal sine),
-:math:`\sin(\pi x) / (\pi x)`.  This is the same as NumPy but SymPy
-uses the unnormalized form :math:`\sin(x) / x`.  Lcapy uses `sincu` for
-the latter and the alias `sincn` for `sinc`.  Note, Lcapy prints
-`sinc` as `sincn` due to a bug in SymPy.  This is likely to change in
-the future.
-
-The periodic sinc `psinc` function is defined as :math:`\sin(M \pi x) / (M \sin(\pi x))`.
-
-
+For additional details on some of these functions see :ref:`special-functions`.
+   
 .. _domains:   
 
 Domains
@@ -2052,6 +2039,136 @@ An alternative approach to use quotes around the expression (see :ref:`floating-
 
     >>> Z = impedance('(4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)')
 
+    
+.. _special-functions:
+    
+Special functions
+=================
+
+Heaviside unit step H(t)
+------------------------
+
+The Heaviside unit step is defined as
+
+.. math::
+
+   \mathop{\mathrm{sign}}(t) =
+   \begin{cases}
+   0 & t < 0 \\
+   0.5  & t = 0 \\
+   1  & t > 0
+   \end{cases}
+
+Note, the definition `H(0) = 0.5` is consistent with `sign(0) = 0` (as
+used with SymPy and NumPy) using the relation:
+
+.. math::
+
+   H(t) = \frac{1}{2}(1 + \mathop{\mathrm{sign}}(t))
+
+   
+Signum function sign(t)
+-----------------------
+
+.. math::
+
+   \mathop{\mathrm{sign}}(t) =
+   \begin{cases}
+   -1 & t < 0 \\
+   0  & t = 0 \\
+   1  & t > 0
+   \end{cases}
+
+   
+Rectangle function rect(t)
+--------------------------
+   
+The rectangle function `rect(t)` is defined in terms of the Heaviside step as
+
+.. math::
+
+   \mathop{\mathrm{rect}}(t) = H(t + 1 / 2) - H(t - 1 / 2)
+
+With the assumption `H(0) = 0` then `rect(0.5) = 0.5`.  In other words
+
+.. math::
+   
+   \mathop{\mathrm{rect}}(t) =
+   \begin{cases}
+   0 & t < -0.5 \\
+   -0.5 & t = -0.5 \\
+   1  & -0.5 \gt t \gt  0.5 \\
+   0.5 & t = 0.5 \\   
+   0  & t > 0.5
+   \end{cases}
+
+
+Triangle function trap(t)
+-------------------------
+
+The triangle function `tri(t)` is the convolution of `rect(t)` and `rect(t)`.
+
+   
+Trapezoid function trap(t, alpha)
+---------------------------------
+   
+The trapezoid function `trap(t, alpha)` is the convolution of `rect(t
+/ alpha)` and `rect(t)`. The parameter `alpha` is the normalized
+rise/fall time.  When `alpha = 0` it is equivalent to `rect(t)` and
+when `alpha = 1` it is equivalent to `tri(t)`.
+
+
+Cardinal sine function sinc(t)
+------------------------------
+
+Lcapy uses the normalized form of the `sinc` function (cardinal sine),
+
+.. math::
+
+    \mathop{\mathrm{sinc}}(t) = \mathop{\mathrm{sincn}}(t) = \frac{\sin(\pi t)}{\pi t}.
+
+
+This definition is the same as NumPy but SymPy uses the unnormalized form
+
+.. math::
+
+    \mathop{\mathrm{sinc}}(t) = \mathop{\mathrm{sincu}}(t) = \frac{\sin(t)}{t}.
+
+Note, Lcapy prints `sinc` as `sincn` due to a bug in SymPy.  This is likely to change in
+the future.
+
+The periodic sinc `psinc` function is defined as
+
+.. math::
+
+    \mathop{\mathrm{psinc}}(t, M) =  \frac{\sin(M \pi t)}{M \sin(\pi t)}
+
+Discrete-time unit step u[n]
+----------------------------
+
+The discrete-time unit step is defined as
+
+.. math::
+
+   \mathop{\mathrm{u}}[n] =
+   \begin{cases}
+   0 & n < 0 \\
+   1  & n \gt 0
+   \end{cases}
+
+Discrete-time unit impulse  delta[n]
+------------------------------------
+
+The discrete-time unit impulse is defined as
+
+.. math::
+
+   \mathop{\delta}[n] =
+   \begin{cases}
+   0  & n < 0 \\
+   1  & n = 0 \\
+   0  & n > 0
+   \end{cases}   
     
   
 SymPy

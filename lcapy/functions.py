@@ -40,7 +40,7 @@ class Function(object):
             if e_args[0].is_constant:
                 cls = e_args[1].__class__                
         
-        result = self.expr(*[arg.expr for arg in e_args])
+        result = self.expr(*_ex(e_args))
 
         result = cls(result)        
             
