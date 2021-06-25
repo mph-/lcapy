@@ -2069,7 +2069,10 @@ used with SymPy and NumPy) using the relation:
    H(t) = \frac{1}{2}(1 + \mathop{\mathrm{sign}}(t))
 
 Note, there is also a related discrete-time function called `unitstep`.
-   
+
+.. image:: examples/functions/heaviside.png
+   :width: 12cm  
+
    
 Signum function sign(t)
 -----------------------
@@ -2092,7 +2095,10 @@ and thus:
    \end{cases}
 
 Note, there is also a related discrete-time signum function.
-   
+
+.. image:: examples/functions/sign.png
+   :width: 12cm  
+
    
 Rectangle function rect(t)
 --------------------------
@@ -2119,11 +2125,17 @@ With the assumption `H(0) = 0` then `rect(0.5) = 0.5`.  In other words
 Note, there is also a related discrete-time rectangle `urect` defined
 in terms of the discrete-time unit step function.
 
+.. image:: examples/functions/rect.png
+   :width: 12cm  
+
 
 Triangle function tri(t)
 ------------------------
 
 The triangle function `tri(t)` is the convolution of `rect(t)` and `rect(t)`.
+
+.. image:: examples/functions/tri.png
+   :width: 12cm
 
    
 Trapezoid function trap(t, alpha)
@@ -2133,6 +2145,9 @@ The trapezoid function `trap(t, alpha)` is the convolution of `rect(t
 / alpha)` and `rect(t)`. The parameter `alpha` is the normalized
 rise/fall time.  When `alpha = 0` it is equivalent to `rect(t)` and
 when `alpha = 1` it is equivalent to `tri(t)`.
+
+.. image:: examples/functions/trapa.png
+   :width: 12cm
 
 
 Cardinal sine function sinc(t)
@@ -2155,14 +2170,22 @@ Note, Lcapy prints `sinc` as `sincn` due to a bug in SymPy.  This is likely to c
 the future.
 
 
-Periodic sinc function psinc(t)
--------------------------------
+.. image:: examples/functions/sincn.png
+   :width: 12cm
+
+.. image:: examples/functions/sincu.png
+   :width: 12cm           
+
+
+
+Periodic sinc function psinc(M, t)
+----------------------------------
 
 The periodic sinc `psinc` function is defined as
 
 .. math::
 
-    \mathop{\mathrm{psinc}}(t, M) = \frac{\sin(M \pi t)}{M \sin(\pi t)}
+    \mathop{\mathrm{psinc}}(M, t) = \frac{\sin(M \pi t)}{M \sin(\pi t)}
 
 It is sometimes called the aliased sinc function and is similar to the Dirichlet function, usually defined as
 
@@ -2170,6 +2193,13 @@ It is sometimes called the aliased sinc function and is similar to the Dirichlet
 
     D_M(t) = \frac{\sin(M t / 2)}{M \sin(t / 2)}
 
+
+.. image:: examples/functions/psinc4.png
+   :width: 12cm
+
+.. image:: examples/functions/psinc8.png
+   :width: 12cm                  
+    
     
 Discrete-time unit step u[n]
 ----------------------------
@@ -2234,10 +2264,10 @@ Notes:
 
 - The internal name `urect` may change when I can think of something better.
 
-.. image:: examples/functions/rect4.png
+.. image:: examples/functions/dtrect4.png
    :width: 12cm
 
-.. image:: examples/functions/rect5.png
+.. image:: examples/functions/dtrect5.png
    :width: 12cm          
   
   
@@ -2268,7 +2298,7 @@ Notes:
 - The internal name `usign` may change when I can think of something better.
 
 
-.. image:: examples/functions/sign.png
+.. image:: examples/functions/dtsign.png
    :width: 12cm  
   
   

@@ -148,7 +148,6 @@ class psinc(sym.Function):
         """
         Evaluates the periodic sinc function.
         """
-
         if val.is_Number:
             if val == 0:
                 return S.One
