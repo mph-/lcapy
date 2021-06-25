@@ -2154,11 +2154,21 @@ This definition is the same as NumPy but SymPy uses the unnormalized form
 Note, Lcapy prints `sinc` as `sincn` due to a bug in SymPy.  This is likely to change in
 the future.
 
+
+Periodic sinc function psinc(t)
+-------------------------------
+
 The periodic sinc `psinc` function is defined as
 
 .. math::
 
-    \mathop{\mathrm{psinc}}(t, M) =  \frac{\sin(M \pi t)}{M \sin(\pi t)}
+    \mathop{\mathrm{psinc}}(t, M) = \frac{\sin(M \pi t)}{M \sin(\pi t)}
+
+It is sometimes called the aliased sinc function and is similar to the Dirichlet function, usually defined as
+
+.. math::
+
+    D_M(t) = \frac{\sin(M t / 2)}{M \sin(t / 2)}
 
     
 Discrete-time unit step u[n]
@@ -2174,6 +2184,9 @@ The discrete-time unit step is defined as
    1  & n \gt 0
    \end{cases}
 
+.. image:: examples/functions/unitstep.png
+   :width: 12cm   
+
 Discrete-time unit impulse delta[n]
 -----------------------------------
 
@@ -2188,6 +2201,9 @@ The discrete-time unit impulse is defined as
    0  & n > 0
    \end{cases}
 
+.. image:: examples/functions/unitimpulse.png
+   :width: 12cm
+   
 
 Discrete-time rectangle function rect[n]
 ----------------------------------------   
@@ -2218,6 +2234,12 @@ Notes:
 
 - The internal name `urect` may change when I can think of something better.
 
+.. image:: examples/functions/rect4.png
+   :width: 12cm
+
+.. image:: examples/functions/rect5.png
+   :width: 12cm          
+  
   
 Discrete-time signum function sign[n]
 -------------------------------------
@@ -2244,7 +2266,11 @@ Notes:
 - Lcapy converts `sign(n)` to `usign(n)` for discrete-time signals and prints it as `sign[n]`.
 
 - The internal name `usign` may change when I can think of something better.
-   
+
+
+.. image:: examples/functions/sign.png
+   :width: 12cm  
+  
   
 SymPy
 =====
