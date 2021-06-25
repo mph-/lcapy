@@ -2068,9 +2068,19 @@ used with SymPy and NumPy) using the relation:
 
    H(t) = \frac{1}{2}(1 + \mathop{\mathrm{sign}}(t))
 
+Note, there is also a related discrete-time function called `unitstep`.
+   
    
 Signum function sign(t)
 -----------------------
+
+The signum function `sign(t)` is defined in terms of the Heaviside function as:
+
+.. math::
+
+   \mathop{\mathrm{sign}}(t) = 2 \mathop{\mathrm{H}}(t) - 1
+
+and thus:   
 
 .. math::
 
@@ -2081,6 +2091,8 @@ Signum function sign(t)
    1  & t > 0
    \end{cases}
 
+Note, there is also a related discrete-time signum function.
+   
    
 Rectangle function rect(t)
 --------------------------
@@ -2098,17 +2110,18 @@ With the assumption `H(0) = 0` then `rect(0.5) = 0.5`.  In other words
    \mathop{\mathrm{rect}}(t) =
    \begin{cases}
    0 & t < -0.5 \\
-   -0.5 & t = -0.5 \\
+   -0.5 & t = 0.5 \\
    1  & -0.5 \lt t \lt  0.5 \\
    0.5 & t = 0.5 \\   
    0  & t > 0.5
    \end{cases}
 
-Note, there is also a related discrete-time rectangle `urect` define in terms of the unitstep function.
+Note, there is also a related discrete-time rectangle `urect` defined
+in terms of the discrete-time unit step function.
 
 
-Triangle function trap(t)
--------------------------
+Triangle function tri(t)
+------------------------
 
 The triangle function `tri(t)` is the convolution of `rect(t)` and `rect(t)`.
 
@@ -2161,8 +2174,8 @@ The discrete-time unit step is defined as
    1  & n \gt 0
    \end{cases}
 
-Discrete-time unit impulse  delta[n]
-------------------------------------
+Discrete-time unit impulse delta[n]
+-----------------------------------
 
 The discrete-time unit impulse is defined as
 
@@ -2179,11 +2192,12 @@ The discrete-time unit impulse is defined as
 Discrete-time rectangle function rect[n]
 ----------------------------------------   
 
-The discrete-time rectangle function `urect` is defined in terms of the unitstep function as
+The discrete-time rectangle function `rect[n]` is defined in terms of
+the discrete-time unit step function as:
 
 .. math::
 
-   \mathop{\mathrm{urect}}[n] = \mathop{\mathrm{unitstep}}(n + 1 / 2) - \mathop{\mathrm{unitstep}}(n - 1 / 2)
+   \mathop{\mathrm{rect}}[n] = \mathop{\mathrm{u}}[n + 1 / 2] - \mathop{\mathrm{u}}[n - 1 / 2]
 
 With this definition:
 
@@ -2205,9 +2219,18 @@ Notes:
 - The internal name `urect` may change when I can think of something better.
 
   
-Discrete-time rectangle signum function sign[n]
------------------------------------------------
+Discrete-time signum function sign[n]
+-------------------------------------
 
+The discrete-time signum function `sign[n]` is defined in terms of the
+discrete-time unit step function as:
+
+.. math::
+
+   \mathop{\mathrm{sign}}[n] = 2 \mathop{\mathrm{u}}[n] - 1
+
+and thus:
+   
 .. math::
 
    \mathop{\mathrm{sign}}[n] =
