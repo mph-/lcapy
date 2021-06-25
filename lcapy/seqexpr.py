@@ -1,4 +1,4 @@
-"""This modules provides the SequenceExpression class to provide
+"""This module provides the SequenceExpression class to provide
 common methods for the discrete-time and discrete-frequency
 expressions.
 
@@ -8,8 +8,8 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 from .dexpr import DiscreteExpression
 from .sequence import Sequence
-from .functions import Heaviside, DiracDelta
-from .extrafunctions import UnitStep, UnitImpulse
+from .functions import Heaviside, DiracDelta, rect
+from .extrafunctions import UnitStep, UnitImpulse, urect
 from numpy import arange
 
 
@@ -24,6 +24,8 @@ class SequenceExpression(DiscreteExpression):
             self.expr = self.replace(Heaviside, UnitStep).expr
         if self.has(DiracDelta):
             self.expr = self.replace(DiracDelta, UnitImpulse).expr
+        if self.has(rect):
+            self.expr = self.replace(rect, urect).expr            
 
     def first_index(self, ni=None):
 

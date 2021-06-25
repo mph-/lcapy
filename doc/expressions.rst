@@ -161,10 +161,12 @@ maintains a table of symbols that are not to be printed in canonical form.
 Mathematical functions
 ----------------------
 
-Lcapy has the following built-in functions: `sin`, `cos`, `tan`, `cot`,
-`asin`, `acos`, `atan`, `atan2`, `acot`, `sinh`, `cosh`, `tanh`, `asinh`,
-`acosh`, `atanh`, `gcd`, `exp`, `sqrt`, `log`, `log10`, `sign`,
-`conjugate`, `rect`, `sinc`, `sincn`, `sincu`, `tri`, `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`, `unitimpulse`, and `unitstep`.
+Lcapy has the following built-in functions: `sin`, `cos`, `tan`,
+`cot`, `asin`, `acos`, `atan`, `atan2`, `acot`, `sinh`, `cosh`,
+`tanh`, `asinh`, `acosh`, `atanh`, `gcd`, `exp`, `sqrt`, `log`,
+`log10`, `sign`, `conjugate`, `rect`, `urect`, `sinc`, `sincn`, `sincu`, `tri`,
+`trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`, `unitimpulse`,
+and `unitstep`.
 
 Other SymPy functions can be converted to Lcapy functions using the
 `Function` class, for example:
@@ -2097,11 +2099,36 @@ With the assumption `H(0) = 0` then `rect(0.5) = 0.5`.  In other words
    \begin{cases}
    0 & t < -0.5 \\
    -0.5 & t = -0.5 \\
-   1  & -0.5 \gt t \gt  0.5 \\
+   1  & -0.5 \lt t \lt  0.5 \\
    0.5 & t = 0.5 \\   
    0  & t > 0.5
    \end{cases}
 
+For discrete-time signals there is a related function `urect` define in terms of the unitstep function as
+
+.. math::
+
+   \mathop{\mathrm{urect}}(t) = \mathop{\mathrm{unitstep}}(t + 1 / 2) - \mathop{\mathrm{unitstep}}(t - 1 / 2)
+
+With this definition:
+
+.. math::
+   
+   \mathop{\mathrm{urect}}(t) =
+   \begin{cases}
+   0 & t < -0.5 \\
+   1  & -0.5 \le t \lt  0.5 \\
+   0  & t > 0.5
+   \end{cases}
+
+This produces a symmetrical result for `urect(n / N)` when `N` is odd.  When `N` is even, there is one more non-zero value for negative `n` compared to positive `n`.   
+
+Notes:
+
+- Lcapy converts `rect(n)` to `urect(n)` for discrete-time signals.
+
+- The name may change when I can think of something better.
+   
 
 Triangle function trap(t)
 -------------------------

@@ -261,7 +261,7 @@ class FourierTransformer(BilateralForwardTransformer):
             elif other.is_Function and other.func == trap and other.args[0].has(t):
                 scale, shift = scale_shift(other.args[0], t)
                 alpha = other.args[1]
-                # Chck for rect
+                # Check for rect
                 if alpha == 0:
                     return const1 * sincn(f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
 

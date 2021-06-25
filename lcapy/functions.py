@@ -15,7 +15,7 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10',
            'gcd', 'sign', 'diff', 'integrate',
            'u', 'H', 'heaviside', 'Heaviside', 'delta', 'DiracDelta',
            'ui', 'us', 'unitimpulse', 'unitstep', 'UnitImpulse', 'UnitStep',
-           'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap', 'Sum')
+           'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap', 'Sum', 'urect')
 
 
 class Function(object):
@@ -199,6 +199,7 @@ from .extrafunctions import sincn as sincn1
 from .extrafunctions import sincu as sincu1
 from .extrafunctions import psinc as psinc1
 from .extrafunctions import rect as rect1
+from .extrafunctions import urect as urect1
 from .extrafunctions import tri as tri1
 from .extrafunctions import trap as trap1
 
@@ -208,6 +209,8 @@ ui = unitimpulse = UnitImpulse = Function(UnitImpulse1)
 us = unitstep = UnitStep = Function(UnitStep1)
 
 rect = Function(rect1)
+
+urect = Function(urect1)
 
 sinc = SincnFunction(sincn1)
 

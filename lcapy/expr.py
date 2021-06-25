@@ -1688,6 +1688,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             def sign(arg):
                 # Define in terms of Heaviside for consistency
                 return 2 * heaviside(arg) - 1
+
+            def urect(arg):
+                # Define in terms of UnitStep for consistency                
+                return unitstep(arg + 0.5) - unitstep(arg - 0.5)            
             
             def sinc(arg):
                 """SymPy sinc."""
@@ -1795,6 +1799,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                               'Heaviside' : heaviside,
                               'UnitImpulse' : unitimpulse,
                               'UnitStep' : unitstep,
+                              'urect' : urect,                              
                               'sinc' : sinc, 'sincn' : sincn,
                               'sincu' : sincu, 'psinc' : psinc,
                               'rect' : rect, 'tri' : tri, 'trap' : trap,

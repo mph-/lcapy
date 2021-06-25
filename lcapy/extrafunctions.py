@@ -67,6 +67,25 @@ class rect(sym.Function):
         x = self.args[0]
         return sym.Heaviside(x + S.Half) - sym.Heaviside(x - S.Half)
 
+
+class urect(sym.Function):
+
+    @classmethod
+    def eval(cls, val):
+        """
+        Evaluates the rectangle function for discrete-time signals.
+        """
+
+        if val.is_Number:
+            if val < -0.5 or val >= 0.5:
+                return S.Zero
+            return S.One
+
+    def rewrite(self, *args, **hints):
+
+        x = self.args[0]
+        return UnitStep(x + S.Half) - UnitStep(x - S.Half)    
+
         
 class sincn(sym.Function):
     
