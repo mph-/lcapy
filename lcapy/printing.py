@@ -173,6 +173,20 @@ class LcapyLatexPrinter(LatexPrinter):
             tex = r"u\left[%s\right]^{%s}" % (tex, exp)
         return tex
 
+    def _print_urect(self, expr, exp=None):
+
+        tex = r"\rect\left[%s\right]" % self._print(expr.args[0])
+        if exp:
+            tex = r"\rect\left[%s\right]^{%s}" % (tex, exp)
+        return tex
+
+    def _print_usign(self, expr, exp=None):
+
+        tex = r"\sign\left[%s\right]" % self._print(expr.args[0])
+        if exp:
+            tex = r"\sign\left[%s\right]^{%s}" % (tex, exp)
+        return tex        
+
     def _print_symbol_name(self, name):
 
         name = canonical_name(name)
@@ -318,7 +332,31 @@ class LcapyPrettyPrinter(PrettyPrinter):
             pform = prettyForm(*pform.left('u'))
             return pform
         else:
-            return self._print_Function(expr)        
+            return self._print_Function(expr)
+
+    def _print_urect(self, expr):
+
+        from sympy.printing.pretty.stringpict import prettyForm
+        
+        if self._use_unicode:
+            pform = self._print(expr.args[0])
+            pform = prettyForm(*pform.parens(left='[', right=']'))
+            pform = prettyForm(*pform.left('rect'))
+            return pform
+        else:
+            return self._print_Function(expr)
+
+    def _print_usign(self, expr):
+
+        from sympy.printing.pretty.stringpict import prettyForm
+        
+        if self._use_unicode:
+            pform = self._print(expr.args[0])
+            pform = prettyForm(*pform.parens(left='[', right=']'))
+            pform = prettyForm(*pform.left('sign'))
+            return pform
+        else:
+            return self._print_Function(expr)                
     
     
 def print_str(expr):

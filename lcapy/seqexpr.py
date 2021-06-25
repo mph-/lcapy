@@ -8,8 +8,8 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 from .dexpr import DiscreteExpression
 from .sequence import Sequence
-from .functions import Heaviside, DiracDelta, rect
-from .extrafunctions import UnitStep, UnitImpulse, urect
+from .functions import Heaviside, DiracDelta, rect, sign
+from .extrafunctions import UnitStep, UnitImpulse, urect, usign
 from numpy import arange
 
 
@@ -20,12 +20,15 @@ class SequenceExpression(DiscreteExpression):
 
         super(SequenceExpression, self).__init__(val, **assumptions)
 
+        # Use discrete-time function variants.
         if self.has(Heaviside):
             self.expr = self.replace(Heaviside, UnitStep).expr
         if self.has(DiracDelta):
             self.expr = self.replace(DiracDelta, UnitImpulse).expr
         if self.has(rect):
-            self.expr = self.replace(rect, urect).expr            
+            self.expr = self.replace(rect, urect).expr
+        if self.has(sign):
+            self.expr = self.replace(sign, usign).expr                        
 
     def first_index(self, ni=None):
 

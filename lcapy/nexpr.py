@@ -167,7 +167,13 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
     def DTFT(self, var=None, images=oo, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform.
 
+        By default this returns the DTFT in terms of `f`.  Use
+        `.DTFT(w)` to get the angular frequency form, `.DTFT(F)` to
+        get the normalised frequency form, or `.DTFT(W)` to get the
+        normalised angular frequency form.
+
         Use `images = 0` to avoid the infinite number of spectral images.
+
         """
 
         from .extrafunctions import UnitStep        

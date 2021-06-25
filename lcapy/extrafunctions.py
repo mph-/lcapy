@@ -84,7 +84,21 @@ class urect(sym.Function):
     def rewrite(self, *args, **hints):
 
         x = self.args[0]
-        return UnitStep(x + S.Half) - UnitStep(x - S.Half)    
+        return UnitStep(x + S.Half) - UnitStep(x - S.Half)
+
+    
+class usign(sym.Function):
+
+    @classmethod
+    def eval(cls, val):
+        """
+        Evaluates the signum function for discrete-time signals.
+        """
+
+        if val.is_Number:
+            if val >= 0:
+                return S.One
+            return S.Zero
 
         
 class sincn(sym.Function):

@@ -7,15 +7,14 @@ Copyright 2014--2021 Michael Hayes, UCECE
 from .units import u as uu
 import sympy as sym
 
-__all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10',
-           'sin', 'cos', 'tan', 'cot',
-           'asin', 'acos', 'atan', 'atan2', 'acot',
-           'sinh', 'cosh', 'tanh', 'coth',
-           'asinh', 'acosh', 'atanh', 'acoth',
-           'gcd', 'sign', 'diff', 'integrate',
-           'u', 'H', 'heaviside', 'Heaviside', 'delta', 'DiracDelta',
-           'ui', 'us', 'unitimpulse', 'unitstep', 'UnitImpulse', 'UnitStep',
-           'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap', 'Sum', 'urect')
+__all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
+           'tan', 'cot', 'asin', 'acos', 'atan', 'atan2', 'acot',
+           'sinh', 'cosh', 'tanh', 'coth', 'asinh', 'acosh', 'atanh',
+           'acoth', 'gcd', 'sign', 'diff', 'integrate', 'u', 'H',
+           'heaviside', 'Heaviside', 'delta', 'DiracDelta', 'ui',
+           'us', 'unitimpulse', 'unitstep', 'UnitImpulse', 'UnitStep',
+           'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap',
+           'Sum', 'urect', 'usign')
 
 
 class Function(object):
@@ -200,6 +199,7 @@ from .extrafunctions import sincu as sincu1
 from .extrafunctions import psinc as psinc1
 from .extrafunctions import rect as rect1
 from .extrafunctions import urect as urect1
+from .extrafunctions import usign as usign1
 from .extrafunctions import tri as tri1
 from .extrafunctions import trap as trap1
 
@@ -211,6 +211,8 @@ us = unitstep = UnitStep = Function(UnitStep1)
 rect = Function(rect1)
 
 urect = Function(urect1)
+
+usign = Function(usign1)
 
 sinc = SincnFunction(sincn1)
 

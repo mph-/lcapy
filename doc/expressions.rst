@@ -2104,31 +2104,8 @@ With the assumption `H(0) = 0` then `rect(0.5) = 0.5`.  In other words
    0  & t > 0.5
    \end{cases}
 
-For discrete-time signals there is a related function `urect` define in terms of the unitstep function as
+Note, there is also a related discrete-time rectangle `urect` define in terms of the unitstep function.
 
-.. math::
-
-   \mathop{\mathrm{urect}}(t) = \mathop{\mathrm{unitstep}}(t + 1 / 2) - \mathop{\mathrm{unitstep}}(t - 1 / 2)
-
-With this definition:
-
-.. math::
-   
-   \mathop{\mathrm{urect}}(t) =
-   \begin{cases}
-   0 & t < -0.5 \\
-   1  & -0.5 \le t \lt  0.5 \\
-   0  & t > 0.5
-   \end{cases}
-
-This produces a symmetrical result for `urect(n / N)` when `N` is odd.  When `N` is even, there is one more non-zero value for negative `n` compared to positive `n`.   
-
-Notes:
-
-- Lcapy converts `rect(n)` to `urect(n)` for discrete-time signals.
-
-- The name may change when I can think of something better.
-   
 
 Triangle function trap(t)
 -------------------------
@@ -2170,6 +2147,7 @@ The periodic sinc `psinc` function is defined as
 
     \mathop{\mathrm{psinc}}(t, M) =  \frac{\sin(M \pi t)}{M \sin(\pi t)}
 
+    
 Discrete-time unit step u[n]
 ----------------------------
 
@@ -2195,8 +2173,55 @@ The discrete-time unit impulse is defined as
    0  & n < 0 \\
    1  & n = 0 \\
    0  & n > 0
-   \end{cases}   
-    
+   \end{cases}
+
+
+Discrete-time rectangle function rect[n]
+----------------------------------------   
+
+The discrete-time rectangle function `urect` is defined in terms of the unitstep function as
+
+.. math::
+
+   \mathop{\mathrm{urect}}[n] = \mathop{\mathrm{unitstep}}(n + 1 / 2) - \mathop{\mathrm{unitstep}}(n - 1 / 2)
+
+With this definition:
+
+.. math::
+   
+   \mathop{\mathrm{rect}}[n] =
+   \begin{cases}
+   0 & n < -0.5 \\
+   1  & -0.5 \le n \lt  0.5 \\
+   0  & n > 0.5
+   \end{cases}
+
+Notes:
+
+- Lcapy converts `rect(n)` to `urect(n)` for discrete-time signals and prints it as `rect[n]`.
+
+- `urect(n/N)` produces a symmetrical result when `N` is odd.  When `N` is even, there is one more non-zero value for negative `n` compared to positive `n`.   
+
+- The internal name `urect` may change when I can think of something better.
+
+  
+Discrete-time rectangle signum function sign[n]
+-----------------------------------------------
+
+.. math::
+
+   \mathop{\mathrm{sign}}[n] =
+   \begin{cases}
+   -1 & n < 0 \\
+   1  & n \ge 0
+   \end{cases}
+
+Notes:
+
+- Lcapy converts `sign(n)` to `usign(n)` for discrete-time signals and prints it as `sign[n]`.
+
+- The internal name `usign` may change when I can think of something better.
+   
   
 SymPy
 =====

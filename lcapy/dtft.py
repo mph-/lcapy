@@ -16,7 +16,7 @@ from .dsym import dt
 from .utils import factor_const, scale_shift
 from .sym import symsymbol
 from .ztransform import is_multiplied_with
-from .extrafunctions import UnitImpulse, UnitStep, sincu, sincn, rect
+from .extrafunctions import UnitImpulse, UnitStep, sincu, sincn, urect, usign
 
 
 __all__ = ('DTFT', )
@@ -199,18 +199,18 @@ class DTFTTransformer(BilateralForwardTransformer):
         elif is_multiplied_with(expr, n, 'UnitStep', xn_fac):
             #
             expr /= xn_fac[-1]            
-            # handle aa*n + bb  as argument of step
+            # Handle aa*n + bb  as argument of step
             ref = xn_fac[-1].args
             aa = ref[0].coeff(n, 1)
             bb = ref[0].coeff(n, 0)
-            # check argument of step function
+            # Check argument of step function
             if abs(aa) != 1 or not (bb.is_integer or bb.is_integer is None) :
                 print("Warning: Check argument of Step function")            
             delay = -bb / aa
             #             
             prefac = sym.exp(-sym.I * twopidt * f * delay)   
-            # rename  summation index  aa*n+bbk = k --> n
-            expr = expr.subs(n, aa*n + delay)         
+            # Rename  summation index  aa*n+bbk = k --> n
+            expr = expr.subs(n, aa * n + delay)         
             
             # Handle u(n) * a **n * exp(b*n+c)                
             e_fac = 1
@@ -222,7 +222,7 @@ class DTFTTransformer(BilateralForwardTransformer):
                 bb = ref[0].coeff(n, 1)
                 cc = ref[0].coeff(n, 0)                 
                 e_fac *= sym.exp(bb) 
-                prefac *=  sym.exp(cc)  
+                prefac *= sym.exp(cc)  
                 
             # Collect all a factors
             while is_multiplied_with(expr, n, 'a**n', xn_fac):
@@ -233,12 +233,12 @@ class DTFTTransformer(BilateralForwardTransformer):
                 bb = ref[1].coeff(n, 1)
                 cc = ref[1].coeff(n, 0)                 
                 e_fac *= lam ** bb 
-                prefac *=  lam ** cc             
+                prefac *= lam ** cc             
             
             if not expr.has(n):
                 if e_fac.is_integer and abs(e_fac) > 1:
                     print("Warning:  Check for convergence")
-                res =  expr / (1 - e_fac * sym.exp(-sym.I * twopidt * f) ) 
+                res = expr / (1 - e_fac * sym.exp(-sym.I * twopidt * f) ) 
                 if aa.is_negative:
                     res = res.subs(f, -f)
                 return const * prefac * res
@@ -253,7 +253,7 @@ class DTFTTransformer(BilateralForwardTransformer):
 
         # Handle signum
         elif (len(args) == 1 and expr.is_Function and
-              expr.func == sym.sign and args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):
+              expr.func == usign and args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):
             aa = args[0].coeff(n, 1)
             bb = args[0].coeff(n, 0)  
             delay = -bb / aa
@@ -261,7 +261,7 @@ class DTFTTransformer(BilateralForwardTransformer):
                 # definition 1 for sign
                 # res = 1 / (1 - sym.exp(-sym.I * twopidt * f))
                 # definition 2 for signum
-                res = (1 + sym.exp(-sym.I * twopidt * f))  / (1 - sym.exp(-sym.I * twopidt * f)) 
+                res = (1 + sym.exp(-sym.I * twopidt * f)) / (1 - sym.exp(-sym.I * twopidt * f)) 
                 if aa.is_negative:                    
                     res = res.subs(f, -f)                
                 return const * sym.exp(-sym.I * twopidt * f * delay) * res
@@ -274,7 +274,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             if abs(aa) > pi:
                 print("Warning, Argument out of range (-pi, pi)")
             bb = args[0].coeff(n, 0) 
-            delay = bb/aa
+            delay = bb / aa
             # sincn contains an additional pi in argument
             nnp = 1
             if expr.func == sincn:
@@ -286,12 +286,12 @@ class DTFTTransformer(BilateralForwardTransformer):
                 result = const * prefac * (UnitStep(f + aa) - UnitStep(f - aa)) * sym.exp(sym.I * delay * twopidt * f)
                 return self.add_images(result, f)
         
-        # Handle rect
-        elif (len(args) == 1 and expr.is_Function and expr.func == rect and
+        # Handle urect
+        elif (len(args) == 1 and expr.is_Function and expr.func == urect and
               args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):              
             qq = 1/ args[0].coeff(n, 1)
             if qq.is_negative:
-                print("Warning, negative coefficient for n:  Use rect((n-n0)/b)")
+                print("Warning, negative coefficient for n:  Use urect((n-n0)/b)")
             else:    
                 delay = qq * args[0].coeff(n, 0)
                 qq = qq // 2

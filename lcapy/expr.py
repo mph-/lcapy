@@ -1689,6 +1689,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 # Define in terms of Heaviside for consistency
                 return 2 * heaviside(arg) - 1
 
+            def usign(arg):
+                # Define in terms of unitstep for consistency
+                return 2 * unitstep(arg) - 1            
+
             def urect(arg):
                 # Define in terms of UnitStep for consistency                
                 return unitstep(arg + 0.5) - unitstep(arg - 0.5)            
@@ -1799,7 +1803,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                               'Heaviside' : heaviside,
                               'UnitImpulse' : unitimpulse,
                               'UnitStep' : unitstep,
-                              'urect' : urect,                              
+                              'urect' : urect, 'usign' : usign,                              
                               'sinc' : sinc, 'sincn' : sincn,
                               'sincu' : sincu, 'psinc' : psinc,
                               'rect' : rect, 'tri' : tri, 'trap' : trap,
