@@ -68,7 +68,7 @@ class rect(sym.Function):
         return sym.Heaviside(x + S.Half) - sym.Heaviside(x - S.Half)
 
 
-class urect(sym.Function):
+class dtrect(sym.Function):
 
     @classmethod
     def eval(cls, val):
@@ -87,7 +87,7 @@ class urect(sym.Function):
         return UnitStep(x + S.Half) - UnitStep(x - S.Half)
 
     
-class usign(sym.Function):
+class dtsign(sym.Function):
 
     @classmethod
     def eval(cls, val):

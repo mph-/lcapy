@@ -37,6 +37,9 @@ class LcapyTester(unittest.TestCase):
 
         a = atan2(1, omega)
         self.assertEqual(type(a), AngularFourierDomainExpression, "atan2")
+
+        self.assertEqual(sign(-n).evaluate(0), 1, "sign(-n)")
+        self.assertEqual(sign(-n).evaluate(1), -1, "sign(-n)")        
         
     def test_heaviside(self):
 
@@ -55,8 +58,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual((rect(t / 4) * delta(t - 1)).simplify(),
                          delta(t - 1),
                          "rect(t / 4) * delta(t - 1)")
-        
-
         
     def test_sinc(self):
 

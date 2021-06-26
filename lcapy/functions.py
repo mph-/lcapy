@@ -14,7 +14,18 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
            'heaviside', 'Heaviside', 'delta', 'DiracDelta', 'ui',
            'us', 'unitimpulse', 'unitstep', 'UnitImpulse', 'UnitStep',
            'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap',
-           'Sum', 'urect', 'usign')
+           'Sum', 'dtrect', 'dtsign')
+
+from .extrafunctions import UnitImpulse as UnitImpulse1
+from .extrafunctions import UnitStep as UnitStep1
+from .extrafunctions import sincn as sincn1
+from .extrafunctions import sincu as sincu1
+from .extrafunctions import psinc as psinc1
+from .extrafunctions import rect as rect1
+from .extrafunctions import dtrect as dtrect1
+from .extrafunctions import dtsign as dtsign1
+from .extrafunctions import tri as tri1
+from .extrafunctions import trap as trap1
 
 
 class Function(object):
@@ -30,7 +41,7 @@ class Function(object):
 
     def __call__(self, *args):
 
-        e_args = [expr(arg) for arg in args]
+        e_args = list(map(expr, args))
         
         cls = e_args[0].__class__
 
@@ -38,8 +49,21 @@ class Function(object):
         if len(e_args) > 1:
             if e_args[0].is_constant:
                 cls = e_args[1].__class__                
-        
-        result = self.expr(*_ex(e_args))
+
+        func = self.expr
+        if cls.is_discrete_time_domain or cls.is_discrete_fourier_domain:
+
+            mapping = {sym.Heaviside: UnitStep1,
+                       sym.DiracDelta: UnitImpulse1,
+                       rect1: dtrect,
+                       sym.sign: dtsign}
+
+            for old, new in mapping.items():
+                if func is old:
+                    func = new
+                    break
+                
+        result = func(*_ex(e_args))
 
         result = cls(result)        
             
@@ -192,27 +216,15 @@ class Sum(sym.Sum):
         return expr(super(Sum, cls).__new__(cls, _ex(op1), _ex(op2), **options))
     
 
-from .extrafunctions import UnitImpulse as UnitImpulse1
-from .extrafunctions import UnitStep as UnitStep1
-from .extrafunctions import sincn as sincn1
-from .extrafunctions import sincu as sincu1
-from .extrafunctions import psinc as psinc1
-from .extrafunctions import rect as rect1
-from .extrafunctions import urect as urect1
-from .extrafunctions import usign as usign1
-from .extrafunctions import tri as tri1
-from .extrafunctions import trap as trap1
-
-
 ui = unitimpulse = UnitImpulse = Function(UnitImpulse1)
 
 us = unitstep = UnitStep = Function(UnitStep1)
 
 rect = Function(rect1)
 
-urect = Function(urect1)
+dtrect = Function(dtrect1)
 
-usign = Function(usign1)
+dtsign = Function(dtsign1)
 
 sinc = SincnFunction(sincn1)
 

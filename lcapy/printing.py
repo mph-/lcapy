@@ -173,14 +173,14 @@ class LcapyLatexPrinter(LatexPrinter):
             tex = r"u\left[%s\right]^{%s}" % (tex, exp)
         return tex
 
-    def _print_urect(self, expr, exp=None):
+    def _print_dtrect(self, expr, exp=None):
 
         tex = r"\rect\left[%s\right]" % self._print(expr.args[0])
         if exp:
             tex = r"\rect\left[%s\right]^{%s}" % (tex, exp)
         return tex
 
-    def _print_usign(self, expr, exp=None):
+    def _print_dtsign(self, expr, exp=None):
 
         tex = r"\sign\left[%s\right]" % self._print(expr.args[0])
         if exp:
@@ -334,7 +334,7 @@ class LcapyPrettyPrinter(PrettyPrinter):
         else:
             return self._print_Function(expr)
 
-    def _print_urect(self, expr):
+    def _print_dtrect(self, expr):
 
         from sympy.printing.pretty.stringpict import prettyForm
         
@@ -346,7 +346,7 @@ class LcapyPrettyPrinter(PrettyPrinter):
         else:
             return self._print_Function(expr)
 
-    def _print_usign(self, expr):
+    def _print_dtsign(self, expr):
 
         from sympy.printing.pretty.stringpict import prettyForm
         

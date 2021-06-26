@@ -16,7 +16,7 @@ from .dsym import dt
 from .utils import factor_const, scale_shift
 from .sym import symsymbol
 from .ztransform import is_multiplied_with
-from .extrafunctions import UnitImpulse, UnitStep, sincu, sincn, urect, usign
+from .extrafunctions import UnitImpulse, UnitStep, sincu, sincn, dtrect, dtsign
 
 
 __all__ = ('DTFT', )
@@ -144,7 +144,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             # Handle v(n), v(n) * y(n), 3 * v(n) / n etc.
             return self.function(expr, n, f) * const
         
-        # Handle step u(n-n0)  or u(-n-n0)  only 
+        # Handle step u(n-n0)  or u(-n-n0 )  only 
         elif expr.is_Function and expr.func in (sym.Heaviside, UnitStep):
             aa = args[0].coeff(n, 1)
             bb = args[0].coeff(n, 0)  
@@ -253,7 +253,7 @@ class DTFTTransformer(BilateralForwardTransformer):
 
         # Handle signum
         elif (len(args) == 1 and expr.is_Function and
-              expr.func == usign and args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):
+              expr.func == dtsign and args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):
             aa = args[0].coeff(n, 1)
             bb = args[0].coeff(n, 0)  
             delay = -bb / aa
@@ -286,12 +286,12 @@ class DTFTTransformer(BilateralForwardTransformer):
                 result = const * prefac * (UnitStep(f + aa) - UnitStep(f - aa)) * sym.exp(sym.I * delay * twopidt * f)
                 return self.add_images(result, f)
         
-        # Handle urect
-        elif (len(args) == 1 and expr.is_Function and expr.func == urect and
+        # Handle dtrect
+        elif (len(args) == 1 and expr.is_Function and expr.func == dtrect and
               args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):              
             qq = 1/ args[0].coeff(n, 1)
             if qq.is_negative:
-                print("Warning, negative coefficient for n:  Use urect((n-n0)/b)")
+                print("Warning, negative coefficient for n:  Use dtrect((n-n0)/b)")
             else:    
                 delay = qq * args[0].coeff(n, 0)
                 qq = qq // 2

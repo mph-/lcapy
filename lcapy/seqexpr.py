@@ -9,7 +9,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 from .dexpr import DiscreteExpression
 from .sequence import Sequence
 from .functions import Heaviside, DiracDelta, rect, sign
-from .extrafunctions import UnitStep, UnitImpulse, urect, usign
+from .extrafunctions import UnitStep, UnitImpulse, dtrect, dtsign
 from numpy import arange
 
 
@@ -20,16 +20,16 @@ class SequenceExpression(DiscreteExpression):
 
         super(SequenceExpression, self).__init__(val, **assumptions)
 
-        # Use discrete-time function variants.
-        if self.has(Heaviside):
-            self.expr = self.replace(Heaviside, UnitStep).expr
-        if self.has(DiracDelta):
-            self.expr = self.replace(DiracDelta, UnitImpulse).expr
-        if self.has(rect):
-            self.expr = self.replace(rect, urect).expr
-        if self.has(sign):
-            self.expr = self.replace(sign, usign).expr                        
+        mapping = {Heaviside: UnitStep,
+                   DiracDelta: UnitImpulse,
+                   rect: dtrect,
+                   sign: dtsign}
 
+        # Use discrete-time function variants, see also functions.py
+        for old, new in mapping.items():
+            if self.has(old):
+                self.expr = self.replace(old, new).expr                
+                
     def first_index(self, ni=None):
 
         if ni is None:
