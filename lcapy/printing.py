@@ -175,16 +175,16 @@ class LcapyLatexPrinter(LatexPrinter):
 
     def _print_dtrect(self, expr, exp=None):
 
-        tex = r"\rect\left[%s\right]" % self._print(expr.args[0])
+        tex = r"\mathop{\mathrm{rect}}\left[%s\right]" % self._print(expr.args[0])
         if exp:
-            tex = r"\rect\left[%s\right]^{%s}" % (tex, exp)
+            tex = r"\mathop{\mathrm{rect}}\left[%s\right]^{%s}" % (tex, exp)
         return tex
 
     def _print_dtsign(self, expr, exp=None):
 
-        tex = r"\sign\left[%s\right]" % self._print(expr.args[0])
+        tex = r"\mathop{\mathrm{sign}}\left[%s\right]" % self._print(expr.args[0])
         if exp:
-            tex = r"\sign\left[%s\right]^{%s}" % (tex, exp)
+            tex = r"\mathop{\mathrm{sign}}\left[%s\right]^{%s}" % (tex, exp)
         return tex        
 
     def _print_symbol_name(self, name):
