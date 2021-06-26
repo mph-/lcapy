@@ -144,7 +144,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             # Handle v(n), v(n) * y(n), 3 * v(n) / n etc.
             return self.function(expr, n, f) * const
         
-        # Handle step u(n-n0)  or u(-n-n0 )  only 
+        # Handle step u(n-n0)  or u(-n-n0)  only 
         elif expr.is_Function and expr.func in (sym.Heaviside, UnitStep):
             aa = args[0].coeff(n, 1)
             bb = args[0].coeff(n, 0)  
@@ -155,7 +155,7 @@ class DTFTTransformer(BilateralForwardTransformer):
                     res = res.subs(f, -f)
                 return const * sym.exp(-sym.I * twopidt * f  * delay) * res  + const * self.add_images(DiracDelta(f), f) / dt / 2
                 
-        # Handle exp(j*a*n+b) * x(n)    o--o   X(W-a) *exp(b)
+        # Handle exp(j*a*n+b) * x(n)    o--o   X(W-a) * exp(b)
         elif is_multiplied_with(expr, n, 'exp(n)', xn_fac) and abs(xn_fac[-1] / sym.exp(args[0].coeff(n, 0))) == 1:
             expr /= xn_fac[-1]
             ref = xn_fac[-1].args
@@ -165,7 +165,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             res = X.subs(f,  f - aa / twopidt)
             return const * res
         
-        # Handle sin(b*n+c) * x(n)    o--o   j/2 (exp(-jc)*X(W+b) - X(W-b)*exp(jc) )
+        # Handle sin(b*n+c) * x(n)    o--o   j/2 (exp(-jc) * X(W+b) - X(W-b) * exp(jc))
         elif is_multiplied_with(expr, n, 'sin(n)', xn_fac):
             expr /= xn_fac[-1]
             ref = xn_fac[-1].args
@@ -177,7 +177,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             res = sym.I / 2 * (Xp * sym.exp(-sym.I * cc) - Xm * sym.exp(sym.I * cc))
             return const * res   
             
-        # Handle cos(b*n+c)*x(n)    o--o   1/2 (exp(-jc)*X(W+b) + X(W-b)*exp(jc) )
+        # Handle cos(b*n+c)*x(n)    o--o   1/2 (exp(-jc)* X(W+b) + X(W-b) * exp(jc))
         elif is_multiplied_with(expr, n, 'cos(n)', xn_fac):
             expr /= xn_fac[-1]
             ref = xn_fac[-1].args
@@ -238,7 +238,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             if not expr.has(n):
                 if e_fac.is_integer and abs(e_fac) > 1:
                     print("Warning:  Check for convergence")
-                res = expr / (1 - e_fac * sym.exp(-sym.I * twopidt * f) ) 
+                res = expr / (1 - e_fac * sym.exp(-sym.I * twopidt * f)) 
                 if aa.is_negative:
                     res = res.subs(f, -f)
                 return const * prefac * res
@@ -258,10 +258,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             bb = args[0].coeff(n, 0)  
             delay = -bb / aa
             if delay.is_integer:
-                # definition 1 for sign
-                # res = 1 / (1 - sym.exp(-sym.I * twopidt * f))
-                # definition 2 for signum
-                res = (1 + sym.exp(-sym.I * twopidt * f)) / (1 - sym.exp(-sym.I * twopidt * f)) 
+                res = 1 / (1 - sym.exp(-sym.I * twopidt * f))
                 if aa.is_negative:                    
                     res = res.subs(f, -f)                
                 return const * sym.exp(-sym.I * twopidt * f * delay) * res
