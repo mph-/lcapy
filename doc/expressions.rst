@@ -164,7 +164,7 @@ Mathematical functions
 Lcapy has the following built-in functions: `sin`, `cos`, `tan`,
 `cot`, `asin`, `acos`, `atan`, `atan2`, `acot`, `sinh`, `cosh`,
 `tanh`, `asinh`, `acosh`, `atanh`, `gcd`, `exp`, `sqrt`, `log`,
-`log10`, `sign`, `conjugate`, `rect`, `urect`, `sinc`, `sincn`, `sincu`, `tri`,
+`log10`, `sign`, `conjugate`, `rect`, `dtrect`, `sinc`, `sincn`, `sincu`, `tri`,
 `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`, `unitimpulse`,
 and `unitstep`.
 
@@ -862,8 +862,8 @@ Domain transformation and substitution
 Substitution and transformation use a similar syntax `V(arg)`.  If
 `arg` is a domain variable `t`, `f`, `s`, `omega`, `w`, `jomega` or `jw`,
 transformation is performed, otherwise substitution is performed.
-This behaviour can be explicitly controlled using the `subs` and
-`transform` methods, for example::
+This behaviour can be explicitly controlled using the `subs()` and
+`transform()` methods, for example::
 
    >>> from lcapy import *
    >>> V1 = voltage('3 * exp(-2 * t)')
@@ -961,7 +961,7 @@ domains.
 
 If you have a cunning idea of how to resolve this notational
 gnarliness, or make it less confusing, please report an issue.  Note,
-you can use the `subs` method to replace `s` with `j * omega` if you
+you can use the `subs()` method to replace `s` with `j * omega` if you
 know what you are doing.  The result is in the angular Fourier
 domain::
 
@@ -1568,8 +1568,8 @@ Assumptions for inverse Laplace transform
 
 Lcapy uses the :math:`\mathcal{L}_{-}` unilateral Laplace transform
 (see :ref:`laplace_transforms`).  This ignores the function for
-:math:`t <0` and thus the unilateral inverse Laplace transform thus
-cannot determine the result for :math:`t <0` unless it has additional
+:math:`t <0` and thus the unilateral inverse Laplace transform cannot
+determine the result for :math:`t <0` unless it has additional
 information.  This is provided using assumptions:
 
 -  `unknown` says the signal is unknown for :math:`t < 0`.  This is the default.
@@ -1727,7 +1727,7 @@ Lcapy when performing circuit analysis).  For example::
 Plotting
 ========
 
-Lcapy can generate many types of plot, including Bode plots, Nyquist plots, pole-zero plots, and lollipop stem) plots.  Labels are automatically generated but can be changed.
+Lcapy can generate many types of plot, including Bode plots, Nyquist plots, pole-zero plots, and lollipop (stem) plots.  Labels are automatically generated but can be changed.
 
 Expressions have a `plot()` method.  Each domain has different behaviour.   Here's an example:
 
@@ -1819,7 +1819,7 @@ scale is used if `log_frequency=True` is specified.
 Magnitudes are shown on a linear scale by default.  A logarithmic
 scale is used if `log_magnitude=True` is specified.
 
-The frequency domain plot method returns the axes used in the plot.
+The frequency domain `plot()` method returns the axes used in the plot.
 If there are two sets of axes, such as for a magnitude/phase or
 real/imaginary plot, these are returned as a tuple.  For example::
 
@@ -1871,7 +1871,7 @@ Phasors are plotted on a polar graph, for example::
 Discrete-time plots
 -------------------
 
-Discrete-time signals are plotted as stem (lollipop plots), for example::
+Discrete-time signals are plotted as stem (lollipop) plots, for example::
 
    >>> cos(2 * n * 0.2).plot()
   
@@ -2122,7 +2122,7 @@ With the assumption `H(0) = 0` then `rect(0.5) = 0.5`.  In other words
    0  & t > 0.5
    \end{cases}
 
-Note, there is also a related discrete-time rectangle `urect` defined
+Note, there is also a related discrete-time rectangle `dtrect` defined
 in terms of the discrete-time unit step function.
 
 .. image:: examples/functions/rect.png
@@ -2258,11 +2258,11 @@ With this definition:
 
 Notes:
 
-- Lcapy converts `rect(n)` to `urect(n)` for discrete-time signals and prints it as `rect[n]`.
+- Lcapy converts `rect(n)` to `dtrect(n)` for discrete-time signals and prints it as `rect[n]`.
 
-- `urect(n/N)` produces a symmetrical result when `N` is odd.  When `N` is even, there is one more non-zero value for negative `n` compared to positive `n`.   
+- `dtrect(n/N)` produces a symmetrical result when `N` is odd.  When `N` is even, there is one more non-zero value for negative `n` compared to positive `n`.   
 
-- The internal name `urect` may change when I can think of something better.
+- The internal name `dtrect` may change when I can think of something better.
 
 .. image:: examples/functions/dtrect4.png
    :width: 12cm
@@ -2293,9 +2293,9 @@ and thus:
 
 Notes:
 
-- Lcapy converts `sign(n)` to `usign(n)` for discrete-time signals and prints it as `sign[n]`.
+- Lcapy converts `sign(n)` to `dtsign(n)` for discrete-time signals and prints it as `sign[n]`.
 
-- The internal name `usign` may change when I can think of something better.
+- The internal name `dtsign` may change when I can think of something better.
 
 
 .. image:: examples/functions/dtsign.png
