@@ -24,7 +24,7 @@ class LcapyNetworksTester(unittest.TestCase):
             raise AssertionError(e)
 
     def test_VR_ac1(self):
-        """Lcapy: check VR ac network
+        """Check VR ac network
 
         """
 
@@ -34,7 +34,7 @@ class LcapyNetworksTester(unittest.TestCase):
         self.assertEqual(a.is_ac, True, "AC incorrect")
 
     def test_VR_dc1(self):
-        """Lcapy: check VR dc network
+        """Check VR dc network
 
         """
 
@@ -45,7 +45,7 @@ class LcapyNetworksTester(unittest.TestCase):
         self.assertEqual(a.is_dc, True, "DC incorrect")
 
     def test_VC_dc1(self):
-        """Lcapy: check VC dc network
+        """Check VC dc network
 
         """
 
@@ -56,7 +56,7 @@ class LcapyNetworksTester(unittest.TestCase):
         self.assertEqual(a.is_dc, True, "DC incorrect")
 
     def test_VC_dc2(self):
-        """Lcapy: check VC dc network
+        """Check VC dc network
 
         """
 
@@ -67,7 +67,7 @@ class LcapyNetworksTester(unittest.TestCase):
         self.assertEqual(a.is_dc, False, "DC incorrect")
 
     def test_thevenin_ac(self):
-        """Lcapy: check ac Thevenin conversion
+        """Check ac Thevenin conversion
 
         """
         a = (Vac('1') + C(2)) | R(3)
@@ -78,7 +78,7 @@ class LcapyNetworksTester(unittest.TestCase):
                          "Isc incorrect")
         
     def test_superposition(self):
-        """Lcapy: check network superposition"""
+        """Check network superposition"""
 
         a = Vac(40) + Vnoise(20) + Vstep(10) + R(5)
         self.assertEqual(a.Voc.dc, 0, "Voc.dc error")
@@ -93,14 +93,14 @@ class LcapyNetworksTester(unittest.TestCase):
         self.assertEqual(a.Isc.n.expr, AngularFourierNoiseDomainCurrent(4).expr, "Isc.n error")
         
     def test_ivp(self):
-        """Lcapy: check network with initial values"""
+        """Check network with initial values"""
 
         a = Vstep(10) + C('C1', 5)
         self.assertEqual(a.is_ivp, True, "IVP fail")
         self.assertEqual2(a.Voc.s, voltage(15 / s), "Voc fail")
 
     def test_causal(self):
-        """Lcapy: check network is causal"""
+        """Check network is causal"""
 
         a = Vstep(10) + C('C1')
         self.assertEqual(a.is_causal, True, "causal fail")

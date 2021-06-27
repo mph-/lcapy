@@ -10,6 +10,7 @@ class LcapyTester(unittest.TestCase):
     """
 
     def test_circuitgraph(self):
+        """Test circuitgraph"""        
 
         a = Circuit('lcapy/tests/test2.sch')
         cg = CircuitGraph(a)

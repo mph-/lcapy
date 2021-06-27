@@ -21,7 +21,7 @@ class LcapyOneportTester(unittest.TestCase):
             raise AssertionError(e)
 
     def test_R(self):
-        """Lcapy: check R
+        """Check R
 
         """
         a = R(10)
@@ -33,7 +33,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(a.isc, 0, "isc incorrect.")
 
     def test_L(self):
-        """Lcapy: check L
+        """Check L
 
         """
         a = L(10, 5)
@@ -45,7 +45,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(a.Isc, current(-5 / s), "Isc incorrect.")        
 
     def test_C(self):
-        """Lcapy: check C
+        """Check C
 
         """
         a = C(10, 5)
@@ -58,7 +58,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual(a.Isc, current(0 * s + 50), "Isc incorrect.")        
 
     def test_R_series_R(self):
-        """Lcapy: check R + R
+        """Check R + R
 
         """
         a = R(10) + R(5)
@@ -70,7 +70,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(type(b), R, "type incorrect.")
 
     def test_L_series_L(self):
-        """Lcapy: check L + L
+        """Check L + L
 
         """
         a = L(10) + L(5)
@@ -81,7 +81,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(type(b), L, "type incorrect.")
 
     def test_C_series_C(self):
-        """Lcapy: check C + C
+        """Check C + C
 
         """
         a = C(10) + C(15)
@@ -92,7 +92,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(type(b), C, "type incorrect.")
 
     def test_Vdc_series_Vdc(self):
-        """Lcapy: check Vdc + Vdc
+        """Check Vdc + Vdc
 
         """
         a = Vdc(10) + Vdc(5)
@@ -103,7 +103,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(b.voc, voltage(15), "voc incorrect.")
 
     def test_Vdc_series_R(self):
-        """Lcapy: check Vdc + R
+        """Check Vdc + R
 
         """
         a = Vdc(10) + R(5)
@@ -123,7 +123,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual(b.i(0), 0, "I incorrect.")
 
     def test_Vac_series_R(self):
-        """Lcapy: check Vac + R
+        """Check Vac + R
 
         """
         a = Vac(10) + R(5)
@@ -143,14 +143,14 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual(b.i(0), 0, "I incorrect.")        
         
     def test_R_series_L(self):
-        """Lcapy: check R + L
+        """Check R + L
 
         """
         a = R(10) + L(5)
         self.assertEqual2(a.Z(s), impedance(5 * s + 10), "Zs incorrect.")
 
     def test_R_parallel_R(self):
-        """Lcapy: check R | R
+        """Check R | R
 
         """
         a = R(10) | R(15)
@@ -160,7 +160,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(type(b), R, "type incorrect.")
 
     def test_L_parallel_L(self):
-        """Lcapy: check L | L
+        """Check L | L
 
         """
         a = L(10) | L(15)
@@ -170,7 +170,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(type(b), L, "type incorrect.")
 
     def test_C_parallel_C(self):
-        """Lcapy: check C | C
+        """Check C | C
 
         """
         a = C(10) | C(15)
@@ -180,7 +180,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(type(b), C, "type incorrect.")
 
     def test_I_parallel_I(self):
-        """Lcapy: check I | I
+        """Check I | I
 
         """
         a = Idc(10) | Idc(5)
@@ -191,7 +191,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(b.isc, current(15), "isc incorrect.")
 
     def test_load(self):
-        """Lcapy: check load
+        """Check load
 
         """
 
@@ -202,7 +202,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(b.Z, impedance(7.5), "Shunt loaded R incorrect Z.")
 
     def test_open_circuit(self):
-        """Lcapy: check open_circuit
+        """Check open_circuit
 
         """
 
@@ -213,7 +213,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(b.Voc.laplace(), LaplaceDomainVoltage(5 / s), "incorrect V.")
 
     def test_short_circuit(self):
-        """Lcapy: check short_circuit
+        """Check short_circuit
 
         """
 
@@ -224,7 +224,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(b.Voc.laplace(), LaplaceDomainVoltage(5 / s), "incorrect V.")
 
     def test_v(self):
-        """Lcapy: check inverse Laplace for voltage sources"""
+        """Check inverse Laplace for voltage sources"""
 
         a = Vdc(10)
         self.assertEqual(a.voc, voltage(10), "DC incorrect.")        
@@ -237,7 +237,7 @@ class LcapyOneportTester(unittest.TestCase):
 
 
     def test_i(self):
-        """Lcapy: check inverse Laplace for current sources"""
+        """Check inverse Laplace for current sources"""
 
         a = Idc(10)
         self.assertEqual(a.isc, current(10), "DC incorrect.")        
@@ -250,7 +250,7 @@ class LcapyOneportTester(unittest.TestCase):
 
 
     def test_CPE(self):
-        """Lcapy: check CPE
+        """Check CPE
 
         """
         a = CPE(10, 1)

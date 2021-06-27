@@ -8,8 +8,8 @@ from lcapy.sexpr import LaplaceDomainExpression, LaplaceDomainVoltage
 import unittest
 
 
-class LcapyTester(unittest.TestCase):
-    """Unit tests for lcapy"""
+class LcapyCoreTester(unittest.TestCase):
+    """Unit tests for lcapy core"""
 
     def assertEqual2(self, ans1, ans2, comment):
 
@@ -21,7 +21,7 @@ class LcapyTester(unittest.TestCase):
             raise AssertionError(e)
 
     def test_Expr1(self):
-        """Lcapy: check Expr
+        """Check Expr
 
         """
         a = expr(3)
@@ -59,7 +59,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(-a.sign, expr(-j), "sign incorrect.")        
 
     def test_cExpr1(self):
-        """Lcapy: check cExpr1
+        """Check cExpr1
 
         """
         a = cexpr('1')
@@ -75,7 +75,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(type(NV), ConstantTimeDomainExpression, "N type incorrect for V.")        
         
     def test_sExpr1(self):
-        """Lcapy: check sExpr1
+        """Check sExpr1
 
         """
         a = LaplaceDomainExpression('(s+2)/(s-2)')
@@ -102,7 +102,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(aw.imag, -4 * omega / (omega**2 + 4), "imag part incorrect.")
 
     def test_sExpr2(self):
-        """Lcapy: check sExpr2
+        """Check sExpr2
 
         """
         a = (s + 2) * (s + 3) / (s - 2)
@@ -124,7 +124,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.inverse_laplace(causal=True), 20 * exp(2 * t) * H(t) + 7 * DiracDelta(t) + DiracDelta(t, 1), "inverse Laplace incorrect.")
 
     def test_sExpr3(self):
-        """Lcapy: check sExpr3
+        """Check sExpr3
 
         """
         a = (s**2 + 5 * s + 6) / (s - 2)
@@ -152,7 +152,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.inverse_laplace(causal=True), 20 * exp(2 * t) * H(t) + 7 * DiracDelta(t) + DiracDelta(t, 1), "inverse Laplace incorrect.")
 
     def test_sExpr4(self):
-        """Lcapy: check sExpr4
+        """Check sExpr4
 
         """
         a = 1 / ((s - j) * (s + j))
@@ -177,7 +177,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.inverse_laplace(causal=True), sin(t) * H(t), "inverse Laplace incorrect.")
 
     def test_sExpr5(self):
-        """Lcapy: check sExpr5
+        """Check sExpr5
 
         """
         a = 1 / ((s - 1j) * (s + 1j))
@@ -202,7 +202,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.inverse_laplace(causal=True), sin(t) * H(t), "inverse Laplace incorrect.")
 
     def test_sExpr6(self):
-        """Lcapy: check sExpr6 (repeated poles)
+        """Check sExpr6 (repeated poles)
 
         """
         a = 1 / ((s + 4) * (s + 4))
@@ -223,14 +223,14 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.inverse_laplace(causal=True), t * exp(-4 * t) * Heaviside(t), "inverse Laplace incorrect.")        
 
     def test_sExpr7(self):
-        """Lcapy: check sExpr7 (delay)
+        """Check sExpr7 (delay)
 
         """
         a = LaplaceDomainExpression('(s+1)*exp(-3*s)/((s+3)*(s+4))')
         self.assertEqual(a.inverse_laplace(causal=True), (3 * exp(-4 * t  + 12) - 2 * exp(-3 * t + 9)) * H(t- 3), "inverse Laplace incorrect.")
 
     def test_sExpr8(self):
-        """Lcapy: check sExpr8 (jomega)
+        """Check sExpr8 (jomega)
 
         """
         a = expr('a')
@@ -240,7 +240,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Hw.phase, rad(atan2(1, a * omega)), 'phase')
 
     def test_sExpr9(self):
-        """Lcapy: check sExpr9 (non-monic factor)
+        """Check sExpr9 (non-monic factor)
 
         """
         H = 1 / ((s + 1) * (3 * s + 2))
@@ -251,7 +251,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(H.partfrac(), H2, "partfrac incorrect.")        
 
     def test_wExpr1(self):
-        """Lcapy: check wExpr1
+        """Check wExpr1
 
         """
 
@@ -262,7 +262,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(A.imag, -7 * omega / (omega**2 + 16), "imag incorrect.")
 
     def test_tExpr1(self):
-        """Lcapy: check tExpr1
+        """Check tExpr1
 
         """
         a = t**2
@@ -271,7 +271,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.evaluate((2, 3))[1], 9.0, "vector evaluate incorrect.")
 
     def test_step(self):
-        """Lcapy: check step
+        """Check step
 
         """
         a = u(t)
@@ -282,7 +282,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.laplace(), 1 / s, "Laplace transform incorrect.")
 
     def test_delta(self):
-        """Lcapy: check delta
+        """Check delta
 
         """
         a = delta(t)
@@ -291,7 +291,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.laplace(), 1, "Laplace transform incorrect.")
 
     def test_subs1(self):
-        """Lcapy: check subs
+        """Check subs
 
         """
 
@@ -301,7 +301,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a, omega, "Substitution fail.")
 
     def test_subs2(self):
-        """Lcapy: check subs
+        """Check subs
 
         """
 
@@ -314,7 +314,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a1, a3, "Substitution fail with dict.")
 
     def test_subs_const(self):
-        """Lcapy: check subs of a constant
+        """Check subs of a constant
 
         """
         a = expr('V1')
@@ -324,7 +324,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(c, b, "Substitution for constant fail.")
 
     def test_types(self):
-        """Lcapy: check types
+        """Check types
 
         """
 
@@ -358,7 +358,7 @@ class LcapyTester(unittest.TestCase):
         state.loose_units = loose
 
     def test_evaluate(self):
-        """Lcapy: check evaluate
+        """Check evaluate
 
         """
 
@@ -373,17 +373,19 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.evaluate(4), 2, "Evaluate fail for sqrt(4)")
 
     def test_zp2k(self):
+        """Test zp2k"""
 
         self.assertEqual(zp2tf([], [0, -1]), 1 / (s * (s + 1)), "zp2tf")
 
     def test_const_rms(self):
+        """Test const rms"""
 
         c = expr(2)
         
         self.assertEqual(c.rms(), 2, "const rms")
 
     def test_assumptions(self):
-        """Lcapy: check assumptions
+        """Check assumptions
 
         """
 
@@ -416,6 +418,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(((Heaviside(t) - Heaviside(t - 7)) * cos(t)).is_causal, True, "expr.is_causal")
         
     def test_has(self):
+        """Test has"""
 
         a = Expr('3 * exp(-t) * t * a')
         self.assertEqual(a.has(3), True, "has(3)")
@@ -426,6 +429,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.has_symbol('b'), False, "has_symbol(b)")
         
     def test_expr(self):
+        """Test expr"""
 
         a = expr('3 * exp(-t) * t * a')
         self.assertEqual(isinstance(a, TimeDomainExpression), True, "tExpr")        
@@ -464,15 +468,18 @@ class LcapyTester(unittest.TestCase):
             raise AssertionError('Not omega')
 
     def test_parallel(self):
+        """Test parallel"""
 
         self.assertEqual(expr('4').parallel(expr('4')), 2, "parallel")
 
     def test_limit(self):
+        """Test limit"""
 
         self.assertEqual(expr('4').limit(t, 0), 4, "limit")
         self.assertEqual(expr('t + 4').limit(t, 0), 4, "limit")        
         
     def test_parameterize(self):
+        """Test parameterize"""
 
         a = 2 / (s + 3)
         p, defs = a.parameterize()
@@ -491,10 +498,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a, p.subs(defs), "parameterize")
 
     def test_integrate(self):
+        """Test integrate"""
 
         self.assertEqual(t.integrate((t, 0, t)), t**2 / 2, "integrate t")
         
     def test_partfrac(self):
+        """Test partfrac"""
 
         H = expr('F(s)') / (s**2 + 3 * s + 6)
         
@@ -542,6 +551,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(F.partfrac(True), F,  "undef delay sum partfrac")
         
     def test_mixedfrac(self):
+        """Test mixedfrac"""
 
         H = expr('F(s)') / (s**2 + 3 * s + 6)
         
@@ -580,6 +590,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(F.mixedfrac(), F,  "undef delay sum mixedfrac")
         
     def force_causal(self):
+        """Test force_causal"""
 
         X = 1 / (1 + s)
         x = X(t)
@@ -590,6 +601,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(x.force_causal(), exp(-t) * Heaviside(t), "force causal if already causal")
 
     def strip_condition(self):
+        """Test strip_condition"""
 
         X = 1 / (1 + s)
         x = X(t)
@@ -600,6 +612,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(x.strip_condition(), exp(-t), "remove condition if causal")
         
     def test_val(self):
+        """Test val"""
 
         a = expr('3 / 4')
 
@@ -607,6 +620,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.evalf(), 0.75, "evalf")
         
     def test_cval(self):
+        """Test cval"""        
 
         a = 3j
         e = expr(a)
@@ -614,6 +628,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(e.cval, a, 'cval')
 
     def test_fval(self):
+        """Test fval"""        
 
         a = 3
         e = expr(a)
@@ -621,6 +636,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(e.fval, a, 'fval')        
 
     def test_equality(self):
+        """Test equality"""
 
         e = Eq(expr('x(t)'), cos(3 * t))
         self.assertEqual(e.is_ac, True, 'is_ac')
@@ -628,6 +644,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(e.is_causal, False, 'is_causal')
         
     def test_phase(self):
+        """Test phase"""
 
         c = expr(2).phase
         e = exp(c)        
@@ -636,6 +653,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(e.part, '', "exp is_phase")        
 
     def test_parts(self):
+        """Test parts"""
 
         self.assertEqual(expr(1).real.is_real_part, True, "is_real_part")
         self.assertEqual(expr(1).imag.is_imag_part, True, "is_imag_part")
@@ -645,12 +663,14 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(expr(1).dB.is_dB, True, "is_dB")
 
     def test_dB(self):
+        """Test dB"""
 
         v = voltage(10)
         self.assertEqual(v.dB, 20, "voltage(10).dB")
         self.assertEqual((v**2).dB, 20, "(voltage(10)**2).dB")
 
     def test_simplify_sin_cos(self):
+        """Test simplify_sin_cos"""
 
         a = expr('3 * cos(theta) + 4 * sin(theta)')
         b = expr('5 * cos(theta - atan(4 / 3))')
@@ -660,13 +680,15 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.simplify_sin_cos(as_sin=True).simplify(), b, "sin form")
         self.assertEqual(a.simplify_sin_cos().simplify(), b, "default form")        
 
-    def test_simplify_unitstep(self):
+    def test_simplify_heaviside(self):
+        """Test simplify Heaviside"""
 
         a = Heaviside(4 * t - 2)
         b = a.simplify_heaviside()
         self.assertEqual(b, Heaviside(t - 0.5), "simplify_heaviside_scale")                
         
     def test_poles(self):
+        """Test poles"""
 
         # TODO, maybe tweak ExprDict to make keys Lcapy expressions?
 

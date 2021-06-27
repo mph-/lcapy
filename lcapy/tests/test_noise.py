@@ -26,7 +26,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.nid, a.imag.nid, "Different nids for imag")
         
     def test_noise1(self):
-        """Lcapy: check circuit noise for voltage divider"""
+        """Check circuit noise for voltage divider"""
 
         a = Circuit()
         a.add('V1 1 0 noise 3') 
@@ -36,7 +36,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(V1, AngularFourierNoiseDomainVoltage(1, nid=V1.nid), "Incorrect ratio")
 
     def test_noise2(self):
-        """Lcapy: check circuit noise for pair of sources"""
+        """Check circuit noise for pair of sources"""
 
         a = Circuit()
         a.add('V1 1 0 noise 3')
@@ -46,7 +46,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(V1, AngularFourierNoiseDomainVoltage(5, nid=V1.nid), "Incorrect noise sum")        
         
     def test_filtered_noise1(self):
-        """Lcapy: check circuit filtered noise"""
+        """Check circuit filtered noise"""
 
         a = Circuit()
         a.add('V1 1 0 noise 3') 
@@ -56,7 +56,7 @@ class LcapyTester(unittest.TestCase):
 
 
     def test_filtered_noise2(self):
-        """Lcapy: check circuit filtered noise"""
+        """Check circuit filtered noise"""
 
         a = Circuit()
         a.add('V1 1 0 noise {sqrt(4 * k_B * T * R)}') 
@@ -66,7 +66,7 @@ class LcapyTester(unittest.TestCase):
                           "Incorrect capacitor voltage")        
 
     def test_filtered_noise3(self):
-        """Lcapy: check circuit filtered noise"""
+        """Check circuit filtered noise"""
 
         a = Circuit()
         a.add('V1 1 0 noise 20') 

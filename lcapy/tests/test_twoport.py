@@ -10,7 +10,7 @@ class LcapyTester(unittest.TestCase):
     """
 
     def test_LSection(self):
-        """Lcapy: check LSection
+        """Check LSection
 
         """
         a = LSection(R(10), R(30))
@@ -59,7 +59,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(e.Igain12, -0.75, "Igain12 incorrect.")
 
     def test_Shunt_parallel(self):
-        """Lcapy: check Shunts in parallel
+        """Check Shunts in parallel
 
         """
 
@@ -71,7 +71,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.V2oc, voltage(3.75 / s), "V2oc incorrect.")
 
     def test_Series_series(self):
-        """Lcapy: check Series in series
+        """Check Series in series
 
         """
 
@@ -86,7 +86,7 @@ class LcapyTester(unittest.TestCase):
         c = a.chain(a)
 
     def test_LSection_models(self):
-        """Lcapy: check LSection models
+        """Check LSection models
 
         """
         a = LSection(R(10) + Vdc(5), R(20))
@@ -119,7 +119,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(d.Bparams.B22, 1.5, "incorrect B22.")
 
     def test_load(self):
-        """Lcapy: check load
+        """Check load
 
         """
 
@@ -129,7 +129,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.Z, impedance(7.5), "Shunt loaded R incorrect Z.")
 
     def test_open_circuit(self):
-        """Lcapy: check open_circuit
+        """Check open_circuit
 
         """
 
@@ -140,7 +140,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.Voc(s), voltage(5 / s), "incorrect V.")
 
     def test_short_circuit(self):
-        """Lcapy: check short_circuit
+        """Check short_circuit
 
         """
 
@@ -151,7 +151,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.Voc(s), voltage(5 / s), "incorrect V.")
 
     def test_Shunt(self):
-        """Lcapy: check Shunt
+        """Check Shunt
 
         """
         a = Shunt(R(10) + Vdc(5))
@@ -179,7 +179,7 @@ class LcapyTester(unittest.TestCase):
         d = Shunt(R(10)).chain(Series(R(30)))
 
     def test_Series(self):
-        """Lcapy: check Series
+        """Check Series
 
         """
         a = Series(R(10) + Vdc(5))
@@ -190,7 +190,7 @@ class LcapyTester(unittest.TestCase):
         # Cannot determine V1oc, V2oc, Zmn
 
     def test_LSection(self):
-        """Lcapy: check LSection
+        """Check LSection
 
         """
         a = LSection(R(10), R(30))
@@ -239,7 +239,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(e.Igain12, -0.75, "Igain12 incorrect.")
 
     def test_Shunt_parallel(self):
-        """Lcapy: check Shunts in parallel
+        """Check Shunts in parallel
 
         """
 
@@ -251,7 +251,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.V2oc, voltage(3.75 / s), "V2oc incorrect.")
 
     def test_Series_series(self):
-        """Lcapy: check Series in series
+        """Check Series in series
 
         """
 
@@ -264,7 +264,7 @@ class LcapyTester(unittest.TestCase):
         # self.assertEqual(b.I2sc, 0.125 / s, "I2sc incorrect.")
 
     def test_load(self):
-        """Lcapy: check load
+        """Check load
 
         """
 
@@ -274,7 +274,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.Z, impedance(7.5), "Shunt loaded R incorrect Z.")
 
     def test_open_circuit(self):
-        """Lcapy: check open_circuit
+        """Check open_circuit
 
         """
 
@@ -285,7 +285,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.Voc(s), voltage(5 / s), "incorrect V.")
 
     def test_short_circuit(self):
-        """Lcapy: check short_circuit
+        """Check short_circuit
 
         """
 
@@ -296,7 +296,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(b.Voc(s), voltage(5 / s), "incorrect V.")
 
     def test_LSection_models(self):
-        """Lcapy: check LSection models
+        """Check LSection models
 
         """
         a = LSection(R(10) + Vdc(5), R(20))

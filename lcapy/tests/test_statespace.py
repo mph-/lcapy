@@ -20,7 +20,7 @@ class LcapyTester(unittest.TestCase):
             raise AssertionError(e)
 
     def test_VRC1(self):
-        """Lcapy: check VRC circuit
+        """Check VRC circuit
 
         """
         a = Circuit("""
@@ -43,7 +43,7 @@ class LcapyTester(unittest.TestCase):
         
         
     def test_VRL1(self):
-        """Lcapy: check VRL circuit
+        """Check VRL circuit
 
         """
         a = Circuit("""
