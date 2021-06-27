@@ -27,6 +27,7 @@ jobs:
           texlive-latex-extra \
           texlive-pictures \
           cm-super \
+          dvipng \
           ghostscript \
           xvfb
         sudo ln -s /usr/bin/ipython3 /usr/bin/ipython
@@ -58,6 +59,8 @@ jobs:
           texlive-latex-base \
           texlive-latex-extra \
           texlive-pictures \
+          cm-super \
+          dvipng \
           ghostscript
     - name: Install dependencies (macOS)
       if: ${{ startsWith(matrix.os, 'macos') }}
