@@ -14,7 +14,7 @@
 
 :math:`n u\left[n\right] \longleftrightarrow - \frac{1}{4 \sin^{2}{\left(\frac{\Omega}{2} \right)}} + \frac{\mathrm{j} \delta^{\left( 1 \right)}\left( \frac{\Omega}{2 \pi \Delta_{t}} \right)}{4 \pi \Delta_{t}^{2}}`
 
-:math:`\mathop{\mathrm{sign}}\left[n\right] \longleftrightarrow \frac{e^{\mathrm{j} \Omega}}{e^{\mathrm{j} \Omega} - 1}`
+:math:`\mathop{\mathrm{sign}}\left[n\right] \longleftrightarrow \frac{2 e^{\mathrm{j} \Omega}}{e^{\mathrm{j} \Omega} - 1}`
 
 :math:`\alpha^{- n} u\left[n\right] \longleftrightarrow \frac{\alpha e^{\mathrm{j} \Omega}}{\alpha e^{\mathrm{j} \Omega} - 1}`
 

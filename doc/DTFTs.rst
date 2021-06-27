@@ -14,7 +14,7 @@
 
 :math:`n u\left[n\right] \longleftrightarrow - \frac{1}{4 \sin^{2}{\left(\pi \Delta_{t} f \right)}} + \frac{\mathrm{j} \delta^{\left( 1 \right)}\left( f \right)}{4 \pi \Delta_{t}^{2}}`
 
-:math:`\mathop{\mathrm{sign}}\left[n\right] \longleftrightarrow \frac{e^{2 \mathrm{j} \pi \Delta_{t} f}}{e^{2 \mathrm{j} \pi \Delta_{t} f} - 1}`
+:math:`\mathop{\mathrm{sign}}\left[n\right] \longleftrightarrow \frac{2 e^{2 \mathrm{j} \pi \Delta_{t} f}}{e^{2 \mathrm{j} \pi \Delta_{t} f} - 1}`
 
 :math:`\alpha^{- n} u\left[n\right] \longleftrightarrow \frac{\alpha e^{2 \mathrm{j} \pi \Delta_{t} f}}{\alpha e^{2 \mathrm{j} \pi \Delta_{t} f} - 1}`
 

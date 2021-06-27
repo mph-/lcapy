@@ -261,7 +261,7 @@ class DTFTTransformer(BilateralForwardTransformer):
                 res = 1 / (1 - sym.exp(-sym.I * twopidt * f))
                 if aa.is_negative:                    
                     res = res.subs(f, -f)                
-                return const * sym.exp(-sym.I * twopidt * f * delay) * res
+                return 2 * const * sym.exp(-sym.I * twopidt * f * delay) * res
     
         # Handle sincu/sincn        
         elif (len(args) == 1 and expr.is_Function and
