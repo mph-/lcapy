@@ -3235,10 +3235,14 @@ def symbol(name, **assumptions):
     By default, symbols are assumed to be positive unless real is
     defined or positive is defined as False."""
 
-    try:
-        symbol_delete(name)
-    except:
-        pass
+    if False:
+        if name in state.context.user_symbols:
+            print('Warning, overriding previously defined symbol %s' % name)
+    
+        try:
+            symbol_delete(name)
+        except:
+            pass
     
     ssym = symsymbol(name, **assumptions)
     usym = expr(ssym, **assumptions)

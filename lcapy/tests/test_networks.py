@@ -5,7 +5,7 @@ import unittest
 import sympy as sym
 
 
-class LcapyTester(unittest.TestCase):
+class LcapyNetworksTester(unittest.TestCase):
 
     """Unit tests for lcapy
 

@@ -5,7 +5,7 @@ import unittest
 import sympy as sym
 from lcapy.sym import omega0sym
 
-class LcapyTester(unittest.TestCase):
+class LcapyOneportTester(unittest.TestCase):
 
     """Unit tests for lcapy
 
