@@ -387,10 +387,12 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     if color2 is None:
         color2 = lines[0].get_color()
 
-    kwargs.pop('color', None)
-    kwargs.pop('linestyle', None)
+    kwargs2 = kwargs.copy()
+    for key in ('color', 'linestyle', 'xlabel', 'xlabel2', 'ylabel', 'title', 'xscale', 'yscale'):
+        kwargs2.pop(key, None)
+    
     # Dummy plot to add label to legend.
-    ax.plot([], [], label=plot2_type, color=color2, linestyle=linestyle2, **kwargs)
+    ax.plot([], [], label=plot2_type, color=color2, linestyle=linestyle2, **kwargs2)
     
     ax2 = ax.twinx()
     kwargs['axes'] = ax2
