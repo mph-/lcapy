@@ -19,6 +19,7 @@ from .quantity import UndefinedQuantity
 from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, symdebug, AppliedUndef
 from .sym import capitalize_name, tsym, symsymbol, symbol_map, tausym, nusym, oo
+from .sym import symbol_delete
 from .dsym import nsym, ksym, zsym
 from .state import state
 from .printing import pprint, pretty, print_str, latex
@@ -3233,7 +3234,14 @@ def symbol(name, **assumptions):
 
     By default, symbols are assumed to be positive unless real is
     defined or positive is defined as False."""
-    usym = expr(symsymbol(name, **assumptions))
+
+    try:
+        symbol_delete(name)
+    except:
+        pass
+    
+    ssym = symsymbol(name, **assumptions)
+    usym = expr(ssym, **assumptions)
     state.context.user_symbols[name] = usym
     return usym
 

@@ -145,7 +145,7 @@ def parse(string, symbols=None, evaluate=True, local_dict=None,
                     result.append((NAME, name))
                     continue
 
-                # Automatically add Symbol                
+                # Automatically add Symbol
                 result.extend([(NAME, 'Symbol'),
                                (OP, '('), (NAME, repr(name))])
                 for assumption, val in assumptions.items():
