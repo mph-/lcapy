@@ -116,9 +116,11 @@ All Lcapy expressions have a domain (Laplace, Fourier, etc.) and a quantity (vol
 User defined symbols
 --------------------
 
-Symbols can also be created with Lcapy's `symbol` function:
+Symbols can also be created with Lcapy's `symbol` function.  For
+example::
 
    >>> tau = symbol('tau', real=True)
+   >>> N = symbol('N', even=True)
 
 They are also implicitly created from strings.  For example::
    
@@ -133,16 +135,14 @@ Notes:
 
 1. By default, symbols are assumed to be positive, unless explicitly specified not to be.
 
-2. Redefining a symbol does not change the assumptions.  Instead, the symbol needs to be deleted with `symbol_delete` before being redefined.
+2. There are restrictions on symbol names that can be used.  Currently, this excludes names that are Python keywords.  For example, `Is` is not allowed but `I_s` is valid.
 
-3. There are restrictions on symbol names that can be used.  Currently, this excludes names that are Python keywords.  For example, `Is` is not allowed but `I_s` is valid.
-
-4. Symbols created with the `symbol` or `symbols` function are printed
+3. Symbols created with the `symbol` or `symbols` function are printed
 verbatim.  Otherwise, they are printed in a canonical form.  For
 example, R1 is printed as R_1, even though it is stored as R1.  Lcapy
 maintains a table of symbols that are not to be printed in canonical form.
 
-5. Some symbols are previously defined by SymPy.  These are
+4. Some symbols are previously defined by SymPy.  These are
    overwritten using `symbol` or `symbols` but not with `expr` unless
    the `override` argument is True.  For example::
 
@@ -154,6 +154,12 @@ maintains a table of symbols that are not to be printed in canonical form.
 
    In both cases, the special number symbol `pi` becomes an arbitrary
    symbol.
+
+5. Domain symbols (`t`, `f`, etc.) can only be redefined with
+   `force=True`.  Caveat emptor!  This can cause confusion.  For
+   example:
+   
+   >>> n = symbol('n', force=True, real=True)
 
 
 .. _expressionsfunctions:
