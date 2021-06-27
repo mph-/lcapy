@@ -268,19 +268,16 @@ class DTFTTransformer(BilateralForwardTransformer):
               (expr.func == sincu or expr.func == sincn) and
               args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):
             aa = args[0].coeff(n, 1)
-            if abs(aa) > pi:
+            if aa.is_number and abs(aa) > pi:
                 print("Warning, Argument out of range (-pi, pi)")
             bb = args[0].coeff(n, 0) 
             delay = bb / aa
             # sincn contains an additional pi in argument
-            nnp = 1
-            f0 = aa
-            if expr.func == sincn:
-                nnp = sym.pi
-                f0 = aa / sym.pi
-            # global factor   
-            prefac = sym.pi / aa / nnp
-            # cutoff frequency
+            f0 = aa / dt / 2
+            prefac = 1 / aa
+            if expr.func == sincu:
+                prefac *= sym.pi
+                f0 *= sym.pi
             if delay.is_integer:
                 result = const * prefac * (UnitStep(f + f0) - UnitStep(f - f0)) * sym.exp(sym.I * delay * twopidt * f)
                 return self.add_images(result, f)
