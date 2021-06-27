@@ -26,6 +26,7 @@ jobs:
           texlive-latex-base \
           texlive-latex-extra \
           texlive-pictures \
+          cm-super \
           ghostscript \
           xvfb
         sudo ln -s /usr/bin/ipython3 /usr/bin/ipython
