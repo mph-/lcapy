@@ -295,7 +295,10 @@ class DTFTTransformer(BilateralForwardTransformer):
                     if N.is_even:
                         delay -= 0.5
                     elif not N.is_odd:
-                        print("Warning, assuming N odd for rect(n / N)")
+                        if N.is_symbol:
+                            print("Warning, assuming %s odd; if even use %s = symbol('%s', even=True)" % (N, N, N))
+                        else:
+                            print("Warning, assuming %s odd" % N)
                     
                     return const * sym.exp(sym.I * delay * twopidt * f) * sym.sin(twopidt * f * N / 2) / sym.sin(twopidt * f / 2)
         
