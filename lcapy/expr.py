@@ -2315,7 +2315,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         def def1(defs, symbolname, value):
             from .cexpr import cexpr
             
-            sym1 = symbol(symbolname)
+            sym1 = symbol(symbolname, override=False)
             defs[symbolname] = cexpr(value)
             return sym1
         
@@ -2371,7 +2371,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         def def1(defs, symbolname, value):
             from .cexpr import cexpr
             
-            sym1 = symbol(symbolname)
+            sym1 = symbol(symbolname, override=False)
             defs[symbolname] = cexpr(value)
             return sym1
 
@@ -3229,13 +3229,13 @@ def difference_equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
     return DifferenceEquation(lhs, rhs, inputsym, outputsym, **assumptions)
 
 
-def symbol(name, **assumptions):
+def symbol(name, override=True, **assumptions):
     """Create an Lcapy symbol.
 
     By default, symbols are assumed to be positive unless real is
     defined or positive is defined as False."""
 
-    if False:
+    if override:
         if name in state.context.user_symbols:
             print('Warning, overriding previously defined symbol %s' % name)
     
