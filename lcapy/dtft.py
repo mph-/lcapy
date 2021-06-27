@@ -263,7 +263,7 @@ class DTFTTransformer(BilateralForwardTransformer):
                     res = res.subs(f, -f)                
                 return const * sym.exp(-sym.I * twopidt * f * delay) * res
     
-        # Handle sincu        
+        # Handle sincu/sincn        
         elif (len(args) == 1 and expr.is_Function and
               (expr.func == sincu or expr.func == sincn) and
               args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):
@@ -274,13 +274,15 @@ class DTFTTransformer(BilateralForwardTransformer):
             delay = bb / aa
             # sincn contains an additional pi in argument
             nnp = 1
+            f0 = aa
             if expr.func == sincn:
-                nnp = sym.pi                
+                nnp = sym.pi
+                f0 = aa / sym.pi
             # global factor   
             prefac = sym.pi / aa / nnp
             # cutoff frequency
             if delay.is_integer:
-                result = const * prefac * (UnitStep(f + aa) - UnitStep(f - aa)) * sym.exp(sym.I * delay * twopidt * f)
+                result = const * prefac * (UnitStep(f + f0) - UnitStep(f - f0)) * sym.exp(sym.I * delay * twopidt * f)
                 return self.add_images(result, f)
         
         # Handle dtrect
