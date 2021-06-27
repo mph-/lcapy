@@ -185,7 +185,7 @@ def simplify_heaviside_scale(expr, var):
         a = arg.coeff(var, 1)
         b = arg.coeff(var, 0)          
 
-        return expr.func(var + b / a)
+        return expr.func(var + (b / a).cancel())
     
     return expr.replace(query, value)    
 
