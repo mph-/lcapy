@@ -1917,8 +1917,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         V.has_symbol('a')
         V.has_symbol(t)
         
-        """                        
-        return self.has(symbol(sym))
+        """
+        
+        return self.has(expr(sym))
     
     def _subs1(self, old, new, **kwargs):
 
@@ -3229,25 +3230,15 @@ def difference_equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
     return DifferenceEquation(lhs, rhs, inputsym, outputsym, **assumptions)
 
 
-def symbol(name, override=True, **assumptions):
+def symbol(name, **assumptions):
     """Create an Lcapy symbol.
 
     By default, symbols are assumed to be positive unless real is
     defined or positive is defined as False."""
 
-    if override:
-        if name in state.context.user_symbols:
-            print('Warning, overriding previously defined symbol %s' % name)
-    
-        try:
-            symbol_delete(name)
-        except:
-            pass
-    
     ssym = symsymbol(name, **assumptions)
-    usym = expr(ssym, **assumptions)
-    state.context.user_symbols[name] = usym
-    return usym
+    # Create Lcapy symbol
+    return expr(ssym, **assumptions)
 
 
 def symbols(names, **assumptions):

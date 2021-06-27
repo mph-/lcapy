@@ -12,6 +12,7 @@ class Context(object):
     def __init__(self):
         self.symbols = AttrDict()
         self.user_symbols = {}
+        self.domain_symbols = {}        
         self.assumptions = {}
         # Noise instance identifier
         self.nid = 0

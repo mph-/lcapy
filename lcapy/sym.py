@@ -257,14 +257,43 @@ def sympify(expr, evaluate=True, override=False, **assumptions):
                     **assumptions)
 
 
-def symsymbol(name, **assumptions):
+def symsymbol1(name, override=True, force=False, **assumptions):
+
+    if override:
+        if name in state.context.domain_symbols:
+            if not force:
+                raise ValueError('Cannot override domain symbol %s without force=True' % name)
+            symbol_delete(name)
+
+        elif name in state.context.user_symbols:
+            symbol_delete(name)
+    
+    return sympify(name, override=override, **assumptions)
+
+
+def symsymbol(name, force=False, **assumptions):
     """Create a SymPy symbol.
+
+    This function allows symbol assumptions to be defined,
+    e.g., real=True, integer=True
 
     By default, symbols are assumed to be positive unless real is
     defined.
 
     """
-    return sympify(name, override=True, **assumptions)
+
+    usym = symsymbol1(name, **assumptions)
+    state.global_context.user_symbols[name] = usym
+    return usym
+
+
+def domainsymbol(name, **assumptions):
+    """Create a SymPy symbol and register as a domain symbol
+    that should not be overwritten."""
+    
+    dsym = symsymbol1(name, **assumptions)
+    state.global_context.domain_symbols[name] = dsym
+    return dsym
 
 
 def symsimplify(expr, var=None):
@@ -369,7 +398,7 @@ def symbol_map(name):
     if name in state.context.symbols:
         new = state.context.symbols[name]
     elif name in state.global_context.symbols:
-        new = state.global_context.symbols[name]            
+        new = state.global_context.symbols[name]
     else:
         # Perhaps have symbol defined using sympy?
         pass
@@ -377,15 +406,15 @@ def symbol_map(name):
 
 
 # The following are all SymPy symbols.
-ssym = symsymbol('s', complex=True)
-tsym = symsymbol('t', real=True)
-fsym = symsymbol('f', real=True)
-omegasym = symsymbol('omega', real=True)
+ssym = domainsymbol('s', complex=True)
+tsym = domainsymbol('t', real=True)
+fsym = domainsymbol('f', real=True)
+omegasym = domainsymbol('omega', real=True)
 omega0sym = symsymbol('omega_0', real=True)
 tausym = symsymbol('tau', real=True)
 nusym = symsymbol('nu', real=True)
-Omegasym = symsymbol('Omega', real=True)
-Fsym = symsymbol('F', real=True)
+Omegasym = domainsymbol('Omega', real=True)
+Fsym = domainsymbol('F', real=True)
 
 pi = sym.pi
 j = sym.I
