@@ -36,7 +36,7 @@ Installation for Linux
 
 .. code-block:: console
 
-    $ sudo apt install ghostscript texlive-latex-extra
+    $ sudo apt install ghostscript texlive-latex-extra cm-super
 
 
 Installation for macOS
