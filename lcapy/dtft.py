@@ -286,14 +286,18 @@ class DTFTTransformer(BilateralForwardTransformer):
         # Handle dtrect
         elif (len(args) == 1 and expr.is_Function and expr.func == dtrect and
               args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):              
-            qq = 1/ args[0].coeff(n, 1)
-            if qq.is_negative:
-                print("Warning, negative coefficient for n:  Use dtrect((n-n0)/b)")
+            N = 1 / args[0].coeff(n, 1)
+            if N.is_negative:
+                print("Warning, negative coefficient for n:  Use dtrect((n-n0)/N)")
             else:    
-                delay = qq * args[0].coeff(n, 0)
-                qq = qq // 2
+                delay = N * args[0].coeff(n, 0)
                 if delay.is_integer:
-                    return const * sym.exp(sym.I * delay * twopidt * f) * sym.sin(twopidt * f / 2 * (2 * qq + 1)) / sym.sin(twopidt * f / 2)
+                    if N.is_even:
+                        delay -= 0.5
+                    elif not N.is_odd:
+                        print("Warning, assuming N odd for rect(n / N)")
+                    
+                    return const * sym.exp(sym.I * delay * twopidt * f) * sym.sin(twopidt * f * N / 2) / sym.sin(twopidt * f / 2)
         
         return const * self.sympy(expr, n, f)
 

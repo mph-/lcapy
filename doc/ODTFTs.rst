@@ -14,13 +14,13 @@
 
 :math:`n u\left[n\right] \longleftrightarrow - \frac{1}{4 \sin^{2}{\left(\frac{\Omega}{2} \right)}} + \frac{\mathrm{j} \delta^{\left( 1 \right)}\left( \frac{\Omega}{2 \pi \Delta_{t}} \right)}{4 \pi \Delta_{t}^{2}}`
 
-:math:`\sign\left[n\right] \longleftrightarrow \frac{e^{\mathrm{j} \Omega}}{e^{\mathrm{j} \Omega} - 1} + \frac{1}{e^{\mathrm{j} \Omega} - 1}`
-
-:math:`\frac{1}{n} \longleftrightarrow \sum_{n=-\infty}^{\infty} \frac{e^{- \mathrm{j} \Omega n}}{n}`
+:math:`\mathop{\mathrm{sign}}\left[n\right] \longleftrightarrow \frac{e^{\mathrm{j} \Omega}}{e^{\mathrm{j} \Omega} - 1}`
 
 :math:`\alpha^{- n} u\left[n\right] \longleftrightarrow \frac{\alpha e^{\mathrm{j} \Omega}}{\alpha e^{\mathrm{j} \Omega} - 1}`
 
-:math:`\rect\left[n\right] \longleftrightarrow 1`
+:math:`\mathop{\mathrm{rect}}\left[n\right] \longleftrightarrow 1`
+
+:math:`\mathop{\mathrm{rect}}\left[\frac{n}{N}\right] \longleftrightarrow \frac{\sin{\left(\frac{N \Omega}{2} \right)}}{\sin{\left(\frac{\Omega}{2} \right)}}`
 
 :math:`\mathrm{sincn}{\left(n \right)} \longleftrightarrow - \sum_{m=-\infty}^{\infty} u\left[- 2 \pi \Delta_{t} + \Omega - 2 \pi m\right] + \sum_{m=-\infty}^{\infty} u\left[2 \pi \Delta_{t} + \Omega - 2 \pi m\right]`
 

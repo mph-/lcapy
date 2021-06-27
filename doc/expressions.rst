@@ -2199,7 +2199,9 @@ It is sometimes called the aliased sinc function and is similar to the Dirichlet
 
 .. image:: examples/functions/psinc8.png
    :width: 12cm                  
-    
+
+Note, `psinc(2, t)` is equivalent to `cos(pi * t)`.
+           
     
 Discrete-time unit step u[n]
 ----------------------------
