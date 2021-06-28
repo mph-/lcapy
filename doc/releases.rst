@@ -2,6 +2,30 @@
 Release notes
 =============
 
+V0.94
+=====
+
+- Fixes plots
+
+- Adds `dbmin` argument for frequency plots
+
+- Fixes DTFTs
+
+- Makes Heaviside and rect functions consistent with sign function    
+
+- Adds simplifications for Heaviside and rect functions
+
+- Adds discrete-time rect and sign functions
+
+- Warns if domain symbols are overridden
+
+- Allows symbol redefinition
+
+- Improves Nyquist plots  
+
+
+  
+
 V0.93
 =====
 
