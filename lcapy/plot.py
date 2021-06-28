@@ -186,7 +186,7 @@ def plot_pole_zero(obj, **kwargs):
 
 
 def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
-           log_frequency=False, norm=False, **kwargs):
+           log_frequency=False, norm=False, dbmin=-120, **kwargs):
 
     plots = {(True, True) : ax.loglog,
              (True, False) : ax.semilogy,
@@ -209,7 +209,10 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
         V = abs(V)
         part = 'magnitude'        
     elif plot_type == 'dB':
-        V = 20 * np.log10(abs(V))
+        Vabs = abs(V)
+        Vmin = 10**(dbmin / 20)
+        Vabs[Vabs < Vmin] = Vmin
+        V = 20 * np.log10(Vabs)
         part = 'magnitude'        
         units = 'dB'
     elif plot_type == 'radians':
@@ -280,6 +283,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         log_magnitude = True 
         log_frequency = True
 
+    dbmin = kwargs.pop('dbmin', -120)        
     label = kwargs.pop('label', None)        
     nyticks = kwargs.pop('nyticks', None)
     color2 = kwargs.pop('color2', None)
@@ -319,7 +323,9 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         elif plot_type in ('dB', ):
             plot1_type = 'dB'
         elif plot_type in ('real', ):
-            plot1_type = 'real'            
+            plot1_type = 'real'
+        elif plot_type in ('abs', ):
+            plot1_type = 'abs'                        
 
     elif obj.part == '':
 
@@ -379,7 +385,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         label = plot1_type
     
     lines = plotit(ax, obj, f, V, plot1_type, deltas, log_frequency=log_frequency,
-                   log_magnitude=log_magnitude, norm=norm, label=label, **kwargs)
+                   log_magnitude=log_magnitude, norm=norm, label=label, dbmin=dbmin, **kwargs)
     
     if plot2_type is None:
         return ax
@@ -407,7 +413,10 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         ax2.set_ylim(-180, 180)
 
     if plot1_type == 'dB':
-        dB = 20 * np.log10(abs(V))
+        Vabs = abs(V)
+        Vmin = 10**(dbmin / 20)        
+        Vabs[Vabs < Vmin] = Vmin
+        dB = 20 * np.log10(Vabs)
         dBmin = min(dB)
         dBmax = max(dB)
 
@@ -498,11 +507,11 @@ def plot_time(obj, t, plot_type=None, **kwargs):
         
     if plot_type == None:
         plot_type = 'real'
-    if plot_type=='real':
+    if plot_type == 'real':
         v = v.real
-    elif plot_type=='imag':
+    elif plot_type == 'imag':
         v = v.imag
-    elif plot_type=='abs':
+    elif plot_type == 'abs':
         v = abs(v)
     else:
         raise ValueError('Invalid plot_type: must be real, imag, real-imag, abs')
@@ -592,11 +601,11 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
 
     if plot_type == None:
         plot_type = 'real'
-    if plot_type=='real':
+    if plot_type == 'real':
         v = v.real
-    elif plot_type=='imag':
+    elif plot_type == 'imag':
         v = v.imag
-    elif plot_type=='abs':
+    elif plot_type == 'abs':
         v = abs(v)
     else:
         raise ValueError('Invalid plot_type: must be real, imag, real-imag, abs')

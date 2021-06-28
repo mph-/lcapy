@@ -124,6 +124,7 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         `xscale` - the x-axis scaling, say for plotting as ms
         `yscale` - the y-axis scaling, say for plotting mV
         `norm` - use normalized frequency
+        `dbmin` - the smallest value to plot in dB (default -120)
         in addition to those supported by the matplotlib plot command.
         
         The plot axes are returned.  This is a tuple for magnitude/phase or
@@ -151,7 +152,10 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         plot (but without the straight line approximations).  fvector
         specifies the normalised frequencies.  If it is a tuple (f1, f2), it sets
         the frequency limits.   Since a logarithmic frequency scale is used,
-        f1 must be greater than 0."""
+        f1 must be greater than 0.
+
+        For more info, see `plot`.
+        """
         
         from .plot import plot_bode
         return plot_bode(self, fvector, norm=True, **kwargs)

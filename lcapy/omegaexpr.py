@@ -100,6 +100,17 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         By default complex data is plotted as separate plots of magnitude (dB)
         and phase.
 
+        `kwargs` include:
+        `axes` - the plot axes to use otherwise a new figure is created
+        `xlabel` - the x-axis label
+        `ylabel` - the y-axis label
+        `ylabel2` - the second y-axis label if needed, say for mag and phase
+        `xscale` - the x-axis scaling, say for plotting as ms
+        `yscale` - the y-axis scaling, say for plotting mV
+        `norm` - use normalized frequency
+        `dbmin` - the smallest value to plot in dB (default -120)
+        in addition to those supported by the matplotlib plot command.
+
         The plot axes are returned.  This is a tuple for magnitude/phase or
         real/imaginary plots.
         """
@@ -112,7 +123,10 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         plot (but without the straight line approximations).  wvector
         specifies the angular frequencies.  If it is a tuple (f1, f2), it sets
         the frequency limits.   Since a logarithmic frequency scale is used,
-        f1 must be greater than 0."""
+        f1 must be greater than 0.
+
+        For more info, see `plot`.
+        """
         
         from .plot import plot_angular_bode
         return plot_angular_bode(self, wvector, **kwargs)
