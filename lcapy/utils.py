@@ -140,7 +140,9 @@ def remove_images(expr, var, dt, m1=0, m2=0):
     if m2 == 0 and isinstance(m1, tuple) and len(m1) == 2:
         # Perhaps should warn that this might be deprecated?
         m1, m2 = m1
-    
+
+    remove_all =  m1 == 0 and m2 == 0
+        
     const, expr1 = factor_const(expr, var)
 
     result = sym.S.Zero
@@ -153,13 +155,33 @@ def remove_images(expr, var, dt, m1=0, m2=0):
         
     if not isinstance(expr1, sym.Sum):
         return expr
-    sumsym = expr1.args[1].args[0]
-    foo = var - sumsym / dt
-    if not expr1.args[0].has(foo):
-        return expr    
 
-    if m1 == 0 and m2 == 0:
-        return const * expr1.args[0].replace(foo, var)
+    sumsym = expr1.args[1].args[0]    
+
+    def query(expr):
+
+        return expr.is_Add and expr.has(var) and expr.has(sumsym)
+
+    def value(expr):
+        if not expr.is_Add:
+            return expr
+
+        if not expr.is_polynomial(var) and not expr.as_poly(var).is_linear:
+            return expr        
+        expr = expr.expand()
+        a = expr.coeff(var, 1)
+        b = expr.coeff(var, 0)
+
+        if a == 0:
+            return expr
+        if b / a != -sumsym / dt:
+            return expr
+        return a * var
+    
+    expr1 = expr1.replace(query, value)    
+
+    if remove_all:
+        return const * expr1.args[0]
 
     return const * sym.Sum(expr1.args[0], (sumsym, m1, m2))
 
