@@ -1,4 +1,4 @@
-:math:`\cos{\left(\Omega_{0} n \right)} \longleftrightarrow 1.0 \pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega - \Omega_{0} - 2 \pi m\right) + 1.0 \pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega + \Omega_{0} - 2 \pi m\right)`
+:math:`\cos{\left(\Omega_{0} n \right)} \longleftrightarrow \pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega - \Omega_{0} - 2 \pi m\right) + \pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega + \Omega_{0} - 2 \pi m\right)`
 
 :math:`\sin{\left(\Omega_{0} n \right)} \longleftrightarrow - \mathrm{j} \pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega - \Omega_{0} - 2 \pi m\right) + \mathrm{j} \pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega + \Omega_{0} - 2 \pi m\right)`
 

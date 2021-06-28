@@ -1,4 +1,4 @@
-:math:`\cos{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{0.5 \sum_{m=-\infty}^{\infty} \delta\left(f - f_{0} - \frac{m}{\Delta_{t}}\right)}{\Delta_{t}} + \frac{0.5 \sum_{m=-\infty}^{\infty} \delta\left(f + f_{0} - \frac{m}{\Delta_{t}}\right)}{\Delta_{t}}`
+:math:`\cos{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \delta\left(f - f_{0} - \frac{m}{\Delta_{t}}\right)}{2 \Delta_{t}} + \frac{\sum_{m=-\infty}^{\infty} \delta\left(f + f_{0} - \frac{m}{\Delta_{t}}\right)}{2 \Delta_{t}}`
 
 :math:`\sin{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow - \frac{\mathrm{j} \sum_{m=-\infty}^{\infty} \delta\left(f - f_{0} - \frac{m}{\Delta_{t}}\right)}{2 \Delta_{t}} + \frac{\mathrm{j} \sum_{m=-\infty}^{\infty} \delta\left(f + f_{0} - \frac{m}{\Delta_{t}}\right)}{2 \Delta_{t}}`
 

@@ -174,8 +174,8 @@ class DTFTTransformer(BilateralForwardTransformer):
             X = self.term(expr, n, f)
             Xp = X.subs(f, f + bb / twopidt)
             Xm = X.subs(f, f - bb / twopidt)
-            res = sym.I / 2 * (Xp * sym.exp(-sym.I * cc) - Xm * sym.exp(sym.I * cc))
-            return const * res   
+            res = sym.I * (Xp * sym.exp(-sym.I * cc) - Xm * sym.exp(sym.I * cc))
+            return const / 2 * res   
             
         # Handle cos(b*n+c)*x(n)    o--o   1/2 (exp(-jc)* X(W+b) + X(W-b) * exp(jc))
         elif is_multiplied_with(expr, n, 'cos(n)', xn_fac):
@@ -186,8 +186,8 @@ class DTFTTransformer(BilateralForwardTransformer):
             X = self.term(expr, n, f)
             Xp = X.subs(f, f + bb / twopidt)
             Xm = X.subs(f, f - bb / twopidt)
-            res = 1 / 2 * (Xp * sym.exp(-sym.I * cc) + Xm * sym.exp(sym.I * cc))
-            return const * res            
+            res = (Xp * sym.exp(-sym.I * cc) + Xm * sym.exp(sym.I * cc))
+            return const / 2 * res            
         
         # Multiplication with n       use n * x(n)  o--o  j / twopidt * d/df X(f)
         elif is_multiplied_with(expr, n, 'n', xn_fac):
