@@ -22,7 +22,7 @@
 
 :math:`\mathop{\mathrm{rect}}\left[\frac{n}{N}\right] \longleftrightarrow \frac{\sin{\left(\pi \Delta_{t} N f \right)}}{\sin{\left(\pi \Delta_{t} f \right)}}`
 
-:math:`\mathrm{sincn}{\left(n \right)} \longleftrightarrow - \sum_{m=-\infty}^{\infty} u\left[f - \frac{m}{\Delta_{t}} - \frac{1}{2 \Delta_{t}}\right] + \sum_{m=-\infty}^{\infty} u\left[f - \frac{m}{\Delta_{t}} + \frac{1}{2 \Delta_{t}}\right]`
+:math:`\mathrm{sincn}{\left(n \right)} \longleftrightarrow \sum_{m=-\infty}^{\infty} \mathop{\mathrm{rect}}\left[\Delta_{t} f - m\right]`
 
-:math:`\mathrm{sincn}{\left(W n \right)} \longleftrightarrow - \frac{\sum_{m=-\infty}^{\infty} u\left[f - \frac{W}{2 \Delta_{t}} - \frac{m}{\Delta_{t}}\right]}{W} + \frac{\sum_{m=-\infty}^{\infty} u\left[f + \frac{W}{2 \Delta_{t}} - \frac{m}{\Delta_{t}}\right]}{W}`
+:math:`\mathrm{sincn}{\left(W n \right)} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \mathop{\mathrm{rect}}\left[\frac{\Delta_{t} f}{W} - \frac{m}{W}\right]}{W}`
 

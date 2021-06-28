@@ -22,7 +22,7 @@
 
 :math:`\mathop{\mathrm{rect}}\left[\frac{n}{N}\right] \longleftrightarrow \frac{\sin{\left(\frac{N \Omega}{2} \right)}}{\sin{\left(\frac{\Omega}{2} \right)}}`
 
-:math:`\mathrm{sincn}{\left(n \right)} \longleftrightarrow - \sum_{m=-\infty}^{\infty} u\left[\Omega - 2 \pi m - \pi\right] + \sum_{m=-\infty}^{\infty} u\left[\Omega - 2 \pi m + \pi\right]`
+:math:`\mathrm{sincn}{\left(n \right)} \longleftrightarrow \sum_{m=-\infty}^{\infty} \mathop{\mathrm{rect}}\left[\frac{\Omega}{2 \pi} - m\right]`
 
-:math:`\mathrm{sincn}{\left(W n \right)} \longleftrightarrow - \frac{\sum_{m=-\infty}^{\infty} u\left[\Omega - \pi W - 2 \pi m\right]}{W} + \frac{\sum_{m=-\infty}^{\infty} u\left[\Omega + \pi W - 2 \pi m\right]}{W}`
+:math:`\mathrm{sincn}{\left(W n \right)} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \mathop{\mathrm{rect}}\left[\frac{\Omega}{2 \pi W} - \frac{m}{W}\right]}{W}`
 

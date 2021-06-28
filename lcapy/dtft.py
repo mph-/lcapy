@@ -272,14 +272,13 @@ class DTFTTransformer(BilateralForwardTransformer):
                 print("Warning, Argument out of range (-pi, pi)")
             bb = args[0].coeff(n, 0) 
             delay = bb / aa
-            # sincn contains an additional pi in argument
-            f0 = aa / dt / 2
+            K = aa / dt
             prefac = 1 / aa
             if expr.func == sincu:
                 prefac *= sym.pi
-                f0 *= sym.pi
+                K *= sym.pi
             if delay.is_integer:
-                result = const * prefac * (UnitStep(f + f0) - UnitStep(f - f0)) * sym.exp(sym.I * delay * twopidt * f)
+                result = const * prefac * dtrect(f / K) * sym.exp(sym.I * delay * twopidt * f)
                 return self.add_images(result, f)
         
         # Handle dtrect
