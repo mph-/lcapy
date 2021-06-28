@@ -355,7 +355,9 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         elif plot_type in ('phase', 'radians'):
             plot1_type = 'radians'
         elif plot_type in ('phase-degrees', 'degrees'):
-            plot1_type = 'degrees'            
+            plot1_type = 'degrees'
+        elif plot_type == 'abs':
+            plot1_type = 'abs'            
         elif plot_type == 'real':
             plot1_type = 'real'
         elif plot_type == 'imag':
@@ -366,7 +368,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
             types = ['dB-phase', 'dB-radians', 'dB-phase-degrees', 'dB-degrees',
                      'mag-phase', 'magnitude-phase', 'mag-phase-degrees','magnitude-phase-degrees',
                      'real-imag', 'mag', 'magnitude', 'phase', 'radians', 'phase-degrees',
-                     'degrees', 'real', 'imag', 'dB']
+                     'degrees', 'real', 'imag', 'dB', 'abs']
             
             raise ValueError('Unknown plot type: %s. Use: %s ' % (plot_type, ', '.join(types)))
 
