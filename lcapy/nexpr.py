@@ -189,8 +189,9 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         dtft = DTFT(self.expr, self.var, fsym, images=images)
 
         result = fexpr(dtft)(var)
-        result = result.expand(diracdelta=True, wrt=var)
+        result = result.simplify_dirac_delta()
         result = result.simplify_heaviside()
+        result = result.simplify_rect()        
         
         # There is a bug in SymPy when simplifying Sum('X(n - m)', (m, -oo, oo))
         # result = result.simplify()
