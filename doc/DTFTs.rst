@@ -20,9 +20,15 @@
 
 :math:`\mathop{\mathrm{rect}}\left[n\right] \longleftrightarrow 1`
 
-:math:`\mathop{\mathrm{rect}}\left[\frac{n}{N}\right] \longleftrightarrow \frac{\sin{\left(\pi \Delta_{t} N f \right)}}{\sin{\left(\pi \Delta_{t} f \right)}}`
+:math:`\mathop{\mathrm{rect}}\left[\frac{n}{N_{o}}\right] \longleftrightarrow \frac{\sin{\left(\pi \Delta_{t} N_{o} f \right)}}{\sin{\left(\pi \Delta_{t} f \right)}}`
+
+:math:`\mathop{\mathrm{rect}}\left[\frac{n}{N_{e}}\right] \longleftrightarrow \frac{e^{\mathrm{j} \pi \Delta_{t} f} \sin{\left(\pi \Delta_{t} N_{e} f \right)}}{\sin{\left(\pi \Delta_{t} f \right)}}`
 
 :math:`\mathrm{sincn}{\left(n \right)} \longleftrightarrow \sum_{m=-\infty}^{\infty} \mathop{\mathrm{rect}}\left[\Delta_{t} f - m\right]`
 
-:math:`\mathrm{sincn}{\left(W n \right)} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \mathop{\mathrm{rect}}\left[\frac{\Delta_{t} f}{W} - \frac{m}{W}\right]}{W}`
+:math:`\mathrm{sincn}{\left(K n \right)} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \mathop{\mathrm{rect}}\left[\frac{\Delta_{t} f}{K} - \frac{m}{K}\right]}{K}`
+
+:math:`\mathrm{sincn}^{2}{\left(K n \right)} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \operatorname{tri}{\left(\frac{\Delta_{t} f}{K} - \frac{m}{K} \right)}}{K}`
+
+:math:`\mathrm{sincu}{\left(K n \right)} \longleftrightarrow \frac{\pi \sum_{m=-\infty}^{\infty} \mathop{\mathrm{rect}}\left[\frac{\pi \Delta_{t} f}{K} - \frac{\pi m}{K}\right]}{K}`
 

@@ -20,9 +20,15 @@
 
 :math:`\mathop{\mathrm{rect}}\left[n\right] \longleftrightarrow 1`
 
-:math:`\mathop{\mathrm{rect}}\left[\frac{n}{N}\right] \longleftrightarrow \frac{\sin{\left(\frac{N \Omega}{2} \right)}}{\sin{\left(\frac{\Omega}{2} \right)}}`
+:math:`\mathop{\mathrm{rect}}\left[\frac{n}{N_{o}}\right] \longleftrightarrow \frac{\sin{\left(\frac{N_{o} \Omega}{2} \right)}}{\sin{\left(\frac{\Omega}{2} \right)}}`
+
+:math:`\mathop{\mathrm{rect}}\left[\frac{n}{N_{e}}\right] \longleftrightarrow \frac{e^{\frac{\mathrm{j} \Omega}{2}} \sin{\left(\frac{N_{e} \Omega}{2} \right)}}{\sin{\left(\frac{\Omega}{2} \right)}}`
 
 :math:`\mathrm{sincn}{\left(n \right)} \longleftrightarrow \sum_{m=-\infty}^{\infty} \mathop{\mathrm{rect}}\left[\frac{\Omega}{2 \pi} - m\right]`
 
-:math:`\mathrm{sincn}{\left(W n \right)} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \mathop{\mathrm{rect}}\left[\frac{\Omega}{2 \pi W} - \frac{m}{W}\right]}{W}`
+:math:`\mathrm{sincn}{\left(K n \right)} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \mathop{\mathrm{rect}}\left[\frac{\Omega}{2 \pi K} - \frac{m}{K}\right]}{K}`
+
+:math:`\mathrm{sincn}^{2}{\left(K n \right)} \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} \operatorname{tri}{\left(\frac{\Omega}{2 \pi K} - \frac{m}{K} \right)}}{K}`
+
+:math:`\mathrm{sincu}{\left(K n \right)} \longleftrightarrow \frac{\pi \sum_{m=-\infty}^{\infty} \mathop{\mathrm{rect}}\left[\frac{\Omega}{2 K} - \frac{\pi m}{K}\right]}{K}`
 

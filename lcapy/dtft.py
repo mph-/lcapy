@@ -10,13 +10,14 @@ Copyright 2021 Michael Hayes, UCECE
 
 import sympy as sym
 from sympy import oo, DiracDelta
+from sympy.core import S
 from .transformer import BilateralForwardTransformer
 from .sym import sympify, AppliedUndef, j, pi
 from .dsym import dt
 from .utils import factor_const, scale_shift
 from .sym import symsymbol
 from .ztransform import is_multiplied_with
-from .extrafunctions import UnitImpulse, UnitStep, sincu, sincn, dtrect, dtsign
+from .extrafunctions import UnitImpulse, UnitStep, sincu, sincn, dtrect, dtsign, tri
 
 
 __all__ = ('DTFT', )
@@ -135,7 +136,7 @@ class DTFTTransformer(BilateralForwardTransformer):
         args = expr.args
         twopidt = 2 * sym.pi * dt
         xn_fac = []
-        
+
         # Check for constant.
         if not expr.has(n):
             return self.add_images(expr * DiracDelta(f) * const, f) / dt
@@ -276,22 +277,40 @@ class DTFTTransformer(BilateralForwardTransformer):
             prefac = 1 / aa
             if expr.func == sincu:
                 prefac *= sym.pi
-                K *= sym.pi
+                K /= sym.pi
             if delay.is_integer:
                 result = const * prefac * dtrect(f / K) * sym.exp(sym.I * delay * twopidt * f)
                 return self.add_images(result, f)
+
+        # Handle sincu**2
+        elif (expr.is_Pow and args[1] == 2 and 
+              args[0].is_Function and args[0].func in (sincu, sincn) and
+              args[0].args[0].is_polynomial(n) and args[0].args[0].as_poly(n).is_linear):
+            aa = args[0].args[0].coeff(n, 1)
+            if aa.is_number and abs(aa) > pi:
+                print("Warning, Argument out of range (-pi, pi)")
+            bb = args[0].args[0].coeff(n, 0) 
+            delay = bb / aa
+            K = aa / dt
+            prefac = 1 / aa
+            if args[0].func == sincu:
+                prefac *= sym.pi
+                K *= sym.pi
+            if delay.is_integer:
+                result = const * prefac * tri(f / K) * sym.exp(sym.I * delay * twopidt * f)
+                return self.add_images(result, f)            
         
         # Handle dtrect
         elif (len(args) == 1 and expr.is_Function and expr.func == dtrect and
               args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):              
             N = 1 / args[0].coeff(n, 1)
             if N.is_negative:
-                print("Warning, negative coefficient for n:  Use dtrect((n-n0)/N)")
+                print("Warning, negative N for dtrect((n-n0)/N)")
             else:    
                 delay = N * args[0].coeff(n, 0)
                 if delay.is_integer:
                     if N.is_even:
-                        delay -= 0.5
+                        delay += S.Half
                     elif not N.is_odd:
                         if N.is_symbol:
                             print("Warning, assuming %s odd; if even use %s = symbol('%s', even=True)" % (N, N, N))

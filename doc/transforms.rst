@@ -19,7 +19,9 @@ Discrete-Time Fourier Transforms (DTFT)
 
 Lcapy can compute many discrete-time Fourier transforms including:
 
-.. include:: DTFTs.rst             
+.. include:: DTFTs.rst
+
+Note, :math:`N_e` is even and :math:`N_o` is odd.             
 
 
 Discrete-Time Fourier Transforms (DTFT) (normalized angular frequency)
@@ -28,7 +30,9 @@ Discrete-Time Fourier Transforms (DTFT) (normalized angular frequency)
 Lcapy can compute many discrete-time Fourier transforms in the
 :math:`\Omega` form, including:
 
-.. include:: ODTFTs.rst             
+.. include:: ODTFTs.rst
+
+Note, :math:`N_e` is even and :math:`N_o` is odd.             
 
              
 .. _table_discrete_fourier_transforms:
