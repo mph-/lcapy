@@ -5,7 +5,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 """
 
 from sympy import Add, Mul, DiracDelta, Heaviside, Integral, oo, sin, cos, sqrt, atan2, pi, Symbol, solve
-from .extrafunctions import UnitStep
+from .extrafunctions import UnitStep, rect, dtrect
 
 
 def simplify_dirac_delta_product_term(expr):
@@ -92,21 +92,21 @@ def simplify_dirac_delta(expr, var=None):
 #     return expr
 
 
-def simplify_heaviside_power(expr):
+def simplify_power(expr):
 
-    heaviside_powers = []    
+    powers = []    
     
     def pre(expr):
-        if (expr.is_Pow and expr.args[0].func in (Heaviside, UnitStep) and
+        if (expr.is_Pow and expr.args[0].func in (Heaviside, UnitStep, rect, dtrect) and
             expr.args[1].is_constant):
-            heaviside_powers.append(expr)            
+            powers.append(expr)            
         
         for arg in expr.args:
             pre(arg)
 
     pre(expr)
 
-    for power in heaviside_powers:
+    for power in powers:
         expr = expr.replace(power, power.args[0])            
     return expr
 
@@ -161,9 +161,6 @@ def simplify_heaviside_integral(expr):
 
 def simplify_heaviside_scale(expr, var):
 
-    if not expr.has(Heaviside) and not expr.has(UnitStep):
-        return expr
-
     terms = expr.as_ordered_terms()
     if len(terms) > 1:
         result = 0
@@ -182,8 +179,11 @@ def simplify_heaviside_scale(expr, var):
         if not arg.as_poly(var).is_linear:
             return expr
 
+        arg = arg.expand()
         a = arg.coeff(var, 1)
-        b = arg.coeff(var, 0)          
+        b = arg.coeff(var, 0)
+        if a == 0:
+            return expr
 
         return expr.func(var + (b / a).cancel())
     
@@ -196,12 +196,21 @@ def simplify_heaviside(expr, var=None):
         return expr
     
     expr = simplify_heaviside_integral(expr)
-    expr = simplify_heaviside_power(expr)
+    expr = simplify_power(expr)
     if var is not None:
         expr = simplify_heaviside_scale(expr, var)    
     return expr
-    
 
+
+def simplify_rect(expr, var=None):
+
+    if not expr.has(rect) and not expr.has(dtrect):
+        return expr
+
+    expr = simplify_power(expr)    
+    return expr
+
+    
 def simplify_sin_cos(expr, as_cos=False, as_sin=False):
 
     if not (expr.has(sin) and expr.has(cos)):

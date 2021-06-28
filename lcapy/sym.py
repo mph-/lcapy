@@ -18,7 +18,8 @@ from sympy.core.function import AppliedUndef
 import sympy as sym
 import re
 from .state import state
-from .simplify import simplify_dirac_delta, simplify_heaviside
+from .simplify import simplify_dirac_delta, simplify_heaviside, simplify_rect
+from .extrafunctions import UnitImpulse, UnitStep, rect, dtrect
 
 __all__ = ('symsymbol', 'sympify', 'simplify', 'symbol_delete')
 
@@ -304,10 +305,12 @@ def symsimplify(expr, var=None):
     if hasattr(expr, 'applyfunc'):
         return expr.applyfunc(lambda x: symsimplify(x))
 
-    if expr.has(sym.DiracDelta):
+    if expr.has(sym.DiracDelta, UnitImpulse):
         expr = simplify_dirac_delta(expr)
-    if expr.has(sym.Heaviside):
+    if expr.has(sym.Heaviside, UnitStep):
         expr = simplify_heaviside(expr, var)
+    if expr.has(rect, dtrect):
+        expr = simplify_rect(expr, var)        
 
     # This gets expanded into piecewise...
     if expr.has(sym.sign):

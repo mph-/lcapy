@@ -30,7 +30,7 @@ import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
-from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta
+from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta, simplify_rect
 from .config import heaviside_zero, unitstep_zero
 from collections import OrderedDict
 
@@ -2077,7 +2077,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         and Heaviside(t)**2 to Heaviside(t), etc."""
 
         result = simplify_heaviside(self.expr, self.var)
-        return self.__class__(result, **self.assumptions)        
+        return self.__class__(result, **self.assumptions)
+
+    def simplify_rect(self):
+        """Simplify rect(4 * t + 2) to rect(t + 0.5)
+        and rect(t)**2 to rect(t), etc."""
+
+        result = simplify_rect(self.expr, self.var)
+        return self.__class__(result, **self.assumptions)            
     
     def replace(self, query, value, map=False, simultaneous=True, exact=None):
 
