@@ -71,8 +71,11 @@ class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression)
 
         """
 
-        from .plot import plot_frequency
-        return plot_frequency(self, kvector, **kwargs)
+        if kvector is None:
+            kvector = (0, 20)
+        
+        from .plot import plot_sequence
+        return plot_sequence(self, kvector, **kwargs)
 
     def IDFT(self, N=None, evaluate=True):
 
