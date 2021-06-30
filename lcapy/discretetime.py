@@ -21,3 +21,6 @@ from .transform import call as call1
 from .functions import Function
 from .ztransform import *
 from .seq import seq
+from .nseq import nseq
+from .kseq import kseq
+from .zseq import zseq

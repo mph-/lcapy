@@ -9,11 +9,42 @@ from .utils import isiterable
 from numpy import array, allclose, arange
 
 # Perhaps subclass numpy ndarray?  But then could not have symbolic
-# elements in the sequence.  Perhaps have flavours for n-domain and
-# k-domain sequences?
+# elements in the sequence.  
+
+def parse_seq_str(s):
+
+    if s.startswith('{'):
+        if not s.endswith('}'):
+            raise ValueError('Mismatched braces for %s' % s)
+        s = s[1:-1]
+    
+    parts = s.split(',')
+    N = len(parts)
+
+    vals = []
+    m0 = None
+    for m, item in enumerate(parts):
+        item = item.strip()
+        if item.startswith('_'):
+            if m0 is not None:
+                raise ValueError('Cannot have multiple zero index indicators')
+            m0 = m
+            item = item[1:]
+
+        val = expr(item)
+        vals.append(val)
+
+    if m0 is None:
+        m0 = 0
+        
+    ni = range(-m0, N - m0)
+    return vals, ni
+
 
 class Sequence(ExprList):
 
+    var = None
+    
     def __init__(self, seq, ni=None, origin=None, evaluate=False, var=None,
                  start_trunc=False, end_trunc=False):
         """Sequences can be created from an tuple, list, or ndarray.
@@ -37,7 +68,7 @@ class Sequence(ExprList):
         [-1, 0, 1, 2]
 
         Sequences can be converted into discrete-time, discrete-frequency,
-        z-domain expressions using call notation, for example::
+        z-domain sequences using call notation, for example::
         
         >>> a(z)
 
@@ -49,6 +80,13 @@ class Sequence(ExprList):
         the sequence has been truncated.
 
         """
+
+        if isinstance(seq, str):
+            seq, ni = parse_seq_str(seq)
+
+        if not isiterable(seq):
+            seq = (seq, )        
+        
         super (Sequence, self).__init__(seq, evaluate)
 
         if ni is not None and origin is not None:
@@ -63,7 +101,6 @@ class Sequence(ExprList):
         # Perhaps enforce contiguous sequences and just store the origin.
         # This will simplify sequence comparison.
         self.n = list(ni)
-        self.var = var
 
         # Determine if sequence truncated at start, end, or both.
         # Perhaps have separate classes for truncated sequences?
@@ -164,7 +201,7 @@ class Sequence(ExprList):
             vals.append(zero)
 
         ni = self.n + list(range(self.n[-1] + 1, len(vals)))
-        return self.__class__(vals, ni, var=self.var)        
+        return self.__class__(vals, ni)        
     
     def latex(self):
 
@@ -236,6 +273,9 @@ class Sequence(ExprList):
     def expr(self):
         """Convert sequence to an Lcapy expression."""
 
+        if self.var is None:
+            raise ValueError('var not specified')            
+        
         return self.as_impulses(self.var)
         
     def as_impulses(self, var=None):
@@ -389,12 +429,12 @@ class Sequence(ExprList):
 
     def copy(self):
         return self.__class__(super(Sequence, self).copy(),
-                               self.n, var=self.var)
+                               self.n)
         
     def lfilter(self, b=None, a=None):
         """Implement digital filter specified by a transfer function.  The
         transfer function is described by a vector `b` of coefficients
-        for the numerator and a `a` vector of coefficients for the
+        for the numerator and an `a` vector of coefficients for the
         denominator. 
         
         If you would like the response with initial conditions see
@@ -429,7 +469,7 @@ class Sequence(ExprList):
                     pass
             y[-1] = yn
                 
-        return self.__class__(y, self.n, var=self.var)
+        return self.__class__(y, self.n)
     
     def convolve(self, h, mode='full'):
         """Convolve with h."""
@@ -460,7 +500,7 @@ class Sequence(ExprList):
         origin = self.origin - m
         ni = list(arange(-origin, len(self) - origin))
         
-        return self.__class__(self.vals, ni, var=self.var)                
+        return self.__class__(self.vals, ni)                
 
     def zeroextend(self):
         """Extend sequence by adding zeros so that the origin
@@ -475,91 +515,8 @@ class Sequence(ExprList):
             vals = vals + [0] * -ni[-1]
             ni = range(ni[0], 1)            
 
-        return self.__class__(vals, ni, var=self.var,
+        return self.__class__(vals, ni,
                               start_trunc=self.start_trunc,
                               end_trunc=self.end_trunc)
 
-    def DFT(self):
-        """Calculate DFT and return as sequence."""
 
-        from sympy import exp
-        from .sym import j, pi
-        from .nexpr import n
-        from .kexpr import k
-
-        if self.var != n:
-            print('Warning, you should use IDFT since in discrete-frequency domain')
-        
-        results = []
-        vals = self.vals
-        N = len(vals)
-        for ki in range(N):
-            result = 0
-            for ni in range(N):            
-               result += vals[ni] * exp(-2 * j * pi * self.n[ni] * ki / N)
-            results.append(result)
-
-        return self.__class__(results, var=k)
-
-    def IDFT(self):
-        """Calculate IDFT and return as sequence."""
-
-        from sympy import exp
-        from .sym import j, pi
-        from .nexpr import n
-        from .kexpr import k
-
-        if self.var != k:
-            print('Warning, you should use IDFT since in discrete-time domain')
-        
-        results = []
-        vals = self.vals
-        N = len(vals)
-        for ni in range(N):            
-            result = 0
-            for ki in range(N):
-               result += vals[ki] * exp(2 * j * pi * ni * self.n[ki] / N)
-               
-            results.append(result / N)
-
-        return self.__class__(results, var=n)    
-
-    def ZT(self):
-        """Calculate z-transform and return as sequence."""
-
-        from .kexpr import k
-        from .zexpr import z
-
-        if self.var == z:
-            print('Warning, you should use IZT since in z-domain')
-        elif self.var == k:
-            return self.IDFT().ZT()
-        
-        results = []
-        vals = self.vals
-        N = len(vals)
-        for ni in range(N):
-            results.append(vals[ni] * z**(-ni))
-
-        return self.__class__(results, var=z)        
-
-    def IZT(self):
-        """Calculate inverse z-transform and return as sequence."""
-
-        from .kexpr import k
-        from .nexpr import n        
-        from .zexpr import z
-
-        if self.var == n:
-            print('Warning, you should use ZT since in discrete-time domain')
-        elif self.var == k:
-            return self.IDFT().IZT()
-        
-        results = []
-        vals = self.vals
-        N = len(vals)
-        for ni in range(N):
-            results.append(vals[ni] * z**ni)
-
-        return self.__class__(results, var=n)        
-    

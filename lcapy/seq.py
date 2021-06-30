@@ -33,41 +33,17 @@ def seq(arg, ni=None, origin=None):
 
     >>> a = seq('{1, _2, 3, 4}').n
     [-1, 0, 1, 2]
+
+    This function creates a discrete-time domain sequence.  See also
+    `nseq` to create a discrete-time domain sequence, `kseq` to create
+    a discrete-Fourier domain sequence, and `zseq` to create a
+    Z-domain sequence.
+
     """
 
-    if not isiterable(arg):
-        arg = (arg, )
+    # TODO: If find a z in the arg, then create a zseq.
     
-    if isinstance(arg, (tuple, list, ndarray)):
-        return Sequence(arg, ni, origin=origin, var=n)        
+    # For backward-compatibility
+    return nseq(arg, ni, origin)
 
-    if not isinstance(arg, str):
-        raise ValueError('Argument not scalar, string, tuple, list, or ndarray.')
-    
-    s = arg
-    if s.startswith('{'):
-        if not s.endswith('}'):
-            raise ValueError('Mismatched braces for %s' % s)
-        s = s[1:-1]
-    
-    parts = s.split(',')
-    N = len(parts)
-
-    vals = []
-    m0 = None
-    for m, item in enumerate(parts):
-        item = item.strip()
-        if item.startswith('_'):
-            if m0 is not None:
-                raise ValueError('Cannot have multiple zero index indicators')
-            m0 = m
-            item = item[1:]
-
-        val = expr(item)
-        vals.append(val)
-
-    if m0 is None:
-        m0 = 0
-        
-    ni = range(-m0, N - m0)
-    return Sequence(vals, ni, var=n)
+from .nseq import nseq

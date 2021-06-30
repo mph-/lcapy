@@ -99,6 +99,6 @@ class SequenceExpression(DiscreteExpression):
             
         v = self(ni)
         
-        return Sequence(v, ni, evaluate=evaluate, var=self.var,
-                        start_trunc=start_trunc, end_trunc=end_trunc)
+        return self.seqcls(v, ni, evaluate=evaluate,
+                           start_trunc=start_trunc, end_trunc=end_trunc)
        

@@ -11,9 +11,10 @@ from .sym import j, pi, fsym, omegasym
 from .dsym import nsym, ksym, zsym, dt
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
-from .dexpr import DiscreteExpression
 from .expr import symbol, expr, ExprDict
 from .diffeq import DifferenceEquation
+from .seqexpr import SequenceExpression
+from .zseq import ZDomainSequence
 from .functions import sqrt, exp
 import numpy as np
 from sympy import Eq, div, limit, oo, Sum
@@ -21,11 +22,11 @@ from sympy import Eq, div, limit, oo, Sum
 
 __all__ = ('zexpr', )
 
-class ZDomainExpression(ZDomain, DiscreteExpression):
+class ZDomainExpression(ZDomain, SequenceExpression):
     """z-domain expression or symbol."""
 
     var = zsym
-
+    seqcls = ZDomainSequence
 
     def __init__(self, val, **assumptions):
 

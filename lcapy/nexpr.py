@@ -7,23 +7,24 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 from __future__ import division
 from .domains import DiscreteTimeDomain
-from .seqexpr import SequenceExpression
 from .sequence import Sequence
 from .functions import exp
 from .sym import j, oo, pi, fsym, oo
 from .dsym import nsym, ksym, zsym, dt
 from .ztransform import ztransform
 from .dft import DFT
+from .seqexpr import SequenceExpression
+from .nseq import DiscreteTimeDomainSequence, nseq
 from sympy import Sum, summation, limit, DiracDelta
 
 
 __all__ = ('nexpr', )
 
 class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
-    """Discrete time expression or symbol."""
+    """Discrete-time expression or symbol."""
 
     var = nsym
-
+    seqcls = DiscreteTimeDomainSequence
 
     def __init__(self, val, **assumptions):
 
@@ -238,12 +239,12 @@ def nexpr(arg, **assumptions):
         return arg.__class__(arg, **assumptions)
     
     if isinstance(arg, str) and arg.startswith('{'):
-        return seq(arg)
+        return nseq(arg)
     
     from numpy import ndarray
     
     if isinstance(arg, (list, ndarray)):
-        return Sequence(arg, var=n).as_impulses()
+        return DiscreteTimeDomainSequence(arg, var=n).as_impulses()
 
     return DiscreteTimeDomainExpression(arg, **assumptions)
 

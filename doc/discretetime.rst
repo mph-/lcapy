@@ -51,6 +51,10 @@ Sequences can be created using the `seq` function.  For example::
    {_1, 2, 3}
 
 Note, the underscore marks the element in the sequence where `n = 0`.
+By default, `seq()` creates a discrete-time domain sequence.  An
+explicit discrete-time domain sequence is created with the `nseq()`
+function.  Similarly, a discrete-Fourier domain sequence is created
+with `kseq()` and a Z-domain sequence is created with `zseq()`.
 
 Here's an example where the sequence is specified as a string::
 
