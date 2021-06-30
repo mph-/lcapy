@@ -24,7 +24,7 @@ class DFTTransformer(BilateralForwardTransformer):
     is_inverse = False
     
     def key(self, expr, n, k, **assumptions):
-        return expr, n, k
+        return expr, n, k, assumptions.get('N', None)
 
     def noevaluate(self, expr, n, k):
 
