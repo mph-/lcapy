@@ -112,6 +112,11 @@ class Sequence(ExprList):
         """Return the SymPy values as a list."""
         return list(self)
 
+    @property
+    def _pexpr(self):
+        """Return expression for printing."""
+        return self
+
     def __eq__(self, x):
 
         return self.vals == x.vals and self.n == x.n
@@ -203,29 +208,6 @@ class Sequence(ExprList):
         ni = self.n + list(range(self.n[-1] + 1, len(vals)))
         return self.__class__(vals, ni)        
     
-    def latex(self):
-
-        a = self.zeroextend()
-
-        items = []
-        if self.start_trunc:
-            items.append('\\ldots')
-            
-        for v1, n1 in zip(a, a.n):
-            try:
-                s = v1.latex()
-            except:
-                s = str(v1)
-            
-            if n1 == 0:
-                s = r'\underline{%s}' % v1
-            items.append(s)
-
-        if self.end_trunc:
-            items.append('\\ldots')
-            
-        return r'\left\{%s\right\}' % ', '.join(items)
-
     def __str__(self):
 
         a = self.zeroextend()

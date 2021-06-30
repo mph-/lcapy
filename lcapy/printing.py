@@ -129,9 +129,14 @@ class LcapyLatexPrinter(LatexPrinter):
     def _print(self, expr, exp=None):
 
         from .expr import Expr
+        from .sequence import Sequence
+        
         if isinstance(expr, Expr):        
             expr = expr.expr
 
+        if isinstance(expr, Sequence):
+            return self._print_Sequence(expr)
+            
         # Convert sym.I to j etc.
         try:
             if expr in latex_expr_map:
@@ -143,6 +148,29 @@ class LcapyLatexPrinter(LatexPrinter):
             return super(LcapyLatexPrinter, self)._print(expr)
         return super(LcapyLatexPrinter, self)._print(expr, exp=exp)        
 
+    def _print_Sequence(self, seq):
+
+        a = seq.zeroextend()
+
+        items = []
+        if seq.start_trunc:
+            items.append('\\ldots')
+            
+        for v1, n1 in zip(a, a.n):
+            try:
+                s = v1.latex()
+            except:
+                s = str(v1)
+            
+            if n1 == 0:
+                s = r'\underline{%s}' % v1
+            items.append(s)
+
+        if seq.end_trunc:
+            items.append('\\ldots')
+            
+        return r'\left\{%s\right\}' % ', '.join(items)
+    
     def _print_Piecewise(self, expr):
 
         if len(expr.args) > 1:
