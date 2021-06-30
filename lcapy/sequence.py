@@ -226,7 +226,6 @@ class Sequence(ExprList):
             
         return r'\left\{%s\right\}' % ', '.join(items)
 
-
     def __str__(self):
 
         a = self.zeroextend()
@@ -294,7 +293,7 @@ class Sequence(ExprList):
         # This can reorder terms
         result = var * 0
         for v1, n1 in zip(self, self.n):        
-            result += v1 * unitimpulse(var - n1)
+            result += v1.as_constant() * unitimpulse(var - n1)
 
         # but so does the unevaluated Add...
         # items = []
