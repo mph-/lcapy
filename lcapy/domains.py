@@ -25,6 +25,7 @@ class Domain(object):
     is_transform_domain = False
     is_superposition_domain = False
     is_one_sided = False
+    is_sequence = False
 
 
 class UndefinedDomain(Domain):

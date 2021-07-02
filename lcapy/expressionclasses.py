@@ -87,8 +87,8 @@ class ExpressionClassBuilder(dict):
         docstring = '%s-domain %s (units %s).' % (domainclass.domain_label,
                                                   quantity, unitsstring)
 
-        suffix = 'Expression'
-        name = domainclass.__name__.replace(suffix, quantityclass.quantity.capitalize())
+        name = domainclass.__name__.replace('Expression', quantityclass.quantity.capitalize())
+        name = name.replace('Sequence', quantityclass.quantity.capitalize())
             
         newclass = type(name, (quantityclass, domainclass),
                             {'__doc__': docstring,

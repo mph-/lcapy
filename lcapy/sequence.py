@@ -4,7 +4,7 @@ Copyright 2020-2021 Michael Hayes, UCECE
 
 """
 
-from .expr import ExprList, expr
+from .expr import ExprList, ExprDomain, expr
 from .utils import isiterable
 from numpy import array, allclose, arange
 
@@ -41,9 +41,10 @@ def parse_seq_str(s):
     return vals, ni
 
 
-class Sequence(ExprList):
+class Sequence(ExprList, ExprDomain):
 
     var = None
+    is_sequence = True
     
     def __init__(self, seq, ni=None, origin=None, evaluate=False, var=None,
                  start_trunc=False, end_trunc=False):
@@ -121,6 +122,14 @@ class Sequence(ExprList):
 
         return self.vals == x.vals and self.n == x.n
 
+    def __add__(self, x):
+
+        return self.__class__(super(Sequence, self).__add__(x))
+
+    def __mul__(self, x):
+
+        return self.__class__(super(Sequence, self).__mul__(x))    
+    
     def __lshift__(self, m):
 
         return self.delay(-m)

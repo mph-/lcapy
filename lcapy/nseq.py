@@ -15,6 +15,7 @@ class DiscreteTimeDomainSequence(DiscreteTimeDomain, Sequence):
     """Discrete-time domain sequence."""
 
     var = nsym
+    domain = 'discrete time sequence'
     
     def DFT(self):
         """Calculate DFT and return as sequence."""
@@ -76,3 +77,8 @@ def nseq(arg, ni=None, origin=None):
     """    
     
     return DiscreteTimeDomainSequence(arg, ni, origin)
+
+
+from .expressionclasses import expressionclasses
+
+expressionclasses.register('discrete time sequence', DiscreteTimeDomainSequence)

@@ -15,6 +15,7 @@ class ZDomainSequence(ZDomain, Sequence):
     """Z-domain sequence."""
 
     var = zsym
+    domain = 'Z sequence'
 
     def IZT(self):
         """Calculate inverse z-transform and return as sequence."""
@@ -59,4 +60,6 @@ def zseq(arg, ni=None, origin=None):
     return ZDomainSequence(arg, ni, origin)
 
     
-    
+from .expressionclasses import expressionclasses
+
+expressionclasses.register('Z sequence', ZDomainSequence)

@@ -251,6 +251,6 @@ def nexpr(arg, **assumptions):
 
 from .expressionclasses import expressionclasses
 
-classs = expressionclasses.register('discrete time', DiscreteTimeDomainExpression)
+expressionclasses.register('discrete time', DiscreteTimeDomainExpression)
 
 n = DiscreteTimeDomainExpression('n', integer=True)

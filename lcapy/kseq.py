@@ -16,6 +16,7 @@ class DiscreteFourierDomainSequence(DiscreteFourierDomain, Sequence):
     """Discrete-Fourier domain sequence."""
 
     var = ksym
+    domain = 'discrete fourier sequence'    
     
     def IDFT(self):
         """Calculate IDFT and return as sequence."""
@@ -64,3 +65,9 @@ def kseq(arg, ni=None, origin=None):
     """    
     
     return DiscreteFourierDomainSequence(arg, ni, origin)
+
+
+from .expressionclasses import expressionclasses
+
+expressionclasses.register('discrete fourier sequence', DiscreteFourierDomainSequence)
+
