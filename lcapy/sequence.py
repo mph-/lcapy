@@ -45,6 +45,7 @@ class Sequence(ExprList, ExprDomain):
 
     var = None
     is_sequence = True
+    quantity = 'undefined'
     
     def __init__(self, seq, ni=None, origin=None, evaluate=False, var=None,
                  start_trunc=False, end_trunc=False):
@@ -124,7 +125,17 @@ class Sequence(ExprList, ExprDomain):
 
     def __add__(self, x):
 
-        return self.__class__(super(Sequence, self).__add__(x))
+        # Check for compatible quantities.
+        if not isinstance(x, Sequence):
+            raise TypeError('Can only add a sequence to a sequence')
+        if x.quantity != 'undefined' and self.quantity != 'undefined' and x.quantity != self.quantity:
+            raise TypeError('Sequences have different quantities: %s and %s' % (self.quantity, x.quantity))
+        if self.quantity == 'undefined':
+            cls = x.__class__
+        else:
+            cls = self.__class__
+        
+        return cls(super(Sequence, self).__add__(x))
 
     def __mul__(self, x):
 
