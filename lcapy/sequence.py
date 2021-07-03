@@ -131,6 +131,9 @@ class Sequence(ExprList, ExprDomain):
         if x.quantity != 'undefined' and self.quantity != 'undefined' and x.quantity != self.quantity:
             raise TypeError('Sequences have different quantities: %s and %s' % (self.quantity, x.quantity))
 
+        if self.domain != x.domain:
+            raise TypeError('Sequences have different domains: %s and %s' % (self.domain, x.domain))            
+        
     def __add__(self, x):
 
         self._check_compatible(x)
@@ -209,11 +212,11 @@ class Sequence(ExprList, ExprDomain):
 
         m2 = len(vals) - 1
         if vals[m2] != 0:
-            return Sequence(vals[m1:], self.n[m1:])
+            return self.__class__(vals[m1:], self.n[m1:])
         
         while vals[m2] == 0:
             m2 -= 1        
-        return Sequence(vals[m1:m2 + 1], self.n[m1:m2 + 1])
+        return self.__class__(vals[m1:m2 + 1], self.n[m1:m2 + 1])
 
     def zeropad(self, M):
         """Add M zeros to end of sequence:

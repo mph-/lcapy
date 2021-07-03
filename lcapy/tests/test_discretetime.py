@@ -72,7 +72,7 @@ class LcapyTester(unittest.TestCase):
         x2 = X.IDFT()
         self.assertEqual(x, x2, "DFT/IDFT")
 
-        self.assertEqual(h.ZT(), seq((1, 2 / z)), "ZT")
+        self.assertEqual(h.ZT(), zseq((1, 2 / z)), "ZT")
         self.assertEqual(h.ZT().IZT(), h, "ZT/IZT")
         
     def test_zexpr(self):
