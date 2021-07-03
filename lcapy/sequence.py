@@ -320,7 +320,7 @@ class Sequence(ExprList, ExprDomain):
         complex.  Zeroes are returned for indices outside the sequence
         extent.
 
-        If arg is iterable, a NumPy array is returned.
+        If `arg` is iterable, a NumPy array is returned.
 
         """
         
@@ -398,9 +398,7 @@ class Sequence(ExprList, ExprDomain):
         """Convert sequence to n-domain or k-domain expression.
         For example, seq((1, 2, 3))(n)"""
 
-        from .nexpr import n
-        from .kexpr import k
-        from .zexpr import z
+        from .symbols import n, k, z
         from .dsym import nsym, ksym, zsym
 
         if id(arg) == id(n) or arg == n:
@@ -527,5 +525,3 @@ class Sequence(ExprList, ExprDomain):
         return self.__class__(vals, ni,
                               start_trunc=self.start_trunc,
                               end_trunc=self.end_trunc)
-
-

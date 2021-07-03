@@ -81,8 +81,6 @@ class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression)
 
     def IDFT(self, N=None, evaluate=True):
 
-        from .nexpr import n
-
         if N is None:
             from .sym import symsymbol
 

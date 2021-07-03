@@ -130,8 +130,6 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
     def DFT(self, N=None, evaluate=True):
 
-        from .kexpr import k
-
         if N is None:
             from .sym import symsymbol
             
