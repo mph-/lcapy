@@ -33,8 +33,7 @@ class DiscreteTimeDomainSequence(DiscreteTimeDomain, Sequence):
                result += vals[ni] * exp(-2 * j * pi * self.n[ni] * ki / N)
             results.append(result)
 
-        from .kseq import DiscreteFourierDomainSequence
-        return DiscreteFourierDomainSequence(results)
+        return self.change(results, domain='discrete fourier sequence')
 
     def ZT(self):
         """Calculate z-transform and return as sequence."""
@@ -47,8 +46,7 @@ class DiscreteTimeDomainSequence(DiscreteTimeDomain, Sequence):
         for ni in range(N):
             results.append(z**(-ni) * vals[ni].expr)
 
-        from .zseq import ZDomainSequence                        
-        return ZDomainSequence(results)        
+        return self.change(results, domain='Z sequence')        
     
 
 def nseq(arg, ni=None, origin=None):

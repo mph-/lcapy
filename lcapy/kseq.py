@@ -35,8 +35,7 @@ class DiscreteFourierDomainSequence(DiscreteFourierDomain, Sequence):
                
             results.append(result / N)
 
-        from .nseq import DiscreteTimeDomainSequence            
-        return DiscreteTimeDomainSequence(results)    
+        return self.change(results, domain='discrete time sequence')        
 
     
 def kseq(arg, ni=None, origin=None):

@@ -354,6 +354,25 @@ class ExprDomain(object):
             return SuperpositionCurrent(self)
         raise ValueError('Can only convert voltage or current to superposition')
 
+    def change(self, arg, domain=None, units_scale=None, **assumptions):
+        """Change expression class."""
+
+        if domain is None:
+            domain = self.domain
+
+        if domain == 'constant':
+            # Allow changing of constants, e.g., V1 to 5 * t
+            domain = expr(arg).domain
+            
+        quantity = self.quantity
+
+        cls = self._class_by_quantity(quantity, domain)        
+        ret = cls(arg, **assumptions)
+
+        if units_scale is not None:
+            ret.units = self.units * units_scale
+        return ret
+
     
 class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     """Decorator class for sympy classes derived from sympy.Expr."""
@@ -3003,25 +3022,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         coeffs = self.continued_fraction_inverse_coeffs()
         result = foo(coeffs)
         return self.__class__(result, **self.assumptions)
-
-    def change(self, arg, domain=None, units_scale=None, **assumptions):
-        """Change expression class."""
-
-        if domain is None:
-            domain = self.domain
-
-        if domain == 'constant':
-            # Allow changing of constants, e.g., V1 to 5 * t
-            domain = expr(arg).domain
-            
-        quantity = self.quantity
-
-        cls = self._class_by_quantity(quantity, domain)        
-        ret = cls(arg, **assumptions)
-
-        if units_scale is not None:
-            ret.units = self.units * units_scale
-        return ret
 
     def force_time(self):
 

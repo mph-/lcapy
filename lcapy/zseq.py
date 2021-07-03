@@ -28,8 +28,7 @@ class ZDomainSequence(ZDomain, Sequence):
         for ni in range(N):
             results.append(vals[ni] * z**ni)
 
-        from .nseq import DiscreteTimeDomainSequence                        
-        return DiscreteTimeDomainSequence(results)        
+        return self.change(results, domain='discrete time sequence')
     
     
 def zseq(arg, ni=None, origin=None):

@@ -398,23 +398,24 @@ class Sequence(ExprList, ExprDomain):
         from .nexpr import n
         from .kexpr import k
         from .zexpr import z
+        from .dsym import nsym, ksym, zsym
 
         if id(arg) == id(n) or arg == n:
-            if self.var == n:
+            if self.var == nsym:
                 return self.copy()
-            elif self.var == k:
+            elif self.var == ksym:
                 return self.IDFT()
             return self.IZT()            
         if id(arg) == id(k) or arg == k:
-            if self.var == k:
+            if self.var == ksym:
                 return self.copy()            
-            elif self.var == z:
+            elif self.var == zsym:
                 return self.IZT().DFT()
             return self.DFT()
         if id(arg) == id(z) or arg == z:
-            if self.var == z:
+            if self.var == zsym:
                 return self.copy()            
-            elif self.var == k:
+            elif self.var == ksym:
                 return self.IDFT().ZT()
             return self.ZT()
 
