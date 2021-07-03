@@ -3147,6 +3147,7 @@ def expr(arg, override=False, **assumptions):
     """
 
     from .sym import tsym, fsym, ssym, omegasym
+    from .sequence import Sequence
 
     if arg is None:
         return arg
@@ -3155,6 +3156,8 @@ def expr(arg, override=False, **assumptions):
         if assumptions == {}:
             return arg
         return arg.__class__(arg, **assumptions)
+    if isinstance(arg, Sequence):
+        return arg
     
     if not isinstance(arg, str) and hasattr(arg, '__iter__'):
         return exprcontainer(arg)

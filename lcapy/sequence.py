@@ -121,15 +121,19 @@ class Sequence(ExprList, ExprDomain):
 
     def __eq__(self, x):
 
+        self._check_compatible(x)        
         return self.vals == x.vals and self.n == x.n
 
-    def __add__(self, x):
-
-        # Check for compatible quantities.
+    def _check_compatible(self, x):
+        
         if not isinstance(x, Sequence):
             raise TypeError('Can only add a sequence to a sequence')
         if x.quantity != 'undefined' and self.quantity != 'undefined' and x.quantity != self.quantity:
             raise TypeError('Sequences have different quantities: %s and %s' % (self.quantity, x.quantity))
+
+    def __add__(self, x):
+
+        self._check_compatible(x)
         if self.quantity == 'undefined':
             cls = x.__class__
         else:

@@ -88,11 +88,11 @@ class ExpressionClassBuilder(dict):
                                                   quantity, unitsstring)
 
         name = domainclass.__name__.replace('Expression', quantityclass.quantity.capitalize())
-        name = name.replace('Sequence', quantityclass.quantity.capitalize())
+        name = name.replace('Sequence', quantityclass.quantity.capitalize() + 'Sequence')
             
         newclass = type(name, (quantityclass, domainclass),
-                            {'__doc__': docstring,
-                             '_default_units': units_mapping[unitsstring]})
+                        {'__doc__': docstring,
+                         '_default_units': units_mapping[unitsstring]})
         self[quantity] = newclass
 
         #print('Created %s %s' % (self.domain, quantity))
